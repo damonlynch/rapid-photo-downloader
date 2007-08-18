@@ -1,0 +1,41 @@
+Rapid Photo Downloader is a photo downloader written by a photographer for
+professional and amateur photographers. Released under the GNU GPL license, it 
+is designed for use on the GNOME 2 Desktop. It can download photos from multiple
+memory cards and Portable Storage Device simultaneously. It provides a variety 
+of options for sub-folder creation, image renaming and backup.
+
+This software is still being developed.  Many but not all features 
+work.
+
+It does not download images directly from a camera, but it may do in a future
+release.  This capability depends on libgphoto2.  This program is written in
+python, and the python bindings for libgphoto2 are still in alpha status.
+
+Rapid Photo Downloader depends on the following software:
+
+- GNOME 2.18
+- GTK+ 2.10
+- Python 2.5
+- pygtk 2.10
+- python-gconf 2.18
+- python-glade2 2.10 
+- gnome-python 2.10
+- pyexiv2
+- exiv2
+
+Please feel welcome to contribute anything to help make this project a success: 
+feature suggestions, bug reports, code, artwork, translations, and documentation
+are all needed!
+
+Known Bugs
+==========
+
+* Cannot unmount the media while the application is running. 
+* Select all and deselect all do nothing
+* Checkbutton on each image device does nothing
+* Checks to see if image already exists are not thread safe,
+  and may cause images to be overwritten!
+* Closing log window with window manager 'x' instead of 'close' button not yet
+  supported
+
+
