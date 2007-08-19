@@ -103,9 +103,9 @@ def UpdateImageDisplay(image_queue):
 
     try:
         if image_queue.size() != 0:
-            thread_id, thumbnail, orientation = image_queue.get()
+            thread_id, thumbnail, orientation, filename = image_queue.get()
             if not exiting:
-                image_hbox.addImage(thread_id, thumbnail, orientation)
+                image_hbox.addImage(thread_id, thumbnail, orientation, filename)
             else:
                 print "=== Do not update thumbnails, as we are exiting"
         else:
@@ -817,6 +817,10 @@ class CopyPhotos(Thread):
             self.cardMedia = None
             gc.collect()
             
+        def logError(severity, problem, details, resolution=None):
+            log_queue.put((self.thread_id, severity, problem, details, 
+                            resolution),)
+            
 
         download_queue.open('w')
         log_queue.open('w')
@@ -854,61 +858,68 @@ class CopyPhotos(Thread):
             
             # get information about the image to deduce image name and path
             name, root, size = self.cardMedia.images[i]
+        
+            
             
             image = os.path.join(root, name)
+            
             imageMD = metadata.MetaData(image)
             imageMD.readMetadata()
             
-            subfolder = self.subfolderPrefsFactory.getStringFromPreferences(
-                                                    imageMD, name, 
-                                                    self.stripCharacters)
-            newName = self.imageRenamePrefsFactory.getStringFromPreferences(
-                                                    imageMD, name, 
-                                                    self.stripCharacters)
+            print image
             
-            path = os.path.join(baseDownloadDir, subfolder)
+            if not imageMD.exifKeys():
+                logError(config.SERIOUS_ERROR, "Image has no metadata", image, 
+                                "Image skipped")
             
-
-
-            try:                 
-                if not os.path.isdir(path):
-                    os.makedirs(path)
-                newfile = os.path.join(path, newName)
-
-                nameUnique = True
-                if os.path.exists(newfile):
-                    nameUnique = False
-                    if self.prefs.download_conflict_resolution == config.ADD_UNIQUE_IDENTIFIER:
-                        print "FIXME: add unique identifier"
-                        
-                    if self.prefs.indicate_download_error:
-                        severity = config.SERIOUS_ERROR
-                        problem = "Image already exists"
-                        details = "Source: %s\nDestination: %s" % (image, newfile)
-                        if self.prefs.download_conflict_resolution == config.ADD_UNIQUE_IDENTIFIER:
-                            resolution = "Code needed to add unique identifier! ;-)"
-                        else:
-                            resolution = "Image skipped"
-                        log_queue.put((self.thread_id, severity, problem, details, resolution),)
-
-                if nameUnique:
-                    tempWorkingfile = os.path.join(tempWorkingDir, newName)
-                    shutil.copy2(image, tempWorkingfile)                
-                    os.rename(tempWorkingfile, newfile)
-                    
-            except IOError (errno, strerror):
-                severity = config.SERIOUS_ERROR
-                problem = 'Copying error' # FIXME
-                details = "Source: %s\nDestination: %s\nError: %s %s" % (image, newfile, errno, strerror)
-                resolution = 'The image was not copied.'
-                log_queue.put((self.thread_id, severity, problem, details, resolution),)
+            else:
+                subfolder = self.subfolderPrefsFactory.getStringFromPreferences(
+                                                        imageMD, name, 
+                                                        self.stripCharacters)
+                newName = self.imageRenamePrefsFactory.getStringFromPreferences(
+                                                        imageMD, name, 
+                                                        self.stripCharacters)
                 
-            except OSError (errno, strerror):
-                severity = config.CRITICAL_ERROR
-                problem = 'Copying error' # FIXME
-                details = "Source: %s\nDestination: %s\nError: %s %s" % (image, newfile, errno, strerror)
-                resolution = ''
-                log_queue.put((self.thread_id, severity, problem, details, resolution),)
+                path = os.path.join(baseDownloadDir, subfolder)
+    
+    
+                try:                 
+                    if not os.path.isdir(path):
+                        os.makedirs(path)
+                    newfile = os.path.join(path, newName)
+    
+                    nameUnique = True
+                    if os.path.exists(newfile):
+                        nameUnique = False
+                        if self.prefs.download_conflict_resolution == config.ADD_UNIQUE_IDENTIFIER:
+                            print "FIXME: add unique identifier"
+                            
+                        if self.prefs.indicate_download_error:
+                            severity = config.SERIOUS_ERROR
+                            problem = "Image already exists"
+                            details = "Source: %s\nDestination: %s" % (image, newfile)
+                            if self.prefs.download_conflict_resolution == config.ADD_UNIQUE_IDENTIFIER:
+                                resolution = "Code needed to add unique identifier! ;-)"
+                            else:
+                                resolution = "Image skipped"
+                            logError(severity, problem, details, resolution)
+    
+                    if nameUnique:
+                        tempWorkingfile = os.path.join(tempWorkingDir, newName)
+                        shutil.copy2(image, tempWorkingfile)                
+                        os.rename(tempWorkingfile, newfile)
+                        
+                except IOError, (errno, strerror):
+                    logError(config.SERIOUS_ERROR, 'Copying error', 
+                                "Source: %s\nDestination: %s\nError: %s %s" % (image, newfile, errno, strerror),
+                                'The image was not copied.')
+    
+                    
+                except OSError, (errno, strerror):
+                    logError(config.CRITICAL_ERROR, 'Copying error', 
+                                "Source: %s\nDestination: %s\nError: %s %s" % (image, newfile, errno, strerror),
+                            )
+    
             
 
 
@@ -917,11 +928,13 @@ class CopyPhotos(Thread):
             progressBarText = "%s of %s images copied" % (i + 1, noImages)
             download_queue.put((self.thread_id, percentComplete, progressBarText, size))
             
-            
-            thumbnailType, thumbnail = imageMD.getThumbnailData()
-            orientation = imageMD.orientation(missing=None)
-            
-            image_queue.put((self.thread_id, thumbnail, orientation))
+            try:
+                thumbnailType, thumbnail = imageMD.getThumbnailData()
+            except:
+                logError(config.WARNING, "Image has no thumbnail", image)
+            else:
+                orientation = imageMD.orientation(missing=None)
+                image_queue.put((self.thread_id, thumbnail, orientation, image))
             
             i += 1
 
@@ -1079,34 +1092,45 @@ class ImageHBox(gtk.HBox):
         self.parentApp = parentApp
         self.padding = hd.CONTROL_IN_TABLE_SPACE / 2
         
-    def addImage(self, thread_id, thumbnail, orientation):
+    def addImage(self, thread_id, thumbnail, orientation, filename):
         """ 
         Add thumbnail
         
         Orientation indicates if the thumbnail needs to be rotated or not.
         """
         
-        pbloader = gdk.PixbufLoader()
-        pbloader.write(thumbnail)
-        # Get the resulting pixbuf and build an image to be displayed
-        pixbuf = pbloader.get_pixbuf()
-        pbloader.close()
+        try:
+            pbloader = gdk.PixbufLoader()
+            pbloader.write(thumbnail)
+            # Get the resulting pixbuf and build an image to be displayed
+            pixbuf = pbloader.get_pixbuf()
+            pbloader.close()
+        except:
+            log_dialog.addMessage(thread_id, config.WARNING, 
+                            'Thumbnail cannot be displayed', filename, 
+                            'It may be corrupted')
+        else:
+            if not pixbuf:
+                log_dialog.addMessage(thread_id, config.WARNING, 
+                                'Thumbnail cannot be displayed', filename, 
+                                'It may be corrupted')
+            else:
+            
+                # rotate if necessary
+                if orientation == 8:
+                    pixbuf = pixbuf.rotate_simple(gdk.PIXBUF_ROTATE_COUNTERCLOCKWISE)
         
-        # rotate if necessary
-        if orientation == 8:
-            pixbuf = pixbuf.rotate_simple(gdk.PIXBUF_ROTATE_COUNTERCLOCKWISE)
-
-        # scale to size
-        pixbuf = common.scale2pixbuf(100, 100, pixbuf)
-        image = gtk.Image()
-        image.set_from_pixbuf(pixbuf)
-        
-        self.pack_start(image, expand=False, padding=self.padding)
-        image.show()
-        
-        # move viewport to display the latest image
-        adjustment = self.parentApp.image_scrolledwindow.get_hadjustment()
-        adjustment.set_value(adjustment.upper)
+                # scale to size
+                pixbuf = common.scale2pixbuf(100, 100, pixbuf)
+                image = gtk.Image()
+                image.set_from_pixbuf(pixbuf)
+                
+                self.pack_start(image, expand=False, padding=self.padding)
+                image.show()
+            
+            # move viewport to display the latest image
+            adjustment = self.parentApp.image_scrolledwindow.get_hadjustment()
+            adjustment.set_value(adjustment.upper)
 
         
 class LogDialog(gnomeglade.Component):
@@ -1141,11 +1165,14 @@ class LogDialog(gnomeglade.Component):
         
         iter = self.textbuffer.get_end_iter()
         self.textbuffer.insert_with_tags(iter, problem +"\n", self.problemTag)
-        self.textbuffer.insert_at_cursor(details + "\n")
+        iter = self.textbuffer.get_end_iter()
+        self.textbuffer.insert(iter, details + "\n")
         if resolution:
             iter = self.textbuffer.get_end_iter()
             self.textbuffer.insert_with_tags(iter, resolution +"\n", self.resolutionTag)
-        self.textbuffer.insert_at_cursor("\n")
+            
+        iter = self.textbuffer.get_end_iter()
+        self.textbuffer.insert(iter, "\n")
         
         # move viewport to display the latest message
         adjustment = self.log_scrolledwindow.get_vadjustment()
@@ -1480,7 +1507,6 @@ class RapidApp(gnomeglade.GnomeApp):
         workers.quitAllWorkers()
         print "rapid app on destroy: closing queue"
 
-##        gdk.flush()
         self.flushevents() # perhaps this will eliminate thread-related shutdown lockups?
         download_queue.close("w")
         log_queue.close("w")

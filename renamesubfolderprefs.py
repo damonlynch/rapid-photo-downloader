@@ -382,7 +382,7 @@ class ImageRenamePreferences:
 
     def _getDateComponent(self):
         if self.L1 == IMAGE_DATE:
-            d = self.photo.dateTime()
+            d = self.photo.dateTime(missing=None)
         elif self.L1 == TODAY:
             d = datetime.datetime.now()
         elif self.L1 == YESTERDAY:
@@ -391,7 +391,10 @@ class ImageRenamePreferences:
         else:
             raise("Date options invalid")
 
-        return d.strftime(convertDateForStrftime(self.L2))
+        if d:
+            return d.strftime(convertDateForStrftime(self.L2))
+        else:
+            return ''
 
     def _getFilenameComponent(self):
         name, extenstion = os.path.splitext(self.existingFilename)

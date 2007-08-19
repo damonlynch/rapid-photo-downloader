@@ -181,10 +181,17 @@ class MetaData(pyexiv2.Image):
         """ 
         Returns in python date time format the date and time the image was recorded.
         
-        Returns missing if the metadata value is not present.
+        Trys to get value from exif key "Exif.Photo.DateTimeOriginal".
+        If that does not exist, trys key "Exif.Image.DateTime"
+        
+        Returns missing either metadata value is not present.
         """
+        keys = self.exifKeys()
         try:
-            return self["Exif.Image.DateTime"]
+            if "Exif.Photo.DateTimeOriginal" in keys:
+                return self["Exif.Photo.DateTimeOriginal"]
+            else:
+                return self["Exif.Image.DateTime"]
         except:
             return missing
             
