@@ -619,22 +619,37 @@ class PreferencesDialog(gnomeglade.Component):
             self.add_identifier_radiobutton.set_active(True)
 
     def updateImageRenameExample(self):
-        # since this is markup, escape it
-        name = "<i>%s</i>" % common.escape(
-                self.rename_table.prefsFactory.getStringFromPreferences(
+        """ 
+        Displays example image name to the user 
+        """
+        
+        name, problem = self.rename_table.prefsFactory.getStringFromPreferences(
                 self.sampleImage, self.sampleImageName, 
-                self.prefs.strip_characters))
+                self.prefs.strip_characters)
+        # since this is markup, escape it
+        text = "<i>%s</i>" % common.escape(name)
+        
+        if problem:
+            text += "\n<i><b>Warning:</b> There is insufficient image metatdata to fully generate the name.</i>" 
 
-        self.new_name_label.set_markup(name)
+        self.new_name_label.set_markup(text)
             
     def updateDownloadFolderExample(self):
-        path = os.path.join(self.prefs.download_folder, 
-                            self.subfolder_table.prefsFactory.getStringFromPreferences(
+        """ 
+        Displays example subfolder name(s) to the user 
+        """
+        
+        path, problem = self.subfolder_table.prefsFactory.getStringFromPreferences(
                             self.sampleImage, self.sampleImageName,
-                            self.prefs.strip_characters))
+                            self.prefs.strip_characters)
+        
+        text = os.path.join(self.prefs.download_folder, path)
         # since this is markup, escape it
-        path = common.escape(path)
-        self.example_download_path_label.set_markup("<i>Example: %s</i>" % path)
+        path = common.escape(text)
+        if problem:
+            text += "\n<i><b>Warning:</b> There is insufficient image metatdata to fully generate sub-folders.</i>" 
+            
+        self.example_download_path_label.set_markup("<i>Example: %s</i>" % text)
         
 
     def on_response(self, dialog, arg):
@@ -822,13 +837,28 @@ class CopyPhotos(Thread):
                             resolution),)
             
 
-        download_queue.open('w')
-        log_queue.open('w')
-        image_queue.open('w')
-        
         self.hasStarted = True
         print "thread", self.thread_id, "is", get_ident(), "and is now running"
 
+        download_queue.open('w')
+        log_queue.open('w')
+        image_queue.open('w')
+
+        # Image names should be unique.  Some images may not have metadata (this
+        # is unlikely for images straight out of a 
+        # camera, but it is possible for images that have been edited).  If
+        # only non-dynamic components make up the rest of an image name 
+        # (e.g. text specified by the user), then relying on metadata will 
+        # likely produce duplicate names. 
+        
+        needMetaDataForImage = self.imageRenamePrefsFactory.needMetaDataToCreateUniqueName()
+        
+        # subfolder generation also need to be examined, but here the need is
+        # not so exacting, since subfolders contain images, and naturally the
+        # requirement to be unique is far more relaxed.  However if subfolder 
+        # generation relies entirely on metadata, that is a problem worth
+        # looking for
+        needMetaDataToCreateSubfolderName = self.subfolderPrefsFactory.needMetaDataToCreateUniqueName()
         
         i = 0
         sizeDownloaded = 0
@@ -844,6 +874,8 @@ class CopyPhotos(Thread):
         #to the download folder will be slow!
         tempWorkingDir = tempfile.mkdtemp(prefix='rapid-tmp-', 
                                             dir=baseDownloadDir)
+                                            
+        IMAGE_SKIPPED = "Image skiped"
         
         while i < noImages:
             if not self.running:
@@ -859,34 +891,60 @@ class CopyPhotos(Thread):
             # get information about the image to deduce image name and path
             name, root, size = self.cardMedia.images[i]
         
-            
+            skipImage = False
             
             image = os.path.join(root, name)
             
             imageMD = metadata.MetaData(image)
             imageMD.readMetadata()
             
-            print image
             
-            if not imageMD.exifKeys():
-                logError(config.SERIOUS_ERROR, "Image has no metadata", image, 
-                                "Image skipped")
-            
-            else:
-                subfolder = self.subfolderPrefsFactory.getStringFromPreferences(
-                                                        imageMD, name, 
-                                                        self.stripCharacters)
-                newName = self.imageRenamePrefsFactory.getStringFromPreferences(
-                                                        imageMD, name, 
-                                                        self.stripCharacters)
+            if not imageMD.exifKeys() and (needMetaDataToCreateImageName or 
+                                            needMetaDataToCreateSubfolderName):
+                logError(config.SERIOUS_ERROR, "Image has no metadata", 
+                                "Source: %s" % image, 
+                                IMAGE_SKIPPED)
+                skipImage = True
                 
-                path = os.path.join(baseDownloadDir, subfolder)
-    
-    
+            
+            subfolder, problem = self.subfolderPrefsFactory.getStringFromPreferences(
+                                                    imageMD, name, 
+                                                    self.stripCharacters)
+
+            if problem:
+                logError(config.WARNING, 
+                    "Insufficient image metadata to properly generate sub-folder name",
+                    "Subfolder: %s\nImage: %s\nProblem: %s" % 
+                    (subfolder, image, problem))
+            
+            newName, problem = self.imageRenamePrefsFactory.getStringFromPreferences(
+                                                    imageMD, name, 
+                                                    self.stripCharacters)
+                                                    
+            path = os.path.join(baseDownloadDir, subfolder)
+            newfile = os.path.join(path, newName)
+            
+            if not newName:
+                # a serious problem - a filename should never be blank!
+                logError(config.SERIOUS_ERROR,
+                    "Image name could not be generated",
+                    "Source: %s\nProblem: %s" % (image, problem),
+                    IMAGE_SKIPPED)
+                skipImage = True
+            elif problem:
+                logError(config.WARNING, 
+                    "Insufficient image metadata to properly generate image name",
+                    "Source: %s\nDestination: %s\nProblem: %s" % 
+                    (image, newName, problem))
+
+                                                    
+            
+
+            if not skipImage:
                 try:                 
                     if not os.path.isdir(path):
                         os.makedirs(path)
-                    newfile = os.path.join(path, newName)
+                    
     
                     nameUnique = True
                     if os.path.exists(newfile):

@@ -323,6 +323,7 @@
                               <widget class="GtkLabel" id="new_name_label">
                                 <property name="visible">True</property>
                                 <property name="xalign">0</property>
+                                <property name="yalign">0</property>
                                 <property name="label" translatable="yes">new_name_label</property>
                               </widget>
                               <packing>
@@ -330,7 +331,7 @@
                                 <property name="right_attach">3</property>
                                 <property name="top_attach">2</property>
                                 <property name="bottom_attach">3</property>
-                                <property name="y_options"></property>
+                                <property name="y_options">GTK_FILL</property>
                               </packing>
                             </child>
                             <child>
@@ -351,6 +352,7 @@
                               <widget class="GtkLabel" id="label21">
                                 <property name="visible">True</property>
                                 <property name="xalign">0</property>
+                                <property name="yalign">0</property>
                                 <property name="label" translatable="yes">&lt;i&gt;New:&lt;/i&gt;</property>
                                 <property name="use_markup">True</property>
                               </widget>
@@ -360,7 +362,7 @@
                                 <property name="top_attach">2</property>
                                 <property name="bottom_attach">3</property>
                                 <property name="x_options">GTK_FILL</property>
-                                <property name="y_options"></property>
+                                <property name="y_options">GTK_FILL</property>
                               </packing>
                             </child>
                             <child>
@@ -1252,36 +1254,6 @@ You can download photos from multiple image devices simultaneously.</property>
                           <placeholder/>
                         </child>
                         <child>
-                          <placeholder/>
-                        </child>
-                        <child>
-                          <placeholder/>
-                        </child>
-                        <child>
-                          <placeholder/>
-                        </child>
-                        <child>
-                          <placeholder/>
-                        </child>
-                        <child>
-                          <placeholder/>
-                        </child>
-                        <child>
-                          <placeholder/>
-                        </child>
-                        <child>
-                          <placeholder/>
-                        </child>
-                        <child>
-                          <placeholder/>
-                        </child>
-                        <child>
-                          <placeholder/>
-                        </child>
-                        <child>
-                          <placeholder/>
-                        </child>
-                        <child>
                           <widget class="GtkLabel" id="label1">
                             <property name="visible">True</property>
                             <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
@@ -1966,6 +1938,7 @@ You can download photos from multiple image devices simultaneously.</property>
                     <property name="can_focus">True</property>
                     <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
                     <property name="editable">False</property>
+                    <property name="cursor_visible">False</property>
                   </widget>
                 </child>
               </widget>

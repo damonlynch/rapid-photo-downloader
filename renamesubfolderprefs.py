@@ -262,7 +262,15 @@ DICT_SUBFOLDER_L0 = {
                     ORDER_KEY: LIST_SUBFOLDER_L0
                    }
 
+# preference elements that require metadata
+# note there is no need to specify lower level elements if a higher level 
+# element is necessary for them to be present to begin with
+METADATA_ELEMENTS = [METADATA, IMAGE_DATE]
 
+# preference elements that do not require metadata and are not fixed
+# as above, there is no need to specify lower level elements if a higher level 
+# element is necessary for them to be present to begin with
+DYNAMIC_NON_METADATA_ELEMENTS = [TODAY, YESTERDAY, FILENAME, SEQUENCE_NUMBER, SEQUENCE_LETTER]
 
 # Functions to work with above data
 def checkPreferenceValid(prefDefinition, prefs, modulo=3):
@@ -318,7 +326,8 @@ class PrefError(Exception):
     def unpackList(self, l):
         s = ''
         for i in l:
-            s += "'" + i + "', "
+            if i <> ORDER_KEY:
+                s += "'" + i + "', "
         return s[:-2]
 
         
@@ -330,18 +339,24 @@ class PrefKeyError(PrefError):
 
 
 class PrefValueInvalidError(PrefKeyError):
-    pass
+    def __init__(self, error):
+        value = error[0]
+        self.message = "Preference value %s is invalid." % (value)
         
 class PrefLengthError(PrefError):
     def __init__(self, error):
         self.message = "These preferences are not well formed: %s " % self.unpackList(error)
-    
+        
+class PrefValueKeyComboError(PrefError):
+    def __init__(self, error):    
+        self.message = error
+
 
 def convertDateForStrftime(dateTimeUserChoice):
     try:
         return DATE_TIME_CONVERT[LIST_DATE_TIME_L2.index(dateTimeUserChoice)]
     except:
-        raise PrefValueInvalidError(dateTimeUserChoice, LIST_DATE_TIME_L2)
+        raise PrefValueInvalidError(dateTimeUserChoice)
 
 
 
@@ -372,17 +387,26 @@ class ImageRenamePreferences:
             print inst.message
             print "Resetting to default values."
             self.prefList = self.defaultPrefs
+        except PrefValueKeyComboError, inst:
+            print inst.message
+            print "Resetting to default values."
 
     def checkPrefsForValidity(self):
         """
-        Checks preferences validity
+        Checks image preferences validity
         """
-        checkPreferenceValid(self.prefsDefnL0, self.prefList)
+        return checkPreferenceValid(self.prefsDefnL0, self.prefList)
 
 
     def _getDateComponent(self):
+        """
+        Returns portion of new image / subfolder name based on date time
+        """
+        
+        problem = None
         if self.L1 == IMAGE_DATE:
             d = self.photo.dateTime(missing=None)
+            problem = "%s metadata is not present in image" % self.L1.lower()
         elif self.L1 == TODAY:
             d = datetime.datetime.now()
         elif self.L1 == YESTERDAY:
@@ -392,50 +416,65 @@ class ImageRenamePreferences:
             raise("Date options invalid")
 
         if d:
-            return d.strftime(convertDateForStrftime(self.L2))
+            return (d.strftime(convertDateForStrftime(self.L2)), None)
         else:
-            return ''
+            return ('', problem)
 
     def _getFilenameComponent(self):
+        """
+        Returns portion of new image / subfolder name based on the file name
+        """
+        
         name, extenstion = os.path.splitext(self.existingFilename)
+        problem = None
+        
         if self.L1 == NAME_EXTENSION:
             filename = self.existingFilename
         elif self.L1 == NAME:
                 filename = name
         elif self.L1 == EXTENSION:
             if extenstion:
-                # remove the period / dot
-                filename = extenstion[1:]
+                # keep the period / dot of the extension, so the user does not
+                # need to manually specify it
+                filename = extenstion
             else:
                 filename = ""
+                problem = "extension was specified but image name has no extension"
         elif self.L1 == IMAGE_NUMBER:
             n = re.search("(?P<image_number>[0-9]+)", self.existingFilename)
-            if n:
-                image_number = n.group("image_number")
+            if not n:
+                problem = "image number was specified but image has no number"
             else:
-                return None
-            if self.L2 == IMAGE_NUMBER_ALL:
-                return image_number
-            elif self.L2 == IMAGE_NUMBER_1:
-                return image_number[-1]
-            elif self.L2 == IMAGE_NUMBER_2:
-                return image_number[-2:]
-            elif self.L2 == IMAGE_NUMBER_3:
-                return image_number[-3:]
-            elif self.L2 == IMAGE_NUMBER_4:
-                return image_number[-4:]
+                image_number = n.group("image_number")
+    
+                if self.L2 == IMAGE_NUMBER_ALL:
+                    filename = image_number
+                elif self.L2 == IMAGE_NUMBER_1:
+                    filename = image_number[-1]
+                elif self.L2 == IMAGE_NUMBER_2:
+                    filename = image_number[-2:]
+                elif self.L2 == IMAGE_NUMBER_3:
+                    filename = image_number[-3:]
+                elif self.L2 == IMAGE_NUMBER_4:
+                    filename = image_number[-4:]
         else:
             raise TypeError("Incorrect filename option")
 
-        if self.L2 == ORIGINAL_CASE:
-            return filename
-        elif self.L2 == UPPERCASE:
-            return filename.upper()
+        if self.L2 == UPPERCASE:
+            filename = filename.upper()
         elif self.L2 == LOWERCASE:
-            return filename.lower()
+            filename = filename.lower()
 
-
+        return (filename, problem)
+        
     def _getMetadataComponent(self):
+        """
+        Returns portion of new image / subfolder name based on the metadata
+        
+        Note: date time metadata found in _getDateComponent()
+        """
+        
+        problem = None
         if self.L1 == APERTURE:
             v = self.photo.aperture()
         elif self.L1 == ISO:
@@ -460,25 +499,37 @@ class ImageRenamePreferences:
                 v = v.upper()
             elif self.L2 == LOWERCASE:
                 v = v.lower()
-        return v
-
-    def _getTextComponent(self):
-        return self.L1
+        if not v:
+            if self.L1 <> ISO:
+                md = self.L1.lower()
+            else:
+                md = ISO
+            problem = "%s metadata is not present in image" % md
+        return (v, problem)
 
     def _getSequenceNumber(self):
-        pass
+        """ Not yet implemented """
+        return (None, None)
 
+    def _getSequenceLetter(self):
+        """ Not yet implemented """
+        return (None, None)
+        
     def _getComponent(self):
             if self.L0 == DATE_TIME:
                 return self._getDateComponent()
             elif self.L0 == TEXT:
-                return self._getTextComponent()
+                return (self.L1, None)
             elif self.L0 == FILENAME:
                 return self._getFilenameComponent()
             elif self.L0 == METADATA:
                 return self._getMetadataComponent()
+            elif self.L0 == SEQUENCE_NUMBER:
+                return _getSequenceNumber()
+            elif self.L0 == SEQUENCE_LETTER:
+                return _getSequenceLetter()
             elif self.L0 == SEPARATOR:
-                return os.sep
+                return (os.sep, None)
 
     def _getValuesFromList(self):
         for i in range(0, len(self.prefList), 3):
@@ -489,18 +540,29 @@ class ImageRenamePreferences:
     def getStringFromPreferences(self, photo, existingFilename=None, 
                                     stripCharacters = False):
         """
-        Returns a filename for the photo in string format based on user prefs.
+        Generate a filename for the photo in string format based on user prefs.
+        
+        Returns a tuple of two strings: 
+        - the name
+        - any problems generating the name.  If blank, there were no problems
         """
 
         self.photo = photo
         self.existingFilename = existingFilename
             
         name = ''
+        problem = ''
         for self.L0, self.L1, self.L2 in self._getValuesFromList():
-            v = self._getComponent()
+            v, p = self._getComponent()
             if v:
                 name += v
+            if p:
+                problem += p + "; "
 
+        if problem:
+            # remove final semicolon and space
+            problem = problem[:-2] + '.'
+            
         if stripCharacters:
             for c in r'\:*?"<>|':
                 name = name.replace(c, '')
@@ -508,8 +570,34 @@ class ImageRenamePreferences:
         if self.stripForwardSlash:
             name = name.replace('/', '')
             
-        return name
+        return (name, problem)
 
+    def needMetaDataToCreateUniqueName(self):
+        """
+        Returns True if metadata is essential to properly generate an image name
+        
+        Image names should be unique.  Some images may not have metadata.  If
+        only non-dynamic components make up the rest of an image name 
+        (e.g. text specified by the user), then relying on metadata will likely 
+        produce duplicate names. 
+        """
+        hasMD = hasDynamic = False
+        
+        for e in METADATA_ELEMENTS:
+            if e in self.prefList:
+                hasMD = True
+                break
+        if hasMD:
+            for e in DYNAMIC_NON_METADATA_ELEMENTS:
+                if e in self.prefList:
+                    hasDynamic = True
+                    break
+        
+        if hasMD and not hasDynamic:
+            return True
+        else:
+            return False
+    
     def _createCombo(self, choices):
         combobox = gtk.combo_box_new_text()
         for text in choices:
@@ -611,7 +699,69 @@ class SubfolderPreferences(ImageRenamePreferences):
         self.stripForwardSlash = False
         ImageRenamePreferences.__init__(self, prefList, parent)
         
+    def getStringFromPreferences(self, photo, existingFilename=None, 
+                                    stripCharacters = False):
+        """
+        Generate a filename for the photo in string format based on user prefs.
+        
+        Returns a tuple of two strings: 
+        - the name
+        - any problems generating the name.  If blank, there were no problems
+        """
 
+        subfolders, problem = ImageRenamePreferences.getStringFromPreferences(
+                                        self, photo, 
+                                        existingFilename, stripCharacters)
+        # subfolder value must never start with a separator, or else any 
+        # os.path.join function call will fail to join a subfolder to its 
+        # parent folder
+        if subfolders[0] == os.sep:
+            subfolders = subfolders[1:]
+            
+        return (subfolders, problem)
+
+    def needMetaDataToCreateUniqueName(self):
+        """
+        Returns True if metadata is essential to properly generate subfolders
+        
+        This will be the case if the only components are metadata and separators
+        """
+
+        for e in self.prefList:
+            if (not e) and ((e not in METADATA_ELEMENTS) or (e <> SEPARATOR)):
+                return True
+                    
+        return False
+
+    def checkPrefsForValidity(self):
+        """
+        Checks subfolder preferences validity above and beyond image name checks.
+        
+        See parent method for full description.
+        
+        Subfolders have additional requirments to that of image names.
+        """
+        v = ImageRenamePreferences.checkPrefsForValidity(self)
+        if v:
+            # peform additional checks:
+            # 1. do not start with a separator
+            # 2. do not end with a separator
+            # 3. do not have two separators in a row
+            # these three rules will ensure something else other than a 
+            # separator is spcified
+            L1s = []
+            for i in range(0, len(self.prefList), 3):
+                L1s.append(self.prefList[i])
+
+            if L1s[0] == SEPARATOR:
+                raise PrefValueKeyComboError("Subfolder preferences should not start with a %s" % os.sep)
+            elif L1s[-1] == SEPARATOR:
+                raise PrefValueKeyComboError("Subfolder preferences should not end with a %s" % os.sep)
+            else:
+                for i in range(len(L1s) - 1):
+                    if L1s[i] == SEPARATOR and L1s[i+1] == SEPARATOR:
+                        raise PrefValueKeyComboError("Subfolder preferences should not contain two %s side by side" % os.sep)
+        return v
 
 if __name__ == '__main__':
     import sys, os.path

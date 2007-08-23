@@ -179,7 +179,8 @@ class MetaData(pyexiv2.Image):
         
     def dateTime(self, missing=''):
         """ 
-        Returns in python date time format the date and time the image was recorded.
+        Returns in python datetime format the date and time the image was 
+        recorded.
         
         Trys to get value from exif key "Exif.Photo.DateTimeOriginal".
         If that does not exist, trys key "Exif.Image.DateTime"

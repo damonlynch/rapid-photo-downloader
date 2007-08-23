@@ -84,6 +84,16 @@ class BadPreferences(unittest.TestCase):
     
     bad_dt_conversion = ('HHYY', 'YYSS')
     
+    bad_subfolder_combos = ([SEPARATOR, '', ''],
+                            [FILENAME, NAME_EXTENSION, UPPERCASE, 
+                                SEPARATOR, '', ''],
+                            [FILENAME, NAME_EXTENSION, UPPERCASE, 
+                                SEPARATOR, '', '',
+                                SEPARATOR, '', '',
+                                FILENAME, NAME_EXTENSION, UPPERCASE
+                            ]
+                            )
+    
     def testBadImageKey(self):
         for pref in self.bad_image_key:
             self.assertRaises(PrefKeyError, checkPreferenceValid,
@@ -117,6 +127,12 @@ class BadPreferences(unittest.TestCase):
         for pref in self.bad_dt_conversion:
             self.assertRaises(PrefValueInvalidError, convertDateForStrftime, 
                                 pref)
+                                
+    def testBadSubfolderCombo(self):
+        
+        for pref in self.bad_subfolder_combos:
+            s = SubfolderPreferences(pref, self)
+            self.assertRaises(PrefValueKeyComboError, s.checkPrefsForValidity)
             
 if __name__ == "__main__":
     unittest.main() 
