@@ -84,25 +84,25 @@ class Tube:
 
     def close(self, access = 'rw'):
         thrd = get_ident()
-        print "closing from ", thrd
+##        print "closing from ", thrd
         access = access.lower()
         self.in_use.acquire()
         if 'r' in access:
             self.readers.discard(thrd)
         if 'w' in access:
             self.writers.discard(thrd)
-            print "have", self.writers, "writers"
+##            print "have", self.writers, "writers"
             if len(self.writers) == 0:
                 if self.container.size() == 0:
-                    print "emptying container, as size is", self.container.size()
+##                    print "emptying container, as size is", self.container.size()
                     self.empty.release()
                     if self.cb_src is Registered and len(self.readers) > 0:
-                        print "adding callback"
+##                        print "adding callback"
                         self.cb_src = gob.idle_add(self._idle_callback)
-                else:
-                    print "container size not empty, is", self.container.size()
+##                else:
+##                    print "container size not empty, is", self.container.size()
                 for _ in self.readers:
-                    print "putting EOInformation"
+##                    print "putting EOInformation"
                     self.container.put(EOInformation)
         self.in_use.release()
 

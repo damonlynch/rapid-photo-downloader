@@ -60,6 +60,7 @@ class PreferenceTest (unittest.TestCase):
     def testDateTimeL2Conversion(self):
         self.assertEqual(convertDateForStrftime('YY'), '%y')
         
+        
 
 class BadPreferences(unittest.TestCase):
     bad_image_key = ( [1,2,3], 
@@ -85,12 +86,17 @@ class BadPreferences(unittest.TestCase):
     bad_dt_conversion = ('HHYY', 'YYSS')
     
     bad_subfolder_combos = ([SEPARATOR, '', ''],
-                            [FILENAME, NAME_EXTENSION, UPPERCASE, 
+                            [FILENAME, EXTENSION, UPPERCASE, 
                                 SEPARATOR, '', ''],
-                            [FILENAME, NAME_EXTENSION, UPPERCASE, 
+                            [FILENAME, EXTENSION, UPPERCASE, 
                                 SEPARATOR, '', '',
                                 SEPARATOR, '', '',
-                                FILENAME, NAME_EXTENSION, UPPERCASE
+                                FILENAME, EXTENSION, UPPERCASE
+                            ],
+                            [SEPARATOR, '', '',
+                                SEPARATOR, '', '',
+                                SEPARATOR, '', '',
+                                SEPARATOR, '', ''
                             ]
                             )
     

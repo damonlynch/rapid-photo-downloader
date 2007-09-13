@@ -377,19 +377,7 @@ class ImageRenamePreferences:
             self.defaultRow = self.defaultPrefs
             self.stripForwardSlash = True
             
-        try:
-            self.checkPrefsForValidity()
-        except (PrefKeyError, PrefValueInvalidError), inst:
-            print inst.message
-            print "Resetting to default values."
-            self.prefList = self.defaultPrefs
-        except PrefLengthError, inst:
-            print inst.message
-            print "Resetting to default values."
-            self.prefList = self.defaultPrefs
-        except PrefValueKeyComboError, inst:
-            print inst.message
-            print "Resetting to default values."
+
 
     def checkPrefsForValidity(self):
         """
@@ -572,6 +560,13 @@ class ImageRenamePreferences:
             
         return (name, problem)
 
+    def filterPreferences(self):
+        """
+        Filters out extraneous preference choices
+        Expected to be implemented in derived classes when needed
+        """
+        pass
+    
     def needMetaDataToCreateUniqueName(self):
         """
         Returns True if metadata is essential to properly generate an image name
@@ -605,6 +600,9 @@ class ImageRenamePreferences:
         return combobox
         
     def getDefaultRow(self):
+        """ 
+        returns a list of default widgets
+        """
         return self.getWidgetsBasedOnUserSelection(self.defaultRow)
 
         
@@ -684,7 +682,6 @@ class ImageRenamePreferences:
         For values which are None, the first value in the preferences
         definition is chosen.
         
-        List elements a tuple in form (widget, callback_id)        
         """
         widgets = []
             
@@ -733,6 +730,34 @@ class SubfolderPreferences(ImageRenamePreferences):
                     
         return False
 
+    def filterPreferences(self):
+        """
+        Filters out extraneous preference choices
+        """
+        continueCheck = True
+        while continueCheck:
+            continueCheck = False
+            if self.prefList[0] == SEPARATOR:
+                # Subfolder preferences should not start with a /
+                self.prefList = self.prefList[3:]
+                continueCheck = True
+            elif self.prefList[-3] == SEPARATOR:
+                # Subfolder preferences should not end with a /
+                self.prefList = self.prefList[:-3]
+                continueCheck = True
+            else:
+                for i in range(0, len(self.prefList) - 3, 3):
+                    if self.prefList[i] == SEPARATOR and self.prefList[i+3] == SEPARATOR:
+                        # Subfolder preferences should not contain two /s side by side
+                        continueCheck = True
+                        # note we are messing with the contents of the pref list,
+                        # must exit loop and try again
+                        self.prefList = self.prefList[:i] + self.prefList[i+3:]
+                        break
+                        
+                
+                
+
     def checkPrefsForValidity(self):
         """
         Checks subfolder preferences validity above and beyond image name checks.
@@ -760,7 +785,7 @@ class SubfolderPreferences(ImageRenamePreferences):
             else:
                 for i in range(len(L1s) - 1):
                     if L1s[i] == SEPARATOR and L1s[i+1] == SEPARATOR:
-                        raise PrefValueKeyComboError("Subfolder preferences should not contain two %s side by side" % os.sep)
+                        raise PrefValueKeyComboError("Subfolder preferences should not contain two %ss side by side" % os.sep)
         return v
 
 if __name__ == '__main__':

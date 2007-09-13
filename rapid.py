@@ -47,6 +47,7 @@ import idletube as tube
 
 import config
 import common
+import misc
 import higdefaults as hd
 
 from media import getDefaultPhotoLocation, scanForBackupMedia
@@ -95,7 +96,7 @@ def UpdateCopyingProgress(download_queue):
             pass
         return True
     except tube.EOInformation:
-        print "hit copy exit exception!"
+##        print "hit copy exit exception!"
         return False
 
 
@@ -114,16 +115,16 @@ def UpdateImageDisplay(image_queue):
             pass
         return True
     except tube.EOInformation:
-        print "hit image exit exception!"
-        print "joining threads"
+##        print "hit image exit exception!"
+##        print "joining threads"
 
         for w in workers.getStartedWorkers():
             w.join()
 
 
-        print "quiting"
+##        print "quiting"
 
-        print gtk.main_quit()
+        gtk.main_quit()
         # sys.exit(0) - nasty!
         
         return False
@@ -144,7 +145,7 @@ def UpdateLogDialog(log_queue):
             pass
         return True
     except tube.EOInformation:
-        print "hit log exit exception!"
+##        print "hit log exit exception!"
         return False
 
 class Queue(tube.Tube):
@@ -315,17 +316,31 @@ class ImageRenameTable(tpm.TablePlusMinus):
         tpm.TablePlusMinus.__init__(self, 1, 3)
         self.parentApp = parentApp
 
-        # do not overwrite values from derived class
-        if not hasattr(self, 'prefsFactory'):
-            self.prefList = parentApp.prefs.image_rename
-            self.prefsFactory = rn.ImageRenamePreferences(self.prefList, self)
+        self.getParentAppPrefs()
+        self.getPrefsFactory()
+        
+        try:
+            self.prefsFactory.checkPrefsForValidity()
+        except (rn.PrefKeyError, rn.PrefValueInvalidError, rn.PrefLengthError, 
+                rn.PrefValueKeyComboError), inst:
+            # the preferences were invalid
+            # reset them to their default
+
+            self.prefList = self.prefsFactory.defaultPrefs
+            self.getPrefsFactory()
+            self.updateParentAppPrefs()
+
+            msg = inst.message + ".\nResetting to default values."
+            print msg
             
-        # the preferences may have been invalid, and if so, they will have been
-        # reset.  Must update preferences to reflect that.
-        self.prefList = self.prefsFactory.prefList
-        self.updateParentAppPrefs()
+##            misc.run_dialog(msg,
+##                parentApp,
+##                gtk.MESSAGE_ERROR)
+        
         for row in self.prefsFactory.getWidgetsBasedOnPreferences():
             self.append(row)
+            
+
 
             
     def updatePreferences(self):
@@ -351,6 +366,12 @@ class ImageRenameTable(tpm.TablePlusMinus):
         self.prefsFactory.prefList = prefList
         self.updateExample()
             
+    def getParentAppPrefs(self):
+        self.prefList = self.parentApp.prefs.image_rename
+    
+    def getPrefsFactory(self):
+        self.prefsFactory = rn.ImageRenamePreferences(self.prefList, self)
+        
     def updateParentAppPrefs(self):
         self.parentApp.prefs.image_rename = self.prefList
         
@@ -405,11 +426,12 @@ class ImageRenameTable(tpm.TablePlusMinus):
 
 class SubfolderTable(ImageRenameTable):
 
-    def __init__(self, parentApp):
-        self.prefList = parentApp.prefs.subfolder
+    def getParentAppPrefs(self):
+        self.prefList = self.parentApp.prefs.subfolder
+    
+    def getPrefsFactory(self):
         self.prefsFactory = rn.SubfolderPreferences(self.prefList, self)
-        ImageRenameTable.__init__(self, parentApp)
-
+        
     def updateParentAppPrefs(self):
         self.parentApp.prefs.subfolder = self.prefList
 
@@ -506,6 +528,7 @@ class PreferencesDialog(gnomeglade.Component):
 
     def _setupSubfolderTable(self):
         self.subfolder_table = SubfolderTable(self)
+        print dir(self)
         self.subfolder_vbox.pack_start(self.subfolder_table)
         self.subfolder_table.show_all()
         
@@ -788,6 +811,16 @@ class CopyPhotos(Thread):
 
         self.imageRenamePrefsFactory = rn.ImageRenamePreferences(
                                                 preferences.image_rename, self)
+        try:
+            self.imageRenamePrefsFactory.checkPrefsForValidity()
+        except (PrefKeyError, PrefValueInvalidError), inst:
+            print inst.message
+        except PrefLengthError, inst:
+            print inst.message
+        except PrefValueKeyComboError, inst:
+            print inst.message
+
+            
         self.subfolderPrefsFactory = rn.SubfolderPreferences(
                                                 preferences.subfolder, self)
 
@@ -959,7 +992,7 @@ class CopyPhotos(Thread):
                             if self.prefs.download_conflict_resolution == config.ADD_UNIQUE_IDENTIFIER:
                                 resolution = "Code needed to add unique identifier! ;-)"
                             else:
-                                resolution = "Image skipped"
+                                resolution = IMAGE_SKIPPED
                             logError(severity, problem, details, resolution)
     
                     if nameUnique:
@@ -1561,14 +1594,14 @@ class RapidApp(gnomeglade.GnomeApp):
         
     def on_rapidapp_destroy(self, widget):
         """Called when the application is going to quit"""
-        print "rapid app on destroy:"
+##        print "rapid app on destroy:"
         workers.quitAllWorkers()
-        print "rapid app on destroy: closing queue"
+##        print "rapid app on destroy: closing queue"
 
         self.flushevents() # perhaps this will eliminate thread-related shutdown lockups?
         download_queue.close("w")
         log_queue.close("w")
-        print "this should cause a final quit"
+##        print "this should cause a final quit"
         image_queue.close("w")
 
 
