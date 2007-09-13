@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+#!/usr/bin/env python
 # -*- coding: latin1 -*-
 
 ### Copyright (C) 2007 Damon Lynch <damonlynch@gmail.com>
@@ -79,74 +80,28 @@ except:
 
 exiting = False
 
-def UpdateCopyingProgress(download_queue):
+def UpdateDisplay(display_queue):
 
     try:
-        if download_queue.size() != 0:
-            thread_id, percentComplete, progressBarText, imageSize  = download_queue.get()
+        if display_queue.size() != 0:
+            call, args = display_queue.get()
             if not exiting:
-                media_collection_treeview.updateProgress(thread_id, percentComplete,
-                                                        progressBarText, imageSize)
+                call(*args)
             else:
-                print "*** Do not update copy progress, as we are exiting"
-
+                print "=== Do not update display"
         else:
             # This shouldn't happen
-            print "Empty download queue!"
+            print "Empty display queue!"
             pass
         return True
+    
     except tube.EOInformation:
-##        print "hit copy exit exception!"
-        return False
-
-
-def UpdateImageDisplay(image_queue):
-
-    try:
-        if image_queue.size() != 0:
-            thread_id, thumbnail, orientation, filename = image_queue.get()
-            if not exiting:
-                image_hbox.addImage(thread_id, thumbnail, orientation, filename)
-            else:
-                print "=== Do not update thumbnails, as we are exiting"
-        else:
-            # This shouldn't happen
-            print "Empty image queue!"
-            pass
-        return True
-    except tube.EOInformation:
-##        print "hit image exit exception!"
-##        print "joining threads"
-
         for w in workers.getStartedWorkers():
             w.join()
-
-
-##        print "quiting"
-
         gtk.main_quit()
-        # sys.exit(0) - nasty!
         
         return False
 
-def UpdateLogDialog(log_queue):
-    try:
-        if log_queue.size() != 0:
-            thread_id, severity, problem, details, resolution = log_queue.get()
-
-            if not exiting:
-                log_dialog.addMessage(thread_id, severity, problem, details, resolution)
-            else:
-                print "*** Do not update log dialog, as we are exiting"
-
-        else:
-            # This shouldn't happen
-            print "Empty log queue!"
-            pass
-        return True
-    except tube.EOInformation:
-##        print "hit log exit exception!"
-        return False
 
 class Queue(tube.Tube):
     def __init__(self, maxSize = config.MAX_NO_READERS):
@@ -161,9 +116,7 @@ class Queue(tube.Tube):
 #   values later
 #   this is ugly but I don't know a better way :(
 
-download_queue = Queue()
-image_queue = Queue()
-log_queue = Queue()
+display_queue = Queue()
 media_collection_treeview = image_hbox = log_dialog = None
 
 
@@ -528,7 +481,7 @@ class PreferencesDialog(gnomeglade.Component):
 
     def _setupSubfolderTable(self):
         self.subfolder_table = SubfolderTable(self)
-        print dir(self)
+##        print dir(self)
         self.subfolder_vbox.pack_start(self.subfolder_table)
         self.subfolder_table.show_all()
         
@@ -856,9 +809,7 @@ class CopyPhotos(Thread):
             """
             
             print "Thread exiting, closing queues", self.thread_id, "thread",  get_ident()
-            download_queue.close("rw")
-            log_queue.close("rw")
-            image_queue.close("rw")
+            display_queue.close("rw")
             os.rmdir(tempWorkingDir)
             
             imageMD = None
@@ -866,17 +817,15 @@ class CopyPhotos(Thread):
             gc.collect()
             
         def logError(severity, problem, details, resolution=None):
-            log_queue.put((self.thread_id, severity, problem, details, 
-                            resolution),)
+            display_queue.put((log_dialog.addMessage, (self.thread_id, severity, problem, details, 
+                            resolution)))
             
 
         self.hasStarted = True
         print "thread", self.thread_id, "is", get_ident(), "and is now running"
 
-        download_queue.open('w')
-        log_queue.open('w')
-        image_queue.open('w')
-
+        display_queue.open('w')
+        
         # Image names should be unique.  Some images may not have metadata (this
         # is unlikely for images straight out of a 
         # camera, but it is possible for images that have been edited).  If
@@ -1017,7 +966,7 @@ class CopyPhotos(Thread):
             sizeDownloaded += size
             percentComplete = (sizeDownloaded / sizeImages) * 100
             progressBarText = "%s of %s images copied" % (i + 1, noImages)
-            download_queue.put((self.thread_id, percentComplete, progressBarText, size))
+            display_queue.put((media_collection_treeview.updateProgress, (self.thread_id, percentComplete, progressBarText, size)))
             
             try:
                 thumbnailType, thumbnail = imageMD.getThumbnailData()
@@ -1025,7 +974,7 @@ class CopyPhotos(Thread):
                 logError(config.WARNING, "Image has no thumbnail", image)
             else:
                 orientation = imageMD.orientation(missing=None)
-                image_queue.put((self.thread_id, thumbnail, orientation, image))
+                display_queue.put((image_hbox.addImage, (self.thread_id, thumbnail, orientation, image)))
             
             i += 1
 
@@ -1193,7 +1142,7 @@ class ImageHBox(gtk.HBox):
         try:
             pbloader = gdk.PixbufLoader()
             pbloader.write(thumbnail)
-            # Get the resulting pixbuf and build an image to be displayed
+            #Â Get the resulting pixbuf and build an image to be displayed
             pixbuf = pbloader.get_pixbuf()
             pbloader.close()
         except:
@@ -1599,10 +1548,8 @@ class RapidApp(gnomeglade.GnomeApp):
 ##        print "rapid app on destroy: closing queue"
 
         self.flushevents() # perhaps this will eliminate thread-related shutdown lockups?
-        download_queue.close("w")
-        log_queue.close("w")
-##        print "this should cause a final quit"
-        image_queue.close("w")
+        print "this should cause a final quit"
+        display_queue.close("w")
 
 
     def on_menu_clear_activate(self, widget):
@@ -1703,12 +1650,8 @@ if __name__ == "__main__":
     atexit.register(programStatus)
     
     gdk.threads_init()
-    download_queue.open("rw")
-    image_queue.open("rw")
-    log_queue.open("rw")
-    tube.tube_add_watch(download_queue, UpdateCopyingProgress)
-    tube.tube_add_watch(image_queue, UpdateImageDisplay)
-    tube.tube_add_watch(log_queue, UpdateLogDialog)
+    display_queue.open("rw")
+    tube.tube_add_watch(display_queue, UpdateDisplay)
     gdk.threads_enter()
     app = RapidApp()
     app.main()
