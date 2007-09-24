@@ -78,6 +78,9 @@ class Media():
 class CardMedia(Media):
     """Compact Flash cards, etc."""
     def __init__(self, path, volume = None):
+        """
+        volume is a gnomevfs volume
+        """
         Media.__init__(self, path, volume)
         self.mediaInformation()
 
@@ -134,7 +137,7 @@ def scanForBackupMedia(path, identifier):
 
     
 if __name__ == '__main__':
-    for m in scanForImageMedia('/home/damon/digitalPhotos/media-testing'):
+    for m in scanForImageMedia('/media'):
         media = CardMedia(m)
         print media.prettyName()
         print media.numberOfImages()

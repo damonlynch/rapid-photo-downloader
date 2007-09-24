@@ -37,6 +37,7 @@ For future releases:
 * User defined camera model mapping
 * Job codes
 * click on warning / error images to open log window
+* use python's high performance deque to improve idletube
 
 
 

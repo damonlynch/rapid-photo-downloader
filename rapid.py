@@ -813,7 +813,7 @@ class CopyPhotos(Thread):
             os.rmdir(tempWorkingDir)
             
             imageMD = None
-            self.cardMedia = None
+##            self.cardMedia = None
             gc.collect()
             
         def logError(severity, problem, details, resolution=None):
@@ -877,104 +877,108 @@ class CopyPhotos(Thread):
             
             image = os.path.join(root, name)
             
-            imageMD = metadata.MetaData(image)
-            imageMD.readMetadata()
-            
-            
-            if not imageMD.exifKeys() and (needMetaDataToCreateImageName or 
-                                            needMetaDataToCreateSubfolderName):
-                logError(config.SERIOUS_ERROR, "Image has no metadata", 
+            try:
+                imageMD = metadata.MetaData(image)
+            except IOError:
+                logError(config.CRITICAL_ERROR, "Could not open image", 
                                 "Source: %s" % image, 
                                 IMAGE_SKIPPED)
-                skipImage = True
+            else:
+                imageMD.readMetadata()
                 
-            
-            subfolder, problem = self.subfolderPrefsFactory.getStringFromPreferences(
-                                                    imageMD, name, 
-                                                    self.stripCharacters)
-
-            if problem:
-                logError(config.WARNING, 
-                    "Insufficient image metadata to properly generate sub-folder name",
-                    "Subfolder: %s\nImage: %s\nProblem: %s" % 
-                    (subfolder, image, problem))
-            
-            newName, problem = self.imageRenamePrefsFactory.getStringFromPreferences(
-                                                    imageMD, name, 
-                                                    self.stripCharacters)
-                                                    
-            path = os.path.join(baseDownloadDir, subfolder)
-            newfile = os.path.join(path, newName)
-            
-            if not newName:
-                # a serious problem - a filename should never be blank!
-                logError(config.SERIOUS_ERROR,
-                    "Image name could not be generated",
-                    "Source: %s\nProblem: %s" % (image, problem),
-                    IMAGE_SKIPPED)
-                skipImage = True
-            elif problem:
-                logError(config.WARNING, 
-                    "Insufficient image metadata to properly generate image name",
-                    "Source: %s\nDestination: %s\nProblem: %s" % 
-                    (image, newName, problem))
-
-                                                    
-            
-
-            if not skipImage:
-                try:                 
-                    if not os.path.isdir(path):
-                        os.makedirs(path)
+                
+                if not imageMD.exifKeys() and (needMetaDataToCreateImageName or 
+                                                needMetaDataToCreateSubfolderName):
+                    logError(config.SERIOUS_ERROR, "Image has no metadata", 
+                                    "Source: %s" % image, 
+                                    IMAGE_SKIPPED)
+                    skipImage = True
                     
+                
+                subfolder, problem = self.subfolderPrefsFactory.getStringFromPreferences(
+                                                        imageMD, name, 
+                                                        self.stripCharacters)
     
-                    nameUnique = True
-                    if os.path.exists(newfile):
-                        nameUnique = False
-                        if self.prefs.download_conflict_resolution == config.ADD_UNIQUE_IDENTIFIER:
-                            print "FIXME: add unique identifier"
-                            
-                        if self.prefs.indicate_download_error:
-                            severity = config.SERIOUS_ERROR
-                            problem = "Image already exists"
-                            details = "Source: %s\nDestination: %s" % (image, newfile)
-                            if self.prefs.download_conflict_resolution == config.ADD_UNIQUE_IDENTIFIER:
-                                resolution = "Code needed to add unique identifier! ;-)"
-                            else:
-                                resolution = IMAGE_SKIPPED
-                            logError(severity, problem, details, resolution)
+                if problem:
+                    logError(config.WARNING, 
+                        "Insufficient image metadata to properly generate sub-folder name",
+                        "Subfolder: %s\nImage: %s\nProblem: %s" % 
+                        (subfolder, image, problem))
+                
+                newName, problem = self.imageRenamePrefsFactory.getStringFromPreferences(
+                                                        imageMD, name, 
+                                                        self.stripCharacters)
+                                                        
+                path = os.path.join(baseDownloadDir, subfolder)
+                newfile = os.path.join(path, newName)
+                
+                if not newName:
+                    # a serious problem - a filename should never be blank!
+                    logError(config.SERIOUS_ERROR,
+                        "Image name could not be generated",
+                        "Source: %s\nProblem: %s" % (image, problem),
+                        IMAGE_SKIPPED)
+                    skipImage = True
+                elif problem:
+                    logError(config.WARNING, 
+                        "Insufficient image metadata to properly generate image name",
+                        "Source: %s\nDestination: %s\nProblem: %s" % 
+                        (image, newName, problem))
     
-                    if nameUnique:
-                        tempWorkingfile = os.path.join(tempWorkingDir, newName)
-                        shutil.copy2(image, tempWorkingfile)                
-                        os.rename(tempWorkingfile, newfile)
+                                                        
+                
+    
+                if not skipImage:
+                    try:                 
+                        if not os.path.isdir(path):
+                            os.makedirs(path)
                         
-                except IOError, (errno, strerror):
-                    logError(config.SERIOUS_ERROR, 'Copying error', 
-                                "Source: %s\nDestination: %s\nError: %s %s" % (image, newfile, errno, strerror),
-                                'The image was not copied.')
-    
-                    
-                except OSError, (errno, strerror):
-                    logError(config.CRITICAL_ERROR, 'Copying error', 
-                                "Source: %s\nDestination: %s\nError: %s %s" % (image, newfile, errno, strerror),
-                            )
-    
+        
+                        nameUnique = True
+                        if os.path.exists(newfile):
+                            nameUnique = False
+                            if self.prefs.download_conflict_resolution == config.ADD_UNIQUE_IDENTIFIER:
+                                print "FIXME: add unique identifier"
+                                
+                            if self.prefs.indicate_download_error:
+                                severity = config.SERIOUS_ERROR
+                                problem = "Image already exists"
+                                details = "Source: %s\nDestination: %s" % (image, newfile)
+                                if self.prefs.download_conflict_resolution == config.ADD_UNIQUE_IDENTIFIER:
+                                    resolution = "Code needed to add unique identifier! ;-)"
+                                else:
+                                    resolution = IMAGE_SKIPPED
+                                logError(severity, problem, details, resolution)
+        
+                        if nameUnique:
+                            tempWorkingfile = os.path.join(tempWorkingDir, newName)
+                            shutil.copy2(image, tempWorkingfile)                
+                            os.rename(tempWorkingfile, newfile)
+                            
+                    except IOError, (errno, strerror):
+                        logError(config.SERIOUS_ERROR, 'Copying error', 
+                                    "Source: %s\nDestination: %s\nError: %s %s" % (image, newfile, errno, strerror),
+                                    'The image was not copied.')
+        
+                        
+                    except OSError, (errno, strerror):
+                        logError(config.CRITICAL_ERROR, 'Copying error', 
+                                    "Source: %s\nDestination: %s\nError: %s %s" % (image, newfile, errno, strerror),
+                                )
+        
+                
+                try:
+                    thumbnailType, thumbnail = imageMD.getThumbnailData()
+                except:
+                    logError(config.WARNING, "Image has no thumbnail", image)
+                else:
+                    orientation = imageMD.orientation(missing=None)
+                    display_queue.put((image_hbox.addImage, (self.thread_id, thumbnail, orientation, image)))
             
-
-
             sizeDownloaded += size
             percentComplete = (sizeDownloaded / sizeImages) * 100
             progressBarText = "%s of %s images copied" % (i + 1, noImages)
             display_queue.put((media_collection_treeview.updateProgress, (self.thread_id, percentComplete, progressBarText, size)))
-            
-            try:
-                thumbnailType, thumbnail = imageMD.getThumbnailData()
-            except:
-                logError(config.WARNING, "Image has no thumbnail", image)
-            else:
-                orientation = imageMD.orientation(missing=None)
-                display_queue.put((image_hbox.addImage, (self.thread_id, thumbnail, orientation, image)))
             
             i += 1
 
@@ -1142,7 +1146,7 @@ class ImageHBox(gtk.HBox):
         try:
             pbloader = gdk.PixbufLoader()
             pbloader.write(thumbnail)
-            # Get the resulting pixbuf and build an image to be displayed
+            # Get the resulting pixbuf and build an image to be displayed
             pixbuf = pbloader.get_pixbuf()
             pbloader.close()
         except:
@@ -1345,6 +1349,7 @@ class RapidApp(gnomeglade.GnomeApp):
         if not self.volumeMonitor:
             self.volumeMonitor = gnomevfs.VolumeMonitor()
             self.volumeMonitor.connect("volume-mounted", self.on_volume_mounted)
+            self.volumeMonitor.connect("volume-unmounted", self.on_volume_unmounted)
     
     def on_volume_mounted(self, monitor, volume):
         """
@@ -1361,6 +1366,26 @@ class RapidApp(gnomeglade.GnomeApp):
             workers.append(CopyPhotos(i, self.prefs, self, cardMedia))
             self.setDownloadButtonSensitivity()
             
+    def on_volume_unmounted(self, monitor, volume):
+        """
+        callback run when gnomevfs indicates a volume
+        has been unmounted
+        """
+        
+        uri = volume.get_activation_uri()
+        path = gnomevfs.get_local_path_from_uri(uri)
+
+        # three scenarios -
+        # volume is waiting to have images downloaded
+        # images are being downloaded from volume
+        # images finished downloading from volume
+        
+        # first scenario
+        for w in workers.getReadyToStartWorkers():
+            if w.cardMedia.volume == volume:
+                media_collection_treeview.removeCard(w.thread_id)
+                workers.disableWorker(w.thread_id)
+        
     
     def clearCompletedDownloads(self):
         """
@@ -1495,11 +1520,13 @@ class RapidApp(gnomeglade.GnomeApp):
             self._set_download_button()
             self.setDownloadButtonSensitivity()
 
-##            if self.prefs.auto_unmount:
-##                for w in workers.getFinishedWorkers():
-##                    print "unmounting volume as requested"
-##                    if w.cardMedia.volume:
-##                        w.cardMedia.volume.unmount(self.on_unmount)
+            if self.prefs.auto_unmount:
+##                for v in self.volumeMonitor.get_mounted_volumes():
+##                    print v.get_display_name()
+                for w in workers.getFinishedWorkers():
+                    print "unmounting volume as requested"
+                    if w.cardMedia.volume:
+                        w.cardMedia.volume.unmount(self.on_unmount)
     
         else:
             now = time.time()
