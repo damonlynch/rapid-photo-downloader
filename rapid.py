@@ -38,7 +38,7 @@ import pango
 
 import gnomevfs
 
-import LaunchpadIntegration
+##import LaunchpadIntegration
 
 import prefs
 import paths
