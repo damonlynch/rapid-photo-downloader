@@ -46,7 +46,7 @@ def isImage(fileName):
     ext = os.path.splitext(fileName)[1].lower()[1:]
     return (ext in config.RAW_FILE_EXTENSIONS) or (ext in config.NON_RAW_IMAGE_FILE_EXTENSIONS)
 
-class Media():
+class Media:
     """ Generic class for media holding images """
     def __init__(self, path, volume = None):
         """
