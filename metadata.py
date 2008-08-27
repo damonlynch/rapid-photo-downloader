@@ -33,8 +33,9 @@ class MetaData(pyexiv2.Image):
         Returns missing if the metadata value is not present.
         """
         try:
-            a0, a1 = self["Exif.Photo.FNumber"]
-            a = float(a0) / a1
+            a = self["Exif.Photo.FNumber"]
+            a0,  a1 = str(a).split('/')
+            a = float(a0) / float(a1)
             return "%.1f" % a
         except:
             return missing
@@ -68,19 +69,28 @@ class MetaData(pyexiv2.Image):
         alternativeFormat is True:
         For exposures less than one second, the result is formatted as an 
         integer e.g. 125
+        For exposures less than one second but more than or equal to 
+        one tenth of a second, the result is formatted as an integer 
+        e.g. 3 representing 3/10 of a second
         For exposures greater than or equal to one second, the value is 
         formatted as an integer with a trailing s e.g. 30s
         """
 
         try:
-            e0, e1 = self["Exif.Photo.ExposureTime"]
+            e = str(self["Exif.Photo.ExposureTime"])
+            
+            e0,  e1 = e.split('/')
+            e0 = int(e0)
+            e1 = int(e1)
             
             if e1 > e0:
-                e = float(e1) / e0
                 if alternativeFormat:
-                    return  "%.0f" % e 
+                    if e0 == 1:
+                        return str(e1)
+                    else:
+                        return  str(e0)
                 else:
-                    return  "1/%.0f" % e            
+                    return e
             elif e0 > e1:
                 e = float(e0) / e1
                 if alternativeFormat:
@@ -88,10 +98,7 @@ class MetaData(pyexiv2.Image):
                 else:
                     return "%.0f" % e
             else:
-                if alternativeFormat:
                     return "1s"
-                else:
-                    return "1"
         except:
             return missing
         
@@ -102,12 +109,17 @@ class MetaData(pyexiv2.Image):
         Returns missing if the metadata value is not present.
         """
         try:
-            f0, f1 = self["Exif.Photo.FocalLength"]
+            f = str(self["Exif.Photo.FocalLength"])
+            f0,  f1 = f.split('/')
+            f0 = float(f0)
             if not f1:
-                f1 = 1
-            return "%.0f" % (float(f0) / f1)
+                f1 = 1.0
+            else:
+                f1 = float(f1)
+            return "%.0f" % (f0 / f1)
         except:
             return missing
+            
             
     def cameraMake(self, missing=''):
         """ 
@@ -257,15 +269,17 @@ if __name__ == '__main__':
     if (len(sys.argv) != 2):
         print 'Usage: ' + sys.argv[0] + ' path/to/photo/containing/metadata'
         m = DummyMetaData()
-##        sys.exit(1)
+
     else:
         m = MetaData(sys.argv[1])
         m.readMetadata()
-    print "f"+ m.aperture()
-    print "ISO " + m.iso()
-    print m.exposureTime() + " sec"
-    print m.exposureTime(alternativeFormat=True)
-    print m.focalLength() + "mm"
+        
+#    print m.exifKeys()
+    print "f"+ m.aperture('missing ')
+    print "ISO " + m.iso('missing ')
+    print m.exposureTime(missing='missing ') + " sec"
+    print m.exposureTime(alternativeFormat=True,  missing='missing ')
+    print m.focalLength('missing ') + "mm"
     print m.cameraMake()
     print m.cameraModel()
     print m.shortCameraModel()

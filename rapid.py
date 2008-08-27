@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-#!/usr/bin/env python
 # -*- coding: latin1 -*-
 
 ### Copyright (C) 2007 Damon Lynch <damonlynch@gmail.com>
@@ -63,7 +62,7 @@ import renamesubfolderprefs as rn
 
 import tableplusminus as tpm
 
-__version__ = '0.0.1'
+__version__ = '0.0.2'
 version_info = tuple(int(n) for n in __version__.split('.'))
 
 try: 

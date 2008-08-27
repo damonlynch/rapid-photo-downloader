@@ -20,8 +20,8 @@ Rapid Photo Downloader depends on the following software:
 - python-gconf 2.18
 - python-glade2 2.10 
 - gnome-python 2.10
-- exiv2
-- pyexiv2
+- libexiv2 0.15
+- pyexiv2 0.12
 - bazaar (to download this code and pyexiv2!)
 
 Please feel welcome to contribute anything to help make this project a success: 
@@ -49,6 +49,7 @@ start from a fairly basic system, I suggest the following:
    * scons
    * bzr (not to be confused with the package bazaar, which is not relevant to 
      our needs!)
+   * g++
    
 2. Install pyexiv2.  There are instructions here: 
    
@@ -74,13 +75,14 @@ start from a fairly basic system, I suggest the following:
     # ./rapid.py
     
    The last step runs the program. Whenever you need to run it, execute the last
-   step from witin the download directory ;-)
+   step from within the download directory ;-)
 
 Known Bugs
 ==========
 
 * Cannot unmount the media while the application is running. I'd love to get 
   this working.  I'm open to suggestions!
+  Update: this may have been fixed upstream in pygtk
 * Select all and deselect all do nothing
 * Checkbutton on each image device does nothing
 * Checks to see if image already exists are not thread safe, and may cause 
