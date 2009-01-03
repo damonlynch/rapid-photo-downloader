@@ -22,7 +22,6 @@ Rapid Photo Downloader depends on the following software:
 - gnome-python 2.10
 - libexiv2 0.15
 - pyexiv2 0.12
-- bazaar (to download this code and pyexiv2!)
 
 Please feel welcome to contribute anything to help make this project a success: 
 feature suggestions, bug reports, code, artwork, translations, and documentation
@@ -34,57 +33,30 @@ Installation
 To run Rapid Photo Downloader you will need all the software mentioned above. To
 start from a fairly basic system, I suggest the following:
 
-1. Install as much as you can from your linux distribution's package 
+1. Install the required gnome packages from your linux distribution's package 
    repositories.  On a recent linux distribution, expect all to be available for
    easy download and installation.  If you already use gnome, most of the 
    packages will already be installed.  Do confirm that python-gconf, 
    python-glade2, and gnome-python are installed, because they
    may not be quite so common in a base system.
     
-2. Install pyexiv2.  You can probably do that your distributions's package 
+2. Install pyexiv2.  You can probably do that using your distributions's package 
    repositories. But if not, there are instructions here: 
    
    http://tilloy.net/dev/pyexiv2/developers.htm
    
-   In essence, do this -
-   
-   Install these packages (and any packages they depend on, which could be quite
-   a few):
-   
-   * libboost-python-dev
-   * libexiv2-dev
-   * scons
-   * bzr (not to be confused with the package bazaar, which is not relevant to 
-     our needs!)
-   * g++
+3. Install this application from the tarball
 
-   Then this:
+   python setup.py install
    
-   * create a new directory somewhere, and change into it
-   * execute the follwing commands:
-     # bzr branch http://tilloy.net/branches/pyexiv2
-     # cd pyexiv2
-     # scons
-     # sudo scons install
-
-3. Install this application somewhere in your home directory.  What you need to
-   do is download it, rename its download directory, and start using it
-   
-   Execute the following commands:
-    # bzr branch http://bazaar.launchpad.net/~dlynch3/rapid/trunk
-    # mv trunk rapid 
-    # cd rapid
-    # ./rapid.py
-    
-   The last step runs the program. Whenever you need to run it, execute the last
-   step from within the download directory ;-)
+Start the program by running rapid-photo-downloader from the command line, or 
+manually setup a panel launcher using an icon supplied in the tarball.
 
 Known Bugs
 ==========
 
 * Cannot unmount the media while the application is running. I'd love to get 
   this working.  I'm open to suggestions!
-  Update: this may have been fixed upstream in pygtk
 * Select all and deselect all do nothing
 * Checkbutton on each image device does nothing
 * Checks to see if image already exists are not thread safe, and may cause 
@@ -94,6 +66,5 @@ Known Bugs
   supported
 * Backup feature temporarily disabled
 * Auto-detection of Portable Storage Devices needs to be written
-* And no doubt many many more bugs.....
 
 

@@ -1,0 +1,22 @@
+Version 0.0.3
+-------------
+
+2009-01-03
+
+Bug #313398: Fix bug where application needed to be restarted for new
+preferences to take effect
+
+Added setup.py installer
+
+Version 0.0.2
+-------------
+
+Dependencies:
+Pyexiv 0.1.2
+
+Updated metadata code to reflect changes in pyexiv library
+
+Version 0.0.1
+-------------
+
+Initial release

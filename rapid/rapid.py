@@ -1678,9 +1678,20 @@ class RapidApp(gnomeglade.GnomeApp):
 
 def programStatus():
     print "Goodbye"
-##    print activeCount()
 
-if __name__ == "__main__":
+def determine_path ():
+    """Borrowed from wxglade.py"""
+    try:
+        root = __file__
+        if os.path.islink (root):
+            root = os.path.realpath (root)
+        return os.path.dirname (os.path.abspath (root))
+    except:
+        print "I'm sorry, but something is wrong."
+        print "There is no __file__ variable. Please contact the author."
+        sys.exit ()
+        
+def start ():
     atexit.register(programStatus)
     
     gdk.threads_init()
@@ -1690,4 +1701,6 @@ if __name__ == "__main__":
     app = RapidApp()
     app.main()
     gdk.threads_leave()    
-    
+
+if __name__ == "__main__":
+    start()
