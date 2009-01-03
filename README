@@ -35,14 +35,21 @@ To run Rapid Photo Downloader you will need all the software mentioned above. To
 start from a fairly basic system, I suggest the following:
 
 1. Install as much as you can from your linux distribution's package 
-   repositories.  On a recent linux distribution, expect all except pyexiv2
-   to be available for easy download and installation.  If you already use 
-   gnome, most of the packages will already be installed.  Do confirm that 
-   python-gconf, python-glade2, and gnome-python are installed, because they
+   repositories.  On a recent linux distribution, expect all to be available for
+   easy download and installation.  If you already use gnome, most of the 
+   packages will already be installed.  Do confirm that python-gconf, 
+   python-glade2, and gnome-python are installed, because they
    may not be quite so common in a base system.
+    
+2. Install pyexiv2.  You can probably do that your distributions's package 
+   repositories. But if not, there are instructions here: 
    
-   Since the next step is to install pyexiv2, you will need these packages 
-   (and any packages they depend on, which could be quite a few):
+   http://tilloy.net/dev/pyexiv2/developers.htm
+   
+   In essence, do this -
+   
+   Install these packages (and any packages they depend on, which could be quite
+   a few):
    
    * libboost-python-dev
    * libexiv2-dev
@@ -50,13 +57,8 @@ start from a fairly basic system, I suggest the following:
    * bzr (not to be confused with the package bazaar, which is not relevant to 
      our needs!)
    * g++
-   
-2. Install pyexiv2.  There are instructions here: 
-   
-   http://tilloy.net/dev/pyexiv2/developers.htm
-   
-   However, in case they seem intimidating, this is the essence of what you need
-   to do:
+
+   Then this:
    
    * create a new directory somewhere, and change into it
    * execute the follwing commands:

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: latin1 -*-
 
-### Copyright (C) 2007 Damon Lynch <damonlynch@gmail.com>
+### Copyright (C) 2007-2009 Damon Lynch <damonlynch@gmail.com>
 
 ### This program is free software; you can redistribute it and/or modify
 ### it under the terms of the GNU General Public License as published by
@@ -62,7 +62,7 @@ import renamesubfolderprefs as rn
 
 import tableplusminus as tpm
 
-__version__ = '0.0.2'
+__version__ = '0.0.3'
 version_info = tuple(int(n) for n in __version__.split('.'))
 
 try: 
@@ -742,7 +742,7 @@ class PreferencesDialog(gnomeglade.Component):
 
 
 class CopyPhotos(Thread):
-    def __init__(self, thread_id, preferences, parentApp, cardMedia = None):
+    def __init__(self, thread_id, parentApp, cardMedia = None):
         self.parentApp = parentApp
         self.thread_id = thread_id
         self.ctrl = True
@@ -759,33 +759,13 @@ class CopyPhotos(Thread):
         
         self.cardMedia = cardMedia
         
-        self.prefs = preferences
-
-        self.imageRenamePrefsFactory = rn.ImageRenamePreferences(
-                                                preferences.image_rename, self)
-        try:
-            self.imageRenamePrefsFactory.checkPrefsForValidity()
-        except (PrefKeyError, PrefValueInvalidError), inst:
-            print inst.message
-        except PrefLengthError, inst:
-            print inst.message
-        except PrefValueKeyComboError, inst:
-            print inst.message
-
-            
-        self.subfolderPrefsFactory = rn.SubfolderPreferences(
-                                                preferences.subfolder, self)
-
-        self.initializeDisplay(thread_id, preferences, cardMedia)
-        
-        # copy this variable, as it is used heavily in the loop
-        # and it is relatively expensive to read
-        self.stripCharacters = preferences.strip_characters
+        self.initializeDisplay(thread_id,  cardMedia)
         
         Thread.__init__(self)
 
-    def initializeDisplay(self, thread_id, preferences, cardMedia = None):
-        self.prefs = preferences
+    def initializeDisplay(self, thread_id, cardMedia = None):
+        #def initializeDisplay(self, thread_id, preferences, cardMedia = None):
+        #self.prefs = preferences
 
         if self.cardMedia:
             media_collection_treeview.addCard(thread_id, self.cardMedia.prettyName(), 
@@ -798,6 +778,32 @@ class CopyPhotos(Thread):
         """
         name, root, size = self.cardMedia.firstImage()
         return root, name
+        
+    
+    def initializeFromPrefs(self):
+        """
+        Setup thread so that user preferences are handled
+        """
+        self.prefs = self.parentApp.prefs
+
+        self.imageRenamePrefsFactory = rn.ImageRenamePreferences(
+                                                self.prefs.image_rename, self)
+        try:
+            self.imageRenamePrefsFactory.checkPrefsForValidity()
+        except (PrefKeyError, PrefValueInvalidError), inst:
+            print inst.message
+        except PrefLengthError, inst:
+            print inst.message
+        except PrefValueKeyComboError, inst:
+            print inst.message
+
+            
+        self.subfolderPrefsFactory = rn.SubfolderPreferences(
+                                                self.prefs.subfolder, self)    
+                                                
+        # copy this variable, as it is used heavily in the loop
+        # and it is relatively expensive to read
+        self.stripCharacters = self.prefs.strip_characters
         
     def run(self):
 
@@ -824,6 +830,8 @@ class CopyPhotos(Thread):
         print "thread", self.thread_id, "is", get_ident(), "and is now running"
 
         display_queue.open('w')
+        
+        self.initializeFromPrefs()
         
         # Image names should be unique.  Some images may not have metadata (this
         # is unlikely for images straight out of a 
@@ -1362,7 +1370,7 @@ class RapidApp(gnomeglade.GnomeApp):
         if media.isImageMedia(path):
             cardMedia = CardMedia(path, volume)
             i = workers.getNextThread_id()
-            workers.append(CopyPhotos(i, self.prefs, self, cardMedia))
+            workers.append(CopyPhotos(i, self, cardMedia))
             self.setDownloadButtonSensitivity()
             
     def on_volume_unmounted(self, monitor, volume):
@@ -1438,7 +1446,7 @@ class RapidApp(gnomeglade.GnomeApp):
 
         for i in range(j, j + len(cardMediaList)):
             cardMedia = cardMediaList[i - j]
-            workers.append(CopyPhotos(i, self.prefs, self, cardMedia))
+            workers.append(CopyPhotos(i, self, cardMedia))
         
         self.setDownloadButtonSensitivity()
         
