@@ -1,4 +1,4 @@
-### Copyright (C) 2007 Damon Lynch <damonlynch@gmail.com>
+### Copyright (C) 2007-09 Damon Lynch <damonlynch@gmail.com>
 
 ### This program is free software; you can redistribute it and/or modify
 ### it under the terms of the GNU General Public License as published by
@@ -23,6 +23,10 @@ MEDIA_LOCATION = "/media"
 SKIP_DOWNLOAD = "skip download"
 ADD_UNIQUE_IDENTIFIER = "add unique identifier"
 
+REPORT_WARNING = "warning"
+REPORT_ERROR = "error"
+IGNORE = "ignore"
+
 DEFAULT_PHOTO_LOCATION = "Photos"
 
 MAX_NO_READERS = 20
@@ -36,9 +40,9 @@ CRITICAL_ERROR = 1
 SERIOUS_ERROR = 2
 WARNING = 3
 
-                             
+
 
 #logging - to be implemented
-LOGFILE_DIRECTORY = '.rapidPhotoDownloader' # relative to home directory
-MAX_LOGFILE_SIZE = 100 * 1024       # bytes
-MAX_LOGFILES  = 5
+#LOGFILE_DIRECTORY = '.rapidPhotoDownloader' # relative to home directory
+#MAX_LOGFILE_SIZE = 100 * 1024       # bytes
+#MAX_LOGFILES  = 5

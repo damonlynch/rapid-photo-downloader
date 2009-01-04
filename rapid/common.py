@@ -24,10 +24,10 @@ import re
 import gc
 import gtk.gdk as gdk
 
-from config import  LOGFILE_DIRECTORY, MAX_LOGFILE_SIZE, MAX_LOGFILES 
-
-from logging.handlers import RotatingFileHandler
-import logging
+#from config import  LOGFILE_DIRECTORY, MAX_LOGFILE_SIZE, MAX_LOGFILES 
+#
+#from logging.handlers import RotatingFileHandler
+#import logging
 
 def getFullProgramName():
     """ return the full name of the process running """

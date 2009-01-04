@@ -62,7 +62,7 @@ import renamesubfolderprefs as rn
 
 import tableplusminus as tpm
 
-__version__ = '0.0.3'
+__version__ = '0.0.4'
 version_info = tuple(int(n) for n in __version__.split('.'))
 
 try: 
@@ -252,6 +252,8 @@ class RapidPreferences(prefs.Preferences):
         "indicate_download_error": prefs.Value(prefs.BOOL, True),
         "download_conflict_resolution": prefs.Value(prefs.STRING, 
                                         config.SKIP_DOWNLOAD),
+        "backup_duplicate_overwrite": prefs.Value(prefs.BOOL, False),
+        "backup_missing": prefs.Value(prefs.STRING, config.IGNORE),
         "display_thumbnails": prefs.Value(prefs.BOOL, True),
         "show_log_dialog": prefs.Value(prefs.BOOL, False),
         }
@@ -480,7 +482,6 @@ class PreferencesDialog(gnomeglade.Component):
 
     def _setupSubfolderTable(self):
         self.subfolder_table = SubfolderTable(self)
-##        print dir(self)
         self.subfolder_vbox.pack_start(self.subfolder_table)
         self.subfolder_table.show_all()
         
@@ -560,7 +561,7 @@ class PreferencesDialog(gnomeglade.Component):
                                 self._backupControls2
         
         #assign values to checkbuttons only when other controls
-        #have been setup, because their toggle signal is acticated
+        #have been setup, because their toggle signal is activated
         #when a value is assigned
         
         self.backup_checkbutton.set_active(self.prefs.backup_images)
@@ -592,6 +593,20 @@ class PreferencesDialog(gnomeglade.Component):
             self.skip_download_radiobutton.set_active(True)
         else:
             self.add_identifier_radiobutton.set_active(True)
+            
+        self.add_identifier_radiobutton.set_sensitive(False)
+            
+        if self.prefs.backup_missing == config.REPORT_ERROR:
+            self.backup_error_radiobutton.set_active(True)
+        elif self.prefs.backup_missing == config.REPORT_WARNING:
+            self.backup_warning_radiobutton.set_active(True)
+        else:
+            self.backup_ignore_radiobutton.set_active(True)
+            
+        if self.prefs.backup_duplicate_overwrite:
+            self.backup_duplicate_overwrite_radiobutton.set_active(True)
+        else:
+            self.backup_duplicate_skip_radiobutton.set_active(True)
 
     def updateImageRenameExample(self):
         """ 
@@ -655,7 +670,21 @@ class PreferencesDialog(gnomeglade.Component):
             for c in controls:
                 c.set_sensitive(True)
         
+    def on_backup_duplicate_overwrite_radiobutton_toggled(self,  widget):
+        self.prefs.backup_duplicate_overwrite = widget.get_active()
+            
+    def on_backup_duplicate_skip_radiobutton_toggled(self,  widget):
+        self.prefs.backup_duplicate_overwrite = not widget.get_active()
         
+    def on_backup_error_radiobutton_toggled(self,  widget):
+        self.prefs.backup_missing = config.REPORT_ERROR
+        
+    def on_backup_warning_radiobutton_toggled(self,  widget):
+        self.prefs.backup_missing = config.REPORT_WARNING
+    
+    def on_backup_ignore_radiobutton_toggled(self,  widget):
+        self.prefs.backup_missing = config.IGNORE
+    
     def on_treeview_cursor_changed(self, tree):
         path, column = tree.get_cursor()
         self.notebook.set_current_page(path[0])
@@ -805,6 +834,7 @@ class CopyPhotos(Thread):
         # and it is relatively expensive to read
         self.stripCharacters = self.prefs.strip_characters
         
+        
     def run(self):
 
         def cleanUp():
@@ -853,7 +883,6 @@ class CopyPhotos(Thread):
         sizeDownloaded = 0
         
         sizeImages = float(self.cardMedia.sizeOfImages(humanReadable = False))
-##        sizeImagesHumanReadable = self.cardMedia.sizeOfImages()
         noImages = self.cardMedia.numberOfImages()
         
         baseDownloadDir = self.prefs.download_folder
@@ -864,7 +893,8 @@ class CopyPhotos(Thread):
         tempWorkingDir = tempfile.mkdtemp(prefix='rapid-tmp-', 
                                             dir=baseDownloadDir)
                                             
-        IMAGE_SKIPPED = "Image skiped"
+        IMAGE_SKIPPED = "Image skipped"
+        IMAGE_OVERWRITTEN = "Image overwritten" # users can specify that duplicate backup files can be overwritten
         
         while i < noImages:
             if not self.running:
@@ -901,48 +931,49 @@ class CopyPhotos(Thread):
                                     IMAGE_SKIPPED)
                     skipImage = True
                     
-                
-                subfolder, problem = self.subfolderPrefsFactory.getStringFromPreferences(
-                                                        imageMD, name, 
-                                                        self.stripCharacters)
-    
-                if problem:
-                    logError(config.WARNING, 
-                        "Insufficient image metadata to properly generate sub-folder name",
-                        "Subfolder: %s\nImage: %s\nProblem: %s" % 
-                        (subfolder, image, problem))
-                
-                newName, problem = self.imageRenamePrefsFactory.getStringFromPreferences(
-                                                        imageMD, name, 
-                                                        self.stripCharacters)
-                                                        
-                path = os.path.join(baseDownloadDir, subfolder)
-                newfile = os.path.join(path, newName)
-                
-                if not newName:
-                    # a serious problem - a filename should never be blank!
-                    logError(config.SERIOUS_ERROR,
-                        "Image name could not be generated",
-                        "Source: %s\nProblem: %s" % (image, problem),
-                        IMAGE_SKIPPED)
-                    skipImage = True
-                elif problem:
-                    logError(config.WARNING, 
-                        "Insufficient image metadata to properly generate image name",
-                        "Source: %s\nDestination: %s\nProblem: %s" % 
-                        (image, newName, problem))
-    
-                                                        
-                
+                else:
+                    subfolder, problem = self.subfolderPrefsFactory.getStringFromPreferences(
+                                                            imageMD, name, 
+                                                            self.stripCharacters)
+        
+                    if problem:
+                        logError(config.WARNING, 
+                            "Insufficient image metadata to properly generate sub-folder name",
+                            "Subfolder: %s\nImage: %s\nProblem: %s" % 
+                            (subfolder, image, problem))
+                    
+                    newName, problem = self.imageRenamePrefsFactory.getStringFromPreferences(
+                                                            imageMD, name, 
+                                                            self.stripCharacters)
+                                                            
+                    path = os.path.join(baseDownloadDir, subfolder)
+                    newFile = os.path.join(path, newName)
+                    
+                    if not newName:
+                        # a serious problem - a filename should never be blank!
+                        logError(config.SERIOUS_ERROR,
+                            "Image name could not be generated",
+                            "Source: %s\nProblem: %s" % (image, problem),
+                            IMAGE_SKIPPED)
+                        skipImage = True
+                    elif problem:
+                        logError(config.WARNING, 
+                            "Insufficient image metadata to properly generate image name",
+                            "Source: %s\nDestination: %s\nProblem: %s" % 
+                            (image, newName, problem))
+                    
     
                 if not skipImage:
-                    try:                 
+                    try:
+                        imageDownloaded = False
                         if not os.path.isdir(path):
                             os.makedirs(path)
                         
         
                         nameUnique = True
-                        if os.path.exists(newfile):
+                        # this is not thread safe!
+                        if os.path.exists(newFile):
+                            
                             nameUnique = False
                             if self.prefs.download_conflict_resolution == config.ADD_UNIQUE_IDENTIFIER:
                                 print "FIXME: add unique identifier"
@@ -950,9 +981,9 @@ class CopyPhotos(Thread):
                             if self.prefs.indicate_download_error:
                                 severity = config.SERIOUS_ERROR
                                 problem = "Image already exists"
-                                details = "Source: %s\nDestination: %s" % (image, newfile)
+                                details = "Source: %s\nDestination: %s" % (image, newFile)
                                 if self.prefs.download_conflict_resolution == config.ADD_UNIQUE_IDENTIFIER:
-                                    resolution = "Code needed to add unique identifier! ;-)"
+                                    resolution = "Code to add unique identifier still needs to be written!"
                                 else:
                                     resolution = IMAGE_SKIPPED
                                 logError(severity, problem, details, resolution)
@@ -960,17 +991,76 @@ class CopyPhotos(Thread):
                         if nameUnique:
                             tempWorkingfile = os.path.join(tempWorkingDir, newName)
                             shutil.copy2(image, tempWorkingfile)                
-                            os.rename(tempWorkingfile, newfile)
+                            os.rename(tempWorkingfile, newFile)
+                            imageDownloaded = True
                             
                     except IOError, (errno, strerror):
-                        logError(config.SERIOUS_ERROR, 'Copying error', 
+                        logError(config.SERIOUS_ERROR, 'Download copying error', 
                                     "Source: %s\nDestination: %s\nError: %s %s" % (image, newfile, errno, strerror),
                                     'The image was not copied.')
-        
-                        
+
                     except OSError, (errno, strerror):
-                        logError(config.CRITICAL_ERROR, 'Copying error', 
+                        logError(config.CRITICAL_ERROR, 'Download copying error', 
                                     "Source: %s\nDestination: %s\nError: %s %s" % (image, newfile, errno, strerror),
+                                )
+                                
+                        
+                    # backup
+                    # there are two scenarios: 
+                    # (1) image has just been downloaded and should now be backed up
+                    # (2) image was already downloaded on some previous occassion and should still be backed up, because it hasn't been yet
+                    # (3) image has been backed up already (or at least, a file with the same name already exists
+                    try:
+                        if self.prefs.backup_images:
+                            for backupDir in self.parentApp.backupVolumes:
+                                backupPath = os.path.join(backupDir, subfolder)
+                                newBackupFile = os.path.join(backupPath,  newName)
+                                copyBackup = True
+                                if os.path.exists(newBackupFile):
+                                    # again, not thread safe
+                                    copyBackup = self.prefs.backup_duplicate_overwrite                                     
+                                    if self.prefs.indicate_download_error:
+                                        severity = config.SERIOUS_ERROR
+                                        problem = "Backup image already exists"
+                                        details = "Source: %s\nDestination: %s" % (image, newBackupFile) 
+                                        if copyBackup :
+                                            resolution = IMAGE_OVERWRITTEN
+                                        else:
+                                            resolution = IMAGE_SKIPPED
+                                        logError(severity, problem, details, resolution)
+
+                                if copyBackup:
+                                    if imageDownloaded:
+                                        fileToCopy = newFile
+                                    else:
+                                        fileToCopy = image
+                                    if not os.path.isdir(backupPath):
+                                        # recreate folder structure in backup location
+                                        # cannot do os.makedirs(backupPath) - it gives bad results when using external drives
+                                        # we know backupDir exists 
+                                        # all the components of subfolder may not
+                                        folders = subfolder.split(os.path.sep)
+                                        folderToMake = backupDir 
+                                        for f in folders:
+                                            if f:
+                                                folderToMake = os.path.join(folderToMake,  f)
+                                                if not os.path.isdir(folderToMake):
+                                                    try:
+                                                        os.mkdir(folderToMake)
+                                                    except (errno, strerror):
+                                                        logError(config.SERIOUS_ERROR, 'Backing up error', 
+                                                                 "Destination directory could not be created\n%s\nError: %s %s" % (folderToMake,  errno,  strerror), 
+                                                                 )
+                                                
+                                    shutil.copy2(fileToCopy,  newBackupFile)
+                    except IOError, (errno, strerror):
+                        logError(config.SERIOUS_ERROR, 'Backing up error', 
+                                    "Source: %s\nDestination: %s\nError: %s %s" % (image, newBackupFile, errno, strerror),
+                                    'The image was not copied.')
+
+                    except OSError, (errno, strerror):
+                        logError(config.CRITICAL_ERROR, 'Backing up error', 
+                                    "Source: %s\nDestination: %s\nError: %s %s" % (image, newBackupFile, errno, strerror),
                                 )
         
                 
@@ -1122,7 +1212,6 @@ class MediaTreeView(gtk.TreeView):
         return iter
     
     def updateProgress(self, thread_id, percentComplete, progressBarText, imageSize):
-##        print "### updating progress bar for thread", thread_id, ":", progressBarText
         
         iter = self._getThreadMap(thread_id)
         
@@ -1245,7 +1334,8 @@ class LogDialog(gnomeglade.Component):
         self.on_logdialog_response(dialog, gtk.RESPONSE_CLOSE)
         dialog.emit_stop_by_name("destroy")
         return True
-        
+
+
 class RapidApp(gnomeglade.GnomeApp): 
     def __init__(self): 
         gladefile = paths.share_dir("glade3/rapid.glade")
@@ -1280,7 +1370,7 @@ class RapidApp(gnomeglade.GnomeApp):
         if self.usingVolumeMonitor():
             self.startVolumeMonitor()
         
-
+       
         # set up tree view display 
         media_collection_treeview = MediaTreeView(self)
         
@@ -1297,23 +1387,26 @@ class RapidApp(gnomeglade.GnomeApp):
         self.set_display_thumbnails(self.prefs.display_thumbnails)
         
 
-##        #display download folder information
-##        self.download_folder_checkbutton = gtk.CheckButton(self.prefs.download_folder)
-##        self.download_folder_checkbutton.set_active(True)
-##        self.download_folder_checkbutton.show()
-##        backup_paths = scanForBackupMedia(self.prefs.backup_location, self.prefs.backup_identifier)
-##        self.archives = []
-##        self.backup_checkbuttons = []
-##        self.download_folders_vbox.pack_start(self.download_folder_checkbutton)
-##        for i in range(len(backup_paths)):
-##            path = backup_paths[i]
-##            self.archives.append(Media(path))
-##            check_button = gtk.CheckButton(path)
-##            check_button.set_active(True)
-##            self.backup_checkbuttons.append(check_button)
-##            check_button.show()
-##            self.download_folders_vbox.pack_start(check_button)
-            
+        #display download folder information
+#        self.download_folder_checkbutton = gtk.CheckButton(self.prefs.download_folder)
+#        self.download_folder_checkbutton.set_active(True)
+#        self.download_folder_checkbutton.show()
+#        backup_paths = scanForBackupMedia('/media', self.prefs.backup_identifier)
+#        print backup_paths
+#        self.archives = []
+#        self.backup_checkbuttons = []
+#        self.download_folders_vbox.pack_start(self.download_folder_checkbutton)
+#        for i in range(len(backup_paths)):
+#            path = backup_paths[i]
+#            self.archives.append(Media(path))
+#            check_button = gtk.CheckButton(path)
+#            check_button.set_active(True)
+#            self.backup_checkbuttons.append(check_button)
+#            check_button.show()
+#            self.download_folders_vbox.pack_start(check_button)
+
+
+        self.backupVolumes = {}
 
         self._setupDownloadbutton()
         
@@ -1335,10 +1428,11 @@ class RapidApp(gnomeglade.GnomeApp):
         self.download_folders_display_label.hide()
         self.widget.show()
         
-        self.setupAvailableImageMedia()
+        self.setupAvailableImageAndBackupMedia()
         
 ##        if self.download_button.get_sensitive():
         self.download_button.grab_focus()            
+
 
                             
     def usingVolumeMonitor(self):
@@ -1358,6 +1452,34 @@ class RapidApp(gnomeglade.GnomeApp):
             self.volumeMonitor.connect("volume-mounted", self.on_volume_mounted)
             self.volumeMonitor.connect("volume-unmounted", self.on_volume_unmounted)
     
+    def displayBackupVolumes(self):
+        """
+        Create a message to be displayed to the user showing which backup volumes will be used
+        """
+        message =  ''
+        
+        paths = self.backupVolumes.keys()
+        i = 0
+        v = len(paths)
+        prefix = ''
+        for b in paths:
+            if v > 1:
+                if i < (v -1)  and i > 0:
+                    prefix = ', '
+                elif i == (v - 1) :
+                    prefix = ' and '
+            i += 1
+            message = "%s%s'%s'" % (message,  prefix, self.backupVolumes[b].get_display_name())
+        
+        if v > 1:
+            message = "Using backup devices %s" % message
+        elif v == 1:
+            message = "Using backup device %s"  % message
+        else:
+            message = "No backup devices detected"
+            
+        return message
+        
     def on_volume_mounted(self, monitor, volume):
         """
         callback run when gnomevfs indicates a new volume
@@ -1366,8 +1488,16 @@ class RapidApp(gnomeglade.GnomeApp):
         
         uri = volume.get_activation_uri()
         path = gnomevfs.get_local_path_from_uri(uri)
-        
-        if media.isImageMedia(path):
+
+        isBackupVolume = self.checkIfBackupVolume(path)
+                    
+        if isBackupVolume:
+            backupPath = os.path.join(path,  self.prefs.backup_identifier)
+            if path not in self.backupVolumes:
+                self.backupVolumes[backupPath] = volume
+                self.rapid_statusbar.push(self.statusbar_context_id, self.displayBackupVolumes())
+
+        elif media.isImageMedia(path):
             cardMedia = CardMedia(path, volume)
             i = workers.getNextThread_id()
             workers.append(CopyPhotos(i, self, cardMedia))
@@ -1392,6 +1522,13 @@ class RapidApp(gnomeglade.GnomeApp):
             if w.cardMedia.volume == volume:
                 media_collection_treeview.removeCard(w.thread_id)
                 workers.disableWorker(w.thread_id)
+                
+        # remove backup volumes
+        backupPath = os.path.join(path,  self.prefs.backup_identifier)
+        if backupPath in self.backupVolumes:
+            del self.backupVolumes[backupPath]
+            self.rapid_statusbar.push(self.statusbar_context_id, self.displayBackupVolumes())
+
         
     
     def clearCompletedDownloads(self):
@@ -1409,37 +1546,69 @@ class RapidApp(gnomeglade.GnomeApp):
             media_collection_treeview.removeCard(w.thread_id)
             workers.disableWorker(w.thread_id)
     
-    def setupAvailableImageMedia(self):
+    def checkIfBackupVolume(self,  path):
+        """
+        Checks to see if backups are enabled and path represents a valid backup location
+        
+        Checks against user preferences.
+        """
+        if self.prefs.backup_images:
+            if self.prefs.backup_device_autodetection:
+                if media.isBackupMedia(path, self.prefs.backup_identifier):
+                    return True
+            elif path == self.prefs.backup_location:
+                # user manually specified the path
+                return True
+        return False
+    
+    def setupAvailableImageAndBackupMedia(self):
         """
         Creates a list of CardMedia
         
-        Removes and image media that are currently not downloaded, 
+        Removes any image media that are currently not downloaded, 
         or finished downloading
         """
         
         self.clearNotStartedDownloads()
         
         cardMediaList = []
+        self.backupVolumes = {}
         
-        if self.prefs.device_autodetection:
+        if self.usingVolumeMonitor():
+            # either using automatically detected backup devices
+            # or image devices
+            
             for volume in self.volumeMonitor.get_mounted_volumes():
                 uri = volume.get_activation_uri()
                 path = gnomevfs.get_local_path_from_uri(uri)
                 if path.startswith(config.MEDIA_LOCATION):
-                    isBackupVolume = False
-                    if self.prefs.backup_device_autodetection:
-                        if media.isBackupMedia(path, self.prefs.backup_identifier):
-                            isBackupVolume = True
+                    isBackupVolume = self.checkIfBackupVolume(path)
                     
-                    if not isBackupVolume and media.isImageMedia(path):
+                    if isBackupVolume:
+                        backupPath = os.path.join(path,  self.prefs.backup_identifier)
+                        self.backupVolumes[backupPath] = volume
+                    elif self.prefs.device_autodetection and media.isImageMedia(path):
                         cardMediaList.append(CardMedia(path, volume))
-        else:
+                        
+        
+        if not self.prefs.device_autodetection:
+            # user manually specified the path from which to download images
             path = self.prefs.device_location
             if path:
                 cardMedia = CardMedia(path)
                 if cardMedia.numberOfImages() > 0:
                     cardMediaList.append(cardMedia)
-        
+                    
+        if self.prefs.backup_images:
+            if not self.prefs.backup_device_autodetection:
+                # user manually specified backup location
+                self.backupVolumes[self.prefs.backup_location] = None
+                self.rapid_statusbar.push(self.statusbar_context_id, '')
+            else:
+                self.rapid_statusbar.push(self.statusbar_context_id, self.displayBackupVolumes())
+                
+        else:
+            self.rapid_statusbar.push(self.statusbar_context_id, '')
         
         # add each memory card / other device to the list of threads
         j = workers.getNextThread_id()
@@ -1665,31 +1834,16 @@ class RapidApp(gnomeglade.GnomeApp):
             self.set_media_device_display(value)
         elif key == 'show_log_dialog':
             self.menu_log_window.set_active(value)
-        elif key in ['device_autodetection', 'backup_images', 'backup_images']:
+        elif key in ['device_autodetection', 'backup_images',  'device_location', 'backup_device_autodetection', 'backup_location' ]:
             if self.usingVolumeMonitor():
                 self.startVolumeMonitor()
-            if key == 'device_autodetection':
-                self.setupAvailableImageMedia()
-        elif key == 'device_location':
-            if not self.prefs.device_autodetection:
-                self.setupAvailableImageMedia()
+            self.setupAvailableImageAndBackupMedia()
 
-        
 
 def programStatus():
     print "Goodbye"
 
-def determine_path ():
-    """Borrowed from wxglade.py"""
-    try:
-        root = __file__
-        if os.path.islink (root):
-            root = os.path.realpath (root)
-        return os.path.dirname (os.path.abspath (root))
-    except:
-        print "I'm sorry, but something is wrong."
-        print "There is no __file__ variable. Please contact the author."
-        sys.exit ()
+
         
 def start ():
     atexit.register(programStatus)

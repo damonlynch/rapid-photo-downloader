@@ -753,7 +753,7 @@ You can download photos from multiple image devices simultaneously.</property>
                             <property name="ypad">6</property>
                             <property name="label" translatable="yes">Specify the folder in which backups are stored on the device.  
 
-&lt;i&gt;Note: this will also be used to determine whether or not the device is used for backups.&lt;/i&gt;</property>
+&lt;i&gt;Note: this will also be used to determine whether or not the device is used for backups. For each device you wish to use for backing up to, create a folder in it with this name.&lt;/i&gt;</property>
                             <property name="use_markup">True</property>
                             <property name="wrap">True</property>
                           </widget>
@@ -783,7 +783,7 @@ You can download photos from multiple image devices simultaneously.</property>
                           <widget class="GtkLabel" id="backup_identifier_label">
                             <property name="visible">True</property>
                             <property name="xalign">0</property>
-                            <property name="label" translatable="yes">Backup folder identifier:</property>
+                            <property name="label" translatable="yes">Backup folder name:</property>
                           </widget>
                           <packing>
                             <property name="left_attach">2</property>
@@ -1106,7 +1106,7 @@ You can download photos from multiple image devices simultaneously.</property>
                             <property name="label" translatable="yes">Start downloading upon image device insertion</property>
                             <property name="response_id">0</property>
                             <property name="draw_indicator">True</property>
-                            <signal name="toggled" handler="on_auto_startup_checkbutton_toggled"/>
+                            <signal name="toggled" handler="on_auto_insertion_checkbutton_toggled"/>
                           </widget>
                           <packing>
                             <property name="right_attach">3</property>
@@ -1122,7 +1122,7 @@ You can download photos from multiple image devices simultaneously.</property>
                             <property name="label" translatable="yes">Start downloading at program startup</property>
                             <property name="response_id">0</property>
                             <property name="draw_indicator">True</property>
-                            <signal name="toggled" handler="on_auto_insertion_checkbutton_toggled"/>
+                            <signal name="toggled" handler="on_auto_startup_checkbutton_toggled"/>
                           </widget>
                           <packing>
                             <property name="right_attach">3</property>
@@ -1218,8 +1218,20 @@ You can download photos from multiple image devices simultaneously.</property>
                     <child>
                       <widget class="GtkTable" id="error_table">
                         <property name="visible">True</property>
-                        <property name="n_rows">10</property>
+                        <property name="n_rows">14</property>
                         <property name="n_columns">2</property>
+                        <child>
+                          <placeholder/>
+                        </child>
+                        <child>
+                          <placeholder/>
+                        </child>
+                        <child>
+                          <placeholder/>
+                        </child>
+                        <child>
+                          <placeholder/>
+                        </child>
                         <child>
                           <placeholder/>
                         </child>
@@ -1276,12 +1288,13 @@ You can download photos from multiple image devices simultaneously.</property>
                             <property name="active">True</property>
                             <property name="draw_indicator">True</property>
                             <property name="group">backup_error_radiobutton</property>
+                            <signal name="toggled" handler="on_backup_ignore_radiobutton_toggled"/>
                           </widget>
                           <packing>
                             <property name="left_attach">1</property>
                             <property name="right_attach">2</property>
-                            <property name="top_attach">9</property>
-                            <property name="bottom_attach">10</property>
+                            <property name="top_attach">13</property>
+                            <property name="bottom_attach">14</property>
                             <property name="y_options">GTK_FILL</property>
                           </packing>
                         </child>
@@ -1295,12 +1308,13 @@ You can download photos from multiple image devices simultaneously.</property>
                             <property name="active">True</property>
                             <property name="draw_indicator">True</property>
                             <property name="group">backup_error_radiobutton</property>
+                            <signal name="toggled" handler="on_backup_warning_radiobutton_toggled"/>
                           </widget>
                           <packing>
                             <property name="left_attach">1</property>
                             <property name="right_attach">2</property>
-                            <property name="top_attach">8</property>
-                            <property name="bottom_attach">9</property>
+                            <property name="top_attach">12</property>
+                            <property name="bottom_attach">13</property>
                             <property name="y_options">GTK_FILL</property>
                           </packing>
                         </child>
@@ -1313,12 +1327,13 @@ You can download photos from multiple image devices simultaneously.</property>
                             <property name="response_id">0</property>
                             <property name="active">True</property>
                             <property name="draw_indicator">True</property>
+                            <signal name="toggled" handler="on_backup_error_radiobutton_toggled"/>
                           </widget>
                           <packing>
                             <property name="left_attach">1</property>
                             <property name="right_attach">2</property>
-                            <property name="top_attach">7</property>
-                            <property name="bottom_attach">8</property>
+                            <property name="top_attach">11</property>
+                            <property name="bottom_attach">12</property>
                             <property name="y_options">GTK_FILL</property>
                           </packing>
                         </child>
@@ -1328,13 +1343,13 @@ You can download photos from multiple image devices simultaneously.</property>
                             <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
                             <property name="xalign">0</property>
                             <property name="ypad">12</property>
-                            <property name="label" translatable="yes">&lt;b&gt;Missing Backup Medium&lt;/b&gt;</property>
+                            <property name="label" translatable="yes">&lt;b&gt;Missing Backup Devices&lt;/b&gt;</property>
                             <property name="use_markup">True</property>
                           </widget>
                           <packing>
                             <property name="right_attach">2</property>
-                            <property name="top_attach">6</property>
-                            <property name="bottom_attach">7</property>
+                            <property name="top_attach">9</property>
+                            <property name="bottom_attach">10</property>
                             <property name="y_options">GTK_FILL</property>
                           </packing>
                         </child>
@@ -1396,7 +1411,7 @@ You can download photos from multiple image devices simultaneously.</property>
                           <widget class="GtkCheckButton" id="indicate_download_error_checkbutton">
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
-                            <property name="label" translatable="yes">Report a download error</property>
+                            <property name="label" translatable="yes">Report an error</property>
                             <property name="use_underline">True</property>
                             <property name="response_id">0</property>
                             <property name="draw_indicator">True</property>
@@ -1415,7 +1430,7 @@ You can download photos from multiple image devices simultaneously.</property>
                             <property name="visible">True</property>
                             <property name="xalign">0</property>
                             <property name="ypad">12</property>
-                            <property name="label" translatable="yes">Specify what to do when an image of the same name has already been downloaded.</property>
+                            <property name="label" translatable="yes">Specify what to do when an image of the same name has already been downloaded or backed up.</property>
                             <property name="wrap">True</property>
                           </widget>
                           <packing>
@@ -1424,6 +1439,72 @@ You can download photos from multiple image devices simultaneously.</property>
                             <property name="top_attach">1</property>
                             <property name="bottom_attach">2</property>
                             <property name="y_options">GTK_FILL</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <widget class="GtkLabel" id="label3">
+                            <property name="xalign">0</property>
+                            <property name="ypad">12</property>
+                            <property name="label" translatable="yes">Specify what to do when there are no backup devices.</property>
+                            <property name="wrap">True</property>
+                          </widget>
+                          <packing>
+                            <property name="left_attach">1</property>
+                            <property name="right_attach">2</property>
+                            <property name="top_attach">10</property>
+                            <property name="bottom_attach">11</property>
+                            <property name="y_options">GTK_FILL</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <widget class="GtkLabel" id="label6">
+                            <property name="visible">True</property>
+                            <property name="xalign">0</property>
+                            <property name="ypad">12</property>
+                            <property name="label" translatable="yes">Choose whether to overwrite an image, or skip backing it up, when a backup device already contains an image with the same name.</property>
+                            <property name="wrap">True</property>
+                          </widget>
+                          <packing>
+                            <property name="left_attach">1</property>
+                            <property name="right_attach">2</property>
+                            <property name="top_attach">6</property>
+                            <property name="bottom_attach">7</property>
+                            <property name="y_options">GTK_FILL</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <widget class="GtkRadioButton" id="backup_duplicate_overwrite_radiobutton">
+                            <property name="visible">True</property>
+                            <property name="can_focus">True</property>
+                            <property name="label" translatable="yes">Overwrite</property>
+                            <property name="response_id">0</property>
+                            <property name="active">True</property>
+                            <property name="draw_indicator">True</property>
+                            <property name="group">backup_duplicate_skip_radiobutton</property>
+                            <signal name="toggled" handler="on_backup_duplicate_overwrite_radiobutton_toggled"/>
+                          </widget>
+                          <packing>
+                            <property name="left_attach">1</property>
+                            <property name="right_attach">2</property>
+                            <property name="top_attach">7</property>
+                            <property name="bottom_attach">8</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <widget class="GtkRadioButton" id="backup_duplicate_skip_radiobutton">
+                            <property name="visible">True</property>
+                            <property name="can_focus">True</property>
+                            <property name="label" translatable="yes">Skip</property>
+                            <property name="response_id">0</property>
+                            <property name="active">True</property>
+                            <property name="draw_indicator">True</property>
+                            <signal name="toggled" handler="on_backup_duplicate_skip_radiobutton_toggled"/>
+                          </widget>
+                          <packing>
+                            <property name="left_attach">1</property>
+                            <property name="right_attach">2</property>
+                            <property name="top_attach">8</property>
+                            <property name="bottom_attach">9</property>
                           </packing>
                         </child>
                       </widget>

@@ -37,7 +37,7 @@ def isBackupMedia(path, identifier, writeable=True):
     suitable = False
     if os.path.isdir(os.path.join(path, identifier)):
         if writeable:
-            suitable = os.access(path, os.W_OK)
+            suitable = os.access(os.path.join(path, identifier), os.W_OK)
         else:
             suitable = True
     return suitable
@@ -137,8 +137,13 @@ def scanForBackupMedia(path, identifier):
 
     
 if __name__ == '__main__':
+    print "Card media:"
     for m in scanForImageMedia('/media'):
         media = CardMedia(m)
         print media.prettyName()
         print media.numberOfImages()
         print media.sizeOfImages()
+        
+    print "\nBackup media:"
+    for m in scanForBackupMedia('/media',  'photos'):
+        print m

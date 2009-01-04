@@ -6,7 +6,7 @@ from distutils.core import setup
 package_data={'rapid': ['glade3/rapid.glade',  'glade3/rapid-photo-downloader-icon.png',]}
 
 setup(name='rapid',
-      version='0.0.3',
+      version='0.0.4',
       description='Rapid Photo Downloader for Linux',
       license='GPL',
       author='Damon Lynch',
