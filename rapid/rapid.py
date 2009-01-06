@@ -793,8 +793,6 @@ class CopyPhotos(Thread):
         Thread.__init__(self)
 
     def initializeDisplay(self, thread_id, cardMedia = None):
-        #def initializeDisplay(self, thread_id, preferences, cardMedia = None):
-        #self.prefs = preferences
 
         if self.cardMedia:
             media_collection_treeview.addCard(thread_id, self.cardMedia.prettyName(), 
@@ -854,8 +852,56 @@ class CopyPhotos(Thread):
         def logError(severity, problem, details, resolution=None):
             display_queue.put((log_dialog.addMessage, (self.thread_id, severity, problem, details, 
                             resolution)))
-            
 
+        def getMetaData(image,  needMetaDataForImage,  needMetaDataToCreateSubfolderName):
+            skipImage = False
+            try:
+                imageMD = metadata.MetaData(image)
+            except IOError:
+                logError(config.CRITICAL_ERROR, "Could not open image", 
+                                "Source: %s" % image, 
+                                IMAGE_SKIPPED)
+            else:
+                imageMD.readMetadata()
+                if not imageMD.exifKeys() and (needMetaDataToCreateImageName or 
+                                                needMetaDataToCreateSubfolderName):
+                    logError(config.SERIOUS_ERROR, "Image has no metadata", 
+                                    "Source: %s" % image, 
+                                    IMAGE_SKIPPED)
+                    skipImage = True
+                    
+                else:
+                    subfolder, problem = self.subfolderPrefsFactory.getStringFromPreferences(
+                                                            imageMD, name, 
+                                                            self.stripCharacters)
+        
+                    if problem:
+                        logError(config.WARNING, 
+                            "Insufficient image metadata to properly generate sub-folder name",
+                            "Subfolder: %s\nImage: %s\nProblem: %s" % 
+                            (subfolder, image, problem))
+                    
+                    newName, problem = self.imageRenamePrefsFactory.getStringFromPreferences(
+                                                            imageMD, name, 
+                                                            self.stripCharacters)
+                                                            
+                    path = os.path.join(baseDownloadDir, subfolder)
+                    newFile = os.path.join(path, newName)
+                    
+                    if not newName:
+                        # a serious problem - a filename should never be blank!
+                        logError(config.SERIOUS_ERROR,
+                            "Image name could not be generated",
+                            "Source: %s\nProblem: %s" % (image, problem),
+                            IMAGE_SKIPPED)
+                        skipImage = True
+                    elif problem:
+                        logError(config.WARNING, 
+                            "Insufficient image metadata to properly generate image name",
+                            "Source: %s\nDestination: %s\nProblem: %s" % 
+                            (image, newName, problem))
+            return (skipImage,  imageMD,  newName,  newFile,  path,  subfolder)
+        
         self.hasStarted = True
         print "thread", self.thread_id, "is", get_ident(), "and is now running"
 
@@ -905,165 +951,114 @@ class CopyPhotos(Thread):
                 self.running = False
                 cleanUp()
                 return
-
             
             # get information about the image to deduce image name and path
             name, root, size = self.cardMedia.images[i]
-        
-            skipImage = False
-            
             image = os.path.join(root, name)
             
-            try:
-                imageMD = metadata.MetaData(image)
-            except IOError:
-                logError(config.CRITICAL_ERROR, "Could not open image", 
-                                "Source: %s" % image, 
-                                IMAGE_SKIPPED)
-            else:
-                imageMD.readMetadata()
-                
-                
-                if not imageMD.exifKeys() and (needMetaDataToCreateImageName or 
-                                                needMetaDataToCreateSubfolderName):
-                    logError(config.SERIOUS_ERROR, "Image has no metadata", 
-                                    "Source: %s" % image, 
-                                    IMAGE_SKIPPED)
-                    skipImage = True
-                    
-                else:
-                    subfolder, problem = self.subfolderPrefsFactory.getStringFromPreferences(
-                                                            imageMD, name, 
-                                                            self.stripCharacters)
-        
-                    if problem:
-                        logError(config.WARNING, 
-                            "Insufficient image metadata to properly generate sub-folder name",
-                            "Subfolder: %s\nImage: %s\nProblem: %s" % 
-                            (subfolder, image, problem))
-                    
-                    newName, problem = self.imageRenamePrefsFactory.getStringFromPreferences(
-                                                            imageMD, name, 
-                                                            self.stripCharacters)
-                                                            
-                    path = os.path.join(baseDownloadDir, subfolder)
-                    newFile = os.path.join(path, newName)
-                    
-                    if not newName:
-                        # a serious problem - a filename should never be blank!
-                        logError(config.SERIOUS_ERROR,
-                            "Image name could not be generated",
-                            "Source: %s\nProblem: %s" % (image, problem),
-                            IMAGE_SKIPPED)
-                        skipImage = True
-                    elif problem:
-                        logError(config.WARNING, 
-                            "Insufficient image metadata to properly generate image name",
-                            "Source: %s\nDestination: %s\nProblem: %s" % 
-                            (image, newName, problem))
+            skipImage,  imageMD,  newName,  newFile,  path,  subfolder = getMetaData(image,  needMetaDataForImage,  needMetaDataToCreateSubfolderName)
+
+            if not skipImage:
+                try:
+                    imageDownloaded = False
+                    if not os.path.isdir(path):
+                        os.makedirs(path)
                     
     
-                if not skipImage:
-                    try:
-                        imageDownloaded = False
-                        if not os.path.isdir(path):
-                            os.makedirs(path)
+                    nameUnique = True
+                    # this is not thread safe!
+                    if os.path.exists(newFile):
                         
-        
-                        nameUnique = True
-                        # this is not thread safe!
-                        if os.path.exists(newFile):
+                        nameUnique = False
+                        if self.prefs.download_conflict_resolution == config.ADD_UNIQUE_IDENTIFIER:
+                            print "FIXME: add unique identifier"
                             
-                            nameUnique = False
+                        if self.prefs.indicate_download_error:
+                            severity = config.SERIOUS_ERROR
+                            problem = "Image already exists"
+                            details = "Source: %s\nDestination: %s" % (image, newFile)
                             if self.prefs.download_conflict_resolution == config.ADD_UNIQUE_IDENTIFIER:
-                                print "FIXME: add unique identifier"
-                                
-                            if self.prefs.indicate_download_error:
-                                severity = config.SERIOUS_ERROR
-                                problem = "Image already exists"
-                                details = "Source: %s\nDestination: %s" % (image, newFile)
-                                if self.prefs.download_conflict_resolution == config.ADD_UNIQUE_IDENTIFIER:
-                                    resolution = "Code to add unique identifier still needs to be written!"
-                                else:
-                                    resolution = IMAGE_SKIPPED
-                                logError(severity, problem, details, resolution)
-        
-                        if nameUnique:
-                            tempWorkingfile = os.path.join(tempWorkingDir, newName)
-                            shutil.copy2(image, tempWorkingfile)                
-                            os.rename(tempWorkingfile, newFile)
-                            imageDownloaded = True
-                            
-                    except IOError, (errno, strerror):
-                        logError(config.SERIOUS_ERROR, 'Download copying error', 
-                                    "Source: %s\nDestination: %s\nError: %s %s" % (image, newfile, errno, strerror),
-                                    'The image was not copied.')
-
-                    except OSError, (errno, strerror):
-                        logError(config.CRITICAL_ERROR, 'Download copying error', 
-                                    "Source: %s\nDestination: %s\nError: %s %s" % (image, newfile, errno, strerror),
-                                )
-                                
+                                resolution = "Code to add unique identifier still needs to be written!"
+                            else:
+                                resolution = IMAGE_SKIPPED
+                            logError(severity, problem, details, resolution)
+    
+                    if nameUnique:
+                        tempWorkingfile = os.path.join(tempWorkingDir, newName)
+                        shutil.copy2(image, tempWorkingfile)                
+                        os.rename(tempWorkingfile, newFile)
+                        imageDownloaded = True
                         
-                    # backup
-                    # there are two scenarios: 
-                    # (1) image has just been downloaded and should now be backed up
-                    # (2) image was already downloaded on some previous occassion and should still be backed up, because it hasn't been yet
-                    # (3) image has been backed up already (or at least, a file with the same name already exists
-                    try:
-                        if self.prefs.backup_images:
-                            for backupDir in self.parentApp.backupVolumes:
-                                backupPath = os.path.join(backupDir, subfolder)
-                                newBackupFile = os.path.join(backupPath,  newName)
-                                copyBackup = True
-                                if os.path.exists(newBackupFile):
-                                    # again, not thread safe
-                                    copyBackup = self.prefs.backup_duplicate_overwrite                                     
-                                    if self.prefs.indicate_download_error:
-                                        severity = config.SERIOUS_ERROR
-                                        problem = "Backup image already exists"
-                                        details = "Source: %s\nDestination: %s" % (image, newBackupFile) 
-                                        if copyBackup :
-                                            resolution = IMAGE_OVERWRITTEN
-                                        else:
-                                            resolution = IMAGE_SKIPPED
-                                        logError(severity, problem, details, resolution)
+                except IOError, (errno, strerror):
+                    logError(config.SERIOUS_ERROR, 'Download copying error', 
+                                "Source: %s\nDestination: %s\nError: %s %s" % (image, newfile, errno, strerror),
+                                'The image was not copied.')
 
-                                if copyBackup:
-                                    if imageDownloaded:
-                                        fileToCopy = newFile
+                except OSError, (errno, strerror):
+                    logError(config.CRITICAL_ERROR, 'Download copying error', 
+                                "Source: %s\nDestination: %s\nError: %s %s" % (image, newfile, errno, strerror),
+                            )
+                            
+                    
+                # backup
+                # there are two scenarios: 
+                # (1) image has just been downloaded and should now be backed up
+                # (2) image was already downloaded on some previous occassion and should still be backed up, because it hasn't been yet
+                # (3) image has been backed up already (or at least, a file with the same name already exists
+                try:
+                    if self.prefs.backup_images:
+                        for backupDir in self.parentApp.backupVolumes:
+                            backupPath = os.path.join(backupDir, subfolder)
+                            newBackupFile = os.path.join(backupPath,  newName)
+                            copyBackup = True
+                            if os.path.exists(newBackupFile):
+                                # again, not thread safe
+                                copyBackup = self.prefs.backup_duplicate_overwrite                                     
+                                if self.prefs.indicate_download_error:
+                                    severity = config.SERIOUS_ERROR
+                                    problem = "Backup image already exists"
+                                    details = "Source: %s\nDestination: %s" % (image, newBackupFile) 
+                                    if copyBackup :
+                                        resolution = IMAGE_OVERWRITTEN
                                     else:
-                                        fileToCopy = image
-                                    if not os.path.isdir(backupPath):
-                                        # recreate folder structure in backup location
-                                        # cannot do os.makedirs(backupPath) - it gives bad results when using external drives
-                                        # we know backupDir exists 
-                                        # all the components of subfolder may not
-                                        folders = subfolder.split(os.path.sep)
-                                        folderToMake = backupDir 
-                                        for f in folders:
-                                            if f:
-                                                folderToMake = os.path.join(folderToMake,  f)
-                                                if not os.path.isdir(folderToMake):
-                                                    try:
-                                                        os.mkdir(folderToMake)
-                                                    except (errno, strerror):
-                                                        logError(config.SERIOUS_ERROR, 'Backing up error', 
-                                                                 "Destination directory could not be created\n%s\nError: %s %s" % (folderToMake,  errno,  strerror), 
-                                                                 )
-                                                
-                                    shutil.copy2(fileToCopy,  newBackupFile)
-                    except IOError, (errno, strerror):
-                        logError(config.SERIOUS_ERROR, 'Backing up error', 
-                                    "Source: %s\nDestination: %s\nError: %s %s" % (image, newBackupFile, errno, strerror),
-                                    'The image was not copied.')
+                                        resolution = IMAGE_SKIPPED
+                                    logError(severity, problem, details, resolution)
 
-                    except OSError, (errno, strerror):
-                        logError(config.CRITICAL_ERROR, 'Backing up error', 
-                                    "Source: %s\nDestination: %s\nError: %s %s" % (image, newBackupFile, errno, strerror),
-                                )
-        
-                
+                            if copyBackup:
+                                if imageDownloaded:
+                                    fileToCopy = newFile
+                                else:
+                                    fileToCopy = image
+                                if not os.path.isdir(backupPath):
+                                    # recreate folder structure in backup location
+                                    # cannot do os.makedirs(backupPath) - it gives bad results when using external drives
+                                    # we know backupDir exists 
+                                    # all the components of subfolder may not
+                                    folders = subfolder.split(os.path.sep)
+                                    folderToMake = backupDir 
+                                    for f in folders:
+                                        if f:
+                                            folderToMake = os.path.join(folderToMake,  f)
+                                            if not os.path.isdir(folderToMake):
+                                                try:
+                                                    os.mkdir(folderToMake)
+                                                except (errno, strerror):
+                                                    logError(config.SERIOUS_ERROR, 'Backing up error', 
+                                                             "Destination directory could not be created\n%s\nError: %s %s" % (folderToMake,  errno,  strerror), 
+                                                             )
+                                            
+                                shutil.copy2(fileToCopy,  newBackupFile)
+                except IOError, (errno, strerror):
+                    logError(config.SERIOUS_ERROR, 'Backing up error', 
+                                "Source: %s\nDestination: %s\nError: %s %s" % (image, newBackupFile, errno, strerror),
+                                'The image was not copied.')
+
+                except OSError, (errno, strerror):
+                    logError(config.CRITICAL_ERROR, 'Backing up error', 
+                                "Source: %s\nDestination: %s\nError: %s %s" % (image, newBackupFile, errno, strerror),
+                            )
+    
+            
                 try:
                     thumbnailType, thumbnail = imageMD.getThumbnailData()
                 except:
@@ -1487,6 +1482,7 @@ class RapidApp(gnomeglade.GnomeApp):
         """
         
         uri = volume.get_activation_uri()
+        print "%s has been mounted" % uri
         path = gnomevfs.get_local_path_from_uri(uri)
 
         isBackupVolume = self.checkIfBackupVolume(path)
@@ -1580,6 +1576,7 @@ class RapidApp(gnomeglade.GnomeApp):
             
             for volume in self.volumeMonitor.get_mounted_volumes():
                 uri = volume.get_activation_uri()
+                print "%s is being checked to see if it contains images or backups" % uri
                 path = gnomevfs.get_local_path_from_uri(uri)
                 if path.startswith(config.MEDIA_LOCATION):
                     isBackupVolume = self.checkIfBackupVolume(path)

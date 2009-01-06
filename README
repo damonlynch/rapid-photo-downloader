@@ -7,9 +7,8 @@ of options for sub-folder creation, image renaming and backup.
 This software is still being developed.  Many but not all features 
 work.
 
-It does not download images directly from a camera, but it may do in a future
-release.  This capability depends on libgphoto2.  This program is written in
-python, and the python bindings for libgphoto2 are still in alpha status.
+It does not download images directly from a camera unless the camera is 
+recognized as an external drive.  
 
 Rapid Photo Downloader depends on the following software:
 
@@ -45,9 +44,10 @@ start from a fairly basic system, I suggest the following:
    
    http://tilloy.net/dev/pyexiv2/developers.htm
    
-3. Install this application from the tarball
+3. Install this application from the tarball. You probably need to be the 
+   super user (root) to be able to do this:
 
-   python setup.py install
+   sudo python setup.py install
    
 Start the program by running rapid-photo-downloader from the command line, or 
 manually setup a panel launcher using an icon supplied in the tarball.
@@ -59,12 +59,11 @@ Known Bugs
   this working.  I'm open to suggestions!
 * Select all and deselect all do nothing
 * Checkbutton on each image device does nothing
-* Checks to see if image already exists are not thread safe, and may cause 
-  images to be overwritten if downloading in parallel (so make sure your 
+* Checks to see if image already exists are not thread safe, and in rare circumstances
+  may cause images to be overwritten if downloading in parallel (so make sure your 
   filenames are going to be unique!)
 * Closing log window with window manager 'x' instead of 'close' button not yet
   supported
-* Backup feature temporarily disabled
 * Auto-detection of Portable Storage Devices needs to be written
 
 

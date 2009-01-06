@@ -1,3 +1,12 @@
+Version 0.0.4
+-------------
+
+2009-01-06
+
+Bug #314284: Fix bug where backup functionality did not work
+
+Bug #314285: Insert debugging code to help determine the cause of this bug
+
 Version 0.0.3
 -------------
 
