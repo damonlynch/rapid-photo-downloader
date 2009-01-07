@@ -11,9 +11,7 @@ For initial release (0.10.0):
 * indicate different levels of error better in log window
 * sum amount of images to be downloaded, and how much free space on the file system
 * fix known bugs, especially no unmount problem
-* implement copy to backup code
 * highlight image thumbnail with colour / text to indicate a problem / success
-* check to confirm that EXIF orientation tag will be only 1 or 8
 * check to see if preferences are valid before starting download
 * check to see if preferences are valid when clicking close on preferences dialog
 * alert user via dialog when preferences are invalid
@@ -21,7 +19,6 @@ For initial release (0.10.0):
   - on entering preferences dialog
   - on closing preferences dialog
 * rework checkPrefsForValidity() to account for multiple subfolder problems
-* use standard python tools so the application can be installed on the system 
 
 
 

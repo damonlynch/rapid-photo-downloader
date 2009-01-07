@@ -62,7 +62,7 @@ import renamesubfolderprefs as rn
 
 import tableplusminus as tpm
 
-__version__ = '0.0.4'
+__version__ = '0.0.5'
 version_info = tuple(int(n) for n in __version__.split('.'))
 
 try: 
@@ -188,6 +188,11 @@ class ThreadManager:
         for w in self._workers:
             if w.hasStarted and w.isAlive():
                 yield w
+                
+    def getPausedWorkers(self):
+        for w in self._workers:
+            if w.hasStarted and not w.running:
+                yield w            
                 
     def getFinishedWorkers(self):
         for w in self._workers:
@@ -845,7 +850,7 @@ class CopyPhotos(Thread):
             display_queue.close("rw")
             os.rmdir(tempWorkingDir)
             
-            imageMD = None
+            imageMetadata = None
 ##            self.cardMedia = None
             gc.collect()
             
@@ -856,14 +861,14 @@ class CopyPhotos(Thread):
         def getMetaData(image,  needMetaDataForImage,  needMetaDataToCreateSubfolderName):
             skipImage = False
             try:
-                imageMD = metadata.MetaData(image)
+                imageMetadata = metadata.MetaData(image)
             except IOError:
                 logError(config.CRITICAL_ERROR, "Could not open image", 
                                 "Source: %s" % image, 
                                 IMAGE_SKIPPED)
             else:
-                imageMD.readMetadata()
-                if not imageMD.exifKeys() and (needMetaDataToCreateImageName or 
+                imageMetadata.readMetadata()
+                if not imageMetadata.exifKeys() and (needMetaDataToCreateImageName or 
                                                 needMetaDataToCreateSubfolderName):
                     logError(config.SERIOUS_ERROR, "Image has no metadata", 
                                     "Source: %s" % image, 
@@ -872,7 +877,7 @@ class CopyPhotos(Thread):
                     
                 else:
                     subfolder, problem = self.subfolderPrefsFactory.getStringFromPreferences(
-                                                            imageMD, name, 
+                                                            imageMetadata, name, 
                                                             self.stripCharacters)
         
                     if problem:
@@ -882,7 +887,7 @@ class CopyPhotos(Thread):
                             (subfolder, image, problem))
                     
                     newName, problem = self.imageRenamePrefsFactory.getStringFromPreferences(
-                                                            imageMD, name, 
+                                                            imageMetadata, name, 
                                                             self.stripCharacters)
                                                             
                     path = os.path.join(baseDownloadDir, subfolder)
@@ -900,8 +905,114 @@ class CopyPhotos(Thread):
                             "Insufficient image metadata to properly generate image name",
                             "Source: %s\nDestination: %s\nProblem: %s" % 
                             (image, newName, problem))
-            return (skipImage,  imageMD,  newName,  newFile,  path,  subfolder)
+            return (skipImage,  imageMetadata,  newName,  newFile,  path,  subfolder)
         
+        def downloadImage(path,  newFile,  newName,  image):
+            try:
+                imageDownloaded = False
+                if not os.path.isdir(path):
+                    os.makedirs(path)
+                
+
+                nameUnique = True
+                # this is not thread safe!
+                if os.path.exists(newFile):
+                    
+                    nameUnique = False
+                    if self.prefs.download_conflict_resolution == config.ADD_UNIQUE_IDENTIFIER:
+                        print "FIXME: add unique identifier"
+                        
+                    if self.prefs.indicate_download_error:
+                        severity = config.SERIOUS_ERROR
+                        problem = "Image already exists"
+                        details = "Source: %s\nDestination: %s" % (image, newFile)
+                        if self.prefs.download_conflict_resolution == config.ADD_UNIQUE_IDENTIFIER:
+                            resolution = "Code to add unique identifier still needs to be written!"
+                        else:
+                            resolution = IMAGE_SKIPPED
+                        logError(severity, problem, details, resolution)
+
+                if nameUnique:
+                    tempWorkingfile = os.path.join(tempWorkingDir, newName)
+                    shutil.copy2(image, tempWorkingfile)                
+                    os.rename(tempWorkingfile, newFile)
+                    imageDownloaded = True
+                    
+            except IOError, (errno, strerror):
+                logError(config.SERIOUS_ERROR, 'Download copying error', 
+                            "Source: %s\nDestination: %s\nError: %s %s" % (image, newfile, errno, strerror),
+                            'The image was not copied.')
+
+            except OSError, (errno, strerror):
+                logError(config.CRITICAL_ERROR, 'Download copying error', 
+                            "Source: %s\nDestination: %s\nError: %s %s" % (image, newfile, errno, strerror),
+                        )
+            
+            return (imageDownloaded,  )
+            
+
+        def backupImage(subfolder,  newName,  imageDownloaded,  newFile,  image):
+            """ backup image to path(s) chosen by the user
+            
+            there are two scenarios: 
+            (1) image has just been downloaded and should now be backed up
+            (2) image was already downloaded on some previous occassion and should still be backed up, because it hasn't been yet
+            (3) image has been backed up already (or at least, a file with the same name already exists)
+            """
+            
+            try:
+                for backupDir in self.parentApp.backupVolumes:
+                    backupPath = os.path.join(backupDir, subfolder)
+                    newBackupFile = os.path.join(backupPath,  newName)
+                    copyBackup = True
+                    if os.path.exists(newBackupFile):
+                        # again, not thread safe
+                        copyBackup = self.prefs.backup_duplicate_overwrite                                     
+                        if self.prefs.indicate_download_error:
+                            severity = config.SERIOUS_ERROR
+                            problem = "Backup image already exists"
+                            details = "Source: %s\nDestination: %s" % (image, newBackupFile) 
+                            if copyBackup :
+                                resolution = IMAGE_OVERWRITTEN
+                            else:
+                                resolution = IMAGE_SKIPPED
+                            logError(severity, problem, details, resolution)
+
+                    if copyBackup:
+                        if imageDownloaded:
+                            fileToCopy = newFile
+                        else:
+                            fileToCopy = image
+                        if not os.path.isdir(backupPath):
+                            # recreate folder structure in backup location
+                            # cannot do os.makedirs(backupPath) - it gives bad results when using external drives
+                            # we know backupDir exists 
+                            # all the components of subfolder may not
+                            folders = subfolder.split(os.path.sep)
+                            folderToMake = backupDir 
+                            for f in folders:
+                                if f:
+                                    folderToMake = os.path.join(folderToMake,  f)
+                                    if not os.path.isdir(folderToMake):
+                                        try:
+                                            os.mkdir(folderToMake)
+                                        except (errno, strerror):
+                                            logError(config.SERIOUS_ERROR, 'Backing up error', 
+                                                     "Destination directory could not be created\n%s\nError: %s %s" % (folderToMake,  errno,  strerror), 
+                                                     )
+                                    
+                        shutil.copy2(fileToCopy,  newBackupFile)
+                        
+            except IOError, (errno, strerror):
+                logError(config.SERIOUS_ERROR, 'Backing up error', 
+                            "Source: %s\nDestination: %s\nError: %s %s" % (image, newBackupFile, errno, strerror),
+                            'The image was not copied.')
+
+            except OSError, (errno, strerror):
+                logError(config.CRITICAL_ERROR, 'Backing up error', 
+                            "Source: %s\nDestination: %s\nError: %s %s" % (image, newBackupFile, errno, strerror),
+                        )            
+
         self.hasStarted = True
         print "thread", self.thread_id, "is", get_ident(), "and is now running"
 
@@ -956,115 +1067,19 @@ class CopyPhotos(Thread):
             name, root, size = self.cardMedia.images[i]
             image = os.path.join(root, name)
             
-            skipImage,  imageMD,  newName,  newFile,  path,  subfolder = getMetaData(image,  needMetaDataForImage,  needMetaDataToCreateSubfolderName)
+            skipImage,  imageMetadata,  newName,  newFile,  path,  subfolder = getMetaData(image,  needMetaDataForImage,  needMetaDataToCreateSubfolderName)
 
             if not skipImage:
-                try:
-                    imageDownloaded = False
-                    if not os.path.isdir(path):
-                        os.makedirs(path)
-                    
-    
-                    nameUnique = True
-                    # this is not thread safe!
-                    if os.path.exists(newFile):
-                        
-                        nameUnique = False
-                        if self.prefs.download_conflict_resolution == config.ADD_UNIQUE_IDENTIFIER:
-                            print "FIXME: add unique identifier"
-                            
-                        if self.prefs.indicate_download_error:
-                            severity = config.SERIOUS_ERROR
-                            problem = "Image already exists"
-                            details = "Source: %s\nDestination: %s" % (image, newFile)
-                            if self.prefs.download_conflict_resolution == config.ADD_UNIQUE_IDENTIFIER:
-                                resolution = "Code to add unique identifier still needs to be written!"
-                            else:
-                                resolution = IMAGE_SKIPPED
-                            logError(severity, problem, details, resolution)
-    
-                    if nameUnique:
-                        tempWorkingfile = os.path.join(tempWorkingDir, newName)
-                        shutil.copy2(image, tempWorkingfile)                
-                        os.rename(tempWorkingfile, newFile)
-                        imageDownloaded = True
-                        
-                except IOError, (errno, strerror):
-                    logError(config.SERIOUS_ERROR, 'Download copying error', 
-                                "Source: %s\nDestination: %s\nError: %s %s" % (image, newfile, errno, strerror),
-                                'The image was not copied.')
+                imageDownloaded  = downloadImage(path,  newFile,  newName,  image)
+                if self.prefs.backup_images:
+                    backupImage(subfolder,  newName,  imageDownloaded,  newFile,  image)
 
-                except OSError, (errno, strerror):
-                    logError(config.CRITICAL_ERROR, 'Download copying error', 
-                                "Source: %s\nDestination: %s\nError: %s %s" % (image, newfile, errno, strerror),
-                            )
-                            
-                    
-                # backup
-                # there are two scenarios: 
-                # (1) image has just been downloaded and should now be backed up
-                # (2) image was already downloaded on some previous occassion and should still be backed up, because it hasn't been yet
-                # (3) image has been backed up already (or at least, a file with the same name already exists
                 try:
-                    if self.prefs.backup_images:
-                        for backupDir in self.parentApp.backupVolumes:
-                            backupPath = os.path.join(backupDir, subfolder)
-                            newBackupFile = os.path.join(backupPath,  newName)
-                            copyBackup = True
-                            if os.path.exists(newBackupFile):
-                                # again, not thread safe
-                                copyBackup = self.prefs.backup_duplicate_overwrite                                     
-                                if self.prefs.indicate_download_error:
-                                    severity = config.SERIOUS_ERROR
-                                    problem = "Backup image already exists"
-                                    details = "Source: %s\nDestination: %s" % (image, newBackupFile) 
-                                    if copyBackup :
-                                        resolution = IMAGE_OVERWRITTEN
-                                    else:
-                                        resolution = IMAGE_SKIPPED
-                                    logError(severity, problem, details, resolution)
-
-                            if copyBackup:
-                                if imageDownloaded:
-                                    fileToCopy = newFile
-                                else:
-                                    fileToCopy = image
-                                if not os.path.isdir(backupPath):
-                                    # recreate folder structure in backup location
-                                    # cannot do os.makedirs(backupPath) - it gives bad results when using external drives
-                                    # we know backupDir exists 
-                                    # all the components of subfolder may not
-                                    folders = subfolder.split(os.path.sep)
-                                    folderToMake = backupDir 
-                                    for f in folders:
-                                        if f:
-                                            folderToMake = os.path.join(folderToMake,  f)
-                                            if not os.path.isdir(folderToMake):
-                                                try:
-                                                    os.mkdir(folderToMake)
-                                                except (errno, strerror):
-                                                    logError(config.SERIOUS_ERROR, 'Backing up error', 
-                                                             "Destination directory could not be created\n%s\nError: %s %s" % (folderToMake,  errno,  strerror), 
-                                                             )
-                                            
-                                shutil.copy2(fileToCopy,  newBackupFile)
-                except IOError, (errno, strerror):
-                    logError(config.SERIOUS_ERROR, 'Backing up error', 
-                                "Source: %s\nDestination: %s\nError: %s %s" % (image, newBackupFile, errno, strerror),
-                                'The image was not copied.')
-
-                except OSError, (errno, strerror):
-                    logError(config.CRITICAL_ERROR, 'Backing up error', 
-                                "Source: %s\nDestination: %s\nError: %s %s" % (image, newBackupFile, errno, strerror),
-                            )
-    
-            
-                try:
-                    thumbnailType, thumbnail = imageMD.getThumbnailData()
+                    thumbnailType, thumbnail = imageMetadata.getThumbnailData()
                 except:
                     logError(config.WARNING, "Image has no thumbnail", image)
                 else:
-                    orientation = imageMD.orientation(missing=None)
+                    orientation = imageMetadata.orientation(missing=None)
                     display_queue.put((image_hbox.addImage, (self.thread_id, thumbnail, orientation, image)))
             
             sizeDownloaded += size
@@ -1086,8 +1101,7 @@ class CopyPhotos(Thread):
 
 
 
-    def on_volume_unmount(self, *args):
-        pass
+
         
     def startStop(self):
         if self.isAlive():
@@ -1425,8 +1439,10 @@ class RapidApp(gnomeglade.GnomeApp):
         
         self.setupAvailableImageAndBackupMedia()
         
-##        if self.download_button.get_sensitive():
-        self.download_button.grab_focus()            
+        self.download_button.grab_focus()
+        
+        if self.prefs.auto_download_at_startup:
+            self.startDownload()
 
 
                             
@@ -1498,6 +1514,10 @@ class RapidApp(gnomeglade.GnomeApp):
             i = workers.getNextThread_id()
             workers.append(CopyPhotos(i, self, cardMedia))
             self.setDownloadButtonSensitivity()
+            
+            if self.prefs.auto_download_upon_device_insertion:
+                #workers.printWorkerStatus()
+                self.startDownload()
             
     def on_volume_unmounted(self, monitor, volume):
         """
@@ -1662,7 +1682,7 @@ class RapidApp(gnomeglade.GnomeApp):
         self.timeStatusBarUpdated = self.startTime
 
         # resume any paused workers
-        for w in workers.getRunningWorkers():
+        for w in workers.getPausedWorkers():
             w.startStop()
             
         #start any new workers
@@ -1802,6 +1822,20 @@ class RapidApp(gnomeglade.GnomeApp):
     def on_menu_download_pause_activate(self, widget):
         self.on_download_button_clicked(widget)
         
+
+    def startDownload(self):
+        self.startOrResumeWorkers()
+        # set button to display Pause
+        self.download_button_is_download = False
+        self._set_download_button()
+        
+    def pauseDownload(self):
+        for w in workers.getWorkers():
+            w.startStop()
+        # set button to display Download
+        self.download_button_is_download = True
+        self._set_download_button()
+        
     def on_download_button_clicked(self, widget):
         """
         Handle download button click.
@@ -1812,17 +1846,9 @@ class RapidApp(gnomeglade.GnomeApp):
         If pause, a click indicates to pause all running downloads.
         """
         if self.download_button_is_download:
-            self.startOrResumeWorkers()
-            # set button to display Pause
-            self.download_button_is_download = False
-            self._set_download_button()
+            self.startDownload()
         else:
-            for w in workers.getWorkers():
-                w.startStop()
-            # set button to display Download
-            self.download_button_is_download = True
-            self._set_download_button()
-
+            self.pauseDownload()
             
     def on_preference_changed(self, key, value):
         if key == 'display_thumbnails':
