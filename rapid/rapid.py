@@ -376,6 +376,12 @@ class ImageRenameTable(tpm.TablePlusMinus):
         Update preferences, as a row has been added
         """
         self.updatePreferences()
+        
+        # if this was the last row, and another has just been added, move vertical scrollbar down
+        if rowPosition == (self.pm_noRows - 2):
+            adjustment = self.parentApp.rename_scrolledwindow.get_vadjustment()
+            adjustment.set_value(adjustment.upper)
+        
 
     def on_rowDeleted(self, rowPosition):
         """
@@ -1092,9 +1098,9 @@ class CopyPhotos(Thread):
 
         cleanUp()
         
-##        if self.prefs.auto_unmount and self.cardMedia.volume:
-##            print "unmounting volume as requested"
-##            self.cardMedia.volume.unmount(self.on_volume_unmount)
+        if self.prefs.auto_unmount and self.cardMedia.volume:
+            print "unmounting volume as requested"
+            self.cardMedia.volume.unmount(self.on_volume_unmount)
             
         self.running = False
         self.lock.release()
@@ -1140,6 +1146,8 @@ class CopyPhotos(Thread):
                         except thread_error:
                             print "Could not release lock for thread", self.thread_id
 
+    def on_volume_unmount(self,  data1,  data2):
+        print "unmount callback"
             
 
 class MediaTreeView(gtk.TreeView):
@@ -1182,7 +1190,10 @@ class MediaTreeView(gtk.TreeView):
     def change_toggle(self, widget, row):
         iter = self.liststore.get_iter((int(row),))
         self.liststore.set_value(iter, 0, not widget.get_active())
-
+        
+    def get_toggle(self,  thread_id):
+        iter = self._getThreadMap(thread_id)
+        return self.liststore.get_value(iter,  0)
         
     def addCard(self, thread_id, cardName, sizeImages, noImages, progress = 0.0,
                 progressBarText = ''):
@@ -1713,13 +1724,13 @@ class RapidApp(gnomeglade.GnomeApp):
             self._set_download_button()
             self.setDownloadButtonSensitivity()
 
-            if self.prefs.auto_unmount:
+#            if self.prefs.auto_unmount:
 ##                for v in self.volumeMonitor.get_mounted_volumes():
 ##                    print v.get_display_name()
-                for w in workers.getFinishedWorkers():
-                    print "unmounting volume as requested"
-                    if w.cardMedia.volume:
-                        w.cardMedia.volume.unmount(self.on_unmount)
+#                for w in workers.getFinishedWorkers():
+#                    print "unmounting volume as requested"
+#                    if w.cardMedia.volume:
+#                        w.cardMedia.volume.unmount(self.on_unmount)
     
         else:
             now = time.time()

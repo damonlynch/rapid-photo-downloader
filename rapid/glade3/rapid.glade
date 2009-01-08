@@ -31,6 +31,7 @@
                 <property name="shadow_type">GTK_SHADOW_IN</property>
                 <child>
                   <widget class="GtkTreeView" id="treeview">
+                    <property name="width_request">100</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
@@ -278,16 +279,28 @@
                         <property name="visible">True</property>
                         <property name="spacing">12</property>
                         <child>
-                          <widget class="GtkVBox" id="rename_table_vbox">
+                          <widget class="GtkScrolledWindow" id="rename_scrolledwindow">
                             <property name="visible">True</property>
+                            <property name="can_focus">True</property>
+                            <property name="hscrollbar_policy">GTK_POLICY_NEVER</property>
+                            <property name="vscrollbar_policy">GTK_POLICY_AUTOMATIC</property>
+                            <property name="window_placement_set">True</property>
                             <child>
-                              <placeholder/>
+                              <widget class="GtkViewport" id="viewport2">
+                                <property name="visible">True</property>
+                                <property name="resize_mode">GTK_RESIZE_QUEUE</property>
+                                <property name="shadow_type">GTK_SHADOW_NONE</property>
+                                <child>
+                                  <widget class="GtkVBox" id="rename_table_vbox">
+                                    <property name="visible">True</property>
+                                    <child>
+                                      <placeholder/>
+                                    </child>
+                                  </widget>
+                                </child>
+                              </widget>
                             </child>
                           </widget>
-                          <packing>
-                            <property name="expand">False</property>
-                            <property name="fill">False</property>
-                          </packing>
                         </child>
                         <child>
                           <widget class="GtkTable" id="rename_example_table">
@@ -1580,6 +1593,7 @@ You can download photos from multiple image devices simultaneously.</property>
     <property name="type_hint">GDK_WINDOW_TYPE_HINT_NORMAL</property>
     <property name="program_name">Rapid Photo Downloader</property>
     <property name="copyright" translatable="yes">(c) Damon Lynch 2007-09</property>
+    <property name="website">http://www.damonlynch.net/rapid</property>
     <property name="authors">Damon Lynch</property>
     <property name="translator_credits" translatable="yes" comments="TRANSLATORS: Replace this string with your names, one name per line.">translator-credits</property>
     <property name="logo">rapid-photo-downloader-icon.png</property>

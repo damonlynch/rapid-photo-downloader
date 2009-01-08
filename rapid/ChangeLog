@@ -5,6 +5,7 @@ Version 0.0.5
 
 Implement auto download on device insertion, and auto download on program startup
 Increase default width of preferences dialog box
+Add vertical scrollbar to image rename preferences
 
 
 Version 0.0.4
