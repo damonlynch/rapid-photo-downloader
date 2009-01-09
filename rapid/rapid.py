@@ -1159,8 +1159,8 @@ class MediaTreeView(gtk.TreeView):
     def __init__(self, parentApp):
 
         self.parentApp = parentApp
-        # Download checkbox, card name, size of images, number of images, copy progress, copy text
-        self.liststore = gtk.ListStore(bool, str, str, int, float, str)
+        # card name, size of images, number of images, copy progress, copy text
+        self.liststore = gtk.ListStore(str, str, int, float, str)
         self.mapThreadToRow = {}
 
         gtk.TreeView.__init__(self, self.liststore)
@@ -1170,30 +1170,16 @@ class MediaTreeView(gtk.TreeView):
         selection = self.get_selection()
         selection.set_mode(gtk.SELECTION_NONE)
         
-        toggle_renderer = gtk.CellRendererToggle()
-        column0 = gtk.TreeViewColumn('', toggle_renderer, 
-                                    active=0)
-        toggle_renderer.connect("toggled", self.change_toggle)
+        column0 = gtk.TreeViewColumn("Device", gtk.CellRendererText(), 
+                                    text=0)
         self.append_column(column0)
-        
-        column1 = gtk.TreeViewColumn("Device", gtk.CellRendererText(), 
-                                    text=1)
+        column1 = gtk.TreeViewColumn("Size", gtk.CellRendererText(), text=1)
         self.append_column(column1)
-        column2 = gtk.TreeViewColumn("Size", gtk.CellRendererText(), text=2)
+        
+        column2 = gtk.TreeViewColumn("Download Progress", 
+                                    gtk.CellRendererProgress(), value=3, text=4)
         self.append_column(column2)
-        
-        column3 = gtk.TreeViewColumn("Download Progress", 
-                                    gtk.CellRendererProgress(), value=4, text=5)
-        self.append_column(column3)
         self.show_all()
-
-    def change_toggle(self, widget, row):
-        iter = self.liststore.get_iter((int(row),))
-        self.liststore.set_value(iter, 0, not widget.get_active())
-        
-    def get_toggle(self,  thread_id):
-        iter = self._getThreadMap(thread_id)
-        return self.liststore.get_value(iter,  0)
         
     def addCard(self, thread_id, cardName, sizeImages, noImages, progress = 0.0,
                 progressBarText = ''):
@@ -1201,7 +1187,7 @@ class MediaTreeView(gtk.TreeView):
             progressBarText = "0 of %s images copied" % (noImages)
         
         # add the row, and get a temporary pointer to the row
-        iter = self.liststore.append((True, cardName, sizeImages, noImages, 
+        iter = self.liststore.append((cardName, sizeImages, noImages, 
                                                 progress, progressBarText))
         
         self._setThreadMap(thread_id, iter)
@@ -1235,8 +1221,8 @@ class MediaTreeView(gtk.TreeView):
         
         iter = self._getThreadMap(thread_id)
         
-        self.liststore.set_value(iter, 4, percentComplete)
-        self.liststore.set_value(iter, 5, progressBarText)
+        self.liststore.set_value(iter, 3, percentComplete)
+        self.liststore.set_value(iter, 4, progressBarText)
         self.parentApp.updateOverallProgress(thread_id, imageSize)
 
         
@@ -1442,8 +1428,6 @@ class RapidApp(gnomeglade.GnomeApp):
         self.menu_resequence.set_sensitive(False)
         self.menu_display_thumbnails.set_active(self.prefs.display_thumbnails)
         self.menu_clear.set_sensitive(False)
-        self.menu_select_all.set_sensitive(False)
-        self.menu_deselect_all.set_sensitive(False)
         
         self.download_folders_display_label.hide()
         self.widget.show()

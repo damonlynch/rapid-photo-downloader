@@ -1,6 +1,8 @@
 Version 0.0.5
 -------------
 
+Unmount bug: All file descriptors closed, and nothing has its cwd in there. Lsof
+
 2009-01-0
 
 Implement auto download on device insertion, and auto download on program startup
