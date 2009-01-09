@@ -1,13 +1,13 @@
 Version 0.0.5
 -------------
 
-Unmount bug: All file descriptors closed, and nothing has its cwd in there. Lsof
-
-2009-01-0
+2009-01-09
 
 Implement auto download on device insertion, and auto download on program startup
 Increase default width of preferences dialog box
 Add vertical scrollbar to image rename preferences
+
+Fixes for bugs #313463 & #313462
 
 
 Version 0.0.4
