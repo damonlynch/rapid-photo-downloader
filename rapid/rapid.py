@@ -62,7 +62,7 @@ import renamesubfolderprefs as rn
 
 import tableplusminus as tpm
 
-__version__ = '0.0.5'
+__version__ = '0.0.6'
 version_info = tuple(int(n) for n in __version__.split('.'))
 
 try: 
@@ -409,7 +409,7 @@ class PreferencesDialog(gnomeglade.Component):
         gnomeglade.Component.__init__(self, 
                                     paths.share_dir(config.GLADE_FILE), 
                                     "preferencesdialog")
-                                    
+        
         self.widget.set_transient_for(parentApp.widget)
         self.prefs = parentApp.prefs
 
@@ -418,16 +418,17 @@ class PreferencesDialog(gnomeglade.Component):
         self._setupControlSpacing()
 
         # get example image data
+        
         try:
-            print "FIXME: make sample image selection more intelligent"
-            root, self.sampleImageName = workers[0].firstImage()
+            w = workers.firstWorkerReadyToStart()
+            root, self.sampleImageName = w.firstImage()
             image = os.path.join(root, self.sampleImageName)
             self.sampleImage = metadata.MetaData(image)
             self.sampleImage.readMetadata() 
         except:
             self.sampleImage = metadata.DummyMetaData()
             self.sampleImageName = 'IMG_0524.CR2'
-            
+        
         # setup tabs
         self._setupDownloadFolderTab()
         self._setupImageRenameTab()
@@ -439,6 +440,11 @@ class PreferencesDialog(gnomeglade.Component):
 
         self.widget.show()
 
+
+    def on_preferencesdialog_destroy(self,  widget):
+        """ Delete variables from memory that cause a file descriptor to be created on a mounted media"""
+        del self.sampleImage,  self.rename_table.prefsFactory,  self.subfolder_table.prefsFactory
+        
     def _setupTabSelector(self):
         self.notebook.set_show_tabs(0)
         self.model = gtk.ListStore(type(""))
@@ -593,8 +599,7 @@ class PreferencesDialog(gnomeglade.Component):
                         self.prefs.auto_download_upon_device_insertion)
         self.auto_unmount_checkbutton.set_active(
                         self.prefs.auto_unmount)
-                        
-        self.auto_unmount_checkbutton.set_sensitive(False)
+
         
     def _setupErrorTab(self):
         self.indicate_download_error_checkbutton.set_active(
@@ -721,7 +726,7 @@ class PreferencesDialog(gnomeglade.Component):
         else:
             self.prefs.media_type = config.PORTABLE_STORAGE_DEVICE
             
-    
+
     def updateBackupControls(self):
         """
         Sets sensitivity of backup related widgets
@@ -856,9 +861,6 @@ class CopyPhotos(Thread):
             display_queue.close("rw")
             os.rmdir(tempWorkingDir)
             
-            imageMetadata = None
-##            self.cardMedia = None
-            gc.collect()
             
         def logError(severity, problem, details, resolution=None):
             display_queue.put((log_dialog.addMessage, (self.thread_id, severity, problem, details, 
@@ -1097,9 +1099,10 @@ class CopyPhotos(Thread):
 
 
         cleanUp()
-        
+        # must manually delete these variables, or else the media cannot be unmounted
+        del imageMetadata,  self.subfolderPrefsFactory,  self.imageRenamePrefsFactory
+                
         if self.prefs.auto_unmount and self.cardMedia.volume:
-            print "unmounting volume as requested"
             self.cardMedia.volume.unmount(self.on_volume_unmount)
             
         self.running = False
@@ -1147,7 +1150,7 @@ class CopyPhotos(Thread):
                             print "Could not release lock for thread", self.thread_id
 
     def on_volume_unmount(self,  data1,  data2):
-        print "unmount callback"
+        pass
             
 
 class MediaTreeView(gtk.TreeView):
@@ -1224,7 +1227,6 @@ class MediaTreeView(gtk.TreeView):
         self.liststore.set_value(iter, 3, percentComplete)
         self.liststore.set_value(iter, 4, progressBarText)
         self.parentApp.updateOverallProgress(thread_id, imageSize)
-
         
 
 
@@ -1707,14 +1709,6 @@ class RapidApp(gnomeglade.GnomeApp):
             self.download_button_is_download = True
             self._set_download_button()
             self.setDownloadButtonSensitivity()
-
-#            if self.prefs.auto_unmount:
-##                for v in self.volumeMonitor.get_mounted_volumes():
-##                    print v.get_display_name()
-#                for w in workers.getFinishedWorkers():
-#                    print "unmounting volume as requested"
-#                    if w.cardMedia.volume:
-#                        w.cardMedia.volume.unmount(self.on_unmount)
     
         else:
             now = time.time()

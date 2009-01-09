@@ -13,6 +13,7 @@
     <property name="default_height">500</property>
     <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
     <property name="has_separator">False</property>
+    <signal name="destroy" handler="on_preferencesdialog_destroy"/>
     <signal name="response" handler="on_response"/>
     <child internal-child="vbox">
       <widget class="GtkVBox" id="dialog-vbox2">
@@ -1566,12 +1567,13 @@ You can download photos from multiple image devices simultaneously.</property>
               <placeholder/>
             </child>
             <child>
-              <widget class="GtkButton" id="button1">
+              <widget class="GtkButton" id="close_button">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="label">gtk-close</property>
                 <property name="use_stock">True</property>
                 <property name="response_id">-7</property>
+                <signal name="clicked" handler="on_close_button_clicked"/>
               </widget>
               <packing>
                 <property name="position">1</property>
