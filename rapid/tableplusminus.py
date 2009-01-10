@@ -168,7 +168,7 @@ class TablePlusMinus(gtk.Table):
 
 
     def attach(self, child, left_attach, right_attach, top_attach, bottom_attach, xoptions=gtk.EXPAND|gtk.FILL, 
-                        yoptions=gtk.EXPAND|gtk.FILL, xpadding=0, ypadding=0):
+                        yoptions=gtk.SHRINK, xpadding=0, ypadding=0):
         """
         Override base class attach method, to allow automatic shrinking of minus and plus buttons
         """

@@ -6,11 +6,9 @@ For initial release (0.10.0):
    - allow generation of unique sequences based on date time for last 1 - n days, via menu
 
 * better handle preference changes while downloads are occurring
-* handle media removal
 * handle unexpected media removal, disk full, all kinds of write errors
 * indicate different levels of error better in log window
 * sum amount of images to be downloaded, and how much free space on the file system
-* fix known bugs, especially no unmount problem
 * highlight image thumbnail with colour / text to indicate a problem / success
 * check to see if preferences are valid before starting download
 * check to see if preferences are valid when clicking close on preferences dialog

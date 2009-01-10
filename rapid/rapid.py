@@ -86,12 +86,9 @@ def UpdateDisplay(display_queue):
             call, args = display_queue.get()
             if not exiting:
                 call(*args)
-            else:
-                print "=== Do not update display"
+#            else do not update display
         else:
-            # This shouldn't happen
             print "Empty display queue!"
-            pass
         return True
     
     except tube.EOInformation:

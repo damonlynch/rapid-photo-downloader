@@ -1596,9 +1596,15 @@ You can download photos from multiple image devices simultaneously.</property>
     <property name="program_name">Rapid Photo Downloader</property>
     <property name="copyright" translatable="yes">(c) Damon Lynch 2007-09</property>
     <property name="website">http://www.damonlynch.net/rapid</property>
+    <property name="license" translatable="yes">Rapid Photo Downloader is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.
+
+Rapid Photo Downloader is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along with Rapid Photo Downloader; if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.</property>
     <property name="authors">Damon Lynch</property>
     <property name="translator_credits" translatable="yes" comments="TRANSLATORS: Replace this string with your names, one name per line.">translator-credits</property>
     <property name="logo">rapid-photo-downloader-icon.png</property>
+    <property name="wrap_license">True</property>
     <child internal-child="vbox">
       <widget class="GtkVBox" id="dialog-vbox1">
         <property name="visible">True</property>
