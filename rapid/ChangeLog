@@ -6,8 +6,9 @@ Version 0.0.6
 Fixed extremely annoying bug where memory cards could not be unmounted
 Made sample image selection for preferences more robust
 Added license details to about dialog
-Fix bug where image rename preferences entry boxes vertically expanded
-Make default download folder in the home directory
+Fix bug where image rename preferences entry boxes vertically expanded, looking very ugly indeed
+Wrap new filename in image rename preferences when it becomes too long
+Make default download folder selection more robust
 Remove sequence number and sequence letter from list of choices for image rename (not yet implemented)
 
 Version 0.0.5

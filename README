@@ -55,10 +55,6 @@ manually setup a panel launcher using an icon supplied in the tarball.
 Known Bugs
 ==========
 
-* Cannot unmount the media while the application is running. I'd love to get 
-  this working.  I'm open to suggestions!
-* Select all and deselect all do nothing
-* Checkbutton on each image device does nothing
 * Checks to see if image already exists are not thread safe, and in rare circumstances
   may cause images to be overwritten if downloading in parallel (so make sure your 
   filenames are going to be unique!)

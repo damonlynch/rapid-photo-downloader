@@ -27,7 +27,8 @@ REPORT_WARNING = "warning"
 REPORT_ERROR = "error"
 IGNORE = "ignore"
 
-DEFAULT_PHOTO_LOCATION = ""
+DEFAULT_PHOTO_LOCATIONS = ['Pictures',  'Photos']
+DEFAULT_BACKUP_LOCATION = 'Pictures'
 
 MAX_NO_READERS = 20
 

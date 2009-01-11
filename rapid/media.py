@@ -24,7 +24,11 @@ import config
 import common
 
 def getDefaultPhotoLocation():
-    return common.getFullPath(config.DEFAULT_PHOTO_LOCATION)
+    for default in config.DEFAULT_PHOTO_LOCATIONS:
+        path = common.getFullPath(default)
+        if os.path.isdir(path):
+            return path
+    return common.getFullPath('')
     
 def isImageMedia(path):
     """ Returns true if directory specifies some media with photos on it """
@@ -147,3 +151,5 @@ if __name__ == '__main__':
     print "\nBackup media:"
     for m in scanForBackupMedia('/media',  'photos'):
         print m
+
+    print "\nDefault download folder: ",  getDefaultPhotoLocation()

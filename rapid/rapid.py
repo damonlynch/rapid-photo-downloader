@@ -245,7 +245,7 @@ class RapidPreferences(prefs.Preferences):
         "backup_images": prefs.Value(prefs.BOOL, False),
         "backup_device_autodetection": prefs.Value(prefs.BOOL, True),
         "backup_identifier": prefs.Value(prefs.STRING, 
-                                        config.DEFAULT_PHOTO_LOCATION),
+                                        config.DEFAULT_BACKUP_LOCATION),
         "backup_location": prefs.Value(prefs.STRING, os.path.expanduser('~')),
         "strip_characters": prefs.Value(prefs.BOOL, True),
         "auto_download_at_startup": prefs.Value(prefs.BOOL, False),
