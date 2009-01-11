@@ -1588,18 +1588,21 @@ class RapidApp(gnomeglade.GnomeApp):
             # either using automatically detected backup devices
             # or image devices
             
+            # ugly hack to work around bug where gnomevfs.get_local_path_from_uri(uri) causes a crash
+            mediaLocation = "file://" + config.MEDIA_LOCATION
+            
             for volume in self.volumeMonitor.get_mounted_volumes():
                 uri = volume.get_activation_uri()
-                print "%s is being checked to see if it contains images or backups" % uri
-                path = gnomevfs.get_local_path_from_uri(uri)
-                if path.startswith(config.MEDIA_LOCATION):
-                    isBackupVolume = self.checkIfBackupVolume(path)
-                    
-                    if isBackupVolume:
-                        backupPath = os.path.join(path,  self.prefs.backup_identifier)
-                        self.backupVolumes[backupPath] = volume
-                    elif self.prefs.device_autodetection and media.isImageMedia(path):
-                        cardMediaList.append(CardMedia(path, volume))
+                if uri.find(mediaLocation) == 0:
+                    path = gnomevfs.get_local_path_from_uri(uri)
+                    if path.startswith(config.MEDIA_LOCATION):
+                        isBackupVolume = self.checkIfBackupVolume(path)
+                        
+                        if isBackupVolume:
+                            backupPath = os.path.join(path,  self.prefs.backup_identifier)
+                            self.backupVolumes[backupPath] = volume
+                        elif self.prefs.device_autodetection and media.isImageMedia(path):
+                            cardMediaList.append(CardMedia(path, volume))
                         
         
         if not self.prefs.device_autodetection:

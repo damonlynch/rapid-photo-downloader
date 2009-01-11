@@ -10,6 +10,7 @@ Fix bug where image rename preferences entry boxes vertically expanded, looking 
 Wrap new filename in image rename preferences when it becomes too long
 Make default download folder selection more robust
 Remove sequence number and sequence letter from list of choices for image rename (not yet implemented)
+Bug #314825: fix by not calling  gnomevfs.get_local_path_from_uri() unless strictly necessary
 
 Version 0.0.5
 -------------
