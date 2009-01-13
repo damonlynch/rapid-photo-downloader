@@ -62,7 +62,7 @@ import renamesubfolderprefs as rn
 
 import tableplusminus as tpm
 
-__version__ = '0.0.6'
+__version__ = '0.0.7'
 version_info = tuple(int(n) for n in __version__.split('.'))
 
 try: 
@@ -241,7 +241,8 @@ class RapidPreferences(prefs.Preferences):
                                         rn.NAME_EXTENSION,
                                         rn.ORIGINAL_CASE]),
         "device_autodetection": prefs.Value(prefs.BOOL, True),
-        "device_location": prefs.Value(prefs.STRING, os.path.expanduser('~')),
+        "device_location": prefs.Value(prefs.STRING, os.path.expanduser('~')), 
+        "device_autodetection_psd": prefs.Value(prefs.BOOL,  False),
         "backup_images": prefs.Value(prefs.BOOL, False),
         "backup_device_autodetection": prefs.Value(prefs.BOOL, True),
         "backup_identifier": prefs.Value(prefs.STRING, 
@@ -477,9 +478,10 @@ class PreferencesDialog(gnomeglade.Component):
         self.download_folder_table.set_row_spacing(2, 
                                 hd.VERTICAL_CONTROL_SPACE)
         self._setupTableSpacing(self.rename_example_table)
-        self._setupTableSpacing(self.devices_table)
-        self.devices_table.set_row_spacing(3, hd.VERTICAL_CONTROL_SPACE)
-        self.devices_table.set_row_spacing(0, hd.VERTICAL_CONTROL_SPACE)
+        self.devices_table.set_col_spacing(0,   hd.NESTED_CONTROLS_SPACE)        
+
+        self.devices2_table.set_col_spacing(0,  hd.CONTROL_LABEL_SPACE)
+        
         self._setupTableSpacing(self.backup_table)
         self.backup_table.set_col_spacing(1, hd.NESTED_CONTROLS_SPACE)
         self.backup_table.set_col_spacing(2, hd.CONTROL_LABEL_SPACE)
@@ -536,11 +538,15 @@ class PreferencesDialog(gnomeglade.Component):
         self.device_location_filechooser_button.connect("selection-changed", 
                     self.on_device_location_filechooser_button_selection_changed)
 
-        self.devices_table.attach(self.device_location_filechooser_button,
-                            1, 2, 3, 4, yoptions = gtk.SHRINK)
+        self.devices2_table.attach(self.device_location_filechooser_button,
+                            1, 2, 1, 2, xoptions = gtk.EXPAND|gtk.FILL,  yoptions = gtk.SHRINK)
         self.device_location_filechooser_button.show()
         self.autodetect_device_checkbutton.set_active(
                             self.prefs.device_autodetection)
+        self.autodetect_psd_checkbutton.set_active(
+                            self.prefs.device_autodetection_psd)
+                            
+        self.updateDeviceControls()
         
 
     def _setupBackupTab(self):
@@ -671,17 +677,11 @@ class PreferencesDialog(gnomeglade.Component):
         self.prefs.auto_unmount = checkbutton.get_active()
         
     def on_autodetect_device_checkbutton_toggled(self, checkbutton):
-        active = checkbutton.get_active()
-        self.prefs.device_autodetection = active
-        controls = [self.device_location_explanation_label,
-                    self.device_location_label,
-                    self.device_location_filechooser_button]
-        if active:
-            for c in controls:
-                c.set_sensitive(False)
-        else:
-            for c in controls:
-                c.set_sensitive(True)
+        self.prefs.device_autodetection = checkbutton.get_active()
+        self.updateDeviceControls()
+
+    def on_autodetect_psd_checkbutton_toggled(self,  checkbutton):
+        self.prefs.device_autodetection_psd = checkbutton.get_active()
         
     def on_backup_duplicate_overwrite_radiobutton_toggled(self,  widget):
         self.prefs.backup_duplicate_overwrite = widget.get_active()
@@ -724,6 +724,23 @@ class PreferencesDialog(gnomeglade.Component):
             self.prefs.media_type = config.PORTABLE_STORAGE_DEVICE
             
 
+    def updateDeviceControls(self):
+        """
+        Sets sensitivity of image device controls
+        """
+        controls = [self.device_location_explanation_label,
+                    self.device_location_label,
+                    self.device_location_filechooser_button]
+
+        if self.prefs.device_autodetection:
+            for c in controls:
+                c.set_sensitive(False)
+            self.autodetect_psd_checkbutton.set_sensitive(True)
+        else:
+            for c in controls:
+                c.set_sensitive(True)
+            self.autodetect_psd_checkbutton.set_sensitive(False)
+    
     def updateBackupControls(self):
         """
         Sets sensitivity of backup related widgets
@@ -1485,6 +1502,12 @@ class RapidApp(gnomeglade.GnomeApp):
             
         return message
         
+    def searchForPsd(self):
+        """
+        Check to see if user preferences are to automatically search for Portable Storage Devices or not
+        """
+        return self.prefs.device_autodetection_psd and self.prefs.device_autodetection
+        
     def on_volume_mounted(self, monitor, volume):
         """
         callback run when gnomevfs indicates a new volume
@@ -1503,7 +1526,7 @@ class RapidApp(gnomeglade.GnomeApp):
                 self.backupVolumes[backupPath] = volume
                 self.rapid_statusbar.push(self.statusbar_context_id, self.displayBackupVolumes())
 
-        elif media.isImageMedia(path):
+        elif media.isImageMedia(path,  self.searchForPsd()):
             cardMedia = CardMedia(path, volume)
             i = workers.getNextThread_id()
             workers.append(CopyPhotos(i, self, cardMedia))
@@ -1601,7 +1624,7 @@ class RapidApp(gnomeglade.GnomeApp):
                         if isBackupVolume:
                             backupPath = os.path.join(path,  self.prefs.backup_identifier)
                             self.backupVolumes[backupPath] = volume
-                        elif self.prefs.device_autodetection and media.isImageMedia(path):
+                        elif self.prefs.device_autodetection and media.isImageMedia(path, self.searchForPsd()):
                             cardMediaList.append(CardMedia(path, volume))
                         
         
@@ -1846,7 +1869,8 @@ class RapidApp(gnomeglade.GnomeApp):
             self.set_media_device_display(value)
         elif key == 'show_log_dialog':
             self.menu_log_window.set_active(value)
-        elif key in ['device_autodetection', 'backup_images',  'device_location', 'backup_device_autodetection', 'backup_location' ]:
+        elif key in ['device_autodetection', 'device_autodetection_psd', 'backup_images',  'device_location',
+                      'backup_device_autodetection', 'backup_location' ]:
             if self.usingVolumeMonitor():
                 self.startVolumeMonitor()
             self.setupAvailableImageAndBackupMedia()

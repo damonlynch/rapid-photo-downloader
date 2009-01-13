@@ -30,9 +30,20 @@ def getDefaultPhotoLocation():
             return path
     return common.getFullPath('')
     
-def isImageMedia(path):
+def isImageMedia(path,  searchForPortableStorageDevice=False):
     """ Returns true if directory specifies some media with photos on it """
-    return os.path.isdir(os.path.join(path, "DCIM"))
+    
+    if os.path.isdir(os.path.join(path, "DCIM")):
+        # is very likely a memory card, or something like that!
+       return True
+    elif not searchForPortableStorageDevice:
+        return False
+    else:
+        for root, dirs, files in os.walk(path):
+            for name in files:
+                if isImage(name):
+                    return True
+        return False
     
 def isBackupMedia(path, identifier, writeable=True):
     """  Test to see if path is used as a backup medium for storing images
