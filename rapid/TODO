@@ -17,6 +17,8 @@ For initial release (0.10.0):
   - on entering preferences dialog
   - on closing preferences dialog
 * rework checkPrefsForValidity() to account for multiple subfolder problems
+* notify when the download is finished, giving information
+  (hopefully using Ubuntu's new notification interface)
 
 
 

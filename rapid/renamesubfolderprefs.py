@@ -714,8 +714,9 @@ class SubfolderPreferences(ImageRenamePreferences):
         # subfolder value must never start with a separator, or else any 
         # os.path.join function call will fail to join a subfolder to its 
         # parent folder
-        if subfolders[0] == os.sep:
-            subfolders = subfolders[1:]
+        if subfolders:
+            if subfolders[0] == os.sep:
+                subfolders = subfolders[1:]
             
         return (subfolders, problem)
 

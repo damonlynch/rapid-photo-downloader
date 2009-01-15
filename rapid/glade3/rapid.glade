@@ -152,7 +152,7 @@
                           <widget class="GtkLabel" id="label8">
                             <property name="visible">True</property>
                             <property name="xalign">0</property>
-                            <property name="label" translatable="yes">&lt;b&gt;Download Sub-folders&lt;/b&gt;</property>
+                            <property name="label" translatable="yes">&lt;b&gt;Download Subfolders&lt;/b&gt;</property>
                             <property name="use_markup">True</property>
                           </widget>
                           <packing>
@@ -182,7 +182,7 @@
                             <property name="visible">True</property>
                             <property name="xalign">0</property>
                             <property name="ypad">12</property>
-                            <property name="label" translatable="yes">Choose the download folder. Sub-folders for the downloaded photos will be automatically created in this folder using the structure specified below.</property>
+                            <property name="label" translatable="yes">Choose the download folder. Subfolders for the downloaded photos will be automatically created in this folder using the structure specified below.</property>
                             <property name="use_markup">True</property>
                             <property name="wrap">True</property>
                           </widget>
@@ -1462,7 +1462,7 @@ You can download photos from multiple image devices simultaneously.</property>
                             <property name="visible">True</property>
                             <property name="xalign">0</property>
                             <property name="ypad">12</property>
-                            <property name="label" translatable="yes">When backing up, choose whether to overwrite an image that has the same name, or skip backing it up.</property>
+                            <property name="label" translatable="yes">When backing up, choose whether to overwrite an image on the backup device that has the same name, or skip backing it up.</property>
                             <property name="wrap">True</property>
                           </widget>
                           <packing>
@@ -1738,6 +1738,14 @@ You should have received a copy of the GNU General Public License along with Rap
                 <property name="use_underline">True</property>
                 <child>
                   <widget class="GtkMenu" id="help_menu">
+                    <child>
+                      <widget class="GtkMenuItem" id="menu_report_problem">
+                        <property name="visible">True</property>
+                        <property name="label" translatable="yes">_Report a Problem</property>
+                        <property name="use_underline">True</property>
+                        <signal name="activate" handler="on_menu_report_problem_activate"/>
+                      </widget>
+                    </child>
                     <child>
                       <widget class="GtkImageMenuItem" id="menu_about">
                         <property name="visible">True</property>
