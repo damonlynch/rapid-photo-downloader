@@ -2,7 +2,6 @@ For initial release (0.10.0):
 =============================
 
 * sequencing:
-   - assign unique numbers on download, then
    - allow generation of unique sequences based on date time for last 1 - n days, via menu
 
 * better handle preference changes while downloads are occurring
@@ -19,6 +18,7 @@ For initial release (0.10.0):
 * rework checkPrefsForValidity() to account for multiple subfolder problems
 * notify when the download is finished, giving information
   (hopefully using Ubuntu's new notification interface)
+* make sure it is the only instance running - use gnome / dbus to check this
 
 
 

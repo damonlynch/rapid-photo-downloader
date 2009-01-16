@@ -33,6 +33,9 @@ Each list has members which are a multiple of 3 in length.
 Each group of 3 members is equal to one line of preferences in the plus minus 
 table.
 """
+from __future__ import with_statement
+
+import string 
 
 import os
 import re
@@ -111,14 +114,6 @@ SEQUENCE_NUMBER_3 = "Three digits"
 SEQUENCE_NUMBER_4 = "Four digits"
 SEQUENCE_NUMBER_5 = "Five digits"
 SEQUENCE_NUMBER_6 = "Six digits"
-
-# Sequence letter
-SEQUENCE_LETTER_1 = "One characters"
-SEQUENCE_LETTER_2 = "Two characters"
-SEQUENCE_LETTER_3 = "Three characters"
-SEQUENCE_LETTER_4 = "Four characters"
-SEQUENCE_LETTER_5 = "Five characters"
-SEQUENCE_LETTER_6 = "Six characters"
 
 
 # Now, define dictionaries and lists of valid combinations of preferences.
@@ -216,39 +211,31 @@ DICT_SEQUENCE_NUMBER_L1 = {
                     }
 
 LIST_SEQUENCE_LETTER_L1 = [
-                    SEQUENCE_LETTER_1,
-                    SEQUENCE_LETTER_2,
-                    SEQUENCE_LETTER_3,
-                    SEQUENCE_LETTER_4,
-                    SEQUENCE_LETTER_5,
-                    SEQUENCE_LETTER_6,
+                    UPPERCASE,
+                    LOWERCASE
                     ]
                 
                 
 DICT_SEQUENCE_LETTER_L1 = { 
-                    SEQUENCE_LETTER_1: None,
-                    SEQUENCE_LETTER_2: None,
-                    SEQUENCE_LETTER_3: None,
-                    SEQUENCE_LETTER_4: None,
-                    SEQUENCE_LETTER_5: None,
-                    SEQUENCE_LETTER_6: None,
+                    UPPERCASE: None,
+                    LOWERCASE: None,
                     ORDER_KEY: LIST_SEQUENCE_LETTER_L1
                     }
 
 # Level 0
 
-#LIST_IMAGE_RENAME_L0 = [DATE_TIME, TEXT, FILENAME, METADATA, 
-#                        SEQUENCE_NUMBER, SEQUENCE_LETTER]
+LIST_IMAGE_RENAME_L0 = [DATE_TIME, TEXT, FILENAME, METADATA, 
+                        SEQUENCE_NUMBER, SEQUENCE_LETTER]
 
-LIST_IMAGE_RENAME_L0 = [DATE_TIME, TEXT, FILENAME, METADATA]
+#LIST_IMAGE_RENAME_L0 = [DATE_TIME, TEXT, FILENAME, METADATA]
 
 DICT_IMAGE_RENAME_L0 = {
                     DATE_TIME: DICT_DATE_TIME_L1,
                     TEXT: None,
                     FILENAME: DICT_FILENAME_L1,
                     METADATA: DICT_METADATA_L1,
-#                    SEQUENCE_NUMBER: DICT_SEQUENCE_NUMBER_L1,
-#                    SEQUENCE_LETTER: DICT_SEQUENCE_LETTER_L1,
+                    SEQUENCE_NUMBER: DICT_SEQUENCE_NUMBER_L1,
+                    SEQUENCE_LETTER: DICT_SEQUENCE_LETTER_L1,
                     ORDER_KEY: LIST_IMAGE_RENAME_L0
                     }
 
@@ -363,7 +350,7 @@ def convertDateForStrftime(dateTimeUserChoice):
 
 
 class ImageRenamePreferences:
-    def __init__(self, prefList, parent):
+    def __init__(self, prefList, parent,  fileSequenceLock=None,  sequenceNoForFolder=None,  sequenceLetterForFolder=None):
         """
         Exception raised if preferences are invalid.
         
@@ -371,7 +358,23 @@ class ImageRenamePreferences:
         
         self.parent = parent
         self.prefList = prefList
+        
+        self.fileSequenceLock = fileSequenceLock
     
+        # initialize variables for determining sequence numbers
+        # there are two possibilities:
+        # 1. this code is being called while being run from within a copy photos process
+        # 2. it's being called from within the preferences dialog window
+        
+        if fileSequenceLock:
+            self.sequenceNo = sequenceNoForFolder
+            self.sequenceLetter = sequenceLetterForFolder
+        else:
+            self.sequenceNo = {}
+            self.sequenceLetter = {}
+    
+        self.sequenceLetterStr = 'a' + string.lowercase
+        
         # derived classes will have their own definitions, do not overwrite
         if not hasattr(self, "prefsDefnL0"):
             self.prefsDefnL0 = DICT_IMAGE_RENAME_L0
@@ -497,13 +500,85 @@ class ImageRenamePreferences:
             problem = "%s metadata is not present in image" % md
         return (v, problem)
 
+    def _calculateNoSequence(self,  subfolder):
+        
+        if not subfolder in self.sequenceNo:
+            self.sequenceNo[subfolder] = 1
+        else:
+            self.sequenceNo[subfolder] += 1
+            
+        padding = LIST_SEQUENCE_NUMBER_L1.index(self.L1) + 1
+        formatter = '%0' + str(padding) + "i"
+        return formatter % self.sequenceNo[subfolder]
+
+    def _calculateLetterSequence(self,  subfolder):
+
+        def _letter(x):
+            if x == 0:
+                print "Warning: value passed to _calculateLetterSequence should not be 0"
+                return todigits[0]
+            else:
+                v = ""
+                while x > 0:
+                    digit = x % 27
+                    v = self.sequenceLetterStr[digit] + v
+                    x = x / 27
+
+            return v
+            
+        if not subfolder in self.sequenceLetter:
+            self.sequenceLetter[subfolder] = 1
+        else:
+            self.sequenceLetter[subfolder] += 1
+        
+        v = _letter(self.sequenceLetter[subfolder])
+        if self.L1 == UPPERCASE:
+            v = v.upper()
+        
+        return v
+
     def _getSequenceNumber(self):
-        """ Not yet implemented """
-        return (None, None)
+        """ 
+        Add a sequence number to the filename
+       
+       * Sequence numbering should be per folder.
+       * Assume the user might actually have a (perhaps odd) reason to have more 
+          than one sequence number in the same name
+        """
+        
+        problem = None
+        self.sequenceNoInstance += 1
+
+        if self.subfolder:
+            subfolder = self.subfolder + str(self.sequenceNoInstance)
+        else:
+            subfolder = str(self.sequenceNoInstance)
+        
+        if self.fileSequenceLock:
+            with self.fileSequenceLock:
+                v = self._calculateNoSequence(subfolder)
+        else:
+            v = self._calculateNoSequence(subfolder)
+            
+        return (v, problem)
 
     def _getSequenceLetter(self):
-        """ Not yet implemented """
-        return (None, None)
+
+        problem = None
+        self.sequenceLetterInstance += 1
+
+        if self.subfolder:
+            subfolder = self.subfolder + str(self.sequenceLetterInstance)
+        else:
+            subfolder = str(self.sequenceLetterInstance)
+        
+        if self.fileSequenceLock:
+            with self.fileSequenceLock:
+                v = self._calculateLetterSequence(subfolder)
+        else:
+            v = self._calculateLetterSequence(subfolder)
+            
+        return (v, problem)
         
     def _getComponent(self):
             if self.L0 == DATE_TIME:
@@ -515,9 +590,9 @@ class ImageRenamePreferences:
             elif self.L0 == METADATA:
                 return self._getMetadataComponent()
             elif self.L0 == SEQUENCE_NUMBER:
-                return _getSequenceNumber()
+                return self._getSequenceNumber()
             elif self.L0 == SEQUENCE_LETTER:
-                return _getSequenceLetter()
+                return self._getSequenceLetter()
             elif self.L0 == SEPARATOR:
                 return (os.sep, None)
 
@@ -528,7 +603,7 @@ class ImageRenamePreferences:
 
 
     def getStringFromPreferences(self, photo, existingFilename=None, 
-                                    stripCharacters = False):
+                                    stripCharacters = False,  subfolder=None):
         """
         Generate a filename for the photo in string format based on user prefs.
         
@@ -542,6 +617,12 @@ class ImageRenamePreferences:
             
         name = ''
         problem = ''
+        
+        # next two values are important for generating sequence numbers / letters
+        self.subfolder = subfolder
+        self.sequenceNoInstance = 0
+        self.sequenceLetterInstance = 0
+        
         for self.L0, self.L1, self.L2 in self._getValuesFromList():
             v, p = self._getComponent()
             if v:
@@ -559,7 +640,7 @@ class ImageRenamePreferences:
                 
         if self.stripForwardSlash:
             name = name.replace('/', '')
-            
+                    
         return (name, problem)
 
     def filterPreferences(self):
@@ -616,7 +697,7 @@ class ImageRenamePreferences:
         if not key:
             key = prefDefinition[ORDER_KEY][0]
             
-        if not prefDefinition.has_key(key):
+        if not key in prefDefinition:
             raise PrefKeyError(key, prefDefinition.keys())
 
 
@@ -691,12 +772,12 @@ class ImageRenamePreferences:
         return widgets
 
 class SubfolderPreferences(ImageRenamePreferences):
-    def __init__(self, prefList, parent):
+    def __init__(self, prefList, parent,  fileSequenceLock=None):
         self.prefsDefnL0 = DICT_SUBFOLDER_L0
         self.defaultPrefs = [DATE_TIME, IMAGE_DATE, LIST_DATE_TIME_L2[0]]
         self.defaultRow = self.defaultPrefs
         self.stripForwardSlash = False
-        ImageRenamePreferences.__init__(self, prefList, parent)
+        ImageRenamePreferences.__init__(self, prefList, parent,  fileSequenceLock)
         
     def getStringFromPreferences(self, photo, existingFilename=None, 
                                     stripCharacters = False):

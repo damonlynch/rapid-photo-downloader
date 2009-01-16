@@ -359,7 +359,7 @@ class ImageRenameTable(tpm.TablePlusMinus):
                 oldWidget = self.pm_rows[rowPosition][i]
                 if oldWidget:
                     self.remove(oldWidget)
-                    if self.pm_callbacks.has_key(oldWidget):
+                    if oldWidget in self.pm_callbacks:
                         del self.pm_callbacks[oldWidget]
                 newWidget = widgets[i]
                 self.pm_rows[rowPosition][i] = newWidget
@@ -657,7 +657,7 @@ class PreferencesDialog(gnomeglade.Component):
         # since this is markup, escape it
         path = common.escape(text)
         if problem:
-            text += "\n<i><b>Warning:</b> There is insufficient image metatdata to fully generate sub-folders.</i>" 
+            text += "\n<i><b>Warning:</b> There is insufficient image metatdata to fully generate subfolders.</i>" 
             
         self.example_download_path_label.set_markup("<i>Example: %s</i>" % text)
         
@@ -802,7 +802,7 @@ class PreferencesDialog(gnomeglade.Component):
 
 
 class CopyPhotos(Thread):
-    def __init__(self, thread_id, parentApp, fileRenameLock,  cardMedia = None):
+    def __init__(self, thread_id, parentApp, fileRenameLock,  fileSequenceLock,  cardMedia = None):
         self.parentApp = parentApp
         self.thread_id = thread_id
         self.ctrl = True
@@ -815,6 +815,7 @@ class CopyPhotos(Thread):
         self.lock = Lock()
         
         self.fileRenameLock = fileRenameLock
+        self.fileSequenceLock = fileSequenceLock
         
         self.hasStarted = False
         self.doNotStart = False
@@ -846,8 +847,9 @@ class CopyPhotos(Thread):
         """
         self.prefs = self.parentApp.prefs
 
-        self.imageRenamePrefsFactory = rn.ImageRenamePreferences(
-                                                self.prefs.image_rename, self)
+        self.imageRenamePrefsFactory = rn.ImageRenamePreferences(self.prefs.image_rename, self, 
+                                                                 self.fileSequenceLock,  sequenceNoForFolder, 
+                                                                 sequenceLetterForFolder)
         try:
             self.imageRenamePrefsFactory.checkPrefsForValidity()
         except (PrefKeyError, PrefValueInvalidError), inst:
@@ -903,7 +905,7 @@ class CopyPhotos(Thread):
             display_queue.put((log_dialog.addMessage, (self.thread_id, severity, problem, details, 
                             resolution)))
 
-        def getMetaData(image,  needMetaDataForImage,  needMetaDataToCreateSubfolderName):
+        def getMetaData(image,  name,  needMetaDataForImage,  needMetaDataToCreateSubfolderName):
             skipImage = False
             try:
                 imageMetadata = metadata.MetaData(image)
@@ -927,13 +929,12 @@ class CopyPhotos(Thread):
         
                     if problem:
                         logError(config.WARNING, 
-                            "Insufficient image metadata to properly generate sub-folder name",
+                            "Insufficient image metadata to properly generate subfolder name",
                             "Subfolder: %s\nImage: %s\nProblem: %s" % 
                             (subfolder, image, problem))
                     
                     newName, problem = self.imageRenamePrefsFactory.getStringFromPreferences(
-                                                            imageMetadata, name, 
-                                                            self.stripCharacters)
+                                                            imageMetadata, name, self.stripCharacters,  subfolder)
                                                             
                     path = os.path.join(baseDownloadDir, subfolder)
                     newFile = os.path.join(path, newName)
@@ -981,7 +982,7 @@ class CopyPhotos(Thread):
                                 name = os.path.splitext(newName)
                                 suffixAlreadyUsed = True
                                 while suffixAlreadyUsed :
-                                    if duplicate_files.has_key(newFile):
+                                    if newFile in duplicate_files:
                                         duplicate_files[newFile] +=  1
                                     else:
                                         duplicate_files[newFile] = 1
@@ -1140,7 +1141,7 @@ class CopyPhotos(Thread):
             name, root, size = self.cardMedia.images[i]
             image = os.path.join(root, name)
             
-            skipImage,  imageMetadata,  newName,  newFile,  path,  subfolder = getMetaData(image,  needMetaDataForImage,  needMetaDataToCreateSubfolderName)
+            skipImage,  imageMetadata,  newName,  newFile,  path,  subfolder = getMetaData(image,  name,  needMetaDataForImage,  needMetaDataToCreateSubfolderName)
 
             if not skipImage:
                 imageDownloaded, newName, newFile  = downloadImage(path,  newFile,  newName,  image)
@@ -1433,10 +1434,15 @@ class RapidApp(gnomeglade.GnomeApp):
         global download_queue, image_queue, log_queue
         global workers
         global duplicate_files
+        global sequenceNoForFolder
+        global sequenceLetterForFolder
         
         duplicate_files = {}
+        sequenceNoForFolder = {}
+        sequenceLetterForFolder = {}
         
         self.fileRenameLock = Lock()
+        self.fileSequenceLock = Lock()
 
         # log window, in dialog format
         # used for displaying download information to the user
@@ -1585,7 +1591,7 @@ class RapidApp(gnomeglade.GnomeApp):
         elif media.isImageMedia(path,  self.searchForPsd()):
             cardMedia = CardMedia(path, volume)
             i = workers.getNextThread_id()
-            workers.append(CopyPhotos(i, self, self.fileRenameLock,  cardMedia))
+            workers.append(CopyPhotos(i, self, self.fileRenameLock, self.fileSequenceLock,  cardMedia))
             self.setDownloadButtonSensitivity()
             
             if self.prefs.auto_download_upon_device_insertion:
@@ -1708,7 +1714,7 @@ class RapidApp(gnomeglade.GnomeApp):
 
         for i in range(j, j + len(cardMediaList)):
             cardMedia = cardMediaList[i - j]
-            workers.append(CopyPhotos(i, self, self.fileRenameLock,  cardMedia))
+            workers.append(CopyPhotos(i, self, self.fileRenameLock, self.fileSequenceLock, cardMedia))
         
         self.setDownloadButtonSensitivity()
         
