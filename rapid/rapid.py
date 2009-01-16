@@ -80,6 +80,9 @@ except:
     sys.exit(1)
 
 
+def today():
+    return datetime.date.today().strftime('%Y-%m-%d')
+    toda
 exiting = False
 
 def UpdateDisplay(display_queue):
@@ -262,6 +265,8 @@ class RapidPreferences(prefs.Preferences):
         "backup_missing": prefs.Value(prefs.STRING, config.IGNORE),
         "display_thumbnails": prefs.Value(prefs.BOOL, True),
         "show_log_dialog": prefs.Value(prefs.BOOL, False),
+        "downloads_today": prefs.ListValue(prefs.STRING_LIST,  [today(),  '0']), 
+         "download_sequence_no": prefs.Value(prefs.INT,  0), 
         }
 
     def __init__(self):

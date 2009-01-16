@@ -63,7 +63,7 @@ DATE_TIME = 'Date time'
 TEXT = 'Text'
 FILENAME = 'Filename'
 METADATA = 'Metadata'
-SEQUENCE_NUMBER = 'Sequence number'
+SEQUENCE_NUMBER = 'Downloads today seq. no.'
 SEQUENCE_LETTER = 'Sequence letter'
 SEPARATOR = os.sep
 
@@ -73,8 +73,6 @@ SEPARATOR = os.sep
 IMAGE_DATE = 'Image date'
 TODAY = 'Today'
 YESTERDAY = 'Yesterday'
-
-# No need for text Level 1
 
 # File name 
 NAME_EXTENSION = 'Name + extension'
@@ -91,6 +89,9 @@ CAMERA_MAKE = 'Camera make'
 CAMERA_MODEL = 'Camera model'
 SHORT_CAMERA_MODEL = 'Short camera model'
 SHORT_CAMERA_MODEL_HYPHEN = 'Hyphenated short camera model'
+
+#Image sequence
+
 
 # *** Level 2
 
@@ -141,6 +142,7 @@ LIST_IMAGE_NUMBER_L2 = [IMAGE_NUMBER_ALL, IMAGE_NUMBER_1, IMAGE_NUMBER_2,
 
 
 LIST_CASE_L2 = [ORIGINAL_CASE, UPPERCASE, LOWERCASE]
+
 
 # Level 1
 LIST_DATE_TIME_L1 = [IMAGE_DATE, TODAY, YESTERDAY]
@@ -198,7 +200,6 @@ LIST_SEQUENCE_NUMBER_L1 = [
                     SEQUENCE_NUMBER_5,
                     SEQUENCE_NUMBER_6,
                     ]
-                
                 
 DICT_SEQUENCE_NUMBER_L1 = { 
                     SEQUENCE_NUMBER_1: None,
@@ -513,25 +514,25 @@ class ImageRenamePreferences:
 
     def _calculateLetterSequence(self,  subfolder):
 
-        def _letter(x):
-            if x == 0:
-                print "Warning: value passed to _calculateLetterSequence should not be 0"
-                return todigits[0]
-            else:
-                v = ""
-                while x > 0:
-                    digit = x % 27
-                    v = self.sequenceLetterStr[digit] + v
-                    x = x / 27
-
+        def _letters(x):
+            """
+            Adapted from algorithm at http://en.wikipedia.org/wiki/Hexavigesimal
+            """
+            v = ''
+            while x > 25:
+                r = x % 26
+                x= x / 26 - 1
+                v = string.lowercase[r] + v
+            v = string.lowercase[x] + v
+            
             return v
             
         if not subfolder in self.sequenceLetter:
-            self.sequenceLetter[subfolder] = 1
+            self.sequenceLetter[subfolder] = 0
         else:
             self.sequenceLetter[subfolder] += 1
         
-        v = _letter(self.sequenceLetter[subfolder])
+        v = _letters(self.sequenceLetter[subfolder])
         if self.L1 == UPPERCASE:
             v = v.upper()
         
@@ -692,13 +693,15 @@ class ImageRenamePreferences:
     def _getPreferenceWidgets(self, prefDefinition, prefs, widgets):
         key = prefs[0]
         value = prefs[1]
+        
+        print key,  value
 
         # supply a default value if the user has not yet chosen a value!
         if not key:
             key = prefDefinition[ORDER_KEY][0]
             
         if not key in prefDefinition:
-            raise PrefKeyError(key, prefDefinition.keys())
+            raise PrefKeyError((key, prefDefinition.keys()))
 
 
         list0 = prefDefinition[ORDER_KEY]
