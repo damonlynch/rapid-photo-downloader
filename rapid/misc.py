@@ -17,13 +17,14 @@
 ### along with this program; if not, write to the Free Software
 ### Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
+# modified by Damon Lynch 2009 to remove default bold formatting
 """Module of commonly used helper classes and functions
 
 """
 
 import gtk
 
-def run_dialog( text, parent=None, messagetype=gtk.MESSAGE_WARNING, buttonstype=gtk.BUTTONS_OK, extrabuttons=[]):
+def run_dialog( text, secondarytext=None,  parent=None, messagetype=gtk.MESSAGE_WARNING, buttonstype=gtk.BUTTONS_OK, extrabuttons=[]):
     """Run a dialog with text 'text'.
        Extra buttons are passed as tuples of (button label, response id).
     """
@@ -31,18 +32,20 @@ def run_dialog( text, parent=None, messagetype=gtk.MESSAGE_WARNING, buttonstype=
         gtk.DIALOG_DESTROY_WITH_PARENT,
         messagetype,
         buttonstype,
-        '<span weight="bold" size="larger">%s</span>' % text)
+        text
+        )
     if parent:
         d.set_transient_for(parent.widget.get_toplevel())
     for b,rid in extrabuttons:
         d.add_button(b,rid)
     d.vbox.set_spacing(12)
-    hbox = d.vbox.get_children()[0]
-    hbox.set_spacing(12)
-    d.image.set_alignment(0.5, 0)
-    d.image.set_padding(12, 12)
-    d.label.set_use_markup(1)
-    d.label.set_padding(12, 12)
+    d.format_secondary_text(secondarytext)
+#    hbox = d.vbox.get_children()[0]
+#    hbox.set_spacing(12)
+#    d.image.set_alignment(0.5, 0)
+#    d.image.set_padding(12, 12)
+#    d.label.set_use_markup(1)
+#    d.label.set_padding(12, 12)
     ret = d.run()
     d.destroy()
     return ret

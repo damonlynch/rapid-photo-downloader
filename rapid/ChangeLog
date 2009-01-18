@@ -5,10 +5,12 @@ Version 0.0.8
 
 Make file renaming thread safe, fixing a long-standing bug
 Implement add unique identifier when file name is not unique
-Added "Report a Problem" to Help menu
+Added "Report a Problem" and "Get Help Online" to Help menu
 Implemented "Clear completed downloads" menu item
 Fixed bug where choosing text as the first item in a download subfolder caused a crash
-Implement sequence number and sequence letter generation
+Implemented sequence number and sequence letter generation
+Initial code to show error message when image renaming preferences have an error
+Fixed bug where some invalid preferences were not being caught
 
 Version 0.0.7
 -------------

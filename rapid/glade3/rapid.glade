@@ -1739,11 +1739,23 @@ You should have received a copy of the GNU General Public License along with Rap
                 <child>
                   <widget class="GtkMenu" id="help_menu">
                     <child>
+                      <widget class="GtkMenuItem" id="menu_get_help_online">
+                        <property name="visible">True</property>
+                        <property name="label" translatable="yes">_Get Help Online...</property>
+                        <property name="use_underline">True</property>
+                      </widget>
+                    </child>
+                    <child>
                       <widget class="GtkMenuItem" id="menu_report_problem">
                         <property name="visible">True</property>
-                        <property name="label" translatable="yes">_Report a Problem</property>
+                        <property name="label" translatable="yes">_Report a Problem...</property>
                         <property name="use_underline">True</property>
                         <signal name="activate" handler="on_menu_report_problem_activate"/>
+                      </widget>
+                    </child>
+                    <child>
+                      <widget class="GtkSeparatorMenuItem" id="separator1">
+                        <property name="visible">True</property>
                       </widget>
                     </child>
                     <child>

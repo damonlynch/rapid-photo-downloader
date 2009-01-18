@@ -284,10 +284,15 @@ class ImageRenameTable(tpm.TablePlusMinus):
         self.getParentAppPrefs()
         self.getPrefsFactory()
         
+        if not hasattr(self, "errorTitle"):
+            self.errorTitle = "Error in Image Rename preferences"
+        
         try:
             self.prefsFactory.checkPrefsForValidity()
-        except (rn.PrefKeyError, rn.PrefValueInvalidError, rn.PrefLengthError, 
-                rn.PrefValueKeyComboError), inst:
+            
+        except (rn.PrefValueInvalidError, rn.PrefLengthError, 
+                rn.PrefValueKeyComboError,  rn.PrefKeyError), inst:
+
             # the preferences were invalid
             # reset them to their default
 
@@ -298,9 +303,9 @@ class ImageRenameTable(tpm.TablePlusMinus):
             msg = inst.message + ".\nResetting to default values."
             print msg
             
-##            misc.run_dialog(msg,
-##                parentApp,
-##                gtk.MESSAGE_ERROR)
+            misc.run_dialog(self.errorTitle, msg, 
+                parentApp,
+                gtk.MESSAGE_ERROR)
         
         for row in self.prefsFactory.getWidgetsBasedOnPreferences():
             self.append(row)
@@ -396,6 +401,9 @@ class ImageRenameTable(tpm.TablePlusMinus):
         self.updatePreferences()        
 
 class SubfolderTable(ImageRenameTable):
+    def __init__(self, parentApp):    
+        self.errorTitle = "Error in Download Subfolder preferences"
+        ImageRenameTable.__init__(self,  parentApp)
 
     def getParentAppPrefs(self):
         self.prefList = self.parentApp.prefs.subfolder
@@ -857,13 +865,8 @@ class CopyPhotos(Thread):
                                                                  sequenceLetterForFolder)
         try:
             self.imageRenamePrefsFactory.checkPrefsForValidity()
-        except (PrefKeyError, PrefValueInvalidError), inst:
+        except (PrefKeyError, PrefValueInvalidError,  PrefLengthError,  PrefValueKeyComboError), inst:
             print inst.message
-        except PrefLengthError, inst:
-            print inst.message
-        except PrefValueKeyComboError, inst:
-            print inst.message
-
             
         self.subfolderPrefsFactory = rn.SubfolderPreferences(
                                                 self.prefs.subfolder, self)    
@@ -1417,7 +1420,7 @@ class LogDialog(gnomeglade.Component):
 
 class RapidApp(gnomeglade.GnomeApp): 
     def __init__(self): 
-        gladefile = paths.share_dir("glade3/rapid.glade")
+        gladefile = paths.share_dir(config.GLADE_FILE)
         gnomeglade.GnomeApp.__init__(self, "rapid", __version__, gladefile, "rapidapp")
 
         self.prefs = RapidPreferences()
@@ -1860,6 +1863,9 @@ class RapidApp(gnomeglade.GnomeApp):
         
     def on_menu_report_problem_activate(self,  widget):
         webbrowser.open("https://bugs.launchpad.net/rapid") 
+        
+    def on_menu_get_help_online_activate(self,  widget):
+        webbrowser.open("http://www.damonlynch.net/rapid/help.html") 
 
     def on_menu_preferences_activate(self, widget):
         """ Sets preferences for the application using dialog window """

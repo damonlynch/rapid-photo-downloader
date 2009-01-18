@@ -278,15 +278,21 @@ def checkPreferenceValid(prefDefinition, prefs, modulo=3):
     if (len(prefs) % modulo <> 0) or not prefs:
         raise PrefLengthError(prefs)
     else:
-        return _checkPreferenceValid(prefDefinition, prefs)
+        for i in range(0,  len(prefs),  modulo):
+            _checkPreferenceValid(prefDefinition, prefs[i:i+modulo])
+               
+    return True
 
 def _checkPreferenceValid(prefDefinition, prefs):
+
     key = prefs[0]
     value = prefs[1]
 
-    if prefDefinition.has_key(key):
-        nextPrefDefinition = prefDefinition[key]
 
+    if prefDefinition.has_key(key):
+        
+        nextPrefDefinition = prefDefinition[key]
+        
         if value == None:
             # value should never be None, at any time
             raise PrefValueInvalidError((None, nextPrefDefinition))
@@ -325,17 +331,17 @@ class PrefKeyError(PrefError):
     def __init__(self, error):
         value = error[0]
         expectedValues = self.unpackList(error[1])
-        self.message = "Preference value %s is invalid.\nExpected one of %s" % (value, expectedValues)
+        self.message = "Preference key '%s' is invalid.\nExpected one of %s" % (value, expectedValues)
 
 
 class PrefValueInvalidError(PrefKeyError):
     def __init__(self, error):
         value = error[0]
-        self.message = "Preference value %s is invalid." % (value)
+        self.message = "Preference value '%s' is invalid" % (value)
         
 class PrefLengthError(PrefError):
     def __init__(self, error):
-        self.message = "These preferences are not well formed: %s " % self.unpackList(error)
+        self.message = "These preferences are not well formed:\n %s" % self.unpackList(error)
         
 class PrefValueKeyComboError(PrefError):
     def __init__(self, error):    
@@ -389,6 +395,7 @@ class ImageRenamePreferences:
         """
         Checks image preferences validity
         """
+        
         return checkPreferenceValid(self.prefsDefnL0, self.prefList)
 
 
@@ -694,8 +701,6 @@ class ImageRenamePreferences:
         key = prefs[0]
         value = prefs[1]
         
-        print key,  value
-
         # supply a default value if the user has not yet chosen a value!
         if not key:
             key = prefDefinition[ORDER_KEY][0]
@@ -737,7 +742,7 @@ class ImageRenamePreferences:
                     try:
                         widget1.set_active(nextPrefDefinition.index(value))
                     except:
-                        raise PrefValueInvalidError(value, nextPrefDefinition)
+                        raise PrefValueInvalidError((value, nextPrefDefinition))
                     
                     widgets.append(widget1)
                 else:

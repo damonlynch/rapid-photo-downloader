@@ -63,12 +63,12 @@ class PreferenceTest (unittest.TestCase):
         
 
 class BadPreferences(unittest.TestCase):
-    bad_image_key = ( [1,2,3], 
-                        [DATE_TIME.upper(), IMAGE_DATE, 'YYYYMMDD'],
-                        [DATE_TIME, IMAGE_DATE.upper(), 'YYYYMMDD'],
-                        [SEPARATOR, '', ''],
-                        [None, None, None],
-                    )
+    bad_image_key = ( [TEXT, '', ''], 
+                            [DATE_TIME, IMAGE_DATE, 'YYYYMMDD'],
+                            [METADATA, APERTURE, ''],
+                            [FILENAME, NAME_EXTENSION, UPPERCASE],
+                            ['Filename2',  NAME_EXTENSION, UPPERCASE]
+                )                    
     bad_image_value = ( [DATE_TIME, TODAY, IMAGE_NUMBER_ALL],
                         [METADATA, CAMERA_MAKE, IMAGE_NUMBER_4],
                         [DATE_TIME, IMAGE_DATE, None],
@@ -78,6 +78,15 @@ class BadPreferences(unittest.TestCase):
                         )
                             
     bad_subfolder_key = ([FILENAME, NAME_EXTENSION, UPPERCASE],)
+    
+    bad_subfolder_key2 = ( [TEXT, '', ''], 
+                                [DATE_TIME, IMAGE_DATE, 'HHMM'],
+                                [METADATA, SHORT_CAMERA_MODEL_HYPHEN, 
+                                 LOWERCASE],
+                                [SEPARATOR, '', ''],
+                                ['Filename-bad', EXTENSION, LOWERCASE]
+                            )
+    
     bad_subfolder_value = ( [FILENAME, None, None],
                             [FILENAME, '', ''],)
     
@@ -117,6 +126,12 @@ class BadPreferences(unittest.TestCase):
             self.assertRaises(PrefKeyError, checkPreferenceValid, 
                                         DICT_SUBFOLDER_L0, 
                                         pref)
+                                        
+        for pref in self.bad_subfolder_key2:
+            self.assertRaises(PrefKeyError, checkPreferenceValid, 
+                                        DICT_SUBFOLDER_L0, 
+                                        pref)
+                                
 
     def testBadSubfolderValue(self):
         for pref in self.bad_subfolder_value:
