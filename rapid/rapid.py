@@ -1,7 +1,7 @@
-#!/usr/bin/env python
+#!/usr/bin/python
 # -*- coding: latin1 -*-
 
-### Copyright (C) 2007-2009 Damon Lynch <damonlynch@gmail.com>
+### Copyright (C) 2007, 2008, 2009 Damon Lynch <damonlynch@gmail.com>
 
 ### This program is free software; you can redistribute it and/or modify
 ### it under the terms of the GNU General Public License as published by
@@ -45,6 +45,8 @@ import gnomevfs
 import prefs
 import paths
 import gnomeglade
+
+import pynotify
 
 import idletube as tube
 
@@ -187,6 +189,13 @@ class ThreadManager:
             if self._isReadyToStart(w):
                 yield w
                 
+    def noReadyToStartWorkers(self):
+        n = 0
+        for w in self._workers:
+            if self._isReadyToStart(w):
+                n += 1
+        return n
+        
     def getRunningWorkers(self):
         for w in self._workers:
             if w.hasStarted and w.isAlive():
@@ -266,12 +275,30 @@ class RapidPreferences(prefs.Preferences):
         "display_thumbnails": prefs.Value(prefs.BOOL, True),
         "show_log_dialog": prefs.Value(prefs.BOOL, False),
         "downloads_today": prefs.ListValue(prefs.STRING_LIST,  [today(),  '0']), 
-         "download_sequence_no": prefs.Value(prefs.INT,  0), 
+         "stored_sequence_no": prefs.Value(prefs.INT,  0), 
         }
 
     def __init__(self):
         prefs.Preferences.__init__(self, config.GCONF_KEY, self.defaults)
 
+    def getDownloadsToday(self):
+        """Returns the preference value for the number of downloads performed today 
+        
+        If value is less than zero, that means the date has changed"""
+        if today() == self.downloads_today[0]:
+            try:
+                return int(self.downloads_today[1])
+            except ValueError:
+                print "Invalid Downloads Today value.\nResetting value to zero."
+                return 0
+        else:
+            return -1
+                
+    def setDownloadsToday(self, date = None,  value=0):
+            if date == None:
+                date = today()
+            self.downloads_today = [date,  str(value)]
+            
 
 
 class ImageRenameTable(tpm.TablePlusMinus):
@@ -340,7 +367,9 @@ class ImageRenameTable(tpm.TablePlusMinus):
         self.prefList = self.parentApp.prefs.image_rename
     
     def getPrefsFactory(self):
-        self.prefsFactory = rn.ImageRenamePreferences(self.prefList, self)
+        self.prefsFactory = rn.ImageRenamePreferences(self.prefList, self,  
+              rn.SampleSequences(self.parentApp.prefs.getDownloadsToday(),  
+                                 self.parentApp.prefs.stored_sequence_no))
         
     def updateParentAppPrefs(self):
         self.parentApp.prefs.image_rename = self.prefList
@@ -358,7 +387,12 @@ class ImageRenameTable(tpm.TablePlusMinus):
                 break
         selection = []
         for i in range(col + 1):
-            selection.append(self.pm_rows[rowPosition][i].get_active_text())
+            # ensure it is a combo box we are getting the value from
+            if hasattr(self.pm_rows[rowPosition][i], 'get_active_text'):
+                selection.append(self.pm_rows[rowPosition][i].get_active_text())
+            else:
+                selection.append(self.pm_rows[rowPosition][i].get_text())
+                
         for i in range(col + 1, self.pm_noColumns):
             selection.append('')
             
@@ -427,7 +461,7 @@ class PreferencesDialog(gnomeglade.Component):
         self.widget.set_transient_for(parentApp.widget)
         self.prefs = parentApp.prefs
 
-        self._setupTabSelector()
+#        self._setupTabSelector()
         
         self._setupControlSpacing()
 
@@ -488,6 +522,8 @@ class PreferencesDialog(gnomeglade.Component):
     def _setupControlSpacing(self):
         """
         set spacing of some but not all controls
+        
+        not currently used
         """
         
         self._setupTableSpacing(self.download_folder_table) 
@@ -495,9 +531,7 @@ class PreferencesDialog(gnomeglade.Component):
                                 hd.VERTICAL_CONTROL_SPACE)
         self._setupTableSpacing(self.rename_example_table)
         self.devices_table.set_col_spacing(0,   hd.NESTED_CONTROLS_SPACE)        
-
-        self.devices2_table.set_col_spacing(0,  hd.CONTROL_LABEL_SPACE)
-        
+      
         self._setupTableSpacing(self.backup_table)
         self.backup_table.set_col_spacing(1, hd.NESTED_CONTROLS_SPACE)
         self.backup_table.set_col_spacing(2, hd.CONTROL_LABEL_SPACE)
@@ -646,7 +680,7 @@ class PreferencesDialog(gnomeglade.Component):
         Displays example image name to the user 
         """
         
-        name, problem = self.rename_table.prefsFactory.getStringFromPreferences(
+        name, problem = self.rename_table.prefsFactory.generateNameUsingPreferences(
                 self.sampleImage, self.sampleImageName, 
                 self.prefs.strip_characters)
         # since this is markup, escape it
@@ -662,7 +696,7 @@ class PreferencesDialog(gnomeglade.Component):
         Displays example subfolder name(s) to the user 
         """
         
-        path, problem = self.subfolder_table.prefsFactory.getStringFromPreferences(
+        path, problem = self.subfolder_table.prefsFactory.generateNameUsingPreferences(
                             self.sampleImage, self.sampleImageName,
                             self.prefs.strip_characters)
         
@@ -815,7 +849,7 @@ class PreferencesDialog(gnomeglade.Component):
 
 
 class CopyPhotos(Thread):
-    def __init__(self, thread_id, parentApp, fileRenameLock,  fileSequenceLock,  cardMedia = None):
+    def __init__(self, thread_id, parentApp, fileRenameLock,  fileSequenceLock, statsLock,  downloadStats,  cardMedia = None):
         self.parentApp = parentApp
         self.thread_id = thread_id
         self.ctrl = True
@@ -829,6 +863,9 @@ class CopyPhotos(Thread):
         
         self.fileRenameLock = fileRenameLock
         self.fileSequenceLock = fileSequenceLock
+        self.statsLock = statsLock
+        
+        self.downloadStats = downloadStats
         
         self.hasStarted = False
         self.doNotStart = False
@@ -836,6 +873,8 @@ class CopyPhotos(Thread):
         self.cardMedia = cardMedia
         
         self.initializeDisplay(thread_id,  cardMedia)
+        
+        self.noErrors = self.noWarnings = 0
         
         Thread.__init__(self)
 
@@ -861,8 +900,7 @@ class CopyPhotos(Thread):
         self.prefs = self.parentApp.prefs
 
         self.imageRenamePrefsFactory = rn.ImageRenamePreferences(self.prefs.image_rename, self, 
-                                                                 self.fileSequenceLock,  sequenceNoForFolder, 
-                                                                 sequenceLetterForFolder)
+                                                                 self.fileSequenceLock, sequences)
         try:
             self.imageRenamePrefsFactory.checkPrefsForValidity()
         except (PrefKeyError, PrefValueInvalidError,  PrefLengthError,  PrefValueKeyComboError), inst:
@@ -880,22 +918,34 @@ class CopyPhotos(Thread):
         """
         Copy photos from device to local drive, and if requested, backup
         
-        1. Should the image be downloaded?
-            1.a generate file name 
-                1.a.1 generate sequence numbers if need be, on a per subfolder basis
-            1.b check to see if a file exists with the same name in the place it will be downloaded to
+        1.  Should the image be downloaded?
+            1.a  generate file name 
+                1.a.1  generate sequence numbers if needed
+                1.a.2  FIFO queue sequence numbers to indicate that they could 
+                          potentially be used in a filename
+            1.b  check to see if a file exists with the same name in the place it will 
+                   be downloaded to
+            1.c if it exisits, and unique identifiers are not being used:
+                1.b.1  if using sequence numbers or letters, then potentially any of the 
+                          sequence numbers in the queue could be used to make the filename
+                    1.b.1.a  generate and check each filename using sequence numbers in the queue
+                    1.b.1.b  if one of these filenames is unique, then image needs to be downloaded
+                1.b.2  do not do not download
+
         
-        2. Download the image
-            2.a copy it to temporary folder (this takes time)
-            2.b is the file name still valid? Perhaps a new file was created with this name in the meantime
-                2.b.1 don't allow any other thread to rename a file
-                2.b.2 check file name
-                2.b.3 adding suffix if it is not unique, being careful not to overwrite any existing file with a suffix
-                2.b.4 rename it to the "real"" name, effectively performing a mv
-                2.b.5 allow other threads to rename files
+        2.  Download the image
+            2.a  copy it to temporary folder (this takes time)
+            2.b  is the file name still unique? Perhaps a new file was created with this name in the meantime
+                   (either by another thread or another program)
+                2.b.1  don't allow any other thread to rename a file
+                2.b.2  check file name
+                2.b.3  adding suffix if it is not unique, being careful not to overwrite any existing file with a suffix
+                2.b.4  rename it to the "real"" name, effectively performing a mv
+                2.b.5  allow other threads to rename files
         
-        3. Backup the image, using the same filename as was used when it was downloaded
-            3.a does a file with the same name already exist on the backup medium?
+        3.  Backup the image, using the same filename as was used when it was downloaded
+            3.a  does a file with the same name already exist on the backup medium?
+            3.b  if so, user preferences determine whether it should be overwritten or not
         """
 
         def cleanUp():
@@ -906,14 +956,39 @@ class CopyPhotos(Thread):
             
             print "Thread exiting, closing queues", self.thread_id, "thread",  get_ident()
             display_queue.close("rw")
+            # possibly delete any lingering files
+            tf = os.listdir(tempWorkingDir)
+            if tf:
+                for f in tf:
+                    os.remove(os.path.join(tempWorkingDir,  f))
+                
             os.rmdir(tempWorkingDir)
             
             
         def logError(severity, problem, details, resolution=None):
             display_queue.put((log_dialog.addMessage, (self.thread_id, severity, problem, details, 
                             resolution)))
+            if severity == config.WARNING:
+                self.noWarnings += 1
+            else:
+                self.noErrors += 1
 
-        def getMetaData(image,  name,  needMetaDataForImage,  needMetaDataToCreateSubfolderName):
+
+        def checkProblemWithImageNameGeneration(newName,  image,  problem):
+            if not newName:
+                # a serious problem - a filename should never be blank!
+                logError(config.SERIOUS_ERROR,
+                    "Image filename could not be generated",
+                    "Source: %s\nProblem: %s" % (image, problem),
+                    IMAGE_SKIPPED)                            
+            elif problem:
+                logError(config.WARNING, 
+                    "Image filename could not be properly generated. Check to ensure there is sufficient image metadata.",
+                    "Source: %s\nDestination: %s\nProblem: %s" % 
+                    (image, newName, problem))
+             
+        def generateSubfolderAndFileName(image,  name,  needMetaDataToCreateUniqueImageName,  
+                       needMetaDataToCreateUniqueSubfolderName):
             skipImage = False
             try:
                 imageMetadata = metadata.MetaData(image)
@@ -921,75 +996,114 @@ class CopyPhotos(Thread):
                 logError(config.CRITICAL_ERROR, "Could not open image", 
                                 "Source: %s" % image, 
                                 IMAGE_SKIPPED)
+                skipImage = True
             else:
                 imageMetadata.readMetadata()
-                if not imageMetadata.exifKeys() and (needMetaDataToCreateImageName or 
-                                                needMetaDataToCreateSubfolderName):
+                if not imageMetadata.exifKeys() and (needImageMetaDataToCreateUniqueSubfolderName or 
+                                                     (needImageMetaDataToCreateUniqueImageName and 
+                                                     not addUniqueIdentifier)):
                     logError(config.SERIOUS_ERROR, "Image has no metadata", 
-                                    "Source: %s" % image, 
+                                    "Metadata is essential for naming subfolders / image names.\nSource: %s" % image, 
                                     IMAGE_SKIPPED)
                     skipImage = True
                     
                 else:
-                    subfolder, problem = self.subfolderPrefsFactory.getStringFromPreferences(
+                    subfolder, problem = self.subfolderPrefsFactory.generateNameUsingPreferences(
                                                             imageMetadata, name, 
                                                             self.stripCharacters)
         
                     if problem:
                         logError(config.WARNING, 
-                            "Insufficient image metadata to properly generate subfolder name",
+                            "Subfolder name could not be properly generated. Check to ensure there is sufficient image metadata.",
                             "Subfolder: %s\nImage: %s\nProblem: %s" % 
                             (subfolder, image, problem))
                     
-                    newName, problem = self.imageRenamePrefsFactory.getStringFromPreferences(
-                                                            imageMetadata, name, self.stripCharacters,  subfolder)
+                    # pass the subfolder the image will go into, as this is needed to determine subfolder sequence numbers 
+                    # indicate that sequences chosen should be queued
+                    
+                    newName, problem = self.imageRenamePrefsFactory.generateNameUsingPreferences(
+                                                            imageMetadata, name, self.stripCharacters,  subfolder,  
+                                                            sequencesPreliminary = True)
                                                             
                     path = os.path.join(baseDownloadDir, subfolder)
                     newFile = os.path.join(path, newName)
                     
                     if not newName:
-                        # a serious problem - a filename should never be blank!
-                        logError(config.SERIOUS_ERROR,
-                            "Image name could not be generated",
-                            "Source: %s\nProblem: %s" % (image, problem),
-                            IMAGE_SKIPPED)
                         skipImage = True
-                    elif problem:
-                        logError(config.WARNING, 
-                            "Insufficient image metadata to properly generate image name",
-                            "Source: %s\nDestination: %s\nProblem: %s" % 
-                            (image, newName, problem))
+                    checkProblemWithImageNameGeneration(newName,  image,  problem)
+                    
             return (skipImage,  imageMetadata,  newName,  newFile,  path,  subfolder)
         
-        def downloadImage(path,  newFile,  newName,  image):
+        def downloadImage(path,  newFile,  newName,  originalName,  image,  imageMetadata,  subfolder):
             try:
                 imageDownloaded = False
                 if not os.path.isdir(path):
                     os.makedirs(path)
                 
                 nameUniqueBeforeCopy = True
+                downloadNonUniqueFile = True
+                
                 
                 # do a preliminary check to see if a file with the same name already exists
                 if os.path.exists(newFile):
                     nameUniqueBeforeCopy = False
-                        
-                    if self.prefs.indicate_download_error and not addUniqueIdentifier:
+                    if not addUniqueIdentifier:
+                        downloadNonUniqueFile = False
+                        if usesSequenceElements:
+                            # potentially, a unique image name could still be generated
+                            # investigate this possibility
+                            with self.fileSequenceLock:
+#                                doesNotExistInDestinationDir = False
+#                                doesNotExistInTempDir = False
+                                for possibleName,  problem in self.imageRenamePrefsFactory.generateNameSequencePossibilities(imageMetadata, 
+                                                                                                               originalName, self.stripCharacters,  subfolder):
+                                    print "checking",  possibleName,  "using",  originalName
+                                    if possibleName:
+                                        # no need to check for any problems here, it's just a temporary name
+                                        possibleFile = os.path.join(path, possibleName)
+                                        possibleTempFile = os.path.join(tempWorkingDir,  possibleName)
+                                        if not os.path.exists(possibleFile) and not os.path.exists(possibleTempFile):
+#                                            doesNotExistInDestinationDir = True
+                                            print "we can use it"
+                                            downloadNonUniqueFile = True
+                                            break
+#                                        if :
+#                                            doesNotExistInTempDir = True
+                                        
+                    if self.prefs.indicate_download_error and not downloadNonUniqueFile:
                         logError(config.SERIOUS_ERROR, IMAGE_ALREADY_EXISTS,
-                            "Source: %s\nDestination: %s" % (image, newFile),  IMAGE_SKIPPED)
+                                "Source: %s\nDestination: %s" % (image, newFile),  IMAGE_SKIPPED)
 
-                if nameUniqueBeforeCopy or addUniqueIdentifier:
+                if nameUniqueBeforeCopy or downloadNonUniqueFile:
                     tempWorkingfile = os.path.join(tempWorkingDir, newName)
                     shutil.copy2(image, tempWorkingfile)
                     
                     with self.fileRenameLock:
                         doRename = True
+                        if usesSequenceElements:
+                            with self.fileSequenceLock:
+                                # get a filename and use this as the "real" filename
+                                newName, problem = self.imageRenamePrefsFactory.generateNameUsingPreferences(
+                                                                imageMetadata, originalName, self.stripCharacters,  subfolder,  
+                                                                sequencesPreliminary = False)
+                            checkProblemWithImageNameGeneration(newName,  image,  problem)
+                            if not newName:
+                                # there was a serious error generating the filename
+                                doRename = False                            
+                            else:
+                                newFile = os.path.join(path, newName)
                         # check if the file exists again
-                        if not nameUniqueBeforeCopy or os.path.exists(newFile):
-                            if addUniqueIdentifier:
+                        if os.path.exists(newFile):
+                            if not addUniqueIdentifier:
+                                doRename = False
+                                if self.prefs.indicate_download_error:
+                                    logError(config.SERIOUS_ERROR, IMAGE_ALREADY_EXISTS,
+                                        "Source: %s\nDestination: %s" % (image, newFile),  IMAGE_SKIPPED) 
+                            else:
                                 # add  basic suffix to make the filename unique
                                 name = os.path.splitext(newName)
                                 suffixAlreadyUsed = True
-                                while suffixAlreadyUsed :
+                                while suffixAlreadyUsed:
                                     if newFile in duplicate_files:
                                         duplicate_files[newFile] +=  1
                                     else:
@@ -998,7 +1112,6 @@ class CopyPhotos(Thread):
                                     newName = name[0] + identifier + name[1]
                                     possibleNewFile = os.path.join(path,  newName)
                                     suffixAlreadyUsed = os.path.exists(possibleNewFile)
-                                    
 
                                 if self.prefs.indicate_download_error:
                                     logError(config.SERIOUS_ERROR, IMAGE_ALREADY_EXISTS,
@@ -1007,17 +1120,15 @@ class CopyPhotos(Thread):
                                         
                                 newFile = possibleNewFile
                                 
-                            else:
-                                doRename = False
-                                if self.prefs.indicate_download_error:
-                                    logError(config.SERIOUS_ERROR, IMAGE_ALREADY_EXISTS,
-                                        "Source: %s\nDestination: %s" % (image, newFile),  IMAGE_SKIPPED)
 
                         if doRename:
                             os.rename(tempWorkingfile, newFile)
                             imageDownloaded = True
+                            if usesSequenceElements:
+                                self.imageRenamePrefsFactory.sequences.imageCopySucceeded()
                     
             except IOError, (errno, strerror):
+                # FIXME: is the lock released on an error here?!
                 logError(config.SERIOUS_ERROR, 'Download copying error', 
                             "Source: %s\nDestination: %s\nError: %s %s" % (image, newFile, errno, strerror),
                             'The image was not copied.')
@@ -1027,6 +1138,12 @@ class CopyPhotos(Thread):
                             "Source: %s\nDestination: %s\nError: %s %s" % (image, newFile, errno, strerror),
                         )
             
+            if usesSequenceElements:
+                if not imageDownloaded:
+                    self.imageRenamePrefsFactory.sequences.imageCopyFailed()
+
+                    
+                
             return (imageDownloaded,  newName,  newFile)
             
 
@@ -1092,6 +1209,33 @@ class CopyPhotos(Thread):
                             "Source: %s\nDestination: %s\nError: %s %s" % (image, newBackupFile, errno, strerror),
                         )            
 
+        def notifyAndUnmount():
+            if not self.cardMedia.volume:
+                unmountMessage = ""
+                notificationName = "Rapid Photo Downloader"
+            else:
+                notificationName = self.cardMedia.volume.get_display_name()
+                if self.prefs.auto_unmount:
+                    self.cardMedia.volume.unmount(self.on_volume_unmount)
+                    unmountMessage = "The device can now be safely removed."
+                else:
+                    unmountMessage = ""
+            
+            message = "%s images downloaded." % noImagesDownloaded
+            if noImagesSkipped:
+                message += "\n%s images skipped." % noImagesSkipped
+            
+            if unmountMessage:
+                message = "%s\n%s"  % (message,  unmountMessage)
+                
+            if self.noWarnings:
+                message = "%s\n%s warnings." % (message,  self.noWarnings)
+            if self.noErrors:
+                message = "%s\n%s errors." % (message,  self.noErrors)
+                
+            n = pynotify.Notification(notificationName,  message)
+            n.show()            
+        
         self.hasStarted = True
         print "thread", self.thread_id, "is", get_ident(), "and is now running"
 
@@ -1099,24 +1243,24 @@ class CopyPhotos(Thread):
         
         self.initializeFromPrefs()
         
-        # Image names should be unique.  Some images may not have metadata (this
+        # Some images may not have metadata (this
         # is unlikely for images straight out of a 
         # camera, but it is possible for images that have been edited).  If
         # only non-dynamic components make up the rest of an image name 
         # (e.g. text specified by the user), then relying on metadata will 
         # likely produce duplicate names. 
         
-        needMetaDataForImage = self.imageRenamePrefsFactory.needMetaDataToCreateUniqueName()
+        needMetaDataToCreateUniqueImageName = self.imageRenamePrefsFactory.needImageMetaDataToCreateUniqueName()
         
         # subfolder generation also need to be examined, but here the need is
         # not so exacting, since subfolders contain images, and naturally the
         # requirement to be unique is far more relaxed.  However if subfolder 
         # generation relies entirely on metadata, that is a problem worth
         # looking for
-        needMetaDataToCreateSubfolderName = self.subfolderPrefsFactory.needMetaDataToCreateUniqueName()
+        needMetaDataToCreateUniqueSubfolderName = self.subfolderPrefsFactory.needMetaDataToCreateUniqueName()
         
         i = 0
-        sizeDownloaded = 0
+        sizeDownloaded = noImagesDownloaded =  noImagesSkipped = 0
         
         sizeImages = float(self.cardMedia.sizeOfImages(humanReadable = False))
         noImages = self.cardMedia.numberOfImages()
@@ -1134,6 +1278,7 @@ class CopyPhotos(Thread):
         IMAGE_ALREADY_EXISTS = "Image already exists"
         
         addUniqueIdentifier = self.prefs.download_conflict_resolution == config.ADD_UNIQUE_IDENTIFIER
+        usesSequenceElements = self.imageRenamePrefsFactory.usesSequenceElements()
         
         while i < noImages:
             if not self.running:
@@ -1146,16 +1291,26 @@ class CopyPhotos(Thread):
                 return
             
             # get information about the image to deduce image name and path
-            name, root, size = self.cardMedia.images[i]
+            name, root, size,  modificationTime = self.cardMedia.images[i]
             image = os.path.join(root, name)
             
-            skipImage,  imageMetadata,  newName,  newFile,  path,  subfolder = getMetaData(image,  name,  needMetaDataForImage,  needMetaDataToCreateSubfolderName)
+            skipImage,  imageMetadata,  newName,  newFile,  path,  subfolder = generateSubfolderAndFileName(
+                       image,  name,  needMetaDataToCreateUniqueImageName,  
+                       needMetaDataToCreateUniqueSubfolderName)
 
-            if not skipImage:
-                imageDownloaded, newName, newFile  = downloadImage(path,  newFile,  newName,  image)
+            if skipImage:
+                noImagesSkipped += 1
+            else:
+                imageDownloaded, newName, newFile  = downloadImage(path,  newFile,  newName,  name,  image,  
+                                                                   imageMetadata,  subfolder)
+
                 if self.prefs.backup_images:
                     backupImage(subfolder,  newName,  imageDownloaded,  newFile,  image)
 
+                if imageDownloaded:
+                    noImagesDownloaded += 1
+                else:
+                    noImagesSkipped += 1
                 try:
                     thumbnailType, thumbnail = imageMetadata.getThumbnailData()
                 except:
@@ -1173,12 +1328,18 @@ class CopyPhotos(Thread):
 
 
         cleanUp()
-        # must manually delete these variables, or else the media cannot be unmounted
+        
+        with self.statsLock:
+            self.downloadStats.adjust(sizeDownloaded,  noImagesDownloaded,  noImagesSkipped,  self.noWarnings,  self.noErrors)
+            
+
+            
+        # must manually delete these variables, or else the media cannot be unmounted (bug in pyexiv or exiv2)
         del imageMetadata,  self.subfolderPrefsFactory,  self.imageRenamePrefsFactory
                 
-        if self.prefs.auto_unmount and self.cardMedia.volume:
-            self.cardMedia.volume.unmount(self.on_volume_unmount)
-            
+        
+        notifyAndUnmount()
+
         self.running = False
         self.lock.release()
 
@@ -1423,6 +1584,11 @@ class RapidApp(gnomeglade.GnomeApp):
         gladefile = paths.share_dir(config.GLADE_FILE)
         gnomeglade.GnomeApp.__init__(self, "rapid", __version__, gladefile, "rapidapp")
 
+
+        # notifications
+        self.displayDownloadSummaryNotification = False
+        self.initPyNotify()
+        
         self.prefs = RapidPreferences()
         self.prefs.notify_add(self.on_preference_changed)
         self.prefs.program_version = __version__
@@ -1433,24 +1599,31 @@ class RapidApp(gnomeglade.GnomeApp):
         self.error_image.hide()
         self.warning_image.hide()
         
-##        LaunchpadIntegration.set_sourcepackagename("rapid")
-##        
-##        LaunchpadIntegration.add_items(self.help_menu, -1, False, True)
         
         # display download information using threads
         global media_collection_treeview, image_hbox, log_dialog
         global download_queue, image_queue, log_queue
         global workers
+
+        #track files that should have a suffix added to them
         global duplicate_files
-        global sequenceNoForFolder
-        global sequenceLetterForFolder
         
+        # control sequence numbers and letters
+        global sequences
+
         duplicate_files = {}
-        sequenceNoForFolder = {}
-        sequenceLetterForFolder = {}
         
+        downloadsToday = self.prefs.getDownloadsToday()
+        if downloadsToday < 0:
+            self.prefs.setDownloadsToday(today(),  0)
+        sequences = rn.Sequences(self.prefs.getDownloadsToday(),  self.prefs.stored_sequence_no)
+        
+        self.downloadStats = DownloadStats()
+
+        #locks for threadsafe file downloading and stats gathering
         self.fileRenameLock = Lock()
         self.fileSequenceLock = Lock()
+        self.statsLock = Lock()
 
         # log window, in dialog format
         # used for displaying download information to the user
@@ -1464,13 +1637,9 @@ class RapidApp(gnomeglade.GnomeApp):
         
        
         # set up tree view display 
-        media_collection_treeview = MediaTreeView(self)
-        
-
+        media_collection_treeview = MediaTreeView(self)        
 
         self.media_collection_vbox.pack_start(media_collection_treeview)
-        print "FIXME: calculate media_collection_viewport size better"
-##        self.media_collection_viewport.set_size_request(-1, len(cardMediaList) * 25 + 15)
         
         #thumbnail display
         image_hbox = ImageHBox(self)
@@ -1478,26 +1647,6 @@ class RapidApp(gnomeglade.GnomeApp):
         self.image_viewport.modify_bg(gtk.STATE_NORMAL, gdk.color_parse("white"))
         self.set_display_thumbnails(self.prefs.display_thumbnails)
         
-
-        #display download folder information
-#        self.download_folder_checkbutton = gtk.CheckButton(self.prefs.download_folder)
-#        self.download_folder_checkbutton.set_active(True)
-#        self.download_folder_checkbutton.show()
-#        backup_paths = scanForBackupMedia('/media', self.prefs.backup_identifier)
-#        print backup_paths
-#        self.archives = []
-#        self.backup_checkbuttons = []
-#        self.download_folders_vbox.pack_start(self.download_folder_checkbutton)
-#        for i in range(len(backup_paths)):
-#            path = backup_paths[i]
-#            self.archives.append(Media(path))
-#            check_button = gtk.CheckButton(path)
-#            check_button.set_active(True)
-#            self.backup_checkbuttons.append(check_button)
-#            check_button.show()
-#            self.download_folders_vbox.pack_start(check_button)
-
-
         self.backupVolumes = {}
 
         self._setupDownloadbutton()
@@ -1519,14 +1668,49 @@ class RapidApp(gnomeglade.GnomeApp):
         self.widget.show()
         
         self.setupAvailableImageAndBackupMedia()
+
+        #adjust viewport size for displaying media
+        # FIXME: adjust based on actual size, not a guess
+        height= workers.noReadyToStartWorkers() * 24 + 29 # bar is approx 29
+        self.media_collection_viewport.set_size_request(-1, height)
         
         self.download_button.grab_focus()
-        
+                
         if self.prefs.auto_download_at_startup:
             self.startDownload()
 
 
                             
+    def initPyNotify(self):
+        if not pynotify.init("TestCaps"):
+            print "Problem using pynotify."
+            sys.exit(1)
+
+        capabilities = {'actions':  False,
+                'body':  False,
+                'body-hyperlinks': False,
+                'body-images': False,
+                'body-markup': False,
+                'icon-multi': False,
+                'icon-static': False,
+                'sound': False,
+                'image/svg+xml': False,
+                'append':  False}
+
+        caps = pynotify.get_server_caps ()
+        if caps is None:
+                print "Failed to receive pynotify server capabilities."
+                sys.exit (1)
+
+        for cap in caps:
+                capabilities[cap] = True
+
+        info = pynotify.get_server_info()
+        if info["name"] == "notify-osd":
+            print "Using the new Ubuntu notification system."
+        else:
+            print "Using old style notifications."
+    
     def usingVolumeMonitor(self):
         """
         Returns True if programs needs to use gnomevfs volume monitor
@@ -1599,11 +1783,10 @@ class RapidApp(gnomeglade.GnomeApp):
         elif media.isImageMedia(path,  self.searchForPsd()):
             cardMedia = CardMedia(path, volume)
             i = workers.getNextThread_id()
-            workers.append(CopyPhotos(i, self, self.fileRenameLock, self.fileSequenceLock,  cardMedia))
+            workers.append(CopyPhotos(i, self, self.fileRenameLock, self.fileSequenceLock, self.statsLock,  self.downloadStats,  cardMedia))
             self.setDownloadButtonSensitivity()
             
             if self.prefs.auto_download_upon_device_insertion:
-                #workers.printWorkerStatus()
                 self.startDownload()
             
     def on_volume_unmounted(self, monitor, volume):
@@ -1722,7 +1905,7 @@ class RapidApp(gnomeglade.GnomeApp):
 
         for i in range(j, j + len(cardMediaList)):
             cardMedia = cardMediaList[i - j]
-            workers.append(CopyPhotos(i, self, self.fileRenameLock, self.fileSequenceLock, cardMedia))
+            workers.append(CopyPhotos(i, self, self.fileRenameLock, self.fileSequenceLock, self.statsLock,self.downloadStats, cardMedia))
         
         self.setDownloadButtonSensitivity()
         
@@ -1794,10 +1977,10 @@ class RapidApp(gnomeglade.GnomeApp):
         fraction = self.totalDownloadedSoFar / float(self.totalDownloadSize)
         timefraction = self.totalDownloadedSoFarThisRun / float(self.totalDownloadSizeThisRun)
         
-        self.download_progressbar.set_fraction(fraction)
+        self.download_progressbar.set_fraction(fraction)        
         
         if percentComplete == 100.0:
-             self.menu_clear.set_sensitive(True)
+            self.menu_clear.set_sensitive(True)
 
         if self.totalDownloadedSoFar == self.totalDownloadSize:
             # finished all downloads
@@ -1805,6 +1988,18 @@ class RapidApp(gnomeglade.GnomeApp):
             self.download_button_is_download = True
             self._set_download_button()
             self.setDownloadButtonSensitivity()
+            if self.displayDownloadSummaryNotification:
+                message = "All downloads complete.\n%s images downloaded." % self.downloadStats.noImagesDownloaded
+                if self.downloadStats.noImagesSkipped:
+                    message = "%s\n%s images skipped." % (message,  self.downloadStats.noImagesSkipped)
+                if self.downloadStats.noWarnings:
+                    message = "%s\n%s warnings." % (message,  self.downloadStats.noWarnings)
+                if self.downloadStats.noErrors:
+                    message = "%s\n%s errors." % (message,  self.downloadStats.noErrors)
+                n = pynotify.Notification("Rapid Photo Downloader",  message)
+                n.show()
+                self.displayDownloadSummaryNotification = False # don't show it again unless needed
+                self.downloadStats.clear()
     
         else:
             now = time.time()
@@ -1916,6 +2111,8 @@ class RapidApp(gnomeglade.GnomeApp):
 
     def startDownload(self):
         self.startOrResumeWorkers()
+        if workers.noRunningWorkers() > 1:
+            self.displayDownloadSummaryNotification = True
         # set button to display Pause
         self.download_button_is_download = False
         self._set_download_button()
@@ -1954,7 +2151,26 @@ class RapidApp(gnomeglade.GnomeApp):
                 self.startVolumeMonitor()
             self.setupAvailableImageAndBackupMedia()
 
+    def on_error_eventbox_button_press_event(self,  widget,  event):
+        self.prefs.show_log_dialog = True
+        log_dialog.widget.show()
 
+class DownloadStats:
+    def __init__(self):
+        self.clear()
+        
+    def adjust(self, size,  noImagesDownloaded,  noImagesSkipped,  noWarnings,  noErrors):
+        self.downloadSize += size
+        self.noImagesDownloaded += noImagesDownloaded
+        self.noImagesSkipped += noImagesSkipped
+        self.noWarnings += noWarnings
+        self.noErrors += noErrors
+        
+    def clear(self):
+        self.noImagesDownloaded = self.noImagesSkipped = 0
+        self.downloadSize = 0
+        self.noWarnings = self.noErrors = 0
+        
 def programStatus():
     print "Goodbye"
 

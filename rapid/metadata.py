@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/python
 # -*- coding: latin1 -*-
 
 ### Copyright (C) 2007 Damon Lynch <damonlynch@gmail.com>
@@ -208,6 +208,13 @@ class MetaData(pyexiv2.Image):
         except:
             return missing
             
+    def subSeconds(self,  missing='00'):
+        """ returns the subsecond the image was taken, as recorded by the camera"""
+        try:
+            return self["Exif.Photo.SubSecTimeOriginal"]
+        except:
+            return missing
+            
     def orientation(self, missing=''):
         """
         Returns the orientation of the image, as recorded by the camera
@@ -286,4 +293,9 @@ if __name__ == '__main__':
     print m.shortCameraModel(includeCharacters = "\-")
     print m.dateTime()
     print m.orientation()
+    
+#    print m['Exif.CanonCs.Lens']
+    print m.subSeconds()
+
+
 

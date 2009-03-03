@@ -1,7 +1,7 @@
-#!/usr/bin/env python
+#!/usr/bin/python
 # -*- coding: latin1 -*-
 
-### Copyright (C) 2007 Damon Lynch <damonlynch@gmail.com>
+### Copyright (C) 2007, 2008, 2009 Damon Lynch <damonlynch@gmail.com>
 
 ### This program is free software; you can redistribute it and/or modify
 ### it under the terms of the GNU General Public License as published by
@@ -52,18 +52,28 @@ try:
 except: 
     sys.exit(1)
 
+import datetime
+
+import Queue
+import ValidatedEntry
+
 # Special key in each dictionary which specifies the order of elements.
 # It is very important to have a consistent and rational order when displaying 
 # these prefs to the user, and dictionaries are unsorted.
 
 ORDER_KEY = "__order__"
 
+
 # *** Level 0
 DATE_TIME = 'Date time'
 TEXT = 'Text'
 FILENAME = 'Filename'
 METADATA = 'Metadata'
-SEQUENCE_NUMBER = 'Downloads today seq. no.'
+DOWNLOAD_SEQ_NUMBER = 'Downloads today sequence number'
+SESSION_SEQ_NUMBER = 'Session sequence number'
+SUBFOLDER_SEQ_NUMBER = 'Subfolder sequence number'
+STORED_SEQ_NUMBER = 'Stored sequence number'
+
 SEQUENCE_LETTER = 'Sequence letter'
 SEPARATOR = os.sep
 
@@ -91,7 +101,7 @@ SHORT_CAMERA_MODEL = 'Short camera model'
 SHORT_CAMERA_MODEL_HYPHEN = 'Hyphenated short camera model'
 
 #Image sequence
-
+USER_INPUT = 'user'
 
 # *** Level 2
 
@@ -123,10 +133,14 @@ SEQUENCE_NUMBER_6 = "Six digits"
 
 # Date 
 
+SUBSECONDS = 'Subseconds'
+
 LIST_DATE_TIME_L2 = ['YYYYMMDD', 'YYMMDD', 'MMDDYYYY', 'MMDDYY', 'MMDD', 
                     'DDMMYYYY', 'DDMMYY', 'YYYY', 'YY', 
                     'MM', 'DD', 
                     'HHMMSS', 'HHMM']
+                    
+LIST_IMAGE_DATE_TIME_L2 = LIST_DATE_TIME_L2 + [SUBSECONDS]
 
 # Convenience values for python datetime conversion using values in 
 # LIST_DATE_TIME_L2.  Obviously the two must remain synchronized.
@@ -135,6 +149,7 @@ DATE_TIME_CONVERT = ['%Y%m%d', '%y%m%d', '%m%d%Y', '%m%d%y', '%m%d',
                     '%d%m%Y', '%d%m%y', '%Y', '%y', 
                     '%m', '%d',
                     '%H%M%S', '%H%M']
+                    
 
 LIST_IMAGE_NUMBER_L2 = [IMAGE_NUMBER_ALL, IMAGE_NUMBER_1, IMAGE_NUMBER_2, 
                         IMAGE_NUMBER_3, IMAGE_NUMBER_4]
@@ -148,7 +163,7 @@ LIST_CASE_L2 = [ORIGINAL_CASE, UPPERCASE, LOWERCASE]
 LIST_DATE_TIME_L1 = [IMAGE_DATE, TODAY, YESTERDAY]
 
 DICT_DATE_TIME_L1 = {
-                    IMAGE_DATE: LIST_DATE_TIME_L2,
+                    IMAGE_DATE: LIST_IMAGE_DATE_TIME_L2,
                     TODAY: LIST_DATE_TIME_L2,
                     YESTERDAY: LIST_DATE_TIME_L2,
                     ORDER_KEY: LIST_DATE_TIME_L1
@@ -192,7 +207,7 @@ DICT_METADATA_L1 = {
                     ORDER_KEY: LIST_METADATA_L1
                 }
 
-LIST_SEQUENCE_NUMBER_L1 = [
+LIST_SEQUENCE_NUMBERS_L1_L2 = [
                     SEQUENCE_NUMBER_1,
                     SEQUENCE_NUMBER_2,
                     SEQUENCE_NUMBER_3,
@@ -201,16 +216,21 @@ LIST_SEQUENCE_NUMBER_L1 = [
                     SEQUENCE_NUMBER_6,
                     ]
                 
-DICT_SEQUENCE_NUMBER_L1 = { 
+DICT_SEQUENCE_NUMBERS_L1_L2 = { 
                     SEQUENCE_NUMBER_1: None,
                     SEQUENCE_NUMBER_2: None,
                     SEQUENCE_NUMBER_3: None,
                     SEQUENCE_NUMBER_4: None,
                     SEQUENCE_NUMBER_5: None,
                     SEQUENCE_NUMBER_6: None,
-                    ORDER_KEY: LIST_SEQUENCE_NUMBER_L1
+                    ORDER_KEY: LIST_SEQUENCE_NUMBERS_L1_L2
                     }
 
+LIST_SEQUENCE_L1 = [USER_INPUT]
+DICT_SEQUENCE_L1 = {
+                    USER_INPUT: DICT_SEQUENCE_NUMBERS_L1_L2, 
+                    ORDER_KEY: LIST_SEQUENCE_L1
+                    }
 LIST_SEQUENCE_LETTER_L1 = [
                     UPPERCASE,
                     LOWERCASE
@@ -226,16 +246,22 @@ DICT_SEQUENCE_LETTER_L1 = {
 # Level 0
 
 LIST_IMAGE_RENAME_L0 = [DATE_TIME, TEXT, FILENAME, METADATA, 
-                        SEQUENCE_NUMBER, SEQUENCE_LETTER]
+                        DOWNLOAD_SEQ_NUMBER, 
+                        SESSION_SEQ_NUMBER,  
+                        SUBFOLDER_SEQ_NUMBER, 
+                        STORED_SEQ_NUMBER,  
+                        SEQUENCE_LETTER]
 
-#LIST_IMAGE_RENAME_L0 = [DATE_TIME, TEXT, FILENAME, METADATA]
 
 DICT_IMAGE_RENAME_L0 = {
                     DATE_TIME: DICT_DATE_TIME_L1,
                     TEXT: None,
                     FILENAME: DICT_FILENAME_L1,
                     METADATA: DICT_METADATA_L1,
-                    SEQUENCE_NUMBER: DICT_SEQUENCE_NUMBER_L1,
+                    DOWNLOAD_SEQ_NUMBER: DICT_SEQUENCE_L1,
+                    SESSION_SEQ_NUMBER: None, 
+                    SUBFOLDER_SEQ_NUMBER: DICT_SEQUENCE_L1, 
+                    STORED_SEQ_NUMBER: None,                     
                     SEQUENCE_LETTER: DICT_SEQUENCE_LETTER_L1,
                     ORDER_KEY: LIST_IMAGE_RENAME_L0
                     }
@@ -257,11 +283,22 @@ DICT_SUBFOLDER_L0 = {
 # element is necessary for them to be present to begin with
 METADATA_ELEMENTS = [METADATA, IMAGE_DATE]
 
+# preference elements that are sequence numbers or letters             
+SEQUENCE_ELEMENTS = [
+             DOWNLOAD_SEQ_NUMBER, 
+             SESSION_SEQ_NUMBER, 
+             SUBFOLDER_SEQ_NUMBER, 
+             STORED_SEQ_NUMBER, 
+             SEQUENCE_LETTER]
+
 # preference elements that do not require metadata and are not fixed
 # as above, there is no need to specify lower level elements if a higher level 
 # element is necessary for them to be present to begin with
-DYNAMIC_NON_METADATA_ELEMENTS = [TODAY, YESTERDAY, FILENAME, SEQUENCE_NUMBER, SEQUENCE_LETTER]
-
+DYNAMIC_NON_METADATA_ELEMENTS = [
+             TODAY, YESTERDAY, 
+             FILENAME]  + SEQUENCE_ELEMENTS
+             
+             
 # Functions to work with above data
 def checkPreferenceValid(prefDefinition, prefs, modulo=3):
     """
@@ -299,6 +336,10 @@ def _checkPreferenceValid(prefDefinition, prefs):
 
         if nextPrefDefinition and not value:
             raise PrefValueInvalidError((value, nextPrefDefinition))
+            
+        if key == SESSION_SEQ_NUMBER:
+            print "found this:",  SESSION_SEQ_NUMBER
+            
         if type(nextPrefDefinition) == type({}):
             return _checkPreferenceValid(nextPrefDefinition, prefs[1:])
         else:
@@ -357,7 +398,7 @@ def convertDateForStrftime(dateTimeUserChoice):
 
 
 class ImageRenamePreferences:
-    def __init__(self, prefList, parent,  fileSequenceLock=None,  sequenceNoForFolder=None,  sequenceLetterForFolder=None):
+    def __init__(self, prefList, parent,  fileSequenceLock=None,  sequences=None):
         """
         Exception raised if preferences are invalid.
         
@@ -365,23 +406,15 @@ class ImageRenamePreferences:
         
         self.parent = parent
         self.prefList = prefList
-        
-        self.fileSequenceLock = fileSequenceLock
-    
-        # initialize variables for determining sequence numbers
+
+        # use variables for determining sequence numbers
         # there are two possibilities:
         # 1. this code is being called while being run from within a copy photos process
         # 2. it's being called from within the preferences dialog window
-        
-        if fileSequenceLock:
-            self.sequenceNo = sequenceNoForFolder
-            self.sequenceLetter = sequenceLetterForFolder
-        else:
-            self.sequenceNo = {}
-            self.sequenceLetter = {}
+
+        self.fileSequenceLock = fileSequenceLock
+        self.sequences = sequences
     
-        self.sequenceLetterStr = 'a' + string.lowercase
-        
         # derived classes will have their own definitions, do not overwrite
         if not hasattr(self, "prefsDefnL0"):
             self.prefsDefnL0 = DICT_IMAGE_RENAME_L0
@@ -406,8 +439,12 @@ class ImageRenamePreferences:
         
         problem = None
         if self.L1 == IMAGE_DATE:
-            d = self.photo.dateTime(missing=None)
-            problem = "%s metadata is not present in image" % self.L1.lower()
+            if self.L2 == SUBSECONDS:
+                d = self.photo.subSeconds()
+                problem = "Subsecond metadata not present in image"
+            else:
+                d = self.photo.dateTime(missing=None)
+                problem = "%s metadata is not present in image" % self.L1.lower()
         elif self.L1 == TODAY:
             d = datetime.datetime.now()
         elif self.L1 == YESTERDAY:
@@ -417,7 +454,10 @@ class ImageRenamePreferences:
             raise("Date options invalid")
 
         if d:
-            return (d.strftime(convertDateForStrftime(self.L2)), None)
+            if self.L2 <> SUBSECONDS:
+                return (d.strftime(convertDateForStrftime(self.L2)), None)
+            else:
+                return (d,  None)
         else:
             return ('', problem)
 
@@ -426,7 +466,7 @@ class ImageRenamePreferences:
         Returns portion of new image / subfolder name based on the file name
         """
         
-        name, extenstion = os.path.splitext(self.existingFilename)
+        name, extension = os.path.splitext(self.existingFilename)
         problem = None
         
         if self.L1 == NAME_EXTENSION:
@@ -434,10 +474,15 @@ class ImageRenamePreferences:
         elif self.L1 == NAME:
                 filename = name
         elif self.L1 == EXTENSION:
-            if extenstion:
-                # keep the period / dot of the extension, so the user does not
-                # need to manually specify it
-                filename = extenstion
+            if extension:
+                if not self.stripInitialPeriodFromExtension:
+                    # keep the period / dot of the extension, so the user does not
+                    # need to manually specify it
+                    filename = extension
+                else:
+                    # having the period when this is used as a part of a subfolder name
+                    # is a bad idea!
+                    filename = extension[1:]
             else:
                 filename = ""
                 problem = "extension was specified but image name has no extension"
@@ -508,18 +553,16 @@ class ImageRenamePreferences:
             problem = "%s metadata is not present in image" % md
         return (v, problem)
 
-    def _calculateNoSequence(self,  subfolder):
-        
-        if not subfolder in self.sequenceNo:
-            self.sequenceNo[subfolder] = 1
-        else:
-            self.sequenceNo[subfolder] += 1
-            
-        padding = LIST_SEQUENCE_NUMBER_L1.index(self.L1) + 1
-        formatter = '%0' + str(padding) + "i"
-        return formatter % self.sequenceNo[subfolder]
 
-    def _calculateLetterSequence(self,  subfolder):
+    def _formatSequenceNo(self,  value,  amountToPad):
+        padding = LIST_SEQUENCE_NUMBERS_L1_L2.index(amountToPad) + 1
+        formatter = '%0' + str(padding) + "i"
+        return formatter % value
+
+
+            
+
+    def _calculateLetterSequence(self,  sequence):
 
         def _letters(x):
             """
@@ -534,58 +577,65 @@ class ImageRenamePreferences:
             
             return v
             
-        if not subfolder in self.sequenceLetter:
-            self.sequenceLetter[subfolder] = 0
-        else:
-            self.sequenceLetter[subfolder] += 1
         
-        v = _letters(self.sequenceLetter[subfolder])
+        v = _letters(sequence)
         if self.L1 == UPPERCASE:
             v = v.upper()
         
         return v
 
-    def _getSequenceNumber(self):
+    def _getSubfolderSequenceNo(self):
         """ 
         Add a sequence number to the filename
        
-       * Sequence numbering should be per folder.
+       * Sequence numbering is per subfolder
        * Assume the user might actually have a (perhaps odd) reason to have more 
-          than one sequence number in the same name
+          than one subfolder sequence number in the same file name
         """
         
         problem = None
-        self.sequenceNoInstance += 1
+        self.subfolderSeqNoInstanceInFilename += 1
 
-        if self.subfolder:
-            subfolder = self.subfolder + str(self.sequenceNoInstance)
+        if self.downloadSubfolder:
+            subfolder = self.downloadSubfolder + str(self.subfolderSeqNoInstanceInFilename)
         else:
-            subfolder = str(self.sequenceNoInstance)
+            subfolder = "__subfolder__" + str(self.subfolderSeqNoInstanceInFilename)
         
         if self.fileSequenceLock:
             with self.fileSequenceLock:
-                v = self._calculateNoSequence(subfolder)
+                v = self.sequenceNos.calculate(subfolder)
+                v = self.formatSequenceNo(v,  self.L1)
         else:
-            v = self._calculateNoSequence(subfolder)
+            v = self.sequenceNos.calculate(subfolder)
+            v = self.formatSequenceNo(v,  self.L1)
             
         return (v, problem)
 
+    def _getSessionSequenceNo(self):
+        problem = None
+        v = self._formatSequenceNo(self.sequenceCounter,  self.L2)
+            
+        return (v, problem)
+
+    def _getDownloadSequenceNo(self):
+        problem = None
+            
+        v = self._formatSequenceNo(self.sequenceCounter,  self.L1)
+        
+        return (v, problem)
+        
+    def _getStoredSequenceNo(self):
+        problem = None
+        v = self._formatSequenceNo(self.sequenceCounter,  self.L2)
+        
+        return (v,  problem)
+        
     def _getSequenceLetter(self):
 
         problem = None
-        self.sequenceLetterInstance += 1
 
-        if self.subfolder:
-            subfolder = self.subfolder + str(self.sequenceLetterInstance)
-        else:
-            subfolder = str(self.sequenceLetterInstance)
-        
-        if self.fileSequenceLock:
-            with self.fileSequenceLock:
-                v = self._calculateLetterSequence(subfolder)
-        else:
-            v = self._calculateLetterSequence(subfolder)
-            
+        v = self._calculateLetterSequence(self.sequenceCounter)
+
         return (v, problem)
         
     def _getComponent(self):
@@ -597,8 +647,14 @@ class ImageRenamePreferences:
                 return self._getFilenameComponent()
             elif self.L0 == METADATA:
                 return self._getMetadataComponent()
-            elif self.L0 == SEQUENCE_NUMBER:
-                return self._getSequenceNumber()
+            elif self.L0 == DOWNLOAD_SEQ_NUMBER:
+                return self._getDownloadSequenceNo()
+            elif self.L0 == SESSION_SEQ_NUMBER:
+                return self._getSessionSequenceNo()
+            elif self.L0 == SUBFOLDER_SEQ_NUMBER:
+                return self._getSubfolderSequenceNo()
+            elif self.L0 == STORED_SEQ_NUMBER:
+                return self._getStoredSequenceNo()                   
             elif self.L0 == SEQUENCE_LETTER:
                 return self._getSequenceLetter()
             elif self.L0 == SEPARATOR:
@@ -609,27 +665,18 @@ class ImageRenamePreferences:
             yield (self.prefList[i], self.prefList[i+1], self.prefList[i+2])
 
 
-
-    def getStringFromPreferences(self, photo, existingFilename=None, 
-                                    stripCharacters = False,  subfolder=None):
-        """
-        Generate a filename for the photo in string format based on user prefs.
-        
-        Returns a tuple of two strings: 
-        - the name
-        - any problems generating the name.  If blank, there were no problems
-        """
-
+    def _generateName(self,  photo,  existingFilename,  stripCharacters,  subfolder,  stripInitialPeriodFromExtension,  sequence):
         self.photo = photo
         self.existingFilename = existingFilename
+        self.stripInitialPeriodFromExtension = stripInitialPeriodFromExtension
             
         name = ''
         problem = ''
+
+        #the subfolder in which the image will be downloaded to
+        self.downloadSubfolder = subfolder 
         
-        # next two values are important for generating sequence numbers / letters
-        self.subfolder = subfolder
-        self.sequenceNoInstance = 0
-        self.sequenceLetterInstance = 0
+        self.sequenceCounter = sequence
         
         for self.L0, self.L1, self.L2 in self._getValuesFromList():
             v, p = self._getComponent()
@@ -651,6 +698,41 @@ class ImageRenamePreferences:
                     
         return (name, problem)
 
+    def generateNameUsingPreferences(self, photo, existingFilename=None, 
+                                    stripCharacters = False,  subfolder=None,  
+                                    stripInitialPeriodFromExtension=False, 
+                                    sequencesPreliminary = True):
+        """
+        Generate a filename for the photo in string format based on user prefs.
+        
+        Returns a tuple of two strings: 
+        - the name
+        - any problems generating the name.  If blank, there were no problems
+        """
+
+
+        
+        if self.sequences:
+            if sequencesPreliminary:
+                sequence = self.sequences.getPrelimSequence()
+            else:
+                sequence = self.sequences.getFinalSequence()
+        else:
+            sequence = 0
+
+        return self._generateName(photo,  existingFilename,  stripCharacters,  subfolder,  
+                                    stripInitialPeriodFromExtension,  sequence)
+
+    def generateNameSequencePossibilities(self, photo, existingFilename, 
+                                    stripCharacters=False,  subfolder=None,  
+                                    stripInitialPeriodFromExtension=False):
+                                   
+        """ Generates the possible image names using the sequence numbers / letter possibilities"""
+                                    
+        for sequence in self.sequences.getSequencePossibilities():
+            yield self._generateName(photo,  existingFilename, stripCharacters , subfolder, 
+                                    stripInitialPeriodFromExtension,  sequence)
+
     def filterPreferences(self):
         """
         Filters out extraneous preference choices
@@ -658,14 +740,19 @@ class ImageRenamePreferences:
         """
         pass
     
-    def needMetaDataToCreateUniqueName(self):
+    def needImageMetaDataToCreateUniqueName(self):
         """
-        Returns True if metadata is essential to properly generate an image name
+        Returns True if an image's metadata is essential to properly generate a unique image name
         
         Image names should be unique.  Some images may not have metadata.  If
         only non-dynamic components make up the rest of an image name 
         (e.g. text specified by the user), then relying on metadata will likely 
         produce duplicate names. 
+        
+        File extensions are not considered dynamic.
+        
+        This is NOT a general test to see if unique filenames can be generated. It is a test
+        to see if an image's metadata is needed.
         """
         hasMD = hasDynamic = False
         
@@ -673,16 +760,29 @@ class ImageRenamePreferences:
             if e in self.prefList:
                 hasMD = True
                 break
+    
         if hasMD:
             for e in DYNAMIC_NON_METADATA_ELEMENTS:
                 if e in self.prefList:
-                    hasDynamic = True
-                    break
+                    if e == FILENAME and (NAME_EXTENSION in self.prefList or 
+                                                                NAME in self.prefList or
+                                                                IMAGE_NUMBER in self.prefList):
+                        hasDynamic = True
+                        break
         
         if hasMD and not hasDynamic:
             return True
         else:
             return False
+            
+    def usesSequenceElements(self):
+        """ Returns true if any sequence numbers or letters are used to generate the filename """
+        
+        for e in SEQUENCE_ELEMENTS:
+            if e in self.prefList:
+                return True
+                
+        return False
     
     def _createCombo(self, choices):
         combobox = gtk.combo_box_new_text()
@@ -710,7 +810,8 @@ class ImageRenamePreferences:
 
 
         list0 = prefDefinition[ORDER_KEY]
-        
+
+        # the first widget will always be a combo box
         widget0 = self._createCombo(list0)
         widget0.set_active(list0.index(key))
         
@@ -724,6 +825,32 @@ class ImageRenamePreferences:
             widgets.append(widget1)
             widgets.append(None)
             return
+        elif key == SESSION_SEQ_NUMBER:
+            widget1 = ValidatedEntry.ValidatedEntry(ValidatedEntry.bounded(ValidatedEntry.v_int, int, minv=0))
+            print "FIXME: assigned a proper initial value"
+#            value = 0
+            widget1.set_text(str(value))
+            widgets.append(widget1)
+            widget2 = self._createCombo(LIST_SEQUENCE_NUMBERS_L1_L2)
+            padding = prefs[2]
+            if not padding:
+                padding = LIST_SEQUENCE_NUMBERS_L1_L2[2]
+                
+            widget2.set_active(LIST_SEQUENCE_NUMBERS_L1_L2.index(padding))
+            widgets.append(widget2)
+        elif key == STORED_SEQ_NUMBER:
+            widget1 = ValidatedEntry.ValidatedEntry(ValidatedEntry.bounded(ValidatedEntry.v_int, int, minv=0))
+            print "FIXME: assign a proper initial value for stored sequence number"
+            value = 0
+            widget1.set_text(str(value))
+            widgets.append(widget1)
+            widget2 = self._createCombo(LIST_SEQUENCE_NUMBERS_L1_L2)
+            padding = prefs[2]
+            if not padding:
+                padding = LIST_SEQUENCE_NUMBERS_L1_L2[2]
+                
+            widget2.set_active(LIST_SEQUENCE_NUMBERS_L1_L2.index(padding))
+            widgets.append(widget2)            
         elif key == SEPARATOR:
             widgets.append(None)
             widgets.append(None)
@@ -780,14 +907,14 @@ class ImageRenamePreferences:
         return widgets
 
 class SubfolderPreferences(ImageRenamePreferences):
-    def __init__(self, prefList, parent,  fileSequenceLock=None):
+    def __init__(self, prefList, parent):
         self.prefsDefnL0 = DICT_SUBFOLDER_L0
         self.defaultPrefs = [DATE_TIME, IMAGE_DATE, LIST_DATE_TIME_L2[0]]
         self.defaultRow = self.defaultPrefs
         self.stripForwardSlash = False
-        ImageRenamePreferences.__init__(self, prefList, parent,  fileSequenceLock)
+        ImageRenamePreferences.__init__(self, prefList, parent)
         
-    def getStringFromPreferences(self, photo, existingFilename=None, 
+    def generateNameUsingPreferences(self, photo, existingFilename=None, 
                                     stripCharacters = False):
         """
         Generate a filename for the photo in string format based on user prefs.
@@ -797,9 +924,9 @@ class SubfolderPreferences(ImageRenamePreferences):
         - any problems generating the name.  If blank, there were no problems
         """
 
-        subfolders, problem = ImageRenamePreferences.getStringFromPreferences(
+        subfolders, problem = ImageRenamePreferences.generateNameUsingPreferences(
                                         self, photo, 
-                                        existingFilename, stripCharacters)
+                                        existingFilename, stripCharacters,  stripInitialPeriodFromExtension=True)
         # subfolder value must never start with a separator, or else any 
         # os.path.join function call will fail to join a subfolder to its 
         # parent folder
@@ -880,6 +1007,67 @@ class SubfolderPreferences(ImageRenamePreferences):
                         raise PrefValueKeyComboError("Subfolder preferences should not contain two %ss side by side" % os.sep)
         return v
 
+
+class Sequences:
+    """ Holds sequence numbers and letters used in generating filenames"""
+    def __init__(self,  downloadsToday,  storedSequenceNo):
+        self.downloadsToday = downloadsToday
+        self.storedSequenceNo = storedSequenceNo
+        
+        print "FIXME: initial sequences should be assigned real values"
+        self.subfolderSequenceNo = {}
+        self.sessionSequenceNo = 0
+        
+        self.doNotAddToPool = False
+        self.pool = []
+        self.poolSequenceCounter = 0
+        self.assignedSequenceCounter = 1
+        
+        self.downloadsCompleted = 0
+
+    def getPrelimSequence(self):
+        if self.doNotAddToPool:
+            self.doNotAddToPool = False
+        else:
+            # increment pool sequence number
+            self.poolSequenceCounter += 1
+            self.pool.append(self.poolSequenceCounter)
+            
+        return self.poolSequenceCounter
+
+    def getFinalSequence(self):
+        # get oldest queue value
+        # remove from queue or flag it should be removed
+        
+        return self.assignedSequenceCounter
+        
+    def getSequencePossibilities(self):
+        for i in self.pool:
+            yield i
+
+        
+    def imageCopyFailed(self):
+        self.doNotAddToPool = True
+
+    def imageCopySucceeded(self):
+        self.increment()
+    
+    def increment(self,  subfolder=None):
+#        self.subfolderSequenceNo[subfolder] += 1
+
+        assert(self.assignedSequenceCounter == self.pool[0])
+        self.assignedSequenceCounter += 1
+        self.pool = self.pool[1:]
+        
+        
+class SampleSequences(Sequences):
+    """Used for generating sample filenames"""
+    def __init__(self,  downloadsToday, storedSequenceNo):
+        Sequences.__init__(self, downloadsToday,  storedSequenceNo)
+        
+    def increment(self,  subfolder):
+        pass
+        
 if __name__ == '__main__':
     import sys, os.path
     from metadata import MetaData
@@ -899,6 +1087,12 @@ if __name__ == '__main__':
         p = [p0, p1, p2, p3, p4]
         p = [p6 + p5 + p2 + p5 + p3]
         
+        d0 = [DATE_TIME,  IMAGE_DATE,  'YYYYMMDD']
+        d1 = [DATE_TIME,  IMAGE_DATE,  'HHMMSS']
+        d2 = [DATE_TIME,  IMAGE_DATE,  SUBSECONDS]
+        
+        d = [d0 + d1 + d2]
+        
         fullpath = sys.argv[1]
         path, filename = os.path.split(fullpath)
         
@@ -906,5 +1100,9 @@ if __name__ == '__main__':
         m.readMetadata()
             
         for pref in p:
-            i = ImageRenamePreferences(pref)
-            print i.getStringFromPreferences(m, filename)
+            i = ImageRenamePreferences(pref,  None)
+            print i.generateNameUsingPreferences(m, filename)
+
+        for pref in d:
+            i = ImageRenamePreferences(pref,  None)
+            print i.generateNameUsingPreferences(m, filename)

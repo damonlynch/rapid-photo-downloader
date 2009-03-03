@@ -1,7 +1,7 @@
-#!/usr/bin/env python
+#!/usr/bin/python
 # -*- coding: latin1 -*-
 
-### Copyright (C) 2007 Damon Lynch <damonlynch@gmail.com>
+### Copyright (C) 2007, 2008, 2009 Damon Lynch <damonlynch@gmail.com>
 
 ### This program is free software; you can redistribute it and/or modify
 ### it under the terms of the GNU General Public License as published by
@@ -34,12 +34,31 @@ class PreferenceTest (unittest.TestCase):
                                 [SEPARATOR, '', ''],
                                 [FILENAME, EXTENSION, LOWERCASE]
                             )
+                            
+    trueMetadataTest = ([FILENAME,  EXTENSION, LOWERCASE,  TEXT,  '', '',  METADATA,  APERTURE,  ''],  [METADATA,  APERTURE,  '',  TEXT,  '', '',  FILENAME,  EXTENSION, LOWERCASE],  )
+    falseMetadataTest = ([FILENAME,  EXTENSION, LOWERCASE,  METADATA,  APERTURE,  '',  FILENAME,  NAME, LOWERCASE], 
+                        [FILENAME,  NAME, LOWERCASE,  FILENAME,  EXTENSION, LOWERCASE], 
+                        [FILENAME,  NAME_EXTENSION, LOWERCASE,  FILENAME,  EXTENSION, LOWERCASE], 
+                        [FILENAME,  NAME, LOWERCASE,  FILENAME,  METADATA,  EXPOSURE_TIME,  '',  IMAGE_NUMBER, IMAGE_NUMBER_ALL,  FILENAME,  EXTENSION, LOWERCASE], )
                 
     def testPrefImageList(self):
         for pref in self.image_test:
             result = checkPreferenceValid(DICT_IMAGE_RENAME_L0, pref)
             self.assertEqual(result, True)
+
+    def testNeedImageMetaDataToCreateUniqueName(self):
+        for i in self.trueMetadataTest:
+            p = ImageRenamePreferences(i,  None)
+            result = p.needImageMetaDataToCreateUniqueName()
+            self.assertEqual(result, True)
+
+        for i in self.falseMetadataTest:
+            p = ImageRenamePreferences(i,  None)
+            result = p.needImageMetaDataToCreateUniqueName()
+            self.assertEqual(result, False)
             
+        
+
     def testLargePrefList(self):
         prefList = []
         for pref in self.image_test:

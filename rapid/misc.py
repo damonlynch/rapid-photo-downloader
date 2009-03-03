@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/python
 # -*- coding: latin1 -*-
 
 ### Copyright (C) 2002-2006 Stephen Kennedy <stevek@gnome.org>
@@ -17,7 +17,7 @@
 ### along with this program; if not, write to the Free Software
 ### Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-# modified by Damon Lynch 2009 to remove default bold formatting
+# modified by Damon Lynch 2009 to remove default bold formatting and alignment
 """Module of commonly used helper classes and functions
 
 """
@@ -40,12 +40,6 @@ def run_dialog( text, secondarytext=None,  parent=None, messagetype=gtk.MESSAGE_
         d.add_button(b,rid)
     d.vbox.set_spacing(12)
     d.format_secondary_text(secondarytext)
-#    hbox = d.vbox.get_children()[0]
-#    hbox.set_spacing(12)
-#    d.image.set_alignment(0.5, 0)
-#    d.image.set_padding(12, 12)
-#    d.label.set_use_markup(1)
-#    d.label.set_padding(12, 12)
     ret = d.run()
     d.destroy()
     return ret

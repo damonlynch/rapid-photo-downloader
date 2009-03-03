@@ -23,6 +23,8 @@ import time
 import config
 import common
 
+import operator
+
 def getDefaultPhotoLocation():
     for default in config.DEFAULT_PHOTO_LOCATIONS:
         path = common.getFullPath(default)
@@ -97,9 +99,13 @@ class CardMedia(Media):
         volume is a gnomevfs volume
         """
         Media.__init__(self, path, volume)
-        self.mediaInformation()
+        self.scanMedia()
 
-    def mediaInformation(self):
+    def scanMedia(self):
+        """ creates a list of images on a path, recursively scanning
+        
+        images are sorted by modification time"""
+        
         self.images = []
         self.imageSizeSum = 0
         for root, dirs, files in os.walk(self.path):
@@ -107,8 +113,10 @@ class CardMedia(Media):
                 if isImage(name):
                     image = os.path.join(root, name)
                     size = os.path.getsize(image)
-                    self.images.append((name, root, size),)
+                    modificationTime = os.path.getmtime(image)
+                    self.images.append((name, root, size,  modificationTime),)
                     self.imageSizeSum += size
+        self.images.sort(key=operator.itemgetter(3))
         self.noImages = len(self.images)
         
 

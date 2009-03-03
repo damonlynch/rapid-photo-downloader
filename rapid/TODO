@@ -19,6 +19,7 @@ For initial release (0.10.0):
 * notify when the download is finished, giving information
   (hopefully using Ubuntu's new notification interface)
 * make sure it is the only instance running - use gnome / dbus to check this
+* additional metadata option: lens, subseconds
 
 
 
@@ -28,7 +29,6 @@ For future releases:
 * Better application icon -- help needed!
 * Make download time remaing algorithm more intelligent
 * Get more metadata
-  - Subseconds from high-end Nikons
   - Serial number from high-end Canons
   - Shutter count from high-end Canon and Nikons
 * User defined camera model mapping

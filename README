@@ -1,8 +1,8 @@
-Rapid Photo Downloader is a photo downloader written by a photographer for
-professional and amateur photographers. Released under the GNU GPL license, it 
-is designed for use on the GNOME 2 Desktop. It can download photos from multiple
-memory cards and Portable Storage Devices simultaneously. It provides a variety 
-of options for sub-folder creation, image renaming and backup.
+Rapid Photo Downloader is written by a photographer for professional and amateur
+photographers. Released under the GNU GPL license, it is designed for use on the
+GNOME 2 Desktop. It can download photos from multiple memory cards and Portable
+Storage Devices simultaneously. It provides a variety of options for sub-folder
+creation, image renaming and backup.
 
 This software is still being developed.  Many but not all features 
 work.
@@ -48,18 +48,21 @@ start from a fairly basic system, I suggest the following:
    super user (root) to be able to do this:
 
    sudo python setup.py install
+
+Running the program
+===================
    
-Start the program by running rapid-photo-downloader from the command line, or 
-manually setup a panel launcher using an icon supplied in the tarball.
+Start the program by running:
+
+rapid-photo-downloader
+
+from the command line, or manually setup a panel launcher using an icon supplied in
+the tarball.
 
 Known Bugs
 ==========
 
-* Checks to see if image already exists are not thread safe, and in rare circumstances
-  may cause images to be overwritten if downloading in parallel (so make sure your 
-  filenames are going to be unique!)
 * Closing log window with window manager 'x' instead of 'close' button not yet
   supported
-* Auto-detection of Portable Storage Devices needs to be written
-
+* Running more than one copy of the program at the same time is not supported
 
