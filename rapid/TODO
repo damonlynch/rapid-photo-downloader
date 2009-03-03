@@ -16,10 +16,8 @@ For initial release (0.10.0):
   - on entering preferences dialog
   - on closing preferences dialog
 * rework checkPrefsForValidity() to account for multiple subfolder problems
-* notify when the download is finished, giving information
-  (hopefully using Ubuntu's new notification interface)
 * make sure it is the only instance running - use gnome / dbus to check this
-* additional metadata option: lens, subseconds
+* additional metadata option: lens, 
 
 
 
