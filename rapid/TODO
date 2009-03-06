@@ -17,7 +17,6 @@ For initial release (0.10.0):
   - on closing preferences dialog
 * rework checkPrefsForValidity() to account for multiple subfolder problems
 * make sure it is the only instance running - use gnome / dbus to check this
-* additional metadata option: lens, 
 
 
 
@@ -27,6 +26,7 @@ For future releases:
 * Better application icon -- help needed!
 * Make download time remaing algorithm more intelligent
 * Get more metadata
+  - lens
   - Serial number from high-end Canons
   - Shutter count from high-end Canon and Nikons
 * User defined camera model mapping
