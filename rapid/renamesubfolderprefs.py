@@ -613,6 +613,7 @@ class ImageRenamePreferences:
 
     def _getSessionSequenceNo(self):
         problem = None
+        print "counter",  self.sequenceCounter,  "session",  self.sequences.sessionSequenceNo
         v = self._formatSequenceNo(self.sequenceCounter,  self.L2)
             
         return (v, problem)
@@ -826,9 +827,7 @@ class ImageRenamePreferences:
             widgets.append(None)
             return
         elif key == SESSION_SEQ_NUMBER:
-            widget1 = ValidatedEntry.ValidatedEntry(ValidatedEntry.bounded(ValidatedEntry.v_int, int, minv=0))
-            print "FIXME: assigned a proper initial value"
-#            value = 0
+            widget1 = ValidatedEntry.ValidatedEntry(ValidatedEntry.bounded(ValidatedEntry.v_int, int, minv=1))
             widget1.set_text(str(value))
             widgets.append(widget1)
             widget2 = self._createCombo(LIST_SEQUENCE_NUMBERS_L1_L2)
@@ -1014,9 +1013,9 @@ class Sequences:
         self.downloadsToday = downloadsToday
         self.storedSequenceNo = storedSequenceNo
         
-        print "FIXME: initial sequences should be assigned real values"
+        # "FIXME: initial sequences should be assigned real values"
         self.subfolderSequenceNo = {}
-        self.sessionSequenceNo = 0
+        self.sessionSequenceNo = 1
         
         self.doNotAddToPool = False
         self.pool = []

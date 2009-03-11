@@ -299,6 +299,11 @@ class RapidPreferences(prefs.Preferences):
                 date = today()
             self.downloads_today = [date,  str(value)]
             
+    def resetSessionSequencePrefs(self,  value):
+        modulo = 3
+        for i in range(0, len(self.image_rename),  modulo):
+            if self.image_rename[i] == rn.SESSION_SEQ_NUMBER:
+                    self.image_rename[i+1] = str(value)
 
 
 class ImageRenameTable(tpm.TablePlusMinus):
@@ -343,6 +348,15 @@ class ImageRenameTable(tpm.TablePlusMinus):
     def updatePreferences(self):
         prefList = []
         for row in self.pm_rows:
+            # check to see if there are any sequence values that we need to extract
+            widget = row[0]
+            if widget.get_name() == 'GtkComboBox':
+                if widget.get_active_text() == rn.SESSION_SEQ_NUMBER:
+                    value = row[1].get_text()
+                    sequences.sessionSequenceNo = value  
+            else:
+                print "Unexpected preference value: was expecting a combo box!"
+                
             for col in range(self.pm_noColumns):
                 widget = row[col]
                 if widget:
@@ -368,8 +382,9 @@ class ImageRenameTable(tpm.TablePlusMinus):
     
     def getPrefsFactory(self):
         self.prefsFactory = rn.ImageRenamePreferences(self.prefList, self,  
-              rn.SampleSequences(self.parentApp.prefs.getDownloadsToday(),  
+              sequences = rn.SampleSequences(self.parentApp.prefs.getDownloadsToday(),  
                                  self.parentApp.prefs.stored_sequence_no))
+
         
     def updateParentAppPrefs(self):
         self.parentApp.prefs.image_rename = self.prefList
@@ -414,6 +429,8 @@ class ImageRenameTable(tpm.TablePlusMinus):
         self.updatePreferences()
         
     def on_entry_changed(self, widget, rowPosition):
+        
+#        print  "on entry changed",  widget.get_text()
         self.updatePreferences()
 
     def on_rowAdded(self, rowPosition):
@@ -1617,6 +1634,7 @@ class RapidApp(gnomeglade.GnomeApp):
         if downloadsToday < 0:
             self.prefs.setDownloadsToday(today(),  0)
         sequences = rn.Sequences(self.prefs.getDownloadsToday(),  self.prefs.stored_sequence_no)
+        self.prefs.resetSessionSequencePrefs(sequences.sessionSequenceNo)
         
         self.downloadStats = DownloadStats()
 
@@ -1670,8 +1688,8 @@ class RapidApp(gnomeglade.GnomeApp):
         self.setupAvailableImageAndBackupMedia()
 
         #adjust viewport size for displaying media
-        # FIXME: adjust based on actual size, not a guess
-        height= workers.noReadyToStartWorkers() * 24 + 29 # bar is approx 29
+        # FIXME: adjust based on actual size, not a wild guess
+        height= workers.noReadyToStartWorkers() * 24 + 29 
         self.media_collection_viewport.set_size_request(-1, height)
         
         self.download_button.grab_focus()
@@ -2139,6 +2157,7 @@ class RapidApp(gnomeglade.GnomeApp):
             self.pauseDownload()
             
     def on_preference_changed(self, key, value):
+#        print key,  value
         if key == 'display_thumbnails':
             self.set_display_thumbnails(value)
         elif key == 'media_type':
