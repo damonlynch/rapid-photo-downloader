@@ -338,7 +338,12 @@ def _checkPreferenceValid(prefDefinition, prefs):
             raise PrefValueInvalidError((value, nextPrefDefinition))
             
         if key == SESSION_SEQ_NUMBER:
-            print "found this:",  SESSION_SEQ_NUMBER
+            try:
+                i = int(value)
+            except:
+                raise PrefValueInvalidError((value,  None))
+            if i <= 0:
+                raise PrefValueInvalidError((value,  None))
             
         if type(nextPrefDefinition) == type({}):
             return _checkPreferenceValid(nextPrefDefinition, prefs[1:])
@@ -560,8 +565,6 @@ class ImageRenamePreferences:
         return formatter % value
 
 
-            
-
     def _calculateLetterSequence(self,  sequence):
 
         def _letters(x):
@@ -613,8 +616,9 @@ class ImageRenamePreferences:
 
     def _getSessionSequenceNo(self):
         problem = None
-        print "counter",  self.sequenceCounter,  "session",  self.sequences.sessionSequenceNo
-        v = self._formatSequenceNo(self.sequenceCounter,  self.L2)
+#        print  "&&&", self.sequences
+
+        v = self._formatSequenceNo(self.sequences.getSessionSequenceNoUsingCounter(self.sequenceCounter),  self.L2)
             
         return (v, problem)
 
@@ -712,7 +716,7 @@ class ImageRenamePreferences:
         """
 
 
-        
+
         if self.sequences:
             if sequencesPreliminary:
                 sequence = self.sequences.getPrelimSequence()
@@ -828,6 +832,9 @@ class ImageRenamePreferences:
             return
         elif key == SESSION_SEQ_NUMBER:
             widget1 = ValidatedEntry.ValidatedEntry(ValidatedEntry.bounded(ValidatedEntry.v_int, int, minv=1))
+            if not value:
+                print "setting session sequence number"
+                value = self.sequences.getSessionSequenceNo()
             widget1.set_text(str(value))
             widgets.append(widget1)
             widget2 = self._createCombo(LIST_SEQUENCE_NUMBERS_L1_L2)
@@ -1043,7 +1050,15 @@ class Sequences:
     def getSequencePossibilities(self):
         for i in self.pool:
             yield i
+            
+    def getSessionSequenceNo(self):
+        return self.sessionSequenceNo + self.assignedSequenceCounter - 1
 
+    def getSessionSequenceNoUsingCounter(self,  counter):
+        return self.sessionSequenceNo + counter - 1
+        
+    def setSessionSequenceNo(self,  value):
+        self.sessionSequenceNo = value
         
     def imageCopyFailed(self):
         self.doNotAddToPool = True
@@ -1052,8 +1067,6 @@ class Sequences:
         self.increment()
     
     def increment(self,  subfolder=None):
-#        self.subfolderSequenceNo[subfolder] += 1
-
         assert(self.assignedSequenceCounter == self.pool[0])
         self.assignedSequenceCounter += 1
         self.pool = self.pool[1:]

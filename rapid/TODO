@@ -3,7 +3,8 @@ For initial release (0.10.0):
 
 * sequencing:
    - allow generation of unique sequences based on date time for last 1 - n days, via menu
-
+   
+* download profiles (combinations of subfolder and image renaming preferences)
 * better handle preference changes while downloads are occurring
 * handle unexpected media removal, disk full, all kinds of write errors
 * indicate different levels of error better in log window

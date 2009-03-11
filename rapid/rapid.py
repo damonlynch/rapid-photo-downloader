@@ -300,6 +300,9 @@ class RapidPreferences(prefs.Preferences):
             self.downloads_today = [date,  str(value)]
             
     def resetSessionSequencePrefs(self,  value):
+        """ Resets the value that is recorded in the preferences
+        
+        This is ultimately displayed to the user when they adjust image renaming preferences"""
         modulo = 3
         for i in range(0, len(self.image_rename),  modulo):
             if self.image_rename[i] == rn.SESSION_SEQ_NUMBER:
@@ -352,8 +355,13 @@ class ImageRenameTable(tpm.TablePlusMinus):
             widget = row[0]
             if widget.get_name() == 'GtkComboBox':
                 if widget.get_active_text() == rn.SESSION_SEQ_NUMBER:
-                    value = row[1].get_text()
-                    sequences.sessionSequenceNo = value  
+                    s = row[1].get_text()
+                    if s:
+                        i = int(s)
+                    else:
+                        i = 0
+                    sequences.setSessionSequenceNo(i)
+                    self.sampleSequences.setSessionSequenceNo(i)
             else:
                 print "Unexpected preference value: was expecting a combo box!"
                 
@@ -381,9 +389,10 @@ class ImageRenameTable(tpm.TablePlusMinus):
         self.prefList = self.parentApp.prefs.image_rename
     
     def getPrefsFactory(self):
+        self.sampleSequences = rn.SampleSequences(self.parentApp.prefs.getDownloadsToday(),  
+                                 self.parentApp.prefs.stored_sequence_no)
         self.prefsFactory = rn.ImageRenamePreferences(self.prefList, self,  
-              sequences = rn.SampleSequences(self.parentApp.prefs.getDownloadsToday(),  
-                                 self.parentApp.prefs.stored_sequence_no))
+              sequences = self.sampleSequences)
 
         
     def updateParentAppPrefs(self):
@@ -476,6 +485,7 @@ class PreferencesDialog(gnomeglade.Component):
                                     "preferencesdialog")
         
         self.widget.set_transient_for(parentApp.widget)
+        parentApp.prefs.resetSessionSequencePrefs(sequences.getSessionSequenceNo())
         self.prefs = parentApp.prefs
 
 #        self._setupTabSelector()
@@ -699,7 +709,7 @@ class PreferencesDialog(gnomeglade.Component):
         
         name, problem = self.rename_table.prefsFactory.generateNameUsingPreferences(
                 self.sampleImage, self.sampleImageName, 
-                self.prefs.strip_characters)
+                self.prefs.strip_characters,  sequencesPreliminary=False)
         # since this is markup, escape it
         text = "<i>%s</i>" % common.escape(name)
         
@@ -1634,7 +1644,7 @@ class RapidApp(gnomeglade.GnomeApp):
         if downloadsToday < 0:
             self.prefs.setDownloadsToday(today(),  0)
         sequences = rn.Sequences(self.prefs.getDownloadsToday(),  self.prefs.stored_sequence_no)
-        self.prefs.resetSessionSequencePrefs(sequences.sessionSequenceNo)
+        self.prefs.resetSessionSequencePrefs(sequences.getSessionSequenceNo())
         
         self.downloadStats = DownloadStats()
 
