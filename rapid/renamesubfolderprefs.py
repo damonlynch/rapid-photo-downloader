@@ -615,10 +615,7 @@ class ImageRenamePreferences:
 
     def _getSessionSequenceNo(self):
         problem = None
-#        print  "&&&", self.sequences
-
-        v = self._formatSequenceNo(self.sequences.getSessionSequenceNoUsingCounter(self.sequenceCounter),  self.L2)
-            
+        v = self._formatSequenceNo(self.sequences.getSessionSequenceNoUsingCounter(self.sequenceCounter),  self.L2)            
         return (v, problem)
 
     def _getDownloadSequenceNo(self):
@@ -637,9 +634,7 @@ class ImageRenamePreferences:
     def _getSequenceLetter(self):
 
         problem = None
-
-        v = self._calculateLetterSequence(self.sequenceCounter)
-
+        v = self._calculateLetterSequence(self.sequences.getSequenceLetterUsingCounter(self.sequenceCounter))
         return (v, problem)
         
     def _getComponent(self):
@@ -832,7 +827,6 @@ class ImageRenamePreferences:
         elif key == SESSION_SEQ_NUMBER:
             widget1 = ValidatedEntry.ValidatedEntry(ValidatedEntry.bounded(ValidatedEntry.v_int, int, minv=1))
             if not value:
-                print "setting session sequence number"
                 value = self.sequences.getSessionSequenceNo()
             widget1.set_text(str(value))
             widgets.append(widget1)
@@ -840,7 +834,6 @@ class ImageRenamePreferences:
             padding = prefs[2]
             if not padding:
                 padding = LIST_SEQUENCE_NUMBERS_L1_L2[2]
-                
             widget2.set_active(LIST_SEQUENCE_NUMBERS_L1_L2.index(padding))
             widgets.append(widget2)
         elif key == STORED_SEQ_NUMBER:
@@ -1022,6 +1015,7 @@ class Sequences:
         # "FIXME: initial sequences should be assigned real values"
         self.subfolderSequenceNo = {}
         self.sessionSequenceNo = 1
+        self.sequenceLetter = 0
         
         self.doNotAddToPool = False
         self.pool = []
@@ -1058,6 +1052,9 @@ class Sequences:
         
     def setSessionSequenceNo(self,  value):
         self.sessionSequenceNo = value
+        
+    def getSequenceLetterUsingCounter(self,  counter):
+        return self.sequenceLetter + counter - 1
         
     def imageCopyFailed(self):
         self.doNotAddToPool = True
