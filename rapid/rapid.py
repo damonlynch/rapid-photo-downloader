@@ -970,10 +970,10 @@ class CopyPhotos(Thread):
         def cleanUp():
             """
             Cleanup functions that must be performed whether the thread exits 
-            early or when it has completed it's run.
+            early or when it has completed its run.
             """
             
-            print "Thread ", self.thread_id, "exiting"
+            print "Thread", self.thread_id, "exiting"
             display_queue.close("rw")
             # possibly delete any lingering files
             tf = os.listdir(tempWorkingDir)
@@ -1076,7 +1076,7 @@ class CopyPhotos(Thread):
 #                                doesNotExistInTempDir = False
                                 for possibleName,  problem in self.imageRenamePrefsFactory.generateNameSequencePossibilities(imageMetadata, 
                                                                                                                originalName, self.stripCharacters,  subfolder):
-                                    print "checking",  possibleName,  "using",  originalName
+#                                    print "checking",  possibleName,  "using",  originalName
                                     if possibleName:
                                         # no need to check for any problems here, it's just a temporary name
                                         possibleFile = os.path.join(path, possibleName)
@@ -1256,7 +1256,7 @@ class CopyPhotos(Thread):
             n.show()            
         
         self.hasStarted = True
-        print "thread", self.thread_id, "is", get_ident(), "and is now running"
+        print "Thread", self.thread_id, "is now running"
 
         display_queue.open('w')
         
@@ -1345,26 +1345,19 @@ class CopyPhotos(Thread):
             
             i += 1
 
-
-        cleanUp()
-        
         with self.statsLock:
             self.downloadStats.adjust(sizeDownloaded,  noImagesDownloaded,  noImagesSkipped,  self.noWarnings,  self.noErrors)
-            
 
-            
         # must manually delete these variables, or else the media cannot be unmounted (bug in pyexiv or exiv2)
         del imageMetadata,  self.subfolderPrefsFactory,  self.imageRenamePrefsFactory
                 
-        
         notifyAndUnmount()
+        display_queue.put((self.parentApp.notifyUserAllDownloadsComplete,()))
 
+        cleanUp()
+        
         self.running = False
         self.lock.release()
-
-
-
-
         
     def startStop(self):
         if self.isAlive():
@@ -1726,10 +1719,6 @@ class RapidApp(gnomeglade.GnomeApp):
                 capabilities[cap] = True
 
         info = pynotify.get_server_info()
-        if info["name"] == "notify-osd":
-            print "Using the new Ubuntu notification system."
-        else:
-            print "Using old style notifications."
     
     def usingVolumeMonitor(self):
         """
@@ -2008,18 +1997,6 @@ class RapidApp(gnomeglade.GnomeApp):
             self.download_button_is_download = True
             self._set_download_button()
             self.setDownloadButtonSensitivity()
-            if self.displayDownloadSummaryNotification:
-                message = "All downloads complete.\n%s images downloaded." % self.downloadStats.noImagesDownloaded
-                if self.downloadStats.noImagesSkipped:
-                    message = "%s\n%s images skipped." % (message,  self.downloadStats.noImagesSkipped)
-                if self.downloadStats.noWarnings:
-                    message = "%s\n%s warnings." % (message,  self.downloadStats.noWarnings)
-                if self.downloadStats.noErrors:
-                    message = "%s\n%s errors." % (message,  self.downloadStats.noErrors)
-                n = pynotify.Notification("Rapid Photo Downloader",  message)
-                n.show()
-                self.displayDownloadSummaryNotification = False # don't show it again unless needed
-                self.downloadStats.clear()
     
         else:
             now = time.time()
@@ -2047,6 +2024,24 @@ class RapidApp(gnomeglade.GnomeApp):
                 
                 self.rapid_statusbar.push(self.statusbar_context_id, message)
     
+    def notifyUserAllDownloadsComplete(self):
+        """ Possibly notify the user all downloads are complete using libnotify"""
+        
+        if self.totalDownloadedSoFar == self.totalDownloadSize:
+            print "All downloads complete"
+            if self.displayDownloadSummaryNotification:
+                message = "All downloads complete.\n%s images downloaded." % self.downloadStats.noImagesDownloaded
+                if self.downloadStats.noImagesSkipped:
+                    message = "%s\n%s images skipped." % (message,  self.downloadStats.noImagesSkipped)
+                if self.downloadStats.noWarnings:
+                    message = "%s\n%s warnings." % (message,  self.downloadStats.noWarnings)
+                if self.downloadStats.noErrors:
+                    message = "%s\n%s errors." % (message,  self.downloadStats.noErrors)
+                n = pynotify.Notification("Rapid Photo Downloader",  message)
+                n.show()
+                self.displayDownloadSummaryNotification = False # don't show it again unless needed
+                self.downloadStats.clear()
+
     def setDownloadButtonSensitivity(self):
         isSensitive = workers.firstWorkerReadyToStart()
         
@@ -2063,9 +2058,7 @@ class RapidApp(gnomeglade.GnomeApp):
         
     def on_rapidapp_destroy(self, widget):
         """Called when the application is going to quit"""
-##        print "rapid app on destroy:"
         workers.quitAllWorkers()
-##        print "rapid app on destroy: closing queue"
 
         self.flushevents() # perhaps this will eliminate thread-related shutdown lockups?
         print "Exiting..."
@@ -2081,6 +2074,9 @@ class RapidApp(gnomeglade.GnomeApp):
         
     def on_menu_get_help_online_activate(self,  widget):
         webbrowser.open("http://www.damonlynch.net/rapid/help.html") 
+
+    def on_menu_donate_activate(self,  widget):
+        webbrowser.open("http://www.damonlynch.net/rapid/donate.html") 
 
     def on_menu_preferences_activate(self, widget):
         """ Sets preferences for the application using dialog window """
