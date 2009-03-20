@@ -33,7 +33,7 @@ Each list has members which are a multiple of 3 in length.
 Each group of 3 members is equal to one line of preferences in the plus minus 
 table.
 """
-from __future__ import with_statement
+from __future__ import with_statement #needed for python 2.5, unneeded for python 2.6
 
 import string 
 
@@ -54,7 +54,6 @@ except:
 
 import datetime
 
-import Queue
 import ValidatedEntry
 
 # Special key in each dictionary which specifies the order of elements.
@@ -246,10 +245,10 @@ DICT_SEQUENCE_LETTER_L1 = {
 # Level 0
 
 LIST_IMAGE_RENAME_L0 = [DATE_TIME, TEXT, FILENAME, METADATA, 
-                        DOWNLOAD_SEQ_NUMBER, 
+#                        DOWNLOAD_SEQ_NUMBER, 
                         SESSION_SEQ_NUMBER,  
-                        SUBFOLDER_SEQ_NUMBER, 
-                        STORED_SEQ_NUMBER,  
+#                        SUBFOLDER_SEQ_NUMBER, 
+#                        STORED_SEQ_NUMBER,  
                         SEQUENCE_LETTER]
 
 
@@ -258,10 +257,10 @@ DICT_IMAGE_RENAME_L0 = {
                     TEXT: None,
                     FILENAME: DICT_FILENAME_L1,
                     METADATA: DICT_METADATA_L1,
-                    DOWNLOAD_SEQ_NUMBER: DICT_SEQUENCE_L1,
+#                    DOWNLOAD_SEQ_NUMBER: DICT_SEQUENCE_L1,
                     SESSION_SEQ_NUMBER: None, 
-                    SUBFOLDER_SEQ_NUMBER: DICT_SEQUENCE_L1, 
-                    STORED_SEQ_NUMBER: None,                     
+#                    SUBFOLDER_SEQ_NUMBER: DICT_SEQUENCE_L1, 
+#                    STORED_SEQ_NUMBER: None,                     
                     SEQUENCE_LETTER: DICT_SEQUENCE_LETTER_L1,
                     ORDER_KEY: LIST_IMAGE_RENAME_L0
                     }
@@ -1081,7 +1080,8 @@ class SampleSequences(Sequences):
         pass
         
 if __name__ == '__main__':
-    import sys, os.path
+    import sys
+    import os.path
     from metadata import MetaData
     
     if (len(sys.argv) != 2):

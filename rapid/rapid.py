@@ -17,24 +17,21 @@
 ### along with this program; if not, write to the Free Software
 ### Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-from __future__ import with_statement
+from __future__ import with_statement #needed for python 2.5, unneeded for python 2.6
 
 import sys
 import os
 import shutil
 import time
-import re
 import datetime
 import atexit
 import tempfile
-import gc
 import webbrowser
 
-from threading import Thread, Lock, activeCount
+from threading import Thread, Lock
 from thread import error as thread_error
 from thread import get_ident
 
-import gconf
 import gtk.gdk as gdk
 import pango
 
@@ -55,9 +52,8 @@ import common
 import misc
 import higdefaults as hd
 
-from media import getDefaultPhotoLocation, scanForBackupMedia
-from media import scanForImageMedia
-from media import Media, CardMedia
+from media import getDefaultPhotoLocation
+from media import CardMedia
 
 import media
 
@@ -67,8 +63,7 @@ import renamesubfolderprefs as rn
 
 import tableplusminus as tpm
 
-__version__ = '0.0.8'
-version_info = tuple(int(n) for n in __version__.split('.'))
+__version__ = '0.0.8_beta1'
 
 try: 
     import pygtk 
@@ -87,7 +82,7 @@ def today():
     toda
 exiting = False
 
-def UpdateDisplay(display_queue):
+def updateDisplay(display_queue):
 
     try:
         if display_queue.size() != 0:
@@ -361,7 +356,6 @@ class ImageRenameTable(tpm.TablePlusMinus):
                     else:
                         i = 0
                     sequences.setSessionSequenceNo(i)
-                    self.sampleSequences.setSessionSequenceNo(i)
             else:
                 print "Unexpected preference value: was expecting a combo box!"
                 
@@ -389,10 +383,8 @@ class ImageRenameTable(tpm.TablePlusMinus):
         self.prefList = self.parentApp.prefs.image_rename
     
     def getPrefsFactory(self):
-        self.sampleSequences = rn.SampleSequences(self.parentApp.prefs.getDownloadsToday(),  
-                                 self.parentApp.prefs.stored_sequence_no)
         self.prefsFactory = rn.ImageRenamePreferences(self.prefList, self,  
-              sequences = self.sampleSequences)
+              sequences = sequences)
 
         
     def updateParentAppPrefs(self):
@@ -981,7 +973,7 @@ class CopyPhotos(Thread):
             early or when it has completed it's run.
             """
             
-            print "Thread exiting, closing queues", self.thread_id, "thread",  get_ident()
+            print "Thread ", self.thread_id, "exiting"
             display_queue.close("rw")
             # possibly delete any lingering files
             tf = os.listdir(tempWorkingDir)
@@ -2076,7 +2068,7 @@ class RapidApp(gnomeglade.GnomeApp):
 ##        print "rapid app on destroy: closing queue"
 
         self.flushevents() # perhaps this will eliminate thread-related shutdown lockups?
-        print "this should cause a final quit"
+        print "Exiting..."
         display_queue.close("w")
 
 
@@ -2210,7 +2202,7 @@ def start ():
     
     gdk.threads_init()
     display_queue.open("rw")
-    tube.tube_add_watch(display_queue, UpdateDisplay)
+    tube.tube_add_watch(display_queue, updateDisplay)
     gdk.threads_enter()
     app = RapidApp()
     app.main()
