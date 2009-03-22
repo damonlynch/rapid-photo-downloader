@@ -6,14 +6,17 @@ from rapid.rapid import __version__ as version
 
 package_data={'rapid': ['glade3/rapid.glade',  'glade3/rapid-photo-downloader-icon.png',]}
 
-setup(name='rapid',
+setup(name='rapidphoto',
       version=version,
       description='Rapid Photo Downloader for Linux',
       license='GPL',
       author='Damon Lynch',
       author_email='damonlynch@gmail.com',
+      maintainer='Damon Lynch',
       url='http://www.damonlynch.net/rapid',
+      long_description='Rapid Photo Downloader is written by a photographer for professional and amateur photographers. Released under the GNU GPL license, it is designed for use on the GNOME 2 Desktop. It can download photos from multiple memory cards and Portable Storage Devices simultaneously. It provides a variety of options for subfolder creation, image renaming and backup.',
       packages = ['rapid'], 
       package_data=package_data, 
-      scripts=['rapid-photo-downloader']
+      scripts=['rapid-photo-downloader'],
+      platforms=['Unix'],
      )
