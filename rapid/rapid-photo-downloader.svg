@@ -2,7 +2,7 @@
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
 <svg
    xmlns:dc="http://purl.org/dc/elements/1.1/"
-   xmlns:cc="http://web.resource.org/cc/"
+   xmlns:cc="http://creativecommons.org/ns#"
    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
    xmlns:svg="http://www.w3.org/2000/svg"
    xmlns="http://www.w3.org/2000/svg"
@@ -13,14 +13,14 @@
    height="48"
    id="svg7854"
    sodipodi:version="0.32"
-   inkscape:version="0.45"
+   inkscape:version="0.46"
    version="1.0"
    sodipodi:docbase="/home/damon/digitalPhotos/rapid"
-   sodipodi:docname="rapid-photo-downloader-icon.svg"
+   sodipodi:docname="rapid-photo-downloader.svg"
    inkscape:output_extension="org.inkscape.output.svg.inkscape"
-   inkscape:export-filename="/home/damon/digitalPhotos/rapid-icons/rapid14.png"
-   inkscape:export-xdpi="26.25"
-   inkscape:export-ydpi="26.25"
+   inkscape:export-filename="/home/damon/rapid/rapid/rapid-photo-downloader.png"
+   inkscape:export-xdpi="90"
+   inkscape:export-ydpi="90"
    sodipodi:modified="TRUE">
   <sodipodi:namedview
      id="base"
@@ -41,12 +41,19 @@
      height="48px"
      inkscape:showpageshadow="false"
      inkscape:window-width="1280"
-     inkscape:window-height="729"
+     inkscape:window-height="727"
      inkscape:window-x="0"
      inkscape:window-y="25"
      showgrid="false" />
   <defs
      id="defs7856">
+    <inkscape:perspective
+       sodipodi:type="inkscape:persp3d"
+       inkscape:vp_x="0 : 24 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_z="48 : 24 : 1"
+       inkscape:persp3d-origin="24 : 16 : 1"
+       id="perspective3324" />
     <linearGradient
        inkscape:collect="always"
        id="linearGradient8954">

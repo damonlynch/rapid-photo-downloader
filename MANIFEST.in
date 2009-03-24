@@ -1,4 +1,4 @@
 include rapid-photo-downloader
-include rapid/TODO rapid/AUTHORS rapid/ChangeLog rapid/TODO rapid/rapid14.xpm rapid/rapid-photo-downloader-icon.svg
+include rapid/TODO rapid/AUTHORS rapid/ChangeLog rapid/TODO rapid/rapid-photo-downloader.svg rapid/rapid-photo-downloader.png rapid/rapid-photo-downloader.xpm
 recursive-include rapid/glade3 *.glade *.png
 
