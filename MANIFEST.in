@@ -1,4 +1,6 @@
 include rapid-photo-downloader
-include rapid/TODO rapid/AUTHORS rapid/ChangeLog rapid/TODO rapid/rapid-photo-downloader.svg rapid/rapid-photo-downloader.png rapid/rapid-photo-downloader.xpm
+include rapid/TODO rapid/AUTHORS rapid/ChangeLog rapid/TODO rapid/INSTALL
+recursive-include debian *
+recursive-include data/ *.png *.xpm *.desktop
 recursive-include rapid/glade3 *.glade *.png
 

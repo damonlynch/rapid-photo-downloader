@@ -1,26 +1,59 @@
-Version 0.0.8_beta1
--------------
+Version 0.0.8 beta 2
+--------------------
+
+2009-03-25
+
+First Ububtu package.
+
+Rename tarball package to suit package name.
+
+Updated README.
+
+Version 0.0.8 beta 1
+--------------------
 
 2009-03-20
 
-Make file renaming thread safe, fixing a long-standing (if difficult to activate) bug.
+Make file renaming thread safe, fixing a long-standing (if difficult to 
+activate) bug.
+
 Implement add unique identifier when file name is not unique.
+
 Added "Report a Problem", "Get Help Online", "Make a Donation" to Help menu.
+
 Implemented "Clear completed downloads" menu item.
+
 Download images in order they were taken (checked by time they modified).
-Fixed bug where choosing text as the first item in a download subfolder caused a crash.
-Fixed bug where date and time choices based on when image is downloaded caused a crash.
+
+Fixed bug where choosing text as the first item in a download subfolder caused a
+crash.
+
+Fixed bug where date and time choices based on when image is downloaded caused a
+crash.
+
 Initial code to show error message when image renaming preferences have an error.
+
 Fixed bug where some invalid preferences were not being caught.
-Run default python, not one specified in env, as per recommendations in Debian Python Policy.
-Remove initial period from filename extension when generating a subfolder name (or else the folder will be hidden).
-Check to see if metadata is essential to generate image names is now more robust.
-Remove list control from preferences, reverting to normal tabbed preferences, as the window was becoming too wide.
+
+Run default python, not one specified in env, as per recommendations in Debian
+Python Policy.
+
+Remove initial period from filename extension when generating a subfolder name 
+(or else the folder will be hidden).
+
+Check to see if metadata is essential to generate image names is now more 
+robust.
+Remove list control from preferences, reverting to normal tabbed preferences, 
+as the window was becoming too wide.
+
 Show notifcations via libnotify.
+
 Error and warning icons can now be clicked on to open log window.
-Finally, last but certainly not least--implemented sequence number and sequence letter generation:
+
+Finally, last but certainly not least--implemented sequence number and sequence
+letter generation:
  * session sequence number
- * sequence letter 
+ * sequence letter
 Coming soon:
  * downloads today sequence number
  * subfolder sequence number
@@ -39,34 +72,47 @@ Version 0.0.6
 
 2009-01-11
 
-Fixed extremely annoying bug where memory cards could not be unmounted
-Made sample image selection for preferences more robust
-Added license details to about dialog
-Fix bug where image rename preferences entry boxes vertically expanded, looking very ugly indeed
-Wrap new filename in image rename preferences when it becomes too long
-Make default download folder selection more robust
-Remove sequence number and sequence letter from list of choices for image rename (not yet implemented)
-Bug #314825: fix by not calling  gnomevfs.get_local_path_from_uri() unless strictly necessary
+Fixed extremely annoying bug where memory cards could not be unmounted.
+
+Made sample image selection for preferences more robust.
+
+Added license details to about dialog.
+
+Fix bug where image rename preferences entry boxes vertically expanded, looking 
+very ugly indeed.
+
+Wrap new filename in image rename preferences when it becomes too long.
+
+Make default download folder selection more robust.
+
+Remove sequence number and sequence letter from list of choices for image rename
+(not yet implemented).
+
+Bug #314825: fix by not calling  gnomevfs.get_local_path_from_uri() unless 
+strictly necessary.
 
 Version 0.0.5
 -------------
 
 2009-01-09
 
-Implement auto download on device insertion, and auto download on program startup
-Increase default width of preferences dialog box
-Add vertical scrollbar to image rename preferences
+Implement auto download on device insertion, and auto download on program
+startup.
 
-Fixes for bugs #313463 & #313462
+Increase default width of preferences dialog box.
+
+Add vertical scrollbar to image rename preferences.
+
+Fixes for bugs #313463 & #313462.
 
 Version 0.0.4
 -------------
 
 2009-01-06
 
-Bug #314284: Implement backup functionality
+Bug #314284: Implement backup functionality.
 
-Bug #314285: Insert debugging code to help determine the cause of this bug
+Bug #314285: Insert debugging code to help determine the cause of this bug.
 
 Version 0.0.3
 -------------
@@ -74,9 +120,9 @@ Version 0.0.3
 2009-01-03
 
 Bug #313398: Fix bug where application needed to be restarted for new
-preferences to take effect
+preferences to take effect.
 
-Added setup.py installer
+Added setup.py installer.
 
 Version 0.0.2
 -------------
@@ -84,9 +130,9 @@ Version 0.0.2
 Dependencies:
 Pyexiv 0.1.2
 
-Updated metadata code to reflect changes in pyexiv library
+Updated metadata code to reflect changes in pyexiv library.
 
 Version 0.0.1
 -------------
 
-Initial release
+Initial release.

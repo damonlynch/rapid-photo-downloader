@@ -5,4 +5,12 @@ DEB_PYTHON_SYSTEM=pycentral
 include /usr/share/cdbs/1/rules/debhelper.mk
 include /usr/share/cdbs/1/class/python-distutils.mk
 
+build/rapid-photo-downloader::
+		pod2man --section=1 --release=$(VERSION) --center "" debian/rapid-photo-downloader.pod > rapid-photo-downloader.1
+
+cleanbuilddir/rapid-photo-downloader::
+		rm -f rapid-photo-downloader.1
+
+DEB_INSTALL_MANPAGES_rapid-photo-downloader = rapid-photo-downloader.1
+
 # Add here any variable or target overrides you need.

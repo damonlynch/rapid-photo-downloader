@@ -17,7 +17,12 @@ It is designed for use on the GNOME 2 Desktop.
 
 =head1 BUGS
 
-Please report bugs at https://bugs.launchpad.net/rapid.
+* Running more than one copy of the program at the same time is not supported.
+
+* Closing log window with window manager 'x' instead of 'close' button is not
+  yet supported.
+
+Please report bugs at https://bugs.launchpad.net/rapid
 
 =head1 AUTHORS
 
