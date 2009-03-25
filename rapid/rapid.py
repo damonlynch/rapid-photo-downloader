@@ -63,7 +63,7 @@ import renamesubfolderprefs as rn
 
 import tableplusminus as tpm
 
-__version__ = '0.0.8~b2'
+__version__ = config.version
 
 try: 
     import pygtk 

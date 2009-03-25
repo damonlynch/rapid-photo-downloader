@@ -2,7 +2,7 @@
 # -*- coding: latin1 -*-
 
 from distutils.core import setup
-from rapid.rapid import __version__ as version
+from rapid.config import version
 import glob
 
 package_data={'rapid': ['glade3/rapid.glade', 'glade3/rapid-photo-downloader-about.png']}
