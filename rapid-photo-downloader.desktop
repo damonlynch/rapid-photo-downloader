@@ -1,0 +1,10 @@
+[Desktop Entry]
+Version=1.0
+Name=Rapid Photo Downloader
+GenericName=Rapid Photo Downloader
+Comment=Download photos from memory cards and Portable Storage Devices
+Exec=rapid-photo-downloader
+Icon=rapid-photo-downloader
+Terminal=false
+Type=Application
+Categories=Graphics;Photography;

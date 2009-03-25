@@ -6,7 +6,7 @@ from rapid.rapid import __version__ as version
 
 package_data={'rapid': ['glade3/rapid.glade',  'glade3/rapid-photo-downloader-icon.png',]}
 
-setup(name='rapidphoto',
+setup(name='rapid-photo-downloader',
       version=version,
       description='Rapid Photo Downloader for Linux',
       license='GPL',
