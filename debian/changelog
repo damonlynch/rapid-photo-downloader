@@ -1,3 +1,17 @@
+rapid-photo-downloader (0.0.8~b4-1~ppa1) jaunty; urgency=low
+
+  * PPA build fixes
+
+ -- Damon Lynch <damonlynch@gmail.com>  Wed, 25 Mar 2009 23:31:01 +0800
+
+
+rapid-photo-downloader (0.0.8~b3-2~ppa1) jaunty; urgency=low
+
+  * PPA build fixes
+
+ -- Damon Lynch <damonlynch@gmail.com>  Wed, 25 Mar 2009 23:09:01 +0800
+
+
 rapid-photo-downloader (0.0.8~b3-1) jaunty; urgency=low
 
   * PPA build fixes
