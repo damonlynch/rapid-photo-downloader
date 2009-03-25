@@ -1,4 +1,10 @@
-rapid-photo-downloader (0.0.8~b2-1) unstable; urgency=low
+rapid-photo-downloader (0.0.8~b2-2) jaunty; urgency=low
+
+  * PPA upload
+
+ -- Damon Lynch <damonlynch@gmail.com>  Wed, 25 Mar 2009 22:00:49 +0800
+ 
+rapid-photo-downloader (0.0.8~b2-1) jaunty; urgency=low
 
   * Initial release 
 
