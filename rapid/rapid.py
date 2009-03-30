@@ -973,7 +973,6 @@ class CopyPhotos(Thread):
             early or when it has completed its run.
             """
             
-            print "Thread", self.thread_id, "exiting"
             display_queue.close("rw")
             # possibly delete any lingering files
             tf = os.listdir(tempWorkingDir)
@@ -1083,7 +1082,7 @@ class CopyPhotos(Thread):
                                         possibleTempFile = os.path.join(tempWorkingDir,  possibleName)
                                         if not os.path.exists(possibleFile) and not os.path.exists(possibleTempFile):
 #                                            doesNotExistInDestinationDir = True
-                                            print "we can use it"
+#                                            print "we can use it"
                                             downloadNonUniqueFile = True
                                             break
 #                                        if :
@@ -1256,7 +1255,6 @@ class CopyPhotos(Thread):
             n.show()            
         
         self.hasStarted = True
-        print "Thread", self.thread_id, "is now running"
 
         display_queue.open('w')
         
@@ -1365,7 +1363,7 @@ class CopyPhotos(Thread):
                 self.running = False
             else:
                 try:
-                    print self.thread_id, "releasing lock (start / stop)..."
+#                    print self.thread_id, "releasing lock (start / stop)..."
                     self.lock.release()
     
                 except thread_error:
@@ -1384,7 +1382,7 @@ class CopyPhotos(Thread):
         """
         if self.hasStarted:
             if self.isAlive():            
-                print self.thread_id, get_ident(), "MUST stop running, is still alive"
+#                print self.thread_id, get_ident(), "MUST stop running, is still alive"
                 self.ctrl = False
                 
                 if not self.running:
@@ -1585,7 +1583,7 @@ class LogDialog(gnomeglade.Component):
 
         
     def on_logdialog_destroy(self, dialog):
-        print 'got close signal'
+#        print 'got close signal'
         self.on_logdialog_response(dialog, gtk.RESPONSE_CLOSE)
         dialog.emit_stop_by_name("destroy")
         return True
@@ -1778,7 +1776,7 @@ class RapidApp(gnomeglade.GnomeApp):
         """
         
         uri = volume.get_activation_uri()
-        print "%s has been mounted" % uri
+#        print "%s has been mounted" % uri
         path = gnomevfs.get_local_path_from_uri(uri)
 
         isBackupVolume = self.checkIfBackupVolume(path)
@@ -2028,7 +2026,6 @@ class RapidApp(gnomeglade.GnomeApp):
         """ Possibly notify the user all downloads are complete using libnotify"""
         
         if self.totalDownloadedSoFar == self.totalDownloadSize:
-            print "All downloads complete"
             if self.displayDownloadSummaryNotification:
                 message = "All downloads complete.\n%s images downloaded." % self.downloadStats.noImagesDownloaded
                 if self.downloadStats.noImagesSkipped:
@@ -2061,7 +2058,7 @@ class RapidApp(gnomeglade.GnomeApp):
         workers.quitAllWorkers()
 
         self.flushevents() # perhaps this will eliminate thread-related shutdown lockups?
-        print "Exiting..."
+        
         display_queue.close("w")
 
 
@@ -2189,7 +2186,7 @@ class DownloadStats:
         self.noWarnings = self.noErrors = 0
         
 def programStatus():
-    print "Goodbye"
+    print "goodbye"
 
 
         

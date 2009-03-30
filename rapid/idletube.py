@@ -84,7 +84,6 @@ class Tube:
 
     def close(self, access = 'rw'):
         thrd = get_ident()
-##        print "closing from ", thrd
         access = access.lower()
         self.in_use.acquire()
         if 'r' in access:
