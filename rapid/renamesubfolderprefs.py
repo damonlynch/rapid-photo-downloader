@@ -39,6 +39,7 @@ import string
 
 import os
 import re
+import sys
 
 import gtk.gdk as gdk
 
@@ -461,7 +462,12 @@ class ImageRenamePreferences:
 
         if d:
             if self.L2 <> SUBSECONDS:
-                return (d.strftime(convertDateForStrftime(self.L2)), None)
+                try:
+                    return (d.strftime(convertDateForStrftime(self.L2)), None)
+                except:
+                    v = ''
+                    problem = 'Error in date time component. Value %s appears invalid' % d
+                    return (v,  problem)
             else:
                 return (d,  None)
         else:
@@ -640,6 +646,7 @@ class ImageRenamePreferences:
         return (v, problem)
         
     def _getComponent(self):
+        try:
             if self.L0 == DATE_TIME:
                 return self._getDateComponent()
             elif self.L0 == TEXT:
@@ -660,6 +667,10 @@ class ImageRenamePreferences:
                 return self._getSequenceLetter()
             elif self.L0 == SEPARATOR:
                 return (os.sep, None)
+        except:
+            v = ""
+            problem = "error generating name with component %s" % self.L2
+            return (v,  problem)
 
     def _getValuesFromList(self):
         for i in range(0, len(self.prefList), 3):

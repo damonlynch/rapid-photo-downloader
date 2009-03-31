@@ -1,3 +1,14 @@
+rapid-photo-downloader (0.0.8~b6-1~ppa1) intrepid; urgency=low
+
+  * Add YYYY-MM-DD and YY-MM-DD options in date time renaming, suggested by
+    Andreas F.X. Siegert and Paul Gear.
+
+  * Fix bug #352242 where image has no metadata.
+
+  * Handle images with corrupt metadata more gracefully.
+
+ -- Damon Lynch <damonlynch@gmail.com>  Tue, 31 Mar 2009 22:26:31 +0800
+
 rapid-photo-downloader (0.0.8~b5-1~ppa1) intrepid; urgency=low
 
   * Reduce console output

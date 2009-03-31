@@ -1,8 +1,15 @@
 Version 0.0.8 beta 6
 --------------------
 
+2009-03-31
+
 Add YYYY-MM-DD and YY-MM-DD options in date time renaming, suggested by
 Andreas F.X. Siegert and Paul Gear.
+
+Fix bug #352242 where image has no metadata.
+
+Handle images with corrupt metadata more gracefully.
+
 
 Version 0.0.8 beta 5
 --------------------

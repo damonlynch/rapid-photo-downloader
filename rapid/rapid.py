@@ -1017,13 +1017,14 @@ class CopyPhotos(Thread):
                 skipImage = True
             else:
                 imageMetadata.readMetadata()
-                if not imageMetadata.exifKeys() and (needImageMetaDataToCreateUniqueSubfolderName or 
-                                                     (needImageMetaDataToCreateUniqueImageName and 
+                if not imageMetadata.exifKeys() and (needMetaDataToCreateUniqueSubfolderName or 
+                                                     (needMetaDataToCreateUniqueImageName and 
                                                      not addUniqueIdentifier)):
                     logError(config.SERIOUS_ERROR, "Image has no metadata", 
-                                    "Metadata is essential for naming subfolders / image names.\nSource: %s" % image, 
+                                    "Metadata is essential for generating subfolders / image names.\nSource: %s" % image, 
                                     IMAGE_SKIPPED)
                     skipImage = True
+                    newName = newFile = path = subfolder = None
                     
                 else:
                     subfolder, problem = self.subfolderPrefsFactory.generateNameUsingPreferences(
