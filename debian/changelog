@@ -1,3 +1,9 @@
+rapid-photo-downloader (0.0.8~b5-1~ppa1) intrepid; urgency=low
+
+  * Reduce console output
+
+ -- Damon Lynch <damonlynch@gmail.com>  Mon, 30 Mar 2009 10:18:44 +0800
+
 rapid-photo-downloader (0.0.8~b4-1~ppa1) jaunty; urgency=low
 
   * PPA build fixes

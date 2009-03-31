@@ -134,7 +134,8 @@ SEQUENCE_NUMBER_6 = "Six digits"
 
 SUBSECONDS = 'Subseconds'
 
-LIST_DATE_TIME_L2 = ['YYYYMMDD', 'YYMMDD', 'MMDDYYYY', 'MMDDYY', 'MMDD', 
+LIST_DATE_TIME_L2 = ['YYYYMMDD', 'YYYY-MM-DD','YYMMDD', 'YY-MM-DD', 
+                    'MMDDYYYY', 'MMDDYY', 'MMDD', 
                     'DDMMYYYY', 'DDMMYY', 'YYYY', 'YY', 
                     'MM', 'DD', 
                     'HHMMSS', 'HHMM']
@@ -144,7 +145,8 @@ LIST_IMAGE_DATE_TIME_L2 = LIST_DATE_TIME_L2 + [SUBSECONDS]
 # Convenience values for python datetime conversion using values in 
 # LIST_DATE_TIME_L2.  Obviously the two must remain synchronized.
 
-DATE_TIME_CONVERT = ['%Y%m%d', '%y%m%d', '%m%d%Y', '%m%d%y', '%m%d',
+DATE_TIME_CONVERT = ['%Y%m%d', '%Y-%m-%d','%y%m%d', '%y-%m-%d', 
+                    '%m%d%Y', '%m%d%y', '%m%d',
                     '%d%m%Y', '%d%m%y', '%Y', '%y', 
                     '%m', '%d',
                     '%H%M%S', '%H%M']

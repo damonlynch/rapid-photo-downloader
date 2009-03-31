@@ -1,3 +1,9 @@
+Version 0.0.8 beta 6
+--------------------
+
+Add YYYY-MM-DD and YY-MM-DD options in date time renaming, suggested by
+Andreas F.X. Siegert and Paul Gear.
+
 Version 0.0.8 beta 5
 --------------------
 
