@@ -198,9 +198,12 @@ class MetaData(pyexiv2.Image):
         camera model, including all alphaNumeric characters before and after 
         that digit up till a non-alphanumeric character.
         
+        Canon "Mark" designations are shortened prior to conversion.
+        
         Examples:
         Canon EOS 300D DIGITAL -> 300D
         Canon EOS 5D -> 5D
+        Canon EOS 5D Mark II -> 5DMkII
         NIKON D2X -> D2X
         NIKON D70 -> D70
         X100,D540Z,C310Z -> X100
@@ -223,6 +226,7 @@ class MetaData(pyexiv2.Image):
         Note: assume exif values are in ENGLISH, regardless of current platform
         """
         m = self.cameraModel()
+        m = m.replace(' Mark ', 'Mk') 
         if m:
             s = r"(?:[^a-zA-Z0-9%s]?)(?P<model>[a-zA-Z0-9%s]*\d+[a-zA-Z0-9%s]*)"\
                 % (includeCharacters, includeCharacters, includeCharacters)

@@ -1,3 +1,9 @@
+rapid-photo-downloader (0.0.8~b7-0~ppa1) intrepid; urgency=low
+
+  * Added serial number, shutter count and owner name metadata options
+
+ -- Damon Lynch <damonlynch@gmail.com>  Tue, 07 Apr 2009 00:16:48 +0800
+
 rapid-photo-downloader (0.0.8~b6-1~ppa1) intrepid; urgency=low
 
   * Add YYYY-MM-DD and YY-MM-DD options in date time renaming, suggested by
