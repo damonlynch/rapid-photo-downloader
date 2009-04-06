@@ -128,7 +128,7 @@ class MetaData(pyexiv2.Image):
         Returns missing if the metadata value is not present.
         """
         try:
-            return self["Exif.Image.Make"]
+            return self["Exif.Image.Make"].strip()
         except:
             return missing
     
@@ -139,7 +139,52 @@ class MetaData(pyexiv2.Image):
         Returns missing if the metadata value is not present.
         """
         try:
-            return self["Exif.Image.Model"]
+            return self["Exif.Image.Model"].strip()
+        except:
+            return missing
+            
+    def cameraSerial(self,  missing=''):
+        try:
+            keys = self.exifKeys()
+            if 'Exif.Canon.SerialNumber' in keys:
+                v = self['Exif.Canon.SerialNumber']
+            elif 'Exif.Nikon3.SerialNumber' in keys:
+                v = self['Exif.Nikon3.SerialNumber']
+            elif 'Exif.OlympusEq.SerialNumber' in keys:
+                v = self['Exif.OlympusEq.SerialNumber']
+            elif 'Exif.Olympus.SerialNumber' in keys:
+                v = self['Exif.Olympus.SerialNumber']
+            elif 'Exif.Olympus.SerialNumber2' in keys:
+                v = self['Exif.Olympus.SerialNumber2']
+            elif 'Exif.Panasonic.SerialNumber' in keys:
+                v = self['Exif.Panasonic.SerialNumber']
+            elif 'Exif.Fujifilm.SerialNumber' in keys:
+                v = self['Exif.Fujifilm.SerialNumber']
+            elif 'Exif.Image.CameraSerialNumber' in keys:
+                v = self['Exif.Image.CameraSerialNumber']
+            else:
+                return missing
+            return str(v)
+        except:
+            return missing
+            
+    def shutterCount(self,  missing=''):
+        try:
+            keys = self.exifKeys()
+            if 'Exif.Nikon3.ShutterCount' in keys:
+                v = self['Exif.Nikon3.ShutterCount']
+            elif 'Exif.Canon.ImageNumber' in keys:
+                v = self['Exif.Canon.ImageNumber']
+            else:
+                return missing
+            return str(v)
+        except:
+            return missing
+            
+    def ownerName(self,  missing=''):
+        """ returns camera name recorded by select Canon cameras"""
+        try:
+            return self['Exif.Canon.OwnerName'].strip()
         except:
             return missing
             
@@ -185,7 +230,7 @@ class MetaData(pyexiv2.Image):
             if r:
                 return r.group("model")
             else:
-                return m
+                return m.strip()
         else:
             return missing
         
@@ -211,7 +256,7 @@ class MetaData(pyexiv2.Image):
     def subSeconds(self,  missing='00'):
         """ returns the subsecond the image was taken, as recorded by the camera"""
         try:
-            return self["Exif.Photo.SubSecTimeOriginal"]
+            return str(self["Exif.Photo.SubSecTimeOriginal"])
         except:
             return missing
             
@@ -264,8 +309,20 @@ class DummyMetaData(MetaData):
     def shortCameraModel(self, includeCharacters = '', missing=''):
         return "5D"
         
+    def cameraSerial(self,  missing=''):
+        return '730402168'
+        
+    def shutterCount(self,  missing=''):
+        return '3487'
+        
+    def ownerName(self,  missing=''):
+        return 'Happy Photographer'
+        
     def dateTime(self, missing=''):
         return datetime.datetime.now()
+        
+    def subSeconds(self,  missing='00'):
+        return '57'
         
     def orientation(self, missing=''):
         return 1
@@ -281,7 +338,8 @@ if __name__ == '__main__':
         m = MetaData(sys.argv[1])
         m.readMetadata()
         
-#    print m.exifKeys()
+#    for i in m.exifKeys():
+#        print i
     print "f"+ m.aperture('missing ')
     print "ISO " + m.iso('missing ')
     print m.exposureTime(missing='missing ') + " sec"
@@ -293,9 +351,7 @@ if __name__ == '__main__':
     print m.shortCameraModel(includeCharacters = "\-")
     print m.dateTime()
     print m.orientation()
+    print 'Serial number:',  m.cameraSerial()
+    print 'Shutter count:', m.shutterCount()
+    print 'Subseconds:',  m.subSeconds()
     
-#    print m['Exif.CanonCs.Lens']
-    print m.subSeconds()
-
-
-

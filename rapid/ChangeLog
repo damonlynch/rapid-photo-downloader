@@ -1,3 +1,15 @@
+Version 0.0.8 beta 7
+--------------------
+
+Added serial number metadata option for select Nikon, Canon, Olympus, Fuji, 
+Panasonic, and Kodak cameras.
+
+Added shutter count metadata option for select Nikon cameras, e.g. Nikon D300,
+D3 etc.
+
+Add owner name metadata option for select Canon cameras, e.g. 5D Mk II etc.
+
+
 Version 0.0.8 beta 6
 --------------------
 

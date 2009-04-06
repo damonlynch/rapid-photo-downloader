@@ -1236,21 +1236,21 @@ class CopyPhotos(Thread):
                 notificationName = self.cardMedia.volume.get_display_name()
                 if self.prefs.auto_unmount:
                     self.cardMedia.volume.unmount(self.on_volume_unmount)
-                    unmountMessage = "The device can now be safely removed."
+                    unmountMessage = "The device can now be safely removed"
                 else:
                     unmountMessage = ""
             
-            message = "%s images downloaded." % noImagesDownloaded
+            message = "%s images downloaded" % noImagesDownloaded
             if noImagesSkipped:
-                message += "\n%s images skipped." % noImagesSkipped
+                message += "\n%s images skipped" % noImagesSkipped
             
             if unmountMessage:
                 message = "%s\n%s"  % (message,  unmountMessage)
                 
             if self.noWarnings:
-                message = "%s\n%s warnings." % (message,  self.noWarnings)
+                message = "%s\n%s warnings" % (message,  self.noWarnings)
             if self.noErrors:
-                message = "%s\n%s errors." % (message,  self.noErrors)
+                message = "%s\n%s errors" % (message,  self.noErrors)
                 
             n = pynotify.Notification(notificationName,  message)
             n.show()            
@@ -1364,7 +1364,6 @@ class CopyPhotos(Thread):
                 self.running = False
             else:
                 try:
-#                    print self.thread_id, "releasing lock (start / stop)..."
                     self.lock.release()
     
                 except thread_error:
@@ -1383,7 +1382,6 @@ class CopyPhotos(Thread):
         """
         if self.hasStarted:
             if self.isAlive():            
-#                print self.thread_id, get_ident(), "MUST stop running, is still alive"
                 self.ctrl = False
                 
                 if not self.running:
@@ -1572,7 +1570,6 @@ class LogDialog(gnomeglade.Component):
         adjustment = self.log_scrolledwindow.get_vadjustment()
         adjustment.set_value(adjustment.upper)
         
-
         
     def on_logdialog_response(self, dialog, arg):
         if arg == gtk.RESPONSE_CLOSE:
@@ -1584,7 +1581,6 @@ class LogDialog(gnomeglade.Component):
 
         
     def on_logdialog_destroy(self, dialog):
-#        print 'got close signal'
         self.on_logdialog_response(dialog, gtk.RESPONSE_CLOSE)
         dialog.emit_stop_by_name("destroy")
         return True
@@ -1699,23 +1695,23 @@ class RapidApp(gnomeglade.GnomeApp):
             sys.exit(1)
 
         capabilities = {'actions':  False,
-                'body':  False,
-                'body-hyperlinks': False,
-                'body-images': False,
-                'body-markup': False,
-                'icon-multi': False,
-                'icon-static': False,
-                'sound': False,
-                'image/svg+xml': False,
-                'append':  False}
+            'body':  False,
+            'body-hyperlinks': False,
+            'body-images': False,
+            'body-markup': False,
+            'icon-multi': False,
+            'icon-static': False,
+            'sound': False,
+            'image/svg+xml': False,
+            'append':  False}
 
         caps = pynotify.get_server_caps ()
         if caps is None:
-                print "Failed to receive pynotify server capabilities."
-                sys.exit (1)
+            print "Failed to receive pynotify server capabilities."
+            sys.exit (1)
 
         for cap in caps:
-                capabilities[cap] = True
+            capabilities[cap] = True
 
         info = pynotify.get_server_info()
     
@@ -2028,13 +2024,13 @@ class RapidApp(gnomeglade.GnomeApp):
         
         if self.totalDownloadedSoFar == self.totalDownloadSize:
             if self.displayDownloadSummaryNotification:
-                message = "All downloads complete.\n%s images downloaded." % self.downloadStats.noImagesDownloaded
+                message = "All downloads complete\n%s images downloaded" % self.downloadStats.noImagesDownloaded
                 if self.downloadStats.noImagesSkipped:
-                    message = "%s\n%s images skipped." % (message,  self.downloadStats.noImagesSkipped)
+                    message = "%s\n%s images skipped" % (message,  self.downloadStats.noImagesSkipped)
                 if self.downloadStats.noWarnings:
-                    message = "%s\n%s warnings." % (message,  self.downloadStats.noWarnings)
+                    message = "%s\n%s warnings" % (message,  self.downloadStats.noWarnings)
                 if self.downloadStats.noErrors:
-                    message = "%s\n%s errors." % (message,  self.downloadStats.noErrors)
+                    message = "%s\n%s errors" % (message,  self.downloadStats.noErrors)
                 n = pynotify.Notification("Rapid Photo Downloader",  message)
                 n.show()
                 self.displayDownloadSummaryNotification = False # don't show it again unless needed

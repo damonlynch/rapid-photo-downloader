@@ -99,6 +99,9 @@ CAMERA_MAKE = 'Camera make'
 CAMERA_MODEL = 'Camera model'
 SHORT_CAMERA_MODEL = 'Short camera model'
 SHORT_CAMERA_MODEL_HYPHEN = 'Hyphenated short camera model'
+SERIAL_NUMBER = 'Serial number'
+SHUTTER_COUNT = 'Shutter count'
+OWNER_NAME = 'Owner name'
 
 #Image sequence
 USER_INPUT = 'user'
@@ -191,11 +194,21 @@ DICT_SUBFOLDER_FILENAME_L1 = {
                     ORDER_KEY: LIST_SUBFOLDER_FILENAME_L1
 }
 
+LIST_SHUTTER_COUNT_L2 = [
+                     SEQUENCE_NUMBER_3, 
+                     SEQUENCE_NUMBER_4, 
+                     SEQUENCE_NUMBER_5, 
+                     SEQUENCE_NUMBER_6,                      
+                     ]
+
 
 LIST_METADATA_L1 = [APERTURE, ISO, EXPOSURE_TIME, FOCAL_LENGTH, 
                     CAMERA_MAKE, CAMERA_MODEL, 
                     SHORT_CAMERA_MODEL, 
-                    SHORT_CAMERA_MODEL_HYPHEN]                  
+                    SHORT_CAMERA_MODEL_HYPHEN, 
+                    SERIAL_NUMBER, 
+                    SHUTTER_COUNT, 
+                    OWNER_NAME]                  
 
 DICT_METADATA_L1 = {
                     APERTURE: None,
@@ -206,9 +219,12 @@ DICT_METADATA_L1 = {
                     CAMERA_MODEL: LIST_CASE_L2, 
                     SHORT_CAMERA_MODEL: LIST_CASE_L2, 
                     SHORT_CAMERA_MODEL_HYPHEN: LIST_CASE_L2,
+                    SERIAL_NUMBER: None, 
+                    SHUTTER_COUNT: LIST_SHUTTER_COUNT_L2, 
+                    OWNER_NAME: LIST_CASE_L2, 
                     ORDER_KEY: LIST_METADATA_L1
                 }
-
+                     
 LIST_SEQUENCE_NUMBERS_L1_L2 = [
                     SEQUENCE_NUMBER_1,
                     SEQUENCE_NUMBER_2,
@@ -549,10 +565,22 @@ class ImageRenamePreferences:
             v = self.photo.shortCameraModel()
         elif self.L1 == SHORT_CAMERA_MODEL_HYPHEN:
             v = self.photo.shortCameraModel(includeCharacters = "\-")
+        elif self.L1 == SERIAL_NUMBER:
+            v = self.photo.cameraSerial()
+        elif self.L1 == SHUTTER_COUNT:
+            v = self.photo.shutterCount()
+            if v:
+                v = int(v)
+                padding = LIST_SHUTTER_COUNT_L2.index(self.L2) + 3
+                formatter = '%0' + str(padding) + "i"
+                v = formatter % v
+            
+        elif self.L1 == OWNER_NAME:
+            v = self.photo.ownerName()
         else:
             raise TypeError("Invalid metadata option specified")
         if self.L1 in [CAMERA_MAKE, CAMERA_MODEL, SHORT_CAMERA_MODEL,
-                        SHORT_CAMERA_MODEL_HYPHEN]:
+                        SHORT_CAMERA_MODEL_HYPHEN,  OWNER_NAME]:
             if self.L2 == UPPERCASE:
                 v = v.upper()
             elif self.L2 == LOWERCASE:
@@ -722,8 +750,6 @@ class ImageRenamePreferences:
         - any problems generating the name.  If blank, there were no problems
         """
 
-
-
         if self.sequences:
             if sequencesPreliminary:
                 sequence = self.sequences.getPrelimSequence()
@@ -828,7 +854,6 @@ class ImageRenamePreferences:
         widget0.set_active(list0.index(key))
         
         widgets.append(widget0)
-        
         
         if key == TEXT:
             widget1 = gtk.Entry()
