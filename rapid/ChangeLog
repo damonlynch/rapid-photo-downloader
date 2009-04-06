@@ -1,5 +1,16 @@
+Version 0.0.8 beta 8
+--------------------
+
+2009-04-
+
+Better handle shortening names like 'Canon 5D Mark II'. It is now shortened to
+5DMkII instead of merely 5D.
+
+
 Version 0.0.8 beta 7
 --------------------
+
+2009-04-07
 
 Added serial number metadata option for select Nikon, Canon, Olympus, Fuji, 
 Panasonic, and Kodak cameras.
