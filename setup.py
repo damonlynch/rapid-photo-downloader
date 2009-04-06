@@ -20,8 +20,8 @@ setup(name='rapid-photo-downloader',
 professional and amateur photographers, designed for use
 on the GNOME 2 Desktop. It can download photos from multiple
 memory cards and Portable Storage Devices simultaneously. It
-provides a variety of options for subfolder creation, image
-renaming and backup.""",
+provides many options for subfolder creation, image renaming
+and backup.""",
       packages = ['rapid'], 
       package_data=package_data, 
       scripts=['rapid-photo-downloader'],
