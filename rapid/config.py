@@ -20,6 +20,8 @@ version = '0.0.8~b8'
 GCONF_KEY="/apps/rapid-photo-downloader"
 GLADE_FILE = "glade3/rapid.glade"
 
+PROGRAM_NAME = 'Rapid Photo Downloader'
+
 MEDIA_LOCATION = "/media"
 
 SKIP_DOWNLOAD = "skip download"

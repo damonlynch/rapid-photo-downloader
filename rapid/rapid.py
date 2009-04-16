@@ -37,8 +37,6 @@ import pango
 
 import gnomevfs
 
-##import LaunchpadIntegration
-
 import prefs
 import paths
 import gnomeglade
@@ -285,6 +283,7 @@ class RapidPreferences(prefs.Preferences):
                 return int(self.downloads_today[1])
             except ValueError:
                 print "Invalid Downloads Today value.\nResetting value to zero."
+                self.downloads_today[1] = 0
                 return 0
         else:
             return -1
@@ -298,10 +297,11 @@ class RapidPreferences(prefs.Preferences):
         """ Resets the value that is recorded in the preferences
         
         This is ultimately displayed to the user when they adjust image renaming preferences"""
-        modulo = 3
-        for i in range(0, len(self.image_rename),  modulo):
-            if self.image_rename[i] == rn.SESSION_SEQ_NUMBER:
-                    self.image_rename[i+1] = str(value)
+        pass
+#        modulo = 3
+#        for i in range(0, len(self.image_rename),  modulo):
+#            if self.image_rename[i] == rn.SESSION_SEQ_NUMBER:
+#                    self.image_rename[i+1] = str(value)
 
 
 class ImageRenameTable(tpm.TablePlusMinus):
@@ -323,6 +323,10 @@ class ImageRenameTable(tpm.TablePlusMinus):
         except (rn.PrefValueInvalidError, rn.PrefLengthError, 
                 rn.PrefValueKeyComboError,  rn.PrefKeyError), inst:
 
+            print self.errorTitle 
+            print "Sorry,these preferences contain an error:"
+            print self.prefsFactory.formatPreferencesForPrettyPrint()
+            
             # the preferences were invalid
             # reset them to their default
 
@@ -383,9 +387,9 @@ class ImageRenameTable(tpm.TablePlusMinus):
         self.prefList = self.parentApp.prefs.image_rename
     
     def getPrefsFactory(self):
+        sequences = rn.SampleSequences(1,  1) # FIXME: initalize with proper values
         self.prefsFactory = rn.ImageRenamePreferences(self.prefList, self,  
               sequences = sequences)
-
         
     def updateParentAppPrefs(self):
         self.parentApp.prefs.image_rename = self.prefList
@@ -699,14 +703,18 @@ class PreferencesDialog(gnomeglade.Component):
         Displays example image name to the user 
         """
         
-        name, problem = self.rename_table.prefsFactory.generateNameUsingPreferences(
-                self.sampleImage, self.sampleImageName, 
-                self.prefs.strip_characters,  sequencesPreliminary=False)
+        if hasattr(self, 'rename_table'):
+            name, problem = self.rename_table.prefsFactory.generateNameUsingPreferences(
+                    self.sampleImage, self.sampleImageName, 
+                    self.prefs.strip_characters,  sequencesPreliminary=False)
+        else:
+            name = problem = ''
+            
         # since this is markup, escape it
         text = "<i>%s</i>" % common.escape(name)
         
         if problem:
-            text += "\n<i><b>Warning:</b> There is insufficient image metatdata to fully generate the name.</i>" 
+            text += "\n<i><b>Warning:</b> There is insufficient image metatdata to fully generate the name. Please use other renaming options.</i>" 
 
         self.new_name_label.set_markup(text)
             
@@ -715,15 +723,18 @@ class PreferencesDialog(gnomeglade.Component):
         Displays example subfolder name(s) to the user 
         """
         
-        path, problem = self.subfolder_table.prefsFactory.generateNameUsingPreferences(
+        if hasattr(self,  'subfolder_table'):
+            path, problem = self.subfolder_table.prefsFactory.generateNameUsingPreferences(
                             self.sampleImage, self.sampleImageName,
                             self.prefs.strip_characters)
+        else:
+            path = problem = ''
         
         text = os.path.join(self.prefs.download_folder, path)
         # since this is markup, escape it
         path = common.escape(text)
         if problem:
-            text += "\n<i><b>Warning:</b> There is insufficient image metatdata to fully generate subfolders.</i>" 
+            text += "\n<i><b>Warning:</b> There is insufficient image metatdata to fully generate subfolders. Please use other subfolder naming options.</i>" 
             
         self.example_download_path_label.set_markup("<i>Example: %s</i>" % text)
         
@@ -908,7 +919,7 @@ class CopyPhotos(Thread):
         """
         returns name, path and size of the first image
         """
-        name, root, size = self.cardMedia.firstImage()
+        name, root, size,  modificationTime = self.cardMedia.firstImage()
         return root, name
         
     
@@ -1231,7 +1242,7 @@ class CopyPhotos(Thread):
         def notifyAndUnmount():
             if not self.cardMedia.volume:
                 unmountMessage = ""
-                notificationName = "Rapid Photo Downloader"
+                notificationName = config.PROGRAM_NAME
             else:
                 notificationName = self.cardMedia.volume.get_display_name()
                 if self.prefs.auto_unmount:
@@ -1598,6 +1609,26 @@ class RapidApp(gnomeglade.GnomeApp):
         
         self.prefs = RapidPreferences()
         self.prefs.notify_add(self.on_preference_changed)
+        
+        self.prefs.program_version = '0.0.8~b7'
+
+        
+        r = ['Date time', 'Image date', 'YYYYMMDD', 'Text', '-', '', 'Date time', 'Image date', 'HHMM', 'Text', '-', '', 'Session sequence number', '1', 'Three digits', 'Text', '-iso', '', 'Metadata', 'ISO', '', 'Text', '-f', '', 'Metadata', 'Aperture', '', 'Text', '-', '', 'Metadata', 'Focal length', '', 'Text', 'mm-', '', 'Metadata', 'Exposure time', '', 'Filename', 'Extension', 'lowercase']
+        self.prefs.image_rename = r
+        
+        r = ['Date time', 'Image date', 'YYYYMMDD', 'Text', '-', '', 'Date time', 'Image date', 'HHMM', 'Text', '-', '', 'Sequences', 'Session sequence number', 'Three digits', 'Text', '-iso', '', 'Metadata', 'ISO', '', 'Text', '-f', '', 'Metadata', 'Aperture', '', 'Text', '-', '', 'Metadata', 'Focal length', '', 'Text', 'mm-', '', 'Metadata', 'Exposure time', '', 'Filename', 'Extension', 'lowercase']
+
+#        self.prefs.image_rename = r
+
+        displayPreferences,  upgraded,  imageRename,  subfolder = self.checkForUpgrade(__version__)
+        if upgraded:
+            print "upgraded: YES"
+#            assert(r==imageRename)
+
+#            self.prefs.image_rename = []
+            self.prefs.image_rename = imageRename
+            
+        sys.exit(1)
         self.prefs.program_version = __version__
         
         self._resetDownloadInfo()
@@ -1683,12 +1714,64 @@ class RapidApp(gnomeglade.GnomeApp):
         self.media_collection_viewport.set_size_request(-1, height)
         
         self.download_button.grab_focus()
+        
+#        if displayPreferences:
+#            PreferencesDialog(self)
+#        elif self.prefs.auto_download_at_startup:
+#            self.startDownload()
+
+    
+    def checkForUpgrade(self,  runningVersion):
+        """ Checks if the running version of the program is different from the version recorded in the preferences.
+        
+        If the version is different, then the preferences are checked to see whether they should be upgraded or not.
+        
+        returns True if program preferences window should be opened """
+        previousVersion = self.prefs.program_version
+        
+        pv = common.pythonifyVersion(previousVersion)
+        rv = common.pythonifyVersion(runningVersion)
+        
+        title = config.PROGRAM_NAME
+        displayPrefs = upgraded = False
+        imageRename = subfolder = None
+        
+        if pv != rv:
+            if pv > rv:
                 
-        if self.prefs.auto_download_at_startup:
-            self.startDownload()
+                prefsOk = rn.checkPreferencesForValidity(self.prefs.image_rename,  self.prefs.subfolder)
+                    
+                msg = "A newer version of this program was previously run on this computer.\n\n"
+                if prefsOk:
+                    msg += "Program preferences appear to be valid, but please check them to ensure correct operation."
+                else:
+                    msg += "Sorry, some preferences are invalid and will be reset."
+                print "Warning: %s" % msg
+                misc.run_dialog(title, msg)
+                
+                displayPrefs = True
+            else:
+                print "This version of the program is newer than the previously run version. Checking preferences."
+                if True:
+#                if rn.checkPreferencesForValidity(self.prefs.image_rename,  self.prefs.subfolder,  previousVersion):
+                    upgraded,  imageRename,  subfolder = rn.upgradePreferencesToCurrent(self.prefs.image_rename,  self.prefs.subfolder,  previousVersion)
+                    if upgraded:
+#                        print "image rename:",  imageRename
+#                        self.prefs.image_rename = imageRename
+#                        self.prefs.subfolder = subfolder
+                        print "Preferences were modified."
+                        msg = 'This version of the program uses different preferences than the old version. Your preferences have been updated.\n\nPlease check them to ensure correct operation.'
+#                        misc.run_dialog(title,  msg)
+                        displayPrefs = True
+                    else:
+                        print "No preferences needed to be changed."
+                else:
+                    msg = 'This version of the program uses different preferences than the old version. Your previous preferences were invalid, and could not be updated. They will be reset.'
+                    misc.run_dialog(title,  msg)
+                    displayPrefs = True
+                
+        return (displayPrefs,  upgraded,  imageRename,  subfolder)
 
-
-                            
     def initPyNotify(self):
         if not pynotify.init("TestCaps"):
             print "Problem using pynotify."
@@ -2092,7 +2175,7 @@ class RapidApp(gnomeglade.GnomeApp):
         """ Display about dialog box """
 
         about = gtk.glade.XML(paths.share_dir(config.GLADE_FILE), "about").get_widget("about")
-        about.set_property("name", "Rapid Photo Downloader")
+        about.set_property("name", config.PROGRAM_NAME)
         about.set_property("version", __version__)
         about.run()
         about.destroy()       
@@ -2150,6 +2233,8 @@ class RapidApp(gnomeglade.GnomeApp):
             
     def on_preference_changed(self, key, value):
 #        print key,  value
+        print "on_preference_changed",  key,  value
+        
         if key == 'display_thumbnails':
             self.set_display_thumbnails(value)
         elif key == 'media_type':
@@ -2183,7 +2268,7 @@ class DownloadStats:
         self.noWarnings = self.noErrors = 0
         
 def programStatus():
-    print "goodbye"
+    print "Goodbye"
 
 
         

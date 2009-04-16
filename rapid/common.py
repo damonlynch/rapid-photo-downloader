@@ -20,12 +20,17 @@
 import os
 import sys
 import gc
+import distutils.version
 import gtk.gdk as gdk
 
 #from config import  LOGFILE_DIRECTORY, MAX_LOGFILE_SIZE, MAX_LOGFILES 
 #
 #from logging.handlers import RotatingFileHandler
 #import logging
+
+def pythonifyVersion(v):
+    """ makes version number a version number in distutils sense"""
+    return distutils.version.StrictVersion(v.replace( '~',''))
 
 def getFullProgramName():
     """ return the full name of the process running """

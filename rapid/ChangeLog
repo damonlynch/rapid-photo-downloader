@@ -3,8 +3,22 @@ Version 0.0.8 beta 8
 
 2009-04-
 
-Better handle shortening names like 'Canon 5D Mark II'. It is now shortened to
-5DMkII instead of merely 5D.
+Added downloads today sequence number.
+
+Simplified sequence number/letter selection in preferences.
+
+Bug fix: better handle automated shortening names like 'Canon 5D Mark II'. It is
+now shortened to '5DMkII' instead of merely '5D'.
+
+Bug fix: reenable example of image renaming and subfolder name generation by
+using first image from the first available download device. This was
+inadvertently disabled in an earlier beta.
+
+In cases where image rename or download subfolder preferences are invalid, 
+more helpful information is printed to the console output.
+
+Add feature to detect change in program version, upgrading preferences where
+necessary.
 
 
 Version 0.0.8 beta 7
@@ -90,7 +104,8 @@ crash.
 Fixed bug where date and time choices based on when image is downloaded caused a
 crash.
 
-Initial code to show error message when image renaming preferences have an error.
+Initial code to show error message when image renaming preferences have an 
+error.
 
 Fixed bug where some invalid preferences were not being caught.
 
@@ -102,6 +117,7 @@ Remove initial period from filename extension when generating a subfolder name
 
 Check to see if metadata is essential to generate image names is now more 
 robust.
+
 Remove list control from preferences, reverting to normal tabbed preferences, 
 as the window was becoming too wide.
 

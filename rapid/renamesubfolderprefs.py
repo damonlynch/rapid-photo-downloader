@@ -56,6 +56,7 @@ except:
 import datetime
 
 import ValidatedEntry
+import config
 
 # Special key in each dictionary which specifies the order of elements.
 # It is very important to have a consistent and rational order when displaying 
@@ -69,12 +70,8 @@ DATE_TIME = 'Date time'
 TEXT = 'Text'
 FILENAME = 'Filename'
 METADATA = 'Metadata'
-DOWNLOAD_SEQ_NUMBER = 'Downloads today sequence number'
-SESSION_SEQ_NUMBER = 'Session sequence number'
-SUBFOLDER_SEQ_NUMBER = 'Subfolder sequence number'
-STORED_SEQ_NUMBER = 'Stored sequence number'
+SEQUENCES = 'Sequences'
 
-SEQUENCE_LETTER = 'Sequence letter'
 SEPARATOR = os.sep
 
 # *** Level 1
@@ -103,8 +100,15 @@ SERIAL_NUMBER = 'Serial number'
 SHUTTER_COUNT = 'Shutter count'
 OWNER_NAME = 'Owner name'
 
-#Image sequence
-USER_INPUT = 'user'
+#Image sequences
+DOWNLOAD_SEQ_NUMBER = 'Downloads today sequence number'
+SESSION_SEQ_NUMBER = 'Session sequence number'
+SUBFOLDER_SEQ_NUMBER = 'Subfolder sequence number'
+STORED_SEQ_NUMBER = 'Stored sequence number'
+
+SEQUENCE_LETTER = 'Sequence letter'
+
+USER_INPUT = 'User'
 
 # *** Level 2
 
@@ -160,9 +164,45 @@ LIST_IMAGE_NUMBER_L2 = [IMAGE_NUMBER_ALL, IMAGE_NUMBER_1, IMAGE_NUMBER_2,
                         IMAGE_NUMBER_3, IMAGE_NUMBER_4]
 
 
-
 LIST_CASE_L2 = [ORIGINAL_CASE, UPPERCASE, LOWERCASE]
 
+LIST_SEQUENCE_LETTER_L2 = [
+                    UPPERCASE,
+                    LOWERCASE
+                    ]
+                
+
+DICT_SEQUENCE_LETTER_L2 = { 
+                    UPPERCASE: None,
+                    LOWERCASE: None,
+                    ORDER_KEY: LIST_SEQUENCE_LETTER_L2
+                    }
+
+LIST_SEQUENCE_NUMBERS_L2 = [
+                    SEQUENCE_NUMBER_1,
+                    SEQUENCE_NUMBER_2,
+                    SEQUENCE_NUMBER_3,
+                    SEQUENCE_NUMBER_4,
+                    SEQUENCE_NUMBER_5,
+                    SEQUENCE_NUMBER_6,
+                    ]
+                
+DICT_SEQUENCE_NUMBERS_L2 = { 
+                    SEQUENCE_NUMBER_1: None,
+                    SEQUENCE_NUMBER_2: None,
+                    SEQUENCE_NUMBER_3: None,
+                    SEQUENCE_NUMBER_4: None,
+                    SEQUENCE_NUMBER_5: None,
+                    SEQUENCE_NUMBER_6: None,
+                    ORDER_KEY: LIST_SEQUENCE_NUMBERS_L2
+                    }
+
+LIST_SHUTTER_COUNT_L2 = [
+                     SEQUENCE_NUMBER_3, 
+                     SEQUENCE_NUMBER_4, 
+                     SEQUENCE_NUMBER_5, 
+                     SEQUENCE_NUMBER_6,                      
+                     ]
 
 # Level 1
 LIST_DATE_TIME_L1 = [IMAGE_DATE, TODAY, YESTERDAY]
@@ -194,14 +234,6 @@ DICT_SUBFOLDER_FILENAME_L1 = {
                     ORDER_KEY: LIST_SUBFOLDER_FILENAME_L1
 }
 
-LIST_SHUTTER_COUNT_L2 = [
-                     SEQUENCE_NUMBER_3, 
-                     SEQUENCE_NUMBER_4, 
-                     SEQUENCE_NUMBER_5, 
-                     SEQUENCE_NUMBER_6,                      
-                     ]
-
-
 LIST_METADATA_L1 = [APERTURE, ISO, EXPOSURE_TIME, FOCAL_LENGTH, 
                     CAMERA_MAKE, CAMERA_MODEL, 
                     SHORT_CAMERA_MODEL, 
@@ -225,65 +257,36 @@ DICT_METADATA_L1 = {
                     ORDER_KEY: LIST_METADATA_L1
                 }
                      
-LIST_SEQUENCE_NUMBERS_L1_L2 = [
-                    SEQUENCE_NUMBER_1,
-                    SEQUENCE_NUMBER_2,
-                    SEQUENCE_NUMBER_3,
-                    SEQUENCE_NUMBER_4,
-                    SEQUENCE_NUMBER_5,
-                    SEQUENCE_NUMBER_6,
-                    ]
-                
-DICT_SEQUENCE_NUMBERS_L1_L2 = { 
-                    SEQUENCE_NUMBER_1: None,
-                    SEQUENCE_NUMBER_2: None,
-                    SEQUENCE_NUMBER_3: None,
-                    SEQUENCE_NUMBER_4: None,
-                    SEQUENCE_NUMBER_5: None,
-                    SEQUENCE_NUMBER_6: None,
-                    ORDER_KEY: LIST_SEQUENCE_NUMBERS_L1_L2
-                    }
 
-LIST_SEQUENCE_L1 = [USER_INPUT]
+LIST_SEQUENCE_L1 = [
+                    DOWNLOAD_SEQ_NUMBER,  
+                    SESSION_SEQ_NUMBER, 
+                    SEQUENCE_LETTER
+                    ]
+                    
 DICT_SEQUENCE_L1 = {
-                    USER_INPUT: DICT_SEQUENCE_NUMBERS_L1_L2, 
+                    DOWNLOAD_SEQ_NUMBER: LIST_SEQUENCE_NUMBERS_L2, 
+                    SESSION_SEQ_NUMBER: LIST_SEQUENCE_NUMBERS_L2, 
+                    SEQUENCE_LETTER: LIST_SEQUENCE_LETTER_L2, 
                     ORDER_KEY: LIST_SEQUENCE_L1
                     }
-LIST_SEQUENCE_LETTER_L1 = [
-                    UPPERCASE,
-                    LOWERCASE
-                    ]
-                
-                
-DICT_SEQUENCE_LETTER_L1 = { 
-                    UPPERCASE: None,
-                    LOWERCASE: None,
-                    ORDER_KEY: LIST_SEQUENCE_LETTER_L1
-                    }
+ 
 
 # Level 0
 
-LIST_IMAGE_RENAME_L0 = [DATE_TIME, TEXT, FILENAME, METADATA, 
-#                        DOWNLOAD_SEQ_NUMBER, 
-                        SESSION_SEQ_NUMBER,  
-#                        SUBFOLDER_SEQ_NUMBER, 
-#                        STORED_SEQ_NUMBER,  
-                        SEQUENCE_LETTER]
 
+LIST_IMAGE_RENAME_L0 = [DATE_TIME, TEXT, FILENAME, METADATA, 
+                        SEQUENCES, ]
+                        
 
 DICT_IMAGE_RENAME_L0 = {
                     DATE_TIME: DICT_DATE_TIME_L1,
                     TEXT: None,
                     FILENAME: DICT_FILENAME_L1,
                     METADATA: DICT_METADATA_L1,
-#                    DOWNLOAD_SEQ_NUMBER: DICT_SEQUENCE_L1,
-                    SESSION_SEQ_NUMBER: None, 
-#                    SUBFOLDER_SEQ_NUMBER: DICT_SEQUENCE_L1, 
-#                    STORED_SEQ_NUMBER: None,                     
-                    SEQUENCE_LETTER: DICT_SEQUENCE_LETTER_L1,
+                    SEQUENCES: DICT_SEQUENCE_L1, 
                     ORDER_KEY: LIST_IMAGE_RENAME_L0
                     }
-
 
 LIST_SUBFOLDER_L0 = [DATE_TIME, TEXT, FILENAME, METADATA, SEPARATOR]
 
@@ -316,8 +319,123 @@ DYNAMIC_NON_METADATA_ELEMENTS = [
              TODAY, YESTERDAY, 
              FILENAME]  + SEQUENCE_ELEMENTS
              
-             
+
+
+#the following is what the preferences looked in older versions of the program
+#they are here for reference, and for checking the validity of preferences
+
+LIST_SEQUENCE_NUMBERS_L1_L2_V_0_0_8_B7 = [
+                    SEQUENCE_NUMBER_1,
+                    SEQUENCE_NUMBER_2,
+                    SEQUENCE_NUMBER_3,
+                    SEQUENCE_NUMBER_4,
+                    SEQUENCE_NUMBER_5,
+                    SEQUENCE_NUMBER_6,
+                    ]
+                
+DICT_SEQUENCE_NUMBERS_L1_L2_V_0_0_8_B7 = { 
+                    SEQUENCE_NUMBER_1: None,
+                    SEQUENCE_NUMBER_2: None,
+                    SEQUENCE_NUMBER_3: None,
+                    SEQUENCE_NUMBER_4: None,
+                    SEQUENCE_NUMBER_5: None,
+                    SEQUENCE_NUMBER_6: None,
+                    ORDER_KEY: LIST_SEQUENCE_NUMBERS_L1_L2_V_0_0_8_B7
+                    }
+
+LIST_SEQUENCE_L1_V_0_0_8_B7 = [USER_INPUT]
+
+DICT_SEQUENCE_L1_V_0_0_8_B7 = {
+                    USER_INPUT: DICT_SEQUENCE_NUMBERS_L1_L2_V_0_0_8_B7, 
+                    ORDER_KEY: LIST_SEQUENCE_L1_V_0_0_8_B7
+                    }
+
+LIST_SEQUENCE_LETTER_L1_L1_V_0_0_8_B7 = [
+                    UPPERCASE,
+                    LOWERCASE
+                    ]
+
+DICT_SEQUENCE_LETTER_L1_V_0_0_8_B7 = { 
+                    UPPERCASE: None,
+                    LOWERCASE: None,
+                    ORDER_KEY: LIST_SEQUENCE_LETTER_L1_L1_V_0_0_8_B7
+                    }
+
+LIST_IMAGE_RENAME_L0_V_0_0_8_B7 = [DATE_TIME, TEXT, FILENAME, METADATA, 
+                        DOWNLOAD_SEQ_NUMBER, 
+                        SESSION_SEQ_NUMBER,  
+                        SEQUENCE_LETTER]
+
+DICT_IMAGE_RENAME_L0_V_0_0_8_B7 = {
+                    DATE_TIME: DICT_DATE_TIME_L1,
+                    TEXT: None,
+                    FILENAME: DICT_FILENAME_L1,
+                    METADATA: DICT_METADATA_L1,
+                    DOWNLOAD_SEQ_NUMBER: None,
+                    SESSION_SEQ_NUMBER: None, 
+                    SEQUENCE_LETTER: DICT_SEQUENCE_LETTER_L1_V_0_0_8_B7,
+                    ORDER_KEY: LIST_IMAGE_RENAME_L0_V_0_0_8_B7
+                    }
+
+PREVIOUS_IMAGE_RENAME= {
+                    '0.0.8~b7': DICT_IMAGE_RENAME_L0_V_0_0_8_B7, 
+                    }
+
+
 # Functions to work with above data
+
+def _getPrevPrefs(oldDefs,  previousVersion):
+    k = oldDefs.keys()
+    # if there were other defns, we'd need to figure out which one
+    # but currently, there are no others
+    # there will be in future, and this code wil be updated then
+    return oldDefs[k[0]]
+
+def _upgradePreferencesToCurrent(prefs,  previousVersion):
+    upgraded = False
+    # code to upgrade from <= 0.0.8~b7 to >= 0.0.8~b8
+    for i in range(0,  len(prefs),  3):
+        if prefs[i] in [SEQUENCE_LETTER,  SESSION_SEQ_NUMBER]:
+            upgraded  = True
+            old_v = prefs[i]
+            prefs[i] = SEQUENCES
+            if old_v == SEQUENCE_LETTER:
+                prefs[i+2] = prefs[i+1]
+                prefs[i+1] = SEQUENCE_LETTER
+            else:
+                prefs[i+1] = SESSION_SEQ_NUMBER
+
+    return (upgraded,  prefs)
+    
+    
+def upgradePreferencesToCurrent(imageRenamePrefs,  subfolderPrefs,  previousVersion):
+    """Upgrades user preferences to current version
+    
+    returns True if the preferences were upgraded"""
+    
+    # only check image rename, for now....
+    upgraded,  imageRenamePrefs = _upgradePreferencesToCurrent(imageRenamePrefs,  previousVersion)
+    return (upgraded,  imageRenamePrefs , subfolderPrefs)
+    
+def checkPreferencesForValidity(imageRenamePrefs,  subfolderPrefs,  version=config.version):
+    """Returns true if the passed in preferences are valid"""
+    
+    if version == config.version:
+        try:
+           checkPreferenceValid(DICT_SUBFOLDER_L0, subfolderPrefs)
+           checkPreferenceValid(DICT_IMAGE_RENAME_L0,  imageRenamePrefs)
+        except:
+            return False
+        return True
+    else:
+        defn = _getPrevPrefs(PREVIOUS_IMAGE_RENAME,  version)
+        try:
+            checkPreferenceValid(defn, imageRenamePrefs)
+            checkPreferenceValid(DICT_SUBFOLDER_L0, subfolderPrefs)
+        except:
+            return False
+        return True
+
 def checkPreferenceValid(prefDefinition, prefs, modulo=3):
     """
     Checks to see if prefs are valid according to definition.
@@ -453,7 +571,22 @@ class ImageRenamePreferences:
         """
         
         return checkPreferenceValid(self.prefsDefnL0, self.prefList)
-
+        
+    def formatPreferencesForPrettyPrint(self):
+        """ returns a string useful for printing the preferences"""
+        
+        v = ''
+        
+        for i in range(0,  len(self.prefList),  3):
+            s = "%s: " % self.prefList[i] 
+            if self.prefList[i+1]:
+                s = "%s%s" % (s,  self.prefList[i+1])
+            if self.prefList[i+2]:
+                s = "%s (%s)" % (s,  self.prefList[i+2])
+                                
+            v += s + "\n"
+        return v
+            
 
     def _getDateComponent(self):
         """
@@ -657,7 +790,7 @@ class ImageRenamePreferences:
     def _getDownloadSequenceNo(self):
         problem = None
             
-        v = self._formatSequenceNo(self.sequenceCounter,  self.L1)
+        v = self._formatSequenceNo(self.sequences.getDownloadsTodayUsingCounter(self.sequenceCounter),  self.L2)
         
         return (v, problem)
         
@@ -835,6 +968,21 @@ class ImageRenamePreferences:
         return self.getWidgetsBasedOnUserSelection(self.defaultRow)
 
         
+    
+    def _getSequenceWidgets(self,  widgets,  padding,  value,  getValue):
+            widget1 = ValidatedEntry.ValidatedEntry(ValidatedEntry.bounded(ValidatedEntry.v_int, int, minv=1))
+            if not value:
+                value = getValue()
+            widget1.set_text(str(value))
+            widgets.append(widget1)
+            widget2 = self._createCombo(LIST_SEQUENCE_NUMBERS_L1_L2)
+            if not padding:
+                padding = LIST_SEQUENCE_NUMBERS_L1_L2[2]
+            widget2.set_active(LIST_SEQUENCE_NUMBERS_L1_L2.index(padding))
+            widgets.append(widget2)
+            
+            return widget1,  widget2
+        
     def _getPreferenceWidgets(self, prefDefinition, prefs, widgets):
         key = prefs[0]
         value = prefs[1]
@@ -863,30 +1011,22 @@ class ImageRenamePreferences:
             widgets.append(None)
             return
         elif key == SESSION_SEQ_NUMBER:
-            widget1 = ValidatedEntry.ValidatedEntry(ValidatedEntry.bounded(ValidatedEntry.v_int, int, minv=1))
-            if not value:
-                value = self.sequences.getSessionSequenceNo()
-            widget1.set_text(str(value))
-            widgets.append(widget1)
-            widget2 = self._createCombo(LIST_SEQUENCE_NUMBERS_L1_L2)
-            padding = prefs[2]
-            if not padding:
-                padding = LIST_SEQUENCE_NUMBERS_L1_L2[2]
-            widget2.set_active(LIST_SEQUENCE_NUMBERS_L1_L2.index(padding))
-            widgets.append(widget2)
+            widget1,  widget2 = self._getSequenceWidgets(widgets,  prefs[2], value,  self.sequences.getSessionSequenceNo)
+#            widget1 = ValidatedEntry.ValidatedEntry(ValidatedEntry.bounded(ValidatedEntry.v_int, int, minv=1))
+#            if not value:
+#                value = self.sequences.getSessionSequenceNo()
+#            widget1.set_text(str(value))
+#            widgets.append(widget1)
+#            widget2 = self._createCombo(LIST_SEQUENCE_NUMBERS_L1_L2)
+#            padding = prefs[2]
+#            if not padding:
+#                padding = LIST_SEQUENCE_NUMBERS_L1_L2[2]
+#            widget2.set_active(LIST_SEQUENCE_NUMBERS_L1_L2.index(padding))
+#            widgets.append(widget2)
+        elif key == DOWNLOAD_SEQ_NUMBER:
+            widget1,  widget2 = self._getSequenceWidgets(widgets,  prefs[2], value,  self.sequences.getDownloadsToday)
         elif key == STORED_SEQ_NUMBER:
-            widget1 = ValidatedEntry.ValidatedEntry(ValidatedEntry.bounded(ValidatedEntry.v_int, int, minv=0))
-            print "FIXME: assign a proper initial value for stored sequence number"
-            value = 0
-            widget1.set_text(str(value))
-            widgets.append(widget1)
-            widget2 = self._createCombo(LIST_SEQUENCE_NUMBERS_L1_L2)
-            padding = prefs[2]
-            if not padding:
-                padding = LIST_SEQUENCE_NUMBERS_L1_L2[2]
-                
-            widget2.set_active(LIST_SEQUENCE_NUMBERS_L1_L2.index(padding))
-            widgets.append(widget2)            
+            widget1,  widget2 = self._getSequenceWidgets(widgets,  prefs[2], value,  self.sequences.getStoredSequenceNo)
         elif key == SEPARATOR:
             widgets.append(None)
             widgets.append(None)
@@ -1091,6 +1231,15 @@ class Sequences:
     def setSessionSequenceNo(self,  value):
         self.sessionSequenceNo = value
         
+    def getDownloadsToday(self):
+        return self.downloadsToday + self.assignedSequenceCounter - 1
+    
+    def getStoredSequenceNo(self):
+        return self.storedSequenceNo + self.assignedSequenceCounter - 1
+        
+    def getDownloadsTodayUsingCounter(self,  counter):
+        return self.downloadsToday + counter - 1
+        
     def getSequenceLetterUsingCounter(self,  counter):
         return self.sequenceLetter + counter - 1
         
@@ -1113,6 +1262,9 @@ class SampleSequences(Sequences):
         
     def increment(self,  subfolder):
         pass
+        
+    def getDownloadsToday(self):
+        return 1
         
 if __name__ == '__main__':
     import sys

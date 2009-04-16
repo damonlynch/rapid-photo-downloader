@@ -141,7 +141,16 @@ class Preferences(object):
         return self._prefs[attr].default        
     
     def __setattr__(self, attr, val):
+        print "\n\n"
         value = self._prefs[attr]
+        print "VC:", value.current
+        print "VAL:",  val
+        print "\n\n"
+        
+        print locals()
+        
+        print "\n\n"
+        
         if value.current != val:
             value.current = val
             value.setfunc(self._gconf, self._rootkey, attr)
