@@ -392,20 +392,31 @@ def _getPrevPrefs(oldDefs,  previousVersion):
     return oldDefs[k[0]]
 
 def _upgradePreferencesToCurrent(prefs,  previousVersion):
+    """ checks to see if preferences should be upgraded
+    
+    returns True if they were upgraded, and the new prefs
+    
+    VERY IMPORTANT: this will be a new list, not an inplace modification
+    of the existing preferences! Otherwise, the check on assignment will not work!!
+    """
     upgraded = False
     # code to upgrade from <= 0.0.8~b7 to >= 0.0.8~b8
+    p = []
     for i in range(0,  len(prefs),  3):
         if prefs[i] in [SEQUENCE_LETTER,  SESSION_SEQ_NUMBER]:
             upgraded  = True
-            old_v = prefs[i]
-            prefs[i] = SEQUENCES
-            if old_v == SEQUENCE_LETTER:
-                prefs[i+2] = prefs[i+1]
-                prefs[i+1] = SEQUENCE_LETTER
+            p.append(SEQUENCES)
+            if prefs[i] == SEQUENCE_LETTER:
+                p.append(SEQUENCE_LETTER)
+                p.append(prefs[i+1])
             else:
-                prefs[i+1] = SESSION_SEQ_NUMBER
-
-    return (upgraded,  prefs)
+                p.append(SESSION_SEQ_NUMBER)
+                p.append(prefs[i+2])
+        else:
+            p += prefs[i:i+3]
+    
+    assert(len(prefs)==len(p))
+    return (upgraded,  p)
     
     
 def upgradePreferencesToCurrent(imageRenamePrefs,  subfolderPrefs,  previousVersion):

@@ -1610,25 +1610,11 @@ class RapidApp(gnomeglade.GnomeApp):
         self.prefs = RapidPreferences()
         self.prefs.notify_add(self.on_preference_changed)
         
-        self.prefs.program_version = '0.0.8~b7'
+        self.testing = True
+        if self.testing:
+            self.setTestingEnv()
 
-        
-        r = ['Date time', 'Image date', 'YYYYMMDD', 'Text', '-', '', 'Date time', 'Image date', 'HHMM', 'Text', '-', '', 'Session sequence number', '1', 'Three digits', 'Text', '-iso', '', 'Metadata', 'ISO', '', 'Text', '-f', '', 'Metadata', 'Aperture', '', 'Text', '-', '', 'Metadata', 'Focal length', '', 'Text', 'mm-', '', 'Metadata', 'Exposure time', '', 'Filename', 'Extension', 'lowercase']
-        self.prefs.image_rename = r
-        
-        r = ['Date time', 'Image date', 'YYYYMMDD', 'Text', '-', '', 'Date time', 'Image date', 'HHMM', 'Text', '-', '', 'Sequences', 'Session sequence number', 'Three digits', 'Text', '-iso', '', 'Metadata', 'ISO', '', 'Text', '-f', '', 'Metadata', 'Aperture', '', 'Text', '-', '', 'Metadata', 'Focal length', '', 'Text', 'mm-', '', 'Metadata', 'Exposure time', '', 'Filename', 'Extension', 'lowercase']
-
-#        self.prefs.image_rename = r
-
-        displayPreferences,  upgraded,  imageRename,  subfolder = self.checkForUpgrade(__version__)
-        if upgraded:
-            print "upgraded: YES"
-#            assert(r==imageRename)
-
-#            self.prefs.image_rename = []
-            self.prefs.image_rename = imageRename
-            
-        sys.exit(1)
+        displayPreferences = self.checkForUpgrade(__version__)
         self.prefs.program_version = __version__
         
         self._resetDownloadInfo()
@@ -1715,11 +1701,18 @@ class RapidApp(gnomeglade.GnomeApp):
         
         self.download_button.grab_focus()
         
-#        if displayPreferences:
-#            PreferencesDialog(self)
-#        elif self.prefs.auto_download_at_startup:
-#            self.startDownload()
+        if displayPreferences:
+            PreferencesDialog(self)
+        elif self.prefs.auto_download_at_startup:
+            self.startDownload()
 
+    
+    def setTestingEnv(self):
+        self.prefs.program_version = '0.0.8~b7'
+        r = ['Date time', 'Image date', 'YYYYMMDD', 'Text', '-', '', 'Date time', 'Image date', 'HHMM', 'Text', '-', '', 'Session sequence number', '1', 'Three digits', 'Text', '-iso', '', 'Metadata', 'ISO', '', 'Text', '-f', '', 'Metadata', 'Aperture', '', 'Text', '-', '', 'Metadata', 'Focal length', '', 'Text', 'mm-', '', 'Metadata', 'Exposure time', '', 'Filename', 'Extension', 'lowercase']
+        self.prefs.image_rename = r
+        r = ['Date time', 'Image date', 'YYYYMMDD', 'Text', '-', '', 'Date time', 'Image date', 'HHMM', 'Text', '-', '', 'Sequences', 'Session sequence number', 'Three digits', 'Text', '-iso', '', 'Metadata', 'ISO', '', 'Text', '-f', '', 'Metadata', 'Aperture', '', 'Text', '-', '', 'Metadata', 'Focal length', '', 'Text', 'mm-', '', 'Metadata', 'Exposure time', '', 'Filename', 'Extension', 'lowercase']
+        
     
     def checkForUpgrade(self,  runningVersion):
         """ Checks if the running version of the program is different from the version recorded in the preferences.
@@ -1756,12 +1749,11 @@ class RapidApp(gnomeglade.GnomeApp):
 #                if rn.checkPreferencesForValidity(self.prefs.image_rename,  self.prefs.subfolder,  previousVersion):
                     upgraded,  imageRename,  subfolder = rn.upgradePreferencesToCurrent(self.prefs.image_rename,  self.prefs.subfolder,  previousVersion)
                     if upgraded:
-#                        print "image rename:",  imageRename
-#                        self.prefs.image_rename = imageRename
-#                        self.prefs.subfolder = subfolder
+                        self.prefs.image_rename = imageRename
+                        self.prefs.subfolder = subfolder
                         print "Preferences were modified."
                         msg = 'This version of the program uses different preferences than the old version. Your preferences have been updated.\n\nPlease check them to ensure correct operation.'
-#                        misc.run_dialog(title,  msg)
+                        misc.run_dialog(title,  msg)
                         displayPrefs = True
                     else:
                         print "No preferences needed to be changed."
@@ -1770,7 +1762,8 @@ class RapidApp(gnomeglade.GnomeApp):
                     misc.run_dialog(title,  msg)
                     displayPrefs = True
                 
-        return (displayPrefs,  upgraded,  imageRename,  subfolder)
+#        return (displayPrefs,  upgraded,  imageRename,  subfolder)
+        return displayPrefs
 
     def initPyNotify(self):
         if not pynotify.init("TestCaps"):
@@ -2232,8 +2225,8 @@ class RapidApp(gnomeglade.GnomeApp):
             self.pauseDownload()
             
     def on_preference_changed(self, key, value):
-#        print key,  value
-        print "on_preference_changed",  key,  value
+#        if self.testing:
+#            print "on_preference_changed",  key,  value
         
         if key == 'display_thumbnails':
             self.set_display_thumbnails(value)
