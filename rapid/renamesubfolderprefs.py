@@ -742,7 +742,7 @@ class ImageRenamePreferences:
 
 
     def _formatSequenceNo(self,  value,  amountToPad):
-        padding = LIST_SEQUENCE_NUMBERS_L1_L2.index(amountToPad) + 1
+        padding = LIST_SEQUENCE_NUMBERS_L2.index(amountToPad) + 1
         formatter = '%0' + str(padding) + "i"
         return formatter % value
 

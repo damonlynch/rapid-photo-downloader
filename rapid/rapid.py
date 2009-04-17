@@ -293,15 +293,6 @@ class RapidPreferences(prefs.Preferences):
                 date = today()
             self.downloads_today = [date,  str(value)]
             
-    def resetSessionSequencePrefs(self,  value):
-        """ Resets the value that is recorded in the preferences
-        
-        This is ultimately displayed to the user when they adjust image renaming preferences"""
-        pass
-#        modulo = 3
-#        for i in range(0, len(self.image_rename),  modulo):
-#            if self.image_rename[i] == rn.SESSION_SEQ_NUMBER:
-#                    self.image_rename[i+1] = str(value)
 
 
 class ImageRenameTable(tpm.TablePlusMinus):
@@ -349,20 +340,7 @@ class ImageRenameTable(tpm.TablePlusMinus):
             
     def updatePreferences(self):
         prefList = []
-        for row in self.pm_rows:
-            # check to see if there are any sequence values that we need to extract
-            widget = row[0]
-            if widget.get_name() == 'GtkComboBox':
-                if widget.get_active_text() == rn.SESSION_SEQ_NUMBER:
-                    s = row[1].get_text()
-                    if s:
-                        i = int(s)
-                    else:
-                        i = 0
-                    sequences.setSessionSequenceNo(i)
-            else:
-                print "Unexpected preference value: was expecting a combo box!"
-                
+        for row in self.pm_rows:                
             for col in range(self.pm_noColumns):
                 widget = row[col]
                 if widget:
@@ -481,7 +459,6 @@ class PreferencesDialog(gnomeglade.Component):
                                     "preferencesdialog")
         
         self.widget.set_transient_for(parentApp.widget)
-        parentApp.prefs.resetSessionSequencePrefs(sequences.getSessionSequenceNo())
         self.prefs = parentApp.prefs
 
 #        self._setupTabSelector()
@@ -1642,7 +1619,6 @@ class RapidApp(gnomeglade.GnomeApp):
         if downloadsToday < 0:
             self.prefs.setDownloadsToday(today(),  0)
         sequences = rn.Sequences(self.prefs.getDownloadsToday(),  self.prefs.stored_sequence_no)
-        self.prefs.resetSessionSequencePrefs(sequences.getSessionSequenceNo())
         
         self.downloadStats = DownloadStats()
 
