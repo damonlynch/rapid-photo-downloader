@@ -1617,6 +1617,7 @@ class RapidApp(gnomeglade.GnomeApp):
         displayPreferences = self.checkForUpgrade(__version__)
         self.prefs.program_version = __version__
         
+
         self._resetDownloadInfo()
         self.statusbar_context_id = self.rapid_statusbar.get_context_id("progress")
         

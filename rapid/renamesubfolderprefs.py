@@ -265,8 +265,8 @@ LIST_SEQUENCE_L1 = [
                     ]
                     
 DICT_SEQUENCE_L1 = {
-                    DOWNLOAD_SEQ_NUMBER: LIST_SEQUENCE_NUMBERS_L2 , 
-                    SESSION_SEQ_NUMBER: LIST_SEQUENCE_NUMBERS_L2 , 
+                    DOWNLOAD_SEQ_NUMBER: LIST_SEQUENCE_NUMBERS_L2, 
+                    SESSION_SEQ_NUMBER: LIST_SEQUENCE_NUMBERS_L2, 
                     SEQUENCE_LETTER: LIST_SEQUENCE_LETTER_L2, 
                     ORDER_KEY: LIST_SEQUENCE_L1
                     }
@@ -398,8 +398,9 @@ def _upgradePreferencesToCurrent(prefs,  previousVersion):
     
     returns True if they were upgraded, and the new prefs
     
-    VERY IMPORTANT: the new prefs will be a new list, not an inplace modification
-    of the existing preferences! Otherwise, the check on assignment in the prefs.py __setattr__ will not work as expected!!
+    VERY IMPORTANT: the new prefs will be a new list, not an inplace 
+    modification of the existing preferences! Otherwise, the check on 
+    assignment in the prefs.py __setattr__ will not work as expected!!
     """
     upgraded = False
     # code to upgrade from <= 0.0.8~b7 to >= 0.0.8~b8
@@ -763,7 +764,7 @@ class ImageRenamePreferences:
             
         
         v = _letters(sequence)
-        if self.L1 == UPPERCASE:
+        if self.L2 == UPPERCASE:
             v = v.upper()
         
         return v
