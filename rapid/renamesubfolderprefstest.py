@@ -36,13 +36,21 @@ class PreferenceTest (unittest.TestCase):
                             )
                             
     trueMetadataTest = ([FILENAME,  EXTENSION, LOWERCASE,  TEXT,  '', '',  METADATA,  APERTURE,  ''],  [METADATA,  APERTURE,  '',  TEXT,  '', '',  FILENAME,  EXTENSION, LOWERCASE],  )
+    
     falseMetadataTest = ([FILENAME,  EXTENSION, LOWERCASE,  METADATA,  APERTURE,  '',  FILENAME,  NAME, LOWERCASE], 
                         [FILENAME,  NAME, LOWERCASE,  FILENAME,  EXTENSION, LOWERCASE], 
                         [FILENAME,  NAME_EXTENSION, LOWERCASE,  FILENAME,  EXTENSION, LOWERCASE], 
                         [FILENAME,  NAME, LOWERCASE,  FILENAME,  METADATA,  EXPOSURE_TIME,  '',  IMAGE_NUMBER, IMAGE_NUMBER_ALL,  FILENAME,  EXTENSION, LOWERCASE], )
+                        
+    sequences_test = (['Date time', 'Image date', 'YYYYMMDD', 'Text', '-', '', 'Date time', 'Image date', 'HHMM', 'Text', '-', '', 'Sequences', 'Session sequence number', 'Three digits', 'Text', '-iso', '', 'Metadata', 'ISO', '', 'Text', '-f', '', 'Metadata', 'Aperture', '', 'Text', '-', '', 'Metadata', 'Focal length', '', 'Text', 'mm-', '', 'Metadata', 'Exposure time', '', 'Filename', 'Extension', 'lowercase'])
                 
     def testPrefImageList(self):
         for pref in self.image_test:
+            result = checkPreferenceValid(DICT_IMAGE_RENAME_L0, pref)
+            self.assertEqual(result, True)
+
+    def testSequencesList(self):
+        for pref in self.sequences_test:
             result = checkPreferenceValid(DICT_IMAGE_RENAME_L0, pref)
             self.assertEqual(result, True)
 

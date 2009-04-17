@@ -1610,7 +1610,7 @@ class RapidApp(gnomeglade.GnomeApp):
         self.prefs = RapidPreferences()
         self.prefs.notify_add(self.on_preference_changed)
         
-        self.testing = True
+        self.testing = False
         if self.testing:
             self.setTestingEnv()
 
@@ -1731,7 +1731,6 @@ class RapidApp(gnomeglade.GnomeApp):
         
         if pv != rv:
             if pv > rv:
-                
                 prefsOk = rn.checkPreferencesForValidity(self.prefs.image_rename,  self.prefs.subfolder)
                     
                 msg = "A newer version of this program was previously run on this computer.\n\n"
@@ -1741,8 +1740,8 @@ class RapidApp(gnomeglade.GnomeApp):
                     msg += "Sorry, some preferences are invalid and will be reset."
                 print "Warning: %s" % msg
                 misc.run_dialog(title, msg)
-                
                 displayPrefs = True
+            
             else:
                 print "This version of the program is newer than the previously run version. Checking preferences."
                 if True:
@@ -1758,11 +1757,10 @@ class RapidApp(gnomeglade.GnomeApp):
                     else:
                         print "No preferences needed to be changed."
                 else:
-                    msg = 'This version of the program uses different preferences than the old version. Your previous preferences were invalid, and could not be updated. They will be reset.'
+                    msg = 'This version of the program uses different preferences than the old version. Some of your previous preferences were invalid, and could not be updated. They will be reset.'
                     misc.run_dialog(title,  msg)
                     displayPrefs = True
-                
-#        return (displayPrefs,  upgraded,  imageRename,  subfolder)
+
         return displayPrefs
 
     def initPyNotify(self):
