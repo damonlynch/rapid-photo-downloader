@@ -486,15 +486,7 @@ def _checkPreferenceValid(prefDefinition, prefs):
 
         if nextPrefDefinition and not value:
             raise PrefValueInvalidError((value, nextPrefDefinition))
-            
-        if key == SESSION_SEQ_NUMBER:
-            try:
-                i = int(value)
-            except:
-                raise PrefValueInvalidError((value,  None))
-            if i <= 0:
-                raise PrefValueInvalidError((value,  None))
-            
+                    
         if type(nextPrefDefinition) == type({}):
             return _checkPreferenceValid(nextPrefDefinition, prefs[1:])
         else:
@@ -1278,38 +1270,42 @@ if __name__ == '__main__':
     import sys
     import os.path
     from metadata import MetaData
-    
-    if (len(sys.argv) != 2):
-        print 'Usage: ' + sys.argv[0] + ' path/to/photo/containing/metadata'
-        sys.exit(1)
-    else:
-        p0 = [FILENAME, NAME_EXTENSION, ORIGINAL_CASE]
-        p1 = [FILENAME, NAME_EXTENSION, LOWERCASE]
-        p2 = [METADATA, APERTURE, None]
-        p3 = [FILENAME, IMAGE_NUMBER, IMAGE_NUMBER_ALL]
-        p4 = [METADATA, CAMERA_MODEL, ORIGINAL_CASE]
-        p5 = [TEXT, '-', None]
-        p6 = [TEXT, 'Job', None]
-        
-        p = [p0, p1, p2, p3, p4]
-        p = [p6 + p5 + p2 + p5 + p3]
-        
-        d0 = [DATE_TIME,  IMAGE_DATE,  'YYYYMMDD']
-        d1 = [DATE_TIME,  IMAGE_DATE,  'HHMMSS']
-        d2 = [DATE_TIME,  IMAGE_DATE,  SUBSECONDS]
-        
-        d = [d0 + d1 + d2]
-        
-        fullpath = sys.argv[1]
-        path, filename = os.path.split(fullpath)
-        
-        m = MetaData(fullpath)
-        m.readMetadata()
-            
-        for pref in p:
-            i = ImageRenamePreferences(pref,  None)
-            print i.generateNameUsingPreferences(m, filename)
 
-        for pref in d:
-            i = ImageRenamePreferences(pref,  None)
-            print i.generateNameUsingPreferences(m, filename)
+    if False:
+        if (len(sys.argv) != 2):
+            print 'Usage: ' + sys.argv[0] + ' path/to/photo/containing/metadata'
+            sys.exit(1)
+        else:
+            p0 = [FILENAME, NAME_EXTENSION, ORIGINAL_CASE]
+            p1 = [FILENAME, NAME_EXTENSION, LOWERCASE]
+            p2 = [METADATA, APERTURE, None]
+            p3 = [FILENAME, IMAGE_NUMBER, IMAGE_NUMBER_ALL]
+            p4 = [METADATA, CAMERA_MODEL, ORIGINAL_CASE]
+            p5 = [TEXT, '-', None]
+            p6 = [TEXT, 'Job', None]
+            
+            p = [p0, p1, p2, p3, p4]
+            p = [p6 + p5 + p2 + p5 + p3]
+            
+            d0 = [DATE_TIME,  IMAGE_DATE,  'YYYYMMDD']
+            d1 = [DATE_TIME,  IMAGE_DATE,  'HHMMSS']
+            d2 = [DATE_TIME,  IMAGE_DATE,  SUBSECONDS]
+            
+            d = [d0 + d1 + d2]
+            
+            fullpath = sys.argv[1]
+            path, filename = os.path.split(fullpath)
+            
+            m = MetaData(fullpath)
+            m.readMetadata()
+                
+            for pref in p:
+                i = ImageRenamePreferences(pref,  None)
+                print i.generateNameUsingPreferences(m, filename)
+
+            for pref in d:
+                i = ImageRenamePreferences(pref,  None)
+                print i.generateNameUsingPreferences(m, filename)
+    else:
+        prefs = [SEQUENCES,  SESSION_SEQ_NUMBER,  SEQUENCE_NUMBER_3]
+        print checkPreferenceValid(DICT_IMAGE_RENAME_L0,  prefs)
