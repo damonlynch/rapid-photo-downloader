@@ -10,12 +10,9 @@ For initial release (0.10.0):
 * indicate different levels of error better in log window
 * sum amount of images to be downloaded, and how much free space on the file system
 * highlight image thumbnail with colour / text to indicate a problem / success
-* check to see if preferences are valid before starting download
 * check to see if preferences are valid when clicking close on preferences dialog
-* alert user via dialog when preferences are invalid
-  - on starting of download (give user option to change preferences)
-  - on entering preferences dialog
-  - on closing preferences dialog
+* check to see if preferences are valid when starting the application
+* check download locations and sources still valid when starting the application
 * rework checkPrefsForValidity() to account for multiple subfolder problems
 * make sure it is the only instance running - use gnome / dbus to check this
 
@@ -28,11 +25,8 @@ For future releases:
 * Make download time remaing algorithm more intelligent
 * Get more metadata
   - lens
-  - Serial number from high-end Canons
-  - Shutter count from high-end Canon and Nikons
 * User defined camera model mapping
 * Job codes
-* click on warning / error images to open log window
 * use python's high performance deque to improve idletube
 
 

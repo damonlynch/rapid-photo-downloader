@@ -515,27 +515,27 @@ class PrefError(Exception):
         return s[:-2]
 
     def __str__(self): 
-        return self.message
+        return self.msg
         
 class PrefKeyError(PrefError):
     def __init__(self, error):
         value = error[0]
         expectedValues = self.unpackList(error[1])
-        self.message = "Preference key '%s' is invalid.\nExpected one of %s" % (value, expectedValues)
+        self.msg = "Preference key '%s' is invalid.\nExpected one of %s" % (value, expectedValues)
 
 
 class PrefValueInvalidError(PrefKeyError):
     def __init__(self, error):
         value = error[0]
-        self.message = "Preference value '%s' is invalid" % (value)
+        self.msg = "Preference value '%s' is invalid" % (value)
         
 class PrefLengthError(PrefError):
     def __init__(self, error):
-        self.message = "These preferences are not well formed:\n %s" % self.unpackList(error)
+        self.msg = "These preferences are not well formed:\n %s" % self.unpackList(error)
         
 class PrefValueKeyComboError(PrefError):
     def __init__(self, error):    
-        self.message = error
+        self.msg = error
 
 
 def convertDateForStrftime(dateTimeUserChoice):

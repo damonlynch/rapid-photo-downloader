@@ -25,6 +25,9 @@ memory cards) are present.
 
 Resize main window when an image device is inserted.
 
+Do not proceed with download if there is an error in the image rename or
+download subfolder preferences. Instead, indicate a download error.
+
 Version 0.0.8 beta 7
 --------------------
 

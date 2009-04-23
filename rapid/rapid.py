@@ -312,7 +312,7 @@ class ImageRenameTable(tpm.TablePlusMinus):
             self.prefsFactory.checkPrefsForValidity()
             
         except (rn.PrefValueInvalidError, rn.PrefLengthError, 
-                rn.PrefValueKeyComboError,  rn.PrefKeyError) as msg:
+                rn.PrefValueKeyComboError,  rn.PrefKeyError),  e:
 
             print self.errorTitle 
             print "Sorry,these preferences contain an error:"
@@ -325,17 +325,13 @@ class ImageRenameTable(tpm.TablePlusMinus):
             self.getPrefsFactory()
             self.updateParentAppPrefs()
 
-#            msg = inst.message + ".\nResetting to default values."
-#            print msg
+            msg = "%s.\nResetting to default values." % e
+            print msg
             
-            print msg.args
-            print "Resetting to default values."
             
-#            print msg
-            
-#            misc.run_dialog(self.errorTitle, msg, 
-#                parentApp,
-#                gtk.MESSAGE_ERROR)
+            misc.run_dialog(self.errorTitle, msg, 
+                parentApp,
+                gtk.MESSAGE_ERROR)
         
         for row in self.prefsFactory.getWidgetsBasedOnPreferences():
             self.append(row)
@@ -904,7 +900,12 @@ class CopyPhotos(Thread):
         name, root, size,  modificationTime = self.cardMedia.firstImage()
         return root, name
         
-    
+    def handlePreferencesError(self,  e,  prefsFactory):
+            print "Sorry,these preferences contain an error:"
+            print prefsFactory.formatPreferencesForPrettyPrint()
+            msg = str(e)
+            print msg
+        
     def initializeFromPrefs(self):
         """
         Setup thread so that user preferences are handled
@@ -915,11 +916,18 @@ class CopyPhotos(Thread):
                                                                  self.fileSequenceLock, sequences)
         try:
             self.imageRenamePrefsFactory.checkPrefsForValidity()
-        except (PrefKeyError, PrefValueInvalidError,  PrefLengthError,  PrefValueKeyComboError), inst:
-            print inst.message
+        except (rn.PrefValueInvalidError, rn.PrefLengthError, 
+                rn.PrefValueKeyComboError,  rn.PrefKeyError), e:
+            self.handlePreferencesError(e, self.imageRenamePrefsFactory)
+            raise rn.PrefError
             
-        self.subfolderPrefsFactory = rn.SubfolderPreferences(
+        try:
+            self.subfolderPrefsFactory = rn.SubfolderPreferences(
                                                 self.prefs.subfolder, self)    
+        except (rn.PrefValueInvalidError, rn.PrefLengthError, 
+                rn.PrefValueKeyComboError,  rn.PrefKeyError), e:
+            self.handlePreferencesError(e, self.imageRenamePrefsFactory)
+            raise rn.PrefError
                                                 
         # copy this variable, as it is used heavily in the loop
         # and it is relatively expensive to read
@@ -1252,7 +1260,13 @@ class CopyPhotos(Thread):
 
         display_queue.open('w')
         
-        self.initializeFromPrefs()
+        try:
+            self.initializeFromPrefs()
+        except rn.PrefError:
+            logError(config.CRITICAL_ERROR, "Download cannot proceed", "There is an error in the program preferences.\nPlease check preferences, restart the program, and try again.")
+            display_queue.close("rw")
+            return
+            
         
         # Some images may not have metadata (this
         # is unlikely for images straight out of a 
