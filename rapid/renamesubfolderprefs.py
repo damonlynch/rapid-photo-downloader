@@ -514,6 +514,8 @@ class PrefError(Exception):
                 s += "'" + i + "', "
         return s[:-2]
 
+    def __str__(self): 
+        return self.message
         
 class PrefKeyError(PrefError):
     def __init__(self, error):

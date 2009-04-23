@@ -20,6 +20,10 @@ more helpful information is printed to the console output.
 Add feature to detect change in program version, upgrading preferences where
 necessary.
 
+Properly size window on program startup when more than 2 image devices (e.g. 
+memory cards) are present.
+
+Resize main window when an image device is inserted.
 
 Version 0.0.8 beta 7
 --------------------

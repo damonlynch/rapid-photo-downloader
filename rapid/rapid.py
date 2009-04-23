@@ -312,7 +312,7 @@ class ImageRenameTable(tpm.TablePlusMinus):
             self.prefsFactory.checkPrefsForValidity()
             
         except (rn.PrefValueInvalidError, rn.PrefLengthError, 
-                rn.PrefValueKeyComboError,  rn.PrefKeyError), inst:
+                rn.PrefValueKeyComboError,  rn.PrefKeyError) as msg:
 
             print self.errorTitle 
             print "Sorry,these preferences contain an error:"
@@ -325,12 +325,17 @@ class ImageRenameTable(tpm.TablePlusMinus):
             self.getPrefsFactory()
             self.updateParentAppPrefs()
 
-            msg = inst.message + ".\nResetting to default values."
-            print msg
+#            msg = inst.message + ".\nResetting to default values."
+#            print msg
             
-            misc.run_dialog(self.errorTitle, msg, 
-                parentApp,
-                gtk.MESSAGE_ERROR)
+            print msg.args
+            print "Resetting to default values."
+            
+#            print msg
+            
+#            misc.run_dialog(self.errorTitle, msg, 
+#                parentApp,
+#                gtk.MESSAGE_ERROR)
         
         for row in self.prefsFactory.getWidgetsBasedOnPreferences():
             self.append(row)
@@ -1427,6 +1432,15 @@ class MediaTreeView(gtk.TreeView):
         
         self._setThreadMap(thread_id, iter)
         
+        # adjust scrolled window height, based on row height and number of ready to start downloads
+        if workers.noReadyToStartWorkers() >= 2:
+            # please note, at program startup, self.rowHeight() will be less than it will be when already running
+            # e.g. when starting with 3 cards, it could be 18, but when adding 2 cards to the already running program
+            # (with one card at startup), it could be 21
+            height = (workers.noReadyToStartWorkers() + 2) * (self.rowHeight())
+            self.parentApp.scrolledwindow1.set_size_request(-1,  height)
+
+        
     def removeCard(self, thread_id):
         iter = self._getThreadMap(thread_id)
         self.liststore.remove(iter)
@@ -1461,6 +1475,15 @@ class MediaTreeView(gtk.TreeView):
         self.parentApp.updateOverallProgress(thread_id, imageSize,  percentComplete)
         
 
+    def rowHeight(self):
+        if not self.mapThreadToRow:
+            return 0
+        else:
+            path = self.mapThreadToRow[0].get_path()
+            col = self.get_column(0)
+#        print self.get_background_area(path, col)
+#        print self.get_cell_area(path,  col)
+            return self.get_background_area(path, col)[3]
 
 class ImageHBox(gtk.HBox):
     """
@@ -1590,6 +1613,10 @@ class RapidApp(gnomeglade.GnomeApp):
         self.testing = False
         if self.testing:
             self.setTestingEnv()
+            
+#        sys.exit(0)
+
+        self.widget.show()
 
         displayPreferences = self.checkForUpgrade(__version__)
         self.prefs.program_version = __version__
@@ -1667,14 +1694,15 @@ class RapidApp(gnomeglade.GnomeApp):
         self.menu_clear.set_sensitive(False)
         
         self.download_folders_display_label.hide()
-        self.widget.show()
+
         
         self.setupAvailableImageAndBackupMedia()
 
         #adjust viewport size for displaying media
-        # FIXME: adjust based on actual size, not a wild guess
-        height= workers.noReadyToStartWorkers() * 24 + 29 
-        self.media_collection_viewport.set_size_request(-1, height)
+        #this is important because the code in MediaTreeView.addCard() is inaccurate at program startup
+        
+        height = self.media_collection_viewport.size_request()[1]
+        self.scrolledwindow1.set_size_request(-1,  height)
         
         self.download_button.grab_focus()
         
