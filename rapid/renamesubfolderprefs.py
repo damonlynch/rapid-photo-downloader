@@ -102,9 +102,9 @@ OWNER_NAME = 'Owner name'
 
 #Image sequences
 DOWNLOAD_SEQ_NUMBER = 'Downloads today'
-SESSION_SEQ_NUMBER = 'Session sequence number'
-SUBFOLDER_SEQ_NUMBER = 'Subfolder sequence number'
-STORED_SEQ_NUMBER = 'Stored sequence number'
+SESSION_SEQ_NUMBER = 'Session number'
+SUBFOLDER_SEQ_NUMBER = 'Subfolder number'
+STORED_SEQ_NUMBER = 'Stored number'
 
 SEQUENCE_LETTER = 'Sequence letter'
 
@@ -172,11 +172,6 @@ LIST_SEQUENCE_LETTER_L2 = [
                     ]
                 
 
-#DICT_SEQUENCE_LETTER_L2 = { 
-#                    UPPERCASE: None,
-#                    LOWERCASE: None,
-#                    ORDER_KEY: LIST_SEQUENCE_LETTER_L2
-#                    }
 
 LIST_SEQUENCE_NUMBERS_L2 = [
                     SEQUENCE_NUMBER_1,
@@ -187,15 +182,7 @@ LIST_SEQUENCE_NUMBERS_L2 = [
                     SEQUENCE_NUMBER_6,
                     ]
                 
-#DICT_SEQUENCE_NUMBERS_L2 = { 
-#                    SEQUENCE_NUMBER_1: None,
-#                    SEQUENCE_NUMBER_2: None,
-#                    SEQUENCE_NUMBER_3: None,
-#                    SEQUENCE_NUMBER_4: None,
-#                    SEQUENCE_NUMBER_5: None,
-#                    SEQUENCE_NUMBER_6: None,
-#                    ORDER_KEY: LIST_SEQUENCE_NUMBERS_L2
-#                    }
+
 
 LIST_SHUTTER_COUNT_L2 = [
                      SEQUENCE_NUMBER_3, 
@@ -326,6 +313,12 @@ DYNAMIC_NON_METADATA_ELEMENTS = [
 
 USER_INPUT = 'User'
 
+DOWNLOAD_SEQ_NUMBER_V_0_0_8_B7 = 'Downloads today'
+SESSION_SEQ_NUMBER_V_0_0_8_B7 = 'Session sequence number'
+SUBFOLDER_SEQ_NUMBER_V_0_0_8_B7 = 'Subfolder sequence number'
+STORED_SEQ_NUMBER_V_0_0_8_B7 = 'Stored sequence number'
+SEQUENCE_LETTER_V_0_0_8_B7 = 'Sequence letter'
+
 LIST_SEQUENCE_NUMBERS_L1_L2_V_0_0_8_B7 = [
                     SEQUENCE_NUMBER_1,
                     SEQUENCE_NUMBER_2,
@@ -364,18 +357,18 @@ DICT_SEQUENCE_LETTER_L1_V_0_0_8_B7 = {
                     }
 
 LIST_IMAGE_RENAME_L0_V_0_0_8_B7 = [DATE_TIME, TEXT, FILENAME, METADATA, 
-                        DOWNLOAD_SEQ_NUMBER, 
-                        SESSION_SEQ_NUMBER,  
-                        SEQUENCE_LETTER]
+                        DOWNLOAD_SEQ_NUMBER_V_0_0_8_B7, 
+                        SESSION_SEQ_NUMBER_V_0_0_8_B7,  
+                        SEQUENCE_LETTER_V_0_0_8_B7]
 
 DICT_IMAGE_RENAME_L0_V_0_0_8_B7 = {
                     DATE_TIME: DICT_DATE_TIME_L1,
                     TEXT: None,
                     FILENAME: DICT_FILENAME_L1,
                     METADATA: DICT_METADATA_L1,
-                    DOWNLOAD_SEQ_NUMBER: None,
-                    SESSION_SEQ_NUMBER: None, 
-                    SEQUENCE_LETTER: DICT_SEQUENCE_LETTER_L1_V_0_0_8_B7,
+                    DOWNLOAD_SEQ_NUMBER_V_0_0_8_B7: None,
+                    SESSION_SEQ_NUMBER_V_0_0_8_B7: None, 
+                    SEQUENCE_LETTER_V_0_0_8_B7: DICT_SEQUENCE_LETTER_L1_V_0_0_8_B7,
                     ORDER_KEY: LIST_IMAGE_RENAME_L0_V_0_0_8_B7
                     }
 
@@ -406,10 +399,10 @@ def _upgradePreferencesToCurrent(prefs,  previousVersion):
     # code to upgrade from <= 0.0.8~b7 to >= 0.0.8~b8
     p = []
     for i in range(0,  len(prefs),  3):
-        if prefs[i] in [SEQUENCE_LETTER,  SESSION_SEQ_NUMBER]:
+        if prefs[i] in [SEQUENCE_LETTER_V_0_0_8_B7,  SESSION_SEQ_NUMBER_V_0_0_8_B7]:
             upgraded  = True
             p.append(SEQUENCES)
-            if prefs[i] == SEQUENCE_LETTER:
+            if prefs[i] == SEQUENCE_LETTER_V_0_0_8_B7:
                 p.append(SEQUENCE_LETTER)
                 p.append(prefs[i+1])
             else:

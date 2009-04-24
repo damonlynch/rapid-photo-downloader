@@ -7,8 +7,8 @@ Added downloads today sequence number.
 
 Simplified sequence number/letter selection in preferences.
 
-Bug fix: better handle automated shortening names like 'Canon 5D Mark II'. It is
-now shortened to '5DMkII' instead of merely '5D'.
+Bug fix: better handle automated shortening Canon names like 'Canon 5D Mark II'.
+It is now shortened to '5DMkII' instead of merely '5D'.
 
 Bug fix: reenable example of image renaming and subfolder name generation by
 using first image from the first available download device. This was
