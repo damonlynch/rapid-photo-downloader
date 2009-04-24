@@ -18,8 +18,14 @@
 ### Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 import re
-import pyexiv2
 import datetime
+import pyexiv2
+#only pyexiv2 0.1.2 and 0.1.3 use the "Rational" class 
+if 'Rational' in dir(pyexiv2):
+    usesRational = True
+else:
+    usesRational = False
+
 
 class MetaData(pyexiv2.Image):
     """
@@ -32,9 +38,13 @@ class MetaData(pyexiv2.Image):
         
         Returns missing if the metadata value is not present.
         """
+        
         try:
-            a = self["Exif.Photo.FNumber"]
-            a0,  a1 = str(a).split('/')
+            if  usesRational:
+                a = self["Exif.Photo.FNumber"]
+                a0,  a1 = str(a).split('/')
+            else:
+                a0, a1 = self["Exif.Photo.FNumber"]
             a = float(a0) / float(a1)
             return "%.1f" % a
         except:
@@ -77,11 +87,13 @@ class MetaData(pyexiv2.Image):
         """
 
         try:
-            e = str(self["Exif.Photo.ExposureTime"])
-            
-            e0,  e1 = e.split('/')
-            e0 = int(e0)
-            e1 = int(e1)
+            if usesRational:
+                e = str(self["Exif.Photo.ExposureTime"])
+                e0,  e1 = e.split('/')
+                e0 = int(e0)
+                e1 = int(e1)
+            else:
+                e0, e1 = self["Exif.Photo.ExposureTime"]
             
             if e1 > e0:
                 if alternativeFormat:
@@ -109,13 +121,18 @@ class MetaData(pyexiv2.Image):
         Returns missing if the metadata value is not present.
         """
         try:
-            f = str(self["Exif.Photo.FocalLength"])
-            f0,  f1 = f.split('/')
+            if usesRational:
+                f = str(self["Exif.Photo.FocalLength"])
+                f0,  f1 = f.split('/')
+            else:
+                f0, f1 = self["Exif.Photo.FocalLength"]
+                
             f0 = float(f0)
             if not f1:
                 f1 = 1.0
             else:
                 f1 = float(f1)
+
             return "%.0f" % (f0 / f1)
         except:
             return missing

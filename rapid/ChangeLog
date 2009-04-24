@@ -28,6 +28,9 @@ Resize main window when an image device is inserted.
 Do not proceed with download if there is an error in the image rename or
 download subfolder preferences. Instead, indicate a download error.
 
+Allow version 0.1.1 of pyexiv2 to be used (an old version found in 
+distributions like Ubuntu 8.04 Hardy Heron)
+
 Version 0.0.8 beta 7
 --------------------
 
