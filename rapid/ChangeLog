@@ -14,6 +14,9 @@ Bug fix: reenable example of image renaming and subfolder name generation by
 using first image from the first available download device. This was
 inadvertently disabled in an earlier beta.
 
+Bug fix: make default download subfolder YYYY/YYYYMMDD again. It was
+inadvertently set to DDMMYYYY/YYYYMMDD in beta 6.
+
 In cases where image rename or download subfolder preferences are invalid, 
 more helpful information is printed to the console output.
 

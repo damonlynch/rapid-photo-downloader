@@ -142,6 +142,7 @@ SEQUENCE_NUMBER_6 = "Six digits"
 
 SUBSECONDS = 'Subseconds'
 
+#note if changing LIST_DATE_TIME_L2, update defaults in rapid.RapidPreferences
 LIST_DATE_TIME_L2 = ['YYYYMMDD', 'YYYY-MM-DD','YYMMDD', 'YY-MM-DD', 
                     'MMDDYYYY', 'MMDDYY', 'MMDD', 
                     'DDMMYYYY', 'DDMMYY', 'YYYY', 'YY', 
@@ -1016,12 +1017,6 @@ class ImageRenamePreferences:
             widgets.append(widget1)
             widgets.append(None)
             return
-#        elif key == SESSION_SEQ_NUMBER:
-#            widget1,  widget2 = self._getSequenceWidgets(widgets,  prefs[2], value,  self.sequences.getSessionSequenceNo)
-#        elif key == DOWNLOAD_SEQ_NUMBER:
-#            widget1,  widget2 = self._getSequenceWidgets(widgets,  prefs[2], value,  self.sequences.getDownloadsToday)
-#        elif key == STORED_SEQ_NUMBER:
-#            widget1,  widget2 = self._getSequenceWidgets(widgets,  prefs[2], value,  self.sequences.getStoredSequenceNo)
         elif key == SEPARATOR:
             widgets.append(None)
             widgets.append(None)

@@ -238,7 +238,7 @@ class RapidPreferences(prefs.Preferences):
                                         getDefaultPhotoLocation()),
         "subfolder": prefs.ListValue(prefs.STRING_LIST, [rn.DATE_TIME,  
                                                 rn.IMAGE_DATE,
-                                                rn.LIST_DATE_TIME_L2[7], 
+                                                rn.LIST_DATE_TIME_L2[9], 
                                                 rn.SEPARATOR,
                                                 '', '', 
                                                 rn.DATE_TIME,
