@@ -1739,46 +1739,50 @@ class RapidApp(gnomeglade.GnomeApp):
         If the version is different, then the preferences are checked to see whether they should be upgraded or not.
         
         returns True if program preferences window should be opened """
-        previousVersion = self.prefs.program_version
         
-        pv = common.pythonifyVersion(previousVersion)
-        rv = common.pythonifyVersion(runningVersion)
-        
-        title = config.PROGRAM_NAME
         displayPrefs = upgraded = False
-        imageRename = subfolder = None
         
-        if pv != rv:
-            if pv > rv:
-                prefsOk = rn.checkPreferencesForValidity(self.prefs.image_rename,  self.prefs.subfolder)
-                    
-                msg = "A newer version of this program was previously run on this computer.\n\n"
-                if prefsOk:
-                    msg += "Program preferences appear to be valid, but please check them to ensure correct operation."
-                else:
-                    msg += "Sorry, some preferences are invalid and will be reset."
-                print "Warning: %s" % msg
-                misc.run_dialog(title, msg)
-                displayPrefs = True
+        previousVersion = self.prefs.program_version
+        if previousVersion:
+            # the program has been run previously for this user
+        
+            pv = common.pythonifyVersion(previousVersion)
+            rv = common.pythonifyVersion(runningVersion)
             
-            else:
-                print "This version of the program is newer than the previously run version. Checking preferences."
-                if True:
-#                if rn.checkPreferencesForValidity(self.prefs.image_rename,  self.prefs.subfolder,  previousVersion):
-                    upgraded,  imageRename,  subfolder = rn.upgradePreferencesToCurrent(self.prefs.image_rename,  self.prefs.subfolder,  previousVersion)
-                    if upgraded:
-                        self.prefs.image_rename = imageRename
-                        self.prefs.subfolder = subfolder
-                        print "Preferences were modified."
-                        msg = 'This version of the program uses different preferences than the old version. Your preferences have been updated.\n\nPlease check them to ensure correct operation.'
+            title = config.PROGRAM_NAME
+            imageRename = subfolder = None
+            
+            if pv != rv:
+                if pv > rv:
+                    prefsOk = rn.checkPreferencesForValidity(self.prefs.image_rename,  self.prefs.subfolder)
+                        
+                    msg = "A newer version of this program was previously run on this computer.\n\n"
+                    if prefsOk:
+                        msg += "Program preferences appear to be valid, but please check them to ensure correct operation."
+                    else:
+                        msg += "Sorry, some preferences are invalid and will be reset."
+                    print "Warning: %s" % msg
+                    misc.run_dialog(title, msg)
+                    displayPrefs = True
+                
+                else:
+                    print "This version of the program is newer than the previously run version. Checking preferences."
+                    if True:
+    #                if rn.checkPreferencesForValidity(self.prefs.image_rename,  self.prefs.subfolder,  previousVersion):
+                        upgraded,  imageRename,  subfolder = rn.upgradePreferencesToCurrent(self.prefs.image_rename,  self.prefs.subfolder,  previousVersion)
+                        if upgraded:
+                            self.prefs.image_rename = imageRename
+                            self.prefs.subfolder = subfolder
+                            print "Preferences were modified."
+                            msg = 'This version of the program uses different preferences than the old version. Your preferences have been updated.\n\nPlease check them to ensure correct operation.'
+                            misc.run_dialog(title,  msg)
+                            displayPrefs = True
+                        else:
+                            print "No preferences needed to be changed."
+                    else:
+                        msg = 'This version of the program uses different preferences than the old version. Some of your previous preferences were invalid, and could not be updated. They will be reset.'
                         misc.run_dialog(title,  msg)
                         displayPrefs = True
-                    else:
-                        print "No preferences needed to be changed."
-                else:
-                    msg = 'This version of the program uses different preferences than the old version. Some of your previous preferences were invalid, and could not be updated. They will be reset.'
-                    misc.run_dialog(title,  msg)
-                    displayPrefs = True
 
         return displayPrefs
 
