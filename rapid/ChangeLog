@@ -42,6 +42,8 @@ inadvertently set to DDMMYYYY/YYYYMMDD in beta 6.
 Bug fix: don't change download button label to "pause" when "Start downloading
 on program startup" is set to true.
 
+Bug fix: implement code to check for missing backup devices.
+
 
 Version 0.0.8 beta 7
 --------------------

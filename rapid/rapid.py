@@ -1282,6 +1282,16 @@ class CopyPhotos(Thread):
             return
             
         
+        #check for presence of backup meditum
+        if self.prefs.backup_images:
+            if self.prefs.backup_missing <> config.IGNORE:
+                if not len(self.parentApp.backupVolumes):
+                    if self.prefs.backup_missing == config.REPORT_ERROR:
+                        e = config.SERIOUS_ERROR
+                    else:
+                        e = config.WARNING
+                    logError(e,  "Backup device missing",  "No backup device was detected.")
+                
         # Some images may not have metadata (this
         # is unlikely for images straight out of a 
         # camera, but it is possible for images that have been edited).  If
@@ -1383,7 +1393,8 @@ class CopyPhotos(Thread):
         display_queue.close("rw")
         
         self.running = False
-        self.lock.release()
+        if noImages:
+            self.lock.release()
         
     def startStop(self):
         if self.isAlive():
