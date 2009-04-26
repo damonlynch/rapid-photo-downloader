@@ -18,11 +18,10 @@ Depends: ${python:Depends},
          python-gnome2,
          python-gtk2 (>= 2.10),
          python-glade2 (>= 2.10),
-         python-pyexiv2 (>= 0.1.2),
+         python-pyexiv2 (>= 0.1.1),
          python-notify
 Description: Photo downloader from memory cards and portable storage devices
  Rapid Photo Downloader is written by a photographer for professional and
- amateur photographers, designed for use on the GNOME 2 Desktop. It can
- download (import) photos from multiple memory cards and Portable Storage
- Devices simultaneously. It provides many options for subfolder creation, 
- image renaming and backup.
+ amateur photographers. It can  download (import) photos from multiple
+ memory cards and Portable Storage Devices simultaneously. It provides many
+ options for subfolder creation, image renaming and backup.

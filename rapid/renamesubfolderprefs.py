@@ -248,12 +248,14 @@ DICT_METADATA_L1 = {
 
 LIST_SEQUENCE_L1 = [
                     DOWNLOAD_SEQ_NUMBER,  
+                    STORED_SEQ_NUMBER, 
                     SESSION_SEQ_NUMBER, 
                     SEQUENCE_LETTER
                     ]
                     
 DICT_SEQUENCE_L1 = {
                     DOWNLOAD_SEQ_NUMBER: LIST_SEQUENCE_NUMBERS_L2, 
+                    STORED_SEQ_NUMBER: LIST_SEQUENCE_NUMBERS_L2, 
                     SESSION_SEQ_NUMBER: LIST_SEQUENCE_NUMBERS_L2, 
                     SEQUENCE_LETTER: LIST_SEQUENCE_LETTER_L2, 
                     ORDER_KEY: LIST_SEQUENCE_L1
@@ -789,7 +791,7 @@ class ImageRenamePreferences:
         v = self._formatSequenceNo(self.sequences.getSessionSequenceNoUsingCounter(self.sequenceCounter),  self.L2)            
         return (v, problem)
 
-    def _getDownloadSequenceNo(self):
+    def _getDownloadsTodaySequenceNo(self):
         problem = None
             
         v = self._formatSequenceNo(self.sequences.getDownloadsTodayUsingCounter(self.sequenceCounter),  self.L2)
@@ -798,7 +800,7 @@ class ImageRenamePreferences:
         
     def _getStoredSequenceNo(self):
         problem = None
-        v = self._formatSequenceNo(self.sequenceCounter,  self.L2)
+        v = self._formatSequenceNo(self.sequences.getStoredSequenceNoUsingCounter(self.sequenceCounter),  self.L2)
         
         return (v,  problem)
         
@@ -811,7 +813,7 @@ class ImageRenamePreferences:
     def _getSequencesComponent(self):
         problem = None
         if self.L1 == DOWNLOAD_SEQ_NUMBER:
-            return self._getDownloadSequenceNo()
+            return self._getDownloadsTodaySequenceNo()
         elif self.L1 == SESSION_SEQ_NUMBER:
             return self._getSessionSequenceNo()
         elif self.L1 == SUBFOLDER_SEQ_NUMBER:
@@ -961,6 +963,11 @@ class ImageRenamePreferences:
                 return True
                 
         return False
+        
+    def usesStoredSequenceNo(self):
+        """ Returns true if a stored sequence number is used to generate the filename """
+        return STORED_SEQ_NUMBER in self.prefList
+            
     
     def _createCombo(self, choices):
         combobox = gtk.combo_box_new_text()
@@ -976,19 +983,19 @@ class ImageRenamePreferences:
 
         
     
-    def _getSequenceWidgets(self,  widgets,  padding,  value,  getValue):
-            widget1 = ValidatedEntry.ValidatedEntry(ValidatedEntry.bounded(ValidatedEntry.v_int, int, minv=1))
-            if not value:
-                value = getValue()
-            widget1.set_text(str(value))
-            widgets.append(widget1)
-            widget2 = self._createCombo(LIST_SEQUENCE_NUMBERS_L1_L2)
-            if not padding:
-                padding = LIST_SEQUENCE_NUMBERS_L1_L2[2]
-            widget2.set_active(LIST_SEQUENCE_NUMBERS_L1_L2.index(padding))
-            widgets.append(widget2)
-            
-            return widget1,  widget2
+#    def _getSequenceWidgets(self,  widgets,  padding,  value,  getValue):
+#            widget1 = ValidatedEntry.ValidatedEntry(ValidatedEntry.bounded(ValidatedEntry.v_int, int, minv=1))
+#            if not value:
+#                value = getValue()
+#            widget1.set_text(str(value))
+#            widgets.append(widget1)
+#            widget2 = self._createCombo(LIST_SEQUENCE_NUMBERS_L1_L2)
+#            if not padding:
+#                padding = LIST_SEQUENCE_NUMBERS_L1_L2[2]
+#            widget2.set_active(LIST_SEQUENCE_NUMBERS_L1_L2.index(padding))
+#            widgets.append(widget2)
+#            
+#            return widget1,  widget2
         
     def _getPreferenceWidgets(self, prefDefinition, prefs, widgets):
         key = prefs[0]
@@ -1176,21 +1183,29 @@ class SubfolderPreferences(ImageRenamePreferences):
 
 class Sequences:
     """ Holds sequence numbers and letters used in generating filenames"""
-    def __init__(self,  downloadsToday,  storedSequenceNo):
-        self.downloadsToday = downloadsToday
-        self.storedSequenceNo = storedSequenceNo
+    def __init__(self,  downloadsToday,  dayStart,  storedSequenceNo):
+
         
-        # "FIXME: initial sequences should be assigned real values"
         self.subfolderSequenceNo = {}
         self.sessionSequenceNo = 1
         self.sequenceLetter = 0
+    
+        # is this used anywhere?
+        self.downloadsCompleted = 0 
         
+        self.assignedSequenceCounter = 1
+        self.reset(downloadsToday,  storedSequenceNo)
+        self.dayStart = dayStart
+        
+    def reset(self,  downloadsToday,  storedSequenceNo):
+        self.downloadsToday = downloadsToday
+        self.storedSequenceNo = storedSequenceNo
+        self.sessionSequenceNo = self.sessionSequenceNo + self.assignedSequenceCounter - 1
+        self.sequenceLetter = self.sequenceLetter + self.assignedSequenceCounter - 1
         self.doNotAddToPool = False
-        self.pool = []
+        self.pool = []        
         self.poolSequenceCounter = 0
         self.assignedSequenceCounter = 1
-        
-        self.downloadsCompleted = 0
 
     def getPrelimSequence(self):
         if self.doNotAddToPool:
@@ -1221,15 +1236,21 @@ class Sequences:
     def setSessionSequenceNo(self,  value):
         self.sessionSequenceNo = value
         
+    def setStoredSequenceNo(self,  value):
+        self.storedSequenceNo = value
+        
     def getDownloadsToday(self):
-        return self.downloadsToday + self.assignedSequenceCounter - 1
-    
-    def getStoredSequenceNo(self):
-        return self.storedSequenceNo + self.assignedSequenceCounter - 1
+        return self.downloadsToday + self.assignedSequenceCounter    
         
     def getDownloadsTodayUsingCounter(self,  counter):
-        return self.downloadsToday + counter - 1
+        return self.downloadsToday + counter
+
+#    def getStoredSequenceNo(self):
+#        return self.storedSequenceNo + self.assignedSequenceCounter - 1
         
+    def getStoredSequenceNoUsingCounter(self,  counter):
+        return self.storedSequenceNo + counter
+
     def getSequenceLetterUsingCounter(self,  counter):
         return self.sequenceLetter + counter - 1
         
@@ -1243,18 +1264,19 @@ class Sequences:
         assert(self.assignedSequenceCounter == self.pool[0])
         self.assignedSequenceCounter += 1
         self.pool = self.pool[1:]
+        self.downloadsCompleted += 1
         
         
-class SampleSequences(Sequences):
-    """Used for generating sample filenames"""
-    def __init__(self,  downloadsToday, storedSequenceNo):
-        Sequences.__init__(self, downloadsToday,  storedSequenceNo)
-        
-    def increment(self,  subfolder):
-        pass
-        
-    def getDownloadsToday(self):
-        return 1
+#class SampleSequences(Sequences):
+#    """Used for generating sample filenames"""
+#    def __init__(self,  downloadsToday, storedSequenceNo):
+#        Sequences.__init__(self, downloadsToday,  storedSequenceNo)
+#        
+#    def increment(self,  subfolder):
+#        pass
+#        
+#    def getDownloadsToday(self):
+#        return 1
         
 if __name__ == '__main__':
     import sys

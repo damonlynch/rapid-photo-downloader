@@ -28,6 +28,12 @@ import atexit
 import tempfile
 import webbrowser
 
+import dbus
+import dbus.bus
+import dbus.service
+from dbus.mainloop.glib import DBusGMainLoop
+DBusGMainLoop(set_as_default=True)
+
 from threading import Thread, Lock
 from thread import error as thread_error
 from thread import get_ident
@@ -267,6 +273,7 @@ class RapidPreferences(prefs.Preferences):
         "backup_missing": prefs.Value(prefs.STRING, config.IGNORE),
         "display_thumbnails": prefs.Value(prefs.BOOL, True),
         "show_log_dialog": prefs.Value(prefs.BOOL, False),
+        "day_start": prefs.Value(prefs.STRING,  "0300"), 
         "downloads_today": prefs.ListValue(prefs.STRING_LIST,  [today(),  '0']), 
          "stored_sequence_no": prefs.Value(prefs.INT,  0), 
         }
@@ -366,7 +373,6 @@ class ImageRenameTable(tpm.TablePlusMinus):
         self.prefList = self.parentApp.prefs.image_rename
     
     def getPrefsFactory(self):
-        sequences = rn.SampleSequences(1,  1) # FIXME: initalize with proper values
         self.prefsFactory = rn.ImageRenamePreferences(self.prefList, self,  
               sequences = sequences)
         
@@ -1145,7 +1151,10 @@ class CopyPhotos(Thread):
                             os.rename(tempWorkingfile, newFile)
                             imageDownloaded = True
                             if usesSequenceElements:
-                                self.imageRenamePrefsFactory.sequences.imageCopySucceeded()
+                                with self.fileSequenceLock:
+                                    self.imageRenamePrefsFactory.sequences.imageCopySucceeded()
+                                    if usesStoredSequenceNo:
+                                        self.prefs.stored_sequence_no += 1
                     
             except IOError, (errno, strerror):
                 # FIXME: is the lock released on an error here?!
@@ -1304,6 +1313,7 @@ class CopyPhotos(Thread):
         
         addUniqueIdentifier = self.prefs.download_conflict_resolution == config.ADD_UNIQUE_IDENTIFIER
         usesSequenceElements = self.imageRenamePrefsFactory.usesSequenceElements()
+        usesStoredSequenceNo = self.imageRenamePrefsFactory.usesStoredSequenceNo()
         
         while i < noImages:
             if not self.running:
@@ -1355,7 +1365,9 @@ class CopyPhotos(Thread):
             self.downloadStats.adjust(sizeDownloaded,  noImagesDownloaded,  noImagesSkipped,  self.noWarnings,  self.noErrors)
 
         # must manually delete these variables, or else the media cannot be unmounted (bug in pyexiv or exiv2)
-        del imageMetadata,  self.subfolderPrefsFactory,  self.imageRenamePrefsFactory
+        del self.subfolderPrefsFactory,  self.imageRenamePrefsFactory
+        if 'imageMetadata' in dir(self):
+            del imageMetadata
                 
         notifyAndUnmount()
         display_queue.put((self.parentApp.notifyUserAllDownloadsComplete,()))
@@ -1447,7 +1459,7 @@ class MediaTreeView(gtk.TreeView):
         self._setThreadMap(thread_id, iter)
         
         # adjust scrolled window height, based on row height and number of ready to start downloads
-        if workers.noReadyToStartWorkers() >= 2:
+        if workers.noReadyToStartWorkers() >= 1:
             # please note, at program startup, self.rowHeight() will be less than it will be when already running
             # e.g. when starting with 3 cards, it could be 18, but when adding 2 cards to the already running program
             # (with one card at startup), it could be 21
@@ -1611,8 +1623,12 @@ class LogDialog(gnomeglade.Component):
         return True
 
 
-class RapidApp(gnomeglade.GnomeApp): 
-    def __init__(self): 
+class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object): 
+    def __init__(self,  bus, path, name): 
+        
+        dbus.service.Object.__init__ (self, bus, path, name)
+        self.running = False
+        
         gladefile = paths.share_dir(config.GLADE_FILE)
         gnomeglade.GnomeApp.__init__(self, "rapid", __version__, gladefile, "rapidapp")
 
@@ -1659,7 +1675,8 @@ class RapidApp(gnomeglade.GnomeApp):
         downloadsToday = self.prefs.getDownloadsToday()
         if downloadsToday < 0:
             self.prefs.setDownloadsToday(today(),  0)
-        sequences = rn.Sequences(self.prefs.getDownloadsToday(),  self.prefs.stored_sequence_no)
+        self.prefs.setDownloadsToday(today(),  0)
+        sequences = rn.Sequences(self.prefs.getDownloadsToday(),  self.prefs.day_start,  self.prefs.stored_sequence_no)
         
         self.downloadStats = DownloadStats()
 
@@ -1722,10 +1739,26 @@ class RapidApp(gnomeglade.GnomeApp):
         
         if displayPreferences:
             PreferencesDialog(self)
-        elif self.prefs.auto_download_at_startup:
+        elif self.prefs.auto_download_at_startup and workers.noReadyToStartWorkers() > 0:
             self.startDownload()
 
     
+
+    @dbus.service.method (config.DBUS_NAME,
+                           in_signature='', out_signature='b')
+    def is_running (self):
+        return self.running
+    
+    @dbus.service.method (config.DBUS_NAME,
+                            in_signature='', out_signature='')
+    def start (self):
+        if self.is_running ():
+            self.rapidapp.present()
+        else:
+            self.running = True
+            self.main ()
+            self.running = False
+            
     def setTestingEnv(self):
         self.prefs.program_version = '0.0.8~b7'
         r = ['Date time', 'Image date', 'YYYYMMDD', 'Text', '-', '', 'Date time', 'Image date', 'HHMM', 'Text', '-', '', 'Session number', '1', 'Three digits', 'Text', '-iso', '', 'Metadata', 'ISO', '', 'Text', '-f', '', 'Metadata', 'Aperture', '', 'Text', '-', '', 'Metadata', 'Focal length', '', 'Text', 'mm-', '', 'Metadata', 'Exposure time', '', 'Filename', 'Extension', 'lowercase']
@@ -2119,6 +2152,7 @@ class RapidApp(gnomeglade.GnomeApp):
         """ Possibly notify the user all downloads are complete using libnotify"""
         
         if self.totalDownloadedSoFar == self.totalDownloadSize:
+            sequences.reset(self.prefs.getDownloadsToday(),  self.prefs.stored_sequence_no)
             if self.displayDownloadSummaryNotification:
                 message = "All downloads complete\n%s images downloaded" % self.downloadStats.noImagesDownloaded
                 if self.downloadStats.noImagesSkipped:
@@ -2127,7 +2161,7 @@ class RapidApp(gnomeglade.GnomeApp):
                     message = "%s\n%s warnings" % (message,  self.downloadStats.noWarnings)
                 if self.downloadStats.noErrors:
                     message = "%s\n%s errors" % (message,  self.downloadStats.noErrors)
-                n = pynotify.Notification("Rapid Photo Downloader",  message)
+                n = pynotify.Notification(config.PROGRAM_NAME,  message)
                 n.show()
                 self.displayDownloadSummaryNotification = False # don't show it again unless needed
                 self.downloadStats.clear()
@@ -2283,7 +2317,6 @@ class DownloadStats:
 def programStatus():
     print "Goodbye"
 
-
         
 def start ():
     atexit.register(programStatus)
@@ -2292,8 +2325,18 @@ def start ():
     display_queue.open("rw")
     tube.tube_add_watch(display_queue, updateDisplay)
     gdk.threads_enter()
-    app = RapidApp()
-    app.main()
+
+    # run only a single instance of the application 
+    bus = dbus.SessionBus ()
+    request = bus.request_name (config.DBUS_NAME, dbus.bus.NAME_FLAG_DO_NOT_QUEUE)
+    if request != dbus.bus.REQUEST_NAME_REPLY_EXISTS:
+        app = RapidApp (bus, '/', config.DBUS_NAME)
+    else:
+        print "%s is already running" % config.PROGRAM_NAME
+        object = bus.get_object (config.DBUS_NAME, "/")
+        app = dbus.Interface (object, config.DBUS_NAME)
+    
+    app.start()
     gdk.threads_leave()    
 
 if __name__ == "__main__":

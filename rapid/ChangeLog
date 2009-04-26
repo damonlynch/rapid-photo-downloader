@@ -3,9 +3,29 @@ Version 0.0.8 beta 8
 
 2009-04-
 
-Added downloads today sequence number.
-
 Simplified sequence number/letter selection in preferences.
+
+Added stored and downloads today sequence numbers.
+
+In cases where image rename or download subfolder preferences are invalid, 
+more helpful information is printed to the console output.
+
+Add feature to detect change in program version, upgrading preferences where
+necessary.
+
+Resize main window when an image device is inserted - it now expands to show
+each device that is inserted.
+
+Do not proceed with download if there is an error in the image rename or
+download subfolder preferences. Instead, indicate a download error.
+
+Allow version 0.1.1 of pyexiv2 to be used (an older version of the library code
+that is used to get information on the images, found in distributions like 
+Ubuntu 8.04 Hardy Heron).
+
+Only allow one instance of the program to be run -- raise existing window if it
+is run again. This is very useful when Rapid Photo Downloader is set to run
+automatically upon insertion of a memory card.
 
 Bug fix: better handle automated shortening Canon names like 'Canon 5D Mark II'.
 It is now shortened to '5DMkII' instead of merely '5D'.
@@ -17,22 +37,9 @@ inadvertently disabled in an earlier beta.
 Bug fix: make default download subfolder YYYY/YYYYMMDD again. It was
 inadvertently set to DDMMYYYY/YYYYMMDD in beta 6.
 
-In cases where image rename or download subfolder preferences are invalid, 
-more helpful information is printed to the console output.
+Bug fix: don't change download button label to "pause" when "Start downloading
+on program startup" is set to true.
 
-Add feature to detect change in program version, upgrading preferences where
-necessary.
-
-Properly size window on program startup when more than 2 image devices (e.g. 
-memory cards) are present.
-
-Resize main window when an image device is inserted.
-
-Do not proceed with download if there is an error in the image rename or
-download subfolder preferences. Instead, indicate a download error.
-
-Allow version 0.1.1 of pyexiv2 to be used (an old version found in 
-distributions like Ubuntu 8.04 Hardy Heron)
 
 Version 0.0.8 beta 7
 --------------------

@@ -22,6 +22,8 @@ GLADE_FILE = "glade3/rapid.glade"
 
 PROGRAM_NAME = 'Rapid Photo Downloader'
 
+DBUS_NAME = "net.damonlynch.RapidPhotoDownloader"
+
 MEDIA_LOCATION = "/media"
 
 SKIP_DOWNLOAD = "skip download"

@@ -21,6 +21,7 @@ import re
 import datetime
 import pyexiv2
 #only pyexiv2 0.1.2 and 0.1.3 use the "Rational" class 
+#is there a superior way to find which version of pyexiv2 is being used?
 if 'Rational' in dir(pyexiv2):
     usesRational = True
 else:
