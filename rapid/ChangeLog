@@ -3,15 +3,17 @@ Version 0.0.8 beta 8
 
 2009-04-
 
-Simplified sequence number/letter selection in preferences.
-
 Added stored and downloads today sequence numbers.
+
+Simplified sequence number/letter selection in preferences.
 
 In cases where image rename or download subfolder preferences are invalid, 
 more helpful information is printed to the console output.
 
 Add feature to detect change in program version, upgrading preferences where
 necessary.
+
+Add "exit at end of successful download" automation feature.
 
 Resize main window when an image device is inserted - it now expands to show
 each device that is inserted.

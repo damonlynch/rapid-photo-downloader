@@ -266,6 +266,7 @@ class RapidPreferences(prefs.Preferences):
         "auto_download_at_startup": prefs.Value(prefs.BOOL, False),
         "auto_download_upon_device_insertion": prefs.Value(prefs.BOOL, False),
         "auto_unmount": prefs.Value(prefs.BOOL, False),
+        "auto_exit": prefs.Value(prefs.BOOL, False),
         "indicate_download_error": prefs.Value(prefs.BOOL, True),
         "download_conflict_resolution": prefs.Value(prefs.STRING, 
                                         config.SKIP_DOWNLOAD),
@@ -659,6 +660,8 @@ class PreferencesDialog(gnomeglade.Component):
                         self.prefs.auto_download_upon_device_insertion)
         self.auto_unmount_checkbutton.set_active(
                         self.prefs.auto_unmount)
+        self.auto_exit_checkbutton.set_active(
+                        self.prefs.auto_exit)
 
         
     def _setupErrorTab(self):
@@ -737,6 +740,9 @@ class PreferencesDialog(gnomeglade.Component):
         
     def on_auto_unmount_checkbutton_toggled(self, checkbutton):
         self.prefs.auto_unmount = checkbutton.get_active()
+        
+    def on_auto_exit_checkbutton_toggled(self, checkbutton):
+        self.prefs.auto_exit = checkbutton.get_active()
         
     def on_autodetect_device_checkbutton_toggled(self, checkbutton):
         self.prefs.device_autodetection = checkbutton.get_active()
@@ -936,7 +942,7 @@ class CopyPhotos(Thread):
             raise rn.PrefError
                                                 
         # copy this variable, as it is used heavily in the loop
-        # and it is relatively expensive to read
+        # and it is perhaps relatively expensive to read
         self.stripCharacters = self.prefs.strip_characters
         
         
@@ -979,8 +985,7 @@ class CopyPhotos(Thread):
             Cleanup functions that must be performed whether the thread exits 
             early or when it has completed its run.
             """
-            
-            display_queue.close("rw")
+
             # possibly delete any lingering files
             tf = os.listdir(tempWorkingDir)
             if tf:
@@ -1323,6 +1328,7 @@ class CopyPhotos(Thread):
             if not self.ctrl:
                 self.running = False
                 cleanUp()
+                display_queue.close("rw")
                 return
             
             # get information about the image to deduce image name and path
@@ -1373,6 +1379,8 @@ class CopyPhotos(Thread):
         display_queue.put((self.parentApp.notifyUserAllDownloadsComplete,()))
 
         cleanUp()
+        display_queue.put((self.parentApp.exitOnDownloadComplete, ()))
+        display_queue.close("rw")
         
         self.running = False
         self.lock.release()
@@ -1464,7 +1472,7 @@ class MediaTreeView(gtk.TreeView):
             # e.g. when starting with 3 cards, it could be 18, but when adding 2 cards to the already running program
             # (with one card at startup), it could be 21
             height = (workers.noReadyToStartWorkers() + 2) * (self.rowHeight())
-            self.parentApp.scrolledwindow1.set_size_request(-1,  height)
+            self.parentApp.media_collection_scrolledwindow.set_size_request(-1,  height)
 
         
     def removeCard(self, thread_id):
@@ -1733,7 +1741,7 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
         #this is important because the code in MediaTreeView.addCard() is inaccurate at program startup
         
         height = self.media_collection_viewport.size_request()[1]
-        self.scrolledwindow1.set_size_request(-1,  height)
+        self.media_collection_scrolledwindow.set_size_request(-1,  height)
         
         self.download_button.grab_focus()
         
@@ -2115,7 +2123,7 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
         if percentComplete == 100.0:
             self.menu_clear.set_sensitive(True)
 
-        if self.totalDownloadedSoFar == self.totalDownloadSize:
+        if self.downloadComplete():
             # finished all downloads
             self.rapid_statusbar.push(self.statusbar_context_id, "")
             self.download_button_is_download = True
@@ -2151,7 +2159,8 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
     def notifyUserAllDownloadsComplete(self):
         """ Possibly notify the user all downloads are complete using libnotify"""
         
-        if self.totalDownloadedSoFar == self.totalDownloadSize:
+        if self.downloadComplete():
+            print "FIXME: move this code!"
             sequences.reset(self.prefs.getDownloadsToday(),  self.prefs.stored_sequence_no)
             if self.displayDownloadSummaryNotification:
                 message = "All downloads complete\n%s images downloaded" % self.downloadStats.noImagesDownloaded
@@ -2165,6 +2174,15 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
                 n.show()
                 self.displayDownloadSummaryNotification = False # don't show it again unless needed
                 self.downloadStats.clear()
+                
+    def exitOnDownloadComplete(self):
+        if self.downloadComplete():
+            if self.prefs.auto_exit:
+                if not (self.downloadStats.noErrors or self.downloadStats.noWarnings):                
+                    self.quit()
+    
+    def downloadComplete(self):
+        return self.totalDownloadedSoFar == self.totalDownloadSize
 
     def setDownloadButtonSensitivity(self):
         isSensitive = workers.firstWorkerReadyToStart()

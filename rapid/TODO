@@ -11,6 +11,7 @@ For major release (0.10.0):
 * sum amount of images to be downloaded, and how much free space on the file system
 * dim image thumbnail to indicate an image was skipped
 * show an icon if the thumbnail could not be displayed
+* better handle cases where a device has no images to be downloaded
 * check to see if preferences are valid when clicking close on preferences dialog
 * check to see if preferences are valid when starting the application
 * check download locations and sources still valid when starting the application
