@@ -42,7 +42,11 @@ class PreferenceTest (unittest.TestCase):
                         [FILENAME,  NAME_EXTENSION, LOWERCASE,  FILENAME,  EXTENSION, LOWERCASE], 
                         [FILENAME,  NAME, LOWERCASE,  FILENAME,  METADATA,  EXPOSURE_TIME,  '',  IMAGE_NUMBER, IMAGE_NUMBER_ALL,  FILENAME,  EXTENSION, LOWERCASE], )
                         
-    sequences_test = (['Date time', 'Image date', 'YYYYMMDD', 'Text', '-', '', 'Date time', 'Image date', 'HHMM', 'Text', '-', '', 'Sequences', 'Session sequence number', 'Three digits', 'Text', '-iso', '', 'Metadata', 'ISO', '', 'Text', '-f', '', 'Metadata', 'Aperture', '', 'Text', '-', '', 'Metadata', 'Focal length', '', 'Text', 'mm-', '', 'Metadata', 'Exposure time', '', 'Filename', 'Extension', 'lowercase'])
+    sequences_test = ([SEQUENCES,  SESSION_SEQ_NUMBER,  SEQUENCE_NUMBER_3],
+                      [FILENAME,  NAME,  LOWERCASE,  SEQUENCES,  DOWNLOAD_SEQ_NUMBER,  SEQUENCE_NUMBER_1,  
+                      FILENAME,  EXTENSION,  UPPERCASE], 
+                       [METADATA, APERTURE, '',  SEQUENCES,  STORED_SEQ_NUMBER,  SEQUENCE_NUMBER_5,  
+                      FILENAME,  EXTENSION,  UPPERCASE], )
                 
     def testPrefImageList(self):
         for pref in self.image_test:
@@ -90,11 +94,11 @@ class PreferenceTest (unittest.TestCase):
         
 
 class BadPreferences(unittest.TestCase):
-    bad_image_key = ( [TEXT, '', ''], 
-                            [DATE_TIME, IMAGE_DATE, 'YYYYMMDD'],
-                            [METADATA, APERTURE, ''],
-                            [FILENAME, NAME_EXTENSION, UPPERCASE],
-                            ['Filename2',  NAME_EXTENSION, UPPERCASE]
+    bad_image_key = ( [TEXT, '', '', 
+                            DATE_TIME, IMAGE_DATE, 'YYYYMMDD',
+                            METADATA, APERTURE, '',
+                            FILENAME, NAME_EXTENSION, UPPERCASE,
+                            'Filename2',  NAME_EXTENSION, UPPERCASE], 
                 )                    
     bad_image_value = ( [DATE_TIME, TODAY, IMAGE_NUMBER_ALL],
                         [METADATA, CAMERA_MAKE, IMAGE_NUMBER_4],
@@ -106,12 +110,12 @@ class BadPreferences(unittest.TestCase):
                             
     bad_subfolder_key = ([FILENAME, NAME_EXTENSION, UPPERCASE],)
     
-    bad_subfolder_key2 = ( [TEXT, '', ''], 
-                                [DATE_TIME, IMAGE_DATE, 'HHMM'],
-                                [METADATA, SHORT_CAMERA_MODEL_HYPHEN, 
-                                 LOWERCASE],
-                                [SEPARATOR, '', ''],
-                                ['Filename-bad', EXTENSION, LOWERCASE]
+    bad_subfolder_key2 = ( [TEXT, '', '', 
+                                DATE_TIME, IMAGE_DATE, 'HHMM',
+                                METADATA, SHORT_CAMERA_MODEL_HYPHEN, 
+                                 LOWERCASE,
+                                SEPARATOR, '', '',
+                                'Filename-bad', EXTENSION, LOWERCASE], 
                             )
     
     bad_subfolder_value = ( [FILENAME, None, None],

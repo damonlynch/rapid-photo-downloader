@@ -5,13 +5,14 @@ Version 0.0.8 beta 8
 
 Added stored and downloads today sequence numbers.
 
-Simplified sequence number/letter selection in preferences.
-
-In cases where image rename or download subfolder preferences are invalid, 
-more helpful information is printed to the console output.
+Reorganized sequence number/letter selection in preferences.
 
 Add feature to detect change in program version, upgrading preferences where
 necessary.
+
+Only allow one instance of the program to be run -- raise existing window if it
+is run again. This is very useful when Rapid Photo Downloader is set to run
+automatically upon insertion of a memory card.
 
 Add "exit at end of successful download" automation feature.
 
@@ -25,9 +26,8 @@ Allow version 0.1.1 of pyexiv2 to be used (an older version of the library code
 that is used to get information on the images, found in distributions like 
 Ubuntu 8.04 Hardy Heron).
 
-Only allow one instance of the program to be run -- raise existing window if it
-is run again. This is very useful when Rapid Photo Downloader is set to run
-automatically upon insertion of a memory card.
+In cases where image rename or download subfolder preferences are invalid, 
+more helpful information is printed to the console output.
 
 Bug fix: better handle automated shortening Canon names like 'Canon 5D Mark II'.
 It is now shortened to '5DMkII' instead of merely '5D'.

@@ -1320,4 +1320,5 @@ if __name__ == '__main__':
                 print i.generateNameUsingPreferences(m, filename)
     else:
         prefs = [SEQUENCES,  SESSION_SEQ_NUMBER,  SEQUENCE_NUMBER_3]
+#        prefs = ['Filename2',  NAME_EXTENSION, UPPERCASE]
         print checkPreferenceValid(DICT_IMAGE_RENAME_L0,  prefs)
