@@ -5,7 +5,7 @@ from distutils.core import setup
 from rapid.config import version
 import glob
 
-package_data={'rapid': ['glade3/rapid.glade', 'glade3/rapid-photo-downloader-about.png']}
+package_data={'rapid': ['glade3/rapid.glade', 'glade3/rapid-photo-downloader-about.png', 'glade3/image-missing.svg']}
 
 setup(name='rapid-photo-downloader',
       version=version,
@@ -17,11 +17,10 @@ setup(name='rapid-photo-downloader',
       url='http://www.damonlynch.net/rapid',
       long_description=
 """Rapid Photo Downloader is written by a photographer for
-professional and amateur photographers, designed for use
-on the GNOME 2 Desktop. It can download photos from multiple
-memory cards and Portable Storage Devices simultaneously. It
-provides many options for subfolder creation, image renaming
-and backup.""",
+professional and amateur photographers. It can download photos
+from multiple memory cards and Portable Storage Devices
+simultaneously. It provides many options for subfolder creation,
+image renaming and backup.""",
       packages = ['rapid'], 
       package_data=package_data, 
       scripts=['rapid-photo-downloader'],
