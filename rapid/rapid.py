@@ -83,7 +83,8 @@ except:
 
 def today():
     return datetime.date.today().strftime('%Y-%m-%d')
-    toda
+    
+
 exiting = False
 
 def updateDisplay(display_queue):
@@ -274,7 +275,7 @@ class RapidPreferences(prefs.Preferences):
         "backup_missing": prefs.Value(prefs.STRING, config.IGNORE),
         "display_thumbnails": prefs.Value(prefs.BOOL, True),
         "show_log_dialog": prefs.Value(prefs.BOOL, False),
-        "day_start": prefs.Value(prefs.STRING,  "0300"), 
+        "day_start": prefs.Value(prefs.STRING,  "03:00"), 
         "downloads_today": prefs.ListValue(prefs.STRING_LIST,  [today(),  '0']), 
          "stored_sequence_no": prefs.Value(prefs.INT,  0), 
         }
@@ -286,12 +287,20 @@ class RapidPreferences(prefs.Preferences):
         """Returns the preference value for the number of downloads performed today 
         
         If value is less than zero, that means the date has changed"""
-        if today() == self.downloads_today[0]:
+        
+        now = datetime.datetime.today()
+
+        hour,  minute = self.getDayStart()
+        adjustedToday = datetime.datetime.strptime("%s %s:%s" % (self.downloads_today[0], hour,  minute), "%Y-%m-%d %H:%M") +  + datetime.timedelta(days=1)
+        
+#        print "now: %s  ## adjustedToday: %s" % (now,  adjustedToday)
+        
+        if  now < adjustedToday :
             try:
                 return int(self.downloads_today[1])
             except ValueError:
                 print "Invalid Downloads Today value.\nResetting value to zero."
-                self.downloads_today[1] = 0
+                self.downloads_today = [self.downloads_today[0] ,  '0']
                 return 0
         else:
             return -1
@@ -301,6 +310,27 @@ class RapidPreferences(prefs.Preferences):
                 date = today()
             self.downloads_today = [date,  str(value)]
             
+    def incrementDownloadsToday(self,  date = None):
+        """ returns true if day changed """
+        if date == None:
+            date = today()
+        v = self.getDownloadsToday()
+        if v >= 0:
+            self.downloads_today = [self.downloads_today[0] ,  str(v + 1)]
+            return False
+        else:
+            self.downloads_today = [date,  '1']
+            return True
+            
+#    def _setAdjustedToday(self): 
+#        self.adjustedToday = 
+    def setDayStart(self,  hour,  minute):
+        self.day_start = "%s:%s" % (hour,  minute)
+#        self._setAdjustedToday()
+        
+            
+    def getDayStart(self):
+        return self.day_start.split(":")
 
 
 class ImageRenameTable(tpm.TablePlusMinus):
@@ -1160,6 +1190,11 @@ class CopyPhotos(Thread):
                                     self.imageRenamePrefsFactory.sequences.imageCopySucceeded()
                                     if usesStoredSequenceNo:
                                         self.prefs.stored_sequence_no += 1
+                                        
+                            with self.fileSequenceLock:
+                                if self.prefs.incrementDownloadsToday():
+                                    # a new day has started
+                                    sequences.setDownloadsToday(1)
                     
             except IOError, (errno, strerror):
                 # FIXME: is the lock released on an error here?!
@@ -1366,9 +1401,10 @@ class CopyPhotos(Thread):
                     thumbnailType, thumbnail = imageMetadata.getThumbnailData()
                 except:
                     logError(config.WARNING, "Image has no thumbnail", image)
+                    thumbnail = Orientation = None
                 else:
                     orientation = imageMetadata.orientation(missing=None)
-                    display_queue.put((image_hbox.addImage, (self.thread_id, thumbnail, orientation, image)))
+                display_queue.put((image_hbox.addImage, (self.thread_id, thumbnail, orientation, image,  imageDownloaded)))
             
             sizeDownloaded += size
             percentComplete = (sizeDownloaded / sizeImages) * 100
@@ -1539,46 +1575,63 @@ class ImageHBox(gtk.HBox):
         gtk.HBox.__init__(self)
         self.parentApp = parentApp
         self.padding = hd.CONTROL_IN_TABLE_SPACE / 2
+
+        #create image used to lighten thumbnails
+        self.white = gtk.gdk.Pixbuf(gtk.gdk.COLORSPACE_RGB,  False,  8,  width=100, height=100)
+        #fill with white
+        self.white.fill(0xffffffff)
         
-    def addImage(self, thread_id, thumbnail, orientation, filename):
+        #load missing image 
+        self.missingThumbnail = gtk.gdk.pixbuf_new_from_file_at_size(paths.share_dir('glade3/image-missing.svg'),  100,  100)
+        
+    def addImage(self, thread_id, thumbnail, orientation, filename,  imageDownloaded):
         """ 
         Add thumbnail
         
         Orientation indicates if the thumbnail needs to be rotated or not.
         """
         
-        try:
-            pbloader = gdk.PixbufLoader()
-            pbloader.write(thumbnail)
-            # Get the resulting pixbuf and build an image to be displayed
-            pixbuf = pbloader.get_pixbuf()
-            pbloader.close()
-        except:
-            log_dialog.addMessage(thread_id, config.WARNING, 
-                            'Thumbnail cannot be displayed', filename, 
-                            'It may be corrupted')
+        if not thumbnail:
+            pixbuf = self.missingThumbnail
         else:
-            if not pixbuf:
+            try:
+                pbloader = gdk.PixbufLoader()
+                pbloader.write(thumbnail)
+                # Get the resulting pixbuf and build an image to be displayed
+                pixbuf = pbloader.get_pixbuf()
+                pbloader.close()
+                
+            except:
                 log_dialog.addMessage(thread_id, config.WARNING, 
                                 'Thumbnail cannot be displayed', filename, 
                                 'It may be corrupted')
-            else:
-            
-                # rotate if necessary
-                if orientation == 8:
-                    pixbuf = pixbuf.rotate_simple(gdk.PIXBUF_ROTATE_COUNTERCLOCKWISE)
+                pixbuf = self.missingThumbnail
+
+        if not pixbuf:
+            log_dialog.addMessage(thread_id, config.WARNING, 
+                            'Thumbnail cannot be displayed', filename, 
+                            'It may be corrupted')
+            pixbuf = self.missingThumbnail
+        else:
+            # rotate if necessary
+            if orientation == 8:
+                pixbuf = pixbuf.rotate_simple(gdk.PIXBUF_ROTATE_COUNTERCLOCKWISE)
+    
+        # scale to size
+        pixbuf = common.scale2pixbuf(100, 100, pixbuf)
+        if not imageDownloaded:
+            # lighten it
+            self.white.composite(pixbuf, 0, 0, pixbuf.props.width, pixbuf.props.height, 0, 0, 1.0, 1.0, gtk.gdk.INTERP_HYPER, 180)
+
+        image = gtk.Image()
+        image.set_from_pixbuf(pixbuf)
         
-                # scale to size
-                pixbuf = common.scale2pixbuf(100, 100, pixbuf)
-                image = gtk.Image()
-                image.set_from_pixbuf(pixbuf)
-                
-                self.pack_start(image, expand=False, padding=self.padding)
-                image.show()
-            
-            # move viewport to display the latest image
-            adjustment = self.parentApp.image_scrolledwindow.get_hadjustment()
-            adjustment.set_value(adjustment.upper)
+        self.pack_start(image, expand=False, padding=self.padding)
+        image.show()
+        
+        # move viewport to display the latest image
+        adjustment = self.parentApp.image_scrolledwindow.get_hadjustment()
+        adjustment.set_value(adjustment.upper)
 
         
 class LogDialog(gnomeglade.Component):
@@ -1694,7 +1747,6 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
         downloadsToday = self.prefs.getDownloadsToday()
         if downloadsToday < 0:
             self.prefs.setDownloadsToday(today(),  0)
-        self.prefs.setDownloadsToday(today(),  0)
         sequences = rn.Sequences(self.prefs.getDownloadsToday(),  self.prefs.day_start,  self.prefs.stored_sequence_no)
         
         self.downloadStats = DownloadStats()

@@ -1239,11 +1239,14 @@ class Sequences:
     def setStoredSequenceNo(self,  value):
         self.storedSequenceNo = value
         
-    def getDownloadsToday(self):
-        return self.downloadsToday + self.assignedSequenceCounter    
+#    def getDownloadsToday(self):
+#        return self.downloadsToday + self.assignedSequenceCounter    
         
     def getDownloadsTodayUsingCounter(self,  counter):
         return self.downloadsToday + counter
+        
+    def setDownloadsToday(self,  value):
+        self.downloadsToday = value
 
 #    def getStoredSequenceNo(self):
 #        return self.storedSequenceNo + self.assignedSequenceCounter - 1

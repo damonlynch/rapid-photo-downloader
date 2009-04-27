@@ -16,6 +16,10 @@ automatically upon insertion of a memory card.
 
 Add "exit at end of successful download" automation feature.
 
+When an image's download is skipped, the thumbnail is now lightened.
+
+Show a missing image icon if the thumbnail cannot be displayed for some reason.
+
 Resize main window when an image device is inserted - it now expands to show
 each device that is inserted.
 
