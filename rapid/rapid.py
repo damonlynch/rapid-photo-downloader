@@ -49,6 +49,8 @@ import gnomeglade
 
 import pynotify
 
+import ValidatedEntry
+
 import idletube as tube
 
 import config
@@ -518,9 +520,9 @@ class PreferencesDialog(gnomeglade.Component):
         # setup tabs
         self._setupDownloadFolderTab()
         self._setupImageRenameTab()
+        self._setupRenameOptionsTab()
         self._setupDeviceTab()
         self._setupBackupTab()
-        self._setupCompatibilityTab()
         self._setupAutomationTab()
         self._setupErrorTab()
 
@@ -575,7 +577,7 @@ class PreferencesDialog(gnomeglade.Component):
         self.backup_table.set_col_spacing(2, hd.CONTROL_LABEL_SPACE)
         self._setupTableSpacing(self.compatibility_table)
         self.compatibility_table.set_row_spacing(0, 
-                                            hd.VERTICAL_CONTROL_LABEL_SPACE)
+                                            hd.VERTICAL_CONTROL_LABEL_SPACE)                                                    
         self._setupTableSpacing(self.error_table)
         self.error_table.set_row_spacing(5, hd.VERTICAL_CONTROL_SPACE / 2)
     
@@ -614,6 +616,27 @@ class PreferencesDialog(gnomeglade.Component):
         self.rename_table.show_all()
         self.original_name_label.set_markup("<i>%s</i>" % self.sampleImageName)
         self.updateImageRenameExample()
+        
+    def _setupRenameOptionsTab(self):
+        self.downloads_today_entry = ValidatedEntry.ValidatedEntry(ValidatedEntry.bounded(ValidatedEntry.v_int, int, 0))
+        self.stored_number_entry = ValidatedEntry.ValidatedEntry(ValidatedEntry.bounded(ValidatedEntry.v_int, int, 0))
+        self.downloads_today_entry.connect('changed', self.on_downloads_today_entry_changed)
+        self.stored_number_entry.connect('changed', self.on_stored_number_entry_changed)
+        v = self.prefs.getDownloadsToday()
+        if v < 0:
+            v = 0
+        self.downloads_today_entry.set_text(str(v))
+        self.stored_number_entry.set_text(str(self.prefs.stored_sequence_no))
+        self.sequence_vbox.pack_start(self.downloads_today_entry, expand=True, fill=True)
+        self.sequence_vbox.pack_start(self.stored_number_entry, expand=False)
+        self.downloads_today_entry.show()
+        self.stored_number_entry.show()
+        hour, minute = self.prefs.getDayStart()
+        self.hour_spinbutton.set_value(float(hour))
+        self.minute_spinbutton.set_value(float(minute))
+
+        self.strip_characters_checkbutton.set_active(
+                            self.prefs.strip_characters)
         
     def _setupDeviceTab(self):
         self.device_location_filechooser_button = gtk.FileChooserButton(
@@ -678,11 +701,6 @@ class PreferencesDialog(gnomeglade.Component):
         self.updateBackupControls()
         self.updateBackupExample()
     
-    def _setupCompatibilityTab(self):
-        self.strip_characters_checkbutton.set_active(
-                            self.prefs.strip_characters)
-    
-
     def _setupAutomationTab(self):
         self.auto_startup_checkbutton.set_active(
                         self.prefs.auto_download_at_startup)
@@ -755,11 +773,43 @@ class PreferencesDialog(gnomeglade.Component):
             
         self.example_download_path_label.set_markup("<i>Example: %s</i>" % text)
         
+    def on_hour_spinbutton_value_changed(self, spinbutton):
+        hour = spinbutton.get_value_as_int()
+        minute = self.minute_spinbutton.get_value_as_int()
+        self.prefs.setDayStart(hour, minute)
+        
+    def on_minute_spinbutton_value_changed(self, spinbutton):
+        hour = self.hour_spinbutton.get_value_as_int()
+        minute = spinbutton.get_value_as_int()
+        self.prefs.setDayStart(hour, minute)
+
+    def on_downloads_today_entry_changed(self, entry):
+        v = entry.get_text()
+        try:
+            v = int(v)
+        except:
+            v = 0
+        if v < 0:
+            v = 0
+        self.prefs.setDownloadsToday(value = v)
+        sequences.setDownloadsToday(v)
+        self.updateImageRenameExample()
+        
+    def on_stored_number_entry_changed(self, entry):
+        v = entry.get_text()
+        try:
+            v = int(v)
+        except:
+            v = 0
+        if v < 0:
+            v = 0
+        self.prefs.stored_sequence_no = v
+        sequences.setStoredSequenceNo(v)
+        self.updateImageRenameExample()
 
     def on_response(self, dialog, arg):
         if arg==gtk.RESPONSE_CLOSE:
-            self.prefs.backup_identifier = \
-                self.backup_identifier_entry.get_property("text")
+            self.prefs.backup_identifier = self.backup_identifier_entry.get_property("text")
         self.widget.destroy()
 
     def on_auto_startup_checkbutton_toggled(self, checkbutton):
@@ -2362,7 +2412,7 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
     def on_preference_changed(self, key, value):
 #        if self.testing:
 #            print "on_preference_changed",  key,  value
-        
+
         if key == 'display_thumbnails':
             self.set_display_thumbnails(value)
         elif key == 'media_type':
