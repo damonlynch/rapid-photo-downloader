@@ -1186,8 +1186,6 @@ class CopyPhotos(Thread):
                             # potentially, a unique image name could still be generated
                             # investigate this possibility
                             with self.fileSequenceLock:
-#                                doesNotExistInDestinationDir = False
-#                                doesNotExistInTempDir = False
                                 for possibleName,  problem in self.imageRenamePrefsFactory.generateNameSequencePossibilities(imageMetadata, 
                                                                                                                originalName, self.stripCharacters,  subfolder):
 #                                    print "checking",  possibleName,  "using",  originalName
@@ -1196,12 +1194,9 @@ class CopyPhotos(Thread):
                                         possibleFile = os.path.join(path, possibleName)
                                         possibleTempFile = os.path.join(tempWorkingDir,  possibleName)
                                         if not os.path.exists(possibleFile) and not os.path.exists(possibleTempFile):
-#                                            doesNotExistInDestinationDir = True
-#                                            print "we can use it"
                                             downloadNonUniqueFile = True
                                             break
-#                                        if :
-#                                            doesNotExistInTempDir = True
+
                                         
                     if self.prefs.indicate_download_error and not downloadNonUniqueFile:
                         logError(config.SERIOUS_ERROR, IMAGE_ALREADY_EXISTS,
@@ -1436,7 +1431,10 @@ class CopyPhotos(Thread):
         
         addUniqueIdentifier = self.prefs.download_conflict_resolution == config.ADD_UNIQUE_IDENTIFIER
         usesSequenceElements = self.imageRenamePrefsFactory.usesSequenceElements()
-        usesStoredSequenceNo = self.imageRenamePrefsFactory.usesStoredSequenceNo()
+        usesStoredSequenceNo = self.imageRenamePrefsFactory.usesTheSequenceElement(rn.STORED_SEQ_NUMBER)
+        sequences. setUseOfSequenceElements(
+            self.imageRenamePrefsFactory.usesTheSequenceElement(rn.SESSION_SEQ_NUMBER), 
+            self.imageRenamePrefsFactory.usesTheSequenceElement(rn.SEQUENCE_LETTER))
         
         while i < noImages:
             if not self.running:
@@ -1820,6 +1818,9 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
         sequences = rn.Sequences(downloadsToday,  self.prefs.stored_sequence_no)
         
         self.downloadStats = DownloadStats()
+        
+        # set the number of seconds gap with which to measure download time remaing 
+        self.downloadTimeGap = 3
 
         #locks for threadsafe file downloading and stats gathering
         self.fileRenameLock = Lock()
@@ -1893,11 +1894,11 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
     @dbus.service.method (config.DBUS_NAME,
                             in_signature='', out_signature='')
     def start (self):
-        if self.is_running ():
+        if self.is_running():
             self.rapidapp.present()
         else:
             self.running = True
-            self.main ()
+            self.main()
             self.running = False
             
     def setTestingEnv(self):
@@ -2228,6 +2229,10 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
         self.startTime = time.time()
         self.timeStatusBarUpdated = self.startTime
 
+        self.timeMark = self.startTime
+        self.sizeMark = 0
+        self.timeRemaining = None
+        
         # resume any paused workers
         for w in workers.getPausedWorkers():
             w.startStop()
@@ -2249,7 +2254,6 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
         self.totalDownloadedSoFarThisRun += imageSize
         
         fraction = self.totalDownloadedSoFar / float(self.totalDownloadSize)
-        timefraction = self.totalDownloadedSoFarThisRun / float(self.totalDownloadSizeThisRun)
         
         self.download_progressbar.set_fraction(fraction)        
         
@@ -2265,16 +2269,21 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
     
         else:
             now = time.time()
-    
-            timeTaken = now - self.startTime
-            timeEstimated = timeTaken / timefraction
-
-            timeRemaining = timeEstimated - timeTaken
             
+            if now > (self.downloadTimeGap + self.timeMark):
+                amtTime = now - self.timeMark
+                self.timeMark = now
+                amtDownloaded = self.totalDownloadedSoFarThisRun - self.sizeMark
+                self.sizeMark = self.totalDownloadedSoFarThisRun
             
-            if (now - self.timeStatusBarUpdated) > 0.5:
-                self.timeStatusBarUpdated = now
-                secs =  int(timeRemaining)
+                timefraction = amtDownloaded / amtTime
+                amtToDownload = float(self.totalDownloadSizeThisRun) - self.totalDownloadedSoFarThisRun
+                
+                self.timeRemaining = amtToDownload / timefraction
+                self.downloadSpeed = "%1.1fMB/s" % (amtDownloaded / 1048576 / amtTime)
+                
+            
+                secs =  int(self.timeRemaining)
                 
                 if secs == 0:
                     message = ""
@@ -2288,15 +2297,18 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
                     message = "About %i:%02i minutes remaining" % (secs / 60, secs % 60)
                 
                 self.rapid_statusbar.push(self.statusbar_context_id, message)
+                self.speed_label.set_text(self.downloadSpeed)
     
     def resetSequences(self):
         if self.downloadComplete():
             sequences.reset(self.prefs.getDownloadsToday(),  self.prefs.stored_sequence_no)
     
     def notifyUserAllDownloadsComplete(self):
-        """ Possibly notify the user all downloads are complete using libnotify"""
+        """ Possibly notify the user all downloads are complete using libnotify
         
-        if self.downloadComplete():           
+        Reset progress bar info"""
+        
+        if self.downloadComplete():
             if self.displayDownloadSummaryNotification:
                 message = "All downloads complete\n%s images downloaded" % self.downloadStats.noImagesDownloaded
                 if self.downloadStats.noImagesSkipped:
@@ -2309,6 +2321,8 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
                 n.show()
                 self.displayDownloadSummaryNotification = False # don't show it again unless needed
                 self.downloadStats.clear()
+            self._resetDownloadInfo()
+            self.speed_label.set_text('         ')
                 
     def exitOnDownloadComplete(self):
         if self.downloadComplete():

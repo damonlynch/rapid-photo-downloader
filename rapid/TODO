@@ -9,14 +9,12 @@ For major release (0.10.0):
 * handle unexpected media removal, disk full, all kinds of write errors
 * indicate different levels of error better in log window
 * sum amount of images to be downloaded, and how much free space on the file system
-* dim image thumbnail to indicate an image was skipped
-* show an icon if the thumbnail could not be displayed
 * better handle cases where a device has no images to be downloaded (download button not being reset)
 * check to see if preferences are valid when clicking close on preferences dialog
 * check to see if preferences are valid when starting the application
 * check download locations and sources still valid when starting the application
 * rework checkPrefsForValidity() to account for multiple subfolder problems
-* make sure it is the only instance running - use gnome / dbus to check this
+
 
 
 
@@ -24,7 +22,6 @@ For future releases:
 ====================
 
 * Better application icon -- help needed!
-* Make download time remaing algorithm more intelligent
 * Get more metadata
   - lens
 * User defined camera model mapping

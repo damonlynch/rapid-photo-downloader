@@ -1,5 +1,5 @@
-Version 0.0.8 beta 8
---------------------
+Version 0.0.8
+-------------
 
 2009-04-30
 
@@ -8,9 +8,13 @@ Added stored and downloads today sequence numbers:
 * The stored sequence number is remembered each time the program is run.
 
 * Downloads today tracks how many downloads are made on a given day. The time a
-  day "starts" is set via a new preference value, day start. For instance, this 
-  is useful if you often photograph something late at night (e.g. concerts) and
-  want a new day to "start" at 3am.
+  day "starts" is set via a new preference value, day start. This is useful if
+  you often photograph something late at night (e.g. concerts) and want a new
+  day to "start" at 3am, for instance.
+
+Make estimate of time remaining to download images more accurate.
+
+Display download speed in status bar.
 
 Reorganized sequence number/letter selection in preferences.
 
@@ -56,6 +60,8 @@ Bug fix: don't change download button label to "pause" when "Start downloading
 on program startup" is set to true.
 
 Bug fix: implement code to warn / give error about missing backup devices.
+
+Bug fix: reset progress bar after completion of successful download
 
 
 Version 0.0.8 beta 7

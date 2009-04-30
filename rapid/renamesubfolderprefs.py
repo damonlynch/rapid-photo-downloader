@@ -964,9 +964,9 @@ class ImageRenamePreferences:
                 
         return False
         
-    def usesStoredSequenceNo(self):
+    def usesTheSequenceElement(self,  e):
         """ Returns true if a stored sequence number is used to generate the filename """
-        return STORED_SEQ_NUMBER in self.prefList
+        return e in self.prefList
             
     
     def _createCombo(self, choices):
@@ -1190,19 +1190,23 @@ class Sequences:
         self.sessionSequenceNo = 1
         self.sequenceLetter = 0
     
-        # is this used anywhere?
-        self.downloadsCompleted = 0 
+        self.setUseOfSequenceElements(False,  False)
         
         self.assignedSequenceCounter = 1
         self.reset(downloadsToday,  storedSequenceNo)
 
+    def setUseOfSequenceElements(self,  usesSessionSequenceNo,  usesSequenceLetter):
+        self.usesSessionSequenceNo = usesSessionSequenceNo
+        self.usesSequenceLetter = usesSequenceLetter
         
     def reset(self,  downloadsToday,  storedSequenceNo):
         self.downloadsToday = downloadsToday
         self.downloadsTodayOffset = 0
         self.storedSequenceNo = storedSequenceNo
-        self.sessionSequenceNo = self.sessionSequenceNo + self.assignedSequenceCounter - 1
-        self.sequenceLetter = self.sequenceLetter + self.assignedSequenceCounter - 1
+        if self.usesSessionSequenceNo:
+            self.sessionSequenceNo = self.sessionSequenceNo + self.assignedSequenceCounter - 1
+        if self.usesSequenceLetter:
+            self.sequenceLetter = self.sequenceLetter + self.assignedSequenceCounter - 1
         self.doNotAddToPool = False
         self.pool = []        
         self.poolSequenceCounter = 0
@@ -1263,7 +1267,6 @@ class Sequences:
         assert(self.assignedSequenceCounter == self.pool[0])
         self.assignedSequenceCounter += 1
         self.pool = self.pool[1:]
-        self.downloadsCompleted += 1
         
         
 
