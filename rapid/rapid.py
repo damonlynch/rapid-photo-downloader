@@ -285,54 +285,68 @@ class RapidPreferences(prefs.Preferences):
     def __init__(self):
         prefs.Preferences.__init__(self, config.GCONF_KEY, self.defaults)
 
+    def getAndMaybeResetDownloadsToday(self):
+        v = self.getDownloadsToday()
+        if v <= 0:
+            self.resetDownloadsToday()
+        return v
+
     def getDownloadsToday(self):
         """Returns the preference value for the number of downloads performed today 
         
         If value is less than zero, that means the date has changed"""
         
-        now = datetime.datetime.today()
-
         hour,  minute = self.getDayStart()
-        adjustedToday = datetime.datetime.strptime("%s %s:%s" % (self.downloads_today[0], hour,  minute), "%Y-%m-%d %H:%M") +  + datetime.timedelta(days=1)
+        adjustedToday = datetime.datetime.strptime("%s %s:%s" % (self.downloads_today[0], hour,  minute), "%Y-%m-%d %H:%M") 
         
+        now = datetime.datetime.today()
 #        print "now: %s  ## adjustedToday: %s" % (now,  adjustedToday)
-        
         if  now < adjustedToday :
             try:
                 return int(self.downloads_today[1])
             except ValueError:
                 print "Invalid Downloads Today value.\nResetting value to zero."
-                self.downloads_today = [self.downloads_today[0] ,  '0']
+                self.setDownloadsToday(self.downloads_today[0] ,  0)
                 return 0
         else:
             return -1
                 
-    def setDownloadsToday(self, date = None,  value=0):
-            if date == None:
-                date = today()
+    def setDownloadsToday(self, date,  value=0):
             self.downloads_today = [date,  str(value)]
             
-    def incrementDownloadsToday(self,  date = None):
+    def incrementDownloadsToday(self):
         """ returns true if day changed """
-        if date == None:
-            date = today()
         v = self.getDownloadsToday()
         if v >= 0:
-            self.downloads_today = [self.downloads_today[0] ,  str(v + 1)]
+            self.setDownloadsToday(self.downloads_today[0] ,  v + 1)
             return False
         else:
-            self.downloads_today = [date,  '1']
+            self.resetDownloadsToday(1)
             return True
+
+    def resetDownloadsToday(self,  value=0):
+        now = datetime.datetime.today()
+        hour,  minute = self.getDayStart()
+        t = datetime.time(hour,  minute)
+        if now.time() < t:
+            date = today()
+        else:
+            d = datetime.datetime.today() + datetime.timedelta(days=1)
+            date = d.strftime(('%Y-%m-%d'))
             
-#    def _setAdjustedToday(self): 
-#        self.adjustedToday = 
+        self.setDownloadsToday(date,  value)
+        
     def setDayStart(self,  hour,  minute):
         self.day_start = "%s:%s" % (hour,  minute)
-#        self._setAdjustedToday()
-        
-            
+
     def getDayStart(self):
-        return self.day_start.split(":")
+        try:
+            t1,  t2 = self.day_start.split(":")
+            return (int(t1),  int(t2))
+        except ValueError:
+            print "Start of day preference is corrupted.\nResetting to midnight."
+            self.day_start = "0:0"
+            return 0, 0
 
 
 class ImageRenameTable(tpm.TablePlusMinus):
@@ -619,14 +633,14 @@ class PreferencesDialog(gnomeglade.Component):
         
     def _setupRenameOptionsTab(self):
         self.downloads_today_entry = ValidatedEntry.ValidatedEntry(ValidatedEntry.bounded(ValidatedEntry.v_int, int, 0))
-        self.stored_number_entry = ValidatedEntry.ValidatedEntry(ValidatedEntry.bounded(ValidatedEntry.v_int, int, 0))
+        self.stored_number_entry = ValidatedEntry.ValidatedEntry(ValidatedEntry.bounded(ValidatedEntry.v_int, int, 1))
         self.downloads_today_entry.connect('changed', self.on_downloads_today_entry_changed)
         self.stored_number_entry.connect('changed', self.on_stored_number_entry_changed)
-        v = self.prefs.getDownloadsToday()
-        if v < 0:
-            v = 0
+        v = self.prefs.getAndMaybeResetDownloadsToday()
         self.downloads_today_entry.set_text(str(v))
-        self.stored_number_entry.set_text(str(self.prefs.stored_sequence_no))
+        # make the displayed value of stored sequence no 1 more than actual value
+        # so as not to confuse the user
+        self.stored_number_entry.set_text(str(self.prefs.stored_sequence_no+1))
         self.sequence_vbox.pack_start(self.downloads_today_entry, expand=True, fill=True)
         self.sequence_vbox.pack_start(self.stored_number_entry, expand=False)
         self.downloads_today_entry.show()
@@ -777,35 +791,43 @@ class PreferencesDialog(gnomeglade.Component):
         hour = spinbutton.get_value_as_int()
         minute = self.minute_spinbutton.get_value_as_int()
         self.prefs.setDayStart(hour, minute)
+        self.on_downloads_today_entry_changed(self.downloads_today_entry)
         
     def on_minute_spinbutton_value_changed(self, spinbutton):
         hour = self.hour_spinbutton.get_value_as_int()
         minute = spinbutton.get_value_as_int()
         self.prefs.setDayStart(hour, minute)
+        self.on_downloads_today_entry_changed(self.downloads_today_entry)
 
     def on_downloads_today_entry_changed(self, entry):
-        v = entry.get_text()
-        try:
-            v = int(v)
-        except:
-            v = 0
-        if v < 0:
-            v = 0
-        self.prefs.setDownloadsToday(value = v)
-        sequences.setDownloadsToday(v)
-        self.updateImageRenameExample()
+        if workers.noRunningWorkers() == 0:
+            # do not update value if a download is occurring - it will mess it up!
+            v = entry.get_text()
+            try:
+                v = int(v)
+            except:
+                v = 0
+            if v < 0:
+                v = 0
+            self.prefs.resetDownloadsToday(v)
+            sequences.setDownloadsToday(v)
+            self.updateImageRenameExample()
         
     def on_stored_number_entry_changed(self, entry):
-        v = entry.get_text()
-        try:
-            v = int(v)
-        except:
-            v = 0
-        if v < 0:
-            v = 0
-        self.prefs.stored_sequence_no = v
-        sequences.setStoredSequenceNo(v)
-        self.updateImageRenameExample()
+        if workers.noRunningWorkers() == 0:
+            # do not update value if a download is occurring - it will mess it up!
+            v = entry.get_text()
+            try:
+                # the displayed value of stored sequence no 1 more than actual value
+                # so as not to confuse the user
+                v = int(v) - 1
+            except:
+                v = 0
+            if v < 0:
+                v = 0
+            self.prefs.stored_sequence_no = v
+            sequences.setStoredSequenceNo(v)
+            self.updateImageRenameExample()
 
     def on_response(self, dialog, arg):
         if arg==gtk.RESPONSE_CLOSE:
@@ -1243,8 +1265,9 @@ class CopyPhotos(Thread):
                                         
                             with self.fileSequenceLock:
                                 if self.prefs.incrementDownloadsToday():
+                                    print "new day started"
                                     # a new day has started
-                                    sequences.setDownloadsToday(1)
+                                    sequences.setDownloadsToday(0)
                     
             except IOError, (errno, strerror):
                 # FIXME: is the lock released on an error here?!
@@ -1473,6 +1496,7 @@ class CopyPhotos(Thread):
                 
         notifyAndUnmount()
         display_queue.put((self.parentApp.notifyUserAllDownloadsComplete,()))
+        display_queue.put((self.parentApp.resetSequences,()))
 
         cleanUp()
         display_queue.put((self.parentApp.exitOnDownloadComplete, ()))
@@ -1612,8 +1636,6 @@ class MediaTreeView(gtk.TreeView):
         else:
             path = self.mapThreadToRow[0].get_path()
             col = self.get_column(0)
-#        print self.get_background_area(path, col)
-#        print self.get_cell_area(path,  col)
             return self.get_background_area(path, col)[3]
 
 class ImageHBox(gtk.HBox):
@@ -1794,10 +1816,8 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
 
         duplicate_files = {}
         
-        downloadsToday = self.prefs.getDownloadsToday()
-        if downloadsToday < 0:
-            self.prefs.setDownloadsToday(today(),  0)
-        sequences = rn.Sequences(self.prefs.getDownloadsToday(),  self.prefs.day_start,  self.prefs.stored_sequence_no)
+        downloadsToday = self.prefs.getAndMaybeResetDownloadsToday()
+        sequences = rn.Sequences(downloadsToday,  self.prefs.stored_sequence_no)
         
         self.downloadStats = DownloadStats()
 
@@ -2269,12 +2289,14 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
                 
                 self.rapid_statusbar.push(self.statusbar_context_id, message)
     
+    def resetSequences(self):
+        if self.downloadComplete():
+            sequences.reset(self.prefs.getDownloadsToday(),  self.prefs.stored_sequence_no)
+    
     def notifyUserAllDownloadsComplete(self):
         """ Possibly notify the user all downloads are complete using libnotify"""
         
-        if self.downloadComplete():
-            print "FIXME: move this code!"
-            sequences.reset(self.prefs.getDownloadsToday(),  self.prefs.stored_sequence_no)
+        if self.downloadComplete():           
             if self.displayDownloadSummaryNotification:
                 message = "All downloads complete\n%s images downloaded" % self.downloadStats.noImagesDownloaded
                 if self.downloadStats.noImagesSkipped:

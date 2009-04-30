@@ -1,9 +1,16 @@
 Version 0.0.8 beta 8
 --------------------
 
-2009-04-
+2009-04-30
 
-Added stored and downloads today sequence numbers.
+Added stored and downloads today sequence numbers:
+
+* The stored sequence number is remembered each time the program is run.
+
+* Downloads today tracks how many downloads are made on a given day. The time a
+  day "starts" is set via a new preference value, day start. For instance, this 
+  is useful if you often photograph something late at night (e.g. concerts) and
+  want a new day to "start" at 3am.
 
 Reorganized sequence number/letter selection in preferences.
 
@@ -19,8 +26,10 @@ Add "exit at end of successful download" automation feature.
 When an image's download is skipped, the thumbnail is now lightened.
 
 Show a missing image icon if the thumbnail cannot be displayed for some reason.
+(See bug #369640 for why thumbnail images from certain RAW files are not 
+displayed).
 
-Resize main window when an image device is inserted - it now expands to show
+Resize main window when an image device is inserted -- it now expands to show
 each device that is inserted.
 
 Do not proceed with download if there is an error in the image rename or
@@ -46,7 +55,7 @@ inadvertently set to DDMMYYYY/YYYYMMDD in beta 6.
 Bug fix: don't change download button label to "pause" when "Start downloading
 on program startup" is set to true.
 
-Bug fix: implement code to check for missing backup devices.
+Bug fix: implement code to warn / give error about missing backup devices.
 
 
 Version 0.0.8 beta 7

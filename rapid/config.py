@@ -41,6 +41,8 @@ MAX_NO_READERS = 20
 RAW_FILE_EXTENSIONS = ['arw', 'dcr', 'cr2', 'crw',  'dng', 'mef', 'mos', 'mrw', 
                         'nef', 'orf', 'pef', 'raf', 'raw', 'sr2']
 
+#exiv2 0.18.1 introduces support for Panasonic .RW2 files
+
 NON_RAW_IMAGE_FILE_EXTENSIONS = ['jpg', 'jpe', 'jpeg', 'tif', 'tiff']
 
 CRITICAL_ERROR = 1

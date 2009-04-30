@@ -1183,7 +1183,7 @@ class SubfolderPreferences(ImageRenamePreferences):
 
 class Sequences:
     """ Holds sequence numbers and letters used in generating filenames"""
-    def __init__(self,  downloadsToday,  dayStart,  storedSequenceNo):
+    def __init__(self,  downloadsToday,  storedSequenceNo):
 
         
         self.subfolderSequenceNo = {}
@@ -1195,10 +1195,11 @@ class Sequences:
         
         self.assignedSequenceCounter = 1
         self.reset(downloadsToday,  storedSequenceNo)
-        self.dayStart = dayStart
+
         
     def reset(self,  downloadsToday,  storedSequenceNo):
         self.downloadsToday = downloadsToday
+        self.downloadsTodayOffset = 0
         self.storedSequenceNo = storedSequenceNo
         self.sessionSequenceNo = self.sessionSequenceNo + self.assignedSequenceCounter - 1
         self.sequenceLetter = self.sequenceLetter + self.assignedSequenceCounter - 1
@@ -1238,18 +1239,13 @@ class Sequences:
         
     def setStoredSequenceNo(self,  value):
         self.storedSequenceNo = value
-        
-#    def getDownloadsToday(self):
-#        return self.downloadsToday + self.assignedSequenceCounter    
-        
+                
     def getDownloadsTodayUsingCounter(self,  counter):
-        return self.downloadsToday + counter
+        return self.downloadsToday + counter - self.downloadsTodayOffset
         
     def setDownloadsToday(self,  value):
         self.downloadsToday = value
-
-#    def getStoredSequenceNo(self):
-#        return self.storedSequenceNo + self.assignedSequenceCounter - 1
+        self.downloadsTodayOffset = self.assignedSequenceCounter - 1
         
     def getStoredSequenceNoUsingCounter(self,  counter):
         return self.storedSequenceNo + counter
@@ -1270,16 +1266,7 @@ class Sequences:
         self.downloadsCompleted += 1
         
         
-#class SampleSequences(Sequences):
-#    """Used for generating sample filenames"""
-#    def __init__(self,  downloadsToday, storedSequenceNo):
-#        Sequences.__init__(self, downloadsToday,  storedSequenceNo)
-#        
-#    def increment(self,  subfolder):
-#        pass
-#        
-#    def getDownloadsToday(self):
-#        return 1
+
         
 if __name__ == '__main__':
     import sys
