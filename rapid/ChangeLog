@@ -61,9 +61,9 @@ on program startup" is set to true.
 
 Bug fix: implement code to warn / give error about missing backup devices.
 
-Bug fix: reset progress bar after completion of successful download
+Bug fix: reset progress bar after completion of successful download.
 
-Fix bug # 317404 when clearing completed downloads
+Fix bug # 317404 when clearing completed downloads.
 
 
 
