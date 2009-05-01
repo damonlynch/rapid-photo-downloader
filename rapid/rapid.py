@@ -1586,11 +1586,11 @@ class MediaTreeView(gtk.TreeView):
         self._setThreadMap(thread_id, iter)
         
         # adjust scrolled window height, based on row height and number of ready to start downloads
-        if workers.noReadyToStartWorkers() >= 1:
+        if workers.noReadyToStartWorkers() >= 1 or workers.noRunningWorkers() > 0:
             # please note, at program startup, self.rowHeight() will be less than it will be when already running
             # e.g. when starting with 3 cards, it could be 18, but when adding 2 cards to the already running program
             # (with one card at startup), it could be 21
-            height = (workers.noReadyToStartWorkers() + 2) * (self.rowHeight())
+            height = (workers.noReadyToStartWorkers() + workers.noRunningWorkers() + 2) * (self.rowHeight())
             self.parentApp.media_collection_scrolledwindow.set_size_request(-1,  height)
 
         
@@ -1793,7 +1793,7 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
         displayPreferences = self.checkForUpgrade(__version__)
         self.prefs.program_version = __version__
         
-
+        self.timeRemaining = TimeRemaining()
         self._resetDownloadInfo()
         self.statusbar_context_id = self.rapid_statusbar.get_context_id("progress")
         
@@ -2059,6 +2059,8 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
             cardMedia = CardMedia(path, volume)
             i = workers.getNextThread_id()
             workers.append(CopyPhotos(i, self, self.fileRenameLock, self.fileSequenceLock, self.statsLock,  self.downloadStats,  cardMedia))
+            size = cardMedia.sizeOfImages(False)
+            self.timeRemaining.add(i,  size)
             self.setDownloadButtonSensitivity()
             
             if self.prefs.auto_download_upon_device_insertion:
@@ -2180,7 +2182,9 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
 
         for i in range(j, j + len(cardMediaList)):
             cardMedia = cardMediaList[i - j]
-            workers.append(CopyPhotos(i, self, self.fileRenameLock, self.fileSequenceLock, self.statsLock,self.downloadStats, cardMedia))
+            workers.append(CopyPhotos(i, self, self.fileRenameLock, self.fileSequenceLock, self.statsLock, self.downloadStats, cardMedia))
+            size = cardMedia.sizeOfImages(False)
+            self.timeRemaining.add(i,  size)
         
         self.setDownloadButtonSensitivity()
         
@@ -2212,6 +2216,7 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
         self.startTime = None
         self.totalDownloadSize = self.totalDownloadedSoFar = 0
         self.totalDownloadSizeThisRun = self.totalDownloadedSoFarThisRun = 0 
+        self.timeRemaining.clear()
     
     def startOrResumeWorkers(self):
             
@@ -2219,10 +2224,9 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
         for w in workers.getReadyToStartWorkers():
             size = w.cardMedia.sizeOfImages(humanReadable = False)
             self.totalDownloadSize += size
+            self.timeRemaining.add(w,  size)
+            
 
-##        if self.totalDownloadedSoFar > 0:
-##            # the download must have been paused, so must recalculate download 
-##            # times
         self.totalDownloadSizeThisRun = self.totalDownloadSize - self.totalDownloadedSoFar
         self.totalDownloadedSoFarThisRun = 0
             
@@ -2231,11 +2235,12 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
 
         self.timeMark = self.startTime
         self.sizeMark = 0
-        self.timeRemaining = None
+        
         
         # resume any paused workers
         for w in workers.getPausedWorkers():
             w.startStop()
+            self.timeRemaining.setTimeMark(w)
             
         #start any new workers
         workers.startWorkers()
@@ -2269,35 +2274,34 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
     
         else:
             now = time.time()
+            self.timeRemaining.update(thread_id,  imageSize)
             
             if now > (self.downloadTimeGap + self.timeMark):
                 amtTime = now - self.timeMark
                 self.timeMark = now
                 amtDownloaded = self.totalDownloadedSoFarThisRun - self.sizeMark
                 self.sizeMark = self.totalDownloadedSoFarThisRun
-            
-                timefraction = amtDownloaded / amtTime
                 amtToDownload = float(self.totalDownloadSizeThisRun) - self.totalDownloadedSoFarThisRun
+                downloadSpeed = "%1.1fMB/s" % (amtDownloaded / 1048576 / amtTime)
+                self.speed_label.set_text(downloadSpeed)
                 
-                self.timeRemaining = amtToDownload / timefraction
-                self.downloadSpeed = "%1.1fMB/s" % (amtDownloaded / 1048576 / amtTime)
+                timeRemaining = self.timeRemaining.timeRemaining()
+                if timeRemaining:
+                    secs =  int(timeRemaining)
                 
-            
-                secs =  int(self.timeRemaining)
-                
-                if secs == 0:
-                    message = ""
-                elif secs == 1:
-                    message = "About 1 second remaining"
-                elif secs < 60:
-                    message = "About %i seconds remaining" % secs 
-                elif secs == 60:
-                    message = "About 1 minute remaining" 
-                else:
-                    message = "About %i:%02i minutes remaining" % (secs / 60, secs % 60)
-                
-                self.rapid_statusbar.push(self.statusbar_context_id, message)
-                self.speed_label.set_text(self.downloadSpeed)
+                    if secs == 0:
+                        message = ""
+                    elif secs == 1:
+                        message = "About 1 second remaining"
+                    elif secs < 60:
+                        message = "About %i seconds remaining" % secs 
+                    elif secs == 60:
+                        message = "About 1 minute remaining" 
+                    else:
+                        message = "About %i:%02i minutes remaining" % (secs / 60, secs % 60)
+                    
+                    self.rapid_statusbar.push(self.statusbar_context_id, message)
+                    
     
     def resetSequences(self):
         if self.downloadComplete():
@@ -2480,6 +2484,52 @@ class DownloadStats:
         self.noImagesDownloaded = self.noImagesSkipped = 0
         self.downloadSize = 0
         self.noWarnings = self.noErrors = 0
+        
+class TimeForDownload:
+    pass
+
+class TimeRemaining:
+    gap = 2
+    def __init__(self):
+        self.clear()
+        
+    def add(self,  w,  size):
+        if w not in self.times:
+            t = TimeForDownload()
+            t.timeRemaining = None
+            t.size = size
+            t.downloaded = 0
+            t.sizeMark = 0
+            t.timeMark = time.time()
+            self.times[w] = t
+        
+    def update(self,  w,  size):
+        if w in self.times:
+            self.times[w].downloaded += size
+            now = time.time()
+            tm = self.times[w].timeMark
+            amtTime = now - tm
+            if amtTime > self.gap:
+                self.times[w].timeMark = now
+                amtDownloaded = self.times[w].downloaded - self.times[w].sizeMark
+                self.times[w].sizeMark = self.times[w].downloaded
+                timefraction = amtDownloaded / amtTime
+                amtToDownload = float(self.times[w].size) - self.times[w].downloaded
+                self.times[w].timeRemaining = amtToDownload / timefraction
+        
+    def _timeEstimates(self):
+        for t in self.times:
+            yield self.times[t].timeRemaining
+            
+    def timeRemaining(self):
+        return max(self._timeEstimates())
+
+    def setTimeMark(self,  w):
+        if w in self.times:
+            self.times[w].timeMark = time.time()
+        
+    def clear(self):
+        self.times = {}         
         
 def programStatus():
     print "Goodbye"

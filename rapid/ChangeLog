@@ -1,7 +1,7 @@
 Version 0.0.8
 -------------
 
-2009-04-30
+2009-05-01
 
 Added stored and downloads today sequence numbers:
 
@@ -12,7 +12,7 @@ Added stored and downloads today sequence numbers:
   you often photograph something late at night (e.g. concerts) and want a new
   day to "start" at 3am, for instance.
 
-Make estimate of time remaining to download images more accurate.
+Make estimate of time remaining to download images much more accurate.
 
 Display download speed in status bar.
 
