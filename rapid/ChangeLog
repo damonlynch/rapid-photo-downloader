@@ -63,6 +63,9 @@ Bug fix: implement code to warn / give error about missing backup devices.
 
 Bug fix: reset progress bar after completion of successful download
 
+Fix bug # 317404 when clearing completed downloads
+
+
 
 Version 0.0.8 beta 7
 --------------------
