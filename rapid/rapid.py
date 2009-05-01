@@ -1492,8 +1492,10 @@ class CopyPhotos(Thread):
 
         # must manually delete these variables, or else the media cannot be unmounted (bug in pyexiv or exiv2)
         del self.subfolderPrefsFactory,  self.imageRenamePrefsFactory
-        if 'imageMetadata' in dir(self):
+        try:
             del imageMetadata
+        except:
+            pass
                 
         notifyAndUnmount()
         display_queue.put((self.parentApp.notifyUserAllDownloadsComplete,()))
@@ -2066,6 +2068,7 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
             workers.append(CopyPhotos(i, self, self.fileRenameLock, self.fileSequenceLock, self.statsLock,  self.downloadStats,  cardMedia))
             size = cardMedia.sizeOfImages(False)
             self.timeRemaining.add(i,  size)
+
             self.setDownloadButtonSensitivity()
             
             if self.prefs.auto_download_upon_device_insertion:
@@ -2103,9 +2106,13 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
         """
         clears the display of completed downloads
         """
+        workers.printWorkerStatus()
         for w in workers.getFinishedWorkers():
+            print "worker",  w.thread_id
             media_collection_treeview.removeCard(w.thread_id)
             workers.remove(w.thread_id)
+            
+
         
     def clearNotStartedDownloads(self):
         """
@@ -2231,7 +2238,7 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
             size = w.cardMedia.sizeOfImages(humanReadable = False)
             self.totalDownloadSize += size
             self.timeRemaining.add(w,  size)
-            
+
 
         self.totalDownloadSizeThisRun = self.totalDownloadSize - self.totalDownloadedSoFar
         self.totalDownloadedSoFarThisRun = 0
@@ -2270,6 +2277,7 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
         
         if percentComplete == 100.0:
             self.menu_clear.set_sensitive(True)
+            self.timeRemaining.remove(thread_id)
 
         if self.downloadComplete():
             # finished all downloads
@@ -2536,6 +2544,10 @@ class TimeRemaining:
         
     def clear(self):
         self.times = {}         
+        
+    def remove(self,  w):
+        if w in self.times:
+            del self.times[w]
         
 def programStatus():
     print "Goodbye"
