@@ -1,3 +1,31 @@
+rapid-photo-downloader (0.0.8-0ubuntu1~ppa1) hardy; urgency=low
+
+  * Added stored and downloads today sequence numbers
+
+  * Make estimate of time remaining to download images much more accurate
+
+  * Display download speed in status bar
+
+  * Reorganized sequence number/letter selection in preferences
+
+  * Make application single instance
+
+  * Add "exit at end of successful download" automation feature
+
+  * When an image's download is skipped, the thumbnail is now lightened
+
+  * Show a missing image icon if the thumbnail cannot be displayed
+
+  * Resize main window when an image device is inserted
+
+  * Do not proceed with download if preferences have an error
+
+  * Allow version 0.1.1 of pyexiv2 to be used
+
+  * Bug fixes
+
+ -- Damon Lynch <damonlynch@gmail.com>  Fri, 01 May 2009 15:06:36 +0800
+
 rapid-photo-downloader (0.0.8~b7-0~ppa1) intrepid; urgency=low
 
   * Added serial number, shutter count and owner name metadata options
