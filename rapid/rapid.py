@@ -132,10 +132,7 @@ class ThreadManager:
     
     def append(self, w):
         self._workers.append(w)
-        
-    def remove(self,  w):
-        del self._workers[w]
-    
+            
     def __getitem__(self, i):
         return self._workers[i]
         
@@ -1600,9 +1597,10 @@ class MediaTreeView(gtk.TreeView):
 
         
     def removeCard(self, thread_id):
-        iter = self._getThreadMap(thread_id)
-        self.liststore.remove(iter)
-        del self.mapThreadToRow[thread_id]
+        if thread_id in self.mapThreadToRow:
+            iter = self._getThreadMap(thread_id)
+            self.liststore.remove(iter)
+            del self.mapThreadToRow[thread_id]
 
 
     def _setThreadMap(self, thread_id, iter):
@@ -2106,11 +2104,10 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
         """
         clears the display of completed downloads
         """
-        workers.printWorkerStatus()
+
         for w in workers.getFinishedWorkers():
-            print "worker",  w.thread_id
             media_collection_treeview.removeCard(w.thread_id)
-            workers.remove(w.thread_id)
+
             
 
         
