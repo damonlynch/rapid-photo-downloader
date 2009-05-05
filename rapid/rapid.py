@@ -1867,7 +1867,8 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
         
 
         # menus
-        self.menu_resequence.set_sensitive(False)
+#        self.menu_resequence.set_sensitive(False)
+
         self.menu_display_thumbnails.set_active(self.prefs.display_thumbnails)
         self.menu_clear.set_sensitive(False)
         
