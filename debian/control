@@ -3,11 +3,11 @@ Section: graphics
 Priority: optional
 Maintainer: Damon Lynch <damonlynch@gmail.com>
 Build-Depends: cdbs (>= 0.4.49),
-               debhelper (>= 7),
+               debhelper (>= 5.0.38),
                python-central (>= 0.5.6),
                perl
 XS-Python-Version: >= 2.5, << 2.7
-Standards-Version: 3.8.0
+Standards-Version: 3.7.2
 Homepage: http://damonlynch.net/rapid
 
 Package: rapid-photo-downloader

@@ -1,3 +1,15 @@
+rapid-photo-downloader (0.0.8-0ubuntu1~ppa3) jaunty; urgency=low
+
+  * make Standards-Version: 3.7.2, and debhelper 6, for building on hardy
+
+ -- Damon Lynch <damonlynch@gmail.com>  Tue, 05 May 2009 03:53:43 +0800
+
+rapid-photo-downloader (0.0.8-0ubuntu1~ppa2) hardy; urgency=low
+
+  * make debhelper dependency >= 5.0.38, allowing it to be built on hardy
+
+ -- Damon Lynch <damonlynch@gmail.com>  Mon, 04 May 2009 12:51:38 +0800
+
 rapid-photo-downloader (0.0.8-0ubuntu1~ppa1) hardy; urgency=low
 
   * Added stored and downloads today sequence numbers
