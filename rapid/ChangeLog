@@ -1,3 +1,25 @@
+Version 0.0.9
+-------------
+
+2009-05-11
+
+Fix bug #368098: the program now starts more quickly and does not become
+unresponsive when scanning devices with a large number of images. This will
+hardly be noticeable by users that download from memory cards, but for those
+who were downloading from hard drives with hundreds of GBs of files -- they'll
+notice a big difference.
+
+Fix bug #372284: for image renaming, the "image number" component is more 
+robust. Now, only the series of digits at the end of a filename are recognized 
+as the image number (obviously the file's extension is not included as being
+part of the filename in this case). This allows takes in account files from
+cameras like the Canon 1D series, which can have filenames like VD1D7574.CR2.
+
+Bug fix: don't download from volumes after program startup unless auto detection
+is specified. This bug could occur when auto detection was enabled, then 
+disabled, and then a volume was mounted.
+
+
 Version 0.0.8
 -------------
 
@@ -63,7 +85,7 @@ Bug fix: implement code to warn / give error about missing backup devices.
 
 Bug fix: reset progress bar after completion of successful download.
 
-Fix bug # 317404 when clearing completed downloads.
+Fix bug #317404 when clearing completed downloads.
 
 
 

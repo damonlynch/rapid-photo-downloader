@@ -31,20 +31,15 @@ def getDefaultPhotoLocation():
             return path
     return common.getFullPath('')
     
-def isImageMedia(path,  searchForPortableStorageDevice=False):
-    """ Returns true if directory specifies some media with photos on it """
+def isImageMedia(path):
+    """ Returns true if directory specifies some media with photos on it   """
     
     if os.path.isdir(os.path.join(path, "DCIM")):
         # is very likely a memory card, or something like that!
        return True
-    elif not searchForPortableStorageDevice:
-        return False
     else:
-        for root, dirs, files in os.walk(path):
-            for name in files:
-                if isImage(name):
-                    return True
         return False
+
     
 def isBackupMedia(path, identifier, writeable=True):
     """  Test to see if path is used as a backup medium for storing images
@@ -89,16 +84,20 @@ class Media:
             name = os.path.split(self.path)[1]
             name = name.replace('_', ' ')
             return name
+            
+    def getPath(self):
+        return self.path
         
     
 class CardMedia(Media):
     """Compact Flash cards, etc."""
-    def __init__(self, path, volume = None):
+    def __init__(self, path, volume = None,  doNotScan=True):
         """
         volume is a gnomevfs volume
         """
         Media.__init__(self, path, volume)
-        self.scanMedia()
+        if not doNotScan:
+            self.scanMedia()
 
     def scanMedia(self):
         """ creates a list of images on a path, recursively scanning
@@ -118,7 +117,11 @@ class CardMedia(Media):
         self.images.sort(key=operator.itemgetter(3))
         self.noImages = len(self.images)
         
-
+    def setMedia(self,  images,  imageSizeSum,  noImages):
+        self.images = images
+        self.imageSizeSum = imageSizeSum
+        self.noImages = noImages
+        
     def numberOfImages(self):
         return self.noImages
         

@@ -1,3 +1,9 @@
+rapid-photo-downloader (0.0.8-0ubuntu1~ppa4) hardy; urgency=low
+
+  * make the package for hardy and not Jaunty
+
+ -- Damon Lynch <damonlynch@gmail.com>  Tue, 05 May 2009 22:19:26 +0800
+
 rapid-photo-downloader (0.0.8-0ubuntu1~ppa3) jaunty; urgency=low
 
   * make Standards-Version: 3.7.2, and debhelper 6, for building on hardy

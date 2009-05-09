@@ -1,16 +1,16 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!DOCTYPE glade-interface SYSTEM "glade-2.0.dtd">
-<!--Generated with glade3 3.4.5 on Tue May  5 13:43:57 2009 -->
+<?xml version="1.0"?>
 <glade-interface>
+  <!-- interface-requires gtk+ 2.16 -->
+  <!-- interface-naming-policy toplevel-contextual -->
   <widget class="GtkDialog" id="preferencesdialog">
     <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
     <property name="border_width">5</property>
     <property name="title" translatable="yes">Preferences: Rapid Photo Downloader</property>
     <property name="modal">True</property>
-    <property name="window_position">GTK_WIN_POS_CENTER_ON_PARENT</property>
+    <property name="window_position">center-on-parent</property>
     <property name="default_height">500</property>
     <property name="icon">rapid-photo-downloader-about.png</property>
-    <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
+    <property name="type_hint">dialog</property>
     <property name="has_separator">False</property>
     <signal name="destroy" handler="on_preferencesdialog_destroy"/>
     <signal name="response" handler="on_response"/>
@@ -25,9 +25,9 @@
             <child>
               <widget class="GtkScrolledWindow" id="scrolled_window">
                 <property name="can_focus">True</property>
-                <property name="hscrollbar_policy">GTK_POLICY_AUTOMATIC</property>
-                <property name="vscrollbar_policy">GTK_POLICY_AUTOMATIC</property>
-                <property name="shadow_type">GTK_SHADOW_IN</property>
+                <property name="hscrollbar_policy">automatic</property>
+                <property name="vscrollbar_policy">automatic</property>
+                <property name="shadow_type">in</property>
                 <child>
                   <widget class="GtkTreeView" id="treeview">
                     <property name="width_request">100</property>
@@ -41,6 +41,7 @@
               </widget>
               <packing>
                 <property name="padding">5</property>
+                <property name="position">0</property>
               </packing>
             </child>
             <child>
@@ -65,6 +66,7 @@
                               </widget>
                               <packing>
                                 <property name="expand">False</property>
+                                <property name="position">0</property>
                               </packing>
                             </child>
                             <child>
@@ -80,6 +82,9 @@
                               </packing>
                             </child>
                           </widget>
+                          <packing>
+                            <property name="position">0</property>
+                          </packing>
                         </child>
                         <child>
                           <widget class="GtkHSeparator" id="hseparator1">
@@ -94,6 +99,7 @@
                       <packing>
                         <property name="expand">False</property>
                         <property name="fill">False</property>
+                        <property name="position">0</property>
                       </packing>
                     </child>
                     <child>
@@ -106,6 +112,7 @@
                           </widget>
                           <packing>
                             <property name="expand">False</property>
+                            <property name="position">0</property>
                           </packing>
                         </child>
                         <child>
@@ -113,21 +120,6 @@
                             <property name="visible">True</property>
                             <property name="n_rows">6</property>
                             <property name="n_columns">3</property>
-                            <child>
-                              <placeholder/>
-                            </child>
-                            <child>
-                              <placeholder/>
-                            </child>
-                            <child>
-                              <placeholder/>
-                            </child>
-                            <child>
-                              <placeholder/>
-                            </child>
-                            <child>
-                              <placeholder/>
-                            </child>
                             <child>
                               <widget class="GtkVBox" id="subfolder_vbox">
                                 <property name="visible">True</property>
@@ -215,6 +207,21 @@
                                 <property name="y_options"></property>
                               </packing>
                             </child>
+                            <child>
+                              <placeholder/>
+                            </child>
+                            <child>
+                              <placeholder/>
+                            </child>
+                            <child>
+                              <placeholder/>
+                            </child>
+                            <child>
+                              <placeholder/>
+                            </child>
+                            <child>
+                              <placeholder/>
+                            </child>
                           </widget>
                           <packing>
                             <property name="position">1</property>
@@ -247,8 +254,8 @@
                     <property name="label" translatable="yes">Download Folder</property>
                   </widget>
                   <packing>
-                    <property name="type">tab</property>
                     <property name="tab_fill">False</property>
+                    <property name="type">tab</property>
                   </packing>
                 </child>
                 <child>
@@ -268,6 +275,7 @@
                               </widget>
                               <packing>
                                 <property name="expand">False</property>
+                                <property name="position">0</property>
                               </packing>
                             </child>
                             <child>
@@ -282,6 +290,9 @@
                               </packing>
                             </child>
                           </widget>
+                          <packing>
+                            <property name="position">0</property>
+                          </packing>
                         </child>
                         <child>
                           <widget class="GtkHSeparator" id="hseparator2">
@@ -296,6 +307,7 @@
                       <packing>
                         <property name="expand">False</property>
                         <property name="fill">False</property>
+                        <property name="position">0</property>
                       </packing>
                     </child>
                     <child>
@@ -308,6 +320,7 @@
                           </widget>
                           <packing>
                             <property name="expand">False</property>
+                            <property name="position">0</property>
                           </packing>
                         </child>
                         <child>
@@ -323,20 +336,21 @@
                               </widget>
                               <packing>
                                 <property name="expand">False</property>
+                                <property name="position">0</property>
                               </packing>
                             </child>
                             <child>
                               <widget class="GtkScrolledWindow" id="rename_scrolledwindow">
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
-                                <property name="hscrollbar_policy">GTK_POLICY_AUTOMATIC</property>
-                                <property name="vscrollbar_policy">GTK_POLICY_AUTOMATIC</property>
+                                <property name="hscrollbar_policy">automatic</property>
+                                <property name="vscrollbar_policy">automatic</property>
                                 <property name="window_placement_set">True</property>
                                 <child>
                                   <widget class="GtkViewport" id="viewport2">
                                     <property name="visible">True</property>
-                                    <property name="resize_mode">GTK_RESIZE_QUEUE</property>
-                                    <property name="shadow_type">GTK_SHADOW_NONE</property>
+                                    <property name="resize_mode">queue</property>
+                                    <property name="shadow_type">none</property>
                                     <child>
                                       <widget class="GtkVBox" id="rename_table_vbox">
                                         <property name="visible">True</property>
@@ -494,9 +508,9 @@
                     <property name="label" translatable="yes">Image Rename</property>
                   </widget>
                   <packing>
-                    <property name="type">tab</property>
                     <property name="position">1</property>
                     <property name="tab_fill">False</property>
+                    <property name="type">tab</property>
                   </packing>
                 </child>
                 <child>
@@ -516,6 +530,7 @@
                               </widget>
                               <packing>
                                 <property name="expand">False</property>
+                                <property name="position">0</property>
                               </packing>
                             </child>
                             <child>
@@ -530,6 +545,9 @@
                               </packing>
                             </child>
                           </widget>
+                          <packing>
+                            <property name="position">0</property>
+                          </packing>
                         </child>
                         <child>
                           <widget class="GtkHSeparator" id="hseparator4">
@@ -544,6 +562,7 @@
                       <packing>
                         <property name="expand">False</property>
                         <property name="fill">False</property>
+                        <property name="position">0</property>
                       </packing>
                     </child>
                     <child>
@@ -559,6 +578,7 @@
                           </widget>
                           <packing>
                             <property name="expand">False</property>
+                            <property name="position">0</property>
                           </packing>
                         </child>
                         <child>
@@ -572,6 +592,7 @@
                               </widget>
                               <packing>
                                 <property name="expand">False</property>
+                                <property name="position">0</property>
                               </packing>
                             </child>
                             <child>
@@ -586,6 +607,9 @@
                                     <property name="use_markup">True</property>
                                     <property name="wrap">True</property>
                                   </widget>
+                                  <packing>
+                                    <property name="position">0</property>
+                                  </packing>
                                 </child>
                                 <child>
                                   <widget class="GtkHBox" id="hbox23">
@@ -600,6 +624,9 @@
                                             <property name="xalign">0</property>
                                             <property name="label" translatable="yes">Day start:</property>
                                           </widget>
+                                          <packing>
+                                            <property name="position">0</property>
+                                          </packing>
                                         </child>
                                         <child>
                                           <widget class="GtkLabel" id="label51">
@@ -624,6 +651,7 @@
                                       </widget>
                                       <packing>
                                         <property name="expand">False</property>
+                                        <property name="position">0</property>
                                       </packing>
                                     </child>
                                     <child>
@@ -658,6 +686,7 @@
                                               <packing>
                                                 <property name="expand">False</property>
                                                 <property name="fill">False</property>
+                                                <property name="position">0</property>
                                               </packing>
                                             </child>
                                             <child>
@@ -702,6 +731,7 @@
                                           </widget>
                                           <packing>
                                             <property name="expand">False</property>
+                                            <property name="position">0</property>
                                           </packing>
                                         </child>
                                         <child>
@@ -766,6 +796,7 @@
                               </widget>
                               <packing>
                                 <property name="expand">False</property>
+                                <property name="position">0</property>
                               </packing>
                             </child>
                             <child>
@@ -773,48 +804,6 @@
                                 <property name="visible">True</property>
                                 <property name="n_rows">9</property>
                                 <property name="n_columns">2</property>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
                                 <child>
                                   <widget class="GtkLabel" id="label9">
                                     <property name="visible">True</property>
@@ -828,11 +817,11 @@
                                 </child>
                                 <child>
                                   <widget class="GtkCheckButton" id="strip_characters_checkbutton">
+                                    <property name="label" translatable="yes">Strip incompatible characters</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
-                                    <property name="label" translatable="yes">Strip incompatible characters</property>
+                                    <property name="receives_default">False</property>
                                     <property name="use_underline">True</property>
-                                    <property name="response_id">0</property>
                                     <property name="draw_indicator">True</property>
                                     <signal name="toggled" handler="on_strip_characters_checkbutton_toggled"/>
                                   </widget>
@@ -841,6 +830,48 @@
                                     <property name="top_attach">1</property>
                                     <property name="bottom_attach">2</property>
                                   </packing>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
                                 </child>
                               </widget>
                               <packing>
@@ -880,9 +911,9 @@
                     <property name="label" translatable="yes">Rename Options</property>
                   </widget>
                   <packing>
-                    <property name="type">tab</property>
                     <property name="position">2</property>
                     <property name="tab_fill">False</property>
+                    <property name="type">tab</property>
                   </packing>
                 </child>
                 <child>
@@ -902,6 +933,7 @@
                               </widget>
                               <packing>
                                 <property name="expand">False</property>
+                                <property name="position">0</property>
                               </packing>
                             </child>
                             <child>
@@ -916,6 +948,9 @@
                               </packing>
                             </child>
                           </widget>
+                          <packing>
+                            <property name="position">0</property>
+                          </packing>
                         </child>
                         <child>
                           <widget class="GtkHSeparator" id="hseparator5">
@@ -930,6 +965,7 @@
                       <packing>
                         <property name="expand">False</property>
                         <property name="fill">False</property>
+                        <property name="position">0</property>
                       </packing>
                     </child>
                     <child>
@@ -946,6 +982,7 @@
                           </widget>
                           <packing>
                             <property name="expand">False</property>
+                            <property name="position">0</property>
                           </packing>
                         </child>
                         <child>
@@ -974,6 +1011,7 @@ You can download photos from multiple image devices simultaneously.</property>
                               </widget>
                               <packing>
                                 <property name="expand">False</property>
+                                <property name="position">0</property>
                               </packing>
                             </child>
                             <child>
@@ -982,20 +1020,11 @@ You can download photos from multiple image devices simultaneously.</property>
                                 <property name="n_rows">3</property>
                                 <property name="n_columns">2</property>
                                 <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
                                   <widget class="GtkCheckButton" id="autodetect_psd_checkbutton">
+                                    <property name="label" translatable="yes">Automatically detect Portable Storage Devices</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
-                                    <property name="label" translatable="yes">Automatically detect Portable Storage Devices</property>
-                                    <property name="response_id">0</property>
+                                    <property name="receives_default">False</property>
                                     <property name="draw_indicator">True</property>
                                     <signal name="toggled" handler="on_autodetect_psd_checkbutton_toggled"/>
                                   </widget>
@@ -1008,11 +1037,11 @@ You can download photos from multiple image devices simultaneously.</property>
                                 </child>
                                 <child>
                                   <widget class="GtkCheckButton" id="autodetect_device_checkbutton">
+                                    <property name="label" translatable="yes">Automatically detect image devices</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
+                                    <property name="receives_default">False</property>
                                     <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
-                                    <property name="label" translatable="yes">Automatically detect image devices</property>
-                                    <property name="response_id">0</property>
                                     <property name="draw_indicator">True</property>
                                     <signal name="toggled" handler="on_autodetect_device_checkbutton_toggled"/>
                                   </widget>
@@ -1021,6 +1050,15 @@ You can download photos from multiple image devices simultaneously.</property>
                                     <property name="top_attach">1</property>
                                     <property name="bottom_attach">2</property>
                                   </packing>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
                                 </child>
                               </widget>
                               <packing>
@@ -1052,9 +1090,6 @@ You can download photos from multiple image devices simultaneously.</property>
                                 <property name="n_rows">2</property>
                                 <property name="n_columns">2</property>
                                 <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
                                   <widget class="GtkLabel" id="device_location_label">
                                     <property name="visible">True</property>
                                     <property name="xalign">0</property>
@@ -1082,7 +1117,13 @@ You can download photos from multiple image devices simultaneously.</property>
                                     <property name="right_attach">2</property>
                                   </packing>
                                 </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
                               </widget>
+                              <packing>
+                                <property name="position">0</property>
+                              </packing>
                             </child>
                             <child>
                               <placeholder/>
@@ -1120,9 +1161,9 @@ You can download photos from multiple image devices simultaneously.</property>
                     <property name="label" translatable="yes">Image Devices</property>
                   </widget>
                   <packing>
-                    <property name="type">tab</property>
                     <property name="position">3</property>
                     <property name="tab_fill">False</property>
+                    <property name="type">tab</property>
                   </packing>
                 </child>
                 <child>
@@ -1142,6 +1183,7 @@ You can download photos from multiple image devices simultaneously.</property>
                               </widget>
                               <packing>
                                 <property name="expand">False</property>
+                                <property name="position">0</property>
                               </packing>
                             </child>
                             <child>
@@ -1156,6 +1198,9 @@ You can download photos from multiple image devices simultaneously.</property>
                               </packing>
                             </child>
                           </widget>
+                          <packing>
+                            <property name="position">0</property>
+                          </packing>
                         </child>
                         <child>
                           <widget class="GtkHSeparator" id="hseparator6">
@@ -1170,6 +1215,7 @@ You can download photos from multiple image devices simultaneously.</property>
                       <packing>
                         <property name="expand">False</property>
                         <property name="fill">False</property>
+                        <property name="position">0</property>
                       </packing>
                     </child>
                     <child>
@@ -1185,6 +1231,7 @@ You can download photos from multiple image devices simultaneously.</property>
                           </widget>
                           <packing>
                             <property name="expand">False</property>
+                            <property name="position">0</property>
                           </packing>
                         </child>
                         <child>
@@ -1198,6 +1245,7 @@ You can download photos from multiple image devices simultaneously.</property>
                               </widget>
                               <packing>
                                 <property name="expand">False</property>
+                                <property name="position">0</property>
                               </packing>
                             </child>
                             <child>
@@ -1205,36 +1253,6 @@ You can download photos from multiple image devices simultaneously.</property>
                                 <property name="visible">True</property>
                                 <property name="n_rows">8</property>
                                 <property name="n_columns">4</property>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
                                 <child>
                                   <widget class="GtkLabel" id="backup_location_explanation_label">
                                     <property name="visible">True</property>
@@ -1253,11 +1271,11 @@ You can download photos from multiple image devices simultaneously.</property>
                                 </child>
                                 <child>
                                   <widget class="GtkCheckButton" id="auto_detect_backup_checkbutton">
+                                    <property name="label" translatable="yes">Automatically detect backup devices</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
+                                    <property name="receives_default">False</property>
                                     <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
-                                    <property name="label" translatable="yes">Automatically detect backup devices</property>
-                                    <property name="response_id">0</property>
                                     <property name="draw_indicator">True</property>
                                     <signal name="toggled" handler="on_auto_detect_backup_checkbutton_toggled"/>
                                   </widget>
@@ -1284,11 +1302,11 @@ You can download photos from multiple image devices simultaneously.</property>
                                 </child>
                                 <child>
                                   <widget class="GtkCheckButton" id="backup_checkbutton">
+                                    <property name="label" translatable="yes">Backup photos when downloading</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
-                                    <property name="label" translatable="yes">Backup photos when downloading</property>
+                                    <property name="receives_default">False</property>
                                     <property name="use_underline">True</property>
-                                    <property name="response_id">0</property>
                                     <property name="draw_indicator">True</property>
                                     <signal name="toggled" handler="on_backup_checkbutton_toggled"/>
                                   </widget>
@@ -1396,6 +1414,36 @@ You can download photos from multiple image devices simultaneously.</property>
                                     <property name="y_padding">12</property>
                                   </packing>
                                 </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
                               </widget>
                               <packing>
                                 <property name="position">1</property>
@@ -1433,9 +1481,9 @@ You can download photos from multiple image devices simultaneously.</property>
                     <property name="label" translatable="yes">Backup</property>
                   </widget>
                   <packing>
-                    <property name="type">tab</property>
                     <property name="position">4</property>
                     <property name="tab_fill">False</property>
+                    <property name="type">tab</property>
                   </packing>
                 </child>
                 <child>
@@ -1455,6 +1503,7 @@ You can download photos from multiple image devices simultaneously.</property>
                               </widget>
                               <packing>
                                 <property name="expand">False</property>
+                                <property name="position">0</property>
                               </packing>
                             </child>
                             <child>
@@ -1469,6 +1518,9 @@ You can download photos from multiple image devices simultaneously.</property>
                               </packing>
                             </child>
                           </widget>
+                          <packing>
+                            <property name="position">0</property>
+                          </packing>
                         </child>
                         <child>
                           <widget class="GtkHSeparator" id="hseparator7">
@@ -1483,6 +1535,7 @@ You can download photos from multiple image devices simultaneously.</property>
                       <packing>
                         <property name="expand">False</property>
                         <property name="fill">False</property>
+                        <property name="position">0</property>
                       </packing>
                     </child>
                     <child>
@@ -1498,6 +1551,7 @@ You can download photos from multiple image devices simultaneously.</property>
                           </widget>
                           <packing>
                             <property name="expand">False</property>
+                            <property name="position">0</property>
                           </packing>
                         </child>
                         <child>
@@ -1510,6 +1564,7 @@ You can download photos from multiple image devices simultaneously.</property>
                               </widget>
                               <packing>
                                 <property name="expand">False</property>
+                                <property name="position">0</property>
                               </packing>
                             </child>
                             <child>
@@ -1518,39 +1573,12 @@ You can download photos from multiple image devices simultaneously.</property>
                                 <property name="n_rows">7</property>
                                 <property name="n_columns">3</property>
                                 <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
                                   <widget class="GtkCheckButton" id="auto_unmount_checkbutton">
+                                    <property name="label" translatable="yes">Unmount ("eject") image device upon download completion</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
+                                    <property name="receives_default">False</property>
                                     <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
-                                    <property name="label" translatable="yes">Unmount ("eject") image device upon download completion</property>
-                                    <property name="response_id">0</property>
                                     <property name="draw_indicator">True</property>
                                     <signal name="toggled" handler="on_auto_unmount_checkbutton_toggled"/>
                                   </widget>
@@ -1562,11 +1590,11 @@ You can download photos from multiple image devices simultaneously.</property>
                                 </child>
                                 <child>
                                   <widget class="GtkCheckButton" id="auto_startup_checkbutton">
+                                    <property name="label" translatable="yes">Start downloading at program startup</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
+                                    <property name="receives_default">False</property>
                                     <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
-                                    <property name="label" translatable="yes">Start downloading at program startup</property>
-                                    <property name="response_id">0</property>
                                     <property name="draw_indicator">True</property>
                                     <signal name="toggled" handler="on_auto_startup_checkbutton_toggled"/>
                                   </widget>
@@ -1576,11 +1604,11 @@ You can download photos from multiple image devices simultaneously.</property>
                                 </child>
                                 <child>
                                   <widget class="GtkCheckButton" id="auto_insertion_checkbutton">
+                                    <property name="label" translatable="yes">Start downloading upon image device insertion</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
+                                    <property name="receives_default">False</property>
                                     <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
-                                    <property name="label" translatable="yes">Start downloading upon image device insertion</property>
-                                    <property name="response_id">0</property>
                                     <property name="draw_indicator">True</property>
                                     <signal name="toggled" handler="on_auto_insertion_checkbutton_toggled"/>
                                   </widget>
@@ -1592,10 +1620,10 @@ You can download photos from multiple image devices simultaneously.</property>
                                 </child>
                                 <child>
                                   <widget class="GtkCheckButton" id="auto_exit_checkbutton">
+                                    <property name="label" translatable="yes">Exit program after completion of successful download</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
-                                    <property name="label" translatable="yes">Exit program after completion of successful download</property>
-                                    <property name="response_id">0</property>
+                                    <property name="receives_default">False</property>
                                     <property name="draw_indicator">True</property>
                                     <signal name="toggled" handler="on_auto_exit_checkbutton_toggled"/>
                                   </widget>
@@ -1604,6 +1632,33 @@ You can download photos from multiple image devices simultaneously.</property>
                                     <property name="top_attach">3</property>
                                     <property name="bottom_attach">4</property>
                                   </packing>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
                                 </child>
                               </widget>
                               <packing>
@@ -1645,9 +1700,9 @@ You can download photos from multiple image devices simultaneously.</property>
                     <property name="label" translatable="yes">Automation</property>
                   </widget>
                   <packing>
-                    <property name="type">tab</property>
                     <property name="position">5</property>
                     <property name="tab_fill">False</property>
+                    <property name="type">tab</property>
                   </packing>
                 </child>
                 <child>
@@ -1667,6 +1722,7 @@ You can download photos from multiple image devices simultaneously.</property>
                               </widget>
                               <packing>
                                 <property name="expand">False</property>
+                                <property name="position">0</property>
                               </packing>
                             </child>
                             <child>
@@ -1681,6 +1737,9 @@ You can download photos from multiple image devices simultaneously.</property>
                               </packing>
                             </child>
                           </widget>
+                          <packing>
+                            <property name="position">0</property>
+                          </packing>
                         </child>
                         <child>
                           <widget class="GtkHSeparator" id="hseparator9">
@@ -1695,6 +1754,7 @@ You can download photos from multiple image devices simultaneously.</property>
                       <packing>
                         <property name="expand">False</property>
                         <property name="fill">False</property>
+                        <property name="position">0</property>
                       </packing>
                     </child>
                     <child>
@@ -1707,6 +1767,7 @@ You can download photos from multiple image devices simultaneously.</property>
                           </widget>
                           <packing>
                             <property name="expand">False</property>
+                            <property name="position">0</property>
                           </packing>
                         </child>
                         <child>
@@ -1714,39 +1775,6 @@ You can download photos from multiple image devices simultaneously.</property>
                             <property name="visible">True</property>
                             <property name="n_rows">14</property>
                             <property name="n_columns">2</property>
-                            <child>
-                              <placeholder/>
-                            </child>
-                            <child>
-                              <placeholder/>
-                            </child>
-                            <child>
-                              <placeholder/>
-                            </child>
-                            <child>
-                              <placeholder/>
-                            </child>
-                            <child>
-                              <placeholder/>
-                            </child>
-                            <child>
-                              <placeholder/>
-                            </child>
-                            <child>
-                              <placeholder/>
-                            </child>
-                            <child>
-                              <placeholder/>
-                            </child>
-                            <child>
-                              <placeholder/>
-                            </child>
-                            <child>
-                              <placeholder/>
-                            </child>
-                            <child>
-                              <placeholder/>
-                            </child>
                             <child>
                               <widget class="GtkLabel" id="label1">
                                 <property name="visible">True</property>
@@ -1774,11 +1802,11 @@ You can download photos from multiple image devices simultaneously.</property>
                             </child>
                             <child>
                               <widget class="GtkRadioButton" id="backup_ignore_radiobutton">
+                                <property name="label" translatable="yes">Ignore</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
+                                <property name="receives_default">False</property>
                                 <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
-                                <property name="label" translatable="yes">Ignore</property>
-                                <property name="response_id">0</property>
                                 <property name="active">True</property>
                                 <property name="draw_indicator">True</property>
                                 <property name="group">backup_error_radiobutton</property>
@@ -1794,11 +1822,11 @@ You can download photos from multiple image devices simultaneously.</property>
                             </child>
                             <child>
                               <widget class="GtkRadioButton" id="backup_warning_radiobutton">
+                                <property name="label" translatable="yes">Report a warning</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
+                                <property name="receives_default">False</property>
                                 <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
-                                <property name="label" translatable="yes">Report a warning</property>
-                                <property name="response_id">0</property>
                                 <property name="active">True</property>
                                 <property name="draw_indicator">True</property>
                                 <property name="group">backup_error_radiobutton</property>
@@ -1814,11 +1842,11 @@ You can download photos from multiple image devices simultaneously.</property>
                             </child>
                             <child>
                               <widget class="GtkRadioButton" id="backup_error_radiobutton">
+                                <property name="label" translatable="yes">Report an error</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
+                                <property name="receives_default">False</property>
                                 <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
-                                <property name="label" translatable="yes">Report an error</property>
-                                <property name="response_id">0</property>
                                 <property name="active">True</property>
                                 <property name="draw_indicator">True</property>
                                 <signal name="toggled" handler="on_backup_error_radiobutton_toggled"/>
@@ -1849,11 +1877,11 @@ You can download photos from multiple image devices simultaneously.</property>
                             </child>
                             <child>
                               <widget class="GtkRadioButton" id="add_identifier_radiobutton">
+                                <property name="label" translatable="yes">Add unique identifier</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
-                                <property name="label" translatable="yes">Add unique identifier</property>
+                                <property name="receives_default">False</property>
                                 <property name="use_underline">True</property>
-                                <property name="response_id">0</property>
                                 <property name="active">True</property>
                                 <property name="draw_indicator">True</property>
                                 <property name="group">skip_download_radiobutton</property>
@@ -1869,11 +1897,11 @@ You can download photos from multiple image devices simultaneously.</property>
                             </child>
                             <child>
                               <widget class="GtkRadioButton" id="skip_download_radiobutton">
+                                <property name="label" translatable="yes">Skip download</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
-                                <property name="label" translatable="yes">Skip download</property>
+                                <property name="receives_default">False</property>
                                 <property name="use_underline">True</property>
-                                <property name="response_id">0</property>
                                 <property name="active">True</property>
                                 <property name="draw_indicator">True</property>
                               </widget>
@@ -1903,11 +1931,11 @@ You can download photos from multiple image devices simultaneously.</property>
                             </child>
                             <child>
                               <widget class="GtkCheckButton" id="indicate_download_error_checkbutton">
+                                <property name="label" translatable="yes">Report an error</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
-                                <property name="label" translatable="yes">Report an error</property>
+                                <property name="receives_default">False</property>
                                 <property name="use_underline">True</property>
-                                <property name="response_id">0</property>
                                 <property name="draw_indicator">True</property>
                                 <signal name="toggled" handler="on_indicate_download_error_checkbutton_toggled"/>
                               </widget>
@@ -1968,10 +1996,10 @@ You can download photos from multiple image devices simultaneously.</property>
                             </child>
                             <child>
                               <widget class="GtkRadioButton" id="backup_duplicate_overwrite_radiobutton">
+                                <property name="label" translatable="yes">Overwrite</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
-                                <property name="label" translatable="yes">Overwrite</property>
-                                <property name="response_id">0</property>
+                                <property name="receives_default">False</property>
                                 <property name="active">True</property>
                                 <property name="draw_indicator">True</property>
                                 <property name="group">backup_duplicate_skip_radiobutton</property>
@@ -1986,10 +2014,10 @@ You can download photos from multiple image devices simultaneously.</property>
                             </child>
                             <child>
                               <widget class="GtkRadioButton" id="backup_duplicate_skip_radiobutton">
+                                <property name="label" translatable="yes">Skip</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
-                                <property name="label" translatable="yes">Skip</property>
-                                <property name="response_id">0</property>
+                                <property name="receives_default">False</property>
                                 <property name="active">True</property>
                                 <property name="draw_indicator">True</property>
                                 <signal name="toggled" handler="on_backup_duplicate_skip_radiobutton_toggled"/>
@@ -2000,6 +2028,39 @@ You can download photos from multiple image devices simultaneously.</property>
                                 <property name="top_attach">8</property>
                                 <property name="bottom_attach">9</property>
                               </packing>
+                            </child>
+                            <child>
+                              <placeholder/>
+                            </child>
+                            <child>
+                              <placeholder/>
+                            </child>
+                            <child>
+                              <placeholder/>
+                            </child>
+                            <child>
+                              <placeholder/>
+                            </child>
+                            <child>
+                              <placeholder/>
+                            </child>
+                            <child>
+                              <placeholder/>
+                            </child>
+                            <child>
+                              <placeholder/>
+                            </child>
+                            <child>
+                              <placeholder/>
+                            </child>
+                            <child>
+                              <placeholder/>
+                            </child>
+                            <child>
+                              <placeholder/>
+                            </child>
+                            <child>
+                              <placeholder/>
                             </child>
                           </widget>
                           <packing>
@@ -2034,9 +2095,9 @@ You can download photos from multiple image devices simultaneously.</property>
                     <property name="label" translatable="yes">Error Handling</property>
                   </widget>
                   <packing>
-                    <property name="type">tab</property>
                     <property name="position">6</property>
                     <property name="tab_fill">False</property>
+                    <property name="type">tab</property>
                   </packing>
                 </child>
               </widget>
@@ -2057,17 +2118,18 @@ You can download photos from multiple image devices simultaneously.</property>
         <child internal-child="action_area">
           <widget class="GtkHButtonBox" id="dialog-action_area2">
             <property name="visible">True</property>
-            <property name="layout_style">GTK_BUTTONBOX_END</property>
+            <property name="layout_style">end</property>
             <child>
               <placeholder/>
             </child>
             <child>
               <widget class="GtkButton" id="close_button">
+                <property name="label">gtk-close</property>
+                <property name="response_id">-7</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
-                <property name="label">gtk-close</property>
+                <property name="receives_default">False</property>
                 <property name="use_stock">True</property>
-                <property name="response_id">-7</property>
                 <signal name="clicked" handler="on_close_button_clicked"/>
               </widget>
               <packing>
@@ -2079,7 +2141,8 @@ You can download photos from multiple image devices simultaneously.</property>
           </widget>
           <packing>
             <property name="expand">False</property>
-            <property name="pack_type">GTK_PACK_END</property>
+            <property name="pack_type">end</property>
+            <property name="position">0</property>
           </packing>
         </child>
       </widget>
@@ -2090,7 +2153,7 @@ You can download photos from multiple image devices simultaneously.</property>
     <property name="border_width">5</property>
     <property name="destroy_with_parent">True</property>
     <property name="icon">rapid-photo-downloader-about.png</property>
-    <property name="type_hint">GDK_WINDOW_TYPE_HINT_NORMAL</property>
+    <property name="type_hint">normal</property>
     <property name="program_name">Rapid Photo Downloader</property>
     <property name="copyright" translatable="yes">(c) Damon Lynch 2007-09</property>
     <property name="website">http://www.damonlynch.net/rapid</property>
@@ -2113,11 +2176,12 @@ You should have received a copy of the GNU General Public License along with Rap
         <child internal-child="action_area">
           <widget class="GtkHButtonBox" id="dialog-action_area1">
             <property name="visible">True</property>
-            <property name="layout_style">GTK_BUTTONBOX_END</property>
+            <property name="layout_style">end</property>
           </widget>
           <packing>
             <property name="expand">False</property>
-            <property name="pack_type">GTK_PACK_END</property>
+            <property name="pack_type">end</property>
+            <property name="position">0</property>
           </packing>
         </child>
       </widget>
@@ -2145,15 +2209,15 @@ You should have received a copy of the GNU General Public License along with Rap
                   <widget class="GtkMenu" id="menuitem7_menu">
                     <child>
                       <widget class="GtkImageMenuItem" id="menu_download_pause">
-                        <property name="visible">True</property>
                         <property name="label">Download / Pause</property>
-                        <property name="use_underline">True</property>
+                        <property name="visible">True</property>
+                        <property name="use_stock">False</property>
                         <signal name="activate" handler="on_download_button_clicked"/>
-                        <accelerator key="Return" modifiers="GDK_CONTROL_MASK" signal="activate"/>
+                        <accelerator key="Return" signal="activate" modifiers="GDK_CONTROL_MASK"/>
                         <child internal-child="image">
-                          <widget class="GtkImage" id="menu-item-image1">
+                          <widget class="GtkImage" id="image1">
+                            <property name="visible">True</property>
                             <property name="stock">gtk-convert</property>
-                            <property name="icon_size">2</property>
                           </widget>
                         </child>
                       </widget>
@@ -2161,24 +2225,23 @@ You should have received a copy of the GNU General Public License along with Rap
                     <child>
                       <widget class="GtkImageMenuItem" id="menu_resequence">
                         <property name="label">Resequence</property>
-                        <property name="use_underline">True</property>
-                        <accelerator key="E" modifiers="GDK_CONTROL_MASK" signal="activate"/>
+                        <property name="use_stock">False</property>
+                        <accelerator key="E" signal="activate" modifiers="GDK_CONTROL_MASK"/>
                         <child internal-child="image">
-                          <widget class="GtkImage" id="menu-item-image2">
+                          <widget class="GtkImage" id="image2">
+                            <property name="visible">True</property>
                             <property name="stock">gtk-sort-descending</property>
-                            <property name="icon_size">1</property>
                           </widget>
                         </child>
                       </widget>
                     </child>
                     <child>
-                      <widget class="GtkSeparatorMenuItem" id="separator2">
-                      </widget>
+                      <widget class="GtkSeparatorMenuItem" id="separator2"/>
                     </child>
                     <child>
                       <widget class="GtkImageMenuItem" id="menu_preferences">
-                        <property name="visible">True</property>
                         <property name="label">gtk-preferences</property>
+                        <property name="visible">True</property>
                         <property name="use_underline">True</property>
                         <property name="use_stock">True</property>
                         <signal name="activate" handler="on_menu_preferences_activate"/>
@@ -2186,8 +2249,8 @@ You should have received a copy of the GNU General Public License along with Rap
                     </child>
                     <child>
                       <widget class="GtkImageMenuItem" id="menu_quit">
-                        <property name="visible">True</property>
                         <property name="label">gtk-quit</property>
+                        <property name="visible">True</property>
                         <property name="use_underline">True</property>
                         <property name="use_stock">True</property>
                         <signal name="activate" handler="on_rapidapp_destroy"/>
@@ -2275,8 +2338,8 @@ You should have received a copy of the GNU General Public License along with Rap
                     </child>
                     <child>
                       <widget class="GtkImageMenuItem" id="menu_about">
-                        <property name="visible">True</property>
                         <property name="label">gtk-about</property>
+                        <property name="visible">True</property>
                         <property name="use_underline">True</property>
                         <property name="use_stock">True</property>
                         <signal name="activate" handler="on_menu_about_activate"/>
@@ -2289,6 +2352,7 @@ You should have received a copy of the GNU General Public License along with Rap
           </widget>
           <packing>
             <property name="expand">False</property>
+            <property name="position">0</property>
           </packing>
         </child>
         <child>
@@ -2302,8 +2366,8 @@ You should have received a copy of the GNU General Public License along with Rap
                   <widget class="GtkScrolledWindow" id="media_collection_scrolledwindow">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
-                    <property name="hscrollbar_policy">GTK_POLICY_AUTOMATIC</property>
-                    <property name="vscrollbar_policy">GTK_POLICY_AUTOMATIC</property>
+                    <property name="hscrollbar_policy">automatic</property>
+                    <property name="vscrollbar_policy">automatic</property>
                     <child>
                       <widget class="GtkViewport" id="media_collection_viewport">
                         <property name="visible">True</property>
@@ -2321,9 +2385,13 @@ You should have received a copy of the GNU General Public License along with Rap
                   </widget>
                   <packing>
                     <property name="padding">12</property>
+                    <property name="position">0</property>
                   </packing>
                 </child>
               </widget>
+              <packing>
+                <property name="position">0</property>
+              </packing>
             </child>
             <child>
               <widget class="GtkHBox" id="hbox8">
@@ -2332,7 +2400,7 @@ You should have received a copy of the GNU General Public License along with Rap
                   <widget class="GtkScrolledWindow" id="image_scrolledwindow">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
-                    <property name="vscrollbar_policy">GTK_POLICY_NEVER</property>
+                    <property name="vscrollbar_policy">never</property>
                     <child>
                       <widget class="GtkViewport" id="image_viewport">
                         <property name="height_request">112</property>
@@ -2346,46 +2414,13 @@ You should have received a copy of the GNU General Public License along with Rap
                   </widget>
                   <packing>
                     <property name="padding">12</property>
+                    <property name="position">0</property>
                   </packing>
                 </child>
               </widget>
               <packing>
                 <property name="expand">False</property>
                 <property name="position">1</property>
-              </packing>
-            </child>
-            <child>
-              <widget class="GtkHBox" id="hbox11">
-                <property name="visible">True</property>
-                <child>
-                  <widget class="GtkVBox" id="download_folders_vbox">
-                    <property name="visible">True</property>
-                    <property name="spacing">6</property>
-                    <child>
-                      <widget class="GtkLabel" id="download_folders_display_label">
-                        <property name="visible">True</property>
-                        <property name="xalign">0</property>
-                        <property name="label" translatable="yes">&lt;b&gt;Download Folders&lt;/b&gt;</property>
-                        <property name="use_markup">True</property>
-                        <property name="ellipsize">PANGO_ELLIPSIZE_START</property>
-                      </widget>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">False</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <placeholder/>
-                    </child>
-                  </widget>
-                  <packing>
-                    <property name="padding">12</property>
-                  </packing>
-                </child>
-              </widget>
-              <packing>
-                <property name="expand">False</property>
-                <property name="position">2</property>
               </packing>
             </child>
             <child>
@@ -2398,7 +2433,7 @@ You should have received a copy of the GNU General Public License along with Rap
               <packing>
                 <property name="expand">False</property>
                 <property name="fill">False</property>
-                <property name="position">3</property>
+                <property name="position">2</property>
               </packing>
             </child>
           </widget>
@@ -2419,6 +2454,7 @@ You should have received a copy of the GNU General Public License along with Rap
               </widget>
               <packing>
                 <property name="expand">False</property>
+                <property name="position">0</property>
               </packing>
             </child>
             <child>
@@ -2448,6 +2484,7 @@ You should have received a copy of the GNU General Public License along with Rap
                   </widget>
                   <packing>
                     <property name="expand">False</property>
+                    <property name="position">0</property>
                   </packing>
                 </child>
                 <child>
@@ -2489,11 +2526,12 @@ You should have received a copy of the GNU General Public License along with Rap
                         <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
                         <property name="xpad">3</property>
                         <property name="stock">gtk-dialog-warning</property>
-                        <property name="icon_size">1</property>
+                        <property name="icon-size">1</property>
                       </widget>
                       <packing>
                         <property name="expand">False</property>
                         <property name="fill">False</property>
+                        <property name="position">0</property>
                       </packing>
                     </child>
                     <child>
@@ -2501,7 +2539,7 @@ You should have received a copy of the GNU General Public License along with Rap
                         <property name="visible">True</property>
                         <property name="xpad">3</property>
                         <property name="stock">gtk-dialog-error</property>
-                        <property name="icon_size">1</property>
+                        <property name="icon-size">1</property>
                       </widget>
                       <packing>
                         <property name="expand">False</property>
@@ -2533,7 +2571,7 @@ You should have received a copy of the GNU General Public License along with Rap
           <packing>
             <property name="expand">False</property>
             <property name="fill">False</property>
-            <property name="pack_type">GTK_PACK_END</property>
+            <property name="pack_type">end</property>
             <property name="position">2</property>
           </packing>
         </child>
@@ -2548,7 +2586,7 @@ You should have received a copy of the GNU General Public License along with Rap
     <property name="default_height">400</property>
     <property name="destroy_with_parent">True</property>
     <property name="icon">rapid-photo-downloader-about.png</property>
-    <property name="type_hint">GDK_WINDOW_TYPE_HINT_DIALOG</property>
+    <property name="type_hint">dialog</property>
     <property name="has_separator">False</property>
     <signal name="close" handler="on_logdialog_close"/>
     <signal name="response" handler="on_logdialog_response"/>
@@ -2560,8 +2598,8 @@ You should have received a copy of the GNU General Public License along with Rap
           <widget class="GtkScrolledWindow" id="log_scrolledwindow">
             <property name="visible">True</property>
             <property name="can_focus">True</property>
-            <property name="hscrollbar_policy">GTK_POLICY_AUTOMATIC</property>
-            <property name="vscrollbar_policy">GTK_POLICY_AUTOMATIC</property>
+            <property name="hscrollbar_policy">automatic</property>
+            <property name="vscrollbar_policy">automatic</property>
             <child>
               <widget class="GtkViewport" id="viewport1">
                 <property name="visible">True</property>
@@ -2585,17 +2623,17 @@ You should have received a copy of the GNU General Public License along with Rap
         <child internal-child="action_area">
           <widget class="GtkHButtonBox" id="dialog-action_area4">
             <property name="visible">True</property>
-            <property name="layout_style">GTK_BUTTONBOX_END</property>
+            <property name="layout_style">end</property>
             <child>
               <placeholder/>
             </child>
             <child>
               <widget class="GtkButton" id="button3">
+                <property name="label">gtk-close</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
-                <property name="label">gtk-close</property>
+                <property name="receives_default">False</property>
                 <property name="use_stock">True</property>
-                <property name="response_id">0</property>
               </widget>
               <packing>
                 <property name="expand">False</property>
@@ -2606,7 +2644,8 @@ You should have received a copy of the GNU General Public License along with Rap
           </widget>
           <packing>
             <property name="expand">False</property>
-            <property name="pack_type">GTK_PACK_END</property>
+            <property name="pack_type">end</property>
+            <property name="position">0</property>
           </packing>
         </child>
       </widget>
