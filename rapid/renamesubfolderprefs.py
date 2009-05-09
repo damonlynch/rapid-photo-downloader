@@ -652,7 +652,7 @@ class ImageRenamePreferences:
                 filename = ""
                 problem = "extension was specified but image name has no extension"
         elif self.L1 == IMAGE_NUMBER:
-            n = re.search("(?P<image_number>[0-9]+)", self.existingFilename)
+            n = re.search("(?P<image_number>[0-9]+$)", name)
             if not n:
                 problem = "image number was specified but image has no number"
             else:
