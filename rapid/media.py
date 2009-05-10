@@ -68,7 +68,7 @@ class Media:
         self.volume = volume
             
 
-    def prettyName(self):
+    def prettyName(self,  limit=config.MAX_LENGTH_DEVICE_NAME):
         """ 
         Returns a name for the media, useful for display.
         
@@ -77,13 +77,16 @@ class Media:
         Else. returns the last part of the mount point after stripping out 
         underscores.
         """
-        
+
         if self.volume:
-            return self.volume.get_display_name()
+            return self.volume.get_name(limit)
         else:
             name = os.path.split(self.path)[1]
             name = name.replace('_', ' ')
-            return name
+            v = name
+            if len(v) > limit:
+                v = v[:limit] + '...'
+            return v
             
     def getPath(self):
         return self.path

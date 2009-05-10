@@ -42,7 +42,13 @@ from thread import get_ident
 import gtk.gdk as gdk
 import pango
 
-import gnomevfs
+try:
+    import gio
+    using_gio = True
+    import gnomevfs # still use it for now ;-)
+except ImportError:
+    import gnomevfs
+    using_gio = False
 
 import prefs
 import paths
@@ -1452,7 +1458,7 @@ class CopyPhotos(Thread):
                 unmountMessage = ""
                 notificationName = config.PROGRAM_NAME
             else:
-                notificationName = self.cardMedia.volume.get_display_name()
+                notificationName  = self.cardMedia.volume.get_name()
                 if self.prefs.auto_unmount:
                     self.cardMedia.volume.unmount(self.on_volume_unmount)
                     unmountMessage = "The device can now be safely removed"
@@ -2142,9 +2148,7 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
     
     def startVolumeMonitor(self):
         if not self.volumeMonitor:
-            self.volumeMonitor = gnomevfs.VolumeMonitor()
-            self.volumeMonitor.connect("volume-mounted", self.on_volume_mounted)
-            self.volumeMonitor.connect("volume-unmounted", self.on_volume_unmounted)
+            self.volumeMonitor = VMonitor(self)
     
     def displayBackupVolumes(self):
         """
@@ -2180,17 +2184,16 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
         """
         return self.prefs.device_autodetection_psd and self.prefs.device_autodetection
         
-    def on_volume_mounted(self, monitor, volume):
+    def on_volume_mounted(self, monitor, mount):
         """
         callback run when gnomevfs indicates a new volume
         has been mounted
         """
         
         if self.usingVolumeMonitor():
-            uri = volume.get_activation_uri()
-    #        print "%s has been mounted" % uri
-            path = gnomevfs.get_local_path_from_uri(uri)
-
+            volume = Volume(mount)
+            path = volume.get_path()
+            
             isBackupVolume = self.checkIfBackupVolume(path)
                         
             if isBackupVolume:
@@ -2200,7 +2203,7 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
                     self.rapid_statusbar.push(self.statusbar_context_id, self.displayBackupVolumes())
 
             elif media.isImageMedia(path) or self.searchForPsd():
-                cardMedia = CardMedia(path, volume)
+                cardMedia = CardMedia(path, volume,  True)
                 i = workers.getNextThread_id()
                 
                 workers.append(CopyPhotos(i, self, self.fileRenameLock, self.fileSequenceLock, self.statsLock, 
@@ -2210,16 +2213,15 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
 
                 self.setDownloadButtonSensitivity()
                 self.startScan()
-            
+
+        
     def on_volume_unmounted(self, monitor, volume):
         """
         callback run when gnomevfs indicates a volume
         has been unmounted
         """
-        
-        
-        uri = volume.get_activation_uri()
-        path = gnomevfs.get_local_path_from_uri(uri)
+        volume = Volume(volume)
+        path = volume.get_path()
 
         # four scenarios -
         # volume is waiting to be scanned
@@ -2306,21 +2308,17 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
             # either using automatically detected backup devices
             # or image devices
             
-            # ugly hack to work around bug where gnomevfs.get_local_path_from_uri(uri) causes a crash
-            mediaLocation = "file://" + config.MEDIA_LOCATION
-            
-            for volume in self.volumeMonitor.get_mounted_volumes():
-                uri = volume.get_activation_uri()
-                if uri.find(mediaLocation) == 0:
-                    path = gnomevfs.get_local_path_from_uri(uri)
-                    if path.startswith(config.MEDIA_LOCATION):
-                        isBackupVolume = self.checkIfBackupVolume(path)
-                        
-                        if isBackupVolume:
-                            backupPath = os.path.join(path,  self.prefs.backup_identifier)
-                            self.backupVolumes[backupPath] = volume
-                        elif self.prefs.device_autodetection and (media.isImageMedia(path) or self.searchForPsd()):
-                            cardMediaList.append(CardMedia(path, volume, True))
+            for v in self.volumeMonitor.get_mounts():
+                volume = Volume(v)
+                path = volume.get_path(avoid_gnomeVFS_bug = True)
+
+                if path:
+                    isBackupVolume = self.checkIfBackupVolume(path)
+                    if isBackupVolume:
+                        backupPath = os.path.join(path,  self.prefs.backup_identifier)
+                        self.backupVolumes[backupPath] = volume
+                    elif self.prefs.device_autodetection and (media.isImageMedia(path) or self.searchForPsd()):
+                        cardMediaList.append(CardMedia(path, volume, True))
                         
         
         if not self.prefs.device_autodetection:
@@ -2517,7 +2515,6 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
             
         return isSensitive
         
-
         
     def on_rapidapp_destroy(self, widget):
         """Called when the application is going to quit"""
@@ -2639,6 +2636,63 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
     def on_error_eventbox_button_press_event(self,  widget,  event):
         self.prefs.show_log_dialog = True
         log_dialog.widget.show()
+
+class VMonitor:
+    """ Transistion to gvfs from gnomevfs"""
+    def __init__(self,  app):
+        self.app = app
+        if using_gio:
+            self.vmonitor = gio.volume_monitor_get()
+            self.vmonitor.connect("mount-added", self.app.on_volume_mounted)
+            self.vmonitor.connect("mount-removed", self.app.on_volume_unmounted)
+        else:
+            self.vmonitor = gnomevfs.VolumeMonitor()
+            self.vmonitor.connect("volume-mounted", self.app.on_volume_mounted)
+            self.vmonitor.connect("volume-unmounted", self.app.on_volume_unmounted)
+            
+
+    def get_mounts(self):        
+        if using_gio:
+            return self.vmonitor.get_mounts()
+        else:
+            return self.vmonitor.get_mounted_volumes()
+            
+class Volume:
+    """ Transistion to gvfs from gnomevfs"""
+    def __init__(self,  volume):
+        self.volume = volume
+        
+    def get_name(self, limit=config.MAX_LENGTH_DEVICE_NAME):
+        if using_gio:
+            v = self.volume.get_name()
+        else:
+            v = self.volume.get_display_name()
+
+        if limit:
+            if len(v) > limit:
+                v = v[:limit] + '...'
+        return v
+        
+    def get_path(self,  avoid_gnomeVFS_bug = False):
+        if using_gio:
+            path = self.volume.get_root().get_path()
+        else:
+            uri = self.volume.get_activation_uri()
+            path = None
+            if avoid_gnomeVFS_bug:
+                # ugly hack to work around bug where gnomevfs.get_local_path_from_uri(uri) causes a crash
+                mediaLocation = "file://" + config.MEDIA_LOCATION
+                if uri.find(mediaLocation) == 0:
+                    path = gnomevfs.get_local_path_from_uri(uri)
+            else:
+                path = gnomevfs.get_local_path_from_uri(uri)
+        return path
+        
+    def unmount(self,  callback):
+        if using_gio:
+            print "somehow unmount this one"
+        else:
+            self.volume.unmount(callback)
 
 class DownloadStats:
     def __init__(self):

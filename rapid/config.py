@@ -49,7 +49,7 @@ CRITICAL_ERROR = 1
 SERIOUS_ERROR = 2
 WARNING = 3
 
-
+MAX_LENGTH_DEVICE_NAME = 15
 
 #logging - to be implemented
 #LOGFILE_DIRECTORY = '.rapidPhotoDownloader' # relative to home directory
