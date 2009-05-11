@@ -7,7 +7,7 @@ By popular demand, allow direct downloading from cameras. This is possible
 through the use of the new gvfs service that exists in newer versions of Linux.
 Therefore a recent version of Linux is a must. Although this is a popular
 request, the reality is that downloading images directly from the camera is 
-often exceedingly slow in comparison to popping the memory card into a card 
+often extremely slow in comparison to popping the memory card into a card 
 reader and downloading from that. 
 
 Fix bug #368098: the program now starts more quickly and does not become
@@ -22,9 +22,9 @@ as the image number (obviously the file's extension is not included as being
 part of the filename in this case). This allows takes in account files from
 cameras like the Canon 1D series, which can have filenames like VD1D7574.CR2.
 
-Bug fix: don't download from volumes after program startup unless auto detection
-is specified. This bug could occur when auto detection was enabled, then 
-disabled, and then a volume was mounted.
+Bug fix: don't download from volumes mounted while the porgram is already 
+running unless auto detection is specified. This bug could occur when auto
+detection was enabled, then disabled, and then a volume was mounted.
 
 
 Version 0.0.8

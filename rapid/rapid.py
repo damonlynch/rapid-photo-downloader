@@ -150,8 +150,10 @@ class ThreadManager:
         set so a worker will not run, or if it is running, make it quit and therefore complete
         """
         
+        self._workers[thread_id].manuallyDisabled = True
         if self._workers[thread_id].hasStarted:
             self._workers[thread_id].quit()
+            
         else:
             self._workers[thread_id].doNotStart = True
         
@@ -160,17 +162,19 @@ class ThreadManager:
         Returns True if the worker is ready to start
         and has not been disabled
         """
-        return not w.hasStarted and not w.doNotStart
+        return not w.hasStarted and not w.doNotStart and not w.manuallyDisabled
         
     def _isReadyToDownload(self, w):
-       return w.scanComplete and not w.downloadStarted and not w.doNotStart and w.isAlive()
+       return w.scanComplete and not w.downloadStarted and not w.doNotStart and w.isAlive() and not w.manuallyDisabled
         
     def _isFinished(self, w):
         """
         Returns True if the worker has finished running
+        
+        It does not signify it finished a download
         """
         
-        return w.hasStarted and not w.isAlive()
+        return (w.hasStarted and not w.isAlive()) or w.manuallyDisabled
         
     def completedScan(self,  w):
         return w.completedScan
@@ -295,12 +299,15 @@ class ThreadManager:
         for i in l: 
             print "\nThread %i\n=======\n" % i
             w = self._workers[i]
-            print "Disabled:", w.doNotStart
+            print "Volume / source:",  w.cardMedia.prettyName()
+            print "Do not start:", w.doNotStart
             print "Started:", w.hasStarted
             print "Running:", w.running
             print "Scan completed:",  w.scanComplete
             print "Download started:",  w.downloadStarted
             print "Completed:", self._isFinished(w)
+            print "Alive:",  w.isAlive()
+            print "Manually disabled:",  w.manuallyDisabled
 
                 
         
@@ -1043,6 +1050,7 @@ class CopyPhotos(Thread):
         self.thread_id = thread_id
         self.ctrl = True
         self.running = False
+        self.manuallyDisabled = False
         # enable the capacity to block oneself with a lock
         # the lock will be first set when the thread begins
         # it will then be locked when the thread needs to be paused
@@ -1523,6 +1531,7 @@ class CopyPhotos(Thread):
             if not self.ctrl:
                 # thread will restart at this point, when the program is exiting
                 # so must exit if self.ctrl indicates this
+
                 self.running = False
                 display_queue.close("rw")
                 return
@@ -1554,6 +1563,7 @@ class CopyPhotos(Thread):
         sizeImages = self.cardMedia.sizeOfImages(humanReadable = False)
         display_queue.put((self.parentApp.addToTotalDownloadSize,  (sizeImages, )))
         display_queue.put((self.parentApp.setOverallDownloadMark, ()))
+        display_queue.put((self.parentApp.postStartDownloadTasks,  ()))
         
         sizeImages = float(sizeImages)
         noImages = self.cardMedia.numberOfImages()
@@ -1670,6 +1680,7 @@ class CopyPhotos(Thread):
         Started and paused (alive)
         Completed (not alive, nothing to do)
         """
+        
         if self.hasStarted:
             if self.isAlive():            
                 self.ctrl = False
@@ -1682,6 +1693,8 @@ class CopyPhotos(Thread):
                             released = True
                         except thread_error:
                             print "Could not release lock for thread", self.thread_id
+                            
+                            
 
     def on_volume_unmount(self,  data1,  data2):
         """ needed for call to unmount volume"""
@@ -2024,7 +2037,7 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
         self.menu_display_thumbnails.set_active(self.prefs.display_thumbnails)
         self.menu_clear.set_sensitive(False)
         
-        self.setupAvailableImageAndBackupMedia(onStartup = True)
+        self.setupAvailableImageAndBackupMedia(onStartup=True,  onPreferenceChange=False)
 
         #adjust viewport size for displaying media
         #this is important because the code in MediaTreeView.addCard() is inaccurate at program startup
@@ -2033,17 +2046,11 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
         self.media_collection_scrolledwindow.set_size_request(-1,  height)
         
         self.download_button.grab_focus()
-
-#        self.startScan()
         
         if displayPreferences:
             PreferencesDialog(self)
 
-            
-#        elif self.prefs.auto_download_at_startup and workers.noReadyToStartWorkers() > 0:
-#            self.startDownload()
 
-    
 
     @dbus.service.method (config.DBUS_NAME,
                            in_signature='', out_signature='b')
@@ -2298,6 +2305,7 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
         """
         Clears the display of the download and instructs the thread not to run
         """
+        
         for w in workers.getNotDownloadingWorkers():
             media_collection_treeview.removeCard(w.thread_id)
             workers.disableWorker(w.thread_id)
@@ -2317,12 +2325,15 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
                 return True
         return False
     
-    def setupAvailableImageAndBackupMedia(self,  onStartup):
+    def setupAvailableImageAndBackupMedia(self,  onStartup,  onPreferenceChange):
         """
         Creates a list of CardMedia
         
         onStartup should be True if the program is still starting, i.e. this is being called from the 
         program's initialization.
+        
+        onPreferenceChange should be True if this is being called as the result of a preference
+        bring changed
         
         Removes any image media that are currently not downloaded, 
         or finished downloading
@@ -2382,7 +2393,7 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
         # add each memory card / other device to the list of threads
         j = workers.getNextThread_id()
         
-        autoStart = (self.prefs.auto_download_at_startup and onStartup) or self.prefs.auto_download_upon_device_insertion
+        autoStart = (not onPreferenceChange) and ((self.prefs.auto_download_at_startup and onStartup) or self.prefs.auto_download_upon_device_insertion)
 
         for i in range(j, j + len(cardMediaList)):
             cardMedia = cardMediaList[i - j]
@@ -2543,7 +2554,9 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
 
 #        print workers.printWorkerStatus()
 #        print "no workers that can download",  workers.noReadyToDownloadWorkers()
-        isSensitive = workers.noReadyToDownloadWorkers() > 0
+#        print "no workers downloading",  workers.noDownloadingWorkers() 
+
+        isSensitive = workers.noReadyToDownloadWorkers() > 0 or workers.noDownloadingWorkers() > 0
         
         if isSensitive:
             self.download_button.props.sensitive = True
@@ -2627,14 +2640,19 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
         if workers.noReadyToStartWorkers() > 0:
             workers.startWorkers()
 
-    def startDownload(self):
-        self.startOrResumeWorkers()
+
+
+    def postStartDownloadTasks(self):
         if workers.noDownloadingWorkers() > 1:
             self.displayDownloadSummaryNotification = True
             
         # set button to display Pause
         self.download_button_is_download = False
         self._set_download_button()
+        
+    def startDownload(self):
+        self.startOrResumeWorkers()
+        self.postStartDownloadTasks()
         
     def pauseDownload(self):
         for w in workers.getDownloadingWorkers():
@@ -2670,7 +2688,7 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
                       'backup_device_autodetection', 'backup_location' ]:
             if self.usingVolumeMonitor():
                 self.startVolumeMonitor()
-            self.setupAvailableImageAndBackupMedia(onStartup = False)
+            self.setupAvailableImageAndBackupMedia(onStartup = False,  onPreferenceChange = True)
 
     def on_error_eventbox_button_press_event(self,  widget,  event):
         self.prefs.show_log_dialog = True
