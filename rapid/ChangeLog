@@ -6,9 +6,9 @@ Version 0.0.9
 By popular demand, allow direct downloading from cameras. This is possible 
 through the use of the new gvfs service that exists in newer versions of Linux.
 Therefore a recent version of Linux is a must. Although this is a popular
-request, the reality is that downloading images directly from the camera often
-exceedingly slow in comparison to popping the memory card into a card reader and
-downloading from that. 
+request, the reality is that downloading images directly from the camera is 
+often exceedingly slow in comparison to popping the memory card into a card 
+reader and downloading from that. 
 
 Fix bug #368098: the program now starts more quickly and does not become
 unresponsive when scanning devices with a large number of images. This will

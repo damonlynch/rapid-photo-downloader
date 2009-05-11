@@ -1525,6 +1525,7 @@ class CopyPhotos(Thread):
             self.running = True
             
         self.downloadStarted = True
+
         
         # Some images may not have metadata (this
         # is unlikely for images straight out of a 
@@ -1545,7 +1546,11 @@ class CopyPhotos(Thread):
         i = 0
         sizeDownloaded = noImagesDownloaded =  noImagesSkipped = 0
         
-        sizeImages = float(self.cardMedia.sizeOfImages(humanReadable = False))
+        sizeImages = self.cardMedia.sizeOfImages(humanReadable = False)
+        display_queue.put((self.parentApp.addToTotalDownloadSize,  (sizeImages, )))
+        display_queue.put((self.parentApp.setOverallDownloadMark, ()))
+        
+        sizeImages = float(sizeImages)
         noImages = self.cardMedia.numberOfImages()
         
         baseDownloadDir = self.prefs.download_folder
@@ -2378,30 +2383,29 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
 
     
     def _resetDownloadInfo(self):
+        self.markSet = False
         self.startTime = None
         self.totalDownloadSize = self.totalDownloadedSoFar = 0
         self.totalDownloadSizeThisRun = self.totalDownloadedSoFarThisRun = 0 
         self.timeRemaining.clear()
     
+    def addToTotalDownloadSize(self,  size):
+        self.totalDownloadSize += size
+        
+    def setOverallDownloadMark(self):
+        if not self.markSet:
+            self.markSet = True
+            self.totalDownloadSizeThisRun = self.totalDownloadSize - self.totalDownloadedSoFar
+            self.totalDownloadedSoFarThisRun = 0
+                
+            self.startTime = time.time()
+            self.timeStatusBarUpdated = self.startTime
+
+            self.timeMark = self.startTime
+            self.sizeMark = 0            
+        
     def startOrResumeWorkers(self):
-            
-        # take into account any newly added cards
-        for w in workers.getReadyToDownloadWorkers():
-            size = w.cardMedia.sizeOfImages(humanReadable = False)
-            self.totalDownloadSize += size
-            self.timeRemaining.add(w,  size)
-
-
-        self.totalDownloadSizeThisRun = self.totalDownloadSize - self.totalDownloadedSoFar
-        self.totalDownloadedSoFarThisRun = 0
-            
-        self.startTime = time.time()
-        self.timeStatusBarUpdated = self.startTime
-
-        self.timeMark = self.startTime
-        self.sizeMark = 0
-        
-        
+                    
         # resume any paused workers
         for w in workers.getPausedDownloadingWorkers():
             w.startStop()
