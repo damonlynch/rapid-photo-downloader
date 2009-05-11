@@ -82,7 +82,6 @@ def formatSizeForUser(bytes, zeroString="", withDecimals=True, kbOnly=False):
     printing out to the user.  zeroString is the string to use if bytes == 0.
     source: https://develop.participatoryculture.org/trac/democracy/browser/trunk/tv/portable/util.py?rev=3993
     
-    FIXME: replace with call to gnomevfs function
     """
     if bytes > (1 << 30) and not kbOnly:
         value = (bytes / (1024.0 * 1024.0 * 1024.0))

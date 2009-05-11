@@ -45,7 +45,6 @@ import pango
 try:
     import gio
     using_gio = True
-    import gnomevfs # still use it for now ;-)
 except ImportError:
     import gnomevfs
     using_gio = False
@@ -206,6 +205,11 @@ class ThreadManager:
         for w in self._workers:
             yield w
             
+    def getNonFinishedWorkers(self):
+        for w in self._workers:
+            if not self._isFinished(w):
+                yield w
+                
     def getStartedWorkers(self):
         for w in self._workers:
             if w.hasStarted:
@@ -1236,6 +1240,7 @@ class CopyPhotos(Thread):
                                 "Source: %s" % image, 
                                 IMAGE_SKIPPED)
                 skipImage = True
+                imageMetadata =  newName = newFile = path = subfolder = None
             else:
                 imageMetadata.readMetadata()
                 if not imageMetadata.exifKeys() and (needMetaDataToCreateUniqueSubfolderName or 
@@ -2189,6 +2194,24 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
         """
         return self.prefs.device_autodetection_psd and self.prefs.device_autodetection
         
+
+    def isGProxyShadowMount(self,  gvfsVolume):
+
+        """ gvfs GProxyShadowMount are used for camera specific things, not the data in the memory card """
+        if using_gio:
+            #FIXME: this is a hack, but what is the correct function?
+            return str(type(gvfsVolume)).find('GProxyShadowMount') >= 0
+        else:
+            return False
+
+    def workerHasThisPath(self,  path):
+        havePath= False
+        for w in workers.getNonFinishedWorkers():
+            if w.cardMedia.path == path:
+                havePath = True
+                break
+        return havePath
+        
     def on_volume_mounted(self, monitor, mount):
         """
         callback run when gnomevfs indicates a new volume
@@ -2198,26 +2221,30 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
         if self.usingVolumeMonitor():
             volume = Volume(mount)
             path = volume.get_path()
-            
-            isBackupVolume = self.checkIfBackupVolume(path)
-                        
-            if isBackupVolume:
-                backupPath = os.path.join(path,  self.prefs.backup_identifier)
-                if path not in self.backupVolumes:
-                    self.backupVolumes[backupPath] = volume
-                    self.rapid_statusbar.push(self.statusbar_context_id, self.displayBackupVolumes())
+            skip = False
+            if self.isGProxyShadowMount(mount):
+                if self.workerHasThisPath(path):
+                    skip = True
+            if not skip:
+                isBackupVolume = self.checkIfBackupVolume(path)
+                            
+                if isBackupVolume:
+                    backupPath = os.path.join(path,  self.prefs.backup_identifier)
+                    if path not in self.backupVolumes:
+                        self.backupVolumes[backupPath] = volume
+                        self.rapid_statusbar.push(self.statusbar_context_id, self.displayBackupVolumes())
 
-            elif media.isImageMedia(path) or self.searchForPsd():
-                cardMedia = CardMedia(path, volume,  True)
-                i = workers.getNextThread_id()
-                
-                workers.append(CopyPhotos(i, self, self.fileRenameLock, self.fileSequenceLock, self.statsLock, 
-                                                            self.downloadStats,  self.prefs.auto_download_upon_device_insertion, 
-                                                            cardMedia))
+                elif media.isImageMedia(path) or self.searchForPsd():
+                    cardMedia = CardMedia(path, volume,  True)
+                    i = workers.getNextThread_id()
+                    
+                    workers.append(CopyPhotos(i, self, self.fileRenameLock, self.fileSequenceLock, self.statsLock, 
+                                                                self.downloadStats,  self.prefs.auto_download_upon_device_insertion, 
+                                                                cardMedia))
 
 
-                self.setDownloadButtonSensitivity()
-                self.startScan()
+                    self.setDownloadButtonSensitivity()
+                    self.startScan()
 
         
     def on_volume_unmounted(self, monitor, volume):
@@ -2234,24 +2261,25 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
         # images are being downloaded from volume (it must be a messy unmount)
         # images finished downloading from volume
         
-        # first scenario
-        for w in workers.getReadyToStartWorkers():
-            if w.cardMedia.volume == volume:
-                media_collection_treeview.removeCard(w.thread_id)
-                workers.disableWorker(w.thread_id)
-        # second scenario
-        for w in workers.getReadyToDownloadWorkers():
-            if w.cardMedia.volume == volume:
-                media_collection_treeview.removeCard(w.thread_id)
-                workers.disableWorker(w.thread_id)
-                
-        # fourth scenario - nothing to do
-                
-        # remove backup volumes
-        backupPath = os.path.join(path,  self.prefs.backup_identifier)
-        if backupPath in self.backupVolumes:
-            del self.backupVolumes[backupPath]
-            self.rapid_statusbar.push(self.statusbar_context_id, self.displayBackupVolumes())
+        if path:
+            # first scenario
+            for w in workers.getReadyToStartWorkers():
+                if w.cardMedia.volume == volume:
+                    media_collection_treeview.removeCard(w.thread_id)
+                    workers.disableWorker(w.thread_id)
+            # second scenario
+            for w in workers.getReadyToDownloadWorkers():
+                if w.cardMedia.volume == volume:
+                    media_collection_treeview.removeCard(w.thread_id)
+                    workers.disableWorker(w.thread_id)
+                    
+            # fourth scenario - nothing to do
+                    
+            # remove backup volumes
+            backupPath = os.path.join(path,  self.prefs.backup_identifier)
+            if backupPath in self.backupVolumes:
+                del self.backupVolumes[backupPath]
+                self.rapid_statusbar.push(self.statusbar_context_id, self.displayBackupVolumes())
 
         
     
@@ -2318,12 +2346,19 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
                 path = volume.get_path(avoid_gnomeVFS_bug = True)
 
                 if path:
-                    isBackupVolume = self.checkIfBackupVolume(path)
-                    if isBackupVolume:
-                        backupPath = os.path.join(path,  self.prefs.backup_identifier)
-                        self.backupVolumes[backupPath] = volume
-                    elif self.prefs.device_autodetection and (media.isImageMedia(path) or self.searchForPsd()):
-                        cardMediaList.append(CardMedia(path, volume, True))
+                    skip = False
+                    if self.isGProxyShadowMount(v):
+                        for cm in cardMediaList:
+                            if cm.path == path:
+                                skip = True
+                                break
+                    if not skip:
+                        isBackupVolume = self.checkIfBackupVolume(path)
+                        if isBackupVolume:
+                            backupPath = os.path.join(path,  self.prefs.backup_identifier)
+                            self.backupVolumes[backupPath] = volume
+                        elif self.prefs.device_autodetection and (media.isImageMedia(path) or self.searchForPsd()):
+                            cardMediaList.append(CardMedia(path, volume, True))
                         
         
         if not self.prefs.device_autodetection:
@@ -2693,10 +2728,7 @@ class Volume:
         return path
         
     def unmount(self,  callback):
-        if using_gio:
-            print "somehow unmount this one"
-        else:
-            self.volume.unmount(callback)
+        self.volume.unmount(callback)
 
 class DownloadStats:
     def __init__(self):
