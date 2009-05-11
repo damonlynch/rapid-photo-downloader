@@ -1,31 +1,32 @@
 Rapid Photo Downloader is written by a photographer for professional and amateur
 photographers. Released under the GNU GPL license, it is designed for use on the
-GNOME 2 Desktop. It can download photos from multiple memory cards and Portable
-Storage Devices simultaneously. It provides a variety of options for sub-folder
+Linux Desktop. It can download photos from multiple cameras, memory cards, and
+Portable Storage Devices simultaneously. It provides many options for subfolder
 creation, image renaming and backup.
 
-It does not download images directly from a camera unless the camera is 
-recognized as an external drive.  
+It can download images directly from only from those cameras supported by
+gphoto2, and only on recent Linux distributions (those that contain GIO).
 
+For more information see http://damonlynch.net/rapid
 
 Please feel welcome to contribute anything to help make this project a success: 
 feature suggestions, bug reports, code, artwork, translations, and documentation
 are all needed!
 
 
+
 Running the program
 ===================
    
-Start the program from its menu entry or by running:
+Start the program from its menu entry. If you want additional output from the 
+command line, from a terminal run:
 
 rapid-photo-downloader
-
-from the command line.
 
 Known Bugs
 ==========
 
 * Closing log window with window manager 'x' instead of 'close' button not yet
   supported
-* Running more than one copy of the program at the same time is not supported
+
 
