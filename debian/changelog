@@ -1,3 +1,13 @@
+rapid-photo-downloader (0.0.9~b2-0ubuntu1~ppa1) hardy; urgency=low
+
+  * experimental support for direct downloading from cameras
+
+  * Fix bug #368098: program is now more responsive
+
+  * Fix bug #372284: more robust "image number" code
+
+ -- Damon Lynch <damonlynch@gmail.com>  Tue, 12 May 2009 21:01:20 +0800
+
 rapid-photo-downloader (0.0.8-0ubuntu1~ppa4) hardy; urgency=low
 
   * make the package for hardy and not Jaunty

@@ -45,9 +45,11 @@ import pango
 try:
     import gio
     using_gio = True
+    print "Using GIO"
 except ImportError:
     import gnomevfs
     using_gio = False
+    print "Using GnomeVFS"
 
 import prefs
 import paths
@@ -307,7 +309,7 @@ class ThreadManager:
             print "Download started:",  w.downloadStarted
             print "Completed:", self._isFinished(w)
             print "Alive:",  w.isAlive()
-            print "Manually disabled:",  w.manuallyDisabled
+            print "Manually disabled:",  w.manuallyDisabled,  "\n"
 
                 
         
@@ -1194,11 +1196,12 @@ class CopyPhotos(Thread):
                 display_queue.put((media_collection_treeview.updateProgress, (self.thread_id, 0.0, display, 0)))
                 display_queue.put((self.parentApp.timeRemaining.add,  (self.thread_id,  imageSizeSum)))
                 display_queue.put((self.parentApp.setDownloadButtonSensitivity, ()))
-
+                print "Device scan complete: found %s images on %s" % (noImages,  self.cardMedia.prettyName(limit=0))
                 return True
             else:
                 # it might be better to display "0 of 0" here
                 display_queue.put((media_collection_treeview.removeCard,  (self.thread_id, )))
+                print "Device scan complete: no images found on %s" % self.cardMedia.prettyName(limit=0)
                 return False
 
         def cleanUp():
@@ -1519,6 +1522,7 @@ class CopyPhotos(Thread):
                 
         
         if not scanMedia():
+            print "This device has no images to download from: finish thread"
             display_queue.close("rw")
             self.running = False
             self.lock.release()
@@ -1539,7 +1543,7 @@ class CopyPhotos(Thread):
             self.running = True
             
         self.downloadStarted = True
-
+        print "Download has started"
         
         # Some images may not have metadata (this
         # is unlikely for images straight out of a 
@@ -2228,11 +2232,10 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
         if self.usingVolumeMonitor():
             volume = Volume(mount)
             path = volume.get_path()
-            skip = False
-            if self.isGProxyShadowMount(mount):
-                if self.workerHasThisPath(path):
-                    skip = True
-            if not skip:
+            if not self.isGProxyShadowMount(mount):
+                print "Detected",  volume.get_name(limit=0)
+                print "Path is",  path            
+                
                 isBackupVolume = self.checkIfBackupVolume(path)
                             
                 if isBackupVolume:
@@ -2244,6 +2247,8 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
                 elif media.isImageMedia(path) or self.searchForPsd():
                     cardMedia = CardMedia(path, volume,  True)
                     i = workers.getNextThread_id()
+                    
+                    print "Auto start download is",  self.prefs.auto_download_upon_device_insertion
                     
                     workers.append(CopyPhotos(i, self, self.fileRenameLock, self.fileSequenceLock, self.statsLock, 
                                                                 self.downloadStats,  self.prefs.auto_download_upon_device_insertion, 
@@ -2357,13 +2362,9 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
                 path = volume.get_path(avoid_gnomeVFS_bug = True)
 
                 if path:
-                    skip = False
-                    if self.isGProxyShadowMount(v):
-                        for cm in cardMediaList:
-                            if cm.path == path:
-                                skip = True
-                                break
-                    if not skip:
+                    if not self.isGProxyShadowMount(v):
+                        print "Detected",  volume.get_name(limit=0)
+                        print "Path is",  path
                         isBackupVolume = self.checkIfBackupVolume(path)
                         if isBackupVolume:
                             backupPath = os.path.join(path,  self.prefs.backup_identifier)
@@ -2376,6 +2377,7 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
             # user manually specified the path from which to download images
             path = self.prefs.device_location
             if path:
+                print "Using manually specified path",  path
                 cardMedia = CardMedia(path,  None,  True)
                 cardMediaList.append(cardMedia)
                     
@@ -2394,6 +2396,8 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
         j = workers.getNextThread_id()
         
         autoStart = (not onPreferenceChange) and ((self.prefs.auto_download_at_startup and onStartup) or self.prefs.auto_download_upon_device_insertion)
+        
+        print "Auto start download is", autoStart
 
         for i in range(j, j + len(cardMediaList)):
             cardMedia = cardMediaList[i - j]
@@ -2459,6 +2463,8 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
             
         #start any new workers
         workers.startDownloadingWorkers()
+        
+        workers.printWorkerStatus()
     
         
     def updateOverallProgress(self, thread_id, imageSize,  percentComplete):
@@ -2484,6 +2490,8 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
             self.download_button_is_download = True
             self._set_download_button()
             self.setDownloadButtonSensitivity()
+            print "\nAll downloads complete"
+            workers.printWorkerStatus()
     
         else:
             now = time.time()
@@ -2688,7 +2696,10 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
                       'backup_device_autodetection', 'backup_location' ]:
             if self.usingVolumeMonitor():
                 self.startVolumeMonitor()
+            print "\nPreferences were changed."
             self.setupAvailableImageAndBackupMedia(onStartup = False,  onPreferenceChange = True)
+            print "Current worker status:"
+            workers.printWorkerStatus()
 
     def on_error_eventbox_button_press_event(self,  widget,  event):
         self.prefs.show_log_dialog = True

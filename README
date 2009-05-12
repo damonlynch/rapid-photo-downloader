@@ -5,7 +5,12 @@ Portable Storage Devices simultaneously. It provides many options for subfolder
 creation, image renaming and backup.
 
 It can download images directly from only from those cameras supported by
-gphoto2, and only on recent Linux distributions (those that contain GIO).
+libgphoto2, and only on recent Linux distributions (those that contain gvfs).
+This support is experimental. Some cameras do not work. If you cannot browse the 
+camera's contents in a file manager (e.g. Nautilus), the camera download will
+not work until the gvfs support is improved.
+
+Cameras that do not work as at May 2009 include the Canon 20D and 300D.
 
 For more information see http://damonlynch.net/rapid
 
@@ -29,4 +34,8 @@ Known Bugs
 * Closing log window with window manager 'x' instead of 'close' button not yet
   supported
 
+* When metadata is corrupt (for example a corrupt camera model entry), and it is
+  used as part of image renaming or subfolder name generation, the filename 
+  could contain badly encoded or garbage values. These images should not be
+  downloaded at all.
 

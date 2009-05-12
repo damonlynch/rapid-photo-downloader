@@ -84,8 +84,9 @@ class Media:
             name = os.path.split(self.path)[1]
             name = name.replace('_', ' ')
             v = name
-            if len(v) > limit:
-                v = v[:limit] + '...'
+            if limit:
+                if len(v) > limit:
+                    v = v[:limit] + '...'
             return v
             
     def getPath(self):

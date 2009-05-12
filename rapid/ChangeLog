@@ -1,15 +1,19 @@
-Version 0.0.9
--------------
+Version 0.0.9 beta 2
+--------------------
 
-2009-05-15 ?
+2009-05-12
 
-By popular demand, allow direct downloading from cameras. This is possible 
-through the use of the new gvfs service, provided by GIO, that exists in recent
-versions of Linux. A recent version of Linux is a must.  The camera must also be
-supported by gPhoto2. Although this is a popular request, the reality is that 
-downloading images directly from the camera is often extremely slow in
-comparison to popping the memory card into a card reader and downloading from
-that. 
+By popular demand, allow direct downloading from cameras. This support is
+experimental and may not work with your camera. This is possible through the use
+of the new gvfs service, provided by GIO, that exists in recent versions of
+Linux. A recent version of Linux is a must. The camera must also be supported by
+libgphoto2 in combination with gvfs. If you cannot browse the camera's contents
+in a file manager (e.g. Nautilus), the camera download will not work until the
+gvfs support is improved.
+
+Although this is a popular request, the reality is that downloading images
+directly from the camera is often extremely slow in comparison to popping the
+memory card into a card reader and downloading from that. 
 
 Fix bug #368098: the program now starts more quickly and does not become
 unresponsive when scanning devices with a large number of images. This will
@@ -23,7 +27,7 @@ as the image number (obviously the file's extension is not included as being
 part of the filename in this case). This allows takes in account files from
 cameras like the Canon 1D series, which can have filenames like VD1D7574.CR2.
 
-Bug fix: don't download from volumes mounted while the porgram is already 
+Bug fix: don't download from volumes mounted while the program is already 
 running unless auto detection is specified. This bug could occur when auto
 detection was enabled, then disabled, and then a volume was mounted.
 
