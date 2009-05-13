@@ -1,26 +1,52 @@
 =head1 NAME
 
-rapid-photo-downloader - gets images from camera memory cards and other devices
+rapid-photo-downloader - imports images from cameras, memory cards and other devices
 
 =head1 SYNOPSIS
 
-rapid-photo-downloader
+B<rapid-photo-downloader> [options]
+
+Options:
+  --version         
+  -h, --help        
+  -v, --verbose
+  -q, --quiet
+  -e, --extensions  
 
 =head1 DESCRIPTION
 
-B<Rapid Photo Downloader> downloads photos from memory cards and Portable
+B<Rapid Photo Downloader> downloads photos from cameras, memory cards and Portable
 Storage Devices, providing a variety of options for subfolder creation,
-image renaming and backup. It can download images from more than one memory
-card in parallel.
+image renaming and backup. It can download images from more than one device in parallel.
 
-It is designed for use on the GNOME 2 Desktop.
+
+=head1 OPTIONS
+
+=item B<--version>
+
+Displays information about the currently installed version and exits.
+
+=item B<-h, --help>
+
+Show help message and exit.
+
+=item B<-v, --verbose>
+
+Displays program information on the command line as the program runs.
+
+=item B<-q, --quiet>
+
+Only display output errors and warnings to the command line as the program runs.
+
+=item B<-e, --extensions>
+
+Displays image file extensions the program recognizes and exits.
 
 =head1 BUGS
 
-* Running more than one copy of the program at the same time is not supported.
+* Support for downloading directly from cameras is experimental. Not all cameras are supported.
 
-* Closing log window with window manager 'x' instead of 'close' button is not
-  yet supported.
+* Closing log window with window manager 'x' instead of 'close' button is not yet supported.
 
 Please report bugs at https://bugs.launchpad.net/rapid
 

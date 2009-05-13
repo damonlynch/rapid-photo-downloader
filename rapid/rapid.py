@@ -45,15 +45,16 @@ import pango
 try:
     import gio
     using_gio = True
-    print "Using GIO"
 except ImportError:
     import gnomevfs
     using_gio = False
-    print "Using GnomeVFS"
+
 
 import prefs
 import paths
 import gnomeglade
+
+from optparse import OptionParser
 
 import pynotify
 
@@ -93,7 +94,12 @@ except:
 
 def today():
     return datetime.date.today().strftime('%Y-%m-%d')
-    
+
+
+
+def cmd_line(msg):    
+    if verbose:
+        print msg
 
 exiting = False
 
@@ -375,12 +381,12 @@ class RapidPreferences(prefs.Preferences):
         adjustedToday = datetime.datetime.strptime("%s %s:%s" % (self.downloads_today[0], hour,  minute), "%Y-%m-%d %H:%M") 
         
         now = datetime.datetime.today()
-#        print "now: %s  ## adjustedToday: %s" % (now,  adjustedToday)
+
         if  now < adjustedToday :
             try:
                 return int(self.downloads_today[1])
             except ValueError:
-                print "Invalid Downloads Today value.\nResetting value to zero."
+                sys.stderr.write("Invalid Downloads Today value.\nResetting value to zero.\n")
                 self.setDownloadsToday(self.downloads_today[0] ,  0)
                 return 0
         else:
@@ -419,7 +425,7 @@ class RapidPreferences(prefs.Preferences):
             t1,  t2 = self.day_start.split(":")
             return (int(t1),  int(t2))
         except ValueError:
-            print "Start of day preference is corrupted.\nResetting to midnight."
+            sys.stderr.write("Start of day preference is corrupted.\nResetting to midnight.\n")
             self.day_start = "0:0"
             return 0, 0
 
@@ -443,9 +449,9 @@ class ImageRenameTable(tpm.TablePlusMinus):
         except (rn.PrefValueInvalidError, rn.PrefLengthError, 
                 rn.PrefValueKeyComboError,  rn.PrefKeyError),  e:
 
-            print self.errorTitle 
-            print "Sorry,these preferences contain an error:"
-            print self.prefsFactory.formatPreferencesForPrettyPrint()
+            sys.stderr.write(self.errorTitle + "\n")
+            sys.stderr.write("Sorry,these preferences contain an error:\n")
+            sys.stderr.write(self.prefsFactory.formatPreferencesForPrettyPrint() + "\n")
             
             # the preferences were invalid
             # reset them to their default
@@ -455,7 +461,7 @@ class ImageRenameTable(tpm.TablePlusMinus):
             self.updateParentAppPrefs()
 
             msg = "%s.\nResetting to default values." % e
-            print msg
+            sys.stderr.write(msg)
             
             
             misc.run_dialog(self.errorTitle, msg, 
@@ -480,7 +486,7 @@ class ImageRenameTable(tpm.TablePlusMinus):
                     elif name == 'GtkEntry':
                         value = widget.get_text()
                     else:
-                        print "Unknown preference widget!"
+                        sys.stderr.write("Unknown preference widget!")
                         value = ''
                 else:
                     value = ''
@@ -541,8 +547,6 @@ class ImageRenameTable(tpm.TablePlusMinus):
         self.updatePreferences()
         
     def on_entry_changed(self, widget, rowPosition):
-        
-#        print  "on entry changed",  widget.get_text()
         self.updatePreferences()
 
     def on_rowAdded(self, rowPosition):
@@ -1095,10 +1099,10 @@ class CopyPhotos(Thread):
         return root, name
         
     def handlePreferencesError(self,  e,  prefsFactory):
-            print "Sorry,these preferences contain an error:"
-            print prefsFactory.formatPreferencesForPrettyPrint()
+            sys.stderr.write("Sorry,these preferences contain an error:\n")
+            sys.stderr.write(prefsFactory.formatPreferencesForPrettyPrint() + "\n")
             msg = str(e)
-            print msg
+            sys.stderr.write(msg + "\n")
         
     def initializeFromPrefs(self):
         """
@@ -1196,12 +1200,12 @@ class CopyPhotos(Thread):
                 display_queue.put((media_collection_treeview.updateProgress, (self.thread_id, 0.0, display, 0)))
                 display_queue.put((self.parentApp.timeRemaining.add,  (self.thread_id,  imageSizeSum)))
                 display_queue.put((self.parentApp.setDownloadButtonSensitivity, ()))
-                print "Device scan complete: found %s images on %s" % (noImages,  self.cardMedia.prettyName(limit=0))
+                cmd_line("Device scan complete: found %s images on %s" % (noImages,  self.cardMedia.prettyName(limit=0)))
                 return True
             else:
                 # it might be better to display "0 of 0" here
                 display_queue.put((media_collection_treeview.removeCard,  (self.thread_id, )))
-                print "Device scan complete: no images found on %s" % self.cardMedia.prettyName(limit=0)
+                cmd_line("Device scan complete: no images found on %s" % self.cardMedia.prettyName(limit=0))
                 return False
 
         def cleanUp():
@@ -1383,7 +1387,7 @@ class CopyPhotos(Thread):
                                         
                             with self.fileSequenceLock:
                                 if self.prefs.incrementDownloadsToday():
-                                    print "new day started"
+                                    cmd_line("new day started - resetting downloads today sequence number")
                                     # a new day has started
                                     sequences.setDownloadsToday(0)
                     
@@ -1522,7 +1526,7 @@ class CopyPhotos(Thread):
                 
         
         if not scanMedia():
-            print "This device has no images to download from: finish thread"
+            cmd_line("This device has no images to download from: finish thread")
             display_queue.close("rw")
             self.running = False
             self.lock.release()
@@ -1543,7 +1547,7 @@ class CopyPhotos(Thread):
             self.running = True
             
         self.downloadStarted = True
-        print "Download has started"
+        cmd_line("Download has started from %s" % self.cardMedia.prettyName())
         
         # Some images may not have metadata (this
         # is unlikely for images straight out of a 
@@ -1651,6 +1655,7 @@ class CopyPhotos(Thread):
             pass
                 
         notifyAndUnmount()
+        cmd_line("Download complete from %s" % self.cardMedia.prettyName())
         display_queue.put((self.parentApp.notifyUserAllDownloadsComplete,()))
         display_queue.put((self.parentApp.resetSequences,()))
 
@@ -1671,7 +1676,7 @@ class CopyPhotos(Thread):
                     self.lock.release()
     
                 except thread_error:
-                    print self.thread_id, "thread error"    
+                    sys.stderr.write(self.thread_id + " thread error\n")
     
     def quit(self):
         """ 
@@ -1696,7 +1701,7 @@ class CopyPhotos(Thread):
                             self.lock.release()
                             released = True
                         except thread_error:
-                            print "Could not release lock for thread", self.thread_id
+                            sys.stderr.write("Could not release lock for thread %s\n" % self.thread_id)
                             
                             
 
@@ -1762,7 +1767,7 @@ class MediaTreeView(gtk.TreeView):
             self.liststore.set_value(iter, 1, sizeImages)
             self.liststore.set_value(iter, 2, noImages)
         else:
-            print "FIXME: this card is unknown"
+            sys.stderr.write("FIXME: this card is unknown")
     
     def removeCard(self, thread_id):
         if thread_id in self.mapThreadToRow:
@@ -2105,24 +2110,24 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
                         msg += "Program preferences appear to be valid, but please check them to ensure correct operation."
                     else:
                         msg += "Sorry, some preferences are invalid and will be reset."
-                    print "Warning: %s" % msg
+                    sys.stderr.write("Warning: %s\n" % msg)
                     misc.run_dialog(title, msg)
                     displayPrefs = True
                 
                 else:
-                    print "This version of the program is newer than the previously run version. Checking preferences."
+                    cmd_line("This version of the program is newer than the previously run version. Checking preferences.")
                     if True:
     #                if rn.checkPreferencesForValidity(self.prefs.image_rename,  self.prefs.subfolder,  previousVersion):
                         upgraded,  imageRename,  subfolder = rn.upgradePreferencesToCurrent(self.prefs.image_rename,  self.prefs.subfolder,  previousVersion)
                         if upgraded:
                             self.prefs.image_rename = imageRename
                             self.prefs.subfolder = subfolder
-                            print "Preferences were modified."
+                            cmd_line("Preferences were modified.")
                             msg = 'This version of the program uses different preferences than the old version. Your preferences have been updated.\n\nPlease check them to ensure correct operation.'
                             misc.run_dialog(title,  msg)
                             displayPrefs = True
                         else:
-                            print "No preferences needed to be changed."
+                            cmd_line("No preferences needed to be changed.")
                     else:
                         msg = 'This version of the program uses different preferences than the old version. Some of your previous preferences were invalid, and could not be updated. They will be reset.'
                         misc.run_dialog(title,  msg)
@@ -2132,7 +2137,7 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
 
     def initPyNotify(self):
         if not pynotify.init("TestCaps"):
-            print "Problem using pynotify."
+            sys.stderr.write("Problem using pynotify.\n")
             sys.exit(1)
 
         capabilities = {'actions':  False,
@@ -2148,7 +2153,7 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
 
         caps = pynotify.get_server_caps ()
         if caps is None:
-            print "Failed to receive pynotify server capabilities."
+            sys.stderr.write("Failed to receive pynotify server capabilities.\n")
             sys.exit (1)
 
         for cap in caps:
@@ -2233,8 +2238,7 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
             volume = Volume(mount)
             path = volume.get_path()
             if not self.isGProxyShadowMount(mount):
-                print "Detected",  volume.get_name(limit=0)
-                print "Path is",  path            
+                cmd_line("Detected %s with path %s" % (volume.get_name(limit=0),  path))
                 
                 isBackupVolume = self.checkIfBackupVolume(path)
                             
@@ -2248,7 +2252,7 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
                     cardMedia = CardMedia(path, volume,  True)
                     i = workers.getNextThread_id()
                     
-                    print "Auto start download is",  self.prefs.auto_download_upon_device_insertion
+                    cmd_line("Auto start download is %s" %  self.prefs.auto_download_upon_device_insertion)
                     
                     workers.append(CopyPhotos(i, self, self.fileRenameLock, self.fileSequenceLock, self.statsLock, 
                                                                 self.downloadStats,  self.prefs.auto_download_upon_device_insertion, 
@@ -2363,8 +2367,7 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
 
                 if path:
                     if not self.isGProxyShadowMount(v):
-                        print "Detected",  volume.get_name(limit=0)
-                        print "Path is",  path
+                        cmd_line ("Detected %s with path %s" % (volume.get_name(limit=0),  path))
                         isBackupVolume = self.checkIfBackupVolume(path)
                         if isBackupVolume:
                             backupPath = os.path.join(path,  self.prefs.backup_identifier)
@@ -2377,7 +2380,7 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
             # user manually specified the path from which to download images
             path = self.prefs.device_location
             if path:
-                print "Using manually specified path",  path
+                cmd_line("Using manually specified path %s" %  path)
                 cardMedia = CardMedia(path,  None,  True)
                 cardMediaList.append(cardMedia)
                     
@@ -2397,7 +2400,7 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
         
         autoStart = (not onPreferenceChange) and ((self.prefs.auto_download_at_startup and onStartup) or self.prefs.auto_download_upon_device_insertion)
         
-        print "Auto start download is", autoStart
+        cmd_line("Auto start download is %s" % autoStart)
 
         for i in range(j, j + len(cardMediaList)):
             cardMedia = cardMediaList[i - j]
@@ -2464,7 +2467,8 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
         #start any new workers
         workers.startDownloadingWorkers()
         
-        workers.printWorkerStatus()
+        if is_beta and verbose:
+            workers.printWorkerStatus()
     
         
     def updateOverallProgress(self, thread_id, imageSize,  percentComplete):
@@ -2490,8 +2494,9 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
             self.download_button_is_download = True
             self._set_download_button()
             self.setDownloadButtonSensitivity()
-            print "\nAll downloads complete"
-            workers.printWorkerStatus()
+            cmd_line("\nAll downloads complete")
+            if is_beta and verbose:
+                workers.printWorkerStatus()
     
         else:
             now = time.time()
@@ -2696,10 +2701,11 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
                       'backup_device_autodetection', 'backup_location' ]:
             if self.usingVolumeMonitor():
                 self.startVolumeMonitor()
-            print "\nPreferences were changed."
+            cmd_line("\nPreferences were changed.")
             self.setupAvailableImageAndBackupMedia(onStartup = False,  onPreferenceChange = True)
-            print "Current worker status:"
-            workers.printWorkerStatus()
+            if is_beta and verbose:
+                print "Current worker status:"
+                workers.printWorkerStatus()
 
     def on_error_eventbox_button_press_event(self,  widget,  event):
         self.prefs.show_log_dialog = True
@@ -2830,8 +2836,37 @@ def programStatus():
 
         
 def start ():
-    atexit.register(programStatus)
     
+    
+    global is_beta
+    is_beta = config.version.find('~b') > 0
+    
+    parser = OptionParser(version= "%%prog %s" % config.version)
+    parser.set_defaults(verbose=is_beta,  extensions=False)
+    parser.add_option("-v",  "--verbose",  action="store_true", dest="verbose",  help="display program information on the command line as the program runs [default: %default]")
+    parser.add_option("-q", "--quiet",  action="store_false", dest="verbose",  help="only output errors to the command line")
+    parser.add_option("-e",  "--extensions",  action="store_true", dest="extensions", help="list image file extensions the program recognizes and exit")
+    (options, args) = parser.parse_args()
+    global verbose
+    verbose = options.verbose
+    
+    if verbose:
+        atexit.register(programStatus)
+        
+    if options.extensions:
+        exts = config.RAW_FILE_EXTENSIONS + config.NON_RAW_IMAGE_FILE_EXTENSIONS
+        v = ''
+        for e in exts[:-1]:
+            v += '%s, ' % e.upper()
+        v = v[:-1] + ('and %s' % exts[-1].upper())
+        print v
+        sys.exit(0)
+
+    if using_gio:
+        cmd_line("Using GIO")
+    else:
+        cmd_line("Using Gnome VFS")
+        
     gdk.threads_init()
     display_queue.open("rw")
     tube.tube_add_watch(display_queue, updateDisplay)
