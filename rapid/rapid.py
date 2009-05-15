@@ -1569,7 +1569,7 @@ class CopyPhotos(Thread):
             self.running = True
             
         self.downloadStarted = True
-        cmd_line(_("Download has started from %s") % self.cardMedia.prettyName())
+        cmd_line(_("Download has started from %s") % self.cardMedia.prettyName(limit=0))
         
         # Some images may not have metadata (this
         # is unlikely for images straight out of a 
@@ -1678,7 +1678,7 @@ class CopyPhotos(Thread):
             pass
                 
         notifyAndUnmount()
-        cmd_line(_("Download complete from %s") % self.cardMedia.prettyName())
+        cmd_line(_("Download complete from %s") % self.cardMedia.prettyName(limit=0))
         display_queue.put((self.parentApp.notifyUserAllDownloadsComplete,()))
         display_queue.put((self.parentApp.resetSequences,()))
 

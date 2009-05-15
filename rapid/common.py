@@ -67,8 +67,6 @@ class Configi18n:
     # Install the language, map _() (which we marked our
     # strings to translate with) to self.lang.gettext() which will
     # translate them.
-    
-    print lang
     _ = lang.gettext
 
 def pythonifyVersion(v):
