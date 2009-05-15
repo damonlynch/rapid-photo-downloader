@@ -2892,7 +2892,7 @@ def start ():
         v = ''
         for e in exts[:-1]:
             v += '%s, ' % e.upper()
-        v = v[:-1] + (_('and %s') % exts[-1].upper())
+        v = v[:-1] + ' '+ (_('and %s') % exts[-1].upper())
         print v
         sys.exit(0)
 

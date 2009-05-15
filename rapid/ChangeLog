@@ -10,6 +10,9 @@ Updated man page to reflect recent program changes and new command line options.
 
 Prepared program for translation into other languages.
 
+Minor fixes to logic that checks whether the Download button should be disabled
+or not.
+
 
 Version 0.0.9 beta 2
 --------------------
