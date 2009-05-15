@@ -19,7 +19,15 @@
 
 import re
 import datetime
-import pyexiv2
+import sys
+import config
+
+try:
+    import pyexiv2
+except ImportError:
+    sys.stderr.write("You need to install pyexiv2, the python binding for exiv2, to run this program.\n" )
+    sys.exit(1)
+    
 #only pyexiv2 0.1.2 and 0.1.3 use the "Rational" class 
 #is there a superior way to find which version of pyexiv2 is being used?
 if 'Rational' in dir(pyexiv2):
@@ -338,7 +346,7 @@ class DummyMetaData(MetaData):
         return '3487'
         
     def ownerName(self,  missing=''):
-        return 'Happy Photographer'
+        return 'Photographer Name'
         
     def dateTime(self, missing=''):
         return datetime.datetime.now()

@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: latin1 -*-
 
-### Copyright (C) 2007 Damon Lynch <damonlynch@gmail.com>
+### Copyright (C) 2007-09 Damon Lynch <damonlynch@gmail.com>
 
 ### This program is free software; you can redistribute it and/or modify
 ### it under the terms of the GNU General Public License as published by
@@ -23,10 +23,53 @@ import gc
 import distutils.version
 import gtk.gdk as gdk
 
-#from config import  LOGFILE_DIRECTORY, MAX_LOGFILE_SIZE, MAX_LOGFILES 
-#
-#from logging.handlers import RotatingFileHandler
-#import logging
+import config
+
+import locale
+import gettext
+
+class Configi18n:
+    """ Setup translation
+    
+    Adapated from code example of Mark Mruss http://www.learningpython.com"""
+    
+    # Do not put this code block in __init__, because it needs to be run only once
+    
+    #Get the local directory since we are not installing anything
+    local_path = os.path.realpath(os.path.dirname(sys.argv[0]))
+
+#    local_path = os.path.join(local_path,  'po')
+    
+    # Init the list of languages to support
+    langs = []
+    #Check the default locale
+    lc, encoding = locale.getdefaultlocale()
+    if (lc):
+        #If we have a default, it's the first in the list
+        langs = [lc]
+        # Now let's get all of the supported languages on the system
+        language = os.environ.get('LANGUAGE', None)
+        if (language):
+            # langage comes back something like en_CA:en_US:en_GB:en
+            langs += language.split(":")
+            
+    # add on to the back of the list the translations that we know that we have, our defaults
+    langs += ["en_US"]
+
+    # Now langs is a list of all of the languages that we are going
+    # to try to use.  First we check the default, then what the system
+    # told us, and finally the 'known' list
+
+    gettext.bindtextdomain(config.APP_NAME, local_path)
+    gettext.textdomain(config.APP_NAME)
+    # Get the language to use
+    lang = gettext.translation(config.APP_NAME, local_path,  languages=langs, fallback = True)
+    # Install the language, map _() (which we marked our
+    # strings to translate with) to self.lang.gettext() which will
+    # translate them.
+    
+    print lang
+    _ = lang.gettext
 
 def pythonifyVersion(v):
     """ makes version number a version number in distutils sense"""
@@ -72,10 +115,6 @@ def escape(s):
     for e in entities:
         s = s.replace(e[0], e[1:])
     return s
-
-    
-
-
 
 def formatSizeForUser(bytes, zeroString="", withDecimals=True, kbOnly=False):
     """Format an int containing the number of bytes into a string suitable for
@@ -136,4 +175,6 @@ def scale2pixbuf(width_max, height_max, pixbuf, return_size=False):
 
     
 if __name__ == '__main__':
-    pass
+    i = Configi18n()
+    _ = i._
+    print _("hello world")

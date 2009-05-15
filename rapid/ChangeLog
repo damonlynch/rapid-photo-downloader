@@ -3,10 +3,12 @@ Version 0.0.9 beta 3
 
 2009-05-?
 
-Added command line options for controlling verbosity and printing the program
-version.
+Added command line options for controlling verbosity, displaying which image
+file types are recognized, and printing the program version.
 
-Updated man page.
+Updated man page to reflect recent program changes and new command line options.
+
+Prepared program for translation into other languages.
 
 
 Version 0.0.9 beta 2

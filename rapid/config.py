@@ -15,14 +15,15 @@
 ### along with this program; if not, write to the Free Software
 ### Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-version = '0.0.9~b2'
+version = '0.0.9~b3'
 
 GCONF_KEY="/apps/rapid-photo-downloader"
 GLADE_FILE = "glade3/rapid.glade"
 
-PROGRAM_NAME = 'Rapid Photo Downloader'
-
 DBUS_NAME = "net.damonlynch.RapidPhotoDownloader"
+
+#i18n
+APP_NAME = "rapid-photo-downloader"
 
 MEDIA_LOCATION = "/media"
 

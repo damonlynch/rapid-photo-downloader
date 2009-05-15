@@ -17,12 +17,15 @@
 """Utility classes for working with glade files.
 
 """
+# modified by Damon Lynch May 15 2009 to update i18n 
 
 import gtk
 import gtk.glade
 import gnome
 import gnome.ui
-import gettext
+#import gettext
+import config
+from common import Configi18n
 
 class Base(object):
     """Base class for all glade objects.
@@ -43,7 +46,9 @@ class Base(object):
 
         Automatically connects signal handlers named 'on_*'.
         """
-        self.xml = gtk.glade.XML(file, root, gettext.textdomain(), override )
+        gtk.glade.bindtextdomain(config.APP_NAME, Configi18n.local_path)
+        gtk.glade.textdomain(config.APP_NAME)
+        self.xml = gtk.glade.XML(file, root, "", override )
         handlers = {}
         for h in filter(lambda x:x.startswith("on_"), dir(self.__class__)):
             handlers[h] = getattr(self, h)

@@ -53,6 +53,11 @@ try:
 except: 
     sys.exit(1)
 
+from common import Configi18n
+global _
+_ = Configi18n._
+
+
 import datetime
 
 import ValidatedEntry
@@ -517,17 +522,18 @@ class PrefKeyError(PrefError):
     def __init__(self, error):
         value = error[0]
         expectedValues = self.unpackList(error[1])
-        self.msg = "Preference key '%s' is invalid.\nExpected one of %s" % (value, expectedValues)
+        self.msg = _("Preference key '%(key)s' is invalid.\nExpected one of %(value)s") % {
+                            'key': value, 'value': expectedValues}
 
 
 class PrefValueInvalidError(PrefKeyError):
     def __init__(self, error):
         value = error[0]
-        self.msg = "Preference value '%s' is invalid" % (value)
+        self.msg = _("Preference value '%(value)s' is invalid") % {'value': value}
         
 class PrefLengthError(PrefError):
     def __init__(self, error):
-        self.msg = "These preferences are not well formed:\n %s" % self.unpackList(error)
+        self.msg = _("These preferences are not well formed:") % self.unpackList(error) + "\n %s"
         
 class PrefValueKeyComboError(PrefError):
     def __init__(self, error):    
@@ -601,10 +607,10 @@ class ImageRenamePreferences:
         if self.L1 == IMAGE_DATE:
             if self.L2 == SUBSECONDS:
                 d = self.photo.subSeconds()
-                problem = "Subsecond metadata not present in image"
+                problem = _("Subsecond metadata not present in image")
             else:
                 d = self.photo.dateTime(missing=None)
-                problem = "%s metadata is not present in image" % self.L1.lower()
+                problem = _("%s metadata is not present in image") % self.L1.lower()
         elif self.L1 == TODAY:
             d = datetime.datetime.now()
         elif self.L1 == YESTERDAY:
@@ -619,7 +625,7 @@ class ImageRenamePreferences:
                     return (d.strftime(convertDateForStrftime(self.L2)), None)
                 except:
                     v = ''
-                    problem = 'Error in date time component. Value %s appears invalid' % d
+                    problem = _('Error in date time component. Value %s appears invalid') % d
                     return (v,  problem)
             else:
                 return (d,  None)
@@ -650,11 +656,11 @@ class ImageRenamePreferences:
                     filename = extension[1:]
             else:
                 filename = ""
-                problem = "extension was specified but image name has no extension"
+                problem = _("extension was specified but image name has no extension")
         elif self.L1 == IMAGE_NUMBER:
             n = re.search("(?P<image_number>[0-9]+$)", name)
             if not n:
-                problem = "image number was specified but image has no number"
+                problem = _("image number was specified but image filename has no number")
             else:
                 image_number = n.group("image_number")
     
@@ -727,7 +733,7 @@ class ImageRenamePreferences:
                 md = self.L1.lower()
             else:
                 md = ISO
-            problem = "%s metadata is not present in image" % md
+            problem = _("%s metadata is not present in image") % md
         return (v, problem)
 
 
@@ -839,7 +845,7 @@ class ImageRenamePreferences:
                 return (os.sep, None)
         except:
             v = ""
-            problem = "error generating name with component %s" % self.L2
+            problem = _("error generating name with component %s") % self.L2
             return (v,  problem)
 
     def _getValuesFromList(self):
@@ -981,22 +987,6 @@ class ImageRenamePreferences:
         """
         return self.getWidgetsBasedOnUserSelection(self.defaultRow)
 
-        
-    
-#    def _getSequenceWidgets(self,  widgets,  padding,  value,  getValue):
-#            widget1 = ValidatedEntry.ValidatedEntry(ValidatedEntry.bounded(ValidatedEntry.v_int, int, minv=1))
-#            if not value:
-#                value = getValue()
-#            widget1.set_text(str(value))
-#            widgets.append(widget1)
-#            widget2 = self._createCombo(LIST_SEQUENCE_NUMBERS_L1_L2)
-#            if not padding:
-#                padding = LIST_SEQUENCE_NUMBERS_L1_L2[2]
-#            widget2.set_active(LIST_SEQUENCE_NUMBERS_L1_L2.index(padding))
-#            widgets.append(widget2)
-#            
-#            return widget1,  widget2
-        
     def _getPreferenceWidgets(self, prefDefinition, prefs, widgets):
         key = prefs[0]
         value = prefs[1]
@@ -1171,13 +1161,13 @@ class SubfolderPreferences(ImageRenamePreferences):
                 L1s.append(self.prefList[i])
 
             if L1s[0] == SEPARATOR:
-                raise PrefValueKeyComboError("Subfolder preferences should not start with a %s" % os.sep)
+                raise PrefValueKeyComboError(_("Subfolder preferences should not start with a %s") % os.sep)
             elif L1s[-1] == SEPARATOR:
-                raise PrefValueKeyComboError("Subfolder preferences should not end with a %s" % os.sep)
+                raise PrefValueKeyComboError(_("Subfolder preferences should not end with a %s") % os.sep)
             else:
                 for i in range(len(L1s) - 1):
                     if L1s[i] == SEPARATOR and L1s[i+1] == SEPARATOR:
-                        raise PrefValueKeyComboError("Subfolder preferences should not contain two %ss side by side" % os.sep)
+                        raise PrefValueKeyComboError(_("Subfolder preferences should not contain two %s one after the other") % os.sep)
         return v
 
 
