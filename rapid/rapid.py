@@ -179,6 +179,9 @@ class ThreadManager:
         
     def _isReadyToDownload(self, w):
        return w.scanComplete and not w.downloadStarted and not w.doNotStart and w.isAlive() and not w.manuallyDisabled
+       
+    def _isDownloading(self,  w):
+        return w.downloadStarted and w.isAlive() and not w.downloadComplete
         
     def _isFinished(self, w):
         """
@@ -188,9 +191,9 @@ class ThreadManager:
         """
         
         return (w.hasStarted and not w.isAlive()) or w.manuallyDisabled
-        
-    def completedScan(self,  w):
-        return w.completedScan
+                
+    def completedDownload(self,  w):
+        return w.completedDownload
     
     def firstWorkerReadyToStart(self):
         for w in self._workers:
@@ -268,7 +271,7 @@ class ThreadManager:
                 
     def getDownloadingWorkers(self):
         for w in self._workers:
-            if w.downloadStarted and w.isAlive():
+            if self._isDownloading(w):
                 yield w
         
                 
@@ -290,7 +293,7 @@ class ThreadManager:
     def noDownloadingWorkers(self):
         i = 0
         for w in self._workers:
-            if w.downloadStarted and w.isAlive():
+            if self._isDownloading(w):
                 i += 1
         return i
 
@@ -312,13 +315,14 @@ class ThreadManager:
         for i in l: 
             print "\nThread %i\n=======\n" % i
             w = self._workers[i]
-            print "Volume / source:",  w.cardMedia.prettyName()
+            print "Volume / source:",  w.cardMedia.prettyName(limit=0)
             print "Do not start:", w.doNotStart
             print "Started:", w.hasStarted
             print "Running:", w.running
             print "Scan completed:",  w.scanComplete
             print "Download started:",  w.downloadStarted
-            print "Completed:", self._isFinished(w)
+            print "Download completed:",  w.downloadComplete
+            print "Finished:", self._isFinished(w)
             print "Alive:",  w.isAlive()
             print "Manually disabled:",  w.manuallyDisabled,  "\n"
 
@@ -1090,7 +1094,7 @@ class CopyPhotos(Thread):
         
         self.noErrors = self.noWarnings = 0
         
-        self.scanComplete = self.downloadStarted = False
+        self.scanComplete = self.downloadStarted = self.downloadComplete = False
         
         Thread.__init__(self)
         
@@ -1662,6 +1666,8 @@ class CopyPhotos(Thread):
             
             sizeDownloaded += size
             percentComplete = (sizeDownloaded / sizeImages) * 100
+            if sizeDownloaded == sizeImages:
+                self.downloadComplete = True
             progressBarText = _("%(number)s of %(total)s images copied") % {'number':  i + 1, 'total': noImages}
             display_queue.put((media_collection_treeview.updateProgress, (self.thread_id, percentComplete, progressBarText, size)))
             
@@ -2598,10 +2604,6 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
         return self.totalDownloadedSoFar == self.totalDownloadSize
 
     def setDownloadButtonSensitivity(self):
-
-#        print workers.printWorkerStatus()
-#        print "no workers that can download",  workers.noReadyToDownloadWorkers()
-#        print "no workers downloading",  workers.noDownloadingWorkers() 
 
         isSensitive = workers.noReadyToDownloadWorkers() > 0 or workers.noDownloadingWorkers() > 0
         
