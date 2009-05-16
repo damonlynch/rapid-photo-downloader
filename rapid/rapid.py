@@ -17,7 +17,8 @@
 ### along with this program; if not, write to the Free Software
 ### Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-from __future__ import with_statement #needed for python 2.5, unneeded for python 2.6
+#needed for python 2.5, unneeded for python 2.6
+from __future__ import with_statement 
 
 import sys
 import os
@@ -533,10 +534,12 @@ class ImageRenameTable(tpm.TablePlusMinus):
         selection = []
         for i in range(col + 1):
             # ensure it is a combo box we are getting the value from
-            if hasattr(self.pm_rows[rowPosition][i], 'get_active_text'):
-                selection.append(self.pm_rows[rowPosition][i].get_active_text())
+            w = self.pm_rows[rowPosition][i]
+            name = w.get_name()
+            if name == 'GtkComboBox':
+                selection.append(w.get_active_text())
             else:
-                selection.append(self.pm_rows[rowPosition][i].get_text())
+                selection.append(w.get_text())
                 
         for i in range(col + 1, self.pm_noColumns):
             selection.append('')

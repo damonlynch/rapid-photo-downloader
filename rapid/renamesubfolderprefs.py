@@ -19,12 +19,16 @@
 
 """ Define and test preferences for use in PlusMinus tables.
 
-Preferences for subfolders and image renaming are defined 
-in dictionaries and lists.
+These are displayed to the user as a series of rows in the user
+preferences dialog window.
 
-This makes it easier for checking validity and creating combo boxes.
+Preferences for subfolders and image renaming are defined below
+in dictionaries and lists. This makes it easier for checking validity and 
+creating combo boxes.
 
-There are 3 levels, 0, 1 and 2, which specify the depth of the pref value.
+There are 3 levels: 0, 1 and 2, which specify the depth of the pref value. 
+Level 0 is the topmost level, and corresponds to the first entry in the
+row of preferences the user sees in the preferences dialog window.
 
 Custom exceptions are defined to handle invalid preferences.
 
@@ -33,7 +37,8 @@ Each list has members which are a multiple of 3 in length.
 Each group of 3 members is equal to one line of preferences in the plus minus 
 table.
 """
-from __future__ import with_statement #needed for python 2.5, unneeded for python 2.6
+#needed for python 2.5, unneeded for python 2.6
+from __future__ import with_statement 
 
 import string 
 
@@ -69,6 +74,9 @@ import config
 
 ORDER_KEY = "__order__"
 
+# PLEASE NOTE: these values are duplicated in a dummy class whose function
+# is to have them put into the translation template. If you change the values below
+# then change the value in class i18TranslateMeThanks as well!! Thanks!! 
 
 # *** Level 0
 DATE_TIME = 'Date time'
@@ -155,6 +163,72 @@ LIST_DATE_TIME_L2 = ['YYYYMMDD', 'YYYY-MM-DD','YYMMDD', 'YY-MM-DD',
                     'HHMMSS', 'HHMM']
                     
 LIST_IMAGE_DATE_TIME_L2 = LIST_DATE_TIME_L2 + [SUBSECONDS]
+
+class i18TranslateMeThanks:
+    """ this class is never used in actual running code
+    It's purpose is to have these values inserted into the program's i18n template file
+    
+    """
+    def __init__(self):
+        _('Date time')
+        _('Text')
+        _('Filename')
+        _('Metadata')
+        _('Sequences')
+        _('Image date')
+        _('Today')
+        _('Yesterday')
+        _('Name + extension')
+        _('Name')
+        _('Extension')
+        _('Image number')
+        _('Aperture')
+        _('ISO')
+        _('Exposure time')
+        _('Focal length')
+        _('Camera make')
+        _('Camera model')
+        _('Short camera model')
+        _('Hyphenated short camera model')
+        _('Serial number')
+        _('Shutter count')
+        _('Owner name')
+        _('Downloads today')
+        _('Session number')
+        _('Subfolder number')
+        _('Stored number')
+        _('Sequence letter')
+        _('All digits')
+        _('Last digit')
+        _('Last 2 digits')
+        _('Last 3 digits')
+        _('Last 4 digits')
+        _("Original Case")
+        _("UPPERCASE")
+        _("lowercase")
+        _("One digit")
+        _("Two digits")
+        _("Three digits")
+        _("Four digits")
+        _("Five digits")
+        _("Six digits")
+        _('Subseconds')
+        _('YYYYMMDD') 
+        _('YYYY-MM-DD')
+        _('YYMMDD') 
+        _('YY-MM-DD') 
+        _('MMDDYYYY') 
+        _('MMDDYY') 
+        _('MMDD') 
+        _('DDMMYYYY') 
+        _('DDMMYY') 
+        _('YYYY') 
+        _('YY') 
+        _('MM') 
+        _('DD')
+        _('HHMMSS')
+        _('HHMM')
+    
 
 # Convenience values for python datetime conversion using values in 
 # LIST_DATE_TIME_L2.  Obviously the two must remain synchronized.
@@ -547,6 +621,33 @@ def convertDateForStrftime(dateTimeUserChoice):
         raise PrefValueInvalidError(dateTimeUserChoice)
 
 
+class Comboi18n(gtk.ComboBox):
+    """ very simple i18n version of the venerable combo box 
+    with one column displayed to the user.
+    
+    This combo box has two columns:
+    1. the first contains the actual value and is invisible
+    2. the second contains the translation of the first column, and this is what
+        the users sees
+    """
+    def __init__(self):
+        liststore = gtk.ListStore(str, str)
+        gtk.ComboBox.__init__(self,  liststore)
+        cell = gtk.CellRendererText()
+        self.pack_start(cell,  True)
+        self.add_attribute(cell, 'text', 1)
+        
+    def append_text(self,  text):
+        t = _(text)
+        model = self.get_model()
+        model.append((text,  t))
+        
+    def get_active_text(self):
+        model = self.get_model()
+        active = self.get_active()
+        if active < 0:
+            return None
+        return model[active][0]        
 
 class ImageRenamePreferences:
     def __init__(self, prefList, parent,  fileSequenceLock=None,  sequences=None):
@@ -976,7 +1077,7 @@ class ImageRenamePreferences:
             
     
     def _createCombo(self, choices):
-        combobox = gtk.combo_box_new_text()
+        combobox = Comboi18n()
         for text in choices:
             combobox.append_text(text)
         return combobox
