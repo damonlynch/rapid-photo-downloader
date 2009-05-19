@@ -2681,7 +2681,7 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
         Sets download button to appropriate state
         """
         if self.download_button_is_download:
-            #note the space at the end of the label, need it to meet HIG! :(
+            #please note the space at the end of the label - it is needed to meet the Gnome Human Interface Guidelines
             self.download_button.set_label(_("_Download "))
             self.download_button.set_image(gtk.image_new_from_stock(
                                                 gtk.STOCK_CONVERT,
@@ -2691,7 +2691,6 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
             self.download_button.set_image(gtk.image_new_from_stock(
                                                 gtk.STOCK_MEDIA_PAUSE,
                                                 gtk.ICON_SIZE_BUTTON))
-            #note the space at the end of the label, need it to meet HIG! :(
             self.download_button.set_label(_("_Pause") + " ")
             
     def on_menu_download_pause_activate(self, widget):

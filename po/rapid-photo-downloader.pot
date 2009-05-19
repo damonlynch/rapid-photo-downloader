@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-05-19 18:41+0800\n"
+"POT-Creation-Date: 2009-05-19 19:17+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -453,52 +453,51 @@ msgstr ""
 msgid "images skipped"
 msgstr ""
 
-#. note the space at the end of the label, need it to meet HIG! :(
+#. please note the space at the end of the label - it is needed to meet the Gnome Human Interface Guidelines
 #: rapid/rapid.py:2685
 msgid "_Download "
 msgstr ""
 
-#. note the space at the end of the label, need it to meet HIG! :(
-#: rapid/rapid.py:2695
+#: rapid/rapid.py:2694
 msgid "_Pause"
 msgstr ""
 
-#: rapid/rapid.py:2752
+#: rapid/rapid.py:2751
 msgid "Preferences were changed."
 msgstr ""
 
-#: rapid/rapid.py:2883
+#: rapid/rapid.py:2882
 msgid "Goodbye"
 msgstr ""
 
-#: rapid/rapid.py:2892
+#: rapid/rapid.py:2891
 #, python-format
 msgid ""
 "display program information on the command line as the program runs "
 "(default: %default)"
 msgstr ""
 
-#: rapid/rapid.py:2893
+#: rapid/rapid.py:2892
 msgid "only output errors to the command line"
 msgstr ""
 
 #. image file extensions are recognized RAW files plus TIFF and JPG
-#: rapid/rapid.py:2895
+#: rapid/rapid.py:2894
 msgid "list image file extensions the program recognizes and exit"
 msgstr ""
 
-#: rapid/rapid.py:2908
+#: rapid/rapid.py:2907
 #, python-format
 msgid "and %s"
 msgstr ""
 
 #. Which volume management code is being used (GIO or GnomeVFS)
-#: rapid/rapid.py:2913 rapid/rapid.py:2916
+#: rapid/rapid.py:2912 rapid/rapid.py:2915
 msgid "Using"
 msgstr ""
 
 #. this application is already running
-#: rapid/rapid.py:2930
+#: rapid/rapid.py:2929
 #, python-format
 msgid "%s is already running"
 msgstr ""
