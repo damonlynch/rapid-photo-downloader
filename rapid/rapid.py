@@ -1053,7 +1053,9 @@ class PreferencesDialog(gnomeglade.Component):
         self.updateBackupExample()        
 
     def updateBackupExample(self):
+        # this value is used as an example device when automatic backup device detection is enabled
         path = os.path.join(config.MEDIA_LOCATION, _("externaldrive1"))
+        # this value is used as an example device when automatic backup device detection is enabled
         path2 = os.path.join(config.MEDIA_LOCATION, _("externaldrive2"))
 
         path = os.path.join(path, self.backup_identifier_entry.get_text())
@@ -1107,6 +1109,10 @@ class CopyPhotos(Thread):
         if self.cardMedia:
             media_collection_treeview.addCard(thread_id, self.cardMedia.prettyName(), 
                                                                 '',  0,  progress=0.0,  
+                                                                # This refers to when a device like a hard drive is having its contents scanned,
+                                                                # looking for images. It is visible initially in the progress bar for each device 
+                                                                # (which normally holds "x of y images copied").
+                                                                # It maybe displayed only briefly if the contents of the device being scanned is small.
                                                                 progressBarText=_('scanning...'))
 
                 
@@ -1412,12 +1418,12 @@ class CopyPhotos(Thread):
                                         
                             with self.fileSequenceLock:
                                 if self.prefs.incrementDownloadsToday():
+                                    # A new day, according the user's preferences of what time a day begins, has started
                                     cmd_line(_("New day has started - resetting 'Downloads Today' sequence number"))
-                                    # a new day has started
+                                    
                                     sequences.setDownloadsToday(0)
                     
             except IOError, (errno, strerror):
-                # FIXME: is the lock released on an error here?!
                 logError(config.SERIOUS_ERROR, _('Download copying error'), 
                             _("Source: %(source)s\nDestination: %(destination)s\nError: %(errorno)s %(strerror)s") 
                             % {'source': image, 'destination': newFile, 'errorno': errno, 'strerror': strerror},
@@ -1510,6 +1516,7 @@ class CopyPhotos(Thread):
                 notificationName  = self.cardMedia.volume.get_name()
                 if self.prefs.auto_unmount:
                     self.cardMedia.volume.unmount(self.on_volume_unmount)
+                    # The device was automatically unmounted
                     unmountMessage = _("The device can now be safely removed")
                 else:
                     unmountMessage = ""
@@ -2884,6 +2891,7 @@ def start ():
     parser.set_defaults(verbose=is_beta,  extensions=False)
     parser.add_option("-v",  "--verbose",  action="store_true", dest="verbose",  help=_("display program information on the command line as the program runs (default: %default)"))
     parser.add_option("-q", "--quiet",  action="store_false", dest="verbose",  help=_("only output errors to the command line"))
+    # image file extensions are recognized RAW files plus TIFF and JPG
     parser.add_option("-e",  "--extensions",  action="store_true", dest="extensions", help=_("list image file extensions the program recognizes and exit"))
     (options, args) = parser.parse_args()
     global verbose
@@ -2904,6 +2912,7 @@ def start ():
     if using_gio:
         cmd_line(_("Using") + " GIO")
     else:
+        # Which volume management code is being used (GIO or GnomeVFS)
         cmd_line(_("Using") + " GnomeVFS")
         
     gdk.threads_init()
@@ -2917,6 +2926,7 @@ def start ():
     if request != dbus.bus.REQUEST_NAME_REPLY_EXISTS:
         app = RapidApp (bus, '/', config.DBUS_NAME)
     else:
+        # this application is already running
         print _("%s is already running") % PROGRAM_NAME
         object = bus.get_object (config.DBUS_NAME, "/")
         app = dbus.Interface (object, config.DBUS_NAME)
