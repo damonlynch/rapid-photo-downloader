@@ -1551,11 +1551,11 @@ class CopyPhotos(Thread):
                         e = config.SERIOUS_ERROR
                     else:
                         e = config.WARNING
-                    logError(e,  "Backup device missing",  "No backup device was detected.")
+                    logError(e,  _("Backup device missing"),  _("No backup device was detected."))
                 
         
         if not scanMedia():
-            cmd_line(_("This device has no images to download from: finish thread"))
+            cmd_line(_("This device has no images to download from."))
             display_queue.close("rw")
             self.running = False
             self.lock.release()
@@ -1614,7 +1614,6 @@ class CopyPhotos(Thread):
                                             dir=baseDownloadDir)
                                             
         IMAGE_SKIPPED = _("Image skipped")
-        # users can specify that duplicate backup files can be overwritten
         IMAGE_OVERWRITTEN = _("Image overwritten")
         IMAGE_ALREADY_EXISTS = _("Image already exists")
         
@@ -1762,9 +1761,12 @@ class MediaTreeView(gtk.TreeView):
         selection = self.get_selection()
         selection.set_mode(gtk.SELECTION_NONE)
         
+        # Device refers to a thing like a camera, memory card in its reader, external hard drive, Portable Storage Device, etc.
         column0 = gtk.TreeViewColumn(_("Device"), gtk.CellRendererText(), 
                                     text=0)
         self.append_column(column0)
+        
+        # Size refers to the total size of images on the device
         column1 = gtk.TreeViewColumn(_("Size"), gtk.CellRendererText(), text=1)
         self.append_column(column1)
         
@@ -1884,14 +1886,14 @@ class ImageHBox(gtk.HBox):
                 
             except:
                 log_dialog.addMessage(thread_id, config.WARNING, 
-                                'Thumbnail cannot be displayed', filename, 
-                                'It may be corrupted')
+                                _('Thumbnail cannot be displayed'), filename, 
+                                _('It may be corrupted'))
                 pixbuf = self.missingThumbnail
 
         if not pixbuf:
             log_dialog.addMessage(thread_id, config.WARNING, 
-                            'Thumbnail cannot be displayed', filename, 
-                            'It may be corrupted')
+                            _('Thumbnail cannot be displayed'), filename, 
+                            _('It may be corrupted'))
             pixbuf = self.missingThumbnail
         else:
             # rotate if necessary
