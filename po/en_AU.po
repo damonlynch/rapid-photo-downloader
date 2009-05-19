@@ -1,0 +1,1173 @@
+# English (Australia) translation for rapid
+# Copyright (c) 2009 Rosetta Contributors and Canonical Ltd 2009
+# This file is distributed under the same license as the rapid package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2009.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: rapid\n"
+"Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
+"POT-Creation-Date: 2009-05-19 18:41+0800\n"
+"PO-Revision-Date: 2009-05-19 11:02+0000\n"
+"Last-Translator: Damon Lynch <damonlynch@gmail.com>\n"
+"Language-Team: English (Australia) <en_AU@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Launchpad-Export-Date: 2009-05-19 11:36+0000\n"
+"X-Generator: Launchpad (build Unknown)\n"
+
+#: rapid/rapid.py:99 rapid/glade3/rapid.glade.h:59
+msgid "Rapid Photo Downloader"
+msgstr ""
+
+#: rapid/rapid.py:399
+msgid "Invalid Downloads Today value.\n"
+msgstr ""
+
+#: rapid/rapid.py:400
+msgid "Resetting value to zero.\n"
+msgstr ""
+
+#: rapid/rapid.py:439
+msgid "'Start of day' preference value is corrupted.\n"
+msgstr ""
+
+#: rapid/rapid.py:440
+msgid "Resetting to midnight.\n"
+msgstr ""
+
+#: rapid/rapid.py:456
+msgid "Error in Image Rename preferences"
+msgstr ""
+
+#: rapid/rapid.py:465 rapid/rapid.py:1127
+msgid "Sorry,these preferences contain an error:\n"
+msgstr ""
+
+#: rapid/rapid.py:476
+msgid "Resetting to default values."
+msgstr ""
+
+#: rapid/rapid.py:587
+msgid "Error in Download Subfolder preferences"
+msgstr ""
+
+#: rapid/rapid.py:704
+msgid "Select a folder to download photos to"
+msgstr ""
+
+#: rapid/rapid.py:751
+msgid "Select an image folder"
+msgstr ""
+
+#: rapid/rapid.py:773
+msgid "Select a folder in which to backup images"
+msgstr ""
+
+#: rapid/rapid.py:861
+msgid ""
+"<i><b>Warning:</b> There is insufficient image metatdata to fully generate "
+"the name. Please use other renaming options.</i>"
+msgstr ""
+
+#: rapid/rapid.py:882
+msgid ""
+"<i><b>Warning:</b> There is insufficient image metatdata to fully generate "
+"subfolders. Please use other subfolder naming options.</i>"
+msgstr ""
+
+#: rapid/rapid.py:884
+#, python-format
+msgid "<i>Example: %s</i>"
+msgstr ""
+
+#. this value is used as an example device when automatic backup device detection is enabled
+#: rapid/rapid.py:1057
+msgid "externaldrive1"
+msgstr ""
+
+#. this value is used as an example device when automatic backup device detection is enabled
+#: rapid/rapid.py:1059
+msgid "externaldrive2"
+msgstr ""
+
+#. This refers to when a device like a hard drive is having its contents scanned,
+#. looking for images. It is visible initially in the progress bar for each device
+#. (which normally holds "x of y images copied").
+#. It maybe displayed only briefly if the contents of the device being scanned is small.
+#: rapid/rapid.py:1116
+msgid "scanning..."
+msgstr ""
+
+#: rapid/rapid.py:1223 rapid/rapid.py:1788
+#, python-format
+msgid "0 of %s images copied"
+msgstr ""
+
+#: rapid/rapid.py:1228
+#, python-format
+msgid "Device scan complete: found %(number)s images on %(device)s"
+msgstr ""
+
+#: rapid/rapid.py:1234
+#, python-format
+msgid "Device scan complete: no images found on %s"
+msgstr ""
+
+#: rapid/rapid.py:1265
+msgid "Image filename could not be generated"
+msgstr ""
+
+#: rapid/rapid.py:1266
+#, python-format
+msgid ""
+"Source: %(source)s\n"
+"Problem: %(problem)s"
+msgstr ""
+
+#: rapid/rapid.py:1270
+msgid ""
+"Image filename could not be properly generated. Check to ensure there is "
+"sufficient image metadata."
+msgstr ""
+
+#: rapid/rapid.py:1271
+#, python-format
+msgid ""
+"Source: %(source)s\n"
+"Destination: %(destination)s\n"
+"Problem: %(problem)s"
+msgstr ""
+
+#: rapid/rapid.py:1280
+msgid "Could not open image"
+msgstr ""
+
+#: rapid/rapid.py:1281
+#, python-format
+msgid "Source: %s"
+msgstr ""
+
+#: rapid/rapid.py:1290
+msgid "Image has no metadata"
+msgstr ""
+
+#: rapid/rapid.py:1291
+#, python-format
+msgid ""
+"Metadata is essential for generating subfolders / image names.\n"
+"Source: %s"
+msgstr ""
+
+#: rapid/rapid.py:1303
+msgid ""
+"Subfolder name could not be properly generated. Check to ensure there is "
+"sufficient image metadata."
+msgstr ""
+
+#: rapid/rapid.py:1304
+#, python-format
+msgid ""
+"Subfolder: %(subfolder)s\n"
+"Image: %(image)s\n"
+"Problem: %(problem)s"
+msgstr ""
+
+#: rapid/rapid.py:1356 rapid/rapid.py:1384 rapid/rapid.py:1403
+#: rapid/rapid.py:1465
+#, python-format
+msgid ""
+"Source: %(source)s\n"
+"Destination: %(destination)s"
+msgstr ""
+
+#: rapid/rapid.py:1405
+#, python-format
+msgid "Unique identifier '%s' added"
+msgstr ""
+
+#. A new day, according the user's preferences of what time a day begins, has started
+#: rapid/rapid.py:1422
+msgid "New day has started - resetting 'Downloads Today' sequence number"
+msgstr ""
+
+#: rapid/rapid.py:1427 rapid/rapid.py:1433
+msgid "Download copying error"
+msgstr ""
+
+#: rapid/rapid.py:1428
+#, python-format
+msgid ""
+"Source: %(source)s\n"
+"Destination: %(destination)s\n"
+"Error: %(errorno)s %(strerror)s"
+msgstr ""
+
+#: rapid/rapid.py:1430 rapid/rapid.py:1503
+msgid "The image was not copied."
+msgstr ""
+
+#: rapid/rapid.py:1464
+msgid "Backup image already exists"
+msgstr ""
+
+#: rapid/rapid.py:1492 rapid/rapid.py:1500 rapid/rapid.py:1506
+msgid "Backing up error"
+msgstr ""
+
+#: rapid/rapid.py:1493
+#, python-format
+msgid ""
+"Destination directory could not be created\n"
+"%(directory)s\n"
+"Error: %(errno)s %(strerror)s"
+msgstr ""
+
+#: rapid/rapid.py:1501 rapid/rapid.py:1507
+#, python-format
+msgid ""
+"Source: %(source)s\n"
+"Destination: %(destination)s\n"
+"Error: %(errno)s %(strerror)s"
+msgstr ""
+
+#. The device was automatically unmounted
+#: rapid/rapid.py:1520
+msgid "The device can now be safely removed"
+msgstr ""
+
+#: rapid/rapid.py:1524
+#, python-format
+msgid "%s images downloaded"
+msgstr ""
+
+#: rapid/rapid.py:1526
+#, python-format
+msgid "%s images skipped"
+msgstr ""
+
+#: rapid/rapid.py:1532 rapid/rapid.py:2599
+msgid "warnings"
+msgstr ""
+
+#: rapid/rapid.py:1534 rapid/rapid.py:2601
+msgid "errors"
+msgstr ""
+
+#: rapid/rapid.py:1548
+msgid "Download cannot proceed"
+msgstr ""
+
+#: rapid/rapid.py:1548
+msgid ""
+"There is an error in the program preferences.\n"
+"Please check preferences, restart the program, and try again."
+msgstr ""
+
+#: rapid/rapid.py:1561
+msgid "Backup device missing"
+msgstr ""
+
+#: rapid/rapid.py:1561
+msgid "No backup device was detected."
+msgstr ""
+
+#: rapid/rapid.py:1565
+msgid "This device has no images to download from."
+msgstr ""
+
+#: rapid/rapid.py:1586
+#, python-format
+msgid "Download has started from %s"
+msgstr ""
+
+#: rapid/rapid.py:1623
+msgid "Image skipped"
+msgstr ""
+
+#: rapid/rapid.py:1624
+msgid "Image overwritten"
+msgstr ""
+
+#: rapid/rapid.py:1625
+msgid "Image already exists"
+msgstr ""
+
+#: rapid/rapid.py:1670
+msgid "Image has no thumbnail"
+msgstr ""
+
+#: rapid/rapid.py:1680
+#, python-format
+msgid "%(number)s of %(total)s images copied"
+msgstr ""
+
+#: rapid/rapid.py:1696
+#, python-format
+msgid "Download complete from %s"
+msgstr ""
+
+#. Device refers to a thing like a camera, memory card in its reader, external hard drive, Portable Storage Device, etc.
+#: rapid/rapid.py:1772
+msgid "Device"
+msgstr ""
+
+#. Size refers to the total size of images on the device
+#: rapid/rapid.py:1777
+msgid "Size"
+msgstr ""
+
+#: rapid/rapid.py:1780
+msgid "Download Progress"
+msgstr ""
+
+#: rapid/rapid.py:1896 rapid/rapid.py:1902
+msgid "Thumbnail cannot be displayed"
+msgstr ""
+
+#: rapid/rapid.py:1897 rapid/rapid.py:1903
+msgid "It may be corrupted"
+msgstr ""
+
+#: rapid/rapid.py:2150
+msgid ""
+"A newer version of this program was previously run on this computer.\n"
+"\n"
+msgstr ""
+
+#: rapid/rapid.py:2152
+msgid ""
+"Program preferences appear to be valid, but please check them to ensure "
+"correct operation."
+msgstr ""
+
+#: rapid/rapid.py:2154
+msgid "Sorry, some preferences are invalid and will be reset."
+msgstr ""
+
+#: rapid/rapid.py:2155
+msgid "Warning:"
+msgstr ""
+
+#: rapid/rapid.py:2160
+msgid ""
+"This version of the program is newer than the previously run version. "
+"Checking preferences."
+msgstr ""
+
+#: rapid/rapid.py:2167
+msgid "Preferences were modified."
+msgstr ""
+
+#: rapid/rapid.py:2168
+msgid ""
+"This version of the program uses different preferences than the old version. "
+"Your preferences have been updated.\n"
+"\n"
+"Please check them to ensure correct operation."
+msgstr ""
+
+#: rapid/rapid.py:2172
+msgid "No preferences needed to be changed."
+msgstr ""
+
+#: rapid/rapid.py:2174
+msgid ""
+"This version of the program uses different preferences than the old version. "
+"Some of your previous preferences were invalid, and could not be updated. "
+"They will be reset."
+msgstr ""
+
+#: rapid/rapid.py:2182
+msgid "Problem using pynotify."
+msgstr ""
+
+#: rapid/rapid.py:2198
+msgid "Failed to receive pynotify server capabilities."
+msgstr ""
+
+#: rapid/rapid.py:2236
+msgid "and"
+msgstr ""
+
+#: rapid/rapid.py:2241
+msgid "Using backup devices"
+msgstr ""
+
+#: rapid/rapid.py:2243
+msgid "Using backup device"
+msgstr ""
+
+#: rapid/rapid.py:2245
+msgid "No backup devices detected"
+msgstr ""
+
+#: rapid/rapid.py:2380
+#, python-format
+msgid "Detected %(device)s with path %(path)s"
+msgstr ""
+
+#: rapid/rapid.py:2384
+msgid "Automatically start download is true"
+msgstr ""
+
+#: rapid/rapid.py:2386
+msgid "Automatically start download is false"
+msgstr ""
+
+#: rapid/rapid.py:2434
+msgid "Using manually specified path"
+msgstr ""
+
+#: rapid/rapid.py:2548 rapid/rapid.py:2594
+msgid "All downloads complete"
+msgstr ""
+
+#: rapid/rapid.py:2562
+msgid "MB/s"
+msgstr ""
+
+#: rapid/rapid.py:2572
+msgid "About 1 second remaining"
+msgstr ""
+
+#: rapid/rapid.py:2574
+#, python-format
+msgid "About %i seconds remaining"
+msgstr ""
+
+#: rapid/rapid.py:2576
+msgid "About 1 minute remaining"
+msgstr ""
+
+#: rapid/rapid.py:2578
+#, python-format
+msgid "About %(minutes)i:%(seconds)02i minutes remaining"
+msgstr ""
+
+#: rapid/rapid.py:2595
+msgid "images downloaded"
+msgstr ""
+
+#: rapid/rapid.py:2597
+msgid "images skipped"
+msgstr ""
+
+#. note the space at the end of the label, need it to meet HIG! :(
+#: rapid/rapid.py:2685
+msgid "_Download "
+msgstr ""
+
+#. note the space at the end of the label, need it to meet HIG! :(
+#: rapid/rapid.py:2695
+msgid "_Pause"
+msgstr ""
+
+#: rapid/rapid.py:2752
+msgid "Preferences were changed."
+msgstr ""
+
+#: rapid/rapid.py:2883
+msgid "Goodbye"
+msgstr ""
+
+#: rapid/rapid.py:2892
+#, python-format
+msgid ""
+"display program information on the command line as the program runs "
+"(default: %default)"
+msgstr ""
+
+#: rapid/rapid.py:2893
+msgid "only output errors to the command line"
+msgstr ""
+
+#. image file extensions are recognized RAW files plus TIFF and JPG
+#: rapid/rapid.py:2895
+msgid "list image file extensions the program recognizes and exit"
+msgstr "list image file extensions the program recognises and exit"
+
+#: rapid/rapid.py:2908
+#, python-format
+msgid "and %s"
+msgstr ""
+
+#. Which volume management code is being used (GIO or GnomeVFS)
+#: rapid/rapid.py:2913 rapid/rapid.py:2916
+msgid "Using"
+msgstr ""
+
+#. this application is already running
+#: rapid/rapid.py:2930
+#, python-format
+msgid "%s is already running"
+msgstr ""
+
+#: rapid/renamesubfolderprefs.py:173
+msgid "Date time"
+msgstr ""
+
+#: rapid/renamesubfolderprefs.py:174
+msgid "Text"
+msgstr ""
+
+#: rapid/renamesubfolderprefs.py:175
+msgid "Filename"
+msgstr ""
+
+#: rapid/renamesubfolderprefs.py:176
+msgid "Metadata"
+msgstr ""
+
+#: rapid/renamesubfolderprefs.py:177
+msgid "Sequences"
+msgstr ""
+
+#: rapid/renamesubfolderprefs.py:178
+msgid "Image date"
+msgstr ""
+
+#: rapid/renamesubfolderprefs.py:179
+msgid "Today"
+msgstr ""
+
+#: rapid/renamesubfolderprefs.py:180
+msgid "Yesterday"
+msgstr ""
+
+#: rapid/renamesubfolderprefs.py:181
+msgid "Name + extension"
+msgstr ""
+
+#: rapid/renamesubfolderprefs.py:182
+msgid "Name"
+msgstr ""
+
+#: rapid/renamesubfolderprefs.py:183
+msgid "Extension"
+msgstr ""
+
+#: rapid/renamesubfolderprefs.py:184
+msgid "Image number"
+msgstr ""
+
+#: rapid/renamesubfolderprefs.py:185
+msgid "Aperture"
+msgstr ""
+
+#: rapid/renamesubfolderprefs.py:186
+msgid "ISO"
+msgstr ""
+
+#: rapid/renamesubfolderprefs.py:187
+msgid "Exposure time"
+msgstr ""
+
+#: rapid/renamesubfolderprefs.py:188
+msgid "Focal length"
+msgstr ""
+
+#: rapid/renamesubfolderprefs.py:189
+msgid "Camera make"
+msgstr ""
+
+#: rapid/renamesubfolderprefs.py:190
+msgid "Camera model"
+msgstr ""
+
+#: rapid/renamesubfolderprefs.py:191
+msgid "Short camera model"
+msgstr ""
+
+#: rapid/renamesubfolderprefs.py:192
+msgid "Hyphenated short camera model"
+msgstr ""
+
+#: rapid/renamesubfolderprefs.py:193
+msgid "Serial number"
+msgstr ""
+
+#: rapid/renamesubfolderprefs.py:194
+msgid "Shutter count"
+msgstr ""
+
+#: rapid/renamesubfolderprefs.py:195
+msgid "Owner name"
+msgstr ""
+
+#: rapid/renamesubfolderprefs.py:196
+msgid "Downloads today"
+msgstr ""
+
+#: rapid/renamesubfolderprefs.py:197
+msgid "Session number"
+msgstr ""
+
+#: rapid/renamesubfolderprefs.py:198
+msgid "Subfolder number"
+msgstr ""
+
+#: rapid/renamesubfolderprefs.py:199
+msgid "Stored number"
+msgstr ""
+
+#: rapid/renamesubfolderprefs.py:200
+msgid "Sequence letter"
+msgstr ""
+
+#: rapid/renamesubfolderprefs.py:201
+msgid "All digits"
+msgstr ""
+
+#: rapid/renamesubfolderprefs.py:202
+msgid "Last digit"
+msgstr ""
+
+#: rapid/renamesubfolderprefs.py:203
+msgid "Last 2 digits"
+msgstr ""
+
+#: rapid/renamesubfolderprefs.py:204
+msgid "Last 3 digits"
+msgstr ""
+
+#: rapid/renamesubfolderprefs.py:205
+msgid "Last 4 digits"
+msgstr ""
+
+#: rapid/renamesubfolderprefs.py:206
+msgid "Original Case"
+msgstr ""
+
+#: rapid/renamesubfolderprefs.py:207
+msgid "UPPERCASE"
+msgstr ""
+
+#: rapid/renamesubfolderprefs.py:208
+msgid "lowercase"
+msgstr ""
+
+#: rapid/renamesubfolderprefs.py:209
+msgid "One digit"
+msgstr ""
+
+#: rapid/renamesubfolderprefs.py:210
+msgid "Two digits"
+msgstr ""
+
+#: rapid/renamesubfolderprefs.py:211
+msgid "Three digits"
+msgstr ""
+
+#: rapid/renamesubfolderprefs.py:212
+msgid "Four digits"
+msgstr ""
+
+#: rapid/renamesubfolderprefs.py:213
+msgid "Five digits"
+msgstr ""
+
+#: rapid/renamesubfolderprefs.py:214
+msgid "Six digits"
+msgstr ""
+
+#: rapid/renamesubfolderprefs.py:215
+msgid "Subseconds"
+msgstr ""
+
+#: rapid/renamesubfolderprefs.py:216
+msgid "YYYYMMDD"
+msgstr ""
+
+#: rapid/renamesubfolderprefs.py:217
+msgid "YYYY-MM-DD"
+msgstr ""
+
+#: rapid/renamesubfolderprefs.py:218
+msgid "YYMMDD"
+msgstr ""
+
+#: rapid/renamesubfolderprefs.py:219
+msgid "YY-MM-DD"
+msgstr ""
+
+#: rapid/renamesubfolderprefs.py:220
+msgid "MMDDYYYY"
+msgstr ""
+
+#: rapid/renamesubfolderprefs.py:221
+msgid "MMDDYY"
+msgstr ""
+
+#: rapid/renamesubfolderprefs.py:222
+msgid "MMDD"
+msgstr ""
+
+#: rapid/renamesubfolderprefs.py:223
+msgid "DDMMYYYY"
+msgstr ""
+
+#: rapid/renamesubfolderprefs.py:224
+msgid "DDMMYY"
+msgstr ""
+
+#: rapid/renamesubfolderprefs.py:225
+msgid "YYYY"
+msgstr ""
+
+#: rapid/renamesubfolderprefs.py:226
+msgid "YY"
+msgstr ""
+
+#: rapid/renamesubfolderprefs.py:227
+msgid "MM"
+msgstr ""
+
+#: rapid/renamesubfolderprefs.py:228
+msgid "DD"
+msgstr ""
+
+#: rapid/renamesubfolderprefs.py:229
+msgid "HHMMSS"
+msgstr ""
+
+#: rapid/renamesubfolderprefs.py:230
+msgid "HHMM"
+msgstr ""
+
+#: rapid/renamesubfolderprefs.py:599
+#, python-format
+msgid ""
+"Preference key '%(key)s' is invalid.\n"
+"Expected one of %(value)s"
+msgstr ""
+
+#: rapid/renamesubfolderprefs.py:606
+#, python-format
+msgid "Preference value '%(value)s' is invalid"
+msgstr ""
+
+#: rapid/renamesubfolderprefs.py:610
+msgid "These preferences are not well formed:"
+msgstr ""
+
+#: rapid/renamesubfolderprefs.py:710
+msgid "Subsecond metadata not present in image"
+msgstr ""
+
+#: rapid/renamesubfolderprefs.py:713 rapid/renamesubfolderprefs.py:836
+#, python-format
+msgid "%s metadata is not present in image"
+msgstr ""
+
+#: rapid/renamesubfolderprefs.py:728
+#, python-format
+msgid "Error in date time component. Value %s appears invalid"
+msgstr ""
+
+#: rapid/renamesubfolderprefs.py:759
+msgid "extension was specified but image name has no extension"
+msgstr ""
+
+#: rapid/renamesubfolderprefs.py:763
+msgid "image number was specified but image filename has no number"
+msgstr ""
+
+#: rapid/renamesubfolderprefs.py:948
+#, python-format
+msgid "error generating name with component %s"
+msgstr ""
+
+#: rapid/renamesubfolderprefs.py:1264
+#, python-format
+msgid "Subfolder preferences should not start with a %s"
+msgstr ""
+
+#: rapid/renamesubfolderprefs.py:1266
+#, python-format
+msgid "Subfolder preferences should not end with a %s"
+msgstr ""
+
+#: rapid/renamesubfolderprefs.py:1270
+#, python-format
+msgid "Subfolder preferences should not contain two %s one after the other"
+msgstr ""
+
+#: rapid/glade3/rapid.glade.h:1
+msgid " "
+msgstr ""
+
+#: rapid/glade3/rapid.glade.h:2
+msgid "      "
+msgstr ""
+
+#: rapid/glade3/rapid.glade.h:3
+msgid " hh:mm"
+msgstr ""
+
+#: rapid/glade3/rapid.glade.h:4
+msgid ":"
+msgstr ""
+
+#: rapid/glade3/rapid.glade.h:5
+msgid "<b>Backup</b>"
+msgstr ""
+
+#: rapid/glade3/rapid.glade.h:6
+msgid "<b>Compatibility with Other Operating Systems</b>"
+msgstr ""
+
+#: rapid/glade3/rapid.glade.h:7
+msgid "<b>Download Folder</b>"
+msgstr ""
+
+#: rapid/glade3/rapid.glade.h:8
+msgid "<b>Download Subfolders</b>"
+msgstr ""
+
+#: rapid/glade3/rapid.glade.h:9
+msgid "<b>Example</b>"
+msgstr ""
+
+#: rapid/glade3/rapid.glade.h:10
+msgid "<b>Image Devices</b>"
+msgstr ""
+
+#: rapid/glade3/rapid.glade.h:11
+msgid "<b>Image Name Conflicts</b>"
+msgstr ""
+
+#: rapid/glade3/rapid.glade.h:12
+msgid "<b>Image Rename</b>"
+msgstr ""
+
+#: rapid/glade3/rapid.glade.h:13
+msgid "<b>Missing Backup Devices</b>"
+msgstr ""
+
+#: rapid/glade3/rapid.glade.h:14
+msgid "<b>Program Automation</b>"
+msgstr ""
+
+#: rapid/glade3/rapid.glade.h:15
+msgid "<b>Sequence numbers</b>"
+msgstr ""
+
+#: rapid/glade3/rapid.glade.h:16
+msgid "<i>/media/externaldrive/Photos</i>"
+msgstr ""
+
+#: rapid/glade3/rapid.glade.h:17
+msgid "<i>Example: /home/user/photos</i>"
+msgstr ""
+
+#: rapid/glade3/rapid.glade.h:18
+msgid "<i>Example:</i>"
+msgstr ""
+
+#: rapid/glade3/rapid.glade.h:19
+msgid "<i>New:</i>"
+msgstr ""
+
+#: rapid/glade3/rapid.glade.h:20
+msgid "<i>Original:</i>"
+msgstr ""
+
+#: rapid/glade3/rapid.glade.h:21
+msgid "<span weight=\"bold\" size=\"x-large\">Automation</span>"
+msgstr ""
+
+#: rapid/glade3/rapid.glade.h:22
+msgid "<span weight=\"bold\" size=\"x-large\">Backup</span>\t"
+msgstr ""
+
+#: rapid/glade3/rapid.glade.h:23
+msgid "<span weight=\"bold\" size=\"x-large\">Download Folder</span>"
+msgstr ""
+
+#: rapid/glade3/rapid.glade.h:24
+msgid "<span weight=\"bold\" size=\"x-large\">Error Handling</span>"
+msgstr ""
+
+#: rapid/glade3/rapid.glade.h:25
+msgid "<span weight=\"bold\" size=\"x-large\">Image Devices</span>"
+msgstr ""
+
+#: rapid/glade3/rapid.glade.h:26
+msgid "<span weight=\"bold\" size=\"x-large\">Image Rename</span>\t"
+msgstr ""
+
+#: rapid/glade3/rapid.glade.h:27
+msgid "<span weight=\"bold\" size=\"x-large\">Rename Options</span>"
+msgstr ""
+
+#: rapid/glade3/rapid.glade.h:28
+msgid "Add unique identifier"
+msgstr ""
+
+#: rapid/glade3/rapid.glade.h:29
+msgid "Automatically detect Portable Storage Devices"
+msgstr ""
+
+#: rapid/glade3/rapid.glade.h:30
+msgid "Automatically detect backup devices"
+msgstr ""
+
+#: rapid/glade3/rapid.glade.h:31
+msgid "Automatically detect image devices"
+msgstr ""
+
+#: rapid/glade3/rapid.glade.h:32
+msgid "Automation"
+msgstr ""
+
+#: rapid/glade3/rapid.glade.h:33
+msgid "Backup"
+msgstr ""
+
+#: rapid/glade3/rapid.glade.h:34
+msgid "Backup folder name:"
+msgstr ""
+
+#: rapid/glade3/rapid.glade.h:35
+msgid "Backup location:"
+msgstr ""
+
+#: rapid/glade3/rapid.glade.h:36
+msgid "Backup photos when downloading"
+msgstr ""
+
+#: rapid/glade3/rapid.glade.h:37
+msgid ""
+"Choose the download folder. Subfolders for the downloaded photos will be "
+"automatically created in this folder using the structure specified below."
+msgstr ""
+
+#: rapid/glade3/rapid.glade.h:38
+msgid ""
+"Choose whether to skip downloading the image, or to add a unique indentifier."
+msgstr ""
+
+#: rapid/glade3/rapid.glade.h:39
+msgid "Copyright Damon Lynch 2007-09"
+msgstr ""
+
+#: rapid/glade3/rapid.glade.h:40
+msgid "Day start:"
+msgstr ""
+
+#: rapid/glade3/rapid.glade.h:41
+msgid "Download Folder"
+msgstr ""
+
+#: rapid/glade3/rapid.glade.h:42
+msgid "Download folder:"
+msgstr ""
+
+#: rapid/glade3/rapid.glade.h:43
+msgid "Downloads today:"
+msgstr ""
+
+#: rapid/glade3/rapid.glade.h:44
+msgid "Error Handling"
+msgstr ""
+
+#: rapid/glade3/rapid.glade.h:45
+msgid "Error Log"
+msgstr ""
+
+#: rapid/glade3/rapid.glade.h:46
+msgid "Exit program after completion of successful download"
+msgstr ""
+
+#: rapid/glade3/rapid.glade.h:47
+msgid "If you disable automatic detection, choose the exact backup location."
+msgstr ""
+
+#: rapid/glade3/rapid.glade.h:48
+msgid ""
+"If you disable automatic detection, choose the exact location of the images."
+msgstr ""
+
+#: rapid/glade3/rapid.glade.h:49
+msgid "Ignore"
+msgstr ""
+
+#: rapid/glade3/rapid.glade.h:50
+msgid "Image Devices"
+msgstr ""
+
+#: rapid/glade3/rapid.glade.h:51
+msgid "Image Rename"
+msgstr ""
+
+#: rapid/glade3/rapid.glade.h:52
+msgid ""
+"Image devices are devices from which to download photos, such as memory "
+"cards or Portable Storage Devices.\n"
+"\n"
+"You can download photos from multiple image devices simultaneously."
+msgstr ""
+
+#: rapid/glade3/rapid.glade.h:55
+msgid "Image location:"
+msgstr ""
+
+#: rapid/glade3/rapid.glade.h:56
+msgid "Import your images efficiently and reliably"
+msgstr ""
+
+#: rapid/glade3/rapid.glade.h:57
+msgid "Overwrite"
+msgstr ""
+
+#: rapid/glade3/rapid.glade.h:58
+msgid "Preferences: Rapid Photo Downloader"
+msgstr ""
+
+#: rapid/glade3/rapid.glade.h:60
+msgid ""
+"Rapid Photo Downloader is free software; you can redistribute it and/or "
+"modify it under the terms of the GNU General Public License as published by "
+"the Free Software Foundation; either version 2 of the License, or (at your "
+"option) any later version.\n"
+"\n"
+"Rapid Photo Downloader is distributed in the hope that it will be useful, "
+"but WITHOUT ANY WARRANTY; without even the implied warranty of "
+"MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General "
+"Public License for more details.\n"
+"\n"
+"You should have received a copy of the GNU General Public License along with "
+"Rapid Photo Downloader; if not, write to the Free Software Foundation, Inc., "
+"51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA."
+msgstr ""
+
+#: rapid/glade3/rapid.glade.h:65
+msgid "Rename Options"
+msgstr ""
+
+#: rapid/glade3/rapid.glade.h:66
+msgid "Report a warning"
+msgstr ""
+
+#: rapid/glade3/rapid.glade.h:67
+msgid "Report an error"
+msgstr ""
+
+#: rapid/glade3/rapid.glade.h:68
+msgid "Skip"
+msgstr ""
+
+#: rapid/glade3/rapid.glade.h:69
+msgid "Skip download"
+msgstr ""
+
+#: rapid/glade3/rapid.glade.h:70
+msgid ""
+"Specify the folder in which backups are stored on the device.  \n"
+"\n"
+"<i>Note: this will also be used to determine whether or not the device is "
+"used for backups. For each device you wish to use for backing up to, create "
+"a folder in it with this name.</i>"
+msgstr ""
+
+#: rapid/glade3/rapid.glade.h:73
+msgid ""
+"Specify the time in 24 hour format at which the <i>Downloads today</i> "
+"sequence number should be reset."
+msgstr ""
+
+#: rapid/glade3/rapid.glade.h:74
+msgid ""
+"Specify what to do when an image of the same name has already been "
+"downloaded or backed up."
+msgstr ""
+
+#: rapid/glade3/rapid.glade.h:75
+msgid "Specify what to do when there are no backup devices."
+msgstr ""
+
+#: rapid/glade3/rapid.glade.h:76
+msgid ""
+"Specify whether image and folder names should have any characters removed "
+"that are not allowed by other operating systems."
+msgstr ""
+
+#: rapid/glade3/rapid.glade.h:77
+msgid "Start downloading at program startup"
+msgstr ""
+
+#: rapid/glade3/rapid.glade.h:78
+msgid "Start downloading upon image device insertion"
+msgstr ""
+
+#: rapid/glade3/rapid.glade.h:79
+msgid "Stored number:"
+msgstr ""
+
+#: rapid/glade3/rapid.glade.h:80
+msgid "Strip incompatible characters"
+msgstr ""
+
+#: rapid/glade3/rapid.glade.h:81
+msgid "Unmount (\"eject\") image device upon download completion"
+msgstr ""
+
+#: rapid/glade3/rapid.glade.h:82
+msgid ""
+"When backing up, choose whether to overwrite an image on the backup device "
+"that has the same name, or skip backing it up."
+msgstr ""
+
+#: rapid/glade3/rapid.glade.h:83
+msgid ""
+"You can have your photos backed up to multiple locations as they are "
+"downloaded, e.g. external hard drives."
+msgstr ""
+
+#: rapid/glade3/rapid.glade.h:84
+msgid "_Clear Completed Downloads"
+msgstr ""
+
+#: rapid/glade3/rapid.glade.h:85
+msgid "_Error Log"
+msgstr ""
+
+#: rapid/glade3/rapid.glade.h:86
+msgid "_Get Help Online..."
+msgstr ""
+
+#: rapid/glade3/rapid.glade.h:87
+msgid "_Help"
+msgstr ""
+
+#: rapid/glade3/rapid.glade.h:88
+msgid "_Make a Donation..."
+msgstr ""
+
+#: rapid/glade3/rapid.glade.h:89
+msgid "_Photos"
+msgstr ""
+
+#: rapid/glade3/rapid.glade.h:90
+msgid "_Report a Problem..."
+msgstr ""
+
+#: rapid/glade3/rapid.glade.h:91
+msgid "_Thumbnails"
+msgstr ""
+
+#: rapid/glade3/rapid.glade.h:92
+msgid "_View"
+msgstr ""
+
+#: rapid/glade3/rapid.glade.h:94
+msgid "translator-credits"
+msgstr ""
+"Launchpad Contributions:\n"
+"  Damon Lynch https://launchpad.net/~dlynch3"
+
+#: rapid/glade3/rapid.glade.h:95
+msgid "translators please ignore this"
+msgstr ""
