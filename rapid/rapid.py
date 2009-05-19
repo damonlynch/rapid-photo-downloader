@@ -1930,7 +1930,7 @@ class LogDialog(gnomeglade.Component):
                                     "logdialog")
                                     
         
-        self.widget.connect("destroy", self.on_logdialog_destroy)
+        self.widget.connect("delete-event", self.hide_window)
         
         self.parentApp = parentApp
         self.log_textview.set_cursor_visible(False)
@@ -1968,12 +1968,12 @@ class LogDialog(gnomeglade.Component):
         self.parentApp.warning_image.hide()
         self.parentApp.prefs.show_log_dialog = False
         self.widget.hide()
-
-        
-    def on_logdialog_destroy(self, dialog):
-        self.on_logdialog_response(dialog, gtk.RESPONSE_CLOSE)
-        dialog.emit_stop_by_name("destroy")
         return True
+
+    def hide_window(self,  window, event):
+        window.hide()
+        return True
+
 
 
 class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object): 

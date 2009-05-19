@@ -10,7 +10,10 @@ This support is experimental. Some cameras do not work. If you cannot browse the
 camera's contents in a file manager (e.g. Nautilus), the camera download will
 not work until the gvfs support is improved.
 
-Cameras that do not work as at May 2009 include the Canon 20D and 300D.
+If you can put your camera into PTP mode, you may find it works a lot better.
+
+Cameras that do not work when not in PTP mode as at May 2009 include the
+Canon 20D and 300D.
 
 For more information see http://damonlynch.net/rapid
 
@@ -31,11 +34,5 @@ rapid-photo-downloader
 Known Bugs
 ==========
 
-* Closing log window with window manager 'x' instead of 'close' button not yet
-  supported
-
-* When metadata is corrupt (for example a corrupt camera model entry), and it is
-  used as part of image renaming or subfolder name generation, the filename 
-  could contain badly encoded or garbage values. These images should not be
-  downloaded at all.
+See https://bugs.launchpad.net/rapid/+bugs
 

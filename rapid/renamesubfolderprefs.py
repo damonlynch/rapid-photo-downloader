@@ -638,9 +638,8 @@ class Comboi18n(gtk.ComboBox):
         self.add_attribute(cell, 'text', 1)
         
     def append_text(self,  text):
-        t = _(text)
         model = self.get_model()
-        model.append((text,  t))
+        model.append((text,  _(text)))
         
     def get_active_text(self):
         model = self.get_model()

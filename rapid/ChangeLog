@@ -8,10 +8,14 @@ file types are recognized, and printing the program version.
 
 Updated man page to reflect recent program changes and new command line options.
 
-Prepared program for translation into other languages.
+Prepared program for translation into other languages. Thanks go to Mark Mruss 
+and his blog http://www.learningpython.com for code examples and explanations.
 
 Minor fixes to logic that checks whether the Download button should be disabled
 or not.
+
+Bug fix: error log window can now be reopened after being closed with the "x" 
+button. Thanks go to ESR and his python FAQ entry for this fix.
 
 
 Version 0.0.9 beta 2

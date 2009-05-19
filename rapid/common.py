@@ -38,7 +38,7 @@ class Configi18n:
     #Get the local directory since we are not installing anything
     local_path = os.path.realpath(os.path.dirname(sys.argv[0]))
 
-#    local_path = os.path.join(local_path,  'po')
+    local_path = os.path.join(local_path,  'locale')
     
     # Init the list of languages to support
     langs = []
@@ -63,11 +63,12 @@ class Configi18n:
     gettext.bindtextdomain(config.APP_NAME, local_path)
     gettext.textdomain(config.APP_NAME)
     # Get the language to use
-    lang = gettext.translation(config.APP_NAME, local_path,  languages=langs, fallback = True)
+    lang = gettext.translation(config.APP_NAME, local_path, languages=langs, fallback = True)
     # Install the language, map _() (which we marked our
     # strings to translate with) to self.lang.gettext() which will
     # translate them.
     _ = lang.gettext
+
 
 def pythonifyVersion(v):
     """ makes version number a version number in distutils sense"""

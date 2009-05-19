@@ -12,7 +12,8 @@ Copyright:
             Copyright (c) 2006 by Daniel J. Popowich
             
         * rapid/gnomeglade.py
-            Copyright (C) 2002-2006 Stephen Kennedy <stevek@gnome.org>
+            Based on gnomeglade.py Copyright (C) 2002-2006 Stephen Kennedy
+            <stevek@gnome.org>
             
         * rapid/idletube.py
             Copyright (c) 2005 Antoon Pardon    
