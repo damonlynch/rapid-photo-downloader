@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-05-19 19:17+0800\n"
+"POT-Creation-Date: 2009-05-20 16:00+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,7 +16,7 @@ msgstr ""
 "Content-Type: text/plain; charset=CHARSET\n"
 "Content-Transfer-Encoding: 8bit\n"
 
-#: rapid/rapid.py:99 rapid/glade3/rapid.glade.h:59
+#: rapid/rapid.py:99 rapid/glade3/rapid.glade.h:61
 msgid "Rapid Photo Downloader"
 msgstr ""
 
@@ -231,7 +231,7 @@ msgid ""
 "Error: %(errno)s %(strerror)s"
 msgstr ""
 
-#. The device was automatically unmounted
+#. This message informs the user that the device (e.g. camera, hard drive or memory card) was automatically unmounted and they can now remove it
 #: rapid/rapid.py:1520
 msgid "The device can now be safely removed"
 msgstr ""
@@ -454,50 +454,50 @@ msgid "images skipped"
 msgstr ""
 
 #. please note the space at the end of the label - it is needed to meet the Gnome Human Interface Guidelines
-#: rapid/rapid.py:2685
+#: rapid/rapid.py:2688
 msgid "_Download "
 msgstr ""
 
-#: rapid/rapid.py:2694
+#: rapid/rapid.py:2697
 msgid "_Pause"
 msgstr ""
 
-#: rapid/rapid.py:2751
+#: rapid/rapid.py:2754
 msgid "Preferences were changed."
 msgstr ""
 
-#: rapid/rapid.py:2882
+#: rapid/rapid.py:2885
 msgid "Goodbye"
 msgstr ""
 
-#: rapid/rapid.py:2891
+#: rapid/rapid.py:2894
 #, python-format
 msgid ""
 "display program information on the command line as the program runs "
 "(default: %default)"
 msgstr ""
 
-#: rapid/rapid.py:2892
+#: rapid/rapid.py:2895
 msgid "only output errors to the command line"
 msgstr ""
 
 #. image file extensions are recognized RAW files plus TIFF and JPG
-#: rapid/rapid.py:2894
+#: rapid/rapid.py:2897
 msgid "list image file extensions the program recognizes and exit"
 msgstr ""
 
-#: rapid/rapid.py:2907
+#: rapid/rapid.py:2910
 #, python-format
 msgid "and %s"
 msgstr ""
 
 #. Which volume management code is being used (GIO or GnomeVFS)
-#: rapid/rapid.py:2912 rapid/rapid.py:2915
+#: rapid/rapid.py:2915 rapid/rapid.py:2918
 msgid "Using"
 msgstr ""
 
 #. this application is already running
-#: rapid/rapid.py:2929
+#: rapid/rapid.py:2932
 #, python-format
 msgid "%s is already running"
 msgstr ""
@@ -1016,15 +1016,19 @@ msgstr ""
 msgid "Import your images efficiently and reliably"
 msgstr ""
 
-#: rapid/glade3/rapid.glade.h:57
+#: rapid/glade3/rapid.glade.h:58
+msgid "Julien Valroff <julien@kirya.net>"
+msgstr ""
+
+#: rapid/glade3/rapid.glade.h:59
 msgid "Overwrite"
 msgstr ""
 
-#: rapid/glade3/rapid.glade.h:58
+#: rapid/glade3/rapid.glade.h:60
 msgid "Preferences: Rapid Photo Downloader"
 msgstr ""
 
-#: rapid/glade3/rapid.glade.h:60
+#: rapid/glade3/rapid.glade.h:62
 msgid ""
 "Rapid Photo Downloader is free software; you can redistribute it and/or "
 "modify it under the terms of the GNU General Public License as published by "
@@ -1041,27 +1045,27 @@ msgid ""
 "51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA."
 msgstr ""
 
-#: rapid/glade3/rapid.glade.h:65
+#: rapid/glade3/rapid.glade.h:67
 msgid "Rename Options"
 msgstr ""
 
-#: rapid/glade3/rapid.glade.h:66
+#: rapid/glade3/rapid.glade.h:68
 msgid "Report a warning"
 msgstr ""
 
-#: rapid/glade3/rapid.glade.h:67
+#: rapid/glade3/rapid.glade.h:69
 msgid "Report an error"
 msgstr ""
 
-#: rapid/glade3/rapid.glade.h:68
+#: rapid/glade3/rapid.glade.h:70
 msgid "Skip"
 msgstr ""
 
-#: rapid/glade3/rapid.glade.h:69
+#: rapid/glade3/rapid.glade.h:71
 msgid "Skip download"
 msgstr ""
 
-#: rapid/glade3/rapid.glade.h:70
+#: rapid/glade3/rapid.glade.h:72
 msgid ""
 "Specify the folder in which backups are stored on the device.  \n"
 "\n"
@@ -1070,100 +1074,100 @@ msgid ""
 "a folder in it with this name.</i>"
 msgstr ""
 
-#: rapid/glade3/rapid.glade.h:73
+#: rapid/glade3/rapid.glade.h:75
 msgid ""
 "Specify the time in 24 hour format at which the <i>Downloads today</i> "
 "sequence number should be reset."
 msgstr ""
 
-#: rapid/glade3/rapid.glade.h:74
+#: rapid/glade3/rapid.glade.h:76
 msgid ""
 "Specify what to do when an image of the same name has already been "
 "downloaded or backed up."
 msgstr ""
 
-#: rapid/glade3/rapid.glade.h:75
+#: rapid/glade3/rapid.glade.h:77
 msgid "Specify what to do when there are no backup devices."
 msgstr ""
 
-#: rapid/glade3/rapid.glade.h:76
+#: rapid/glade3/rapid.glade.h:78
 msgid ""
 "Specify whether image and folder names should have any characters removed "
 "that are not allowed by other operating systems."
 msgstr ""
 
-#: rapid/glade3/rapid.glade.h:77
+#: rapid/glade3/rapid.glade.h:79
 msgid "Start downloading at program startup"
 msgstr ""
 
-#: rapid/glade3/rapid.glade.h:78
+#: rapid/glade3/rapid.glade.h:80
 msgid "Start downloading upon image device insertion"
 msgstr ""
 
-#: rapid/glade3/rapid.glade.h:79
+#: rapid/glade3/rapid.glade.h:81
 msgid "Stored number:"
 msgstr ""
 
-#: rapid/glade3/rapid.glade.h:80
+#: rapid/glade3/rapid.glade.h:82
 msgid "Strip incompatible characters"
 msgstr ""
 
-#: rapid/glade3/rapid.glade.h:81
+#: rapid/glade3/rapid.glade.h:83
 msgid "Unmount (\"eject\") image device upon download completion"
 msgstr ""
 
-#: rapid/glade3/rapid.glade.h:82
+#: rapid/glade3/rapid.glade.h:84
 msgid ""
 "When backing up, choose whether to overwrite an image on the backup device "
 "that has the same name, or skip backing it up."
 msgstr ""
 
-#: rapid/glade3/rapid.glade.h:83
+#: rapid/glade3/rapid.glade.h:85
 msgid ""
 "You can have your photos backed up to multiple locations as they are "
 "downloaded, e.g. external hard drives."
 msgstr ""
 
-#: rapid/glade3/rapid.glade.h:84
+#: rapid/glade3/rapid.glade.h:86
 msgid "_Clear Completed Downloads"
 msgstr ""
 
-#: rapid/glade3/rapid.glade.h:85
+#: rapid/glade3/rapid.glade.h:87
 msgid "_Error Log"
 msgstr ""
 
-#: rapid/glade3/rapid.glade.h:86
+#: rapid/glade3/rapid.glade.h:88
 msgid "_Get Help Online..."
 msgstr ""
 
-#: rapid/glade3/rapid.glade.h:87
+#: rapid/glade3/rapid.glade.h:89
 msgid "_Help"
 msgstr ""
 
-#: rapid/glade3/rapid.glade.h:88
+#: rapid/glade3/rapid.glade.h:90
 msgid "_Make a Donation..."
 msgstr ""
 
-#: rapid/glade3/rapid.glade.h:89
+#: rapid/glade3/rapid.glade.h:91
 msgid "_Photos"
 msgstr ""
 
-#: rapid/glade3/rapid.glade.h:90
+#: rapid/glade3/rapid.glade.h:92
 msgid "_Report a Problem..."
 msgstr ""
 
-#: rapid/glade3/rapid.glade.h:91
+#: rapid/glade3/rapid.glade.h:93
 msgid "_Thumbnails"
 msgstr ""
 
-#: rapid/glade3/rapid.glade.h:92
-msgid "_View"
-msgstr ""
-
 #: rapid/glade3/rapid.glade.h:94
-msgid "translator-credits"
+msgid "_Translate this Application..."
 msgstr ""
 
 #: rapid/glade3/rapid.glade.h:95
+msgid "_View"
+msgstr ""
+
+#: rapid/glade3/rapid.glade.h:96
 msgid "translators please ignore this"
 msgstr ""
