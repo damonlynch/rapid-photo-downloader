@@ -1516,7 +1516,7 @@ class CopyPhotos(Thread):
                 notificationName  = self.cardMedia.volume.get_name()
                 if self.prefs.auto_unmount:
                     self.cardMedia.volume.unmount(self.on_volume_unmount)
-                    # The device was automatically unmounted
+                    # This message informs the user that the device (e.g. camera, hard drive or memory card) was automatically unmounted and they can now remove it
                     unmountMessage = _("The device can now be safely removed")
                 else:
                     unmountMessage = ""
@@ -2650,6 +2650,9 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
 
     def on_menu_donate_activate(self,  widget):
         webbrowser.open("http://www.damonlynch.net/rapid/donate.html") 
+
+    def on_menu_translate_activate(self,  widget):
+        webbrowser.open("http://www.damonlynch.net/rapid/translate.html") 
 
     def on_menu_preferences_activate(self, widget):
         """ Sets preferences for the application using dialog window """

@@ -2333,6 +2333,14 @@ You should have received a copy of the GNU General Public License along with Rap
                       </widget>
                     </child>
                     <child>
+                      <widget class="GtkMenuItem" id="menu_translate">
+                        <property name="visible">True</property>
+                        <property name="label" translatable="yes">_Translate this Application...</property>
+                        <property name="use_underline">True</property>
+                        <signal name="activate" handler="on_menu_translate_activate"/>
+                      </widget>
+                    </child>
+                    <child>
                       <widget class="GtkSeparatorMenuItem" id="separator1">
                         <property name="visible">True</property>
                       </widget>
