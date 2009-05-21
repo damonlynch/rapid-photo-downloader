@@ -178,33 +178,61 @@ class i18TranslateMeThanks:
         _('Image date')
         _('Today')
         _('Yesterday')
+        # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamefilename
         _('Name + extension')
+        # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamefilename
         _('Name')
+        # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamefilename
         _('Extension')
+        # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamefilename
         _('Image number')
+        # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamemetadata        
         _('Aperture')
+        # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamemetadata        
         _('ISO')
+        # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamemetadata        
         _('Exposure time')
+        # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamemetadata        
         _('Focal length')
+        # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamemetadata        
         _('Camera make')
+        # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamemetadata        
         _('Camera model')
+        # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamemetadata        
         _('Short camera model')
+        # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
         _('Hyphenated short camera model')
+        # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
         _('Serial number')
+        # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
         _('Shutter count')
+        # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
         _('Owner name')
+        # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#sequencenumbers
         _('Downloads today')
+        # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#sequencenumbers
         _('Session number')
+        # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#sequencenumbers
         _('Subfolder number')
+        # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#sequencenumbers
         _('Stored number')
+        # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#sequenceletters
         _('Sequence letter')
+        # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamefilename
         _('All digits')
+        # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamefilename
         _('Last digit')
+        # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamefilename
         _('Last 2 digits')
+        # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamefilename
         _('Last 3 digits')
+        # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamefilename
         _('Last 4 digits')
+        # Translators: please not the capitalization of this text, and keep it the same if your language features capitalization
         _("Original Case")
+        # Translators: please not the capitalization of this text, and keep it the same if your language features capitalization
         _("UPPERCASE")
+        # Translators: please not the capitalization of this text, and keep it the same if your language features capitalization
         _("lowercase")
         _("One digit")
         _("Two digits")
@@ -212,21 +240,37 @@ class i18TranslateMeThanks:
         _("Four digits")
         _("Five digits")
         _("Six digits")
+        # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
         _('Subseconds')
+        # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
         _('YYYYMMDD') 
+        # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
         _('YYYY-MM-DD')
+        # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
         _('YYMMDD') 
+        # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
         _('YY-MM-DD') 
+        # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
         _('MMDDYYYY') 
+        # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
         _('MMDDYY') 
+        # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
         _('MMDD') 
+        # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
         _('DDMMYYYY') 
+        # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
         _('DDMMYY') 
+        # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
         _('YYYY') 
+        # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
         _('YY') 
+        # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
         _('MM') 
+        # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
         _('DD')
+        # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
         _('HHMMSS')
+        # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
         _('HHMM')
     
 

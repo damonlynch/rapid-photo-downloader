@@ -96,6 +96,7 @@ from common import Configi18n
 global _
 _ = Configi18n._
 
+#Translators: if neccessary, for guidance in how to translate this program, you may see http://damonlynch.net/translate.html 
 PROGRAM_NAME = _('Rapid Photo Downloader')
 
 def today():
@@ -858,6 +859,7 @@ class PreferencesDialog(gnomeglade.Component):
         
         if problem:
             text += "\n"
+            # Translators: please do not modify or leave out html formatting tags like <i> and <b>. These are used to format the text the users sees
             text += _("<i><b>Warning:</b> There is insufficient image metatdata to fully generate the name. Please use other renaming options.</i>")
 
         self.new_name_label.set_markup(text)
@@ -880,7 +882,7 @@ class PreferencesDialog(gnomeglade.Component):
         if problem:
             text += "\n"
             text += _("<i><b>Warning:</b> There is insufficient image metatdata to fully generate subfolders. Please use other subfolder naming options.</i>" )
-            
+        # Translators: you should not modify or leave out the %s. This is a code used by the programming language python to insert a value that thes user will see
         self.example_download_path_label.set_markup(_("<i>Example: %s</i>") % text)
         
     def on_hour_spinbutton_value_changed(self, spinbutton):
@@ -1053,9 +1055,9 @@ class PreferencesDialog(gnomeglade.Component):
         self.updateBackupExample()        
 
     def updateBackupExample(self):
-        # this value is used as an example device when automatic backup device detection is enabled
+        # Translators: this value is used as an example device when automatic backup device detection is enabled. You should translate this.
         path = os.path.join(config.MEDIA_LOCATION, _("externaldrive1"))
-        # this value is used as an example device when automatic backup device detection is enabled
+        # Translators: this value is used as an example device when automatic backup device detection is enabled. You should translate this.
         path2 = os.path.join(config.MEDIA_LOCATION, _("externaldrive2"))
 
         path = os.path.join(path, self.backup_identifier_entry.get_text())
@@ -1220,11 +1222,22 @@ class CopyPhotos(Thread):
             
             if noImages:
                 self.cardMedia.setMedia(images,  imageSizeSum,  noImages)
+                # Translators: as already, mentioned the %s value should not be modified or left out. It may be moved if necessary.
+                # It refers to the actual number of images that can be copied. For example, the user might see the following:
+                # '0 of 512 images copied'.
+                # This particular text is displayed to the user before the download has started.
                 display = _("0 of %s images copied") % noImages
                 display_queue.put((media_collection_treeview.updateCard,  (self.thread_id,  self.cardMedia.sizeOfImages(), noImages)))
                 display_queue.put((media_collection_treeview.updateProgress, (self.thread_id, 0.0, display, 0)))
                 display_queue.put((self.parentApp.timeRemaining.add,  (self.thread_id,  imageSizeSum)))
                 display_queue.put((self.parentApp.setDownloadButtonSensitivity, ()))
+                
+                # Translators: as you have already seen, the text can contain values that should not be modified or left out by you, for example %s.
+                # This text is another example of that, but it is is a little more complex. Here there are two values which will be displayed
+                # to the user when they run the program, signifying the number of images found, and the device they were found on.
+                # %(number)s should be left exactly as is: 'number' should not be translated. The same applies to %(device)s: 'device' should
+                # not be translated. Generally speaking, if translating the sentence requires it, you can move items like '%(xyz)s' around 
+                # in a sentence, but you should never modify them or leave them out.
                 cmd_line(_("Device scan complete: found %(number)s images on %(device)s") % 
                            {'number': noImages,  'device': self.cardMedia.prettyName(limit=0)})
                 return True
@@ -1263,6 +1276,7 @@ class CopyPhotos(Thread):
                 # a serious problem - a filename should never be blank!
                 logError(config.SERIOUS_ERROR,
                     _("Image filename could not be generated"),
+                    # '%(source)s' and '%(problem)s' are two more examples of text that should not be modified or left out
                     _("Source: %(source)s\nProblem: %(problem)s") % {'source': image, 'problem': problem},
                     IMAGE_SKIPPED)
             elif problem:
@@ -1773,7 +1787,7 @@ class MediaTreeView(gtk.TreeView):
                                     text=0)
         self.append_column(column0)
         
-        # Size refers to the total size of images on the device
+        # Size refers to the total size of images on the device, typically in MB or GB
         column1 = gtk.TreeViewColumn(_("Size"), gtk.CellRendererText(), text=1)
         self.append_column(column1)
         
@@ -2575,6 +2589,9 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
                     elif secs == 60:
                         message = _("About 1 minute remaining")
                     else:
+                        # Translators: in the text '%(minutes)i:%(seconds)02i', only the : should be translated, if needed. 
+                        # '%(minutes)i' and '%(seconds)02i' should not be modified or left out. They are used to format and display the amount
+                        # of time the download has remainging, e.g. 'About 5:36 minutes remaining'
                         message = _("About %(minutes)i:%(seconds)02i minutes remaining") % {'minutes': secs / 60, 'seconds': secs % 60}
                     
                     self.rapid_statusbar.push(self.statusbar_context_id, message)
@@ -2684,7 +2701,8 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
         Sets download button to appropriate state
         """
         if self.download_button_is_download:
-            #please note the space at the end of the label - it is needed to meet the Gnome Human Interface Guidelines
+            # This text will be displayed to the user on the Download / Pause button.
+            # Please note the space at the end of the label - it is needed to meet the Gnome Human Interface Guidelines
             self.download_button.set_label(_("_Download "))
             self.download_button.set_image(gtk.image_new_from_stock(
                                                 gtk.STOCK_CONVERT,
@@ -2694,6 +2712,7 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
             self.download_button.set_image(gtk.image_new_from_stock(
                                                 gtk.STOCK_MEDIA_PAUSE,
                                                 gtk.ICON_SIZE_BUTTON))
+            # This text will be displayed to the user on the Download / Pause button.
             self.download_button.set_label(_("_Pause") + " ")
             
     def on_menu_download_pause_activate(self, widget):
@@ -2891,6 +2910,8 @@ def start ():
     
     parser = OptionParser(version= "%%prog %s" % config.version)
     parser.set_defaults(verbose=is_beta,  extensions=False)
+    # Translators: this text is displayed to the user when they request information on the command line options. 
+    # The text %default should not be modified or left out.
     parser.add_option("-v",  "--verbose",  action="store_true", dest="verbose",  help=_("display program information on the command line as the program runs (default: %default)"))
     parser.add_option("-q", "--quiet",  action="store_false", dest="verbose",  help=_("only output errors to the command line"))
     # image file extensions are recognized RAW files plus TIFF and JPG
