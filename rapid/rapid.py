@@ -1682,7 +1682,7 @@ class CopyPhotos(Thread):
                     thumbnailType, thumbnail = imageMetadata.getThumbnailData()
                 except:
                     logError(config.WARNING, _("Image has no thumbnail"), image)
-                    thumbnail = Orientation = None
+                    thumbnail = orientation = None
                 else:
                     orientation = imageMetadata.orientation(missing=None)
                 display_queue.put((image_hbox.addImage, (self.thread_id, thumbnail, orientation, image,  imageDownloaded)))
