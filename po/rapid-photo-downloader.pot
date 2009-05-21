@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-05-21 13:46+0800\n"
+"POT-Creation-Date: 2009-05-21 21:07+0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1084,7 +1084,7 @@ msgstr ""
 #: rapid/glade3/rapid.glade.h:58
 msgid ""
 "Julien Valroff <julien@kirya.net>\n"
-"Michal <mpredotka@googlemail.com>"
+"Michal Predotka <mpredotka@googlemail.com>"
 msgstr ""
 
 #: rapid/glade3/rapid.glade.h:60
