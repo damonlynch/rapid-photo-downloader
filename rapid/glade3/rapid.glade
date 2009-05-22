@@ -2211,7 +2211,7 @@ Michal Predotka &lt;mpredotka@googlemail.com&gt;</property>
                   <widget class="GtkMenu" id="menuitem7_menu">
                     <child>
                       <widget class="GtkImageMenuItem" id="menu_download_pause">
-                        <property name="label">Download / Pause</property>
+                        <property name="label" translatable="yes">Download / Pause</property>
                         <property name="visible">True</property>
                         <property name="use_stock">False</property>
                         <signal name="activate" handler="on_download_button_clicked"/>
@@ -2226,7 +2226,7 @@ Michal Predotka &lt;mpredotka@googlemail.com&gt;</property>
                     </child>
                     <child>
                       <widget class="GtkImageMenuItem" id="menu_resequence">
-                        <property name="label">Resequence</property>
+                        <property name="label" translatable="yes">Resequence</property>
                         <property name="use_stock">False</property>
                         <accelerator key="E" signal="activate" modifiers="GDK_CONTROL_MASK"/>
                         <child internal-child="image">

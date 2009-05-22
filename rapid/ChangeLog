@@ -51,6 +51,9 @@ Bug fix: don't download from volumes mounted while the program is already
 running unless auto detection is specified. This bug could occur when auto
 detection was enabled, then disabled, and then a volume was mounted.
 
+Bug fix: don't crash when a thumbnail image is missing and the 'orientation'
+variable has not yet been assigned.
+
 
 Version 0.0.8
 -------------
