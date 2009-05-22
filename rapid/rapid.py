@@ -617,7 +617,7 @@ class PreferencesDialog(gnomeglade.Component):
         # get example image data
         
         try:
-            w = workers.firstWorkerReadyToStart()
+            w = workers.firstWorkerReadyToDownload()
             root, self.sampleImageName = w.firstImage()
             image = os.path.join(root, self.sampleImageName)
             self.sampleImage = metadata.MetaData(image)

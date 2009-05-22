@@ -343,7 +343,7 @@ class DummyMetaData(MetaData):
         return '730402168'
         
     def shutterCount(self,  missing=''):
-        return '3487'
+        return '387'
         
     def ownerName(self,  missing=''):
         return 'Photographer Name'
