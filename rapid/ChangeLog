@@ -11,11 +11,20 @@ Updated man page to reflect recent program changes and new command line options.
 Prepared program for translation into other languages. Thanks go to Mark Mruss 
 and his blog http://www.learningpython.com for code examples and explanations.
 
+To install the program using python setup.py, the program msgfmt must now be
+present. On most Linux distributions, this is found in the package gettext.
+
+Updated INSTALL file to reflect minimum version of pyexiv2 needed, and included
+information about handling any error related to msgfmt not being installed.
+
 Minor fixes to logic that checks whether the Download button should be disabled
-or not.
+or not. It should now be more reliable.
 
 Bug fix: error log window can now be reopened after being closed with the "x" 
 button. Thanks go to ESR and his python FAQ entry for this fix.
+
+Bug fix: example of subfolder name now has word wrap. Thanks go to Michal
+Predotka for reporting this.
 
 
 Version 0.0.9 beta 2

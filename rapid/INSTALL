@@ -8,7 +8,7 @@ Rapid Photo Downloader depends on the following software:
 - python-glade2 2.10 
 - gnome-python 2.10
 - libexiv2 0.15
-- pyexiv2 0.1.2
+- pyexiv2 0.1.1
 
 To run Rapid Photo Downloader you will need all the software mentioned above. To
 start from a fairly basic system, I suggest the following:
@@ -31,3 +31,6 @@ start from a fairly basic system, I suggest the following:
 
    sudo python setup.py install
 
+   If you get an error saying 'Error while running msgfmt', you will need to
+   install the gettext package on your system, which contains the msgfmt 
+   program.

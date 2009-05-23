@@ -48,7 +48,9 @@ class Base(object):
         """
         global _
         _ = Configi18n._
-        gtk.glade.bindtextdomain(config.APP_NAME, Configi18n.local_path)
+        if Configi18n.locale_path:
+            # this will not be none if the program is being run locally, i.e. has not been installed
+            gtk.glade.bindtextdomain(config.APP_NAME, Configi18n.locale_path)
         gtk.glade.textdomain(config.APP_NAME)
         self.xml = gtk.glade.XML(file, root, typedict=override )
         handlers = {}

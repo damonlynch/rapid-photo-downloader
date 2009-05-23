@@ -37,8 +37,14 @@ class Configi18n:
     
     #Get the local directory since we are not installing anything
     local_path = os.path.realpath(os.path.dirname(sys.argv[0]))
-
     local_path = os.path.join(local_path,  'locale')
+    
+    if local_path.find('/usr') == 0:
+        # code has been installed
+        # use system wide i10n messages
+        locale_path = None
+    else:
+        locale_path = local_path
     
     # Init the list of languages to support
     langs = []
@@ -60,10 +66,10 @@ class Configi18n:
     # to try to use.  First we check the default, then what the system
     # told us, and finally the 'known' list
 
-    gettext.bindtextdomain(config.APP_NAME, local_path)
+    gettext.bindtextdomain(config.APP_NAME, locale_path)
     gettext.textdomain(config.APP_NAME)
     # Get the language to use
-    lang = gettext.translation(config.APP_NAME, local_path, languages=langs, fallback = True)
+    lang = gettext.translation(config.APP_NAME, locale_path, languages=langs, fallback = True)
     # Install the language, map _() (which we marked our
     # strings to translate with) to self.lang.gettext() which will
     # translate them.
