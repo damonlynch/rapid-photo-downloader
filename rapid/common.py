@@ -31,20 +31,16 @@ import gettext
 class Configi18n:
     """ Setup translation
     
-    Adapated from code example of Mark Mruss http://www.learningpython.com"""
+    Adapated from code example of Mark Mruss http://www.learningpython.com.
+    Unlike his example, this code uses a local locale directory only if the environment
+    variable LOCALEDIR has been set to some or other value.
+    """
     
     # Do not put this code block in __init__, because it needs to be run only once
-    
-    #Get the local directory since we are not installing anything
-    local_path = os.path.realpath(os.path.dirname(sys.argv[0]))
-    local_path = os.path.join(local_path,  'locale')
-    
-    if local_path.find('/usr') == 0:
-        # code has been installed
-        # use system wide i10n messages
-        locale_path = None
-    else:
-        locale_path = local_path
+
+    # if the evironment value 'LOCAELDIR' is set, then use this as the source of translation data
+    # otherwise, rely on the system-wide data
+    locale_path = os.environ.get('LOCALEDIR', None)
     
     # Init the list of languages to support
     langs = []
