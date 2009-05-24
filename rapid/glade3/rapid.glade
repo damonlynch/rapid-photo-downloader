@@ -118,7 +118,7 @@
                         <child>
                           <widget class="GtkTable" id="download_folder_table">
                             <property name="visible">True</property>
-                            <property name="n_rows">6</property>
+                            <property name="n_rows">7</property>
                             <property name="n_columns">3</property>
                             <child>
                               <widget class="GtkVBox" id="subfolder_vbox">
@@ -141,7 +141,6 @@
                                 <property name="xalign">0</property>
                                 <property name="label" translatable="yes">&lt;i&gt;Example: /home/user/photos&lt;/i&gt;</property>
                                 <property name="use_markup">True</property>
-                                <property name="wrap">True</property>
                               </widget>
                               <packing>
                                 <property name="left_attach">1</property>
@@ -207,6 +206,25 @@
                                 <property name="right_attach">3</property>
                                 <property name="y_options"></property>
                               </packing>
+                            </child>
+                            <child>
+                              <widget class="GtkLabel" id="subfolder_warning_label">
+                                <property name="visible">True</property>
+                                <property name="xalign">0</property>
+                                <property name="yalign">0</property>
+                                <property name="wrap">True</property>
+                                <property name="wrap_mode">word-char</property>
+                              </widget>
+                              <packing>
+                                <property name="left_attach">1</property>
+                                <property name="right_attach">3</property>
+                                <property name="top_attach">6</property>
+                                <property name="bottom_attach">7</property>
+                                <property name="y_options"></property>
+                              </packing>
+                            </child>
+                            <child>
+                              <placeholder/>
                             </child>
                             <child>
                               <placeholder/>

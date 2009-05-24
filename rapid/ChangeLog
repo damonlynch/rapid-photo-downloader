@@ -18,10 +18,10 @@ Updated INSTALL file to reflect minimum version of pyexiv2 needed, and included
 information about handling any error related to msgfmt not being installed.
 
 Minor fixes to logic that checks whether the Download button should be disabled
-or not. It should now be more reliable.
+or not. This should now be more reliable.
 
 Bug fix: error log window can now be reopened after being closed with the "x" 
-button. Thanks go to ESR and his python FAQ entry for this fix.
+button. Thanks go to ESR and his Python FAQ entry for this fix.
 
 Bug fix: example of subfolder name now has word wrap. Thanks go to Michal
 Predotka for reporting this.
