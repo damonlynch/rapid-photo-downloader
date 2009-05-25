@@ -1,7 +1,7 @@
 Version 0.0.9 beta 3
 --------------------
 
-2009-05-?
+2009-05-25
 
 Added command line options for controlling verbosity, displaying which image
 file types are recognized, and printing the program version.
@@ -10,6 +10,9 @@ Updated man page to reflect recent program changes and new command line options.
 
 Prepared program for translation into other languages. Thanks go to Mark Mruss 
 and his blog http://www.learningpython.com for code examples and explanations.
+
+Polish translation by Michal Predotka. Coming soon: French, German and
+Spanish translations.
 
 To install the program using python setup.py, the program msgfmt must now be
 present. On most Linux distributions, this is found in the package gettext.
@@ -25,6 +28,9 @@ button. Thanks go to ESR and his Python FAQ entry for this fix.
 
 Bug fix: example of subfolder name now has word wrap. Thanks go to Michal
 Predotka for reporting this.
+
+Bug fix: don't crash when a thumbnail image is missing and the 'orientation'
+variable has not yet been assigned.
 
 
 Version 0.0.9 beta 2
@@ -60,8 +66,6 @@ Bug fix: don't download from volumes mounted while the program is already
 running unless auto detection is specified. This bug could occur when auto
 detection was enabled, then disabled, and then a volume was mounted.
 
-Bug fix: don't crash when a thumbnail image is missing and the 'orientation'
-variable has not yet been assigned.
 
 
 Version 0.0.8
