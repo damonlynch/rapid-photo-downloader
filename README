@@ -17,11 +17,23 @@ Canon 20D and 300D.
 
 For more information see http://damonlynch.net/rapid
 
-Please feel welcome to contribute anything to help make this project a success: 
-feature suggestions, bug reports, code, artwork, translations, and documentation
-are all needed!
+Please report any bug or unexepcted behaviour here:
 
+https://launchpad.net/rapid/+filebug
 
+Furthermore, please feel welcome to contribute anything to help this program
+reach more people: translations, feature suggestions, code, artwork, and
+documentation can always be improved!
+
+Installation
+============
+
+See the INSTALL file in the directory rapid.
+
+Documentation
+=============
+
+See http://damonlynch.net/rapid/documentation
 
 Running the program
 ===================
