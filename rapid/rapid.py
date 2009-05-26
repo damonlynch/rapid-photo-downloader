@@ -2189,8 +2189,8 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
                 
                 else:
                     cmd_line(_("This version of the program is newer than the previously run version. Checking preferences."))
-                    if True:
-    #                if rn.checkPreferencesForValidity(self.prefs.image_rename,  self.prefs.subfolder,  previousVersion):
+#                    if True:
+                    if rn.checkPreferencesForValidity(self.prefs.image_rename,  self.prefs.subfolder,  previousVersion):
                         upgraded,  imageRename,  subfolder = rn.upgradePreferencesToCurrent(self.prefs.image_rename,  self.prefs.subfolder,  previousVersion)
                         if upgraded:
                             self.prefs.image_rename = imageRename
@@ -2203,6 +2203,7 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
                             cmd_line(_("No preferences needed to be changed."))
                     else:
                         msg = _('This version of the program uses different preferences than the old version. Some of your previous preferences were invalid, and could not be updated. They will be reset.')
+                        sys.stderr.write(msg + "\n")
                         misc.run_dialog(title,  msg)
                         displayPrefs = True
 
