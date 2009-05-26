@@ -1148,12 +1148,14 @@ class CopyPhotos(Thread):
             self.handlePreferencesError(e, self.imageRenamePrefsFactory)
             raise rn.PrefError
             
-        try:
-            self.subfolderPrefsFactory = rn.SubfolderPreferences(
-                                                self.prefs.subfolder, self)    
+
+        self.subfolderPrefsFactory = rn.SubfolderPreferences(
+                                                self.prefs.subfolder, self)
+        try:            
+            self.subfolderPrefsFactory.checkPrefsForValidity()
         except (rn.PrefValueInvalidError, rn.PrefLengthError, 
                 rn.PrefValueKeyComboError,  rn.PrefKeyError), e:
-            self.handlePreferencesError(e, self.imageRenamePrefsFactory)
+            self.handlePreferencesError(e, self.subfolderPrefsFactory)
             raise rn.PrefError
                                                 
         # copy this variable, as it is used heavily in the loop
@@ -1195,6 +1197,18 @@ class CopyPhotos(Thread):
             3.b  if so, user preferences determine whether it should be overwritten or not
         """
 
+        def getPrefs():
+            try:
+                self.initializeFromPrefs()
+                return True
+            except rn.PrefError:
+                display_queue.put((media_collection_treeview.removeCard,  (self.thread_id, )))
+                msg = _("There is an error in the program preferences.\nPlease check preferences, restart the program, and try again.")
+                logError(config.CRITICAL_ERROR, _("Download cannot proceed"), msg)
+                cmd_line(_("Download cannot proceed"))
+                cmd_line(msg)
+                display_queue.close("rw")            
+                return False
         def scanMedia():
             
             images = []
@@ -1558,11 +1572,8 @@ class CopyPhotos(Thread):
         self.hasStarted = True
         display_queue.open('w')
 
-        try:
-            self.initializeFromPrefs()
-        except rn.PrefError:
-            logError(config.CRITICAL_ERROR, _("Download cannot proceed"), _("There is an error in the program preferences.\nPlease check preferences, restart the program, and try again."))
-            display_queue.close("rw")
+        if not getPrefs():
+            self.running = False
             return
             
         
@@ -1597,7 +1608,11 @@ class CopyPhotos(Thread):
                 return
 
             self.running = True
-            
+        
+        if not getPrefs():
+                self.running = False
+                return
+                
         self.downloadStarted = True
         cmd_line(_("Download has started from %s") % self.cardMedia.prettyName(limit=0))
         

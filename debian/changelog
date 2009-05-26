@@ -1,3 +1,21 @@
+rapid-photo-downloader (0.0.9~b3-0ubuntu1~ppa1) hardy; urgency=low
+
+  * Added command line options
+
+  * Updated man page
+
+  * Prepared program for translation into other languages
+
+  * Added Polish translation by Michal Predotka
+
+  * error log window can now be reopened after being closed with the "x"
+
+  * example of subfolder name now has word wrap
+
+  * don't crash when a thumbnail image is missing
+
+ -- Damon Lynch <damonlynch@gmail.com>  Mon, 25 May 2009 11:50:15 +0800
+
 rapid-photo-downloader (0.0.9~b2-0ubuntu1~ppa1) hardy; urgency=low
 
   * experimental support for direct downloading from cameras

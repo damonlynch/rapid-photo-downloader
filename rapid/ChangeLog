@@ -1,3 +1,14 @@
+Version 0.0.9 beta 4
+--------------------
+
+2009-05-26
+
+Bug fix: Changes in preferences should be applied to devices that have already
+been scanned. This bug was introduced in beta 2 when fixing bug #368098.
+
+Bug fix: check subfolder preferences for validity before beginning download. 
+While image rename preferences were checked, this check was neglected.
+
 Version 0.0.9 beta 3
 --------------------
 
