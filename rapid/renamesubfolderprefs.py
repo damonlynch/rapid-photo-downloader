@@ -156,14 +156,16 @@ SEQUENCE_NUMBER_6 = "Six digits"
 
 SUBSECONDS = 'Subseconds'
 
-#note if changing LIST_DATE_TIME_L2, update defaults in rapid.RapidPreferences
+# ****** note if changing LIST_DATE_TIME_L2, update the default subfolder preference below :D *****
 LIST_DATE_TIME_L2 = ['YYYYMMDD', 'YYYY-MM-DD','YYMMDD', 'YY-MM-DD', 
                     'MMDDYYYY', 'MMDDYY', 'MMDD', 
                     'DDMMYYYY', 'DDMMYY', 'YYYY', 'YY', 
                     'MM', 'DD', 
                     'HHMMSS', 'HHMM']
-                    
+
 LIST_IMAGE_DATE_TIME_L2 = LIST_DATE_TIME_L2 + [SUBSECONDS]
+
+DEFAULT_SUBFOLDER_PREFS = [DATE_TIME, IMAGE_DATE, LIST_DATE_TIME_L2[9],  '/',  '', '', DATE_TIME, IMAGE_DATE, LIST_DATE_TIME_L2[0]]
 
 class i18TranslateMeThanks:
     """ this class is never used in actual running code
@@ -628,6 +630,38 @@ def _checkPreferenceValid(prefDefinition, prefs):
                 return True
     else:
         raise PrefKeyError((key, prefDefinition[ORDER_KEY]))
+
+def filterSubfolderPreferences(prefList):
+    """
+    Filters out extraneous preference choices
+    """
+    prefs_changed = False
+    continueCheck = True
+    while continueCheck and prefList:
+        continueCheck = False
+        if prefList[0] == SEPARATOR:
+            # Subfolder preferences should not start with a /
+            prefList = prefList[3:]
+            prefs_changed = True
+            continueCheck = True
+        elif prefList[-3] == SEPARATOR:
+            # Subfolder preferences should not end with a /
+            prefList = prefList[:-3]
+            continueCheck = True
+            prefs_changed = True
+        else:
+            for i in range(0, len(prefList) - 3, 3):
+                if prefList[i] == SEPARATOR and prefList[i+3] == SEPARATOR:
+                    # Subfolder preferences should not contain two /s side by side
+                    continueCheck = True
+                    prefs_changed = True
+                    # note we are messing with the contents of the pref list,
+                    # must exit loop and try again
+                    prefList = prefList[:i] + prefList[i+3:]
+                    break
+                    
+    return (prefs_changed,  prefList)
+
 
 class PrefError(Exception):
     """ base class """
@@ -1221,8 +1255,8 @@ class ImageRenamePreferences:
 class SubfolderPreferences(ImageRenamePreferences):
     def __init__(self, prefList, parent):
         self.prefsDefnL0 = DICT_SUBFOLDER_L0
-        self.defaultPrefs = [DATE_TIME, IMAGE_DATE, LIST_DATE_TIME_L2[0]]
-        self.defaultRow = self.defaultPrefs
+        self.defaultPrefs = DEFAULT_SUBFOLDER_PREFS
+        self.defaultRow = [DATE_TIME, IMAGE_DATE, LIST_DATE_TIME_L2[0]]
         self.stripForwardSlash = False
         ImageRenamePreferences.__init__(self, prefList, parent)
         
@@ -1248,6 +1282,11 @@ class SubfolderPreferences(ImageRenamePreferences):
             
         return (subfolders, problem)
 
+    def filterPreferences(self):
+        filtered,  prefList = filterSubfolderPreferences(self.prefList)
+        if filtered:
+            self.prefList = prefList
+            
     def needMetaDataToCreateUniqueName(self):
         """
         Returns True if metadata is essential to properly generate subfolders
@@ -1261,33 +1300,8 @@ class SubfolderPreferences(ImageRenamePreferences):
                     
         return False
 
-    def filterPreferences(self):
-        """
-        Filters out extraneous preference choices
-        """
-        continueCheck = True
-        while continueCheck:
-            continueCheck = False
-            if self.prefList[0] == SEPARATOR:
-                # Subfolder preferences should not start with a /
-                self.prefList = self.prefList[3:]
-                continueCheck = True
-            elif self.prefList[-3] == SEPARATOR:
-                # Subfolder preferences should not end with a /
-                self.prefList = self.prefList[:-3]
-                continueCheck = True
-            else:
-                for i in range(0, len(self.prefList) - 3, 3):
-                    if self.prefList[i] == SEPARATOR and self.prefList[i+3] == SEPARATOR:
-                        # Subfolder preferences should not contain two /s side by side
-                        continueCheck = True
-                        # note we are messing with the contents of the pref list,
-                        # must exit loop and try again
-                        self.prefList = self.prefList[:i] + self.prefList[i+3:]
-                        break
                         
-                
-                
+
 
     def checkPrefsForValidity(self):
         """
@@ -1304,7 +1318,7 @@ class SubfolderPreferences(ImageRenamePreferences):
             # 2. do not end with a separator
             # 3. do not have two separators in a row
             # these three rules will ensure something else other than a 
-            # separator is spcified
+            # separator is specified
             L1s = []
             for i in range(0, len(self.prefList), 3):
                 L1s.append(self.prefList[i])

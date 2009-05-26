@@ -1,13 +1,24 @@
 Version 0.0.9 beta 4
 --------------------
 
-2009-05-26
+2009-05-27
+
+Added Spanish translation by Jose Luis Navarro and Abel O'Rian.
+
+Whenever subfolder preferences are modified in the Preferences Dialog window,
+they are now checked to see if they contain any extraneous entries. If 
+necessary, any entries like this are removed when the dialog window is closed.
 
 Bug fix: Changes in preferences should be applied to devices that have already
-been scanned. This bug was introduced in beta 2 when fixing bug #368098.
+been scanned, but their images not yet downloaded. This bug was introduced in 
+beta 2 when fixing bug #368098.
 
 Bug fix: check subfolder preferences for validity before beginning download. 
 While image rename preferences were checked, this check was neglected.
+
+Bug fix: do not allow automatic downloading when there is an error in the
+preferences.
+
 
 Version 0.0.9 beta 3
 --------------------

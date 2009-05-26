@@ -337,15 +337,7 @@ class RapidPreferences(prefs.Preferences):
         "program_version": prefs.Value(prefs.STRING, ""),
         "download_folder":  prefs.Value(prefs.STRING, 
                                         getDefaultPhotoLocation()),
-        "subfolder": prefs.ListValue(prefs.STRING_LIST, [rn.DATE_TIME,  
-                                                rn.IMAGE_DATE,
-                                                rn.LIST_DATE_TIME_L2[9], 
-                                                rn.SEPARATOR,
-                                                '', '', 
-                                                rn.DATE_TIME,
-                                                rn.IMAGE_DATE, 
-                                                rn.LIST_DATE_TIME_L2[0]],
-                                                ),
+        "subfolder": prefs.ListValue(prefs.STRING_LIST, rn.DEFAULT_SUBFOLDER_PREFS),
         "image_rename": prefs.ListValue(prefs.STRING_LIST, [rn.FILENAME, 
                                         rn.NAME_EXTENSION,
                                         rn.ORIGINAL_CASE]),
@@ -930,8 +922,22 @@ class PreferencesDialog(gnomeglade.Component):
             self.updateImageRenameExample()
 
     def on_response(self, dialog, arg):
-        if arg==gtk.RESPONSE_CLOSE:
-            self.prefs.backup_identifier = self.backup_identifier_entry.get_property("text")
+#        if arg==gtk.RESPONSE_CLOSE:
+        self.prefs.backup_identifier = self.backup_identifier_entry.get_property("text")
+        
+        #check subfolder preferences for bad values
+        filtered,  prefList = rn.filterSubfolderPreferences(self.prefs.subfolder)
+        if filtered:
+            cmd_line(_("The subfolder preferences had some unnecessary values removed."))
+            if prefList:
+                self.prefs.subfolder = prefList
+            else:
+                #Preferences list is now empty
+                msg = _("The subfolder preferences entered are invalid and cannot be used.\nThey will be reset to their default values.")
+                sys.stderr.write(msg + "\n")
+                misc.run_dialog(PROGRAM_NAME, msg)
+                self.prefs.subfolder = self.prefs.get_default("subfolder")
+                
         self.widget.destroy()
 
     def on_auto_startup_checkbutton_toggled(self, checkbutton):
@@ -986,12 +992,6 @@ class PreferencesDialog(gnomeglade.Component):
             self.prefs.download_conflict_resolution = config.ADD_UNIQUE_IDENTIFIER
         else:
             self.prefs.download_conflict_resolution = config.SKIP_DOWNLOAD
-
-    def on_memory_card_radiobutton_toggled(self, widget):
-        if widget.get_active():
-            self.prefs.media_type = config.MEMORY_CARD
-        else:
-            self.prefs.media_type = config.PORTABLE_STORAGE_DEVICE
             
 
     def updateDeviceControls(self):
@@ -1133,7 +1133,7 @@ class CopyPhotos(Thread):
             msg = str(e)
             sys.stderr.write(msg + "\n")
         
-    def initializeFromPrefs(self):
+    def initializeFromPrefs(self,  notifyOnError):
         """
         Setup thread so that user preferences are handled
         """
@@ -1145,7 +1145,8 @@ class CopyPhotos(Thread):
             self.imageRenamePrefsFactory.checkPrefsForValidity()
         except (rn.PrefValueInvalidError, rn.PrefLengthError, 
                 rn.PrefValueKeyComboError,  rn.PrefKeyError), e:
-            self.handlePreferencesError(e, self.imageRenamePrefsFactory)
+            if notifyOnError:
+                self.handlePreferencesError(e, self.imageRenamePrefsFactory)
             raise rn.PrefError
             
 
@@ -1155,7 +1156,8 @@ class CopyPhotos(Thread):
             self.subfolderPrefsFactory.checkPrefsForValidity()
         except (rn.PrefValueInvalidError, rn.PrefLengthError, 
                 rn.PrefValueKeyComboError,  rn.PrefKeyError), e:
-            self.handlePreferencesError(e, self.subfolderPrefsFactory)
+            if notifyOnError:
+                self.handlePreferencesError(e, self.subfolderPrefsFactory)
             raise rn.PrefError
                                                 
         # copy this variable, as it is used heavily in the loop
@@ -1197,17 +1199,18 @@ class CopyPhotos(Thread):
             3.b  if so, user preferences determine whether it should be overwritten or not
         """
 
-        def getPrefs():
+        def getPrefs(notifyOnError):
             try:
-                self.initializeFromPrefs()
+                self.initializeFromPrefs(notifyOnError)
                 return True
             except rn.PrefError:
-                display_queue.put((media_collection_treeview.removeCard,  (self.thread_id, )))
-                msg = _("There is an error in the program preferences.\nPlease check preferences, restart the program, and try again.")
-                logError(config.CRITICAL_ERROR, _("Download cannot proceed"), msg)
-                cmd_line(_("Download cannot proceed"))
-                cmd_line(msg)
-                display_queue.close("rw")            
+                if notifyOnError:
+                    display_queue.put((media_collection_treeview.removeCard,  (self.thread_id, )))
+                    msg = _("There is an error in the program preferences.")
+                    msg += _("\nPlease check preferences, restart the program, and try again.")
+                    logError(config.CRITICAL_ERROR, _("Download cannot proceed"), msg)
+                    cmd_line(_("Download cannot proceed"))
+                    cmd_line(msg) 
                 return False
         def scanMedia():
             
@@ -1572,10 +1575,8 @@ class CopyPhotos(Thread):
         self.hasStarted = True
         display_queue.open('w')
 
-        if not getPrefs():
-            self.running = False
-            return
-            
+        #Do not try to handle any preference errors here
+        getPrefs(False)
         
         #check for presence of backup meditum
         if self.prefs.backup_images:
@@ -1609,8 +1610,9 @@ class CopyPhotos(Thread):
 
             self.running = True
         
-        if not getPrefs():
+        if not getPrefs(True):
                 self.running = False
+                display_queue.close("rw")           
                 return
                 
         self.downloadStarted = True
@@ -2052,6 +2054,8 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
         self.error_image.hide()
         self.warning_image.hide()
         
+        if not displayPreferences:
+            displayPreferences = not self.checkPreferencesOnStartup()
         
         # display download information using threads
         global media_collection_treeview, image_hbox, log_dialog
@@ -2119,7 +2123,7 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
         self.menu_display_thumbnails.set_active(self.prefs.display_thumbnails)
         self.menu_clear.set_sensitive(False)
         
-        self.setupAvailableImageAndBackupMedia(onStartup=True,  onPreferenceChange=False)
+        self.setupAvailableImageAndBackupMedia(onStartup=True,  onPreferenceChange=False,  doNotAllowAutoStart = displayPreferences)
 
         #adjust viewport size for displaying media
         #this is important because the code in MediaTreeView.addCard() is inaccurate at program startup
@@ -2155,6 +2159,17 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
         self.prefs.image_rename = r
         
     
+    
+    def checkPreferencesOnStartup(self):
+        prefsOk = rn.checkPreferencesForValidity(self.prefs.image_rename,  self.prefs.subfolder)
+        if not prefsOk:
+            title = PROGRAM_NAME
+            msg = _("There is an error in the program preferences.")
+            msg += " " + _("Some preferences will be reset.") 
+            sys.stderr.write(msg +'\n')
+#            misc.run_dialog(title, msg)
+        return prefsOk
+        
     def checkForUpgrade(self,  runningVersion):
         """ Checks if the running version of the program is different from the version recorded in the preferences.
         
@@ -2417,7 +2432,7 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
         else:
             cmd_line(_("Automatically start download is false") )
         
-    def setupAvailableImageAndBackupMedia(self,  onStartup,  onPreferenceChange):
+    def setupAvailableImageAndBackupMedia(self,  onStartup,  onPreferenceChange,  doNotAllowAutoStart):
         """
         Creates a list of CardMedia
         
@@ -2481,7 +2496,10 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
         # add each memory card / other device to the list of threads
         j = workers.getNextThread_id()
         
-        autoStart = (not onPreferenceChange) and ((self.prefs.auto_download_at_startup and onStartup) or (self.prefs.auto_download_upon_device_insertion and not onStartup))
+        if doNotAllowAutoStart:
+            autoStart = False
+        else:
+            autoStart = (not onPreferenceChange) and ((self.prefs.auto_download_at_startup and onStartup) or (self.prefs.auto_download_upon_device_insertion and not onStartup))
         
         self._printAutoStart(autoStart)
 
@@ -2780,8 +2798,6 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
 
         if key == 'display_thumbnails':
             self.set_display_thumbnails(value)
-        elif key == 'media_type':
-            self.set_media_device_display(value)
         elif key == 'show_log_dialog':
             self.menu_log_window.set_active(value)
         elif key in ['device_autodetection', 'device_autodetection_psd', 'backup_images',  'device_location',
@@ -2789,7 +2805,7 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
             if self.usingVolumeMonitor():
                 self.startVolumeMonitor()
             cmd_line("\n" + _("Preferences were changed."))
-            self.setupAvailableImageAndBackupMedia(onStartup = False,  onPreferenceChange = True)
+            self.setupAvailableImageAndBackupMedia(onStartup = False,  onPreferenceChange = True,  doNotAllowAutoStart = False)
             if is_beta and verbose:
                 print "Current worker status:"
                 workers.printWorkerStatus()
