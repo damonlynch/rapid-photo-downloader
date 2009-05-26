@@ -1,3 +1,11 @@
+rapid-photo-downloader (0.0.9~b4-0ubuntu1~ppa1) jaunty; urgency=low
+
+  * Added Spanish translation
+
+  * Fixes related to handling preference errors
+
+ -- Damon Lynch <damonlynch@gmail.com>  Tue, 26 May 2009 22:44:30 +0800
+
 rapid-photo-downloader (0.0.9~b3-0ubuntu1~ppa1) hardy; urgency=low
 
   * Added command line options

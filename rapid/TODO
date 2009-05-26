@@ -9,13 +9,8 @@ For major release (0.10.0):
 * handle unexpected media removal, disk full, all kinds of write errors
 * indicate different levels of error better in log window
 * sum amount of images to be downloaded, and how much free space on the file system
-* check to see if preferences are valid when clicking close on preferences dialog
-* check to see if preferences are valid when starting the application
 * check download locations and sources still valid when starting the application
 * rework checkPrefsForValidity() to account for multiple subfolder problems
-
-
-
 
 For future releases:
 ====================
