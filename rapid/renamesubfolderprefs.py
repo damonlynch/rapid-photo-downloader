@@ -62,11 +62,12 @@ from common import Configi18n
 global _
 _ = Configi18n._
 
-
 import datetime
 
 import ValidatedEntry
 import config
+
+from common import pythonifyVersion
 
 # Special key in each dictionary which specifies the order of elements.
 # It is very important to have a consistent and rational order when displaying 
@@ -505,12 +506,16 @@ PREVIOUS_IMAGE_RENAME= {
 
 # Functions to work with above data
 
-def _getPrevPrefs(oldDefs,  previousVersion):
+def _getPrevPrefs(oldDefs,  currentDefs,  previousVersion):
     k = oldDefs.keys()
     # if there were other defns, we'd need to figure out which one
     # but currently, there are no others
     # there will be in future, and this code wil be updated then
-    return oldDefs[k[0]]
+    version_change = pythonifyVersion(k[0])
+    if pythonifyVersion(previousVersion) <= version_change:
+        return oldDefs[k[0]]
+    else:
+        return currentDefs
 
 def _upgradePreferencesToCurrent(prefs,  previousVersion):
     """ checks to see if preferences should be upgraded
@@ -561,7 +566,7 @@ def checkPreferencesForValidity(imageRenamePrefs,  subfolderPrefs,  version=conf
             return False
         return True
     else:
-        defn = _getPrevPrefs(PREVIOUS_IMAGE_RENAME,  version)
+        defn = _getPrevPrefs(PREVIOUS_IMAGE_RENAME,  DICT_IMAGE_RENAME_L0,  version)
         try:
             checkPreferenceValid(defn, imageRenamePrefs)
             checkPreferenceValid(DICT_SUBFOLDER_L0, subfolderPrefs)
