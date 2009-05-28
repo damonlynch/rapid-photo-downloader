@@ -1,3 +1,15 @@
+rapid-photo-downloader (0.0.9~b4-0ubuntu1~ppa3) hardy; urgency=low
+
+  * Build for hardy
+
+ -- Damon Lynch <damonlynch@gmail.com>  Wed, 27 May 2009 00:01:20 +0800
+
+rapid-photo-downloader (0.0.9~b4-0ubuntu1~ppa2) jaunty; urgency=low
+
+  * Include Spanish translation po file in tarball
+
+ -- Damon Lynch <damonlynch@gmail.com>  Tue, 26 May 2009 23:46:17 +0800
+
 rapid-photo-downloader (0.0.9~b4-0ubuntu1~ppa1) hardy; urgency=low
 
   * Added Spanish translation

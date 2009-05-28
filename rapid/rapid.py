@@ -922,23 +922,25 @@ class PreferencesDialog(gnomeglade.Component):
             self.updateImageRenameExample()
 
     def on_response(self, dialog, arg):
-#        if arg==gtk.RESPONSE_CLOSE:
-        self.prefs.backup_identifier = self.backup_identifier_entry.get_property("text")
-        
-        #check subfolder preferences for bad values
-        filtered,  prefList = rn.filterSubfolderPreferences(self.prefs.subfolder)
-        if filtered:
-            cmd_line(_("The subfolder preferences had some unnecessary values removed."))
-            if prefList:
-                self.prefs.subfolder = prefList
-            else:
-                #Preferences list is now empty
-                msg = _("The subfolder preferences entered are invalid and cannot be used.\nThey will be reset to their default values.")
-                sys.stderr.write(msg + "\n")
-                misc.run_dialog(PROGRAM_NAME, msg)
-                self.prefs.subfolder = self.prefs.get_default("subfolder")
-                
-        self.widget.destroy()
+        if arg==gtk.RESPONSE_CLOSE:
+            self.prefs.backup_identifier = self.backup_identifier_entry.get_property("text")
+            
+            #check subfolder preferences for bad values
+            filtered,  prefList = rn.filterSubfolderPreferences(self.prefs.subfolder)
+            if filtered:
+                cmd_line(_("The subfolder preferences had some unnecessary values removed."))
+                if prefList:
+                    self.prefs.subfolder = prefList
+                else:
+                    #Preferences list is now empty
+                    msg = _("The subfolder preferences entered are invalid and cannot be used.\nThey will be reset to their default values.")
+                    sys.stderr.write(msg + "\n")
+                    misc.run_dialog(PROGRAM_NAME, msg)
+                    self.prefs.subfolder = self.prefs.get_default("subfolder")
+                    
+            self.widget.destroy()
+        elif arg == gtk.RESPONSE_HELP:
+            webbrowser.open("http://www.damonlynch.net/rapid/documentation")
 
     def on_auto_startup_checkbutton_toggled(self, checkbutton):
         self.prefs.auto_download_at_startup = checkbutton.get_active()
