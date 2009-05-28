@@ -24,7 +24,9 @@
             <property name="spacing">2</property>
             <child>
               <widget class="GtkScrolledWindow" id="scrolled_window">
+                <property name="visible">True</property>
                 <property name="can_focus">True</property>
+                <property name="resize_mode">queue</property>
                 <property name="hscrollbar_policy">automatic</property>
                 <property name="vscrollbar_policy">automatic</property>
                 <property name="shadow_type">in</property>
@@ -55,6 +57,7 @@
                     <property name="spacing">12</property>
                     <child>
                       <widget class="GtkVBox" id="vbox6">
+                        <property name="visible">True</property>
                         <child>
                           <widget class="GtkHBox" id="hbox4">
                             <property name="visible">True</property>
@@ -283,6 +286,7 @@
                     <property name="spacing">12</property>
                     <child>
                       <widget class="GtkVBox" id="vbox7">
+                        <property name="visible">True</property>
                         <child>
                           <widget class="GtkHBox" id="hbox5">
                             <property name="visible">True</property>
@@ -348,7 +352,6 @@
                             <property name="spacing">12</property>
                             <child>
                               <widget class="GtkLabel" id="label42">
-                                <property name="visible">True</property>
                                 <property name="xalign">0</property>
                                 <property name="label" translatable="yes">&lt;b&gt;Image Rename&lt;/b&gt;</property>
                                 <property name="use_markup">True</property>
@@ -538,6 +541,7 @@
                     <property name="spacing">12</property>
                     <child>
                       <widget class="GtkVBox" id="vbox14">
+                        <property name="visible">True</property>
                         <child>
                           <widget class="GtkHBox" id="hbox18">
                             <property name="visible">True</property>
@@ -545,7 +549,7 @@
                             <child>
                               <widget class="GtkImage" id="image7">
                                 <property name="visible">True</property>
-                                <property name="stock">gtk-clear</property>
+                                <property name="icon_name">input-keyboard</property>
                               </widget>
                               <packing>
                                 <property name="expand">False</property>
@@ -941,6 +945,7 @@
                     <property name="spacing">12</property>
                     <child>
                       <widget class="GtkVBox" id="vbox3">
+                        <property name="visible">True</property>
                         <child>
                           <widget class="GtkHBox" id="hbox2">
                             <property name="visible">True</property>
@@ -948,7 +953,7 @@
                             <child>
                               <widget class="GtkImage" id="image6">
                                 <property name="visible">True</property>
-                                <property name="stock">gtk-orientation-portrait</property>
+                                <property name="icon_name">media-flash</property>
                               </widget>
                               <packing>
                                 <property name="expand">False</property>
@@ -993,7 +998,6 @@
                         <property name="spacing">12</property>
                         <child>
                           <widget class="GtkLabel" id="label41">
-                            <property name="visible">True</property>
                             <property name="xalign">0</property>
                             <property name="xpad">12</property>
                             <property name="label" translatable="yes">&lt;b&gt;Image Devices&lt;/b&gt;</property>
@@ -1008,10 +1012,12 @@
                           <widget class="GtkLabel" id="label18">
                             <property name="visible">True</property>
                             <property name="xalign">0</property>
-                            <property name="xpad">36</property>
-                            <property name="label" translatable="yes">Image devices are devices from which to download photos, such as memory cards or Portable Storage Devices.
+                            <property name="xpad">12</property>
+                            <property name="label" translatable="yes">Image devices are devices from which to download photos, such as cameras, memory cards or Portable Storage Devices.
 
-You can download photos from multiple image devices simultaneously.</property>
+You can download photos from multiple image devices simultaneously.
+
+&lt;i&gt;If downloading directly from your camera works poorly or not at all, try setting it to PTP mode. If that is not possible, consider using a card reader.&lt;/i&gt;</property>
                             <property name="use_markup">True</property>
                             <property name="wrap">True</property>
                           </widget>
@@ -1022,11 +1028,10 @@ You can download photos from multiple image devices simultaneously.</property>
                         <child>
                           <widget class="GtkHBox" id="hbox14">
                             <property name="visible">True</property>
-                            <property name="spacing">12</property>
                             <child>
                               <widget class="GtkLabel" id="label26">
                                 <property name="visible">True</property>
-                                <property name="xpad">12</property>
+                                <property name="xpad">3</property>
                               </widget>
                               <packing>
                                 <property name="expand">False</property>
@@ -1112,7 +1117,7 @@ You can download photos from multiple image devices simultaneously.</property>
                                   <widget class="GtkLabel" id="device_location_label">
                                     <property name="visible">True</property>
                                     <property name="xalign">0</property>
-                                    <property name="xpad">36</property>
+                                    <property name="xpad">12</property>
                                     <property name="label" translatable="yes">Image location:</property>
                                   </widget>
                                   <packing>
@@ -1127,7 +1132,7 @@ You can download photos from multiple image devices simultaneously.</property>
                                     <property name="visible">True</property>
                                     <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
                                     <property name="xalign">0</property>
-                                    <property name="xpad">36</property>
+                                    <property name="xpad">12</property>
                                     <property name="ypad">12</property>
                                     <property name="label" translatable="yes">If you disable automatic detection, choose the exact location of the images.</property>
                                     <property name="wrap">True</property>
@@ -1188,9 +1193,9 @@ You can download photos from multiple image devices simultaneously.</property>
                 <child>
                   <widget class="GtkVBox" id="backup_tab">
                     <property name="visible">True</property>
-                    <property name="spacing">12</property>
                     <child>
                       <widget class="GtkVBox" id="vbox2">
+                        <property name="visible">True</property>
                         <child>
                           <widget class="GtkHBox" id="hbox7">
                             <property name="visible">True</property>
@@ -1198,7 +1203,7 @@ You can download photos from multiple image devices simultaneously.</property>
                             <child>
                               <widget class="GtkImage" id="image8">
                                 <property name="visible">True</property>
-                                <property name="stock">gtk-harddisk</property>
+                                <property name="icon_name">drive-removable-media</property>
                               </widget>
                               <packing>
                                 <property name="expand">False</property>
@@ -1242,7 +1247,6 @@ You can download photos from multiple image devices simultaneously.</property>
                         <property name="visible">True</property>
                         <child>
                           <widget class="GtkLabel" id="label43">
-                            <property name="visible">True</property>
                             <property name="xalign">0</property>
                             <property name="xpad">12</property>
                             <property name="label" translatable="yes">&lt;b&gt;Backup&lt;/b&gt;</property>
@@ -1260,7 +1264,6 @@ You can download photos from multiple image devices simultaneously.</property>
                             <child>
                               <widget class="GtkLabel" id="label38">
                                 <property name="visible">True</property>
-                                <property name="xpad">12</property>
                               </widget>
                               <packing>
                                 <property name="expand">False</property>
@@ -1508,9 +1511,9 @@ You can download photos from multiple image devices simultaneously.</property>
                 <child>
                   <widget class="GtkVBox" id="automation_tab">
                     <property name="visible">True</property>
-                    <property name="spacing">12</property>
                     <child>
                       <widget class="GtkVBox" id="vbox4">
+                        <property name="visible">True</property>
                         <child>
                           <widget class="GtkHBox" id="hbox10">
                             <property name="visible">True</property>
@@ -1562,7 +1565,6 @@ You can download photos from multiple image devices simultaneously.</property>
                         <property name="visible">True</property>
                         <child>
                           <widget class="GtkLabel" id="label45">
-                            <property name="visible">True</property>
                             <property name="xalign">0</property>
                             <property name="xpad">12</property>
                             <property name="label" translatable="yes">&lt;b&gt;Program Automation&lt;/b&gt;</property>
@@ -1576,11 +1578,9 @@ You can download photos from multiple image devices simultaneously.</property>
                         <child>
                           <widget class="GtkHBox" id="hbox17">
                             <property name="visible">True</property>
-                            <property name="spacing">12</property>
+                            <property name="spacing">6</property>
                             <child>
-                              <widget class="GtkLabel" id="label34">
-                                <property name="visible">True</property>
-                              </widget>
+                              <widget class="GtkLabel" id="label34"/>
                               <packing>
                                 <property name="expand">False</property>
                                 <property name="position">0</property>
@@ -1730,6 +1730,7 @@ You can download photos from multiple image devices simultaneously.</property>
                     <property name="spacing">12</property>
                     <child>
                       <widget class="GtkVBox" id="vbox8">
+                        <property name="visible">True</property>
                         <child>
                           <widget class="GtkHBox" id="hbox13">
                             <property name="visible">True</property>

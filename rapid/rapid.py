@@ -602,7 +602,7 @@ class PreferencesDialog(gnomeglade.Component):
         self.widget.set_transient_for(parentApp.widget)
         self.prefs = parentApp.prefs
 
-#        self._setupTabSelector()
+        self._setupTabSelector()
         
         self._setupControlSpacing()
 
@@ -628,6 +628,18 @@ class PreferencesDialog(gnomeglade.Component):
         self._setupErrorTab()
 
         self.widget.show()
+        #set the width of the left column for selecting values
+        #note: this must be called after self.widget.show(), or else the width calculation will fail
+        width_of_widest_sel_row = self.treeview.get_background_area(1, self.treeview_column)[2]
+        self.scrolled_window.set_size_request(width_of_widest_sel_row + 2, -1)
+
+        #set the minimum width of the scolled window holding the image rename table
+        if self.rename_scrolledwindow.get_vscrollbar():
+            extra = self.rename_scrolledwindow.get_vscrollbar().allocation.width + 5
+        else:
+            extra = 5
+        self.rename_scrolledwindow.set_size_request(self.rename_table.allocation.width + extra,   -1)
+
 
 
     def on_preferencesdialog_destroy(self,  widget):
@@ -641,13 +653,17 @@ class PreferencesDialog(gnomeglade.Component):
         rentext = gtk.CellRendererText()
         column.pack_start(rentext, expand=0)
         column.set_attributes(rentext, text=0)
+        self.treeview_column = column
         self.treeview.append_column(column)
         self.treeview.props.model = self.model
         for c in self.notebook.get_children():
             label = self.notebook.get_tab_label(c).get_text()
             if not label.startswith("_"):
                 self.model.append( (label,) )
-        self.treeview.columns_autosize()                
+        
+
+        # select the first value in the list store
+        self.treeview.set_cursor(0,column)
     
     def on_download_folder_filechooser_button_selection_changed(self, widget):
         self.prefs.download_folder = widget.get_current_folder()

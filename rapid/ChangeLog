@@ -3,7 +3,11 @@ Version 0.0.9
 
 2009-05-2?
 
-Added Help button to Preferences dialog window.
+Added Help button to Preferences dialog window. Clicking it takes you to the
+documentation found online at the program's website.
+
+Revert Preferences Dialog Window back to a list control. With some translations,
+the dialog window was becoming too wide.
 
 Version 0.0.9 beta 4
 --------------------
