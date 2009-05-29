@@ -2200,8 +2200,10 @@ You should have received a copy of the GNU General Public License along with Rap
     <property name="translator_credits" translatable="yes" comments="TRANSLATORS: Replace this string with your names, one name per line.">Julien Valroff &lt;julien@kirya.net&gt;
 Michal Predotka &lt;mpredotka@googlemail.com&gt;
 Martin Egger &lt;martin.egger@gmx.net&gt;
+Daniel Plasser &lt;daniel@paessler.org&gt;
 Abel O'Rian &lt;abel.orian@gmail.com&gt;
-Jose Luis Navarro &lt;jlnavarro111@gmail.com&gt;</property>
+Jose Luis Navarro &lt;jlnavarro111@gmail.com&gt;
+Marco Solari &lt;marcosolari@gmail.com&gt;</property>
     <property name="logo">rapid-photo-downloader-about.png</property>
     <property name="wrap_license">True</property>
     <child internal-child="vbox">
