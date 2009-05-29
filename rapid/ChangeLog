@@ -6,13 +6,14 @@ Version 0.0.9
 Added Help button to Preferences dialog window. Clicking it takes you to the
 documentation found online at the program's website.
 
-Revert Preferences Dialog Window back to a list control. With some translations,
-the dialog window was becoming too wide. Additionally, it will now resize itself
-based on its content.
+The Preferences Dialog Window is now navigated using a list control, as it was
+in early versions of the program. With some translations, the dialog window was
+becoming too wide with the normal tab layout. Usability is much improved: it
+will now resize itself based on its content.
 
 Added Italian translation by Marco Solari.
 
-Added German translation by Martin Egger and Daniel Passler
+Added German translation by Martin Egger and Daniel Passler.
 
 
 Version 0.0.9 beta 4
