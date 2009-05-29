@@ -971,7 +971,10 @@ class PreferencesDialog(gnomeglade.Component):
             self.updateImageRenameExample()
 
     def on_response(self, dialog, arg):
-        if arg==gtk.RESPONSE_CLOSE:
+        if arg == gtk.RESPONSE_HELP:
+            webbrowser.open("http://www.damonlynch.net/rapid/documentation")
+        else:
+            # arg==gtk.RESPONSE_CLOSE, or the user hit the 'x' to close the window
             self.prefs.backup_identifier = self.backup_identifier_entry.get_property("text")
             
             #check subfolder preferences for bad values
@@ -988,8 +991,7 @@ class PreferencesDialog(gnomeglade.Component):
                     self.prefs.subfolder = self.prefs.get_default("subfolder")
                     
             self.widget.destroy()
-        elif arg == gtk.RESPONSE_HELP:
-            webbrowser.open("http://www.damonlynch.net/rapid/documentation")
+
 
     def on_auto_startup_checkbutton_toggled(self, checkbutton):
         self.prefs.auto_download_at_startup = checkbutton.get_active()
