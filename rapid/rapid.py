@@ -437,10 +437,18 @@ class RapidPreferences(prefs.Preferences):
 
 class ImageRenameTable(tpm.TablePlusMinus):
 
-    def __init__(self, parentApp):
+    def __init__(self, parentApp,  adjustScrollWindow):
   
         tpm.TablePlusMinus.__init__(self, 1, 3)
         self.parentApp = parentApp
+        self.adjustScrollWindow = adjustScrollWindow
+        if adjustScrollWindow:
+            self.connect("size-request", self.size_adjustment)
+            self.connect("add",  self.size_adjustment)
+            self.tableWidth = self.allocation.width
+            # vbar is '1' if there is not vertical scroll bar
+            # if there is  a vertical scroll bar, then it will have a the width of the bar
+            self.vbar = self.adjustScrollWindow.get_vscrollbar().allocation.width
 
         self.getParentAppPrefs()
         self.getPrefsFactory()
@@ -503,8 +511,31 @@ class ImageRenameTable(tpm.TablePlusMinus):
         self.prefsFactory.prefList = prefList
         self.updateExample()
             
+    
+    def size_adjustment(self,  arg1,  arg2):
+        """ Adjust scrolledwindow width in preferences dialog to reflect width of image rename table
+        
+        The algorithm is complicated by the need to tak into account the presence of a vertical scrollbar"""
+        
+        if self.adjustScrollWindow:
+            if self.adjustScrollWindow.get_vscrollbar().allocation.width > 1:
+                extra = self.adjustScrollWindow.get_vscrollbar().allocation.width + 10
+            else:
+                extra = 0
+            if self.vbar <= 1:
+                if self.allocation.width > self.tableWidth:
+                    self.adjustScrollWindow.set_size_request(self.allocation.width + extra,  -1) 
+                    self.tableWidth = self.allocation.width + extra
+            elif self.allocation.width - extra > self.tableWidth:
+                self.adjustScrollWindow.set_size_request(self.allocation.width + extra,  -1) 
+                self.tableWidth = self.allocation.width + extra
+            self.vbar = self.adjustScrollWindow.get_vscrollbar().allocation.width
+            
     def getParentAppPrefs(self):
         self.prefList = self.parentApp.prefs.image_rename
+        
+            
+        
     
     def getPrefsFactory(self):
         self.prefsFactory = rn.ImageRenamePreferences(self.prefList, self,  
@@ -553,6 +584,7 @@ class ImageRenameTable(tpm.TablePlusMinus):
                     self.attach(newWidget, i, i+1, rowPosition, rowPosition + 1)
                     newWidget.show()
         self.updatePreferences()
+
         
     def on_entry_changed(self, widget, rowPosition):
         self.updatePreferences()
@@ -563,8 +595,8 @@ class ImageRenameTable(tpm.TablePlusMinus):
         """
         self.updatePreferences()
         
-        # if this was the last row, and another has just been added, move vertical scrollbar down
-        if rowPosition == (self.pm_noRows - 2):
+        # if this was the last row or 2nd to last row, and another has just been added, move vertical scrollbar down
+        if rowPosition in range(self.pm_noRows - 3,  self.pm_noRows - 2):
             adjustment = self.parentApp.rename_scrolledwindow.get_vadjustment()
             adjustment.set_value(adjustment.upper)
         
@@ -576,9 +608,9 @@ class ImageRenameTable(tpm.TablePlusMinus):
         self.updatePreferences()        
 
 class SubfolderTable(ImageRenameTable):
-    def __init__(self, parentApp):    
+    def __init__(self, parentApp,  adjustScollWindow):    
         self.errorTitle = _("Error in Download Subfolder preferences")
-        ImageRenameTable.__init__(self,  parentApp)
+        ImageRenameTable.__init__(self,  parentApp,  adjustScollWindow)
 
     def getParentAppPrefs(self):
         self.prefList = self.parentApp.prefs.subfolder
@@ -628,6 +660,7 @@ class PreferencesDialog(gnomeglade.Component):
         self._setupErrorTab()
 
         self.widget.show()
+        
         #set the width of the left column for selecting values
         #note: this must be called after self.widget.show(), or else the width calculation will fail
         width_of_widest_sel_row = self.treeview.get_background_area(1, self.treeview_column)[2]
@@ -635,9 +668,9 @@ class PreferencesDialog(gnomeglade.Component):
 
         #set the minimum width of the scolled window holding the image rename table
         if self.rename_scrolledwindow.get_vscrollbar():
-            extra = self.rename_scrolledwindow.get_vscrollbar().allocation.width + 5
+            extra = self.rename_scrolledwindow.get_vscrollbar().allocation.width + 10
         else:
-            extra = 5
+            extra = 10
         self.rename_scrolledwindow.set_size_request(self.rename_table.allocation.width + extra,   -1)
 
 
@@ -704,7 +737,7 @@ class PreferencesDialog(gnomeglade.Component):
         table.set_col_spacing(1, hd.CONTROL_LABEL_SPACE)
 
     def _setupSubfolderTable(self):
-        self.subfolder_table = SubfolderTable(self)
+        self.subfolder_table = SubfolderTable(self,  None)
         self.subfolder_vbox.pack_start(self.subfolder_table)
         self.subfolder_table.show_all()
         
@@ -728,7 +761,7 @@ class PreferencesDialog(gnomeglade.Component):
     
     def _setupImageRenameTab(self):
 
-        self.rename_table = ImageRenameTable(self)
+        self.rename_table = ImageRenameTable(self,  self.rename_scrolledwindow)
         self.rename_table_vbox.pack_start(self.rename_table)
         self.rename_table.show_all()
         self.original_name_label.set_markup("<i>%s</i>" % self.sampleImageName)
