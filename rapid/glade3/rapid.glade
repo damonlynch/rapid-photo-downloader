@@ -2141,7 +2141,7 @@ You can download photos from multiple image devices simultaneously.
             <property name="layout_style">end</property>
             <child>
               <widget class="GtkButton" id="help_button">
-                <property name="label" translatable="yes">gtk-help</property>
+                <property name="label">gtk-help</property>
                 <property name="response_id">-11</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>

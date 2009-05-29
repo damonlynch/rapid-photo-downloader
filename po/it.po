@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2009-05-28 19:38+0800\n"
-"PO-Revision-Date: 2009-05-27 23:47+0000\n"
+"PO-Revision-Date: 2009-05-29 07:55+0000\n"
 "Last-Translator: Marco Solari <marcosolari@gmail.com>\n"
 "Language-Team: Italian <it@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2009-05-29 06:48+0000\n"
+"X-Launchpad-Export-Date: 2009-05-29 08:16+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #. Translators: if neccessary, for guidance in how to translate this program, you may see http://damonlynch.net/translate.html
@@ -683,17 +683,17 @@ msgstr "Marca della fotocamera"
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
 #: rapid/renamesubfolderprefs.py:203
 msgid "Camera model"
-msgstr "Modello della fotocamera"
+msgstr "Modello della fotocamera (es.: Canon EOS-1Ds Mark III)"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
 #: rapid/renamesubfolderprefs.py:205
 msgid "Short camera model"
-msgstr "Modello breve della fotocamera"
+msgstr "Modello brevissimo della fotocamera (es.: D300)"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
 #: rapid/renamesubfolderprefs.py:207
 msgid "Hyphenated short camera model"
-msgstr "Modello breve della fotocamera, compreso il nome dopo il trattino"
+msgstr "Modello breve della fotocamera (es.: DSC-P92)"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
 #: rapid/renamesubfolderprefs.py:209
@@ -1177,6 +1177,15 @@ msgid ""
 "setting it to PTP mode. If that is not possible, consider using a card "
 "reader.</i>"
 msgstr ""
+"I dispositivi immaginw sono dispositivi da cui scaricare fotografie, come "
+"macchine fotografiche, schede di memoria o dispositivi di memorizzazione "
+"portatili (PSD).\n"
+"\n"
+"Puoi scaricare fotografie da più dispositivi immagine contemporaneamente.\n"
+"\n"
+"<i>Se il download diretto dalla tua macchina fotografica funziona male o non "
+"funziona per niente, prova ad impostarla in modalità PTP. Se questo non "
+"fosse possibile, considera di utilizzare un lettore di schede di memoria.</i>"
 
 #: rapid/glade3/rapid.glade.h:58
 msgid "Image location:"
@@ -1384,7 +1393,7 @@ msgstr "_Visualizzazione"
 
 #: rapid/glade3/rapid.glade.h:104
 msgid "gtk-help"
-msgstr ""
+msgstr "Aiuto-gtk"
 
 #: rapid/glade3/rapid.glade.h:105
 msgid "translators please ignore this"
