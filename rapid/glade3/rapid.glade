@@ -1075,7 +1075,7 @@ You can download photos from multiple image devices simultaneously.
                                   </packing>
                                 </child>
                                 <child>
-                                  <widget class="GtkLabel" id="label55">
+                                  <widget class="GtkLabel" id="autodetect_image_devices_label">
                                     <property name="visible">True</property>
                                     <property name="xalign">0</property>
                                     <property name="ypad">6</property>

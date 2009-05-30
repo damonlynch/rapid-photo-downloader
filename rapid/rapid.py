@@ -1059,10 +1059,12 @@ class PreferencesDialog(gnomeglade.Component):
             for c in controls:
                 c.set_sensitive(False)
             self.autodetect_psd_checkbutton.set_sensitive(True)
+            self.autodetect_image_devices_label.set_sensitive(True)
         else:
             for c in controls:
                 c.set_sensitive(True)
             self.autodetect_psd_checkbutton.set_sensitive(False)
+            self.autodetect_image_devices_label.set_sensitive(False)
     
     def updateBackupControls(self):
         """
