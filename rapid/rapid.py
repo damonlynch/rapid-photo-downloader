@@ -659,10 +659,10 @@ class PreferencesDialog(gnomeglade.Component):
         self._setupAutomationTab()
         self._setupErrorTab()
 
-        self.widget.show()
+        self.widget.realize()
         
         #set the width of the left column for selecting values
-        #note: this must be called after self.widget.show(), or else the width calculation will fail
+        #note: this must be called after self.widget.realize(), or else the width calculation will fail
         width_of_widest_sel_row = self.treeview.get_background_area(1, self.treeview_column)[2]
         self.scrolled_window.set_size_request(width_of_widest_sel_row + 2, -1)
 
@@ -673,7 +673,7 @@ class PreferencesDialog(gnomeglade.Component):
             extra = 10
         self.rename_scrolledwindow.set_size_request(self.rename_table.allocation.width + extra,   -1)
 
-
+        self.widget.show()
 
     def on_preferencesdialog_destroy(self,  widget):
         """ Delete variables from memory that cause a file descriptor to be created on a mounted media"""

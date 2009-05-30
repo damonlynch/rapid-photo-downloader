@@ -15,6 +15,9 @@ Added Italian translation by Marco Solari and Luca Reverberi.
 
 Added German translation by Martin Egger and Daniel Passler.
 
+Allow better integration with Nautilus by setting MimeType=x-content/image-dcf
+in .desktop file.
+
 
 Version 0.0.9 beta 4
 --------------------
