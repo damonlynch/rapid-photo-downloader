@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2009-05-30 14:31+0800\n"
-"PO-Revision-Date: 2009-05-30 07:18+0000\n"
+"PO-Revision-Date: 2009-05-31 13:53+0000\n"
 "Last-Translator: Sergei Sedov <sedov@webmail.perm.ru>\n"
 "Language-Team: Russian <ru@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2009-05-30 09:36+0000\n"
+"X-Launchpad-Export-Date: 2009-05-31 14:20+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #. Translators: if neccessary, for guidance in how to translate this program, you may see http://damonlynch.net/translate.html
@@ -670,22 +670,22 @@ msgstr "Фокусное расстояние"
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
 #: rapid/renamesubfolderprefs.py:201
 msgid "Camera make"
-msgstr "Производитель фотоаппарата"
+msgstr "Производитель камеры"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
 #: rapid/renamesubfolderprefs.py:203
 msgid "Camera model"
-msgstr "Модель фотоаппарата"
+msgstr "Модель камеры"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
 #: rapid/renamesubfolderprefs.py:205
 msgid "Short camera model"
-msgstr "Сокращённое имя фотоаппарата"
+msgstr "Сокращённое название камеры"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
 #: rapid/renamesubfolderprefs.py:207
 msgid "Hyphenated short camera model"
-msgstr "Расширенное название модели фотоаппарата"
+msgstr "Расширенное название камеры"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
 #: rapid/renamesubfolderprefs.py:209
@@ -755,7 +755,7 @@ msgstr "Последние 4 цифры"
 #. Translators: please not the capitalization of this text, and keep it the same if your language features capitalization
 #: rapid/renamesubfolderprefs.py:235
 msgid "Original Case"
-msgstr "Регистр по умолчанию"
+msgstr "Исходный Регистр"
 
 #. Translators: please not the capitalization of this text, and keep it the same if your language features capitalization
 #: rapid/renamesubfolderprefs.py:237
