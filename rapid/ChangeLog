@@ -1,22 +1,27 @@
 Version 0.0.9
 -------------
 
-2009-05-2?
-
-A Help button has been added to Preferences dialog window. Clicking it takes you
-to the documentation found online at the program's website.
-
-The Preferences Dialog Window is now navigated using a list control, as it was
-in early versions of the program. With some translations, the dialog window was
-becoming too wide with the normal tab layout. Usability is improved: it will now
-resize itself based on its content.
+2009-05-31
 
 Added Italian translation by Marco Solari and Luca Reverberi.
 
 Added German translation by Martin Egger and Daniel Passler.
 
+Added Russian translation by Sergei Sedov.
+
+A Help button has been added to Preferences dialog window. Clicking it takes you
+to the documentation found online at the program's website. This documentation 
+is now complete.
+
+The Preferences Dialog Window is now navigated using a list control, as it was
+in early versions of the program. This change was necesseary because with some
+translations, the dialog window was becoming too wide with the normal tab 
+layout. Usability of the preferences dialog is improved: it will now resize 
+itself based on its content.
+
 Better integration with Nautilus is now possible through the setting of 
 MimeType=x-content/image-dcf in the program's .desktop file.
+
 
 
 Version 0.0.9 beta 4
@@ -39,6 +44,7 @@ While image rename preferences were checked, this check was neglected.
 
 Bug fix: do not allow automatic downloading when there is an error in the
 preferences.
+
 
 
 Version 0.0.9 beta 3
@@ -74,6 +80,7 @@ Predotka for reporting this.
 
 Bug fix: don't crash when a thumbnail image is missing and the 'orientation'
 variable has not yet been assigned.
+
 
 
 Version 0.0.9 beta 2
