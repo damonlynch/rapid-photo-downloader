@@ -1,13 +1,15 @@
 Version 0.0.9
 -------------
 
-2009-05-31
+2009-06-02
 
 Added Italian translation by Marco Solari and Luca Reverberi.
 
 Added German translation by Martin Egger and Daniel Passler.
 
 Added Russian translation by Sergei Sedov.
+
+Added Finnish translation by Mikko Ruohola.
 
 A Help button has been added to Preferences dialog window. Clicking it takes you
 to the documentation found online at the program's website. This documentation 
