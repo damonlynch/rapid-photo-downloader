@@ -2337,7 +2337,7 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
                 elif i == (v - 1) :
                     prefix = " " + _("and")  + " "
             i += 1
-            message = "%s%s'%s'" % (message,  prefix, self.backupVolumes[b].get_display_name())
+            message = "%s%s'%s'" % (message,  prefix, self.backupVolumes[b].get_name())
         
         if v > 1:
             message = _("Using backup devices") + " %s" % message
