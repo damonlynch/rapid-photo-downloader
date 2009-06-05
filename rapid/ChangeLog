@@ -1,3 +1,15 @@
+Version 0.0.10
+--------------
+
+2009-06-05
+
+Updated Russian translation by Sergei Sedov.
+
+Fixed bug #383028: program would crash when using an automatically configured 
+backup device and gvfs.
+
+
+
 Version 0.0.9
 -------------
 
