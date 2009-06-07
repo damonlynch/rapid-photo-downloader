@@ -364,6 +364,7 @@ class RapidPreferences(prefs.Preferences):
         "day_start": prefs.Value(prefs.STRING,  "03:00"), 
         "downloads_today": prefs.ListValue(prefs.STRING_LIST,  [today(),  '0']), 
          "stored_sequence_no": prefs.Value(prefs.INT,  0), 
+         "job_codes": prefs.ListValue(prefs.STRING_LIST,  ['New York',  'Manila',  'Wellington',  'Tehran', 'Kampala',  'Sydney',  'Washington D.C.',  'Moscow',  'Delhi',  'Jakarta'])
         }
 
     def __init__(self):
@@ -434,7 +435,12 @@ class RapidPreferences(prefs.Preferences):
             self.day_start = "0:0"
             return 0, 0
 
-
+    def getSampleJobCode(self):
+        if self.job_codes:
+            return self.job_codes[0]
+        else:
+            return ''
+            
 class ImageRenameTable(tpm.TablePlusMinus):
 
     def __init__(self, parentApp,  adjustScrollWindow):
@@ -534,8 +540,6 @@ class ImageRenameTable(tpm.TablePlusMinus):
     def getParentAppPrefs(self):
         self.prefList = self.parentApp.prefs.image_rename
         
-            
-        
     
     def getPrefsFactory(self):
         self.prefsFactory = rn.ImageRenamePreferences(self.prefList, self,  
@@ -543,6 +547,12 @@ class ImageRenameTable(tpm.TablePlusMinus):
         
     def updateParentAppPrefs(self):
         self.parentApp.prefs.image_rename = self.prefList
+        
+    def updateExampleJobCode(self):
+        job_code = self.parentApp.prefs.getSampleJobCode()
+        if not job_code:
+            job_code = _('Job code')
+        self.prefsFactory.setJobCode(job_code)
         
     def updateExample(self):
         self.parentApp.updateImageRenameExample()
@@ -768,6 +778,8 @@ class PreferencesDialog(gnomeglade.Component):
         self.updateImageRenameExample()
         
     def _setupRenameOptionsTab(self):
+        
+        # sequence numbers
         self.downloads_today_entry = ValidatedEntry.ValidatedEntry(ValidatedEntry.bounded(ValidatedEntry.v_int, int, 0))
         self.stored_number_entry = ValidatedEntry.ValidatedEntry(ValidatedEntry.bounded(ValidatedEntry.v_int, int, 1))
         self.downloads_today_entry.connect('changed', self.on_downloads_today_entry_changed)
@@ -785,8 +797,32 @@ class PreferencesDialog(gnomeglade.Component):
         self.hour_spinbutton.set_value(float(hour))
         self.minute_spinbutton.set_value(float(minute))
 
+        #compatibility
         self.strip_characters_checkbutton.set_active(
                             self.prefs.strip_characters)
+                            
+        # job codes
+        self.job_code_liststore = gtk.ListStore(str)
+        column = gtk.TreeViewColumn()
+        rentext = gtk.CellRendererText()
+        rentext.connect('edited', self.on_job_code_edited)
+        rentext .set_property('editable', True)
+
+        column.pack_start(rentext, expand=0)
+        column.set_attributes(rentext, text=0)
+        self.job_code_treeview_column = column
+        self.job_code_treeview.append_column(column)
+        self.job_code_treeview.props.model = self.job_code_liststore
+        for code in self.prefs.job_codes:
+            self.job_code_liststore.append((code, ))
+            
+        # set multiple selections
+        self.job_code_treeview.get_selection().set_mode(gtk.SELECTION_MULTIPLE)
+        
+        self.clear_job_code_button.set_image(gtk.image_new_from_stock(
+                                                gtk.STOCK_CLEAR,
+                                                gtk.ICON_SIZE_BUTTON))  
+
         
     def _setupDeviceTab(self):
         self.device_location_filechooser_button = gtk.FileChooserButton(
@@ -889,6 +925,7 @@ class PreferencesDialog(gnomeglade.Component):
         """
         
         if hasattr(self, 'rename_table'):
+            self.rename_table.updateExampleJobCode()
             name, problem = self.rename_table.prefsFactory.generateNameUsingPreferences(
                     self.sampleImage, self.sampleImageName, 
                     self.prefs.strip_characters,  sequencesPreliminary=False)
@@ -901,7 +938,7 @@ class PreferencesDialog(gnomeglade.Component):
         if problem:
             text += "\n"
             # Translators: please do not modify or leave out html formatting tags like <i> and <b>. These are used to format the text the users sees
-            text += _("<i><b>Warning:</b> There is insufficient image metatdata to fully generate the name. Please use other renaming options.</i>")
+            text += _("<i><b>Warning:</b> There is insufficient image metadata to fully generate the name. Please use other renaming options.</i>")
 
         self.new_name_label.set_markup(text)
             
@@ -911,6 +948,7 @@ class PreferencesDialog(gnomeglade.Component):
         """
         
         if hasattr(self,  'subfolder_table'):
+            self.subfolder_table.updateExampleJobCode()
             path, problem = self.subfolder_table.prefsFactory.generateNameUsingPreferences(
                             self.sampleImage, self.sampleImageName,
                             self.prefs.strip_characters)
@@ -921,7 +959,7 @@ class PreferencesDialog(gnomeglade.Component):
         # since this is markup, escape it
         path = common.escape(text)
         if problem:
-            warning = _("<i><b>Warning:</b> There is insufficient image metatdata to fully generate subfolders. Please use other subfolder naming options.</i>" )
+            warning = _("<i><b>Warning:</b> There is insufficient image metadata to fully generate subfolders. Please use other subfolder naming options.</i>" )
         else:
             warning = ""
         # Translators: you should not modify or leave out the %s. This is a code used by the programming language python to insert a value that thes user will see
@@ -993,6 +1031,72 @@ class PreferencesDialog(gnomeglade.Component):
             self.widget.destroy()
 
 
+    def on_add_job_code_button_clicked(self,  button):
+        JobCodeDialog(self.prefs.job_codes,  self.add_job_code)
+
+        
+    def add_job_code(self,  job_code):
+        self.job_code_liststore.prepend((job_code,  ))
+        self.update_job_codes()
+        selection = self.job_code_treeview.get_selection()
+        selection.select_path((0, ))
+        #scroll to the top
+        adjustment = self.job_code_scrolledwindow.get_vadjustment()
+        adjustment.set_value(adjustment.lower)
+
+        
+    def on_remove_job_code_button_clicked(self,  button):
+        """ remove selected job codes (can be multiple selection)"""
+        selection = self.job_code_treeview.get_selection()
+        model, selected = selection.get_selected_rows()
+        iters = [model.get_iter(path) for path in selected]
+        # only delete if a jobe code is selected
+        if iters:
+            no = len(iters)
+            path = None
+            for i in range(0, no):
+                iter = iters[i]
+                if i == no - 1:
+                    path = model.get_path(iter) 
+                model.remove(iter)
+            
+            # now that we removed the selection, play nice with 
+            # the user and select the next item
+            selection.select_path(path)
+            
+            #  if there was no selection that meant the user
+            # removed the last entry, so we try to select the 
+            # last item
+            if not selection.path_is_selected(path):
+                 row = path[0]-1
+                 # test case for empty lists
+                 if row >= 0:
+                    selection.select_path((row,))
+
+        self.update_job_codes()
+        self.updateImageRenameExample()
+        self.updateDownloadFolderExample()
+        
+    def on_clear_job_code_button_clicked(self,  button):
+        self.job_code_liststore.clear()
+        self.update_job_codes()
+        self.updateImageRenameExample()
+        self.updateDownloadFolderExample()
+        
+    def on_job_code_edited(self,  widget,  path,  new_text):
+        iter = self.job_code_liststore.get_iter(path)
+        self.job_code_liststore.set_value(iter,  0,  new_text)
+        self.update_job_codes()
+        self.updateImageRenameExample()
+        self.updateDownloadFolderExample()
+
+    def update_job_codes(self):
+        """ update preferences with list of job codes"""
+        job_codes = []
+        for row in self.job_code_liststore:
+            job_codes.append(row[0])
+        self.prefs.job_codes = job_codes
+        
     def on_auto_startup_checkbutton_toggled(self, checkbutton):
         self.prefs.auto_download_at_startup = checkbutton.get_active()
         
@@ -2012,6 +2116,33 @@ class ImageHBox(gtk.HBox):
         adjustment.set_value(adjustment.upper)
 
         
+
+class JobCodeDialog(gnomeglade.Component):
+    """ Dialog prompting for a job code"""
+    def __init__(self,  job_codes,  job_code_func):
+        gnomeglade.Component.__init__(self, 
+                                    paths.share_dir(config.GLADE_FILE), 
+                                    "job_code_dialog")
+        
+        self.job_code_func = job_code_func
+        
+        self.combobox = gtk.combo_box_entry_new_text()
+        for text in job_codes:
+            self.combobox.append_text(text)
+            
+        self.job_code_hbox.pack_start(self.combobox,  True,  True)
+        self.combobox.show()
+        self.widget.show()
+        
+    def on_response(self, dialog, arg):
+
+        if arg==gtk.RESPONSE_OK:
+            job_code = self.combobox.child.get_text()
+            self.job_code_func(job_code)
+        self.widget.destroy()
+
+
+        
 class LogDialog(gnomeglade.Component):
     """
     Displays a log of errors, warnings or other information to the user
@@ -2041,6 +2172,7 @@ class LogDialog(gnomeglade.Component):
             self.parentApp.error_image.show()
         elif severity == config.WARNING:
             self.parentApp.warning_image.show()
+        self.parentApp.warning_vseparator.show()
         
         iter = self.textbuffer.get_end_iter()
         self.textbuffer.insert_with_tags(iter, problem +"\n", self.problemTag)
@@ -2063,6 +2195,7 @@ class LogDialog(gnomeglade.Component):
             pass
         self.parentApp.error_image.hide()
         self.parentApp.warning_image.hide()
+        self.parentApp.warning_vseparator.hide()
         self.parentApp.prefs.show_log_dialog = False
         self.widget.hide()
         return True
@@ -2108,6 +2241,7 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
         
         self.error_image.hide()
         self.warning_image.hide()
+        self.warning_vseparator.hide()
         
         if not displayPreferences:
             displayPreferences = not self.checkPreferencesOnStartup()

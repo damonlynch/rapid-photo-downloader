@@ -85,6 +85,7 @@ TEXT = 'Text'
 FILENAME = 'Filename'
 METADATA = 'Metadata'
 SEQUENCES = 'Sequences'
+JOB_CODE = 'Job code'
 
 SEPARATOR = os.sep
 
@@ -178,6 +179,8 @@ class i18TranslateMeThanks:
         _('Filename')
         _('Metadata')
         _('Sequences')
+        # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#jobcode
+        _('Job code')
         _('Image date')
         _('Today')
         _('Yesterday')
@@ -392,7 +395,7 @@ DICT_SEQUENCE_L1 = {
 
 
 LIST_IMAGE_RENAME_L0 = [DATE_TIME, TEXT, FILENAME, METADATA, 
-                        SEQUENCES]
+                        SEQUENCES,  JOB_CODE]
                         
 
 DICT_IMAGE_RENAME_L0 = {
@@ -401,16 +404,18 @@ DICT_IMAGE_RENAME_L0 = {
                     FILENAME: DICT_FILENAME_L1,
                     METADATA: DICT_METADATA_L1,
                     SEQUENCES: DICT_SEQUENCE_L1, 
+                    JOB_CODE: None, 
                     ORDER_KEY: LIST_IMAGE_RENAME_L0
                     }
 
-LIST_SUBFOLDER_L0 = [DATE_TIME, TEXT, FILENAME, METADATA, SEPARATOR]
+LIST_SUBFOLDER_L0 = [DATE_TIME, TEXT, FILENAME, METADATA, JOB_CODE,  SEPARATOR]
 
 DICT_SUBFOLDER_L0 = {
                     DATE_TIME: DICT_DATE_TIME_L1,
                     TEXT: None,
                     FILENAME: DICT_SUBFOLDER_FILENAME_L1,
                     METADATA: DICT_METADATA_L1,
+                    JOB_CODE: None, 
                     SEPARATOR: None,
                     ORDER_KEY: LIST_SUBFOLDER_L0
                    }
@@ -748,6 +753,8 @@ class ImageRenamePreferences:
 
         self.fileSequenceLock = fileSequenceLock
         self.sequences = sequences
+        
+        self.job_code = ''
     
         # derived classes will have their own definitions, do not overwrite
         if not hasattr(self, "prefsDefnL0"):
@@ -771,7 +778,12 @@ class ImageRenamePreferences:
         v = ''
         
         for i in range(0,  len(self.prefList),  3):
-            s = "%s: " % self.prefList[i] 
+            if (self.prefList[i+1] or self.prefList[i+2]):
+                c = ':'
+            else: 
+                c = ''
+            s = "%s%s " % (self.prefList[i],  c) 
+            
             if self.prefList[i+1]:
                 s = "%s%s" % (s,  self.prefList[i+1])
             if self.prefList[i+2]:
@@ -781,6 +793,9 @@ class ImageRenamePreferences:
         return v
             
 
+    def setJobCode(self,  job_code):
+        self.job_code = job_code
+        
     def _getDateComponent(self):
         """
         Returns portion of new image / subfolder name based on date time
@@ -1011,7 +1026,7 @@ class ImageRenamePreferences:
             return self._getStoredSequenceNo()                   
         elif self.L1 == SEQUENCE_LETTER:
             return self._getSequenceLetter()
-
+            
     def _getComponent(self):
         try:
             if self.L0 == DATE_TIME:
@@ -1024,6 +1039,8 @@ class ImageRenamePreferences:
                 return self._getMetadataComponent()
             elif self.L0 == SEQUENCES:
                 return self._getSequencesComponent()
+            elif self.L0 == JOB_CODE:
+                return (self.job_code,  None)
             elif self.L0 == SEPARATOR:
                 return (os.sep, None)
         except:
@@ -1197,7 +1214,7 @@ class ImageRenamePreferences:
             widgets.append(widget1)
             widgets.append(None)
             return
-        elif key == SEPARATOR:
+        elif key in [SEPARATOR,  JOB_CODE]:
             widgets.append(None)
             widgets.append(None)
             return

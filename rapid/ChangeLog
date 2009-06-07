@@ -1,3 +1,14 @@
+Version 0.1.0
+-------------
+
+2009-06-10
+
+Added "Job codes" option. This allows you to specify a value to place in the 
+image rename and / or download subfolder name. The program will prompt for it 
+each time a download begins.
+
+
+
 Version 0.0.10
 --------------
 
