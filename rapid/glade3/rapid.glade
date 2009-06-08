@@ -859,7 +859,7 @@
                                         <property name="layout_style">start</property>
                                         <child>
                                           <widget class="GtkButton" id="add_job_code_button">
-                                            <property name="label" translatable="yes">gtk-add</property>
+                                            <property name="label">gtk-add</property>
                                             <property name="visible">True</property>
                                             <property name="can_focus">True</property>
                                             <property name="receives_default">True</property>
@@ -874,7 +874,7 @@
                                         </child>
                                         <child>
                                           <widget class="GtkButton" id="remove_job_code_button">
-                                            <property name="label" translatable="yes">gtk-remove</property>
+                                            <property name="label">gtk-remove</property>
                                             <property name="visible">True</property>
                                             <property name="can_focus">True</property>
                                             <property name="receives_default">True</property>
@@ -889,7 +889,7 @@
                                         </child>
                                         <child>
                                           <widget class="GtkButton" id="clear_job_code_button">
-                                            <property name="label" translatable="yes">C_lear</property>
+                                            <property name="label" translatable="yes" comments="The underscore after the C signifies that the l is the accelerator key. This is the standard 'Clear' button, but I needed to change the accelerator from the standard 'c' to 'l' because the close button also used 'c'">C_lear</property>
                                             <property name="visible">True</property>
                                             <property name="can_focus">True</property>
                                             <property name="receives_default">True</property>
@@ -2878,7 +2878,7 @@ Julien Valroff &lt;julien@kirya.net&gt;</property>
             <property name="layout_style">end</property>
             <child>
               <widget class="GtkButton" id="job_code_cancel_button">
-                <property name="label" translatable="yes">gtk-cancel</property>
+                <property name="label">gtk-cancel</property>
                 <property name="response_id">-6</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
@@ -2893,7 +2893,7 @@ Julien Valroff &lt;julien@kirya.net&gt;</property>
             </child>
             <child>
               <widget class="GtkButton" id="job_code_ok_button">
-                <property name="label" translatable="yes">gtk-ok</property>
+                <property name="label">gtk-ok</property>
                 <property name="response_id">-5</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
