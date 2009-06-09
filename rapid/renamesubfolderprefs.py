@@ -561,6 +561,14 @@ def upgradePreferencesToCurrent(imageRenamePrefs,  subfolderPrefs,  previousVers
     # only check image rename, for now....
     upgraded,  imageRenamePrefs = _upgradePreferencesToCurrent(imageRenamePrefs,  previousVersion)
     return (upgraded,  imageRenamePrefs , subfolderPrefs)
+ 
+
+def usesJobCode(prefs):
+    """ Returns True if the preferences contain a job code, else returns False"""
+    for i in range(0,  len(prefs),  3):
+        if prefs[i] == JOB_CODE:
+            return True
+    return False
     
 def checkPreferencesForValidity(imageRenamePrefs,  subfolderPrefs,  version=config.version):
     """Returns true if the passed in preferences are valid"""

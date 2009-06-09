@@ -146,6 +146,8 @@ class Queue(tube.Tube):
 display_queue = Queue()
 media_collection_treeview = image_hbox = log_dialog = None
 
+job_code = None
+need_job_code = False
 
 class ThreadManager:
     _workers = []
@@ -664,6 +666,7 @@ class PreferencesDialog(gnomeglade.Component):
         self._setupDownloadFolderTab()
         self._setupImageRenameTab()
         self._setupRenameOptionsTab()
+        self._setupJobCodeTab()
         self._setupDeviceTab()
         self._setupBackupTab()
         self._setupAutomationTab()
@@ -800,8 +803,8 @@ class PreferencesDialog(gnomeglade.Component):
         #compatibility
         self.strip_characters_checkbutton.set_active(
                             self.prefs.strip_characters)
-                            
-        # job codes
+        
+    def _setupJobCodeTab(self):
         self.job_code_liststore = gtk.ListStore(str)
         column = gtk.TreeViewColumn()
         rentext = gtk.CellRendererText()
@@ -822,8 +825,6 @@ class PreferencesDialog(gnomeglade.Component):
         self.clear_job_code_button.set_image(gtk.image_new_from_stock(
                                                 gtk.STOCK_CLEAR,
                                                 gtk.ICON_SIZE_BUTTON))  
-
-        
     def _setupDeviceTab(self):
         self.device_location_filechooser_button = gtk.FileChooserButton(
                             _("Select an image folder"))
@@ -1032,19 +1033,22 @@ class PreferencesDialog(gnomeglade.Component):
 
 
     def on_add_job_code_button_clicked(self,  button):
-        JobCodeDialog(self.prefs.job_codes,  self.add_job_code)
+        j = JobCodeDialog(self.prefs.job_codes,  None)
+        if j.run() == gtk.RESPONSE_OK:
+            self.add_job_code(j.get_job_code())
+        j.destroy()
 
-        
     def add_job_code(self,  job_code):
-        self.job_code_liststore.prepend((job_code,  ))
-        self.update_job_codes()
-        selection = self.job_code_treeview.get_selection()
-        selection.select_path((0, ))
-        #scroll to the top
-        adjustment = self.job_code_scrolledwindow.get_vadjustment()
-        adjustment.set_value(adjustment.lower)
+        if job_code and job_code not in self.prefs.job_codes:
+            self.job_code_liststore.prepend((job_code,  ))
+            self.update_job_codes()
+            selection = self.job_code_treeview.get_selection()
+            selection.unselect_all()
+            selection.select_path((0, ))
+            #scroll to the top
+            adjustment = self.job_code_scrolledwindow.get_vadjustment()
+            adjustment.set_value(adjustment.lower)
 
-        
     def on_remove_job_code_button_clicked(self,  button):
         """ remove selected job codes (can be multiple selection)"""
         selection = self.job_code_treeview.get_selection()
@@ -1773,10 +1777,19 @@ class CopyPhotos(Thread):
                 self.running = False
                 display_queue.close("rw")           
                 return
-                
+         
+            
         self.downloadStarted = True
         cmd_line(_("Download has started from %s") % self.cardMedia.prettyName(limit=0))
         
+        if need_job_code and job_code == None:
+            sys.stderr.write(self.thread_id + ": job code should never be None\n")
+            self.imageRenamePrefsFactory.setJobCode('unknown-job-code')
+            self.subfolderPrefsFactory.setJobCode('unknown-job-code')
+        else:
+            self.imageRenamePrefsFactory.setJobCode(job_code)
+            self.subfolderPrefsFactory.setJobCode(job_code)
+            
         # Some images may not have metadata (this
         # is unlikely for images straight out of a 
         # camera, but it is possible for images that have been edited).  If
@@ -2117,30 +2130,62 @@ class ImageHBox(gtk.HBox):
 
         
 
-class JobCodeDialog(gnomeglade.Component):
+
+class JobCodeDialog(gtk.Dialog):
     """ Dialog prompting for a job code"""
-    def __init__(self,  job_codes,  job_code_func):
-        gnomeglade.Component.__init__(self, 
-                                    paths.share_dir(config.GLADE_FILE), 
-                                    "job_code_dialog")
+    def __init__(self,  job_codes,  default_job_code):
+        gtk.Dialog.__init__(self, 'Enter a Job Code', None,
+                   gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
+                   (gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL, 
+                   gtk.STOCK_OK, gtk.RESPONSE_OK))
+                        
         
-        self.job_code_func = job_code_func
+        self.set_icon_from_file(paths.share_dir('glade3/rapid-photo-downloader-about.png'))
         
         self.combobox = gtk.combo_box_entry_new_text()
         for text in job_codes:
             self.combobox.append_text(text)
             
-        self.job_code_hbox.pack_start(self.combobox,  True,  True)
-        self.combobox.show()
-        self.widget.show()
+        self.job_code_hbox = gtk.HBox(False)
+
+        label = gtk.Label(_('Job Code:'))
+        self.job_code_hbox.pack_start(label,  padding=6)
+        self.job_code_hbox.pack_start(self.combobox,  True,  True,  padding=6)
         
-    def on_response(self, dialog, arg):
+        self.set_border_width(6)
+        self.set_has_separator(False)
 
-        if arg==gtk.RESPONSE_OK:
-            job_code = self.combobox.child.get_text()
-            self.job_code_func(job_code)
-        self.widget.destroy()
+        # make entry box have entry completion
+        self.entry = self.combobox.child
+        
+        completion = gtk.EntryCompletion()
+        completion.set_match_func(self.match_func)
+        completion.connect("match-selected",
+                             self.on_completion_match)
+        completion.set_model(self.combobox.get_model())
+        completion.set_text_column(0)
+        self.entry.set_completion(completion)
+        
+        # when user hits enter, close the dialog window
+        self.set_default_response(gtk.RESPONSE_OK)
+        self.entry.set_activates_default(True)
 
+        if default_job_code:
+            self.entry.set_text(default_job_code)
+            
+        self.vbox.pack_start(self.job_code_hbox,  padding=12)
+        self.show_all()
+            
+    def match_func(self, completion, key, iter):
+         model = completion.get_model()
+         return model[iter][0].startswith(self.entry.get_text())
+         
+    def on_completion_match(self, completion, model, iter):
+         self.entry.set_text(model[iter][0])
+         self.entry.set_position(-1)
+
+    def get_job_code(self):
+        return self.combobox.child.get_text()
 
         
 class LogDialog(gnomeglade.Component):
@@ -2256,6 +2301,9 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
         
         # control sequence numbers and letters
         global sequences
+        
+        # whether we need to prompt for a job code
+        global need_job_code
 
         duplicate_files = {}
         
@@ -2307,10 +2355,11 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
         
 
         # menus
-#        self.menu_resequence.set_sensitive(False)
 
         self.menu_display_thumbnails.set_active(self.prefs.display_thumbnails)
         self.menu_clear.set_sensitive(False)
+        
+        need_job_code = self.needJobCode()
         
         self.setupAvailableImageAndBackupMedia(onStartup=True,  onPreferenceChange=False,  doNotAllowAutoStart = displayPreferences)
 
@@ -2358,6 +2407,27 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
             sys.stderr.write(msg +'\n')
 #            misc.run_dialog(title, msg)
         return prefsOk
+        
+    def needJobCode(self):
+        return rn.usesJobCode(self.prefs.image_rename) or rn.usesJobCode(self.prefs.subfolder)
+        
+    def assignJobCode(self,  code):
+        global job_code
+        if code == None:
+            code = ''
+        job_code = code
+        
+        if job_code:
+            #add this value to job codes preferences
+            #delete any existing value which is the same
+            #(this way it comes to the front, which is where it should be)
+            #never modify self.prefs.job_codes in place! (or prefs become screwed up)
+            
+            jcs = self.prefs.job_codes
+            while code in jcs:
+                jcs.remove(code)
+                
+            self.prefs.job_codes = [code] + jcs
         
     def checkForUpgrade(self,  runningVersion):
         """ Checks if the running version of the program is different from the version recorded in the preferences.
@@ -2958,8 +3028,14 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
         self._set_download_button()
         
     def startDownload(self):
-        self.startOrResumeWorkers()
-        self.postStartDownloadTasks()
+        if need_job_code:
+            j = JobCodeDialog(self.prefs.job_codes,  job_code)
+            if j.run() == gtk.RESPONSE_OK:
+                self.assignJobCode(j.get_job_code())
+            j.destroy()
+
+#        self.startOrResumeWorkers()
+#        self.postStartDownloadTasks()
         
     def pauseDownload(self):
         for w in workers.getDownloadingWorkers():
@@ -2994,6 +3070,9 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
             if self.usingVolumeMonitor():
                 self.startVolumeMonitor()
             cmd_line("\n" + _("Preferences were changed."))
+            
+            need_job_code = self.needJobCode()
+            
             self.setupAvailableImageAndBackupMedia(onStartup = False,  onPreferenceChange = True,  doNotAllowAutoStart = False)
             if is_beta and verbose:
                 print "Current worker status:"

@@ -796,143 +796,6 @@
                           </packing>
                         </child>
                         <child>
-                          <widget class="GtkVBox" id="job_code_vbox">
-                            <property name="visible">True</property>
-                            <property name="orientation">vertical</property>
-                            <property name="spacing">12</property>
-                            <child>
-                              <widget class="GtkLabel" id="job_code_label">
-                                <property name="visible">True</property>
-                                <property name="xalign">0</property>
-                                <property name="xpad">12</property>
-                                <property name="label" translatable="yes">&lt;b&gt;Job Codes&lt;/b&gt;</property>
-                                <property name="use_markup">True</property>
-                              </widget>
-                              <packing>
-                                <property name="expand">False</property>
-                                <property name="position">0</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <widget class="GtkHBox" id="job_code_hbox">
-                                <property name="visible">True</property>
-                                <property name="spacing">12</property>
-                                <child>
-                                  <widget class="GtkLabel" id="job_code_spacer_label">
-                                    <property name="visible">True</property>
-                                    <property name="xpad">12</property>
-                                  </widget>
-                                  <packing>
-                                    <property name="expand">False</property>
-                                    <property name="position">0</property>
-                                  </packing>
-                                </child>
-                                <child>
-                                  <widget class="GtkScrolledWindow" id="job_code_scrolledwindow">
-                                    <property name="visible">True</property>
-                                    <property name="can_focus">True</property>
-                                    <property name="hscrollbar_policy">automatic</property>
-                                    <property name="vscrollbar_policy">automatic</property>
-                                    <property name="shadow_type">in</property>
-                                    <child>
-                                      <widget class="GtkTreeView" id="job_code_treeview">
-                                        <property name="width_request">200</property>
-                                        <property name="visible">True</property>
-                                        <property name="can_focus">True</property>
-                                        <property name="headers_visible">False</property>
-                                        <property name="rubber_banding">True</property>
-                                      </widget>
-                                    </child>
-                                  </widget>
-                                  <packing>
-                                    <property name="expand">False</property>
-                                    <property name="position">1</property>
-                                  </packing>
-                                </child>
-                                <child>
-                                  <widget class="GtkHBox" id="job_code_button_hbox">
-                                    <property name="visible">True</property>
-                                    <child>
-                                      <widget class="GtkVButtonBox" id="job_code_vbuttonbox">
-                                        <property name="visible">True</property>
-                                        <property name="spacing">12</property>
-                                        <property name="layout_style">start</property>
-                                        <child>
-                                          <widget class="GtkButton" id="add_job_code_button">
-                                            <property name="label">gtk-add</property>
-                                            <property name="visible">True</property>
-                                            <property name="can_focus">True</property>
-                                            <property name="receives_default">True</property>
-                                            <property name="use_stock">True</property>
-                                            <signal name="clicked" handler="on_add_job_code_button_clicked"/>
-                                          </widget>
-                                          <packing>
-                                            <property name="expand">False</property>
-                                            <property name="fill">False</property>
-                                            <property name="position">0</property>
-                                          </packing>
-                                        </child>
-                                        <child>
-                                          <widget class="GtkButton" id="remove_job_code_button">
-                                            <property name="label">gtk-remove</property>
-                                            <property name="visible">True</property>
-                                            <property name="can_focus">True</property>
-                                            <property name="receives_default">True</property>
-                                            <property name="use_stock">True</property>
-                                            <signal name="clicked" handler="on_remove_job_code_button_clicked"/>
-                                          </widget>
-                                          <packing>
-                                            <property name="expand">False</property>
-                                            <property name="fill">False</property>
-                                            <property name="position">1</property>
-                                          </packing>
-                                        </child>
-                                        <child>
-                                          <widget class="GtkButton" id="clear_job_code_button">
-                                            <property name="label" translatable="yes" comments="The underscore after the C signifies that the l is the accelerator key. This is the standard 'Clear' button, but I needed to change the accelerator from the standard 'c' to 'l' because the close button also used 'c'">C_lear</property>
-                                            <property name="visible">True</property>
-                                            <property name="can_focus">True</property>
-                                            <property name="receives_default">True</property>
-                                            <property name="use_underline">True</property>
-                                            <signal name="clicked" handler="on_clear_job_code_button_clicked"/>
-                                          </widget>
-                                          <packing>
-                                            <property name="expand">False</property>
-                                            <property name="fill">False</property>
-                                            <property name="position">2</property>
-                                          </packing>
-                                        </child>
-                                      </widget>
-                                      <packing>
-                                        <property name="position">0</property>
-                                      </packing>
-                                    </child>
-                                  </widget>
-                                  <packing>
-                                    <property name="expand">False</property>
-                                    <property name="position">2</property>
-                                  </packing>
-                                </child>
-                              </widget>
-                              <packing>
-                                <property name="position">1</property>
-                              </packing>
-                            </child>
-                            <child>
-                              <widget class="GtkLabel" id="job_code_v_space_label">
-                                <property name="visible">True</property>
-                                <property name="label"> </property>
-                              </widget>
-                              <packing>
-                                <property name="position">2</property>
-                              </packing>
-                            </child>
-                          </widget>
-                          <packing>
-                            <property name="position">2</property>
-                          </packing>
-                        </child>
-                        <child>
                           <widget class="GtkLabel" id="compatibility_label">
                             <property name="visible">True</property>
                             <property name="xalign">0</property>
@@ -1030,6 +893,211 @@
                   </widget>
                   <packing>
                     <property name="position">2</property>
+                    <property name="tab_fill">False</property>
+                    <property name="type">tab</property>
+                  </packing>
+                </child>
+                <child>
+                  <widget class="GtkVBox" id="job_codes_tab">
+                    <property name="visible">True</property>
+                    <property name="spacing">12</property>
+                    <child>
+                      <widget class="GtkVBox" id="job_codes_header_vbox">
+                        <property name="visible">True</property>
+                        <child>
+                          <widget class="GtkHBox" id="hbox188">
+                            <property name="visible">True</property>
+                            <property name="spacing">6</property>
+                            <child>
+                              <widget class="GtkImage" id="image77">
+                                <property name="visible">True</property>
+                                <property name="icon_name">emblem-photos</property>
+                              </widget>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="position">0</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <widget class="GtkLabel" id="label1340">
+                                <property name="visible">True</property>
+                                <property name="label" translatable="yes">&lt;span weight="bold" size="x-large"&gt;Job Codes&lt;/span&gt;</property>
+                                <property name="use_markup">True</property>
+                              </widget>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="position">1</property>
+                              </packing>
+                            </child>
+                          </widget>
+                          <packing>
+                            <property name="position">0</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <widget class="GtkHSeparator" id="hseparator44">
+                            <property name="visible">True</property>
+                          </widget>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="position">1</property>
+                          </packing>
+                        </child>
+                      </widget>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">False</property>
+                        <property name="position">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <widget class="GtkVBox" id="job_codes_vbox">
+                        <property name="visible">True</property>
+                        <child>
+                          <widget class="GtkVBox" id="job_code_vbox">
+                            <property name="visible">True</property>
+                            <property name="orientation">vertical</property>
+                            <child>
+                              <widget class="GtkLabel" id="job_code_label">
+                                <property name="xalign">0</property>
+                                <property name="xpad">12</property>
+                                <property name="label" translatable="yes">&lt;b&gt;Job Codes&lt;/b&gt;</property>
+                                <property name="use_markup">True</property>
+                              </widget>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="position">0</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <widget class="GtkHBox" id="job_code_hbox">
+                                <property name="visible">True</property>
+                                <property name="spacing">12</property>
+                                <child>
+                                  <widget class="GtkLabel" id="job_code_spacer_label">
+                                    <property name="visible">True</property>
+                                  </widget>
+                                  <packing>
+                                    <property name="expand">False</property>
+                                    <property name="position">0</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <widget class="GtkScrolledWindow" id="job_code_scrolledwindow">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">True</property>
+                                    <property name="hscrollbar_policy">automatic</property>
+                                    <property name="vscrollbar_policy">automatic</property>
+                                    <property name="shadow_type">in</property>
+                                    <child>
+                                      <widget class="GtkTreeView" id="job_code_treeview">
+                                        <property name="width_request">250</property>
+                                        <property name="visible">True</property>
+                                        <property name="can_focus">True</property>
+                                        <property name="headers_visible">False</property>
+                                        <property name="rubber_banding">True</property>
+                                      </widget>
+                                    </child>
+                                  </widget>
+                                  <packing>
+                                    <property name="expand">False</property>
+                                    <property name="position">1</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <widget class="GtkHBox" id="job_code_button_hbox">
+                                    <property name="visible">True</property>
+                                    <child>
+                                      <widget class="GtkVButtonBox" id="job_code_vbuttonbox">
+                                        <property name="visible">True</property>
+                                        <property name="spacing">12</property>
+                                        <property name="layout_style">start</property>
+                                        <child>
+                                          <widget class="GtkButton" id="add_job_code_button">
+                                            <property name="label">gtk-add</property>
+                                            <property name="visible">True</property>
+                                            <property name="can_focus">True</property>
+                                            <property name="receives_default">True</property>
+                                            <property name="use_stock">True</property>
+                                            <signal name="clicked" handler="on_add_job_code_button_clicked"/>
+                                          </widget>
+                                          <packing>
+                                            <property name="expand">False</property>
+                                            <property name="fill">False</property>
+                                            <property name="position">0</property>
+                                          </packing>
+                                        </child>
+                                        <child>
+                                          <widget class="GtkButton" id="remove_job_code_button">
+                                            <property name="label">gtk-remove</property>
+                                            <property name="visible">True</property>
+                                            <property name="can_focus">True</property>
+                                            <property name="receives_default">True</property>
+                                            <property name="use_stock">True</property>
+                                            <signal name="clicked" handler="on_remove_job_code_button_clicked"/>
+                                          </widget>
+                                          <packing>
+                                            <property name="expand">False</property>
+                                            <property name="fill">False</property>
+                                            <property name="position">1</property>
+                                          </packing>
+                                        </child>
+                                        <child>
+                                          <widget class="GtkButton" id="clear_job_code_button">
+                                            <property name="label" translatable="yes" comments="The underscore after the C signifies that the l is the accelerator key. This is the standard 'Clear' button, but I needed to change the accelerator from the standard 'c' to 'l' because the close button also used 'c'">C_lear</property>
+                                            <property name="visible">True</property>
+                                            <property name="can_focus">True</property>
+                                            <property name="receives_default">True</property>
+                                            <property name="use_underline">True</property>
+                                            <signal name="clicked" handler="on_clear_job_code_button_clicked"/>
+                                          </widget>
+                                          <packing>
+                                            <property name="expand">False</property>
+                                            <property name="fill">False</property>
+                                            <property name="position">2</property>
+                                          </packing>
+                                        </child>
+                                      </widget>
+                                      <packing>
+                                        <property name="position">0</property>
+                                      </packing>
+                                    </child>
+                                  </widget>
+                                  <packing>
+                                    <property name="expand">False</property>
+                                    <property name="position">2</property>
+                                  </packing>
+                                </child>
+                              </widget>
+                              <packing>
+                                <property name="position">1</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <placeholder/>
+                            </child>
+                          </widget>
+                          <packing>
+                            <property name="position">0</property>
+                          </packing>
+                        </child>
+                      </widget>
+                      <packing>
+                        <property name="position">1</property>
+                      </packing>
+                    </child>
+                  </widget>
+                  <packing>
+                    <property name="position">2</property>
+                  </packing>
+                </child>
+                <child>
+                  <widget class="GtkLabel" id="job_codes_tab_label">
+                    <property name="visible">True</property>
+                    <property name="label" translatable="yes">Job Codes</property>
+                  </widget>
+                  <packing>
+                    <property name="position">3</property>
                     <property name="tab_fill">False</property>
                     <property name="type">tab</property>
                   </packing>
@@ -1282,7 +1350,7 @@ You can download photos from multiple image devices simultaneously.
                     </child>
                   </widget>
                   <packing>
-                    <property name="position">3</property>
+                    <property name="position">4</property>
                   </packing>
                 </child>
                 <child>
@@ -1291,7 +1359,7 @@ You can download photos from multiple image devices simultaneously.
                     <property name="label" translatable="yes">Image Devices</property>
                   </widget>
                   <packing>
-                    <property name="position">3</property>
+                    <property name="position">4</property>
                     <property name="tab_fill">False</property>
                     <property name="type">tab</property>
                   </packing>
@@ -1600,7 +1668,7 @@ You can download photos from multiple image devices simultaneously.
                     </child>
                   </widget>
                   <packing>
-                    <property name="position">4</property>
+                    <property name="position">5</property>
                   </packing>
                 </child>
                 <child>
@@ -1609,7 +1677,7 @@ You can download photos from multiple image devices simultaneously.
                     <property name="label" translatable="yes">Backup</property>
                   </widget>
                   <packing>
-                    <property name="position">4</property>
+                    <property name="position">5</property>
                     <property name="tab_fill">False</property>
                     <property name="type">tab</property>
                   </packing>
@@ -1815,7 +1883,7 @@ You can download photos from multiple image devices simultaneously.
                     </child>
                   </widget>
                   <packing>
-                    <property name="position">5</property>
+                    <property name="position">6</property>
                   </packing>
                 </child>
                 <child>
@@ -1825,7 +1893,7 @@ You can download photos from multiple image devices simultaneously.
                     <property name="label" translatable="yes">Automation</property>
                   </widget>
                   <packing>
-                    <property name="position">5</property>
+                    <property name="position">6</property>
                     <property name="tab_fill">False</property>
                     <property name="type">tab</property>
                   </packing>
@@ -2211,7 +2279,7 @@ You can download photos from multiple image devices simultaneously.
                     </child>
                   </widget>
                   <packing>
-                    <property name="position">6</property>
+                    <property name="position">7</property>
                   </packing>
                 </child>
                 <child>
@@ -2221,7 +2289,7 @@ You can download photos from multiple image devices simultaneously.
                     <property name="label" translatable="yes">Error Handling</property>
                   </widget>
                   <packing>
-                    <property name="position">6</property>
+                    <property name="position">7</property>
                     <property name="tab_fill">False</property>
                     <property name="type">tab</property>
                   </packing>
@@ -2809,95 +2877,6 @@ Julien Valroff &lt;julien@kirya.net&gt;</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">False</property>
-                <property name="use_stock">True</property>
-              </widget>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">False</property>
-                <property name="position">1</property>
-              </packing>
-            </child>
-          </widget>
-          <packing>
-            <property name="expand">False</property>
-            <property name="pack_type">end</property>
-            <property name="position">0</property>
-          </packing>
-        </child>
-      </widget>
-    </child>
-  </widget>
-  <widget class="GtkDialog" id="job_code_dialog">
-    <property name="border_width">5</property>
-    <property name="title" translatable="yes">Job code</property>
-    <property name="modal">True</property>
-    <property name="icon">rapid-photo-downloader-about.png</property>
-    <property name="type_hint">normal</property>
-    <property name="has_separator">False</property>
-    <signal name="response" handler="on_response"/>
-    <child internal-child="vbox">
-      <widget class="GtkVBox" id="dialog-vbox4">
-        <property name="visible">True</property>
-        <property name="orientation">vertical</property>
-        <property name="spacing">2</property>
-        <child>
-          <widget class="GtkVBox" id="vbox1">
-            <property name="visible">True</property>
-            <property name="orientation">vertical</property>
-            <child>
-              <widget class="GtkHBox" id="job_code_hbox">
-                <property name="visible">True</property>
-                <child>
-                  <widget class="GtkLabel" id="job_code_label">
-                    <property name="visible">True</property>
-                    <property name="xpad">12</property>
-                    <property name="label" translatable="yes">Job code:</property>
-                  </widget>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="position">0</property>
-                  </packing>
-                </child>
-                <child>
-                  <placeholder/>
-                </child>
-              </widget>
-              <packing>
-                <property name="position">0</property>
-              </packing>
-            </child>
-          </widget>
-          <packing>
-            <property name="expand">False</property>
-            <property name="position">1</property>
-          </packing>
-        </child>
-        <child internal-child="action_area">
-          <widget class="GtkHButtonBox" id="dialog-action_area4">
-            <property name="visible">True</property>
-            <property name="layout_style">end</property>
-            <child>
-              <widget class="GtkButton" id="job_code_cancel_button">
-                <property name="label">gtk-cancel</property>
-                <property name="response_id">-6</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">True</property>
-                <property name="use_stock">True</property>
-              </widget>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">False</property>
-                <property name="position">0</property>
-              </packing>
-            </child>
-            <child>
-              <widget class="GtkButton" id="job_code_ok_button">
-                <property name="label">gtk-ok</property>
-                <property name="response_id">-5</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">True</property>
                 <property name="use_stock">True</property>
               </widget>
               <packing>

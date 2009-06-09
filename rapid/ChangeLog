@@ -3,9 +3,11 @@ Version 0.1.0
 
 2009-06-10
 
-Added "Job codes" option. This allows you to specify a value to place in the 
-image rename and / or download subfolder name. The program will prompt for it 
-each time a download begins.
+Added a "Job codes" option. Like the "text" option in image and subfolder name
+generation, this allows you to specify text that will be placed into the file
+and subfolder names. However, unlike the "text" option, which requires that the
+text be directly entered via the program preferences, when using the "Job code"
+option, the program will prompt for it each time a download begins. 
 
 
 
