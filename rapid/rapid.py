@@ -2134,7 +2134,7 @@ class ImageHBox(gtk.HBox):
 class JobCodeDialog(gtk.Dialog):
     """ Dialog prompting for a job code"""
     def __init__(self,  job_codes,  default_job_code):
-        gtk.Dialog.__init__(self, 'Enter a Job Code', None,
+        gtk.Dialog.__init__(self, _('Enter a Job Code'), None,
                    gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
                    (gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL, 
                    gtk.STOCK_OK, gtk.RESPONSE_OK))
