@@ -9,6 +9,14 @@ and subfolder names. However, unlike the "text" option, which requires that the
 text be directly entered via the program preferences, when using the "Job code"
 option, the program will prompt for it each time a download begins. 
 
+Made Download button the default button. Hitting enter while the main window
+has focus will now start the download.
+
+Fixed bug #387002: added dependency in Ubuntu packages for librsvg2-common. 
+Thanks go to user hasp for this fix.
+
+Added dependency on gnome-icon-theme in Ubuntu packages.
+
 
 
 Version 0.0.10

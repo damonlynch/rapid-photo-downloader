@@ -289,6 +289,11 @@ class ThreadManager:
             if w.downloadStarted and not w.running:
                 yield w            
 
+    def getWaitingForJobCodeWorkers(self):
+        for w in self._workers:
+            if w.waitingForJobCode:
+                yield w
+    
     def getFinishedWorkers(self):
         for w in self._workers:
             if self._isFinished(w):
@@ -1033,7 +1038,7 @@ class PreferencesDialog(gnomeglade.Component):
 
 
     def on_add_job_code_button_clicked(self,  button):
-        j = JobCodeDialog(self.prefs.job_codes,  None)
+        j = JobCodeDialog(self.widget,  self.prefs.job_codes,  None)
         if j.run() == gtk.RESPONSE_OK:
             self.add_job_code(j.get_job_code())
         j.destroy()
@@ -1258,6 +1263,7 @@ class CopyPhotos(Thread):
         
         self.hasStarted = False
         self.doNotStart = False
+        self.waitingForJobCode = False
         
         self.autoStart = autoStart
         self.cardMedia = cardMedia
@@ -1758,6 +1764,14 @@ class CopyPhotos(Thread):
             self.running = False
             self.lock.release()
             return 
+        elif self.autoStart and need_job_code:
+            if job_code == None:
+                self.waitingForJobCode = True
+                display_queue.put((self.parentApp.getJobCode, ()))
+                self.running = False
+                self.lock.acquire()
+                self.running = True
+                self.waitingForJobCode = False
         elif not self.autoStart:
             # halt thread, waiting to be restarted so download proceeds
             self.running = False
@@ -1783,7 +1797,7 @@ class CopyPhotos(Thread):
         cmd_line(_("Download has started from %s") % self.cardMedia.prettyName(limit=0))
         
         if need_job_code and job_code == None:
-            sys.stderr.write(self.thread_id + ": job code should never be None\n")
+            sys.stderr.write(str(self.thread_id ) + ": job code should never be None\n")
             self.imageRenamePrefsFactory.setJobCode('unknown-job-code')
             self.subfolderPrefsFactory.setJobCode('unknown-job-code')
         else:
@@ -1919,7 +1933,7 @@ class CopyPhotos(Thread):
                     self.lock.release()
     
                 except thread_error:
-                    sys.stderr.write(self.thread_id + " thread error\n")
+                    sys.stderr.write(str(self.thread_id) + " thread error\n")
     
     def quit(self):
         """ 
@@ -2133,7 +2147,7 @@ class ImageHBox(gtk.HBox):
 
 class JobCodeDialog(gtk.Dialog):
     """ Dialog prompting for a job code"""
-    def __init__(self,  job_codes,  default_job_code):
+    def __init__(self,  parent_window,  job_codes,  default_job_code,  postJobCodeEntryCB,  autoStart):
         gtk.Dialog.__init__(self, _('Enter a Job Code'), None,
                    gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
                    (gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL, 
@@ -2141,6 +2155,8 @@ class JobCodeDialog(gtk.Dialog):
                         
         
         self.set_icon_from_file(paths.share_dir('glade3/rapid-photo-downloader-about.png'))
+        self.postJobCodeEntryCB = postJobCodeEntryCB
+        self.autoStart = autoStart
         
         self.combobox = gtk.combo_box_entry_new_text()
         for text in job_codes:
@@ -2174,7 +2190,11 @@ class JobCodeDialog(gtk.Dialog):
             self.entry.set_text(default_job_code)
             
         self.vbox.pack_start(self.job_code_hbox,  padding=12)
+        
+        self.set_transient_for(parent_window)
         self.show_all()
+        self.connect('response', self.on_job_code_resp)
+#        j.show()
             
     def match_func(self, completion, key, iter):
          model = completion.get_model()
@@ -2186,6 +2206,16 @@ class JobCodeDialog(gtk.Dialog):
 
     def get_job_code(self):
         return self.combobox.child.get_text()
+        
+    def on_job_code_resp(self,  jc_dialog, response):
+        userChoseCode = False
+        if response == gtk.RESPONSE_OK:
+            userChoseCode = True
+            cmd_line(_("Job Code entered"))  
+        else:
+            cmd_line(_("Job Code not entered - download to be cancelled"))
+        self.prompting_for_job_code = False
+        self.postJobCodeEntryCB(self,  userChoseCode,  self.get_job_code(),  self.autoStart)
 
         
 class LogDialog(gnomeglade.Component):
@@ -2284,6 +2314,7 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
         self._resetDownloadInfo()
         self.statusbar_context_id = self.rapid_statusbar.get_context_id("progress")
         
+        # hide display of warning and error symbols in the taskbar until they are needed
         self.error_image.hide()
         self.warning_image.hide()
         self.warning_vseparator.hide()
@@ -2331,7 +2362,7 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
             self.startVolumeMonitor()
         
        
-        # set up tree view display 
+        # set up tree view display to display image devices and download status
         media_collection_treeview = MediaTreeView(self)        
 
         self.media_collection_vbox.pack_start(media_collection_treeview)
@@ -2359,8 +2390,12 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
         self.menu_display_thumbnails.set_active(self.prefs.display_thumbnails)
         self.menu_clear.set_sensitive(False)
         
+        #job code initialization
         need_job_code = self.needJobCode()
+        self.last_chosen_job_code = None
+        self.prompting_for_job_code = False
         
+        #setup download and backup mediums, initiating scans
         self.setupAvailableImageAndBackupMedia(onStartup=True,  onPreferenceChange=False,  doNotAllowAutoStart = displayPreferences)
 
         #adjust viewport size for displaying media
@@ -2369,6 +2404,8 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
         height = self.media_collection_viewport.size_request()[1]
         self.media_collection_scrolledwindow.set_size_request(-1,  height)
         
+        self.download_button.grab_default()
+        # for some reason, the grab focus command is not working... unsure why
         self.download_button.grab_focus()
         
         if displayPreferences:
@@ -2412,6 +2449,10 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
         return rn.usesJobCode(self.prefs.image_rename) or rn.usesJobCode(self.prefs.subfolder)
         
     def assignJobCode(self,  code):
+        """ assign job code (which may be empty) to global variable and update user preferences
+        
+        Update preferences only if code is not empty. Do not duplicate job code.
+        """
         global job_code
         if code == None:
             code = ''
@@ -2428,7 +2469,37 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
                 jcs.remove(code)
                 
             self.prefs.job_codes = [code] + jcs
+            
+    
+      
         
+    def _getJobCode(self,  postJobCodeEntryCB,  autoStart):
+        cmd_line(_("Prompting for Job Code"))
+        self.prompting_for_job_code = True
+        j = JobCodeDialog(self.widget,  self.prefs.job_codes,  self.last_chosen_job_code, postJobCodeEntryCB,  autoStart)
+        
+    def getJobCode(self,  autoStart=True):
+        """ called from the copyphotos thread"""
+        
+        self._getJobCode(self.gotJobCode,  autoStart)
+        
+    def gotJobCode(self,  dialog,  userChoseCode,  code, autoStart):
+        dialog.destroy()
+        global job_code
+        if userChoseCode:
+            self.assignJobCode(code)
+            self.last_chosen_job_code = code
+            if autoStart:
+                cmd_line(_("Starting downloads that have been waiting for a Job Code"))
+                for w in workers.getWaitingForJobCodeWorkers():
+                    w.startStop()    
+            else:
+                cmd_line(_("Starting downloads"))
+                self.startDownload()
+
+        # FIXME: what happens to these workers that are waiting? How will the user start their download?
+        # check if need to add code to start button
+                
     def checkForUpgrade(self,  runningVersion):
         """ Checks if the running version of the program is different from the version recorded in the preferences.
         
@@ -2511,7 +2582,7 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
     
     def usingVolumeMonitor(self):
         """
-        Returns True if programs needs to use gnomevfs volume monitor
+        Returns True if programs needs to use gio or gnomevfs volume monitor
         """
         
         return (self.prefs.device_autodetection or 
@@ -2777,6 +2848,7 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
         self.download_button_is_download = True
         self.download_button = gtk.Button() 
         self.download_button.set_use_underline(True)
+        self.download_button.set_flags(gtk.CAN_DEFAULT)
         self._set_download_button()
         self.download_button.connect('clicked', self.on_download_button_clicked)
         self.download_hbutton_box.set_layout(gtk.BUTTONBOX_START)
@@ -2801,6 +2873,9 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
         self.totalDownloadSize = self.totalDownloadedSoFar = 0
         self.totalDownloadSizeThisRun = self.totalDownloadedSoFarThisRun = 0 
         self.timeRemaining.clear()
+        
+        global job_code
+        job_code = None
     
     def addToTotalDownloadSize(self,  size):
         self.totalDownloadSize += size
@@ -3028,14 +3103,8 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
         self._set_download_button()
         
     def startDownload(self):
-        if need_job_code:
-            j = JobCodeDialog(self.prefs.job_codes,  job_code)
-            if j.run() == gtk.RESPONSE_OK:
-                self.assignJobCode(j.get_job_code())
-            j.destroy()
-
-#        self.startOrResumeWorkers()
-#        self.postStartDownloadTasks()
+        self.startOrResumeWorkers()
+        self.postStartDownloadTasks()
         
     def pauseDownload(self):
         for w in workers.getDownloadingWorkers():
@@ -3055,7 +3124,11 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
         If pause, a click indicates to pause all running downloads.
         """
         if self.download_button_is_download:
-            self.startDownload()
+            if need_job_code and job_code == None and not self.prompting_for_job_code:
+                # not workers.noDownloadingWorkers() == 0
+                self.getJobCode(autoStart=False)
+            else:
+                self.startDownload()
         else:
             self.pauseDownload()
             
@@ -3071,6 +3144,7 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
                 self.startVolumeMonitor()
             cmd_line("\n" + _("Preferences were changed."))
             
+            global need_job_code
             need_job_code = self.needJobCode()
             
             self.setupAvailableImageAndBackupMedia(onStartup = False,  onPreferenceChange = True,  doNotAllowAutoStart = False)
