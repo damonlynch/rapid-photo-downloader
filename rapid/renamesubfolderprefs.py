@@ -162,7 +162,8 @@ LIST_DATE_TIME_L2 = ['YYYYMMDD', 'YYYY-MM-DD','YYMMDD', 'YY-MM-DD',
                     'MMDDYYYY', 'MMDDYY', 'MMDD', 
                     'DDMMYYYY', 'DDMMYY', 'YYYY', 'YY', 
                     'MM', 'DD', 
-                    'HHMMSS', 'HHMM']
+                    'HHMMSS', 'HHMM', 'HH-MM-SS',  'HH-MM',  'HH',  'MM',  'SS']
+                    
 
 LIST_IMAGE_DATE_TIME_L2 = LIST_DATE_TIME_L2 + [SUBSECONDS]
 
@@ -278,7 +279,17 @@ class i18TranslateMeThanks:
         _('HHMMSS')
         # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
         _('HHMM')
-    
+        # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
+        _('HH-MM-SS')        
+        # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
+        _('HH-MM') 
+        # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
+        _('HH')
+        # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
+        _('MM') 
+        # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
+        _('SS') 
+        
 
 # Convenience values for python datetime conversion using values in 
 # LIST_DATE_TIME_L2.  Obviously the two must remain synchronized.
@@ -287,7 +298,8 @@ DATE_TIME_CONVERT = ['%Y%m%d', '%Y-%m-%d','%y%m%d', '%y-%m-%d',
                     '%m%d%Y', '%m%d%y', '%m%d',
                     '%d%m%Y', '%d%m%y', '%Y', '%y', 
                     '%m', '%d',
-                    '%H%M%S', '%H%M']
+                    '%H%M%S', '%H%M', '%H-%M-%S',  '%H-%M',  
+                    '%H',  '%M',  '%S']
                     
 
 LIST_IMAGE_NUMBER_L2 = [IMAGE_NUMBER_ALL, IMAGE_NUMBER_1, IMAGE_NUMBER_2, 

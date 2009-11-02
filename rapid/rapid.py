@@ -2147,6 +2147,11 @@ class ImageHBox(gtk.HBox):
 
 class JobCodeDialog(gtk.Dialog):
     """ Dialog prompting for a job code"""
+    
+    """FIXME: not prompted for when after a card is inserted, using a job code is selected in the preferences
+        FIXME: not prompted for when JB selected, then card is inserted, after a previous download has occurred
+    """
+    
     def __init__(self,  parent_window,  job_codes,  default_job_code,  postJobCodeEntryCB,  autoStart):
         gtk.Dialog.__init__(self, _('Enter a Job Code'), None,
                    gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,

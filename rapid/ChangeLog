@@ -1,7 +1,7 @@
 Version 0.1.0
 -------------
 
-2009-06-10
+2009-xx-xx
 
 Added a "Job codes" option. Like the "text" option in image and subfolder name
 generation, this allows you to specify text that will be placed into the file
@@ -17,6 +17,8 @@ Thanks go to user hasp for this fix.
 
 Added dependency on gnome-icon-theme in Ubuntu packages.
 
+Added additional hour, minute and second options in image renaming and subfolder
+creation. Thanks to Art Zemon for the patch.
 
 
 Version 0.0.10
