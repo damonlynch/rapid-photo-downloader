@@ -15,6 +15,9 @@ has focus will now start the download.
 Fixed bug #387002: added dependency in Ubuntu packages for librsvg2-common. 
 Thanks go to user hasp for this fix.
 
+Fixed bug #478620: problem with corrupted image files. Thanks to user go to
+Katrin Krieger for tracking this one down.
+
 Added dependency on gnome-icon-theme in Ubuntu packages.
 
 Added additional hour, minute and second options in image renaming and subfolder

@@ -1485,16 +1485,23 @@ class CopyPhotos(Thread):
                 skipImage = True
                 imageMetadata =  newName = newFile = path = subfolder = None
             else:
-                imageMetadata.readMetadata()
-                if not imageMetadata.exifKeys() and (needMetaDataToCreateUniqueSubfolderName or 
-                                                     (needMetaDataToCreateUniqueImageName and 
-                                                     not addUniqueIdentifier)):
-                    logError(config.SERIOUS_ERROR, _("Image has no metadata"), 
-                                    _("Metadata is essential for generating subfolders / image names.\nSource: %s") % image, 
-                                    IMAGE_SKIPPED)
+                try:
+                    # this step can fail if the source image is corrupt
+                    imageMetadata.readMetadata()
+                except:
                     skipImage = True
+
+                if not skipImage:
+                    if not imageMetadata.exifKeys() and (needMetaDataToCreateUniqueSubfolderName or 
+                                                         (needMetaDataToCreateUniqueImageName and 
+                                                         not addUniqueIdentifier)):
+                        skipImage = True
+                        
+                if skipImage:
+                    logError(config.SERIOUS_ERROR, _("Image has no metadata"), 
+                                        _("Metadata is essential for generating subfolders / image names.\nSource: %s") % image, 
+                                        IMAGE_SKIPPED)
                     newName = newFile = path = subfolder = None
-                    
                 else:
                     subfolder, problem = self.subfolderPrefsFactory.generateNameUsingPreferences(
                                                             imageMetadata, name, 
@@ -2150,6 +2157,7 @@ class JobCodeDialog(gtk.Dialog):
     
     """FIXME: not prompted for when after a card is inserted, using a job code is selected in the preferences
         FIXME: not prompted for when JB selected, then card is inserted, after a previous download has occurred
+        FIXME: prompted for job code even after a job code has been removed from the users renaming preferences
     """
     
     def __init__(self,  parent_window,  job_codes,  default_job_code,  postJobCodeEntryCB,  autoStart):

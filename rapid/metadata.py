@@ -220,7 +220,7 @@ class MetaData(pyexiv2.Image):
         
         Returns missing if the metadata value is not present.
         
-        The short format is determined by the first occurence of a digit in the 
+        The short format is determined by the first occurrence of a digit in the 
         camera model, including all alphaNumeric characters before and after 
         that digit up till a non-alphanumeric character.
         
