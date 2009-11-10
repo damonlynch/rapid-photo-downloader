@@ -222,9 +222,11 @@ class MetaData(pyexiv2.Image):
         
         The short format is determined by the first occurrence of a digit in the 
         camera model, including all alphaNumeric characters before and after 
-        that digit up till a non-alphanumeric character.
+        that digit up till a non-alphanumeric character, but with these interventions:
         
-        Canon "Mark" designations are shortened prior to conversion.
+        1. Canon "Mark" designations are shortened prior to conversion.
+        2. Names like "Canon EOS DIGITAL REBEL XSi" do not have a number and must
+            and treated differently (see below)
         
         Examples:
         Canon EOS 300D DIGITAL -> 300D
@@ -233,6 +235,20 @@ class MetaData(pyexiv2.Image):
         NIKON D2X -> D2X
         NIKON D70 -> D70
         X100,D540Z,C310Z -> X100
+        Canon EOS DIGITAL REBEL XSi -> XSi
+        Canon EOS Digital Rebel XS -> XS
+        Canon EOS Digital Rebel XTi -> XTi
+        Canon EOS Kiss Digital X -> Digital
+        Canon EOS Digital Rebel XT -> XT
+        EOS Kiss Digital -> Digital        
+        Canon Digital IXUS Wireless -> Wireless
+        Canon Digital IXUS i zoom -> zoom
+        Canon EOS Kiss Digital N -> N
+        Canon Digital IXUS IIs -> IIs
+        IXY Digital L -> L
+        Digital IXUS i -> i
+        IXY Digital -> Digital
+        Digital IXUS -> IXUS
         
         The optional includeCharacters allows additional characters to appear 
         before and after the digits. 
@@ -246,8 +262,7 @@ class MetaData(pyexiv2.Image):
         includeCharacters = '\-':
         DSC-P92 -> DSC-P92 
         
-        If a digit is not found in the camera model, the full length camera 
-        model is returned.
+        If a digit is not found in the camera model, the last word is returned.
         
         Note: assume exif values are in ENGLISH, regardless of current platform
         """
@@ -260,7 +275,8 @@ class MetaData(pyexiv2.Image):
             if r:
                 return r.group("model")
             else:
-                return m.strip()
+                head,  space,  model = m.strip().rpartition(' ')
+                return model
         else:
             return missing
         

@@ -1,14 +1,14 @@
 Rapid Photo Downloader depends on the following software:
 
-- GNOME 2.18
-- GTK+ 2.10
-- Python 2.5
-- pygtk 2.10
-- python-gconf 2.18
-- python-glade2 2.10 
-- gnome-python 2.10
-- libexiv2 0.15
-- pyexiv2 0.1.1
+- GNOME 2.18 or higher
+- GTK+ 2.10 or higher
+- Python 2.5 or 2.6
+- pygtk 2.10 or higher
+- python-gconf 2.18 or higher
+- python-glade2 2.10 or higher
+- gnome-python 2.10 or higher
+- libexiv2 0.15 or higher
+- pyexiv2 0.1.1 or higher
 
 To run Rapid Photo Downloader you will need all the software mentioned above. To
 start from a fairly basic system, I suggest the following:
