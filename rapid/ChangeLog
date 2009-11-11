@@ -27,6 +27,10 @@ Added dependency on gnome-icon-theme in Ubuntu packages.
 Added additional hour, minute and second options in image renaming and subfolder
 creation. Thanks to Art Zemon for the patch.
 
+Malformed image date time exif values have are minimally checked to see if they
+can still be used for subfolder and image renaming. Some software programs seem
+to make a mess of them.
+
 
 Version 0.0.10
 --------------

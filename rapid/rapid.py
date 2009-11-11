@@ -2155,9 +2155,8 @@ class ImageHBox(gtk.HBox):
 class JobCodeDialog(gtk.Dialog):
     """ Dialog prompting for a job code"""
     
-    """FIXME: not prompted for when after a card is inserted, using a job code is selected in the preferences
+    """FIXME: not prompted for when after a JC is not entered, but then user clicks download a 2nd time
         FIXME: not prompted for when JB selected, then card is inserted, after a previous download has occurred
-        FIXME: prompted for job code even after a job code has been removed from the users renaming preferences
     """
     
     def __init__(self,  parent_window,  job_codes,  default_job_code,  postJobCodeEntryCB,  autoStart):
@@ -2264,8 +2263,9 @@ class LogDialog(gnomeglade.Component):
         
         iter = self.textbuffer.get_end_iter()
         self.textbuffer.insert_with_tags(iter, problem +"\n", self.problemTag)
-        iter = self.textbuffer.get_end_iter()
-        self.textbuffer.insert(iter, details + "\n")
+        if details:
+            iter = self.textbuffer.get_end_iter()
+            self.textbuffer.insert(iter, details + "\n")
         if resolution:
             iter = self.textbuffer.get_end_iter()
             self.textbuffer.insert_with_tags(iter, resolution +"\n", self.resolutionTag)
@@ -3146,7 +3146,10 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
             self.pauseDownload()
             
     def on_preference_changed(self, key, value):
-
+        """
+        Called when user changes the program's preferences
+        """
+        
         if key == 'display_thumbnails':
             self.set_display_thumbnails(value)
         elif key == 'show_log_dialog':
@@ -3156,15 +3159,17 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
             if self.usingVolumeMonitor():
                 self.startVolumeMonitor()
             cmd_line("\n" + _("Preferences were changed."))
-            
-            global need_job_code
-            need_job_code = self.needJobCode()
-            
+                        
             self.setupAvailableImageAndBackupMedia(onStartup = False,  onPreferenceChange = True,  doNotAllowAutoStart = False)
             if is_beta and verbose:
                 print "Current worker status:"
                 workers.printWorkerStatus()
+        elif key in ['subfolder',  'image_rename']:
+            global need_job_code
+            need_job_code = self.needJobCode()
 
+
+ 
     def on_error_eventbox_button_press_event(self,  widget,  event):
         self.prefs.show_log_dialog = True
         log_dialog.widget.show()

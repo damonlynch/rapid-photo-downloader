@@ -839,6 +839,23 @@ class ImageRenamePreferences:
 
         if d:
             if self.L2 <> SUBSECONDS:
+                
+                if type(d) == type('string'):
+                    # will be a string only if the date time could not be converted in the datetime type
+                    # try to massage badly formed date / times into a valid value
+                    _datetime = d.strip()
+                    # remove any weird characters at the end of the string
+                    while _datetime and not _datetime[-1].isdigit():
+                        _datetime = _datetime[:-1]
+                    _date,  _time = _datetime.split(' ')
+                    _datetime = "%s %s" % (_date.replace(":",  "-") ,  _time.replace("-",  ":"))
+                    try:
+                        d = datetime.datetime.strptime(_datetime, '%Y-%m-%d %H:%M:%S')
+                    except:
+                        v = ''
+                        problem = _('Error in date time component. Value %s appears invalid') % ''
+                        return (v,  problem)
+
                 try:
                     return (d.strftime(convertDateForStrftime(self.L2)), None)
                 except:
