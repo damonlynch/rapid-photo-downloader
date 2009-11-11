@@ -371,7 +371,11 @@ class RapidPreferences(prefs.Preferences):
         "day_start": prefs.Value(prefs.STRING,  "03:00"), 
         "downloads_today": prefs.ListValue(prefs.STRING_LIST,  [today(),  '0']), 
          "stored_sequence_no": prefs.Value(prefs.INT,  0), 
-         "job_codes": prefs.ListValue(prefs.STRING_LIST,  ['New York',  'Manila',  'Wellington',  'Tehran', 'Kampala',  'Sydney',  'Washington D.C.',  'Moscow',  'Delhi',  'Jakarta'])
+         "job_codes": prefs.ListValue(prefs.STRING_LIST,  [_('New York'),  
+               _('Manila'),  _('Prague'),  _('Helsinki'),   _('Wellington'), 
+               _('Tehran'), _('Kampala'),  _('Paris'), _('Berlin'),  _('Sydney'), 
+               _('Budapest'), _('Rome'),  _('Moscow'),  _('Delhi'), _('Warsaw'), 
+               _('Jakarta'),  _('Madrid'),  _('Stockholm')])
         }
 
     def __init__(self):
