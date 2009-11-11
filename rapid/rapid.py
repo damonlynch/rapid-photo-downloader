@@ -2155,10 +2155,6 @@ class ImageHBox(gtk.HBox):
 class JobCodeDialog(gtk.Dialog):
     """ Dialog prompting for a job code"""
     
-    """FIXME: not prompted for when after a JC is not entered, but then user clicks download a 2nd time
-        FIXME: not prompted for when JB selected, then card is inserted, after a previous download has occurred
-    """
-    
     def __init__(self,  parent_window,  job_codes,  default_job_code,  postJobCodeEntryCB,  autoStart):
         gtk.Dialog.__init__(self, _('Enter a Job Code'), None,
                    gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
@@ -2206,7 +2202,6 @@ class JobCodeDialog(gtk.Dialog):
         self.set_transient_for(parent_window)
         self.show_all()
         self.connect('response', self.on_job_code_resp)
-#        j.show()
             
     def match_func(self, completion, key, iter):
          model = completion.get_model()
@@ -2226,7 +2221,6 @@ class JobCodeDialog(gtk.Dialog):
             cmd_line(_("Job Code entered"))  
         else:
             cmd_line(_("Job Code not entered - download to be cancelled"))
-        self.prompting_for_job_code = False
         self.postJobCodeEntryCB(self,  userChoseCode,  self.get_job_code(),  self.autoStart)
 
         
@@ -2498,7 +2492,8 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
         
     def gotJobCode(self,  dialog,  userChoseCode,  code, autoStart):
         dialog.destroy()
-        global job_code
+        self.prompting_for_job_code = False
+        
         if userChoseCode:
             self.assignJobCode(code)
             self.last_chosen_job_code = code
@@ -2509,6 +2504,7 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
             else:
                 cmd_line(_("Starting downloads"))
                 self.startDownload()
+                
 
         # FIXME: what happens to these workers that are waiting? How will the user start their download?
         # check if need to add code to start button
