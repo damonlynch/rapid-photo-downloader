@@ -2885,7 +2885,7 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
         self.startTime = None
         self.totalDownloadSize = self.totalDownloadedSoFar = 0
         self.totalDownloadSizeThisRun = self.totalDownloadedSoFarThisRun = 0 
-        self.timeRemaining.clear()
+        # there is no need to clear self.timeRemaining, as when each thread is completed, it removes itself
         
         global job_code
         job_code = None
@@ -3138,7 +3138,6 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
         """
         if self.download_button_is_download:
             if need_job_code and job_code == None and not self.prompting_for_job_code:
-                # not workers.noDownloadingWorkers() == 0
                 self.getJobCode(autoStart=False)
             else:
                 self.startDownload()

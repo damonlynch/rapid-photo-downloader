@@ -1,7 +1,10 @@
-Version 0.1.0
--------------
+Version 0.1.0 beta 1
+--------------------
 
-2009-xx-xx
+2009-11-14
+
+This code is ready for full release, but given the magnitude of changes, a beta
+seems like a good idea, simply to catch any undetected bugs.
 
 Added a "Job codes" option. Like the "text" option in image and subfolder name
 generation, this allows you to specify text that will be placed into the file
@@ -21,6 +24,9 @@ Krieger for tracking this one down.
 Fixed bug #479424: some camera model names do not have numbers, but it still
 makes sense to return a shortened name. Thanks go to user Wesley Harp for 
 highlighting this problem.
+
+Fixed bug #482831: program no longer crashes when auto-download is off, and a 
+device is inserted before another download has completed
 
 Added Czech translation by Tomas Novak.
 
