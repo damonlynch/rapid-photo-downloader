@@ -22,6 +22,8 @@ image renaming and backup. It can download images from more than one device in p
 
 =head1 OPTIONS
 
+=over
+
 =item B<--version>
 
 Displays information about the currently installed version and exits.
@@ -42,17 +44,21 @@ Only display output errors and warnings to the command line as the program runs.
 
 Displays image file extensions the program recognizes and exits.
 
+=back
+
 =head1 ENVIRONMENT VARIABLES
+
+=over
 
 =item B<LOCALEDIR>
 
 If set, overrides the system-wide directory in which translation data will be searched for.
 
+=back
+
 =head1 BUGS
 
 * Support for downloading directly from cameras is experimental. Not all cameras are supported.
-
-* Closing log window with window manager 'x' instead of 'close' button is not yet supported.
 
 Please report bugs at https://bugs.launchpad.net/rapid
 
