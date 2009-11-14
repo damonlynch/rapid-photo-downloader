@@ -41,6 +41,8 @@ Malformed image date time exif values have are minimally checked to see if they
 can still be used for subfolder and image renaming. Some software programs seem
 to make a mess of them.
 
+Update man page, including a bug fix by Julien Valroff.
+
 
 Version 0.0.10
 --------------
