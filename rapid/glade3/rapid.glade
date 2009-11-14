@@ -2371,7 +2371,9 @@ Rapid Photo Downloader is distributed in the hope that it will be useful, but WI
 
 You should have received a copy of the GNU General Public License along with Rapid Photo Downloader; if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.</property>
     <property name="authors">Damon Lynch &lt;damonlynch@gmail.com&gt;</property>
-    <property name="translator_credits" comments="TRANSLATORS: Replace this string with your names, one name per line.">Martin Egger &lt;martin.egger@gmx.net&gt;
+    <property name="translator_credits" comments="TRANSLATORS: Replace this string with your names, one name per line.">Michel Ange &lt;michelange@wanadoo.fr&gt;
+Martin Egger &lt;martin.egger@gmx.net&gt;
+Andras Lorincz
 Jose Luis Navarro &lt;jlnavarro111@gmail.com&gt;
 Tomas Novak &lt;kuvaly@seznam.cz&gt;
 Abel O'Rian &lt;abel.orian@gmail.com&gt;

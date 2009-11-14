@@ -22,6 +22,16 @@ Fixed bug #479424: some camera model names do not have numbers, but it still
 makes sense to return a shortened name. Thanks go to user Wesley Harp for 
 highlighting this problem.
 
+Added Czech translation by Tomas Novak.
+
+Added French translation by Julien Valroff, Michel Ange, and Cenwen.
+
+Added Hungarian translation by Balazs Oveges and Andras Lorincz.
+
+Added Slovak translation by Tomas Novak.
+
+Added Swedish translation by Ulf Urden and Michal Predotka.
+
 Added dependency on gnome-icon-theme in Ubuntu packages.
 
 Added additional hour, minute and second options in image renaming and subfolder
