@@ -1044,21 +1044,21 @@ class PreferencesDialog(gnomeglade.Component):
 
 
     def on_add_job_code_button_clicked(self,  button):
-        j = JobCodeDialog(self.widget,  self.prefs.job_codes,  None)
-        if j.run() == gtk.RESPONSE_OK:
-            self.add_job_code(j.get_job_code())
-        j.destroy()
+        j = JobCodeDialog(self.widget,  self.prefs.job_codes,  None, self.add_job_code,  False)       
 
-    def add_job_code(self,  job_code):
-        if job_code and job_code not in self.prefs.job_codes:
-            self.job_code_liststore.prepend((job_code,  ))
-            self.update_job_codes()
-            selection = self.job_code_treeview.get_selection()
-            selection.unselect_all()
-            selection.select_path((0, ))
-            #scroll to the top
-            adjustment = self.job_code_scrolledwindow.get_vadjustment()
-            adjustment.set_value(adjustment.lower)
+
+    def add_job_code(self,  dialog,  userChoseCode,  job_code,  autoStart):
+        dialog.destroy()
+        if userChoseCode:
+            if job_code and job_code not in self.prefs.job_codes:
+                self.job_code_liststore.prepend((job_code,  ))
+                self.update_job_codes()
+                selection = self.job_code_treeview.get_selection()
+                selection.unselect_all()
+                selection.select_path((0, ))
+                #scroll to the top
+                adjustment = self.job_code_scrolledwindow.get_vadjustment()
+                adjustment.set_value(adjustment.lower)
 
     def on_remove_job_code_button_clicked(self,  button):
         """ remove selected job codes (can be multiple selection)"""
@@ -2226,7 +2226,7 @@ class JobCodeDialog(gtk.Dialog):
             userChoseCode = True
             cmd_line(_("Job Code entered"))  
         else:
-            cmd_line(_("Job Code not entered - download to be cancelled"))
+            cmd_line(_("Job Code not entered"))
         self.postJobCodeEntryCB(self,  userChoseCode,  self.get_job_code(),  self.autoStart)
 
         
