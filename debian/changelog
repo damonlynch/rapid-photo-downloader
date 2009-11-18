@@ -1,3 +1,27 @@
+rapid-photo-downloader (0.1.0~b1-0ubuntu1~ppa1) hardy; urgency=low
+
+  * added 'job codes' to image renaming and subfolder creation
+
+  * fixed bug #478620 crash when it cannot read image metadata
+
+  * fixed bug #479424 short model names do not work when the model
+    has no numbers
+
+  * fixed bug #482831 crash when downloading from new device after it
+    was inserted while other device was downloading
+
+  * added Czech, French, Hungarian, Slovak, and Swedish translations
+
+  * Added additional hour, minute and second options in image renaming
+    and subfolder creation
+
+  * Update man page, including a bug fix by Julien Valroff
+
+  * Malformed image date time exif values have are minimally checked to
+    see if they can still be used for subfolder and image renaming
+
+ -- Damon Lynch <damonlynch@gmail.com>  Sat, 14 Nov 2009 17:13:38 -0600
+
 rapid-photo-downloader (0.0.10-0ubuntu1~ppa2) hardy; urgency=low
 
   * added dependencies on librsvg2-common and gnome-icon-theme

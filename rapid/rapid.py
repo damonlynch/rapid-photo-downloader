@@ -351,6 +351,8 @@ class RapidPreferences(prefs.Preferences):
         "device_autodetection": prefs.Value(prefs.BOOL, True),
         "device_location": prefs.Value(prefs.STRING, os.path.expanduser('~')), 
         "device_autodetection_psd": prefs.Value(prefs.BOOL,  False),
+        "device_whitelist": prefs.ListValue(prefs.STRING_LIST,  ['']), 
+        "device_blacklist": prefs.ListValue(prefs.STRING_LIST,  ['']), 
         "backup_images": prefs.Value(prefs.BOOL, False),
         "backup_device_autodetection": prefs.Value(prefs.BOOL, True),
         "backup_identifier": prefs.Value(prefs.STRING, 
@@ -2669,30 +2671,33 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
         if self.usingVolumeMonitor():
             volume = Volume(mount)
             path = volume.get_path()
-            if not self.isGProxyShadowMount(mount):
-                self._printDetectedDevice(volume.get_name(limit=0),  path)
-                
-                isBackupVolume = self.checkIfBackupVolume(path)
-                            
-                if isBackupVolume:
-                    backupPath = os.path.join(path,  self.prefs.backup_identifier)
-                    if path not in self.backupVolumes:
-                        self.backupVolumes[backupPath] = volume
-                        self.rapid_statusbar.push(self.statusbar_context_id, self.displayBackupVolumes())
-
-                elif media.isImageMedia(path) or self.searchForPsd():
-                    cardMedia = CardMedia(path, volume,  True)
-                    i = workers.getNextThread_id()
+            
+            if path not in self.prefs.device_blacklist:
+            
+                if not self.isGProxyShadowMount(mount):
+                    self._printDetectedDevice(volume.get_name(limit=0),  path)
                     
-                    self._printAutoStart(self.prefs.auto_download_upon_device_insertion)
-                    
-                    workers.append(CopyPhotos(i, self, self.fileRenameLock, self.fileSequenceLock, self.statsLock, 
-                                                                self.downloadStats,  self.prefs.auto_download_upon_device_insertion, 
-                                                                cardMedia))
+                    isBackupVolume = self.checkIfBackupVolume(path)
+                                
+                    if isBackupVolume:
+                        backupPath = os.path.join(path,  self.prefs.backup_identifier)
+                        if path not in self.backupVolumes:
+                            self.backupVolumes[backupPath] = volume
+                            self.rapid_statusbar.push(self.statusbar_context_id, self.displayBackupVolumes())
+
+                    elif media.isImageMedia(path) or self.searchForPsd():
+                        cardMedia = CardMedia(path, volume,  True)
+                        i = workers.getNextThread_id()
+                        
+                        self._printAutoStart(self.prefs.auto_download_upon_device_insertion)
+                        
+                        workers.append(CopyPhotos(i, self, self.fileRenameLock, self.fileSequenceLock, self.statsLock, 
+                                                                    self.downloadStats,  self.prefs.auto_download_upon_device_insertion, 
+                                                                    cardMedia))
 
 
-                    self.setDownloadButtonSensitivity()
-                    self.startScan()
+                        self.setDownloadButtonSensitivity()
+                        self.startScan()
 
         
     def on_volume_unmounted(self, monitor, volume):
@@ -2807,14 +2812,15 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
                 path = volume.get_path(avoid_gnomeVFS_bug = True)
 
                 if path:
-                    if not self.isGProxyShadowMount(v):
-                        self._printDetectedDevice(volume.get_name(limit=0), path)
-                        isBackupVolume = self.checkIfBackupVolume(path)
-                        if isBackupVolume:
-                            backupPath = os.path.join(path,  self.prefs.backup_identifier)
-                            self.backupVolumes[backupPath] = volume
-                        elif self.prefs.device_autodetection and (media.isImageMedia(path) or self.searchForPsd()):
-                            cardMediaList.append(CardMedia(path, volume, True))
+                    if path not in self.prefs.device_blacklist:
+                        if not self.isGProxyShadowMount(v):
+                            self._printDetectedDevice(volume.get_name(limit=0), path)
+                            isBackupVolume = self.checkIfBackupVolume(path)
+                            if isBackupVolume:
+                                backupPath = os.path.join(path,  self.prefs.backup_identifier)
+                                self.backupVolumes[backupPath] = volume
+                            elif self.prefs.device_autodetection and (media.isImageMedia(path) or self.searchForPsd()):
+                                cardMediaList.append(CardMedia(path, volume, True))
                         
         
         if not self.prefs.device_autodetection:
@@ -3224,6 +3230,13 @@ class Volume:
                 path = gnomevfs.get_local_path_from_uri(uri)
         return path
         
+    def get_uuid(self):
+        if using_gio:
+            v = self.volume.get_uuid()
+        else:
+            v = None
+        return v
+            
     def unmount(self,  callback):
         self.volume.unmount(callback)
 

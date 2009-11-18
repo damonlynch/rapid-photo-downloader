@@ -26,7 +26,7 @@ makes sense to return a shortened name. Thanks go to user Wesley Harp for
 highlighting this problem.
 
 Fixed bug #482831: program no longer crashes when auto-download is off, and a 
-device is inserted before another download has completed
+device is inserted before another download has completed.
 
 Added Czech translation by Tomas Novak.
 
@@ -47,7 +47,7 @@ Malformed image date time exif values have are minimally checked to see if they
 can still be used for subfolder and image renaming. Some software programs seem
 to make a mess of them.
 
-Update man page, including a bug fix by Julien Valroff.
+Updated man page, including a bug fix by Julien Valroff.
 
 
 Version 0.0.10
