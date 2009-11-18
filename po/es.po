@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2009-11-11 10:25-0600\n"
-"PO-Revision-Date: 2009-07-16 18:55+0000\n"
-"Last-Translator: Abel O'Rian <abel.orian@gmail.com>\n"
+"PO-Revision-Date: 2009-11-17 20:38+0000\n"
+"Last-Translator: Alejandro Rochette <Unknown>\n"
 "Language-Team: Spanish <es@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2009-11-14 21:20+0000\n"
+"X-Launchpad-Export-Date: 2009-11-18 01:36+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #. Translators: if neccessary, for guidance in how to translate this program, you may see http://damonlynch.net/translate.html
@@ -24,75 +24,75 @@ msgstr "Rapid Photo Downloader"
 
 #: rapid/rapid.py:374
 msgid "New York"
-msgstr ""
+msgstr "Nueva York"
 
 #: rapid/rapid.py:375
 msgid "Manila"
-msgstr ""
+msgstr "Manila"
 
 #: rapid/rapid.py:375
 msgid "Prague"
-msgstr ""
+msgstr "Praga"
 
 #: rapid/rapid.py:375
 msgid "Helsinki"
-msgstr ""
+msgstr "Helsinki"
 
 #: rapid/rapid.py:375
 msgid "Wellington"
-msgstr ""
+msgstr "Wellington"
 
 #: rapid/rapid.py:376
 msgid "Tehran"
-msgstr ""
+msgstr "Teherán"
 
 #: rapid/rapid.py:376
 msgid "Kampala"
-msgstr ""
+msgstr "Kampala"
 
 #: rapid/rapid.py:376
 msgid "Paris"
-msgstr ""
+msgstr "París"
 
 #: rapid/rapid.py:376
 msgid "Berlin"
-msgstr ""
+msgstr "Berlín"
 
 #: rapid/rapid.py:376
 msgid "Sydney"
-msgstr ""
+msgstr "Sydney"
 
 #: rapid/rapid.py:377
 msgid "Budapest"
-msgstr ""
+msgstr "Budapest"
 
 #: rapid/rapid.py:377
 msgid "Rome"
-msgstr ""
+msgstr "Roma"
 
 #: rapid/rapid.py:377
 msgid "Moscow"
-msgstr ""
+msgstr "Moscú"
 
 #: rapid/rapid.py:377
 msgid "Delhi"
-msgstr ""
+msgstr "Delhi"
 
 #: rapid/rapid.py:377
 msgid "Warsaw"
-msgstr ""
+msgstr "Varsovia"
 
 #: rapid/rapid.py:378
 msgid "Jakarta"
-msgstr ""
+msgstr "Jakarta"
 
 #: rapid/rapid.py:378
 msgid "Madrid"
-msgstr ""
+msgstr "Madrid"
 
 #: rapid/rapid.py:378
 msgid "Stockholm"
-msgstr ""
+msgstr "Estocolmo"
 
 #: rapid/rapid.py:404
 msgid "Invalid Downloads Today value.\n"
@@ -985,22 +985,22 @@ msgstr "HHMM"
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
 #: rapid/renamesubfolderprefs.py:283
 msgid "HH-MM-SS"
-msgstr ""
+msgstr "HH-MM-SS"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
 #: rapid/renamesubfolderprefs.py:285
 msgid "HH-MM"
-msgstr ""
+msgstr "HH-MM"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
 #: rapid/renamesubfolderprefs.py:287
 msgid "HH"
-msgstr ""
+msgstr "HH"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
 #: rapid/renamesubfolderprefs.py:291
 msgid "SS"
-msgstr ""
+msgstr "SS"
 
 #: rapid/renamesubfolderprefs.py:707
 #, python-format

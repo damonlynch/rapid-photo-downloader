@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2009-11-11 10:25-0600\n"
-"PO-Revision-Date: 2009-11-13 18:31+0000\n"
+"PO-Revision-Date: 2009-11-17 21:24+0000\n"
 "Last-Translator: Kuvaly <kuvaly@seznam.cz>\n"
 "Language-Team: Czech <cs@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2009-11-14 21:20+0000\n"
+"X-Launchpad-Export-Date: 2009-11-18 01:36+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #. Translators: if neccessary, for guidance in how to translate this program, you may see http://damonlynch.net/translate.html
@@ -96,11 +96,11 @@ msgstr "Stockholm"
 
 #: rapid/rapid.py:404
 msgid "Invalid Downloads Today value.\n"
-msgstr "Dnešní hodnoty stahování jsou invalidní.\n"
+msgstr "Hodnota dnešní stahování je invalidní.\n"
 
 #: rapid/rapid.py:405
 msgid "Resetting value to zero.\n"
-msgstr "Resetování hodnot na nulu.\n"
+msgstr "Resetování hodnoty na nulu.\n"
 
 #: rapid/rapid.py:444
 msgid "'Start of day' preference value is corrupted.\n"
@@ -178,7 +178,7 @@ msgid ""
 "The subfolder preferences entered are invalid and cannot be used.\n"
 "They will be reset to their default values."
 msgstr ""
-"Vložené nastavení podsložky je invalidní anelze použít.\n"
+"Vložené nastavení podsložky je invalidní a nelze použít.\n"
 "Bylo tedy resetováno na výchozí hodnoty."
 
 #. Translators: this value is used as an example device when automatic backup device detection is enabled. You should translate this.
@@ -561,6 +561,8 @@ msgid ""
 "Some of your previous preferences were invalid, and could not be updated. "
 "They will be reset."
 msgstr ""
+"Tato verze programu využívá uživatelsky jiné nastavení než ta předchozí. "
+"Některé nastavení je invalidní a nelze aktualizovat. Je tedy resetováno."
 
 #: rapid/rapid.py:2572
 msgid "Problem using pynotify."
@@ -657,7 +659,7 @@ msgstr "Nastavení změněno"
 
 #: rapid/rapid.py:3298
 msgid "Goodbye"
-msgstr "Nashledanou"
+msgstr "Hezký den"
 
 #. Translators: this text is displayed to the user when they request information on the command line options.
 #. The text %default should not be modified or left out.
@@ -675,7 +677,7 @@ msgstr "pouze výstup chyb do příkazové řádky"
 #. image file extensions are recognized RAW files plus TIFF and JPG
 #: rapid/rapid.py:3312
 msgid "list image file extensions the program recognizes and exit"
-msgstr ""
+msgstr "program rozpozná typy obrázkových souborů a ukončí"
 
 #: rapid/rapid.py:3325
 #, python-format
@@ -783,7 +785,7 @@ msgstr "Krátký druh kamery"
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
 #: rapid/renamesubfolderprefs.py:211
 msgid "Hyphenated short camera model"
-msgstr ""
+msgstr "Model kamery v označení odděleném pomlčkou"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
 #: rapid/renamesubfolderprefs.py:213
@@ -1023,11 +1025,11 @@ msgstr "Chyba v časovém komponentu. Hodnota %s se zdá invalidní"
 
 #: rapid/renamesubfolderprefs.py:894
 msgid "extension was specified but image name has no extension"
-msgstr ""
+msgstr "typ souboru byl rozeznán, ale obrázek nemá označení typu souboru"
 
 #: rapid/renamesubfolderprefs.py:898
 msgid "image number was specified but image filename has no number"
-msgstr ""
+msgstr "číslo obrázku bylo rozeznáno, ale obrázek nemá číslo"
 
 #: rapid/renamesubfolderprefs.py:1085
 #, python-format
@@ -1047,7 +1049,7 @@ msgstr "Nastavení podsložky nemělo končit %s"
 #: rapid/renamesubfolderprefs.py:1387
 #, python-format
 msgid "Subfolder preferences should not contain two %s one after the other"
-msgstr ""
+msgstr "Nastavení podsložky by nemělo obsahovat dvě %s za sebou"
 
 #: rapid/glade3/rapid.glade.h:1
 msgid " "
@@ -1151,7 +1153,7 @@ msgstr "<span weight=\"bold\" size=\"x-large\">Chybová obsluha</span>"
 
 #: rapid/glade3/rapid.glade.h:26
 msgid "<span weight=\"bold\" size=\"x-large\">Image Devices</span>"
-msgstr "<span weight=\"bold\" size=\"x-large\">Obrázkové zařízení</span>"
+msgstr "<span weight=\"bold\" size=\"x-large\">Obrázková zařízení</span>"
 
 #: rapid/glade3/rapid.glade.h:27
 msgid "<span weight=\"bold\" size=\"x-large\">Image Rename</span>\t"
@@ -1259,12 +1261,13 @@ msgstr "Odejít z programu když bude stahování hotovo"
 #: rapid/glade3/rapid.glade.h:52
 msgid "If you disable automatic detection, choose the exact backup location."
 msgstr ""
+"Máte-li zapnutou automatickou detekci, vyberte přesnou lokaci zálohy."
 
 #: rapid/glade3/rapid.glade.h:53
 msgid ""
 "If you disable automatic detection, choose the exact location of the images."
 msgstr ""
-"Máte zapnutu automatickou detekci a vybrání vhodné lokace  pro snímky."
+"Máte-li zapnutou automatickou detekci, vyberte přesnou lokaci snímků."
 
 #: rapid/glade3/rapid.glade.h:54
 msgid ""
@@ -1272,6 +1275,9 @@ msgid ""
 "device will be scanned for images. On large devices, this could take some "
 "time."
 msgstr ""
+"Jestli povolíte automaticko detekci přenosných paměťových zařízení, tak "
+"budou z tohoto zařízení hledány obrázky. Na zařízeních s větší kapacitou to "
+"bude trvat déle."
 
 #: rapid/glade3/rapid.glade.h:55
 msgid "Ignore"
@@ -1296,6 +1302,14 @@ msgid ""
 "setting it to PTP mode. If that is not possible, consider using a card "
 "reader.</i>"
 msgstr ""
+"Obrázková zařízení jsou zařízení, ze kterých se mohou stahovat fotografie, "
+"jsou to např.: fotoaparáty, paměťové karty nebo přenosná paměťová zařízení.\n"
+"\n"
+"Zde si můžete stáhnout fotografie z více obrázkových zařízení současně.\n"
+"\n"
+"<i>Pokud stažení přímo z fotoaparátu funguje špatně nebo vůbec nefunguje, "
+"zkuste je v nastavení přepnout do režimu PTP. Není-li to možné, zvažte "
+"použití čtečky karet. </i>"
 
 #: rapid/glade3/rapid.glade.h:63
 msgid "Image location:"
@@ -1373,18 +1387,27 @@ msgid ""
 "used for backups. For each device you wish to use for backing up to, create "
 "a folder in it with this name.</i>"
 msgstr ""
+"Specifikujte složku, ve které jsou uloženy zálohy na zařízení.  \n"
+"\n"
+"<i>Poznámka: tento údaj bude také použit pro určení, zda je zařízení "
+"používané pro zálohování. Pro každé zařízení, které chcete použít pro "
+"zálohování, vytvořte v něm složku s tímto názvem.</i>"
 
 #: rapid/glade3/rapid.glade.h:82
 msgid ""
 "Specify the time in 24 hour format at which the <i>Downloads today</i> "
 "sequence number should be reset."
 msgstr ""
+"Specifikujte čas ve 24 hodinovém formátu aby mohlo být resetováno sekvenční "
+"číslo v <i>Dnešní stahování</i>."
 
 #: rapid/glade3/rapid.glade.h:83
 msgid ""
 "Specify what to do when an image of the same name has already been "
 "downloaded or backed up."
 msgstr ""
+"Specifikujte, co se má dělat, když byl obrázek stejného jména již stažen "
+"nebo zálohován."
 
 #: rapid/glade3/rapid.glade.h:84
 msgid "Specify what to do when there are no backup devices."
@@ -1397,6 +1420,8 @@ msgid ""
 "Specify whether image and folder names should have any characters removed "
 "that are not allowed by other operating systems."
 msgstr ""
+"Specifikujte zda mají být z názvů obrázků a složek vymazány některé znaky "
+"které nejsou povoleny operačními systémy."
 
 #: rapid/glade3/rapid.glade.h:86
 msgid "Start downloading at program startup"
@@ -1416,13 +1441,15 @@ msgstr "Odstranit nekompatibilní znaky"
 
 #: rapid/glade3/rapid.glade.h:90
 msgid "Unmount (\"eject\") image device upon download completion"
-msgstr ""
+msgstr "Odpojit (\"vysunout\") obrázkové zařízení po dokončení stahování"
 
 #: rapid/glade3/rapid.glade.h:91
 msgid ""
 "When backing up, choose whether to overwrite an image on the backup device "
 "that has the same name, or skip backing it up."
 msgstr ""
+"Při zálohování vyberte zda chcete přepsat obrázek který má schodné jméno s "
+"jiným, či zda ho chcete nezálohovat."
 
 #: rapid/glade3/rapid.glade.h:92
 msgid ""

@@ -54,6 +54,10 @@ Displays image file extensions the program recognizes and exits.
 
 If set, overrides the system-wide directory in which translation data will be searched for.
 
+=item B<LANG>
+
+The system-wide locale used for translations.
+
 =back
 
 =head1 BUGS
