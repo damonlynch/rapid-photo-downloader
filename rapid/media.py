@@ -61,7 +61,7 @@ class Media:
     """ Generic class for media holding images """
     def __init__(self, path, volume = None):
         """
-        volume is a gnomevfs volume
+        volume is a gnomevfs or gio volume, see class Volume in rapid.py
         """
         
         self.path = path
@@ -97,7 +97,7 @@ class CardMedia(Media):
     """Compact Flash cards, etc."""
     def __init__(self, path, volume = None,  doNotScan=True):
         """
-        volume is a gnomevfs volume
+        volume is a gnomevfs or gio volume, see class Volume in rapid.py
         """
         Media.__init__(self, path, volume)
         if not doNotScan:

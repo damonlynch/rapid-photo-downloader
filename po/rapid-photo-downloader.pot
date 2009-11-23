@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2009-11-17 19:34-0600\n"
+"POT-Creation-Date: 2009-11-22 19:10-0600\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -190,7 +190,7 @@ msgstr ""
 msgid "scanning..."
 msgstr ""
 
-#: rapid/rapid.py:1384 rapid/rapid.py:2455
+#: rapid/rapid.py:1384 rapid/rapid.py:2536
 msgid "There is an error in the program preferences."
 msgstr ""
 
@@ -362,11 +362,11 @@ msgstr ""
 msgid "%s images skipped"
 msgstr ""
 
-#: rapid/rapid.py:1747 rapid/rapid.py:3005
+#: rapid/rapid.py:1747 rapid/rapid.py:3126
 msgid "warnings"
 msgstr ""
 
-#: rapid/rapid.py:1749 rapid/rapid.py:3007
+#: rapid/rapid.py:1749 rapid/rapid.py:3128
 msgid "errors"
 msgstr ""
 
@@ -435,69 +435,116 @@ msgstr ""
 msgid "It may be corrupted"
 msgstr ""
 
-#: rapid/rapid.py:2165
+#: rapid/rapid.py:2161
+msgid "Device Detected"
+msgstr ""
+
+#: rapid/rapid.py:2169
+msgid "Should this device or partition be used to download images from?"
+msgstr ""
+
+#: rapid/rapid.py:2186
+msgid "_Remember this choice"
+msgstr ""
+
+#: rapid/rapid.py:2222
+#, python-format
+msgid "%s selected for downloading from"
+msgstr ""
+
+#: rapid/rapid.py:2224
+msgid "This device or partition will always be used to download from"
+msgstr ""
+
+#: rapid/rapid.py:2226
+#, python-format
+msgid "%s rejected as a download device"
+msgstr ""
+
+#: rapid/rapid.py:2228
+msgid "This device or partition will never be used to download from"
+msgstr ""
+
+#: rapid/rapid.py:2237
 msgid "Enter a Job Code"
 msgstr ""
 
-#: rapid/rapid.py:2181
+#: rapid/rapid.py:2254
+msgid "Enter a new job code, or select a previous one."
+msgstr ""
+
+#: rapid/rapid.py:2256
+msgid "Enter a new job code."
+msgstr ""
+
+#: rapid/rapid.py:2261
 msgid "Job Code:"
 msgstr ""
 
-#: rapid/rapid.py:2227
+#: rapid/rapid.py:2308
 msgid "Job Code entered"
 msgstr ""
 
-#: rapid/rapid.py:2229
+#: rapid/rapid.py:2310
 msgid "Job Code not entered"
 msgstr ""
 
-#: rapid/rapid.py:2456
+#: rapid/rapid.py:2537
 msgid "Some preferences will be reset."
 msgstr ""
 
-#: rapid/rapid.py:2490
+#: rapid/rapid.py:2571
+#, python-format
+msgid "Prompting whether to use %s"
+msgstr ""
+
+#: rapid/rapid.py:2599
 msgid "Prompting for Job Code"
 msgstr ""
 
-#: rapid/rapid.py:2507
+#: rapid/rapid.py:2603
+msgid "Already prompting for Job Code, do not prompt again"
+msgstr ""
+
+#: rapid/rapid.py:2618
 msgid "Starting downloads that have been waiting for a Job Code"
 msgstr ""
 
-#: rapid/rapid.py:2511
+#: rapid/rapid.py:2622
 msgid "Starting downloads"
 msgstr ""
 
-#: rapid/rapid.py:2541
+#: rapid/rapid.py:2652
 msgid ""
 "A newer version of this program was previously run on this computer.\n"
 "\n"
 msgstr ""
 
-#: rapid/rapid.py:2543
+#: rapid/rapid.py:2654
 msgid ""
 "Program preferences appear to be valid, but please check them to ensure "
 "correct operation."
 msgstr ""
 
-#: rapid/rapid.py:2545
+#: rapid/rapid.py:2656
 msgid "Sorry, some preferences are invalid and will be reset."
 msgstr ""
 
-#: rapid/rapid.py:2546
+#: rapid/rapid.py:2657
 msgid "Warning:"
 msgstr ""
 
-#: rapid/rapid.py:2551
+#: rapid/rapid.py:2662
 msgid ""
 "This version of the program is newer than the previously run version. "
 "Checking preferences."
 msgstr ""
 
-#: rapid/rapid.py:2558
+#: rapid/rapid.py:2669
 msgid "Preferences were modified."
 msgstr ""
 
-#: rapid/rapid.py:2559
+#: rapid/rapid.py:2670
 msgid ""
 "This version of the program uses different preferences than the old version. "
 "Your preferences have been updated.\n"
@@ -505,144 +552,149 @@ msgid ""
 "Please check them to ensure correct operation."
 msgstr ""
 
-#: rapid/rapid.py:2563
+#: rapid/rapid.py:2674
 msgid "No preferences needed to be changed."
 msgstr ""
 
-#: rapid/rapid.py:2565
+#: rapid/rapid.py:2676
 msgid ""
 "This version of the program uses different preferences than the old version. "
 "Some of your previous preferences were invalid, and could not be updated. "
 "They will be reset."
 msgstr ""
 
-#: rapid/rapid.py:2574
+#: rapid/rapid.py:2685
 msgid "Problem using pynotify."
 msgstr ""
 
-#: rapid/rapid.py:2590
+#: rapid/rapid.py:2701
 msgid "Failed to receive pynotify server capabilities."
 msgstr ""
 
-#: rapid/rapid.py:2628
+#: rapid/rapid.py:2739
 msgid "and"
 msgstr ""
 
-#: rapid/rapid.py:2633
+#: rapid/rapid.py:2744
 msgid "Using backup devices"
 msgstr ""
 
-#: rapid/rapid.py:2635
+#: rapid/rapid.py:2746
 msgid "Using backup device"
 msgstr ""
 
-#: rapid/rapid.py:2637
+#: rapid/rapid.py:2748
 msgid "No backup devices detected"
 msgstr ""
 
-#: rapid/rapid.py:2775
+#: rapid/rapid.py:2787 rapid/rapid.py:2936
+#, python-format
+msgid "Device %(device)s (%(path)s) ignored"
+msgstr ""
+
+#: rapid/rapid.py:2895
 #, python-format
 msgid "Detected %(device)s with path %(path)s"
 msgstr ""
 
-#: rapid/rapid.py:2779
+#: rapid/rapid.py:2899
 msgid "Automatically start download is true"
 msgstr ""
 
-#: rapid/rapid.py:2781
+#: rapid/rapid.py:2901
 msgid "Automatically start download is false"
 msgstr ""
 
-#: rapid/rapid.py:2830
+#: rapid/rapid.py:2954
 msgid "Using manually specified path"
 msgstr ""
 
-#: rapid/rapid.py:2951 rapid/rapid.py:3000
+#: rapid/rapid.py:3072 rapid/rapid.py:3121
 msgid "All downloads complete"
 msgstr ""
 
-#: rapid/rapid.py:2965
+#: rapid/rapid.py:3086
 msgid "MB/s"
 msgstr ""
 
-#: rapid/rapid.py:2975
+#: rapid/rapid.py:3096
 msgid "About 1 second remaining"
 msgstr ""
 
-#: rapid/rapid.py:2977
+#: rapid/rapid.py:3098
 #, python-format
 msgid "About %i seconds remaining"
 msgstr ""
 
-#: rapid/rapid.py:2979
+#: rapid/rapid.py:3100
 msgid "About 1 minute remaining"
 msgstr ""
 
 #. Translators: in the text '%(minutes)i:%(seconds)02i', only the : should be translated, if needed.
 #. '%(minutes)i' and '%(seconds)02i' should not be modified or left out. They are used to format and display the amount
 #. of time the download has remainging, e.g. 'About 5:36 minutes remaining'
-#: rapid/rapid.py:2984
+#: rapid/rapid.py:3105
 #, python-format
 msgid "About %(minutes)i:%(seconds)02i minutes remaining"
 msgstr ""
 
-#: rapid/rapid.py:3001
+#: rapid/rapid.py:3122
 msgid "images downloaded"
 msgstr ""
 
-#: rapid/rapid.py:3003
+#: rapid/rapid.py:3124
 msgid "images skipped"
 msgstr ""
 
 #. This text will be displayed to the user on the Download / Pause button.
 #. Please note the space at the end of the label - it is needed to meet the Gnome Human Interface Guidelines
-#: rapid/rapid.py:3095
+#: rapid/rapid.py:3216
 msgid "_Download "
 msgstr ""
 
 #. This text will be displayed to the user on the Download / Pause button.
-#: rapid/rapid.py:3105
+#: rapid/rapid.py:3226
 msgid "_Pause"
 msgstr ""
 
-#: rapid/rapid.py:3166
+#: rapid/rapid.py:3287
 msgid "Preferences were changed."
 msgstr ""
 
-#: rapid/rapid.py:3310
+#: rapid/rapid.py:3447
 msgid "Goodbye"
 msgstr ""
 
 #. Translators: this text is displayed to the user when they request information on the command line options.
 #. The text %default should not be modified or left out.
-#: rapid/rapid.py:3321
+#: rapid/rapid.py:3458
 #, python-format
 msgid ""
 "display program information on the command line as the program runs "
 "(default: %default)"
 msgstr ""
 
-#: rapid/rapid.py:3322
+#: rapid/rapid.py:3459
 msgid "only output errors to the command line"
 msgstr ""
 
 #. image file extensions are recognized RAW files plus TIFF and JPG
-#: rapid/rapid.py:3324
+#: rapid/rapid.py:3461
 msgid "list image file extensions the program recognizes and exit"
 msgstr ""
 
-#: rapid/rapid.py:3337
+#: rapid/rapid.py:3474
 #, python-format
 msgid "and %s"
 msgstr ""
 
 #. Which volume management code is being used (GIO or GnomeVFS)
-#: rapid/rapid.py:3342 rapid/rapid.py:3345
+#: rapid/rapid.py:3479 rapid/rapid.py:3482
 msgid "Using"
 msgstr ""
 
 #. this application is already running
-#: rapid/rapid.py:3359
+#: rapid/rapid.py:3496
 #, python-format
 msgid "%s is already running"
 msgstr ""

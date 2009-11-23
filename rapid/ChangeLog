@@ -1,9 +1,16 @@
 Version 0.1.0 beta 2
 --------------------
 
-2009-11-xx
+2009-11-22
 
-Fixed bug: #484432 error in adding job codes via the preferences dialog. 
+New feature: when detection of portable storage devices is selected, the program
+will prompt you whether or not to download from each device it automatically
+detects. You can choose whether the program should remember the choice you make
+every time it runs. This fixes bug #376020.
+
+Fixed bug #484432: error in adding job codes via the preferences dialog.
+
+Fixed bug #486886: Job code prompt can appear multiple times.
 
 Version 0.1.0 beta 1
 --------------------
