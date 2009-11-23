@@ -2166,6 +2166,7 @@ class UseDeviceDialog(gtk.Dialog):
         self.postChoiceCB = postChoiceCB
         
         self.set_icon_from_file(paths.share_dir('glade3/rapid-photo-downloader-about.png'))
+        # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#usedeviceprompt
         prompt_label = gtk.Label(_('Should this device or partition be used to download images from?'))
         prompt_label.set_line_wrap(True)
         device_label = gtk.Label()
@@ -2182,7 +2183,7 @@ class UseDeviceDialog(gtk.Dialog):
             image = gtk.Image()
             image.set_from_pixbuf(icon)
             
-
+        # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#usedeviceprompt
         self.always_checkbutton = gtk.CheckButton(_('_Remember this choice'),  True)
 
         if icon:
@@ -2219,12 +2220,16 @@ class UseDeviceDialog(gtk.Dialog):
         permanent_choice = self.always_checkbutton.get_active()
         if response == gtk.RESPONSE_OK:
             userSelected = True
+            # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#usedeviceprompt
             cmd_line(_("%s selected for downloading from" % self.volume.get_name(limit=0)))
             if permanent_choice:
+                # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#usedeviceprompt
                 cmd_line(_("This device or partition will always be used to download from"))
         else:
+            # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#usedeviceprompt
             cmd_line(_("%s rejected as a download device" % self.volume.get_name(limit=0)))
             if permanent_choice:
+                # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#usedeviceprompt
                 cmd_line(_("This device or partition will never be used to download from"))
             
         self.postChoiceCB(self,  userSelected,  permanent_choice,  self.path,  
@@ -2234,6 +2239,7 @@ class JobCodeDialog(gtk.Dialog):
     """ Dialog prompting for a job code"""
     
     def __init__(self,  parent_window,  job_codes,  default_job_code,  postJobCodeEntryCB,  autoStart):
+        # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#jobcode
         gtk.Dialog.__init__(self,  _('Enter a Job Code'), None,
                    gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
                    (gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL, 
@@ -2251,8 +2257,10 @@ class JobCodeDialog(gtk.Dialog):
         self.job_code_hbox = gtk.HBox(homogeneous = False)
         
         if len(job_codes):
+            # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#jobcode
             task_label = gtk.Label(_('Enter a new job code, or select a previous one.'))
         else:
+            # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#jobcode
             task_label = gtk.Label(_('Enter a new job code.'))            
         task_label.set_line_wrap(True)
         task_hbox = gtk.HBox()

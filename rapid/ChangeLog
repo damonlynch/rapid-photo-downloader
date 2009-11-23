@@ -12,6 +12,9 @@ Fixed bug #484432: error in adding job codes via the preferences dialog.
 
 Fixed bug #486886: Job code prompt can appear multiple times.
 
+Updated Hungarian and French translations.
+
+
 Version 0.1.0 beta 1
 --------------------
 
