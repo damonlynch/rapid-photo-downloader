@@ -1,3 +1,16 @@
+rapid-photo-downloader (0.1.0~b2-0ubuntu1~ppa1) hardy; urgency=low
+
+  * fixed bug #376020 prompt user whether or not to use device
+
+  * fixed bug #484432 error in adding job codes via the preferences 
+    dialog
+
+  * fixed bug #486886 Job code prompt can appear multiple times
+
+  * Updated Hungarian and French translations
+
+ -- Damon Lynch <damonlynch@gmail.com>  Sun, 22 Nov 2009 20:29:42 -0600
+
 rapid-photo-downloader (0.1.0~b1-0ubuntu1~ppa1) hardy; urgency=low
 
   * added 'job codes' to image renaming and subfolder creation
