@@ -1014,11 +1014,11 @@
                                         <property name="layout_style">start</property>
                                         <child>
                                           <widget class="GtkButton" id="add_job_code_button">
-                                            <property name="label">gtk-add</property>
+                                            <property name="label" translatable="yes">_Add...</property>
                                             <property name="visible">True</property>
                                             <property name="can_focus">True</property>
                                             <property name="receives_default">True</property>
-                                            <property name="use_stock">True</property>
+                                            <property name="use_underline">True</property>
                                             <signal name="clicked" handler="on_add_job_code_button_clicked"/>
                                           </widget>
                                           <packing>
@@ -1044,7 +1044,7 @@
                                         </child>
                                         <child>
                                           <widget class="GtkButton" id="clear_job_code_button">
-                                            <property name="label" translatable="yes" comments="The underscore after the C signifies that the l is the accelerator key. This is the standard 'Clear' button, but I needed to change the accelerator from the standard 'c' to 'l' because the close button also used 'c'">C_lear</property>
+                                            <property name="label" translatable="yes" comments="The underscore after the C signifies that the l is the accelerator key. This is the standard 'Clear' button, but I needed to change the accelerator from the standard 'c' to 'l' because the close button also used 'c'">R_emove All</property>
                                             <property name="visible">True</property>
                                             <property name="can_focus">True</property>
                                             <property name="receives_default">True</property>

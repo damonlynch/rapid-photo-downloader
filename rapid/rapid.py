@@ -1044,7 +1044,7 @@ class PreferencesDialog(gnomeglade.Component):
 
 
     def on_add_job_code_button_clicked(self,  button):
-        j = JobCodeDialog(self.widget,  self.prefs.job_codes,  None, self.add_job_code,  False)       
+        j = JobCodeDialog(self.widget,  self.prefs.job_codes,  None, self.add_job_code,  False, True)       
 
 
     def add_job_code(self,  dialog,  userChoseCode,  job_code,  autoStart):
@@ -2240,7 +2240,7 @@ class UseDeviceDialog(gtk.Dialog):
 class JobCodeDialog(gtk.Dialog):
     """ Dialog prompting for a job code"""
     
-    def __init__(self,  parent_window,  job_codes,  default_job_code,  postJobCodeEntryCB,  autoStart):
+    def __init__(self,  parent_window,  job_codes,  default_job_code,  postJobCodeEntryCB,  autoStart, entryOnly):
         # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#jobcode
         gtk.Dialog.__init__(self,  _('Enter a Job Code'), None,
                    gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
@@ -2258,7 +2258,7 @@ class JobCodeDialog(gtk.Dialog):
             
         self.job_code_hbox = gtk.HBox(homogeneous = False)
         
-        if len(job_codes):
+        if len(job_codes) and not entryOnly:
             # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#jobcode
             task_label = gtk.Label(_('Enter a new job code, or select a previous one.'))
         else:
@@ -2608,7 +2608,7 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
         if not self.prompting_for_job_code:
             cmd_line(_("Prompting for Job Code"))
             self.prompting_for_job_code = True
-            j = JobCodeDialog(self.widget,  self.prefs.job_codes,  self.last_chosen_job_code, postJobCodeEntryCB,  autoStart)
+            j = JobCodeDialog(self.widget,  self.prefs.job_codes,  self.last_chosen_job_code, postJobCodeEntryCB,  autoStart, False)
         else:
             cmd_line(_("Already prompting for Job Code, do not prompt again"))
         
