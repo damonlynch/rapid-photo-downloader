@@ -2169,6 +2169,8 @@ class UseDeviceDialog(gtk.Dialog):
         # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#usedeviceprompt
         prompt_label = gtk.Label(_('Should this device or partition be used to download images from?'))
         prompt_label.set_line_wrap(True)
+        prompt_hbox = gtk.HBox()
+        prompt_hbox.pack_start(prompt_label, False, False, padding=6)
         device_label = gtk.Label()
         device_label.set_markup("<b>%s</b>" % volume.get_name(limit=0))
         device_hbox = gtk.HBox()
@@ -2198,7 +2200,7 @@ class UseDeviceDialog(gtk.Dialog):
             self.vbox.pack_start(device_hbox, padding=6)
             self.vbox.pack_start(path_hbox, padding = 6)
             
-        self.vbox.pack_start(prompt_label,  padding=6)
+        self.vbox.pack_start(prompt_hbox, padding=6)
         self.vbox.pack_start(self.always_checkbutton,  padding=6)
 
         self.set_border_width(6)
