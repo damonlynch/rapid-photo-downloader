@@ -162,7 +162,7 @@ LIST_DATE_TIME_L2 = ['YYYYMMDD', 'YYYY-MM-DD','YYMMDD', 'YY-MM-DD',
                     'MMDDYYYY', 'MMDDYY', 'MMDD', 
                     'DDMMYYYY', 'DDMMYY', 'YYYY', 'YY', 
                     'MM', 'DD', 
-                    'HHMMSS', 'HHMM', 'HH-MM-SS',  'HH-MM',  'HH',  'MM',  'SS']
+                    'HHMMSS', 'HHMM', 'HH-MM-SS',  'HH-MM',  'HH',  'MM (minutes)',  'SS']
                     
 
 LIST_IMAGE_DATE_TIME_L2 = LIST_DATE_TIME_L2 + [SUBSECONDS]
@@ -286,7 +286,7 @@ class i18TranslateMeThanks:
         # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
         _('HH')
         # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-        _('MM') 
+        _('MM (minutes)') 
         # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
         _('SS') 
         
