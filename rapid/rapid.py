@@ -656,6 +656,10 @@ class PreferencesDialog(gnomeglade.Component):
         
         self.widget.set_transient_for(parentApp.widget)
         self.prefs = parentApp.prefs
+        
+        parentApp.preferencesDialogDisplayed = True
+        
+        self.parentApp = parentApp
 
         self._setupTabSelector()
         
@@ -1041,6 +1045,10 @@ class PreferencesDialog(gnomeglade.Component):
                     self.prefs.subfolder = self.prefs.get_default("subfolder")
                     
             self.widget.destroy()
+            self.parentApp.preferencesDialogDisplayed = False
+            self.parentApp.postPreferenceChange()
+            
+
 
 
     def on_add_job_code_button_clicked(self,  button):
@@ -2465,7 +2473,14 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
         if self.usingVolumeMonitor():
             self.startVolumeMonitor()
         
-       
+        # flag to indicate whether the user changed some preferences that 
+        # indicate the image and backup devices should be setup again
+        self.rerunSetupAvailableImageAndBackupMedia = False
+        
+        # flag to indicate that the preferences dialog window is being 
+        # displayed to the user
+        self.preferencesDialogDisplayed = False
+        
         # set up tree view display to display image devices and download status
         media_collection_treeview = MediaTreeView(self)        
 
@@ -3291,7 +3306,20 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
         elif key == 'show_log_dialog':
             self.menu_log_window.set_active(value)
         elif key in ['device_autodetection', 'device_autodetection_psd', 'backup_images',  'device_location',
-                      'backup_device_autodetection', 'backup_location' ]:
+                      'backup_device_autodetection', 'backup_location' ]:              
+            self.rerunSetupAvailableImageAndBackupMedia = True
+            if not self.preferencesDialogDisplayed:
+                self.postPreferenceChange()
+
+        elif key in ['subfolder',  'image_rename']:
+            global need_job_code
+            need_job_code = self.needJobCode()
+            
+    def postPreferenceChange(self):
+        """
+        Handle changes in program preferences after the preferences dialog window has been closed
+        """
+        if self.rerunSetupAvailableImageAndBackupMedia:
             if self.usingVolumeMonitor():
                 self.startVolumeMonitor()
             cmd_line("\n" + _("Preferences were changed."))
@@ -3300,9 +3328,8 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
             if is_beta and verbose:
                 print "Current worker status:"
                 workers.printWorkerStatus()
-        elif key in ['subfolder',  'image_rename']:
-            global need_job_code
-            need_job_code = self.needJobCode()
+                
+            self.rerunSetupAvailableImageAndBackupMedia = False
 
 
  

@@ -1,6 +1,11 @@
 Version 0.1.0
 -------------
 
+2009-12-xx
+
+When program preferences are changed, image and backup devices are now refreshed
+only when the preferences dialog window is closed.
+
 Updated Czech, French, Hungarian, Polish, Russian and Swedish translations.
 
 
