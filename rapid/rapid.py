@@ -1992,7 +1992,7 @@ class CopyPhotos(Thread):
 
     def on_volume_unmount(self,  data1,  data2):
         """ needed for call to unmount volume"""
-        pass
+        pass 
 
 
 class MediaTreeView(gtk.TreeView):
@@ -2867,8 +2867,9 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
         callback run when gnomevfs indicates a volume
         has been unmounted
         """
-        volume = Volume(volume)
-        path = volume.get_path()
+        
+        v = Volume(volume)
+        path = v.get_path()
 
         # four scenarios -
         # volume is waiting to be scanned
@@ -2878,15 +2879,18 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
         
         if path:
             # first scenario
+
             for w in workers.getReadyToStartWorkers():
-                if w.cardMedia.volume == volume:
-                    media_collection_treeview.removeCard(w.thread_id)
-                    workers.disableWorker(w.thread_id)
+                if w.cardMedia.volume:
+                    if w.cardMedia.volume.volume == volume:
+                        media_collection_treeview.removeCard(w.thread_id)
+                        workers.disableWorker(w.thread_id)
             # second scenario
             for w in workers.getReadyToDownloadWorkers():
-                if w.cardMedia.volume == volume:
-                    media_collection_treeview.removeCard(w.thread_id)
-                    workers.disableWorker(w.thread_id)
+                if w.cardMedia.volume:                
+                    if w.cardMedia.volume.volume == volume:
+                        media_collection_treeview.removeCard(w.thread_id)
+                        workers.disableWorker(w.thread_id)
                     
             # fourth scenario - nothing to do
                     
@@ -2895,7 +2899,9 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
             if backupPath in self.backupVolumes:
                 del self.backupVolumes[backupPath]
                 self.rapid_statusbar.push(self.statusbar_context_id, self.displayBackupVolumes())
-
+                
+            # may need to disable download button
+            self.setDownloadButtonSensitivity()
         
     
     def clearCompletedDownloads(self):

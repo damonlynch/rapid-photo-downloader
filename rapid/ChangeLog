@@ -5,6 +5,9 @@ Version 0.1.0
 
 Added icons to notification messages.
 
+Bug fix: properly handle devices being unmounted, fixing a bug introduced in
+Version 0.0.9 beta 2.
+
 Bug fix: When program preferences are changed, image and backup devices are now 
 refreshed only when the preferences dialog window is closed.
 
