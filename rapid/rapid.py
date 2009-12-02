@@ -1757,6 +1757,13 @@ class CopyPhotos(Thread):
                 message = "%s\n%s " % (message,  self.noErrors) + _("errors")
                 
             n = pynotify.Notification(notificationName,  message)
+            
+            if self.cardMedia.volume:
+                icon = self.cardMedia.volume.get_icon_pixbuf(self.parentApp.notification_icon_size)
+            else:
+                icon = self.parentApp.application_icon
+            
+            n.set_icon_from_pixbuf(icon)
             n.show()            
         
 
@@ -2730,6 +2737,16 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
             capabilities[cap] = True
 
         info = pynotify.get_server_info()
+        
+        if info['name'] == 'Notification Daemon':
+            self.notification_icon_size = 48
+        else:
+            self.notification_icon_size = 128
+            
+        self.application_icon = gtk.gdk.pixbuf_new_from_file_at_size(
+                paths.share_dir('glade3/rapid-photo-downloader-about.png'),
+                self.notification_icon_size,  self.notification_icon_size)
+        
     
     def usingVolumeMonitor(self):
         """
@@ -3152,6 +3169,7 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
                 if self.downloadStats.noErrors:
                     message = "%s\n%s " % (message,  self.downloadStats.noErrors) +_("errors")
                 n = pynotify.Notification(PROGRAM_NAME,  message)
+                n.set_icon_from_pixbuf(self.application_icon)
                 n.show()
                 self.displayDownloadSummaryNotification = False # don't show it again unless needed
                 self.downloadStats.clear()

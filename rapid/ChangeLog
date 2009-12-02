@@ -3,6 +3,8 @@ Version 0.1.0
 
 2009-12-xx
 
+Added icons to notification messages.
+
 Bug fix: When program preferences are changed, image and backup devices are now 
 refreshed only when the preferences dialog window is closed.
 
