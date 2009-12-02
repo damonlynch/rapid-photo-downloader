@@ -3,13 +3,14 @@ Version 0.1.0
 
 2009-12-xx
 
-Bug fix: When program preferences are changed, image and backup devices are now refreshed
-only when the preferences dialog window is closed.
+Bug fix: When program preferences are changed, image and backup devices are now 
+refreshed only when the preferences dialog window is closed.
 
-Bug fix: Minutes component of image and folder names had the same code as 
+Bug fix: Minutes component of image and folder renaming had the same code as 
 months.
 
-Updated Czech, French, Hungarian, Polish, Russian and Swedish translations.
+Updated Czech, French, Hungarian, Polish, Russian, Slovak and Swedish
+translations.
 
 
 Version 0.1.0 beta 2
