@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2009-11-30 15:31-0600\n"
-"PO-Revision-Date: 2009-12-03 22:37+0000\n"
+"PO-Revision-Date: 2009-12-05 10:55+0000\n"
 "Last-Translator: Kuvaly <kuvaly@seznam.cz>\n"
 "Language-Team: French <fr@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2009-12-05 00:44+0000\n"
+"X-Launchpad-Export-Date: 2009-12-05 18:28+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #. Translators: if neccessary, for guidance in how to translate this program, you may see http://damonlynch.net/translate.html
@@ -1430,7 +1430,7 @@ msgstr "Préférences : Rapid Photo Downloader"
 
 #: rapid/glade3/rapid.glade.h:67
 msgid "R_emove All"
-msgstr ""
+msgstr "S_upprimer tout"
 
 #: rapid/glade3/rapid.glade.h:69
 msgid ""
