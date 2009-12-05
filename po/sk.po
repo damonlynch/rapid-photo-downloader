@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2009-11-30 15:31-0600\n"
-"PO-Revision-Date: 2009-12-01 19:43+0000\n"
+"PO-Revision-Date: 2009-12-03 14:16+0000\n"
 "Last-Translator: Kuvaly <kuvaly@seznam.cz>\n"
 "Language-Team: Slovak <sk@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2009-12-02 00:12+0000\n"
+"X-Launchpad-Export-Date: 2009-12-05 00:36+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #. Translators: if neccessary, for guidance in how to translate this program, you may see http://damonlynch.net/translate.html
@@ -557,7 +557,7 @@ msgstr ""
 
 #: rapid/rapid.py:2694
 msgid "Preferences were modified."
-msgstr ""
+msgstr "Nastavenie bolo upravené."
 
 #: rapid/rapid.py:2695
 msgid ""
@@ -655,11 +655,11 @@ msgstr ""
 
 #: rapid/rapid.py:3147
 msgid "images downloaded"
-msgstr ""
+msgstr "obrázky stiahnuté"
 
 #: rapid/rapid.py:3149
 msgid "images skipped"
-msgstr ""
+msgstr "obrázky preskočené"
 
 #. This text will be displayed to the user on the Download / Pause button.
 #. Please note the space at the end of the label - it is needed to meet the Gnome Human Interface Guidelines
@@ -784,7 +784,7 @@ msgstr "Čas expozície"
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
 #: rapid/renamesubfolderprefs.py:203
 msgid "Focal length"
-msgstr ""
+msgstr "Ohnisková vzdialenosť"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
 #: rapid/renamesubfolderprefs.py:205
@@ -1298,7 +1298,7 @@ msgstr ""
 
 #: rapid/glade3/rapid.glade.h:55
 msgid "Image Rename"
-msgstr ""
+msgstr "Premenovanie obrázkov"
 
 #: rapid/glade3/rapid.glade.h:56
 msgid ""
