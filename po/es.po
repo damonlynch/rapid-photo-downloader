@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2009-11-30 15:31-0600\n"
-"PO-Revision-Date: 2009-12-03 22:36+0000\n"
-"Last-Translator: Alejandro Rochette <Unknown>\n"
+"PO-Revision-Date: 2009-12-07 01:58+0000\n"
+"Last-Translator: Nicolás M. Zahlut <nzahlut@live.com>\n"
 "Language-Team: Spanish <es@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2009-12-05 00:32+0000\n"
+"X-Launchpad-Export-Date: 2009-12-07 18:08+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #. Translators: if neccessary, for guidance in how to translate this program, you may see http://damonlynch.net/translate.html
@@ -480,39 +480,39 @@ msgstr "Puede estar corrupta"
 
 #: rapid/rapid.py:2169
 msgid "Device Detected"
-msgstr ""
+msgstr "Dispositivo detectado"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#usedeviceprompt
 #: rapid/rapid.py:2178
 msgid "Should this device or partition be used to download images from?"
-msgstr ""
+msgstr "¿Deberían bajarse imágenes de este dispositivo o partición?"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#usedeviceprompt
 #: rapid/rapid.py:2197
 msgid "_Remember this choice"
-msgstr ""
+msgstr "_Recordar esta elección"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#usedeviceprompt
 #: rapid/rapid.py:2234
 #, python-format
 msgid "%s selected for downloading from"
-msgstr ""
+msgstr "%s seleccionado para descargar de"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#usedeviceprompt
 #: rapid/rapid.py:2237
 msgid "This device or partition will always be used to download from"
-msgstr ""
+msgstr "Siempre se descargará de este dispositivo o partición"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#usedeviceprompt
 #: rapid/rapid.py:2240
 #, python-format
 msgid "%s rejected as a download device"
-msgstr ""
+msgstr "%s rechazado como dispositivo de descarga"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#usedeviceprompt
 #: rapid/rapid.py:2243
 msgid "This device or partition will never be used to download from"
-msgstr ""
+msgstr "Jamás se descargará de este dispositivo o partición"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#jobcode
 #: rapid/rapid.py:2253
@@ -522,12 +522,12 @@ msgstr "Ingrese un Código de trabajo"
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#jobcode
 #: rapid/rapid.py:2271
 msgid "Enter a new job code, or select a previous one."
-msgstr ""
+msgstr "Entre un nuevo código de trabajo o seleccione uno previo."
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#jobcode
 #: rapid/rapid.py:2274
 msgid "Enter a new job code."
-msgstr ""
+msgstr "Entre un nuevo código de trabajo."
 
 #: rapid/rapid.py:2279
 msgid "Job Code:"
@@ -548,7 +548,7 @@ msgstr "Algunas preferencias serán restablecidas."
 #: rapid/rapid.py:2596
 #, python-format
 msgid "Prompting whether to use %s"
-msgstr ""
+msgstr "Preguntando si usar o no %s"
 
 #: rapid/rapid.py:2624
 msgid "Prompting for Job Code"
@@ -556,7 +556,7 @@ msgstr "Pidiendo un Código de trabajo"
 
 #: rapid/rapid.py:2628
 msgid "Already prompting for Job Code, do not prompt again"
-msgstr ""
+msgstr "Preguntando por código de trabajo, no volver a preguntar"
 
 #: rapid/rapid.py:2643
 msgid "Starting downloads that have been waiting for a Job Code"
@@ -655,7 +655,7 @@ msgstr "Dispositivos de copia de seguridad no detectados"
 #: rapid/rapid.py:2812 rapid/rapid.py:2961
 #, python-format
 msgid "Device %(device)s (%(path)s) ignored"
-msgstr ""
+msgstr "Dispositivo %(device)s (%(path)s) ignorado"
 
 #: rapid/rapid.py:2920
 #, python-format
@@ -1061,7 +1061,7 @@ msgstr "HH"
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
 #: rapid/renamesubfolderprefs.py:289
 msgid "MM (minutes)"
-msgstr ""
+msgstr "MM (minutos)"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
 #: rapid/renamesubfolderprefs.py:291
@@ -1412,7 +1412,7 @@ msgstr "Preferencias: Rapid Photo Downloader"
 
 #: rapid/glade3/rapid.glade.h:67
 msgid "R_emove All"
-msgstr ""
+msgstr "R_emover todo"
 
 #: rapid/glade3/rapid.glade.h:69
 msgid ""
@@ -1548,7 +1548,7 @@ msgstr ""
 
 #: rapid/glade3/rapid.glade.h:93
 msgid "_Add..."
-msgstr ""
+msgstr "_Añadir…"
 
 #: rapid/glade3/rapid.glade.h:94
 msgid "_Clear Completed Downloads"
