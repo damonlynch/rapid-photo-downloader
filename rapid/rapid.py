@@ -363,6 +363,7 @@ class RapidPreferences(prefs.Preferences):
         "auto_download_upon_device_insertion": prefs.Value(prefs.BOOL, False),
         "auto_unmount": prefs.Value(prefs.BOOL, False),
         "auto_exit": prefs.Value(prefs.BOOL, False),
+        "auto_delete": prefs.Value(prefs.BOOL, False),
         "indicate_download_error": prefs.Value(prefs.BOOL, True),
         "download_conflict_resolution": prefs.Value(prefs.STRING, 
                                         config.SKIP_DOWNLOAD),
@@ -912,6 +913,8 @@ class PreferencesDialog(gnomeglade.Component):
                         self.prefs.auto_unmount)
         self.auto_exit_checkbutton.set_active(
                         self.prefs.auto_exit)
+        self.auto_delete_checkbutton.set_active(
+                        self.prefs.auto_delete)
 
         
     def _setupErrorTab(self):
@@ -1129,6 +1132,10 @@ class PreferencesDialog(gnomeglade.Component):
     def on_auto_unmount_checkbutton_toggled(self, checkbutton):
         self.prefs.auto_unmount = checkbutton.get_active()
         
+
+    def on_auto_delete_checkbutton_toggled(self, checkbutton):
+        self.prefs.auto_delete = checkbutton.get_active()
+
     def on_auto_exit_checkbutton_toggled(self, checkbutton):
         self.prefs.auto_exit = checkbutton.get_active()
         
@@ -1374,7 +1381,7 @@ class CopyPhotos(Thread):
                 2.b.1  don't allow any other thread to rename a file
                 2.b.2  check file name
                 2.b.3  adding suffix if it is not unique, being careful not to overwrite any existing file with a suffix
-                2.b.4  rename it to the "real"" name, effectively performing a mv
+                2.b.4  rename it to the "real" name, effectively performing a mv
                 2.b.5  allow other threads to rename files
         
         3.  Backup the image, using the same filename as was used when it was downloaded
@@ -1564,7 +1571,6 @@ class CopyPhotos(Thread):
                             with self.fileSequenceLock:
                                 for possibleName,  problem in self.imageRenamePrefsFactory.generateNameSequencePossibilities(imageMetadata, 
                                                                                                                originalName, self.stripCharacters,  subfolder):
-#                                    print "checking",  possibleName,  "using",  originalName
                                     if possibleName:
                                         # no need to check for any problems here, it's just a temporary name
                                         possibleFile = os.path.join(path, possibleName)
@@ -1850,6 +1856,7 @@ class CopyPhotos(Thread):
         
         i = 0
         sizeDownloaded = noImagesDownloaded =  noImagesSkipped = 0
+        imagesDownloadedSuccessfully = []
         
         sizeImages = self.cardMedia.sizeOfImages(humanReadable = False)
         display_queue.put((self.parentApp.addToTotalDownloadSize,  (sizeImages, )))
@@ -1909,6 +1916,7 @@ class CopyPhotos(Thread):
 
                 if imageDownloaded:
                     noImagesDownloaded += 1
+                    imagesDownloadedSuccessfully.append(image)
                 else:
                     noImagesSkipped += 1
                 try:
@@ -1931,6 +1939,11 @@ class CopyPhotos(Thread):
 
         with self.statsLock:
             self.downloadStats.adjust(sizeDownloaded,  noImagesDownloaded,  noImagesSkipped,  self.noWarnings,  self.noErrors)
+            
+        if self.prefs.auto_delete:
+            for image in imagesDownloadedSuccessfully:
+                os.unlink(image)
+            cmd_line(_("Deleted %i images from image device") % len(imagesDownloadedSuccessfully))
 
         # must manually delete these variables, or else the media cannot be unmounted (bug in pyexiv or exiv2)
         del self.subfolderPrefsFactory,  self.imageRenamePrefsFactory

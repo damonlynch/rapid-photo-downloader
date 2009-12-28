@@ -1827,13 +1827,19 @@ You can download photos from multiple image devices simultaneously.
                                   </packing>
                                 </child>
                                 <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
+                                  <widget class="GtkCheckButton" id="auto_delete_checkbutton">
+                                    <property name="label" translatable="yes">Delete images from image device upon download completion</property>
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">True</property>
+                                    <property name="receives_default">False</property>
+                                    <property name="draw_indicator">True</property>
+                                    <signal name="toggled" handler="on_auto_delete_checkbutton_toggled"/>
+                                  </widget>
+                                  <packing>
+                                    <property name="right_attach">3</property>
+                                    <property name="top_attach">4</property>
+                                    <property name="bottom_attach">5</property>
+                                  </packing>
                                 </child>
                                 <child>
                                   <placeholder/>
