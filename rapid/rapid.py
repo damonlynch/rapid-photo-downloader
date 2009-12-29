@@ -1941,9 +1941,20 @@ class CopyPhotos(Thread):
             self.downloadStats.adjust(sizeDownloaded,  noImagesDownloaded,  noImagesSkipped,  self.noWarnings,  self.noErrors)
             
         if self.prefs.auto_delete:
+            j = 0
             for image in imagesDownloadedSuccessfully:
-                os.unlink(image)
-            cmd_line(_("Deleted %i images from image device") % len(imagesDownloadedSuccessfully))
+                try:
+                    os.unlink(image)
+                    j += 1
+                except OSError, (errno, strerror):
+                    logError(config.SERIOUS_ERROR,  _("Could not delete image from image device"),  
+                            _("Image: %(source)s\nError: %(errno)s %(strerror)s")
+                            % {'source': image, 'errno': errno,  'strerror': strerror})
+                except:
+                    logError(config.SERIOUS_ERROR,  _("Could not delete image from image device"),  
+                            _("Image: %(source)s"))
+                    
+            cmd_line(_("Deleted %i images from image device") % j)
 
         # must manually delete these variables, or else the media cannot be unmounted (bug in pyexiv or exiv2)
         del self.subfolderPrefsFactory,  self.imageRenamePrefsFactory
