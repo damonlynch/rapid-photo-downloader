@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2009-11-30 15:31-0600\n"
-"PO-Revision-Date: 2009-12-05 21:52+0000\n"
-"Last-Translator: groovy <Unknown>\n"
+"POT-Creation-Date: 2009-12-07 12:04-0600\n"
+"PO-Revision-Date: 2009-12-08 13:45+0000\n"
+"Last-Translator: Eg <Unknown>\n"
 "Language-Team: German <de@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2009-12-05 22:04+0000\n"
+"X-Launchpad-Export-Date: 2009-12-31 20:36+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #. Translators: if neccessary, for guidance in how to translate this program, you may see http://damonlynch.net/translate.html
@@ -201,7 +201,7 @@ msgstr "ExternesLaufwerk2"
 msgid "scanning..."
 msgstr "Überprüfe Laufwerke ..."
 
-#: rapid/rapid.py:1392 rapid/rapid.py:2561
+#: rapid/rapid.py:1392 rapid/rapid.py:2568
 msgid "There is an error in the program preferences."
 msgstr "Fehler in den Programmeinstellungen."
 
@@ -222,7 +222,7 @@ msgstr "Der Download kann nicht weitergeführt werden"
 #. It refers to the actual number of images that can be copied. For example, the user might see the following:
 #. '0 of 512 images copied'.
 #. This particular text is displayed to the user before the download has started.
-#: rapid/rapid.py:1431 rapid/rapid.py:2028
+#: rapid/rapid.py:1431 rapid/rapid.py:2035
 #, python-format
 msgid "0 of %s images copied"
 msgstr "0 von %s Bildern kopiert"
@@ -407,170 +407,171 @@ msgstr "%s Bilder heruntergeladen"
 msgid "%s images skipped"
 msgstr "%s Bilder übersprungen"
 
-#: rapid/rapid.py:1755 rapid/rapid.py:3151
+#: rapid/rapid.py:1755 rapid/rapid.py:3174
 msgid "warnings"
 msgstr "Warnungen"
 
-#: rapid/rapid.py:1757 rapid/rapid.py:3153
+#: rapid/rapid.py:1757 rapid/rapid.py:3176
 msgid "errors"
 msgstr "Fehler"
 
-#: rapid/rapid.py:1779
+#: rapid/rapid.py:1786
 msgid "Backup device missing"
 msgstr "Das Laufwerk für die Sicherungskopien fehlt"
 
-#: rapid/rapid.py:1779
+#: rapid/rapid.py:1786
 msgid "No backup device was detected."
 msgstr "Das Laufwerk für die Sicherungskopien konnte nicht gefunden werden."
 
-#: rapid/rapid.py:1783
+#: rapid/rapid.py:1790
 msgid "This device has no images to download from."
 msgstr "Das Laufwerk enthält keine Bilddateien."
 
-#: rapid/rapid.py:1818
+#: rapid/rapid.py:1825
 #, python-format
 msgid "Download has started from %s"
 msgstr "Der Download von %s hat begonnen"
 
-#: rapid/rapid.py:1863
+#: rapid/rapid.py:1870
 msgid "Image skipped"
 msgstr "Bild übersprungen"
 
-#: rapid/rapid.py:1864
+#: rapid/rapid.py:1871
 msgid "Image overwritten"
 msgstr "Bilddatei überschrieben"
 
-#: rapid/rapid.py:1865
+#: rapid/rapid.py:1872
 msgid "Image already exists"
 msgstr "Bilddatei existiert bereits"
 
-#: rapid/rapid.py:1910
+#: rapid/rapid.py:1917
 msgid "Image has no thumbnail"
 msgstr "Die Datei enthält kein Vorschaubild"
 
-#: rapid/rapid.py:1920
+#: rapid/rapid.py:1927
 #, python-format
 msgid "%(number)s of %(total)s images copied"
 msgstr "%(number)s von %(total)s Bildern kopiert"
 
-#: rapid/rapid.py:1936
+#: rapid/rapid.py:1943
 #, python-format
 msgid "Download complete from %s"
 msgstr "Download von %s abgeschlossen"
 
 #. Device refers to a thing like a camera, memory card in its reader, external hard drive, Portable Storage Device, etc.
-#: rapid/rapid.py:2012
+#: rapid/rapid.py:2019
 msgid "Device"
 msgstr "Laufwerk"
 
 #. Size refers to the total size of images on the device, typically in MB or GB
-#: rapid/rapid.py:2017
+#: rapid/rapid.py:2024
 msgid "Size"
 msgstr "Grösse"
 
-#: rapid/rapid.py:2020
+#: rapid/rapid.py:2027
 msgid "Download Progress"
 msgstr "Fortschritt im Download"
 
-#: rapid/rapid.py:2136 rapid/rapid.py:2142
+#: rapid/rapid.py:2143 rapid/rapid.py:2149
 msgid "Thumbnail cannot be displayed"
 msgstr "Vorschaubild kann nicht angezeigt werden"
 
-#: rapid/rapid.py:2137 rapid/rapid.py:2143
+#: rapid/rapid.py:2144 rapid/rapid.py:2150
 msgid "It may be corrupted"
 msgstr "Es könnte defekt sein"
 
-#: rapid/rapid.py:2169
+#: rapid/rapid.py:2176
 msgid "Device Detected"
 msgstr "Gerät erkannt"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#usedeviceprompt
-#: rapid/rapid.py:2178
+#: rapid/rapid.py:2185
 msgid "Should this device or partition be used to download images from?"
 msgstr ""
 "Sollen Fotos von diesem Gerät oder dieser Partition heruntergeladen werden?"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#usedeviceprompt
-#: rapid/rapid.py:2197
+#: rapid/rapid.py:2204
 msgid "_Remember this choice"
 msgstr "_Auswahl merken"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#usedeviceprompt
-#: rapid/rapid.py:2234
+#: rapid/rapid.py:2241
 #, python-format
 msgid "%s selected for downloading from"
 msgstr "%s wurde zum Herunterladen ausgewählt"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#usedeviceprompt
-#: rapid/rapid.py:2237
+#: rapid/rapid.py:2244
 msgid "This device or partition will always be used to download from"
 msgstr "Von diesem Gerät oder dieser Partition wird immer heruntergeladen"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#usedeviceprompt
-#: rapid/rapid.py:2240
+#: rapid/rapid.py:2247
 #, python-format
 msgid "%s rejected as a download device"
 msgstr "%s wurde als Gerät zum Herunterladen abgelehnt"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#usedeviceprompt
-#: rapid/rapid.py:2243
+#: rapid/rapid.py:2250
 msgid "This device or partition will never be used to download from"
 msgstr "Von diesem Gerät oder dieser Partition wird nie heruntergeladen"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#jobcode
-#: rapid/rapid.py:2253
+#: rapid/rapid.py:2260
 msgid "Enter a Job Code"
 msgstr "Geben Sie eine Auftragsbezeichnung ein"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#jobcode
-#: rapid/rapid.py:2271
+#: rapid/rapid.py:2278
 msgid "Enter a new job code, or select a previous one."
-msgstr "Geben Sie eine neue Kategorie an oder wählen Sie eine vorhandene"
+msgstr ""
+"Geben Sie eine neue Auftragsbezeichnung an oder wählen Sie eine vorhandene"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#jobcode
-#: rapid/rapid.py:2274
+#: rapid/rapid.py:2281
 msgid "Enter a new job code."
-msgstr "Geben Sie eine neue Kategorie an"
+msgstr "Geben Sie eine neue Auftragsbezeichnung an"
 
-#: rapid/rapid.py:2279
+#: rapid/rapid.py:2286
 msgid "Job Code:"
 msgstr "Auftragsbezeichnung:"
 
-#: rapid/rapid.py:2326
+#: rapid/rapid.py:2333
 msgid "Job Code entered"
 msgstr "Auftragsbezeichnung eingegeben"
 
-#: rapid/rapid.py:2328
+#: rapid/rapid.py:2335
 msgid "Job Code not entered"
-msgstr "Keine Kategorie angegeben"
+msgstr "Keine Auftragsbezeichnung angegeben"
 
-#: rapid/rapid.py:2562
+#: rapid/rapid.py:2569
 msgid "Some preferences will be reset."
 msgstr "Einige Einstellungen werden zurückgesetzt."
 
-#: rapid/rapid.py:2596
+#: rapid/rapid.py:2603
 #, python-format
 msgid "Prompting whether to use %s"
 msgstr "Abfrage, ob %s zu benutzen ist"
 
-#: rapid/rapid.py:2624
+#: rapid/rapid.py:2631
 msgid "Prompting for Job Code"
 msgstr "Frage nach der Auftragsbezeichnung"
 
-#: rapid/rapid.py:2628
+#: rapid/rapid.py:2635
 msgid "Already prompting for Job Code, do not prompt again"
-msgstr "Kategorie wurde schon abgefragt, nicht wieder fragen"
+msgstr "Auftragsbezeichnung wurde schon abgefragt, nicht wieder fragen"
 
-#: rapid/rapid.py:2643
+#: rapid/rapid.py:2650
 msgid "Starting downloads that have been waiting for a Job Code"
 msgstr ""
 "Beginne mit den Dowaloads welche auf eine Auftragsbezeichnung gewartet haben"
 
-#: rapid/rapid.py:2647
+#: rapid/rapid.py:2654
 msgid "Starting downloads"
-msgstr "Beginne mit den Dowaloads"
+msgstr "Beginne mit den Downloads"
 
-#: rapid/rapid.py:2677
+#: rapid/rapid.py:2684
 msgid ""
 "A newer version of this program was previously run on this computer.\n"
 "\n"
@@ -579,7 +580,7 @@ msgstr ""
 "aufgerufen.\n"
 "\n"
 
-#: rapid/rapid.py:2679
+#: rapid/rapid.py:2686
 msgid ""
 "Program preferences appear to be valid, but please check them to ensure "
 "correct operation."
@@ -587,17 +588,17 @@ msgstr ""
 "Die Programmeinstellungen scheinen gültig zu sein, aber bitte überprüfen Sie "
 "diese, um einen problemlosen Programmablauf zu gewährleisten."
 
-#: rapid/rapid.py:2681
+#: rapid/rapid.py:2688
 msgid "Sorry, some preferences are invalid and will be reset."
 msgstr ""
 "Einige Voreinstellungen sind ungültig, sie werden auf die Standardwerte "
 "zurückgesetzt."
 
-#: rapid/rapid.py:2682
+#: rapid/rapid.py:2689
 msgid "Warning:"
 msgstr "Warnung:"
 
-#: rapid/rapid.py:2687
+#: rapid/rapid.py:2694
 msgid ""
 "This version of the program is newer than the previously run version. "
 "Checking preferences."
@@ -605,11 +606,11 @@ msgstr ""
 "Diese Version des Programms ist neuer als bis bisherige. Die "
 "Voreinstellungen werden überprüft."
 
-#: rapid/rapid.py:2694
+#: rapid/rapid.py:2701
 msgid "Preferences were modified."
 msgstr "Die Voreinstellungen wurden geändert."
 
-#: rapid/rapid.py:2695
+#: rapid/rapid.py:2702
 msgid ""
 "This version of the program uses different preferences than the old version. "
 "Your preferences have been updated.\n"
@@ -620,11 +621,11 @@ msgstr ""
 "Voreinstellungen wurden angepasst\n"
 "Bitte überprüfen Sie diese."
 
-#: rapid/rapid.py:2699
+#: rapid/rapid.py:2706
 msgid "No preferences needed to be changed."
 msgstr "Es mussten keine Voreinstellungen angepasst werden."
 
-#: rapid/rapid.py:2701
+#: rapid/rapid.py:2708
 msgid ""
 "This version of the program uses different preferences than the old version. "
 "Some of your previous preferences were invalid, and could not be updated. "
@@ -634,111 +635,111 @@ msgstr ""
 "bisherige Version. Einige der bestehenden Einstellungen sind ungültig und "
 "werden auf die Standardwerte zurückgesetzt."
 
-#: rapid/rapid.py:2710
+#: rapid/rapid.py:2717
 msgid "Problem using pynotify."
 msgstr "Bei der Verwendung von pynotify ist ein Problem aufgetreten."
 
-#: rapid/rapid.py:2726
+#: rapid/rapid.py:2733
 msgid "Failed to receive pynotify server capabilities."
 msgstr "Die Werte des pynotify Servers konnten nicht abgefragt werden."
 
-#: rapid/rapid.py:2764
+#: rapid/rapid.py:2781
 msgid "and"
 msgstr "und"
 
-#: rapid/rapid.py:2769
+#: rapid/rapid.py:2786
 msgid "Using backup devices"
 msgstr "Die Sicherungslaufwerke werden verwendet"
 
-#: rapid/rapid.py:2771
+#: rapid/rapid.py:2788
 msgid "Using backup device"
 msgstr "Das Sicherungslaufwerk wird verwendet"
 
-#: rapid/rapid.py:2773
+#: rapid/rapid.py:2790
 msgid "No backup devices detected"
 msgstr "Es wurden keine Sicherungslaufwerke gefunden"
 
-#: rapid/rapid.py:2812 rapid/rapid.py:2961
+#: rapid/rapid.py:2829 rapid/rapid.py:2984
 #, python-format
 msgid "Device %(device)s (%(path)s) ignored"
 msgstr "Gerät %(device)s (%(path)s) ignoriert"
 
-#: rapid/rapid.py:2920
+#: rapid/rapid.py:2943
 #, python-format
 msgid "Detected %(device)s with path %(path)s"
 msgstr "Die %(device)s gefunden auf Pfad %(path)s"
 
-#: rapid/rapid.py:2924
+#: rapid/rapid.py:2947
 msgid "Automatically start download is true"
 msgstr "Der automatische Downloadbeginn ist eingeschaltet"
 
-#: rapid/rapid.py:2926
+#: rapid/rapid.py:2949
 msgid "Automatically start download is false"
 msgstr "Der automatische Downloadbeginn ist ausgeschaltet"
 
-#: rapid/rapid.py:2979
+#: rapid/rapid.py:3002
 msgid "Using manually specified path"
 msgstr "Verwende den manuell eingegebenen Pfad"
 
-#: rapid/rapid.py:3097 rapid/rapid.py:3146
+#: rapid/rapid.py:3120 rapid/rapid.py:3169
 msgid "All downloads complete"
 msgstr "Alle Downloads sind abgeschlossen"
 
-#: rapid/rapid.py:3111
+#: rapid/rapid.py:3134
 msgid "MB/s"
 msgstr "MB/s"
 
-#: rapid/rapid.py:3121
+#: rapid/rapid.py:3144
 msgid "About 1 second remaining"
 msgstr "Etwa 1 Sekunde verbleibend"
 
-#: rapid/rapid.py:3123
+#: rapid/rapid.py:3146
 #, python-format
 msgid "About %i seconds remaining"
 msgstr "Etwa %i Sekunden verbleibend"
 
-#: rapid/rapid.py:3125
+#: rapid/rapid.py:3148
 msgid "About 1 minute remaining"
 msgstr "Etwa 1 Minute verbleibend"
 
 #. Translators: in the text '%(minutes)i:%(seconds)02i', only the : should be translated, if needed.
 #. '%(minutes)i' and '%(seconds)02i' should not be modified or left out. They are used to format and display the amount
 #. of time the download has remainging, e.g. 'About 5:36 minutes remaining'
-#: rapid/rapid.py:3130
+#: rapid/rapid.py:3153
 #, python-format
 msgid "About %(minutes)i:%(seconds)02i minutes remaining"
 msgstr "Etwa %(minutes)i:%(seconds)02i Minuten verbleibend"
 
-#: rapid/rapid.py:3147
+#: rapid/rapid.py:3170
 msgid "images downloaded"
 msgstr "Bilder heruntergeladen"
 
-#: rapid/rapid.py:3149
+#: rapid/rapid.py:3172
 msgid "images skipped"
 msgstr "Bilder übersprungen"
 
 #. This text will be displayed to the user on the Download / Pause button.
 #. Please note the space at the end of the label - it is needed to meet the Gnome Human Interface Guidelines
-#: rapid/rapid.py:3241
+#: rapid/rapid.py:3265
 msgid "_Download "
 msgstr "_Download "
 
 #. This text will be displayed to the user on the Download / Pause button.
-#: rapid/rapid.py:3251
+#: rapid/rapid.py:3275
 msgid "_Pause"
 msgstr "_Pause"
 
-#: rapid/rapid.py:3325
+#: rapid/rapid.py:3349
 msgid "Preferences were changed."
 msgstr "Die Voreinstellungen wurden geändert."
 
-#: rapid/rapid.py:3484
+#: rapid/rapid.py:3508
 msgid "Goodbye"
 msgstr "Auf Wiedersehen"
 
 #. Translators: this text is displayed to the user when they request information on the command line options.
 #. The text %default should not be modified or left out.
-#: rapid/rapid.py:3495
+#: rapid/rapid.py:3519
 #, python-format
 msgid ""
 "display program information on the command line as the program runs "
@@ -747,27 +748,27 @@ msgstr ""
 "Zeige die Programminformationen an, wenn das Programm aus der Kommandozeile "
 "aufgerufen wurde  (Voreinstellung: %default)"
 
-#: rapid/rapid.py:3496
+#: rapid/rapid.py:3520
 msgid "only output errors to the command line"
 msgstr "Zeige Fehlermeldungen nur auf der Kommandozeile an"
 
 #. image file extensions are recognized RAW files plus TIFF and JPG
-#: rapid/rapid.py:3498
+#: rapid/rapid.py:3522
 msgid "list image file extensions the program recognizes and exit"
 msgstr "Anzeigen der gültigen Deteiendungen und beenden"
 
-#: rapid/rapid.py:3511
+#: rapid/rapid.py:3535
 #, python-format
 msgid "and %s"
 msgstr "und %s"
 
 #. Which volume management code is being used (GIO or GnomeVFS)
-#: rapid/rapid.py:3516 rapid/rapid.py:3519
+#: rapid/rapid.py:3540 rapid/rapid.py:3543
 msgid "Using"
 msgstr "Verwende"
 
 #. this application is already running
-#: rapid/rapid.py:3533
+#: rapid/rapid.py:3557
 #, python-format
 msgid "%s is already running"
 msgstr "%s wird bereits ausgeführt"

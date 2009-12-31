@@ -8,6 +8,10 @@ images that were successfully downloaded will be deleted from the image device
 they were downloaded from. Images that were not downloaded successfully will not
 be deleted. 
 
+Added keyboard accelerators for Preferences and Help.
+
+Updated Czech, German, Slovak and Spanish translations.
+
 
 Version 0.1.0
 -------------
