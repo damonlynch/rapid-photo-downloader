@@ -5,7 +5,8 @@ Version 0.1.1
 
 Added auto delete feature. When enabled, upon the completion of a download,
 images that were successfully downloaded will be deleted from the image device
-they were downloaded from. This fixes bug #501077.
+they were downloaded from. Images that were not downloaded successfully will not
+be deleted. 
 
 
 Version 0.1.0

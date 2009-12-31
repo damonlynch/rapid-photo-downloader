@@ -2452,28 +2452,12 @@ Julien Valroff &lt;julien@kirya.net&gt;</property>
                       </widget>
                     </child>
                     <child>
-                      <widget class="GtkImageMenuItem" id="menu_resequence">
-                        <property name="label">Resequence</property>
-                        <property name="use_stock">False</property>
-                        <accelerator key="E" signal="activate" modifiers="GDK_CONTROL_MASK"/>
-                        <child internal-child="image">
-                          <widget class="GtkImage" id="image2">
-                            <property name="visible">True</property>
-                            <property name="stock">gtk-sort-descending</property>
-                          </widget>
-                        </child>
-                      </widget>
-                    </child>
-                    <child>
-                      <widget class="GtkSeparatorMenuItem" id="separator2"/>
-                    </child>
-                    <child>
                       <widget class="GtkImageMenuItem" id="menu_preferences">
                         <property name="label">gtk-preferences</property>
                         <property name="visible">True</property>
-                        <property name="use_underline">True</property>
                         <property name="use_stock">True</property>
                         <signal name="activate" handler="on_menu_preferences_activate"/>
+                        <accelerator key="p" signal="activate" modifiers="GDK_CONTROL_MASK"/>
                       </widget>
                     </child>
                     <child>
@@ -2542,6 +2526,7 @@ Julien Valroff &lt;julien@kirya.net&gt;</property>
                         <property name="label" translatable="yes">_Get Help Online...</property>
                         <property name="use_underline">True</property>
                         <signal name="activate" handler="on_menu_get_help_online_activate"/>
+                        <accelerator key="F1" signal="activate"/>
                       </widget>
                     </child>
                     <child>
