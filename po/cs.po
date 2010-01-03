@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2009-12-07 12:04-0600\n"
-"PO-Revision-Date: 2009-12-26 11:15+0000\n"
+"POT-Creation-Date: 2009-12-31 14:23-0600\n"
+"PO-Revision-Date: 2010-01-02 12:07+0000\n"
 "Last-Translator: Kuvaly <kuvaly@seznam.cz>\n"
 "Language-Team: Czech <cs@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2009-12-31 20:44+0000\n"
+"X-Launchpad-Export-Date: 2010-01-03 18:56+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #. Translators: if neccessary, for guidance in how to translate this program, you may see http://damonlynch.net/translate.html
@@ -443,6 +443,29 @@ msgstr "Obrázek nemá náhled"
 #, python-format
 msgid "%(number)s of %(total)s images copied"
 msgstr "%(number)s z %(total)s obrázků okopírováno"
+
+#: rapid/rapid.py:1950 rapid/rapid.py:1954
+msgid "Could not delete image from image device"
+msgstr "Nelze odstranit obrázky z obrázkového zařízení"
+
+#: rapid/rapid.py:1951
+#, python-format
+msgid ""
+"Image: %(source)s\n"
+"Error: %(errno)s %(strerror)s"
+msgstr ""
+"Obrázek: %(source)s\n"
+"Chyba: %(errno)s %(strerror)s"
+
+#: rapid/rapid.py:1955
+#, python-format
+msgid "Image: %(source)s"
+msgstr "Chyba: %(source)s"
+
+#: rapid/rapid.py:1957
+#, python-format
+msgid "Deleted %i images from image device"
+msgstr "Z obrázkového zařízení odstraněno %i obrázků"
 
 #: rapid/rapid.py:1967
 #, python-format
@@ -1292,6 +1315,10 @@ msgstr "Copyright Damon Lynch 2007-09"
 msgid "Day start:"
 msgstr "Začátek dne:"
 
+#: rapid/glade3/rapid.glade.h:43
+msgid "Delete images from image device upon download completion"
+msgstr "Odstranit obrázky ze zařízení po dokončení stahování"
+
 #: rapid/glade3/rapid.glade.h:44
 msgid "Download / Pause"
 msgstr "Stahování / Pauza"
@@ -1568,9 +1595,3 @@ msgstr "_Přeložit tuto aplikaci..."
 #: rapid/glade3/rapid.glade.h:104
 msgid "_View"
 msgstr "_Zobrazení"
-
-#~ msgid "C_lear"
-#~ msgstr "S_mazat"
-
-#~ msgid "Job Code not entered - download to be cancelled"
-#~ msgstr "Pracovní kód nebyl vložen - stahování bude ukončeno"

@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2009-12-07 12:04-0600\n"
-"PO-Revision-Date: 2009-12-08 19:49+0000\n"
-"Last-Translator: Nicolás M. Zahlut <nzahlut@live.com>\n"
+"POT-Creation-Date: 2009-12-31 14:23-0600\n"
+"PO-Revision-Date: 2010-01-02 19:13+0000\n"
+"Last-Translator: DiegoJ <diegojromerolopez@gmail.com>\n"
 "Language-Team: Spanish <es@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2009-12-31 20:48+0000\n"
+"X-Launchpad-Export-Date: 2010-01-03 19:24+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #. Translators: if neccessary, for guidance in how to translate this program, you may see http://damonlynch.net/translate.html
@@ -450,6 +450,29 @@ msgstr "La magen no tiene miniatura"
 #, python-format
 msgid "%(number)s of %(total)s images copied"
 msgstr "%(number)s de %(total)s imágenes copiadas"
+
+#: rapid/rapid.py:1950 rapid/rapid.py:1954
+msgid "Could not delete image from image device"
+msgstr "No se pudo eliminar la imagen del dispositivo de imágenes"
+
+#: rapid/rapid.py:1951
+#, python-format
+msgid ""
+"Image: %(source)s\n"
+"Error: %(errno)s %(strerror)s"
+msgstr ""
+"Imagen: %(source)s\n"
+"Error: %(errno)s %(strerror)s"
+
+#: rapid/rapid.py:1955
+#, python-format
+msgid "Image: %(source)s"
+msgstr "Imagen: %(source)s"
+
+#: rapid/rapid.py:1957
+#, python-format
+msgid "Deleted %i images from image device"
+msgstr "Se eliminaron %i imágenes del dispositivo de imágenes"
 
 #: rapid/rapid.py:1967
 #, python-format
@@ -1307,6 +1330,12 @@ msgstr "Copyright © Damon Lynch 2007-09"
 msgid "Day start:"
 msgstr "Día de inicio:"
 
+#: rapid/glade3/rapid.glade.h:43
+msgid "Delete images from image device upon download completion"
+msgstr ""
+"Eliminar imágenes de dispositivo de imágenes cuando se completen las "
+"descargas"
+
 #: rapid/glade3/rapid.glade.h:44
 msgid "Download / Pause"
 msgstr "Descargar / Pausar"
@@ -1589,78 +1618,3 @@ msgstr "_Traducir esta aplicación"
 #: rapid/glade3/rapid.glade.h:104
 msgid "_View"
 msgstr "_Ver"
-
-#~ msgid ""
-#~ "There is an error in the program preferences.\n"
-#~ "Please check preferences, restart the program, and try again."
-#~ msgstr ""
-#~ "Hay un error en las preferencias del programa.\n"
-#~ "Por favor, compruebe las preferencias, reinicie el programa y pruebe de "
-#~ "nuevo."
-
-#~ msgid "<b>Sequence numbers</b>"
-#~ msgstr "<b>Número de secuencias</b>"
-
-#~ msgid "Resequence"
-#~ msgstr "Resecuencia"
-
-#~ msgid "translators please ignore this"
-#~ msgstr "traductores por favor ignoren esto"
-
-#~ msgid ""
-#~ "<i><b>Warning:</b> There is insufficient image metatdata to fully generate "
-#~ "the name. Please use other renaming options.</i>"
-#~ msgstr ""
-#~ "<i><b>Aviso:</b> No hay suficientes metadatos para poder generar el nombre. "
-#~ "Por favor, use las opciones de renombre.</i>"
-
-#~ msgid ""
-#~ "<i><b>Warning:</b> There is insufficient image metatdata to fully generate "
-#~ "subfolders. Please use other subfolder naming options.</i>"
-#~ msgstr ""
-#~ "<i><b>Aviso:</b> No hay suficientes metadatos para poder generar las "
-#~ "subcarpetas. Por favor, use opciones de renombre.</i>"
-
-#~ msgid ""
-#~ "Image devices are devices from which to download photos, such as memory "
-#~ "cards or Portable Storage Devices.\n"
-#~ "\n"
-#~ "You can download photos from multiple image devices simultaneously."
-#~ msgstr ""
-#~ "Dispositivos de imagen a partir de los cuales descargará fotos, tales como "
-#~ "tarjetas de memoria o dispositivos de almacenamiento portátil.\n"
-#~ "\n"
-#~ "Puede descargar fotos de múltiples dispositivos de imagen."
-
-#~ msgid ""
-#~ "Julien Valroff <julien@kirya.net>\n"
-#~ "Michal Predotka <mpredotka@googlemail.com>\n"
-#~ "Martin Egger <martin.egger@gmx.net>"
-#~ msgstr ""
-#~ "Julien Valroff <julien@kirya.net>\n"
-#~ "Michal Predotka <mpredotka@googlemail.com>\n"
-#~ "Martin Egger <martin.egger@gmx.net>\n"
-#~ "Abel O'Rian <abel.orian@gmail.com>\n"
-#~ "Jose Luis Navarro <jlnavarro111@gmail.com>"
-
-#~ msgid ""
-#~ "Julien Valroff <julien@kirya.net>\n"
-#~ "Michal Predotka <mpredotka@googlemail.com>\n"
-#~ "Martin Egger <martin.egger@gmx.net>\n"
-#~ "Abel O'Rian <abel.orian@gmail.com>\n"
-#~ "Jose Luis Navarro <jlnavarro111@gmail.com>"
-#~ msgstr ""
-#~ "Julien Valroff <julien@kirya.net>\n"
-#~ "Michal Predotka <mpredotka@googlemail.com>\n"
-#~ "Martin Egger <martin.egger@gmx.net>\n"
-#~ "Abel O'Rian <abel.orian@gmail.com>\n"
-#~ "Jose Luis Navarro <jlnavarro111@gmail.com>"
-
-#~ msgid "gtk-help"
-#~ msgstr "Ayuda"
-
-#~ msgid "C_lear"
-#~ msgstr "_Limpiar"
-
-#~ msgid "Job Code not entered - download to be cancelled"
-#~ msgstr "Código de trabajo no ingresado - descarga será cancelada"

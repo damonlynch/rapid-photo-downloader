@@ -2379,6 +2379,7 @@ You should have received a copy of the GNU General Public License along with Rap
     <property name="authors">Damon Lynch &lt;damonlynch@gmail.com&gt;</property>
     <property name="translator_credits">L&#x151;rincz Andr&#xE1;s &lt;level.andrasnak@gmail.com&gt;
 Michel Ange &lt;michelange@wanadoo.fr&gt;
+Alain J. Baudrez &lt;a.baudrez@gmail.com&gt;
 Martin Egger &lt;martin.egger@gmx.net&gt;
 Nicol&#xE1;s M. Zahlut &lt;nzahlut@live.com&gt;
 Jose Luis Navarro &lt;jlnavarro111@gmail.com&gt;
@@ -2455,6 +2456,7 @@ Julien Valroff &lt;julien@kirya.net&gt;</property>
                       <widget class="GtkImageMenuItem" id="menu_preferences">
                         <property name="label">gtk-preferences</property>
                         <property name="visible">True</property>
+                        <property name="use_underline">True</property>
                         <property name="use_stock">True</property>
                         <signal name="activate" handler="on_menu_preferences_activate"/>
                         <accelerator key="p" signal="activate" modifiers="GDK_CONTROL_MASK"/>
