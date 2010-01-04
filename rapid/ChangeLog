@@ -1,7 +1,7 @@
 Version 0.1.1
 -------------
 
-2010-01-xx
+2010-01-05
 
 Added auto delete feature. When enabled, upon the completion of a download,
 images that were successfully downloaded will be deleted from the image device
@@ -10,8 +10,8 @@ be deleted.
 
 Added keyboard accelerators for Preferences and Help.
 
-Added Dutch translation by Alian J. Baudrez. Updated Czech, German, Polish, 
-Slovak and Spanish translations.
+Added Dutch translation by Alian J. Baudrez. Updated Czech, French, German, 
+Polish, Slovak and Spanish translations.
 
 
 Version 0.1.0

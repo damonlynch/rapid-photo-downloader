@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2009-12-31 14:23-0600\n"
-"PO-Revision-Date: 2010-01-03 18:59+0000\n"
+"PO-Revision-Date: 2010-01-04 19:21+0000\n"
 "Last-Translator: A.J. Baudrez <a.baudrez@gmail.com>\n"
 "Language-Team: Dutch <nl@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-01-03 19:00+0000\n"
+"X-Launchpad-Export-Date: 2010-01-04 19:44+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #. Translators: if neccessary, for guidance in how to translate this program, you may see http://damonlynch.net/translate.html
@@ -96,11 +96,11 @@ msgstr "Stockholm"
 
 #: rapid/rapid.py:407
 msgid "Invalid Downloads Today value.\n"
-msgstr "Ongeldige Downloads Vandaag waarde:\n"
+msgstr "Ongeldige Downloads Vandaag waarde.\n"
 
 #: rapid/rapid.py:408
 msgid "Resetting value to zero.\n"
-msgstr "Waarde op nul terugzetten:\n"
+msgstr "Waarde op nul terugzetten.\n"
 
 #: rapid/rapid.py:447
 msgid "'Start of day' preference value is corrupted.\n"
@@ -112,7 +112,7 @@ msgstr "Terugzetten op middernacht.\n"
 
 #: rapid/rapid.py:477
 msgid "Error in Image Rename preferences"
-msgstr "Fout in voorkeur Afbeelding Hernoemen"
+msgstr "Fout in Afbeelding Hernoemen  voorkeuren"
 
 #: rapid/rapid.py:486 rapid/rapid.py:1321
 msgid "Sorry,these preferences contain an error:\n"
@@ -129,7 +129,7 @@ msgstr "Job code"
 
 #: rapid/rapid.py:636
 msgid "Error in Download Subfolder preferences"
-msgstr "Fout in Downloader Subfolder voorkeur"
+msgstr "Fout in Download Submap voorkeuren"
 
 #: rapid/rapid.py:775
 msgid "Select a folder to download photos to"
@@ -137,7 +137,7 @@ msgstr "Duid een map aan om de foto's te downloaden"
 
 #: rapid/rapid.py:846
 msgid "Select an image folder"
-msgstr "Selecteer een afbeeldingsmap"
+msgstr "Duid een afbeeldingsmap aan"
 
 #: rapid/rapid.py:868
 msgid "Select a folder in which to backup images"
@@ -149,7 +149,7 @@ msgid ""
 "<i><b>Warning:</b> There is insufficient image metadata to fully generate "
 "the name. Please use other renaming options.</i>"
 msgstr ""
-"<i><b>Opgepast:</b> Er is onvoldoende afbeeldings metadata om een volledige "
+"<i><b>Opgepast:</b> Er is onvoldoende afbeeldingsmetadata om een volledige "
 "naam aan te maken. Gelieve andere hernoemingsopties te gebruiken.</i>"
 
 #: rapid/rapid.py:981
@@ -157,8 +157,8 @@ msgid ""
 "<i><b>Warning:</b> There is insufficient image metadata to fully generate "
 "subfolders. Please use other subfolder naming options.</i>"
 msgstr ""
-"<i><b>Opgepast:</b> Er is onvoldoende afbeeldings metadata om een subfolder "
-"aan te maken. Gelieve andere subfolder benoemingsopties te gebruiken.</i>"
+"<i><b>Opgepast:</b> Er is onvoldoende afbeeldingsmetadata om een submap aan "
+"te maken. Gelieve andere submap benoemingsopties te gebruiken.</i>"
 
 #. Translators: you should not modify or leave out the %s. This is a code used by the programming language python to insert a value that thes user will see
 #: rapid/rapid.py:985
@@ -169,7 +169,7 @@ msgstr "<i>Voorbeeld: %s</i>"
 #: rapid/rapid.py:1040
 msgid "The subfolder preferences had some unnecessary values removed."
 msgstr ""
-"Bij de subfolder voorkeuren werden enkele overbodige waardes verwijderd."
+"Bij de submap voorkeuren werden enkele overbodige waardes verwijderd."
 
 #. Preferences list is now empty
 #: rapid/rapid.py:1045
@@ -177,8 +177,7 @@ msgid ""
 "The subfolder preferences entered are invalid and cannot be used.\n"
 "They will be reset to their default values."
 msgstr ""
-"De ingevulde subfolder voorkeuren zijn ongeldig en kunnen niet gebruikt "
-"worden.\n"
+"De ingevulde submapvoorkeuren zijn ongeldig en kunnen niet gebruikt worden.\n"
 "Ze zullen naar de standaard waardes worden teruggezet."
 
 #. Translators: this value is used as an example device when automatic backup device detection is enabled. You should translate this.
@@ -197,7 +196,7 @@ msgstr "extern apparaat 2"
 #. It maybe displayed only briefly if the contents of the device being scanned is small.
 #: rapid/rapid.py:1310
 msgid "scanning..."
-msgstr "scanning..."
+msgstr "Aan het scannen..."
 
 #: rapid/rapid.py:1399 rapid/rapid.py:2592
 msgid "There is an error in the program preferences."
@@ -294,7 +293,7 @@ msgid ""
 "Metadata is essential for generating subfolders / image names.\n"
 "Source: %s"
 msgstr ""
-"Metadata is essentieel om subfolders / afbeeldings namen aan te maken.\n"
+"Metadata is essentieel om submappen / afbeeldingsnamen aan te maken.\n"
 "Bron: %s"
 
 #: rapid/rapid.py:1533
@@ -302,7 +301,7 @@ msgid ""
 "Subfolder name could not be properly generated. Check to ensure there is "
 "sufficient image metadata."
 msgstr ""
-"Subfoldernaam kon niet goed aangemaakt worden. Controlleer of er voldoende "
+"Submapnaam kon niet goed aangemaakt worden. Controlleer of er voldoende "
 "afbeeldingsmetadata aanwezig is."
 
 #: rapid/rapid.py:1534
@@ -312,7 +311,7 @@ msgid ""
 "Image: %(image)s\n"
 "Problem: %(problem)s"
 msgstr ""
-"Subfolder: %(subfolder)s\n"
+"Submap: %(subfolder)s\n"
 "Afbeelding: %(image)s\n"
 "Probleem: %(problem)s"
 
@@ -334,7 +333,8 @@ msgstr "Unieke identifier '%s' toegevoegd"
 #. A new day, according the user's preferences of what time a day begins, has started
 #: rapid/rapid.py:1651
 msgid "New day has started - resetting 'Downloads Today' sequence number"
-msgstr "Nieuwe dag begonnen - volgnummer 'Downloads Vandaag' terugzetten"
+msgstr ""
+"Nieuwe dag begonnen - volgnummer 'Downloads Vandaag' aan het terugzetten"
 
 #: rapid/rapid.py:1656 rapid/rapid.py:1662
 msgid "Download copying error"
@@ -414,11 +414,11 @@ msgstr "Backup apparaat afwezig"
 
 #: rapid/rapid.py:1792
 msgid "No backup device was detected."
-msgstr "Geen backup apparaat gevonden"
+msgstr "Geen backup apparaat gevonden."
 
 #: rapid/rapid.py:1796
 msgid "This device has no images to download from."
-msgstr "Dit apparaat bevat geen afbeeldingen die gedownload kunnen worden"
+msgstr "Dit apparaat bevat geen afbeeldingen die gedownload kunnen worden."
 
 #: rapid/rapid.py:1831
 #, python-format
@@ -467,12 +467,12 @@ msgstr "Afbeelding: %(source)s"
 #: rapid/rapid.py:1957
 #, python-format
 msgid "Deleted %i images from image device"
-msgstr "Verwijderde %i afbeeldingen van afbeeldingsapparaat"
+msgstr "%i afbeeldingen van afbeeldingsapparaat verwijderd"
 
 #: rapid/rapid.py:1967
 #, python-format
 msgid "Download complete from %s"
-msgstr "Download afgelopen van %s"
+msgstr "Download van %s afgelopen"
 
 #. Device refers to a thing like a camera, memory card in its reader, external hard drive, Portable Storage Device, etc.
 #: rapid/rapid.py:2043
@@ -486,7 +486,7 @@ msgstr "Grootte"
 
 #: rapid/rapid.py:2051
 msgid "Download Progress"
-msgstr "Download Evolutie"
+msgstr "Downloadvoortgang"
 
 #: rapid/rapid.py:2167 rapid/rapid.py:2173
 msgid "Thumbnail cannot be displayed"
@@ -504,7 +504,7 @@ msgstr "Apparaat gedetecteerd"
 #: rapid/rapid.py:2209
 msgid "Should this device or partition be used to download images from?"
 msgstr ""
-"Moet dit apparaat of deze partitie gebruikt worden om afbeeldingen te "
+"Moet dit apparaat of deze partitie gebruikt worden om afbeeldingen van te "
 "downloaden?"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#usedeviceprompt
@@ -544,7 +544,7 @@ msgstr "Geef een Job Code op"
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#jobcode
 #: rapid/rapid.py:2302
 msgid "Enter a new job code, or select a previous one."
-msgstr "Geef een job code op, of kies een vorige."
+msgstr "Geef een nieuwe job code op, of kies een vorige."
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#jobcode
 #: rapid/rapid.py:2305
@@ -611,7 +611,7 @@ msgstr "Sorry, bepaalde voorkeuren zijn ongeldig en worden gereset."
 
 #: rapid/rapid.py:2713
 msgid "Warning:"
-msgstr "Let op:"
+msgstr "Waarschuwing:"
 
 #: rapid/rapid.py:2718
 msgid ""
@@ -648,8 +648,8 @@ msgid ""
 "They will be reset."
 msgstr ""
 "Deze versie van het programma gebruikt andere voorkeuren dan de vorige. "
-"Bepaalde van je voorkeuren zijn ongeldig en kunnen niet aangepast worden. Ze "
-"worden op standaard waarden teruggebracht."
+"Bepaalde van je vorige voorkeuren zijn ongeldig en kunnen niet aangepast "
+"worden. Ze worden naar standaard waarden teruggebracht."
 
 #: rapid/rapid.py:2741
 msgid "Problem using pynotify."
@@ -665,11 +665,11 @@ msgstr "en"
 
 #: rapid/rapid.py:2810
 msgid "Using backup devices"
-msgstr "Backup apparaten in gebruik"
+msgstr "Backup apparaten aan het gebruiken"
 
 #: rapid/rapid.py:2812
 msgid "Using backup device"
-msgstr "Backup apparaat in gebruik"
+msgstr "Backup apparaat aan het gebruiken"
 
 #: rapid/rapid.py:2814
 msgid "No backup devices detected"
@@ -695,11 +695,11 @@ msgstr "Automatisch opstarten download is onwaar"
 
 #: rapid/rapid.py:3026
 msgid "Using manually specified path"
-msgstr "Maak gebruik van manueel ingegeven pad"
+msgstr "Manueel ingegeven pad aan het gebruiken"
 
 #: rapid/rapid.py:3144 rapid/rapid.py:3193
 msgid "All downloads complete"
-msgstr "Alle downloads afgelopen"
+msgstr "Alle downloads zijn afgelopen"
 
 #: rapid/rapid.py:3158
 msgid "MB/s"
@@ -732,7 +732,7 @@ msgstr "beeldbestanden gedownload"
 
 #: rapid/rapid.py:3196
 msgid "images skipped"
-msgstr "beeldbestand overgeslaan"
+msgstr "beeldbestanden overgeslaan"
 
 #. This text will be displayed to the user on the Download / Pause button.
 #. Please note the space at the end of the label - it is needed to meet the Gnome Human Interface Guidelines
@@ -747,7 +747,7 @@ msgstr "_Pauze"
 
 #: rapid/rapid.py:3373
 msgid "Preferences were changed."
-msgstr "Voorkeuren aangepast."
+msgstr "Voorkeuren werden aangepast."
 
 #: rapid/rapid.py:3532
 msgid "Goodbye"
@@ -772,8 +772,7 @@ msgstr "alleen fouten naar de commandolijn sturen"
 #: rapid/rapid.py:3546
 msgid "list image file extensions the program recognizes and exit"
 msgstr ""
-"toon een lijst van programma extenties die het programma herkent en verlaat "
-"het programma"
+"toon een lijst van bestandextenties welke het programma herkent en keer terug"
 
 #: rapid/rapid.py:3559
 #, python-format
@@ -783,7 +782,7 @@ msgstr "en %s"
 #. Which volume management code is being used (GIO or GnomeVFS)
 #: rapid/rapid.py:3564 rapid/rapid.py:3567
 msgid "Using"
-msgstr "Gebruikt"
+msgstr "Gebruik makend van"
 
 #. this application is already running
 #: rapid/rapid.py:3581
@@ -809,11 +808,11 @@ msgstr "Metadata"
 
 #: rapid/renamesubfolderprefs.py:182
 msgid "Sequences"
-msgstr "Volgnummers"
+msgstr "Reeksen"
 
 #: rapid/renamesubfolderprefs.py:185
 msgid "Image date"
-msgstr "Beeldbestand gegevens"
+msgstr "Afbeeldingsgegevens"
 
 #: rapid/renamesubfolderprefs.py:186
 msgid "Today"
@@ -876,12 +875,12 @@ msgstr "Camera model"
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
 #: rapid/renamesubfolderprefs.py:209
 msgid "Short camera model"
-msgstr "Kort camera model"
+msgstr "Camera model (kort)"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
 #: rapid/renamesubfolderprefs.py:211
 msgid "Hyphenated short camera model"
-msgstr "Koppelteken kort camera model"
+msgstr "Camera model (kort na koppelteken)"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
 #: rapid/renamesubfolderprefs.py:213
@@ -911,7 +910,7 @@ msgstr "Sessienummer"
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#sequencenumbers
 #: rapid/renamesubfolderprefs.py:223
 msgid "Subfolder number"
-msgstr "Subfolder nummer"
+msgstr "Nummer Submap"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#sequencenumbers
 #: rapid/renamesubfolderprefs.py:225
@@ -951,7 +950,7 @@ msgstr "Laatste 4 cijfers"
 #. Translators: please not the capitalization of this text, and keep it the same if your language features capitalization
 #: rapid/renamesubfolderprefs.py:239
 msgid "Original Case"
-msgstr "Origineel hoofdletterstatus"
+msgstr "Oorspronkelijke hoofdletterstatus"
 
 #. Translators: please not the capitalization of this text, and keep it the same if your language features capitalization
 #: rapid/renamesubfolderprefs.py:241
@@ -961,7 +960,7 @@ msgstr "HOOFDLETTERS"
 #. Translators: please not the capitalization of this text, and keep it the same if your language features capitalization
 #: rapid/renamesubfolderprefs.py:243
 msgid "lowercase"
-msgstr "gewone letters"
+msgstr "kleine letters"
 
 #: rapid/renamesubfolderprefs.py:244
 msgid "One digit"
@@ -1099,7 +1098,7 @@ msgid ""
 "Expected one of %(value)s"
 msgstr ""
 "Voorkeurtoets '%(key)s' is ongeldig.\n"
-"Eé van %(value)s verwacht"
+"Eén van %(value)s werd verwacht"
 
 #: rapid/renamesubfolderprefs.py:714
 #, python-format
@@ -1108,16 +1107,16 @@ msgstr "Voorkeurwaarde '%(value)s' is ongeldig"
 
 #: rapid/renamesubfolderprefs.py:718
 msgid "These preferences are not well formed:"
-msgstr "Deze voorkeuren zijn niet conform:"
+msgstr "Deze voorkeuren zijn niet goed opgesteld:"
 
 #: rapid/renamesubfolderprefs.py:828
 msgid "Subsecond metadata not present in image"
-msgstr "Subsecond metadata niet aanwezig in beeldbestand"
+msgstr "Subsecond metadata niet aanwezig in de afbeelding"
 
 #: rapid/renamesubfolderprefs.py:831 rapid/renamesubfolderprefs.py:971
 #, python-format
 msgid "%s metadata is not present in image"
-msgstr "%s metadata is niet aanwezig in beeldbestand"
+msgstr "%s metadata is niet aanwezig in de afbeelding"
 
 #: rapid/renamesubfolderprefs.py:856 rapid/renamesubfolderprefs.py:863
 #, python-format
@@ -1131,7 +1130,7 @@ msgstr "Uitbreiding was gespecifieerd, maar afbeeldingsnaam heeft er geen"
 #: rapid/renamesubfolderprefs.py:898
 msgid "image number was specified but image filename has no number"
 msgstr ""
-"afbeeldingsnummer was gespecifieerd, maad de bestandsnaam heeft er geen"
+"afbeeldingsnummer was gespecifieerd, maar de bestandsnaam heeft er geen"
 
 #: rapid/renamesubfolderprefs.py:1085
 #, python-format
@@ -1141,17 +1140,17 @@ msgstr "fout bij het aanmaken van de naam met component %s"
 #: rapid/renamesubfolderprefs.py:1381
 #, python-format
 msgid "Subfolder preferences should not start with a %s"
-msgstr "Subfolder voorkeuren mogen niet starten met een %s"
+msgstr "Submap voorkeuren mogen niet starten met een %s"
 
 #: rapid/renamesubfolderprefs.py:1383
 #, python-format
 msgid "Subfolder preferences should not end with a %s"
-msgstr "Subfolder voorkeuren mogen niet eindigen op een %s"
+msgstr "Submap voorkeuren mogen niet eindigen op een %s"
 
 #: rapid/renamesubfolderprefs.py:1387
 #, python-format
 msgid "Subfolder preferences should not contain two %s one after the other"
-msgstr "Subfolder voorkeuren mogen geen twee opeenvolgende %s bevatten"
+msgstr "Submap voorkeuren mogen geen twee opeenvolgende %s bevatten"
 
 #: rapid/glade3/rapid.glade.h:1
 msgid " "
@@ -1175,15 +1174,15 @@ msgstr "<b>Backup</b>"
 
 #: rapid/glade3/rapid.glade.h:6
 msgid "<b>Compatibility with Other Operating Systems</b>"
-msgstr "<b>Compatibiliteit met andere bestuurssystemen</b>"
+msgstr "<b>Compatibiliteit met andere besturingssystemen</b>"
 
 #: rapid/glade3/rapid.glade.h:7
 msgid "<b>Download Folder</b>"
-msgstr "<b>Download Folder</b>"
+msgstr "<b>Download Map</b>"
 
 #: rapid/glade3/rapid.glade.h:8
 msgid "<b>Download Subfolders</b>"
-msgstr "<b>Download Subfolders</b>"
+msgstr "<b>Download Submappen</b>"
 
 #: rapid/glade3/rapid.glade.h:9
 msgid "<b>Example</b>"
@@ -1195,7 +1194,7 @@ msgstr "<b>Afbeeldings Apparaten</b>"
 
 #: rapid/glade3/rapid.glade.h:11
 msgid "<b>Image Name Conflicts</b>"
-msgstr "<b>Afbeeldingsnaam Conflict</b>"
+msgstr "<b>Afbeeldingsnaam conflicteert</b>"
 
 #: rapid/glade3/rapid.glade.h:12
 msgid "<b>Image Rename</b>"
@@ -1207,7 +1206,7 @@ msgstr "<b>Job Codes</b>"
 
 #: rapid/glade3/rapid.glade.h:14
 msgid "<b>Missing Backup Devices</b>"
-msgstr "<b>Ontbrekende Backup Apparatuur</b>"
+msgstr "<b>Ontbrekende Backup Apparaten</b>"
 
 #: rapid/glade3/rapid.glade.h:15
 msgid "<b>Program Automation</b>"
@@ -1215,155 +1214,162 @@ msgstr "<b>Programma Automatisatie</b>"
 
 #: rapid/glade3/rapid.glade.h:16
 msgid "<b>Sequence Numbers</b>"
-msgstr ""
+msgstr "<b>Volgnummers</b>"
 
 #: rapid/glade3/rapid.glade.h:17
 msgid "<i>/media/externaldrive/Photos</i>"
-msgstr ""
+msgstr "<i>/media/externaldrive/Photos</i>"
 
 #: rapid/glade3/rapid.glade.h:18
 msgid "<i>Example: /home/user/photos</i>"
-msgstr ""
+msgstr "<i>Voorbeeld: /home/user/photos</i>"
 
 #: rapid/glade3/rapid.glade.h:19
 msgid "<i>Example:</i>"
-msgstr ""
+msgstr "<i>Voorbeeld:</i>"
 
 #: rapid/glade3/rapid.glade.h:20
 msgid "<i>New:</i>"
-msgstr ""
+msgstr "<i>Nieuw:</i>"
 
 #: rapid/glade3/rapid.glade.h:21
 msgid "<i>Original:</i>"
-msgstr ""
+msgstr "<i>Origineel:</i>"
 
 #: rapid/glade3/rapid.glade.h:22
 msgid "<span weight=\"bold\" size=\"x-large\">Automation</span>"
-msgstr ""
+msgstr "<span weight=\"bold\" size=\"x-large\">Automatisatie</span>"
 
 #: rapid/glade3/rapid.glade.h:23
 msgid "<span weight=\"bold\" size=\"x-large\">Backup</span>\t"
-msgstr ""
+msgstr "<span weight=\"bold\" size=\"x-large\">Backup</span>\t"
 
 #: rapid/glade3/rapid.glade.h:24
 msgid "<span weight=\"bold\" size=\"x-large\">Download Folder</span>"
-msgstr ""
+msgstr "<span weight=\"bold\" size=\"x-large\">DownloadMap</span>"
 
 #: rapid/glade3/rapid.glade.h:25
 msgid "<span weight=\"bold\" size=\"x-large\">Error Handling</span>"
-msgstr ""
+msgstr "<span weight=\"bold\" size=\"x-large\">Foutverwerking</span>"
 
 #: rapid/glade3/rapid.glade.h:26
 msgid "<span weight=\"bold\" size=\"x-large\">Image Devices</span>"
-msgstr ""
+msgstr "<span weight=\"bold\" size=\"x-large\">Afbeeldings Apparatenr</span>"
 
 #: rapid/glade3/rapid.glade.h:27
 msgid "<span weight=\"bold\" size=\"x-large\">Image Rename</span>\t"
-msgstr ""
+msgstr "<span weight=\"bold\" size=\"x-large\">Afbeelding Hernoemen</span>\t"
 
 #: rapid/glade3/rapid.glade.h:28
 msgid "<span weight=\"bold\" size=\"x-large\">Job Codes</span>"
-msgstr ""
+msgstr "<span weight=\"bold\" size=\"x-large\">Job Codes</span>"
 
 #: rapid/glade3/rapid.glade.h:29
 msgid "<span weight=\"bold\" size=\"x-large\">Rename Options</span>"
-msgstr ""
+msgstr "<span weight=\"bold\" size=\"x-large\">Hernoemingsopties</span>"
 
 #: rapid/glade3/rapid.glade.h:30
 msgid "Add unique identifier"
-msgstr ""
+msgstr "Unieke identifier toevoegen"
 
 #: rapid/glade3/rapid.glade.h:31
 msgid "Automatically detect Portable Storage Devices"
-msgstr ""
+msgstr "Automatisch detecteren van Draagbare Opslagmedia"
 
 #: rapid/glade3/rapid.glade.h:32
 msgid "Automatically detect backup devices"
-msgstr ""
+msgstr "Automatisch detecteren van backup apparaten"
 
 #: rapid/glade3/rapid.glade.h:33
 msgid "Automatically detect image devices"
-msgstr ""
+msgstr "Automatisch detecteren van afbeeldingsapparaten"
 
 #: rapid/glade3/rapid.glade.h:34
 msgid "Automation"
-msgstr ""
+msgstr "Automatisering"
 
 #: rapid/glade3/rapid.glade.h:35
 msgid "Backup"
-msgstr ""
+msgstr "Backup"
 
 #: rapid/glade3/rapid.glade.h:36
 msgid "Backup folder name:"
-msgstr ""
+msgstr "Backupmap naam:"
 
 #: rapid/glade3/rapid.glade.h:37
 msgid "Backup location:"
-msgstr ""
+msgstr "Backup locatie:"
 
 #: rapid/glade3/rapid.glade.h:38
 msgid "Backup photos when downloading"
-msgstr ""
+msgstr "Foto's backuppen gedurende download"
 
 #: rapid/glade3/rapid.glade.h:39
 msgid ""
 "Choose the download folder. Subfolders for the downloaded photos will be "
 "automatically created in this folder using the structure specified below."
 msgstr ""
+"Kies de downloadmap. Submappen voor de gedownloadde foto's zullen "
+"automatisch aangemaakt worden in deze map volgens de structuur hieronder."
 
 #: rapid/glade3/rapid.glade.h:40
 msgid ""
 "Choose whether to skip downloading the image, or to add a unique indentifier."
 msgstr ""
+"Kies tussen het overslaan van de download van de afbeelding, of er een "
+"unieke identifier aan toe te kennen."
 
 #: rapid/glade3/rapid.glade.h:41
 msgid "Copyright Damon Lynch 2007-09"
-msgstr ""
+msgstr "Copyright Damon Lynch 2007-09"
 
 #: rapid/glade3/rapid.glade.h:42
 msgid "Day start:"
-msgstr ""
+msgstr "Aanvang dag:"
 
 #: rapid/glade3/rapid.glade.h:43
 msgid "Delete images from image device upon download completion"
-msgstr ""
+msgstr "Verwijder de afbeeldingen van het apparaat na de download"
 
 #: rapid/glade3/rapid.glade.h:44
 msgid "Download / Pause"
-msgstr ""
+msgstr "Download / Pauze"
 
 #: rapid/glade3/rapid.glade.h:45
 msgid "Download Folder"
-msgstr ""
+msgstr "Download Map"
 
 #: rapid/glade3/rapid.glade.h:46
 msgid "Download folder:"
-msgstr ""
+msgstr "Download map:"
 
 #: rapid/glade3/rapid.glade.h:47
 msgid "Downloads today:"
-msgstr ""
+msgstr "Downloads vandaag:"
 
 #: rapid/glade3/rapid.glade.h:48
 msgid "Error Handling"
-msgstr ""
+msgstr "Foutafhandeling"
 
 #: rapid/glade3/rapid.glade.h:49
 msgid "Error Log"
-msgstr ""
+msgstr "Foutenlog"
 
 #: rapid/glade3/rapid.glade.h:50
 msgid "Exit program after completion of successful download"
-msgstr ""
+msgstr "Verlaat programma na het beëindigen van een gelukte download"
 
 #: rapid/glade3/rapid.glade.h:51
 msgid "If you disable automatic detection, choose the exact backup location."
 msgstr ""
+"Als je de automatische herkenning uitschakelt, kies de juiste backup plaats."
 
 #: rapid/glade3/rapid.glade.h:52
 msgid ""
 "If you disable automatic detection, choose the exact location of the images."
 msgstr ""
+"Als je de automatische herkenning uitschakelt, kies de juiste plaats voor de "
+"afbeeldingen."
 
 #: rapid/glade3/rapid.glade.h:53
 msgid ""
@@ -1371,18 +1377,21 @@ msgid ""
 "device will be scanned for images. On large devices, this could take some "
 "time."
 msgstr ""
+"Als je de automatische herkenning van Draagbare Opslagmedia inschakelt, zal "
+"het volledig apparaat gescanned worden op afbeeldingen. Bij grote apparaten, "
+"kan dat een tijd duren."
 
 #: rapid/glade3/rapid.glade.h:54
 msgid "Ignore"
-msgstr ""
+msgstr "Negeren"
 
 #: rapid/glade3/rapid.glade.h:55
 msgid "Image Devices"
-msgstr ""
+msgstr "Afbeeldingsapparaat"
 
 #: rapid/glade3/rapid.glade.h:56
 msgid "Image Rename"
-msgstr ""
+msgstr "Afbeelding Hernoemen"
 
 #: rapid/glade3/rapid.glade.h:57
 msgid ""
@@ -1395,30 +1404,38 @@ msgid ""
 "setting it to PTP mode. If that is not possible, consider using a card "
 "reader.</i>"
 msgstr ""
+"Afbeeldingsapparaten zijn apparaten waar we foto's van kunnen downloaden "
+"zoals camera's, geheugenkaarten en draagbare opslagmedia.\n"
+"\n"
+"Je kunt foto's van meerdere afbeeldingsapparaten simultaan downloaden.\n"
+"\n"
+"<i>Indien het rechtstreeks downloaden vanaf je camera slecht of helemaal "
+"niet werkt, probeer het via de PTP mode. Als dat niet mogelijk is overweeg "
+"een kaartlezer te gebruiken.</i>"
 
 #: rapid/glade3/rapid.glade.h:62
 msgid "Image location:"
-msgstr ""
+msgstr "Afbeeldingsplaats:"
 
 #: rapid/glade3/rapid.glade.h:63
 msgid "Import your images efficiently and reliably"
-msgstr ""
+msgstr "Importeer je afbeeldingen efficiënt en betrouwbaar"
 
 #: rapid/glade3/rapid.glade.h:64
 msgid "Job Codes"
-msgstr ""
+msgstr "Job Codes"
 
 #: rapid/glade3/rapid.glade.h:65
 msgid "Overwrite"
-msgstr ""
+msgstr "Overschrijven"
 
 #: rapid/glade3/rapid.glade.h:66
 msgid "Preferences: Rapid Photo Downloader"
-msgstr ""
+msgstr "Voorkeuren: Rapid Photo Downloader"
 
 #: rapid/glade3/rapid.glade.h:68
 msgid "R_emove All"
-msgstr ""
+msgstr "V_erwijder alles"
 
 #: rapid/glade3/rapid.glade.h:70
 msgid ""
@@ -1436,26 +1453,40 @@ msgid ""
 "Rapid Photo Downloader; if not, write to the Free Software Foundation, Inc., "
 "51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA."
 msgstr ""
+"Rapid Photo Downloader is vrije software; je mag het herverdelen en/of  "
+"aanpassen onder de termen van de GNU General Public License zoals "
+"gepubliceerd door de Free Software Foundation; ofwel versie 2 van de "
+"License, of (volgens jou voorkeur) elke latere versie.\n"
+"\n"
+"Rapid Photo Downloader wordt verdeeld in de hoop dat het nuttig zal zijn, "
+"maar ZONDER ENIGE GARANTIE; zelfs zonder de impliciete garantie van  "
+"VERKOOPBAARHEID of GESCHIKTHEID VOOR EEN BEPAALD DOEL . Zie de GNU General "
+"Public License voor meer details.\n"
+"\n"
+"Je zou een kopie van de GNU General Public License ontvangen moeten hebben "
+"samen met Rapid Photo Downloader; indien niet, contacteer de Free Software "
+"Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, "
+"USA."
 
 #: rapid/glade3/rapid.glade.h:75
 msgid "Rename Options"
-msgstr ""
+msgstr "Hernoemingsopties"
 
 #: rapid/glade3/rapid.glade.h:76
 msgid "Report a warning"
-msgstr ""
+msgstr "Rapporteer een verwittiging"
 
 #: rapid/glade3/rapid.glade.h:77
 msgid "Report an error"
-msgstr ""
+msgstr "Rapporteer een fout"
 
 #: rapid/glade3/rapid.glade.h:78
 msgid "Skip"
-msgstr ""
+msgstr "Overslaan"
 
 #: rapid/glade3/rapid.glade.h:79
 msgid "Skip download"
-msgstr ""
+msgstr "Download overslaan"
 
 #: rapid/glade3/rapid.glade.h:80
 msgid ""
@@ -1465,101 +1496,117 @@ msgid ""
 "used for backups. For each device you wish to use for backing up to, create "
 "a folder in it with this name.</i>"
 msgstr ""
+"Specifieer de map waar de backups opgeslagen zijn op het apparaat.  \n"
+"\n"
+"<i>Nota: dit zal ook gebruikt worden om na te gaan of het apparaat al dan "
+"niet voor backups gebruikt wordt.  Voor ieder apparaat dat je als backup "
+"medium wenst te gebruiken, dien je een map aan te maken met deze naam.</i>"
 
 #: rapid/glade3/rapid.glade.h:83
 msgid ""
 "Specify the time in 24 hour format at which the <i>Downloads today</i> "
 "sequence number should be reset."
 msgstr ""
+"Specifieer de tijd in 24-uurs formaat waar het <i>Downloads vandaag</i> "
+"volgnummer aan gelijk gezet moet worden.."
 
 #: rapid/glade3/rapid.glade.h:84
 msgid ""
 "Specify what to do when an image of the same name has already been "
 "downloaded or backed up."
 msgstr ""
+"Specifieer wat er dient te gebeuren indien een afbeelding met dezelfde naam "
+"reeds gedownload of gebackupped was."
 
 #: rapid/glade3/rapid.glade.h:85
 msgid "Specify what to do when there are no backup devices."
 msgstr ""
+"Specifieer wat er dient te gebeuren indien er geen backup apparaten zijn."
 
 #: rapid/glade3/rapid.glade.h:86
 msgid ""
 "Specify whether image and folder names should have any characters removed "
 "that are not allowed by other operating systems."
 msgstr ""
+"Specifieer of tekens dienen verwijderd te worden van een afbeeldings- of "
+"mapnaam  die niet door andere besturingssystemen toegestaan zijn."
 
 #: rapid/glade3/rapid.glade.h:87
 msgid "Start downloading at program startup"
-msgstr ""
+msgstr "Start de download tijdens het opstarten van het programma"
 
 #: rapid/glade3/rapid.glade.h:88
 msgid "Start downloading upon image device insertion"
-msgstr ""
+msgstr "Start de download zodra het afbeeldingsapparaat aangekoppeld wordt"
 
 #: rapid/glade3/rapid.glade.h:89
 msgid "Stored number:"
-msgstr ""
+msgstr "Opgeslagen nummer:"
 
 #: rapid/glade3/rapid.glade.h:90
 msgid "Strip incompatible characters"
-msgstr ""
+msgstr "Verwijder niet-compatibele karakters"
 
 #: rapid/glade3/rapid.glade.h:91
 msgid "Unmount (\"eject\") image device upon download completion"
-msgstr ""
+msgstr "Ontkoppel (\"verwijder\") het afbeeldingsapparaat na de download"
 
 #: rapid/glade3/rapid.glade.h:92
 msgid ""
 "When backing up, choose whether to overwrite an image on the backup device "
 "that has the same name, or skip backing it up."
 msgstr ""
+"Kies tijdens het backuppen om een afbeelding met dezelfde naam op het "
+"backupapparaat te overschrijven of over te slaan."
 
 #: rapid/glade3/rapid.glade.h:93
 msgid ""
 "You can have your photos backed up to multiple locations as they are "
 "downloaded, e.g. external hard drives."
 msgstr ""
+"Je kan je foto's op meerdere plaatsen backuppen tijdens het downloaden, bv. "
+"externe harde schijven."
 
 #: rapid/glade3/rapid.glade.h:94
 msgid "_Add..."
-msgstr ""
+msgstr "_Toevoegen…"
 
 #: rapid/glade3/rapid.glade.h:95
 msgid "_Clear Completed Downloads"
-msgstr ""
+msgstr "_Verwijder Afgewerkte Downloads"
 
 #: rapid/glade3/rapid.glade.h:96
 msgid "_Error Log"
-msgstr ""
+msgstr "_Fouten log"
 
 #: rapid/glade3/rapid.glade.h:97
 msgid "_Get Help Online..."
-msgstr ""
+msgstr "_Online Help..."
 
 #: rapid/glade3/rapid.glade.h:98
 msgid "_Help"
-msgstr ""
+msgstr "_Help"
 
 #: rapid/glade3/rapid.glade.h:99
 msgid "_Make a Donation..."
-msgstr ""
+msgstr "_Doe een gift..."
 
 #: rapid/glade3/rapid.glade.h:100
 msgid "_Photos"
-msgstr ""
+msgstr "_Foto's"
 
 #: rapid/glade3/rapid.glade.h:101
 msgid "_Report a Problem..."
-msgstr ""
+msgstr "_Rapporteer een probleem..."
 
 #: rapid/glade3/rapid.glade.h:102
 msgid "_Thumbnails"
-msgstr ""
+msgstr "_Miniaturen"
 
 #: rapid/glade3/rapid.glade.h:103
 msgid "_Translate this Application..."
-msgstr ""
+msgstr "_Vertaal deze Toepassing"
 
 #: rapid/glade3/rapid.glade.h:104
 msgid "_View"
-msgstr ""
+msgstr "_Weergave"
