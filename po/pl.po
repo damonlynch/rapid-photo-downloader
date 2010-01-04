@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2009-12-31 14:23-0600\n"
-"PO-Revision-Date: 2010-01-03 00:44+0000\n"
-"Last-Translator: Jarosław Ogrodnik <nobodythere@gmail.com>\n"
+"PO-Revision-Date: 2010-01-04 20:13+0000\n"
+"Last-Translator: mmiicc <mpredotka@gmail.com>\n"
 "Language-Team: Polish <pl@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-01-03 19:08+0000\n"
+"X-Launchpad-Export-Date: 2010-01-04 20:56+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #. Translators: if neccessary, for guidance in how to translate this program, you may see http://damonlynch.net/translate.html
@@ -450,7 +450,7 @@ msgstr "Skopiowano %(number)s z %(total)s obrazów"
 
 #: rapid/rapid.py:1950 rapid/rapid.py:1954
 msgid "Could not delete image from image device"
-msgstr ""
+msgstr "Nie można usunąć obrazów z urządzenia"
 
 #: rapid/rapid.py:1951
 #, python-format
@@ -469,7 +469,7 @@ msgstr "Obraz: %(source)s"
 #: rapid/rapid.py:1957
 #, python-format
 msgid "Deleted %i images from image device"
-msgstr ""
+msgstr "Usunięto %i obrazów z urządzenia"
 
 #: rapid/rapid.py:1967
 #, python-format
@@ -1331,7 +1331,7 @@ msgstr "Początek dnia:"
 
 #: rapid/glade3/rapid.glade.h:43
 msgid "Delete images from image device upon download completion"
-msgstr ""
+msgstr "Usuń obrazy z urządzenia po ukończeniu pobierania"
 
 #: rapid/glade3/rapid.glade.h:44
 msgid "Download / Pause"
