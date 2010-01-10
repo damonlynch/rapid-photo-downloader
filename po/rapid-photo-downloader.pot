@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-01-09 23:56-0600\n"
+"POT-Creation-Date: 2010-01-10 10:37-0600\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1444,61 +1444,65 @@ msgid "Strip incompatible characters"
 msgstr ""
 
 #: rapid/glade3/rapid.glade.h:91
-msgid "Unmount (\"eject\") image device upon download completion"
+msgid "Synchronize RAW + JPEG sequence numbers"
 msgstr ""
 
 #: rapid/glade3/rapid.glade.h:92
+msgid "Unmount (\"eject\") image device upon download completion"
+msgstr ""
+
+#: rapid/glade3/rapid.glade.h:93
 msgid ""
 "When backing up, choose whether to overwrite an image on the backup device "
 "that has the same name, or skip backing it up."
 msgstr ""
 
-#: rapid/glade3/rapid.glade.h:93
+#: rapid/glade3/rapid.glade.h:94
 msgid ""
 "You can have your photos backed up to multiple locations as they are "
 "downloaded, e.g. external hard drives."
 msgstr ""
 
-#: rapid/glade3/rapid.glade.h:94
+#: rapid/glade3/rapid.glade.h:95
 msgid "_Add..."
 msgstr ""
 
-#: rapid/glade3/rapid.glade.h:95
+#: rapid/glade3/rapid.glade.h:96
 msgid "_Clear Completed Downloads"
 msgstr ""
 
-#: rapid/glade3/rapid.glade.h:96
+#: rapid/glade3/rapid.glade.h:97
 msgid "_Error Log"
 msgstr ""
 
-#: rapid/glade3/rapid.glade.h:97
+#: rapid/glade3/rapid.glade.h:98
 msgid "_Get Help Online..."
 msgstr ""
 
-#: rapid/glade3/rapid.glade.h:98
+#: rapid/glade3/rapid.glade.h:99
 msgid "_Help"
 msgstr ""
 
-#: rapid/glade3/rapid.glade.h:99
+#: rapid/glade3/rapid.glade.h:100
 msgid "_Make a Donation..."
 msgstr ""
 
-#: rapid/glade3/rapid.glade.h:100
+#: rapid/glade3/rapid.glade.h:101
 msgid "_Photos"
 msgstr ""
 
-#: rapid/glade3/rapid.glade.h:101
+#: rapid/glade3/rapid.glade.h:102
 msgid "_Report a Problem..."
 msgstr ""
 
-#: rapid/glade3/rapid.glade.h:102
+#: rapid/glade3/rapid.glade.h:103
 msgid "_Thumbnails"
 msgstr ""
 
-#: rapid/glade3/rapid.glade.h:103
+#: rapid/glade3/rapid.glade.h:104
 msgid "_Translate this Application..."
 msgstr ""
 
-#: rapid/glade3/rapid.glade.h:104
+#: rapid/glade3/rapid.glade.h:105
 msgid "_View"
 msgstr ""
