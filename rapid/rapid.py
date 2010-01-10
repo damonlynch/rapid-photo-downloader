@@ -998,8 +998,10 @@ class PreferencesDialog(gnomeglade.Component):
         self.on_downloads_today_entry_changed(self.downloads_today_entry)
 
     def on_downloads_today_entry_changed(self, entry):
-        if workers.noRunningWorkers() == 0:
-            # do not update value if a download is occurring - it will mess it up!
+        # do not update value if a download is occurring - it will mess it up!
+        if workers.noDownloadingWorkers() <> 0:
+            cmd_line(_("Downloads today value not updated, as a download is currently occurring"))
+        else:            
             v = entry.get_text()
             try:
                 v = int(v)
@@ -1012,8 +1014,10 @@ class PreferencesDialog(gnomeglade.Component):
             self.updateImageRenameExample()
         
     def on_stored_number_entry_changed(self, entry):
-        if workers.noRunningWorkers() == 0:
-            # do not update value if a download is occurring - it will mess it up!
+        # do not update value if a download is occurring - it will mess it up!        
+        if workers.noDownloadingWorkers() <> 0:
+            cmd_line(_("Stored number value not updated, as a download is currently occurring"))
+        else:
             v = entry.get_text()
             try:
                 # the displayed value of stored sequence no 1 more than actual value
