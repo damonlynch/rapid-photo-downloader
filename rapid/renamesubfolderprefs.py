@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: latin1 -*-
 
-### Copyright (C) 2007, 2008, 2009 Damon Lynch <damonlynch@gmail.com>
+### Copyright (C) 2007, 2008, 2009, 2010 Damon Lynch <damonlynch@gmail.com>
 
 ### This program is free software; you can redistribute it and/or modify
 ### it under the terms of the GNU General Public License as published by
@@ -147,6 +147,7 @@ SEQUENCE_NUMBER_3 = "Three digits"
 SEQUENCE_NUMBER_4 = "Four digits"
 SEQUENCE_NUMBER_5 = "Five digits"
 SEQUENCE_NUMBER_6 = "Six digits"
+SEQUENCE_NUMBER_7 = "Seven digits"
 
 
 # Now, define dictionaries and lists of valid combinations of preferences.
@@ -247,6 +248,7 @@ class i18TranslateMeThanks:
         _("Four digits")
         _("Five digits")
         _("Six digits")
+        _("Seven digits")
         # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
         _('Subseconds')
         # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
@@ -322,6 +324,7 @@ LIST_SEQUENCE_NUMBERS_L2 = [
                     SEQUENCE_NUMBER_4,
                     SEQUENCE_NUMBER_5,
                     SEQUENCE_NUMBER_6,
+                    SEQUENCE_NUMBER_7,
                     ]
                 
 

@@ -1,5 +1,5 @@
 # -*- coding: latin1 -*-
-### Copyright (C) 2007, 2008, 2009 Damon Lynch <damonlynch@gmail.com>
+### Copyright (C) 2007, 2008, 2009, 2010 Damon Lynch <damonlynch@gmail.com>
 
 ### This program is free software; you can redistribute it and/or modify
 ### it under the terms of the GNU General Public License as published by
@@ -15,7 +15,7 @@
 ### along with this program; if not, write to the Free Software
 ### Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-version = '0.1.1'
+version = '0.1.2'
 
 GCONF_KEY="/apps/rapid-photo-downloader"
 GLADE_FILE = "glade3/rapid.glade"
