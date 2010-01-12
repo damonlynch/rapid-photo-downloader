@@ -373,12 +373,13 @@ class RapidPreferences(prefs.Preferences):
         "show_log_dialog": prefs.Value(prefs.BOOL, False),
         "day_start": prefs.Value(prefs.STRING,  "03:00"), 
         "downloads_today": prefs.ListValue(prefs.STRING_LIST,  [today(),  '0']), 
-         "stored_sequence_no": prefs.Value(prefs.INT,  0), 
-         "job_codes": prefs.ListValue(prefs.STRING_LIST,  [_('New York'),  
+        "stored_sequence_no": prefs.Value(prefs.INT,  0), 
+        "job_codes": prefs.ListValue(prefs.STRING_LIST,  [_('New York'),  
                _('Manila'),  _('Prague'),  _('Helsinki'),   _('Wellington'), 
                _('Tehran'), _('Kampala'),  _('Paris'), _('Berlin'),  _('Sydney'), 
                _('Budapest'), _('Rome'),  _('Moscow'),  _('Delhi'), _('Warsaw'), 
-               _('Jakarta'),  _('Madrid'),  _('Stockholm')])
+               _('Jakarta'),  _('Madrid'),  _('Stockholm')]),
+        "synchronize_raw_jpg": prefs.Value(prefs.BOOL, False),
         }
 
     def __init__(self):
@@ -816,6 +817,9 @@ class PreferencesDialog(gnomeglade.Component):
         self.hour_spinbutton.set_value(float(hour))
         self.minute_spinbutton.set_value(float(minute))
 
+        self.synchronize_raw_jpg_checkbutton.set_active(
+                            self.prefs.synchronize_raw_jpg)
+        
         #compatibility
         self.strip_characters_checkbutton.set_active(
                             self.prefs.strip_characters)
@@ -1169,6 +1173,8 @@ class PreferencesDialog(gnomeglade.Component):
         path, column = tree.get_cursor()
         self.notebook.set_current_page(path[0])
 
+    def on_synchronize_raw_jpg_checkbutton_toggled(self, check_button):
+        self.prefs.synchronize_raw_jpg = check_button.get_active()
         
     def on_strip_characters_checkbutton_toggled(self, check_button):
         self.prefs.strip_characters = check_button.get_active()
@@ -1267,7 +1273,9 @@ class PreferencesDialog(gnomeglade.Component):
 
 class CopyPhotos(Thread):
     """Copies photos from source to destination, backing up if needed"""
-    def __init__(self, thread_id, parentApp, fileRenameLock,  fileSequenceLock, statsLock,  downloadStats,  autoStart = False,  cardMedia = None):
+    def __init__(self, thread_id, parentApp, fileRenameLock,  fileSequenceLock, 
+                statsLock,  downloadedFilesLock,
+                downloadStats,  autoStart = False,  cardMedia = None):
         self.parentApp = parentApp
         self.thread_id = thread_id
         self.ctrl = True
@@ -1283,6 +1291,7 @@ class CopyPhotos(Thread):
         self.fileRenameLock = fileRenameLock
         self.fileSequenceLock = fileSequenceLock
         self.statsLock = statsLock
+        self.downloadedFilesLock = downloadedFilesLock
         
         self.downloadStats = downloadStats
         
@@ -1498,9 +1507,11 @@ class CopyPhotos(Thread):
                     _("Source: %(source)s\nDestination: %(destination)s\nProblem: %(problem)s") % 
                     {'source': image, 'destination': newName, 'problem': problem})
              
+
         def generateSubfolderAndFileName(image,  name,  needMetaDataToCreateUniqueImageName,  
                        needMetaDataToCreateUniqueSubfolderName):
             skipImage = False
+            sequence_to_use = None
             try:
                 imageMetadata = metadata.MetaData(image)
             except IOError:
@@ -1538,23 +1549,30 @@ class CopyPhotos(Thread):
                             _("Subfolder: %(subfolder)s\nImage: %(image)s\nProblem: %(problem)s") % 
                             {'subfolder': subfolder, 'image': image, 'problem': problem})
                     
+                    if self.prefs.synchronize_raw_jpg and usesSequenceElements:
+                        image_name, image_ext = os.path.splitext(name)
+                        with self.downloadedFilesLock:
+                            i, sequence_to_use = downloaded_files.matching_pair(image_name, image_ext, imageMetadata.dateTime(), imageMetadata.subSeconds())
+                    
                     # pass the subfolder the image will go into, as this is needed to determine subfolder sequence numbers 
                     # indicate that sequences chosen should be queued
                     
-                    newName, problem = self.imageRenamePrefsFactory.generateNameUsingPreferences(
-                                                            imageMetadata, name, self.stripCharacters,  subfolder,  
-                                                            sequencesPreliminary = True)
-                                                            
-                    path = os.path.join(baseDownloadDir, subfolder)
-                    newFile = os.path.join(path, newName)
+                    if not skipImage:
+                        newName, problem = self.imageRenamePrefsFactory.generateNameUsingPreferences(
+                                                                imageMetadata, name, self.stripCharacters,  subfolder,  
+                                                                sequencesPreliminary = True,
+                                                                sequence_to_use = sequence_to_use)
+                                                                
+                        path = os.path.join(baseDownloadDir, subfolder)
+                        newFile = os.path.join(path, newName)
                     
                     if not newName:
                         skipImage = True
                     checkProblemWithImageNameGeneration(newName,  image,  problem)
                     
-            return (skipImage,  imageMetadata,  newName,  newFile,  path,  subfolder)
+            return (skipImage,  imageMetadata,  newName,  newFile,  path,  subfolder, sequence_to_use)
         
-        def downloadImage(path,  newFile,  newName,  originalName,  image,  imageMetadata,  subfolder):
+        def downloadImage(path,  newFile,  newName,  originalName,  image,  imageMetadata,  subfolder, sequence_to_use):
             try:
                 imageDownloaded = False
                 if not os.path.isdir(path):
@@ -1565,7 +1583,7 @@ class CopyPhotos(Thread):
                 
                 
                 # do a preliminary check to see if a file with the same name already exists
-                if os.path.exists(newFile):
+                if os.path.exists(newFile) and sequence_to_use is None:
                     nameUniqueBeforeCopy = False
                     if not addUniqueIdentifier:
                         downloadNonUniqueFile = False
@@ -1599,9 +1617,16 @@ class CopyPhotos(Thread):
                         if usesSequenceElements:
                             with self.fileSequenceLock:
                                 # get a filename and use this as the "real" filename
+                                if sequence_to_use is None and self.prefs.synchronize_raw_jpg:
+                                    # must check again, just in case the matching pair has been downloaded in the meantime
+                                    image_name, image_ext = os.path.splitext(originalName)
+                                    with self.downloadedFilesLock:
+                                        i, sequence_to_use = downloaded_files.matching_pair(image_name, image_ext, imageMetadata.dateTime(), imageMetadata.subSeconds())
+
                                 newName, problem = self.imageRenamePrefsFactory.generateNameUsingPreferences(
                                                                 imageMetadata, originalName, self.stripCharacters,  subfolder,  
-                                                                sequencesPreliminary = False)
+                                                                sequencesPreliminary = False,
+                                                                sequence_to_use = sequence_to_use)
                             checkProblemWithImageNameGeneration(newName,  image,  problem)
                             if not newName:
                                 # there was a serious error generating the filename
@@ -1642,19 +1667,28 @@ class CopyPhotos(Thread):
 
                         if doRename:
                             os.rename(tempWorkingfile, newFile)
+                                    
                             imageDownloaded = True
                             if usesSequenceElements:
+                                if self.prefs.synchronize_raw_jpg:
+                                    name, ext = os.path.splitext(originalName)
+                                    seq = self.imageRenamePrefsFactory.sequences.getFinalSequence()
+                                    with self.downloadedFilesLock:
+                                        downloaded_files.add_download(name, ext, imageMetadata.dateTime(), imageMetadata.subSeconds(), seq) 
+                                
                                 with self.fileSequenceLock:
-                                    self.imageRenamePrefsFactory.sequences.imageCopySucceeded()
-                                    if usesStoredSequenceNo:
-                                        self.prefs.stored_sequence_no += 1
+                                    if sequence_to_use is None:
+                                        self.imageRenamePrefsFactory.sequences.imageCopySucceeded()
+                                        if usesStoredSequenceNo:
+                                            self.prefs.stored_sequence_no += 1
                                         
                             with self.fileSequenceLock:
-                                if self.prefs.incrementDownloadsToday():
-                                    # A new day, according the user's preferences of what time a day begins, has started
-                                    cmd_line(_("New day has started - resetting 'Downloads Today' sequence number"))
-                                    
-                                    sequences.setDownloadsToday(0)
+                                if sequence_to_use is None:
+                                    if self.prefs.incrementDownloadsToday():
+                                        # A new day, according the user's preferences of what time a day begins, has started
+                                        cmd_line(_("New day has started - resetting 'Downloads Today' sequence number"))
+                                        
+                                        sequences.setDownloadsToday(0)
                     
             except IOError, (errno, strerror):
                 logError(config.SERIOUS_ERROR, _('Download copying error'), 
@@ -1671,6 +1705,7 @@ class CopyPhotos(Thread):
             if usesSequenceElements:
                 if not imageDownloaded:
                     self.imageRenamePrefsFactory.sequences.imageCopyFailed()
+                    
 
             return (imageDownloaded,  newName,  newFile)
             
@@ -1905,7 +1940,7 @@ class CopyPhotos(Thread):
             name, root, size,  modificationTime = self.cardMedia.images[i]
             image = os.path.join(root, name)
             
-            skipImage,  imageMetadata,  newName,  newFile,  path,  subfolder = generateSubfolderAndFileName(
+            skipImage,  imageMetadata,  newName,  newFile,  path,  subfolder, sequence_to_use = generateSubfolderAndFileName(
                        image,  name,  needMetaDataToCreateUniqueImageName,  
                        needMetaDataToCreateUniqueSubfolderName)
 
@@ -1913,7 +1948,7 @@ class CopyPhotos(Thread):
                 noImagesSkipped += 1
             else:
                 imageDownloaded, newName, newFile  = downloadImage(path,  newFile,  newName,  name,  image,  
-                                                                   imageMetadata,  subfolder)
+                                                                   imageMetadata,  subfolder, sequence_to_use)
 
                 if self.prefs.backup_images:
                     backupImage(subfolder,  newName,  imageDownloaded,  newFile,  image)
@@ -2477,6 +2512,9 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
         #track files that should have a suffix added to them
         global duplicate_files
         
+        #track files that have been downloaded in this session
+        global downloaded_files
+        
         # control sequence numbers and letters
         global sequences
         
@@ -2484,6 +2522,7 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
         global need_job_code
 
         duplicate_files = {}
+        downloaded_files = DownloadedFiles()
         
         downloadsToday = self.prefs.getAndMaybeResetDownloadsToday()
         sequences = rn.Sequences(downloadsToday,  self.prefs.stored_sequence_no)
@@ -2497,6 +2536,7 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
         self.fileRenameLock = Lock()
         self.fileSequenceLock = Lock()
         self.statsLock = Lock()
+        self.downloadedFilesLock = Lock()
 
         # log window, in dialog format
         # used for displaying download information to the user
@@ -2720,7 +2760,7 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
                 
                 else:
                     cmd_line(_("This version of the program is newer than the previously run version. Checking preferences."))
-#                    if True:
+
                     if rn.checkPreferencesForValidity(self.prefs.image_rename,  self.prefs.subfolder,  previousVersion):
                         upgraded,  imageRename,  subfolder = rn.upgradePreferencesToCurrent(self.prefs.image_rename,  self.prefs.subfolder,  previousVersion)
                         if upgraded:
@@ -2881,9 +2921,10 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
         cardMedia = CardMedia(path, volume,  True)
         i = workers.getNextThread_id()
         
-        workers.append(CopyPhotos(i, self, self.fileRenameLock, self.fileSequenceLock, self.statsLock, 
-                                                    self.downloadStats, autostart, 
-                                                    cardMedia))
+        workers.append(CopyPhotos(i, self, self.fileRenameLock, 
+                                    self.fileSequenceLock, self.statsLock,
+                                    self.downloadedFilesLock, self.downloadStats,
+                                    autostart, cardMedia))
 
 
         self.setDownloadButtonSensitivity()
@@ -3482,7 +3523,31 @@ class DownloadStats:
         self.downloadSize = 0
         self.noWarnings = self.noErrors = 0
         
+class DownloadedFiles:
+    def __init__(self):
+        self.images = {}
+        
+    def add_download(self, name, extension, date_time, sub_seconds, sequence_number_used):
+        self.images[name] = (extension, date_time, sub_seconds, sequence_number_used)
+        
+    def matching_pair(self, name, extension, date_time, sub_seconds):
+        """Checks to see if the image matches an image that has already been downloaded.
+        Image name (minus extension), exif date time, and exif subseconds are checked.
+        
+        Returns -1 if the name, extension, and exif values match (it has already been downloaded)
+        Returns 0 if name and exif values match, but the extension is different (i.e. a matching RAW + JPG image)
+        Returns 1 if no match"""
+        
+        if name in self.images:
+            if self.images[name][1] == date_time and self.images[name][2] == sub_seconds:
+                if self.images[name][0] == extension:
+                    return (-1, None)
+                else:
+                    return (0, self.images[name][3])
+        return (1, None)
+        
 class TimeForDownload:
+    # used to store variables, see below
     pass
 
 class TimeRemaining:

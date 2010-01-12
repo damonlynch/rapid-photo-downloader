@@ -760,7 +760,7 @@ class Comboi18n(gtk.ComboBox):
         return model[active][0]        
 
 class ImageRenamePreferences:
-    def __init__(self, prefList, parent,  fileSequenceLock=None,  sequences=None):
+    def __init__(self, prefList, parent, fileSequenceLock=None, sequences=None):
         """
         Exception raised if preferences are invalid.
         
@@ -1129,7 +1129,8 @@ class ImageRenamePreferences:
     def generateNameUsingPreferences(self, photo, existingFilename=None, 
                                     stripCharacters = False,  subfolder=None,  
                                     stripInitialPeriodFromExtension=False, 
-                                    sequencesPreliminary = True):
+                                    sequencesPreliminary = True,
+                                    sequence_to_use = None):
         """
         Generate a filename for the photo in string format based on user prefs.
         
@@ -1139,7 +1140,9 @@ class ImageRenamePreferences:
         """
 
         if self.sequences:
-            if sequencesPreliminary:
+            if sequence_to_use is not None:
+                sequence = sequence_to_use
+            elif sequencesPreliminary:
                 sequence = self.sequences.getPrelimSequence()
             else:
                 sequence = self.sequences.getFinalSequence()

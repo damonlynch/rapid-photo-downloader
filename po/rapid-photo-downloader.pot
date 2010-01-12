@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-01-10 11:55-0600\n"
+"POT-Creation-Date: 2010-01-10 11:59-0600\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1264,7 +1264,7 @@ msgid ""
 msgstr ""
 
 #: rapid/glade3/rapid.glade.h:41
-msgid "Copyright Damon Lynch 2007-09"
+msgid "Copyright Damon Lynch 2007-10"
 msgstr ""
 
 #: rapid/glade3/rapid.glade.h:42
