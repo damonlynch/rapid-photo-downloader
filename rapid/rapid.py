@@ -1506,11 +1506,46 @@ class CopyPhotos(Thread):
                     _("Image filename could not be properly generated. Check to ensure there is sufficient image metadata."),
                     _("Source: %(source)s\nDestination: %(destination)s\nProblem: %(problem)s") % 
                     {'source': image, 'destination': newName, 'problem': problem})
-             
+                    
+
+        def imageAlreadyExists(source, destination=None, identifier=None):
+            """ Notify the user that the image could not be downloaded because it already exists"""
+            if self.prefs.indicate_download_error:
+                if source and destination and identifier:
+                    logError(config.SERIOUS_ERROR, IMAGE_ALREADY_EXISTS,
+                        _("Source: %(source)s\nDestination: %(destination)s")
+                        % {'source': image, 'destination': newFile},
+                        _("Unique identifier '%s' added") % identifier)                    
+                elif source and destination:
+                    logError(config.SERIOUS_ERROR, IMAGE_ALREADY_EXISTS,
+                        _("Source: %(source)s\nDestination: %(destination)s")
+                        % {'source': source, 'destination': destination},
+                        IMAGE_SKIPPED)
+                else:
+                    logError(config.SERIOUS_ERROR, IMAGE_ALREADY_EXISTS,
+                        _("Source: %(source)s")
+                        % {'source': source},
+                        IMAGE_SKIPPED)
+
+                    
+        def downloadCopyingError(source, destination, errno, strerror):
+            """Notify the user that an error occurred when coyping an image"""
+            logError(config.SERIOUS_ERROR, _('Download copying error'), 
+                        _("Source: %(source)s\nDestination: %(destination)s\nError: %(errorno)s %(strerror)s") 
+                        % {'source': source, 'destination': destination, 'errorno': errno, 'strerror': strerror},
+                        _('The image was not copied.'))
+                        
+        def sameFileNameDifferentExif(image1, image1_date_time, image1_subseconds, image2, image2_date_time, image2_subseconds):
+            logError(config.WARNING, _('Images detected with the same filenames, but taken at different times:'),
+                _("First image: %(image1)s %(image1_date_time)s:%(image1_subseconds)s\nSecond image: %(image2)s %(image2_date_time)s:%(image2_subseconds)s") % 
+                {'image1': image1, 'image1_date_time': image1_date_time, 'image1_subseconds': image1_subseconds,
+                'image2': image2, 'image2_date_time': image2_date_time, 'image2_subseconds': image2_subseconds})
+
+
 
         def generateSubfolderAndFileName(image,  name,  needMetaDataToCreateUniqueImageName,  
                        needMetaDataToCreateUniqueSubfolderName):
-            skipImage = False
+            skipImage = alreadyDownloaded = False
             sequence_to_use = None
             try:
                 imageMetadata = metadata.MetaData(image)
@@ -1553,11 +1588,26 @@ class CopyPhotos(Thread):
                         image_name, image_ext = os.path.splitext(name)
                         with self.downloadedFilesLock:
                             i, sequence_to_use = downloaded_files.matching_pair(image_name, image_ext, imageMetadata.dateTime(), imageMetadata.subSeconds())
+                            if i == -1:
+                                # this exact file has already been downloaded (same extension, same filename, and same exif date time subsecond info)
+                                #print "++ Pass 1: %s was already downloaded" % name
+                                if not addUniqueIdentifier:
+                                    # there is no point to download it, as there is no way a unique filename will be generated
+                                    alreadyDownloaded = skipImage = True
+                            elif i == -99:
+                                i1_ext, i1_date_time, i1_subseconds = downloaded_files.extExifDateTime(image_name)
+                                sameFileNameDifferentExif("%s%s" % (image_name, i1_ext), i1_date_time, i1_subseconds, name, imageMetadata.dateTime(), imageMetadata.subSeconds())
+                            elif i == 0:
+                                pass
+                                #print "++ Pass 1: %s is assigned sequence %s" % (name, sequence_to_use)
+
+                                
+                            
                     
                     # pass the subfolder the image will go into, as this is needed to determine subfolder sequence numbers 
                     # indicate that sequences chosen should be queued
                     
-                    if not skipImage:
+                    if not skipImage or alreadyDownloaded:
                         newName, problem = self.imageRenamePrefsFactory.generateNameUsingPreferences(
                                                                 imageMetadata, name, self.stripCharacters,  subfolder,  
                                                                 sequencesPreliminary = True,
@@ -1568,7 +1618,11 @@ class CopyPhotos(Thread):
                     
                     if not newName:
                         skipImage = True
-                    checkProblemWithImageNameGeneration(newName,  image,  problem)
+                    if not alreadyDownloaded:
+                        checkProblemWithImageNameGeneration(newName,  image,  problem)
+                    else:
+                        imageAlreadyExists(image, newFile)
+                        newName = newFile = path = subfolder = None
                     
             return (skipImage,  imageMetadata,  newName,  newFile,  path,  subfolder, sequence_to_use)
         
@@ -1583,11 +1637,11 @@ class CopyPhotos(Thread):
                 
                 
                 # do a preliminary check to see if a file with the same name already exists
-                if os.path.exists(newFile) and sequence_to_use is None:
+                if os.path.exists(newFile):
                     nameUniqueBeforeCopy = False
                     if not addUniqueIdentifier:
                         downloadNonUniqueFile = False
-                        if usesSequenceElements:
+                        if usesSequenceElements and not self.prefs.synchronize_raw_jpg:
                             # potentially, a unique image name could still be generated
                             # investigate this possibility
                             with self.fileSequenceLock:
@@ -1602,11 +1656,8 @@ class CopyPhotos(Thread):
                                             break
 
                                         
-                    if self.prefs.indicate_download_error and not downloadNonUniqueFile:
-                        logError(config.SERIOUS_ERROR, IMAGE_ALREADY_EXISTS,
-                                _("Source: %(source)s\nDestination: %(destination)s") % 
-                                {'source': image, 'destination': newFile},
-                                IMAGE_SKIPPED)
+                    if not downloadNonUniqueFile:
+                        imageAlreadyExists(image, newFile)
 
                 if nameUniqueBeforeCopy or downloadNonUniqueFile:
                     tempWorkingfile = os.path.join(tempWorkingDir, newName)
@@ -1622,6 +1673,16 @@ class CopyPhotos(Thread):
                                     image_name, image_ext = os.path.splitext(originalName)
                                     with self.downloadedFilesLock:
                                         i, sequence_to_use = downloaded_files.matching_pair(image_name, image_ext, imageMetadata.dateTime(), imageMetadata.subSeconds())
+                                        if i == -1:
+                                            pass
+                                            # print "** Pass 2: %s was already downloaded" % originalName
+                                        elif i == -99:
+                                            i1_ext, i1_date_time, i1_subseconds = downloaded_files.extExifDateTime(image_name)
+                                            sameFileNameDifferentExif("%s%s" % (image_name, i1_ext), i1_date_time, i1_subseconds, originalName, imageMetadata.dateTime(), imageMetadata.subSeconds())
+                                        elif i == 0:
+                                            # print "** Pass 2: %s is assigned sequence %s" % (originalName, sequence_to_use)
+                                            pass
+                                            
 
                                 newName, problem = self.imageRenamePrefsFactory.generateNameUsingPreferences(
                                                                 imageMetadata, originalName, self.stripCharacters,  subfolder,  
@@ -1637,11 +1698,7 @@ class CopyPhotos(Thread):
                         if os.path.exists(newFile):
                             if not addUniqueIdentifier:
                                 doRename = False
-                                if self.prefs.indicate_download_error:
-                                    logError(config.SERIOUS_ERROR, IMAGE_ALREADY_EXISTS,
-                                        _("Source: %(source)s\nDestination: %(destination)s")
-                                        % {'source': image, 'destination': newFile},
-                                        IMAGE_SKIPPED) 
+                                imageAlreadyExists(image, newFile)
                             else:
                                 # add  basic suffix to make the filename unique
                                 name = os.path.splitext(newName)
@@ -1656,12 +1713,7 @@ class CopyPhotos(Thread):
                                     possibleNewFile = os.path.join(path,  newName)
                                     suffixAlreadyUsed = os.path.exists(possibleNewFile)
 
-                                if self.prefs.indicate_download_error:
-                                    logError(config.SERIOUS_ERROR, IMAGE_ALREADY_EXISTS,
-                                        _("Source: %(source)s\nDestination: %(destination)s")
-                                        % {'source': image, 'destination': newFile},
-                                        _("Unique identifier '%s' added") % identifier)
-                                        
+                                imageAlreadyExists(image, newFile, identifier)
                                 newFile = possibleNewFile
                                 
 
@@ -1672,9 +1724,14 @@ class CopyPhotos(Thread):
                             if usesSequenceElements:
                                 if self.prefs.synchronize_raw_jpg:
                                     name, ext = os.path.splitext(originalName)
-                                    seq = self.imageRenamePrefsFactory.sequences.getFinalSequence()
+                                    if sequence_to_use is None:
+                                        with self.fileSequenceLock:
+                                            seq = self.imageRenamePrefsFactory.sequences.getFinalSequence()
+                                    else:
+                                        seq = sequence_to_use
                                     with self.downloadedFilesLock:
                                         downloaded_files.add_download(name, ext, imageMetadata.dateTime(), imageMetadata.subSeconds(), seq) 
+                                        # print "Downloaded %s using sequence %s" % (originalName, seq)
                                 
                                 with self.fileSequenceLock:
                                     if sequence_to_use is None:
@@ -1691,19 +1748,13 @@ class CopyPhotos(Thread):
                                         sequences.setDownloadsToday(0)
                     
             except IOError, (errno, strerror):
-                logError(config.SERIOUS_ERROR, _('Download copying error'), 
-                            _("Source: %(source)s\nDestination: %(destination)s\nError: %(errorno)s %(strerror)s") 
-                            % {'source': image, 'destination': newFile, 'errorno': errno, 'strerror': strerror},
-                            _('The image was not copied.'))
+                downloadCopyingError(image, newFile, errno, strerror)
 
             except OSError, (errno, strerror):
-                logError(config.CRITICAL_ERROR, _('Download copying error'), 
-                            "Source: %(source)s\nDestination: %(destination)s\nError: %(errorno)s %(strerror)s" 
-                            % {'source': image, 'destination': newFile, 'errorno': errno, 'strerror': strerror},
-                        )
+                downloadCopyingError(image, newFile, errno, strerror)                
             
             if usesSequenceElements:
-                if not imageDownloaded:
+                if not imageDownloaded and sequence_to_use is None:
                     self.imageRenamePrefsFactory.sequences.imageCopyFailed()
                     
 
@@ -3250,6 +3301,7 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
                 self.downloadStats.clear()
             self._resetDownloadInfo()
             self.speed_label.set_text('         ')
+            
                 
     def exitOnDownloadComplete(self):
         if self.downloadComplete():
@@ -3528,23 +3580,35 @@ class DownloadedFiles:
         self.images = {}
         
     def add_download(self, name, extension, date_time, sub_seconds, sequence_number_used):
-        self.images[name] = (extension, date_time, sub_seconds, sequence_number_used)
+        if name not in self.images:
+            self.images[name] = ([extension], date_time, sub_seconds, sequence_number_used)
+        else:
+            if extension not in self.images[name][0]:
+                self.images[name][0].append(extension)
+
         
     def matching_pair(self, name, extension, date_time, sub_seconds):
         """Checks to see if the image matches an image that has already been downloaded.
         Image name (minus extension), exif date time, and exif subseconds are checked.
         
-        Returns -1 if the name, extension, and exif values match (it has already been downloaded)
-        Returns 0 if name and exif values match, but the extension is different (i.e. a matching RAW + JPG image)
-        Returns 1 if no match"""
+        Returns -1 and a sequence number if the name, extension, and exif values match (i.e. it has already been downloaded)
+        Returns 0 and a sequence number if name and exif values match, but the extension is different (i.e. a matching RAW + JPG image)
+        Returns -99 and a sequence number of None if images detected with the same filenames, but taken at different times
+        Returns 1 and a sequence number of None if no match"""
         
         if name in self.images:
             if self.images[name][1] == date_time and self.images[name][2] == sub_seconds:
-                if self.images[name][0] == extension:
-                    return (-1, None)
+                if extension in self.images[name][0]:
+                    return (-1, self.images[name][3])
                 else:
                     return (0, self.images[name][3])
+            else:
+                return (-99, None)
         return (1, None)
+        
+    def extExifDateTime(self, name):
+        """Returns first extension, exif date time and subseconds data for the already downloaded  image"""
+        return (self.images[name][0][0], self.images[name][1], self.images[name][2])
         
 class TimeForDownload:
     # used to store variables, see below

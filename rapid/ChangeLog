@@ -15,7 +15,7 @@ value of Downloads today will be incremented by 200, and not 400. The same goes
 for the rest of the sequence values, including the Stored number sequence 
 number. Images are detected by comparing filename, as well as the exif value for
 the date and time the image was created (including subseconds when the camera 
-records this value). This option will take affect regardless of whether the RAW 
+records this value). This option will take effect regardless of whether the RAW 
 and JPEG images are stored on different memory cards or the same memory card. 
 Furthermore, if they are stored on separate memory cards, you can download from 
 them simultaneously or one after the other. The only requirement is to download 
@@ -28,7 +28,8 @@ Increased maximum sequence number length to seven digits by user request.
 Fixed bug #503704: changes in values for downloads today and stored number not
 updated when changed via program preferences while a download is ready to begin.
 
-Added Serbian translation by Milos Popovic.
+Added Serbian translation by Milos Popovic. Updated Czech, Dutch, French, German
+and Swedish translations.
 
 
 Version 0.1.1

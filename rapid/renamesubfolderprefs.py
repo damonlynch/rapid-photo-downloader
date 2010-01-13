@@ -1476,10 +1476,11 @@ class Sequences:
     def imageCopySucceeded(self):
         self.increment()
     
-    def increment(self,  subfolder=None):
+    def increment(self):
         assert(self.assignedSequenceCounter == self.pool[0])
         self.assignedSequenceCounter += 1
         self.pool = self.pool[1:]
+        #assert(len(self.pool) > 0)
         
         
 

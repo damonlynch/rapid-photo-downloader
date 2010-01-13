@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2009-12-31 14:23-0600\n"
-"PO-Revision-Date: 2010-01-03 21:58+0000\n"
+"POT-Creation-Date: 2010-01-10 11:59-0600\n"
+"PO-Revision-Date: 2010-01-12 10:59+0000\n"
 "Last-Translator: Kuvaly <kuvaly@seznam.cz>\n"
 "Language-Team: Czech <cs@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-01-04 20:08+0000\n"
+"X-Launchpad-Export-Date: 2010-01-12 20:40+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #. Translators: if neccessary, for guidance in how to translate this program, you may see http://damonlynch.net/translate.html
@@ -114,7 +114,7 @@ msgstr "Resetování do půlnoci.\n"
 msgid "Error in Image Rename preferences"
 msgstr "Chyba v nastavení přejmenovávání obrázků."
 
-#: rapid/rapid.py:486 rapid/rapid.py:1321
+#: rapid/rapid.py:486 rapid/rapid.py:1325
 msgid "Sorry,these preferences contain an error:\n"
 msgstr "Promiňte, v nastavení je chyba:\n"
 
@@ -123,7 +123,7 @@ msgid "Resetting to default values."
 msgstr "Resetování na výchozí hodnoty."
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#jobcode
-#: rapid/rapid.py:568 rapid/renamesubfolderprefs.py:184
+#: rapid/rapid.py:568 rapid/renamesubfolderprefs.py:185
 msgid "Job code"
 msgstr "Pracovní kód"
 
@@ -167,13 +167,26 @@ msgstr ""
 msgid "<i>Example: %s</i>"
 msgstr "<i>Příklad: %s</i>"
 
-#: rapid/rapid.py:1040
+#: rapid/rapid.py:1003
+msgid ""
+"Downloads today value not updated, as a download is currently occurring"
+msgstr ""
+"Hodnota Dnešní stahování není aktualizována, v současné době dochází ke "
+"stažení"
+
+#: rapid/rapid.py:1019
+msgid "Stored number value not updated, as a download is currently occurring"
+msgstr ""
+"Hodnota Skladované číslo není aktualizována, v současné době dochází ke "
+"stažení"
+
+#: rapid/rapid.py:1044
 msgid "The subfolder preferences had some unnecessary values removed."
 msgstr ""
 "Některé hodnoty v nastavení podsložky jsou nepodstatné a proto byly smazány."
 
 #. Preferences list is now empty
-#: rapid/rapid.py:1045
+#: rapid/rapid.py:1049
 msgid ""
 "The subfolder preferences entered are invalid and cannot be used.\n"
 "They will be reset to their default values."
@@ -182,12 +195,12 @@ msgstr ""
 "Bylo tedy resetováno na výchozí hodnoty."
 
 #. Translators: this value is used as an example device when automatic backup device detection is enabled. You should translate this.
-#: rapid/rapid.py:1250
+#: rapid/rapid.py:1254
 msgid "externaldrive1"
 msgstr "externídisk1"
 
 #. Translators: this value is used as an example device when automatic backup device detection is enabled. You should translate this.
-#: rapid/rapid.py:1252
+#: rapid/rapid.py:1256
 msgid "externaldrive2"
 msgstr "externídisk2"
 
@@ -195,15 +208,15 @@ msgstr "externídisk2"
 #. looking for images. It is visible initially in the progress bar for each device
 #. (which normally holds "x of y images copied").
 #. It maybe displayed only briefly if the contents of the device being scanned is small.
-#: rapid/rapid.py:1310
+#: rapid/rapid.py:1314
 msgid "scanning..."
 msgstr "skenování..."
 
-#: rapid/rapid.py:1399 rapid/rapid.py:2592
+#: rapid/rapid.py:1403 rapid/rapid.py:2596
 msgid "There is an error in the program preferences."
 msgstr "Vyskytla se chyba v nastavení programu."
 
-#: rapid/rapid.py:1400
+#: rapid/rapid.py:1404
 msgid ""
 "\n"
 "Please check preferences, restart the program, and try again."
@@ -211,7 +224,7 @@ msgstr ""
 "\n"
 "Prosím zkontrolujte nastavení, restartujte program a zkuste to znovu."
 
-#: rapid/rapid.py:1401 rapid/rapid.py:1402
+#: rapid/rapid.py:1405 rapid/rapid.py:1406
 msgid "Download cannot proceed"
 msgstr "Stahování nemůže pokračovat"
 
@@ -219,7 +232,7 @@ msgstr "Stahování nemůže pokračovat"
 #. It refers to the actual number of images that can be copied. For example, the user might see the following:
 #. '0 of 512 images copied'.
 #. This particular text is displayed to the user before the download has started.
-#: rapid/rapid.py:1438 rapid/rapid.py:2059
+#: rapid/rapid.py:1442 rapid/rapid.py:2063
 #, python-format
 msgid "0 of %s images copied"
 msgstr "0 z %s obrázků okopírováno"
@@ -230,22 +243,22 @@ msgstr "0 z %s obrázků okopírováno"
 #. %(number)s should be left exactly as is: 'number' should not be translated. The same applies to %(device)s: 'device' should
 #. not be translated. Generally speaking, if translating the sentence requires it, you can move items like '%(xyz)s' around
 #. in a sentence, but you should never modify them or leave them out.
-#: rapid/rapid.py:1450
+#: rapid/rapid.py:1454
 #, python-format
 msgid "Device scan complete: found %(number)s images on %(device)s"
 msgstr "Sken zařízení kompletní: nalezeno %(number)s obrázků na %(device)s"
 
-#: rapid/rapid.py:1456
+#: rapid/rapid.py:1460
 #, python-format
 msgid "Device scan complete: no images found on %s"
 msgstr "Skenování zařízení kompletní: žádné obrázky nebyly na %s nalezeny"
 
-#: rapid/rapid.py:1487
+#: rapid/rapid.py:1491
 msgid "Image filename could not be generated"
 msgstr "Název obrázku nemohl být vygenerován"
 
 #. '%(source)s' and '%(problem)s' are two more examples of text that should not be modified or left out
-#: rapid/rapid.py:1489
+#: rapid/rapid.py:1493
 #, python-format
 msgid ""
 "Source: %(source)s\n"
@@ -254,7 +267,7 @@ msgstr ""
 "Zdroj: %(source)s\n"
 "Problém: %(problem)s"
 
-#: rapid/rapid.py:1493
+#: rapid/rapid.py:1497
 msgid ""
 "Image filename could not be properly generated. Check to ensure there is "
 "sufficient image metadata."
@@ -262,7 +275,7 @@ msgstr ""
 "Název obrázku se nepodařilo vygenerovat. Prosím zkontrolujte, zda existují "
 "dostatečná metadata."
 
-#: rapid/rapid.py:1494
+#: rapid/rapid.py:1498
 #, python-format
 msgid ""
 "Source: %(source)s\n"
@@ -273,20 +286,20 @@ msgstr ""
 "Destinace: %(destination)s\n"
 "Problém: %(problem)s"
 
-#: rapid/rapid.py:1503
+#: rapid/rapid.py:1507
 msgid "Could not open image"
 msgstr "Nelze otevřít obrázek"
 
-#: rapid/rapid.py:1504
+#: rapid/rapid.py:1508
 #, python-format
 msgid "Source: %s"
 msgstr "Zdroj: %s"
 
-#: rapid/rapid.py:1522
+#: rapid/rapid.py:1526
 msgid "Image has no metadata"
 msgstr "Obrázek nemá metadata"
 
-#: rapid/rapid.py:1523
+#: rapid/rapid.py:1527
 #, python-format
 msgid ""
 "Metadata is essential for generating subfolders / image names.\n"
@@ -295,7 +308,7 @@ msgstr ""
 "Metadata jsou základy pro generování podsložek / jmen obrázků.\n"
 "Zdroj: %s"
 
-#: rapid/rapid.py:1533
+#: rapid/rapid.py:1537
 msgid ""
 "Subfolder name could not be properly generated. Check to ensure there is "
 "sufficient image metadata."
@@ -303,7 +316,7 @@ msgstr ""
 "Jméno podsložky nemohlo být řádně vygenerováno. Zkontrolujte, kde jsou "
 "dostatečná metadata."
 
-#: rapid/rapid.py:1534
+#: rapid/rapid.py:1538
 #, python-format
 msgid ""
 "Subfolder: %(subfolder)s\n"
@@ -314,8 +327,8 @@ msgstr ""
 "Obrázek: %(image)s\n"
 "Problém: %(problem)s"
 
-#: rapid/rapid.py:1585 rapid/rapid.py:1613 rapid/rapid.py:1632
-#: rapid/rapid.py:1694
+#: rapid/rapid.py:1589 rapid/rapid.py:1617 rapid/rapid.py:1636
+#: rapid/rapid.py:1698
 #, python-format
 msgid ""
 "Source: %(source)s\n"
@@ -324,21 +337,21 @@ msgstr ""
 "Zdroj: %(source)s\n"
 "Destinace: %(destination)s"
 
-#: rapid/rapid.py:1634
+#: rapid/rapid.py:1638
 #, python-format
 msgid "Unique identifier '%s' added"
 msgstr "Unikátní identifikátor '%s' přidán"
 
 #. A new day, according the user's preferences of what time a day begins, has started
-#: rapid/rapid.py:1651
+#: rapid/rapid.py:1655
 msgid "New day has started - resetting 'Downloads Today' sequence number"
 msgstr "Nový den začal - resetování 'Dnešní stahování' sekvenční číslo"
 
-#: rapid/rapid.py:1656 rapid/rapid.py:1662
+#: rapid/rapid.py:1660 rapid/rapid.py:1666
 msgid "Download copying error"
 msgstr "Chyba kopírování obrázků"
 
-#: rapid/rapid.py:1657
+#: rapid/rapid.py:1661
 #, python-format
 msgid ""
 "Source: %(source)s\n"
@@ -349,19 +362,19 @@ msgstr ""
 "Destinace: %(destination)s\n"
 "Chyba: %(errorno)s %(strerror)s"
 
-#: rapid/rapid.py:1659 rapid/rapid.py:1732
+#: rapid/rapid.py:1663 rapid/rapid.py:1736
 msgid "The image was not copied."
 msgstr "Obrázek nebyl okopírován."
 
-#: rapid/rapid.py:1693
+#: rapid/rapid.py:1697
 msgid "Backup image already exists"
 msgstr "Záloha obrázku neexistuje"
 
-#: rapid/rapid.py:1721 rapid/rapid.py:1729 rapid/rapid.py:1735
+#: rapid/rapid.py:1725 rapid/rapid.py:1733 rapid/rapid.py:1739
 msgid "Backing up error"
 msgstr "Chyba zálohování"
 
-#: rapid/rapid.py:1722
+#: rapid/rapid.py:1726
 #, python-format
 msgid ""
 "Destination directory could not be created\n"
@@ -372,7 +385,7 @@ msgstr ""
 "%(directory)s\n"
 "Chyba: %(errno)s %(strerror)s"
 
-#: rapid/rapid.py:1730 rapid/rapid.py:1736
+#: rapid/rapid.py:1734 rapid/rapid.py:1740
 #, python-format
 msgid ""
 "Source: %(source)s\n"
@@ -384,71 +397,71 @@ msgstr ""
 "Chyba: %(errno)s %(strerror)s"
 
 #. This message informs the user that the device (e.g. camera, hard drive or memory card) was automatically unmounted and they can now remove it
-#: rapid/rapid.py:1749
+#: rapid/rapid.py:1753
 msgid "The device can now be safely removed"
 msgstr "Zařízení nyní nemůže být bezpečně vymazáno"
 
-#: rapid/rapid.py:1753
+#: rapid/rapid.py:1757
 #, python-format
 msgid "%s images downloaded"
 msgstr "%s obrázků staženo"
 
-#: rapid/rapid.py:1755
+#: rapid/rapid.py:1759
 #, python-format
 msgid "%s images skipped"
 msgstr "%s obrázků přeskočeno"
 
-#: rapid/rapid.py:1761 rapid/rapid.py:3198
+#: rapid/rapid.py:1765 rapid/rapid.py:3202
 msgid "warnings"
 msgstr "varování"
 
-#: rapid/rapid.py:1763 rapid/rapid.py:3200
+#: rapid/rapid.py:1767 rapid/rapid.py:3204
 msgid "errors"
 msgstr "chyby"
 
-#: rapid/rapid.py:1792
+#: rapid/rapid.py:1796
 msgid "Backup device missing"
 msgstr "Zálohovací zařízení chybí"
 
-#: rapid/rapid.py:1792
+#: rapid/rapid.py:1796
 msgid "No backup device was detected."
 msgstr "Zálohovací zařízení nebylo detekováno."
 
-#: rapid/rapid.py:1796
+#: rapid/rapid.py:1800
 msgid "This device has no images to download from."
 msgstr "Toto zařízení nemá žádné obrázky pro stažení."
 
-#: rapid/rapid.py:1831
+#: rapid/rapid.py:1835
 #, python-format
 msgid "Download has started from %s"
 msgstr "Stahování začalo z %s"
 
-#: rapid/rapid.py:1877
+#: rapid/rapid.py:1881
 msgid "Image skipped"
 msgstr "Obrázek přeskočen"
 
-#: rapid/rapid.py:1878
+#: rapid/rapid.py:1882
 msgid "Image overwritten"
 msgstr "Obrázek přepsán"
 
-#: rapid/rapid.py:1879
+#: rapid/rapid.py:1883
 msgid "Image already exists"
 msgstr "Obrázek neexistuje"
 
-#: rapid/rapid.py:1925
+#: rapid/rapid.py:1929
 msgid "Image has no thumbnail"
 msgstr "Obrázek nemá náhled"
 
-#: rapid/rapid.py:1935
+#: rapid/rapid.py:1939
 #, python-format
 msgid "%(number)s of %(total)s images copied"
 msgstr "%(number)s z %(total)s obrázků okopírováno"
 
-#: rapid/rapid.py:1950 rapid/rapid.py:1954
+#: rapid/rapid.py:1954 rapid/rapid.py:1958
 msgid "Could not delete image from image device"
 msgstr "Nelze odstranit obrázky z obrázkového zařízení"
 
-#: rapid/rapid.py:1951
+#: rapid/rapid.py:1955
 #, python-format
 msgid ""
 "Image: %(source)s\n"
@@ -457,132 +470,132 @@ msgstr ""
 "Obrázek: %(source)s\n"
 "Chyba: %(errno)s %(strerror)s"
 
-#: rapid/rapid.py:1955
+#: rapid/rapid.py:1959
 #, python-format
 msgid "Image: %(source)s"
 msgstr "Chyba: %(source)s"
 
-#: rapid/rapid.py:1957
+#: rapid/rapid.py:1961
 #, python-format
 msgid "Deleted %i images from image device"
 msgstr "Z obrázkového zařízení odstraněno %i obrázků"
 
-#: rapid/rapid.py:1967
+#: rapid/rapid.py:1971
 #, python-format
 msgid "Download complete from %s"
 msgstr "Stahování kompletní z %s"
 
 #. Device refers to a thing like a camera, memory card in its reader, external hard drive, Portable Storage Device, etc.
-#: rapid/rapid.py:2043
+#: rapid/rapid.py:2047
 msgid "Device"
 msgstr "Zařízení"
 
 #. Size refers to the total size of images on the device, typically in MB or GB
-#: rapid/rapid.py:2048
+#: rapid/rapid.py:2052
 msgid "Size"
 msgstr "Velikost"
 
-#: rapid/rapid.py:2051
+#: rapid/rapid.py:2055
 msgid "Download Progress"
 msgstr "Průběh stahování"
 
-#: rapid/rapid.py:2167 rapid/rapid.py:2173
+#: rapid/rapid.py:2171 rapid/rapid.py:2177
 msgid "Thumbnail cannot be displayed"
 msgstr "Náhled nemůže být zobrazen"
 
-#: rapid/rapid.py:2168 rapid/rapid.py:2174
+#: rapid/rapid.py:2172 rapid/rapid.py:2178
 msgid "It may be corrupted"
 msgstr "Toto může být poškozeno"
 
-#: rapid/rapid.py:2200
+#: rapid/rapid.py:2204
 msgid "Device Detected"
 msgstr "Zařízení detekováno"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#usedeviceprompt
-#: rapid/rapid.py:2209
+#: rapid/rapid.py:2213
 msgid "Should this device or partition be used to download images from?"
 msgstr "Máte zařízení či oddíl určený ke stažení?"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#usedeviceprompt
-#: rapid/rapid.py:2228
+#: rapid/rapid.py:2232
 msgid "_Remember this choice"
 msgstr "_Zapamatovat si tuto volbu"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#usedeviceprompt
-#: rapid/rapid.py:2265
+#: rapid/rapid.py:2269
 #, python-format
 msgid "%s selected for downloading from"
 msgstr "%s vybráno pro stažení"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#usedeviceprompt
-#: rapid/rapid.py:2268
+#: rapid/rapid.py:2272
 msgid "This device or partition will always be used to download from"
 msgstr "Toto zařízení či oddíl bude vždy použito pro stažení"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#usedeviceprompt
-#: rapid/rapid.py:2271
+#: rapid/rapid.py:2275
 #, python-format
 msgid "%s rejected as a download device"
 msgstr "%s odmítnuto jako stahovací zařízení"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#usedeviceprompt
-#: rapid/rapid.py:2274
+#: rapid/rapid.py:2278
 msgid "This device or partition will never be used to download from"
 msgstr "Toto zařízení či oddíl nebude použito pro stažení"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#jobcode
-#: rapid/rapid.py:2284
+#: rapid/rapid.py:2288
 msgid "Enter a Job Code"
 msgstr "Vložte pracovní kód"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#jobcode
-#: rapid/rapid.py:2302
+#: rapid/rapid.py:2306
 msgid "Enter a new job code, or select a previous one."
 msgstr "Vložte nový pracovní kód, nebo vyberte předchozí."
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#jobcode
-#: rapid/rapid.py:2305
+#: rapid/rapid.py:2309
 msgid "Enter a new job code."
 msgstr "Vložte nový pracovní kód."
 
-#: rapid/rapid.py:2310
+#: rapid/rapid.py:2314
 msgid "Job Code:"
 msgstr "Pracovní kód:"
 
-#: rapid/rapid.py:2357
+#: rapid/rapid.py:2361
 msgid "Job Code entered"
 msgstr "Pracovní kód vložen"
 
-#: rapid/rapid.py:2359
+#: rapid/rapid.py:2363
 msgid "Job Code not entered"
 msgstr "Pracovní kód nebyl vložen"
 
-#: rapid/rapid.py:2593
+#: rapid/rapid.py:2597
 msgid "Some preferences will be reset."
 msgstr "Některé nastavení bylo resetováno."
 
-#: rapid/rapid.py:2627
+#: rapid/rapid.py:2631
 #, python-format
 msgid "Prompting whether to use %s"
 msgstr "Výzva pro použití %s"
 
-#: rapid/rapid.py:2655
+#: rapid/rapid.py:2659
 msgid "Prompting for Job Code"
 msgstr "Výzva pro pracovní kód"
 
-#: rapid/rapid.py:2659
+#: rapid/rapid.py:2663
 msgid "Already prompting for Job Code, do not prompt again"
 msgstr "Výzva k pracovnímu kódu již existuje, nevyzívejte znovu"
 
-#: rapid/rapid.py:2674
+#: rapid/rapid.py:2678
 msgid "Starting downloads that have been waiting for a Job Code"
 msgstr "Stahování začne po vložení pracovního kódu"
 
-#: rapid/rapid.py:2678
+#: rapid/rapid.py:2682
 msgid "Starting downloads"
 msgstr "Stahování začíná"
 
-#: rapid/rapid.py:2708
+#: rapid/rapid.py:2712
 msgid ""
 "A newer version of this program was previously run on this computer.\n"
 "\n"
@@ -590,7 +603,7 @@ msgstr ""
 "Novější verze této aplikace na tomto počítači již byla spuštěna.\n"
 "\n"
 
-#: rapid/rapid.py:2710
+#: rapid/rapid.py:2714
 msgid ""
 "Program preferences appear to be valid, but please check them to ensure "
 "correct operation."
@@ -598,15 +611,15 @@ msgstr ""
 "Nastavení programu se zdá být validní, ale zkontrolujte bezpečnou opravnou "
 "operaci."
 
-#: rapid/rapid.py:2712
+#: rapid/rapid.py:2716
 msgid "Sorry, some preferences are invalid and will be reset."
 msgstr "Promiňte, nastavení je invalidní a muselo být resetováno."
 
-#: rapid/rapid.py:2713
+#: rapid/rapid.py:2717
 msgid "Warning:"
 msgstr "Varování:"
 
-#: rapid/rapid.py:2718
+#: rapid/rapid.py:2722
 msgid ""
 "This version of the program is newer than the previously run version. "
 "Checking preferences."
@@ -614,11 +627,11 @@ msgstr ""
 "Tato verze tohoto programu již na tomto počítači byla nainstalována. "
 "Kontrola nastavení."
 
-#: rapid/rapid.py:2725
+#: rapid/rapid.py:2729
 msgid "Preferences were modified."
 msgstr "Nastavení bylo modifikováno."
 
-#: rapid/rapid.py:2726
+#: rapid/rapid.py:2730
 msgid ""
 "This version of the program uses different preferences than the old version. "
 "Your preferences have been updated.\n"
@@ -630,11 +643,11 @@ msgstr ""
 "\n"
 "Prosím zkontrolujte bezpečnou opravnou operaci."
 
-#: rapid/rapid.py:2730
+#: rapid/rapid.py:2734
 msgid "No preferences needed to be changed."
 msgstr "Žádné nastavení nebylo změněno."
 
-#: rapid/rapid.py:2732
+#: rapid/rapid.py:2736
 msgid ""
 "This version of the program uses different preferences than the old version. "
 "Some of your previous preferences were invalid, and could not be updated. "
@@ -643,444 +656,448 @@ msgstr ""
 "Tato verze programu využívá uživatelsky jiné nastavení než ta předchozí. "
 "Některé nastavení je invalidní a nelze aktualizovat. Je tedy resetováno."
 
-#: rapid/rapid.py:2741
+#: rapid/rapid.py:2745
 msgid "Problem using pynotify."
 msgstr "Problém používání pynotify."
 
-#: rapid/rapid.py:2757
+#: rapid/rapid.py:2761
 msgid "Failed to receive pynotify server capabilities."
 msgstr "Přijetí schopností pynotify serveru selhalo."
 
-#: rapid/rapid.py:2805
+#: rapid/rapid.py:2809
 msgid "and"
 msgstr "a"
 
-#: rapid/rapid.py:2810
-msgid "Using backup devices"
-msgstr "Používám zálohovací zařízení"
-
-#: rapid/rapid.py:2812
-msgid "Using backup device"
-msgstr "Používám zálohovací zařízení"
-
 #: rapid/rapid.py:2814
+msgid "Using backup devices"
+msgstr "Používání zálohovacích zařízení"
+
+#: rapid/rapid.py:2816
+msgid "Using backup device"
+msgstr "Používání zálohovacího zařízení"
+
+#: rapid/rapid.py:2818
 msgid "No backup devices detected"
 msgstr "Zálohovací zařízení nebylo detekováno"
 
-#: rapid/rapid.py:2853 rapid/rapid.py:3008
+#: rapid/rapid.py:2857 rapid/rapid.py:3012
 #, python-format
 msgid "Device %(device)s (%(path)s) ignored"
 msgstr "Zařízení %(device)s (%(path)s) ignorováno"
 
-#: rapid/rapid.py:2967
+#: rapid/rapid.py:2971
 #, python-format
 msgid "Detected %(device)s with path %(path)s"
 msgstr "Detekováno %(device)s s %(path)s cestami"
 
-#: rapid/rapid.py:2971
+#: rapid/rapid.py:2975
 msgid "Automatically start download is true"
 msgstr "Automatický start stahování je povolen"
 
-#: rapid/rapid.py:2973
+#: rapid/rapid.py:2977
 msgid "Automatically start download is false"
 msgstr "Automatický start stahování je zakázán"
 
-#: rapid/rapid.py:3026
+#: rapid/rapid.py:3030
 msgid "Using manually specified path"
 msgstr "Používám manuálně specifikovanou cestu"
 
-#: rapid/rapid.py:3144 rapid/rapid.py:3193
+#: rapid/rapid.py:3148 rapid/rapid.py:3197
 msgid "All downloads complete"
 msgstr "Všechna stahování kompletní"
 
-#: rapid/rapid.py:3158
+#: rapid/rapid.py:3162
 msgid "MB/s"
 msgstr "MB/s"
 
-#: rapid/rapid.py:3168
+#: rapid/rapid.py:3172
 msgid "About 1 second remaining"
 msgstr "Zbývá 1 sekunda"
 
-#: rapid/rapid.py:3170
+#: rapid/rapid.py:3174
 #, python-format
 msgid "About %i seconds remaining"
 msgstr "Zbývá %i sekund"
 
-#: rapid/rapid.py:3172
+#: rapid/rapid.py:3176
 msgid "About 1 minute remaining"
 msgstr "Zbývá 1 minuta"
 
 #. Translators: in the text '%(minutes)i:%(seconds)02i', only the : should be translated, if needed.
 #. '%(minutes)i' and '%(seconds)02i' should not be modified or left out. They are used to format and display the amount
 #. of time the download has remainging, e.g. 'About 5:36 minutes remaining'
-#: rapid/rapid.py:3177
+#: rapid/rapid.py:3181
 #, python-format
 msgid "About %(minutes)i:%(seconds)02i minutes remaining"
 msgstr "Zbývá %(minutes)i:%(seconds)02i minut"
 
-#: rapid/rapid.py:3194
+#: rapid/rapid.py:3198
 msgid "images downloaded"
 msgstr "obrázky staženy"
 
-#: rapid/rapid.py:3196
+#: rapid/rapid.py:3200
 msgid "images skipped"
 msgstr "obrázky přeskočeny"
 
 #. This text will be displayed to the user on the Download / Pause button.
 #. Please note the space at the end of the label - it is needed to meet the Gnome Human Interface Guidelines
-#: rapid/rapid.py:3289
+#: rapid/rapid.py:3293
 msgid "_Download "
 msgstr "_Stažení "
 
 #. This text will be displayed to the user on the Download / Pause button.
-#: rapid/rapid.py:3299
+#: rapid/rapid.py:3303
 msgid "_Pause"
 msgstr "_Pozastavit"
 
-#: rapid/rapid.py:3373
+#: rapid/rapid.py:3377
 msgid "Preferences were changed."
 msgstr "Nastavení změněno"
 
-#: rapid/rapid.py:3532
+#: rapid/rapid.py:3536
 msgid "Goodbye"
 msgstr "Hezký den"
 
 #. Translators: this text is displayed to the user when they request information on the command line options.
 #. The text %default should not be modified or left out.
-#: rapid/rapid.py:3543
+#: rapid/rapid.py:3547
 #, python-format
 msgid ""
 "display program information on the command line as the program runs "
 "(default: %default)"
 msgstr "zobrazit informace o programu na příkazové řádce (default: %default)"
 
-#: rapid/rapid.py:3544
+#: rapid/rapid.py:3548
 msgid "only output errors to the command line"
 msgstr "pouze výstup chyb do příkazové řádky"
 
 #. image file extensions are recognized RAW files plus TIFF and JPG
-#: rapid/rapid.py:3546
+#: rapid/rapid.py:3550
 msgid "list image file extensions the program recognizes and exit"
 msgstr "program rozpozná typy obrázkových souborů a ukončí"
 
-#: rapid/rapid.py:3559
+#: rapid/rapid.py:3563
 #, python-format
 msgid "and %s"
 msgstr "a %s"
 
 #. Which volume management code is being used (GIO or GnomeVFS)
-#: rapid/rapid.py:3564 rapid/rapid.py:3567
+#: rapid/rapid.py:3568 rapid/rapid.py:3571
 msgid "Using"
 msgstr "Používání"
 
 #. this application is already running
-#: rapid/rapid.py:3581
+#: rapid/rapid.py:3585
 #, python-format
 msgid "%s is already running"
 msgstr "%s není připraven k používání"
 
-#: rapid/renamesubfolderprefs.py:178
+#: rapid/renamesubfolderprefs.py:179
 msgid "Date time"
 msgstr "Datum a čas"
 
-#: rapid/renamesubfolderprefs.py:179
+#: rapid/renamesubfolderprefs.py:180
 msgid "Text"
 msgstr "Text"
 
-#: rapid/renamesubfolderprefs.py:180
+#: rapid/renamesubfolderprefs.py:181
 msgid "Filename"
 msgstr "Jméno souboru"
 
-#: rapid/renamesubfolderprefs.py:181
+#: rapid/renamesubfolderprefs.py:182
 msgid "Metadata"
 msgstr "Metadata"
 
-#: rapid/renamesubfolderprefs.py:182
+#: rapid/renamesubfolderprefs.py:183
 msgid "Sequences"
 msgstr "Sekvence"
 
-#: rapid/renamesubfolderprefs.py:185
+#: rapid/renamesubfolderprefs.py:186
 msgid "Image date"
 msgstr "Datum obrázku"
 
-#: rapid/renamesubfolderprefs.py:186
+#: rapid/renamesubfolderprefs.py:187
 msgid "Today"
 msgstr "Dnes"
 
-#: rapid/renamesubfolderprefs.py:187
+#: rapid/renamesubfolderprefs.py:188
 msgid "Yesterday"
 msgstr "Včerejšek"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamefilename
-#: rapid/renamesubfolderprefs.py:189
+#: rapid/renamesubfolderprefs.py:190
 msgid "Name + extension"
 msgstr "Jméno + koncovka"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamefilename
-#: rapid/renamesubfolderprefs.py:191
+#: rapid/renamesubfolderprefs.py:192
 msgid "Name"
 msgstr "Název"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamefilename
-#: rapid/renamesubfolderprefs.py:193
+#: rapid/renamesubfolderprefs.py:194
 msgid "Extension"
 msgstr "Koncovka"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamefilename
-#: rapid/renamesubfolderprefs.py:195
+#: rapid/renamesubfolderprefs.py:196
 msgid "Image number"
 msgstr "Číslo obrázku"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
-#: rapid/renamesubfolderprefs.py:197
+#: rapid/renamesubfolderprefs.py:198
 msgid "Aperture"
 msgstr "Clona"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
-#: rapid/renamesubfolderprefs.py:199
+#: rapid/renamesubfolderprefs.py:200
 msgid "ISO"
 msgstr "ISO"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
-#: rapid/renamesubfolderprefs.py:201
+#: rapid/renamesubfolderprefs.py:202
 msgid "Exposure time"
 msgstr "Čas expozice"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
-#: rapid/renamesubfolderprefs.py:203
+#: rapid/renamesubfolderprefs.py:204
 msgid "Focal length"
 msgstr "Vzdálenost ohniska"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
-#: rapid/renamesubfolderprefs.py:205
+#: rapid/renamesubfolderprefs.py:206
 msgid "Camera make"
 msgstr "Vytvoření fotoaparátu"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
-#: rapid/renamesubfolderprefs.py:207
+#: rapid/renamesubfolderprefs.py:208
 msgid "Camera model"
 msgstr "Druh fotoaparátu"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
-#: rapid/renamesubfolderprefs.py:209
+#: rapid/renamesubfolderprefs.py:210
 msgid "Short camera model"
 msgstr "Krátký druh kamery"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
-#: rapid/renamesubfolderprefs.py:211
+#: rapid/renamesubfolderprefs.py:212
 msgid "Hyphenated short camera model"
 msgstr "Model kamery v označení odděleném pomlčkou"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
-#: rapid/renamesubfolderprefs.py:213
+#: rapid/renamesubfolderprefs.py:214
 msgid "Serial number"
 msgstr "Sériové číslo"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
-#: rapid/renamesubfolderprefs.py:215
+#: rapid/renamesubfolderprefs.py:216
 msgid "Shutter count"
 msgstr "Číslo snímku"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
-#: rapid/renamesubfolderprefs.py:217
+#: rapid/renamesubfolderprefs.py:218
 msgid "Owner name"
 msgstr "Vlastníkovo jméno"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#sequencenumbers
-#: rapid/renamesubfolderprefs.py:219
+#: rapid/renamesubfolderprefs.py:220
 msgid "Downloads today"
 msgstr "Dnešní stahování"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#sequencenumbers
-#: rapid/renamesubfolderprefs.py:221
+#: rapid/renamesubfolderprefs.py:222
 msgid "Session number"
 msgstr "Číslo této relace"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#sequencenumbers
-#: rapid/renamesubfolderprefs.py:223
+#: rapid/renamesubfolderprefs.py:224
 msgid "Subfolder number"
 msgstr "Číslo podsložky"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#sequencenumbers
-#: rapid/renamesubfolderprefs.py:225
+#: rapid/renamesubfolderprefs.py:226
 msgid "Stored number"
 msgstr "Uskladněné číslo"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#sequenceletters
-#: rapid/renamesubfolderprefs.py:227
+#: rapid/renamesubfolderprefs.py:228
 msgid "Sequence letter"
 msgstr "Zpráva sekvence"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamefilename
-#: rapid/renamesubfolderprefs.py:229
+#: rapid/renamesubfolderprefs.py:230
 msgid "All digits"
 msgstr "Všechny číslice"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamefilename
-#: rapid/renamesubfolderprefs.py:231
+#: rapid/renamesubfolderprefs.py:232
 msgid "Last digit"
 msgstr "Poslední číslice"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamefilename
-#: rapid/renamesubfolderprefs.py:233
+#: rapid/renamesubfolderprefs.py:234
 msgid "Last 2 digits"
 msgstr "Poslední 2 číslice"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamefilename
-#: rapid/renamesubfolderprefs.py:235
+#: rapid/renamesubfolderprefs.py:236
 msgid "Last 3 digits"
 msgstr "Poslední 3 číslice"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamefilename
-#: rapid/renamesubfolderprefs.py:237
+#: rapid/renamesubfolderprefs.py:238
 msgid "Last 4 digits"
 msgstr "Poslední 4 číslice"
 
 #. Translators: please not the capitalization of this text, and keep it the same if your language features capitalization
-#: rapid/renamesubfolderprefs.py:239
+#: rapid/renamesubfolderprefs.py:240
 msgid "Original Case"
 msgstr "Originální obal"
 
 #. Translators: please not the capitalization of this text, and keep it the same if your language features capitalization
-#: rapid/renamesubfolderprefs.py:241
+#: rapid/renamesubfolderprefs.py:242
 msgid "UPPERCASE"
 msgstr "Velká písmena (ABCDEFG)"
 
 #. Translators: please not the capitalization of this text, and keep it the same if your language features capitalization
-#: rapid/renamesubfolderprefs.py:243
+#: rapid/renamesubfolderprefs.py:244
 msgid "lowercase"
 msgstr "Malá písmena (abcdefg)"
 
-#: rapid/renamesubfolderprefs.py:244
+#: rapid/renamesubfolderprefs.py:245
 msgid "One digit"
 msgstr "Jedna číslice"
 
-#: rapid/renamesubfolderprefs.py:245
+#: rapid/renamesubfolderprefs.py:246
 msgid "Two digits"
 msgstr "Dvě číslice"
 
-#: rapid/renamesubfolderprefs.py:246
+#: rapid/renamesubfolderprefs.py:247
 msgid "Three digits"
 msgstr "Tři číslice"
 
-#: rapid/renamesubfolderprefs.py:247
+#: rapid/renamesubfolderprefs.py:248
 msgid "Four digits"
 msgstr "Čtyři číslice"
 
-#: rapid/renamesubfolderprefs.py:248
+#: rapid/renamesubfolderprefs.py:249
 msgid "Five digits"
 msgstr "Pět číslic"
 
-#: rapid/renamesubfolderprefs.py:249
+#: rapid/renamesubfolderprefs.py:250
 msgid "Six digits"
 msgstr "Šest číslic"
 
-#. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
 #: rapid/renamesubfolderprefs.py:251
+msgid "Seven digits"
+msgstr "Sedm číslic"
+
+#. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
+#: rapid/renamesubfolderprefs.py:253
 msgid "Subseconds"
 msgstr "Milisekundy"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-#: rapid/renamesubfolderprefs.py:253
+#: rapid/renamesubfolderprefs.py:255
 msgid "YYYYMMDD"
 msgstr "RRRRMMDD"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-#: rapid/renamesubfolderprefs.py:255
+#: rapid/renamesubfolderprefs.py:257
 msgid "YYYY-MM-DD"
 msgstr "RRRR-MM-DD"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-#: rapid/renamesubfolderprefs.py:257
+#: rapid/renamesubfolderprefs.py:259
 msgid "YYMMDD"
 msgstr "RRMMDD"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-#: rapid/renamesubfolderprefs.py:259
+#: rapid/renamesubfolderprefs.py:261
 msgid "YY-MM-DD"
 msgstr "RR-MM-DD"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-#: rapid/renamesubfolderprefs.py:261
+#: rapid/renamesubfolderprefs.py:263
 msgid "MMDDYYYY"
 msgstr "MMDDRRRR"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-#: rapid/renamesubfolderprefs.py:263
+#: rapid/renamesubfolderprefs.py:265
 msgid "MMDDYY"
 msgstr "MMDDRR"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-#: rapid/renamesubfolderprefs.py:265
+#: rapid/renamesubfolderprefs.py:267
 msgid "MMDD"
 msgstr "MMDD"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-#: rapid/renamesubfolderprefs.py:267
+#: rapid/renamesubfolderprefs.py:269
 msgid "DDMMYYYY"
 msgstr "DDMMRRRR"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-#: rapid/renamesubfolderprefs.py:269
+#: rapid/renamesubfolderprefs.py:271
 msgid "DDMMYY"
 msgstr "DDMMRR"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-#: rapid/renamesubfolderprefs.py:271
+#: rapid/renamesubfolderprefs.py:273
 msgid "YYYY"
 msgstr "RRRR"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-#: rapid/renamesubfolderprefs.py:273
+#: rapid/renamesubfolderprefs.py:275
 msgid "YY"
 msgstr "RR"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-#: rapid/renamesubfolderprefs.py:275
+#: rapid/renamesubfolderprefs.py:277
 msgid "MM"
 msgstr "MM"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-#: rapid/renamesubfolderprefs.py:277
+#: rapid/renamesubfolderprefs.py:279
 msgid "DD"
 msgstr "DD"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-#: rapid/renamesubfolderprefs.py:279
+#: rapid/renamesubfolderprefs.py:281
 msgid "HHMMSS"
 msgstr "HHMMSS"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-#: rapid/renamesubfolderprefs.py:281
+#: rapid/renamesubfolderprefs.py:283
 msgid "HHMM"
 msgstr "HHMM"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-#: rapid/renamesubfolderprefs.py:283
+#: rapid/renamesubfolderprefs.py:285
 msgid "HH-MM-SS"
 msgstr "HH-MM-SS"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-#: rapid/renamesubfolderprefs.py:285
+#: rapid/renamesubfolderprefs.py:287
 msgid "HH-MM"
 msgstr "HH-MM"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-#: rapid/renamesubfolderprefs.py:287
+#: rapid/renamesubfolderprefs.py:289
 msgid "HH"
 msgstr "HH"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-#: rapid/renamesubfolderprefs.py:289
+#: rapid/renamesubfolderprefs.py:291
 msgid "MM (minutes)"
 msgstr "MM (minuty)"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-#: rapid/renamesubfolderprefs.py:291
+#: rapid/renamesubfolderprefs.py:293
 msgid "SS"
 msgstr "SS"
 
-#: rapid/renamesubfolderprefs.py:707
+#: rapid/renamesubfolderprefs.py:710
 #, python-format
 msgid ""
 "Preference key '%(key)s' is invalid.\n"
@@ -1089,53 +1106,53 @@ msgstr ""
 "Klíč nastavení '%(key)s' je invalidní\n"
 "Předpokládáno %(value)s"
 
-#: rapid/renamesubfolderprefs.py:714
+#: rapid/renamesubfolderprefs.py:717
 #, python-format
 msgid "Preference value '%(value)s' is invalid"
 msgstr "Hodnota nastavení '%(value)s' je invalidní"
 
-#: rapid/renamesubfolderprefs.py:718
+#: rapid/renamesubfolderprefs.py:721
 msgid "These preferences are not well formed:"
 msgstr "Tato nastavení nejsou správně utvořena:"
 
-#: rapid/renamesubfolderprefs.py:828
+#: rapid/renamesubfolderprefs.py:831
 msgid "Subsecond metadata not present in image"
 msgstr "Metadata subsekund neprezentují obrázek"
 
-#: rapid/renamesubfolderprefs.py:831 rapid/renamesubfolderprefs.py:971
+#: rapid/renamesubfolderprefs.py:834 rapid/renamesubfolderprefs.py:974
 #, python-format
 msgid "%s metadata is not present in image"
 msgstr "%s metadata nejsou v obrázku"
 
-#: rapid/renamesubfolderprefs.py:856 rapid/renamesubfolderprefs.py:863
+#: rapid/renamesubfolderprefs.py:859 rapid/renamesubfolderprefs.py:866
 #, python-format
 msgid "Error in date time component. Value %s appears invalid"
 msgstr "Chyba v časovém komponentu. Hodnota %s se zdá invalidní"
 
-#: rapid/renamesubfolderprefs.py:894
+#: rapid/renamesubfolderprefs.py:897
 msgid "extension was specified but image name has no extension"
 msgstr "typ souboru byl rozeznán, ale obrázek nemá označení typu souboru"
 
-#: rapid/renamesubfolderprefs.py:898
+#: rapid/renamesubfolderprefs.py:901
 msgid "image number was specified but image filename has no number"
 msgstr "číslo obrázku bylo rozeznáno, ale obrázek nemá číslo"
 
-#: rapid/renamesubfolderprefs.py:1085
+#: rapid/renamesubfolderprefs.py:1088
 #, python-format
 msgid "error generating name with component %s"
 msgstr "chyba vygenerování jména s komponentem %s"
 
-#: rapid/renamesubfolderprefs.py:1381
+#: rapid/renamesubfolderprefs.py:1384
 #, python-format
 msgid "Subfolder preferences should not start with a %s"
 msgstr "Nastavení podsložky nemělo začít %s"
 
-#: rapid/renamesubfolderprefs.py:1383
+#: rapid/renamesubfolderprefs.py:1386
 #, python-format
 msgid "Subfolder preferences should not end with a %s"
 msgstr "Nastavení podsložky nemělo končit %s"
 
-#: rapid/renamesubfolderprefs.py:1387
+#: rapid/renamesubfolderprefs.py:1390
 #, python-format
 msgid "Subfolder preferences should not contain two %s one after the other"
 msgstr "Nastavení podsložky by nemělo obsahovat dvě %s za sebou"
@@ -1308,8 +1325,8 @@ msgstr ""
 "identifikátor."
 
 #: rapid/glade3/rapid.glade.h:41
-msgid "Copyright Damon Lynch 2007-09"
-msgstr "Copyright Damon Lynch 2007-09"
+msgid "Copyright Damon Lynch 2007-10"
+msgstr "Copyright Damon Lynch 2007-10"
 
 #: rapid/glade3/rapid.glade.h:42
 msgid "Day start:"
@@ -1533,10 +1550,14 @@ msgid "Strip incompatible characters"
 msgstr "Odstranit nekompatibilní znaky"
 
 #: rapid/glade3/rapid.glade.h:91
+msgid "Synchronize RAW + JPEG sequence numbers"
+msgstr "Synchronizovat sekvenční čísla RAW + JPEG"
+
+#: rapid/glade3/rapid.glade.h:92
 msgid "Unmount (\"eject\") image device upon download completion"
 msgstr "Odpojit (\"vysunout\") obrázkové zařízení po dokončení stahování"
 
-#: rapid/glade3/rapid.glade.h:92
+#: rapid/glade3/rapid.glade.h:93
 msgid ""
 "When backing up, choose whether to overwrite an image on the backup device "
 "that has the same name, or skip backing it up."
@@ -1544,7 +1565,7 @@ msgstr ""
 "Při zálohování vyberte zda chcete přepsat obrázek který má schodné jméno s "
 "jiným, či zda ho chcete nezálohovat."
 
-#: rapid/glade3/rapid.glade.h:93
+#: rapid/glade3/rapid.glade.h:94
 msgid ""
 "You can have your photos backed up to multiple locations as they are "
 "downloaded, e.g. external hard drives."
@@ -1552,46 +1573,49 @@ msgstr ""
 "Vy můžete vaše fotografie zálohovat do různých umístění a můžete je stahovat "
 "na různé externí disky."
 
-#: rapid/glade3/rapid.glade.h:94
+#: rapid/glade3/rapid.glade.h:95
 msgid "_Add..."
 msgstr "_Přidat..."
 
-#: rapid/glade3/rapid.glade.h:95
+#: rapid/glade3/rapid.glade.h:96
 msgid "_Clear Completed Downloads"
 msgstr "_Vyčistit kompletní stahování"
 
-#: rapid/glade3/rapid.glade.h:96
+#: rapid/glade3/rapid.glade.h:97
 msgid "_Error Log"
 msgstr "_Záznam chyb"
 
-#: rapid/glade3/rapid.glade.h:97
+#: rapid/glade3/rapid.glade.h:98
 msgid "_Get Help Online..."
 msgstr "_Nápověda online..."
 
-#: rapid/glade3/rapid.glade.h:98
+#: rapid/glade3/rapid.glade.h:99
 msgid "_Help"
 msgstr "_Nápověda"
 
-#: rapid/glade3/rapid.glade.h:99
+#: rapid/glade3/rapid.glade.h:100
 msgid "_Make a Donation..."
 msgstr "_Dejte příspěvek..."
 
-#: rapid/glade3/rapid.glade.h:100
+#: rapid/glade3/rapid.glade.h:101
 msgid "_Photos"
 msgstr "_Fotografie"
 
-#: rapid/glade3/rapid.glade.h:101
+#: rapid/glade3/rapid.glade.h:102
 msgid "_Report a Problem..."
 msgstr "_Ohlásit problém..."
 
-#: rapid/glade3/rapid.glade.h:102
+#: rapid/glade3/rapid.glade.h:103
 msgid "_Thumbnails"
 msgstr "_Náhledy"
 
-#: rapid/glade3/rapid.glade.h:103
+#: rapid/glade3/rapid.glade.h:104
 msgid "_Translate this Application..."
 msgstr "_Přeložit tuto aplikaci..."
 
-#: rapid/glade3/rapid.glade.h:104
+#: rapid/glade3/rapid.glade.h:105
 msgid "_View"
 msgstr "_Zobrazení"
+
+#~ msgid "Copyright Damon Lynch 2007-09"
+#~ msgstr "Copyright Damon Lynch 2007-09"
