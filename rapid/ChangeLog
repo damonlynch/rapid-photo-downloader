@@ -28,6 +28,8 @@ Increased maximum sequence number length to seven digits by user request.
 Fixed bug #503704: changes in values for downloads today and stored number not
 updated when changed via program preferences while a download is ready to begin.
 
+Fixed a rare startup bug, where the program could crash when starting a thread.
+
 Added Serbian translation by Milos Popovic. Updated Czech, Dutch, French, German
 and Swedish translations.
 

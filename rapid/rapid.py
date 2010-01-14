@@ -213,7 +213,9 @@ class ThreadManager:
 
     def startWorkers(self):
         for w in self.getReadyToStartWorkers():
-            w.start()
+            #for some reason, very occassionally a thread that has been started shows up in this list, so must filter them out
+            if not w.isAlive():
+                w.start()
 
     def startDownloadingWorkers(self):
         for w in self.getReadyToDownloadWorkers():
@@ -1597,12 +1599,7 @@ class CopyPhotos(Thread):
                             elif i == -99:
                                 i1_ext, i1_date_time, i1_subseconds = downloaded_files.extExifDateTime(image_name)
                                 sameFileNameDifferentExif("%s%s" % (image_name, i1_ext), i1_date_time, i1_subseconds, name, imageMetadata.dateTime(), imageMetadata.subSeconds())
-                            elif i == 0:
-                                pass
-                                #print "++ Pass 1: %s is assigned sequence %s" % (name, sequence_to_use)
-
-                                
-                            
+                           
                     
                     # pass the subfolder the image will go into, as this is needed to determine subfolder sequence numbers 
                     # indicate that sequences chosen should be queued
@@ -1673,15 +1670,10 @@ class CopyPhotos(Thread):
                                     image_name, image_ext = os.path.splitext(originalName)
                                     with self.downloadedFilesLock:
                                         i, sequence_to_use = downloaded_files.matching_pair(image_name, image_ext, imageMetadata.dateTime(), imageMetadata.subSeconds())
-                                        if i == -1:
-                                            pass
-                                            # print "** Pass 2: %s was already downloaded" % originalName
-                                        elif i == -99:
+                                        if i == -99:
                                             i1_ext, i1_date_time, i1_subseconds = downloaded_files.extExifDateTime(image_name)
                                             sameFileNameDifferentExif("%s%s" % (image_name, i1_ext), i1_date_time, i1_subseconds, originalName, imageMetadata.dateTime(), imageMetadata.subSeconds())
-                                        elif i == 0:
-                                            # print "** Pass 2: %s is assigned sequence %s" % (originalName, sequence_to_use)
-                                            pass
+
                                             
 
                                 newName, problem = self.imageRenamePrefsFactory.generateNameUsingPreferences(
@@ -1731,7 +1723,7 @@ class CopyPhotos(Thread):
                                         seq = sequence_to_use
                                     with self.downloadedFilesLock:
                                         downloaded_files.add_download(name, ext, imageMetadata.dateTime(), imageMetadata.subSeconds(), seq) 
-                                        # print "Downloaded %s using sequence %s" % (originalName, seq)
+
                                 
                                 with self.fileSequenceLock:
                                     if sequence_to_use is None:
@@ -3068,7 +3060,7 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
         else:
             cmd_line(_("Automatically start download is false") )
         
-    def setupAvailableImageAndBackupMedia(self,  onStartup,  onPreferenceChange,  doNotAllowAutoStart):
+    def setupAvailableImageAndBackupMedia(self, onStartup, onPreferenceChange, doNotAllowAutoStart):
         """
         Sets up volumes for downloading from and backing up to
         
