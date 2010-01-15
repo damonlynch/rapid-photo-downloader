@@ -7,144 +7,144 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2009-11-11 10:25-0600\n"
-"PO-Revision-Date: 2009-08-28 08:14+0000\n"
+"POT-Creation-Date: 2010-01-13 16:27-0600\n"
+"PO-Revision-Date: 2010-01-14 21:41+0000\n"
 "Last-Translator: Mikko Ruohola <polarfox@polarfox.net>\n"
 "Language-Team: Finnish <fi@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2009-11-14 21:20+0000\n"
+"X-Launchpad-Export-Date: 2010-01-14 23:56+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #. Translators: if neccessary, for guidance in how to translate this program, you may see http://damonlynch.net/translate.html
-#: rapid/rapid.py:100 rapid/glade3/rapid.glade.h:68
+#: rapid/rapid.py:100 rapid/glade3/rapid.glade.h:69
 msgid "Rapid Photo Downloader"
 msgstr "Nopea kuvien lataus"
 
-#: rapid/rapid.py:374
+#: rapid/rapid.py:377
 msgid "New York"
-msgstr ""
+msgstr "New York"
 
-#: rapid/rapid.py:375
+#: rapid/rapid.py:378
 msgid "Manila"
-msgstr ""
+msgstr "Manila"
 
-#: rapid/rapid.py:375
+#: rapid/rapid.py:378
 msgid "Prague"
-msgstr ""
+msgstr "Praha"
 
-#: rapid/rapid.py:375
+#: rapid/rapid.py:378
 msgid "Helsinki"
-msgstr ""
+msgstr "Helsinki"
 
-#: rapid/rapid.py:375
+#: rapid/rapid.py:378
 msgid "Wellington"
-msgstr ""
+msgstr "Wellington"
 
-#: rapid/rapid.py:376
+#: rapid/rapid.py:379
 msgid "Tehran"
-msgstr ""
+msgstr "Teheran"
 
-#: rapid/rapid.py:376
+#: rapid/rapid.py:379
 msgid "Kampala"
-msgstr ""
+msgstr "Guatemala"
 
-#: rapid/rapid.py:376
+#: rapid/rapid.py:379
 msgid "Paris"
-msgstr ""
+msgstr "Pariisi"
 
-#: rapid/rapid.py:376
+#: rapid/rapid.py:379
 msgid "Berlin"
-msgstr ""
+msgstr "Berliini"
 
-#: rapid/rapid.py:376
+#: rapid/rapid.py:379
 msgid "Sydney"
-msgstr ""
+msgstr "Sydney"
 
-#: rapid/rapid.py:377
+#: rapid/rapid.py:380
 msgid "Budapest"
-msgstr ""
+msgstr "Budapest"
 
-#: rapid/rapid.py:377
+#: rapid/rapid.py:380
 msgid "Rome"
-msgstr ""
+msgstr "Rooma"
 
-#: rapid/rapid.py:377
+#: rapid/rapid.py:380
 msgid "Moscow"
-msgstr ""
+msgstr "Moskova"
 
-#: rapid/rapid.py:377
+#: rapid/rapid.py:380
 msgid "Delhi"
-msgstr ""
+msgstr "Delhi"
 
-#: rapid/rapid.py:377
+#: rapid/rapid.py:380
 msgid "Warsaw"
-msgstr ""
+msgstr "Varsova"
 
-#: rapid/rapid.py:378
+#: rapid/rapid.py:381
 msgid "Jakarta"
-msgstr ""
+msgstr "Jakarta"
 
-#: rapid/rapid.py:378
+#: rapid/rapid.py:381
 msgid "Madrid"
-msgstr ""
+msgstr "Madrid"
 
-#: rapid/rapid.py:378
+#: rapid/rapid.py:381
 msgid "Stockholm"
-msgstr ""
+msgstr "Tukholma"
 
-#: rapid/rapid.py:404
+#: rapid/rapid.py:408
 msgid "Invalid Downloads Today value.\n"
 msgstr "Virheelliset lataukset tänään\n"
 
-#: rapid/rapid.py:405
+#: rapid/rapid.py:409
 msgid "Resetting value to zero.\n"
 msgstr "Palautetaan arvo nollaan.\n"
 
-#: rapid/rapid.py:444
+#: rapid/rapid.py:448
 msgid "'Start of day' preference value is corrupted.\n"
 msgstr "'Päivän alku' asetuksen arvo on virheellinen\n"
 
-#: rapid/rapid.py:445
+#: rapid/rapid.py:449
 msgid "Resetting to midnight.\n"
-msgstr "Palautuu keskiyöhön.\n"
+msgstr "Palautetaan keskiyöhön.\n"
 
-#: rapid/rapid.py:474
+#: rapid/rapid.py:478
 msgid "Error in Image Rename preferences"
 msgstr "Virhe kuvan nimeämisasetuksissa"
 
-#: rapid/rapid.py:483 rapid/rapid.py:1304
+#: rapid/rapid.py:487 rapid/rapid.py:1334
 msgid "Sorry,these preferences contain an error:\n"
 msgstr "Anteeksi, näissä asetuksissa on virhe:\n"
 
-#: rapid/rapid.py:494
+#: rapid/rapid.py:498
 msgid "Resetting to default values."
 msgstr "Palautetaan oletusarvot."
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#jobcode
-#: rapid/rapid.py:565 rapid/renamesubfolderprefs.py:184
+#: rapid/rapid.py:569 rapid/renamesubfolderprefs.py:185
 msgid "Job code"
 msgstr "Työkoodi"
 
-#: rapid/rapid.py:633
+#: rapid/rapid.py:637
 msgid "Error in Download Subfolder preferences"
 msgstr "Virhe latauksen alikansioasetuksissa"
 
-#: rapid/rapid.py:768
+#: rapid/rapid.py:776
 msgid "Select a folder to download photos to"
 msgstr "Valitse kansio johon kuvat ladataan"
 
-#: rapid/rapid.py:839
+#: rapid/rapid.py:850
 msgid "Select an image folder"
 msgstr "Valitse kuvakansio"
 
-#: rapid/rapid.py:861
+#: rapid/rapid.py:872
 msgid "Select a folder in which to backup images"
 msgstr "Valitse kansio johon varmuuskopio tehdään"
 
 #. Translators: please do not modify or leave out html formatting tags like <i> and <b>. These are used to format the text the users sees
-#: rapid/rapid.py:951
+#: rapid/rapid.py:964
 msgid ""
 "<i><b>Warning:</b> There is insufficient image metadata to fully generate "
 "the name. Please use other renaming options.</i>"
@@ -152,7 +152,7 @@ msgstr ""
 "<i><b>Varoitus:</b> Kuvassa ei ole riittäviä metadata tietoja kuvan "
 "nimeämiseen. Ole hyvä ja vaihda nimeämisasetuksia.</i>"
 
-#: rapid/rapid.py:972
+#: rapid/rapid.py:985
 msgid ""
 "<i><b>Warning:</b> There is insufficient image metadata to fully generate "
 "subfolders. Please use other subfolder naming options.</i>"
@@ -161,17 +161,27 @@ msgstr ""
 "luomiseen. Ole hyvä ja vaihda alikansioidenluontiasetukstia.</i>"
 
 #. Translators: you should not modify or leave out the %s. This is a code used by the programming language python to insert a value that thes user will see
-#: rapid/rapid.py:976
+#: rapid/rapid.py:989
 #, python-format
 msgid "<i>Example: %s</i>"
 msgstr "<i>Esimerkki: %s</i>"
 
-#: rapid/rapid.py:1031
+#: rapid/rapid.py:1007
+msgid ""
+"Downloads today value not updated, as a download is currently occurring"
+msgstr ""
+"Latauksia tänään arvoa ei päivitetty, koska lataus on edelleen kesken"
+
+#: rapid/rapid.py:1023
+msgid "Stored number value not updated, as a download is currently occurring"
+msgstr "Tallennettua numeroa ei päivitetty, koska lataus on edelleen kesken"
+
+#: rapid/rapid.py:1048
 msgid "The subfolder preferences had some unnecessary values removed."
 msgstr "Alikansioasetuksista poistettiin tarpeettomia arvoja."
 
 #. Preferences list is now empty
-#: rapid/rapid.py:1036
+#: rapid/rapid.py:1053
 msgid ""
 "The subfolder preferences entered are invalid and cannot be used.\n"
 "They will be reset to their default values."
@@ -180,12 +190,12 @@ msgstr ""
 "Palautetaan oletusasetukset."
 
 #. Translators: this value is used as an example device when automatic backup device detection is enabled. You should translate this.
-#: rapid/rapid.py:1233
+#: rapid/rapid.py:1260
 msgid "externaldrive1"
 msgstr "ulkoinenasema1"
 
 #. Translators: this value is used as an example device when automatic backup device detection is enabled. You should translate this.
-#: rapid/rapid.py:1235
+#: rapid/rapid.py:1262
 msgid "externaldrive2"
 msgstr "ulkoinenasema2"
 
@@ -193,15 +203,15 @@ msgstr "ulkoinenasema2"
 #. looking for images. It is visible initially in the progress bar for each device
 #. (which normally holds "x of y images copied").
 #. It maybe displayed only briefly if the contents of the device being scanned is small.
-#: rapid/rapid.py:1293
+#: rapid/rapid.py:1323
 msgid "scanning..."
 msgstr "etsii..."
 
-#: rapid/rapid.py:1382 rapid/rapid.py:2453
+#: rapid/rapid.py:1412 rapid/rapid.py:2687
 msgid "There is an error in the program preferences."
-msgstr "Ohjelman setuksissa on virhe."
+msgstr "Ohjelman asetuksissa on virhe."
 
-#: rapid/rapid.py:1383
+#: rapid/rapid.py:1413
 msgid ""
 "\n"
 "Please check preferences, restart the program, and try again."
@@ -210,7 +220,7 @@ msgstr ""
 "Ole hyvä ja tarkista asetukset, käynnistä ohjelma uudelleen ja koita "
 "uudestaan."
 
-#: rapid/rapid.py:1384 rapid/rapid.py:1385
+#: rapid/rapid.py:1414 rapid/rapid.py:1415
 msgid "Download cannot proceed"
 msgstr "Latausta ei voida jatkaa"
 
@@ -218,7 +228,7 @@ msgstr "Latausta ei voida jatkaa"
 #. It refers to the actual number of images that can be copied. For example, the user might see the following:
 #. '0 of 512 images copied'.
 #. This particular text is displayed to the user before the download has started.
-#: rapid/rapid.py:1421 rapid/rapid.py:2018
+#: rapid/rapid.py:1451 rapid/rapid.py:2149
 #, python-format
 msgid "0 of %s images copied"
 msgstr "0 kuvaa %s kuvasta kopioitu"
@@ -229,23 +239,23 @@ msgstr "0 kuvaa %s kuvasta kopioitu"
 #. %(number)s should be left exactly as is: 'number' should not be translated. The same applies to %(device)s: 'device' should
 #. not be translated. Generally speaking, if translating the sentence requires it, you can move items like '%(xyz)s' around
 #. in a sentence, but you should never modify them or leave them out.
-#: rapid/rapid.py:1433
+#: rapid/rapid.py:1463
 #, python-format
 msgid "Device scan complete: found %(number)s images on %(device)s"
 msgstr ""
 "Laite etsintä on valmis: löytyi %(number)s kuvaa %(device)s laitteesta"
 
-#: rapid/rapid.py:1439
+#: rapid/rapid.py:1469
 #, python-format
 msgid "Device scan complete: no images found on %s"
 msgstr "Laite etsintä on valmis: kuvia ei löytynyt sijainnista %s"
 
-#: rapid/rapid.py:1470
+#: rapid/rapid.py:1500
 msgid "Image filename could not be generated"
 msgstr "Kuvan tiedostonimeä ei pystytty luomaan"
 
 #. '%(source)s' and '%(problem)s' are two more examples of text that should not be modified or left out
-#: rapid/rapid.py:1472
+#: rapid/rapid.py:1502
 #, python-format
 msgid ""
 "Source: %(source)s\n"
@@ -254,7 +264,7 @@ msgstr ""
 "Lähde: %(source)s\n"
 "Ongelma: %(problem)s"
 
-#: rapid/rapid.py:1476
+#: rapid/rapid.py:1506
 msgid ""
 "Image filename could not be properly generated. Check to ensure there is "
 "sufficient image metadata."
@@ -262,7 +272,7 @@ msgstr ""
 "Kuvan tiedostonimeä ei pystytty luomaan oikein. Tarkista että kuvassa on "
 "riittävästi metatietoja."
 
-#: rapid/rapid.py:1477
+#: rapid/rapid.py:1507
 #, python-format
 msgid ""
 "Source: %(source)s\n"
@@ -273,49 +283,7 @@ msgstr ""
 "Kohde: %(destination)s\n"
 "Ongelma: %(problem)s"
 
-#: rapid/rapid.py:1486
-msgid "Could not open image"
-msgstr "Kuvaa ei voitu avata"
-
-#: rapid/rapid.py:1487
-#, python-format
-msgid "Source: %s"
-msgstr "Lähde: %s"
-
-#: rapid/rapid.py:1505
-msgid "Image has no metadata"
-msgstr "Kuvassa ei ole metatietoja"
-
-#: rapid/rapid.py:1506
-#, python-format
-msgid ""
-"Metadata is essential for generating subfolders / image names.\n"
-"Source: %s"
-msgstr ""
-"Metatieto on välttämätöntä kansiorakenteen ja tiedostonimien luontiin.\n"
-"Lähde: %s"
-
-#: rapid/rapid.py:1516
-msgid ""
-"Subfolder name could not be properly generated. Check to ensure there is "
-"sufficient image metadata."
-msgstr ""
-"Kansiorakennetta ei voitu luoda. Tarkista että kuvassa on riittävästi "
-"metatietoja."
-
-#: rapid/rapid.py:1517
-#, python-format
-msgid ""
-"Subfolder: %(subfolder)s\n"
-"Image: %(image)s\n"
-"Problem: %(problem)s"
-msgstr ""
-"Alikansio: %(subfolder)s\n"
-"Kuva: %(image)s\n"
-"Ongelma: %(problem)s"
-
-#: rapid/rapid.py:1569 rapid/rapid.py:1597 rapid/rapid.py:1616
-#: rapid/rapid.py:1678
+#: rapid/rapid.py:1516 rapid/rapid.py:1521 rapid/rapid.py:1784
 #, python-format
 msgid ""
 "Source: %(source)s\n"
@@ -324,21 +292,21 @@ msgstr ""
 "Lähde: %(source)s\n"
 "Kohde: %(destination)s"
 
-#: rapid/rapid.py:1618
+#: rapid/rapid.py:1518
 #, python-format
 msgid "Unique identifier '%s' added"
 msgstr "Yksilöinti '%s' lisätty"
 
-#. A new day, according the user's preferences of what time a day begins, has started
-#: rapid/rapid.py:1635
-msgid "New day has started - resetting 'Downloads Today' sequence number"
-msgstr "Uusi päivä on alkanut - Palautetaan 'Latauksia Tänään' luku"
+#: rapid/rapid.py:1526
+#, python-format
+msgid "Source: %(source)s"
+msgstr "Lähde: %(source)s"
 
-#: rapid/rapid.py:1640 rapid/rapid.py:1646
+#: rapid/rapid.py:1533
 msgid "Download copying error"
 msgstr "Kopiointivirhe"
 
-#: rapid/rapid.py:1641
+#: rapid/rapid.py:1534
 #, python-format
 msgid ""
 "Source: %(source)s\n"
@@ -349,19 +317,80 @@ msgstr ""
 "Kohde: %(destination)s\n"
 "Virhe: %(errorno)s %(strerror)s"
 
-#: rapid/rapid.py:1643 rapid/rapid.py:1716
+#: rapid/rapid.py:1536 rapid/rapid.py:1822
 msgid "The image was not copied."
 msgstr "Kuvaa ei kopioitu."
 
-#: rapid/rapid.py:1677
+#: rapid/rapid.py:1539
+msgid ""
+"Images detected with the same filenames, but taken at different times:"
+msgstr ""
+"Löydettiin kuvia samalla tiedostonimellä, mutta ne on otettu eri ajakohtina:"
+
+#: rapid/rapid.py:1540
+#, python-format
+msgid ""
+"First image: %(image1)s %(image1_date_time)s:%(image1_subseconds)s\n"
+"Second image: %(image2)s %(image2_date_time)s:%(image2_subseconds)s"
+msgstr ""
+"Ensimmäinen kuva: %(image1)s %(image1_date_time)s:%(image1_subseconds)s\n"
+"Toinen kuva: %(image2)s %(image2_date_time)s:%(image2_subseconds)s"
+
+#: rapid/rapid.py:1553
+msgid "Could not open image"
+msgstr "Kuvaa ei voitu avata"
+
+#: rapid/rapid.py:1554
+#, python-format
+msgid "Source: %s"
+msgstr "Lähde: %s"
+
+#: rapid/rapid.py:1572
+msgid "Image has no metadata"
+msgstr "Kuvassa ei ole metatietoja"
+
+#: rapid/rapid.py:1573
+#, python-format
+msgid ""
+"Metadata is essential for generating subfolders / image names.\n"
+"Source: %s"
+msgstr ""
+"Metatieto on välttämätöntä kansiorakenteen ja tiedostonimien luontiin.\n"
+"Lähde: %s"
+
+#: rapid/rapid.py:1583
+msgid ""
+"Subfolder name could not be properly generated. Check to ensure there is "
+"sufficient image metadata."
+msgstr ""
+"Kansiorakennetta ei voitu luoda. Tarkista että kuvassa on riittävästi "
+"metatietoja."
+
+#: rapid/rapid.py:1584
+#, python-format
+msgid ""
+"Subfolder: %(subfolder)s\n"
+"Image: %(image)s\n"
+"Problem: %(problem)s"
+msgstr ""
+"Alikansio: %(subfolder)s\n"
+"Kuva: %(image)s\n"
+"Ongelma: %(problem)s"
+
+#. A new day, according the user's preferences of what time a day begins, has started
+#: rapid/rapid.py:1746
+msgid "New day has started - resetting 'Downloads Today' sequence number"
+msgstr "Uusi päivä on alkanut - Palautetaan 'Latauksia Tänään' luku"
+
+#: rapid/rapid.py:1783
 msgid "Backup image already exists"
 msgstr "Kuvan varmuuskopio on jo olemassa"
 
-#: rapid/rapid.py:1705 rapid/rapid.py:1713 rapid/rapid.py:1719
+#: rapid/rapid.py:1811 rapid/rapid.py:1819 rapid/rapid.py:1825
 msgid "Backing up error"
 msgstr "Varmuuskopiointi virhe"
 
-#: rapid/rapid.py:1706
+#: rapid/rapid.py:1812
 #, python-format
 msgid ""
 "Destination directory could not be created\n"
@@ -372,7 +401,7 @@ msgstr ""
 "%(directory)s\n"
 "Virhe: %(errno)s %(strerror)s"
 
-#: rapid/rapid.py:1714 rapid/rapid.py:1720
+#: rapid/rapid.py:1820 rapid/rapid.py:1826
 #, python-format
 msgid ""
 "Source: %(source)s\n"
@@ -384,126 +413,205 @@ msgstr ""
 "Virhe: %(errno)s %(strerror)s"
 
 #. This message informs the user that the device (e.g. camera, hard drive or memory card) was automatically unmounted and they can now remove it
-#: rapid/rapid.py:1733
+#: rapid/rapid.py:1839
 msgid "The device can now be safely removed"
 msgstr "Laite voidaan turvallisesti poistaa"
 
-#: rapid/rapid.py:1737
+#: rapid/rapid.py:1843
 #, python-format
 msgid "%s images downloaded"
 msgstr "%s kuvaa ladattu"
 
-#: rapid/rapid.py:1739
+#: rapid/rapid.py:1845
 #, python-format
 msgid "%s images skipped"
 msgstr "%s kuvaa ohitettu"
 
-#: rapid/rapid.py:1745 rapid/rapid.py:2999
+#: rapid/rapid.py:1851 rapid/rapid.py:3294
 msgid "warnings"
 msgstr "varoitukset"
 
-#: rapid/rapid.py:1747 rapid/rapid.py:3001
+#: rapid/rapid.py:1853 rapid/rapid.py:3296
 msgid "errors"
 msgstr "virheet"
 
-#: rapid/rapid.py:1769
+#: rapid/rapid.py:1882
 msgid "Backup device missing"
 msgstr "Varmuuskopiolaite puuttuu"
 
-#: rapid/rapid.py:1769
+#: rapid/rapid.py:1882
 msgid "No backup device was detected."
 msgstr "Varmuuskopiolaitetta ei löytynyt"
 
-#: rapid/rapid.py:1773
+#: rapid/rapid.py:1886
 msgid "This device has no images to download from."
 msgstr "Laitteessa ei ole kuvia ladattavaksi."
 
-#: rapid/rapid.py:1808
+#: rapid/rapid.py:1921
 #, python-format
 msgid "Download has started from %s"
 msgstr "Lataus lähteestä %s on alkanut"
 
-#: rapid/rapid.py:1853
+#: rapid/rapid.py:1967
 msgid "Image skipped"
 msgstr "Kuva ohitettu"
 
-#: rapid/rapid.py:1854
+#: rapid/rapid.py:1968
 msgid "Image overwritten"
 msgstr "Kuva korvattu"
 
-#: rapid/rapid.py:1855
+#: rapid/rapid.py:1969
 msgid "Image already exists"
 msgstr "Kuva on jo olemassa"
 
-#: rapid/rapid.py:1900
+#: rapid/rapid.py:2015
 msgid "Image has no thumbnail"
 msgstr "Kuvalla ei ole näytekuvaa"
 
-#: rapid/rapid.py:1910
+#: rapid/rapid.py:2025
 #, python-format
 msgid "%(number)s of %(total)s images copied"
 msgstr "%(number)s kuvaa %(total)s kuvasta kopioitu"
 
-#: rapid/rapid.py:1926
+#: rapid/rapid.py:2040 rapid/rapid.py:2044
+msgid "Could not delete image from image device"
+msgstr "Poistaminen kuvalaitteelta epäonnistui"
+
+#: rapid/rapid.py:2041
+#, python-format
+msgid ""
+"Image: %(source)s\n"
+"Error: %(errno)s %(strerror)s"
+msgstr ""
+"Kuva: %(source)s\n"
+"Virhe: %(errno)s %(strerror)s"
+
+#: rapid/rapid.py:2045
+#, python-format
+msgid "Image: %(source)s"
+msgstr "Kuva: %(source)s"
+
+#: rapid/rapid.py:2047
+#, python-format
+msgid "Deleted %i images from image device"
+msgstr "Poistettiin %i kuvaa kuvalaitteelta"
+
+#: rapid/rapid.py:2057
 #, python-format
 msgid "Download complete from %s"
 msgstr "Lataus lähteestä %s valmis"
 
 #. Device refers to a thing like a camera, memory card in its reader, external hard drive, Portable Storage Device, etc.
-#: rapid/rapid.py:2002
+#: rapid/rapid.py:2133
 msgid "Device"
 msgstr "Laite"
 
 #. Size refers to the total size of images on the device, typically in MB or GB
-#: rapid/rapid.py:2007
+#: rapid/rapid.py:2138
 msgid "Size"
 msgstr "Koko"
 
-#: rapid/rapid.py:2010
+#: rapid/rapid.py:2141
 msgid "Download Progress"
 msgstr "Latauksen edistyminen"
 
-#: rapid/rapid.py:2126 rapid/rapid.py:2132
+#: rapid/rapid.py:2257 rapid/rapid.py:2263
 msgid "Thumbnail cannot be displayed"
 msgstr "Näytekuvaa ei voida näyttää"
 
-#: rapid/rapid.py:2127 rapid/rapid.py:2133
+#: rapid/rapid.py:2258 rapid/rapid.py:2264
 msgid "It may be corrupted"
 msgstr "Se voi olla vahingoittunut"
 
-#: rapid/rapid.py:2163
+#: rapid/rapid.py:2290
+msgid "Device Detected"
+msgstr "Laite havaittu"
+
+#. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#usedeviceprompt
+#: rapid/rapid.py:2299
+msgid "Should this device or partition be used to download images from?"
+msgstr "Tulisiko tätä laitetta tai osiota käyttää kuvien lataamiseen?"
+
+#. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#usedeviceprompt
+#: rapid/rapid.py:2318
+msgid "_Remember this choice"
+msgstr "_Muista tämä valinta"
+
+#. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#usedeviceprompt
+#: rapid/rapid.py:2355
+#, python-format
+msgid "%s selected for downloading from"
+msgstr "%s valittu ladattavaksi"
+
+#. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#usedeviceprompt
+#: rapid/rapid.py:2358
+msgid "This device or partition will always be used to download from"
+msgstr "Tätä laitetta tai osiota tullaan aina käyttämään kuvien lataamiseen"
+
+#. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#usedeviceprompt
+#: rapid/rapid.py:2361
+#, python-format
+msgid "%s rejected as a download device"
+msgstr "%s laitetta ei hyväksytty latauslaitteeksi"
+
+#. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#usedeviceprompt
+#: rapid/rapid.py:2364
+msgid "This device or partition will never be used to download from"
+msgstr "Tästä laitteesta tai osiosta ei ladata koskaan"
+
+#. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#jobcode
+#: rapid/rapid.py:2374
 msgid "Enter a Job Code"
 msgstr "Syöta työkoodi"
 
-#: rapid/rapid.py:2179
+#. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#jobcode
+#: rapid/rapid.py:2392
+msgid "Enter a new job code, or select a previous one."
+msgstr "Anna uusi työkoodi tai valitse aikaisempi."
+
+#. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#jobcode
+#: rapid/rapid.py:2395
+msgid "Enter a new job code."
+msgstr "Anna uusi työkoodi."
+
+#: rapid/rapid.py:2400
 msgid "Job Code:"
 msgstr "Työkoodi:"
 
-#: rapid/rapid.py:2225
+#: rapid/rapid.py:2447
 msgid "Job Code entered"
 msgstr "Työkoodi syötetty"
 
-#: rapid/rapid.py:2227
-msgid "Job Code not entered - download to be cancelled"
-msgstr "Työkoodia ei syötetty - Lataus peruutetaan"
+#: rapid/rapid.py:2449
+msgid "Job Code not entered"
+msgstr "Työkoodia ei annettu"
 
-#: rapid/rapid.py:2454
+#: rapid/rapid.py:2688
 msgid "Some preferences will be reset."
 msgstr "Jotkin asetukset palautetaan."
 
-#: rapid/rapid.py:2488
+#: rapid/rapid.py:2722
+#, python-format
+msgid "Prompting whether to use %s"
+msgstr ""
+
+#: rapid/rapid.py:2750
 msgid "Prompting for Job Code"
 msgstr "Kysyy työkoodia"
 
-#: rapid/rapid.py:2505
+#: rapid/rapid.py:2754
+msgid "Already prompting for Job Code, do not prompt again"
+msgstr "Työkoodia pyydetään jo, älä pyydä uudestaan"
+
+#: rapid/rapid.py:2769
 msgid "Starting downloads that have been waiting for a Job Code"
 msgstr "Työkoodia odottaneet lataukset käynnistetään"
 
-#: rapid/rapid.py:2509
+#: rapid/rapid.py:2773
 msgid "Starting downloads"
 msgstr "Käynnistetään latauksia"
 
-#: rapid/rapid.py:2539
+#: rapid/rapid.py:2803
 msgid ""
 "A newer version of this program was previously run on this computer.\n"
 "\n"
@@ -511,35 +619,35 @@ msgstr ""
 "Ohjelman uudempaa versiota on käytetty tässä tietokoneessa.\n"
 "\n"
 
-#: rapid/rapid.py:2541
+#: rapid/rapid.py:2805
 msgid ""
 "Program preferences appear to be valid, but please check them to ensure "
 "correct operation."
 msgstr ""
 "Ohjelma on kelpaava, mutta ole hyvä ja tarkista että ohjelma toimii oikein."
 
-#: rapid/rapid.py:2543
+#: rapid/rapid.py:2807
 msgid "Sorry, some preferences are invalid and will be reset."
 msgstr ""
 "Anteeksi, jotkin asetukset ovat virheellisiä ja ne palautetaan "
 "oletusarvoihin."
 
-#: rapid/rapid.py:2544
+#: rapid/rapid.py:2808
 msgid "Warning:"
 msgstr "Varoitus:"
 
-#: rapid/rapid.py:2549
+#: rapid/rapid.py:2813
 msgid ""
 "This version of the program is newer than the previously run version. "
 "Checking preferences."
 msgstr ""
 "Tämä ohjelma on uudempi kuin aikaisemmin käytetty. Tarkista asetukset."
 
-#: rapid/rapid.py:2556
+#: rapid/rapid.py:2820
 msgid "Preferences were modified."
 msgstr "Asetuksia on muokattu."
 
-#: rapid/rapid.py:2557
+#: rapid/rapid.py:2821
 msgid ""
 "This version of the program uses different preferences than the old version. "
 "Your preferences have been updated.\n"
@@ -551,11 +659,11 @@ msgstr ""
 "\n"
 "Ole hyvä ja tarkista ne varmistaaksesi ohjelman toiminta."
 
-#: rapid/rapid.py:2561
+#: rapid/rapid.py:2825
 msgid "No preferences needed to be changed."
 msgstr "Asetuksia ei tarvinnut muuttaa."
 
-#: rapid/rapid.py:2563
+#: rapid/rapid.py:2827
 msgid ""
 "This version of the program uses different preferences than the old version. "
 "Some of your previous preferences were invalid, and could not be updated. "
@@ -565,106 +673,111 @@ msgstr ""
 "asetuksistasi olivat virheellisiä ja niitä ei voitu päivittää. Ne "
 "palautetaan oletuksiin."
 
-#: rapid/rapid.py:2572
+#: rapid/rapid.py:2836
 msgid "Problem using pynotify."
 msgstr "Ongelmia pynotifyn käytössä."
 
-#: rapid/rapid.py:2588
+#: rapid/rapid.py:2852
 msgid "Failed to receive pynotify server capabilities."
 msgstr "Ei saanut pynotify-palvelimen ominaisuuksia."
 
-#: rapid/rapid.py:2626
+#: rapid/rapid.py:2900
 msgid "and"
 msgstr "ja"
 
-#: rapid/rapid.py:2631
+#: rapid/rapid.py:2905
 msgid "Using backup devices"
 msgstr "Käyttää varmuuskopiolaitteita"
 
-#: rapid/rapid.py:2633
+#: rapid/rapid.py:2907
 msgid "Using backup device"
 msgstr "Käyttää varmuuskopiolaitetta"
 
-#: rapid/rapid.py:2635
+#: rapid/rapid.py:2909
 msgid "No backup devices detected"
 msgstr "Varmuuskopiolaitetta ei löytynyt"
 
-#: rapid/rapid.py:2770
+#: rapid/rapid.py:2948 rapid/rapid.py:3104
+#, python-format
+msgid "Device %(device)s (%(path)s) ignored"
+msgstr "Laite %(device)s (%(path)s) ohitettu"
+
+#: rapid/rapid.py:3063
 #, python-format
 msgid "Detected %(device)s with path %(path)s"
 msgstr "Löytyi %(device)s laitetta polusta %(path)s"
 
-#: rapid/rapid.py:2774
+#: rapid/rapid.py:3067
 msgid "Automatically start download is true"
 msgstr "Automaattinen latauksen aloitus on päällä"
 
-#: rapid/rapid.py:2776
+#: rapid/rapid.py:3069
 msgid "Automatically start download is false"
 msgstr "Automaattinen latauksen aloitus on pois päältä"
 
-#: rapid/rapid.py:2824
+#: rapid/rapid.py:3122
 msgid "Using manually specified path"
 msgstr "Käytetään käsin valittua polkua"
 
-#: rapid/rapid.py:2945 rapid/rapid.py:2994
+#: rapid/rapid.py:3240 rapid/rapid.py:3289
 msgid "All downloads complete"
 msgstr "Kaikki lataukset valmiita"
 
-#: rapid/rapid.py:2959
+#: rapid/rapid.py:3254
 msgid "MB/s"
 msgstr "Mt/s"
 
-#: rapid/rapid.py:2969
+#: rapid/rapid.py:3264
 msgid "About 1 second remaining"
 msgstr "Noin 1 sekunti jäljellä"
 
-#: rapid/rapid.py:2971
+#: rapid/rapid.py:3266
 #, python-format
 msgid "About %i seconds remaining"
 msgstr "Noin %i sekuntia jäljellä"
 
-#: rapid/rapid.py:2973
+#: rapid/rapid.py:3268
 msgid "About 1 minute remaining"
 msgstr "Noin 1 minuutti jäljellä"
 
 #. Translators: in the text '%(minutes)i:%(seconds)02i', only the : should be translated, if needed.
 #. '%(minutes)i' and '%(seconds)02i' should not be modified or left out. They are used to format and display the amount
 #. of time the download has remainging, e.g. 'About 5:36 minutes remaining'
-#: rapid/rapid.py:2978
+#: rapid/rapid.py:3273
 #, python-format
 msgid "About %(minutes)i:%(seconds)02i minutes remaining"
 msgstr "Noin %(minutes)i:%(seconds)02i minuuttia jäljellä"
 
-#: rapid/rapid.py:2995
+#: rapid/rapid.py:3290
 msgid "images downloaded"
 msgstr "kuvia ladattu"
 
-#: rapid/rapid.py:2997
+#: rapid/rapid.py:3292
 msgid "images skipped"
 msgstr "kuvia ohitettu"
 
 #. This text will be displayed to the user on the Download / Pause button.
 #. Please note the space at the end of the label - it is needed to meet the Gnome Human Interface Guidelines
-#: rapid/rapid.py:3089
+#: rapid/rapid.py:3386
 msgid "_Download "
 msgstr "_Lataa "
 
 #. This text will be displayed to the user on the Download / Pause button.
-#: rapid/rapid.py:3099
+#: rapid/rapid.py:3396
 msgid "_Pause"
 msgstr "_Keskeytä"
 
-#: rapid/rapid.py:3161
+#: rapid/rapid.py:3470
 msgid "Preferences were changed."
 msgstr "Asetuksia muutettiin."
 
-#: rapid/rapid.py:3298
+#: rapid/rapid.py:3665
 msgid "Goodbye"
 msgstr "Näkemiin"
 
 #. Translators: this text is displayed to the user when they request information on the command line options.
 #. The text %default should not be modified or left out.
-#: rapid/rapid.py:3309
+#: rapid/rapid.py:3676
 #, python-format
 msgid ""
 "display program information on the command line as the program runs "
@@ -673,328 +786,337 @@ msgstr ""
 "näytä ohjelman tiedot komentorivillä kun ohjelma käynnistetään (oletus: "
 "%default)"
 
-#: rapid/rapid.py:3310
+#: rapid/rapid.py:3677
 msgid "only output errors to the command line"
 msgstr "tulosta vain virheet komentoriville"
 
 #. image file extensions are recognized RAW files plus TIFF and JPG
-#: rapid/rapid.py:3312
+#: rapid/rapid.py:3679
 msgid "list image file extensions the program recognizes and exit"
 msgstr "Listaa kuvatiedostopäätteet jotka ohjelma tunnistaa ja poistu"
 
-#: rapid/rapid.py:3325
+#: rapid/rapid.py:3692
 #, python-format
 msgid "and %s"
 msgstr "ja %s"
 
 #. Which volume management code is being used (GIO or GnomeVFS)
-#: rapid/rapid.py:3330 rapid/rapid.py:3333
+#: rapid/rapid.py:3697 rapid/rapid.py:3700
 msgid "Using"
 msgstr "Käyttäen"
 
 #. this application is already running
-#: rapid/rapid.py:3347
+#: rapid/rapid.py:3714
 #, python-format
 msgid "%s is already running"
 msgstr "%s on jo käynnissä"
 
-#: rapid/renamesubfolderprefs.py:178
+#: rapid/renamesubfolderprefs.py:179
 msgid "Date time"
 msgstr "Ajankohta"
 
-#: rapid/renamesubfolderprefs.py:179
+#: rapid/renamesubfolderprefs.py:180
 msgid "Text"
 msgstr "Teksti"
 
-#: rapid/renamesubfolderprefs.py:180
+#: rapid/renamesubfolderprefs.py:181
 msgid "Filename"
 msgstr "Tiedostonimi"
 
-#: rapid/renamesubfolderprefs.py:181
+#: rapid/renamesubfolderprefs.py:182
 msgid "Metadata"
 msgstr "Metatieto"
 
-#: rapid/renamesubfolderprefs.py:182
+#: rapid/renamesubfolderprefs.py:183
 msgid "Sequences"
 msgstr "Numeroinnit"
 
-#: rapid/renamesubfolderprefs.py:185
+#: rapid/renamesubfolderprefs.py:186
 msgid "Image date"
 msgstr "Kuvan päivämäärä"
 
-#: rapid/renamesubfolderprefs.py:186
+#: rapid/renamesubfolderprefs.py:187
 msgid "Today"
 msgstr "Tänään"
 
-#: rapid/renamesubfolderprefs.py:187
+#: rapid/renamesubfolderprefs.py:188
 msgid "Yesterday"
 msgstr "Huomenna"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamefilename
-#: rapid/renamesubfolderprefs.py:189
+#: rapid/renamesubfolderprefs.py:190
 msgid "Name + extension"
 msgstr "Nimi + pääte"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamefilename
-#: rapid/renamesubfolderprefs.py:191
+#: rapid/renamesubfolderprefs.py:192
 msgid "Name"
 msgstr "Nimi"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamefilename
-#: rapid/renamesubfolderprefs.py:193
+#: rapid/renamesubfolderprefs.py:194
 msgid "Extension"
 msgstr "Tiedostopääte"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamefilename
-#: rapid/renamesubfolderprefs.py:195
+#: rapid/renamesubfolderprefs.py:196
 msgid "Image number"
 msgstr "Kuvan numero"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
-#: rapid/renamesubfolderprefs.py:197
+#: rapid/renamesubfolderprefs.py:198
 msgid "Aperture"
 msgstr "Aukko"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
-#: rapid/renamesubfolderprefs.py:199
+#: rapid/renamesubfolderprefs.py:200
 msgid "ISO"
 msgstr "Herkkyys"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
-#: rapid/renamesubfolderprefs.py:201
+#: rapid/renamesubfolderprefs.py:202
 msgid "Exposure time"
 msgstr "Valotusaika"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
-#: rapid/renamesubfolderprefs.py:203
+#: rapid/renamesubfolderprefs.py:204
 msgid "Focal length"
 msgstr "Polttoväli"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
-#: rapid/renamesubfolderprefs.py:205
+#: rapid/renamesubfolderprefs.py:206
 msgid "Camera make"
 msgstr "Kameran merkki"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
-#: rapid/renamesubfolderprefs.py:207
+#: rapid/renamesubfolderprefs.py:208
 msgid "Camera model"
 msgstr "Kameran malli"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
-#: rapid/renamesubfolderprefs.py:209
+#: rapid/renamesubfolderprefs.py:210
 msgid "Short camera model"
 msgstr "Lyhyt kameramalli"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
-#: rapid/renamesubfolderprefs.py:211
+#: rapid/renamesubfolderprefs.py:212
 msgid "Hyphenated short camera model"
 msgstr "Tavutettu lyhyt kameran malli"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
-#: rapid/renamesubfolderprefs.py:213
+#: rapid/renamesubfolderprefs.py:214
 msgid "Serial number"
 msgstr "Sarjanumero"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
-#: rapid/renamesubfolderprefs.py:215
+#: rapid/renamesubfolderprefs.py:216
 msgid "Shutter count"
 msgstr "Suljinlaskuri"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
-#: rapid/renamesubfolderprefs.py:217
+#: rapid/renamesubfolderprefs.py:218
 msgid "Owner name"
 msgstr "Omistajan nimi"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#sequencenumbers
-#: rapid/renamesubfolderprefs.py:219
+#: rapid/renamesubfolderprefs.py:220
 msgid "Downloads today"
 msgstr "Latauksia tänään"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#sequencenumbers
-#: rapid/renamesubfolderprefs.py:221
+#: rapid/renamesubfolderprefs.py:222
 msgid "Session number"
 msgstr "Istuntonumero"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#sequencenumbers
-#: rapid/renamesubfolderprefs.py:223
+#: rapid/renamesubfolderprefs.py:224
 msgid "Subfolder number"
 msgstr "Alikansion numero"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#sequencenumbers
-#: rapid/renamesubfolderprefs.py:225
+#: rapid/renamesubfolderprefs.py:226
 msgid "Stored number"
 msgstr "Tallennettu numero"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#sequenceletters
-#: rapid/renamesubfolderprefs.py:227
+#: rapid/renamesubfolderprefs.py:228
 msgid "Sequence letter"
 msgstr "Kirjainsarja"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamefilename
-#: rapid/renamesubfolderprefs.py:229
+#: rapid/renamesubfolderprefs.py:230
 msgid "All digits"
 msgstr "Kaikki numerot"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamefilename
-#: rapid/renamesubfolderprefs.py:231
+#: rapid/renamesubfolderprefs.py:232
 msgid "Last digit"
 msgstr "Viimeinen numero"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamefilename
-#: rapid/renamesubfolderprefs.py:233
+#: rapid/renamesubfolderprefs.py:234
 msgid "Last 2 digits"
 msgstr "Kaksi viimeistä numeroa"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamefilename
-#: rapid/renamesubfolderprefs.py:235
+#: rapid/renamesubfolderprefs.py:236
 msgid "Last 3 digits"
 msgstr "Kolme viimeistä numeroa"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamefilename
-#: rapid/renamesubfolderprefs.py:237
+#: rapid/renamesubfolderprefs.py:238
 msgid "Last 4 digits"
 msgstr "Neljä viimeistä numeroa"
 
 #. Translators: please not the capitalization of this text, and keep it the same if your language features capitalization
-#: rapid/renamesubfolderprefs.py:239
+#: rapid/renamesubfolderprefs.py:240
 msgid "Original Case"
 msgstr "Alkuperäinen kirjoitusasu"
 
 #. Translators: please not the capitalization of this text, and keep it the same if your language features capitalization
-#: rapid/renamesubfolderprefs.py:241
+#: rapid/renamesubfolderprefs.py:242
 msgid "UPPERCASE"
 msgstr "ISOT KIRJAIMET"
 
 #. Translators: please not the capitalization of this text, and keep it the same if your language features capitalization
-#: rapid/renamesubfolderprefs.py:243
+#: rapid/renamesubfolderprefs.py:244
 msgid "lowercase"
 msgstr "pienet kirjaimet"
 
-#: rapid/renamesubfolderprefs.py:244
+#: rapid/renamesubfolderprefs.py:245
 msgid "One digit"
 msgstr "Yksi numero"
 
-#: rapid/renamesubfolderprefs.py:245
+#: rapid/renamesubfolderprefs.py:246
 msgid "Two digits"
 msgstr "Kaksi numeroa"
 
-#: rapid/renamesubfolderprefs.py:246
+#: rapid/renamesubfolderprefs.py:247
 msgid "Three digits"
 msgstr "Kolme numeroa"
 
-#: rapid/renamesubfolderprefs.py:247
+#: rapid/renamesubfolderprefs.py:248
 msgid "Four digits"
 msgstr "Neljä numeroa"
 
-#: rapid/renamesubfolderprefs.py:248
+#: rapid/renamesubfolderprefs.py:249
 msgid "Five digits"
 msgstr "Viisi numeroa"
 
-#: rapid/renamesubfolderprefs.py:249
+#: rapid/renamesubfolderprefs.py:250
 msgid "Six digits"
 msgstr "Kuusi numeroa"
 
-#. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
 #: rapid/renamesubfolderprefs.py:251
+msgid "Seven digits"
+msgstr "Seitsemän numeroa"
+
+#. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
+#: rapid/renamesubfolderprefs.py:253
 msgid "Subseconds"
 msgstr "sekunnin osat"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-#: rapid/renamesubfolderprefs.py:253
+#: rapid/renamesubfolderprefs.py:255
 msgid "YYYYMMDD"
 msgstr "VVVVKKPP"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-#: rapid/renamesubfolderprefs.py:255
+#: rapid/renamesubfolderprefs.py:257
 msgid "YYYY-MM-DD"
 msgstr "VVVV-KK-PP"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-#: rapid/renamesubfolderprefs.py:257
+#: rapid/renamesubfolderprefs.py:259
 msgid "YYMMDD"
 msgstr "VVKKPP"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-#: rapid/renamesubfolderprefs.py:259
+#: rapid/renamesubfolderprefs.py:261
 msgid "YY-MM-DD"
 msgstr "VV-KK-PP"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-#: rapid/renamesubfolderprefs.py:261
+#: rapid/renamesubfolderprefs.py:263
 msgid "MMDDYYYY"
 msgstr "KKPPVVVV"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-#: rapid/renamesubfolderprefs.py:263
+#: rapid/renamesubfolderprefs.py:265
 msgid "MMDDYY"
 msgstr "KKPPVV"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-#: rapid/renamesubfolderprefs.py:265
+#: rapid/renamesubfolderprefs.py:267
 msgid "MMDD"
 msgstr "KKPP"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-#: rapid/renamesubfolderprefs.py:267
+#: rapid/renamesubfolderprefs.py:269
 msgid "DDMMYYYY"
 msgstr "PPKKVVVV"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-#: rapid/renamesubfolderprefs.py:269
+#: rapid/renamesubfolderprefs.py:271
 msgid "DDMMYY"
 msgstr "PPKKVV"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-#: rapid/renamesubfolderprefs.py:271
+#: rapid/renamesubfolderprefs.py:273
 msgid "YYYY"
 msgstr "VVVV"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-#: rapid/renamesubfolderprefs.py:273
+#: rapid/renamesubfolderprefs.py:275
 msgid "YY"
 msgstr "VV"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-#: rapid/renamesubfolderprefs.py:275 rapid/renamesubfolderprefs.py:289
+#: rapid/renamesubfolderprefs.py:277
 msgid "MM"
 msgstr "KK"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-#: rapid/renamesubfolderprefs.py:277
+#: rapid/renamesubfolderprefs.py:279
 msgid "DD"
 msgstr "PP"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-#: rapid/renamesubfolderprefs.py:279
+#: rapid/renamesubfolderprefs.py:281
 msgid "HHMMSS"
 msgstr "hhmmss"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-#: rapid/renamesubfolderprefs.py:281
+#: rapid/renamesubfolderprefs.py:283
 msgid "HHMM"
 msgstr "hhmm"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-#: rapid/renamesubfolderprefs.py:283
-msgid "HH-MM-SS"
-msgstr ""
-
-#. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
 #: rapid/renamesubfolderprefs.py:285
-msgid "HH-MM"
-msgstr ""
+msgid "HH-MM-SS"
+msgstr "TT-MM-SS"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
 #: rapid/renamesubfolderprefs.py:287
+msgid "HH-MM"
+msgstr "TT-MM"
+
+#. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
+#: rapid/renamesubfolderprefs.py:289
 msgid "HH"
-msgstr ""
+msgstr "TT"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
 #: rapid/renamesubfolderprefs.py:291
-msgid "SS"
-msgstr ""
+msgid "MM (minutes)"
+msgstr "MM"
 
-#: rapid/renamesubfolderprefs.py:707
+#. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
+#: rapid/renamesubfolderprefs.py:293
+msgid "SS"
+msgstr "SS"
+
+#: rapid/renamesubfolderprefs.py:710
 #, python-format
 msgid ""
 "Preference key '%(key)s' is invalid.\n"
@@ -1003,54 +1125,54 @@ msgstr ""
 "Asetus '%(key)s' on virheellinen.\n"
 "Tulisi olla yksi näistä %(value)s"
 
-#: rapid/renamesubfolderprefs.py:714
+#: rapid/renamesubfolderprefs.py:717
 #, python-format
 msgid "Preference value '%(value)s' is invalid"
 msgstr "Asetuksen arvo '%(value)s' on virheellinen"
 
-#: rapid/renamesubfolderprefs.py:718
+#: rapid/renamesubfolderprefs.py:721
 msgid "These preferences are not well formed:"
 msgstr "Nämä asetukset eivät ole oikeassa muodossa:"
 
-#: rapid/renamesubfolderprefs.py:828
+#: rapid/renamesubfolderprefs.py:831
 msgid "Subsecond metadata not present in image"
 msgstr "sekunnin osia ei löydy metatiedoista tässä kuvassa"
 
-#: rapid/renamesubfolderprefs.py:831 rapid/renamesubfolderprefs.py:971
+#: rapid/renamesubfolderprefs.py:834 rapid/renamesubfolderprefs.py:974
 #, python-format
 msgid "%s metadata is not present in image"
 msgstr "%s metatietoa ei löydy tästä kuvasta"
 
-#: rapid/renamesubfolderprefs.py:856 rapid/renamesubfolderprefs.py:863
+#: rapid/renamesubfolderprefs.py:859 rapid/renamesubfolderprefs.py:866
 #, python-format
 msgid "Error in date time component. Value %s appears invalid"
 msgstr "Virhe aikamäärityksessä. Arvo %s näyttää virheelliseltä"
 
-#: rapid/renamesubfolderprefs.py:894
+#: rapid/renamesubfolderprefs.py:897
 msgid "extension was specified but image name has no extension"
 msgstr ""
 "tiedostopääte oli määritelty mutta kuvan nimessä ei ole tiedostopäätettä"
 
-#: rapid/renamesubfolderprefs.py:898
+#: rapid/renamesubfolderprefs.py:901
 msgid "image number was specified but image filename has no number"
 msgstr "kuvan numero oli määritelty, mutta tiedostonimessä ei ole numeroa"
 
-#: rapid/renamesubfolderprefs.py:1085
+#: rapid/renamesubfolderprefs.py:1088
 #, python-format
 msgid "error generating name with component %s"
 msgstr "virhe luotaessa nimeä osalla %s"
 
-#: rapid/renamesubfolderprefs.py:1381
+#: rapid/renamesubfolderprefs.py:1387
 #, python-format
 msgid "Subfolder preferences should not start with a %s"
 msgstr "Alikansioiiden asetusten ei tulisi alkaa %s"
 
-#: rapid/renamesubfolderprefs.py:1383
+#: rapid/renamesubfolderprefs.py:1389
 #, python-format
 msgid "Subfolder preferences should not end with a %s"
 msgstr "Alikansioiden asetusten ei tulisi loppua %s"
 
-#: rapid/renamesubfolderprefs.py:1387
+#: rapid/renamesubfolderprefs.py:1393
 #, python-format
 msgid "Subfolder preferences should not contain two %s one after the other"
 msgstr "Alikansioiden asetusten ei tulisi sisältää kahta vierekkäistä %s"
@@ -1209,11 +1331,7 @@ msgstr "Varmuuskopioiden sijainti:"
 msgid "Backup photos when downloading"
 msgstr "Tee varmuuskopio ladattaessa kuvia"
 
-#: rapid/glade3/rapid.glade.h:40
-msgid "C_lear"
-msgstr ""
-
-#: rapid/glade3/rapid.glade.h:41
+#: rapid/glade3/rapid.glade.h:39
 msgid ""
 "Choose the download folder. Subfolders for the downloaded photos will be "
 "automatically created in this folder using the structure specified below."
@@ -1221,63 +1339,67 @@ msgstr ""
 "Valitse latauskansio. Alikansiot ladatuille kuville tehdään automaattisesti "
 "tähän kansioon käyttäen alla määriteltyä rakennetta käyttäen."
 
-#: rapid/glade3/rapid.glade.h:42
+#: rapid/glade3/rapid.glade.h:40
 msgid ""
 "Choose whether to skip downloading the image, or to add a unique indentifier."
 msgstr ""
 "Valitse ohitetaanko kuva ladattaessa vai lisätäänkö nimeen yksilöllinen "
 "tunniste."
 
-#: rapid/glade3/rapid.glade.h:43
-msgid "Copyright Damon Lynch 2007-09"
-msgstr "Tekijänoikeus Damon Lynch 2007-09"
+#: rapid/glade3/rapid.glade.h:41
+msgid "Copyright Damon Lynch 2007-10"
+msgstr "Copyright Damon Lynch 2007-10"
 
-#: rapid/glade3/rapid.glade.h:44
+#: rapid/glade3/rapid.glade.h:42
 msgid "Day start:"
 msgstr "Päivän alku:"
 
-#: rapid/glade3/rapid.glade.h:45
+#: rapid/glade3/rapid.glade.h:43
+msgid "Delete images from image device upon download completion"
+msgstr "Poista kuvat kuvalaitteelta kun lataus on valmis"
+
+#: rapid/glade3/rapid.glade.h:44
 msgid "Download / Pause"
 msgstr "Lataa / Keskeytä"
 
-#: rapid/glade3/rapid.glade.h:46
+#: rapid/glade3/rapid.glade.h:45
 msgid "Download Folder"
 msgstr "Latauskansio"
 
-#: rapid/glade3/rapid.glade.h:47
+#: rapid/glade3/rapid.glade.h:46
 msgid "Download folder:"
 msgstr "Latauskansio:"
 
-#: rapid/glade3/rapid.glade.h:48
+#: rapid/glade3/rapid.glade.h:47
 msgid "Downloads today:"
 msgstr "Latauksia tänään:"
 
-#: rapid/glade3/rapid.glade.h:49
+#: rapid/glade3/rapid.glade.h:48
 msgid "Error Handling"
 msgstr "Virheenkäsittely"
 
-#: rapid/glade3/rapid.glade.h:50
+#: rapid/glade3/rapid.glade.h:49
 msgid "Error Log"
 msgstr "Virheloki"
 
-#: rapid/glade3/rapid.glade.h:51
+#: rapid/glade3/rapid.glade.h:50
 msgid "Exit program after completion of successful download"
 msgstr "Poistu ohjelmasta onnistuneen latauksen jälkeen"
 
-#: rapid/glade3/rapid.glade.h:52
+#: rapid/glade3/rapid.glade.h:51
 msgid "If you disable automatic detection, choose the exact backup location."
 msgstr ""
 "Jos poistat automaattisen tunnistuksen käytöstä, määritä varmuuskopioiden "
 "tarkka sijainti."
 
-#: rapid/glade3/rapid.glade.h:53
+#: rapid/glade3/rapid.glade.h:52
 msgid ""
 "If you disable automatic detection, choose the exact location of the images."
 msgstr ""
 "Jos poistat automaattisen tunnistuksen käytöstä, määritä tarkka kuvien "
 "sijainti."
 
-#: rapid/glade3/rapid.glade.h:54
+#: rapid/glade3/rapid.glade.h:53
 msgid ""
 "If you enable automatic detection of Portable Storage Devices, the entire "
 "device will be scanned for images. On large devices, this could take some "
@@ -1286,19 +1408,19 @@ msgstr ""
 "Jos kytket päälle automaattisen kannettavan laitteen tunnistuksen, koko "
 "laite käydään läpi kuvia etsittäessä, tämä voi kestää hetken."
 
-#: rapid/glade3/rapid.glade.h:55
+#: rapid/glade3/rapid.glade.h:54
 msgid "Ignore"
 msgstr "Ohita"
 
-#: rapid/glade3/rapid.glade.h:56
+#: rapid/glade3/rapid.glade.h:55
 msgid "Image Devices"
 msgstr "Kuvalaitteet"
 
-#: rapid/glade3/rapid.glade.h:57
+#: rapid/glade3/rapid.glade.h:56
 msgid "Image Rename"
 msgstr "Kuvan uudelleennimeäminen"
 
-#: rapid/glade3/rapid.glade.h:58
+#: rapid/glade3/rapid.glade.h:57
 msgid ""
 "Image devices are devices from which to download photos, such as cameras, "
 "memory cards or Portable Storage Devices.\n"
@@ -1318,27 +1440,31 @@ msgstr ""
 "asettaa se PTP tilaan. Jos ei ole mahdollista, harkitse kortinlukijan "
 "käyttämistä.</i>"
 
-#: rapid/glade3/rapid.glade.h:63
+#: rapid/glade3/rapid.glade.h:62
 msgid "Image location:"
 msgstr "Kuvan sijainti:"
 
-#: rapid/glade3/rapid.glade.h:64
+#: rapid/glade3/rapid.glade.h:63
 msgid "Import your images efficiently and reliably"
 msgstr "Tuo kuvasti tehokkaasti ja turvallisesti"
 
-#: rapid/glade3/rapid.glade.h:65
+#: rapid/glade3/rapid.glade.h:64
 msgid "Job Codes"
 msgstr "Työkoodit"
 
-#: rapid/glade3/rapid.glade.h:66
+#: rapid/glade3/rapid.glade.h:65
 msgid "Overwrite"
 msgstr "Ylikirjoita"
 
-#: rapid/glade3/rapid.glade.h:67
+#: rapid/glade3/rapid.glade.h:66
 msgid "Preferences: Rapid Photo Downloader"
 msgstr "Asetukset: Nopea Valokuvien Lataaja"
 
-#: rapid/glade3/rapid.glade.h:69
+#: rapid/glade3/rapid.glade.h:68
+msgid "R_emove All"
+msgstr "P_oista kaikki"
+
+#: rapid/glade3/rapid.glade.h:70
 msgid ""
 "Rapid Photo Downloader is free software; you can redistribute it and/or "
 "modify it under the terms of the GNU General Public License as published by "
@@ -1368,27 +1494,27 @@ msgstr ""
 "Rapid Photo Downloader; if not, write to the Free Software Foundation, Inc., "
 "51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA."
 
-#: rapid/glade3/rapid.glade.h:74
+#: rapid/glade3/rapid.glade.h:75
 msgid "Rename Options"
 msgstr "Uudelleennimeämis valinnat"
 
-#: rapid/glade3/rapid.glade.h:75
+#: rapid/glade3/rapid.glade.h:76
 msgid "Report a warning"
 msgstr "Raportoi varoitus"
 
-#: rapid/glade3/rapid.glade.h:76
+#: rapid/glade3/rapid.glade.h:77
 msgid "Report an error"
 msgstr "Raportoi virhe"
 
-#: rapid/glade3/rapid.glade.h:77
+#: rapid/glade3/rapid.glade.h:78
 msgid "Skip"
 msgstr "Ohita"
 
-#: rapid/glade3/rapid.glade.h:78
+#: rapid/glade3/rapid.glade.h:79
 msgid "Skip download"
 msgstr "Ohita lataus"
 
-#: rapid/glade3/rapid.glade.h:79
+#: rapid/glade3/rapid.glade.h:80
 msgid ""
 "Specify the folder in which backups are stored on the device.  \n"
 "\n"
@@ -1402,7 +1528,7 @@ msgstr ""
 "ei. Jokaiseen varmuuskopiolaitteeseen tulee tehdä tämän niminen "
 "hakemisto.</i>"
 
-#: rapid/glade3/rapid.glade.h:82
+#: rapid/glade3/rapid.glade.h:83
 msgid ""
 "Specify the time in 24 hour format at which the <i>Downloads today</i> "
 "sequence number should be reset."
@@ -1410,18 +1536,18 @@ msgstr ""
 "Valitse aika 24 tunnin muodossa jossa <i>Latauksia tänään</i> numerointi "
 "tulisi palauttaa."
 
-#: rapid/glade3/rapid.glade.h:83
+#: rapid/glade3/rapid.glade.h:84
 msgid ""
 "Specify what to do when an image of the same name has already been "
 "downloaded or backed up."
 msgstr ""
 "Valitse mitä tehdään kun samanniminen kuva on jo ladattu tai varmuuskopioitu."
 
-#: rapid/glade3/rapid.glade.h:84
+#: rapid/glade3/rapid.glade.h:85
 msgid "Specify what to do when there are no backup devices."
 msgstr "Valitse mitä tehdään jos varmuuskopiolaitteita ei löydy."
 
-#: rapid/glade3/rapid.glade.h:85
+#: rapid/glade3/rapid.glade.h:86
 msgid ""
 "Specify whether image and folder names should have any characters removed "
 "that are not allowed by other operating systems."
@@ -1429,27 +1555,31 @@ msgstr ""
 "Valitse tuleeko kuva ja hakemistonimistä poistaa merkit joita ei tueta "
 "toisissa käyttöjärjestelmissä."
 
-#: rapid/glade3/rapid.glade.h:86
+#: rapid/glade3/rapid.glade.h:87
 msgid "Start downloading at program startup"
 msgstr "Aloita lataus kun ohjelma käynnistetään"
 
-#: rapid/glade3/rapid.glade.h:87
+#: rapid/glade3/rapid.glade.h:88
 msgid "Start downloading upon image device insertion"
 msgstr "Aloita lataus kun kuvalaite kytketään"
 
-#: rapid/glade3/rapid.glade.h:88
+#: rapid/glade3/rapid.glade.h:89
 msgid "Stored number:"
 msgstr "Tallennettu numero:"
 
-#: rapid/glade3/rapid.glade.h:89
+#: rapid/glade3/rapid.glade.h:90
 msgid "Strip incompatible characters"
 msgstr "Poista yhteensopimattomat merkit"
 
-#: rapid/glade3/rapid.glade.h:90
+#: rapid/glade3/rapid.glade.h:91
+msgid "Synchronize RAW + JPEG sequence numbers"
+msgstr "Yhtenäistä RAW + JPEG järjestysnumerot"
+
+#: rapid/glade3/rapid.glade.h:92
 msgid "Unmount (\"eject\") image device upon download completion"
 msgstr "Poista kuvalaite kun lataus on valmis"
 
-#: rapid/glade3/rapid.glade.h:91
+#: rapid/glade3/rapid.glade.h:93
 msgid ""
 "When backing up, choose whether to overwrite an image on the backup device "
 "that has the same name, or skip backing it up."
@@ -1457,7 +1587,7 @@ msgstr ""
 "Varmuuskopioitaessa, valitse ylikirjoitetaanko kuva varmuuskopiolaitteessa "
 "jos saman niminen kuva on jo olemassa, vai ohitetaanko se."
 
-#: rapid/glade3/rapid.glade.h:92
+#: rapid/glade3/rapid.glade.h:94
 msgid ""
 "You can have your photos backed up to multiple locations as they are "
 "downloaded, e.g. external hard drives."
@@ -1465,63 +1595,49 @@ msgstr ""
 "Voit varmuuskopioida kuvasi useaan kohteeseen kun kuvia ladataan, esim. "
 "ulkoisille kovalevyille."
 
-#: rapid/glade3/rapid.glade.h:93
+#: rapid/glade3/rapid.glade.h:95
+msgid "_Add..."
+msgstr "_Lisää..."
+
+#: rapid/glade3/rapid.glade.h:96
 msgid "_Clear Completed Downloads"
 msgstr "_Tyhjennä valmistuneet lataukset"
 
-#: rapid/glade3/rapid.glade.h:94
+#: rapid/glade3/rapid.glade.h:97
 msgid "_Error Log"
 msgstr "Virheloki"
 
-#: rapid/glade3/rapid.glade.h:95
+#: rapid/glade3/rapid.glade.h:98
 msgid "_Get Help Online..."
 msgstr "_Hae ohjeita netistä..."
 
-#: rapid/glade3/rapid.glade.h:96
+#: rapid/glade3/rapid.glade.h:99
 msgid "_Help"
 msgstr "_Ohje"
 
-#: rapid/glade3/rapid.glade.h:97
+#: rapid/glade3/rapid.glade.h:100
 msgid "_Make a Donation..."
 msgstr "_Tee lahjoitus"
 
-#: rapid/glade3/rapid.glade.h:98
+#: rapid/glade3/rapid.glade.h:101
 msgid "_Photos"
 msgstr "_Valokuvat"
 
-#: rapid/glade3/rapid.glade.h:99
+#: rapid/glade3/rapid.glade.h:102
 msgid "_Report a Problem..."
 msgstr "_Raportoi ongelma..."
 
-#: rapid/glade3/rapid.glade.h:100
+#: rapid/glade3/rapid.glade.h:103
 msgid "_Thumbnails"
 msgstr "_Näytekuvat"
 
-#: rapid/glade3/rapid.glade.h:101
+#: rapid/glade3/rapid.glade.h:104
 msgid "_Translate this Application..."
 msgstr "_Käännä tämä ohjelma..."
 
-#: rapid/glade3/rapid.glade.h:102
+#: rapid/glade3/rapid.glade.h:105
 msgid "_View"
 msgstr "_Näytä"
 
-#: rapid/glade3/rapid.glade.h:103
-msgid "translators please ignore this"
-msgstr "kääntäjät, olkaa hyvä ja olkaa välittämättä tästä"
-
-#~ msgid ""
-#~ "<i><b>Warning:</b> There is insufficient image metatdata to fully generate "
-#~ "the name. Please use other renaming options.</i>"
-#~ msgstr ""
-#~ "<i><b>Varoitus:</b> Kuvan metatiedoista puuttuu tietoja tiedostonimen "
-#~ "luontiin. Ole hyvä ja käytä muita nimeämis asetuksia.</i>"
-
-#~ msgid ""
-#~ "<i><b>Warning:</b> There is insufficient image metatdata to fully generate "
-#~ "subfolders. Please use other subfolder naming options.</i>"
-#~ msgstr ""
-#~ "<i><b>Varoitus:</b> Kuvan metatiedoista puuttuu tietoja kansiorakenteen "
-#~ "luontiin. Ole hyvä ja käytä muita kansionnimeämis asetuksia.</i>"
-
-#~ msgid "<b>Sequence numbers</b>"
-#~ msgstr "<b>Numerointi</b>"
+#~ msgid "Copyright Damon Lynch 2007-09"
+#~ msgstr "Tekijänoikeus Damon Lynch 2007-09"

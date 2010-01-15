@@ -30,8 +30,9 @@ updated when changed via program preferences while a download is ready to begin.
 
 Fixed a rare startup bug, where the program could crash when starting a thread.
 
-Added Serbian translation by Milos Popovic. Updated Czech, Dutch, French, German
-and Swedish translations.
+Added Serbian translation by Milos Popovic. Updated Czech, Dutch, Finnish,
+French, German, Hungarian, Italian, Polish, Russian, Slovak, Spanish and 
+Swedish translations.
 
 
 Version 0.1.1
