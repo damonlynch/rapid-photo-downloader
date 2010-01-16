@@ -1592,7 +1592,6 @@ class CopyPhotos(Thread):
                             i, sequence_to_use = downloaded_files.matching_pair(image_name, image_ext, imageMetadata.dateTime(), imageMetadata.subSeconds())
                             if i == -1:
                                 # this exact file has already been downloaded (same extension, same filename, and same exif date time subsecond info)
-                                #print "++ Pass 1: %s was already downloaded" % name
                                 if not addUniqueIdentifier:
                                     # there is no point to download it, as there is no way a unique filename will be generated
                                     alreadyDownloaded = skipImage = True
