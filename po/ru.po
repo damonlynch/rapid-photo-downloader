@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-01-13 16:27-0600\n"
-"PO-Revision-Date: 2010-01-13 14:40+0000\n"
+"PO-Revision-Date: 2010-01-16 08:18+0000\n"
 "Last-Translator: Sergey Sedov <Unknown>\n"
 "Language-Team: Russian <ru@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-01-14 23:56+0000\n"
+"X-Launchpad-Export-Date: 2010-01-16 23:48+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #. Translators: if neccessary, for guidance in how to translate this program, you may see http://damonlynch.net/translate.html
@@ -171,6 +171,8 @@ msgstr "<i>Пример: %s</i>"
 msgid ""
 "Downloads today value not updated, as a download is currently occurring"
 msgstr ""
+"Значение \"скачивание сегодня\" не обновлено, так как сейчас осуществляется "
+"закачка"
 
 #: rapid/rapid.py:1023
 msgid "Stored number value not updated, as a download is currently occurring"
@@ -300,7 +302,7 @@ msgstr "Добавлен уникальный идентификатор '%s'"
 #: rapid/rapid.py:1526
 #, python-format
 msgid "Source: %(source)s"
-msgstr ""
+msgstr "Источник: %(source)s"
 
 #: rapid/rapid.py:1533
 msgid "Download copying error"
@@ -325,6 +327,8 @@ msgstr "Фотография не скопирована."
 msgid ""
 "Images detected with the same filenames, but taken at different times:"
 msgstr ""
+"Обнаружены изображения с одними и теми же названиями, но принятыми в разное "
+"время:"
 
 #: rapid/rapid.py:1540
 #, python-format
@@ -332,6 +336,8 @@ msgid ""
 "First image: %(image1)s %(image1_date_time)s:%(image1_subseconds)s\n"
 "Second image: %(image2)s %(image2_date_time)s:%(image2_subseconds)s"
 msgstr ""
+"Первое изображение: %(image1)s %(image1_date_time)s:%(image1_subseconds)s\n"
+"Второе изображение: %(image2)s %(image2_date_time)s:%(image2_subseconds)s"
 
 #: rapid/rapid.py:1553
 msgid "Could not open image"
@@ -1470,7 +1476,7 @@ msgstr "Параметры: Rapid Photo Downloader"
 
 #: rapid/glade3/rapid.glade.h:68
 msgid "R_emove All"
-msgstr "У_далить всё"
+msgstr "У_далить все"
 
 #: rapid/glade3/rapid.glade.h:70
 msgid ""

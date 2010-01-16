@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-01-13 16:27-0600\n"
-"PO-Revision-Date: 2010-01-04 22:28+0000\n"
+"PO-Revision-Date: 2010-01-15 09:32+0000\n"
 "Last-Translator: mmiicc <mpredotka@gmail.com>\n"
 "Language-Team: Polish <pl@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-01-14 23:56+0000\n"
+"X-Launchpad-Export-Date: 2010-01-16 04:28+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #. Translators: if neccessary, for guidance in how to translate this program, you may see http://damonlynch.net/translate.html
@@ -171,10 +171,14 @@ msgstr "<i>Przykład: %s</i>"
 msgid ""
 "Downloads today value not updated, as a download is currently occurring"
 msgstr ""
+"Wartość \"Pobierań dzisiaj\" nie została zaktualizowana, ponieważ właśnie "
+"trwa pobieranie"
 
 #: rapid/rapid.py:1023
 msgid "Stored number value not updated, as a download is currently occurring"
 msgstr ""
+"Wartość \"Numer zachowany\" nie została zaktualizowana, ponieważ właśnie "
+"trwa pobieranie"
 
 #: rapid/rapid.py:1048
 msgid "The subfolder preferences had some unnecessary values removed."
@@ -302,7 +306,7 @@ msgstr "Dodano unikatowy identyfikator \"%s\""
 #: rapid/rapid.py:1526
 #, python-format
 msgid "Source: %(source)s"
-msgstr ""
+msgstr "Źródło: %(source)s"
 
 #: rapid/rapid.py:1533
 msgid "Download copying error"
@@ -327,6 +331,8 @@ msgstr "Obraz nie został skopiowany."
 msgid ""
 "Images detected with the same filenames, but taken at different times:"
 msgstr ""
+"Znalezione zdjęcia, które mają taką samą nazwę, ale zostały zrobione w "
+"różnym czasie:"
 
 #: rapid/rapid.py:1540
 #, python-format
@@ -334,6 +340,8 @@ msgid ""
 "First image: %(image1)s %(image1_date_time)s:%(image1_subseconds)s\n"
 "Second image: %(image2)s %(image2_date_time)s:%(image2_subseconds)s"
 msgstr ""
+"Pierwsze zdjęcie: %(image1)s %(image1_date_time)s:%(image1_subseconds)s\n"
+"Drugie zdjęcie: %(image2)s %(image2_date_time)s:%(image2_subseconds)s"
 
 #: rapid/rapid.py:1553
 msgid "Could not open image"
@@ -1012,7 +1020,7 @@ msgstr "Sześć cyfr"
 
 #: rapid/renamesubfolderprefs.py:251
 msgid "Seven digits"
-msgstr ""
+msgstr "Siedem cyfr"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
 #: rapid/renamesubfolderprefs.py:253
@@ -1352,7 +1360,7 @@ msgstr ""
 
 #: rapid/glade3/rapid.glade.h:41
 msgid "Copyright Damon Lynch 2007-10"
-msgstr ""
+msgstr "Copyright Damon Lynch 2007-10"
 
 #: rapid/glade3/rapid.glade.h:42
 msgid "Day start:"
@@ -1585,7 +1593,7 @@ msgstr "Usuń niezgodne znaki"
 
 #: rapid/glade3/rapid.glade.h:91
 msgid "Synchronize RAW + JPEG sequence numbers"
-msgstr ""
+msgstr "Synchronizuj numery sekwencji RAW + JPEG"
 
 #: rapid/glade3/rapid.glade.h:92
 msgid "Unmount (\"eject\") image device upon download completion"

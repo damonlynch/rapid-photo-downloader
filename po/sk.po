@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-01-13 16:27-0600\n"
-"PO-Revision-Date: 2010-01-12 10:54+0000\n"
+"PO-Revision-Date: 2010-01-15 19:20+0000\n"
 "Last-Translator: Kuvaly [LCT] <kuvaly@seznam.cz>\n"
 "Language-Team: Slovak <sk@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-01-14 23:56+0000\n"
+"X-Launchpad-Export-Date: 2010-01-16 04:28+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #. Translators: if neccessary, for guidance in how to translate this program, you may see http://damonlynch.net/translate.html
@@ -261,6 +261,8 @@ msgid ""
 "Source: %(source)s\n"
 "Problem: %(problem)s"
 msgstr ""
+"Zdroj: %(source)s\n"
+"Problém: %(problem)s"
 
 #: rapid/rapid.py:1506
 msgid ""
@@ -275,6 +277,9 @@ msgid ""
 "Destination: %(destination)s\n"
 "Problem: %(problem)s"
 msgstr ""
+"Zdroj: %(source)s\n"
+"Destinácia: %(destination)s\n"
+"Problém: %(problem)s"
 
 #: rapid/rapid.py:1516 rapid/rapid.py:1521 rapid/rapid.py:1784
 #, python-format
@@ -293,7 +298,7 @@ msgstr ""
 #: rapid/rapid.py:1526
 #, python-format
 msgid "Source: %(source)s"
-msgstr ""
+msgstr "Zdroj: %(source)s"
 
 #: rapid/rapid.py:1533
 msgid "Download copying error"
@@ -306,6 +311,9 @@ msgid ""
 "Destination: %(destination)s\n"
 "Error: %(errorno)s %(strerror)s"
 msgstr ""
+"Zdroj: %(source)s\n"
+"Destinácia: %(destination)s\n"
+"Chyba: %(errorno)s %(strerror)s"
 
 #: rapid/rapid.py:1536 rapid/rapid.py:1822
 msgid "The image was not copied."
@@ -322,6 +330,8 @@ msgid ""
 "First image: %(image1)s %(image1_date_time)s:%(image1_subseconds)s\n"
 "Second image: %(image2)s %(image2_date_time)s:%(image2_subseconds)s"
 msgstr ""
+"Prvý obrázek: %(image1)s %(image1_date_time)s:%(image1_subseconds)s\n"
+"Druhý obrázek: %(image2)s %(image2_date_time)s:%(image2_subseconds)s"
 
 #: rapid/rapid.py:1553
 msgid "Could not open image"
@@ -460,6 +470,8 @@ msgid ""
 "Image: %(source)s\n"
 "Error: %(errno)s %(strerror)s"
 msgstr ""
+"Obrázok: %(source)s\n"
+"Chyba: %(errno)s %(strerror)s"
 
 #: rapid/rapid.py:2045
 #, python-format
@@ -537,7 +549,7 @@ msgstr ""
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#jobcode
 #: rapid/rapid.py:2374
 msgid "Enter a Job Code"
-msgstr ""
+msgstr "Vložte pracovný kód"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#jobcode
 #: rapid/rapid.py:2392
@@ -555,11 +567,11 @@ msgstr "Pracovný kód:"
 
 #: rapid/rapid.py:2447
 msgid "Job Code entered"
-msgstr ""
+msgstr "Pracovný kód bol vložen"
 
 #: rapid/rapid.py:2449
 msgid "Job Code not entered"
-msgstr ""
+msgstr "Pracovný kód nebol vložen"
 
 #: rapid/rapid.py:2688
 msgid "Some preferences will be reset."
@@ -662,7 +674,7 @@ msgstr ""
 #: rapid/rapid.py:2948 rapid/rapid.py:3104
 #, python-format
 msgid "Device %(device)s (%(path)s) ignored"
-msgstr ""
+msgstr "Zariadenia %(device)s (%(path)s) bolo ignorované"
 
 #: rapid/rapid.py:3063
 #, python-format
@@ -769,11 +781,11 @@ msgstr "Používanie"
 #: rapid/rapid.py:3714
 #, python-format
 msgid "%s is already running"
-msgstr ""
+msgstr "%s nie je pripravené na používanie"
 
 #: rapid/renamesubfolderprefs.py:179
 msgid "Date time"
-msgstr ""
+msgstr "Dátum a čas"
 
 #: rapid/renamesubfolderprefs.py:180
 msgid "Text"
@@ -936,12 +948,12 @@ msgstr ""
 #. Translators: please not the capitalization of this text, and keep it the same if your language features capitalization
 #: rapid/renamesubfolderprefs.py:242
 msgid "UPPERCASE"
-msgstr ""
+msgstr "VEĽKÉ PÍSMENÁ"
 
 #. Translators: please not the capitalization of this text, and keep it the same if your language features capitalization
 #: rapid/renamesubfolderprefs.py:244
 msgid "lowercase"
-msgstr ""
+msgstr "malé písmená"
 
 #: rapid/renamesubfolderprefs.py:245
 msgid "One digit"

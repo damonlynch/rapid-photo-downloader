@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-01-13 16:27-0600\n"
-"PO-Revision-Date: 2010-01-12 19:55+0000\n"
+"PO-Revision-Date: 2010-01-16 08:21+0000\n"
 "Last-Translator: Julien Valroff <Unknown>\n"
 "Language-Team: French <fr@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-01-14 23:56+0000\n"
+"X-Launchpad-Export-Date: 2010-01-16 23:48+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #. Translators: if neccessary, for guidance in how to translate this program, you may see http://damonlynch.net/translate.html
@@ -309,7 +309,7 @@ msgstr "Identifant unique '%s' ajouté"
 #: rapid/rapid.py:1526
 #, python-format
 msgid "Source: %(source)s"
-msgstr ""
+msgstr "Source : %(source)s"
 
 #: rapid/rapid.py:1533
 msgid "Download copying error"
@@ -334,6 +334,7 @@ msgstr "L'image n'a pas été copiée."
 msgid ""
 "Images detected with the same filenames, but taken at different times:"
 msgstr ""
+"Images ayant le même nom de fichier, mais prises à des heures différentes :"
 
 #: rapid/rapid.py:1540
 #, python-format
@@ -341,6 +342,8 @@ msgid ""
 "First image: %(image1)s %(image1_date_time)s:%(image1_subseconds)s\n"
 "Second image: %(image2)s %(image2_date_time)s:%(image2_subseconds)s"
 msgstr ""
+"Première image : %(image1)s %(image1_date_time)s:%(image1_subseconds)s\n"
+"Seconde image : %(image2)s %(image2_date_time)s:%(image2_subseconds)s"
 
 #: rapid/rapid.py:1553
 msgid "Could not open image"
@@ -1607,6 +1610,7 @@ msgstr "Enlever les caractères incompatibles"
 #: rapid/glade3/rapid.glade.h:91
 msgid "Synchronize RAW + JPEG sequence numbers"
 msgstr ""
+"Synchroniser les séquences numériques pour les paires d'images RAW + JPEG"
 
 #: rapid/glade3/rapid.glade.h:92
 msgid "Unmount (\"eject\") image device upon download completion"

@@ -8,19 +8,19 @@ msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-01-13 16:27-0600\n"
-"PO-Revision-Date: 2010-01-08 15:22+0000\n"
-"Last-Translator: Damon Lynch <damonlynch@gmail.com>\n"
+"PO-Revision-Date: 2010-01-16 19:03+0000\n"
+"Last-Translator: Balazs Oveges <Unknown>\n"
 "Language-Team: Hungarian <hu@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-01-14 23:56+0000\n"
+"X-Launchpad-Export-Date: 2010-01-16 23:48+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #. Translators: if neccessary, for guidance in how to translate this program, you may see http://damonlynch.net/translate.html
 #: rapid/rapid.py:100 rapid/glade3/rapid.glade.h:69
 msgid "Rapid Photo Downloader"
-msgstr "Gyors Fénykép Letöltő"
+msgstr "Rapid Photo Downloader"
 
 #: rapid/rapid.py:377
 msgid "New York"
@@ -169,11 +169,11 @@ msgstr "<i>Példa: %s</i>"
 #: rapid/rapid.py:1007
 msgid ""
 "Downloads today value not updated, as a download is currently occurring"
-msgstr ""
+msgstr "Letöltés folyamatban, a mai letöltések száma nem aktuális."
 
 #: rapid/rapid.py:1023
 msgid "Stored number value not updated, as a download is currently occurring"
-msgstr ""
+msgstr "Letöltés folyamatban, a tárolt érték nem aktuális."
 
 #: rapid/rapid.py:1048
 msgid "The subfolder preferences had some unnecessary values removed."
@@ -300,7 +300,7 @@ msgstr "Egyedi azonosító hozzáaadva: '%s'"
 #: rapid/rapid.py:1526
 #, python-format
 msgid "Source: %(source)s"
-msgstr ""
+msgstr "Forrás: %(source)s"
 
 #: rapid/rapid.py:1533
 msgid "Download copying error"
@@ -325,6 +325,8 @@ msgstr "A kép nem lett másolva."
 msgid ""
 "Images detected with the same filenames, but taken at different times:"
 msgstr ""
+"A program azonos névvel, de különböző készítési dátummal rendelkező képeket "
+"talált."
 
 #: rapid/rapid.py:1540
 #, python-format
@@ -332,6 +334,8 @@ msgid ""
 "First image: %(image1)s %(image1_date_time)s:%(image1_subseconds)s\n"
 "Second image: %(image2)s %(image2_date_time)s:%(image2_subseconds)s"
 msgstr ""
+"Első kép: %(image1)s %(image1_date_time)s:%(image1_subseconds)s\n"
+"Második kép: %(image2)s %(image2_date_time)s:%(image2_subseconds)s"
 
 #: rapid/rapid.py:1553
 msgid "Could not open image"
@@ -1006,7 +1010,7 @@ msgstr "Hatszámjegyű"
 
 #: rapid/renamesubfolderprefs.py:251
 msgid "Seven digits"
-msgstr ""
+msgstr "Hét számjegy"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
 #: rapid/renamesubfolderprefs.py:253
@@ -1343,7 +1347,7 @@ msgstr ""
 
 #: rapid/glade3/rapid.glade.h:41
 msgid "Copyright Damon Lynch 2007-10"
-msgstr ""
+msgstr "Copyright Damon Lynch 2007-10"
 
 #: rapid/glade3/rapid.glade.h:42
 msgid "Day start:"
@@ -1568,7 +1572,7 @@ msgstr "Az inkompatibilis karakterek kihagyása"
 
 #: rapid/glade3/rapid.glade.h:91
 msgid "Synchronize RAW + JPEG sequence numbers"
-msgstr ""
+msgstr "RAW és JPEG fájlok számkiosztásának szinkronizálása"
 
 #: rapid/glade3/rapid.glade.h:92
 msgid "Unmount (\"eject\") image device upon download completion"
