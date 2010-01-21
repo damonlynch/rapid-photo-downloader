@@ -2710,6 +2710,14 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
         self.last_chosen_job_code = None
         self.prompting_for_job_code = False
         
+        #check to see if the download folder exists and is writable
+        displayPreferences_2 = not self.checkDownloadPathOnStartup()
+        displayPreferences = displayPreferences or displayPreferences_2
+            
+        if self.prefs.device_autodetection == False:
+            displayPreferences_2 = not self.checkImageDevicePathOnStartup()
+            displayPreferences = displayPreferences or displayPreferences_2
+        
         #setup download and backup mediums, initiating scans
         self.setupAvailableImageAndBackupMedia(onStartup=True,  onPreferenceChange=False,  doNotAllowAutoStart = displayPreferences)
 
@@ -2748,16 +2756,51 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
         r = ['Date time', 'Image date', 'YYYYMMDD', 'Text', '-', '', 'Date time', 'Image date', 'HHMM', 'Text', '-', '', 'Session number', '1', 'Three digits', 'Text', '-iso', '', 'Metadata', 'ISO', '', 'Text', '-f', '', 'Metadata', 'Aperture', '', 'Text', '-', '', 'Metadata', 'Focal length', '', 'Text', 'mm-', '', 'Metadata', 'Exposure time', '', 'Filename', 'Extension', 'lowercase']
         self.prefs.image_rename = r
         
-    
+        
+    def checkImageDevicePathOnStartup(self):
+        msg = None
+        if not os.path.isdir(self.prefs.device_location):
+            msg = _("Sorry, this image location does not exist:\n%(path)s\n\nPlease resolve the problem, or modify your preferences." % {"path": self.prefs.device_location})
+            
+        if msg:
+            sys.stderr.write(msg +'\n')
+            misc.run_dialog(_("Problem with Image Location Folder"), msg, 
+                self,
+                gtk.MESSAGE_ERROR)
+            return False
+        else:
+            return True
+        
+    def checkDownloadPathOnStartup(self):
+        msg = None
+        if not os.path.isdir(self.prefs.download_folder):
+            msg = _("Sorry, the Download Folder does not exist. Please create the folder, or modify your preferences")
+        else:
+            #unfortunately 'os.access(self.prefs.download_folder, os.W_OK)' is not reliable
+            try:
+                tempWorkingDir = tempfile.mkdtemp(prefix='rapid-tmp-', 
+                                            dir=self.prefs.download_folder)
+            except:
+                msg = _("Sorry, the Download Folder exists but cannot be written to. Please check the folder's permissions, or modify your preferences")
+            else:
+                os.rmdir(tempWorkingDir)
+            
+        if msg:
+            sys.stderr.write(msg +'\n')
+            misc.run_dialog(_("Problem with Download Folder"), msg, 
+                self,
+                gtk.MESSAGE_ERROR)
+            return False
+        else:
+            return True
     
     def checkPreferencesOnStartup(self):
         prefsOk = rn.checkPreferencesForValidity(self.prefs.image_rename,  self.prefs.subfolder)
         if not prefsOk:
-            title = PROGRAM_NAME
             msg = _("There is an error in the program preferences.")
             msg += " " + _("Some preferences will be reset.") 
+            # do not use cmd_line here, as this is a genuine error
             sys.stderr.write(msg +'\n')
-#            misc.run_dialog(title, msg)
         return prefsOk
         
     def needJobCode(self):
