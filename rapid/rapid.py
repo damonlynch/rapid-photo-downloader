@@ -1502,7 +1502,7 @@ class CopyPhotos(Thread):
                 self.noErrors += 1
 
 
-        def checkProblemWithImageNameGeneration(newName,  image,  problem):
+        def checkProblemWithImageNameGeneration(newName,  destination, image,  problem):
             if not newName:
                 # a serious problem - a filename should never be blank!
                 logError(config.SERIOUS_ERROR,
@@ -1513,8 +1513,8 @@ class CopyPhotos(Thread):
             elif problem:
                 logError(config.WARNING, 
                     _("Image filename could not be properly generated. Check to ensure there is sufficient image metadata."),
-                    _("Source: %(source)s\nDestination: %(destination)s\nProblem: %(problem)s") % 
-                    {'source': image, 'destination': newName, 'problem': problem})
+                    _("Source: %(source)s\nPartially generated filename: %(newname)s\nDestination: %(destination)s\nProblem: %(problem)s") % 
+                    {'source': image, 'destination': destination, 'newname': newName, 'problem': problem})
                     
 
         def imageAlreadyExists(source, destination=None, identifier=None):
@@ -1622,7 +1622,7 @@ class CopyPhotos(Thread):
                     if not newName:
                         skipImage = True
                     if not alreadyDownloaded:
-                        checkProblemWithImageNameGeneration(newName,  image,  problem)
+                        checkProblemWithImageNameGeneration(newName, path, image,  problem)
                     else:
                         imageAlreadyExists(image, newFile)
                         newName = newFile = path = subfolder = None
@@ -1686,7 +1686,7 @@ class CopyPhotos(Thread):
                                                                 imageMetadata, originalName, self.stripCharacters,  subfolder,  
                                                                 sequencesPreliminary = False,
                                                                 sequence_to_use = sequence_to_use)
-                            checkProblemWithImageNameGeneration(newName,  image,  problem)
+                            checkProblemWithImageNameGeneration(newName, path, image,  problem)
                             if not newName:
                                 # there was a serious error generating the filename
                                 doRename = False                            
