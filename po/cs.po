@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2010-01-13 16:27-0600\n"
-"PO-Revision-Date: 2010-01-17 00:45+0000\n"
-"Last-Translator: Damon Lynch <damonlynch@gmail.com>\n"
+"POT-Creation-Date: 2010-01-21 00:48-0600\n"
+"PO-Revision-Date: 2010-01-21 13:24+0000\n"
+"Last-Translator: Kuvaly [LCT] <kuvaly@seznam.cz>\n"
 "Language-Team: Czech <cs@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-01-21 00:24+0000\n"
+"X-Launchpad-Export-Date: 2010-01-21 19:24+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #. Translators: if neccessary, for guidance in how to translate this program, you may see http://damonlynch.net/translate.html
@@ -22,129 +22,129 @@ msgstr ""
 msgid "Rapid Photo Downloader"
 msgstr "Rapid Photo Downloader"
 
-#: rapid/rapid.py:377
+#: rapid/rapid.py:379
 msgid "New York"
 msgstr "New York"
 
-#: rapid/rapid.py:378
+#: rapid/rapid.py:380
 msgid "Manila"
 msgstr "Manila"
 
-#: rapid/rapid.py:378
+#: rapid/rapid.py:380
 msgid "Prague"
 msgstr "Praha"
 
-#: rapid/rapid.py:378
+#: rapid/rapid.py:380
 msgid "Helsinki"
 msgstr "Helsinki"
 
-#: rapid/rapid.py:378
+#: rapid/rapid.py:380
 msgid "Wellington"
 msgstr "Wellington"
 
-#: rapid/rapid.py:379
+#: rapid/rapid.py:381
 msgid "Tehran"
 msgstr "Teherán"
 
-#: rapid/rapid.py:379
+#: rapid/rapid.py:381
 msgid "Kampala"
 msgstr "Kampala"
 
-#: rapid/rapid.py:379
+#: rapid/rapid.py:381
 msgid "Paris"
 msgstr "Paříž"
 
-#: rapid/rapid.py:379
+#: rapid/rapid.py:381
 msgid "Berlin"
 msgstr "Berlín"
 
-#: rapid/rapid.py:379
+#: rapid/rapid.py:381
 msgid "Sydney"
 msgstr "Sydney"
 
-#: rapid/rapid.py:380
+#: rapid/rapid.py:382
 msgid "Budapest"
 msgstr "Budapešť"
 
-#: rapid/rapid.py:380
+#: rapid/rapid.py:382
 msgid "Rome"
 msgstr "Řím"
 
-#: rapid/rapid.py:380
+#: rapid/rapid.py:382
 msgid "Moscow"
 msgstr "Moskva"
 
-#: rapid/rapid.py:380
+#: rapid/rapid.py:382
 msgid "Delhi"
 msgstr "Dílí"
 
-#: rapid/rapid.py:380
+#: rapid/rapid.py:382
 msgid "Warsaw"
 msgstr "Varšava"
 
-#: rapid/rapid.py:381
+#: rapid/rapid.py:383
 msgid "Jakarta"
 msgstr "Jakarta"
 
-#: rapid/rapid.py:381
+#: rapid/rapid.py:383
 msgid "Madrid"
 msgstr "Madrid"
 
-#: rapid/rapid.py:381
+#: rapid/rapid.py:383
 msgid "Stockholm"
 msgstr "Stockholm"
 
-#: rapid/rapid.py:408
+#: rapid/rapid.py:410
 msgid "Invalid Downloads Today value.\n"
 msgstr "Hodnota dnešní stahování je invalidní.\n"
 
-#: rapid/rapid.py:409
+#: rapid/rapid.py:411
 msgid "Resetting value to zero.\n"
 msgstr "Resetování hodnoty na nulu.\n"
 
-#: rapid/rapid.py:448
+#: rapid/rapid.py:450
 msgid "'Start of day' preference value is corrupted.\n"
 msgstr "Hodnota nastavení 'Začátek dne' je poškozena.\n"
 
-#: rapid/rapid.py:449
+#: rapid/rapid.py:451
 msgid "Resetting to midnight.\n"
 msgstr "Resetování do půlnoci.\n"
 
-#: rapid/rapid.py:478
+#: rapid/rapid.py:480
 msgid "Error in Image Rename preferences"
 msgstr "Chyba v nastavení přejmenovávání obrázků."
 
-#: rapid/rapid.py:487 rapid/rapid.py:1334
+#: rapid/rapid.py:489 rapid/rapid.py:1341
 msgid "Sorry,these preferences contain an error:\n"
 msgstr "Promiňte, v nastavení je chyba:\n"
 
-#: rapid/rapid.py:498
+#: rapid/rapid.py:500
 msgid "Resetting to default values."
 msgstr "Resetování na výchozí hodnoty."
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#jobcode
-#: rapid/rapid.py:569 rapid/renamesubfolderprefs.py:185
+#: rapid/rapid.py:571 rapid/renamesubfolderprefs.py:185
 msgid "Job code"
 msgstr "Pracovní kód"
 
-#: rapid/rapid.py:637
+#: rapid/rapid.py:639
 msgid "Error in Download Subfolder preferences"
 msgstr "Chyba v nastavení stahovací podsložky"
 
-#: rapid/rapid.py:776
+#: rapid/rapid.py:778
 msgid "Select a folder to download photos to"
 msgstr "Vyberte složku do které mají být obrázky staženy"
 
-#: rapid/rapid.py:850
+#: rapid/rapid.py:852
 msgid "Select an image folder"
 msgstr "Vyberte složku obrázků"
 
-#: rapid/rapid.py:872
+#: rapid/rapid.py:874
 msgid "Select a folder in which to backup images"
 msgstr "Vyberte složku do které má být uložena záloha obrázků"
 
 #. Translators: please do not modify or leave out html formatting tags like <i> and <b>. These are used to format the text the users sees
-#: rapid/rapid.py:964
+#: rapid/rapid.py:966
 msgid ""
 "<i><b>Warning:</b> There is insufficient image metadata to fully generate "
 "the name. Please use other renaming options.</i>"
@@ -153,7 +153,7 @@ msgstr ""
 "lze vygenerovat název. Pokud chcete obrázek přejmenovat použijte nastavení "
 "přejmenování.</i>"
 
-#: rapid/rapid.py:985
+#: rapid/rapid.py:987
 msgid ""
 "<i><b>Warning:</b> There is insufficient image metadata to fully generate "
 "subfolders. Please use other subfolder naming options.</i>"
@@ -162,31 +162,31 @@ msgstr ""
 "podsložek. Pokud chcete podsložky přejmenovat použijte nastavení jmen.</i>"
 
 #. Translators: you should not modify or leave out the %s. This is a code used by the programming language python to insert a value that thes user will see
-#: rapid/rapid.py:989
+#: rapid/rapid.py:991
 #, python-format
 msgid "<i>Example: %s</i>"
 msgstr "<i>Příklad: %s</i>"
 
-#: rapid/rapid.py:1007
+#: rapid/rapid.py:1009
 msgid ""
 "Downloads today value not updated, as a download is currently occurring"
 msgstr ""
 "Hodnota Dnešní stahování není aktualizována, v současné době dochází ke "
 "stažení"
 
-#: rapid/rapid.py:1023
+#: rapid/rapid.py:1025
 msgid "Stored number value not updated, as a download is currently occurring"
 msgstr ""
 "Hodnota Skladované číslo není aktualizována, v současné době dochází ke "
 "stažení"
 
-#: rapid/rapid.py:1048
+#: rapid/rapid.py:1050
 msgid "The subfolder preferences had some unnecessary values removed."
 msgstr ""
 "Některé hodnoty v nastavení podsložky jsou nepodstatné a proto byly smazány."
 
 #. Preferences list is now empty
-#: rapid/rapid.py:1053
+#: rapid/rapid.py:1055
 msgid ""
 "The subfolder preferences entered are invalid and cannot be used.\n"
 "They will be reset to their default values."
@@ -195,12 +195,12 @@ msgstr ""
 "Bylo tedy resetováno na výchozí hodnoty."
 
 #. Translators: this value is used as an example device when automatic backup device detection is enabled. You should translate this.
-#: rapid/rapid.py:1260
+#: rapid/rapid.py:1267
 msgid "externaldrive1"
 msgstr "externídisk1"
 
 #. Translators: this value is used as an example device when automatic backup device detection is enabled. You should translate this.
-#: rapid/rapid.py:1262
+#: rapid/rapid.py:1269
 msgid "externaldrive2"
 msgstr "externídisk2"
 
@@ -208,15 +208,15 @@ msgstr "externídisk2"
 #. looking for images. It is visible initially in the progress bar for each device
 #. (which normally holds "x of y images copied").
 #. It maybe displayed only briefly if the contents of the device being scanned is small.
-#: rapid/rapid.py:1323
+#: rapid/rapid.py:1330
 msgid "scanning..."
 msgstr "skenování..."
 
-#: rapid/rapid.py:1412 rapid/rapid.py:2687
+#: rapid/rapid.py:1419 rapid/rapid.py:2800
 msgid "There is an error in the program preferences."
 msgstr "Vyskytla se chyba v nastavení programu."
 
-#: rapid/rapid.py:1413
+#: rapid/rapid.py:1420
 msgid ""
 "\n"
 "Please check preferences, restart the program, and try again."
@@ -224,7 +224,8 @@ msgstr ""
 "\n"
 "Prosím zkontrolujte nastavení, restartujte program a zkuste to znovu."
 
-#: rapid/rapid.py:1414 rapid/rapid.py:1415
+#: rapid/rapid.py:1421 rapid/rapid.py:1422 rapid/rapid.py:1980
+#: rapid/rapid.py:1983
 msgid "Download cannot proceed"
 msgstr "Stahování nemůže pokračovat"
 
@@ -232,7 +233,7 @@ msgstr "Stahování nemůže pokračovat"
 #. It refers to the actual number of images that can be copied. For example, the user might see the following:
 #. '0 of 512 images copied'.
 #. This particular text is displayed to the user before the download has started.
-#: rapid/rapid.py:1451 rapid/rapid.py:2149
+#: rapid/rapid.py:1460 rapid/rapid.py:2177
 #, python-format
 msgid "0 of %s images copied"
 msgstr "0 z %s obrázků okopírováno"
@@ -243,22 +244,22 @@ msgstr "0 z %s obrázků okopírováno"
 #. %(number)s should be left exactly as is: 'number' should not be translated. The same applies to %(device)s: 'device' should
 #. not be translated. Generally speaking, if translating the sentence requires it, you can move items like '%(xyz)s' around
 #. in a sentence, but you should never modify them or leave them out.
-#: rapid/rapid.py:1463
+#: rapid/rapid.py:1472
 #, python-format
 msgid "Device scan complete: found %(number)s images on %(device)s"
 msgstr "Sken zařízení kompletní: nalezeno %(number)s obrázků na %(device)s"
 
-#: rapid/rapid.py:1469
+#: rapid/rapid.py:1478
 #, python-format
 msgid "Device scan complete: no images found on %s"
 msgstr "Skenování zařízení kompletní: žádné obrázky nebyly na %s nalezeny"
 
-#: rapid/rapid.py:1500
+#: rapid/rapid.py:1509
 msgid "Image filename could not be generated"
 msgstr "Název obrázku nemohl být vygenerován"
 
 #. '%(source)s' and '%(problem)s' are two more examples of text that should not be modified or left out
-#: rapid/rapid.py:1502
+#: rapid/rapid.py:1511
 #, python-format
 msgid ""
 "Source: %(source)s\n"
@@ -267,7 +268,7 @@ msgstr ""
 "Zdroj: %(source)s\n"
 "Problém: %(problem)s"
 
-#: rapid/rapid.py:1506
+#: rapid/rapid.py:1515
 msgid ""
 "Image filename could not be properly generated. Check to ensure there is "
 "sufficient image metadata."
@@ -275,18 +276,20 @@ msgstr ""
 "Název obrázku se nepodařilo vygenerovat. Prosím zkontrolujte, zda existují "
 "dostatečná metadata."
 
-#: rapid/rapid.py:1507
+#: rapid/rapid.py:1516
 #, python-format
 msgid ""
 "Source: %(source)s\n"
+"Partially generated filename: %(newname)s\n"
 "Destination: %(destination)s\n"
 "Problem: %(problem)s"
 msgstr ""
 "Zdroj: %(source)s\n"
+"Částečně vygenerovaný název souboru: %(newname)s\n"
 "Destinace: %(destination)s\n"
 "Problém: %(problem)s"
 
-#: rapid/rapid.py:1516 rapid/rapid.py:1521 rapid/rapid.py:1784
+#: rapid/rapid.py:1525 rapid/rapid.py:1530 rapid/rapid.py:1783
 #, python-format
 msgid ""
 "Source: %(source)s\n"
@@ -295,21 +298,21 @@ msgstr ""
 "Zdroj: %(source)s\n"
 "Destinace: %(destination)s"
 
-#: rapid/rapid.py:1518
+#: rapid/rapid.py:1527
 #, python-format
 msgid "Unique identifier '%s' added"
 msgstr "Unikátní identifikátor '%s' přidán"
 
-#: rapid/rapid.py:1526
+#: rapid/rapid.py:1535
 #, python-format
 msgid "Source: %(source)s"
 msgstr "Zdroj: %(source)s"
 
-#: rapid/rapid.py:1533
+#: rapid/rapid.py:1542
 msgid "Download copying error"
 msgstr "Chyba kopírování obrázků"
 
-#: rapid/rapid.py:1534
+#: rapid/rapid.py:1543
 #, python-format
 msgid ""
 "Source: %(source)s\n"
@@ -320,17 +323,17 @@ msgstr ""
 "Destinace: %(destination)s\n"
 "Chyba: %(errorno)s %(strerror)s"
 
-#: rapid/rapid.py:1536 rapid/rapid.py:1822
+#: rapid/rapid.py:1545 rapid/rapid.py:1819 rapid/rapid.py:1831
 msgid "The image was not copied."
 msgstr "Obrázek nebyl okopírován."
 
-#: rapid/rapid.py:1539
+#: rapid/rapid.py:1548
 msgid ""
 "Images detected with the same filenames, but taken at different times:"
 msgstr ""
 "Detekovány obrázky se stejnými názvy, ale pořízenými v jiném časovém období:"
 
-#: rapid/rapid.py:1540
+#: rapid/rapid.py:1549
 #, python-format
 msgid ""
 "First image: %(image1)s %(image1_date_time)s:%(image1_subseconds)s\n"
@@ -339,20 +342,20 @@ msgstr ""
 "První obrázek: %(image1)s %(image1_date_time)s:%(image1_subseconds)s\n"
 "Druhý obrázek: %(image2)s %(image2_date_time)s:%(image2_subseconds)s"
 
-#: rapid/rapid.py:1553
+#: rapid/rapid.py:1562
 msgid "Could not open image"
 msgstr "Nelze otevřít obrázek"
 
-#: rapid/rapid.py:1554
+#: rapid/rapid.py:1563
 #, python-format
 msgid "Source: %s"
 msgstr "Zdroj: %s"
 
-#: rapid/rapid.py:1572
+#: rapid/rapid.py:1581
 msgid "Image has no metadata"
 msgstr "Obrázek nemá metadata"
 
-#: rapid/rapid.py:1573
+#: rapid/rapid.py:1582
 #, python-format
 msgid ""
 "Metadata is essential for generating subfolders / image names.\n"
@@ -361,7 +364,7 @@ msgstr ""
 "Metadata jsou základy pro generování podsložek / jmen obrázků.\n"
 "Zdroj: %s"
 
-#: rapid/rapid.py:1583
+#: rapid/rapid.py:1592
 msgid ""
 "Subfolder name could not be properly generated. Check to ensure there is "
 "sufficient image metadata."
@@ -369,7 +372,7 @@ msgstr ""
 "Jméno podsložky nemohlo být řádně vygenerováno. Zkontrolujte, kde jsou "
 "dostatečná metadata."
 
-#: rapid/rapid.py:1584
+#: rapid/rapid.py:1593
 #, python-format
 msgid ""
 "Subfolder: %(subfolder)s\n"
@@ -381,30 +384,38 @@ msgstr ""
 "Problém: %(problem)s"
 
 #. A new day, according the user's preferences of what time a day begins, has started
-#: rapid/rapid.py:1746
+#: rapid/rapid.py:1744
 msgid "New day has started - resetting 'Downloads Today' sequence number"
 msgstr "Nový den začal - resetování 'Dnešní stahování' sekvenční číslo"
 
-#: rapid/rapid.py:1783
+#: rapid/rapid.py:1782
 msgid "Backup image already exists"
 msgstr "Záloha obrázku neexistuje"
 
-#: rapid/rapid.py:1811 rapid/rapid.py:1819 rapid/rapid.py:1825
+#: rapid/rapid.py:1813 rapid/rapid.py:1828
 msgid "Backing up error"
 msgstr "Chyba zálohování"
 
-#: rapid/rapid.py:1812
+#: rapid/rapid.py:1814
+#, python-format
+msgid "Destination directory could not be created: %(directory)s\n"
+msgstr "Adresář destinace nelze vytvořit: %(directory)s\n"
+
+#: rapid/rapid.py:1816
 #, python-format
 msgid ""
-"Destination directory could not be created\n"
-"%(directory)s\n"
-"Error: %(errno)s %(strerror)s"
+"Source: %(source)s\n"
+"Destination: %(destination)s\n"
 msgstr ""
-"Adresář destinace nemohl být vytvořen\n"
-"%(directory)s\n"
-"Chyba: %(errno)s %(strerror)s"
+"Zdroj: %(source)s\n"
+"Destinace: %(destination)s\n"
 
-#: rapid/rapid.py:1820 rapid/rapid.py:1826
+#: rapid/rapid.py:1818
+#, python-format
+msgid "Error: %(errno)s %(strerror)s"
+msgstr "Chyba: %(errno)s %(strerror)s"
+
+#: rapid/rapid.py:1829
 #, python-format
 msgid ""
 "Source: %(source)s\n"
@@ -416,71 +427,94 @@ msgstr ""
 "Chyba: %(errno)s %(strerror)s"
 
 #. This message informs the user that the device (e.g. camera, hard drive or memory card) was automatically unmounted and they can now remove it
-#: rapid/rapid.py:1839
+#: rapid/rapid.py:1844
 msgid "The device can now be safely removed"
 msgstr "Zařízení nyní nemůže být bezpečně vymazáno"
 
-#: rapid/rapid.py:1843
+#: rapid/rapid.py:1848
 #, python-format
 msgid "%s images downloaded"
 msgstr "%s obrázků staženo"
 
-#: rapid/rapid.py:1845
+#: rapid/rapid.py:1850
 #, python-format
 msgid "%s images skipped"
 msgstr "%s obrázků přeskočeno"
 
-#: rapid/rapid.py:1851 rapid/rapid.py:3294
+#: rapid/rapid.py:1856 rapid/rapid.py:3411
 msgid "warnings"
 msgstr "varování"
 
-#: rapid/rapid.py:1853 rapid/rapid.py:3296
+#: rapid/rapid.py:1858 rapid/rapid.py:3413
 msgid "errors"
 msgstr "chyby"
 
-#: rapid/rapid.py:1882
+#: rapid/rapid.py:1887
 msgid "Backup device missing"
 msgstr "Zálohovací zařízení chybí"
 
-#: rapid/rapid.py:1882
+#: rapid/rapid.py:1887
 msgid "No backup device was detected."
 msgstr "Zálohovací zařízení nebylo detekováno."
 
-#: rapid/rapid.py:1886
+#: rapid/rapid.py:1891
 msgid "This device has no images to download from."
 msgstr "Toto zařízení nemá žádné obrázky pro stažení."
 
-#: rapid/rapid.py:1921
+#: rapid/rapid.py:1926
 #, python-format
 msgid "Download has started from %s"
 msgstr "Stahování začalo z %s"
 
-#: rapid/rapid.py:1967
+#: rapid/rapid.py:1974
+#, python-format
+msgid "Source: %s\n"
+msgstr "Zdroj: %s\n"
+
+#: rapid/rapid.py:1976
+#, python-format
+msgid "Image device: %s\n"
+msgstr "Obrázkové zařízení: %s\n"
+
+#: rapid/rapid.py:1977
+#, python-format
+msgid "Destination: %s"
+msgstr "Destinace: %s"
+
+#: rapid/rapid.py:1978 rapid/rapid.py:1981
+msgid "Could not create temporary download directory"
+msgstr "Nelze vytvořit dočasný stahovací adresář"
+
+#: rapid/rapid.py:1981
+msgid "Error:"
+msgstr "Chyba:"
+
+#: rapid/rapid.py:1992
 msgid "Image skipped"
 msgstr "Obrázek přeskočen"
 
-#: rapid/rapid.py:1968
+#: rapid/rapid.py:1993
 msgid "Image overwritten"
 msgstr "Obrázek přepsán"
 
-#: rapid/rapid.py:1969
+#: rapid/rapid.py:1994
 msgid "Image already exists"
 msgstr "Obrázek neexistuje"
 
-#: rapid/rapid.py:2015
+#: rapid/rapid.py:2043
 msgid "Image has no thumbnail"
 msgstr "Obrázek nemá náhled"
 
-#: rapid/rapid.py:2025
+#: rapid/rapid.py:2053
 #, python-format
 msgid "%(number)s of %(total)s images copied"
 msgstr "%(number)s z %(total)s obrázků okopírováno"
 
-#: rapid/rapid.py:2040 rapid/rapid.py:2044
+#: rapid/rapid.py:2068 rapid/rapid.py:2072
 msgid "Could not delete image from image device"
 msgstr "Nelze odstranit obrázky z obrázkového zařízení"
 
-#: rapid/rapid.py:2041
+#: rapid/rapid.py:2069
 #, python-format
 msgid ""
 "Image: %(source)s\n"
@@ -489,132 +523,177 @@ msgstr ""
 "Obrázek: %(source)s\n"
 "Chyba: %(errno)s %(strerror)s"
 
-#: rapid/rapid.py:2045
+#: rapid/rapid.py:2073
 #, python-format
 msgid "Image: %(source)s"
 msgstr "Chyba: %(source)s"
 
-#: rapid/rapid.py:2047
+#: rapid/rapid.py:2075
 #, python-format
 msgid "Deleted %i images from image device"
 msgstr "Z obrázkového zařízení odstraněno %i obrázků"
 
-#: rapid/rapid.py:2057
+#: rapid/rapid.py:2085
 #, python-format
 msgid "Download complete from %s"
 msgstr "Stahování kompletní z %s"
 
 #. Device refers to a thing like a camera, memory card in its reader, external hard drive, Portable Storage Device, etc.
-#: rapid/rapid.py:2133
+#: rapid/rapid.py:2161
 msgid "Device"
 msgstr "Zařízení"
 
 #. Size refers to the total size of images on the device, typically in MB or GB
-#: rapid/rapid.py:2138
+#: rapid/rapid.py:2166
 msgid "Size"
 msgstr "Velikost"
 
-#: rapid/rapid.py:2141
+#: rapid/rapid.py:2169
 msgid "Download Progress"
 msgstr "Průběh stahování"
 
-#: rapid/rapid.py:2257 rapid/rapid.py:2263
+#: rapid/rapid.py:2285 rapid/rapid.py:2291
 msgid "Thumbnail cannot be displayed"
 msgstr "Náhled nemůže být zobrazen"
 
-#: rapid/rapid.py:2258 rapid/rapid.py:2264
+#: rapid/rapid.py:2286 rapid/rapid.py:2292
 msgid "It may be corrupted"
 msgstr "Toto může být poškozeno"
 
-#: rapid/rapid.py:2290
+#: rapid/rapid.py:2318
 msgid "Device Detected"
 msgstr "Zařízení detekováno"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#usedeviceprompt
-#: rapid/rapid.py:2299
+#: rapid/rapid.py:2327
 msgid "Should this device or partition be used to download images from?"
 msgstr "Máte zařízení či oddíl určený ke stažení?"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#usedeviceprompt
-#: rapid/rapid.py:2318
+#: rapid/rapid.py:2346
 msgid "_Remember this choice"
 msgstr "_Zapamatovat si tuto volbu"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#usedeviceprompt
-#: rapid/rapid.py:2355
+#: rapid/rapid.py:2383
 #, python-format
 msgid "%s selected for downloading from"
 msgstr "%s vybráno pro stažení"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#usedeviceprompt
-#: rapid/rapid.py:2358
+#: rapid/rapid.py:2386
 msgid "This device or partition will always be used to download from"
 msgstr "Toto zařízení či oddíl bude vždy použito pro stažení"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#usedeviceprompt
-#: rapid/rapid.py:2361
+#: rapid/rapid.py:2389
 #, python-format
 msgid "%s rejected as a download device"
 msgstr "%s odmítnuto jako stahovací zařízení"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#usedeviceprompt
-#: rapid/rapid.py:2364
+#: rapid/rapid.py:2392
 msgid "This device or partition will never be used to download from"
 msgstr "Toto zařízení či oddíl nebude použito pro stažení"
 
+#: rapid/rapid.py:2399
+msgid "Remove all Job Codes?"
+msgstr "Odstranit všechny pracovní kódy?"
+
+#: rapid/rapid.py:2416
+msgid "Should all Job Codes be removed?"
+msgstr "Chcete odstranit všechny pracovní kódy?"
+
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#jobcode
-#: rapid/rapid.py:2374
+#: rapid/rapid.py:2444
 msgid "Enter a Job Code"
 msgstr "Vložte pracovní kód"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#jobcode
-#: rapid/rapid.py:2392
+#: rapid/rapid.py:2462
 msgid "Enter a new job code, or select a previous one."
 msgstr "Vložte nový pracovní kód, nebo vyberte předchozí."
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#jobcode
-#: rapid/rapid.py:2395
+#: rapid/rapid.py:2465
 msgid "Enter a new job code."
 msgstr "Vložte nový pracovní kód."
 
-#: rapid/rapid.py:2400
+#: rapid/rapid.py:2470
 msgid "Job Code:"
 msgstr "Pracovní kód:"
 
-#: rapid/rapid.py:2447
+#: rapid/rapid.py:2517
 msgid "Job Code entered"
 msgstr "Pracovní kód vložen"
 
-#: rapid/rapid.py:2449
+#: rapid/rapid.py:2519
 msgid "Job Code not entered"
 msgstr "Pracovní kód nebyl vložen"
 
-#: rapid/rapid.py:2688
+#: rapid/rapid.py:2763
+#, python-format
+msgid ""
+"Sorry, this image location does not exist:\n"
+"%(path)s\n"
+"\n"
+"Please resolve the problem, or modify your preferences."
+msgstr ""
+"Promiňte, tato lokace obrázku neexistuje:\n"
+"%(path)s\n"
+"\n"
+"Prosím vyřešte problém či upravte nastavení."
+
+#: rapid/rapid.py:2767
+msgid "Problem with Image Location Folder"
+msgstr "Problém s lokací obrázkové složky"
+
+#: rapid/rapid.py:2777
+msgid ""
+"Sorry, the Download Folder does not exist. Please create the folder, or "
+"modify your preferences"
+msgstr ""
+"Promiňte, stahovací složka neexistuje. Prosím vytvořte ji či upravte "
+"nastavení"
+
+#: rapid/rapid.py:2784
+msgid ""
+"Sorry, the Download Folder exists but cannot be written to. Please check the "
+"folder's permissions, or modify your preferences"
+msgstr ""
+"Promiňte, stahovací složka existuje, ale nelze do ní zapisovat. Prosím "
+"zkontrolujte oprávnění či nastavení programu"
+
+#: rapid/rapid.py:2790
+msgid "Problem with Download Folder"
+msgstr "Problém se stahovací složkou"
+
+#: rapid/rapid.py:2801
 msgid "Some preferences will be reset."
 msgstr "Některé nastavení bylo resetováno."
 
-#: rapid/rapid.py:2722
+#: rapid/rapid.py:2835
 #, python-format
 msgid "Prompting whether to use %s"
 msgstr "Výzva pro použití %s"
 
-#: rapid/rapid.py:2750
+#: rapid/rapid.py:2863
 msgid "Prompting for Job Code"
 msgstr "Výzva pro pracovní kód"
 
-#: rapid/rapid.py:2754
+#: rapid/rapid.py:2867
 msgid "Already prompting for Job Code, do not prompt again"
 msgstr "Výzva k pracovnímu kódu již existuje, nevyzívejte znovu"
 
-#: rapid/rapid.py:2769
+#: rapid/rapid.py:2882
 msgid "Starting downloads that have been waiting for a Job Code"
 msgstr "Stahování začne po vložení pracovního kódu"
 
-#: rapid/rapid.py:2773
+#: rapid/rapid.py:2886
 msgid "Starting downloads"
 msgstr "Stahování začíná"
 
-#: rapid/rapid.py:2803
+#: rapid/rapid.py:2916
 msgid ""
 "A newer version of this program was previously run on this computer.\n"
 "\n"
@@ -622,7 +701,7 @@ msgstr ""
 "Novější verze této aplikace na tomto počítači již byla spuštěna.\n"
 "\n"
 
-#: rapid/rapid.py:2805
+#: rapid/rapid.py:2918
 msgid ""
 "Program preferences appear to be valid, but please check them to ensure "
 "correct operation."
@@ -630,15 +709,15 @@ msgstr ""
 "Nastavení programu se zdá být validní, ale zkontrolujte bezpečnou opravnou "
 "operaci."
 
-#: rapid/rapid.py:2807
+#: rapid/rapid.py:2920
 msgid "Sorry, some preferences are invalid and will be reset."
 msgstr "Promiňte, nastavení je invalidní a muselo být resetováno."
 
-#: rapid/rapid.py:2808
+#: rapid/rapid.py:2921
 msgid "Warning:"
 msgstr "Varování:"
 
-#: rapid/rapid.py:2813
+#: rapid/rapid.py:2926
 msgid ""
 "This version of the program is newer than the previously run version. "
 "Checking preferences."
@@ -646,11 +725,11 @@ msgstr ""
 "Tato verze tohoto programu již na tomto počítači byla nainstalována. "
 "Kontrola nastavení."
 
-#: rapid/rapid.py:2820
+#: rapid/rapid.py:2933
 msgid "Preferences were modified."
 msgstr "Nastavení bylo modifikováno."
 
-#: rapid/rapid.py:2821
+#: rapid/rapid.py:2934
 msgid ""
 "This version of the program uses different preferences than the old version. "
 "Your preferences have been updated.\n"
@@ -662,11 +741,11 @@ msgstr ""
 "\n"
 "Prosím zkontrolujte bezpečnou opravnou operaci."
 
-#: rapid/rapid.py:2825
+#: rapid/rapid.py:2938
 msgid "No preferences needed to be changed."
 msgstr "Žádné nastavení nebylo změněno."
 
-#: rapid/rapid.py:2827
+#: rapid/rapid.py:2940
 msgid ""
 "This version of the program uses different preferences than the old version. "
 "Some of your previous preferences were invalid, and could not be updated. "
@@ -675,138 +754,144 @@ msgstr ""
 "Tato verze programu využívá uživatelsky jiné nastavení než ta předchozí. "
 "Některé nastavení je invalidní a nelze aktualizovat. Je tedy resetováno."
 
-#: rapid/rapid.py:2836
+#: rapid/rapid.py:2949
 msgid "Problem using pynotify."
 msgstr "Problém používání pynotify."
 
-#: rapid/rapid.py:2852
+#: rapid/rapid.py:2965
 msgid "Failed to receive pynotify server capabilities."
 msgstr "Přijetí schopností pynotify serveru selhalo."
 
-#: rapid/rapid.py:2900
+#: rapid/rapid.py:2974
+msgid ""
+"Warning: desktop environment notification server is incorrectly configured."
+msgstr ""
+"Varování: notifikační server prostředí plochy je špatně nakonfigurován."
+
+#: rapid/rapid.py:3017
 msgid "and"
 msgstr "a"
 
-#: rapid/rapid.py:2905
+#: rapid/rapid.py:3022
 msgid "Using backup devices"
 msgstr "Používání zálohovacích zařízení"
 
-#: rapid/rapid.py:2907
+#: rapid/rapid.py:3024
 msgid "Using backup device"
 msgstr "Používání zálohovacího zařízení"
 
-#: rapid/rapid.py:2909
+#: rapid/rapid.py:3026
 msgid "No backup devices detected"
 msgstr "Zálohovací zařízení nebylo detekováno"
 
-#: rapid/rapid.py:2948 rapid/rapid.py:3104
+#: rapid/rapid.py:3065 rapid/rapid.py:3221
 #, python-format
 msgid "Device %(device)s (%(path)s) ignored"
 msgstr "Zařízení %(device)s (%(path)s) ignorováno"
 
-#: rapid/rapid.py:3063
+#: rapid/rapid.py:3180
 #, python-format
 msgid "Detected %(device)s with path %(path)s"
 msgstr "Detekováno %(device)s s %(path)s cestami"
 
-#: rapid/rapid.py:3067
+#: rapid/rapid.py:3184
 msgid "Automatically start download is true"
 msgstr "Automatický start stahování je povolen"
 
-#: rapid/rapid.py:3069
+#: rapid/rapid.py:3186
 msgid "Automatically start download is false"
 msgstr "Automatický start stahování je zakázán"
 
-#: rapid/rapid.py:3122
+#: rapid/rapid.py:3239
 msgid "Using manually specified path"
 msgstr "Používání manuálně specifikované cesty"
 
-#: rapid/rapid.py:3240 rapid/rapid.py:3289
+#: rapid/rapid.py:3357 rapid/rapid.py:3406
 msgid "All downloads complete"
 msgstr "Všechna stahování kompletní"
 
-#: rapid/rapid.py:3254
+#: rapid/rapid.py:3371
 msgid "MB/s"
 msgstr "MB/s"
 
-#: rapid/rapid.py:3264
+#: rapid/rapid.py:3381
 msgid "About 1 second remaining"
 msgstr "Zbývá 1 sekunda"
 
-#: rapid/rapid.py:3266
+#: rapid/rapid.py:3383
 #, python-format
 msgid "About %i seconds remaining"
 msgstr "Zbývá %i sekund"
 
-#: rapid/rapid.py:3268
+#: rapid/rapid.py:3385
 msgid "About 1 minute remaining"
 msgstr "Zbývá 1 minuta"
 
 #. Translators: in the text '%(minutes)i:%(seconds)02i', only the : should be translated, if needed.
 #. '%(minutes)i' and '%(seconds)02i' should not be modified or left out. They are used to format and display the amount
 #. of time the download has remainging, e.g. 'About 5:36 minutes remaining'
-#: rapid/rapid.py:3273
+#: rapid/rapid.py:3390
 #, python-format
 msgid "About %(minutes)i:%(seconds)02i minutes remaining"
 msgstr "Zbývá %(minutes)i:%(seconds)02i minut"
 
-#: rapid/rapid.py:3290
+#: rapid/rapid.py:3407
 msgid "images downloaded"
 msgstr "obrázky staženy"
 
-#: rapid/rapid.py:3292
+#: rapid/rapid.py:3409
 msgid "images skipped"
 msgstr "obrázky přeskočeny"
 
 #. This text will be displayed to the user on the Download / Pause button.
 #. Please note the space at the end of the label - it is needed to meet the Gnome Human Interface Guidelines
-#: rapid/rapid.py:3386
+#: rapid/rapid.py:3509
 msgid "_Download "
 msgstr "_Stažení "
 
 #. This text will be displayed to the user on the Download / Pause button.
-#: rapid/rapid.py:3396
+#: rapid/rapid.py:3519
 msgid "_Pause"
 msgstr "_Pozastavit"
 
-#: rapid/rapid.py:3470
+#: rapid/rapid.py:3593
 msgid "Preferences were changed."
 msgstr "Nastavení změněno"
 
-#: rapid/rapid.py:3665
+#: rapid/rapid.py:3788
 msgid "Goodbye"
 msgstr "Hezký den"
 
 #. Translators: this text is displayed to the user when they request information on the command line options.
 #. The text %default should not be modified or left out.
-#: rapid/rapid.py:3676
+#: rapid/rapid.py:3799
 #, python-format
 msgid ""
 "display program information on the command line as the program runs "
 "(default: %default)"
 msgstr "zobrazit informace o programu na příkazové řádce (default: %default)"
 
-#: rapid/rapid.py:3677
+#: rapid/rapid.py:3800
 msgid "only output errors to the command line"
 msgstr "pouze výstup chyb do příkazové řádky"
 
 #. image file extensions are recognized RAW files plus TIFF and JPG
-#: rapid/rapid.py:3679
+#: rapid/rapid.py:3802
 msgid "list image file extensions the program recognizes and exit"
 msgstr "program rozpozná typy obrázkových souborů a ukončí"
 
-#: rapid/rapid.py:3692
+#: rapid/rapid.py:3815
 #, python-format
 msgid "and %s"
 msgstr "a %s"
 
 #. Which volume management code is being used (GIO or GnomeVFS)
-#: rapid/rapid.py:3697 rapid/rapid.py:3700
+#: rapid/rapid.py:3820 rapid/rapid.py:3823
 msgid "Using"
 msgstr "Používání"
 
 #. this application is already running
-#: rapid/rapid.py:3714
+#: rapid/rapid.py:3837
 #, python-format
 msgid "%s is already running"
 msgstr "%s není připraven k používání"
@@ -1638,3 +1723,23 @@ msgstr "_Zobrazení"
 
 #~ msgid "Copyright Damon Lynch 2007-09"
 #~ msgstr "Copyright Damon Lynch 2007-09"
+
+#, python-format
+#~ msgid ""
+#~ "Source: %(source)s\n"
+#~ "Destination: %(destination)s\n"
+#~ "Problem: %(problem)s"
+#~ msgstr ""
+#~ "Zdroj: %(source)s\n"
+#~ "Destinace: %(destination)s\n"
+#~ "Problém: %(problem)s"
+
+#, python-format
+#~ msgid ""
+#~ "Destination directory could not be created\n"
+#~ "%(directory)s\n"
+#~ "Error: %(errno)s %(strerror)s"
+#~ msgstr ""
+#~ "Adresář destinace nemohl být vytvořen\n"
+#~ "%(directory)s\n"
+#~ "Chyba: %(errno)s %(strerror)s"

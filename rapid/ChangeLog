@@ -18,8 +18,12 @@ dialog window.
 
 Fixed bug #510484: Crashes when fails to create temporary download directory.
 
-Updated Czech, French, Hungarian, Polish, Russian, Slovak, Spanish and Swedish 
-translations.
+Fixed bug #510516: Program now checks to see if the download folder exists and
+is writeable. If automatic detection of image devices is not enabled, it checks
+to see if the image location path exists.
+
+Updated Czech, Dutch, Finnish, French, German, Hungarian, Italian, Polish, 
+Russian, Serbian, Spanish and Swedish translations
 
 
 Version 0.1.2
