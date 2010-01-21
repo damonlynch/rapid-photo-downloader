@@ -16,6 +16,8 @@ Fixed bug #508304: User is now prompted to confirm if they really want to
 remove all of their Job Codes after clicking on "Remove All" in the preferences
 dialog window.
 
+Fixed bug #510484: Crashes when fails to create temporary download directory.
+
 Updated Czech, French, Hungarian, Polish, Russian, Slovak, Spanish and Swedish 
 translations.
 

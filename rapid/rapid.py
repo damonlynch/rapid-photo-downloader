@@ -1420,7 +1420,9 @@ class CopyPhotos(Thread):
                     msg += _("\nPlease check preferences, restart the program, and try again.")
                     logError(config.CRITICAL_ERROR, _("Download cannot proceed"), msg)
                     cmd_line(_("Download cannot proceed"))
-                    cmd_line(msg) 
+                    cmd_line(msg)
+                    display_queue.put((self.parentApp.downloadFailed,  (self.thread_id, )))
+                    display_queue.close("rw")                     
                 return False
         def scanMedia():
             
@@ -1887,9 +1889,9 @@ class CopyPhotos(Thread):
         
         if not scanMedia():
             cmd_line(_("This device has no images to download from."))
+            display_queue.put((self.parentApp.downloadFailed,  (self.thread_id, )))
             display_queue.close("rw")
             self.running = False
-            self.lock.release()
             return 
         elif self.autoStart and need_job_code:
             if job_code == None:
@@ -1964,9 +1966,29 @@ class CopyPhotos(Thread):
         #don't want to put it in system temp folder, as that is likely
         #to be on another partition and hence copying files from it
         #to the download folder will be slow!
-        tempWorkingDir = tempfile.mkdtemp(prefix='rapid-tmp-', 
+        try:
+            tempWorkingDir = tempfile.mkdtemp(prefix='rapid-tmp-', 
                                             dir=baseDownloadDir)
-                                            
+        except OSError, (errno, strerror):
+            if not self.cardMedia.volume:
+                image_device = _("Source: %s\n") % self.cardMedia.getPath()
+            else:
+                _("Image device: %s\n") % self.cardMedia.volume.get_name()
+            destination = _("Destination: %s") % baseDownloadDir
+            logError(config.CRITICAL_ERROR, _('Could not create temporary download directory'), 
+                         image_device + destination,
+                        _("Download cannot proceed"))
+            cmd_line(_("Error:") + " " + _('Could not create temporary download directory'))
+            cmd_line(image_device + destination)
+            cmd_line(_("Download cannot proceed"))
+            display_queue.put((media_collection_treeview.removeCard,  (self.thread_id, )))
+            display_queue.put((self.parentApp.downloadFailed,  (self.thread_id, )))
+            display_queue.close("rw")
+            self.running = False
+            self.lock.release()
+            return 
+            
+                                  
         IMAGE_SKIPPED = _("Image skipped")
         IMAGE_OVERWRITTEN = _("Image overwritten")
         IMAGE_ALREADY_EXISTS = _("Image already exists")
@@ -3360,6 +3382,12 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
             if self.prefs.auto_exit:
                 if not (self.downloadStats.noErrors or self.downloadStats.noWarnings):                
                     self.quit()
+    
+    def downloadFailed(self, thread_id):
+        if workers.noDownloadingWorkers() == 0:
+            self.download_button_is_download = True
+            self._set_download_button()
+            self.setDownloadButtonSensitivity()
     
     def downloadComplete(self):
         return self.totalDownloadedSoFar == self.totalDownloadSize
