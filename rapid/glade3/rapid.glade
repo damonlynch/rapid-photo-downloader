@@ -1056,13 +1056,13 @@
                                           </packing>
                                         </child>
                                         <child>
-                                          <widget class="GtkButton" id="clear_job_code_button">
+                                          <widget class="GtkButton" id="remove_all_job_code_button">
                                             <property name="label" translatable="yes" comments="The underscore after the C signifies that the l is the accelerator key. This is the standard 'Clear' button, but I needed to change the accelerator from the standard 'c' to 'l' because the close button also used 'c'">R_emove All</property>
                                             <property name="visible">True</property>
                                             <property name="can_focus">True</property>
                                             <property name="receives_default">True</property>
                                             <property name="use_underline">True</property>
-                                            <signal name="clicked" handler="on_clear_job_code_button_clicked"/>
+                                            <signal name="clicked" handler="on_remove_all_job_code_button_clicked"/>
                                           </widget>
                                           <packing>
                                             <property name="expand">False</property>

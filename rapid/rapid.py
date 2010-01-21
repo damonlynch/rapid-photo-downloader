@@ -844,7 +844,7 @@ class PreferencesDialog(gnomeglade.Component):
         # set multiple selections
         self.job_code_treeview.get_selection().set_mode(gtk.SELECTION_MULTIPLE)
         
-        self.clear_job_code_button.set_image(gtk.image_new_from_stock(
+        self.remove_all_job_code_button.set_image(gtk.image_new_from_stock(
                                                 gtk.STOCK_CLEAR,
                                                 gtk.ICON_SIZE_BUTTON))  
     def _setupDeviceTab(self):
@@ -1113,11 +1113,16 @@ class PreferencesDialog(gnomeglade.Component):
         self.updateImageRenameExample()
         self.updateDownloadFolderExample()
         
-    def on_clear_job_code_button_clicked(self,  button):
-        self.job_code_liststore.clear()
-        self.update_job_codes()
-        self.updateImageRenameExample()
-        self.updateDownloadFolderExample()
+    def on_remove_all_job_code_button_clicked(self,  button):
+        j = RemoveAllJobCodeDialog(self.widget,  self.remove_all_job_code)
+        
+    def remove_all_job_code(self, dialog, userSelected):
+        dialog.destroy()
+        if userSelected:
+            self.job_code_liststore.clear()
+            self.update_job_codes()
+            self.updateImageRenameExample()
+            self.updateDownloadFolderExample()
         
     def on_job_code_edited(self,  widget,  path,  new_text):
         iter = self.job_code_liststore.get_iter(path)
@@ -1761,13 +1766,14 @@ class CopyPhotos(Thread):
             (3) image has been backed up already (or at least, a file with the same name already exists)
             """
             
+            backed_up = False
             try:
                 for backupDir in self.parentApp.backupVolumes:
                     backupPath = os.path.join(backupDir, subfolder)
                     newBackupFile = os.path.join(backupPath,  newName)
                     copyBackup = True
                     if os.path.exists(newBackupFile):
-                        # again, not thread safe
+                        # not thread safe -- it doesn't need to be, because the file names are at this stage going to be unique
                         copyBackup = self.prefs.backup_duplicate_overwrite                                     
                         if self.prefs.indicate_download_error:
                             severity = config.SERIOUS_ERROR
@@ -1785,9 +1791,11 @@ class CopyPhotos(Thread):
                             fileToCopy = newFile
                         else:
                             fileToCopy = image
-                        if not os.path.isdir(backupPath):
+                        if os.path.isdir(backupPath):
+                            pathExists = True
+                        else:
                             # recreate folder structure in backup location
-                            # cannot do os.makedirs(backupPath) - it gives bad results when using external drives
+                            # cannot do os.makedirs(backupPath) - it can give bad results when using external drives
                             # we know backupDir exists 
                             # all the components of subfolder may not
                             folders = subfolder.split(os.path.sep)
@@ -1798,25 +1806,29 @@ class CopyPhotos(Thread):
                                     if not os.path.isdir(folderToMake):
                                         try:
                                             os.mkdir(folderToMake)
-                                        except (errno, strerror):
+                                            pathExists = True
+                                        except (IOError, OSError), (errno, strerror):
                                             logError(config.SERIOUS_ERROR, _('Backing up error'), 
-                                                     _("Destination directory could not be created\n%(directory)s\nError: %(errno)s %(strerror)s")
-                                                     % {'directory': folderToMake,  'errno': errno,  'strerror': strerror}, 
+                                                     _("Destination directory could not be created: %(directory)s\n") %
+                                                     {'directory': folderToMake,  } +
+                                                     _("Source: %(source)s\nDestination: %(destination)s\n") % 
+                                                     {'source': image, 'destination': newBackupFile} + 
+                                                     _("Error: %(errno)s %(strerror)s") % {'errno': errno,  'strerror': strerror}, 
+                                                     _('The image was not copied.')
                                                      )
+                                            pathExists = False
                                     
-                        shutil.copy2(fileToCopy,  newBackupFile)
+                        if pathExists:
+                            shutil.copy2(fileToCopy,  newBackupFile)
+                            backed_up = True
                         
-            except IOError, (errno, strerror):
+            except (IOError, OSError), (errno, strerror):
                 logError(config.SERIOUS_ERROR, _('Backing up error'), 
                             _("Source: %(source)s\nDestination: %(destination)s\nError: %(errno)s %(strerror)s")
                             % {'source': image, 'destination': newBackupFile,  'errno': errno,  'strerror': strerror},
                             _('The image was not copied.'))
 
-            except OSError, (errno, strerror):
-                logError(config.CRITICAL_ERROR, _('Backing up error'), 
-                            _("Source: %(source)s\nDestination: %(destination)s\nError: %(errno)s %(strerror)s")
-                            % {'source': image, 'destination': newBackupFile,  'errno': errno,  'strerror': strerror}
-                        )            
+            return backed_up
 
         def notifyAndUnmount():
             if not self.cardMedia.volume:
@@ -1993,11 +2005,14 @@ class CopyPhotos(Thread):
                                                                    imageMetadata,  subfolder, sequence_to_use)
 
                 if self.prefs.backup_images:
-                    backupImage(subfolder,  newName,  imageDownloaded,  newFile,  image)
+                    backed_up = backupImage(subfolder,  newName,  imageDownloaded,  newFile,  image)
 
                 if imageDownloaded:
                     noImagesDownloaded += 1
-                    imagesDownloadedSuccessfully.append(image)
+                    if self.prefs.backup_images and backed_up:
+                        imagesDownloadedSuccessfully.append(image)
+                    elif not self.prefs.backup_images:
+                        imagesDownloadedSuccessfully.append(image)
                 else:
                     noImagesSkipped += 1
                 try:
@@ -2355,8 +2370,50 @@ class UseDeviceDialog(gtk.Dialog):
                 cmd_line(_("This device or partition will never be used to download from"))
             
         self.postChoiceCB(self,  userSelected,  permanent_choice,  self.path,  
-                          self.volume, self.autostart)        
+                          self.volume, self.autostart)
+                          
+class RemoveAllJobCodeDialog(gtk.Dialog):
+    def __init__(self, parent_window, postChoiceCB):
+        gtk.Dialog.__init__(self, _('Remove all Job Codes?'), None,
+                   gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
+                   (gtk.STOCK_NO, gtk.RESPONSE_CANCEL, 
+                   gtk.STOCK_YES, gtk.RESPONSE_OK))
+                        
+        self.postChoiceCB = postChoiceCB        
+        self.set_icon_from_file(paths.share_dir('glade3/rapid-photo-downloader-about.png'))
+        
+        prompt_hbox = gtk.HBox()
+        
+        icontheme = gtk.icon_theme_get_default()
+        icon = icontheme.load_icon('gtk-dialog-question', 36, gtk.ICON_LOOKUP_USE_BUILTIN)        
+        if icon:
+            image = gtk.Image()
+            image.set_from_pixbuf(icon)
+            prompt_hbox.pack_start(image, False, False, padding = 6)
+            
+        prompt_label = gtk.Label(_('Should all Job Codes be removed?'))
+        prompt_label.set_line_wrap(True)
+        prompt_hbox.pack_start(prompt_label, False, False, padding=6)
+                    
+        self.vbox.pack_start(prompt_hbox, padding=6)
 
+        self.set_border_width(6)
+        self.set_has_separator(False)   
+        
+        self.set_default_response(gtk.RESPONSE_OK)
+      
+       
+        self.set_transient_for(parent_window)
+        self.show_all()
+
+        
+        self.connect('response', self.on_response)
+        
+    def on_response(self,  device_dialog, response):
+        userSelected = response == gtk.RESPONSE_OK
+        self.postChoiceCB(self, userSelected)   
+        
+        
 class JobCodeDialog(gtk.Dialog):
     """ Dialog prompting for a job code"""
     
@@ -2846,12 +2903,16 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
         for cap in caps:
             capabilities[cap] = True
 
-        info = pynotify.get_server_info()
-        
-        if info['name'] == 'Notification Daemon':
+        try:
+            info = pynotify.get_server_info()
+        except:
+            cmd_line(_("Warning: desktop environment notification server is incorrectly configured."))
             self.notification_icon_size = 48
         else:
-            self.notification_icon_size = 128
+            if info['name'] == 'Notification Daemon':
+                self.notification_icon_size = 48
+            else:
+                self.notification_icon_size = 128
             
         self.application_icon = gtk.gdk.pixbuf_new_from_file_at_size(
                 paths.share_dir('glade3/rapid-photo-downloader-about.png'),

@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-01-13 16:27-0600\n"
-"PO-Revision-Date: 2010-01-12 07:46+0000\n"
+"PO-Revision-Date: 2010-01-17 08:24+0000\n"
 "Last-Translator: Ulf Urdén <ulf.urden@purplescout.com>\n"
 "Language-Team: Swedish <sv@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-01-14 23:56+0000\n"
+"X-Launchpad-Export-Date: 2010-01-21 00:24+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #. Translators: if neccessary, for guidance in how to translate this program, you may see http://damonlynch.net/translate.html
@@ -302,7 +302,7 @@ msgstr "Lade till unik indentifierare \"%s\""
 #: rapid/rapid.py:1526
 #, python-format
 msgid "Source: %(source)s"
-msgstr ""
+msgstr "Källa: %(source)s"
 
 #: rapid/rapid.py:1533
 msgid "Download copying error"
@@ -326,7 +326,7 @@ msgstr "Bilden överfördes inte."
 #: rapid/rapid.py:1539
 msgid ""
 "Images detected with the same filenames, but taken at different times:"
-msgstr ""
+msgstr "Hittade bilder med samma filnamn, men tagna vid olika tillfällen:"
 
 #: rapid/rapid.py:1540
 #, python-format
@@ -334,6 +334,8 @@ msgid ""
 "First image: %(image1)s %(image1_date_time)s:%(image1_subseconds)s\n"
 "Second image: %(image2)s %(image2_date_time)s:%(image2_subseconds)s"
 msgstr ""
+"Första bilden: %(image1)s %(image1_date_time)s:%(image1_subseconds)s\n"
+"Andra bilden: %(image2)s %(image2_date_time)s:%(image2_subseconds)s"
 
 #: rapid/rapid.py:1553
 msgid "Could not open image"
@@ -1342,7 +1344,7 @@ msgstr ""
 
 #: rapid/glade3/rapid.glade.h:41
 msgid "Copyright Damon Lynch 2007-10"
-msgstr ""
+msgstr "Copyright Damon Lynch 2007-10"
 
 #: rapid/glade3/rapid.glade.h:42
 msgid "Day start:"

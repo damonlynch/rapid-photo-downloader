@@ -1,3 +1,21 @@
+rapid-photo-downloader (0.1.2-0ubuntu1~ppa1) hardy; urgency=low
+
+  * Added RAW + JPEG sequence number synchronization feature.
+
+  * Increased maximum sequence number length to seven digits.
+
+  * Fixed bug #503704: changes in values for downloads today and stored
+    number not updated when changed via program preferences while a
+    download is ready to begin.
+
+  * Fixed a rare startup bug, where the program could crash when 
+    starting a thread.
+
+  * Added Serbian translation by Milos Popovic. Updated all other
+    translations.
+
+ -- Damon Lynch <damonlynch@gmail.com>  Sat, 16 Jan 2010 18:11:13 -0600
+
 rapid-photo-downloader (0.1.1-0ubuntu1~ppa1) hardy; urgency=low
 
   * Added auto delete feature.
