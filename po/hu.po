@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-01-21 00:48-0600\n"
-"PO-Revision-Date: 2010-01-21 12:17+0000\n"
-"Last-Translator: loriand <level.andrasnak@gmail.com>\n"
+"PO-Revision-Date: 2010-01-21 21:48+0000\n"
+"Last-Translator: Balazs Oveges <Unknown>\n"
 "Language-Team: Hungarian <hu@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-01-21 19:24+0000\n"
+"X-Launchpad-Export-Date: 2010-01-22 00:24+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #. Translators: if neccessary, for guidance in how to translate this program, you may see http://damonlynch.net/translate.html
@@ -281,6 +281,10 @@ msgid ""
 "Destination: %(destination)s\n"
 "Problem: %(problem)s"
 msgstr ""
+"Forrás: %(source)s\n"
+"Részlegesen generált file név: %(newname)s\n"
+"Cél: %(destination)s\n"
+"Hiba: %(problem)s"
 
 #: rapid/rapid.py:1525 rapid/rapid.py:1530 rapid/rapid.py:1783
 #, python-format
@@ -393,7 +397,7 @@ msgstr "A biztonsági másolat készítése során hiba történt."
 #: rapid/rapid.py:1814
 #, python-format
 msgid "Destination directory could not be created: %(directory)s\n"
-msgstr ""
+msgstr "A cél könyvtár nem hozható létre: %(directory)s\n"
 
 #: rapid/rapid.py:1816
 #, python-format
@@ -401,11 +405,13 @@ msgid ""
 "Source: %(source)s\n"
 "Destination: %(destination)s\n"
 msgstr ""
+"Forrás: %(source)s\n"
+"Cél: %(destination)s\n"
 
 #: rapid/rapid.py:1818
 #, python-format
 msgid "Error: %(errno)s %(strerror)s"
-msgstr ""
+msgstr "Hiba: %(errno)s %(strerror)s"
 
 #: rapid/rapid.py:1829
 #, python-format
@@ -632,10 +638,13 @@ msgid ""
 "\n"
 "Please resolve the problem, or modify your preferences."
 msgstr ""
+"A megadott elérési útvonalon nem található kép:\n"
+"%(path)s\n"
+"A probléma megoldásához kérlek ellenőrizd a beállításokat."
 
 #: rapid/rapid.py:2767
 msgid "Problem with Image Location Folder"
-msgstr ""
+msgstr "A képeket tároló könyvtár hibás"
 
 #: rapid/rapid.py:2777
 msgid ""
@@ -754,6 +763,7 @@ msgstr "A pynotify kiszolgálót nem sikerült elérni."
 msgid ""
 "Warning: desktop environment notification server is incorrectly configured."
 msgstr ""
+"Figyelem: a munkaasztal környezet értesítő szerver nincs jól beállítva."
 
 #: rapid/rapid.py:3017
 msgid "and"
