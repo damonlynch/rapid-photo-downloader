@@ -1,3 +1,30 @@
+rapid-photo-downloader (0.1.3-0ubuntu1~ppa1) hardy; urgency=low
+
+  * Fixed bug #503704: When both the backup and "Delete images from 
+    image device upon download completion" options are selected, the
+    program should only delete an image from the image device if it was
+    both downloaded to the download folder and backed up. Previously it
+    did not check to ensure it was backed up correctly too.
+
+  * Fixed bug #505492: Program failed to start in environments where
+    the notification system has problems.
+
+  * Fixed bug #508304: User is now prompted to confirm if they really
+    want to remove all of their Job Codes after clicking on "Remove 
+    All" in the preferences dialog window.
+
+  * Fixed bug #510484: Crashes when fails to create temporary download
+    directory.
+
+  * Fixed bug #510516: Program now checks to see if the download folder
+    exists and is writeable. If automatic detection of image devices is
+    not enabled, it checks to see if the image location path exists.
+
+  * Updated Czech, Dutch, Finnish, French, German, Hungarian, Italian, 
+    Polish, Russian, Serbian, Spanish and Swedish translations.
+
+ -- Damon Lynch <damonlynch@gmail.com>  Fri, 22 Jan 2010 15:57:14 -0600
+
 rapid-photo-downloader (0.1.2-0ubuntu1~ppa1) hardy; urgency=low
 
   * Added RAW + JPEG sequence number synchronization feature.

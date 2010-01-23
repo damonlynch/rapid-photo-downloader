@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-01-21 00:48-0600\n"
-"PO-Revision-Date: 2010-01-21 11:20+0000\n"
-"Last-Translator: Jose Luis Navarro <jlnavarro111@gmail.com>\n"
+"PO-Revision-Date: 2010-01-22 21:38+0000\n"
+"Last-Translator: Abel O'Rian <abel.orian@gmail.com>\n"
 "Language-Team: Spanish <es@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-01-21 19:24+0000\n"
+"X-Launchpad-Export-Date: 2010-01-22 21:52+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #. Translators: if neccessary, for guidance in how to translate this program, you may see http://damonlynch.net/translate.html
@@ -171,10 +171,14 @@ msgstr "<i>Ejemplo: %s</i>"
 msgid ""
 "Downloads today value not updated, as a download is currently occurring"
 msgstr ""
+"El número de descargas de hoy no se actualizó, pues se está haciendo una "
+"descarga actualmente."
 
 #: rapid/rapid.py:1025
 msgid "Stored number value not updated, as a download is currently occurring"
 msgstr ""
+"El número de almacenados no se actualizó, pues se está haciendo una descarga "
+"actualmente."
 
 #: rapid/rapid.py:1050
 msgid "The subfolder preferences had some unnecessary values removed."
@@ -257,7 +261,7 @@ msgstr ""
 
 #: rapid/rapid.py:1509
 msgid "Image filename could not be generated"
-msgstr "Archivo de imagen no se ha generado"
+msgstr "No se pudo generar el nombre del archivo de imagen"
 
 #. '%(source)s' and '%(problem)s' are two more examples of text that should not be modified or left out
 #: rapid/rapid.py:1511
@@ -285,6 +289,10 @@ msgid ""
 "Destination: %(destination)s\n"
 "Problem: %(problem)s"
 msgstr ""
+"Origen: %(source)s\n"
+"Archivo generado parcialmente: %(newname)s\n"
+"Destino: %(destination)s\n"
+"Problema: %(problem)s"
 
 #: rapid/rapid.py:1525 rapid/rapid.py:1530 rapid/rapid.py:1783
 #, python-format
@@ -602,7 +610,7 @@ msgstr "¿Borrar todos los Códigos de Trabajo?"
 
 #: rapid/rapid.py:2416
 msgid "Should all Job Codes be removed?"
-msgstr ""
+msgstr "¿Deberían ser removidos todos los Codigos de Trabajo?"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#jobcode
 #: rapid/rapid.py:2444
@@ -639,10 +647,14 @@ msgid ""
 "\n"
 "Please resolve the problem, or modify your preferences."
 msgstr ""
+"Disculpe, la ubicación de la imagen no existe:\n"
+"%(path)s\n"
+"\n"
+"Por favor, resuelva el problema, o modifique sus preferencias."
 
 #: rapid/rapid.py:2767
 msgid "Problem with Image Location Folder"
-msgstr ""
+msgstr "Problema con Ubicación de Carpeta de Imagen"
 
 #: rapid/rapid.py:2777
 msgid ""
@@ -763,6 +775,8 @@ msgstr "Fallo al recibir capacidades del servidor pynotify"
 msgid ""
 "Warning: desktop environment notification server is incorrectly configured."
 msgstr ""
+"Advertencia: el servidor de notificaciones del entorno de escritorio no está "
+"configurado correctamente."
 
 #: rapid/rapid.py:3017
 msgid "and"
@@ -1685,7 +1699,7 @@ msgid ""
 "You can have your photos backed up to multiple locations as they are "
 "downloaded, e.g. external hard drives."
 msgstr ""
-"Puede tener respaldos de sus fotos en múltiples locaciones, por ejemplo: "
+"Puede tener respaldos de sus fotos en múltiples ubicaciones, por ejemplo: "
 "discos duros externos."
 
 #: rapid/glade3/rapid.glade.h:95
@@ -1706,7 +1720,7 @@ msgstr "_Conseguir ayuda online"
 
 #: rapid/glade3/rapid.glade.h:99
 msgid "_Help"
-msgstr "_Ayuda"
+msgstr "Ay_uda"
 
 #: rapid/glade3/rapid.glade.h:100
 msgid "_Make a Donation..."
@@ -1718,7 +1732,7 @@ msgstr "_Fotos"
 
 #: rapid/glade3/rapid.glade.h:102
 msgid "_Report a Problem..."
-msgstr "_Informar de un problema"
+msgstr "_Reportar problema..."
 
 #: rapid/glade3/rapid.glade.h:103
 msgid "_Thumbnails"
@@ -1726,7 +1740,7 @@ msgstr "_Miniaturas"
 
 #: rapid/glade3/rapid.glade.h:104
 msgid "_Translate this Application..."
-msgstr "_Traducir esta aplicación"
+msgstr "_Traducir esta aplicación..."
 
 #: rapid/glade3/rapid.glade.h:105
 msgid "_View"
