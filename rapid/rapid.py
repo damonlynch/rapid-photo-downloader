@@ -2974,10 +2974,13 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
             cmd_line(_("Warning: desktop environment notification server is incorrectly configured."))
             self.notification_icon_size = 48
         else:
-            if info['name'] == 'Notification Daemon':
+            try:
+                if info['name'] == 'Notification Daemon':
+                    self.notification_icon_size = 128
+                else:
+                    self.notification_icon_size = 48                    
+            except:
                 self.notification_icon_size = 48
-            else:
-                self.notification_icon_size = 128
             
         self.application_icon = gtk.gdk.pixbuf_new_from_file_at_size(
                 paths.share_dir('glade3/rapid-photo-downloader-about.png'),

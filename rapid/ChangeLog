@@ -1,3 +1,12 @@
+Version 0.1.4
+-------------
+
+2010-0x-xx
+
+Further work to fix bug #505492, to handle cases where the system notification
+system is not working properly.
+
+
 Version 0.1.3
 -------------
 

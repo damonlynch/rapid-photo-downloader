@@ -57,8 +57,10 @@ setup(name=name,
 """Rapid Photo Downloader is written by a photographer for
 professional and amateur photographers. It can download photos
 from multiple cameras, memory cards and Portable Storage Devices
-simultaneously. It provides many options for subfolder creation,
-image renaming and backup.""",
+simultaneously. It provides many flexible options for subfolder
+creation, image renaming and backup, which can be combined in
+whatever ways the user specifies.
+""",
     packages = ['rapid'], 
     package_data=package_data, 
     scripts=['rapid-photo-downloader'],
