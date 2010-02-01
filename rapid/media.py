@@ -106,7 +106,11 @@ class CardMedia(Media):
     def scanMedia(self):
         """ creates a list of images on a path, recursively scanning
         
-        images are sorted by modification time"""
+        images are sorted by modification time
+        
+        NOTE: this is no longer used, because this operation should be handled within a thread!
+        See method scanMedia() in class CopyPhotos in rapid.py
+        """
         
         self.images = []
         self.imageSizeSum = 0

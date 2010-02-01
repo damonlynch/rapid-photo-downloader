@@ -46,6 +46,7 @@ import pango
 try:
     import gio
     using_gio = True
+    import gobject
 except ImportError:
     import gnomevfs
     using_gio = False
@@ -125,6 +126,7 @@ def updateDisplay(display_queue):
     except tube.EOInformation:
         for w in workers.getStartedWorkers():
             w.join()
+
         gtk.main_quit()
         
         return False
@@ -1424,12 +1426,16 @@ class CopyPhotos(Thread):
                     display_queue.put((self.parentApp.downloadFailed,  (self.thread_id, )))
                     display_queue.close("rw")                     
                 return False
+        
         def scanMedia():
             
-            images = []
-            imageSizeSum = 0
-            for root, dirs, files in os.walk(self.cardMedia.getPath()):
-                for name in files:
+            def gio_scan(path, imageSizeSum):
+                """recursive function to scan a directory and its subdirectories
+                for images """
+                
+                children = path.enumerate_children('standard::name,standard::type,standard::size,time::modified')
+
+                for child in children:
                     if not self.running:
                         self.lock.acquire()
                         self.running = True
@@ -1438,14 +1444,51 @@ class CopyPhotos(Thread):
                         self.running = False
                         display_queue.put((media_collection_treeview.removeCard,  (self.thread_id, )))
                         display_queue.close("rw")
-                        return
-                    
-                    if media.isImage(name):
-                        image = os.path.join(root, name)
-                        size = os.path.getsize(image)
-                        modificationTime = os.path.getmtime(image)
-                        images.append((name, root, size,  modificationTime),)
-                        imageSizeSum += size
+                        return None
+                        
+                    if child.get_file_type() == gio.FILE_TYPE_DIRECTORY:
+                        imageSizeSum = gio_scan(path.get_child(child.get_name()), imageSizeSum)
+                        if imageSizeSum == None:
+                            # this value will be None only if the thread is exiting
+                            return None
+                    elif child.get_file_type() == gio.FILE_TYPE_REGULAR:
+                        name = child.get_name()
+                        if media.isImage(name):
+                            size = child.get_size()
+                            images.append((name, path.get_path(), size, child.get_modification_time()),)
+                            imageSizeSum += size
+                return imageSizeSum
+            
+                        
+            images = []
+            imageSizeSum = 0
+            
+            if not using_gio or not self.cardMedia.volume:
+                for root, dirs, files in os.walk(self.cardMedia.getPath()):
+                    for name in files:
+                        if not self.running:
+                            self.lock.acquire()
+                            self.running = True
+                        
+                        if not self.ctrl:
+                            self.running = False
+                            display_queue.put((media_collection_treeview.removeCard,  (self.thread_id, )))
+                            display_queue.close("rw")
+                            return
+                        
+                        if media.isImage(name):
+                            image = os.path.join(root, name)
+                            size = os.path.getsize(image)
+                            modificationTime = os.path.getmtime(image)
+                            images.append((name, root, size,  modificationTime),)
+                            imageSizeSum += size
+            else:
+                # using gio and have a volume
+                imageSizeSum = gio_scan(self.cardMedia.volume.volume.get_root(), imageSizeSum)
+                if imageSizeSum == None:
+                    # thread exiting
+                    return
+                
             images.sort(key=operator.itemgetter(3))
             noImages = len(images)
             
@@ -1630,6 +1673,10 @@ class CopyPhotos(Thread):
             return (skipImage,  imageMetadata,  newName,  newFile,  path,  subfolder, sequence_to_use)
         
         def downloadImage(path,  newFile,  newName,  originalName,  image,  imageMetadata,  subfolder, sequence_to_use):
+            
+            def progress_callback(self, v):
+                pass
+                
             try:
                 imageDownloaded = False
                 if not os.path.isdir(path):
@@ -1664,7 +1711,15 @@ class CopyPhotos(Thread):
 
                 if nameUniqueBeforeCopy or downloadNonUniqueFile:
                     tempWorkingfile = os.path.join(tempWorkingDir, newName)
-                    shutil.copy2(image, tempWorkingfile)
+                    if using_gio:
+                        g_dest = gio.File(path=tempWorkingfile)
+                        g_src = gio.File(path=image)
+                        if not g_src.copy(g_dest, progress_callback, cancellable=gio.Cancellable()):
+                            print "COULD NOT COPY", image
+                        else:
+                            print "copied", image
+                    else:
+                        shutil.copy2(image, tempWorkingfile)
                     
                     with self.fileRenameLock:
                         doRename = True
@@ -2748,7 +2803,11 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
             self.rapidapp.present()
         else:
             self.running = True
+#            if not using_gio:
             self.main()
+#            else:
+#                mainloop = gobject.MainLoop()
+#                mainloop.run()
             self.running = False
             
     def setTestingEnv(self):
@@ -3632,6 +3691,7 @@ class Volume:
     """ Transistion to gvfs from gnomevfs"""
     def __init__(self,  volume):
         self.volume = volume
+        self.using_gio = using_gio
         
     def get_name(self, limit=config.MAX_LENGTH_DEVICE_NAME):
         if using_gio:
@@ -3821,13 +3881,19 @@ def start ():
 
     if using_gio:
         cmd_line(_("Using") + " GIO")
+        gobject.threads_init()
     else:
         # Which volume management code is being used (GIO or GnomeVFS)
         cmd_line(_("Using") + " GnomeVFS")
+        gdk.threads_init()
         
-    gdk.threads_init()
+
     display_queue.open("rw")
     tube.tube_add_watch(display_queue, updateDisplay)
+#    if using_gio:
+#        pass
+        # gobject.threads_enter()
+#    else:
     gdk.threads_enter()
 
     # run only a single instance of the application 
@@ -3842,6 +3908,10 @@ def start ():
         app = dbus.Interface (object, config.DBUS_NAME)
     
     app.start()
+#    if using_gio:
+#        pass
+        # gobject.threads_leave() 
+#    else:
     gdk.threads_leave()    
 
 if __name__ == "__main__":
