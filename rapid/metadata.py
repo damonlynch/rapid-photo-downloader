@@ -29,11 +29,17 @@ except ImportError:
     sys.exit(1)
     
 #only pyexiv2 0.1.2 and 0.1.3 use the "Rational" class 
-#is there a superior way to find which version of pyexiv2 is being used?
 if 'Rational' in dir(pyexiv2):
     usesRational = True
 else:
     usesRational = False
+    
+#if 'version_info' in dir(pyexiv2):
+#    pyexiv2_version = pyexiv2.version_info
+#    baseclass = pyexiv2.metadata.ImageMetadata
+#else:
+#    pyexiv2_version = (0,1,'x')
+#    baseclass = pyexiv2.Image 
 
 
 class MetaData(pyexiv2.Image):

@@ -1580,12 +1580,19 @@ class CopyPhotos(Thread):
                         IMAGE_SKIPPED)
 
                     
-        def downloadCopyingError(source, destination, errno, strerror):
+        def downloadCopyingError(source, destination, errno=None, strerror=None):
             """Notify the user that an error occurred when coyping an image"""
-            logError(config.SERIOUS_ERROR, _('Download copying error'), 
-                        _("Source: %(source)s\nDestination: %(destination)s\nError: %(errorno)s %(strerror)s") 
-                        % {'source': source, 'destination': destination, 'errorno': errno, 'strerror': strerror},
-                        _('The image was not copied.'))
+            if errno != None and strerror != None:
+                logError(config.SERIOUS_ERROR, _('Download copying error'), 
+                            _("Source: %(source)s\nDestination: %(destination)s\nError: %(errorno)s %(strerror)s") 
+                            % {'source': source, 'destination': destination, 'errorno': errno, 'strerror': strerror},
+                            _('The image was not copied.'))
+            else:
+                logError(config.SERIOUS_ERROR, _('Download copying error'), 
+                            _("Source: %(source)s\nDestination: %(destination)s") 
+                            % {'source': source, 'destination': destination},
+                            _('The image was not copied.'))
+                
                         
         def sameFileNameDifferentExif(image1, image1_date_time, image1_subseconds, image2, image2_date_time, image2_subseconds):
             logError(config.WARNING, _('Images detected with the same filenames, but taken at different times:'),
@@ -1709,96 +1716,99 @@ class CopyPhotos(Thread):
                     if not downloadNonUniqueFile:
                         imageAlreadyExists(image, newFile)
 
+                copy_succeeded = False
                 if nameUniqueBeforeCopy or downloadNonUniqueFile:
                     tempWorkingfile = os.path.join(tempWorkingDir, newName)
                     if using_gio:
                         g_dest = gio.File(path=tempWorkingfile)
                         g_src = gio.File(path=image)
                         if not g_src.copy(g_dest, progress_callback, cancellable=gio.Cancellable()):
-                            print "COULD NOT COPY", image
+                            downloadCopyingError(image, tempWorkingfile)
                         else:
-                            print "copied", image
+                            copy_succeeded = True
                     else:
                         shutil.copy2(image, tempWorkingfile)
+                        copy_succeeded = True
                     
-                    with self.fileRenameLock:
-                        doRename = True
-                        if usesSequenceElements:
-                            with self.fileSequenceLock:
-                                # get a filename and use this as the "real" filename
-                                if sequence_to_use is None and self.prefs.synchronize_raw_jpg:
-                                    # must check again, just in case the matching pair has been downloaded in the meantime
-                                    image_name, image_ext = os.path.splitext(originalName)
-                                    with self.downloadedFilesLock:
-                                        i, sequence_to_use = downloaded_files.matching_pair(image_name, image_ext, imageMetadata.dateTime(), imageMetadata.subSeconds())
-                                        if i == -99:
-                                            i1_ext, i1_date_time, i1_subseconds = downloaded_files.extExifDateTime(image_name)
-                                            sameFileNameDifferentExif("%s%s" % (image_name, i1_ext), i1_date_time, i1_subseconds, originalName, imageMetadata.dateTime(), imageMetadata.subSeconds())
-
-                                            
-
-                                newName, problem = self.imageRenamePrefsFactory.generateNameUsingPreferences(
-                                                                imageMetadata, originalName, self.stripCharacters,  subfolder,  
-                                                                sequencesPreliminary = False,
-                                                                sequence_to_use = sequence_to_use)
-                            checkProblemWithImageNameGeneration(newName, path, image,  problem)
-                            if not newName:
-                                # there was a serious error generating the filename
-                                doRename = False                            
-                            else:
-                                newFile = os.path.join(path, newName)
-                        # check if the file exists again
-                        if os.path.exists(newFile):
-                            if not addUniqueIdentifier:
-                                doRename = False
-                                imageAlreadyExists(image, newFile)
-                            else:
-                                # add  basic suffix to make the filename unique
-                                name = os.path.splitext(newName)
-                                suffixAlreadyUsed = True
-                                while suffixAlreadyUsed:
-                                    if newFile in duplicate_files:
-                                        duplicate_files[newFile] +=  1
-                                    else:
-                                        duplicate_files[newFile] = 1
-                                    identifier = '_%s' % duplicate_files[newFile]
-                                    newName = name[0] + identifier + name[1]
-                                    possibleNewFile = os.path.join(path,  newName)
-                                    suffixAlreadyUsed = os.path.exists(possibleNewFile)
-
-                                imageAlreadyExists(image, newFile, identifier)
-                                newFile = possibleNewFile
-                                
-
-                        if doRename:
-                            os.rename(tempWorkingfile, newFile)
-                                    
-                            imageDownloaded = True
+                    if copy_succeeded:
+                        with self.fileRenameLock:
+                            doRename = True
                             if usesSequenceElements:
-                                if self.prefs.synchronize_raw_jpg:
-                                    name, ext = os.path.splitext(originalName)
-                                    if sequence_to_use is None:
-                                        with self.fileSequenceLock:
-                                            seq = self.imageRenamePrefsFactory.sequences.getFinalSequence()
-                                    else:
-                                        seq = sequence_to_use
-                                    with self.downloadedFilesLock:
-                                        downloaded_files.add_download(name, ext, imageMetadata.dateTime(), imageMetadata.subSeconds(), seq) 
+                                with self.fileSequenceLock:
+                                    # get a filename and use this as the "real" filename
+                                    if sequence_to_use is None and self.prefs.synchronize_raw_jpg:
+                                        # must check again, just in case the matching pair has been downloaded in the meantime
+                                        image_name, image_ext = os.path.splitext(originalName)
+                                        with self.downloadedFilesLock:
+                                            i, sequence_to_use = downloaded_files.matching_pair(image_name, image_ext, imageMetadata.dateTime(), imageMetadata.subSeconds())
+                                            if i == -99:
+                                                i1_ext, i1_date_time, i1_subseconds = downloaded_files.extExifDateTime(image_name)
+                                                sameFileNameDifferentExif("%s%s" % (image_name, i1_ext), i1_date_time, i1_subseconds, originalName, imageMetadata.dateTime(), imageMetadata.subSeconds())
 
-                                
+                                                
+
+                                    newName, problem = self.imageRenamePrefsFactory.generateNameUsingPreferences(
+                                                                    imageMetadata, originalName, self.stripCharacters,  subfolder,  
+                                                                    sequencesPreliminary = False,
+                                                                    sequence_to_use = sequence_to_use)
+                                checkProblemWithImageNameGeneration(newName, path, image,  problem)
+                                if not newName:
+                                    # there was a serious error generating the filename
+                                    doRename = False                            
+                                else:
+                                    newFile = os.path.join(path, newName)
+                            # check if the file exists again
+                            if os.path.exists(newFile):
+                                if not addUniqueIdentifier:
+                                    doRename = False
+                                    imageAlreadyExists(image, newFile)
+                                else:
+                                    # add  basic suffix to make the filename unique
+                                    name = os.path.splitext(newName)
+                                    suffixAlreadyUsed = True
+                                    while suffixAlreadyUsed:
+                                        if newFile in duplicate_files:
+                                            duplicate_files[newFile] +=  1
+                                        else:
+                                            duplicate_files[newFile] = 1
+                                        identifier = '_%s' % duplicate_files[newFile]
+                                        newName = name[0] + identifier + name[1]
+                                        possibleNewFile = os.path.join(path,  newName)
+                                        suffixAlreadyUsed = os.path.exists(possibleNewFile)
+
+                                    imageAlreadyExists(image, newFile, identifier)
+                                    newFile = possibleNewFile
+                                    
+
+                            if doRename:
+                                os.rename(tempWorkingfile, newFile)
+                                        
+                                imageDownloaded = True
+                                if usesSequenceElements:
+                                    if self.prefs.synchronize_raw_jpg:
+                                        name, ext = os.path.splitext(originalName)
+                                        if sequence_to_use is None:
+                                            with self.fileSequenceLock:
+                                                seq = self.imageRenamePrefsFactory.sequences.getFinalSequence()
+                                        else:
+                                            seq = sequence_to_use
+                                        with self.downloadedFilesLock:
+                                            downloaded_files.add_download(name, ext, imageMetadata.dateTime(), imageMetadata.subSeconds(), seq) 
+
+                                    
+                                    with self.fileSequenceLock:
+                                        if sequence_to_use is None:
+                                            self.imageRenamePrefsFactory.sequences.imageCopySucceeded()
+                                            if usesStoredSequenceNo:
+                                                self.prefs.stored_sequence_no += 1
+                                            
                                 with self.fileSequenceLock:
                                     if sequence_to_use is None:
-                                        self.imageRenamePrefsFactory.sequences.imageCopySucceeded()
-                                        if usesStoredSequenceNo:
-                                            self.prefs.stored_sequence_no += 1
-                                        
-                            with self.fileSequenceLock:
-                                if sequence_to_use is None:
-                                    if self.prefs.incrementDownloadsToday():
-                                        # A new day, according the user's preferences of what time a day begins, has started
-                                        cmd_line(_("New day has started - resetting 'Downloads Today' sequence number"))
-                                        
-                                        sequences.setDownloadsToday(0)
+                                        if self.prefs.incrementDownloadsToday():
+                                            # A new day, according the user's preferences of what time a day begins, has started
+                                            cmd_line(_("New day has started - resetting 'Downloads Today' sequence number"))
+                                            
+                                            sequences.setDownloadsToday(0)
                     
             except IOError, (errno, strerror):
                 downloadCopyingError(image, newFile, errno, strerror)
