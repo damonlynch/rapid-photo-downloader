@@ -100,6 +100,8 @@ _ = Configi18n._
 #Translators: if neccessary, for guidance in how to translate this program, you may see http://damonlynch.net/translate.html 
 PROGRAM_NAME = _('Rapid Photo Downloader')
 
+MAX_THUMBNAIL_SIZE = 100
+
 def today():
     return datetime.date.today().strftime('%Y-%m-%d')
 
@@ -1617,11 +1619,13 @@ class CopyPhotos(Thread):
             else:
                 try:
                     # this step can fail if the source image is corrupt
-                    imageMetadata.readMetadata()
+                    imageMetadata.read()
                 except:
                     skipImage = True
 
+                
                 if not skipImage:
+
                     if not imageMetadata.exifKeys() and (needMetaDataToCreateUniqueSubfolderName or 
                                                          (needMetaDataToCreateUniqueImageName and 
                                                          not addUniqueIdentifier)):
@@ -2103,10 +2107,12 @@ class CopyPhotos(Thread):
                 else:
                     noImagesSkipped += 1
                 try:
-                    thumbnailType, thumbnail = imageMetadata.getThumbnailData()
+                    thumbnail = imageMetadata.getThumbnailData(MAX_THUMBNAIL_SIZE)
                 except:
-                    logError(config.WARNING, _("Image has no thumbnail"), image)
+                    logError(config.WARNING, _("Image thumbnail could not be extracted"), image)
                     thumbnail = orientation = None
+                if not thumbnail:
+                    orientation = None
                 else:
                     orientation = imageMetadata.orientation(missing=None)
                 display_queue.put((image_hbox.addImage, (self.thread_id, thumbnail, orientation, image,  imageDownloaded)))
@@ -2321,12 +2327,12 @@ class ImageHBox(gtk.HBox):
         self.padding = hd.CONTROL_IN_TABLE_SPACE / 2
 
         #create image used to lighten thumbnails
-        self.white = gtk.gdk.Pixbuf(gtk.gdk.COLORSPACE_RGB,  False,  8,  width=100, height=100)
+        self.white = gtk.gdk.Pixbuf(gtk.gdk.COLORSPACE_RGB,  False,  8,  width=MAX_THUMBNAIL_SIZE, height=MAX_THUMBNAIL_SIZE)
         #fill with white
         self.white.fill(0xffffffff)
         
         #load missing image 
-        self.missingThumbnail = gtk.gdk.pixbuf_new_from_file_at_size(paths.share_dir('glade3/image-missing.svg'),  100,  100)
+        self.missingThumbnail = gtk.gdk.pixbuf_new_from_file_at_size(paths.share_dir('glade3/image-missing.svg'),  MAX_THUMBNAIL_SIZE,  MAX_THUMBNAIL_SIZE)
         
     def addImage(self, thread_id, thumbnail, orientation, filename,  imageDownloaded):
         """ 
@@ -2341,10 +2347,9 @@ class ImageHBox(gtk.HBox):
             try:
                 pbloader = gdk.PixbufLoader()
                 pbloader.write(thumbnail)
-                # Get the resulting pixbuf and build an image to be displayed
-                pixbuf = pbloader.get_pixbuf()
                 pbloader.close()
-                
+                # Get the resulting pixbuf and build an image to be displayed
+                pixbuf = pbloader.get_pixbuf()  
             except:
                 log_dialog.addMessage(thread_id, config.WARNING, 
                                 _('Thumbnail cannot be displayed'), filename, 
@@ -2362,7 +2367,7 @@ class ImageHBox(gtk.HBox):
                 pixbuf = pixbuf.rotate_simple(gdk.PIXBUF_ROTATE_COUNTERCLOCKWISE)
     
         # scale to size
-        pixbuf = common.scale2pixbuf(100, 100, pixbuf)
+        pixbuf = common.scale2pixbuf(MAX_THUMBNAIL_SIZE, MAX_THUMBNAIL_SIZE, pixbuf)
         if not imageDownloaded:
             # lighten it
             self.white.composite(pixbuf, 0, 0, pixbuf.props.width, pixbuf.props.height, 0, 0, 1.0, 1.0, gtk.gdk.INTERP_HYPER, 180)
@@ -3897,13 +3902,11 @@ def start ():
         cmd_line(_("Using") + " GnomeVFS")
         gdk.threads_init()
         
+    cmd_line(_("Using") + " pyexiv2 " + metadata.version_info())
 
     display_queue.open("rw")
     tube.tube_add_watch(display_queue, updateDisplay)
-#    if using_gio:
-#        pass
-        # gobject.threads_enter()
-#    else:
+
     gdk.threads_enter()
 
     # run only a single instance of the application 
@@ -3918,10 +3921,7 @@ def start ():
         app = dbus.Interface (object, config.DBUS_NAME)
     
     app.start()
-#    if using_gio:
-#        pass
-        # gobject.threads_leave() 
-#    else:
+
     gdk.threads_leave()    
 
 if __name__ == "__main__":
