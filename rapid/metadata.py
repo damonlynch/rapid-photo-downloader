@@ -42,6 +42,7 @@ if 'version_info' in dir(pyexiv2):
     baseclass = eval('pyexiv2.metadata.ImageMetadata')
 else:
     pyexiv2_version = (0,1,'x')
+    # try to determine the version of exiv2 from it's standard output
     try:
         proc = subprocess.Popen(['exiv2', '-V'], stdout=subprocess.PIPE)
         output = proc.communicate()[0]
@@ -49,7 +50,8 @@ else:
         output = None
         exiv2_version = None
     if output:
-        # determine the version of exiv2 from it's standard output
+        # assume output contains the line 'exiv2 0.x' or possibly
+        # 'exiv2 0.x.x'
         start = output.find('exiv2 ')
         if start < 0:
             exiv2_version = None            
@@ -115,7 +117,7 @@ class MetaData(baseclass):
 
     """
     
-    __version__ = str(pyexiv2_version[0]) + str(pyexiv2_version[1])
+    __version01__ = pyexiv2_version[0] == 0 and pyexiv2_version[1] == 1
 
     def aperture(self, missing=''):
         """ 
@@ -411,7 +413,7 @@ class MetaData(baseclass):
         is not 0, then it will search for the smallest thumbnail that 
         matches the size required 
         """
-        if self.__version__ == "01":
+        if self.__version01__:
             return pyexiv2.Image.getThumbnailData(self)[1]
 
         else:
@@ -428,19 +430,19 @@ class MetaData(baseclass):
                 return thumbnail.data
                 
     def read(self):
-        if self.__version__ == "01":
+        if self.__version01__:
             self.readMetadata()
         else:
             pyexiv2.metadata.ImageMetadata.read(self)
             
     def exifKeys(self):
-        if self.__version__ == "01":
+        if self.__version01__:
             return pyexiv2.Image.exifKeys(self)
         else:
             return self.exif_keys
             
     def __getitem__(self, key):
-        if self.__version__ == "01":
+        if self.__version01__:
             return pyexiv2.Image.__getitem__(self, key)
         else:
             return pyexiv2.metadata.ImageMetadata.__getitem__(self, key).raw_value

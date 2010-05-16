@@ -2352,13 +2352,14 @@ class ImageHBox(gtk.HBox):
                 pixbuf = pbloader.get_pixbuf()  
             except:
                 log_dialog.addMessage(thread_id, config.WARNING, 
-                                _('Thumbnail cannot be displayed'), filename, 
+                                _("Image thumbnail could not be extracted"), filename, 
                                 _('It may be corrupted'))
                 pixbuf = self.missingThumbnail
 
         if not pixbuf:
+            # get_pixbuf() can return None if not could not render the image
             log_dialog.addMessage(thread_id, config.WARNING, 
-                            _('Thumbnail cannot be displayed'), filename, 
+                            _("Image thumbnail could not be extracted"), filename, 
                             _('It may be corrupted'))
             pixbuf = self.missingThumbnail
         else:
