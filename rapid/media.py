@@ -21,6 +21,7 @@ import os
 
 import config
 import common
+import metadata
 
 import operator
 
@@ -55,7 +56,7 @@ def isBackupMedia(path, identifier, writeable=True):
     
 def isImage(fileName):
     ext = os.path.splitext(fileName)[1].lower()[1:]
-    return (ext in config.RAW_FILE_EXTENSIONS) or (ext in config.NON_RAW_IMAGE_FILE_EXTENSIONS)
+    return (ext in metadata.RAW_FILE_EXTENSIONS) or (ext in metadata.NON_RAW_IMAGE_FILE_EXTENSIONS)
 
 class Media:
     """ Generic class for media holding images """

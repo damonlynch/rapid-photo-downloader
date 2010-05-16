@@ -3886,7 +3886,7 @@ def start ():
         atexit.register(programStatus)
         
     if options.extensions:
-        exts = config.RAW_FILE_EXTENSIONS + config.NON_RAW_IMAGE_FILE_EXTENSIONS
+        exts = metadata.RAW_FILE_EXTENSIONS + metadata.NON_RAW_IMAGE_FILE_EXTENSIONS
         v = ''
         for e in exts[:-1]:
             v += '%s, ' % e.upper()
@@ -3894,6 +3894,9 @@ def start ():
         print v
         sys.exit(0)
 
+    cmd_line(_("Rapid Photo Downloader") + " %s" % config.version)
+    cmd_line(_("Using") + " pyexiv2 " + metadata.version_info())
+    cmd_line(_("Using") + " exiv2 " + metadata.exiv2_version_info())
     if using_gio:
         cmd_line(_("Using") + " GIO")
         gobject.threads_init()
@@ -3902,7 +3905,7 @@ def start ():
         cmd_line(_("Using") + " GnomeVFS")
         gdk.threads_init()
         
-    cmd_line(_("Using") + " pyexiv2 " + metadata.version_info())
+    
 
     display_queue.open("rw")
     tube.tube_add_watch(display_queue, updateDisplay)

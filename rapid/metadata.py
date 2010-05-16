@@ -20,6 +20,7 @@
 import re
 import datetime
 import sys
+import subprocess
 import config
 
 try:
@@ -28,24 +29,84 @@ except ImportError:
     sys.stderr.write("You need to install pyexiv2, the python binding for exiv2, to run this program.\n" )
     sys.exit(1)
     
-#only pyexiv2 <= 0.1.1 do not use the "Rational" class 
+#only pyexiv2 <= 0.1.1 does not use the "Rational" class 
 if 'Rational' in dir(pyexiv2):
     usesRational = True
 else:
     usesRational = False
-    
+
+#get versions of pyexiv2 and exiv2 libraries
 if 'version_info' in dir(pyexiv2):
     pyexiv2_version = pyexiv2.version_info
+    exiv2_version = pyexiv2.exiv2_version_info
     baseclass = eval('pyexiv2.metadata.ImageMetadata')
 else:
     pyexiv2_version = (0,1,'x')
+    try:
+        proc = subprocess.Popen(['exiv2', '-V'], stdout=subprocess.PIPE)
+        output = proc.communicate()[0]
+    except:
+        output = None
+        exiv2_version = None
+    if output:
+        # determine the version of exiv2 from it's standard output
+        start = output.find('exiv2 ')
+        if start < 0:
+            exiv2_version = None            
+        else:
+            end = output.find('\n', start)
+            if end:
+                exiv2_v = output[6:end]
+            else:
+                exiv2_v = output[6:]
+            
+            exiv2_version = []
+            dot = exiv2_v.find('.')
+            while dot > 0:
+                exiv2_version += [int(exiv2_v[:dot])]
+                exiv2_v = exiv2_v[dot+1:]
+                dot = exiv2_v.find('.')
+            exiv2_version += [int(exiv2_v)]
+            exiv2_version = tuple(exiv2_version) 
+            
+        
     baseclass = eval('pyexiv2.Image')
 
+def __version_info(version):
+    if not version:
+        return ''
+    else:
+        v = ''
+        for i in version:
+            v += '.%s' % i
+        return v[1:]    
+    
 def version_info():
-    v = "%s.%s" % (pyexiv2_version[0], pyexiv2_version[1])
-    if len(pyexiv2_version) >= 3:
-        v += ".%s" % pyexiv2_version[2]
-    return v
+    return __version_info(pyexiv2_version)
+    
+def exiv2_version_info():
+    return __version_info(exiv2_version)    
+
+RAW_FILE_EXTENSIONS = ['arw', 'dcr', 'cr2', 'crw',  'dng', 'mef', 'mos', 'mrw', 
+                        'nef', 'orf', 'pef', 'raf', 'raw', 'sr2']
+
+#exiv2 0.18.1 introduces support for Panasonic .RW2 files
+#pyexiv2 in combination with exiv2 0.18 segfaults when trying to read an
+#RW2 files, so we should not read those!
+
+if exiv2_version[0] > 0:
+    RAW_FILE_EXTENSIONS += ['rw2']
+else:
+    if exiv2_version[1] > 18:
+        RAW_FILE_EXTENSIONS += ['rw2']
+    else:
+        if len(exiv2_version) > 2:
+            if exiv2_version[2] >= 1:
+                RAW_FILE_EXTENSIONS += ['rw2']
+                
+RAW_FILE_EXTENSIONS.sort()
+
+NON_RAW_IMAGE_FILE_EXTENSIONS = ['jpg', 'jpe', 'jpeg', 'tif', 'tiff']
 
 
 class MetaData(baseclass):

@@ -9,6 +9,14 @@ other brand cameras can be displayed. This fixes bugs #369640 and #570378.
 
 Please note pyexiv2 0.2.x requires exiv2 0.1.9 or above.
 
+Rapid Photo Downloader will still work with pyexiv2 0.1.x. However it will not
+be able to display the thumbnails of some brands of camera.
+
+If the Rapid Photo Downloader  detects version 0.18.1 or higher of the exiv2
+library, it will download Panasonic's RW2 files. For Rapid Photo Downloader to
+be able to detect which version of the exiv2 library you have, you must either 
+be running pyexiv2 >= 0.2.0, or have installed exiv2.
+
 Further work was done to fix bug #505492, to handle cases where the system
 notification system is not working properly.
 
