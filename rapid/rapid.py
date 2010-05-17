@@ -1435,7 +1435,7 @@ class CopyPhotos(Thread):
             
             def gio_scan(path, imageSizeSum):
                 """recursive function to scan a directory and its subdirectories
-                for images """
+                for images and possibly videos"""
                 
                 children = path.enumerate_children('standard::name,standard::type,standard::size,time::modified')
 
@@ -1457,7 +1457,8 @@ class CopyPhotos(Thread):
                             return None
                     elif child.get_file_type() == gio.FILE_TYPE_REGULAR:
                         name = child.get_name()
-                        if media.isImage(name):
+                        if (DOWNLOAD_VIDEO and (media.isImage(name) or media.isVideo(name)) or 
+                            ((not DOWNLOAD_VIDEO) and media.isImage(name))):
                             size = child.get_size()
                             images.append((name, path.get_path(), size, child.get_modification_time()),)
                             imageSizeSum += size
@@ -1480,14 +1481,17 @@ class CopyPhotos(Thread):
                             display_queue.close("rw")
                             return
                         
-                        if media.isImage(name):
+                        if (DOWNLOAD_VIDEO and (media.isImage(name) or media.isVideo(name)) or 
+                            ((not DOWNLOAD_VIDEO) and media.isImage(name))):
                             image = os.path.join(root, name)
                             size = os.path.getsize(image)
                             modificationTime = os.path.getmtime(image)
-                            images.append((name, root, size,  modificationTime),)
+                            images.append((name, root, size, modificationTime),)
                             imageSizeSum += size
+                            
             else:
                 # using gio and have a volume
+                # make call to recursive function to scan volume
                 imageSizeSum = gio_scan(self.cardMedia.volume.volume.get_root(), imageSizeSum)
                 if imageSizeSum == None:
                     # thread exiting
@@ -1610,78 +1614,82 @@ class CopyPhotos(Thread):
                        needMetaDataToCreateUniqueSubfolderName):
             skipImage = alreadyDownloaded = False
             sequence_to_use = None
-            try:
-                imageMetadata = metadata.MetaData(image)
-            except IOError:
-                logError(config.CRITICAL_ERROR, _("Could not open image"), 
-                                _("Source: %s") % image, 
-                                IMAGE_SKIPPED)
-                skipImage = True
-                imageMetadata =  newName = newFile = path = subfolder = None
+            if media.isVideo(name):
+                    skipImage = True
+                    imageMetadata =  newName = newFile = path = subfolder = None                
             else:
                 try:
-                    # this step can fail if the source image is corrupt
-                    imageMetadata.read()
-                except:
+                    imageMetadata = metadata.MetaData(image)
+                except IOError:
+                    logError(config.CRITICAL_ERROR, _("Could not open image"), 
+                                    _("Source: %s") % image, 
+                                    IMAGE_SKIPPED)
                     skipImage = True
-
-                
-                if not skipImage:
-
-                    if not imageMetadata.exifKeys() and (needMetaDataToCreateUniqueSubfolderName or 
-                                                         (needMetaDataToCreateUniqueImageName and 
-                                                         not addUniqueIdentifier)):
-                        skipImage = True
-                        
-                if skipImage:
-                    logError(config.SERIOUS_ERROR, _("Image has no metadata"), 
-                                        _("Metadata is essential for generating subfolders / image names.\nSource: %s") % image, 
-                                        IMAGE_SKIPPED)
-                    newName = newFile = path = subfolder = None
+                    imageMetadata =  newName = newFile = path = subfolder = None
                 else:
-                    subfolder, problem = self.subfolderPrefsFactory.generateNameUsingPreferences(
-                                                            imageMetadata, name, 
-                                                            self.stripCharacters)
-        
-                    if problem:
-                        logError(config.WARNING, 
-                            _("Subfolder name could not be properly generated. Check to ensure there is sufficient image metadata."),
-                            _("Subfolder: %(subfolder)s\nImage: %(image)s\nProblem: %(problem)s") % 
-                            {'subfolder': subfolder, 'image': image, 'problem': problem})
-                    
-                    if self.prefs.synchronize_raw_jpg and usesSequenceElements:
-                        image_name, image_ext = os.path.splitext(name)
-                        with self.downloadedFilesLock:
-                            i, sequence_to_use = downloaded_files.matching_pair(image_name, image_ext, imageMetadata.dateTime(), imageMetadata.subSeconds())
-                            if i == -1:
-                                # this exact file has already been downloaded (same extension, same filename, and same exif date time subsecond info)
-                                if not addUniqueIdentifier:
-                                    # there is no point to download it, as there is no way a unique filename will be generated
-                                    alreadyDownloaded = skipImage = True
-                            elif i == -99:
-                                i1_ext, i1_date_time, i1_subseconds = downloaded_files.extExifDateTime(image_name)
-                                sameFileNameDifferentExif("%s%s" % (image_name, i1_ext), i1_date_time, i1_subseconds, name, imageMetadata.dateTime(), imageMetadata.subSeconds())
-                           
-                    
-                    # pass the subfolder the image will go into, as this is needed to determine subfolder sequence numbers 
-                    # indicate that sequences chosen should be queued
-                    
-                    if not skipImage or alreadyDownloaded:
-                        newName, problem = self.imageRenamePrefsFactory.generateNameUsingPreferences(
-                                                                imageMetadata, name, self.stripCharacters,  subfolder,  
-                                                                sequencesPreliminary = True,
-                                                                sequence_to_use = sequence_to_use)
-                                                                
-                        path = os.path.join(baseDownloadDir, subfolder)
-                        newFile = os.path.join(path, newName)
-                    
-                    if not newName:
+                    try:
+                        # this step can fail if the source image is corrupt
+                        imageMetadata.read()
+                    except:
                         skipImage = True
-                    if not alreadyDownloaded:
-                        checkProblemWithImageNameGeneration(newName, path, image,  problem)
-                    else:
-                        imageAlreadyExists(image, newFile)
+
+                    
+                    if not skipImage:
+
+                        if not imageMetadata.exifKeys() and (needMetaDataToCreateUniqueSubfolderName or 
+                                                             (needMetaDataToCreateUniqueImageName and 
+                                                             not addUniqueIdentifier)):
+                            skipImage = True
+                            
+                    if skipImage:
+                        logError(config.SERIOUS_ERROR, _("Image has no metadata"), 
+                                            _("Metadata is essential for generating subfolders / image names.\nSource: %s") % image, 
+                                            IMAGE_SKIPPED)
                         newName = newFile = path = subfolder = None
+                    else:
+                        subfolder, problem = self.subfolderPrefsFactory.generateNameUsingPreferences(
+                                                                imageMetadata, name, 
+                                                                self.stripCharacters)
+            
+                        if problem:
+                            logError(config.WARNING, 
+                                _("Subfolder name could not be properly generated. Check to ensure there is sufficient image metadata."),
+                                _("Subfolder: %(subfolder)s\nImage: %(image)s\nProblem: %(problem)s") % 
+                                {'subfolder': subfolder, 'image': image, 'problem': problem})
+                        
+                        if self.prefs.synchronize_raw_jpg and usesSequenceElements:
+                            image_name, image_ext = os.path.splitext(name)
+                            with self.downloadedFilesLock:
+                                i, sequence_to_use = downloaded_files.matching_pair(image_name, image_ext, imageMetadata.dateTime(), imageMetadata.subSeconds())
+                                if i == -1:
+                                    # this exact file has already been downloaded (same extension, same filename, and same exif date time subsecond info)
+                                    if not addUniqueIdentifier:
+                                        # there is no point to download it, as there is no way a unique filename will be generated
+                                        alreadyDownloaded = skipImage = True
+                                elif i == -99:
+                                    i1_ext, i1_date_time, i1_subseconds = downloaded_files.extExifDateTime(image_name)
+                                    sameFileNameDifferentExif("%s%s" % (image_name, i1_ext), i1_date_time, i1_subseconds, name, imageMetadata.dateTime(), imageMetadata.subSeconds())
+                               
+                        
+                        # pass the subfolder the image will go into, as this is needed to determine subfolder sequence numbers 
+                        # indicate that sequences chosen should be queued
+                        
+                        if not skipImage or alreadyDownloaded:
+                            newName, problem = self.imageRenamePrefsFactory.generateNameUsingPreferences(
+                                                                    imageMetadata, name, self.stripCharacters,  subfolder,  
+                                                                    sequencesPreliminary = True,
+                                                                    sequence_to_use = sequence_to_use)
+                                                                    
+                            path = os.path.join(baseDownloadDir, subfolder)
+                            newFile = os.path.join(path, newName)
+                        
+                        if not newName:
+                            skipImage = True
+                        if not alreadyDownloaded:
+                            checkProblemWithImageNameGeneration(newName, path, image,  problem)
+                        else:
+                            imageAlreadyExists(image, newFile)
+                            newName = newFile = path = subfolder = None
                     
             return (skipImage,  imageMetadata,  newName,  newFile,  path,  subfolder, sequence_to_use)
         
@@ -3900,6 +3908,11 @@ def start ():
     cmd_line(_("Rapid Photo Downloader") + " %s" % config.version)
     cmd_line(_("Using") + " pyexiv2 " + metadata.version_info())
     cmd_line(_("Using") + " exiv2 " + metadata.exiv2_version_info())
+    if DOWNLOAD_VIDEO:
+        cmd_line(_("Using") + " kaa " + videometadata.version_info())
+    else:
+        cmd_line(_("Video downloading functionality disabled.\nTo download videos, please install the kaa metadata package for python."))
+        
     if using_gio:
         cmd_line(_("Using") + " GIO")
         gobject.threads_init()

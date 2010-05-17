@@ -28,6 +28,10 @@ except ImportError:
 VIDEO_FILE_EXTENSIONS = ['mov', 'avi', 'mp4']
 
 if DOWNLOAD_VIDEO:
+    
+    def version_info():
+        return str(kaa.metadata.VERSION)
+    
     class VideoMetaData():
         def __init__(self, filename):
             self.info = kaa.metadata.parse(filename)

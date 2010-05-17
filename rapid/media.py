@@ -22,6 +22,7 @@ import os
 import config
 import common
 import metadata
+import videometadata
 
 import operator
 
@@ -58,7 +59,7 @@ def isImage(fileName):
     ext = os.path.splitext(fileName)[1].lower()[1:]
     return (ext in metadata.RAW_FILE_EXTENSIONS) or (ext in metadata.NON_RAW_IMAGE_FILE_EXTENSIONS)
     
-def isVideo(filename):
+def isVideo(fileName):
     ext = os.path.splitext(fileName)[1].lower()[1:]
     return (ext in videometadata.VIDEO_FILE_EXTENSIONS)
 
