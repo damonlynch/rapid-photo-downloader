@@ -75,6 +75,8 @@ from media import CardMedia
 import media
 
 import metadata
+import videometadata
+from videometadata import DOWNLOAD_VIDEO
 
 import renamesubfolderprefs as rn 
 
@@ -1502,7 +1504,7 @@ class CopyPhotos(Thread):
                 # It refers to the actual number of images that can be copied. For example, the user might see the following:
                 # '0 of 512 images copied'.
                 # This particular text is displayed to the user before the download has started.
-                display = _("0 of %s images copied") % noImages
+                display = _("0 of %s images") % noImages
                 display_queue.put((media_collection_treeview.updateCard,  (self.thread_id,  self.cardMedia.sizeOfImages(), noImages)))
                 display_queue.put((media_collection_treeview.updateProgress, (self.thread_id, 0.0, display, 0)))
                 display_queue.put((self.parentApp.timeRemaining.add,  (self.thread_id,  imageSizeSum)))
@@ -2121,7 +2123,7 @@ class CopyPhotos(Thread):
             percentComplete = (sizeDownloaded / sizeImages) * 100
             if sizeDownloaded == sizeImages:
                 self.downloadComplete = True
-            progressBarText = _("%(number)s of %(total)s images copied") % {'number':  i + 1, 'total': noImages}
+            progressBarText = _("%(number)s of %(total)s images") % {'number':  i + 1, 'total': noImages}
             display_queue.put((media_collection_treeview.updateProgress, (self.thread_id, percentComplete, progressBarText, size)))
             
             i += 1

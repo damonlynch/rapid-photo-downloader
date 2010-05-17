@@ -24,6 +24,8 @@ Fixed bug #483222: sometimes images could not be downloaded to NTFS partitions.
 This fix was a welcome side effect of using GIO to copy images, instead of 
 relying on the python standard libary.
 
+Preliminary functionality to download videos is now incorporated. 
+
 
 Version 0.1.3
 -------------

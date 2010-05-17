@@ -21,6 +21,7 @@ Depends: ${python:Depends},
          python-pyexiv2 (>= 0.1.1),
          python-notify,
          librsvg2-common,
+         python-kaa-metadata,
          gnome-icon-theme
 Description: Photo downloader (importer) from cameras, memory cards other devices
  Rapid Photo Downloader is written by a photographer for professional and

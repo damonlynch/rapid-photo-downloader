@@ -57,6 +57,10 @@ def isBackupMedia(path, identifier, writeable=True):
 def isImage(fileName):
     ext = os.path.splitext(fileName)[1].lower()[1:]
     return (ext in metadata.RAW_FILE_EXTENSIONS) or (ext in metadata.NON_RAW_IMAGE_FILE_EXTENSIONS)
+    
+def isVideo(filename):
+    ext = os.path.splitext(fileName)[1].lower()[1:]
+    return (ext in videometadata.VIDEO_FILE_EXTENSIONS)
 
 class Media:
     """ Generic class for media holding images """

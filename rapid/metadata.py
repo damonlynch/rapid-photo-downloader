@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: latin1 -*-
 
-### Copyright (C) 2007 Damon Lynch <damonlynch@gmail.com>
+### Copyright (C) 2007-10 Damon Lynch <damonlynch@gmail.com>
 
 ### This program is free software; you can redistribute it and/or modify
 ### it under the terms of the GNU General Public License as published by
@@ -519,7 +519,6 @@ if __name__ == '__main__':
         m = MetaData(sys.argv[1])
         m.read()
         
-    print "pyexiv2 version 0.%s" % m.__version__
         
     
         
