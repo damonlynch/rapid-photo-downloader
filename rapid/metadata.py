@@ -22,6 +22,7 @@ import datetime
 import sys
 import subprocess
 import config
+import types
 
 try:
     import pyexiv2
@@ -89,16 +90,19 @@ def version_info():
 def exiv2_version_info():
     return __version_info(exiv2_version)    
 
-RAW_FILE_EXTENSIONS = ['arw', 'dcr', 'cr2', 'crw',  'dng', 'mef', 'mos', 'mrw', 
+RAW_FILE_EXTENSIONS = ['arw', 'dcr', 'cr2', 'crw',  'dng', 'mos', 'mrw', 
                         'nef', 'orf', 'pef', 'raf', 'raw', 'sr2']
 
 #exiv2 0.18.1 introduces support for Panasonic .RW2 files
 #pyexiv2 in combination with exiv2 0.18 segfaults when trying to read an
-#RW2 files, so we should not read those!
+#RW2 files, so we should not read those! exiv2 0.17 & pyexiv2 segfaults
+#with MEF files.
 
 if exiv2_version[0] > 0:
-    RAW_FILE_EXTENSIONS += ['rw2']
+    RAW_FILE_EXTENSIONS += ['rw2', 'mef']
 else:
+    if exiv2_version[1] > 17:
+        RAW_FILE_EXTENSIONS += ['mef']
     if exiv2_version[1] > 18:
         RAW_FILE_EXTENSIONS += ['rw2']
     else:
@@ -255,7 +259,7 @@ class MetaData(baseclass):
             
     def cameraSerial(self,  missing=''):
         try:
-            keys = self.exifKeys()
+            keys = self.rpd_keys()
             if 'Exif.Canon.SerialNumber' in keys:
                 v = self['Exif.Canon.SerialNumber']
             elif 'Exif.Nikon3.SerialNumber' in keys:
@@ -280,7 +284,7 @@ class MetaData(baseclass):
             
     def shutterCount(self,  missing=''):
         try:
-            keys = self.exifKeys()
+            keys = self.rpd_keys()
             if 'Exif.Nikon3.ShutterCount' in keys:
                 v = self['Exif.Nikon3.ShutterCount']
             elif 'Exif.Canon.FileNumber' in keys:
@@ -376,7 +380,7 @@ class MetaData(baseclass):
         
         Returns missing either metadata value is not present.
         """
-        keys = self.exifKeys()
+        keys = self.rpd_keys()
         try:
             if "Exif.Photo.DateTimeOriginal" in keys:
                 v = self["Exif.Photo.DateTimeOriginal"]
@@ -396,13 +400,18 @@ class MetaData(baseclass):
     def orientation(self, missing=''):
         """
         Returns the orientation of the image, as recorded by the camera
+        Return type int
         """
         try:
-            return self['Exif.Image.Orientation']
+            v = self['Exif.Image.Orientation']
+            if isinstance(v, types.StringType):
+                # pyexiv2 >= 0.2 returns a string, not an int
+                v = int(v)
+            return v
         except:
             return missing
             
-    # following class methods are designed to cope with both
+    # following class methods are designed to cope with using both
     # pyexiv2 0.1.x and pyexiv2 0.2.x
             
     def getThumbnailData(self, max_size_needed=0):
@@ -412,6 +421,9 @@ class MetaData(baseclass):
         If the image supports multiple thumbnails, and max_size_needed
         is not 0, then it will search for the smallest thumbnail that 
         matches the size required 
+        
+        The image will be in whatever format the thumbnail itself is, 
+        typically a jpeg or tiff.
         """
         if self.__version01__:
             return pyexiv2.Image.getThumbnailData(self)[1]
@@ -435,7 +447,7 @@ class MetaData(baseclass):
         else:
             pyexiv2.metadata.ImageMetadata.read(self)
             
-    def exifKeys(self):
+    def rpd_keys(self):
         if self.__version01__:
             return pyexiv2.Image.exifKeys(self)
         else:
@@ -519,11 +531,6 @@ if __name__ == '__main__':
         m = MetaData(sys.argv[1])
         m.read()
         
-        
-    
-        
-#    for i in m.exifKeys():
-#        print i
     print "f"+ m.aperture('missing ')
     print "ISO " + m.iso('missing ')
     print m.exposureTime(missing='missing ') + " sec"

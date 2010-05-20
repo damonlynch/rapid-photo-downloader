@@ -25,6 +25,7 @@ try:
 except ImportError:
     DOWNLOAD_VIDEO = False
 
+VIDEO_THUMBNAIL_FILE_EXTENSIONS = ['thm']
 VIDEO_FILE_EXTENSIONS = ['mov', 'avi', 'mp4']
 
 if DOWNLOAD_VIDEO:
@@ -35,6 +36,9 @@ if DOWNLOAD_VIDEO:
     class VideoMetaData():
         def __init__(self, filename):
             self.info = kaa.metadata.parse(filename)
+            
+        def rpd_keys(self):
+            return self.info.keys()
             
         def _get(self, key, missing, stream=None):
             if stream != None:

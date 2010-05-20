@@ -77,7 +77,7 @@ ORDER_KEY = "__order__"
 
 # PLEASE NOTE: these values are duplicated in a dummy class whose function
 # is to have them put into the translation template. If you change the values below
-# then change the value in class i18TranslateMeThanks as well!! Thanks!! 
+# then you MUST change the value in class i18TranslateMeThanks as well!! 
 
 # *** Level 0
 DATE_TIME = 'Date time'
@@ -95,6 +95,7 @@ SEPARATOR = os.sep
 IMAGE_DATE = 'Image date'
 TODAY = 'Today'
 YESTERDAY = 'Yesterday'
+VIDEO_DATE = 'Video date'
 
 # File name 
 NAME_EXTENSION = 'Name + extension'
@@ -114,6 +115,12 @@ SHORT_CAMERA_MODEL_HYPHEN = 'Hyphenated short camera model'
 SERIAL_NUMBER = 'Serial number'
 SHUTTER_COUNT = 'Shutter count'
 OWNER_NAME = 'Owner name'
+
+# Video metadata
+CODEC = 'Codec'
+WIDTH = 'Width'
+HEIGHT = 'Height'
+FPS = 'Frames Per Second'
 
 #Image sequences
 DOWNLOAD_SEQ_NUMBER = 'Downloads today'
@@ -158,7 +165,8 @@ SEQUENCE_NUMBER_7 = "Seven digits"
 
 SUBSECONDS = 'Subseconds'
 
-# ****** note if changing LIST_DATE_TIME_L2, update the default subfolder preference below :D *****
+# ****** NOTE 1: if changing LIST_DATE_TIME_L2, you MUST update the default subfolder preference below *****
+# ****** NOTE 2: if changing LIST_DATE_TIME_L2, you MUST update DATE_TIME_CONVERT below *****
 LIST_DATE_TIME_L2 = ['YYYYMMDD', 'YYYY-MM-DD','YYMMDD', 'YY-MM-DD', 
                     'MMDDYYYY', 'MMDDYY', 'MMDD', 
                     'DDMMYYYY', 'DDMMYY', 'YYYY', 'YY', 
@@ -168,7 +176,10 @@ LIST_DATE_TIME_L2 = ['YYYYMMDD', 'YYYY-MM-DD','YYMMDD', 'YY-MM-DD',
 
 LIST_IMAGE_DATE_TIME_L2 = LIST_DATE_TIME_L2 + [SUBSECONDS]
 
-DEFAULT_SUBFOLDER_PREFS = [DATE_TIME, IMAGE_DATE, LIST_DATE_TIME_L2[9],  '/',  '', '', DATE_TIME, IMAGE_DATE, LIST_DATE_TIME_L2[0]]
+DEFAULT_SUBFOLDER_PREFS = [DATE_TIME, IMAGE_DATE, LIST_DATE_TIME_L2[9], '/',  '', '', DATE_TIME, IMAGE_DATE, LIST_DATE_TIME_L2[0]]
+DEFAULT_VIDEO_SUBFOLDER_PREFS = [DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[9], '/',  '', '', DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[0]]
+
+DEFAULT_VIDEO_RENAME_PREFS = [DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[0], TEXT, '-', '', DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[14], TEXT, '-', '', SEQUENCES, DOWNLOAD_SEQ_NUMBER, SEQUENCE_NUMBER_1, FILENAME, EXTENSION, LOWERCASE]
 
 class i18TranslateMeThanks:
     """ this class is never used in actual running code
@@ -184,6 +195,7 @@ class i18TranslateMeThanks:
         # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#jobcode
         _('Job code')
         _('Image date')
+        _('Video date')
         _('Today')
         _('Yesterday')
         # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamefilename
@@ -216,6 +228,10 @@ class i18TranslateMeThanks:
         _('Shutter count')
         # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
         _('Owner name')
+        _('Codec')
+        _('Width')
+        _('Height')
+        _('Frames Per Second')
         # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#sequencenumbers
         _('Downloads today')
         # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#sequencenumbers
@@ -338,12 +354,20 @@ LIST_SHUTTER_COUNT_L2 = [
 
 # Level 1
 LIST_DATE_TIME_L1 = [IMAGE_DATE, TODAY, YESTERDAY]
+LIST_VIDEO_DATE_TIME_L1 = [VIDEO_DATE, TODAY, YESTERDAY]
 
 DICT_DATE_TIME_L1 = {
                     IMAGE_DATE: LIST_IMAGE_DATE_TIME_L2,
                     TODAY: LIST_DATE_TIME_L2,
                     YESTERDAY: LIST_DATE_TIME_L2,
                     ORDER_KEY: LIST_DATE_TIME_L1
+                  }
+                  
+VIDEO_DICT_DATE_TIME_L1 = {
+                    VIDEO_DATE: LIST_IMAGE_DATE_TIME_L2,
+                    TODAY: LIST_DATE_TIME_L2,
+                    YESTERDAY: LIST_DATE_TIME_L2,
+                    ORDER_KEY: LIST_VIDEO_DATE_TIME_L1
                   }
 
 
@@ -372,7 +396,9 @@ LIST_METADATA_L1 = [APERTURE, ISO, EXPOSURE_TIME, FOCAL_LENGTH,
                     SHORT_CAMERA_MODEL_HYPHEN, 
                     SERIAL_NUMBER, 
                     SHUTTER_COUNT, 
-                    OWNER_NAME]                  
+                    OWNER_NAME]
+                    
+LIST_VIDEO_METADATA_L1 = [CODEC, WIDTH, HEIGHT, FPS]
 
 DICT_METADATA_L1 = {
                     APERTURE: None,
@@ -388,7 +414,14 @@ DICT_METADATA_L1 = {
                     OWNER_NAME: LIST_CASE_L2, 
                     ORDER_KEY: LIST_METADATA_L1
                 }
-                     
+
+DICT_VIDEO_METADATA_L1 = {
+                    CODEC: LIST_CASE_L2,
+                    WIDTH: None,
+                    HEIGHT: None,
+                    FPS: None,
+                    ORDER_KEY: LIST_VIDEO_METADATA_L1
+                    }
 
 LIST_SEQUENCE_L1 = [
                     DOWNLOAD_SEQ_NUMBER,  
@@ -412,6 +445,8 @@ DICT_SEQUENCE_L1 = {
 LIST_IMAGE_RENAME_L0 = [DATE_TIME, TEXT, FILENAME, METADATA, 
                         SEQUENCES,  JOB_CODE]
                         
+LIST_VIDEO_RENAME_L0 = LIST_IMAGE_RENAME_L0
+                        
 
 DICT_IMAGE_RENAME_L0 = {
                     DATE_TIME: DICT_DATE_TIME_L1,
@@ -421,6 +456,16 @@ DICT_IMAGE_RENAME_L0 = {
                     SEQUENCES: DICT_SEQUENCE_L1, 
                     JOB_CODE: None, 
                     ORDER_KEY: LIST_IMAGE_RENAME_L0
+                    }
+                    
+DICT_VIDEO_RENAME_L0 = {
+                    DATE_TIME: VIDEO_DICT_DATE_TIME_L1,
+                    TEXT: None,
+                    FILENAME: DICT_FILENAME_L1,
+                    METADATA: DICT_VIDEO_METADATA_L1,
+                    SEQUENCES: DICT_SEQUENCE_L1,
+                    JOB_CODE: None,
+                    ORDER_KEY: LIST_VIDEO_RENAME_L0
                     }
 
 LIST_SUBFOLDER_L0 = [DATE_TIME, TEXT, FILENAME, METADATA, JOB_CODE,  SEPARATOR]
@@ -785,6 +830,7 @@ class ImageRenamePreferences:
             self.defaultPrefs = [FILENAME, NAME_EXTENSION, ORIGINAL_CASE]
             self.defaultRow = self.defaultPrefs
             self.stripForwardSlash = True
+            self.L1DateCheck = IMAGE_DATE #used in _getDateComponent()
             
 
 
@@ -819,19 +865,42 @@ class ImageRenamePreferences:
     def setJobCode(self,  job_code):
         self.job_code = job_code
         
+    
+    def _fixMangledDateTime(self, d):
+        """ Some EXIF dates are badly formed. Try to fix them """
+        
+        _datetime = d.strip()
+        # remove any weird characters at the end of the string
+        while _datetime and not _datetime[-1].isdigit():
+            _datetime = _datetime[:-1]
+        _date,  _time = _datetime.split(' ')
+        _datetime = "%s %s" % (_date.replace(":",  "-") ,  _time.replace("-",  ":"))
+        try:
+            d = datetime.datetime.strptime(_datetime, '%Y-%m-%d %H:%M:%S')
+        except:
+            d = None
+        return d
+            
     def _getDateComponent(self):
         """
-        Returns portion of new image / subfolder name based on date time
+        Returns portion of new image / subfolder name based on date time.
+        If the date is missing, will attempt to use the fallback date.
         """
         
         problem = None
-        if self.L1 == IMAGE_DATE:
+
+        if self.L1 == self.L1DateCheck:
             if self.L2 == SUBSECONDS:
                 d = self.photo.subSeconds()
                 problem = _("Subsecond metadata not present in image")
+                if d == '00':
+                    return ('', problem)
+                else:
+                    return (d, None)
             else:
                 d = self.photo.dateTime(missing=None)
-                problem = _("%s metadata is not present in image") % self.L1.lower()
+                problem = _("%s metadata is not present") % self.L1.lower()
+                
         elif self.L1 == TODAY:
             d = datetime.datetime.now()
         elif self.L1 == YESTERDAY:
@@ -841,34 +910,33 @@ class ImageRenamePreferences:
             raise("Date options invalid")
 
         if d:
-            if self.L2 <> SUBSECONDS:
-                
-                if type(d) == type('string'):
-                    # will be a string only if the date time could not be converted in the datetime type
-                    # try to massage badly formed date / times into a valid value
-                    _datetime = d.strip()
-                    # remove any weird characters at the end of the string
-                    while _datetime and not _datetime[-1].isdigit():
-                        _datetime = _datetime[:-1]
-                    _date,  _time = _datetime.split(' ')
-                    _datetime = "%s %s" % (_date.replace(":",  "-") ,  _time.replace("-",  ":"))
-                    try:
-                        d = datetime.datetime.strptime(_datetime, '%Y-%m-%d %H:%M:%S')
-                    except:
-                        v = ''
-                        problem = _('Error in date time component. Value %s appears invalid') % ''
-                        return (v,  problem)
-
+            # if format is not the standard floating point representation
+            # of a date time, there is a problem
+            if type(d) == type('string'):
+                # will be a string only if the date time could not be converted in the datetime type
+                # try to massage badly formed date / times into a valid value
+                d = self._fixMangledDateTime(d)
+                if d is None:
+                    v = ''
+                    problem = _('Error in date time component. Value %s appears invalid') % ''
+                    return (v,  problem)
+        else:
+            if self.fallback_date:
                 try:
-                    return (d.strftime(convertDateForStrftime(self.L2)), None)
+                    d = datetime.datetime.fromtimestamp(self.fallback_date)
                 except:
                     v = ''
-                    problem = _('Error in date time component. Value %s appears invalid') % d
-                    return (v,  problem)
+                    problem = _('Error in date time component. Value %s appears invalid') % ''
+                    return (v,  problem)                    
             else:
-                return (d,  None)
-        else:
-            return ('', problem)
+                return ('', problem)
+        
+        try:
+            return (d.strftime(convertDateForStrftime(self.L2)), None)
+        except:
+            v = ''
+            problem = _('Error in date time component. Value %s appears invalid') % d
+            return (v,  problem)
 
     def _getFilenameComponent(self):
         """
@@ -1037,7 +1105,6 @@ class ImageRenamePreferences:
 
     def _getDownloadsTodaySequenceNo(self):
         problem = None
-            
         v = self._formatSequenceNo(self.sequences.getDownloadsTodayUsingCounter(self.sequenceCounter),  self.L2)
         
         return (v, problem)
@@ -1093,10 +1160,11 @@ class ImageRenamePreferences:
             yield (self.prefList[i], self.prefList[i+1], self.prefList[i+2])
 
 
-    def _generateName(self,  photo,  existingFilename,  stripCharacters,  subfolder,  stripInitialPeriodFromExtension,  sequence):
+    def _generateName(self,  photo,  existingFilename,  stripCharacters,  subfolder,  stripInitialPeriodFromExtension,  sequence, fallback_date):
         self.photo = photo
         self.existingFilename = existingFilename
         self.stripInitialPeriodFromExtension = stripInitialPeriodFromExtension
+        self.fallback_date = fallback_date
             
         name = ''
         problem = ''
@@ -1130,7 +1198,8 @@ class ImageRenamePreferences:
                                     stripCharacters = False,  subfolder=None,  
                                     stripInitialPeriodFromExtension=False, 
                                     sequencesPreliminary = True,
-                                    sequence_to_use = None):
+                                    sequence_to_use = None,
+                                    fallback_date = None):
         """
         Generate a filename for the photo in string format based on user prefs.
         
@@ -1150,7 +1219,7 @@ class ImageRenamePreferences:
             sequence = 0
 
         return self._generateName(photo,  existingFilename,  stripCharacters,  subfolder,  
-                                    stripInitialPeriodFromExtension,  sequence)
+                                    stripInitialPeriodFromExtension,  sequence, fallback_date)
 
     def generateNameSequencePossibilities(self, photo, existingFilename, 
                                     stripCharacters=False,  subfolder=None,  
@@ -1312,16 +1381,26 @@ class ImageRenamePreferences:
         self._getPreferenceWidgets(self.prefsDefnL0, selection, widgets)
         return widgets
 
+class VideoRenamePreferences(ImageRenamePreferences):
+    def __init__(self, prefList, parent, fileSequenceLock=None, sequences=None):    
+        self.prefsDefnL0 = DICT_VIDEO_RENAME_L0
+        self.defaultPrefs = [FILENAME, NAME_EXTENSION, ORIGINAL_CASE]
+        self.defaultRow = self.defaultPrefs
+        self.stripForwardSlash = True
+        self.L1DateCheck = VIDEO_DATE
+        ImageRenamePreferences.__init__(self, prefList, parent, fileSequenceLock, sequences)
+           
 class SubfolderPreferences(ImageRenamePreferences):
     def __init__(self, prefList, parent):
         self.prefsDefnL0 = DICT_SUBFOLDER_L0
         self.defaultPrefs = DEFAULT_SUBFOLDER_PREFS
         self.defaultRow = [DATE_TIME, IMAGE_DATE, LIST_DATE_TIME_L2[0]]
         self.stripForwardSlash = False
+        self.L1DateCheck = IMAGE_DATE
         ImageRenamePreferences.__init__(self, prefList, parent)
         
     def generateNameUsingPreferences(self, photo, existingFilename=None, 
-                                    stripCharacters = False):
+                                    stripCharacters = False, fallback_date = None):
         """
         Generate a filename for the photo in string format based on user prefs.
         
@@ -1332,7 +1411,9 @@ class SubfolderPreferences(ImageRenamePreferences):
 
         subfolders, problem = ImageRenamePreferences.generateNameUsingPreferences(
                                         self, photo, 
-                                        existingFilename, stripCharacters,  stripInitialPeriodFromExtension=True)
+                                        existingFilename, stripCharacters,  
+                                        stripInitialPeriodFromExtension=True, 
+                                        fallback_date=fallback_date)
         # subfolder value must never start with a separator, or else any 
         # os.path.join function call will fail to join a subfolder to its 
         # parent folder
@@ -1394,11 +1475,20 @@ class SubfolderPreferences(ImageRenamePreferences):
         return v
 
 
-class Sequences:
-    """ Holds sequence numbers and letters used in generating filenames"""
-    def __init__(self,  downloadsToday,  storedSequenceNo):
 
-        
+class VideoSubfolderPreferences(SubfolderPreferences):
+    def __init__(self, prefList, parent):
+        SubfolderPreferences.__init__(self, prefList, parent)
+        self.defaultPrefs = DEFAULT_VIDEO_SUBFOLDER_PREFS
+        self.defaultRow = [DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[0]]
+        self.L1DateCheck = VIDEO_DATE
+            
+class Sequences:
+    """ 
+    Holds sequence numbers and letters used in generating filenames.
+    The same instance of this class is shared among all threads.
+    """
+    def __init__(self,  downloadsToday,  storedSequenceNo):
         self.subfolderSequenceNo = {}
         self.sessionSequenceNo = 1
         self.sequenceLetter = 0

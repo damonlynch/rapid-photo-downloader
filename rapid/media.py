@@ -62,6 +62,20 @@ def isImage(fileName):
 def isVideo(fileName):
     ext = os.path.splitext(fileName)[1].lower()[1:]
     return (ext in videometadata.VIDEO_FILE_EXTENSIONS)
+    
+def getVideoThumbnailFile(fullFileName):
+    f = None
+    name, ext = os.path.splitext(fullFileName)
+    for e in videometadata.VIDEO_THUMBNAIL_FILE_EXTENSIONS:
+        if os.path.exists(name + '.' + e):
+            f = name + '.' + e
+            break
+        if os.path.exists(name + '.' + e.upper()):
+            f = name + '.' + e.upper()
+            break
+        
+    return f
+    
 
 class Media:
     """ Generic class for media holding images """
