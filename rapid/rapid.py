@@ -2053,10 +2053,8 @@ class CopyPhotos(Thread):
                 else:
                     orientation = fileMetadata.orientation(missing=None)
             else:
-                # check to see if there is a thumbnail file that can be used
-                thm = media.getVideoThumbnailFile(fullFileName)
-                if thm:
-                    thumbnail = gtk.gdk.pixbuf_new_from_file_at_size(thm,  MAX_THUMBNAIL_SIZE,  MAX_THUMBNAIL_SIZE)
+                thumbnail = fileMetadata.getThumbnailData(MAX_THUMBNAIL_SIZE, tempWorkingDir)
+                if thumbnail:
                     orientation = 1
                 
                 
@@ -2191,7 +2189,7 @@ class CopyPhotos(Thread):
         addUniqueIdentifier = self.prefs.download_conflict_resolution == config.ADD_UNIQUE_IDENTIFIER
         usesImageSequenceElements = self.imageRenamePrefsFactory.usesSequenceElements()
         usesVideoSequenceElements = self.videoRenamePrefsFactory.usesSequenceElements()
-        print "usesVideoSequenceElements:", usesVideoSequenceElements
+        
         usesStoredSequenceNo = self.imageRenamePrefsFactory.usesTheSequenceElement(rn.STORED_SEQ_NUMBER)
         sequences.setUseOfSequenceElements(
             self.imageRenamePrefsFactory.usesTheSequenceElement(rn.SESSION_SEQ_NUMBER), 

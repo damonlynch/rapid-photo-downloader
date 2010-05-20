@@ -19,7 +19,14 @@
 
 DOWNLOAD_VIDEO = True
 
+import os
 import datetime
+import subprocess
+import tempfile
+
+import gtk
+import media
+
 try:
     import kaa.metadata
 except ImportError:
@@ -30,12 +37,20 @@ VIDEO_FILE_EXTENSIONS = ['mov', 'avi', 'mp4']
 
 if DOWNLOAD_VIDEO:
     
+    try:
+        subprocess.check_call(["ffmpegthumbnailer", "-h"], stdout=subprocess.PIPE)
+        ffmpeg = True
+    except:
+        ffmpeg = False
+
+    
     def version_info():
         return str(kaa.metadata.VERSION)
     
     class VideoMetaData():
         def __init__(self, filename):
             self.info = kaa.metadata.parse(filename)
+            self.filename = filename
             
         def rpd_keys(self):
             return self.info.keys()
@@ -78,6 +93,26 @@ if DOWNLOAD_VIDEO:
         def fourcc(self, stream=0, missing=''):
             return self._get('fourcc', missing, stream)
             
+        def getThumbnailData(self, size, tempWorkingDir):
+            thm = media.getVideoThumbnailFile(self.filename)
+            if thm:
+                thumbnail = gtk.gdk.pixbuf_new_from_file_at_size(thm,  size,  size)
+            else:
+                if ffmpeg:
+                    tmp = tempfile.NamedTemporaryFile(dir=tempWorkingDir, prefix="rpd-tmp")
+                    tmp.close()
+                    
+                    thm = os.path.join(tempWorkingDir, tmp.name)
+                    
+                    try:
+                        subprocess.check_call(['ffmpegthumbnailer', '-i', self.filename, '-t', '10', '-o', thm, '-s', str(size)])
+                        thumbnail = gtk.gdk.pixbuf_new_from_file_at_size(thm,  size,  size)
+                        os.unlink(thm)
+                    except:
+                        thumbnail = None                    
+                else:
+                    thumbnail = None
+            return thumbnail
         
         
             
