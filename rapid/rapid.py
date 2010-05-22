@@ -745,6 +745,9 @@ class PreferencesDialog(gnomeglade.Component):
         self._setupBackupTab()
         self._setupAutomationTab()
         self._setupErrorTab()
+        
+        if not DOWNLOAD_VIDEO:
+            self.disableVideoControls()
 
         self.widget.realize()
         
@@ -807,7 +810,8 @@ class PreferencesDialog(gnomeglade.Component):
         self.download_folder_table.set_row_spacing(2, 
                                 hd.VERTICAL_CONTROL_SPACE)
         self._setupTableSpacing(self.rename_example_table)
-        self.devices_table.set_col_spacing(0,   hd.NESTED_CONTROLS_SPACE)        
+        self._setupTableSpacing(self.video_rename_example_table)
+        self.devices_table.set_col_spacing(0, hd.NESTED_CONTROLS_SPACE)        
       
         self._setupTableSpacing(self.backup_table)
         self.backup_table.set_col_spacing(1, hd.NESTED_CONTROLS_SPACE)
@@ -835,7 +839,7 @@ class PreferencesDialog(gnomeglade.Component):
         
     def _setupDownloadFolderTab(self):
         self.download_folder_filechooser_button = gtk.FileChooserButton(
-                            _("Select a folder to download photos to"))
+                            _("Select a folder to download photos and videos to"))
         self.download_folder_filechooser_button.set_current_folder(
                             self.prefs.download_folder)
         self.download_folder_filechooser_button.set_action(
@@ -1335,6 +1339,15 @@ class PreferencesDialog(gnomeglade.Component):
             for c in self._backupControls2:
                 c.set_sensitive(True)
             
+    def disableVideoControls(self):
+        """
+        Disables video preferences if video downloading is disabled
+        (probably because the appropriate libraries to enable
+        video metadata extraction are not installed)
+        """        
+        for c in [self.example_video_filename_label]:
+            c.set_sensitive(False)
+    
     def on_auto_detect_backup_checkbutton_toggled(self, widget):
         self.prefs.backup_device_autodetection = widget.get_active()
         self.updateBackupControlsAuto()
