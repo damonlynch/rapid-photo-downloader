@@ -132,7 +132,7 @@
                                 <child>
                                   <widget class="GtkTable" id="download_folder_table">
                                     <property name="visible">True</property>
-                                    <property name="n_rows">11</property>
+                                    <property name="n_rows">12</property>
                                     <property name="n_columns">3</property>
                                     <child>
                                       <widget class="GtkVBox" id="subfolder_vbox">
@@ -261,8 +261,8 @@
                                       <packing>
                                         <property name="left_attach">1</property>
                                         <property name="right_attach">3</property>
-                                        <property name="top_attach">9</property>
-                                        <property name="bottom_attach">10</property>
+                                        <property name="top_attach">10</property>
+                                        <property name="bottom_attach">11</property>
                                       </packing>
                                     </child>
                                     <child>
@@ -276,8 +276,8 @@
                                       <packing>
                                         <property name="left_attach">1</property>
                                         <property name="right_attach">3</property>
-                                        <property name="top_attach">10</property>
-                                        <property name="bottom_attach">11</property>
+                                        <property name="top_attach">11</property>
+                                        <property name="bottom_attach">12</property>
                                         <property name="y_options"></property>
                                       </packing>
                                     </child>
@@ -291,10 +291,29 @@
                                       <packing>
                                         <property name="left_attach">1</property>
                                         <property name="right_attach">3</property>
-                                        <property name="top_attach">8</property>
-                                        <property name="bottom_attach">9</property>
+                                        <property name="top_attach">9</property>
+                                        <property name="bottom_attach">10</property>
                                         <property name="y_padding">12</property>
                                       </packing>
+                                    </child>
+                                    <child>
+                                      <widget class="GtkLabel" id="subfolder_videos_cannot_be_downloaded_label">
+                                        <property name="xalign">0</property>
+                                        <property name="ypad">10</property>
+                                        <property name="label" translatable="yes">Sorry, video downloading functionality disabled. To download videos, please install the &lt;i&gt;kaa metadata&lt;/i&gt; package for python.</property>
+                                        <property name="use_markup">True</property>
+                                        <property name="wrap">True</property>
+                                      </widget>
+                                      <packing>
+                                        <property name="left_attach">1</property>
+                                        <property name="right_attach">3</property>
+                                        <property name="top_attach">8</property>
+                                        <property name="bottom_attach">9</property>
+                                        <property name="x_options">GTK_FILL</property>
+                                      </packing>
+                                    </child>
+                                    <child>
+                                      <placeholder/>
                                     </child>
                                     <child>
                                       <placeholder/>
@@ -688,13 +707,16 @@
                             <property name="visible">True</property>
                             <property name="spacing">12</property>
                             <child>
-                              <widget class="GtkLabel" id="label46">
+                              <widget class="GtkLabel" id="videos_cannot_be_downloaded_label">
                                 <property name="xalign">0</property>
-                                <property name="label" translatable="yes">&lt;b&gt;Video Rename&lt;/b&gt;</property>
+                                <property name="ypad">10</property>
+                                <property name="label" translatable="yes">Sorry, video downloading functionality disabled. To download videos, please install the &lt;i&gt;kaa metadata&lt;/i&gt; package for python.</property>
                                 <property name="use_markup">True</property>
+                                <property name="wrap">True</property>
                               </widget>
                               <packing>
                                 <property name="expand">False</property>
+                                <property name="fill">False</property>
                                 <property name="position">0</property>
                               </packing>
                             </child>
@@ -784,7 +806,7 @@
                                   </packing>
                                 </child>
                                 <child>
-                                  <widget class="GtkLabel" id="label57">
+                                  <widget class="GtkLabel" id="new_video_filename_label">
                                     <property name="visible">True</property>
                                     <property name="xalign">0</property>
                                     <property name="yalign">0</property>
@@ -801,7 +823,7 @@
                                   </packing>
                                 </child>
                                 <child>
-                                  <widget class="GtkLabel" id="label58">
+                                  <widget class="GtkLabel" id="original_video_filename_label">
                                     <property name="visible">True</property>
                                     <property name="xalign">0</property>
                                     <property name="label" translatable="yes">&lt;i&gt;Original:&lt;/i&gt;</property>

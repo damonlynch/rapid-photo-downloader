@@ -1345,8 +1345,20 @@ class PreferencesDialog(gnomeglade.Component):
         (probably because the appropriate libraries to enable
         video metadata extraction are not installed)
         """        
-        for c in [self.example_video_filename_label]:
+        controls = [self.example_video_filename_label, 
+                    self.original_video_filename_label,
+                    self.new_video_filename_label,
+                    self.video_new_name_label,
+                    self.video_original_name_label,
+                    self.video_rename_scrolledwindow,
+                    self.video_subfolder_vbox,
+                    self.example_video_download_path_label,
+                    ]
+        for c in controls:
             c.set_sensitive(False)
+            
+        self.videos_cannot_be_downloaded_label.show()
+        self.subfolder_videos_cannot_be_downloaded_label.show()
     
     def on_auto_detect_backup_checkbutton_toggled(self, widget):
         self.prefs.backup_device_autodetection = widget.get_active()
