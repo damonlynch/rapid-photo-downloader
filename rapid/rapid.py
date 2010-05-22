@@ -358,6 +358,9 @@ class RapidPreferences(prefs.Preferences):
         "image_rename": prefs.ListValue(prefs.STRING_LIST, [rn.FILENAME, 
                                         rn.NAME_EXTENSION,
                                         rn.ORIGINAL_CASE]),
+        "video_rename": prefs.ListValue(prefs.STRING_LIST, [rn.FILENAME, 
+                                        rn.NAME_EXTENSION,
+                                        rn.ORIGINAL_CASE]),
         "device_autodetection": prefs.Value(prefs.BOOL, True),
         "device_location": prefs.Value(prefs.STRING, os.path.expanduser('~')), 
         "device_autodetection_psd": prefs.Value(prefs.BOOL,  False),
@@ -642,8 +645,26 @@ class ImageRenameTable(tpm.TablePlusMinus):
         """
         self.updatePreferences()        
 
+class VideoRenameTable(ImageRenameTable):
+    def __init__(self, parentApp, adjustScollWindow):    
+        self.errorTitle = _("Error in Video Rename preferences")
+        ImageRenameTable.__init__(self,  parentApp,  adjustScollWindow)
+
+    def getParentAppPrefs(self):
+        self.prefList = self.parentApp.prefs.video_rename
+    
+    def getPrefsFactory(self):
+        self.prefsFactory = rn.VideoRenamePreferences(self.prefList, self,
+                                                    sequences = sequences)
+        
+    def updateParentAppPrefs(self):
+        self.parentApp.prefs.video_rename = self.prefList
+
+    def updateExample(self):
+        self.parentApp.updateVideoRenameExample()
+
 class SubfolderTable(ImageRenameTable):
-    def __init__(self, parentApp,  adjustScollWindow):    
+    def __init__(self, parentApp, adjustScollWindow):    
         self.errorTitle = _("Error in Photo Download Subfolder preferences")
         ImageRenameTable.__init__(self,  parentApp,  adjustScollWindow)
 
@@ -660,7 +681,7 @@ class SubfolderTable(ImageRenameTable):
         self.parentApp.updatePhotoDownloadFolderExample()
         
 class VideoSubfolderTable(ImageRenameTable):
-    def __init__(self, parentApp,  adjustScollWindow): 
+    def __init__(self, parentApp, adjustScollWindow): 
         self.errorTitle = _("Error in Video Download Subfolder preferences")
         ImageRenameTable.__init__(self,  parentApp,  adjustScollWindow)
 
@@ -694,7 +715,6 @@ class PreferencesDialog(gnomeglade.Component):
         self._setupControlSpacing()
 
         # get example image and video data
-        
         try:
             w = workers.firstWorkerReadyToDownload()
             root, self.sampleImageName = w.firstImage()
@@ -718,6 +738,7 @@ class PreferencesDialog(gnomeglade.Component):
         # setup tabs
         self._setupDownloadFolderTab()
         self._setupImageRenameTab()
+        self._setupVideoRenameTab()                
         self._setupRenameOptionsTab()
         self._setupJobCodeTab()
         self._setupDeviceTab()
@@ -803,12 +824,12 @@ class PreferencesDialog(gnomeglade.Component):
         table.set_col_spacing(1, hd.CONTROL_LABEL_SPACE)
 
     def _setupSubfolderTable(self):
-        self.subfolder_table = SubfolderTable(self,  None)
+        self.subfolder_table = SubfolderTable(self, None)
         self.subfolder_vbox.pack_start(self.subfolder_table)
         self.subfolder_table.show_all()
         
     def _setupVideoSubfolderTable(self):
-        self.video_subfolder_table = VideoSubfolderTable(self,  None)
+        self.video_subfolder_table = VideoSubfolderTable(self, None)
         self.video_subfolder_vbox.pack_start(self.video_subfolder_table)
         self.video_subfolder_table.show_all()
         
@@ -834,12 +855,20 @@ class PreferencesDialog(gnomeglade.Component):
     
     def _setupImageRenameTab(self):
 
-        self.rename_table = ImageRenameTable(self,  self.rename_scrolledwindow)
+        self.rename_table = ImageRenameTable(self, self.rename_scrolledwindow)
         self.rename_table_vbox.pack_start(self.rename_table)
         self.rename_table.show_all()
         self.original_name_label.set_markup("<i>%s</i>" % self.sampleImageName)
         self.updateImageRenameExample()
         
+    def _setupVideoRenameTab(self):
+
+        self.video_rename_table = VideoRenameTable(self, self.video_rename_scrolledwindow)
+        self.video_rename_table_vbox.pack_start(self.video_rename_table)
+        self.video_rename_table.show_all()
+        self.video_original_name_label.set_markup("<i>%s</i>" % self.sampleVideoName)
+        self.updateVideoRenameExample()
+                
     def _setupRenameOptionsTab(self):
         
         # sequence numbers
@@ -985,15 +1014,12 @@ class PreferencesDialog(gnomeglade.Component):
         else:
             self.backup_duplicate_skip_radiobutton.set_active(True)
 
-    def updateImageRenameExample(self):
-        """ 
-        Displays example image name to the user 
-        """
-        
-        if hasattr(self, 'rename_table'):
-            self.rename_table.updateExampleJobCode()
-            name, problem = self.rename_table.prefsFactory.generateNameUsingPreferences(
-                    self.sampleImage, self.sampleImageName, 
+    
+    def updateExampleFileName(self, display_table, rename_table, sample, sampleName, example_label):
+        if hasattr(self, display_table):
+            rename_table.updateExampleJobCode()
+            name, problem = rename_table.prefsFactory.generateNameUsingPreferences(
+                    sample, sampleName,
                     self.prefs.strip_characters,  sequencesPreliminary=False)
         else:
             name = problem = ''
@@ -1006,7 +1032,20 @@ class PreferencesDialog(gnomeglade.Component):
             # Translators: please do not modify or leave out html formatting tags like <i> and <b>. These are used to format the text the users sees
             text += _("<i><b>Warning:</b> There is insufficient image metadata to fully generate the name. Please use other renaming options.</i>")
 
-        self.new_name_label.set_markup(text)
+        example_label.set_markup(text)        
+    
+    def updateImageRenameExample(self):
+        """ 
+        Displays example image name to the user 
+        """
+        self.updateExampleFileName('rename_table', self.rename_table, self.sampleImage,  self.sampleImageName, self.new_name_label)
+
+        
+    def updateVideoRenameExample(self):
+        """
+        Displays example video name to the user
+        """
+        self.updateExampleFileName('video_rename_table', self.video_rename_table, self.sampleVideo,  self.sampleVideoName, self.video_new_name_label)
             
     def updateDownloadFolderExample(self, display_table, subfolder_table, sample, sampleName, example_download_path_label, subfolder_warning_label):
         """ 

@@ -618,6 +618,260 @@
                   </packing>
                 </child>
                 <child>
+                  <widget class="GtkVBox" id="video_rename_tab">
+                    <property name="visible">True</property>
+                    <property name="spacing">12</property>
+                    <child>
+                      <widget class="GtkVBox" id="vbox10">
+                        <property name="visible">True</property>
+                        <child>
+                          <widget class="GtkHBox" id="hbox1">
+                            <property name="visible">True</property>
+                            <property name="spacing">6</property>
+                            <child>
+                              <widget class="GtkImage" id="image1">
+                                <property name="visible">True</property>
+                                <property name="stock">gtk-cdrom</property>
+                              </widget>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="position">0</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <widget class="GtkLabel" id="label32">
+                                <property name="visible">True</property>
+                                <property name="label" translatable="yes">&lt;span weight="bold" size="x-large"&gt;Video Rename&lt;/span&gt;	</property>
+                                <property name="use_markup">True</property>
+                              </widget>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="position">1</property>
+                              </packing>
+                            </child>
+                          </widget>
+                          <packing>
+                            <property name="position">0</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <widget class="GtkHSeparator" id="hseparator3">
+                            <property name="visible">True</property>
+                          </widget>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="position">1</property>
+                          </packing>
+                        </child>
+                      </widget>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">False</property>
+                        <property name="position">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <widget class="GtkHBox" id="hbox6">
+                        <property name="visible">True</property>
+                        <property name="spacing">12</property>
+                        <child>
+                          <widget class="GtkLabel" id="label44">
+                            <property name="visible">True</property>
+                          </widget>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="position">0</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <widget class="GtkVBox" id="rename_vbox1">
+                            <property name="visible">True</property>
+                            <property name="spacing">12</property>
+                            <child>
+                              <widget class="GtkLabel" id="label46">
+                                <property name="xalign">0</property>
+                                <property name="label" translatable="yes">&lt;b&gt;Video Rename&lt;/b&gt;</property>
+                                <property name="use_markup">True</property>
+                              </widget>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="position">0</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <widget class="GtkScrolledWindow" id="video_rename_scrolledwindow">
+                                <property name="visible">True</property>
+                                <property name="can_focus">True</property>
+                                <property name="hscrollbar_policy">automatic</property>
+                                <property name="vscrollbar_policy">automatic</property>
+                                <property name="window_placement_set">True</property>
+                                <child>
+                                  <widget class="GtkViewport" id="viewport1">
+                                    <property name="visible">True</property>
+                                    <property name="resize_mode">queue</property>
+                                    <property name="shadow_type">none</property>
+                                    <child>
+                                      <widget class="GtkVBox" id="video_rename_table_vbox">
+                                        <property name="visible">True</property>
+                                        <child>
+                                          <placeholder/>
+                                        </child>
+                                      </widget>
+                                    </child>
+                                  </widget>
+                                </child>
+                              </widget>
+                              <packing>
+                                <property name="position">1</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <widget class="GtkTable" id="video_rename_example_table">
+                                <property name="visible">True</property>
+                                <property name="n_rows">3</property>
+                                <property name="n_columns">3</property>
+                                <child>
+                                  <widget class="GtkLabel" id="label55">
+                                    <property name="visible">True</property>
+                                    <property name="label" translatable="yes"> </property>
+                                  </widget>
+                                  <packing>
+                                    <property name="top_attach">2</property>
+                                    <property name="bottom_attach">3</property>
+                                    <property name="x_options"></property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <widget class="GtkLabel" id="label56">
+                                    <property name="visible">True</property>
+                                    <property name="label" translatable="yes"> </property>
+                                  </widget>
+                                  <packing>
+                                    <property name="top_attach">1</property>
+                                    <property name="bottom_attach">2</property>
+                                    <property name="x_options"></property>
+                                    <property name="y_options"></property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <widget class="GtkLabel" id="video_new_name_label">
+                                    <property name="visible">True</property>
+                                    <property name="xalign">0</property>
+                                    <property name="yalign">0</property>
+                                    <property name="label">translators please ignore this</property>
+                                    <property name="wrap">True</property>
+                                  </widget>
+                                  <packing>
+                                    <property name="left_attach">2</property>
+                                    <property name="right_attach">3</property>
+                                    <property name="top_attach">2</property>
+                                    <property name="bottom_attach">3</property>
+                                    <property name="y_options">GTK_FILL</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <widget class="GtkLabel" id="video_original_name_label">
+                                    <property name="visible">True</property>
+                                    <property name="xalign">0</property>
+                                    <property name="label">translators please ignore this</property>
+                                  </widget>
+                                  <packing>
+                                    <property name="left_attach">2</property>
+                                    <property name="right_attach">3</property>
+                                    <property name="top_attach">1</property>
+                                    <property name="bottom_attach">2</property>
+                                    <property name="y_options"></property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <widget class="GtkLabel" id="label57">
+                                    <property name="visible">True</property>
+                                    <property name="xalign">0</property>
+                                    <property name="yalign">0</property>
+                                    <property name="label" translatable="yes">&lt;i&gt;New:&lt;/i&gt;</property>
+                                    <property name="use_markup">True</property>
+                                  </widget>
+                                  <packing>
+                                    <property name="left_attach">1</property>
+                                    <property name="right_attach">2</property>
+                                    <property name="top_attach">2</property>
+                                    <property name="bottom_attach">3</property>
+                                    <property name="x_options">GTK_FILL</property>
+                                    <property name="y_options">GTK_FILL</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <widget class="GtkLabel" id="label58">
+                                    <property name="visible">True</property>
+                                    <property name="xalign">0</property>
+                                    <property name="label" translatable="yes">&lt;i&gt;Original:&lt;/i&gt;</property>
+                                    <property name="use_markup">True</property>
+                                  </widget>
+                                  <packing>
+                                    <property name="left_attach">1</property>
+                                    <property name="right_attach">2</property>
+                                    <property name="top_attach">1</property>
+                                    <property name="bottom_attach">2</property>
+                                    <property name="x_options">GTK_FILL</property>
+                                    <property name="y_options"></property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <widget class="GtkLabel" id="label59">
+                                    <property name="visible">True</property>
+                                    <property name="xalign">0</property>
+                                    <property name="label" translatable="yes">&lt;b&gt;Example&lt;/b&gt;</property>
+                                    <property name="use_markup">True</property>
+                                  </widget>
+                                  <packing>
+                                    <property name="right_attach">3</property>
+                                    <property name="y_padding">12</property>
+                                  </packing>
+                                </child>
+                              </widget>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">False</property>
+                                <property name="position">2</property>
+                              </packing>
+                            </child>
+                          </widget>
+                          <packing>
+                            <property name="position">1</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <widget class="GtkLabel" id="label60">
+                            <property name="visible">True</property>
+                          </widget>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="position">2</property>
+                          </packing>
+                        </child>
+                      </widget>
+                      <packing>
+                        <property name="padding">12</property>
+                        <property name="position">1</property>
+                      </packing>
+                    </child>
+                  </widget>
+                  <packing>
+                    <property name="position">2</property>
+                  </packing>
+                </child>
+                <child>
+                  <widget class="GtkLabel" id="video_rename_label">
+                    <property name="visible">True</property>
+                    <property name="label" translatable="yes">Video Rename</property>
+                  </widget>
+                  <packing>
+                    <property name="position">2</property>
+                    <property name="tab_fill">False</property>
+                    <property name="type">tab</property>
+                  </packing>
+                </child>
+                <child>
                   <widget class="GtkVBox" id="rename_options_tab">
                     <property name="visible">True</property>
                     <property name="spacing">12</property>
@@ -978,7 +1232,7 @@
                     </child>
                   </widget>
                   <packing>
-                    <property name="position">2</property>
+                    <property name="position">3</property>
                   </packing>
                 </child>
                 <child>
@@ -987,7 +1241,7 @@
                     <property name="label" translatable="yes">Rename Options</property>
                   </widget>
                   <packing>
-                    <property name="position">2</property>
+                    <property name="position">3</property>
                     <property name="tab_fill">False</property>
                     <property name="type">tab</property>
                   </packing>
@@ -1182,7 +1436,7 @@
                     </child>
                   </widget>
                   <packing>
-                    <property name="position">2</property>
+                    <property name="position">4</property>
                   </packing>
                 </child>
                 <child>
@@ -1191,7 +1445,7 @@
                     <property name="label" translatable="yes">Job Codes</property>
                   </widget>
                   <packing>
-                    <property name="position">3</property>
+                    <property name="position">4</property>
                     <property name="tab_fill">False</property>
                     <property name="type">tab</property>
                   </packing>
@@ -1220,7 +1474,7 @@
                             <child>
                               <widget class="GtkLabel" id="label22">
                                 <property name="visible">True</property>
-                                <property name="label" translatable="yes">&lt;span weight="bold" size="x-large"&gt;Image Devices&lt;/span&gt;</property>
+                                <property name="label" translatable="yes">&lt;span weight="bold" size="x-large"&gt;Devices&lt;/span&gt;</property>
                                 <property name="use_markup">True</property>
                               </widget>
                               <packing>
@@ -1257,7 +1511,7 @@
                           <widget class="GtkLabel" id="label41">
                             <property name="xalign">0</property>
                             <property name="xpad">12</property>
-                            <property name="label" translatable="yes">&lt;b&gt;Image Devices&lt;/b&gt;</property>
+                            <property name="label" translatable="yes">&lt;b&gt;Devices&lt;/b&gt;</property>
                             <property name="use_markup">True</property>
                           </widget>
                           <packing>
@@ -1270,9 +1524,9 @@
                             <property name="visible">True</property>
                             <property name="xalign">0</property>
                             <property name="xpad">12</property>
-                            <property name="label" translatable="yes">Image devices are devices from which to download photos, such as cameras, memory cards or Portable Storage Devices.
+                            <property name="label" translatable="yes">Devices are from where to download photos and videos, such as cameras, memory cards or Portable Storage Devices.
 
-You can download photos from multiple image devices simultaneously.
+You can download photos from multiple devices simultaneously, or you can specify a location on your hard drive.
 
 &lt;i&gt;If downloading directly from your camera works poorly or not at all, try setting it to PTP mode. If that is not possible, consider using a card reader.&lt;/i&gt;</property>
                             <property name="use_markup">True</property>
@@ -1319,7 +1573,7 @@ You can download photos from multiple image devices simultaneously.
                                 </child>
                                 <child>
                                   <widget class="GtkCheckButton" id="autodetect_device_checkbutton">
-                                    <property name="label" translatable="yes">Automatically detect image devices</property>
+                                    <property name="label" translatable="yes">Automatically detect devices</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
@@ -1386,7 +1640,7 @@ You can download photos from multiple image devices simultaneously.
                                     <property name="visible">True</property>
                                     <property name="xalign">0</property>
                                     <property name="xpad">12</property>
-                                    <property name="label" translatable="yes">Image location:</property>
+                                    <property name="label" translatable="yes">Location:</property>
                                   </widget>
                                   <packing>
                                     <property name="top_attach">1</property>
@@ -1402,7 +1656,7 @@ You can download photos from multiple image devices simultaneously.
                                     <property name="xalign">0</property>
                                     <property name="xpad">12</property>
                                     <property name="ypad">12</property>
-                                    <property name="label" translatable="yes">If you disable automatic detection, choose the exact location of the images.</property>
+                                    <property name="label" translatable="yes">If you disable automatic detection, choose the exact location of the images and videos.</property>
                                     <property name="wrap">True</property>
                                   </widget>
                                   <packing>
@@ -1444,16 +1698,16 @@ You can download photos from multiple image devices simultaneously.
                     </child>
                   </widget>
                   <packing>
-                    <property name="position">4</property>
+                    <property name="position">5</property>
                   </packing>
                 </child>
                 <child>
                   <widget class="GtkLabel" id="device_label">
                     <property name="visible">True</property>
-                    <property name="label" translatable="yes">Image Devices</property>
+                    <property name="label" translatable="yes">Devices</property>
                   </widget>
                   <packing>
-                    <property name="position">4</property>
+                    <property name="position">5</property>
                     <property name="tab_fill">False</property>
                     <property name="type">tab</property>
                   </packing>
@@ -1582,7 +1836,7 @@ You can download photos from multiple image devices simultaneously.
                                     <property name="visible">True</property>
                                     <property name="xalign">0</property>
                                     <property name="ypad">12</property>
-                                    <property name="label" translatable="yes">You can have your photos backed up to multiple locations as they are downloaded, e.g. external hard drives.</property>
+                                    <property name="label" translatable="yes">You can have your photos and videos backed up to multiple locations as they are downloaded, e.g. external hard drives.</property>
                                     <property name="wrap">True</property>
                                   </widget>
                                   <packing>
@@ -1592,7 +1846,7 @@ You can download photos from multiple image devices simultaneously.
                                 </child>
                                 <child>
                                   <widget class="GtkCheckButton" id="backup_checkbutton">
-                                    <property name="label" translatable="yes">Backup photos when downloading</property>
+                                    <property name="label" translatable="yes">Backup photos and videos when downloading</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
@@ -1762,7 +2016,7 @@ You can download photos from multiple image devices simultaneously.
                     </child>
                   </widget>
                   <packing>
-                    <property name="position">5</property>
+                    <property name="position">6</property>
                   </packing>
                 </child>
                 <child>
@@ -1771,7 +2025,7 @@ You can download photos from multiple image devices simultaneously.
                     <property name="label" translatable="yes">Backup</property>
                   </widget>
                   <packing>
-                    <property name="position">5</property>
+                    <property name="position">6</property>
                     <property name="tab_fill">False</property>
                     <property name="type">tab</property>
                   </packing>
@@ -1861,7 +2115,7 @@ You can download photos from multiple image devices simultaneously.
                                 <property name="n_columns">3</property>
                                 <child>
                                   <widget class="GtkCheckButton" id="auto_unmount_checkbutton">
-                                    <property name="label" translatable="yes">Unmount ("eject") image device upon download completion</property>
+                                    <property name="label" translatable="yes">Unmount ("eject") device upon download completion</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
@@ -1983,7 +2237,7 @@ You can download photos from multiple image devices simultaneously.
                     </child>
                   </widget>
                   <packing>
-                    <property name="position">6</property>
+                    <property name="position">7</property>
                   </packing>
                 </child>
                 <child>
@@ -1993,7 +2247,7 @@ You can download photos from multiple image devices simultaneously.
                     <property name="label" translatable="yes">Automation</property>
                   </widget>
                   <packing>
-                    <property name="position">6</property>
+                    <property name="position">7</property>
                     <property name="tab_fill">False</property>
                     <property name="type">tab</property>
                   </packing>
@@ -2379,7 +2633,7 @@ You can download photos from multiple image devices simultaneously.
                     </child>
                   </widget>
                   <packing>
-                    <property name="position">7</property>
+                    <property name="position">8</property>
                   </packing>
                 </child>
                 <child>
@@ -2389,7 +2643,7 @@ You can download photos from multiple image devices simultaneously.
                     <property name="label" translatable="yes">Error Handling</property>
                   </widget>
                   <packing>
-                    <property name="position">7</property>
+                    <property name="position">8</property>
                     <property name="tab_fill">False</property>
                     <property name="type">tab</property>
                   </packing>
@@ -2463,7 +2717,7 @@ You can download photos from multiple image devices simultaneously.
     <property name="type_hint">normal</property>
     <property name="program_name">Rapid Photo Downloader</property>
     <property name="copyright" translatable="yes">Copyright Damon Lynch 2007-10</property>
-    <property name="comments" translatable="yes">Import your images efficiently and reliably</property>
+    <property name="comments" translatable="yes">Import your images and videos efficiently and reliably</property>
     <property name="website">http://www.damonlynch.net/rapid</property>
     <property name="license" translatable="yes">Rapid Photo Downloader is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.
 

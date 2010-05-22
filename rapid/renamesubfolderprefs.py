@@ -1165,7 +1165,7 @@ class ImageRenamePreferences:
                 return (os.sep, None)
         except:
             v = ""
-            problem = _("error generating name with component %s") % self.L2
+            problem = _("error generating name with component %s") % self.L0
             return (v,  problem)
 
     def _getValuesFromList(self):
