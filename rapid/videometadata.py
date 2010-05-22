@@ -61,7 +61,7 @@ if DOWNLOAD_VIDEO:
             else:
                 v = self.info[key]
             if v:
-                return v
+                return str(v)
             else:
                 return missing
             
@@ -133,16 +133,16 @@ if DOWNLOAD_VIDEO:
             return 'H.264 AVC'
             
         def length(self, missing=''):
-            return 57
+            return '57'
             
         def width(self, stream=0, missing=''):
-            return 1920
+            return '1920'
             
         def height(self, stream=0, missing=''):
-            return 1080
+            return '1080'
             
         def framesPerSecond(self, stream=0, missing=''):
-            return 24
+            return '24'
         
         def fourcc(self, stream=0, missing=''):
             return 'AVC1'

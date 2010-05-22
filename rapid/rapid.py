@@ -712,7 +712,7 @@ class PreferencesDialog(gnomeglade.Component):
             self.sampleVideo = videometadata.MetaData(video)
         except:
             self.sampleVideo = videometadata.DummyMetaData()
-            self.sampleImageName = 'MVI_1376.MOV'
+            self.sampleVideoName = 'MVI_1379.MOV'
             
         
         # setup tabs
@@ -1008,7 +1008,7 @@ class PreferencesDialog(gnomeglade.Component):
 
         self.new_name_label.set_markup(text)
             
-    def updateDownloadFolderExample(self, display_table, subfolder_table, example_download_path_label, subfolder_warning_label):
+    def updateDownloadFolderExample(self, display_table, subfolder_table, sample, sampleName, example_download_path_label, subfolder_warning_label):
         """ 
         Displays example subfolder name(s) to the user 
         """
@@ -1016,7 +1016,7 @@ class PreferencesDialog(gnomeglade.Component):
         if hasattr(self, display_table):
             subfolder_table.updateExampleJobCode()
             path, problem = subfolder_table.prefsFactory.generateNameUsingPreferences(
-                            self.sampleImage, self.sampleImageName,
+                            sample, sampleName,
                             self.prefs.strip_characters)
         else:
             path = problem = ''
@@ -1033,10 +1033,10 @@ class PreferencesDialog(gnomeglade.Component):
         subfolder_warning_label.set_markup(warning)
         
     def updatePhotoDownloadFolderExample(self):
-        self.updateDownloadFolderExample('subfolder_table', self.subfolder_table, self.example_photo_download_path_label, self.photo_subfolder_warning_label)
+        self.updateDownloadFolderExample('subfolder_table', self.subfolder_table, self.sampleImage, self.sampleImageName, self.example_photo_download_path_label, self.photo_subfolder_warning_label)
         
     def updateVideoDownloadFolderExample(self):
-        self.updateDownloadFolderExample('video_subfolder_table', self.video_subfolder_table, self.example_video_download_path_label, self.video_subfolder_warning_label)
+        self.updateDownloadFolderExample('video_subfolder_table', self.video_subfolder_table, self.sampleVideo, self.sampleVideoName, self.example_video_download_path_label, self.video_subfolder_warning_label)
         
     def on_hour_spinbutton_value_changed(self, spinbutton):
         hour = spinbutton.get_value_as_int()

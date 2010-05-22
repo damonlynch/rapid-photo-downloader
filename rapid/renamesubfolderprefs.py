@@ -1394,6 +1394,34 @@ class ImageRenamePreferences:
         self._getPreferenceWidgets(self.prefsDefnL0, selection, widgets)
         return widgets
 
+def getVideoMetadataComponent(video):
+    """
+    Returns portion of video / subfolder name based on the metadata
+
+    This is outside of a class definition because of the inheritence
+    hierarchy.
+    """
+    
+    problem = None
+    if video.L1 == CODEC:
+        v = video.photo.codec()
+    elif video.L1 == WIDTH:
+        v = video.photo.width()
+    elif video.L1 == HEIGHT:
+        v = video.photo.height()
+    elif video.L1 == FPS:
+        v = video.photo.fps()
+    else:
+        raise TypeError("Invalid metadata option specified")
+    if video.L1 in [CODEC]:
+        if video.L2 == UPPERCASE:
+            v = v.upper()
+        elif video.L2 == LOWERCASE:
+            v = v.lower()
+    if not v:
+        problem = _("%s metadata is not present in image") % video.L1
+    return (v, problem)      
+
 class VideoRenamePreferences(ImageRenamePreferences):
     def __init__(self, prefList, parent, fileSequenceLock=None, sequences=None):    
         self.prefsDefnL0 = DICT_VIDEO_RENAME_L0
@@ -1402,6 +1430,15 @@ class VideoRenamePreferences(ImageRenamePreferences):
         self.stripForwardSlash = True
         self.L1DateCheck = VIDEO_DATE
         ImageRenamePreferences.__init__(self, prefList, parent, fileSequenceLock, sequences)
+        
+    def _getMetadataComponent(self):
+        """
+        Returns portion of video / subfolder name based on the metadata
+        
+        Note: date time metadata found in _getDateComponent()
+        """
+        return getVideoMetadataComponent(self)
+      
            
 class SubfolderPreferences(ImageRenamePreferences):
     def __init__(self, prefList, parent):
@@ -1496,6 +1533,14 @@ class VideoSubfolderPreferences(SubfolderPreferences):
         self.defaultPrefs = DEFAULT_VIDEO_SUBFOLDER_PREFS
         self.defaultRow = [DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[0]]
         self.L1DateCheck = VIDEO_DATE
+        
+    def _getMetadataComponent(self):
+        """
+        Returns portion of video / subfolder name based on the metadata
+        
+        Note: date time metadata found in _getDateComponent()
+        """
+        return getVideoMetadataComponent(self)        
             
 class Sequences:
     """ 

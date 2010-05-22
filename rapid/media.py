@@ -146,7 +146,7 @@ class CardMedia(Media):
     def _firstFile(self, isCorrectFile):
         if self.imagesAndVideos:
             for i in range(len(self.imagesAndVideos)):
-                if isImage(self.imagesAndVideos[i]):
+                if isCorrectFile(self.imagesAndVideos[i]):
                     return self.imagesAndVideos[i]
         else:
             return None
