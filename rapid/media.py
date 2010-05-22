@@ -33,7 +33,7 @@ def getDefaultPhotoLocation():
             return path
     return common.getFullPath('')
     
-def isImageMedia(path):
+def is_DCIM_Media(path):
     """ Returns true if directory specifies some media with photos on it   """
     
     if os.path.isdir(os.path.join(path, "DCIM")):
@@ -64,6 +64,13 @@ def isVideo(fileName):
     return (ext in videometadata.VIDEO_FILE_EXTENSIONS)
     
 def getVideoThumbnailFile(fullFileName):
+    """
+    Checks to see if a thumbnail file is in the same directory as the 
+    file. Expects a full path to be part of the file name.
+    
+    Returns the filename, including path, if found, else returns None.
+    """
+    
     f = None
     name, ext = os.path.splitext(fullFileName)
     for e in videometadata.VIDEO_THUMBNAIL_FILE_EXTENSIONS:
@@ -78,10 +85,10 @@ def getVideoThumbnailFile(fullFileName):
     
 
 class Media:
-    """ Generic class for media holding images """
+    """ Generic class for media holding images and videos """
     def __init__(self, path, volume = None):
         """
-        volume is a gnomevfs or gio volume, see class Volume in rapid.py
+        volume is a gnomevfs or gio volume: see class Volume in rapid.py
         """
         
         self.path = path
@@ -114,91 +121,39 @@ class Media:
         
     
 class CardMedia(Media):
-    """Compact Flash cards, etc."""
+    """Compact Flash cards, hard drives, etc."""
     def __init__(self, path, volume = None,  doNotScan=True):
         """
         volume is a gnomevfs or gio volume, see class Volume in rapid.py
         """
         Media.__init__(self, path, volume)
-        if not doNotScan:
-            self.scanMedia()
 
-    def scanMedia(self):
-        """ creates a list of images on a path, recursively scanning
         
-        images are sorted by modification time
+    def setMedia(self, imagesAndVideos, fileSizeSum, noFiles):
+        self.imagesAndVideos = imagesAndVideos
+        self.fileSizeSum = fileSizeSum
+        self.noFiles = noFiles
         
-        NOTE: this is no longer used, because this operation should be handled within a thread!
-        See method scanMedia() in class CopyPhotos in rapid.py
-        """
+    def numberOfImagesAndVideos(self):
+        return self.noFiles
         
-        self.images = []
-        self.imageSizeSum = 0
-        for root, dirs, files in os.walk(self.path):
-            for name in files:
-                if isImage(name):
-                    image = os.path.join(root, name)
-                    size = os.path.getsize(image)
-                    modificationTime = os.path.getmtime(image)
-                    self.images.append((name, root, size,  modificationTime),)
-                    self.imageSizeSum += size
-        self.images.sort(key=operator.itemgetter(3))
-        self.noImages = len(self.images)
-        
-    def setMedia(self,  images,  imageSizeSum,  noImages):
-        self.images = images
-        self.imageSizeSum = imageSizeSum
-        self.noImages = noImages
-        
-    def numberOfImages(self):
-        return self.noImages
-        
-    def sizeOfImages(self, humanReadable = True):
+    def sizeOfImagesAndVideos(self, humanReadable = True):
         if humanReadable:
-            return common.formatSizeForUser(self.imageSizeSum)
+            return common.formatSizeForUser(self.fileSizeSum)
         else:
-            return self.imageSizeSum
+            return self.fileSizeSum
     
-    def firstImage(self):
-        if self.images:
-            return self.images[0]
+    def _firstFile(self, isCorrectFile):
+        if self.imagesAndVideos:
+            for i in range(len(self.imagesAndVideos)):
+                if isImage(self.imagesAndVideos[i]):
+                    return self.imagesAndVideos[i]
         else:
             return None
-    
         
-def scanForImageMedia(path):
-    """ returns a list of paths that contain images on media produced by a digital camera """
+    def firstImage(self):
+        return self._firstFile(isImage)
     
-    media = []
-    for i in os.listdir(path):
-        p = os.path.join(path, i)
-        if os.path.isdir(p):
-            if isImageMedia(p):
-                media.append(p)
-    return media
-    
-def scanForBackupMedia(path, identifier):
-    """ returns a list of paths that contains backed up images  """
-    
-    media = []
-    for i in os.listdir(path):
-        p = os.path.join(path, i)
-        if os.path.isdir(p):
-            if isBackupMedia(p, identifier):
-                media.append(os.path.join(p, identifier))
-    return media
-
-    
-if __name__ == '__main__':
-    print "Card media:"
-    for m in scanForImageMedia('/media'):
-        media = CardMedia(m)
-        print media.prettyName()
-        print media.numberOfImages()
-        print media.sizeOfImages()
+    def firstVideo(self):
+        return self._firstFile(isVideo)
         
-    print "\nBackup media:"
-    for m in scanForBackupMedia('/media',  'photos'):
-        print m
-
-    print "\nDefault download folder: ",  getDefaultPhotoLocation()

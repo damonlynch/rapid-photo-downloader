@@ -151,7 +151,7 @@ class Queue(tube.Tube):
 #   this is ugly but I don't know a better way :(
 
 display_queue = Queue()
-media_collection_treeview = image_hbox = log_dialog = None
+media_collection_treeview = thumbnail_hbox = log_dialog = None
 
 job_code = None
 need_job_code = False
@@ -1453,7 +1453,7 @@ class CopyPhotos(Thread):
                         ((not DOWNLOAD_VIDEO) and isImage))
                 return (download, isImage, isVideo)
             
-            def gio_scan(path, imageSizeSum):
+            def gio_scan(path, fileSizeSum):
                 """recursive function to scan a directory and its subdirectories
                 for images and possibly videos"""
                 
@@ -1471,8 +1471,8 @@ class CopyPhotos(Thread):
                         return None
                         
                     if child.get_file_type() == gio.FILE_TYPE_DIRECTORY:
-                        imageSizeSum = gio_scan(path.get_child(child.get_name()), imageSizeSum)
-                        if imageSizeSum == None:
+                        fileSizeSum = gio_scan(path.get_child(child.get_name()), fileSizeSum)
+                        if fileSizeSum == None:
                             # this value will be None only if the thread is exiting
                             return None
                     elif child.get_file_type() == gio.FILE_TYPE_REGULAR:
@@ -1481,16 +1481,16 @@ class CopyPhotos(Thread):
                         if download:
                             size = child.get_size()
                             images.append((name, path.get_path(), size, child.get_modification_time()),)
-                            imageSizeSum += size
+                            fileSizeSum += size
                             if isVideo:
                                 self.noVideos += 1
                             else:
                                 self.noImages += 1
-                return imageSizeSum
+                return fileSizeSum
             
                         
-            images = []
-            imageSizeSum = 0
+            imagesAndVideos = []
+            fileSizeSum = 0
             self.noVideos = 0
             self.noImages = 0
             
@@ -1513,8 +1513,8 @@ class CopyPhotos(Thread):
                             image = os.path.join(root, name)
                             size = os.path.getsize(image)
                             modificationTime = os.path.getmtime(image)
-                            images.append((name, root, size, modificationTime),)
-                            imageSizeSum += size
+                            imagesAndVideos.append((name, root, size, modificationTime),)
+                            fileSizeSum += size
                             if isVideo:
                                 self.noVideos += 1
                             else:
@@ -1523,13 +1523,13 @@ class CopyPhotos(Thread):
             else:
                 # using gio and have a volume
                 # make call to recursive function to scan volume
-                imageSizeSum = gio_scan(self.cardMedia.volume.volume.get_root(), imageSizeSum)
-                if imageSizeSum == None:
+                fileSizeSum = gio_scan(self.cardMedia.volume.volume.get_root(), fileSizeSum)
+                if fileSizeSum == None:
                     # thread exiting
                     return
                 
-            images.sort(key=operator.itemgetter(3))
-            noImages = len(images)
+            imagesAndVideos.sort(key=operator.itemgetter(3))
+            noFiles = len(imagesAndVideos)
             
             self.scanComplete = True
             
@@ -1552,16 +1552,16 @@ class CopyPhotos(Thread):
                 self.types_searched_for = _('images')
 
             
-            if noImages:
-                self.cardMedia.setMedia(images,  imageSizeSum,  noImages)
+            if noFiles:
+                self.cardMedia.setMedia(imagesAndVideos, fileSizeSum, noFiles)
                 # Translators: as already, mentioned the %s value should not be modified or left out. It may be moved if necessary.
                 # It refers to the actual number of images that can be copied. For example, the user might see the following:
                 # '0 of 512 images' or '0 of 10 videos' or '0 of 202 images and videos'.
                 # This particular text is displayed to the user before the download has started.
-                display = _("0 of %(number)s %(filetypes)s") % {'number':noImages, 'filetypes':self.display_file_types}
-                display_queue.put((media_collection_treeview.updateCard,  (self.thread_id,  self.cardMedia.sizeOfImages(), noImages)))
+                display = _("0 of %(number)s %(filetypes)s") % {'number':noFiles, 'filetypes':self.display_file_types}
+                display_queue.put((media_collection_treeview.updateCard, (self.thread_id,  self.cardMedia.sizeOfImagesAndVideos(), noFiles)))
                 display_queue.put((media_collection_treeview.updateProgress, (self.thread_id, 0.0, display, 0)))
-                display_queue.put((self.parentApp.timeRemaining.add,  (self.thread_id,  imageSizeSum)))
+                display_queue.put((self.parentApp.timeRemaining.add, (self.thread_id, fileSizeSum)))
                 display_queue.put((self.parentApp.setDownloadButtonSensitivity, ()))
                 
                 # Translators: as you have already seen, the text can contain values that should not be modified or left out by you, for example %s.
@@ -1571,7 +1571,7 @@ class CopyPhotos(Thread):
                 # not be translated. Generally speaking, if translating the sentence requires it, you can move items like '%(xyz)s' around 
                 # in a sentence, but you should never modify them or leave them out.
                 cmd_line(_("Device scan complete: found %(number)s %(filetypes)s on %(device)s") % 
-                           {'number': noImages, 'filetypes':self.display_file_types,
+                           {'number': noFiles, 'filetypes':self.display_file_types,
                             'device': self.cardMedia.prettyName(limit=0)})
                 return True
             else:
@@ -1681,7 +1681,7 @@ class CopyPhotos(Thread):
                 except:
                     logError(config.CRITICAL_ERROR, _("Could not open %s(filetype)s") % {'filetype': fileBeingDownloadedDisplay}, 
                                     _("Source: %s") % fullFileName, 
-                                    VIDEO_SKIPPED)                    
+                                    fileSkippedDisplay)                    
                     skipFile = True
                     fileMetadata =  newName = newFile = path = subfolder = sequence_to_use = None
                     return (skipFile,  fileMetadata,  newName,  newFile,  path,  subfolder, sequence_to_use)
@@ -1694,7 +1694,7 @@ class CopyPhotos(Thread):
                 except IOError:
                     logError(config.CRITICAL_ERROR, _("Could not open %(filetype)s") % {'filetype': fileBeingDownloadedDisplay}, 
                                     _("Source: %s") % fullFileName, 
-                                    IMAGE_SKIPPED)
+                                    fileSkippedDisplay)
                     skipFile = True
                     fileMetadata =  newName = newFile = path = subfolder = sequence_to_use = None
                     return (skipFile,  fileMetadata,  newName,  newFile,  path,  subfolder, sequence_to_use)
@@ -1926,15 +1926,16 @@ class CopyPhotos(Thread):
             return (fileDownloaded,  newName,  newFile)
             
 
-        def backupImage(subfolder,  newName,  imageDownloaded,  newFile,  image):
+        def backupFile(subfolder,  newName,  fileDownloaded,  newFile,  originalFile):
             """ backup image to path(s) chosen by the user
             
             there are two scenarios: 
-            (1) image has just been downloaded and should now be backed up
-            (2) image was already downloaded on some previous occassion and should still be backed up, because it hasn't been yet
-            (3) image has been backed up already (or at least, a file with the same name already exists)
+            (1) file has just been downloaded and should now be backed up
+            (2) file was already downloaded on some previous occassion and should still be backed up, because it hasn't been yet
+            (3) file has been backed up already (or at least, a file with the same name already exists)
             """
             
+            #TODO convert to using GIO
             backed_up = False
             try:
                 for backupDir in self.parentApp.backupVolumes:
@@ -1942,24 +1943,25 @@ class CopyPhotos(Thread):
                     newBackupFile = os.path.join(backupPath,  newName)
                     copyBackup = True
                     if os.path.exists(newBackupFile):
-                        # not thread safe -- it doesn't need to be, because the file names are at this stage going to be unique
+                        # this check is of course not thread safe -- it doesn't need to be, because at this stage the file names are going to be unique
+                        # (the folder structure is the same as the actual download folders, and the file names are unique in them)
                         copyBackup = self.prefs.backup_duplicate_overwrite                                     
                         if self.prefs.indicate_download_error:
                             severity = config.SERIOUS_ERROR
-                            problem = _("Backup image already exists")
+                            problem = _("Backup of image or video already exists")
                             details = _("Source: %(source)s\nDestination: %(destination)s") \
                                 % {'source': image, 'destination': newBackupFile}
                             if copyBackup :
-                                resolution = IMAGE_OVERWRITTEN
+                                resolution = _("Backup file overwritten")
                             else:
-                                resolution = IMAGE_SKIPPED
+                                resolution = fileSkippedDisplay
                             logError(severity, problem, details, resolution)
 
                     if copyBackup:
-                        if imageDownloaded:
+                        if fileDownloaded:
                             fileToCopy = newFile
                         else:
-                            fileToCopy = image
+                            fileToCopy = originalFile
                         if os.path.isdir(backupPath):
                             pathExists = True
                         else:
@@ -1983,7 +1985,7 @@ class CopyPhotos(Thread):
                                                      _("Source: %(source)s\nDestination: %(destination)s\n") % 
                                                      {'source': image, 'destination': newBackupFile} + 
                                                      _("Error: %(errno)s %(strerror)s") % {'errno': errno,  'strerror': strerror}, 
-                                                     _('The image was not copied.')
+                                                     _('The image or video was not copied.')
                                                      )
                                             pathExists = False
                                     
@@ -1995,7 +1997,7 @@ class CopyPhotos(Thread):
                 logError(config.SERIOUS_ERROR, _('Backing up error'), 
                             _("Source: %(source)s\nDestination: %(destination)s\nError: %(errno)s %(strerror)s")
                             % {'source': image, 'destination': newBackupFile,  'errno': errno,  'strerror': strerror},
-                            _('The image was not copied.'))
+                            _('The image or video was not copied.'))
 
             return backed_up
 
@@ -2012,9 +2014,9 @@ class CopyPhotos(Thread):
                 else:
                     unmountMessage = ""
             
-            message = _("%(noimages)s %(filetypes)s downloaded") % {'noimages':noImagesDownloaded, 'filetypes':self.display_file_types}
-            if noImagesSkipped:
-                message += "\n" + _("%(noimages)s %(filetypes)s skipped") % {'noimages':noImagesSkipped, 'filetypes':self.display_file_types}
+            message = _("%(noFiles)s %(filetypes)s downloaded") % {'noFiles':noFilesDownloaded, 'filetypes':self.display_file_types}
+            if noFilesSkipped:
+                message += "\n" + _("%(noFiles)s %(filetypes)s skipped") % {'noFiles':noFilesSkipped, 'filetypes':self.display_file_types}
             
             if unmountMessage:
                 message = "%s\n%s" % (message,  unmountMessage)
@@ -2143,16 +2145,16 @@ class CopyPhotos(Thread):
         needMetaDataToCreateUniqueSubfolderName = self.subfolderPrefsFactory.needMetaDataToCreateUniqueName()
         
         i = 0
-        sizeDownloaded = noImagesDownloaded =  noImagesSkipped = 0
-        imagesDownloadedSuccessfully = []
+        sizeDownloaded = noFilesDownloaded =  noFilesSkipped = 0
+        filesDownloadedSuccessfully = []
         
-        sizeImages = self.cardMedia.sizeOfImages(humanReadable = False)
-        display_queue.put((self.parentApp.addToTotalDownloadSize,  (sizeImages, )))
+        sizeFiles = self.cardMedia.sizeOfImagesAndVideos(humanReadable = False)
+        display_queue.put((self.parentApp.addToTotalDownloadSize, (sizeFiles, )))
         display_queue.put((self.parentApp.setOverallDownloadMark, ()))
         display_queue.put((self.parentApp.postStartDownloadTasks,  ()))
         
-        sizeImages = float(sizeImages)
-        noImages = self.cardMedia.numberOfImages()
+        sizeFiles = float(sizeFiles)
+        noFiles = self.cardMedia.numberOfImagesAndVideos()
         
         baseDownloadDir = self.prefs.download_folder
         #create a temporary directory in which to download the photos to
@@ -2180,10 +2182,6 @@ class CopyPhotos(Thread):
             self.running = False
             self.lock.release()
             return 
-            
-                                  
-        IMAGE_SKIPPED = _("Image skipped")
-        IMAGE_OVERWRITTEN = _("Image overwritten")
 
         
         addUniqueIdentifier = self.prefs.download_conflict_resolution == config.ADD_UNIQUE_IDENTIFIER
@@ -2196,7 +2194,7 @@ class CopyPhotos(Thread):
             self.imageRenamePrefsFactory.usesTheSequenceElement(rn.SEQUENCE_LETTER))
         
 
-        while i < noImages:
+        while i < noFiles:
             if not self.running:
                 self.lock.acquire()
                 self.running = True
@@ -2208,7 +2206,7 @@ class CopyPhotos(Thread):
                 return
             
             # get information about the image to deduce image name and path
-            name, root, size,  modificationTime = self.cardMedia.images[i]
+            name, root, size,  modificationTime = self.cardMedia.imagesAndVideos[i]
             fullFileName = os.path.join(root, name)
             
             self.isImage = media.isImage(name)
@@ -2230,57 +2228,57 @@ class CopyPhotos(Thread):
                        needMetaDataToCreateUniqueSubfolderName, fallback_date)
 
             if skipFile:
-                noImagesSkipped += 1
+                noFilesSkipped += 1
             else:
-                imageDownloaded, newName, newFile  = downloadFile(path,  newFile,  newName,  name,  fullFileName,  
-                                                                   fileMetadata,  subfolder, sequence_to_use, fallback_date)
+                fileDownloaded, newName, newFile  = downloadFile(path, newFile, newName, name, fullFileName,  
+                                                                   fileMetadata, subfolder, sequence_to_use, fallback_date)
 
                 if self.prefs.backup_images:
-                    backed_up = backupImage(subfolder,  newName,  imageDownloaded,  newFile,  fullFileName)
+                    backed_up = backupFile(subfolder, newName, fileDownloaded, newFile, fullFileName)
 
-                if imageDownloaded:
-                    noImagesDownloaded += 1
+                if fileDownloaded:
+                    noFilesDownloaded += 1
                     if self.prefs.backup_images and backed_up:
-                        imagesDownloadedSuccessfully.append(fullFileName)
+                        filesDownloadedSuccessfully.append(fullFileName)
                     elif not self.prefs.backup_images:
-                        imagesDownloadedSuccessfully.append(fullFileName)
+                        filesDownloadedSuccessfully.append(fullFileName)
                 else:
-                    noImagesSkipped += 1
+                    noFilesSkipped += 1
                 
                 thumbnail, orientation = getThumbnail(fileMetadata)
 
-                display_queue.put((image_hbox.addImage, (self.thread_id, thumbnail, orientation, fullFileName,  imageDownloaded, self.isImage)))
+                display_queue.put((thumbnail_hbox.addImage, (self.thread_id, thumbnail, orientation, fullFileName, fileDownloaded, self.isImage)))
             
             sizeDownloaded += size
-            percentComplete = (sizeDownloaded / sizeImages) * 100
-            if sizeDownloaded == sizeImages:
+            percentComplete = (sizeDownloaded / sizeFiles) * 100
+            if sizeDownloaded == sizeFiles:
                 self.downloadComplete = True
-            progressBarText = _("%(number)s of %(total)s %(filetypes)s") % {'number':  i + 1, 'total': noImages, 'filetypes':self.display_file_types}
+            progressBarText = _("%(number)s of %(total)s %(filetypes)s") % {'number':  i + 1, 'total': noFiles, 'filetypes':self.display_file_types}
             display_queue.put((media_collection_treeview.updateProgress, (self.thread_id, percentComplete, progressBarText, size)))
             
             i += 1
 
         with self.statsLock:
-            self.downloadStats.adjust(sizeDownloaded,  noImagesDownloaded,  noImagesSkipped,  self.noWarnings,  self.noErrors)
+            self.downloadStats.adjust(sizeDownloaded, noFilesDownloaded, noFilesSkipped, self.noWarnings, self.noErrors)
             
         if self.prefs.auto_delete:
             j = 0
-            for image in imagesDownloadedSuccessfully:
+            for imageOrVideo in filesDownloadedSuccessfully:
                 try:
-                    os.unlink(image)
+                    os.unlink(imageOrVideo)
                     j += 1
                 except OSError, (errno, strerror):
-                    logError(config.SERIOUS_ERROR,  _("Could not delete image from image device"),  
+                    logError(config.SERIOUS_ERROR,  _("Could not delete image or video from image device"),  
                             _("Image: %(source)s\nError: %(errno)s %(strerror)s")
                             % {'source': image, 'errno': errno,  'strerror': strerror})
                 except:
-                    logError(config.SERIOUS_ERROR,  _("Could not delete image from image device"),  
+                    logError(config.SERIOUS_ERROR,  _("Could not delete image or video from image device"),  
                             _("Image: %(source)s"))
                     
-            cmd_line(_("Deleted %i images from image device") % j)
+            cmd_line(_("Deleted %(number)i %(filetypes)s from image device") % {'number':j, 'filetypes':self.display_file_types})
 
-        # must manually delete these variables, or else the media cannot be unmounted (bug in some versions of pyexiv or exiv2)
-        del self.subfolderPrefsFactory,  self.imageRenamePrefsFactory
+        # must manually delete these variables, or else the media cannot be unmounted (bug in some versions of pyexiv2 / exiv2)
+        del self.subfolderPrefsFactory, self.imageRenamePrefsFactory
         try:
             del fileMetadata
         except:
@@ -2296,7 +2294,7 @@ class CopyPhotos(Thread):
         display_queue.close("rw")
         
         self.running = False
-        if noImages:
+        if noFiles:
             self.lock.release()
         
     def startStop(self):
@@ -2376,13 +2374,11 @@ class MediaTreeView(gtk.TreeView):
         self.append_column(column2)
         self.show_all()
         
-    def addCard(self, thread_id, cardName, sizeImages, noImages, progress = 0.0,
+    def addCard(self, thread_id, cardName, sizeFiles, noFiles, progress = 0.0,
                 progressBarText = ''):
-        if not progressBarText:
-            progressBarText = _("0 of %s images copied") % (noImages)
         
         # add the row, and get a temporary pointer to the row
-        iter = self.liststore.append((cardName, sizeImages, noImages, 
+        iter = self.liststore.append((cardName, sizeFiles, noFiles, 
                                                 progress, progressBarText))
         
         self._setThreadMap(thread_id, iter)
@@ -2396,11 +2392,11 @@ class MediaTreeView(gtk.TreeView):
             self.parentApp.media_collection_scrolledwindow.set_size_request(-1,  height)
 
         
-    def updateCard(self,  thread_id,  sizeImages, noImages):
+    def updateCard(self,  thread_id,  sizeFiles, noFiles):
         if thread_id in self.mapThreadToRow:
             iter = self._getThreadMap(thread_id)
-            self.liststore.set_value(iter, 1, sizeImages)
-            self.liststore.set_value(iter, 2, noImages)
+            self.liststore.set_value(iter, 1, sizeFiles)
+            self.liststore.set_value(iter, 2, noFiles)
         else:
             sys.stderr.write("FIXME: this card is unknown")
     
@@ -2450,7 +2446,7 @@ class MediaTreeView(gtk.TreeView):
             col = self.get_column(0)
             return self.get_background_area(path, col)[3]
 
-class ImageHBox(gtk.HBox):
+class ThumbnailHBox(gtk.HBox):
     """
     Displays thumbnails of the images being downloaded
     """
@@ -2469,7 +2465,7 @@ class ImageHBox(gtk.HBox):
         self.missingThumbnail = gtk.gdk.pixbuf_new_from_file_at_size(paths.share_dir('glade3/image-missing.svg'),  MAX_THUMBNAIL_SIZE,  MAX_THUMBNAIL_SIZE)
         self.videoThumbnail = gtk.gdk.pixbuf_new_from_file_at_size(paths.share_dir('glade3/video.svg'),  MAX_THUMBNAIL_SIZE,  MAX_THUMBNAIL_SIZE)
         
-    def addImage(self, thread_id, thumbnail, orientation, filename, imageDownloaded, isImage):
+    def addImage(self, thread_id, thumbnail, orientation, filename, fileDownloaded, isImage):
         """ 
         Add thumbnail
         
@@ -2513,7 +2509,7 @@ class ImageHBox(gtk.HBox):
     
         # scale to size
         pixbuf = common.scale2pixbuf(MAX_THUMBNAIL_SIZE, MAX_THUMBNAIL_SIZE, pixbuf)
-        if not imageDownloaded:
+        if not fileDownloaded:
             # lighten it
             self.white.composite(pixbuf, 0, 0, pixbuf.props.width, pixbuf.props.height, 0, 0, 1.0, 1.0, gtk.gdk.INTERP_HYPER, 180)
 
@@ -2845,7 +2841,7 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
             displayPreferences = not self.checkPreferencesOnStartup()
         
         # display download information using threads
-        global media_collection_treeview, image_hbox, log_dialog
+        global media_collection_treeview, thumbnail_hbox, log_dialog
         global download_queue, image_queue, log_queue
         global workers
 
@@ -2902,8 +2898,8 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
         self.media_collection_vbox.pack_start(media_collection_treeview)
         
         #thumbnail display
-        image_hbox = ImageHBox(self)
-        self.image_viewport.add(image_hbox)
+        thumbnail_hbox = ThumbnailHBox(self)
+        self.image_viewport.add(thumbnail_hbox)
         self.image_viewport.modify_bg(gtk.STATE_NORMAL, gdk.color_parse("white"))
         self.set_display_thumbnails(self.prefs.display_thumbnails)
         
@@ -3302,7 +3298,7 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
                             self.backupVolumes[backupPath] = volume
                             self.rapid_statusbar.push(self.statusbar_context_id, self.displayBackupVolumes())
 
-                    elif media.isImageMedia(path) or self.searchForPsd():
+                    elif media.is_DCIM_Media(path) or self.searchForPsd():
                         if self.searchForPsd() and path not in self.prefs.device_whitelist:
                             # prompt user if device should be used or not
                             self.getUseDevice(path,  volume, self.prefs.auto_download_upon_device_insertion)
@@ -3454,7 +3450,7 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
                             if isBackupVolume:
                                 backupPath = os.path.join(path,  self.prefs.backup_identifier)
                                 self.backupVolumes[backupPath] = volume
-                            elif self.prefs.device_autodetection and (media.isImageMedia(path) or self.searchForPsd()):
+                            elif self.prefs.device_autodetection and (media.is_DCIM_Media(path) or self.searchForPsd()):
                                 volumeList.append((path, volume))
                         
         
@@ -3630,9 +3626,9 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
         if self.downloadComplete():
             if self.displayDownloadSummaryNotification:
                 message = _("All downloads complete")
-                message += "\n%s " % self.downloadStats.noImagesDownloaded + _("images downloaded")
-                if self.downloadStats.noImagesSkipped:
-                    message = "%s\n%s " % (message,  self.downloadStats.noImagesSkipped) + _("images skipped")
+                message += "\n%s " % self.downloadStats.noFilesDownloaded + _("images downloaded")
+                if self.downloadStats.noFilesSkipped:
+                    message = "%s\n%s " % (message,  self.downloadStats.noFilesSkipped) + _("images skipped")
                 if self.downloadStats.noWarnings:
                     message = "%s\n%s " % (message,  self.downloadStats.noWarnings) + _("warnings")
                 if self.downloadStats.noErrors:
@@ -3913,15 +3909,15 @@ class DownloadStats:
     def __init__(self):
         self.clear()
         
-    def adjust(self, size,  noImagesDownloaded,  noImagesSkipped,  noWarnings,  noErrors):
+    def adjust(self, size,  noFilesDownloaded,  noFilesSkipped,  noWarnings,  noErrors):
         self.downloadSize += size
-        self.noImagesDownloaded += noImagesDownloaded
-        self.noImagesSkipped += noImagesSkipped
+        self.noFilesDownloaded += noFilesDownloaded
+        self.noFilesSkipped += noFilesSkipped
         self.noWarnings += noWarnings
         self.noErrors += noErrors
         
     def clear(self):
-        self.noImagesDownloaded = self.noImagesSkipped = 0
+        self.noFilesDownloaded = self.noFilesSkipped = 0
         self.downloadSize = 0
         self.noWarnings = self.noErrors = 0
         
