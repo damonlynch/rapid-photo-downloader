@@ -354,6 +354,7 @@ class RapidPreferences(prefs.Preferences):
         "download_folder":  prefs.Value(prefs.STRING, 
                                         getDefaultPhotoLocation()),
         "subfolder": prefs.ListValue(prefs.STRING_LIST, rn.DEFAULT_SUBFOLDER_PREFS),
+        "video_subfolder": prefs.ListValue(prefs.STRING_LIST, rn.DEFAULT_VIDEO_SUBFOLDER_PREFS),
         "image_rename": prefs.ListValue(prefs.STRING_LIST, [rn.FILENAME, 
                                         rn.NAME_EXTENSION,
                                         rn.ORIGINAL_CASE]),
@@ -643,7 +644,7 @@ class ImageRenameTable(tpm.TablePlusMinus):
 
 class SubfolderTable(ImageRenameTable):
     def __init__(self, parentApp,  adjustScollWindow):    
-        self.errorTitle = _("Error in Download Subfolder preferences")
+        self.errorTitle = _("Error in Photo Download Subfolder preferences")
         ImageRenameTable.__init__(self,  parentApp,  adjustScollWindow)
 
     def getParentAppPrefs(self):
@@ -656,8 +657,24 @@ class SubfolderTable(ImageRenameTable):
         self.parentApp.prefs.subfolder = self.prefList
 
     def updateExample(self):
-        self.parentApp.updateDownloadFolderExample()
+        self.parentApp.updatePhotoDownloadFolderExample()
         
+class VideoSubfolderTable(ImageRenameTable):
+    def __init__(self, parentApp,  adjustScollWindow): 
+        self.errorTitle = _("Error in Video Download Subfolder preferences")
+        ImageRenameTable.__init__(self,  parentApp,  adjustScollWindow)
+
+    def getParentAppPrefs(self):
+        self.prefList = self.parentApp.prefs.video_subfolder
+    
+    def getPrefsFactory(self):
+        self.prefsFactory = rn.VideoSubfolderPreferences(self.prefList, self)
+        
+    def updateParentAppPrefs(self):
+        self.parentApp.prefs.video_subfolder = self.prefList
+
+    def updateExample(self):
+        self.parentApp.updateVideoDownloadFolderExample()        
 
 class PreferencesDialog(gnomeglade.Component):
     def __init__(self, parentApp):
@@ -676,7 +693,7 @@ class PreferencesDialog(gnomeglade.Component):
         
         self._setupControlSpacing()
 
-        # get example image data
+        # get example image and video data
         
         try:
             w = workers.firstWorkerReadyToDownload()
@@ -687,6 +704,16 @@ class PreferencesDialog(gnomeglade.Component):
         except:
             self.sampleImage = metadata.DummyMetaData()
             self.sampleImageName = 'IMG_0524.CR2'
+            
+
+        try:
+            root, self.sampleVideoName = w.firstVideo()
+            video = os.path.join(root, self.sampleVideoName)
+            self.sampleVideo = videometadata.MetaData(video)
+        except:
+            self.sampleVideo = videometadata.DummyMetaData()
+            self.sampleImageName = 'MVI_1376.MOV'
+            
         
         # setup tabs
         self._setupDownloadFolderTab()
@@ -739,7 +766,7 @@ class PreferencesDialog(gnomeglade.Component):
     
     def on_download_folder_filechooser_button_selection_changed(self, widget):
         self.prefs.download_folder = widget.get_current_folder()
-        self.updateDownloadFolderExample()
+        self.updatePhotoDownloadFolderExample()
     
     def on_backup_folder_filechooser_button_selection_changed(self, widget):
         self.prefs.backup_location = widget.get_current_folder()
@@ -780,6 +807,11 @@ class PreferencesDialog(gnomeglade.Component):
         self.subfolder_vbox.pack_start(self.subfolder_table)
         self.subfolder_table.show_all()
         
+    def _setupVideoSubfolderTable(self):
+        self.video_subfolder_table = VideoSubfolderTable(self,  None)
+        self.video_subfolder_vbox.pack_start(self.video_subfolder_table)
+        self.video_subfolder_table.show_all()
+        
     def _setupDownloadFolderTab(self):
         self.download_folder_filechooser_button = gtk.FileChooserButton(
                             _("Select a folder to download photos to"))
@@ -796,7 +828,9 @@ class PreferencesDialog(gnomeglade.Component):
         self.download_folder_filechooser_button.show()        
 
         self._setupSubfolderTable()
-        self.updateDownloadFolderExample()
+        self._setupVideoSubfolderTable()
+        self.updatePhotoDownloadFolderExample()
+        self.updateVideoDownloadFolderExample()
     
     def _setupImageRenameTab(self):
 
@@ -974,14 +1008,14 @@ class PreferencesDialog(gnomeglade.Component):
 
         self.new_name_label.set_markup(text)
             
-    def updateDownloadFolderExample(self):
+    def updateDownloadFolderExample(self, display_table, subfolder_table, example_download_path_label, subfolder_warning_label):
         """ 
         Displays example subfolder name(s) to the user 
         """
         
-        if hasattr(self,  'subfolder_table'):
-            self.subfolder_table.updateExampleJobCode()
-            path, problem = self.subfolder_table.prefsFactory.generateNameUsingPreferences(
+        if hasattr(self, display_table):
+            subfolder_table.updateExampleJobCode()
+            path, problem = subfolder_table.prefsFactory.generateNameUsingPreferences(
                             self.sampleImage, self.sampleImageName,
                             self.prefs.strip_characters)
         else:
@@ -995,8 +1029,14 @@ class PreferencesDialog(gnomeglade.Component):
         else:
             warning = ""
         # Translators: you should not modify or leave out the %s. This is a code used by the programming language python to insert a value that thes user will see
-        self.example_download_path_label.set_markup(_("<i>Example: %s</i>") % text)
-        self.subfolder_warning_label.set_markup(warning)
+        example_download_path_label.set_markup(_("<i>Example: %s</i>") % text)
+        subfolder_warning_label.set_markup(warning)
+        
+    def updatePhotoDownloadFolderExample(self):
+        self.updateDownloadFolderExample('subfolder_table', self.subfolder_table, self.example_photo_download_path_label, self.photo_subfolder_warning_label)
+        
+    def updateVideoDownloadFolderExample(self):
+        self.updateDownloadFolderExample('video_subfolder_table', self.video_subfolder_table, self.example_video_download_path_label, self.video_subfolder_warning_label)
         
     def on_hour_spinbutton_value_changed(self, spinbutton):
         hour = spinbutton.get_value_as_int()
@@ -1193,7 +1233,8 @@ class PreferencesDialog(gnomeglade.Component):
     def on_strip_characters_checkbutton_toggled(self, check_button):
         self.prefs.strip_characters = check_button.get_active()
         self.updateImageRenameExample()
-        self.updateDownloadFolderExample()
+        self.updatePhotoDownloadFolderExample()
+        self.updateVideoDownloadFolderExample()
         
     def on_indicate_download_error_checkbutton_toggled(self, check_button):
         self.prefs.indicate_download_error = check_button.get_active()
@@ -1734,7 +1775,7 @@ class CopyPhotos(Thread):
                         {'subfolder': subfolder, 'file': fullFileName, 'problem': problem})
                 
                 if self.prefs.synchronize_raw_jpg and usesImageSequenceElements and self.isImage:
-                    #this only applies to images, not videos
+                    #synchronizing RAW and JPEG only applies to images, not videos
                     image_name, image_ext = os.path.splitext(name)
                     with self.downloadedFilesLock:
                         i, sequence_to_use = downloaded_files.matching_pair(image_name, image_ext, fileMetadata.dateTime(), fileMetadata.subSeconds())
@@ -1751,8 +1792,8 @@ class CopyPhotos(Thread):
                 # pass the subfolder the image will go into, as this is needed to determine subfolder sequence numbers 
                 # indicate that sequences chosen should be queued
                 
-                # TODO why was 'or alreadyDownloaded' in the next line, orginally?
-                if not skipFile: # or alreadyDownloaded:
+                # TODO check 'or alreadyDownloaded' is meant to be here
+                if not (skipFile or alreadyDownloaded):
                     newName, problem = fileRenameFactory.generateNameUsingPreferences(
                                                                 fileMetadata, name, self.stripCharacters,  subfolder,  
                                                                 sequencesPreliminary = True,
@@ -1774,8 +1815,6 @@ class CopyPhotos(Thread):
         
         def downloadFile(path,  newFile,  newName,  originalName,  image,  fileMetadata,  subfolder, sequence_to_use, modificationTime):
             """Downloads the image or video file to the specified subfolder """
-            
-            #TODO: handle videos having sequence numbers too
             
             if not self.isImage:
                 renameFactory = self.videoRenamePrefsFactory
@@ -1799,7 +1838,7 @@ class CopyPhotos(Thread):
                     nameUniqueBeforeCopy = False
                     if not addUniqueIdentifier:
                         downloadNonUniqueFile = False
-                        if (usesImageSequenceElements and not self.isImage) or (usesImageSequenceElements and not self.prefs.synchronize_raw_jpg):
+                        if (usesVideoSequenceElements and not self.isImage) or (usesImageSequenceElements and self.isImage and not self.prefs.synchronize_raw_jpg):
                             # potentially, a unique file name could still be generated
                             # investigate this possibility
                             with self.fileSequenceLock:
@@ -1834,7 +1873,7 @@ class CopyPhotos(Thread):
                     if copy_succeeded:
                         with self.fileRenameLock:
                             doRename = True
-                            if usesImageSequenceElements:
+                            if usesSequenceElements:
                                 with self.fileSequenceLock:
                                     # get a filename and use this as the "real" filename
                                     if sequence_to_use is None and self.prefs.synchronize_raw_jpg and self.isImage:
@@ -1900,7 +1939,7 @@ class CopyPhotos(Thread):
                                     
                                     with self.fileSequenceLock:
                                         if sequence_to_use is None:
-                                            self.imageRenamePrefsFactory.sequences.imageCopySucceeded()
+                                            renameFactory.sequences.imageCopySucceeded()
                                             if usesStoredSequenceNo:
                                                 self.prefs.stored_sequence_no += 1
                                             
@@ -2187,8 +2226,10 @@ class CopyPhotos(Thread):
         addUniqueIdentifier = self.prefs.download_conflict_resolution == config.ADD_UNIQUE_IDENTIFIER
         usesImageSequenceElements = self.imageRenamePrefsFactory.usesSequenceElements()
         usesVideoSequenceElements = self.videoRenamePrefsFactory.usesSequenceElements()
+        usesSequenceElements = usesVideoSequenceElements or usesImageSequenceElements
         
-        usesStoredSequenceNo = self.imageRenamePrefsFactory.usesTheSequenceElement(rn.STORED_SEQ_NUMBER)
+        usesStoredSequenceNo = (self.imageRenamePrefsFactory.usesTheSequenceElement(rn.STORED_SEQ_NUMBER) or
+                                self.videoRenamePrefsFactory.usesTheSequenceElement(rn.STORED_SEQ_NUMBER))
         sequences.setUseOfSequenceElements(
             self.imageRenamePrefsFactory.usesTheSequenceElement(rn.SESSION_SEQ_NUMBER), 
             self.imageRenamePrefsFactory.usesTheSequenceElement(rn.SEQUENCE_LETTER))

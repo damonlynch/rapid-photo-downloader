@@ -114,8 +114,39 @@ if DOWNLOAD_VIDEO:
                     thumbnail = None
             return thumbnail
         
+    class DummyMetaData(VideoMetaData):
+        """
+        Class which gives metadata values for an imaginary video.
         
+        Useful for displaying in preference examples etc. when no video is ready to
+        be downloaded.
+        
+        See VideoMetaData class for documentation of class methods.        
+        """
+        def __init__(self):
+            pass        
+        
+        def dateTime(self, missing=''):
+            return datetime.datetime.now()
             
+        def codec(self, stream=0, missing=''):
+            return 'H.264 AVC'
+            
+        def length(self, missing=''):
+            return 57
+            
+        def width(self, stream=0, missing=''):
+            return 1920
+            
+        def height(self, stream=0, missing=''):
+            return 1080
+            
+        def framesPerSecond(self, stream=0, missing=''):
+            return 24
+        
+        def fourcc(self, stream=0, missing=''):
+            return 'AVC1'
+                    
             
 if __name__ == '__main__':
     import sys

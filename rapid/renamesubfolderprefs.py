@@ -178,6 +178,7 @@ LIST_IMAGE_DATE_TIME_L2 = LIST_DATE_TIME_L2 + [SUBSECONDS]
 
 DEFAULT_SUBFOLDER_PREFS = [DATE_TIME, IMAGE_DATE, LIST_DATE_TIME_L2[9], '/',  '', '', DATE_TIME, IMAGE_DATE, LIST_DATE_TIME_L2[0]]
 DEFAULT_VIDEO_SUBFOLDER_PREFS = [DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[9], '/',  '', '', DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[0]]
+#DEFAULT_VIDEO_SUBFOLDER_PREFS = [JOB_CODE, '', '']
 
 DEFAULT_VIDEO_RENAME_PREFS = [DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[0], TEXT, '-', '', DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[14], TEXT, '-', '', SEQUENCES, DOWNLOAD_SEQ_NUMBER, SEQUENCE_NUMBER_1, FILENAME, EXTENSION, LOWERCASE]
 
@@ -474,11 +475,23 @@ DICT_SUBFOLDER_L0 = {
                     DATE_TIME: DICT_DATE_TIME_L1,
                     TEXT: None,
                     FILENAME: DICT_SUBFOLDER_FILENAME_L1,
-                    METADATA: DICT_METADATA_L1,
+                    METADATA: DICT_VIDEO_METADATA_L1,
                     JOB_CODE: None, 
                     SEPARATOR: None,
                     ORDER_KEY: LIST_SUBFOLDER_L0
                    }
+                                      
+LIST_VIDEO_SUBFOLDER_L0 = [DATE_TIME, TEXT, FILENAME, METADATA, JOB_CODE,  SEPARATOR]
+                   
+DICT_VIDEO_SUBFOLDER_L0 = {
+                    DATE_TIME: VIDEO_DICT_DATE_TIME_L1,
+                    TEXT: None,
+                    FILENAME: DICT_SUBFOLDER_FILENAME_L1,
+                    METADATA: DICT_VIDEO_METADATA_L1,
+                    JOB_CODE: None, 
+                    SEPARATOR: None,
+                    ORDER_KEY: LIST_VIDEO_SUBFOLDER_L0
+                   }                   
 
 # preference elements that require metadata
 # note there is no need to specify lower level elements if a higher level 
@@ -1479,6 +1492,7 @@ class SubfolderPreferences(ImageRenamePreferences):
 class VideoSubfolderPreferences(SubfolderPreferences):
     def __init__(self, prefList, parent):
         SubfolderPreferences.__init__(self, prefList, parent)
+        self.prefsDefnL0 = DICT_VIDEO_SUBFOLDER_L0
         self.defaultPrefs = DEFAULT_VIDEO_SUBFOLDER_PREFS
         self.defaultRow = [DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[0]]
         self.L1DateCheck = VIDEO_DATE

@@ -121,7 +121,7 @@
                         <child>
                           <widget class="GtkTable" id="download_folder_table">
                             <property name="visible">True</property>
-                            <property name="n_rows">7</property>
+                            <property name="n_rows">11</property>
                             <property name="n_columns">3</property>
                             <child>
                               <widget class="GtkVBox" id="subfolder_vbox">
@@ -139,10 +139,10 @@
                               </packing>
                             </child>
                             <child>
-                              <widget class="GtkLabel" id="example_download_path_label">
+                              <widget class="GtkLabel" id="example_photo_download_path_label">
                                 <property name="visible">True</property>
                                 <property name="xalign">0</property>
-                                <property name="label" translatable="yes">&lt;i&gt;Example: /home/user/photos&lt;/i&gt;</property>
+                                <property name="label" translatable="yes">&lt;i&gt;Example: /home/user/Pictures&lt;/i&gt;</property>
                                 <property name="use_markup">True</property>
                               </widget>
                               <packing>
@@ -156,7 +156,7 @@
                               <widget class="GtkLabel" id="label8">
                                 <property name="visible">True</property>
                                 <property name="xalign">0</property>
-                                <property name="label" translatable="yes">&lt;b&gt;Download Subfolders&lt;/b&gt;</property>
+                                <property name="label" translatable="yes">&lt;b&gt;Photo Download Subfolders&lt;/b&gt;</property>
                                 <property name="use_markup">True</property>
                               </widget>
                               <packing>
@@ -186,7 +186,7 @@
                                 <property name="visible">True</property>
                                 <property name="xalign">0</property>
                                 <property name="ypad">12</property>
-                                <property name="label" translatable="yes">Choose the download folder. Subfolders for the downloaded photos will be automatically created in this folder using the structure specified below.</property>
+                                <property name="label" translatable="yes">Choose the download folder. Subfolders for the downloaded photos and videos will be automatically created in this folder using the structure specified below.</property>
                                 <property name="use_markup">True</property>
                                 <property name="wrap">True</property>
                               </widget>
@@ -211,7 +211,7 @@
                               </packing>
                             </child>
                             <child>
-                              <widget class="GtkLabel" id="subfolder_warning_label">
+                              <widget class="GtkLabel" id="photo_subfolder_warning_label">
                                 <property name="visible">True</property>
                                 <property name="xalign">0</property>
                                 <property name="yalign">0</property>
@@ -225,6 +225,74 @@
                                 <property name="bottom_attach">7</property>
                                 <property name="y_options"></property>
                               </packing>
+                            </child>
+                            <child>
+                              <widget class="GtkLabel" id="label29">
+                                <property name="visible">True</property>
+                                <property name="xalign">0</property>
+                                <property name="label" translatable="yes">&lt;b&gt;Video Download Subfolders&lt;/b&gt;</property>
+                                <property name="use_markup">True</property>
+                              </widget>
+                              <packing>
+                                <property name="right_attach">3</property>
+                                <property name="top_attach">7</property>
+                                <property name="bottom_attach">8</property>
+                                <property name="y_options"></property>
+                              </packing>
+                            </child>
+                            <child>
+                              <widget class="GtkLabel" id="example_video_download_path_label">
+                                <property name="visible">True</property>
+                                <property name="xalign">0</property>
+                                <property name="label" translatable="yes">&lt;i&gt;Example: /home/user/Pictures&lt;/i&gt;</property>
+                                <property name="use_markup">True</property>
+                              </widget>
+                              <packing>
+                                <property name="left_attach">1</property>
+                                <property name="right_attach">3</property>
+                                <property name="top_attach">9</property>
+                                <property name="bottom_attach">10</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <widget class="GtkLabel" id="video_subfolder_warning_label">
+                                <property name="visible">True</property>
+                                <property name="xalign">0</property>
+                                <property name="yalign">0</property>
+                                <property name="wrap">True</property>
+                                <property name="wrap_mode">word-char</property>
+                              </widget>
+                              <packing>
+                                <property name="left_attach">1</property>
+                                <property name="right_attach">3</property>
+                                <property name="top_attach">10</property>
+                                <property name="bottom_attach">11</property>
+                                <property name="y_options"></property>
+                              </packing>
+                            </child>
+                            <child>
+                              <widget class="GtkVBox" id="video_subfolder_vbox">
+                                <property name="visible">True</property>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                              </widget>
+                              <packing>
+                                <property name="left_attach">1</property>
+                                <property name="right_attach">3</property>
+                                <property name="top_attach">8</property>
+                                <property name="bottom_attach">9</property>
+                                <property name="y_padding">12</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <placeholder/>
+                            </child>
+                            <child>
+                              <placeholder/>
+                            </child>
+                            <child>
+                              <placeholder/>
                             </child>
                             <child>
                               <placeholder/>
@@ -304,7 +372,7 @@
                             <child>
                               <widget class="GtkLabel" id="label4">
                                 <property name="visible">True</property>
-                                <property name="label" translatable="yes">&lt;span weight="bold" size="x-large"&gt;Image Rename&lt;/span&gt;	</property>
+                                <property name="label" translatable="yes">&lt;span weight="bold" size="x-large"&gt;Photo Rename&lt;/span&gt;	</property>
                                 <property name="use_markup">True</property>
                               </widget>
                               <packing>
@@ -353,7 +421,7 @@
                             <child>
                               <widget class="GtkLabel" id="label42">
                                 <property name="xalign">0</property>
-                                <property name="label" translatable="yes">&lt;b&gt;Image Rename&lt;/b&gt;</property>
+                                <property name="label" translatable="yes">&lt;b&gt;Photo Rename&lt;/b&gt;</property>
                                 <property name="use_markup">True</property>
                               </widget>
                               <packing>
@@ -527,7 +595,7 @@
                 <child>
                   <widget class="GtkLabel" id="rename_label">
                     <property name="visible">True</property>
-                    <property name="label" translatable="yes">Image Rename</property>
+                    <property name="label" translatable="yes">Photo Rename</property>
                   </widget>
                   <packing>
                     <property name="position">1</property>
@@ -969,7 +1037,6 @@
                         <child>
                           <widget class="GtkVBox" id="job_code_vbox">
                             <property name="visible">True</property>
-                            <property name="orientation">vertical</property>
                             <child>
                               <widget class="GtkLabel" id="job_code_label">
                                 <property name="xalign">0</property>
@@ -2749,7 +2816,6 @@ Julien Valroff &lt;julien@kirya.net&gt;</property>
                             <child>
                               <widget class="GtkVSeparator" id="warning_vseparator">
                                 <property name="visible">True</property>
-                                <property name="orientation">vertical</property>
                               </widget>
                               <packing>
                                 <property name="expand">False</property>
@@ -2806,7 +2872,6 @@ Julien Valroff &lt;julien@kirya.net&gt;</property>
             <child>
               <widget class="GtkVSeparator" id="vseparator2">
                 <property name="visible">True</property>
-                <property name="orientation">vertical</property>
               </widget>
               <packing>
                 <property name="expand">False</property>
