@@ -1127,6 +1127,31 @@ class PreferencesDialog(gnomeglade.Component):
             sequences.setStoredSequenceNo(v)
             self.updateImageRenameExample()
 
+    def _updateSubfolderPrefOnError(self, newPrefList):
+        self.prefs.subfolder = newPrefList
+
+    def _updateVideoSubfolderPrefOnError(self, newPrefList):
+        self.prefs.video_subfolder = newPrefList
+        
+    
+    def checkSubfolderValuesValidOnExit(self, usersPrefList, updatePrefFunction, filetype, defaultPrefList):
+        """
+        Checks that the user has not entered in any inappropriate values
+        
+        If they have, filters out bad values and warns the user 
+        """
+        filtered,  prefList = rn.filterSubfolderPreferences(usersPrefList)
+        if filtered:
+            cmd_line(_("The %(filetype)s subfolder preferences had some unnecessary values removed.") % {'filetype': filetype})
+            if prefList:
+                updatePrefFunction(prefList)
+            else:
+                #Preferences list is now empty
+                msg = _("The %(filetype)s subfolder preferences entered are invalid and cannot be used.\nThey will be reset to their default values.") % {'filetype': filetype}
+                sys.stderr.write(msg + "\n")
+                misc.run_dialog(PROGRAM_NAME, msg)
+                updatePrefFunction(self.prefs.get_default(defaultPrefList))
+    
     def on_response(self, dialog, arg):
         if arg == gtk.RESPONSE_HELP:
             webbrowser.open("http://www.damonlynch.net/rapid/documentation")
@@ -1135,17 +1160,8 @@ class PreferencesDialog(gnomeglade.Component):
             self.prefs.backup_identifier = self.backup_identifier_entry.get_property("text")
             
             #check subfolder preferences for bad values
-            filtered,  prefList = rn.filterSubfolderPreferences(self.prefs.subfolder)
-            if filtered:
-                cmd_line(_("The subfolder preferences had some unnecessary values removed."))
-                if prefList:
-                    self.prefs.subfolder = prefList
-                else:
-                    #Preferences list is now empty
-                    msg = _("The subfolder preferences entered are invalid and cannot be used.\nThey will be reset to their default values.")
-                    sys.stderr.write(msg + "\n")
-                    misc.run_dialog(PROGRAM_NAME, msg)
-                    self.prefs.subfolder = self.prefs.get_default("subfolder")
+            self.checkSubfolderValuesValidOnExit(self.prefs.subfolder, self._updateSubfolderPrefOnError, _("photo"), "subfolder")
+            self.checkSubfolderValuesValidOnExit(self.prefs.video_subfolder, self._updateVideoSubfolderPrefOnError, _("video"), "video_subfolder")
                     
             self.widget.destroy()
             self.parentApp.preferencesDialogDisplayed = False
