@@ -1459,6 +1459,16 @@ class CopyPhotos(Thread):
         """
         Setup thread so that user preferences are handled
         """
+        
+        def checkPrefs(prefsFactory):
+            try:
+                prefsFactory.checkPrefsForValidity()
+            except (rn.PrefValueInvalidError, rn.PrefLengthError, 
+                    rn.PrefValueKeyComboError, rn.PrefKeyError), e:
+                if notifyOnError:
+                    self.handlePreferencesError(e, prefsFactory)
+                raise rn.PrefError
+                
         self.prefs = self.parentApp.prefs
         
         
@@ -1466,33 +1476,19 @@ class CopyPhotos(Thread):
 
         self.imageRenamePrefsFactory = rn.ImageRenamePreferences(self.prefs.image_rename, self, 
                                                                  self.fileSequenceLock, sequences)
-        try:
-            self.imageRenamePrefsFactory.checkPrefsForValidity()
-        except (rn.PrefValueInvalidError, rn.PrefLengthError, 
-                rn.PrefValueKeyComboError,  rn.PrefKeyError), e:
-            if notifyOnError:
-                self.handlePreferencesError(e, self.imageRenamePrefsFactory)
-            raise rn.PrefError
-        
-        #temporarily assign a fixed renaming scheme for video filenames    
-        self.videoRenamePrefsFactory = rn.VideoRenamePreferences(rn.DEFAULT_VIDEO_RENAME_PREFS, self, 
+        checkPrefs(self.imageRenamePrefsFactory)
+           
+        self.videoRenamePrefsFactory = rn.VideoRenamePreferences(self.prefs.video_rename, self, 
                                                                  self.fileSequenceLock, sequences)
+        checkPrefs(self.videoRenamePrefsFactory)
         
         #Image and Video subfolder preferences
 
-        self.subfolderPrefsFactory = rn.SubfolderPreferences(
-                                                self.prefs.subfolder, self)
-        try:            
-            self.subfolderPrefsFactory.checkPrefsForValidity()
-        except (rn.PrefValueInvalidError, rn.PrefLengthError, 
-                rn.PrefValueKeyComboError,  rn.PrefKeyError), e:
-            if notifyOnError:
-                self.handlePreferencesError(e, self.subfolderPrefsFactory)
-            raise rn.PrefError
+        self.subfolderPrefsFactory = rn.SubfolderPreferences(self.prefs.subfolder, self)
+        checkPrefs(self.subfolderPrefsFactory)
 
-        #temporarily assign a fixed subfolder name scheme
-        self.videoSubfolderPrefsFactory = rn.VideoSubfolderPreferences(rn.DEFAULT_VIDEO_SUBFOLDER_PREFS, self)
-                                        
+        self.videoSubfolderPrefsFactory = rn.VideoSubfolderPreferences(self.prefs.video_subfolder, self)
+        checkPrefs(self.videoSubfolderPrefsFactory)
         
         # copy this variable, as it is used heavily in the loop
         # and it is perhaps relatively expensive to read
