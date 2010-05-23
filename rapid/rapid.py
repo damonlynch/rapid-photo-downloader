@@ -665,8 +665,8 @@ class VideoRenameTable(ImageRenameTable):
 
 class SubfolderTable(ImageRenameTable):
     def __init__(self, parentApp, adjustScollWindow):    
-        self.errorTitle = _("Error in Photo Download Subfolder preferences")
-        ImageRenameTable.__init__(self,  parentApp,  adjustScollWindow)
+        self.errorTitle = _("Error in Photo Download Subfolders preferences")
+        ImageRenameTable.__init__(self, parentApp, adjustScollWindow)
 
     def getParentAppPrefs(self):
         self.prefList = self.parentApp.prefs.subfolder
@@ -682,8 +682,8 @@ class SubfolderTable(ImageRenameTable):
         
 class VideoSubfolderTable(ImageRenameTable):
     def __init__(self, parentApp, adjustScollWindow): 
-        self.errorTitle = _("Error in Video Download Subfolder preferences")
-        ImageRenameTable.__init__(self,  parentApp,  adjustScollWindow)
+        self.errorTitle = _("Error in Video Download Subfolders preferences")
+        ImageRenameTable.__init__(self, parentApp, adjustScollWindow)
 
     def getParentAppPrefs(self):
         self.prefList = self.parentApp.prefs.video_subfolder
@@ -836,7 +836,7 @@ class PreferencesDialog(gnomeglade.Component):
         self.video_subfolder_table = VideoSubfolderTable(self, None)
         self.video_subfolder_vbox.pack_start(self.video_subfolder_table)
         self.video_subfolder_table.show_all()
-        
+
     def _setupDownloadFolderTab(self):
         self.download_folder_filechooser_button = gtk.FileChooserButton(
                             _("Select a folder to download photos and videos to"))

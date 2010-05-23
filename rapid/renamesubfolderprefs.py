@@ -475,7 +475,7 @@ DICT_SUBFOLDER_L0 = {
                     DATE_TIME: DICT_DATE_TIME_L1,
                     TEXT: None,
                     FILENAME: DICT_SUBFOLDER_FILENAME_L1,
-                    METADATA: DICT_VIDEO_METADATA_L1,
+                    METADATA: DICT_METADATA_L1,
                     JOB_CODE: None, 
                     SEPARATOR: None,
                     ORDER_KEY: LIST_SUBFOLDER_L0
@@ -1419,7 +1419,7 @@ def getVideoMetadataComponent(video):
         elif video.L2 == LOWERCASE:
             v = v.lower()
     if not v:
-        problem = _("%s metadata is not present in image") % video.L1
+        problem = _("%s metadata is not present in video") % video.L1
     return (v, problem)      
 
 class VideoRenamePreferences(ImageRenamePreferences):
