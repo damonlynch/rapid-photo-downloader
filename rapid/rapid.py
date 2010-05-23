@@ -1568,6 +1568,32 @@ class CopyPhotos(Thread):
             3.b  if so, user preferences determine whether it should be overwritten or not
         """
 
+        def checkDownloadPath(path):
+            """
+            Checks to see if download folder exists.
+            
+            Creates it if it does not exist.
+            
+            Returns False if the path could not be created.
+            """
+            
+            try:
+                if not os.path.isdir(path):
+                    os.makedirs(path)
+                return True
+                    
+            except:
+                if notifyOnError:
+                    display_queue.put((media_collection_treeview.removeCard,  (self.thread_id, )))
+                    msg = _("The following download path could not be created:\n")
+                    msg += _("%(path)s: ") % {'path': path}
+                    logError(config.CRITICAL_ERROR, _("Download cannot proceed"), msg)
+                    cmd_line(_("Download cannot proceed"))
+                    cmd_line(msg)
+                    display_queue.put((self.parentApp.downloadFailed,  (self.thread_id, )))
+                    display_queue.close("rw")                     
+                return False                
+                
         def getPrefs(notifyOnError):
             try:
                 self.initializeFromPrefs(notifyOnError)
@@ -1913,7 +1939,9 @@ class CopyPhotos(Thread):
             return (skipFile, fileMetadata, newName, newFile, path, subfolder, sequence_to_use)
         
         def downloadFile(path,  newFile,  newName,  originalName,  image,  fileMetadata,  subfolder, sequence_to_use, modificationTime):
-            """Downloads the image or video file to the specified subfolder """
+            """
+            Downloads the photo or video file to the specified subfolder 
+            """
             
             if not self.isImage:
                 renameFactory = self.videoRenamePrefsFactory
@@ -2021,7 +2049,13 @@ class CopyPhotos(Thread):
                                     
 
                             if doRename:
-                                os.rename(tempWorkingfile, newFile)
+                                if using_gio:
+                                    g_dest = gio.File(path=newFile)
+                                    g_src = gio.File(path=tempWorkingfile)
+                                    if not g_src.move(g_dest, progress_callback, cancellable=gio.Cancellable()):
+                                        downloadCopyingError(tempWorkingfile, newFile, fileBeingDownloadedDisplay)                                  
+                                else:
+                                    os.rename(tempWorkingfile, newFile)
                                         
                                 fileDownloaded = True
                                 if usesImageSequenceElements:
@@ -2204,6 +2238,8 @@ class CopyPhotos(Thread):
             """
             Create a temporary directory in which to download the photos to.
             
+            Returns the directory if it was created, else returns None.
+            
             Don't want to put it in system temp folder, as that is likely
             to be on another partition and hence copying files from it
             to the actual download folder will be slow!"""
@@ -2325,12 +2361,20 @@ class CopyPhotos(Thread):
         
         if self.noImages > 0:
             photoBaseDownloadDir = self.prefs.download_folder
+            if not checkDownloadPath(photoBaseDownloadDir):
+                return
             photoTempWorkingDir = createTempDir(photoBaseDownloadDir)
+            if not photoTempWorkingDir:
+                return
         else:
             photoBaseDownloadDir = photoTempWorkingDir = None
         if DOWNLOAD_VIDEO and self.noVideos > 0:
             videoBaseDownloadDir = self.prefs.video_download_folder
+            if not checkDownloadPath(videoBaseDownloadDir):
+                return
             videoTempWorkingDir = createTempDir(videoBaseDownloadDir)
+            if not videoTempWorkingDir:
+                return            
         else:
             videoBaseDownloadDir = videoTempWorkingDir = None
         
@@ -4201,7 +4245,7 @@ def start ():
     if DOWNLOAD_VIDEO:
         cmd_line(_("Using") + " kaa " + videometadata.version_info())
     else:
-        cmd_line(_("Video downloading functionality disabled.\nTo download videos, please install the kaa metadata package for python."))
+        cmd_line(_("\n" + "Video downloading functionality disabled.\nTo download videos, please install the kaa metadata package for python.") + "\n")
         
     if using_gio:
         cmd_line(_("Using") + " GIO")

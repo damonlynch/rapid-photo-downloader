@@ -2917,7 +2917,7 @@ You can download photos from multiple devices simultaneously, or you can specify
     <property name="type_hint">normal</property>
     <property name="program_name">Rapid Photo Downloader</property>
     <property name="copyright" translatable="yes">Copyright Damon Lynch 2007-10</property>
-    <property name="comments" translatable="yes">Import your images and videos efficiently and reliably</property>
+    <property name="comments" translatable="yes">Import your photos and videos efficiently and reliably</property>
     <property name="website">http://www.damonlynch.net/rapid</property>
     <property name="license" translatable="yes">Rapid Photo Downloader is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.
 
