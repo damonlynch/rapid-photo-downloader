@@ -12,13 +12,16 @@ Rapid Photo Downloader depends on the following software:
 
 
 To run Rapid Photo Downloader you will need all the software mentioned above. If
-you want to download videos, you can optionally install:
+you want to download videos, you can install:
 
 - python-kaa-metadata
 - ffmpegthumbnailer
 
 kaa metadata is required to download videos. ffmpegthumbnailer is used only to 
 display thumbnail images as the download occurs. 
+
+kaa metadata and ffmpegthumbnailer are optional. The program will run without
+them.
 
 To start from a fairly basic system, I suggest the following:
 

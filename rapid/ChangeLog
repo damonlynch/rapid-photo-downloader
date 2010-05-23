@@ -3,12 +3,23 @@ Version 0.2.0 beta 1
 
 2010-05-xx
 
-Preliminary functionality to download videos is now incorporated.
+Videos can now be downloaded. 
+
+The package kaa metadata is required to download videos. ffmpegthumbnailer is
+used to display thumbnail images of certain types of videos as the download
+occurs. 
+
+kaa metadata and ffmpegthumbnailer are optional. The program will run without
+them. See the INSTALL file for details.
 
 If a THM file with the same name as the video is present, it will be used to 
 generate a thumbnail for the video. If not, if ffmpegthumbnailer is installed, 
 Rapid Photo Downloader will use it to attempt to extract a thumbnail from the
 video.
+
+Due to the number of changes in the code, it is possible that regressions in the
+photo downloading code may have been introduced. Please test this beta release
+carefully.
 
 This is the first release to use version 0.2.x of the pyexiv2 library.  The 
 most immediate benefit of this change is that thumbnail images from Nikon and 
