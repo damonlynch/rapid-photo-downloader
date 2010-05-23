@@ -643,13 +643,15 @@ def usesJobCode(prefs):
             return True
     return False
     
-def checkPreferencesForValidity(imageRenamePrefs,  subfolderPrefs,  version=config.version):
+def checkPreferencesForValidity(imageRenamePrefs,  subfolderPrefs, videoRenamePrefs, videoSubfolderPrefs, version=config.version):
     """Returns true if the passed in preferences are valid"""
     
     if version == config.version:
         try:
-           checkPreferenceValid(DICT_SUBFOLDER_L0, subfolderPrefs)
-           checkPreferenceValid(DICT_IMAGE_RENAME_L0,  imageRenamePrefs)
+            checkPreferenceValid(DICT_SUBFOLDER_L0, subfolderPrefs)
+            checkPreferenceValid(DICT_IMAGE_RENAME_L0,  imageRenamePrefs)
+            checkPreferenceValid(DICT_VIDEO_SUBFOLDER_L0, videoSubfolderPrefs)
+            checkPreferenceValid(DICT_VIDEO_RENAME_L0, videoRenamePrefs)
         except:
             return False
         return True
@@ -658,6 +660,8 @@ def checkPreferencesForValidity(imageRenamePrefs,  subfolderPrefs,  version=conf
         try:
             checkPreferenceValid(defn, imageRenamePrefs)
             checkPreferenceValid(DICT_SUBFOLDER_L0, subfolderPrefs)
+            checkPreferenceValid(DICT_VIDEO_SUBFOLDER_L0, videoSubfolderPrefs)
+            checkPreferenceValid(DICT_VIDEO_RENAME_L0, videoRenamePrefs)            
         except:
             return False
         return True
@@ -752,6 +756,10 @@ def filterSubfolderPreferences(prefList):
 class PrefError(Exception):
     """ base class """
     def unpackList(self, l):
+        """
+        Make the preferences presentable to the user
+        """
+        
         s = ''
         for i in l:
             if i <> ORDER_KEY:
@@ -776,7 +784,7 @@ class PrefValueInvalidError(PrefKeyError):
         
 class PrefLengthError(PrefError):
     def __init__(self, error):
-        self.msg = _("These preferences are not well formed:") % self.unpackList(error) + "\n %s"
+        self.msg = _("These preferences are not well formed:") + "\n %s" % self.unpackList(error)
         
 class PrefValueKeyComboError(PrefError):
     def __init__(self, error):    

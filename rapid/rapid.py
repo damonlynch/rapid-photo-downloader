@@ -3214,7 +3214,7 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
             return True
     
     def checkPreferencesOnStartup(self):
-        prefsOk = rn.checkPreferencesForValidity(self.prefs.image_rename,  self.prefs.subfolder)
+        prefsOk = rn.checkPreferencesForValidity(self.prefs.image_rename,  self.prefs.subfolder, self.prefs.video_rename, self.prefs.video_subfolder)
         if not prefsOk:
             msg = _("There is an error in the program preferences.")
             msg += " " + _("Some preferences will be reset.") 
