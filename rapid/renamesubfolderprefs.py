@@ -644,14 +644,21 @@ def usesJobCode(prefs):
     return False
     
 def checkPreferencesForValidity(imageRenamePrefs,  subfolderPrefs, videoRenamePrefs, videoSubfolderPrefs, version=config.version):
-    """Returns true if the passed in preferences are valid"""
+    """
+    Checks preferences for validity (called at program startup)
+    
+    Returns true if the passed in preferences are valid, else returns False
+    """
     
     if version == config.version:
         try:
-            checkPreferenceValid(DICT_SUBFOLDER_L0, subfolderPrefs)
-            checkPreferenceValid(DICT_IMAGE_RENAME_L0,  imageRenamePrefs)
-            checkPreferenceValid(DICT_VIDEO_SUBFOLDER_L0, videoSubfolderPrefs)
-            checkPreferenceValid(DICT_VIDEO_RENAME_L0, videoRenamePrefs)
+            tests = ((imageRenamePrefs, ImageRenamePreferences), 
+                     (subfolderPrefs, SubfolderPreferences),
+                     (videoRenamePrefs, VideoRenamePreferences),
+                     (videoSubfolderPrefs, VideoSubfolderPreferences))
+            for i, Prefs in tests:
+                p = Prefs(i, None)
+                p.checkPrefsForValidity()
         except:
             return False
         return True

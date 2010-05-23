@@ -510,7 +510,7 @@ class ImageRenameTable(tpm.TablePlusMinus):
             self.updateParentAppPrefs()
 
             msg = "%s.\n" % e
-            msg += _("Resetting to default values.")
+            msg += _("Resetting to default values." + "\n")
             sys.stderr.write(msg)
             
             
@@ -715,8 +715,13 @@ class PreferencesDialog(gnomeglade.Component):
         self._setupTabSelector()
         
         self._setupControlSpacing()
+        
+        if DOWNLOAD_VIDEO:
+            self.file_types = _("photos and videos")
+        else:
+            self.file_types = _("photos")
 
-        # get example image and video data
+        # get example photo and video data
         try:
             w = workers.firstWorkerReadyToDownload()
             root, self.sampleImageName = w.firstImage()
@@ -759,7 +764,7 @@ class PreferencesDialog(gnomeglade.Component):
         width_of_widest_sel_row = self.treeview.get_background_area(1, self.treeview_column)[2]
         self.scrolled_window.set_size_request(width_of_widest_sel_row + 2, -1)
 
-        #set the minimum width of the scolled window holding the image rename table
+        #set the minimum width of the scolled window holding the photo rename table
         if self.rename_scrolledwindow.get_vscrollbar():
             extra = self.rename_scrolledwindow.get_vscrollbar().allocation.width + 10
         else:
@@ -945,8 +950,9 @@ class PreferencesDialog(gnomeglade.Component):
                                                 gtk.STOCK_CLEAR,
                                                 gtk.ICON_SIZE_BUTTON))  
     def _setupDeviceTab(self):
+
         self.device_location_filechooser_button = gtk.FileChooserButton(
-                            _("Select an image folder"))
+                            _("Select a folder containing %(file_types)s") % {'file_types':self.file_types})
         self.device_location_filechooser_button.set_current_folder(
                             self.prefs.device_location)
         self.device_location_filechooser_button.set_action(
@@ -968,7 +974,7 @@ class PreferencesDialog(gnomeglade.Component):
 
     def _setupBackupTab(self):
         self.backup_folder_filechooser_button = gtk.FileChooserButton(
-                            _("Select a folder in which to backup images"))
+                            _("Select a folder in which to backup %(file_types)s") % {'file_types':self.file_types})
         self.backup_folder_filechooser_button.set_current_folder(
                             self.prefs.backup_location)
         self.backup_folder_filechooser_button.set_action(
@@ -1057,7 +1063,7 @@ class PreferencesDialog(gnomeglade.Component):
         if problem:
             text += "\n"
             # Translators: please do not modify or leave out html formatting tags like <i> and <b>. These are used to format the text the users sees
-            text += _("<i><b>Warning:</b> There is insufficient image metadata to fully generate the name. Please use other renaming options.</i>")
+            text += _("<i><b>Warning:</b> There is insufficient metadata to fully generate the name. Please use other renaming options.</i>")
 
         example_label.set_markup(text)        
     
@@ -1091,7 +1097,7 @@ class PreferencesDialog(gnomeglade.Component):
         # since this is markup, escape it
         path = common.escape(text)
         if problem:
-            warning = _("<i><b>Warning:</b> There is insufficient image metadata to fully generate subfolders. Please use other subfolder naming options.</i>" )
+            warning = _("<i><b>Warning:</b> There is insufficient metadata to fully generate subfolders. Please use other subfolder naming options.</i>" )
         else:
             warning = ""
         # Translators: you should not modify or leave out the %s. This is a code used by the programming language python to insert a value that thes user will see
@@ -1099,10 +1105,12 @@ class PreferencesDialog(gnomeglade.Component):
         subfolder_warning_label.set_markup(warning)
         
     def updatePhotoDownloadFolderExample(self):
-        self.updateDownloadFolderExample('subfolder_table', self.subfolder_table, self.prefs.download_folder, self.sampleImage, self.sampleImageName, self.example_photo_download_path_label, self.photo_subfolder_warning_label)
+        if hasattr(self, 'subfolder_table'):
+            self.updateDownloadFolderExample('subfolder_table', self.subfolder_table, self.prefs.download_folder, self.sampleImage, self.sampleImageName, self.example_photo_download_path_label, self.photo_subfolder_warning_label)
         
     def updateVideoDownloadFolderExample(self):
-        self.updateDownloadFolderExample('video_subfolder_table', self.video_subfolder_table, self.prefs.video_download_folder, self.sampleVideo, self.sampleVideoName, self.example_video_download_path_label, self.video_subfolder_warning_label)
+        if hasattr(self, 'video_subfolder_table'):
+            self.updateDownloadFolderExample('video_subfolder_table', self.video_subfolder_table, self.prefs.video_download_folder, self.sampleVideo, self.sampleVideoName, self.example_video_download_path_label, self.video_subfolder_warning_label)
         
     def on_hour_spinbutton_value_changed(self, spinbutton):
         hour = spinbutton.get_value_as_int()
@@ -1475,7 +1483,7 @@ class CopyPhotos(Thread):
             media_collection_treeview.addCard(thread_id, self.cardMedia.prettyName(), 
                                                                 '',  0,  progress=0.0,  
                                                                 # This refers to when a device like a hard drive is having its contents scanned,
-                                                                # looking for images. It is visible initially in the progress bar for each device 
+                                                                # looking for photos or videos. It is visible initially in the progress bar for each device 
                                                                 # (which normally holds "x of y photos").
                                                                 # It maybe displayed only briefly if the contents of the device being scanned is small.
                                                                 progressBarText=_('scanning...'))
@@ -1710,7 +1718,7 @@ class CopyPhotos(Thread):
                 if self.noImages > 1:
                     self.display_file_types = _('photos')
                 else:
-                    self.display_file_types = _('image')
+                    self.display_file_types = _('photo')
                     
             if DOWNLOAD_VIDEO:
                 self.types_searched_for = _('photos or videos')
@@ -1783,12 +1791,12 @@ class CopyPhotos(Thread):
                     fileSkippedDisplay)
             elif problem:
                 logError(config.WARNING, 
-                    _("%(filetype)s filename could not be properly generated. Check to ensure there is sufficient image metadata.") % {'filetype': filetype},
+                    _("%(filetype)s filename could not be properly generated. Check to ensure there is sufficient metadata.") % {'filetype': filetype},
                     _("Source: %(source)s\nPartially generated filename: %(newname)s\nDestination: %(destination)s\nProblem: %(problem)s") % 
                     {'source': source, 'destination': destination, 'newname': newName, 'problem': problem})
                     
         def fileAlreadyExists(source, fileSkippedDisplay, fileAlreadyExistsDisplay, destination=None, identifier=None):
-            """ Notify the user that the image or video could not be downloaded because it already exists"""
+            """ Notify the user that the photo or video could not be downloaded because it already exists"""
             if self.prefs.indicate_download_error:
                 if source and destination and identifier:
                     logError(config.SERIOUS_ERROR, fileAlreadyExistsDisplay,
@@ -1808,7 +1816,7 @@ class CopyPhotos(Thread):
 
                     
         def downloadCopyingError(source, destination, filetype, errno=None, strerror=None):
-            """Notify the user that an error occurred when coyping an image"""
+            """Notify the user that an error occurred when coyping an photo or video"""
             if errno != None and strerror != None:
                 logError(config.SERIOUS_ERROR, _('Download copying error'), 
                             _("Source: %(source)s\nDestination: %(destination)s\nError: %(errorno)s %(strerror)s") 
@@ -1823,7 +1831,7 @@ class CopyPhotos(Thread):
                         
         def sameFileNameDifferentExif(image1, image1_date_time, image1_subseconds, image2, image2_date_time, image2_subseconds):
             logError(config.WARNING, _('Photos detected with the same filenames, but taken at different times:'),
-                _("First image: %(image1)s %(image1_date_time)s:%(image1_subseconds)s\nSecond image: %(image2)s %(image2_date_time)s:%(image2_subseconds)s") % 
+                _("First photo: %(image1)s %(image1_date_time)s:%(image1_subseconds)s\nSecond photo: %(image2)s %(image2_date_time)s:%(image2_subseconds)s") % 
                 {'image1': image1, 'image1_date_time': image1_date_time, 'image1_subseconds': image1_subseconds,
                 'image2': image2, 'image2_date_time': image2_date_time, 'image2_subseconds': image2_subseconds})
 
@@ -1854,7 +1862,7 @@ class CopyPhotos(Thread):
                     fileMetadata =  newName = newFile = path = subfolder = sequence_to_use = None
                     return (skipFile,  fileMetadata,  newName,  newFile,  path,  subfolder, sequence_to_use)
             else:
-                # file is an image file
+                # file is an photo
                 fileRenameFactory = self.imageRenamePrefsFactory                
                 subfolderFactory = self.subfolderPrefsFactory
                 try:
@@ -1868,7 +1876,7 @@ class CopyPhotos(Thread):
                     return (skipFile,  fileMetadata,  newName,  newFile,  path,  subfolder, sequence_to_use)
                 else:
                     try:
-                        # this step can fail if the source image is corrupt
+                        # this step can fail if the source photo is corrupt
                         fileMetadata.read()
                     except:
                         skipFile = True
@@ -1938,7 +1946,7 @@ class CopyPhotos(Thread):
                     
             return (skipFile, fileMetadata, newName, newFile, path, subfolder, sequence_to_use)
         
-        def downloadFile(path,  newFile,  newName,  originalName,  image,  fileMetadata,  subfolder, sequence_to_use, modificationTime):
+        def downloadFile(path, newFile, newName, originalName, image, fileMetadata, subfolder, sequence_to_use, modificationTime):
             """
             Downloads the photo or video file to the specified subfolder 
             """
@@ -2098,8 +2106,8 @@ class CopyPhotos(Thread):
             return (fileDownloaded,  newName,  newFile)
             
 
-        def backupFile(subfolder,  newName,  fileDownloaded,  newFile,  originalFile):
-            """ backup image to path(s) chosen by the user
+        def backupFile(subfolder, newName, fileDownloaded,  newFile, originalFile):
+            """ backup image or video to path(s) chosen by the user
             
             there are two scenarios: 
             (1) file has just been downloaded and should now be backed up
@@ -2157,7 +2165,7 @@ class CopyPhotos(Thread):
                                                      _("Source: %(source)s\nDestination: %(destination)s\n") % 
                                                      {'source': image, 'destination': newBackupFile} + 
                                                      _("Error: %(errno)s %(strerror)s") % {'errno': errno,  'strerror': strerror}, 
-                                                     _('The image or video was not copied.')
+                                                     _('The photo or video was not copied.')
                                                      )
                                             pathExists = False
                                     
@@ -2169,7 +2177,7 @@ class CopyPhotos(Thread):
                 logError(config.SERIOUS_ERROR, _('Backing up error'), 
                             _("Source: %(source)s\nDestination: %(destination)s\nError: %(errno)s %(strerror)s")
                             % {'source': image, 'destination': newBackupFile,  'errno': errno,  'strerror': strerror},
-                            _('The image or video was not copied.'))
+                            _('The photo or video was not copied.'))
 
             return backed_up
 
@@ -2407,7 +2415,7 @@ class CopyPhotos(Thread):
             
             self.isImage = media.isImage(name)
             if self.isImage:
-                fileBeingDownloadedDisplay = _('image')
+                fileBeingDownloadedDisplay = _('photo')
                 fileBeingDownloadedDisplayCap = _('Photo')
                 fileSkippedDisplay = _("Photo skipped")
                 fileAlreadyExistsDisplay = _("Photo already exists")
@@ -2468,14 +2476,14 @@ class CopyPhotos(Thread):
                     os.unlink(imageOrVideo)
                     j += 1
                 except OSError, (errno, strerror):
-                    logError(config.SERIOUS_ERROR,  _("Could not delete image or video from image device"),  
+                    logError(config.SERIOUS_ERROR,  _("Could not delete photo or video from device"),  
                             _("Photo: %(source)s\nError: %(errno)s %(strerror)s")
                             % {'source': image, 'errno': errno,  'strerror': strerror})
                 except:
-                    logError(config.SERIOUS_ERROR,  _("Could not delete image or video from image device"),  
+                    logError(config.SERIOUS_ERROR,  _("Could not delete photo or video from device"),  
                             _("Photo: %(source)s"))
                     
-            cmd_line(_("Deleted %(number)i %(filetypes)s from image device") % {'number':j, 'filetypes':self.display_file_types})
+            cmd_line(_("Deleted %(number)i %(filetypes)s from device") % {'number':j, 'filetypes':self.display_file_types})
 
         # must manually delete these variables, or else the media cannot be unmounted (bug in some versions of pyexiv2 / exiv2)
         del self.subfolderPrefsFactory, self.imageRenamePrefsFactory
@@ -3179,7 +3187,7 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
     def checkImageDevicePathOnStartup(self):
         msg = None
         if not os.path.isdir(self.prefs.device_location):
-            msg = _("Sorry, this image location does not exist:\n%(path)s\n\nPlease resolve the problem, or modify your preferences." % {"path": self.prefs.device_location})
+            msg = _("Sorry, this device location does not exist:\n%(path)s\n\nPlease resolve the problem, or modify your preferences." % {"path": self.prefs.device_location})
             
         if msg:
             sys.stderr.write(msg +'\n')
@@ -3191,22 +3199,36 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
             return True
         
     def checkDownloadPathOnStartup(self):
-        msg = None
-        if not os.path.isdir(self.prefs.download_folder):
-            msg = _("Sorry, the Download Folder does not exist. Please create the folder, or modify your preferences")
+        if DOWNLOAD_VIDEO:
+            paths = ((self.prefs.download_folder, _('Photo')), (self.prefs.video_download_folder, _('Video')))
         else:
-            #unfortunately 'os.access(self.prefs.download_folder, os.W_OK)' is not reliable
-            try:
-                tempWorkingDir = tempfile.mkdtemp(prefix='rapid-tmp-', 
-                                            dir=self.prefs.download_folder)
-            except:
-                msg = _("Sorry, the Download Folder exists but cannot be written to. Please check the folder's permissions, or modify your preferences")
+            paths = ((self.prefs.download_folder, _('Photo')),)
+        msg = ''
+        noProblems = 0
+        for path, file_type in paths:
+            if not os.path.isdir(path):
+                msg += _("The %(file_type)s Download Folder does not exist.\n") % {'file_type': file_type}
+                noProblems += 1
             else:
-                os.rmdir(tempWorkingDir)
+                #unfortunately 'os.access(self.prefs.download_folder, os.W_OK)' is not reliable
+                try:
+                    tempWorkingDir = tempfile.mkdtemp(prefix='rapid-tmp-', 
+                                                dir=path)
+                except:
+                    noProblems += 1
+                    msg += _("The %(file_type)s Download Folder exists but cannot be written to.\n") % {'file_type': file_type}
+                else:
+                    os.rmdir(tempWorkingDir)
             
         if msg:
-            sys.stderr.write(msg +'\n')
-            misc.run_dialog(_("Problem with Download Folder"), msg, 
+            msg = _("Sorry, problems were encountered with your download folders. Please fix the problems or modify the preferences.\n\n") + msg
+            sys.stderr.write(msg)
+            if noProblems == 1:
+                title = _("Problem with Download Folder")
+            else:
+                title = _("Problem with Download Folders")
+            
+            misc.run_dialog(title, msg, 
                 self,
                 gtk.MESSAGE_ERROR)
             return False
@@ -4222,7 +4244,7 @@ def start ():
     parser.add_option("-v",  "--verbose",  action="store_true", dest="verbose",  help=_("display program information on the command line as the program runs (default: %default)"))
     parser.add_option("-q", "--quiet",  action="store_false", dest="verbose",  help=_("only output errors to the command line"))
     # image file extensions are recognized RAW files plus TIFF and JPG
-    parser.add_option("-e",  "--extensions",  action="store_true", dest="extensions", help=_("list image file extensions the program recognizes and exit"))
+    parser.add_option("-e",  "--extensions",  action="store_true", dest="extensions", help=_("list photo and video file extensions the program recognizes and exit"))
     (options, args) = parser.parse_args()
     global verbose
     verbose = options.verbose
@@ -4231,12 +4253,14 @@ def start ():
         atexit.register(programStatus)
         
     if options.extensions:
-        exts = metadata.RAW_FILE_EXTENSIONS + metadata.NON_RAW_IMAGE_FILE_EXTENSIONS
-        v = ''
-        for e in exts[:-1]:
-            v += '%s, ' % e.upper()
-        v = v[:-1] + ' '+ (_('and %s') % exts[-1].upper())
-        print v
+        extensions = ((metadata.RAW_FILE_EXTENSIONS + metadata.NON_RAW_IMAGE_FILE_EXTENSIONS, _("Photos:")), (videometadata.VIDEO_FILE_EXTENSIONS, _("Videos:")))
+        for exts, file_type in extensions:
+            v = ''
+            for e in exts[:-1]:
+                v += '%s, ' % e.upper()
+            v = file_type + " " + v[:-1] + ' '+ (_('and %s') % exts[-1].upper())
+            print v
+            
         sys.exit(0)
 
     cmd_line(_("Rapid Photo Downloader") + " %s" % config.version)
