@@ -1719,7 +1719,6 @@ class CopyPhotos(Thread):
                     _("Source: %(source)s\nPartially generated filename: %(newname)s\nDestination: %(destination)s\nProblem: %(problem)s") % 
                     {'source': source, 'destination': destination, 'newname': newName, 'problem': problem})
                     
-
         def fileAlreadyExists(source, fileSkippedDisplay, fileAlreadyExistsDisplay, destination=None, identifier=None):
             """ Notify the user that the image or video could not be downloaded because it already exists"""
             if self.prefs.indicate_download_error:
@@ -1868,7 +1867,7 @@ class CopyPhotos(Thread):
                 if not alreadyDownloaded:
                     checkProblemWithImageNameGeneration(newName, path, fullFileName,  problem, fileBeingDownloadedDisplayCap)
                 else:
-                    fileAlreadyExists(fullFileName, newFile, fileSkippedDisplay, fileAlreadyExistsDisplay)
+                    fileAlreadyExists(fullFileName, fileSkippedDisplay, fileAlreadyExistsDisplay, newFile)
                     newName = newFile = path = subfolder = None
                     
             return (skipFile,  fileMetadata,  newName,  newFile,  path,  subfolder, sequence_to_use)
@@ -1914,7 +1913,7 @@ class CopyPhotos(Thread):
 
                                         
                     if not downloadNonUniqueFile:
-                        fileAlreadyExists(fullFileName, newFile, fileSkippedDisplay, fileAlreadyExistsDisplay)
+                        fileAlreadyExists(fullFileName, fileSkippedDisplay, fileAlreadyExistsDisplay, newFile)
 
                 copy_succeeded = False
                 if nameUniqueBeforeCopy or downloadNonUniqueFile:
@@ -1962,7 +1961,7 @@ class CopyPhotos(Thread):
                             if os.path.exists(newFile):
                                 if not addUniqueIdentifier:
                                     doRename = False
-                                    fileAlreadyExists(fullFileName, newFile, fileSkippedDisplay, fileAlreadyExistsDisplay)
+                                    fileAlreadyExists(fullFileName, fileSkippedDisplay, fileAlreadyExistsDisplay, newFile)
                                 else:
                                     # add  basic suffix to make the filename unique
                                     name = os.path.splitext(newName)
@@ -1977,7 +1976,7 @@ class CopyPhotos(Thread):
                                         possibleNewFile = os.path.join(path,  newName)
                                         suffixAlreadyUsed = os.path.exists(possibleNewFile)
 
-                                    fileAlreadyExists(fullFileName, newFile, fileSkippedDisplay, fileAlreadyExistsDisplay, identifier=identifier)
+                                    fileAlreadyExists(fullFileName, fileSkippedDisplay, fileAlreadyExistsDisplay, newFile, identifier=identifier)
                                     newFile = possibleNewFile
                                     
 
