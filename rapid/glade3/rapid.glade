@@ -2345,7 +2345,7 @@ You can download photos from multiple devices simultaneously, or you can specify
                                 </child>
                                 <child>
                                   <widget class="GtkCheckButton" id="auto_insertion_checkbutton">
-                                    <property name="label" translatable="yes">Start downloading upon image device insertion</property>
+                                    <property name="label" translatable="yes">Start downloading upon device insertion</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
@@ -2376,7 +2376,7 @@ You can download photos from multiple devices simultaneously, or you can specify
                                 </child>
                                 <child>
                                   <widget class="GtkCheckButton" id="auto_delete_checkbutton">
-                                    <property name="label" translatable="yes">Delete images from image device upon download completion</property>
+                                    <property name="label" translatable="yes">Delete photos and videos from device upon download completion</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-05-23 19:16-0500\n"
+"POT-Creation-Date: 2010-05-23 23:05-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -412,7 +412,7 @@ msgid "New day has started - resetting 'Downloads Today' sequence number"
 msgstr ""
 
 #: rapid/rapid.py:2131
-msgid "Backup of image or video already exists"
+msgid "Backup of photo or video already exists"
 msgstr ""
 
 #: rapid/rapid.py:2135
@@ -1515,7 +1515,7 @@ msgid "Day start:"
 msgstr ""
 
 #: rapid/glade3/rapid.glade.h:46
-msgid "Delete images from image device upon download completion"
+msgid "Delete photos and videos from device upon download completion"
 msgstr ""
 
 #: rapid/glade3/rapid.glade.h:47
@@ -1691,7 +1691,7 @@ msgid "Start downloading at program startup"
 msgstr ""
 
 #: rapid/glade3/rapid.glade.h:92
-msgid "Start downloading upon image device insertion"
+msgid "Start downloading upon device insertion"
 msgstr ""
 
 #: rapid/glade3/rapid.glade.h:93

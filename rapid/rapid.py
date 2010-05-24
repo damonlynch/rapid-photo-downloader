@@ -2128,7 +2128,7 @@ class CopyPhotos(Thread):
                         copyBackup = self.prefs.backup_duplicate_overwrite                                     
                         if self.prefs.indicate_download_error:
                             severity = config.SERIOUS_ERROR
-                            problem = _("Backup of image or video already exists")
+                            problem = _("Backup of photo or video already exists")
                             details = _("Source: %(source)s\nDestination: %(destination)s") \
                                 % {'source': image, 'destination': newBackupFile}
                             if copyBackup :
