@@ -1435,7 +1435,25 @@ class PreferencesDialog(gnomeglade.Component):
                             path2))
 
         
-
+def file_types_by_number(noImages, noVideos):
+    """ 
+    returns a string to be displayed to the user that can be used
+    to show if a value refers to photos or videos or both, or just one
+    of each
+    """
+    if (noVideos > 0) and (noImages > 0):
+        v = _('photos and videos')
+    elif noVideos > 0:
+        if noVideos > 1:
+            v = _('videos')
+        else:
+            v = _('video')
+    else:
+        if noImages > 1:
+            v = _('photos')
+        else:
+            v = _('photo')
+    return v
 
 class CopyPhotos(Thread):
     """Copies photos from source to destination, backing up if needed"""
@@ -1654,7 +1672,7 @@ class CopyPhotos(Thread):
                         download, isImage, isVideo = downloadFile(name)
                         if download:
                             size = child.get_size()
-                            images.append((name, path.get_path(), size, child.get_modification_time()),)
+                            imagesAndVideos.append((name, path.get_path(), size, child.get_modification_time()),)
                             fileSizeSum += size
                             if isVideo:
                                 self.noVideos += 1
@@ -1707,18 +1725,7 @@ class CopyPhotos(Thread):
             
             self.scanComplete = True
             
-            if (self.noVideos > 0) and (self.noImages > 0):
-                self.display_file_types = _('photos and videos')
-            elif self.noVideos > 0:
-                if self.noVideos > 1:
-                    self.display_file_types = _('videos')
-                else:
-                    self.display_file_types = _('video')
-            else:
-                if self.noImages > 1:
-                    self.display_file_types = _('photos')
-                else:
-                    self.display_file_types = _('photo')
+            self.display_file_types = file_types_by_number(self.noImages, self.noVideos)
                     
             if DOWNLOAD_VIDEO:
                 self.types_searched_for = _('photos or videos')
@@ -2194,9 +2201,12 @@ class CopyPhotos(Thread):
                 else:
                     unmountMessage = ""
             
-            message = _("%(noFiles)s %(filetypes)s downloaded") % {'noFiles':noFilesDownloaded, 'filetypes':self.display_file_types}
+            file_types = file_types_by_number(noImagesDownloaded, noVideosDownloaded)
+            file_types_skipped = file_types_by_number(noImagesSkipped, noVideosSkipped)
+            message = _("%(noFiles)s %(filetypes)s downloaded") % {'noFiles':noFilesDownloaded, 'filetypes': file_types}
+            noFilesSkipped = noImagesSkipped + noVideosSkipped
             if noFilesSkipped:
-                message += "\n" + _("%(noFiles)s %(filetypes)s skipped") % {'noFiles':noFilesSkipped, 'filetypes':self.display_file_types}
+                message += "\n" + _("%(noFiles)s %(filetypes)s skipped") % {'noFiles':noFilesSkipped, 'filetypes':file_types_skipped}
             
             if unmountMessage:
                 message = "%s\n%s" % (message,  unmountMessage)
@@ -2356,7 +2366,7 @@ class CopyPhotos(Thread):
         needMetaDataToCreateUniqueSubfolderName = self.subfolderPrefsFactory.needMetaDataToCreateUniqueName()
         
         i = 0
-        sizeDownloaded = noFilesDownloaded =  noFilesSkipped = 0
+        sizeDownloaded = noFilesDownloaded = noImagesDownloaded = noVideosDownloaded = noImagesSkipped = noVideosSkipped = 0
         filesDownloadedSuccessfully = []
         
         sizeFiles = self.cardMedia.sizeOfImagesAndVideos(humanReadable = False)
@@ -2436,7 +2446,10 @@ class CopyPhotos(Thread):
                        needMetaDataToCreateUniqueSubfolderName, fallback_date)
 
             if skipFile:
-                noFilesSkipped += 1
+                if self.isImage:
+                    noImagesSkipped += 1
+                else:
+                    noVideosSkipped += 1
             else:
                 fileDownloaded, newName, newFile  = downloadFile(path, newFile, newName, name, fullFileName,  
                                                                    fileMetadata, subfolder, sequence_to_use, fallback_date)
@@ -2446,12 +2459,19 @@ class CopyPhotos(Thread):
 
                 if fileDownloaded:
                     noFilesDownloaded += 1
+                    if self.isImage:
+                        noImagesDownloaded += 1
+                    else:
+                        noVideosDownloaded += 1
                     if self.prefs.backup_images and backed_up:
                         filesDownloadedSuccessfully.append(fullFileName)
                     elif not self.prefs.backup_images:
                         filesDownloadedSuccessfully.append(fullFileName)
                 else:
-                    noFilesSkipped += 1
+                    if self.isImage:
+                        noImagesSkipped += 1
+                    else:
+                        noVideosSkipped += 1
                 
                 thumbnail, orientation = getThumbnail(fileMetadata)
 
@@ -2467,7 +2487,7 @@ class CopyPhotos(Thread):
             i += 1
 
         with self.statsLock:
-            self.downloadStats.adjust(sizeDownloaded, noFilesDownloaded, noFilesSkipped, self.noWarnings, self.noErrors)
+            self.downloadStats.adjust(sizeDownloaded, noImagesDownloaded, noVideosDownloaded, noImagesSkipped, noVideosSkipped, self.noWarnings, self.noErrors)
             
         if self.prefs.auto_delete:
             j = 0
@@ -3848,9 +3868,14 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
         if self.downloadComplete():
             if self.displayDownloadSummaryNotification:
                 message = _("All downloads complete")
-                message += "\n%s " % self.downloadStats.noFilesDownloaded + _("images downloaded")
-                if self.downloadStats.noFilesSkipped:
-                    message = "%s\n%s " % (message,  self.downloadStats.noFilesSkipped) + _("images skipped")
+                if self.downloadStats.noImagesDownloaded:
+                    message += "\n%s " % self.downloadStats.noImagesDownloaded + _("photos downloaded")
+                if self.downloadStats.noImagesSkipped:
+                    message = "%s\n%s " % (message,  self.downloadStats.noImagesSkipped) + _("photos skipped")
+                if self.downloadStats.noVideosDownloaded:
+                    message += "\n%s " % self.downloadStats.noVideosDownloaded + _("videos downloaded")
+                if self.downloadStats.noVideosSkipped:
+                    message = "%s\n%s " % (message,  self.downloadStats.noVideosSkipped) + _("videos skipped")                    
                 if self.downloadStats.noWarnings:
                     message = "%s\n%s " % (message,  self.downloadStats.noWarnings) + _("warnings")
                 if self.downloadStats.noErrors:
@@ -4131,15 +4156,17 @@ class DownloadStats:
     def __init__(self):
         self.clear()
         
-    def adjust(self, size,  noFilesDownloaded,  noFilesSkipped,  noWarnings,  noErrors):
+    def adjust(self, size,  noImagesDownloaded, noVideosDownloaded, noImagesSkipped, noVideosSkipped, noWarnings,  noErrors):
         self.downloadSize += size
-        self.noFilesDownloaded += noFilesDownloaded
-        self.noFilesSkipped += noFilesSkipped
+        self.noImagesDownloaded += noImagesDownloaded
+        self.noVideosDownloaded += noVideosDownloaded
+        self.noImagesSkipped += noImagesSkipped
+        self.noVideosSkipped += noVideosSkipped
         self.noWarnings += noWarnings
         self.noErrors += noErrors
         
     def clear(self):
-        self.noFilesDownloaded = self.noFilesSkipped = 0
+        self.noImagesDownloaded = self.noVideosDownloaded = self.noImagesSkipped = self.noVideosSkipped = 0
         self.downloadSize = 0
         self.noWarnings = self.noErrors = 0
         
