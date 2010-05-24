@@ -102,6 +102,7 @@ NAME_EXTENSION = 'Name + extension'
 NAME =   'Name'
 EXTENSION = 'Extension'
 IMAGE_NUMBER = 'Image number'
+VIDEO_NUMBER = 'Video number'
 
 # Metadata
 APERTURE = 'Aperture'
@@ -178,9 +179,6 @@ LIST_IMAGE_DATE_TIME_L2 = LIST_DATE_TIME_L2 + [SUBSECONDS]
 
 DEFAULT_SUBFOLDER_PREFS = [DATE_TIME, IMAGE_DATE, LIST_DATE_TIME_L2[9], '/',  '', '', DATE_TIME, IMAGE_DATE, LIST_DATE_TIME_L2[0]]
 DEFAULT_VIDEO_SUBFOLDER_PREFS = [DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[9], '/',  '', '', DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[0]]
-#DEFAULT_VIDEO_SUBFOLDER_PREFS = [JOB_CODE, '', '']
-
-DEFAULT_VIDEO_RENAME_PREFS = [DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[0], TEXT, '-', '', DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[14], TEXT, '-', '', SEQUENCES, DOWNLOAD_SEQ_NUMBER, SEQUENCE_NUMBER_1, FILENAME, EXTENSION, LOWERCASE]
 
 class i18TranslateMeThanks:
     """ this class is never used in actual running code
@@ -207,6 +205,7 @@ class i18TranslateMeThanks:
         _('Extension')
         # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamefilename
         _('Image number')
+        _('Video number')
         # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamemetadata        
         _('Aperture')
         # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamemetadata        
@@ -382,6 +381,15 @@ DICT_FILENAME_L1 = {
                     ORDER_KEY: LIST_FILENAME_L1
                   }
 
+LIST_VIDEO_FILENAME_L1 = [NAME_EXTENSION, NAME, EXTENSION, VIDEO_NUMBER]
+
+DICT_VIDEO_FILENAME_L1 = {
+                    NAME_EXTENSION: LIST_CASE_L2,
+                    NAME: LIST_CASE_L2,
+                    EXTENSION: LIST_CASE_L2,
+                    VIDEO_NUMBER: LIST_IMAGE_NUMBER_L2,
+                    ORDER_KEY: LIST_VIDEO_FILENAME_L1
+                  }
 
 
 LIST_SUBFOLDER_FILENAME_L1 = [EXTENSION]
@@ -462,7 +470,7 @@ DICT_IMAGE_RENAME_L0 = {
 DICT_VIDEO_RENAME_L0 = {
                     DATE_TIME: VIDEO_DICT_DATE_TIME_L1,
                     TEXT: None,
-                    FILENAME: DICT_FILENAME_L1,
+                    FILENAME: DICT_VIDEO_FILENAME_L1,
                     METADATA: DICT_VIDEO_METADATA_L1,
                     SEQUENCES: DICT_SEQUENCE_L1,
                     JOB_CODE: None,
@@ -920,7 +928,7 @@ class ImageRenamePreferences:
         if self.L1 == self.L1DateCheck:
             if self.L2 == SUBSECONDS:
                 d = self.photo.subSeconds()
-                problem = _("Subsecond metadata not present in image")
+                problem = _("Subsecond metadata not present in photo")
                 if d == '00':
                     return ('', problem)
                 else:
@@ -990,11 +998,11 @@ class ImageRenamePreferences:
                     filename = extension[1:]
             else:
                 filename = ""
-                problem = _("extension was specified but image name has no extension")
-        elif self.L1 == IMAGE_NUMBER:
+                problem = _("extension was specified but filename does not have an extension")
+        elif self.L1 == IMAGE_NUMBER or self.L1 == VIDEO_NUMBER:
             n = re.search("(?P<image_number>[0-9]+$)", name)
             if not n:
-                problem = _("image number was specified but image filename has no number")
+                problem = _("image or video number was specified but filename has no number")
             else:
                 image_number = n.group("image_number")
     
@@ -1067,7 +1075,7 @@ class ImageRenamePreferences:
                 md = self.L1.lower()
             else:
                 md = ISO
-            problem = _("%s metadata is not present in image") % md
+            problem = _("%s metadata is not present in photo") % md
         return (v, problem)
 
 

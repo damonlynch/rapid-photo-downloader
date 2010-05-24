@@ -47,6 +47,12 @@ class PreferenceTest (unittest.TestCase):
         METADATA, FPS, ''],
     )
     
+    video_name_test3= (
+        [FILENAME, VIDEO_NUMBER, IMAGE_NUMBER_4,
+        FILENAME, NAME_EXTENSION, LOWERCASE,
+        METADATA, FPS, ''],
+    )
+    
     video_subfolder_test= (
         [DATE_TIME, TODAY, 'HHMMSS',
         SEPARATOR, '', '',
@@ -79,6 +85,9 @@ class PreferenceTest (unittest.TestCase):
         for pref in self.video_name_test2:
             result = checkPreferenceValid(DICT_VIDEO_RENAME_L0, pref)
             self.assertEqual(result, True)
+        for pref in self.video_name_test3:
+            result = checkPreferenceValid(DICT_VIDEO_RENAME_L0, pref)
+            self.assertEqual(result, True)            
 
     def testSequencesList(self):
         for pref in self.sequences_test:
@@ -137,6 +146,12 @@ class BadPreferences(unittest.TestCase):
                         [DATE_TIME, None, None],
                         [DATE_TIME, '', ''],
                         )
+
+    bad_image_key2 = (
+        [FILENAME, VIDEO_NUMBER, IMAGE_NUMBER_4,
+        FILENAME, NAME_EXTENSION, LOWERCASE,
+        METADATA, APERTURE, ''],
+    )
                             
     bad_subfolder_key = ([FILENAME, NAME_EXTENSION, UPPERCASE],)
     
@@ -175,12 +190,18 @@ class BadPreferences(unittest.TestCase):
             self.assertRaises(PrefKeyError, checkPreferenceValid,
                                         DICT_IMAGE_RENAME_L0,
                                         pref)
+        for pref in self.bad_image_key2:
+            self.assertRaises(PrefKeyError, checkPreferenceValid, 
+                                        DICT_IMAGE_RENAME_L0, 
+                                        pref)
+                                        
             
     def testBadImageValue(self):
         for pref in self.bad_image_value:
             self.assertRaises(PrefValueInvalidError, checkPreferenceValid, 
                                         DICT_IMAGE_RENAME_L0, 
-                                        pref)
+                                        pref)                                        
+        
                                         
     def testBadSubfolderKey(self):
         for pref in self.bad_subfolder_key:

@@ -17,6 +17,9 @@ generate a thumbnail for the video. If not, if ffmpegthumbnailer is installed,
 Rapid Photo Downloader will use it to attempt to extract a thumbnail from the
 video.
 
+For now, sequence values are shared between the downloads of videos and photos.
+There may be an option to have two sets of sequence numbers in a future release.
+
 Due to the number of changes in the code, it is possible that regressions in the
 photo downloading code may have been introduced. Please test this beta release
 carefully.
@@ -44,6 +47,9 @@ This fix was a welcome side effect of using GIO to copy images, instead of
 relying on the python standard libary.
 
 Error message headings in the Error Log are now displayed in a red font.
+
+Program preferences are now more thoroughly checked for validity when the
+program starts. 
 
 
 Version 0.1.3
