@@ -549,22 +549,27 @@ class ImageRenameTable(tpm.TablePlusMinus):
             
     
     def size_adjustment(self,  arg1,  arg2):
-        """ Adjust scrolledwindow width in preferences dialog to reflect width of image rename table
+        """
+        Adjust scrolledwindow width in preferences dialog to reflect width of image rename table
         
-        The algorithm is complicated by the need to tak into account the presence of a vertical scrollbar"""
+        The algorithm is complicated by the need to take into account the presence of a vertical scrollbar,
+        which might be added as the user adds more rows
+        
+        """
         
         if self.adjustScrollWindow:
             if self.adjustScrollWindow.get_vscrollbar().allocation.width > 1:
-                extra = self.adjustScrollWindow.get_vscrollbar().allocation.width + 10
+                extra = self.adjustScrollWindow.get_vscrollbar().allocation.width + 15
             else:
                 extra = 0
             if self.vbar <= 1:
+                # on some versions of gtk, this can be the case
                 if self.allocation.width > self.tableWidth:
-                    self.adjustScrollWindow.set_size_request(self.allocation.width + extra,  -1) 
-                    self.tableWidth = self.allocation.width + extra
-            elif self.allocation.width - extra > self.tableWidth:
-                self.adjustScrollWindow.set_size_request(self.allocation.width + extra,  -1) 
-                self.tableWidth = self.allocation.width + extra
+                    self.adjustScrollWindow.set_size_request(self.allocation.width + extra + 25,  -1) 
+                    self.tableWidth = self.allocation.width + extra + 15
+            if self.allocation.width - extra > self.tableWidth:
+                self.adjustScrollWindow.set_size_request(self.allocation.width + extra + 25,  -1) 
+                self.tableWidth = self.allocation.width + extra + 15
             self.vbar = self.adjustScrollWindow.get_vscrollbar().allocation.width
             
     def getParentAppPrefs(self):
@@ -841,12 +846,12 @@ class PreferencesDialog(gnomeglade.Component):
         table.set_col_spacing(1, hd.CONTROL_LABEL_SPACE)
 
     def _setupSubfolderTable(self):
-        self.subfolder_table = SubfolderTable(self, None)
+        self.subfolder_table = SubfolderTable(self, self.download_folder_scrolledwindow)
         self.subfolder_vbox.pack_start(self.subfolder_table)
         self.subfolder_table.show_all()
         
     def _setupVideoSubfolderTable(self):
-        self.video_subfolder_table = VideoSubfolderTable(self, None)
+        self.video_subfolder_table = VideoSubfolderTable(self, self.video_download_folder_scrolledwindow)
         self.video_subfolder_vbox.pack_start(self.video_subfolder_table)
         self.video_subfolder_table.show_all()
 
