@@ -26,18 +26,20 @@ import videometadata
 
 import operator
 
-def _getDefaultLocation(options):
+def _getDefaultLocation(options, ignore_missing_dir=False):
+    if ignore_missing_dir:
+        return common.getFullPath(options[0])
     for default in options:
         path = common.getFullPath(default)
         if os.path.isdir(path):
             return path
     return common.getFullPath('')
 
-def getDefaultPhotoLocation():
-    return _getDefaultLocation(config.DEFAULT_PHOTO_LOCATIONS)
+def getDefaultPhotoLocation(ignore_missing_dir=False):
+    return _getDefaultLocation(config.DEFAULT_PHOTO_LOCATIONS, ignore_missing_dir)
     
-def getDefaultVideoLocation():
-    return _getDefaultLocation(config.DEFAULT_VIDEO_LOCATIONS)
+def getDefaultVideoLocation(ignore_missing_dir=False):
+    return _getDefaultLocation(config.DEFAULT_VIDEO_LOCATIONS, ignore_missing_dir)
     
 def is_DCIM_Media(path):
     """ Returns true if directory specifies some media with photos on it   """

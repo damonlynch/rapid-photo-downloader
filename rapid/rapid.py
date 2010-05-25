@@ -3057,6 +3057,8 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
 #        sys.exit(0)
 
         self.widget.show()
+        
+        self.checkIfFirstTimeProgramEverRun()
 
         displayPreferences = self.checkForUpgrade(__version__)
         self.prefs.program_version = __version__
@@ -3356,7 +3358,31 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
         # FIXME: what happens to these workers that are waiting? How will the user start their download?
         # check if need to add code to start button
                 
-    def checkForUpgrade(self,  runningVersion):
+    def checkIfFirstTimeProgramEverRun(self):
+        """
+        if this is the first time the program has been run, then
+        might need to create default directories
+        """
+        if len(self.prefs.program_version) == 0:
+            path = getDefaultPhotoLocation(ignore_missing_dir=True)
+            if not os.path.isdir(path):
+                cmd_line(_("Creating photo download folder %(folder)s") % {'folder':path})
+                try:
+                    os.makedirs(path)
+                    self.prefs.download_folder = path
+                except:
+                    cmd_line(_("Failed to create default photo download folder %(folder)s") % {'folder':path})
+            if DOWNLOAD_VIDEO:
+                path = getDefaultVideoLocation(ignore_missing_dir=True)
+                if not os.path.isdir(path):
+                    cmd_line(_("Creating video download folder %(folder)s") % {'folder':path})
+                    try:
+                        os.makedirs(path)
+                        self.prefs.video_download_folder = path
+                    except:
+                        cmd_line(_("Failed to create default video download folder %(folder)s") % {'folder':path})
+    
+    def checkForUpgrade(self, runningVersion):
         """ Checks if the running version of the program is different from the version recorded in the preferences.
         
         If the version is different, then the preferences are checked to see whether they should be upgraded or not.
@@ -3366,7 +3392,7 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
         displayPrefs = upgraded = False
         
         previousVersion = self.prefs.program_version
-        if previousVersion:
+        if len(previousVersion) > 0:
             # the program has been run previously for this user
         
             pv = common.pythonifyVersion(previousVersion)
@@ -3407,6 +3433,7 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
                         sys.stderr.write(msg + "\n")
                         misc.run_dialog(title,  msg)
                         displayPrefs = True
+
 
         return displayPrefs
 
