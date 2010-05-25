@@ -15,6 +15,7 @@
 ### Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 ### Modified August 2007 by Damon Lynch to allow use of list value preferences
+### Modified May 2010 by Damon Lynch to allow preferences to be reset
   
 """Module to help implement 'instant-apply' preferences.
 
@@ -179,4 +180,13 @@ class Preferences(object):
         """
         for k,v in self._prefs.items():
             print k, v.type, v.current
+            
+    def reset(self):
+        """
+        reset all preferences to defaults
+        """
+        
+        for key in self._prefs:
+            self.__setattr__(key, self.get_default(key))
+            
 

@@ -1,9 +1,9 @@
-Version 0.2.0 beta 1
---------------------
+Version 0.2.0
+-------------
 
 2010-05-xx
 
-Videos can now be downloaded. 
+Videos can now be downloaded in much the same way photos can. 
 
 The package kaa metadata is required to download videos. ffmpegthumbnailer is
 used to display thumbnail images of certain types of videos as the download
@@ -15,14 +15,13 @@ them. See the INSTALL file for details.
 If a THM file with the same name as the video is present, it will be used to 
 generate a thumbnail for the video. If not, if ffmpegthumbnailer is installed, 
 Rapid Photo Downloader will use it to attempt to extract a thumbnail from the
-video.
+video. THM files are not downloaded.
 
 For now, sequence values are shared between the downloads of videos and photos.
 There may be an option to have two sets of sequence numbers in a future release.
 
 Due to the number of changes in the code, it is possible that regressions in the
-photo downloading code may have been introduced. Please test this beta release
-carefully.
+photo downloading code may have been introduced. 
 
 This is the first release to use version 0.2.x of the pyexiv2 library.  The 
 most immediate benefit of this change is that thumbnail images from Nikon and 
@@ -39,17 +38,19 @@ higher of the exiv2 library, it will download Mamiya's MEF files. For Rapid
 Photo Downloader to be able to detect which version of the exiv2 library your
 system has, it must either be running pyexiv2 >= 0.2.0, or have exiv2 installed.
 
-Further work was done to fix bug #505492, to handle cases where the system
-notification system is not working properly.
-
 Fixed bug #483222: sometimes images could not be downloaded to NTFS partitions.
 This fix was a welcome side effect of using GIO to copy images, instead of 
 relying on the python standard libary.
 
 Error message headings in the Error Log are now displayed in a red font.
 
+Program settings and preferences can be reset using a new command line option.
+
 Program preferences are now more thoroughly checked for validity when the
 program starts. 
+
+Further work was done to fix bug #505492, to handle cases where the system
+notification system is not working properly.
 
 
 Version 0.1.3

@@ -471,6 +471,14 @@ class RapidPreferences(prefs.Preferences):
         else:
             return ''
             
+    def reset(self):
+        """
+        resets all preferences to default values
+        """
+        
+        prefs.Preferences.reset(self)
+        self.program_version = __version__
+            
 class ImageRenameTable(tpm.TablePlusMinus):
 
     def __init__(self, parentApp,  adjustScrollWindow):
@@ -4303,7 +4311,8 @@ def start ():
     parser.add_option("-v",  "--verbose",  action="store_true", dest="verbose",  help=_("display program information on the command line as the program runs (default: %default)"))
     parser.add_option("-q", "--quiet",  action="store_false", dest="verbose",  help=_("only output errors to the command line"))
     # image file extensions are recognized RAW files plus TIFF and JPG
-    parser.add_option("-e",  "--extensions",  action="store_true", dest="extensions", help=_("list photo and video file extensions the program recognizes and exit"))
+    parser.add_option("-e",  "--extensions", action="store_true", dest="extensions", help=_("list photo and video file extensions the program recognizes and exit"))
+    parser.add_option("--reset-settings", action="store_true", dest="reset", help=_("reset all program settings and preferences and exit"))
     (options, args) = parser.parse_args()
     global verbose
     verbose = options.verbose
@@ -4320,6 +4329,12 @@ def start ():
             v = file_type + " " + v[:-1] + ' '+ (_('and %s') % exts[-1].upper())
             print v
             
+        sys.exit(0)
+        
+    if options.reset:
+        prefs = RapidPreferences()
+        prefs.reset()
+        print _("All settings and preferences have been reset")
         sys.exit(0)
 
     cmd_line(_("Rapid Photo Downloader") + " %s" % config.version)
