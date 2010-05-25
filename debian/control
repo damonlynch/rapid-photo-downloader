@@ -24,8 +24,9 @@ Depends: ${python:Depends},
          python-kaa-metadata,
          ffmpegthumbnailer,
          gnome-icon-theme
-Description: Photo downloader (importer) from cameras, memory cards other devices
+Description: Photo and video importer from cameras, memory cards and other devices
  Rapid Photo Downloader is written by a photographer for professional and
  amateur photographers. It can  download photos and videos from multiple
- cameras,memory cards and Portable Storage Devices simultaneously. It 
- provides many options for subfolder creation, image renaming and backup.
+ cameras, memory cards and Portable Storage Devices simultaneously. It 
+ provides many flexible, user-defined options for subfolder creation,
+ photo and video renaming, and backup.

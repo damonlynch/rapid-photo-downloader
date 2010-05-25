@@ -54,12 +54,11 @@ setup(name=name,
     maintainer='Damon Lynch',
     url='http://www.damonlynch.net/rapid',
     long_description=
-"""Rapid Photo Downloader is written by a photographer for
-professional and amateur photographers. It can download photos
-from multiple cameras, memory cards and Portable Storage Devices
-simultaneously. It provides many flexible options for subfolder
-creation, image renaming and backup, which can be combined in
-whatever ways the user specifies.
+"""Rapid Photo Downloader is written by a photographer for professional and
+amateur photographers. It can  download photos and videos from multiple
+cameras, memory cards and Portable Storage Devices simultaneously. It 
+provides many flexible, user-defined options for subfolder creation,
+photo and video renaming, and backup.
 """,
     packages = ['rapid'], 
     package_data=package_data, 

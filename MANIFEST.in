@@ -1,5 +1,5 @@
 include rapid-photo-downloader
-include rapid/TODO rapid/AUTHORS rapid/ChangeLog rapid/TODO rapid/INSTALL rapid/COPYING
+include rapid/AUTHORS rapid/ChangeLog rapid/INSTALL rapid/COPYING
 recursive-include data/ *.png *.xpm *.desktop
 recursive-include rapid/glade3 *.glade *.png *.svg
 include po/rapid-photo-downloader.pot
