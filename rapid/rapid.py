@@ -483,24 +483,35 @@ class RapidPreferences(prefs.Preferences):
             
 class ImageRenameTable(tpm.TablePlusMinus):
 
-    def __init__(self, parentApp,  adjustScrollWindow):
+    def __init__(self, parentApp, adjustScrollWindow):
   
         tpm.TablePlusMinus.__init__(self, 1, 3)
         self.parentApp = parentApp
         self.adjustScrollWindow = adjustScrollWindow
+        if not hasattr(self, "errorTitle"):
+            self.errorTitle = _("Error in Photo Rename preferences")
+                    
+        self.table_type = self.errorTitle[len("Error in "):]
+        self.i = 0
+
         if adjustScrollWindow:
+            self.scrollBar = self.adjustScrollWindow.get_vscrollbar()
+            #this next line does not work on early versions of pygtk :(
+            self.scrollBar.connect('visibility-notify-event', self.scrollbar_visibility_change)
             self.connect("size-request", self.size_adjustment)
             self.connect("add",  self.size_adjustment)
-            self.tableWidth = self.allocation.width
+            self.connect("remove",  self.size_adjustment)
+
+            # get scrollbar thickness from parent app scrollbar - very hackish, but what to do??
+            self.bump = self.parentApp.parentApp.image_scrolledwindow.get_hscrollbar().allocation.height
+            self.haveVerticalScrollbar = False
+
             # vbar is '1' if there is not vertical scroll bar
             # if there is  a vertical scroll bar, then it will have a the width of the bar
-            self.vbar = self.adjustScrollWindow.get_vscrollbar().allocation.width
+            #self.vbar = self.adjustScrollWindow.get_vscrollbar().allocation.width
 
         self.getParentAppPrefs()
         self.getPrefsFactory()
-        
-        if not hasattr(self, "errorTitle"):
-            self.errorTitle = _("Error in Photo Rename preferences")
         
         try:
             self.prefsFactory.checkPrefsForValidity()
@@ -530,10 +541,7 @@ class ImageRenameTable(tpm.TablePlusMinus):
         
         for row in self.prefsFactory.getWidgetsBasedOnPreferences():
             self.append(row)
-            
-
-
-            
+                      
     def updatePreferences(self):
         prefList = []
         for row in self.pm_rows:                
@@ -558,30 +566,32 @@ class ImageRenameTable(tpm.TablePlusMinus):
         self.updateExample()
             
     
-    def size_adjustment(self,  arg1,  arg2):
+    def scrollbar_visibility_change(self, widget, event):
+        if event.state == gdk.VISIBILITY_UNOBSCURED:
+            self.haveVerticalScrollbar = True
+            self.adjustScrollWindow.set_size_request(self.adjustScrollWindow.allocation.width + self.bump, -1)
+
+            
+    def size_adjustment(self, widget, arg2):
         """
         Adjust scrolledwindow width in preferences dialog to reflect width of image rename table
         
         The algorithm is complicated by the need to take into account the presence of a vertical scrollbar,
         which might be added as the user adds more rows
         
+        The pygtk code behaves inconsistently depending on the pygtk version
         """
         
         if self.adjustScrollWindow:
-            if self.adjustScrollWindow.get_vscrollbar().allocation.width > 1:
-                extra = self.adjustScrollWindow.get_vscrollbar().allocation.width + 15
+            self.haveVerticalScrollbar = self.scrollBar.allocation.width > 1 or self.haveVerticalScrollbar
+            if not self.haveVerticalScrollbar:
+                if self.allocation.width > self.adjustScrollWindow.allocation.width:
+                    self.adjustScrollWindow.set_size_request(self.allocation.width, -1)
             else:
-                extra = 0
-            if self.vbar <= 1:
-                # on some versions of gtk, this can be the case
-                if self.allocation.width > self.tableWidth:
-                    self.adjustScrollWindow.set_size_request(self.allocation.width + extra + 25,  -1) 
-                    self.tableWidth = self.allocation.width + extra + 15
-            if self.allocation.width - extra > self.tableWidth:
-                self.adjustScrollWindow.set_size_request(self.allocation.width + extra + 25,  -1) 
-                self.tableWidth = self.allocation.width + extra + 15
-            self.vbar = self.adjustScrollWindow.get_vscrollbar().allocation.width
-            
+                if self.allocation.width > self.adjustScrollWindow.allocation.width - self.bump:
+                    self.adjustScrollWindow.set_size_request(self.allocation.width + self.bump, -1)
+                    self.bump = 0
+       
     def getParentAppPrefs(self):
         self.prefList = self.parentApp.prefs.image_rename
         
@@ -856,12 +866,12 @@ class PreferencesDialog(gnomeglade.Component):
         table.set_col_spacing(1, hd.CONTROL_LABEL_SPACE)
 
     def _setupSubfolderTable(self):
-        self.subfolder_table = SubfolderTable(self, self.download_folder_scrolledwindow)
+        self.subfolder_table = SubfolderTable(self, None)
         self.subfolder_vbox.pack_start(self.subfolder_table)
         self.subfolder_table.show_all()
         
     def _setupVideoSubfolderTable(self):
-        self.video_subfolder_table = VideoSubfolderTable(self, self.video_download_folder_scrolledwindow)
+        self.video_subfolder_table = VideoSubfolderTable(self, None)
         self.video_subfolder_vbox.pack_start(self.video_subfolder_table)
         self.video_subfolder_table.show_all()
 
