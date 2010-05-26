@@ -122,6 +122,7 @@ CODEC = 'Codec'
 WIDTH = 'Width'
 HEIGHT = 'Height'
 FPS = 'Frames Per Second'
+LENGTH = 'Length'
 
 #Image sequences
 DOWNLOAD_SEQ_NUMBER = 'Downloads today'
@@ -231,6 +232,7 @@ class i18TranslateMeThanks:
         _('Codec')
         _('Width')
         _('Height')
+        _('Length')
         _('Frames Per Second')
         # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#sequencenumbers
         _('Downloads today')
@@ -407,7 +409,7 @@ LIST_METADATA_L1 = [APERTURE, ISO, EXPOSURE_TIME, FOCAL_LENGTH,
                     SHUTTER_COUNT, 
                     OWNER_NAME]
                     
-LIST_VIDEO_METADATA_L1 = [CODEC, WIDTH, HEIGHT, FPS]
+LIST_VIDEO_METADATA_L1 = [CODEC, WIDTH, HEIGHT, LENGTH, FPS]
 
 DICT_METADATA_L1 = {
                     APERTURE: None,
@@ -428,6 +430,7 @@ DICT_VIDEO_METADATA_L1 = {
                     CODEC: LIST_CASE_L2,
                     WIDTH: None,
                     HEIGHT: None,
+                    LENGTH: None,
                     FPS: None,
                     ORDER_KEY: LIST_VIDEO_METADATA_L1
                     }
@@ -1434,6 +1437,8 @@ def getVideoMetadataComponent(video):
         v = video.photo.height()
     elif video.L1 == FPS:
         v = video.photo.fps()
+    elif video.L1 == LENGTH:
+        v = video.photo.length()
     else:
         raise TypeError("Invalid metadata option specified")
     if video.L1 in [CODEC]:

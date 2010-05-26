@@ -79,7 +79,12 @@ if DOWNLOAD_VIDEO:
             return self._get('codec', missing, stream)
             
         def length(self, missing=''):
-            return self._get('length', missing)
+            l = self._get('length', missing)
+            try:
+                l = '%.0f' % float(l)
+            except:
+                pass
+            return l
             
         def width(self, stream=0, missing=''):
             return self._get('width', missing, stream)
@@ -88,7 +93,12 @@ if DOWNLOAD_VIDEO:
             return self._get('height', missing, stream)
             
         def framesPerSecond(self, stream=0, missing=''):
-            return self._get('fps', missing, stream)
+            fps = self._get('fps', missing, stream)
+            try:
+                fps = '%.0f' % float(fps)
+            except:
+                pass
+            return fps
         
         def fourcc(self, stream=0, missing=''):
             return self._get('fourcc', missing, stream)

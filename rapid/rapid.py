@@ -2842,6 +2842,10 @@ class ThumbnailHBox(gtk.HBox):
             # rotate if necessary
             if orientation == 8:
                 pixbuf = pixbuf.rotate_simple(gdk.PIXBUF_ROTATE_COUNTERCLOCKWISE)
+            elif orientation == 6:
+                pixbuf = pixbuf.rotate_simple(gdk.PIXBUF_ROTATE_CLOCKWISE)
+            elif orientation == 3:
+                pixbuf = pixbuf.rotate_simple(gdk.PIXBUF_ROTATE_UPSIDEDOWN)
     
         # scale to size
         pixbuf = common.scale2pixbuf(MAX_THUMBNAIL_SIZE, MAX_THUMBNAIL_SIZE, pixbuf)
@@ -3309,9 +3313,15 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
             self.running = False
             
     def setTestingEnv(self):
-        self.prefs.program_version = '0.0.8~b7'
-        r = ['Date time', 'Image date', 'YYYYMMDD', 'Text', '-', '', 'Date time', 'Image date', 'HHMM', 'Text', '-', '', 'Session number', '1', 'Three digits', 'Text', '-iso', '', 'Metadata', 'ISO', '', 'Text', '-f', '', 'Metadata', 'Aperture', '', 'Text', '-', '', 'Metadata', 'Focal length', '', 'Text', 'mm-', '', 'Metadata', 'Exposure time', '', 'Filename', 'Extension', 'lowercase']
-        self.prefs.image_rename = r
+        #self.prefs.program_version = '0.0.8~b7'
+        p = ['Date time', 'Image date', 'YYYYMMDD', 'Text', '-', '', 'Date time', 'Image date', 'HHMM', 'Text', '-', '', rn.SEQUENCES, rn.DOWNLOAD_SEQ_NUMBER, rn.SEQUENCE_NUMBER_3, 'Text', '-iso', '', 'Metadata', 'ISO', '', 'Text', '-f', '', 'Metadata', 'Aperture', '', 'Text', '-', '', 'Metadata', 'Focal length', '', 'Text', 'mm-', '', 'Metadata', 'Exposure time', '', 'Filename', 'Extension', 'lowercase']
+        v = ['Date time', 'Video date', 'YYYYMMDD', 'Text', '-', '', 'Date time', 'Video date', 'HHMM', 'Text', '-', '', 'Sequences', 'Downloads today', 'One digit', 'Text', '-', '', 'Metadata', 'Width', '', 'Text', 'x', '', 'Metadata', 'Height', '', 'Filename', 'Extension', 'lowercase']
+        f = '/home/damon/store/rapid-dump'
+        self.prefs.image_rename = p
+        self.prefs.video_rename = v
+        self.prefs.download_folder = f
+        self.prefs.video_download_folder = f
+        
         
         
     def checkImageDevicePathOnStartup(self):
