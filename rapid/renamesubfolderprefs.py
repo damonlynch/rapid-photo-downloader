@@ -634,7 +634,7 @@ def _upgradePreferencesToCurrent(prefs,  previousVersion):
     return (upgraded,  p)
     
     
-def upgradePreferencesToCurrent(imageRenamePrefs,  subfolderPrefs,  previousVersion):
+def upgradePreferencesToCurrent(imageRenamePrefs, subfolderPrefs, previousVersion):
     """Upgrades user preferences to current version
     
     returns True if the preferences were upgraded"""

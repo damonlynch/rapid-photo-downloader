@@ -15,7 +15,7 @@
 ### along with this program; if not, write to the Free Software
 ### Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-version = '0.2.0~b1'
+version = '0.2.0'
 
 GCONF_KEY="/apps/rapid-photo-downloader"
 GLADE_FILE = "glade3/rapid.glade"
@@ -36,6 +36,7 @@ IGNORE = "ignore"
 
 DEFAULT_PHOTO_LOCATIONS = ['Pictures',  'Photos']
 DEFAULT_BACKUP_LOCATION = 'Pictures'
+DEFAULT_VIDEO_BACKUP_LOCATION = 'Videos'
 
 DEFAULT_VIDEO_LOCATIONS = ['Videos']
 

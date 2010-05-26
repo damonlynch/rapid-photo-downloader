@@ -51,17 +51,25 @@ def is_DCIM_Media(path):
         return False
 
     
-def isBackupMedia(path, identifier, writeable=True):
-    """  Test to see if path is used as a backup medium for storing images
+def isBackupMedia(path, identifiers, writeable=True):
+    """  Test to see if path is used as a backup medium for storing photos or videos
+    
+    Identifiers is expected to be a list of folder names to check to see
+    if the path is a backup path. Only one of them needs to be present
+    for the path to be considered a backup medium.
     
     If writeable is True, the directory must be writeable by the user """
     suitable = False
-    if os.path.isdir(os.path.join(path, identifier)):
-        if writeable:
-            suitable = os.access(os.path.join(path, identifier), os.W_OK)
-        else:
-            suitable = True
-    return suitable
+    
+    for identifier in identifiers:
+        if os.path.isdir(os.path.join(path, identifier)):
+            if writeable:
+                suitable = os.access(os.path.join(path, identifier), os.W_OK)
+            else:
+                suitable = True
+        if suitable:
+            return True
+    return False
     
 def isImage(fileName):
     ext = os.path.splitext(fileName)[1].lower()[1:]

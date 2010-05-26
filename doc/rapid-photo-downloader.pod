@@ -1,6 +1,6 @@
 =head1 NAME
 
-rapid-photo-downloader - imports images from cameras, memory cards and other devices
+rapid-photo-downloader - imports photos and videos from cameras, memory cards and other devices
 
 =head1 SYNOPSIS
 
@@ -11,13 +11,14 @@ Options:
   -h, --help        
   -v, --verbose
   -q, --quiet
-  -e, --extensions  
-
+  -e, --extensions
+  --reset-settings
+  
 =head1 DESCRIPTION
 
-B<Rapid Photo Downloader> downloads photos from cameras, memory cards and Portable
-Storage Devices, providing a variety of options for subfolder creation,
-image renaming and backup. It can download images from more than one device in parallel.
+B<Rapid Photo Downloader> imports photos and videos from cameras, memory cards and Portable
+Storage Devices, providing a variety of flexible, user-defined options for subfolder creation,
+photo and video renaming, and backup. It can download from more than one device in parallel.
 
 
 =head1 OPTIONS
@@ -43,6 +44,10 @@ Only display output errors and warnings to the command line as the program runs.
 =item B<-e, --extensions>
 
 Displays image file extensions the program recognizes and exits.
+
+=item B<--reset-settings>
+
+Resets all program settings and preferences to their default values and exits.
 
 =back
 

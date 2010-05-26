@@ -372,6 +372,8 @@ class RapidPreferences(prefs.Preferences):
         "backup_device_autodetection": prefs.Value(prefs.BOOL, True),
         "backup_identifier": prefs.Value(prefs.STRING, 
                                         config.DEFAULT_BACKUP_LOCATION),
+        "video_backup_identifier": prefs.Value(prefs.STRING, 
+                                        config.DEFAULT_VIDEO_BACKUP_LOCATION),                                        
         "backup_location": prefs.Value(prefs.STRING, os.path.expanduser('~')),
         "strip_characters": prefs.Value(prefs.BOOL, True),
         "auto_download_at_startup": prefs.Value(prefs.BOOL, False),
@@ -995,9 +997,10 @@ class PreferencesDialog(gnomeglade.Component):
         self.backup_folder_filechooser_button.connect("selection-changed", 
                     self.on_backup_folder_filechooser_button_selection_changed)
         self.backup_table.attach(self.backup_folder_filechooser_button,
-                            3, 4, 7, 8, yoptions = gtk.SHRINK)
+                            3, 4, 8, 9, yoptions = gtk.SHRINK)
         self.backup_folder_filechooser_button.show()
         self.backup_identifier_entry.set_text(self.prefs.backup_identifier)
+        self.video_backup_identifier_entry.set_text(self.prefs.video_backup_identifier)
         
         #setup controls for manipulating sensitivity
         self._backupControls0 = [self.auto_detect_backup_checkbutton,
@@ -1015,6 +1018,9 @@ class PreferencesDialog(gnomeglade.Component):
                                 self.backup_location_explanation_label]
         self._backupControls = self._backupControls0 + self._backupControls1 + \
                                 self._backupControls2
+                                
+        self._backupVideoControls = [self.video_backup_identifier_label,
+                                self.video_backup_identifier_entry]
         
         #assign values to checkbuttons only when other controls
         #have been setup, because their toggle signal is activated
@@ -1202,6 +1208,7 @@ class PreferencesDialog(gnomeglade.Component):
         else:
             # arg==gtk.RESPONSE_CLOSE, or the user hit the 'x' to close the window
             self.prefs.backup_identifier = self.backup_identifier_entry.get_property("text")
+            self.prefs.video_backup_identifier = self.video_backup_identifier_entry.get_property("text")
             
             #check subfolder preferences for bad values
             self.checkSubfolderValuesValidOnExit(self.prefs.subfolder, self._updateSubfolderPrefOnError, _("photo"), "subfolder")
@@ -1374,13 +1381,12 @@ class PreferencesDialog(gnomeglade.Component):
         """
         
         if not self.backup_checkbutton.get_active():
-            for c in self._backupControls:
+            for c in self._backupControls + self._backupVideoControls:
                 c.set_sensitive(False)
 
         else:
             for c in self._backupControls0:
                 c.set_sensitive(True)
-                
             self.updateBackupControlsAuto()
 
     def updateBackupControlsAuto(self):
@@ -1393,11 +1399,19 @@ class PreferencesDialog(gnomeglade.Component):
                 c.set_sensitive(True)
             for c in self._backupControls2:
                 c.set_sensitive(False)
+            for c in self._backupVideoControls:
+                c.set_sensitive(False)
+            if DOWNLOAD_VIDEO:
+                for c in self._backupVideoControls:
+                    c.set_sensitive(True)
         else:
             for c in self._backupControls1:
                 c.set_sensitive(False)
             for c in self._backupControls2:
                 c.set_sensitive(True)
+            if DOWNLOAD_VIDEO:
+                for c in self._backupVideoControls:
+                    c.set_sensitive(False)                
             
     def disableVideoControls(self):
         """
@@ -1412,6 +1426,8 @@ class PreferencesDialog(gnomeglade.Component):
                     self.video_original_name_label,
                     self.video_rename_scrolledwindow,
                     self.video_folders_hbox,
+                    self.video_backup_identifier_label,
+                    self.video_backup_identifier_entry
                     ]
         for c in controls:
             c.set_sensitive(False)
@@ -1430,22 +1446,30 @@ class PreferencesDialog(gnomeglade.Component):
 
     def on_backup_identifier_entry_changed(self, widget):
         self.updateBackupExample()
+    
+    def on_video_backup_identifier_entry_changed(self, widget):
+        self.updateBackupExample()
 
     def on_backup_scan_folder_on_entry_changed(self, widget):
         self.updateBackupExample()        
 
     def updateBackupExample(self):
         # Translators: this value is used as an example device when automatic backup device detection is enabled. You should translate this.
-        path = os.path.join(config.MEDIA_LOCATION, _("externaldrive1"))
+        drive1 = os.path.join(config.MEDIA_LOCATION, _("externaldrive1"))
         # Translators: this value is used as an example device when automatic backup device detection is enabled. You should translate this.
-        path2 = os.path.join(config.MEDIA_LOCATION, _("externaldrive2"))
+        drive2 = os.path.join(config.MEDIA_LOCATION, _("externaldrive2"))
 
-        path = os.path.join(path, self.backup_identifier_entry.get_text())
-        path2 = os.path.join(path2, self.backup_identifier_entry.get_text())
+        path = os.path.join(drive1, self.backup_identifier_entry.get_text())
+        path2 = os.path.join(drive2, self.backup_identifier_entry.get_text())
+        path3 = os.path.join(drive2, self.video_backup_identifier_entry.get_text())
         path = common.escape(path)
         path2 = common.escape(path2)
-        self.example_backup_path_label.set_markup("<i>%s</i>\n<i>%s</i>" % (path,
-                            path2))
+        path3 = common.escape(path3)
+        if DOWNLOAD_VIDEO:
+            example = "<i>%s</i>\n<i>%s</i>\n<i>%s</i>" % (path, path2, path3)
+        else:
+            example = "<i>%s</i>\n<i>%s</i>" % (path, path2)
+        self.example_backup_path_label.set_markup(example)
 
         
 def file_types_by_number(noImages, noVideos):
@@ -1456,6 +1480,8 @@ def file_types_by_number(noImages, noVideos):
     """
     if (noVideos > 0) and (noImages > 0):
         v = _('photos and videos')
+    elif (noVideos == 0) and (noImages == 0):
+        v = _('photos or videos')
     elif noVideos > 0:
         if noVideos > 1:
             v = _('videos')
@@ -2126,79 +2152,118 @@ class CopyPhotos(Thread):
             return (fileDownloaded,  newName,  newFile)
             
 
-        def backupFile(subfolder, newName, fileDownloaded,  newFile, originalFile):
-            """ backup image or video to path(s) chosen by the user
+        def backupFile(subfolder, newName, fileDownloaded, newFile, originalFile):
+            """ 
+            Backup photo or video to path(s) chosen by the user
             
             there are two scenarios: 
             (1) file has just been downloaded and should now be backed up
             (2) file was already downloaded on some previous occassion and should still be backed up, because it hasn't been yet
             (3) file has been backed up already (or at least, a file with the same name already exists)
+            
+            A backup medium can be used to backup photos or videos, or both. 
             """
             
             #TODO convert to using GIO
             backed_up = False
+            fileNotBackedUpMessageDisplayed = False
             try:
-                for backupDir in self.parentApp.backupVolumes:
-                    backupPath = os.path.join(backupDir, subfolder)
-                    newBackupFile = os.path.join(backupPath,  newName)
-                    copyBackup = True
-                    if os.path.exists(newBackupFile):
-                        # this check is of course not thread safe -- it doesn't need to be, because at this stage the file names are going to be unique
-                        # (the folder structure is the same as the actual download folders, and the file names are unique in them)
-                        copyBackup = self.prefs.backup_duplicate_overwrite                                     
-                        if self.prefs.indicate_download_error:
-                            severity = config.SERIOUS_ERROR
-                            problem = _("Backup of photo or video already exists")
-                            details = _("Source: %(source)s\nDestination: %(destination)s") \
-                                % {'source': image, 'destination': newBackupFile}
-                            if copyBackup :
-                                resolution = _("Backup file overwritten")
-                            else:
-                                resolution = fileSkippedDisplay
-                            logError(severity, problem, details, resolution)
+                for rootBackupDir in self.parentApp.backupVolumes:
+                    if self.prefs.backup_device_autodetection:
+                        if self.isImage:
+                            backupDir = os.path.join(rootBackupDir, self.prefs.backup_identifier)
+                        else:
+                            backupDir = os.path.join(rootBackupDir, self.prefs.video_backup_identifier)
+                    else:
+                        # photos and videos will be backed up into the same root folder, which the user has manually specified
+                        backupDir = rootBackupDir
+                    # if user has chosen auto detection, then:
+                    # photos should only be backed up to photo backup locations
+                    # videos should only be backed up to video backup locations
+                    # if user did not choose autodetection, and the backup path doesn't exist, then
+                    # will try to create it
+                    if os.path.exists(backupDir) or not self.prefs.backup_device_autodetection:
 
-                    if copyBackup:
-                        if fileDownloaded:
-                            fileToCopy = newFile
-                        else:
-                            fileToCopy = originalFile
-                        if os.path.isdir(backupPath):
-                            pathExists = True
-                        else:
-                            # recreate folder structure in backup location
-                            # cannot do os.makedirs(backupPath) - it can give bad results when using external drives
-                            # we know backupDir exists 
-                            # all the components of subfolder may not
-                            folders = subfolder.split(os.path.sep)
-                            folderToMake = backupDir 
-                            for f in folders:
-                                if f:
-                                    folderToMake = os.path.join(folderToMake,  f)
-                                    if not os.path.isdir(folderToMake):
-                                        try:
-                                            os.mkdir(folderToMake)
-                                            pathExists = True
-                                        except (IOError, OSError), (errno, strerror):
-                                            logError(config.SERIOUS_ERROR, _('Backing up error'), 
-                                                     _("Destination directory could not be created: %(directory)s\n") %
-                                                     {'directory': folderToMake,  } +
-                                                     _("Source: %(source)s\nDestination: %(destination)s\n") % 
-                                                     {'source': image, 'destination': newBackupFile} + 
-                                                     _("Error: %(errno)s %(strerror)s") % {'errno': errno,  'strerror': strerror}, 
-                                                     _('The photo or video was not copied.')
-                                                     )
-                                            pathExists = False
-                                    
-                        if pathExists:
-                            shutil.copy2(fileToCopy,  newBackupFile)
-                            backed_up = True
+                        backupPath = os.path.join(backupDir, subfolder)
+                        newBackupFile = os.path.join(backupPath, newName)
+                        copyBackup = True
+                        if os.path.exists(newBackupFile):
+                            # this check is of course not thread safe -- it doesn't need to be, because at this stage the file names are going to be unique
+                            # (the folder structure is the same as the actual download folders, and the file names are unique in them)
+                            copyBackup = self.prefs.backup_duplicate_overwrite                                     
+                            if self.prefs.indicate_download_error:
+                                severity = config.SERIOUS_ERROR
+                                problem = _("Backup of %(file_type)s already exists") % {'file_type': fileBeingDownloadedDisplay}
+                                details = _("Source: %(source)s\nDestination: %(destination)s") \
+                                    % {'source': originalFile, 'destination': newBackupFile}
+                                if copyBackup :
+                                    resolution = _("Backup %(file_type)s overwritten") % {'file_type': fileBeingDownloadedDisplay}
+                                else:
+                                    fileNotBackedUpMessageDisplayed = True
+                                    if self.prefs.backup_device_autodetection:
+                                        volume = self.parentApp.backupVolumes[rootBackupDir].get_name()
+                                        resolution = _("%(file_type)s not backed up to %(volume)s") % {'file_type': fileBeingDownloadedDisplayCap, 'volume': volume}
+                                    else:
+                                        resolution = _("%(file_type)s not backed up") % {'file_type': fileBeingDownloadedDisplayCap}
+                                logError(severity, problem, details, resolution)
+
+                        if copyBackup:
+                            if fileDownloaded:
+                                fileToCopy = newFile
+                            else:
+                                fileToCopy = originalFile
+                            if os.path.isdir(backupPath):
+                                pathExists = True
+                            else:
+                                # recreate folder structure in backup location
+                                # cannot do os.makedirs(backupPath) - it can give bad results when using external drives
+                                # we know backupDir exists 
+                                # all the components of subfolder may not
+                                folders = subfolder.split(os.path.sep)
+                                folderToMake = backupDir 
+                                for f in folders:
+                                    if f:
+                                        folderToMake = os.path.join(folderToMake,  f)
+                                        if not os.path.isdir(folderToMake):
+                                            try:
+                                                os.mkdir(folderToMake)
+                                                pathExists = True
+                                            except (IOError, OSError), (errno, strerror):
+                                                fileNotBackedUpMessageDisplayed = True
+                                                logError(config.SERIOUS_ERROR, _('Backing up error'), 
+                                                         _("Destination directory could not be created: %(directory)s\n") %
+                                                         {'directory': folderToMake,  } +
+                                                         _("Source: %(source)s\nDestination: %(destination)s\n") % 
+                                                         {'source': originalFile, 'destination': newBackupFile} + 
+                                                         _("Error: %(errno)s %(strerror)s") % {'errno': errno,  'strerror': strerror}, 
+                                                         _('The %(file_type)s was not backed up.') % {'file_type': fileBeingDownloadedDisplay}
+                                                         )
+                                                pathExists = False
+                                                break
+                                        
+                            if pathExists:
+                                shutil.copy2(fileToCopy, newBackupFile)
+                                backed_up = True
                         
             except (IOError, OSError), (errno, strerror):
+                fileNotBackedUpMessageDisplayed = True
                 logError(config.SERIOUS_ERROR, _('Backing up error'), 
                             _("Source: %(source)s\nDestination: %(destination)s\nError: %(errno)s %(strerror)s")
-                            % {'source': image, 'destination': newBackupFile,  'errno': errno,  'strerror': strerror},
-                            _('The photo or video was not copied.'))
+                            % {'source': originalFile, 'destination': newBackupFile,  'errno': errno,  'strerror': strerror},
+                            _('The %(file_type)s was not backed up.')  % {'file_type': fileBeingDownloadedDisplay}
+                        )
 
+            if not backed_up and not fileNotBackedUpMessageDisplayed:
+                # The file has not been backed up to any medium
+                severity = config.SERIOUS_ERROR
+                problem = _("%(file_type)s could not be backed up") % {'file_type': fileBeingDownloadedDisplayCap}
+                details = _("Source: %(source)s") % {'source': originalFile}
+                if self.prefs.backup_device_autodetection:
+                    resolution = _("No suitable backup volume was found")
+                else:
+                    resolution = _("A backup location was not found")
+                logError(severity, problem, details, resolution)    
+                
             return backed_up
 
         def notifyAndUnmount():
@@ -2303,17 +2368,6 @@ class CopyPhotos(Thread):
         #Do not try to handle any preference errors here
         getPrefs(False)
         
-        #check for presence of backup meditum
-        if self.prefs.backup_images:
-            if self.prefs.backup_missing <> config.IGNORE:
-                if not len(self.parentApp.backupVolumes):
-                    if self.prefs.backup_missing == config.REPORT_ERROR:
-                        e = config.SERIOUS_ERROR
-                    else:
-                        e = config.WARNING
-                    logError(e,  _("Backup device missing"),  _("No backup device was detected."))
-                
-        
         if not scanMedia():
             cmd_line(_("This device has no %(types_searched_for)s to download from.") % {'types_searched_for': self.types_searched_for})
             display_queue.put((self.parentApp.downloadFailed, (self.thread_id, )))
@@ -2351,6 +2405,34 @@ class CopyPhotos(Thread):
             
         self.downloadStarted = True
         cmd_line(_("Download has started from %s") % self.cardMedia.prettyName(limit=0))
+        
+        #check for presence of backup path or volumes
+        if self.prefs.backup_images:
+            can_backup = True
+            if self.prefs.backup_missing == config.REPORT_ERROR:
+                e = config.SERIOUS_ERROR
+            elif self.prefs.backup_missing == config.REPORT_WARNING:
+                e = config.WARNING            
+            if not self.prefs.backup_device_autodetection:
+                if not os.path.isdir(self.prefs.backup_location):
+                    # the user has manually specified a path, but it
+                    # does not exist. This is a problem.
+                    try:
+                        os.makedirs(self.prefs.backup_location)
+                    except:
+                        if self.prefs.backup_missing <> config.IGNORE:
+                            logError(e, _("Backup path does not exist"),
+                                        _("The path %s could not be created") % path, 
+                                        _("No backups can occur")
+                                    )
+                        can_backup = False
+                        
+            elif self.prefs.backup_missing <> config.IGNORE:
+                if not len(self.parentApp.backupVolumes):
+                    logError(e, _("Backup device missing"), 
+                                _("No backup device was automatically detected"), 
+                                _("No backups can occur"))
+                    can_backup = False        
         
         if need_job_code and job_code == None:
             sys.stderr.write(str(self.thread_id ) + ": job code should never be None\n")
@@ -2468,7 +2550,10 @@ class CopyPhotos(Thread):
                                                                    fileMetadata, subfolder, sequence_to_use, fallback_date)
 
                 if self.prefs.backup_images:
-                    backed_up = backupFile(subfolder, newName, fileDownloaded, newFile, fullFileName)
+                    if can_backup:
+                        backed_up = backupFile(subfolder, newName, fileDownloaded, newFile, fullFileName)
+                    else:
+                        backed_up = False
 
                 if fileDownloaded:
                     noFilesDownloaded += 1
@@ -3411,7 +3496,7 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
             
             if pv != rv:
                 if pv > rv:
-                    prefsOk = rn.checkPreferencesForValidity(self.prefs.image_rename,  self.prefs.subfolder)
+                    prefsOk = rn.checkPreferencesForValidity(self.prefs.image_rename, self.prefs.subfolder, self.prefs.video_rename, self.prefs.video_subfolder)
                         
                     msg = _("A newer version of this program was previously run on this computer.\n\n")
                     if prefsOk:
@@ -3425,8 +3510,8 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
                 else:
                     cmd_line(_("This version of the program is newer than the previously run version. Checking preferences."))
 
-                    if rn.checkPreferencesForValidity(self.prefs.image_rename,  self.prefs.subfolder,  previousVersion):
-                        upgraded,  imageRename,  subfolder = rn.upgradePreferencesToCurrent(self.prefs.image_rename,  self.prefs.subfolder,  previousVersion)
+                    if rn.checkPreferencesForValidity(self.prefs.image_rename, self.prefs.subfolder, self.prefs.video_rename, self.prefs.video_subfolder, previousVersion):
+                        upgraded,  imageRename,  subfolder = rn.upgradePreferencesToCurrent(self.prefs.image_rename, self.prefs.subfolder, previousVersion)
                         if upgraded:
                             self.prefs.image_rename = imageRename
                             self.prefs.subfolder = subfolder
@@ -3575,9 +3660,8 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
                     isBackupVolume = self.checkIfBackupVolume(path)
                                 
                     if isBackupVolume:
-                        backupPath = os.path.join(path,  self.prefs.backup_identifier)
                         if path not in self.backupVolumes:
-                            self.backupVolumes[backupPath] = volume
+                            self.backupVolumes[path] = volume
                             self.rapid_statusbar.push(self.statusbar_context_id, self.displayBackupVolumes())
 
                     elif media.is_DCIM_Media(path) or self.searchForPsd():
@@ -3636,9 +3720,8 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
             # fourth scenario - nothing to do
                     
             # remove backup volumes
-            backupPath = os.path.join(path,  self.prefs.backup_identifier)
-            if backupPath in self.backupVolumes:
-                del self.backupVolumes[backupPath]
+            if path in self.backupVolumes:
+                del self.backupVolumes[path]
                 self.rapid_statusbar.push(self.statusbar_context_id, self.displayBackupVolumes())
                 
             # may need to disable download button
@@ -3671,9 +3754,12 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
         
         Checks against user preferences.
         """
+        identifiers = [self.prefs.backup_identifier]
+        if DOWNLOAD_VIDEO:
+            identifiers.append(self.prefs.video_backup_identifier)
         if self.prefs.backup_images:
             if self.prefs.backup_device_autodetection:
-                if media.isBackupMedia(path, self.prefs.backup_identifier):
+                if media.isBackupMedia(path, identifiers):
                     return True
             elif path == self.prefs.backup_location:
                 # user manually specified the path
@@ -3730,8 +3816,8 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
                             self._printDetectedDevice(volume.get_name(limit=0), path)
                             isBackupVolume = self.checkIfBackupVolume(path)
                             if isBackupVolume:
-                                backupPath = os.path.join(path,  self.prefs.backup_identifier)
-                                self.backupVolumes[backupPath] = volume
+                                #backupPath = os.path.join(path,  self.prefs.backup_identifier)
+                                self.backupVolumes[path] = volume
                             elif self.prefs.device_autodetection and (media.is_DCIM_Media(path) or self.searchForPsd()):
                                 volumeList.append((path, volume))
                         
@@ -3746,8 +3832,9 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
         if self.prefs.backup_images:
             if not self.prefs.backup_device_autodetection:
                 # user manually specified backup location
+                # will backup to this path, but don't need any volume info associated with it
                 self.backupVolumes[self.prefs.backup_location] = None
-                self.rapid_statusbar.push(self.statusbar_context_id, '')
+                self.rapid_statusbar.push(self.statusbar_context_id, _('Backing up to %(path)s') % {'path':self.prefs.backup_location})
             else:
                 self.rapid_statusbar.push(self.statusbar_context_id, self.displayBackupVolumes())
                 
