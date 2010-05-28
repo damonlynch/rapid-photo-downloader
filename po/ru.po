@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-05-27 22:33-0500\n"
-"PO-Revision-Date: 2010-05-27 16:26+0000\n"
+"PO-Revision-Date: 2010-05-28 16:52+0000\n"
 "Last-Translator: Sergey Sedov <Unknown>\n"
 "Language-Team: Russian <ru@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-05-28 04:00+0000\n"
+"X-Launchpad-Export-Date: 2010-05-28 19:08+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #. Translators: if neccessary, for guidance in how to translate this program, you may see http://damonlynch.net/translate.html
@@ -112,7 +112,7 @@ msgstr "Сброс настроек в полночь.\n"
 
 #: rapid/rapid.py:492
 msgid "Error in Photo Rename preferences"
-msgstr ""
+msgstr "Ошибка в параметрах Переименования фотографий"
 
 #: rapid/rapid.py:523 rapid/rapid.py:1567
 msgid "Sorry,these preferences contain an error:\n"
@@ -129,7 +129,7 @@ msgstr "Метка"
 
 #: rapid/rapid.py:677
 msgid "Error in Video Rename preferences"
-msgstr ""
+msgstr "Ошибка в параметрах Переименования видеороликов"
 
 #: rapid/rapid.py:695
 msgid "Error in Photo Download Subfolders preferences"
@@ -1517,7 +1517,7 @@ msgstr "<b>Отсутствующие носители резервного ко
 
 #: rapid/glade3/rapid.glade.h:13
 msgid "<b>Photo Rename</b>"
-msgstr ""
+msgstr "<b>Переименование фотографий</b>"
 
 #: rapid/glade3/rapid.glade.h:14
 msgid "<b>Photo and Video Name Conflicts</b>"
@@ -1579,6 +1579,7 @@ msgstr ""
 #: rapid/glade3/rapid.glade.h:28
 msgid "<span weight=\"bold\" size=\"x-large\">Photo Rename</span>\t"
 msgstr ""
+"<span weight=\"bold\" size=\"x-large\">Переименование фотографий</span>\t"
 
 #: rapid/glade3/rapid.glade.h:29
 msgid "<span weight=\"bold\" size=\"x-large\">Rename Options</span>"
@@ -1592,6 +1593,7 @@ msgstr ""
 #: rapid/glade3/rapid.glade.h:31
 msgid "<span weight=\"bold\" size=\"x-large\">Video Rename</span>\t"
 msgstr ""
+"<span weight=\"bold\" size=\"x-large\">Переименование видеороликов</span>\t"
 
 #: rapid/glade3/rapid.glade.h:32
 msgid "Add unique identifier"
@@ -1749,7 +1751,7 @@ msgstr ""
 
 #: rapid/glade3/rapid.glade.h:67
 msgid "Photo Rename"
-msgstr ""
+msgstr "Переименование фотографий"
 
 #: rapid/glade3/rapid.glade.h:68
 msgid "Photo backup folder name:"

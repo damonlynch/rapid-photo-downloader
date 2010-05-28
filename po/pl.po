@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-05-27 22:33-0500\n"
-"PO-Revision-Date: 2010-05-26 10:11+0000\n"
+"PO-Revision-Date: 2010-05-28 13:45+0000\n"
 "Last-Translator: mmiicc <mpredotka@gmail.com>\n"
 "Language-Team: Polish <pl@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-05-28 04:00+0000\n"
+"X-Launchpad-Export-Date: 2010-05-28 19:08+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #. Translators: if neccessary, for guidance in how to translate this program, you may see http://damonlynch.net/translate.html
@@ -685,7 +685,7 @@ msgstr "Znalezione urządzenie"
 #: rapid/rapid.py:2878
 msgid ""
 "Should this device or partition be used to download photos or videos from?"
-msgstr ""
+msgstr "Pobierać zdjęcia lub filmy z tego urządzenia lub partycji?"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#usedeviceprompt
 #: rapid/rapid.py:2897
@@ -787,7 +787,7 @@ msgstr "Problem z katalogiem pobierania"
 
 #: rapid/rapid.py:3369
 msgid "Problem with Download Folders"
-msgstr ""
+msgstr "Problem z katalogami pobierania"
 
 #: rapid/rapid.py:3382
 msgid "Some preferences will be reset."
@@ -953,7 +953,7 @@ msgstr "Użycie ręcznie wprowadzonej ścieżki"
 #: rapid/rapid.py:3857
 #, python-format
 msgid "Backing up to %(path)s"
-msgstr ""
+msgstr "Tworzenie kopii zapasowej w %(path)s"
 
 #: rapid/rapid.py:3968 rapid/rapid.py:4017
 msgid "All downloads complete"
@@ -986,19 +986,19 @@ msgstr "Pozostało około %(minutes)i:%(seconds)02i minut"
 
 #: rapid/rapid.py:4019
 msgid "photos downloaded"
-msgstr ""
+msgstr "zdjęcia pobrane"
 
 #: rapid/rapid.py:4021
 msgid "photos skipped"
-msgstr ""
+msgstr "zdjęcia pominięte"
 
 #: rapid/rapid.py:4023
 msgid "videos downloaded"
-msgstr ""
+msgstr "filmy pobrane"
 
 #: rapid/rapid.py:4025
 msgid "videos skipped"
-msgstr ""
+msgstr "filmy pominięte"
 
 #. This text will be displayed to the user on the Download / Pause button.
 #. Please note the space at the end of the label - it is needed to meet the Gnome Human Interface Guidelines
@@ -1037,19 +1037,19 @@ msgstr "wyświetlaj jedynie błędy w linii komend"
 #. image file extensions are recognized RAW files plus TIFF and JPG
 #: rapid/rapid.py:4421
 msgid "list photo and video file extensions the program recognizes and exit"
-msgstr ""
+msgstr "wypisz typy plików rozpoznawane przez program i zakończ"
 
 #: rapid/rapid.py:4422
 msgid "reset all program settings and preferences and exit"
-msgstr ""
+msgstr "zresetuj wszystkie ustawienia oraz preferencje programu i zakończ"
 
 #: rapid/rapid.py:4431
 msgid "Photos:"
-msgstr ""
+msgstr "Zdjęcia:"
 
 #: rapid/rapid.py:4431
 msgid "Videos:"
-msgstr ""
+msgstr "Filmy:"
 
 #: rapid/rapid.py:4436
 #, python-format
@@ -1058,7 +1058,7 @@ msgstr "oraz %s"
 
 #: rapid/rapid.py:4444
 msgid "All settings and preferences have been reset"
-msgstr ""
+msgstr "Wszystkie ustawienia oraz preferencje zostały zresetowane"
 
 #. Which volume management code is being used (GIO or GnomeVFS)
 #: rapid/rapid.py:4448 rapid/rapid.py:4449 rapid/rapid.py:4451
@@ -1068,7 +1068,7 @@ msgstr "Użycie"
 
 #: rapid/rapid.py:4453
 msgid "\n"
-msgstr ""
+msgstr "\n"
 
 #. this application is already running
 #: rapid/rapid.py:4477
@@ -1102,7 +1102,7 @@ msgstr "Data zdjęcia"
 
 #: rapid/renamesubfolderprefs.py:198
 msgid "Video date"
-msgstr ""
+msgstr "Data filmu"
 
 #: rapid/renamesubfolderprefs.py:199
 msgid "Today"
@@ -1134,7 +1134,7 @@ msgstr "Numer obrazu"
 
 #: rapid/renamesubfolderprefs.py:209
 msgid "Video number"
-msgstr ""
+msgstr "Numer filmu"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
 #: rapid/renamesubfolderprefs.py:211
@@ -1193,23 +1193,23 @@ msgstr "Nazwa właściciela"
 
 #: rapid/renamesubfolderprefs.py:232
 msgid "Codec"
-msgstr ""
+msgstr "Kodek"
 
 #: rapid/renamesubfolderprefs.py:233
 msgid "Width"
-msgstr ""
+msgstr "Szerokość"
 
 #: rapid/renamesubfolderprefs.py:234
 msgid "Height"
-msgstr ""
+msgstr "Wysokość"
 
 #: rapid/renamesubfolderprefs.py:235
 msgid "Length"
-msgstr ""
+msgstr "Długość"
 
 #: rapid/renamesubfolderprefs.py:236
 msgid "Frames Per Second"
-msgstr ""
+msgstr "Klatki na sekundę"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#sequencenumbers
 #: rapid/renamesubfolderprefs.py:238
@@ -1429,12 +1429,12 @@ msgstr "Następujące preferencje nie są dobrze sformułowane:"
 
 #: rapid/renamesubfolderprefs.py:934
 msgid "Subsecond metadata not present in photo"
-msgstr ""
+msgstr "Obraz nie zawiera metadanych części sekundy"
 
 #: rapid/renamesubfolderprefs.py:941
 #, python-format
 msgid "%s metadata is not present"
-msgstr ""
+msgstr "Brak metadanych %s"
 
 #: rapid/renamesubfolderprefs.py:960 rapid/renamesubfolderprefs.py:968
 #: rapid/renamesubfolderprefs.py:977
@@ -1445,15 +1445,19 @@ msgstr "Błąd w składniku data czas. Nieprawidłowa wartość %s"
 #: rapid/renamesubfolderprefs.py:1004
 msgid "extension was specified but filename does not have an extension"
 msgstr ""
+"rozszerzenie zostało określone ale nazwa pliku nie posiada żadnego "
+"rozszerzenia"
 
 #: rapid/renamesubfolderprefs.py:1008
 msgid "image or video number was specified but filename has no number"
 msgstr ""
+"numer obrazu lub filmu został określony ale nazwa pliku nie posiada żadnego "
+"numeru"
 
 #: rapid/renamesubfolderprefs.py:1081
 #, python-format
 msgid "%s metadata is not present in photo"
-msgstr ""
+msgstr "Zdjęcie nie zawiera metadanych %s"
 
 #: rapid/renamesubfolderprefs.py:1194
 #, python-format
@@ -1463,7 +1467,7 @@ msgstr "błąd przy tworzeniu nazwy ze składową %s"
 #: rapid/renamesubfolderprefs.py:1450
 #, python-format
 msgid "%s metadata is not present in video"
-msgstr ""
+msgstr "Film nie zawiera metadanych %s"
 
 #: rapid/renamesubfolderprefs.py:1546
 #, python-format
@@ -1507,7 +1511,7 @@ msgstr "<b>Zgodność z innymi systemami operacyjnymi</b>"
 
 #: rapid/glade3/rapid.glade.h:7
 msgid "<b>Devices</b>"
-msgstr ""
+msgstr "<b>Urządzenia</b>"
 
 #: rapid/glade3/rapid.glade.h:8
 msgid "<b>Download Folder</b>"
@@ -1531,11 +1535,11 @@ msgstr "<b>Brak urządzeń do zapisu kopii zapasowej</b>"
 
 #: rapid/glade3/rapid.glade.h:13
 msgid "<b>Photo Rename</b>"
-msgstr ""
+msgstr "<b>Zmiana nazw zdjęć</b>"
 
 #: rapid/glade3/rapid.glade.h:14
 msgid "<b>Photo and Video Name Conflicts</b>"
-msgstr ""
+msgstr "<b>Konflikty między nazwami zdjęć i filmów</b>"
 
 #: rapid/glade3/rapid.glade.h:15
 msgid "<b>Program Automation</b>"
@@ -1551,7 +1555,7 @@ msgstr "<i>/media/dyskzewnętrzny/Photos</i>"
 
 #: rapid/glade3/rapid.glade.h:18
 msgid "<i>Example: /home/user/Pictures</i>"
-msgstr ""
+msgstr "<i>Przykład: /home/użytkownik/Obrazy</i>"
 
 #: rapid/glade3/rapid.glade.h:19
 msgid "<i>Example:</i>"
@@ -1575,7 +1579,7 @@ msgstr "<span weight=\"bold\" size=\"x-large\">Kopia zapasowa</span>\t"
 
 #: rapid/glade3/rapid.glade.h:24
 msgid "<span weight=\"bold\" size=\"x-large\">Devices</span>"
-msgstr ""
+msgstr "<span weight=\"bold\" size=\"x-large\">Urządzenia</span>"
 
 #: rapid/glade3/rapid.glade.h:25
 msgid "<span weight=\"bold\" size=\"x-large\">Error Handling</span>"
@@ -1588,10 +1592,11 @@ msgstr "<span weight=\"bold\" size=\"x-large\">Kody pracy</span>"
 #: rapid/glade3/rapid.glade.h:27
 msgid "<span weight=\"bold\" size=\"x-large\">Photo Download Folders</span>"
 msgstr ""
+"<span weight=\"bold\" size=\"x-large\">Katalogi pobierania zdjęć</span>"
 
 #: rapid/glade3/rapid.glade.h:28
 msgid "<span weight=\"bold\" size=\"x-large\">Photo Rename</span>\t"
-msgstr ""
+msgstr "<span weight=\"bold\" size=\"x-large\">Zmiana nazw zdjęć</span>\t"
 
 #: rapid/glade3/rapid.glade.h:29
 msgid "<span weight=\"bold\" size=\"x-large\">Rename Options</span>"
@@ -1600,10 +1605,11 @@ msgstr "<span weight=\"bold\" size=\"x-large\">Opcje zmiany nazw</span>"
 #: rapid/glade3/rapid.glade.h:30
 msgid "<span weight=\"bold\" size=\"x-large\">Video Download Folders</span>"
 msgstr ""
+"<span weight=\"bold\" size=\"x-large\">Katalogi pobierania filmów</span>"
 
 #: rapid/glade3/rapid.glade.h:31
 msgid "<span weight=\"bold\" size=\"x-large\">Video Rename</span>\t"
-msgstr ""
+msgstr "<span weight=\"bold\" size=\"x-large\">Zmiana nazw filmów</span>\t"
 
 #: rapid/glade3/rapid.glade.h:32
 msgid "Add unique identifier"
@@ -1620,7 +1626,7 @@ msgstr ""
 
 #: rapid/glade3/rapid.glade.h:35
 msgid "Automatically detect devices"
-msgstr ""
+msgstr "Automatycznie wykryj urządzenia"
 
 #: rapid/glade3/rapid.glade.h:36
 msgid "Automation"
@@ -1636,7 +1642,7 @@ msgstr "Położenie kopii zapasowej:"
 
 #: rapid/glade3/rapid.glade.h:39
 msgid "Backup photos and videos when downloading"
-msgstr ""
+msgstr "Utwórz kopię zapasową zdjęć i filmów podczas pobierania"
 
 #: rapid/glade3/rapid.glade.h:40
 msgid ""
@@ -1651,11 +1657,15 @@ msgid ""
 "Choose the download folder. Subfolders for the downloaded videos will be "
 "automatically created in this folder using the structure specified below."
 msgstr ""
+"Proszę wybrać katalog pobierania. Podkatalogi dla pobranych filmów zostaną w "
+"nim automatycznie utworzone w oparciu o poniższą specyfikację."
 
 #: rapid/glade3/rapid.glade.h:42
 msgid ""
 "Choose whether to skip downloading the file, or to add a unique indentifier."
 msgstr ""
+"Proszę wybrać czy pominąć pobieranie pliku, czy dodać unikatowy "
+"identyfikator."
 
 #: rapid/glade3/rapid.glade.h:43
 msgid "Copyright Damon Lynch 2007-10"
@@ -1667,11 +1677,11 @@ msgstr "Początek dnia:"
 
 #: rapid/glade3/rapid.glade.h:45
 msgid "Delete photos and videos from device upon download completion"
-msgstr ""
+msgstr "Usuń zdjęcia i filmy z urządzenia po ukończeniu pobierania"
 
 #: rapid/glade3/rapid.glade.h:46
 msgid "Devices"
-msgstr ""
+msgstr "Urządzenia"
 
 #: rapid/glade3/rapid.glade.h:47
 msgid ""
@@ -1685,6 +1695,13 @@ msgid ""
 "setting it to PTP mode. If that is not possible, consider using a card "
 "reader.</i>"
 msgstr ""
+"Nośniki obrazów to urządzenia z których można pobrać zdjęcia i filmy, takie "
+"jak aparaty fotograficzne, karty pamięci czy przenośne magazyny danych.\n"
+"Zdjęcia mogą być pobierane jednocześnie z kilku nośników obrazów, lub z "
+"określonego położenia na dysku.\n"
+"<i>Jeżeli pobieranie bezpośrednio z aparatu fotograficznego działa "
+"nieprawidłowo lub wcale, proszę spróbować przestawić go do trybu PTP. Jeśli "
+"jest to niemożliwe, proszę rozważyć użycie czytnika kart pamięci.</i>"
 
 #: rapid/glade3/rapid.glade.h:52
 msgid "Download / Pause"
@@ -1901,7 +1918,7 @@ msgstr ""
 
 #: rapid/glade3/rapid.glade.h:97
 msgid "Video Folders"
-msgstr ""
+msgstr "Katalogi filmów"
 
 #: rapid/glade3/rapid.glade.h:98
 msgid "Video Rename"
@@ -1916,12 +1933,16 @@ msgid ""
 "When backing up, choose whether to overwrite a file on the backup device "
 "that has the same name, or skip backing it up."
 msgstr ""
+"Proszę wybrać, czy podczas tworzenia kopii zapasowej nadpisać, czy pominąć "
+"plik o tej samej nazwie na urządzeniu docelowym."
 
 #: rapid/glade3/rapid.glade.h:101
 msgid ""
 "You can have your photos and videos backed up to multiple locations as they "
 "are downloaded, e.g. external hard drives."
 msgstr ""
+"Możliwe jest utworzenie wielu kopii zapasowych dla pobieranych zdjęć i "
+"filmów, np. na zewnętrznych dyskach twardych."
 
 #: rapid/glade3/rapid.glade.h:102
 msgid "_Add..."

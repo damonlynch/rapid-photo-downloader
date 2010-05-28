@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-05-27 22:33-0500\n"
-"PO-Revision-Date: 2010-05-26 13:57+0000\n"
+"PO-Revision-Date: 2010-05-28 07:09+0000\n"
 "Last-Translator: Marco Solari <marcosolari@gmail.com>\n"
 "Language-Team: Italian <it@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-05-28 04:00+0000\n"
+"X-Launchpad-Export-Date: 2010-05-28 19:08+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #. Translators: if neccessary, for guidance in how to translate this program, you may see http://damonlynch.net/translate.html
@@ -1226,7 +1226,7 @@ msgstr "Altezza"
 
 #: rapid/renamesubfolderprefs.py:235
 msgid "Length"
-msgstr ""
+msgstr "Lunghezza"
 
 #: rapid/renamesubfolderprefs.py:236
 msgid "Frames Per Second"

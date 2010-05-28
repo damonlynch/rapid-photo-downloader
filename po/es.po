@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-05-27 22:33-0500\n"
-"PO-Revision-Date: 2010-01-23 08:09+0000\n"
+"PO-Revision-Date: 2010-05-28 18:09+0000\n"
 "Last-Translator: Abel O'Rian <abel.orian@gmail.com>\n"
 "Language-Team: Spanish <es@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-05-28 04:00+0000\n"
+"X-Launchpad-Export-Date: 2010-05-28 19:08+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #. Translators: if neccessary, for guidance in how to translate this program, you may see http://damonlynch.net/translate.html
@@ -145,7 +145,7 @@ msgstr ""
 
 #: rapid/rapid.py:747 rapid/rapid.py:1502 rapid/rapid.py:1782
 msgid "photos"
-msgstr ""
+msgstr "fotos"
 
 #: rapid/rapid.py:880
 msgid "Select a folder to download photos to"
@@ -153,7 +153,7 @@ msgstr "Seleccionar una carpeta para descargar las fotos"
 
 #: rapid/rapid.py:898
 msgid "Select a folder to download videos to"
-msgstr ""
+msgstr "Selecciona un directorio donde descargar los videos"
 
 #: rapid/rapid.py:980
 #, python-format
@@ -215,11 +215,11 @@ msgstr ""
 #. check subfolder preferences for bad values
 #: rapid/rapid.py:1224 rapid/rapid.py:1504 rapid/rapid.py:2533
 msgid "photo"
-msgstr ""
+msgstr "foto"
 
 #: rapid/rapid.py:1225 rapid/rapid.py:1499 rapid/rapid.py:2541
 msgid "video"
-msgstr ""
+msgstr "video"
 
 #. Translators: this value is used as an example device when automatic backup device detection is enabled. You should translate this.
 #: rapid/rapid.py:1468
@@ -233,11 +233,11 @@ msgstr "dispositivoexterno2"
 
 #: rapid/rapid.py:1494 rapid/rapid.py:1780
 msgid "photos or videos"
-msgstr ""
+msgstr "fotos y videos"
 
 #: rapid/rapid.py:1497
 msgid "videos"
-msgstr ""
+msgstr "videos"
 
 #. This refers to when a device like a hard drive is having its contents scanned,
 #. looking for photos or videos. It is visible initially in the progress bar for each device
@@ -297,6 +297,8 @@ msgstr ""
 #, python-format
 msgid "Device scan complete: no %(filetypes)s found on %(device)s"
 msgstr ""
+"Escaneo del dispositivo completo: No se encuentran %(filetypes)s en "
+"%(device)s"
 
 #: rapid/rapid.py:1844
 #, python-format
@@ -384,6 +386,8 @@ msgid ""
 "First photo: %(image1)s %(image1_date_time)s:%(image1_subseconds)s\n"
 "Second photo: %(image2)s %(image2_date_time)s:%(image2_subseconds)s"
 msgstr ""
+"Primera foto: %(image1)s %(image1_date_time)s:%(image1_subseconds)s\n"
+"Segunda foto: %(image2)s %(image2_date_time)s:%(image2_subseconds)s"
 
 #: rapid/rapid.py:1914 rapid/rapid.py:1927
 #, python-format
@@ -535,7 +539,7 @@ msgstr "Origen: %s\n"
 #: rapid/rapid.py:2360
 #, python-format
 msgid "Device: %s\n"
-msgstr ""
+msgstr "Dispositivo: %s\n"
 
 #: rapid/rapid.py:2361
 #, python-format
@@ -583,7 +587,7 @@ msgstr ""
 
 #: rapid/rapid.py:2534 rapid/rapid.py:3343 rapid/rapid.py:3345
 msgid "Photo"
-msgstr ""
+msgstr "Foto"
 
 #: rapid/rapid.py:2535
 msgid "Photo skipped"
@@ -591,19 +595,19 @@ msgstr ""
 
 #: rapid/rapid.py:2536
 msgid "Photo already exists"
-msgstr ""
+msgstr "Foto ya existe"
 
 #: rapid/rapid.py:2542 rapid/rapid.py:3343
 msgid "Video"
-msgstr ""
+msgstr "Video"
 
 #: rapid/rapid.py:2543
 msgid "Video skipped"
-msgstr ""
+msgstr "Video saltado"
 
 #: rapid/rapid.py:2544
 msgid "Video already exists"
-msgstr ""
+msgstr "Video ya existe"
 
 #: rapid/rapid.py:2592
 #, python-format
@@ -960,19 +964,19 @@ msgstr "Resta cerca de %(minutes)i:%(seconds)02i minutos"
 
 #: rapid/rapid.py:4019
 msgid "photos downloaded"
-msgstr ""
+msgstr "fotos descargadas"
 
 #: rapid/rapid.py:4021
 msgid "photos skipped"
-msgstr ""
+msgstr "fotos saltadas"
 
 #: rapid/rapid.py:4023
 msgid "videos downloaded"
-msgstr ""
+msgstr "videos descargados"
 
 #: rapid/rapid.py:4025
 msgid "videos skipped"
-msgstr ""
+msgstr "videos saltados"
 
 #. This text will be displayed to the user on the Download / Pause button.
 #. Please note the space at the end of the label - it is needed to meet the Gnome Human Interface Guidelines
@@ -1019,11 +1023,11 @@ msgstr ""
 
 #: rapid/rapid.py:4431
 msgid "Photos:"
-msgstr ""
+msgstr "Fotos:"
 
 #: rapid/rapid.py:4431
 msgid "Videos:"
-msgstr ""
+msgstr "Videos:"
 
 #: rapid/rapid.py:4436
 #, python-format
@@ -1042,7 +1046,7 @@ msgstr "Usando"
 
 #: rapid/rapid.py:4453
 msgid "\n"
-msgstr ""
+msgstr "\n"
 
 #. this application is already running
 #: rapid/rapid.py:4477
@@ -1167,23 +1171,23 @@ msgstr "Nombre propietario"
 
 #: rapid/renamesubfolderprefs.py:232
 msgid "Codec"
-msgstr ""
+msgstr "Códec"
 
 #: rapid/renamesubfolderprefs.py:233
 msgid "Width"
-msgstr ""
+msgstr "Ancho"
 
 #: rapid/renamesubfolderprefs.py:234
 msgid "Height"
-msgstr ""
+msgstr "Alto"
 
 #: rapid/renamesubfolderprefs.py:235
 msgid "Length"
-msgstr ""
+msgstr "Duración"
 
 #: rapid/renamesubfolderprefs.py:236
 msgid "Frames Per Second"
-msgstr ""
+msgstr "Cuadros por Segundo"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#sequencenumbers
 #: rapid/renamesubfolderprefs.py:238
@@ -1481,7 +1485,7 @@ msgstr "<b>Compatibilidad con otros Sistemas Operativos</b>"
 
 #: rapid/glade3/rapid.glade.h:7
 msgid "<b>Devices</b>"
-msgstr ""
+msgstr "<b>Dispositivos</b>"
 
 #: rapid/glade3/rapid.glade.h:8
 msgid "<b>Download Folder</b>"
@@ -1525,7 +1529,7 @@ msgstr "<i>/media/externaldrive/Imágenes</i>"
 
 #: rapid/glade3/rapid.glade.h:18
 msgid "<i>Example: /home/user/Pictures</i>"
-msgstr ""
+msgstr "<i>Ejemplo: /home/user/Pictures</i>"
 
 #: rapid/glade3/rapid.glade.h:19
 msgid "<i>Example:</i>"
@@ -1645,7 +1649,7 @@ msgstr ""
 
 #: rapid/glade3/rapid.glade.h:46
 msgid "Devices"
-msgstr ""
+msgstr "Dispositivos"
 
 #: rapid/glade3/rapid.glade.h:47
 msgid ""

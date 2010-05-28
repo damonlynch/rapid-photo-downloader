@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-05-27 22:33-0500\n"
-"PO-Revision-Date: 2010-05-26 17:31+0000\n"
+"PO-Revision-Date: 2010-05-28 12:53+0000\n"
 "Last-Translator: Miloš Popović <gpopac@gmail.com>\n"
 "Language-Team: Serbian <sr@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-05-28 04:00+0000\n"
+"X-Launchpad-Export-Date: 2010-05-28 19:08+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #. Translators: if neccessary, for guidance in how to translate this program, you may see http://damonlynch.net/translate.html
@@ -382,7 +382,7 @@ msgstr ""
 #: rapid/rapid.py:1880 rapid/rapid.py:1885
 #, python-format
 msgid "The %(filetype)s was not copied."
-msgstr ""
+msgstr "%(filetype)s није прекопиран."
 
 #: rapid/rapid.py:1889
 msgid ""
@@ -779,6 +779,9 @@ msgid ""
 "problems or modify the preferences.\n"
 "\n"
 msgstr ""
+"Постоји неки проблем са фасциклом за преузете датотеке. Исправите проблем "
+"или измените поставке програма.\n"
+"\n"
 
 #: rapid/rapid.py:3367
 msgid "Problem with Download Folder"
@@ -786,7 +789,7 @@ msgstr "Проблем са фасциклом за фотографије"
 
 #: rapid/rapid.py:3369
 msgid "Problem with Download Folders"
-msgstr ""
+msgstr "Преблем са фасциклом за преузете датотеке"
 
 #: rapid/rapid.py:3382
 msgid "Some preferences will be reset."
@@ -816,22 +819,24 @@ msgstr "Почињем преузимање"
 #: rapid/rapid.py:3482
 #, python-format
 msgid "Creating photo download folder %(folder)s"
-msgstr ""
+msgstr "Правим фасцикли за преузете слике %(folder)s"
 
 #: rapid/rapid.py:3487
 #, python-format
 msgid "Failed to create default photo download folder %(folder)s"
 msgstr ""
+"Не могу да направим подразумевану фасциклу за преузете слике %(folder)s"
 
 #: rapid/rapid.py:3491
 #, python-format
 msgid "Creating video download folder %(folder)s"
-msgstr ""
+msgstr "Правим фасцикли за преузети видео %(folder)s"
 
 #: rapid/rapid.py:3496
 #, python-format
 msgid "Failed to create default video download folder %(folder)s"
 msgstr ""
+"Не могу да направим подразумевану фасциклу за преузети видео %(folder)s"
 
 #: rapid/rapid.py:3521
 msgid ""
@@ -946,7 +951,7 @@ msgstr "Користим ручно изабрану путању"
 #: rapid/rapid.py:3857
 #, python-format
 msgid "Backing up to %(path)s"
-msgstr ""
+msgstr "Правим резерву у %(path)s"
 
 #: rapid/rapid.py:3968 rapid/rapid.py:4017
 msgid "All downloads complete"
@@ -979,19 +984,19 @@ msgstr "Преостало је %(minutes)i:%(seconds)02i"
 
 #: rapid/rapid.py:4019
 msgid "photos downloaded"
-msgstr ""
+msgstr "преузете слике"
 
 #: rapid/rapid.py:4021
 msgid "photos skipped"
-msgstr ""
+msgstr "прескочене слике"
 
 #: rapid/rapid.py:4023
 msgid "videos downloaded"
-msgstr ""
+msgstr "преузет видео"
 
 #: rapid/rapid.py:4025
 msgid "videos skipped"
-msgstr ""
+msgstr "прескочен видео"
 
 #. This text will be displayed to the user on the Download / Pause button.
 #. Please note the space at the end of the label - it is needed to meet the Gnome Human Interface Guidelines
@@ -1030,19 +1035,19 @@ msgstr "исписује грешке само у командној линиј�
 #. image file extensions are recognized RAW files plus TIFF and JPG
 #: rapid/rapid.py:4421
 msgid "list photo and video file extensions the program recognizes and exit"
-msgstr ""
+msgstr "исписује екстензије подржаних слика и видеа и напушта програма"
 
 #: rapid/rapid.py:4422
 msgid "reset all program settings and preferences and exit"
-msgstr ""
+msgstr "враћа све поставке на подразумевано и напушта програм"
 
 #: rapid/rapid.py:4431
 msgid "Photos:"
-msgstr ""
+msgstr "Фотографије:"
 
 #: rapid/rapid.py:4431
 msgid "Videos:"
-msgstr ""
+msgstr "Видео:"
 
 #: rapid/rapid.py:4436
 #, python-format
@@ -1051,7 +1056,7 @@ msgstr "и %s"
 
 #: rapid/rapid.py:4444
 msgid "All settings and preferences have been reset"
-msgstr ""
+msgstr "Сва подешавања су враћена на подразумеване вредности"
 
 #. Which volume management code is being used (GIO or GnomeVFS)
 #: rapid/rapid.py:4448 rapid/rapid.py:4449 rapid/rapid.py:4451
@@ -1061,7 +1066,7 @@ msgstr "Користи"
 
 #: rapid/rapid.py:4453
 msgid "\n"
-msgstr ""
+msgstr "\n"
 
 #. this application is already running
 #: rapid/rapid.py:4477
@@ -1095,7 +1100,7 @@ msgstr "Датум фотографије"
 
 #: rapid/renamesubfolderprefs.py:198
 msgid "Video date"
-msgstr ""
+msgstr "Датум видеа"
 
 #: rapid/renamesubfolderprefs.py:199
 msgid "Today"
@@ -1127,7 +1132,7 @@ msgstr "Број слике"
 
 #: rapid/renamesubfolderprefs.py:209
 msgid "Video number"
-msgstr ""
+msgstr "Број видеа"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
 #: rapid/renamesubfolderprefs.py:211
@@ -1186,23 +1191,23 @@ msgstr "Име власника"
 
 #: rapid/renamesubfolderprefs.py:232
 msgid "Codec"
-msgstr ""
+msgstr "Кодек"
 
 #: rapid/renamesubfolderprefs.py:233
 msgid "Width"
-msgstr ""
+msgstr "Ширина"
 
 #: rapid/renamesubfolderprefs.py:234
 msgid "Height"
-msgstr ""
+msgstr "Висина"
 
 #: rapid/renamesubfolderprefs.py:235
 msgid "Length"
-msgstr ""
+msgstr "Дужина"
 
 #: rapid/renamesubfolderprefs.py:236
 msgid "Frames Per Second"
-msgstr ""
+msgstr "Кадрова у секунди"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#sequencenumbers
 #: rapid/renamesubfolderprefs.py:238
@@ -1427,7 +1432,7 @@ msgstr ""
 #: rapid/renamesubfolderprefs.py:941
 #, python-format
 msgid "%s metadata is not present"
-msgstr ""
+msgstr "Не постоји %s метаподатак"
 
 #: rapid/renamesubfolderprefs.py:960 rapid/renamesubfolderprefs.py:968
 #: rapid/renamesubfolderprefs.py:977
@@ -1437,16 +1442,16 @@ msgstr "Грешка у датуму. Изгледа да није исправ�
 
 #: rapid/renamesubfolderprefs.py:1004
 msgid "extension was specified but filename does not have an extension"
-msgstr ""
+msgstr "екстензија је одређена, али име датотеке не садржи екстензију"
 
 #: rapid/renamesubfolderprefs.py:1008
 msgid "image or video number was specified but filename has no number"
-msgstr ""
+msgstr "одређен је број слике или видеа, али име датотеке не садржи број"
 
 #: rapid/renamesubfolderprefs.py:1081
 #, python-format
 msgid "%s metadata is not present in photo"
-msgstr ""
+msgstr "Слика не садржи %s метаподатак"
 
 #: rapid/renamesubfolderprefs.py:1194
 #, python-format
@@ -1456,7 +1461,7 @@ msgstr "грешка при образовању назива са %s"
 #: rapid/renamesubfolderprefs.py:1450
 #, python-format
 msgid "%s metadata is not present in video"
-msgstr ""
+msgstr "Видео не садржи %s метаподатак"
 
 #: rapid/renamesubfolderprefs.py:1546
 #, python-format
@@ -1499,7 +1504,7 @@ msgstr "<b>Сагласност са осталим оперативним си�
 
 #: rapid/glade3/rapid.glade.h:7
 msgid "<b>Devices</b>"
-msgstr ""
+msgstr "<b>Уређаји</b>"
 
 #: rapid/glade3/rapid.glade.h:8
 msgid "<b>Download Folder</b>"
@@ -1523,11 +1528,11 @@ msgstr "<b>Нису присутни уређај за резервне копи
 
 #: rapid/glade3/rapid.glade.h:13
 msgid "<b>Photo Rename</b>"
-msgstr ""
+msgstr "<b>Преименовање фотографија</b>"
 
 #: rapid/glade3/rapid.glade.h:14
 msgid "<b>Photo and Video Name Conflicts</b>"
-msgstr ""
+msgstr "<b>Несагласност имена видеа и слика</b>"
 
 #: rapid/glade3/rapid.glade.h:15
 msgid "<b>Program Automation</b>"
@@ -1543,7 +1548,7 @@ msgstr "<i>/media/Спољни_Уређај/Фотографије</i>"
 
 #: rapid/glade3/rapid.glade.h:18
 msgid "<i>Example: /home/user/Pictures</i>"
-msgstr ""
+msgstr "<i>Пример: /home/user/Фотографије</i>"
 
 #: rapid/glade3/rapid.glade.h:19
 msgid "<i>Example:</i>"
@@ -1567,7 +1572,7 @@ msgstr "<span weight=\"bold\" size=\"x-large\">Резервна копија</sp
 
 #: rapid/glade3/rapid.glade.h:24
 msgid "<span weight=\"bold\" size=\"x-large\">Devices</span>"
-msgstr ""
+msgstr "<span weight=\"bold\" size=\"x-large\">Уређаји</span>"
 
 #: rapid/glade3/rapid.glade.h:25
 msgid "<span weight=\"bold\" size=\"x-large\">Error Handling</span>"
@@ -1580,10 +1585,12 @@ msgstr "<span weight=\"bold\" size=\"x-large\">Кодови задатка</span
 #: rapid/glade3/rapid.glade.h:27
 msgid "<span weight=\"bold\" size=\"x-large\">Photo Download Folders</span>"
 msgstr ""
+"<span weight=\"bold\" size=\"x-large\">Фасцикла за преузете слике</span>"
 
 #: rapid/glade3/rapid.glade.h:28
 msgid "<span weight=\"bold\" size=\"x-large\">Photo Rename</span>\t"
 msgstr ""
+"<span weight=\"bold\" size=\"x-large\">Преименовање фотографија</span>\t"
 
 #: rapid/glade3/rapid.glade.h:29
 msgid "<span weight=\"bold\" size=\"x-large\">Rename Options</span>"
@@ -1592,10 +1599,11 @@ msgstr "<span weight=\"bold\" size=\"x-large\">Опције за преимен�
 #: rapid/glade3/rapid.glade.h:30
 msgid "<span weight=\"bold\" size=\"x-large\">Video Download Folders</span>"
 msgstr ""
+"<span weight=\"bold\" size=\"x-large\">Фасцикла за преузет видео</span>"
 
 #: rapid/glade3/rapid.glade.h:31
 msgid "<span weight=\"bold\" size=\"x-large\">Video Rename</span>\t"
-msgstr ""
+msgstr "<span weight=\"bold\" size=\"x-large\">Преименовање видеа</span>\t"
 
 #: rapid/glade3/rapid.glade.h:32
 msgid "Add unique identifier"
@@ -1611,7 +1619,7 @@ msgstr "Сам пронађи уређаје за резервне копије"
 
 #: rapid/glade3/rapid.glade.h:35
 msgid "Automatically detect devices"
-msgstr ""
+msgstr "Сам пронађи уређаје"
 
 #: rapid/glade3/rapid.glade.h:36
 msgid "Automation"
@@ -1627,7 +1635,7 @@ msgstr "Место за резервну копију:"
 
 #: rapid/glade3/rapid.glade.h:39
 msgid "Backup photos and videos when downloading"
-msgstr ""
+msgstr "Направи резерву слика и видеа при преузимању"
 
 #: rapid/glade3/rapid.glade.h:40
 msgid ""
@@ -1635,18 +1643,20 @@ msgid ""
 "automatically created in this folder using the structure specified below."
 msgstr ""
 "Изаберите фасциклу за чување преузетих фотографија. Подфасцикле ће бити "
-"аутоматски направљене на основу задатог редоследа."
+"направљене на основу задатог редоследа."
 
 #: rapid/glade3/rapid.glade.h:41
 msgid ""
 "Choose the download folder. Subfolders for the downloaded videos will be "
 "automatically created in this folder using the structure specified below."
 msgstr ""
+"Изаберите фасциклу за чување преузетог видеа. Подфасцикле ће бити направљене "
+"на основу задатог редоследа."
 
 #: rapid/glade3/rapid.glade.h:42
 msgid ""
 "Choose whether to skip downloading the file, or to add a unique indentifier."
-msgstr ""
+msgstr "Да ли да прескочим датотеку или да додам јој јединствен број."
 
 #: rapid/glade3/rapid.glade.h:43
 msgid "Copyright Damon Lynch 2007-10"
@@ -1658,11 +1668,11 @@ msgstr "Почетак дана:"
 
 #: rapid/glade3/rapid.glade.h:45
 msgid "Delete photos and videos from device upon download completion"
-msgstr ""
+msgstr "Обриши слике и видео са уређаја након преузимања"
 
 #: rapid/glade3/rapid.glade.h:46
 msgid "Devices"
-msgstr ""
+msgstr "Уређаји"
 
 #: rapid/glade3/rapid.glade.h:47
 msgid ""
@@ -1676,6 +1686,15 @@ msgid ""
 "setting it to PTP mode. If that is not possible, consider using a card "
 "reader.</i>"
 msgstr ""
+"Уређаји су места из којих можете преузети слике или видео, као што су фото-"
+"апарати, меморијске картице или преносни уређаји.\n"
+"\n"
+"Можете преузети фотографије са више уређаја одједном или одредити неко место "
+"за преузимање са вашег диска.\n"
+"\n"
+"<i>Преузимање директно са фото-апарата ради лоше, или чак уопште не ради. "
+"Пробајте да поставите апрат у ПТП режим, а ако то не помогне размислите о "
+"куповини читача картица.</i>"
 
 #: rapid/glade3/rapid.glade.h:52
 msgid "Download / Pause"
@@ -1699,7 +1718,7 @@ msgstr "Испис грешака"
 
 #: rapid/glade3/rapid.glade.h:57
 msgid "Exit program if download completes without any warnings or errors"
-msgstr ""
+msgstr "Напусти програм иколико преузимање прође без грешака"
 
 #: rapid/glade3/rapid.glade.h:58
 msgid "If you disable automatic detection, choose the exact backup location."
@@ -1711,6 +1730,8 @@ msgid ""
 "If you disable automatic detection, choose the exact location of the images "
 "and videos."
 msgstr ""
+"Уколико искључите аутоматско налажење, морате задати тачну путању до "
+"фотографија и видеа."
 
 #: rapid/glade3/rapid.glade.h:60
 msgid ""
@@ -1727,7 +1748,7 @@ msgstr "Занемари"
 
 #: rapid/glade3/rapid.glade.h:62
 msgid "Import your photos and videos efficiently and reliably"
-msgstr ""
+msgstr "Увезите ваше фотографије и видео брзо и поуздано"
 
 #: rapid/glade3/rapid.glade.h:63
 msgid "Job Codes"
@@ -1735,7 +1756,7 @@ msgstr "Код задатка"
 
 #: rapid/glade3/rapid.glade.h:64
 msgid "Location:"
-msgstr ""
+msgstr "Место:"
 
 #: rapid/glade3/rapid.glade.h:65
 msgid "Overwrite"
@@ -1743,15 +1764,15 @@ msgstr "Препиши"
 
 #: rapid/glade3/rapid.glade.h:66
 msgid "Photo Folders"
-msgstr ""
+msgstr "Фасцикла за слике"
 
 #: rapid/glade3/rapid.glade.h:67
 msgid "Photo Rename"
-msgstr ""
+msgstr "Преименовање фотографија"
 
 #: rapid/glade3/rapid.glade.h:68
 msgid "Photo backup folder name:"
-msgstr ""
+msgstr "Име резевне фасцикле за слике:"
 
 #: rapid/glade3/rapid.glade.h:69
 msgid "Preferences: Rapid Photo Downloader"
@@ -1816,6 +1837,8 @@ msgid ""
 "Sorry, video downloading functionality disabled. To download videos, please "
 "install the <i>kaa metadata</i> package for python."
 msgstr ""
+"Преузимање видеа није могуће. За преузимање видеа морате инсталирати Питонов "
+"<i>kaa metadata</i> пакет."
 
 #: rapid/glade3/rapid.glade.h:84
 msgid ""
@@ -1825,6 +1848,11 @@ msgid ""
 "used for backups. For each device you wish to use for backing up to, create "
 "a folder in it with one of these names.</i>"
 msgstr ""
+"Одређује фасциклу на уређају у којој се чувају резервне копије.  \n"
+"\n"
+"<i>Примедба: ово одређује и да ли се уређаји користе као резервни. Унутар "
+"сваког резервног уређаја морате направити фасцику са неким од ових "
+"назива.</i>"
 
 #: rapid/glade3/rapid.glade.h:87
 msgid ""
@@ -1838,6 +1866,8 @@ msgid ""
 "Specify what to do when a photo or video of the same name has already been "
 "downloaded or backed up."
 msgstr ""
+"Одређује радњу када постоји преузета или резервна фотографија и видео са "
+"истим именом."
 
 #: rapid/glade3/rapid.glade.h:89
 msgid "Specify what to do when there are no backup devices."
@@ -1848,6 +1878,8 @@ msgid ""
 "Specify whether photo, video and folder names should have any characters "
 "removed that are not allowed by other operating systems."
 msgstr ""
+"Одређује да ли треба уклонити неподржане знаке из имена фотографија, видеа и "
+"фасцикли."
 
 #: rapid/glade3/rapid.glade.h:91
 msgid "Start downloading at program startup"
@@ -1855,7 +1887,7 @@ msgstr "Започни преузимање по покретању програ
 
 #: rapid/glade3/rapid.glade.h:92
 msgid "Start downloading upon device insertion"
-msgstr ""
+msgstr "Започни преузимање по прикључивању уређаја"
 
 #: rapid/glade3/rapid.glade.h:93
 msgid "Stored number:"
@@ -1871,31 +1903,35 @@ msgstr "Усагласи називе RAW и JPEG слика"
 
 #: rapid/glade3/rapid.glade.h:96
 msgid "Unmount (\"eject\") device upon download completion"
-msgstr ""
+msgstr "Демонтирај (избаци) уређај након успешног преузимања"
 
 #: rapid/glade3/rapid.glade.h:97
 msgid "Video Folders"
-msgstr ""
+msgstr "Видео фасцикле"
 
 #: rapid/glade3/rapid.glade.h:98
 msgid "Video Rename"
-msgstr ""
+msgstr "Преименовање видеа"
 
 #: rapid/glade3/rapid.glade.h:99
 msgid "Video backup folder name:"
-msgstr ""
+msgstr "Име резервне фасцикле за видео:"
 
 #: rapid/glade3/rapid.glade.h:100
 msgid ""
 "When backing up, choose whether to overwrite a file on the backup device "
 "that has the same name, or skip backing it up."
 msgstr ""
+"Да ли да препишем датотеку са истим именом на резервном уређају или да је "
+"прескочим приликом прављења резевне копије."
 
 #: rapid/glade3/rapid.glade.h:101
 msgid ""
 "You can have your photos and videos backed up to multiple locations as they "
 "are downloaded, e.g. external hard drives."
 msgstr ""
+"Можете направити резервне кпије фотографија и видеа на више места при "
+"преузимању, нпр. на екстерним дисковима."
 
 #: rapid/glade3/rapid.glade.h:102
 msgid "_Add..."
