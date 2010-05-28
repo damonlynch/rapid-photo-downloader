@@ -112,7 +112,7 @@ if DOWNLOAD_VIDEO:
             if thm:
                 thumbnail = gtk.gdk.pixbuf_new_from_file_at_size(thm,  size,  size)
                 if thumbnail.get_width() <> self.FILMSTRIP_WIDTH or thumbnail.get_height() <> self.FILMSTRIP_HEIGHT:
-                    thumbnail = thumbnail.scale_simple(FILMSTRIP_WIDTH, FILMSTRIP_HEIGHT, gtk.gdk.INTERP_BILINEAR)
+                    thumbnail = thumbnail.scale_simple(self.FILMSTRIP_WIDTH, self.FILMSTRIP_HEIGHT, gtk.gdk.INTERP_BILINEAR)
                 
                 self.filmstrip.composite(thumbnail, 0, 0, self.filmstrip.props.width, self.filmstrip.props.height, 0, 0, 1.0, 1.0, gtk.gdk.INTERP_HYPER, 255)
             else:
