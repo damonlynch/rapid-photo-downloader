@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-05-26 18:55-0500\n"
+"POT-Creation-Date: 2010-05-27 22:33-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -351,7 +351,7 @@ msgstr ""
 
 #: rapid/rapid.py:1880 rapid/rapid.py:1885
 #, python-format
-msgid "The %s(filetype)s was not copied."
+msgid "The %(filetype)s was not copied."
 msgstr ""
 
 #: rapid/rapid.py:1889
@@ -365,19 +365,14 @@ msgid ""
 "Second photo: %(image2)s %(image2_date_time)s:%(image2_subseconds)s"
 msgstr ""
 
-#: rapid/rapid.py:1914
+#: rapid/rapid.py:1914 rapid/rapid.py:1927
 #, python-format
-msgid "Could not open %s(filetype)s"
+msgid "Could not open %(filetype)s"
 msgstr ""
 
 #: rapid/rapid.py:1915 rapid/rapid.py:1928
 #, python-format
 msgid "Source: %s"
-msgstr ""
-
-#: rapid/rapid.py:1927
-#, python-format
-msgid "Could not open %(filetype)s"
 msgstr ""
 
 #: rapid/rapid.py:1950

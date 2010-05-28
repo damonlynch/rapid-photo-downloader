@@ -1877,12 +1877,12 @@ class CopyPhotos(Thread):
                 logError(config.SERIOUS_ERROR, _('Download copying error'), 
                             _("Source: %(source)s\nDestination: %(destination)s\nError: %(errorno)s %(strerror)s") 
                             % {'source': source, 'destination': destination, 'errorno': errno, 'strerror': strerror},
-                            _('The %s(filetype)s was not copied.') % {'filetype': filetype})
+                            _('The %(filetype)s was not copied.') % {'filetype': filetype})
             else:
                 logError(config.SERIOUS_ERROR, _('Download copying error'), 
                             _("Source: %(source)s\nDestination: %(destination)s") 
                             % {'source': source, 'destination': destination},
-                            _('The %s(filetype)s was not copied.') % {'filetype': filetype})
+                            _('The %(filetype)s was not copied.') % {'filetype': filetype})
                 
                         
         def sameFileNameDifferentExif(image1, image1_date_time, image1_subseconds, image2, image2_date_time, image2_subseconds):
@@ -1911,7 +1911,7 @@ class CopyPhotos(Thread):
                     # (which is different than pyexiv2)
                     fileMetadata = videometadata.VideoMetaData(fullFileName)
                 except:
-                    logError(config.CRITICAL_ERROR, _("Could not open %s(filetype)s") % {'filetype': fileBeingDownloadedDisplay}, 
+                    logError(config.CRITICAL_ERROR, _("Could not open %(filetype)s") % {'filetype': fileBeingDownloadedDisplay}, 
                                     _("Source: %s") % fullFileName, 
                                     fileSkippedDisplay)                    
                     skipFile = True
@@ -2798,8 +2798,8 @@ class ThumbnailHBox(gtk.HBox):
         self.white.fill(0xffffffff)
         
         #load missing image 
-        self.missingThumbnail = gtk.gdk.pixbuf_new_from_file_at_size(paths.share_dir('glade3/image-missing.svg'),  MAX_THUMBNAIL_SIZE,  MAX_THUMBNAIL_SIZE)
-        self.videoThumbnail = gtk.gdk.pixbuf_new_from_file_at_size(paths.share_dir('glade3/video.svg'),  MAX_THUMBNAIL_SIZE,  MAX_THUMBNAIL_SIZE)
+        self.missingThumbnail = gtk.gdk.pixbuf_new_from_file_at_size(paths.share_dir('glade3/image-missing.svg'), MAX_THUMBNAIL_SIZE, MAX_THUMBNAIL_SIZE)
+        self.videoThumbnail = gtk.gdk.pixbuf_new_from_file_at_size(paths.share_dir('glade3/video.svg'), MAX_THUMBNAIL_SIZE,  MAX_THUMBNAIL_SIZE)
         
     def addImage(self, thread_id, thumbnail, orientation, filename, fileDownloaded, isImage):
         """ 

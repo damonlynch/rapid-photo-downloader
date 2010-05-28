@@ -26,6 +26,7 @@ import tempfile
 
 import gtk
 import media
+import paths
 
 try:
     import kaa.metadata
@@ -51,6 +52,9 @@ if DOWNLOAD_VIDEO:
         def __init__(self, filename):
             self.info = kaa.metadata.parse(filename)
             self.filename = filename
+            self.filmstrip = gtk.gdk.pixbuf_new_from_file(paths.share_dir('glade3/filmstrip-100x75.xpm'))
+            self.FILMSTRIP_WIDTH = 100
+            self.FILMSTRIP_HEIGHT = 75
             
         def rpd_keys(self):
             return self.info.keys()
@@ -107,6 +111,10 @@ if DOWNLOAD_VIDEO:
             thm = media.getVideoThumbnailFile(self.filename)
             if thm:
                 thumbnail = gtk.gdk.pixbuf_new_from_file_at_size(thm,  size,  size)
+                if thumbnail.get_width() <> self.FILMSTRIP_WIDTH or thumbnail.get_height() <> self.FILMSTRIP_HEIGHT:
+                    thumbnail = thumbnail.scale_simple(FILMSTRIP_WIDTH, FILMSTRIP_HEIGHT, gtk.gdk.INTERP_BILINEAR)
+                
+                self.filmstrip.composite(thumbnail, 0, 0, self.filmstrip.props.width, self.filmstrip.props.height, 0, 0, 1.0, 1.0, gtk.gdk.INTERP_HYPER, 255)
             else:
                 if ffmpeg:
                     tmp = tempfile.NamedTemporaryFile(dir=tempWorkingDir, prefix="rpd-tmp")
@@ -115,7 +123,7 @@ if DOWNLOAD_VIDEO:
                     thm = os.path.join(tempWorkingDir, tmp.name)
                     
                     try:
-                        subprocess.check_call(['ffmpegthumbnailer', '-i', self.filename, '-t', '10', '-o', thm, '-s', str(size)])
+                        subprocess.check_call(['ffmpegthumbnailer', '-i', self.filename, '-t', '10', '-f', '-o', thm, '-s', str(size)])
                         thumbnail = gtk.gdk.pixbuf_new_from_file_at_size(thm,  size,  size)
                         os.unlink(thm)
                     except:
