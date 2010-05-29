@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-05-27 22:33-0500\n"
-"PO-Revision-Date: 2010-05-28 16:52+0000\n"
+"PO-Revision-Date: 2010-05-29 17:32+0000\n"
 "Last-Translator: Sergey Sedov <Unknown>\n"
 "Language-Team: Russian <ru@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-05-28 19:08+0000\n"
+"X-Launchpad-Export-Date: 2010-05-29 18:48+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #. Translators: if neccessary, for guidance in how to translate this program, you may see http://damonlynch.net/translate.html
@@ -96,7 +96,7 @@ msgstr "Стокгольм"
 
 #: rapid/rapid.py:425
 msgid "Invalid Downloads Today value.\n"
-msgstr "Неверное значение 'Скачиваний сегодня'.\n"
+msgstr "Неверное значение 'Загрузок сегодня'.\n"
 
 #: rapid/rapid.py:426
 msgid "Resetting value to zero.\n"
@@ -149,11 +149,11 @@ msgstr "фотографии"
 
 #: rapid/rapid.py:880
 msgid "Select a folder to download photos to"
-msgstr "Выберите каталог для хранения фотографий"
+msgstr "Выберите каталог для загрузки фотографий"
 
 #: rapid/rapid.py:898
 msgid "Select a folder to download videos to"
-msgstr "Выберите папку для скачки видеороликов"
+msgstr "Выберите каталог для загрузки видеороликов"
 
 #: rapid/rapid.py:980
 #, python-format
@@ -188,14 +188,14 @@ msgstr "<i>Пример: %s</i>"
 msgid ""
 "Downloads today value not updated, as a download is currently occurring"
 msgstr ""
-"Значение \"скачивание сегодня\" не обновлено, так как сейчас осуществляется "
-"закачка"
+"Значение \"Загрузок сегодня\" не обновлено, так как загрузка идёт прямо "
+"сейчас"
 
 #: rapid/rapid.py:1175
 msgid "Stored number value not updated, as a download is currently occurring"
 msgstr ""
-"Значение сохранение под номером не обновлено, так как сейчас осуществляется "
-"закачка"
+"Значение `Cохранение под номером` не обновлено, так как прямо сейчас идёт "
+"загрузка"
 
 #: rapid/rapid.py:1205
 #, python-format
@@ -224,12 +224,12 @@ msgstr "видеоролик"
 #. Translators: this value is used as an example device when automatic backup device detection is enabled. You should translate this.
 #: rapid/rapid.py:1468
 msgid "externaldrive1"
-msgstr "внешний диск 1"
+msgstr "внешнийдиск1"
 
 #. Translators: this value is used as an example device when automatic backup device detection is enabled. You should translate this.
 #: rapid/rapid.py:1470
 msgid "externaldrive2"
-msgstr "внешний диск 2"
+msgstr "внешнийдиск2"
 
 #: rapid/rapid.py:1494 rapid/rapid.py:1780
 msgid "photos or videos"
@@ -254,12 +254,12 @@ msgstr ""
 #: rapid/rapid.py:1664
 #, python-format
 msgid "%(path)s: "
-msgstr ""
+msgstr "%(path)s: "
 
 #: rapid/rapid.py:1665 rapid/rapid.py:1666 rapid/rapid.py:1681
 #: rapid/rapid.py:1682 rapid/rapid.py:2364 rapid/rapid.py:2367
 msgid "Download cannot proceed"
-msgstr "Невозможно осуществить скачивание"
+msgstr "Невозможно загрузить"
 
 #: rapid/rapid.py:1679 rapid/rapid.py:3381
 msgid "There is an error in the program preferences."
@@ -349,7 +349,7 @@ msgstr ""
 #: rapid/rapid.py:1861
 #, python-format
 msgid "Unique identifier '%s' added"
-msgstr "Добавлен уникальный идентификатор '%s'"
+msgstr "Добавлена уникальная метка '%s'"
 
 #: rapid/rapid.py:1869 rapid/rapid.py:2270
 #, python-format
@@ -358,7 +358,7 @@ msgstr "Источник: %(source)s"
 
 #: rapid/rapid.py:1877 rapid/rapid.py:1882
 msgid "Download copying error"
-msgstr "Ошибка при закачке файлов"
+msgstr "Ошибка при загрузке файлов"
 
 #: rapid/rapid.py:1878
 #, python-format
@@ -380,7 +380,7 @@ msgstr ""
 msgid ""
 "Photos detected with the same filenames, but taken at different times:"
 msgstr ""
-"Обнаружены фотографии с одинаковыми именами, но сделанные в разное время:"
+"Обнаружены фотографии с одинаковыми названиями, но сделанные в разное время:"
 
 #: rapid/rapid.py:1890
 #, python-format
@@ -434,8 +434,8 @@ msgstr ""
 #: rapid/rapid.py:2147
 msgid "New day has started - resetting 'Downloads Today' sequence number"
 msgstr ""
-"Начался новый день - сброшена последовательность номеров параметра "
-"'Скачиваний сегодня'"
+"Начался новый день - сброшена последовательность номеров параметра 'Загрузок "
+"сегодня'"
 
 #: rapid/rapid.py:2206
 #, python-format
@@ -553,7 +553,7 @@ msgstr "Получатель: %s"
 
 #: rapid/rapid.py:2362 rapid/rapid.py:2365
 msgid "Could not create temporary download directory"
-msgstr "Не удалось создать временный каталог для закачки"
+msgstr "Не удалось создать временный каталог для загрузки"
 
 #: rapid/rapid.py:2365
 msgid "Error:"
@@ -567,7 +567,7 @@ msgstr ""
 #: rapid/rapid.py:2417
 #, python-format
 msgid "Download has started from %s"
-msgstr "Начато скачивание с %s"
+msgstr "Начата загрузка с %s"
 
 #: rapid/rapid.py:2434
 msgid "Backup path does not exist"
@@ -618,7 +618,7 @@ msgstr "Такой видеоролик уже существует"
 #: rapid/rapid.py:2592
 #, python-format
 msgid "%(number)s of %(total)s %(filetypes)s"
-msgstr ""
+msgstr "%(number)s из %(total)s %(filetypes)s"
 
 #: rapid/rapid.py:2607 rapid/rapid.py:2611
 msgid "Could not delete photo or video from device"
@@ -646,7 +646,7 @@ msgstr ""
 #: rapid/rapid.py:2624
 #, python-format
 msgid "Download complete from %s"
-msgstr "Скачивание с %s завершено"
+msgstr "Загрузка с %s завершена"
 
 #. Device refers to a thing like a camera, memory card in its reader, external hard drive, Portable Storage Device, etc.
 #: rapid/rapid.py:2700
@@ -660,7 +660,7 @@ msgstr "Размер"
 
 #: rapid/rapid.py:2708
 msgid "Download Progress"
-msgstr "Скачано"
+msgstr "Ход загрузки"
 
 #: rapid/rapid.py:2824 rapid/rapid.py:2839
 msgid "It may be corrupted"
@@ -675,6 +675,7 @@ msgstr "Обнаружен носитель"
 msgid ""
 "Should this device or partition be used to download photos or videos from?"
 msgstr ""
+"Следует ли загрузить фотографии или видеоролики с этого носителя или раздела?"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#usedeviceprompt
 #: rapid/rapid.py:2897
@@ -685,26 +686,23 @@ msgstr "_Запомнить мой выбор"
 #: rapid/rapid.py:2934
 #, python-format
 msgid "%s selected for downloading from"
-msgstr "%s выбран для закачки"
+msgstr "%s выбран для загрузки"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#usedeviceprompt
 #: rapid/rapid.py:2937
 msgid "This device or partition will always be used to download from"
-msgstr ""
-"Этот носитель или раздел всегда будет использован для скачивания фотографий"
+msgstr "Этот носитель или раздел всегда будет использован для загрузки"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#usedeviceprompt
 #: rapid/rapid.py:2940
 #, python-format
 msgid "%s rejected as a download device"
-msgstr "%s не выбран для закачки"
+msgstr "%s не выбран для загрузки"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#usedeviceprompt
 #: rapid/rapid.py:2943
 msgid "This device or partition will never be used to download from"
-msgstr ""
-"Этот носитель или раздел никогда не будет использован для скачивания "
-"фотографий"
+msgstr "Этот носитель или раздел никогда не будет использован для загрузки"
 
 #: rapid/rapid.py:2950
 msgid "Remove all Job Codes?"
@@ -773,11 +771,11 @@ msgstr ""
 
 #: rapid/rapid.py:3367
 msgid "Problem with Download Folder"
-msgstr "Проблема с каталогом для закачки"
+msgstr "Проблема с каталогом для загрузки"
 
 #: rapid/rapid.py:3369
 msgid "Problem with Download Folders"
-msgstr ""
+msgstr "Проблема с каталогами для загрузки"
 
 #: rapid/rapid.py:3382
 msgid "Some preferences will be reset."
@@ -786,7 +784,7 @@ msgstr "Некоторые параметры будут сброшены."
 #: rapid/rapid.py:3416
 #, python-format
 msgid "Prompting whether to use %s"
-msgstr "Использовать ли %s"
+msgstr "Напоминать ли об использовании %s"
 
 #: rapid/rapid.py:3444
 msgid "Prompting for Job Code"
@@ -798,11 +796,11 @@ msgstr "Уже уведомлён о метках, не напоминать с�
 
 #: rapid/rapid.py:3463
 msgid "Starting downloads that have been waiting for a Job Code"
-msgstr "Начало закачек, которые ожидали ввода метки"
+msgstr "Начинаются загрузки, которые ожидали ввода метки"
 
 #: rapid/rapid.py:3467
 msgid "Starting downloads"
-msgstr "Начало закачек"
+msgstr "Начинаются загрузки"
 
 #: rapid/rapid.py:3482
 #, python-format
@@ -812,17 +810,17 @@ msgstr ""
 #: rapid/rapid.py:3487
 #, python-format
 msgid "Failed to create default photo download folder %(folder)s"
-msgstr ""
+msgstr "Не удалось создать каталог для загрузки фотографий %(folder)s"
 
 #: rapid/rapid.py:3491
 #, python-format
 msgid "Creating video download folder %(folder)s"
-msgstr "Создание каталога для скачки видеороликов %(folder)s"
+msgstr "Создание каталога для загрузки видеороликов %(folder)s"
 
 #: rapid/rapid.py:3496
 #, python-format
 msgid "Failed to create default video download folder %(folder)s"
-msgstr "Не удалось создать каталог для скачки видеороликов %(folder)s"
+msgstr "Не удалось создать каталог для загрузки видеороликов %(folder)s"
 
 #: rapid/rapid.py:3521
 msgid ""
@@ -853,7 +851,7 @@ msgid ""
 "This version of the program is newer than the previously run version. "
 "Checking preferences."
 msgstr ""
-"Эта версия программы новее чем запущенная ранее. Проверьте параметры."
+"Эта версия программы новее, чем запущенная ранее. Проверьте параметры."
 
 #: rapid/rapid.py:3538
 msgid "Preferences were modified."
@@ -927,11 +925,11 @@ msgstr "Обнаружено %(device)s с путём %(path)s"
 
 #: rapid/rapid.py:3794
 msgid "Automatically start download is true"
-msgstr "Автоматически начинать скачивание - да"
+msgstr "Автоматически начинать загрузку - да"
 
 #: rapid/rapid.py:3796
 msgid "Automatically start download is false"
-msgstr "Автоматически начинать скачивание - нет"
+msgstr "Автоматически начинать загрузку - нет"
 
 #: rapid/rapid.py:3849
 msgid "Using manually specified path"
@@ -940,11 +938,11 @@ msgstr "Использовать путь, который указан вруч�
 #: rapid/rapid.py:3857
 #, python-format
 msgid "Backing up to %(path)s"
-msgstr ""
+msgstr "Резервное копирование в  %(path)s"
 
 #: rapid/rapid.py:3968 rapid/rapid.py:4017
 msgid "All downloads complete"
-msgstr "Все скачивания завершены"
+msgstr "Все загрузки завершены"
 
 #: rapid/rapid.py:3982
 msgid "MB/s"
@@ -973,7 +971,7 @@ msgstr "Осталось примерно %(minutes)i:%(seconds)02i"
 
 #: rapid/rapid.py:4019
 msgid "photos downloaded"
-msgstr "фотографий скачано"
+msgstr "фотографий загружено"
 
 #: rapid/rapid.py:4021
 msgid "photos skipped"
@@ -981,7 +979,7 @@ msgstr "фотографий пропущено"
 
 #: rapid/rapid.py:4023
 msgid "videos downloaded"
-msgstr "видеороликов скачано"
+msgstr "видеороликов загружено"
 
 #: rapid/rapid.py:4025
 msgid "videos skipped"
@@ -991,7 +989,7 @@ msgstr "видеороликов пропущено"
 #. Please note the space at the end of the label - it is needed to meet the Gnome Human Interface Guidelines
 #: rapid/rapid.py:4125
 msgid "_Download "
-msgstr "_Скачать "
+msgstr "_Загрузить "
 
 #. This text will be displayed to the user on the Download / Pause button.
 #: rapid/rapid.py:4135
@@ -1028,7 +1026,7 @@ msgstr ""
 
 #: rapid/rapid.py:4422
 msgid "reset all program settings and preferences and exit"
-msgstr ""
+msgstr "сброс всех параметров настройки и выход"
 
 #: rapid/rapid.py:4431
 msgid "Photos:"
@@ -1107,7 +1105,7 @@ msgstr "Имя + расширение"
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamefilename
 #: rapid/renamesubfolderprefs.py:204
 msgid "Name"
-msgstr "Имя"
+msgstr "Название"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamefilename
 #: rapid/renamesubfolderprefs.py:206
@@ -1192,7 +1190,7 @@ msgstr "Высота"
 
 #: rapid/renamesubfolderprefs.py:235
 msgid "Length"
-msgstr ""
+msgstr "Длительность"
 
 #: rapid/renamesubfolderprefs.py:236
 msgid "Frames Per Second"
@@ -1450,7 +1448,7 @@ msgstr "ошибка генерирования названия компоне�
 #: rapid/renamesubfolderprefs.py:1450
 #, python-format
 msgid "%s metadata is not present in video"
-msgstr ""
+msgstr "%s нет метаданных в видеоролике"
 
 #: rapid/renamesubfolderprefs.py:1546
 #, python-format
@@ -1497,11 +1495,11 @@ msgstr "<b>Носители</b>"
 
 #: rapid/glade3/rapid.glade.h:8
 msgid "<b>Download Folder</b>"
-msgstr "<b>Каталог хранения фотографий</b>"
+msgstr "<b>Каталог для закачки фотографий</b>"
 
 #: rapid/glade3/rapid.glade.h:9
 msgid "<b>Download Subfolders</b>"
-msgstr "<b>Подкаталоги хранения фотографий</b>"
+msgstr "<b>Подкаталоги для закачки фотографий</b>"
 
 #: rapid/glade3/rapid.glade.h:10
 msgid "<b>Example</b>"
@@ -1521,7 +1519,7 @@ msgstr "<b>Переименование фотографий</b>"
 
 #: rapid/glade3/rapid.glade.h:14
 msgid "<b>Photo and Video Name Conflicts</b>"
-msgstr ""
+msgstr "<b>Конфликт названий между фотографией и видеороликом</b>"
 
 #: rapid/glade3/rapid.glade.h:15
 msgid "<b>Program Automation</b>"
@@ -1537,7 +1535,7 @@ msgstr "<i>/media/externaldrive/Photos</i>"
 
 #: rapid/glade3/rapid.glade.h:18
 msgid "<i>Example: /home/user/Pictures</i>"
-msgstr ""
+msgstr "<i>Пример: /home/user/Pictures</i>"
 
 #: rapid/glade3/rapid.glade.h:19
 msgid "<i>Example:</i>"
@@ -1562,7 +1560,7 @@ msgstr ""
 
 #: rapid/glade3/rapid.glade.h:24
 msgid "<span weight=\"bold\" size=\"x-large\">Devices</span>"
-msgstr ""
+msgstr "<span weight=\"bold\" size=\"x-large\">Носители</span>"
 
 #: rapid/glade3/rapid.glade.h:25
 msgid "<span weight=\"bold\" size=\"x-large\">Error Handling</span>"
@@ -1575,6 +1573,8 @@ msgstr "<span weight=\"bold\" size=\"x-large\">Метки</span>"
 #: rapid/glade3/rapid.glade.h:27
 msgid "<span weight=\"bold\" size=\"x-large\">Photo Download Folders</span>"
 msgstr ""
+"<span weight=\"bold\" size=\"x-large\">Каталоги для загрузки "
+"фотографий</span>"
 
 #: rapid/glade3/rapid.glade.h:28
 msgid "<span weight=\"bold\" size=\"x-large\">Photo Rename</span>\t"
@@ -1589,6 +1589,8 @@ msgstr ""
 #: rapid/glade3/rapid.glade.h:30
 msgid "<span weight=\"bold\" size=\"x-large\">Video Download Folders</span>"
 msgstr ""
+"<span weight=\"bold\" size=\"x-large\">Каталоги для загрузки "
+"видеороликов</span>"
 
 #: rapid/glade3/rapid.glade.h:31
 msgid "<span weight=\"bold\" size=\"x-large\">Video Rename</span>\t"
@@ -1597,7 +1599,7 @@ msgstr ""
 
 #: rapid/glade3/rapid.glade.h:32
 msgid "Add unique identifier"
-msgstr "Добавить уникальный идентификатор"
+msgstr "Добавить уникальную метку"
 
 #: rapid/glade3/rapid.glade.h:33
 msgid "Automatically detect Portable Storage Devices"
@@ -1609,7 +1611,7 @@ msgstr "Автоматически определять носители для 
 
 #: rapid/glade3/rapid.glade.h:35
 msgid "Automatically detect devices"
-msgstr ""
+msgstr "Автоматически обнаруживать носители"
 
 #: rapid/glade3/rapid.glade.h:36
 msgid "Automation"
@@ -1626,7 +1628,7 @@ msgstr "Местоположение резервных копий"
 #: rapid/glade3/rapid.glade.h:39
 msgid "Backup photos and videos when downloading"
 msgstr ""
-"Выполнять резервное копирование фотографий и видеороликов во время скачивания"
+"Выполнять резервное копирование фотографий и видеороликов во время загрузки"
 
 #: rapid/glade3/rapid.glade.h:40
 msgid ""
@@ -1634,7 +1636,7 @@ msgid ""
 "automatically created in this folder using the structure specified below."
 msgstr ""
 "Выберите каталог, в котором будут храниться фотографии. Подкаталоги для "
-"скачиваемых фотографий будут автоматически созданы в каждом каталоге, "
+"загружаемых фотографий будут автоматически созданы в каждом каталоге, "
 "используя структуру указанную вами ниже."
 
 #: rapid/glade3/rapid.glade.h:41
@@ -1642,13 +1644,16 @@ msgid ""
 "Choose the download folder. Subfolders for the downloaded videos will be "
 "automatically created in this folder using the structure specified below."
 msgstr ""
-"Выберите каталог в который будут скачиваться видеоролики. Подкаталоги будут "
-"создаваться автоматически, по формату, приведённому ниже:"
+"Выберите каталог, в котором будут храниться видеоролики. Подкаталоги для "
+"загружаемых видеороликов будут автоматически созданы в каждом каталоге, "
+"используя структуру указанную вами ниже."
 
 #: rapid/glade3/rapid.glade.h:42
 msgid ""
 "Choose whether to skip downloading the file, or to add a unique indentifier."
 msgstr ""
+"Выберите, следует ли пропустить скачивание файла или следует добавить к его "
+"названию уникальную метку."
 
 #: rapid/glade3/rapid.glade.h:43
 msgid "Copyright Damon Lynch 2007-10"
@@ -1660,11 +1665,11 @@ msgstr "Начало дня:"
 
 #: rapid/glade3/rapid.glade.h:45
 msgid "Delete photos and videos from device upon download completion"
-msgstr "Удалить фотографии и видеоролики после окончания процесса скачивания"
+msgstr "Удалить фотографии и видеоролики после окончания загрузки"
 
 #: rapid/glade3/rapid.glade.h:46
 msgid "Devices"
-msgstr ""
+msgstr "Носители"
 
 #: rapid/glade3/rapid.glade.h:47
 msgid ""
@@ -1681,7 +1686,7 @@ msgstr ""
 
 #: rapid/glade3/rapid.glade.h:52
 msgid "Download / Pause"
-msgstr "Скачать / Пауза"
+msgstr "Загрузка / Пауза"
 
 #: rapid/glade3/rapid.glade.h:53
 msgid "Download folder:"
@@ -1689,7 +1694,7 @@ msgstr "Каталог:"
 
 #: rapid/glade3/rapid.glade.h:54
 msgid "Downloads today:"
-msgstr "Скачиваний сегодня:"
+msgstr "Загрузок сегодня:"
 
 #: rapid/glade3/rapid.glade.h:55
 msgid "Error Handling"
@@ -1702,6 +1707,7 @@ msgstr "Журнал ошибок"
 #: rapid/glade3/rapid.glade.h:57
 msgid "Exit program if download completes without any warnings or errors"
 msgstr ""
+"Выйти из программы в том случае, если загрузка завершилась без ошибок"
 
 #: rapid/glade3/rapid.glade.h:58
 msgid "If you disable automatic detection, choose the exact backup location."
@@ -1739,7 +1745,7 @@ msgstr "Метки"
 
 #: rapid/glade3/rapid.glade.h:64
 msgid "Location:"
-msgstr ""
+msgstr "Размещение:"
 
 #: rapid/glade3/rapid.glade.h:65
 msgid "Overwrite"
@@ -1747,7 +1753,7 @@ msgstr "Перезаписать"
 
 #: rapid/glade3/rapid.glade.h:66
 msgid "Photo Folders"
-msgstr ""
+msgstr "Каталоги фотографий"
 
 #: rapid/glade3/rapid.glade.h:67
 msgid "Photo Rename"
@@ -1755,7 +1761,7 @@ msgstr "Переименование фотографий"
 
 #: rapid/glade3/rapid.glade.h:68
 msgid "Photo backup folder name:"
-msgstr ""
+msgstr "Название каталога резервного копирования фотографий"
 
 #: rapid/glade3/rapid.glade.h:69
 msgid "Preferences: Rapid Photo Downloader"
@@ -1815,14 +1821,14 @@ msgstr "Пропустить"
 
 #: rapid/glade3/rapid.glade.h:82
 msgid "Skip download"
-msgstr "Пропустить скачивание"
+msgstr "Пропустить загрузку"
 
 #: rapid/glade3/rapid.glade.h:83
 msgid ""
 "Sorry, video downloading functionality disabled. To download videos, please "
 "install the <i>kaa metadata</i> package for python."
 msgstr ""
-"Извините, возможность скачивания видео не работает. Необходимо установить "
+"Извините, возможность загрузки видео не работает. Необходимо установить "
 "пакет <i>kaa metadata</i> для python."
 
 #: rapid/glade3/rapid.glade.h:84
@@ -1840,7 +1846,7 @@ msgid ""
 "sequence number should be reset."
 msgstr ""
 "Укажите время в 24 часовом формате, в которое будет сброшена "
-"последовательность номеров параметра <i>Скачиваний сегодня</i>."
+"последовательность номеров параметра <i>Загрузок сегодня</i>."
 
 #: rapid/glade3/rapid.glade.h:88
 msgid ""
@@ -1865,7 +1871,7 @@ msgstr "Начать скачивание фотографий сразу пос
 
 #: rapid/glade3/rapid.glade.h:92
 msgid "Start downloading upon device insertion"
-msgstr ""
+msgstr "Начать загрузку сразу после подключения носителя"
 
 #: rapid/glade3/rapid.glade.h:93
 msgid "Stored number:"
@@ -1877,11 +1883,11 @@ msgstr "Убрать несовместимые символы"
 
 #: rapid/glade3/rapid.glade.h:95
 msgid "Synchronize RAW + JPEG sequence numbers"
-msgstr "Синхронизировать последовательность номеров при закачке RAW + JPEG"
+msgstr "Синхронизировать последовательность номеров при загрузке RAW + JPEG"
 
 #: rapid/glade3/rapid.glade.h:96
 msgid "Unmount (\"eject\") device upon download completion"
-msgstr ""
+msgstr "Отключить (\"извлечь\") носитель после завершения загрузки"
 
 #: rapid/glade3/rapid.glade.h:97
 msgid "Video Folders"
@@ -1893,7 +1899,7 @@ msgstr "Переименование видеороликов"
 
 #: rapid/glade3/rapid.glade.h:99
 msgid "Video backup folder name:"
-msgstr ""
+msgstr "Название каталога резервного копирования видеороликов"
 
 #: rapid/glade3/rapid.glade.h:100
 msgid ""
@@ -1906,6 +1912,8 @@ msgid ""
 "You can have your photos and videos backed up to multiple locations as they "
 "are downloaded, e.g. external hard drives."
 msgstr ""
+"Имеется возможность создания резервной копии ваших фотографий и видеороликов "
+"прямо во время загрузки, в том числе на внешние жёсткие диски."
 
 #: rapid/glade3/rapid.glade.h:102
 msgid "_Add..."
@@ -1913,7 +1921,7 @@ msgstr "_Добавить..."
 
 #: rapid/glade3/rapid.glade.h:103
 msgid "_Clear Completed Downloads"
-msgstr "_Очистить завершённые скачивания"
+msgstr "_Очистить завершённые загрузки"
 
 #: rapid/glade3/rapid.glade.h:104
 msgid "_Error Log"
