@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-05-27 22:33-0500\n"
-"PO-Revision-Date: 2010-05-29 19:27+0000\n"
-"Last-Translator: Abel O'Rian <abel.orian@gmail.com>\n"
+"PO-Revision-Date: 2010-06-02 21:36+0000\n"
+"Last-Translator: Toni Lähdekorpi <toni@lygon.net>\n"
 "Language-Team: Spanish <es@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-05-30 14:28+0000\n"
+"X-Launchpad-Export-Date: 2010-06-03 18:48+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #. Translators: if neccessary, for guidance in how to translate this program, you may see http://damonlynch.net/translate.html
@@ -60,7 +60,7 @@ msgstr "Berlín"
 
 #: rapid/rapid.py:396
 msgid "Sydney"
-msgstr "Sydney"
+msgstr "Sídney"
 
 #: rapid/rapid.py:397
 msgid "Budapest"
@@ -149,7 +149,7 @@ msgstr "fotos"
 
 #: rapid/rapid.py:880
 msgid "Select a folder to download photos to"
-msgstr "Seleccionar una carpeta para descargar las fotos"
+msgstr "Selecciona un directorio donde descargar las fotos"
 
 #: rapid/rapid.py:898
 msgid "Select a folder to download videos to"
@@ -158,12 +158,14 @@ msgstr "Selecciona un directorio donde descargar los videos"
 #: rapid/rapid.py:980
 #, python-format
 msgid "Select a folder containing %(file_types)s"
-msgstr ""
+msgstr "Selecciona un directorio conteniendo %(file_types)s"
 
 #: rapid/rapid.py:1002
 #, python-format
 msgid "Select a folder in which to backup %(file_types)s"
 msgstr ""
+"Selecciona un directorio a donde hacer una copia de seguridad de "
+"%(file_types)s"
 
 #. Translators: please do not modify or leave out html formatting tags like <i> and <b>. These are used to format the text the users sees
 #: rapid/rapid.py:1095
@@ -219,7 +221,7 @@ msgstr "foto"
 
 #: rapid/rapid.py:1225 rapid/rapid.py:1499 rapid/rapid.py:2541
 msgid "video"
-msgstr "video"
+msgstr "vídeo"
 
 #. Translators: this value is used as an example device when automatic backup device detection is enabled. You should translate this.
 #: rapid/rapid.py:1468
@@ -233,11 +235,11 @@ msgstr "dispositivoexterno2"
 
 #: rapid/rapid.py:1494 rapid/rapid.py:1780
 msgid "photos or videos"
-msgstr "fotos y videos"
+msgstr "fotos y vídeos"
 
 #: rapid/rapid.py:1497
 msgid "videos"
-msgstr "videos"
+msgstr "vídeos"
 
 #. This refers to when a device like a hard drive is having its contents scanned,
 #. looking for photos or videos. It is visible initially in the progress bar for each device
@@ -254,7 +256,7 @@ msgstr ""
 #: rapid/rapid.py:1664
 #, python-format
 msgid "%(path)s: "
-msgstr ""
+msgstr "%(path)s: "
 
 #: rapid/rapid.py:1665 rapid/rapid.py:1666 rapid/rapid.py:1681
 #: rapid/rapid.py:1682 rapid/rapid.py:2364 rapid/rapid.py:2367
@@ -280,7 +282,7 @@ msgstr ""
 #: rapid/rapid.py:1791
 #, python-format
 msgid "0 of %(number)s %(filetypes)s"
-msgstr ""
+msgstr "0 de %(number)s %(filetypes)s"
 
 #. Translators: as you have already seen, the text can contain values that should not be modified or left out by you, for example %s.
 #. This text is another example of that, but it is is a little more complex. Here there are two values which will be displayed
@@ -292,12 +294,14 @@ msgstr ""
 #, python-format
 msgid "Device scan complete: found %(number)s %(filetypes)s on %(device)s"
 msgstr ""
+"Escaneo del dispositivo completo: se encontro %(number)s %(filetypes)s en "
+"%(device)s"
 
 #: rapid/rapid.py:1810
 #, python-format
 msgid "Device scan complete: no %(filetypes)s found on %(device)s"
 msgstr ""
-"Escaneo del dispositivo completo: No se encuentran %(filetypes)s en "
+"Escaneo del dispositivo completo: no se encuentran %(filetypes)s en "
 "%(device)s"
 
 #: rapid/rapid.py:1844

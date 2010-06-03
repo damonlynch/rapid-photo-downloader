@@ -1,7 +1,20 @@
+Version 0.2.1
+-------------
+
+2010-06-0x
+
+Bug fix: display sample photo and video names in preferences dialog using
+first photo and video found on download device, where possible
+
+Bug fix: prompt for job code when only video names or video subfolder names
+use a job code.
+
+Updated Spanish, Russian and Finnish translations.
+
 Version 0.2.0
 -------------
 
-2010-05-xx
+2010-05-30
 
 Videos can now be downloaded in much the same way photos can. 
 

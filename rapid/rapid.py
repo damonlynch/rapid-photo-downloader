@@ -751,17 +751,19 @@ class PreferencesDialog(gnomeglade.Component):
             w = workers.firstWorkerReadyToDownload()
             root, self.sampleImageName = w.firstImage()
             image = os.path.join(root, self.sampleImageName)
+
             self.sampleImage = metadata.MetaData(image)
-            self.sampleImage.readMetadata() 
+            self.sampleImage.read() 
         except:
             self.sampleImage = metadata.DummyMetaData()
             self.sampleImageName = 'IMG_0524.CR2'
             
 
         try:
-            root, self.sampleVideoName = w.firstVideo()
+            root, self.sampleVideoName, modificationTime = w.firstVideo()
             video = os.path.join(root, self.sampleVideoName)
-            self.sampleVideo = videometadata.MetaData(video)
+            self.sampleVideo = videometadata.VideoMetaData(video)
+            self.videoFallBackDate = modificationTime
         except:
             self.sampleVideo = videometadata.DummyMetaData()
             self.sampleVideoName = 'MVI_1379.MOV'
@@ -1077,12 +1079,12 @@ class PreferencesDialog(gnomeglade.Component):
             self.backup_duplicate_skip_radiobutton.set_active(True)
 
     
-    def updateExampleFileName(self, display_table, rename_table, sample, sampleName, example_label):
+    def updateExampleFileName(self, display_table, rename_table, sample, sampleName, example_label, fallback_date = None):
         if hasattr(self, display_table):
             rename_table.updateExampleJobCode()
             name, problem = rename_table.prefsFactory.generateNameUsingPreferences(
                     sample, sampleName,
-                    self.prefs.strip_characters,  sequencesPreliminary=False)
+                    self.prefs.strip_characters, sequencesPreliminary=False, fallback_date=fallback_date)
         else:
             name = problem = ''
             
@@ -1107,9 +1109,9 @@ class PreferencesDialog(gnomeglade.Component):
         """
         Displays example video name to the user
         """
-        self.updateExampleFileName('video_rename_table', self.video_rename_table, self.sampleVideo,  self.sampleVideoName, self.video_new_name_label)
+        self.updateExampleFileName('video_rename_table', self.video_rename_table, self.sampleVideo,  self.sampleVideoName, self.video_new_name_label, self.videoFallBackDate)
             
-    def updateDownloadFolderExample(self, display_table, subfolder_table, download_folder, sample, sampleName, example_download_path_label, subfolder_warning_label):
+    def updateDownloadFolderExample(self, display_table, subfolder_table, download_folder, sample, sampleName, example_download_path_label, subfolder_warning_label, fallback_date = None):
         """ 
         Displays example subfolder name(s) to the user 
         """
@@ -1118,7 +1120,7 @@ class PreferencesDialog(gnomeglade.Component):
             subfolder_table.updateExampleJobCode()
             path, problem = subfolder_table.prefsFactory.generateNameUsingPreferences(
                             sample, sampleName,
-                            self.prefs.strip_characters)
+                            self.prefs.strip_characters, fallback_date = fallback_date)
         else:
             path = problem = ''
         
@@ -1139,7 +1141,7 @@ class PreferencesDialog(gnomeglade.Component):
         
     def updateVideoDownloadFolderExample(self):
         if hasattr(self, 'video_subfolder_table'):
-            self.updateDownloadFolderExample('video_subfolder_table', self.video_subfolder_table, self.prefs.video_download_folder, self.sampleVideo, self.sampleVideoName, self.example_video_download_path_label, self.video_subfolder_warning_label)
+            self.updateDownloadFolderExample('video_subfolder_table', self.video_subfolder_table, self.prefs.video_download_folder, self.sampleVideo, self.sampleVideoName, self.example_video_download_path_label, self.video_subfolder_warning_label, self.videoFallBackDate)
         
     def on_hour_spinbutton_value_changed(self, spinbutton):
         hour = spinbutton.get_value_as_int()
@@ -1560,8 +1562,19 @@ class CopyPhotos(Thread):
         """
         returns name, path and size of the first image
         """
+        
         name, root, size,  modificationTime = self.cardMedia.firstImage()
+
         return root, name
+        
+    def firstVideo(self):
+        """
+        returns name, path and size of the first image
+        """
+        
+        name, root, size,  modificationTime = self.cardMedia.firstImage()
+
+        return root, name, modificationTime     
         
     def handlePreferencesError(self,  e,  prefsFactory):
             sys.stderr.write(_("Sorry,these preferences contain an error:\n"))
@@ -3385,7 +3398,7 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
         return prefsOk
         
     def needJobCode(self):
-        return rn.usesJobCode(self.prefs.image_rename) or rn.usesJobCode(self.prefs.subfolder)
+        return rn.usesJobCode(self.prefs.image_rename) or rn.usesJobCode(self.prefs.subfolder) or rn.usesJobCode(self.prefs.video_rename) or rn.usesJobCode(self.prefs.video_subfolder)
         
     def assignJobCode(self,  code):
         """ assign job code (which may be empty) to global variable and update user preferences
@@ -4195,7 +4208,7 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
             if not self.preferencesDialogDisplayed:
                 self.postPreferenceChange()
 
-        elif key in ['subfolder',  'image_rename']:
+        elif key in ['subfolder', 'image_rename', 'video_subfolder', 'video_rename']:
             global need_job_code
             need_job_code = self.needJobCode()
             

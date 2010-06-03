@@ -159,10 +159,11 @@ class CardMedia(Media):
         else:
             return self.fileSizeSum
     
-    def _firstFile(self, isCorrectFile):
+    def _firstFile(self, function_to_check):
+        
         if self.imagesAndVideos:
             for i in range(len(self.imagesAndVideos)):
-                if isCorrectFile(self.imagesAndVideos[i]):
+                if function_to_check(self.imagesAndVideos[i][0]):
                     return self.imagesAndVideos[i]
         else:
             return None
