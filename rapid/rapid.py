@@ -1573,7 +1573,7 @@ class CopyPhotos(Thread):
         returns name, path and size of the first image
         """
         
-        name, root, size,  modificationTime = self.cardMedia.firstImage()
+        name, root, size,  modificationTime = self.cardMedia.firstVideo()
 
         return root, name, modificationTime     
         
