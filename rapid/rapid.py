@@ -767,6 +767,7 @@ class PreferencesDialog(gnomeglade.Component):
         except:
             self.sampleVideo = videometadata.DummyMetaData()
             self.sampleVideoName = 'MVI_1379.MOV'
+            self.videoFallBackDate = datetime.datetime.now()
             
         
         # setup tabs
@@ -2035,8 +2036,7 @@ class CopyPhotos(Thread):
                 
                 nameUniqueBeforeCopy = True
                 downloadNonUniqueFile = True
-                
-                
+                    
                 # do a preliminary check to see if a file with the same name already exists
                 if os.path.exists(newFile):
                     nameUniqueBeforeCopy = False

@@ -455,10 +455,13 @@ class MetaData(baseclass):
             
     def __getitem__(self, key):
         if self.__version01__:
-            return pyexiv2.Image.__getitem__(self, key)
+            v = pyexiv2.Image.__getitem__(self, key)
         else:
-            return pyexiv2.metadata.ImageMetadata.__getitem__(self, key).raw_value
-        
+            v = pyexiv2.metadata.ImageMetadata.__getitem__(self, key).raw_value
+        # strip out null bytes from strings
+        if isinstance(v, types.StringType):
+            v = v.replace('\x00', '')
+        return v
         
 
 class DummyMetaData(MetaData):
