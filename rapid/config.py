@@ -15,7 +15,7 @@
 ### along with this program; if not, write to the Free Software
 ### Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-version = '0.2.0'
+version = '0.2.2'
 
 GCONF_KEY="/apps/rapid-photo-downloader"
 GLADE_FILE = "glade3/rapid.glade"
@@ -47,8 +47,12 @@ SERIOUS_ERROR = 2
 WARNING = 3
 
 MAX_LENGTH_DEVICE_NAME = 15
+MAX_THUMBNAIL_SIZE = 160
 
-#logging - to be implemented
-#LOGFILE_DIRECTORY = '.rapidPhotoDownloader' # relative to home directory
-#MAX_LOGFILE_SIZE = 100 * 1024       # bytes
-#MAX_LOGFILES  = 5
+STATUS_DOWNLOADED = 0
+STATUS_NOT_DOWNLOADED = 1
+STATUS_WARNING = 2
+STATUS_ERROR = 3
+STATUS_CANNOT_DOWNLOAD = 4
+
+

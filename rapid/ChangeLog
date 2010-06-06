@@ -1,7 +1,26 @@
+Version 0.3.0
+-------------
+
+2010-06-xx
+
+The major new feature of this release is the generation of previews before
+a download takes place, and being able to select which photos and videos you
+wish to download.
+
+You can now assign different Job Codes to photos and videos in the same 
+download.
+
+The errors and warnings reported have been completely overhauled, and are now
+more concise.
+
+The minimum version of python-gtk2 (pygtk) required to run the program is now
+2.12. This will affect only very old Linux distributions.
+
+
 Version 0.2.0
 -------------
 
-2010-05-xx
+2010-05-30
 
 Videos can now be downloaded in much the same way photos can. 
 

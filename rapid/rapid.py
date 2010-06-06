@@ -43,11 +43,11 @@ from thread import get_ident
 
 import gtk.gdk as gdk
 import pango
+import gobject
 
 try:
     import gio
     using_gio = True
-    import gobject
 except ImportError:
     import gnomevfs
     using_gio = False
@@ -66,6 +66,8 @@ import ValidatedEntry
 import idletube as tube
 
 import config
+from config import MAX_THUMBNAIL_SIZE
+
 import common
 import misc
 import higdefaults as hd
@@ -79,7 +81,8 @@ import metadata
 import videometadata
 from videometadata import DOWNLOAD_VIDEO
 
-import renamesubfolderprefs as rn 
+import renamesubfolderprefs as rn
+import problemnotification as pn
 
 import tableplusminus as tpm
 
@@ -96,6 +99,12 @@ try:
 except: 
     sys.exit(1)
 
+try:
+    from dropshadow import image_to_pixbuf, pixbuf_to_image, DropShadow
+    DROP_SHADOW = True
+except:
+    DROP_SHADOW = False
+    
 from common import Configi18n
 global _
 _ = Configi18n._
@@ -103,7 +112,7 @@ _ = Configi18n._
 #Translators: if neccessary, for guidance in how to translate this program, you may see http://damonlynch.net/translate.html 
 PROGRAM_NAME = _('Rapid Photo Downloader')
 
-MAX_THUMBNAIL_SIZE = 100
+
 
 def today():
     return datetime.date.today().strftime('%Y-%m-%d')
@@ -151,12 +160,15 @@ class Queue(tube.Tube):
 #   this is ugly but I don't know a better way :(
 
 display_queue = Queue()
-media_collection_treeview = thumbnail_hbox = log_dialog = None
+media_collection_treeview = selection_hbox = log_dialog = None
 
 job_code = None
 need_job_code = False
 
 class ThreadManager:
+    """
+    Manages the threads that actually download photos and videos
+    """
     _workers = []
     
     
@@ -386,7 +398,7 @@ class RapidPreferences(prefs.Preferences):
                                         config.SKIP_DOWNLOAD),
         "backup_duplicate_overwrite": prefs.Value(prefs.BOOL, False),
         "backup_missing": prefs.Value(prefs.STRING, config.IGNORE),
-        "display_thumbnails": prefs.Value(prefs.BOOL, True),
+        "display_selection": prefs.Value(prefs.BOOL, True),
         "show_log_dialog": prefs.Value(prefs.BOOL, False),
         "day_start": prefs.Value(prefs.STRING,  "03:00"), 
         "downloads_today": prefs.ListValue(prefs.STRING_LIST,  [today(),  '0']), 
@@ -397,6 +409,11 @@ class RapidPreferences(prefs.Preferences):
                _('Budapest'), _('Rome'),  _('Moscow'),  _('Delhi'), _('Warsaw'), 
                _('Jakarta'),  _('Madrid'),  _('Stockholm')]),
         "synchronize_raw_jpg": prefs.Value(prefs.BOOL, False),
+        "hpaned_pos": prefs.Value(prefs.INT, 0),
+        "vpaned_pos": prefs.Value(prefs.INT, 0),
+        "main_window_size_x": prefs.Value(prefs.INT, 0),
+        "main_window_size_y": prefs.Value(prefs.INT, 0),
+        "main_window_maximized": prefs.Value(prefs.INT, 0)
         }
 
     def __init__(self):
@@ -503,7 +520,7 @@ class ImageRenameTable(tpm.TablePlusMinus):
             self.connect("remove",  self.size_adjustment)
 
             # get scrollbar thickness from parent app scrollbar - very hackish, but what to do??
-            self.bump = self.parentApp.parentApp.image_scrolledwindow.get_hscrollbar().allocation.height
+            self.bump = 16# self.parentApp.parentApp.image_scrolledwindow.get_hscrollbar().allocation.height
             self.haveVerticalScrollbar = False
 
             # vbar is '1' if there is not vertical scroll bar
@@ -749,22 +766,25 @@ class PreferencesDialog(gnomeglade.Component):
         # get example photo and video data
         try:
             w = workers.firstWorkerReadyToDownload()
-            root, self.sampleImageName = w.firstImage()
-            image = os.path.join(root, self.sampleImageName)
-            self.sampleImage = metadata.MetaData(image)
-            self.sampleImage.readMetadata() 
+            mediaFile = w.firstImage() 
+            self.sampleImageName = mediaFile.name
+            # assume the metadate is already read
+            self.sampleImage = mediaFile.metadata
         except:
             self.sampleImage = metadata.DummyMetaData()
             self.sampleImageName = 'IMG_0524.CR2'
             
 
+        
         try:
-            root, self.sampleVideoName = w.firstVideo()
-            video = os.path.join(root, self.sampleVideoName)
-            self.sampleVideo = videometadata.MetaData(video)
+            mediaFile = w.firstVideo()
+            self.sampleVideoName = mediaFile.name
+            self.sampleVideo = mediaFile.metadata
+            self.videoFallBackDate = mediaFile.modificationTime
         except:
             self.sampleVideo = videometadata.DummyMetaData()
             self.sampleVideoName = 'MVI_1379.MOV'
+            self.videoFallBackDate = datetime.datetime.now()
             
         
         # setup tabs
@@ -1077,19 +1097,21 @@ class PreferencesDialog(gnomeglade.Component):
             self.backup_duplicate_skip_radiobutton.set_active(True)
 
     
-    def updateExampleFileName(self, display_table, rename_table, sample, sampleName, example_label):
+    def updateExampleFileName(self, display_table, rename_table, sample, sampleName, example_label, fallback_date = None):
+        problem = pn.Problem()
         if hasattr(self, display_table):
             rename_table.updateExampleJobCode()
-            name, problem = rename_table.prefsFactory.generateNameUsingPreferences(
+            rename_table.prefsFactory.initializeProblem(problem)
+            name = rename_table.prefsFactory.generateNameUsingPreferences(
                     sample, sampleName,
-                    self.prefs.strip_characters,  sequencesPreliminary=False)
+                    self.prefs.strip_characters, sequencesPreliminary=False, fallback_date=fallback_date)
         else:
-            name = problem = ''
+            name = ''
             
         # since this is markup, escape it
         text = "<i>%s</i>" % common.escape(name)
         
-        if problem:
+        if problem.has_problem():
             text += "\n"
             # Translators: please do not modify or leave out html formatting tags like <i> and <b>. These are used to format the text the users sees
             text += _("<i><b>Warning:</b> There is insufficient metadata to fully generate the name. Please use other renaming options.</i>")
@@ -1107,25 +1129,27 @@ class PreferencesDialog(gnomeglade.Component):
         """
         Displays example video name to the user
         """
-        self.updateExampleFileName('video_rename_table', self.video_rename_table, self.sampleVideo,  self.sampleVideoName, self.video_new_name_label)
+        self.updateExampleFileName('video_rename_table', self.video_rename_table, self.sampleVideo,  self.sampleVideoName, self.video_new_name_label, self.videoFallBackDate)
             
-    def updateDownloadFolderExample(self, display_table, subfolder_table, download_folder, sample, sampleName, example_download_path_label, subfolder_warning_label):
+    def updateDownloadFolderExample(self, display_table, subfolder_table, download_folder, sample, sampleName, example_download_path_label, subfolder_warning_label, fallback_date = None):
         """ 
         Displays example subfolder name(s) to the user 
         """
         
+        problem = pn.Problem()
         if hasattr(self, display_table):
             subfolder_table.updateExampleJobCode()
-            path, problem = subfolder_table.prefsFactory.generateNameUsingPreferences(
+            subfolder_table.prefsFactory.initializeProblem(problem)
+            path = subfolder_table.prefsFactory.generateNameUsingPreferences(
                             sample, sampleName,
-                            self.prefs.strip_characters)
+                            self.prefs.strip_characters, fallback_date = fallback_date)
         else:
-            path = problem = ''
+            path = ''
         
         text = os.path.join(download_folder, path)
         # since this is markup, escape it
         path = common.escape(text)
-        if problem:
+        if problem.has_problem():
             warning = _("<i><b>Warning:</b> There is insufficient metadata to fully generate subfolders. Please use other subfolder naming options.</i>" )
         else:
             warning = ""
@@ -1139,7 +1163,7 @@ class PreferencesDialog(gnomeglade.Component):
         
     def updateVideoDownloadFolderExample(self):
         if hasattr(self, 'video_subfolder_table'):
-            self.updateDownloadFolderExample('video_subfolder_table', self.video_subfolder_table, self.prefs.video_download_folder, self.sampleVideo, self.sampleVideoName, self.example_video_download_path_label, self.video_subfolder_warning_label)
+            self.updateDownloadFolderExample('video_subfolder_table', self.video_subfolder_table, self.prefs.video_download_folder, self.sampleVideo, self.sampleVideoName, self.example_video_download_path_label, self.video_subfolder_warning_label, self.videoFallBackDate)
         
     def on_hour_spinbutton_value_changed(self, spinbutton):
         hour = spinbutton.get_value_as_int()
@@ -1558,11 +1582,18 @@ class CopyPhotos(Thread):
                 
     def firstImage(self):
         """
-        returns name, path and size of the first image
+        returns class mediaFile of the first photo
         """
-        name, root, size,  modificationTime = self.cardMedia.firstImage()
-        return root, name
-        
+        mediaFile = self.cardMedia.firstImage()
+        return mediaFile
+
+    def firstVideo(self):
+        """
+        returns class mediaFile of the first video
+        """
+        mediaFile = self.cardMedia.firstVideo()
+        return mediaFile
+                
     def handlePreferencesError(self,  e,  prefsFactory):
             sys.stderr.write(_("Sorry,these preferences contain an error:\n"))
             sys.stderr.write(prefsFactory.formatPreferencesForPrettyPrint() + "\n")
@@ -1609,6 +1640,7 @@ class CopyPhotos(Thread):
         self.stripCharacters = self.prefs.strip_characters
         
         
+
     def run(self):
         """
         Copy photos from device to local drive, and if requested, backup
@@ -1685,14 +1717,98 @@ class CopyPhotos(Thread):
                     display_queue.close("rw")                     
                 return False
         
+
+                    
         def scanMedia():
+            """
+            Scans media for photos and videos
+            """
+                       
+            # load images to display for when a thumbnail cannot be extracted or created
             
-            def downloadFile(name):
+            if DROP_SHADOW:
+                self.photoThumbnail = gtk.gdk.pixbuf_new_from_file(paths.share_dir('glade3/photo_shadow.png'))
+                self.videoThumbnail = gtk.gdk.pixbuf_new_from_file(paths.share_dir('glade3/video_shadow.png'))
+            else:
+                self.photoThumbnail = gtk.gdk.pixbuf_new_from_file(paths.share_dir('glade3/photo.png'))
+                self.videoThumbnail = gtk.gdk.pixbuf_new_from_file(paths.share_dir('glade3/video.png'))
+            
+            
+            def generateSubfolderAndName(mediaFile, problem):
+                if mediaFile.isImage:
+                    self.subfolderPrefsFactory.initializeProblem(problem)
+                    subfolder = self.subfolderPrefsFactory.generateNameUsingPreferences(
+                                            mediaFile.metadata, mediaFile.name, self.prefs.strip_characters)
+
+                    mediaFile.samplePath = os.path.join(self.prefs.download_folder, subfolder)
+                    
+                    self.imageRenamePrefsFactory.initializeProblem(problem)
+                    mediaFile.sampleName = self.imageRenamePrefsFactory.generateNameUsingPreferences(
+                                            mediaFile.metadata, mediaFile.name, self.prefs.strip_characters,
+                                            sequencesPreliminary=False)
+                else:
+                    self.videoSubfolderPrefsFactory.initializeProblem(problem)
+                    subfolder = self.videoSubfolderPrefsFactory.generateNameUsingPreferences(
+                                            mediaFile.metadata, mediaFile.name, self.prefs.strip_characters,
+                                            fallback_date = mediaFile.modificationTime)
+                        
+                    mediaFile.samplePath = os.path.join(self.prefs.video_download_folder, subfolder)
+                    
+                    self.videoRenamePrefsFactory.initializeProblem(problem)
+                    mediaFile.sampleName = self.videoRenamePrefsFactory.generateNameUsingPreferences(
+                                            mediaFile.metadata, mediaFile.name, self.prefs.strip_characters,
+                                            sequencesPreliminary=False, fallback_date = mediaFile.modificationTime) 
+                    
+                if problem.has_problem():
+                    mediaFile.problem = problem
+                    mediaFile.status = config.STATUS_WARNING
+                
+            
+            def loadFileMetadata(mediaFile):
+                """
+                loads the metadate for the file, and additional information if required
+                """
+                
+                problem = pn.Problem()
+                try:
+                    mediaFile.loadMetadata()
+                except:
+                    mediaFile.status = config.STATUS_CANNOT_DOWNLOAD
+                    mediaFile.metadata = None
+                    problem.add_problem(pn.FILE_PROBLEM, pn.CANNOT_DOWNLOAD_BAD_METADATA, {'filetype': mediaFile.displayNameCap})
+                    mediaFile.problem = problem
+                else:
+                    # generate sample filename
+                    generateSubfolderAndName(mediaFile, problem)
+                    # generate thumbnail
+                    mediaFile.generateThumbnail(videoTempWorkingDir)
+                    
+                if mediaFile.thumbnail is None:
+                    mediaFile.genericThumbnail = True
+                    if mediaFile.isImage:
+                        mediaFile.thumbnail = self.photoThumbnail
+                    else:
+                        mediaFile.thumbnail = self.videoThumbnail
+            
+            def downloadable(name):
                 isImage = media.isImage(name)
                 isVideo = media.isVideo(name)
                 download = (DOWNLOAD_VIDEO and (isImage or isVideo) or 
                         ((not DOWNLOAD_VIDEO) and isImage))
                 return (download, isImage, isVideo)
+                
+            def addFile(name, path, size, modificationTime, device, isImage):
+                mediaFile = media.MediaFile(name, path, size, modificationTime, device, isImage)
+                loadFileMetadata(mediaFile)
+                # modificationTime is very useful for quick sorting
+                imagesAndVideos.append((mediaFile, modificationTime))
+                display_queue.put((self.parentApp.addFileToSelection, (mediaFile,)))
+                
+                if isImage:
+                    self.noImages += 1
+                else:
+                    self.noVideos += 1
+
             
             def gio_scan(path, fileSizeSum):
                 """recursive function to scan a directory and its subdirectories
@@ -1718,15 +1834,13 @@ class CopyPhotos(Thread):
                             return None
                     elif child.get_file_type() == gio.FILE_TYPE_REGULAR:
                         name = child.get_name()
-                        download, isImage, isVideo = downloadFile(name)
+                        download, isImage, isVideo = downloadable(name)
                         if download:
                             size = child.get_size()
-                            imagesAndVideos.append((name, path.get_path(), size, child.get_modification_time()),)
+                            modificationTime = child.get_modification_time()
+                            addFile(name, path.get_path(), size, modificationTime, self.cardMedia.prettyName(), isImage)
                             fileSizeSum += size
-                            if isVideo:
-                                self.noVideos += 1
-                            else:
-                                self.noImages += 1
+
                 return fileSizeSum
             
                         
@@ -1749,17 +1863,14 @@ class CopyPhotos(Thread):
                             return
                         
 
-                        download, isImage, isVideo = downloadFile(name)
+                        download, isImage, isVideo = downloadable(name)
                         if download:
-                            image = os.path.join(root, name)
-                            size = os.path.getsize(image)
-                            modificationTime = os.path.getmtime(image)
-                            imagesAndVideos.append((name, root, size, modificationTime),)
+                            fullFileName = os.path.join(root, name)
+                            size = os.path.getsize(fullFileName)
+                            modificationTime = os.path.getmtime(fullFileName)
+                            addFile(name, root, size, modificationTime, self.cardMedia.prettyName(), isImage)
                             fileSizeSum += size
-                            if isVideo:
-                                self.noVideos += 1
-                            else:
-                                self.noImages += 1
+
                             
             else:
                 # using gio and have a volume
@@ -1769,7 +1880,8 @@ class CopyPhotos(Thread):
                     # thread exiting
                     return
                 
-            imagesAndVideos.sort(key=operator.itemgetter(3))
+            # sort in place based on modification time
+            imagesAndVideos.sort(key=operator.itemgetter(1))
             noFiles = len(imagesAndVideos)
             
             self.scanComplete = True
@@ -2317,28 +2429,7 @@ class CopyPhotos(Thread):
 
         
 
-        def getThumbnail(fileMetadata):
-            thumbnail = orientation = None
-            if self.isImage:
-                try:
-                    thumbnail = fileMetadata.getThumbnailData(MAX_THUMBNAIL_SIZE)
-                    if not isinstance(thumbnail, types.StringType):
-                        thumbnail = None
-                except:
-                    thumbnail = None
-                    
-                if thumbnail is None:
-                    logError(config.WARNING, _("Photo thumbnail could not be extracted"), fullFileName)
-                    orientation = None
-                else:
-                    orientation = fileMetadata.orientation(missing=None)
-            else:
-                # get thumbnail of video
-                # it may need to be generated
-                thumbnail = fileMetadata.getThumbnailData(MAX_THUMBNAIL_SIZE, tempWorkingDir)
-                if thumbnail:
-                    orientation = 1
-            return thumbnail, orientation
+
                             
         def createTempDir(baseDir):
             """
@@ -2378,12 +2469,30 @@ class CopyPhotos(Thread):
         #Do not try to handle any preference errors here
         getPrefs(False)
         
+        #Check photo and video download path, create if necessary
+        photoBaseDownloadDir = self.prefs.download_folder
+        if not checkDownloadPath(photoBaseDownloadDir):
+            return
+        photoTempWorkingDir = createTempDir(photoBaseDownloadDir)
+        if not photoTempWorkingDir:
+            return
+
+        if DOWNLOAD_VIDEO:
+            videoBaseDownloadDir = self.prefs.video_download_folder
+            if not checkDownloadPath(videoBaseDownloadDir):
+                return
+            videoTempWorkingDir = createTempDir(videoBaseDownloadDir)
+            if not videoTempWorkingDir:
+                return
+        else:
+            videoBaseDownloadDir = videoTempWorkingDir = None
+        
         if not scanMedia():
             cmd_line(_("This device has no %(types_searched_for)s to download from.") % {'types_searched_for': self.types_searched_for})
             display_queue.put((self.parentApp.downloadFailed, (self.thread_id, )))
             display_queue.close("rw")
             self.running = False
-            return 
+            return
         elif self.autoStart and need_job_code:
             if job_code == None:
                 self.waitingForJobCode = True
@@ -2525,7 +2634,7 @@ class CopyPhotos(Thread):
                 return
             
             # get information about the image to deduce image name and path
-            name, root, size,  modificationTime = self.cardMedia.imagesAndVideos[i]
+            name, root, size, modificationTime, thumbnail, orientation = self.cardMedia.imagesAndVideos[i]
             fullFileName = os.path.join(root, name)
             
             self.isImage = media.isImage(name)
@@ -2581,7 +2690,7 @@ class CopyPhotos(Thread):
                     else:
                         noVideosSkipped += 1
                 
-                thumbnail, orientation = getThumbnail(fileMetadata)
+                #thumbnail, orientation = getThumbnail(fileMetadata)
 
                 display_queue.put((thumbnail_hbox.addImage, (self.thread_id, thumbnail, orientation, fullFileName, fileDownloaded, self.isImage)))
             
@@ -2678,7 +2787,7 @@ class CopyPhotos(Thread):
 
 class MediaTreeView(gtk.TreeView):
     """
-    TreeView display of memory cards and associated copying progress.
+    TreeView display of devices and associated copying progress.
     
     Assumes a threaded environment.
     """
@@ -2780,88 +2889,8 @@ class MediaTreeView(gtk.TreeView):
             index = self.mapThreadToRow.keys()[0]
             path = self.mapThreadToRow[index].get_path()
             col = self.get_column(0)
-            return self.get_background_area(path, col)[3]
+            return self.get_background_area(path, col)[3] + 1
 
-class ThumbnailHBox(gtk.HBox):
-    """
-    Displays thumbnails of the images being downloaded
-    """
-    
-    def __init__(self, parentApp):
-        gtk.HBox.__init__(self)
-        self.parentApp = parentApp
-        self.padding = hd.CONTROL_IN_TABLE_SPACE / 2
-
-        #create image used to lighten thumbnails
-        self.white = gtk.gdk.Pixbuf(gtk.gdk.COLORSPACE_RGB,  False,  8,  width=MAX_THUMBNAIL_SIZE, height=MAX_THUMBNAIL_SIZE)
-        #fill with white
-        self.white.fill(0xffffffff)
-        
-        #load missing image 
-        self.missingThumbnail = gtk.gdk.pixbuf_new_from_file_at_size(paths.share_dir('glade3/image-missing.svg'), MAX_THUMBNAIL_SIZE, MAX_THUMBNAIL_SIZE)
-        self.videoThumbnail = gtk.gdk.pixbuf_new_from_file_at_size(paths.share_dir('glade3/video.svg'), MAX_THUMBNAIL_SIZE,  MAX_THUMBNAIL_SIZE)
-        
-    def addImage(self, thread_id, thumbnail, orientation, filename, fileDownloaded, isImage):
-        """ 
-        Add thumbnail
-        
-        Orientation indicates if the thumbnail needs to be rotated or not.
-        """
-        
-        if isImage:
-            if not thumbnail:
-                pixbuf = self.missingThumbnail
-            else:
-                try:
-                    pbloader = gdk.PixbufLoader()
-                    pbloader.write(thumbnail)
-                    pbloader.close()
-                    # Get the resulting pixbuf and build an image to be displayed
-                    pixbuf = pbloader.get_pixbuf()  
-                except:
-                    log_dialog.addMessage(thread_id, config.WARNING, 
-                                    _("Photo thumbnail could not be extracted"), filename, 
-                                    _('It may be corrupted'))
-                    pbloader = None
-                    pixbuf = self.missingThumbnail
-        else:
-            # the file downloaded is a video, not a photo or image
-            # if thumbnail is passed in, it is already in pixbuf format
-            if thumbnail:
-                pixbuf = thumbnail
-            else:
-                pixbuf = self.videoThumbnail
-
-        if not pixbuf:
-            # get_pixbuf() can return None if not could not render the image
-            log_dialog.addMessage(thread_id, config.WARNING, 
-                            _("Photo thumbnail could not be extracted"), filename, 
-                            _('It may be corrupted'))
-            pixbuf = self.missingThumbnail
-        else:
-            # rotate if necessary
-            if orientation == 8:
-                pixbuf = pixbuf.rotate_simple(gdk.PIXBUF_ROTATE_COUNTERCLOCKWISE)
-            elif orientation == 6:
-                pixbuf = pixbuf.rotate_simple(gdk.PIXBUF_ROTATE_CLOCKWISE)
-            elif orientation == 3:
-                pixbuf = pixbuf.rotate_simple(gdk.PIXBUF_ROTATE_UPSIDEDOWN)
-    
-        # scale to size
-        pixbuf = common.scale2pixbuf(MAX_THUMBNAIL_SIZE, MAX_THUMBNAIL_SIZE, pixbuf)
-        if not fileDownloaded:
-            # lighten it
-            self.white.composite(pixbuf, 0, 0, pixbuf.props.width, pixbuf.props.height, 0, 0, 1.0, 1.0, gtk.gdk.INTERP_HYPER, 180)
-
-        image = gtk.Image()
-        image.set_from_pixbuf(pixbuf)
-        
-        self.pack_start(image, expand=False, padding=self.padding)
-        image.show()
-        
-        # move viewport to display the latest image
-        adjustment = self.parentApp.image_scrolledwindow.get_hadjustment()
-        adjustment.set_value(adjustment.upper)
 
         
 class UseDeviceDialog(gtk.Dialog):
@@ -2990,7 +3019,7 @@ class RemoveAllJobCodeDialog(gtk.Dialog):
 class JobCodeDialog(gtk.Dialog):
     """ Dialog prompting for a job code"""
     
-    def __init__(self,  parent_window,  job_codes,  default_job_code,  postJobCodeEntryCB,  autoStart, entryOnly):
+    def __init__(self, parent_window, job_codes,  default_job_code, postJobCodeEntryCB, autoStart, entryOnly):
         # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#jobcode
         gtk.Dialog.__init__(self,  _('Enter a Job Code'), None,
                    gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
@@ -3070,6 +3099,412 @@ class JobCodeDialog(gtk.Dialog):
             cmd_line(_("Job Code not entered"))
         self.postJobCodeEntryCB(self,  userChoseCode,  self.get_job_code(),  self.autoStart)
 
+
+class SelectionTreeView(gtk.TreeView):
+    """
+    TreeView display of photos and videos available for download
+    
+    Assumes a threaded environment.
+    """
+    def __init__(self, parentApp, typeColumnVisible):
+
+        self.parentApp = parentApp
+        self.rapidApp = parentApp.parentApp
+        
+        self.liststore = gtk.ListStore(
+                         gtk.gdk.Pixbuf,        # 0 thumbnail icon
+                         str,                   # 1 name (for sorting)
+                         float,                 # 2 timestamp (for sorting)
+                         str,                   # 3 date (human readable)
+                         int,                   # 4 size (for sorting)
+                         str,                   # 5 size (human readable)
+                         int,                   # 6 isImage (for sorting)
+                         gtk.gdk.Pixbuf,        # 7 type (photo or video)
+                         str,                   # 8 job code
+                         gobject.TYPE_PYOBJECT, # 9 mediaFile (for data)
+                         gtk.gdk.Pixbuf,        # 10 status icon
+                         int)                   # 11 status (downloaded, cannot download, etc, for sorting)
+                         
+        #self.mapThreadToRow = {}
+
+        self.sort_model = gtk.TreeModelSort(self.liststore)
+        self.sort_model.set_sort_column_id(2, gtk.SORT_ASCENDING)
+        
+        gtk.TreeView.__init__(self, self.sort_model)
+
+        
+        #self.props.enable_search = False
+
+        selection = self.get_selection()
+        selection.set_mode(gtk.SELECTION_MULTIPLE)
+        selection.connect('changed', self.on_selection_changed)
+        
+        self.set_rubber_banding(True)
+        
+        # Status Column
+        # Indicates whether file was downloaded, or a warning or error of some kind
+        cell = gtk.CellRendererPixbuf()
+        cell.set_property("yalign", 0.5)
+        status_column = gtk.TreeViewColumn(_("Status"), cell, pixbuf=10)
+        status_column.set_sort_column_id(11)
+        self.append_column(status_column)
+        
+        # Type of file column i.e. photo or video
+        cell = gtk.CellRendererPixbuf()
+        cell.set_property("yalign", 0.5)     
+        type_column = gtk.TreeViewColumn(_("Type"), cell, pixbuf=7)
+        type_column.set_sort_column_id(6)
+        type_column.set_visible(typeColumnVisible)
+        self.append_column(type_column)
+        
+        #File thumbnail column
+        if not DOWNLOAD_VIDEO:
+            title = _("Photo")
+        else:
+            title = _("File")
+        thumbnail_column = gtk.TreeViewColumn(title)
+        cellpb = gtk.CellRendererPixbuf()
+        if not DROP_SHADOW:
+            cellpb.set_fixed_size(60,50)           
+        thumbnail_column.pack_start(cellpb, False)
+        thumbnail_column.set_attributes(cellpb, pixbuf=0)
+        thumbnail_column.set_sort_column_id(1)
+        self.append_column(thumbnail_column)
+
+        # Date colum
+        cell = gtk.CellRendererText()
+        cell.set_property("yalign", 0)
+        date_column = gtk.TreeViewColumn(_("Date"), cell, text=3)
+        date_column.set_sort_column_id(2)   
+        date_column.set_resizable(True)
+        date_column.set_clickable(True)
+        date_column.connect('clicked', self.header_clicked)
+        self.append_column(date_column)
+        
+        # Size column
+        cell = gtk.CellRendererText()
+        cell.set_property("yalign", 0)
+        size_column = gtk.TreeViewColumn(_("Size"), cell, text=5)
+        size_column.set_sort_column_id(4)
+        self.append_column(size_column)
+        
+        # Job code colum
+        cell = gtk.CellRendererText()
+        cell.set_property("yalign", 0)
+        self.jobcode_column = gtk.TreeViewColumn(_("Job Code"), cell, text=8)
+        self.jobcode_column.set_sort_column_id(8)
+        self.append_column(self.jobcode_column)        
+        
+        self.show_all()
+        
+        # flag used to determine if a preview should be generated or not
+        # there is no point generating a preview for each photo when 
+        # select all photos is called, for instance
+        self.suspend_previews = False
+        
+        self.user_has_clicked_header = False
+        
+        # icons to be displayed in status column
+        self.downloaded_icon = self.render_icon(gtk.STOCK_YES, gtk.ICON_SIZE_MENU)
+        self.error_icon = self.render_icon(gtk.STOCK_DIALOG_ERROR, gtk.ICON_SIZE_MENU)
+        self.warning_icon = self.render_icon(gtk.STOCK_DIALOG_WARNING, gtk.ICON_SIZE_MENU)
+        # make the not yet downloaded icon a transparent square
+        self.not_downloaded_icon = gtk.gdk.Pixbuf(gtk.gdk.COLORSPACE_RGB, False, 8, 16, 16)
+        self.not_downloaded_icon.fill(0xffffffff)
+        self.not_downloaded_icon = self.not_downloaded_icon.add_alpha(True, chr(255), chr(255), chr(255))
+        
+        #preload generic icons
+        self.icon_photo =  gtk.gdk.pixbuf_new_from_file(paths.share_dir('glade3/photos16.png'))
+        self.icon_video =  gtk.gdk.pixbuf_new_from_file(paths.share_dir('glade3/video16.png'))
+        #with shadows
+        self.generic_photo_with_shadow = gtk.gdk.pixbuf_new_from_file(paths.share_dir('glade3/photo_small_shadow.png'))
+        self.generic_video_with_shadow = gtk.gdk.pixbuf_new_from_file(paths.share_dir('glade3/video_small_shadow.png'))
+        
+        if DROP_SHADOW:
+            self.iconDropShadow = DropShadow(offset=(3,3), shadow = (0x34, 0x34, 0x34, 0xff), border=6)
+            self.previewDropShadow = DropShadow(shadow = (0x44, 0x44, 0x44, 0xff), trim_border = True)
+        
+        
+    def add_file(self, mediaFile):
+        if mediaFile.metadata:
+            date = mediaFile.metadata.dateTime(missing=None)
+            timestamp = mediaFile.metadata.timeStamp(missing=None)
+        else:
+            date = timestamp = None
+        
+        if date is None:
+            date = datetime.datetime.fromtimestamp(mediaFile.modificationTime)
+            
+        if timestamp is None:
+            timestamp = mediaFile.modificationTime
+            
+        date_human_readable = _("%(date)s\n%(time)s") % {'date':date.strftime("%x"), 'time':date.strftime("%X")}
+        name = mediaFile.name
+        size = mediaFile.size
+        thumbnail = mediaFile.thumbnail
+        thumbnail_icon = common.scale2pixbuf(60, 36, mediaFile.thumbnail)
+        if DROP_SHADOW:
+            if not mediaFile.genericThumbnail:
+                pil_image = pixbuf_to_image(thumbnail_icon)
+                pil_image = self.iconDropShadow.dropShadow(pil_image)
+                thumbnail_icon = image_to_pixbuf(pil_image)
+            else:
+                if mediaFile.isImage:
+                    thumbnail_icon = self.generic_photo_with_shadow
+                else:
+                    thumbnail_icon = self.generic_video_with_shadow
+        
+        if mediaFile.isImage:
+            type_icon = self.icon_photo
+        else:
+            type_icon = self.icon_video
+            
+        if mediaFile.status == config.STATUS_WARNING:
+            status_icon = self.warning_icon.copy()
+        elif mediaFile.status in [config.STATUS_ERROR, config.STATUS_CANNOT_DOWNLOAD]:
+            status_icon = self.error_icon.copy()
+        else:
+            status_icon = self.not_downloaded_icon.copy()
+
+        self.liststore.append((thumbnail_icon, name, timestamp, date_human_readable, size, common.formatSizeForUser(size), mediaFile.isImage, type_icon, '', mediaFile, status_icon, mediaFile.status))
+        
+        if not self.user_has_clicked_header:
+            self.sort_model.set_sort_column_id(11, gtk.SORT_DESCENDING)
+        
+    def on_selection_changed(self, selection):
+        model, paths = selection.get_selected_rows()
+        if paths:            
+            path = self.sort_model.convert_path_to_child_path(paths[0])
+            iter = self.liststore.get_iter(path)
+            
+            #update preview
+            self.show_preview(iter)
+            #update button text
+            self.rapidApp.download_selected_button.set_label(self.rapidApp.DOWNLOAD_SELECTED_LABEL + " (%s)" % selection.count_selected_rows())
+            self.rapidApp.download_selected_button.set_sensitive(True)
+        else:
+            #nothing was selected
+            self.rapidApp.download_selected_button.set_label(self.rapidApp.DOWNLOAD_SELECTED_LABEL)
+            self.rapidApp.download_selected_button.set_sensitive(False)
+            
+    def show_preview(self, iter):
+        if not self.suspend_previews:
+            mediaFile = self.liststore.get_value(iter, 9)
+            thumbnail = mediaFile.thumbnail
+            
+            if DROP_SHADOW and not mediaFile.genericThumbnail:
+                pil_image = pixbuf_to_image(thumbnail)
+                pil_image = self.previewDropShadow.dropShadow(pil_image) 
+                thumbnail = image_to_pixbuf(pil_image)
+                
+            self.parentApp.preview_image.set_from_pixbuf(thumbnail)
+            self.parentApp.preview_original_name_label.set_text(mediaFile.name)
+            self.parentApp.preview_name_label.set_markup("<i>%s</i>" % mediaFile.sampleName)
+
+
+            self.parentApp.preview_original_name_label.set_tooltip_text(os.path.join(mediaFile.path, mediaFile.name))
+            self.parentApp.preview_name_label.set_tooltip_text(os.path.join(mediaFile.samplePath, mediaFile.sampleName))
+
+            if mediaFile.status in [config.STATUS_WARNING, config.STATUS_ERROR, config.STATUS_CANNOT_DOWNLOAD]:
+                self.parentApp.preview_problem_title_label.set_markup('<b>' + mediaFile.problem.get_title() + '</b>')
+                self.parentApp.preview_problem_title_label.set_tooltip_text(mediaFile.problem.get_title())
+                
+                self.parentApp.preview_problem_label.set_markup('<span foreground="red">' + mediaFile.problem.get_problems() + '</span>')
+                self.parentApp.preview_problem_label.set_tooltip_text(mediaFile.problem.get_problems())
+            else:
+                self.parentApp.preview_problem_label.set_markup('')
+                self.parentApp.preview_problem_title_label.set_markup('')
+            
+    def select_rows(self, range):
+        selection = self.get_selection()
+        if range == 'all':
+            selection.select_all()
+        elif range == 'none':
+            selection.unselect_all()
+        else:
+            # user chose to show all photos or videos
+            # temporarily suspend previews while a large number of rows
+            # are being selected / unselected
+            self.suspend_previews = True
+            
+            iter = self.liststore.get_iter_first()
+            while iter is not None:
+                sort_iter = self.sort_model.convert_child_iter_to_iter(None, iter)
+                type = self.liststore.get_value(iter, 6)
+                if (type and range == 'photos') or (not type and range == 'videos'):
+                    selection.select_iter(sort_iter)
+                else:
+                    selection.unselect_iter(sort_iter)
+                iter = self.liststore.iter_next(iter)
+            
+            self.suspend_previews = False
+            # select the first photo / video
+            iter = self.sort_model.get_iter_first()
+            while iter is not None:
+                list_iter = self.sort_model.convert_iter_to_child_iter(None, iter)
+                type = self.liststore.get_value(list_iter, 6)
+                if (type and range == 'photos') or (not type and range == 'videos'):
+                    self.show_preview(list_iter)
+                    break
+                iter = self.sort_model.iter_next(iter)
+
+
+            
+    def header_clicked(self, column):
+        self.user_has_clicked_header
+class SelectionVBox(gtk.VBox):
+    """
+    Dialog from which the user can select photos and videos to download
+    """
+
+    
+    def __init__(self, parentApp):
+        """
+        Initialize values for log dialog, but do not display.
+        """
+        
+        gtk.VBox.__init__(self)
+        self.parentApp = parentApp
+        
+        # Job code controls
+        
+        
+
+        
+        selection_scrolledwindow = gtk.ScrolledWindow()
+        selection_scrolledwindow.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+        selection_viewport = gtk.Viewport()
+        
+        
+        self.selection_treeview = SelectionTreeView(self, DOWNLOAD_VIDEO)
+        
+        selection_scrolledwindow.add(self.selection_treeview)
+
+
+        # Job code controls
+        
+        self.jobcode_hbox = gtk.HBox(spacing = 12)
+        self.jobcode_hbox.set_no_show_all(True)
+        self.jobcode_label = gtk.Label(_("Job code:"))
+        self.jobcode_combo = gtk.combo_box_entry_new_text()
+        self.jobcode_hbox.pack_start(self.jobcode_label, False, False)
+        self.jobcode_hbox.pack_start(self.jobcode_combo, True, True)
+        left_pane_vbox = gtk.VBox(spacing = 12)
+        left_pane_vbox.pack_start(selection_scrolledwindow, True, True)
+        left_pane_vbox.pack_start(self.jobcode_hbox, False, True)
+        self.set_jobcode_display()
+                
+        # Window sizes
+        #selection_scrolledwindow.set_size_request(350, -1)
+        
+        # Preview pane
+        
+        #self.preview_vbox = gtk.VBox(spacing=12)
+        #self.preview_vbox.set_padding(0, 12)
+        
+        #Preview title
+        self.preview_title_label = gtk.Label()
+        self.preview_title_label.set_markup("<b>%s</b>" % _("Preview"))
+        self.preview_title_label.set_alignment(0, 0.5)
+        self.preview_title_label.set_padding(12, 0)
+        
+        #Preview image
+        self.preview_image = gtk.Image()
+        self.preview_image.set_alignment(0, 0.5)
+        #leave room for thumbnail shadow
+        if DROP_SHADOW:
+            shadow_size = 21
+        else:
+            shadow_size = 0
+        self.preview_image.set_size_request(MAX_THUMBNAIL_SIZE + shadow_size, MAX_THUMBNAIL_SIZE + shadow_size)
+        
+        #labels to display file information
+        #Original filename (path in tooltip)
+        self.preview_original_name_label = gtk.Label()
+        self.preview_original_name_label.set_alignment(0, 0.5)
+        self.preview_original_name_label.set_ellipsize(pango.ELLIPSIZE_END)
+        
+        #Filename that has been generated (path in tooltip)
+        self.preview_name_label = gtk.Label()
+        self.preview_name_label.set_alignment(0, 0.5)
+        self.preview_name_label.set_ellipsize(pango.ELLIPSIZE_END)
+
+        #Title of problems encountered in generating the name / subfolder
+        self.preview_problem_title_label = gtk.Label()
+        self.preview_problem_title_label.set_alignment(0, 0.5)
+        self.preview_problem_title_label.set_ellipsize(pango.ELLIPSIZE_END)
+        self.preview_problem_title_label.set_padding(12, 0)
+        
+        #Details of what the problem(s) are
+        self.preview_problem_label = gtk.Label()
+        self.preview_problem_label.set_alignment(0, 0)
+        self.preview_problem_label.set_line_wrap(True)        
+        #Can't combine wrapping and ellipsize, sadly
+        #self.preview_problem_label.set_ellipsize(pango.ELLIPSIZE_END)
+                
+        #Put content into table
+        # Use a table so we can do the Gnome HIG layout more easily
+        preview_table = gtk.Table(5, 3)
+        #preview_table.set_col_spacing(0, 12)
+        preview_table.set_row_spacings(12)
+        left_spacer = gtk.Label('')
+        left_spacer.set_padding(12, 0)
+        right_spacer = gtk.Label('')
+        right_spacer.set_padding(6, 0)
+        preview_table.attach(left_spacer, 0, 1, 1, 2, xoptions=gtk.SHRINK, yoptions=gtk.SHRINK)
+        preview_table.attach(right_spacer, 2, 3, 1, 2, xoptions=gtk.SHRINK, yoptions=gtk.SHRINK)
+                
+        preview_table.attach(self.preview_title_label, 0, 2, 0, 1, yoptions=gtk.SHRINK)
+        preview_table.attach(self.preview_image, 1, 2, 1, 2, yoptions=gtk.SHRINK)
+        preview_table.attach(self.preview_original_name_label, 1, 2, 2, 3, yoptions=gtk.SHRINK)
+        preview_table.attach(self.preview_name_label, 1, 2, 3, 4, yoptions=gtk.SHRINK)
+        preview_table.attach(self.preview_problem_title_label, 0, 2, 4, 5, yoptions=gtk.SHRINK)
+        preview_table.attach(self.preview_problem_label, 1, 2, 5, 6, xoptions=gtk.EXPAND|gtk.FILL, yoptions=gtk.EXPAND|gtk.FILL)
+        
+        self.file_hpaned = gtk.HPaned()
+        self.file_hpaned.pack1(left_pane_vbox, shrink=False)
+        #self.file_hpaned.pack2(self.preview_vbox, shrink=False)
+        self.file_hpaned.pack2(preview_table, resize=True, shrink=False)
+        self.pack_start(self.file_hpaned, True, True)
+        if self.parentApp.prefs.hpaned_pos > 0:
+            self.file_hpaned.set_position(self.parentApp.prefs.hpaned_pos)
+        else:
+            # this is what the user will see the first time they run the app
+            self.file_hpaned.set_position(300)
+                
+        self.show_all()
+    
+    def set_jobcode_display(self):
+        """
+        Shows or hides the job code entry
+        
+        If user is not using job codes in their file or subfolder names
+        then do not prompt for it
+        """
+
+        if self.parentApp.needJobCode():
+            self.jobcode_hbox.show()
+            self.jobcode_label.show()
+            self.jobcode_combo.show()
+            self.selection_treeview.jobcode_column.set_visible(True)
+        else:
+            self.jobcode_hbox.hide()
+            self.jobcode_label.hide()
+            self.jobcode_combo.hide()
+            self.selection_treeview.jobcode_column.set_visible(False)
+        
+
+            
+    def add_file(self, mediaFile):
+        self.selection_treeview.add_file(mediaFile)
+            
+        
+    def on_selection_dialog_response(self,  selection_dialog, response):
+        if response == gtk.RESPONSE_OK:
+            # download
+            pass
+            
+        self.postSelectionCB(self, response == gtk.RESPONSE_OK)
         
 class LogDialog(gnomeglade.Component):
     """
@@ -3148,8 +3583,7 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
         gladefile = paths.share_dir(config.GLADE_FILE)
 
         gnomeglade.GnomeApp.__init__(self, "rapid", __version__, gladefile, "rapidapp")
-
-
+    
         # notifications
         self.displayDownloadSummaryNotification = False
         self.initPyNotify()
@@ -3163,7 +3597,22 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
             
 #        sys.exit(0)
 
+        # remember the window size from the last time the program was run
+        if self.prefs.main_window_maximized:
+            self.rapidapp.maximize()
+        elif self.prefs.main_window_size_x > 0:
+            self.rapidapp.set_default_size(self.prefs.main_window_size_x, self.prefs.main_window_size_y)
+        else:
+            # set a default size
+            self.rapidapp.set_default_size(650, 600)
+            
         self.widget.show()
+        
+        # this must come after the window is shown
+        if self.prefs.vpaned_pos > 0:
+            self.main_vpaned.set_position(self.prefs.vpaned_pos)
+        else:
+            self.main_vpaned.set_position(66)
         
         self.checkIfFirstTimeProgramEverRun()
 
@@ -3183,7 +3632,7 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
             displayPreferences = not self.checkPreferencesOnStartup()
         
         # display download information using threads
-        global media_collection_treeview, thumbnail_hbox, log_dialog
+        global media_collection_treeview, log_dialog
         global download_queue, image_queue, log_queue
         global workers
 
@@ -3239,11 +3688,10 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
 
         self.media_collection_vbox.pack_start(media_collection_treeview)
         
-        #thumbnail display
-        thumbnail_hbox = ThumbnailHBox(self)
-        self.image_viewport.add(thumbnail_hbox)
-        self.image_viewport.modify_bg(gtk.STATE_NORMAL, gdk.color_parse("white"))
-        self.set_display_thumbnails(self.prefs.display_thumbnails)
+        #Selection display
+        self.selection_vbox = SelectionVBox(self)
+        self.selection_hbox.pack_start(self.selection_vbox, padding=12)
+        self.set_display_selection(self.prefs.display_selection)
         
         self.backupVolumes = {}
 
@@ -3259,7 +3707,7 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
 
         # menus
 
-        self.menu_display_thumbnails.set_active(self.prefs.display_thumbnails)
+        self.menu_display_selection.set_active(self.prefs.display_selection)
         self.menu_clear.set_sensitive(False)
         
         #job code initialization
@@ -3385,7 +3833,7 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
         return prefsOk
         
     def needJobCode(self):
-        return rn.usesJobCode(self.prefs.image_rename) or rn.usesJobCode(self.prefs.subfolder)
+        return rn.usesJobCode(self.prefs.image_rename) or rn.usesJobCode(self.prefs.subfolder) or rn.usesJobCode(self.prefs.video_rename) or rn.usesJobCode(self.prefs.video_subfolder)
         
     def assignJobCode(self,  code):
         """ assign job code (which may be empty) to global variable and update user preferences
@@ -3470,6 +3918,14 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
 
         # FIXME: what happens to these workers that are waiting? How will the user start their download?
         # check if need to add code to start button
+            
+    def addFileToSelection(self, mediaFile):
+        self.selection_vbox.add_file(mediaFile)
+    
+
+
+    def on_menu_select_window_toggled(self, widget):
+        self.prefs.display_select = widget.get_active()
                 
     def checkIfFirstTimeProgramEverRun(self):
         """
@@ -3694,7 +4150,7 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
                              
     def initiateScan(self, path, volume, autostart):
         """ initiates scan of image device"""
-        cardMedia = CardMedia(path, volume,  True)
+        cardMedia = CardMedia(path, volume)
         i = workers.getNextThread_id()
         
         workers.append(CopyPhotos(i, self, self.fileRenameLock, 
@@ -3880,14 +4336,21 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
         
     def _setupDownloadbutton(self):
     
+        self.DOWNLOAD_SELECTED_LABEL = _("D_ownload Selected")
         self.download_hbutton_box = gtk.HButtonBox()
+        self.download_hbutton_box.set_spacing(12)
+        self.download_hbutton_box.set_homogeneous(False)
         self.download_button_is_download = True
         self.download_button = gtk.Button() 
         self.download_button.set_use_underline(True)
         self.download_button.set_flags(gtk.CAN_DEFAULT)
+        self.download_selected_button = gtk.Button() 
+        self.download_selected_button.set_use_underline(True)        
         self._set_download_button()
         self.download_button.connect('clicked', self.on_download_button_clicked)
-        self.download_hbutton_box.set_layout(gtk.BUTTONBOX_START)
+        self.download_selected_button.connect('clicked', self.on_download_selected_button_clicked)
+        self.download_hbutton_box.set_layout(gtk.BUTTONBOX_END)
+        self.download_hbutton_box.pack_start(self.download_selected_button)        
         self.download_hbutton_box.pack_start(self.download_button)
         self.download_hbutton_box.show_all()
         self.buttons_hbox.pack_start(self.download_hbutton_box, 
@@ -3895,14 +4358,12 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
                                     
         self.setDownloadButtonSensitivity()
 
-    
-    def set_display_thumbnails(self, value):
+    def set_display_selection(self, value):
         if value:
-            self.image_scrolledwindow.show_all()
+            self.selection_hbox.show_all()
         else:
-            self.image_scrolledwindow.hide()
-
-    
+            self.selection_hbox.hide()
+       
     def _resetDownloadInfo(self):
         self.markSet = False
         self.startTime = None
@@ -4057,9 +4518,11 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
         
         if isSensitive:
             self.download_button.props.sensitive = True
+            # download selected button sensitity is enabled only when the user selects something
             self.menu_download_pause.props.sensitive = True
         else:
             self.download_button.props.sensitive = False
+            self.download_selected_button.props.sensitive = False
             self.menu_download_pause.props.sensitive = False
             
         return isSensitive
@@ -4067,12 +4530,27 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
         
     def on_rapidapp_destroy(self, widget):
         """Called when the application is going to quit"""
+        
+        # save window and component sizes
+        self.prefs.hpaned_pos = self.selection_vbox.file_hpaned.get_position()
+        self.prefs.vpaned_pos = self.main_vpaned.get_position()
+
+        x, y = self.rapidapp.get_size()
+        self.prefs.main_window_size_x = x
+        self.prefs.main_window_size_y = y
+
         workers.quitAllWorkers()
 
         self.flushevents() 
         
         display_queue.close("w")
 
+
+    def on_rapidapp_window_state_event(self, widget, event):
+        """ Checkto see if the user maximized the main application window or not. """
+        if event.changed_mask & gdk.WINDOW_STATE_MAXIMIZED:
+            self.prefs.main_window_maximized = event.new_window_state & gdk.WINDOW_STATE_MAXIMIZED
+                
 
     def on_menu_clear_activate(self, widget):
         self.clearCompletedDownloads()
@@ -4103,8 +4581,20 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
         else:
             log_dialog.widget.hide()
 
-    def on_menu_display_thumbnails_toggled(self, check_button):
-        self.prefs.display_thumbnails = check_button.get_active()        
+    def on_menu_display_selection_toggled(self, check_button):
+        self.prefs.display_selection = check_button.get_active()   
+        
+    def on_menu_select_all_activate(self, widget):
+        self.selection_vbox.selection_treeview.select_rows('all')
+
+    def on_menu_select_all_photos_activate(self, widget):
+        self.selection_vbox.selection_treeview.select_rows('photos')
+    
+    def on_menu_select_all_videos_activate(self, widget):
+        self.selection_vbox.selection_treeview.select_rows('videos')
+        
+    def on_menu_select_none_activate(self, widget):
+        self.selection_vbox.selection_treeview.select_rows('none')
 
     def on_menu_about_activate(self, widget):
         """ Display about dialog box """
@@ -4122,10 +4612,17 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
         if self.download_button_is_download:
             # This text will be displayed to the user on the Download / Pause button.
             # Please note the space at the end of the label - it is needed to meet the Gnome Human Interface Guidelines
-            self.download_button.set_label(_("_Download "))
+            self.download_button.set_label(_("_Download All"))
             self.download_button.set_image(gtk.image_new_from_stock(
                                                 gtk.STOCK_CONVERT,
-                                                gtk.ICON_SIZE_BUTTON))        
+                                                gtk.ICON_SIZE_BUTTON))
+                                                
+            self.download_selected_button.set_label(self.DOWNLOAD_SELECTED_LABEL)
+            self.download_selected_button.set_image(gtk.image_new_from_stock(
+                                                gtk.STOCK_CONVERT,
+                                                gtk.ICON_SIZE_BUTTON))
+            self.download_selected_button.show_all()
+                                                
         else:
             # button should indicate paused state
             self.download_button.set_image(gtk.image_new_from_stock(
@@ -4133,6 +4630,7 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
                                                 gtk.ICON_SIZE_BUTTON))
             # This text will be displayed to the user on the Download / Pause button.
             self.download_button.set_label(_("_Pause") + " ")
+            self.download_selected_button.hide()
             
     def on_menu_download_pause_activate(self, widget):
         self.on_download_button_clicked(widget)
@@ -4179,14 +4677,17 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
                 self.startDownload()
         else:
             self.pauseDownload()
+
+    def on_download_selected_button_clicked(self, widget):
+        print "on_download_selected_button_clicked"
             
     def on_preference_changed(self, key, value):
         """
         Called when user changes the program's preferences
         """
         
-        if key == 'display_thumbnails':
-            self.set_display_thumbnails(value)
+        if key == 'display_selection':
+            self.set_display_selection(value)
         elif key == 'show_log_dialog':
             self.menu_log_window.set_active(value)
         elif key in ['device_autodetection', 'device_autodetection_psd', 'backup_images',  'device_location',
@@ -4195,9 +4696,10 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
             if not self.preferencesDialogDisplayed:
                 self.postPreferenceChange()
 
-        elif key in ['subfolder',  'image_rename']:
+        elif key in ['subfolder', 'image_rename', 'video_subfolder', 'video_rename']:
             global need_job_code
             need_job_code = self.needJobCode()
+            self.selection_vbox.set_jobcode_display()
             
     def postPreferenceChange(self):
         """

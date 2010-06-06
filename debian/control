@@ -16,7 +16,7 @@ XB-Python-Version: ${python:Versions}
 Depends: ${python:Depends},
          ${misc:Depends}, 
          python-gnome2,
-         python-gtk2 (>= 2.10),
+         python-gtk2 (>= 2.12),
          python-glade2 (>= 2.10),
          python-pyexiv2 (>= 0.1.1),
          python-notify,

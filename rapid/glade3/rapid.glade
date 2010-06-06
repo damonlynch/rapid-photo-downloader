@@ -2951,8 +2951,10 @@ Milo&#x161; Popovi&#x107; &lt;gpopac@gmail.com&gt;
 Michal Predotka &lt;mpredotka@googlemail.com&gt;
 Luca Reverberi &lt;thereve@gmail.com&gt;
 Mikko Ruohola &lt;polarfox@polarfox.net&gt;
+Sergiy Gavrylov &lt;sergiovana@bigmir.net&gt;
 Sergei Sedov &lt;sedov@webmail.perm.ru&gt;
 Marco Solari &lt;marcosolari@gmail.com&gt;
+Toni L&#xE4;hdekorpi &lt;toni@lygon.net&gt;
 Ulf Urd&#xE9;n &lt;ulf.urden@purplescout.com&gt;
 Julien Valroff &lt;julien@kirya.net&gt;</property>
     <property name="logo">rapid-photo-downloader-about.png</property>
@@ -2979,11 +2981,12 @@ Julien Valroff &lt;julien@kirya.net&gt;</property>
     </child>
   </widget>
   <widget class="GtkWindow" id="rapidapp">
-    <property name="width_request">600</property>
     <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
     <property name="title" translatable="yes">Rapid Photo Downloader</property>
+    <property name="default_width">650</property>
     <property name="icon">rapid-photo-downloader-about.png</property>
     <signal name="destroy" handler="on_rapidapp_destroy"/>
+    <signal name="window_state_event" handler="on_rapidapp_window_state_event"/>
     <child>
       <widget class="GtkVBox" id="vbox10">
         <property name="visible">True</property>
@@ -2994,7 +2997,7 @@ Julien Valroff &lt;julien@kirya.net&gt;</property>
             <child>
               <widget class="GtkMenuItem" id="menuitem7">
                 <property name="visible">True</property>
-                <property name="label" translatable="yes">_Photos</property>
+                <property name="label" translatable="yes">_File</property>
                 <property name="use_underline">True</property>
                 <child>
                   <widget class="GtkMenu" id="menuitem7_menu">
@@ -3037,6 +3040,53 @@ Julien Valroff &lt;julien@kirya.net&gt;</property>
               </widget>
             </child>
             <child>
+              <widget class="GtkMenuItem" id="select_menuitem">
+                <property name="visible">True</property>
+                <property name="label" translatable="yes">_Select</property>
+                <property name="use_underline">True</property>
+                <child>
+                  <widget class="GtkMenu" id="select_menu">
+                    <child>
+                      <widget class="GtkMenuItem" id="menu_select_all">
+                        <property name="visible">True</property>
+                        <property name="label" translatable="yes">Select _All</property>
+                        <property name="use_underline">True</property>
+                        <signal name="activate" handler="on_menu_select_all_activate"/>
+                        <accelerator key="a" signal="activate" modifiers="GDK_CONTROL_MASK"/>
+                      </widget>
+                    </child>
+                    <child>
+                      <widget class="GtkMenuItem" id="menu_select_all_photos">
+                        <property name="visible">True</property>
+                        <property name="label" translatable="yes">Select All _Photos</property>
+                        <property name="use_underline">True</property>
+                        <signal name="activate" handler="on_menu_select_all_photos_activate"/>
+                        <accelerator key="t" signal="activate" modifiers="GDK_CONTROL_MASK"/>
+                      </widget>
+                    </child>
+                    <child>
+                      <widget class="GtkMenuItem" id="menu_select_all_videos">
+                        <property name="visible">True</property>
+                        <property name="label" translatable="yes">Select All _Videos</property>
+                        <property name="use_underline">True</property>
+                        <signal name="activate" handler="on_menu_select_all_videos_activate"/>
+                        <accelerator key="d" signal="activate" modifiers="GDK_CONTROL_MASK"/>
+                      </widget>
+                    </child>
+                    <child>
+                      <widget class="GtkMenuItem" id="menu_select_none">
+                        <property name="visible">True</property>
+                        <property name="label" translatable="yes">Select _None</property>
+                        <property name="use_underline">True</property>
+                        <signal name="activate" handler="on_menu_select_none_activate"/>
+                        <accelerator key="l" signal="activate" modifiers="GDK_CONTROL_MASK"/>
+                      </widget>
+                    </child>
+                  </widget>
+                </child>
+              </widget>
+            </child>
+            <child>
               <widget class="GtkMenuItem" id="menuitem10">
                 <property name="visible">True</property>
                 <property name="label" translatable="yes">_View</property>
@@ -3044,11 +3094,11 @@ Julien Valroff &lt;julien@kirya.net&gt;</property>
                 <child>
                   <widget class="GtkMenu" id="menuitem10_menu">
                     <child>
-                      <widget class="GtkCheckMenuItem" id="menu_display_thumbnails">
+                      <widget class="GtkCheckMenuItem" id="menu_display_selection">
                         <property name="visible">True</property>
-                        <property name="label" translatable="yes">_Thumbnails</property>
+                        <property name="label" translatable="yes">_Previews</property>
                         <property name="use_underline">True</property>
-                        <signal name="toggled" handler="on_menu_display_thumbnails_toggled"/>
+                        <signal name="toggled" handler="on_menu_display_selection_toggled"/>
                       </widget>
                     </child>
                     <child>
@@ -3145,67 +3195,83 @@ Julien Valroff &lt;julien@kirya.net&gt;</property>
             <property name="visible">True</property>
             <property name="spacing">12</property>
             <child>
-              <widget class="GtkHBox" id="hbox6">
+              <widget class="GtkVPaned" id="main_vpaned">
                 <property name="visible">True</property>
+                <property name="can_focus">True</property>
                 <child>
-                  <widget class="GtkScrolledWindow" id="media_collection_scrolledwindow">
+                  <widget class="GtkVBox" id="device_vbox">
                     <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="hscrollbar_policy">automatic</property>
-                    <property name="vscrollbar_policy">automatic</property>
                     <child>
-                      <widget class="GtkViewport" id="media_collection_viewport">
+                      <widget class="GtkHBox" id="media_collection_area_hbox">
                         <property name="visible">True</property>
-                        <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
+                        <property name="spacing">6</property>
                         <child>
-                          <widget class="GtkVBox" id="media_collection_vbox">
+                          <widget class="GtkScrolledWindow" id="media_collection_scrolledwindow">
                             <property name="visible">True</property>
+                            <property name="can_focus">True</property>
+                            <property name="hscrollbar_policy">automatic</property>
+                            <property name="vscrollbar_policy">automatic</property>
                             <child>
-                              <placeholder/>
+                              <widget class="GtkViewport" id="media_collection_viewport">
+                                <property name="visible">True</property>
+                                <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
+                                <property name="resize_mode">queue</property>
+                                <child>
+                                  <widget class="GtkVBox" id="media_collection_vbox">
+                                    <property name="visible">True</property>
+                                    <child>
+                                      <placeholder/>
+                                    </child>
+                                  </widget>
+                                </child>
+                              </widget>
                             </child>
                           </widget>
+                          <packing>
+                            <property name="padding">12</property>
+                            <property name="position">0</property>
+                          </packing>
                         </child>
                       </widget>
+                      <packing>
+                        <property name="position">0</property>
+                      </packing>
                     </child>
                   </widget>
                   <packing>
-                    <property name="padding">12</property>
-                    <property name="position">0</property>
+                    <property name="resize">False</property>
+                    <property name="shrink">False</property>
+                  </packing>
+                </child>
+                <child>
+                  <widget class="GtkTable" id="selection_table">
+                    <property name="visible">True</property>
+                    <property name="n_rows">2</property>
+                    <property name="row_spacing">3</property>
+                    <child>
+                      <widget class="GtkHBox" id="selection_hbox">
+                        <property name="visible">True</property>
+                        <child>
+                          <placeholder/>
+                        </child>
+                      </widget>
+                      <packing>
+                        <property name="top_attach">1</property>
+                        <property name="bottom_attach">2</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <placeholder/>
+                    </child>
+                  </widget>
+                  <packing>
+                    <property name="resize">True</property>
+                    <property name="shrink">False</property>
                   </packing>
                 </child>
               </widget>
               <packing>
                 <property name="position">0</property>
-              </packing>
-            </child>
-            <child>
-              <widget class="GtkHBox" id="hbox8">
-                <property name="visible">True</property>
-                <child>
-                  <widget class="GtkScrolledWindow" id="image_scrolledwindow">
-                    <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="vscrollbar_policy">never</property>
-                    <child>
-                      <widget class="GtkViewport" id="image_viewport">
-                        <property name="height_request">112</property>
-                        <property name="visible">True</property>
-                        <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
-                        <child>
-                          <placeholder/>
-                        </child>
-                      </widget>
-                    </child>
-                  </widget>
-                  <packing>
-                    <property name="padding">12</property>
-                    <property name="position">0</property>
-                  </packing>
-                </child>
-              </widget>
-              <packing>
-                <property name="expand">False</property>
-                <property name="position">1</property>
               </packing>
             </child>
             <child>
@@ -3218,7 +3284,7 @@ Julien Valroff &lt;julien@kirya.net&gt;</property>
               <packing>
                 <property name="expand">False</property>
                 <property name="fill">False</property>
-                <property name="position">2</property>
+                <property name="position">1</property>
               </packing>
             </child>
           </widget>
