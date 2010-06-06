@@ -3,7 +3,7 @@ Version 0.2.2
 
 2010-06-06
 
-Added Ukranian translation by Sergiy Gavrylov.
+Added Ukrainian translation by Sergiy Gavrylov.
 
 Bug fix: in systems where exiv2 is not installed, don't crash on startup.
 
