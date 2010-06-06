@@ -1,3 +1,12 @@
+rapid-photo-downloader (0.2.2-0ubuntu1~ppa1) hardy; urgency=low
+
+  * Added Ukranian translation by Sergiy Gavrylov.
+
+  * Bug fix: in systems where exiv2 is not installed, don't crash on 
+    startup.
+
+ -- Damon Lynch <damonlynch@gmail.com>  Sun, 06 Jun 2010 13:20:06 -0500
+
 rapid-photo-downloader (0.2.1-0ubuntu1~ppa1) hardy; urgency=low
 
   * display sample photo and video names in preferences dialog
