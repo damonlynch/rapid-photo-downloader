@@ -1,12 +1,13 @@
 Version 0.2.1
 -------------
 
-2010-06-0x
+2010-06-05
 
 Bug fix: display sample photo and video names in preferences dialog using
-first photo and video found on download device, where possible
+first photo and video found on download device, where possible. This used to
+work but was inadvertently disabled in a recent release.
 
-Bug fix: prompt for job code when only video names or video subfolder names
+Bug fix: prompt for Job code when only video names or video subfolder names
 use a job code.
 
 Bug fix: filter out Null bytes from Exif string values. These can occur when

@@ -1,3 +1,16 @@
+rapid-photo-downloader (0.2.1-0ubuntu1~ppa1) hardy; urgency=low
+
+  * display sample photo and video names in preferences dialog
+
+  * filter out Null bytes from Exif string values
+
+  * prompt for Job code when only video names or video subfolder names
+    use a Job code
+
+  * Updated Spanish, Russian and Finnish translations
+
+ -- Damon Lynch <damonlynch@gmail.com>  Sat, 05 Jun 2010 14:51:22 -0500
+
 rapid-photo-downloader (0.2.0-0ubuntu1~ppa1) hardy; urgency=low
 
   * Added video download functionality.
