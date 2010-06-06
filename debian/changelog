@@ -1,3 +1,48 @@
+rapid-photo-downloader (0.2.2-0ubuntu1~ppa1) hardy; urgency=low
+
+  * Added Ukranian translation by Sergiy Gavrylov.
+
+  * Bug fix: in systems where exiv2 is not installed, don't crash on 
+    startup.
+
+ -- Damon Lynch <damonlynch@gmail.com>  Sun, 06 Jun 2010 13:20:06 -0500
+
+rapid-photo-downloader (0.2.1-0ubuntu1~ppa1) hardy; urgency=low
+
+  * display sample photo and video names in preferences dialog
+
+  * filter out Null bytes from Exif string values
+
+  * prompt for Job code when only video names or video subfolder names
+    use a Job code
+
+  * Updated Spanish, Russian and Finnish translations
+
+ -- Damon Lynch <damonlynch@gmail.com>  Sat, 05 Jun 2010 14:51:22 -0500
+
+rapid-photo-downloader (0.2.0-0ubuntu1~ppa1) hardy; urgency=low
+
+  * Added video download functionality.
+
+  * Enable use of version 0.2.x of the pyexiv2 library.
+
+  * Fixed bug #483222: sometimes images could not be downloaded to NTFS 
+    partitions.
+
+  * Error message headings in the Error Log are now displayed in a red 
+    font.
+
+  * Program settings and preferences can be reset using a new command 
+    line option.
+
+  * Program preferences are now more thoroughly checked for validity 
+    when the program starts.
+
+  * Further work was done to fix bug #505492, to handle cases where the
+    system notification system is not working properly.
+
+ -- Damon Lynch <damonlynch@gmail.com>  Sun, 30 May 2010 20:39:21 -0500
+
 rapid-photo-downloader (0.1.3-0ubuntu1~ppa1) hardy; urgency=low
 
   * Fixed bug #503704: When both the backup and "Delete images from 

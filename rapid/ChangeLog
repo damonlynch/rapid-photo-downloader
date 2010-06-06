@@ -17,6 +17,34 @@ The minimum version of python-gtk2 (pygtk) required to run the program is now
 2.12. This will affect only very old Linux distributions.
 
 
+Version 0.2.2
+-------------
+
+2010-06-06
+
+Added Ukrainian translation by Sergiy Gavrylov.
+
+Bug fix: in systems where exiv2 is not installed, don't crash on startup.
+
+
+Version 0.2.1
+-------------
+
+2010-06-05
+
+Bug fix: display sample photo and video names in preferences dialog using
+first photo and video found on download device, where possible. This used to
+work but was inadvertently disabled in a recent release.
+
+Bug fix: prompt for Job code when only video names or video subfolder names
+use a job code.
+
+Bug fix: filter out Null bytes from Exif string values. These can occur when
+the Exif data is corrupted.
+
+Updated Spanish, Russian and Finnish translations.
+
+
 Version 0.2.0
 -------------
 

@@ -10,23 +10,28 @@ Rapid Photo Downloader depends on the following software:
 - libexiv2 0.15 or higher
 - pyexiv2 0.1.1 or higher
 
+To run Rapid Photo Downloader you will need all the software mentioned above.
 
-To run Rapid Photo Downloader you will need all the software mentioned above. If
-you want to download videos, you can install:
+A recommended package is exiv2 (not just the library libexiv2), so Rapid Photo
+Downloader can determine if it can download additional types of RAW files 
+(some early versions of exiv2 and pyexiv2 segfault on certain RAW file types).
+
+If you want to download videos, you can install:
 
 - python-kaa-metadata
 - ffmpegthumbnailer
 
 kaa metadata is required to download videos. ffmpegthumbnailer is used only to 
-display thumbnail images as the download occurs. 
+display thumbnail images as the download occurs. This is a useful feature, and
+if you can install it, it is recommended.
 
 kaa metadata and ffmpegthumbnailer are optional. The program will run without
 them.
 
 To start from a fairly basic system, I suggest the following:
 
-1. Install the required gnome packages from your linux distribution's package 
-   repositories.  On a recent linux distribution, expect all to be available for
+1. Install the required gnome packages from your Linux distribution's package 
+   repositories.  On a recent Linux distribution, expect all to be available for
    easy download and installation.  If you already use gnome, most of the 
    packages will already be installed.  Do confirm that python-gconf, 
    python-glade2, and gnome-python are installed, because they

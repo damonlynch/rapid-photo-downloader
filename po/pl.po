@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-05-27 22:33-0500\n"
-"PO-Revision-Date: 2010-05-28 13:45+0000\n"
+"PO-Revision-Date: 2010-05-29 19:29+0000\n"
 "Last-Translator: mmiicc <mpredotka@gmail.com>\n"
 "Language-Team: Polish <pl@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-05-28 19:08+0000\n"
+"X-Launchpad-Export-Date: 2010-05-30 14:28+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #. Translators: if neccessary, for guidance in how to translate this program, you may see http://damonlynch.net/translate.html
@@ -112,7 +112,7 @@ msgstr "Resetowanie do północy.\n"
 
 #: rapid/rapid.py:492
 msgid "Error in Photo Rename preferences"
-msgstr ""
+msgstr "Błąd w preferencjach zmiany nazw obrazów"
 
 #: rapid/rapid.py:523 rapid/rapid.py:1567
 msgid "Sorry,these preferences contain an error:\n"
@@ -129,15 +129,15 @@ msgstr "Kod pracy"
 
 #: rapid/rapid.py:677
 msgid "Error in Video Rename preferences"
-msgstr ""
+msgstr "Błąd w preferencjach zmiany nazw filmów"
 
 #: rapid/rapid.py:695
 msgid "Error in Photo Download Subfolders preferences"
-msgstr ""
+msgstr "Błąd w preferencjach podkatalogów pobierania zdjęć"
 
 #: rapid/rapid.py:712
 msgid "Error in Video Download Subfolders preferences"
-msgstr ""
+msgstr "Błąd w preferencjach podkatalogów pobierania filmów"
 
 #: rapid/rapid.py:745 rapid/rapid.py:1492
 msgid "photos and videos"
@@ -153,17 +153,17 @@ msgstr "Wybór katalogu dla pobieranych zdjęć"
 
 #: rapid/rapid.py:898
 msgid "Select a folder to download videos to"
-msgstr ""
+msgstr "Wybór katalogu dla pobieranych filmów"
 
 #: rapid/rapid.py:980
 #, python-format
 msgid "Select a folder containing %(file_types)s"
-msgstr ""
+msgstr "Wybór katalogu zawierającego %(file_types)s"
 
 #: rapid/rapid.py:1002
 #, python-format
 msgid "Select a folder in which to backup %(file_types)s"
-msgstr ""
+msgstr "Wybór katalogu do którego będą kopiowane %(file_types)s"
 
 #. Translators: please do not modify or leave out html formatting tags like <i> and <b>. These are used to format the text the users sees
 #: rapid/rapid.py:1095
@@ -171,12 +171,16 @@ msgid ""
 "<i><b>Warning:</b> There is insufficient metadata to fully generate the "
 "name. Please use other renaming options.</i>"
 msgstr ""
+"<i><b>Ostrzeżenie:</b> Metadane są niewystarczające do pełnego wygenerowania "
+"nazwy. Proszę użyć innej opcji zmiany nazwy.</i>"
 
 #: rapid/rapid.py:1129
 msgid ""
 "<i><b>Warning:</b> There is insufficient metadata to fully generate "
 "subfolders. Please use other subfolder naming options.</i>"
 msgstr ""
+"<i><b>Ostrzeżenie:</b> Metadane są niewystarczające do pełnego wygenerowania "
+"podkatalogów. Proszę użyć innej opcji określenia nazw podkatalogów.</i>"
 
 #. Translators: you should not modify or leave out the %s. This is a code used by the programming language python to insert a value that thes user will see
 #: rapid/rapid.py:1133
@@ -286,7 +290,7 @@ msgstr ""
 #: rapid/rapid.py:1791
 #, python-format
 msgid "0 of %(number)s %(filetypes)s"
-msgstr "0 z %(number)s %(filetypes)s"
+msgstr "0 z %(number)s plików typu %(filetypes)s"
 
 #. Translators: as you have already seen, the text can contain values that should not be modified or left out by you, for example %s.
 #. This text is another example of that, but it is is a little more complex. Here there are two values which will be displayed
@@ -298,14 +302,15 @@ msgstr "0 z %(number)s %(filetypes)s"
 #, python-format
 msgid "Device scan complete: found %(number)s %(filetypes)s on %(device)s"
 msgstr ""
-"Wyszukiwanie zakończone: w katalogu %(device)s znaleziono "
-"%(number)s%(filetypes)s"
+"Wyszukiwanie zakończone: w katalogu %(device)s znaleziono %(number)s plików "
+"typu %(filetypes)s"
 
 #: rapid/rapid.py:1810
 #, python-format
 msgid "Device scan complete: no %(filetypes)s found on %(device)s"
 msgstr ""
-"Wyszukiwanie zakończone: nie znaleziono %(filetypes)s w katalogu %(device)s"
+"Wyszukiwanie zakończone: nie znaleziono plików typu %(filetypes)s w katalogu "
+"%(device)s"
 
 #: rapid/rapid.py:1844
 #, python-format
@@ -382,7 +387,7 @@ msgstr ""
 #: rapid/rapid.py:1880 rapid/rapid.py:1885
 #, python-format
 msgid "The %(filetype)s was not copied."
-msgstr ""
+msgstr "%(filetype)s nie został skopiowany."
 
 #: rapid/rapid.py:1889
 msgid ""
@@ -402,7 +407,7 @@ msgstr ""
 #: rapid/rapid.py:1914 rapid/rapid.py:1927
 #, python-format
 msgid "Could not open %(filetype)s"
-msgstr ""
+msgstr "%(filetype)s nie mógł zostać otwarty"
 
 #: rapid/rapid.py:1915 rapid/rapid.py:1928
 #, python-format
@@ -494,7 +499,7 @@ msgstr "Błąd: %(errno)s %(strerror)s"
 #: rapid/rapid.py:2249 rapid/rapid.py:2263
 #, python-format
 msgid "The %(file_type)s was not backed up."
-msgstr "Kopia zapasowa %(file_type)s nie została utworzona"
+msgstr "Kopia zapasowa %(file_type)s nie została utworzona."
 
 #: rapid/rapid.py:2261
 #, python-format
@@ -528,12 +533,12 @@ msgstr "Teraz można bezpiecznie usunąć urządzenie"
 #: rapid/rapid.py:2294
 #, python-format
 msgid "%(noFiles)s %(filetypes)s downloaded"
-msgstr "%(noFiles)s %(filetypes)s pobranych"
+msgstr "%(filetypes)s pobrane: %(noFiles)s"
 
 #: rapid/rapid.py:2297
 #, python-format
 msgid "%(noFiles)s %(filetypes)s skipped"
-msgstr "%(noFiles)s %(filetypes)s pominiętych"
+msgstr "%(filetypes)s pominięte: %(noFiles)s"
 
 #: rapid/rapid.py:2303 rapid/rapid.py:4027
 msgid "warnings"
@@ -629,7 +634,7 @@ msgstr "FIlm już istnieje"
 #: rapid/rapid.py:2592
 #, python-format
 msgid "%(number)s of %(total)s %(filetypes)s"
-msgstr "%(number)s z %(total)s %(filetypes)s"
+msgstr "%(number)s z %(total)s plików typu %(filetypes)s"
 
 #: rapid/rapid.py:2607 rapid/rapid.py:2611
 msgid "Could not delete photo or video from device"
@@ -652,7 +657,7 @@ msgstr "Zdjęcie: %(source)s"
 #: rapid/rapid.py:2614
 #, python-format
 msgid "Deleted %(number)i %(filetypes)s from device"
-msgstr ""
+msgstr "Usuniętych plików typu %(filetypes)s z urządzenia: %(number)i"
 
 #: rapid/rapid.py:2624
 #, python-format
@@ -759,20 +764,24 @@ msgid ""
 "\n"
 "Please resolve the problem, or modify your preferences."
 msgstr ""
+"Przepraszamy, to położenie urządzenia nie istnieje:\n"
+"%(path)s"
 
 #: rapid/rapid.py:3334
 msgid "Problem with Device Location Folder"
-msgstr ""
+msgstr "Problem z katalogiem położenia urządzenia"
 
 #: rapid/rapid.py:3350
 #, python-format
 msgid "The %(file_type)s Download Folder does not exist.\n"
-msgstr ""
+msgstr "Katalog pobierania %(file_type)s nie istnieje.\n"
 
 #: rapid/rapid.py:3359
 #, python-format
 msgid "The %(file_type)s Download Folder exists but cannot be written to.\n"
 msgstr ""
+"Katalog pobierania %(file_type)s istnieje ale nie ma możliwości zapisu w "
+"nim.\n"
 
 #: rapid/rapid.py:3364
 msgid ""
@@ -780,6 +789,9 @@ msgid ""
 "problems or modify the preferences.\n"
 "\n"
 msgstr ""
+"Przepraszamy, wystąpiły problemy z katalogami pobierania. Prosimy je "
+"rozwiązać lub zmienić preferencje.\n"
+"\n"
 
 #: rapid/rapid.py:3367
 msgid "Problem with Download Folder"
@@ -817,22 +829,24 @@ msgstr "Rozpoczynanie pobierania"
 #: rapid/rapid.py:3482
 #, python-format
 msgid "Creating photo download folder %(folder)s"
-msgstr ""
+msgstr "Tworzenie katalogu pobierania zdjęć %(folder)s"
 
 #: rapid/rapid.py:3487
 #, python-format
 msgid "Failed to create default photo download folder %(folder)s"
 msgstr ""
+"Nie udało się utworzyć domyślnego katalogu pobierania zdjęć %(folder)s"
 
 #: rapid/rapid.py:3491
 #, python-format
 msgid "Creating video download folder %(folder)s"
-msgstr ""
+msgstr "Tworzenie katalogu pobierania filmów %(folder)s"
 
 #: rapid/rapid.py:3496
 #, python-format
 msgid "Failed to create default video download folder %(folder)s"
 msgstr ""
+"Nie udało się utworzyć domyślnego katalogu pobierania filmów %(folder)s"
 
 #: rapid/rapid.py:3521
 msgid ""
@@ -1779,7 +1793,7 @@ msgstr "Katalogi zdjęć"
 
 #: rapid/glade3/rapid.glade.h:67
 msgid "Photo Rename"
-msgstr "Zmiana nazwy zdjęć"
+msgstr "Zmiana nazw zdjęć"
 
 #: rapid/glade3/rapid.glade.h:68
 msgid "Photo backup folder name:"
@@ -1850,6 +1864,9 @@ msgid ""
 "Sorry, video downloading functionality disabled. To download videos, please "
 "install the <i>kaa metadata</i> package for python."
 msgstr ""
+"Przepraszamy, funkcja pobierania filmów jest nieaktywna. Prosimy "
+"zainstalować pakiet <i>kaa metadata</i>, aby mieć możliwość pobierania "
+"filmów."
 
 #: rapid/glade3/rapid.glade.h:84
 msgid ""
@@ -1861,10 +1878,11 @@ msgid ""
 msgstr ""
 "Proszę określić katalog dla tego urządzenia w którym przechowywana będzie "
 "kopia zapasowa.  \n"
+"\n"
 "<i>Uwaga: zostanie to również wykorzystane do określenia czy urządzenie "
 "będzie używane do tworzenia kopii zapasowych. Proszę utworzyć katalog o "
 "podanej nazwie dla każdego urządzenia, które będzie używane do zapisu kopii "
-"zapasowych.<i>"
+"zapasowych.</i>"
 
 #: rapid/glade3/rapid.glade.h:87
 msgid ""
@@ -1879,6 +1897,8 @@ msgid ""
 "Specify what to do when a photo or video of the same name has already been "
 "downloaded or backed up."
 msgstr ""
+"Proszę określić zachowanie w przypadku, kiedy obraz lub film o tej samej "
+"nazwie został już pobrany lub posiada kopię zapasową."
 
 #: rapid/glade3/rapid.glade.h:89
 msgid "Specify what to do when there are no backup devices."
@@ -1891,6 +1911,8 @@ msgid ""
 "Specify whether photo, video and folder names should have any characters "
 "removed that are not allowed by other operating systems."
 msgstr ""
+"Proszę określić czy znaki, które są niedozwolone przez inne systemy "
+"operacyjne, powinny zostać usunięte z nazw obrazów i katalogów."
 
 #: rapid/glade3/rapid.glade.h:91
 msgid "Start downloading at program startup"
@@ -1898,7 +1920,7 @@ msgstr "Rozpocznij pobieranie przy uruchomieniu programu"
 
 #: rapid/glade3/rapid.glade.h:92
 msgid "Start downloading upon device insertion"
-msgstr ""
+msgstr "Rozpocznij pobieranie po podłączeniu urządzenia"
 
 #: rapid/glade3/rapid.glade.h:93
 msgid "Stored number:"
@@ -1914,7 +1936,7 @@ msgstr "Synchronizuj numery sekwencji RAW + JPEG"
 
 #: rapid/glade3/rapid.glade.h:96
 msgid "Unmount (\"eject\") device upon download completion"
-msgstr ""
+msgstr "Odmontuj (\"wysuń\") urządzenie po ukończeniu pobierania"
 
 #: rapid/glade3/rapid.glade.h:97
 msgid "Video Folders"
@@ -1922,11 +1944,11 @@ msgstr "Katalogi filmów"
 
 #: rapid/glade3/rapid.glade.h:98
 msgid "Video Rename"
-msgstr ""
+msgstr "Zmiana nazw filmów"
 
 #: rapid/glade3/rapid.glade.h:99
 msgid "Video backup folder name:"
-msgstr ""
+msgstr "Nazwa katalogu z kopią zapasową filmów:"
 
 #: rapid/glade3/rapid.glade.h:100
 msgid ""

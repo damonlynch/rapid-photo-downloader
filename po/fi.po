@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-05-27 22:33-0500\n"
-"PO-Revision-Date: 2010-05-28 04:59+0000\n"
-"Last-Translator: Mikko Ruohola <polarfox@polarfox.net>\n"
+"PO-Revision-Date: 2010-06-03 19:27+0000\n"
+"Last-Translator: Toni Lähdekorpi <toni@lygon.net>\n"
 "Language-Team: Finnish <fi@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-05-28 19:08+0000\n"
+"X-Launchpad-Export-Date: 2010-06-06 17:56+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #. Translators: if neccessary, for guidance in how to translate this program, you may see http://damonlynch.net/translate.html
@@ -104,7 +104,7 @@ msgstr "Palautetaan arvo nollaan.\n"
 
 #: rapid/rapid.py:465
 msgid "'Start of day' preference value is corrupted.\n"
-msgstr "'Päivän alku' asetuksen arvo on virheellinen\n"
+msgstr "'Päivän alku'-asetuksen arvo on virheellinen.\n"
 
 #: rapid/rapid.py:466
 msgid "Resetting to midnight.\n"
@@ -112,11 +112,11 @@ msgstr "Palautetaan keskiyöhön.\n"
 
 #: rapid/rapid.py:492
 msgid "Error in Photo Rename preferences"
-msgstr ""
+msgstr "Virhe kuvien uudelleennimeämisen määrityksissä"
 
 #: rapid/rapid.py:523 rapid/rapid.py:1567
 msgid "Sorry,these preferences contain an error:\n"
-msgstr "Anteeksi, näissä asetuksissa on virhe:\n"
+msgstr "Anteeksi, näissä määrityksissä on virhe:\n"
 
 #: rapid/rapid.py:534
 msgid "Resetting to default values."
@@ -129,23 +129,23 @@ msgstr "Työkoodi"
 
 #: rapid/rapid.py:677
 msgid "Error in Video Rename preferences"
-msgstr ""
+msgstr "Virhe videoiden uudelleennimeämisen määrityksissä"
 
 #: rapid/rapid.py:695
 msgid "Error in Photo Download Subfolders preferences"
-msgstr ""
+msgstr "Virhe kuvien latauksen alikansion määrityksissä"
 
 #: rapid/rapid.py:712
 msgid "Error in Video Download Subfolders preferences"
-msgstr ""
+msgstr "Virhe videoiden latauksen alikansion määrityksissä"
 
 #: rapid/rapid.py:745 rapid/rapid.py:1492
 msgid "photos and videos"
-msgstr ""
+msgstr "kuvat ja videot"
 
 #: rapid/rapid.py:747 rapid/rapid.py:1502 rapid/rapid.py:1782
 msgid "photos"
-msgstr ""
+msgstr "kuvat"
 
 #: rapid/rapid.py:880
 msgid "Select a folder to download photos to"
@@ -153,17 +153,17 @@ msgstr "Valitse kansio johon kuvat ladataan"
 
 #: rapid/rapid.py:898
 msgid "Select a folder to download videos to"
-msgstr ""
+msgstr "valitse johon videot ladataan"
 
 #: rapid/rapid.py:980
 #, python-format
 msgid "Select a folder containing %(file_types)s"
-msgstr ""
+msgstr "valitse kansio joka sisältää %(file_types)s tiedostoja"
 
 #: rapid/rapid.py:1002
 #, python-format
 msgid "Select a folder in which to backup %(file_types)s"
-msgstr ""
+msgstr "valitse kansio johon varmuuskopioidaan %(file_types)s tiedostoja"
 
 #. Translators: please do not modify or leave out html formatting tags like <i> and <b>. These are used to format the text the users sees
 #: rapid/rapid.py:1095
@@ -171,12 +171,16 @@ msgid ""
 "<i><b>Warning:</b> There is insufficient metadata to fully generate the "
 "name. Please use other renaming options.</i>"
 msgstr ""
+"<i><b>Varoitus:</b> Tiedostossa ei ole riittävästi metatietoja nimen "
+"luomiseksi. Käytä muita uudelleennimeämis valintoja.</i>"
 
 #: rapid/rapid.py:1129
 msgid ""
 "<i><b>Warning:</b> There is insufficient metadata to fully generate "
 "subfolders. Please use other subfolder naming options.</i>"
 msgstr ""
+"<i><b>Varoitus:</b> Tiedostossa ei ole riittävästi metatietoja alikansioiden "
+"luomiseksi. Käytä muita alikansion nimeämisvalintoja.</i>"
 
 #. Translators: you should not modify or leave out the %s. This is a code used by the programming language python to insert a value that thes user will see
 #: rapid/rapid.py:1133
@@ -198,7 +202,7 @@ msgstr "Tallennettua numeroa ei päivitetty, koska lataus on edelleen kesken"
 #, python-format
 msgid ""
 "The %(filetype)s subfolder preferences had some unnecessary values removed."
-msgstr ""
+msgstr "%(filetype)s alikansioasetuksista poistettiin turhia arvoja."
 
 #. Preferences list is now empty
 #: rapid/rapid.py:1210
@@ -208,15 +212,18 @@ msgid ""
 "used.\n"
 "They will be reset to their default values."
 msgstr ""
+"Annetut alikansioasetukset %(filetype)s tiedostoille olivat väärät ja niitä "
+"ei voi käyttää.\n"
+"Asetukset palautetaan oletusarvoihin."
 
 #. check subfolder preferences for bad values
 #: rapid/rapid.py:1224 rapid/rapid.py:1504 rapid/rapid.py:2533
 msgid "photo"
-msgstr ""
+msgstr "kuva"
 
 #: rapid/rapid.py:1225 rapid/rapid.py:1499 rapid/rapid.py:2541
 msgid "video"
-msgstr ""
+msgstr "video"
 
 #. Translators: this value is used as an example device when automatic backup device detection is enabled. You should translate this.
 #: rapid/rapid.py:1468
@@ -230,11 +237,11 @@ msgstr "ulkoinenasema2"
 
 #: rapid/rapid.py:1494 rapid/rapid.py:1780
 msgid "photos or videos"
-msgstr ""
+msgstr "kuvat ja videot"
 
 #: rapid/rapid.py:1497
 msgid "videos"
-msgstr ""
+msgstr "videot"
 
 #. This refers to when a device like a hard drive is having its contents scanned,
 #. looking for photos or videos. It is visible initially in the progress bar for each device
@@ -246,12 +253,12 @@ msgstr "etsii..."
 
 #: rapid/rapid.py:1663
 msgid "The following download path could not be created:\n"
-msgstr ""
+msgstr "Seuraavaa latauspolkua ei voitu luoda:\n"
 
 #: rapid/rapid.py:1664
 #, python-format
 msgid "%(path)s: "
-msgstr ""
+msgstr "%(path)s: "
 
 #: rapid/rapid.py:1665 rapid/rapid.py:1666 rapid/rapid.py:1681
 #: rapid/rapid.py:1682 rapid/rapid.py:2364 rapid/rapid.py:2367
@@ -278,7 +285,7 @@ msgstr ""
 #: rapid/rapid.py:1791
 #, python-format
 msgid "0 of %(number)s %(filetypes)s"
-msgstr ""
+msgstr "%(number)s %(filetypes)s"
 
 #. Translators: as you have already seen, the text can contain values that should not be modified or left out by you, for example %s.
 #. This text is another example of that, but it is is a little more complex. Here there are two values which will be displayed
@@ -290,16 +297,18 @@ msgstr ""
 #, python-format
 msgid "Device scan complete: found %(number)s %(filetypes)s on %(device)s"
 msgstr ""
+"Laitteiden haku on valmis: löytyi %(number)s %(filetypes)s, %(device)s "
+"laitteessa"
 
 #: rapid/rapid.py:1810
 #, python-format
 msgid "Device scan complete: no %(filetypes)s found on %(device)s"
-msgstr ""
+msgstr "Laite haku valmis: ei %(filetypes)s löytynyt %(device)s laitteesta"
 
 #: rapid/rapid.py:1844
 #, python-format
 msgid "%(filetype)s filename could not be generated"
-msgstr ""
+msgstr "%(filetype)s tiedostonimeä ei voitu luoda"
 
 #. '%(source)s' and '%(problem)s' are two more examples of text that should not be modified or left out
 #: rapid/rapid.py:1846
@@ -317,6 +326,8 @@ msgid ""
 "%(filetype)s filename could not be properly generated. Check to ensure there "
 "is sufficient metadata."
 msgstr ""
+"%(filetype)s tiedostonimeä ei voitu luoda oikein. Tarkista metatietojen "
+"riittävyys."
 
 #: rapid/rapid.py:1851
 #, python-format
@@ -369,12 +380,13 @@ msgstr ""
 #: rapid/rapid.py:1880 rapid/rapid.py:1885
 #, python-format
 msgid "The %(filetype)s was not copied."
-msgstr ""
+msgstr "%(filetype)s ei kopioitu"
 
 #: rapid/rapid.py:1889
 msgid ""
 "Photos detected with the same filenames, but taken at different times:"
 msgstr ""
+"Kuvia samalla tiedostonimellä löydetty, mutta kuvat on otettu eri aikoina:"
 
 #: rapid/rapid.py:1890
 #, python-format
@@ -382,11 +394,13 @@ msgid ""
 "First photo: %(image1)s %(image1_date_time)s:%(image1_subseconds)s\n"
 "Second photo: %(image2)s %(image2_date_time)s:%(image2_subseconds)s"
 msgstr ""
+"Ensimmäinen kuva: %(image1)s %(image1_date_time)s:%(image1_subseconds)s\n"
+"Toinen kuva: %(image2)s %(image2_date_time)s:%(image2_subseconds)s"
 
 #: rapid/rapid.py:1914 rapid/rapid.py:1927
 #, python-format
 msgid "Could not open %(filetype)s"
-msgstr ""
+msgstr "%(filetype)s avaaminen epäonnistui"
 
 #: rapid/rapid.py:1915 rapid/rapid.py:1928
 #, python-format
@@ -396,7 +410,7 @@ msgstr "Lähde: %s"
 #: rapid/rapid.py:1950
 #, python-format
 msgid "%(filetype)s has no metadata"
-msgstr ""
+msgstr "%(filetype)s ei sisällä metatietoja"
 
 #: rapid/rapid.py:1951
 #, python-format
@@ -404,12 +418,15 @@ msgid ""
 "Metadata is essential for generating subfolder and/or file names.\n"
 "Source: %s"
 msgstr ""
+"Metatiedot ovat välttämättömiä alikansioiden ja/tai tiedostonimien "
+"luomiseksi.\n"
+"Lähde: %s"
 
 #: rapid/rapid.py:1962
 msgid ""
 "Subfolder name could not be properly generated. Check to ensure there is "
 "sufficient metadata."
-msgstr ""
+msgstr "Alikansion nimeä ei voitu luoda. Tarkista metatietojen riittävyys."
 
 #: rapid/rapid.py:1963
 #, python-format
@@ -418,6 +435,9 @@ msgid ""
 "File: %(file)s\n"
 "Problem: %(problem)s"
 msgstr ""
+"Alikansio: %(subfolder)s\n"
+"Tiedosto: %(file)s\n"
+"Ongelma: %(problem)s"
 
 #. A new day, according the user's preferences of what time a day begins, has started
 #: rapid/rapid.py:2147
@@ -427,22 +447,22 @@ msgstr "Uusi päivä on alkanut - Palautetaan 'Latauksia Tänään' luku"
 #: rapid/rapid.py:2206
 #, python-format
 msgid "Backup of %(file_type)s already exists"
-msgstr ""
+msgstr "%(file_type)s varmuuskopio on jo olemassa"
 
 #: rapid/rapid.py:2210
 #, python-format
 msgid "Backup %(file_type)s overwritten"
-msgstr ""
+msgstr "%(file_type)s Varmuuskopio ylikirjoitettiin"
 
 #: rapid/rapid.py:2215
 #, python-format
 msgid "%(file_type)s not backed up to %(volume)s"
-msgstr ""
+msgstr "%(file_type)s-tiedostoja ei varmuuskopioitu kohteeseen %(volume)s"
 
 #: rapid/rapid.py:2217
 #, python-format
 msgid "%(file_type)s not backed up"
-msgstr ""
+msgstr "%(file_type)s ei varmuuskopioida"
 
 #: rapid/rapid.py:2243 rapid/rapid.py:2260
 msgid "Backing up error"
@@ -470,7 +490,7 @@ msgstr "Virhe: %(errno)s %(strerror)s"
 #: rapid/rapid.py:2249 rapid/rapid.py:2263
 #, python-format
 msgid "The %(file_type)s was not backed up."
-msgstr ""
+msgstr "%(file_type)s ei varmuuskopioitu"
 
 #: rapid/rapid.py:2261
 #, python-format
@@ -486,15 +506,15 @@ msgstr ""
 #: rapid/rapid.py:2269
 #, python-format
 msgid "%(file_type)s could not be backed up"
-msgstr ""
+msgstr "%(file_type)s ei voitu varmuuskopioda"
 
 #: rapid/rapid.py:2272
 msgid "No suitable backup volume was found"
-msgstr ""
+msgstr "ei löydetty sopivaa varmuuskopiolaitetta"
 
 #: rapid/rapid.py:2274
 msgid "A backup location was not found"
-msgstr ""
+msgstr "varmuuskopiosijaintia ei löytynyt"
 
 #. This message informs the user that the device (e.g. camera, hard drive or memory card) was automatically unmounted and they can now remove it
 #: rapid/rapid.py:2288
@@ -504,12 +524,12 @@ msgstr "Laite voidaan turvallisesti poistaa"
 #: rapid/rapid.py:2294
 #, python-format
 msgid "%(noFiles)s %(filetypes)s downloaded"
-msgstr ""
+msgstr "%(noFiles)s %(filetypes)s ladattu"
 
 #: rapid/rapid.py:2297
 #, python-format
 msgid "%(noFiles)s %(filetypes)s skipped"
-msgstr ""
+msgstr "%(noFiles)s %(filetypes)s ohitettu"
 
 #: rapid/rapid.py:2303 rapid/rapid.py:4027
 msgid "warnings"
@@ -521,7 +541,7 @@ msgstr "virheet"
 
 #: rapid/rapid.py:2331 rapid/rapid.py:2823 rapid/rapid.py:2838
 msgid "Photo thumbnail could not be extracted"
-msgstr ""
+msgstr "Kuvan esikatselukuvaa ei saatu"
 
 #: rapid/rapid.py:2358
 #, python-format
@@ -531,7 +551,7 @@ msgstr "Lähde: %s\n"
 #: rapid/rapid.py:2360
 #, python-format
 msgid "Device: %s\n"
-msgstr ""
+msgstr "Laite: %s\n"
 
 #: rapid/rapid.py:2361
 #, python-format
@@ -549,7 +569,7 @@ msgstr "Virhe:"
 #: rapid/rapid.py:2382
 #, python-format
 msgid "This device has no %(types_searched_for)s to download from."
-msgstr ""
+msgstr "Tällä laitteella ei ole %(types_searched_for)s ladattavaksi."
 
 #: rapid/rapid.py:2417
 #, python-format
@@ -558,16 +578,16 @@ msgstr "Lataus lähteestä %s on alkanut"
 
 #: rapid/rapid.py:2434
 msgid "Backup path does not exist"
-msgstr ""
+msgstr "Varmuuskopiokansio ei ole olemassa"
 
 #: rapid/rapid.py:2435
 #, python-format
 msgid "The path %s could not be created"
-msgstr ""
+msgstr "%s kansiota ei voitu luoda"
 
 #: rapid/rapid.py:2436 rapid/rapid.py:2444
 msgid "No backups can occur"
-msgstr ""
+msgstr "Varmuuskopioita ei pysty tekemään"
 
 #: rapid/rapid.py:2442
 msgid "Backup device missing"
@@ -575,40 +595,40 @@ msgstr "Varmuuskopiolaite puuttuu"
 
 #: rapid/rapid.py:2443
 msgid "No backup device was automatically detected"
-msgstr ""
+msgstr "Varmuuskopiolaitetta ei löydetty automaattisesti"
 
 #: rapid/rapid.py:2534 rapid/rapid.py:3343 rapid/rapid.py:3345
 msgid "Photo"
-msgstr ""
+msgstr "Kuva"
 
 #: rapid/rapid.py:2535
 msgid "Photo skipped"
-msgstr ""
+msgstr "Kuva ohitettu"
 
 #: rapid/rapid.py:2536
 msgid "Photo already exists"
-msgstr ""
+msgstr "Kuva on jo olemassa"
 
 #: rapid/rapid.py:2542 rapid/rapid.py:3343
 msgid "Video"
-msgstr ""
+msgstr "Video"
 
 #: rapid/rapid.py:2543
 msgid "Video skipped"
-msgstr ""
+msgstr "Video ohitettiin"
 
 #: rapid/rapid.py:2544
 msgid "Video already exists"
-msgstr ""
+msgstr "Video on jo olemassa"
 
 #: rapid/rapid.py:2592
 #, python-format
 msgid "%(number)s of %(total)s %(filetypes)s"
-msgstr ""
+msgstr "%(number)s/%(total)s %(filetypes)s"
 
 #: rapid/rapid.py:2607 rapid/rapid.py:2611
 msgid "Could not delete photo or video from device"
-msgstr ""
+msgstr "videota tai kuvaa ei voitu poistaa laitteesta"
 
 #: rapid/rapid.py:2608
 #, python-format
@@ -616,16 +636,18 @@ msgid ""
 "Photo: %(source)s\n"
 "Error: %(errno)s %(strerror)s"
 msgstr ""
+"Kuva: %(source)s\n"
+"Virhe: %(errno)s %(strerror)s"
 
 #: rapid/rapid.py:2612
 #, python-format
 msgid "Photo: %(source)s"
-msgstr ""
+msgstr "Kuva: %(source)s"
 
 #: rapid/rapid.py:2614
 #, python-format
 msgid "Deleted %(number)i %(filetypes)s from device"
-msgstr ""
+msgstr "poistettiin %(number)i %(filetypes)s laitteesta"
 
 #: rapid/rapid.py:2624
 #, python-format
@@ -658,7 +680,7 @@ msgstr "Laite havaittu"
 #: rapid/rapid.py:2878
 msgid ""
 "Should this device or partition be used to download photos or videos from?"
-msgstr ""
+msgstr "Tulisiko tätä laitetta tai osiota käyttää kuvalaitteena?"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#usedeviceprompt
 #: rapid/rapid.py:2897
@@ -730,20 +752,23 @@ msgid ""
 "\n"
 "Please resolve the problem, or modify your preferences."
 msgstr ""
+"Tätä laitteen sijaintia ei ole:\n"
+"%(path)s"
 
 #: rapid/rapid.py:3334
 msgid "Problem with Device Location Folder"
-msgstr ""
+msgstr "Ongelma laitteen sijaintikansiossa"
 
 #: rapid/rapid.py:3350
 #, python-format
 msgid "The %(file_type)s Download Folder does not exist.\n"
-msgstr ""
+msgstr "%(file_type)s-latauskansiota ei ole olemassa.\n"
 
 #: rapid/rapid.py:3359
 #, python-format
 msgid "The %(file_type)s Download Folder exists but cannot be written to.\n"
 msgstr ""
+"%(file_type)s-latauskansio on olemassa, mutta siihen ei voida kirjoittaa.\n"
 
 #: rapid/rapid.py:3364
 msgid ""
@@ -751,6 +776,9 @@ msgid ""
 "problems or modify the preferences.\n"
 "\n"
 msgstr ""
+"Anteeksi, ongelmia latauskansiosi kanssa. Ole hyvä ja korjaa ongelmat tai "
+"muokkaa määrityksiä.\n"
+"\n"
 
 #: rapid/rapid.py:3367
 msgid "Problem with Download Folder"
@@ -758,7 +786,7 @@ msgstr "Ongelma Latauskansiossa"
 
 #: rapid/rapid.py:3369
 msgid "Problem with Download Folders"
-msgstr ""
+msgstr "Ongelma latauskansioiden kanssa"
 
 #: rapid/rapid.py:3382
 msgid "Some preferences will be reset."
@@ -788,22 +816,22 @@ msgstr "Käynnistetään latauksia"
 #: rapid/rapid.py:3482
 #, python-format
 msgid "Creating photo download folder %(folder)s"
-msgstr ""
+msgstr "Luodaan kuvien latauskansio %(folder)s"
 
 #: rapid/rapid.py:3487
 #, python-format
 msgid "Failed to create default photo download folder %(folder)s"
-msgstr ""
+msgstr "Kuvien oletuslatauskansion %(folder)s luonti epäonnistui"
 
 #: rapid/rapid.py:3491
 #, python-format
 msgid "Creating video download folder %(folder)s"
-msgstr ""
+msgstr "Luodaan videoiden latauskansio %(folder)s"
 
 #: rapid/rapid.py:3496
 #, python-format
 msgid "Failed to create default video download folder %(folder)s"
-msgstr ""
+msgstr "Videolatausten oletuskansion %(folder)s luonti epäonnistui"
 
 #: rapid/rapid.py:3521
 msgid ""
@@ -921,7 +949,7 @@ msgstr "Käytetään käsin valittua polkua"
 #: rapid/rapid.py:3857
 #, python-format
 msgid "Backing up to %(path)s"
-msgstr ""
+msgstr "Varmuuskopioidaan kohteeseen %(path)s"
 
 #: rapid/rapid.py:3968 rapid/rapid.py:4017
 msgid "All downloads complete"
@@ -954,19 +982,19 @@ msgstr "Noin %(minutes)i:%(seconds)02i minuuttia jäljellä"
 
 #: rapid/rapid.py:4019
 msgid "photos downloaded"
-msgstr ""
+msgstr "kuvaa ladattu"
 
 #: rapid/rapid.py:4021
 msgid "photos skipped"
-msgstr ""
+msgstr "kuvaa ohitettu"
 
 #: rapid/rapid.py:4023
 msgid "videos downloaded"
-msgstr ""
+msgstr "videota ladattu"
 
 #: rapid/rapid.py:4025
 msgid "videos skipped"
-msgstr ""
+msgstr "videota ohitettu"
 
 #. This text will be displayed to the user on the Download / Pause button.
 #. Please note the space at the end of the label - it is needed to meet the Gnome Human Interface Guidelines
@@ -1006,18 +1034,19 @@ msgstr "tulosta vain virheet komentoriville"
 #: rapid/rapid.py:4421
 msgid "list photo and video file extensions the program recognizes and exit"
 msgstr ""
+"listaa kuva- ja videotiedostopäätteitä joita ohjelma tunnistaa ja poistu"
 
 #: rapid/rapid.py:4422
 msgid "reset all program settings and preferences and exit"
-msgstr ""
+msgstr "tyhjennä kaikki ohjelman asetukset ja määritykset, ja poistu"
 
 #: rapid/rapid.py:4431
 msgid "Photos:"
-msgstr ""
+msgstr "Kuvat:"
 
 #: rapid/rapid.py:4431
 msgid "Videos:"
-msgstr ""
+msgstr "Videot:"
 
 #: rapid/rapid.py:4436
 #, python-format
@@ -1026,7 +1055,7 @@ msgstr "ja %s"
 
 #: rapid/rapid.py:4444
 msgid "All settings and preferences have been reset"
-msgstr ""
+msgstr "Kaikki asetukset ja määritykset tyhjennetty"
 
 #. Which volume management code is being used (GIO or GnomeVFS)
 #: rapid/rapid.py:4448 rapid/rapid.py:4449 rapid/rapid.py:4451
@@ -1070,7 +1099,7 @@ msgstr "Kuvan päivämäärä"
 
 #: rapid/renamesubfolderprefs.py:198
 msgid "Video date"
-msgstr ""
+msgstr "Videon päivämäärä"
 
 #: rapid/renamesubfolderprefs.py:199
 msgid "Today"
@@ -1102,7 +1131,7 @@ msgstr "Kuvan numero"
 
 #: rapid/renamesubfolderprefs.py:209
 msgid "Video number"
-msgstr ""
+msgstr "Videon numero"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
 #: rapid/renamesubfolderprefs.py:211
@@ -1161,23 +1190,23 @@ msgstr "Omistajan nimi"
 
 #: rapid/renamesubfolderprefs.py:232
 msgid "Codec"
-msgstr ""
+msgstr "Koodekki"
 
 #: rapid/renamesubfolderprefs.py:233
 msgid "Width"
-msgstr ""
+msgstr "Leveys"
 
 #: rapid/renamesubfolderprefs.py:234
 msgid "Height"
-msgstr ""
+msgstr "Korkeus"
 
 #: rapid/renamesubfolderprefs.py:235
 msgid "Length"
-msgstr ""
+msgstr "Pituus"
 
 #: rapid/renamesubfolderprefs.py:236
 msgid "Frames Per Second"
-msgstr ""
+msgstr "Kuvataajuus"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#sequencenumbers
 #: rapid/renamesubfolderprefs.py:238
@@ -1397,12 +1426,12 @@ msgstr "Nämä asetukset eivät ole oikeassa muodossa:"
 
 #: rapid/renamesubfolderprefs.py:934
 msgid "Subsecond metadata not present in photo"
-msgstr ""
+msgstr "Metatiedot eivät sisällä sekunnin osia kuvassa."
 
 #: rapid/renamesubfolderprefs.py:941
 #, python-format
 msgid "%s metadata is not present"
-msgstr ""
+msgstr "%s metatietoa ei ole"
 
 #: rapid/renamesubfolderprefs.py:960 rapid/renamesubfolderprefs.py:968
 #: rapid/renamesubfolderprefs.py:977
@@ -1412,16 +1441,17 @@ msgstr "Virhe aikamäärityksessä. Arvo %s näyttää virheelliseltä"
 
 #: rapid/renamesubfolderprefs.py:1004
 msgid "extension was specified but filename does not have an extension"
-msgstr ""
+msgstr "pääte määritetty, mutta tiedostonimessä ei ole päätettä"
 
 #: rapid/renamesubfolderprefs.py:1008
 msgid "image or video number was specified but filename has no number"
 msgstr ""
+"kuvan tai videon numero määritetty, mutta tiedostonimessä ei ole numeroa"
 
 #: rapid/renamesubfolderprefs.py:1081
 #, python-format
 msgid "%s metadata is not present in photo"
-msgstr ""
+msgstr "%s metatietoa ei ole kuvassa"
 
 #: rapid/renamesubfolderprefs.py:1194
 #, python-format
@@ -1431,7 +1461,7 @@ msgstr "virhe luotaessa nimeä osalla %s"
 #: rapid/renamesubfolderprefs.py:1450
 #, python-format
 msgid "%s metadata is not present in video"
-msgstr ""
+msgstr "%s metatietoa ei ole videossa"
 
 #: rapid/renamesubfolderprefs.py:1546
 #, python-format
@@ -1474,7 +1504,7 @@ msgstr "<b>Yhteensopivuus käyttöjärjestelmien kanssa</b>"
 
 #: rapid/glade3/rapid.glade.h:7
 msgid "<b>Devices</b>"
-msgstr ""
+msgstr "<b>Laitteet</b>"
 
 #: rapid/glade3/rapid.glade.h:8
 msgid "<b>Download Folder</b>"
@@ -1498,11 +1528,11 @@ msgstr "<b>Puuttuvat varmusskopiolaitteet</b>"
 
 #: rapid/glade3/rapid.glade.h:13
 msgid "<b>Photo Rename</b>"
-msgstr ""
+msgstr "<b>Kuvan Uudelleennimeäminen</b>"
 
 #: rapid/glade3/rapid.glade.h:14
 msgid "<b>Photo and Video Name Conflicts</b>"
-msgstr ""
+msgstr "<b>Kuva- ja videonimien ristiriidat</b>"
 
 #: rapid/glade3/rapid.glade.h:15
 msgid "<b>Program Automation</b>"
@@ -1518,7 +1548,7 @@ msgstr "<i>/media/ulkoinenlevy/Kuvat</i>"
 
 #: rapid/glade3/rapid.glade.h:18
 msgid "<i>Example: /home/user/Pictures</i>"
-msgstr ""
+msgstr "<i>Esimerkki: /home/user/Kuvat</i>"
 
 #: rapid/glade3/rapid.glade.h:19
 msgid "<i>Example:</i>"
@@ -1542,7 +1572,7 @@ msgstr "<span weight=\"bold\" size=\"x-large\">Varmuuskopio</span>\t"
 
 #: rapid/glade3/rapid.glade.h:24
 msgid "<span weight=\"bold\" size=\"x-large\">Devices</span>"
-msgstr ""
+msgstr "<span weight=\"bold\" size=\"x-large\">Laitteet</span>"
 
 #: rapid/glade3/rapid.glade.h:25
 msgid "<span weight=\"bold\" size=\"x-large\">Error Handling</span>"
@@ -1554,11 +1584,12 @@ msgstr "<span weight=\"bold\" size=\"x-large\">Työkoodit</span>"
 
 #: rapid/glade3/rapid.glade.h:27
 msgid "<span weight=\"bold\" size=\"x-large\">Photo Download Folders</span>"
-msgstr ""
+msgstr "<span weight=\"bold\" size=\"x-large\">Kuvien latauskansiot</span>"
 
 #: rapid/glade3/rapid.glade.h:28
 msgid "<span weight=\"bold\" size=\"x-large\">Photo Rename</span>\t"
 msgstr ""
+"<span weight=\"bold\" size=\"x-large\">Kuvan uudelleenimeäminen</span>\t"
 
 #: rapid/glade3/rapid.glade.h:29
 msgid "<span weight=\"bold\" size=\"x-large\">Rename Options</span>"
@@ -1568,10 +1599,12 @@ msgstr ""
 #: rapid/glade3/rapid.glade.h:30
 msgid "<span weight=\"bold\" size=\"x-large\">Video Download Folders</span>"
 msgstr ""
+"<span weight=\"bold\" size=\"x-large\">Videoiden latauskansiot</span>"
 
 #: rapid/glade3/rapid.glade.h:31
 msgid "<span weight=\"bold\" size=\"x-large\">Video Rename</span>\t"
 msgstr ""
+"<span weight=\"bold\" size=\"x-large\">Videon uudelleenimeäminen</span>\t"
 
 #: rapid/glade3/rapid.glade.h:32
 msgid "Add unique identifier"
@@ -1587,7 +1620,7 @@ msgstr "Tunnista automaattisesti varmuuskopiolaitteet"
 
 #: rapid/glade3/rapid.glade.h:35
 msgid "Automatically detect devices"
-msgstr ""
+msgstr "Tunnista laitteet automaattisesti"
 
 #: rapid/glade3/rapid.glade.h:36
 msgid "Automation"
@@ -1603,7 +1636,7 @@ msgstr "Varmuuskopioiden sijainti:"
 
 #: rapid/glade3/rapid.glade.h:39
 msgid "Backup photos and videos when downloading"
-msgstr ""
+msgstr "Barmuuskopioi kuvat ja videot ladattaessa"
 
 #: rapid/glade3/rapid.glade.h:40
 msgid ""
@@ -1618,11 +1651,15 @@ msgid ""
 "Choose the download folder. Subfolders for the downloaded videos will be "
 "automatically created in this folder using the structure specified below."
 msgstr ""
+"Valitse latauskansio. Alikansiot ladattuja videoita varten luodaan tähän "
+"hakemistoon automaattisesti, käyttäen alla määritettyä rakennetta."
 
 #: rapid/glade3/rapid.glade.h:42
 msgid ""
 "Choose whether to skip downloading the file, or to add a unique indentifier."
 msgstr ""
+"Valitse ohitetaanko tiedoston lataus vai lisätäänkö siihen yksilöllinen "
+"tunniste."
 
 #: rapid/glade3/rapid.glade.h:43
 msgid "Copyright Damon Lynch 2007-10"
@@ -1634,11 +1671,11 @@ msgstr "Päivän alku:"
 
 #: rapid/glade3/rapid.glade.h:45
 msgid "Delete photos and videos from device upon download completion"
-msgstr ""
+msgstr "Poista kuvat ja videot laitteesta latauksen valmistuttua"
 
 #: rapid/glade3/rapid.glade.h:46
 msgid "Devices"
-msgstr ""
+msgstr "Laitteet"
 
 #: rapid/glade3/rapid.glade.h:47
 msgid ""
@@ -1652,6 +1689,15 @@ msgid ""
 "setting it to PTP mode. If that is not possible, consider using a card "
 "reader.</i>"
 msgstr ""
+"Laitteita ovat ne, mistä ladataan kuvia ja videoita, kuten kamerat, "
+"muistikortit ja siirrettävät tallennuslaitteet.\n"
+"\n"
+"Voit ladata kuvia useasta laitteesta yhtäaikaisesti, tai määrittää sijainnin "
+"kiintolevylläsi.\n"
+"\n"
+"<i>Jos olet lataamassa suoraan kamerastasi, joka toimii huonosti tai ei "
+"lainkaan, koita asettaa se PTP-tilaan. Jos mahdollista, harkitse "
+"muistikortinlukijan käyttöä."
 
 #: rapid/glade3/rapid.glade.h:52
 msgid "Download / Pause"
@@ -1676,6 +1722,7 @@ msgstr "Virheloki"
 #: rapid/glade3/rapid.glade.h:57
 msgid "Exit program if download completes without any warnings or errors"
 msgstr ""
+"Poistu ohjelmasta jos lataus valmistuu ilman huomautuksia tai virheitä"
 
 #: rapid/glade3/rapid.glade.h:58
 msgid "If you disable automatic detection, choose the exact backup location."
@@ -1688,6 +1735,8 @@ msgid ""
 "If you disable automatic detection, choose the exact location of the images "
 "and videos."
 msgstr ""
+"Jos otat automaattisen tunnistuksen pois päältä, valitse kuvien ja videoiden "
+"tarkka sijainti."
 
 #: rapid/glade3/rapid.glade.h:60
 msgid ""
@@ -1704,7 +1753,7 @@ msgstr "Ohita"
 
 #: rapid/glade3/rapid.glade.h:62
 msgid "Import your photos and videos efficiently and reliably"
-msgstr ""
+msgstr "Tuo kuvasi ja videosi tehokkaasti ja luotettavasti"
 
 #: rapid/glade3/rapid.glade.h:63
 msgid "Job Codes"
@@ -1712,7 +1761,7 @@ msgstr "Työkoodit"
 
 #: rapid/glade3/rapid.glade.h:64
 msgid "Location:"
-msgstr ""
+msgstr "Sijainti:"
 
 #: rapid/glade3/rapid.glade.h:65
 msgid "Overwrite"
@@ -1720,15 +1769,15 @@ msgstr "Ylikirjoita"
 
 #: rapid/glade3/rapid.glade.h:66
 msgid "Photo Folders"
-msgstr ""
+msgstr "Kuvakansiot"
 
 #: rapid/glade3/rapid.glade.h:67
 msgid "Photo Rename"
-msgstr ""
+msgstr "Kuvan Uudelleennimeäminen"
 
 #: rapid/glade3/rapid.glade.h:68
 msgid "Photo backup folder name:"
-msgstr ""
+msgstr "Kuvien varmuuskopiokansion nimi:"
 
 #: rapid/glade3/rapid.glade.h:69
 msgid "Preferences: Rapid Photo Downloader"
@@ -1793,6 +1842,8 @@ msgid ""
 "Sorry, video downloading functionality disabled. To download videos, please "
 "install the <i>kaa metadata</i> package for python."
 msgstr ""
+"Anteeksi, videoiden lataus on otettu pois päältä. Ladataksesi videoita, "
+"asenna <i>kaa metadata</i> paketti Pythonille."
 
 #: rapid/glade3/rapid.glade.h:84
 msgid ""
@@ -1802,6 +1853,11 @@ msgid ""
 "used for backups. For each device you wish to use for backing up to, create "
 "a folder in it with one of these names.</i>"
 msgstr ""
+"Määrität kansio mihin varmuuskopiot tallennetaan laitteella.  \n"
+"\n"
+"<i>Huomaa: tällä tullaan myös selvittämään käytetäänkö laitetta "
+"varmuuskopiointiin. Luo jokaiseen laitteeseen mitä haluat käyttää "
+"varmuuskopiointiin, kansio käyttäen yhtä näistä nimistä.</i>"
 
 #: rapid/glade3/rapid.glade.h:87
 msgid ""
@@ -1816,6 +1872,8 @@ msgid ""
 "Specify what to do when a photo or video of the same name has already been "
 "downloaded or backed up."
 msgstr ""
+"Määrittele mitä tehdään kun saman niminen kuva tai video on jo ladattu tai "
+"varmuuskopioitu."
 
 #: rapid/glade3/rapid.glade.h:89
 msgid "Specify what to do when there are no backup devices."
@@ -1826,6 +1884,8 @@ msgid ""
 "Specify whether photo, video and folder names should have any characters "
 "removed that are not allowed by other operating systems."
 msgstr ""
+"Määrittele, pitäisikö kuvien, videoiden ja kansioiden nimistä poistaa "
+"merkit, jotka eivät ole sallittuja muissa käyttöjärjestelmissä."
 
 #: rapid/glade3/rapid.glade.h:91
 msgid "Start downloading at program startup"
@@ -1833,7 +1893,7 @@ msgstr "Aloita lataus kun ohjelma käynnistetään"
 
 #: rapid/glade3/rapid.glade.h:92
 msgid "Start downloading upon device insertion"
-msgstr ""
+msgstr "Aloita lataaminen kun laite kiinnitetään"
 
 #: rapid/glade3/rapid.glade.h:93
 msgid "Stored number:"
@@ -1849,31 +1909,35 @@ msgstr "Yhtenäistä RAW + JPEG järjestysnumerot"
 
 #: rapid/glade3/rapid.glade.h:96
 msgid "Unmount (\"eject\") device upon download completion"
-msgstr ""
+msgstr "Irrota (\"poista\") laite latauksen valmistuttua"
 
 #: rapid/glade3/rapid.glade.h:97
 msgid "Video Folders"
-msgstr ""
+msgstr "Videokansiot"
 
 #: rapid/glade3/rapid.glade.h:98
 msgid "Video Rename"
-msgstr ""
+msgstr "Videon uudelleenimeäminen"
 
 #: rapid/glade3/rapid.glade.h:99
 msgid "Video backup folder name:"
-msgstr ""
+msgstr "Videoiden varmuuskopiokansion nimi:"
 
 #: rapid/glade3/rapid.glade.h:100
 msgid ""
 "When backing up, choose whether to overwrite a file on the backup device "
 "that has the same name, or skip backing it up."
 msgstr ""
+"Kun varmuuskopiodaan, valitse kirjoitetaanko saman nimisten tiedostojen "
+"päälle vai ohitetaanko tiedoston varmuuskopiointi."
 
 #: rapid/glade3/rapid.glade.h:101
 msgid ""
 "You can have your photos and videos backed up to multiple locations as they "
 "are downloaded, e.g. external hard drives."
 msgstr ""
+"Voit varmuuskopioida kuvat ja videot useaan sijaintiin ladattaessa, "
+"esimerkiksi ulkoisiin kiintolevyihin."
 
 #: rapid/glade3/rapid.glade.h:102
 msgid "_Add..."

@@ -99,17 +99,18 @@ RAW_FILE_EXTENSIONS = ['arw', 'dcr', 'cr2', 'crw',  'dng', 'mos', 'mrw',
 #RW2 files, so we should not read those! exiv2 0.17 & pyexiv2 segfaults
 #with MEF files.
 
-if exiv2_version[0] > 0:
-    RAW_FILE_EXTENSIONS += ['rw2', 'mef']
-else:
-    if exiv2_version[1] > 17:
-        RAW_FILE_EXTENSIONS += ['mef']
-    if exiv2_version[1] > 18:
-        RAW_FILE_EXTENSIONS += ['rw2']
+if exiv2_version is not None:
+    if exiv2_version[0] > 0:
+        RAW_FILE_EXTENSIONS += ['rw2', 'mef']
     else:
-        if len(exiv2_version) > 2:
-            if exiv2_version[2] >= 1:
-                RAW_FILE_EXTENSIONS += ['rw2']
+        if exiv2_version[1] > 17:
+            RAW_FILE_EXTENSIONS += ['mef']
+        if exiv2_version[1] > 18:
+            RAW_FILE_EXTENSIONS += ['rw2']
+        else:
+            if len(exiv2_version) > 2:
+                if exiv2_version[2] >= 1:
+                    RAW_FILE_EXTENSIONS += ['rw2']
                 
 RAW_FILE_EXTENSIONS.sort()
 
