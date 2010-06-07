@@ -1,3 +1,15 @@
+Version 0.2.3
+-------------
+
+Updated Hungarian, Russian and Ukrainian translations.
+
+Fixed bug #590725: don't crash if the theme does not associate an icon with 
+the detected device.
+
+Bug fix: update example filenames and folders when Job codes are manually 
+modified.
+
+
 Version 0.2.2
 -------------
 

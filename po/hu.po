@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-05-27 22:33-0500\n"
-"PO-Revision-Date: 2010-05-28 05:11+0000\n"
-"Last-Translator: Damon Lynch <damonlynch@gmail.com>\n"
+"PO-Revision-Date: 2010-06-07 13:42+0000\n"
+"Last-Translator: loriand <level.andrasnak@gmail.com>\n"
 "Language-Team: Hungarian <hu@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-05-28 19:08+0000\n"
+"X-Launchpad-Export-Date: 2010-06-07 19:48+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #. Translators: if neccessary, for guidance in how to translate this program, you may see http://damonlynch.net/translate.html
@@ -112,7 +112,7 @@ msgstr "Visszaállítás éjfélre.\n"
 
 #: rapid/rapid.py:492
 msgid "Error in Photo Rename preferences"
-msgstr ""
+msgstr "Hiba a fénykép átnevezési beállításoknál"
 
 #: rapid/rapid.py:523 rapid/rapid.py:1567
 msgid "Sorry,these preferences contain an error:\n"
@@ -129,23 +129,23 @@ msgstr "Munka-szám"
 
 #: rapid/rapid.py:677
 msgid "Error in Video Rename preferences"
-msgstr ""
+msgstr "Hiba a videó átnevezési beállításoknál"
 
 #: rapid/rapid.py:695
 msgid "Error in Photo Download Subfolders preferences"
-msgstr ""
+msgstr "Hiba a fénykép letöltési alkönyvtár beállításoknál"
 
 #: rapid/rapid.py:712
 msgid "Error in Video Download Subfolders preferences"
-msgstr ""
+msgstr "Hiba a videó letöltési alkönyvtár beállításoknál"
 
 #: rapid/rapid.py:745 rapid/rapid.py:1492
 msgid "photos and videos"
-msgstr ""
+msgstr "fényképek és videók"
 
 #: rapid/rapid.py:747 rapid/rapid.py:1502 rapid/rapid.py:1782
 msgid "photos"
-msgstr ""
+msgstr "fényképek"
 
 #: rapid/rapid.py:880
 msgid "Select a folder to download photos to"
@@ -153,7 +153,7 @@ msgstr "Válasszon egy letöltési könyvtárat"
 
 #: rapid/rapid.py:898
 msgid "Select a folder to download videos to"
-msgstr ""
+msgstr "Válasz egy könyvtárat ahova letöltöd a videókat"
 
 #: rapid/rapid.py:980
 #, python-format
@@ -171,12 +171,16 @@ msgid ""
 "<i><b>Warning:</b> There is insufficient metadata to fully generate the "
 "name. Please use other renaming options.</i>"
 msgstr ""
+"<i><b>Figyelem:</b> Nincs elegendő metaadat a fájl teljes átnevezéshez. "
+"Kérem válasszon más metaadatot az átnevezéshez.</i>"
 
 #: rapid/rapid.py:1129
 msgid ""
 "<i><b>Warning:</b> There is insufficient metadata to fully generate "
 "subfolders. Please use other subfolder naming options.</i>"
 msgstr ""
+"<i><b>Figyelem:</b> Nincs elegendő metaadat az alkönyvtár létrehozásához. "
+"Kérem válasszon más metaadatot az alkönyvtár létrehozáshoz.</i>"
 
 #. Translators: you should not modify or leave out the %s. This is a code used by the programming language python to insert a value that thes user will see
 #: rapid/rapid.py:1133
@@ -211,11 +215,11 @@ msgstr ""
 #. check subfolder preferences for bad values
 #: rapid/rapid.py:1224 rapid/rapid.py:1504 rapid/rapid.py:2533
 msgid "photo"
-msgstr ""
+msgstr "fénykép"
 
 #: rapid/rapid.py:1225 rapid/rapid.py:1499 rapid/rapid.py:2541
 msgid "video"
-msgstr ""
+msgstr "videó"
 
 #. Translators: this value is used as an example device when automatic backup device detection is enabled. You should translate this.
 #: rapid/rapid.py:1468
@@ -229,11 +233,11 @@ msgstr "külső_meghajtó2"
 
 #: rapid/rapid.py:1494 rapid/rapid.py:1780
 msgid "photos or videos"
-msgstr ""
+msgstr "fénykép vagy videó"
 
 #: rapid/rapid.py:1497
 msgid "videos"
-msgstr ""
+msgstr "videók"
 
 #. This refers to when a device like a hard drive is having its contents scanned,
 #. looking for photos or videos. It is visible initially in the progress bar for each device
@@ -245,7 +249,7 @@ msgstr "keresés..."
 
 #: rapid/rapid.py:1663
 msgid "The following download path could not be created:\n"
-msgstr ""
+msgstr "Ez a letöltési útvonal nem hozható létre:\n"
 
 #: rapid/rapid.py:1664
 #, python-format
@@ -374,6 +378,7 @@ msgstr ""
 msgid ""
 "Photos detected with the same filenames, but taken at different times:"
 msgstr ""
+"Fényképek találtam azonos fájlnévvel, de különböző keletkezési idővel."
 
 #: rapid/rapid.py:1890
 #, python-format
@@ -403,12 +408,16 @@ msgid ""
 "Metadata is essential for generating subfolder and/or file names.\n"
 "Source: %s"
 msgstr ""
+"A metaadat alapvető az átnevezéshez és/vagy az alkönyvtár létrehozáshoz.\n"
+"Forrás: %s"
 
 #: rapid/rapid.py:1962
 msgid ""
 "Subfolder name could not be properly generated. Check to ensure there is "
 "sufficient metadata."
 msgstr ""
+"Az alkönyvtár nevet nem lehetett megfelelően létrehozni. Ellenőrizd, hogy a "
+"metaadatok megfelelőek-e."
 
 #: rapid/rapid.py:1963
 #, python-format
