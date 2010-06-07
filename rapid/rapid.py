@@ -3100,6 +3100,7 @@ class JobCodeDialog(gtk.Dialog):
         self.postJobCodeEntryCB(self,  userChoseCode,  self.get_job_code(),  self.autoStart)
 
 
+
 class SelectionTreeView(gtk.TreeView):
     """
     TreeView display of photos and videos available for download
@@ -3171,6 +3172,14 @@ class SelectionTreeView(gtk.TreeView):
         thumbnail_column.set_sort_column_id(1)
         self.append_column(thumbnail_column)
 
+        # Job code column
+        cell = gtk.CellRendererText()
+        cell.set_property("yalign", 0)
+        self.job_code_column = gtk.TreeViewColumn(_("Job Code"), cell, text=8)
+        self.job_code_column.set_sort_column_id(8)
+        self.job_code_column.set_resizable(True)        
+        self.append_column(self.job_code_column)        
+
         # Date colum
         cell = gtk.CellRendererText()
         cell.set_property("yalign", 0)
@@ -3187,14 +3196,7 @@ class SelectionTreeView(gtk.TreeView):
         size_column = gtk.TreeViewColumn(_("Size"), cell, text=5)
         size_column.set_sort_column_id(4)
         self.append_column(size_column)
-        
-        # Job code colum
-        cell = gtk.CellRendererText()
-        cell.set_property("yalign", 0)
-        self.jobcode_column = gtk.TreeViewColumn(_("Job Code"), cell, text=8)
-        self.jobcode_column.set_sort_column_id(8)
-        self.append_column(self.jobcode_column)        
-        
+                
         self.show_all()
         
         # flag used to determine if a preview should be generated or not
@@ -3349,9 +3351,9 @@ class SelectionTreeView(gtk.TreeView):
                 iter = self.sort_model.iter_next(iter)
 
 
-            
     def header_clicked(self, column):
         self.user_has_clicked_header
+
 class SelectionVBox(gtk.VBox):
     """
     Dialog from which the user can select photos and videos to download
@@ -3366,11 +3368,6 @@ class SelectionVBox(gtk.VBox):
         gtk.VBox.__init__(self)
         self.parentApp = parentApp
         
-        # Job code controls
-        
-        
-
-        
         selection_scrolledwindow = gtk.ScrolledWindow()
         selection_scrolledwindow.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
         selection_viewport = gtk.Viewport()
@@ -3382,25 +3379,16 @@ class SelectionVBox(gtk.VBox):
 
 
         # Job code controls
-        
-        self.jobcode_hbox = gtk.HBox(spacing = 12)
-        self.jobcode_hbox.set_no_show_all(True)
-        self.jobcode_label = gtk.Label(_("Job code:"))
-        self.jobcode_combo = gtk.combo_box_entry_new_text()
-        self.jobcode_hbox.pack_start(self.jobcode_label, False, False)
-        self.jobcode_hbox.pack_start(self.jobcode_combo, True, True)
+        self.add_job_code_combo()
         left_pane_vbox = gtk.VBox(spacing = 12)
         left_pane_vbox.pack_start(selection_scrolledwindow, True, True)
-        left_pane_vbox.pack_start(self.jobcode_hbox, False, True)
-        self.set_jobcode_display()
+        left_pane_vbox.pack_start(self.job_code_hbox, False, True)
                 
         # Window sizes
         #selection_scrolledwindow.set_size_request(350, -1)
         
-        # Preview pane
         
-        #self.preview_vbox = gtk.VBox(spacing=12)
-        #self.preview_vbox.set_padding(0, 12)
+        #Preview pane
         
         #Preview title
         self.preview_title_label = gtk.Label()
@@ -3474,7 +3462,7 @@ class SelectionVBox(gtk.VBox):
                 
         self.show_all()
     
-    def set_jobcode_display(self):
+    def set_job_code_display(self):
         """
         Shows or hides the job code entry
         
@@ -3483,28 +3471,73 @@ class SelectionVBox(gtk.VBox):
         """
 
         if self.parentApp.needJobCode():
-            self.jobcode_hbox.show()
-            self.jobcode_label.show()
-            self.jobcode_combo.show()
-            self.selection_treeview.jobcode_column.set_visible(True)
+            self.job_code_hbox.show()
+            self.job_code_label.show()
+            self.job_code_combo.show()
+            self.selection_treeview.job_code_column.set_visible(True)
         else:
-            self.jobcode_hbox.hide()
-            self.jobcode_label.hide()
-            self.jobcode_combo.hide()
-            self.selection_treeview.jobcode_column.set_visible(False)
+            self.job_code_hbox.hide()
+            self.job_code_label.hide()
+            self.job_code_combo.hide()
+            self.selection_treeview.job_code_column.set_visible(False)
+    
+    def add_job_code_combo(self):
+        self.job_code_hbox = gtk.HBox(spacing = 12)
+        self.job_code_hbox.set_no_show_all(True)
+        self.job_code_label = gtk.Label(_("Job code:"))
         
+        self.job_code_combo = gtk.combo_box_entry_new_text()
+        for text in self.parentApp.prefs.job_codes:
+            self.job_code_combo.append_text(text)        
+        
+        # make entry box have entry completion
+        self.job_code_entry = self.job_code_combo.child
+        
+        completion = gtk.EntryCompletion()
+        completion.set_match_func(self.job_code_match_func)
+        completion.connect("match-selected",
+                             self.on_job_code_combo_completion_match)
+        completion.set_model(self.job_code_combo.get_model())
+        completion.set_text_column(0)
+        self.job_code_entry.set_completion(completion)
+        
+        
+        self.job_code_combo.connect('changed', self.on_job_code_resp)
+        
+        self.job_code_entry.connect('activate', self.on_job_code_entry_resp)
 
+        #add widgets
+        self.job_code_hbox.pack_start(self.job_code_label, False, False)
+        self.job_code_hbox.pack_start(self.job_code_combo, True, True)
+        self.set_job_code_display()
+
+    def job_code_match_func(self, completion, key, iter):
+         model = completion.get_model()
+         return model[iter][0].startswith(self.job_code_entry.get_text())
+         
+    def on_job_code_combo_completion_match(self, completion, model, iter):
+         self.job_code_entry.set_text(model[iter][0])
+         self.job_code_entry.set_position(-1)
+         
+    def on_job_code_resp(self, widget):
+        """
+        When the user has clicked on an existing job code
+        """
+        
+        # ignore changes because the user is typing in a new value
+        if widget.get_active() >= 0:
+            print widget.get_active_text()
+            
+    def on_job_code_entry_resp(self, widget):
+        """
+        When the user has hit enter after entering a new job code
+        """
+        print widget.get_text()
             
     def add_file(self, mediaFile):
         self.selection_treeview.add_file(mediaFile)
             
         
-    def on_selection_dialog_response(self,  selection_dialog, response):
-        if response == gtk.RESPONSE_OK:
-            # download
-            pass
-            
-        self.postSelectionCB(self, response == gtk.RESPONSE_OK)
         
 class LogDialog(gnomeglade.Component):
     """
