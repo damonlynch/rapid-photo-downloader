@@ -1281,7 +1281,9 @@ class PreferencesDialog(gnomeglade.Component):
 
         self.update_job_codes()
         self.updateImageRenameExample()
-        self.updateDownloadFolderExample()
+        self.updateVideoRenameExample()
+        self.updatePhotoDownloadFolderExample()
+        self.updateVideoDownloadFolderExample()
         
     def on_remove_all_job_code_button_clicked(self,  button):
         j = RemoveAllJobCodeDialog(self.widget,  self.remove_all_job_code)
@@ -1292,14 +1294,18 @@ class PreferencesDialog(gnomeglade.Component):
             self.job_code_liststore.clear()
             self.update_job_codes()
             self.updateImageRenameExample()
-            self.updateDownloadFolderExample()
+            self.updateVideoRenameExample()
+            self.updatePhotoDownloadFolderExample()
+            self.updateVideoDownloadFolderExample()
         
     def on_job_code_edited(self,  widget,  path,  new_text):
         iter = self.job_code_liststore.get_iter(path)
         self.job_code_liststore.set_value(iter,  0,  new_text)
         self.update_job_codes()
         self.updateImageRenameExample()
-        self.updateDownloadFolderExample()
+        self.updateVideoRenameExample()
+        self.updatePhotoDownloadFolderExample()
+        self.updateVideoDownloadFolderExample()
 
     def update_job_codes(self):
         """ update preferences with list of job codes"""
