@@ -4830,9 +4830,10 @@ class Volume:
             gicon = self.volume.get_icon()
             f = None
             if isinstance(gicon, gio.ThemedIcon):
-                iconinfo = icontheme.choose_icon(gicon.get_names(), size, gtk.ICON_LOOKUP_USE_BUILTIN)
-                f = iconinfo.get_filename()
                 try:
+                    # on some user's systems, themes do not have icons associated with them
+                    iconinfo = icontheme.choose_icon(gicon.get_names(), size, gtk.ICON_LOOKUP_USE_BUILTIN)
+                    f = iconinfo.get_filename()
                     v = gtk.gdk.pixbuf_new_from_file_at_size(f, size, size)
                 except:
                     f = None                
