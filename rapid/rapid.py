@@ -3121,7 +3121,7 @@ class SelectionTreeView(gtk.TreeView):
         self.liststore = gtk.ListStore(
                          gtk.gdk.Pixbuf,        # 0 thumbnail icon
                          str,                   # 1 name (for sorting)
-                         float,                 # 2 timestamp (for sorting)
+                         int,                   # 2 timestamp (for sorting), float converted into an int
                          str,                   # 3 date (human readable)
                          int,                   # 4 size (for sorting)
                          str,                   # 5 size (human readable)
@@ -3134,6 +3134,7 @@ class SelectionTreeView(gtk.TreeView):
                          
         #self.mapThreadToRow = {}
 
+        # sort by date (unless there is a problem)
         self.sort_model = gtk.TreeModelSort(self.liststore)
         self.sort_model.set_sort_column_id(2, gtk.SORT_ASCENDING)
         
@@ -3154,6 +3155,7 @@ class SelectionTreeView(gtk.TreeView):
         cell.set_property("yalign", 0.5)
         status_column = gtk.TreeViewColumn(_("Status"), cell, pixbuf=10)
         status_column.set_sort_column_id(11)
+        status_column.connect('clicked', self.header_clicked)
         self.append_column(status_column)
         
         # Type of file column i.e. photo or video
@@ -3162,6 +3164,7 @@ class SelectionTreeView(gtk.TreeView):
         type_column = gtk.TreeViewColumn(_("Type"), cell, pixbuf=7)
         type_column.set_sort_column_id(6)
         type_column.set_visible(typeColumnVisible)
+        type_column.connect('clicked', self.header_clicked)
         self.append_column(type_column)
         
         #File thumbnail column
@@ -3176,6 +3179,7 @@ class SelectionTreeView(gtk.TreeView):
         thumbnail_column.pack_start(cellpb, False)
         thumbnail_column.set_attributes(cellpb, pixbuf=0)
         thumbnail_column.set_sort_column_id(1)
+        thumbnail_column.connect('clicked', self.header_clicked)
         self.append_column(thumbnail_column)
 
         # Job code column
@@ -3183,7 +3187,8 @@ class SelectionTreeView(gtk.TreeView):
         cell.set_property("yalign", 0)
         self.job_code_column = gtk.TreeViewColumn(_("Job Code"), cell, text=8)
         self.job_code_column.set_sort_column_id(8)
-        self.job_code_column.set_resizable(True)        
+        self.job_code_column.set_resizable(True)
+        self.job_code_column.connect('clicked', self.header_clicked)
         self.append_column(self.job_code_column)        
 
         # Date colum
@@ -3201,6 +3206,7 @@ class SelectionTreeView(gtk.TreeView):
         cell.set_property("yalign", 0)
         size_column = gtk.TreeViewColumn(_("Size"), cell, text=5)
         size_column.set_sort_column_id(4)
+        size_column.connect('clicked', self.header_clicked)
         self.append_column(size_column)
                 
         self.show_all()
@@ -3245,6 +3251,8 @@ class SelectionTreeView(gtk.TreeView):
             
         if timestamp is None:
             timestamp = mediaFile.modificationTime
+            
+        timestamp = int(timestamp)
             
         date_human_readable = _("%(date)s\n%(time)s") % {'date':date.strftime("%x"), 'time':date.strftime("%X")}
         name = mediaFile.name
@@ -3330,16 +3338,24 @@ class SelectionTreeView(gtk.TreeView):
         elif range == 'none':
             selection.unselect_all()
         else:
-            # user chose to show all photos or videos
-            # temporarily suspend previews while a large number of rows
+            # User chose to select all photos or all videos,
+            # or select all files with or without job codes.
+
+            # Temporarily suspend previews while a large number of rows
             # are being selected / unselected
             self.suspend_previews = True
             
             iter = self.liststore.get_iter_first()
             while iter is not None:
                 sort_iter = self.sort_model.convert_child_iter_to_iter(None, iter)
-                type = self.liststore.get_value(iter, 6)
-                if (type and range == 'photos') or (not type and range == 'videos'):
+                if range in ['photos', 'videos']:
+                    type = self.liststore.get_value(iter, 6)
+                    select_row = (type and range == 'photos') or (not type and range == 'videos')
+                else:
+                    job_code = self.liststore.get_value(iter, 8)
+                    select_row = (job_code and range == 'withjobcode') or (not job_code and range == 'withoutjobcode')
+
+                if select_row:
                     selection.select_iter(sort_iter)
                 else:
                     selection.unselect_iter(sort_iter)
@@ -3359,6 +3375,30 @@ class SelectionTreeView(gtk.TreeView):
 
     def header_clicked(self, column):
         self.user_has_clicked_header
+        
+    def apply_job_code(self, job_code):
+        """
+        Applies the Job code to the selected rows
+        """
+
+        selection = self.get_selection()
+        model, pathlist = selection.get_selected_rows()
+        
+        # Because the model is going to be modified, must get references
+        # to the rows -- cannot just cycle through the selection
+        tree_row_refs = []
+        for path in pathlist:
+            tree_row_refs.append(gtk.TreeRowReference(model, path))
+
+        #for selection_path in pathlist:
+        for reference in tree_row_refs:
+            selection_path = reference.get_path()
+            path = self.sort_model.convert_path_to_child_path(selection_path)
+            iter = self.liststore.get_iter(path)
+            self.liststore.set(iter, 8, job_code)
+
+
+
 
 class SelectionVBox(gtk.VBox):
     """
@@ -3487,6 +3527,19 @@ class SelectionVBox(gtk.VBox):
             self.job_code_combo.hide()
             self.selection_treeview.job_code_column.set_visible(False)
     
+    def update_job_code_combo(self):
+        # delete existing rows
+        while len(self.job_code_combo.get_model()) > 0:
+            self.job_code_combo.remove_text(0)
+        # add new ones
+        for text in self.parentApp.prefs.job_codes:
+            self.job_code_combo.append_text(text)
+        # clear existing entry displayed in entry box
+        self.job_code_entry.set_text('')
+        
+
+        
+    
     def add_job_code_combo(self):
         self.job_code_hbox = gtk.HBox(spacing = 12)
         self.job_code_hbox.set_no_show_all(True)
@@ -3494,7 +3547,7 @@ class SelectionVBox(gtk.VBox):
         
         self.job_code_combo = gtk.combo_box_entry_new_text()
         for text in self.parentApp.prefs.job_codes:
-            self.job_code_combo.append_text(text)        
+            self.job_code_combo.append_text(text)
         
         # make entry box have entry completion
         self.job_code_entry = self.job_code_combo.child
@@ -3532,13 +3585,20 @@ class SelectionVBox(gtk.VBox):
         
         # ignore changes because the user is typing in a new value
         if widget.get_active() >= 0:
-            print widget.get_active_text()
+            self.job_code_chosen(widget.get_active_text())
             
     def on_job_code_entry_resp(self, widget):
         """
         When the user has hit enter after entering a new job code
         """
-        print widget.get_text()
+        self.job_code_chosen(widget.get_text())
+        
+    def job_code_chosen(self, job_code):
+        """
+        The user has selected a Job code, apply it to selected images. 
+        """
+        self.selection_treeview.apply_job_code(job_code)
+
             
     def add_file(self, mediaFile):
         self.selection_treeview.add_file(mediaFile)
@@ -3734,6 +3794,7 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
         
         self.backupVolumes = {}
 
+        #Help button and download buttons
         self._setupDownloadbutton()
         
         #status bar progress bar
@@ -4374,11 +4435,16 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
                 self.initiateScan(path, volume, autoStart)
         
     def _setupDownloadbutton(self):
-    
-        self.DOWNLOAD_SELECTED_LABEL = _("D_ownload Selected")
         self.download_hbutton_box = gtk.HButtonBox()
         self.download_hbutton_box.set_spacing(12)
         self.download_hbutton_box.set_homogeneous(False)
+
+        help_button = gtk.Button(stock=gtk.STOCK_HELP)
+        help_button.connect("clicked", self.on_help_button_clicked)
+        self.download_hbutton_box.pack_start(help_button)
+        self.download_hbutton_box.set_child_secondary(help_button, True)
+    
+        self.DOWNLOAD_SELECTED_LABEL = _("D_ownload Selected")
         self.download_button_is_download = True
         self.download_button = gtk.Button() 
         self.download_button.set_use_underline(True)
@@ -4634,6 +4700,13 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
         
     def on_menu_select_none_activate(self, widget):
         self.selection_vbox.selection_treeview.select_rows('none')
+        
+    def on_menu_select_all_with_job_code_activate(self, widget):
+        self.selection_vbox.selection_treeview.select_rows('withjobcode')
+
+    def on_menu_select_all_without_job_code_activate(self, widget):
+        self.selection_vbox.selection_treeview.select_rows('withoutjobcode')
+
 
     def on_menu_about_activate(self, widget):
         """ Display about dialog box """
@@ -4719,6 +4792,9 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
 
     def on_download_selected_button_clicked(self, widget):
         print "on_download_selected_button_clicked"
+        
+    def on_help_button_clicked(self, widget):
+        webbrowser.open("http://www.damonlynch.net/rapid/help.html")
             
     def on_preference_changed(self, key, value):
         """
@@ -4742,8 +4818,7 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
             
         elif key == 'job_codes':
             # update job code list in left pane
-            print "FIXME: update job code list in left pane"
-            pass
+            self.selection_vbox.update_job_code_combo()
         
             
     def postPreferenceChange(self):

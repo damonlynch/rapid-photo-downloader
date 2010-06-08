@@ -1432,7 +1432,7 @@
                             <child>
                               <widget class="GtkImage" id="image77">
                                 <property name="visible">True</property>
-                                <property name="icon_name">emblem-photos</property>
+                                <property name="icon_name">insert-text</property>
                               </widget>
                               <packing>
                                 <property name="expand">False</property>
@@ -3058,7 +3058,7 @@ Julien Valroff &lt;julien@kirya.net&gt;</property>
                     <child>
                       <widget class="GtkMenuItem" id="menu_select_all_photos">
                         <property name="visible">True</property>
-                        <property name="label" translatable="yes">Select All _Photos</property>
+                        <property name="label" translatable="yes">Select All Pho_tos</property>
                         <property name="use_underline">True</property>
                         <signal name="activate" handler="on_menu_select_all_photos_activate"/>
                         <accelerator key="t" signal="activate" modifiers="GDK_CONTROL_MASK"/>
@@ -3067,7 +3067,7 @@ Julien Valroff &lt;julien@kirya.net&gt;</property>
                     <child>
                       <widget class="GtkMenuItem" id="menu_select_all_videos">
                         <property name="visible">True</property>
-                        <property name="label" translatable="yes">Select All _Videos</property>
+                        <property name="label" translatable="yes">Select All Vi_deos</property>
                         <property name="use_underline">True</property>
                         <signal name="activate" handler="on_menu_select_all_videos_activate"/>
                         <accelerator key="d" signal="activate" modifiers="GDK_CONTROL_MASK"/>
@@ -3076,10 +3076,33 @@ Julien Valroff &lt;julien@kirya.net&gt;</property>
                     <child>
                       <widget class="GtkMenuItem" id="menu_select_none">
                         <property name="visible">True</property>
-                        <property name="label" translatable="yes">Select _None</property>
+                        <property name="label" translatable="yes">Se_lect None</property>
                         <property name="use_underline">True</property>
                         <signal name="activate" handler="on_menu_select_none_activate"/>
                         <accelerator key="l" signal="activate" modifiers="GDK_CONTROL_MASK"/>
+                      </widget>
+                    </child>
+                    <child>
+                      <widget class="GtkSeparatorMenuItem" id="menu_select_sep">
+                        <property name="visible">True</property>
+                      </widget>
+                    </child>
+                    <child>
+                      <widget class="GtkMenuItem" id="menu_select_all_without_job_code">
+                        <property name="visible">True</property>
+                        <property name="label" translatable="yes">Select All Without _Job Code</property>
+                        <property name="use_underline">True</property>
+                        <signal name="activate" handler="on_menu_select_all_without_job_code_activate"/>
+                        <accelerator key="j" signal="activate" modifiers="GDK_CONTROL_MASK"/>
+                      </widget>
+                    </child>
+                    <child>
+                      <widget class="GtkMenuItem" id="menu_select_all_with_job_code">
+                        <property name="visible">True</property>
+                        <property name="label" translatable="yes">Select All Wit_h Job Code</property>
+                        <property name="use_underline">True</property>
+                        <signal name="activate" handler="on_menu_select_all_with_job_code_activate"/>
+                        <accelerator key="h" signal="activate" modifiers="GDK_CONTROL_MASK"/>
                       </widget>
                     </child>
                   </widget>
