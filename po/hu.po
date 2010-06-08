@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-05-27 22:33-0500\n"
-"PO-Revision-Date: 2010-06-07 13:42+0000\n"
-"Last-Translator: loriand <level.andrasnak@gmail.com>\n"
+"PO-Revision-Date: 2010-06-08 20:06+0000\n"
+"Last-Translator: Balazs Oveges <Unknown>\n"
 "Language-Team: Hungarian <hu@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-06-07 19:48+0000\n"
+"X-Launchpad-Export-Date: 2010-06-08 20:56+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #. Translators: if neccessary, for guidance in how to translate this program, you may see http://damonlynch.net/translate.html
@@ -158,12 +158,13 @@ msgstr "Válasz egy könyvtárat ahova letöltöd a videókat"
 #: rapid/rapid.py:980
 #, python-format
 msgid "Select a folder containing %(file_types)s"
-msgstr ""
+msgstr "Válasszon egy könyvtárt az alábbiaknak: %(file_types)s"
 
 #: rapid/rapid.py:1002
 #, python-format
 msgid "Select a folder in which to backup %(file_types)s"
 msgstr ""
+"Válasszon egy könyvtárt az alábbiaknak: %(file_types)s biztonsági másolata"
 
 #. Translators: please do not modify or leave out html formatting tags like <i> and <b>. These are used to format the text the users sees
 #: rapid/rapid.py:1095
@@ -202,6 +203,7 @@ msgstr "Letöltés folyamatban, a tárolt érték nem aktuális."
 msgid ""
 "The %(filetype)s subfolder preferences had some unnecessary values removed."
 msgstr ""
+"A %(filetype)s alkönyvtár beállítások felesleges értékei el lettek távolítva."
 
 #. Preferences list is now empty
 #: rapid/rapid.py:1210
@@ -211,6 +213,8 @@ msgid ""
 "used.\n"
 "They will be reset to their default values."
 msgstr ""
+"A %(filetype)s alkönyvtár beállítások érvénytelenek, nem használhatóak.\n"
+"Az alapértelmezett értékek kerülnek visszaállításra."
 
 #. check subfolder preferences for bad values
 #: rapid/rapid.py:1224 rapid/rapid.py:1504 rapid/rapid.py:2533
@@ -254,7 +258,7 @@ msgstr "Ez a letöltési útvonal nem hozható létre:\n"
 #: rapid/rapid.py:1664
 #, python-format
 msgid "%(path)s: "
-msgstr ""
+msgstr "%(path)s: "
 
 #: rapid/rapid.py:1665 rapid/rapid.py:1666 rapid/rapid.py:1681
 #: rapid/rapid.py:1682 rapid/rapid.py:2364 rapid/rapid.py:2367
@@ -281,7 +285,7 @@ msgstr ""
 #: rapid/rapid.py:1791
 #, python-format
 msgid "0 of %(number)s %(filetypes)s"
-msgstr ""
+msgstr "0 of %(number)s %(filetypes)s"
 
 #. Translators: as you have already seen, the text can contain values that should not be modified or left out by you, for example %s.
 #. This text is another example of that, but it is is a little more complex. Here there are two values which will be displayed
@@ -293,16 +297,18 @@ msgstr ""
 #, python-format
 msgid "Device scan complete: found %(number)s %(filetypes)s on %(device)s"
 msgstr ""
+"Az eszköz átvizsgálása kész: %(number)s %(filetypes)s talált a %(device)s"
 
 #: rapid/rapid.py:1810
 #, python-format
 msgid "Device scan complete: no %(filetypes)s found on %(device)s"
 msgstr ""
+"Az eszköz átvizsgálása kész: nem található %(filetypes)s az %(device)s"
 
 #: rapid/rapid.py:1844
 #, python-format
 msgid "%(filetype)s filename could not be generated"
-msgstr ""
+msgstr "A %(filetype)s neve nem volt generálható."
 
 #. '%(source)s' and '%(problem)s' are two more examples of text that should not be modified or left out
 #: rapid/rapid.py:1846
@@ -320,6 +326,8 @@ msgid ""
 "%(filetype)s filename could not be properly generated. Check to ensure there "
 "is sufficient metadata."
 msgstr ""
+"A %(filetype)s neve nem volt helyesen generálható. Ellenőrizze, hogy "
+"rendelkezésre áll-e elegendő meta-adat."
 
 #: rapid/rapid.py:1851
 #, python-format
@@ -372,7 +380,7 @@ msgstr ""
 #: rapid/rapid.py:1880 rapid/rapid.py:1885
 #, python-format
 msgid "The %(filetype)s was not copied."
-msgstr ""
+msgstr "A %(filetype)s nem lett átmásolva."
 
 #: rapid/rapid.py:1889
 msgid ""
@@ -386,11 +394,13 @@ msgid ""
 "First photo: %(image1)s %(image1_date_time)s:%(image1_subseconds)s\n"
 "Second photo: %(image2)s %(image2_date_time)s:%(image2_subseconds)s"
 msgstr ""
+"Első kép: %(image1)s %(image1_date_time)s:%(image1_subseconds)s\n"
+"Második kép: %(image2)s %(image2_date_time)s:%(image2_subseconds)s"
 
 #: rapid/rapid.py:1914 rapid/rapid.py:1927
 #, python-format
 msgid "Could not open %(filetype)s"
-msgstr ""
+msgstr "A %(filetype)s nem volt megnyitható."
 
 #: rapid/rapid.py:1915 rapid/rapid.py:1928
 #, python-format
@@ -400,7 +410,7 @@ msgstr "Forrás: %s"
 #: rapid/rapid.py:1950
 #, python-format
 msgid "%(filetype)s has no metadata"
-msgstr ""
+msgstr "A %(filetype)s nem rendelkezik meta-adatokkal"
 
 #: rapid/rapid.py:1951
 #, python-format
@@ -426,6 +436,9 @@ msgid ""
 "File: %(file)s\n"
 "Problem: %(problem)s"
 msgstr ""
+"Alkönyvtár: %(subfolder)s\n"
+"Fájl: %(file)s\n"
+"Hiba: %(problem)s"
 
 #. A new day, according the user's preferences of what time a day begins, has started
 #: rapid/rapid.py:2147
@@ -435,22 +448,23 @@ msgstr "Új nap kezdődött - a mai letöltések száma vissza lesz állítva."
 #: rapid/rapid.py:2206
 #, python-format
 msgid "Backup of %(file_type)s already exists"
-msgstr ""
+msgstr "A %(file_type)s biztonsági másolata már létezik"
 
 #: rapid/rapid.py:2210
 #, python-format
 msgid "Backup %(file_type)s overwritten"
-msgstr ""
+msgstr "A %(file_type)s biztonsági másolata felül lesz írva"
 
 #: rapid/rapid.py:2215
 #, python-format
 msgid "%(file_type)s not backed up to %(volume)s"
 msgstr ""
+"A %(file_type)s biztonsági mentése az alábbi helyre nem készül el: %(volume)s"
 
 #: rapid/rapid.py:2217
 #, python-format
 msgid "%(file_type)s not backed up"
-msgstr ""
+msgstr "A %(file_type)s biztonsági másolata nem készült el"
 
 #: rapid/rapid.py:2243 rapid/rapid.py:2260
 msgid "Backing up error"
@@ -478,7 +492,7 @@ msgstr "Hiba: %(errno)s %(strerror)s"
 #: rapid/rapid.py:2249 rapid/rapid.py:2263
 #, python-format
 msgid "The %(file_type)s was not backed up."
-msgstr ""
+msgstr "A %(file_type)s biztonsági másolata nem készült el"
 
 #: rapid/rapid.py:2261
 #, python-format
@@ -494,15 +508,15 @@ msgstr ""
 #: rapid/rapid.py:2269
 #, python-format
 msgid "%(file_type)s could not be backed up"
-msgstr ""
+msgstr "A %(file_type)s biztonsági másolata nem volt elkészíthető."
 
 #: rapid/rapid.py:2272
 msgid "No suitable backup volume was found"
-msgstr ""
+msgstr "Biztonsági másolatoknak alkalmas hely nem volt elérhető."
 
 #: rapid/rapid.py:2274
 msgid "A backup location was not found"
-msgstr ""
+msgstr "A biztonsági másolatok helye nem volt elérhető."
 
 #. This message informs the user that the device (e.g. camera, hard drive or memory card) was automatically unmounted and they can now remove it
 #: rapid/rapid.py:2288
@@ -512,12 +526,12 @@ msgstr "Az eszköz biztonságosan eltávolítható."
 #: rapid/rapid.py:2294
 #, python-format
 msgid "%(noFiles)s %(filetypes)s downloaded"
-msgstr ""
+msgstr "Letöltve: %(noFiles)s %(filetypes)s"
 
 #: rapid/rapid.py:2297
 #, python-format
 msgid "%(noFiles)s %(filetypes)s skipped"
-msgstr ""
+msgstr "Átugorva: %(noFiles)s %(filetypes)s"
 
 #: rapid/rapid.py:2303 rapid/rapid.py:4027
 msgid "warnings"
@@ -529,7 +543,7 @@ msgstr "hibák"
 
 #: rapid/rapid.py:2331 rapid/rapid.py:2823 rapid/rapid.py:2838
 msgid "Photo thumbnail could not be extracted"
-msgstr ""
+msgstr "A kép mozaik nézete nem volt előállítható"
 
 #: rapid/rapid.py:2358
 #, python-format
@@ -539,7 +553,7 @@ msgstr "Forrás: %s\n"
 #: rapid/rapid.py:2360
 #, python-format
 msgid "Device: %s\n"
-msgstr ""
+msgstr "Eszköz: %s\n"
 
 #: rapid/rapid.py:2361
 #, python-format
@@ -557,7 +571,7 @@ msgstr "Hiba:"
 #: rapid/rapid.py:2382
 #, python-format
 msgid "This device has no %(types_searched_for)s to download from."
-msgstr ""
+msgstr "Az eszközön nem található letöltendő %(types_searched_for)s"
 
 #: rapid/rapid.py:2417
 #, python-format
@@ -566,16 +580,16 @@ msgstr "A letöltés megkezdődött %s helyről"
 
 #: rapid/rapid.py:2434
 msgid "Backup path does not exist"
-msgstr ""
+msgstr "A biztonsági mentés könyvtár nem létezik"
 
 #: rapid/rapid.py:2435
 #, python-format
 msgid "The path %s could not be created"
-msgstr ""
+msgstr "Az elérési utat %s nem lehet létrehozni"
 
 #: rapid/rapid.py:2436 rapid/rapid.py:2444
 msgid "No backups can occur"
-msgstr ""
+msgstr "Biztonsági másolat nem készülhet"
 
 #: rapid/rapid.py:2442
 msgid "Backup device missing"
@@ -583,40 +597,40 @@ msgstr "A biztonsági másolat eszköze hiányzik"
 
 #: rapid/rapid.py:2443
 msgid "No backup device was automatically detected"
-msgstr ""
+msgstr "Nincs automatikusan érzékelt eszköz a biztonsági mentéshez"
 
 #: rapid/rapid.py:2534 rapid/rapid.py:3343 rapid/rapid.py:3345
 msgid "Photo"
-msgstr ""
+msgstr "Fénykép"
 
 #: rapid/rapid.py:2535
 msgid "Photo skipped"
-msgstr ""
+msgstr "Fénykép kihagyva"
 
 #: rapid/rapid.py:2536
 msgid "Photo already exists"
-msgstr ""
+msgstr "A fénykép már létezik"
 
 #: rapid/rapid.py:2542 rapid/rapid.py:3343
 msgid "Video"
-msgstr ""
+msgstr "Videó"
 
 #: rapid/rapid.py:2543
 msgid "Video skipped"
-msgstr ""
+msgstr "Videó kihagyva"
 
 #: rapid/rapid.py:2544
 msgid "Video already exists"
-msgstr ""
+msgstr "A videó már létezik"
 
 #: rapid/rapid.py:2592
 #, python-format
 msgid "%(number)s of %(total)s %(filetypes)s"
-msgstr ""
+msgstr "%(number)s a teljes %(total)s %(filetypes)s"
 
 #: rapid/rapid.py:2607 rapid/rapid.py:2611
 msgid "Could not delete photo or video from device"
-msgstr ""
+msgstr "Nem tudom a fényképet vagy a videót az eszközről letörölni"
 
 #: rapid/rapid.py:2608
 #, python-format
@@ -624,16 +638,18 @@ msgid ""
 "Photo: %(source)s\n"
 "Error: %(errno)s %(strerror)s"
 msgstr ""
+"Kép: %(source)s\n"
+"Hiba: %(errno)s %(strerror)s"
 
 #: rapid/rapid.py:2612
 #, python-format
 msgid "Photo: %(source)s"
-msgstr ""
+msgstr "Kép: %(source)s"
 
 #: rapid/rapid.py:2614
 #, python-format
 msgid "Deleted %(number)i %(filetypes)s from device"
-msgstr ""
+msgstr "Az eszközről %(number)i %(filetypes)s lett törölve"
 
 #: rapid/rapid.py:2624
 #, python-format
@@ -667,6 +683,8 @@ msgstr "Eszköz érzékelve"
 msgid ""
 "Should this device or partition be used to download photos or videos from?"
 msgstr ""
+"Akarod ezt az eszközt, vagy partíciót fénykép vagy videó letöltésre "
+"használni?"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#usedeviceprompt
 #: rapid/rapid.py:2897
@@ -739,20 +757,22 @@ msgid ""
 "\n"
 "Please resolve the problem, or modify your preferences."
 msgstr ""
+"Az elérési útvonal nem létezik:\n"
+"%(path)s"
 
 #: rapid/rapid.py:3334
 msgid "Problem with Device Location Folder"
-msgstr ""
+msgstr "Probléma az eszköz könyvtárának a helyével"
 
 #: rapid/rapid.py:3350
 #, python-format
 msgid "The %(file_type)s Download Folder does not exist.\n"
-msgstr ""
+msgstr "A %(file_type)s letöltési könyvtár nem létezik.\n"
 
 #: rapid/rapid.py:3359
 #, python-format
 msgid "The %(file_type)s Download Folder exists but cannot be written to.\n"
-msgstr ""
+msgstr "A %(file_type)s letöltési könyvtár létezik, de nem írható.\n"
 
 #: rapid/rapid.py:3364
 msgid ""
@@ -760,6 +780,8 @@ msgid ""
 "problems or modify the preferences.\n"
 "\n"
 msgstr ""
+"A letöltési könyvtárak beállításai  hibásak. Módosítson a beállításokon.\n"
+"\n"
 
 #: rapid/rapid.py:3367
 msgid "Problem with Download Folder"
@@ -767,7 +789,7 @@ msgstr "Hiba a letöltési könyvtárral"
 
 #: rapid/rapid.py:3369
 msgid "Problem with Download Folders"
-msgstr ""
+msgstr "Probléma a letöltési könyvtárral"
 
 #: rapid/rapid.py:3382
 msgid "Some preferences will be reset."
@@ -797,22 +819,22 @@ msgstr "A letöltések megkezdése"
 #: rapid/rapid.py:3482
 #, python-format
 msgid "Creating photo download folder %(folder)s"
-msgstr ""
+msgstr "A %(folder)s kép letöltési könyvtár létrehozása folyamatban"
 
 #: rapid/rapid.py:3487
 #, python-format
 msgid "Failed to create default photo download folder %(folder)s"
-msgstr ""
+msgstr "A %(folder)s kép letöltési könyvtár létrehozása sikertelen"
 
 #: rapid/rapid.py:3491
 #, python-format
 msgid "Creating video download folder %(folder)s"
-msgstr ""
+msgstr "A %(folder)s videó letöltési könyvtár létrehozása folyamatban"
 
 #: rapid/rapid.py:3496
 #, python-format
 msgid "Failed to create default video download folder %(folder)s"
-msgstr ""
+msgstr "A %(folder)s videó letöltési könyvtár létrehozása sikertelen"
 
 #: rapid/rapid.py:3521
 msgid ""
@@ -929,7 +951,7 @@ msgstr "Kézzel megadott útvonal használata"
 #: rapid/rapid.py:3857
 #, python-format
 msgid "Backing up to %(path)s"
-msgstr ""
+msgstr "Biztonsági mentés készül az alábbi helyre: %(path)s"
 
 #: rapid/rapid.py:3968 rapid/rapid.py:4017
 msgid "All downloads complete"
@@ -962,19 +984,19 @@ msgstr "Kb. %(minutes)i:%(seconds)02i perc van hátra"
 
 #: rapid/rapid.py:4019
 msgid "photos downloaded"
-msgstr ""
+msgstr "fényképek letöltve"
 
 #: rapid/rapid.py:4021
 msgid "photos skipped"
-msgstr ""
+msgstr "fényképek kihagyva"
 
 #: rapid/rapid.py:4023
 msgid "videos downloaded"
-msgstr ""
+msgstr "videók letöltve"
 
 #: rapid/rapid.py:4025
 msgid "videos skipped"
-msgstr ""
+msgstr "videók átugorva"
 
 #. This text will be displayed to the user on the Download / Pause button.
 #. Please note the space at the end of the label - it is needed to meet the Gnome Human Interface Guidelines
@@ -1014,18 +1036,20 @@ msgstr "csak a hibák megjelenítése a terminálban"
 #: rapid/rapid.py:4421
 msgid "list photo and video file extensions the program recognizes and exit"
 msgstr ""
+"A program által felismerhető kép és videó kiterjesztések listázása, majd "
+"kilépés"
 
 #: rapid/rapid.py:4422
 msgid "reset all program settings and preferences and exit"
-msgstr ""
+msgstr "A program beállításainak visszaállítása, majd kilépés"
 
 #: rapid/rapid.py:4431
 msgid "Photos:"
-msgstr ""
+msgstr "Fényképek:"
 
 #: rapid/rapid.py:4431
 msgid "Videos:"
-msgstr ""
+msgstr "Videók:"
 
 #: rapid/rapid.py:4436
 #, python-format
@@ -1034,7 +1058,7 @@ msgstr "és %s"
 
 #: rapid/rapid.py:4444
 msgid "All settings and preferences have been reset"
-msgstr ""
+msgstr "Minden beállítás visszaállításra került"
 
 #. Which volume management code is being used (GIO or GnomeVFS)
 #: rapid/rapid.py:4448 rapid/rapid.py:4449 rapid/rapid.py:4451
@@ -1078,7 +1102,7 @@ msgstr "Kép dátuma"
 
 #: rapid/renamesubfolderprefs.py:198
 msgid "Video date"
-msgstr ""
+msgstr "Videó dátum"
 
 #: rapid/renamesubfolderprefs.py:199
 msgid "Today"
@@ -1110,7 +1134,7 @@ msgstr "Kép száma"
 
 #: rapid/renamesubfolderprefs.py:209
 msgid "Video number"
-msgstr ""
+msgstr "Videó sorszám"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
 #: rapid/renamesubfolderprefs.py:211
@@ -1169,23 +1193,23 @@ msgstr "A tulajdonos neve"
 
 #: rapid/renamesubfolderprefs.py:232
 msgid "Codec"
-msgstr ""
+msgstr "Kodek"
 
 #: rapid/renamesubfolderprefs.py:233
 msgid "Width"
-msgstr ""
+msgstr "Szélesség"
 
 #: rapid/renamesubfolderprefs.py:234
 msgid "Height"
-msgstr ""
+msgstr "Magasság"
 
 #: rapid/renamesubfolderprefs.py:235
 msgid "Length"
-msgstr ""
+msgstr "Hossz"
 
 #: rapid/renamesubfolderprefs.py:236
 msgid "Frames Per Second"
-msgstr ""
+msgstr "Képkoca/másodperc"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#sequencenumbers
 #: rapid/renamesubfolderprefs.py:238
@@ -1405,12 +1429,12 @@ msgstr "Ezek a beállítások nem megfelelőek:"
 
 #: rapid/renamesubfolderprefs.py:934
 msgid "Subsecond metadata not present in photo"
-msgstr ""
+msgstr "Tizedmásodperc metaadat információ nincs a fényképben"
 
 #: rapid/renamesubfolderprefs.py:941
 #, python-format
 msgid "%s metadata is not present"
-msgstr ""
+msgstr "%s típusú metaadat nincs"
 
 #: rapid/renamesubfolderprefs.py:960 rapid/renamesubfolderprefs.py:968
 #: rapid/renamesubfolderprefs.py:977
@@ -1420,16 +1444,17 @@ msgstr "Hiba a dátum/idő összetevőben. %s érték érvénytelennek tűnik."
 
 #: rapid/renamesubfolderprefs.py:1004
 msgid "extension was specified but filename does not have an extension"
-msgstr ""
+msgstr "a kiterjesztés meg van adva, de a fájlnévnek nincs kiterjesztése"
 
 #: rapid/renamesubfolderprefs.py:1008
 msgid "image or video number was specified but filename has no number"
 msgstr ""
+"a kép vagy videó sorszám meg van adva, de a fájlnévnek nincs sorszáma"
 
 #: rapid/renamesubfolderprefs.py:1081
 #, python-format
 msgid "%s metadata is not present in photo"
-msgstr ""
+msgstr "%s metadata nem található a fényképhez"
 
 #: rapid/renamesubfolderprefs.py:1194
 #, python-format
@@ -1439,7 +1464,7 @@ msgstr "a %s összetevővel hiba a név létrehozásakor"
 #: rapid/renamesubfolderprefs.py:1450
 #, python-format
 msgid "%s metadata is not present in video"
-msgstr ""
+msgstr "%s metadata nem található a videóhoz"
 
 #: rapid/renamesubfolderprefs.py:1546
 #, python-format
@@ -1483,7 +1508,7 @@ msgstr "<b>Kompatibilitás egyéb operációs rendszerekkel</b>"
 
 #: rapid/glade3/rapid.glade.h:7
 msgid "<b>Devices</b>"
-msgstr ""
+msgstr "<b>Eszközök</b>"
 
 #: rapid/glade3/rapid.glade.h:8
 msgid "<b>Download Folder</b>"
@@ -1507,11 +1532,11 @@ msgstr "<b>Hiányzó biztonsági mentés eszköz</b>"
 
 #: rapid/glade3/rapid.glade.h:13
 msgid "<b>Photo Rename</b>"
-msgstr ""
+msgstr "<b>Fénykép Átnevezés</b>"
 
 #: rapid/glade3/rapid.glade.h:14
 msgid "<b>Photo and Video Name Conflicts</b>"
-msgstr ""
+msgstr "<b>Fénykép és Videó név összeütközés</b>"
 
 #: rapid/glade3/rapid.glade.h:15
 msgid "<b>Program Automation</b>"
@@ -1527,7 +1552,7 @@ msgstr "<i>/media/externaldrive/Photos</i>"
 
 #: rapid/glade3/rapid.glade.h:18
 msgid "<i>Example: /home/user/Pictures</i>"
-msgstr ""
+msgstr "<i>Például: /home/jozsef/Képek</i>"
 
 #: rapid/glade3/rapid.glade.h:19
 msgid "<i>Example:</i>"
@@ -1551,7 +1576,7 @@ msgstr "<span weight=\"bold\" size=\"x-large\">Backup</span>\t"
 
 #: rapid/glade3/rapid.glade.h:24
 msgid "<span weight=\"bold\" size=\"x-large\">Devices</span>"
-msgstr ""
+msgstr "<span weight=\"bold\" size=\"x-large\">Eszközök</span>"
 
 #: rapid/glade3/rapid.glade.h:25
 msgid "<span weight=\"bold\" size=\"x-large\">Error Handling</span>"
@@ -1564,10 +1589,11 @@ msgstr "<span weight=\"bold\" size=\"x-large\">Job Codes</span>"
 #: rapid/glade3/rapid.glade.h:27
 msgid "<span weight=\"bold\" size=\"x-large\">Photo Download Folders</span>"
 msgstr ""
+"<span weight=\"bold\" size=\"x-large\">Fénykép Letöltési Könyvtárak</span>"
 
 #: rapid/glade3/rapid.glade.h:28
 msgid "<span weight=\"bold\" size=\"x-large\">Photo Rename</span>\t"
-msgstr ""
+msgstr "<span weight=\"bold\" size=\"x-large\">Fénykép Átnevezés</span>\t"
 
 #: rapid/glade3/rapid.glade.h:29
 msgid "<span weight=\"bold\" size=\"x-large\">Rename Options</span>"
@@ -1576,10 +1602,11 @@ msgstr "<span weight=\"bold\" size=\"x-large\">Rename Options</span>"
 #: rapid/glade3/rapid.glade.h:30
 msgid "<span weight=\"bold\" size=\"x-large\">Video Download Folders</span>"
 msgstr ""
+"<span weight=\"bold\" size=\"x-large\">Videó Letöltési Könyvtárak</span>"
 
 #: rapid/glade3/rapid.glade.h:31
 msgid "<span weight=\"bold\" size=\"x-large\">Video Rename</span>\t"
-msgstr ""
+msgstr "<span weight=\"bold\" size=\"x-large\">Videó Átnevezés</span>\t"
 
 #: rapid/glade3/rapid.glade.h:32
 msgid "Add unique identifier"
@@ -1595,7 +1622,7 @@ msgstr "Biztonsági mentés eszközök automatikus érzékelése"
 
 #: rapid/glade3/rapid.glade.h:35
 msgid "Automatically detect devices"
-msgstr ""
+msgstr "Automatically detect devices"
 
 #: rapid/glade3/rapid.glade.h:36
 msgid "Automation"
@@ -1611,7 +1638,7 @@ msgstr "Biztonsági mentés helye:"
 
 #: rapid/glade3/rapid.glade.h:39
 msgid "Backup photos and videos when downloading"
-msgstr ""
+msgstr "A fényképek és vidók biztonsági mentése letöltés közben"
 
 #: rapid/glade3/rapid.glade.h:40
 msgid ""
@@ -1626,11 +1653,14 @@ msgid ""
 "Choose the download folder. Subfolders for the downloaded videos will be "
 "automatically created in this folder using the structure specified below."
 msgstr ""
+"Válaszd ki a letöltési könyvtárat. Az alkönyvtárak automatikusan létre "
+"fognak jönni az általad megadott könyvtár alá."
 
 #: rapid/glade3/rapid.glade.h:42
 msgid ""
 "Choose whether to skip downloading the file, or to add a unique indentifier."
 msgstr ""
+"Válassz, hogy vajon kihagyjuk a fájlt, vagy adjunk hozzá egyedi azonosítót."
 
 #: rapid/glade3/rapid.glade.h:43
 msgid "Copyright Damon Lynch 2007-10"
@@ -1642,11 +1672,11 @@ msgstr "Nap kezdete:"
 
 #: rapid/glade3/rapid.glade.h:45
 msgid "Delete photos and videos from device upon download completion"
-msgstr ""
+msgstr "A képek és videók törlése a készülékről a sikeres letöltést követően"
 
 #: rapid/glade3/rapid.glade.h:46
 msgid "Devices"
-msgstr ""
+msgstr "Eszközök"
 
 #: rapid/glade3/rapid.glade.h:47
 msgid ""
@@ -1660,6 +1690,17 @@ msgid ""
 "setting it to PTP mode. If that is not possible, consider using a card "
 "reader.</i>"
 msgstr ""
+"Az eszközök azok amelyekről letöltheted a fényképeket vagy videókat, például "
+"fényképező gépek, memória kártyák, vagy hordozható tárolók (pendrive, usb "
+"kulcs).\n"
+"\n"
+"Letelhetsz fényképeket több helyről egyszerre, vagy meghatározhatsz egy "
+"helyet a merevlemezeden.\n"
+"\n"
+"\n"
+"<i>Ha közvetlenül a fényképezőgépedről töltesz le, és lassú vagy egyáltalán "
+"nem működik próbáld a fényképező gépedet  PTP módba állítani. Ha ez nem "
+"lehetséges fontold meg egy kártyaolvasó használatát</i>"
 
 #: rapid/glade3/rapid.glade.h:52
 msgid "Download / Pause"
@@ -1684,6 +1725,7 @@ msgstr "Hibanapló"
 #: rapid/glade3/rapid.glade.h:57
 msgid "Exit program if download completes without any warnings or errors"
 msgstr ""
+"A program lépjen ki, hiba vagy figyelmeztetés nélküli sikeres letöltés után"
 
 #: rapid/glade3/rapid.glade.h:58
 msgid "If you disable automatic detection, choose the exact backup location."
@@ -1696,6 +1738,8 @@ msgid ""
 "If you disable automatic detection, choose the exact location of the images "
 "and videos."
 msgstr ""
+"Ha letiltod az automatikus érzékelést, válassz ki a fényképek és videók "
+"pontos helyét."
 
 #: rapid/glade3/rapid.glade.h:60
 msgid ""
@@ -1713,7 +1757,7 @@ msgstr "Figyelmen kívül hagyás"
 
 #: rapid/glade3/rapid.glade.h:62
 msgid "Import your photos and videos efficiently and reliably"
-msgstr ""
+msgstr "Importáld a fényképeidet és videóidat hatékonyan és megbízhatóan"
 
 #: rapid/glade3/rapid.glade.h:63
 msgid "Job Codes"
@@ -1721,7 +1765,7 @@ msgstr "Munka-szám"
 
 #: rapid/glade3/rapid.glade.h:64
 msgid "Location:"
-msgstr ""
+msgstr "Hely:"
 
 #: rapid/glade3/rapid.glade.h:65
 msgid "Overwrite"
@@ -1729,15 +1773,15 @@ msgstr "Felülírás"
 
 #: rapid/glade3/rapid.glade.h:66
 msgid "Photo Folders"
-msgstr ""
+msgstr "Fénykép Könyvtár"
 
 #: rapid/glade3/rapid.glade.h:67
 msgid "Photo Rename"
-msgstr ""
+msgstr "Fénykép Átnevezés"
 
 #: rapid/glade3/rapid.glade.h:68
 msgid "Photo backup folder name:"
-msgstr ""
+msgstr "A biztonsági másolat mappa neve:"
 
 #: rapid/glade3/rapid.glade.h:69
 msgid "Preferences: Rapid Photo Downloader"
@@ -1801,6 +1845,9 @@ msgid ""
 "Sorry, video downloading functionality disabled. To download videos, please "
 "install the <i>kaa metadata</i> package for python."
 msgstr ""
+"Sajnálom, a videó letöltési funkció letiltva. Videó letöltéshez, légyszíves  "
+"telepítsd a <i>kaa metadata</i> csomagot a python számára. (pl.: sudo apt-"
+"get install python-kaa-metadata)"
 
 #: rapid/glade3/rapid.glade.h:84
 msgid ""
@@ -1809,7 +1856,7 @@ msgid ""
 "<i>Note: this will also be used to determine whether or not the device is "
 "used for backups. For each device you wish to use for backing up to, create "
 "a folder in it with one of these names.</i>"
-msgstr ""
+msgstr "Adja meg a könyvtárat, ahová a biztonsági másolatok készülnek."
 
 #: rapid/glade3/rapid.glade.h:87
 msgid ""
@@ -1824,6 +1871,8 @@ msgid ""
 "Specify what to do when a photo or video of the same name has already been "
 "downloaded or backed up."
 msgstr ""
+"Adja meg, mi történjen azokkal a videókkal és képekkel, melyek már le lettek "
+"töltve, vagy biztonsági másolat készült róluk."
 
 #: rapid/glade3/rapid.glade.h:89
 msgid "Specify what to do when there are no backup devices."
@@ -1834,6 +1883,8 @@ msgid ""
 "Specify whether photo, video and folder names should have any characters "
 "removed that are not allowed by other operating systems."
 msgstr ""
+"Adja meg, hogy a képek és videók nevéből el legyenek-e távolítva az egyéb "
+"operációs rendszerek által nem megengedett karakterek."
 
 #: rapid/glade3/rapid.glade.h:91
 msgid "Start downloading at program startup"
@@ -1841,7 +1892,7 @@ msgstr "A letöltés megkezdése a program indításakor"
 
 #: rapid/glade3/rapid.glade.h:92
 msgid "Start downloading upon device insertion"
-msgstr ""
+msgstr "Azonnali letöltés a készülék csatlakoztatását követően."
 
 #: rapid/glade3/rapid.glade.h:93
 msgid "Stored number:"
@@ -1857,31 +1908,35 @@ msgstr "RAW és JPEG fájlok számkiosztásának szinkronizálása"
 
 #: rapid/glade3/rapid.glade.h:96
 msgid "Unmount (\"eject\") device upon download completion"
-msgstr ""
+msgstr "A készülék lecsatlakoztatása a letöltést követően."
 
 #: rapid/glade3/rapid.glade.h:97
 msgid "Video Folders"
-msgstr ""
+msgstr "Videó Könyvtár"
 
 #: rapid/glade3/rapid.glade.h:98
 msgid "Video Rename"
-msgstr ""
+msgstr "Videó Átnevezés"
 
 #: rapid/glade3/rapid.glade.h:99
 msgid "Video backup folder name:"
-msgstr ""
+msgstr "A videó biztonsági mentési könyvtára"
 
 #: rapid/glade3/rapid.glade.h:100
 msgid ""
 "When backing up, choose whether to overwrite a file on the backup device "
 "that has the same name, or skip backing it up."
 msgstr ""
+"Adja meg, hogy a biztonsági másolatok készítésekor felül legyenek-e írva az "
+"azonos néven létező fájlok, vagy át legyenek ugorva."
 
 #: rapid/glade3/rapid.glade.h:101
 msgid ""
 "You can have your photos and videos backed up to multiple locations as they "
 "are downloaded, e.g. external hard drives."
 msgstr ""
+"A képekről és videókról letöltés közben több másolat készülhet, különböző "
+"helyekre, például külső merevlemezre."
 
 #: rapid/glade3/rapid.glade.h:102
 msgid "_Add..."

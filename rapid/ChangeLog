@@ -7,7 +7,7 @@ Fixed bug #590725: don't crash if the theme does not associate an icon with
 the detected device.
 
 Bug fix: update example filenames and folders when Job codes are manually 
-modified.
+modified in the preferences window.
 
 
 Version 0.2.2
