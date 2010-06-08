@@ -14,7 +14,19 @@ The errors and warnings reported have been completely overhauled, and are now
 more concise.
 
 The minimum version of python-gtk2 (pygtk) required to run the program is now
-2.12. This will affect only very old Linux distributions.
+2.12. This will affect only outdated Linux distributions.
+
+
+Version 0.2.3
+-------------
+
+Updated Hungarian, Russian and Ukrainian translations.
+
+Fixed bug #590725: don't crash if the theme does not associate an icon with 
+the detected device.
+
+Bug fix: update example filenames and folders when Job codes are manually 
+modified in the preferences window.
 
 
 Version 0.2.2
