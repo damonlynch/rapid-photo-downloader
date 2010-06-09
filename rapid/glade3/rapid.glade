@@ -3125,6 +3125,58 @@ Julien Valroff &lt;julien@kirya.net&gt;</property>
                       </widget>
                     </child>
                     <child>
+                      <widget class="GtkMenuItem" id="menu_preview_columns">
+                        <property name="visible">True</property>
+                        <property name="label" translatable="yes">P_review Columns</property>
+                        <property name="use_underline">True</property>
+                        <child>
+                          <widget class="GtkMenu" id="menu1">
+                            <property name="visible">True</property>
+                            <child>
+                              <widget class="GtkCheckMenuItem" id="menu_type_column">
+                                <property name="visible">True</property>
+                                <property name="label" translatable="yes">_Type</property>
+                                <property name="use_underline">True</property>
+                                <signal name="toggled" handler="on_menu_type_column_toggled"/>
+                              </widget>
+                            </child>
+                            <child>
+                              <widget class="GtkCheckMenuItem" id="menu_size_column">
+                                <property name="visible">True</property>
+                                <property name="label" translatable="yes">_Size</property>
+                                <property name="use_underline">True</property>
+                                <signal name="toggled" handler="on_menu_size_column_toggled"/>
+                              </widget>
+                            </child>
+                            <child>
+                              <widget class="GtkCheckMenuItem" id="menu_device_column">
+                                <property name="visible">True</property>
+                                <property name="label" translatable="yes">_Device</property>
+                                <property name="use_underline">True</property>
+                                <signal name="toggled" handler="on_menu_device_column_toggled"/>
+                              </widget>
+                            </child>
+                            <child>
+                              <widget class="GtkCheckMenuItem" id="menu_filename_column">
+                                <property name="visible">True</property>
+                                <property name="label" translatable="yes">_Filename</property>
+                                <property name="use_underline">True</property>
+                                <signal name="toggled" handler="on_menu_filename_column_toggled"/>
+                              </widget>
+                            </child>
+                            <child>
+                              <widget class="GtkCheckMenuItem" id="menu_path_column">
+                                <property name="visible">True</property>
+                                <property name="label" translatable="yes">_Path</property>
+                                <property name="use_underline">True</property>
+                                <signal name="toggled" handler="on_menu_path_column_toggled"/>
+                              </widget>
+                            </child>
+                          </widget>
+                        </child>
+                      </widget>
+                    </child>
+                    <child>
                       <widget class="GtkCheckMenuItem" id="menu_log_window">
                         <property name="visible">True</property>
                         <property name="label" translatable="yes">_Error Log</property>
@@ -3133,16 +3185,16 @@ Julien Valroff &lt;julien@kirya.net&gt;</property>
                       </widget>
                     </child>
                     <child>
-                      <widget class="GtkSeparatorMenuItem" id="separator5">
-                        <property name="visible">True</property>
-                      </widget>
-                    </child>
-                    <child>
                       <widget class="GtkMenuItem" id="menu_clear">
                         <property name="visible">True</property>
                         <property name="label" translatable="yes">_Clear Completed Downloads</property>
                         <property name="use_underline">True</property>
                         <signal name="activate" handler="on_menu_clear_activate"/>
+                      </widget>
+                    </child>
+                    <child>
+                      <widget class="GtkSeparatorMenuItem" id="separator5">
+                        <property name="visible">True</property>
                       </widget>
                     </child>
                   </widget>

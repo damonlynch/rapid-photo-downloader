@@ -399,6 +399,11 @@ class RapidPreferences(prefs.Preferences):
         "backup_duplicate_overwrite": prefs.Value(prefs.BOOL, False),
         "backup_missing": prefs.Value(prefs.STRING, config.IGNORE),
         "display_selection": prefs.Value(prefs.BOOL, True),
+        "display_size_column": prefs.Value(prefs.BOOL, True),
+        "display_filename_column": prefs.Value(prefs.BOOL, False),
+        "display_type_column": prefs.Value(prefs.BOOL, True),
+        "display_path_column": prefs.Value(prefs.BOOL, False),
+        "display_device_column": prefs.Value(prefs.BOOL, False),
         "show_log_dialog": prefs.Value(prefs.BOOL, False),
         "day_start": prefs.Value(prefs.STRING,  "03:00"), 
         "downloads_today": prefs.ListValue(prefs.STRING_LIST,  [today(),  '0']), 
@@ -3113,7 +3118,7 @@ class SelectionTreeView(gtk.TreeView):
     
     Assumes a threaded environment.
     """
-    def __init__(self, parentApp, typeColumnVisible):
+    def __init__(self, parentApp):
 
         self.parentApp = parentApp
         self.rapidApp = parentApp.parentApp
@@ -3130,7 +3135,9 @@ class SelectionTreeView(gtk.TreeView):
                          str,                   # 8 job code
                          gobject.TYPE_PYOBJECT, # 9 mediaFile (for data)
                          gtk.gdk.Pixbuf,        # 10 status icon
-                         int)                   # 11 status (downloaded, cannot download, etc, for sorting)
+                         int,                   # 11 status (downloaded, cannot download, etc, for sorting)
+                         str,                   # 12 path (on the device)
+                         str)                   # 13 device
                          
         #self.mapThreadToRow = {}
 
@@ -3158,14 +3165,15 @@ class SelectionTreeView(gtk.TreeView):
         status_column.connect('clicked', self.header_clicked)
         self.append_column(status_column)
         
-        # Type of file column i.e. photo or video
+        # Type of file column i.e. photo or video (displays at user request)
         cell = gtk.CellRendererPixbuf()
         cell.set_property("yalign", 0.5)     
-        type_column = gtk.TreeViewColumn(_("Type"), cell, pixbuf=7)
-        type_column.set_sort_column_id(6)
-        type_column.set_visible(typeColumnVisible)
-        type_column.connect('clicked', self.header_clicked)
-        self.append_column(type_column)
+        self.type_column = gtk.TreeViewColumn(_("Type"), cell, pixbuf=7)
+        self.type_column.set_sort_column_id(6)
+        self.type_column.set_clickable(True)
+        self.type_column.connect('clicked', self.header_clicked)
+        self.append_column(self.type_column)
+        self.display_type_column(self.rapidApp.prefs.display_type_column)
         
         #File thumbnail column
         if not DOWNLOAD_VIDEO:
@@ -3179,6 +3187,7 @@ class SelectionTreeView(gtk.TreeView):
         thumbnail_column.pack_start(cellpb, False)
         thumbnail_column.set_attributes(cellpb, pixbuf=0)
         thumbnail_column.set_sort_column_id(1)
+        thumbnail_column.set_clickable(True)        
         thumbnail_column.connect('clicked', self.header_clicked)
         self.append_column(thumbnail_column)
 
@@ -3188,10 +3197,11 @@ class SelectionTreeView(gtk.TreeView):
         self.job_code_column = gtk.TreeViewColumn(_("Job Code"), cell, text=8)
         self.job_code_column.set_sort_column_id(8)
         self.job_code_column.set_resizable(True)
+        self.job_code_column.set_clickable(True)        
         self.job_code_column.connect('clicked', self.header_clicked)
-        self.append_column(self.job_code_column)        
+        self.append_column(self.job_code_column)
 
-        # Date colum
+        # Date column
         cell = gtk.CellRendererText()
         cell.set_property("yalign", 0)
         date_column = gtk.TreeViewColumn(_("Date"), cell, text=3)
@@ -3201,13 +3211,49 @@ class SelectionTreeView(gtk.TreeView):
         date_column.connect('clicked', self.header_clicked)
         self.append_column(date_column)
         
-        # Size column
+        # Size column (displays at user request)
         cell = gtk.CellRendererText()
         cell.set_property("yalign", 0)
-        size_column = gtk.TreeViewColumn(_("Size"), cell, text=5)
-        size_column.set_sort_column_id(4)
-        size_column.connect('clicked', self.header_clicked)
-        self.append_column(size_column)
+        self.size_column = gtk.TreeViewColumn(_("Size"), cell, text=5)
+        self.size_column.set_sort_column_id(4)
+        self.size_column.set_resizable(True)
+        self.size_column.set_clickable(True)            
+        self.size_column.connect('clicked', self.header_clicked)
+        self.append_column(self.size_column)
+        self.display_size_column(self.rapidApp.prefs.display_size_column)
+        
+        # Device column (displays at user request)
+        cell = gtk.CellRendererText()
+        cell.set_property("yalign", 0)
+        self.device_column = gtk.TreeViewColumn(_("Device"), cell, text=13)
+        self.device_column.set_sort_column_id(13)
+        self.device_column.set_resizable(True)
+        self.device_column.set_clickable(True)        
+        self.device_column.connect('clicked', self.header_clicked)
+        self.append_column(self.device_column)
+        self.display_device_column(self.rapidApp.prefs.display_device_column)        
+        
+        # Filename column (displays at user request)
+        cell = gtk.CellRendererText()
+        cell.set_property("yalign", 0)
+        self.filename_column = gtk.TreeViewColumn(_("Filename"), cell, text=1)
+        self.filename_column.set_sort_column_id(1)   
+        self.filename_column.set_resizable(True)
+        self.filename_column.set_clickable(True)
+        self.filename_column.connect('clicked', self.header_clicked)
+        self.append_column(self.filename_column)
+        self.display_filename_column(self.rapidApp.prefs.display_filename_column)
+        
+        # Path column (displays at user request)
+        cell = gtk.CellRendererText()
+        cell.set_property("yalign", 0)
+        self.path_column = gtk.TreeViewColumn(_("Path"), cell, text=12)
+        self.path_column.set_sort_column_id(12)   
+        self.path_column.set_resizable(True)
+        self.path_column.set_clickable(True)
+        self.path_column.connect('clicked', self.header_clicked)
+        self.append_column(self.path_column)
+        self.display_path_column(self.rapidApp.prefs.display_path_column)        
                 
         self.show_all()
         
@@ -3282,7 +3328,7 @@ class SelectionTreeView(gtk.TreeView):
         else:
             status_icon = self.not_downloaded_icon.copy()
 
-        self.liststore.append((thumbnail_icon, name, timestamp, date_human_readable, size, common.formatSizeForUser(size), mediaFile.isImage, type_icon, '', mediaFile, status_icon, mediaFile.status))
+        self.liststore.append((thumbnail_icon, name, timestamp, date_human_readable, size, common.formatSizeForUser(size), mediaFile.isImage, type_icon, '', mediaFile, status_icon, mediaFile.status, mediaFile.path, mediaFile.deviceName))
         
         if not self.user_has_clicked_header:
             self.sort_model.set_sort_column_id(11, gtk.SORT_DESCENDING)
@@ -3376,6 +3422,29 @@ class SelectionTreeView(gtk.TreeView):
     def header_clicked(self, column):
         self.user_has_clicked_header
         
+    def display_filename_column(self, display):
+        """
+        if display is true, the column will be shown
+        otherwise, it will not be shown
+        """
+        self.filename_column.set_visible(display)
+        
+    def display_size_column(self, display):
+        self.size_column.set_visible(display)
+
+    def display_type_column(self, display):
+        if not DOWNLOAD_VIDEO:
+            self.type_column.set_visible(False)
+        else:
+            self.type_column.set_visible(display)
+        
+    def display_path_column(self, display):
+        self.path_column.set_visible(display)
+        
+    def display_device_column(self, display):
+        self.device_column.set_visible(display)
+        
+
     def apply_job_code(self, job_code):
         """
         Applies the Job code to the selected rows
@@ -3419,7 +3488,7 @@ class SelectionVBox(gtk.VBox):
         selection_viewport = gtk.Viewport()
         
         
-        self.selection_treeview = SelectionTreeView(self, DOWNLOAD_VIDEO)
+        self.selection_treeview = SelectionTreeView(self)
         
         selection_scrolledwindow.add(self.selection_treeview)
 
@@ -3807,11 +3876,26 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
 
         # menus
 
+        #preview panes
         self.menu_display_selection.set_active(self.prefs.display_selection)
+        #preview columns in pane
+        if not DOWNLOAD_VIDEO:
+            self.menu_type_column.set_active(False)
+            self.menu_type_column.set_sensitive(False)
+        else:
+            self.menu_type_column.set_active(self.prefs.display_type_column)
+        self.menu_size_column.set_active(self.prefs.display_size_column)
+        self.menu_filename_column.set_active(self.prefs.display_filename_column)
+        self.menu_device_column.set_active(self.prefs.display_device_column)
+        self.menu_path_column.set_active(self.prefs.display_path_column)
+        
         self.menu_clear.set_sensitive(False)
+
+        need_job_code = self.needJobCode()
+        self.menu_select_all_without_job_code.set_sensitive(need_job_code)
+        self.menu_select_all_with_job_code.set_sensitive(need_job_code)
         
         #job code initialization
-        need_job_code = self.needJobCode()
         self.last_chosen_job_code = None
         self.prompting_for_job_code = False
         
@@ -4021,11 +4105,26 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
             
     def addFileToSelection(self, mediaFile):
         self.selection_vbox.add_file(mediaFile)
-    
-
-
-    def on_menu_select_window_toggled(self, widget):
-        self.prefs.display_select = widget.get_active()
+            
+    def on_menu_size_column_toggled(self, widget):
+        self.prefs.display_size_column = widget.get_active()
+        self.selection_vbox.selection_treeview.display_size_column(self.prefs.display_size_column)
+        
+    def on_menu_type_column_toggled(self, widget):
+        self.prefs.display_type_column = widget.get_active()
+        self.selection_vbox.selection_treeview.display_type_column(self.prefs.display_type_column)
+        
+    def on_menu_filename_column_toggled(self, widget):
+        self.prefs.display_filename_column = widget.get_active()
+        self.selection_vbox.selection_treeview.display_filename_column(self.prefs.display_filename_column)
+        
+    def on_menu_path_column_toggled(self, widget):
+        self.prefs.display_path_column = widget.get_active()
+        self.selection_vbox.selection_treeview.display_path_column(self.prefs.display_path_column)        
+        
+    def on_menu_device_column_toggled(self, widget):        
+        self.prefs.display_device_column = widget.get_active()
+        self.selection_vbox.selection_treeview.display_device_column(self.prefs.display_device_column)
                 
     def checkIfFirstTimeProgramEverRun(self):
         """
@@ -4815,6 +4914,8 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
             global need_job_code
             need_job_code = self.needJobCode()
             self.selection_vbox.set_job_code_display()
+            self.menu_select_all_without_job_code.set_sensitive(need_job_code)
+            self.menu_select_all_with_job_code.set_sensitive(need_job_code)            
             
         elif key == 'job_codes':
             # update job code list in left pane
