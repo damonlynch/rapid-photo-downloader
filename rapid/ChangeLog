@@ -1,7 +1,9 @@
 Version 0.2.3
 -------------
 
-Updated Hungarian, Russian and Ukrainian translations.
+2010-06-1x
+
+Updated Hungarian, Russian, Swedish and Ukrainian translations.
 
 Fixed bug #590725: don't crash if the theme does not associate an icon with 
 the detected device.
@@ -19,6 +21,7 @@ Added Ukrainian translation by Sergiy Gavrylov.
 
 Bug fix: in systems where exiv2 is not installed, don't crash on startup.
 
+
 Version 0.2.1
 -------------
 
@@ -35,6 +38,7 @@ Bug fix: filter out Null bytes from Exif string values. These can occur when
 the Exif data is corrupted.
 
 Updated Spanish, Russian and Finnish translations.
+
 
 Version 0.2.0
 -------------
