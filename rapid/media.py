@@ -94,14 +94,26 @@ class MediaFile:
     A photo or video file, with metadata
     """
     
-    def __init__(self, name, path, size, fileSystemModificationTime, deviceName, isPhoto = True):
+    def __init__(self, thread_id, name, path, size, fileSystemModificationTime, deviceName, downloadFolder, isPhoto = True):
+        self.thread_id = thread_id
         self.path = path
         self.name = name
         self.fullFileName = os.path.join(path, name)
         self.size = size # type int
         self.modificationTime = fileSystemModificationTime
         self.deviceName = deviceName
+        self.downloadFolder = downloadFolder
         
+        self.jobcode = ''
+        
+        # a reference into the SelectionTreeView's liststore
+        self.treerowref = None
+        
+        # generated values
+        self.downloadSubfolder = ''
+        self.downloadPath = ''
+        self.downloadName = ''
+        self.downloadFullFileName = ''
 
         self.isImage = isPhoto
         self.isVideo = not self.isImage
@@ -117,7 +129,9 @@ class MediaFile:
         self.thumbnail = None
         self.genericThumbnail = False
         self.sampleName = ''
+        self.sampleSubfolder = ''
         self.samplePath = ''
+
         self.status = config.STATUS_NOT_DOWNLOADED
         self.problem = None # class Problem in problemnotifcation.py
         

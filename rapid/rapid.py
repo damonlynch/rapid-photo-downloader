@@ -773,7 +773,7 @@ class PreferencesDialog(gnomeglade.Component):
             w = workers.firstWorkerReadyToDownload()
             mediaFile = w.firstImage() 
             self.sampleImageName = mediaFile.name
-            # assume the metadate is already read
+            # assume the metadata is already read
             self.sampleImage = mediaFile.metadata
         except:
             self.sampleImage = metadata.DummyMetaData()
@@ -1538,6 +1538,12 @@ def file_types_by_number(noImages, noVideos):
         else:
             v = _('photo')
     return v
+    
+def date_time_human_readable(date, with_line_break):
+    if with_line_break:
+        return _("%(date)s\n%(time)s") % {'date':date.strftime("%x"), 'time':date.strftime("%X")}
+    else:
+        return _("%(date)s %(time)s") % {'date':date.strftime("%x"), 'time':date.strftime("%X")}
 
 class CopyPhotos(Thread):
     """Copies photos from source to destination, backing up if needed"""
@@ -1586,7 +1592,7 @@ class CopyPhotos(Thread):
                                                                 '',  0,  progress=0.0,  
                                                                 # This refers to when a device like a hard drive is having its contents scanned,
                                                                 # looking for photos or videos. It is visible initially in the progress bar for each device 
-                                                                # (which normally holds "x of y photos").
+                                                                # (which normally holds "x photos and videos").
                                                                 # It maybe displayed only briefly if the contents of the device being scanned is small.
                                                                 progressBarText=_('scanning...'))
 
@@ -1748,10 +1754,10 @@ class CopyPhotos(Thread):
             def generateSubfolderAndName(mediaFile, problem):
                 if mediaFile.isImage:
                     self.subfolderPrefsFactory.initializeProblem(problem)
-                    subfolder = self.subfolderPrefsFactory.generateNameUsingPreferences(
-                                            mediaFile.metadata, mediaFile.name, self.prefs.strip_characters)
+                    mediaFile.sampleSubfolder = self.subfolderPrefsFactory.generateNameUsingPreferences(
+                                                mediaFile.metadata, mediaFile.name, self.prefs.strip_characters)
 
-                    mediaFile.samplePath = os.path.join(self.prefs.download_folder, subfolder)
+                    mediaFile.samplePath = os.path.join(mediaFile.downloadFolder, mediaFile.sampleSubfolder)
                     
                     self.imageRenamePrefsFactory.initializeProblem(problem)
                     mediaFile.sampleName = self.imageRenamePrefsFactory.generateNameUsingPreferences(
@@ -1759,18 +1765,29 @@ class CopyPhotos(Thread):
                                             sequencesPreliminary=False)
                 else:
                     self.videoSubfolderPrefsFactory.initializeProblem(problem)
-                    subfolder = self.videoSubfolderPrefsFactory.generateNameUsingPreferences(
-                                            mediaFile.metadata, mediaFile.name, self.prefs.strip_characters,
-                                            fallback_date = mediaFile.modificationTime)
+                    mediaFile.sampleSubfolder = self.videoSubfolderPrefsFactory.generateNameUsingPreferences(
+                                                mediaFile.metadata, mediaFile.name, self.prefs.strip_characters,
+                                                fallback_date = mediaFile.modificationTime)
                         
-                    mediaFile.samplePath = os.path.join(self.prefs.video_download_folder, subfolder)
+                    mediaFile.samplePath = os.path.join(mediaFile.downloadFolder, mediaFile.sampleSubfolder)
                     
                     self.videoRenamePrefsFactory.initializeProblem(problem)
                     mediaFile.sampleName = self.videoRenamePrefsFactory.generateNameUsingPreferences(
                                             mediaFile.metadata, mediaFile.name, self.prefs.strip_characters,
                                             sequencesPreliminary=False, fallback_date = mediaFile.modificationTime) 
                     
-                if problem.has_problem():
+                if not mediaFile.sampleName or not mediaFile.sampleSubfolder:
+                    if not mediaFile.sampleName and not mediaFile.sampleSubfolder:
+                        area = _("subfolder and filename")
+                    elif not mediaFile.sampleName:
+                        area = _("filename")
+                    else:
+                        area = _("subfolder")
+                    problem.add_problem(None, pn.ERROR_IN_NAME_GENERATION, {'filetype': mediaFile.displayNameCap, 'area': area})
+                    problem.add_extra_detail(pn.FILE_CANNOT_BE_DOWNLOADED, {'filetype': mediaFile.displayName})
+                    mediaFile.problem = problem
+                    mediaFile.status = config.STATUS_CANNOT_DOWNLOAD
+                elif problem.has_problem():
                     mediaFile.problem = problem
                     mediaFile.status = config.STATUS_WARNING
                 
@@ -1786,13 +1803,13 @@ class CopyPhotos(Thread):
                 except:
                     mediaFile.status = config.STATUS_CANNOT_DOWNLOAD
                     mediaFile.metadata = None
-                    problem.add_problem(pn.FILE_PROBLEM, pn.CANNOT_DOWNLOAD_BAD_METADATA, {'filetype': mediaFile.displayNameCap})
+                    problem.add_problem(None, pn.CANNOT_DOWNLOAD_BAD_METADATA, {'filetype': mediaFile.displayNameCap})
                     mediaFile.problem = problem
                 else:
                     # generate sample filename
                     generateSubfolderAndName(mediaFile, problem)
                     # generate thumbnail
-                    mediaFile.generateThumbnail(videoTempWorkingDir)
+                    mediaFile.generateThumbnail(self.videoTempWorkingDir)
                     
                 if mediaFile.thumbnail is None:
                     mediaFile.genericThumbnail = True
@@ -1809,11 +1826,16 @@ class CopyPhotos(Thread):
                 return (download, isImage, isVideo)
                 
             def addFile(name, path, size, modificationTime, device, isImage):
-                mediaFile = media.MediaFile(name, path, size, modificationTime, device, isImage)
+                if isImage:
+                    downloadFolder = self.prefs.download_folder
+                else:
+                    downloadFolder = self.prefs.video_download_folder
+                    
+                mediaFile = media.MediaFile(self.thread_id, name, path, size, modificationTime, device, downloadFolder, isImage)
                 loadFileMetadata(mediaFile)
                 # modificationTime is very useful for quick sorting
                 imagesAndVideos.append((mediaFile, modificationTime))
-                display_queue.put((self.parentApp.addFileToSelection, (mediaFile,)))
+                display_queue.put((self.parentApp.addFile, (mediaFile,)))
                 
                 if isImage:
                     self.noImages += 1
@@ -1911,7 +1933,7 @@ class CopyPhotos(Thread):
                 # It refers to the actual number of photos that can be copied. For example, the user might see the following:
                 # '0 of 512 photos' or '0 of 10 videos' or '0 of 202 photos and videos'.
                 # This particular text is displayed to the user before the download has started.
-                display = _("0 of %(number)s %(filetypes)s") % {'number':noFiles, 'filetypes':self.display_file_types}
+                display = _("%(number)s %(filetypes)s") % {'number':noFiles, 'filetypes':self.display_file_types}
                 display_queue.put((media_collection_treeview.updateCard, (self.thread_id,  self.cardMedia.sizeOfImagesAndVideos(), noFiles)))
                 display_queue.put((media_collection_treeview.updateProgress, (self.thread_id, 0.0, display, 0)))
                 display_queue.put((self.parentApp.timeRemaining.add, (self.thread_id, fileSizeSum)))
@@ -1932,23 +1954,6 @@ class CopyPhotos(Thread):
                 display_queue.put((media_collection_treeview.removeCard,  (self.thread_id, )))
                 cmd_line(_("Device scan complete: no %(filetypes)s found on %(device)s") % {'device':self.cardMedia.prettyName(limit=0), 'filetypes':self.types_searched_for})
                 return False
-
-        def cleanUp():
-            """
-            Cleanup functions that must be performed whether the thread exits 
-            early or when it has completed its run.
-            """
-
-
-            for tempWorkingDir in (videoTempWorkingDir, photoTempWorkingDir):
-                if tempWorkingDir:
-                    # possibly delete any lingering files
-                    tf = os.listdir(tempWorkingDir)
-                    if tf:
-                        for f in tf:
-                            os.remove(os.path.join(tempWorkingDir, f))
-                        
-                    os.rmdir(tempWorkingDir)
             
             
         def logError(severity, problem, details, resolution=None):
@@ -1960,228 +1965,183 @@ class CopyPhotos(Thread):
                 self.noErrors += 1
 
 
-        def checkProblemWithNameGeneration(newName, destination, source,  problem, filetype):
-            if not newName:
-                # a serious problem - a filename should never be blank!
-                logError(config.SERIOUS_ERROR,
-                    _("%(filetype)s filename could not be generated") % {'filetype': filetype},
-                    # '%(source)s' and '%(problem)s' are two more examples of text that should not be modified or left out
-                    _("Source: %(source)s\nProblem: %(problem)s") % {'source': source, 'problem': problem},
-                    fileSkippedDisplay)
-            elif problem:
+        def checkProblemWithNameGeneration(mediaFile):
+            if mediaFile.problem.has_problem():
                 logError(config.WARNING, 
-                    _("%(filetype)s filename could not be properly generated. Check to ensure there is sufficient metadata.") % {'filetype': filetype},
-                    _("Source: %(source)s\nPartially generated filename: %(newname)s\nDestination: %(destination)s\nProblem: %(problem)s") % 
-                    {'source': source, 'destination': destination, 'newname': newName, 'problem': problem})
+                    mediaFile.problem.get_title(),
+                    _("Source: %(source)s\nDestination: %(destination)s\n%(problem)s") % 
+                    {'source': mediaFile.fullFileName, 'destination': mediaFile.downloadFullFileName, 'problem': mediaFile.problem.get_problems()})
+                mediaFile.status = config.STATUS_DOWNLOADED_WITH_WARNING
                     
-        def fileAlreadyExists(source, fileSkippedDisplay, fileAlreadyExistsDisplay, destination=None, identifier=None):
+        def fileAlreadyExists(mediaFile, identifier=None):
             """ Notify the user that the photo or video could not be downloaded because it already exists"""
-            if self.prefs.indicate_download_error:
-                if source and destination and identifier:
-                    logError(config.SERIOUS_ERROR, fileAlreadyExistsDisplay,
-                        _("Source: %(source)s\nDestination: %(destination)s")
-                        % {'source': source, 'destination': newFile},
-                        _("Unique identifier '%s' added") % identifier)                    
-                elif source and destination:
-                    logError(config.SERIOUS_ERROR, fileAlreadyExistsDisplay,
-                        _("Source: %(source)s\nDestination: %(destination)s")
-                        % {'source': source, 'destination': destination},
-                        fileSkippedDisplay)
-                else:
-                    logError(config.SERIOUS_ERROR, fileAlreadyExistsDisplay,
-                        _("Source: %(source)s")
-                        % {'source': source},
-                        fileSkippedDisplay)
-
-                    
-        def downloadCopyingError(source, destination, filetype, errno=None, strerror=None):
-            """Notify the user that an error occurred when coyping an photo or video"""
-            if errno != None and strerror != None:
-                logError(config.SERIOUS_ERROR, _('Download copying error'), 
-                            _("Source: %(source)s\nDestination: %(destination)s\nError: %(errorno)s %(strerror)s") 
-                            % {'source': source, 'destination': destination, 'errorno': errno, 'strerror': strerror},
-                            _('The %(filetype)s was not copied.') % {'filetype': filetype})
+            
+            if not identifier:
+                mediaFile.problem.add_problem(None, pn.FILE_ALREADY_EXISTS_NO_DOWNLOAD, {'filetype':mediaFile.displayNameCap})
+                mediaFile.problem.add_extra_detail(pn.FILE_WAS_NOT_DOWNLOADED, {'filetype': mediaFile.displayName})
+                mediaFile.status = config.STATUS_DOWNLOAD_FAILED
+                log_status = config.SERIOUS_ERROR
             else:
-                logError(config.SERIOUS_ERROR, _('Download copying error'), 
-                            _("Source: %(source)s\nDestination: %(destination)s") 
-                            % {'source': source, 'destination': destination},
-                            _('The %(filetype)s was not copied.') % {'filetype': filetype})
+                mediaFile.problem.add_problem(None, pn.UNIQUE_IDENTIFIER_ADDED, {'filetype':mediaFile.displayNameCap})
+                mediaFile.problem.add_extra_detail(pn.UNIQUE_IDENTIFIER, {'identifier': identifier})
+                mediaFile.status = config.STATUS_DOWNLOADED_WITH_WARNING
+                log_status = config.WARNING
                 
-                        
-        def sameFileNameDifferentExif(image1, image1_date_time, image1_subseconds, image2, image2_date_time, image2_subseconds):
-            logError(config.WARNING, _('Photos detected with the same filenames, but taken at different times:'),
-                _("First photo: %(image1)s %(image1_date_time)s:%(image1_subseconds)s\nSecond photo: %(image2)s %(image2_date_time)s:%(image2_subseconds)s") % 
-                {'image1': image1, 'image1_date_time': image1_date_time, 'image1_subseconds': image1_subseconds,
-                'image2': image2, 'image2_date_time': image2_date_time, 'image2_subseconds': image2_subseconds})
 
+            #if self.prefs.indicate_download_error:
+            logError(log_status, mediaFile.problem.get_title(),
+                _("Source: %(source)s\nDestination: %(destination)s")
+                % {'source': mediaFile.fullFileName, 'destination': mediaFile.downloadFullFileName},
+                mediaFile.problem.get_problems())
 
+        def downloadCopyingError(mediaFile, source, destination, errno=None, strerror=None):
+            """Notify the user that an error occurred (most likely at the OS / filesystem level) when coyping a photo or video"""
+            
+            if errno != None and strerror != None:
+                mediaFile.problem.add_problem(None, pn.DOWNLOAD_COPYING_ERROR_W_NO, {'filetype': mediaFile.displayNameCap})
+                mediaFile.problem.add_extra_detail(pn.DOWNLOAD_COPYING_ERROR_W_NO_DETAIL, {'source': source, 'destination': destination, 'errorno': errno, 'strerror': strerror})
 
-        def generateSubfolderAndFileName(fullFileName, name, needMetaDataToCreateUniqueImageName,  
-                       needMetaDataToCreateUniqueSubfolderName, fallback_date):
+            else:
+                mediaFile.problem.add_problem(None, pn.DOWNLOAD_COPYING_ERROR, {'filetype': mediaFile.displayNameCap})
+                mediaFile.problem.add_extra_detail(pn.DOWNLOAD_COPYING_ERROR_DETAIL, {'source': source, 'destination': destination})
+
+            logError(config.SERIOUS_ERROR, mediaFile.problem.get_title(), mediaFile.problem.get_problems())
+            mediaFile.status = config.STATUS_DOWNLOAD_FAILED
+                
+        def sameNameDifferentExif(image_name, mediaFile):
+            """Notify the user that a file was already downloaded with the same name, but the exif information was different"""
+            i1_ext, i1_date_time, i1_subseconds = downloaded_files.extExifDateTime(image_name)
+            mediaFile.problem.add_problem(None, pn.SAME_FILE_DIFFERENT_EXIF,
+                {'image1': "%s%s" % (image_name, i1_ext), 'image1_date_time': date_time_human_readable(i1_date_time, False), 'image1_subseconds': i1_subseconds,
+                'image2': mediaFile.name, 'image2_date_time': date_time_human_readable(mediaFile.metadata.dateTime(), False), 'image2_subseconds': mediaFile.metadata.subSeconds()})
+            logError(config.WARNING, mediaFile.get_title(), mediaFile.get_problems())
+            mediaFile.status = config.STATUS_DOWNLOADED_WITH_WARNING
+
+        def generateSubfolderAndFileName(mediaFile):
             """
             Generates subfolder and file names for photos and videos
             """
             
             skipFile = alreadyDownloaded = False
             sequence_to_use = None
-
-            if not self.isImage:
-                # file is a video file
+            
+            if mediaFile.isVideo:
                 fileRenameFactory = self.videoRenamePrefsFactory
                 subfolderFactory = self.videoSubfolderPrefsFactory
-                try:
-                    # this step immedidately reads the metadata from the video file
-                    # (which is different than pyexiv2)
-                    fileMetadata = videometadata.VideoMetaData(fullFileName)
-                except:
-                    logError(config.CRITICAL_ERROR, _("Could not open %(filetype)s") % {'filetype': fileBeingDownloadedDisplay}, 
-                                    _("Source: %s") % fullFileName, 
-                                    fileSkippedDisplay)                    
-                    skipFile = True
-                    fileMetadata =  newName = newFile = path = subfolder = sequence_to_use = None
-                    return (skipFile,  fileMetadata,  newName,  newFile,  path,  subfolder, sequence_to_use)
             else:
                 # file is an photo
                 fileRenameFactory = self.imageRenamePrefsFactory                
                 subfolderFactory = self.subfolderPrefsFactory
-                try:
-                    fileMetadata = metadata.MetaData(fullFileName)
-                except IOError:
-                    logError(config.CRITICAL_ERROR, _("Could not open %(filetype)s") % {'filetype': fileBeingDownloadedDisplay}, 
-                                    _("Source: %s") % fullFileName, 
-                                    fileSkippedDisplay)
-                    skipFile = True
-                    fileMetadata =  newName = newFile = path = subfolder = sequence_to_use = None
-                    return (skipFile,  fileMetadata,  newName,  newFile,  path,  subfolder, sequence_to_use)
-                else:
-                    try:
-                        # this step can fail if the source photo is corrupt
-                        fileMetadata.read()
-                    except:
-                        skipFile = True
 
-                    
-            if not skipFile:
-                if self.isImage and not fileMetadata.rpd_keys() and (needMetaDataToCreateUniqueSubfolderName or 
-                                                     (needMetaDataToCreateUniqueImageName and 
-                                                     not addUniqueIdentifier)):
-                    skipFile = True
-                
-                #TODO similar checking for video 
-                
-            if skipFile:
-                logError(config.SERIOUS_ERROR, _("%(filetype)s has no metadata") % {'filetype': fileBeingDownloadedDisplayCap}, 
-                                    _("Metadata is essential for generating subfolder and/or file names.\nSource: %s") % fullFileName, 
-                                    fileSkippedDisplay)                
-                newName = newFile = path = subfolder = None
-            else:
-                # attempt to generate a subfolder name
-                subfolder, problem = subfolderFactory.generateNameUsingPreferences(
-                                                        fileMetadata, name, 
-                                                        self.stripCharacters, fallback_date = fallback_date)
-    
-                if problem:
-                    logError(config.WARNING, 
-                        _("Subfolder name could not be properly generated. Check to ensure there is sufficient metadata."),
-                        _("Subfolder: %(subfolder)s\nFile: %(file)s\nProblem: %(problem)s") % 
-                        {'subfolder': subfolder, 'file': fullFileName, 'problem': problem})
-                
-                if self.prefs.synchronize_raw_jpg and usesImageSequenceElements and self.isImage:
-                    #synchronizing RAW and JPEG only applies to photos, not videos
-                    image_name, image_ext = os.path.splitext(name)
-                    with self.downloadedFilesLock:
-                        i, sequence_to_use = downloaded_files.matching_pair(image_name, image_ext, fileMetadata.dateTime(), fileMetadata.subSeconds())
-                        if i == -1:
-                            # this exact file has already been downloaded (same extension, same filename, and same exif date time subsecond info)
-                            if not addUniqueIdentifier:
-                                # there is no point to download it, as there is no way a unique filename will be generated
-                                alreadyDownloaded = skipFile = True
-                        elif i == -99:
-                            i1_ext, i1_date_time, i1_subseconds = downloaded_files.extExifDateTime(image_name)
-                            sameFileNameDifferentExif("%s%s" % (image_name, i1_ext), i1_date_time, i1_subseconds, name, fileMetadata.dateTime(), fileMetadata.subSeconds())
+            mediaFile.problem = pn.Problem()
+            subfolderFactory.initializeProblem(mediaFile.problem)
+            fileRenameFactory.initializeProblem(mediaFile.problem)
+            
+            # Here we assume that the subfolder value will contain something -- the scan will have picked up problems with nothing being generated
+            mediaFile.downloadSubfolder = subfolderFactory.generateNameUsingPreferences(
+                                                    mediaFile.metadata, mediaFile.name, 
+                                                    self.stripCharacters, fallback_date = mediaFile.modificationTime)
+
+
+            if self.prefs.synchronize_raw_jpg and usesImageSequenceElements and mediaFile.isImage:
+                #synchronizing RAW and JPEG only applies to photos, not videos
+                image_name, image_ext = os.path.splitext(mediaFile.name)
+                with self.downloadedFilesLock:
+                    i, sequence_to_use = downloaded_files.matching_pair(image_name, image_ext, mediaFile.metadata.dateTime(), mediaFile.metadata.subSeconds())
+                    if i == -1:
+                        # this exact file has already been downloaded (same extension, same filename, and same exif date time subsecond info)
+                        if not addUniqueIdentifier:
+                            # there is no point to download it, as there is no way a unique filename will be generated
+                            alreadyDownloaded = skipFile = True
+                    elif i == -99:
+                        sameNameDifferentExif(image_name, mediaFile)
                        
                 
-                # pass the subfolder the image will go into, as this is needed to determine subfolder sequence numbers 
-                # indicate that sequences chosen should be queued
-                
-                # TODO check 'or alreadyDownloaded' is meant to be here
-                if not (skipFile or alreadyDownloaded):
-                    newName, problem = fileRenameFactory.generateNameUsingPreferences(
-                                                                fileMetadata, name, self.stripCharacters,  subfolder,  
-                                                                sequencesPreliminary = True,
-                                                                sequence_to_use = sequence_to_use,
-                                                                fallback_date = fallback_date)
+            # pass the subfolder the image will go into, as this is needed to determine subfolder sequence numbers 
+            # indicate that sequences chosen should be queued
+            
+            if not (skipFile or alreadyDownloaded):
+                mediaFile.downloadName = fileRenameFactory.generateNameUsingPreferences(
+                                                            mediaFile.metadata, mediaFile.name, self.stripCharacters,  mediaFile.downloadSubfolder,  
+                                                            sequencesPreliminary = True,
+                                                            sequence_to_use = sequence_to_use,
+                                                            fallback_date = mediaFile.modificationTime)
 
-                    path = os.path.join(baseDownloadDir, subfolder)
-                    newFile = os.path.join(path, newName)
-                
-                if not newName:
-                    skipFile = True
-                if not alreadyDownloaded:
-                    checkProblemWithNameGeneration(newName, path, fullFileName,  problem, fileBeingDownloadedDisplayCap)
-                else:
-                    fileAlreadyExists(fullFileName, fileSkippedDisplay, fileAlreadyExistsDisplay, newFile)
-                    newName = newFile = path = subfolder = None
+                mediaFile.downloadPath = os.path.join(mediaFile.downloadFolder, mediaFile.downloadSubfolder)
+                mediaFile.downloadFullFileName = os.path.join(mediaFile.downloadPath, mediaFile.downloadName)
+            
+            if not mediaFile.downloadName:
+                skipFile = True
+            if not alreadyDownloaded:
+                checkProblemWithNameGeneration(mediaFile)
+            else:
+                fileAlreadyExists(mediaFile)
                     
-            return (skipFile, fileMetadata, newName, newFile, path, subfolder, sequence_to_use)
+            return (skipFile, sequence_to_use)
         
-        def downloadFile(path, newFile, newName, originalName, image, fileMetadata, subfolder, sequence_to_use, modificationTime):
+        def downloadFile(mediaFile, sequence_to_use):
             """
             Downloads the photo or video file to the specified subfolder 
             """
             
-            if not self.isImage:
+            if not mediaFile.isImage:
                 renameFactory = self.videoRenamePrefsFactory
             else:
                 renameFactory = self.imageRenamePrefsFactory
                 
-            def progress_callback(self, v):
+            def progress_callback(amount_downloaded, total):
+                print common.formatSizeForUser(amount_downloaded), common.formatSizeForUser(total)
+                
+            def progress_callback_no_update(amount_downloaded, total):
                 pass
                 
             try:
                 fileDownloaded = False
-                if not os.path.isdir(path):
-                    os.makedirs(path)
+                if not os.path.isdir(mediaFile.downloadPath):
+                    os.makedirs(mediaFile.downloadPath)
                 
                 nameUniqueBeforeCopy = True
                 downloadNonUniqueFile = True
                 
-                
                 # do a preliminary check to see if a file with the same name already exists
-                if os.path.exists(newFile):
+                if os.path.exists(mediaFile.downloadFullFileName):
                     nameUniqueBeforeCopy = False
                     if not addUniqueIdentifier:
                         downloadNonUniqueFile = False
-                        if (usesVideoSequenceElements and not self.isImage) or (usesImageSequenceElements and self.isImage and not self.prefs.synchronize_raw_jpg):
+                        if (usesVideoSequenceElements and not mediaFile.isImage) or (usesImageSequenceElements and mediaFile.isImage and not self.prefs.synchronize_raw_jpg):
                             # potentially, a unique file name could still be generated
                             # investigate this possibility
                             with self.fileSequenceLock:
-                                for possibleName, problem in renameFactory.generateNameSequencePossibilities(fileMetadata, 
-                                                                                                               originalName, self.stripCharacters,  subfolder):
+                                for possibleName in renameFactory.generateNameSequencePossibilities(
+                                                        mediaFile.metadata, 
+                                                        mediaFile.name, self.stripCharacters, mediaFile.downloadSubfolder):
                                     if possibleName:
                                         # no need to check for any problems here, it's just a temporary name
-                                        possibleFile = os.path.join(path, possibleName)
-                                        possibleTempFile = os.path.join(tempWorkingDir,  possibleName)
+                                        possibleFile = os.path.join(mediaFile.downloadPath, possibleName)
+                                        possibleTempFile = os.path.join(tempWorkingDir, possibleName)
                                         if not os.path.exists(possibleFile) and not os.path.exists(possibleTempFile):
                                             downloadNonUniqueFile = True
                                             break
 
                                         
                     if not downloadNonUniqueFile:
-                        fileAlreadyExists(fullFileName, fileSkippedDisplay, fileAlreadyExistsDisplay, newFile)
+                        fileAlreadyExists(mediaFile)
 
                 copy_succeeded = False
                 if nameUniqueBeforeCopy or downloadNonUniqueFile:
-                    tempWorkingfile = os.path.join(tempWorkingDir, newName)
+                    tempWorkingfile = os.path.join(tempWorkingDir, mediaFile.downloadName)
                     if using_gio:
                         g_dest = gio.File(path=tempWorkingfile)
-                        g_src = gio.File(path=fullFileName)
-                        if not g_src.copy(g_dest, progress_callback, cancellable=gio.Cancellable()):
-                            downloadCopyingError(fullFileName, tempWorkingfile, fileBeingDownloadedDisplay)
-                        else:
-                            copy_succeeded = True
+                        g_src = gio.File(path=mediaFile.fullFileName)
+                        try:
+                            if not g_src.copy(g_dest, progress_callback, cancellable=gio.Cancellable()):
+                                downloadCopyingError(mediaFile, source=mediaFile.fullFileName, destination=tempWorkingfile)
+                            else:
+                                copy_succeeded = True
+                        except:
+                            downloadCopyingError(mediaFile, source=mediaFile.fullFileName, destination=tempWorkingfile)
                     else:
-                        shutil.copy2(fullFileName, tempWorkingfile)
+                        shutil.copy2(mediaFile.fullFileName, tempWorkingfile)
                         copy_succeeded = True
                     
                     if copy_succeeded:
@@ -2190,99 +2150,106 @@ class CopyPhotos(Thread):
                             if usesSequenceElements:
                                 with self.fileSequenceLock:
                                     # get a filename and use this as the "real" filename
-                                    if sequence_to_use is None and self.prefs.synchronize_raw_jpg and self.isImage:
+                                    if sequence_to_use is None and self.prefs.synchronize_raw_jpg and mediaFile.isImage:
                                         # must check again, just in case the matching pair has been downloaded in the meantime
-                                        image_name, image_ext = os.path.splitext(originalName)
+                                        image_name, image_ext = os.path.splitext(mediaFile.name)
                                         with self.downloadedFilesLock:
-                                            i, sequence_to_use = downloaded_files.matching_pair(image_name, image_ext, fileMetadata.dateTime(), fileMetadata.subSeconds())
+                                            i, sequence_to_use = downloaded_files.matching_pair(image_name, image_ext, mediaFile.metadata.dateTime(), mediaFile.metadata.subSeconds())
                                             if i == -99:
-                                                i1_ext, i1_date_time, i1_subseconds = downloaded_files.extExifDateTime(image_name)
-                                                sameFileNameDifferentExif("%s%s" % (image_name, i1_ext), i1_date_time, i1_subseconds, originalName, fileMetadata.dateTime(), fileMetadata.subSeconds())
+                                                sameNameDifferentExif(image_name, mediaFile)
 
-                                                
-
-                                    newName, problem = renameFactory.generateNameUsingPreferences(
-                                                                    fileMetadata, originalName, self.stripCharacters,  subfolder,  
+                                    mediaFile.downloadName = renameFactory.generateNameUsingPreferences(
+                                                                    mediaFile.metadata, mediaFile.name, self.stripCharacters, mediaFile.downloadSubfolder,  
                                                                     sequencesPreliminary = False,
                                                                     sequence_to_use = sequence_to_use,
-                                                                    fallback_date = fallback_date)
-                                checkProblemWithNameGeneration(newName, path, fullFileName,  problem, fileBeingDownloadedDisplayCap)
-                                if not newName:
+                                                                    fallback_date = mediaFile.modificationTime)
+                                checkProblemWithNameGeneration(mediaFile)
+                                if not mediaFile.downloadName:
                                     # there was a serious error generating the filename
                                     doRename = False                            
                                 else:
-                                    newFile = os.path.join(path, newName)
+                                    mediaFile.downloadFullFileName = os.path.join(mediaFile.downloadPath, mediaFile.downloadName)
                             # check if the file exists again
-                            if os.path.exists(newFile):
+                            if os.path.exists(mediaFile.downloadFullFileName):
                                 if not addUniqueIdentifier:
                                     doRename = False
-                                    fileAlreadyExists(fullFileName, fileSkippedDisplay, fileAlreadyExistsDisplay, newFile)
+                                    fileAlreadyExists(mediaFile)
                                 else:
                                     # add  basic suffix to make the filename unique
-                                    name = os.path.splitext(newName)
+                                    name = os.path.splitext(mediaFile.downloadName)
                                     suffixAlreadyUsed = True
                                     while suffixAlreadyUsed:
-                                        if newFile in duplicate_files:
-                                            duplicate_files[newFile] +=  1
+                                        if mediaFile.downloadFullFileName in duplicate_files:
+                                            duplicate_files[mediaFile.downloadFullFileName] +=  1
                                         else:
-                                            duplicate_files[newFile] = 1
-                                        identifier = '_%s' % duplicate_files[newFile]
-                                        newName = name[0] + identifier + name[1]
-                                        possibleNewFile = os.path.join(path,  newName)
+                                            duplicate_files[mediaFile.downloadFullFileName] = 1
+                                        identifier = '_%s' % duplicate_files[mediaFile.downloadFullFileName]
+                                        mediaFile.downloadName = name[0] + identifier + name[1]
+                                        possibleNewFile = os.path.join(mediaFile.downloadPath, mediaFile.downloadName)
                                         suffixAlreadyUsed = os.path.exists(possibleNewFile)
 
-                                    fileAlreadyExists(fullFileName, fileSkippedDisplay, fileAlreadyExistsDisplay, newFile, identifier=identifier)
-                                    newFile = possibleNewFile
+                                    fileAlreadyExists(mediaFile, identifier)
+                                    mediaFile.downloadFullFileName = possibleNewFile
                                     
 
                             if doRename:
+                                rename_succeeded = False
                                 if using_gio:
-                                    g_dest = gio.File(path=newFile)
+                                    g_dest = gio.File(path=mediaFile.downloadFullFileName)
                                     g_src = gio.File(path=tempWorkingfile)
-                                    if not g_src.move(g_dest, progress_callback, cancellable=gio.Cancellable()):
-                                        downloadCopyingError(tempWorkingfile, newFile, fileBeingDownloadedDisplay)                                  
-                                else:
-                                    os.rename(tempWorkingfile, newFile)
-                                        
-                                fileDownloaded = True
-                                if usesImageSequenceElements:
-                                    if self.prefs.synchronize_raw_jpg and self.isImage:
-                                        name, ext = os.path.splitext(originalName)
-                                        if sequence_to_use is None:
-                                            with self.fileSequenceLock:
-                                                seq = self.imageRenamePrefsFactory.sequences.getFinalSequence()
+                                    try:
+                                        if not g_src.move(g_dest, progress_callback_no_update, cancellable=gio.Cancellable()):
+                                            downloadCopyingError(mediaFile, source=tempWorkingfile, destination=mediaFile.downloadFullFileName)
                                         else:
-                                            seq = sequence_to_use
-                                        with self.downloadedFilesLock:
-                                            downloaded_files.add_download(name, ext, fileMetadata.dateTime(), fileMetadata.subSeconds(), seq) 
+                                            rename_succeeded = True
+                                    except:
+                                        downloadCopyingError(mediaFile, source=tempWorkingfile, destination=mediaFile.downloadFullFileName)
+                                else:
+                                    os.rename(tempWorkingfile, mediaFile.downloadFullFileName)
+                                    rename_succeeded = True
+                                        
+                                if rename_succeeded:
+                                    fileDownloaded = True
+                                    if mediaFile.status != config.STATUS_DOWNLOADED_WITH_WARNING:
+                                        mediaFile.status = config.STATUS_DOWNLOADED
+                                    if usesImageSequenceElements:
+                                        if self.prefs.synchronize_raw_jpg and mediaFile.isImage:
+                                            name, ext = os.path.splitext(mediaFile.name)
+                                            if sequence_to_use is None:
+                                                with self.fileSequenceLock:
+                                                    seq = renameFactory.sequences.getFinalSequence()
+                                            else:
+                                                seq = sequence_to_use
+                                            with self.downloadedFilesLock:
+                                                downloaded_files.add_download(name, ext, mediaFile.metadata.dateTime(), mediaFile.metadata.subSeconds(), seq) 
 
-                                    
+                                        
+                                        with self.fileSequenceLock:
+                                            if sequence_to_use is None:
+                                                renameFactory.sequences.imageCopySucceeded()
+                                                if usesStoredSequenceNo:
+                                                    self.prefs.stored_sequence_no += 1
+                                                
                                     with self.fileSequenceLock:
                                         if sequence_to_use is None:
-                                            renameFactory.sequences.imageCopySucceeded()
-                                            if usesStoredSequenceNo:
-                                                self.prefs.stored_sequence_no += 1
-                                            
-                                with self.fileSequenceLock:
-                                    if sequence_to_use is None:
-                                        if self.prefs.incrementDownloadsToday():
-                                            # A new day, according the user's preferences of what time a day begins, has started
-                                            cmd_line(_("New day has started - resetting 'Downloads Today' sequence number"))
-                                            
-                                            sequences.setDownloadsToday(0)
+                                            if self.prefs.incrementDownloadsToday():
+                                                # A new day, according the user's preferences of what time a day begins, has started
+                                                cmd_line(_("New day has started - resetting 'Downloads Today' sequence number"))
+                                                
+                                                sequences.setDownloadsToday(0)
                     
             except IOError, (errno, strerror):
-                downloadCopyingError(fullFileName, newFile, fileBeingDownloadedDisplay, errno, strerror)
+                downloadCopyingError(mediaFile, mediaFile.fullFileName, mediaFile.downloadFullFileName, errno=errno, strerror=strerror)
 
             except OSError, (errno, strerror):
-                downloadCopyingError(fullFileName, newFile, fileBeingDownloadedDisplay, errno, strerror)                
+                downloadCopyingError(mediaFile, mediaFile.fullFileName, mediaFile.downloadFullFileName, errno=errno, strerror=strerror)                
             
-            if usesImageSequenceElements:
+            if usesSequenceElements:
                 if not fileDownloaded and sequence_to_use is None:
-                    self.imageRenamePrefsFactory.sequences.imageCopyFailed()
+                    renameFactory.sequences.imageCopyFailed()
                     
 
-            return (fileDownloaded,  newName,  newFile)
+            return fileDownloaded
             
 
         def backupFile(subfolder, newName, fileDownloaded, newFile, originalFile):
@@ -2474,6 +2441,47 @@ class CopyPhotos(Thread):
                 self.lock.release()
                 return None      
             
+        def setupBackup():
+            #check for presence of backup path or volumes
+            can_backup = False
+            if self.prefs.backup_images:
+                can_backup = True
+                if self.prefs.backup_missing == config.REPORT_ERROR:
+                    e = config.SERIOUS_ERROR
+                elif self.prefs.backup_missing == config.REPORT_WARNING:
+                    e = config.WARNING            
+                if not self.prefs.backup_device_autodetection:
+                    if not os.path.isdir(self.prefs.backup_location):
+                        # the user has manually specified a path, but it
+                        # does not exist. This is a problem.
+                        try:
+                            os.makedirs(self.prefs.backup_location)
+                        except:
+                            if self.prefs.backup_missing <> config.IGNORE:
+                                logError(e, _("Backup path does not exist"),
+                                            _("The path %s could not be created") % path, 
+                                            _("No backups can occur")
+                                        )
+                            can_backup = False
+                            
+                elif self.prefs.backup_missing <> config.IGNORE:
+                    if not len(self.parentApp.backupVolumes):
+                        logError(e, _("Backup device missing"), 
+                                    _("No backup device was automatically detected"), 
+                                    _("No backups can occur"))
+                        can_backup = False
+                        
+            return can_backup
+        
+        
+        def needAJobCode():
+            for f in self.cardMedia.imagesAndVideos:
+                mediaFile = f[0]
+                if mediaFile.status in [config.STATUS_WARNING, config.STATUS_NOT_DOWNLOADED]:
+                    if not mediaFile.jobcode:
+                        return True
+            return False
+            
         self.hasStarted = True
         display_queue.open('w')
 
@@ -2483,20 +2491,22 @@ class CopyPhotos(Thread):
         #Check photo and video download path, create if necessary
         photoBaseDownloadDir = self.prefs.download_folder
         if not checkDownloadPath(photoBaseDownloadDir):
-            return
-        photoTempWorkingDir = createTempDir(photoBaseDownloadDir)
-        if not photoTempWorkingDir:
+            return #why return and not quit() ?
+        #Create temporary directory in which to download photos
+        self.photoTempWorkingDir = createTempDir(photoBaseDownloadDir)
+        if not self.photoTempWorkingDir:
             return
 
         if DOWNLOAD_VIDEO:
             videoBaseDownloadDir = self.prefs.video_download_folder
             if not checkDownloadPath(videoBaseDownloadDir):
                 return
-            videoTempWorkingDir = createTempDir(videoBaseDownloadDir)
-            if not videoTempWorkingDir:
+            #Create temporary directory in which to download videos and generate video thumbnails
+            self.videoTempWorkingDir = createTempDir(videoBaseDownloadDir)
+            if not self.videoTempWorkingDir:
                 return
         else:
-            videoBaseDownloadDir = videoTempWorkingDir = None
+            videoBaseDownloadDir = self.videoTempWorkingDir = None
         
         if not scanMedia():
             cmd_line(_("This device has no %(types_searched_for)s to download from.") % {'types_searched_for': self.types_searched_for})
@@ -2504,239 +2514,175 @@ class CopyPhotos(Thread):
             display_queue.close("rw")
             self.running = False
             return
-        elif self.autoStart and need_job_code:
-            if job_code == None:
-                self.waitingForJobCode = True
-                display_queue.put((self.parentApp.getJobCode, ()))
+            
+        all_files_downloaded = False
+        while not all_files_downloaded:
+            if self.autoStart and need_job_code:
+                if needAJobCode():
+                    self.waitingForJobCode = True
+                    display_queue.put((self.parentApp.getJobCode, ()))
+                    self.running = False
+                    self.lock.acquire()
+                    self.running = True
+                    self.waitingForJobCode = False
+            elif not self.autoStart:
+                # halt thread, waiting to be restarted so download proceeds
                 self.running = False
                 self.lock.acquire()
+
+                if not self.ctrl:
+                    # thread will restart at this point, when the program is exiting
+                    # so must exit if self.ctrl indicates this
+
+                    self.running = False
+                    display_queue.close("rw")
+                    return
+
                 self.running = True
-                self.waitingForJobCode = False
-        elif not self.autoStart:
-            # halt thread, waiting to be restarted so download proceeds
-            self.running = False
-            self.lock.acquire()
-
-            if not self.ctrl:
-                # thread will restart at this point, when the program is exiting
-                # so must exit if self.ctrl indicates this
-
-                self.running = False
-                display_queue.close("rw")
-                return
-
-            self.running = True
-        
-        if not getPrefs(True):
-                self.running = False
-                display_queue.close("rw")           
-                return
-         
             
-        self.downloadStarted = True
-        cmd_line(_("Download has started from %s") % self.cardMedia.prettyName(limit=0))
-        
-        #check for presence of backup path or volumes
-        if self.prefs.backup_images:
-            can_backup = True
-            if self.prefs.backup_missing == config.REPORT_ERROR:
-                e = config.SERIOUS_ERROR
-            elif self.prefs.backup_missing == config.REPORT_WARNING:
-                e = config.WARNING            
-            if not self.prefs.backup_device_autodetection:
-                if not os.path.isdir(self.prefs.backup_location):
-                    # the user has manually specified a path, but it
-                    # does not exist. This is a problem.
-                    try:
-                        os.makedirs(self.prefs.backup_location)
-                    except:
-                        if self.prefs.backup_missing <> config.IGNORE:
-                            logError(e, _("Backup path does not exist"),
-                                        _("The path %s could not be created") % path, 
-                                        _("No backups can occur")
-                                    )
-                        can_backup = False
+            if not getPrefs(True):
+                    self.running = False
+                    display_queue.close("rw")           
+                    return
+             
+                
+            self.downloadStarted = True
+            cmd_line(_("Download has started from %s") % self.cardMedia.prettyName(limit=0))
+            
+            
+            can_backup = setupBackup()
+            
+            #FIXME!!!!
+            if need_job_code and job_code == None:
+                sys.stderr.write(str(self.thread_id ) + ": job code should never be None\n")
+                self.imageRenamePrefsFactory.setJobCode('unknown-job-code')
+                self.subfolderPrefsFactory.setJobCode('unknown-job-code')
+            else:
+                self.imageRenamePrefsFactory.setJobCode(job_code)
+                self.videoRenamePrefsFactory.setJobCode(job_code)
+                self.subfolderPrefsFactory.setJobCode(job_code)
+                self.videoSubfolderPrefsFactory.setJobCode(job_code)
+                
+            
+            i = 0
+            sizeDownloaded = noFilesDownloaded = noImagesDownloaded = noVideosDownloaded = noImagesSkipped = noVideosSkipped = 0
+            filesDownloadedSuccessfully = []
+            
+            sizeFiles = self.cardMedia.sizeOfImagesAndVideos(humanReadable = False)
+            display_queue.put((self.parentApp.addToTotalDownloadSize, (sizeFiles, )))
+            display_queue.put((self.parentApp.setOverallDownloadMark, ()))
+            display_queue.put((self.parentApp.postStartDownloadTasks,  ()))
+            
+            sizeFiles = float(sizeFiles)
+            noFiles = self.cardMedia.numberOfImagesAndVideos()
+            
+            addUniqueIdentifier = self.prefs.download_conflict_resolution == config.ADD_UNIQUE_IDENTIFIER
+            usesImageSequenceElements = self.imageRenamePrefsFactory.usesSequenceElements()
+            usesVideoSequenceElements = self.videoRenamePrefsFactory.usesSequenceElements()
+            usesSequenceElements = usesVideoSequenceElements or usesImageSequenceElements
+            
+            usesStoredSequenceNo = (self.imageRenamePrefsFactory.usesTheSequenceElement(rn.STORED_SEQ_NUMBER) or
+                                    self.videoRenamePrefsFactory.usesTheSequenceElement(rn.STORED_SEQ_NUMBER))
+            sequences.setUseOfSequenceElements(
+                self.imageRenamePrefsFactory.usesTheSequenceElement(rn.SESSION_SEQ_NUMBER), 
+                self.imageRenamePrefsFactory.usesTheSequenceElement(rn.SEQUENCE_LETTER))
+            
+
+            while i < noFiles:
+                # if the user pauses the download, then this will be triggered
+                if not self.running:
+                    self.lock.acquire()
+                    self.running = True
+                
+                if not self.ctrl:
+                    self.running = False
+                    cleanUp()
+                    display_queue.close("rw")
+                    return
+                
+                # get information about the image to deduce image name and path
+                mediaFile = self.cardMedia.imagesAndVideos[i][0]
+                if mediaFile.status == config.STATUS_DOWNLOAD_PENDING:
+                
+                    if mediaFile.isImage:
+                        tempWorkingDir = self.photoTempWorkingDir
+                        baseDownloadDir = photoBaseDownloadDir
+                    else:
+                        tempWorkingDir = self.videoTempWorkingDir
+                        baseDownloadDir = videoBaseDownloadDir
                         
-            elif self.prefs.backup_missing <> config.IGNORE:
-                if not len(self.parentApp.backupVolumes):
-                    logError(e, _("Backup device missing"), 
-                                _("No backup device was automatically detected"), 
-                                _("No backups can occur"))
-                    can_backup = False        
-        
-        if need_job_code and job_code == None:
-            sys.stderr.write(str(self.thread_id ) + ": job code should never be None\n")
-            self.imageRenamePrefsFactory.setJobCode('unknown-job-code')
-            self.subfolderPrefsFactory.setJobCode('unknown-job-code')
-        else:
-            self.imageRenamePrefsFactory.setJobCode(job_code)
-            self.videoRenamePrefsFactory.setJobCode(job_code)
-            self.subfolderPrefsFactory.setJobCode(job_code)
-            self.videoSubfolderPrefsFactory.setJobCode(job_code)
-            
-        # Some photos may not have metadata (this
-        # is unlikely for photos straight out of a 
-        # camera, but it is possible for photos that have been edited).  If
-        # only non-dynamic components make up the rest of an image name 
-        # (e.g. text specified by the user), then relying on metadata will 
-        # likely produce duplicate names. 
-        
-        needMetaDataToCreateUniqueImageName = self.imageRenamePrefsFactory.needImageMetaDataToCreateUniqueName()
-        
-        # subfolder generation also need to be examined, but here the need is
-        # not so exacting, since subfolders contain photos, and naturally the
-        # requirement to be unique is far more relaxed.  However if subfolder 
-        # generation relies entirely on metadata, that is a problem worth
-        # looking for
-        needMetaDataToCreateUniqueSubfolderName = self.subfolderPrefsFactory.needMetaDataToCreateUniqueName()
-        
-        i = 0
-        sizeDownloaded = noFilesDownloaded = noImagesDownloaded = noVideosDownloaded = noImagesSkipped = noVideosSkipped = 0
-        filesDownloadedSuccessfully = []
-        
-        sizeFiles = self.cardMedia.sizeOfImagesAndVideos(humanReadable = False)
-        display_queue.put((self.parentApp.addToTotalDownloadSize, (sizeFiles, )))
-        display_queue.put((self.parentApp.setOverallDownloadMark, ()))
-        display_queue.put((self.parentApp.postStartDownloadTasks,  ()))
-        
-        sizeFiles = float(sizeFiles)
-        noFiles = self.cardMedia.numberOfImagesAndVideos()
-        
-        if self.noImages > 0:
-            photoBaseDownloadDir = self.prefs.download_folder
-            if not checkDownloadPath(photoBaseDownloadDir):
-                return
-            photoTempWorkingDir = createTempDir(photoBaseDownloadDir)
-            if not photoTempWorkingDir:
-                return
-        else:
-            photoBaseDownloadDir = photoTempWorkingDir = None
-        if DOWNLOAD_VIDEO and self.noVideos > 0:
-            videoBaseDownloadDir = self.prefs.video_download_folder
-            if not checkDownloadPath(videoBaseDownloadDir):
-                return
-            videoTempWorkingDir = createTempDir(videoBaseDownloadDir)
-            if not videoTempWorkingDir:
-                return            
-        else:
-            videoBaseDownloadDir = videoTempWorkingDir = None
-        
-        addUniqueIdentifier = self.prefs.download_conflict_resolution == config.ADD_UNIQUE_IDENTIFIER
-        usesImageSequenceElements = self.imageRenamePrefsFactory.usesSequenceElements()
-        usesVideoSequenceElements = self.videoRenamePrefsFactory.usesSequenceElements()
-        usesSequenceElements = usesVideoSequenceElements or usesImageSequenceElements
-        
-        usesStoredSequenceNo = (self.imageRenamePrefsFactory.usesTheSequenceElement(rn.STORED_SEQ_NUMBER) or
-                                self.videoRenamePrefsFactory.usesTheSequenceElement(rn.STORED_SEQ_NUMBER))
-        sequences.setUseOfSequenceElements(
-            self.imageRenamePrefsFactory.usesTheSequenceElement(rn.SESSION_SEQ_NUMBER), 
-            self.imageRenamePrefsFactory.usesTheSequenceElement(rn.SEQUENCE_LETTER))
-        
+                    skipFile, sequence_to_use = generateSubfolderAndFileName(mediaFile)
 
-        while i < noFiles:
-            if not self.running:
-                self.lock.acquire()
-                self.running = True
-            
-            if not self.ctrl:
-                self.running = False
-                cleanUp()
-                display_queue.close("rw")
-                return
-            
-            # get information about the image to deduce image name and path
-            name, root, size, modificationTime, thumbnail, orientation = self.cardMedia.imagesAndVideos[i]
-            fullFileName = os.path.join(root, name)
-            
-            self.isImage = media.isImage(name)
-            if self.isImage:
-                fileBeingDownloadedDisplay = _('photo')
-                fileBeingDownloadedDisplayCap = _('Photo')
-                fileSkippedDisplay = _("Photo skipped")
-                fileAlreadyExistsDisplay = _("Photo already exists")
-                fallback_date = None
-                tempWorkingDir = photoTempWorkingDir
-                baseDownloadDir = photoBaseDownloadDir
-            else:
-                fileBeingDownloadedDisplay = _('video')
-                fileBeingDownloadedDisplayCap = _('Video')
-                fileSkippedDisplay = _("Video skipped")
-                fileAlreadyExistsDisplay = _("Video already exists")
-                fallback_date = modificationTime
-                tempWorkingDir = videoTempWorkingDir
-                baseDownloadDir = videoBaseDownloadDir
+                    if skipFile:
+                        if mediaFile.isImage:
+                            noImagesSkipped += 1
+                        else:
+                            noVideosSkipped += 1
+                    else:
+                        fileDownloaded = downloadFile(mediaFile, sequence_to_use)
+
+                        if self.prefs.backup_images:
+                            if can_backup:
+                                backed_up = backupFile(mediaFile)
+                            else:
+                                backed_up = False
+
+                        if fileDownloaded:
+                            
+                            #mediaFile.status = config.STATUS_DOWNLOADED
+                            noFilesDownloaded += 1
+                            if mediaFile.isImage:
+                                noImagesDownloaded += 1
+                            else:
+                                noVideosDownloaded += 1
+                            if self.prefs.backup_images and backed_up:
+                                filesDownloadedSuccessfully.append(mediaFile.fullFileName)
+                            elif not self.prefs.backup_images:
+                                filesDownloadedSuccessfully.append(mediaFile.fullFileName)
+                        else:
+                            if mediaFile.isImage:
+                                noImagesSkipped += 1
+                            else:
+                                noVideosSkipped += 1
+                                
+
+                        display_queue.put((self.parentApp.update_status_post_download, (mediaFile.treerowref, )))
+                        
                 
-            skipFile, fileMetadata, newName, newFile, path, subfolder, sequence_to_use = generateSubfolderAndFileName(
-                       fullFileName, name, needMetaDataToCreateUniqueImageName,  
-                       needMetaDataToCreateUniqueSubfolderName, fallback_date)
-
-            if skipFile:
-                if self.isImage:
-                    noImagesSkipped += 1
-                else:
-                    noVideosSkipped += 1
-            else:
-                fileDownloaded, newName, newFile  = downloadFile(path, newFile, newName, name, fullFileName,  
-                                                                   fileMetadata, subfolder, sequence_to_use, fallback_date)
-
-                if self.prefs.backup_images:
-                    if can_backup:
-                        backed_up = backupFile(subfolder, newName, fileDownloaded, newFile, fullFileName)
-                    else:
-                        backed_up = False
-
-                if fileDownloaded:
-                    noFilesDownloaded += 1
-                    if self.isImage:
-                        noImagesDownloaded += 1
-                    else:
-                        noVideosDownloaded += 1
-                    if self.prefs.backup_images and backed_up:
-                        filesDownloadedSuccessfully.append(fullFileName)
-                    elif not self.prefs.backup_images:
-                        filesDownloadedSuccessfully.append(fullFileName)
-                else:
-                    if self.isImage:
-                        noImagesSkipped += 1
-                    else:
-                        noVideosSkipped += 1
+                sizeDownloaded += mediaFile.size
+                percentComplete = (sizeDownloaded / sizeFiles) * 100
+                if sizeDownloaded == sizeFiles:
+                    self.downloadComplete = True
+                progressBarText = _("%(number)s of %(total)s %(filetypes)s") % {'number':  i + 1, 'total': noFiles, 'filetypes':self.display_file_types}
+                display_queue.put((media_collection_treeview.updateProgress, (self.thread_id, percentComplete, progressBarText, mediaFile.size)))
                 
-                #thumbnail, orientation = getThumbnail(fileMetadata)
+                i += 1
 
-                display_queue.put((thumbnail_hbox.addImage, (self.thread_id, thumbnail, orientation, fullFileName, fileDownloaded, self.isImage)))
-            
-            sizeDownloaded += size
-            percentComplete = (sizeDownloaded / sizeFiles) * 100
-            if sizeDownloaded == sizeFiles:
-                self.downloadComplete = True
-            progressBarText = _("%(number)s of %(total)s %(filetypes)s") % {'number':  i + 1, 'total': noFiles, 'filetypes':self.display_file_types}
-            display_queue.put((media_collection_treeview.updateProgress, (self.thread_id, percentComplete, progressBarText, size)))
-            
-            i += 1
-
-        with self.statsLock:
-            self.downloadStats.adjust(sizeDownloaded, noImagesDownloaded, noVideosDownloaded, noImagesSkipped, noVideosSkipped, self.noWarnings, self.noErrors)
-            
-        if self.prefs.auto_delete:
-            j = 0
-            for imageOrVideo in filesDownloadedSuccessfully:
-                try:
-                    os.unlink(imageOrVideo)
-                    j += 1
-                except OSError, (errno, strerror):
-                    logError(config.SERIOUS_ERROR,  _("Could not delete photo or video from device"),  
-                            _("Photo: %(source)s\nError: %(errno)s %(strerror)s")
-                            % {'source': image, 'errno': errno,  'strerror': strerror})
-                except:
-                    logError(config.SERIOUS_ERROR,  _("Could not delete photo or video from device"),  
-                            _("Photo: %(source)s"))
-                    
-            cmd_line(_("Deleted %(number)i %(filetypes)s from device") % {'number':j, 'filetypes':self.display_file_types})
+            with self.statsLock:
+                self.downloadStats.adjust(sizeDownloaded, noImagesDownloaded, noVideosDownloaded, noImagesSkipped, noVideosSkipped, self.noWarnings, self.noErrors)
+                
+            if self.prefs.auto_delete:
+                j = 0
+                for imageOrVideo in filesDownloadedSuccessfully:
+                    try:
+                        os.unlink(imageOrVideo)
+                        j += 1
+                    except OSError, (errno, strerror):
+                        logError(config.SERIOUS_ERROR,  _("Could not delete photo or video from device"),  
+                                _("Photo: %(source)s\nError: %(errno)s %(strerror)s")
+                                % {'source': image, 'errno': errno,  'strerror': strerror})
+                    except:
+                        logError(config.SERIOUS_ERROR,  _("Could not delete photo or video from device"),  
+                                _("Photo: %(source)s"))
+                        
+                cmd_line(_("Deleted %(number)i %(filetypes)s from device") % {'number':j, 'filetypes':self.display_file_types})
+                
+            break
 
         # must manually delete these variables, or else the media cannot be unmounted (bug in some versions of pyexiv2 / exiv2)
         del self.subfolderPrefsFactory, self.imageRenamePrefsFactory
         try:
-            del fileMetadata
+            pass #del fileMetadata
         except:
             pass
                 
@@ -2745,14 +2691,22 @@ class CopyPhotos(Thread):
         display_queue.put((self.parentApp.notifyUserAllDownloadsComplete,()))
         display_queue.put((self.parentApp.resetSequences,()))
 
-        cleanUp()
         display_queue.put((self.parentApp.exitOnDownloadComplete, ()))
         display_queue.close("rw")
-        
+
+        self.cleanUp()
+                
         self.running = False
         if noFiles:
             self.lock.release()
         
+    
+    def print_status(self):
+        for f in self.cardMedia.imagesAndVideos:
+            
+            if f[0].status == config.STATUS_DOWNLOAD_PENDING:
+                print f[0].name
+    
     def startStop(self):
         if self.isAlive():
             if self.running:
@@ -2763,6 +2717,24 @@ class CopyPhotos(Thread):
     
                 except thread_error:
                     sys.stderr.write(str(self.thread_id) + " thread error\n")
+    
+    def cleanUp(self):
+        """
+        Cleanup functions that must be performed whether the thread exits 
+        early or when it has completed its run.
+        """
+
+
+        for tempWorkingDir in (self.videoTempWorkingDir, self.photoTempWorkingDir):
+            if tempWorkingDir:
+                # possibly delete any lingering files
+                if os.path.isdir(tempWorkingDir):
+                    tf = os.listdir(tempWorkingDir)
+                    if tf:
+                        for f in tf:
+                            os.remove(os.path.join(tempWorkingDir, f))
+                        
+                    os.rmdir(tempWorkingDir)    
     
     def quit(self):
         """ 
@@ -2775,6 +2747,9 @@ class CopyPhotos(Thread):
         Started and paused (alive)
         Completed (not alive, nothing to do)
         """
+        
+        # cleanup any temporary directories and files
+        self.cleanUp()
         
         if self.hasStarted:
             if self.isAlive():            
@@ -3030,7 +3005,7 @@ class RemoveAllJobCodeDialog(gtk.Dialog):
 class JobCodeDialog(gtk.Dialog):
     """ Dialog prompting for a job code"""
     
-    def __init__(self, parent_window, job_codes,  default_job_code, postJobCodeEntryCB, autoStart, entryOnly):
+    def __init__(self, parent_window, job_codes,  default_job_code, postJobCodeEntryCB, autoStart, downloadSelected, entryOnly):
         # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#jobcode
         gtk.Dialog.__init__(self,  _('Enter a Job Code'), None,
                    gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
@@ -3041,6 +3016,7 @@ class JobCodeDialog(gtk.Dialog):
         self.set_icon_from_file(paths.share_dir('glade3/rapid-photo-downloader-about.png'))
         self.postJobCodeEntryCB = postJobCodeEntryCB
         self.autoStart = autoStart
+        self.downloadSelected = downloadSelected
         
         self.combobox = gtk.combo_box_entry_new_text()
         for text in job_codes:
@@ -3050,10 +3026,10 @@ class JobCodeDialog(gtk.Dialog):
         
         if len(job_codes) and not entryOnly:
             # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#jobcode
-            task_label = gtk.Label(_('Enter a new job code, or select a previous one.'))
+            task_label = gtk.Label(_('Enter a new Job Code, or select a previous one'))
         else:
             # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#jobcode
-            task_label = gtk.Label(_('Enter a new job code.'))            
+            task_label = gtk.Label(_('Enter a new Job Code'))            
         task_label.set_line_wrap(True)
         task_hbox = gtk.HBox()
         task_hbox.pack_start(task_label, False, False, padding=6)
@@ -3108,7 +3084,7 @@ class JobCodeDialog(gtk.Dialog):
             cmd_line(_("Job Code entered"))  
         else:
             cmd_line(_("Job Code not entered"))
-        self.postJobCodeEntryCB(self,  userChoseCode,  self.get_job_code(),  self.autoStart)
+        self.postJobCodeEntryCB(self, userChoseCode, self.get_job_code(), self.autoStart, self.downloadSelected)
 
 
 
@@ -3137,7 +3113,8 @@ class SelectionTreeView(gtk.TreeView):
                          gtk.gdk.Pixbuf,        # 10 status icon
                          int,                   # 11 status (downloaded, cannot download, etc, for sorting)
                          str,                   # 12 path (on the device)
-                         str)                   # 13 device
+                         str,                   # 13 device
+                         int)                   # 14 thread id (worker the file is associated with)
                          
         #self.mapThreadToRow = {}
 
@@ -3266,8 +3243,13 @@ class SelectionTreeView(gtk.TreeView):
         
         # icons to be displayed in status column
         self.downloaded_icon = self.render_icon(gtk.STOCK_YES, gtk.ICON_SIZE_MENU)
+        self.download_failed_icon = self.render_icon(gtk.STOCK_NO, gtk.ICON_SIZE_MENU)
         self.error_icon = self.render_icon(gtk.STOCK_DIALOG_ERROR, gtk.ICON_SIZE_MENU)
         self.warning_icon = self.render_icon(gtk.STOCK_DIALOG_WARNING, gtk.ICON_SIZE_MENU)
+        icontheme = gtk.icon_theme_get_default()  
+        self.download_pending_icon = icontheme.load_icon('appointment-soon', 16, gtk.ICON_LOOKUP_USE_BUILTIN) # gnome-fs-loading-icon
+        self.downloaded_with_warning_icon = icontheme.load_icon('emblem-important', 16, gtk.ICON_LOOKUP_USE_BUILTIN)
+        
         # make the not yet downloaded icon a transparent square
         self.not_downloaded_icon = gtk.gdk.Pixbuf(gtk.gdk.COLORSPACE_RGB, False, 8, 16, 16)
         self.not_downloaded_icon.fill(0xffffffff)
@@ -3300,7 +3282,7 @@ class SelectionTreeView(gtk.TreeView):
             
         timestamp = int(timestamp)
             
-        date_human_readable = _("%(date)s\n%(time)s") % {'date':date.strftime("%x"), 'time':date.strftime("%X")}
+        date_human_readable = date_time_human_readable(date, True)
         name = mediaFile.name
         size = mediaFile.size
         thumbnail = mediaFile.thumbnail
@@ -3322,13 +3304,17 @@ class SelectionTreeView(gtk.TreeView):
             type_icon = self.icon_video
             
         if mediaFile.status == config.STATUS_WARNING:
-            status_icon = self.warning_icon.copy()
-        elif mediaFile.status in [config.STATUS_ERROR, config.STATUS_CANNOT_DOWNLOAD]:
-            status_icon = self.error_icon.copy()
+            status_icon = self.warning_icon
+        elif mediaFile.status == config.STATUS_CANNOT_DOWNLOAD:
+            status_icon = self.error_icon
         else:
-            status_icon = self.not_downloaded_icon.copy()
+            status_icon = self.not_downloaded_icon
 
-        self.liststore.append((thumbnail_icon, name, timestamp, date_human_readable, size, common.formatSizeForUser(size), mediaFile.isImage, type_icon, '', mediaFile, status_icon, mediaFile.status, mediaFile.path, mediaFile.deviceName))
+        iter = self.liststore.append((thumbnail_icon, name, timestamp, date_human_readable, size, common.formatSizeForUser(size), mediaFile.isImage, type_icon, '', mediaFile, status_icon, mediaFile.status, mediaFile.path, mediaFile.deviceName, mediaFile.thread_id))
+        
+        #create a reference to this row and store it in the mediaFile
+        path = self.liststore.get_path(iter)
+        mediaFile.treerowref = gtk.TreeRowReference(self.liststore, path)
         
         if not self.user_has_clicked_header:
             self.sort_model.set_sort_column_id(11, gtk.SORT_DESCENDING)
@@ -3367,7 +3353,7 @@ class SelectionTreeView(gtk.TreeView):
             self.parentApp.preview_original_name_label.set_tooltip_text(os.path.join(mediaFile.path, mediaFile.name))
             self.parentApp.preview_name_label.set_tooltip_text(os.path.join(mediaFile.samplePath, mediaFile.sampleName))
 
-            if mediaFile.status in [config.STATUS_WARNING, config.STATUS_ERROR, config.STATUS_CANNOT_DOWNLOAD]:
+            if mediaFile.status in [config.STATUS_WARNING, config.STATUS_DOWNLOAD_FAILED, config.STATUS_DOWNLOADED_WITH_WARNING, config.STATUS_CANNOT_DOWNLOAD]:
                 self.parentApp.preview_problem_title_label.set_markup('<b>' + mediaFile.problem.get_title() + '</b>')
                 self.parentApp.preview_problem_title_label.set_tooltip_text(mediaFile.problem.get_title())
                 
@@ -3444,30 +3430,126 @@ class SelectionTreeView(gtk.TreeView):
     def display_device_column(self, display):
         self.device_column.set_visible(display)
         
-
-    def apply_job_code(self, job_code):
+    def apply_job_code(self, job_code, overwrite=True, to_all_rows=False):
         """
-        Applies the Job code to the selected rows
-        """
-
-        selection = self.get_selection()
-        model, pathlist = selection.get_selected_rows()
+        Applies the Job code to the selected rows, or all rows if to_all_rows is True.
         
-        # Because the model is going to be modified, must get references
-        # to the rows -- cannot just cycle through the selection
-        tree_row_refs = []
-        for path in pathlist:
-            tree_row_refs.append(gtk.TreeRowReference(model, path))
+        If overwrite is True, then it will overwrite any existing job code.
+        """
 
-        #for selection_path in pathlist:
-        for reference in tree_row_refs:
-            selection_path = reference.get_path()
-            path = self.sort_model.convert_path_to_child_path(selection_path)
+        def _apply_job_code():
+            status = self.liststore.get_value(iter, 11)
+            if status in [config.STATUS_DOWNLOAD_PENDING, config.STATUS_WARNING, config.STATUS_NOT_DOWNLOADED]:
+                if overwrite:
+                    self.liststore.set(iter, 8, job_code)
+                else:
+                    if not self.liststore.get_value(iter, 8):
+                        self.liststore.set(iter, 8, job_code)
+                        mediaFile = self.liststore.get_value(iter, 9)
+                        mediaFile.jobcode = job_code
+
+        if to_all_rows:
+            iter = self.liststore.get_iter_first()
+            while iter:
+                _apply_job_code()
+                iter = self.liststore.iter_next(iter)
+        else:
+            selection = self.get_selection()
+            model, pathlist = selection.get_selected_rows()
+            
+            # Because the model is going to be modified, must get references
+            # to the rows -- cannot just cycle through the selection
+            tree_row_refs = []
+            for path in pathlist:
+                tree_row_refs.append(gtk.TreeRowReference(model, path))
+
+            for reference in tree_row_refs:
+                selection_path = reference.get_path()
+                path = self.sort_model.convert_path_to_child_path(selection_path)
+                iter = self.liststore.get_iter(path)
+                _apply_job_code()
+            
+    def job_code_missing(self, selected_only):
+        """
+        Returns True if any of the pending downloads do not have a 
+        job code assigned.
+        
+        If selected_only is True, will only check in rows that the 
+        user has selected.
+        """
+        
+        def _job_code_missing(iter):
+            status = self.liststore.get_value(iter, 11)
+            if status in [config.STATUS_WARNING, config.STATUS_NOT_DOWNLOADED]:
+                job_code = self.liststore.get_value(iter, 8)
+                return not job_code
+            return False
+        
+        v = False
+        if selected_only:
+            selection = self.get_selection()
+            model, pathlist = selection.get_selected_rows()
+            for selection_path in pathlist:
+                path = self.sort_model.convert_path_to_child_path(selection_path)
+                iter = self.liststore.get_iter(path)
+                v = _job_code_missing(iter)
+                if v:
+                    break
+        else:
+            iter = self.liststore.get_iter_first()
+            while iter:
+                v = _job_code_missing(iter)
+                if v:
+                    break
+                iter = self.liststore.iter_next(iter)
+        return v
+
+    
+    def _set_download_pending(self, liststore_iter):
+        existing_status = self.liststore.get_value(liststore_iter, 11)
+        if existing_status in [config.STATUS_WARNING, config.STATUS_NOT_DOWNLOADED]:
+            self.liststore.set(liststore_iter, 11, config.STATUS_DOWNLOAD_PENDING)
+            self.liststore.set(liststore_iter, 10, self.download_pending_icon)
+            # this value is in a thread's list of files to download
+            mediaFile = self.liststore.get_value(liststore_iter, 9)
+            # each thread will see this change in status
+            mediaFile.status = config.STATUS_DOWNLOAD_PENDING        
+        
+    def set_status_to_download(self, selected_only):
+        if selected_only:
+            selection = self.get_selection()
+            model, pathlist = selection.get_selected_rows()
+            tree_row_refs = []
+            for path in pathlist:
+                tree_row_refs.append(gtk.TreeRowReference(model, path))
+            for reference in tree_row_refs:
+                selection_path = reference.get_path()
+                path = self.sort_model.convert_path_to_child_path(selection_path)
+                iter = self.liststore.get_iter(path)
+                self._set_download_pending(iter)
+        else:
+            iter = self.liststore.get_iter_first()
+            while iter:
+                self._set_download_pending(iter)
+                iter = self.liststore.iter_next(iter)
+                
+    def update_status_post_download(self, treerowref):
+        path = treerowref.get_path()
+        if not path:
+            sys.stderr.write("FIXME: SelectionTreeView treerowref no longer refers to valid row\n")
+        else:
             iter = self.liststore.get_iter(path)
-            self.liststore.set(iter, 8, job_code)
-
-
-
+            mediaFile = self.liststore.get_value(iter, 9)
+            status = mediaFile.status
+            self.liststore.set(iter, 11, status)
+            if status == config.STATUS_DOWNLOADED:
+                self.liststore.set(iter, 10, self.downloaded_icon)
+            elif status == config.STATUS_NOT_DOWNLOADED:
+                self.liststore.set(iter, 10, self.download_failed_icon)
+            elif status == config.STATUS_DOWNLOADED_WITH_WARNING:
+                self.liststore.set(iter, 10, self.downloaded_with_warning_icon)
+            elif status == config.STATUS_DOWNLOAD_FAILED:
+                self.liststore.set(iter, 10, self.download_failed_icon)
 
 class SelectionVBox(gtk.VBox):
     """
@@ -3666,7 +3748,7 @@ class SelectionVBox(gtk.VBox):
         """
         The user has selected a Job code, apply it to selected images. 
         """
-        self.selection_treeview.apply_job_code(job_code)
+        self.selection_treeview.apply_job_code(job_code, overwrite = True)
 
             
     def add_file(self, mediaFile):
@@ -3864,7 +3946,7 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
         self.backupVolumes = {}
 
         #Help button and download buttons
-        self._setupDownloadbutton()
+        self._setupDownloadbuttons()
         
         #status bar progress bar
         self.download_progressbar = gtk.ProgressBar()
@@ -4068,43 +4150,49 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
             else:
                 self.prefs.device_blacklist = [path]
                 
-    def _getJobCode(self,  postJobCodeEntryCB,  autoStart):
+    def _getJobCode(self,  postJobCodeEntryCB,  autoStart, downloadSelected):
         """ prompt for a job code """
         
 
         if not self.prompting_for_job_code:
             cmd_line(_("Prompting for Job Code"))
             self.prompting_for_job_code = True
-            j = JobCodeDialog(self.widget,  self.prefs.job_codes,  self.last_chosen_job_code, postJobCodeEntryCB,  autoStart, False)
+            j = JobCodeDialog(self.widget, self.prefs.job_codes,  self.last_chosen_job_code, postJobCodeEntryCB,  autoStart, downloadSelected, False)
         else:
             cmd_line(_("Already prompting for Job Code, do not prompt again"))
         
-    def getJobCode(self,  autoStart=True):
-        """ called from the copyphotos thread"""
+    def getJobCode(self, autoStart=True, downloadSelected=False):
+        """ called from the copyphotos thread, or when the user..."""
         
-        self._getJobCode(self.gotJobCode,  autoStart)
+        self._getJobCode(self.gotJobCode, autoStart, downloadSelected)
         
-    def gotJobCode(self,  dialog,  userChoseCode,  code, autoStart):
+    def gotJobCode(self, dialog, userChoseCode, code, autoStart, downloadSelected):
         dialog.destroy()
         self.prompting_for_job_code = False
         
         if userChoseCode:
             self.assignJobCode(code)
             self.last_chosen_job_code = code
-            if autoStart:
+            self.selection_vbox.selection_treeview.apply_job_code(code, overwrite=False, to_all_rows = not downloadSelected)
+            self.selection_vbox.selection_treeview.set_status_to_download(selected_only = downloadSelected)
+            if downloadSelected or not autoStart:
+                cmd_line(_("Starting downloads"))
+                #self.startDownload()
+            else:
+                # autostart is true
                 cmd_line(_("Starting downloads that have been waiting for a Job Code"))
                 for w in workers.getWaitingForJobCodeWorkers():
                     w.startStop()    
-            else:
-                cmd_line(_("Starting downloads"))
-                self.startDownload()
                 
 
         # FIXME: what happens to these workers that are waiting? How will the user start their download?
         # check if need to add code to start button
             
-    def addFileToSelection(self, mediaFile):
+    def addFile(self, mediaFile):
         self.selection_vbox.add_file(mediaFile)
+        
+    def update_status_post_download(self, treerowref):
+        self.selection_vbox.selection_treeview.update_status_post_download(treerowref)
             
     def on_menu_size_column_toggled(self, widget):
         self.prefs.display_size_column = widget.get_active()
@@ -4533,7 +4621,7 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
             else:
                 self.initiateScan(path, volume, autoStart)
         
-    def _setupDownloadbutton(self):
+    def _setupDownloadbuttons(self):
         self.download_hbutton_box = gtk.HButtonBox()
         self.download_hbutton_box.set_spacing(12)
         self.download_hbutton_box.set_homogeneous(False)
@@ -4882,15 +4970,25 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
         If pause, a click indicates to pause all running downloads.
         """
         if self.download_button_is_download:
-            if need_job_code and job_code == None and not self.prompting_for_job_code:
-                self.getJobCode(autoStart=False)
+            if need_job_code and self.selection_vbox.selection_treeview.job_code_missing(False): # and not self.prompting_for_job_code:
+                self.getJobCode(autoStart=False, downloadSelected=False)
             else:
-                self.startDownload()
+                self.selection_vbox.selection_treeview.set_status_to_download(selected_only = False)
+#                self.startDownload()
         else:
             self.pauseDownload()
 
     def on_download_selected_button_clicked(self, widget):
-        print "on_download_selected_button_clicked"
+        # set the status of the selected workers to be downloading pending
+        if need_job_code and self.selection_vbox.selection_treeview.job_code_missing(True):
+            #and not self.prompting_for_job_code:
+            self.getJobCode(autoStart=False, downloadSelected=True)
+        else:
+            self.selection_vbox.selection_treeview.set_status_to_download(selected_only = True)
+            for w in workers.getReadyToDownloadWorkers():
+                w.print_status()
+                
+
         
     def on_help_button_clicked(self, widget):
         webbrowser.open("http://www.damonlynch.net/rapid/help.html")

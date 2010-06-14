@@ -15,7 +15,7 @@
 ### along with this program; if not, write to the Free Software
 ### Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-version = '0.2.2'
+version = '0.2.3'
 
 GCONF_KEY="/apps/rapid-photo-downloader"
 GLADE_FILE = "glade3/rapid.glade"
@@ -49,10 +49,12 @@ WARNING = 3
 MAX_LENGTH_DEVICE_NAME = 15
 MAX_THUMBNAIL_SIZE = 160
 
-STATUS_DOWNLOADED = 0
-STATUS_NOT_DOWNLOADED = 1
-STATUS_WARNING = 2
-STATUS_ERROR = 3
-STATUS_CANNOT_DOWNLOAD = 4
+STATUS_DOWNLOADED =         0       # downloaded successfully
+STATUS_DOWNLOAD_FAILED = 1          # tried to download but failed
+STATUS_DOWNLOADED_WITH_WARNING = 2  # downloaded ok but there was a warning
+STATUS_NOT_DOWNLOADED = 3           # has not yet been downloaded (but might be if the user chooses)
+STATUS_DOWNLOAD_PENDING = 4         # going to try to download it
+STATUS_WARNING = 5                  # warning (shown in pre-download preview)
+STATUS_CANNOT_DOWNLOAD = 6          # cannot be downloaded
 
 
