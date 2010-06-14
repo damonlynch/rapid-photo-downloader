@@ -85,7 +85,7 @@ problem_definitions = {
     FILE_ALREADY_EXISTS_NO_DOWNLOAD:(FILE_ALREADY_EXISTS,   _("%(filetype)s already exists"), False),
     UNIQUE_IDENTIFIER_ADDED:        (UNIQUE_IDENTIFIER_CAT, _("%(filetype)s already exists"), False),
     
-    SAME_FILE_DIFFERENT_EXIF:       (DIFFERENT_EXIF,        _("First photo: %(image1)s %(image1_date_time)s:%(image1_subseconds)s\nSecond photo: %(image2)s %(image2_date_time)s:%(image2_subseconds)s"), False),
+    SAME_FILE_DIFFERENT_EXIF:       (DIFFERENT_EXIF,        _("First photo: %(image1)s %(image1_date_time)s\nSecond photo: %(image2)s %(image2_date_time)s"), False),
     
 }
 
@@ -181,6 +181,9 @@ class Problem:
 
         if GENERATION_PROBLEM in self.categories:
             v = self.extra_detail[FILE_CANNOT_BE_DOWNLOADED]
+            
+        if DIFFERENT_EXIF in self.categories:
+            v = self.problems[SAME_FILE_DIFFERENT_EXIF][0] 
         
         for p in self.problems:
             vv = ''

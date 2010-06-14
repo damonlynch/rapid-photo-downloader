@@ -1539,11 +1539,17 @@ def file_types_by_number(noImages, noVideos):
             v = _('photo')
     return v
     
-def date_time_human_readable(date, with_line_break):
+def date_time_human_readable(date, with_line_break=True):
     if with_line_break:
         return _("%(date)s\n%(time)s") % {'date':date.strftime("%x"), 'time':date.strftime("%X")}
     else:
         return _("%(date)s %(time)s") % {'date':date.strftime("%x"), 'time':date.strftime("%X")}
+
+def date_time_subseconds_human_readable(date, subseconds):
+    return _("%(date)s %(hour)s:%(minute)s:%(second)s:%(subsecond)s") % \
+            {'date':date.strftime("%x"), 'hour':date.strftime("%H"),
+             'minute':date.strftime("%M"), 'second':date.strftime("%S"),
+             'subsecond': subseconds}
 
 class CopyPhotos(Thread):
     """Copies photos from source to destination, backing up if needed"""
@@ -2012,9 +2018,15 @@ class CopyPhotos(Thread):
             """Notify the user that a file was already downloaded with the same name, but the exif information was different"""
             i1_ext, i1_date_time, i1_subseconds = downloaded_files.extExifDateTime(image_name)
             mediaFile.problem.add_problem(None, pn.SAME_FILE_DIFFERENT_EXIF,
-                {'image1': "%s%s" % (image_name, i1_ext), 'image1_date_time': date_time_human_readable(i1_date_time, False), 'image1_subseconds': i1_subseconds,
-                'image2': mediaFile.name, 'image2_date_time': date_time_human_readable(mediaFile.metadata.dateTime(), False), 'image2_subseconds': mediaFile.metadata.subSeconds()})
-            logError(config.WARNING, mediaFile.get_title(), mediaFile.get_problems())
+                {'image1': "%s%s" % (image_name, i1_ext), 
+                'image1_date_time': date_time_subseconds_human_readable(
+                                    i1_date_time, i1_subseconds), 
+                'image2': mediaFile.name, 
+                'image2_date_time': date_time_subseconds_human_readable(
+                                    mediaFile.metadata.dateTime(), 
+                                    mediaFile.metadata.subSeconds())})
+
+            logError(config.WARNING, mediaFile.problem.get_title(), mediaFile.problem.get_problems())
             mediaFile.status = config.STATUS_DOWNLOADED_WITH_WARNING
 
         def generateSubfolderAndFileName(mediaFile):
@@ -2054,7 +2066,8 @@ class CopyPhotos(Thread):
                             # there is no point to download it, as there is no way a unique filename will be generated
                             alreadyDownloaded = skipFile = True
                     elif i == -99:
-                        sameNameDifferentExif(image_name, mediaFile)
+                        pass
+                        #sameNameDifferentExif(image_name, mediaFile)
                        
                 
             # pass the subfolder the image will go into, as this is needed to determine subfolder sequence numbers 
@@ -2090,7 +2103,8 @@ class CopyPhotos(Thread):
                 renameFactory = self.imageRenamePrefsFactory
                 
             def progress_callback(amount_downloaded, total):
-                print common.formatSizeForUser(amount_downloaded), common.formatSizeForUser(total)
+                pass
+                #print common.formatSizeForUser(amount_downloaded), common.formatSizeForUser(total)
                 
             def progress_callback_no_update(amount_downloaded, total):
                 pass
@@ -2163,7 +2177,7 @@ class CopyPhotos(Thread):
                                                                     sequencesPreliminary = False,
                                                                     sequence_to_use = sequence_to_use,
                                                                     fallback_date = mediaFile.modificationTime)
-                                checkProblemWithNameGeneration(mediaFile)
+                                #checkProblemWithNameGeneration(mediaFile)
                                 if not mediaFile.downloadName:
                                     # there was a serious error generating the filename
                                     doRename = False                            
@@ -2403,12 +2417,7 @@ class CopyPhotos(Thread):
             
             n.set_icon_from_pixbuf(icon)
             n.show()            
-        
 
-        
-
-
-                            
         def createTempDir(baseDir):
             """
             Create a temporary directory in which to download the photos to.
@@ -2596,7 +2605,7 @@ class CopyPhotos(Thread):
                 
                 if not self.ctrl:
                     self.running = False
-                    cleanUp()
+                    self.cleanUp()
                     display_queue.close("rw")
                     return
                 
@@ -3242,18 +3251,21 @@ class SelectionTreeView(gtk.TreeView):
         self.user_has_clicked_header = False
         
         # icons to be displayed in status column
-        self.downloaded_icon = self.render_icon(gtk.STOCK_YES, gtk.ICON_SIZE_MENU)
-        self.download_failed_icon = self.render_icon(gtk.STOCK_NO, gtk.ICON_SIZE_MENU)
+        icontheme = gtk.icon_theme_get_default()  
+        #self.downloaded_icon = self.render_icon(gtk.STOCK_YES, gtk.ICON_SIZE_MENU)
+        self.downloaded_icon = icontheme.load_icon('document-save', 16, gtk.ICON_LOOKUP_USE_BUILTIN)
+        self.download_failed_icon = self.render_icon(gtk.STOCK_STOP, gtk.ICON_SIZE_MENU)
         self.error_icon = self.render_icon(gtk.STOCK_DIALOG_ERROR, gtk.ICON_SIZE_MENU)
         self.warning_icon = self.render_icon(gtk.STOCK_DIALOG_WARNING, gtk.ICON_SIZE_MENU)
-        icontheme = gtk.icon_theme_get_default()  
-        self.download_pending_icon = icontheme.load_icon('appointment-soon', 16, gtk.ICON_LOOKUP_USE_BUILTIN) # gnome-fs-loading-icon
+        self.not_downloaded_icon = self.render_icon(gtk.STOCK_YES, gtk.ICON_SIZE_MENU)
+
+        self.download_pending_icon = icontheme.load_icon('image-loading', 16, gtk.ICON_LOOKUP_USE_BUILTIN) # gnome-fs-loading-icon appointment-soon
         self.downloaded_with_warning_icon = icontheme.load_icon('emblem-important', 16, gtk.ICON_LOOKUP_USE_BUILTIN)
         
         # make the not yet downloaded icon a transparent square
-        self.not_downloaded_icon = gtk.gdk.Pixbuf(gtk.gdk.COLORSPACE_RGB, False, 8, 16, 16)
-        self.not_downloaded_icon.fill(0xffffffff)
-        self.not_downloaded_icon = self.not_downloaded_icon.add_alpha(True, chr(255), chr(255), chr(255))
+        #self.not_downloaded_icon = gtk.gdk.Pixbuf(gtk.gdk.COLORSPACE_RGB, False, 8, 16, 16)
+        #self.not_downloaded_icon.fill(0xffffffff)
+        #self.not_downloaded_icon = self.not_downloaded_icon.add_alpha(True, chr(255), chr(255), chr(255))
         
         #preload generic icons
         self.icon_photo =  gtk.gdk.pixbuf_new_from_file(paths.share_dir('glade3/photos16.png'))
@@ -3266,23 +3278,40 @@ class SelectionTreeView(gtk.TreeView):
             self.iconDropShadow = DropShadow(offset=(3,3), shadow = (0x34, 0x34, 0x34, 0xff), border=6)
             self.previewDropShadow = DropShadow(shadow = (0x44, 0x44, 0x44, 0xff), trim_border = True)
         
+    def get_status_icon(self, status):
+        """
+        Returns the correct icon, based on the status
+        """
+        if status == config.STATUS_WARNING:
+            status_icon = self.warning_icon
+        elif status == config.STATUS_CANNOT_DOWNLOAD:
+            status_icon = self.error_icon
+        elif status == config.STATUS_DOWNLOADED:
+            status_icon =  self.downloaded_icon
+        elif status == config.STATUS_NOT_DOWNLOADED:
+             status_icon = self.not_downloaded_icon
+        elif status == config.STATUS_DOWNLOADED_WITH_WARNING:
+            status_icon = self.downloaded_with_warning_icon
+        elif status == config.STATUS_DOWNLOAD_FAILED:
+            status_icon = self.download_failed_icon
+        else:
+            sys.stderr.write("FIXME: unknown status!")
+            status_icon = self.not_downloaded_icon
+        return status_icon
         
     def add_file(self, mediaFile):
         if mediaFile.metadata:
-            date = mediaFile.metadata.dateTime(missing=None)
+            date = mediaFile.dateTime()
             timestamp = mediaFile.metadata.timeStamp(missing=None)
+            if timestamp is None:
+                timestamp = mediaFile.modificationTime
         else:
-            date = timestamp = None
-        
-        if date is None:
-            date = datetime.datetime.fromtimestamp(mediaFile.modificationTime)
-            
-        if timestamp is None:
             timestamp = mediaFile.modificationTime
-            
+            date = datetime.datetime.fromtimestamp(timestamp)
+
         timestamp = int(timestamp)
             
-        date_human_readable = date_time_human_readable(date, True)
+        date_human_readable = date_time_human_readable(date)
         name = mediaFile.name
         size = mediaFile.size
         thumbnail = mediaFile.thumbnail
@@ -3302,13 +3331,8 @@ class SelectionTreeView(gtk.TreeView):
             type_icon = self.icon_photo
         else:
             type_icon = self.icon_video
-            
-        if mediaFile.status == config.STATUS_WARNING:
-            status_icon = self.warning_icon
-        elif mediaFile.status == config.STATUS_CANNOT_DOWNLOAD:
-            status_icon = self.error_icon
-        else:
-            status_icon = self.not_downloaded_icon
+
+        status_icon = self.get_status_icon(mediaFile.status)
 
         iter = self.liststore.append((thumbnail_icon, name, timestamp, date_human_readable, size, common.formatSizeForUser(size), mediaFile.isImage, type_icon, '', mediaFile, status_icon, mediaFile.status, mediaFile.path, mediaFile.deviceName, mediaFile.thread_id))
         
@@ -3336,6 +3360,26 @@ class SelectionTreeView(gtk.TreeView):
             self.rapidApp.download_selected_button.set_sensitive(False)
             
     def show_preview(self, iter):
+        
+        def status_human_readable(mediaFile):
+            if mediaFile.status == config.STATUS_DOWNLOADED:
+                v = _('%(filetype)s was downloaded successfully') % {'filetype': mediaFile.displayNameCap}
+            elif mediaFile.status == config.STATUS_DOWNLOAD_FAILED:
+                v = _('%(filetype)s was not downloaded') % {'filetype': mediaFile.displayNameCap}
+            elif mediaFile.status == config.STATUS_DOWNLOADED_WITH_WARNING:
+                v = _('%(filetype)s was downloaded with warnings') % {'filetype': mediaFile.displayNameCap}
+            elif mediaFile.status == config.STATUS_NOT_DOWNLOADED:
+                v = _('%(filetype)s is ready to be downloaded') % {'filetype': mediaFile.displayNameCap}
+            elif mediaFile.status == config.STATUS_DOWNLOAD_PENDING:
+                v = _('%(filetype)s is about to be downloaded') % {'filetype': mediaFile.displayNameCap}
+            elif mediaFile.status == config.STATUS_WARNING:
+                v = _('%(filetype)s will be downloaded with warnings')% {'filetype': mediaFile.displayNameCap}
+            elif mediaFile.status == config.STATUS_CANNOT_DOWNLOAD:
+                v = _('%(filetype)s cannot be downloaded') % {'filetype': mediaFile.displayNameCap}
+            return v
+                
+            
+        
         if not self.suspend_previews:
             mediaFile = self.liststore.get_value(iter, 9)
             thumbnail = mediaFile.thumbnail
@@ -3346,15 +3390,23 @@ class SelectionTreeView(gtk.TreeView):
                 thumbnail = image_to_pixbuf(pil_image)
                 
             self.parentApp.preview_image.set_from_pixbuf(thumbnail)
+            
+            image_tool_tip = "%s\n%s" % (date_time_human_readable(mediaFile.dateTime(), False), common.formatSizeForUser(mediaFile.size))
+            self.parentApp.preview_image.set_tooltip_text(image_tool_tip)
+            
             self.parentApp.preview_original_name_label.set_text(mediaFile.name)
-            self.parentApp.preview_name_label.set_markup("<i>%s</i>" % mediaFile.sampleName)
+            self.parentApp.preview_name_label.set_markup("%s" % mediaFile.sampleName)
 
 
             self.parentApp.preview_original_name_label.set_tooltip_text(os.path.join(mediaFile.path, mediaFile.name))
             self.parentApp.preview_name_label.set_tooltip_text(os.path.join(mediaFile.samplePath, mediaFile.sampleName))
+            
+            self.parentApp.preview_status_icon.set_from_pixbuf(self.get_status_icon(mediaFile.status))
+            self.parentApp.preview_status_label.set_markup('<b>' + status_human_readable(mediaFile) + '</b>')
+
 
             if mediaFile.status in [config.STATUS_WARNING, config.STATUS_DOWNLOAD_FAILED, config.STATUS_DOWNLOADED_WITH_WARNING, config.STATUS_CANNOT_DOWNLOAD]:
-                self.parentApp.preview_problem_title_label.set_markup('<b>' + mediaFile.problem.get_title() + '</b>')
+                self.parentApp.preview_problem_title_label.set_markup('<i>' + mediaFile.problem.get_title() + '</i>')
                 self.parentApp.preview_problem_title_label.set_tooltip_text(mediaFile.problem.get_title())
                 
                 self.parentApp.preview_problem_label.set_markup('<span foreground="red">' + mediaFile.problem.get_problems() + '</span>')
@@ -3542,14 +3594,8 @@ class SelectionTreeView(gtk.TreeView):
             mediaFile = self.liststore.get_value(iter, 9)
             status = mediaFile.status
             self.liststore.set(iter, 11, status)
-            if status == config.STATUS_DOWNLOADED:
-                self.liststore.set(iter, 10, self.downloaded_icon)
-            elif status == config.STATUS_NOT_DOWNLOADED:
-                self.liststore.set(iter, 10, self.download_failed_icon)
-            elif status == config.STATUS_DOWNLOADED_WITH_WARNING:
-                self.liststore.set(iter, 10, self.downloaded_with_warning_icon)
-            elif status == config.STATUS_DOWNLOAD_FAILED:
-                self.liststore.set(iter, 10, self.download_failed_icon)
+            self.liststore.set(iter, 10, self.get_status_icon(status))
+
 
 class SelectionVBox(gtk.VBox):
     """
@@ -3613,6 +3659,16 @@ class SelectionVBox(gtk.VBox):
         self.preview_name_label = gtk.Label()
         self.preview_name_label.set_alignment(0, 0.5)
         self.preview_name_label.set_ellipsize(pango.ELLIPSIZE_END)
+        
+        #Status of the file
+        
+        self.preview_status_icon = gtk.Image()
+        self.preview_status_icon.set_size_request(16,16)
+
+        self.preview_status_label = gtk.Label()
+        self.preview_status_label.set_alignment(0, 0.5)
+        self.preview_status_label.set_ellipsize(pango.ELLIPSIZE_END)
+        self.preview_status_label.set_padding(12, 0)
 
         #Title of problems encountered in generating the name / subfolder
         self.preview_problem_title_label = gtk.Label()
@@ -3623,13 +3679,14 @@ class SelectionVBox(gtk.VBox):
         #Details of what the problem(s) are
         self.preview_problem_label = gtk.Label()
         self.preview_problem_label.set_alignment(0, 0)
-        self.preview_problem_label.set_line_wrap(True)        
+        self.preview_problem_label.set_line_wrap(True)
+        self.preview_problem_label.set_padding(12, 0)
         #Can't combine wrapping and ellipsize, sadly
         #self.preview_problem_label.set_ellipsize(pango.ELLIPSIZE_END)
                 
         #Put content into table
         # Use a table so we can do the Gnome HIG layout more easily
-        preview_table = gtk.Table(5, 3)
+        preview_table = gtk.Table(8, 4)
         #preview_table.set_col_spacing(0, 12)
         preview_table.set_row_spacings(12)
         left_spacer = gtk.Label('')
@@ -3637,14 +3694,21 @@ class SelectionVBox(gtk.VBox):
         right_spacer = gtk.Label('')
         right_spacer.set_padding(6, 0)
         preview_table.attach(left_spacer, 0, 1, 1, 2, xoptions=gtk.SHRINK, yoptions=gtk.SHRINK)
-        preview_table.attach(right_spacer, 2, 3, 1, 2, xoptions=gtk.SHRINK, yoptions=gtk.SHRINK)
+        preview_table.attach(right_spacer, 3, 4, 1, 2, xoptions=gtk.SHRINK, yoptions=gtk.SHRINK)
                 
-        preview_table.attach(self.preview_title_label, 0, 2, 0, 1, yoptions=gtk.SHRINK)
-        preview_table.attach(self.preview_image, 1, 2, 1, 2, yoptions=gtk.SHRINK)
-        preview_table.attach(self.preview_original_name_label, 1, 2, 2, 3, yoptions=gtk.SHRINK)
-        preview_table.attach(self.preview_name_label, 1, 2, 3, 4, yoptions=gtk.SHRINK)
-        preview_table.attach(self.preview_problem_title_label, 0, 2, 4, 5, yoptions=gtk.SHRINK)
-        preview_table.attach(self.preview_problem_label, 1, 2, 5, 6, xoptions=gtk.EXPAND|gtk.FILL, yoptions=gtk.EXPAND|gtk.FILL)
+        preview_table.attach(self.preview_title_label, 0, 3, 0, 1, yoptions=gtk.SHRINK)
+        preview_table.attach(self.preview_image, 1, 3, 1, 2, yoptions=gtk.SHRINK)
+        preview_table.attach(self.preview_original_name_label, 1, 3, 2, 3, yoptions=gtk.SHRINK)
+        preview_table.attach(self.preview_name_label, 1, 3, 3, 4, yoptions=gtk.SHRINK)
+        
+        preview_table.attach(right_spacer, 0, 7, 4, 5)
+        preview_table.attach(right_spacer, 0, 7, 5, 6)
+        
+        preview_table.attach(self.preview_status_icon, 1, 2, 6, 7, xoptions=gtk.SHRINK, yoptions=gtk.SHRINK)
+        preview_table.attach(self.preview_status_label, 2, 3, 6, 7, yoptions=gtk.SHRINK)
+        
+        preview_table.attach(self.preview_problem_title_label, 2, 3, 7, 8, yoptions=gtk.SHRINK)
+        preview_table.attach(self.preview_problem_label, 2, 4, 8, 9, xoptions=gtk.EXPAND|gtk.FILL, yoptions=gtk.EXPAND|gtk.FILL)
         
         self.file_hpaned = gtk.HPaned()
         self.file_hpaned.pack1(left_pane_vbox, shrink=False)
@@ -3658,6 +3722,7 @@ class SelectionVBox(gtk.VBox):
             self.file_hpaned.set_position(300)
                 
         self.show_all()
+    
     
     def set_job_code_display(self):
         """

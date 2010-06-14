@@ -20,6 +20,7 @@
 import os
 import sys
 import types
+import datetime 
 
 import config
 from config import MAX_THUMBNAIL_SIZE
@@ -147,6 +148,17 @@ class MediaFile:
                 self.metadata.read()
             else:
                 self.metadata = videometadata.VideoMetaData(self.fullFileName)
+                
+    def dateTime(self, alternative_if_date_missing=None):
+        date = None
+        if self.metadata:
+            date = self.metadata.dateTime()
+        if not date:
+            if alternative_if_date_missing:
+                date = alternative_if_date_missing
+            else:
+                date = datetime.datetime.fromtimestamp(self.modificationTime)
+        return date
             
         
     def generateThumbnail(self, tempWorkingDir):
