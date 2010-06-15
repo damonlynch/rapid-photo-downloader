@@ -79,8 +79,8 @@ problem_definitions = {
     
     ERROR_IN_NAME_GENERATION:       (GENERATION_PROBLEM,    _("%(filetype)s %(area)s could not be generated"), False),
     
-    DOWNLOAD_COPYING_ERROR:         (DOWNLOAD_PROBLEM,      _("%(filetype)s was not downloaded"), False),
-    DOWNLOAD_COPYING_ERROR_W_NO:    (DOWNLOAD_PROBLEM_W_NO, _("%(filetype)s was not downloaded"), False),
+    DOWNLOAD_COPYING_ERROR:         (DOWNLOAD_PROBLEM,      _("An error occurred when copying the %(filetype)s"), False),
+    DOWNLOAD_COPYING_ERROR_W_NO:    (DOWNLOAD_PROBLEM_W_NO, _("An error occurred when copying the %(filetype)s"), False),
     
     FILE_ALREADY_EXISTS_NO_DOWNLOAD:(FILE_ALREADY_EXISTS,   _("%(filetype)s already exists"), False),
     UNIQUE_IDENTIFIER_ADDED:        (UNIQUE_IDENTIFIER_CAT, _("%(filetype)s already exists"), False),
@@ -93,8 +93,8 @@ extra_detail_definitions = {
     UNIQUE_IDENTIFIER:                  _("Unique identifier '%(identifier)s' added."),
     FILE_WAS_NOT_DOWNLOADED:            _("The %(filetype)s was not downloaded."),
     FILE_CANNOT_BE_DOWNLOADED:          _("The %(filetype)s cannot be not downloaded."),
-    DOWNLOAD_COPYING_ERROR_DETAIL:      _("Source: %(source)s\nDestination: %(destination)s"),
-    DOWNLOAD_COPYING_ERROR_W_NO_DETAIL: _("Source: %(source)s\nDestination: %(destination)s\nError: %(errorno)s %(strerror)s"),
+    DOWNLOAD_COPYING_ERROR_DETAIL:      "%s",
+    DOWNLOAD_COPYING_ERROR_W_NO_DETAIL: _("Error: %(errorno)s %(strerror)s"),
 }
 
 class Problem:

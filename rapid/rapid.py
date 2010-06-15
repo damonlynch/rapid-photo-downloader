@@ -47,6 +47,7 @@ import gobject
 
 try:
     import gio
+    import glib
     using_gio = True
 except ImportError:
     import gnomevfs
@@ -2000,16 +2001,19 @@ class CopyPhotos(Thread):
                 % {'source': mediaFile.fullFileName, 'destination': mediaFile.downloadFullFileName},
                 mediaFile.problem.get_problems())
 
-        def downloadCopyingError(mediaFile, source, destination, errno=None, strerror=None):
+        def downloadCopyingError(mediaFile, inst=None, errno=None, strerror=None):
             """Notify the user that an error occurred (most likely at the OS / filesystem level) when coyping a photo or video"""
             
             if errno != None and strerror != None:
-                mediaFile.problem.add_problem(None, pn.DOWNLOAD_COPYING_ERROR_W_NO, {'filetype': mediaFile.displayNameCap})
-                mediaFile.problem.add_extra_detail(pn.DOWNLOAD_COPYING_ERROR_W_NO_DETAIL, {'source': source, 'destination': destination, 'errorno': errno, 'strerror': strerror})
+                mediaFile.problem.add_problem(None, pn.DOWNLOAD_COPYING_ERROR_W_NO, {'filetype': mediaFile.displayName})
+                mediaFile.problem.add_extra_detail(pn.DOWNLOAD_COPYING_ERROR_W_NO_DETAIL, {'errorno': errno, 'strerror': strerror})
 
             else:
-                mediaFile.problem.add_problem(None, pn.DOWNLOAD_COPYING_ERROR, {'filetype': mediaFile.displayNameCap})
-                mediaFile.problem.add_extra_detail(pn.DOWNLOAD_COPYING_ERROR_DETAIL, {'source': source, 'destination': destination})
+                mediaFile.problem.add_problem(None, pn.DOWNLOAD_COPYING_ERROR, {'filetype': mediaFile.displayName})
+                if not inst:
+                    # hopefully inst will never be None, but just to be safe...
+                    inst = _("Please check your system and try again.") 
+                mediaFile.problem.add_extra_detail(pn.DOWNLOAD_COPYING_ERROR_DETAIL, inst)
 
             logError(config.SERIOUS_ERROR, mediaFile.problem.get_title(), mediaFile.problem.get_problems())
             mediaFile.status = config.STATUS_DOWNLOAD_FAILED
@@ -2158,11 +2162,11 @@ class CopyPhotos(Thread):
                         g_src = gio.File(path=mediaFile.fullFileName)
                         try:
                             if not g_src.copy(g_dest, progress_callback, cancellable=gio.Cancellable()):
-                                downloadCopyingError(mediaFile, source=mediaFile.fullFileName, destination=tempWorkingfile)
+                                downloadCopyingError(mediaFile)
                             else:
                                 copy_succeeded = True
-                        except:
-                            downloadCopyingError(mediaFile, source=mediaFile.fullFileName, destination=tempWorkingfile)
+                        except glib.GError as inst:
+                            downloadCopyingError(mediaFile, inst=inst)
                     else:
                         shutil.copy2(mediaFile.fullFileName, tempWorkingfile)
                         copy_succeeded = True
@@ -2222,11 +2226,11 @@ class CopyPhotos(Thread):
                                     g_src = gio.File(path=tempWorkingfile)
                                     try:
                                         if not g_src.move(g_dest, progress_callback_no_update, cancellable=gio.Cancellable()):
-                                            downloadCopyingError(mediaFile, source=tempWorkingfile, destination=mediaFile.downloadFullFileName)
+                                            downloadCopyingError(mediaFile)
                                         else:
                                             rename_succeeded = True
-                                    except:
-                                        downloadCopyingError(mediaFile, source=tempWorkingfile, destination=mediaFile.downloadFullFileName)
+                                    except glib.GError as inst:
+                                        downloadCopyingError(mediaFile, inst=inst)
                                 else:
                                     os.rename(tempWorkingfile, mediaFile.downloadFullFileName)
                                     rename_succeeded = True
@@ -2261,11 +2265,8 @@ class CopyPhotos(Thread):
                                                 
                                                 sequences.setDownloadsToday(0)
                     
-            except IOError, (errno, strerror):
-                downloadCopyingError(mediaFile, mediaFile.fullFileName, mediaFile.downloadFullFileName, errno=errno, strerror=strerror)
-
-            except OSError, (errno, strerror):
-                downloadCopyingError(mediaFile, mediaFile.fullFileName, mediaFile.downloadFullFileName, errno=errno, strerror=strerror)                
+            except (IOError, OSError), (errno, strerror):
+                downloadCopyingError(mediaFile, errno=errno, strerror=strerror)              
             
             if usesSequenceElements:
                 if not fileDownloaded and sequence_to_use is None:
@@ -2659,8 +2660,8 @@ class CopyPhotos(Thread):
                 if sizeDownloaded == sizeFiles:
                     self.downloadComplete = True
                 progressBarText = _("%(number)s of %(total)s %(filetypes)s") % {'number':  i + 1, 'total': noFiles, 'filetypes':self.display_file_types}
-                if using_gio and fileDownloaded:  # FIXME - update this!
-                    size = 0
+                if using_gio:
+                    size = mediaFile.size - self.bytes_downloaded
                 else:
                     size = mediaFile.size
                 display_queue.put((media_collection_treeview.updateProgress, (self.thread_id, percentComplete, progressBarText, size)))
@@ -3258,15 +3259,17 @@ class SelectionTreeView(gtk.TreeView):
         self.download_failed_icon = self.render_icon(gtk.STOCK_STOP, gtk.ICON_SIZE_MENU)
         self.error_icon = self.render_icon(gtk.STOCK_DIALOG_ERROR, gtk.ICON_SIZE_MENU)
         self.warning_icon = self.render_icon(gtk.STOCK_DIALOG_WARNING, gtk.ICON_SIZE_MENU)
-        self.not_downloaded_icon = self.render_icon(gtk.STOCK_YES, gtk.ICON_SIZE_MENU)
+
 
         self.download_pending_icon = icontheme.load_icon('image-loading', 16, gtk.ICON_LOOKUP_USE_BUILTIN) # gnome-fs-loading-icon appointment-soon
         self.downloaded_with_warning_icon = icontheme.load_icon('emblem-important', 16, gtk.ICON_LOOKUP_USE_BUILTIN)
         
         # make the not yet downloaded icon a transparent square
-        #self.not_downloaded_icon = gtk.gdk.Pixbuf(gtk.gdk.COLORSPACE_RGB, False, 8, 16, 16)
-        #self.not_downloaded_icon.fill(0xffffffff)
-        #self.not_downloaded_icon = self.not_downloaded_icon.add_alpha(True, chr(255), chr(255), chr(255))
+        self.not_downloaded_icon = gtk.gdk.Pixbuf(gtk.gdk.COLORSPACE_RGB, False, 8, 16, 16)
+        self.not_downloaded_icon.fill(0xffffffff)
+        self.not_downloaded_icon = self.not_downloaded_icon.add_alpha(True, chr(255), chr(255), chr(255))
+        # but make it be a tick in the preview pane
+        self.not_downloaded_icon_tick = self.render_icon(gtk.STOCK_YES, gtk.ICON_SIZE_MENU)
         
         #preload generic icons
         self.icon_photo =  gtk.gdk.pixbuf_new_from_file(paths.share_dir('glade3/photos16.png'))
@@ -3281,7 +3284,7 @@ class SelectionTreeView(gtk.TreeView):
             
         self.previewed_file_treerowref = None
         
-    def get_status_icon(self, status):
+    def get_status_icon(self, status, preview=False):
         """
         Returns the correct icon, based on the status
         """
@@ -3292,7 +3295,10 @@ class SelectionTreeView(gtk.TreeView):
         elif status == config.STATUS_DOWNLOADED:
             status_icon =  self.downloaded_icon
         elif status == config.STATUS_NOT_DOWNLOADED:
-             status_icon = self.not_downloaded_icon
+            if preview:
+                status_icon = self.not_downloaded_icon_tick
+            else:
+                status_icon = self.not_downloaded_icon
         elif status == config.STATUS_DOWNLOADED_WITH_WARNING:
             status_icon = self.downloaded_with_warning_icon
         elif status == config.STATUS_DOWNLOAD_FAILED:
@@ -3442,7 +3448,7 @@ class SelectionTreeView(gtk.TreeView):
                 self.parentApp.preview_name_label.set_text(mediaFile.downloadName)
                 self.parentApp.preview_name_label.set_tooltip_text(mediaFile.downloadFullFileName)
             
-            self.parentApp.preview_status_icon.set_from_pixbuf(self.get_status_icon(mediaFile.status))
+            self.parentApp.preview_status_icon.set_from_pixbuf(self.get_status_icon(mediaFile.status, preview=True))
             self.parentApp.preview_status_label.set_markup('<b>' + status_human_readable(mediaFile) + '</b>')
 
 
@@ -3741,6 +3747,10 @@ class SelectionVBox(gtk.VBox):
         left_spacer.set_padding(12, 0)
         right_spacer = gtk.Label('')
         right_spacer.set_padding(6, 0)
+        
+        spacer1 = gtk.Label('')
+        spacer2 = gtk.Label('')
+        
         preview_table.attach(left_spacer, 0, 1, 1, 2, xoptions=gtk.SHRINK, yoptions=gtk.SHRINK)
         preview_table.attach(right_spacer, 3, 4, 1, 2, xoptions=gtk.SHRINK, yoptions=gtk.SHRINK)
                 
@@ -3749,8 +3759,8 @@ class SelectionVBox(gtk.VBox):
         preview_table.attach(self.preview_original_name_label, 1, 3, 2, 3, yoptions=gtk.SHRINK)
         preview_table.attach(self.preview_name_label, 1, 3, 3, 4, yoptions=gtk.SHRINK)
         
-        preview_table.attach(right_spacer, 0, 7, 4, 5)
-        preview_table.attach(right_spacer, 0, 7, 5, 6)
+        preview_table.attach(spacer1, 0, 7, 4, 5, yoptions=gtk.SHRINK)
+        #preview_table.attach(spacer2, 0, 7, 5, 6, yoptions=gtk.SHRINK)
         
         preview_table.attach(self.preview_status_icon, 1, 2, 6, 7, xoptions=gtk.SHRINK, yoptions=gtk.SHRINK)
         preview_table.attach(self.preview_status_label, 2, 3, 6, 7, yoptions=gtk.SHRINK)
@@ -4966,6 +4976,7 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
         
     def on_menu_refresh_activate(self, widget):
         self.selection_vbox.selection_treeview.clear_all()
+        self.setupAvailableImageAndBackupMedia(onStartup = False,  onPreferenceChange = True,  doNotAllowAutoStart = True)
         
     def on_menu_report_problem_activate(self,  widget):
         webbrowser.open("https://bugs.launchpad.net/rapid") 
@@ -5147,8 +5158,9 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
             if self.usingVolumeMonitor():
                 self.startVolumeMonitor()
             cmd_line("\n" + _("Preferences were changed."))
-                        
-            self.setupAvailableImageAndBackupMedia(onStartup = False,  onPreferenceChange = True,  doNotAllowAutoStart = False)
+            
+            self.selection_vbox.selection_treeview.clear_all()
+            self.setupAvailableImageAndBackupMedia(onStartup = False,  onPreferenceChange = True,  doNotAllowAutoStart = True)
             if is_beta and verbose:
                 print "Current worker status:"
                 workers.printWorkerStatus()
