@@ -2123,7 +2123,7 @@ class CopyPhotos(Thread):
             self.bytes_downloaded = 0
             
             def progress_callback(amount_downloaded, total):
-                if (amount_downloaded - self.bytes_downloaded > 2097152) or (amount_downloaded == total):
+                if (amount_downloaded - self.bytes_downloaded > 1048576) or (amount_downloaded == total):
                     chunk_downloaded = amount_downloaded - self.bytes_downloaded
                     self.bytes_downloaded = amount_downloaded
                     percentComplete = (float(sizeDownloaded + amount_downloaded) / sizeFiles) * 100
@@ -4037,7 +4037,6 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
         
         # display download information using threads
         global media_collection_treeview, log_dialog
-        global download_queue, image_queue, log_queue
         global workers
 
         #track files that should have a suffix added to them

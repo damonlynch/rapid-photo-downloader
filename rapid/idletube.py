@@ -1,6 +1,8 @@
 
 # Copyright (c) 2005 Antoon Pardon
 #
+# Modified 2010 by Damon Lynch to use python's higher performance deque, rather than a regular list
+#
 # Permission is hereby granted, free of charge, to any person obtaining a
 # copy of this software and associated documentation files (the "Software"),
 # to deal in the Software without restriction, including without limitation
@@ -18,6 +20,9 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+
+import collections
+
 from threading import Lock
 from thread import get_ident
 
@@ -25,22 +30,24 @@ from types import BooleanType as UnConnected
 
 UnRegistered, Registered = False, True
 
+
 class EOInformation(Exception):
     pass
 
 class TubeAccess(Exception):
     pass
 
+        
 class Fifo:
 
     def __init__(self):
-        self.fifo = []
+        self.fifo = collections.deque()
 
     def put(self, item):
         self.fifo.append(item)
 
     def get(self):
-        return self.fifo.pop(0)
+        return self.fifo.popleft()
 
     def size(self):
         return len(self.fifo)
