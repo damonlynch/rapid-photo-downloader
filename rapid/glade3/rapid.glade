@@ -3022,6 +3022,7 @@ Julien Valroff &lt;julien@kirya.net&gt;</property>
                         <property name="visible">True</property>
                         <property name="use_underline">True</property>
                         <property name="use_stock">True</property>
+                        <signal name="activate" handler="on_menu_refresh_activate"/>
                         <accelerator key="r" signal="activate" modifiers="GDK_CONTROL_MASK"/>
                       </widget>
                     </child>

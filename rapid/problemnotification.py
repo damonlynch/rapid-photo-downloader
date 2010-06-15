@@ -75,7 +75,7 @@ problem_definitions = {
     MISSING_IMAGE_NUMBER:           (METADATA_PROBLEM,      _("Filename does not have a number component."), False),
     ERROR_IN_GENERATION:            (METADATA_PROBLEM,      _("Error generating component %s."), False), # a generic problem
     
-    CANNOT_DOWNLOAD_BAD_METADATA:   (FILE_PROBLEM,          _("%(filetype)s cannot be downloaded"), False),
+    CANNOT_DOWNLOAD_BAD_METADATA:   (FILE_PROBLEM,          _("%(filetype)s metadata cannot be read"), False),
     
     ERROR_IN_NAME_GENERATION:       (GENERATION_PROBLEM,    _("%(filetype)s %(area)s could not be generated"), False),
     
@@ -179,8 +179,8 @@ class Problem:
         if DOWNLOAD_PROBLEM_W_NO in self.categories:
             return self.extra_detail[DOWNLOAD_COPYING_ERROR_W_NO_DETAIL]
 
-        if GENERATION_PROBLEM in self.categories:
-            v = self.extra_detail[FILE_CANNOT_BE_DOWNLOADED]
+        #if GENERATION_PROBLEM in self.categories:
+        #    v = self.extra_detail[FILE_CANNOT_BE_DOWNLOADED]
             
         if DIFFERENT_EXIF in self.categories:
             v = self.problems[SAME_FILE_DIFFERENT_EXIF][0] 

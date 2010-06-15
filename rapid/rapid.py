@@ -1790,7 +1790,7 @@ class CopyPhotos(Thread):
                     else:
                         area = _("subfolder")
                     problem.add_problem(None, pn.ERROR_IN_NAME_GENERATION, {'filetype': mediaFile.displayNameCap, 'area': area})
-                    problem.add_extra_detail(pn.FILE_CANNOT_BE_DOWNLOADED, {'filetype': mediaFile.displayName})
+                    #problem.add_extra_detail(pn.FILE_CANNOT_BE_DOWNLOADED, {'filetype': mediaFile.displayName})
                     mediaFile.problem = problem
                     mediaFile.status = config.STATUS_CANNOT_DOWNLOAD
                 elif problem.has_problem():
@@ -2044,6 +2044,9 @@ class CopyPhotos(Thread):
                 # file is an photo
                 fileRenameFactory = self.imageRenamePrefsFactory                
                 subfolderFactory = self.subfolderPrefsFactory
+            
+            fileRenameFactory.setJobCode(mediaFile.jobcode)
+            subfolderFactory.setJobCode(mediaFile.jobcode)
 
             mediaFile.problem = pn.Problem()
             subfolderFactory.initializeProblem(mediaFile.problem)
@@ -2101,10 +2104,16 @@ class CopyPhotos(Thread):
                 renameFactory = self.videoRenamePrefsFactory
             else:
                 renameFactory = self.imageRenamePrefsFactory
-                
+            
+            self.bytes_downloaded = 0
+            
             def progress_callback(amount_downloaded, total):
-                pass
-                #print common.formatSizeForUser(amount_downloaded), common.formatSizeForUser(total)
+                if (amount_downloaded - self.bytes_downloaded > 2097152) or (amount_downloaded == total):
+                    chunk_downloaded = amount_downloaded - self.bytes_downloaded
+                    self.bytes_downloaded = amount_downloaded
+                    percentComplete = (float(sizeDownloaded + amount_downloaded) / sizeFiles) * 100
+
+                    display_queue.put((media_collection_treeview.updateProgress, (self.thread_id, percentComplete, None, chunk_downloaded)))
                 
             def progress_callback_no_update(amount_downloaded, total):
                 pass
@@ -2561,18 +2570,6 @@ class CopyPhotos(Thread):
             
             can_backup = setupBackup()
             
-            #FIXME!!!!
-            if need_job_code and job_code == None:
-                sys.stderr.write(str(self.thread_id ) + ": job code should never be None\n")
-                self.imageRenamePrefsFactory.setJobCode('unknown-job-code')
-                self.subfolderPrefsFactory.setJobCode('unknown-job-code')
-            else:
-                self.imageRenamePrefsFactory.setJobCode(job_code)
-                self.videoRenamePrefsFactory.setJobCode(job_code)
-                self.subfolderPrefsFactory.setJobCode(job_code)
-                self.videoSubfolderPrefsFactory.setJobCode(job_code)
-                
-            
             i = 0
             sizeDownloaded = noFilesDownloaded = noImagesDownloaded = noVideosDownloaded = noImagesSkipped = noVideosSkipped = 0
             filesDownloadedSuccessfully = []
@@ -2638,7 +2635,6 @@ class CopyPhotos(Thread):
 
                         if fileDownloaded:
                             
-                            #mediaFile.status = config.STATUS_DOWNLOADED
                             noFilesDownloaded += 1
                             if mediaFile.isImage:
                                 noImagesDownloaded += 1
@@ -2659,11 +2655,15 @@ class CopyPhotos(Thread):
                         
                 
                 sizeDownloaded += mediaFile.size
-                percentComplete = (sizeDownloaded / sizeFiles) * 100
+                percentComplete = (float(sizeDownloaded) / sizeFiles) * 100
                 if sizeDownloaded == sizeFiles:
                     self.downloadComplete = True
                 progressBarText = _("%(number)s of %(total)s %(filetypes)s") % {'number':  i + 1, 'total': noFiles, 'filetypes':self.display_file_types}
-                display_queue.put((media_collection_treeview.updateProgress, (self.thread_id, percentComplete, progressBarText, mediaFile.size)))
+                if using_gio and fileDownloaded:  # FIXME - update this!
+                    size = 0
+                else:
+                    size = mediaFile.size
+                display_queue.put((media_collection_treeview.updateProgress, (self.thread_id, percentComplete, progressBarText, size)))
                 
                 i += 1
 
@@ -2867,14 +2867,15 @@ class MediaTreeView(gtk.TreeView):
         iter = self.liststore.get_iter(path)
         return iter
     
-    def updateProgress(self, thread_id, percentComplete, progressBarText, imageSize):
+    def updateProgress(self, thread_id, percentComplete, progressBarText, bytesDownloaded):
         
         iter = self._getThreadMap(thread_id)
         
         self.liststore.set_value(iter, 3, percentComplete)
-        self.liststore.set_value(iter, 4, progressBarText)
-        if percentComplete or imageSize:
-            self.parentApp.updateOverallProgress(thread_id, imageSize,  percentComplete)
+        if progressBarText:
+            self.liststore.set_value(iter, 4, progressBarText)
+        if percentComplete or bytesDownloaded:
+            self.parentApp.updateOverallProgress(thread_id, bytesDownloaded, percentComplete)
         
 
     def rowHeight(self):
@@ -3277,6 +3278,8 @@ class SelectionTreeView(gtk.TreeView):
         if DROP_SHADOW:
             self.iconDropShadow = DropShadow(offset=(3,3), shadow = (0x34, 0x34, 0x34, 0xff), border=6)
             self.previewDropShadow = DropShadow(shadow = (0x44, 0x44, 0x44, 0xff), trim_border = True)
+            
+        self.previewed_file_treerowref = None
         
     def get_status_icon(self, status):
         """
@@ -3359,6 +3362,21 @@ class SelectionTreeView(gtk.TreeView):
             self.rapidApp.download_selected_button.set_label(self.rapidApp.DOWNLOAD_SELECTED_LABEL)
             self.rapidApp.download_selected_button.set_sensitive(False)
             
+    def clear_all(self, thread_id = None):
+        if not thread_id:
+            self.liststore.clear()
+            self.show_preview(None)
+        else:
+            iter = self.liststore.get_iter_first()
+            while iter:
+                if self.liststore.get_value(iter, 14) == thread_id:
+                    if self.previewed_file_treerowref:
+                        mediaFile = self.liststore.get_value(iter, 9)
+                        if mediaFile.treerowref == self.previewed_file_treerowref:
+                            self.show_preview(None)
+                    self.liststore.remove(iter)
+                iter = self.liststore.iter_next(iter)            
+    
     def show_preview(self, iter):
         
         def status_human_readable(mediaFile):
@@ -3379,9 +3397,29 @@ class SelectionTreeView(gtk.TreeView):
             return v
                 
             
+        if not iter:
+            # clear everything except the label Preview at the top
+            for widget in  [self.parentApp.preview_original_name_label,
+                            self.parentApp.preview_name_label,
+                            self.parentApp.preview_status_label, 
+                            self.parentApp.preview_problem_title_label, 
+                            self.parentApp.preview_problem_label]:
+                widget.set_text('')
+                
+            for widget in  [self.parentApp.preview_name_label,
+                            self.parentApp.preview_original_name_label]:
+                widget.set_tooltip_text('')
+                
+            self.parentApp.preview_image.clear()
+            self.parentApp.preview_status_icon.clear()
+            self.previewed_file_treerowref = None
+            
         
-        if not self.suspend_previews:
+        elif not self.suspend_previews:
             mediaFile = self.liststore.get_value(iter, 9)
+            
+            self.previewed_file_treerowref = mediaFile.treerowref
+            
             thumbnail = mediaFile.thumbnail
             
             if DROP_SHADOW and not mediaFile.genericThumbnail:
@@ -3395,11 +3433,14 @@ class SelectionTreeView(gtk.TreeView):
             self.parentApp.preview_image.set_tooltip_text(image_tool_tip)
             
             self.parentApp.preview_original_name_label.set_text(mediaFile.name)
-            self.parentApp.preview_name_label.set_markup("%s" % mediaFile.sampleName)
-
-
             self.parentApp.preview_original_name_label.set_tooltip_text(os.path.join(mediaFile.path, mediaFile.name))
-            self.parentApp.preview_name_label.set_tooltip_text(os.path.join(mediaFile.samplePath, mediaFile.sampleName))
+
+            if mediaFile.status in [config.STATUS_WARNING, config.STATUS_CANNOT_DOWNLOAD, config.STATUS_NOT_DOWNLOADED, config.STATUS_DOWNLOAD_PENDING]:
+                self.parentApp.preview_name_label.set_text(mediaFile.sampleName)
+                self.parentApp.preview_name_label.set_tooltip_text(os.path.join(mediaFile.samplePath, mediaFile.sampleName))
+            else:
+                self.parentApp.preview_name_label.set_text(mediaFile.downloadName)
+                self.parentApp.preview_name_label.set_tooltip_text(mediaFile.downloadFullFileName)
             
             self.parentApp.preview_status_icon.set_from_pixbuf(self.get_status_icon(mediaFile.status))
             self.parentApp.preview_status_label.set_markup('<b>' + status_human_readable(mediaFile) + '</b>')
@@ -3409,12 +3450,13 @@ class SelectionTreeView(gtk.TreeView):
                 self.parentApp.preview_problem_title_label.set_markup('<i>' + mediaFile.problem.get_title() + '</i>')
                 self.parentApp.preview_problem_title_label.set_tooltip_text(mediaFile.problem.get_title())
                 
-                self.parentApp.preview_problem_label.set_markup('<span foreground="red">' + mediaFile.problem.get_problems() + '</span>')
+                self.parentApp.preview_problem_label.set_text(mediaFile.problem.get_problems())
                 self.parentApp.preview_problem_label.set_tooltip_text(mediaFile.problem.get_problems())
             else:
                 self.parentApp.preview_problem_label.set_markup('')
                 self.parentApp.preview_problem_title_label.set_markup('')
             
+    
     def select_rows(self, range):
         selection = self.get_selection()
         if range == 'all':
@@ -3494,6 +3536,8 @@ class SelectionTreeView(gtk.TreeView):
             if status in [config.STATUS_DOWNLOAD_PENDING, config.STATUS_WARNING, config.STATUS_NOT_DOWNLOADED]:
                 if overwrite:
                     self.liststore.set(iter, 8, job_code)
+                    mediaFile = self.liststore.get_value(iter, 9)
+                    mediaFile.jobcode = job_code
                 else:
                     if not self.liststore.get_value(iter, 8):
                         self.liststore.set(iter, 8, job_code)
@@ -3595,6 +3639,10 @@ class SelectionTreeView(gtk.TreeView):
             status = mediaFile.status
             self.liststore.set(iter, 11, status)
             self.liststore.set(iter, 10, self.get_status_icon(status))
+            
+            # If this row is currently previewed, then should update the preview
+            if mediaFile.treerowref == self.previewed_file_treerowref:
+                self.show_preview(iter)
 
 
 class SelectionVBox(gtk.VBox):
@@ -4537,12 +4585,14 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
                 if w.cardMedia.volume:
                     if w.cardMedia.volume.volume == volume:
                         media_collection_treeview.removeCard(w.thread_id)
+                        self.selection_vbox.selection_treeview.clear_all(w.thread_id)
                         workers.disableWorker(w.thread_id)
             # second scenario
             for w in workers.getReadyToDownloadWorkers():
                 if w.cardMedia.volume:                
                     if w.cardMedia.volume.volume == volume:
                         media_collection_treeview.removeCard(w.thread_id)
+                        self.selection_vbox.selection_treeview.clear_all(w.thread_id)
                         workers.disableWorker(w.thread_id)
                     
             # fourth scenario - nothing to do
@@ -4563,6 +4613,7 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
 
         for w in workers.getFinishedWorkers():
             media_collection_treeview.removeCard(w.thread_id)
+            self.selection_vbox.selection_treeview.clear_all(w.thread_id)
 
             
 
@@ -4760,14 +4811,14 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
             workers.printWorkerStatus()
     
         
-    def updateOverallProgress(self, thread_id, imageSize,  percentComplete):
+    def updateOverallProgress(self, thread_id, bytesDownloaded,  percentComplete):
         """
         Updates progress bar and status bar text with time remaining
         to download images
         """
                 
-        self.totalDownloadedSoFar += imageSize
-        self.totalDownloadedSoFarThisRun += imageSize
+        self.totalDownloadedSoFar += bytesDownloaded
+        self.totalDownloadedSoFarThisRun += bytesDownloaded
         
         fraction = self.totalDownloadedSoFar / float(self.totalDownloadSize)
         
@@ -4789,7 +4840,7 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
     
         else:
             now = time.time()
-            self.timeRemaining.update(thread_id,  imageSize)
+            self.timeRemaining.update(thread_id, bytesDownloaded)
             
             if now > (self.downloadTimeGap + self.timeMark):
                 amtTime = now - self.timeMark
@@ -4912,6 +4963,9 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
     def on_menu_clear_activate(self, widget):
         self.clearCompletedDownloads()
         widget.set_sensitive(False)
+        
+    def on_menu_refresh_activate(self, widget):
+        self.selection_vbox.selection_treeview.clear_all()
         
     def on_menu_report_problem_activate(self,  widget):
         webbrowser.open("https://bugs.launchpad.net/rapid") 
@@ -5039,7 +5093,7 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
                 self.getJobCode(autoStart=False, downloadSelected=False)
             else:
                 self.selection_vbox.selection_treeview.set_status_to_download(selected_only = False)
-#                self.startDownload()
+                self.startDownload()
         else:
             self.pauseDownload()
 
@@ -5268,8 +5322,8 @@ class TimeRemaining:
                 self.times[w].timeMark = now
                 amtDownloaded = self.times[w].downloaded - self.times[w].sizeMark
                 self.times[w].sizeMark = self.times[w].downloaded
-                timefraction = amtDownloaded / amtTime
-                amtToDownload = float(self.times[w].size) - self.times[w].downloaded
+                timefraction = amtDownloaded / float(amtTime)
+                amtToDownload = float(self.times[w].size) - self.times[w].downloaded                
                 self.times[w].timeRemaining = amtToDownload / timefraction
         
     def _timeEstimates(self):
