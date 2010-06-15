@@ -1791,7 +1791,7 @@ class CopyPhotos(Thread):
                     else:
                         area = _("subfolder")
                     problem.add_problem(None, pn.ERROR_IN_NAME_GENERATION, {'filetype': mediaFile.displayNameCap, 'area': area})
-                    #problem.add_extra_detail(pn.FILE_CANNOT_BE_DOWNLOADED, {'filetype': mediaFile.displayName})
+                    problem.add_extra_detail(pn.NO_DATA_TO_NAME, {'filetype': area})
                     mediaFile.problem = problem
                     mediaFile.status = config.STATUS_CANNOT_DOWNLOAD
                 elif problem.has_problem():
@@ -1984,8 +1984,19 @@ class CopyPhotos(Thread):
             """ Notify the user that the photo or video could not be downloaded because it already exists"""
             
             if not identifier:
+                # get information on when the existing file was last modified
+                try:
+                    modificationTime = os.path.getmtime(mediaFile.downloadFullFileName)
+                    dt = datetime.datetime.fromtimestamp(modificationTime)
+                    date = dt.strftime("%x")
+                    time = dt.strftime("%X")
+                except:
+                    sys.stderr.write("FIXME: was unable to determine the file modification time of an existing file\n")
+                    date = time = None
+
                 mediaFile.problem.add_problem(None, pn.FILE_ALREADY_EXISTS_NO_DOWNLOAD, {'filetype':mediaFile.displayNameCap})
-                mediaFile.problem.add_extra_detail(pn.FILE_WAS_NOT_DOWNLOADED, {'filetype': mediaFile.displayName})
+                if date and time:
+                    mediaFile.problem.add_extra_detail(pn.EXISTING_FILE, {'filetype': mediaFile.displayName, 'date': date, 'time': time})
                 mediaFile.status = config.STATUS_DOWNLOAD_FAILED
                 log_status = config.SERIOUS_ERROR
             else:

@@ -59,9 +59,8 @@ SAME_FILE_DIFFERENT_EXIF = 'same file different exif'
 
 #extra details
 UNIQUE_IDENTIFIER = 'unique identifier'
-FILE_WAS_NOT_DOWNLOADED = 'file was not downloaded'
-FILE_CANNOT_BE_DOWNLOADED = 'file cannot be downloaded'
-
+EXISTING_FILE = 'existing file'
+NO_DATA_TO_NAME = 'no date to name'
 DOWNLOAD_COPYING_ERROR_DETAIL = 'download copying error detail'
 DOWNLOAD_COPYING_ERROR_W_NO_DETAIL = 'download copying error with error number detail'
 
@@ -91,8 +90,8 @@ problem_definitions = {
 
 extra_detail_definitions = {
     UNIQUE_IDENTIFIER:                  _("Unique identifier '%(identifier)s' added."),
-    FILE_WAS_NOT_DOWNLOADED:            _("The %(filetype)s was not downloaded."),
-    FILE_CANNOT_BE_DOWNLOADED:          _("The %(filetype)s cannot be not downloaded."),
+    EXISTING_FILE:                      _("The existing %(filetype)s was last modified on %(date)s at %(time)s."),
+    NO_DATA_TO_NAME:                    _("There is no data with which to name the %(filetype)s."),
     DOWNLOAD_COPYING_ERROR_DETAIL:      "%s",
     DOWNLOAD_COPYING_ERROR_W_NO_DETAIL: _("Error: %(errorno)s %(strerror)s"),
 }
@@ -168,7 +167,10 @@ class Problem:
             return _("The metadata might be corrupt.")
 
         if FILE_ALREADY_EXISTS in self.categories:
-            return self.extra_detail[FILE_WAS_NOT_DOWNLOADED]
+            if EXISTING_FILE in self.extra_detail:
+                return self.extra_detail[EXISTING_FILE]
+            else:
+                return ''
             
         if UNIQUE_IDENTIFIER_CAT in self.categories:
             return self.extra_detail[UNIQUE_IDENTIFIER]
@@ -179,8 +181,8 @@ class Problem:
         if DOWNLOAD_PROBLEM_W_NO in self.categories:
             return self.extra_detail[DOWNLOAD_COPYING_ERROR_W_NO_DETAIL]
 
-        #if GENERATION_PROBLEM in self.categories:
-        #    v = self.extra_detail[FILE_CANNOT_BE_DOWNLOADED]
+        if GENERATION_PROBLEM in self.categories:
+            v = self.extra_detail[NO_DATA_TO_NAME]
             
         if DIFFERENT_EXIF in self.categories:
             v = self.problems[SAME_FILE_DIFFERENT_EXIF][0] 
