@@ -3363,7 +3363,23 @@ class SelectionTreeView(gtk.TreeView):
         if not self.user_has_clicked_header:
             self.sort_model.set_sort_column_id(11, gtk.SORT_DESCENDING)
         
+    def no_selected_rows_available_for_download(self):
+        """
+        Gets the number of rows the user has selected that can actually
+        be downloaded
+        """
+        v = 0
+        model, paths = self.get_selection().get_selected_rows()
+        for selected_path in paths:
+            path = self.sort_model.convert_path_to_child_path(selected_path)
+            iter = self.liststore.get_iter(path)
+            status = self.liststore.get_value(iter, 11)
+            if status in [config.STATUS_NOT_DOWNLOADED, config.STATUS_WARNING]:
+                v += 1
+        return v
+            
     def on_selection_changed(self, selection):
+        no_available_for_download = 0
         model, paths = selection.get_selected_rows()
         if paths:            
             path = self.sort_model.convert_path_to_child_path(paths[0])
@@ -3372,10 +3388,14 @@ class SelectionTreeView(gtk.TreeView):
             #update preview
             self.show_preview(iter)
             #update button text
-            self.rapidApp.download_selected_button.set_label(self.rapidApp.DOWNLOAD_SELECTED_LABEL + " (%s)" % selection.count_selected_rows())
+            
+            no_available_for_download = self.no_selected_rows_available_for_download()
+            
+        if no_available_for_download:
+            self.rapidApp.download_selected_button.set_label(self.rapidApp.DOWNLOAD_SELECTED_LABEL + " (%s)" % no_available_for_download)
             self.rapidApp.download_selected_button.set_sensitive(True)
         else:
-            #nothing was selected
+            #nothing was selected, or nothing is available from what the user selected
             self.rapidApp.download_selected_button.set_label(self.rapidApp.DOWNLOAD_SELECTED_LABEL)
             self.rapidApp.download_selected_button.set_sensitive(False)
             
@@ -3828,7 +3848,7 @@ class SelectionVBox(gtk.VBox):
     def add_job_code_combo(self):
         self.job_code_hbox = gtk.HBox(spacing = 12)
         self.job_code_hbox.set_no_show_all(True)
-        self.job_code_label = gtk.Label(_("Job code:"))
+        self.job_code_label = gtk.Label(_("Job Code:"))
         
         self.job_code_combo = gtk.combo_box_entry_new_text()
         for text in self.parentApp.prefs.job_codes:
