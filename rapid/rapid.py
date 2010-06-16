@@ -3452,9 +3452,8 @@ class SelectionTreeView(gtk.TreeView):
                 
             self.parentApp.preview_image.clear()
             self.parentApp.preview_status_icon.clear()
-            self.parentApp.preview_destination_expander.set_visible(False)
-            self.parentApp.preview_device_expander.set_visible(False)
-            #~ self.parentApp.name_spacer.set_visible(False)
+            self.parentApp.preview_destination_expander.hide()
+            self.parentApp.preview_device_expander.hide()
             self.previewed_file_treerowref = None
             
         
@@ -3526,9 +3525,8 @@ class SelectionTreeView(gtk.TreeView):
                 self.parentApp.preview_problem_title_label.set_markup('')
                 
             if self.rapidApp.prefs.display_preview_folders:
-                self.parentApp.preview_destination_expander.set_visible(True)
-                self.parentApp.preview_device_expander.set_visible(True)
-                #~ self.parentApp.name_spacer.set_visible(False)                
+                self.parentApp.preview_destination_expander.show()
+                self.parentApp.preview_device_expander.show()
             
     
     def select_rows(self, range):
@@ -3853,7 +3851,7 @@ class SelectionVBox(gtk.VBox):
         right_spacer = gtk.Label('')
         right_spacer.set_padding(6, 0)
         
-        #~ self.name_spacer = gtk.Label('')
+
         spacer2 = gtk.Label('')
         
         self.preview_table.attach(left_spacer, 0, 1, 1, 2, xoptions=gtk.SHRINK, yoptions=gtk.SHRINK)
@@ -3864,8 +3862,6 @@ class SelectionVBox(gtk.VBox):
         
         self.preview_table.attach(self.preview_original_name_label, 1, 3, 2, 3, xoptions=gtk.EXPAND|gtk.FILL, yoptions=gtk.SHRINK)
         self.preview_table.attach(self.preview_device_expander, 1, 3, 3, 4, xoptions=gtk.EXPAND|gtk.FILL, yoptions=gtk.SHRINK)
-        
-        #~ self.preview_table.attach(self.name_spacer, 0, 7, 4, 5, yoptions=gtk.SHRINK)
         
         self.preview_table.attach(self.preview_name_label, 1, 3, 5, 6, xoptions=gtk.EXPAND|gtk.FILL, yoptions=gtk.SHRINK)
         self.preview_table.attach(self.preview_destination_expander, 1, 3, 6, 7, xoptions=gtk.EXPAND|gtk.FILL, yoptions=gtk.SHRINK)
@@ -3894,13 +3890,12 @@ class SelectionVBox(gtk.VBox):
     
     def set_display_preview_folders(self, value):
         if value and self.selection_treeview.previewed_file_treerowref:
-            self.preview_destination_expander.set_visible(True)
-            self.preview_device_expander.set_visible(True)
-            #~ self.name_spacer.set_visible(True)
+            self.preview_destination_expander.show()
+            self.preview_device_expander.show()
+
         else:
-            self.preview_destination_expander.set_visible(False)
-            self.preview_device_expander.set_visible(False)
-            #~ self.name_spacer.set_visible(False)
+            self.preview_destination_expander.hide()
+            self.preview_device_expander.hide()
     
     def set_job_code_display(self):
         """
@@ -4901,11 +4896,9 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
     def set_display_selection(self, value):
         if value:
             self.selection_vbox.preview_table.show_all()
-            if not self.selection_vbox.selection_treeview.previewed_file_treerowref:
-                self.selection_vbox.preview_destination_expander.set_visible(False)
-                self.selection_vbox.preview_device_expander.set_visible(False)
         else:
             self.selection_vbox.preview_table.hide()
+        self.selection_vbox.set_display_preview_folders(self.prefs.display_preview_folders)
             
     def set_display_preview_folders(self, value):
         self.selection_vbox.set_display_preview_folders(value)
