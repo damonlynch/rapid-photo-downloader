@@ -95,7 +95,7 @@ class MediaFile:
     A photo or video file, with metadata
     """
     
-    def __init__(self, thread_id, name, path, size, fileSystemModificationTime, deviceName, downloadFolder, isPhoto = True):
+    def __init__(self, thread_id, name, path, size, fileSystemModificationTime, deviceName, downloadFolder, volume, isPhoto = True):
         self.thread_id = thread_id
         self.path = path
         self.name = name
@@ -104,6 +104,7 @@ class MediaFile:
         self.modificationTime = fileSystemModificationTime
         self.deviceName = deviceName
         self.downloadFolder = downloadFolder
+        self.volume = volume
         
         self.jobcode = ''
         

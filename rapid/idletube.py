@@ -22,6 +22,7 @@
 
 
 import collections
+from Queue import Queue
 
 from threading import Lock
 from thread import get_ident
@@ -51,6 +52,7 @@ class Fifo:
 
     def size(self):
         return len(self.fifo)
+
 
 class Tube:
 
@@ -97,18 +99,12 @@ class Tube:
             self.readers.discard(thrd)
         if 'w' in access:
             self.writers.discard(thrd)
-##            print "have", self.writers, "writers"
             if len(self.writers) == 0:
                 if self.container.size() == 0:
-##                    print "emptying container, as size is", self.container.size()
                     self.empty.release()
                     if self.cb_src is Registered and len(self.readers) > 0:
-##                        print "adding callback"
                         self.cb_src = gob.idle_add(self._idle_callback)
-##                else:
-##                    print "container size not empty, is", self.container.size()
                 for _ in self.readers:
-##                    print "putting EOInformation"
                     self.container.put(EOInformation)
         self.in_use.release()
 
@@ -155,9 +151,7 @@ class Tube:
         if size == 0:
             self.empty.release()
             if self.cb_src is Registered:
-                #gdk.threads_enter()
                 self.cb_src = gob.idle_add(self._idle_callback)
-                #gdk.threads_leave()
         self.container.put(item)
         if size + 1 < self.maxsize:
             self.full.release()
@@ -192,9 +186,8 @@ class Tube:
 
 def tube_add_watch(tube, callback, *args):
 
-    global gob #, gdk
+    global gob 
     import gobject as gob
-    #import gtk.gdk as gdk
 
     tube.in_use.acquire()
     tube.cb_arglst.append([callback] + list(args))

@@ -3129,7 +3129,7 @@ Julien Valroff &lt;julien@kirya.net&gt;</property>
                     <child>
                       <widget class="GtkCheckMenuItem" id="menu_display_selection">
                         <property name="visible">True</property>
-                        <property name="label" translatable="yes">_Previews</property>
+                        <property name="label" translatable="yes">_Preview</property>
                         <property name="use_underline">True</property>
                         <signal name="toggled" handler="on_menu_display_selection_toggled"/>
                       </widget>
@@ -3184,6 +3184,19 @@ Julien Valroff &lt;julien@kirya.net&gt;</property>
                             </child>
                           </widget>
                         </child>
+                      </widget>
+                    </child>
+                    <child>
+                      <widget class="GtkCheckMenuItem" id="menu_preview_folders">
+                        <property name="visible">True</property>
+                        <property name="label" translatable="yes">Preview _Folders</property>
+                        <property name="use_underline">True</property>
+                        <signal name="toggled" handler="on_menu_preview_folders_toggled"/>
+                      </widget>
+                    </child>
+                    <child>
+                      <widget class="GtkSeparatorMenuItem" id="seperator20">
+                        <property name="visible">True</property>
                       </widget>
                     </child>
                     <child>

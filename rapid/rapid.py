@@ -405,6 +405,7 @@ class RapidPreferences(prefs.Preferences):
         "display_type_column": prefs.Value(prefs.BOOL, True),
         "display_path_column": prefs.Value(prefs.BOOL, False),
         "display_device_column": prefs.Value(prefs.BOOL, False),
+        "display_preview_folders": prefs.Value(prefs.BOOL, True),
         "show_log_dialog": prefs.Value(prefs.BOOL, False),
         "day_start": prefs.Value(prefs.STRING,  "03:00"), 
         "downloads_today": prefs.ListValue(prefs.STRING_LIST,  [today(),  '0']), 
@@ -1832,13 +1833,13 @@ class CopyPhotos(Thread):
                         ((not DOWNLOAD_VIDEO) and isImage))
                 return (download, isImage, isVideo)
                 
-            def addFile(name, path, size, modificationTime, device, isImage):
+            def addFile(name, path, size, modificationTime, device, volume, isImage):
                 if isImage:
                     downloadFolder = self.prefs.download_folder
                 else:
                     downloadFolder = self.prefs.video_download_folder
                     
-                mediaFile = media.MediaFile(self.thread_id, name, path, size, modificationTime, device, downloadFolder, isImage)
+                mediaFile = media.MediaFile(self.thread_id, name, path, size, modificationTime, device, downloadFolder, volume, isImage)
                 loadFileMetadata(mediaFile)
                 # modificationTime is very useful for quick sorting
                 imagesAndVideos.append((mediaFile, modificationTime))
@@ -1878,7 +1879,7 @@ class CopyPhotos(Thread):
                         if download:
                             size = child.get_size()
                             modificationTime = child.get_modification_time()
-                            addFile(name, path.get_path(), size, modificationTime, self.cardMedia.prettyName(), isImage)
+                            addFile(name, path.get_path(), size, modificationTime, self.cardMedia.prettyName(limit=0), self.cardMedia.volume, isImage)
                             fileSizeSum += size
 
                 return fileSizeSum
@@ -1908,7 +1909,7 @@ class CopyPhotos(Thread):
                             fullFileName = os.path.join(root, name)
                             size = os.path.getsize(fullFileName)
                             modificationTime = os.path.getmtime(fullFileName)
-                            addFile(name, root, size, modificationTime, self.cardMedia.prettyName(), isImage)
+                            addFile(name, root, size, modificationTime, self.cardMedia.prettyName(limit=0), self.cardMedia.volume, isImage)
                             fileSizeSum += size
 
                             
@@ -2176,7 +2177,7 @@ class CopyPhotos(Thread):
                                 downloadCopyingError(mediaFile)
                             else:
                                 copy_succeeded = True
-                        except glib.GError as inst:
+                        except glib.GError, inst:
                             downloadCopyingError(mediaFile, inst=inst)
                     else:
                         shutil.copy2(mediaFile.fullFileName, tempWorkingfile)
@@ -2240,7 +2241,7 @@ class CopyPhotos(Thread):
                                             downloadCopyingError(mediaFile)
                                         else:
                                             rename_succeeded = True
-                                    except glib.GError as inst:
+                                    except glib.GError, inst:
                                         downloadCopyingError(mediaFile, inst=inst)
                                 else:
                                     os.rename(tempWorkingfile, mediaFile.downloadFullFileName)
@@ -3294,6 +3295,7 @@ class SelectionTreeView(gtk.TreeView):
             self.previewDropShadow = DropShadow(shadow = (0x44, 0x44, 0x44, 0xff), trim_border = True)
             
         self.previewed_file_treerowref = None
+        self.icontheme = gtk.icon_theme_get_default()
         
     def get_status_icon(self, status, preview=False):
         """
@@ -3444,11 +3446,15 @@ class SelectionTreeView(gtk.TreeView):
                 widget.set_text('')
                 
             for widget in  [self.parentApp.preview_name_label,
-                            self.parentApp.preview_original_name_label]:
+                            self.parentApp.preview_original_name_label
+                            ]:
                 widget.set_tooltip_text('')
                 
             self.parentApp.preview_image.clear()
             self.parentApp.preview_status_icon.clear()
+            self.parentApp.preview_destination_expander.set_visible(False)
+            self.parentApp.preview_device_expander.set_visible(False)
+            #~ self.parentApp.name_spacer.set_visible(False)
             self.previewed_file_treerowref = None
             
         
@@ -3468,16 +3474,42 @@ class SelectionTreeView(gtk.TreeView):
             
             image_tool_tip = "%s\n%s" % (date_time_human_readable(mediaFile.dateTime(), False), common.formatSizeForUser(mediaFile.size))
             self.parentApp.preview_image.set_tooltip_text(image_tool_tip)
-            
+
+
             self.parentApp.preview_original_name_label.set_text(mediaFile.name)
-            self.parentApp.preview_original_name_label.set_tooltip_text(os.path.join(mediaFile.path, mediaFile.name))
+            self.parentApp.preview_original_name_label.set_tooltip_text(mediaFile.name)
+            if mediaFile.volume:
+                pixbuf = mediaFile.volume.get_icon_pixbuf(16)
+            else:
+                pixbuf = self.icontheme.load_icon('gtk-harddisk', 16, gtk.ICON_LOOKUP_USE_BUILTIN)
+            self.parentApp.preview_device_image.set_from_pixbuf(pixbuf)
+            self.parentApp.preview_device_label.set_text(mediaFile.deviceName)
+            self.parentApp.preview_device_path_label.set_text(mediaFile.path)
+            self.parentApp.preview_device_path_label.set_tooltip_text(mediaFile.path)
+            
+            if using_gio:
+                folder = gio.File(mediaFile.downloadFolder)
+                fileInfo = folder.query_info(gio.FILE_ATTRIBUTE_STANDARD_ICON)
+                icon = fileInfo.get_icon()
+                pixbuf = common.get_icon_pixbuf(using_gio, icon, 16, fallback='folder')
+            else:
+                pixbuf = self.icontheme.load_icon('folder', 16, gtk.ICON_LOOKUP_USE_BUILTIN)
+                
+            self.parentApp.preview_destination_image.set_from_pixbuf(pixbuf)
+            downloadFolderName = os.path.split(mediaFile.downloadFolder)[1]            
+            self.parentApp.preview_destination_label.set_text(downloadFolderName)
 
             if mediaFile.status in [config.STATUS_WARNING, config.STATUS_CANNOT_DOWNLOAD, config.STATUS_NOT_DOWNLOADED, config.STATUS_DOWNLOAD_PENDING]:
+                
                 self.parentApp.preview_name_label.set_text(mediaFile.sampleName)
-                self.parentApp.preview_name_label.set_tooltip_text(os.path.join(mediaFile.samplePath, mediaFile.sampleName))
+                self.parentApp.preview_name_label.set_tooltip_text(mediaFile.sampleName)
+                self.parentApp.preview_destination_path_label.set_text(mediaFile.samplePath)
+                self.parentApp.preview_destination_path_label.set_tooltip_text(mediaFile.samplePath)
             else:
                 self.parentApp.preview_name_label.set_text(mediaFile.downloadName)
-                self.parentApp.preview_name_label.set_tooltip_text(mediaFile.downloadFullFileName)
+                self.parentApp.preview_name_label.set_tooltip_text(mediaFile.downloadName)
+                self.parentApp.preview_destination_path_label.set_text(mediaFile.downloadPath)
+                self.parentApp.preview_destination_path_label.set_tooltip_text(mediaFile.downloadPath)
             
             self.parentApp.preview_status_icon.set_from_pixbuf(self.get_status_icon(mediaFile.status, preview=True))
             self.parentApp.preview_status_label.set_markup('<b>' + status_human_readable(mediaFile) + '</b>')
@@ -3492,6 +3524,11 @@ class SelectionTreeView(gtk.TreeView):
             else:
                 self.parentApp.preview_problem_label.set_markup('')
                 self.parentApp.preview_problem_title_label.set_markup('')
+                
+            if self.rapidApp.prefs.display_preview_folders:
+                self.parentApp.preview_destination_expander.set_visible(True)
+                self.parentApp.preview_device_expander.set_visible(True)
+                #~ self.parentApp.name_spacer.set_visible(False)                
             
     
     def select_rows(self, range):
@@ -3735,15 +3772,53 @@ class SelectionVBox(gtk.VBox):
         self.preview_image.set_size_request(MAX_THUMBNAIL_SIZE + shadow_size, MAX_THUMBNAIL_SIZE + shadow_size)
         
         #labels to display file information
-        #Original filename (path in tooltip)
+        
+        #Original filename
         self.preview_original_name_label = gtk.Label()
         self.preview_original_name_label.set_alignment(0, 0.5)
         self.preview_original_name_label.set_ellipsize(pango.ELLIPSIZE_END)
+        
+        #Device (where it will be downloaded to)
+        self.preview_device_expander = gtk.Expander()
+        self.preview_device_label = gtk.Label()
+        self.preview_device_label.set_alignment(0, 0.5)
+        self.preview_device_image = gtk.Image()
+        
+        self.preview_device_path_label = gtk.Label()
+        self.preview_device_path_label.set_alignment(0, 0.5)
+        self.preview_device_path_label.set_ellipsize(pango.ELLIPSIZE_MIDDLE)
+        self.preview_device_path_label.set_padding(30, 0)
+        self.preview_device_expander.add(self.preview_device_path_label)
+        
+        device_hbox = gtk.HBox(False, spacing = 6)
+        device_hbox.pack_start(self.preview_device_image)
+        device_hbox.pack_start(self.preview_device_label, True, True)
+        
+        self.preview_device_expander.set_label_widget(device_hbox)
         
         #Filename that has been generated (path in tooltip)
         self.preview_name_label = gtk.Label()
         self.preview_name_label.set_alignment(0, 0.5)
         self.preview_name_label.set_ellipsize(pango.ELLIPSIZE_END)
+        
+        #Download destination
+        self.preview_destination_expander = gtk.Expander()
+        self.preview_destination_label = gtk.Label()
+        self.preview_destination_label.set_alignment(0, 0.5)
+        self.preview_destination_image = gtk.Image()
+        
+        self.preview_destination_path_label = gtk.Label()
+        self.preview_destination_path_label.set_alignment(0, 0.5)
+        self.preview_destination_path_label.set_ellipsize(pango.ELLIPSIZE_MIDDLE)        
+        self.preview_destination_path_label.set_padding(30, 0)
+        self.preview_destination_expander.add(self.preview_destination_path_label)
+
+        destination_hbox = gtk.HBox(False, spacing = 6)
+        destination_hbox.pack_start(self.preview_destination_image)
+        destination_hbox.pack_start(self.preview_destination_label, True, True)
+        
+        self.preview_destination_expander.set_label_widget(destination_hbox)
+
         
         #Status of the file
         
@@ -3771,47 +3846,61 @@ class SelectionVBox(gtk.VBox):
                 
         #Put content into table
         # Use a table so we can do the Gnome HIG layout more easily
-        preview_table = gtk.Table(8, 4)
-        #preview_table.set_col_spacing(0, 12)
-        preview_table.set_row_spacings(12)
+        self.preview_table = gtk.Table(10, 4)
+        self.preview_table.set_row_spacings(12)
         left_spacer = gtk.Label('')
         left_spacer.set_padding(12, 0)
         right_spacer = gtk.Label('')
         right_spacer.set_padding(6, 0)
         
-        spacer1 = gtk.Label('')
+        #~ self.name_spacer = gtk.Label('')
         spacer2 = gtk.Label('')
         
-        preview_table.attach(left_spacer, 0, 1, 1, 2, xoptions=gtk.SHRINK, yoptions=gtk.SHRINK)
-        preview_table.attach(right_spacer, 3, 4, 1, 2, xoptions=gtk.SHRINK, yoptions=gtk.SHRINK)
+        self.preview_table.attach(left_spacer, 0, 1, 1, 2, xoptions=gtk.SHRINK, yoptions=gtk.SHRINK)
+        self.preview_table.attach(right_spacer, 3, 4, 1, 2, xoptions=gtk.SHRINK, yoptions=gtk.SHRINK)
                 
-        preview_table.attach(self.preview_title_label, 0, 3, 0, 1, yoptions=gtk.SHRINK)
-        preview_table.attach(self.preview_image, 1, 3, 1, 2, yoptions=gtk.SHRINK)
-        preview_table.attach(self.preview_original_name_label, 1, 3, 2, 3, yoptions=gtk.SHRINK)
-        preview_table.attach(self.preview_name_label, 1, 3, 3, 4, yoptions=gtk.SHRINK)
+        self.preview_table.attach(self.preview_title_label, 0, 3, 0, 1, yoptions=gtk.SHRINK)
+        self.preview_table.attach(self.preview_image, 1, 3, 1, 2, yoptions=gtk.SHRINK)
         
-        preview_table.attach(spacer1, 0, 7, 4, 5, yoptions=gtk.SHRINK)
-        #preview_table.attach(spacer2, 0, 7, 5, 6, yoptions=gtk.SHRINK)
+        self.preview_table.attach(self.preview_original_name_label, 1, 3, 2, 3, xoptions=gtk.EXPAND|gtk.FILL, yoptions=gtk.SHRINK)
+        self.preview_table.attach(self.preview_device_expander, 1, 3, 3, 4, xoptions=gtk.EXPAND|gtk.FILL, yoptions=gtk.SHRINK)
         
-        preview_table.attach(self.preview_status_icon, 1, 2, 6, 7, xoptions=gtk.SHRINK, yoptions=gtk.SHRINK)
-        preview_table.attach(self.preview_status_label, 2, 3, 6, 7, yoptions=gtk.SHRINK)
+        #~ self.preview_table.attach(self.name_spacer, 0, 7, 4, 5, yoptions=gtk.SHRINK)
         
-        preview_table.attach(self.preview_problem_title_label, 2, 3, 7, 8, yoptions=gtk.SHRINK)
-        preview_table.attach(self.preview_problem_label, 2, 4, 8, 9, xoptions=gtk.EXPAND|gtk.FILL, yoptions=gtk.EXPAND|gtk.FILL)
+        self.preview_table.attach(self.preview_name_label, 1, 3, 5, 6, xoptions=gtk.EXPAND|gtk.FILL, yoptions=gtk.SHRINK)
+        self.preview_table.attach(self.preview_destination_expander, 1, 3, 6, 7, xoptions=gtk.EXPAND|gtk.FILL, yoptions=gtk.SHRINK)
+
+        self.preview_table.attach(spacer2, 0, 7, 7, 8, yoptions=gtk.SHRINK)
+        
+        self.preview_table.attach(self.preview_status_icon, 1, 2, 8, 9, xoptions=gtk.SHRINK, yoptions=gtk.SHRINK)
+        self.preview_table.attach(self.preview_status_label, 2, 3, 8, 9, yoptions=gtk.SHRINK)
+        
+        self.preview_table.attach(self.preview_problem_title_label, 2, 3, 9, 10, yoptions=gtk.SHRINK)
+        self.preview_table.attach(self.preview_problem_label, 2, 4, 10, 11, xoptions=gtk.EXPAND|gtk.FILL, yoptions=gtk.EXPAND|gtk.FILL)
         
         self.file_hpaned = gtk.HPaned()
         self.file_hpaned.pack1(left_pane_vbox, shrink=False)
         #self.file_hpaned.pack2(self.preview_vbox, shrink=False)
-        self.file_hpaned.pack2(preview_table, resize=True, shrink=False)
+        self.file_hpaned.pack2(self.preview_table, resize=True, shrink=False)
         self.pack_start(self.file_hpaned, True, True)
         if self.parentApp.prefs.hpaned_pos > 0:
             self.file_hpaned.set_position(self.parentApp.prefs.hpaned_pos)
         else:
             # this is what the user will see the first time they run the app
             self.file_hpaned.set_position(300)
-                
+
         self.show_all()
     
+    
+    def set_display_preview_folders(self, value):
+        if value and self.selection_treeview.previewed_file_treerowref:
+            self.preview_destination_expander.set_visible(True)
+            self.preview_device_expander.set_visible(True)
+            #~ self.name_spacer.set_visible(True)
+        else:
+            self.preview_destination_expander.set_visible(False)
+            self.preview_device_expander.set_visible(False)
+            #~ self.name_spacer.set_visible(False)
     
     def set_job_code_display(self):
         """
@@ -4095,6 +4184,7 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
         self.selection_vbox = SelectionVBox(self)
         self.selection_hbox.pack_start(self.selection_vbox, padding=12)
         self.set_display_selection(self.prefs.display_selection)
+        self.set_display_preview_folders(self.prefs.display_preview_folders)
         
         self.backupVolumes = {}
 
@@ -4113,6 +4203,8 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
 
         #preview panes
         self.menu_display_selection.set_active(self.prefs.display_selection)
+        self.menu_preview_folders.set_active(self.prefs.display_preview_folders)
+        
         #preview columns in pane
         if not DOWNLOAD_VIDEO:
             self.menu_type_column.set_active(False)
@@ -4808,9 +4900,15 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
 
     def set_display_selection(self, value):
         if value:
-            self.selection_hbox.show_all()
+            self.selection_vbox.preview_table.show_all()
+            if not self.selection_vbox.selection_treeview.previewed_file_treerowref:
+                self.selection_vbox.preview_destination_expander.set_visible(False)
+                self.selection_vbox.preview_device_expander.set_visible(False)
         else:
-            self.selection_hbox.hide()
+            self.selection_vbox.preview_table.hide()
+            
+    def set_display_preview_folders(self, value):
+        self.selection_vbox.set_display_preview_folders(value)
        
     def _resetDownloadInfo(self):
         self.markSet = False
@@ -5034,7 +5132,10 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
             log_dialog.widget.hide()
 
     def on_menu_display_selection_toggled(self, check_button):
-        self.prefs.display_selection = check_button.get_active()   
+        self.prefs.display_selection = check_button.get_active()
+        
+    def on_menu_preview_folders_toggled(self, check_button):
+        self.prefs.display_preview_folders = check_button.get_active()
         
     def on_menu_select_all_activate(self, widget):
         self.selection_vbox.selection_treeview.select_rows('all')
@@ -5160,6 +5261,8 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
         
         if key == 'display_selection':
             self.set_display_selection(value)
+        elif key == 'display_preview_folders':
+            self.set_display_preview_folders(value)
         elif key == 'show_log_dialog':
             self.menu_log_window.set_active(value)
         elif key in ['device_autodetection', 'device_autodetection_psd', 'backup_images',  'device_location',
@@ -5227,7 +5330,6 @@ class Volume:
     """ Transistion to gvfs from gnomevfs"""
     def __init__(self,  volume):
         self.volume = volume
-        self.using_gio = using_gio
         
     def get_name(self, limit=config.MAX_LENGTH_DEVICE_NAME):
         if using_gio:
@@ -5259,25 +5361,7 @@ class Volume:
     def get_icon_pixbuf(self, size):
         """ returns icon for the volume, or None if not available"""
         
-        icontheme = gtk.icon_theme_get_default()        
-
-        if using_gio:
-            gicon = self.volume.get_icon()
-            f = None
-            if isinstance(gicon, gio.ThemedIcon):
-                try:
-                    # on some user's systems, themes do not have icons associated with them
-                    iconinfo = icontheme.choose_icon(gicon.get_names(), size, gtk.ICON_LOOKUP_USE_BUILTIN)
-                    f = iconinfo.get_filename()
-                    v = gtk.gdk.pixbuf_new_from_file_at_size(f, size, size)
-                except:
-                    f = None                
-            if not f:
-                v = icontheme.load_icon('gtk-harddisk', size, gtk.ICON_LOOKUP_USE_BUILTIN)
-        else:
-            gicon = self.volume.get_icon()
-            v = icontheme.load_icon(gicon, size, gtk.ICON_LOOKUP_USE_BUILTIN)
-        return v
+        return common.get_icon_pixbuf(using_gio, self.volume.get_icon(), size)
             
     def unmount(self,  callback):
         self.volume.unmount(callback)
