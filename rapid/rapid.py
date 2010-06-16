@@ -239,6 +239,8 @@ class ThreadManager:
 
     def startDownloadingWorkers(self):
         for w in self.getReadyToDownloadWorkers():
+            if is_beta and verbose:
+                print 'starting thread ', w.thread_id
             w.startStop()        
             
     def quitAllWorkers(self):
@@ -1618,7 +1620,7 @@ class CopyPhotos(Thread):
         """
         mediaFile = self.cardMedia.firstVideo()
         return mediaFile
-                
+                        
     def handlePreferencesError(self,  e,  prefsFactory):
             sys.stderr.write(_("Sorry,these preferences contain an error:\n"))
             sys.stderr.write(prefsFactory.formatPreferencesForPrettyPrint() + "\n")
@@ -2402,13 +2404,13 @@ class CopyPhotos(Thread):
                 
             return backed_up
 
-        def notifyAndUnmount():
+        def notifyAndUnmount(umountAttemptOK):
             if not self.cardMedia.volume:
                 unmountMessage = ""
                 notificationName = PROGRAM_NAME
             else:
                 notificationName  = self.cardMedia.volume.get_name()
-                if self.prefs.auto_unmount:
+                if self.prefs.auto_unmount and umountAttemptOK:
                     self.cardMedia.volume.unmount(self.on_volume_unmount)
                     # This message informs the user that the device (e.g. camera, hard drive or memory card) was automatically unmounted and they can now remove it
                     unmountMessage = _("The device can now be safely removed")
@@ -2420,7 +2422,7 @@ class CopyPhotos(Thread):
             message = _("%(noFiles)s %(filetypes)s downloaded") % {'noFiles':noFilesDownloaded, 'filetypes': file_types}
             noFilesSkipped = noImagesSkipped + noVideosSkipped
             if noFilesSkipped:
-                message += "\n" + _("%(noFiles)s %(filetypes)s skipped") % {'noFiles':noFilesSkipped, 'filetypes':file_types_skipped}
+                message += "\n" + _("%(noFiles)s %(filetypes)s download failures") % {'noFiles':noFilesSkipped, 'filetypes':file_types_skipped}
             
             if unmountMessage:
                 message = "%s\n%s" % (message,  unmountMessage)
@@ -2547,6 +2549,9 @@ class CopyPhotos(Thread):
             return
             
         all_files_downloaded = False
+        
+        totalNonErrorFiles = self.cardMedia.numberOfFilesNotCannotDownload()
+        
         while not all_files_downloaded:
             if self.autoStart and need_job_code:
                 if needAJobCode():
@@ -2580,6 +2585,8 @@ class CopyPhotos(Thread):
             self.downloadStarted = True
             cmd_line(_("Download has started from %s") % self.cardMedia.prettyName(limit=0))
             
+            noFiles, sizeFiles, fileIndex = self.cardMedia.sizeAndNumberDownloadPending()
+            cmd_line(_("Attempting to download %s files") % noFiles)
             
             can_backup = setupBackup()
             
@@ -2587,14 +2594,12 @@ class CopyPhotos(Thread):
             sizeDownloaded = noFilesDownloaded = noImagesDownloaded = noVideosDownloaded = noImagesSkipped = noVideosSkipped = 0
             filesDownloadedSuccessfully = []
             
-            sizeFiles = self.cardMedia.sizeOfImagesAndVideos(humanReadable = False)
             display_queue.put((self.parentApp.addToTotalDownloadSize, (sizeFiles, )))
             display_queue.put((self.parentApp.setOverallDownloadMark, ()))
             display_queue.put((self.parentApp.postStartDownloadTasks,  ()))
             
             sizeFiles = float(sizeFiles)
-            noFiles = self.cardMedia.numberOfImagesAndVideos()
-            
+
             addUniqueIdentifier = self.prefs.download_conflict_resolution == config.ADD_UNIQUE_IDENTIFIER
             usesImageSequenceElements = self.imageRenamePrefsFactory.usesSequenceElements()
             usesVideoSequenceElements = self.videoRenamePrefsFactory.usesSequenceElements()
@@ -2620,8 +2625,10 @@ class CopyPhotos(Thread):
                     return
                 
                 # get information about the image to deduce image name and path
-                mediaFile = self.cardMedia.imagesAndVideos[i][0]
-                if mediaFile.status == config.STATUS_DOWNLOAD_PENDING:
+                mediaFile = self.cardMedia.imagesAndVideos[fileIndex[i]][0]
+                if not mediaFile.status == config.STATUS_DOWNLOAD_PENDING:
+                    sys.stderr.write("FIXME: Thread %s is trying to download a file that it should not be" % self.thread_id)
+                else:
                 
                     if mediaFile.isImage:
                         tempWorkingDir = self.photoTempWorkingDir
@@ -2669,8 +2676,7 @@ class CopyPhotos(Thread):
                 
                 sizeDownloaded += mediaFile.size
                 percentComplete = (float(sizeDownloaded) / sizeFiles) * 100
-                if sizeDownloaded == sizeFiles:
-                    self.downloadComplete = True
+                    
                 progressBarText = _("%(number)s of %(total)s %(filetypes)s") % {'number':  i + 1, 'total': noFiles, 'filetypes':self.display_file_types}
                 if using_gio:
                     size = mediaFile.size - self.bytes_downloaded
@@ -2699,7 +2705,32 @@ class CopyPhotos(Thread):
                         
                 cmd_line(_("Deleted %(number)i %(filetypes)s from device") % {'number':j, 'filetypes':self.display_file_types})
                 
-            break
+            totalNonErrorFiles = totalNonErrorFiles - noFiles
+            if totalNonErrorFiles == 0:
+                all_files_downloaded = True
+                
+            notifyAndUnmount(umountAttemptOK = all_files_downloaded)
+            cmd_line(_("Download complete from %s") % self.cardMedia.prettyName(limit=0))
+            display_queue.put((self.parentApp.notifyUserAllDownloadsComplete,()))
+            display_queue.put((self.parentApp.resetSequences,()))
+            
+            if all_files_downloaded:
+                self.downloadComplete = True
+            else:
+                self.running = False
+                self.downloadStarted = False
+                self.lock.acquire()
+                if not self.ctrl:
+                    # thread will restart at this point, when the program is exiting
+                    # so must exit if self.ctrl indicates this
+
+                    self.running = False
+                    display_queue.close("rw")
+                    return
+                self.running = True
+                self.autoStart = True
+
+                
 
         # must manually delete these variables, or else the media cannot be unmounted (bug in some versions of pyexiv2 / exiv2)
         del self.subfolderPrefsFactory, self.imageRenamePrefsFactory
@@ -2707,11 +2738,6 @@ class CopyPhotos(Thread):
             pass #del fileMetadata
         except:
             pass
-                
-        notifyAndUnmount()
-        cmd_line(_("Download complete from %s") % self.cardMedia.prettyName(limit=0))
-        display_queue.put((self.parentApp.notifyUserAllDownloadsComplete,()))
-        display_queue.put((self.parentApp.resetSequences,()))
 
         display_queue.put((self.parentApp.exitOnDownloadComplete, ()))
         display_queue.close("rw")
@@ -4417,7 +4443,7 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
             self.selection_vbox.selection_treeview.set_status_to_download(selected_only = downloadSelected)
             if downloadSelected or not autoStart:
                 cmd_line(_("Starting downloads"))
-                #self.startDownload()
+                self.startDownload()
             else:
                 # autostart is true
                 cmd_line(_("Starting downloads that have been waiting for a Job Code"))
@@ -5018,11 +5044,11 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
                 if self.downloadStats.noImagesDownloaded:
                     message += "\n%s " % self.downloadStats.noImagesDownloaded + _("photos downloaded")
                 if self.downloadStats.noImagesSkipped:
-                    message = "%s\n%s " % (message,  self.downloadStats.noImagesSkipped) + _("photos skipped")
+                    message = "%s\n%s " % (message,  self.downloadStats.noImagesSkipped) + _("photo download failures")
                 if self.downloadStats.noVideosDownloaded:
                     message += "\n%s " % self.downloadStats.noVideosDownloaded + _("videos downloaded")
                 if self.downloadStats.noVideosSkipped:
-                    message = "%s\n%s " % (message,  self.downloadStats.noVideosSkipped) + _("videos skipped")                    
+                    message = "%s\n%s " % (message,  self.downloadStats.noVideosSkipped) + _("video download failures")                    
                 if self.downloadStats.noWarnings:
                     message = "%s\n%s " % (message,  self.downloadStats.noWarnings) + _("warnings")
                 if self.downloadStats.noErrors:
@@ -5239,8 +5265,7 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
             self.getJobCode(autoStart=False, downloadSelected=True)
         else:
             self.selection_vbox.selection_treeview.set_status_to_download(selected_only = True)
-            for w in workers.getReadyToDownloadWorkers():
-                w.print_status()
+            self.startDownload()
                 
 
         

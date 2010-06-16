@@ -259,6 +259,32 @@ class CardMedia(Media):
             return common.formatSizeForUser(self.fileSizeSum)
         else:
             return self.fileSizeSum
+            
+    def sizeAndNumberDownloadPending(self):
+        """
+        Returns how many files have their status set to download pending, and their size
+        """
+        v = s = 0
+        fileIndex = []
+        for i in range(len(self.imagesAndVideos)):
+            mediaFile = self.imagesAndVideos[i][0]
+            if mediaFile.status == config.STATUS_DOWNLOAD_PENDING:
+                v += 1
+                s += mediaFile.size
+                fileIndex.append(i)
+        return (v, s, fileIndex)
+        
+    def numberOfFilesNotCannotDownload(self):
+        """
+        Returns how many files whose status is not cannot download
+        """
+        v = 0
+        for i in range(len(self.imagesAndVideos)):
+            mediaFile = self.imagesAndVideos[i][0]
+            if mediaFile.status <> config.STATUS_CANNOT_DOWNLOAD:
+                v += 1
+                
+        return v
     
     def _firstFile(self, isImage):
         if self.imagesAndVideos:
