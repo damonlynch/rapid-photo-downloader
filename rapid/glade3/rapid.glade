@@ -3237,6 +3237,7 @@ Julien Valroff &lt;julien@kirya.net&gt;</property>
                         <property name="visible">True</property>
                         <property name="use_underline">True</property>
                         <property name="use_stock">False</property>
+                        <signal name="activate" handler="on_menu_get_help_online_activate"/>
                         <accelerator key="F1" signal="activate"/>
                         <child internal-child="image">
                           <widget class="GtkImage" id="image2">

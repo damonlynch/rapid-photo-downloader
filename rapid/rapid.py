@@ -68,6 +68,14 @@ import idletube as tube
 
 import config
 from config import MAX_THUMBNAIL_SIZE
+from config import  STATUS_CANNOT_DOWNLOAD, STATUS_DOWNLOADED, \
+                    STATUS_DOWNLOADED_WITH_WARNING, \
+                    STATUS_DOWNLOAD_FAILED, \
+                    STATUS_DOWNLOAD_PENDING, \
+                    STATUS_BACKUP_PROBLEM, \
+                    STATUS_NOT_DOWNLOADED, \
+                    STATUS_NOT_DOWNLOADED_BACKUP_PROBLEM, \
+                    STATUS_WARNING
 
 import common
 import misc
@@ -1587,9 +1595,7 @@ class CopyPhotos(Thread):
         self.cardMedia = cardMedia
         
         self.initializeDisplay(thread_id,  self.cardMedia)
-        
-        self.noErrors = self.noWarnings = 0
-        
+               
         self.scanComplete = self.downloadStarted = self.downloadComplete = False
         
         Thread.__init__(self)
@@ -1796,10 +1802,10 @@ class CopyPhotos(Thread):
                     problem.add_problem(None, pn.ERROR_IN_NAME_GENERATION, {'filetype': mediaFile.displayNameCap, 'area': area})
                     problem.add_extra_detail(pn.NO_DATA_TO_NAME, {'filetype': area})
                     mediaFile.problem = problem
-                    mediaFile.status = config.STATUS_CANNOT_DOWNLOAD
+                    mediaFile.status = STATUS_CANNOT_DOWNLOAD
                 elif problem.has_problem():
                     mediaFile.problem = problem
-                    mediaFile.status = config.STATUS_WARNING
+                    mediaFile.status = STATUS_WARNING
                 
             
             def loadFileMetadata(mediaFile):
@@ -1811,7 +1817,7 @@ class CopyPhotos(Thread):
                 try:
                     mediaFile.loadMetadata()
                 except:
-                    mediaFile.status = config.STATUS_CANNOT_DOWNLOAD
+                    mediaFile.status = STATUS_CANNOT_DOWNLOAD
                     mediaFile.metadata = None
                     problem.add_problem(None, pn.CANNOT_DOWNLOAD_BAD_METADATA, {'filetype': mediaFile.displayNameCap})
                     mediaFile.problem = problem
@@ -1981,7 +1987,7 @@ class CopyPhotos(Thread):
                     mediaFile.problem.get_title(),
                     _("Source: %(source)s\nDestination: %(destination)s\n%(problem)s") % 
                     {'source': mediaFile.fullFileName, 'destination': mediaFile.downloadFullFileName, 'problem': mediaFile.problem.get_problems()})
-                mediaFile.status = config.STATUS_DOWNLOADED_WITH_WARNING
+                mediaFile.status = STATUS_DOWNLOADED_WITH_WARNING
                     
         def fileAlreadyExists(mediaFile, identifier=None):
             """ Notify the user that the photo or video could not be downloaded because it already exists"""
@@ -2000,16 +2006,14 @@ class CopyPhotos(Thread):
                 mediaFile.problem.add_problem(None, pn.FILE_ALREADY_EXISTS_NO_DOWNLOAD, {'filetype':mediaFile.displayNameCap})
                 if date and time:
                     mediaFile.problem.add_extra_detail(pn.EXISTING_FILE, {'filetype': mediaFile.displayName, 'date': date, 'time': time})
-                mediaFile.status = config.STATUS_DOWNLOAD_FAILED
+                mediaFile.status = STATUS_DOWNLOAD_FAILED
                 log_status = config.SERIOUS_ERROR
             else:
                 mediaFile.problem.add_problem(None, pn.UNIQUE_IDENTIFIER_ADDED, {'filetype':mediaFile.displayNameCap})
                 mediaFile.problem.add_extra_detail(pn.UNIQUE_IDENTIFIER, {'identifier': identifier})
-                mediaFile.status = config.STATUS_DOWNLOADED_WITH_WARNING
+                mediaFile.status = STATUS_DOWNLOADED_WITH_WARNING
                 log_status = config.WARNING
                 
-
-            #if self.prefs.indicate_download_error:
             logError(log_status, mediaFile.problem.get_title(),
                 _("Source: %(source)s\nDestination: %(destination)s")
                 % {'source': mediaFile.fullFileName, 'destination': mediaFile.downloadFullFileName},
@@ -2030,7 +2034,7 @@ class CopyPhotos(Thread):
                 mediaFile.problem.add_extra_detail(pn.DOWNLOAD_COPYING_ERROR_DETAIL, inst)
 
             logError(config.SERIOUS_ERROR, mediaFile.problem.get_title(), mediaFile.problem.get_problems())
-            mediaFile.status = config.STATUS_DOWNLOAD_FAILED
+            mediaFile.status = STATUS_DOWNLOAD_FAILED
                 
         def sameNameDifferentExif(image_name, mediaFile):
             """Notify the user that a file was already downloaded with the same name, but the exif information was different"""
@@ -2045,7 +2049,7 @@ class CopyPhotos(Thread):
                                     mediaFile.metadata.subSeconds())})
 
             logError(config.WARNING, mediaFile.problem.get_title(), mediaFile.problem.get_problems())
-            mediaFile.status = config.STATUS_DOWNLOADED_WITH_WARNING
+            mediaFile.status = STATUS_DOWNLOADED_WITH_WARNING
 
         def generateSubfolderAndFileName(mediaFile):
             """
@@ -2251,8 +2255,8 @@ class CopyPhotos(Thread):
                                         
                                 if rename_succeeded:
                                     fileDownloaded = True
-                                    if mediaFile.status != config.STATUS_DOWNLOADED_WITH_WARNING:
-                                        mediaFile.status = config.STATUS_DOWNLOADED
+                                    if mediaFile.status != STATUS_DOWNLOADED_WITH_WARNING:
+                                        mediaFile.status = STATUS_DOWNLOADED
                                     if usesImageSequenceElements:
                                         if self.prefs.synchronize_raw_jpg and mediaFile.isImage:
                                             name, ext = os.path.splitext(mediaFile.name)
@@ -2290,11 +2294,11 @@ class CopyPhotos(Thread):
             return fileDownloaded
             
 
-        def backupFile(subfolder, newName, fileDownloaded, newFile, originalFile):
+        def backupFile(mediaFile, fileDownloaded): #subfolder, newName, fileDownloaded, newFile, originalFile):
             """ 
             Backup photo or video to path(s) chosen by the user
             
-            there are two scenarios: 
+            there are three scenarios: 
             (1) file has just been downloaded and should now be backed up
             (2) file was already downloaded on some previous occassion and should still be backed up, because it hasn't been yet
             (3) file has been backed up already (or at least, a file with the same name already exists)
@@ -2302,62 +2306,76 @@ class CopyPhotos(Thread):
             A backup medium can be used to backup photos or videos, or both. 
             """
             
-            #TODO convert to using GIO
+            def progress_callback(amount_downloaded, total):
+                print amount_downloaded, total
+            
             backed_up = False
             fileNotBackedUpMessageDisplayed = False
-            try:
-                for rootBackupDir in self.parentApp.backupVolumes:
-                    if self.prefs.backup_device_autodetection:
-                        if self.isImage:
-                            backupDir = os.path.join(rootBackupDir, self.prefs.backup_identifier)
-                        else:
-                            backupDir = os.path.join(rootBackupDir, self.prefs.video_backup_identifier)
+            overwritten = False
+
+            for rootBackupDir in self.parentApp.backupVolumes:
+                if self.prefs.backup_device_autodetection:
+                    volume = self.parentApp.backupVolumes[rootBackupDir].get_name()
+                    if mediaFile.isImage:
+                        backupDir = os.path.join(rootBackupDir, self.prefs.backup_identifier)
                     else:
-                        # photos and videos will be backed up into the same root folder, which the user has manually specified
-                        backupDir = rootBackupDir
-                    # if user has chosen auto detection, then:
-                    # photos should only be backed up to photo backup locations
-                    # videos should only be backed up to video backup locations
-                    # if user did not choose autodetection, and the backup path doesn't exist, then
-                    # will try to create it
-                    if os.path.exists(backupDir) or not self.prefs.backup_device_autodetection:
+                        backupDir = os.path.join(rootBackupDir, self.prefs.video_backup_identifier)
+                else:
+                    # photos and videos will be backed up into the same root folder, which the user has manually specified
+                    backupDir = rootBackupDir
+                    volume = backupDir # os.path.split(backupDir)[1]
+                                            
+                # if user has chosen auto detection, then:
+                # photos should only be backed up to photo backup locations
+                # videos should only be backed up to video backup locations
+                # if user did not choose autodetection, and the backup path doesn't exist, then
+                # will try to create it
+                if os.path.isdir(backupDir) or not self.prefs.backup_device_autodetection:
 
-                        backupPath = os.path.join(backupDir, subfolder)
-                        newBackupFile = os.path.join(backupPath, newName)
-                        copyBackup = True
-                        if os.path.exists(newBackupFile):
-                            # this check is of course not thread safe -- it doesn't need to be, because at this stage the file names are going to be unique
-                            # (the folder structure is the same as the actual download folders, and the file names are unique in them)
-                            copyBackup = self.prefs.backup_duplicate_overwrite                                     
-                            if self.prefs.indicate_download_error:
-                                severity = config.SERIOUS_ERROR
-                                problem = _("Backup of %(file_type)s already exists") % {'file_type': fileBeingDownloadedDisplay}
-                                details = _("Source: %(source)s\nDestination: %(destination)s") \
-                                    % {'source': originalFile, 'destination': newBackupFile}
-                                if copyBackup :
-                                    resolution = _("Backup %(file_type)s overwritten") % {'file_type': fileBeingDownloadedDisplay}
-                                else:
-                                    fileNotBackedUpMessageDisplayed = True
-                                    if self.prefs.backup_device_autodetection:
-                                        volume = self.parentApp.backupVolumes[rootBackupDir].get_name()
-                                        resolution = _("%(file_type)s not backed up to %(volume)s") % {'file_type': fileBeingDownloadedDisplayCap, 'volume': volume}
-                                    else:
-                                        resolution = _("%(file_type)s not backed up") % {'file_type': fileBeingDownloadedDisplayCap}
-                                logError(severity, problem, details, resolution)
-
+                    backupPath = os.path.join(backupDir, mediaFile.downloadSubfolder)
+                    newBackupFile = os.path.join(backupPath, mediaFile.downloadName)
+                    copyBackup = True
+                    if os.path.exists(newBackupFile):
+                        # this check is of course not thread safe -- it doesn't need to be, because at this stage the file names are going to be unique
+                        # (the folder structure is the same as the actual download folders, and the file names are unique in them)
+                        copyBackup = self.prefs.backup_duplicate_overwrite  
+                        
                         if copyBackup:
-                            if fileDownloaded:
-                                fileToCopy = newFile
-                            else:
-                                fileToCopy = originalFile
-                            if os.path.isdir(backupPath):
-                                pathExists = True
+                            mediaFile.problem.add_problem(None, pn.BACKUP_EXISTS_OVERWRITTEN, volume)
+                            overwritten = True
+                        else:
+                            mediaFile.problem.add_problem(None, pn.BACKUP_EXISTS, volume)
+                        severity = config.SERIOUS_ERROR
+                        fileNotBackedUpMessageDisplayed = True
+
+                        #logError(severity, problem, details, resolution)
+
+                    if copyBackup:
+                        if fileDownloaded:
+                            fileToCopy = mediaFile.downloadFullFileName
+                        else:
+                            fileToCopy = mediaFile.fullFileName
+                        if os.path.isdir(backupPath):
+                            pathExists = True
+                        else:
+                            pathExists = False
+                            # create the backup subfolders
+                            if using_gio:
+                                dirs = gio.File(backupPath)
+                                try:
+                                    if dirs.make_directory_with_parents(cancellable=gio.Cancellable()):
+                                        pathExists = True
+                                except glib.GError, inst:
+                                    fileNotBackedUpMessageDisplayed = True
+                                    mediaFile.problem.add_problem(None, pn.BACKUP_DIRECTORY_CREATION, volume)
+                                    mediaFile.problem.add_extra_detail('%s%s' % (pn.BACKUP_DIRECTORY_CREATION, volume), inst)
+                                    #~ print mediaFile.problem.extra_detail
                             else:
                                 # recreate folder structure in backup location
                                 # cannot do os.makedirs(backupPath) - it can give bad results when using external drives
                                 # we know backupDir exists 
                                 # all the components of subfolder may not
-                                folders = subfolder.split(os.path.sep)
+                                folders = mediaFile.downloadSubfolder.split(os.path.sep)
                                 folderToMake = backupDir 
                                 for f in folders:
                                     if f:
@@ -2368,40 +2386,71 @@ class CopyPhotos(Thread):
                                                 pathExists = True
                                             except (IOError, OSError), (errno, strerror):
                                                 fileNotBackedUpMessageDisplayed = True
-                                                logError(config.SERIOUS_ERROR, _('Backing up error'), 
-                                                         _("Destination directory could not be created: %(directory)s\n") %
-                                                         {'directory': folderToMake,  } +
-                                                         _("Source: %(source)s\nDestination: %(destination)s\n") % 
-                                                         {'source': originalFile, 'destination': newBackupFile} + 
-                                                         _("Error: %(errno)s %(strerror)s") % {'errno': errno,  'strerror': strerror}, 
-                                                         _('The %(file_type)s was not backed up.') % {'file_type': fileBeingDownloadedDisplay}
-                                                         )
-                                                pathExists = False
+                                                inst = "%s: %s" % (errno, strerror)
+                                                mediaFile.problem.add_problem(None, pn.BACKUP_DIRECTORY_CREATION, volume)
+                                                mediaFile.problem.add_extra_detail('%s%s' % (pn.BACKUP_DIRECTORY_CREATION, volume), inst)
+                                                #~ logError(config.SERIOUS_ERROR, _('Backing up error'), 
+                                                         #~ _("Destination directory could not be created: %(directory)s\n") %
+                                                         #~ {'directory': folderToMake,  } +
+                                                         #~ _("Source: %(source)s\nDestination: %(destination)s\n") % 
+                                                         #~ {'source': originalFile, 'destination': newBackupFile} + 
+                                                         #~ _("Error: %(errno)s %(strerror)s") % {'errno': errno,  'strerror': strerror}, 
+                                                         #~ _('The %(file_type)s was not backed up.') % {'file_type': fileBeingDownloadedDisplay}
+                                                         #~ )
+
                                                 break
-                                        
-                            if pathExists:
-                                shutil.copy2(fileToCopy, newBackupFile)
-                                backed_up = True
-                        
-            except (IOError, OSError), (errno, strerror):
-                fileNotBackedUpMessageDisplayed = True
-                logError(config.SERIOUS_ERROR, _('Backing up error'), 
-                            _("Source: %(source)s\nDestination: %(destination)s\nError: %(errno)s %(strerror)s")
-                            % {'source': originalFile, 'destination': newBackupFile,  'errno': errno,  'strerror': strerror},
-                            _('The %(file_type)s was not backed up.')  % {'file_type': fileBeingDownloadedDisplay}
-                        )
+                                    
+                        if pathExists:
+                            if using_gio:
+                                g_dest = gio.File(path=newBackupFile)
+                                g_src = gio.File(path=fileToCopy)
+                                if self.prefs.backup_duplicate_overwrite:
+                                    flags = gio.FILE_COPY_OVERWRITE
+                                else:
+                                    flags = gio.FILE_COPY_NONE
+                                try:
+                                    if not g_src.copy(g_dest, progress_callback, flags, cancellable=gio.Cancellable()):
+                                        fileNotBackedUpMessageDisplayed = True
+                                        mediaFile.problem.add_problem(None, pn.BACKUP_ERROR, volume)
+                                    else:
+                                        backed_up = True
+                                except glib.GError, inst:
+                                    fileNotBackedUpMessageDisplayed = True
+                                    mediaFile.problem.add_problem(None, pn.BACKUP_ERROR, volume)
+                                    mediaFile.problem.add_extra_detail('%s%s' % (pn.BACKUP_ERROR, volume), inst)
+                            else:
+                                try:
+                                    shutil.copy2(fileToCopy, newBackupFile)
+                                    backed_up = True
+                                except (IOError, OSError), (errno, strerror):
+                                    fileNotBackedUpMessageDisplayed = True
+                                    mediaFile.problem.add_problem(None, pn.BACKUP_ERROR, volume)
+                                    inst = "%s: %s" % (errno, strerror)
+                                    mediaFile.problem.add_extra_detail('%s%s' % (pn.BACKUP_ERROR, volume), inst)
+                                    #~ logError(config.SERIOUS_ERROR, _('Backing up error'), 
+                                            #~ _("Source: %(source)s\nDestination: %(destination)s\nError: %(errno)s %(strerror)s")
+                                            #~ % {'source': originalFile, 'destination': newBackupFile,  'errno': errno,  'strerror': strerror},
+                                            #~ _('The %(file_type)s was not backed up.')  % {'file_type': fileBeingDownloadedDisplay}
+                                        #~ )
 
             if not backed_up and not fileNotBackedUpMessageDisplayed:
                 # The file has not been backed up to any medium
-                severity = config.SERIOUS_ERROR
-                problem = _("%(file_type)s could not be backed up") % {'file_type': fileBeingDownloadedDisplayCap}
-                details = _("Source: %(source)s") % {'source': originalFile}
-                if self.prefs.backup_device_autodetection:
-                    resolution = _("No suitable backup volume was found")
-                else:
-                    resolution = _("A backup location was not found")
-                logError(severity, problem, details, resolution)    
+                mediaFile.problem.add_problem(None, pn.NO_BACKUP_PERFORMED, {'filetype': mediaFile.displayNameCap})
+
+                #~ severity = config.SERIOUS_ERROR
+                #~ problem = _("%(file_type)s could not be backed up") % {'file_type': fileBeingDownloadedDisplayCap}
+                #~ details = _("Source: %(source)s") % {'source': originalFile}
+                #~ if self.prefs.backup_device_autodetection:
+                    #~ resolution = _("No suitable backup volume was found")
+                #~ else:
+                    #~ resolution = _("A backup location was not found")
+                #~ logError(severity, problem, details, resolution)    
                 
+            if not backed_up or overwritten:
+                if mediaFile.status == STATUS_DOWNLOAD_FAILED:
+                    mediaFile.status = STATUS_NOT_DOWNLOADED_BACKUP_PROBLEM
+                else:
+                    mediaFile.status = STATUS_BACKUP_PROBLEM                    
             return backed_up
 
         def notifyAndUnmount(umountAttemptOK):
@@ -2510,7 +2559,7 @@ class CopyPhotos(Thread):
         def needAJobCode():
             for f in self.cardMedia.imagesAndVideos:
                 mediaFile = f[0]
-                if mediaFile.status in [config.STATUS_WARNING, config.STATUS_NOT_DOWNLOADED]:
+                if mediaFile.status in [STATUS_WARNING, STATUS_NOT_DOWNLOADED]:
                     if not mediaFile.jobcode:
                         return True
             return False
@@ -2553,6 +2602,9 @@ class CopyPhotos(Thread):
         totalNonErrorFiles = self.cardMedia.numberOfFilesNotCannotDownload()
         
         while not all_files_downloaded:
+            
+            self.noErrors = self.noWarnings = 0
+            
             if self.autoStart and need_job_code:
                 if needAJobCode():
                     self.waitingForJobCode = True
@@ -2626,7 +2678,7 @@ class CopyPhotos(Thread):
                 
                 # get information about the image to deduce image name and path
                 mediaFile = self.cardMedia.imagesAndVideos[fileIndex[i]][0]
-                if not mediaFile.status == config.STATUS_DOWNLOAD_PENDING:
+                if not mediaFile.status == STATUS_DOWNLOAD_PENDING:
                     sys.stderr.write("FIXME: Thread %s is trying to download a file that it should not be" % self.thread_id)
                 else:
                 
@@ -2649,7 +2701,7 @@ class CopyPhotos(Thread):
 
                         if self.prefs.backup_images:
                             if can_backup:
-                                backed_up = backupFile(mediaFile)
+                                backed_up = backupFile(mediaFile, fileDownloaded)
                             else:
                                 backed_up = False
 
@@ -2748,12 +2800,6 @@ class CopyPhotos(Thread):
         if noFiles:
             self.lock.release()
         
-    
-    def print_status(self):
-        for f in self.cardMedia.imagesAndVideos:
-            
-            if f[0].status == config.STATUS_DOWNLOAD_PENDING:
-                print f[0].name
     
     def startStop(self):
         if self.isAlive():
@@ -3327,20 +3373,20 @@ class SelectionTreeView(gtk.TreeView):
         """
         Returns the correct icon, based on the status
         """
-        if status == config.STATUS_WARNING:
+        if status == STATUS_WARNING:
             status_icon = self.warning_icon
-        elif status == config.STATUS_CANNOT_DOWNLOAD:
+        elif status == STATUS_CANNOT_DOWNLOAD:
             status_icon = self.error_icon
-        elif status == config.STATUS_DOWNLOADED:
+        elif status == STATUS_DOWNLOADED:
             status_icon =  self.downloaded_icon
-        elif status == config.STATUS_NOT_DOWNLOADED:
+        elif status == STATUS_NOT_DOWNLOADED:
             if preview:
                 status_icon = self.not_downloaded_icon_tick
             else:
                 status_icon = self.not_downloaded_icon
-        elif status == config.STATUS_DOWNLOADED_WITH_WARNING:
+        elif status == STATUS_DOWNLOADED_WITH_WARNING:
             status_icon = self.downloaded_with_warning_icon
-        elif status == config.STATUS_DOWNLOAD_FAILED:
+        elif status in [STATUS_DOWNLOAD_FAILED, STATUS_BACKUP_PROBLEM, STATUS_NOT_DOWNLOADED_BACKUP_PROBLEM]:
             status_icon = self.download_failed_icon
         else:
             sys.stderr.write("FIXME: unknown status!")
@@ -3402,7 +3448,7 @@ class SelectionTreeView(gtk.TreeView):
             path = self.sort_model.convert_path_to_child_path(selected_path)
             iter = self.liststore.get_iter(path)
             status = self.liststore.get_value(iter, 11)
-            if status in [config.STATUS_NOT_DOWNLOADED, config.STATUS_WARNING]:
+            if status in [STATUS_NOT_DOWNLOADED, STATUS_WARNING]:
                 v += 1
         return v
             
@@ -3445,19 +3491,23 @@ class SelectionTreeView(gtk.TreeView):
     def show_preview(self, iter):
         
         def status_human_readable(mediaFile):
-            if mediaFile.status == config.STATUS_DOWNLOADED:
+            if mediaFile.status == STATUS_DOWNLOADED:
                 v = _('%(filetype)s was downloaded successfully') % {'filetype': mediaFile.displayNameCap}
-            elif mediaFile.status == config.STATUS_DOWNLOAD_FAILED:
+            elif mediaFile.status == STATUS_DOWNLOAD_FAILED:
                 v = _('%(filetype)s was not downloaded') % {'filetype': mediaFile.displayNameCap}
-            elif mediaFile.status == config.STATUS_DOWNLOADED_WITH_WARNING:
+            elif mediaFile.status == STATUS_DOWNLOADED_WITH_WARNING:
                 v = _('%(filetype)s was downloaded with warnings') % {'filetype': mediaFile.displayNameCap}
-            elif mediaFile.status == config.STATUS_NOT_DOWNLOADED:
+            elif mediaFile.status == STATUS_BACKUP_PROBLEM:
+                v = _('%(filetype)s had backup problems') % {'filetype': mediaFile.displayNameCap}
+            elif mediaFile.status == STATUS_NOT_DOWNLOADED_BACKUP_PROBLEM:
+                v = _('%(filetype)s was not downloaded and had backup problems') % {'filetype': mediaFile.displayNameCap}                
+            elif mediaFile.status == STATUS_NOT_DOWNLOADED:
                 v = _('%(filetype)s is ready to be downloaded') % {'filetype': mediaFile.displayNameCap}
-            elif mediaFile.status == config.STATUS_DOWNLOAD_PENDING:
+            elif mediaFile.status == STATUS_DOWNLOAD_PENDING:
                 v = _('%(filetype)s is about to be downloaded') % {'filetype': mediaFile.displayNameCap}
-            elif mediaFile.status == config.STATUS_WARNING:
+            elif mediaFile.status == STATUS_WARNING:
                 v = _('%(filetype)s will be downloaded with warnings')% {'filetype': mediaFile.displayNameCap}
-            elif mediaFile.status == config.STATUS_CANNOT_DOWNLOAD:
+            elif mediaFile.status == STATUS_CANNOT_DOWNLOAD:
                 v = _('%(filetype)s cannot be downloaded') % {'filetype': mediaFile.displayNameCap}
             return v
                 
@@ -3524,7 +3574,7 @@ class SelectionTreeView(gtk.TreeView):
             downloadFolderName = os.path.split(mediaFile.downloadFolder)[1]            
             self.parentApp.preview_destination_label.set_text(downloadFolderName)
 
-            if mediaFile.status in [config.STATUS_WARNING, config.STATUS_CANNOT_DOWNLOAD, config.STATUS_NOT_DOWNLOADED, config.STATUS_DOWNLOAD_PENDING]:
+            if mediaFile.status in [STATUS_WARNING, STATUS_CANNOT_DOWNLOAD, STATUS_NOT_DOWNLOADED, STATUS_DOWNLOAD_PENDING]:
                 
                 self.parentApp.preview_name_label.set_text(mediaFile.sampleName)
                 self.parentApp.preview_name_label.set_tooltip_text(mediaFile.sampleName)
@@ -3540,7 +3590,11 @@ class SelectionTreeView(gtk.TreeView):
             self.parentApp.preview_status_label.set_markup('<b>' + status_human_readable(mediaFile) + '</b>')
 
 
-            if mediaFile.status in [config.STATUS_WARNING, config.STATUS_DOWNLOAD_FAILED, config.STATUS_DOWNLOADED_WITH_WARNING, config.STATUS_CANNOT_DOWNLOAD]:
+            if mediaFile.status in [STATUS_WARNING, STATUS_DOWNLOAD_FAILED,
+                                    STATUS_DOWNLOADED_WITH_WARNING, 
+                                    STATUS_CANNOT_DOWNLOAD, 
+                                    STATUS_BACKUP_PROBLEM, 
+                                    STATUS_NOT_DOWNLOADED_BACKUP_PROBLEM]:
                 self.parentApp.preview_problem_title_label.set_markup('<i>' + mediaFile.problem.get_title() + '</i>')
                 self.parentApp.preview_problem_title_label.set_tooltip_text(mediaFile.problem.get_title())
                 
@@ -3631,7 +3685,7 @@ class SelectionTreeView(gtk.TreeView):
 
         def _apply_job_code():
             status = self.liststore.get_value(iter, 11)
-            if status in [config.STATUS_DOWNLOAD_PENDING, config.STATUS_WARNING, config.STATUS_NOT_DOWNLOADED]:
+            if status in [STATUS_DOWNLOAD_PENDING, STATUS_WARNING, STATUS_NOT_DOWNLOADED]:
                 if overwrite:
                     self.liststore.set(iter, 8, job_code)
                     mediaFile = self.liststore.get_value(iter, 9)
@@ -3674,7 +3728,7 @@ class SelectionTreeView(gtk.TreeView):
         
         def _job_code_missing(iter):
             status = self.liststore.get_value(iter, 11)
-            if status in [config.STATUS_WARNING, config.STATUS_NOT_DOWNLOADED]:
+            if status in [STATUS_WARNING, STATUS_NOT_DOWNLOADED]:
                 job_code = self.liststore.get_value(iter, 8)
                 return not job_code
             return False
@@ -3701,13 +3755,13 @@ class SelectionTreeView(gtk.TreeView):
     
     def _set_download_pending(self, liststore_iter):
         existing_status = self.liststore.get_value(liststore_iter, 11)
-        if existing_status in [config.STATUS_WARNING, config.STATUS_NOT_DOWNLOADED]:
-            self.liststore.set(liststore_iter, 11, config.STATUS_DOWNLOAD_PENDING)
+        if existing_status in [STATUS_WARNING, STATUS_NOT_DOWNLOADED]:
+            self.liststore.set(liststore_iter, 11, STATUS_DOWNLOAD_PENDING)
             self.liststore.set(liststore_iter, 10, self.download_pending_icon)
             # this value is in a thread's list of files to download
             mediaFile = self.liststore.get_value(liststore_iter, 9)
             # each thread will see this change in status
-            mediaFile.status = config.STATUS_DOWNLOAD_PENDING        
+            mediaFile.status = STATUS_DOWNLOAD_PENDING        
         
     def set_status_to_download(self, selected_only):
         if selected_only:

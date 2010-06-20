@@ -24,6 +24,8 @@ import datetime
 
 import config
 from config import MAX_THUMBNAIL_SIZE
+from config import STATUS_NOT_DOWNLOADED
+
 
 import common
 import metadata
@@ -134,7 +136,7 @@ class MediaFile:
         self.sampleSubfolder = ''
         self.samplePath = ''
 
-        self.status = config.STATUS_NOT_DOWNLOADED
+        self.status = STATUS_NOT_DOWNLOADED
         self.problem = None # class Problem in problemnotifcation.py
         
     def loadMetadata(self):

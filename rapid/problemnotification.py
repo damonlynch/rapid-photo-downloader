@@ -28,46 +28,52 @@ _ = Configi18n._
 SUBFOLDER_COMPONENT = _('subfolder')
 FILENAME_COMPONENT = _('filename')
 
-# problem categories
-METADATA_PROBLEM = 'metadata'
-FILE_PROBLEM = 'file'
-GENERATION_PROBLEM = 'generation'
-DOWNLOAD_PROBLEM = 'download'
-DOWNLOAD_PROBLEM_W_NO = 'download with error number'
-DIFFERENT_EXIF = 'different exif'
-FILE_ALREADY_EXISTS = 'file already exists'
-UNIQUE_IDENTIFIER_CAT = 'unique identifier added'
+# problem categories 
+METADATA_PROBLEM = 1 
+FILE_PROBLEM = 2
+GENERATION_PROBLEM = 3 
+DOWNLOAD_PROBLEM = 4 
+DOWNLOAD_PROBLEM_W_NO = 5 
+DIFFERENT_EXIF = 6 
+FILE_ALREADY_EXISTS = 7 
+UNIQUE_IDENTIFIER_CAT = 8 
+BACKUP_PROBLEM = 9
 
-# problem text - inefficient representation, but easier to debug!
-MISSING_METADATA = 'missing metadata'
-INVALID_DATE_TIME = 'invalid date time'
-MISSING_FILE_EXTENSION = 'missing file extension'
-MISSING_IMAGE_NUMBER = 'missing image number'
-ERROR_IN_GENERATION = 'error in genereration'
+# problem text
+MISSING_METADATA = 1 
+INVALID_DATE_TIME = 2 
+MISSING_FILE_EXTENSION = 3 
+MISSING_IMAGE_NUMBER = 4 
+ERROR_IN_GENERATION = 5 
 
-CANNOT_DOWNLOAD_BAD_METADATA = 'cannot download bad metadata'
+CANNOT_DOWNLOAD_BAD_METADATA = 6 
 
-ERROR_IN_NAME_GENERATION = 'error in name generation'
+ERROR_IN_NAME_GENERATION = 7
 
-DOWNLOAD_COPYING_ERROR = 'download copying error'
-DOWNLOAD_COPYING_ERROR_W_NO = 'download copying error with error number'
+DOWNLOAD_COPYING_ERROR = 8 
+DOWNLOAD_COPYING_ERROR_W_NO = 9 
 
-FILE_ALREADY_EXISTS_NO_DOWNLOAD = 'file already exists no download'
-UNIQUE_IDENTIFIER_ADDED = 'unique identifier added'
+FILE_ALREADY_EXISTS_NO_DOWNLOAD = 10 
+UNIQUE_IDENTIFIER_ADDED = 11 
+BACKUP_EXISTS = 12 
+BACKUP_EXISTS_OVERWRITTEN = 13 
+NO_BACKUP_PERFORMED = 14
+BACKUP_ERROR = 15
+BACKUP_DIRECTORY_CREATION = 16
 
-SAME_FILE_DIFFERENT_EXIF = 'same file different exif'
+SAME_FILE_DIFFERENT_EXIF = 17 
 
 #extra details
-UNIQUE_IDENTIFIER = 'unique identifier'
-EXISTING_FILE = 'existing file'
-NO_DATA_TO_NAME = 'no date to name'
-DOWNLOAD_COPYING_ERROR_DETAIL = 'download copying error detail'
-DOWNLOAD_COPYING_ERROR_W_NO_DETAIL = 'download copying error with error number detail'
+UNIQUE_IDENTIFIER = '__1'
+EXISTING_FILE = '__2'
+NO_DATA_TO_NAME = '__3'
+DOWNLOAD_COPYING_ERROR_DETAIL = '__4'
+DOWNLOAD_COPYING_ERROR_W_NO_DETAIL = '__5'
 
 #                                   category,               text, duplicates allowed
 problem_definitions = {
                                     
-    MISSING_METADATA:               (METADATA_PROBLEM,      _("%s"), True),
+    MISSING_METADATA:               (METADATA_PROBLEM,        "%s", True),
     INVALID_DATE_TIME:              (METADATA_PROBLEM,      _('Date time value %s appears invalid.'), False),
     MISSING_FILE_EXTENSION:         (METADATA_PROBLEM,      _("Filename does not have an extension."), False),
     # a number component is something like the 8346 in IMG_8346.JPG
@@ -83,6 +89,11 @@ problem_definitions = {
     
     FILE_ALREADY_EXISTS_NO_DOWNLOAD:(FILE_ALREADY_EXISTS,   _("%(filetype)s already exists"), False),
     UNIQUE_IDENTIFIER_ADDED:        (UNIQUE_IDENTIFIER_CAT, _("%(filetype)s already exists"), False),
+    BACKUP_EXISTS:                  (BACKUP_PROBLEM,          "%s", True),
+    BACKUP_EXISTS_OVERWRITTEN:      (BACKUP_PROBLEM,          "%s", True),
+    NO_BACKUP_PERFORMED:            (BACKUP_PROBLEM,        _("%(filetype)s could not be backed up because no suitable locations were detected."), False),
+    BACKUP_ERROR:                   (BACKUP_PROBLEM,         "%s", True),
+    BACKUP_DIRECTORY_CREATION:      (BACKUP_PROBLEM,         "%s", True),
     
     SAME_FILE_DIFFERENT_EXIF:       (DIFFERENT_EXIF,        _("First photo: %(image1)s %(image1_date_time)s\nSecond photo: %(image2)s %(image2_date_time)s"), False),
     
@@ -105,7 +116,7 @@ class Problem:
     
     def __init__(self):
         self.problems = {}
-        self.categories = []
+        self.categories = {}
         self.components = []
         self.extra_detail = {}
     
@@ -134,14 +145,16 @@ class Problem:
                     self.problems[problem_definition] = [problem_details]
                     
             if category not in self.categories:
-                self.categories.append(category)
+                self.categories[category] = 1
+            else:
+                self.categories[category] += 1
             
             if (component is not None) and (component not in self.components):
                 self.components.append(component)
 
     def add_extra_detail(self, extra_detail, *args):
         if extra_detail not in extra_detail_definitions:
-            sys.stderr.write("FIXME: unknown extra detail definition!\n")
+            self.extra_detail[extra_detail] = args[0]
         else:
             detail = extra_detail_definitions[extra_detail]
             
@@ -160,6 +173,19 @@ class Problem:
         return len(self.problems) > 0
         
     def get_problems(self):
+        """
+        Returns a string with the problems encountered in downloading the file.
+        """
+        
+        def get_backup_error_inst(volume):
+            if ('%s%s' % (BACKUP_ERROR, volume)) in self.extra_detail:
+                return  self.extra_detail['%s%s' % (BACKUP_ERROR, volume)]
+            else:
+                return ''
+                
+        def get_dir_creation_inst(volume):
+            return  self.extra_detail['%s%s' % (BACKUP_DIRECTORY_CREATION, volume)]
+        
         v = ''
         
         # special cases
@@ -168,18 +194,17 @@ class Problem:
 
         if FILE_ALREADY_EXISTS in self.categories:
             if EXISTING_FILE in self.extra_detail:
-                return self.extra_detail[EXISTING_FILE]
-            else:
-                return ''
+                v = self.extra_detail[EXISTING_FILE]
+
             
         if UNIQUE_IDENTIFIER_CAT in self.categories:
-            return self.extra_detail[UNIQUE_IDENTIFIER]
+            v = self.extra_detail[UNIQUE_IDENTIFIER]
         
         if DOWNLOAD_PROBLEM in self.categories:
-            return self.extra_detail[DOWNLOAD_COPYING_ERROR_DETAIL]
+            v = self.extra_detail[DOWNLOAD_COPYING_ERROR_DETAIL]
             
         if DOWNLOAD_PROBLEM_W_NO in self.categories:
-            return self.extra_detail[DOWNLOAD_COPYING_ERROR_W_NO_DETAIL]
+            v = self.extra_detail[DOWNLOAD_COPYING_ERROR_W_NO_DETAIL]
 
         if GENERATION_PROBLEM in self.categories:
             v = self.extra_detail[NO_DATA_TO_NAME]
@@ -187,58 +212,171 @@ class Problem:
         if DIFFERENT_EXIF in self.categories:
             v = self.problems[SAME_FILE_DIFFERENT_EXIF][0] 
         
-        for p in self.problems:
-            vv = ''
-            details = self.problems[p]
-            if p == MISSING_METADATA:
-                if len(details) == 1:
-                    vv = _("The %(type)s metadata is missing.") % {'type': details[0]}
-                else:
-                    vv = _("The following metadata is missing: ")
-                    for d in details[:-1]:
-                        vv += "%s, " % d
-                    vv = "%(missing_metadata_elements)s and %(final_missing_metadata_element)s." % \
-                        {'missing_metadata_elements': vv[:-2], 
-                        'final_missing_metadata_element': details[-1]}
+        # Problems backing up
+        if BACKUP_PROBLEM in self.categories:
+            for p in self.problems:
+                vv = ''
+                details = self.problems[p]
                 
+                if p == NO_BACKUP_PERFORMED:
+                    vv = details[0]
+
+                elif p == BACKUP_ERROR:
+                     
+                    if len(details) == 1:
+                        volume = details[0]
+                        inst = get_backup_error_inst(volume)
+                        if inst:
+                            vv = _("An error occurred when backing up on %(volume)s: %(inst)s.") % {'volume': volume, 'inst': inst}
+                        else:
+                            vv = _("An error occurred when backing up on %(volume)s.") % {'volume': volume}
+                    else:
+                        vv = _("Errors occurred when backing up on the following backup devices: ")
+                        for volume in details[:-1]:
+                            inst = get_backup_error_inst(volume)
+                            if inst:
+                                vv += _("%(volume)s (%(inst)s), ") % {'volume': volume, 'inst': inst}
+                            else:
+                                vv += _("%(volume)s, ") % {'volume': volume}
+                        volume = details[-1]
+                        inst = get_backup_error_inst(volume)
+                        if inst:
+                            vv = _("%(volumes)s and %(volume)s (%(inst)s).") % \
+                                {'volumes': vv[:-2], 
+                                'volume': volume,
+                                'inst': get_inst(volume)}
+                        else:
+                            vv = _("%(volumes)s and %(volume)s.") % \
+                                {'volumes': vv[:-2], 
+                                'volume': volume}
+                   
                 
-            elif p in [MISSING_IMAGE_NUMBER, ERROR_IN_GENERATION, INVALID_DATE_TIME]:
-                vv = details[0]
-                                
-            v += ' ' + vv
+                elif p == BACKUP_EXISTS:
+                    if len(details) == 1:
+                        vv = _("Backup already exists on %(volume)s.") % {'volume': details[0]}
+                    else:
+                        vv = _("Backups already exist in these locations: ")
+                        for d in details[:-1]:
+                            vv += _("%s, ") % d
+                        vv = _("%(volumes)s and %(final_volume)s.") % \
+                            {'volumes': vv[:-2], 
+                            'final_volume': details[-1]}
+                    
+                elif p == BACKUP_EXISTS_OVERWRITTEN:
+                    if len(details) == 1:
+                        vv = _("Backup overwritten on %(volume)s.") % {'volume': details[0]}
+                    else:
+                        vv = _("Backups overwritten on these devices: ")
+                        for d in details[:-1]:
+                            vv += _("%s, ") % d
+                        vv = _("%(volumes)s and %(final_volume)s.") % \
+                            {'volumes': vv[:-2], 
+                            'final_volume': details[-1]}
+                    
+                elif p == BACKUP_DIRECTORY_CREATION:
+                    if len(details) == 1:
+                        volume = details[0]
+                        vv = _("An error occurred when creating directories on %(volume)s: %(inst)s.") % {'volume': volume, 'inst': get_dir_creation_inst(volume)}
+                    else:
+                        vv = _("Errors occurred when creating directories on the following backup devices: ")
+                        for volume in details[:-1]:
+                            vv += _("%(volume)s (%(inst)s), ") % {'volume': volume, 'inst': get_dir_creation_inst(volume)}
+                        volume = details[-1]
+                        vv = _("%(volumes)s and %(volume)s (%(inst)s).") % \
+                            {'volumes': vv[:-2], 
+                            'volume': volume,
+                            'inst': get_dir_creation_inst(volume)}
+
+            if v:
+                v = _('%(previousproblem)s Additionally, %(newproblem)s') % {'previousproblem': v, 'newproblem': vv[0].lower() + vv[1:]}
+            else:
+                v = vv  
+
             
+            if METADATA_PROBLEM in self.categories:
+                vv = self._get_generation_title()
+                if self.categories[METADATA_PROBLEM] > 1:
+                    v += _(' Furthermore, there were additional %(problems)s.') % {'problems': vv[0].lower() + vv[1:]}
+                else:
+                    v += _(' Furthermore, there was an additional %(problem)s.') % {'problem': vv[0].lower() + vv[1:]}
+        
+        # Problems generating file / subfolder names
+        if METADATA_PROBLEM in self.categories:
+            for p in self.problems:
+                vv = ''
+                details = self.problems[p]
+                if p == MISSING_METADATA:
+                    if len(details) == 1:
+                        vv = _("The %(type)s metadata is missing.") % {'type': details[0]}
+                    else:
+                        vv = _("The following metadata is missing: ")
+                        for d in details[:-1]:
+                            vv += ("%s, ") % d
+                        vv = _("%(missing_metadata_elements)s and %(final_missing_metadata_element)s.") % \
+                            {'missing_metadata_elements': vv[:-2], 
+                            'final_missing_metadata_element': details[-1]}
+                    
+                    
+                elif p in [MISSING_IMAGE_NUMBER, ERROR_IN_GENERATION, INVALID_DATE_TIME]:
+                    vv = details[0]
+
+                v += ' ' + vv
+                
         v = v.strip()
         return v
-
-    def get_title(self):
         
-        if FILE_ALREADY_EXISTS in self.categories:
-            return self.problems[FILE_ALREADY_EXISTS_NO_DOWNLOAD][0]
-        elif UNIQUE_IDENTIFIER_CAT in self.categories:
-            return self.problems[UNIQUE_IDENTIFIER_ADDED][0]
-        elif FILE_PROBLEM in self.categories:
-            return self.problems[CANNOT_DOWNLOAD_BAD_METADATA][0]
-        elif GENERATION_PROBLEM in self.categories:
-            return self.problems[ERROR_IN_NAME_GENERATION][0]
-        elif DOWNLOAD_PROBLEM in self.categories:
-            return self.problems[DOWNLOAD_COPYING_ERROR][0]
-        elif DOWNLOAD_PROBLEM_W_NO in self.categories:
-            return self.problems[DOWNLOAD_COPYING_ERROR_W_NO][0]
-        elif DIFFERENT_EXIF in self.categories:
-            return _('Photos detected with the same filenames, but taken at different times')
-        
+    def _get_generation_title(self):
         if self.components:
             if len(self.components) > 1:
-                if len(self.problems) > 1:
+                if self.categories[METADATA_PROBLEM] > 1:
                     return _('Problems in subfolder and filename generation')
                 else:
                     return _('Problem in subfolder and filename generation')
             else:
-                if len(self.problems) > 1:
+                if self.categories[METADATA_PROBLEM] > 1:
                     return _('Problems in %s generation') % self.components[0]
                 else:
                     return _('Problem in %s generation') % self.components[0]
         return ''
+
+
+    def get_title(self):
+        v = ''
+        if FILE_ALREADY_EXISTS in self.categories:
+            v = self.problems[FILE_ALREADY_EXISTS_NO_DOWNLOAD][0]
+        elif UNIQUE_IDENTIFIER_CAT in self.categories:
+            v = self.problems[UNIQUE_IDENTIFIER_ADDED][0]
+        elif FILE_PROBLEM in self.categories:
+            v = self.problems[CANNOT_DOWNLOAD_BAD_METADATA][0]
+        elif GENERATION_PROBLEM in self.categories:
+            v = self.problems[ERROR_IN_NAME_GENERATION][0]
+        elif DOWNLOAD_PROBLEM in self.categories:
+            v = self.problems[DOWNLOAD_COPYING_ERROR][0]
+        elif DOWNLOAD_PROBLEM_W_NO in self.categories:
+            v = self.problems[DOWNLOAD_COPYING_ERROR_W_NO][0]
+        elif DIFFERENT_EXIF in self.categories:
+            v = _('Photos detected with the same filenames, but taken at different times')
+        elif METADATA_PROBLEM in self.categories:
+            v = self._get_generation_title()
+            
+        if BACKUP_PROBLEM in self.categories:
+            if self.categories[BACKUP_PROBLEM] >1:
+                vp = _("there were errors backing up")
+                vv = _("There were errors backing up")
+            else:
+                vp = _("there was an error backing up")
+                vv = _("There was an error backing up")
+            if v:
+                # e.g. 
+                v = _("%(previousproblem)s, and %(backinguperror)s") % {'previousproblem': v, 'backinguperror':vp}
+            else:
+                v = vv
+                
+        return v
+        
+        
+        
+        
 
 if __name__ == '__main__':
      pass
