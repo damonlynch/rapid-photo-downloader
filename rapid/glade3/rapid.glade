@@ -1432,7 +1432,7 @@
                             <child>
                               <widget class="GtkImage" id="image77">
                                 <property name="visible">True</property>
-                                <property name="icon_name">insert-text</property>
+                                <property name="stock">rapid-photo-downloader-jobcode</property>
                               </widget>
                               <packing>
                                 <property name="expand">False</property>

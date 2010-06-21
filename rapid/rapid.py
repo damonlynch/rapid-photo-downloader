@@ -74,7 +74,7 @@ from config import  STATUS_CANNOT_DOWNLOAD, STATUS_DOWNLOADED, \
                     STATUS_DOWNLOAD_PENDING, \
                     STATUS_BACKUP_PROBLEM, \
                     STATUS_NOT_DOWNLOADED, \
-                    STATUS_NOT_DOWNLOADED_BACKUP_PROBLEM, \
+                    STATUS_NOT_DOWNLOADED_NO_BACKUP, \
                     STATUS_WARNING
 
 import common
@@ -2311,7 +2311,7 @@ class CopyPhotos(Thread):
             
             backed_up = False
             fileNotBackedUpMessageDisplayed = False
-            overwritten = False
+            error_encountered = False
 
             for rootBackupDir in self.parentApp.backupVolumes:
                 if self.prefs.backup_device_autodetection:
@@ -2342,7 +2342,6 @@ class CopyPhotos(Thread):
                         
                         if copyBackup:
                             mediaFile.problem.add_problem(None, pn.BACKUP_EXISTS_OVERWRITTEN, volume)
-                            overwritten = True
                         else:
                             mediaFile.problem.add_problem(None, pn.BACKUP_EXISTS, volume)
                         severity = config.SERIOUS_ERROR
@@ -2369,7 +2368,7 @@ class CopyPhotos(Thread):
                                     fileNotBackedUpMessageDisplayed = True
                                     mediaFile.problem.add_problem(None, pn.BACKUP_DIRECTORY_CREATION, volume)
                                     mediaFile.problem.add_extra_detail('%s%s' % (pn.BACKUP_DIRECTORY_CREATION, volume), inst)
-                                    #~ print mediaFile.problem.extra_detail
+                                    error_encountered = True
                             else:
                                 # recreate folder structure in backup location
                                 # cannot do os.makedirs(backupPath) - it can give bad results when using external drives
@@ -2389,6 +2388,7 @@ class CopyPhotos(Thread):
                                                 inst = "%s: %s" % (errno, strerror)
                                                 mediaFile.problem.add_problem(None, pn.BACKUP_DIRECTORY_CREATION, volume)
                                                 mediaFile.problem.add_extra_detail('%s%s' % (pn.BACKUP_DIRECTORY_CREATION, volume), inst)
+                                                error_encountered = True
                                                 #~ logError(config.SERIOUS_ERROR, _('Backing up error'), 
                                                          #~ _("Destination directory could not be created: %(directory)s\n") %
                                                          #~ {'directory': folderToMake,  } +
@@ -2412,12 +2412,14 @@ class CopyPhotos(Thread):
                                     if not g_src.copy(g_dest, progress_callback, flags, cancellable=gio.Cancellable()):
                                         fileNotBackedUpMessageDisplayed = True
                                         mediaFile.problem.add_problem(None, pn.BACKUP_ERROR, volume)
+                                        error_encountered = True
                                     else:
                                         backed_up = True
                                 except glib.GError, inst:
                                     fileNotBackedUpMessageDisplayed = True
                                     mediaFile.problem.add_problem(None, pn.BACKUP_ERROR, volume)
                                     mediaFile.problem.add_extra_detail('%s%s' % (pn.BACKUP_ERROR, volume), inst)
+                                    error_encountered = True
                             else:
                                 try:
                                     shutil.copy2(fileToCopy, newBackupFile)
@@ -2427,6 +2429,7 @@ class CopyPhotos(Thread):
                                     mediaFile.problem.add_problem(None, pn.BACKUP_ERROR, volume)
                                     inst = "%s: %s" % (errno, strerror)
                                     mediaFile.problem.add_extra_detail('%s%s' % (pn.BACKUP_ERROR, volume), inst)
+                                    error_encountered = True
                                     #~ logError(config.SERIOUS_ERROR, _('Backing up error'), 
                                             #~ _("Source: %(source)s\nDestination: %(destination)s\nError: %(errno)s %(strerror)s")
                                             #~ % {'source': originalFile, 'destination': newBackupFile,  'errno': errno,  'strerror': strerror},
@@ -2445,12 +2448,16 @@ class CopyPhotos(Thread):
                 #~ else:
                     #~ resolution = _("A backup location was not found")
                 #~ logError(severity, problem, details, resolution)    
-                
-            if not backed_up or overwritten:
+
+            if not backed_up:
                 if mediaFile.status == STATUS_DOWNLOAD_FAILED:
-                    mediaFile.status = STATUS_NOT_DOWNLOADED_BACKUP_PROBLEM
+                    mediaFile.status = STATUS_NOT_DOWNLOADED_NO_BACKUP
                 else:
-                    mediaFile.status = STATUS_BACKUP_PROBLEM                    
+                    mediaFile.status = STATUS_BACKUP_PROBLEM
+            elif error_encountered:
+                # it was backed up to at least one volume, but there was an error on another backup volume
+                if mediaFile.status != STATUS_DOWNLOAD_FAILED:
+                    mediaFile.status = STATUS_BACKUP_PROBLEM
             return backed_up
 
         def notifyAndUnmount(umountAttemptOK):
@@ -2555,7 +2562,6 @@ class CopyPhotos(Thread):
                         
             return can_backup
         
-        
         def needAJobCode():
             for f in self.cardMedia.imagesAndVideos:
                 mediaFile = f[0]
@@ -2564,6 +2570,15 @@ class CopyPhotos(Thread):
                         return True
             return False
             
+        def createBothTempDirs():
+            self.photoTempWorkingDir = createTempDir(photoBaseDownloadDir)
+            created = self.photoTempWorkingDir is not None
+            if created and DOWNLOAD_VIDEO:
+                self.videoTempWorkingDir = createTempDir(videoBaseDownloadDir)
+                created = self.videoTempWorkingDir is not None
+                
+            return created
+        
         self.hasStarted = True
         display_queue.open('w')
 
@@ -2573,22 +2588,17 @@ class CopyPhotos(Thread):
         #Check photo and video download path, create if necessary
         photoBaseDownloadDir = self.prefs.download_folder
         if not checkDownloadPath(photoBaseDownloadDir):
-            return #why return and not quit() ?
-        #Create temporary directory in which to download photos
-        self.photoTempWorkingDir = createTempDir(photoBaseDownloadDir)
-        if not self.photoTempWorkingDir:
-            return
+            return # cleanup already done
 
         if DOWNLOAD_VIDEO:
             videoBaseDownloadDir = self.prefs.video_download_folder
             if not checkDownloadPath(videoBaseDownloadDir):
                 return
-            #Create temporary directory in which to download videos and generate video thumbnails
-            self.videoTempWorkingDir = createTempDir(videoBaseDownloadDir)
-            if not self.videoTempWorkingDir:
-                return
         else:
             videoBaseDownloadDir = self.videoTempWorkingDir = None
+            
+        if not createBothTempDirs():
+            return 
         
         if not scanMedia():
             cmd_line(_("This device has no %(types_searched_for)s to download from.") % {'types_searched_for': self.types_searched_for})
@@ -2597,9 +2607,12 @@ class CopyPhotos(Thread):
             self.running = False
             return
             
+        #~ self.cleanUp()
+        
         all_files_downloaded = False
         
         totalNonErrorFiles = self.cardMedia.numberOfFilesNotCannotDownload()
+
         
         while not all_files_downloaded:
             
@@ -2615,6 +2628,7 @@ class CopyPhotos(Thread):
                     self.waitingForJobCode = False
             elif not self.autoStart:
                 # halt thread, waiting to be restarted so download proceeds
+                self.cleanUp()
                 self.running = False
                 self.lock.acquire()
 
@@ -2627,6 +2641,8 @@ class CopyPhotos(Thread):
                     return
 
                 self.running = True
+                if not createBothTempDirs():
+                    return
             
             if not getPrefs(True):
                     self.running = False
@@ -2769,8 +2785,9 @@ class CopyPhotos(Thread):
             if all_files_downloaded:
                 self.downloadComplete = True
             else:
-                self.running = False
+                self.cleanUp()
                 self.downloadStarted = False
+                self.running = False
                 self.lock.acquire()
                 if not self.ctrl:
                     # thread will restart at this point, when the program is exiting
@@ -2781,8 +2798,8 @@ class CopyPhotos(Thread):
                     return
                 self.running = True
                 self.autoStart = True
-
-                
+                if not createBothTempDirs():
+                    return
 
         # must manually delete these variables, or else the media cannot be unmounted (bug in some versions of pyexiv2 / exiv2)
         del self.subfolderPrefsFactory, self.imageRenamePrefsFactory
@@ -2814,10 +2831,8 @@ class CopyPhotos(Thread):
     
     def cleanUp(self):
         """
-        Cleanup functions that must be performed whether the thread exits 
-        early or when it has completed its run.
+        Deletes temporary files and folders
         """
-
 
         for tempWorkingDir in (self.videoTempWorkingDir, self.photoTempWorkingDir):
             if tempWorkingDir:
@@ -2827,9 +2842,8 @@ class CopyPhotos(Thread):
                     if tf:
                         for f in tf:
                             os.remove(os.path.join(tempWorkingDir, f))
-                        
-                    os.rmdir(tempWorkingDir)    
-    
+                    os.rmdir(tempWorkingDir)
+                    
     def quit(self):
         """ 
         Quits the thread 
@@ -3337,16 +3351,15 @@ class SelectionTreeView(gtk.TreeView):
         self.user_has_clicked_header = False
         
         # icons to be displayed in status column
-        icontheme = gtk.icon_theme_get_default()  
-        #self.downloaded_icon = self.render_icon(gtk.STOCK_YES, gtk.ICON_SIZE_MENU)
-        self.downloaded_icon = icontheme.load_icon('document-save', 16, gtk.ICON_LOOKUP_USE_BUILTIN)
-        self.download_failed_icon = self.render_icon(gtk.STOCK_STOP, gtk.ICON_SIZE_MENU)
+
+        self.downloaded_icon = self.render_icon('rapid-photo-downloader-downloaded', gtk.ICON_SIZE_MENU) 
+        self.download_failed_icon = self.render_icon(gtk.STOCK_DIALOG_ERROR, gtk.ICON_SIZE_MENU)
         self.error_icon = self.render_icon(gtk.STOCK_DIALOG_ERROR, gtk.ICON_SIZE_MENU)
         self.warning_icon = self.render_icon(gtk.STOCK_DIALOG_WARNING, gtk.ICON_SIZE_MENU)
 
-
-        self.download_pending_icon = icontheme.load_icon('image-loading', 16, gtk.ICON_LOOKUP_USE_BUILTIN) # gnome-fs-loading-icon appointment-soon
-        self.downloaded_with_warning_icon = icontheme.load_icon('emblem-important', 16, gtk.ICON_LOOKUP_USE_BUILTIN)
+        self.download_pending_icon = self.render_icon('rapid-photo-downloader-download-pending', gtk.ICON_SIZE_MENU) 
+        self.downloaded_with_warning_icon = self.render_icon('rapid-photo-downloader-downloaded-with-warning', gtk.ICON_SIZE_MENU)
+        self.downloaded_with_error_icon = self.render_icon('rapid-photo-downloader-downloaded-with-error', gtk.ICON_SIZE_MENU)
         
         # make the not yet downloaded icon a transparent square
         self.not_downloaded_icon = gtk.gdk.Pixbuf(gtk.gdk.COLORSPACE_RGB, False, 8, 16, 16)
@@ -3384,10 +3397,10 @@ class SelectionTreeView(gtk.TreeView):
                 status_icon = self.not_downloaded_icon_tick
             else:
                 status_icon = self.not_downloaded_icon
-        elif status == STATUS_DOWNLOADED_WITH_WARNING:
+        elif status in [STATUS_DOWNLOADED_WITH_WARNING, STATUS_BACKUP_PROBLEM]:
             status_icon = self.downloaded_with_warning_icon
-        elif status in [STATUS_DOWNLOAD_FAILED, STATUS_BACKUP_PROBLEM, STATUS_NOT_DOWNLOADED_BACKUP_PROBLEM]:
-            status_icon = self.download_failed_icon
+        elif status in [STATUS_DOWNLOAD_FAILED, STATUS_NOT_DOWNLOADED_NO_BACKUP]:
+            status_icon = self.downloaded_with_error_icon
         else:
             sys.stderr.write("FIXME: unknown status!")
             status_icon = self.not_downloaded_icon
@@ -3462,7 +3475,6 @@ class SelectionTreeView(gtk.TreeView):
             #update preview
             self.show_preview(iter)
             #update button text
-            
             no_available_for_download = self.no_selected_rows_available_for_download()
             
         if no_available_for_download:
@@ -3498,9 +3510,9 @@ class SelectionTreeView(gtk.TreeView):
             elif mediaFile.status == STATUS_DOWNLOADED_WITH_WARNING:
                 v = _('%(filetype)s was downloaded with warnings') % {'filetype': mediaFile.displayNameCap}
             elif mediaFile.status == STATUS_BACKUP_PROBLEM:
-                v = _('%(filetype)s had backup problems') % {'filetype': mediaFile.displayNameCap}
-            elif mediaFile.status == STATUS_NOT_DOWNLOADED_BACKUP_PROBLEM:
-                v = _('%(filetype)s was not downloaded and had backup problems') % {'filetype': mediaFile.displayNameCap}                
+                v = _('%(filetype)s was downloaded with backup problems') % {'filetype': mediaFile.displayNameCap}
+            elif mediaFile.status == STATUS_NOT_DOWNLOADED_NO_BACKUP:
+                v = _('%(filetype)s was neither downloaded nor backed up') % {'filetype': mediaFile.displayNameCap}                
             elif mediaFile.status == STATUS_NOT_DOWNLOADED:
                 v = _('%(filetype)s is ready to be downloaded') % {'filetype': mediaFile.displayNameCap}
             elif mediaFile.status == STATUS_DOWNLOAD_PENDING:
@@ -3522,7 +3534,9 @@ class SelectionTreeView(gtk.TreeView):
                 widget.set_text('')
                 
             for widget in  [self.parentApp.preview_name_label,
-                            self.parentApp.preview_original_name_label
+                            self.parentApp.preview_original_name_label,
+                            self.parentApp.preview_problem_title_label,
+                            self.parentApp.preview_problem_label                            
                             ]:
                 widget.set_tooltip_text('')
                 
@@ -3594,7 +3608,7 @@ class SelectionTreeView(gtk.TreeView):
                                     STATUS_DOWNLOADED_WITH_WARNING, 
                                     STATUS_CANNOT_DOWNLOAD, 
                                     STATUS_BACKUP_PROBLEM, 
-                                    STATUS_NOT_DOWNLOADED_BACKUP_PROBLEM]:
+                                    STATUS_NOT_DOWNLOADED_NO_BACKUP]:
                 self.parentApp.preview_problem_title_label.set_markup('<i>' + mediaFile.problem.get_title() + '</i>')
                 self.parentApp.preview_problem_title_label.set_tooltip_text(mediaFile.problem.get_title())
                 
@@ -3603,6 +3617,10 @@ class SelectionTreeView(gtk.TreeView):
             else:
                 self.parentApp.preview_problem_label.set_markup('')
                 self.parentApp.preview_problem_title_label.set_markup('')
+                for widget in  [self.parentApp.preview_problem_title_label,
+                                self.parentApp.preview_problem_label
+                                ]:
+                    widget.set_tooltip_text('')                
                 
             if self.rapidApp.prefs.display_preview_folders:
                 self.parentApp.preview_destination_expander.show()
@@ -4176,6 +4194,8 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
             
         self.widget.show()
         
+        self._setupIcons()
+        
         # this must come after the window is shown
         if self.prefs.vpaned_pos > 0:
             self.main_vpaned.set_position(self.prefs.vpaned_pos)
@@ -4357,7 +4377,19 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
         self.prefs.video_download_folder = f
         
         
+    def _setupIcons(self):
+        icons = ['rapid-photo-downloader-downloaded', 
+             'rapid-photo-downloader-downloaded-with-error',
+             'rapid-photo-downloader-downloaded-with-warning',
+             #'rapid-photo-downloader-error',
+             'rapid-photo-downloader-download-pending',
+             'rapid-photo-downloader-jobcode']
+             #'rapid-photo-downloader-warning'
         
+        icon_list = [(icon, paths.share_dir('glade3/%s.svg' % icon)) for icon in icons]
+        common.register_iconsets(icon_list)
+    
+    
     def checkImageDevicePathOnStartup(self):
         msg = None
         if not os.path.isdir(self.prefs.device_location):
@@ -5018,7 +5050,7 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
         #start any new workers
         workers.startDownloadingWorkers()
         
-        if is_beta and verbose:
+        if is_beta and verbose and False:
             workers.printWorkerStatus()
     
         
@@ -5046,7 +5078,7 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
             self._set_download_button()
             self.setDownloadButtonSensitivity()
             cmd_line(_("All downloads complete"))
-            if is_beta and verbose:
+            if is_beta and verbose and False:
                 workers.printWorkerStatus()
     
         else:
@@ -5263,6 +5295,7 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
                                                 gtk.ICON_SIZE_BUTTON))
             # This text will be displayed to the user on the Download / Pause button.
             self.download_button.set_label(_("_Pause") + " ")
+            self.download_selected_button.set_sensitive(False)
             self.download_selected_button.hide()
             
     def on_menu_download_pause_activate(self, widget):
@@ -5366,8 +5399,7 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
             
             self.selection_vbox.selection_treeview.clear_all()
             self.setupAvailableImageAndBackupMedia(onStartup = False,  onPreferenceChange = True,  doNotAllowAutoStart = True)
-            if is_beta and verbose:
-                print "Current worker status:"
+            if is_beta and verbose and False:
                 workers.printWorkerStatus()
                 
             self.rerunSetupAvailableImageAndBackupMedia = False

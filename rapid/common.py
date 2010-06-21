@@ -199,6 +199,25 @@ def get_icon_pixbuf(using_gio, icon, size, fallback='gtk-harddisk'):
         v = icontheme.load_icon(icon, size, gtk.ICON_LOOKUP_USE_BUILTIN)
     return v
 
+def register_iconsets(icon_info):
+    """
+    Register icons in the icon set if they're not already used
+    
+    From http://faq.pygtk.org/index.py?req=show&file=faq08.012.htp
+    """
+    
+    iconfactory = gtk.IconFactory()
+    stock_ids = gtk.stock_list_ids()
+    for stock_id, file in icon_info:
+        # only load image files when our stock_id is not present
+        if stock_id not in stock_ids:
+            pixbuf = gtk.gdk.pixbuf_new_from_file(file)
+            iconset = gtk.IconSet(pixbuf)
+            iconfactory.add(stock_id, iconset)
+    iconfactory.add_default()
+
+  
+
     
 if __name__ == '__main__':
     i = Configi18n()

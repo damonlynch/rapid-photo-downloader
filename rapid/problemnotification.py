@@ -214,8 +214,8 @@ class Problem:
         
         # Problems backing up
         if BACKUP_PROBLEM in self.categories:
+            vv = ''
             for p in self.problems:
-                vv = ''
                 details = self.problems[p]
                 
                 if p == NO_BACKUP_PERFORMED:
@@ -227,11 +227,11 @@ class Problem:
                         volume = details[0]
                         inst = get_backup_error_inst(volume)
                         if inst:
-                            vv = _("An error occurred when backing up on %(volume)s: %(inst)s.") % {'volume': volume, 'inst': inst}
+                            vv += _("An error occurred when backing up on %(volume)s: %(inst)s.") % {'volume': volume, 'inst': inst} + ' '
                         else:
-                            vv = _("An error occurred when backing up on %(volume)s.") % {'volume': volume}
+                            vv += _("An error occurred when backing up on %(volume)s.") % {'volume': volume} + ' '
                     else:
-                        vv = _("Errors occurred when backing up on the following backup devices: ")
+                        vv += _("Errors occurred when backing up on the following backup devices: ")
                         for volume in details[:-1]:
                             inst = get_backup_error_inst(volume)
                             if inst:
@@ -248,44 +248,48 @@ class Problem:
                         else:
                             vv = _("%(volumes)s and %(volume)s.") % \
                                 {'volumes': vv[:-2], 
-                                'volume': volume}
+                                'volume': volume} \
+                                 + ' '
                    
                 
                 elif p == BACKUP_EXISTS:
                     if len(details) == 1:
-                        vv = _("Backup already exists on %(volume)s.") % {'volume': details[0]}
+                        vv += _("Backup already exists on %(volume)s.") % {'volume': details[0]} + ' '
                     else:
-                        vv = _("Backups already exist in these locations: ")
+                        vv += _("Backups already exist in these locations: ")
                         for d in details[:-1]:
                             vv += _("%s, ") % d
                         vv = _("%(volumes)s and %(final_volume)s.") % \
                             {'volumes': vv[:-2], 
-                            'final_volume': details[-1]}
+                            'final_volume': details[-1]} \
+                             + ' '
                     
                 elif p == BACKUP_EXISTS_OVERWRITTEN:
                     if len(details) == 1:
-                        vv = _("Backup overwritten on %(volume)s.") % {'volume': details[0]}
+                        vv += _("Backup overwritten on %(volume)s.") % {'volume': details[0]} + ' '
                     else:
-                        vv = _("Backups overwritten on these devices: ")
+                        vv += _("Backups overwritten on these devices: ")
                         for d in details[:-1]:
                             vv += _("%s, ") % d
                         vv = _("%(volumes)s and %(final_volume)s.") % \
                             {'volumes': vv[:-2], 
-                            'final_volume': details[-1]}
+                            'final_volume': details[-1]} \
+                             + ' '
                     
                 elif p == BACKUP_DIRECTORY_CREATION:
                     if len(details) == 1:
                         volume = details[0]
-                        vv = _("An error occurred when creating directories on %(volume)s: %(inst)s.") % {'volume': volume, 'inst': get_dir_creation_inst(volume)}
+                        vv += _("An error occurred when creating directories on %(volume)s: %(inst)s.") % {'volume': volume, 'inst': get_dir_creation_inst(volume)} + ' '
                     else:
-                        vv = _("Errors occurred when creating directories on the following backup devices: ")
+                        vv += _("Errors occurred when creating directories on the following backup devices: ")
                         for volume in details[:-1]:
                             vv += _("%(volume)s (%(inst)s), ") % {'volume': volume, 'inst': get_dir_creation_inst(volume)}
                         volume = details[-1]
                         vv = _("%(volumes)s and %(volume)s (%(inst)s).") % \
                             {'volumes': vv[:-2], 
                             'volume': volume,
-                            'inst': get_dir_creation_inst(volume)}
+                            'inst': get_dir_creation_inst(volume)} \
+                             + ' '
 
             if v:
                 v = _('%(previousproblem)s Additionally, %(newproblem)s') % {'previousproblem': v, 'newproblem': vv[0].lower() + vv[1:]}

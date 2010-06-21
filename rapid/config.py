@@ -49,13 +49,13 @@ WARNING = 3
 MAX_LENGTH_DEVICE_NAME = 15
 MAX_THUMBNAIL_SIZE = 160
 
-STATUS_DOWNLOADED = 0                       # downloaded successfully
-STATUS_DOWNLOAD_FAILED = 1                  # tried to download but failed
-STATUS_NOT_DOWNLOADED_BACKUP_PROBLEM = 2    # tried to download but failed, and the backup failed
-STATUS_BACKUP_PROBLEM = 3                   # downloaded ok, but the backup failed
-STATUS_DOWNLOADED_WITH_WARNING = 4          # downloaded ok but there was a warning
-STATUS_NOT_DOWNLOADED = 5                   # has not yet been downloaded (but might be if the user chooses)
-STATUS_DOWNLOAD_PENDING = 6                 # going to try to download it
+STATUS_DOWNLOAD_PENDING = 0                 # going to try to download it
+STATUS_DOWNLOADED = 1                       # downloaded successfully
+STATUS_DOWNLOADED_WITH_WARNING = 2          # downloaded ok but there was a warning
+STATUS_BACKUP_PROBLEM = 3                   # downloaded ok, but the file was not backed up, or had a problem (overwrite or duplicate)
+STATUS_NOT_DOWNLOADED = 4                   # has not yet been downloaded (but might be if the user chooses)
+STATUS_NOT_DOWNLOADED_NO_BACKUP = 5         # tried to download but failed, and the backup failed or had an error
+STATUS_DOWNLOAD_FAILED = 6                  # tried to download but failed
 STATUS_WARNING = 7                          # warning (shown in pre-download preview)
 STATUS_CANNOT_DOWNLOAD = 8                  # cannot be downloaded
 
