@@ -243,13 +243,7 @@ class ThreadManager:
         for w in self.getReadyToStartWorkers():
             #for some reason, very occassionally a thread that has been started shows up in this list, so must filter them out
             if not w.isAlive():
-                w.start()
-
-    def startDownloadingWorkers(self):
-        for w in self.getReadyToDownloadWorkers():
-            if is_beta and verbose:
-                print 'starting thread ', w.thread_id
-            w.startStop()        
+                w.start()      
             
     def quitAllWorkers(self):
         global exiting 
@@ -3791,7 +3785,7 @@ class SelectionTreeView(gtk.TreeView):
         return v
 
     
-    def _set_download_pending(self, liststore_iter):
+    def _set_download_pending(self, liststore_iter, threads):
         existing_status = self.liststore.get_value(liststore_iter, 11)
         if existing_status in [STATUS_WARNING, STATUS_NOT_DOWNLOADED]:
             self.liststore.set(liststore_iter, 11, STATUS_DOWNLOAD_PENDING)
@@ -3799,9 +3793,20 @@ class SelectionTreeView(gtk.TreeView):
             # this value is in a thread's list of files to download
             mediaFile = self.liststore.get_value(liststore_iter, 9)
             # each thread will see this change in status
-            mediaFile.status = STATUS_DOWNLOAD_PENDING        
+            mediaFile.status = STATUS_DOWNLOAD_PENDING
+            thread = self.liststore.get_value(liststore_iter, 14)
+            if thread not in threads:
+                threads.append(thread)
         
     def set_status_to_download(self, selected_only):
+        """
+        Sets status of files to be download pending, if they are waiting to be downloaded
+        if selected_only is true, only applies to selected rows
+        
+        Returns a list of threads which can be downloaded
+        """
+        threads = []
+        
         if selected_only:
             selection = self.get_selection()
             model, pathlist = selection.get_selected_rows()
@@ -3812,12 +3817,13 @@ class SelectionTreeView(gtk.TreeView):
                 selection_path = reference.get_path()
                 path = self.sort_model.convert_path_to_child_path(selection_path)
                 iter = self.liststore.get_iter(path)
-                self._set_download_pending(iter)
+                self._set_download_pending(iter, threads)
         else:
             iter = self.liststore.get_iter_first()
             while iter:
-                self._set_download_pending(iter)
+                self._set_download_pending(iter, threads)
                 iter = self.liststore.iter_next(iter)
+        return threads
                 
     def update_status_post_download(self, treerowref):
         path = treerowref.get_path()
@@ -4546,10 +4552,10 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
             self.assignJobCode(code)
             self.last_chosen_job_code = code
             self.selection_vbox.selection_treeview.apply_job_code(code, overwrite=False, to_all_rows = not downloadSelected)
-            self.selection_vbox.selection_treeview.set_status_to_download(selected_only = downloadSelected)
+            threads = self.selection_vbox.selection_treeview.set_status_to_download(selected_only = downloadSelected)
             if downloadSelected or not autoStart:
                 cmd_line(_("Starting downloads"))
-                self.startDownload()
+                self.startDownload(threads)
             else:
                 # autostart is true
                 cmd_line(_("Starting downloads that have been waiting for a Job Code"))
@@ -5060,15 +5066,16 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
             self.timeMark = self.startTime
             self.sizeMark = 0            
         
-    def startOrResumeWorkers(self):
+    def startOrResumeWorkers(self, threads):
                     
         # resume any paused workers
         for w in workers.getPausedDownloadingWorkers():
             w.startStop()
             self.timeRemaining.setTimeMark(w)
             
-        #start any new workers
-        workers.startDownloadingWorkers()
+        #start any new workers that have downloads pending
+        for i in threads:
+            workers[i].startStop()
         
         if is_beta and verbose and False:
             workers.printWorkerStatus()
@@ -5335,8 +5342,8 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
         self.download_button_is_download = False
         self._set_download_button()
         
-    def startDownload(self):
-        self.startOrResumeWorkers()
+    def startDownload(self, threads):
+        self.startOrResumeWorkers(threads)
         self.postStartDownloadTasks()
         
     def pauseDownload(self):
@@ -5360,8 +5367,8 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
             if need_job_code and self.selection_vbox.selection_treeview.job_code_missing(False): # and not self.prompting_for_job_code:
                 self.getJobCode(autoStart=False, downloadSelected=False)
             else:
-                self.selection_vbox.selection_treeview.set_status_to_download(selected_only = False)
-                self.startDownload()
+                threads = self.selection_vbox.selection_treeview.set_status_to_download(selected_only = False)
+                self.startDownload(threads)
         else:
             self.pauseDownload()
 
@@ -5371,8 +5378,8 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
             #and not self.prompting_for_job_code:
             self.getJobCode(autoStart=False, downloadSelected=True)
         else:
-            self.selection_vbox.selection_treeview.set_status_to_download(selected_only = True)
-            self.startDownload()
+            threads = self.selection_vbox.selection_treeview.set_status_to_download(selected_only = True)
+            self.startDownload(threads)
                 
 
         

@@ -287,6 +287,17 @@ class CardMedia(Media):
                 v += 1
                 
         return v
+        
+    def downloadPending(self):
+        """
+        Returns true if there a mediaFile with status download pending on the device.
+        Inefficient. Not currently used.
+        """
+        for i in range(len(self.imagesAndVideos)):
+            mediaFile = self.imagesAndVideos[i][0]
+            if mediaFile.status == config.STATUS_DOWNLOAD_PENDING:
+                return True
+        return False
     
     def _firstFile(self, isImage):
         if self.imagesAndVideos:
