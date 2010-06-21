@@ -3465,8 +3465,12 @@ class SelectionTreeView(gtk.TreeView):
                 v += 1
         return v
             
-    def on_selection_changed(self, selection):
+    def update_download_selected_button(self):
+        """
+        Updates the text on the Download Selection button, and set its sensitivity
+        """
         no_available_for_download = 0
+        selection = self.get_selection()
         model, paths = selection.get_selected_rows()
         if paths:            
             path = self.sort_model.convert_path_to_child_path(paths[0])
@@ -3484,6 +3488,9 @@ class SelectionTreeView(gtk.TreeView):
             #nothing was selected, or nothing is available from what the user selected
             self.rapidApp.download_selected_button.set_label(self.rapidApp.DOWNLOAD_SELECTED_LABEL)
             self.rapidApp.download_selected_button.set_sensitive(False)
+                
+    def on_selection_changed(self, selection):
+        self.update_download_selected_button()
             
     def clear_all(self, thread_id = None):
         if not thread_id:
@@ -5276,7 +5283,6 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
         """
         if self.download_button_is_download:
             # This text will be displayed to the user on the Download / Pause button.
-            # Please note the space at the end of the label - it is needed to meet the Gnome Human Interface Guidelines
             self.download_button.set_label(_("_Download All"))
             self.download_button.set_image(gtk.image_new_from_stock(
                                                 gtk.STOCK_CONVERT,
@@ -5286,6 +5292,7 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
             self.download_selected_button.set_image(gtk.image_new_from_stock(
                                                 gtk.STOCK_CONVERT,
                                                 gtk.ICON_SIZE_BUTTON))
+            self.selection_vbox.selection_treeview.update_download_selected_button()
             self.download_selected_button.show_all()
                                                 
         else:
