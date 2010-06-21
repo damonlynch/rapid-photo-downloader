@@ -2656,6 +2656,7 @@ class CopyPhotos(Thread):
             noFiles, sizeFiles, fileIndex = self.cardMedia.sizeAndNumberDownloadPending()
             cmd_line(_("Attempting to download %s files") % noFiles)
             
+            
             can_backup = setupBackup()
             
             i = 0
@@ -2679,7 +2680,10 @@ class CopyPhotos(Thread):
                 self.imageRenamePrefsFactory.usesTheSequenceElement(rn.SESSION_SEQ_NUMBER), 
                 self.imageRenamePrefsFactory.usesTheSequenceElement(rn.SEQUENCE_LETTER))
             
-
+            # reset the progress bar to update the status of this download attempt
+            progressBarText = _("%(number)s of %(total)s %(filetypes)s") % {'number':  0, 'total': noFiles, 'filetypes':self.display_file_types}
+            display_queue.put((media_collection_treeview.updateProgress, (self.thread_id, 0, progressBarText, 0)))
+            
             while i < noFiles:
                 # if the user pauses the download, then this will be triggered
                 if not self.running:
@@ -2745,7 +2749,13 @@ class CopyPhotos(Thread):
                 sizeDownloaded += mediaFile.size
                 percentComplete = (float(sizeDownloaded) / sizeFiles) * 100
                     
-                progressBarText = _("%(number)s of %(total)s %(filetypes)s") % {'number':  i + 1, 'total': noFiles, 'filetypes':self.display_file_types}
+                if sizeDownloaded == sizeFiles:
+                    progressBarText = _("%(number)s of %(total)s %(filetypes)s (%(remaining)s remaining)") % {
+                                        'number':  i + 1, 'total': noFiles, 'filetypes':self.display_file_types,
+                                        'remaining': totalNonErrorFiles - noFiles}
+                else:
+                    progressBarText = _("%(number)s of %(total)s %(filetypes)s") % {'number':  i + 1, 'total': noFiles, 'filetypes':self.display_file_types}
+                
                 if using_gio:
                     size = mediaFile.size - self.bytes_downloaded
                 else:
