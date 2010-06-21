@@ -3493,19 +3493,22 @@ class SelectionTreeView(gtk.TreeView):
         self.update_download_selected_button()
             
     def clear_all(self, thread_id = None):
-        if not thread_id:
+        if thread_id is None:
             self.liststore.clear()
             self.show_preview(None)
         else:
             iter = self.liststore.get_iter_first()
             while iter:
-                if self.liststore.get_value(iter, 14) == thread_id:
+                t = self.liststore.get_value(iter, 14) 
+                if t == thread_id:
                     if self.previewed_file_treerowref:
                         mediaFile = self.liststore.get_value(iter, 9)
                         if mediaFile.treerowref == self.previewed_file_treerowref:
                             self.show_preview(None)
                     self.liststore.remove(iter)
-                iter = self.liststore.iter_next(iter)            
+                    iter = self.liststore.get_iter_first()
+                else:
+                    iter = self.liststore.iter_next(iter)            
     
     def show_preview(self, iter):
         
