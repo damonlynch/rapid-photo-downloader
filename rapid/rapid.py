@@ -299,6 +299,15 @@ class ThreadManager:
             if self._isScanning(w):
                 n += 1
         return n
+        
+    def scanComplete(self, threads):
+        """
+        Returns True only if the list of threads have completed their scan
+        """
+        for thread_id in threads:
+            if not self[thread_id].scanComplete:
+                return False
+        return True
     
     def noReadyToDownloadWorkers(self):
         n = 0
@@ -3369,6 +3378,43 @@ class SelectionTreeView(gtk.TreeView):
         self.previewed_file_treerowref = None
         self.icontheme = gtk.icon_theme_get_default()
         
+    def get_thread(self, liststore_iter):
+        """
+        Returns the thread associated with the liststore's iter
+        """
+        return self.liststore.get_value(liststore_iter, 14)
+        
+    def get_status(self, liststore_iter):
+        """
+        Returns the status associated with the liststore's iter
+        """
+        return self.liststore.get_value(liststore_iter, 11)
+        
+    def get_mediaFile(self, liststore_iter):
+        """
+        Returns the mediaFile associated with the liststore's iter
+        """
+        return self.liststore.get_value(liststore_iter, 9)
+        
+    def get_is_image(self, liststore_iter):
+        """
+        Returns the file type (is image or video) associated with the liststore's iter
+        """
+        return self.liststore.get_value(liststore_iter, 6)
+    
+    def get_type_icon(self, liststore_iter):
+        """
+        Returns the file type's pixbuf associated with the liststore's iter
+        """
+        return self.liststore.get_value(liststore_iter, 7)
+        
+    def get_job_code(self, liststore_iter):
+        """
+        Returns the job code associated with the liststore's iter
+        """
+        return self.liststore.get_value(liststore_iter, 8)
+        
+    
     def get_status_icon(self, status, preview=False):
         """
         Returns the correct icon, based on the status
@@ -3443,15 +3489,20 @@ class SelectionTreeView(gtk.TreeView):
         be downloaded
         """
         v = 0
+        threads = []
         model, paths = self.get_selection().get_selected_rows()
         for selected_path in paths:
             path = self.sort_model.convert_path_to_child_path(selected_path)
             iter = self.liststore.get_iter(path)
-            status = self.liststore.get_value(iter, 11)
+            status = self.get_status(iter)
             if status in [STATUS_NOT_DOWNLOADED, STATUS_WARNING]:
                 v += 1
-        return v
+                thread = self.get_thread(iter)
+                if thread not in threads:
+                    threads.append(thread)
+        return v, threads
             
+    
     def update_download_selected_button(self):
         """
         Updates the text on the Download Selection button, and set its sensitivity
@@ -3466,9 +3517,9 @@ class SelectionTreeView(gtk.TreeView):
             #update preview
             self.show_preview(iter)
             #update button text
-            no_available_for_download = self.no_selected_rows_available_for_download()
+            no_available_for_download, threads = self.no_selected_rows_available_for_download()
             
-        if no_available_for_download and workers.noReadyToDownloadWorkers():
+        if no_available_for_download and workers.scanComplete(threads):
             self.rapidApp.download_selected_button.set_label(self.rapidApp.DOWNLOAD_SELECTED_LABEL + " (%s)" % no_available_for_download)
             self.rapidApp.download_selected_button.set_sensitive(True)
         else:
@@ -3486,13 +3537,14 @@ class SelectionTreeView(gtk.TreeView):
         else:
             iter = self.liststore.get_iter_first()
             while iter:
-                t = self.liststore.get_value(iter, 14) 
+                t = self.get_thread(iter) 
                 if t == thread_id:
                     if self.previewed_file_treerowref:
-                        mediaFile = self.liststore.get_value(iter, 9)
+                        mediaFile = self.get_mediaFile(iter)
                         if mediaFile.treerowref == self.previewed_file_treerowref:
                             self.show_preview(None)
                     self.liststore.remove(iter)
+                    # need to start over, or else bad things happen
                     iter = self.liststore.get_iter_first()
                 else:
                     iter = self.liststore.iter_next(iter)            
@@ -3545,7 +3597,7 @@ class SelectionTreeView(gtk.TreeView):
             
         
         elif not self.suspend_previews:
-            mediaFile = self.liststore.get_value(iter, 9)
+            mediaFile = self.get_mediaFile(iter)
             
             self.previewed_file_treerowref = mediaFile.treerowref
             
@@ -3642,10 +3694,10 @@ class SelectionTreeView(gtk.TreeView):
             while iter is not None:
                 sort_iter = self.sort_model.convert_child_iter_to_iter(None, iter)
                 if range in ['photos', 'videos']:
-                    type = self.liststore.get_value(iter, 6)
+                    type = self.get_is_image(iter)
                     select_row = (type and range == 'photos') or (not type and range == 'videos')
                 else:
-                    job_code = self.liststore.get_value(iter, 8)
+                    job_code = self.get_job_code(iter)
                     select_row = (job_code and range == 'withjobcode') or (not job_code and range == 'withoutjobcode')
 
                 if select_row:
@@ -3659,7 +3711,7 @@ class SelectionTreeView(gtk.TreeView):
             iter = self.sort_model.get_iter_first()
             while iter is not None:
                 list_iter = self.sort_model.convert_iter_to_child_iter(None, iter)
-                type = self.liststore.get_value(list_iter, 6)
+                type = self.get_is_image(list_iter)
                 if (type and range == 'photos') or (not type and range == 'videos'):
                     self.show_preview(list_iter)
                     break
@@ -3699,16 +3751,16 @@ class SelectionTreeView(gtk.TreeView):
         """
 
         def _apply_job_code():
-            status = self.liststore.get_value(iter, 11)
+            status = self.get_status(iter)
             if status in [STATUS_DOWNLOAD_PENDING, STATUS_WARNING, STATUS_NOT_DOWNLOADED]:
                 if overwrite:
                     self.liststore.set(iter, 8, job_code)
-                    mediaFile = self.liststore.get_value(iter, 9)
+                    mediaFile = self.get_mediaFile(iter)
                     mediaFile.jobcode = job_code
                 else:
-                    if not self.liststore.get_value(iter, 8):
+                    if not self.get_job_code(iter):
                         self.liststore.set(iter, 8, job_code)
-                        mediaFile = self.liststore.get_value(iter, 9)
+                        mediaFile = self.get_mediaFile(iter)
                         mediaFile.jobcode = job_code
 
         if to_all_rows:
@@ -3742,9 +3794,9 @@ class SelectionTreeView(gtk.TreeView):
         """
         
         def _job_code_missing(iter):
-            status = self.liststore.get_value(iter, 11)
+            status = self.get_status(iter)
             if status in [STATUS_WARNING, STATUS_NOT_DOWNLOADED]:
-                job_code = self.liststore.get_value(iter, 8)
+                job_code = self.get_job_code(iter)
                 return not job_code
             return False
         
@@ -3769,15 +3821,15 @@ class SelectionTreeView(gtk.TreeView):
 
     
     def _set_download_pending(self, liststore_iter, threads):
-        existing_status = self.liststore.get_value(liststore_iter, 11)
+        existing_status = self.self.get_status(liststore_iter)
         if existing_status in [STATUS_WARNING, STATUS_NOT_DOWNLOADED]:
             self.liststore.set(liststore_iter, 11, STATUS_DOWNLOAD_PENDING)
             self.liststore.set(liststore_iter, 10, self.download_pending_icon)
             # this value is in a thread's list of files to download
-            mediaFile = self.liststore.get_value(liststore_iter, 9)
+            mediaFile = self.get_mediaFile(liststore_iter)
             # each thread will see this change in status
             mediaFile.status = STATUS_DOWNLOAD_PENDING
-            thread = self.liststore.get_value(liststore_iter, 14)
+            thread = self.get_thread(liststore_iter)
             if thread not in threads:
                 threads.append(thread)
         
@@ -3814,7 +3866,7 @@ class SelectionTreeView(gtk.TreeView):
             sys.stderr.write("FIXME: SelectionTreeView treerowref no longer refers to valid row\n")
         else:
             iter = self.liststore.get_iter(path)
-            mediaFile = self.liststore.get_value(iter, 9)
+            mediaFile = self.get_mediaFile(iter)
             status = mediaFile.status
             self.liststore.set(iter, 11, status)
             self.liststore.set(iter, 10, self.get_status_icon(status))
