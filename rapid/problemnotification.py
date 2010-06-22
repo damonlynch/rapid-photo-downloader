@@ -91,7 +91,7 @@ problem_definitions = {
     UNIQUE_IDENTIFIER_ADDED:        (UNIQUE_IDENTIFIER_CAT, _("%(filetype)s already exists"), False),
     BACKUP_EXISTS:                  (BACKUP_PROBLEM,          "%s", True),
     BACKUP_EXISTS_OVERWRITTEN:      (BACKUP_PROBLEM,          "%s", True),
-    NO_BACKUP_PERFORMED:            (BACKUP_PROBLEM,        _("%(filetype)s could not be backed up because no suitable locations were detected."), False),
+    NO_BACKUP_PERFORMED:            (BACKUP_PROBLEM,        _("%(filetype)s could not be backed up because no suitable backup locations were found."), False),
     BACKUP_ERROR:                   (BACKUP_PROBLEM,         "%s", True),
     BACKUP_DIRECTORY_CREATION:      (BACKUP_PROBLEM,         "%s", True),
     

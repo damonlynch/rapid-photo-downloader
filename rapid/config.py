@@ -30,10 +30,6 @@ MEDIA_LOCATION = "/media"
 SKIP_DOWNLOAD = "skip download"
 ADD_UNIQUE_IDENTIFIER = "add unique identifier"
 
-REPORT_WARNING = "warning"
-REPORT_ERROR = "error"
-IGNORE = "ignore"
-
 DEFAULT_PHOTO_LOCATIONS = ['Pictures',  'Photos']
 DEFAULT_BACKUP_LOCATION = 'Pictures'
 DEFAULT_VIDEO_BACKUP_LOCATION = 'Videos'

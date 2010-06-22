@@ -398,11 +398,9 @@ class RapidPreferences(prefs.Preferences):
         "auto_unmount": prefs.Value(prefs.BOOL, False),
         "auto_exit": prefs.Value(prefs.BOOL, False),
         "auto_delete": prefs.Value(prefs.BOOL, False),
-        "indicate_download_error": prefs.Value(prefs.BOOL, True),
         "download_conflict_resolution": prefs.Value(prefs.STRING, 
                                         config.SKIP_DOWNLOAD),
         "backup_duplicate_overwrite": prefs.Value(prefs.BOOL, False),
-        "backup_missing": prefs.Value(prefs.STRING, config.IGNORE),
         "display_selection": prefs.Value(prefs.BOOL, True),
         "display_size_column": prefs.Value(prefs.BOOL, True),
         "display_filename_column": prefs.Value(prefs.BOOL, False),
@@ -889,7 +887,6 @@ class PreferencesDialog(gnomeglade.Component):
         self.compatibility_table.set_row_spacing(0, 
                                             hd.VERTICAL_CONTROL_LABEL_SPACE)                                                    
         self._setupTableSpacing(self.error_table)
-        self.error_table.set_row_spacing(5, hd.VERTICAL_CONTROL_SPACE / 2)
     
     
     def _setupTableSpacing(self, table):
@@ -1044,11 +1041,7 @@ class PreferencesDialog(gnomeglade.Component):
         self.video_backup_identifier_entry.set_text(self.prefs.video_backup_identifier)
         
         #setup controls for manipulating sensitivity
-        self._backupControls0 = [self.auto_detect_backup_checkbutton,
-                                self.missing_backup_label,
-                                self.backup_error_radiobutton,
-                                self.backup_warning_radiobutton,
-                                self.backup_ignore_radiobutton]
+        self._backupControls0 = [self.auto_detect_backup_checkbutton]
         self._backupControls1 = [self.backup_identifier_explanation_label,
                                 self.backup_identifier_label,
                                 self.backup_identifier_entry,
@@ -1087,20 +1080,10 @@ class PreferencesDialog(gnomeglade.Component):
 
         
     def _setupErrorTab(self):
-        self.indicate_download_error_checkbutton.set_active(
-                            self.prefs.indicate_download_error)
-                            
         if self.prefs.download_conflict_resolution == config.SKIP_DOWNLOAD:
             self.skip_download_radiobutton.set_active(True)
         else:
             self.add_identifier_radiobutton.set_active(True)
-            
-        if self.prefs.backup_missing == config.REPORT_ERROR:
-            self.backup_error_radiobutton.set_active(True)
-        elif self.prefs.backup_missing == config.REPORT_WARNING:
-            self.backup_warning_radiobutton.set_active(True)
-        else:
-            self.backup_ignore_radiobutton.set_active(True)
             
         if self.prefs.backup_duplicate_overwrite:
             self.backup_duplicate_overwrite_radiobutton.set_active(True)
@@ -1374,15 +1357,6 @@ class PreferencesDialog(gnomeglade.Component):
             
     def on_backup_duplicate_skip_radiobutton_toggled(self,  widget):
         self.prefs.backup_duplicate_overwrite = not widget.get_active()
-        
-    def on_backup_error_radiobutton_toggled(self,  widget):
-        self.prefs.backup_missing = config.REPORT_ERROR
-        
-    def on_backup_warning_radiobutton_toggled(self,  widget):
-        self.prefs.backup_missing = config.REPORT_WARNING
-    
-    def on_backup_ignore_radiobutton_toggled(self,  widget):
-        self.prefs.backup_missing = config.IGNORE
     
     def on_treeview_cursor_changed(self, tree):
         path, column = tree.get_cursor()
@@ -1396,9 +1370,6 @@ class PreferencesDialog(gnomeglade.Component):
         self.updateImageRenameExample()
         self.updatePhotoDownloadFolderExample()
         self.updateVideoDownloadFolderExample()
-        
-    def on_indicate_download_error_checkbutton_toggled(self, check_button):
-        self.prefs.indicate_download_error = check_button.get_active()
         
     def on_add_identifier_radiobutton_toggled(self, widget):
         if widget.get_active():
@@ -2288,7 +2259,7 @@ class CopyPhotos(Thread):
             return fileDownloaded
             
 
-        def backupFile(mediaFile, fileDownloaded): #subfolder, newName, fileDownloaded, newFile, originalFile):
+        def backupFile(mediaFile, fileDownloaded, no_backup_devices):
             """ 
             Backup photo or video to path(s) chosen by the user
             
@@ -2307,128 +2278,129 @@ class CopyPhotos(Thread):
             fileNotBackedUpMessageDisplayed = False
             error_encountered = False
 
-            for rootBackupDir in self.parentApp.backupVolumes:
-                if self.prefs.backup_device_autodetection:
-                    volume = self.parentApp.backupVolumes[rootBackupDir].get_name()
-                    if mediaFile.isImage:
-                        backupDir = os.path.join(rootBackupDir, self.prefs.backup_identifier)
+            if no_backup_devices:
+                for rootBackupDir in self.parentApp.backupVolumes:
+                    if self.prefs.backup_device_autodetection:
+                        volume = self.parentApp.backupVolumes[rootBackupDir].get_name()
+                        if mediaFile.isImage:
+                            backupDir = os.path.join(rootBackupDir, self.prefs.backup_identifier)
+                        else:
+                            backupDir = os.path.join(rootBackupDir, self.prefs.video_backup_identifier)
                     else:
-                        backupDir = os.path.join(rootBackupDir, self.prefs.video_backup_identifier)
-                else:
-                    # photos and videos will be backed up into the same root folder, which the user has manually specified
-                    backupDir = rootBackupDir
-                    volume = backupDir # os.path.split(backupDir)[1]
-                                            
-                # if user has chosen auto detection, then:
-                # photos should only be backed up to photo backup locations
-                # videos should only be backed up to video backup locations
-                # if user did not choose autodetection, and the backup path doesn't exist, then
-                # will try to create it
-                if os.path.isdir(backupDir) or not self.prefs.backup_device_autodetection:
+                        # photos and videos will be backed up into the same root folder, which the user has manually specified
+                        backupDir = rootBackupDir
+                        volume = backupDir # os.path.split(backupDir)[1]
+                                                
+                    # if user has chosen auto detection, then:
+                    # photos should only be backed up to photo backup locations
+                    # videos should only be backed up to video backup locations
+                    # if user did not choose autodetection, and the backup path doesn't exist, then
+                    # will try to create it
+                    if os.path.isdir(backupDir) or not self.prefs.backup_device_autodetection:
 
-                    backupPath = os.path.join(backupDir, mediaFile.downloadSubfolder)
-                    newBackupFile = os.path.join(backupPath, mediaFile.downloadName)
-                    copyBackup = True
-                    if os.path.exists(newBackupFile):
-                        # this check is of course not thread safe -- it doesn't need to be, because at this stage the file names are going to be unique
-                        # (the folder structure is the same as the actual download folders, and the file names are unique in them)
-                        copyBackup = self.prefs.backup_duplicate_overwrite  
-                        
-                        if copyBackup:
-                            mediaFile.problem.add_problem(None, pn.BACKUP_EXISTS_OVERWRITTEN, volume)
-                        else:
-                            mediaFile.problem.add_problem(None, pn.BACKUP_EXISTS, volume)
-                        severity = config.SERIOUS_ERROR
-                        fileNotBackedUpMessageDisplayed = True
-
-                        #logError(severity, problem, details, resolution)
-
-                    if copyBackup:
-                        if fileDownloaded:
-                            fileToCopy = mediaFile.downloadFullFileName
-                        else:
-                            fileToCopy = mediaFile.fullFileName
-                        if os.path.isdir(backupPath):
-                            pathExists = True
-                        else:
-                            pathExists = False
-                            # create the backup subfolders
-                            if using_gio:
-                                dirs = gio.File(backupPath)
-                                try:
-                                    if dirs.make_directory_with_parents(cancellable=gio.Cancellable()):
-                                        pathExists = True
-                                except glib.GError, inst:
-                                    fileNotBackedUpMessageDisplayed = True
-                                    mediaFile.problem.add_problem(None, pn.BACKUP_DIRECTORY_CREATION, volume)
-                                    mediaFile.problem.add_extra_detail('%s%s' % (pn.BACKUP_DIRECTORY_CREATION, volume), inst)
-                                    error_encountered = True
+                        backupPath = os.path.join(backupDir, mediaFile.downloadSubfolder)
+                        newBackupFile = os.path.join(backupPath, mediaFile.downloadName)
+                        copyBackup = True
+                        if os.path.exists(newBackupFile):
+                            # this check is of course not thread safe -- it doesn't need to be, because at this stage the file names are going to be unique
+                            # (the folder structure is the same as the actual download folders, and the file names are unique in them)
+                            copyBackup = self.prefs.backup_duplicate_overwrite  
+                            
+                            if copyBackup:
+                                mediaFile.problem.add_problem(None, pn.BACKUP_EXISTS_OVERWRITTEN, volume)
                             else:
-                                # recreate folder structure in backup location
-                                # cannot do os.makedirs(backupPath) - it can give bad results when using external drives
-                                # we know backupDir exists 
-                                # all the components of subfolder may not
-                                folders = mediaFile.downloadSubfolder.split(os.path.sep)
-                                folderToMake = backupDir 
-                                for f in folders:
-                                    if f:
-                                        folderToMake = os.path.join(folderToMake,  f)
-                                        if not os.path.isdir(folderToMake):
-                                            try:
-                                                os.mkdir(folderToMake)
-                                                pathExists = True
-                                            except (IOError, OSError), (errno, strerror):
-                                                fileNotBackedUpMessageDisplayed = True
-                                                inst = "%s: %s" % (errno, strerror)
-                                                mediaFile.problem.add_problem(None, pn.BACKUP_DIRECTORY_CREATION, volume)
-                                                mediaFile.problem.add_extra_detail('%s%s' % (pn.BACKUP_DIRECTORY_CREATION, volume), inst)
-                                                error_encountered = True
-                                                #~ logError(config.SERIOUS_ERROR, _('Backing up error'), 
-                                                         #~ _("Destination directory could not be created: %(directory)s\n") %
-                                                         #~ {'directory': folderToMake,  } +
-                                                         #~ _("Source: %(source)s\nDestination: %(destination)s\n") % 
-                                                         #~ {'source': originalFile, 'destination': newBackupFile} + 
-                                                         #~ _("Error: %(errno)s %(strerror)s") % {'errno': errno,  'strerror': strerror}, 
-                                                         #~ _('The %(file_type)s was not backed up.') % {'file_type': fileBeingDownloadedDisplay}
-                                                         #~ )
+                                mediaFile.problem.add_problem(None, pn.BACKUP_EXISTS, volume)
+                            severity = config.SERIOUS_ERROR
+                            fileNotBackedUpMessageDisplayed = True
 
-                                                break
-                                    
-                        if pathExists:
-                            if using_gio:
-                                g_dest = gio.File(path=newBackupFile)
-                                g_src = gio.File(path=fileToCopy)
-                                if self.prefs.backup_duplicate_overwrite:
-                                    flags = gio.FILE_COPY_OVERWRITE
+                            #logError(severity, problem, details, resolution)
+
+                        if copyBackup:
+                            if fileDownloaded:
+                                fileToCopy = mediaFile.downloadFullFileName
+                            else:
+                                fileToCopy = mediaFile.fullFileName
+                            if os.path.isdir(backupPath):
+                                pathExists = True
+                            else:
+                                pathExists = False
+                                # create the backup subfolders
+                                if using_gio:
+                                    dirs = gio.File(backupPath)
+                                    try:
+                                        if dirs.make_directory_with_parents(cancellable=gio.Cancellable()):
+                                            pathExists = True
+                                    except glib.GError, inst:
+                                        fileNotBackedUpMessageDisplayed = True
+                                        mediaFile.problem.add_problem(None, pn.BACKUP_DIRECTORY_CREATION, volume)
+                                        mediaFile.problem.add_extra_detail('%s%s' % (pn.BACKUP_DIRECTORY_CREATION, volume), inst)
+                                        error_encountered = True
                                 else:
-                                    flags = gio.FILE_COPY_NONE
-                                try:
-                                    if not g_src.copy(g_dest, progress_callback, flags, cancellable=gio.Cancellable()):
+                                    # recreate folder structure in backup location
+                                    # cannot do os.makedirs(backupPath) - it can give bad results when using external drives
+                                    # we know backupDir exists 
+                                    # all the components of subfolder may not
+                                    folders = mediaFile.downloadSubfolder.split(os.path.sep)
+                                    folderToMake = backupDir 
+                                    for f in folders:
+                                        if f:
+                                            folderToMake = os.path.join(folderToMake,  f)
+                                            if not os.path.isdir(folderToMake):
+                                                try:
+                                                    os.mkdir(folderToMake)
+                                                    pathExists = True
+                                                except (IOError, OSError), (errno, strerror):
+                                                    fileNotBackedUpMessageDisplayed = True
+                                                    inst = "%s: %s" % (errno, strerror)
+                                                    mediaFile.problem.add_problem(None, pn.BACKUP_DIRECTORY_CREATION, volume)
+                                                    mediaFile.problem.add_extra_detail('%s%s' % (pn.BACKUP_DIRECTORY_CREATION, volume), inst)
+                                                    error_encountered = True
+                                                    #~ logError(config.SERIOUS_ERROR, _('Backing up error'), 
+                                                             #~ _("Destination directory could not be created: %(directory)s\n") %
+                                                             #~ {'directory': folderToMake,  } +
+                                                             #~ _("Source: %(source)s\nDestination: %(destination)s\n") % 
+                                                             #~ {'source': originalFile, 'destination': newBackupFile} + 
+                                                             #~ _("Error: %(errno)s %(strerror)s") % {'errno': errno,  'strerror': strerror}, 
+                                                             #~ _('The %(file_type)s was not backed up.') % {'file_type': fileBeingDownloadedDisplay}
+                                                             #~ )
+
+                                                    break
+                                        
+                            if pathExists:
+                                if using_gio:
+                                    g_dest = gio.File(path=newBackupFile)
+                                    g_src = gio.File(path=fileToCopy)
+                                    if self.prefs.backup_duplicate_overwrite:
+                                        flags = gio.FILE_COPY_OVERWRITE
+                                    else:
+                                        flags = gio.FILE_COPY_NONE
+                                    try:
+                                        if not g_src.copy(g_dest, progress_callback, flags, cancellable=gio.Cancellable()):
+                                            fileNotBackedUpMessageDisplayed = True
+                                            mediaFile.problem.add_problem(None, pn.BACKUP_ERROR, volume)
+                                            error_encountered = True
+                                        else:
+                                            backed_up = True
+                                    except glib.GError, inst:
                                         fileNotBackedUpMessageDisplayed = True
                                         mediaFile.problem.add_problem(None, pn.BACKUP_ERROR, volume)
+                                        mediaFile.problem.add_extra_detail('%s%s' % (pn.BACKUP_ERROR, volume), inst)
                                         error_encountered = True
-                                    else:
+                                else:
+                                    try:
+                                        shutil.copy2(fileToCopy, newBackupFile)
                                         backed_up = True
-                                except glib.GError, inst:
-                                    fileNotBackedUpMessageDisplayed = True
-                                    mediaFile.problem.add_problem(None, pn.BACKUP_ERROR, volume)
-                                    mediaFile.problem.add_extra_detail('%s%s' % (pn.BACKUP_ERROR, volume), inst)
-                                    error_encountered = True
-                            else:
-                                try:
-                                    shutil.copy2(fileToCopy, newBackupFile)
-                                    backed_up = True
-                                except (IOError, OSError), (errno, strerror):
-                                    fileNotBackedUpMessageDisplayed = True
-                                    mediaFile.problem.add_problem(None, pn.BACKUP_ERROR, volume)
-                                    inst = "%s: %s" % (errno, strerror)
-                                    mediaFile.problem.add_extra_detail('%s%s' % (pn.BACKUP_ERROR, volume), inst)
-                                    error_encountered = True
-                                    #~ logError(config.SERIOUS_ERROR, _('Backing up error'), 
-                                            #~ _("Source: %(source)s\nDestination: %(destination)s\nError: %(errno)s %(strerror)s")
-                                            #~ % {'source': originalFile, 'destination': newBackupFile,  'errno': errno,  'strerror': strerror},
-                                            #~ _('The %(file_type)s was not backed up.')  % {'file_type': fileBeingDownloadedDisplay}
-                                        #~ )
+                                    except (IOError, OSError), (errno, strerror):
+                                        fileNotBackedUpMessageDisplayed = True
+                                        mediaFile.problem.add_problem(None, pn.BACKUP_ERROR, volume)
+                                        inst = "%s: %s" % (errno, strerror)
+                                        mediaFile.problem.add_extra_detail('%s%s' % (pn.BACKUP_ERROR, volume), inst)
+                                        error_encountered = True
+                                        #~ logError(config.SERIOUS_ERROR, _('Backing up error'), 
+                                                #~ _("Source: %(source)s\nDestination: %(destination)s\nError: %(errno)s %(strerror)s")
+                                                #~ % {'source': originalFile, 'destination': newBackupFile,  'errno': errno,  'strerror': strerror},
+                                                #~ _('The %(file_type)s was not backed up.')  % {'file_type': fileBeingDownloadedDisplay}
+                                            #~ )
 
             if not backed_up and not fileNotBackedUpMessageDisplayed:
                 # The file has not been backed up to any medium
@@ -2525,14 +2497,12 @@ class CopyPhotos(Thread):
                 return None      
             
         def setupBackup():
-            #check for presence of backup path or volumes
-            can_backup = False
+            """
+            Check for presence of backup path or volumes, and return the number of devices being used (1 in case of a path)
+            """
+            no_devices = 0
             if self.prefs.backup_images:
-                can_backup = True
-                if self.prefs.backup_missing == config.REPORT_ERROR:
-                    e = config.SERIOUS_ERROR
-                elif self.prefs.backup_missing == config.REPORT_WARNING:
-                    e = config.WARNING            
+                no_devices = len(self.parentApp.backupVolumes)          
                 if not self.prefs.backup_device_autodetection:
                     if not os.path.isdir(self.prefs.backup_location):
                         # the user has manually specified a path, but it
@@ -2540,21 +2510,12 @@ class CopyPhotos(Thread):
                         try:
                             os.makedirs(self.prefs.backup_location)
                         except:
-                            if self.prefs.backup_missing <> config.IGNORE:
-                                logError(e, _("Backup path does not exist"),
-                                            _("The path %s could not be created") % path, 
-                                            _("No backups can occur")
-                                        )
-                            can_backup = False
-                            
-                elif self.prefs.backup_missing <> config.IGNORE:
-                    if not len(self.parentApp.backupVolumes):
-                        logError(e, _("Backup device missing"), 
-                                    _("No backup device was automatically detected"), 
-                                    _("No backups can occur"))
-                        can_backup = False
-                        
-            return can_backup
+                            logError(config.SERIOUS_ERROR, _("Backup path does not exist"),
+                                        _("The path %s could not be created") % path, 
+                                        _("No backups can occur")
+                                    )
+                            no_devices = 0
+            return no_devices
         
         def needAJobCode():
             for f in self.cardMedia.imagesAndVideos:
@@ -2651,7 +2612,7 @@ class CopyPhotos(Thread):
             cmd_line(_("Attempting to download %s files") % noFiles)
             
             
-            can_backup = setupBackup()
+            no_backup_devices = setupBackup()
             
             i = 0
             sizeDownloaded = noFilesDownloaded = noImagesDownloaded = noVideosDownloaded = noImagesSkipped = noVideosSkipped = 0
@@ -2714,10 +2675,9 @@ class CopyPhotos(Thread):
                         fileDownloaded = downloadFile(mediaFile, sequence_to_use)
 
                         if self.prefs.backup_images:
-                            if can_backup:
-                                backed_up = backupFile(mediaFile, fileDownloaded)
-                            else:
-                                backed_up = False
+                            backed_up = backupFile(mediaFile, fileDownloaded, no_backup_devices)
+
+                                
 
                         if fileDownloaded:
                             
@@ -2726,7 +2686,7 @@ class CopyPhotos(Thread):
                                 noImagesDownloaded += 1
                             else:
                                 noVideosDownloaded += 1
-                            if self.prefs.backup_images and backed_up:
+                            if self.prefs.backup_images and no_backup_devices:
                                 filesDownloadedSuccessfully.append(mediaFile.fullFileName)
                             elif not self.prefs.backup_images:
                                 filesDownloadedSuccessfully.append(mediaFile.fullFileName)
@@ -3524,7 +3484,7 @@ class SelectionTreeView(gtk.TreeView):
             elif mediaFile.status == STATUS_DOWNLOADED_WITH_WARNING:
                 v = _('%(filetype)s was downloaded with warnings') % {'filetype': mediaFile.displayNameCap}
             elif mediaFile.status == STATUS_BACKUP_PROBLEM:
-                v = _('%(filetype)s was downloaded with backup problems') % {'filetype': mediaFile.displayNameCap}
+                v = _('%(filetype)s was downloaded but there were problems backing up') % {'filetype': mediaFile.displayNameCap}
             elif mediaFile.status == STATUS_NOT_DOWNLOADED_NO_BACKUP:
                 v = _('%(filetype)s was neither downloaded nor backed up') % {'filetype': mediaFile.displayNameCap}                
             elif mediaFile.status == STATUS_NOT_DOWNLOADED:
