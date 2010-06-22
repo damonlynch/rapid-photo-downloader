@@ -1570,7 +1570,7 @@ class CopyPhotos(Thread):
 
         if self.cardMedia:
             media_collection_treeview.addCard(thread_id, self.cardMedia.prettyName(), 
-                                                                '',  0,  progress=0.0,  
+                                                                '', progress=0.0,  
                                                                 # This refers to when a device like a hard drive is having its contents scanned,
                                                                 # looking for photos or videos. It is visible initially in the progress bar for each device 
                                                                 # (which normally holds "x photos and videos").
@@ -1915,9 +1915,8 @@ class CopyPhotos(Thread):
                 # '0 of 512 photos' or '0 of 10 videos' or '0 of 202 photos and videos'.
                 # This particular text is displayed to the user before the download has started.
                 display = _("%(number)s %(filetypes)s") % {'number':noFiles, 'filetypes':self.display_file_types}
-                display_queue.put((media_collection_treeview.updateCard, (self.thread_id,  self.cardMedia.sizeOfImagesAndVideos(), noFiles)))
+                display_queue.put((media_collection_treeview.updateCard, (self.thread_id,  self.cardMedia.sizeOfImagesAndVideos())))
                 display_queue.put((media_collection_treeview.updateProgress, (self.thread_id, 0.0, display, 0)))
-                display_queue.put((self.parentApp.timeRemaining.add, (self.thread_id, fileSizeSum)))
                 display_queue.put((self.parentApp.setDownloadButtonSensitivity, ()))
                 
                 # Translators: as you have already seen, the text can contain values that should not be modified or left out by you, for example %s.
@@ -2573,14 +2572,11 @@ class CopyPhotos(Thread):
             display_queue.close("rw")
             self.running = False
             return
-            
-        #~ self.cleanUp()
         
         all_files_downloaded = False
         
         totalNonErrorFiles = self.cardMedia.numberOfFilesNotCannotDownload()
 
-        
         while not all_files_downloaded:
             
             self.noErrors = self.noWarnings = 0
@@ -2629,9 +2625,12 @@ class CopyPhotos(Thread):
             # include the time it takes to copy to the backup volumes
             sizeFiles = sizeFiles * (no_backup_devices + 1)
             
+            display_queue.put((self.parentApp.timeRemaining.set, (self.thread_id, sizeFiles)))
+            
             i = 0
             self.sizeDownloaded = noFilesDownloaded = noImagesDownloaded = noVideosDownloaded = noImagesSkipped = noVideosSkipped = 0
             filesDownloadedSuccessfully = []
+            self.bytes_downloaded_in_backup = 0
             
             display_queue.put((self.parentApp.addToTotalDownloadSize, (sizeFiles, )))
             display_queue.put((self.parentApp.setOverallDownloadMark, ()))
@@ -2712,7 +2711,7 @@ class CopyPhotos(Thread):
 
                 percentComplete = (float(self.sizeDownloaded) / sizeFiles) * 100
                     
-                if self.sizeDownloaded == sizeFiles:
+                if self.sizeDownloaded == sizeFiles and (totalNonErrorFiles - noFiles):
                     progressBarText = _("%(number)s of %(total)s %(filetypes)s (%(remaining)s remaining)") % {
                                         'number':  i + 1, 'total': noFiles, 'filetypes':self.display_file_types,
                                         'remaining': totalNonErrorFiles - noFiles}
@@ -2727,7 +2726,7 @@ class CopyPhotos(Thread):
                 display_queue.put((media_collection_treeview.updateProgress, (self.thread_id, percentComplete, progressBarText, size)))
                 
                 i += 1
-
+            
             with self.statsLock:
                 self.downloadStats.adjust(self.sizeDownloaded, noImagesDownloaded, noVideosDownloaded, noImagesSkipped, noVideosSkipped, self.noWarnings, self.noErrors)
                 
@@ -2862,8 +2861,8 @@ class MediaTreeView(gtk.TreeView):
     def __init__(self, parentApp):
 
         self.parentApp = parentApp
-        # card name, size of images, number of images, copy progress, copy text
-        self.liststore = gtk.ListStore(str, str, int, float, str)
+        # device name, size of images on the device (human readable), copy progress (%), copy text
+        self.liststore = gtk.ListStore(str, str, float, str)
         self.mapThreadToRow = {}
 
         gtk.TreeView.__init__(self, self.liststore)
@@ -2883,16 +2882,14 @@ class MediaTreeView(gtk.TreeView):
         self.append_column(column1)
         
         column2 = gtk.TreeViewColumn(_("Download Progress"), 
-                                    gtk.CellRendererProgress(), value=3, text=4)
+                                    gtk.CellRendererProgress(), value=2, text=3)
         self.append_column(column2)
         self.show_all()
         
-    def addCard(self, thread_id, cardName, sizeFiles, noFiles, progress = 0.0,
-                progressBarText = ''):
+    def addCard(self, thread_id, cardName, sizeFiles, progress = 0.0, progressBarText = ''):
         
         # add the row, and get a temporary pointer to the row
-        iter = self.liststore.append((cardName, sizeFiles, noFiles, 
-                                                progress, progressBarText))
+        iter = self.liststore.append((cardName, sizeFiles, progress, progressBarText))
         
         self._setThreadMap(thread_id, iter)
         
@@ -2905,11 +2902,13 @@ class MediaTreeView(gtk.TreeView):
             self.parentApp.media_collection_scrolledwindow.set_size_request(-1,  height)
 
         
-    def updateCard(self,  thread_id,  sizeFiles, noFiles):
+    def updateCard(self, thread_id, totalSizeFiles):
+        """
+        Updates the size of the photos and videos on the device, displayed to the user
+        """
         if thread_id in self.mapThreadToRow:
             iter = self._getThreadMap(thread_id)
-            self.liststore.set_value(iter, 1, sizeFiles)
-            self.liststore.set_value(iter, 2, noFiles)
+            self.liststore.set_value(iter, 1, totalSizeFiles)
         else:
             sys.stderr.write("FIXME: this card is unknown")
     
@@ -2944,9 +2943,9 @@ class MediaTreeView(gtk.TreeView):
         
         iter = self._getThreadMap(thread_id)
         
-        self.liststore.set_value(iter, 3, percentComplete)
+        self.liststore.set_value(iter, 2, percentComplete)
         if progressBarText:
-            self.liststore.set_value(iter, 4, progressBarText)
+            self.liststore.set_value(iter, 3, progressBarText)
         if percentComplete or bytesDownloaded:
             self.parentApp.updateOverallProgress(thread_id, bytesDownloaded, percentComplete)
         
@@ -5529,15 +5528,14 @@ class TimeRemaining:
     def __init__(self):
         self.clear()
         
-    def add(self,  w,  size):
-        if w not in self.times:
-            t = TimeForDownload()
-            t.timeRemaining = None
-            t.size = size
-            t.downloaded = 0
-            t.sizeMark = 0
-            t.timeMark = time.time()
-            self.times[w] = t
+    def set(self,  w,  size):
+        t = TimeForDownload()
+        t.timeRemaining = None
+        t.size = size
+        t.downloaded = 0
+        t.sizeMark = 0
+        t.timeMark = time.time()
+        self.times[w] = t
         
     def update(self,  w,  size):
         if w in self.times:
