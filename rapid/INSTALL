@@ -12,9 +12,13 @@ Rapid Photo Downloader depends on the following software:
 
 To run Rapid Photo Downloader you will need all the software mentioned above.
 
-A recommended package is exiv2 (not just the library libexiv2), so Rapid Photo
-Downloader can determine if it can download additional types of RAW files 
-(some early versions of exiv2 and pyexiv2 segfault on certain RAW file types).
+If you want to see dropshadows around thumbnail images, install python-imaging.
+This is optional but recommended.
+
+A strongly recommended package is exiv2 (not just the library libexiv2), so
+Rapid Photo Downloader can determine if it can download additional types of RAW
+files (some early versions of exiv2 and pyexiv2 segfault on certain RAW file
+types).
 
 If you want to download videos, you can install:
 

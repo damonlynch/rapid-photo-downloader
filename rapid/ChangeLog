@@ -1,11 +1,11 @@
 Version 0.3.0
 -------------
 
-2010-06-xx
+2010-07-xx
 
 The major new feature of this release is the generation of previews before
-a download takes place, and being able to select which photos and videos you
-wish to download. This represents the largest change ever made to the program.
+a download takes place. You can now select which photos and videos you wish to
+download. This represents the largest change ever made to the program.
 
 You can now assign different Job Codes to photos and videos in the same 
 download. Simply select photos and videos, and from the main window choose a Job
@@ -18,8 +18,8 @@ Now that you can select photos and videos to download, the "Report an error"
 option in case of filename conflicts has been removed. If you try to download a
 photo or video that already exists, an error will be reported. If you backup a 
 photo or video that already exists in the backup location, a warning will be 
-reported (regardless of whether overwriting or skipping of duplicate backups is
-chosen). 
+reported (regardless of whether overwriting or skipping of backups with 
+conflicting filenames is chosen). 
 
 Likewise, the option of whether to report an error or warning in case of missing
 backup devices has been removed. If you have chosen to backup your photos and
@@ -28,8 +28,8 @@ downloaded with warnings.
 
 For each device in the main window, the progress bar is now updated much more
 smoothly than before. This is useful when downloading and backing up large files
-such as videos. (Note this is only the case when GIO is being used to copy
-files, which is the case on Ubuntu 8.10 or higher, for instance).
+such as videos. (Note this is only the case on moderately up-to-date Linux 
+distributions, such as Ubuntu 8.10 or higher).
 
 The minimum version of python-gtk2 (pygtk) required to run the program is now
 2.12. This will affect only outdated Linux distributions.

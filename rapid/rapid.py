@@ -212,8 +212,14 @@ class ThreadManager:
     def _isReadyToDownload(self, w):
        return w.scanComplete and not w.downloadStarted and not w.doNotStart and w.isAlive() and not w.manuallyDisabled
        
+    def _isScanning(self, w):
+        return w.isAlive() and w.hasStarted and not w.scanComplete and not w.manuallyDisabled
+       
     def _isDownloading(self,  w):
         return w.downloadStarted and w.isAlive() and not w.downloadComplete
+        
+    def _isPaused(self, w):
+        return w.downloadStarted and not w.running and not w.downloadComplete and not w.manuallyDisabled and w.isAlive()
         
     def _isFinished(self, w):
         """
@@ -287,6 +293,13 @@ class ThreadManager:
                 n += 1
         return n
         
+    def noScanningWorkers(self):
+        n = 0
+        for w in self._workers:
+            if self._isScanning(w):
+                n += 1
+        return n
+    
     def noReadyToDownloadWorkers(self):
         n = 0
         for w in self._workers:
@@ -303,16 +316,10 @@ class ThreadManager:
         for w in self._workers:
             if self._isDownloading(w):
                 yield w
-        
-                
-    def getPausedWorkers(self):
-        for w in self._workers:
-            if w.hasStarted and not w.running:
-                yield w            
 
     def getPausedDownloadingWorkers(self):
         for w in self._workers:
-            if w.downloadStarted and not w.running:
+            if self._isPaused(w):
                 yield w            
 
     def getWaitingForJobCodeWorkers(self):
@@ -336,6 +343,13 @@ class ThreadManager:
         i = 0
         for w in self._workers:
             if w.hasStarted and w.isAlive():
+                i += 1
+        return i
+        
+    def noPausedWorkers(self):
+        i = 0
+        for w in self._workers:
+            if self._isPaused(w):
                 i += 1
         return i
         
@@ -3375,7 +3389,7 @@ class SelectionTreeView(gtk.TreeView):
         elif status in [STATUS_DOWNLOAD_FAILED, STATUS_NOT_DOWNLOADED_NO_BACKUP]:
             status_icon = self.downloaded_with_error_icon
         else:
-            sys.stderr.write("FIXME: unknown status!")
+            sys.stderr.write("FIXME: unknown status: %s" % mediaFile.status)
             status_icon = self.not_downloaded_icon
         return status_icon
         
@@ -3454,11 +3468,11 @@ class SelectionTreeView(gtk.TreeView):
             #update button text
             no_available_for_download = self.no_selected_rows_available_for_download()
             
-        if no_available_for_download:
+        if no_available_for_download and workers.noReadyToDownloadWorkers():
             self.rapidApp.download_selected_button.set_label(self.rapidApp.DOWNLOAD_SELECTED_LABEL + " (%s)" % no_available_for_download)
             self.rapidApp.download_selected_button.set_sensitive(True)
         else:
-            #nothing was selected, or nothing is available from what the user selected
+            #nothing was selected, or nothing is available from what the user selected, or should not download right now
             self.rapidApp.download_selected_button.set_label(self.rapidApp.DOWNLOAD_SELECTED_LABEL)
             self.rapidApp.download_selected_button.set_sensitive(False)
                 
@@ -5161,11 +5175,12 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
 
     def setDownloadButtonSensitivity(self):
 
-        isSensitive = workers.noReadyToDownloadWorkers() > 0 or workers.noDownloadingWorkers() > 0
+        isSensitive = (workers.noReadyToDownloadWorkers() > 0 and workers.noScanningWorkers() == 0) or workers.noDownloadingWorkers() > 0
         
         if isSensitive:
             self.download_button.props.sensitive = True
             # download selected button sensitity is enabled only when the user selects something
+            self.selection_vbox.selection_treeview.update_download_selected_button()
             self.menu_download_pause.props.sensitive = True
         else:
             self.download_button.props.sensitive = False
@@ -5270,19 +5285,25 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
         """
         Sets download button to appropriate state
         """
+        
         if self.download_button_is_download:
             # This text will be displayed to the user on the Download / Pause button.
-            self.download_button.set_label(_("_Download All"))
-            self.download_button.set_image(gtk.image_new_from_stock(
-                                                gtk.STOCK_CONVERT,
-                                                gtk.ICON_SIZE_BUTTON))
-                                                
             self.download_selected_button.set_label(self.DOWNLOAD_SELECTED_LABEL)
             self.download_selected_button.set_image(gtk.image_new_from_stock(
                                                 gtk.STOCK_CONVERT,
                                                 gtk.ICON_SIZE_BUTTON))
             self.selection_vbox.selection_treeview.update_download_selected_button()
-            self.download_selected_button.show_all()
+            
+            self.download_button.set_image(gtk.image_new_from_stock(
+                                                gtk.STOCK_CONVERT,
+                                                gtk.ICON_SIZE_BUTTON))
+            
+            if workers.noPausedWorkers():
+                self.download_button.set_label(_("_Resume"))
+                self.download_selected_button.hide()
+            else:
+                self.download_button.set_label(_("_Download All"))
+                self.download_selected_button.show_all()
                                                 
         else:
             # button should indicate paused state
@@ -5290,7 +5311,7 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
                                                 gtk.STOCK_MEDIA_PAUSE,
                                                 gtk.ICON_SIZE_BUTTON))
             # This text will be displayed to the user on the Download / Pause button.
-            self.download_button.set_label(_("_Pause") + " ")
+            self.download_button.set_label(_("_Pause"))
             self.download_selected_button.set_sensitive(False)
             self.download_selected_button.hide()
             
@@ -5300,8 +5321,6 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
     def startScan(self):
         if workers.noReadyToStartWorkers() > 0:
             workers.startWorkers()
-
-
 
     def postStartDownloadTasks(self):
         if workers.noDownloadingWorkers() > 1:
@@ -5327,7 +5346,7 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
         """
         Handle download button click.
         
-        Button is in one of two states: download, or pause.
+        Button is in one of three states: download all, resume, or pause.
         
         If download, a click indicates to start or resume a download run.
         If pause, a click indicates to pause all running downloads.
@@ -5338,6 +5357,7 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
             else:
                 threads = self.selection_vbox.selection_treeview.set_status_to_download(selected_only = False)
                 self.startDownload(threads)
+            self._set_download_button()
         else:
             self.pauseDownload()
 
