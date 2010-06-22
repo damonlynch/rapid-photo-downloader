@@ -2082,6 +2082,14 @@ class CopyPhotos(Thread):
                     
             return (skipFile, sequence_to_use)
         
+        def progress_callback(amount_downloaded, total):
+            if (amount_downloaded - self.bytes_downloaded > 1048576) or (amount_downloaded == total):
+                chunk_downloaded = amount_downloaded - self.bytes_downloaded
+                self.bytes_downloaded = amount_downloaded
+                percentComplete = (float(self.sizeDownloaded + amount_downloaded) / sizeFiles) * 100
+
+                display_queue.put((media_collection_treeview.updateProgress, (self.thread_id, percentComplete, None, chunk_downloaded)))        
+        
         def downloadFile(mediaFile, sequence_to_use):
             """
             Downloads the photo or video file to the specified subfolder 
@@ -2093,14 +2101,6 @@ class CopyPhotos(Thread):
                 renameFactory = self.imageRenamePrefsFactory
             
             self.bytes_downloaded = 0
-            
-            def progress_callback(amount_downloaded, total):
-                if (amount_downloaded - self.bytes_downloaded > 1048576) or (amount_downloaded == total):
-                    chunk_downloaded = amount_downloaded - self.bytes_downloaded
-                    self.bytes_downloaded = amount_downloaded
-                    percentComplete = (float(sizeDownloaded + amount_downloaded) / sizeFiles) * 100
-
-                    display_queue.put((media_collection_treeview.updateProgress, (self.thread_id, percentComplete, None, chunk_downloaded)))
                 
             def progress_callback_no_update(amount_downloaded, total):
                 pass
@@ -2254,8 +2254,11 @@ class CopyPhotos(Thread):
             if usesSequenceElements:
                 if not fileDownloaded and sequence_to_use is None:
                     renameFactory.sequences.imageCopyFailed()
-                    
-
+            
+            #update record keeping using in tracking progress
+            self.sizeDownloaded += mediaFile.size
+            self.bytes_downloaded_in_download = self.bytes_downloaded
+            
             return fileDownloaded
             
 
@@ -2270,16 +2273,16 @@ class CopyPhotos(Thread):
             
             A backup medium can be used to backup photos or videos, or both. 
             """
-            
-            def progress_callback(amount_downloaded, total):
-                print amount_downloaded, total
-            
+
             backed_up = False
             fileNotBackedUpMessageDisplayed = False
             error_encountered = False
-
+            self.bytes_downloaded_in_backup = 0
+            expected_bytes_downloaded = self.sizeDownloaded + no_backup_devices * mediaFile.size
+            
             if no_backup_devices:
                 for rootBackupDir in self.parentApp.backupVolumes:
+                    self.bytes_downloaded = 0
                     if self.prefs.backup_device_autodetection:
                         volume = self.parentApp.backupVolumes[rootBackupDir].get_name()
                         if mediaFile.isImage:
@@ -2401,6 +2404,10 @@ class CopyPhotos(Thread):
                                                 #~ % {'source': originalFile, 'destination': newBackupFile,  'errno': errno,  'strerror': strerror},
                                                 #~ _('The %(file_type)s was not backed up.')  % {'file_type': fileBeingDownloadedDisplay}
                                             #~ )
+                    
+                    #update record keeping using in tracking progress
+                    self.sizeDownloaded += mediaFile.size
+                    self.bytes_downloaded_in_backup += self.bytes_downloaded
 
             if not backed_up and not fileNotBackedUpMessageDisplayed:
                 # The file has not been backed up to any medium
@@ -2424,6 +2431,11 @@ class CopyPhotos(Thread):
                 # it was backed up to at least one volume, but there was an error on another backup volume
                 if mediaFile.status != STATUS_DOWNLOAD_FAILED:
                     mediaFile.status = STATUS_BACKUP_PROBLEM
+            
+            # Take into account instances where a backup device has been removed part way through a download
+            # (thereby making self.parentApp.backupVolumes have less items than expected)
+            if self.sizeDownloaded < expected_bytes_downloaded:
+                self.sizeDownloaded = expected_bytes_downloaded
             return backed_up
 
         def notifyAndUnmount(umountAttemptOK):
@@ -2613,9 +2625,12 @@ class CopyPhotos(Thread):
             
             
             no_backup_devices = setupBackup()
+
+            # include the time it takes to copy to the backup volumes
+            sizeFiles = sizeFiles * (no_backup_devices + 1)
             
             i = 0
-            sizeDownloaded = noFilesDownloaded = noImagesDownloaded = noVideosDownloaded = noImagesSkipped = noVideosSkipped = 0
+            self.sizeDownloaded = noFilesDownloaded = noImagesDownloaded = noVideosDownloaded = noImagesSkipped = noVideosSkipped = 0
             filesDownloadedSuccessfully = []
             
             display_queue.put((self.parentApp.addToTotalDownloadSize, (sizeFiles, )))
@@ -2637,7 +2652,7 @@ class CopyPhotos(Thread):
             
             # reset the progress bar to update the status of this download attempt
             progressBarText = _("%(number)s of %(total)s %(filetypes)s") % {'number':  0, 'total': noFiles, 'filetypes':self.display_file_types}
-            display_queue.put((media_collection_treeview.updateProgress, (self.thread_id, 0, progressBarText, 0)))
+            display_queue.put((media_collection_treeview.updateProgress, (self.thread_id, 0.0, progressBarText, 0)))
             
             while i < noFiles:
                 # if the user pauses the download, then this will be triggered
@@ -2654,9 +2669,8 @@ class CopyPhotos(Thread):
                 # get information about the image to deduce image name and path
                 mediaFile = self.cardMedia.imagesAndVideos[fileIndex[i]][0]
                 if not mediaFile.status == STATUS_DOWNLOAD_PENDING:
-                    sys.stderr.write("FIXME: Thread %s is trying to download a file that it should not be" % self.thread_id)
+                    sys.stderr.write("FIXME: Thread %s is trying to download a file that it should not be!!" % self.thread_id)
                 else:
-                
                     if mediaFile.isImage:
                         tempWorkingDir = self.photoTempWorkingDir
                         baseDownloadDir = photoBaseDownloadDir
@@ -2677,16 +2691,13 @@ class CopyPhotos(Thread):
                         if self.prefs.backup_images:
                             backed_up = backupFile(mediaFile, fileDownloaded, no_backup_devices)
 
-                                
-
                         if fileDownloaded:
-                            
                             noFilesDownloaded += 1
                             if mediaFile.isImage:
                                 noImagesDownloaded += 1
                             else:
                                 noVideosDownloaded += 1
-                            if self.prefs.backup_images and no_backup_devices:
+                            if self.prefs.backup_images and backed_up:
                                 filesDownloadedSuccessfully.append(mediaFile.fullFileName)
                             elif not self.prefs.backup_images:
                                 filesDownloadedSuccessfully.append(mediaFile.fullFileName)
@@ -2696,14 +2707,12 @@ class CopyPhotos(Thread):
                             else:
                                 noVideosSkipped += 1
                                 
-
+                        #update the selction treeview in the main window with the new status of the file
                         display_queue.put((self.parentApp.update_status_post_download, (mediaFile.treerowref, )))
-                        
-                
-                sizeDownloaded += mediaFile.size
-                percentComplete = (float(sizeDownloaded) / sizeFiles) * 100
+
+                percentComplete = (float(self.sizeDownloaded) / sizeFiles) * 100
                     
-                if sizeDownloaded == sizeFiles:
+                if self.sizeDownloaded == sizeFiles:
                     progressBarText = _("%(number)s of %(total)s %(filetypes)s (%(remaining)s remaining)") % {
                                         'number':  i + 1, 'total': noFiles, 'filetypes':self.display_file_types,
                                         'remaining': totalNonErrorFiles - noFiles}
@@ -2711,15 +2720,16 @@ class CopyPhotos(Thread):
                     progressBarText = _("%(number)s of %(total)s %(filetypes)s") % {'number':  i + 1, 'total': noFiles, 'filetypes':self.display_file_types}
                 
                 if using_gio:
-                    size = mediaFile.size - self.bytes_downloaded
+                    # do not want to update the progress bar any more than it has already been updated
+                    size = mediaFile.size * (no_backup_devices + 1) - self.bytes_downloaded_in_download - self.bytes_downloaded_in_backup
                 else:
-                    size = mediaFile.size
+                    size = mediaFile.size * (no_backup_devices + 1)
                 display_queue.put((media_collection_treeview.updateProgress, (self.thread_id, percentComplete, progressBarText, size)))
                 
                 i += 1
 
             with self.statsLock:
-                self.downloadStats.adjust(sizeDownloaded, noImagesDownloaded, noVideosDownloaded, noImagesSkipped, noVideosSkipped, self.noWarnings, self.noErrors)
+                self.downloadStats.adjust(self.sizeDownloaded, noImagesDownloaded, noVideosDownloaded, noImagesSkipped, noVideosSkipped, self.noWarnings, self.noErrors)
                 
             if self.prefs.auto_delete:
                 j = 0
