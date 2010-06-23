@@ -1,7 +1,7 @@
 Version 0.2.3
 -------------
 
-2010-06-1x
+2010-06-23
 
 Updated Hungarian, Russian, Swedish and Ukrainian translations.
 
@@ -10,6 +10,8 @@ the detected device.
 
 Bug fix: update example filenames and folders when Job codes are manually 
 modified in the preferences window.
+
+This is the final release before 0.3.0, which will be a major update.
 
 
 Version 0.2.2
