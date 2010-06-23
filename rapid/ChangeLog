@@ -38,13 +38,17 @@ The minimum version of python-gtk2 (pygtk) required to run the program is now
 Version 0.2.3
 -------------
 
-Updated Hungarian, Russian and Ukrainian translations.
+2010-06-23
+
+Updated Hungarian, Russian, Swedish and Ukrainian translations.
 
 Fixed bug #590725: don't crash if the theme does not associate an icon with 
 the detected device.
 
 Bug fix: update example filenames and folders when Job codes are manually 
 modified in the preferences window.
+
+This is the final release before 0.3.0, which will be a major update.
 
 
 Version 0.2.2
