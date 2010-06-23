@@ -135,6 +135,9 @@ class MediaFile:
         self.sampleName = ''
         self.sampleSubfolder = ''
         self.samplePath = ''
+        
+        # whether the sample genereated name, subfolder and path need to be refreshed in a preview
+        self.sampleStale = False
 
         self.status = STATUS_NOT_DOWNLOADED
         self.problem = None # class Problem in problemnotifcation.py

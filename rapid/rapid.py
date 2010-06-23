@@ -74,7 +74,7 @@ from config import  STATUS_CANNOT_DOWNLOAD, STATUS_DOWNLOADED, \
                     STATUS_DOWNLOAD_PENDING, \
                     STATUS_BACKUP_PROBLEM, \
                     STATUS_NOT_DOWNLOADED, \
-                    STATUS_NOT_DOWNLOADED_NO_BACKUP, \
+                    STATUS_DOWNLOAD_AND_BACKUP_FAILED, \
                     STATUS_WARNING
 
 import common
@@ -299,6 +299,11 @@ class ThreadManager:
             if self._isScanning(w):
                 n += 1
         return n
+        
+    def getScanningWorkers(self):
+        for w in self._workers:
+            if self._isScanning(w):
+                yield w
         
     def scanComplete(self, threads):
         """
@@ -1551,6 +1556,39 @@ def date_time_subseconds_human_readable(date, subseconds):
              'minute':date.strftime("%M"), 'second':date.strftime("%S"),
              'subsecond': subseconds}
 
+def generateSubfolderAndName(mediaFile, problem, subfolderPrefsFactory, renamePrefsFactory, strip_characters, fallback_date):
+    subfolderPrefsFactory.initializeProblem(problem)
+    mediaFile.sampleSubfolder = subfolderPrefsFactory.generateNameUsingPreferences(
+                                mediaFile.metadata, mediaFile.name, 
+                                strip_characters, 
+                                fallback_date = fallback_date)
+
+    mediaFile.samplePath = os.path.join(mediaFile.downloadFolder, mediaFile.sampleSubfolder)
+    
+    renamePrefsFactory.initializeProblem(problem)
+    mediaFile.sampleName = renamePrefsFactory.generateNameUsingPreferences(
+                            mediaFile.metadata, mediaFile.name, strip_characters, 
+                            sequencesPreliminary=False,
+                            fallback_date = fallback_date)
+        
+    if not mediaFile.sampleName or not mediaFile.sampleSubfolder:
+        if not mediaFile.sampleName and not mediaFile.sampleSubfolder:
+            area = _("subfolder and filename")
+        elif not mediaFile.sampleName:
+            area = _("filename")
+        else:
+            area = _("subfolder")
+        problem.add_problem(None, pn.ERROR_IN_NAME_GENERATION, {'filetype': mediaFile.displayNameCap, 'area': area})
+        problem.add_extra_detail(pn.NO_DATA_TO_NAME, {'filetype': area})
+        mediaFile.problem = problem
+        mediaFile.status = STATUS_CANNOT_DOWNLOAD
+    elif problem.has_problem():
+        mediaFile.problem = problem
+        mediaFile.status = STATUS_WARNING
+
+
+
+
 class CopyPhotos(Thread):
     """Copies photos from source to destination, backing up if needed"""
     def __init__(self, thread_id, parentApp, fileRenameLock,  fileSequenceLock, 
@@ -1585,6 +1623,12 @@ class CopyPhotos(Thread):
         self.initializeDisplay(thread_id,  self.cardMedia)
                
         self.scanComplete = self.downloadStarted = self.downloadComplete = False
+        
+        # Need to account for situations where the user adjusts their preferences when the program is scanning
+        # Here the sample filenames and paths will be out of date, and they will need to be updated
+        # This flag indicates whether that is the case or not
+        self.scanResultsStale = False # name and subfolder
+        self.scanResultsStaleDownloadFolder = False #download folder only
         
         Thread.__init__(self)
         
@@ -1754,48 +1798,6 @@ class CopyPhotos(Thread):
                 self.photoThumbnail = gtk.gdk.pixbuf_new_from_file(paths.share_dir('glade3/photo.png'))
                 self.videoThumbnail = gtk.gdk.pixbuf_new_from_file(paths.share_dir('glade3/video.png'))
             
-            
-            def generateSubfolderAndName(mediaFile, problem):
-                if mediaFile.isImage:
-                    self.subfolderPrefsFactory.initializeProblem(problem)
-                    mediaFile.sampleSubfolder = self.subfolderPrefsFactory.generateNameUsingPreferences(
-                                                mediaFile.metadata, mediaFile.name, self.prefs.strip_characters)
-
-                    mediaFile.samplePath = os.path.join(mediaFile.downloadFolder, mediaFile.sampleSubfolder)
-                    
-                    self.imageRenamePrefsFactory.initializeProblem(problem)
-                    mediaFile.sampleName = self.imageRenamePrefsFactory.generateNameUsingPreferences(
-                                            mediaFile.metadata, mediaFile.name, self.prefs.strip_characters,
-                                            sequencesPreliminary=False)
-                else:
-                    self.videoSubfolderPrefsFactory.initializeProblem(problem)
-                    mediaFile.sampleSubfolder = self.videoSubfolderPrefsFactory.generateNameUsingPreferences(
-                                                mediaFile.metadata, mediaFile.name, self.prefs.strip_characters,
-                                                fallback_date = mediaFile.modificationTime)
-                        
-                    mediaFile.samplePath = os.path.join(mediaFile.downloadFolder, mediaFile.sampleSubfolder)
-                    
-                    self.videoRenamePrefsFactory.initializeProblem(problem)
-                    mediaFile.sampleName = self.videoRenamePrefsFactory.generateNameUsingPreferences(
-                                            mediaFile.metadata, mediaFile.name, self.prefs.strip_characters,
-                                            sequencesPreliminary=False, fallback_date = mediaFile.modificationTime) 
-                    
-                if not mediaFile.sampleName or not mediaFile.sampleSubfolder:
-                    if not mediaFile.sampleName and not mediaFile.sampleSubfolder:
-                        area = _("subfolder and filename")
-                    elif not mediaFile.sampleName:
-                        area = _("filename")
-                    else:
-                        area = _("subfolder")
-                    problem.add_problem(None, pn.ERROR_IN_NAME_GENERATION, {'filetype': mediaFile.displayNameCap, 'area': area})
-                    problem.add_extra_detail(pn.NO_DATA_TO_NAME, {'filetype': area})
-                    mediaFile.problem = problem
-                    mediaFile.status = STATUS_CANNOT_DOWNLOAD
-                elif problem.has_problem():
-                    mediaFile.problem = problem
-                    mediaFile.status = STATUS_WARNING
-                
-            
             def loadFileMetadata(mediaFile):
                 """
                 loads the metadate for the file, and additional information if required
@@ -1810,8 +1812,16 @@ class CopyPhotos(Thread):
                     problem.add_problem(None, pn.CANNOT_DOWNLOAD_BAD_METADATA, {'filetype': mediaFile.displayNameCap})
                     mediaFile.problem = problem
                 else:
-                    # generate sample filename
-                    generateSubfolderAndName(mediaFile, problem)
+                    # generate sample filename and subfolder
+                    if mediaFile.isImage:
+                        fallback_date = None
+                        subfolderPrefsFactory = self.subfolderPrefsFactory
+                        renamePrefsFactory = self.imageRenamePrefsFactory
+                    else:
+                        fallback_date = mediaFile.modificationTime
+                        subfolderPrefsFactory = self.videoSubfolderPrefsFactory
+                        renamePrefsFactory = self.videoRenamePrefsFactory
+                    generateSubfolderAndName(mediaFile, problem, subfolderPrefsFactory, renamePrefsFactory, self.prefs.strip_characters, fallback_date)
                     # generate thumbnail
                     mediaFile.generateThumbnail(self.videoTempWorkingDir)
                     
@@ -2446,7 +2456,7 @@ class CopyPhotos(Thread):
 
             if not backed_up:
                 if mediaFile.status == STATUS_DOWNLOAD_FAILED:
-                    mediaFile.status = STATUS_NOT_DOWNLOADED_NO_BACKUP
+                    mediaFile.status = STATUS_DOWNLOAD_AND_BACKUP_FAILED
                 else:
                     mediaFile.status = STATUS_BACKUP_PROBLEM
             elif error_encountered:
@@ -2596,6 +2606,8 @@ class CopyPhotos(Thread):
             self.running = False
             return
         
+        if self.scanResultsStale or self.scanResultsStaleDownloadFolder:
+            display_queue.put((self.parentApp.regenerateScannedDevices, (self.thread_id, )))
         all_files_downloaded = False
         
         totalNonErrorFiles = self.cardMedia.numberOfFilesNotCannotDownload()
@@ -3378,6 +3390,8 @@ class SelectionTreeView(gtk.TreeView):
         self.previewed_file_treerowref = None
         self.icontheme = gtk.icon_theme_get_default()
         
+        
+        
     def get_thread(self, liststore_iter):
         """
         Returns the thread associated with the liststore's iter
@@ -3414,7 +3428,6 @@ class SelectionTreeView(gtk.TreeView):
         """
         return self.liststore.get_value(liststore_iter, 8)
         
-    
     def get_status_icon(self, status, preview=False):
         """
         Returns the correct icon, based on the status
@@ -3432,7 +3445,7 @@ class SelectionTreeView(gtk.TreeView):
                 status_icon = self.not_downloaded_icon
         elif status in [STATUS_DOWNLOADED_WITH_WARNING, STATUS_BACKUP_PROBLEM]:
             status_icon = self.downloaded_with_warning_icon
-        elif status in [STATUS_DOWNLOAD_FAILED, STATUS_NOT_DOWNLOADED_NO_BACKUP]:
+        elif status in [STATUS_DOWNLOAD_FAILED, STATUS_DOWNLOAD_AND_BACKUP_FAILED]:
             status_icon = self.downloaded_with_error_icon
         else:
             sys.stderr.write("FIXME: unknown status: %s" % mediaFile.status)
@@ -3549,6 +3562,91 @@ class SelectionTreeView(gtk.TreeView):
                 else:
                     iter = self.liststore.iter_next(iter)            
     
+    def refreshSampleDownloadFolders(self, thread_id = None):
+        """
+        Refreshes the download folder of every file that has not yet been downloaded
+        
+        This is useful when the user updates the preferences, and the scan has already occurred (or is occurring)
+        
+        If thread_id is specified, will only update rows with that thread
+        """
+        iter = self.liststore.get_iter_first()
+        while iter:
+            status = self.get_status(iter)
+            if status in [STATUS_NOT_DOWNLOADED, STATUS_WARNING]:
+                regenerate = True
+                if thread_id is not None:
+                    t = self.get_thread(iter)
+                    regenerate = t == thread_id
+                
+                if regenerate:
+                    mediaFile = self.get_mediaFile(iter)
+                    if mediaFile.isImage:
+                        mediaFile.downloadFolder = self.rapidApp.prefs.download_folder
+                    else:
+                        mediaFile.downloadFolder = self.rapidApp.prefs.video_download_folder
+                    mediaFile.samplePath = os.path.join(mediaFile.downloadFolder, mediaFile.sampleSubfolder)
+                    if mediaFile.treerowref == self.previewed_file_treerowref:
+                        self.show_preview(iter)                
+            iter = self.liststore.iter_next(iter)        
+
+
+    def _refreshNameFactories(self):
+        self.imageRenamePrefsFactory = rn.ImageRenamePreferences(self.rapidApp.prefs.image_rename, self, 
+                                                                 self.rapidApp.fileSequenceLock, sequences)
+        self.videoRenamePrefsFactory = rn.VideoRenamePreferences(self.rapidApp.prefs.video_rename, self, 
+                                                                 self.rapidApp.fileSequenceLock, sequences)
+        self.subfolderPrefsFactory = rn.SubfolderPreferences(self.rapidApp.prefs.subfolder, self)
+        self.videoSubfolderPrefsFactory = rn.VideoSubfolderPreferences(self.rapidApp.prefs.video_subfolder, self)
+        self.strip_characters = self.rapidApp.prefs.strip_characters
+        
+    
+    def refreshGeneratedSampleSubfolderAndName(self, thread_id = None):
+        """
+        Refreshes the name, subfolder and status of every file that has not yet been downloaded
+        
+        This is useful when the user updates the preferences, and the scan has already occurred (or is occurring)
+        
+        If thread_id is specified, will only update rows with that thread
+        """
+        
+        iter = self.liststore.get_iter_first()
+        self._refreshNameFactories()
+        while iter:
+            status = self.get_status(iter)
+            if status in [STATUS_NOT_DOWNLOADED, STATUS_WARNING]:
+                regenerate = True
+                if thread_id is not None:
+                    t = self.get_thread(iter)
+                    regenerate = t == thread_id
+                
+                if regenerate:
+                    mediaFile = self.get_mediaFile(iter)
+                    self.generateSampleSubfolderAndName(mediaFile, iter)
+                    if mediaFile.treerowref == self.previewed_file_treerowref:
+                        self.show_preview(iter)                
+            iter = self.liststore.iter_next(iter)
+    
+    def generateSampleSubfolderAndName(self, mediaFile, liststore_iter):
+        problem = pn.Problem()
+        if mediaFile.isImage:
+            fallback_date = None
+            subfolderPrefsFactory = self.subfolderPrefsFactory
+            renamePrefsFactory = self.imageRenamePrefsFactory
+        else:
+            fallback_date = mediaFile.modificationTime
+            subfolderPrefsFactory = self.videoSubfolderPrefsFactory
+            renamePrefsFactory = self.videoRenamePrefsFactory
+            
+        renamePrefsFactory.setJobCode(self.get_job_code(liststore_iter))
+        subfolderPrefsFactory.setJobCode(self.get_job_code(liststore_iter))
+        
+        generateSubfolderAndName(mediaFile, problem, subfolderPrefsFactory, renamePrefsFactory, self.strip_characters, fallback_date)
+        if self.get_status(liststore_iter) != mediaFile.status:
+            self.liststore.set(liststore_iter, 11, mediaFile.status)
+            self.liststore.set(liststore_iter, 10, self.get_status_icon(mediaFile.status))
+        mediaFile.sampleStale = False
+    
     def show_preview(self, iter):
         
         def status_human_readable(mediaFile):
@@ -3560,7 +3658,7 @@ class SelectionTreeView(gtk.TreeView):
                 v = _('%(filetype)s was downloaded with warnings') % {'filetype': mediaFile.displayNameCap}
             elif mediaFile.status == STATUS_BACKUP_PROBLEM:
                 v = _('%(filetype)s was downloaded but there were problems backing up') % {'filetype': mediaFile.displayNameCap}
-            elif mediaFile.status == STATUS_NOT_DOWNLOADED_NO_BACKUP:
+            elif mediaFile.status == STATUS_DOWNLOAD_AND_BACKUP_FAILED:
                 v = _('%(filetype)s was neither downloaded nor backed up') % {'filetype': mediaFile.displayNameCap}                
             elif mediaFile.status == STATUS_NOT_DOWNLOADED:
                 v = _('%(filetype)s is ready to be downloaded') % {'filetype': mediaFile.displayNameCap}
@@ -3613,6 +3711,9 @@ class SelectionTreeView(gtk.TreeView):
             image_tool_tip = "%s\n%s" % (date_time_human_readable(mediaFile.dateTime(), False), common.formatSizeForUser(mediaFile.size))
             self.parentApp.preview_image.set_tooltip_text(image_tool_tip)
 
+            if mediaFile.sampleStale and mediaFile.status in [STATUS_NOT_DOWNLOADED, STATUS_WARNING]:
+                self._refreshNameFactories()
+                self.generateSampleSubfolderAndName(mediaFile, iter)
 
             self.parentApp.preview_original_name_label.set_text(mediaFile.name)
             self.parentApp.preview_original_name_label.set_tooltip_text(mediaFile.name)
@@ -3657,7 +3758,7 @@ class SelectionTreeView(gtk.TreeView):
                                     STATUS_DOWNLOADED_WITH_WARNING, 
                                     STATUS_CANNOT_DOWNLOAD, 
                                     STATUS_BACKUP_PROBLEM, 
-                                    STATUS_NOT_DOWNLOADED_NO_BACKUP]:
+                                    STATUS_DOWNLOAD_AND_BACKUP_FAILED]:
                 self.parentApp.preview_problem_title_label.set_markup('<i>' + mediaFile.problem.get_title() + '</i>')
                 self.parentApp.preview_problem_title_label.set_tooltip_text(mediaFile.problem.get_title())
                 
@@ -3755,18 +3856,23 @@ class SelectionTreeView(gtk.TreeView):
             if status in [STATUS_DOWNLOAD_PENDING, STATUS_WARNING, STATUS_NOT_DOWNLOADED]:
                 if overwrite:
                     self.liststore.set(iter, 8, job_code)
-                    mediaFile = self.get_mediaFile(iter)
+                    #~ mediaFile = self.get_mediaFile(iter)
                     mediaFile.jobcode = job_code
+                    mediaFile.sampleStale = True
                 else:
                     if not self.get_job_code(iter):
                         self.liststore.set(iter, 8, job_code)
-                        mediaFile = self.get_mediaFile(iter)
+                        #~ mediaFile = self.get_mediaFile(iter)
                         mediaFile.jobcode = job_code
+                        mediaFile.sampleStale = True
 
         if to_all_rows:
             iter = self.liststore.get_iter_first()
             while iter:
+                mediaFile = self.get_mediaFile(iter)
                 _apply_job_code()
+                if mediaFile.treerowref == self.previewed_file_treerowref:
+                    self.show_preview(iter)                
                 iter = self.liststore.iter_next(iter)
         else:
             selection = self.get_selection()
@@ -3782,7 +3888,13 @@ class SelectionTreeView(gtk.TreeView):
                 selection_path = reference.get_path()
                 path = self.sort_model.convert_path_to_child_path(selection_path)
                 iter = self.liststore.get_iter(path)
+                mediaFile = self.get_mediaFile(iter)
                 _apply_job_code()
+
+                # the reference in *this* loop applies to the selection, not the underlying store
+                # therefore use the treerowref in the mediafile
+                if mediaFile.treerowref == self.previewed_file_treerowref:
+                    self.show_preview(iter)
             
     def job_code_missing(self, selected_only):
         """
@@ -3821,7 +3933,7 @@ class SelectionTreeView(gtk.TreeView):
 
     
     def _set_download_pending(self, liststore_iter, threads):
-        existing_status = self.self.get_status(liststore_iter)
+        existing_status = self.get_status(liststore_iter)
         if existing_status in [STATUS_WARNING, STATUS_NOT_DOWNLOADED]:
             self.liststore.set(liststore_iter, 11, STATUS_DOWNLOAD_PENDING)
             self.liststore.set(liststore_iter, 10, self.download_pending_icon)
@@ -4326,6 +4438,19 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
         # flag to indicate whether the user changed some preferences that 
         # indicate the image and backup devices should be setup again
         self.rerunSetupAvailableImageAndBackupMedia = False
+        
+        # flag to indicate the user changes some preferences and the display
+        # of sample names and subfolders needs to be refreshed
+        self.refreshGeneratedSampleSubfolderAndName = False
+        
+        # counter to indicate how many threads need their sample names and subfolders regenerated because the user
+        # changes their prefs at the same time as devices were being scanned
+        self.noAfterScanRefreshGeneratedSampleSubfolderAndName = 0
+        
+        # flag to indicate the user changes some preferences and the display
+        # of sample download folders needs to be refreshed
+        self.refreshSampleDownloadFolder = False
+        self.noAfterScanRefreshSampleDownloadFolders = 0
         
         # flag to indicate that the preferences dialog window is being 
         # displayed to the user
@@ -5449,7 +5574,16 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
             need_job_code = self.needJobCode()
             self.selection_vbox.set_job_code_display()
             self.menu_select_all_without_job_code.set_sensitive(need_job_code)
-            self.menu_select_all_with_job_code.set_sensitive(need_job_code)            
+            self.menu_select_all_with_job_code.set_sensitive(need_job_code)
+            self.refreshGeneratedSampleSubfolderAndName = True
+                
+            if not self.preferencesDialogDisplayed:
+                self.postPreferenceChange()
+                
+        elif key in ['download_folder', 'video_download_folder']:
+            self.refreshSampleDownloadFolder = True
+            if not self.preferencesDialogDisplayed:
+                self.postPreferenceChange()            
             
         elif key == 'job_codes':
             # update job code list in left pane
@@ -5471,8 +5605,45 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
                 workers.printWorkerStatus()
                 
             self.rerunSetupAvailableImageAndBackupMedia = False
+            
+        if self.refreshGeneratedSampleSubfolderAndName:
+            for w in workers.getScanningWorkers():
+                if not w.scanResultsStale:
+                    w.scanResultsStale = True
+                    self.noAfterScanRefreshGeneratedSampleSubfolderAndName += 1
+                
+            self.selection_vbox.selection_treeview.refreshGeneratedSampleSubfolderAndName()
+            self.refreshGeneratedSampleSubfolderAndName = False
+            
+        if self.refreshSampleDownloadFolder:
+            for w in workers.getScanningWorkers():
+                if not w.scanResultsStaleDownloadFolder:
+                    w.scanResultsStaleDownloadFolder = True
+                    self.noAfterScanRefreshSampleDownloadFolders += 1
+            
+            self.selection_vbox.selection_treeview.refreshSampleDownloadFolders()
+            self.refreshSampleDownloadFolder = False
 
+    def regenerateScannedDevices(self, thread_id):
+        """
+        Regenerate the filenames / subfolders / download folders for this thread
+        
+        The user must have adjusted their preferences as the device was being scanned
+        """
+        
+        if self.noAfterScanRefreshSampleDownloadFolders:
+            # no point updating it if we're going to update it in the
+            # refresh of sample names and subfolders anway!
+            if not self.noAfterScanRefreshGeneratedSampleSubfolderAndName:
+                self.selection_vbox.selection_treeview.refreshSampleDownloadFolders(thread_id)
+            self.noAfterScanRefreshSampleDownloadFolders -= 1
+                
+        if self.noAfterScanRefreshGeneratedSampleSubfolderAndName:
+            self.selection_vbox.selection_treeview.refreshGeneratedSampleSubfolderAndName(thread_id)
+            self.noAfterScanRefreshGeneratedSampleSubfolderAndName -= 1
+            
 
+        
  
     def on_error_eventbox_button_press_event(self,  widget,  event):
         self.prefs.show_log_dialog = True
