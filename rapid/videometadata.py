@@ -153,8 +153,11 @@ if DOWNLOAD_VIDEO:
                 thumbnail = add_filmstrip(thumbnail)
             else:
                 if ffmpeg:
-                    tmp = tempfile.NamedTemporaryFile(dir=tempWorkingDir, prefix="rpd-tmp")
-                    tmp.close()
+                    try:
+                        tmp = tempfile.NamedTemporaryFile(dir=tempWorkingDir, prefix="rpd-tmp")
+                        tmp.close()
+                    except:
+                        return None
                     
                     thm = os.path.join(tempWorkingDir, tmp.name)
                     

@@ -285,6 +285,12 @@ class ThreadManager:
         for w in self._workers:
             if w.hasStarted and not w.downloadStarted:
                 yield w
+                
+    def getNotDownloadingAndNotFinishedWorkers(self):
+        for w in self._workers:
+            if w.hasStarted and not w.downloadStarted and not self._isFinished(w):
+                yield w
+        
 
     def noReadyToStartWorkers(self):
         n = 0
@@ -1630,6 +1636,12 @@ class CopyPhotos(Thread):
         self.scanResultsStale = False # name and subfolder
         self.scanResultsStaleDownloadFolder = False #download folder only
         
+        if DOWNLOAD_VIDEO:
+            self.types_searched_for = _('photos or videos')
+        else:
+            self.types_searched_for = _('photos')            
+        
+        
         Thread.__init__(self)
         
 
@@ -1869,9 +1881,6 @@ class CopyPhotos(Thread):
                         self.running = True
                     
                     if not self.ctrl:
-                        self.running = False
-                        display_queue.put((media_collection_treeview.removeCard,  (self.thread_id, )))
-                        display_queue.close("rw")
                         return None
                         
                     if child.get_file_type() == gio.FILE_TYPE_DIRECTORY:
@@ -1895,7 +1904,7 @@ class CopyPhotos(Thread):
             fileSizeSum = 0
             self.noVideos = 0
             self.noImages = 0
-            
+                        
             if not using_gio or not self.cardMedia.volume:
                 for root, dirs, files in os.walk(self.cardMedia.getPath()):
                     for name in files:
@@ -1904,10 +1913,7 @@ class CopyPhotos(Thread):
                             self.running = True
                         
                         if not self.ctrl:
-                            self.running = False
-                            display_queue.put((media_collection_treeview.removeCard,  (self.thread_id, )))
-                            display_queue.close("rw")
-                            return
+                            return None
                         
 
                         download, isImage, isVideo = downloadable(name)
@@ -1925,7 +1931,7 @@ class CopyPhotos(Thread):
                 fileSizeSum = gio_scan(self.cardMedia.volume.volume.get_root(), fileSizeSum)
                 if fileSizeSum == None:
                     # thread exiting
-                    return
+                    return None
                 
             # sort in place based on modification time
             imagesAndVideos.sort(key=operator.itemgetter(1))
@@ -1934,11 +1940,6 @@ class CopyPhotos(Thread):
             self.scanComplete = True
             
             self.display_file_types = file_types_by_number(self.noImages, self.noVideos)
-                    
-            if DOWNLOAD_VIDEO:
-                self.types_searched_for = _('photos or videos')
-            else:
-                self.types_searched_for = _('photos')
 
             
             if noFiles:
@@ -2599,7 +2600,16 @@ class CopyPhotos(Thread):
         if not createBothTempDirs():
             return 
         
-        if not scanMedia():
+        s = scanMedia()
+        if s is None:
+            if not self.ctrl:
+                self.running = False
+                display_queue.put((media_collection_treeview.removeCard, (self.thread_id, )))
+                display_queue.close("rw")
+                return
+            else:
+                sys.stderr.write("FIXME: scan returned None, but the thread is not meant to be exiting\n")
+        if not s:
             cmd_line(_("This device has no %(types_searched_for)s to download from.") % {'types_searched_for': self.types_searched_for})
             display_queue.put((self.parentApp.downloadFailed, (self.thread_id, )))
             display_queue.close("rw")
@@ -3854,17 +3864,26 @@ class SelectionTreeView(gtk.TreeView):
         def _apply_job_code():
             status = self.get_status(iter)
             if status in [STATUS_DOWNLOAD_PENDING, STATUS_WARNING, STATUS_NOT_DOWNLOADED]:
-                if overwrite:
-                    self.liststore.set(iter, 8, job_code)
-                    #~ mediaFile = self.get_mediaFile(iter)
-                    mediaFile.jobcode = job_code
-                    mediaFile.sampleStale = True
+                
+                if mediaFile.isImage:
+                    apply = rn.usesJobCode(self.rapidApp.prefs.image_rename) or rn.usesJobCode(self.rapidApp.prefs.subfolder)
                 else:
-                    if not self.get_job_code(iter):
+                    apply = rn.usesJobCode(self.rapidApp.prefs.video_rename) or rn.usesJobCode(self.rapidApp.prefs.video_subfolder)
+                if apply:
+                    if overwrite:
                         self.liststore.set(iter, 8, job_code)
-                        #~ mediaFile = self.get_mediaFile(iter)
                         mediaFile.jobcode = job_code
                         mediaFile.sampleStale = True
+                    else:
+                        if not self.get_job_code(iter):
+                            self.liststore.set(iter, 8, job_code)
+                            mediaFile.jobcode = job_code
+                            mediaFile.sampleStale = True
+                else:
+                    pass
+                    #if they got an existing job code, may as well keep it there in case the user 
+                    #reactivates job codes again in their prefs
+                    
 
         if to_all_rows:
             iter = self.liststore.get_iter_first()
@@ -4437,7 +4456,8 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
         
         # flag to indicate whether the user changed some preferences that 
         # indicate the image and backup devices should be setup again
-        self.rerunSetupAvailableImageAndBackupMedia = False
+        self.rerunSetupAvailableImageAndVideoMedia = False
+        self.rerunSetupAvailableBackupMedia = False
         
         # flag to indicate the user changes some preferences and the display
         # of sample names and subfolders needs to be refreshed
@@ -5087,7 +5107,7 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
         program's initialization.
         
         onPreferenceChange should be True if this is being called as the result of a preference
-        bring changed
+        being changed
         
         Removes any image media that are currently not downloaded, 
         or finished downloading
@@ -5104,7 +5124,7 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
         
         if self.usingVolumeMonitor():
             # either using automatically detected backup devices
-            # or image devices
+            # or download devices
             
             for v in self.volumeMonitor.get_mounts():
                 volume = Volume(v)
@@ -5161,6 +5181,49 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
                 self.getUseDevice(path, volume, autoStart)
             else:
                 self.initiateScan(path, volume, autoStart)
+                
+    def refreshBackupMedia(self):
+        """
+        Setup the backup media
+        
+        Assumptions: this is being called after the user has changed their preferences AND download media has already been setup
+        """
+        self.backupVolumes = {}
+        if self.prefs.backup_images:
+            if not self.prefs.backup_device_autodetection:
+                # user manually specified backup location
+                # will backup to this path, but don't need any volume info associated with it
+                self.backupVolumes[self.prefs.backup_location] = None
+                self.rapid_statusbar.push(self.statusbar_context_id, _('Backing up to %(path)s') % {'path':self.prefs.backup_location})
+            else:
+                for v in self.volumeMonitor.get_mounts():
+                    volume = Volume(v)
+                    path = volume.get_path(avoid_gnomeVFS_bug = True)
+                    if path:
+                        if self.checkIfBackupVolume(path):
+                            # is a backup volume
+                            if path not in self.backupVolumes:
+                                # ensure it is not in a list of workers which have not started downloading
+                                # if it is, remove it
+                                for w in workers.getNotDownloadingAndNotFinishedWorkers():
+                                    if w.cardMedia.path == path:
+                                        media_collection_treeview.removeCard(w.thread_id)
+                                        self.selection_vbox.selection_treeview.clear_all(w.thread_id)
+                                        workers.disableWorker(w.thread_id)
+                                
+                                downloading_workers = []
+                                for w in workers.getDownloadingWorkers():
+                                    downloading_workers.append(w)
+                                
+                                for w in downloading_workers:
+                                    if w.cardMedia.path == path:
+                                        # the user is trying to backup to a device that is currently being downloaded from..... we don't normally allow that, but what to do?
+                                        cmd_line(_("Warning: backup device %(device)s is currently being downloaded from") % {'device': volume.get_name(limit=0)})
+                                        
+                                self.backupVolumes[path] = volume
+                        
+                self.rapid_statusbar.push(self.statusbar_context_id, self.displayBackupVolumes())
+        
         
     def _setupDownloadbuttons(self):
         self.download_hbutton_box = gtk.HButtonBox()
@@ -5563,9 +5626,13 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
             self.set_display_preview_folders(value)
         elif key == 'show_log_dialog':
             self.menu_log_window.set_active(value)
-        elif key in ['device_autodetection', 'device_autodetection_psd', 'backup_images',  'device_location',
-                      'backup_device_autodetection', 'backup_location' ]:              
-            self.rerunSetupAvailableImageAndBackupMedia = True
+        elif key in ['device_autodetection', 'device_autodetection_psd', 'device_location']:
+            self.rerunSetupAvailableImageAndVideoMedia = True
+            if not self.preferencesDialogDisplayed:
+                self.postPreferenceChange()
+                
+        elif key in ['backup_images', 'backup_device_autodetection', 'backup_location', 'backup_identifier', 'video_backup_identifier']:
+            self.rerunSetupAvailableBackupMedia = True
             if not self.preferencesDialogDisplayed:
                 self.postPreferenceChange()
 
@@ -5594,19 +5661,28 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
         """
         Handle changes in program preferences after the preferences dialog window has been closed
         """
-        if self.rerunSetupAvailableImageAndBackupMedia:
+        if self.rerunSetupAvailableImageAndVideoMedia:
             if self.usingVolumeMonitor():
                 self.startVolumeMonitor()
-            cmd_line("\n" + _("Preferences were changed."))
+            cmd_line("\n" + _("Download device settings preferences were changed."))
             
             self.selection_vbox.selection_treeview.clear_all()
-            self.setupAvailableImageAndBackupMedia(onStartup = False,  onPreferenceChange = True,  doNotAllowAutoStart = True)
+            self.setupAvailableImageAndBackupMedia(onStartup = False, onPreferenceChange = True, doNotAllowAutoStart = True)
             if is_beta and verbose and False:
                 workers.printWorkerStatus()
                 
-            self.rerunSetupAvailableImageAndBackupMedia = False
+            self.rerunSetupAvailableImageAndVideoMedia = False
+            
+        if self.rerunSetupAvailableBackupMedia:
+            if self.usingVolumeMonitor():
+                self.startVolumeMonitor()            
+            cmd_line("\n" + _("Backup preferences were changed."))
+            
+            self.refreshBackupMedia()
+            self.rerunSetupAvailableBackupMedia = False
             
         if self.refreshGeneratedSampleSubfolderAndName:
+            cmd_line("\n" + _("Subfolder and filename preferences were changed."))
             for w in workers.getScanningWorkers():
                 if not w.scanResultsStale:
                     w.scanResultsStale = True
@@ -5616,6 +5692,7 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
             self.refreshGeneratedSampleSubfolderAndName = False
             
         if self.refreshSampleDownloadFolder:
+            cmd_line("\n" + _("Download folder preferences were changed."))
             for w in workers.getScanningWorkers():
                 if not w.scanResultsStaleDownloadFolder:
                     w.scanResultsStaleDownloadFolder = True
