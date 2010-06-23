@@ -4231,13 +4231,13 @@ class SelectionVBox(gtk.VBox):
         # make entry box have entry completion
         self.job_code_entry = self.job_code_combo.child
         
-        completion = gtk.EntryCompletion()
-        completion.set_match_func(self.job_code_match_func)
-        completion.connect("match-selected",
+        self.completion = gtk.EntryCompletion()
+        self.completion.set_match_func(self.job_code_match_func)
+        self.completion.connect("match-selected",
                              self.on_job_code_combo_completion_match)
-        completion.set_model(self.job_code_combo.get_model())
-        completion.set_text_column(0)
-        self.job_code_entry.set_completion(completion)
+        self.completion.set_model(self.job_code_combo.get_model())
+        self.completion.set_text_column(0)
+        self.job_code_entry.set_completion(self.completion)
         
         
         self.job_code_combo.connect('changed', self.on_job_code_resp)
@@ -4277,12 +4277,13 @@ class SelectionVBox(gtk.VBox):
         The user has selected a Job code, apply it to selected images. 
         """
         self.selection_treeview.apply_job_code(job_code, overwrite = True)
-
+        self.completion.set_model(None)
+        self.parentApp.assignJobCode(job_code)
+        self.completion.set_model(self.job_code_combo.get_model())
             
     def add_file(self, mediaFile):
         self.selection_treeview.add_file(mediaFile)
             
-        
         
 class LogDialog(gnomeglade.Component):
     """
