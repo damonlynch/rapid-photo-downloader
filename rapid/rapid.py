@@ -1284,10 +1284,10 @@ class PreferencesDialog(gnomeglade.Component):
 
 
     def on_add_job_code_button_clicked(self,  button):
-        j = JobCodeDialog(self.widget,  self.prefs.job_codes,  None, self.add_job_code,  False, True)       
+        j = JobCodeDialog(self.widget,  self.prefs.job_codes,  None, self.add_job_code,  False, True, True)
 
 
-    def add_job_code(self,  dialog,  userChoseCode,  job_code,  autoStart):
+    def add_job_code(self,  dialog,  userChoseCode,  job_code,  autoStart, downloadSelected):
         dialog.destroy()
         if userChoseCode:
             if job_code and job_code not in self.prefs.job_codes:
