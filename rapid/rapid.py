@@ -3387,8 +3387,8 @@ class SelectionTreeView(gtk.TreeView):
         self.not_downloaded_icon_tick = self.render_icon(gtk.STOCK_YES, gtk.ICON_SIZE_MENU)
         
         #preload generic icons
-        self.icon_photo =  gtk.gdk.pixbuf_new_from_file(paths.share_dir('glade3/photos16.png'))
-        self.icon_video =  gtk.gdk.pixbuf_new_from_file(paths.share_dir('glade3/video16.png'))
+        self.icon_photo =  gtk.gdk.pixbuf_new_from_file(paths.share_dir('glade3/photo24.png'))
+        self.icon_video =  gtk.gdk.pixbuf_new_from_file(paths.share_dir('glade3/video24.png'))
         #with shadows
         self.generic_photo_with_shadow = gtk.gdk.pixbuf_new_from_file(paths.share_dir('glade3/photo_small_shadow.png'))
         self.generic_video_with_shadow = gtk.gdk.pixbuf_new_from_file(paths.share_dir('glade3/video_small_shadow.png'))
@@ -3458,7 +3458,7 @@ class SelectionTreeView(gtk.TreeView):
         elif status in [STATUS_DOWNLOAD_FAILED, STATUS_DOWNLOAD_AND_BACKUP_FAILED]:
             status_icon = self.downloaded_with_error_icon
         else:
-            sys.stderr.write("FIXME: unknown status: %s" % mediaFile.status)
+            sys.stderr.write("FIXME: unknown status: %s\n" % status)
             status_icon = self.not_downloaded_icon
         return status_icon
         
