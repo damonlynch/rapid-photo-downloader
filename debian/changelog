@@ -1,3 +1,21 @@
+rapid-photo-downloader (0.3.0~b3-0ubuntu1~ppa1) hardy; urgency=low
+
+  * Fix in setup.py
+
+ -- Damon Lynch <damonlynch@gmail.com>  Wed, 23 Jun 2010 20:35:22 -0500
+
+rapid-photo-downloader (0.3.0~b2-0ubuntu1~ppa2) hardy; urgency=low
+
+  * Package for karmic, hardy and jaunty
+
+ -- Damon Lynch <damonlynch@gmail.com>  Wed, 23 Jun 2010 20:17:04 -0500
+
+rapid-photo-downloader (0.3.0~b2-0ubuntu1~ppa1) lucid; urgency=low
+
+  * Fix packaging error
+
+ -- Damon Lynch <damonlynch@gmail.com>  Wed, 23 Jun 2010 19:58:45 -0500
+
 rapid-photo-downloader (0.3.0~b1-0ubuntu1~ppa1) hardy; urgency=low
 
   * First beta of 0.3.0

@@ -51,7 +51,7 @@ package_data={'rapid': ['glade3/rapid.glade',
               'glade3/rapid-photo-downloader-downloaded.svg',
               'glade3/rapid-photo-downloader-jobcode.svg',
               'glade3/video.png',
-              'glade3/video16.png'
+              'glade3/video16.png',
               'glade3/video_shadow.png',
               'glade3/video_small_shadow.png',
               'glade3/photo.png',
