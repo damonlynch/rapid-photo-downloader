@@ -3195,7 +3195,7 @@ class JobCodeDialog(gtk.Dialog):
             
     def match_func(self, completion, key, iter):
          model = completion.get_model()
-         return model[iter][0].startswith(self.entry.get_text())
+         return model[iter][0].lower().startswith(self.entry.get_text().lower())
          
     def on_completion_match(self, completion, model, iter):
          self.entry.set_text(model[iter][0])
@@ -4251,7 +4251,7 @@ class SelectionVBox(gtk.VBox):
 
     def job_code_match_func(self, completion, key, iter):
          model = completion.get_model()
-         return model[iter][0].startswith(self.job_code_entry.get_text())
+         return model[iter][0].lower().startswith(self.job_code_entry.get_text().lower())
          
     def on_job_code_combo_completion_match(self, completion, model, iter):
          self.job_code_entry.set_text(model[iter][0])
