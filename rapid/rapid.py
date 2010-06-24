@@ -3243,7 +3243,7 @@ class SelectionTreeView(gtk.TreeView):
                          str,                   # 13 device
                          int)                   # 14 thread id (worker the file is associated with)
                          
-        #self.mapThreadToRow = {}
+        self.selected_rows = set()
 
         # sort by date (unless there is a problem)
         self.sort_model = gtk.TreeModelSort(self.liststore)
@@ -3537,8 +3537,6 @@ class SelectionTreeView(gtk.TreeView):
             path = self.sort_model.convert_path_to_child_path(paths[0])
             iter = self.liststore.get_iter(path)
             
-            #update preview
-            self.show_preview(iter)
             #update button text
             no_available_for_download, threads = self.no_selected_rows_available_for_download()
             
@@ -3549,9 +3547,31 @@ class SelectionTreeView(gtk.TreeView):
             #nothing was selected, or nothing is available from what the user selected, or should not download right now
             self.rapidApp.download_selected_button.set_label(self.rapidApp.DOWNLOAD_SELECTED_LABEL)
             self.rapidApp.download_selected_button.set_sensitive(False)
-                
+    
     def on_selection_changed(self, selection):
+        """
+        Update download selected button and preview the most recently
+        selected row in the treeview
+        """
         self.update_download_selected_button()
+        size = selection.count_selected_rows()
+        if size == 0:
+            self.selected_rows = set()
+            self.show_preview(None)
+        else:
+            if size <= len(self.selected_rows):
+                # discard everything, start over
+                self.selected_rows = set()
+                self.selection_size = size
+            model, paths = selection.get_selected_rows()
+            for selected_path in paths:
+                path = self.sort_model.convert_path_to_child_path(selected_path)
+                liststore_iter = self.liststore.get_iter(path)
+                ref = self.get_mediaFile(liststore_iter).treerowref
+                
+                if ref not in self.selected_rows:
+                    self.show_preview(liststore_iter)
+                    self.selected_rows.add(ref)
             
     def clear_all(self, thread_id = None):
         if thread_id is None:
