@@ -38,6 +38,7 @@ DIFFERENT_EXIF = 6
 FILE_ALREADY_EXISTS = 7 
 UNIQUE_IDENTIFIER_CAT = 8 
 BACKUP_PROBLEM = 9
+BACKUP_OK = 10
 
 # problem text
 MISSING_METADATA = 1 
@@ -61,7 +62,8 @@ NO_BACKUP_PERFORMED = 14
 BACKUP_ERROR = 15
 BACKUP_DIRECTORY_CREATION = 16
 
-SAME_FILE_DIFFERENT_EXIF = 17 
+SAME_FILE_DIFFERENT_EXIF = 17
+NO_DOWNLOAD_WAS_BACKED_UP = 18
 
 #extra details
 UNIQUE_IDENTIFIER = '__1'
@@ -69,6 +71,7 @@ EXISTING_FILE = '__2'
 NO_DATA_TO_NAME = '__3'
 DOWNLOAD_COPYING_ERROR_DETAIL = '__4'
 DOWNLOAD_COPYING_ERROR_W_NO_DETAIL = '__5'
+BACKUP_OK_TYPE = '__6'
 
 #                                   category,               text, duplicates allowed
 problem_definitions = {
@@ -94,6 +97,7 @@ problem_definitions = {
     NO_BACKUP_PERFORMED:            (BACKUP_PROBLEM,        _("%(filetype)s could not be backed up because no suitable backup locations were found."), False),
     BACKUP_ERROR:                   (BACKUP_PROBLEM,         "%s", True),
     BACKUP_DIRECTORY_CREATION:      (BACKUP_PROBLEM,         "%s", True),
+    NO_DOWNLOAD_WAS_BACKED_UP:      (BACKUP_OK,              "%s", True),
     
     SAME_FILE_DIFFERENT_EXIF:       (DIFFERENT_EXIF,        _("%(image1)s was taken at on %(image1_date)s at %(image1_time)s, and %(image2)s on %(image2_date)s at %(image2_time)s."), False),
     
@@ -105,6 +109,7 @@ extra_detail_definitions = {
     NO_DATA_TO_NAME:                    _("There is no data with which to name the %(filetype)s."),
     DOWNLOAD_COPYING_ERROR_DETAIL:      "%s",
     DOWNLOAD_COPYING_ERROR_W_NO_DETAIL: _("Error: %(errorno)s %(strerror)s"),
+    BACKUP_OK_TYPE:                     "%s",
 }
 
 class Problem:
@@ -208,6 +213,20 @@ class Problem:
             
         if DOWNLOAD_PROBLEM_W_NO in self.categories:
             v = self.extra_detail[DOWNLOAD_COPYING_ERROR_W_NO_DETAIL]
+            
+        if BACKUP_OK in self.categories:
+            details = self.problems[NO_DOWNLOAD_WAS_BACKED_UP]
+            if len(self.problems[NO_DOWNLOAD_WAS_BACKED_UP]) == 1:
+                vv = _(' It was backed up to %(volume)s') % {'volume': details[0]}
+            else:
+                vv = _(" It was backed up to these devices: ")
+                for d in details[:-1]:
+                    vv += _("%s, ") % d
+                vv = _("%(volumes)s and %(final_volume)s.") % \
+                    {'volumes': vv[:-2], 
+                    'final_volume': details[-1]} \
+                     + ' '
+            v += vv
 
         if GENERATION_PROBLEM in self.categories:
             v = self.extra_detail[NO_DATA_TO_NAME]
@@ -351,8 +370,15 @@ class Problem:
 
     def get_title(self):
         v = ''
+        
+        if BACKUP_OK in self.categories:
+            if FILE_ALREADY_EXISTS in self.categories:
+                v = _('%(filetype)s already exists, but it was backed up') % {'filetype': self.extra_detail[BACKUP_OK_TYPE]}
+            else:
+                v = _('An error occurred when copying the %(filetype)s, but it was backed up') % {'filetype': self.extra_detail[BACKUP_OK_TYPE]}
+        
         # High priority problems
-        if DOWNLOAD_PROBLEM in self.categories:
+        elif DOWNLOAD_PROBLEM in self.categories:
             v = self.problems[DOWNLOAD_COPYING_ERROR][0]
         elif DOWNLOAD_PROBLEM_W_NO in self.categories:
             v = self.problems[DOWNLOAD_COPYING_ERROR_W_NO][0]
@@ -388,9 +414,7 @@ class Problem:
                 
         return v
         
-        
-        
-        
+
 
 if __name__ == '__main__':
      pass

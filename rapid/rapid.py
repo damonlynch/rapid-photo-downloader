@@ -2359,7 +2359,18 @@ class CopyPhotos(Thread):
                             severity = config.SERIOUS_ERROR
                             fileNotBackedUpMessageDisplayed = True
 
-                            #logError(severity, problem, details, resolution)
+                            title = _("Backup of %(file_type)s already exists") % {'file_type': mediaFile.displayName}
+                            details = _("Source: %(source)s\nDestination: %(destination)s") \
+                                    % {'source': mediaFile.fullFileName, 'destination': newBackupFile}
+                            if copyBackup:
+                                resolution = _("Backup %(file_type)s overwritten") % {'file_type': mediaFile.displayName}
+                            else:
+                                if self.prefs.backup_device_autodetection:
+                                    volume = self.parentApp.backupVolumes[rootBackupDir].get_name()
+                                    resolution = _("%(file_type)s not backed up to %(volume)s") % {'file_type': mediaFile.displayNameCap, 'volume': volume}
+                                else:
+                                    resolution = _("%(file_type)s not backed up") % {'file_type': mediaFile.displayNameCap}                                
+                            logError(severity, title, details, resolution)
 
                         if copyBackup:
                             if fileDownloaded:
@@ -2427,6 +2438,8 @@ class CopyPhotos(Thread):
                                             error_encountered = True
                                         else:
                                             backed_up = True
+                                            if mediaFile.status == STATUS_DOWNLOAD_FAILED:
+                                                mediaFile.problem.add_problem(None, pn.NO_DOWNLOAD_WAS_BACKED_UP, volume)
                                     except glib.GError, inst:
                                         fileNotBackedUpMessageDisplayed = True
                                         mediaFile.problem.add_problem(None, pn.BACKUP_ERROR, volume)
@@ -2436,6 +2449,9 @@ class CopyPhotos(Thread):
                                     try:
                                         shutil.copy2(fileToCopy, newBackupFile)
                                         backed_up = True
+                                        if mediaFile.status == STATUS_DOWNLOAD_FAILED:
+                                            mediaFile.problem.add_problem(None, pn.NO_DOWNLOAD_WAS_BACKED_UP, volume)
+                                        
                                     except (IOError, OSError), (errno, strerror):
                                         fileNotBackedUpMessageDisplayed = True
                                         mediaFile.problem.add_problem(None, pn.BACKUP_ERROR, volume)
@@ -2465,6 +2481,9 @@ class CopyPhotos(Thread):
                     #~ resolution = _("A backup location was not found")
                 #~ logError(severity, problem, details, resolution)    
 
+            if backed_up and mediaFile.status == STATUS_DOWNLOAD_FAILED:
+                mediaFile.problem.add_extra_detail(pn.BACKUP_OK_TYPE, mediaFile.displayNameCap)
+            
             if not backed_up:
                 if mediaFile.status == STATUS_DOWNLOAD_FAILED:
                     mediaFile.status = STATUS_DOWNLOAD_AND_BACKUP_FAILED
