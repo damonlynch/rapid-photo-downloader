@@ -2048,7 +2048,7 @@ class CopyPhotos(Thread):
             detail = {'image1': "%s%s" % (image_name, i1_ext), 
                 'image1_date': i1_date_time.strftime("%x"),
                 'image1_time': time_subseconds_human_readable(i1_date_time, i1_subseconds), 
-                'image2': mediaFile.name, 
+                'image2':      mediaFile.name, 
                 'image2_date': mediaFile.metadata.dateTime().strftime("%x"),
                 'image2_time': time_subseconds_human_readable(
                                     mediaFile.metadata.dateTime(), 
@@ -2098,9 +2098,6 @@ class CopyPhotos(Thread):
                         if not addUniqueIdentifier:
                             # there is no point to download it, as there is no way a unique filename will be generated
                             alreadyDownloaded = skipFile = True
-                    elif i == -99:
-                        pass
-                        #sameNameDifferentExif(image_name, mediaFile)
                        
                 
             # pass the subfolder the image will go into, as this is needed to determine subfolder sequence numbers 
@@ -2216,7 +2213,6 @@ class CopyPhotos(Thread):
                                                                     sequencesPreliminary = False,
                                                                     sequence_to_use = sequence_to_use,
                                                                     fallback_date = mediaFile.modificationTime)
-                                #checkProblemWithNameGeneration(mediaFile)
                                 if not mediaFile.downloadName:
                                     # there was a serious error generating the filename
                                     doRename = False                            
@@ -2392,6 +2388,14 @@ class CopyPhotos(Thread):
                                         mediaFile.problem.add_problem(None, pn.BACKUP_DIRECTORY_CREATION, volume)
                                         mediaFile.problem.add_extra_detail('%s%s' % (pn.BACKUP_DIRECTORY_CREATION, volume), inst)
                                         error_encountered = True
+                                        logError(config.SERIOUS_ERROR, _('Backing up error'), 
+                                                 _("Destination directory could not be created: %(directory)s\n") %
+                                                 {'directory': backupPath,  } +
+                                                 _("Source: %(source)s\nDestination: %(destination)s") % 
+                                                 {'source': mediaFile.fullFileName, 'destination': newBackupFile} + "\n" +
+                                                 _("Error: %(inst)s") % {'inst': inst}, 
+                                                 _('The %(file_type)s was not backed up.') % {'file_type': mediaFile.displayName}
+                                                 )                                        
                                 else:
                                     # recreate folder structure in backup location
                                     # cannot do os.makedirs(backupPath) - it can give bad results when using external drives
@@ -2412,14 +2416,14 @@ class CopyPhotos(Thread):
                                                     mediaFile.problem.add_problem(None, pn.BACKUP_DIRECTORY_CREATION, volume)
                                                     mediaFile.problem.add_extra_detail('%s%s' % (pn.BACKUP_DIRECTORY_CREATION, volume), inst)
                                                     error_encountered = True
-                                                    #~ logError(config.SERIOUS_ERROR, _('Backing up error'), 
-                                                             #~ _("Destination directory could not be created: %(directory)s\n") %
-                                                             #~ {'directory': folderToMake,  } +
-                                                             #~ _("Source: %(source)s\nDestination: %(destination)s\n") % 
-                                                             #~ {'source': originalFile, 'destination': newBackupFile} + 
-                                                             #~ _("Error: %(errno)s %(strerror)s") % {'errno': errno,  'strerror': strerror}, 
-                                                             #~ _('The %(file_type)s was not backed up.') % {'file_type': fileBeingDownloadedDisplay}
-                                                             #~ )
+                                                    logError(config.SERIOUS_ERROR, _('Backing up error'), 
+                                                             _("Destination directory could not be created: %(directory)s\n") %
+                                                             {'directory': backupPath,  } +
+                                                             _("Source: %(source)s\nDestination: %(destination)s") % 
+                                                             {'source': mediaFile.fullFileName, 'destination': newBackupFile} + "\n" +
+                                                             _("Error: %(errno)s %(strerror)s") % {'errno': errno,  'strerror': strerror}, 
+                                                             _('The %(file_type)s was not backed up.') % {'file_type': mediaFile.displayName}
+                                                             )
 
                                                     break
                                         
@@ -2445,6 +2449,12 @@ class CopyPhotos(Thread):
                                         mediaFile.problem.add_problem(None, pn.BACKUP_ERROR, volume)
                                         mediaFile.problem.add_extra_detail('%s%s' % (pn.BACKUP_ERROR, volume), inst)
                                         error_encountered = True
+                                        logError(config.SERIOUS_ERROR, _('Backing up error'), 
+                                                _("Source: %(source)s\nDestination: %(destination)s") %
+                                                 {'source': fileToCopy, 'destination': newBackupFile} + "\n" +
+                                                _("Error: %(inst)s") % {'inst': inst},
+                                                _('The %(file_type)s was not backed up.')  % {'file_type': mediaFile.displayName}
+                                            )
                                 else:
                                     try:
                                         shutil.copy2(fileToCopy, newBackupFile)
@@ -2458,11 +2468,12 @@ class CopyPhotos(Thread):
                                         inst = "%s: %s" % (errno, strerror)
                                         mediaFile.problem.add_extra_detail('%s%s' % (pn.BACKUP_ERROR, volume), inst)
                                         error_encountered = True
-                                        #~ logError(config.SERIOUS_ERROR, _('Backing up error'), 
-                                                #~ _("Source: %(source)s\nDestination: %(destination)s\nError: %(errno)s %(strerror)s")
-                                                #~ % {'source': originalFile, 'destination': newBackupFile,  'errno': errno,  'strerror': strerror},
-                                                #~ _('The %(file_type)s was not backed up.')  % {'file_type': fileBeingDownloadedDisplay}
-                                            #~ )
+                                        logError(config.SERIOUS_ERROR, _('Backing up error'), 
+                                                _("Source: %(source)s\nDestination: %(destination)s") % 
+                                                 {'source': fileToCopy, 'destination': newBackupFile} + "\n" +
+                                                _("Error: %(errno)s %(strerror)s") % {'errno': errno,  'strerror': strerror},
+                                                _('The %(file_type)s was not backed up.')  % {'file_type': mediaFile.displayName}
+                                            )
                     
                     #update record keeping using in tracking progress
                     self.sizeDownloaded += mediaFile.size
@@ -2472,14 +2483,14 @@ class CopyPhotos(Thread):
                 # The file has not been backed up to any medium
                 mediaFile.problem.add_problem(None, pn.NO_BACKUP_PERFORMED, {'filetype': mediaFile.displayNameCap})
 
-                #~ severity = config.SERIOUS_ERROR
-                #~ problem = _("%(file_type)s could not be backed up") % {'file_type': fileBeingDownloadedDisplayCap}
-                #~ details = _("Source: %(source)s") % {'source': originalFile}
-                #~ if self.prefs.backup_device_autodetection:
-                    #~ resolution = _("No suitable backup volume was found")
-                #~ else:
-                    #~ resolution = _("A backup location was not found")
-                #~ logError(severity, problem, details, resolution)    
+                severity = config.SERIOUS_ERROR
+                problem = _("%(file_type)s could not be backed up") % {'file_type': mediaFile.displayName}
+                details = _("Source: %(source)s") % {'source': mediaFile.fullFileName}
+                if self.prefs.backup_device_autodetection:
+                    resolution = _("No suitable backup volume was found")
+                else:
+                    resolution = _("A backup location was not found")
+                logError(severity, problem, details, resolution)    
 
             if backed_up and mediaFile.status == STATUS_DOWNLOAD_FAILED:
                 mediaFile.problem.add_extra_detail(pn.BACKUP_OK_TYPE, mediaFile.displayNameCap)
