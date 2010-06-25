@@ -1,3 +1,19 @@
+rapid-photo-downloader (0.3.0~b4-0ubuntu1~ppa1) hardy; urgency=low
+
+  * Fixed bug in Job Code addition in the preferences window.
+
+  * Made Job Code entry completion case insensitive.
+
+  * Update preview to be the most recently selected photo / video when 
+    multiple files are selected.
+
+  * Don't crash when user selects a row that has its status set to be 
+    download pending.
+
+  * Improve error log status messages and problem notifications.
+
+ -- Damon Lynch <damonlynch@gmail.com>  Fri, 25 Jun 2010 03:30:59 -0500
+
 rapid-photo-downloader (0.3.0~b3-0ubuntu1~ppa1) hardy; urgency=low
 
   * Fix in setup.py

@@ -38,7 +38,7 @@ The minimum version of python-gtk2 (pygtk) required to run the program is now
 Version 0.3.0 beta 4
 --------------------
 
-2010-06-2x
+2010-06-25
 
 Fixed bug in Job Code addition in the preferences window.
 
