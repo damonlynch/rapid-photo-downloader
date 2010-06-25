@@ -44,6 +44,14 @@ Fixed bug in Job Code addition in the preferences window.
 
 Made Job Code entry completion case insensitive.
 
+Update preview to be the most recently selected photo / video when 
+multiple files are selected.
+
+Don't crash when user selects a row that has its status set to be 
+download pending.
+
+Improve error log status messages and problem notifications.
+
 
 Version 0.3.0 beta 3
 --------------------

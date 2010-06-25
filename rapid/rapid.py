@@ -1555,11 +1555,20 @@ def date_time_human_readable(date, with_line_break=True):
         return _("%(date)s\n%(time)s") % {'date':date.strftime("%x"), 'time':date.strftime("%X")}
     else:
         return _("%(date)s %(time)s") % {'date':date.strftime("%x"), 'time':date.strftime("%X")}
+        
+def time_subseconds_human_readable(date, subseconds):
+    return _("%(hour)s:%(minute)s:%(second)s:%(subsecond)s") % \
+            {'hour':date.strftime("%H"),
+             'minute':date.strftime("%M"), 
+             'second':date.strftime("%S"),
+             'subsecond': subseconds}
 
 def date_time_subseconds_human_readable(date, subseconds):
     return _("%(date)s %(hour)s:%(minute)s:%(second)s:%(subsecond)s") % \
-            {'date':date.strftime("%x"), 'hour':date.strftime("%H"),
-             'minute':date.strftime("%M"), 'second':date.strftime("%S"),
+            {'date':date.strftime("%x"), 
+             'hour':date.strftime("%H"),
+             'minute':date.strftime("%M"), 
+             'second':date.strftime("%S"),
              'subsecond': subseconds}
 
 def generateSubfolderAndName(mediaFile, problem, subfolderPrefsFactory, renamePrefsFactory, strip_characters, fallback_date):
@@ -1990,25 +1999,24 @@ class CopyPhotos(Thread):
         def fileAlreadyExists(mediaFile, identifier=None):
             """ Notify the user that the photo or video could not be downloaded because it already exists"""
             
+            # get information on when the existing file was last modified
+            try:
+                modificationTime = os.path.getmtime(mediaFile.downloadFullFileName)
+                dt = datetime.datetime.fromtimestamp(modificationTime)
+                date = dt.strftime("%x")
+                time = dt.strftime("%X")
+            except:
+                sys.stderr.write("WARNING: could not determine the file modification time of an existing file\n")
+                date = time = ''
+                
             if not identifier:
-                # get information on when the existing file was last modified
-                try:
-                    modificationTime = os.path.getmtime(mediaFile.downloadFullFileName)
-                    dt = datetime.datetime.fromtimestamp(modificationTime)
-                    date = dt.strftime("%x")
-                    time = dt.strftime("%X")
-                except:
-                    sys.stderr.write("FIXME: was unable to determine the file modification time of an existing file\n")
-                    date = time = None
-
                 mediaFile.problem.add_problem(None, pn.FILE_ALREADY_EXISTS_NO_DOWNLOAD, {'filetype':mediaFile.displayNameCap})
-                if date and time:
-                    mediaFile.problem.add_extra_detail(pn.EXISTING_FILE, {'filetype': mediaFile.displayName, 'date': date, 'time': time})
+                mediaFile.problem.add_extra_detail(pn.EXISTING_FILE, {'filetype': mediaFile.displayName, 'date': date, 'time': time})
                 mediaFile.status = STATUS_DOWNLOAD_FAILED
                 log_status = config.SERIOUS_ERROR
             else:
                 mediaFile.problem.add_problem(None, pn.UNIQUE_IDENTIFIER_ADDED, {'filetype':mediaFile.displayNameCap})
-                mediaFile.problem.add_extra_detail(pn.UNIQUE_IDENTIFIER, {'identifier': identifier})
+                mediaFile.problem.add_extra_detail(pn.UNIQUE_IDENTIFIER, {'identifier': identifier, 'filetype': mediaFile.displayName, 'date': date, 'time': time})
                 mediaFile.status = STATUS_DOWNLOADED_WITH_WARNING
                 log_status = config.WARNING
                 
@@ -2037,16 +2045,18 @@ class CopyPhotos(Thread):
         def sameNameDifferentExif(image_name, mediaFile):
             """Notify the user that a file was already downloaded with the same name, but the exif information was different"""
             i1_ext, i1_date_time, i1_subseconds = downloaded_files.extExifDateTime(image_name)
-            mediaFile.problem.add_problem(None, pn.SAME_FILE_DIFFERENT_EXIF,
-                {'image1': "%s%s" % (image_name, i1_ext), 
-                'image1_date_time': date_time_subseconds_human_readable(
-                                    i1_date_time, i1_subseconds), 
+            detail = {'image1': "%s%s" % (image_name, i1_ext), 
+                'image1_date': i1_date_time.strftime("%x"),
+                'image1_time': time_subseconds_human_readable(i1_date_time, i1_subseconds), 
                 'image2': mediaFile.name, 
-                'image2_date_time': date_time_subseconds_human_readable(
+                'image2_date': mediaFile.metadata.dateTime().strftime("%x"),
+                'image2_time': time_subseconds_human_readable(
                                     mediaFile.metadata.dateTime(), 
-                                    mediaFile.metadata.subSeconds())})
+                                    mediaFile.metadata.subSeconds())}
+            mediaFile.problem.add_problem(None, pn.SAME_FILE_DIFFERENT_EXIF, detail)
 
-            logError(config.WARNING, mediaFile.problem.get_title(), mediaFile.problem.get_problems())
+            msg = pn.problem_definitions[pn.SAME_FILE_DIFFERENT_EXIF][1] % detail
+            logError(config.WARNING,_('Photos detected with the same filenames, but taken at different times'), msg)
             mediaFile.status = STATUS_DOWNLOADED_WITH_WARNING
 
         def generateSubfolderAndFileName(mediaFile):
@@ -2979,20 +2989,23 @@ class MediaTreeView(gtk.TreeView):
         return the tree iter for this thread
         """
         
-        treerowRef = self.mapThreadToRow[thread_id]
-        path = treerowRef.get_path()
-        iter = self.liststore.get_iter(path)
-        return iter
+        if thread_id in self.mapThreadToRow:
+            treerowRef = self.mapThreadToRow[thread_id]
+            path = treerowRef.get_path()
+            iter = self.liststore.get_iter(path)
+            return iter
+        else:
+            return None
     
     def updateProgress(self, thread_id, percentComplete, progressBarText, bytesDownloaded):
         
         iter = self._getThreadMap(thread_id)
-        
-        self.liststore.set_value(iter, 2, percentComplete)
-        if progressBarText:
-            self.liststore.set_value(iter, 3, progressBarText)
-        if percentComplete or bytesDownloaded:
-            self.parentApp.updateOverallProgress(thread_id, bytesDownloaded, percentComplete)
+        if iter:
+            self.liststore.set_value(iter, 2, percentComplete)
+            if progressBarText:
+                self.liststore.set_value(iter, 3, progressBarText)
+            if percentComplete or bytesDownloaded:
+                self.parentApp.updateOverallProgress(thread_id, bytesDownloaded, percentComplete)
         
 
     def rowHeight(self):
@@ -3457,6 +3470,8 @@ class SelectionTreeView(gtk.TreeView):
             status_icon = self.downloaded_with_warning_icon
         elif status in [STATUS_DOWNLOAD_FAILED, STATUS_DOWNLOAD_AND_BACKUP_FAILED]:
             status_icon = self.downloaded_with_error_icon
+        elif status == STATUS_DOWNLOAD_PENDING:
+            status_icon = self.download_pending_icon
         else:
             sys.stderr.write("FIXME: unknown status: %s\n" % status)
             status_icon = self.not_downloaded_icon

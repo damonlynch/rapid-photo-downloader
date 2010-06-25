@@ -95,12 +95,12 @@ problem_definitions = {
     BACKUP_ERROR:                   (BACKUP_PROBLEM,         "%s", True),
     BACKUP_DIRECTORY_CREATION:      (BACKUP_PROBLEM,         "%s", True),
     
-    SAME_FILE_DIFFERENT_EXIF:       (DIFFERENT_EXIF,        _("First photo: %(image1)s %(image1_date_time)s\nSecond photo: %(image2)s %(image2_date_time)s"), False),
+    SAME_FILE_DIFFERENT_EXIF:       (DIFFERENT_EXIF,        _("%(image1)s was taken at on %(image1_date)s at %(image1_time)s, and %(image2)s on %(image2_date)s at %(image2_time)s."), False),
     
 }
 
 extra_detail_definitions = {
-    UNIQUE_IDENTIFIER:                  _("Unique identifier '%(identifier)s' added."),
+    UNIQUE_IDENTIFIER:                  _("The existing %(filetype)s was last modified on %(date)s at %(time)s. Unique identifier '%(identifier)s' added."),
     EXISTING_FILE:                      _("The existing %(filetype)s was last modified on %(date)s at %(time)s."),
     NO_DATA_TO_NAME:                    _("There is no data with which to name the %(filetype)s."),
     DOWNLOAD_COPYING_ERROR_DETAIL:      "%s",
@@ -121,6 +121,7 @@ class Problem:
         self.extra_detail = {}
     
     def add_problem(self, component, problem_definition, *args):
+        added = True
         if problem_definition not in problem_definitions:
             sys.stderr.write("FIXME: unknown problem definition!\n")
         else:
@@ -141,10 +142,12 @@ class Problem:
                 if problem_definition in self.problems:
                     if problem_details not in self.problems[problem_definition]:
                         self.problems[problem_definition].append(problem_details)
+                    else:
+                        added = False
                 else:
                     self.problems[problem_definition] = [problem_details]
-                    
-            if category not in self.categories:
+            
+            if category not in self.categories or not added:
                 self.categories[category] = 1
             else:
                 self.categories[category] += 1
@@ -211,6 +214,8 @@ class Problem:
             
         if DIFFERENT_EXIF in self.categories:
             v = self.problems[SAME_FILE_DIFFERENT_EXIF][0] 
+            if METADATA_PROBLEM in self.categories:
+                v = _('Photos detected with the same filenames, but taken at different times: %(details)s' ) % {'details':v}
         
         # Problems backing up
         if BACKUP_PROBLEM in self.categories:
@@ -297,12 +302,12 @@ class Problem:
                 v = vv  
 
             
-            if METADATA_PROBLEM in self.categories:
-                vv = self._get_generation_title()
-                if self.categories[METADATA_PROBLEM] > 1:
-                    v += _(' Furthermore, there were additional %(problems)s.') % {'problems': vv[0].lower() + vv[1:]}
-                else:
-                    v += _(' Furthermore, there was an additional %(problem)s.') % {'problem': vv[0].lower() + vv[1:]}
+        if v and METADATA_PROBLEM in self.categories:
+            vv = self._get_generation_title()
+            if self.categories[METADATA_PROBLEM] > 1:
+                v += _(' Furthermore, there were %(problems)s.') % {'problems': vv[0].lower() + vv[1:]}
+            else:
+                v += _(' Furthermore, there was a %(problem)s.') % {'problem': vv[0].lower() + vv[1:]}
         
         # Problems generating file / subfolder names
         if METADATA_PROBLEM in self.categories:
@@ -346,18 +351,23 @@ class Problem:
 
     def get_title(self):
         v = ''
-        if FILE_ALREADY_EXISTS in self.categories:
+        # High priority problems
+        if DOWNLOAD_PROBLEM in self.categories:
+            v = self.problems[DOWNLOAD_COPYING_ERROR][0]
+        elif DOWNLOAD_PROBLEM_W_NO in self.categories:
+            v = self.problems[DOWNLOAD_COPYING_ERROR_W_NO][0]
+        elif GENERATION_PROBLEM in self.categories:
+            v = self.problems[ERROR_IN_NAME_GENERATION][0]    
+        elif FILE_ALREADY_EXISTS in self.categories:
             v = self.problems[FILE_ALREADY_EXISTS_NO_DOWNLOAD][0]
         elif UNIQUE_IDENTIFIER_CAT in self.categories:
             v = self.problems[UNIQUE_IDENTIFIER_ADDED][0]
         elif FILE_PROBLEM in self.categories:
             v = self.problems[CANNOT_DOWNLOAD_BAD_METADATA][0]
-        elif GENERATION_PROBLEM in self.categories:
-            v = self.problems[ERROR_IN_NAME_GENERATION][0]
-        elif DOWNLOAD_PROBLEM in self.categories:
-            v = self.problems[DOWNLOAD_COPYING_ERROR][0]
-        elif DOWNLOAD_PROBLEM_W_NO in self.categories:
-            v = self.problems[DOWNLOAD_COPYING_ERROR_W_NO][0]
+            
+        # Lesser priority
+        elif len(self.categories) > 1:
+            v = _('Multiple problems were encountered')
         elif DIFFERENT_EXIF in self.categories:
             v = _('Photos detected with the same filenames, but taken at different times')
         elif METADATA_PROBLEM in self.categories:

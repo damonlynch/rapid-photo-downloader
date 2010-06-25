@@ -54,5 +54,3 @@ STATUS_DOWNLOAD_AND_BACKUP_FAILED = 5       # tried to download but failed, and 
 STATUS_DOWNLOAD_FAILED = 6                  # tried to download but failed
 STATUS_WARNING = 7                          # warning (shown in pre-download preview)
 STATUS_CANNOT_DOWNLOAD = 8                  # cannot be downloaded
-
-

@@ -24,7 +24,9 @@ import datetime
 
 import config
 from config import MAX_THUMBNAIL_SIZE
-from config import STATUS_NOT_DOWNLOADED
+from config import STATUS_NOT_DOWNLOADED, \
+                    STATUS_DOWNLOAD_PENDING, \
+                    STATUS_CANNOT_DOWNLOAD
 
 
 import common
@@ -273,7 +275,7 @@ class CardMedia(Media):
         fileIndex = []
         for i in range(len(self.imagesAndVideos)):
             mediaFile = self.imagesAndVideos[i][0]
-            if mediaFile.status == config.STATUS_DOWNLOAD_PENDING:
+            if mediaFile.status == STATUS_DOWNLOAD_PENDING:
                 v += 1
                 s += mediaFile.size
                 fileIndex.append(i)
@@ -286,7 +288,7 @@ class CardMedia(Media):
         v = 0
         for i in range(len(self.imagesAndVideos)):
             mediaFile = self.imagesAndVideos[i][0]
-            if mediaFile.status <> config.STATUS_CANNOT_DOWNLOAD:
+            if mediaFile.status <> STATUS_CANNOT_DOWNLOAD:
                 v += 1
                 
         return v
