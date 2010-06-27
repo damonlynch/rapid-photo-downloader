@@ -9,7 +9,7 @@
     <property name="modal">True</property>
     <property name="window_position">center-on-parent</property>
     <property name="default_height">500</property>
-    <property name="icon">rapid-photo-downloader-about.png</property>
+    <property name="icon">rapid-photo-downloader.svg</property>
     <property name="type_hint">dialog</property>
     <property name="has_separator">False</property>
     <signal name="destroy" handler="on_preferencesdialog_destroy"/>
@@ -2825,7 +2825,7 @@ You can download photos from multiple devices simultaneously, or you can specify
     <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
     <property name="border_width">5</property>
     <property name="destroy_with_parent">True</property>
-    <property name="icon">rapid-photo-downloader-about.png</property>
+    <property name="icon">rapid-photo-downloader.svg</property>
     <property name="type_hint">normal</property>
     <property name="program_name">Rapid Photo Downloader</property>
     <property name="copyright" translatable="yes">Copyright Damon Lynch 2007-10</property>
@@ -2857,7 +2857,7 @@ Marco Solari &lt;marcosolari@gmail.com&gt;
 Toni L&#xE4;hdekorpi &lt;toni@lygon.net&gt;
 Ulf Urd&#xE9;n &lt;ulf.urden@purplescout.com&gt;
 Julien Valroff &lt;julien@kirya.net&gt;</property>
-    <property name="logo">rapid-photo-downloader-about.png</property>
+    <property name="logo">rapid-photo-downloader.svg</property>
     <property name="wrap_license">True</property>
     <child internal-child="vbox">
       <widget class="GtkVBox" id="dialog-vbox1">
@@ -2884,7 +2884,7 @@ Julien Valroff &lt;julien@kirya.net&gt;</property>
     <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
     <property name="title" translatable="yes">Rapid Photo Downloader</property>
     <property name="default_width">650</property>
-    <property name="icon">rapid-photo-downloader-about.png</property>
+    <property name="icon">rapid-photo-downloader.svg</property>
     <signal name="destroy" handler="on_rapidapp_destroy"/>
     <signal name="window_state_event" handler="on_rapidapp_window_state_event"/>
     <child>
@@ -3458,7 +3458,7 @@ Julien Valroff &lt;julien@kirya.net&gt;</property>
     <property name="default_width">600</property>
     <property name="default_height">400</property>
     <property name="destroy_with_parent">True</property>
-    <property name="icon">rapid-photo-downloader-about.png</property>
+    <property name="icon">rapid-photo-downloader.svg</property>
     <property name="type_hint">dialog</property>
     <property name="has_separator">False</property>
     <signal name="close" handler="on_logdialog_close"/>

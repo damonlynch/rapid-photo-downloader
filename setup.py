@@ -44,7 +44,7 @@ class InstallData(install_data):
         return data_files
 
 package_data={'rapid': ['glade3/rapid.glade', 
-              'glade3/rapid-photo-downloader-about.png',
+              'glade3/rapid-photo-downloader.svg',
               'glade3/rapid-photo-downloader-download-pending.svg', 
               'glade3/rapid-photo-downloader-downloaded-with-error.svg', 
               'glade3/rapid-photo-downloader-downloaded-with-warning.svg',

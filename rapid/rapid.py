@@ -2140,8 +2140,6 @@ class CopyPhotos(Thread):
             else:
                 renameFactory = self.imageRenamePrefsFactory
             
-            self.bytes_downloaded = 0
-                
             def progress_callback_no_update(amount_downloaded, total):
                 pass
                 
@@ -2316,7 +2314,6 @@ class CopyPhotos(Thread):
             backed_up = False
             fileNotBackedUpMessageDisplayed = False
             error_encountered = False
-            self.bytes_downloaded_in_backup = 0
             expected_bytes_downloaded = self.sizeDownloaded + no_backup_devices * mediaFile.size
             
             if no_backup_devices:
@@ -2529,7 +2526,7 @@ class CopyPhotos(Thread):
             message = _("%(noFiles)s %(filetypes)s downloaded") % {'noFiles':noFilesDownloaded, 'filetypes': file_types}
             noFilesSkipped = noImagesSkipped + noVideosSkipped
             if noFilesSkipped:
-                message += "\n" + _("%(noFiles)s %(filetypes)s download failures") % {'noFiles':noFilesSkipped, 'filetypes':file_types_skipped}
+                message += "\n" + _("%(noFiles)s %(filetypes)s failed to download") % {'noFiles':noFilesSkipped, 'filetypes':file_types_skipped}
             
             if unmountMessage:
                 message = "%s\n%s" % (message,  unmountMessage)
@@ -2755,6 +2752,7 @@ class CopyPhotos(Thread):
                 if not mediaFile.status == STATUS_DOWNLOAD_PENDING:
                     sys.stderr.write("FIXME: Thread %s is trying to download a file that it should not be!!" % self.thread_id)
                 else:
+                    self.bytes_downloaded_in_download = self.bytes_downloaded_in_backup = self.bytes_downloaded = 0
                     if mediaFile.isImage:
                         tempWorkingDir = self.photoTempWorkingDir
                         baseDownloadDir = photoBaseDownloadDir
@@ -3058,7 +3056,7 @@ class UseDeviceDialog(gtk.Dialog):
                         
         self.postChoiceCB = postChoiceCB
         
-        self.set_icon_from_file(paths.share_dir('glade3/rapid-photo-downloader-about.png'))
+        self.set_icon_from_file(paths.share_dir('glade3/rapid-photo-downloader.svg'))
         # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#usedeviceprompt
         prompt_label = gtk.Label(_('Should this device or partition be used to download photos or videos from?'))
         prompt_label.set_line_wrap(True)
@@ -3138,7 +3136,7 @@ class RemoveAllJobCodeDialog(gtk.Dialog):
                    gtk.STOCK_YES, gtk.RESPONSE_OK))
                         
         self.postChoiceCB = postChoiceCB        
-        self.set_icon_from_file(paths.share_dir('glade3/rapid-photo-downloader-about.png'))
+        self.set_icon_from_file(paths.share_dir('glade3/rapid-photo-downloader.svg'))
         
         prompt_hbox = gtk.HBox()
         
@@ -3183,7 +3181,7 @@ class JobCodeDialog(gtk.Dialog):
                    gtk.STOCK_OK, gtk.RESPONSE_OK))
                         
         
-        self.set_icon_from_file(paths.share_dir('glade3/rapid-photo-downloader-about.png'))
+        self.set_icon_from_file(paths.share_dir('glade3/rapid-photo-downloader.svg'))
         self.postJobCodeEntryCB = postJobCodeEntryCB
         self.autoStart = autoStart
         self.downloadSelected = downloadSelected
@@ -4941,23 +4939,27 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
         for cap in caps:
             capabilities[cap] = True
 
+        do_not_size_icon = False
+        self.notification_icon_size = 48        
         try:
             info = pynotify.get_server_info()
         except:
             cmd_line(_("Warning: desktop environment notification server is incorrectly configured."))
-            self.notification_icon_size = 48
         else:
             try:
-                if info['name'] == 'Notification Daemon':
-                    self.notification_icon_size = 128
-                else:
-                    self.notification_icon_size = 48                    
+                if info["name"] == 'notify-osd':
+                    do_not_size_icon = True
             except:
-                self.notification_icon_size = 48
-            
-        self.application_icon = gtk.gdk.pixbuf_new_from_file_at_size(
-                paths.share_dir('glade3/rapid-photo-downloader-about.png'),
-                self.notification_icon_size,  self.notification_icon_size)
+                pass
+        
+        if do_not_size_icon:
+            self.application_icon = gtk.gdk.pixbuf_new_from_file(
+                        paths.share_dir('glade3/rapid-photo-downloader.svg'))
+        else:
+            self.application_icon = gtk.gdk.pixbuf_new_from_file_at_size(
+                    paths.share_dir('glade3/rapid-photo-downloader.svg'),
+                    self.notification_icon_size,  self.notification_icon_size)
+
         
     
     def usingVolumeMonitor(self):
@@ -5444,17 +5446,38 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
             if self.displayDownloadSummaryNotification:
                 message = _("All downloads complete")
                 if self.downloadStats.noImagesDownloaded:
-                    message += "\n%s " % self.downloadStats.noImagesDownloaded + _("photos downloaded")
+                    filetype = file_types_by_number(self.downloadStats.noImagesDownloaded, 0)
+                    message += "\n" + _("%(number)s %(numberdownloaded)s") % \
+                                {'number': self.downloadStats.noImagesDownloaded, 
+                                'numberdownloaded': _("%(filetype)s downloaded") % \
+                                {'filetype': filetype}}
                 if self.downloadStats.noImagesSkipped:
-                    message = "%s\n%s " % (message,  self.downloadStats.noImagesSkipped) + _("photo download failures")
+                    filetype = file_types_by_number(self.downloadStats.noImagesSkipped, 0)
+                    message += "\n" + _("%(number)s %(numberdownloaded)s") % \
+                                {'number': self.downloadStats.noImagesSkipped,
+                                'numberdownloaded': _("%(filetype)s failed to download") % \
+                                {'filetype': filetype}}
                 if self.downloadStats.noVideosDownloaded:
-                    message += "\n%s " % self.downloadStats.noVideosDownloaded + _("videos downloaded")
+                    filetype = file_types_by_number(0, self.downloadStats.noVideosDownloaded)
+                    message += "\n" + _("%(number)s %(numberdownloaded)s") % \
+                                {'number': self.downloadStats.noVideosDownloaded, 
+                                'numberdownloaded': _("%(filetype)s downloaded") % \
+                                {'filetype': filetype}}                    
                 if self.downloadStats.noVideosSkipped:
-                    message = "%s\n%s " % (message,  self.downloadStats.noVideosSkipped) + _("video download failures")                    
+                    filetype = file_types_by_number(0, self.downloadStats.noVideosSkipped)
+                    message += "\n" + _("%(number)s %(numberdownloaded)s") % \
+                                {'number': self.downloadStats.noVideosSkipped,
+                                'numberdownloaded': _("%(filetype)s failed to download") % \
+                                {'filetype': filetype}}                    
                 if self.downloadStats.noWarnings:
-                    message = "%s\n%s " % (message,  self.downloadStats.noWarnings) + _("warnings")
+                    message += "\n" + _("%(number)s %(numberdownloaded)s") % \
+                                {'number': self.downloadStats.noWarnings, 
+                                'numberdownloaded': _("warnings")}
                 if self.downloadStats.noErrors:
-                    message = "%s\n%s " % (message,  self.downloadStats.noErrors) +_("errors")
+                    message += "\n" + _("%(number)s %(numberdownloaded)s") % \
+                                {'number': self.downloadStats.noErrors, 
+                                'numberdownloaded': _("errors")}
+                    
                 n = pynotify.Notification(PROGRAM_NAME,  message)
                 n.set_icon_from_pixbuf(self.application_icon)
                 n.show()

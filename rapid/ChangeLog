@@ -35,6 +35,16 @@ The minimum version of python-gtk2 (pygtk) required to run the program is now
 2.12. This will affect only outdated Linux distributions.
 
 
+Version 0.3.0 beta 5
+--------------------
+
+2010-06-2x
+
+Add backup errors to error log window.
+
+Improve program notifications.
+
+
 Version 0.3.0 beta 4
 --------------------
 
