@@ -1196,6 +1196,8 @@ class ImageRenamePreferences:
                 
         if self.stripForwardSlash:
             name = name.replace('/', '')
+            
+        name = name.strip()
                     
         return name
 

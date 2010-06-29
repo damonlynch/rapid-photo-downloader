@@ -39,6 +39,7 @@ FILE_ALREADY_EXISTS = 7
 UNIQUE_IDENTIFIER_CAT = 8 
 BACKUP_PROBLEM = 9
 BACKUP_OK = 10
+FILE_ALREADY_DOWN_CAT = 11
 
 # problem text
 MISSING_METADATA = 1 
@@ -64,6 +65,7 @@ BACKUP_DIRECTORY_CREATION = 16
 
 SAME_FILE_DIFFERENT_EXIF = 17
 NO_DOWNLOAD_WAS_BACKED_UP = 18
+FILE_ALREADY_DOWNLOADED = 19
 
 #extra details
 UNIQUE_IDENTIFIER = '__1'
@@ -100,7 +102,7 @@ problem_definitions = {
     NO_DOWNLOAD_WAS_BACKED_UP:      (BACKUP_OK,              "%s", True),
     
     SAME_FILE_DIFFERENT_EXIF:       (DIFFERENT_EXIF,        _("%(image1)s was taken at on %(image1_date)s at %(image1_time)s, and %(image2)s on %(image2_date)s at %(image2_time)s."), False),
-    
+    FILE_ALREADY_DOWNLOADED:        (FILE_ALREADY_DOWN_CAT, _('%(filetype)s was already downloaded'), False),
 }
 
 extra_detail_definitions = {
@@ -199,6 +201,9 @@ class Problem:
         # special cases
         if FILE_PROBLEM in self.categories:
             return _("The metadata might be corrupt.")
+            
+        if FILE_ALREADY_DOWN_CAT in self.categories:
+            return _("The filename, extension and Exif information indicate it has already been downloaded.")
 
         if FILE_ALREADY_EXISTS in self.categories:
             if EXISTING_FILE in self.extra_detail:
@@ -378,6 +383,8 @@ class Problem:
                 v = _('An error occurred when copying the %(filetype)s, but it was backed up') % {'filetype': self.extra_detail[BACKUP_OK_TYPE]}
         
         # High priority problems
+        elif FILE_ALREADY_DOWN_CAT in self.categories:
+            v = self.problems[FILE_ALREADY_DOWNLOADED][0]
         elif DOWNLOAD_PROBLEM in self.categories:
             v = self.problems[DOWNLOAD_COPYING_ERROR][0]
         elif DOWNLOAD_PROBLEM_W_NO in self.categories:

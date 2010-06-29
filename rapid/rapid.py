@@ -1608,7 +1608,7 @@ class CopyPhotos(Thread):
     """Copies photos from source to destination, backing up if needed"""
     def __init__(self, thread_id, parentApp, fileRenameLock,  fileSequenceLock, 
                 statsLock,  downloadedFilesLock,
-                downloadStats,  autoStart = False,  cardMedia = None):
+                downloadStats, autoStart = False, cardMedia = None):
         self.parentApp = parentApp
         self.thread_id = thread_id
         self.ctrl = True
@@ -1650,7 +1650,6 @@ class CopyPhotos(Thread):
         else:
             self.types_searched_for = _('photos')            
         
-        
         Thread.__init__(self)
         
 
@@ -1665,7 +1664,6 @@ class CopyPhotos(Thread):
                                                                 # It maybe displayed only briefly if the contents of the device being scanned is small.
                                                                 progressBarText=_('scanning...'))
 
-                
     def firstImage(self):
         """
         returns class mediaFile of the first photo
@@ -1686,7 +1684,7 @@ class CopyPhotos(Thread):
             msg = str(e)
             sys.stderr.write(msg + "\n")
         
-    def initializeFromPrefs(self,  notifyOnError):
+    def initializeFromPrefs(self, notifyOnError):
         """
         Setup thread so that user preferences are handled
         """
@@ -1701,7 +1699,6 @@ class CopyPhotos(Thread):
                 raise rn.PrefError
                 
         self.prefs = self.parentApp.prefs
-        
         
         #Image and Video filename preferences
 
@@ -1724,8 +1721,6 @@ class CopyPhotos(Thread):
         # copy this variable, as it is used heavily in the loop
         # and it is perhaps relatively expensive to read
         self.stripCharacters = self.prefs.strip_characters
-        
-        
 
     def run(self):
         """
@@ -1987,6 +1982,114 @@ class CopyPhotos(Thread):
             else:
                 self.noErrors += 1
 
+        def notifyAndUnmount(umountAttemptOK):
+            if not self.cardMedia.volume:
+                unmountMessage = ""
+                notificationName = PROGRAM_NAME
+            else:
+                notificationName  = self.cardMedia.volume.get_name()
+                if self.prefs.auto_unmount and umountAttemptOK:
+                    self.cardMedia.volume.unmount(self.on_volume_unmount)
+                    # This message informs the user that the device (e.g. camera, hard drive or memory card) was automatically unmounted and they can now remove it
+                    unmountMessage = _("The device can now be safely removed")
+                else:
+                    unmountMessage = ""
+            
+            file_types = file_types_by_number(noImagesDownloaded, noVideosDownloaded)
+            file_types_skipped = file_types_by_number(noImagesSkipped, noVideosSkipped)
+            message = _("%(noFiles)s %(filetypes)s downloaded") % {'noFiles':noFilesDownloaded, 'filetypes': file_types}
+            noFilesSkipped = noImagesSkipped + noVideosSkipped
+            if noFilesSkipped:
+                message += "\n" + _("%(noFiles)s %(filetypes)s failed to download") % {'noFiles':noFilesSkipped, 'filetypes':file_types_skipped}
+            
+            if unmountMessage:
+                message = "%s\n%s" % (message,  unmountMessage)
+                
+            if self.noWarnings:
+                message = "%s\n%s " % (message,  self.noWarnings) + _("warnings") 
+            if self.noErrors:
+                message = "%s\n%s " % (message,  self.noErrors) + _("errors")
+                
+            n = pynotify.Notification(notificationName,  message)
+            
+            if self.cardMedia.volume:
+                icon = self.cardMedia.volume.get_icon_pixbuf(self.parentApp.notification_icon_size)
+            else:
+                icon = self.parentApp.application_icon
+            
+            n.set_icon_from_pixbuf(icon)
+            n.show()            
+
+        def createTempDir(baseDir):
+            """
+            Create a temporary directory in which to download the photos to.
+            
+            Returns the directory if it was created, else returns None.
+            
+            Don't want to put it in system temp folder, as that is likely
+            to be on another partition and hence copying files from it
+            to the actual download folder will be slow!"""
+            try:
+                t = tempfile.mkdtemp(prefix='rapid-tmp-', 
+                                                dir=baseDir)
+                return t
+            except OSError, (errno, strerror):
+                if not self.cardMedia.volume:
+                    image_device = _("Source: %s\n") % self.cardMedia.getPath()
+                else:
+                    _("Device: %s\n") % self.cardMedia.volume.get_name()
+                destination = _("Destination: %s") % baseDir
+                logError(config.CRITICAL_ERROR, _('Could not create temporary download directory'), 
+                             image_device + destination,
+                            _("Download cannot proceed"))
+                cmd_line(_("Error:") + " " + _('Could not create temporary download directory'))
+                cmd_line(image_device + destination)
+                cmd_line(_("Download cannot proceed"))
+                display_queue.put((media_collection_treeview.removeCard,  (self.thread_id, )))
+                display_queue.put((self.parentApp.downloadFailed,  (self.thread_id, )))
+                display_queue.close("rw")
+                self.running = False
+                self.lock.release()
+                return None      
+            
+        def setupBackup():
+            """
+            Check for presence of backup path or volumes, and return the number of devices being used (1 in case of a path)
+            """
+            no_devices = 0
+            if self.prefs.backup_images:
+                no_devices = len(self.parentApp.backupVolumes)          
+                if not self.prefs.backup_device_autodetection:
+                    if not os.path.isdir(self.prefs.backup_location):
+                        # the user has manually specified a path, but it
+                        # does not exist. This is a problem.
+                        try:
+                            os.makedirs(self.prefs.backup_location)
+                        except:
+                            logError(config.SERIOUS_ERROR, _("Backup path does not exist"),
+                                        _("The path %s could not be created") % path, 
+                                        _("No backups can occur")
+                                    )
+                            no_devices = 0
+            return no_devices
+        
+        def needAJobCode():
+            for f in self.cardMedia.imagesAndVideos:
+                mediaFile = f[0]
+                if mediaFile.status in [STATUS_WARNING, STATUS_NOT_DOWNLOADED]:
+                    if not mediaFile.jobcode:
+                        return True
+            return False
+            
+        def createBothTempDirs():
+            self.photoTempWorkingDir = createTempDir(photoBaseDownloadDir)
+            created = self.photoTempWorkingDir is not None
+            if created and DOWNLOAD_VIDEO:
+                self.videoTempWorkingDir = createTempDir(videoBaseDownloadDir)
+                created = self.videoTempWorkingDir is not None
+                
+            return created
+
 
         def checkProblemWithNameGeneration(mediaFile):
             if mediaFile.problem.has_problem():
@@ -2082,7 +2185,7 @@ class CopyPhotos(Thread):
             subfolderFactory.initializeProblem(mediaFile.problem)
             fileRenameFactory.initializeProblem(mediaFile.problem)
             
-            # Here we assume that the subfolder value will contain something -- the scan will have picked up problems with nothing being generated
+            # Here we cannot assume that the subfolder value will contain something -- the user may have changed the preferences after the scan
             mediaFile.downloadSubfolder = subfolderFactory.generateNameUsingPreferences(
                                                     mediaFile.metadata, mediaFile.name, 
                                                     self.stripCharacters, fallback_date = mediaFile.modificationTime)
@@ -2096,14 +2199,16 @@ class CopyPhotos(Thread):
                     if i == -1:
                         # this exact file has already been downloaded (same extension, same filename, and same exif date time subsecond info)
                         if not addUniqueIdentifier:
-                            # there is no point to download it, as there is no way a unique filename will be generated
-                            alreadyDownloaded = skipFile = True
-                       
+                            logError(config.SERIOUS_ERROR,_('Photo has already been downloaded'), 
+                                        _("Source: %(source)s") % {'source': mediaFile.fullFileName})
+                            mediaFile.problem.add_problem(None, pn.FILE_ALREADY_DOWNLOADED, {'filetype': mediaFile.displayNameCap})
+                            skipFile = True
+                            
                 
             # pass the subfolder the image will go into, as this is needed to determine subfolder sequence numbers 
             # indicate that sequences chosen should be queued
             
-            if not (skipFile or alreadyDownloaded):
+            if not skipFile:
                 mediaFile.downloadName = fileRenameFactory.generateNameUsingPreferences(
                                                             mediaFile.metadata, mediaFile.name, self.stripCharacters,  mediaFile.downloadSubfolder,  
                                                             sequencesPreliminary = True,
@@ -2112,14 +2217,25 @@ class CopyPhotos(Thread):
 
                 mediaFile.downloadPath = os.path.join(mediaFile.downloadFolder, mediaFile.downloadSubfolder)
                 mediaFile.downloadFullFileName = os.path.join(mediaFile.downloadPath, mediaFile.downloadName)
+                    
+                if not mediaFile.downloadName or not mediaFile.downloadSubfolder:
+                    if not mediaFile.downloadName and not mediaFile.downloadSubfolder:
+                        area = _("subfolder and filename")
+                    elif not mediaFile.downloadName:
+                        area = _("filename")
+                    else:
+                        area = _("subfolder")
+                    problem.add_problem(None, pn.ERROR_IN_NAME_GENERATION, {'filetype': mediaFile.displayNameCap, 'area': area})
+                    problem.add_extra_detail(pn.NO_DATA_TO_NAME, {'filetype': area})
+                    skipFile = True
+                    logError(config.SERIOUS_ERROR, pn.problem_definitions[ERROR_IN_NAME_GENERATION][1] % {'filetype': mediaFile.displayNameCap, 'area': area})
             
-            if not mediaFile.downloadName:
-                skipFile = True
-            if not alreadyDownloaded:
+            if not skipFile:
                 checkProblemWithNameGeneration(mediaFile)
             else:
-                fileAlreadyExists(mediaFile)
-                    
+                self.sizeDownloaded += mediaFile.size * (no_backup_devices + 1)
+                mediaFile.status = STATUS_DOWNLOAD_FAILED
+                
             return (skipFile, sequence_to_use)
         
         def progress_callback(amount_downloaded, total):
@@ -2211,6 +2327,7 @@ class CopyPhotos(Thread):
                                                                     sequencesPreliminary = False,
                                                                     sequence_to_use = sequence_to_use,
                                                                     fallback_date = mediaFile.modificationTime)
+                                                                    
                                 if not mediaFile.downloadName:
                                     # there was a serious error generating the filename
                                     doRename = False                            
@@ -2508,113 +2625,6 @@ class CopyPhotos(Thread):
                 self.sizeDownloaded = expected_bytes_downloaded
             return backed_up
 
-        def notifyAndUnmount(umountAttemptOK):
-            if not self.cardMedia.volume:
-                unmountMessage = ""
-                notificationName = PROGRAM_NAME
-            else:
-                notificationName  = self.cardMedia.volume.get_name()
-                if self.prefs.auto_unmount and umountAttemptOK:
-                    self.cardMedia.volume.unmount(self.on_volume_unmount)
-                    # This message informs the user that the device (e.g. camera, hard drive or memory card) was automatically unmounted and they can now remove it
-                    unmountMessage = _("The device can now be safely removed")
-                else:
-                    unmountMessage = ""
-            
-            file_types = file_types_by_number(noImagesDownloaded, noVideosDownloaded)
-            file_types_skipped = file_types_by_number(noImagesSkipped, noVideosSkipped)
-            message = _("%(noFiles)s %(filetypes)s downloaded") % {'noFiles':noFilesDownloaded, 'filetypes': file_types}
-            noFilesSkipped = noImagesSkipped + noVideosSkipped
-            if noFilesSkipped:
-                message += "\n" + _("%(noFiles)s %(filetypes)s failed to download") % {'noFiles':noFilesSkipped, 'filetypes':file_types_skipped}
-            
-            if unmountMessage:
-                message = "%s\n%s" % (message,  unmountMessage)
-                
-            if self.noWarnings:
-                message = "%s\n%s " % (message,  self.noWarnings) + _("warnings") 
-            if self.noErrors:
-                message = "%s\n%s " % (message,  self.noErrors) + _("errors")
-                
-            n = pynotify.Notification(notificationName,  message)
-            
-            if self.cardMedia.volume:
-                icon = self.cardMedia.volume.get_icon_pixbuf(self.parentApp.notification_icon_size)
-            else:
-                icon = self.parentApp.application_icon
-            
-            n.set_icon_from_pixbuf(icon)
-            n.show()            
-
-        def createTempDir(baseDir):
-            """
-            Create a temporary directory in which to download the photos to.
-            
-            Returns the directory if it was created, else returns None.
-            
-            Don't want to put it in system temp folder, as that is likely
-            to be on another partition and hence copying files from it
-            to the actual download folder will be slow!"""
-            try:
-                t = tempfile.mkdtemp(prefix='rapid-tmp-', 
-                                                dir=baseDir)
-                return t
-            except OSError, (errno, strerror):
-                if not self.cardMedia.volume:
-                    image_device = _("Source: %s\n") % self.cardMedia.getPath()
-                else:
-                    _("Device: %s\n") % self.cardMedia.volume.get_name()
-                destination = _("Destination: %s") % baseDir
-                logError(config.CRITICAL_ERROR, _('Could not create temporary download directory'), 
-                             image_device + destination,
-                            _("Download cannot proceed"))
-                cmd_line(_("Error:") + " " + _('Could not create temporary download directory'))
-                cmd_line(image_device + destination)
-                cmd_line(_("Download cannot proceed"))
-                display_queue.put((media_collection_treeview.removeCard,  (self.thread_id, )))
-                display_queue.put((self.parentApp.downloadFailed,  (self.thread_id, )))
-                display_queue.close("rw")
-                self.running = False
-                self.lock.release()
-                return None      
-            
-        def setupBackup():
-            """
-            Check for presence of backup path or volumes, and return the number of devices being used (1 in case of a path)
-            """
-            no_devices = 0
-            if self.prefs.backup_images:
-                no_devices = len(self.parentApp.backupVolumes)          
-                if not self.prefs.backup_device_autodetection:
-                    if not os.path.isdir(self.prefs.backup_location):
-                        # the user has manually specified a path, but it
-                        # does not exist. This is a problem.
-                        try:
-                            os.makedirs(self.prefs.backup_location)
-                        except:
-                            logError(config.SERIOUS_ERROR, _("Backup path does not exist"),
-                                        _("The path %s could not be created") % path, 
-                                        _("No backups can occur")
-                                    )
-                            no_devices = 0
-            return no_devices
-        
-        def needAJobCode():
-            for f in self.cardMedia.imagesAndVideos:
-                mediaFile = f[0]
-                if mediaFile.status in [STATUS_WARNING, STATUS_NOT_DOWNLOADED]:
-                    if not mediaFile.jobcode:
-                        return True
-            return False
-            
-        def createBothTempDirs():
-            self.photoTempWorkingDir = createTempDir(photoBaseDownloadDir)
-            created = self.photoTempWorkingDir is not None
-            if created and DOWNLOAD_VIDEO:
-                self.videoTempWorkingDir = createTempDir(videoBaseDownloadDir)
-                created = self.videoTempWorkingDir is not None
-                
-            return created
         
         self.hasStarted = True
         display_queue.open('w')
@@ -2789,8 +2799,8 @@ class CopyPhotos(Thread):
                             else:
                                 noVideosSkipped += 1
                                 
-                        #update the selction treeview in the main window with the new status of the file
-                        display_queue.put((self.parentApp.update_status_post_download, (mediaFile.treerowref, )))
+                    #update the selction treeview in the main window with the new status of the file
+                    display_queue.put((self.parentApp.update_status_post_download, (mediaFile.treerowref, )))
 
                 percentComplete = (float(self.sizeDownloaded) / sizeFiles) * 100
                     
@@ -4495,7 +4505,7 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
         downloaded_files = DownloadedFiles()
         
         downloadsToday = self.prefs.getAndMaybeResetDownloadsToday()
-        sequences = rn.Sequences(downloadsToday,  self.prefs.stored_sequence_no)
+        sequences = rn.Sequences(downloadsToday, self.prefs.stored_sequence_no)
         
         self.downloadStats = DownloadStats()
         
