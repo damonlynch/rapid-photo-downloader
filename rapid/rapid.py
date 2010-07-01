@@ -3776,8 +3776,10 @@ class SelectionTreeView(gtk.TreeView):
                             self.parentApp.preview_problem_label]:
                 widget.set_text('')
                 
-            for widget in  [self.parentApp.preview_name_label,
+            for widget in  [self.parentApp.preview_image,
+                            self.parentApp.preview_name_label,
                             self.parentApp.preview_original_name_label,
+                            self.parentApp.preview_status_label,                             
                             self.parentApp.preview_problem_title_label,
                             self.parentApp.preview_problem_label                            
                             ]:
@@ -3846,8 +3848,10 @@ class SelectionTreeView(gtk.TreeView):
                 self.parentApp.preview_destination_path_label.set_text(mediaFile.downloadPath)
                 self.parentApp.preview_destination_path_label.set_tooltip_text(mediaFile.downloadPath)
             
+            status_text = status_human_readable(mediaFile)
             self.parentApp.preview_status_icon.set_from_pixbuf(self.get_status_icon(mediaFile.status, preview=True))
-            self.parentApp.preview_status_label.set_markup('<b>' + status_human_readable(mediaFile) + '</b>')
+            self.parentApp.preview_status_label.set_markup('<b>' + status_text + '</b>')
+            self.parentApp.preview_status_label.set_tooltip_text(status_text)
 
 
             if mediaFile.status in [STATUS_WARNING, STATUS_DOWNLOAD_FAILED,
@@ -3855,11 +3859,13 @@ class SelectionTreeView(gtk.TreeView):
                                     STATUS_CANNOT_DOWNLOAD, 
                                     STATUS_BACKUP_PROBLEM, 
                                     STATUS_DOWNLOAD_AND_BACKUP_FAILED]:
-                self.parentApp.preview_problem_title_label.set_markup('<i>' + mediaFile.problem.get_title() + '</i>')
-                self.parentApp.preview_problem_title_label.set_tooltip_text(mediaFile.problem.get_title())
+                problem_title = mediaFile.problem.get_title()
+                self.parentApp.preview_problem_title_label.set_markup('<i>' + problem_title + '</i>')
+                self.parentApp.preview_problem_title_label.set_tooltip_text(problem_title)
                 
-                self.parentApp.preview_problem_label.set_text(mediaFile.problem.get_problems())
-                self.parentApp.preview_problem_label.set_tooltip_text(mediaFile.problem.get_problems())
+                problem_text = mediaFile.problem.get_problems()
+                self.parentApp.preview_problem_label.set_text(problem_text)
+                self.parentApp.preview_problem_label.set_tooltip_text(problem_text)
             else:
                 self.parentApp.preview_problem_label.set_markup('')
                 self.parentApp.preview_problem_title_label.set_markup('')
