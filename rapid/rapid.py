@@ -1600,6 +1600,8 @@ def generateSubfolderAndName(mediaFile, problem, subfolderPrefsFactory, renamePr
     elif problem.has_problem():
         mediaFile.problem = problem
         mediaFile.status = STATUS_WARNING
+    else:
+        mediaFile.status = STATUS_NOT_DOWNLOADED
 
 
 
@@ -3577,7 +3579,18 @@ class SelectionTreeView(gtk.TreeView):
                 if thread not in threads:
                     threads.append(thread)
         return v, threads
-            
+        
+    def rows_available_for_download(self):
+        """
+        Returns true if one or more rows has their status as STATUS_NOT_DOWNLOADED or STATUS_WARNING
+        """
+        iter = self.liststore.get_iter_first()
+        while iter:
+            status = self.get_status(iter)
+            if status in [STATUS_NOT_DOWNLOADED, STATUS_WARNING]:
+                return True
+            iter = self.liststore.iter_next(iter)
+        return False
     
     def update_download_selected_button(self):
         """
@@ -3697,7 +3710,7 @@ class SelectionTreeView(gtk.TreeView):
         self._refreshNameFactories()
         while iter:
             status = self.get_status(iter)
-            if status in [STATUS_NOT_DOWNLOADED, STATUS_WARNING]:
+            if status in [STATUS_NOT_DOWNLOADED, STATUS_WARNING, STATUS_CANNOT_DOWNLOAD]:
                 regenerate = True
                 if thread_id is not None:
                     t = self.get_thread(iter)
@@ -3707,7 +3720,7 @@ class SelectionTreeView(gtk.TreeView):
                     mediaFile = self.get_mediaFile(iter)
                     self.generateSampleSubfolderAndName(mediaFile, iter)
                     if mediaFile.treerowref == self.previewed_file_treerowref:
-                        self.show_preview(iter)                
+                        self.show_preview(iter)
             iter = self.liststore.iter_next(iter)
     
     def generateSampleSubfolderAndName(self, mediaFile, liststore_iter):
@@ -4661,10 +4674,8 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
         icons = ['rapid-photo-downloader-downloaded', 
              'rapid-photo-downloader-downloaded-with-error',
              'rapid-photo-downloader-downloaded-with-warning',
-             #'rapid-photo-downloader-error',
              'rapid-photo-downloader-download-pending',
              'rapid-photo-downloader-jobcode']
-             #'rapid-photo-downloader-warning'
         
         icon_list = [(icon, paths.share_dir('glade3/%s.svg' % icon)) for icon in icons]
         common.register_iconsets(icon_list)
@@ -5514,7 +5525,10 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
 
     def setDownloadButtonSensitivity(self):
 
-        isSensitive = (workers.noReadyToDownloadWorkers() > 0 and workers.noScanningWorkers() == 0) or workers.noDownloadingWorkers() > 0
+        isSensitive = (workers.noReadyToDownloadWorkers() > 0 and 
+                        workers.noScanningWorkers() == 0 and
+                        self.selection_vbox.selection_treeview.rows_available_for_download()) or \
+                        workers.noDownloadingWorkers() > 0
         
         if isSensitive:
             self.download_button.props.sensitive = True
@@ -5789,6 +5803,7 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
                 
             self.selection_vbox.selection_treeview.refreshGeneratedSampleSubfolderAndName()
             self.refreshGeneratedSampleSubfolderAndName = False
+            self.setDownloadButtonSensitivity()
             
         if self.refreshSampleDownloadFolder:
             cmd_line("\n" + _("Download folder preferences were changed."))

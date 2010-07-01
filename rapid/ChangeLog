@@ -38,11 +38,19 @@ The minimum version of python-gtk2 (pygtk) required to run the program is now
 Version 0.3.0 beta 5
 --------------------
 
-2010-06-2x
+2010-07-01
 
 Add backup errors to error log window.
 
 Improve program notifications.
+
+Fix corner cases with problematic file and subfolder names.
+
+Disable Download All button if all files that have not been downloaded have
+errors. 
+
+Enable and disable Download All button, depending on status, after subfolder or
+filename preferences are modified after device has been scanned. 
 
 
 Version 0.3.0 beta 4
