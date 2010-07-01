@@ -52,6 +52,9 @@ errors.
 Enable and disable Download All button, depending on status, after subfolder or
 filename preferences are modified after device has been scanned. 
 
+Don't stop a file being downloaded if a valid subfolder or filename can be
+generated using a Job Code.
+
 
 Version 0.3.0 beta 4
 --------------------

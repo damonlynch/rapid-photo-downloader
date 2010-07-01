@@ -1571,7 +1571,11 @@ def date_time_subseconds_human_readable(date, subseconds):
              'second':date.strftime("%S"),
              'subsecond': subseconds}
 
-def generateSubfolderAndName(mediaFile, problem, subfolderPrefsFactory, renamePrefsFactory, strip_characters, fallback_date):
+def generateSubfolderAndName(mediaFile, problem, subfolderPrefsFactory, 
+                            renamePrefsFactory, 
+                            nameUsesJobCode, subfolderUsesJobCode, 
+                            strip_characters, fallback_date):
+                                
     subfolderPrefsFactory.initializeProblem(problem)
     mediaFile.sampleSubfolder = subfolderPrefsFactory.generateNameUsingPreferences(
                                 mediaFile.metadata, mediaFile.name, 
@@ -1586,10 +1590,10 @@ def generateSubfolderAndName(mediaFile, problem, subfolderPrefsFactory, renamePr
                             sequencesPreliminary=False,
                             fallback_date = fallback_date)
         
-    if not mediaFile.sampleName or not mediaFile.sampleSubfolder:
-        if not mediaFile.sampleName and not mediaFile.sampleSubfolder:
+    if not (mediaFile.sampleName or nameUsesJobCode) or not (mediaFile.sampleSubfolder or subfolderUsesJobCode):
+        if not (mediaFile.sampleName or nameUsesJobCode) and not (mediaFile.sampleSubfolder or subfolderUsesJobCode):
             area = _("subfolder and filename")
-        elif not mediaFile.sampleName:
+        elif not (mediaFile.sampleName or nameUsesJobCode):
             area = _("filename")
         else:
             area = _("subfolder")
@@ -1815,6 +1819,11 @@ class CopyPhotos(Thread):
             else:
                 self.photoThumbnail = gtk.gdk.pixbuf_new_from_file(paths.share_dir('glade3/photo.png'))
                 self.videoThumbnail = gtk.gdk.pixbuf_new_from_file(paths.share_dir('glade3/video.png'))
+                
+            imageRenameUsesJobCode = rn.usesJobCode(self.prefs.image_rename)
+            imageSubfolderUsesJobCode = rn.usesJobCode(self.prefs.subfolder)
+            videoRenameUsesJobCode = rn.usesJobCode(self.prefs.video_rename)
+            videoSubfolderUsesJobCode = rn.usesJobCode(self.prefs.video_subfolder)
             
             def loadFileMetadata(mediaFile):
                 """
@@ -1835,11 +1844,18 @@ class CopyPhotos(Thread):
                         fallback_date = None
                         subfolderPrefsFactory = self.subfolderPrefsFactory
                         renamePrefsFactory = self.imageRenamePrefsFactory
+                        nameUsesJobCode = imageRenameUsesJobCode
+                        subfolderUsesJobCode = imageSubfolderUsesJobCode                        
                     else:
                         fallback_date = mediaFile.modificationTime
                         subfolderPrefsFactory = self.videoSubfolderPrefsFactory
                         renamePrefsFactory = self.videoRenamePrefsFactory
-                    generateSubfolderAndName(mediaFile, problem, subfolderPrefsFactory, renamePrefsFactory, self.prefs.strip_characters, fallback_date)
+                        nameUsesJobCode = videoRenameUsesJobCode
+                        subfolderUsesJobCode = videoSubfolderUsesJobCode
+                        
+                    generateSubfolderAndName(mediaFile, problem, subfolderPrefsFactory, renamePrefsFactory, 
+                                            nameUsesJobCode, subfolderUsesJobCode, 
+                                            self.prefs.strip_characters, fallback_date)
                     # generate thumbnail
                     mediaFile.generateThumbnail(self.videoTempWorkingDir)
                     
@@ -3705,7 +3721,7 @@ class SelectionTreeView(gtk.TreeView):
         
         If thread_id is specified, will only update rows with that thread
         """
-        
+        self._setUsesJobCode()
         iter = self.liststore.get_iter_first()
         self._refreshNameFactories()
         while iter:
@@ -3729,19 +3745,31 @@ class SelectionTreeView(gtk.TreeView):
             fallback_date = None
             subfolderPrefsFactory = self.subfolderPrefsFactory
             renamePrefsFactory = self.imageRenamePrefsFactory
+            nameUsesJobCode = self.imageRenameUsesJobCode
+            subfolderUsesJobCode = self.imageSubfolderUsesJobCode
         else:
             fallback_date = mediaFile.modificationTime
             subfolderPrefsFactory = self.videoSubfolderPrefsFactory
             renamePrefsFactory = self.videoRenamePrefsFactory
+            nameUsesJobCode = self.videoRenameUsesJobCode
+            subfolderUsesJobCode = self.videoSubfolderUsesJobCode
             
         renamePrefsFactory.setJobCode(self.get_job_code(liststore_iter))
         subfolderPrefsFactory.setJobCode(self.get_job_code(liststore_iter))
         
-        generateSubfolderAndName(mediaFile, problem, subfolderPrefsFactory, renamePrefsFactory, self.strip_characters, fallback_date)
+        generateSubfolderAndName(mediaFile, problem, subfolderPrefsFactory, renamePrefsFactory, 
+                                nameUsesJobCode, subfolderUsesJobCode,
+                                self.strip_characters, fallback_date)
         if self.get_status(liststore_iter) != mediaFile.status:
             self.liststore.set(liststore_iter, 11, mediaFile.status)
             self.liststore.set(liststore_iter, 10, self.get_status_icon(mediaFile.status))
         mediaFile.sampleStale = False
+        
+    def _setUsesJobCode(self):
+        self.imageRenameUsesJobCode = rn.usesJobCode(self.rapidApp.prefs.image_rename)
+        self.imageSubfolderUsesJobCode = rn.usesJobCode(self.rapidApp.prefs.subfolder)
+        self.videoRenameUsesJobCode = rn.usesJobCode(self.rapidApp.prefs.video_rename)
+        self.videoSubfolderUsesJobCode = rn.usesJobCode(self.rapidApp.prefs.video_subfolder)        
     
     def show_preview(self, iter):
         
@@ -3811,6 +3839,7 @@ class SelectionTreeView(gtk.TreeView):
 
             if mediaFile.sampleStale and mediaFile.status in [STATUS_NOT_DOWNLOADED, STATUS_WARNING]:
                 self._refreshNameFactories()
+                self._setUsesJobCode()
                 self.generateSampleSubfolderAndName(mediaFile, iter)
 
             self.parentApp.preview_original_name_label.set_text(mediaFile.name)

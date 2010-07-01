@@ -651,7 +651,7 @@ def upgradePreferencesToCurrent(imageRenamePrefs, subfolderPrefs, previousVersio
 
 def usesJobCode(prefs):
     """ Returns True if the preferences contain a job code, else returns False"""
-    for i in range(0,  len(prefs),  3):
+    for i in range(0, len(prefs), 3):
         if prefs[i] == JOB_CODE:
             return True
     return False
