@@ -5538,7 +5538,6 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
                 n.set_icon_from_pixbuf(self.application_icon)
                 n.show()
                 self.displayDownloadSummaryNotification = False # don't show it again unless needed
-                self.downloadStats.clear()
             self._resetDownloadInfo()
             self.speed_label.set_text('         ')
             
@@ -5548,6 +5547,9 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
             if self.prefs.auto_exit:
                 if not (self.downloadStats.noErrors or self.downloadStats.noWarnings):                
                     self.quit()
+            # since for whatever reason am not exiting, clear the download statistics
+            self.downloadStats.clear()
+        
     
     def downloadFailed(self, thread_id):
         if workers.noDownloadingWorkers() == 0:
@@ -5939,7 +5941,7 @@ class DownloadStats:
     def __init__(self):
         self.clear()
         
-    def adjust(self, size,  noImagesDownloaded, noVideosDownloaded, noImagesSkipped, noVideosSkipped, noWarnings,  noErrors):
+    def adjust(self, size, noImagesDownloaded, noVideosDownloaded, noImagesSkipped, noVideosSkipped, noWarnings,  noErrors):
         self.downloadSize += size
         self.noImagesDownloaded += noImagesDownloaded
         self.noVideosDownloaded += noVideosDownloaded
