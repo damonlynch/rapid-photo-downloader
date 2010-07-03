@@ -22,6 +22,11 @@ import sys
 import gc
 import distutils.version
 import gtk.gdk as gdk
+import gtk
+try:
+    import gio
+except:
+    pass
 
 import config
 
@@ -173,6 +178,45 @@ def scale2pixbuf(width_max, height_max, pixbuf, return_size=False):
         return pixbuf, width_orig, height_orig
     return pixbuf
 
+def get_icon_pixbuf(using_gio, icon, size, fallback='gtk-harddisk'):
+    """ returns icon for the volume, or None if not available"""
+    
+    icontheme = gtk.icon_theme_get_default()        
+
+    if using_gio:
+        f = None
+        if isinstance(icon, gio.ThemedIcon):
+            try:
+                # on some user's systems, themes do not have icons associated with them
+                iconinfo = icontheme.choose_icon(icon.get_names(), size, gtk.ICON_LOOKUP_USE_BUILTIN)
+                f = iconinfo.get_filename()
+                v = gtk.gdk.pixbuf_new_from_file_at_size(f, size, size)
+            except:
+                f = None                
+        if not f:
+            v = icontheme.load_icon(fallback, size, gtk.ICON_LOOKUP_USE_BUILTIN)
+    else:
+        v = icontheme.load_icon(icon, size, gtk.ICON_LOOKUP_USE_BUILTIN)
+    return v
+
+def register_iconsets(icon_info):
+    """
+    Register icons in the icon set if they're not already used
+    
+    From http://faq.pygtk.org/index.py?req=show&file=faq08.012.htp
+    """
+    
+    iconfactory = gtk.IconFactory()
+    stock_ids = gtk.stock_list_ids()
+    for stock_id, file in icon_info:
+        # only load image files when our stock_id is not present
+        if stock_id not in stock_ids:
+            pixbuf = gtk.gdk.pixbuf_new_from_file(file)
+            iconset = gtk.IconSet(pixbuf)
+            iconfactory.add(stock_id, iconset)
+    iconfactory.add_default()
+
+  
 
     
 if __name__ == '__main__':

@@ -15,7 +15,7 @@
 ### along with this program; if not, write to the Free Software
 ### Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-version = '0.2.3'
+version = '0.3.0~b4'
 
 GCONF_KEY="/apps/rapid-photo-downloader"
 GLADE_FILE = "glade3/rapid.glade"
@@ -30,10 +30,6 @@ MEDIA_LOCATION = "/media"
 SKIP_DOWNLOAD = "skip download"
 ADD_UNIQUE_IDENTIFIER = "add unique identifier"
 
-REPORT_WARNING = "warning"
-REPORT_ERROR = "error"
-IGNORE = "ignore"
-
 DEFAULT_PHOTO_LOCATIONS = ['Pictures',  'Photos']
 DEFAULT_BACKUP_LOCATION = 'Pictures'
 DEFAULT_VIDEO_BACKUP_LOCATION = 'Videos'
@@ -47,8 +43,14 @@ SERIOUS_ERROR = 2
 WARNING = 3
 
 MAX_LENGTH_DEVICE_NAME = 15
+MAX_THUMBNAIL_SIZE = 160
 
-#logging - to be implemented
-#LOGFILE_DIRECTORY = '.rapidPhotoDownloader' # relative to home directory
-#MAX_LOGFILE_SIZE = 100 * 1024       # bytes
-#MAX_LOGFILES  = 5
+STATUS_DOWNLOAD_PENDING = 0                 # going to try to download it
+STATUS_DOWNLOADED = 1                       # downloaded successfully
+STATUS_DOWNLOADED_WITH_WARNING = 2          # downloaded ok but there was a warning
+STATUS_BACKUP_PROBLEM = 3                   # downloaded ok, but the file was not backed up, or had a problem (overwrite or duplicate)
+STATUS_NOT_DOWNLOADED = 4                   # has not yet been downloaded (but might be if the user chooses)
+STATUS_DOWNLOAD_AND_BACKUP_FAILED = 5       # tried to download but failed, and the backup failed or had an error
+STATUS_DOWNLOAD_FAILED = 6                  # tried to download but failed
+STATUS_WARNING = 7                          # warning (shown in pre-download preview)
+STATUS_CANNOT_DOWNLOAD = 8                  # cannot be downloaded

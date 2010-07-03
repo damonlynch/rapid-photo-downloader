@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: latin1 -*-
 
-### Copyright (C) 2007 Damon Lynch <damonlynch@gmail.com>
+### Copyright (C) 2007, 2008, 2009, 2010 Damon Lynch <damonlynch@gmail.com>
 
 ### This program is free software; you can redistribute it and/or modify
 ### it under the terms of the GNU General Public License as published by
@@ -18,13 +18,27 @@
 ### Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 import os
+import sys
+import types
+import datetime 
 
 import config
+from config import MAX_THUMBNAIL_SIZE
+from config import STATUS_NOT_DOWNLOADED, \
+                    STATUS_DOWNLOAD_PENDING, \
+                    STATUS_CANNOT_DOWNLOAD
+
+
 import common
 import metadata
 import videometadata
 
+from common import Configi18n
+global _
+_ = Configi18n._
+
 import operator
+import gtk
 
 def _getDefaultLocation(options, ignore_missing_dir=False):
     if ignore_missing_dir:
@@ -79,25 +93,119 @@ def isVideo(fileName):
     ext = os.path.splitext(fileName)[1].lower()[1:]
     return (ext in videometadata.VIDEO_FILE_EXTENSIONS)
     
-def getVideoThumbnailFile(fullFileName):
+
+class MediaFile:
     """
-    Checks to see if a thumbnail file is in the same directory as the 
-    file. Expects a full path to be part of the file name.
-    
-    Returns the filename, including path, if found, else returns None.
+    A photo or video file, with metadata
     """
     
-    f = None
-    name, ext = os.path.splitext(fullFileName)
-    for e in videometadata.VIDEO_THUMBNAIL_FILE_EXTENSIONS:
-        if os.path.exists(name + '.' + e):
-            f = name + '.' + e
-            break
-        if os.path.exists(name + '.' + e.upper()):
-            f = name + '.' + e.upper()
-            break
+    def __init__(self, thread_id, name, path, size, fileSystemModificationTime, deviceName, downloadFolder, volume, isPhoto = True):
+        self.thread_id = thread_id
+        self.path = path
+        self.name = name
+        self.fullFileName = os.path.join(path, name)
+        self.size = size # type int
+        self.modificationTime = fileSystemModificationTime
+        self.deviceName = deviceName
+        self.downloadFolder = downloadFolder
+        self.volume = volume
         
-    return f
+        self.jobcode = ''
+        
+        # a reference into the SelectionTreeView's liststore
+        self.treerowref = None
+        
+        # generated values
+        self.downloadSubfolder = ''
+        self.downloadPath = ''
+        self.downloadName = ''
+        self.downloadFullFileName = ''
+
+        self.isImage = isPhoto
+        self.isVideo = not self.isImage
+        if isPhoto:
+            self.displayName = _("photo")
+            self.displayNameCap = _("Photo")
+        else:
+            self.displayName = _("video")
+            self.displayNameCap = _("Video")
+        
+        
+        self.metadata = None
+        self.thumbnail = None
+        self.genericThumbnail = False
+        self.sampleName = ''
+        self.sampleSubfolder = ''
+        self.samplePath = ''
+        
+        # whether the sample genereated name, subfolder and path need to be refreshed in a preview
+        self.sampleStale = False
+
+        self.status = STATUS_NOT_DOWNLOADED
+        self.problem = None # class Problem in problemnotifcation.py
+        
+    def loadMetadata(self):
+        """
+        Attempt to load the metadata for the photo or video
+        
+        Raises errors if unable to be loaded
+        """
+        if not self.metadata:
+            if self.isImage:
+                self.metadata = metadata.MetaData(self.fullFileName)
+                self.metadata.read()
+            else:
+                self.metadata = videometadata.VideoMetaData(self.fullFileName)
+                
+    def dateTime(self, alternative_if_date_missing=None):
+        date = None
+        if self.metadata:
+            date = self.metadata.dateTime()
+        if not date:
+            if alternative_if_date_missing:
+                date = alternative_if_date_missing
+            else:
+                date = datetime.datetime.fromtimestamp(self.modificationTime)
+        return date
+            
+        
+    def generateThumbnail(self, tempWorkingDir):
+        """
+        Attempts to generate or extract a thumnail and its orientation for the photo or video
+        """
+        if self.metadata is None:
+            sys.stderr.write("metadata should not be empty!")
+        else:
+            if self.isImage:
+                try:
+                    thumbnail = self.metadata.getThumbnailData(MAX_THUMBNAIL_SIZE)
+                    if not isinstance(thumbnail, types.StringType):
+                        self.thumbnail = None
+                    else:
+                        orientation = self.metadata.orientation(missing=None)
+                        pbloader = gtk.gdk.PixbufLoader()
+                        pbloader.write(thumbnail)
+                        pbloader.close()
+                        # Get the resulting pixbuf and build an image to be displayed
+                        pixbuf = pbloader.get_pixbuf()
+                        if orientation == 8:
+                            pixbuf = pixbuf.rotate_simple(gtk.gdk.PIXBUF_ROTATE_COUNTERCLOCKWISE)
+                        elif orientation == 6:
+                            pixbuf = pixbuf.rotate_simple(gtk.gdk.PIXBUF_ROTATE_CLOCKWISE)
+                        elif orientation == 3:
+                            pixbuf = pixbuf.rotate_simple(gtk.gdk.PIXBUF_ROTATE_UPSIDEDOWN)
+                        
+                        self.thumbnail = pixbuf
+                except:
+                    pass
+            else:
+                # get thumbnail of video
+                # it may need to be generated
+                self.thumbnail = self.metadata.getThumbnailData(MAX_THUMBNAIL_SIZE, tempWorkingDir)
+        if self.thumbnail:
+            # scale to size
+            self.thumbnail = common.scale2pixbuf(MAX_THUMBNAIL_SIZE, MAX_THUMBNAIL_SIZE, self.thumbnail)
+
     
 
 class Media:
@@ -138,7 +246,7 @@ class Media:
     
 class CardMedia(Media):
     """Compact Flash cards, hard drives, etc."""
-    def __init__(self, path, volume = None,  doNotScan=True):
+    def __init__(self, path, volume = None):
         """
         volume is a gnomevfs or gio volume, see class Volume in rapid.py
         """
@@ -146,7 +254,7 @@ class CardMedia(Media):
 
         
     def setMedia(self, imagesAndVideos, fileSizeSum, noFiles):
-        self.imagesAndVideos = imagesAndVideos
+        self.imagesAndVideos = imagesAndVideos # class MediaFile
         self.fileSizeSum = fileSizeSum
         self.noFiles = noFiles
         
@@ -158,19 +266,55 @@ class CardMedia(Media):
             return common.formatSizeForUser(self.fileSizeSum)
         else:
             return self.fileSizeSum
-    
-    def _firstFile(self, function_to_check):
+            
+    def sizeAndNumberDownloadPending(self):
+        """
+        Returns how many files have their status set to download pending, and their size
+        """
+        v = s = 0
+        fileIndex = []
+        for i in range(len(self.imagesAndVideos)):
+            mediaFile = self.imagesAndVideos[i][0]
+            if mediaFile.status == STATUS_DOWNLOAD_PENDING:
+                v += 1
+                s += mediaFile.size
+                fileIndex.append(i)
+        return (v, s, fileIndex)
         
+    def numberOfFilesNotCannotDownload(self):
+        """
+        Returns how many files whose status is not cannot download
+        """
+        v = 0
+        for i in range(len(self.imagesAndVideos)):
+            mediaFile = self.imagesAndVideos[i][0]
+            if mediaFile.status <> STATUS_CANNOT_DOWNLOAD:
+                v += 1
+                
+        return v
+        
+    def downloadPending(self):
+        """
+        Returns true if there a mediaFile with status download pending on the device.
+        Inefficient. Not currently used.
+        """
+        for i in range(len(self.imagesAndVideos)):
+            mediaFile = self.imagesAndVideos[i][0]
+            if mediaFile.status == config.STATUS_DOWNLOAD_PENDING:
+                return True
+        return False
+    
+    def _firstFile(self, isImage):
         if self.imagesAndVideos:
             for i in range(len(self.imagesAndVideos)):
-                if function_to_check(self.imagesAndVideos[i][0]):
-                    return self.imagesAndVideos[i]
+                if self.imagesAndVideos[i][0].isImage == isImage:
+                    return self.imagesAndVideos[i][0]
         else:
             return None
         
     def firstImage(self):
-        return self._firstFile(isImage)
+        return self._firstFile(True)
     
     def firstVideo(self):
-        return self._firstFile(isVideo)
+        return self._firstFile(False)
         

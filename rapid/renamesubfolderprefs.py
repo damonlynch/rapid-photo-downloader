@@ -68,6 +68,8 @@ import ValidatedEntry
 import config
 
 from common import pythonifyVersion
+import problemnotification as pn
+
 
 # Special key in each dictionary which specifies the order of elements.
 # It is very important to have a consistent and rational order when displaying 
@@ -649,7 +651,7 @@ def upgradePreferencesToCurrent(imageRenamePrefs, subfolderPrefs, previousVersio
 
 def usesJobCode(prefs):
     """ Returns True if the preferences contain a job code, else returns False"""
-    for i in range(0,  len(prefs),  3):
+    for i in range(0, len(prefs), 3):
         if prefs[i] == JOB_CODE:
             return True
     return False
@@ -834,7 +836,7 @@ class Comboi18n(gtk.ComboBox):
         
     def append_text(self,  text):
         model = self.get_model()
-        model.append((text,  _(text)))
+        model.append((text, _(text)))
         
     def get_active_text(self):
         model = self.get_model()
@@ -870,8 +872,23 @@ class ImageRenamePreferences:
             self.defaultRow = self.defaultPrefs
             self.stripForwardSlash = True
             self.L1DateCheck = IMAGE_DATE #used in _getDateComponent()
+            self.component = pn.FILENAME_COMPONENT
             
 
+    def initializeProblem(self, problem):
+        """
+        Set the problem tracker used in name generation
+        """
+        self.problem = problem
+        
+    def getProblems(self):
+        """
+        Returns Problem class if there were problems, else returns None.
+        """
+        if self.problem.has_problem():
+            return self.problem
+        else:
+            return None
 
     def checkPrefsForValidity(self):
         """
@@ -905,40 +922,24 @@ class ImageRenamePreferences:
         self.job_code = job_code
         
     
-    def _fixMangledDateTime(self, d):
-        """ Some EXIF dates are badly formed. Try to fix them """
-        
-        _datetime = d.strip()
-        # remove any weird characters at the end of the string
-        while _datetime and not _datetime[-1].isdigit():
-            _datetime = _datetime[:-1]
-        _date,  _time = _datetime.split(' ')
-        _datetime = "%s %s" % (_date.replace(":",  "-") ,  _time.replace("-",  ":"))
-        try:
-            d = datetime.datetime.strptime(_datetime, '%Y-%m-%d %H:%M:%S')
-        except:
-            d = None
-        return d
-            
+
     def _getDateComponent(self):
         """
         Returns portion of new image / subfolder name based on date time.
         If the date is missing, will attempt to use the fallback date.
         """
         
-        problem = None
-
+        # step 1: get the correct value from metadata
         if self.L1 == self.L1DateCheck:
             if self.L2 == SUBSECONDS:
-                d = self.photo.subSeconds()
-                problem = _("Subsecond metadata not present in photo")
+                d = self.metadata.subSeconds()
                 if d == '00':
-                    return ('', problem)
+                    self.problem.add_problem(self.component, pn.MISSING_METADATA, _(self.L2))
+                    return ''
                 else:
-                    return (d, None)
+                    return d
             else:
-                d = self.photo.dateTime(missing=None)
-                problem = _("%s metadata is not present") % self.L1.lower()
+                d = self.metadata.dateTime(missing=None)
                 
         elif self.L1 == TODAY:
             d = datetime.datetime.now()
@@ -948,34 +949,23 @@ class ImageRenamePreferences:
         else:
             raise("Date options invalid")
 
-        if d:
-            # if format is not the standard floating point representation
-            # of a date time, there is a problem
-            if type(d) == type('string'):
-                # will be a string only if the date time could not be converted in the datetime type
-                # try to massage badly formed date / times into a valid value
-                d = self._fixMangledDateTime(d)
-                if d is None:
-                    v = ''
-                    problem = _('Error in date time component. Value %s appears invalid') % ''
-                    return (v,  problem)
-        else:
+        # step 2: handle a missing value
+        if not d:
             if self.fallback_date:
                 try:
                     d = datetime.datetime.fromtimestamp(self.fallback_date)
                 except:
-                    v = ''
-                    problem = _('Error in date time component. Value %s appears invalid') % ''
-                    return (v,  problem)                    
+                    self.problem.add_problem(self.component, pn.INVALID_DATE_TIME, '')
+                    return ''
             else:
-                return ('', problem)
+                self.problem.add_problem(self.component, pn.MISSING_METADATA, _(self.L1))
+                return ''
         
         try:
-            return (d.strftime(convertDateForStrftime(self.L2)), None)
+            return d.strftime(convertDateForStrftime(self.L2))
         except:
-            v = ''
-            problem = _('Error in date time component. Value %s appears invalid') % d
-            return (v,  problem)
+            self.problem.add_problem(self.component, pn.INVALID_DATE_TIME, d)
+            return ''
 
     def _getFilenameComponent(self):
         """
@@ -983,7 +973,6 @@ class ImageRenamePreferences:
         """
         
         name, extension = os.path.splitext(self.existingFilename)
-        problem = None
         
         if self.L1 == NAME_EXTENSION:
             filename = self.existingFilename
@@ -1000,12 +989,13 @@ class ImageRenamePreferences:
                     # is a bad idea!
                     filename = extension[1:]
             else:
-                filename = ""
-                problem = _("extension was specified but filename does not have an extension")
+                self.problem.add_problem(self.component, pn.MISSING_FILE_EXTENSION)
+                return ""
         elif self.L1 == IMAGE_NUMBER or self.L1 == VIDEO_NUMBER:
             n = re.search("(?P<image_number>[0-9]+$)", name)
             if not n:
-                problem = _("image or video number was specified but filename has no number")
+                self.problem.add_problem(self.component, pn.MISSING_IMAGE_NUMBER)
+                return '' 
             else:
                 image_number = n.group("image_number")
     
@@ -1027,7 +1017,7 @@ class ImageRenamePreferences:
         elif self.L2 == LOWERCASE:
             filename = filename.lower()
 
-        return (filename, problem)
+        return filename
         
     def _getMetadataComponent(self):
         """
@@ -1036,27 +1026,26 @@ class ImageRenamePreferences:
         Note: date time metadata found in _getDateComponent()
         """
         
-        problem = None
         if self.L1 == APERTURE:
-            v = self.photo.aperture()
+            v = self.metadata.aperture()
         elif self.L1 == ISO:
-            v = self.photo.iso()
+            v = self.metadata.iso()
         elif self.L1 == EXPOSURE_TIME:
-            v = self.photo.exposureTime(alternativeFormat=True)
+            v = self.metadata.exposureTime(alternativeFormat=True)
         elif self.L1 == FOCAL_LENGTH:
-            v = self.photo.focalLength()
+            v = self.metadata.focalLength()
         elif self.L1 == CAMERA_MAKE:
-            v = self.photo.cameraMake()
+            v = self.metadata.cameraMake()
         elif self.L1 == CAMERA_MODEL:
-            v = self.photo.cameraModel()
+            v = self.metadata.cameraModel()
         elif self.L1 == SHORT_CAMERA_MODEL:
-            v = self.photo.shortCameraModel()
+            v = self.metadata.shortCameraModel()
         elif self.L1 == SHORT_CAMERA_MODEL_HYPHEN:
-            v = self.photo.shortCameraModel(includeCharacters = "\-")
+            v = self.metadata.shortCameraModel(includeCharacters = "\-")
         elif self.L1 == SERIAL_NUMBER:
-            v = self.photo.cameraSerial()
+            v = self.metadata.cameraSerial()
         elif self.L1 == SHUTTER_COUNT:
-            v = self.photo.shutterCount()
+            v = self.metadata.shutterCount()
             if v:
                 v = int(v)
                 padding = LIST_SHUTTER_COUNT_L2.index(self.L2) + 3
@@ -1064,7 +1053,7 @@ class ImageRenamePreferences:
                 v = formatter % v
             
         elif self.L1 == OWNER_NAME:
-            v = self.photo.ownerName()
+            v = self.metadata.ownerName()
         else:
             raise TypeError("Invalid metadata option specified")
         if self.L1 in [CAMERA_MAKE, CAMERA_MODEL, SHORT_CAMERA_MODEL,
@@ -1074,12 +1063,8 @@ class ImageRenamePreferences:
             elif self.L2 == LOWERCASE:
                 v = v.lower()
         if not v:
-            if self.L1 <> ISO:
-                md = self.L1.lower()
-            else:
-                md = ISO
-            problem = _("%s metadata is not present in photo") % md
-        return (v, problem)
+            self.problem.add_problem(self.component, pn.MISSING_METADATA, _(self.L1))
+        return v
 
 
     def _formatSequenceNo(self,  value,  amountToPad):
@@ -1119,7 +1104,6 @@ class ImageRenamePreferences:
           than one subfolder sequence number in the same file name
         """
         
-        problem = None
         self.subfolderSeqNoInstanceInFilename += 1
 
         if self.downloadSubfolder:
@@ -1135,33 +1119,23 @@ class ImageRenamePreferences:
             v = self.sequenceNos.calculate(subfolder)
             v = self.formatSequenceNo(v,  self.L1)
             
-        return (v, problem)
+        return v 
 
     def _getSessionSequenceNo(self):
-        problem = None
-        v = self._formatSequenceNo(self.sequences.getSessionSequenceNoUsingCounter(self.sequenceCounter),  self.L2)            
-        return (v, problem)
+        return self._formatSequenceNo(self.sequences.getSessionSequenceNoUsingCounter(self.sequenceCounter),  self.L2)            
 
     def _getDownloadsTodaySequenceNo(self):
-        problem = None
-        v = self._formatSequenceNo(self.sequences.getDownloadsTodayUsingCounter(self.sequenceCounter),  self.L2)
-        
-        return (v, problem)
+        return self._formatSequenceNo(self.sequences.getDownloadsTodayUsingCounter(self.sequenceCounter),  self.L2)
+
         
     def _getStoredSequenceNo(self):
-        problem = None
-        v = self._formatSequenceNo(self.sequences.getStoredSequenceNoUsingCounter(self.sequenceCounter),  self.L2)
-        
-        return (v,  problem)
+        return self._formatSequenceNo(self.sequences.getStoredSequenceNoUsingCounter(self.sequenceCounter),  self.L2)
         
     def _getSequenceLetter(self):
+        return self._calculateLetterSequence(self.sequences.getSequenceLetterUsingCounter(self.sequenceCounter))
 
-        problem = None
-        v = self._calculateLetterSequence(self.sequences.getSequenceLetterUsingCounter(self.sequenceCounter))
-        return (v, problem)
 
     def _getSequencesComponent(self):
-        problem = None
         if self.L1 == DOWNLOAD_SEQ_NUMBER:
             return self._getDownloadsTodaySequenceNo()
         elif self.L1 == SESSION_SEQ_NUMBER:
@@ -1178,7 +1152,7 @@ class ImageRenamePreferences:
             if self.L0 == DATE_TIME:
                 return self._getDateComponent()
             elif self.L0 == TEXT:
-                return (self.L1, None)
+                return self.L1
             elif self.L0 == FILENAME:
                 return self._getFilenameComponent()
             elif self.L0 == METADATA:
@@ -1186,27 +1160,25 @@ class ImageRenamePreferences:
             elif self.L0 == SEQUENCES:
                 return self._getSequencesComponent()
             elif self.L0 == JOB_CODE:
-                return (self.job_code,  None)
+                return self.job_code
             elif self.L0 == SEPARATOR:
-                return (os.sep, None)
+                return os.sep
         except:
-            v = ""
-            problem = _("error generating name with component %s") % self.L0
-            return (v,  problem)
-
+            self.problem.add_problem(self.component, pn.ERROR_IN_GENERATION, _(self.L0))
+            return ''
+            
     def _getValuesFromList(self):
         for i in range(0, len(self.prefList), 3):
             yield (self.prefList[i], self.prefList[i+1], self.prefList[i+2])
 
 
-    def _generateName(self,  photo,  existingFilename,  stripCharacters,  subfolder,  stripInitialPeriodFromExtension,  sequence, fallback_date):
-        self.photo = photo
+    def _generateName(self, metadata, existingFilename, stripCharacters, subfolder, stripInitialPeriodFromExtension, sequence, fallback_date):
+        self.metadata = metadata
         self.existingFilename = existingFilename
         self.stripInitialPeriodFromExtension = stripInitialPeriodFromExtension
         self.fallback_date = fallback_date
             
         name = ''
-        problem = ''
 
         #the subfolder in which the image will be downloaded to
         self.downloadSubfolder = subfolder 
@@ -1214,37 +1186,34 @@ class ImageRenamePreferences:
         self.sequenceCounter = sequence
         
         for self.L0, self.L1, self.L2 in self._getValuesFromList():
-            v, p = self._getComponent()
+            v = self._getComponent()
             if v:
                 name += v
-            if p:
-                problem += p + "; "
 
-        if problem:
-            # remove final semicolon and space
-            problem = problem[:-2] + '.'
-            
         if stripCharacters:
             for c in r'\:*?"<>|':
                 name = name.replace(c, '')
                 
         if self.stripForwardSlash:
             name = name.replace('/', '')
+            
+        name = name.strip()
                     
-        return (name, problem)
+        return name
 
-    def generateNameUsingPreferences(self, photo, existingFilename=None, 
+    def generateNameUsingPreferences(self, metadata, existingFilename=None, 
                                     stripCharacters = False,  subfolder=None,  
                                     stripInitialPeriodFromExtension=False, 
                                     sequencesPreliminary = True,
                                     sequence_to_use = None,
                                     fallback_date = None):
         """
-        Generate a filename for the photo in string format based on user prefs.
+        Generate a filename for the photo or video in string format based on user preferences.
         
-        Returns a tuple of two strings: 
-        - the name
-        - any problems generating the name.  If blank, there were no problems
+        Returns the name in string format
+        
+        Any problems encountered during the generation of the name can be accessed 
+        through the method getProblems()
         """
 
         if self.sequences:
@@ -1257,18 +1226,18 @@ class ImageRenamePreferences:
         else:
             sequence = 0
 
-        return self._generateName(photo,  existingFilename,  stripCharacters,  subfolder,  
-                                    stripInitialPeriodFromExtension,  sequence, fallback_date)
+        return self._generateName(metadata, existingFilename, stripCharacters, subfolder,  
+                                    stripInitialPeriodFromExtension, sequence, fallback_date)
 
-    def generateNameSequencePossibilities(self, photo, existingFilename, 
+    def generateNameSequencePossibilities(self, metadata, existingFilename, 
                                     stripCharacters=False,  subfolder=None,  
                                     stripInitialPeriodFromExtension=False):
                                    
         """ Generates the possible image names using the sequence numbers / letter possibilities"""
                                     
         for sequence in self.sequences.getSequencePossibilities():
-            yield self._generateName(photo,  existingFilename, stripCharacters , subfolder, 
-                                    stripInitialPeriodFromExtension,  sequence)
+            yield self._generateName(metadata, existingFilename, stripCharacters, subfolder, 
+                                    stripInitialPeriodFromExtension, sequence)
 
     def filterPreferences(self):
         """
@@ -1430,15 +1399,15 @@ def getVideoMetadataComponent(video):
     
     problem = None
     if video.L1 == CODEC:
-        v = video.photo.codec()
+        v = video.metadata.codec()
     elif video.L1 == WIDTH:
-        v = video.photo.width()
+        v = video.metadata.width()
     elif video.L1 == HEIGHT:
-        v = video.photo.height()
+        v = video.metadata.height()
     elif video.L1 == FPS:
-        v = video.photo.fps()
+        v = video.metadata.fps()
     elif video.L1 == LENGTH:
-        v = video.photo.length()
+        v = video.metadata.length()
     else:
         raise TypeError("Invalid metadata option specified")
     if video.L1 in [CODEC]:
@@ -1447,8 +1416,8 @@ def getVideoMetadataComponent(video):
         elif video.L2 == LOWERCASE:
             v = v.lower()
     if not v:
-        problem = _("%s metadata is not present in video") % video.L1
-    return (v, problem)      
+        self.problem.add_problem(self.component, pn.MISSING_METADATA, _(video.L1))
+    return v
 
 class VideoRenamePreferences(ImageRenamePreferences):
     def __init__(self, prefList, parent, fileSequenceLock=None, sequences=None):    
@@ -1457,6 +1426,7 @@ class VideoRenamePreferences(ImageRenamePreferences):
         self.defaultRow = self.defaultPrefs
         self.stripForwardSlash = True
         self.L1DateCheck = VIDEO_DATE
+        self.component = pn.FILENAME_COMPONENT
         ImageRenamePreferences.__init__(self, prefList, parent, fileSequenceLock, sequences)
         
     def _getMetadataComponent(self):
@@ -1475,6 +1445,7 @@ class SubfolderPreferences(ImageRenamePreferences):
         self.defaultRow = [DATE_TIME, IMAGE_DATE, LIST_DATE_TIME_L2[0]]
         self.stripForwardSlash = False
         self.L1DateCheck = IMAGE_DATE
+        self.component = pn.SUBFOLDER_COMPONENT
         ImageRenamePreferences.__init__(self, prefList, parent)
         
     def generateNameUsingPreferences(self, photo, existingFilename=None, 
@@ -1487,7 +1458,7 @@ class SubfolderPreferences(ImageRenamePreferences):
         - any problems generating the name.  If blank, there were no problems
         """
 
-        subfolders, problem = ImageRenamePreferences.generateNameUsingPreferences(
+        subfolders = ImageRenamePreferences.generateNameUsingPreferences(
                                         self, photo, 
                                         existingFilename, stripCharacters,  
                                         stripInitialPeriodFromExtension=True, 
@@ -1499,7 +1470,7 @@ class SubfolderPreferences(ImageRenamePreferences):
             if subfolders[0] == os.sep:
                 subfolders = subfolders[1:]
             
-        return (subfolders, problem)
+        return subfolders
 
     def filterPreferences(self):
         filtered,  prefList = filterSubfolderPreferences(self.prefList)
@@ -1561,6 +1532,7 @@ class VideoSubfolderPreferences(SubfolderPreferences):
         self.defaultPrefs = DEFAULT_VIDEO_SUBFOLDER_PREFS
         self.defaultRow = [DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[0]]
         self.L1DateCheck = VIDEO_DATE
+        self.component = pn.SUBFOLDER_COMPONENT
         
     def _getMetadataComponent(self):
         """

@@ -43,7 +43,22 @@ class InstallData(install_data):
 
         return data_files
 
-package_data={'rapid': ['glade3/rapid.glade', 'glade3/rapid-photo-downloader-about.png', 'glade3/image-missing.svg', 'glade3/video.svg', 'glade3/filmstrip-100x75.xpm']}
+package_data={'rapid': ['glade3/rapid.glade', 
+              'glade3/rapid-photo-downloader.svg',
+              'glade3/rapid-photo-downloader-download-pending.svg', 
+              'glade3/rapid-photo-downloader-downloaded-with-error.svg', 
+              'glade3/rapid-photo-downloader-downloaded-with-warning.svg',
+              'glade3/rapid-photo-downloader-downloaded.svg',
+              'glade3/rapid-photo-downloader-jobcode.svg',
+              'glade3/video.png',
+              'glade3/video24.png',
+              'glade3/video_shadow.png',
+              'glade3/video_small_shadow.png',
+              'glade3/photo.png',
+              'glade3/photo_shadow.png',
+              'glade3/photo_small_shadow.png',
+              'glade3/photo24.png'
+              ]}
 
 setup(name=name,
     version=version,

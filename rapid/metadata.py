@@ -23,6 +23,7 @@ import sys
 import subprocess
 import config
 import types
+import time
 
 try:
     import pyexiv2
@@ -370,7 +371,24 @@ class MetaData(baseclass):
                 return model
         else:
             return missing
+    
+    def filterMangledDates(self, d):
+        """
+        Some EXIF dates are badly formed. Try to fix them
+        """
         
+        _datetime = d.strip()
+        # remove any weird characters at the end of the string
+        while _datetime and not _datetime[-1].isdigit():
+            _datetime = _datetime[:-1]
+        _date,  _time = _datetime.split(' ')
+        _datetime = "%s %s" % (_date.replace(":",  "-") ,  _time.replace("-",  ":"))
+        try:
+            d = datetime.datetime.strptime(_datetime, '%Y-%m-%d %H:%M:%S')
+        except:
+            d = None
+        return d
+                
     def dateTime(self, missing=''):
         """ 
         Returns in python datetime format the date and time the image was 
@@ -387,9 +405,25 @@ class MetaData(baseclass):
                 v = self["Exif.Photo.DateTimeOriginal"]
             else:
                 v = self["Exif.Image.DateTime"]
+            if isinstance(v, types.StringType):
+                v = self.filterMangledDates(v)
+                if v is None:
+                    v = missing
             return v
         except:
             return missing
+            
+    def timeStamp(self, missing=''):
+        dt = self.dateTime(missing=None)
+        if not dt is None:
+            try:
+                t = dt.timetuple()
+                ts = time.mktime(t)
+            except:
+                ts = missing
+        else:
+            ts = missing
+        return ts
             
     def subSeconds(self,  missing='00'):
         """ returns the subsecond the image was taken, as recorded by the camera"""

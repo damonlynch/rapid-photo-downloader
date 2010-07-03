@@ -27,6 +27,7 @@ import tempfile
 import gtk
 import media
 import paths
+from filmstrip import add_filmstrip
 
 try:
     import kaa.metadata
@@ -34,9 +35,12 @@ except ImportError:
     DOWNLOAD_VIDEO = False
 
 VIDEO_THUMBNAIL_FILE_EXTENSIONS = ['thm']
-VIDEO_FILE_EXTENSIONS = ['avi', 'mov', 'mp4']
+VIDEO_FILE_EXTENSIONS = ['avi', 'mov', 'mp4', 'mpg']
+
+   
 
 if DOWNLOAD_VIDEO:
+    
     
     try:
         subprocess.check_call(["ffmpegthumbnailer", "-h"], stdout=subprocess.PIPE)
@@ -47,14 +51,31 @@ if DOWNLOAD_VIDEO:
     
     def version_info():
         return str(kaa.metadata.VERSION)
+        
+    def get_video_THM_file(fullFileName):
+        """
+        Checks to see if a thumbnail file (THM) is in the same directory as the 
+        file. Expects a full path to be part of the file name.
+        
+        Returns the filename, including path, if found, else returns None.
+        """
+        
+        f = None
+        name, ext = os.path.splitext(fullFileName)
+        for e in VIDEO_THUMBNAIL_FILE_EXTENSIONS:
+            if os.path.exists(name + '.' + e):
+                f = name + '.' + e
+                break
+            if os.path.exists(name + '.' + e.upper()):
+                f = name + '.' + e.upper()
+                break
+            
+        return f        
     
     class VideoMetaData():
         def __init__(self, filename):
             self.info = kaa.metadata.parse(filename)
             self.filename = filename
-            self.filmstrip = gtk.gdk.pixbuf_new_from_file(paths.share_dir('glade3/filmstrip-100x75.xpm'))
-            self.FILMSTRIP_WIDTH = 100
-            self.FILMSTRIP_HEIGHT = 75
             
         def rpd_keys(self):
             return self.info.keys()
@@ -78,6 +99,17 @@ if DOWNLOAD_VIDEO:
                     return missing
             else:
                 return missing
+                
+        def timeStamp(self, missing=''):
+            """
+            Returns a float value representing the time stamp, if it exists
+            """
+            v = self._get('timestamp', missing=missing)
+            try:
+                v = float(v)
+            except:
+                v = missing
+            return v
             
         def codec(self, stream=0, missing=''):
             return self._get('codec', missing, stream)
@@ -108,17 +140,24 @@ if DOWNLOAD_VIDEO:
             return self._get('fourcc', missing, stream)
             
         def getThumbnailData(self, size, tempWorkingDir):
-            thm = media.getVideoThumbnailFile(self.filename)
+            """
+            Returns a pixbuf of the video's thumbnail
+            
+            If it cannot be created, returns None
+            """
+            thm = get_video_THM_file(self.filename)
             if thm:
-                thumbnail = gtk.gdk.pixbuf_new_from_file_at_size(thm,  size,  size)
-                if thumbnail.get_width() <> self.FILMSTRIP_WIDTH or thumbnail.get_height() <> self.FILMSTRIP_HEIGHT:
-                    thumbnail = thumbnail.scale_simple(self.FILMSTRIP_WIDTH, self.FILMSTRIP_HEIGHT, gtk.gdk.INTERP_BILINEAR)
-                
-                self.filmstrip.composite(thumbnail, 0, 0, self.filmstrip.props.width, self.filmstrip.props.height, 0, 0, 1.0, 1.0, gtk.gdk.INTERP_HYPER, 255)
+                thumbnail = gtk.gdk.pixbuf_new_from_file(thm)
+                aspect = float(thumbnail.get_height()) / thumbnail.get_width()
+                thumbnail = thumbnail.scale_simple(size, int(aspect*size), gtk.gdk.INTERP_BILINEAR)
+                thumbnail = add_filmstrip(thumbnail)
             else:
                 if ffmpeg:
-                    tmp = tempfile.NamedTemporaryFile(dir=tempWorkingDir, prefix="rpd-tmp")
-                    tmp.close()
+                    try:
+                        tmp = tempfile.NamedTemporaryFile(dir=tempWorkingDir, prefix="rpd-tmp")
+                        tmp.close()
+                    except:
+                        return None
                     
                     thm = os.path.join(tempWorkingDir, tmp.name)
                     

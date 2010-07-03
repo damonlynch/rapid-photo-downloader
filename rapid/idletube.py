@@ -1,6 +1,8 @@
 
 # Copyright (c) 2005 Antoon Pardon
 #
+# Modified 2010 by Damon Lynch to use python's higher performance deque, rather than a regular list
+#
 # Permission is hereby granted, free of charge, to any person obtaining a
 # copy of this software and associated documentation files (the "Software"),
 # to deal in the Software without restriction, including without limitation
@@ -18,6 +20,10 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 # FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+
+import collections
+from Queue import Queue
+
 from threading import Lock
 from thread import get_ident
 
@@ -25,25 +31,28 @@ from types import BooleanType as UnConnected
 
 UnRegistered, Registered = False, True
 
+
 class EOInformation(Exception):
     pass
 
 class TubeAccess(Exception):
     pass
 
+        
 class Fifo:
 
     def __init__(self):
-        self.fifo = []
+        self.fifo = collections.deque()
 
     def put(self, item):
         self.fifo.append(item)
 
     def get(self):
-        return self.fifo.pop(0)
+        return self.fifo.popleft()
 
     def size(self):
         return len(self.fifo)
+
 
 class Tube:
 
@@ -90,18 +99,12 @@ class Tube:
             self.readers.discard(thrd)
         if 'w' in access:
             self.writers.discard(thrd)
-##            print "have", self.writers, "writers"
             if len(self.writers) == 0:
                 if self.container.size() == 0:
-##                    print "emptying container, as size is", self.container.size()
                     self.empty.release()
                     if self.cb_src is Registered and len(self.readers) > 0:
-##                        print "adding callback"
                         self.cb_src = gob.idle_add(self._idle_callback)
-##                else:
-##                    print "container size not empty, is", self.container.size()
                 for _ in self.readers:
-##                    print "putting EOInformation"
                     self.container.put(EOInformation)
         self.in_use.release()
 
@@ -148,9 +151,7 @@ class Tube:
         if size == 0:
             self.empty.release()
             if self.cb_src is Registered:
-                #gdk.threads_enter()
                 self.cb_src = gob.idle_add(self._idle_callback)
-                #gdk.threads_leave()
         self.container.put(item)
         if size + 1 < self.maxsize:
             self.full.release()
@@ -185,9 +186,8 @@ class Tube:
 
 def tube_add_watch(tube, callback, *args):
 
-    global gob #, gdk
+    global gob 
     import gobject as gob
-    #import gtk.gdk as gdk
 
     tube.in_use.acquire()
     tube.cb_arglst.append([callback] + list(args))
