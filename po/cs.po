@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-05-27 22:33-0500\n"
-"PO-Revision-Date: 2010-05-28 04:56+0000\n"
-"Last-Translator: Damon Lynch <damonlynch@gmail.com>\n"
+"PO-Revision-Date: 2010-06-17 19:42+0000\n"
+"Last-Translator: Konki <pavel.konkol@seznam.cz>\n"
 "Language-Team: Czech <cs@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-05-28 19:08+0000\n"
+"X-Launchpad-Export-Date: 2010-07-03 03:56+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #. Translators: if neccessary, for guidance in how to translate this program, you may see http://damonlynch.net/translate.html
@@ -153,7 +153,7 @@ msgstr "Vyberte složku do které mají být obrázky staženy"
 
 #: rapid/rapid.py:898
 msgid "Select a folder to download videos to"
-msgstr ""
+msgstr "Zvolte adresář do kterého se bude stahovat video"
 
 #: rapid/rapid.py:980
 #, python-format
@@ -389,7 +389,7 @@ msgstr ""
 #: rapid/rapid.py:1914 rapid/rapid.py:1927
 #, python-format
 msgid "Could not open %(filetype)s"
-msgstr ""
+msgstr "Nemohu otevřít %(filetype)s"
 
 #: rapid/rapid.py:1915 rapid/rapid.py:1928
 #, python-format
@@ -430,7 +430,7 @@ msgstr "Nový den začal - resetování 'Dnešní stahování' sekvenční čís
 #: rapid/rapid.py:2206
 #, python-format
 msgid "Backup of %(file_type)s already exists"
-msgstr ""
+msgstr "Záloha %(file_type)s již existuje"
 
 #: rapid/rapid.py:2210
 #, python-format
@@ -445,7 +445,7 @@ msgstr ""
 #: rapid/rapid.py:2217
 #, python-format
 msgid "%(file_type)s not backed up"
-msgstr ""
+msgstr "%(file_type)s nebyl zálohován"
 
 #: rapid/rapid.py:2243 rapid/rapid.py:2260
 msgid "Backing up error"
@@ -534,7 +534,7 @@ msgstr "Zdroj: %s\n"
 #: rapid/rapid.py:2360
 #, python-format
 msgid "Device: %s\n"
-msgstr ""
+msgstr "Zařízení: %s\n"
 
 #: rapid/rapid.py:2361
 #, python-format
@@ -578,7 +578,7 @@ msgstr "Zálohovací zařízení chybí"
 
 #: rapid/rapid.py:2443
 msgid "No backup device was automatically detected"
-msgstr ""
+msgstr "Automaticky nebylo detekováno žádné zálohovací zařízení"
 
 #: rapid/rapid.py:2534 rapid/rapid.py:3343 rapid/rapid.py:3345
 msgid "Photo"
@@ -611,7 +611,7 @@ msgstr ""
 
 #: rapid/rapid.py:2607 rapid/rapid.py:2611
 msgid "Could not delete photo or video from device"
-msgstr ""
+msgstr "Nelze odstranit fotografie či video ze zařízení"
 
 #: rapid/rapid.py:2608
 #, python-format
