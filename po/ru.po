@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-05-27 22:33-0500\n"
-"PO-Revision-Date: 2010-06-07 20:27+0000\n"
-"Last-Translator: Damon Lynch <damonlynch@gmail.com>\n"
+"PO-Revision-Date: 2010-06-25 20:23+0000\n"
+"Last-Translator: subeditor <Unknown>\n"
 "Language-Team: Russian <ru@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-06-08 20:56+0000\n"
+"X-Launchpad-Export-Date: 2010-07-03 03:56+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #. Translators: if neccessary, for guidance in how to translate this program, you may see http://damonlynch.net/translate.html
@@ -200,8 +200,7 @@ msgstr ""
 #: rapid/rapid.py:1175
 msgid "Stored number value not updated, as a download is currently occurring"
 msgstr ""
-"Значение `Cохранение под номером` не обновлено, так как прямо сейчас идёт "
-"загрузка"
+"Счетчик сквозной нумерации не обновлен, так как прямо сейчас идёт загрузка"
 
 #: rapid/rapid.py:1205
 #, python-format
@@ -1228,7 +1227,7 @@ msgstr "Скачиваний сегодня"
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#sequencenumbers
 #: rapid/renamesubfolderprefs.py:240
 msgid "Session number"
-msgstr "Номер сессии"
+msgstr "Номер в текущей сессии"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#sequencenumbers
 #: rapid/renamesubfolderprefs.py:242
@@ -1238,7 +1237,7 @@ msgstr "Номер подкаталога"
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#sequencenumbers
 #: rapid/renamesubfolderprefs.py:244
 msgid "Stored number"
-msgstr "Сохранение под номером"
+msgstr "Сквозная нумерация"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#sequenceletters
 #: rapid/renamesubfolderprefs.py:246
@@ -1921,7 +1920,7 @@ msgstr "Начать загрузку сразу после подключени
 
 #: rapid/glade3/rapid.glade.h:93
 msgid "Stored number:"
-msgstr "Сохранение под номером:"
+msgstr "Сквозная нумерация"
 
 #: rapid/glade3/rapid.glade.h:94
 msgid "Strip incompatible characters"
