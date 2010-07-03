@@ -5393,9 +5393,10 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
 
         for i in range(len(volumeList)):
             path, volume = volumeList[i]
-            if self.isCamera(volume.volume) and not shownWarning:
-                self.getShowWarningDownloadingFromCamera()
-                shownWarning = True
+            if volume:
+                if self.isCamera(volume.volume) and not shownWarning:
+                    self.getShowWarningDownloadingFromCamera()
+                    shownWarning = True
             if self.searchForPsd() and path not in self.prefs.device_whitelist:
                 # prompt user to see if device should be used or not
                 self.getUseDevice(path, volume, autoStart)
