@@ -456,7 +456,8 @@ class RapidPreferences(prefs.Preferences):
         "vpaned_pos": prefs.Value(prefs.INT, 0),
         "main_window_size_x": prefs.Value(prefs.INT, 0),
         "main_window_size_y": prefs.Value(prefs.INT, 0),
-        "main_window_maximized": prefs.Value(prefs.INT, 0)
+        "main_window_maximized": prefs.Value(prefs.INT, 0),
+        "show_warning_downloading_from_camera": prefs.Value(prefs.BOOL, True),
         }
 
     def __init__(self):
@@ -2693,12 +2694,17 @@ class CopyPhotos(Thread):
             
             if self.autoStart and need_job_code:
                 if needAJobCode():
-                    self.waitingForJobCode = True
-                    display_queue.put((self.parentApp.getJobCode, ()))
-                    self.running = False
-                    self.lock.acquire()
-                    self.running = True
-                    self.waitingForJobCode = False
+                    if job_code == None:
+                        self.waitingForJobCode = True
+                        display_queue.put((self.parentApp.getJobCode, ()))
+                        self.running = False
+                        self.lock.acquire()
+                        self.running = True
+                        self.waitingForJobCode = False
+                    else:
+                        # User has entered a job code, and it's in the global variable
+                        # Assign it to all those files that do not have one
+                        display_queue.put((self.parentApp.selection_vbox.selection_treeview.apply_job_code, (job_code, False, False, self.thread_id)))
             elif not self.autoStart:
                 # halt thread, waiting to be restarted so download proceeds
                 self.cleanUp()
@@ -3074,7 +3080,66 @@ class MediaTreeView(gtk.TreeView):
             return self.get_background_area(path, col)[3] + 1
 
 
+class ShowWarningDialog(gtk.Dialog):
+    """
+    Displays a warning to the user that downloading directly from a 
+    camera does not always work well
+    """ 
+    def __init__(self, parent_window, postChoiceCB):
+        gtk.Dialog.__init__(self, _("Downloading From Cameras"), None,
+                   gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
+                   (gtk.STOCK_OK, gtk.RESPONSE_OK))
+                        
+        self.postChoiceCB = postChoiceCB
         
+        primary_msg = _("Downloading directly from a camera may work poorly or not at all")
+        secondary_msg = _("Downloading from a card reader always works and is generally much faster. It is strongly recommended to use a card reader.")
+        
+        self.set_icon_from_file(paths.share_dir('glade3/rapid-photo-downloader.svg'))
+
+        primary_label = gtk.Label()
+        primary_label.set_markup("<b>%s</b>" % primary_msg)
+        primary_label.set_line_wrap(True)
+        primary_label.set_alignment(0, 0.5)
+
+        secondary_label = gtk.Label()
+        secondary_label.set_text(secondary_msg)
+        secondary_label.set_line_wrap(True)
+        secondary_label.set_alignment(0, 0.5)
+
+        self.show_again_checkbutton = gtk.CheckButton(_('_Show this message again'), True)
+        self.show_again_checkbutton.set_active(True)
+        
+        msg_vbox = gtk.VBox()
+        msg_vbox.pack_start(primary_label, False, False, padding=6)
+        msg_vbox.pack_start(secondary_label, False, False, padding=6)        
+        msg_vbox.pack_start(self.show_again_checkbutton)
+
+        icon = parent_window.render_icon(gtk.STOCK_DIALOG_WARNING, gtk.ICON_SIZE_DIALOG)
+        image = gtk.Image()
+        image.set_from_pixbuf(icon)
+        image.set_alignment(0, 0)
+            
+        warning_hbox = gtk.HBox()
+        warning_hbox.pack_start(image, False, False, padding = 12)
+        warning_hbox.pack_start(msg_vbox, False, False, padding = 12)
+            
+        self.vbox.pack_start(warning_hbox, padding=6)
+
+        self.set_border_width(6)
+        self.set_has_separator(False)   
+        
+        self.set_default_response(gtk.RESPONSE_OK)
+      
+        self.set_transient_for(parent_window)
+        self.show_all()
+        
+        self.connect('response', self.on_response)
+        
+    def on_response(self,  device_dialog, response):
+        show_again = self.show_again_checkbutton.get_active()
+        self.postChoiceCB(self,  show_again)
+
 class UseDeviceDialog(gtk.Dialog):
     def __init__(self,  parent_window,  path,  volume,  autostart, postChoiceCB):
         gtk.Dialog.__init__(self, _('Device Detected'), None,
@@ -3975,7 +4040,7 @@ class SelectionTreeView(gtk.TreeView):
     def display_device_column(self, display):
         self.device_column.set_visible(display)
         
-    def apply_job_code(self, job_code, overwrite=True, to_all_rows=False):
+    def apply_job_code(self, job_code, overwrite=True, to_all_rows=False, thread_id=None):
         """
         Applies the Job code to the selected rows, or all rows if to_all_rows is True.
         
@@ -4006,13 +4071,19 @@ class SelectionTreeView(gtk.TreeView):
                     #reactivates job codes again in their prefs
                     
 
-        if to_all_rows:
+        if to_all_rows or thread_id is not None:
             iter = self.liststore.get_iter_first()
             while iter:
-                mediaFile = self.get_mediaFile(iter)
-                _apply_job_code()
-                if mediaFile.treerowref == self.previewed_file_treerowref:
-                    self.show_preview(iter)                
+                apply = True
+                if thread_id is not None:
+                    t = self.get_thread(iter)
+                    apply = t == thread_id
+                    
+                if apply:
+                    mediaFile = self.get_mediaFile(iter)
+                    _apply_job_code()
+                    if mediaFile.treerowref == self.previewed_file_treerowref:
+                        self.show_preview(iter)                
                 iter = self.liststore.iter_next(iter)
         else:
             selection = self.get_selection()
@@ -4364,6 +4435,8 @@ class SelectionVBox(gtk.VBox):
         self.job_code_combo.connect('changed', self.on_job_code_resp)
         
         self.job_code_entry.connect('activate', self.on_job_code_entry_resp)
+        
+        self.job_code_combo.set_tooltip_text(_("Enter a new Job Code and press Enter, or select an existing Job Code"))
 
         #add widgets
         self.job_code_hbox.pack_start(self.job_code_label, False, False)
@@ -4802,6 +4875,15 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
             self.prefs.job_codes = [code] + jcs
             
     
+    def getShowWarningDownloadingFromCamera(self):
+        if self.prefs.show_warning_downloading_from_camera:
+            cmd_line(_("Displaying warning about downloading directly from camera"))
+            d = ShowWarningDialog(self.widget, self.gotShowWarningDownloadingFromCamera)
+            
+    def gotShowWarningDownloadingFromCamera(self, dialog, showWarningAgain):
+        dialog.destroy()
+        self.prefs.show_warning_downloading_from_camera = showWarningAgain
+    
     def getUseDevice(self,  path,  volume, autostart):  
         """ Prompt user whether or not to download from this device """
         
@@ -4831,7 +4913,6 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
     def _getJobCode(self,  postJobCodeEntryCB,  autoStart, downloadSelected):
         """ prompt for a job code """
         
-
         if not self.prompting_for_job_code:
             cmd_line(_("Prompting for Job Code"))
             self.prompting_for_job_code = True
@@ -4840,7 +4921,7 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
             cmd_line(_("Already prompting for Job Code, do not prompt again"))
         
     def getJobCode(self, autoStart=True, downloadSelected=False):
-        """ called from the copyphotos thread, or when the user..."""
+        """ called from the copyphotos thread, or when the user clicks one of the two download buttons"""
         
         self._getJobCode(self.gotJobCode, autoStart, downloadSelected)
         
@@ -5068,12 +5149,20 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
         return self.prefs.device_autodetection_psd and self.prefs.device_autodetection
         
 
-    def isGProxyShadowMount(self,  gvfsVolume):
+    def isGProxyShadowMount(self, gMount):
 
-        """ gvfs GProxyShadowMount are used for camera specific things, not the data in the memory card """
+        """ gvfs GProxyShadowMount is used for the camera itself, not the data in the memory card """
         if using_gio:
-            #FIXME: this is a hack, but what is the correct function?
-            return str(type(gvfsVolume)).find('GProxyShadowMount') >= 0
+            return gMount.is_shadowed()
+        else:
+            return False
+            
+    def isCamera(self, volume):
+        if using_gio:
+            try:
+                return volume.get_root().query_filesystem_info(gio.FILE_ATTRIBUTE_GVFS_BACKEND).get_attribute_as_string(gio.FILE_ATTRIBUTE_GVFS_BACKEND) == 'gphoto2'
+            except:
+                return False
         else:
             return False
 
@@ -5110,9 +5199,11 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
                             self.rapid_statusbar.push(self.statusbar_context_id, self.displayBackupVolumes())
 
                     elif media.is_DCIM_Media(path) or self.searchForPsd():
+                        if self.isCamera(volume.volume):
+                            self.getShowWarningDownloadingFromCamera()
                         if self.searchForPsd() and path not in self.prefs.device_whitelist:
                             # prompt user if device should be used or not
-                            self.getUseDevice(path,  volume, self.prefs.auto_download_upon_device_insertion)
+                            self.getUseDevice(path, volume, self.prefs.auto_download_upon_device_insertion)
                         else:   
                             self._printAutoStart(self.prefs.auto_download_upon_device_insertion)                   
                             self.initiateScan(path, volume, self.prefs.auto_download_upon_device_insertion)
@@ -5251,7 +5342,7 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
             # or download devices
             
             for v in self.volumeMonitor.get_mounts():
-                volume = Volume(v)
+                volume = Volume(v) #'volumes' are actually mounts (legacy variable name at work here)
                 path = volume.get_path(avoid_gnomeVFS_bug = True)
 
                 if path:
@@ -5297,9 +5388,14 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
             autoStart = (not onPreferenceChange) and ((self.prefs.auto_download_at_startup and onStartup) or (self.prefs.auto_download_upon_device_insertion and not onStartup))
         
         self._printAutoStart(autoStart)
+        
+        shownWarning = False
 
         for i in range(len(volumeList)):
             path, volume = volumeList[i]
+            if self.isCamera(volume.volume) and not shownWarning:
+                self.getShowWarningDownloadingFromCamera()
+                shownWarning = True
             if self.searchForPsd() and path not in self.prefs.device_whitelist:
                 # prompt user to see if device should be used or not
                 self.getUseDevice(path, volume, autoStart)
@@ -5538,6 +5634,7 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
                 n.set_icon_from_pixbuf(self.application_icon)
                 n.show()
                 self.displayDownloadSummaryNotification = False # don't show it again unless needed
+                # download statistics are cleared in exitOnDownloadComplete()
             self._resetDownloadInfo()
             self.speed_label.set_text('         ')
             
@@ -5742,7 +5839,7 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
         If pause, a click indicates to pause all running downloads.
         """
         if self.download_button_is_download:
-            if need_job_code and self.selection_vbox.selection_treeview.job_code_missing(False): # and not self.prompting_for_job_code:
+            if need_job_code and self.selection_vbox.selection_treeview.job_code_missing(False) and not self.prompting_for_job_code:
                 self.getJobCode(autoStart=False, downloadSelected=False)
             else:
                 threads = self.selection_vbox.selection_treeview.set_status_to_download(selected_only = False)

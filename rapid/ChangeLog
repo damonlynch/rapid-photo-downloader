@@ -38,11 +38,13 @@ The minimum version of python-gtk2 (pygtk) required to run the program is now
 Version 0.3.0 beta 5
 --------------------
 
-2010-07-01
+2010-07-04
 
-Add backup errors to error log window.
+Added warning dialog if attempting to download directly from a camera.
 
-Improve program notifications.
+Add backup errors details to error log window.
+
+Fix program notifications.
 
 Fix corner cases with problematic file and subfolder names.
 
@@ -57,6 +59,8 @@ generated using a Job Code.
 
 Bug fix: don't automatically exit if there were errors or warnings and a 
 download was occuring from more than one device.
+
+Make auto start work properly with Job Codes.
  
 
 Version 0.3.0 beta 4
