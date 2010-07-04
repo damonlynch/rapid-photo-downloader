@@ -60,7 +60,7 @@ generated using a Job Code.
 Bug fix: don't automatically exit if there were errors or warnings and a 
 download was occuring from more than one device.
 
-Make auto start work properly with Job Codes.
+Auto start now works correctly again.
  
 
 Version 0.3.0 beta 4

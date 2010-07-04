@@ -172,7 +172,7 @@ display_queue = Queue()
 media_collection_treeview = selection_hbox = log_dialog = None
 
 job_code = None
-need_job_code = False
+need_job_code_for_renaming = False
 
 class ThreadManager:
     """
@@ -345,6 +345,11 @@ class ThreadManager:
     def getWaitingForJobCodeWorkers(self):
         for w in self._workers:
             if w.waitingForJobCode:
+                yield w
+                
+    def getAutoStartWorkers(self):
+        for w in self._workers:
+            if w.autoStart:
                 yield w
     
     def getFinishedWorkers(self):
@@ -2687,48 +2692,67 @@ class CopyPhotos(Thread):
         all_files_downloaded = False
         
         totalNonErrorFiles = self.cardMedia.numberOfFilesNotCannotDownload()
+        
+        if not self.autoStart:
+            # halt thread, waiting to be restarted so download proceeds
+            self.cleanUp()
+            self.running = False
+            self.lock.acquire()
 
-        while not all_files_downloaded:
-            
-            self.noErrors = self.noWarnings = 0
-            
-            if self.autoStart and need_job_code:
+            if not self.ctrl:
+                # thread will restart at this point, when the program is exiting
+                # so must exit if self.ctrl indicates this
+
+                self.running = False
+                display_queue.close("rw")
+                return
+
+            self.running = True
+            if not createBothTempDirs():
+                return
+                
+        else:
+            if need_job_code_for_renaming:
                 if needAJobCode():
                     if job_code == None:
+                        self.cleanUp()
                         self.waitingForJobCode = True
                         display_queue.put((self.parentApp.getJobCode, ()))
                         self.running = False
                         self.lock.acquire()
-                        self.running = True
+
+                        if not self.ctrl:
+                            # thread is exiting
+                            display_queue.close("rw")
+                            return
+
+                        self.running = True                        
                         self.waitingForJobCode = False
+                        if not createBothTempDirs():
+                            return
                     else:
                         # User has entered a job code, and it's in the global variable
                         # Assign it to all those files that do not have one
-                        display_queue.put((self.parentApp.selection_vbox.selection_treeview.apply_job_code, (job_code, False, False, self.thread_id)))
-            elif not self.autoStart:
-                # halt thread, waiting to be restarted so download proceeds
-                self.cleanUp()
+                        display_queue.put((self.parentApp.selection_vbox.selection_treeview.apply_job_code, (job_code, False, True, self.thread_id)))
+
+            # auto start could be false if the user hit cancel when prompted for a job code
+            if self.autoStart:
+                # set all in this thread to download pending
+                display_queue.put((self.parentApp.selection_vbox.selection_treeview.set_status_to_download_pending, (False, self.thread_id)))
+                # wait until all the files have had their status set to download pending, and once that is done, restart
                 self.running = False
                 self.lock.acquire()
-
-                if not self.ctrl:
-                    # thread will restart at this point, when the program is exiting
-                    # so must exit if self.ctrl indicates this
-
-                    self.running = False
-                    display_queue.close("rw")
-                    return
-
                 self.running = True
-                if not createBothTempDirs():
-                    return
+
+        while not all_files_downloaded:
+            
+            self.noErrors = self.noWarnings = 0
             
             if not getPrefs(True):
                     self.running = False
                     display_queue.close("rw")           
                     return
              
-                
             self.downloadStarted = True
             cmd_line(_("Download has started from %s") % self.cardMedia.prettyName(limit=0))
             
@@ -2887,7 +2911,6 @@ class CopyPhotos(Thread):
                     display_queue.close("rw")
                     return
                 self.running = True
-                self.autoStart = True
                 if not createBothTempDirs():
                     return
 
@@ -4070,7 +4093,8 @@ class SelectionTreeView(gtk.TreeView):
                     #if they got an existing job code, may as well keep it there in case the user 
                     #reactivates job codes again in their prefs
                     
-
+        #~ print "\n*********\njob code: %s\noverwrite: %s\nto_all_rows: %s\nthread_id: %s\n" % (job_code, overwrite, to_all_rows, thread_id)
+        
         if to_all_rows or thread_id is not None:
             iter = self.liststore.get_iter_first()
             while iter:
@@ -4156,10 +4180,14 @@ class SelectionTreeView(gtk.TreeView):
             if thread not in threads:
                 threads.append(thread)
         
-    def set_status_to_download(self, selected_only):
+    def set_status_to_download_pending(self, selected_only, thread_id=None):
         """
         Sets status of files to be download pending, if they are waiting to be downloaded
         if selected_only is true, only applies to selected rows
+        
+        If thread_id is not None, then after the statuses have been set, 
+        the thread will be restarted (this is intended for the cases
+        where this method is called from a thread and auto start is True)
         
         Returns a list of threads which can be downloaded
         """
@@ -4179,8 +4207,16 @@ class SelectionTreeView(gtk.TreeView):
         else:
             iter = self.liststore.get_iter_first()
             while iter:
-                self._set_download_pending(iter, threads)
+                apply = True                
+                if thread_id is not None:
+                    t = self.get_thread(iter)
+                    apply = t == thread_id
+                if apply:                
+                    self._set_download_pending(iter, threads)
                 iter = self.liststore.iter_next(iter)
+            if thread_id is not None:
+                # restart the thread
+                workers[thread_id].startStop()
         return threads
                 
     def update_status_post_download(self, treerowref):
@@ -4387,7 +4423,7 @@ class SelectionVBox(gtk.VBox):
         then do not prompt for it
         """
 
-        if self.parentApp.needJobCode():
+        if self.parentApp.needJobCodeForRenaming():
             self.job_code_hbox.show()
             self.job_code_label.show()
             self.job_code_combo.show()
@@ -4620,7 +4656,7 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
         global sequences
         
         # whether we need to prompt for a job code
-        global need_job_code
+        global need_job_code_for_renaming
 
         duplicate_files = {}
         downloaded_files = DownloadedFiles()
@@ -4714,9 +4750,9 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
         
         self.menu_clear.set_sensitive(False)
 
-        need_job_code = self.needJobCode()
-        self.menu_select_all_without_job_code.set_sensitive(need_job_code)
-        self.menu_select_all_with_job_code.set_sensitive(need_job_code)
+        need_job_code_for_renaming = self.needJobCodeForRenaming()
+        self.menu_select_all_without_job_code.set_sensitive(need_job_code_for_renaming)
+        self.menu_select_all_with_job_code.set_sensitive(need_job_code_for_renaming)
         
         #job code initialization
         self.last_chosen_job_code = None
@@ -4849,7 +4885,7 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
             sys.stderr.write(msg +'\n')
         return prefsOk
         
-    def needJobCode(self):
+    def needJobCodeForRenaming(self):
         return rn.usesJobCode(self.prefs.image_rename) or rn.usesJobCode(self.prefs.subfolder) or rn.usesJobCode(self.prefs.video_rename) or rn.usesJobCode(self.prefs.video_subfolder)
         
     def assignJobCode(self,  code):
@@ -4933,7 +4969,7 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
             self.assignJobCode(code)
             self.last_chosen_job_code = code
             self.selection_vbox.selection_treeview.apply_job_code(code, overwrite=False, to_all_rows = not downloadSelected)
-            threads = self.selection_vbox.selection_treeview.set_status_to_download(selected_only = downloadSelected)
+            threads = self.selection_vbox.selection_treeview.set_status_to_download_pending(selected_only = downloadSelected)
             if downloadSelected or not autoStart:
                 cmd_line(_("Starting downloads"))
                 self.startDownload(threads)
@@ -4943,9 +4979,14 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
                 for w in workers.getWaitingForJobCodeWorkers():
                     w.startStop()    
                 
-
-        # FIXME: what happens to these workers that are waiting? How will the user start their download?
-        # check if need to add code to start button
+        else:
+            # user cancelled
+            for w in workers.getWaitingForJobCodeWorkers():
+                w.waitingForJobCode = False
+                
+            if autoStart:
+                for w in workers.getAutoStartWorkers():
+                    w.autoStart = False
             
     def addFile(self, mediaFile):
         self.selection_vbox.add_file(mediaFile)
@@ -5525,7 +5566,7 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
             workers.printWorkerStatus()
     
         
-    def updateOverallProgress(self, thread_id, bytesDownloaded,  percentComplete):
+    def updateOverallProgress(self, thread_id, bytesDownloaded, percentComplete):
         """
         Updates progress bar and status bar text with time remaining
         to download images
@@ -5549,6 +5590,7 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
             self._set_download_button()
             self.setDownloadButtonSensitivity()
             cmd_line(_("All downloads complete"))
+            job_code = None
             if is_beta and verbose and False:
                 workers.printWorkerStatus()
     
@@ -5840,10 +5882,10 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
         If pause, a click indicates to pause all running downloads.
         """
         if self.download_button_is_download:
-            if need_job_code and self.selection_vbox.selection_treeview.job_code_missing(False) and not self.prompting_for_job_code:
+            if need_job_code_for_renaming and self.selection_vbox.selection_treeview.job_code_missing(False) and not self.prompting_for_job_code:
                 self.getJobCode(autoStart=False, downloadSelected=False)
             else:
-                threads = self.selection_vbox.selection_treeview.set_status_to_download(selected_only = False)
+                threads = self.selection_vbox.selection_treeview.set_status_to_download_pending(selected_only = False)
                 self.startDownload(threads)
             self._set_download_button()
         else:
@@ -5851,11 +5893,11 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
 
     def on_download_selected_button_clicked(self, widget):
         # set the status of the selected workers to be downloading pending
-        if need_job_code and self.selection_vbox.selection_treeview.job_code_missing(True):
+        if need_job_code_for_renaming and self.selection_vbox.selection_treeview.job_code_missing(True):
             #and not self.prompting_for_job_code:
             self.getJobCode(autoStart=False, downloadSelected=True)
         else:
-            threads = self.selection_vbox.selection_treeview.set_status_to_download(selected_only = True)
+            threads = self.selection_vbox.selection_treeview.set_status_to_download_pending(selected_only = True)
             self.startDownload(threads)
                 
 
@@ -5885,11 +5927,11 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
                 self.postPreferenceChange()
 
         elif key in ['subfolder', 'image_rename', 'video_subfolder', 'video_rename']:
-            global need_job_code
-            need_job_code = self.needJobCode()
+            global need_job_code_for_renaming
+            need_job_code_for_renaming = self.needJobCodeForRenaming()
             self.selection_vbox.set_job_code_display()
-            self.menu_select_all_without_job_code.set_sensitive(need_job_code)
-            self.menu_select_all_with_job_code.set_sensitive(need_job_code)
+            self.menu_select_all_without_job_code.set_sensitive(need_job_code_for_renaming)
+            self.menu_select_all_with_job_code.set_sensitive(need_job_code_for_renaming)
             self.refreshGeneratedSampleSubfolderAndName = True
                 
             if not self.preferencesDialogDisplayed:
