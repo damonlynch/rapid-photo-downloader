@@ -4043,7 +4043,7 @@ class SelectionTreeView(gtk.TreeView):
 
 
     def header_clicked(self, column):
-        self.user_has_clicked_header
+        self.user_has_clicked_header = True
         
     def display_filename_column(self, display):
         """
@@ -4097,8 +4097,6 @@ class SelectionTreeView(gtk.TreeView):
                     #if they got an existing job code, may as well keep it there in case the user 
                     #reactivates job codes again in their prefs
                     
-        #~ print "\n*********\njob code: %s\noverwrite: %s\nto_all_rows: %s\nthread_id: %s\n" % (job_code, overwrite, to_all_rows, thread_id)
-        
         if to_all_rows or thread_id is not None:
             iter = self.liststore.get_iter_first()
             while iter:
@@ -4125,11 +4123,35 @@ class SelectionTreeView(gtk.TreeView):
 
             for reference in tree_row_refs:
                 selection_path = reference.get_path()
+                #~ current_position = selection_path[0]
                 path = self.sort_model.convert_path_to_child_path(selection_path)
                 iter = self.liststore.get_iter(path)
                 mediaFile = self.get_mediaFile(iter)
                 _apply_job_code()
-
+                #~ new_position = reference.get_path()[0]
+                #~ if new_position <> current_position:
+                    #~ # move the row which has been moved to new position to it's old position (current_position)
+                    #~ # 1. copy last row
+                    #~ last_row = []
+                    #~ for j in range(0,15):
+                        #~ last_row.append(self.sort_model[new_position][j])
+                    #~ # 2. shuffle rows up one
+                    #~ for i in range(new_position - 1, current_position -1, -1):
+                        #~ for j in range(0,15):
+                            #~ i2 = self.sort_model.get_iter((i+1,)) 
+                            #~ self.sort_model.[i + 1][j] = self.sort_model[i][j]
+                    #~ # 3. insert the save row into it's old position
+                    #~ for j in range(0,15):
+                        #~ self.sort_model[current_position][j] = last_row[j]
+                    #~ # 4. let the system know we updated the model
+                    #~ l = []
+                    #~ print current_position, new_position, len(self.liststore)
+                    #~ for i in range(0, len(self.liststore)):
+                        #~ l.append(i)
+                    #~ l = l[:current_position] + [new_position] + l[current_position:-1]
+                    #~ print l
+                    #~ self.sort_model.rows_reordered(None, None, l)
+                
                 # the reference in *this* loop applies to the selection, not the underlying store
                 # therefore use the treerowref in the mediafile
                 if mediaFile.treerowref == self.previewed_file_treerowref:
