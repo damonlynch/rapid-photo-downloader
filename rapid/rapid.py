@@ -3665,8 +3665,9 @@ class SelectionTreeView(gtk.TreeView):
         path = self.liststore.get_path(iter)
         mediaFile.treerowref = gtk.TreeRowReference(self.liststore, path)
         
-        if not self.user_has_clicked_header:
-            self.sort_model.set_sort_column_id(11, gtk.SORT_DESCENDING)
+        if mediaFile.status in [STATUS_CANNOT_DOWNLOAD, STATUS_WARNING]:
+            if not self.user_has_clicked_header:
+                self.sort_model.set_sort_column_id(11, gtk.SORT_DESCENDING)
         
     def no_selected_rows_available_for_download(self):
         """

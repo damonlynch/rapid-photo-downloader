@@ -44,15 +44,15 @@ Added warning dialog if attempting to download directly from a camera.
 
 Add backup errors details to error log window.
 
-Fix program notifications.
+Fixed program notifications.
 
-Fix corner cases with problematic file and subfolder names.
+Fixed corner cases with problematic file and subfolder names.
 
-Disable Download All button if all files that have not been downloaded have
+Disabled Download All button if all files that have not been downloaded have
 errors. 
 
-Enable and disable Download All button, depending on status, after subfolder or
-filename preferences are modified after device has been scanned. 
+Enabled and disabled Download All button, depending on status, after subfolder 
+or filename preferences are modified after device has been scanned. 
 
 Don't stop a file being downloaded if a valid subfolder or filename can be
 generated using a Job Code.
@@ -61,6 +61,13 @@ Bug fix: don't automatically exit if there were errors or warnings and a
 download was occuring from more than one device.
 
 Auto start now works correctly again.
+
+Job Codes are now assigned correctly when multiple downloads occur. 
+
+Default column sorting is by date, unless a warning or error occurs when 
+doing the initial scan of the devices, in which case it is set to status (unless
+you have already clicked on a column heading yourself, in which case it will
+not change).
 
 Use the command xdg-user-dir to get default download directories.
 
