@@ -1,3 +1,41 @@
+rapid-photo-downloader (0.3.0~b5-0ubuntu1~ppa1) hardy; urgency=low
+
+  * Added warning dialog if attempting to download directly from a
+    camera.
+
+  * Add backup errors details to error log window.
+
+  * Fixed program notifications.
+
+  * Fixed corner cases with problematic file and subfolder names.
+
+  * Disabled Download All button if all files that have not been 
+    downloaded have errors. 
+
+  * Enabled and disabled Download All button, depending on status, 
+    after subfolder or filename preferences are modified after device
+    has been scanned. 
+
+  * Don't stop a file being downloaded if a valid subfolder or filename 
+    can be generated using a Job Code.
+
+  * Bug fix: don't automatically exit if there were errors or warnings 
+    and a download was occuring from more than one device.
+
+  * Auto start now works correctly again.
+
+  * Job Codes are now assigned correctly when multiple downloads 
+    occur. 
+
+  * Default column sorting is by date, unless a warning or error occurs
+
+  * Use the command xdg-user-dir to get default download directories
+
+  * Updated Czech, Dutch, Finnish, French, Italian, Polish, Russian and
+    Ukrainian translations.
+
+ -- Damon Lynch <damonlynch@gmail.com>  Mon, 05 Jul 2010 02:35:10 -0500
+
 rapid-photo-downloader (0.3.0~b4-0ubuntu1~ppa1) hardy; urgency=low
 
   * Fixed bug in Job Code addition in the preferences window.
