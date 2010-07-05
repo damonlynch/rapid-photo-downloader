@@ -62,6 +62,8 @@ download was occuring from more than one device.
 
 Auto start now works correctly again.
 
+Use the command xdg-user-dir to get default download directories.
+
 Updated Czech, Dutch, Finnish, French, Italian, Polish, Russian and Ukrainian
 translations.
  

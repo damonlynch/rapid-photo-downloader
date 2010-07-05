@@ -81,7 +81,10 @@ import common
 import misc
 import higdefaults as hd
 
-from media import getDefaultPhotoLocation, getDefaultVideoLocation
+from media import getDefaultPhotoLocation, getDefaultVideoLocation, \
+                  getDefaultBackupPhotoIdentifier, \
+                  getDefaultBackupVideoIdentifier
+                  
 from media import CardMedia
 
 import media
@@ -427,9 +430,9 @@ class RapidPreferences(prefs.Preferences):
         "backup_images": prefs.Value(prefs.BOOL, False),
         "backup_device_autodetection": prefs.Value(prefs.BOOL, True),
         "backup_identifier": prefs.Value(prefs.STRING, 
-                                        config.DEFAULT_BACKUP_LOCATION),
+                                        getDefaultBackupPhotoIdentifier()),
         "video_backup_identifier": prefs.Value(prefs.STRING, 
-                                        config.DEFAULT_VIDEO_BACKUP_LOCATION),                                        
+                                        getDefaultBackupVideoIdentifier()),
         "backup_location": prefs.Value(prefs.STRING, os.path.expanduser('~')),
         "strip_characters": prefs.Value(prefs.BOOL, True),
         "auto_download_at_startup": prefs.Value(prefs.BOOL, False),

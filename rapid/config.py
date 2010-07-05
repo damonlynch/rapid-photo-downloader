@@ -30,7 +30,9 @@ MEDIA_LOCATION = "/media"
 SKIP_DOWNLOAD = "skip download"
 ADD_UNIQUE_IDENTIFIER = "add unique identifier"
 
-DEFAULT_PHOTO_LOCATIONS = ['Pictures',  'Photos']
+# These next three values are fall back values that are used only 
+# if calls to xdg-user-dir fail
+DEFAULT_PHOTO_LOCATIONS = ['Pictures',  'Photos'] 
 DEFAULT_BACKUP_LOCATION = 'Pictures'
 DEFAULT_VIDEO_BACKUP_LOCATION = 'Videos'
 

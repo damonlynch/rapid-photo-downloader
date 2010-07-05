@@ -21,6 +21,7 @@ import os
 import sys
 import types
 import datetime 
+import subprocess
 
 import config
 from config import MAX_THUMBNAIL_SIZE
@@ -40,7 +41,7 @@ _ = Configi18n._
 import operator
 import gtk
 
-def _getDefaultLocation(options, ignore_missing_dir=False):
+def _getDefaultLocationLegacy(options, ignore_missing_dir=False):
     if ignore_missing_dir:
         return common.getFullPath(options[0])
     for default in options:
@@ -48,12 +49,29 @@ def _getDefaultLocation(options, ignore_missing_dir=False):
         if os.path.isdir(path):
             return path
     return common.getFullPath('')
+    
+def _getDefaultLocationXDG(dir_type):
+    proc = subprocess.Popen(['xdg-user-dir', dir_type], stdout=subprocess.PIPE)
+    output = proc.communicate()[0].strip()
+    return output
 
 def getDefaultPhotoLocation(ignore_missing_dir=False):
-    return _getDefaultLocation(config.DEFAULT_PHOTO_LOCATIONS, ignore_missing_dir)
+    try:
+        return _getDefaultLocationXDG('PICTURES')
+    except:
+        return _getDefaultLocationLegacy(config.DEFAULT_PHOTO_LOCATIONS, ignore_missing_dir)
     
 def getDefaultVideoLocation(ignore_missing_dir=False):
-    return _getDefaultLocation(config.DEFAULT_VIDEO_LOCATIONS, ignore_missing_dir)
+    try:
+        return _getDefaultLocationXDG('VIDEOS')
+    except:    
+        return _getDefaultLocationLegacy(config.DEFAULT_VIDEO_LOCATIONS, ignore_missing_dir)
+        
+def getDefaultBackupPhotoIdentifier():
+    return os.path.split(getDefaultPhotoLocation(ignore_missing_dir = True))[1]
+
+def getDefaultBackupVideoIdentifier():
+    return os.path.split(getDefaultVideoLocation(ignore_missing_dir = True))[1]
     
 def is_DCIM_Media(path):
     """ Returns true if directory specifies some media with photos on it   """
