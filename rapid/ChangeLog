@@ -50,6 +50,16 @@ Fixed bug #601993: don't prompt for a Job Code when downloading file of one type
 Log error messages are now cleaned up where a file already exists and there were
 problems generating the file / subfolder name.
 
+Fixed crash on startup when using an old version of GIO.
+
+Fix crash in updating the time remaining in when downloading from extremely
+slow devices.
+
+Set the default height to be 50 pixels taller.
+
+Bug fix: don't download from device that has been inserted after program starts
+unless device auto detection is enabled.
+
 Updated German translation.
 
 

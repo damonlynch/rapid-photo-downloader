@@ -413,7 +413,7 @@ class RapidPreferences(prefs.Preferences):
         "download_folder": prefs.Value(prefs.STRING, 
                                         getDefaultPhotoLocation()),
         "video_download_folder": prefs.Value(prefs.STRING, 
-                                        getDefaultVideoLocation()),                                        
+                                        getDefaultVideoLocation()),
         "subfolder": prefs.ListValue(prefs.STRING_LIST, rn.DEFAULT_SUBFOLDER_PREFS),
         "video_subfolder": prefs.ListValue(prefs.STRING_LIST, rn.DEFAULT_VIDEO_SUBFOLDER_PREFS),
         "image_rename": prefs.ListValue(prefs.STRING_LIST, [rn.FILENAME, 
@@ -452,7 +452,7 @@ class RapidPreferences(prefs.Preferences):
         "display_preview_folders": prefs.Value(prefs.BOOL, True),
         "show_log_dialog": prefs.Value(prefs.BOOL, False),
         "day_start": prefs.Value(prefs.STRING,  "03:00"), 
-        "downloads_today": prefs.ListValue(prefs.STRING_LIST,  [today(),  '0']), 
+        "downloads_today": prefs.ListValue(prefs.STRING_LIST, [today(), '0']), 
         "stored_sequence_no": prefs.Value(prefs.INT,  0), 
         "job_codes": prefs.ListValue(prefs.STRING_LIST,  [_('New York'),  
                _('Manila'),  _('Prague'),  _('Helsinki'),   _('Wellington'), 
@@ -826,8 +826,6 @@ class PreferencesDialog(gnomeglade.Component):
             self.sampleImage = metadata.DummyMetaData()
             self.sampleImageName = 'IMG_0524.CR2'
             
-
-        
         try:
             mediaFile = w.firstVideo()
             self.sampleVideoName = mediaFile.name
@@ -2045,13 +2043,13 @@ class CopyPhotos(Thread):
             if noFilesSkipped:
                 message += "\n" + _("%(noFiles)s %(filetypes)s failed to download") % {'noFiles':noFilesSkipped, 'filetypes':file_types_skipped}
             
-            if unmountMessage:
-                message = "%s\n%s" % (message,  unmountMessage)
-                
             if self.noWarnings:
                 message = "%s\n%s " % (message,  self.noWarnings) + _("warnings") 
             if self.noErrors:
                 message = "%s\n%s " % (message,  self.noErrors) + _("errors")
+                
+            if unmountMessage:
+                message = "%s\n%s" % (message,  unmountMessage)                
                 
             n = pynotify.Notification(notificationName,  message)
             
@@ -2914,6 +2912,12 @@ class CopyPhotos(Thread):
             if totalNonErrorFiles == 0:
                 all_files_downloaded = True
                 
+                # must manually delete these variables, or else the media cannot be unmounted (bug in some versions of pyexiv2 / exiv2)
+                # for some reason directories on the device remain open with read only access, even after these steps - I don't know why
+                del self.subfolderPrefsFactory, self.imageRenamePrefsFactory, self.videoSubfolderPrefsFactory, self.videoRenamePrefsFactory
+                for i in self.cardMedia.imagesAndVideos:
+                    i[0].metadata = None
+                
             notifyAndUnmount(umountAttemptOK = all_files_downloaded)
             cmd_line(_("Download complete from %s") % self.cardMedia.prettyName(limit=0))
             display_queue.put((self.parentApp.notifyUserAllDownloadsComplete,()))
@@ -2937,12 +2941,6 @@ class CopyPhotos(Thread):
                 if not createBothTempDirs():
                     return
 
-        # must manually delete these variables, or else the media cannot be unmounted (bug in some versions of pyexiv2 / exiv2)
-        del self.subfolderPrefsFactory, self.imageRenamePrefsFactory
-        try:
-            pass #del fileMetadata
-        except:
-            pass
 
         display_queue.put((self.parentApp.exitOnDownloadComplete, ()))
         display_queue.close("rw")
@@ -4641,7 +4639,7 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
             self.rapidapp.set_default_size(self.prefs.main_window_size_x, self.prefs.main_window_size_y)
         else:
             # set a default size
-            self.rapidapp.set_default_size(650, 600)
+            self.rapidapp.set_default_size(650, 650)
             
         self.widget.show()
         
@@ -4800,8 +4798,12 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
         #adjust viewport size for displaying media
         #this is important because the code in MediaTreeView.addCard() is inaccurate at program startup
         
-        height = self.media_collection_viewport.size_request()[1]
-        self.media_collection_scrolledwindow.set_size_request(-1,  height)
+        if media_collection_treeview.mapThreadToRow:
+            height = self.media_collection_viewport.size_request()[1]
+            self.media_collection_scrolledwindow.set_size_request(-1,  height)
+        else:
+            # don't allow the media collection to be absolutely empty
+            self.media_collection_scrolledwindow.set_size_request(-1, 47)
         
         self.download_button.grab_default()
         # for some reason, the grab focus command is not working... unsure why
@@ -5222,7 +5224,10 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
 
         """ gvfs GProxyShadowMount is used for the camera itself, not the data in the memory card """
         if using_gio:
-            return gMount.is_shadowed()
+            if hasattr(gMount, 'is_shadowed'):
+                return gMount.is_shadowed()
+            else:
+                return str(type(gMount)).find('GProxyShadowMount') >= 0
         else:
             return False
             
@@ -5267,7 +5272,7 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
                             self.backupVolumes[path] = volume
                             self.rapid_statusbar.push(self.statusbar_context_id, self.displayBackupVolumes())
 
-                    elif media.is_DCIM_Media(path) or self.searchForPsd():
+                    elif self.prefs.device_autodetection and (media.is_DCIM_Media(path) or self.searchForPsd()):
                         if self.isCamera(volume.volume):
                             self.getShowWarningDownloadingFromCamera()
                         if self.searchForPsd() and path not in self.prefs.device_whitelist:
@@ -6186,8 +6191,9 @@ class TimeRemaining:
                 amtDownloaded = self.times[w].downloaded - self.times[w].sizeMark
                 self.times[w].sizeMark = self.times[w].downloaded
                 timefraction = amtDownloaded / float(amtTime)
-                amtToDownload = float(self.times[w].size) - self.times[w].downloaded                
-                self.times[w].timeRemaining = amtToDownload / timefraction
+                amtToDownload = float(self.times[w].size) - self.times[w].downloaded
+                if timefraction:
+                    self.times[w].timeRemaining = amtToDownload / timefraction
         
     def _timeEstimates(self):
         for t in self.times:
