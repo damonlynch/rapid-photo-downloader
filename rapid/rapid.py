@@ -1617,7 +1617,23 @@ def generateSubfolderAndName(mediaFile, problem, subfolderPrefsFactory,
         mediaFile.status = STATUS_NOT_DOWNLOADED
 
 
-
+class NeedAJobCode():
+    """
+    Convenience class to check whether a job code is missing for a given
+    file type (photo or video)
+    """
+    def __init__(self, prefs):
+        self.imageRenameUsesJobCode = rn.usesJobCode(prefs.image_rename)
+        self.imageSubfolderUsesJobCode = rn.usesJobCode(prefs.subfolder)
+        self.videoRenameUsesJobCode = rn.usesJobCode(prefs.video_rename)
+        self.videoSubfolderUsesJobCode = rn.usesJobCode(prefs.video_subfolder)
+                
+    def needAJobCode(self, job_code, is_image):
+        if is_image:
+            return not job_code and (self.imageRenameUsesJobCode or self.imageSubfolderUsesJobCode)
+        else:
+            return not job_code and (self.videoRenameUsesJobCode or self.videoSubfolderUsesJobCode)
+        
 
 class CopyPhotos(Thread):
     """Copies photos from source to destination, backing up if needed"""
@@ -2100,11 +2116,13 @@ class CopyPhotos(Thread):
                             no_devices = 0
             return no_devices
         
-        def needAJobCode():
+        def checkIfNeedAJobCode():
+            needAJobCode = NeedAJobCode(self.prefs)
+            
             for f in self.cardMedia.imagesAndVideos:
                 mediaFile = f[0]
                 if mediaFile.status in [STATUS_WARNING, STATUS_NOT_DOWNLOADED]:
-                    if not mediaFile.jobcode:
+                    if needAJobCode.needAJobCode(mediaFile.jobcode, mediaFile.isImage):
                         return True
             return False
             
@@ -2716,7 +2734,7 @@ class CopyPhotos(Thread):
                 
         else:
             if need_job_code_for_renaming:
-                if needAJobCode():
+                if checkIfNeedAJobCode():
                     if job_code == None:
                         self.cleanUp()
                         self.waitingForJobCode = True
@@ -4157,9 +4175,13 @@ class SelectionTreeView(gtk.TreeView):
         def _job_code_missing(iter):
             status = self.get_status(iter)
             if status in [STATUS_WARNING, STATUS_NOT_DOWNLOADED]:
+                is_image = self.get_is_image(iter)
                 job_code = self.get_job_code(iter)
-                return not job_code
+                return needAJobCode.needAJobCode(job_code, is_image)
             return False
+        
+        self._setUsesJobCode()
+        needAJobCode = NeedAJobCode(self.rapidApp.prefs)
         
         v = False
         if selected_only:
@@ -5897,8 +5919,7 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
 
     def on_download_selected_button_clicked(self, widget):
         # set the status of the selected workers to be downloading pending
-        if need_job_code_for_renaming and self.selection_vbox.selection_treeview.job_code_missing(True):
-            #and not self.prompting_for_job_code:
+        if need_job_code_for_renaming and self.selection_vbox.selection_treeview.job_code_missing(True) and not self.prompting_for_job_code:
             self.getJobCode(autoStart=False, downloadSelected=True)
         else:
             threads = self.selection_vbox.selection_treeview.set_status_to_download_pending(selected_only = True)
