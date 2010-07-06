@@ -3406,13 +3406,9 @@ class SelectionTreeView(gtk.TreeView):
         self.selected_rows = set()
 
         # sort by date (unless there is a problem)
-        self.sort_model = gtk.TreeModelSort(self.liststore)
-        self.sort_model.set_sort_column_id(2, gtk.SORT_ASCENDING)
+        self.liststore.set_sort_column_id(2, gtk.SORT_ASCENDING)
         
-        gtk.TreeView.__init__(self, self.sort_model)
-
-        
-        #self.props.enable_search = False
+        gtk.TreeView.__init__(self, self.liststore)
 
         selection = self.get_selection()
         selection.set_mode(gtk.SELECTION_MULTIPLE)
@@ -3562,41 +3558,41 @@ class SelectionTreeView(gtk.TreeView):
         
         
         
-    def get_thread(self, liststore_iter):
+    def get_thread(self, iter):
         """
         Returns the thread associated with the liststore's iter
         """
-        return self.liststore.get_value(liststore_iter, 14)
+        return self.liststore.get_value(iter, 14)
         
-    def get_status(self, liststore_iter):
+    def get_status(self, iter):
         """
         Returns the status associated with the liststore's iter
         """
-        return self.liststore.get_value(liststore_iter, 11)
+        return self.liststore.get_value(iter, 11)
         
-    def get_mediaFile(self, liststore_iter):
+    def get_mediaFile(self, iter):
         """
         Returns the mediaFile associated with the liststore's iter
         """
-        return self.liststore.get_value(liststore_iter, 9)
+        return self.liststore.get_value(iter, 9)
         
-    def get_is_image(self, liststore_iter):
+    def get_is_image(self, iter):
         """
         Returns the file type (is image or video) associated with the liststore's iter
         """
-        return self.liststore.get_value(liststore_iter, 6)
+        return self.liststore.get_value(iter, 6)
     
-    def get_type_icon(self, liststore_iter):
+    def get_type_icon(self, iter):
         """
         Returns the file type's pixbuf associated with the liststore's iter
         """
-        return self.liststore.get_value(liststore_iter, 7)
+        return self.liststore.get_value(iter, 7)
         
-    def get_job_code(self, liststore_iter):
+    def get_job_code(self, iter):
         """
         Returns the job code associated with the liststore's iter
         """
-        return self.liststore.get_value(liststore_iter, 8)
+        return self.liststore.get_value(iter, 8)
         
     def get_status_icon(self, status, preview=False):
         """
@@ -3667,7 +3663,7 @@ class SelectionTreeView(gtk.TreeView):
         
         if mediaFile.status in [STATUS_CANNOT_DOWNLOAD, STATUS_WARNING]:
             if not self.user_has_clicked_header:
-                self.sort_model.set_sort_column_id(11, gtk.SORT_DESCENDING)
+                self.liststore.set_sort_column_id(11, gtk.SORT_DESCENDING)
         
     def no_selected_rows_available_for_download(self):
         """
@@ -3677,8 +3673,7 @@ class SelectionTreeView(gtk.TreeView):
         v = 0
         threads = []
         model, paths = self.get_selection().get_selected_rows()
-        for selected_path in paths:
-            path = self.sort_model.convert_path_to_child_path(selected_path)
+        for path in paths:
             iter = self.liststore.get_iter(path)
             status = self.get_status(iter)
             if status in [STATUS_NOT_DOWNLOADED, STATUS_WARNING]:
@@ -3708,7 +3703,7 @@ class SelectionTreeView(gtk.TreeView):
         selection = self.get_selection()
         model, paths = selection.get_selected_rows()
         if paths:            
-            path = self.sort_model.convert_path_to_child_path(paths[0])
+            path = paths[0]
             iter = self.liststore.get_iter(path)
             
             #update button text
@@ -3738,13 +3733,12 @@ class SelectionTreeView(gtk.TreeView):
                 self.selected_rows = set()
                 self.selection_size = size
             model, paths = selection.get_selected_rows()
-            for selected_path in paths:
-                path = self.sort_model.convert_path_to_child_path(selected_path)
-                liststore_iter = self.liststore.get_iter(path)
-                ref = self.get_mediaFile(liststore_iter).treerowref
+            for path in paths:
+                iter = self.liststore.get_iter(path)
+                ref = self.get_mediaFile(iter).treerowref
                 
                 if ref not in self.selected_rows:
-                    self.show_preview(liststore_iter)
+                    self.show_preview(iter)
                     self.selected_rows.add(ref)
             
     def clear_all(self, thread_id = None):
@@ -3792,8 +3786,7 @@ class SelectionTreeView(gtk.TreeView):
                     mediaFile.samplePath = os.path.join(mediaFile.downloadFolder, mediaFile.sampleSubfolder)
                     if mediaFile.treerowref == self.previewed_file_treerowref:
                         self.show_preview(iter)                
-            iter = self.liststore.iter_next(iter)        
-
+            iter = self.liststore.iter_next(iter)
 
     def _refreshNameFactories(self):
         self.imageRenamePrefsFactory = rn.ImageRenamePreferences(self.rapidApp.prefs.image_rename, self, 
@@ -3831,7 +3824,7 @@ class SelectionTreeView(gtk.TreeView):
                         self.show_preview(iter)
             iter = self.liststore.iter_next(iter)
     
-    def generateSampleSubfolderAndName(self, mediaFile, liststore_iter):
+    def generateSampleSubfolderAndName(self, mediaFile, iter):
         problem = pn.Problem()
         if mediaFile.isImage:
             fallback_date = None
@@ -3846,15 +3839,15 @@ class SelectionTreeView(gtk.TreeView):
             nameUsesJobCode = self.videoRenameUsesJobCode
             subfolderUsesJobCode = self.videoSubfolderUsesJobCode
             
-        renamePrefsFactory.setJobCode(self.get_job_code(liststore_iter))
-        subfolderPrefsFactory.setJobCode(self.get_job_code(liststore_iter))
+        renamePrefsFactory.setJobCode(self.get_job_code(iter))
+        subfolderPrefsFactory.setJobCode(self.get_job_code(iter))
         
         generateSubfolderAndName(mediaFile, problem, subfolderPrefsFactory, renamePrefsFactory, 
                                 nameUsesJobCode, subfolderUsesJobCode,
                                 self.strip_characters, fallback_date)
-        if self.get_status(liststore_iter) != mediaFile.status:
-            self.liststore.set(liststore_iter, 11, mediaFile.status)
-            self.liststore.set(liststore_iter, 10, self.get_status_icon(mediaFile.status))
+        if self.get_status(iter) != mediaFile.status:
+            self.liststore.set(iter, 11, mediaFile.status)
+            self.liststore.set(iter, 10, self.get_status_icon(mediaFile.status))
         mediaFile.sampleStale = False
         
     def _setUsesJobCode(self):
@@ -4016,7 +4009,6 @@ class SelectionTreeView(gtk.TreeView):
             
             iter = self.liststore.get_iter_first()
             while iter is not None:
-                sort_iter = self.sort_model.convert_child_iter_to_iter(None, iter)
                 if range in ['photos', 'videos']:
                     type = self.get_is_image(iter)
                     select_row = (type and range == 'photos') or (not type and range == 'videos')
@@ -4025,21 +4017,20 @@ class SelectionTreeView(gtk.TreeView):
                     select_row = (job_code and range == 'withjobcode') or (not job_code and range == 'withoutjobcode')
 
                 if select_row:
-                    selection.select_iter(sort_iter)
+                    selection.select_iter(iter)
                 else:
-                    selection.unselect_iter(sort_iter)
+                    selection.unselect_iter(iter)
                 iter = self.liststore.iter_next(iter)
             
             self.suspend_previews = False
             # select the first photo / video
-            iter = self.sort_model.get_iter_first()
+            iter = self.liststore.get_iter_first()
             while iter is not None:
-                list_iter = self.sort_model.convert_iter_to_child_iter(None, iter)
-                type = self.get_is_image(list_iter)
+                type = self.get_is_image(iter)
                 if (type and range == 'photos') or (not type and range == 'videos'):
-                    self.show_preview(list_iter)
+                    self.show_preview(iter)
                     break
-                iter = self.sort_model.iter_next(iter)
+                iter = self.liststore.iter_next(iter)
 
 
     def header_clicked(self, column):
@@ -4122,35 +4113,11 @@ class SelectionTreeView(gtk.TreeView):
                 tree_row_refs.append(gtk.TreeRowReference(model, path))
 
             for reference in tree_row_refs:
-                selection_path = reference.get_path()
+                path = reference.get_path()
                 #~ current_position = selection_path[0]
-                path = self.sort_model.convert_path_to_child_path(selection_path)
                 iter = self.liststore.get_iter(path)
                 mediaFile = self.get_mediaFile(iter)
                 _apply_job_code()
-                #~ new_position = reference.get_path()[0]
-                #~ if new_position <> current_position:
-                    #~ # move the row which has been moved to new position to it's old position (current_position)
-                    #~ # 1. copy last row
-                    #~ last_row = []
-                    #~ for j in range(0,15):
-                        #~ last_row.append(self.sort_model[new_position][j])
-                    #~ # 2. shuffle rows up one
-                    #~ for i in range(new_position - 1, current_position -1, -1):
-                        #~ for j in range(0,15):
-                            #~ i2 = self.sort_model.get_iter((i+1,)) 
-                            #~ self.sort_model.[i + 1][j] = self.sort_model[i][j]
-                    #~ # 3. insert the save row into it's old position
-                    #~ for j in range(0,15):
-                        #~ self.sort_model[current_position][j] = last_row[j]
-                    #~ # 4. let the system know we updated the model
-                    #~ l = []
-                    #~ print current_position, new_position, len(self.liststore)
-                    #~ for i in range(0, len(self.liststore)):
-                        #~ l.append(i)
-                    #~ l = l[:current_position] + [new_position] + l[current_position:-1]
-                    #~ print l
-                    #~ self.sort_model.rows_reordered(None, None, l)
                 
                 # the reference in *this* loop applies to the selection, not the underlying store
                 # therefore use the treerowref in the mediafile
@@ -4177,8 +4144,7 @@ class SelectionTreeView(gtk.TreeView):
         if selected_only:
             selection = self.get_selection()
             model, pathlist = selection.get_selected_rows()
-            for selection_path in pathlist:
-                path = self.sort_model.convert_path_to_child_path(selection_path)
+            for path in pathlist:
                 iter = self.liststore.get_iter(path)
                 v = _job_code_missing(iter)
                 if v:
@@ -4193,16 +4159,16 @@ class SelectionTreeView(gtk.TreeView):
         return v
 
     
-    def _set_download_pending(self, liststore_iter, threads):
-        existing_status = self.get_status(liststore_iter)
+    def _set_download_pending(self, iter, threads):
+        existing_status = self.get_status(iter)
         if existing_status in [STATUS_WARNING, STATUS_NOT_DOWNLOADED]:
-            self.liststore.set(liststore_iter, 11, STATUS_DOWNLOAD_PENDING)
-            self.liststore.set(liststore_iter, 10, self.download_pending_icon)
+            self.liststore.set(iter, 11, STATUS_DOWNLOAD_PENDING)
+            self.liststore.set(iter, 10, self.download_pending_icon)
             # this value is in a thread's list of files to download
-            mediaFile = self.get_mediaFile(liststore_iter)
+            mediaFile = self.get_mediaFile(iter)
             # each thread will see this change in status
             mediaFile.status = STATUS_DOWNLOAD_PENDING
-            thread = self.get_thread(liststore_iter)
+            thread = self.get_thread(iter)
             if thread not in threads:
                 threads.append(thread)
         
@@ -4218,28 +4184,34 @@ class SelectionTreeView(gtk.TreeView):
         Returns a list of threads which can be downloaded
         """
         threads = []
-        
+        tree_row_refs = []
         if selected_only:
             selection = self.get_selection()
             model, pathlist = selection.get_selected_rows()
-            tree_row_refs = []
             for path in pathlist:
                 tree_row_refs.append(gtk.TreeRowReference(model, path))
             for reference in tree_row_refs:
-                selection_path = reference.get_path()
-                path = self.sort_model.convert_path_to_child_path(selection_path)
+                path = reference.get_path()
                 iter = self.liststore.get_iter(path)
                 self._set_download_pending(iter, threads)
         else:
+            # as an alternative to this code, could loop through the length of the liststore, creating a path 
+            # manually, but that seems vulnerable to any changes made in the way liststores work
             iter = self.liststore.get_iter_first()
             while iter:
+                tree_row_refs.append(self.get_mediaFile(iter).treerowref)
+                iter = self.liststore.iter_next(iter)
+                
+            for reference in tree_row_refs:
+                path = reference.get_path()
+                iter = self.liststore.get_iter(path)
                 apply = True                
                 if thread_id is not None:
                     t = self.get_thread(iter)
                     apply = t == thread_id
                 if apply:                
                     self._set_download_pending(iter, threads)
-                iter = self.liststore.iter_next(iter)
+                
             if thread_id is not None:
                 # restart the thread
                 workers[thread_id].startStop()

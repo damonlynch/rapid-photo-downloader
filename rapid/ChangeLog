@@ -35,6 +35,17 @@ The minimum version of python-gtk2 (pygtk) required to run the program is now
 2.12. This will affect only outdated Linux distributions.
 
 
+Version 0.3.0 beta 6
+--------------------
+
+2010-07-06
+
+Fix bug #598736: don't allow file to jump to the bottom when it has a Job Code
+assigned to it.
+
+
+
+
 Version 0.3.0 beta 5
 --------------------
 
