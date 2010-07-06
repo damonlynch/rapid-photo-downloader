@@ -47,6 +47,9 @@ assigned to it.
 Fixed bug #601993: don't prompt for a Job Code when downloading file of one type
 (photo or video), and it's only a file of the other type that needs it.
 
+Log error messages are now cleaned up where a file already exists and there were
+problems generating the file / subfolder name.
+
 Updated German translation.
 
 

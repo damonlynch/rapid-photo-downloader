@@ -2162,16 +2162,18 @@ class CopyPhotos(Thread):
                 mediaFile.problem.add_extra_detail(pn.EXISTING_FILE, {'filetype': mediaFile.displayName, 'date': date, 'time': time})
                 mediaFile.status = STATUS_DOWNLOAD_FAILED
                 log_status = config.SERIOUS_ERROR
+                problem_text = pn.extra_detail_definitions[pn.EXISTING_FILE] % {'date':date, 'time':time, 'filetype': mediaFile.displayName}
             else:
                 mediaFile.problem.add_problem(None, pn.UNIQUE_IDENTIFIER_ADDED, {'filetype':mediaFile.displayNameCap})
                 mediaFile.problem.add_extra_detail(pn.UNIQUE_IDENTIFIER, {'identifier': identifier, 'filetype': mediaFile.displayName, 'date': date, 'time': time})
                 mediaFile.status = STATUS_DOWNLOADED_WITH_WARNING
                 log_status = config.WARNING
+                problem_text = pn.extra_detail_definitions[pn.UNIQUE_IDENTIFIER] % {'identifier': identifier, 'filetype': mediaFile.displayName, 'date': date, 'time': time}
                 
             logError(log_status, mediaFile.problem.get_title(),
                 _("Source: %(source)s\nDestination: %(destination)s")
                 % {'source': mediaFile.fullFileName, 'destination': mediaFile.downloadFullFileName},
-                mediaFile.problem.get_problems())
+                problem_text)
 
         def downloadCopyingError(mediaFile, inst=None, errno=None, strerror=None):
             """Notify the user that an error occurred (most likely at the OS / filesystem level) when coyping a photo or video"""
