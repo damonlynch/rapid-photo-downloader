@@ -5,11 +5,12 @@ Version 0.3.0
 
 The major new feature of this release is the generation of previews before
 a download takes place. You can now select which photos and videos you wish to
-download. This represents the largest change ever made to the program.
+download.
 
 You can now assign different Job Codes to photos and videos in the same 
 download. Simply select photos and videos, and from the main window choose a Job
-Code for them.
+Code for them. You can select a new Job Code,or enter a new one (press Enter
+to apply it). 
 
 The errors and warnings reported have been completely overhauled, and are now
 more concise.
@@ -29,7 +30,7 @@ downloaded with warnings.
 For each device in the main window, the progress bar is now updated much more
 smoothly than before. This is useful when downloading and backing up large files
 such as videos. (Note this is only the case on moderately up-to-date Linux 
-distributions, such as Ubuntu 8.10 or higher).
+distributions that use GVFS, such as Ubuntu 8.10 or higher).
 
 The minimum version of python-gtk2 (pygtk) required to run the program is now
 2.12. This will affect only outdated Linux distributions.
@@ -43,7 +44,7 @@ Version 0.3.0 beta 6
 Fix bug #598736: don't allow file to jump to the bottom when it has a Job Code
 assigned to it.
 
-
+Updated German translation.
 
 
 Version 0.3.0 beta 5

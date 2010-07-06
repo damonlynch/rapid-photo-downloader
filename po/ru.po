@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-07-02 22:51-0500\n"
-"PO-Revision-Date: 2010-07-04 19:46+0000\n"
-"Last-Translator: subeditor <Unknown>\n"
+"PO-Revision-Date: 2010-07-05 08:36+0000\n"
+"Last-Translator: Sergey Sedov <sedov@webmail.perm.ru>\n"
 "Language-Team: Russian <ru@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-07-04 23:56+0000\n"
+"X-Launchpad-Export-Date: 2010-07-06 19:08+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #. Translators: if neccessary, for guidance in how to translate this program, you may see http://damonlynch.net/translate.html
@@ -1639,7 +1639,8 @@ msgstr "Местоположение резервных копий"
 
 #: rapid/glade3/rapid.glade.h:38
 msgid "Backup photos and videos when downloading"
-msgstr "Выполнять резервное копирование фото и видео во время загрузки"
+msgstr ""
+"Выполнять резервное копирование фотографий и видеороликов во время загрузки"
 
 #: rapid/glade3/rapid.glade.h:39
 msgid ""
@@ -1877,8 +1878,8 @@ msgstr ""
 "Укажите каталог для размещения резервных копий на носителе.  \n"
 "\n"
 "<i>Примечение: эта настройка также определяет, используется ли носитель для "
-"резервного копирования. На каждом носителя, который вы хотите использовать "
-"для резервного копирования, создайте папку с одним из этих имен.</i>"
+"резервного копирования. На каждом носителе, который вы хотите использовать "
+"для резервного копирования, создайте каталог с одним из этих имен.</i>"
 
 #: rapid/glade3/rapid.glade.h:90
 msgid ""
@@ -1937,8 +1938,8 @@ msgid ""
 "When a photo or video of the same name has already been downloaded, choose "
 "whether to skip downloading the file, or to add a unique indentifier."
 msgstr ""
-"Если фото или видео с таким названием уже загружено, выберите, пропустить "
-"загрузку или добавить уникальный идентификатор."
+"Если фотография или видеоролик с таким названием уже загружен, выберите, "
+"пропустить загрузку или добавить уникальный идентификатор."
 
 #: rapid/glade3/rapid.glade.h:102
 msgid ""
@@ -1953,8 +1954,8 @@ msgid ""
 "You can have your photos and videos backed up to multiple locations as they "
 "are downloaded, e.g. external hard drives."
 msgstr ""
-"Имеется возможность создания резервной копии ваших фото и видео прямо во "
-"время загрузки, в том числе на внешних жёстких дисках."
+"Имеется возможность создания резервной копии ваших фотографий и видеороликов "
+"прямо во время загрузки, в том числе на внешних жёстких дисках."
 
 #: rapid/glade3/rapid.glade.h:104
 msgid "_Add..."

@@ -3620,6 +3620,48 @@ class SelectionTreeView(gtk.TreeView):
             status_icon = self.not_downloaded_icon
         return status_icon
         
+    def get_tree_row_refs(self):
+        """
+        Returns a list of all tree row references
+        """
+        tree_row_refs = []
+        iter = self.liststore.get_iter_first()
+        while iter:
+            tree_row_refs.append(self.get_mediaFile(iter).treerowref)
+            iter = self.liststore.iter_next(iter)
+        return tree_row_refs
+        
+    def get_selected_tree_row_refs(self):
+        """
+        Returns a list of tree row references for the selected rows
+        """
+        tree_row_refs = []
+        selection = self.get_selection()
+        model, pathlist = selection.get_selected_rows()
+        for path in pathlist:
+            iter = self.liststore.get_iter(path)
+            tree_row_refs.append(self.get_mediaFile(iter).treerowref)
+        return tree_row_refs            
+            
+    def get_tree_row_iters(self, selected_only=False):
+        """
+        Yields tree row iters
+        
+        If selected_only is True, then only those from the selected
+        rows will be returned.
+        
+        This function is essential when modifying any content
+        in the list store (because rows can easily be moved when their
+        content changes)
+        """
+        if selected_only:
+            tree_row_refs = self.get_selected_tree_row_refs()
+        else:
+            tree_row_refs = self.get_tree_row_refs()
+        for reference in tree_row_refs:
+            path = reference.get_path()
+            yield self.liststore.get_iter(path)
+    
     def add_file(self, mediaFile):
         if mediaFile.metadata:
             date = mediaFile.dateTime()
@@ -3668,7 +3710,7 @@ class SelectionTreeView(gtk.TreeView):
     def no_selected_rows_available_for_download(self):
         """
         Gets the number of rows the user has selected that can actually
-        be downloaded
+        be downloaded, and the threads they are found in
         """
         v = 0
         threads = []
@@ -3758,7 +3800,7 @@ class SelectionTreeView(gtk.TreeView):
                     # need to start over, or else bad things happen
                     iter = self.liststore.get_iter_first()
                 else:
-                    iter = self.liststore.iter_next(iter)            
+                    iter = self.liststore.iter_next(iter)
     
     def refreshSampleDownloadFolders(self, thread_id = None):
         """
@@ -3768,10 +3810,9 @@ class SelectionTreeView(gtk.TreeView):
         
         If thread_id is specified, will only update rows with that thread
         """
-        iter = self.liststore.get_iter_first()
-        while iter:
+        for iter in self.get_tree_row_iters():
             status = self.get_status(iter)
-            if status in [STATUS_NOT_DOWNLOADED, STATUS_WARNING]:
+            if status in [STATUS_NOT_DOWNLOADED, STATUS_WARNING, STATUS_CANNOT_DOWNLOAD]:
                 regenerate = True
                 if thread_id is not None:
                     t = self.get_thread(iter)
@@ -3786,7 +3827,6 @@ class SelectionTreeView(gtk.TreeView):
                     mediaFile.samplePath = os.path.join(mediaFile.downloadFolder, mediaFile.sampleSubfolder)
                     if mediaFile.treerowref == self.previewed_file_treerowref:
                         self.show_preview(iter)                
-            iter = self.liststore.iter_next(iter)
 
     def _refreshNameFactories(self):
         self.imageRenamePrefsFactory = rn.ImageRenamePreferences(self.rapidApp.prefs.image_rename, self, 
@@ -3807,9 +3847,8 @@ class SelectionTreeView(gtk.TreeView):
         If thread_id is specified, will only update rows with that thread
         """
         self._setUsesJobCode()
-        iter = self.liststore.get_iter_first()
         self._refreshNameFactories()
-        while iter:
+        for iter in self.get_tree_row_iters():
             status = self.get_status(iter)
             if status in [STATUS_NOT_DOWNLOADED, STATUS_WARNING, STATUS_CANNOT_DOWNLOAD]:
                 regenerate = True
@@ -3822,7 +3861,6 @@ class SelectionTreeView(gtk.TreeView):
                     self.generateSampleSubfolderAndName(mediaFile, iter)
                     if mediaFile.treerowref == self.previewed_file_treerowref:
                         self.show_preview(iter)
-            iter = self.liststore.iter_next(iter)
     
     def generateSampleSubfolderAndName(self, mediaFile, iter):
         problem = pn.Problem()
@@ -4089,8 +4127,7 @@ class SelectionTreeView(gtk.TreeView):
                     #reactivates job codes again in their prefs
                     
         if to_all_rows or thread_id is not None:
-            iter = self.liststore.get_iter_first()
-            while iter:
+            for iter in self.get_tree_row_iters():
                 apply = True
                 if thread_id is not None:
                     t = self.get_thread(iter)
@@ -4100,27 +4137,11 @@ class SelectionTreeView(gtk.TreeView):
                     mediaFile = self.get_mediaFile(iter)
                     _apply_job_code()
                     if mediaFile.treerowref == self.previewed_file_treerowref:
-                        self.show_preview(iter)                
-                iter = self.liststore.iter_next(iter)
+                        self.show_preview(iter)
         else:
-            selection = self.get_selection()
-            model, pathlist = selection.get_selected_rows()
-            
-            # Because the model is going to be modified, must get references
-            # to the rows -- cannot just cycle through the selection
-            tree_row_refs = []
-            for path in pathlist:
-                tree_row_refs.append(gtk.TreeRowReference(model, path))
-
-            for reference in tree_row_refs:
-                path = reference.get_path()
-                #~ current_position = selection_path[0]
-                iter = self.liststore.get_iter(path)
+            for iter in self.get_tree_row_iters(selected_only = True):
                 mediaFile = self.get_mediaFile(iter)
                 _apply_job_code()
-                
-                # the reference in *this* loop applies to the selection, not the underlying store
-                # therefore use the treerowref in the mediafile
                 if mediaFile.treerowref == self.previewed_file_treerowref:
                     self.show_preview(iter)
             
@@ -4184,27 +4205,12 @@ class SelectionTreeView(gtk.TreeView):
         Returns a list of threads which can be downloaded
         """
         threads = []
-        tree_row_refs = []
+        
         if selected_only:
-            selection = self.get_selection()
-            model, pathlist = selection.get_selected_rows()
-            for path in pathlist:
-                tree_row_refs.append(gtk.TreeRowReference(model, path))
-            for reference in tree_row_refs:
-                path = reference.get_path()
-                iter = self.liststore.get_iter(path)
+            for iter in self.get_tree_row_iters(selected_only = True):
                 self._set_download_pending(iter, threads)
         else:
-            # as an alternative to this code, could loop through the length of the liststore, creating a path 
-            # manually, but that seems vulnerable to any changes made in the way liststores work
-            iter = self.liststore.get_iter_first()
-            while iter:
-                tree_row_refs.append(self.get_mediaFile(iter).treerowref)
-                iter = self.liststore.iter_next(iter)
-                
-            for reference in tree_row_refs:
-                path = reference.get_path()
-                iter = self.liststore.get_iter(path)
+            for iter in self.get_tree_row_iters():
                 apply = True                
                 if thread_id is not None:
                     t = self.get_thread(iter)
