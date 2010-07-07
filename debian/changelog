@@ -1,3 +1,30 @@
+rapid-photo-downloader (0.3.0~b6-0ubuntu1~ppa1) hardy; urgency=low
+
+  * Fixed bug #598736: don't allow file to jump to the bottom when
+    it has a Job Code assigned to it.
+
+  * Fixed bug #601993: don't prompt for a Job Code when 
+    downloading file of one type (photo or video), and it's only a
+    file of the other type that needs it.
+
+  * Log error messages are now cleaned up where a file already 
+    exists and there were problems generating the file / subfolder
+    name.
+
+  * Fixed crash on startup when using an old version of GIO.
+
+  * Fix crash in updating the time remaining in when downloading 
+    from extremely slow devices.
+
+  * Set the default height to be 50 pixels taller.
+
+  * Bug fix: don't download from device that has been inserted 
+    after program starts unless device auto detection is enabled.
+
+  * Updated German translation.
+
+ -- Damon Lynch <damonlynch@gmail.com>  Tue, 06 Jul 2010 17:49:29 -0500
+
 rapid-photo-downloader (0.3.0~b5-0ubuntu1~ppa1) hardy; urgency=low
 
   * Added warning dialog if attempting to download directly from a
