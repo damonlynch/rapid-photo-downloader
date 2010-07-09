@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-07-02 22:51-0500\n"
-"PO-Revision-Date: 2010-07-05 00:41+0000\n"
-"Last-Translator: Damon Lynch <damonlynch@gmail.com>\n"
+"PO-Revision-Date: 2010-07-09 11:50+0000\n"
+"Last-Translator: loquehumaine <Unknown>\n"
 "Language-Team: French <fr@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-07-06 19:08+0000\n"
+"X-Launchpad-Export-Date: 2010-07-09 17:32+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #. Translators: if neccessary, for guidance in how to translate this program, you may see http://damonlynch.net/translate.html
@@ -179,6 +179,9 @@ msgid ""
 "<i><b>Warning:</b> There is insufficient metadata to fully generate "
 "subfolders. Please use other subfolder naming options.</i>"
 msgstr ""
+"<i><b>Attention :</b> Il n'y a pas suffisamment de métadonnées pour générer "
+"les sous-dossiers correctement. Veuillez utiliser d'autres options pour "
+"nommer les sous-dossiers.</i>"
 
 #. Translators: you should not modify or leave out the %s. This is a code used by the programming language python to insert a value that thes user will see
 #: rapid/rapid.py:1186
@@ -204,6 +207,8 @@ msgstr ""
 msgid ""
 "The %(filetype)s subfolder preferences had some unnecessary values removed."
 msgstr ""
+"Les préférences de dossier %(filetype)s ont des valeurs inutiles qui ont été "
+"enlevées."
 
 #. Preferences list is now empty
 #: rapid/rapid.py:1263
@@ -213,6 +218,9 @@ msgid ""
 "used.\n"
 "They will be reset to their default values."
 msgstr ""
+"Les préférences de dossier %(filetype)s entrées sont invalides et ne peuvent "
+"être utilisées.\n"
+"Elles vont être réinitialiseées à leurs valeurs par défaut."
 
 #. check subfolder preferences for bad values
 #: rapid/rapid.py:1277 rapid/rapid.py:1551
@@ -292,7 +300,7 @@ msgstr "Le chemin de transfert suivant n'a pas pu être créé :\n"
 #: rapid/rapid.py:1784
 #, python-format
 msgid "%(path)s: "
-msgstr ""
+msgstr "%(path)s: "
 
 #: rapid/rapid.py:1785 rapid/rapid.py:1786 rapid/rapid.py:1801
 #: rapid/rapid.py:1802 rapid/rapid.py:2063 rapid/rapid.py:2066
@@ -331,6 +339,8 @@ msgstr "%(number)s %(filetypes)s"
 #, python-format
 msgid "Device scan complete: found %(number)s %(filetypes)s on %(device)s"
 msgstr ""
+"Le périphérique a été entièrement scanné : %(number)s %(filetypes)s ont été "
+"trouvés sur %(device)s"
 
 #: rapid/rapid.py:1992
 #, python-format
@@ -405,6 +415,9 @@ msgid ""
 "Destination: %(destination)s\n"
 "%(problem)s"
 msgstr ""
+"Source: %(source)s\n"
+"Destination: %(destination)s\n"
+"%(problem)s"
 
 #: rapid/rapid.py:2146 rapid/rapid.py:2492 rapid/rapid.py:2527
 #: rapid/rapid.py:2555 rapid/rapid.py:2586 rapid/rapid.py:2605
@@ -429,7 +442,7 @@ msgstr ""
 
 #: rapid/rapid.py:2221
 msgid "Photo has already been downloaded"
-msgstr ""
+msgstr "La photo a déjà été téléchargée"
 
 #: rapid/rapid.py:2222 rapid/rapid.py:2621
 #, python-format
@@ -446,22 +459,22 @@ msgstr ""
 #: rapid/rapid.py:2491
 #, python-format
 msgid "Backup of %(file_type)s already exists"
-msgstr ""
+msgstr "Une sauvegarde de %(file_type)s existe déjà"
 
 #: rapid/rapid.py:2495
 #, python-format
 msgid "Backup %(file_type)s overwritten"
-msgstr ""
+msgstr "Sauvegarde de %(file_type)s écrasée"
 
 #: rapid/rapid.py:2499
 #, python-format
 msgid "%(file_type)s not backed up to %(volume)s"
-msgstr ""
+msgstr "%(file_type)s non sauvé sur %(volume)s"
 
 #: rapid/rapid.py:2501
 #, python-format
 msgid "%(file_type)s not backed up"
-msgstr ""
+msgstr "%(file_type)s non sauvé"
 
 #: rapid/rapid.py:2524 rapid/rapid.py:2552 rapid/rapid.py:2585
 #: rapid/rapid.py:2604
@@ -476,13 +489,13 @@ msgstr "Le dossier de destination n'a pas pu être créé %(directory)s\n"
 #: rapid/rapid.py:2529 rapid/rapid.py:2588
 #, python-format
 msgid "Error: %(inst)s"
-msgstr ""
+msgstr "Erreur : %(inst)s"
 
 #: rapid/rapid.py:2530 rapid/rapid.py:2558 rapid/rapid.py:2589
 #: rapid/rapid.py:2608
 #, python-format
 msgid "The %(file_type)s was not backed up."
-msgstr ""
+msgstr "%(file_type)s n'a pas été sauvé."
 
 #: rapid/rapid.py:2557 rapid/rapid.py:2607
 #, python-format
@@ -492,11 +505,11 @@ msgstr "Erreur : %(errno)s %(strerror)s"
 #: rapid/rapid.py:2620
 #, python-format
 msgid "%(file_type)s could not be backed up"
-msgstr ""
+msgstr "%(file_type)s n'a pas pu être sauvé"
 
 #: rapid/rapid.py:2623
 msgid "No suitable backup volume was found"
-msgstr ""
+msgstr "Aucun volume de sauvegarde aproprié n'a été trouvé"
 
 #: rapid/rapid.py:2625
 msgid "A backup location was not found"
@@ -515,22 +528,22 @@ msgstr "Le transfert a débuté depuis %s"
 #: rapid/rapid.py:2736
 #, python-format
 msgid "Attempting to download %s files"
-msgstr ""
+msgstr "Tentative de téléchargement de %s fichiers"
 
 #. reset the progress bar to update the status of this download attempt
 #: rapid/rapid.py:2769 rapid/rapid.py:2836
 #, python-format
 msgid "%(number)s of %(total)s %(filetypes)s"
-msgstr ""
+msgstr "%(number)s sur %(total)s %(filetypes)s"
 
 #: rapid/rapid.py:2832
 #, python-format
 msgid "%(number)s of %(total)s %(filetypes)s (%(remaining)s remaining)"
-msgstr ""
+msgstr "%(number)s sur %(total)s %(filetypes)s (%(remaining)s restants)"
 
 #: rapid/rapid.py:2857 rapid/rapid.py:2861
 msgid "Could not delete photo or video from device"
-msgstr ""
+msgstr "Impossible de supprimer la photo ou vidéo du périphérique"
 
 #: rapid/rapid.py:2858
 #, python-format
@@ -538,16 +551,18 @@ msgid ""
 "Photo: %(source)s\n"
 "Error: %(errno)s %(strerror)s"
 msgstr ""
+"Photo : %(source)s\n"
+"Erreur : %(errno)s %(strerror)s"
 
 #: rapid/rapid.py:2862
 #, python-format
 msgid "Photo: %(source)s"
-msgstr ""
+msgstr "Photo : %(source)s"
 
 #: rapid/rapid.py:2864
 #, python-format
 msgid "Deleted %(number)i %(filetypes)s from device"
-msgstr ""
+msgstr "Suprression de %(number)i %(filetypes)s du périphérique"
 
 #: rapid/rapid.py:2871
 #, python-format
@@ -570,17 +585,21 @@ msgstr "Progression du transfert"
 
 #: rapid/rapid.py:3089
 msgid "Downloading From Cameras"
-msgstr ""
+msgstr "Téléchargement depuis les appareils photo"
 
 #: rapid/rapid.py:3095
 msgid "Downloading directly from a camera may work poorly or not at all"
 msgstr ""
+"Télécharger directement depuis un appareil photo peut mal fonctionner, voire "
+"non fonctionner."
 
 #: rapid/rapid.py:3096
 msgid ""
 "Downloading from a card reader always works and is generally much faster. It "
 "is strongly recommended to use a card reader."
 msgstr ""
+"Télécharger depuis un lecteur de carte marche toujours et est généralement "
+"plus rapide. Il est fortement recommandé d'utiliser un lecteur de carte."
 
 #: rapid/rapid.py:3110
 msgid "_Show this message again"
@@ -595,6 +614,8 @@ msgstr "Périphérique détecté"
 msgid ""
 "Should this device or partition be used to download photos or videos from?"
 msgstr ""
+"Est-ce qu'il faut télécharger photos et vidéos à partir de  ce périphérique "
+"ou cette partition ?"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#usedeviceprompt
 #: rapid/rapid.py:3173
@@ -665,19 +686,19 @@ msgstr "Étiquettes de transfert non renseignée"
 
 #: rapid/rapid.py:3401
 msgid "Status"
-msgstr ""
+msgstr "État"
 
 #: rapid/rapid.py:3409
 msgid "Type"
-msgstr ""
+msgstr "Type"
 
 #: rapid/rapid.py:3418 rapid/rapid.py:4808 rapid/rapid.py:4810
 msgid "Photo"
-msgstr ""
+msgstr "Photo"
 
 #: rapid/rapid.py:3420
 msgid "File"
-msgstr ""
+msgstr "Fichier"
 
 #: rapid/rapid.py:3435
 msgid "Job Code"
@@ -685,7 +706,7 @@ msgstr ""
 
 #: rapid/rapid.py:3445
 msgid "Date"
-msgstr ""
+msgstr "Date"
 
 #: rapid/rapid.py:3477 rapid/renamesubfolderprefs.py:194
 msgid "Filename"
@@ -693,56 +714,57 @@ msgstr "Nom de fichier"
 
 #: rapid/rapid.py:3488
 msgid "Path"
-msgstr ""
+msgstr "Chemin"
 
 #: rapid/rapid.py:3843
 #, python-format
 msgid "%(filetype)s was downloaded successfully"
-msgstr ""
+msgstr "%(filetype)s a été téléchargé avec succès"
 
 #: rapid/rapid.py:3845
 #, python-format
 msgid "%(filetype)s was not downloaded"
-msgstr ""
+msgstr "%(filetype)s n'a pas été téléchargé"
 
 #: rapid/rapid.py:3847
 #, python-format
 msgid "%(filetype)s was downloaded with warnings"
-msgstr ""
+msgstr "%(filetype)s a été téléchargé avec des avertissements"
 
 #: rapid/rapid.py:3849
 #, python-format
 msgid "%(filetype)s was downloaded but there were problems backing up"
 msgstr ""
+"%(filetype)s a été téléchargé mais il y a eu des problèmes de sauvegarde"
 
 #: rapid/rapid.py:3851
 #, python-format
 msgid "%(filetype)s was neither downloaded nor backed up"
-msgstr ""
+msgstr "%(filetype)s n'a ni été téléchargé ni sauvegardé"
 
 #: rapid/rapid.py:3853
 #, python-format
 msgid "%(filetype)s is ready to be downloaded"
-msgstr ""
+msgstr "%(filetype)s est prêt à être téléchargé"
 
 #: rapid/rapid.py:3855
 #, python-format
 msgid "%(filetype)s is about to be downloaded"
-msgstr ""
+msgstr "%(filetype)s va être téléchargé"
 
 #: rapid/rapid.py:3857
 #, python-format
 msgid "%(filetype)s will be downloaded with warnings"
-msgstr ""
+msgstr "%(filetype)s sera téléchargé avec des avertissements"
 
 #: rapid/rapid.py:3859
 #, python-format
 msgid "%(filetype)s cannot be downloaded"
-msgstr ""
+msgstr "%(filetype)s ne peut être téléchargé"
 
 #: rapid/rapid.py:4240
 msgid "Preview"
-msgstr ""
+msgstr "Aperçu"
 
 #: rapid/rapid.py:4439
 msgid "Enter a new Job Code and press Enter, or select an existing Job Code"
@@ -756,6 +778,10 @@ msgid ""
 "\n"
 "Please resolve the problem, or modify your preferences."
 msgstr ""
+"Désolé, ce périphérique n'existe pas :\n"
+"%(path)s\n"
+"\n"
+"Veuillez résoudre le problème, ou modifier vos préférences."
 
 #: rapid/rapid.py:4799
 msgid "Problem with Device Location Folder"
@@ -763,17 +789,19 @@ msgstr ""
 
 #: rapid/rapid.py:4808
 msgid "Video"
-msgstr ""
+msgstr "Vidéo"
 
 #: rapid/rapid.py:4815
 #, python-format
 msgid "The %(file_type)s Download Folder does not exist.\n"
-msgstr ""
+msgstr "Le dossier de téléchargement de %(file_type)s n'existe pas.\n"
 
 #: rapid/rapid.py:4824
 #, python-format
 msgid "The %(file_type)s Download Folder exists but cannot be written to.\n"
 msgstr ""
+"Le dossier de téléchargement de %(file_type)s existe mais on ne peut y "
+"écrire.\n"
 
 #: rapid/rapid.py:4829
 msgid ""
@@ -781,6 +809,9 @@ msgid ""
 "problems or modify the preferences.\n"
 "\n"
 msgstr ""
+"Désolé, des problèmes ont été rencontrés avec vos dossiers de "
+"téléchargement. Veuillez réparer les problèmes ou modifier les préférences.\n"
+"\n"
 
 #: rapid/rapid.py:4832
 msgid "Problem with Download Folder"
@@ -788,7 +819,7 @@ msgstr "Problème avec le dossier de transfert"
 
 #: rapid/rapid.py:4834
 msgid "Problem with Download Folders"
-msgstr ""
+msgstr "Problèmes avec les dossiers de téléchargement."
 
 #: rapid/rapid.py:4847
 msgid "Some preferences will be reset."
@@ -1004,12 +1035,12 @@ msgstr "Environ %(minutes)i:%(seconds)02i restantes"
 #: rapid/rapid.py:5620 rapid/rapid.py:5625 rapid/rapid.py:5629
 #, python-format
 msgid "%(number)s %(numberdownloaded)s"
-msgstr ""
+msgstr "%(number)s %(numberdownloaded)s"
 
 #: rapid/rapid.py:5604 rapid/rapid.py:5616
 #, python-format
 msgid "%(filetype)s downloaded"
-msgstr ""
+msgstr "%(filetype)s téléchargé"
 
 #: rapid/rapid.py:5610 rapid/rapid.py:5622
 #, python-format
@@ -1018,7 +1049,7 @@ msgstr ""
 
 #: rapid/rapid.py:5789
 msgid "_Resume"
-msgstr ""
+msgstr "_Reprendre"
 
 #: rapid/rapid.py:5792
 msgid "_Download All"

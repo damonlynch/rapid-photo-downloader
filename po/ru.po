@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-07-02 22:51-0500\n"
-"PO-Revision-Date: 2010-07-05 08:36+0000\n"
+"PO-Revision-Date: 2010-07-07 04:14+0000\n"
 "Last-Translator: Sergey Sedov <sedov@webmail.perm.ru>\n"
 "Language-Team: Russian <ru@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-07-06 19:08+0000\n"
+"X-Launchpad-Export-Date: 2010-07-09 17:32+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #. Translators: if neccessary, for guidance in how to translate this program, you may see http://damonlynch.net/translate.html
@@ -1886,7 +1886,7 @@ msgid ""
 "Specify the time in 24 hour format at which the <i>Downloads today</i> "
 "sequence number should be reset."
 msgstr ""
-"Укажите время в 24-часовом формате, когде следует обнулять параметр "
+"Укажите время в 24-часовом формате, когда следует обнулять параметр "
 "<i>Загрузок сегодня</i>."
 
 #: rapid/glade3/rapid.glade.h:91
@@ -1899,7 +1899,8 @@ msgstr ""
 
 #: rapid/glade3/rapid.glade.h:92
 msgid "Start downloading at program startup"
-msgstr "Начать загрузку фотографий сразу после запуска программы"
+msgstr ""
+"Начать загрузку фотографий и видеороликов сразу после запуска программы"
 
 #: rapid/glade3/rapid.glade.h:93
 msgid "Start downloading upon device insertion"
@@ -1907,7 +1908,7 @@ msgstr "Начать загрузку сразу после подключени
 
 #: rapid/glade3/rapid.glade.h:94
 msgid "Stored number:"
-msgstr "Сквозная нумерация"
+msgstr "Сквозная нумерация:"
 
 #: rapid/glade3/rapid.glade.h:95
 msgid "Strip incompatible characters"

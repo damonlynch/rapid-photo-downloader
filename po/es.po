@@ -7,160 +7,160 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2010-05-27 22:33-0500\n"
-"PO-Revision-Date: 2010-06-03 19:24+0000\n"
-"Last-Translator: Toni Lähdekorpi <toni@lygon.net>\n"
+"POT-Creation-Date: 2010-07-02 22:51-0500\n"
+"PO-Revision-Date: 2010-07-07 08:55+0000\n"
+"Last-Translator: Jose Luis Navarro <jlnavarro111@gmail.com>\n"
 "Language-Team: Spanish <es@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-06-06 17:56+0000\n"
+"X-Launchpad-Export-Date: 2010-07-09 17:32+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #. Translators: if neccessary, for guidance in how to translate this program, you may see http://damonlynch.net/translate.html
-#: rapid/rapid.py:104 rapid/rapid.py:4447 rapid/glade3/rapid.glade.h:72
+#: rapid/rapid.py:122 rapid/rapid.py:6181 rapid/glade3/rapid.glade.h:71
 msgid "Rapid Photo Downloader"
 msgstr "Rapid Photo Downloader"
 
-#: rapid/rapid.py:394
+#: rapid/rapid.py:449
 msgid "New York"
 msgstr "Nueva York"
 
-#: rapid/rapid.py:395
+#: rapid/rapid.py:450
 msgid "Manila"
 msgstr "Manila"
 
-#: rapid/rapid.py:395
+#: rapid/rapid.py:450
 msgid "Prague"
 msgstr "Praga"
 
-#: rapid/rapid.py:395
+#: rapid/rapid.py:450
 msgid "Helsinki"
 msgstr "Helsinki"
 
-#: rapid/rapid.py:395
+#: rapid/rapid.py:450
 msgid "Wellington"
 msgstr "Wellington"
 
-#: rapid/rapid.py:396
+#: rapid/rapid.py:451
 msgid "Tehran"
 msgstr "Teherán"
 
-#: rapid/rapid.py:396
+#: rapid/rapid.py:451
 msgid "Kampala"
 msgstr "Kampala"
 
-#: rapid/rapid.py:396
+#: rapid/rapid.py:451
 msgid "Paris"
 msgstr "París"
 
-#: rapid/rapid.py:396
+#: rapid/rapid.py:451
 msgid "Berlin"
 msgstr "Berlín"
 
-#: rapid/rapid.py:396
+#: rapid/rapid.py:451
 msgid "Sydney"
 msgstr "Sídney"
 
-#: rapid/rapid.py:397
+#: rapid/rapid.py:452
 msgid "Budapest"
 msgstr "Budapest"
 
-#: rapid/rapid.py:397
+#: rapid/rapid.py:452
 msgid "Rome"
 msgstr "Roma"
 
-#: rapid/rapid.py:397
+#: rapid/rapid.py:452
 msgid "Moscow"
 msgstr "Moscú"
 
-#: rapid/rapid.py:397
+#: rapid/rapid.py:452
 msgid "Delhi"
 msgstr "Delhi"
 
-#: rapid/rapid.py:397
+#: rapid/rapid.py:452
 msgid "Warsaw"
 msgstr "Varsovia"
 
-#: rapid/rapid.py:398
+#: rapid/rapid.py:453
 msgid "Jakarta"
 msgstr "Jakarta"
 
-#: rapid/rapid.py:398
+#: rapid/rapid.py:453
 msgid "Madrid"
 msgstr "Madrid"
 
-#: rapid/rapid.py:398
+#: rapid/rapid.py:453
 msgid "Stockholm"
 msgstr "Estocolmo"
 
-#: rapid/rapid.py:425
+#: rapid/rapid.py:486
 msgid "Invalid Downloads Today value.\n"
 msgstr "Valor inválido de descargas de hoy.\n"
 
-#: rapid/rapid.py:426
+#: rapid/rapid.py:487
 msgid "Resetting value to zero.\n"
 msgstr "Restableciendo valor a cero.\n"
 
-#: rapid/rapid.py:465
+#: rapid/rapid.py:526
 msgid "'Start of day' preference value is corrupted.\n"
 msgstr "Valor preferencial de 'Inicio del día' corrupto.\n"
 
-#: rapid/rapid.py:466
+#: rapid/rapid.py:527
 msgid "Resetting to midnight.\n"
 msgstr "Restableciendo a medianoche.\n"
 
-#: rapid/rapid.py:492
+#: rapid/rapid.py:553
 msgid "Error in Photo Rename preferences"
-msgstr ""
+msgstr "Error en las preferencias de renombrado de fotos"
 
-#: rapid/rapid.py:523 rapid/rapid.py:1567
+#: rapid/rapid.py:584 rapid/rapid.py:1689
 msgid "Sorry,these preferences contain an error:\n"
 msgstr "Lo siento, pero estas preferencias contienen un error:\n"
 
-#: rapid/rapid.py:534
+#: rapid/rapid.py:595
 msgid "Resetting to default values."
 msgstr "Restableciendo a los valores por defecto."
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#jobcode
-#: rapid/rapid.py:609 rapid/renamesubfolderprefs.py:196
+#: rapid/rapid.py:670 rapid/renamesubfolderprefs.py:198
 msgid "Job code"
 msgstr "Código de trabajo"
 
-#: rapid/rapid.py:677
+#: rapid/rapid.py:738
 msgid "Error in Video Rename preferences"
-msgstr ""
+msgstr "Error en las preferencias de renombrado de vídeos"
 
-#: rapid/rapid.py:695
+#: rapid/rapid.py:756
 msgid "Error in Photo Download Subfolders preferences"
 msgstr ""
 
-#: rapid/rapid.py:712
+#: rapid/rapid.py:773
 msgid "Error in Video Download Subfolders preferences"
 msgstr ""
 
-#: rapid/rapid.py:745 rapid/rapid.py:1492
+#: rapid/rapid.py:806 rapid/rapid.py:1539
 msgid "photos and videos"
 msgstr "fotos y videos"
 
-#: rapid/rapid.py:747 rapid/rapid.py:1502 rapid/rapid.py:1782
+#: rapid/rapid.py:808 rapid/rapid.py:1549 rapid/rapid.py:1658
 msgid "photos"
 msgstr "fotos"
 
-#: rapid/rapid.py:880
+#: rapid/rapid.py:943
 msgid "Select a folder to download photos to"
 msgstr "Selecciona un directorio donde descargar las fotos"
 
-#: rapid/rapid.py:898
+#: rapid/rapid.py:961
 msgid "Select a folder to download videos to"
 msgstr "Selecciona un directorio donde descargar los videos"
 
-#: rapid/rapid.py:980
+#: rapid/rapid.py:1043
 #, python-format
 msgid "Select a folder containing %(file_types)s"
 msgstr "Selecciona un directorio conteniendo %(file_types)s"
 
-#: rapid/rapid.py:1002
+#: rapid/rapid.py:1065
 #, python-format
 msgid "Select a folder in which to backup %(file_types)s"
 msgstr ""
@@ -168,45 +168,45 @@ msgstr ""
 "%(file_types)s"
 
 #. Translators: please do not modify or leave out html formatting tags like <i> and <b>. These are used to format the text the users sees
-#: rapid/rapid.py:1095
+#: rapid/rapid.py:1146
 msgid ""
 "<i><b>Warning:</b> There is insufficient metadata to fully generate the "
 "name. Please use other renaming options.</i>"
 msgstr ""
 
-#: rapid/rapid.py:1129
+#: rapid/rapid.py:1182
 msgid ""
 "<i><b>Warning:</b> There is insufficient metadata to fully generate "
 "subfolders. Please use other subfolder naming options.</i>"
 msgstr ""
 
 #. Translators: you should not modify or leave out the %s. This is a code used by the programming language python to insert a value that thes user will see
-#: rapid/rapid.py:1133
+#: rapid/rapid.py:1186
 #, python-format
 msgid "<i>Example: %s</i>"
 msgstr "<i>Ejemplo: %s</i>"
 
-#: rapid/rapid.py:1159
+#: rapid/rapid.py:1212
 msgid ""
 "Downloads today value not updated, as a download is currently occurring"
 msgstr ""
 "El número de descargas de hoy no se actualizó, pues se está haciendo una "
 "descarga actualmente."
 
-#: rapid/rapid.py:1175
+#: rapid/rapid.py:1228
 msgid "Stored number value not updated, as a download is currently occurring"
 msgstr ""
 "El número de almacenados no se actualizó, pues se está haciendo una descarga "
 "actualmente."
 
-#: rapid/rapid.py:1205
+#: rapid/rapid.py:1258
 #, python-format
 msgid ""
 "The %(filetype)s subfolder preferences had some unnecessary values removed."
 msgstr ""
 
 #. Preferences list is now empty
-#: rapid/rapid.py:1210
+#: rapid/rapid.py:1263
 #, python-format
 msgid ""
 "The %(filetype)s subfolder preferences entered are invalid and cannot be "
@@ -215,59 +215,95 @@ msgid ""
 msgstr ""
 
 #. check subfolder preferences for bad values
-#: rapid/rapid.py:1224 rapid/rapid.py:1504 rapid/rapid.py:2533
+#: rapid/rapid.py:1277 rapid/rapid.py:1551
 msgid "photo"
 msgstr "foto"
 
-#: rapid/rapid.py:1225 rapid/rapid.py:1499 rapid/rapid.py:2541
+#: rapid/rapid.py:1278 rapid/rapid.py:1546
 msgid "video"
 msgstr "vídeo"
 
 #. Translators: this value is used as an example device when automatic backup device detection is enabled. You should translate this.
-#: rapid/rapid.py:1468
+#: rapid/rapid.py:1515
 msgid "externaldrive1"
 msgstr "dispositivoexterno1"
 
 #. Translators: this value is used as an example device when automatic backup device detection is enabled. You should translate this.
-#: rapid/rapid.py:1470
+#: rapid/rapid.py:1517
 msgid "externaldrive2"
 msgstr "dispositivoexterno2"
 
-#: rapid/rapid.py:1494 rapid/rapid.py:1780
+#: rapid/rapid.py:1541 rapid/rapid.py:1656
 msgid "photos or videos"
 msgstr "fotos y vídeos"
 
-#: rapid/rapid.py:1497
+#: rapid/rapid.py:1544
 msgid "videos"
 msgstr "vídeos"
 
+#: rapid/rapid.py:1556
+#, python-format
+msgid ""
+"%(date)s\n"
+"%(time)s"
+msgstr ""
+"%(date)s\n"
+"%(time)s"
+
+#: rapid/rapid.py:1558
+#, python-format
+msgid "%(date)s %(time)s"
+msgstr "%(date)s %(time)s"
+
+#: rapid/rapid.py:1561
+#, python-format
+msgid "%(hour)s:%(minute)s:%(second)s:%(subsecond)s"
+msgstr "%(hour)s:%(minute)s:%(second)s:%(subsecond)s"
+
+#: rapid/rapid.py:1568
+#, python-format
+msgid "%(date)s %(hour)s:%(minute)s:%(second)s:%(subsecond)s"
+msgstr "%(date)s %(hour)s:%(minute)s:%(second)s:%(subsecond)s"
+
+#: rapid/rapid.py:1596 rapid/rapid.py:2242
+msgid "subfolder and filename"
+msgstr ""
+
+#: rapid/rapid.py:1598 rapid/rapid.py:2244
+msgid "filename"
+msgstr "nombre de archivo"
+
+#: rapid/rapid.py:1600 rapid/rapid.py:2246
+msgid "subfolder"
+msgstr ""
+
 #. This refers to when a device like a hard drive is having its contents scanned,
 #. looking for photos or videos. It is visible initially in the progress bar for each device
-#. (which normally holds "x of y photos").
+#. (which normally holds "x photos and videos").
 #. It maybe displayed only briefly if the contents of the device being scanned is small.
-#: rapid/rapid.py:1556
+#: rapid/rapid.py:1672
 msgid "scanning..."
 msgstr "explorando..."
 
-#: rapid/rapid.py:1663
+#: rapid/rapid.py:1783
 msgid "The following download path could not be created:\n"
 msgstr ""
 
-#: rapid/rapid.py:1664
+#: rapid/rapid.py:1784
 #, python-format
 msgid "%(path)s: "
 msgstr "%(path)s: "
 
-#: rapid/rapid.py:1665 rapid/rapid.py:1666 rapid/rapid.py:1681
-#: rapid/rapid.py:1682 rapid/rapid.py:2364 rapid/rapid.py:2367
+#: rapid/rapid.py:1785 rapid/rapid.py:1786 rapid/rapid.py:1801
+#: rapid/rapid.py:1802 rapid/rapid.py:2063 rapid/rapid.py:2066
 msgid "Download cannot proceed"
 msgstr "No se puede proceder con la descarga"
 
-#: rapid/rapid.py:1679 rapid/rapid.py:3381
+#: rapid/rapid.py:1799 rapid/rapid.py:4846
 msgid "There is an error in the program preferences."
 msgstr "Hay un error en las preferencis del programa."
 
-#: rapid/rapid.py:1680
+#: rapid/rapid.py:1800
 msgid ""
 "\n"
 "Please check preferences, restart the program, and try again."
@@ -279,10 +315,10 @@ msgstr ""
 #. It refers to the actual number of photos that can be copied. For example, the user might see the following:
 #. '0 of 512 photos' or '0 of 10 videos' or '0 of 202 photos and videos'.
 #. This particular text is displayed to the user before the download has started.
-#: rapid/rapid.py:1791
+#: rapid/rapid.py:1974
 #, python-format
-msgid "0 of %(number)s %(filetypes)s"
-msgstr "0 de %(number)s %(filetypes)s"
+msgid "%(number)s %(filetypes)s"
+msgstr "%(number)s %(filetypes)s"
 
 #. Translators: as you have already seen, the text can contain values that should not be modified or left out by you, for example %s.
 #. This text is another example of that, but it is is a little more complex. Here there are two values which will be displayed
@@ -290,57 +326,92 @@ msgstr "0 de %(number)s %(filetypes)s"
 #. %(number)s should be left exactly as is: 'number' should not be translated. The same applies to %(device)s: 'device' should
 #. not be translated. Generally speaking, if translating the sentence requires it, you can move items like '%(xyz)s' around
 #. in a sentence, but you should never modify them or leave them out.
-#: rapid/rapid.py:1803
+#: rapid/rapid.py:1985
 #, python-format
 msgid "Device scan complete: found %(number)s %(filetypes)s on %(device)s"
 msgstr ""
 "Escaneo del dispositivo completo: se encontro %(number)s %(filetypes)s en "
 "%(device)s"
 
-#: rapid/rapid.py:1810
+#: rapid/rapid.py:1992
 #, python-format
 msgid "Device scan complete: no %(filetypes)s found on %(device)s"
 msgstr ""
 "Escaneo del dispositivo completo: no se encuentran %(filetypes)s en "
 "%(device)s"
 
-#: rapid/rapid.py:1844
+#. This message informs the user that the device (e.g. camera, hard drive or memory card) was automatically unmounted and they can now remove it
+#: rapid/rapid.py:2013
+msgid "The device can now be safely removed"
+msgstr "El dispositivo ya se puede extraer de forma segura"
+
+#: rapid/rapid.py:2019
 #, python-format
-msgid "%(filetype)s filename could not be generated"
+msgid "%(noFiles)s %(filetypes)s downloaded"
+msgstr "%(noFiles)s %(filetypes)s descargados"
+
+#: rapid/rapid.py:2022
+#, python-format
+msgid "%(noFiles)s %(filetypes)s failed to download"
 msgstr ""
 
-#. '%(source)s' and '%(problem)s' are two more examples of text that should not be modified or left out
-#: rapid/rapid.py:1846
+#: rapid/rapid.py:2028 rapid/rapid.py:5627
+msgid "warnings"
+msgstr "avisos"
+
+#: rapid/rapid.py:2030 rapid/rapid.py:5631
+msgid "errors"
+msgstr "errores"
+
+#: rapid/rapid.py:2057
+#, python-format
+msgid "Source: %s\n"
+msgstr "Origen: %s\n"
+
+#: rapid/rapid.py:2059
+#, python-format
+msgid "Device: %s\n"
+msgstr "Dispositivo: %s\n"
+
+#: rapid/rapid.py:2060
+#, python-format
+msgid "Destination: %s"
+msgstr "Destino: %s"
+
+#: rapid/rapid.py:2061 rapid/rapid.py:2064
+msgid "Could not create temporary download directory"
+msgstr "No se pudo crear el directorio de descarga temporal"
+
+#: rapid/rapid.py:2064
+msgid "Error:"
+msgstr "Error:"
+
+#: rapid/rapid.py:2088
+msgid "Backup path does not exist"
+msgstr ""
+
+#: rapid/rapid.py:2089
+#, python-format
+msgid "The path %s could not be created"
+msgstr ""
+
+#: rapid/rapid.py:2090
+msgid "No backups can occur"
+msgstr ""
+
+#: rapid/rapid.py:2117
 #, python-format
 msgid ""
 "Source: %(source)s\n"
-"Problem: %(problem)s"
-msgstr ""
-"Origen: %(source)s\n"
-"Problema: %(problem)s"
-
-#: rapid/rapid.py:1850
-#, python-format
-msgid ""
-"%(filetype)s filename could not be properly generated. Check to ensure there "
-"is sufficient metadata."
-msgstr ""
-
-#: rapid/rapid.py:1851
-#, python-format
-msgid ""
-"Source: %(source)s\n"
-"Partially generated filename: %(newname)s\n"
 "Destination: %(destination)s\n"
-"Problem: %(problem)s"
+"%(problem)s"
 msgstr ""
 "Origen: %(source)s\n"
-"Archivo generado parcialmente: %(newname)s\n"
 "Destino: %(destination)s\n"
-"Problema: %(problem)s"
+"%(problem)s"
 
-#: rapid/rapid.py:1859 rapid/rapid.py:1864 rapid/rapid.py:1883
-#: rapid/rapid.py:2207
+#: rapid/rapid.py:2146 rapid/rapid.py:2492 rapid/rapid.py:2527
+#: rapid/rapid.py:2555 rapid/rapid.py:2586 rapid/rapid.py:2605
 #, python-format
 msgid ""
 "Source: %(source)s\n"
@@ -349,392 +420,334 @@ msgstr ""
 "Origen: %(source)s\n"
 "Destino: %(destination)s"
 
-#: rapid/rapid.py:1861
-#, python-format
-msgid "Unique identifier '%s' added"
-msgstr "Identificador único '%s' agregado"
+#. hopefully inst will never be None, but just to be safe...
+#: rapid/rapid.py:2161
+msgid "Please check your system and try again."
+msgstr ""
 
-#: rapid/rapid.py:1869 rapid/rapid.py:2270
+#: rapid/rapid.py:2181
+msgid "Photos detected with the same filenames, but taken at different times"
+msgstr ""
+
+#: rapid/rapid.py:2221
+msgid "Photo has already been downloaded"
+msgstr ""
+
+#: rapid/rapid.py:2222 rapid/rapid.py:2621
 #, python-format
 msgid "Source: %(source)s"
 msgstr "Origen: %(source)s"
 
-#: rapid/rapid.py:1877 rapid/rapid.py:1882
-msgid "Download copying error"
-msgstr "Error al copiar la descarga"
-
-#: rapid/rapid.py:1878
-#, python-format
-msgid ""
-"Source: %(source)s\n"
-"Destination: %(destination)s\n"
-"Error: %(errorno)s %(strerror)s"
-msgstr ""
-"Origen: %(source)s\n"
-"Destino: %(destination)s\n"
-"Error: %(errorno)s %(strerror)s"
-
-#: rapid/rapid.py:1880 rapid/rapid.py:1885
-#, python-format
-msgid "The %(filetype)s was not copied."
-msgstr ""
-
-#: rapid/rapid.py:1889
-msgid ""
-"Photos detected with the same filenames, but taken at different times:"
-msgstr ""
-
-#: rapid/rapid.py:1890
-#, python-format
-msgid ""
-"First photo: %(image1)s %(image1_date_time)s:%(image1_subseconds)s\n"
-"Second photo: %(image2)s %(image2_date_time)s:%(image2_subseconds)s"
-msgstr ""
-"Primera foto: %(image1)s %(image1_date_time)s:%(image1_subseconds)s\n"
-"Segunda foto: %(image2)s %(image2_date_time)s:%(image2_subseconds)s"
-
-#: rapid/rapid.py:1914 rapid/rapid.py:1927
-#, python-format
-msgid "Could not open %(filetype)s"
-msgstr ""
-
-#: rapid/rapid.py:1915 rapid/rapid.py:1928
-#, python-format
-msgid "Source: %s"
-msgstr "Origen: %s"
-
-#: rapid/rapid.py:1950
-#, python-format
-msgid "%(filetype)s has no metadata"
-msgstr ""
-
-#: rapid/rapid.py:1951
-#, python-format
-msgid ""
-"Metadata is essential for generating subfolder and/or file names.\n"
-"Source: %s"
-msgstr ""
-
-#: rapid/rapid.py:1962
-msgid ""
-"Subfolder name could not be properly generated. Check to ensure there is "
-"sufficient metadata."
-msgstr ""
-
-#: rapid/rapid.py:1963
-#, python-format
-msgid ""
-"Subfolder: %(subfolder)s\n"
-"File: %(file)s\n"
-"Problem: %(problem)s"
-msgstr ""
-
 #. A new day, according the user's preferences of what time a day begins, has started
-#: rapid/rapid.py:2147
+#: rapid/rapid.py:2420
 msgid "New day has started - resetting 'Downloads Today' sequence number"
 msgstr ""
 "Ha empezado un nuevo día - restableciendo los números de secuencia de "
 "'Descargas del día'"
 
-#: rapid/rapid.py:2206
+#: rapid/rapid.py:2491
 #, python-format
 msgid "Backup of %(file_type)s already exists"
 msgstr ""
 
-#: rapid/rapid.py:2210
+#: rapid/rapid.py:2495
 #, python-format
 msgid "Backup %(file_type)s overwritten"
 msgstr ""
 
-#: rapid/rapid.py:2215
+#: rapid/rapid.py:2499
 #, python-format
 msgid "%(file_type)s not backed up to %(volume)s"
 msgstr ""
 
-#: rapid/rapid.py:2217
+#: rapid/rapid.py:2501
 #, python-format
 msgid "%(file_type)s not backed up"
 msgstr ""
 
-#: rapid/rapid.py:2243 rapid/rapid.py:2260
+#: rapid/rapid.py:2524 rapid/rapid.py:2552 rapid/rapid.py:2585
+#: rapid/rapid.py:2604
 msgid "Backing up error"
 msgstr "Error en copia de seguridad"
 
-#: rapid/rapid.py:2244
+#: rapid/rapid.py:2525 rapid/rapid.py:2553
 #, python-format
 msgid "Destination directory could not be created: %(directory)s\n"
 msgstr "El directorio de destino no puede ser creado: %(directory)s\n"
 
-#: rapid/rapid.py:2246
+#: rapid/rapid.py:2529 rapid/rapid.py:2588
 #, python-format
-msgid ""
-"Source: %(source)s\n"
-"Destination: %(destination)s\n"
-msgstr ""
-"Origen: %(source)s\n"
-"Destino: %(destination)s\n"
+msgid "Error: %(inst)s"
+msgstr "Error: %(inst)s"
 
-#: rapid/rapid.py:2248
-#, python-format
-msgid "Error: %(errno)s %(strerror)s"
-msgstr "Error: %(errno)s %(strerror)s"
-
-#: rapid/rapid.py:2249 rapid/rapid.py:2263
+#: rapid/rapid.py:2530 rapid/rapid.py:2558 rapid/rapid.py:2589
+#: rapid/rapid.py:2608
 #, python-format
 msgid "The %(file_type)s was not backed up."
 msgstr ""
 
-#: rapid/rapid.py:2261
+#: rapid/rapid.py:2557 rapid/rapid.py:2607
 #, python-format
-msgid ""
-"Source: %(source)s\n"
-"Destination: %(destination)s\n"
-"Error: %(errno)s %(strerror)s"
-msgstr ""
-"Origen: %(source)s\n"
-"Destino: %(destination)s\n"
-"Error: %(errno)s %(strerror)s"
+msgid "Error: %(errno)s %(strerror)s"
+msgstr "Error: %(errno)s %(strerror)s"
 
-#: rapid/rapid.py:2269
+#: rapid/rapid.py:2620
 #, python-format
 msgid "%(file_type)s could not be backed up"
 msgstr ""
 
-#: rapid/rapid.py:2272
+#: rapid/rapid.py:2623
 msgid "No suitable backup volume was found"
 msgstr ""
 
-#: rapid/rapid.py:2274
+#: rapid/rapid.py:2625
 msgid "A backup location was not found"
 msgstr ""
 
-#. This message informs the user that the device (e.g. camera, hard drive or memory card) was automatically unmounted and they can now remove it
-#: rapid/rapid.py:2288
-msgid "The device can now be safely removed"
-msgstr "El dispositivo ya se puede extraer de forma segura"
-
-#: rapid/rapid.py:2294
-#, python-format
-msgid "%(noFiles)s %(filetypes)s downloaded"
-msgstr ""
-
-#: rapid/rapid.py:2297
-#, python-format
-msgid "%(noFiles)s %(filetypes)s skipped"
-msgstr ""
-
-#: rapid/rapid.py:2303 rapid/rapid.py:4027
-msgid "warnings"
-msgstr "avisos"
-
-#: rapid/rapid.py:2305 rapid/rapid.py:4029
-msgid "errors"
-msgstr "errores"
-
-#: rapid/rapid.py:2331 rapid/rapid.py:2823 rapid/rapid.py:2838
-msgid "Photo thumbnail could not be extracted"
-msgstr ""
-
-#: rapid/rapid.py:2358
-#, python-format
-msgid "Source: %s\n"
-msgstr "Origen: %s\n"
-
-#: rapid/rapid.py:2360
-#, python-format
-msgid "Device: %s\n"
-msgstr "Dispositivo: %s\n"
-
-#: rapid/rapid.py:2361
-#, python-format
-msgid "Destination: %s"
-msgstr "Destino: %s"
-
-#: rapid/rapid.py:2362 rapid/rapid.py:2365
-msgid "Could not create temporary download directory"
-msgstr "No se pudo crear el directorio de descarga temporal"
-
-#: rapid/rapid.py:2365
-msgid "Error:"
-msgstr "Error:"
-
-#: rapid/rapid.py:2382
+#: rapid/rapid.py:2679
 #, python-format
 msgid "This device has no %(types_searched_for)s to download from."
 msgstr ""
 
-#: rapid/rapid.py:2417
+#: rapid/rapid.py:2733
 #, python-format
 msgid "Download has started from %s"
 msgstr "La descarga empezó desde %s"
 
-#: rapid/rapid.py:2434
-msgid "Backup path does not exist"
-msgstr ""
-
-#: rapid/rapid.py:2435
+#: rapid/rapid.py:2736
 #, python-format
-msgid "The path %s could not be created"
+msgid "Attempting to download %s files"
 msgstr ""
 
-#: rapid/rapid.py:2436 rapid/rapid.py:2444
-msgid "No backups can occur"
-msgstr ""
-
-#: rapid/rapid.py:2442
-msgid "Backup device missing"
-msgstr "Dispositivo de respaldo perdido"
-
-#: rapid/rapid.py:2443
-msgid "No backup device was automatically detected"
-msgstr ""
-
-#: rapid/rapid.py:2534 rapid/rapid.py:3343 rapid/rapid.py:3345
-msgid "Photo"
-msgstr "Foto"
-
-#: rapid/rapid.py:2535
-msgid "Photo skipped"
-msgstr ""
-
-#: rapid/rapid.py:2536
-msgid "Photo already exists"
-msgstr "Foto ya existe"
-
-#: rapid/rapid.py:2542 rapid/rapid.py:3343
-msgid "Video"
-msgstr "Video"
-
-#: rapid/rapid.py:2543
-msgid "Video skipped"
-msgstr "Video saltado"
-
-#: rapid/rapid.py:2544
-msgid "Video already exists"
-msgstr "Video ya existe"
-
-#: rapid/rapid.py:2592
+#. reset the progress bar to update the status of this download attempt
+#: rapid/rapid.py:2769 rapid/rapid.py:2836
 #, python-format
 msgid "%(number)s of %(total)s %(filetypes)s"
-msgstr ""
+msgstr "%(number)s de %(total)s %(filetypes)s"
 
-#: rapid/rapid.py:2607 rapid/rapid.py:2611
+#: rapid/rapid.py:2832
+#, python-format
+msgid "%(number)s of %(total)s %(filetypes)s (%(remaining)s remaining)"
+msgstr "%(number)s de %(total)s %(filetypes)s (%(remaining)s restantes)"
+
+#: rapid/rapid.py:2857 rapid/rapid.py:2861
 msgid "Could not delete photo or video from device"
 msgstr ""
 
-#: rapid/rapid.py:2608
+#: rapid/rapid.py:2858
 #, python-format
 msgid ""
 "Photo: %(source)s\n"
 "Error: %(errno)s %(strerror)s"
 msgstr ""
+"Foto: %(source)s\n"
+"Error: %(errno)s %(strerror)s"
 
-#: rapid/rapid.py:2612
+#: rapid/rapid.py:2862
 #, python-format
 msgid "Photo: %(source)s"
-msgstr ""
+msgstr "Foto: %(source)s"
 
-#: rapid/rapid.py:2614
+#: rapid/rapid.py:2864
 #, python-format
 msgid "Deleted %(number)i %(filetypes)s from device"
 msgstr ""
 
-#: rapid/rapid.py:2624
+#: rapid/rapid.py:2871
 #, python-format
 msgid "Download complete from %s"
 msgstr "Descarga completa desde %s"
 
 #. Device refers to a thing like a camera, memory card in its reader, external hard drive, Portable Storage Device, etc.
-#: rapid/rapid.py:2700
+#: rapid/rapid.py:2993 rapid/rapid.py:3466
 msgid "Device"
 msgstr "Dispositivo"
 
 #. Size refers to the total size of images on the device, typically in MB or GB
-#: rapid/rapid.py:2705
+#: rapid/rapid.py:2998 rapid/rapid.py:3455
 msgid "Size"
 msgstr "Tamaño"
 
-#: rapid/rapid.py:2708
+#: rapid/rapid.py:3001
 msgid "Download Progress"
 msgstr "Progreso de descarga"
 
-#: rapid/rapid.py:2824 rapid/rapid.py:2839
-msgid "It may be corrupted"
-msgstr "Puede estar corrupta"
+#: rapid/rapid.py:3089
+msgid "Downloading From Cameras"
+msgstr "Descargando desde las camaras"
 
-#: rapid/rapid.py:2869
+#: rapid/rapid.py:3095
+msgid "Downloading directly from a camera may work poorly or not at all"
+msgstr ""
+
+#: rapid/rapid.py:3096
+msgid ""
+"Downloading from a card reader always works and is generally much faster. It "
+"is strongly recommended to use a card reader."
+msgstr ""
+
+#: rapid/rapid.py:3110
+msgid "_Show this message again"
+msgstr "_Mostrar este mensaje de nuevo"
+
+#: rapid/rapid.py:3145
 msgid "Device Detected"
 msgstr "Dispositivo detectado"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#usedeviceprompt
-#: rapid/rapid.py:2878
+#: rapid/rapid.py:3154
 msgid ""
 "Should this device or partition be used to download photos or videos from?"
 msgstr ""
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#usedeviceprompt
-#: rapid/rapid.py:2897
+#: rapid/rapid.py:3173
 msgid "_Remember this choice"
 msgstr "_Recordar esta elección"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#usedeviceprompt
-#: rapid/rapid.py:2934
+#: rapid/rapid.py:3210
 #, python-format
 msgid "%s selected for downloading from"
 msgstr "%s seleccionado para descargar de"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#usedeviceprompt
-#: rapid/rapid.py:2937
+#: rapid/rapid.py:3213
 msgid "This device or partition will always be used to download from"
 msgstr "Siempre se descargará de este dispositivo o partición"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#usedeviceprompt
-#: rapid/rapid.py:2940
+#: rapid/rapid.py:3216
 #, python-format
 msgid "%s rejected as a download device"
 msgstr "%s rechazado como dispositivo de descarga"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#usedeviceprompt
-#: rapid/rapid.py:2943
+#: rapid/rapid.py:3219
 msgid "This device or partition will never be used to download from"
 msgstr "Jamás se descargará de este dispositivo o partición"
 
-#: rapid/rapid.py:2950
+#: rapid/rapid.py:3226
 msgid "Remove all Job Codes?"
 msgstr "¿Borrar todos los Códigos de Trabajo?"
 
-#: rapid/rapid.py:2967
+#: rapid/rapid.py:3243
 msgid "Should all Job Codes be removed?"
 msgstr "¿Deberían ser removidos todos los Codigos de Trabajo?"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#jobcode
-#: rapid/rapid.py:2995
+#: rapid/rapid.py:3271
 msgid "Enter a Job Code"
 msgstr "Ingrese un Código de trabajo"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#jobcode
-#: rapid/rapid.py:3013
-msgid "Enter a new job code, or select a previous one."
-msgstr "Entre un nuevo código de trabajo o seleccione uno previo."
+#: rapid/rapid.py:3290
+msgid "Enter a new Job Code, or select a previous one"
+msgstr ""
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#jobcode
-#: rapid/rapid.py:3016
-msgid "Enter a new job code."
-msgstr "Entre un nuevo código de trabajo."
+#: rapid/rapid.py:3293
+msgid "Enter a new Job Code"
+msgstr ""
 
-#: rapid/rapid.py:3021
+#: rapid/rapid.py:3298 rapid/rapid.py:4417
 msgid "Job Code:"
 msgstr "Código de trabajo:"
 
-#: rapid/rapid.py:3068
+#: rapid/rapid.py:3345
 msgid "Job Code entered"
 msgstr "Código de trabajo ingresado"
 
-#: rapid/rapid.py:3070
+#: rapid/rapid.py:3347
 msgid "Job Code not entered"
 msgstr "Código de trabajo no introducido"
 
-#: rapid/rapid.py:3330
+#: rapid/rapid.py:3401
+msgid "Status"
+msgstr "Estado"
+
+#: rapid/rapid.py:3409
+msgid "Type"
+msgstr "Tipo"
+
+#: rapid/rapid.py:3418 rapid/rapid.py:4808 rapid/rapid.py:4810
+msgid "Photo"
+msgstr "Foto"
+
+#: rapid/rapid.py:3420
+msgid "File"
+msgstr "Archivo"
+
+#: rapid/rapid.py:3435
+msgid "Job Code"
+msgstr ""
+
+#: rapid/rapid.py:3445
+msgid "Date"
+msgstr "Fecha"
+
+#: rapid/rapid.py:3477 rapid/renamesubfolderprefs.py:194
+msgid "Filename"
+msgstr "Nombre de archivo"
+
+#: rapid/rapid.py:3488
+msgid "Path"
+msgstr "Ruta"
+
+#: rapid/rapid.py:3843
+#, python-format
+msgid "%(filetype)s was downloaded successfully"
+msgstr ""
+
+#: rapid/rapid.py:3845
+#, python-format
+msgid "%(filetype)s was not downloaded"
+msgstr ""
+
+#: rapid/rapid.py:3847
+#, python-format
+msgid "%(filetype)s was downloaded with warnings"
+msgstr ""
+
+#: rapid/rapid.py:3849
+#, python-format
+msgid "%(filetype)s was downloaded but there were problems backing up"
+msgstr ""
+
+#: rapid/rapid.py:3851
+#, python-format
+msgid "%(filetype)s was neither downloaded nor backed up"
+msgstr ""
+
+#: rapid/rapid.py:3853
+#, python-format
+msgid "%(filetype)s is ready to be downloaded"
+msgstr ""
+
+#: rapid/rapid.py:3855
+#, python-format
+msgid "%(filetype)s is about to be downloaded"
+msgstr ""
+
+#: rapid/rapid.py:3857
+#, python-format
+msgid "%(filetype)s will be downloaded with warnings"
+msgstr ""
+
+#: rapid/rapid.py:3859
+#, python-format
+msgid "%(filetype)s cannot be downloaded"
+msgstr ""
+
+#: rapid/rapid.py:4240
+msgid "Preview"
+msgstr "Vista previa"
+
+#: rapid/rapid.py:4439
+msgid "Enter a new Job Code and press Enter, or select an existing Job Code"
+msgstr ""
+
+#: rapid/rapid.py:4795
 #, python-format
 msgid ""
 "Sorry, this device location does not exist:\n"
@@ -743,81 +756,90 @@ msgid ""
 "Please resolve the problem, or modify your preferences."
 msgstr ""
 
-#: rapid/rapid.py:3334
+#: rapid/rapid.py:4799
 msgid "Problem with Device Location Folder"
 msgstr ""
 
-#: rapid/rapid.py:3350
+#: rapid/rapid.py:4808
+msgid "Video"
+msgstr "Video"
+
+#: rapid/rapid.py:4815
 #, python-format
 msgid "The %(file_type)s Download Folder does not exist.\n"
 msgstr ""
 
-#: rapid/rapid.py:3359
+#: rapid/rapid.py:4824
 #, python-format
 msgid "The %(file_type)s Download Folder exists but cannot be written to.\n"
 msgstr ""
 
-#: rapid/rapid.py:3364
+#: rapid/rapid.py:4829
 msgid ""
 "Sorry, problems were encountered with your download folders. Please fix the "
 "problems or modify the preferences.\n"
 "\n"
 msgstr ""
 
-#: rapid/rapid.py:3367
+#: rapid/rapid.py:4832
 msgid "Problem with Download Folder"
 msgstr "Problema con la Carpeta de Descarga"
 
-#: rapid/rapid.py:3369
+#: rapid/rapid.py:4834
 msgid "Problem with Download Folders"
 msgstr ""
 
-#: rapid/rapid.py:3382
+#: rapid/rapid.py:4847
 msgid "Some preferences will be reset."
 msgstr "Algunas preferencias serán restablecidas."
 
-#: rapid/rapid.py:3416
+#: rapid/rapid.py:4880
+msgid "Displaying warning about downloading directly from camera"
+msgstr ""
+
+#: rapid/rapid.py:4890
 #, python-format
 msgid "Prompting whether to use %s"
 msgstr "Preguntando si usar o no %s"
 
-#: rapid/rapid.py:3444
+#: rapid/rapid.py:4917
 msgid "Prompting for Job Code"
 msgstr "Pidiendo un Código de trabajo"
 
-#: rapid/rapid.py:3448
+#: rapid/rapid.py:4921
 msgid "Already prompting for Job Code, do not prompt again"
 msgstr "Preguntando por código de trabajo, no volver a preguntar"
 
-#: rapid/rapid.py:3463
-msgid "Starting downloads that have been waiting for a Job Code"
-msgstr "Iniciando descargas que han sido esperadas por un Código de trabajo"
-
-#: rapid/rapid.py:3467
+#: rapid/rapid.py:4938
 msgid "Starting downloads"
 msgstr "Iniciando descargas"
 
-#: rapid/rapid.py:3482
+#. autostart is true
+#: rapid/rapid.py:4942
+msgid "Starting downloads that have been waiting for a Job Code"
+msgstr "Iniciando descargas que han sido esperadas por un Código de trabajo"
+
+#: rapid/rapid.py:4984
 #, python-format
 msgid "Creating photo download folder %(folder)s"
 msgstr ""
 
-#: rapid/rapid.py:3487
+#: rapid/rapid.py:4989
 #, python-format
 msgid "Failed to create default photo download folder %(folder)s"
 msgstr ""
 
-#: rapid/rapid.py:3491
+#: rapid/rapid.py:4993
 #, python-format
 msgid "Creating video download folder %(folder)s"
 msgstr ""
 
-#: rapid/rapid.py:3496
+#: rapid/rapid.py:4998
 #, python-format
 msgid "Failed to create default video download folder %(folder)s"
 msgstr ""
 
-#: rapid/rapid.py:3521
+#: rapid/rapid.py:5023
 msgid ""
 "A newer version of this program was previously run on this computer.\n"
 "\n"
@@ -825,7 +847,7 @@ msgstr ""
 "Una versión mas nueva de este programa fue ejecutada antes en este equipo.\n"
 "\n"
 
-#: rapid/rapid.py:3523
+#: rapid/rapid.py:5025
 msgid ""
 "Program preferences appear to be valid, but please check them to ensure "
 "correct operation."
@@ -833,15 +855,15 @@ msgstr ""
 "Las preferencias del programa parecen ser válidas, pero por favor revise a "
 "fin de garantizar el correcto funcionamiento."
 
-#: rapid/rapid.py:3525
+#: rapid/rapid.py:5027
 msgid "Sorry, some preferences are invalid and will be reset."
 msgstr "Lo siento, algunas preferencias son invalidas y serán restablecidas"
 
-#: rapid/rapid.py:3526
+#: rapid/rapid.py:5028
 msgid "Warning:"
 msgstr "Aviso:"
 
-#: rapid/rapid.py:3531
+#: rapid/rapid.py:5033
 msgid ""
 "This version of the program is newer than the previously run version. "
 "Checking preferences."
@@ -849,11 +871,11 @@ msgstr ""
 "Esta versión del programa es más reciente que la versión previamente "
 "ejecutada. Compruebe las preferencias."
 
-#: rapid/rapid.py:3538
+#: rapid/rapid.py:5040
 msgid "Preferences were modified."
 msgstr "Las preferencias fueron modificadas."
 
-#: rapid/rapid.py:3539
+#: rapid/rapid.py:5041
 msgid ""
 "This version of the program uses different preferences than the old version. "
 "Your preferences have been updated.\n"
@@ -865,11 +887,11 @@ msgstr ""
 "\n"
 "Por favor, compruebe el correcto funcionamiento."
 
-#: rapid/rapid.py:3543
+#: rapid/rapid.py:5045
 msgid "No preferences needed to be changed."
 msgstr "Ninguna preferencia necesita ser cambiada."
 
-#: rapid/rapid.py:3545
+#: rapid/rapid.py:5047
 msgid ""
 "This version of the program uses different preferences than the old version. "
 "Some of your previous preferences were invalid, and could not be updated. "
@@ -879,131 +901,155 @@ msgstr ""
 "Algunas de sus preferencias anteriores no eran válidas, y no pueden ser "
 "actualizadas, por lo que serán restablecidas."
 
-#: rapid/rapid.py:3555
+#: rapid/rapid.py:5057
 msgid "Problem using pynotify."
 msgstr "Problema usando pynotify."
 
-#: rapid/rapid.py:3571
+#: rapid/rapid.py:5073
 msgid "Failed to receive pynotify server capabilities."
 msgstr "Fallo al recibir capacidades del servidor pynotify"
 
-#: rapid/rapid.py:3580
+#: rapid/rapid.py:5084
 msgid ""
 "Warning: desktop environment notification server is incorrectly configured."
 msgstr ""
 "Advertencia: el servidor de notificaciones del entorno de escritorio no está "
 "configurado correctamente."
 
-#: rapid/rapid.py:3626
+#: rapid/rapid.py:5132
 msgid "and"
 msgstr "y"
 
-#: rapid/rapid.py:3631
+#: rapid/rapid.py:5137
 msgid "Using backup devices"
 msgstr "Usando dispositivo de copia de seguridad"
 
-#: rapid/rapid.py:3633
+#: rapid/rapid.py:5139
 msgid "Using backup device"
 msgstr "Usando dispositivo de copia de seguridad"
 
-#: rapid/rapid.py:3635
+#: rapid/rapid.py:5141
 msgid "No backup devices detected"
 msgstr "Dispositivos de copia de seguridad no detectados"
 
-#: rapid/rapid.py:3674 rapid/rapid.py:3831
+#: rapid/rapid.py:5188 rapid/rapid.py:5350
 #, python-format
 msgid "Device %(device)s (%(path)s) ignored"
 msgstr "Dispositivo %(device)s (%(path)s) ignorado"
 
-#: rapid/rapid.py:3790
+#: rapid/rapid.py:5309
 #, python-format
 msgid "Detected %(device)s with path %(path)s"
 msgstr "Detectado %(device)s con ruta %(path)s"
 
-#: rapid/rapid.py:3794
+#: rapid/rapid.py:5313
 msgid "Automatically start download is true"
 msgstr "Iniciar automaticamente la descarga está activa"
 
-#: rapid/rapid.py:3796
+#: rapid/rapid.py:5315
 msgid "Automatically start download is false"
 msgstr "Iniciar automaticamente la descarga está desactivada"
 
-#: rapid/rapid.py:3849
+#: rapid/rapid.py:5368
 msgid "Using manually specified path"
 msgstr "Usando manualmente la ruta especifica"
 
-#: rapid/rapid.py:3857
+#: rapid/rapid.py:5376 rapid/rapid.py:5417
 #, python-format
 msgid "Backing up to %(path)s"
 msgstr ""
 
-#: rapid/rapid.py:3968 rapid/rapid.py:4017
+#. the user is trying to backup to a device that is currently being downloaded from..... we don't normally allow that, but what to do?
+#: rapid/rapid.py:5441
+#, python-format
+msgid "Warning: backup device %(device)s is currently being downloaded from"
+msgstr ""
+
+#: rapid/rapid.py:5458
+msgid "D_ownload Selected"
+msgstr ""
+
+#: rapid/rapid.py:5550 rapid/rapid.py:5599
 msgid "All downloads complete"
 msgstr "Todas las descargas completadas"
 
-#: rapid/rapid.py:3982
+#: rapid/rapid.py:5564
 msgid "MB/s"
 msgstr "MB/s"
 
-#: rapid/rapid.py:3992
+#: rapid/rapid.py:5574
 msgid "About 1 second remaining"
 msgstr "Aproximadamente 1 segundo restante"
 
-#: rapid/rapid.py:3994
+#: rapid/rapid.py:5576
 #, python-format
 msgid "About %i seconds remaining"
 msgstr "Aproximadamente %i segundos restantes"
 
-#: rapid/rapid.py:3996
+#: rapid/rapid.py:5578
 msgid "About 1 minute remaining"
 msgstr "Aproximadamente 1 minuto restante"
 
 #. Translators: in the text '%(minutes)i:%(seconds)02i', only the : should be translated, if needed.
 #. '%(minutes)i' and '%(seconds)02i' should not be modified or left out. They are used to format and display the amount
 #. of time the download has remainging, e.g. 'About 5:36 minutes remaining'
-#: rapid/rapid.py:4001
+#: rapid/rapid.py:5583
 #, python-format
 msgid "About %(minutes)i:%(seconds)02i minutes remaining"
 msgstr "Resta cerca de %(minutes)i:%(seconds)02i minutos"
 
-#: rapid/rapid.py:4019
-msgid "photos downloaded"
-msgstr "fotos descargadas"
+#: rapid/rapid.py:5602 rapid/rapid.py:5608 rapid/rapid.py:5614
+#: rapid/rapid.py:5620 rapid/rapid.py:5625 rapid/rapid.py:5629
+#, python-format
+msgid "%(number)s %(numberdownloaded)s"
+msgstr "%(number)s %(numberdownloaded)s"
 
-#: rapid/rapid.py:4021
-msgid "photos skipped"
-msgstr "fotos saltadas"
+#: rapid/rapid.py:5604 rapid/rapid.py:5616
+#, python-format
+msgid "%(filetype)s downloaded"
+msgstr "%(filetype)s descargados"
 
-#: rapid/rapid.py:4023
-msgid "videos downloaded"
-msgstr "videos descargados"
+#: rapid/rapid.py:5610 rapid/rapid.py:5622
+#, python-format
+msgid "%(filetype)s failed to download"
+msgstr ""
 
-#: rapid/rapid.py:4025
-msgid "videos skipped"
-msgstr "videos saltados"
+#: rapid/rapid.py:5789
+msgid "_Resume"
+msgstr "_Reanudar"
+
+#: rapid/rapid.py:5792
+msgid "_Download All"
+msgstr "_Descargar tod"
 
 #. This text will be displayed to the user on the Download / Pause button.
-#. Please note the space at the end of the label - it is needed to meet the Gnome Human Interface Guidelines
-#: rapid/rapid.py:4125
-msgid "_Download "
-msgstr "_Descargar "
-
-#. This text will be displayed to the user on the Download / Pause button.
-#: rapid/rapid.py:4135
+#: rapid/rapid.py:5801
 msgid "_Pause"
 msgstr "_Pausar"
 
-#: rapid/rapid.py:4209
-msgid "Preferences were changed."
-msgstr "Las preferencias fueron cambiadas."
+#: rapid/rapid.py:5914
+msgid "Download device settings preferences were changed."
+msgstr ""
 
-#: rapid/rapid.py:4407
+#: rapid/rapid.py:5926
+msgid "Backup preferences were changed."
+msgstr ""
+
+#: rapid/rapid.py:5932
+msgid "Subfolder and filename preferences were changed."
+msgstr ""
+
+#: rapid/rapid.py:5943
+msgid "Download folder preferences were changed."
+msgstr ""
+
+#: rapid/rapid.py:6141
 msgid "Goodbye"
 msgstr "Adiós"
 
 #. Translators: this text is displayed to the user when they request information on the command line options.
 #. The text %default should not be modified or left out.
-#: rapid/rapid.py:4418
+#: rapid/rapid.py:6152
 #, python-format
 msgid ""
 "display program information on the command line as the program runs "
@@ -1012,386 +1058,382 @@ msgstr ""
 "mostrar la información del programa en la línea de comandos de como se "
 "ejecuta el programa (por defecto: %default)"
 
-#: rapid/rapid.py:4419
+#: rapid/rapid.py:6153
 msgid "only output errors to the command line"
 msgstr "solo errores de salida en la línea de comando"
 
 #. image file extensions are recognized RAW files plus TIFF and JPG
-#: rapid/rapid.py:4421
+#: rapid/rapid.py:6155
 msgid "list photo and video file extensions the program recognizes and exit"
 msgstr ""
 
-#: rapid/rapid.py:4422
+#: rapid/rapid.py:6156
 msgid "reset all program settings and preferences and exit"
 msgstr ""
 
-#: rapid/rapid.py:4431
+#: rapid/rapid.py:6165
 msgid "Photos:"
 msgstr "Fotos:"
 
-#: rapid/rapid.py:4431
+#: rapid/rapid.py:6165
 msgid "Videos:"
 msgstr "Videos:"
 
-#: rapid/rapid.py:4436
+#: rapid/rapid.py:6170
 #, python-format
 msgid "and %s"
 msgstr "y %s"
 
-#: rapid/rapid.py:4444
+#: rapid/rapid.py:6178
 msgid "All settings and preferences have been reset"
 msgstr ""
 
 #. Which volume management code is being used (GIO or GnomeVFS)
-#: rapid/rapid.py:4448 rapid/rapid.py:4449 rapid/rapid.py:4451
-#: rapid/rapid.py:4456 rapid/rapid.py:4460
+#: rapid/rapid.py:6182 rapid/rapid.py:6183 rapid/rapid.py:6185
+#: rapid/rapid.py:6190 rapid/rapid.py:6194
 msgid "Using"
 msgstr "Usando"
 
-#: rapid/rapid.py:4453
+#: rapid/rapid.py:6187
 msgid "\n"
 msgstr "\n"
 
 #. this application is already running
-#: rapid/rapid.py:4477
+#: rapid/rapid.py:6211
 #, python-format
 msgid "%s is already running"
 msgstr "%s ya se está ejecutando"
 
-#: rapid/renamesubfolderprefs.py:190
+#: rapid/renamesubfolderprefs.py:192
 msgid "Date time"
 msgstr "Fecha"
 
-#: rapid/renamesubfolderprefs.py:191
+#: rapid/renamesubfolderprefs.py:193
 msgid "Text"
 msgstr "Texto"
 
-#: rapid/renamesubfolderprefs.py:192
-msgid "Filename"
-msgstr "Nombre de archivo"
-
-#: rapid/renamesubfolderprefs.py:193
+#: rapid/renamesubfolderprefs.py:195
 msgid "Metadata"
 msgstr "Metadatos"
 
-#: rapid/renamesubfolderprefs.py:194
+#: rapid/renamesubfolderprefs.py:196
 msgid "Sequences"
 msgstr "Secuencias"
 
-#: rapid/renamesubfolderprefs.py:197
+#: rapid/renamesubfolderprefs.py:199
 msgid "Image date"
 msgstr "Fecha de la imagen"
 
-#: rapid/renamesubfolderprefs.py:198
+#: rapid/renamesubfolderprefs.py:200
 msgid "Video date"
 msgstr ""
 
-#: rapid/renamesubfolderprefs.py:199
+#: rapid/renamesubfolderprefs.py:201
 msgid "Today"
 msgstr "Hoy"
 
-#: rapid/renamesubfolderprefs.py:200
+#: rapid/renamesubfolderprefs.py:202
 msgid "Yesterday"
 msgstr "Ayer"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamefilename
-#: rapid/renamesubfolderprefs.py:202
+#: rapid/renamesubfolderprefs.py:204
 msgid "Name + extension"
 msgstr "Nombre + extensión"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamefilename
-#: rapid/renamesubfolderprefs.py:204
+#: rapid/renamesubfolderprefs.py:206
 msgid "Name"
 msgstr "Nombre"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamefilename
-#: rapid/renamesubfolderprefs.py:206
+#: rapid/renamesubfolderprefs.py:208
 msgid "Extension"
 msgstr "Extensión"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamefilename
-#: rapid/renamesubfolderprefs.py:208
+#: rapid/renamesubfolderprefs.py:210
 msgid "Image number"
 msgstr "Número de imagen"
 
-#: rapid/renamesubfolderprefs.py:209
+#: rapid/renamesubfolderprefs.py:211
 msgid "Video number"
 msgstr ""
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
-#: rapid/renamesubfolderprefs.py:211
+#: rapid/renamesubfolderprefs.py:213
 msgid "Aperture"
 msgstr "Apertura"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
-#: rapid/renamesubfolderprefs.py:213
+#: rapid/renamesubfolderprefs.py:215
 msgid "ISO"
 msgstr "ISO"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
-#: rapid/renamesubfolderprefs.py:215
+#: rapid/renamesubfolderprefs.py:217
 msgid "Exposure time"
 msgstr "Tiempo de exposición"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
-#: rapid/renamesubfolderprefs.py:217
+#: rapid/renamesubfolderprefs.py:219
 msgid "Focal length"
 msgstr "Longitud focal"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
-#: rapid/renamesubfolderprefs.py:219
+#: rapid/renamesubfolderprefs.py:221
 msgid "Camera make"
 msgstr "Marca cámara"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
-#: rapid/renamesubfolderprefs.py:221
+#: rapid/renamesubfolderprefs.py:223
 msgid "Camera model"
 msgstr "Modelo de la camara"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
-#: rapid/renamesubfolderprefs.py:223
+#: rapid/renamesubfolderprefs.py:225
 msgid "Short camera model"
 msgstr "Modelo corto de cámara"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
-#: rapid/renamesubfolderprefs.py:225
+#: rapid/renamesubfolderprefs.py:227
 msgid "Hyphenated short camera model"
 msgstr "Modelo de cámara con guión corto"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
-#: rapid/renamesubfolderprefs.py:227
+#: rapid/renamesubfolderprefs.py:229
 msgid "Serial number"
 msgstr "Número de serie"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
-#: rapid/renamesubfolderprefs.py:229
+#: rapid/renamesubfolderprefs.py:231
 msgid "Shutter count"
 msgstr "Obturador contador"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
-#: rapid/renamesubfolderprefs.py:231
+#: rapid/renamesubfolderprefs.py:233
 msgid "Owner name"
 msgstr "Nombre propietario"
 
-#: rapid/renamesubfolderprefs.py:232
+#: rapid/renamesubfolderprefs.py:234
 msgid "Codec"
 msgstr "Códec"
 
-#: rapid/renamesubfolderprefs.py:233
+#: rapid/renamesubfolderprefs.py:235
 msgid "Width"
 msgstr "Ancho"
 
-#: rapid/renamesubfolderprefs.py:234
+#: rapid/renamesubfolderprefs.py:236
 msgid "Height"
 msgstr "Alto"
 
-#: rapid/renamesubfolderprefs.py:235
+#: rapid/renamesubfolderprefs.py:237
 msgid "Length"
 msgstr "Duración"
 
-#: rapid/renamesubfolderprefs.py:236
+#: rapid/renamesubfolderprefs.py:238
 msgid "Frames Per Second"
 msgstr "Cuadros por Segundo"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#sequencenumbers
-#: rapid/renamesubfolderprefs.py:238
+#: rapid/renamesubfolderprefs.py:240
 msgid "Downloads today"
 msgstr "Descargas de hoy"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#sequencenumbers
-#: rapid/renamesubfolderprefs.py:240
+#: rapid/renamesubfolderprefs.py:242
 msgid "Session number"
 msgstr "Número de sesión"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#sequencenumbers
-#: rapid/renamesubfolderprefs.py:242
+#: rapid/renamesubfolderprefs.py:244
 msgid "Subfolder number"
 msgstr "Número de subcarpeta"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#sequencenumbers
-#: rapid/renamesubfolderprefs.py:244
+#: rapid/renamesubfolderprefs.py:246
 msgid "Stored number"
 msgstr "Número almacenado"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#sequenceletters
-#: rapid/renamesubfolderprefs.py:246
+#: rapid/renamesubfolderprefs.py:248
 msgid "Sequence letter"
 msgstr "Letra de secuencia"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamefilename
-#: rapid/renamesubfolderprefs.py:248
+#: rapid/renamesubfolderprefs.py:250
 msgid "All digits"
 msgstr "Todos los digitos"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamefilename
-#: rapid/renamesubfolderprefs.py:250
+#: rapid/renamesubfolderprefs.py:252
 msgid "Last digit"
 msgstr "Último dígito"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamefilename
-#: rapid/renamesubfolderprefs.py:252
+#: rapid/renamesubfolderprefs.py:254
 msgid "Last 2 digits"
 msgstr "Últimos 2 dígitos"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamefilename
-#: rapid/renamesubfolderprefs.py:254
+#: rapid/renamesubfolderprefs.py:256
 msgid "Last 3 digits"
 msgstr "Últimos 3 dígitos"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamefilename
-#: rapid/renamesubfolderprefs.py:256
+#: rapid/renamesubfolderprefs.py:258
 msgid "Last 4 digits"
 msgstr "Últimos 4 dígitos"
 
 #. Translators: please not the capitalization of this text, and keep it the same if your language features capitalization
-#: rapid/renamesubfolderprefs.py:258
+#: rapid/renamesubfolderprefs.py:260
 msgid "Original Case"
 msgstr "Mantener original"
 
 #. Translators: please not the capitalization of this text, and keep it the same if your language features capitalization
-#: rapid/renamesubfolderprefs.py:260
+#: rapid/renamesubfolderprefs.py:262
 msgid "UPPERCASE"
 msgstr "MAYÚSCULAS"
 
 #. Translators: please not the capitalization of this text, and keep it the same if your language features capitalization
-#: rapid/renamesubfolderprefs.py:262
+#: rapid/renamesubfolderprefs.py:264
 msgid "lowercase"
 msgstr "minúsculas"
 
-#: rapid/renamesubfolderprefs.py:263
+#: rapid/renamesubfolderprefs.py:265
 msgid "One digit"
 msgstr "Un dígito"
 
-#: rapid/renamesubfolderprefs.py:264
+#: rapid/renamesubfolderprefs.py:266
 msgid "Two digits"
 msgstr "Dos dígitos"
 
-#: rapid/renamesubfolderprefs.py:265
+#: rapid/renamesubfolderprefs.py:267
 msgid "Three digits"
 msgstr "Tres dígitos"
 
-#: rapid/renamesubfolderprefs.py:266
+#: rapid/renamesubfolderprefs.py:268
 msgid "Four digits"
 msgstr "Cuatro dígitos"
 
-#: rapid/renamesubfolderprefs.py:267
+#: rapid/renamesubfolderprefs.py:269
 msgid "Five digits"
 msgstr "Cinco dígitos"
 
-#: rapid/renamesubfolderprefs.py:268
+#: rapid/renamesubfolderprefs.py:270
 msgid "Six digits"
 msgstr "Seis dígitos"
 
-#: rapid/renamesubfolderprefs.py:269
+#: rapid/renamesubfolderprefs.py:271
 msgid "Seven digits"
 msgstr "Siete digitos"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-#: rapid/renamesubfolderprefs.py:271
+#: rapid/renamesubfolderprefs.py:273
 msgid "Subseconds"
 msgstr "Sub-segundos"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-#: rapid/renamesubfolderprefs.py:273
+#: rapid/renamesubfolderprefs.py:275
 msgid "YYYYMMDD"
 msgstr "AAAAMMDD"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-#: rapid/renamesubfolderprefs.py:275
+#: rapid/renamesubfolderprefs.py:277
 msgid "YYYY-MM-DD"
 msgstr "AAAA-MM-DD"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-#: rapid/renamesubfolderprefs.py:277
+#: rapid/renamesubfolderprefs.py:279
 msgid "YYMMDD"
 msgstr "AAMMDD"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-#: rapid/renamesubfolderprefs.py:279
+#: rapid/renamesubfolderprefs.py:281
 msgid "YY-MM-DD"
 msgstr "AA-MM-DD"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-#: rapid/renamesubfolderprefs.py:281
+#: rapid/renamesubfolderprefs.py:283
 msgid "MMDDYYYY"
 msgstr "MMDDAAAA"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-#: rapid/renamesubfolderprefs.py:283
+#: rapid/renamesubfolderprefs.py:285
 msgid "MMDDYY"
 msgstr "MMDDAA"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-#: rapid/renamesubfolderprefs.py:285
+#: rapid/renamesubfolderprefs.py:287
 msgid "MMDD"
 msgstr "MMDD"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-#: rapid/renamesubfolderprefs.py:287
+#: rapid/renamesubfolderprefs.py:289
 msgid "DDMMYYYY"
 msgstr "DDMMAAAA"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-#: rapid/renamesubfolderprefs.py:289
+#: rapid/renamesubfolderprefs.py:291
 msgid "DDMMYY"
 msgstr "DDMMAA"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-#: rapid/renamesubfolderprefs.py:291
+#: rapid/renamesubfolderprefs.py:293
 msgid "YYYY"
 msgstr "AAAA"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-#: rapid/renamesubfolderprefs.py:293
+#: rapid/renamesubfolderprefs.py:295
 msgid "YY"
 msgstr "AA"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-#: rapid/renamesubfolderprefs.py:295
+#: rapid/renamesubfolderprefs.py:297
 msgid "MM"
 msgstr "MM"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-#: rapid/renamesubfolderprefs.py:297
+#: rapid/renamesubfolderprefs.py:299
 msgid "DD"
 msgstr "DD"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-#: rapid/renamesubfolderprefs.py:299
+#: rapid/renamesubfolderprefs.py:301
 msgid "HHMMSS"
 msgstr "HHMMSS"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-#: rapid/renamesubfolderprefs.py:301
+#: rapid/renamesubfolderprefs.py:303
 msgid "HHMM"
 msgstr "HHMM"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-#: rapid/renamesubfolderprefs.py:303
+#: rapid/renamesubfolderprefs.py:305
 msgid "HH-MM-SS"
 msgstr "HH-MM-SS"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-#: rapid/renamesubfolderprefs.py:305
+#: rapid/renamesubfolderprefs.py:307
 msgid "HH-MM"
 msgstr "HH-MM"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-#: rapid/renamesubfolderprefs.py:307
+#: rapid/renamesubfolderprefs.py:309
 msgid "HH"
 msgstr "HH"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-#: rapid/renamesubfolderprefs.py:309
+#: rapid/renamesubfolderprefs.py:311
 msgid "MM (minutes)"
 msgstr "MM (minutos)"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-#: rapid/renamesubfolderprefs.py:311
+#: rapid/renamesubfolderprefs.py:313
 msgid "SS"
 msgstr "SS"
 
-#: rapid/renamesubfolderprefs.py:794
+#: rapid/renamesubfolderprefs.py:796
 #, python-format
 msgid ""
 "Preference key '%(key)s' is invalid.\n"
@@ -1400,64 +1442,26 @@ msgstr ""
 "Clave preferida '%(key)s' es inválida.\n"
 "Esperado uno de %(value)s"
 
-#: rapid/renamesubfolderprefs.py:801
+#: rapid/renamesubfolderprefs.py:803
 #, python-format
 msgid "Preference value '%(value)s' is invalid"
 msgstr "Valor '%(value)s' es inválido"
 
-#: rapid/renamesubfolderprefs.py:805
+#: rapid/renamesubfolderprefs.py:807
 msgid "These preferences are not well formed:"
 msgstr "Estas preferencias no están bien formadas:"
 
-#: rapid/renamesubfolderprefs.py:934
-msgid "Subsecond metadata not present in photo"
-msgstr ""
-
-#: rapid/renamesubfolderprefs.py:941
-#, python-format
-msgid "%s metadata is not present"
-msgstr ""
-
-#: rapid/renamesubfolderprefs.py:960 rapid/renamesubfolderprefs.py:968
-#: rapid/renamesubfolderprefs.py:977
-#, python-format
-msgid "Error in date time component. Value %s appears invalid"
-msgstr "Error en el campo de fecha. El valor %s parece inválido"
-
-#: rapid/renamesubfolderprefs.py:1004
-msgid "extension was specified but filename does not have an extension"
-msgstr ""
-
-#: rapid/renamesubfolderprefs.py:1008
-msgid "image or video number was specified but filename has no number"
-msgstr ""
-
-#: rapid/renamesubfolderprefs.py:1081
-#, python-format
-msgid "%s metadata is not present in photo"
-msgstr ""
-
-#: rapid/renamesubfolderprefs.py:1194
-#, python-format
-msgid "error generating name with component %s"
-msgstr "Error generando nombre con componente %s"
-
-#: rapid/renamesubfolderprefs.py:1450
-#, python-format
-msgid "%s metadata is not present in video"
-msgstr ""
-
-#: rapid/renamesubfolderprefs.py:1546
+#: rapid/renamesubfolderprefs.py:1517
 #, python-format
 msgid "Subfolder preferences should not start with a %s"
 msgstr "Preferencias de subcarpeta no debería empezar con una %s"
 
-#: rapid/renamesubfolderprefs.py:1548
+#: rapid/renamesubfolderprefs.py:1519
 #, python-format
 msgid "Subfolder preferences should not end with a %s"
 msgstr "Preferencias de subcarpeta no debería terminar con una %s"
 
-#: rapid/renamesubfolderprefs.py:1552
+#: rapid/renamesubfolderprefs.py:1523
 #, python-format
 msgid "Subfolder preferences should not contain two %s one after the other"
 msgstr ""
@@ -1508,118 +1512,114 @@ msgid "<b>Job Codes</b>"
 msgstr "<b>Códigos de trabajo</b>"
 
 #: rapid/glade3/rapid.glade.h:12
-msgid "<b>Missing Backup Devices</b>"
-msgstr "<b>Dispositivo de respaldo perdido</b>"
-
-#: rapid/glade3/rapid.glade.h:13
 msgid "<b>Photo Rename</b>"
 msgstr ""
 
-#: rapid/glade3/rapid.glade.h:14
+#: rapid/glade3/rapid.glade.h:13
 msgid "<b>Photo and Video Name Conflicts</b>"
 msgstr ""
 
-#: rapid/glade3/rapid.glade.h:15
+#: rapid/glade3/rapid.glade.h:14
 msgid "<b>Program Automation</b>"
 msgstr "<b>Automatización de programa</b>"
 
-#: rapid/glade3/rapid.glade.h:16
+#: rapid/glade3/rapid.glade.h:15
 msgid "<b>Sequence Numbers</b>"
 msgstr "<b>Números de secuencia</b>"
 
-#: rapid/glade3/rapid.glade.h:17
+#: rapid/glade3/rapid.glade.h:16
 msgid "<i>/media/externaldrive/Photos</i>"
 msgstr "<i>/media/externaldrive/Imágenes</i>"
 
-#: rapid/glade3/rapid.glade.h:18
+#: rapid/glade3/rapid.glade.h:17
 msgid "<i>Example: /home/user/Pictures</i>"
 msgstr "<i>Ejemplo: /home/user/Pictures</i>"
 
-#: rapid/glade3/rapid.glade.h:19
+#: rapid/glade3/rapid.glade.h:18
 msgid "<i>Example:</i>"
 msgstr "<i>Ejemplo:</i>"
 
-#: rapid/glade3/rapid.glade.h:20
+#: rapid/glade3/rapid.glade.h:19
 msgid "<i>New:</i>"
 msgstr "<i>Nuevo:</i>"
 
-#: rapid/glade3/rapid.glade.h:21
+#: rapid/glade3/rapid.glade.h:20
 msgid "<i>Original:</i>"
 msgstr "<i>Original:</i>"
 
-#: rapid/glade3/rapid.glade.h:22
+#: rapid/glade3/rapid.glade.h:21
 msgid "<span weight=\"bold\" size=\"x-large\">Automation</span>"
 msgstr "<span weight=\"bold\" size=\"x-large\">Automatización</span>"
 
-#: rapid/glade3/rapid.glade.h:23
+#: rapid/glade3/rapid.glade.h:22
 msgid "<span weight=\"bold\" size=\"x-large\">Backup</span>\t"
 msgstr "<span weight=\"bold\" size=\"x-large\">Respaldo</span>\t"
 
-#: rapid/glade3/rapid.glade.h:24
+#: rapid/glade3/rapid.glade.h:23
 msgid "<span weight=\"bold\" size=\"x-large\">Devices</span>"
-msgstr ""
+msgstr "<span weight=\"bold\" size=\"x-large\">Dispositivos</span>"
 
-#: rapid/glade3/rapid.glade.h:25
+#: rapid/glade3/rapid.glade.h:24
 msgid "<span weight=\"bold\" size=\"x-large\">Error Handling</span>"
 msgstr "<span weight=\"bold\" size=\"x-large\">Manejo de errores</span>"
 
-#: rapid/glade3/rapid.glade.h:26
+#: rapid/glade3/rapid.glade.h:25
 msgid "<span weight=\"bold\" size=\"x-large\">Job Codes</span>"
 msgstr "<span weight=\"bold\" size=\"x-large\">Códigos de trabajo</span>"
 
-#: rapid/glade3/rapid.glade.h:27
+#: rapid/glade3/rapid.glade.h:26
 msgid "<span weight=\"bold\" size=\"x-large\">Photo Download Folders</span>"
 msgstr ""
 
-#: rapid/glade3/rapid.glade.h:28
+#: rapid/glade3/rapid.glade.h:27
 msgid "<span weight=\"bold\" size=\"x-large\">Photo Rename</span>\t"
 msgstr ""
 
-#: rapid/glade3/rapid.glade.h:29
+#: rapid/glade3/rapid.glade.h:28
 msgid "<span weight=\"bold\" size=\"x-large\">Rename Options</span>"
 msgstr "<span weight=\"bold\" size=\"x-large\">Opciones de renombre</span>"
 
-#: rapid/glade3/rapid.glade.h:30
+#: rapid/glade3/rapid.glade.h:29
 msgid "<span weight=\"bold\" size=\"x-large\">Video Download Folders</span>"
 msgstr ""
 
-#: rapid/glade3/rapid.glade.h:31
+#: rapid/glade3/rapid.glade.h:30
 msgid "<span weight=\"bold\" size=\"x-large\">Video Rename</span>\t"
 msgstr ""
 
-#: rapid/glade3/rapid.glade.h:32
+#: rapid/glade3/rapid.glade.h:31
 msgid "Add unique identifier"
 msgstr "Agregar identificador único"
 
-#: rapid/glade3/rapid.glade.h:33
+#: rapid/glade3/rapid.glade.h:32
 msgid "Automatically detect Portable Storage Devices"
 msgstr "Detectar automáticamente dispositivos de almacenamiento portables"
 
-#: rapid/glade3/rapid.glade.h:34
+#: rapid/glade3/rapid.glade.h:33
 msgid "Automatically detect backup devices"
 msgstr "Detectar automáticamente dispositivos de respaldo"
 
-#: rapid/glade3/rapid.glade.h:35
+#: rapid/glade3/rapid.glade.h:34
 msgid "Automatically detect devices"
-msgstr ""
+msgstr "Detectar dispositivos automaticamente"
 
-#: rapid/glade3/rapid.glade.h:36
+#: rapid/glade3/rapid.glade.h:35
 msgid "Automation"
 msgstr "Automatización"
 
-#: rapid/glade3/rapid.glade.h:37
+#: rapid/glade3/rapid.glade.h:36
 msgid "Backup"
 msgstr "Respaldo"
 
-#: rapid/glade3/rapid.glade.h:38
+#: rapid/glade3/rapid.glade.h:37
 msgid "Backup location:"
 msgstr "Ruta de respaldo:"
 
-#: rapid/glade3/rapid.glade.h:39
+#: rapid/glade3/rapid.glade.h:38
 msgid "Backup photos and videos when downloading"
 msgstr ""
 
-#: rapid/glade3/rapid.glade.h:40
+#: rapid/glade3/rapid.glade.h:39
 msgid ""
 "Choose the download folder. Subfolders for the downloaded photos will be "
 "automatically created in this folder using the structure specified below."
@@ -1628,34 +1628,29 @@ msgstr ""
 "serán creadas automáticamente en la carpeta usando la estructura "
 "especificada abajo."
 
-#: rapid/glade3/rapid.glade.h:41
+#: rapid/glade3/rapid.glade.h:40
 msgid ""
 "Choose the download folder. Subfolders for the downloaded videos will be "
 "automatically created in this folder using the structure specified below."
 msgstr ""
 
-#: rapid/glade3/rapid.glade.h:42
-msgid ""
-"Choose whether to skip downloading the file, or to add a unique indentifier."
-msgstr ""
-
-#: rapid/glade3/rapid.glade.h:43
+#: rapid/glade3/rapid.glade.h:41
 msgid "Copyright Damon Lynch 2007-10"
 msgstr "Copyright Damon Lynch 2007-10"
 
-#: rapid/glade3/rapid.glade.h:44
+#: rapid/glade3/rapid.glade.h:42
 msgid "Day start:"
 msgstr "Día de inicio:"
 
-#: rapid/glade3/rapid.glade.h:45
+#: rapid/glade3/rapid.glade.h:43
 msgid "Delete photos and videos from device upon download completion"
 msgstr ""
 
-#: rapid/glade3/rapid.glade.h:46
+#: rapid/glade3/rapid.glade.h:44
 msgid "Devices"
 msgstr "Dispositivos"
 
-#: rapid/glade3/rapid.glade.h:47
+#: rapid/glade3/rapid.glade.h:45
 msgid ""
 "Devices are from where to download photos and videos, such as cameras, "
 "memory cards or Portable Storage Devices.\n"
@@ -1668,42 +1663,42 @@ msgid ""
 "reader.</i>"
 msgstr ""
 
-#: rapid/glade3/rapid.glade.h:52
+#: rapid/glade3/rapid.glade.h:50
 msgid "Download / Pause"
 msgstr "Descargar / Pausar"
 
-#: rapid/glade3/rapid.glade.h:53
+#: rapid/glade3/rapid.glade.h:51
 msgid "Download folder:"
 msgstr "Carpeta de descarga:"
 
-#: rapid/glade3/rapid.glade.h:54
+#: rapid/glade3/rapid.glade.h:52
 msgid "Downloads today:"
 msgstr "Descargas de hoy:"
 
-#: rapid/glade3/rapid.glade.h:55
+#: rapid/glade3/rapid.glade.h:53
 msgid "Error Handling"
 msgstr "Manejo de errores"
 
-#: rapid/glade3/rapid.glade.h:56
+#: rapid/glade3/rapid.glade.h:54
 msgid "Error Log"
 msgstr "Registro de error"
 
-#: rapid/glade3/rapid.glade.h:57
+#: rapid/glade3/rapid.glade.h:55
 msgid "Exit program if download completes without any warnings or errors"
 msgstr ""
 
-#: rapid/glade3/rapid.glade.h:58
+#: rapid/glade3/rapid.glade.h:56
 msgid "If you disable automatic detection, choose the exact backup location."
 msgstr ""
 "Si desactiva la detección automática, seleccione la ruta exacta de respaldo."
 
-#: rapid/glade3/rapid.glade.h:59
+#: rapid/glade3/rapid.glade.h:57
 msgid ""
 "If you disable automatic detection, choose the exact location of the images "
 "and videos."
 msgstr ""
 
-#: rapid/glade3/rapid.glade.h:60
+#: rapid/glade3/rapid.glade.h:58
 msgid ""
 "If you enable automatic detection of Portable Storage Devices, the entire "
 "device will be scanned for images. On large devices, this could take some "
@@ -1713,47 +1708,51 @@ msgstr ""
 "portátil, será revisado completamente en busca de imágenes. En dispositivos "
 "grandes, esto puede tomar algún tiempo."
 
-#: rapid/glade3/rapid.glade.h:61
-msgid "Ignore"
-msgstr "Ignorar"
-
-#: rapid/glade3/rapid.glade.h:62
+#: rapid/glade3/rapid.glade.h:59
 msgid "Import your photos and videos efficiently and reliably"
 msgstr ""
 
-#: rapid/glade3/rapid.glade.h:63
+#: rapid/glade3/rapid.glade.h:60
 msgid "Job Codes"
 msgstr "Códigos de trabajo"
 
-#: rapid/glade3/rapid.glade.h:64
+#: rapid/glade3/rapid.glade.h:61
 msgid "Location:"
 msgstr "Ubicación:"
 
-#: rapid/glade3/rapid.glade.h:65
+#: rapid/glade3/rapid.glade.h:62
 msgid "Overwrite"
 msgstr "Sobreescribir"
 
-#: rapid/glade3/rapid.glade.h:66
+#: rapid/glade3/rapid.glade.h:63
+msgid "P_review Columns"
+msgstr ""
+
+#: rapid/glade3/rapid.glade.h:64
 msgid "Photo Folders"
 msgstr ""
 
-#: rapid/glade3/rapid.glade.h:67
+#: rapid/glade3/rapid.glade.h:65
 msgid "Photo Rename"
 msgstr ""
 
-#: rapid/glade3/rapid.glade.h:68
+#: rapid/glade3/rapid.glade.h:66
 msgid "Photo backup folder name:"
 msgstr ""
 
-#: rapid/glade3/rapid.glade.h:69
+#: rapid/glade3/rapid.glade.h:67
 msgid "Preferences: Rapid Photo Downloader"
 msgstr "Preferencias: Rapid Photo Downloader"
 
-#: rapid/glade3/rapid.glade.h:71
+#: rapid/glade3/rapid.glade.h:68
+msgid "Preview _Folders"
+msgstr ""
+
+#: rapid/glade3/rapid.glade.h:70
 msgid "R_emove All"
 msgstr "R_emover todo"
 
-#: rapid/glade3/rapid.glade.h:73
+#: rapid/glade3/rapid.glade.h:72
 msgid ""
 "Rapid Photo Downloader is free software; you can redistribute it and/or "
 "modify it under the terms of the GNU General Public License as published by "
@@ -1783,33 +1782,49 @@ msgstr ""
 "con Rapid Photo Downloader; si no, escriba a la Free Software Foundation, "
 "Inc,51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, EE. UU."
 
-#: rapid/glade3/rapid.glade.h:78
+#: rapid/glade3/rapid.glade.h:77
 msgid "Rename Options"
 msgstr "Opciones de renombre"
 
+#: rapid/glade3/rapid.glade.h:78
+msgid "Se_lect None"
+msgstr ""
+
 #: rapid/glade3/rapid.glade.h:79
-msgid "Report a warning"
-msgstr "Reportar un aviso"
+msgid "Select All Pho_tos"
+msgstr "Seleccionar todas las fo_tos"
 
 #: rapid/glade3/rapid.glade.h:80
-msgid "Report an error"
-msgstr "Reportar un error"
+msgid "Select All Vi_deos"
+msgstr "Seleccionar todos los ví_deos"
 
 #: rapid/glade3/rapid.glade.h:81
+msgid "Select All Wit_h Job Code"
+msgstr ""
+
+#: rapid/glade3/rapid.glade.h:82
+msgid "Select All Without _Job Code"
+msgstr ""
+
+#: rapid/glade3/rapid.glade.h:83
+msgid "Select _All"
+msgstr "Seleccionar _todo"
+
+#: rapid/glade3/rapid.glade.h:84
 msgid "Skip"
 msgstr "Saltar"
 
-#: rapid/glade3/rapid.glade.h:82
+#: rapid/glade3/rapid.glade.h:85
 msgid "Skip download"
 msgstr "Saltar descarga"
 
-#: rapid/glade3/rapid.glade.h:83
+#: rapid/glade3/rapid.glade.h:86
 msgid ""
 "Sorry, video downloading functionality disabled. To download videos, please "
 "install the <i>kaa metadata</i> package for python."
 msgstr ""
 
-#: rapid/glade3/rapid.glade.h:84
+#: rapid/glade3/rapid.glade.h:87
 msgid ""
 "Specify the folder in which backups are stored on the device.  \n"
 "\n"
@@ -1818,7 +1833,7 @@ msgid ""
 "a folder in it with one of these names.</i>"
 msgstr ""
 
-#: rapid/glade3/rapid.glade.h:87
+#: rapid/glade3/rapid.glade.h:90
 msgid ""
 "Specify the time in 24 hour format at which the <i>Downloads today</i> "
 "sequence number should be reset."
@@ -1826,111 +1841,131 @@ msgstr ""
 "Especifique la hora en formato de 24 horas en la que el numero de secuencia "
 "de las <i> Descargas de hoy </i>, debe ser restablecido."
 
-#: rapid/glade3/rapid.glade.h:88
-msgid ""
-"Specify what to do when a photo or video of the same name has already been "
-"downloaded or backed up."
-msgstr ""
-
-#: rapid/glade3/rapid.glade.h:89
-msgid "Specify what to do when there are no backup devices."
-msgstr "Especificar que hacer cuando no hay dispositivos de respaldo."
-
-#: rapid/glade3/rapid.glade.h:90
+#: rapid/glade3/rapid.glade.h:91
 msgid ""
 "Specify whether photo, video and folder names should have any characters "
 "removed that are not allowed by other operating systems."
 msgstr ""
 
-#: rapid/glade3/rapid.glade.h:91
+#: rapid/glade3/rapid.glade.h:92
 msgid "Start downloading at program startup"
 msgstr "Empezar descargas al iniciar el programa"
 
-#: rapid/glade3/rapid.glade.h:92
+#: rapid/glade3/rapid.glade.h:93
 msgid "Start downloading upon device insertion"
 msgstr ""
 
-#: rapid/glade3/rapid.glade.h:93
+#: rapid/glade3/rapid.glade.h:94
 msgid "Stored number:"
 msgstr "Número almacenado:"
 
-#: rapid/glade3/rapid.glade.h:94
+#: rapid/glade3/rapid.glade.h:95
 msgid "Strip incompatible characters"
 msgstr "Quitar carácteres incompatibles"
 
-#: rapid/glade3/rapid.glade.h:95
+#: rapid/glade3/rapid.glade.h:96
 msgid "Synchronize RAW + JPEG sequence numbers"
 msgstr "Sincronizar números de secuencia de RAW + JPEG"
 
-#: rapid/glade3/rapid.glade.h:96
+#: rapid/glade3/rapid.glade.h:97
 msgid "Unmount (\"eject\") device upon download completion"
 msgstr ""
 
-#: rapid/glade3/rapid.glade.h:97
+#: rapid/glade3/rapid.glade.h:98
 msgid "Video Folders"
 msgstr ""
 
-#: rapid/glade3/rapid.glade.h:98
+#: rapid/glade3/rapid.glade.h:99
 msgid "Video Rename"
 msgstr ""
 
-#: rapid/glade3/rapid.glade.h:99
+#: rapid/glade3/rapid.glade.h:100
 msgid "Video backup folder name:"
 msgstr ""
 
-#: rapid/glade3/rapid.glade.h:100
+#: rapid/glade3/rapid.glade.h:101
+msgid ""
+"When a photo or video of the same name has already been downloaded, choose "
+"whether to skip downloading the file, or to add a unique indentifier."
+msgstr ""
+
+#: rapid/glade3/rapid.glade.h:102
 msgid ""
 "When backing up, choose whether to overwrite a file on the backup device "
 "that has the same name, or skip backing it up."
 msgstr ""
 
-#: rapid/glade3/rapid.glade.h:101
+#: rapid/glade3/rapid.glade.h:103
 msgid ""
 "You can have your photos and videos backed up to multiple locations as they "
 "are downloaded, e.g. external hard drives."
 msgstr ""
 
-#: rapid/glade3/rapid.glade.h:102
+#: rapid/glade3/rapid.glade.h:104
 msgid "_Add..."
 msgstr "_Añadir…"
 
-#: rapid/glade3/rapid.glade.h:103
+#: rapid/glade3/rapid.glade.h:105
 msgid "_Clear Completed Downloads"
 msgstr "_Limpiar descargas completadas"
 
-#: rapid/glade3/rapid.glade.h:104
+#: rapid/glade3/rapid.glade.h:106
+msgid "_Device"
+msgstr "_Dispositivo"
+
+#: rapid/glade3/rapid.glade.h:107
 msgid "_Error Log"
 msgstr "_Registro de errores"
 
-#: rapid/glade3/rapid.glade.h:105
+#: rapid/glade3/rapid.glade.h:108
+msgid "_File"
+msgstr "_Archivo"
+
+#: rapid/glade3/rapid.glade.h:109
+msgid "_Filename"
+msgstr "Nombre de _archivo"
+
+#: rapid/glade3/rapid.glade.h:110
 msgid "_Get Help Online..."
 msgstr "_Conseguir ayuda online"
 
-#: rapid/glade3/rapid.glade.h:106
+#: rapid/glade3/rapid.glade.h:111
 msgid "_Help"
 msgstr "Ay_uda"
 
-#: rapid/glade3/rapid.glade.h:107
+#: rapid/glade3/rapid.glade.h:112
 msgid "_Make a Donation..."
 msgstr "_Hacer una donación"
 
-#: rapid/glade3/rapid.glade.h:108
-msgid "_Photos"
-msgstr "_Fotos"
+#: rapid/glade3/rapid.glade.h:113
+msgid "_Path"
+msgstr ""
 
-#: rapid/glade3/rapid.glade.h:109
+#: rapid/glade3/rapid.glade.h:114
+msgid "_Preview"
+msgstr "Vista _previa"
+
+#: rapid/glade3/rapid.glade.h:115
 msgid "_Report a Problem..."
 msgstr "_Reportar problema..."
 
-#: rapid/glade3/rapid.glade.h:110
-msgid "_Thumbnails"
-msgstr "_Miniaturas"
+#: rapid/glade3/rapid.glade.h:116
+msgid "_Select"
+msgstr "_Seleccionar"
 
-#: rapid/glade3/rapid.glade.h:111
+#: rapid/glade3/rapid.glade.h:117
+msgid "_Size"
+msgstr "_Tamaño"
+
+#: rapid/glade3/rapid.glade.h:118
 msgid "_Translate this Application..."
 msgstr "_Traducir esta aplicación..."
 
-#: rapid/glade3/rapid.glade.h:112
+#: rapid/glade3/rapid.glade.h:119
+msgid "_Type"
+msgstr "_Tipo"
+
+#: rapid/glade3/rapid.glade.h:120
 msgid "_View"
 msgstr "_Ver"
 
@@ -1963,6 +1998,16 @@ msgstr "_Ver"
 #~ msgid "Image already exists"
 #~ msgstr "La imagen ya existe"
 
+#, python-format
+#~ msgid "Source: %s"
+#~ msgstr "Origen: %s"
+
+#~ msgid "_Photos"
+#~ msgstr "_Fotos"
+
+#~ msgid "_Thumbnails"
+#~ msgstr "_Miniaturas"
+
 #~ msgid "Unmount (\"eject\") image device upon download completion"
 #~ msgstr ""
 #~ "Desmontar (\"expulsar\") el dispositivo de imagenes una vez completada la "
@@ -1979,8 +2024,21 @@ msgstr "_Ver"
 #~ "Exploración del dispositivo completada: encontradas %(number)s imágenes en "
 #~ "%(device)s"
 
+#, python-format
+#~ msgid ""
+#~ "Source: %(source)s\n"
+#~ "Destination: %(destination)s\n"
+#~ "Error: %(errno)s %(strerror)s"
+#~ msgstr ""
+#~ "Origen: %(source)s\n"
+#~ "Destino: %(destination)s\n"
+#~ "Error: %(errno)s %(strerror)s"
+
 #~ msgid "Image skipped"
 #~ msgstr "Imagen saltada"
+
+#~ msgid "_Download "
+#~ msgstr "_Descargar "
 
 #~ msgid "images downloaded"
 #~ msgstr "imagenes descargadas"
@@ -1993,6 +2051,14 @@ msgstr "_Ver"
 #~ msgstr ""
 #~ "Origen: %(source)s\n"
 #~ "Destino: %(destination)s\n"
+#~ "Problema: %(problem)s"
+
+#, python-format
+#~ msgid ""
+#~ "Source: %(source)s\n"
+#~ "Problem: %(problem)s"
+#~ msgstr ""
+#~ "Origen: %(source)s\n"
 #~ "Problema: %(problem)s"
 
 #, python-format
@@ -2020,20 +2086,46 @@ msgstr "_Ver"
 #~ "Error: %(errno)s %(strerror)s"
 
 #, python-format
+#~ msgid ""
+#~ "Source: %(source)s\n"
+#~ "Destination: %(destination)s\n"
+#~ "Error: %(errorno)s %(strerror)s"
+#~ msgstr ""
+#~ "Origen: %(source)s\n"
+#~ "Destino: %(destination)s\n"
+#~ "Error: %(errorno)s %(strerror)s"
+
+#, python-format
 #~ msgid "%(number)s of %(total)s images copied"
 #~ msgstr "%(number)s de %(total)s imágenes copiadas"
 
 #~ msgid "Error in Image Rename preferences"
 #~ msgstr "Error en las preferencias de Renombrar Imagen"
 
+#~ msgid "Backup device missing"
+#~ msgstr "Dispositivo de respaldo perdido"
+
 #~ msgid "No backup device was detected."
 #~ msgstr "No se detectó un dispositivo de respaldo."
+
+#~ msgid "Download copying error"
+#~ msgstr "Error al copiar la descarga"
+
+#, python-format
+#~ msgid "Unique identifier '%s' added"
+#~ msgstr "Identificador único '%s' agregado"
 
 #~ msgid "Thumbnail cannot be displayed"
 #~ msgstr "Miniatura no puede mostrarse"
 
+#~ msgid "It may be corrupted"
+#~ msgstr "Puede estar corrupta"
+
 #~ msgid "images skipped"
 #~ msgstr "Imágenes saltadas"
+
+#~ msgid "Preferences were changed."
+#~ msgstr "Las preferencias fueron cambiadas."
 
 #~ msgid "Subsecond metadata not present in image"
 #~ msgstr "Metadato de sub-segundos no esta presente en la imagen"
@@ -2048,6 +2140,13 @@ msgstr "_Ver"
 #~ msgid "<b>Image Devices</b>"
 #~ msgstr "<b>Dispositivos de imagen</b>"
 
+#~ msgid "<b>Missing Backup Devices</b>"
+#~ msgstr "<b>Dispositivo de respaldo perdido</b>"
+
+#, python-format
+#~ msgid "Error in date time component. Value %s appears invalid"
+#~ msgstr "Error en el campo de fecha. El valor %s parece inválido"
+
 #~ msgid "<i>Example: /home/user/photos</i>"
 #~ msgstr "<i>Ejemplo: /home/user/photos</i>"
 
@@ -2060,8 +2159,14 @@ msgstr "_Ver"
 #~ msgid "Exit program after completion of successful download"
 #~ msgstr "Salir del programa al completar exitosamente la descarga"
 
+#~ msgid "Ignore"
+#~ msgstr "Ignorar"
+
 #~ msgid "Image Rename"
 #~ msgstr "Renombrar imagen"
+
+#~ msgid "Report an error"
+#~ msgstr "Reportar un error"
 
 #~ msgid "Select a folder in which to backup images"
 #~ msgstr "Seleccione una carpeta para respaldar las imágenes"
@@ -2091,9 +2196,19 @@ msgstr "_Ver"
 #~ msgid "Image Devices"
 #~ msgstr "Dispositivos de imagen"
 
+#~ msgid "Report a warning"
+#~ msgstr "Reportar un aviso"
+
+#~ msgid "Specify what to do when there are no backup devices."
+#~ msgstr "Especificar que hacer cuando no hay dispositivos de respaldo."
+
 #~ msgid "image number was specified but image filename has no number"
 #~ msgstr ""
 #~ "Número de imagen fue especificado, pero el nombre de la imagen no lo tiene"
+
+#, python-format
+#~ msgid "error generating name with component %s"
+#~ msgstr "Error generando nombre con componente %s"
 
 #~ msgid "This device has no images to download from."
 #~ msgstr "El dispositivo no tiene imágenes para descargar."
@@ -2189,6 +2304,12 @@ msgstr "_Ver"
 #~ "<i>Si la descarga desde su cámara funciona lento o no funciona, pruebe "
 #~ "configurarla en modo PTP. Si esto no es posible, considere usar un lector de "
 #~ "tarjetas.</i>"
+
+#~ msgid "Enter a new job code, or select a previous one."
+#~ msgstr "Entre un nuevo código de trabajo o seleccione uno previo."
+
+#~ msgid "Enter a new job code."
+#~ msgstr "Entre un nuevo código de trabajo."
 
 #~ msgid "Should this device or partition be used to download images from?"
 #~ msgstr "¿Deberían bajarse imágenes de este dispositivo o partición?"
@@ -2299,6 +2420,14 @@ msgstr "_Ver"
 
 #, python-format
 #~ msgid ""
+#~ "Source: %(source)s\n"
+#~ "Destination: %(destination)s\n"
+#~ msgstr ""
+#~ "Origen: %(source)s\n"
+#~ "Destino: %(destination)s\n"
+
+#, python-format
+#~ msgid ""
 #~ "Sorry, this image location does not exist:\n"
 #~ "%(path)s\n"
 #~ "\n"
@@ -2308,6 +2437,18 @@ msgstr "_Ver"
 #~ "%(path)s\n"
 #~ "\n"
 #~ "Por favor, resuelva el problema, o modifique sus preferencias."
+
+#, python-format
+#~ msgid ""
+#~ "Source: %(source)s\n"
+#~ "Partially generated filename: %(newname)s\n"
+#~ "Destination: %(destination)s\n"
+#~ "Problem: %(problem)s"
+#~ msgstr ""
+#~ "Origen: %(source)s\n"
+#~ "Archivo generado parcialmente: %(newname)s\n"
+#~ "Destino: %(destination)s\n"
+#~ "Problema: %(problem)s"
 
 #~ msgid "Image filename could not be generated"
 #~ msgstr "No se pudo generar el nombre del archivo de imagen"
@@ -2321,3 +2462,36 @@ msgstr "_Ver"
 #~ msgstr ""
 #~ "Puede tener respaldos de sus fotos en múltiples ubicaciones, por ejemplo: "
 #~ "discos duros externos."
+
+#, python-format
+#~ msgid ""
+#~ "First photo: %(image1)s %(image1_date_time)s:%(image1_subseconds)s\n"
+#~ "Second photo: %(image2)s %(image2_date_time)s:%(image2_subseconds)s"
+#~ msgstr ""
+#~ "Primera foto: %(image1)s %(image1_date_time)s:%(image1_subseconds)s\n"
+#~ "Segunda foto: %(image2)s %(image2_date_time)s:%(image2_subseconds)s"
+
+#~ msgid "Photo already exists"
+#~ msgstr "Foto ya existe"
+
+#~ msgid "Video skipped"
+#~ msgstr "Video saltado"
+
+#~ msgid "Video already exists"
+#~ msgstr "Video ya existe"
+
+#~ msgid "photos skipped"
+#~ msgstr "fotos saltadas"
+
+#~ msgid "photos downloaded"
+#~ msgstr "fotos descargadas"
+
+#~ msgid "videos downloaded"
+#~ msgstr "videos descargados"
+
+#~ msgid "videos skipped"
+#~ msgstr "videos saltados"
+
+#, python-format
+#~ msgid "0 of %(number)s %(filetypes)s"
+#~ msgstr "0 de %(number)s %(filetypes)s"

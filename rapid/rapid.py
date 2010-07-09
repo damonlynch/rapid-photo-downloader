@@ -2284,7 +2284,7 @@ class CopyPhotos(Thread):
             return (skipFile, sequence_to_use)
         
         def progress_callback(amount_downloaded, total):
-            if (amount_downloaded - self.bytes_downloaded > 1048576) or (amount_downloaded == total):
+            if (amount_downloaded - self.bytes_downloaded > 2097152) or (amount_downloaded == total):
                 chunk_downloaded = amount_downloaded - self.bytes_downloaded
                 self.bytes_downloaded = amount_downloaded
                 percentComplete = (float(self.sizeDownloaded + amount_downloaded) / sizeFiles) * 100
