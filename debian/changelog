@@ -1,3 +1,9 @@
+rapid-photo-downloader (0.3.0-0ubuntu1~ppa1) hardy; urgency=low
+
+  * Release version 0.3.0
+
+ -- Damon Lynch <damonlynch@gmail.com>  Sat, 10 Jul 2010 21:59:06 -0500
+
 rapid-photo-downloader (0.3.0~b6-0ubuntu1~ppa1) hardy; urgency=low
 
   * Fixed bug #598736: don't allow file to jump to the bottom when
