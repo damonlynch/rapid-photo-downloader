@@ -4275,6 +4275,8 @@ class SelectionVBox(gtk.VBox):
         gtk.VBox.__init__(self)
         self.parentApp = parentApp
         
+        tiny_screen = gtk.gdk.screen_height() <= config.TINY_SCREEN_HEIGHT
+        
         selection_scrolledwindow = gtk.ScrolledWindow()
         selection_scrolledwindow.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
         selection_viewport = gtk.Viewport()
@@ -4320,7 +4322,8 @@ class SelectionVBox(gtk.VBox):
         self.preview_original_name_label.set_alignment(0, 0.5)
         self.preview_original_name_label.set_ellipsize(pango.ELLIPSIZE_END)
         
-        #Device (where it will be downloaded to)
+        
+        #Device (where it will be downloaded from)
         self.preview_device_expander = gtk.Expander()
         self.preview_device_label = gtk.Label()
         self.preview_device_label.set_alignment(0, 0.5)
@@ -4338,7 +4341,7 @@ class SelectionVBox(gtk.VBox):
         
         self.preview_device_expander.set_label_widget(device_hbox)
         
-        #Filename that has been generated (path in tooltip)
+        #Filename that has been generated
         self.preview_name_label = gtk.Label()
         self.preview_name_label.set_alignment(0, 0.5)
         self.preview_name_label.set_ellipsize(pango.ELLIPSIZE_END)
@@ -4398,29 +4401,44 @@ class SelectionVBox(gtk.VBox):
 
         spacer2 = gtk.Label('')
         
+        #left and right spacers
         self.preview_table.attach(left_spacer, 0, 1, 1, 2, xoptions=gtk.SHRINK, yoptions=gtk.SHRINK)
         self.preview_table.attach(right_spacer, 3, 4, 1, 2, xoptions=gtk.SHRINK, yoptions=gtk.SHRINK)
-                
-        self.preview_table.attach(self.preview_title_label, 0, 3, 0, 1, yoptions=gtk.SHRINK)
-        self.preview_table.attach(self.preview_image, 1, 3, 1, 2, yoptions=gtk.SHRINK)
         
-        self.preview_table.attach(self.preview_original_name_label, 1, 3, 2, 3, xoptions=gtk.EXPAND|gtk.FILL, yoptions=gtk.SHRINK)
-        self.preview_table.attach(self.preview_device_expander, 1, 3, 3, 4, xoptions=gtk.EXPAND|gtk.FILL, yoptions=gtk.SHRINK)
+        row = 0
+        if not tiny_screen:
+            self.preview_table.attach(self.preview_title_label, 0, 3, row, row+1, yoptions=gtk.SHRINK)
+            row += 1
+        self.preview_table.attach(self.preview_image, 1, 3, row, row+1, yoptions=gtk.SHRINK)
+        row += 1
         
-        self.preview_table.attach(self.preview_name_label, 1, 3, 5, 6, xoptions=gtk.EXPAND|gtk.FILL, yoptions=gtk.SHRINK)
-        self.preview_table.attach(self.preview_destination_expander, 1, 3, 6, 7, xoptions=gtk.EXPAND|gtk.FILL, yoptions=gtk.SHRINK)
+        self.preview_table.attach(self.preview_original_name_label, 1, 3, row, row+1, xoptions=gtk.EXPAND|gtk.FILL, yoptions=gtk.SHRINK)
+        row += 1
+        if not tiny_screen:
+            self.preview_table.attach(self.preview_device_expander, 1, 3, row, row+1, xoptions=gtk.EXPAND|gtk.FILL, yoptions=gtk.SHRINK)
+            row += 1
+        
+        self.preview_table.attach(self.preview_name_label, 1, 3, row, row+1, xoptions=gtk.EXPAND|gtk.FILL, yoptions=gtk.SHRINK)
+        row += 1
+        if not tiny_screen:
+            self.preview_table.attach(self.preview_destination_expander, 1, 3, row, row+1, xoptions=gtk.EXPAND|gtk.FILL, yoptions=gtk.SHRINK)
+            row += 1
 
-        self.preview_table.attach(spacer2, 0, 7, 7, 8, yoptions=gtk.SHRINK)
+        if not tiny_screen:
+            self.preview_table.attach(spacer2, 0, 7, row, row+1, yoptions=gtk.SHRINK)
+            row += 1
         
-        self.preview_table.attach(self.preview_status_icon, 1, 2, 8, 9, xoptions=gtk.SHRINK, yoptions=gtk.SHRINK)
-        self.preview_table.attach(self.preview_status_label, 2, 3, 8, 9, yoptions=gtk.SHRINK)
+        self.preview_table.attach(self.preview_status_icon, 1, 2, row, row+1, xoptions=gtk.SHRINK, yoptions=gtk.SHRINK)
+        self.preview_table.attach(self.preview_status_label, 2, 3, row, row+1, yoptions=gtk.SHRINK)
+        row += 1
         
-        self.preview_table.attach(self.preview_problem_title_label, 2, 3, 9, 10, yoptions=gtk.SHRINK)
-        self.preview_table.attach(self.preview_problem_label, 2, 4, 10, 11, xoptions=gtk.EXPAND|gtk.FILL, yoptions=gtk.EXPAND|gtk.FILL)
+        self.preview_table.attach(self.preview_problem_title_label, 2, 3, row, row+1, yoptions=gtk.SHRINK)
+        row += 1
+        self.preview_table.attach(self.preview_problem_label, 2, 4, row, row+1, xoptions=gtk.EXPAND|gtk.FILL, yoptions=gtk.EXPAND|gtk.FILL)
+        row += 1
         
         self.file_hpaned = gtk.HPaned()
         self.file_hpaned.pack1(left_pane_vbox, shrink=False)
-        #self.file_hpaned.pack2(self.preview_vbox, shrink=False)
         self.file_hpaned.pack2(self.preview_table, resize=True, shrink=False)
         self.pack_start(self.file_hpaned, True, True)
         if self.parentApp.prefs.hpaned_pos > 0:
@@ -4640,6 +4658,10 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
         else:
             # set a default size
             self.rapidapp.set_default_size(650, 650)
+            
+        if gtk.gdk.screen_height() <= config.TINY_SCREEN_HEIGHT:
+            self.prefs.display_preview_folders = False
+            self.menu_preview_folders.set_sensitive(False)
             
         self.widget.show()
         

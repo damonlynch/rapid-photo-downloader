@@ -15,7 +15,7 @@
 ### along with this program; if not, write to the Free Software
 ### Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-version = '0.3.0'
+version = '0.3.1'
 
 GCONF_KEY="/apps/rapid-photo-downloader"
 GLADE_FILE = "glade3/rapid.glade"
@@ -56,3 +56,5 @@ STATUS_DOWNLOAD_AND_BACKUP_FAILED = 5       # tried to download but failed, and 
 STATUS_DOWNLOAD_FAILED = 6                  # tried to download but failed
 STATUS_WARNING = 7                          # warning (shown in pre-download preview)
 STATUS_CANNOT_DOWNLOAD = 8                  # cannot be downloaded
+
+TINY_SCREEN_HEIGHT = 650

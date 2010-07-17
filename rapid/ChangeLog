@@ -1,3 +1,13 @@
+Version 0.3.1
+-------------
+
+2010-07-xx
+
+The main window now works more effectively on tiny screens, such as those found
+on netbooks. If the screen height is less than or equal to 650 pixels, elements
+in the preview pane are removed, and the spacing is tightened.
+
+
 Version 0.3.0
 -------------
 
