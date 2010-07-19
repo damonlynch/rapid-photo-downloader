@@ -4815,7 +4815,7 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
             displayPreferences = displayPreferences or displayPreferences_2
         
         #setup download and backup mediums, initiating scans
-        self.setupAvailableImageAndBackupMedia(onStartup=True,  onPreferenceChange=False,  doNotAllowAutoStart = displayPreferences)
+        self.setupAvailableImageAndBackupMedia(onStartup=True, onPreferenceChange=False, doNotAllowAutoStart = displayPreferences)
 
         #adjust viewport size for displaying media
         #this is important because the code in MediaTreeView.addCard() is inaccurate at program startup
@@ -4833,6 +4833,8 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
         
         if displayPreferences:
             PreferencesDialog(self)
+            
+        self.displayFreeSpace()
 
 
 
@@ -4876,6 +4878,16 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
         icon_list = [(icon, paths.share_dir('glade3/%s.svg' % icon)) for icon in icons]
         common.register_iconsets(icon_list)
     
+    def displayFreeSpace(self):
+        """
+        Displays the amount of space free on the filesystem the files will be downloaded to
+        """
+        if using_gio:
+            folder = gio.File(self.prefs.download_folder)
+            fileInfo = folder.query_filesystem_info(gio.FILE_ATTRIBUTE_FILESYSTEM_FREE)
+            free = common.formatSizeForUser(fileInfo.get_attribute_uint64(gio.FILE_ATTRIBUTE_FILESYSTEM_FREE))
+            msg = " " + _("%(free)s available") % {'free': free}
+            self.rapid_statusbar.push(self.statusbar_context_id, msg)
     
     def checkImageDevicePathOnStartup(self):
         msg = None
@@ -5680,6 +5692,7 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
                         # of time the download has remainging, e.g. 'About 5:36 minutes remaining'
                         message = _("About %(minutes)i:%(seconds)02i minutes remaining") % {'minutes': secs / 60, 'seconds': secs % 60}
                     
+                    self.rapid_statusbar.pop(self.statusbar_context_id)
                     self.rapid_statusbar.push(self.statusbar_context_id, message)
                     
     
@@ -5688,7 +5701,7 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
             sequences.reset(self.prefs.getDownloadsToday(),  self.prefs.stored_sequence_no)
     
     def notifyUserAllDownloadsComplete(self):
-        """ Possibly notify the user all downloads are complete using libnotify
+        """ If all downloads are complete, if needed notify the user using libnotify 
         
         Reset progress bar info"""
         
@@ -5735,6 +5748,7 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
                 # download statistics are cleared in exitOnDownloadComplete()
             self._resetDownloadInfo()
             self.speed_label.set_text('         ')
+            self.displayFreeSpace()
             
                 
     def exitOnDownloadComplete(self):
