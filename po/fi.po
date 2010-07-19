@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-07-02 22:51-0500\n"
-"PO-Revision-Date: 2010-07-05 00:43+0000\n"
+"PO-Revision-Date: 2010-07-13 18:43+0000\n"
 "Last-Translator: Mikko Ruohola <polarfox@polarfox.net>\n"
 "Language-Team: Finnish <fi@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-07-06 19:08+0000\n"
+"X-Launchpad-Export-Date: 2010-07-19 09:00+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #. Translators: if neccessary, for guidance in how to translate this program, you may see http://damonlynch.net/translate.html
@@ -644,12 +644,12 @@ msgstr "Syöta työkoodi"
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#jobcode
 #: rapid/rapid.py:3290
 msgid "Enter a new Job Code, or select a previous one"
-msgstr ""
+msgstr "Syötä työkoodi tai valitse edellisistä"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#jobcode
 #: rapid/rapid.py:3293
 msgid "Enter a new Job Code"
-msgstr ""
+msgstr "Syötä uusi työkoodi"
 
 #: rapid/rapid.py:3298 rapid/rapid.py:4417
 msgid "Job Code:"
@@ -665,11 +665,11 @@ msgstr "Työkoodia ei annettu"
 
 #: rapid/rapid.py:3401
 msgid "Status"
-msgstr ""
+msgstr "Tila"
 
 #: rapid/rapid.py:3409
 msgid "Type"
-msgstr ""
+msgstr "Tyyppi"
 
 #: rapid/rapid.py:3418 rapid/rapid.py:4808 rapid/rapid.py:4810
 msgid "Photo"
@@ -677,15 +677,15 @@ msgstr "Kuva"
 
 #: rapid/rapid.py:3420
 msgid "File"
-msgstr ""
+msgstr "Tiedosto"
 
 #: rapid/rapid.py:3435
 msgid "Job Code"
-msgstr ""
+msgstr "Työkoodi"
 
 #: rapid/rapid.py:3445
 msgid "Date"
-msgstr ""
+msgstr "Päiväys"
 
 #: rapid/rapid.py:3477 rapid/renamesubfolderprefs.py:194
 msgid "Filename"
@@ -693,7 +693,7 @@ msgstr "Tiedostonimi"
 
 #: rapid/rapid.py:3488
 msgid "Path"
-msgstr ""
+msgstr "Polku"
 
 #: rapid/rapid.py:3843
 #, python-format
@@ -703,7 +703,7 @@ msgstr ""
 #: rapid/rapid.py:3845
 #, python-format
 msgid "%(filetype)s was not downloaded"
-msgstr ""
+msgstr "%(filetype)s ei ladattu"
 
 #: rapid/rapid.py:3847
 #, python-format
@@ -742,7 +742,7 @@ msgstr ""
 
 #: rapid/rapid.py:4240
 msgid "Preview"
-msgstr ""
+msgstr "Esikatselu"
 
 #: rapid/rapid.py:4439
 msgid "Enter a new Job Code and press Enter, or select an existing Job Code"
@@ -1021,7 +1021,7 @@ msgstr ""
 
 #: rapid/rapid.py:5789
 msgid "_Resume"
-msgstr ""
+msgstr "_Jatka"
 
 #: rapid/rapid.py:5792
 msgid "_Download All"
@@ -1626,7 +1626,7 @@ msgstr "Varmuuskopioiden sijainti:"
 
 #: rapid/glade3/rapid.glade.h:38
 msgid "Backup photos and videos when downloading"
-msgstr "Barmuuskopioi kuvat ja videot ladattaessa"
+msgstr "Varmuuskopioi kuvat ja videot ladattaessa"
 
 #: rapid/glade3/rapid.glade.h:39
 msgid ""
@@ -1830,7 +1830,7 @@ msgstr ""
 
 #: rapid/glade3/rapid.glade.h:83
 msgid "Select _All"
-msgstr ""
+msgstr "Valitse _kaikki"
 
 #: rapid/glade3/rapid.glade.h:84
 msgid "Skip"
@@ -1946,7 +1946,7 @@ msgstr "_Tyhjennä valmistuneet lataukset"
 
 #: rapid/glade3/rapid.glade.h:106
 msgid "_Device"
-msgstr ""
+msgstr "_Laite"
 
 #: rapid/glade3/rapid.glade.h:107
 msgid "_Error Log"
@@ -1954,11 +1954,11 @@ msgstr "Virheloki"
 
 #: rapid/glade3/rapid.glade.h:108
 msgid "_File"
-msgstr ""
+msgstr "_Tiedosto"
 
 #: rapid/glade3/rapid.glade.h:109
 msgid "_Filename"
-msgstr ""
+msgstr "_Tiedostonimi"
 
 #: rapid/glade3/rapid.glade.h:110
 msgid "_Get Help Online..."
@@ -1974,11 +1974,11 @@ msgstr "_Tee lahjoitus"
 
 #: rapid/glade3/rapid.glade.h:113
 msgid "_Path"
-msgstr ""
+msgstr "_Polku"
 
 #: rapid/glade3/rapid.glade.h:114
 msgid "_Preview"
-msgstr ""
+msgstr "_Esikatselu"
 
 #: rapid/glade3/rapid.glade.h:115
 msgid "_Report a Problem..."
@@ -1986,11 +1986,11 @@ msgstr "_Raportoi ongelma..."
 
 #: rapid/glade3/rapid.glade.h:116
 msgid "_Select"
-msgstr ""
+msgstr "_Valitse"
 
 #: rapid/glade3/rapid.glade.h:117
 msgid "_Size"
-msgstr ""
+msgstr "_Koko"
 
 #: rapid/glade3/rapid.glade.h:118
 msgid "_Translate this Application..."
@@ -1998,7 +1998,7 @@ msgstr "_Käännä tämä ohjelma..."
 
 #: rapid/glade3/rapid.glade.h:119
 msgid "_Type"
-msgstr ""
+msgstr "_Tyyppi"
 
 #: rapid/glade3/rapid.glade.h:120
 msgid "_View"
