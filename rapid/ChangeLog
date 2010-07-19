@@ -10,6 +10,10 @@ in the preview pane are removed, and the spacing is tightened.
 The amount of free space available on the filesystem is now displayed in the 
 status bar.
 
+Add Chinese (simplified) translation. A big thanks goes out to the Ubuntu 
+Chinese translation team. Updated Finnish, French, Hungarian, Russian, Serbian
+and Spanish translations.
+
 
 Version 0.3.0
 -------------
