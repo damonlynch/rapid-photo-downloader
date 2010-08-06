@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-07-02 22:51-0500\n"
-"PO-Revision-Date: 2010-07-14 12:19+0000\n"
+"PO-Revision-Date: 2010-07-19 09:49+0000\n"
 "Last-Translator: ZhangCheng <xxzc@live.cn>\n"
 "Language-Team: Chinese (Simplified) <zh_CN@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-07-19 09:00+0000\n"
+"X-Launchpad-Export-Date: 2010-08-06 07:16+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #. Translators: if neccessary, for guidance in how to translate this program, you may see http://damonlynch.net/translate.html
@@ -1062,7 +1062,7 @@ msgstr ""
 
 #: rapid/rapid.py:6187
 msgid "\n"
-msgstr ""
+msgstr "\n"
 
 #. this application is already running
 #: rapid/rapid.py:6211
@@ -1432,11 +1432,11 @@ msgstr "子目录首选项不应包含两个相邻的 %s"
 
 #: rapid/glade3/rapid.glade.h:1
 msgid " "
-msgstr ""
+msgstr " "
 
 #: rapid/glade3/rapid.glade.h:2
 msgid "      "
-msgstr ""
+msgstr "      "
 
 #: rapid/glade3/rapid.glade.h:3
 msgid " hh:mm"

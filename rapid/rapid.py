@@ -4887,6 +4887,8 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
             fileInfo = folder.query_filesystem_info(gio.FILE_ATTRIBUTE_FILESYSTEM_FREE)
             free = common.formatSizeForUser(fileInfo.get_attribute_uint64(gio.FILE_ATTRIBUTE_FILESYSTEM_FREE))
             msg = " " + _("%(free)s available") % {'free': free}
+            
+            
             self.rapid_statusbar.push(self.statusbar_context_id, msg)
     
     def checkImageDevicePathOnStartup(self):
