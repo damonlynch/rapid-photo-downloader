@@ -1,3 +1,15 @@
+rapid-photo-downloader (0.3.1-0ubuntu1~ppa1) hardy; urgency=low
+
+  * The main window now works more effectively on tiny screens like
+    netbooks
+
+  * The amount of free space available on the filesystem where photos 
+    are to be downloaded is now displayed in the status bar.
+
+  * Added or updated many translations.
+
+ -- Damon Lynch <damonlynch@gmail.com>  Fri, 13 Aug 2010 19:08:16 +0500
+
 rapid-photo-downloader (0.3.0-0ubuntu1~ppa1) hardy; urgency=low
 
   * Release version 0.3.0

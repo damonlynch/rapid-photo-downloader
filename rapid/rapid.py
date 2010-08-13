@@ -53,7 +53,6 @@ except ImportError:
     import gnomevfs
     using_gio = False
 
-
 import prefs
 import paths
 import gnomeglade
@@ -4834,8 +4833,6 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
         if displayPreferences:
             PreferencesDialog(self)
             
-        self.displayFreeSpace()
-
 
 
     @dbus.service.method (config.DBUS_NAME,
@@ -4880,16 +4877,30 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
     
     def displayFreeSpace(self):
         """
-        Displays the amount of space free on the filesystem the files will be downloaded to
+        Displays the amount of space free on the filesystem the files will be downloaded to.
+        Also displays backup volumes / path being used.
         """
         if using_gio:
             folder = gio.File(self.prefs.download_folder)
             fileInfo = folder.query_filesystem_info(gio.FILE_ATTRIBUTE_FILESYSTEM_FREE)
             free = common.formatSizeForUser(fileInfo.get_attribute_uint64(gio.FILE_ATTRIBUTE_FILESYSTEM_FREE))
             msg = " " + _("%(free)s available") % {'free': free}
+        else:
+            msg = ''
             
+        if self.prefs.backup_images:
+            if not self.prefs.backup_device_autodetection:
+                # user manually specified backup location
+                msg2 = _('Backing up to %(path)s') % {'path':self.prefs.backup_location}
+            else:
+                msg2 = self.displayBackupVolumes()
+                
+            if msg:
+                msg = _("%(freespace)s. %(backuppaths)s.") % {'freespace': msg, 'backuppaths': msg2}
+            else:
+                msg = msg2
             
-            self.rapid_statusbar.push(self.statusbar_context_id, msg)
+        self.rapid_statusbar.push(self.statusbar_context_id, msg)
     
     def checkImageDevicePathOnStartup(self):
         msg = None
@@ -5306,7 +5317,7 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
                     if isBackupVolume:
                         if path not in self.backupVolumes:
                             self.backupVolumes[path] = volume
-                            self.rapid_statusbar.push(self.statusbar_context_id, self.displayBackupVolumes())
+                            self.displayFreeSpace()
 
                     elif self.prefs.device_autodetection and (media.is_DCIM_Media(path) or self.searchForPsd()):
                         if self.isCamera(volume.volume):
@@ -5370,7 +5381,7 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
             # remove backup volumes
             if path in self.backupVolumes:
                 del self.backupVolumes[path]
-                self.rapid_statusbar.push(self.statusbar_context_id, self.displayBackupVolumes())
+                self.displayFreeSpace()
                 
             # may need to disable download button
             self.setDownloadButtonSensitivity()
@@ -5483,13 +5494,8 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
                 # user manually specified backup location
                 # will backup to this path, but don't need any volume info associated with it
                 self.backupVolumes[self.prefs.backup_location] = None
-                self.rapid_statusbar.push(self.statusbar_context_id, _('Backing up to %(path)s') % {'path':self.prefs.backup_location})
-            else:
-                self.rapid_statusbar.push(self.statusbar_context_id, self.displayBackupVolumes())
-                
-        else:
-            self.rapid_statusbar.push(self.statusbar_context_id, '')
         
+        self.displayFreeSpace()
         # add each memory card / other device to the list of threads
         
         if doNotAllowAutoStart:
@@ -5525,7 +5531,6 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
                 # user manually specified backup location
                 # will backup to this path, but don't need any volume info associated with it
                 self.backupVolumes[self.prefs.backup_location] = None
-                self.rapid_statusbar.push(self.statusbar_context_id, _('Backing up to %(path)s') % {'path':self.prefs.backup_location})
             else:
                 for v in self.volumeMonitor.get_mounts():
                     volume = Volume(v)
@@ -5553,8 +5558,7 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
                                         
                                 self.backupVolumes[path] = volume
                         
-                self.rapid_statusbar.push(self.statusbar_context_id, self.displayBackupVolumes())
-        
+        self.displayFreeSpace()
         
     def _setupDownloadbuttons(self):
         self.download_hbutton_box = gtk.HButtonBox()

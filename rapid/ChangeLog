@@ -1,20 +1,22 @@
 Version 0.3.1
 -------------
 
-2010-08-06
+2010-08-13
 
 The main window now works more effectively on tiny screens, such as those found
 on netbooks. If the screen height is less than or equal to 650 pixels, elements
 in the preview pane are removed, and the spacing is tightened.
 
 The amount of free space available on the filesystem where photos are to be
-downloaded is now displayed in the status bar.
+downloaded is now displayed in the status bar. (Note this is only the case on
+moderately up-to-date Linux distributions that use GVFS, such as Ubuntu 8.10 or
+higher).
 
 Add Chinese (simplified) translation. A big thanks goes out to the Ubuntu 
-Chinese translation team. Partial translations of Bulgaria, Japanese, Occitan 
+Chinese translation team. Partial translations of Bulgarian, Japanese, Occitan 
 (post 1500), Persian, Portugese (Brazilian), and Turkish have been added. In the
 past only translations that were largely finished were added, but hopefully 
-adding incomplete translations will speed up their completions. Updated Finnish, 
+adding incomplete translations will speed up their completion. Updated Finnish, 
 French, Hungarian, Russian, Serbian and Spanish translations.
 
 
