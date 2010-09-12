@@ -4880,13 +4880,13 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
         Displays the amount of space free on the filesystem the files will be downloaded to.
         Also displays backup volumes / path being used.
         """
-        if using_gio:
+        msg = ''
+        if using_gio and os.path.isdir(self.prefs.download_folder):
             folder = gio.File(self.prefs.download_folder)
             fileInfo = folder.query_filesystem_info(gio.FILE_ATTRIBUTE_FILESYSTEM_FREE)
             free = common.formatSizeForUser(fileInfo.get_attribute_uint64(gio.FILE_ATTRIBUTE_FILESYSTEM_FREE))
             msg = " " + _("%(free)s available") % {'free': free}
-        else:
-            msg = ''
+        
             
         if self.prefs.backup_images:
             if not self.prefs.backup_device_autodetection:

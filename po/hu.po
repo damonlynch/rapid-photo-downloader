@@ -7,167 +7,167 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2010-07-02 22:51-0500\n"
-"PO-Revision-Date: 2010-07-19 09:49+0000\n"
-"Last-Translator: loriand <level.andrasnak@gmail.com>\n"
+"POT-Creation-Date: 2010-08-13 19:03+0500\n"
+"PO-Revision-Date: 2010-08-18 18:36+0000\n"
+"Last-Translator: Balazs Oveges <Unknown>\n"
 "Language-Team: Hungarian <hu@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-08-06 07:16+0000\n"
+"X-Launchpad-Export-Date: 2010-09-05 14:32+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #. Translators: if neccessary, for guidance in how to translate this program, you may see http://damonlynch.net/translate.html
-#: rapid/rapid.py:122 rapid/rapid.py:6181 rapid/glade3/rapid.glade.h:71
+#: rapid/rapid.py:124 rapid/rapid.py:6299 rapid/glade3/rapid.glade.h:71
 msgid "Rapid Photo Downloader"
 msgstr "Rapid Photo Downloader"
 
-#: rapid/rapid.py:449
+#: rapid/rapid.py:456
 msgid "New York"
 msgstr "New York"
 
-#: rapid/rapid.py:450
+#: rapid/rapid.py:457
 msgid "Manila"
 msgstr "Manila"
 
-#: rapid/rapid.py:450
+#: rapid/rapid.py:457
 msgid "Prague"
 msgstr "Prága"
 
-#: rapid/rapid.py:450
+#: rapid/rapid.py:457
 msgid "Helsinki"
 msgstr "Helsinki"
 
-#: rapid/rapid.py:450
+#: rapid/rapid.py:457
 msgid "Wellington"
 msgstr "Wellington"
 
-#: rapid/rapid.py:451
+#: rapid/rapid.py:458
 msgid "Tehran"
 msgstr "Teherán"
 
-#: rapid/rapid.py:451
+#: rapid/rapid.py:458
 msgid "Kampala"
 msgstr "Kampala"
 
-#: rapid/rapid.py:451
+#: rapid/rapid.py:458
 msgid "Paris"
 msgstr "Párizs"
 
-#: rapid/rapid.py:451
+#: rapid/rapid.py:458
 msgid "Berlin"
 msgstr "Berlin"
 
-#: rapid/rapid.py:451
+#: rapid/rapid.py:458
 msgid "Sydney"
 msgstr "Sydney"
 
-#: rapid/rapid.py:452
+#: rapid/rapid.py:459
 msgid "Budapest"
 msgstr "Budapest"
 
-#: rapid/rapid.py:452
+#: rapid/rapid.py:459
 msgid "Rome"
 msgstr "Róma"
 
-#: rapid/rapid.py:452
+#: rapid/rapid.py:459
 msgid "Moscow"
 msgstr "Moszkva"
 
-#: rapid/rapid.py:452
+#: rapid/rapid.py:459
 msgid "Delhi"
 msgstr "Delhi"
 
-#: rapid/rapid.py:452
+#: rapid/rapid.py:459
 msgid "Warsaw"
 msgstr "Varsó"
 
-#: rapid/rapid.py:453
+#: rapid/rapid.py:460
 msgid "Jakarta"
 msgstr "Jakarta"
 
-#: rapid/rapid.py:453
+#: rapid/rapid.py:460
 msgid "Madrid"
 msgstr "Madrid"
 
-#: rapid/rapid.py:453
+#: rapid/rapid.py:460
 msgid "Stockholm"
 msgstr "Stockholm"
 
-#: rapid/rapid.py:486
+#: rapid/rapid.py:493
 msgid "Invalid Downloads Today value.\n"
 msgstr "A Mai letöltések értéke érvénytelen.\n"
 
-#: rapid/rapid.py:487
+#: rapid/rapid.py:494
 msgid "Resetting value to zero.\n"
 msgstr "Az érték visszaállítása nullára.\n"
 
-#: rapid/rapid.py:526
+#: rapid/rapid.py:533
 msgid "'Start of day' preference value is corrupted.\n"
 msgstr "A 'Nap kezdete' beállítás értéke hibás.\n"
 
-#: rapid/rapid.py:527
+#: rapid/rapid.py:534
 msgid "Resetting to midnight.\n"
 msgstr "Visszaállítás éjfélre.\n"
 
-#: rapid/rapid.py:553
+#: rapid/rapid.py:560
 msgid "Error in Photo Rename preferences"
 msgstr "Hiba a fénykép átnevezési beállításoknál"
 
-#: rapid/rapid.py:584 rapid/rapid.py:1689
+#: rapid/rapid.py:591 rapid/rapid.py:1710
 msgid "Sorry,these preferences contain an error:\n"
 msgstr "Elnézést, de ezek a beállítások hibásak:\n"
 
-#: rapid/rapid.py:595
+#: rapid/rapid.py:602
 msgid "Resetting to default values."
 msgstr "Visszaállítás az alapbeállításokra."
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#jobcode
-#: rapid/rapid.py:670 rapid/renamesubfolderprefs.py:198
+#: rapid/rapid.py:677 rapid/renamesubfolderprefs.py:198
 msgid "Job code"
 msgstr "Munka-szám"
 
-#: rapid/rapid.py:738
+#: rapid/rapid.py:745
 msgid "Error in Video Rename preferences"
 msgstr "Hiba a videó átnevezési beállításoknál"
 
-#: rapid/rapid.py:756
+#: rapid/rapid.py:763
 msgid "Error in Photo Download Subfolders preferences"
 msgstr "Hiba a fénykép letöltési alkönyvtár beállításoknál"
 
-#: rapid/rapid.py:773
+#: rapid/rapid.py:780
 msgid "Error in Video Download Subfolders preferences"
 msgstr "Hiba a videó letöltési alkönyvtár beállításoknál"
 
-#: rapid/rapid.py:806 rapid/rapid.py:1539
+#: rapid/rapid.py:813 rapid/rapid.py:1544
 msgid "photos and videos"
 msgstr "fényképek és videók"
 
-#: rapid/rapid.py:808 rapid/rapid.py:1549 rapid/rapid.py:1658
+#: rapid/rapid.py:815 rapid/rapid.py:1554 rapid/rapid.py:1679
 msgid "photos"
 msgstr "fényképek"
 
-#: rapid/rapid.py:943
+#: rapid/rapid.py:948
 msgid "Select a folder to download photos to"
 msgstr "Válasszon egy letöltési könyvtárat"
 
-#: rapid/rapid.py:961
+#: rapid/rapid.py:966
 msgid "Select a folder to download videos to"
 msgstr "Válasz egy könyvtárat ahova letöltöd a videókat"
 
-#: rapid/rapid.py:1043
+#: rapid/rapid.py:1048
 #, python-format
 msgid "Select a folder containing %(file_types)s"
 msgstr "Válasszon egy könyvtárt az alábbiaknak: %(file_types)s"
 
-#: rapid/rapid.py:1065
+#: rapid/rapid.py:1070
 #, python-format
 msgid "Select a folder in which to backup %(file_types)s"
 msgstr ""
 "Válasszon egy könyvtárt az alábbiaknak: %(file_types)s biztonsági másolata"
 
 #. Translators: please do not modify or leave out html formatting tags like <i> and <b>. These are used to format the text the users sees
-#: rapid/rapid.py:1146
+#: rapid/rapid.py:1151
 msgid ""
 "<i><b>Warning:</b> There is insufficient metadata to fully generate the "
 "name. Please use other renaming options.</i>"
@@ -175,7 +175,7 @@ msgstr ""
 "<i><b>Figyelem:</b> Nincs elegendő metaadat a fájl teljes átnevezéshez. "
 "Kérem válasszon más metaadatot az átnevezéshez.</i>"
 
-#: rapid/rapid.py:1182
+#: rapid/rapid.py:1187
 msgid ""
 "<i><b>Warning:</b> There is insufficient metadata to fully generate "
 "subfolders. Please use other subfolder naming options.</i>"
@@ -184,21 +184,21 @@ msgstr ""
 "Kérem válasszon más metaadatot az alkönyvtár létrehozáshoz.</i>"
 
 #. Translators: you should not modify or leave out the %s. This is a code used by the programming language python to insert a value that thes user will see
-#: rapid/rapid.py:1186
+#: rapid/rapid.py:1191
 #, python-format
 msgid "<i>Example: %s</i>"
 msgstr "<i>Példa: %s</i>"
 
-#: rapid/rapid.py:1212
+#: rapid/rapid.py:1217
 msgid ""
 "Downloads today value not updated, as a download is currently occurring"
 msgstr "Letöltés folyamatban, a mai letöltések száma nem aktuális."
 
-#: rapid/rapid.py:1228
+#: rapid/rapid.py:1233
 msgid "Stored number value not updated, as a download is currently occurring"
 msgstr "Letöltés folyamatban, a tárolt érték nem aktuális."
 
-#: rapid/rapid.py:1258
+#: rapid/rapid.py:1263
 #, python-format
 msgid ""
 "The %(filetype)s subfolder preferences had some unnecessary values removed."
@@ -206,7 +206,7 @@ msgstr ""
 "A %(filetype)s alkönyvtár beállítások felesleges értékei el lettek távolítva."
 
 #. Preferences list is now empty
-#: rapid/rapid.py:1263
+#: rapid/rapid.py:1268
 #, python-format
 msgid ""
 "The %(filetype)s subfolder preferences entered are invalid and cannot be "
@@ -217,93 +217,95 @@ msgstr ""
 "Az alapértelmezett értékek kerülnek visszaállításra."
 
 #. check subfolder preferences for bad values
-#: rapid/rapid.py:1277 rapid/rapid.py:1551
+#: rapid/rapid.py:1282 rapid/rapid.py:1556
 msgid "photo"
 msgstr "fénykép"
 
-#: rapid/rapid.py:1278 rapid/rapid.py:1546
+#: rapid/rapid.py:1283 rapid/rapid.py:1551
 msgid "video"
 msgstr "videó"
 
 #. Translators: this value is used as an example device when automatic backup device detection is enabled. You should translate this.
-#: rapid/rapid.py:1515
+#: rapid/rapid.py:1520
 msgid "externaldrive1"
 msgstr "külső_meghajtó1"
 
 #. Translators: this value is used as an example device when automatic backup device detection is enabled. You should translate this.
-#: rapid/rapid.py:1517
+#: rapid/rapid.py:1522
 msgid "externaldrive2"
 msgstr "külső_meghajtó2"
 
-#: rapid/rapid.py:1541 rapid/rapid.py:1656
+#: rapid/rapid.py:1546 rapid/rapid.py:1677
 msgid "photos or videos"
 msgstr "fénykép vagy videó"
 
-#: rapid/rapid.py:1544
+#: rapid/rapid.py:1549
 msgid "videos"
 msgstr "videók"
 
-#: rapid/rapid.py:1556
+#: rapid/rapid.py:1561
 #, python-format
 msgid ""
 "%(date)s\n"
 "%(time)s"
 msgstr ""
+"%(date)s\n"
+"%(time)s"
 
-#: rapid/rapid.py:1558
+#: rapid/rapid.py:1563
 #, python-format
 msgid "%(date)s %(time)s"
-msgstr ""
+msgstr "%(date)s %(time)s"
 
-#: rapid/rapid.py:1561
+#: rapid/rapid.py:1566
 #, python-format
 msgid "%(hour)s:%(minute)s:%(second)s:%(subsecond)s"
-msgstr ""
+msgstr "%(hour)s:%(minute)s:%(second)s:%(subsecond)s"
 
-#: rapid/rapid.py:1568
+#: rapid/rapid.py:1573
 #, python-format
 msgid "%(date)s %(hour)s:%(minute)s:%(second)s:%(subsecond)s"
-msgstr ""
+msgstr "%(date)s %(hour)s:%(minute)s:%(second)s:%(subsecond)s"
 
-#: rapid/rapid.py:1596 rapid/rapid.py:2242
+#: rapid/rapid.py:1601 rapid/rapid.py:2267
 msgid "subfolder and filename"
-msgstr ""
+msgstr "alkönyvtár és file neve"
 
-#: rapid/rapid.py:1598 rapid/rapid.py:2244
+#: rapid/rapid.py:1603 rapid/rapid.py:2269
 msgid "filename"
 msgstr "fájlnév"
 
-#: rapid/rapid.py:1600 rapid/rapid.py:2246
+#: rapid/rapid.py:1605 rapid/rapid.py:2271
 msgid "subfolder"
-msgstr ""
+msgstr "alkönyvtár"
 
 #. This refers to when a device like a hard drive is having its contents scanned,
 #. looking for photos or videos. It is visible initially in the progress bar for each device
 #. (which normally holds "x photos and videos").
 #. It maybe displayed only briefly if the contents of the device being scanned is small.
-#: rapid/rapid.py:1672
+#: rapid/rapid.py:1693
 msgid "scanning..."
 msgstr "keresés..."
 
-#: rapid/rapid.py:1783
+#: rapid/rapid.py:1804
 msgid "The following download path could not be created:\n"
 msgstr "Ez a letöltési útvonal nem hozható létre:\n"
 
-#: rapid/rapid.py:1784
+#: rapid/rapid.py:1805
 #, python-format
 msgid "%(path)s: "
 msgstr "%(path)s: "
 
-#: rapid/rapid.py:1785 rapid/rapid.py:1786 rapid/rapid.py:1801
-#: rapid/rapid.py:1802 rapid/rapid.py:2063 rapid/rapid.py:2066
+#: rapid/rapid.py:1806 rapid/rapid.py:1807 rapid/rapid.py:1822
+#: rapid/rapid.py:1823 rapid/rapid.py:2084 rapid/rapid.py:2087
 msgid "Download cannot proceed"
 msgstr "A letöltés megszakadt."
 
-#: rapid/rapid.py:1799 rapid/rapid.py:4846
+#: rapid/rapid.py:1820 rapid/rapid.py:4959
 msgid "There is an error in the program preferences."
 msgstr "A program beállítása hibás."
 
-#: rapid/rapid.py:1800
+#: rapid/rapid.py:1821
 msgid ""
 "\n"
 "Please check preferences, restart the program, and try again."
@@ -316,10 +318,10 @@ msgstr ""
 #. It refers to the actual number of photos that can be copied. For example, the user might see the following:
 #. '0 of 512 photos' or '0 of 10 videos' or '0 of 202 photos and videos'.
 #. This particular text is displayed to the user before the download has started.
-#: rapid/rapid.py:1974
+#: rapid/rapid.py:1995
 #, python-format
 msgid "%(number)s %(filetypes)s"
-msgstr ""
+msgstr "%(number)s %(filetypes)s"
 
 #. Translators: as you have already seen, the text can contain values that should not be modified or left out by you, for example %s.
 #. This text is another example of that, but it is is a little more complex. Here there are two values which will be displayed
@@ -327,87 +329,90 @@ msgstr ""
 #. %(number)s should be left exactly as is: 'number' should not be translated. The same applies to %(device)s: 'device' should
 #. not be translated. Generally speaking, if translating the sentence requires it, you can move items like '%(xyz)s' around
 #. in a sentence, but you should never modify them or leave them out.
-#: rapid/rapid.py:1985
+#: rapid/rapid.py:2006
 #, python-format
 msgid "Device scan complete: found %(number)s %(filetypes)s on %(device)s"
 msgstr ""
 "Az eszköz átvizsgálása kész: %(number)s %(filetypes)s talált a %(device)s"
 
-#: rapid/rapid.py:1992
+#: rapid/rapid.py:2013
 #, python-format
 msgid "Device scan complete: no %(filetypes)s found on %(device)s"
 msgstr ""
 "Az eszköz átvizsgálása kész: nem található %(filetypes)s az %(device)s"
 
 #. This message informs the user that the device (e.g. camera, hard drive or memory card) was automatically unmounted and they can now remove it
-#: rapid/rapid.py:2013
+#: rapid/rapid.py:2034
 msgid "The device can now be safely removed"
 msgstr "Az eszköz biztonságosan eltávolítható."
 
-#: rapid/rapid.py:2019
+#: rapid/rapid.py:2040
 #, python-format
 msgid "%(noFiles)s %(filetypes)s downloaded"
 msgstr "Letöltve: %(noFiles)s %(filetypes)s"
 
-#: rapid/rapid.py:2022
+#: rapid/rapid.py:2043
 #, python-format
 msgid "%(noFiles)s %(filetypes)s failed to download"
-msgstr ""
+msgstr "%(noFiles)s %(filetypes)s : sikertelen letöltés"
 
-#: rapid/rapid.py:2028 rapid/rapid.py:5627
+#: rapid/rapid.py:2046 rapid/rapid.py:5744
 msgid "warnings"
 msgstr "figyelmeztetések"
 
-#: rapid/rapid.py:2030 rapid/rapid.py:5631
+#: rapid/rapid.py:2048 rapid/rapid.py:5748
 msgid "errors"
 msgstr "hibák"
 
-#: rapid/rapid.py:2057
+#: rapid/rapid.py:2078
 #, python-format
 msgid "Source: %s\n"
 msgstr "Forrás: %s\n"
 
-#: rapid/rapid.py:2059
+#: rapid/rapid.py:2080
 #, python-format
 msgid "Device: %s\n"
 msgstr "Eszköz: %s\n"
 
-#: rapid/rapid.py:2060
+#: rapid/rapid.py:2081
 #, python-format
 msgid "Destination: %s"
 msgstr "Cél: %s"
 
-#: rapid/rapid.py:2061 rapid/rapid.py:2064
+#: rapid/rapid.py:2082 rapid/rapid.py:2085
 msgid "Could not create temporary download directory"
 msgstr "Nem tudtam az átmeneti letöltési könyvtárat létrehozni"
 
-#: rapid/rapid.py:2064
+#: rapid/rapid.py:2085
 msgid "Error:"
 msgstr "Hiba:"
 
-#: rapid/rapid.py:2088
+#: rapid/rapid.py:2109
 msgid "Backup path does not exist"
 msgstr "A biztonsági mentés könyvtár nem létezik"
 
-#: rapid/rapid.py:2089
+#: rapid/rapid.py:2110
 #, python-format
 msgid "The path %s could not be created"
 msgstr "Az elérési utat %s nem lehet létrehozni"
 
-#: rapid/rapid.py:2090
+#: rapid/rapid.py:2111
 msgid "No backups can occur"
 msgstr "Biztonsági másolat nem készülhet"
 
-#: rapid/rapid.py:2117
+#: rapid/rapid.py:2140
 #, python-format
 msgid ""
 "Source: %(source)s\n"
 "Destination: %(destination)s\n"
 "%(problem)s"
 msgstr ""
+"Forrás: %(source)s\n"
+"Cél: %(destination)s\n"
+"%(problem)s"
 
-#: rapid/rapid.py:2146 rapid/rapid.py:2492 rapid/rapid.py:2527
-#: rapid/rapid.py:2555 rapid/rapid.py:2586 rapid/rapid.py:2605
+#: rapid/rapid.py:2171 rapid/rapid.py:2517 rapid/rapid.py:2552
+#: rapid/rapid.py:2580 rapid/rapid.py:2611 rapid/rapid.py:2630
 #, python-format
 msgid ""
 "Source: %(source)s\n"
@@ -417,119 +422,120 @@ msgstr ""
 "Cél: %(destination)s"
 
 #. hopefully inst will never be None, but just to be safe...
-#: rapid/rapid.py:2161
+#: rapid/rapid.py:2186
 msgid "Please check your system and try again."
-msgstr ""
+msgstr "Kérem, ellenőrizze a rendszert, majd próbálja meg újra."
 
-#: rapid/rapid.py:2181
+#: rapid/rapid.py:2206
 msgid "Photos detected with the same filenames, but taken at different times"
 msgstr ""
+"A program egyező nevű, de különböző időpontban készített képeket talált."
 
-#: rapid/rapid.py:2221
+#: rapid/rapid.py:2246
 msgid "Photo has already been downloaded"
-msgstr ""
+msgstr "A kép már korábban le lett töltve."
 
-#: rapid/rapid.py:2222 rapid/rapid.py:2621
+#: rapid/rapid.py:2247 rapid/rapid.py:2646
 #, python-format
 msgid "Source: %(source)s"
 msgstr "Forrás: %(source)s"
 
 #. A new day, according the user's preferences of what time a day begins, has started
-#: rapid/rapid.py:2420
+#: rapid/rapid.py:2445
 msgid "New day has started - resetting 'Downloads Today' sequence number"
 msgstr "Új nap kezdődött - a mai letöltések száma vissza lesz állítva."
 
-#: rapid/rapid.py:2491
+#: rapid/rapid.py:2516
 #, python-format
 msgid "Backup of %(file_type)s already exists"
 msgstr "A %(file_type)s biztonsági másolata már létezik"
 
-#: rapid/rapid.py:2495
+#: rapid/rapid.py:2520
 #, python-format
 msgid "Backup %(file_type)s overwritten"
 msgstr "A %(file_type)s biztonsági másolata felül lesz írva"
 
-#: rapid/rapid.py:2499
+#: rapid/rapid.py:2524
 #, python-format
 msgid "%(file_type)s not backed up to %(volume)s"
 msgstr ""
 "A %(file_type)s biztonsági mentése az alábbi helyre nem készül el: %(volume)s"
 
-#: rapid/rapid.py:2501
+#: rapid/rapid.py:2526
 #, python-format
 msgid "%(file_type)s not backed up"
 msgstr "A %(file_type)s biztonsági másolata nem készült el"
 
-#: rapid/rapid.py:2524 rapid/rapid.py:2552 rapid/rapid.py:2585
-#: rapid/rapid.py:2604
+#: rapid/rapid.py:2549 rapid/rapid.py:2577 rapid/rapid.py:2610
+#: rapid/rapid.py:2629
 msgid "Backing up error"
 msgstr "A biztonsági másolat készítése során hiba történt."
 
-#: rapid/rapid.py:2525 rapid/rapid.py:2553
+#: rapid/rapid.py:2550 rapid/rapid.py:2578
 #, python-format
 msgid "Destination directory could not be created: %(directory)s\n"
 msgstr "A cél könyvtár nem hozható létre: %(directory)s\n"
 
-#: rapid/rapid.py:2529 rapid/rapid.py:2588
+#: rapid/rapid.py:2554 rapid/rapid.py:2613
 #, python-format
 msgid "Error: %(inst)s"
-msgstr ""
+msgstr "Hiba: %(inst)s"
 
-#: rapid/rapid.py:2530 rapid/rapid.py:2558 rapid/rapid.py:2589
-#: rapid/rapid.py:2608
+#: rapid/rapid.py:2555 rapid/rapid.py:2583 rapid/rapid.py:2614
+#: rapid/rapid.py:2633
 #, python-format
 msgid "The %(file_type)s was not backed up."
 msgstr "A %(file_type)s biztonsági másolata nem készült el"
 
-#: rapid/rapid.py:2557 rapid/rapid.py:2607
+#: rapid/rapid.py:2582 rapid/rapid.py:2632
 #, python-format
 msgid "Error: %(errno)s %(strerror)s"
 msgstr "Hiba: %(errno)s %(strerror)s"
 
-#: rapid/rapid.py:2620
+#: rapid/rapid.py:2645
 #, python-format
 msgid "%(file_type)s could not be backed up"
 msgstr "A %(file_type)s biztonsági másolata nem volt elkészíthető."
 
-#: rapid/rapid.py:2623
+#: rapid/rapid.py:2648
 msgid "No suitable backup volume was found"
 msgstr "Biztonsági másolatoknak alkalmas hely nem volt elérhető."
 
-#: rapid/rapid.py:2625
+#: rapid/rapid.py:2650
 msgid "A backup location was not found"
 msgstr "A biztonsági másolatok helye nem volt elérhető."
 
-#: rapid/rapid.py:2679
+#: rapid/rapid.py:2704
 #, python-format
 msgid "This device has no %(types_searched_for)s to download from."
 msgstr "Az eszközön nem található letöltendő %(types_searched_for)s"
 
-#: rapid/rapid.py:2733
+#: rapid/rapid.py:2777
 #, python-format
 msgid "Download has started from %s"
 msgstr "A letöltés megkezdődött %s helyről"
 
-#: rapid/rapid.py:2736
+#: rapid/rapid.py:2780
 #, python-format
 msgid "Attempting to download %s files"
-msgstr ""
+msgstr "A következő fájlok letöltése folyamatban: %s"
 
 #. reset the progress bar to update the status of this download attempt
-#: rapid/rapid.py:2769 rapid/rapid.py:2836
+#: rapid/rapid.py:2813 rapid/rapid.py:2880
 #, python-format
 msgid "%(number)s of %(total)s %(filetypes)s"
 msgstr "%(number)s a teljes %(total)s %(filetypes)s"
 
-#: rapid/rapid.py:2832
+#: rapid/rapid.py:2876
 #, python-format
 msgid "%(number)s of %(total)s %(filetypes)s (%(remaining)s remaining)"
-msgstr ""
+msgstr "%(number)s of %(total)s %(filetypes)s (%(remaining)s még hátra van)"
 
-#: rapid/rapid.py:2857 rapid/rapid.py:2861
+#: rapid/rapid.py:2901 rapid/rapid.py:2905
 msgid "Could not delete photo or video from device"
 msgstr "Nem tudom a fényképet vagy a videót az eszközről letörölni"
 
-#: rapid/rapid.py:2858
+#: rapid/rapid.py:2902
 #, python-format
 msgid ""
 "Photo: %(source)s\n"
@@ -538,59 +544,63 @@ msgstr ""
 "Kép: %(source)s\n"
 "Hiba: %(errno)s %(strerror)s"
 
-#: rapid/rapid.py:2862
+#: rapid/rapid.py:2906
 #, python-format
 msgid "Photo: %(source)s"
 msgstr "Kép: %(source)s"
 
-#: rapid/rapid.py:2864
+#: rapid/rapid.py:2908
 #, python-format
 msgid "Deleted %(number)i %(filetypes)s from device"
 msgstr "Az eszközről %(number)i %(filetypes)s lett törölve"
 
-#: rapid/rapid.py:2871
+#: rapid/rapid.py:2921
 #, python-format
 msgid "Download complete from %s"
 msgstr "A letöltés befejeződött: %s"
 
 #. Device refers to a thing like a camera, memory card in its reader, external hard drive, Portable Storage Device, etc.
-#: rapid/rapid.py:2993 rapid/rapid.py:3466
+#: rapid/rapid.py:3036 rapid/rapid.py:3505
 msgid "Device"
 msgstr "Eszköz"
 
 #. Size refers to the total size of images on the device, typically in MB or GB
-#: rapid/rapid.py:2998 rapid/rapid.py:3455
+#: rapid/rapid.py:3041 rapid/rapid.py:3494
 msgid "Size"
 msgstr "Fájlméret szerint"
 
-#: rapid/rapid.py:3001
+#: rapid/rapid.py:3044
 msgid "Download Progress"
 msgstr "Letöltés Folyamatban"
 
-#: rapid/rapid.py:3089
+#: rapid/rapid.py:3132
 msgid "Downloading From Cameras"
-msgstr ""
+msgstr "Letöltés a fényképezőgépekről."
 
-#: rapid/rapid.py:3095
+#: rapid/rapid.py:3138
 msgid "Downloading directly from a camera may work poorly or not at all"
 msgstr ""
+"A képek letöltése közvetlenül a fényképezőgépről elöfordulhat, hogy hibásan, "
+"vagy egyáltalán nem működik."
 
-#: rapid/rapid.py:3096
+#: rapid/rapid.py:3139
 msgid ""
 "Downloading from a card reader always works and is generally much faster. It "
 "is strongly recommended to use a card reader."
 msgstr ""
+"A képek letöltése kártyaolvasóval mindig működik, általában gyorsabb. Erősen "
+"ajánlott a kártyaolvasó használata."
 
-#: rapid/rapid.py:3110
+#: rapid/rapid.py:3153
 msgid "_Show this message again"
-msgstr ""
+msgstr "_Az üzenet jelenjen meg legközelebb is."
 
-#: rapid/rapid.py:3145
+#: rapid/rapid.py:3188
 msgid "Device Detected"
 msgstr "Eszköz érzékelve"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#usedeviceprompt
-#: rapid/rapid.py:3154
+#: rapid/rapid.py:3197
 msgid ""
 "Should this device or partition be used to download photos or videos from?"
 msgstr ""
@@ -598,154 +608,174 @@ msgstr ""
 "használni?"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#usedeviceprompt
-#: rapid/rapid.py:3173
+#: rapid/rapid.py:3216
 msgid "_Remember this choice"
 msgstr "_Emlékezzen erre a választásra"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#usedeviceprompt
-#: rapid/rapid.py:3210
+#: rapid/rapid.py:3253
 #, python-format
 msgid "%s selected for downloading from"
 msgstr "%s kijelölve letöltésre innen"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#usedeviceprompt
-#: rapid/rapid.py:3213
+#: rapid/rapid.py:3256
 msgid "This device or partition will always be used to download from"
 msgstr ""
 "Az eszköz vagy partíció adatai mindig letöltési forrásként szolgálnak."
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#usedeviceprompt
-#: rapid/rapid.py:3216
+#: rapid/rapid.py:3259
 #, python-format
 msgid "%s rejected as a download device"
 msgstr "%s nem használható letöltési eszközként."
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#usedeviceprompt
-#: rapid/rapid.py:3219
+#: rapid/rapid.py:3262
 msgid "This device or partition will never be used to download from"
 msgstr "Ez az eszköz vagy partició még nem volt letöltési forrás."
 
-#: rapid/rapid.py:3226
+#: rapid/rapid.py:3269
 msgid "Remove all Job Codes?"
 msgstr "Minden Munka-szám eltávolítása?"
 
-#: rapid/rapid.py:3243
+#: rapid/rapid.py:3286
 msgid "Should all Job Codes be removed?"
 msgstr "Minden Munka-szám el legyen távolítva?"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#jobcode
-#: rapid/rapid.py:3271
+#: rapid/rapid.py:3314
 msgid "Enter a Job Code"
 msgstr "Adjon meg munka-számot"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#jobcode
-#: rapid/rapid.py:3290
+#: rapid/rapid.py:3333
 msgid "Enter a new Job Code, or select a previous one"
-msgstr ""
+msgstr "Adjon meg új munka-kódot, vagy válasszon egyet a korábbiakból."
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#jobcode
-#: rapid/rapid.py:3293
+#: rapid/rapid.py:3336
 msgid "Enter a new Job Code"
-msgstr ""
+msgstr "Adjon meg új munka-kódot"
 
-#: rapid/rapid.py:3298 rapid/rapid.py:4417
+#: rapid/rapid.py:3341 rapid/rapid.py:4496
 msgid "Job Code:"
 msgstr "Munka-szám:"
 
-#: rapid/rapid.py:3345
+#: rapid/rapid.py:3388
 msgid "Job Code entered"
 msgstr "Munka-szám megadva"
 
-#: rapid/rapid.py:3347
+#: rapid/rapid.py:3390
 msgid "Job Code not entered"
 msgstr "A munka-szám nincs megadva"
 
-#: rapid/rapid.py:3401
+#: rapid/rapid.py:3440
 msgid "Status"
-msgstr ""
+msgstr "Állapot"
 
-#: rapid/rapid.py:3409
+#: rapid/rapid.py:3448
 msgid "Type"
-msgstr ""
+msgstr "Típus"
 
-#: rapid/rapid.py:3418 rapid/rapid.py:4808 rapid/rapid.py:4810
+#: rapid/rapid.py:3457 rapid/rapid.py:4921 rapid/rapid.py:4923
 msgid "Photo"
 msgstr "Fénykép"
 
-#: rapid/rapid.py:3420
+#: rapid/rapid.py:3459
 msgid "File"
-msgstr ""
+msgstr "Fájl"
 
-#: rapid/rapid.py:3435
+#: rapid/rapid.py:3474
 msgid "Job Code"
-msgstr ""
+msgstr "Munka kód"
 
-#: rapid/rapid.py:3445
+#: rapid/rapid.py:3484
 msgid "Date"
-msgstr ""
+msgstr "Dátum"
 
-#: rapid/rapid.py:3477 rapid/renamesubfolderprefs.py:194
+#: rapid/rapid.py:3516 rapid/renamesubfolderprefs.py:194
 msgid "Filename"
 msgstr "Fájlnév"
 
-#: rapid/rapid.py:3488
+#: rapid/rapid.py:3527
 msgid "Path"
-msgstr ""
+msgstr "Útvonal"
 
-#: rapid/rapid.py:3843
+#: rapid/rapid.py:3918
 #, python-format
 msgid "%(filetype)s was downloaded successfully"
-msgstr ""
+msgstr "%(filetype)s letöltése sikeres volt"
 
-#: rapid/rapid.py:3845
+#: rapid/rapid.py:3920
 #, python-format
 msgid "%(filetype)s was not downloaded"
-msgstr ""
+msgstr "%(filetype)s letöltése sikertelen volt"
 
-#: rapid/rapid.py:3847
+#: rapid/rapid.py:3922
 #, python-format
 msgid "%(filetype)s was downloaded with warnings"
-msgstr ""
+msgstr "%(filetype)s letöltésénél figyelmeztetések"
 
-#: rapid/rapid.py:3849
+#: rapid/rapid.py:3924
 #, python-format
 msgid "%(filetype)s was downloaded but there were problems backing up"
 msgstr ""
+"%(filetype)s letöltése sikeres volt, de a biztonsági másolat készítésénél "
+"hibák léptek fel."
 
-#: rapid/rapid.py:3851
+#: rapid/rapid.py:3926
 #, python-format
 msgid "%(filetype)s was neither downloaded nor backed up"
-msgstr ""
+msgstr "%(filetype)s nem lett letöltve, biztonsági másolat sem készült."
 
-#: rapid/rapid.py:3853
+#: rapid/rapid.py:3928
 #, python-format
 msgid "%(filetype)s is ready to be downloaded"
-msgstr ""
+msgstr "%(filetype)s készen áll a letöltésre"
 
-#: rapid/rapid.py:3855
+#: rapid/rapid.py:3930
 #, python-format
 msgid "%(filetype)s is about to be downloaded"
-msgstr ""
+msgstr "%(filetype)s most lesz letöltve"
 
-#: rapid/rapid.py:3857
+#: rapid/rapid.py:3932
 #, python-format
 msgid "%(filetype)s will be downloaded with warnings"
-msgstr ""
+msgstr "%(filetype)s le lesz töltve, figyelmeztetésekkel"
 
-#: rapid/rapid.py:3859
+#: rapid/rapid.py:3934
 #, python-format
 msgid "%(filetype)s cannot be downloaded"
-msgstr ""
+msgstr "%(filetype)s nem tölthető le"
 
-#: rapid/rapid.py:4240
+#: rapid/rapid.py:4303
 msgid "Preview"
-msgstr ""
+msgstr "Előnézet"
 
-#: rapid/rapid.py:4439
+#: rapid/rapid.py:4518
 msgid "Enter a new Job Code and press Enter, or select an existing Job Code"
 msgstr ""
+"Adjon meg egy új munka-kódot, majd nyomja meg az Entert, vagy válasszon egy "
+"létező munka-kódot"
 
-#: rapid/rapid.py:4795
+#: rapid/rapid.py:4887
+#, python-format
+msgid "%(free)s available"
+msgstr "%(free)s elérhető"
+
+#. user manually specified backup location
+#: rapid/rapid.py:4894
+#, python-format
+msgid "Backing up to %(path)s"
+msgstr "Biztonsági mentés készül az alábbi helyre: %(path)s"
+
+#: rapid/rapid.py:4899
+#, python-format
+msgid "%(freespace)s. %(backuppaths)s."
+msgstr "%(freespace)s. %(backuppaths)s."
+
+#: rapid/rapid.py:4908
 #, python-format
 msgid ""
 "Sorry, this device location does not exist:\n"
@@ -756,25 +786,25 @@ msgstr ""
 "Az elérési útvonal nem létezik:\n"
 "%(path)s"
 
-#: rapid/rapid.py:4799
+#: rapid/rapid.py:4912
 msgid "Problem with Device Location Folder"
 msgstr "Probléma az eszköz könyvtárának a helyével"
 
-#: rapid/rapid.py:4808
+#: rapid/rapid.py:4921
 msgid "Video"
 msgstr "Videó"
 
-#: rapid/rapid.py:4815
+#: rapid/rapid.py:4928
 #, python-format
 msgid "The %(file_type)s Download Folder does not exist.\n"
 msgstr "A %(file_type)s letöltési könyvtár nem létezik.\n"
 
-#: rapid/rapid.py:4824
+#: rapid/rapid.py:4937
 #, python-format
 msgid "The %(file_type)s Download Folder exists but cannot be written to.\n"
 msgstr "A %(file_type)s letöltési könyvtár létezik, de nem írható.\n"
 
-#: rapid/rapid.py:4829
+#: rapid/rapid.py:4942
 msgid ""
 "Sorry, problems were encountered with your download folders. Please fix the "
 "problems or modify the preferences.\n"
@@ -783,65 +813,67 @@ msgstr ""
 "A letöltési könyvtárak beállításai  hibásak. Módosítson a beállításokon.\n"
 "\n"
 
-#: rapid/rapid.py:4832
+#: rapid/rapid.py:4945
 msgid "Problem with Download Folder"
 msgstr "Hiba a letöltési könyvtárral"
 
-#: rapid/rapid.py:4834
+#: rapid/rapid.py:4947
 msgid "Problem with Download Folders"
 msgstr "Probléma a letöltési könyvtárral"
 
-#: rapid/rapid.py:4847
+#: rapid/rapid.py:4960
 msgid "Some preferences will be reset."
 msgstr "Néhány beállítás vissza lesz állítva"
 
-#: rapid/rapid.py:4880
+#: rapid/rapid.py:4993
 msgid "Displaying warning about downloading directly from camera"
 msgstr ""
+"Figyelmeztetés megjelenítése a közvetlen fényképezőgépről történő letöltés "
+"miatt"
 
-#: rapid/rapid.py:4890
+#: rapid/rapid.py:5003
 #, python-format
 msgid "Prompting whether to use %s"
 msgstr "Javaslat helyette: %s"
 
-#: rapid/rapid.py:4917
+#: rapid/rapid.py:5030
 msgid "Prompting for Job Code"
 msgstr "Adjon meg munka-számot"
 
-#: rapid/rapid.py:4921
+#: rapid/rapid.py:5034
 msgid "Already prompting for Job Code, do not prompt again"
 msgstr "A munka-szám már megadva, ne addja meg újra"
 
-#: rapid/rapid.py:4938
+#: rapid/rapid.py:5051
 msgid "Starting downloads"
 msgstr "A letöltések megkezdése"
 
 #. autostart is true
-#: rapid/rapid.py:4942
+#: rapid/rapid.py:5055
 msgid "Starting downloads that have been waiting for a Job Code"
 msgstr "A munka-számra várakozó letöltések megkezdése"
 
-#: rapid/rapid.py:4984
+#: rapid/rapid.py:5102
 #, python-format
 msgid "Creating photo download folder %(folder)s"
 msgstr "A %(folder)s kép letöltési könyvtár létrehozása folyamatban"
 
-#: rapid/rapid.py:4989
+#: rapid/rapid.py:5107
 #, python-format
 msgid "Failed to create default photo download folder %(folder)s"
 msgstr "A %(folder)s kép letöltési könyvtár létrehozása sikertelen"
 
-#: rapid/rapid.py:4993
+#: rapid/rapid.py:5111
 #, python-format
 msgid "Creating video download folder %(folder)s"
 msgstr "A %(folder)s videó letöltési könyvtár létrehozása folyamatban"
 
-#: rapid/rapid.py:4998
+#: rapid/rapid.py:5116
 #, python-format
 msgid "Failed to create default video download folder %(folder)s"
 msgstr "A %(folder)s videó letöltési könyvtár létrehozása sikertelen"
 
-#: rapid/rapid.py:5023
+#: rapid/rapid.py:5141
 msgid ""
 "A newer version of this program was previously run on this computer.\n"
 "\n"
@@ -849,22 +881,22 @@ msgstr ""
 "A program frissebb változata volt futtatva ezen a számítógépen.\n"
 "\n"
 
-#: rapid/rapid.py:5025
+#: rapid/rapid.py:5143
 msgid ""
 "Program preferences appear to be valid, but please check them to ensure "
 "correct operation."
 msgstr ""
 "A beállítások érvényesek, de ellenőrizze azokat a helyes működés érdekében."
 
-#: rapid/rapid.py:5027
+#: rapid/rapid.py:5145
 msgid "Sorry, some preferences are invalid and will be reset."
 msgstr "Elnézést, de néhány beállítás helytelen, és vissza lesz állítva."
 
-#: rapid/rapid.py:5028
+#: rapid/rapid.py:5146
 msgid "Warning:"
 msgstr "Figyelmeztetés:"
 
-#: rapid/rapid.py:5033
+#: rapid/rapid.py:5151
 msgid ""
 "This version of the program is newer than the previously run version. "
 "Checking preferences."
@@ -872,11 +904,11 @@ msgstr ""
 "A jelenlegi verzió frissebb a megelőzően futtatottnál. A beállítások "
 "ellenőrzése."
 
-#: rapid/rapid.py:5040
+#: rapid/rapid.py:5158
 msgid "Preferences were modified."
 msgstr "A beállítások módosultak."
 
-#: rapid/rapid.py:5041
+#: rapid/rapid.py:5159
 msgid ""
 "This version of the program uses different preferences than the old version. "
 "Your preferences have been updated.\n"
@@ -887,11 +919,11 @@ msgstr ""
 "beállítások frissültek.\n"
 "Kérem ellenőrizze a helyes működéshez."
 
-#: rapid/rapid.py:5045
+#: rapid/rapid.py:5163
 msgid "No preferences needed to be changed."
 msgstr "A beállításokat nem kellett változtatni."
 
-#: rapid/rapid.py:5047
+#: rapid/rapid.py:5165
 msgid ""
 "This version of the program uses different preferences than the old version. "
 "Some of your previous preferences were invalid, and could not be updated. "
@@ -901,154 +933,152 @@ msgstr ""
 "beállítások egy része érvénytelen volt, nem lehetett frissíteni. Ezek "
 "visszaállításra kerültek."
 
-#: rapid/rapid.py:5057
+#: rapid/rapid.py:5175
 msgid "Problem using pynotify."
 msgstr "A pynotify használata során hiba jelentkezett."
 
-#: rapid/rapid.py:5073
+#: rapid/rapid.py:5191
 msgid "Failed to receive pynotify server capabilities."
 msgstr "A pynotify kiszolgálót nem sikerült elérni."
 
-#: rapid/rapid.py:5084
+#: rapid/rapid.py:5202
 msgid ""
 "Warning: desktop environment notification server is incorrectly configured."
 msgstr ""
 "Figyelem: a munkaasztal környezet értesítő szerver nincs jól beállítva."
 
-#: rapid/rapid.py:5132
+#: rapid/rapid.py:5250
 msgid "and"
 msgstr "és"
 
-#: rapid/rapid.py:5137
+#: rapid/rapid.py:5255
 msgid "Using backup devices"
 msgstr "A biztonsági mentés eszközök használata"
 
-#: rapid/rapid.py:5139
+#: rapid/rapid.py:5257
 msgid "Using backup device"
 msgstr "A biztonsági mentés eszköz használata"
 
-#: rapid/rapid.py:5141
+#: rapid/rapid.py:5259
 msgid "No backup devices detected"
 msgstr "Nincs elérhető biztonsági mentés eszköz"
 
-#: rapid/rapid.py:5188 rapid/rapid.py:5350
+#: rapid/rapid.py:5309 rapid/rapid.py:5471
 #, python-format
 msgid "Device %(device)s (%(path)s) ignored"
 msgstr "Eszköz %(device)s (%(path)s) mellőzve"
 
-#: rapid/rapid.py:5309
+#: rapid/rapid.py:5430
 #, python-format
 msgid "Detected %(device)s with path %(path)s"
 msgstr "Érzékelve %(device)s megadott útvonalon %(path)s"
 
-#: rapid/rapid.py:5313
+#: rapid/rapid.py:5434
 msgid "Automatically start download is true"
 msgstr "Az automatikus letöltés indítás be lett állítva"
 
-#: rapid/rapid.py:5315
+#: rapid/rapid.py:5436
 msgid "Automatically start download is false"
 msgstr "Az automatikus letöltés indítás nem lett beállítva"
 
-#: rapid/rapid.py:5368
+#: rapid/rapid.py:5489
 msgid "Using manually specified path"
 msgstr "Kézzel megadott útvonal használata"
 
-#: rapid/rapid.py:5376 rapid/rapid.py:5417
-#, python-format
-msgid "Backing up to %(path)s"
-msgstr "Biztonsági mentés készül az alábbi helyre: %(path)s"
-
 #. the user is trying to backup to a device that is currently being downloaded from..... we don't normally allow that, but what to do?
-#: rapid/rapid.py:5441
+#: rapid/rapid.py:5557
 #, python-format
 msgid "Warning: backup device %(device)s is currently being downloaded from"
 msgstr ""
+"Figyelmeztetés: a biztonsági mentés eszköze éppen használatban van: "
+"%(device)s"
 
-#: rapid/rapid.py:5458
+#: rapid/rapid.py:5573
 msgid "D_ownload Selected"
-msgstr ""
+msgstr "_Letöltés kiválasztva"
 
-#: rapid/rapid.py:5550 rapid/rapid.py:5599
+#: rapid/rapid.py:5665 rapid/rapid.py:5716
 msgid "All downloads complete"
 msgstr "Minden letöltés befejeződött"
 
-#: rapid/rapid.py:5564
+#: rapid/rapid.py:5680
 msgid "MB/s"
 msgstr "MB/s"
 
-#: rapid/rapid.py:5574
+#: rapid/rapid.py:5690
 msgid "About 1 second remaining"
 msgstr "Kb. 1 másodperc van hátra"
 
-#: rapid/rapid.py:5576
+#: rapid/rapid.py:5692
 #, python-format
 msgid "About %i seconds remaining"
 msgstr "Kb. %i másodperc van hátra"
 
-#: rapid/rapid.py:5578
+#: rapid/rapid.py:5694
 msgid "About 1 minute remaining"
 msgstr "Kb. 1 perc van hátra"
 
 #. Translators: in the text '%(minutes)i:%(seconds)02i', only the : should be translated, if needed.
 #. '%(minutes)i' and '%(seconds)02i' should not be modified or left out. They are used to format and display the amount
 #. of time the download has remainging, e.g. 'About 5:36 minutes remaining'
-#: rapid/rapid.py:5583
+#: rapid/rapid.py:5699
 #, python-format
 msgid "About %(minutes)i:%(seconds)02i minutes remaining"
 msgstr "Kb. %(minutes)i:%(seconds)02i perc van hátra"
 
-#: rapid/rapid.py:5602 rapid/rapid.py:5608 rapid/rapid.py:5614
-#: rapid/rapid.py:5620 rapid/rapid.py:5625 rapid/rapid.py:5629
+#: rapid/rapid.py:5719 rapid/rapid.py:5725 rapid/rapid.py:5731
+#: rapid/rapid.py:5737 rapid/rapid.py:5742 rapid/rapid.py:5746
 #, python-format
 msgid "%(number)s %(numberdownloaded)s"
-msgstr ""
+msgstr "%(number)s %(numberdownloaded)s"
 
-#: rapid/rapid.py:5604 rapid/rapid.py:5616
+#: rapid/rapid.py:5721 rapid/rapid.py:5733
 #, python-format
 msgid "%(filetype)s downloaded"
-msgstr ""
+msgstr "%(filetype)s letöltve"
 
-#: rapid/rapid.py:5610 rapid/rapid.py:5622
+#: rapid/rapid.py:5727 rapid/rapid.py:5739
 #, python-format
 msgid "%(filetype)s failed to download"
-msgstr ""
+msgstr "%(filetype)s letöltése sikertelen volt"
 
-#: rapid/rapid.py:5789
+#: rapid/rapid.py:5907
 msgid "_Resume"
-msgstr ""
+msgstr "_Folytatás"
 
-#: rapid/rapid.py:5792
+#: rapid/rapid.py:5910
 msgid "_Download All"
-msgstr ""
+msgstr "_Mindegyik letöltése"
 
 #. This text will be displayed to the user on the Download / Pause button.
-#: rapid/rapid.py:5801
+#: rapid/rapid.py:5919
 msgid "_Pause"
 msgstr "_Megállítás"
 
-#: rapid/rapid.py:5914
+#: rapid/rapid.py:6031
 msgid "Download device settings preferences were changed."
-msgstr ""
+msgstr "A letöltő eszköz beállításai meg lettek változtatva"
 
-#: rapid/rapid.py:5926
+#: rapid/rapid.py:6043
 msgid "Backup preferences were changed."
-msgstr ""
+msgstr "A biztonsági mentés eszköz beállításai meg lettek változtatva"
 
-#: rapid/rapid.py:5932
+#: rapid/rapid.py:6049
 msgid "Subfolder and filename preferences were changed."
 msgstr ""
+"Alkönyvtár és fájl elnevezésre vonatkozó beállítások meg lettek változtatva"
 
-#: rapid/rapid.py:5943
+#: rapid/rapid.py:6060
 msgid "Download folder preferences were changed."
-msgstr ""
+msgstr "A letöltő könyvtárra vonatkozó beállítások meg lettek változtatva"
 
-#: rapid/rapid.py:6141
+#: rapid/rapid.py:6259
 msgid "Goodbye"
 msgstr "Viszlát"
 
 #. Translators: this text is displayed to the user when they request information on the command line options.
 #. The text %default should not be modified or left out.
-#: rapid/rapid.py:6152
+#: rapid/rapid.py:6270
 #, python-format
 msgid ""
 "display program information on the command line as the program runs "
@@ -1057,50 +1087,50 @@ msgstr ""
 "futás közben program információ megjelenítése a terminálban (default: "
 "%default)"
 
-#: rapid/rapid.py:6153
+#: rapid/rapid.py:6271
 msgid "only output errors to the command line"
 msgstr "csak a hibák megjelenítése a terminálban"
 
 #. image file extensions are recognized RAW files plus TIFF and JPG
-#: rapid/rapid.py:6155
+#: rapid/rapid.py:6273
 msgid "list photo and video file extensions the program recognizes and exit"
 msgstr ""
 "A program által felismerhető kép és videó kiterjesztések listázása, majd "
 "kilépés"
 
-#: rapid/rapid.py:6156
+#: rapid/rapid.py:6274
 msgid "reset all program settings and preferences and exit"
 msgstr "A program beállításainak visszaállítása, majd kilépés"
 
-#: rapid/rapid.py:6165
+#: rapid/rapid.py:6283
 msgid "Photos:"
 msgstr "Fényképek:"
 
-#: rapid/rapid.py:6165
+#: rapid/rapid.py:6283
 msgid "Videos:"
 msgstr "Videók:"
 
-#: rapid/rapid.py:6170
+#: rapid/rapid.py:6288
 #, python-format
 msgid "and %s"
 msgstr "és %s"
 
-#: rapid/rapid.py:6178
+#: rapid/rapid.py:6296
 msgid "All settings and preferences have been reset"
 msgstr "Minden beállítás visszaállításra került"
 
 #. Which volume management code is being used (GIO or GnomeVFS)
-#: rapid/rapid.py:6182 rapid/rapid.py:6183 rapid/rapid.py:6185
-#: rapid/rapid.py:6190 rapid/rapid.py:6194
+#: rapid/rapid.py:6300 rapid/rapid.py:6301 rapid/rapid.py:6303
+#: rapid/rapid.py:6308 rapid/rapid.py:6312
 msgid "Using"
 msgstr "Használatban"
 
-#: rapid/rapid.py:6187
+#: rapid/rapid.py:6305
 msgid "\n"
 msgstr "\n"
 
 #. this application is already running
-#: rapid/rapid.py:6211
+#: rapid/rapid.py:6329
 #, python-format
 msgid "%s is already running"
 msgstr "A %s már fut."
@@ -1745,7 +1775,7 @@ msgstr "Felülírás"
 
 #: rapid/glade3/rapid.glade.h:63
 msgid "P_review Columns"
-msgstr ""
+msgstr "_Oszlopok előnézete"
 
 #: rapid/glade3/rapid.glade.h:64
 msgid "Photo Folders"
@@ -1765,7 +1795,7 @@ msgstr "Beállítások: Gyors Fénykép Letöltő"
 
 #: rapid/glade3/rapid.glade.h:68
 msgid "Preview _Folders"
-msgstr ""
+msgstr "Könyvtárak_előnézete"
 
 #: rapid/glade3/rapid.glade.h:70
 msgid "R_emove All"
@@ -1806,27 +1836,27 @@ msgstr "Átnevezési lehetőségek"
 
 #: rapid/glade3/rapid.glade.h:78
 msgid "Se_lect None"
-msgstr ""
+msgstr "_Kijelölés nélkül"
 
 #: rapid/glade3/rapid.glade.h:79
 msgid "Select All Pho_tos"
-msgstr ""
+msgstr "Minden kép_kijelölése"
 
 #: rapid/glade3/rapid.glade.h:80
 msgid "Select All Vi_deos"
-msgstr ""
+msgstr "Minden vi_deó kijelölése"
 
 #: rapid/glade3/rapid.glade.h:81
 msgid "Select All Wit_h Job Code"
-msgstr ""
+msgstr "Minden kijelölése_munka-kód szerint"
 
 #: rapid/glade3/rapid.glade.h:82
 msgid "Select All Without _Job Code"
-msgstr ""
+msgstr "Minden kijelölése_munka-kód nélkül"
 
 #: rapid/glade3/rapid.glade.h:83
 msgid "Select _All"
-msgstr ""
+msgstr "Összes _kijelölése"
 
 #: rapid/glade3/rapid.glade.h:84
 msgid "Skip"
@@ -1911,6 +1941,8 @@ msgid ""
 "When a photo or video of the same name has already been downloaded, choose "
 "whether to skip downloading the file, or to add a unique indentifier."
 msgstr ""
+"Ha egyező nevű kép vagy videó már le lett töltve, ajánlja fel a kihagyást, "
+"vagy a letöltés folytatását egyedi azonosító hozzáadásával"
 
 #: rapid/glade3/rapid.glade.h:102
 msgid ""
@@ -1938,7 +1970,7 @@ msgstr "_Kész letöltések kiürítése"
 
 #: rapid/glade3/rapid.glade.h:106
 msgid "_Device"
-msgstr ""
+msgstr "_Eszköz"
 
 #: rapid/glade3/rapid.glade.h:107
 msgid "_Error Log"
@@ -1946,11 +1978,11 @@ msgstr "_Hibanapló"
 
 #: rapid/glade3/rapid.glade.h:108
 msgid "_File"
-msgstr ""
+msgstr "_Fájl"
 
 #: rapid/glade3/rapid.glade.h:109
 msgid "_Filename"
-msgstr ""
+msgstr "_Fájlnév"
 
 #: rapid/glade3/rapid.glade.h:110
 msgid "_Get Help Online..."
@@ -1966,11 +1998,11 @@ msgstr "_Küldjön adományt..."
 
 #: rapid/glade3/rapid.glade.h:113
 msgid "_Path"
-msgstr ""
+msgstr "_Útvonal"
 
 #: rapid/glade3/rapid.glade.h:114
 msgid "_Preview"
-msgstr ""
+msgstr "_Előnézet"
 
 #: rapid/glade3/rapid.glade.h:115
 msgid "_Report a Problem..."
@@ -1978,11 +2010,11 @@ msgstr "_Hibajelentés küldése..."
 
 #: rapid/glade3/rapid.glade.h:116
 msgid "_Select"
-msgstr ""
+msgstr "_Kijelölés"
 
 #: rapid/glade3/rapid.glade.h:117
 msgid "_Size"
-msgstr ""
+msgstr "_Méret"
 
 #: rapid/glade3/rapid.glade.h:118
 msgid "_Translate this Application..."
@@ -1990,7 +2022,7 @@ msgstr "_Fordítás"
 
 #: rapid/glade3/rapid.glade.h:119
 msgid "_Type"
-msgstr ""
+msgstr "_Típus"
 
 #: rapid/glade3/rapid.glade.h:120
 msgid "_View"

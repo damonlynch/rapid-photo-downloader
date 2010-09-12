@@ -1,3 +1,15 @@
+Version 0.3.2
+-------------
+
+2010-09-12
+
+Added Norwegian Nynorsk translation. Updated Chinese, Finnish, Hungarian, Dutch, 
+Occitan (post 1500), Polish, Brazilian Portuguese, and Russian translations.
+
+Fixed crash on startup when checking for freespace, and the download folder does
+not exist.
+
+
 Version 0.3.1
 -------------
 
@@ -14,8 +26,8 @@ higher).
 
 Add Chinese (simplified) translation. A big thanks goes out to the Ubuntu 
 Chinese translation team. Partial translations of Bulgarian, Japanese, Occitan 
-(post 1500), Persian, Portugese (Brazilian), and Turkish have been added. In the
-past only translations that were largely finished were added, but hopefully 
+(post 1500), Persian, Portuguese (Brazilian), and Turkish have been added. In
+the past only translations that were largely finished were added, but hopefully 
 adding incomplete translations will speed up their completion. Updated Finnish, 
 French, Hungarian, Russian, Serbian and Spanish translations.
 
