@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-08-13 19:03+0500\n"
-"PO-Revision-Date: 2010-08-30 13:29+0000\n"
-"Last-Translator: Matheus de Araújo <Unknown>\n"
+"PO-Revision-Date: 2010-09-13 14:27+0000\n"
+"Last-Translator: Tiago Hillebrandt <tiagoscd@yahoo.com.br>\n"
 "Language-Team: Brazilian Portuguese <pt_BR@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-09-05 14:32+0000\n"
+"X-Launchpad-Export-Date: 2010-09-23 00:44+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #. Translators: if neccessary, for guidance in how to translate this program, you may see http://damonlynch.net/translate.html
@@ -24,7 +24,7 @@ msgstr "Rapid Photo Downloader"
 
 #: rapid/rapid.py:456
 msgid "New York"
-msgstr "Nova York"
+msgstr "Nova Iorque"
 
 #: rapid/rapid.py:457
 msgid "Manila"
@@ -100,7 +100,7 @@ msgstr "Valor de \"Descargas Hoje\" é inválido.\n"
 
 #: rapid/rapid.py:494
 msgid "Resetting value to zero.\n"
-msgstr "A restabelecer valor em zero.\n"
+msgstr "Redefinindo valor para zero.\n"
 
 #: rapid/rapid.py:533
 msgid "'Start of day' preference value is corrupted.\n"
@@ -144,19 +144,19 @@ msgstr ""
 
 #: rapid/rapid.py:813 rapid/rapid.py:1544
 msgid "photos and videos"
-msgstr "fotografias e vídeos"
+msgstr "fotos e vídeos"
 
 #: rapid/rapid.py:815 rapid/rapid.py:1554 rapid/rapid.py:1679
 msgid "photos"
-msgstr "fotografias"
+msgstr "fotos"
 
 #: rapid/rapid.py:948
 msgid "Select a folder to download photos to"
-msgstr "Escolha o destino da descarga de fotografias"
+msgstr "Selecione o diretório para baixar as fotos para"
 
 #: rapid/rapid.py:966
 msgid "Select a folder to download videos to"
-msgstr "Escolha o destino da descarga de vídeos"
+msgstr "Selecione o diretório para baixar os vídeos para"
 
 #: rapid/rapid.py:1048
 #, python-format
@@ -231,7 +231,7 @@ msgstr ""
 #. check subfolder preferences for bad values
 #: rapid/rapid.py:1282 rapid/rapid.py:1556
 msgid "photo"
-msgstr "fotografia"
+msgstr "foto"
 
 #: rapid/rapid.py:1283 rapid/rapid.py:1551
 msgid "video"
@@ -249,7 +249,7 @@ msgstr "disco_externo_2"
 
 #: rapid/rapid.py:1546 rapid/rapid.py:1677
 msgid "photos or videos"
-msgstr "fotografias ou vídeos"
+msgstr "fotos ou vídeos"
 
 #: rapid/rapid.py:1549
 msgid "videos"
@@ -297,7 +297,7 @@ msgstr "subdiretório"
 #. It maybe displayed only briefly if the contents of the device being scanned is small.
 #: rapid/rapid.py:1693
 msgid "scanning..."
-msgstr "a executar varredura..."
+msgstr "verificando..."
 
 #: rapid/rapid.py:1804
 msgid "The following download path could not be created:\n"
@@ -447,7 +447,7 @@ msgstr ""
 
 #: rapid/rapid.py:2246
 msgid "Photo has already been downloaded"
-msgstr "A fotografia já foi descarregada"
+msgstr "A foto já foi baixada"
 
 #: rapid/rapid.py:2247 rapid/rapid.py:2646
 #, python-format
@@ -489,7 +489,7 @@ msgstr "Erro ao criar cópias de segurança"
 #: rapid/rapid.py:2550 rapid/rapid.py:2578
 #, python-format
 msgid "Destination directory could not be created: %(directory)s\n"
-msgstr "Diretório destinatário não pôde ser criado: %(directory)s\n"
+msgstr "Diretório de destino não pôde ser criado: %(directory)s\n"
 
 #: rapid/rapid.py:2554 rapid/rapid.py:2613
 #, python-format
@@ -532,12 +532,12 @@ msgstr ""
 #: rapid/rapid.py:2777
 #, python-format
 msgid "Download has started from %s"
-msgstr "A descarga teve início em %s"
+msgstr "Transferência foi iniciada em %s"
 
 #: rapid/rapid.py:2780
 #, python-format
 msgid "Attempting to download %s files"
-msgstr "A tentar a descarga de %s arquivos"
+msgstr "Tentando baixar %s arquivos"
 
 #. reset the progress bar to update the status of this download attempt
 #: rapid/rapid.py:2813 rapid/rapid.py:2880
@@ -552,7 +552,7 @@ msgstr "%(number)s de %(total)s %(filetypes)s (%(remaining)s restantes)"
 
 #: rapid/rapid.py:2901 rapid/rapid.py:2905
 msgid "Could not delete photo or video from device"
-msgstr "Não foi possível apagar as fotografias ou vídeos do dispositivo"
+msgstr "Não foi possível apagar as fotos ou vídeos do dispositivo"
 
 #: rapid/rapid.py:2902
 #, python-format
@@ -560,13 +560,13 @@ msgid ""
 "Photo: %(source)s\n"
 "Error: %(errno)s %(strerror)s"
 msgstr ""
-"Fotografia: %(source)s\n"
+"Foto: %(source)s\n"
 "Erro: %(errno)s %(strerror)s"
 
 #: rapid/rapid.py:2906
 #, python-format
 msgid "Photo: %(source)s"
-msgstr "Fotografia: %(source)s"
+msgstr "Foto: %(source)s"
 
 #: rapid/rapid.py:2908
 #, python-format
@@ -576,7 +576,7 @@ msgstr "Foram apagados(as) %(number)i %(filetypes)s do dispositivo"
 #: rapid/rapid.py:2921
 #, python-format
 msgid "Download complete from %s"
-msgstr "Descarga completa de %s"
+msgstr "Transferência concluída de %s"
 
 #. Device refers to a thing like a camera, memory card in its reader, external hard drive, Portable Storage Device, etc.
 #: rapid/rapid.py:3036 rapid/rapid.py:3505
@@ -590,11 +590,11 @@ msgstr "Tamanho"
 
 #: rapid/rapid.py:3044
 msgid "Download Progress"
-msgstr "Progresso da descarga"
+msgstr "Progresso da transferência"
 
 #: rapid/rapid.py:3132
 msgid "Downloading From Cameras"
-msgstr "A descarregar de câmeras"
+msgstr "Baixando das câmeras"
 
 #: rapid/rapid.py:3138
 msgid "Downloading directly from a camera may work poorly or not at all"
@@ -628,13 +628,13 @@ msgstr ""
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#usedeviceprompt
 #: rapid/rapid.py:3216
 msgid "_Remember this choice"
-msgstr "_Recordar esta escolha"
+msgstr "_Relembrar esta escolha"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#usedeviceprompt
 #: rapid/rapid.py:3253
 #, python-format
 msgid "%s selected for downloading from"
-msgstr "%s selecionado para descarga"
+msgstr "%s selecionado para transferência de"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#usedeviceprompt
 #: rapid/rapid.py:3256
@@ -645,7 +645,7 @@ msgstr "Este dispositivo ou partição será recordado para futuras descargas"
 #: rapid/rapid.py:3259
 #, python-format
 msgid "%s rejected as a download device"
-msgstr "%s não será origem de descargas"
+msgstr "%s foi rejeitado como um dispositivo de transferência"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#usedeviceprompt
 #: rapid/rapid.py:3262

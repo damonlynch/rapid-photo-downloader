@@ -10,6 +10,10 @@ Downloader will issue a warning.
 
 Fixed bugs related to missing video download directory at program startup.
 
+Added Norwegian Bokmal and Portuguese translations. Updated Brazilian 
+Portuguese, Italian, Serbian, and Slovak translations.
+
+
 Version 0.3.2
 -------------
 
