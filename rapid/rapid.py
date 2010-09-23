@@ -1673,6 +1673,9 @@ class CopyPhotos(Thread):
         self.scanResultsStale = False # name and subfolder
         self.scanResultsStaleDownloadFolder = False #download folder only
         
+        self.noErrors = self.noWarnings = 0
+        self.videoTempWorkingDir = self.photoTempWorkingDir = ''
+        
         if DOWNLOAD_VIDEO:
             self.types_searched_for = _('photos or videos')
         else:
@@ -1799,15 +1802,15 @@ class CopyPhotos(Thread):
                 return True
                     
             except:
-                if notifyOnError:
-                    display_queue.put((media_collection_treeview.removeCard,  (self.thread_id, )))
-                    msg = _("The following download path could not be created:\n")
-                    msg += _("%(path)s: ") % {'path': path}
-                    logError(config.CRITICAL_ERROR, _("Download cannot proceed"), msg)
-                    cmd_line(_("Download cannot proceed"))
-                    cmd_line(msg)
-                    display_queue.put((self.parentApp.downloadFailed,  (self.thread_id, )))
-                    display_queue.close("rw")                     
+
+                display_queue.put((media_collection_treeview.removeCard,  (self.thread_id, )))
+                msg = _("The following download path could not be created:\n")
+                msg += _("%(path)s: ") % {'path': path}
+                logError(config.CRITICAL_ERROR, _("Download cannot proceed"), msg)
+                cmd_line(_("Download cannot proceed"))
+                cmd_line(msg)
+                display_queue.put((self.parentApp.downloadFailed,  (self.thread_id, )))
+                display_queue.close("rw")                     
                 return False                
                 
         def getPrefs(notifyOnError):
@@ -6268,6 +6271,7 @@ def start ():
     # Translators: this text is displayed to the user when they request information on the command line options. 
     # The text %default should not be modified or left out.
     parser.add_option("-v",  "--verbose",  action="store_true", dest="verbose",  help=_("display program information on the command line as the program runs (default: %default)"))
+    parser.add_option("-d", "--debug", action="store_true", dest="debug", help=_('display debuggin information when run from the command line'))
     parser.add_option("-q", "--quiet",  action="store_false", dest="verbose",  help=_("only output errors to the command line"))
     # image file extensions are recognized RAW files plus TIFF and JPG
     parser.add_option("-e",  "--extensions", action="store_true", dest="extensions", help=_("list photo and video file extensions the program recognizes and exit"))
@@ -6275,6 +6279,9 @@ def start ():
     (options, args) = parser.parse_args()
     global verbose
     verbose = options.verbose
+    
+    global debug_info
+    debug_info = options.debug
     
     if verbose:
         atexit.register(programStatus)

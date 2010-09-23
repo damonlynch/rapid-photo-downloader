@@ -1,3 +1,15 @@
+Version 0.3.3
+-------------
+
+2010-1x-xx
+
+Fixed bug #640722: Added preliminary support for Samusung SRW files. Current
+versions of Exiv2 and pyexiv2 can read some but not all metadata from this new
+RAW format. If you try to use metadata that cannot be extracted, Rapid Photo 
+Downloader will issue a warning.
+
+Fixed bugs related to missing video download directory at program startup.
+
 Version 0.3.2
 -------------
 

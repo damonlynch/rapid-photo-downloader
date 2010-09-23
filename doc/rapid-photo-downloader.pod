@@ -37,6 +37,10 @@ Show help message and exit.
 
 Displays program information on the command line as the program runs.
 
+=item B<-d, --debug>
+
+Displays debugging information on the command line as the program runs
+
 =item B<-q, --quiet>
 
 Only display output errors and warnings to the command line as the program runs.

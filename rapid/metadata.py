@@ -92,7 +92,7 @@ def exiv2_version_info():
     return __version_info(exiv2_version)    
 
 RAW_FILE_EXTENSIONS = ['arw', 'dcr', 'cr2', 'crw',  'dng', 'mos', 'mrw', 
-                        'nef', 'orf', 'pef', 'raf', 'raw', 'sr2']
+                        'nef', 'orf', 'pef', 'raf', 'raw', 'sr2', 'srw']
 
 #exiv2 0.18.1 introduces support for Panasonic .RW2 files
 #pyexiv2 in combination with exiv2 0.18 segfaults when trying to read an

@@ -1,3 +1,14 @@
+rapid-photo-downloader (0.3.2-0ubuntu1~ppa1) hardy; urgency=low
+
+  * Added Norwegian Nynorsk translation. Updated Chinese,
+    Finnish, Hungarian, Dutch, Occitan (post 1500), Polish, Brazilian 
+    Portuguese, and Russian translations.
+
+  * Fixed crash on startup when checking for freespace, and the 
+    download folder does not exist.
+
+ -- Damon Lynch <damonlynch@gmail.com>  Sun, 12 Sep 2010 16:31:25 -0500
+
 rapid-photo-downloader (0.3.1-0ubuntu1~ppa1) hardy; urgency=low
 
   * The main window now works more effectively on tiny screens like
