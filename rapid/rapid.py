@@ -1802,7 +1802,6 @@ class CopyPhotos(Thread):
                 return True
                     
             except:
-
                 display_queue.put((media_collection_treeview.removeCard,  (self.thread_id, )))
                 msg = _("The following download path could not be created:\n")
                 msg += _("%(path)s: ") % {'path': path}
@@ -3716,6 +3715,19 @@ class SelectionTreeView(gtk.TreeView):
             type_icon = self.icon_video
 
         status_icon = self.get_status_icon(mediaFile.status)
+        
+        if debug_info:
+            cmd_line('Thumbnail icon: %s' % thumbnail_icon)
+            cmd_line('Name: %s' % name)
+            cmd_line('Timestamp: %s' % timestamp)
+            cmd_line('Date: %s' % date_human_readable)
+            cmd_line('Size: %s %s' % (size, common.formatSizeForUser(size)))
+            cmd_line('Is an image: %s' % mediaFile.isImage)
+            cmd_line('Status: %s' % self.status_human_readable(mediaFile))
+            cmd_line('Path: %s' % mediaFile.path)
+            cmd_line('Device name: %s' % mediaFile.deviceName)
+            cmd_line('Thread: %s' % mediaFile.thread_id)
+            cmd_line(' ')
 
         iter = self.liststore.append((thumbnail_icon, name, timestamp, date_human_readable, size, common.formatSizeForUser(size), mediaFile.isImage, type_icon, '', mediaFile, status_icon, mediaFile.status, mediaFile.path, mediaFile.deviceName, mediaFile.thread_id))
         
@@ -3914,29 +3926,29 @@ class SelectionTreeView(gtk.TreeView):
         self.videoRenameUsesJobCode = rn.usesJobCode(self.rapidApp.prefs.video_rename)
         self.videoSubfolderUsesJobCode = rn.usesJobCode(self.rapidApp.prefs.video_subfolder)        
     
-    def show_preview(self, iter):
+    
+    def status_human_readable(self, mediaFile):
+        if mediaFile.status == STATUS_DOWNLOADED:
+            v = _('%(filetype)s was downloaded successfully') % {'filetype': mediaFile.displayNameCap}
+        elif mediaFile.status == STATUS_DOWNLOAD_FAILED:
+            v = _('%(filetype)s was not downloaded') % {'filetype': mediaFile.displayNameCap}
+        elif mediaFile.status == STATUS_DOWNLOADED_WITH_WARNING:
+            v = _('%(filetype)s was downloaded with warnings') % {'filetype': mediaFile.displayNameCap}
+        elif mediaFile.status == STATUS_BACKUP_PROBLEM:
+            v = _('%(filetype)s was downloaded but there were problems backing up') % {'filetype': mediaFile.displayNameCap}
+        elif mediaFile.status == STATUS_DOWNLOAD_AND_BACKUP_FAILED:
+            v = _('%(filetype)s was neither downloaded nor backed up') % {'filetype': mediaFile.displayNameCap}                
+        elif mediaFile.status == STATUS_NOT_DOWNLOADED:
+            v = _('%(filetype)s is ready to be downloaded') % {'filetype': mediaFile.displayNameCap}
+        elif mediaFile.status == STATUS_DOWNLOAD_PENDING:
+            v = _('%(filetype)s is about to be downloaded') % {'filetype': mediaFile.displayNameCap}
+        elif mediaFile.status == STATUS_WARNING:
+            v = _('%(filetype)s will be downloaded with warnings')% {'filetype': mediaFile.displayNameCap}
+        elif mediaFile.status == STATUS_CANNOT_DOWNLOAD:
+            v = _('%(filetype)s cannot be downloaded') % {'filetype': mediaFile.displayNameCap}
+        return v    
         
-        def status_human_readable(mediaFile):
-            if mediaFile.status == STATUS_DOWNLOADED:
-                v = _('%(filetype)s was downloaded successfully') % {'filetype': mediaFile.displayNameCap}
-            elif mediaFile.status == STATUS_DOWNLOAD_FAILED:
-                v = _('%(filetype)s was not downloaded') % {'filetype': mediaFile.displayNameCap}
-            elif mediaFile.status == STATUS_DOWNLOADED_WITH_WARNING:
-                v = _('%(filetype)s was downloaded with warnings') % {'filetype': mediaFile.displayNameCap}
-            elif mediaFile.status == STATUS_BACKUP_PROBLEM:
-                v = _('%(filetype)s was downloaded but there were problems backing up') % {'filetype': mediaFile.displayNameCap}
-            elif mediaFile.status == STATUS_DOWNLOAD_AND_BACKUP_FAILED:
-                v = _('%(filetype)s was neither downloaded nor backed up') % {'filetype': mediaFile.displayNameCap}                
-            elif mediaFile.status == STATUS_NOT_DOWNLOADED:
-                v = _('%(filetype)s is ready to be downloaded') % {'filetype': mediaFile.displayNameCap}
-            elif mediaFile.status == STATUS_DOWNLOAD_PENDING:
-                v = _('%(filetype)s is about to be downloaded') % {'filetype': mediaFile.displayNameCap}
-            elif mediaFile.status == STATUS_WARNING:
-                v = _('%(filetype)s will be downloaded with warnings')% {'filetype': mediaFile.displayNameCap}
-            elif mediaFile.status == STATUS_CANNOT_DOWNLOAD:
-                v = _('%(filetype)s cannot be downloaded') % {'filetype': mediaFile.displayNameCap}
-            return v
-                
+    def show_preview(self, iter):
             
         if not iter:
             # clear everything except the label Preview at the top
@@ -4020,7 +4032,7 @@ class SelectionTreeView(gtk.TreeView):
                 self.parentApp.preview_destination_path_label.set_text(mediaFile.downloadPath)
                 self.parentApp.preview_destination_path_label.set_tooltip_text(mediaFile.downloadPath)
             
-            status_text = status_human_readable(mediaFile)
+            status_text = self.status_human_readable(mediaFile)
             self.parentApp.preview_status_icon.set_from_pixbuf(self.get_status_icon(mediaFile.status, preview=True))
             self.parentApp.preview_status_label.set_markup('<b>' + status_text + '</b>')
             self.parentApp.preview_status_label.set_tooltip_text(status_text)
@@ -6282,6 +6294,7 @@ def start ():
     
     global debug_info
     debug_info = options.debug
+    debug_info = True
     
     if verbose:
         atexit.register(programStatus)

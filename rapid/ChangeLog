@@ -10,6 +10,9 @@ Downloader will issue a warning.
 
 Fixed bugs related to missing video download directory at program startup.
 
+Added command line option to output to the terminal information usesful for 
+debugging.
+
 Added Norwegian Bokmal and Portuguese translations. Updated Brazilian 
 Portuguese, Italian, Serbian, and Slovak translations.
 
