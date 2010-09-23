@@ -6294,7 +6294,8 @@ def start ():
     
     global debug_info
     debug_info = options.debug
-    debug_info = True
+    if debug_info:
+        verbose = True
     
     if verbose:
         atexit.register(programStatus)
