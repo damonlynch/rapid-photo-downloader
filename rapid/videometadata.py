@@ -54,7 +54,6 @@ if DOWNLOAD_VIDEO:
 
     
     def version_info():
-        #return str(kaa.metadata.VERSION)
         from hachoir_metadata.version import VERSION
         return VERSION
         
@@ -92,17 +91,7 @@ if DOWNLOAD_VIDEO:
             
         def _kaa_get(self, key, missing, stream=None):
             if not hasattr(self, 'info'):
-                try:
-                    #~ from kaa.metadata import parse as kaa_parse
-                    self.info = kaa.metadata.parse(self.filename)
-                    #~ self.info = kaa_parse(self.filename)
-                except:
-                    self.info = None
-                    cmd_line("Warning: cannot load kaa metadata")
-            if hasattr(self, 'info'):
-                print "loaded kaa metadata info"
-            else:
-                print "DID NOT LOAD kaa metadata info"
+                self.info = kaa.metadata.parse(self.filename)
             if self.info:
                 if stream != None:
                     v = self.info['video'][stream][key]

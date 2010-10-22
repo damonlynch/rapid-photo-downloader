@@ -1898,6 +1898,9 @@ class CopyPhotos(Thread):
                 return (download, isImage, isVideo)
                 
             def addFile(name, path, size, modificationTime, device, volume, isImage):
+                #~ if debug_info:
+                    #~ cmd_line("Scanning %s" % name)
+                    
                 if isImage:
                     downloadFolder = self.prefs.download_folder
                 else:

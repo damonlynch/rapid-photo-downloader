@@ -1416,7 +1416,7 @@ def getVideoMetadataComponent(video):
         elif video.L2 == LOWERCASE:
             v = v.lower()
     if not v:
-        self.problem.add_problem(self.component, pn.MISSING_METADATA, _(video.L1))
+        video.problem.add_problem(video.component, pn.MISSING_METADATA, _(video.L1))
     return v
 
 class VideoRenamePreferences(ImageRenamePreferences):
