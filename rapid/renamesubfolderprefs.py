@@ -1405,7 +1405,7 @@ def getVideoMetadataComponent(video):
     elif video.L1 == HEIGHT:
         v = video.metadata.height()
     elif video.L1 == FPS:
-        v = video.metadata.fps()
+        v = video.metadata.framesPerSecond()
     elif video.L1 == LENGTH:
         v = video.metadata.length()
     else:

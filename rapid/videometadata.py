@@ -21,6 +21,7 @@ DOWNLOAD_VIDEO = True
 
 import os
 import datetime
+import time
 import subprocess
 import tempfile
 
@@ -31,6 +32,9 @@ from filmstrip import add_filmstrip
 
 try:
     import kaa.metadata
+    from hachoir_core.cmd_line import unicodeFilename
+    from hachoir_parser import createParser
+    from hachoir_metadata import extractMetadata
 except ImportError:
     DOWNLOAD_VIDEO = False
 
@@ -50,7 +54,9 @@ if DOWNLOAD_VIDEO:
 
     
     def version_info():
-        return str(kaa.metadata.VERSION)
+        #return str(kaa.metadata.VERSION)
+        from hachoir_metadata.version import VERSION
+        return VERSION
         
     def get_video_THM_file(fullFileName):
         """
@@ -74,62 +80,91 @@ if DOWNLOAD_VIDEO:
     
     class VideoMetaData():
         def __init__(self, filename):
-            self.info = kaa.metadata.parse(filename)
+            """
+            Initialize by loading metadata using hachoir
+            """
+            
             self.filename = filename
+            self.u_filename = unicodeFilename(filename)
+            self.parser = createParser(self.u_filename, self.filename)
+            self.metadata = extractMetadata(self.parser)
             
-        def rpd_keys(self):
-            return self.info.keys()
             
-        def _get(self, key, missing, stream=None):
-            if stream != None:
-                v = self.info['video'][stream][key]
+        def _kaa_get(self, key, missing, stream=None):
+            if not hasattr(self, 'info'):
+                try:
+                    #~ from kaa.metadata import parse as kaa_parse
+                    self.info = kaa.metadata.parse(self.filename)
+                    #~ self.info = kaa_parse(self.filename)
+                except:
+                    self.info = None
+                    cmd_line("Warning: cannot load kaa metadata")
+            if hasattr(self, 'info'):
+                print "loaded kaa metadata info"
             else:
-                v = self.info[key]
+                print "DID NOT LOAD kaa metadata info"
+            if self.info:
+                if stream != None:
+                    v = self.info['video'][stream][key]
+                else:
+                    v = self.info[key]
+            else:
+                v = None
             if v:
                 return str(v)
             else:
-                return missing
+                return missing                
+        
+        def _get(self, key, missing):
+            try:
+                v = self.metadata.get(key)
+            except:
+                v = missing
+            return v
             
         def dateTime(self, missing=''):
-            dt = self._get('timestamp', missing=None)
-            if dt:
-                try:
-                    return datetime.datetime.fromtimestamp(self.info['timestamp'])
-                except:
-                    return missing
-            else:
-                return missing
+            return self._get('creation_date', missing)
                 
         def timeStamp(self, missing=''):
             """
             Returns a float value representing the time stamp, if it exists
             """
-            v = self._get('timestamp', missing=missing)
-            try:
-                v = float(v)
-            except:
+            dt = self.dateTime(missing=None)
+            if dt:
+                # convert it to a timestamp (not optimal, but better than nothing!)
+                v = time.mktime(dt.timetuple())
+            else:
                 v = missing
             return v
             
         def codec(self, stream=0, missing=''):
-            return self._get('codec', missing, stream)
+            return self._kaa_get('codec', missing, stream)
             
         def length(self, missing=''):
-            l = self._get('length', missing)
-            try:
-                l = '%.0f' % float(l)
-            except:
-                pass
+            """
+            return the duration (length) of the video, rounded to the nearest second, in string format
+            """
+            delta = self.metadata.get('duration')
+            l = '%.0f' % (86400 * delta.days + delta.seconds + float('.%s' % delta.microseconds))
             return l
             
-        def width(self, stream=0, missing=''):
-            return self._get('width', missing, stream)
             
-        def height(self, stream=0, missing=''):
-            return self._get('height', missing, stream)
+        def width(self, missing=''):
+            v = self._get('width', missing)
+            if v != None:
+                return str(v)
+            else:
+                return None
+            
+        def height(self, missing=''):
+            v = self._get('height', missing)
+            if v != None:
+                return str(v)
+            else:
+                return None
             
         def framesPerSecond(self, stream=0, missing=''):
-            fps = self._get('fps', missing, stream)
+            fps = self._kaa_get('fps', missing, stream)
             try:
                 fps = '%.0f' % float(fps)
             except:
@@ -137,7 +172,7 @@ if DOWNLOAD_VIDEO:
             return fps
         
         def fourcc(self, stream=0, missing=''):
-            return self._get('fourcc', missing, stream)
+            return self._kaa_get('fourcc', missing, stream)
             
         def getThumbnailData(self, size, tempWorkingDir):
             """

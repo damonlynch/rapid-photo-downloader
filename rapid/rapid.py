@@ -3682,6 +3682,8 @@ class SelectionTreeView(gtk.TreeView):
             yield self.liststore.get_iter(path)
     
     def add_file(self, mediaFile):
+        if debug_info:
+            cmd_line('Adding file %s' % mediaFile.fullFileName)
         if mediaFile.metadata:
             date = mediaFile.dateTime()
             timestamp = mediaFile.metadata.timeStamp(missing=None)
@@ -6321,7 +6323,7 @@ def start ():
     cmd_line(_("Using") + " pyexiv2 " + metadata.version_info())
     cmd_line(_("Using") + " exiv2 " + metadata.exiv2_version_info())
     if DOWNLOAD_VIDEO:
-        cmd_line(_("Using") + " kaa " + videometadata.version_info())
+        cmd_line(_("Using") + " hachoir " + videometadata.version_info())
     else:
         cmd_line(_("\n" + "Video downloading functionality disabled.\nTo download videos, please install the kaa metadata package for python.") + "\n")
         

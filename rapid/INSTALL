@@ -22,15 +22,17 @@ types).
 
 If you want to download videos, you can install:
 
+- python-hachoir-metadata
 - python-kaa-metadata
 - ffmpegthumbnailer
 
-kaa metadata is required to download videos. ffmpegthumbnailer is used only to 
+hachoir metadata is required to download videos. kaa metadata is used to
+extract additional metadata from videos. ffmpegthumbnailer is used only to 
 display thumbnail images as the download occurs. This is a useful feature, and
 if you can install it, it is recommended.
 
-kaa metadata and ffmpegthumbnailer are optional. The program will run without
-them.
+hachoir metadata, kaa metadata and ffmpegthumbnailer are optional. The program 
+will run without them.
 
 To start from a fairly basic system, I suggest the following:
 

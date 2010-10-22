@@ -174,6 +174,7 @@ class MediaFile:
                 self.metadata.read()
             else:
                 self.metadata = videometadata.VideoMetaData(self.fullFileName)
+
                 
     def dateTime(self, alternative_if_date_missing=None):
         date = None

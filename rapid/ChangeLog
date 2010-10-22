@@ -3,6 +3,13 @@ Version 0.3.3
 
 2010-1x-xx
 
+Hachoir-metadata is now used to extract selected metadata from video files. It 
+has less bugs than kaa-metadata, and is better maintained. One benefit of this
+change is that more video file types can have their metadata extracted. Another
+is that the video creation date is now correctly read (the creation time read by 
+kaa metadata was sometimes wrong by a few hours). Kaa-metadata is still used to
+extract some the codec, fourcc and frames per second (FPS) metadata.
+
 Fixed bug #640722: Added preliminary support for Samusung SRW files. Current
 versions of Exiv2 and pyexiv2 can read some but not all metadata from this new
 RAW format. If you try to use metadata that cannot be extracted, Rapid Photo 
