@@ -10,6 +10,8 @@ is that the video creation date is now correctly read (the creation time read by
 kaa metadata was sometimes wrong by a few hours). Kaa-metadata is still used to
 extract some the codec, fourcc and frames per second (FPS) metadata.
 
+Added support for mod and tod video files. 
+
 Fixed bug #640722: Added preliminary support for Samusung SRW files. Current
 versions of Exiv2 and pyexiv2 can read some but not all metadata from this new
 RAW format. If you try to use metadata that cannot be extracted, Rapid Photo 
