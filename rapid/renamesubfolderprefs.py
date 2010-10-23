@@ -98,6 +98,7 @@ IMAGE_DATE = 'Image date'
 TODAY = 'Today'
 YESTERDAY = 'Yesterday'
 VIDEO_DATE = 'Video date'
+DOWNLOAD_TIME = 'Download time'
 
 # File name 
 NAME_EXTENSION = 'Name + extension'
@@ -200,6 +201,8 @@ class i18TranslateMeThanks:
         _('Video date')
         _('Today')
         _('Yesterday')
+        # Translators: Download time is the time and date that the download started (when the user clicked the Download button)
+        _('Download time')
         # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamefilename
         _('Name + extension')
         # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamefilename
@@ -357,13 +360,14 @@ LIST_SHUTTER_COUNT_L2 = [
                      ]
 
 # Level 1
-LIST_DATE_TIME_L1 = [IMAGE_DATE, TODAY, YESTERDAY]
-LIST_VIDEO_DATE_TIME_L1 = [VIDEO_DATE, TODAY, YESTERDAY]
+LIST_DATE_TIME_L1 = [IMAGE_DATE, TODAY, YESTERDAY, DOWNLOAD_TIME]
+LIST_VIDEO_DATE_TIME_L1 = [VIDEO_DATE, TODAY, YESTERDAY, DOWNLOAD_TIME]
 
 DICT_DATE_TIME_L1 = {
                     IMAGE_DATE: LIST_IMAGE_DATE_TIME_L2,
                     TODAY: LIST_DATE_TIME_L2,
                     YESTERDAY: LIST_DATE_TIME_L2,
+                    DOWNLOAD_TIME: LIST_DATE_TIME_L2,
                     ORDER_KEY: LIST_DATE_TIME_L1
                   }
                   
@@ -371,6 +375,7 @@ VIDEO_DICT_DATE_TIME_L1 = {
                     VIDEO_DATE: LIST_IMAGE_DATE_TIME_L2,
                     TODAY: LIST_DATE_TIME_L2,
                     YESTERDAY: LIST_DATE_TIME_L2,
+                    DOWNLOAD_TIME: LIST_DATE_TIME_L2,
                     ORDER_KEY: LIST_VIDEO_DATE_TIME_L1
                   }
 
@@ -918,10 +923,11 @@ class ImageRenamePreferences:
         return v
             
 
-    def setJobCode(self,  job_code):
+    def setJobCode(self, job_code):
         self.job_code = job_code
         
-    
+    def setDownloadStartTime(self, download_start_time):
+        self.download_start_time = download_start_time
 
     def _getDateComponent(self):
         """
@@ -946,6 +952,8 @@ class ImageRenamePreferences:
         elif self.L1 == YESTERDAY:
             delta = datetime.timedelta(days = 1)
             d = datetime.datetime.now() - delta
+        elif self.L1 == DOWNLOAD_TIME:
+            d = self.download_start_time
         else:
             raise("Date options invalid")
 

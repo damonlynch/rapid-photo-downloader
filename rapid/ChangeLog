@@ -10,12 +10,16 @@ is that the video creation date is now correctly read (the creation time read by
 kaa metadata was sometimes wrong by a few hours). Kaa-metadata is still used to
 extract some the codec, fourcc and frames per second (FPS) metadata.
 
-Added support for mod and tod video files. 
+Added support for mod, tod and 3gp video files. 
 
 Fixed bug #640722: Added preliminary support for Samusung SRW files. Current
 versions of Exiv2 and pyexiv2 can read some but not all metadata from this new
 RAW format. If you try to use metadata that cannot be extracted, Rapid Photo 
 Downloader will issue a warning.
+
+Fixed bug #550883: create subfolders and filenames using the time a download was
+initiated. A new option, "Download time", has been added to the Date Time 
+subfolder and file rename options. It refers to the time the download starts.
 
 Fixed bugs related to missing video download directory at program startup.
 

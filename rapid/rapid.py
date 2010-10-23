@@ -580,6 +580,7 @@ class ImageRenameTable(tpm.TablePlusMinus):
 
         self.getParentAppPrefs()
         self.getPrefsFactory()
+        self.prefsFactory.setDownloadStartTime(datetime.datetime.now())
         
         try:
             self.prefsFactory.checkPrefsForValidity()
@@ -1663,7 +1664,7 @@ class CopyPhotos(Thread):
         self.autoStart = autoStart
         self.cardMedia = cardMedia
         
-        self.initializeDisplay(thread_id,  self.cardMedia)
+        self.initializeDisplay(thread_id, self.cardMedia)
                
         self.scanComplete = self.downloadStarted = self.downloadComplete = False
         
@@ -1732,21 +1733,26 @@ class CopyPhotos(Thread):
         self.prefs = self.parentApp.prefs
         
         #Image and Video filename preferences
+        sample_download_start_time = datetime.datetime.now()
 
         self.imageRenamePrefsFactory = rn.ImageRenamePreferences(self.prefs.image_rename, self, 
                                                                  self.fileSequenceLock, sequences)
+        self.imageRenamePrefsFactory.setDownloadStartTime(sample_download_start_time)
         checkPrefs(self.imageRenamePrefsFactory)
            
         self.videoRenamePrefsFactory = rn.VideoRenamePreferences(self.prefs.video_rename, self, 
                                                                  self.fileSequenceLock, sequences)
+        self.videoRenamePrefsFactory.setDownloadStartTime(sample_download_start_time)
         checkPrefs(self.videoRenamePrefsFactory)
         
         #Image and Video subfolder preferences
 
         self.subfolderPrefsFactory = rn.SubfolderPreferences(self.prefs.subfolder, self)
+        self.subfolderPrefsFactory.setDownloadStartTime(sample_download_start_time)
         checkPrefs(self.subfolderPrefsFactory)
 
         self.videoSubfolderPrefsFactory = rn.VideoSubfolderPreferences(self.prefs.video_subfolder, self)
+        self.videoSubfolderPrefsFactory.setDownloadStartTime(sample_download_start_time)
         checkPrefs(self.videoSubfolderPrefsFactory)
         
         # copy this variable, as it is used heavily in the loop
@@ -2781,10 +2787,17 @@ class CopyPhotos(Thread):
             self.downloadStarted = True
             cmd_line(_("Download has started from %s") % self.cardMedia.prettyName(limit=0))
             
+            # set the download start time to be the time that the user clicked the download button
+            self.imageRenamePrefsFactory.setDownloadStartTime(self.parentApp.download_start_time)
+            self.subfolderPrefsFactory.setDownloadStartTime(self.parentApp.download_start_time)
+            if DOWNLOAD_VIDEO:
+                self.videoRenamePrefsFactory.setDownloadStartTime(self.parentApp.download_start_time)
+                self.videoSubfolderPrefsFactory.setDownloadStartTime(self.parentApp.download_start_time)
+            
+            
             noFiles, sizeFiles, fileIndex = self.cardMedia.sizeAndNumberDownloadPending()
             cmd_line(_("Attempting to download %s files") % noFiles)
-            
-            
+                        
             no_backup_devices = setupBackup()
 
             # include the time it takes to copy to the backup volumes
@@ -3866,12 +3879,17 @@ class SelectionTreeView(gtk.TreeView):
                         self.show_preview(iter)                
 
     def _refreshNameFactories(self):
+        sample_download_start_time = datetime.datetime.now()
         self.imageRenamePrefsFactory = rn.ImageRenamePreferences(self.rapidApp.prefs.image_rename, self, 
                                                                  self.rapidApp.fileSequenceLock, sequences)
+        self.imageRenamePrefsFactory.setDownloadStartTime(sample_download_start_time)
         self.videoRenamePrefsFactory = rn.VideoRenamePreferences(self.rapidApp.prefs.video_rename, self, 
                                                                  self.rapidApp.fileSequenceLock, sequences)
+        self.videoRenamePrefsFactory.setDownloadStartTime(sample_download_start_time)
         self.subfolderPrefsFactory = rn.SubfolderPreferences(self.rapidApp.prefs.subfolder, self)
+        self.subfolderPrefsFactory.setDownloadStartTime(sample_download_start_time)
         self.videoSubfolderPrefsFactory = rn.VideoSubfolderPreferences(self.rapidApp.prefs.video_subfolder, self)
+        self.videoSubfolderPrefsFactory.setDownloadStartTime(sample_download_start_time)
         self.strip_characters = self.rapidApp.prefs.strip_characters
         
     
@@ -4727,6 +4745,8 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
 
         duplicate_files = {}
         downloaded_files = DownloadedFiles()
+        
+        self.download_start_time = None
         
         downloadsToday = self.prefs.getAndMaybeResetDownloadsToday()
         sequences = rn.Sequences(downloadsToday, self.prefs.stored_sequence_no)
@@ -5626,6 +5646,9 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
         self.totalDownloadSizeThisRun = self.totalDownloadedSoFarThisRun = 0 
         # there is no need to clear self.timeRemaining, as when each thread is completed, it removes itself
         
+        # this next value is used by the date time option "Download Time"
+        self.download_start_time = None 
+        
         global job_code
         job_code = None
     
@@ -5650,6 +5673,11 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
         for w in workers.getPausedDownloadingWorkers():
             w.startStop()
             self.timeRemaining.setTimeMark(w)
+        
+        # set the time that the download started - this is used
+        # in the "Download Time" date time renaming option.
+        if not self.download_start_time:
+            self.download_start_time = datetime.datetime.now()
             
         #start any new workers that have downloads pending
         for i in threads:
