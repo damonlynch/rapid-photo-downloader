@@ -6316,7 +6316,7 @@ def start ():
     # Translators: this text is displayed to the user when they request information on the command line options. 
     # The text %default should not be modified or left out.
     parser.add_option("-v",  "--verbose",  action="store_true", dest="verbose",  help=_("display program information on the command line as the program runs (default: %default)"))
-    parser.add_option("-d", "--debug", action="store_true", dest="debug", help=_('display debuggin information when run from the command line'))
+    parser.add_option("-d", "--debug", action="store_true", dest="debug", help=_('display debugging information when run from the command line'))
     parser.add_option("-q", "--quiet",  action="store_false", dest="verbose",  help=_("only output errors to the command line"))
     # image file extensions are recognized RAW files plus TIFF and JPG
     parser.add_option("-e",  "--extensions", action="store_true", dest="extensions", help=_("list photo and video file extensions the program recognizes and exit"))
