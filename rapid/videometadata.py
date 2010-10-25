@@ -39,7 +39,7 @@ except ImportError:
     DOWNLOAD_VIDEO = False
 
 VIDEO_THUMBNAIL_FILE_EXTENSIONS = ['thm']
-VIDEO_FILE_EXTENSIONS = ['avi', 'mov', 'mp4', 'mpg', 'mod', 'tod', 'mpeg', 'm2t', '3gp']
+VIDEO_FILE_EXTENSIONS = ['3gp', 'avi', 'm2t', 'mov', 'mp4', 'mpeg','mpg', 'mod', 'tod']
 
    
 

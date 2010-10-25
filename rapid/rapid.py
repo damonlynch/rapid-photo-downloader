@@ -2774,8 +2774,31 @@ class CopyPhotos(Thread):
                 self.running = False
                 self.lock.acquire()
                 self.running = True
+                
+                # set download started time
+                display_queue.put((self.parentApp.setDownloadStartTime, ()))
 
         while not all_files_downloaded:
+
+            # set the download start time to be the time that the user clicked the download button, or if on auto start, the value just set
+            i = 0
+            while self.parentApp.download_start_time is None or i > 2:
+                time.sleep(0.5)
+                i += 1
+            
+            if self.parentApp.download_start_time:
+                start_time = self.parentApp.download_start_time
+            else:
+                # in a bizarre corner case situation, with mulitple cards of greatly varying size, 
+                # it's possible the start time was set above and then in the meantime unset (very unlikely, but conceivably it could happen)
+                # fall back to the current time in this less than satisfactory situation
+                start_time = datetime.datetime.now()
+                
+            self.imageRenamePrefsFactory.setDownloadStartTime(start_time)
+            self.subfolderPrefsFactory.setDownloadStartTime(start_time)
+            if DOWNLOAD_VIDEO:
+                self.videoRenamePrefsFactory.setDownloadStartTime(start_time)
+                self.videoSubfolderPrefsFactory.setDownloadStartTime(start_time)
             
             self.noErrors = self.noWarnings = 0
             
@@ -2786,13 +2809,6 @@ class CopyPhotos(Thread):
              
             self.downloadStarted = True
             cmd_line(_("Download has started from %s") % self.cardMedia.prettyName(limit=0))
-            
-            # set the download start time to be the time that the user clicked the download button
-            self.imageRenamePrefsFactory.setDownloadStartTime(self.parentApp.download_start_time)
-            self.subfolderPrefsFactory.setDownloadStartTime(self.parentApp.download_start_time)
-            if DOWNLOAD_VIDEO:
-                self.videoRenamePrefsFactory.setDownloadStartTime(self.parentApp.download_start_time)
-                self.videoSubfolderPrefsFactory.setDownloadStartTime(self.parentApp.download_start_time)
             
             
             noFiles, sizeFiles, fileIndex = self.cardMedia.sizeAndNumberDownloadPending()
@@ -2830,6 +2846,7 @@ class CopyPhotos(Thread):
             # reset the progress bar to update the status of this download attempt
             progressBarText = _("%(number)s of %(total)s %(filetypes)s") % {'number':  0, 'total': noFiles, 'filetypes':self.display_file_types}
             display_queue.put((media_collection_treeview.updateProgress, (self.thread_id, 0.0, progressBarText, 0)))
+            
             
             while i < noFiles:
                 # if the user pauses the download, then this will be triggered
@@ -5676,8 +5693,8 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
         
         # set the time that the download started - this is used
         # in the "Download Time" date time renaming option.
-        if not self.download_start_time:
-            self.download_start_time = datetime.datetime.now()
+        self.setDownloadStartTime()
+
             
         #start any new workers that have downloads pending
         for i in threads:
@@ -5686,6 +5703,9 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
         if is_beta and verbose and False:
             workers.printWorkerStatus()
     
+    def setDownloadStartTime(self):
+        if not self.download_start_time:
+            self.download_start_time = datetime.datetime.now()
         
     def updateOverallProgress(self, thread_id, bytesDownloaded, percentComplete):
         """
