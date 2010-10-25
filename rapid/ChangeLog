@@ -1,7 +1,7 @@
 Version 0.3.3
 -------------
 
-2010-1x-xx
+2010-10-24
 
 Added support for mod, tod and 3gp video files. 
 
@@ -22,11 +22,12 @@ download was started.
 
 Fixed bugs related to missing video download directory at program startup.
 
-Added command line option to output to the terminal information usesful for 
+Added command line option to output to the terminal information useful for 
 debugging.
 
 Added Norwegian Bokmal and Portuguese translations. Updated Brazilian 
-Portuguese, Italian, Serbian, and Slovak translations.
+Portuguese, Dutch, Finnish, German, Hungarian, Italian, Norwegian Nynorsk, 
+Polish, Russian, Serbian, Slovak and Ukrainian translations.
 
 
 Version 0.3.2

@@ -1,3 +1,29 @@
+rapid-photo-downloader (0.3.3-0ubuntu1~ppa1) hardy; urgency=low
+
+  * Added support for mod, tod and 3gp video files.
+
+  * Hachoir-metadata is now used to extract selected metadata from
+    video files
+
+  * Fixed bug #640722: Added preliminary support for Samusung SRW 
+    files.
+
+  * Fixed bug #550883: Generation of subfolders and filenames using the
+    time a download was started. 
+
+  * Fixed bugs related to missing video download directory at program 
+    startup.
+
+  * Added command line option to output to the terminal information 
+    useful for debugging.
+
+  * Added Norwegian Bokmal and Portuguese translations. Updated 
+    Brazilian Portuguese, Dutch, Finnish, German, Hungarian, Italian, 
+    Norwegian Nynorsk, Polish, Russian, Serbian, Slovak and Ukrainian 
+    translations.
+
+ -- Damon Lynch <damonlynch@gmail.com>  Sun, 24 Oct 2010 22:22:49 -0500
+
 rapid-photo-downloader (0.3.2-0ubuntu1~ppa1) hardy; urgency=low
 
   * Added Norwegian Nynorsk translation. Updated Chinese,
