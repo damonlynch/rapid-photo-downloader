@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-10-22 21:26-0500\n"
-"PO-Revision-Date: 2010-09-30 12:57+0000\n"
-"Last-Translator: Ptitphysik <amalpeyre@gmail.com>\n"
+"PO-Revision-Date: 2010-11-03 12:42+0000\n"
+"Last-Translator: Ersplus <ersplus@free.fr>\n"
 "Language-Team: French <fr@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-10-25 03:12+0000\n"
+"X-Launchpad-Export-Date: 2010-12-05 16:48+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #. Translators: if neccessary, for guidance in how to translate this program, you may see http://damonlynch.net/translate.html
@@ -513,7 +513,7 @@ msgstr "Aucun volume de sauvegarde aproprié n'a été trouvé"
 
 #: rapid/rapid.py:2661
 msgid "A backup location was not found"
-msgstr ""
+msgstr "Un emplacement de sauvegarde n'a pas été trouvé"
 
 #: rapid/rapid.py:2715
 #, python-format
@@ -872,22 +872,26 @@ msgstr ""
 #: rapid/rapid.py:5142
 #, python-format
 msgid "Creating photo download folder %(folder)s"
-msgstr ""
+msgstr "Création du dossier de destination des photos %(folder)s"
 
 #: rapid/rapid.py:5147
 #, python-format
 msgid "Failed to create default photo download folder %(folder)s"
 msgstr ""
+"Échec de la création du dossier de destination par défaut des photos "
+"%(folder)s"
 
 #: rapid/rapid.py:5151
 #, python-format
 msgid "Creating video download folder %(folder)s"
-msgstr ""
+msgstr "Création du dossier de destination des viédos %(folder)s"
 
 #: rapid/rapid.py:5156
 #, python-format
 msgid "Failed to create default video download folder %(folder)s"
 msgstr ""
+"Échec de la création du dossier de destination par défaut des vidéos "
+"%(folder)s"
 
 #: rapid/rapid.py:5181
 msgid ""
@@ -1077,11 +1081,12 @@ msgstr ""
 
 #: rapid/rapid.py:6091
 msgid "Backup preferences were changed."
-msgstr ""
+msgstr "Les préférences de sauvegarde ont été modifiées."
 
 #: rapid/rapid.py:6097
 msgid "Subfolder and filename preferences were changed."
 msgstr ""
+"Les préférences de sous-dossier et de nom de fichier ont été modifiées."
 
 #: rapid/rapid.py:6108
 msgid "Download folder preferences were changed."
@@ -1104,7 +1109,7 @@ msgstr ""
 
 #: rapid/rapid.py:6319
 msgid "display debugging information when run from the command line"
-msgstr ""
+msgstr "Affiche les informations de débogage en mode console"
 
 #: rapid/rapid.py:6320
 msgid "only output errors to the command line"
@@ -1114,18 +1119,19 @@ msgstr "n'affiche que les erreurs sur la ligne de commande"
 #: rapid/rapid.py:6322
 msgid "list photo and video file extensions the program recognizes and exit"
 msgstr ""
+"Liste des extensions de fichiers photo et vidéo reconnues par le programme"
 
 #: rapid/rapid.py:6323
 msgid "reset all program settings and preferences and exit"
-msgstr ""
+msgstr "Réinitialise tous les paramètres et préférences du programme"
 
 #: rapid/rapid.py:6337
 msgid "Photos:"
-msgstr ""
+msgstr "Photos :"
 
 #: rapid/rapid.py:6337
 msgid "Videos:"
-msgstr ""
+msgstr "Vidéos :"
 
 #: rapid/rapid.py:6342
 #, python-format
@@ -1134,7 +1140,7 @@ msgstr "et %s"
 
 #: rapid/rapid.py:6350
 msgid "All settings and preferences have been reset"
-msgstr ""
+msgstr "Tous les paramètres et préférences ont été réinitialisés"
 
 #. Which volume management code is being used (GIO or GnomeVFS)
 #: rapid/rapid.py:6354 rapid/rapid.py:6355 rapid/rapid.py:6357
@@ -1174,7 +1180,7 @@ msgstr "Date de l'image"
 
 #: rapid/renamesubfolderprefs.py:201
 msgid "Video date"
-msgstr ""
+msgstr "Date de la vidéo"
 
 #: rapid/renamesubfolderprefs.py:202
 msgid "Today"
@@ -1270,23 +1276,23 @@ msgstr "Nom du propriétaire"
 
 #: rapid/renamesubfolderprefs.py:237
 msgid "Codec"
-msgstr ""
+msgstr "Codec"
 
 #: rapid/renamesubfolderprefs.py:238
 msgid "Width"
-msgstr ""
+msgstr "Largeur"
 
 #: rapid/renamesubfolderprefs.py:239
 msgid "Height"
-msgstr ""
+msgstr "Hauteur"
 
 #: rapid/renamesubfolderprefs.py:240
 msgid "Length"
-msgstr ""
+msgstr "Longueur"
 
 #: rapid/renamesubfolderprefs.py:241
 msgid "Frames Per Second"
-msgstr ""
+msgstr "Images par seconde"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#sequencenumbers
 #: rapid/renamesubfolderprefs.py:243
@@ -1568,11 +1574,11 @@ msgstr "<b>Étiquettes de transfert</b>"
 
 #: rapid/glade3/rapid.glade.h:12
 msgid "<b>Photo Rename</b>"
-msgstr ""
+msgstr "<b>Renommage des phtoos</b>"
 
 #: rapid/glade3/rapid.glade.h:13
 msgid "<b>Photo and Video Name Conflicts</b>"
-msgstr ""
+msgstr "<b>Photo et Vidéo Conflits de noms</b>"
 
 #: rapid/glade3/rapid.glade.h:14
 msgid "<b>Program Automation</b>"
@@ -1588,7 +1594,7 @@ msgstr "<i>/media/disqueexterne/Photos</i>"
 
 #: rapid/glade3/rapid.glade.h:17
 msgid "<i>Example: /home/user/Pictures</i>"
-msgstr ""
+msgstr "<i>Exemple : /home/utilisateur/Images</i>"
 
 #: rapid/glade3/rapid.glade.h:18
 msgid "<i>Example:</i>"
@@ -1626,10 +1632,12 @@ msgstr ""
 #: rapid/glade3/rapid.glade.h:26
 msgid "<span weight=\"bold\" size=\"x-large\">Photo Download Folders</span>"
 msgstr ""
+"<span weight=\"bold\" size=\"x-large\">Dossiers de destination des "
+"photos</span>"
 
 #: rapid/glade3/rapid.glade.h:27
 msgid "<span weight=\"bold\" size=\"x-large\">Photo Rename</span>\t"
-msgstr ""
+msgstr "<span weight=\"bold\" size=\"x-large\">Renommage des photos</span>\t"
 
 #: rapid/glade3/rapid.glade.h:28
 msgid "<span weight=\"bold\" size=\"x-large\">Rename Options</span>"
@@ -1638,10 +1646,12 @@ msgstr "<span weight=\"bold\" size=\"x-large\">Options de renommage</span>"
 #: rapid/glade3/rapid.glade.h:29
 msgid "<span weight=\"bold\" size=\"x-large\">Video Download Folders</span>"
 msgstr ""
+"<span weight=\"bold\" size=\"x-large\">Dossiers de destination des "
+"vidéos</span>"
 
 #: rapid/glade3/rapid.glade.h:30
 msgid "<span weight=\"bold\" size=\"x-large\">Video Rename</span>\t"
-msgstr ""
+msgstr "<span weight=\"bold\" size=\"x-large\">Renommage des vidéos</span>\t"
 
 #: rapid/glade3/rapid.glade.h:31
 msgid "Add unique identifier"
@@ -1657,7 +1667,7 @@ msgstr "Détecter automatiquement les volumes de sauvegarde"
 
 #: rapid/glade3/rapid.glade.h:34
 msgid "Automatically detect devices"
-msgstr ""
+msgstr "Détecter les périphériques automatiquement"
 
 #: rapid/glade3/rapid.glade.h:35
 msgid "Automation"
@@ -1673,7 +1683,7 @@ msgstr "Localisation de la sauvegarde :"
 
 #: rapid/glade3/rapid.glade.h:38
 msgid "Backup photos and videos when downloading"
-msgstr ""
+msgstr "Sauvegarder les photos et les vidéos lors du transfert"
 
 #: rapid/glade3/rapid.glade.h:39
 msgid ""
@@ -1689,6 +1699,9 @@ msgid ""
 "Choose the download folder. Subfolders for the downloaded videos will be "
 "automatically created in this folder using the structure specified below."
 msgstr ""
+"Choisissez le dossier de téléchargement. Des sous-dossiers pour les vidéos "
+"téléchargées seront automatiquement créés dans ce dossier en utilisant la "
+"structure spécifiée ci-dessous."
 
 #: rapid/glade3/rapid.glade.h:41
 msgid "Copyright Damon Lynch 2007-10"
@@ -1701,10 +1714,11 @@ msgstr "Début du jour :"
 #: rapid/glade3/rapid.glade.h:43
 msgid "Delete photos and videos from device upon download completion"
 msgstr ""
+"Supprimer des photos et vidéos de l'appareil à la fin du téléchargement"
 
 #: rapid/glade3/rapid.glade.h:44
 msgid "Devices"
-msgstr ""
+msgstr "Périphériques"
 
 #: rapid/glade3/rapid.glade.h:45
 msgid ""
@@ -1718,6 +1732,17 @@ msgid ""
 "setting it to PTP mode. If that is not possible, consider using a card "
 "reader.</i>"
 msgstr ""
+"Périphériques depuis lesquels sont transférées les photos et les vidéos, "
+"tels qu'appareils photo, cartes mémoire, ou périphérique de stockage "
+"portable.\n"
+"\n"
+"Il est possible de transférer des photos depuis plusieurs périphériques de "
+"façon simultanée, ainsi que de transférer des fichiers depuis un emplacement "
+"spécifié du disque dur.\n"
+"\n"
+"<i>Si le transfert direct depuis votre appareil photo fonctionne mal, voire "
+"pas du tout, essayez le mode PTP. Si cela n'est pas possible, considérez "
+"l'utilisation d'un lecteur de cartes.</i>"
 
 #: rapid/glade3/rapid.glade.h:50
 msgid "Download / Pause"
@@ -1742,6 +1767,7 @@ msgstr "Journal des erreurs"
 #: rapid/glade3/rapid.glade.h:55
 msgid "Exit program if download completes without any warnings or errors"
 msgstr ""
+"Quitter le programme après un transfert réussi, sans erreur ni avertissement"
 
 #: rapid/glade3/rapid.glade.h:56
 msgid "If you disable automatic detection, choose the exact backup location."
@@ -1754,6 +1780,8 @@ msgid ""
 "If you disable automatic detection, choose the exact location of the images "
 "and videos."
 msgstr ""
+"Si vous désactiver la détection automatique, choisissez l'emplacement exact "
+"des images et des vidéos."
 
 #: rapid/glade3/rapid.glade.h:58
 msgid ""
@@ -1767,7 +1795,7 @@ msgstr ""
 
 #: rapid/glade3/rapid.glade.h:59
 msgid "Import your photos and videos efficiently and reliably"
-msgstr ""
+msgstr "Transférez vos photos et vidéos de façon simple et fiable"
 
 #: rapid/glade3/rapid.glade.h:60
 msgid "Job Codes"
@@ -1775,7 +1803,7 @@ msgstr "Étiquettes de transfert"
 
 #: rapid/glade3/rapid.glade.h:61
 msgid "Location:"
-msgstr ""
+msgstr "Emplacement :"
 
 #: rapid/glade3/rapid.glade.h:62
 msgid "Overwrite"
@@ -1787,15 +1815,15 @@ msgstr ""
 
 #: rapid/glade3/rapid.glade.h:64
 msgid "Photo Folders"
-msgstr ""
+msgstr "Dossiers de photos"
 
 #: rapid/glade3/rapid.glade.h:65
 msgid "Photo Rename"
-msgstr ""
+msgstr "Renommage des photos"
 
 #: rapid/glade3/rapid.glade.h:66
 msgid "Photo backup folder name:"
-msgstr ""
+msgstr "Dossier de sauvegarde des photos :"
 
 #: rapid/glade3/rapid.glade.h:67
 msgid "Preferences: Rapid Photo Downloader"
@@ -1846,15 +1874,15 @@ msgstr "Options de renommage"
 
 #: rapid/glade3/rapid.glade.h:78
 msgid "Se_lect None"
-msgstr ""
+msgstr "Sé_lectionner Aucun"
 
 #: rapid/glade3/rapid.glade.h:79
 msgid "Select All Pho_tos"
-msgstr ""
+msgstr "Sélectionner toutes les Pho_tos"
 
 #: rapid/glade3/rapid.glade.h:80
 msgid "Select All Vi_deos"
-msgstr ""
+msgstr "Sélectionner toutes les Vi_déos"
 
 #: rapid/glade3/rapid.glade.h:81
 msgid "Select All Wit_h Job Code"
@@ -1866,7 +1894,7 @@ msgstr ""
 
 #: rapid/glade3/rapid.glade.h:83
 msgid "Select _All"
-msgstr ""
+msgstr "Sélectionner t_out"
 
 #: rapid/glade3/rapid.glade.h:84
 msgid "Skip"
@@ -1881,6 +1909,9 @@ msgid ""
 "Sorry, video downloading functionality disabled. To download videos, please "
 "install the <i>kaa metadata</i> package for python."
 msgstr ""
+"Désolé, la fonctionnalité de téléchargement de vidéos est désactivée. Pour "
+"télécharger des vidéos, veuillez installer le package <i>kaa metadata</ i> "
+"pour python."
 
 #: rapid/glade3/rapid.glade.h:87
 msgid ""
@@ -1932,7 +1963,7 @@ msgstr ""
 
 #: rapid/glade3/rapid.glade.h:98
 msgid "Video Folders"
-msgstr ""
+msgstr "Dossiers Vidéo"
 
 #: rapid/glade3/rapid.glade.h:99
 msgid "Video Rename"
@@ -1978,7 +2009,7 @@ msgstr "Journal des _erreurs"
 
 #: rapid/glade3/rapid.glade.h:108
 msgid "_File"
-msgstr ""
+msgstr "_Fichier"
 
 #: rapid/glade3/rapid.glade.h:109
 msgid "_Filename"
@@ -1998,11 +2029,11 @@ msgstr "_Faire une _donation..."
 
 #: rapid/glade3/rapid.glade.h:113
 msgid "_Path"
-msgstr ""
+msgstr "_Chemin"
 
 #: rapid/glade3/rapid.glade.h:114
 msgid "_Preview"
-msgstr ""
+msgstr "A_perçu"
 
 #: rapid/glade3/rapid.glade.h:115
 msgid "_Report a Problem..."

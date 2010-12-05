@@ -1,4 +1,4 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <glade-interface>
   <!-- interface-requires gtk+ 2.16 -->
   <!-- interface-naming-policy toplevel-contextual -->
@@ -11,7 +11,6 @@
     <property name="default_height">500</property>
     <property name="icon">rapid-photo-downloader.svg</property>
     <property name="type_hint">dialog</property>
-    <property name="has_separator">False</property>
     <signal name="destroy" handler="on_preferencesdialog_destroy"/>
     <signal name="response" handler="on_response"/>
     <child internal-child="vbox">
@@ -596,7 +595,7 @@
                             <property name="xalign">0</property>
                             <property name="xpad">12</property>
                             <property name="ypad">10</property>
-                            <property name="label" translatable="yes">Sorry, video downloading functionality disabled. To download videos, please install the &lt;i&gt;kaa metadata&lt;/i&gt; package for python.</property>
+                            <property name="label" translatable="yes">Sorry, video downloading functionality disabled. To download videos, please install the &lt;i&gt;hachoir metadata&lt;/i&gt; and &lt;i&gt;kaa metadata&lt;/i&gt; packages for python.</property>
                             <property name="use_markup">True</property>
                             <property name="wrap">True</property>
                           </widget>
@@ -860,7 +859,7 @@
                             <child>
                               <widget class="GtkLabel" id="videos_cannot_be_downloaded_label">
                                 <property name="xalign">0</property>
-                                <property name="label" translatable="yes">Sorry, video downloading functionality disabled. To download videos, please install the &lt;i&gt;kaa metadata&lt;/i&gt; package for python.</property>
+                                <property name="label" translatable="yes">Sorry, video downloading functionality disabled. To download videos, please install the &lt;i&gt;hachoir metadata&lt;/i&gt; and &lt;i&gt;kaa metadata&lt;/i&gt; packages for python.</property>
                                 <property name="use_markup">True</property>
                                 <property name="wrap">True</property>
                               </widget>
@@ -2152,7 +2151,7 @@ You can download photos from multiple devices simultaneously, or you can specify
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
-                                    <property name="invisible_char">&#x25CF;</property>
+                                    <property name="invisible_char">●</property>
                                     <signal name="changed" handler="on_video_backup_identifier_entry_changed"/>
                                   </widget>
                                   <packing>
@@ -2838,17 +2837,17 @@ Rapid Photo Downloader is distributed in the hope that it will be useful, but WI
 You should have received a copy of the GNU General Public License along with Rapid Photo Downloader; if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.</property>
     <property name="authors">Damon Lynch &lt;damonlynch@gmail.com&gt;</property>
     <property name="translator_credits">Anton Alyab'ev &lt;subeditor@dolgopa.org&gt;
-L&#x151;rincz Andr&#xE1;s &lt;level.andrasnak@gmail.com&gt;
+Lőrincz András &lt;level.andrasnak@gmail.com&gt;
 Michel Ange &lt;michelange@wanadoo.fr&gt;
 Alain J. Baudrez &lt;a.baudrez@gmail.com&gt;
 Martin Egger &lt;martin.egger@gmx.net&gt;
-Nicol&#xE1;s M. Zahlut &lt;nzahlut@live.com&gt;
+Nicolás M. Zahlut &lt;nzahlut@live.com&gt;
 Jose Luis Navarro &lt;jlnavarro111@gmail.com&gt;
 Tomas Novak &lt;kuvaly@seznam.cz&gt;
 Abel O'Rian &lt;abel.orian@gmail.com&gt;
 Balazs Oveges &lt;ovegesb@freemail.hu&gt;
 Daniel Paessler &lt;daniel@paessler.org&gt;
-Milo&#x161; Popovi&#x107; &lt;gpopac@gmail.com&gt;
+Miloš Popović &lt;gpopac@gmail.com&gt;
 Michal Predotka &lt;mpredotka@googlemail.com&gt;
 Ye Qing &lt;allen19920930@gmail.com&gt;
 Luca Reverberi &lt;thereve@gmail.com&gt;
@@ -2856,11 +2855,11 @@ Mikko Ruohola &lt;polarfox@polarfox.net&gt;
 Sergiy Gavrylov &lt;sergiovana@bigmir.net&gt;
 Sergei Sedov &lt;sedov@webmail.perm.ru&gt;
 Marco Solari &lt;marcosolari@gmail.com&gt;
-Toni L&#xE4;hdekorpi &lt;toni@lygon.net&gt;
-Ulf Urd&#xE9;n &lt;ulf.urden@purplescout.com&gt;
+Toni Lähdekorpi &lt;toni@lygon.net&gt;
+Ulf Urdén &lt;ulf.urden@purplescout.com&gt;
 Julien Valroff &lt;julien@kirya.net&gt;
 Aron Xu &lt;happyaron.xu@gmail.com&gt;
-&#x6881;&#x5176;&#x5B66; &lt;yalongbay@gmail.com&gt;</property>
+梁其学 &lt;yalongbay@gmail.com&gt;</property>
     <property name="logo">rapid-photo-downloader.svg</property>
     <property name="wrap_license">True</property>
     <child internal-child="vbox">
@@ -3464,7 +3463,6 @@ Aron Xu &lt;happyaron.xu@gmail.com&gt;
     <property name="destroy_with_parent">True</property>
     <property name="icon">rapid-photo-downloader.svg</property>
     <property name="type_hint">dialog</property>
-    <property name="has_separator">False</property>
     <signal name="close" handler="on_logdialog_close"/>
     <signal name="response" handler="on_logdialog_response"/>
     <child internal-child="vbox">

@@ -6376,7 +6376,7 @@ def start ():
     if DOWNLOAD_VIDEO:
         cmd_line(_("Using") + " hachoir " + videometadata.version_info())
     else:
-        cmd_line(_("\n" + "Video downloading functionality disabled.\nTo download videos, please install the kaa metadata package for python.") + "\n")
+        cmd_line(_("\n" + "Video downloading functionality disabled.\nTo download videos, please install the hachoir metadata and kaa metadata packages for python.") + "\n")
         
     if using_gio:
         cmd_line(_("Using") + " GIO")

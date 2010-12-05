@@ -1,3 +1,14 @@
+Version 0.3.4
+-------------
+
+2010-xx-xx
+
+Fixed bug #685335: inaccurate description of python packages required for 
+downloading videos.
+
+Added Croatian translation. Updated French translation.
+
+
 Version 0.3.3
 -------------
 

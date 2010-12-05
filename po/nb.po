@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-10-22 21:26-0500\n"
-"PO-Revision-Date: 2010-09-23 05:04+0000\n"
-"Last-Translator: Damon Lynch <damonlynch@gmail.com>\n"
+"PO-Revision-Date: 2010-12-03 18:06+0000\n"
+"Last-Translator: Martin Dahl Moe <Unknown>\n"
 "Language-Team: Norwegian Bokmal <nb@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-10-25 03:12+0000\n"
+"X-Launchpad-Export-Date: 2010-12-05 16:48+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #. Translators: if neccessary, for guidance in how to translate this program, you may see http://damonlynch.net/translate.html
@@ -141,7 +141,7 @@ msgstr ""
 
 #: rapid/rapid.py:814 rapid/rapid.py:1545
 msgid "photos and videos"
-msgstr ""
+msgstr "bilder og videoer"
 
 #: rapid/rapid.py:816 rapid/rapid.py:1555 rapid/rapid.py:1683
 msgid "photos"
@@ -565,7 +565,7 @@ msgstr ""
 
 #: rapid/rapid.py:3171
 msgid "_Show this message again"
-msgstr ""
+msgstr "_vis denne meldingen igjen"
 
 #: rapid/rapid.py:3206
 msgid "Device Detected"
@@ -597,12 +597,13 @@ msgstr ""
 #: rapid/rapid.py:3277
 #, python-format
 msgid "%s rejected as a download device"
-msgstr ""
+msgstr "%s avvist som en nedlastings enhet"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#usedeviceprompt
 #: rapid/rapid.py:3280
 msgid "This device or partition will never be used to download from"
 msgstr ""
+"Denne enheten eller partisjonen vil aldri bli brukt til å laste ned fra"
 
 #: rapid/rapid.py:3287
 msgid "Remove all Job Codes?"
@@ -699,7 +700,7 @@ msgstr ""
 #: rapid/rapid.py:3965
 #, python-format
 msgid "%(filetype)s is ready to be downloaded"
-msgstr ""
+msgstr "%(filetype)s er klar for nedlasting"
 
 #: rapid/rapid.py:3967
 #, python-format
@@ -1361,22 +1362,22 @@ msgstr ""
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
 #: rapid/renamesubfolderprefs.py:296
 msgid "YYYY"
-msgstr ""
+msgstr "YYYY"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
 #: rapid/renamesubfolderprefs.py:298
 msgid "YY"
-msgstr ""
+msgstr "YY"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
 #: rapid/renamesubfolderprefs.py:300
 msgid "MM"
-msgstr ""
+msgstr "MM"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
 #: rapid/renamesubfolderprefs.py:302
 msgid "DD"
-msgstr ""
+msgstr "DD"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
 #: rapid/renamesubfolderprefs.py:304
@@ -1401,7 +1402,7 @@ msgstr ""
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
 #: rapid/renamesubfolderprefs.py:312
 msgid "HH"
-msgstr ""
+msgstr "HH"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
 #: rapid/renamesubfolderprefs.py:314
@@ -1411,7 +1412,7 @@ msgstr ""
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
 #: rapid/renamesubfolderprefs.py:316
 msgid "SS"
-msgstr ""
+msgstr "SS"
 
 #: rapid/renamesubfolderprefs.py:801
 #, python-format
@@ -1670,6 +1671,8 @@ msgid ""
 "If you disable automatic detection, choose the exact location of the images "
 "and videos."
 msgstr ""
+"Hvis du deaktiverer automatisk gjenkjenning, velg den nøyaktige plasseringen "
+"av bilder og videoer."
 
 #: rapid/glade3/rapid.glade.h:58
 msgid ""
@@ -1688,7 +1691,7 @@ msgstr ""
 
 #: rapid/glade3/rapid.glade.h:61
 msgid "Location:"
-msgstr ""
+msgstr "Sted:"
 
 #: rapid/glade3/rapid.glade.h:62
 msgid "Overwrite"
