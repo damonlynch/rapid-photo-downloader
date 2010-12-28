@@ -36,9 +36,17 @@ def pixbuf_to_image(pb):
     dimensions = pb.get_width(), pb.get_height()
     stride = pb.get_rowstride()
     pixels = pb.get_pixels()
+
     mode = pb.get_has_alpha() and "RGBA" or "RGB"
-    return Image.frombuffer(mode, dimensions, pixels,
+    image = Image.frombuffer(mode, dimensions, pixels,
                             "raw", mode, stride, 1)
+                            
+    if mode == "RGB":
+        # convert to having an alpha value, so that the image can
+        # act as a mask in the drop shadow paste 
+        image = image.convert("RGBA")
+
+    return image
 
 
 class DropShadow():
@@ -73,6 +81,8 @@ class DropShadow():
                                 
         To make backgrounds transparent, ensure the alpha value of the shadow color is the 
         same as the background color, e.g. if background_color is 0xffffff, shadow's alpha should be 0xff
+        
+        The image must be in RGBA format.
         """
         self.backgrounds = {}
         self.offset = offset
@@ -95,7 +105,7 @@ class DropShadow():
         
     def dropShadow(self, image):
         """
-        image             - The image to overlay on top of the shadow.
+        image - The image to overlay on top of the shadow.
         """
         dimensions = (image.size[0], image.size[1])
         if not dimensions in self.backgrounds:
@@ -125,7 +135,7 @@ class DropShadow():
             back.paste(self.shadow, [shadowLeft, shadowTop, shadowLeft + image.size[0], 
                 shadowTop + image.size[1]] )
             
-            # Apply the filter to blur the edges of the shadow.    Since a small kernel
+            # Apply the filter to blur the edges of the shadow. Since a small kernel
             # is used, the filter must be applied repeatedly to get a decent blur.
             n = 0
             while n < self.iterations:
@@ -139,7 +149,7 @@ class DropShadow():
         imageTop = self.top_spacing - min(self.offset[1], 0)
             
         back = self.backgrounds[dimensions].copy()
-        back.paste(image, (imageLeft, imageTop))
+        back.paste(image, (imageLeft, imageTop), image)
     
         return back
         

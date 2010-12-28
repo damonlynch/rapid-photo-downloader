@@ -64,7 +64,6 @@ _ = Configi18n._
 
 import datetime
 
-import ValidatedEntry
 import config
 
 from common import pythonifyVersion

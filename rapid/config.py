@@ -45,7 +45,10 @@ SERIOUS_ERROR = 2
 WARNING = 3
 
 MAX_LENGTH_DEVICE_NAME = 15
-MAX_THUMBNAIL_SIZE = 160
+
+MIN_THUMBNAIL_SIZE = 80
+max_thumbnail_size = 320 # will be overridden when the screen is tiny
+THUMBNAIL_INCREMENT = 50
 
 STATUS_DOWNLOAD_PENDING = 0                 # going to try to download it
 STATUS_DOWNLOADED = 1                       # downloaded successfully

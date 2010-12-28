@@ -24,7 +24,7 @@ import datetime
 import subprocess
 
 import config
-from config import MAX_THUMBNAIL_SIZE
+from config import max_thumbnail_size
 from config import STATUS_NOT_DOWNLOADED, \
                     STATUS_DOWNLOAD_PENDING, \
                     STATUS_CANNOT_DOWNLOAD
@@ -197,7 +197,7 @@ class MediaFile:
         else:
             if self.isImage:
                 try:
-                    thumbnail = self.metadata.getThumbnailData(MAX_THUMBNAIL_SIZE)
+                    thumbnail = self.metadata.getThumbnailData(max_thumbnail_size)
                     if not isinstance(thumbnail, types.StringType):
                         self.thumbnail = None
                     else:
@@ -220,10 +220,10 @@ class MediaFile:
             else:
                 # get thumbnail of video
                 # it may need to be generated
-                self.thumbnail = self.metadata.getThumbnailData(MAX_THUMBNAIL_SIZE, tempWorkingDir)
+                self.thumbnail = self.metadata.getThumbnailData(max_thumbnail_size, tempWorkingDir)
         if self.thumbnail:
             # scale to size
-            self.thumbnail = common.scale2pixbuf(MAX_THUMBNAIL_SIZE, MAX_THUMBNAIL_SIZE, self.thumbnail)
+            self.thumbnail = common.scale2pixbuf(max_thumbnail_size, max_thumbnail_size, self.thumbnail)
 
     
 

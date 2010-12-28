@@ -52,12 +52,12 @@ package_data={'rapid': ['glade3/rapid.glade',
               'glade3/rapid-photo-downloader-jobcode.svg',
               'glade3/video.png',
               'glade3/video24.png',
-              'glade3/video_shadow.png',
               'glade3/video_small_shadow.png',
               'glade3/photo.png',
-              'glade3/photo_shadow.png',
               'glade3/photo_small_shadow.png',
-              'glade3/photo24.png'
+              'glade3/photo24.png',
+              'glade3/zoom-in.png',
+              'glade3/zoom-out.png',
               ]}
 
 setup(name=name,

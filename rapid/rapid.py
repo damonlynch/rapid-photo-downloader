@@ -61,12 +61,10 @@ from optparse import OptionParser
 
 import pynotify
 
-import ValidatedEntry
-
 import idletube as tube
 
 import config
-from config import MAX_THUMBNAIL_SIZE
+
 from config import  STATUS_CANNOT_DOWNLOAD, STATUS_DOWNLOADED, \
                     STATUS_DOWNLOADED_WITH_WARNING, \
                     STATUS_DOWNLOAD_FAILED, \
@@ -75,7 +73,7 @@ from config import  STATUS_CANNOT_DOWNLOAD, STATUS_DOWNLOADED, \
                     STATUS_NOT_DOWNLOADED, \
                     STATUS_DOWNLOAD_AND_BACKUP_FAILED, \
                     STATUS_WARNING
-
+                    
 import common
 import misc
 import higdefaults as hd
@@ -83,6 +81,8 @@ import higdefaults as hd
 from media import getDefaultPhotoLocation, getDefaultVideoLocation, \
                   getDefaultBackupPhotoIdentifier, \
                   getDefaultBackupVideoIdentifier
+                  
+import ValidatedEntry
                   
 from media import CardMedia
 
@@ -123,7 +123,7 @@ _ = Configi18n._
 #Translators: if neccessary, for guidance in how to translate this program, you may see http://damonlynch.net/translate.html 
 PROGRAM_NAME = _('Rapid Photo Downloader')
 
-
+TINY_SCREEN = gtk.gdk.screen_height() <= config.TINY_SCREEN_HEIGHT    
 
 def today():
     return datetime.date.today().strftime('%Y-%m-%d')
@@ -407,6 +407,11 @@ class ThreadManager:
 workers = ThreadManager()
 
 class RapidPreferences(prefs.Preferences):
+    if TINY_SCREEN:
+        zoom = 120
+    else:
+        zoom = config.MIN_THUMBNAIL_SIZE * 2
+        
     defaults = {
         "program_version": prefs.Value(prefs.STRING, ""),
         "download_folder": prefs.Value(prefs.STRING, 
@@ -465,6 +470,7 @@ class RapidPreferences(prefs.Preferences):
         "main_window_size_y": prefs.Value(prefs.INT, 0),
         "main_window_maximized": prefs.Value(prefs.INT, 0),
         "show_warning_downloading_from_camera": prefs.Value(prefs.BOOL, True),
+        "preview_zoom": prefs.Value(prefs.INT, zoom),
         }
 
     def __init__(self):
@@ -1843,12 +1849,8 @@ class CopyPhotos(Thread):
                        
             # load images to display for when a thumbnail cannot be extracted or created
             
-            if DROP_SHADOW:
-                self.photoThumbnail = gtk.gdk.pixbuf_new_from_file(paths.share_dir('glade3/photo_shadow.png'))
-                self.videoThumbnail = gtk.gdk.pixbuf_new_from_file(paths.share_dir('glade3/video_shadow.png'))
-            else:
-                self.photoThumbnail = gtk.gdk.pixbuf_new_from_file(paths.share_dir('glade3/photo.png'))
-                self.videoThumbnail = gtk.gdk.pixbuf_new_from_file(paths.share_dir('glade3/video.png'))
+            self.photoThumbnail = gtk.gdk.pixbuf_new_from_file(paths.share_dir('glade3/photo.png'))
+            self.videoThumbnail = gtk.gdk.pixbuf_new_from_file(paths.share_dir('glade3/video.png'))
                 
             imageRenameUsesJobCode = rn.usesJobCode(self.prefs.image_rename)
             imageSubfolderUsesJobCode = rn.usesJobCode(self.prefs.subfolder)
@@ -3603,7 +3605,6 @@ class SelectionTreeView(gtk.TreeView):
         
         if DROP_SHADOW:
             self.iconDropShadow = DropShadow(offset=(3,3), shadow = (0x34, 0x34, 0x34, 0xff), border=6)
-            self.previewDropShadow = DropShadow(shadow = (0x44, 0x44, 0x44, 0xff), trim_border = True)
             
         self.previewed_file_treerowref = None
         self.icontheme = gtk.icon_theme_get_default()
@@ -3732,7 +3733,8 @@ class SelectionTreeView(gtk.TreeView):
         name = mediaFile.name
         size = mediaFile.size
         thumbnail = mediaFile.thumbnail
-        thumbnail_icon = common.scale2pixbuf(60, 36, mediaFile.thumbnail)
+        thumbnail_icon = common.scale2pixbuf(60, 36, thumbnail)
+        #thumbnail_icon = common.scale2pixbuf(80, 48, mediaFile.thumbnail)
         if DROP_SHADOW:
             if not mediaFile.genericThumbnail:
                 pil_image = pixbuf_to_image(thumbnail_icon)
@@ -4020,12 +4022,8 @@ class SelectionTreeView(gtk.TreeView):
             
             self.previewed_file_treerowref = mediaFile.treerowref
             
-            thumbnail = mediaFile.thumbnail
-            
-            if DROP_SHADOW and not mediaFile.genericThumbnail:
-                pil_image = pixbuf_to_image(thumbnail)
-                pil_image = self.previewDropShadow.dropShadow(pil_image) 
-                thumbnail = image_to_pixbuf(pil_image)
+            self.parentApp.set_base_preview_image(mediaFile.thumbnail)
+            thumbnail = self.parentApp.scaledPreviewImage()
                 
             self.parentApp.preview_image.set_from_pixbuf(thumbnail)
             
@@ -4329,7 +4327,9 @@ class SelectionVBox(gtk.VBox):
         gtk.VBox.__init__(self)
         self.parentApp = parentApp
         
-        tiny_screen = gtk.gdk.screen_height() <= config.TINY_SCREEN_HEIGHT
+        tiny_screen = TINY_SCREEN
+        if tiny_screen:
+            config.max_thumbnail_size = 160
         
         selection_scrolledwindow = gtk.ScrolledWindow()
         selection_scrolledwindow.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
@@ -4351,23 +4351,49 @@ class SelectionVBox(gtk.VBox):
         #selection_scrolledwindow.set_size_request(350, -1)
         
         
-        #Preview pane
+        # Preview pane
         
-        #Preview title
-        self.preview_title_label = gtk.Label()
-        self.preview_title_label.set_markup("<b>%s</b>" % _("Preview"))
-        self.preview_title_label.set_alignment(0, 0.5)
-        self.preview_title_label.set_padding(12, 0)
+        # Zoom in and out slider (make the image bigger / smaller)
+        
+        # Zoom out (on the left of the slider)
+        self.zoom_out_eventbox = gtk.EventBox()
+        self.zoom_out_eventbox.set_events(gtk.gdk.BUTTON_PRESS_MASK)        
+        self.zoom_out_image = gtk.Image()
+        self.zoom_out_image.set_from_file(paths.share_dir('glade3/zoom-out.png'))
+        self.zoom_out_eventbox.add(self.zoom_out_image)
+        self.zoom_out_eventbox.connect("button_press_event", self.zoom_out_0_callback)
+        
+        # Zoom in (on the right of the slider)
+        self.zoom_in_eventbox = gtk.EventBox()
+        self.zoom_in_eventbox.set_events(gtk.gdk.BUTTON_PRESS_MASK)
+        self.zoom_in_image = gtk.Image()
+        self.zoom_in_image.set_from_file(paths.share_dir('glade3/zoom-in.png'))
+        self.zoom_in_eventbox.add(self.zoom_in_image)
+        self.zoom_in_eventbox.connect("button_press_event", self.zoom_in_100_callback)
+        
+        self.slider_adjustment = gtk.Adjustment(value=self.parentApp.prefs.preview_zoom, 
+                lower=config.MIN_THUMBNAIL_SIZE, upper=config.max_thumbnail_size, 
+                step_incr=1.0, page_incr=config.THUMBNAIL_INCREMENT, page_size=0)
+        self.slider_adjustment.connect("value_changed", self.resize_image_callback)
+        self.slider_hscale = gtk.HScale(self.slider_adjustment)
+        self.slider_hscale.set_draw_value(False) # don't display numeric value
+        self.slider_hscale.set_size_request(config.MIN_THUMBNAIL_SIZE * 2, -1)
+        
         
         #Preview image
+        self.base_preview_image = None # image used to scale up and down
         self.preview_image = gtk.Image()
+
         self.preview_image.set_alignment(0, 0.5)
         #leave room for thumbnail shadow
         if DROP_SHADOW:
-            shadow_size = 21
+            self.cacheDropShadow()
         else:
-            shadow_size = 0
-        self.preview_image.set_size_request(MAX_THUMBNAIL_SIZE + shadow_size, MAX_THUMBNAIL_SIZE + shadow_size)
+            self.shadow_size = 0
+        
+        size = int(self.slider_adjustment.get_value())
+        
+        self.preview_image.set_size_request(size + self.shadow_size, size + self.shadow_size)
         
         #labels to display file information
         
@@ -4460,9 +4486,14 @@ class SelectionVBox(gtk.VBox):
         self.preview_table.attach(right_spacer, 3, 4, 1, 2, xoptions=gtk.SHRINK, yoptions=gtk.SHRINK)
         
         row = 0
-        if not tiny_screen:
-            self.preview_table.attach(self.preview_title_label, 0, 3, row, row+1, yoptions=gtk.SHRINK)
-            row += 1
+        zoom_hbox = gtk.HBox()
+        zoom_hbox.pack_start(self.zoom_out_eventbox, False, False)
+        zoom_hbox.pack_start(self.slider_hscale, False, False)
+        zoom_hbox.pack_start(self.zoom_in_eventbox, False, False)
+        
+        self.preview_table.attach(zoom_hbox, 1, 3, row, row+1, yoptions=gtk.SHRINK)
+        
+        row += 1
         self.preview_table.attach(self.preview_image, 1, 3, row, row+1, yoptions=gtk.SHRINK)
         row += 1
         
@@ -4504,6 +4535,26 @@ class SelectionVBox(gtk.VBox):
         self.show_all()
     
     
+    def set_base_preview_image(self, pixbuf):
+        """
+        sets the unscaled pixbuf image to be displayed to the user
+        the actual image the user will see will depend on the scale
+        they've set to view it at
+        """
+        self.base_preview_image = pixbuf
+        
+    def zoom_in(self):
+        self.slider_adjustment.set_value(min([config.max_thumbnail_size, int(self.slider_adjustment.get_value()) + config.THUMBNAIL_INCREMENT]))
+        
+    def zoom_out(self):
+        self.slider_adjustment.set_value(max([config.MIN_THUMBNAIL_SIZE, int(self.slider_adjustment.get_value()) - config.THUMBNAIL_INCREMENT]))
+    
+    def zoom_in_100_callback(self, widget, value):
+        self.slider_adjustment.set_value(config.max_thumbnail_size)
+        
+    def zoom_out_0_callback(self, widget, value):
+        self.slider_adjustment.set_value(config.MIN_THUMBNAIL_SIZE)
+    
     def set_display_preview_folders(self, value):
         if value and self.selection_treeview.previewed_file_treerowref:
             self.preview_destination_expander.show()
@@ -4512,6 +4563,46 @@ class SelectionVBox(gtk.VBox):
         else:
             self.preview_destination_expander.hide()
             self.preview_device_expander.hide()
+            
+    def cacheDropShadow(self):
+        image_size = int(self.slider_adjustment.get_value())
+        offset_v = max([image_size / 25, 5]) # realistically size the shadow based on the size of the image
+        self.shadow_size = offset_v + 3
+        self.drop_shadow = DropShadow(offset=(offset_v,offset_v), shadow = (0x44, 0x44, 0x44, 0xff), border=self.shadow_size, trim_border = True)
+    
+    def resize_image_callback(self, adjustment):
+        """
+        Resize the preview image after the adjustment value has been
+        changed
+        """
+        size = int(adjustment.value)
+        self.parentApp.prefs.preview_zoom = size
+        self.cacheDropShadow()
+        
+        pixbuf = self.scaledPreviewImage()
+        if pixbuf:
+            self.preview_image.set_from_pixbuf(pixbuf)
+            size = max([pixbuf.get_width(), pixbuf.get_height()])
+            self.preview_image.set_size_request(size, size)
+        else:    
+            self.preview_image.set_size_request(size + self.shadow_size, size + self.shadow_size)
+        
+    def scaledPreviewImage(self):
+        """
+        Generate a scaled version of the preview image
+        """
+        size = int(self.slider_adjustment.get_value())
+        if not self.base_preview_image:
+            return None
+        else:
+            pixbuf = common.scale2pixbuf(size, size, self.base_preview_image)
+            
+            if DROP_SHADOW: 
+                pil_image = pixbuf_to_image(pixbuf)
+                pil_image = self.drop_shadow.dropShadow(pil_image) 
+                pixbuf = image_to_pixbuf(pil_image)
+
+            return pixbuf
     
     def set_job_code_display(self):
         """
@@ -4541,8 +4632,6 @@ class SelectionVBox(gtk.VBox):
             self.job_code_combo.append_text(text)
         # clear existing entry displayed in entry box
         self.job_code_entry.set_text('')
-        
-
         
     
     def add_job_code_combo(self):
@@ -5925,6 +6014,12 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
         
     def on_menu_preview_folders_toggled(self, check_button):
         self.prefs.display_preview_folders = check_button.get_active()
+        
+    def on_menu_zoom_out_activate(self, widget):
+        self.selection_vbox.zoom_out()
+        
+    def on_menu_zoom_in_activate(self, widget):
+        self.selection_vbox.zoom_in()
         
     def on_menu_select_all_activate(self, widget):
         self.selection_vbox.selection_treeview.select_rows('all')
