@@ -20,7 +20,7 @@ Rapid Photo Downloader can determine if it can download additional types of RAW
 files (some early versions of exiv2 and pyexiv2 segfault on certain RAW file
 types).
 
-If you want to download videos, you can install:
+If you want to download videos, you should install:
 
 - python-hachoir-metadata
 - python-kaa-metadata
