@@ -123,7 +123,8 @@ _ = Configi18n._
 #Translators: if neccessary, for guidance in how to translate this program, you may see http://damonlynch.net/translate.html 
 PROGRAM_NAME = _('Rapid Photo Downloader')
 
-TINY_SCREEN = gtk.gdk.screen_height() <= config.TINY_SCREEN_HEIGHT    
+TINY_SCREEN = gtk.gdk.screen_height() <= config.TINY_SCREEN_HEIGHT
+#~ TINY_SCREEN = True
 
 def today():
     return datetime.date.today().strftime('%Y-%m-%d')
@@ -4568,6 +4569,7 @@ class SelectionVBox(gtk.VBox):
         image_size = int(self.slider_adjustment.get_value())
         offset_v = max([image_size / 25, 5]) # realistically size the shadow based on the size of the image
         self.shadow_size = offset_v + 3
+        #~ print "shadow size", self.shadow_size
         self.drop_shadow = DropShadow(offset=(offset_v,offset_v), shadow = (0x44, 0x44, 0x44, 0xff), border=self.shadow_size, trim_border = True)
     
     def resize_image_callback(self, adjustment):

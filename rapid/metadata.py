@@ -280,7 +280,8 @@ class MetaData(baseclass):
                 v = self['Exif.Image.CameraSerialNumber']
             else:
                 return missing
-            return str(v)
+            v = str(v)
+            return v.strip()
         except:
             return missing
             

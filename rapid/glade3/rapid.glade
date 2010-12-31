@@ -2840,8 +2840,11 @@ You should have received a copy of the GNU General Public License along with Rap
 Lőrincz András &lt;level.andrasnak@gmail.com&gt;
 Michel Ange &lt;michelange@wanadoo.fr&gt;
 Alain J. Baudrez &lt;a.baudrez@gmail.com&gt;
+Martin Dahl Moe
 Martin Egger &lt;martin.egger@gmx.net&gt;
+Miroslav Matejaš &lt;silverspace@ubuntu-hr.org&gt;
 Nicolás M. Zahlut &lt;nzahlut@live.com&gt;
+Erik M
 Jose Luis Navarro &lt;jlnavarro111@gmail.com&gt;
 Tomas Novak &lt;kuvaly@seznam.cz&gt;
 Abel O'Rian &lt;abel.orian@gmail.com&gt;
@@ -3109,8 +3112,8 @@ Aron Xu &lt;happyaron.xu@gmail.com&gt;
                         <property name="use_underline">True</property>
                         <property name="use_stock">True</property>
                         <signal name="activate" handler="on_menu_zoom_in_activate"/>
-                        <accelerator key="plus" signal="activate" modifiers="GDK_CONTROL_MASK"/>
                         <accelerator key="equal" signal="activate" modifiers="GDK_CONTROL_MASK"/>
+                        <accelerator key="plus" signal="activate" modifiers="GDK_CONTROL_MASK"/>
                       </widget>
                     </child>
                     <child>
