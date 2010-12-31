@@ -102,7 +102,6 @@ class DropShadow():
         else:
             self.top_spacing = 0
         
-        
     def dropShadow(self, image):
         """
         image - The image to overlay on top of the shadow.

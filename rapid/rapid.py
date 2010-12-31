@@ -4382,7 +4382,7 @@ class SelectionVBox(gtk.VBox):
         
         
         #Preview image
-        self.base_preview_image = None # image used to scale up and down
+        self.base_preview_image = None # large size image used to scale down from
         self.preview_image = gtk.Image()
 
         self.preview_image.set_alignment(0, 0.5)
@@ -4392,9 +4392,9 @@ class SelectionVBox(gtk.VBox):
         else:
             self.shadow_size = 0
         
-        size = int(self.slider_adjustment.get_value())
+        image_size, shadow_size, offset = self._imageAndShadowSize()
         
-        self.preview_image.set_size_request(size + self.shadow_size, size + self.shadow_size)
+        self.preview_image.set_size_request(image_size, image_size)
         
         #labels to display file information
         
@@ -4566,11 +4566,15 @@ class SelectionVBox(gtk.VBox):
             self.preview_device_expander.hide()
             
     def cacheDropShadow(self):
+        i, self.shadow_size, offset_v = self._imageAndShadowSize()
+        self.drop_shadow = DropShadow(offset=(offset_v,offset_v), shadow = (0x44, 0x44, 0x44, 0xff), border=self.shadow_size, trim_border = True)
+        
+    def _imageAndShadowSize(self):
         image_size = int(self.slider_adjustment.get_value())
         offset_v = max([image_size / 25, 5]) # realistically size the shadow based on the size of the image
-        self.shadow_size = offset_v + 3
-        #~ print "shadow size", self.shadow_size
-        self.drop_shadow = DropShadow(offset=(offset_v,offset_v), shadow = (0x44, 0x44, 0x44, 0xff), border=self.shadow_size, trim_border = True)
+        shadow_size = offset_v + 3
+        image_size = image_size + offset_v * 2 + 3
+        return (image_size, shadow_size, offset_v)
     
     def resize_image_callback(self, adjustment):
         """
@@ -4603,7 +4607,7 @@ class SelectionVBox(gtk.VBox):
                 pil_image = pixbuf_to_image(pixbuf)
                 pil_image = self.drop_shadow.dropShadow(pil_image) 
                 pixbuf = image_to_pixbuf(pil_image)
-
+            
             return pixbuf
     
     def set_job_code_display(self):

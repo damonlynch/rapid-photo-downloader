@@ -13,6 +13,9 @@ thumbnails will contain jpeg artifacts when scaled up (this is particularly true
 when using a version of pyexiv2 < 0.2.0). For users who require larger preview
 images, this will be of little consequence.
 
+Bug fix: camera serial numbers are now stripped of any spaces preceding or
+following the actual value.
+
 Fixed bug #685335: inaccurate description of python packages required for 
 downloading videos.
 
