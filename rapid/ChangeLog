@@ -19,7 +19,8 @@ following the actual value.
 Fixed bug #685335: inaccurate description of python packages required for 
 downloading videos.
 
-Added Croatian translation. Updated French and Norwegian Bokmal translations.
+Added Croatian translation. Updated French, Norwegian Bokmal, Polish and Russian
+translations.
 
 
 Version 0.3.3
