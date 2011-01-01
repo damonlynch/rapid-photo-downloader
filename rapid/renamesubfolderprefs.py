@@ -1455,6 +1455,8 @@ class SubfolderPreferences(ImageRenamePreferences):
         self.component = pn.SUBFOLDER_COMPONENT
         ImageRenamePreferences.__init__(self, prefList, parent)
         
+        self.stripExtraneousWhiteSpace = re.compile(r'\s*%s\s*' % os.sep)
+        
     def generateNameUsingPreferences(self, photo, existingFilename=None, 
                                     stripCharacters = False, fallback_date = None):
         """
@@ -1476,6 +1478,10 @@ class SubfolderPreferences(ImageRenamePreferences):
         if subfolders:
             if subfolders[0] == os.sep:
                 subfolders = subfolders[1:]
+                
+        # remove any spaces before and after a directory name
+        if subfolders and stripCharacters:
+            subfolders = self.stripExtraneousWhiteSpace.sub(os.sep, subfolders)
             
         return subfolders
 

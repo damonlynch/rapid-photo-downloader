@@ -1,7 +1,7 @@
 Version 0.3.4
 -------------
 
-2010-xx-xx
+2010-12-31
 
 It is now possible change the size of the preview image by zooming in and out
 using a slider. The maximum size is double that of the previous fixed size, 
@@ -12,6 +12,10 @@ reasons, it does not create them. This means for some file formats, the
 thumbnails will contain jpeg artifacts when scaled up (this is particularly true
 when using a version of pyexiv2 < 0.2.0). For users who require larger preview
 images, this will be of little consequence.
+
+When the "Strip compatible characters" feature is enabled in the Preferences 
+(which is the default), any white space (e.g. spaces) beginning or ending a
+folder name will now be removed.
 
 Bug fix: camera serial numbers are now stripped of any spaces preceding or
 following the actual value.
