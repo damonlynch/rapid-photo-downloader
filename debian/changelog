@@ -1,3 +1,18 @@
+rapid-photo-downloader (0.3.4-0ubuntu1~ppa1) hardy; urgency=low
+
+  * Enable zooming in and out of preview image.
+
+  * Extraneous white space is now more effectively stripped from
+    serial number metadata and folder names.
+
+  * Fixed bug #685335: inaccurate description of python packages
+    required for downloading videos.
+
+  * Added Croatian translation. Updated French, Norwegian Bokmal,
+    Polish and Russian translations.
+
+ -- Damon Lynch <damonlynch@gmail.com>  Fri, 31 Dec 2010 21:37:39 -0600
+
 rapid-photo-downloader (0.3.3-0ubuntu1~ppa1) hardy; urgency=low
 
   * Added support for mod, tod and 3gp video files.
