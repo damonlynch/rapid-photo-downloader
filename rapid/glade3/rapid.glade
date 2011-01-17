@@ -2264,7 +2264,7 @@ You can download photos from multiple devices simultaneously, or you can specify
                             <child>
                               <widget class="GtkLabel" id="label31">
                                 <property name="visible">True</property>
-                                <property name="label" translatable="yes">&lt;span weight="bold" size="x-large"&gt;Automation&lt;/span&gt;</property>
+                                <property name="label" translatable="yes">&lt;span weight="bold" size="x-large"&gt;Miscellaneous&lt;/span&gt;</property>
                                 <property name="use_markup">True</property>
                               </widget>
                               <packing>
@@ -2298,6 +2298,7 @@ You can download photos from multiple devices simultaneously, or you can specify
                         <property name="visible">True</property>
                         <child>
                           <widget class="GtkLabel" id="label45">
+                            <property name="visible">True</property>
                             <property name="xalign">0</property>
                             <property name="xpad">12</property>
                             <property name="label" translatable="yes">&lt;b&gt;Program Automation&lt;/b&gt;</property>
@@ -2372,7 +2373,7 @@ You can download photos from multiple devices simultaneously, or you can specify
                                 </child>
                                 <child>
                                   <widget class="GtkCheckButton" id="auto_exit_checkbutton">
-                                    <property name="label" translatable="yes">Exit program if download completes without any warnings or errors</property>
+                                    <property name="label" translatable="yes">Exit program when download completes</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
@@ -2396,8 +2397,8 @@ You can download photos from multiple devices simultaneously, or you can specify
                                   </widget>
                                   <packing>
                                     <property name="right_attach">3</property>
-                                    <property name="top_attach">4</property>
-                                    <property name="bottom_attach">5</property>
+                                    <property name="top_attach">5</property>
+                                    <property name="bottom_attach">6</property>
                                   </packing>
                                 </child>
                                 <child>
@@ -2416,7 +2417,20 @@ You can download photos from multiple devices simultaneously, or you can specify
                                   <placeholder/>
                                 </child>
                                 <child>
-                                  <placeholder/>
+                                  <widget class="GtkCheckButton" id="auto_exit_force_checkbutton">
+                                    <property name="label" translatable="yes">Exit program even if download had warnings or errors</property>
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">True</property>
+                                    <property name="receives_default">False</property>
+                                    <property name="draw_indicator">True</property>
+                                    <signal name="toggled" handler="on_auto_exit_force_checkbutton_toggled"/>
+                                  </widget>
+                                  <packing>
+                                    <property name="left_attach">1</property>
+                                    <property name="right_attach">2</property>
+                                    <property name="top_attach">4</property>
+                                    <property name="bottom_attach">5</property>
+                                  </packing>
                                 </child>
                               </widget>
                               <packing>
@@ -2440,6 +2454,72 @@ You can download photos from multiple devices simultaneously, or you can specify
                             <property name="position">1</property>
                           </packing>
                         </child>
+                        <child>
+                          <widget class="GtkLabel" id="label3">
+                            <property name="visible">True</property>
+                            <property name="xalign">0</property>
+                            <property name="xpad">12</property>
+                            <property name="label" translatable="yes">&lt;b&gt;Performance&lt;/b&gt;</property>
+                            <property name="use_markup">True</property>
+                          </widget>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="position">2</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <widget class="GtkHBox" id="hbox16">
+                            <property name="visible">True</property>
+                            <property name="spacing">6</property>
+                            <child>
+                              <widget class="GtkLabel" id="label19"/>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="position">0</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <widget class="GtkTable" id="table1">
+                                <property name="visible">True</property>
+                                <property name="n_columns">3</property>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <widget class="GtkCheckButton" id="scan_metadata_checkbutton">
+                                    <property name="label" translatable="yes">Scan metadata and generate thumbnails during device scan (slower)</property>
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">True</property>
+                                    <property name="receives_default">False</property>
+                                    <property name="draw_indicator">True</property>
+                                    <signal name="toggled" handler="on_scan_metadata_checkbutton_toggled"/>
+                                  </widget>
+                                </child>
+                              </widget>
+                              <packing>
+                                <property name="padding">24</property>
+                                <property name="position">1</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <widget class="GtkLabel" id="label29">
+                                <property name="visible">True</property>
+                              </widget>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="position">2</property>
+                              </packing>
+                            </child>
+                          </widget>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="padding">12</property>
+                            <property name="position">3</property>
+                          </packing>
+                        </child>
                       </widget>
                       <packing>
                         <property name="padding">12</property>
@@ -2452,10 +2532,10 @@ You can download photos from multiple devices simultaneously, or you can specify
                   </packing>
                 </child>
                 <child>
-                  <widget class="GtkLabel" id="automation_label">
+                  <widget class="GtkLabel" id="miscillaneous_label">
                     <property name="visible">True</property>
                     <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
-                    <property name="label" translatable="yes">Automation</property>
+                    <property name="label" translatable="yes">Miscillaneous</property>
                   </widget>
                   <packing>
                     <property name="position">8</property>
@@ -2827,7 +2907,7 @@ You can download photos from multiple devices simultaneously, or you can specify
     <property name="icon">rapid-photo-downloader.svg</property>
     <property name="type_hint">normal</property>
     <property name="program_name">Rapid Photo Downloader</property>
-    <property name="copyright" translatable="yes">Copyright Damon Lynch 2007-10</property>
+    <property name="copyright" translatable="yes">Copyright Damon Lynch 2007-11</property>
     <property name="comments" translatable="yes">Import your photos and videos efficiently and reliably</property>
     <property name="website">http://www.damonlynch.net/rapid</property>
     <property name="license" translatable="yes">Rapid Photo Downloader is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.

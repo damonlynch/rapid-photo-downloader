@@ -444,6 +444,7 @@ class RapidPreferences(prefs.Preferences):
         "auto_download_upon_device_insertion": prefs.Value(prefs.BOOL, False),
         "auto_unmount": prefs.Value(prefs.BOOL, False),
         "auto_exit": prefs.Value(prefs.BOOL, False),
+        "auto_exit_force": prefs.Value(prefs.BOOL, False),
         "auto_delete": prefs.Value(prefs.BOOL, False),
         "download_conflict_resolution": prefs.Value(prefs.STRING, 
                                         config.SKIP_DOWNLOAD),
@@ -472,6 +473,7 @@ class RapidPreferences(prefs.Preferences):
         "main_window_maximized": prefs.Value(prefs.INT, 0),
         "show_warning_downloading_from_camera": prefs.Value(prefs.BOOL, True),
         "preview_zoom": prefs.Value(prefs.INT, zoom),
+        "enable_previews": prefs.Value(prefs.BOOL, True),
         }
 
     def __init__(self):
@@ -853,7 +855,7 @@ class PreferencesDialog(gnomeglade.Component):
         self._setupJobCodeTab()
         self._setupDeviceTab()
         self._setupBackupTab()
-        self._setupAutomationTab()
+        self._setupMiscellaneousTab()
         self._setupErrorTab()
         
         if not DOWNLOAD_VIDEO:
@@ -926,7 +928,8 @@ class PreferencesDialog(gnomeglade.Component):
                                 hd.VERTICAL_CONTROL_SPACE)
         self._setupTableSpacing(self.rename_example_table)
         self._setupTableSpacing(self.video_rename_example_table)
-        self.devices_table.set_col_spacing(0, hd.NESTED_CONTROLS_SPACE)        
+        self.devices_table.set_col_spacing(0, hd.NESTED_CONTROLS_SPACE)
+        self.automation_table.set_col_spacing(0, hd.NESTED_CONTROLS_SPACE)
       
         self._setupTableSpacing(self.backup_table)
         self.backup_table.set_col_spacing(1, hd.NESTED_CONTROLS_SPACE)
@@ -1114,7 +1117,7 @@ class PreferencesDialog(gnomeglade.Component):
         self.updateBackupControls()
         self.updateBackupExample()
     
-    def _setupAutomationTab(self):
+    def _setupMiscellaneousTab(self):
         self.auto_startup_checkbutton.set_active(
                         self.prefs.auto_download_at_startup)
         self.auto_insertion_checkbutton.set_active(
@@ -1123,8 +1126,14 @@ class PreferencesDialog(gnomeglade.Component):
                         self.prefs.auto_unmount)
         self.auto_exit_checkbutton.set_active(
                         self.prefs.auto_exit)
+        self.auto_exit_force_checkbutton.set_active(
+                        self.prefs.auto_exit_force)
         self.auto_delete_checkbutton.set_active(
                         self.prefs.auto_delete)
+                        
+        self.scan_metadata_checkbutton.set_active(
+                        self.prefs.enable_previews)
+        self.updateMiscillaneousControls()
 
         
     def _setupErrorTab(self):
@@ -1391,7 +1400,18 @@ class PreferencesDialog(gnomeglade.Component):
         self.prefs.auto_delete = checkbutton.get_active()
 
     def on_auto_exit_checkbutton_toggled(self, checkbutton):
-        self.prefs.auto_exit = checkbutton.get_active()
+        active = checkbutton.get_active()
+        self.prefs.auto_exit = active
+        if not active:
+            self.prefs.auto_exit_force = False
+            self.auto_exit_force_checkbutton.set_active(False)
+        self.updateMiscillaneousControls()
+        
+    def on_auto_exit_force_checkbutton_toggled(self, checkbutton):
+        self.prefs.auto_exit_force = checkbutton.get_active()
+    
+    def on_scan_metadata_checkbutton_toggled(self, checkbutton):
+        self.prefs.enable_previews = checkbutton.get_active()
         
     def on_autodetect_device_checkbutton_toggled(self, checkbutton):
         self.prefs.device_autodetection = checkbutton.get_active()
@@ -1444,6 +1464,14 @@ class PreferencesDialog(gnomeglade.Component):
                 c.set_sensitive(True)
             self.autodetect_psd_checkbutton.set_sensitive(False)
             self.autodetect_image_devices_label.set_sensitive(False)
+    
+    def updateMiscillaneousControls(self):
+        """
+        Sets sensitivity of miscillaneous controls
+        """
+        
+        self.auto_exit_force_checkbutton.set_sensitive(self.prefs.auto_exit)
+            
     
     def updateBackupControls(self):
         """
@@ -1621,6 +1649,11 @@ def generateSubfolderAndName(mediaFile, problem, subfolderPrefsFactory,
     else:
         mediaFile.status = STATUS_NOT_DOWNLOADED
 
+def getGenericPhotoImage():
+    return gtk.gdk.pixbuf_new_from_file(paths.share_dir('glade3/photo.png'))
+    
+def getGenericVideoImage():
+    return gtk.gdk.pixbuf_new_from_file(paths.share_dir('glade3/video.png'))
 
 class NeedAJobCode():
     """
@@ -1850,8 +1883,8 @@ class CopyPhotos(Thread):
                        
             # load images to display for when a thumbnail cannot be extracted or created
             
-            self.photoThumbnail = gtk.gdk.pixbuf_new_from_file(paths.share_dir('glade3/photo.png'))
-            self.videoThumbnail = gtk.gdk.pixbuf_new_from_file(paths.share_dir('glade3/video.png'))
+            self.photoThumbnail = getGenericPhotoImage()
+            self.videoThumbnail = getGenericVideoImage()
                 
             imageRenameUsesJobCode = rn.usesJobCode(self.prefs.image_rename)
             imageSubfolderUsesJobCode = rn.usesJobCode(self.prefs.subfolder)
@@ -1893,11 +1926,19 @@ class CopyPhotos(Thread):
                     mediaFile.generateThumbnail(self.videoTempWorkingDir)
                     
                 if mediaFile.thumbnail is None:
-                    mediaFile.genericThumbnail = True
-                    if mediaFile.isImage:
-                        mediaFile.thumbnail = self.photoThumbnail
-                    else:
-                        mediaFile.thumbnail = self.videoThumbnail
+                    addGenericThumbnail(mediaFile)
+
+            
+            def addGenericThumbnail(mediaFile):
+                """
+                Adds a generic thumbnail to the mediafile, which
+                can be very useful when previews are disabled
+                """
+                mediaFile.genericThumbnail = True
+                if mediaFile.isImage:
+                    mediaFile.thumbnail = self.photoThumbnail
+                else:
+                    mediaFile.thumbnail = self.videoThumbnail                
             
             def downloadable(name):
                 isImage = media.isImage(name)
@@ -1907,16 +1948,23 @@ class CopyPhotos(Thread):
                 return (download, isImage, isVideo)
                 
             def addFile(name, path, size, modificationTime, device, volume, isImage):
-                #~ if debug_info:
-                    #~ cmd_line("Scanning %s" % name)
-                    
+                """
+                Add an image or video to the list of scanned files to be shown to the user for potential downloading
+                """
+
                 if isImage:
                     downloadFolder = self.prefs.download_folder
                 else:
                     downloadFolder = self.prefs.video_download_folder
                     
                 mediaFile = media.MediaFile(self.thread_id, name, path, size, modificationTime, device, downloadFolder, volume, isImage)
-                loadFileMetadata(mediaFile)
+                if self.prefs.enable_previews:
+                    # load full metadata for the file, including a thumbnail
+                    loadFileMetadata(mediaFile)
+                else:
+                    # insert only a generic thumbnail
+                    addGenericThumbnail(mediaFile)
+                    
                 # modificationTime is very useful for quick sorting
                 imagesAndVideos.append((mediaFile, modificationTime))
                 display_queue.put((self.parentApp.addFile, (mediaFile,)))
@@ -2243,50 +2291,66 @@ class CopyPhotos(Thread):
             subfolderFactory.initializeProblem(mediaFile.problem)
             fileRenameFactory.initializeProblem(mediaFile.problem)
             
-            # Here we cannot assume that the subfolder value will contain something -- the user may have changed the preferences after the scan
-            mediaFile.downloadSubfolder = subfolderFactory.generateNameUsingPreferences(
-                                                    mediaFile.metadata, mediaFile.name, 
-                                                    self.stripCharacters, fallback_date = mediaFile.modificationTime)
-
-
-            if self.prefs.synchronize_raw_jpg and usesImageSequenceElements and mediaFile.isImage:
-                #synchronizing RAW and JPEG only applies to photos, not videos
-                image_name, image_ext = os.path.splitext(mediaFile.name)
-                with self.downloadedFilesLock:
-                    i, sequence_to_use = downloaded_files.matching_pair(image_name, image_ext, mediaFile.metadata.dateTime(), mediaFile.metadata.subSeconds())
-                    if i == -1:
-                        # this exact file has already been downloaded (same extension, same filename, and same exif date time subsecond info)
-                        if not addUniqueIdentifier:
-                            logError(config.SERIOUS_ERROR,_('Photo has already been downloaded'), 
-                                        _("Source: %(source)s") % {'source': mediaFile.fullFileName})
-                            mediaFile.problem.add_problem(None, pn.FILE_ALREADY_DOWNLOADED, {'filetype': mediaFile.displayNameCap})
-                            skipFile = True
-                            
-                
-            # pass the subfolder the image will go into, as this is needed to determine subfolder sequence numbers 
-            # indicate that sequences chosen should be queued
-            
-            if not skipFile:
-                mediaFile.downloadName = fileRenameFactory.generateNameUsingPreferences(
-                                                            mediaFile.metadata, mediaFile.name, self.stripCharacters,  mediaFile.downloadSubfolder,  
-                                                            sequencesPreliminary = True,
-                                                            sequence_to_use = sequence_to_use,
-                                                            fallback_date = mediaFile.modificationTime)
-
-                mediaFile.downloadPath = os.path.join(mediaFile.downloadFolder, mediaFile.downloadSubfolder)
-                mediaFile.downloadFullFileName = os.path.join(mediaFile.downloadPath, mediaFile.downloadName)
-                    
-                if not mediaFile.downloadName or not mediaFile.downloadSubfolder:
-                    if not mediaFile.downloadName and not mediaFile.downloadSubfolder:
-                        area = _("subfolder and filename")
-                    elif not mediaFile.downloadName:
-                        area = _("filename")
-                    else:
-                        area = _("subfolder")
-                    problem.add_problem(None, pn.ERROR_IN_NAME_GENERATION, {'filetype': mediaFile.displayNameCap, 'area': area})
-                    problem.add_extra_detail(pn.NO_DATA_TO_NAME, {'filetype': area})
+            if mediaFile.metadata is None:
+                try:
+                    if debug_info:
+                        cmd_line("Loading metadata that was deferred for %s" % mediaFile.name)
+                    mediaFile.loadMetadata()
+                except:
+                    cmd_line("Could not load metadata")
+                    logError(config.SERIOUS_ERROR, 
+                             _("%(filetype)s metadata cannot be read") % {'filetype': mediaFile.displayNameCap},
+                             _("Source: %(source)s") % {'source': mediaFile.fullFileName})
+                    mediaFile.problem.add_problem(None, pn.CANNOT_DOWNLOAD_BAD_METADATA, {'filetype': mediaFile.displayNameCap})
                     skipFile = True
-                    logError(config.SERIOUS_ERROR, pn.problem_definitions[ERROR_IN_NAME_GENERATION][1] % {'filetype': mediaFile.displayNameCap, 'area': area})
+            else:
+                cmd_line("no need to load metadata for %s " % mediaFile.name)
+
+            if not skipFile:
+                # Here we cannot assume that the subfolder value will contain something -- the user may have changed the preferences after the scan
+                mediaFile.downloadSubfolder = subfolderFactory.generateNameUsingPreferences(
+                                                        mediaFile.metadata, mediaFile.name, 
+                                                        self.stripCharacters, fallback_date = mediaFile.modificationTime)
+
+
+                if self.prefs.synchronize_raw_jpg and usesImageSequenceElements and mediaFile.isImage:
+                    #synchronizing RAW and JPEG only applies to photos, not videos
+                    image_name, image_ext = os.path.splitext(mediaFile.name)
+                    with self.downloadedFilesLock:
+                        i, sequence_to_use = downloaded_files.matching_pair(image_name, image_ext, mediaFile.metadata.dateTime(), mediaFile.metadata.subSeconds())
+                        if i == -1:
+                            # this exact file has already been downloaded (same extension, same filename, and same exif date time subsecond info)
+                            if not addUniqueIdentifier:
+                                logError(config.SERIOUS_ERROR,_('Photo has already been downloaded'), 
+                                            _("Source: %(source)s") % {'source': mediaFile.fullFileName})
+                                mediaFile.problem.add_problem(None, pn.FILE_ALREADY_DOWNLOADED, {'filetype': mediaFile.displayNameCap})
+                                skipFile = True
+                                
+                    
+                # pass the subfolder the image will go into, as this is needed to determine subfolder sequence numbers 
+                # indicate that sequences chosen should be queued
+                
+                if not skipFile:
+                    mediaFile.downloadName = fileRenameFactory.generateNameUsingPreferences(
+                                                                mediaFile.metadata, mediaFile.name, self.stripCharacters,  mediaFile.downloadSubfolder,  
+                                                                sequencesPreliminary = True,
+                                                                sequence_to_use = sequence_to_use,
+                                                                fallback_date = mediaFile.modificationTime)
+
+                    mediaFile.downloadPath = os.path.join(mediaFile.downloadFolder, mediaFile.downloadSubfolder)
+                    mediaFile.downloadFullFileName = os.path.join(mediaFile.downloadPath, mediaFile.downloadName)
+                        
+                    if not mediaFile.downloadName or not mediaFile.downloadSubfolder:
+                        if not mediaFile.downloadName and not mediaFile.downloadSubfolder:
+                            area = _("subfolder and filename")
+                        elif not mediaFile.downloadName:
+                            area = _("filename")
+                        else:
+                            area = _("subfolder")
+                        problem.add_problem(None, pn.ERROR_IN_NAME_GENERATION, {'filetype': mediaFile.displayNameCap, 'area': area})
+                        problem.add_extra_detail(pn.NO_DATA_TO_NAME, {'filetype': area})
+                        skipFile = True
+                        logError(config.SERIOUS_ERROR, pn.problem_definitions[ERROR_IN_NAME_GENERATION][1] % {'filetype': mediaFile.displayNameCap, 'area': area})
             
             if not skipFile:
                 checkProblemWithNameGeneration(mediaFile)
@@ -2952,8 +3016,8 @@ class CopyPhotos(Thread):
                 # must manually delete these variables, or else the media cannot be unmounted (bug in some versions of pyexiv2 / exiv2)
                 # for some reason directories on the device remain open with read only access, even after these steps - I don't know why
                 del self.subfolderPrefsFactory, self.imageRenamePrefsFactory, self.videoSubfolderPrefsFactory, self.videoRenamePrefsFactory
-                for i in self.cardMedia.imagesAndVideos:
-                    i[0].metadata = None
+                #~ for i in self.cardMedia.imagesAndVideos:
+                    #~ i[0].metadata = None
                 
             notifyAndUnmount(umountAttemptOK = all_files_downloaded)
             cmd_line(_("Download complete from %s") % self.cardMedia.prettyName(limit=0))
@@ -3717,13 +3781,17 @@ class SelectionTreeView(gtk.TreeView):
             yield self.liststore.get_iter(path)
     
     def add_file(self, mediaFile):
+        
         if debug_info:
             cmd_line('Adding file %s' % mediaFile.fullFileName)
+            
+        # metadata is loaded when previews are generated before downloading
         if mediaFile.metadata:
             date = mediaFile.dateTime()
             timestamp = mediaFile.metadata.timeStamp(missing=None)
             if timestamp is None:
                 timestamp = mediaFile.modificationTime
+        # if metadata has not been loaded, substitute other values
         else:
             timestamp = mediaFile.modificationTime
             date = datetime.datetime.fromtimestamp(timestamp)
@@ -3734,8 +3802,16 @@ class SelectionTreeView(gtk.TreeView):
         name = mediaFile.name
         size = mediaFile.size
         thumbnail = mediaFile.thumbnail
-        thumbnail_icon = common.scale2pixbuf(60, 36, thumbnail)
-        #thumbnail_icon = common.scale2pixbuf(80, 48, mediaFile.thumbnail)
+        
+        # FIXME
+        if mediaFile.genericThumbnail:
+            if mediaFile.isImage:
+                thumbnail_icon = self.generic_photo_with_shadow
+            else:
+                thumbnail_icon = self.generic_video_with_shadow            
+        else:
+            thumbnail_icon = common.scale2pixbuf(60, 36, thumbnail)
+            
         if DROP_SHADOW:
             if not mediaFile.genericThumbnail:
                 pil_image = pixbuf_to_image(thumbnail_icon)
@@ -3754,7 +3830,7 @@ class SelectionTreeView(gtk.TreeView):
 
         status_icon = self.get_status_icon(mediaFile.status)
         
-        if debug_info:
+        if debug_info and False:
             cmd_line('Thumbnail icon: %s' % thumbnail_icon)
             cmd_line('Name: %s' % name)
             cmd_line('Timestamp: %s' % timestamp)
@@ -3990,11 +4066,84 @@ class SelectionTreeView(gtk.TreeView):
         elif mediaFile.status == STATUS_CANNOT_DOWNLOAD:
             v = _('%(filetype)s cannot be downloaded') % {'filetype': mediaFile.displayNameCap}
         return v    
+
+    def getThumbnail(self, mediaFile):
+        mediaFile.generateThumbnail()
+        if mediaFile.thumbnail is None:
+            if mediaFile.isImage:
+                mediaFile.thumbnail = getGenericPhotoImage()
+            else:
+                mediaFile.thumbnail = getGenericVideoImage()
+            mediaFile.genericThumbnail = True        
+    
+    def loadMetadata(self, mediaFile, fromDownloadedFile=False):
+        try:
+            mediaFile.loadMetadata(fromDownloadedFile)
+        except:
+            if debug_info:
+                cmd_line("Preview of file occurred where metadata could not be loaded")
+            if mediaFile.status == STATUS_NOT_DOWNLOADED:
+                mediaFile.status = STATUS_CANNOT_DOWNLOAD
+                mediaFile.problem = pn.Problem()
+                mediaFile.problem.add_problem(None, pn.CANNOT_DOWNLOAD_BAD_METADATA, {'filetype': mediaFile.displayNameCap})
+                
+            mediaFile.metadata = None            
+        else:
+            self.getThumbnail(mediaFile)
         
     def show_preview(self, iter):
+        """
+        Shows information about the image or video in the preview panel.
+        """
+        
+        def _generateSampleSubfolderAndName():
+            self._refreshNameFactories()
+            self._setUsesJobCode()
+            self.generateSampleSubfolderAndName(mediaFile, iter)
+            
+        def _loadMetadataAndThumbNailIfNeccesary():
+            """
+            the user may have selected a row in which know metadata has been loaded and/or no thumbnail generated
+            """
+            if mediaFile.metadata is None and mediaFile.status == STATUS_NOT_DOWNLOADED:
+                if debug_info:
+                    cmd_line("Loading metadata, and generating thumbnail, sample name, folders for a file that has not yet been downloaded")
+                self.loadMetadata(mediaFile)
+                if mediaFile.status <> STATUS_CANNOT_DOWNLOAD:
+                    _generateSampleSubfolderAndName()
+                
+            elif mediaFile.status in [STATUS_DOWNLOADED, STATUS_DOWNLOADED_WITH_WARNING, STATUS_BACKUP_PROBLEM]:
+                #~ if mediaFile.genericThumbnail:
+                    #~ cmd_line("must get thumbnail from downloaded file")
+                    #~ self.loadMetadata(mediaFile, True)
+                if debug_info:
+                    cmd_line("File is downloaded, metadata should be loaded.... may need to generate a thumbnail")
+                    print mediaFile.metadata
+                    
+            elif mediaFile.status in [STATUS_WARNING]:
+                if debug_info:
+                    cmd_line("Warning for file, but not downloaded")
+                print "metadata", mediaFile.metadata
+                if mediaFile.genericThumbnail:
+                    self.getThumbnail(mediaFile)
+            
+            elif mediaFile.status in [STATUS_DOWNLOAD_FAILED, STATUS_DOWNLOAD_AND_BACKUP_FAILED]:
+                if debug_info:
+                    cmd_line("Download failed on this file")
+                self.loadMetadata(mediaFile)
+                #~ if mediaFile.metadata is None:
+                    #~ self.loadMetadata(mediaFile, True)
+                print "metadata", mediaFile.metadata
+            elif mediaFile.status == STATUS_DOWNLOAD_PENDING:
+                # do nothing..... do not want to potentially overwrite data in thread
+                pass
+            elif mediaFile.status == STATUS_CANNOT_DOWNLOAD:
+                # do nothing..... do not want to potentially overwrite data
+                if debug_info:
+                     cmd_line("File cannot be downloaded because of some kind of serious error")
             
         if not iter:
-            # clear everything except the label Preview at the top
+            # clear everything
             for widget in  [self.parentApp.preview_original_name_label,
                             self.parentApp.preview_name_label,
                             self.parentApp.preview_status_label, 
@@ -4021,6 +4170,8 @@ class SelectionTreeView(gtk.TreeView):
         elif not self.suspend_previews:
             mediaFile = self.get_mediaFile(iter)
             
+            _loadMetadataAndThumbNailIfNeccesary()
+            
             self.previewed_file_treerowref = mediaFile.treerowref
             
             self.parentApp.set_base_preview_image(mediaFile.thumbnail)
@@ -4032,9 +4183,7 @@ class SelectionTreeView(gtk.TreeView):
             self.parentApp.preview_image.set_tooltip_text(image_tool_tip)
 
             if mediaFile.sampleStale and mediaFile.status in [STATUS_NOT_DOWNLOADED, STATUS_WARNING]:
-                self._refreshNameFactories()
-                self._setUsesJobCode()
-                self.generateSampleSubfolderAndName(mediaFile, iter)
+                _generateSampleSubfolderAndName()
 
             self.parentApp.preview_original_name_label.set_text(mediaFile.name)
             self.parentApp.preview_original_name_label.set_tooltip_text(mediaFile.name)
@@ -4999,12 +5148,7 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
             self.rapidapp.present()
         else:
             self.running = True
-#            if not using_gio:
             self.main()
-#            else:
-#                mainloop = gobject.MainLoop()
-#                mainloop.run()
-            self.running = False
             
     def setTestingEnv(self):
         #self.prefs.program_version = '0.0.8~b7'
@@ -5923,7 +6067,7 @@ class RapidApp(gnomeglade.GnomeApp,  dbus.service.Object):
     def exitOnDownloadComplete(self):
         if self.downloadComplete():
             if self.prefs.auto_exit:
-                if not (self.downloadStats.noErrors or self.downloadStats.noWarnings):                
+                if not (self.downloadStats.noErrors or self.downloadStats.noWarnings) or self.prefs.auto_exit_force:                
                     self.quit()
             # since for whatever reason am not exiting, clear the download statistics
             self.downloadStats.clear()

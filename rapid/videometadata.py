@@ -31,7 +31,7 @@ import paths
 from filmstrip import add_filmstrip
 
 try:
-    import kaa.metadata
+    #~ import kaa.metadata
     from hachoir_core.cmd_line import unicodeFilename
     from hachoir_parser import createParser
     from hachoir_metadata import extractMetadata
@@ -178,7 +178,10 @@ if DOWNLOAD_VIDEO:
             else:
                 if ffmpeg:
                     try:
-                        tmp = tempfile.NamedTemporaryFile(dir=tempWorkingDir, prefix="rpd-tmp")
+                        if tempWorkingDir is None:
+                            tmp = tempfile.NamedTemporaryFile(prefix="rpd-tmp")
+                        else:
+                            tmp = tempfile.NamedTemporaryFile(dir=tempWorkingDir, prefix="rpd-tmp")
                         tmp.close()
                     except:
                         return None
@@ -187,7 +190,7 @@ if DOWNLOAD_VIDEO:
                     
                     try:
                         subprocess.check_call(['ffmpegthumbnailer', '-i', self.filename, '-t', '10', '-f', '-o', thm, '-s', str(size)])
-                        thumbnail = gtk.gdk.pixbuf_new_from_file_at_size(thm,  size,  size)
+                        thumbnail = gtk.gdk.pixbuf_new_from_file_at_size(thm, size, size)
                         os.unlink(thm)
                     except:
                         thumbnail = None                    

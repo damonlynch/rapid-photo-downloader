@@ -162,7 +162,7 @@ class MediaFile:
         self.status = STATUS_NOT_DOWNLOADED
         self.problem = None # class Problem in problemnotifcation.py
         
-    def loadMetadata(self):
+    def loadMetadata(self, fromDownloadedFile=False):
         """
         Attempt to load the metadata for the photo or video
         
@@ -170,10 +170,16 @@ class MediaFile:
         """
         if not self.metadata:
             if self.isImage:
-                self.metadata = metadata.MetaData(self.fullFileName)
+                if fromDownloadedFile:
+                    self.metadata = metadata.MetaData(self.downloadFullFileName)
+                else:
+                    self.metadata = metadata.MetaData(self.fullFileName)
                 self.metadata.read()
             else:
-                self.metadata = videometadata.VideoMetaData(self.fullFileName)
+                if fromDownloadedFile:
+                    self.metadata = videometadata.VideoMetaData(self.downloadFullFileName)
+                else:
+                    self.metadata = videometadata.VideoMetaData(self.fullFileName)
 
                 
     def dateTime(self, alternative_if_date_missing=None):
@@ -188,7 +194,7 @@ class MediaFile:
         return date
             
         
-    def generateThumbnail(self, tempWorkingDir):
+    def generateThumbnail(self, tempWorkingDir=None):
         """
         Attempts to generate or extract a thumnail and its orientation for the photo or video
         """
