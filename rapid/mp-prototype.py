@@ -27,7 +27,7 @@ import logging
 logger = log_to_stderr()
 logger.setLevel(logging.INFO)
 
-import media, common
+import media, common, rpdfile
 from media import getDefaultPhotoLocation, getDefaultVideoLocation, \
                   getDefaultBackupPhotoIdentifier, \
                   getDefaultBackupVideoIdentifier
@@ -58,13 +58,13 @@ except:
 
 from common import formatSizeForUser
 
-from metadata import RAW_FILE_EXTENSIONS, NON_RAW_IMAGE_FILE_EXTENSIONS
+
 #~ from videometadata import VIDEO_FILE_EXTENSIONS
 
 # for some reason, importing videometadata causes 100% usage of a CPU core
 #~ import videometadata
 #~ EXTENSIONS = VIDEO_FILE_EXTENSIONS + RAW_FILE_EXTENSIONS + NON_RAW_IMAGE_FILE_EXTENSIONS
-EXTENSIONS = RAW_FILE_EXTENSIONS + NON_RAW_IMAGE_FILE_EXTENSIONS
+
 DOWNLOAD_VIDEO = False
 
 from config import  STATUS_CANNOT_DOWNLOAD, STATUS_DOWNLOADED, \
@@ -86,9 +86,6 @@ def cmd_line(msg):
         print msg
         
 
-def is_downloadable(ext):
-    return ext in EXTENSIONS
-    
 def date_time_human_readable(date, with_line_break=True):
     if with_line_break:
         return _("%(date)s\n%(time)s") % {'date':date.strftime("%x"), 'time':date.strftime("%X")}
@@ -110,25 +107,7 @@ def date_time_subseconds_human_readable(date, subseconds):
              'second':date.strftime("%S"),
              'subsecond': subseconds}
 
-def getGenericPhotoImage():
-    return gtk.gdk.pixbuf_new_from_file(paths.share_dir('glade3/photo.png'))
-    
-def getGenericVideoImage():
-    return gtk.gdk.pixbuf_new_from_file(paths.share_dir('glade3/video.png'))
-    
-photoThumbnail = getGenericPhotoImage()
-videoThumbnail = getGenericVideoImage()
 
-def addGenericThumbnail(mediaFile):
-    """
-    Adds a generic thumbnail to the mediafile, which
-    can be very useful when previews are disabled
-    """
-    mediaFile.genericThumbnail = True
-    if mediaFile.isImage:
-        mediaFile.thumbnail = photoThumbnail
-    else:
-        mediaFile.thumbnail = videoThumbnail 
 
 class SelectionVBox(gtk.VBox):
     """
@@ -520,8 +499,8 @@ class SelectionVBox(gtk.VBox):
         self.parentApp.assignJobCode(job_code)
         self.completion.set_model(self.job_code_combo.get_model())
             
-    def add_file(self, mediaFile):
-        self.selection_treeview.add_file(mediaFile)
+    def add_file(self, rpd_file):
+        self.selection_treeview.add_file(rpd_file)
 
     
 class SelectionTreeView(gtk.TreeView):
@@ -536,21 +515,21 @@ class SelectionTreeView(gtk.TreeView):
         self.rapidApp = parentApp.parentApp
         
         self.liststore = gtk.ListStore(
-                         gtk.gdk.Pixbuf,        # 0 thumbnail icon
-                         str,                   # 1 name (for sorting)
-                         int,                   # 2 timestamp (for sorting), float converted into an int
-                         str,                   # 3 date (human readable)
-                         int,                   # 4 size (for sorting)
-                         str,                   # 5 size (human readable)
-                         int,                   # 6 isImage (for sorting)
-                         gtk.gdk.Pixbuf,        # 7 type (photo or video)
-                         str,                   # 8 job code
-                         gobject.TYPE_PYOBJECT, # 9 mediaFile (for data)
-                         gtk.gdk.Pixbuf,        # 10 status icon
-                         int,                   # 11 status (downloaded, cannot download, etc, for sorting)
-                         str,                   # 12 path (on the device)
-                         str,                   # 13 device
-                         int)                   # 14 thread id (worker the file is associated with)
+             gtk.gdk.Pixbuf,)        # 0 thumbnail icon
+             #~ str,                   # 1 name (for sorting)
+             #~ int,                   # 2 timestamp (for sorting), float converted into an int
+             #~ str,                   # 3 date (human readable)
+             #~ int,                  # 4 size (for sorting)
+             #~ str,                   # 5 size (human readable)
+             #~ int,                   # 6 isImage (for sorting)
+             #~ gtk.gdk.Pixbuf,        # 7 type (photo or video)
+             #~ str,                   # 8 job code
+             #~ gobject.TYPE_PYOBJECT, # 9 rpd_file (for data)
+             #~ gtk.gdk.Pixbuf,        # 10 status icon
+             #~ int,                   # 11 status (downloaded, cannot download, etc, for sorting)
+             #~ str,                   # 12 path (on the device)
+             #~ str,                   # 13 device
+             #~ int)                   # 14 thread id (worker the file is associated with)
                          
         self.selected_rows = set()
 
@@ -719,9 +698,9 @@ class SelectionTreeView(gtk.TreeView):
         """
         return self.liststore.get_value(iter, 11)
         
-    def get_mediaFile(self, iter):
+    def get_rpd_file(self, iter):
         """
-        Returns the mediaFile associated with the liststore's iter
+        Returns the rpd_file associated with the liststore's iter
         """
         return self.liststore.get_value(iter, 9)
         
@@ -776,7 +755,7 @@ class SelectionTreeView(gtk.TreeView):
         tree_row_refs = []
         iter = self.liststore.get_iter_first()
         while iter:
-            tree_row_refs.append(self.get_mediaFile(iter).treerowref)
+            tree_row_refs.append(self.get_rpd_file(iter).treerowref)
             iter = self.liststore.iter_next(iter)
         return tree_row_refs
         
@@ -789,7 +768,7 @@ class SelectionTreeView(gtk.TreeView):
         model, pathlist = selection.get_selected_rows()
         for path in pathlist:
             iter = self.liststore.get_iter(path)
-            tree_row_refs.append(self.get_mediaFile(iter).treerowref)
+            tree_row_refs.append(self.get_rpd_file(iter).treerowref)
         return tree_row_refs            
             
     def get_tree_row_iters(self, selected_only=False):
@@ -811,52 +790,35 @@ class SelectionTreeView(gtk.TreeView):
             path = reference.get_path()
             yield self.liststore.get_iter(path)
     
-    def add_file(self, mediaFile):
+    def add_file(self, rpd_file):
         if debug_info and False:
-            cmd_line('Adding file %s' % mediaFile.fullFileName)
+            cmd_line('Adding file %s' % rpd_file.full_file_name)
             
         # metadata is loaded when previews are generated before downloading
-        if mediaFile.metadata:
-            date = mediaFile.dateTime()
-            timestamp = mediaFile.metadata.timeStamp(missing=None)
+        if rpd_file.metadata:
+            date = rpd_file.date_time()
+            timestamp = rpd_file.metadata.timeStamp(missing=None)
             if timestamp is None:
-                timestamp = mediaFile.modificationTime
+                timestamp = rpd_file.modification_time
         # if metadata has not been loaded, substitute other values
         else:
-            timestamp = mediaFile.modificationTime
+            timestamp = rpd_file.modification_time
             date = datetime.datetime.fromtimestamp(timestamp)
 
         timestamp = int(timestamp)
             
         date_human_readable = date_time_human_readable(date)
-        name = mediaFile.name
-        size = mediaFile.size
-        thumbnail = mediaFile.thumbnail
-        if mediaFile.genericThumbnail:
-            if mediaFile.isImage:
-                thumbnail_icon = self.generic_photo_with_shadow
-            else:
-                thumbnail_icon = self.generic_video_with_shadow            
-        else:
-            thumbnail_icon = common.scale2pixbuf(60, 36, thumbnail)
-            
-        if DROP_SHADOW:
-            if not mediaFile.genericThumbnail:
-                pil_image = pixbuf_to_image(thumbnail_icon)
-                pil_image = self.iconDropShadow.dropShadow(pil_image)
-                thumbnail_icon = image_to_pixbuf(pil_image)
-            else:
-                if mediaFile.isImage:
-                    thumbnail_icon = self.generic_photo_with_shadow
-                else:
-                    thumbnail_icon = self.generic_video_with_shadow
-        
-        if mediaFile.isImage:
-            type_icon = self.icon_photo
-        else:
-            type_icon = self.icon_video
+        name = rpd_file.name
+        size = int(rpd_file.size)
+        thumbnail = rpd_file.thumbnail
 
-        status_icon = self.get_status_icon(mediaFile.status)
+        # very strange.... why can't I use an image in the class?
+        thumbnail_icon = rpdfile.get_generic_photo_image_icon()
+        
+        
+        type_icon = rpd_file.type_icon
+
+        status_icon = self.get_status_icon(rpd_file.status)
         
         if debug_info and False:
             cmd_line('Thumbnail icon: %s' % thumbnail_icon)
@@ -864,20 +826,48 @@ class SelectionTreeView(gtk.TreeView):
             cmd_line('Timestamp: %s' % timestamp)
             cmd_line('Date: %s' % date_human_readable)
             cmd_line('Size: %s %s' % (size, common.formatSizeForUser(size)))
-            cmd_line('Is an image: %s' % mediaFile.isImage)
-            cmd_line('Status: %s' % self.status_human_readable(mediaFile))
-            cmd_line('Path: %s' % mediaFile.path)
-            cmd_line('Device name: %s' % mediaFile.deviceName)
-            cmd_line('Thread: %s' % mediaFile.thread_id)
+            cmd_line('Status: %s' % self.status_human_readable(rpd_file))
+            cmd_line('Path: %s' % rpd_file.path)
+            cmd_line('Device name: %s' % rpd_file.device_name)
             cmd_line(' ')
 
-        iter = self.liststore.append((thumbnail_icon, name, timestamp, date_human_readable, size, common.formatSizeForUser(size), mediaFile.isImage, type_icon, '', mediaFile, status_icon, mediaFile.status, mediaFile.path, mediaFile.deviceName, mediaFile.thread_id))
+        print type(thumbnail_icon)
+        #~ print type(name)
+        #~ print type(timestamp)
+        #~ print type(date_human_readable)
+        #~ print type(                              size)
+        #~ print type(                              common.formatSizeForUser(size))
+        #~ print type(                              rpd_file.file_type)
+        #~ print type(                              type_icon)
+        #~ print type(                              '')
+        #~ print type(                              rpd_file)
+        #~ print type(                              status_icon)
+        #~ print type(                              rpd_file.status)
+        #~ print type(                              rpd_file.path)
+        #~ print type(                              rpd_file.device_name)
+        #~ print type(rpd_file.thread_id)
         
-        #create a reference to this row and store it in the mediaFile
+        iter = self.liststore.append((thumbnail_icon,)) 
+                                      #~ name, 
+                                      #~ timestamp,
+                                      #~ date_human_readable,
+                                      #~ size, 
+                                      #~ common.formatSizeForUser(size),
+                                      #~ rpd_file.file_type, 
+                                      #~ type_icon,
+                                      #~ '',
+                                      #~ rpd_file,
+                                      #~ status_icon,
+                                      #~ rpd_file.status,
+                                      #~ rpd_file.path,
+                                      #~ rpd_file.device_name,
+                                      #~ rpd_file.thread_id))
+        
+        #create a reference to this row and store it in the rpd_file
         path = self.liststore.get_path(iter)
-        mediaFile.treerowref = gtk.TreeRowReference(self.liststore, path)
+        rpd_file.treerowref = gtk.TreeRowReference(self.liststore, path)
         
-        if mediaFile.status in [STATUS_CANNOT_DOWNLOAD, STATUS_WARNING]:
+        if rpd_file.status in [STATUS_CANNOT_DOWNLOAD, STATUS_WARNING]:
             if not self.user_has_clicked_header:
                 self.liststore.set_sort_column_id(11, gtk.SORT_DESCENDING)
         
@@ -951,7 +941,7 @@ class SelectionTreeView(gtk.TreeView):
             model, paths = selection.get_selected_rows()
             for path in paths:
                 iter = self.liststore.get_iter(path)
-                ref = self.get_mediaFile(iter).treerowref
+                ref = self.get_rpd_file(iter).treerowref
                 
                 if ref not in self.selected_rows:
                     self.show_preview(iter)
@@ -967,8 +957,8 @@ class SelectionTreeView(gtk.TreeView):
                 t = self.get_thread(iter) 
                 if t == thread_id:
                     if self.previewed_file_treerowref:
-                        mediaFile = self.get_mediaFile(iter)
-                        if mediaFile.treerowref == self.previewed_file_treerowref:
+                        rpd_file = self.get_rpd_file(iter)
+                        if rpd_file.treerowref == self.previewed_file_treerowref:
                             self.show_preview(None)
                     self.liststore.remove(iter)
                     # need to start over, or else bad things happen
@@ -993,13 +983,13 @@ class SelectionTreeView(gtk.TreeView):
                     regenerate = t == thread_id
                 
                 if regenerate:
-                    mediaFile = self.get_mediaFile(iter)
-                    if mediaFile.isImage:
-                        mediaFile.downloadFolder = self.rapidApp.prefs.download_folder
+                    rpd_file = self.get_rpd_file(iter)
+                    if rpd_file.isImage:
+                        rpd_file.downloadFolder = self.rapidApp.prefs.download_folder
                     else:
-                        mediaFile.downloadFolder = self.rapidApp.prefs.video_download_folder
-                    mediaFile.samplePath = os.path.join(mediaFile.downloadFolder, mediaFile.sampleSubfolder)
-                    if mediaFile.treerowref == self.previewed_file_treerowref:
+                        rpd_file.downloadFolder = self.rapidApp.prefs.video_download_folder
+                    rpd_file.samplePath = os.path.join(rpd_file.downloadFolder, rpd_file.sampleSubfolder)
+                    if rpd_file.treerowref == self.previewed_file_treerowref:
                         self.show_preview(iter)                
 
     def _refreshNameFactories(self):
@@ -1036,21 +1026,21 @@ class SelectionTreeView(gtk.TreeView):
                     regenerate = t == thread_id
                 
                 if regenerate:
-                    mediaFile = self.get_mediaFile(iter)
-                    self.generateSampleSubfolderAndName(mediaFile, iter)
-                    if mediaFile.treerowref == self.previewed_file_treerowref:
+                    rpd_file = self.get_rpd_file(iter)
+                    self.generateSampleSubfolderAndName(rpd_file, iter)
+                    if rpd_file.treerowref == self.previewed_file_treerowref:
                         self.show_preview(iter)
     
-    def generateSampleSubfolderAndName(self, mediaFile, iter):
+    def generateSampleSubfolderAndName(self, rpd_file, iter):
         problem = pn.Problem()
-        if mediaFile.isImage:
+        if rpd_file.isImage:
             fallback_date = None
             subfolderPrefsFactory = self.subfolderPrefsFactory
             renamePrefsFactory = self.imageRenamePrefsFactory
             nameUsesJobCode = self.imageRenameUsesJobCode
             subfolderUsesJobCode = self.imageSubfolderUsesJobCode
         else:
-            fallback_date = mediaFile.modificationTime
+            fallback_date = rpd_file.modification_time
             subfolderPrefsFactory = self.videoSubfolderPrefsFactory
             renamePrefsFactory = self.videoRenamePrefsFactory
             nameUsesJobCode = self.videoRenameUsesJobCode
@@ -1059,13 +1049,13 @@ class SelectionTreeView(gtk.TreeView):
         renamePrefsFactory.setJobCode(self.get_job_code(iter))
         subfolderPrefsFactory.setJobCode(self.get_job_code(iter))
         
-        generateSubfolderAndName(mediaFile, problem, subfolderPrefsFactory, renamePrefsFactory, 
+        generateSubfolderAndName(rpd_file, problem, subfolderPrefsFactory, renamePrefsFactory, 
                                 nameUsesJobCode, subfolderUsesJobCode,
                                 self.strip_characters, fallback_date)
-        if self.get_status(iter) != mediaFile.status:
-            self.liststore.set(iter, 11, mediaFile.status)
-            self.liststore.set(iter, 10, self.get_status_icon(mediaFile.status))
-        mediaFile.sampleStale = False
+        if self.get_status(iter) != rpd_file.status:
+            self.liststore.set(iter, 11, rpd_file.status)
+            self.liststore.set(iter, 10, self.get_status_icon(rpd_file.status))
+        rpd_file.sampleStale = False
         
     def _setUsesJobCode(self):
         self.imageRenameUsesJobCode = rn.usesJobCode(self.rapidApp.prefs.image_rename)
@@ -1074,50 +1064,50 @@ class SelectionTreeView(gtk.TreeView):
         self.videoSubfolderUsesJobCode = rn.usesJobCode(self.rapidApp.prefs.video_subfolder)        
     
     
-    def status_human_readable(self, mediaFile):
-        if mediaFile.status == STATUS_DOWNLOADED:
-            v = _('%(filetype)s was downloaded successfully') % {'filetype': mediaFile.displayNameCap}
-        elif mediaFile.status == STATUS_DOWNLOAD_FAILED:
-            v = _('%(filetype)s was not downloaded') % {'filetype': mediaFile.displayNameCap}
-        elif mediaFile.status == STATUS_DOWNLOADED_WITH_WARNING:
-            v = _('%(filetype)s was downloaded with warnings') % {'filetype': mediaFile.displayNameCap}
-        elif mediaFile.status == STATUS_BACKUP_PROBLEM:
-            v = _('%(filetype)s was downloaded but there were problems backing up') % {'filetype': mediaFile.displayNameCap}
-        elif mediaFile.status == STATUS_DOWNLOAD_AND_BACKUP_FAILED:
-            v = _('%(filetype)s was neither downloaded nor backed up') % {'filetype': mediaFile.displayNameCap}                
-        elif mediaFile.status == STATUS_NOT_DOWNLOADED:
-            v = _('%(filetype)s is ready to be downloaded') % {'filetype': mediaFile.displayNameCap}
-        elif mediaFile.status == STATUS_DOWNLOAD_PENDING:
-            v = _('%(filetype)s is about to be downloaded') % {'filetype': mediaFile.displayNameCap}
-        elif mediaFile.status == STATUS_WARNING:
-            v = _('%(filetype)s will be downloaded with warnings')% {'filetype': mediaFile.displayNameCap}
-        elif mediaFile.status == STATUS_CANNOT_DOWNLOAD:
-            v = _('%(filetype)s cannot be downloaded') % {'filetype': mediaFile.displayNameCap}
+    def status_human_readable(self, rpd_file):
+        if rpd_file.status == STATUS_DOWNLOADED:
+            v = _('%(filetype)s was downloaded successfully') % {'filetype': rpd_file.displayNameCap}
+        elif rpd_file.status == STATUS_DOWNLOAD_FAILED:
+            v = _('%(filetype)s was not downloaded') % {'filetype': rpd_file.displayNameCap}
+        elif rpd_file.status == STATUS_DOWNLOADED_WITH_WARNING:
+            v = _('%(filetype)s was downloaded with warnings') % {'filetype': rpd_file.displayNameCap}
+        elif rpd_file.status == STATUS_BACKUP_PROBLEM:
+            v = _('%(filetype)s was downloaded but there were problems backing up') % {'filetype': rpd_file.displayNameCap}
+        elif rpd_file.status == STATUS_DOWNLOAD_AND_BACKUP_FAILED:
+            v = _('%(filetype)s was neither downloaded nor backed up') % {'filetype': rpd_file.displayNameCap}                
+        elif rpd_file.status == STATUS_NOT_DOWNLOADED:
+            v = _('%(filetype)s is ready to be downloaded') % {'filetype': rpd_file.displayNameCap}
+        elif rpd_file.status == STATUS_DOWNLOAD_PENDING:
+            v = _('%(filetype)s is about to be downloaded') % {'filetype': rpd_file.displayNameCap}
+        elif rpd_file.status == STATUS_WARNING:
+            v = _('%(filetype)s will be downloaded with warnings')% {'filetype': rpd_file.displayNameCap}
+        elif rpd_file.status == STATUS_CANNOT_DOWNLOAD:
+            v = _('%(filetype)s cannot be downloaded') % {'filetype': rpd_file.displayNameCap}
         return v    
 
-    def getThumbnail(self, mediaFile):
-        mediaFile.generateThumbnail()
-        if mediaFile.thumbnail is None:
-            if mediaFile.isImage:
-                mediaFile.thumbnail = getGenericPhotoImage()
+    def getThumbnail(self, rpd_file):
+        rpd_file.generateThumbnail()
+        if rpd_file.thumbnail is None:
+            if rpd_file.isImage:
+                rpd_file.thumbnail = getGenericPhotoImage()
             else:
-                mediaFile.thumbnail = getGenericVideoImage()
-            mediaFile.genericThumbnail = True        
+                rpd_file.thumbnail = getGenericVideoImage()
+            rpd_file.generic_thumbnail = True        
     
-    def loadMetadata(self, mediaFile, fromDownloadedFile=False):
+    def loadMetadata(self, rpd_file, fromDownloadedFile=False):
         try:
-            mediaFile.loadMetadata(fromDownloadedFile)
+            rpd_file.loadMetadata(fromDownloadedFile)
         except:
             if debug_info:
                 cmd_line("Preview of file occurred where metadata could not be loaded")
-            if mediaFile.status == STATUS_NOT_DOWNLOADED:
-                mediaFile.status = STATUS_CANNOT_DOWNLOAD
-                mediaFile.problem = pn.Problem()
-                mediaFile.problem.add_problem(None, pn.CANNOT_DOWNLOAD_BAD_METADATA, {'filetype': mediaFile.displayNameCap})
+            if rpd_file.status == STATUS_NOT_DOWNLOADED:
+                rpd_file.status = STATUS_CANNOT_DOWNLOAD
+                rpd_file.problem = pn.Problem()
+                rpd_file.problem.add_problem(None, pn.CANNOT_DOWNLOAD_BAD_METADATA, {'filetype': rpd_file.displayNameCap})
                 
-            mediaFile.metadata = None            
+            rpd_file.metadata = None            
         else:
-            self.getThumbnail(mediaFile)
+            self.getThumbnail(rpd_file)
         
     def show_preview(self, iter):
         """
@@ -1127,45 +1117,45 @@ class SelectionTreeView(gtk.TreeView):
         def _generateSampleSubfolderAndName():
             self._refreshNameFactories()
             self._setUsesJobCode()
-            self.generateSampleSubfolderAndName(mediaFile, iter)
+            self.generateSampleSubfolderAndName(rpd_file, iter)
             
         def _loadMetadataAndThumbNailIfNeccesary():
             """
             the user may have selected a row in which know metadata has been loaded and/or no thumbnail generated
             """
-            if mediaFile.metadata is None and mediaFile.status == STATUS_NOT_DOWNLOADED:
+            if rpd_file.metadata is None and rpd_file.status == STATUS_NOT_DOWNLOADED:
                 if debug_info:
                     cmd_line("Loading metadata, and generating thumbnail, sample name, folders for a file that has not yet been downloaded")
-                self.loadMetadata(mediaFile)
-                if mediaFile.status <> STATUS_CANNOT_DOWNLOAD:
+                self.loadMetadata(rpd_file)
+                if rpd_file.status <> STATUS_CANNOT_DOWNLOAD:
                     _generateSampleSubfolderAndName()
                 
-            elif mediaFile.status in [STATUS_DOWNLOADED, STATUS_DOWNLOADED_WITH_WARNING, STATUS_BACKUP_PROBLEM]:
-                #~ if mediaFile.genericThumbnail:
+            elif rpd_file.status in [STATUS_DOWNLOADED, STATUS_DOWNLOADED_WITH_WARNING, STATUS_BACKUP_PROBLEM]:
+                #~ if rpd_file.generic_thumbnail:
                     #~ cmd_line("must get thumbnail from downloaded file")
-                    #~ self.loadMetadata(mediaFile, True)
+                    #~ self.loadMetadata(rpd_file, True)
                 if debug_info:
                     cmd_line("File is downloaded, metadata should be loaded.... may need to generate a thumbnail")
-                    print mediaFile.metadata
+                    print rpd_file.metadata
                     
-            elif mediaFile.status in [STATUS_WARNING]:
+            elif rpd_file.status in [STATUS_WARNING]:
                 if debug_info:
                     cmd_line("Warning for file, but not downloaded")
-                print "metadata", mediaFile.metadata
-                if mediaFile.genericThumbnail:
-                    self.getThumbnail(mediaFile)
+                print "metadata", rpd_file.metadata
+                if rpd_file.generic_thumbnail:
+                    self.getThumbnail(rpd_file)
             
-            elif mediaFile.status in [STATUS_DOWNLOAD_FAILED, STATUS_DOWNLOAD_AND_BACKUP_FAILED]:
+            elif rpd_file.status in [STATUS_DOWNLOAD_FAILED, STATUS_DOWNLOAD_AND_BACKUP_FAILED]:
                 if debug_info:
                     cmd_line("Download failed on this file")
-                self.loadMetadata(mediaFile)
-                #~ if mediaFile.metadata is None:
-                    #~ self.loadMetadata(mediaFile, True)
-                print "metadata", mediaFile.metadata
-            elif mediaFile.status == STATUS_DOWNLOAD_PENDING:
+                self.loadMetadata(rpd_file)
+                #~ if rpd_file.metadata is None:
+                    #~ self.loadMetadata(rpd_file, True)
+                print "metadata", rpd_file.metadata
+            elif rpd_file.status == STATUS_DOWNLOAD_PENDING:
                 # do nothing..... do not want to potentially overwrite data in thread
                 pass
-            elif mediaFile.status == STATUS_CANNOT_DOWNLOAD:
+            elif rpd_file.status == STATUS_CANNOT_DOWNLOAD:
                 # do nothing..... do not want to potentially overwrite data
                 if debug_info:
                      cmd_line("File cannot be downloaded because of some kind of serious error")
@@ -1196,36 +1186,36 @@ class SelectionTreeView(gtk.TreeView):
             
         
         elif not self.suspend_previews:
-            mediaFile = self.get_mediaFile(iter)
+            rpd_file = self.get_rpd_file(iter)
             
             _loadMetadataAndThumbNailIfNeccesary()
             
-            self.previewed_file_treerowref = mediaFile.treerowref
+            self.previewed_file_treerowref = rpd_file.treerowref
             
-            self.parentApp.set_base_preview_image(mediaFile.thumbnail)
+            self.parentApp.set_base_preview_image(rpd_file.thumbnail)
             thumbnail = self.parentApp.scaledPreviewImage()
                 
             self.parentApp.preview_image.set_from_pixbuf(thumbnail)
             
-            image_tool_tip = "%s\n%s" % (date_time_human_readable(mediaFile.dateTime(), False), common.formatSizeForUser(mediaFile.size))
+            image_tool_tip = "%s\n%s" % (date_time_human_readable(rpd_file.date_time(), False), common.formatSizeForUser(rpd_file.size))
             self.parentApp.preview_image.set_tooltip_text(image_tool_tip)
 
-            if mediaFile.sampleStale and mediaFile.status in [STATUS_NOT_DOWNLOADED, STATUS_WARNING]:
+            if rpd_file.sampleStale and rpd_file.status in [STATUS_NOT_DOWNLOADED, STATUS_WARNING]:
                 _generateSampleSubfolderAndName()
 
-            self.parentApp.preview_original_name_label.set_text(mediaFile.name)
-            self.parentApp.preview_original_name_label.set_tooltip_text(mediaFile.name)
-            if mediaFile.volume:
-                pixbuf = mediaFile.volume.get_icon_pixbuf(16)
+            self.parentApp.preview_original_name_label.set_text(rpd_file.name)
+            self.parentApp.preview_original_name_label.set_tooltip_text(rpd_file.name)
+            if rpd_file.volume:
+                pixbuf = rpd_file.volume.get_icon_pixbuf(16)
             else:
                 pixbuf = self.icontheme.load_icon('gtk-harddisk', 16, gtk.ICON_LOOKUP_USE_BUILTIN)
             self.parentApp.preview_device_image.set_from_pixbuf(pixbuf)
-            self.parentApp.preview_device_label.set_text(mediaFile.deviceName)
-            self.parentApp.preview_device_path_label.set_text(mediaFile.path)
-            self.parentApp.preview_device_path_label.set_tooltip_text(mediaFile.path)
+            self.parentApp.preview_device_label.set_text(rpd_file.device_name)
+            self.parentApp.preview_device_path_label.set_text(rpd_file.path)
+            self.parentApp.preview_device_path_label.set_tooltip_text(rpd_file.path)
             
             if using_gio:
-                folder = gio.File(mediaFile.downloadFolder)
+                folder = gio.File(rpd_file.downloadFolder)
                 fileInfo = folder.query_info(gio.FILE_ATTRIBUTE_STANDARD_ICON)
                 icon = fileInfo.get_icon()
                 pixbuf = common.get_icon_pixbuf(using_gio, icon, 16, fallback='folder')
@@ -1233,37 +1223,37 @@ class SelectionTreeView(gtk.TreeView):
                 pixbuf = self.icontheme.load_icon('folder', 16, gtk.ICON_LOOKUP_USE_BUILTIN)
                 
             self.parentApp.preview_destination_image.set_from_pixbuf(pixbuf)
-            downloadFolderName = os.path.split(mediaFile.downloadFolder)[1]            
+            downloadFolderName = os.path.split(rpd_file.downloadFolder)[1]            
             self.parentApp.preview_destination_label.set_text(downloadFolderName)
 
-            if mediaFile.status in [STATUS_WARNING, STATUS_CANNOT_DOWNLOAD, STATUS_NOT_DOWNLOADED, STATUS_DOWNLOAD_PENDING]:
+            if rpd_file.status in [STATUS_WARNING, STATUS_CANNOT_DOWNLOAD, STATUS_NOT_DOWNLOADED, STATUS_DOWNLOAD_PENDING]:
                 
-                self.parentApp.preview_name_label.set_text(mediaFile.sampleName)
-                self.parentApp.preview_name_label.set_tooltip_text(mediaFile.sampleName)
-                self.parentApp.preview_destination_path_label.set_text(mediaFile.samplePath)
-                self.parentApp.preview_destination_path_label.set_tooltip_text(mediaFile.samplePath)
+                self.parentApp.preview_name_label.set_text(rpd_file.sampleName)
+                self.parentApp.preview_name_label.set_tooltip_text(rpd_file.sampleName)
+                self.parentApp.preview_destination_path_label.set_text(rpd_file.samplePath)
+                self.parentApp.preview_destination_path_label.set_tooltip_text(rpd_file.samplePath)
             else:
-                self.parentApp.preview_name_label.set_text(mediaFile.downloadName)
-                self.parentApp.preview_name_label.set_tooltip_text(mediaFile.downloadName)
-                self.parentApp.preview_destination_path_label.set_text(mediaFile.downloadPath)
-                self.parentApp.preview_destination_path_label.set_tooltip_text(mediaFile.downloadPath)
+                self.parentApp.preview_name_label.set_text(rpd_file.downloadName)
+                self.parentApp.preview_name_label.set_tooltip_text(rpd_file.downloadName)
+                self.parentApp.preview_destination_path_label.set_text(rpd_file.downloadPath)
+                self.parentApp.preview_destination_path_label.set_tooltip_text(rpd_file.downloadPath)
             
-            status_text = self.status_human_readable(mediaFile)
-            self.parentApp.preview_status_icon.set_from_pixbuf(self.get_status_icon(mediaFile.status, preview=True))
+            status_text = self.status_human_readable(rpd_file)
+            self.parentApp.preview_status_icon.set_from_pixbuf(self.get_status_icon(rpd_file.status, preview=True))
             self.parentApp.preview_status_label.set_markup('<b>' + status_text + '</b>')
             self.parentApp.preview_status_label.set_tooltip_text(status_text)
 
 
-            if mediaFile.status in [STATUS_WARNING, STATUS_DOWNLOAD_FAILED,
+            if rpd_file.status in [STATUS_WARNING, STATUS_DOWNLOAD_FAILED,
                                     STATUS_DOWNLOADED_WITH_WARNING, 
                                     STATUS_CANNOT_DOWNLOAD, 
                                     STATUS_BACKUP_PROBLEM, 
                                     STATUS_DOWNLOAD_AND_BACKUP_FAILED]:
-                problem_title = mediaFile.problem.get_title()
+                problem_title = rpd_file.problem.get_title()
                 self.parentApp.preview_problem_title_label.set_markup('<i>' + problem_title + '</i>')
                 self.parentApp.preview_problem_title_label.set_tooltip_text(problem_title)
                 
-                problem_text = mediaFile.problem.get_problems()
+                problem_text = rpd_file.problem.get_problems()
                 self.parentApp.preview_problem_label.set_text(problem_text)
                 self.parentApp.preview_problem_label.set_tooltip_text(problem_text)
             else:
@@ -1355,20 +1345,20 @@ class SelectionTreeView(gtk.TreeView):
             status = self.get_status(iter)
             if status in [STATUS_DOWNLOAD_PENDING, STATUS_WARNING, STATUS_NOT_DOWNLOADED]:
                 
-                if mediaFile.isImage:
+                if rpd_file.isImage:
                     apply = rn.usesJobCode(self.rapidApp.prefs.image_rename) or rn.usesJobCode(self.rapidApp.prefs.subfolder)
                 else:
                     apply = rn.usesJobCode(self.rapidApp.prefs.video_rename) or rn.usesJobCode(self.rapidApp.prefs.video_subfolder)
                 if apply:
                     if overwrite:
                         self.liststore.set(iter, 8, job_code)
-                        mediaFile.jobcode = job_code
-                        mediaFile.sampleStale = True
+                        rpd_file.jobcode = job_code
+                        rpd_file.sampleStale = True
                     else:
                         if not self.get_job_code(iter):
                             self.liststore.set(iter, 8, job_code)
-                            mediaFile.jobcode = job_code
-                            mediaFile.sampleStale = True
+                            rpd_file.jobcode = job_code
+                            rpd_file.sampleStale = True
                 else:
                     pass
                     #if they got an existing job code, may as well keep it there in case the user 
@@ -1382,15 +1372,15 @@ class SelectionTreeView(gtk.TreeView):
                     apply = t == thread_id
                     
                 if apply:
-                    mediaFile = self.get_mediaFile(iter)
+                    rpd_file = self.get_rpd_file(iter)
                     _apply_job_code()
-                    if mediaFile.treerowref == self.previewed_file_treerowref:
+                    if rpd_file.treerowref == self.previewed_file_treerowref:
                         self.show_preview(iter)
         else:
             for iter in self.get_tree_row_iters(selected_only = True):
-                mediaFile = self.get_mediaFile(iter)
+                rpd_file = self.get_rpd_file(iter)
                 _apply_job_code()
-                if mediaFile.treerowref == self.previewed_file_treerowref:
+                if rpd_file.treerowref == self.previewed_file_treerowref:
                     self.show_preview(iter)
             
     def job_code_missing(self, selected_only):
@@ -1438,9 +1428,9 @@ class SelectionTreeView(gtk.TreeView):
             self.liststore.set(iter, 11, STATUS_DOWNLOAD_PENDING)
             self.liststore.set(iter, 10, self.download_pending_icon)
             # this value is in a thread's list of files to download
-            mediaFile = self.get_mediaFile(iter)
+            rpd_file = self.get_rpd_file(iter)
             # each thread will see this change in status
-            mediaFile.status = STATUS_DOWNLOAD_PENDING
+            rpd_file.status = STATUS_DOWNLOAD_PENDING
             thread = self.get_thread(iter)
             if thread not in threads:
                 threads.append(thread)
@@ -1481,13 +1471,13 @@ class SelectionTreeView(gtk.TreeView):
             sys.stderr.write("FIXME: SelectionTreeView treerowref no longer refers to valid row\n")
         else:
             iter = self.liststore.get_iter(path)
-            mediaFile = self.get_mediaFile(iter)
-            status = mediaFile.status
+            rpd_file = self.get_rpd_file(iter)
+            status = rpd_file.status
             self.liststore.set(iter, 11, status)
             self.liststore.set(iter, 10, self.get_status_icon(status))
             
             # If this row is currently previewed, then should update the preview
-            if mediaFile.treerowref == self.previewed_file_treerowref:
+            if rpd_file.treerowref == self.previewed_file_treerowref:
                 self.show_preview(iter)
 
 class RapidPreferences(prefs.Preferences):
@@ -1660,7 +1650,7 @@ class ScanManager:
         run_event = Event()
         run_event.set()
         
-        scan = scan_process.Scan(path, is_downloadable, self.batch_size, scan_process_conn, terminate_queue, run_event)
+        scan = scan_process.Scan(path, self.batch_size, scan_process_conn, terminate_queue, run_event)
         scan.start()
         self._processes.append((scan, terminate_queue, run_event))
     
@@ -1730,9 +1720,9 @@ class RapidApp(dbus.service.Object):
         #~ paths = ['/home/damon/rapid', '/home/damon/Pictures/processing']
         paths = ['/media/EOS_DIGITAL/', '/media/EOS_DIGITAL_/']
         #~ paths = ['/home/damon/rapid']
-        self.batch_size = 1000000
+        self.batch_size = 10
         
-        self.testing_auto_exit = True
+        self.testing_auto_exit = False
         self.testing_auto_exit_trip = len(paths)
         self.testing_auto_exit_trip_counter = 0
         

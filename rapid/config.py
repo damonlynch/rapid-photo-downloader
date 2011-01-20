@@ -61,3 +61,6 @@ STATUS_WARNING = 7                          # warning (shown in pre-download pre
 STATUS_CANNOT_DOWNLOAD = 8                  # cannot be downloaded
 
 TINY_SCREEN_HEIGHT = 650
+
+FILE_TYPE_PHOTO = 0
+FILE_TYPE_VIDEO = 1

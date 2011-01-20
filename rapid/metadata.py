@@ -390,7 +390,7 @@ class MetaData(baseclass):
             d = None
         return d
                 
-    def dateTime(self, missing=''):
+    def date_time(self, missing=''):
         """ 
         Returns in python datetime format the date and time the image was 
         recorded.
@@ -415,7 +415,7 @@ class MetaData(baseclass):
             return missing
             
     def timeStamp(self, missing=''):
-        dt = self.dateTime(missing=None)
+        dt = self.date_time(missing=None)
         if not dt is None:
             try:
                 t = dt.timetuple()
@@ -549,7 +549,7 @@ class DummyMetaData(MetaData):
     def ownerName(self,  missing=''):
         return 'Photographer Name'
         
-    def dateTime(self, missing=''):
+    def date_time(self, missing=''):
         return datetime.datetime.now()
         
     def subSeconds(self,  missing='00'):
@@ -579,7 +579,7 @@ if __name__ == '__main__':
     print m.cameraModel()
     print m.shortCameraModel()
     print m.shortCameraModel(includeCharacters = "\-")
-    print m.dateTime()
+    print m.date_time()
     print m.orientation()
     print 'Serial number:',  m.cameraSerial()
     print 'Shutter count:', m.shutterCount()

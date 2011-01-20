@@ -18,32 +18,12 @@
 ### Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 import os
-import gio
 import multiprocessing
 
-import media
-import paths
+import gio
 import gtk
 
-def getGenericPhotoImage():
-    return gtk.gdk.pixbuf_new_from_file(paths.share_dir('glade3/photo.png'))
-    
-def getGenericVideoImage():
-    return gtk.gdk.pixbuf_new_from_file(paths.share_dir('glade3/video.png'))
-
-photoThumbnail = getGenericPhotoImage()
-videoThumbnail = getGenericVideoImage()
-
-def addGenericThumbnail(mediaFile):
-    """
-    Adds a generic thumbnail to the mediafile, which
-    can be very useful when previews are disabled
-    """
-    mediaFile.genericThumbnail = True
-    if mediaFile.isImage:
-        mediaFile.thumbnail = photoThumbnail
-    else:
-        mediaFile.thumbnail = videoThumbnail 
+import rpdfile
 
 # python whitespace is significant - don't remove the leading whitespace on
 # the second line
@@ -55,17 +35,37 @@ CONN_PARTIAL = 0
 CONN_COMPLETE = 1
 
 class Scan(multiprocessing.Process):
-    """
-    Scans the given path for files of the specified type
+
+    """Scans the given path for files of a specified type.
+    
+    Returns results in batches, finishing with a total of the size of all the
+    files in bytes.
     """
     
-    def __init__(self, path, is_downloadable, batch_size, results_pipe, terminate_queue, run_event):
+    def __init__(self, path, batch_size, results_pipe, terminate_queue, 
+                 run_event):
+                     
+        """Setup values needed to conduct the scan.
+        
+        'path' is a string of the path to be scanned, which is passed to gio.
+        
+        'batch_size' is the number of files that should be sent back to the 
+        calling function at one time.
+        
+        'results_pipe' is a connection on which to send the results.
+        
+        'terminate_queue' is a queue whose sole purpose is to notify the 
+        process that it should terminate and not return any results.
+        
+        'run_event' is an Event that is used to temporarily halt execution.
+        
+        """
+        
         multiprocessing.Process.__init__(self)
         self.path = path
         self.results_pipe = results_pipe
         self.terminate_queue = terminate_queue
         self.run_event = run_event
-        self.is_downloadable = is_downloadable
         self.batch_size = batch_size
         self.counter = 0
         self.files = []
@@ -96,27 +96,35 @@ class Scan(multiprocessing.Process):
                 file_type = child.get_file_type()
                 name = child.get_name()
                 if file_type == gio.FILE_TYPE_DIRECTORY:
-                    file_size_sum = self._gio_scan(path.get_child(name), file_size_sum)
+                    file_size_sum = self._gio_scan(path.get_child(name), 
+                                                   file_size_sum)
                     if file_size_sum is None:
                         return None
 
                 elif file_type == gio.FILE_TYPE_REGULAR:
                     ext = os.path.splitext(name)[1].lower()[1:]
                     
-                    if self.is_downloadable(ext):
+                    if rpdfile.is_downloadable(ext):
                         
                         self.counter += 1
                         display_name = child.get_display_name()
                         size = child.get_size()
                         modification_time = child.get_modification_time()
-                        
-                        media_file = self.create_media_file(name, path.get_path(), display_name, size, modification_time)
-                        self.files.append(media_file)
+                        device = 'foo'
+                        download_folder = 'foo'
+                        volume = 'foo'                        
+                        scanned_file = rpdfile.get_rpdfile(ext, name, 
+                                                         display_name, 
+                                                         path.get_path(), size,
+                                                         modification_time, 
+                                                         device, 
+                                                         download_folder, 
+                                                         volume)
+                        self.files.append(scanned_file)
                         
                         if self.counter == self.batch_size:
                             # send batch of results
                             self.results_pipe.send((CONN_PARTIAL, self.files))
-                            #~ logger.info('sent')
                             self.files = []
                             self.counter = 0
                         
@@ -126,7 +134,7 @@ class Scan(multiprocessing.Process):
         
 
     def run(self):
-        
+        """start the actual scan."""
         source = gio.File(self.path)
         size = self._gio_scan(source, 0)
         if size is not None:
@@ -135,14 +143,7 @@ class Scan(multiprocessing.Process):
                 self.results_pipe.send((CONN_PARTIAL, self.files))
             self.results_pipe.send((CONN_COMPLETE, size))
             
-    def create_media_file(self, name, path, display_name, size, modification_time):
-        device = 'foo'
-        download_folder = 'foo'
-        volume = 'foo'
-        is_image = True  
-        media_file = media.MediaFile(0, name, path, size, modification_time, device, download_folder, volume, is_image)
-        addGenericThumbnail(media_file)
-        return media_file
+
 
       
         
