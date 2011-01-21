@@ -23,6 +23,7 @@ import multiprocessing
 import gio
 import gtk
 
+import rpdmultiprocessing as rpdmp
 import rpdfile
 
 # python whitespace is significant - don't remove the leading whitespace on
@@ -31,8 +32,6 @@ import rpdfile
 file_attributes = "standard::name,standard::display-name,\
 standard::type,standard::size,time::modified,access::can-read"
 
-CONN_PARTIAL = 0
-CONN_COMPLETE = 1
 
 class Scan(multiprocessing.Process):
 
@@ -124,7 +123,7 @@ class Scan(multiprocessing.Process):
                         
                         if self.counter == self.batch_size:
                             # send batch of results
-                            self.results_pipe.send((CONN_PARTIAL, self.files))
+                            self.results_pipe.send((rpdmp.CONN_PARTIAL, self.files))
                             self.files = []
                             self.counter = 0
                         
@@ -140,8 +139,8 @@ class Scan(multiprocessing.Process):
         if size is not None:
             if self.counter > 0:
                 # send any remaining results
-                self.results_pipe.send((CONN_PARTIAL, self.files))
-            self.results_pipe.send((CONN_COMPLETE, size))
+                self.results_pipe.send((rpdmp.CONN_PARTIAL, self.files))
+            self.results_pipe.send((rpdmp.CONN_COMPLETE, size))
             
 
 

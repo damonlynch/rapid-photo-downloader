@@ -18,16 +18,18 @@
 ### Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 import os
+import os
 import gtk
 
 import paths
+import common
 
-from common import Configi18n
-_ = Configi18n._
+_ = common.Configi18n._
 
 import config
 
 import metadata as photometadata
+import thumbnail
 
 PHOTO_EXTENSIONS = photometadata.RAW_FILE_EXTENSIONS + \
                    photometadata.NON_RAW_IMAGE_FILE_EXTENSIONS
@@ -37,27 +39,6 @@ VIDEO_EXTENSIONS = []
 EXTENSIONS = PHOTO_EXTENSIONS
 
 
-def get_generic_photo_image():
-    return gtk.gdk.pixbuf_new_from_file(paths.share_dir('glade3/photo.png'))
-    
-def get_generic_photo_image_icon():
-    return gtk.gdk.pixbuf_new_from_file(paths.share_dir('glade3/photo_small_shadow.png'))
-    
-def get_photo_type_icon():
-    return gtk.gdk.pixbuf_new_from_file(paths.share_dir('glade3/photo24.png'))
-    
-def get_generic_video_image():
-    return gtk.gdk.pixbuf_new_from_file(paths.share_dir('glade3/video.png'))
-    
-def get_generic_video_image_icon():
-    return gtk.gdk.pixbuf_new_from_file(paths.share_dir('glade3/video_small_shadow.png'))
-
-def get_video_type_icon():
-    return gtk.gdk.pixbuf_new_from_file(paths.share_dir('glade3/video24.png'))
-    
-_generic_photo_image = get_generic_photo_image()
-_generic_photo_image_icon = get_generic_photo_image_icon()
-    
 def is_downloadable(file_extension):
     """
     Uses file extentsion to determines if the file could be downloaded or not.
@@ -91,8 +72,6 @@ class RPDFile:
                  file_system_modification_time, device_name, download_folder,
                  volume):
                      
-        self.thread_id = 99 # just a dummy value
-        
         self.path = path
 
         self.name = name
@@ -113,20 +92,10 @@ class RPDFile:
         self.status = config.STATUS_NOT_DOWNLOADED
         self.problem = None # class Problem in problemnotifcation.py
                 
-        self.apply_generic_thumbnail()
         self._image_type()
         
     def _image_type(self):
         self.file_type = None
-    
-    def apply_generic_thumbnail(self):
-        """Adds a generic thumbnail to the file.
-        
-        Expected to be implemented in derived classes.
-        """
-        self.generic_thumbnail = True
-        self.thumbnail = None
-        self.thumbnail_icon = None
     
     def date_time(self, alternative_if_date_missing=None):
         date = None
@@ -137,50 +106,60 @@ class RPDFile:
                 date = alternative_if_date_missing
             else:
                 date = datetime.datetime.fromtimestamp(self.modification_time)
-        return date        
-
+        return date
+        
 
 class Photo(RPDFile):
     
     title = _("photo")
     title_capitalized = _("Photo")
     
-    type_icon = get_photo_type_icon()
-    
     def _image_type(self):
         self.file_type = config.FILE_TYPE_PHOTO
     
     def apply_generic_thumbnail(self):
         """Adds a generic thumbnail to the file."""
-        self.thumbnail = get_generic_photo_image_icon()
-        self.thumbnail_icon = _generic_photo_image_icon
+        self.thumbnail = Photo._generic_thumbnail_image
+        self.thumbnail_icon = Photo._generic_thumbnail_image_icon
         self.generic_thumbnail = True
         
     def load_metadata(self):
         self.metadata = metadata.MetaData(self.full_file_name)
         self.metadata.read()
 
+    def generate_thumbnail(self, big_size):
+        try:
+            thumbnail = self.metadata.getThumbnailData(big_size)
+            if not isinstance(thumbnail, types.StringType):
+                self.thumbnail = None
+            else:
+                orientation = self.metadata.orientation(missing=None)
+                pbloader = gtk.gdk.PixbufLoader()
+                pbloader.write(thumbnail)
+                pbloader.close()
+                # Get the resulting pixbuf and build an image to be displayed
+                pixbuf = pbloader.get_pixbuf()
+                if orientation == 8:
+                    pixbuf = pixbuf.rotate_simple(gtk.gdk.PIXBUF_ROTATE_COUNTERCLOCKWISE)
+                elif orientation == 6:
+                    pixbuf = pixbuf.rotate_simple(gtk.gdk.PIXBUF_ROTATE_CLOCKWISE)
+                elif orientation == 3:
+                    pixbuf = pixbuf.rotate_simple(gtk.gdk.PIXBUF_ROTATE_UPSIDEDOWN)
+                
+                self.thumbnail = PicklablePixBuf(pixbuf)
+                self.thumbnail_icon = common.scale2pixbuf(60, 36, pixbuf)
+        except:
+            pass
+            
+            
 class Video(RPDFile):
     
     title = _("video")
     title_capitalized = _("Video")
     
-    type_icon = get_video_type_icon()
-    
-    _generic_thumbnail_image = get_generic_video_image()
-    _generic_thumbnail_image_icon = get_generic_video_image_icon()
-    
     def _image_type(self):
         self.file_type = config.FILE_TYPE_VIDEO
-    
-    def apply_generic_thumbnail(self):
-        """Adds a generic thumbnail to the file."""
-        self.thumbnail = Video._generic_thumbnail_image
-        self.thumbnail_icon = Video._generic_thumbnail_image_icon
-        self.generic_thumbnail = True
-    
+
     def load_metadata(self):    
         self.metadata = videometadata.VideoMetaData(self.full_file_name)
-        
-        
 

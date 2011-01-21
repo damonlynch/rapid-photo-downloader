@@ -1,5 +1,5 @@
 # -*- coding: latin1 -*-
-### Copyright (C) 2007, 2008, 2009, 2010 Damon Lynch <damonlynch@gmail.com>
+### Copyright (C) 2007, 2008, 2009, 2010, 2011 Damon Lynch <damonlynch@gmail.com>
 
 ### This program is free software; you can redistribute it and/or modify
 ### it under the terms of the GNU General Public License as published by
@@ -64,3 +64,5 @@ TINY_SCREEN_HEIGHT = 650
 
 FILE_TYPE_PHOTO = 0
 FILE_TYPE_VIDEO = 1
+
+

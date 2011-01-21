@@ -34,6 +34,8 @@ from media import getDefaultPhotoLocation, getDefaultVideoLocation, \
                   
 import renamesubfolderprefs as rn
 import problemnotification as pn
+import thumbnail as tn
+import rpdmultiprocessing as rpdmp
 
 import tableplusminus as tpm
 
@@ -58,12 +60,6 @@ except:
 
 from common import formatSizeForUser
 
-
-#~ from videometadata import VIDEO_FILE_EXTENSIONS
-
-# for some reason, importing videometadata causes 100% usage of a CPU core
-#~ import videometadata
-#~ EXTENSIONS = VIDEO_FILE_EXTENSIONS + RAW_FILE_EXTENSIONS + NON_RAW_IMAGE_FILE_EXTENSIONS
 
 DOWNLOAD_VIDEO = False
 
@@ -515,21 +511,20 @@ class SelectionTreeView(gtk.TreeView):
         self.rapidApp = parentApp.parentApp
         
         self.liststore = gtk.ListStore(
-             gtk.gdk.Pixbuf,)        # 0 thumbnail icon
-             #~ str,                   # 1 name (for sorting)
-             #~ int,                   # 2 timestamp (for sorting), float converted into an int
-             #~ str,                   # 3 date (human readable)
-             #~ int,                  # 4 size (for sorting)
-             #~ str,                   # 5 size (human readable)
-             #~ int,                   # 6 isImage (for sorting)
-             #~ gtk.gdk.Pixbuf,        # 7 type (photo or video)
-             #~ str,                   # 8 job code
-             #~ gobject.TYPE_PYOBJECT, # 9 rpd_file (for data)
-             #~ gtk.gdk.Pixbuf,        # 10 status icon
-             #~ int,                   # 11 status (downloaded, cannot download, etc, for sorting)
-             #~ str,                   # 12 path (on the device)
-             #~ str,                   # 13 device
-             #~ int)                   # 14 thread id (worker the file is associated with)
+             gtk.gdk.Pixbuf,        # 0 thumbnail icon
+             str,                   # 1 name (for sorting)
+             int,                   # 2 timestamp (for sorting), float converted into an int
+             str,                   # 3 date (human readable)
+             long,                  # 4 size (for sorting)
+             str,                   # 5 size (human readable)
+             int,                   # 6 isImage (for sorting)
+             gtk.gdk.Pixbuf,        # 7 type (photo or video)
+             str,                   # 8 job code
+             gobject.TYPE_PYOBJECT, # 9 rpd_file (for data)
+             gtk.gdk.Pixbuf,        # 10 status icon
+             int,                   # 11 status (downloaded, cannot download, etc, for sorting)
+             str,                   # 12 path (on the device)
+             str)                   # 13 device
                          
         self.selected_rows = set()
 
@@ -809,14 +804,14 @@ class SelectionTreeView(gtk.TreeView):
             
         date_human_readable = date_time_human_readable(date)
         name = rpd_file.name
-        size = int(rpd_file.size)
-        thumbnail = rpd_file.thumbnail
+        size = rpd_file.size
+        
 
-        # very strange.... why can't I use an image in the class?
-        thumbnail_icon = rpdfile.get_generic_photo_image_icon()
+        t = tn.PhotoIcons()
         
-        
-        type_icon = rpd_file.type_icon
+        thumbnail = t.generic_thumbnail_image
+        thumbnail_icon =  t.generic_thumbnail_image_icon
+        type_icon = t.type_icon
 
         status_icon = self.get_status_icon(rpd_file.status)
         
@@ -831,37 +826,20 @@ class SelectionTreeView(gtk.TreeView):
             cmd_line('Device name: %s' % rpd_file.device_name)
             cmd_line(' ')
 
-        print type(thumbnail_icon)
-        #~ print type(name)
-        #~ print type(timestamp)
-        #~ print type(date_human_readable)
-        #~ print type(                              size)
-        #~ print type(                              common.formatSizeForUser(size))
-        #~ print type(                              rpd_file.file_type)
-        #~ print type(                              type_icon)
-        #~ print type(                              '')
-        #~ print type(                              rpd_file)
-        #~ print type(                              status_icon)
-        #~ print type(                              rpd_file.status)
-        #~ print type(                              rpd_file.path)
-        #~ print type(                              rpd_file.device_name)
-        #~ print type(rpd_file.thread_id)
-        
-        iter = self.liststore.append((thumbnail_icon,)) 
-                                      #~ name, 
-                                      #~ timestamp,
-                                      #~ date_human_readable,
-                                      #~ size, 
-                                      #~ common.formatSizeForUser(size),
-                                      #~ rpd_file.file_type, 
-                                      #~ type_icon,
-                                      #~ '',
-                                      #~ rpd_file,
-                                      #~ status_icon,
-                                      #~ rpd_file.status,
-                                      #~ rpd_file.path,
-                                      #~ rpd_file.device_name,
-                                      #~ rpd_file.thread_id))
+        iter = self.liststore.append((thumbnail_icon,
+                                      name, 
+                                      timestamp,
+                                      date_human_readable,
+                                      size, 
+                                      common.formatSizeForUser(size),
+                                      rpd_file.file_type, 
+                                      type_icon,
+                                      '',
+                                      rpd_file,
+                                      status_icon,
+                                      rpd_file.status,
+                                      rpd_file.path,
+                                      rpd_file.device_name))
         
         #create a reference to this row and store it in the rpd_file
         path = self.liststore.get_path(iter)
@@ -870,6 +848,10 @@ class SelectionTreeView(gtk.TreeView):
         if rpd_file.status in [STATUS_CANNOT_DOWNLOAD, STATUS_WARNING]:
             if not self.user_has_clicked_header:
                 self.liststore.set_sort_column_id(11, gtk.SORT_DESCENDING)
+
+    def update_thumbnail(self, rpd_file):
+        pass
+        #~ print rpd_file.full_file_name
         
     def no_selected_rows_available_for_download(self):
         """
@@ -1632,27 +1614,34 @@ class RapidPreferences(prefs.Preferences):
         self.program_version = __version__
     
     
-class ScanManager:
+class TaskManager:
     def __init__(self, results_callback, batch_size):
         self.results_callback = results_callback
         self._processes = []
         self._pipes = {}
         self.batch_size = batch_size
        
-    def scan_path(self, path):
-        scan_results_conn, scan_process_conn = Pipe()
+    
+    def add_task(self, task):
+        self._setup_task(task)
+
         
-        source = scan_results_conn.fileno()
-        self._pipes[source] = scan_results_conn
+    def _setup_task(self, task):
+        task_results_conn, task_process_conn = Pipe()
+        
+        source = task_results_conn.fileno()
+        self._pipes[source] = task_results_conn
         gobject.io_add_watch(source, gobject.IO_IN, self.results_callback)
         
         terminate_queue = Queue()
         run_event = Event()
         run_event.set()
         
-        scan = scan_process.Scan(path, self.batch_size, scan_process_conn, terminate_queue, run_event)
-        scan.start()
-        self._processes.append((scan, terminate_queue, run_event))
+        self._initiate_task(task, task_process_conn, terminate_queue, run_event)
+        
+    def _initiate_task(self, task, task_process_conn, terminate_queue, run_event):
+        print "implement child class method"
+        
     
     def processes(self):
         for i in range(len(self._processes)):
@@ -1680,6 +1669,19 @@ class ScanManager:
             
     def get_pipe(self, source):
         return self._pipes[source]
+
+
+class ScanManager(TaskManager):
+    def _initiate_task(self, path, task_process_conn, terminate_queue, run_event):
+        scan = scan_process.Scan(path, self.batch_size, task_process_conn, terminate_queue, run_event)
+        scan.start()
+        self._processes.append((scan, terminate_queue, run_event))
+        
+class ThumbnailManager(TaskManager):
+    def _initiate_task(self, files, task_process_conn, terminate_queue, run_event):
+        generator = tn.GenerateThumbnails(files, self.batch_size, task_process_conn, terminate_queue, run_event)
+        generator.start()
+        self._processes.append((generator, terminate_queue, run_event))
 
 class RapidApp(dbus.service.Object): 
     def __init__(self,  bus, path, name, taskserver=None): 
@@ -1715,7 +1717,7 @@ class RapidApp(dbus.service.Object):
             self.prefs.display_preview_folders = False
             self.menu_preview_folders.set_sensitive(False)
         
-        self.rapidapp.show()
+        self.rapidapp.show_all()
         
         #~ paths = ['/home/damon/rapid', '/home/damon/Pictures/processing']
         paths = ['/media/EOS_DIGITAL/', '/media/EOS_DIGITAL_/']
@@ -1730,8 +1732,11 @@ class RapidApp(dbus.service.Object):
         self.selection_hbox.pack_start(self.selection_vbox, padding=12)
         
         self.scan_manager = ScanManager(self.scan_results, self.batch_size)
+        self.scans = {}
+        self.thumbnail_manager = ThumbnailManager(self.thumbnail_results, self.batch_size)
+        
         for path in paths:
-            self.scan_manager.scan_path(path)
+            self.scan_manager.add_task(path)
             
     
     def on_rapidapp_destroy(self, widget, data=None):
@@ -1754,24 +1759,44 @@ class RapidApp(dbus.service.Object):
         conn_type, data = connection.recv()
         iter = self.textbuffer.get_end_iter()
         
-        if conn_type == scan_process.CONN_COMPLETE:
+        if conn_type == rpdmp.CONN_COMPLETE:
             size = formatSizeForUser(data)
             self.textbuffer.insert(iter, 'Files total %s\n' % size)
             self.testing_auto_exit_trip_counter += 1
             if self.testing_auto_exit_trip_counter == self.testing_auto_exit_trip and self.testing_auto_exit:
                 self.on_rapidapp_destroy(self.rapidapp)
-                
+            else:
+                self.thumbnail_manager.add_task(self.scans[source])
+            
         else:
             if len(data) > self.batch_size:
                 logger.error("incoming pipe length is %s" % len(data))
             else:
-                
+                if source in self.scans:
+                    self.scans[source] += data
+                else:
+                    self.scans[source] = data
+                    
                 for i in range(len(data)):
-                    #name, path.get_path(), display_name, size, modification_time
-                    media_file = data[i]
-                    self.selection_vbox.selection_treeview.add_file(media_file)
-            
+                    rpd_file = data[i]
+                    self.selection_vbox.selection_treeview.add_file(rpd_file)
+        
+        # must return True for this method to be called again
         return True
+        
+    def thumbnail_results(self, source, condition):
+        connection = self.thumbnail_manager.get_pipe(source)
+        
+        conn_type, data = connection.recv()
+        
+        if conn_type == rpdmp.CONN_COMPLETE:
+            print "thumbnails complete"
+        else:
+            for i in range(len(data)):
+                rpd_file = data[i]
+                self.selection_vbox.selection_treeview.update_thumbnail(rpd_file)                
+        
+        return True        
 
     def needJobCodeForRenaming(self):
         return rn.usesJobCode(self.prefs.image_rename) or rn.usesJobCode(self.prefs.subfolder) or rn.usesJobCode(self.prefs.video_rename) or rn.usesJobCode(self.prefs.video_subfolder)
