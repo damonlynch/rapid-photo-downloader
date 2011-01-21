@@ -510,6 +510,12 @@ class SelectionTreeView(gtk.TreeView):
         self.parentApp = parentApp
         self.rapidApp = parentApp.parentApp
         
+        self.batch_size = 10
+        
+        self.thumbnail_manager = ThumbnailManager(self.thumbnail_results, self.batch_size)
+        self.treerow_index = {}
+        self.process_index = {}
+        
         self.liststore = gtk.ListStore(
              gtk.gdk.Pixbuf,        # 0 thumbnail icon
              str,                   # 1 name (for sorting)
@@ -524,7 +530,7 @@ class SelectionTreeView(gtk.TreeView):
              gtk.gdk.Pixbuf,        # 10 status icon
              int,                   # 11 status (downloaded, cannot download, etc, for sorting)
              str,                   # 12 path (on the device)
-             str)                   # 13 device
+             str)                   # 13 device (human readable)
                          
         self.selected_rows = set()
 
@@ -679,7 +685,19 @@ class SelectionTreeView(gtk.TreeView):
         self.previewed_file_treerowref = None
         self.icontheme = gtk.icon_theme_get_default()
         
+    def thumbnail_results(self, source, condition):
+        connection = self.thumbnail_manager.get_pipe(source)
         
+        conn_type, data = connection.recv()
+        
+        if conn_type == rpdmp.CONN_COMPLETE:
+            print "thumbnails complete"
+        else:
+            for i in range(len(data)):
+                rpd_file = data[i]
+                self.update_thumbnail(rpd_file)                
+        
+        return True          
         
     def get_thread(self, iter):
         """
@@ -841,17 +859,46 @@ class SelectionTreeView(gtk.TreeView):
                                       rpd_file.path,
                                       rpd_file.device_name))
         
-        #create a reference to this row and store it in the rpd_file
+        scan_pid = rpd_file.scan_pid
+        unique_id = rpd_file.unique_id
         path = self.liststore.get_path(iter)
-        rpd_file.treerowref = gtk.TreeRowReference(self.liststore, path)
+        treerowref = gtk.TreeRowReference(self.liststore, path)
+        
+        if scan_pid in self.process_index:
+            self.process_index[scan_pid].append(rpd_file)
+        else:
+            self.process_index[scan_pid] = [rpd_file,]
+            
+        self.treerow_index[unique_id] = treerowref
         
         if rpd_file.status in [STATUS_CANNOT_DOWNLOAD, STATUS_WARNING]:
             if not self.user_has_clicked_header:
                 self.liststore.set_sort_column_id(11, gtk.SORT_DESCENDING)
 
+    def generate_thumbnails(self, scan_pid):
+        """Initiate thumbnail generation for files scanned in one process
+        """
+        print "Generating thumbnails for %s" % scan_pid
+        self.thumbnail_manager.add_task(self.process_index[scan_pid])
+    
     def update_thumbnail(self, rpd_file):
-        pass
-        #~ print rpd_file.full_file_name
+        #~ thumbnail = rpd_file.thumbnail.get_pixbuf()
+        
+        if rpd_file.thumbnail_icon is not None:
+            thumbnail_icon = rpd_file.thumbnail_icon.get_pixbuf()
+            
+            treerowref = self.treerow_index[rpd_file.unique_id]
+            path = treerowref.get_path()
+            iter = self.liststore.get_iter(path)
+            
+            if thumbnail_icon:
+                self.liststore.set(iter, 0, thumbnail_icon)
+                
+        del(rpd_file)
+
+        #~ rpd_file_store = self.liststore.get(iter, 9)
+        #~ rpd_file_store.thumbnail = rpd_file.thumbnail
+        
         
     def no_selected_rows_available_for_download(self):
         """
@@ -1720,8 +1767,8 @@ class RapidApp(dbus.service.Object):
         self.rapidapp.show_all()
         
         #~ paths = ['/home/damon/rapid', '/home/damon/Pictures/processing']
-        paths = ['/media/EOS_DIGITAL/', '/media/EOS_DIGITAL_/']
-        #~ paths = ['/home/damon/rapid']
+        #~ paths = ['/media/EOS_DIGITAL/', '/media/EOS_DIGITAL_/']
+        paths = ['/home/damon/rapid/cr2']
         self.batch_size = 10
         
         self.testing_auto_exit = False
@@ -1732,8 +1779,6 @@ class RapidApp(dbus.service.Object):
         self.selection_hbox.pack_start(self.selection_vbox, padding=12)
         
         self.scan_manager = ScanManager(self.scan_results, self.batch_size)
-        self.scans = {}
-        self.thumbnail_manager = ThumbnailManager(self.thumbnail_results, self.batch_size)
         
         for path in paths:
             self.scan_manager.add_task(path)
@@ -1760,23 +1805,20 @@ class RapidApp(dbus.service.Object):
         iter = self.textbuffer.get_end_iter()
         
         if conn_type == rpdmp.CONN_COMPLETE:
-            size = formatSizeForUser(data)
+            size, scan_pid = data
+            size = formatSizeForUser(size)
             self.textbuffer.insert(iter, 'Files total %s\n' % size)
             self.testing_auto_exit_trip_counter += 1
             if self.testing_auto_exit_trip_counter == self.testing_auto_exit_trip and self.testing_auto_exit:
                 self.on_rapidapp_destroy(self.rapidapp)
             else:
-                self.thumbnail_manager.add_task(self.scans[source])
+                self.selection_vbox.selection_treeview.generate_thumbnails(
+                                                            scan_pid)
             
         else:
             if len(data) > self.batch_size:
                 logger.error("incoming pipe length is %s" % len(data))
             else:
-                if source in self.scans:
-                    self.scans[source] += data
-                else:
-                    self.scans[source] = data
-                    
                 for i in range(len(data)):
                     rpd_file = data[i]
                     self.selection_vbox.selection_treeview.add_file(rpd_file)
@@ -1784,19 +1826,7 @@ class RapidApp(dbus.service.Object):
         # must return True for this method to be called again
         return True
         
-    def thumbnail_results(self, source, condition):
-        connection = self.thumbnail_manager.get_pipe(source)
-        
-        conn_type, data = connection.recv()
-        
-        if conn_type == rpdmp.CONN_COMPLETE:
-            print "thumbnails complete"
-        else:
-            for i in range(len(data)):
-                rpd_file = data[i]
-                self.selection_vbox.selection_treeview.update_thumbnail(rpd_file)                
-        
-        return True        
+      
 
     def needJobCodeForRenaming(self):
         return rn.usesJobCode(self.prefs.image_rename) or rn.usesJobCode(self.prefs.subfolder) or rn.usesJobCode(self.prefs.video_rename) or rn.usesJobCode(self.prefs.video_subfolder)

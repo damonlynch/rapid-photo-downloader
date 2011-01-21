@@ -30,7 +30,7 @@ import rpdfile
 # the second line
 
 file_attributes = "standard::name,standard::display-name,\
-standard::type,standard::size,time::modified,access::can-read"
+standard::type,standard::size,time::modified,access::can-read,id::file"
 
 
 class Scan(multiprocessing.Process):
@@ -111,14 +111,20 @@ class Scan(multiprocessing.Process):
                         modification_time = child.get_modification_time()
                         device = 'foo'
                         download_folder = 'foo'
-                        volume = 'foo'                        
-                        scanned_file = rpdfile.get_rpdfile(ext, name, 
-                                                         display_name, 
-                                                         path.get_path(), size,
-                                                         modification_time, 
-                                                         device, 
-                                                         download_folder, 
-                                                         volume)
+                        volume = 'foo'
+                        file_id = child.get_attribute_string(
+                                                gio.FILE_ATTRIBUTE_ID_FILE)
+                        scanned_file = rpdfile.get_rpdfile(ext, 
+                                         name, 
+                                         display_name, 
+                                         path.get_path(),
+                                         size,
+                                         modification_time, 
+                                         device, 
+                                         download_folder, 
+                                         volume,
+                                         multiprocessing.current_process().pid,
+                                         file_id)
                         self.files.append(scanned_file)
                         
                         if self.counter == self.batch_size:
@@ -140,10 +146,5 @@ class Scan(multiprocessing.Process):
             if self.counter > 0:
                 # send any remaining results
                 self.results_pipe.send((rpdmp.CONN_PARTIAL, self.files))
-            self.results_pipe.send((rpdmp.CONN_COMPLETE, size))
-            
-
-
-      
-        
-
+            self.results_pipe.send((rpdmp.CONN_COMPLETE, (size, 
+                                    multiprocessing.current_process().pid)))

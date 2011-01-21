@@ -110,13 +110,21 @@ class GenerateThumbnails(multiprocessing.Process):
                 print "terminating thumbnailing..."
                 return None
             
-            #~ print type(f)    
-            f.generate_thumbnail(config.max_thumbnail_size)
+            if f.metadata is None:
+                try:
+                    f.load_metadata()
+                except:
+                    print "metadata could not be loaded"
+                    f.metadata = None
+                    f.thumbnail_icon = None
+                    f.thumbnail = None
+                else:    
+                    f.generate_thumbnail(config.max_thumbnail_size)
             self.results.append(f)
             self.counter += 1
             if self.counter == self.batch_size:
                 self.results_pipe.send((rpdmp.CONN_PARTIAL, self.results))
-                self.files = []
+                self.results = []
                 self.counter = 0                
             
         if self.counter > 0:

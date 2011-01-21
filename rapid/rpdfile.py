@@ -18,7 +18,7 @@
 ### Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 import os
-import os
+import types
 import gtk
 
 import paths
@@ -29,7 +29,7 @@ _ = common.Configi18n._
 import config
 
 import metadata as photometadata
-import thumbnail
+import thumbnail as tn
 
 PHOTO_EXTENSIONS = photometadata.RAW_FILE_EXTENSIONS + \
                    photometadata.NON_RAW_IMAGE_FILE_EXTENSIONS
@@ -49,18 +49,18 @@ def is_downloadable(file_extension):
     
 def get_rpdfile(extension, name, display_name, path, size, 
                 file_system_modification_time, 
-                device_name, download_folder, volume):
+                device_name, download_folder, volume, scan_pid, file_id):
                     
     if extension in VIDEO_EXTENSIONS:
         return Video(name, display_name, path, size,
                      file_system_modification_time, 
-                     device_name, download_folder, volume)
+                     device_name, download_folder, volume, scan_pid, file_id)
     else:
         # assume it's a photo - no check for performance reasons (this will be
         # called many times)
         return Photo(name, display_name, path, size,
                      file_system_modification_time, 
-                     device_name, download_folder, volume)
+                     device_name, download_folder, volume, scan_pid, file_id)
 
 
 class RPDFile:
@@ -70,7 +70,7 @@ class RPDFile:
 
     def __init__(self, name, display_name, path, size, 
                  file_system_modification_time, device_name, download_folder,
-                 volume):
+                 volume, scan_pid, file_id):
                      
         self.path = path
 
@@ -93,6 +93,11 @@ class RPDFile:
         self.problem = None # class Problem in problemnotifcation.py
                 
         self._image_type()
+        
+        self.scan_pid = scan_pid
+        self.file_id = file_id
+        self.unique_id = str(scan_pid) + ":" + file_id
+        
         
     def _image_type(self):
         self.file_type = None
@@ -124,14 +129,16 @@ class Photo(RPDFile):
         self.generic_thumbnail = True
         
     def load_metadata(self):
-        self.metadata = metadata.MetaData(self.full_file_name)
+        self.metadata = photometadata.MetaData(self.full_file_name)
         self.metadata.read()
 
     def generate_thumbnail(self, big_size):
-        try:
+        #~ try:
             thumbnail = self.metadata.getThumbnailData(big_size)
             if not isinstance(thumbnail, types.StringType):
                 self.thumbnail = None
+                self.thumbnail_icon = None
+                self.metadata = None
             else:
                 orientation = self.metadata.orientation(missing=None)
                 pbloader = gtk.gdk.PixbufLoader()
@@ -146,10 +153,14 @@ class Photo(RPDFile):
                 elif orientation == 3:
                     pixbuf = pixbuf.rotate_simple(gtk.gdk.PIXBUF_ROTATE_UPSIDEDOWN)
                 
-                self.thumbnail = PicklablePixBuf(pixbuf)
-                self.thumbnail_icon = common.scale2pixbuf(60, 36, pixbuf)
-        except:
-            pass
+                self.thumbnail = tn.PicklablePixBuf(pixbuf)
+                self.thumbnail_icon = tn.PicklablePixBuf(
+                                        common.scale2pixbuf(60, 36, pixbuf))
+                
+                self.metadata = None
+                
+        #~ except:
+            #~ print "oh oh - error"
             
             
 class Video(RPDFile):
