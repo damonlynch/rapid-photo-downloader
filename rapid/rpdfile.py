@@ -18,7 +18,6 @@
 ### Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 import os
-import types
 import gtk
 
 import paths
@@ -128,39 +127,7 @@ class Photo(RPDFile):
         self.thumbnail_icon = Photo._generic_thumbnail_image_icon
         self.generic_thumbnail = True
         
-    def load_metadata(self):
-        self.metadata = photometadata.MetaData(self.full_file_name)
-        self.metadata.read()
 
-    def generate_thumbnail(self, big_size):
-        #~ try:
-            thumbnail = self.metadata.getThumbnailData(big_size)
-            if not isinstance(thumbnail, types.StringType):
-                self.thumbnail = None
-                self.thumbnail_icon = None
-                self.metadata = None
-            else:
-                orientation = self.metadata.orientation(missing=None)
-                pbloader = gtk.gdk.PixbufLoader()
-                pbloader.write(thumbnail)
-                pbloader.close()
-                # Get the resulting pixbuf and build an image to be displayed
-                pixbuf = pbloader.get_pixbuf()
-                if orientation == 8:
-                    pixbuf = pixbuf.rotate_simple(gtk.gdk.PIXBUF_ROTATE_COUNTERCLOCKWISE)
-                elif orientation == 6:
-                    pixbuf = pixbuf.rotate_simple(gtk.gdk.PIXBUF_ROTATE_CLOCKWISE)
-                elif orientation == 3:
-                    pixbuf = pixbuf.rotate_simple(gtk.gdk.PIXBUF_ROTATE_UPSIDEDOWN)
-                
-                self.thumbnail = tn.PicklablePixBuf(pixbuf)
-                self.thumbnail_icon = tn.PicklablePixBuf(
-                                        common.scale2pixbuf(60, 36, pixbuf))
-                
-                self.metadata = None
-                
-        #~ except:
-            #~ print "oh oh - error"
             
             
 class Video(RPDFile):

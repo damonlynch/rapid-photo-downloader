@@ -691,11 +691,11 @@ class SelectionTreeView(gtk.TreeView):
         conn_type, data = connection.recv()
         
         if conn_type == rpdmp.CONN_COMPLETE:
-            print "thumbnails complete"
+            pass
         else:
             for i in range(len(data)):
-                rpd_file = data[i]
-                self.update_thumbnail(rpd_file)                
+                thumbnail_data = data[i]
+                self.update_thumbnail(thumbnail_data)                
         
         return True          
         
@@ -878,23 +878,25 @@ class SelectionTreeView(gtk.TreeView):
     def generate_thumbnails(self, scan_pid):
         """Initiate thumbnail generation for files scanned in one process
         """
-        print "Generating thumbnails for %s" % scan_pid
         self.thumbnail_manager.add_task(self.process_index[scan_pid])
     
-    def update_thumbnail(self, rpd_file):
+    def update_thumbnail(self, thumbnail_data):
         #~ thumbnail = rpd_file.thumbnail.get_pixbuf()
         
-        if rpd_file.thumbnail_icon is not None:
-            thumbnail_icon = rpd_file.thumbnail_icon.get_pixbuf()
+        unique_id = thumbnail_data[0]
+        thumbnail = thumbnail_data[1]
+        thumbnail_icon = thumbnail_data[2]
+        
+        if thumbnail_icon is not None:
+            thumbnail_icon = thumbnail_icon.get_pixbuf()
             
-            treerowref = self.treerow_index[rpd_file.unique_id]
+            treerowref = self.treerow_index[unique_id]
             path = treerowref.get_path()
             iter = self.liststore.get_iter(path)
             
             if thumbnail_icon:
                 self.liststore.set(iter, 0, thumbnail_icon)
                 
-        del(rpd_file)
 
         #~ rpd_file_store = self.liststore.get(iter, 9)
         #~ rpd_file_store.thumbnail = rpd_file.thumbnail
@@ -1767,8 +1769,8 @@ class RapidApp(dbus.service.Object):
         self.rapidapp.show_all()
         
         #~ paths = ['/home/damon/rapid', '/home/damon/Pictures/processing']
-        #~ paths = ['/media/EOS_DIGITAL/', '/media/EOS_DIGITAL_/']
-        paths = ['/home/damon/rapid/cr2']
+        paths = ['/media/EOS_DIGITAL/', '/media/EOS_DIGITAL_/']
+        #~ paths = ['/home/damon/rapid/cr2']
         self.batch_size = 10
         
         self.testing_auto_exit = False
@@ -1785,9 +1787,10 @@ class RapidApp(dbus.service.Object):
             
     
     def on_rapidapp_destroy(self, widget, data=None):
-        
-        self.scan_manager.terminate()
-        
+
+        self.scan_manager.terminate()        
+        self.selection_vbox.selection_treeview.thumbnail_manager.terminate()
+
         # save window and component sizes
         self.prefs.hpaned_pos = self.selection_vbox.file_hpaned.get_position()
         #~ self.prefs.vpaned_pos = self.main_vpaned.get_position()

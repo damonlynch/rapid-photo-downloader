@@ -18,6 +18,7 @@
 ### Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 import multiprocessing
+import types
 
 import gtk
 import numpy
@@ -25,8 +26,13 @@ import numpy
 import paths
 
 import config
+import common
 import rpdmultiprocessing as rpdmp
+import metadata as photometadata
 
+import logging
+logger = multiprocessing.log_to_stderr()
+logger.setLevel(logging.INFO)
 
 def get_generic_photo_image():
     return gtk.gdk.pixbuf_new_from_file(paths.share_dir('glade3/photo.png'))
@@ -68,7 +74,7 @@ class PicklablePixBuf:
     processes. This class converts them into a numeric array that can be
     pickled.
     
-    Source:
+    Source for background information:
     http://lisas.de/~alex/?p=46
     https://bugzilla.gnome.org/show_bug.cgi?id=309469
     """
@@ -85,7 +91,41 @@ class PicklablePixBuf:
                                              self.bits_per_sample)
 
 
-    
+class PhotoThumbnail:
+    def __init__(self):
+        pass
+    def get_thumbnail(self, full_file_name, size):
+        thumbnail = None
+        thumbnail_icon = None        
+        metadata = photometadata.MetaData(full_file_name)
+        try:
+            metadata.read()
+        except:
+            logger.warning("Could not read metadata from %s" % full_file_name)
+        else:
+            thumbnail = metadata.getThumbnailData(size)
+            if isinstance(thumbnail, types.StringType):
+                orientation = metadata.orientation(missing=None)
+                pbloader = gtk.gdk.PixbufLoader()
+                pbloader.write(thumbnail)
+                pbloader.close()
+                # Get the resulting pixbuf and build an image to be displayed
+                pixbuf = pbloader.get_pixbuf()
+                if orientation == 8:
+                    pixbuf = pixbuf.rotate_simple(gtk.gdk.PIXBUF_ROTATE_COUNTERCLOCKWISE)
+                elif orientation == 6:
+                    pixbuf = pixbuf.rotate_simple(gtk.gdk.PIXBUF_ROTATE_CLOCKWISE)
+                elif orientation == 3:
+                    pixbuf = pixbuf.rotate_simple(gtk.gdk.PIXBUF_ROTATE_UPSIDEDOWN)
+                
+                thumbnail = PicklablePixBuf(pixbuf)
+                thumbnail_icon = PicklablePixBuf(
+                                        common.scale2pixbuf(60, 36, pixbuf))
+                
+        del(metadata)
+        return (thumbnail, thumbnail_icon)
+
+                
 class GenerateThumbnails(multiprocessing.Process):
     def __init__(self, files, batch_size, results_pipe, terminate_queue, 
                  run_event):
@@ -98,6 +138,8 @@ class GenerateThumbnails(multiprocessing.Process):
         self.counter = 0
         self.results = []
         
+        self.thumbnail_maker = PhotoThumbnail()
+        
     def run(self):
         for f in self.files:
             
@@ -107,20 +149,12 @@ class GenerateThumbnails(multiprocessing.Process):
             if not self.terminate_queue.empty():
                 x = self.terminate_queue.get()
                 # terminate immediately
-                print "terminating thumbnailing..."
+                logger.info("Terminating thumbnailing")
                 return None
             
-            if f.metadata is None:
-                try:
-                    f.load_metadata()
-                except:
-                    print "metadata could not be loaded"
-                    f.metadata = None
-                    f.thumbnail_icon = None
-                    f.thumbnail = None
-                else:    
-                    f.generate_thumbnail(config.max_thumbnail_size)
-            self.results.append(f)
+            thumbnail, thumbnail_icon = self.thumbnail_maker.get_thumbnail(f.full_file_name, config.max_thumbnail_size)
+            
+            self.results.append((f.unique_id, thumbnail, thumbnail_icon))
             self.counter += 1
             if self.counter == self.batch_size:
                 self.results_pipe.send((rpdmp.CONN_PARTIAL, self.results))
