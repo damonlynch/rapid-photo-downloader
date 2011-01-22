@@ -86,19 +86,17 @@ class RPDFile:
         self.download_folder = download_folder
         self.volume = volume
         
-        self.metadata = None
-        
         self.status = config.STATUS_NOT_DOWNLOADED
         self.problem = None # class Problem in problemnotifcation.py
                 
-        self._image_type()
+        self._assign_file_type()
         
         self.scan_pid = scan_pid
         self.file_id = file_id
         self.unique_id = str(scan_pid) + ":" + file_id
         
         
-    def _image_type(self):
+    def _assign_file_type(self):
         self.file_type = None
     
     def date_time(self, alternative_if_date_missing=None):
@@ -118,26 +116,16 @@ class Photo(RPDFile):
     title = _("photo")
     title_capitalized = _("Photo")
     
-    def _image_type(self):
+    def _assign_file_type(self):
         self.file_type = config.FILE_TYPE_PHOTO
     
-    def apply_generic_thumbnail(self):
-        """Adds a generic thumbnail to the file."""
-        self.thumbnail = Photo._generic_thumbnail_image
-        self.thumbnail_icon = Photo._generic_thumbnail_image_icon
-        self.generic_thumbnail = True
-        
-
-            
             
 class Video(RPDFile):
     
     title = _("video")
     title_capitalized = _("Video")
     
-    def _image_type(self):
+    def _assign_file_type(self):
         self.file_type = config.FILE_TYPE_VIDEO
 
-    def load_metadata(self):    
-        self.metadata = videometadata.VideoMetaData(self.full_file_name)
 

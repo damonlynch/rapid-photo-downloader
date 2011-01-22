@@ -516,6 +516,11 @@ class SelectionTreeView(gtk.TreeView):
         self.treerow_index = {}
         self.process_index = {}
         
+        self.thumbnails = {}
+        
+        self.stock_photo_thumbnails = tn.PhotoIcons()
+        self.stock_video_thumbnails = tn.VideoIcons()
+        
         self.liststore = gtk.ListStore(
              gtk.gdk.Pixbuf,        # 0 thumbnail icon
              str,                   # 1 name (for sorting)
@@ -703,7 +708,7 @@ class SelectionTreeView(gtk.TreeView):
         """
         Returns the thread associated with the liststore's iter
         """
-        return self.liststore.get_value(iter, 14)
+        return 1
         
     def get_status(self, iter):
         """
@@ -803,20 +808,39 @@ class SelectionTreeView(gtk.TreeView):
             path = reference.get_path()
             yield self.liststore.get_iter(path)
     
+    
+    def get_stock_icon(self, file_type):
+        if file_type == config.FILE_TYPE_PHOTO:
+            return self.stock_photo_thumbnails.stock_thumbnail_image_icon
+        else:
+            return self.stock_video_thumbnails.stock_thumbnail_image_icon
+            
+    def get_stock_thumbnail(self, file_type):
+        if file_type == config.FILE_TYPE_PHOTO:
+            return self.stock_photo_thumbnails.stock_thumbnail_image
+        else:
+            return self.stock_video_thumbnails.stock_thumbnail_image
+            
+    def get_stock_type_icon(self, file_type):
+        if file_type == config.FILE_TYPE_PHOTO:
+            return self.stock_photo_thumbnails.type_icon
+        else:
+            return self.stock_video_thumbnails.type_icon        
+    
     def add_file(self, rpd_file):
         if debug_info and False:
             cmd_line('Adding file %s' % rpd_file.full_file_name)
             
         # metadata is loaded when previews are generated before downloading
-        if rpd_file.metadata:
-            date = rpd_file.date_time()
-            timestamp = rpd_file.metadata.timeStamp(missing=None)
-            if timestamp is None:
-                timestamp = rpd_file.modification_time
+        #~ if rpd_file.metadata:
+            #~ date = rpd_file.date_time()
+            #~ timestamp = rpd_file.metadata.timeStamp(missing=None)
+            #~ if timestamp is None:
+                #~ timestamp = rpd_file.modification_time
         # if metadata has not been loaded, substitute other values
-        else:
-            timestamp = rpd_file.modification_time
-            date = datetime.datetime.fromtimestamp(timestamp)
+        #~ else:
+        timestamp = rpd_file.modification_time
+        date = datetime.datetime.fromtimestamp(timestamp)
 
         timestamp = int(timestamp)
             
@@ -825,11 +849,8 @@ class SelectionTreeView(gtk.TreeView):
         size = rpd_file.size
         
 
-        t = tn.PhotoIcons()
-        
-        thumbnail = t.generic_thumbnail_image
-        thumbnail_icon =  t.generic_thumbnail_image_icon
-        type_icon = t.type_icon
+        thumbnail_icon = self.get_stock_icon(rpd_file.file_type)
+        type_icon = self.get_stock_type_icon(rpd_file.file_type)
 
         status_icon = self.get_status_icon(rpd_file.status)
         
@@ -881,8 +902,9 @@ class SelectionTreeView(gtk.TreeView):
         self.thumbnail_manager.add_task(self.process_index[scan_pid])
     
     def update_thumbnail(self, thumbnail_data):
-        #~ thumbnail = rpd_file.thumbnail.get_pixbuf()
-        
+        """
+        Takes the generated thumbnail and 
+        """
         unique_id = thumbnail_data[0]
         thumbnail = thumbnail_data[1]
         thumbnail_icon = thumbnail_data[2]
@@ -897,9 +919,8 @@ class SelectionTreeView(gtk.TreeView):
             if thumbnail_icon:
                 self.liststore.set(iter, 0, thumbnail_icon)
                 
-
-        #~ rpd_file_store = self.liststore.get(iter, 9)
-        #~ rpd_file_store.thumbnail = rpd_file.thumbnail
+            #~ print type(thumbnail), thumbnail
+            self.thumbnails[unique_id] = thumbnail.get_pixbuf()
         
         
     def no_selected_rows_available_for_download(self):
@@ -959,7 +980,7 @@ class SelectionTreeView(gtk.TreeView):
         Update download selected button and preview the most recently
         selected row in the treeview
         """
-        self.update_download_selected_button()
+        #~ self.update_download_selected_button()
         size = selection.count_selected_rows()
         if size == 0:
             self.selected_rows = set()
@@ -972,10 +993,11 @@ class SelectionTreeView(gtk.TreeView):
             model, paths = selection.get_selected_rows()
             for path in paths:
                 iter = self.liststore.get_iter(path)
-                ref = self.get_rpd_file(iter).treerowref
+                
+                ref = self.treerow_index[self.get_rpd_file(iter).unique_id]
                 
                 if ref not in self.selected_rows:
-                    self.show_preview(iter)
+                    self.show_preview(treerowref=ref, iter=iter)
                     self.selected_rows.add(ref)
             
     def clear_all(self, thread_id = None):
@@ -1140,7 +1162,7 @@ class SelectionTreeView(gtk.TreeView):
         else:
             self.getThumbnail(rpd_file)
         
-    def show_preview(self, iter):
+    def show_preview(self, treerowref=None, iter=None):
         """
         Shows information about the image or video in the preview panel.
         """
@@ -1191,7 +1213,7 @@ class SelectionTreeView(gtk.TreeView):
                 if debug_info:
                      cmd_line("File cannot be downloaded because of some kind of serious error")
             
-        if not iter:
+        if not iter and not treerowref:
             # clear everything
             for widget in  [self.parentApp.preview_original_name_label,
                             self.parentApp.preview_name_label,
@@ -1217,87 +1239,94 @@ class SelectionTreeView(gtk.TreeView):
             
         
         elif not self.suspend_previews:
-            rpd_file = self.get_rpd_file(iter)
+            rpd_file = self.get_rpd_file(iter) #should fix this to something else!
             
-            _loadMetadataAndThumbNailIfNeccesary()
+            #~ _loadMetadataAndThumbNailIfNeccesary()
             
-            self.previewed_file_treerowref = rpd_file.treerowref
+            self.previewed_file_treerowref = treerowref
+            unique_id = rpd_file.unique_id
             
-            self.parentApp.set_base_preview_image(rpd_file.thumbnail)
+            if unique_id in self.thumbnails:
+                base_thumbnail = self.thumbnails[unique_id]
+            else:
+                base_thumbnail = self.get_stock_thumbnail(rpd_file.file_type)
+            
+            self.parentApp.set_base_preview_image(base_thumbnail)
             thumbnail = self.parentApp.scaledPreviewImage()
                 
             self.parentApp.preview_image.set_from_pixbuf(thumbnail)
             
-            image_tool_tip = "%s\n%s" % (date_time_human_readable(rpd_file.date_time(), False), common.formatSizeForUser(rpd_file.size))
-            self.parentApp.preview_image.set_tooltip_text(image_tool_tip)
+            if False:
+                image_tool_tip = "%s\n%s" % (date_time_human_readable(rpd_file.date_time(), False), common.formatSizeForUser(rpd_file.size))
+                self.parentApp.preview_image.set_tooltip_text(image_tool_tip)
 
-            if rpd_file.sampleStale and rpd_file.status in [STATUS_NOT_DOWNLOADED, STATUS_WARNING]:
-                _generateSampleSubfolderAndName()
+                if rpd_file.sampleStale and rpd_file.status in [STATUS_NOT_DOWNLOADED, STATUS_WARNING]:
+                    _generateSampleSubfolderAndName()
 
-            self.parentApp.preview_original_name_label.set_text(rpd_file.name)
-            self.parentApp.preview_original_name_label.set_tooltip_text(rpd_file.name)
-            if rpd_file.volume:
-                pixbuf = rpd_file.volume.get_icon_pixbuf(16)
-            else:
-                pixbuf = self.icontheme.load_icon('gtk-harddisk', 16, gtk.ICON_LOOKUP_USE_BUILTIN)
-            self.parentApp.preview_device_image.set_from_pixbuf(pixbuf)
-            self.parentApp.preview_device_label.set_text(rpd_file.device_name)
-            self.parentApp.preview_device_path_label.set_text(rpd_file.path)
-            self.parentApp.preview_device_path_label.set_tooltip_text(rpd_file.path)
-            
-            if using_gio:
-                folder = gio.File(rpd_file.downloadFolder)
-                fileInfo = folder.query_info(gio.FILE_ATTRIBUTE_STANDARD_ICON)
-                icon = fileInfo.get_icon()
-                pixbuf = common.get_icon_pixbuf(using_gio, icon, 16, fallback='folder')
-            else:
-                pixbuf = self.icontheme.load_icon('folder', 16, gtk.ICON_LOOKUP_USE_BUILTIN)
+                self.parentApp.preview_original_name_label.set_text(rpd_file.name)
+                self.parentApp.preview_original_name_label.set_tooltip_text(rpd_file.name)
+                if rpd_file.volume:
+                    pixbuf = rpd_file.volume.get_icon_pixbuf(16)
+                else:
+                    pixbuf = self.icontheme.load_icon('gtk-harddisk', 16, gtk.ICON_LOOKUP_USE_BUILTIN)
+                self.parentApp.preview_device_image.set_from_pixbuf(pixbuf)
+                self.parentApp.preview_device_label.set_text(rpd_file.device_name)
+                self.parentApp.preview_device_path_label.set_text(rpd_file.path)
+                self.parentApp.preview_device_path_label.set_tooltip_text(rpd_file.path)
                 
-            self.parentApp.preview_destination_image.set_from_pixbuf(pixbuf)
-            downloadFolderName = os.path.split(rpd_file.downloadFolder)[1]            
-            self.parentApp.preview_destination_label.set_text(downloadFolderName)
+                if using_gio:
+                    folder = gio.File(rpd_file.downloadFolder)
+                    fileInfo = folder.query_info(gio.FILE_ATTRIBUTE_STANDARD_ICON)
+                    icon = fileInfo.get_icon()
+                    pixbuf = common.get_icon_pixbuf(using_gio, icon, 16, fallback='folder')
+                else:
+                    pixbuf = self.icontheme.load_icon('folder', 16, gtk.ICON_LOOKUP_USE_BUILTIN)
+                    
+                self.parentApp.preview_destination_image.set_from_pixbuf(pixbuf)
+                downloadFolderName = os.path.split(rpd_file.downloadFolder)[1]            
+                self.parentApp.preview_destination_label.set_text(downloadFolderName)
 
-            if rpd_file.status in [STATUS_WARNING, STATUS_CANNOT_DOWNLOAD, STATUS_NOT_DOWNLOADED, STATUS_DOWNLOAD_PENDING]:
+                if rpd_file.status in [STATUS_WARNING, STATUS_CANNOT_DOWNLOAD, STATUS_NOT_DOWNLOADED, STATUS_DOWNLOAD_PENDING]:
+                    
+                    self.parentApp.preview_name_label.set_text(rpd_file.sampleName)
+                    self.parentApp.preview_name_label.set_tooltip_text(rpd_file.sampleName)
+                    self.parentApp.preview_destination_path_label.set_text(rpd_file.samplePath)
+                    self.parentApp.preview_destination_path_label.set_tooltip_text(rpd_file.samplePath)
+                else:
+                    self.parentApp.preview_name_label.set_text(rpd_file.downloadName)
+                    self.parentApp.preview_name_label.set_tooltip_text(rpd_file.downloadName)
+                    self.parentApp.preview_destination_path_label.set_text(rpd_file.downloadPath)
+                    self.parentApp.preview_destination_path_label.set_tooltip_text(rpd_file.downloadPath)
                 
-                self.parentApp.preview_name_label.set_text(rpd_file.sampleName)
-                self.parentApp.preview_name_label.set_tooltip_text(rpd_file.sampleName)
-                self.parentApp.preview_destination_path_label.set_text(rpd_file.samplePath)
-                self.parentApp.preview_destination_path_label.set_tooltip_text(rpd_file.samplePath)
-            else:
-                self.parentApp.preview_name_label.set_text(rpd_file.downloadName)
-                self.parentApp.preview_name_label.set_tooltip_text(rpd_file.downloadName)
-                self.parentApp.preview_destination_path_label.set_text(rpd_file.downloadPath)
-                self.parentApp.preview_destination_path_label.set_tooltip_text(rpd_file.downloadPath)
-            
-            status_text = self.status_human_readable(rpd_file)
-            self.parentApp.preview_status_icon.set_from_pixbuf(self.get_status_icon(rpd_file.status, preview=True))
-            self.parentApp.preview_status_label.set_markup('<b>' + status_text + '</b>')
-            self.parentApp.preview_status_label.set_tooltip_text(status_text)
+                status_text = self.status_human_readable(rpd_file)
+                self.parentApp.preview_status_icon.set_from_pixbuf(self.get_status_icon(rpd_file.status, preview=True))
+                self.parentApp.preview_status_label.set_markup('<b>' + status_text + '</b>')
+                self.parentApp.preview_status_label.set_tooltip_text(status_text)
 
 
-            if rpd_file.status in [STATUS_WARNING, STATUS_DOWNLOAD_FAILED,
-                                    STATUS_DOWNLOADED_WITH_WARNING, 
-                                    STATUS_CANNOT_DOWNLOAD, 
-                                    STATUS_BACKUP_PROBLEM, 
-                                    STATUS_DOWNLOAD_AND_BACKUP_FAILED]:
-                problem_title = rpd_file.problem.get_title()
-                self.parentApp.preview_problem_title_label.set_markup('<i>' + problem_title + '</i>')
-                self.parentApp.preview_problem_title_label.set_tooltip_text(problem_title)
-                
-                problem_text = rpd_file.problem.get_problems()
-                self.parentApp.preview_problem_label.set_text(problem_text)
-                self.parentApp.preview_problem_label.set_tooltip_text(problem_text)
-            else:
-                self.parentApp.preview_problem_label.set_markup('')
-                self.parentApp.preview_problem_title_label.set_markup('')
-                for widget in  [self.parentApp.preview_problem_title_label,
-                                self.parentApp.preview_problem_label
-                                ]:
-                    widget.set_tooltip_text('')                
-                
-            if self.rapidApp.prefs.display_preview_folders:
-                self.parentApp.preview_destination_expander.show()
-                self.parentApp.preview_device_expander.show()
+                if rpd_file.status in [STATUS_WARNING, STATUS_DOWNLOAD_FAILED,
+                                        STATUS_DOWNLOADED_WITH_WARNING, 
+                                        STATUS_CANNOT_DOWNLOAD, 
+                                        STATUS_BACKUP_PROBLEM, 
+                                        STATUS_DOWNLOAD_AND_BACKUP_FAILED]:
+                    problem_title = rpd_file.problem.get_title()
+                    self.parentApp.preview_problem_title_label.set_markup('<i>' + problem_title + '</i>')
+                    self.parentApp.preview_problem_title_label.set_tooltip_text(problem_title)
+                    
+                    problem_text = rpd_file.problem.get_problems()
+                    self.parentApp.preview_problem_label.set_text(problem_text)
+                    self.parentApp.preview_problem_label.set_tooltip_text(problem_text)
+                else:
+                    self.parentApp.preview_problem_label.set_markup('')
+                    self.parentApp.preview_problem_title_label.set_markup('')
+                    for widget in  [self.parentApp.preview_problem_title_label,
+                                    self.parentApp.preview_problem_label
+                                    ]:
+                        widget.set_tooltip_text('')                
+                    
+                if self.rapidApp.prefs.display_preview_folders:
+                    self.parentApp.preview_destination_expander.show()
+                    self.parentApp.preview_device_expander.show()
             
     
     def select_rows(self, range):
@@ -1769,8 +1798,8 @@ class RapidApp(dbus.service.Object):
         self.rapidapp.show_all()
         
         #~ paths = ['/home/damon/rapid', '/home/damon/Pictures/processing']
-        paths = ['/media/EOS_DIGITAL/', '/media/EOS_DIGITAL_/']
-        #~ paths = ['/home/damon/rapid/cr2']
+        #~ paths = ['/media/EOS_DIGITAL/', '/media/EOS_DIGITAL_/']
+        paths = ['/home/damon/rapid/cr2']
         self.batch_size = 10
         
         self.testing_auto_exit = False

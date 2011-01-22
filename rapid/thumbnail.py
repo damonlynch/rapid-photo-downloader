@@ -34,19 +34,19 @@ import logging
 logger = multiprocessing.log_to_stderr()
 logger.setLevel(logging.INFO)
 
-def get_generic_photo_image():
+def get_stock_photo_image():
     return gtk.gdk.pixbuf_new_from_file(paths.share_dir('glade3/photo.png'))
     
-def get_generic_photo_image_icon():
+def get_stock_photo_image_icon():
     return gtk.gdk.pixbuf_new_from_file(paths.share_dir('glade3/photo_small_shadow.png'))
     
 def get_photo_type_icon():
     return gtk.gdk.pixbuf_new_from_file(paths.share_dir('glade3/photo24.png'))
     
-def get_generic_video_image():
+def get_stock_video_image():
     return gtk.gdk.pixbuf_new_from_file(paths.share_dir('glade3/video.png'))
     
-def get_generic_video_image_icon():
+def get_stock_video_image_icon():
     return gtk.gdk.pixbuf_new_from_file(paths.share_dir('glade3/video_small_shadow.png'))
 
 def get_video_type_icon():
@@ -55,16 +55,15 @@ def get_video_type_icon():
 
     
 class PhotoIcons():
-    generic_thumbnail_image = get_generic_photo_image()
-    generic_thumbnail_image_icon = get_generic_photo_image_icon()
+    stock_thumbnail_image = get_stock_photo_image()
+    stock_thumbnail_image_icon = get_stock_photo_image_icon()
     type_icon = get_photo_type_icon()
+    
+class VideoIcons():
+    stock_thumbnail_image = get_stock_video_image()
+    stock_thumbnail_image_icon = get_stock_video_image_icon()
+    type_icon = get_video_type_icon()
 
-
-
-    #~ type_icon = thumbnail.get_video_type_icon()
-    #~ 
-    #~ _generic_thumbnail_image = thumbnail.get_generic_video_image()
-    #~ _generic_thumbnail_image_icon = thumbnail.get_generic_video_image_icon()
     
 class PicklablePixBuf:
     """
@@ -117,10 +116,10 @@ class PhotoThumbnail:
                     pixbuf = pixbuf.rotate_simple(gtk.gdk.PIXBUF_ROTATE_CLOCKWISE)
                 elif orientation == 3:
                     pixbuf = pixbuf.rotate_simple(gtk.gdk.PIXBUF_ROTATE_UPSIDEDOWN)
-                
-                thumbnail = PicklablePixBuf(pixbuf)
                 thumbnail_icon = PicklablePixBuf(
-                                        common.scale2pixbuf(60, 36, pixbuf))
+                                        common.scale2pixbuf(60, 36, pixbuf))                
+                thumbnail = PicklablePixBuf(pixbuf)
+
                 
         del(metadata)
         return (thumbnail, thumbnail_icon)
@@ -166,3 +165,4 @@ class GenerateThumbnails(multiprocessing.Process):
             self.results_pipe.send((rpdmp.CONN_PARTIAL, self.results))
         self.results_pipe.send((rpdmp.CONN_COMPLETE, None))            
         
+#~ if __name__ == '__main__':
