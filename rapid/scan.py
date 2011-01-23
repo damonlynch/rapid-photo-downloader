@@ -26,11 +26,17 @@ import gtk
 import rpdmultiprocessing as rpdmp
 import rpdfile
 
+
+import logging
+logger = multiprocessing.get_logger()
+logger.setLevel(logging.INFO)
+
 # python whitespace is significant - don't remove the leading whitespace on
 # the second line
 
 file_attributes = "standard::name,standard::display-name,\
 standard::type,standard::size,time::modified,access::can-read,id::file"
+
 
 
 class Scan(multiprocessing.Process):
@@ -148,4 +154,4 @@ class Scan(multiprocessing.Process):
                 self.results_pipe.send((rpdmp.CONN_PARTIAL, self.files))
             self.results_pipe.send((rpdmp.CONN_COMPLETE, (size, 
                                     multiprocessing.current_process().pid)))
-            #~ self.results_pipe.close()                
+            self.results_pipe.close()                

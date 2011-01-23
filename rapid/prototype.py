@@ -21,10 +21,11 @@ import getopt, sys, time, types, os, datetime
 
 import gobject, pango
  
-from multiprocessing import Process, Pipe, Queue, Event, current_process, log_to_stderr
+from multiprocessing import Process, Pipe, Queue, Event, current_process, get_logger, log_to_stderr
 
 import logging
-logger = log_to_stderr()
+logger = get_logger()
+log_to_stderr()
 logger.setLevel(logging.INFO)
 
 import media, common, rpdfile
@@ -392,11 +393,13 @@ class SelectionVBox(gtk.VBox):
         if not self.base_preview_image:
             return None
         else:
-            pixbuf = common.scale2pixbuf(size, size, self.base_preview_image)
+            pil_image = self.base_preview_image.copy()
+            tn.downsize(pil_image, (size, size), fit=False)
             
             if DROP_SHADOW: 
-                pil_image = pixbuf_to_image(pixbuf)
                 pil_image = self.drop_shadow.dropShadow(pil_image) 
+                pixbuf = image_to_pixbuf(pil_image)
+            else:
                 pixbuf = image_to_pixbuf(pil_image)
             
             return pixbuf
@@ -510,7 +513,7 @@ class SelectionTreeView(gtk.TreeView):
         self.parentApp = parentApp
         self.rapidApp = parentApp.parentApp
         
-        self.batch_size = 5
+        self.batch_size = 10
         
         self.thumbnail_manager = ThumbnailManager(self.thumbnail_results, self.batch_size)
         self.treerow_index = {}
@@ -900,7 +903,7 @@ class SelectionTreeView(gtk.TreeView):
     def generate_thumbnails(self, scan_pid):
         """Initiate thumbnail generation for files scanned in one process
         """
-        self.thumbnail_manager.add_task(self.process_index[scan_pid])
+        self.thumbnail_manager.add_task(self.process_index[scan_pid], high_quality=False)
     
     def update_thumbnail(self, thumbnail_data):
         """
@@ -920,7 +923,8 @@ class SelectionTreeView(gtk.TreeView):
                 self.liststore.set(iter, 0, thumbnail_icon)
                 
             if len(thumbnail_data) > 2:
-                self.thumbnails[unique_id] = thumbnail_data[2].get_pixbuf()
+                # get the image in PIL format
+                self.thumbnails[unique_id] = thumbnail_data[2].get_image()
         
         
     def no_selected_rows_available_for_download(self):
@@ -1248,6 +1252,8 @@ class SelectionTreeView(gtk.TreeView):
             
             if unique_id in self.thumbnails:
                 base_thumbnail = self.thumbnails[unique_id]
+                if base_thumbnail.size[0] < config.max_thumbnail_size and base_thumbnail.size[1] < config.max_thumbnail_size:
+                    base_thumbnail = tn.upsize(base_thumbnail, (config.max_thumbnail_size, config.max_thumbnail_size))
             else:
                 base_thumbnail = self.get_stock_thumbnail(rpd_file.file_type)
             
@@ -1756,8 +1762,12 @@ class ScanManager(TaskManager):
         self._processes.append((scan, terminate_queue, run_event))
         
 class ThumbnailManager(TaskManager):
+    def add_task(self, task, high_quality=False):
+        self.high_quality = high_quality
+        TaskManager.add_task(self, task)
+        
     def _initiate_task(self, files, task_process_conn, terminate_queue, run_event):
-        generator = tn.GenerateThumbnails(files, self.batch_size, task_process_conn, terminate_queue, run_event)
+        generator = tn.GenerateThumbnails(files, self.high_quality, self.batch_size, task_process_conn, terminate_queue, run_event)
         generator.start()
         self._processes.append((generator, terminate_queue, run_event))
 
@@ -1798,8 +1808,8 @@ class RapidApp(dbus.service.Object):
         self.rapidapp.show_all()
         
         #~ paths = ['/home/damon/rapid', '/home/damon/Pictures/processing']
-        #~ paths = ['/media/EOS_DIGITAL/', '/media/EOS_DIGITAL_/']
-        paths = ['/home/damon/rapid/cr2']
+        paths = ['/media/EOS_DIGITAL/', '/media/EOS_DIGITAL_/']
+        #~ paths = ['/home/damon/rapid/cr2']
         #~ paths = ['/media/EOS_DIGITAL/']
         
         self.batch_size = 10
