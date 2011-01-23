@@ -19,6 +19,7 @@
 
 import multiprocessing
 import types
+import os
 
 import gtk
 import numpy
@@ -28,11 +29,10 @@ import paths
 import config
 import common
 import rpdmultiprocessing as rpdmp
-import metadata as photometadata
+import pyexiv2
 
-import logging
-logger = multiprocessing.log_to_stderr()
-logger.setLevel(logging.INFO)
+import prototype
+#~ from prototype import logger
 
 def get_stock_photo_image():
     return gtk.gdk.pixbuf_new_from_file(paths.share_dir('glade3/photo.png'))
@@ -90,23 +90,111 @@ class PicklablePixBuf:
                                              self.bits_per_sample)
 
 
-class PhotoThumbnail:
+class PhotoThumbnail_v2:
     def __init__(self):
         pass
+        
+    def get_thumbnail_data(self, metadata, high_quality, max_size_needed=0):
+        
+        if high_quality:
+
+            previews = metadata.previews
+            if not previews:
+                return None, None
+            else:
+                if max_size_needed:
+                    for thumbnail in previews:
+                        if thumbnail.dimensions[0] >= max_size_needed or thumbnail.dimensions[1] >= max_size_needed:
+                            break
+                else:
+                    thumbnail = self.previews[-1]
+                
+        else:
+            thumbnail = metadata.exif_thumbnail
+        
+        return thumbnail.data
+            
     def get_thumbnail(self, full_file_name, size):
         thumbnail = None
         thumbnail_icon = None        
-        metadata = photometadata.MetaData(full_file_name)
+        metadata = pyexiv2.metadata.ImageMetadata(full_file_name)
         try:
             metadata.read()
         except:
+            prototype.logger.warning("Could not read metadata from %s" % full_file_name)
+        else:
+            thumbnail_data = self.get_thumbnail_data(metadata, high_quality=False, max_size_needed=size)
+            if isinstance(thumbnail_data, types.StringType):
+                try:
+                    orientation = metadata['Exif.Image.Orientation'].value
+                except:
+                    orientation = None
+                try:
+                    pbloader = gtk.gdk.PixbufLoader()
+                    pbloader.write(thumbnail_data)
+                    pbloader.close()
+                except:
+                    prototype.logger.warning("bad thumbnail for %s" % full_file_name)
+                else:
+                    # Get the resulting pixbuf and build an image to be displayed
+                    pixbuf = pbloader.get_pixbuf()
+                    
+
+                    
+                
+                    if orientation == 8:
+                        pixbuf = pixbuf.rotate_simple(gtk.gdk.PIXBUF_ROTATE_COUNTERCLOCKWISE)
+                    elif orientation == 6:
+                        pixbuf = pixbuf.rotate_simple(gtk.gdk.PIXBUF_ROTATE_CLOCKWISE)
+                    elif orientation == 3:
+                        pixbuf = pixbuf.rotate_simple(gtk.gdk.PIXBUF_ROTATE_UPSIDEDOWN)
+                    thumbnail_icon = PicklablePixBuf(
+                                            common.scale2pixbuf(60, 36, pixbuf))
+                    if pixbuf.get_height() > size or pixbuf.get_width() > size:
+                        pixbuf = common.scale2pixbuf(size, size, pixbuf)
+                    thumbnail = PicklablePixBuf(pixbuf)
+                    
+                    
+                    p = thumbnail.get_pixbuf()
+                    name = os.path.split(full_file_name)[1]
+                    path = "%s.jpg" % os.path.join('/home/damon/tmp/rpd', name)
+                    p.save(path, 'jpeg')
+
+        return (thumbnail, thumbnail_icon)
+
+class PhotoThumbnail_v1:
+    def __init__(self):
+        pass
+        
+    def get_thumbnail_data(self, metadata, max_size_needed=0):
+
+        previews = metadata.previews
+        if not previews:
+            return None, None
+        else:
+            if max_size_needed:
+                for thumbnail in previews:
+                    if thumbnail.dimensions[0] >= max_size_needed or thumbnail.dimensions[1] >= max_size_needed:
+                        break
+            else:
+                thumbnail = self.previews[-1]
+                    
+            return thumbnail.data
+            
+    def get_thumbnail(self, full_file_name, size):
+        thumbnail = None
+        thumbnail_icon = None        
+        metadata = pyexiv2.Image(full_file_name)
+        try:
+            metadata.readMetadata()
+        except:
             logger.warning("Could not read metadata from %s" % full_file_name)
         else:
-            thumbnail = metadata.getThumbnailData(size)
-            if isinstance(thumbnail, types.StringType):
-                orientation = metadata.orientation(missing=None)
+            thumbnail_type, thumbnail_data = metadata.getThumbnailData()
+            if isinstance(thumbnail_data, types.StringType):
+                orientation = metadata['Exif.Image.Orientation']
                 pbloader = gtk.gdk.PixbufLoader()
-                pbloader.write(thumbnail)
+                pbloader.write(thumbnail_data)
                 pbloader.close()
                 # Get the resulting pixbuf and build an image to be displayed
                 pixbuf = pbloader.get_pixbuf()
@@ -120,10 +208,7 @@ class PhotoThumbnail:
                                         common.scale2pixbuf(60, 36, pixbuf))                
                 thumbnail = PicklablePixBuf(pixbuf)
 
-                
-        del(metadata)
         return (thumbnail, thumbnail_icon)
-
                 
 class GenerateThumbnails(multiprocessing.Process):
     def __init__(self, files, batch_size, results_pipe, terminate_queue, 
@@ -137,7 +222,11 @@ class GenerateThumbnails(multiprocessing.Process):
         self.counter = 0
         self.results = []
         
-        self.thumbnail_maker = PhotoThumbnail()
+        if 'version_info' in dir(pyexiv2):
+            self.thumbnail_maker = PhotoThumbnail_v2()
+        else:
+            self.thumbnail_maker = PhotoThumbnail_v1()
+        
         
     def run(self):
         for f in self.files:
@@ -151,18 +240,21 @@ class GenerateThumbnails(multiprocessing.Process):
                 logger.info("Terminating thumbnailing")
                 return None
             
+            
             thumbnail, thumbnail_icon = self.thumbnail_maker.get_thumbnail(f.full_file_name, config.max_thumbnail_size)
             
-            self.results.append((f.unique_id, thumbnail, thumbnail_icon))
+            self.results.append((f.unique_id, thumbnail_icon, thumbnail))
+            #~ self.results.append((f.unique_id, thumbnail_icon))
             self.counter += 1
             if self.counter == self.batch_size:
                 self.results_pipe.send((rpdmp.CONN_PARTIAL, self.results))
                 self.results = []
-                self.counter = 0                
+                self.counter = 0
             
         if self.counter > 0:
             # send any remaining results
             self.results_pipe.send((rpdmp.CONN_PARTIAL, self.results))
-        self.results_pipe.send((rpdmp.CONN_COMPLETE, None))            
+        self.results_pipe.send((rpdmp.CONN_COMPLETE, None))
+        self.results_pipe.close()
         
 #~ if __name__ == '__main__':

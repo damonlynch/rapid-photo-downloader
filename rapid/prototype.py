@@ -510,7 +510,7 @@ class SelectionTreeView(gtk.TreeView):
         self.parentApp = parentApp
         self.rapidApp = parentApp.parentApp
         
-        self.batch_size = 10
+        self.batch_size = 5
         
         self.thumbnail_manager = ThumbnailManager(self.thumbnail_results, self.batch_size)
         self.treerow_index = {}
@@ -696,7 +696,8 @@ class SelectionTreeView(gtk.TreeView):
         conn_type, data = connection.recv()
         
         if conn_type == rpdmp.CONN_COMPLETE:
-            pass
+            connection.close()
+            return False
         else:
             for i in range(len(data)):
                 thumbnail_data = data[i]
@@ -906,8 +907,7 @@ class SelectionTreeView(gtk.TreeView):
         Takes the generated thumbnail and 
         """
         unique_id = thumbnail_data[0]
-        thumbnail = thumbnail_data[1]
-        thumbnail_icon = thumbnail_data[2]
+        thumbnail_icon = thumbnail_data[1]
         
         if thumbnail_icon is not None:
             thumbnail_icon = thumbnail_icon.get_pixbuf()
@@ -919,8 +919,8 @@ class SelectionTreeView(gtk.TreeView):
             if thumbnail_icon:
                 self.liststore.set(iter, 0, thumbnail_icon)
                 
-            #~ print type(thumbnail), thumbnail
-            self.thumbnails[unique_id] = thumbnail.get_pixbuf()
+            if len(thumbnail_data) > 2:
+                self.thumbnails[unique_id] = thumbnail_data[2].get_pixbuf()
         
         
     def no_selected_rows_available_for_download(self):
@@ -1705,7 +1705,7 @@ class TaskManager:
 
         
     def _setup_task(self, task):
-        task_results_conn, task_process_conn = Pipe()
+        task_results_conn, task_process_conn = Pipe(duplex=False)
         
         source = task_results_conn.fileno()
         self._pipes[source] = task_results_conn
@@ -1800,6 +1800,8 @@ class RapidApp(dbus.service.Object):
         #~ paths = ['/home/damon/rapid', '/home/damon/Pictures/processing']
         #~ paths = ['/media/EOS_DIGITAL/', '/media/EOS_DIGITAL_/']
         paths = ['/home/damon/rapid/cr2']
+        #~ paths = ['/media/EOS_DIGITAL/']
+        
         self.batch_size = 10
         
         self.testing_auto_exit = False
@@ -1837,6 +1839,7 @@ class RapidApp(dbus.service.Object):
         iter = self.textbuffer.get_end_iter()
         
         if conn_type == rpdmp.CONN_COMPLETE:
+            connection.close()
             size, scan_pid = data
             size = formatSizeForUser(size)
             self.textbuffer.insert(iter, 'Files total %s\n' % size)
@@ -1846,7 +1849,8 @@ class RapidApp(dbus.service.Object):
             else:
                 self.selection_vbox.selection_treeview.generate_thumbnails(
                                                             scan_pid)
-            
+            # signal that no more data is coming, finishing io watch for this pipe
+            return False
         else:
             if len(data) > self.batch_size:
                 logger.error("incoming pipe length is %s" % len(data))

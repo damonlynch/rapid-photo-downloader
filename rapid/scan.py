@@ -148,3 +148,4 @@ class Scan(multiprocessing.Process):
                 self.results_pipe.send((rpdmp.CONN_PARTIAL, self.files))
             self.results_pipe.send((rpdmp.CONN_COMPLETE, (size, 
                                     multiprocessing.current_process().pid)))
+            #~ self.results_pipe.close()                
