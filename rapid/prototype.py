@@ -106,78 +106,44 @@ def date_time_subseconds_human_readable(date, subseconds):
 
 
 
-class SelectionVBox(gtk.VBox):
+class DigitalFiles:
     """
-    Dialog from which the user can select photos and videos to download
     """
 
     
-    def __init__(self, parentApp):
+    def __init__(self, parent_app, builder):
         """
-        Initialize values for log dialog, but do not display.
         """
+
+        self.parent_app = parent_app
         
-        gtk.VBox.__init__(self)
-        self.parentApp = parentApp
-        
-        tiny_screen = TINY_SCREEN
-        if tiny_screen:
-            config.max_thumbnail_size = 160
-        
-        selection_scrolledwindow = gtk.ScrolledWindow()
-        selection_scrolledwindow.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
-        selection_viewport = gtk.Viewport()
-        
+        self.preview_image = builder.get_object("preview_image")
+        self.preview_image_aspectframe = builder.get_object("preview_image_aspectframe")
         
         self.selection_treeview = SelectionTreeView(self)
         
+        selection_scrolledwindow = builder.get_object("selection_scrolledwindow")
         selection_scrolledwindow.add(self.selection_treeview)
 
 
         # Job code controls
         self.add_job_code_combo()
-        left_pane_vbox = gtk.VBox(spacing = 12)
-        left_pane_vbox.pack_start(selection_scrolledwindow, True, True)
+        left_pane_vbox = builder.get_object("left_pane_vbox")
         left_pane_vbox.pack_start(self.job_code_hbox, False, True)
                 
-        # Window sizes
-        #selection_scrolledwindow.set_size_request(350, -1)
-        
-        
-        # Preview pane
-        
-        # Zoom in and out slider (make the image bigger / smaller)
-        
-        # Zoom out (on the left of the slider)
-        self.zoom_out_eventbox = gtk.EventBox()
-        self.zoom_out_eventbox.set_events(gtk.gdk.BUTTON_PRESS_MASK)        
-        self.zoom_out_image = gtk.Image()
-        self.zoom_out_image.set_from_file(paths.share_dir('glade3/zoom-out.png'))
-        self.zoom_out_eventbox.add(self.zoom_out_image)
-        self.zoom_out_eventbox.connect("button_press_event", self.zoom_out_0_callback)
-        
-        # Zoom in (on the right of the slider)
-        self.zoom_in_eventbox = gtk.EventBox()
-        self.zoom_in_eventbox.set_events(gtk.gdk.BUTTON_PRESS_MASK)
-        self.zoom_in_image = gtk.Image()
-        self.zoom_in_image.set_from_file(paths.share_dir('glade3/zoom-in.png'))
-        self.zoom_in_eventbox.add(self.zoom_in_image)
-        self.zoom_in_eventbox.connect("button_press_event", self.zoom_in_100_callback)
-        
-        self.slider_adjustment = gtk.Adjustment(value=self.parentApp.prefs.preview_zoom, 
-                lower=config.MIN_THUMBNAIL_SIZE, upper=config.max_thumbnail_size, 
-                step_incr=1.0, page_incr=config.THUMBNAIL_INCREMENT, page_size=0)
-        self.slider_adjustment.connect("value_changed", self.resize_image_callback)
-        self.slider_hscale = gtk.HScale(self.slider_adjustment)
-        self.slider_hscale.set_draw_value(False) # don't display numeric value
-        self.slider_hscale.set_size_request(config.MIN_THUMBNAIL_SIZE * 2, -1)
-        
         
         #Preview image
         self.base_preview_image = None # large size image used to scale down from
-        self.preview_image = gtk.Image()
+        self.current_preview_size = (0,0)
+        
+        self.preview_vpaned = builder.get_object("preview_vpaned")
+        pos = self.parent_app.prefs.preview_vpaned_pos
+        if pos == 0:
+            pos = 300
+        
+        logger.info("Setting vertical pane to %s" % pos)
+        self.preview_vpaned.set_position(pos)
 
-        self.preview_image.set_alignment(0, 0.5)
         #leave room for thumbnail shadow
         if DROP_SHADOW:
             self.cacheDropShadow()
@@ -186,167 +152,23 @@ class SelectionVBox(gtk.VBox):
         
         image_size, shadow_size, offset = self._imageAndShadowSize()
         
-        self.preview_image.set_size_request(image_size, image_size)
+        #~ self.preview_image.set_size_request(image_size, image_size)
         
-        #labels to display file information
-        
-        #Original filename
-        self.preview_original_name_label = gtk.Label()
-        self.preview_original_name_label.set_alignment(0, 0.5)
-        self.preview_original_name_label.set_ellipsize(pango.ELLIPSIZE_END)
-        
-        
-        #Device (where it will be downloaded from)
-        self.preview_device_expander = gtk.Expander()
-        self.preview_device_label = gtk.Label()
-        self.preview_device_label.set_alignment(0, 0.5)
-        self.preview_device_image = gtk.Image()
-        
-        self.preview_device_path_label = gtk.Label()
-        self.preview_device_path_label.set_alignment(0, 0.5)
-        self.preview_device_path_label.set_ellipsize(pango.ELLIPSIZE_MIDDLE)
-        self.preview_device_path_label.set_padding(30, 0)
-        self.preview_device_expander.add(self.preview_device_path_label)
-        
-        device_hbox = gtk.HBox(False, spacing = 6)
-        device_hbox.pack_start(self.preview_device_image)
-        device_hbox.pack_start(self.preview_device_label, True, True)
-        
-        self.preview_device_expander.set_label_widget(device_hbox)
-        
-        #Filename that has been generated
-        self.preview_name_label = gtk.Label()
-        self.preview_name_label.set_alignment(0, 0.5)
-        self.preview_name_label.set_ellipsize(pango.ELLIPSIZE_END)
-        
-        #Download destination
-        self.preview_destination_expander = gtk.Expander()
-        self.preview_destination_label = gtk.Label()
-        self.preview_destination_label.set_alignment(0, 0.5)
-        self.preview_destination_image = gtk.Image()
-        
-        self.preview_destination_path_label = gtk.Label()
-        self.preview_destination_path_label.set_alignment(0, 0.5)
-        self.preview_destination_path_label.set_ellipsize(pango.ELLIPSIZE_MIDDLE)        
-        self.preview_destination_path_label.set_padding(30, 0)
-        self.preview_destination_expander.add(self.preview_destination_path_label)
-
-        destination_hbox = gtk.HBox(False, spacing = 6)
-        destination_hbox.pack_start(self.preview_destination_image)
-        destination_hbox.pack_start(self.preview_destination_label, True, True)
-        
-        self.preview_destination_expander.set_label_widget(destination_hbox)
-
         
         #Status of the file
-        
-        self.preview_status_icon = gtk.Image()
-        self.preview_status_icon.set_size_request(16,16)
 
-        self.preview_status_label = gtk.Label()
-        self.preview_status_label.set_alignment(0, 0.5)
-        self.preview_status_label.set_ellipsize(pango.ELLIPSIZE_END)
-        self.preview_status_label.set_padding(12, 0)
 
-        #Title of problems encountered in generating the name / subfolder
-        self.preview_problem_title_label = gtk.Label()
-        self.preview_problem_title_label.set_alignment(0, 0.5)
-        self.preview_problem_title_label.set_ellipsize(pango.ELLIPSIZE_END)
-        self.preview_problem_title_label.set_padding(12, 0)
-        
-        #Details of what the problem(s) are
-        self.preview_problem_label = gtk.Label()
-        self.preview_problem_label.set_alignment(0, 0)
-        self.preview_problem_label.set_line_wrap(True)
-        self.preview_problem_label.set_padding(12, 0)
-        #Can't combine wrapping and ellipsize, sadly
-        #self.preview_problem_label.set_ellipsize(pango.ELLIPSIZE_END)
-                
-        #Put content into table
-        # Use a table so we can do the Gnome HIG layout more easily
-        self.preview_table = gtk.Table(10, 4)
-        self.preview_table.set_row_spacings(12)
-        left_spacer = gtk.Label('')
-        left_spacer.set_padding(12, 0)
-        right_spacer = gtk.Label('')
-        right_spacer.set_padding(6, 0)
-        
-
-        spacer2 = gtk.Label('')
-        
-        #left and right spacers
-        self.preview_table.attach(left_spacer, 0, 1, 1, 2, xoptions=gtk.SHRINK, yoptions=gtk.SHRINK)
-        self.preview_table.attach(right_spacer, 3, 4, 1, 2, xoptions=gtk.SHRINK, yoptions=gtk.SHRINK)
-        
-        row = 0
-        zoom_hbox = gtk.HBox()
-        zoom_hbox.pack_start(self.zoom_out_eventbox, False, False)
-        zoom_hbox.pack_start(self.slider_hscale, False, False)
-        zoom_hbox.pack_start(self.zoom_in_eventbox, False, False)
-        
-        self.preview_table.attach(zoom_hbox, 1, 3, row, row+1, yoptions=gtk.SHRINK)
-        
-        row += 1
-        self.preview_table.attach(self.preview_image, 1, 3, row, row+1, yoptions=gtk.SHRINK)
-        row += 1
-        
-        self.preview_table.attach(self.preview_original_name_label, 1, 3, row, row+1, xoptions=gtk.EXPAND|gtk.FILL, yoptions=gtk.SHRINK)
-        row += 1
-        if not tiny_screen:
-            self.preview_table.attach(self.preview_device_expander, 1, 3, row, row+1, xoptions=gtk.EXPAND|gtk.FILL, yoptions=gtk.SHRINK)
-            row += 1
-        
-        self.preview_table.attach(self.preview_name_label, 1, 3, row, row+1, xoptions=gtk.EXPAND|gtk.FILL, yoptions=gtk.SHRINK)
-        row += 1
-        if not tiny_screen:
-            self.preview_table.attach(self.preview_destination_expander, 1, 3, row, row+1, xoptions=gtk.EXPAND|gtk.FILL, yoptions=gtk.SHRINK)
-            row += 1
-
-        if not tiny_screen:
-            self.preview_table.attach(spacer2, 0, 7, row, row+1, yoptions=gtk.SHRINK)
-            row += 1
-        
-        self.preview_table.attach(self.preview_status_icon, 1, 2, row, row+1, xoptions=gtk.SHRINK, yoptions=gtk.SHRINK)
-        self.preview_table.attach(self.preview_status_label, 2, 3, row, row+1, yoptions=gtk.SHRINK)
-        row += 1
-        
-        self.preview_table.attach(self.preview_problem_title_label, 2, 3, row, row+1, yoptions=gtk.SHRINK)
-        row += 1
-        self.preview_table.attach(self.preview_problem_label, 2, 4, row, row+1, xoptions=gtk.EXPAND|gtk.FILL, yoptions=gtk.EXPAND|gtk.FILL)
-        row += 1
-        
-        self.file_hpaned = gtk.HPaned()
-        self.file_hpaned.pack1(left_pane_vbox, shrink=False)
-        self.file_hpaned.pack2(self.preview_table, resize=True, shrink=False)
-        self.pack_start(self.file_hpaned, True, True)
-        if self.parentApp.prefs.hpaned_pos > 0:
-            self.file_hpaned.set_position(self.parentApp.prefs.hpaned_pos)
+        self.file_hpaned = builder.get_object("file_hpaned")
+        if self.parent_app.prefs.hpaned_pos > 0:
+            self.file_hpaned.set_position(self.parent_app.prefs.hpaned_pos)
         else:
             # this is what the user will see the first time they run the app
             self.file_hpaned.set_position(300)
 
-        self.show_all()
-    
-    
-    def set_base_preview_image(self, pixbuf):
-        """
-        sets the unscaled pixbuf image to be displayed to the user
-        the actual image the user will see will depend on the scale
-        they've set to view it at
-        """
-        self.base_preview_image = pixbuf
+        self.main_vpaned = builder.get_object("main_vpaned")
+        self.main_vpaned.show_all()
         
-    def zoom_in(self):
-        self.slider_adjustment.set_value(min([config.max_thumbnail_size, int(self.slider_adjustment.get_value()) + config.THUMBNAIL_INCREMENT]))
-        
-    def zoom_out(self):
-        self.slider_adjustment.set_value(max([config.MIN_THUMBNAIL_SIZE, int(self.slider_adjustment.get_value()) - config.THUMBNAIL_INCREMENT]))
-    
-    def zoom_in_100_callback(self, widget, value):
-        self.slider_adjustment.set_value(config.max_thumbnail_size)
-        
-    def zoom_out_0_callback(self, widget, value):
-        self.slider_adjustment.set_value(config.MIN_THUMBNAIL_SIZE)
+
     
     def set_display_preview_folders(self, value):
         if value and self.selection_treeview.previewed_file_treerowref:
@@ -362,7 +184,8 @@ class SelectionVBox(gtk.VBox):
         self.drop_shadow = DropShadow(offset=(offset_v,offset_v), shadow = (0x44, 0x44, 0x44, 0xff), border=self.shadow_size, trim_border = True)
         
     def _imageAndShadowSize(self):
-        image_size = int(self.slider_adjustment.get_value())
+        #~ image_size = int(self.slider_adjustment.get_value())
+        image_size = 500
         offset_v = max([image_size / 25, 5]) # realistically size the shadow based on the size of the image
         shadow_size = offset_v + 3
         image_size = image_size + offset_v * 2 + 3
@@ -374,7 +197,7 @@ class SelectionVBox(gtk.VBox):
         changed
         """
         size = int(adjustment.value)
-        self.parentApp.prefs.preview_zoom = size
+        self.parent_app.prefs.preview_zoom = size
         self.cacheDropShadow()
         
         pixbuf = self.scaledPreviewImage()
@@ -384,25 +207,59 @@ class SelectionVBox(gtk.VBox):
             self.preview_image.set_size_request(size, size)
         else:    
             self.preview_image.set_size_request(size + self.shadow_size, size + self.shadow_size)
+
+    def set_preview_image(self, pil_image):
+        """
+        """
+        self.base_preview_image = pil_image
+        self.resize_preview_image(overwrite=True)
+
         
-    def scaledPreviewImage(self):
-        """
-        Generate a scaled version of the preview image
-        """
-        size = int(self.slider_adjustment.get_value())
-        if not self.base_preview_image:
-            return None
+    def resize_preview_image(self, max_width=None, max_height=None, overwrite=False):
+        
+        if max_width is not None and max_height is not None:
+            logger.info("Max width and height set to %s, %s" % (max_width, max_height))
+            self.preview_image_size_limit = (max_width, max_height)
         else:
-            pil_image = self.base_preview_image.copy()
-            tn.downsize(pil_image, (size, size), fit=False)
+            max_width, max_height = self.preview_image_size_limit
+        
+        if self.base_preview_image:
+        
+            base_image_width = self.base_preview_image.size[0]
+            base_image_height = self.base_preview_image.size[1]
             
-            if DROP_SHADOW: 
-                pil_image = self.drop_shadow.dropShadow(pil_image) 
-                pixbuf = image_to_pixbuf(pil_image)
+            logger.info("Base image: %s, %s" %(base_image_width, base_image_height))
+
+            image_aspect = float(base_image_width) / base_image_height
+            frame_aspect = float(max_width) / max_height
+    
+
+            # Frame is wider than image
+            if frame_aspect > image_aspect:
+                height = max_height
+                width = int(height * image_aspect)
+            # Frame is taller than image
             else:
+                width = max_width
+                height = int(width / image_aspect)
+                
+            logger.info("Will resize base image to width and height %s, %s" % (width, height))
+    
+            if width != self.current_preview_size[0] or height!= self.current_preview_size[1] or overwrite:
+                
+                pil_image = self.base_preview_image.copy()
+                if base_image_width < width or base_image_height < height:
+                    pil_image = tn.upsize_pil(pil_image, (width, height))
+                else:
+                    logger.info("Downsizing image")
+                    tn.downsize_pil(pil_image, (width, height))
+                    logger.info("Preview image size %s, %s" % (pil_image.size[0], pil_image.size[1]))
+                    
                 pixbuf = image_to_pixbuf(pil_image)
-            
-            return pixbuf
+                self.preview_image.set_from_pixbuf(pixbuf)
+                self.current_preview_size = (width, height)
+        
+        
     
     def set_job_code_display(self):
         """
@@ -412,7 +269,7 @@ class SelectionVBox(gtk.VBox):
         then do not prompt for it
         """
 
-        if self.parentApp.needJobCodeForRenaming():
+        if self.parent_app.needJobCodeForRenaming():
             self.job_code_hbox.show()
             self.job_code_label.show()
             self.job_code_combo.show()
@@ -428,7 +285,7 @@ class SelectionVBox(gtk.VBox):
         while len(self.job_code_combo.get_model()) > 0:
             self.job_code_combo.remove_text(0)
         # add new ones
-        for text in self.parentApp.prefs.job_codes:
+        for text in self.parent_app.prefs.job_codes:
             self.job_code_combo.append_text(text)
         # clear existing entry displayed in entry box
         self.job_code_entry.set_text('')
@@ -440,7 +297,7 @@ class SelectionVBox(gtk.VBox):
         self.job_code_label = gtk.Label(_("Job Code:"))
         
         self.job_code_combo = gtk.combo_box_entry_new_text()
-        for text in self.parentApp.prefs.job_codes:
+        for text in self.parent_app.prefs.job_codes:
             self.job_code_combo.append_text(text)
         
         # make entry box have entry completion
@@ -495,7 +352,7 @@ class SelectionVBox(gtk.VBox):
         """
         self.selection_treeview.apply_job_code(job_code, overwrite = True)
         self.completion.set_model(None)
-        self.parentApp.assignJobCode(job_code)
+        self.parent_app.assignJobCode(job_code)
         self.completion.set_model(self.job_code_combo.get_model())
             
     def add_file(self, rpd_file):
@@ -505,27 +362,28 @@ class SelectionVBox(gtk.VBox):
 class SelectionTreeView(gtk.TreeView):
     """
     TreeView display of photos and videos available for download
-    
-    Assumes a threaded environment.
     """
-    def __init__(self, parentApp):
+    def __init__(self, parent_app):
 
-        self.parentApp = parentApp
-        self.rapidApp = parentApp.parentApp
+        self.parent_app = parent_app
+        self.rapid_app = parent_app.parent_app
         
         self.batch_size = 10
         
         self.thumbnail_manager = ThumbnailManager(self.thumbnail_results, self.batch_size)
+        self.preview_manager = PreviewManager(self.preview_results)
+        
         self.treerow_index = {}
         self.process_index = {}
         
         self.thumbnails = {}
+        self.previews = {}
         
         self.stock_photo_thumbnails = tn.PhotoIcons()
         self.stock_video_thumbnails = tn.VideoIcons()
         
         self.liststore = gtk.ListStore(
-             gtk.gdk.Pixbuf,        # 0 thumbnail icon
+             gtk.gdk.Pixbuf,        # 0 thumbnail icon small
              str,                   # 1 name (for sorting)
              int,                   # 2 timestamp (for sorting), float converted into an int
              str,                   # 3 date (human readable)
@@ -571,7 +429,7 @@ class SelectionTreeView(gtk.TreeView):
         self.type_column.connect('clicked', self.header_clicked)
         self.append_column(self.type_column)
         
-        self.display_type_column(self.rapidApp.prefs.display_type_column)
+        self.display_type_column(self.rapid_app.prefs.display_type_column)
         
         #File thumbnail column
         if not DOWNLOAD_VIDEO:
@@ -618,7 +476,7 @@ class SelectionTreeView(gtk.TreeView):
         self.size_column.set_clickable(True)            
         self.size_column.connect('clicked', self.header_clicked)
         self.append_column(self.size_column)
-        self.display_size_column(self.rapidApp.prefs.display_size_column)
+        self.display_size_column(self.rapid_app.prefs.display_size_column)
         
         # Device column (displays at user request)
         cell = gtk.CellRendererText()
@@ -629,7 +487,7 @@ class SelectionTreeView(gtk.TreeView):
         self.device_column.set_clickable(True)        
         self.device_column.connect('clicked', self.header_clicked)
         self.append_column(self.device_column)
-        self.display_device_column(self.rapidApp.prefs.display_device_column)        
+        self.display_device_column(self.rapid_app.prefs.display_device_column)        
         
         # Filename column (displays at user request)
         cell = gtk.CellRendererText()
@@ -640,7 +498,7 @@ class SelectionTreeView(gtk.TreeView):
         self.filename_column.set_clickable(True)
         self.filename_column.connect('clicked', self.header_clicked)
         self.append_column(self.filename_column)
-        self.display_filename_column(self.rapidApp.prefs.display_filename_column)
+        self.display_filename_column(self.rapid_app.prefs.display_filename_column)
         
         # Path column (displays at user request)
         cell = gtk.CellRendererText()
@@ -651,7 +509,7 @@ class SelectionTreeView(gtk.TreeView):
         self.path_column.set_clickable(True)
         self.path_column.connect('clicked', self.header_clicked)
         self.append_column(self.path_column)
-        self.display_path_column(self.rapidApp.prefs.display_path_column)        
+        self.display_path_column(self.rapid_app.prefs.display_path_column)        
                 
         self.show_all()
         
@@ -706,7 +564,13 @@ class SelectionTreeView(gtk.TreeView):
                 thumbnail_data = data[i]
                 self.update_thumbnail(thumbnail_data)                
         
-        return True          
+        return True
+        
+    def preview_results(self, unique_id, preview_full_size, preview_small):
+        preview_image = preview_full_size.get_image()
+        self.previews[unique_id] = preview_image
+        self.parent_app.set_preview_image(preview_image)
+        
         
     def get_thread(self, iter):
         """
@@ -903,7 +767,7 @@ class SelectionTreeView(gtk.TreeView):
     def generate_thumbnails(self, scan_pid):
         """Initiate thumbnail generation for files scanned in one process
         """
-        self.thumbnail_manager.add_task(self.process_index[scan_pid], high_quality=False)
+        self.thumbnail_manager.add_task(self.process_index[scan_pid])
     
     def update_thumbnail(self, thumbnail_data):
         """
@@ -913,6 +777,7 @@ class SelectionTreeView(gtk.TreeView):
         thumbnail_icon = thumbnail_data[1]
         
         if thumbnail_icon is not None:
+            # get the thumbnail icon in pixbuf format
             thumbnail_icon = thumbnail_icon.get_pixbuf()
             
             treerowref = self.treerow_index[unique_id]
@@ -923,7 +788,7 @@ class SelectionTreeView(gtk.TreeView):
                 self.liststore.set(iter, 0, thumbnail_icon)
                 
             if len(thumbnail_data) > 2:
-                # get the image in PIL format
+                # get the 2nd image in PIL format
                 self.thumbnails[unique_id] = thumbnail_data[2].get_image()
         
         
@@ -972,12 +837,12 @@ class SelectionTreeView(gtk.TreeView):
             no_available_for_download, threads = self.no_selected_rows_available_for_download()
             
         if no_available_for_download and workers.scanComplete(threads):
-            self.rapidApp.download_selected_button.set_label(self.rapidApp.DOWNLOAD_SELECTED_LABEL + " (%s)" % no_available_for_download)
-            self.rapidApp.download_selected_button.set_sensitive(True)
+            self.rapid_app.download_selected_button.set_label(self.rapid_app.DOWNLOAD_SELECTED_LABEL + " (%s)" % no_available_for_download)
+            self.rapid_app.download_selected_button.set_sensitive(True)
         else:
             #nothing was selected, or nothing is available from what the user selected, or should not download right now
-            self.rapidApp.download_selected_button.set_label(self.rapidApp.DOWNLOAD_SELECTED_LABEL)
-            self.rapidApp.download_selected_button.set_sensitive(False)
+            self.rapid_app.download_selected_button.set_label(self.rapid_app.DOWNLOAD_SELECTED_LABEL)
+            self.rapid_app.download_selected_button.set_sensitive(False)
     
     def on_selection_changed(self, selection):
         """
@@ -1042,26 +907,26 @@ class SelectionTreeView(gtk.TreeView):
                 if regenerate:
                     rpd_file = self.get_rpd_file(iter)
                     if rpd_file.isImage:
-                        rpd_file.downloadFolder = self.rapidApp.prefs.download_folder
+                        rpd_file.downloadFolder = self.rapid_app.prefs.download_folder
                     else:
-                        rpd_file.downloadFolder = self.rapidApp.prefs.video_download_folder
+                        rpd_file.downloadFolder = self.rapid_app.prefs.video_download_folder
                     rpd_file.samplePath = os.path.join(rpd_file.downloadFolder, rpd_file.sampleSubfolder)
                     if rpd_file.treerowref == self.previewed_file_treerowref:
                         self.show_preview(iter)                
 
     def _refreshNameFactories(self):
         sample_download_start_time = datetime.datetime.now()
-        self.imageRenamePrefsFactory = rn.ImageRenamePreferences(self.rapidApp.prefs.image_rename, self, 
-                                                                 self.rapidApp.fileSequenceLock, sequences)
+        self.imageRenamePrefsFactory = rn.ImageRenamePreferences(self.rapid_app.prefs.image_rename, self, 
+                                                                 self.rapid_app.fileSequenceLock, sequences)
         self.imageRenamePrefsFactory.setDownloadStartTime(sample_download_start_time)
-        self.videoRenamePrefsFactory = rn.VideoRenamePreferences(self.rapidApp.prefs.video_rename, self, 
-                                                                 self.rapidApp.fileSequenceLock, sequences)
+        self.videoRenamePrefsFactory = rn.VideoRenamePreferences(self.rapid_app.prefs.video_rename, self, 
+                                                                 self.rapid_app.fileSequenceLock, sequences)
         self.videoRenamePrefsFactory.setDownloadStartTime(sample_download_start_time)
-        self.subfolderPrefsFactory = rn.SubfolderPreferences(self.rapidApp.prefs.subfolder, self)
+        self.subfolderPrefsFactory = rn.SubfolderPreferences(self.rapid_app.prefs.subfolder, self)
         self.subfolderPrefsFactory.setDownloadStartTime(sample_download_start_time)
-        self.videoSubfolderPrefsFactory = rn.VideoSubfolderPreferences(self.rapidApp.prefs.video_subfolder, self)
+        self.videoSubfolderPrefsFactory = rn.VideoSubfolderPreferences(self.rapid_app.prefs.video_subfolder, self)
         self.videoSubfolderPrefsFactory.setDownloadStartTime(sample_download_start_time)
-        self.strip_characters = self.rapidApp.prefs.strip_characters
+        self.strip_characters = self.rapid_app.prefs.strip_characters
         
     
     def refreshGeneratedSampleSubfolderAndName(self, thread_id = None):
@@ -1115,10 +980,10 @@ class SelectionTreeView(gtk.TreeView):
         rpd_file.sampleStale = False
         
     def _setUsesJobCode(self):
-        self.imageRenameUsesJobCode = rn.usesJobCode(self.rapidApp.prefs.image_rename)
-        self.imageSubfolderUsesJobCode = rn.usesJobCode(self.rapidApp.prefs.subfolder)
-        self.videoRenameUsesJobCode = rn.usesJobCode(self.rapidApp.prefs.video_rename)
-        self.videoSubfolderUsesJobCode = rn.usesJobCode(self.rapidApp.prefs.video_subfolder)        
+        self.imageRenameUsesJobCode = rn.usesJobCode(self.rapid_app.prefs.image_rename)
+        self.imageSubfolderUsesJobCode = rn.usesJobCode(self.rapid_app.prefs.subfolder)
+        self.videoRenameUsesJobCode = rn.usesJobCode(self.rapid_app.prefs.video_rename)
+        self.videoSubfolderUsesJobCode = rn.usesJobCode(self.rapid_app.prefs.video_subfolder)        
     
     
     def status_human_readable(self, rpd_file):
@@ -1171,114 +1036,72 @@ class SelectionTreeView(gtk.TreeView):
         Shows information about the image or video in the preview panel.
         """
         
-        def _generateSampleSubfolderAndName():
-            self._refreshNameFactories()
-            self._setUsesJobCode()
-            self.generateSampleSubfolderAndName(rpd_file, iter)
-            
-        def _loadMetadataAndThumbNailIfNeccesary():
-            """
-            the user may have selected a row in which know metadata has been loaded and/or no thumbnail generated
-            """
-            if rpd_file.metadata is None and rpd_file.status == STATUS_NOT_DOWNLOADED:
-                if debug_info:
-                    cmd_line("Loading metadata, and generating thumbnail, sample name, folders for a file that has not yet been downloaded")
-                self.loadMetadata(rpd_file)
-                if rpd_file.status <> STATUS_CANNOT_DOWNLOAD:
-                    _generateSampleSubfolderAndName()
-                
-            elif rpd_file.status in [STATUS_DOWNLOADED, STATUS_DOWNLOADED_WITH_WARNING, STATUS_BACKUP_PROBLEM]:
-                #~ if rpd_file.generic_thumbnail:
-                    #~ cmd_line("must get thumbnail from downloaded file")
-                    #~ self.loadMetadata(rpd_file, True)
-                if debug_info:
-                    cmd_line("File is downloaded, metadata should be loaded.... may need to generate a thumbnail")
-                    print rpd_file.metadata
-                    
-            elif rpd_file.status in [STATUS_WARNING]:
-                if debug_info:
-                    cmd_line("Warning for file, but not downloaded")
-                print "metadata", rpd_file.metadata
-                if rpd_file.generic_thumbnail:
-                    self.getThumbnail(rpd_file)
-            
-            elif rpd_file.status in [STATUS_DOWNLOAD_FAILED, STATUS_DOWNLOAD_AND_BACKUP_FAILED]:
-                if debug_info:
-                    cmd_line("Download failed on this file")
-                self.loadMetadata(rpd_file)
-                #~ if rpd_file.metadata is None:
-                    #~ self.loadMetadata(rpd_file, True)
-                print "metadata", rpd_file.metadata
-            elif rpd_file.status == STATUS_DOWNLOAD_PENDING:
-                # do nothing..... do not want to potentially overwrite data in thread
-                pass
-            elif rpd_file.status == STATUS_CANNOT_DOWNLOAD:
-                # do nothing..... do not want to potentially overwrite data
-                if debug_info:
-                     cmd_line("File cannot be downloaded because of some kind of serious error")
+
             
         if not iter and not treerowref:
+            pass
             # clear everything
-            for widget in  [self.parentApp.preview_original_name_label,
-                            self.parentApp.preview_name_label,
-                            self.parentApp.preview_status_label, 
-                            self.parentApp.preview_problem_title_label, 
-                            self.parentApp.preview_problem_label]:
-                widget.set_text('')
-                
-            for widget in  [self.parentApp.preview_image,
-                            self.parentApp.preview_name_label,
-                            self.parentApp.preview_original_name_label,
-                            self.parentApp.preview_status_label,                             
-                            self.parentApp.preview_problem_title_label,
-                            self.parentApp.preview_problem_label                            
-                            ]:
-                widget.set_tooltip_text('')
-                
-            self.parentApp.preview_image.clear()
-            self.parentApp.preview_status_icon.clear()
-            self.parentApp.preview_destination_expander.hide()
-            self.parentApp.preview_device_expander.hide()
-            self.previewed_file_treerowref = None
+            #~ for widget in  [self.parent_app.preview_original_name_label,
+                            #~ self.parent_app.preview_name_label,
+                            #~ self.parent_app.preview_status_label, 
+                            #~ self.parent_app.preview_problem_title_label, 
+                            #~ self.parent_app.preview_problem_label]:
+                #~ widget.set_text('')
+                #~ 
+            #~ for widget in  [self.parent_app.preview_image,
+                            #~ self.parent_app.preview_name_label,
+                            #~ self.parent_app.preview_original_name_label,
+                            #~ self.parent_app.preview_status_label,                             
+                            #~ self.parent_app.preview_problem_title_label,
+                            #~ self.parent_app.preview_problem_label                            
+                            #~ ]:
+                #~ widget.set_tooltip_text('')
+                #~ 
+            #~ self.parent_app.preview_image.clear()
+            #~ self.parent_app.preview_status_icon.clear()
+            #~ self.parent_app.preview_destination_expander.hide()
+            #~ self.parent_app.preview_device_expander.hide()
+            #~ self.previewed_file_treerowref = None
             
         
         elif not self.suspend_previews:
             rpd_file = self.get_rpd_file(iter) #should fix this to something else!
             
-            #~ _loadMetadataAndThumbNailIfNeccesary()
             
             self.previewed_file_treerowref = treerowref
             unique_id = rpd_file.unique_id
             
-            if unique_id in self.thumbnails:
-                base_thumbnail = self.thumbnails[unique_id]
-                if base_thumbnail.size[0] < config.max_thumbnail_size and base_thumbnail.size[1] < config.max_thumbnail_size:
-                    base_thumbnail = tn.upsize(base_thumbnail, (config.max_thumbnail_size, config.max_thumbnail_size))
-            else:
-                base_thumbnail = self.get_stock_thumbnail(rpd_file.file_type)
             
-            self.parentApp.set_base_preview_image(base_thumbnail)
-            thumbnail = self.parentApp.scaledPreviewImage()
-                
-            self.parentApp.preview_image.set_from_pixbuf(thumbnail)
+            if unique_id in self.previews:
+                preview_image = self.previews[unique_id]
+            elif unique_id in self.thumbnails:
+                preview_image = self.thumbnails[unique_id]
+                self.preview_manager.get_preview(unique_id, rpd_file.full_file_name, size_max=None,)
+
+            else:
+                preview_image = self.get_stock_thumbnail(rpd_file.file_type)
+            
+            self.parent_app.set_preview_image(preview_image)
+            
+            
             
             if False:
                 image_tool_tip = "%s\n%s" % (date_time_human_readable(rpd_file.date_time(), False), common.formatSizeForUser(rpd_file.size))
-                self.parentApp.preview_image.set_tooltip_text(image_tool_tip)
+                self.parent_app.preview_image.set_tooltip_text(image_tool_tip)
 
                 if rpd_file.sampleStale and rpd_file.status in [STATUS_NOT_DOWNLOADED, STATUS_WARNING]:
                     _generateSampleSubfolderAndName()
 
-                self.parentApp.preview_original_name_label.set_text(rpd_file.name)
-                self.parentApp.preview_original_name_label.set_tooltip_text(rpd_file.name)
+                self.parent_app.preview_original_name_label.set_text(rpd_file.name)
+                self.parent_app.preview_original_name_label.set_tooltip_text(rpd_file.name)
                 if rpd_file.volume:
                     pixbuf = rpd_file.volume.get_icon_pixbuf(16)
                 else:
                     pixbuf = self.icontheme.load_icon('gtk-harddisk', 16, gtk.ICON_LOOKUP_USE_BUILTIN)
-                self.parentApp.preview_device_image.set_from_pixbuf(pixbuf)
-                self.parentApp.preview_device_label.set_text(rpd_file.device_name)
-                self.parentApp.preview_device_path_label.set_text(rpd_file.path)
-                self.parentApp.preview_device_path_label.set_tooltip_text(rpd_file.path)
+                self.parent_app.preview_device_image.set_from_pixbuf(pixbuf)
+                self.parent_app.preview_device_label.set_text(rpd_file.device_name)
+                self.parent_app.preview_device_path_label.set_text(rpd_file.path)
+                self.parent_app.preview_device_path_label.set_tooltip_text(rpd_file.path)
                 
                 if using_gio:
                     folder = gio.File(rpd_file.downloadFolder)
@@ -1288,26 +1111,26 @@ class SelectionTreeView(gtk.TreeView):
                 else:
                     pixbuf = self.icontheme.load_icon('folder', 16, gtk.ICON_LOOKUP_USE_BUILTIN)
                     
-                self.parentApp.preview_destination_image.set_from_pixbuf(pixbuf)
+                self.parent_app.preview_destination_image.set_from_pixbuf(pixbuf)
                 downloadFolderName = os.path.split(rpd_file.downloadFolder)[1]            
-                self.parentApp.preview_destination_label.set_text(downloadFolderName)
+                self.parent_app.preview_destination_label.set_text(downloadFolderName)
 
                 if rpd_file.status in [STATUS_WARNING, STATUS_CANNOT_DOWNLOAD, STATUS_NOT_DOWNLOADED, STATUS_DOWNLOAD_PENDING]:
                     
-                    self.parentApp.preview_name_label.set_text(rpd_file.sampleName)
-                    self.parentApp.preview_name_label.set_tooltip_text(rpd_file.sampleName)
-                    self.parentApp.preview_destination_path_label.set_text(rpd_file.samplePath)
-                    self.parentApp.preview_destination_path_label.set_tooltip_text(rpd_file.samplePath)
+                    self.parent_app.preview_name_label.set_text(rpd_file.sampleName)
+                    self.parent_app.preview_name_label.set_tooltip_text(rpd_file.sampleName)
+                    self.parent_app.preview_destination_path_label.set_text(rpd_file.samplePath)
+                    self.parent_app.preview_destination_path_label.set_tooltip_text(rpd_file.samplePath)
                 else:
-                    self.parentApp.preview_name_label.set_text(rpd_file.downloadName)
-                    self.parentApp.preview_name_label.set_tooltip_text(rpd_file.downloadName)
-                    self.parentApp.preview_destination_path_label.set_text(rpd_file.downloadPath)
-                    self.parentApp.preview_destination_path_label.set_tooltip_text(rpd_file.downloadPath)
+                    self.parent_app.preview_name_label.set_text(rpd_file.downloadName)
+                    self.parent_app.preview_name_label.set_tooltip_text(rpd_file.downloadName)
+                    self.parent_app.preview_destination_path_label.set_text(rpd_file.downloadPath)
+                    self.parent_app.preview_destination_path_label.set_tooltip_text(rpd_file.downloadPath)
                 
                 status_text = self.status_human_readable(rpd_file)
-                self.parentApp.preview_status_icon.set_from_pixbuf(self.get_status_icon(rpd_file.status, preview=True))
-                self.parentApp.preview_status_label.set_markup('<b>' + status_text + '</b>')
-                self.parentApp.preview_status_label.set_tooltip_text(status_text)
+                self.parent_app.preview_status_icon.set_from_pixbuf(self.get_status_icon(rpd_file.status, preview=True))
+                self.parent_app.preview_status_label.set_markup('<b>' + status_text + '</b>')
+                self.parent_app.preview_status_label.set_tooltip_text(status_text)
 
 
                 if rpd_file.status in [STATUS_WARNING, STATUS_DOWNLOAD_FAILED,
@@ -1316,23 +1139,23 @@ class SelectionTreeView(gtk.TreeView):
                                         STATUS_BACKUP_PROBLEM, 
                                         STATUS_DOWNLOAD_AND_BACKUP_FAILED]:
                     problem_title = rpd_file.problem.get_title()
-                    self.parentApp.preview_problem_title_label.set_markup('<i>' + problem_title + '</i>')
-                    self.parentApp.preview_problem_title_label.set_tooltip_text(problem_title)
+                    self.parent_app.preview_problem_title_label.set_markup('<i>' + problem_title + '</i>')
+                    self.parent_app.preview_problem_title_label.set_tooltip_text(problem_title)
                     
                     problem_text = rpd_file.problem.get_problems()
-                    self.parentApp.preview_problem_label.set_text(problem_text)
-                    self.parentApp.preview_problem_label.set_tooltip_text(problem_text)
+                    self.parent_app.preview_problem_label.set_text(problem_text)
+                    self.parent_app.preview_problem_label.set_tooltip_text(problem_text)
                 else:
-                    self.parentApp.preview_problem_label.set_markup('')
-                    self.parentApp.preview_problem_title_label.set_markup('')
-                    for widget in  [self.parentApp.preview_problem_title_label,
-                                    self.parentApp.preview_problem_label
+                    self.parent_app.preview_problem_label.set_markup('')
+                    self.parent_app.preview_problem_title_label.set_markup('')
+                    for widget in  [self.parent_app.preview_problem_title_label,
+                                    self.parent_app.preview_problem_label
                                     ]:
                         widget.set_tooltip_text('')                
                     
-                if self.rapidApp.prefs.display_preview_folders:
-                    self.parentApp.preview_destination_expander.show()
-                    self.parentApp.preview_device_expander.show()
+                if self.rapid_app.prefs.display_preview_folders:
+                    self.parent_app.preview_destination_expander.show()
+                    self.parent_app.preview_device_expander.show()
             
     
     def select_rows(self, range):
@@ -1412,9 +1235,9 @@ class SelectionTreeView(gtk.TreeView):
             if status in [STATUS_DOWNLOAD_PENDING, STATUS_WARNING, STATUS_NOT_DOWNLOADED]:
                 
                 if rpd_file.isImage:
-                    apply = rn.usesJobCode(self.rapidApp.prefs.image_rename) or rn.usesJobCode(self.rapidApp.prefs.subfolder)
+                    apply = rn.usesJobCode(self.rapid_app.prefs.image_rename) or rn.usesJobCode(self.rapid_app.prefs.subfolder)
                 else:
-                    apply = rn.usesJobCode(self.rapidApp.prefs.video_rename) or rn.usesJobCode(self.rapidApp.prefs.video_subfolder)
+                    apply = rn.usesJobCode(self.rapid_app.prefs.video_rename) or rn.usesJobCode(self.rapid_app.prefs.video_subfolder)
                 if apply:
                     if overwrite:
                         self.liststore.set(iter, 8, job_code)
@@ -1467,7 +1290,7 @@ class SelectionTreeView(gtk.TreeView):
             return False
         
         self._setUsesJobCode()
-        needAJobCode = NeedAJobCode(self.rapidApp.prefs)
+        needAJobCode = NeedAJobCode(self.rapid_app.prefs)
         
         v = False
         if selected_only:
@@ -1607,6 +1430,7 @@ class RapidPreferences(prefs.Preferences):
         "synchronize_raw_jpg": prefs.Value(prefs.BOOL, False),
         "hpaned_pos": prefs.Value(prefs.INT, 0),
         "vpaned_pos": prefs.Value(prefs.INT, 0),
+        "preview_vpaned_pos": prefs.Value(prefs.INT, 0),
         "main_window_size_x": prefs.Value(prefs.INT, 0),
         "main_window_size_y": prefs.Value(prefs.INT, 0),
         "main_window_maximized": prefs.Value(prefs.INT, 0),
@@ -1762,14 +1586,41 @@ class ScanManager(TaskManager):
         self._processes.append((scan, terminate_queue, run_event))
         
 class ThumbnailManager(TaskManager):
-    def add_task(self, task, high_quality=False):
-        self.high_quality = high_quality
+    def add_task(self, task):
         TaskManager.add_task(self, task)
         
     def _initiate_task(self, files, task_process_conn, terminate_queue, run_event):
-        generator = tn.GenerateThumbnails(files, self.high_quality, self.batch_size, task_process_conn, terminate_queue, run_event)
+        generator = tn.GenerateThumbnails(files, self.batch_size, task_process_conn, terminate_queue, run_event)
         generator.start()
         self._processes.append((generator, terminate_queue, run_event))
+
+class PreviewManager:
+    def __init__(self, results_callback):
+        self.run_event = Event()
+        self.task_queue = Queue()
+        self.results_callback = results_callback
+        
+        self.task_results_conn, self.task_process_conn = Pipe(duplex=False)
+        
+        source = self.task_results_conn.fileno()
+        gobject.io_add_watch(source, gobject.IO_IN, self.preview_results)
+        self._get_preview = tn.GetPreviewImage(self.task_process_conn, self.task_queue, self.run_event)
+        self.queued_items = 0
+        self._get_preview.start()
+        
+    def get_preview(self, unique_id, full_file_name, size_max):
+        self.task_queue.put((unique_id, full_file_name, size_max))
+        if not self.run_event.is_set():
+            self.run_event.set()
+        self.queued_items += 1
+        
+    def preview_results(self, source, condition):
+        self.queued_items -= 1
+        if self.queued_items == 0:
+            self.run_event.clear()
+        unique_id, preview_full_size, preview_small = self.task_results_conn.recv()
+        self.results_callback(unique_id, preview_full_size, preview_small)
+        return True 
 
 class RapidApp(dbus.service.Object): 
     def __init__(self,  bus, path, name, taskserver=None): 
@@ -1781,16 +1632,15 @@ class RapidApp(dbus.service.Object):
         
         builder = gtk.Builder()
         builder.add_from_file("glade3/mp-prototype.glade") 
-        
         self.rapidapp = builder.get_object("rapidapp")
-        self.selection_hbox = builder.get_object("selection_hbox")
-        self.textbuffer = builder.get_object("output_textview").get_buffer()
-        #~ self.main_vpaned = builder.get_object(
-        
+        self.main_vpaned = builder.get_object("main_vpaned")
+        self.preview_vpaned = builder.get_object("preview_vpaned")
         builder.connect_signals(self)
         
         
+        
         self.prefs = RapidPreferences()
+        self.digital_files = DigitalFiles(self, builder)
         
         # remember the window size from the last time the program was run
         if self.prefs.main_window_maximized:
@@ -1799,17 +1649,13 @@ class RapidApp(dbus.service.Object):
             self.rapidapp.set_default_size(self.prefs.main_window_size_x, self.prefs.main_window_size_y)
         else:
             # set a default size
-            self.rapidapp.set_default_size(650, 650)
+            self.rapidapp.set_default_size(800, 650)
             
-        if gtk.gdk.screen_height() <= config.TINY_SCREEN_HEIGHT:
-            self.prefs.display_preview_folders = False
-            self.menu_preview_folders.set_sensitive(False)
-        
         self.rapidapp.show_all()
         
         #~ paths = ['/home/damon/rapid', '/home/damon/Pictures/processing']
-        paths = ['/media/EOS_DIGITAL/', '/media/EOS_DIGITAL_/']
-        #~ paths = ['/home/damon/rapid/cr2']
+        #~ paths = ['/media/EOS_DIGITAL/', '/media/EOS_DIGITAL_/']
+        paths = ['/home/damon/rapid/cr2']
         #~ paths = ['/media/EOS_DIGITAL/']
         
         self.batch_size = 10
@@ -1817,9 +1663,6 @@ class RapidApp(dbus.service.Object):
         self.testing_auto_exit = False
         self.testing_auto_exit_trip = len(paths)
         self.testing_auto_exit_trip_counter = 0
-        
-        self.selection_vbox = SelectionVBox(self)
-        self.selection_hbox.pack_start(self.selection_vbox, padding=12)
         
         self.scan_manager = ScanManager(self.scan_results, self.batch_size)
         
@@ -1830,11 +1673,12 @@ class RapidApp(dbus.service.Object):
     def on_rapidapp_destroy(self, widget, data=None):
 
         self.scan_manager.terminate()        
-        self.selection_vbox.selection_treeview.thumbnail_manager.terminate()
+        self.digital_files.selection_treeview.thumbnail_manager.terminate()
 
         # save window and component sizes
-        self.prefs.hpaned_pos = self.selection_vbox.file_hpaned.get_position()
-        #~ self.prefs.vpaned_pos = self.main_vpaned.get_position()
+        self.prefs.hpaned_pos = self.digital_files.file_hpaned.get_position()
+        self.prefs.vpaned_pos = self.main_vpaned.get_position()
+        self.prefs.preview_vpaned_pos = self.main_vpaned.get_position()
 
         x, y = self.rapidapp.get_size()
         self.prefs.main_window_size_x = x
@@ -1842,22 +1686,26 @@ class RapidApp(dbus.service.Object):
         
         gtk.main_quit()        
         
+    def on_preview_vpaned_size_allocate(self, widget, data):
+        frame1 = widget.get_child1().get_allocation()
+        self.digital_files.resize_preview_image(frame1.width, frame1.height)
+        
+        
     def scan_results(self, source, condition):
         connection = self.scan_manager.get_pipe(source)
         
         conn_type, data = connection.recv()
-        iter = self.textbuffer.get_end_iter()
         
         if conn_type == rpdmp.CONN_COMPLETE:
             connection.close()
             size, scan_pid = data
             size = formatSizeForUser(size)
-            self.textbuffer.insert(iter, 'Files total %s\n' % size)
+            logger.info('Files total %s\n' % size)
             self.testing_auto_exit_trip_counter += 1
             if self.testing_auto_exit_trip_counter == self.testing_auto_exit_trip and self.testing_auto_exit:
                 self.on_rapidapp_destroy(self.rapidapp)
             else:
-                self.selection_vbox.selection_treeview.generate_thumbnails(
+                self.digital_files.selection_treeview.generate_thumbnails(
                                                             scan_pid)
             # signal that no more data is coming, finishing io watch for this pipe
             return False
@@ -1867,7 +1715,7 @@ class RapidApp(dbus.service.Object):
             else:
                 for i in range(len(data)):
                     rpd_file = data[i]
-                    self.selection_vbox.selection_treeview.add_file(rpd_file)
+                    self.digital_files.selection_treeview.add_file(rpd_file)
         
         # must return True for this method to be called again
         return True

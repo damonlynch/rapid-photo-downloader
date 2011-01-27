@@ -72,7 +72,7 @@ class VideoIcons():
     type_icon = get_video_type_icon()
 
 
-def upsize(image, size):
+def upsize_pil(image, size):
     width_max = size[0]
     height_max = size[1]
     width_orig = float(image.size[0])
@@ -86,7 +86,7 @@ def upsize(image, size):
         
     return image.resize((width, height), Image.ANTIALIAS)
 
-def downsize(image, box, fit):
+def downsize_pil(image, box, fit=False):
     """Downsample the PIL image.
    image: Image -  an Image-object
    box: tuple(x, y) - the bounding box of the result image
@@ -131,60 +131,30 @@ class PicklablePIL:
         
     def get_pixbuf(self):
         return dropshadow.image_to_pixbuf(self.get_image())
-    
-class PicklablePixBuf:
-    """
-    A convenience class to allow Pixbufs to be passed between processes.
-    
-    THIS DOES NOT SEEM TO WORK! IMAGES BECOME CORRUPTED AND THERE ARE MEMORY LEAKS
-    
-    Pixbufs cannot be pickled, which means they cannot be exchanged between
-    processes. This class converts them into a numeric array that can be
-    pickled.
-    
-    Source for background information:
-    http://lisas.de/~alex/?p=46
-    https://bugzilla.gnome.org/show_bug.cgi?id=309469
-    """
-    def __init__(self, pixbuf):
-        """Pixbuf to be pickled"""
-        self.array = pixbuf.get_pixels_array()
-        self.colorspace = pixbuf.get_colorspace()
-        self.bits_per_sample = pixbuf.get_bits_per_sample()
-        self.md5 = hashlib.md5(self.array).hexdigest()
-        
-    def get_pixbuf(self):
-        """Return the pixbuf"""
-        assert self.md5 == hashlib.md5(self.array).hexdigest()
-
-        return gtk.gdk.pixbuf_new_from_array(self.array, 
-                                             self.colorspace,
-                                             self.bits_per_sample)
 
 
-class PhotoThumbnail_v3:
+class PhotoThumbnail:
     
-    def get_thumbnail_data(self, metadata, high_quality, max_size_needed=0):
-        
-        if high_quality:
+    def get_thumbnail_data(self, metadata, max_size_needed=0):
+        if not max_size_needed or max_size_needed > 160 or not metadata.exif_thumbnail.data:
 
             previews = metadata.previews
             if not previews:
-                return None, None
+                return None
             else:
                 if max_size_needed:
                     for thumbnail in previews:
                         if thumbnail.dimensions[0] >= max_size_needed or thumbnail.dimensions[1] >= max_size_needed:
                             break
                 else:
-                    thumbnail = self.previews[-1]
+                    thumbnail = previews[-1]
                 
         else:
             thumbnail = metadata.exif_thumbnail
         
         return thumbnail.data
         
-    def get_thumbnail(self, full_file_name, size, quality):
+    def get_thumbnail(self, full_file_name, size_max=None, size_reduced=None):
         thumbnail = None
         thumbnail_icon = None        
         metadata = pyexiv2.metadata.ImageMetadata(full_file_name)
@@ -193,7 +163,7 @@ class PhotoThumbnail_v3:
         except:
             logger.warning("Could not read metadata from %s" % full_file_name)
         else:
-            thumbnail_data = self.get_thumbnail_data(metadata, high_quality=quality, max_size_needed=size)
+            thumbnail_data = self.get_thumbnail_data(metadata, max_size_needed=size_max)
             if isinstance(thumbnail_data, types.StringType):
                 try:
                     orientation = metadata['Exif.Image.Orientation'].value
@@ -206,7 +176,8 @@ class PhotoThumbnail_v3:
                 except:
                     logger.warning("Unreadable thumbnail for %s" % full_file_name)
                 else:
-                    downsize(image, (size, size), False)
+                    if size_max is not None:
+                        downsize_pil(image, size_max, False)
                     if orientation == 8:
                         # rotate counter clockwise
                         image = image.rotate(90)
@@ -219,65 +190,45 @@ class PhotoThumbnail_v3:
                     if image.mode == "RGB":
                         image = image.convert("RGBA")                
                     thumbnail = PicklablePIL(image)
-                    thumbnail_icon = image.copy()
-                    downsize(thumbnail_icon, (60, 36), False)                
-                    thumbnail_icon = PicklablePIL(thumbnail_icon)
+                    if size_reduced is not None:
+                        thumbnail_icon = image.copy()
+                        downsize_pil(thumbnail_icon, size_reduced, False)                
+                        thumbnail_icon = PicklablePIL(thumbnail_icon)
         return (thumbnail, thumbnail_icon)        
                 
-class PhotoThumbnail_v1:
-    """
-    needs to be converted to PIL
-    """
-    def __init__(self):
-        pass
-        
-            
-    def get_thumbnail(self, full_file_name, size):
-        thumbnail = None
-        thumbnail_icon = None        
-        metadata = pyexiv2.Image(full_file_name)
-        try:
-            metadata.readMetadata()
-        except:
-            logger.warning("Could not read metadata from %s" % full_file_name)
-        else:
-            thumbnail_type, thumbnail_data = metadata.getThumbnailData()
-            if isinstance(thumbnail_data, types.StringType):
-                orientation = metadata['Exif.Image.Orientation']
-                pbloader = gtk.gdk.PixbufLoader()
-                pbloader.write(thumbnail_data)
-                pbloader.close()
-                # Get the resulting pixbuf and build an image to be displayed
-                pixbuf = pbloader.get_pixbuf()
-                if orientation == 8:
-                    pixbuf = pixbuf.rotate_simple(gtk.gdk.PIXBUF_ROTATE_COUNTERCLOCKWISE)
-                elif orientation == 6:
-                    pixbuf = pixbuf.rotate_simple(gtk.gdk.PIXBUF_ROTATE_CLOCKWISE)
-                elif orientation == 3:
-                    pixbuf = pixbuf.rotate_simple(gtk.gdk.PIXBUF_ROTATE_UPSIDEDOWN)
-                thumbnail_icon = PicklablePixBuf(
-                                        common.scale2pixbuf(60, 36, pixbuf))                
-                thumbnail = PicklablePixBuf(pixbuf)
-
-        return (thumbnail, thumbnail_icon)
                 
+class GetPreviewImage(multiprocessing.Process):
+    def __init__(self, results_pipe, task_queue, run_event):
+        multiprocessing.Process.__init__(self)
+        self.daemon = True
+        self.results_pipe = results_pipe
+        self.run_event = run_event
+        self.task_queue = task_queue
+        self.thumbnail_maker = PhotoThumbnail()
+        
+    def run(self):
+        while True:
+            self.run_event.wait()
+            
+            unique_id, full_file_name, size_max = self.task_queue.get()
+            full_size_preview, reduced_size_preview = self.thumbnail_maker.get_thumbnail(full_file_name, size_max=size_max, size_reduced=None)
+            self.results_pipe.send((unique_id, full_size_preview, reduced_size_preview))
+            
+
+
 class GenerateThumbnails(multiprocessing.Process):
-    def __init__(self, files, quality, batch_size, results_pipe, terminate_queue, 
+    def __init__(self, files, batch_size, results_pipe, terminate_queue, 
                  run_event):
         multiprocessing.Process.__init__(self)
         self.results_pipe = results_pipe
         self.terminate_queue = terminate_queue
         self.batch_size = batch_size
         self.files = files
-        self.quality = quality
         self.run_event = run_event
         self.counter = 0
         self.results = []
         
-        if 'version_info' in dir(pyexiv2):
-            self.thumbnail_maker = PhotoThumbnail_v3()
-        else:
-            self.thumbnail_maker = PhotoThumbnail_v1()
+        self.thumbnail_maker = PhotoThumbnail()
         
         
     def run(self):
@@ -293,7 +244,7 @@ class GenerateThumbnails(multiprocessing.Process):
                 return None
             
             
-            thumbnail, thumbnail_icon = self.thumbnail_maker.get_thumbnail(f.full_file_name, config.max_thumbnail_size, self.quality)
+            thumbnail, thumbnail_icon = self.thumbnail_maker.get_thumbnail(f.full_file_name, (160, 120), (60,36))
             
             self.results.append((f.unique_id, thumbnail_icon, thumbnail))
             #~ self.results.append((f.unique_id, thumbnail_icon))
