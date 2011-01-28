@@ -135,12 +135,13 @@ class PicklablePIL:
 
 class PhotoThumbnail:
     
-    def get_thumbnail_data(self, metadata, max_size_needed=0):
-        if not max_size_needed or max_size_needed > 160 or not metadata.exif_thumbnail.data:
-
+    crop_thumbnails = ('CR2', 'DNG', 'RAF', 'ORF', 'PEF', 'ARW')
+    def get_thumbnail_data(self, metadata, max_size_needed):
+        if max_size_needed is None or max_size_needed[0] > 160 or max_size_needed[1] > 120 or not metadata.exif_thumbnail.data:
+            lowrez = False
             previews = metadata.previews
             if not previews:
-                return None
+                return (None, None)
             else:
                 if max_size_needed:
                     for thumbnail in previews:
@@ -148,11 +149,10 @@ class PhotoThumbnail:
                             break
                 else:
                     thumbnail = previews[-1]
-                
         else:
             thumbnail = metadata.exif_thumbnail
-        
-        return thumbnail.data
+            lowrez = True
+        return (thumbnail.data, lowrez)
         
     def get_thumbnail(self, full_file_name, size_max=None, size_reduced=None):
         thumbnail = None
@@ -163,7 +163,7 @@ class PhotoThumbnail:
         except:
             logger.warning("Could not read metadata from %s" % full_file_name)
         else:
-            thumbnail_data = self.get_thumbnail_data(metadata, max_size_needed=size_max)
+            thumbnail_data, lowrez = self.get_thumbnail_data(metadata, max_size_needed=size_max)
             if isinstance(thumbnail_data, types.StringType):
                 try:
                     orientation = metadata['Exif.Image.Orientation'].value
@@ -176,7 +176,14 @@ class PhotoThumbnail:
                 except:
                     logger.warning("Unreadable thumbnail for %s" % full_file_name)
                 else:
-                    if size_max is not None:
+                    if lowrez:
+                        # need to remove letterboxing / pillarboxing from some
+                        # RAW thumbnails
+                        if os.path.splitext(full_file_name)[1][1:].upper() in PhotoThumbnail.crop_thumbnails:
+                            image2 = image.crop((0, 8, 160, 112))
+                            image2.load()
+                            image = image2                    
+                    if size_max is not None and (image.size[0] > size_max[0] or image.size[1] > size_max[1]):
                         downsize_pil(image, size_max, False)
                     if orientation == 8:
                         # rotate counter clockwise
@@ -188,7 +195,10 @@ class PhotoThumbnail:
                         # rotate upside down
                         image = image.rotate(180)                 
                     if image.mode == "RGB":
-                        image = image.convert("RGBA")                
+                        image = image.convert("RGBA")
+                    #~ name = os.path.basename(full_file_name)
+                    #~ name = os.path.splitext(name)[0] + '.jpg'
+                    #~ image.save(os.path.join('/home/damon/tmp/rpd/', name), 'jpeg')
                     thumbnail = PicklablePIL(image)
                     if size_reduced is not None:
                         thumbnail_icon = image.copy()

@@ -1653,7 +1653,7 @@ class RapidApp(dbus.service.Object):
             
         self.rapidapp.show_all()
         
-        #~ paths = ['/home/damon/rapid', '/home/damon/Pictures/processing']
+        #~ paths = ['/home/damon/rapid', '/home/damon/Pictures/processing/2010']
         #~ paths = ['/media/EOS_DIGITAL/', '/media/EOS_DIGITAL_/']
         paths = ['/home/damon/rapid/cr2']
         #~ paths = ['/media/EOS_DIGITAL/']
@@ -1678,7 +1678,7 @@ class RapidApp(dbus.service.Object):
         # save window and component sizes
         self.prefs.hpaned_pos = self.digital_files.file_hpaned.get_position()
         self.prefs.vpaned_pos = self.main_vpaned.get_position()
-        self.prefs.preview_vpaned_pos = self.main_vpaned.get_position()
+        self.prefs.preview_vpaned_pos = self.preview_vpaned.get_position()
 
         x, y = self.rapidapp.get_size()
         self.prefs.main_window_size_x = x
