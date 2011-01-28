@@ -135,7 +135,10 @@ class PicklablePIL:
 
 class PhotoThumbnail:
     
+    # file types from which to remove letterboxing (black bands in the thumbnail
+    # previews)
     crop_thumbnails = ('CR2', 'DNG', 'RAF', 'ORF', 'PEF', 'ARW')
+    
     def get_thumbnail_data(self, metadata, max_size_needed):
         if max_size_needed is None or max_size_needed[0] > 160 or max_size_needed[1] > 120 or not metadata.exif_thumbnail.data:
             lowrez = False

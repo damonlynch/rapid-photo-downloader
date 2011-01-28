@@ -129,7 +129,7 @@ class Scan(multiprocessing.Process):
                                          device, 
                                          download_folder, 
                                          volume,
-                                         multiprocessing.current_process().pid,
+                                         self.pid,
                                          file_id)
                         self.files.append(scanned_file)
                         

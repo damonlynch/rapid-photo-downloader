@@ -1,6 +1,22 @@
 #!/usr/bin/python
+# -*- coding: latin1 -*-
 
-import config
+### Copyright (C) 2011 Damon Lynch <damonlynch@gmail.com>
+
+### This program is free software; you can redistribute it and/or modify
+### it under the terms of the GNU General Public License as published by
+### the Free Software Foundation; either version 2 of the License, or
+### (at your option) any later version.
+
+### This program is distributed in the hope that it will be useful,
+### but WITHOUT ANY WARRANTY; without even the implied warranty of
+### MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+### GNU General Public License for more details.
+
+### You should have received a copy of the GNU General Public License
+### along with this program; if not, write to the Free Software
+### Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+
 
 import dbus
 import dbus.bus
@@ -53,6 +69,8 @@ from common import Configi18n
 global _
 _ = Configi18n._
 
+from terminology import file_types_by_number
+
 try:
     from dropshadow import image_to_pixbuf, pixbuf_to_image, DropShadow
     DROP_SHADOW = True
@@ -103,6 +121,102 @@ def date_time_subseconds_human_readable(date, subseconds):
              'minute':date.strftime("%M"), 
              'second':date.strftime("%S"),
              'subsecond': subseconds}
+
+
+class DeviceCollection(gtk.TreeView):
+    """
+    TreeView display of devices and how many files have been copied, shown
+    immediately under the menu in the main application window.
+    """
+    def __init__(self, parent_app):
+
+        self.parent_app = parent_app
+        # device name, size of images on the device (human readable), 
+        # copy progress (%), copy text
+        self.liststore = gtk.ListStore(str, str, float, str)
+        self.map_process_to_row = {}
+
+        gtk.TreeView.__init__(self, self.liststore)
+        
+        self.props.enable_search = False
+        # make it impossible to select a row
+        selection = self.get_selection()
+        selection.set_mode(gtk.SELECTION_NONE)
+        
+        # Device refers to a thing like a camera, memory card in its reader, external hard drive, Portable Storage Device, etc.
+        column0 = gtk.TreeViewColumn(_("Device"), gtk.CellRendererText(), 
+                                    text=0)
+        self.append_column(column0)
+        
+        # Size refers to the total size of images on the device, typically in MB or GB
+        column1 = gtk.TreeViewColumn(_("Size"), gtk.CellRendererText(), text=1)
+        self.append_column(column1)
+        
+        column2 = gtk.TreeViewColumn(_("Download Progress"), 
+                                    gtk.CellRendererProgress(), value=2, text=3)
+        self.append_column(column2)
+        self.show_all()
+        
+    def add_device(self, process_id, device_name, progress_bar_text = ''):
+        
+        # add the row, and get a temporary pointer to the row
+        size_files = ''
+        progress = 0.0
+        iter = self.liststore.append((device_name, size_files, progress, progress_bar_text))
+        
+        self._set_process_map(process_id, iter)
+
+        
+    def update_device(self, process_id, total_size_files):
+        """
+        Updates the size of the photos and videos on the device, displayed to the user
+        """
+        if process_id in self.map_process_to_row:
+            iter = self._get_process_map(process_id)
+            self.liststore.set_value(iter, 1, total_size_files)
+        else:
+            logger.error("This device is unknown")
+    
+    def remove_device(self, process_id):
+        if process_id in self.map_process_to_row:
+            iter = self._get_process_map(process_id)
+            self.liststore.remove(iter)
+            del self.map_process_to_row[process_id]
+
+
+    def _set_process_map(self, process_id, iter):
+        """
+        convert the temporary iter into a tree reference, which is 
+        permanent
+        """
+
+        path = self.liststore.get_path(iter)
+        treerowref = gtk.TreeRowReference(self.liststore, path)
+        self.map_process_to_row[process_id] = treerowref
+    
+    def _get_process_map(self, process_id):
+        """
+        return the tree iter for this process
+        """
+        
+        if process_id in self.map_process_to_row:
+            treerowref = self.map_process_to_row[process_id]
+            path = treerowref.get_path()
+            iter = self.liststore.get_iter(path)
+            return iter
+        else:
+            return None
+    
+    def update_progress(self, process_id, percent_complete, progress_bar_text, bytes_downloaded):
+        
+        iter = self._get_process_map(process_id)
+        if iter:
+            self.liststore.set_value(iter, 2, percent_complete)
+            if progress_bar_text:
+                self.liststore.set_value(iter, 3, progress_bar_text)
+            if percent_complete or bytes_downloaded:
+                logger.info("Implement update overall progress")
+
 
 
 
@@ -1548,7 +1662,7 @@ class TaskManager:
         self._initiate_task(task, task_process_conn, terminate_queue, run_event)
         
     def _initiate_task(self, task, task_process_conn, terminate_queue, run_event):
-        print "implement child class method"
+        logger.error("Implement child class method!")
         
     
     def processes(self):
@@ -1580,10 +1694,21 @@ class TaskManager:
 
 
 class ScanManager(TaskManager):
+    
+    def __init__(self, results_callback, batch_size, add_device_function):
+        TaskManager.__init__(self, results_callback, batch_size)
+        self.add_device_function = add_device_function
+        
     def _initiate_task(self, path, task_process_conn, terminate_queue, run_event):
         scan = scan_process.Scan(path, self.batch_size, task_process_conn, terminate_queue, run_event)
         scan.start()
         self._processes.append((scan, terminate_queue, run_event))
+        self.add_device_function(scan.pid, path, 
+            # This refers to when a device like a hard drive is having its contents scanned,
+            # looking for photos or videos. It is visible initially in the progress bar for each device 
+            # (which normally holds "x photos and videos").
+            # It maybe displayed only briefly if the contents of the device being scanned is small.
+            progress_bar_text=_('scanning...'))
         
 class ThumbnailManager(TaskManager):
     def add_task(self, task):
@@ -1651,11 +1776,16 @@ class RapidApp(dbus.service.Object):
             # set a default size
             self.rapidapp.set_default_size(800, 650)
             
+        self.device_collection_viewport = builder.get_object("device_collection_viewport")
+        self.device_collection = DeviceCollection(self)
+        self.device_collection_viewport.add(self.device_collection)
+        
+            
         self.rapidapp.show_all()
         
         #~ paths = ['/home/damon/rapid', '/home/damon/Pictures/processing/2010']
-        #~ paths = ['/media/EOS_DIGITAL/', '/media/EOS_DIGITAL_/']
-        paths = ['/home/damon/rapid/cr2']
+        paths = ['/media/EOS_DIGITAL/', '/media/EOS_DIGITAL_/']
+        #~ paths = ['/home/damon/rapid/cr2']
         #~ paths = ['/media/EOS_DIGITAL/']
         
         self.batch_size = 10
@@ -1664,10 +1794,19 @@ class RapidApp(dbus.service.Object):
         self.testing_auto_exit_trip = len(paths)
         self.testing_auto_exit_trip_counter = 0
         
-        self.scan_manager = ScanManager(self.scan_results, self.batch_size)
+        self.scan_manager = ScanManager(self.scan_results, self.batch_size, self.device_collection.add_device)
         
         for path in paths:
             self.scan_manager.add_task(path)
+        
+        self.device_collection_scrolledwindow = builder.get_object("device_collection_scrolledwindow")
+        
+        if self.device_collection.map_process_to_row:
+            height = self.device_collection_viewport.size_request()[1]
+            self.device_collection_scrolledwindow.set_size_request(-1,  height)
+        else:
+            # don't allow the media collection to be absolutely empty
+            self.device_collection_scrolledwindow.set_size_request(-1, 47)
             
     
     def on_rapidapp_destroy(self, widget, data=None):
@@ -1700,7 +1839,9 @@ class RapidApp(dbus.service.Object):
             connection.close()
             size, scan_pid = data
             size = formatSizeForUser(size)
-            logger.info('Files total %s\n' % size)
+            logger.info('Files total %s' % size)
+            self.device_collection.update_device(scan_pid, size)
+            self.device_collection.update_device(scan_pid, size)
             self.testing_auto_exit_trip_counter += 1
             if self.testing_auto_exit_trip_counter == self.testing_auto_exit_trip and self.testing_auto_exit:
                 self.on_rapidapp_destroy(self.rapidapp)
