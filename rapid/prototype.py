@@ -69,8 +69,6 @@ from common import Configi18n
 global _
 _ = Configi18n._
 
-from terminology import file_types_by_number
-
 try:
     from dropshadow import image_to_pixbuf, pixbuf_to_image, DropShadow
     DROP_SHADOW = True
@@ -792,19 +790,19 @@ class SelectionTreeView(gtk.TreeView):
     
     
     def get_stock_icon(self, file_type):
-        if file_type == config.FILE_TYPE_PHOTO:
+        if file_type == rpdfile.FILE_TYPE_PHOTO:
             return self.stock_photo_thumbnails.stock_thumbnail_image_icon
         else:
             return self.stock_video_thumbnails.stock_thumbnail_image_icon
             
     def get_stock_thumbnail(self, file_type):
-        if file_type == config.FILE_TYPE_PHOTO:
+        if file_type == rpdfile.FILE_TYPE_PHOTO:
             return self.stock_photo_thumbnails.stock_thumbnail_image
         else:
             return self.stock_video_thumbnails.stock_thumbnail_image
             
     def get_stock_type_icon(self, file_type):
-        if file_type == config.FILE_TYPE_PHOTO:
+        if file_type == rpdfile.FILE_TYPE_PHOTO:
             return self.stock_photo_thumbnails.type_icon
         else:
             return self.stock_video_thumbnails.type_icon        
@@ -1784,8 +1782,8 @@ class RapidApp(dbus.service.Object):
         self.rapidapp.show_all()
         
         #~ paths = ['/home/damon/rapid', '/home/damon/Pictures/processing/2010']
-        paths = ['/media/EOS_DIGITAL/', '/media/EOS_DIGITAL_/']
-        #~ paths = ['/home/damon/rapid/cr2']
+        #~ paths = ['/media/EOS_DIGITAL/', '/media/EOS_DIGITAL_/']
+        paths = ['/home/damon/rapid/cr2']
         #~ paths = ['/media/EOS_DIGITAL/']
         
         self.batch_size = 10
@@ -1837,11 +1835,13 @@ class RapidApp(dbus.service.Object):
         
         if conn_type == rpdmp.CONN_COMPLETE:
             connection.close()
-            size, scan_pid = data
+            size, file_type_counter, scan_pid = data
             size = formatSizeForUser(size)
+            results_summary = file_type_counter.summarize_file_count()
+            logger.info('Found %s' % results_summary)
             logger.info('Files total %s' % size)
             self.device_collection.update_device(scan_pid, size)
-            self.device_collection.update_device(scan_pid, size)
+            self.device_collection.update_progress(scan_pid, 0.0, results_summary, 0)
             self.testing_auto_exit_trip_counter += 1
             if self.testing_auto_exit_trip_counter == self.testing_auto_exit_trip and self.testing_auto_exit:
                 self.on_rapidapp_destroy(self.rapidapp)

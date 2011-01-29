@@ -74,6 +74,7 @@ class Scan(multiprocessing.Process):
         self.batch_size = batch_size
         self.counter = 0
         self.files = []
+        self.file_type_counter = rpdfile.FileTypeCounter()
 
 
     def _gio_scan(self, path, file_size_sum):
@@ -109,8 +110,11 @@ class Scan(multiprocessing.Process):
                 elif file_type == gio.FILE_TYPE_REGULAR:
                     ext = os.path.splitext(name)[1].lower()[1:]
                     
-                    if rpdfile.is_downloadable(ext):
-                        
+                    file_type = rpdfile.file_type(ext)
+                    if file_type is not None:
+                        # count how many files of each type are included
+                        # e.g. photo, video
+                        self.file_type_counter.add(file_type)
                         self.counter += 1
                         display_name = child.get_display_name()
                         size = child.get_size()
@@ -135,7 +139,8 @@ class Scan(multiprocessing.Process):
                         
                         if self.counter == self.batch_size:
                             # send batch of results
-                            self.results_pipe.send((rpdmp.CONN_PARTIAL, self.files))
+                            self.results_pipe.send((rpdmp.CONN_PARTIAL, 
+                                                    self.files))
                             self.files = []
                             self.counter = 0
                         
@@ -153,5 +158,5 @@ class Scan(multiprocessing.Process):
                 # send any remaining results
                 self.results_pipe.send((rpdmp.CONN_PARTIAL, self.files))
             self.results_pipe.send((rpdmp.CONN_COMPLETE, (size, 
-                                    multiprocessing.current_process().pid)))
+                                    self.file_type_counter, self.pid)))
             self.results_pipe.close()                

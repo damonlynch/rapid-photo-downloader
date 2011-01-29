@@ -37,14 +37,21 @@ VIDEO_EXTENSIONS = []
 
 EXTENSIONS = PHOTO_EXTENSIONS
 
+FILE_TYPE_PHOTO = 0
+FILE_TYPE_VIDEO = 1
 
-def is_downloadable(file_extension):
+
+def file_type(file_extension):
     """
-    Uses file extentsion to determines if the file could be downloaded or not.
+    Uses file extentsion to determine the type of file - photo or video.
     
     Returns True if yes, else False.
     """
-    return file_extension in EXTENSIONS
+    if file_extension in PHOTO_EXTENSIONS:
+        return FILE_TYPE_PHOTO
+    elif file_extension in VIDEO_EXTENSIONS:
+        return FILE_TYPE_VIDEO
+    return None
     
 def get_rpdfile(extension, name, display_name, path, size, 
                 file_system_modification_time, 
@@ -61,7 +68,52 @@ def get_rpdfile(extension, name, display_name, path, size,
                      file_system_modification_time, 
                      device_name, download_folder, volume, scan_pid, file_id)
 
-
+class FileTypeCounter:
+    def __init__(self):
+        self._counter = dict()
+        
+    def add(self, file_type):
+        self._counter[file_type] = self._counter.setdefault(file_type, 0) + 1
+        
+    def file_types_present(self):
+        """ 
+        returns a string to be displayed to the user that can be used
+        to show if a value refers to photos or videos or both, or just one
+        of each
+        """
+        
+        no_videos = self._counter.setdefault(FILE_TYPE_VIDEO, 0)
+        no_images = self._counter.setdefault(FILE_TYPE_PHOTO, 0)
+        
+        if (no_videos > 0) and (no_images > 0):
+            v = _('photos and videos')
+        elif (no_videos == 0) and (no_images == 0):
+            v = _('photos or videos')
+        elif no_videos > 0:
+            if no_videos > 1:
+                v = _('videos')
+            else:
+                v = _('video')
+        else:
+            if no_images > 1:
+                v = _('photos')
+            else:
+                v = _('photo')
+        return v    
+        
+    def count_files(self):
+        i = 0
+        for key in self._counter:
+            i += self._counter[key]
+        return i
+        
+    def summarize_file_count(self):
+        #Number of files, e.g. "433 photos and videos" or "23 videos".
+        #Displayed in the progress bar at the top of the main application
+        #window.
+        return _("%(number)s %(filetypes)s") % {'number':self.count_files(),
+                                        'filetypes':self.file_types_present()} 
+        
 class RPDFile:
     """
     Base class for photo or video file, with metadata
@@ -117,7 +169,7 @@ class Photo(RPDFile):
     title_capitalized = _("Photo")
     
     def _assign_file_type(self):
-        self.file_type = config.FILE_TYPE_PHOTO
+        self.file_type = FILE_TYPE_PHOTO
     
             
 class Video(RPDFile):
@@ -126,6 +178,6 @@ class Video(RPDFile):
     title_capitalized = _("Video")
     
     def _assign_file_type(self):
-        self.file_type = config.FILE_TYPE_VIDEO
+        self.file_type = FILE_TYPE_VIDEO
 
 
