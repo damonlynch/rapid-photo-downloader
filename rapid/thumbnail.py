@@ -162,8 +162,11 @@ class Thumbnail:
     # previews)
     crop_thumbnails = ('CR2', 'DNG', 'RAF', 'ORF', 'PEF', 'ARW')
     
+    def _ignore_embedded_160x120_thumbnail(self, max_size_needed, metadata):
+        return max_size_needed is None or max_size_needed[0] > 160 or max_size_needed[1] > 120 or not metadata.exif_thumbnail.data
+    
     def _get_thumbnail_data(self, metadata, max_size_needed):
-        if max_size_needed is None or max_size_needed[0] > 160 or max_size_needed[1] > 120 or not metadata.exif_thumbnail.data:
+        if self._ignore_embedded_160x120_thumbnail(max_size_needed, metadata):
             lowrez = False
             previews = metadata.previews
             if not previews:
@@ -205,7 +208,7 @@ class Thumbnail:
         except:
             logger.warning("Could not read metadata from %s" % full_file_name)
         else:
-            if metadata.mime_type == "image/jpeg":
+            if metadata.mime_type == "image/jpeg" and self._ignore_embedded_160x120_thumbnail(size_max, metadata):
                 try:
                     image = Image.open(full_file_name)
                     lowrez = False
