@@ -205,38 +205,48 @@ class Thumbnail:
         except:
             logger.warning("Could not read metadata from %s" % full_file_name)
         else:
-            thumbnail_data, lowrez = self._get_thumbnail_data(metadata, max_size_needed=size_max)
-            if isinstance(thumbnail_data, types.StringType):
+            if metadata.mime_type == "image/jpeg":
+                try:
+                    image = Image.open(full_file_name)
+                    lowrez = False
+                except:
+                    logger.warning("Could not generate thumbnail for jpeg %s " % full_file_name)
+                    image = None
+            else:
+                thumbnail_data, lowrez = self._get_thumbnail_data(metadata, max_size_needed=size_max)
+                if not isinstance(thumbnail_data, types.StringType):
+                    image = None
+                else:
+                    td = cStringIO.StringIO(thumbnail_data)
+                    try:
+                        image = Image.open(td)
+                    except:
+                        logger.warning("Unreadable thumbnail for %s" % full_file_name)
+                        image = None
+            if image:
                 try:
                     orientation = metadata['Exif.Image.Orientation'].value
                 except:
-                    orientation = None
-                   
-                td = cStringIO.StringIO(thumbnail_data)
-                try:
-                    image = Image.open(td)
-                except:
-                    logger.warning("Unreadable thumbnail for %s" % full_file_name)
-                else:
-                    if lowrez:
-                        # need to remove letterboxing / pillarboxing from some
-                        # RAW thumbnails
-                        if os.path.splitext(full_file_name)[1][1:].upper() in Thumbnail.crop_thumbnails:
-                            image2 = image.crop((0, 8, 160, 112))
-                            image2.load()
-                            image = image2                    
-                    if size_max is not None and (image.size[0] > size_max[0] or image.size[1] > size_max[1]):
-                        downsize_pil(image, size_max, False)
-                    if orientation == 8:
-                        # rotate counter clockwise
-                        image = image.rotate(90)
-                    elif orientation == 6:
-                        # rotate clockwise
-                        image = image.rotate(270)
-                    elif orientation == 3:
-                        # rotate upside down
-                        image = image.rotate(180)
-                    thumbnail, thumbnail_icon = self._process_thumbnail(image, size_reduced)
+                    orientation = None                
+                if lowrez:
+                    # need to remove letterboxing / pillarboxing from some
+                    # RAW thumbnails
+                    if os.path.splitext(full_file_name)[1][1:].upper() in Thumbnail.crop_thumbnails:
+                        image2 = image.crop((0, 8, 160, 112))
+                        image2.load()
+                        image = image2                    
+                if size_max is not None and (image.size[0] > size_max[0] or image.size[1] > size_max[1]):
+                    downsize_pil(image, size_max, fit=False)
+                if orientation == 8:
+                    # rotate counter clockwise
+                    image = image.rotate(90)
+                elif orientation == 6:
+                    # rotate clockwise
+                    image = image.rotate(270)
+                elif orientation == 3:
+                    # rotate upside down
+                    image = image.rotate(180)
+                thumbnail, thumbnail_icon = self._process_thumbnail(image, size_reduced)
 
         return (thumbnail, thumbnail_icon)
         
@@ -248,7 +258,7 @@ class Thumbnail:
         else:
             size = max(size_max[0], size_max[1])
         image = None
-        if size > 0 and size <= 120:
+        if size > 0 and size <= 160:
             thm = get_video_THM_file(full_file_name)
             if thm:
                 try:
@@ -256,7 +266,7 @@ class Thumbnail:
                 except:
                     logger.warning("Could not open THM file for %s" % full_file_name)
                 thumbnail = add_filmstrip(thumbnail)
-                image = dropShadow.pixbuf_to_image(thumbnail)
+                image = dropshadow.pixbuf_to_image(thumbnail)
         
         if image is None:
             try:
