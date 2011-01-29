@@ -27,15 +27,19 @@ _ = common.Configi18n._
 
 import config
 
-import metadata as photometadata
 import thumbnail as tn
 
-PHOTO_EXTENSIONS = photometadata.RAW_FILE_EXTENSIONS + \
-                   photometadata.NON_RAW_IMAGE_FILE_EXTENSIONS
-                   
-VIDEO_EXTENSIONS = []
 
-EXTENSIONS = PHOTO_EXTENSIONS
+RAW_EXTENSIONS = ['arw', 'dcr', 'cr2', 'crw',  'dng', 'mos', 'mef', 'mrw', 
+                  'nef', 'orf', 'pef', 'raf', 'raw', 'rw2', 'sr2', 'srw']
+                        
+NON_RAW_IMAGE_EXTENSIONS = ['jpg', 'jpe', 'jpeg', 'tif', 'tiff']
+
+PHOTO_EXTENSIONS = RAW_EXTENSIONS + NON_RAW_IMAGE_EXTENSIONS
+
+VIDEO_EXTENSIONS = ['3gp', 'avi', 'm2t', 'mov', 'mp4', 'mpeg','mpg', 'mod', 
+                    'tod']
+VIDEO_THUMBNAIL_EXTENSIONS = ['thm']
 
 FILE_TYPE_PHOTO = 0
 FILE_TYPE_VIDEO = 1

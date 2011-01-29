@@ -1188,7 +1188,7 @@ class SelectionTreeView(gtk.TreeView):
                 preview_image = self.previews[unique_id]
             elif unique_id in self.thumbnails:
                 preview_image = self.thumbnails[unique_id]
-                self.preview_manager.get_preview(unique_id, rpd_file.full_file_name, size_max=None,)
+                self.preview_manager.get_preview(unique_id, rpd_file.full_file_name, rpd_file.file_type, size_max=None,)
 
             else:
                 preview_image = self.get_stock_thumbnail(rpd_file.file_type)
@@ -1731,8 +1731,8 @@ class PreviewManager:
         self.queued_items = 0
         self._get_preview.start()
         
-    def get_preview(self, unique_id, full_file_name, size_max):
-        self.task_queue.put((unique_id, full_file_name, size_max))
+    def get_preview(self, unique_id, full_file_name, file_type, size_max):
+        self.task_queue.put((unique_id, full_file_name, file_type, size_max))
         if not self.run_event.is_set():
             self.run_event.set()
         self.queued_items += 1

@@ -28,12 +28,16 @@ import paths
 
 from PIL import Image
 import cStringIO
+import tempfile
+import subprocess
 
-import config
+import rpdfile
 import common
 import rpdmultiprocessing as rpdmp
 import dropshadow
 import pyexiv2
+
+from filmstrip import add_filmstrip
 
 import logging
 logger = multiprocessing.get_logger()
@@ -132,14 +136,33 @@ class PicklablePIL:
     def get_pixbuf(self):
         return dropshadow.image_to_pixbuf(self.get_image())
 
+def get_video_THM_file(fullFileName):
+    """
+    Checks to see if a thumbnail file (THM) is in the same directory as the 
+    file. Expects a full path to be part of the file name.
+    
+    Returns the filename, including path, if found, else returns None.
+    """
+    
+    f = None
+    name, ext = os.path.splitext(fullFileName)
+    for e in rpdfile.VIDEO_THUMBNAIL_EXTENSIONS:
+        if os.path.exists(name + '.' + e):
+            f = name + '.' + e
+            break
+        if os.path.exists(name + '.' + e.upper()):
+            f = name + '.' + e.upper()
+            break
+        
+    return f 
 
-class PhotoThumbnail:
+class Thumbnail:
     
     # file types from which to remove letterboxing (black bands in the thumbnail
     # previews)
     crop_thumbnails = ('CR2', 'DNG', 'RAF', 'ORF', 'PEF', 'ARW')
     
-    def get_thumbnail_data(self, metadata, max_size_needed):
+    def _get_thumbnail_data(self, metadata, max_size_needed):
         if max_size_needed is None or max_size_needed[0] > 160 or max_size_needed[1] > 120 or not metadata.exif_thumbnail.data:
             lowrez = False
             previews = metadata.previews
@@ -157,16 +180,32 @@ class PhotoThumbnail:
             lowrez = True
         return (thumbnail.data, lowrez)
         
-    def get_thumbnail(self, full_file_name, size_max=None, size_reduced=None):
+    def _process_thumbnail(self, image, size_reduced):
+        if image.mode == "RGB":
+            image = image.convert("RGBA")
+        #~ name = os.path.basename(full_file_name)
+        #~ name = os.path.splitext(name)[0] + '.jpg'
+        #~ image.save(os.path.join('/home/damon/tmp/rpd/', name), 'jpeg')
+        thumbnail = PicklablePIL(image)
+        if size_reduced is not None:
+            thumbnail_icon = image.copy()
+            downsize_pil(thumbnail_icon, size_reduced, fit=False)                
+            thumbnail_icon = PicklablePIL(thumbnail_icon)
+        else:
+            thumbnail_icon = None
+            
+        return (thumbnail, thumbnail_icon)
+    
+    def _get_photo_thumbnail(self, full_file_name, size_max, size_reduced):
         thumbnail = None
-        thumbnail_icon = None        
+        thumbnail_icon = None    
         metadata = pyexiv2.metadata.ImageMetadata(full_file_name)
         try:
             metadata.read()
         except:
             logger.warning("Could not read metadata from %s" % full_file_name)
         else:
-            thumbnail_data, lowrez = self.get_thumbnail_data(metadata, max_size_needed=size_max)
+            thumbnail_data, lowrez = self._get_thumbnail_data(metadata, max_size_needed=size_max)
             if isinstance(thumbnail_data, types.StringType):
                 try:
                     orientation = metadata['Exif.Image.Orientation'].value
@@ -182,7 +221,7 @@ class PhotoThumbnail:
                     if lowrez:
                         # need to remove letterboxing / pillarboxing from some
                         # RAW thumbnails
-                        if os.path.splitext(full_file_name)[1][1:].upper() in PhotoThumbnail.crop_thumbnails:
+                        if os.path.splitext(full_file_name)[1][1:].upper() in Thumbnail.crop_thumbnails:
                             image2 = image.crop((0, 8, 160, 112))
                             image2.load()
                             image = image2                    
@@ -196,18 +235,51 @@ class PhotoThumbnail:
                         image = image.rotate(270)
                     elif orientation == 3:
                         # rotate upside down
-                        image = image.rotate(180)                 
-                    if image.mode == "RGB":
-                        image = image.convert("RGBA")
-                    #~ name = os.path.basename(full_file_name)
-                    #~ name = os.path.splitext(name)[0] + '.jpg'
-                    #~ image.save(os.path.join('/home/damon/tmp/rpd/', name), 'jpeg')
-                    thumbnail = PicklablePIL(image)
-                    if size_reduced is not None:
-                        thumbnail_icon = image.copy()
-                        downsize_pil(thumbnail_icon, size_reduced, False)                
-                        thumbnail_icon = PicklablePIL(thumbnail_icon)
-        return (thumbnail, thumbnail_icon)        
+                        image = image.rotate(180)
+                    thumbnail, thumbnail_icon = self._process_thumbnail(image, size_reduced)
+
+        return (thumbnail, thumbnail_icon)
+        
+    def _get_video_thumbnail(self, full_file_name, size_max, size_reduced):
+        thumbnail = None
+        thumbnail_icon = None
+        if size_max is None:
+            size = 0
+        else:
+            size = max(size_max[0], size_max[1])
+        image = None
+        if size > 0 and size <= 120:
+            thm = get_video_THM_file(full_file_name)
+            if thm:
+                try:
+                    thumbnail = gtk.gdk.pixbuf_new_from_file(thm)
+                except:
+                    logger.warning("Could not open THM file for %s" % full_file_name)
+                thumbnail = add_filmstrip(thumbnail)
+                image = dropShadow.pixbuf_to_image(thumbnail)
+        
+        if image is None:
+            try:
+                tmp_dir = tempfile.mkdtemp(prefix="rpd-tmp")
+                thm = os.path.join(tmp_dir, 'thumbnail.jpg')
+                subprocess.check_call(['ffmpegthumbnailer', '-i', full_file_name, '-t', '10', '-f', '-o', thm, '-s', str(size)])
+                image = Image.open(thm)
+                image.load()
+                os.unlink(thm)
+                os.rmdir(tmp_dir)
+            except:
+                image = None
+                logger.info("Error genereating thumbnail for %s" % full_file_name)
+        if image:
+            thumbnail, thumbnail_icon = self._process_thumbnail(image, size_reduced)
+            
+        return (thumbnail, thumbnail_icon)
+    
+    def get_thumbnail(self, full_file_name, file_type, size_max=None, size_reduced=None):
+        if file_type == rpdfile.FILE_TYPE_PHOTO:
+            return self._get_photo_thumbnail(full_file_name, size_max, size_reduced)
+        else:
+            return self._get_video_thumbnail(full_file_name, size_max, size_reduced)
                 
                 
 class GetPreviewImage(multiprocessing.Process):
@@ -217,14 +289,14 @@ class GetPreviewImage(multiprocessing.Process):
         self.results_pipe = results_pipe
         self.run_event = run_event
         self.task_queue = task_queue
-        self.thumbnail_maker = PhotoThumbnail()
+        self.thumbnail_maker = Thumbnail()
         
     def run(self):
         while True:
             self.run_event.wait()
             
-            unique_id, full_file_name, size_max = self.task_queue.get()
-            full_size_preview, reduced_size_preview = self.thumbnail_maker.get_thumbnail(full_file_name, size_max=size_max, size_reduced=None)
+            unique_id, full_file_name, file_type, size_max = self.task_queue.get()
+            full_size_preview, reduced_size_preview = self.thumbnail_maker.get_thumbnail(full_file_name, file_type, size_max=size_max, size_reduced=None)
             self.results_pipe.send((unique_id, full_size_preview, reduced_size_preview))
             
 
@@ -241,7 +313,7 @@ class GenerateThumbnails(multiprocessing.Process):
         self.counter = 0
         self.results = []
         
-        self.thumbnail_maker = PhotoThumbnail()
+        self.thumbnail_maker = Thumbnail()
         
         
     def run(self):
@@ -257,10 +329,12 @@ class GenerateThumbnails(multiprocessing.Process):
                 return None
             
             
-            thumbnail, thumbnail_icon = self.thumbnail_maker.get_thumbnail(f.full_file_name, (160, 120), (60,36))
+            thumbnail, thumbnail_icon = self.thumbnail_maker.get_thumbnail(
+                                    f.full_file_name,
+                                    f.file_type,
+                                    (160, 120), (60, 36)) #(100,66))
             
             self.results.append((f.unique_id, thumbnail_icon, thumbnail))
-            #~ self.results.append((f.unique_id, thumbnail_icon))
             self.counter += 1
             if self.counter == self.batch_size:
                 self.results_pipe.send((rpdmp.CONN_PARTIAL, self.results))
@@ -273,4 +347,3 @@ class GenerateThumbnails(multiprocessing.Process):
         self.results_pipe.send((rpdmp.CONN_COMPLETE, None))
         self.results_pipe.close()
         
-#~ if __name__ == '__main__':
