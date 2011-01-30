@@ -22,7 +22,6 @@ import types
 import os
 
 import gtk
-import numpy
 
 import paths
 
@@ -96,7 +95,7 @@ def downsize_pil(image, box, fit=False):
    box: tuple(x, y) - the bounding box of the result image
    fix: boolean - crop the image to fill the box
    
-   Code from Christian Harms
+   Code adpated from example by Christian Harms
    Source: http://united-coders.com/christian-harms/image-resizing-tips-every-coder-should-know
    """
     #preresize image with factor 2, 4, 8 and fast algorithm
@@ -282,7 +281,7 @@ class Thumbnail:
                 os.rmdir(tmp_dir)
             except:
                 image = None
-                logger.info("Error genereating thumbnail for %s" % full_file_name)
+                logger.error("Error generating thumbnail for %s" % full_file_name)
         if image:
             thumbnail, thumbnail_icon = self._process_thumbnail(image, size_reduced)
             
@@ -345,7 +344,7 @@ class GenerateThumbnails(multiprocessing.Process):
             thumbnail, thumbnail_icon = self.thumbnail_maker.get_thumbnail(
                                     f.full_file_name,
                                     f.file_type,
-                                    (160, 120), (60, 36)) #(100,66))
+                                    (160, 120), (100,100)) #(60, 36))
             
             self.results.append((f.unique_id, thumbnail_icon, thumbnail))
             self.counter += 1

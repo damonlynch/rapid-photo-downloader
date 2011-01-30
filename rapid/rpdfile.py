@@ -20,6 +20,12 @@
 import os
 import gtk
 
+import multiprocessing, logging
+logger = multiprocessing.get_logger()
+logger.setLevel(logging.INFO)
+
+import pyexiv2
+
 import paths
 import common
 
@@ -39,6 +45,7 @@ PHOTO_EXTENSIONS = RAW_EXTENSIONS + NON_RAW_IMAGE_EXTENSIONS
 
 VIDEO_EXTENSIONS = ['3gp', 'avi', 'm2t', 'mov', 'mp4', 'mpeg','mpg', 'mod', 
                     'tod']
+#~ VIDEO_EXTENSIONS = []
 VIDEO_THUMBNAIL_EXTENSIONS = ['thm']
 
 FILE_TYPE_PHOTO = 0
@@ -155,18 +162,41 @@ class RPDFile:
     def _assign_file_type(self):
         self.file_type = None
     
-    def date_time(self, alternative_if_date_missing=None):
-        date = None
-        if self.metadata:
-            date = self.photometadata.date_time()
-        if not date:
-            if alternative_if_date_missing:
-                date = alternative_if_date_missing
-            else:
-                date = datetime.datetime.fromtimestamp(self.modification_time)
-        return date
+    #~ def date_time(self, alternative_if_date_missing=None):
+        #~ date = None
+        #~ if self.metadata:
+            #~ date = self.photometadata.date_time()
+        #~ if not date:
+            #~ if alternative_if_date_missing:
+                #~ date = alternative_if_date_missing
+            #~ else:
+                #~ date = datetime.datetime.fromtimestamp(self.modification_time)
+        #~ return date
         
-
+exif_tags_needed = ('Exif.Photo.FNumber', 
+                    'Exif.Photo.ISOSpeedRatings',
+                    'Exif.Photo.ExposureTime',
+                    'Exif.Photo.FocalLength',
+                    'Exif.Image.Make',
+                    'Exif.Image.Model',
+                    'Exif.Canon.SerialNumber',
+                    'Exif.Nikon3.SerialNumber'
+                    'Exif.OlympusEq.SerialNumber',
+                    'Exif.Olympus.SerialNumber',
+                    'Exif.Olympus.SerialNumber2',
+                    'Exif.Panasonic.SerialNumber',
+                    'Exif.Fujifilm.SerialNumber',
+                    'Exif.Image.CameraSerialNumber',
+                    'Exif.Nikon3.ShutterCount',
+                    'Exif.Canon.FileNumber',
+                    'Exif.Canon.ImageNumber',
+                    'Exif.Canon.OwnerName',
+                    'Exif.Photo.DateTimeOriginal',
+                    'Exif.Image.DateTime',
+                    'Exif.Photo.SubSecTimeOriginal',
+                    'Exif.Image.Orientation'
+                   )
+                   
 class Photo(RPDFile):
     
     title = _("photo")
@@ -174,6 +204,19 @@ class Photo(RPDFile):
     
     def _assign_file_type(self):
         self.file_type = FILE_TYPE_PHOTO
+        
+    def read_metadata(self):
+        self.exif_tags = []
+        metadata = pyexiv2.metadata.ImageMetadata(self.full_file_name)
+        try:
+            metadata.read()
+        except:
+            logger.warning("Could not read metadata from %s" % self.full_file_name)
+        else:
+            if True:
+                for tag in exif_tags_needed:
+                    if tag in metadata.exif_keys:
+                        self.exif_tags.append(metadata[tag])
     
             
 class Video(RPDFile):

@@ -232,7 +232,7 @@ class DigitalFiles:
         self.preview_image = builder.get_object("preview_image")
         self.preview_image_aspectframe = builder.get_object("preview_image_aspectframe")
         
-        self.selection_treeview = SelectionTreeView(self)
+        self.selection_treeview = ThumbnailDisplay(self)#SelectionTreeView(self)
         
         selection_scrolledwindow = builder.get_object("selection_scrolledwindow")
         selection_scrolledwindow.add(self.selection_treeview)
@@ -385,12 +385,12 @@ class DigitalFiles:
             self.job_code_hbox.show()
             self.job_code_label.show()
             self.job_code_combo.show()
-            self.selection_treeview.job_code_column.set_visible(True)
+            #~ self.selection_treeview.job_code_column.set_visible(True)
         else:
             self.job_code_hbox.hide()
             self.job_code_label.hide()
             self.job_code_combo.hide()
-            self.selection_treeview.job_code_column.set_visible(False)
+            #~ self.selection_treeview.job_code_column.set_visible(False)
     
     def update_job_code_combo(self):
         # delete existing rows
@@ -470,6 +470,162 @@ class DigitalFiles:
     def add_file(self, rpd_file):
         self.selection_treeview.add_file(rpd_file)
 
+class ThumbnailDisplay(gtk.IconView):
+    def __init__(self, parent_app):
+        gtk.IconView.__init__(self)
+        self.parent_app = parent_app
+        self.rapid_app = parent_app.parent_app
+        
+        self.batch_size = 10
+        
+        self.thumbnail_manager = ThumbnailManager(self.thumbnail_results, self.batch_size)
+        self.preview_manager = PreviewManager(self.preview_results)
+        
+        self.treerow_index = {}
+        self.process_index = {}
+        
+        self.rpd_files = {}
+        
+        self.thumbnails = {}
+        self.previews = {}
+        
+        self.stock_photo_thumbnails = tn.PhotoIcons()
+        self.stock_video_thumbnails = tn.VideoIcons()
+        
+        self.liststore = gtk.ListStore(
+             gtk.gdk.Pixbuf,        # 0 thumbnail 
+             int,                   # 1 selected or not
+             str)                   # 2 unique id
+
+
+        select = gtk.CellRendererToggle()
+        select.set_radio(False)
+        select.props.yalign = 0.0
+        select.props.xalign = 0.0
+        select.props.activatable = True
+        image = gtk.CellRendererPixbuf()
+        image.props.yalign = 0.5
+        image.props.xalign = 0.5      
+        
+        self.pack_start(select, expand=False)
+        self.pack_start(image, expand=True)
+        self.add_attribute(image, "pixbuf", 0)
+        self.add_attribute(select, "active", 1)
+        
+        self.set_model(self.liststore)
+        self.set_orientation(gtk.ORIENTATION_HORIZONTAL)
+        
+        self.show_all()
+        
+        
+        self.connect('selection-changed', self.on_selection_changed)        
+        
+    def add_file(self, rpd_file):
+
+        thumbnail_icon = self.get_stock_icon(rpd_file.file_type)
+        unique_id = rpd_file.unique_id
+        scan_pid = rpd_file.scan_pid
+
+        iter = self.liststore.append((thumbnail_icon,
+                                      1,
+                                      unique_id))
+        
+        path = self.liststore.get_path(iter)
+        treerowref = gtk.TreeRowReference(self.liststore, path)
+        
+        if scan_pid in self.process_index:
+            self.process_index[scan_pid].append(rpd_file)
+        else:
+            self.process_index[scan_pid] = [rpd_file,]
+            
+        self.treerow_index[unique_id] = treerowref
+        self.rpd_files[unique_id] = rpd_file
+
+    def get_unique_id(self, iter):
+        return self.liststore.get_value(iter, 2)        
+    
+    def on_selection_changed(self, iconview):        
+        """
+        """
+        #~ self.update_download_selected_button()
+        paths = self.get_selected_items()
+        size = len(paths)
+        if size == 0:
+            self.selected_rows = set()
+            self.show_preview(None)
+        else:
+            for path in paths:
+                iter = self.liststore.get_iter(path)
+                self.show_preview(self.get_unique_id(iter))
+
+    def show_preview(self, unique_id):
+        rpd_file = self.rpd_files[unique_id]
+        self.previewed_file = unique_id
+        
+        if unique_id in self.previews:
+            preview_image = self.previews[unique_id]
+        elif unique_id in self.thumbnails:
+            preview_image = self.thumbnails[unique_id]
+            self.preview_manager.get_preview(unique_id, rpd_file.full_file_name, rpd_file.file_type, size_max=None,)
+        else:
+            preview_image = self.get_stock_thumbnail(rpd_file.file_type)
+        
+        self.parent_app.set_preview_image(preview_image)
+            
+    def get_stock_icon(self, file_type):
+        if file_type == rpdfile.FILE_TYPE_PHOTO:
+            return self.stock_photo_thumbnails.stock_thumbnail_image_icon
+        else:
+            return self.stock_video_thumbnails.stock_thumbnail_image_icon        
+            
+    def generate_thumbnails(self, scan_pid):
+        """Initiate thumbnail generation for files scanned in one process
+        """
+        self.thumbnail_manager.add_task(self.process_index[scan_pid])
+    
+    def update_thumbnail(self, thumbnail_data):
+        """
+        Takes the generated thumbnail and 
+        """
+        unique_id = thumbnail_data[0]
+        thumbnail_icon = thumbnail_data[1]
+        
+        if thumbnail_icon is not None:
+            # get the thumbnail icon in pixbuf format
+            thumbnail_icon = thumbnail_icon.get_pixbuf()
+            
+            treerowref = self.treerow_index[unique_id]
+            path = treerowref.get_path()
+            iter = self.liststore.get_iter(path)
+            
+            if thumbnail_icon:
+                self.liststore.set(iter, 0, thumbnail_icon)
+                
+            if len(thumbnail_data) > 2:
+                # get the 2nd image in PIL format
+                self.thumbnails[unique_id] = thumbnail_data[2].get_image()
+
+            
+    def thumbnail_results(self, source, condition):
+        connection = self.thumbnail_manager.get_pipe(source)
+        
+        conn_type, data = connection.recv()
+        
+        if conn_type == rpdmp.CONN_COMPLETE:
+            connection.close()
+            return False
+        else:
+            for i in range(len(data)):
+                thumbnail_data = data[i]
+                self.update_thumbnail(thumbnail_data)                
+        
+        return True
+        
+    def preview_results(self, unique_id, preview_full_size, preview_small):
+        preview_image = preview_full_size.get_image()
+        self.previews[unique_id] = preview_image
+        self.parent_app.set_preview_image(preview_image)
+                    
     
 class SelectionTreeView(gtk.TreeView):
     """
@@ -1693,12 +1849,15 @@ class TaskManager:
 
 class ScanManager(TaskManager):
     
-    def __init__(self, results_callback, batch_size, add_device_function):
+    def __init__(self, results_callback, batch_size, generate_folder,
+                 add_device_function):
         TaskManager.__init__(self, results_callback, batch_size)
         self.add_device_function = add_device_function
+        self.generate_folder = generate_folder
         
     def _initiate_task(self, path, task_process_conn, terminate_queue, run_event):
-        scan = scan_process.Scan(path, self.batch_size, task_process_conn, terminate_queue, run_event)
+        scan = scan_process.Scan(path, self.batch_size, self.generate_folder, 
+                                task_process_conn, terminate_queue, run_event)
         scan.start()
         self._processes.append((scan, terminate_queue, run_event))
         self.add_device_function(scan.pid, path, 
@@ -1781,7 +1940,7 @@ class RapidApp(dbus.service.Object):
             
         self.rapidapp.show_all()
         
-        #~ paths = ['/home/damon/rapid', '/home/damon/Pictures/processing/2010']
+        #~ paths = ['/home/damon/rapid/cr2', '/home/damon/Pictures/processing/2010']
         #~ paths = ['/media/EOS_DIGITAL/', '/media/EOS_DIGITAL_/']
         paths = ['/home/damon/rapid/cr2']
         #~ paths = ['/media/EOS_DIGITAL/']
@@ -1792,7 +1951,9 @@ class RapidApp(dbus.service.Object):
         self.testing_auto_exit_trip = len(paths)
         self.testing_auto_exit_trip_counter = 0
         
-        self.scan_manager = ScanManager(self.scan_results, self.batch_size, self.device_collection.add_device)
+        self.generate_folder = False
+        self.scan_manager = ScanManager(self.scan_results, self.batch_size, 
+                    self.generate_folder, self.device_collection.add_device)
         
         for path in paths:
             self.scan_manager.add_task(path)
@@ -1846,7 +2007,8 @@ class RapidApp(dbus.service.Object):
             if self.testing_auto_exit_trip_counter == self.testing_auto_exit_trip and self.testing_auto_exit:
                 self.on_rapidapp_destroy(self.rapidapp)
             else:
-                self.digital_files.selection_treeview.generate_thumbnails(
+                if not self.testing_auto_exit:
+                    self.digital_files.selection_treeview.generate_thumbnails(
                                                             scan_pid)
             # signal that no more data is coming, finishing io watch for this pipe
             return False
@@ -1856,6 +2018,7 @@ class RapidApp(dbus.service.Object):
             else:
                 for i in range(len(data)):
                     rpd_file = data[i]
+                    #~ logger.info('<-- %s from %s' % (rpd_file.full_file_name, source))
                     self.digital_files.selection_treeview.add_file(rpd_file)
         
         # must return True for this method to be called again

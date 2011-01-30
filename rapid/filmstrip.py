@@ -18,7 +18,7 @@
 ### Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 """
-Adds a filmstrip to the left and right of a file
+Adds a filmstrip to the left and right of a pixbuf
 """
 
 import gtk

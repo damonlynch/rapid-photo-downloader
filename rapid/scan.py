@@ -23,6 +23,8 @@ import multiprocessing
 import gio
 import gtk
 
+import pyexiv2
+
 import rpdmultiprocessing as rpdmp
 import rpdfile
 
@@ -47,8 +49,8 @@ class Scan(multiprocessing.Process):
     files in bytes.
     """
     
-    def __init__(self, path, batch_size, results_pipe, terminate_queue, 
-                 run_event):
+    def __init__(self, path, batch_size, generate_folder, results_pipe, 
+                 terminate_queue, run_event):
                      
         """Setup values needed to conduct the scan.
         
@@ -72,6 +74,7 @@ class Scan(multiprocessing.Process):
         self.terminate_queue = terminate_queue
         self.run_event = run_event
         self.batch_size = batch_size
+        self.generate_folder = generate_folder
         self.counter = 0
         self.files = []
         self.file_type_counter = rpdfile.FileTypeCounter()
@@ -135,6 +138,10 @@ class Scan(multiprocessing.Process):
                                          volume,
                                          self.pid,
                                          file_id)
+                                         
+                        if self.generate_folder:
+                            scanned_file.read_metadata()
+                        
                         self.files.append(scanned_file)
                         
                         if self.counter == self.batch_size:
