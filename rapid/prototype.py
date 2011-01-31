@@ -35,7 +35,7 @@ import gtk.gdk as gdk
 
 import getopt, sys, time, types, os, datetime
 
-import gobject, pango
+import gobject, pango, cairo
  
 from multiprocessing import Process, Pipe, Queue, Event, current_process, get_logger, log_to_stderr
 
@@ -470,6 +470,36 @@ class DigitalFiles:
     def add_file(self, rpd_file):
         self.selection_treeview.add_file(rpd_file)
 
+
+class CellRendererThumbnail(gtk.CellRendererPixbuf):
+
+    def __init__(self):
+        gtk.CellRendererPixbuf.__init__(self)
+
+    def do_render(self, window, widget, background_area, cell_area, expose_area, flags):
+        
+        cairo_context = window.cairo_create()
+        
+        x = cell_area.x 
+        y = cell_area.y 
+        w = cell_area.width
+        h = cell_area.height         
+        #~ print x, y, w, h
+
+        # draw a grey border of 1px
+        cairo_context.set_source_rgb(0.66, 0.66, 0.66) # light grey, #a9a9a9
+        cairo_context.set_line_width(1)
+        cairo_context.rectangle(x-.5, y-.5, w+1, h+1)
+        cairo_context.stroke() 
+        
+        cairo_context.set_source_pixbuf(self.props.pixbuf, x, y)
+        cairo_context.paint()
+       
+        
+
+gobject.type_register(CellRendererThumbnail)
+ 
+
 class ThumbnailDisplay(gtk.IconView):
     def __init__(self, parent_app):
         gtk.IconView.__init__(self)
@@ -498,24 +528,19 @@ class ThumbnailDisplay(gtk.IconView):
              str)                   # 2 unique id
 
 
-        select = gtk.CellRendererToggle()
-        select.set_radio(False)
-        select.props.yalign = 0.0
-        select.props.xalign = 0.0
-        select.props.activatable = True
-        image = gtk.CellRendererPixbuf()
+        image = CellRendererThumbnail()
         image.props.yalign = 0.5
-        image.props.xalign = 0.5      
+        image.props.xalign = 0.5
         
-        self.pack_start(select, expand=False)
         self.pack_start(image, expand=True)
         self.add_attribute(image, "pixbuf", 0)
-        self.add_attribute(select, "active", 1)
+        self.modify_base(gtk.STATE_NORMAL, gtk.gdk.Color('#444444'))
         
         self.set_model(self.liststore)
-        self.set_orientation(gtk.ORIENTATION_HORIZONTAL)
         
         self.show_all()
+        
+
         
         
         self.connect('selection-changed', self.on_selection_changed)        

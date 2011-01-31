@@ -26,7 +26,7 @@ Runs a daemon process.
 import multiprocessing
 
 def generate_folder(rpd_file):
-    
+    return '/home/damon/photos'
 
 class GenerateName(multiprocessing.Process):
     def __init__(self, results_pipe, task_queue, run_event):
