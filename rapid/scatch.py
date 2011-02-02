@@ -65,3 +65,28 @@ class PhotoThumbnail_v1:
                 thumbnail = PicklablePixBuf(pixbuf)
 
         return (thumbnail, thumbnail_icon)                                             
+
+
+
+        #~ pixbuf = self.props.pixbuf
+        
+        #~ image_w = pixbuf.get_width()
+        #~ image_h = pixbuf.get_height()
+        
+        #~ format = cairo.FORMAT_RGB24
+        #~ if pixbuf.get_has_alpha():
+            #~ format = cairo.FORMAT_ARGB32
+        #~ image = cairo.ImageSurface(format, image_w, image_h)
+        
+                #~ print image_w, image_h
+                
+                        
+
+        
+        name = os.path.basename(self.filename)
+        name = os.path.join('/home/damon/tmp/rpd', name + '.jpg')
+        #~ print name
+        #~ self.image.save(name, 'jpeg')
+
+        #~ imgd = self.image.tostring() #
+        #~ imgd = self.image.tostring("raw","RGBA",0,1)

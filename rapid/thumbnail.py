@@ -47,17 +47,23 @@ def get_stock_photo_image():
     #~ return gtk.gdk.pixbuf_new_from_file(paths.share_dir('glade3/photo.png'))
     
 def get_stock_photo_image_icon():
-    return gtk.gdk.pixbuf_new_from_file(paths.share_dir('glade3/photo_small_shadow.png'))
+    image = Image.open(paths.share_dir('glade3/photo100.png'))
+    image = image.convert("RGBA")
+    return image
+    #~ return gtk.gdk.pixbuf_new_from_file(paths.share_dir('glade3/photo_small_shadow.png'))
     
 def get_photo_type_icon():
     return gtk.gdk.pixbuf_new_from_file(paths.share_dir('glade3/photo24.png'))
     
 def get_stock_video_image():
-    return Image.open(paths.share_dir('glade3/video.png'))
+    image = Image.open(paths.share_dir('glade3/video.png'))
+    image = image.convert("RGBA")
+    return image
     #~ return gtk.gdk.pixbuf_new_from_file(paths.share_dir('glade3/video.png'))
     
 def get_stock_video_image_icon():
-    return gtk.gdk.pixbuf_new_from_file(paths.share_dir('glade3/video_small_shadow.png'))
+    return Image.open(paths.share_dir('glade3/video100.png'))
+    #~ return gtk.gdk.pixbuf_new_from_file(paths.share_dir('glade3/video_small_shadow.png'))
 
 def get_video_type_icon():
     return gtk.gdk.pixbuf_new_from_file(paths.share_dir('glade3/video24.png'))
@@ -183,7 +189,7 @@ class Thumbnail:
         return (thumbnail.data, lowrez)
         
     def _process_thumbnail(self, image, size_reduced):
-        if image.mode == "RGB":
+        if image.mode == "RGB" or "YCbCr":
             image = image.convert("RGBA")
         #~ name = os.path.basename(full_file_name)
         #~ name = os.path.splitext(name)[0] + '.jpg'

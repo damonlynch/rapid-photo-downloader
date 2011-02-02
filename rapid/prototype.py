@@ -35,7 +35,7 @@ import gtk.gdk as gdk
 
 import getopt, sys, time, types, os, datetime
 
-import gobject, pango, cairo
+import gobject, pango, cairo, array
  
 from multiprocessing import Process, Pipe, Queue, Event, current_process, get_logger, log_to_stderr
 
@@ -471,10 +471,23 @@ class DigitalFiles:
         self.selection_treeview.add_file(rpd_file)
 
 
-class CellRendererThumbnail(gtk.CellRendererPixbuf):
-
+class ThumbnailCellRenderer(gtk.CellRenderer):
+    __gproperties__ = {
+        "image": (gobject.TYPE_PYOBJECT, "Image",
+        "Image", gobject.PARAM_READWRITE),
+        
+        "filename": (gobject.TYPE_STRING, "Filename", 
+        "Filename", '', gobject.PARAM_READWRITE),
+    }
     def __init__(self):
-        gtk.CellRendererPixbuf.__init__(self)
+        gtk.CellRenderer.__init__(self)
+        self.image = None
+        
+    def do_set_property(self, pspec, value):
+        setattr(self, pspec.name, value)
+
+    def do_get_property(self, pspec):
+        return getattr(self, pspec.name)        
 
     def do_render(self, window, widget, background_area, cell_area, expose_area, flags):
         
@@ -483,21 +496,42 @@ class CellRendererThumbnail(gtk.CellRendererPixbuf):
         x = cell_area.x 
         y = cell_area.y 
         w = cell_area.width
-        h = cell_area.height         
-        #~ print x, y, w, h
+        h = cell_area.height
+        
+        #constrain operations to cell area, allowing for a 1 pixel border 
+        #either side
+        cairo_context.rectangle(x-1, y-1, w+2, h+2)
+        cairo_context.clip()
+        
+        #image width and height
+        image_w = self.image.size[0]
+        image_h = self.image.size[1]
+        
+        #top left and right corners for the image
+        image_x = x + ((w - image_w) / 2)
+        image_y = y + ((h - image_h) / 2)
+
+        #convert PIL image to format suitable for cairo
+        imgd = self.image.tostring("raw","BGRA")
+        data = array.array('B',imgd)
+        stride = image_w * 4
+        image = cairo.ImageSurface.create_for_data(data, cairo.FORMAT_ARGB32,
+                                              image_w, image_h, stride)
 
         # draw a grey border of 1px
         cairo_context.set_source_rgb(0.66, 0.66, 0.66) # light grey, #a9a9a9
         cairo_context.set_line_width(1)
-        cairo_context.rectangle(x-.5, y-.5, w+1, h+1)
+        cairo_context.rectangle(image_x-.5, image_y-.5, image_w+1, image_h+1)
         cairo_context.stroke() 
         
-        cairo_context.set_source_pixbuf(self.props.pixbuf, x, y)
+        cairo_context.set_source_surface(image, image_x, image_y)
         cairo_context.paint()
-       
+        
+    def do_get_size(self, widget, cell_area):
+        return (0, 0, 100, 100)
         
 
-gobject.type_register(CellRendererThumbnail)
+gobject.type_register(ThumbnailCellRenderer)
  
 
 class ThumbnailDisplay(gtk.IconView):
@@ -523,17 +557,21 @@ class ThumbnailDisplay(gtk.IconView):
         self.stock_video_thumbnails = tn.VideoIcons()
         
         self.liststore = gtk.ListStore(
-             gtk.gdk.Pixbuf,        # 0 thumbnail 
+             #~ gtk.gdk.Pixbuf,        # 0 thumbnail 
+             gobject.TYPE_PYOBJECT, # 0 PIL thumbnail
              int,                   # 1 selected or not
-             str)                   # 2 unique id
+             str,                   # 2 unique id
+             str,                   # 3 file name
+             )
 
 
-        image = CellRendererThumbnail()
-        image.props.yalign = 0.5
-        image.props.xalign = 0.5
+        image = ThumbnailCellRenderer()
+        #~ image.props.yalign = 0.5
+        #~ image.props.xalign = 0.5
         
         self.pack_start(image, expand=True)
-        self.add_attribute(image, "pixbuf", 0)
+        self.add_attribute(image, "image", 0)
+        self.add_attribute(image, "filename", 3)
         self.modify_base(gtk.STATE_NORMAL, gtk.gdk.Color('#444444'))
         
         self.set_model(self.liststore)
@@ -551,9 +589,12 @@ class ThumbnailDisplay(gtk.IconView):
         unique_id = rpd_file.unique_id
         scan_pid = rpd_file.scan_pid
 
+        #~ iter = self.liststore.append((thumbnail_icon,
         iter = self.liststore.append((thumbnail_icon,
                                       1,
-                                      unique_id))
+                                      unique_id,
+                                      rpd_file.full_file_name
+                                      ))
         
         path = self.liststore.get_path(iter)
         treerowref = gtk.TreeRowReference(self.liststore, path)
@@ -617,7 +658,8 @@ class ThumbnailDisplay(gtk.IconView):
         
         if thumbnail_icon is not None:
             # get the thumbnail icon in pixbuf format
-            thumbnail_icon = thumbnail_icon.get_pixbuf()
+            #~ thumbnail_icon = thumbnail_icon.get_pixbuf()
+            thumbnail_icon = thumbnail_icon.get_image()
             
             treerowref = self.treerow_index[unique_id]
             path = treerowref.get_path()
