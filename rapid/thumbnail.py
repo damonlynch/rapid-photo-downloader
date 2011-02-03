@@ -47,7 +47,7 @@ def get_stock_photo_image():
     #~ return gtk.gdk.pixbuf_new_from_file(paths.share_dir('glade3/photo.png'))
     
 def get_stock_photo_image_icon():
-    image = Image.open(paths.share_dir('glade3/photo100.png'))
+    image = Image.open(paths.share_dir('glade3/photo66.png'))
     image = image.convert("RGBA")
     return image
     #~ return gtk.gdk.pixbuf_new_from_file(paths.share_dir('glade3/photo_small_shadow.png'))
@@ -189,7 +189,7 @@ class Thumbnail:
         return (thumbnail.data, lowrez)
         
     def _process_thumbnail(self, image, size_reduced):
-        if image.mode == "RGB" or "YCbCr":
+        if image.mode <> "RGBA":
             image = image.convert("RGBA")
         #~ name = os.path.basename(full_file_name)
         #~ name = os.path.splitext(name)[0] + '.jpg'
