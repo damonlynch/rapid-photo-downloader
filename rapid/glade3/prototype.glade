@@ -365,15 +365,12 @@
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkEventBox" id="preview_image_eventbox">
+                      <object class="GtkEventBox" id="preview_eventbox">
                         <property name="visible">True</property>
                         <property name="no_show_all">True</property>
-                        <signal name="button_press_event" handler="on_preview_image_eventbox_button_press_event"/>
+                        <signal name="button_press_event" handler="on_preview_eventbox_button_press_event"/>
                         <child>
-                          <object class="GtkImage" id="preview_image">
-                            <property name="visible">True</property>
-                            <property name="icon-size">0</property>
-                          </object>
+                          <placeholder/>
                         </child>
                       </object>
                       <packing>

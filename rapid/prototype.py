@@ -215,6 +215,13 @@ class DeviceCollection(gtk.TreeView):
                 logger.info("Implement update overall progress")
 
 
+def create_cairo_image_surface(pil_image, image_width, image_height):
+        imgd = pil_image.tostring("raw","BGRA")
+        data = array.array('B',imgd)
+        stride = image_width * 4
+        image = cairo.ImageSurface.create_for_data(data, cairo.FORMAT_ARGB32,
+                                            image_width, image_height, stride)
+        return image
 
 class ThumbnailCellRenderer(gtk.CellRenderer):
     __gproperties__ = {
@@ -262,11 +269,7 @@ class ThumbnailCellRenderer(gtk.CellRenderer):
         image_y = y + self.image_area_size - image_h
 
         #convert PIL image to format suitable for cairo
-        imgd = self.image.tostring("raw","BGRA")
-        data = array.array('B',imgd)
-        stride = image_w * 4
-        image = cairo.ImageSurface.create_for_data(data, cairo.FORMAT_ARGB32,
-                                              image_w, image_h, stride)
+        image = create_cairo_image_surface(self.image, image_w, image_h)
 
         # draw a grey border of 1px around the image
         cairo_context.set_source_rgb(0.66, 0.66, 0.66) #darkish grey, #a9a9a9
@@ -732,16 +735,91 @@ class PreviewManager:
         return True 
 
 
+class ResizblePilImage(gtk.DrawingArea):
+    def __init__(self, bg_color=None):
+        gtk.DrawingArea.__init__(self)
+        self.base_image = None
+        self.bg_color = bg_color
+        self.connect('expose_event', self.expose)
+        
+    def set_image(self, image):
+        self.base_image = image
+        
+        #set up sizes and ratio used for drawing the derived image
+        self.base_image_w = self.base_image.size[0]
+        self.base_image_h = self.base_image.size[1]
+        self.base_image_aspect = float(self.base_image_w) / self.base_image_h
+        
+        self.queue_draw()
+        
+    def expose(self, widget, event):
+
+        cairo_context = self.window.cairo_create()
+        
+        x = event.area.x 
+        y = event.area.y 
+        w = event.area.width
+        h = event.area.height
+        
+        #constrain operations to event area 
+        cairo_context.rectangle(x, y, w, h)
+        cairo_context.clip_preserve()
+        
+        #set background color, if needed
+        if self.bg_color:
+            cairo_context.set_source_rgb(*self.bg_color)
+            cairo_context.fill_preserve()        
+
+        if not self.base_image:
+            return False
+            
+        frame_aspect = float(w) / h
+        
+        if frame_aspect > self.base_image_aspect:
+            # Frame is wider than image
+            height = h
+            width = int(height * self.base_image_aspect)
+        else:
+            # Frame is taller than image
+            width = w
+            height = int(width / self.base_image_aspect)
+            
+        #resize image
+        pil_image = self.base_image.copy()
+        if self.base_image_w < width or self.base_image_h < height:
+            logger.info("Upsizing image")
+            pil_image = tn.upsize_pil(pil_image, (width, height))
+        else:
+            logger.info("Downsizing image")
+            tn.downsize_pil(pil_image, (width, height))
+
+        #image width and height
+        image_w = pil_image.size[0]
+        image_h = pil_image.size[1]
+        
+        #center the image horizontally and vertically
+        #top left and right corners for the image:
+        image_x = x + ((w - image_w) / 2)
+        image_y = y + ((h - image_h) / 2)
+        
+        image = create_cairo_image_surface(pil_image, image_w, image_h)
+        cairo_context.set_source_surface(image, image_x, image_y)
+        cairo_context.paint()        
+
+        return False    
+        
+        
+
 class PreviewImage:
     
     def __init__(self, parent_app, builder):
-        self.preview_image = builder.get_object("preview_image")
-        self.preview_image_eventbox = builder.get_object("preview_image_eventbox")
+        #set background color to equivalent of '#444444
+        self.preview_image = ResizblePilImage(bg_color=(0.267, 0.267, 0.267)) 
+        self.preview_image_eventbox = builder.get_object("preview_eventbox")
+        self.preview_image_eventbox.add(self.preview_image)
+        self.preview_image.show()
         self.rapid_app = parent_app
         
-        cmap = self.preview_image_eventbox.get_colormap()
-        color = cmap.alloc_color(21626, 21626, 21626) # 
-        self.preview_image_eventbox.modify_bg(gtk.STATE_NORMAL, color)
         
         self.base_preview_image = None # large size image used to scale down from
         self.current_preview_size = (0,0)
@@ -751,11 +829,9 @@ class PreviewImage:
     def set_preview_image(self, unique_id, pil_image):
         """
         """
-        self.base_preview_image = pil_image
+        self.preview_image.set_image(pil_image)
         self.unique_id = unique_id
         
-        event_box_size = self.preview_image_eventbox.get_allocation()
-        self.resize_preview_image(event_box_size[2], event_box_size[3], overwrite=True)
         
     def update_preview_image(self, unique_id, pil_image):
         if unique_id == self.unique_id:
@@ -769,15 +845,7 @@ class PreviewImage:
             logger.info("Max width and height set to %s, %s" % (max_width, max_height))
             self.preview_image_size_limit = (max_width, max_height)
         else:
-            #~ print self.preview_image.get_allocation()
-            if self.preview_image_size_limit[0] == 0 or self.preview_image_size_limit[0] == 0:
-                print "setting size for first time"
-                image_size = self.rapid_app.main_vpaned.get_child2().get_allocation()
-                max_width = image_size.width
-                max_height = image_size.height
-                self.preview_image_size_limit = (max_width, max_height)
-            else:
-                max_width, max_height = self.preview_image_size_limit
+            max_width, max_height = self.preview_image_size_limit
         
         if self.base_preview_image:
         
@@ -853,7 +921,6 @@ class RapidApp(dbus.service.Object):
 
 
         self.preview_image = PreviewImage(self, builder)
-        self.preview_image_vbox = builder.get_object('preview_image_vbox')
 
         thumbnails_scrolledwindow = builder.get_object('thumbnails_scrolledwindow')
         self.thumbnails = ThumbnailDisplay(self)
@@ -862,9 +929,11 @@ class RapidApp(dbus.service.Object):
         self.rapidapp.show_all()
         
         #~ paths = ['/home/damon/rapid/cr2', '/home/damon/Pictures/processing/2010']
+        #~ paths = ['/media/EOS_DIGITAL/']        
         #~ paths = ['/media/EOS_DIGITAL/', '/media/EOS_DIGITAL_/']
-        paths = ['/home/damon/rapid/cr2']
-        #~ paths = ['/media/EOS_DIGITAL/']
+        paths = ['/media/EOS_DIGITAL/', '/media/EOS_DIGITAL_/', '/media/EOS_DIGITAL__/']
+        #~ paths = ['/home/damon/rapid/cr2']
+
         
         self.batch_size = 10
         
@@ -903,18 +972,18 @@ class RapidApp(dbus.service.Object):
         
         gtk.main_quit()        
         
-    def on_preview_image_eventbox_check_resize(self, widget):
-        print '-------------------> *********'
-        #~ image_size = self.main_vpaned.get_child2().get_allocation()
-        #~ self.preview_image.resize_preview_image(image_size.width, image_size.height, overwrite=False)
+    #~ def on_main_notebook_size_allocate(self, widget, data):
+        #~ image_size = self.main_notebook.get_nth_page(1).get_allocation()
+        #~ print self.preview_image.preview_image.size_request(), self.preview_image.preview_image.get_allocation()
+        #~ print 
+        #~ print "new size:", image_size.width, image_size.height
+        #~ self.preview_image.resize_preview_image(image_size.width, image_size.height-3, overwrite=False)
         
-    def on_preview_image_eventbox_button_press_event(self, widget, event):
+    def on_preview_eventbox_button_press_event(self, widget, event):
         
         if event.type == gtk.gdk._2BUTTON_PRESS and event.button == 1:
             self.show_thumbnails()
-            #~ print self.vpaned_pos
-            #~ self.main_vpaned.set_position(50)   
-            #~ print self.main_vpaned.get_position()
+
             
      
     def show_preview_image(self, unique_id, image):
