@@ -37,12 +37,11 @@ import getopt, sys, time, types, os, datetime
 
 import gobject, pango, cairo, array, pangocairo
 
-from multiprocessing import Process, Pipe, Queue, Event, current_process, get_logger, log_to_stderr
+from multiprocessing import Process, Pipe, Queue, Event, current_process, log_to_stderr
 
 import logging
-logger = get_logger()
-log_to_stderr()
-logger.setLevel(logging.INFO)
+logger = log_to_stderr()
+logger.setLevel(logging.DEBUG)
 
 import media, common, rpdfile
 from media import getDefaultPhotoLocation, getDefaultVideoLocation, \
@@ -56,7 +55,6 @@ import rpdmultiprocessing as rpdmp
 
 import tableplusminus as tpm
 
- 
 import scan as scan_process
 
 import config
@@ -69,11 +67,6 @@ from common import Configi18n
 global _
 _ = Configi18n._
 
-try:
-    from dropshadow import image_to_pixbuf, pixbuf_to_image, DropShadow
-    DROP_SHADOW = True
-except:
-    DROP_SHADOW = False
 
 from common import formatSizeForUser
 
@@ -231,32 +224,42 @@ class ThumbnailCellRenderer(gtk.CellRenderer):
         "filename": (gobject.TYPE_STRING, "Filename", 
         "Filename", '', gobject.PARAM_READWRITE),
     }
-    def __init__(self):
+    def __init__(self, checkbutton_height):
         gtk.CellRenderer.__init__(self)
         self.image = None
         
         self.image_area_size = 100
-        self.text__area_size = 30
+        self.text_area_size = 30
+        self.padding = 6
+        self.checkbutton_height = checkbutton_height
         
     def do_set_property(self, pspec, value):
         setattr(self, pspec.name, value)
 
     def do_get_property(self, pspec):
-        return getattr(self, pspec.name)        
-
+        return getattr(self, pspec.name)
+        
     def do_render(self, window, widget, background_area, cell_area, expose_area, flags):
         
         cairo_context = window.cairo_create()
         
-        x = cell_area.x 
-        y = cell_area.y 
+        x = cell_area.x
+        y = cell_area.y - self.checkbutton_height + 4
         w = cell_area.width
         h = cell_area.height
         
+        
         #constrain operations to cell area, allowing for a 1 pixel border 
         #either side
-        cairo_context.rectangle(x-1, y-1, w+2, h+2)
-        cairo_context.clip()
+        #~ cairo_context.rectangle(x-1, y-1, w+2, h+2)
+        #~ cairo_context.clip()
+        
+        #fill in the background with dark grey
+        #this ensures that a selected cell's fill does not make
+        #the text impossible to read
+        #~ cairo_context.rectangle(x, y, w, h)
+        #~ cairo_context.set_source_rgb(0.267, 0.267, 0.267)
+        #~ cairo_context.fill()
         
         #image width and height
         image_w = self.image.size[0]
@@ -271,11 +274,17 @@ class ThumbnailCellRenderer(gtk.CellRenderer):
         #convert PIL image to format suitable for cairo
         image = create_cairo_image_surface(self.image, image_w, image_h)
 
-        # draw a grey border of 1px around the image
-        cairo_context.set_source_rgb(0.66, 0.66, 0.66) #darkish grey, #a9a9a9
+        # draw a light grey border of 1px around the image
+        cairo_context.set_source_rgb(0.66, 0.66, 0.66) #light grey, #a9a9a9
         cairo_context.set_line_width(1)
         cairo_context.rectangle(image_x-.5, image_y-.5, image_w+1, image_h+1)
-        cairo_context.stroke() 
+        cairo_context.stroke()
+        
+        # draw a thin border around each cell
+        # ouch - nasty hardcoding :(
+        cairo_context.set_source_rgb(0.33, 0.33, 0.33)
+        cairo_context.rectangle(x-6.5, y-9.5, w+14, h+31)
+        cairo_context.stroke()
         
         #place the image
         cairo_context.set_source_surface(image, image_x, image_y)
@@ -311,12 +320,9 @@ class ThumbnailCellRenderer(gtk.CellRenderer):
         context.move_to(x, text_y)
         context.show_layout(layout)
         
-
-
-
         
     def do_get_size(self, widget, cell_area):
-        return (0, 0, self.image_area_size, self.image_area_size + self.text__area_size)
+        return (0, 0, self.image_area_size, self.image_area_size + self.text_area_size - self.checkbutton_height + 4)
         
 
 gobject.type_register(ThumbnailCellRenderer)
@@ -343,37 +349,71 @@ class ThumbnailDisplay(gtk.IconView):
         self.stock_photo_thumbnails = tn.PhotoIcons()
         self.stock_video_thumbnails = tn.VideoIcons()
         
+        self.SELECTED_COL = 1
+        self.TIMESTAMP_COL = 4
+        
         self.liststore = gtk.ListStore(
              gobject.TYPE_PYOBJECT, # 0 PIL thumbnail
-             int,                   # 1 selected or not
+             gobject.TYPE_BOOLEAN,  # 1 selected or not
              str,                   # 2 unique id
              str,                   # 3 file name
+             int,                   # 4 timestamp for sorting, converted float
              )
 
 
-        image = ThumbnailCellRenderer()
+        self.clear()
+        self.set_model(self.liststore)
         
+        checkbutton = gtk.CellRendererToggle()
+        checkbutton.set_radio(False)
+        checkbutton.props.activatable = True
+        checkbutton.props.xalign = 0.0
+        checkbutton.connect('toggled', self.on_checkbutton_toggled)
+        self.pack_start(checkbutton, expand=False)
+        self.add_attribute(checkbutton, "active", 1)
+        
+        checkbutton_size = checkbutton.get_size(self, None)
+        checkbutton_height = checkbutton_size[3]
+        checkbutton_width = checkbutton_size[2]
+        
+        image = ThumbnailCellRenderer(checkbutton_height)
         self.pack_start(image, expand=True)
         self.add_attribute(image, "image", 0)
         self.add_attribute(image, "filename", 3)
+
+        
+        #set the background color to a darkish grey
         self.modify_base(gtk.STATE_NORMAL, gtk.gdk.Color('#444444'))
         
-        self.set_model(self.liststore)
+        self.set_spacing(0)
+        self.set_column_spacing(0)
+        self.set_row_spacing(0)
+        self.set_margin(0)
+        
+        #sort by timestamp
+        self.liststore.set_sort_column_id(self.TIMESTAMP_COL, gtk.SORT_ASCENDING)
         
         self.show_all()
         
         self.connect('item-activated', self.on_item_activated)        
         
+    def on_checkbutton_toggled(self, cellrenderertoggle, path):
+        iter = self.liststore.get_iter(path)
+        self.liststore.set_value(iter, self.SELECTED_COL, not cellrenderertoggle.get_active())
+    
     def add_file(self, rpd_file):
 
         thumbnail_icon = self.get_stock_icon(rpd_file.file_type)
         unique_id = rpd_file.unique_id
         scan_pid = rpd_file.scan_pid
 
+        timestamp = int(rpd_file.modification_time)
+        
         iter = self.liststore.append((thumbnail_icon,
-                                      1,
+                                      True,
                                       unique_id,
-                                      rpd_file.display_name
+                                      rpd_file.display_name,
+                                      timestamp
                                       ))
         
         path = self.liststore.get_path(iter)
@@ -787,10 +827,10 @@ class ResizblePilImage(gtk.DrawingArea):
         #resize image
         pil_image = self.base_image.copy()
         if self.base_image_w < width or self.base_image_h < height:
-            logger.info("Upsizing image")
+            logger.debug("Upsizing image")
             pil_image = tn.upsize_pil(pil_image, (width, height))
         else:
-            logger.info("Downsizing image")
+            logger.debug("Downsizing image")
             tn.downsize_pil(pil_image, (width, height))
 
         #image width and height
@@ -897,13 +937,11 @@ class RapidApp(dbus.service.Object):
         self.main_vpaned = builder.get_object("main_vpaned")
         self.main_notebook = builder.get_object("main_notebook")
         
-        #~ self.preview_vpaned = builder.get_object("preview_vpaned")
         builder.connect_signals(self)
         
         
         
         self.prefs = RapidPreferences()
-        #~ self.digital_files = DigitalFiles(self, builder)
         
         # remember the window size from the last time the program was run
         if self.prefs.main_window_maximized:
@@ -912,6 +950,7 @@ class RapidApp(dbus.service.Object):
             self.rapidapp.set_default_size(self.prefs.main_window_size_x, self.prefs.main_window_size_y)
         else:
             # set a default size
+            logger.info("Setting default window size")
             self.rapidapp.set_default_size(800, 650)
             
         #collection of devices from which to download
@@ -925,27 +964,36 @@ class RapidApp(dbus.service.Object):
         thumbnails_scrolledwindow = builder.get_object('thumbnails_scrolledwindow')
         self.thumbnails = ThumbnailDisplay(self)
         thumbnails_scrolledwindow.add(self.thumbnails)
+        
+        thumbnails_button = builder.get_object("thumbnails_button")
+        image = gtk.image_new_from_file(paths.share_dir('glade3/thumbnails_icon.png'))
+        thumbnails_button.set_image(image)
+        
+        preview_button = builder.get_object("preview_button")
+        image = gtk.image_new_from_file(paths.share_dir('glade3/photo_icon.png'))
+        preview_button.set_image(image)
             
         self.rapidapp.show_all()
         
         #~ paths = ['/home/damon/rapid/cr2', '/home/damon/Pictures/processing/2010']
         #~ paths = ['/media/EOS_DIGITAL/']        
         #~ paths = ['/media/EOS_DIGITAL/', '/media/EOS_DIGITAL_/']
-        paths = ['/media/EOS_DIGITAL/', '/media/EOS_DIGITAL_/', '/media/EOS_DIGITAL__/']
-        #~ paths = ['/home/damon/rapid/cr2']
+        #~ paths = ['/media/EOS_DIGITAL/', '/media/EOS_DIGITAL_/', '/media/EOS_DIGITAL__/']
+        image_paths = ['/home/damon/rapid/cr2']
+        #~ paths = ['/home/damon/Pictures/']
 
         
         self.batch_size = 10
         
         self.testing_auto_exit = False
-        self.testing_auto_exit_trip = len(paths)
+        self.testing_auto_exit_trip = len(image_paths)
         self.testing_auto_exit_trip_counter = 0
         
         self.generate_folder = False
         self.scan_manager = ScanManager(self.scan_results, self.batch_size, 
                     self.generate_folder, self.device_collection.add_device)
         
-        for path in paths:
+        for path in image_paths:
             self.scan_manager.add_task(path)
         
         self.device_collection_scrolledwindow = builder.get_object("device_collection_scrolledwindow")

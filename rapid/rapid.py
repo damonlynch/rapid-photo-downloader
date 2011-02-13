@@ -2400,7 +2400,8 @@ class CopyPhotos(Thread):
                             with self.fileSequenceLock:
                                 for possibleName in renameFactory.generateNameSequencePossibilities(
                                                         mediaFile.metadata, 
-                                                        mediaFile.name, self.stripCharacters, mediaFile.downloadSubfolder):
+                                                        mediaFile.name, self.stripCharacters, mediaFile.downloadSubfolder,
+                                                        fallback_date = mediaFile.modificationTime):
                                     if possibleName:
                                         # no need to check for any problems here, it's just a temporary name
                                         possibleFile = os.path.join(mediaFile.downloadPath, possibleName)

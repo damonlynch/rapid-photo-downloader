@@ -1238,13 +1238,14 @@ class ImageRenamePreferences:
 
     def generateNameSequencePossibilities(self, metadata, existingFilename, 
                                     stripCharacters=False,  subfolder=None,  
-                                    stripInitialPeriodFromExtension=False):
+                                    stripInitialPeriodFromExtension=False,
+                                    fallback_date=None):
                                    
         """ Generates the possible image names using the sequence numbers / letter possibilities"""
                                     
         for sequence in self.sequences.getSequencePossibilities():
             yield self._generateName(metadata, existingFilename, stripCharacters, subfolder, 
-                                    stripInitialPeriodFromExtension, sequence)
+                                    stripInitialPeriodFromExtension, sequence, fallback_date)
 
     def filterPreferences(self):
         """

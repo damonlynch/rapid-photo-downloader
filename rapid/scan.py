@@ -31,7 +31,6 @@ import rpdfile
 
 import logging
 logger = multiprocessing.get_logger()
-logger.setLevel(logging.INFO)
 
 # python whitespace is significant - don't remove the leading whitespace on
 # the second line

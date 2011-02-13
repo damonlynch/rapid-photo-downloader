@@ -22,7 +22,6 @@ import gtk
 
 import multiprocessing, logging
 logger = multiprocessing.get_logger()
-logger.setLevel(logging.INFO)
 
 import pyexiv2
 

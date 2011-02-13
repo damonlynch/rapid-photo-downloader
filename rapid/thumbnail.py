@@ -40,17 +40,15 @@ from filmstrip import add_filmstrip
 
 import logging
 logger = multiprocessing.get_logger()
-logger.setLevel(logging.INFO)
+
 
 def get_stock_photo_image():
     return Image.open(paths.share_dir('glade3/photo.png'))
-    #~ return gtk.gdk.pixbuf_new_from_file(paths.share_dir('glade3/photo.png'))
     
 def get_stock_photo_image_icon():
     image = Image.open(paths.share_dir('glade3/photo66.png'))
     image = image.convert("RGBA")
     return image
-    #~ return gtk.gdk.pixbuf_new_from_file(paths.share_dir('glade3/photo_small_shadow.png'))
     
 def get_photo_type_icon():
     return gtk.gdk.pixbuf_new_from_file(paths.share_dir('glade3/photo24.png'))
@@ -59,11 +57,9 @@ def get_stock_video_image():
     image = Image.open(paths.share_dir('glade3/video.png'))
     image = image.convert("RGBA")
     return image
-    #~ return gtk.gdk.pixbuf_new_from_file(paths.share_dir('glade3/video.png'))
     
 def get_stock_video_image_icon():
     return Image.open(paths.share_dir('glade3/video100.png'))
-    #~ return gtk.gdk.pixbuf_new_from_file(paths.share_dir('glade3/video_small_shadow.png'))
 
 def get_video_type_icon():
     return gtk.gdk.pixbuf_new_from_file(paths.share_dir('glade3/video24.png'))
@@ -106,10 +102,14 @@ def downsize_pil(image, box, fit=False):
    """
     #preresize image with factor 2, 4, 8 and fast algorithm
     factor = 1
+    logger.debug("Image size %sx%s"% (image.size[0], image.size[1]))
+    logger.debug("Box size %sx%s"  % (box[0],box[1]))
     while image.size[0]/factor > 2*box[0] and image.size[1]*2/factor > 2*box[1]:
         factor *=2
     if factor > 1:
+        logger.debug("quick resize %sx%s"%(image.size[0]/factor, image.size[1]/factor))
         image.thumbnail((image.size[0]/factor, image.size[1]/factor), Image.NEAREST)
+        logger.debug("did first thumbnail")
  
     #calculate the cropping box and get the cropped part
     if fit:
@@ -126,8 +126,9 @@ def downsize_pil(image, box, fit=False):
         image = image.crop((x1,y1,x2,y2))
  
     #Resize the image with best quality algorithm ANTI-ALIAS
+    logger.debug("about to actually downsize using image.thumbnail")
     image.thumbnail(box, Image.ANTIALIAS)
- 
+    logger.debug("it downsized")
     
 class PicklablePIL:
     def __init__(self, image):
@@ -172,6 +173,7 @@ class Thumbnail:
     
     def _get_thumbnail_data(self, metadata, max_size_needed):
         if self._ignore_embedded_160x120_thumbnail(max_size_needed, metadata):
+            logger.debug("Ignoring embedded preview")
             lowrez = False
             previews = metadata.previews
             if not previews:
@@ -191,9 +193,7 @@ class Thumbnail:
     def _process_thumbnail(self, image, size_reduced):
         if image.mode <> "RGBA":
             image = image.convert("RGBA")
-        #~ name = os.path.basename(full_file_name)
-        #~ name = os.path.splitext(name)[0] + '.jpg'
-        #~ image.save(os.path.join('/home/damon/tmp/rpd/', name), 'jpeg')
+
         thumbnail = PicklablePIL(image)
         if size_reduced is not None:
             thumbnail_icon = image.copy()
@@ -206,31 +206,35 @@ class Thumbnail:
     
     def _get_photo_thumbnail(self, full_file_name, size_max, size_reduced):
         thumbnail = None
-        thumbnail_icon = None    
+        thumbnail_icon = None
+        name = os.path.basename(full_file_name)
         metadata = pyexiv2.metadata.ImageMetadata(full_file_name)
         try:
             metadata.read()
         except:
-            logger.warning("Could not read metadata from %s" % full_file_name)
+            logger.warning("Could not read metadata from %s", full_file_name)
         else:
             if metadata.mime_type == "image/jpeg" and self._ignore_embedded_160x120_thumbnail(size_max, metadata):
                 try:
                     image = Image.open(full_file_name)
                     lowrez = False
                 except:
-                    logger.warning("Could not generate thumbnail for jpeg %s " % full_file_name)
+                    logger.warning("Could not generate thumbnail for jpeg %s ", full_file_name)
                     image = None
             else:
                 thumbnail_data, lowrez = self._get_thumbnail_data(metadata, max_size_needed=size_max)
+                logger.debug("_get_thumbnail_data returned")
                 if not isinstance(thumbnail_data, types.StringType):
                     image = None
                 else:
                     td = cStringIO.StringIO(thumbnail_data)
+                    logger.debug("got td")
                     try:
                         image = Image.open(td)
                     except:
-                        logger.warning("Unreadable thumbnail for %s" % full_file_name)
+                        logger.warning("Unreadable thumbnail for %s", full_file_name)
                         image = None
+            logger.debug("opened image")
             if image:
                 try:
                     orientation = metadata['Exif.Image.Orientation'].value
@@ -244,7 +248,9 @@ class Thumbnail:
                         image2.load()
                         image = image2                    
                 if size_max is not None and (image.size[0] > size_max[0] or image.size[1] > size_max[1]):
+                    logger.debug("downsizing")
                     downsize_pil(image, size_max, fit=False)
+                    logger.debug("downsized")
                 if orientation == 8:
                     # rotate counter clockwise
                     image = image.rotate(90)
@@ -256,6 +262,7 @@ class Thumbnail:
                     image = image.rotate(180)
                 thumbnail, thumbnail_icon = self._process_thumbnail(image, size_reduced)
 
+        logger.debug("...got thumbnail for %s", full_file_name)
         return (thumbnail, thumbnail_icon)
         
     def _get_video_thumbnail(self, full_file_name, size_max, size_reduced):
@@ -272,7 +279,7 @@ class Thumbnail:
                 try:
                     thumbnail = gtk.gdk.pixbuf_new_from_file(thm)
                 except:
-                    logger.warning("Could not open THM file for %s" % full_file_name)
+                    logger.warning("Could not open THM file for %s", full_file_name)
                 thumbnail = add_filmstrip(thumbnail)
                 image = dropshadow.pixbuf_to_image(thumbnail)
         
@@ -287,13 +294,15 @@ class Thumbnail:
                 os.rmdir(tmp_dir)
             except:
                 image = None
-                logger.error("Error generating thumbnail for %s" % full_file_name)
+                logger.error("Error generating thumbnail for %s", full_file_name)
         if image:
             thumbnail, thumbnail_icon = self._process_thumbnail(image, size_reduced)
-            
+        
+        logger.debug("...got thumbnail for %s", full_file_name)    
         return (thumbnail, thumbnail_icon)
     
     def get_thumbnail(self, full_file_name, file_type, size_max=None, size_reduced=None):
+        logger.debug("Getting thumbnail for %s...", full_file_name)
         if file_type == rpdfile.FILE_TYPE_PHOTO:
             return self._get_photo_thumbnail(full_file_name, size_max, size_reduced)
         else:
@@ -352,15 +361,18 @@ class GenerateThumbnails(multiprocessing.Process):
                                     f.file_type,
                                     (160, 120), (100,100)) #(60, 36))
             
+            #~ logger.debug("Appending results for %s" %f.full_file_name)
             self.results.append((f.unique_id, thumbnail_icon, thumbnail))
             self.counter += 1
             if self.counter == self.batch_size:
+                #~ logger.debug("Sending results....")
                 self.results_pipe.send((rpdmp.CONN_PARTIAL, self.results))
                 self.results = []
                 self.counter = 0
             
         if self.counter > 0:
             # send any remaining results
+            #~ logger.debug("Sending final results....")
             self.results_pipe.send((rpdmp.CONN_PARTIAL, self.results))
         self.results_pipe.send((rpdmp.CONN_COMPLETE, None))
         self.results_pipe.close()
