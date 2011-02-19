@@ -41,7 +41,7 @@ from multiprocessing import Process, Pipe, Queue, Event, current_process, log_to
 
 import logging
 logger = log_to_stderr()
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.INFO)
 
 import media, common, rpdfile
 from media import getDefaultPhotoLocation, getDefaultVideoLocation, \
@@ -947,6 +947,7 @@ class RapidApp(dbus.service.Object):
         if self.prefs.main_window_maximized:
             self.rapidapp.maximize()
         elif self.prefs.main_window_size_x > 0:
+            logger.info("Setting window size %sx%s", self.prefs.main_window_size_x, self.prefs.main_window_size_y)
             self.rapidapp.set_default_size(self.prefs.main_window_size_x, self.prefs.main_window_size_y)
         else:
             # set a default size
@@ -965,22 +966,16 @@ class RapidApp(dbus.service.Object):
         self.thumbnails = ThumbnailDisplay(self)
         thumbnails_scrolledwindow.add(self.thumbnails)
         
-        thumbnails_button = builder.get_object("thumbnails_button")
-        image = gtk.image_new_from_file(paths.share_dir('glade3/thumbnails_icon.png'))
-        thumbnails_button.set_image(image)
-        
-        preview_button = builder.get_object("preview_button")
-        image = gtk.image_new_from_file(paths.share_dir('glade3/photo_icon.png'))
-        preview_button.set_image(image)
+        self._setup_buttons(builder)
             
         self.rapidapp.show_all()
         
-        #~ paths = ['/home/damon/rapid/cr2', '/home/damon/Pictures/processing/2010']
-        #~ paths = ['/media/EOS_DIGITAL/']        
-        #~ paths = ['/media/EOS_DIGITAL/', '/media/EOS_DIGITAL_/']
-        #~ paths = ['/media/EOS_DIGITAL/', '/media/EOS_DIGITAL_/', '/media/EOS_DIGITAL__/']
+        #~ image_paths = ['/home/damon/rapid/cr2', '/home/damon/Pictures/processing/2010']
+        #~ image_paths = ['/media/EOS_DIGITAL/']        
+        #~ image_paths = ['/media/EOS_DIGITAL/', '/media/EOS_DIGITAL_/']
+        #~ image_paths = ['/media/EOS_DIGITAL/', '/media/EOS_DIGITAL_/', '/media/EOS_DIGITAL__/']
         image_paths = ['/home/damon/rapid/cr2']
-        #~ paths = ['/home/damon/Pictures/']
+        #~ image_paths = ['/home/damon/Pictures/']
 
         
         self.batch_size = 10
@@ -1014,29 +1009,23 @@ class RapidApp(dbus.service.Object):
         # save window and component sizes
         self.prefs.vpaned_pos = self.main_vpaned.get_position()
 
-        x, y = self.rapidapp.get_size()
-        self.prefs.main_window_size_x = x
-        self.prefs.main_window_size_y = y
+        x, y, width, height = self.rapidapp.get_allocation()
+        logger.info("Saving window size %sx%s", width, height)
+        self.prefs.main_window_size_x = width
+        self.prefs.main_window_size_y = height
         
         gtk.main_quit()        
         
-    #~ def on_main_notebook_size_allocate(self, widget, data):
-        #~ image_size = self.main_notebook.get_nth_page(1).get_allocation()
-        #~ print self.preview_image.preview_image.size_request(), self.preview_image.preview_image.get_allocation()
-        #~ print 
-        #~ print "new size:", image_size.width, image_size.height
-        #~ self.preview_image.resize_preview_image(image_size.width, image_size.height-3, overwrite=False)
         
     def on_preview_eventbox_button_press_event(self, widget, event):
         
         if event.type == gtk.gdk._2BUTTON_PRESS and event.button == 1:
             self.show_thumbnails()
 
-            
      
     def show_preview_image(self, unique_id, image):
         if self.main_notebook.get_current_page() == 0: # thumbnails
-            logger.info("Switching to preview image display")
+            logger.debug("Switching to preview image display")
             self.main_notebook.set_current_page(1)
         self.preview_image.set_preview_image(unique_id, image)
         
@@ -1044,8 +1033,32 @@ class RapidApp(dbus.service.Object):
         self.preview_image.update_preview_image(unique_id, image)
             
     def show_thumbnails(self):
-        logger.info("Switching to thumbnails display")
+        logger.debug("Switching to thumbnails display")
         self.main_notebook.set_current_page(0)
+        
+
+    def on_rapidapp_window_state_event(self, widget, event):
+        """ Records the window maximization state in the preferences."""
+        
+        if event.changed_mask & gdk.WINDOW_STATE_MAXIMIZED:
+            self.prefs.main_window_maximized = event.new_window_state & gdk.WINDOW_STATE_MAXIMIZED
+        
+    def _setup_buttons(self, builder):
+        thumbnails_button = builder.get_object("thumbnails_button")
+        image = gtk.image_new_from_file(paths.share_dir('glade3/thumbnails_icon.png'))
+        thumbnails_button.set_image(image)
+        
+        preview_button = builder.get_object("preview_button")
+        image = gtk.image_new_from_file(paths.share_dir('glade3/photo_icon.png'))
+        preview_button.set_image(image)
+        
+        next_image_button = builder.get_object("next_image_button")
+        image = gtk.image_new_from_stock(gtk.STOCK_GO_FORWARD, gtk.ICON_SIZE_BUTTON)
+        next_image_button.set_image(image)
+        
+        prev_image_button = builder.get_object("prev_image_button")
+        image = gtk.image_new_from_stock(gtk.STOCK_GO_BACK, gtk.ICON_SIZE_BUTTON)
+        prev_image_button.set_image(image)        
         
     def scan_results(self, source, condition):
         connection = self.scan_manager.get_pipe(source)

@@ -102,12 +102,12 @@ def downsize_pil(image, box, fit=False):
    """
     #preresize image with factor 2, 4, 8 and fast algorithm
     factor = 1
-    logger.debug("Image size %sx%s"% (image.size[0], image.size[1]))
-    logger.debug("Box size %sx%s"  % (box[0],box[1]))
+    logger.debug("Image size %sx%s", image.size[0], image.size[1])
+    logger.debug("Box size %sx%s", box[0],box[1])
     while image.size[0]/factor > 2*box[0] and image.size[1]*2/factor > 2*box[1]:
         factor *=2
     if factor > 1:
-        logger.debug("quick resize %sx%s"%(image.size[0]/factor, image.size[1]/factor))
+        logger.debug("quick resize %sx%s", image.size[0]/factor, image.size[1]/factor)
         image.thumbnail((image.size[0]/factor, image.size[1]/factor), Image.NEAREST)
         logger.debug("did first thumbnail")
  
