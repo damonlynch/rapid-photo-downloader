@@ -431,7 +431,7 @@ class ThumbnailDisplay(gtk.IconView):
         self.treerow_index[unique_id] = treerowref
         self.rpd_files[unique_id] = rpd_file
 
-    def get_unique_id(self, iter):
+    def get_unique_id_from_iter(self, iter):
         return self.liststore.get_value(iter, 2)
         
     def get_iter_from_unique_id(self, unique_id):
@@ -443,11 +443,16 @@ class ThumbnailDisplay(gtk.IconView):
         """
         """
         iter = self.liststore.get_iter(path)
-        self.show_preview(self.get_unique_id(iter))
+        self.show_preview(iter=iter)
 
-    def show_preview(self, unique_id):
-        rpd_file = self.rpd_files[unique_id]
-        self.previewed_file = unique_id
+    def show_preview(self, unique_id=None, iter=None):
+        if unique_id is not None:
+            iter = self.get_iter_from_unique_id(unique_id)
+        else:
+            assert(iter is not None)
+            unique_id = self.get_unique_id_from_iter(iter)
+            
+        rpd_file = self.rpd_files[unique_id]    
         
         if unique_id in self.previews:
             preview_image = self.previews[unique_id]
@@ -457,14 +462,38 @@ class ThumbnailDisplay(gtk.IconView):
             self.preview_manager.get_preview(unique_id, rpd_file.full_file_name,
                                             rpd_file.file_type, size_max=None,)
         else:
-            preview_image = self.get_stock_thumbnail(rpd_file.file_type)
-        
-        iter = self.get_iter_from_unique_id(unique_id)
+            preview_image = self.get_stock_icon(rpd_file.file_type)
         
         checked = self.liststore.get_value(iter, self.SELECTED_COL)
         self.rapid_app.show_preview_image(unique_id, preview_image, checked)
             
-    
+    def show_next_image(self, unique_id):
+        iter = self.get_iter_from_unique_id(unique_id)
+        iter = self.liststore.iter_next(iter)
+        if iter is None:
+            iter = self.liststore.get_iter_first()
+
+        if iter is not None:
+            self.show_preview(iter=iter)
+            
+    def show_prev_image(self, unique_id):
+        iter = self.get_iter_from_unique_id(unique_id)
+        row = self.liststore.get_path(iter)[0]
+        logger.debug("Looking for preview image of image %s", row)
+        if row == 0:
+            row = len(self.liststore)-1
+        else:
+            row -= 1
+        iter = self.liststore.get_iter(row)
+
+        if iter is not None:
+            self.show_preview(iter=iter)
+            
+    def select_image(self, unique_id):
+        iter = self.get_iter_from_unique_id(unique_id)
+        path = self.liststore.get_path(iter)
+        self.select_path(path)
+        
     def get_stock_icon(self, file_type):
         if file_type == rpdfile.FILE_TYPE_PHOTO:
             return self.stock_photo_thumbnails.stock_thumbnail_image_icon
@@ -1030,15 +1059,25 @@ class RapidApp(dbus.service.Object):
         gtk.main_quit()        
         
         
-    def on_preview_eventbox_button_press_event(self, widget, event):
-        
-        if event.type == gtk.gdk._2BUTTON_PRESS and event.button == 1:
-            self.show_thumbnails()
+
 
     def on_download_this_checkbutton_toggled(self, checkbutton):
         value = checkbutton.get_active()
-        logger.info("on_download_this_checkbutton_toggled %s", value)
+        logger.debug("on_download_this_checkbutton_toggled %s", value)
         self.thumbnails.set_selected(self.preview_image.unique_id, value)
+        
+    # # #
+    # Events related to displaying preview images and thumbnails
+    # # #
+    
+    def on_preview_eventbox_button_press_event(self, widget, event):
+        
+        if event.type == gtk.gdk._2BUTTON_PRESS and event.button == 1:
+            self.show_thumbnails()    
+    
+    def on_show_thumbnails_action_activate(self, action):
+        logger.debug("on_show_thumbnails_action_activate")
+        self.show_thumbnails()
      
     def show_preview_image(self, unique_id, image, checked):
         if self.main_notebook.get_current_page() == 0: # thumbnails
@@ -1052,8 +1091,18 @@ class RapidApp(dbus.service.Object):
     def show_thumbnails(self):
         logger.debug("Switching to thumbnails display")
         self.main_notebook.set_current_page(0)
+        self.thumbnails.select_image(self.preview_image.unique_id)
         
+    def on_next_image_action_activate(self, action):
+        self.thumbnails.show_next_image(self.preview_image.unique_id)
+    
+    def on_prev_image_action_activate(self, action):
+        self.thumbnails.show_prev_image(self.preview_image.unique_id)
 
+    # # #
+    # Main app window management and setup
+    # # #
+    
     def on_rapidapp_window_state_event(self, widget, event):
         """ Records the window maximization state in the preferences."""
         
