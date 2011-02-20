@@ -400,6 +400,10 @@ class ThumbnailDisplay(gtk.IconView):
     def on_checkbutton_toggled(self, cellrenderertoggle, path):
         iter = self.liststore.get_iter(path)
         self.liststore.set_value(iter, self.SELECTED_COL, not cellrenderertoggle.get_active())
+        
+    def set_selected(self, unique_id, value):
+        iter = self.get_iter_from_unique_id(unique_id)
+        self.liststore.set_value(iter, self.SELECTED_COL, value)
     
     def add_file(self, rpd_file):
 
@@ -428,7 +432,12 @@ class ThumbnailDisplay(gtk.IconView):
         self.rpd_files[unique_id] = rpd_file
 
     def get_unique_id(self, iter):
-        return self.liststore.get_value(iter, 2)        
+        return self.liststore.get_value(iter, 2)
+        
+    def get_iter_from_unique_id(self, unique_id):
+        treerowref = self.treerow_index[unique_id]
+        path = treerowref.get_path()
+        return self.liststore.get_iter(path)
     
     def on_item_activated(self, iconview, path):        
         """
@@ -445,12 +454,17 @@ class ThumbnailDisplay(gtk.IconView):
         elif unique_id in self.thumbnails:
             preview_image = self.thumbnails[unique_id]
             # request daemon process to get a full size thumbnail
-            self.preview_manager.get_preview(unique_id, rpd_file.full_file_name, rpd_file.file_type, size_max=None,)
+            self.preview_manager.get_preview(unique_id, rpd_file.full_file_name,
+                                            rpd_file.file_type, size_max=None,)
         else:
             preview_image = self.get_stock_thumbnail(rpd_file.file_type)
         
-        self.rapid_app.show_preview_image(unique_id, preview_image)
+        iter = self.get_iter_from_unique_id(unique_id)
+        
+        checked = self.liststore.get_value(iter, self.SELECTED_COL)
+        self.rapid_app.show_preview_image(unique_id, preview_image, checked)
             
+    
     def get_stock_icon(self, file_type):
         if file_type == rpdfile.FILE_TYPE_PHOTO:
             return self.stock_photo_thumbnails.stock_thumbnail_image_icon
@@ -471,7 +485,6 @@ class ThumbnailDisplay(gtk.IconView):
         
         if thumbnail_icon is not None:
             # get the thumbnail icon in pixbuf format
-            #~ thumbnail_icon = thumbnail_icon.get_pixbuf()
             thumbnail_icon = thumbnail_icon.get_image()
             
             treerowref = self.treerow_index[unique_id]
@@ -858,26 +871,25 @@ class PreviewImage:
         self.preview_image_eventbox = builder.get_object("preview_eventbox")
         self.preview_image_eventbox.add(self.preview_image)
         self.preview_image.show()
+        self.download_this_checkbutton = builder.get_object("download_this_checkbutton")
         self.rapid_app = parent_app
-        
         
         self.base_preview_image = None # large size image used to scale down from
         self.current_preview_size = (0,0)
         self.preview_image_size_limit = (0,0)
         
-        
-    def set_preview_image(self, unique_id, pil_image):
+    def set_preview_image(self, unique_id, pil_image, checked=None):
         """
         """
         self.preview_image.set_image(pil_image)
         self.unique_id = unique_id
-        
+        if checked is not None:
+            self.download_this_checkbutton.set_active(checked)
+            self.download_this_checkbutton.grab_focus()
         
     def update_preview_image(self, unique_id, pil_image):
         if unique_id == self.unique_id:
             self.set_preview_image(unique_id, pil_image)
-         
-
     
     def resize_preview_image(self, max_width=None, max_height=None, overwrite=False):
         
@@ -923,6 +935,7 @@ class PreviewImage:
                 self.preview_image.set_from_pixbuf(pixbuf)
                 self.current_preview_size = (width, height)    
 
+        
 class RapidApp(dbus.service.Object): 
     def __init__(self,  bus, path, name, taskserver=None): 
         
@@ -932,7 +945,7 @@ class RapidApp(dbus.service.Object):
         self.taskserver = taskserver
         
         builder = gtk.Builder()
-        builder.add_from_file("glade3/prototype.glade") 
+        builder.add_from_file(paths.share_dir("glade3/prototype.glade"))
         self.rapidapp = builder.get_object("rapidapp")
         self.main_vpaned = builder.get_object("main_vpaned")
         self.main_notebook = builder.get_object("main_notebook")
@@ -1022,16 +1035,20 @@ class RapidApp(dbus.service.Object):
         if event.type == gtk.gdk._2BUTTON_PRESS and event.button == 1:
             self.show_thumbnails()
 
+    def on_download_this_checkbutton_toggled(self, checkbutton):
+        value = checkbutton.get_active()
+        logger.info("on_download_this_checkbutton_toggled %s", value)
+        self.thumbnails.set_selected(self.preview_image.unique_id, value)
      
-    def show_preview_image(self, unique_id, image):
+    def show_preview_image(self, unique_id, image, checked):
         if self.main_notebook.get_current_page() == 0: # thumbnails
             logger.debug("Switching to preview image display")
             self.main_notebook.set_current_page(1)
-        self.preview_image.set_preview_image(unique_id, image)
+        self.preview_image.set_preview_image(unique_id, image, checked)
         
     def update_preview_image(self, unique_id, image):
         self.preview_image.update_preview_image(unique_id, image)
-            
+        
     def show_thumbnails(self):
         logger.debug("Switching to thumbnails display")
         self.main_notebook.set_current_page(0)

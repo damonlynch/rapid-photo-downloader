@@ -3,6 +3,7 @@
   <requires lib="gtk+" version="2.16"/>
   <!-- interface-naming-policy project-wide -->
   <object class="GtkWindow" id="rapidapp">
+    <property name="title" translatable="yes">Rapid Photo Downloader Prototype</property>
     <signal name="destroy" handler="on_rapidapp_destroy"/>
     <signal name="window_state_event" handler="on_rapidapp_window_state_event"/>
     <child>
@@ -496,11 +497,14 @@
                                 <property name="visible">True</property>
                                 <child>
                                   <object class="GtkCheckButton" id="download_this_checkbutton">
-                                    <property name="label" translatable="yes">Include in download</property>
+                                    <property name="label" translatable="yes">Include in _download</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
+                                    <property name="use_underline">True</property>
                                     <property name="draw_indicator">True</property>
+                                    <accelerator key="d" signal="activate"/>
+                                    <signal name="toggled" handler="on_download_this_checkbutton_toggled"/>
                                   </object>
                                   <packing>
                                     <property name="position">0</property>
