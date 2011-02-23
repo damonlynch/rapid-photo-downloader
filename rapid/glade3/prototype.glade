@@ -206,8 +206,8 @@
                         <property name="visible">True</property>
                         <property name="use_underline">True</property>
                         <property name="use_stock">True</property>
-                        <accelerator key="plus" signal="activate" modifiers="GDK_CONTROL_MASK"/>
                         <accelerator key="equal" signal="activate" modifiers="GDK_CONTROL_MASK"/>
+                        <accelerator key="plus" signal="activate" modifiers="GDK_CONTROL_MASK"/>
                       </object>
                     </child>
                     <child>
@@ -389,11 +389,13 @@
                                 </child>
                                 <child>
                                   <object class="GtkButton" id="check_all_button">
-                                    <property name="label" translatable="yes">Check All</property>
+                                    <property name="label" translatable="yes">_Check All</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">True</property>
+                                    <property name="related_action">check_all_action</property>
                                     <property name="relief">none</property>
+                                    <property name="use_underline">True</property>
                                     <property name="focus_on_click">False</property>
                                   </object>
                                   <packing>
@@ -404,11 +406,13 @@
                                 </child>
                                 <child>
                                   <object class="GtkButton" id="uncheck_all_button">
-                                    <property name="label" translatable="yes">Uncheck All</property>
+                                    <property name="label" translatable="yes">_Uncheck All</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">True</property>
+                                    <property name="related_action">uncheck_all_action</property>
                                     <property name="relief">none</property>
+                                    <property name="use_underline">True</property>
                                     <property name="focus_on_click">False</property>
                                   </object>
                                   <packing>
@@ -528,6 +532,7 @@
                                     <property name="related_action">prev_image_action</property>
                                     <property name="relief">none</property>
                                     <property name="focus_on_click">False</property>
+                                    <accelerator key="bracketleft" signal="activate"/>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
@@ -543,6 +548,7 @@
                                     <property name="related_action">next_image_action</property>
                                     <property name="relief">none</property>
                                     <property name="focus_on_click">False</property>
+                                    <accelerator key="bracketright" signal="activate"/>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
@@ -673,6 +679,7 @@
   </object>
   <object class="GtkAction" id="show_image_action">
     <property name="tooltip">Show image</property>
+    <signal name="activate" handler="on_show_image_action_activate"/>
   </object>
   <object class="GtkAction" id="prev_image_action">
     <property name="tooltip">Previous file</property>
@@ -681,5 +688,11 @@
   <object class="GtkAction" id="next_image_action">
     <property name="tooltip">Next file</property>
     <signal name="activate" handler="on_next_image_action_activate"/>
+  </object>
+  <object class="GtkAction" id="check_all_action">
+    <signal name="activate" handler="on_check_all_action_activate"/>
+  </object>
+  <object class="GtkAction" id="uncheck_all_action">
+    <signal name="activate" handler="on_uncheck_all_action_activate"/>
   </object>
 </interface>

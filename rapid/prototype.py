@@ -35,7 +35,7 @@ import gtk.gdk as gdk
 
 import getopt, sys, time, types, os, datetime
 
-import gobject, pango, cairo, array, pangocairo
+import gobject, pango, cairo, array, pangocairo, gio
 
 from multiprocessing import Process, Pipe, Queue, Event, current_process, log_to_stderr
 
@@ -57,6 +57,8 @@ import tableplusminus as tpm
 
 import scan as scan_process
 
+import device as dv
+
 import config
 __version__ = config.version
 
@@ -68,7 +70,7 @@ global _
 _ = Configi18n._
 
 
-from common import formatSizeForUser
+from common import formatSizeForUser as format_size_for_user
 
 
 DOWNLOAD_VIDEO = False
@@ -121,9 +123,9 @@ class DeviceCollection(gtk.TreeView):
     def __init__(self, parent_app):
 
         self.parent_app = parent_app
-        # device name, size of images on the device (human readable), 
+        # device icon & name, size of images on the device (human readable), 
         # copy progress (%), copy text
-        self.liststore = gtk.ListStore(str, str, float, str)
+        self.liststore = gtk.ListStore(gtk.gdk.Pixbuf, str, str, float, str)
         self.map_process_to_row = {}
 
         gtk.TreeView.__init__(self, self.liststore)
@@ -133,26 +135,43 @@ class DeviceCollection(gtk.TreeView):
         selection = self.get_selection()
         selection.set_mode(gtk.SELECTION_NONE)
         
-        # Device refers to a thing like a camera, memory card in its reader, external hard drive, Portable Storage Device, etc.
-        column0 = gtk.TreeViewColumn(_("Device"), gtk.CellRendererText(), 
-                                    text=0)
+        
+        # Device refers to a thing like a camera, memory card in its reader, 
+        # external hard drive, Portable Storage Device, etc.
+        column0 = gtk.TreeViewColumn(_("Device"))
+        pixbuf_renderer = gtk.CellRendererPixbuf()
+        text_renderer = gtk.CellRendererText()
+        text_renderer.props.ellipsize = pango.ELLIPSIZE_MIDDLE
+        text_renderer.set_fixed_size(160, -1)        
+        column0.pack_start(pixbuf_renderer, expand=False)
+        column0.pack_start(text_renderer, expand=True)
+        column0.add_attribute(pixbuf_renderer, 'pixbuf', 0)
+        column0.add_attribute(text_renderer, 'text', 1)
         self.append_column(column0)
         
-        # Size refers to the total size of images on the device, typically in MB or GB
-        column1 = gtk.TreeViewColumn(_("Size"), gtk.CellRendererText(), text=1)
+        
+        # Size refers to the total size of images on the device, typically in
+        # MB or GB
+        column1 = gtk.TreeViewColumn(_("Size"), gtk.CellRendererText(), text=2)
         self.append_column(column1)
         
         column2 = gtk.TreeViewColumn(_("Download Progress"), 
-                                    gtk.CellRendererProgress(), value=2, text=3)
+                                    gtk.CellRendererProgress(),
+                                    value=3,
+                                    text=4)
         self.append_column(column2)
         self.show_all()
         
-    def add_device(self, process_id, device_name, progress_bar_text = ''):
+    def add_device(self, process_id, device, progress_bar_text = ''):
         
         # add the row, and get a temporary pointer to the row
         size_files = ''
         progress = 0.0
-        iter = self.liststore.append((device_name, size_files, progress, progress_bar_text))
+        iter = self.liststore.append((device.get_icon(),
+                                      device.get_name(),
+                                      size_files,
+                                      progress,
+                                      progress_bar_text))
         
         self._set_process_map(process_id, iter)
 
@@ -163,7 +182,7 @@ class DeviceCollection(gtk.TreeView):
         """
         if process_id in self.map_process_to_row:
             iter = self._get_process_map(process_id)
-            self.liststore.set_value(iter, 1, total_size_files)
+            self.liststore.set_value(iter, 2, total_size_files)
         else:
             logger.error("This device is unknown")
     
@@ -201,9 +220,9 @@ class DeviceCollection(gtk.TreeView):
         
         iter = self._get_process_map(process_id)
         if iter:
-            self.liststore.set_value(iter, 2, percent_complete)
+            self.liststore.set_value(iter, 3, percent_complete)
             if progress_bar_text:
-                self.liststore.set_value(iter, 3, progress_bar_text)
+                self.liststore.set_value(iter, 4, progress_bar_text)
             if percent_complete or bytes_downloaded:
                 logger.info("Implement update overall progress")
 
@@ -448,9 +467,20 @@ class ThumbnailDisplay(gtk.IconView):
     def show_preview(self, unique_id=None, iter=None):
         if unique_id is not None:
             iter = self.get_iter_from_unique_id(unique_id)
-        else:
-            assert(iter is not None)
+        elif iter is not None:
             unique_id = self.get_unique_id_from_iter(iter)
+        else:
+            # neither an iter or a unique_id were passed
+            # use iter from first selected file
+            # if none is selected, choose the first file
+            selected = self.get_selected_items()
+            if selected:
+                path = selected[0]
+            else:
+                path = 0
+            iter = self.liststore.get_iter(path)
+            unique_id = self.get_unique_id_from_iter(iter)
+            
             
         rpd_file = self.rpd_files[unique_id]    
         
@@ -479,7 +509,6 @@ class ThumbnailDisplay(gtk.IconView):
     def show_prev_image(self, unique_id):
         iter = self.get_iter_from_unique_id(unique_id)
         row = self.liststore.get_path(iter)[0]
-        logger.debug("Looking for preview image of image %s", row)
         if row == 0:
             row = len(self.liststore)-1
         else:
@@ -489,10 +518,15 @@ class ThumbnailDisplay(gtk.IconView):
         if iter is not None:
             self.show_preview(iter=iter)
             
+    def check_all(self, check_all):
+        for row in self.liststore:
+            row[self.SELECTED_COL] = check_all
+            
     def select_image(self, unique_id):
         iter = self.get_iter_from_unique_id(unique_id)
         path = self.liststore.get_path(iter)
         self.select_path(path)
+        self.scroll_to_path(path, use_align=False, row_align=0.5, col_align=0.5)
         
     def get_stock_icon(self, file_type):
         if file_type == rpdfile.FILE_TYPE_PHOTO:
@@ -507,13 +541,16 @@ class ThumbnailDisplay(gtk.IconView):
     
     def update_thumbnail(self, thumbnail_data):
         """
-        Takes the generated thumbnail and 
+        Takes the generated thumbnail and updates the display
+        
+        If the thumbnail_data includes a second image, that is used to
+        update the thumbnail list using the unique_id
         """
         unique_id = thumbnail_data[0]
         thumbnail_icon = thumbnail_data[1]
         
         if thumbnail_icon is not None:
-            # get the thumbnail icon in pixbuf format
+            # get the thumbnail icon in PIL format
             thumbnail_icon = thumbnail_icon.get_image()
             
             treerowref = self.treerow_index[unique_id]
@@ -767,12 +804,12 @@ class ScanManager(TaskManager):
         self.add_device_function = add_device_function
         self.generate_folder = generate_folder
         
-    def _initiate_task(self, path, task_process_conn, terminate_queue, run_event):
-        scan = scan_process.Scan(path, self.batch_size, self.generate_folder, 
+    def _initiate_task(self, device, task_process_conn, terminate_queue, run_event):
+        scan = scan_process.Scan(device.get_path(), self.batch_size, self.generate_folder, 
                                 task_process_conn, terminate_queue, run_event)
         scan.start()
         self._processes.append((scan, terminate_queue, run_event))
-        self.add_device_function(scan.pid, path, 
+        self.add_device_function(scan.pid, device, 
             # This refers to when a device like a hard drive is having its contents scanned,
             # looking for photos or videos. It is visible initially in the progress bar for each device 
             # (which normally holds "x photos and videos").
@@ -981,9 +1018,11 @@ class RapidApp(dbus.service.Object):
         
         builder.connect_signals(self)
         
-        
-        
         self.prefs = RapidPreferences()
+        
+        vmonitor = gio.volume_monitor_get()
+        vmonitor.connect("mount-added", self.on_mount_added)
+        vmonitor.connect("mount-removed", self.on_mount_removed)       
         
         # remember the window size from the last time the program was run
         if self.prefs.main_window_maximized:
@@ -1012,26 +1051,30 @@ class RapidApp(dbus.service.Object):
             
         self.rapidapp.show_all()
         
-        #~ image_paths = ['/home/damon/rapid/cr2', '/home/damon/Pictures/processing/2010']
+        #~ image_paths = ['/home/damon/rapid/cr2', '/home/damon/Pictures/processing/2011']
         #~ image_paths = ['/media/EOS_DIGITAL/']        
         #~ image_paths = ['/media/EOS_DIGITAL/', '/media/EOS_DIGITAL_/']
         #~ image_paths = ['/media/EOS_DIGITAL/', '/media/EOS_DIGITAL_/', '/media/EOS_DIGITAL__/']
-        image_paths = ['/home/damon/rapid/cr2']
+        #~ image_paths = ['/home/damon/rapid/cr2']
+        #~ image_paths = ['/home/damon/rapid/sample-cr2']
         #~ image_paths = ['/home/damon/Pictures/']
+        
+        devices = [dv.Device(path='/home/damon/rapid/sample-cr2')]
+        #~ devices = [dv.Device(path='/home/damon/Pictures/')]
 
         
         self.batch_size = 10
         
         self.testing_auto_exit = False
-        self.testing_auto_exit_trip = len(image_paths)
+        self.testing_auto_exit_trip = len(devices)
         self.testing_auto_exit_trip_counter = 0
         
         self.generate_folder = False
         self.scan_manager = ScanManager(self.scan_results, self.batch_size, 
                     self.generate_folder, self.device_collection.add_device)
         
-        for path in image_paths:
-            self.scan_manager.add_task(path)
+        for device in devices:
+            self.scan_manager.add_task(device)
         
         self.device_collection_scrolledwindow = builder.get_object("device_collection_scrolledwindow")
         
@@ -1078,6 +1121,16 @@ class RapidApp(dbus.service.Object):
     def on_show_thumbnails_action_activate(self, action):
         logger.debug("on_show_thumbnails_action_activate")
         self.show_thumbnails()
+        
+    def on_show_image_action_activate(self, action):
+        logger.debug("on_show_image_action_activate")
+        self.thumbnails.show_preview()
+        
+    def on_check_all_action_activate(self, action):
+        self.thumbnails.check_all(check_all=True)
+        
+    def on_uncheck_all_action_activate(self, action):
+        self.thumbnails.check_all(check_all=False)
      
     def show_preview_image(self, unique_id, image, checked):
         if self.main_notebook.get_current_page() == 0: # thumbnails
@@ -1099,6 +1152,38 @@ class RapidApp(dbus.service.Object):
     def on_prev_image_action_activate(self, action):
         self.thumbnails.show_prev_image(self.preview_image.unique_id)
 
+    # # #
+    # Volume management
+    # # #
+    
+    def using_volume_monitor(self):
+        """
+        Returns True if programs needs to use gio volume monitor
+        """
+        
+        return (self.prefs.device_autodetection or 
+                (self.prefs.backup_images and 
+                self.prefs.backup_device_autodetection
+                ))
+                    
+    def on_mount_added(self, volume_monitor, mount):
+        """
+        callback run when gio indicates a new volume
+        has been mounted
+        """
+        if self.using_volume_monitor():
+            device = Device(mount=mount)
+            path = device.get_path()
+            
+    def on_mount_removed(self, volume_monitor, mount):
+        """
+        callback run when gio indicates a new volume
+        has been mounted
+        """
+        if self.using_volume_monitor():
+            device = Device(mount=mount)
+            path = device.get_path() 
+    
     # # #
     # Main app window management and setup
     # # #
@@ -1125,6 +1210,11 @@ class RapidApp(dbus.service.Object):
         prev_image_button = builder.get_object("prev_image_button")
         image = gtk.image_new_from_stock(gtk.STOCK_GO_BACK, gtk.ICON_SIZE_BUTTON)
         prev_image_button.set_image(image)        
+    
+    
+    # # #
+    # Get results from scan process
+    # # #
         
     def scan_results(self, source, condition):
         connection = self.scan_manager.get_pipe(source)
@@ -1134,7 +1224,7 @@ class RapidApp(dbus.service.Object):
         if conn_type == rpdmp.CONN_COMPLETE:
             connection.close()
             size, file_type_counter, scan_pid = data
-            size = formatSizeForUser(size)
+            size = format_size_for_user(size)
             results_summary = file_type_counter.summarize_file_count()
             logger.info('Found %s' % results_summary)
             logger.info('Files total %s' % size)
