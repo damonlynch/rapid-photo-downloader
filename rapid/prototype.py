@@ -416,12 +416,12 @@ class ThumbnailDisplay(gtk.IconView):
         #~ self.set_row_spacing(0)
         self.set_margin(25)
         
-        #sort by timestamp
-        #~ self.liststore.set_sort_column_id(self.TIMESTAMP_COL, gtk.SORT_ASCENDING)
-        
         self.show_all()
         
-        self.connect('item-activated', self.on_item_activated)        
+        self.connect('item-activated', self.on_item_activated)
+        
+    def sort_by_timestamp(self):
+        self.liststore.set_sort_column_id(self.TIMESTAMP_COL, gtk.SORT_ASCENDING)
         
     def on_checkbutton_toggled(self, cellrenderertoggle, path):
         iter = self.liststore.get_iter(path)
@@ -1132,7 +1132,7 @@ class RapidApp(dbus.service.Object):
         
         self.batch_size = 10
         
-        self.testing_auto_exit = True
+        self.testing_auto_exit = False
         self.testing_auto_exit_trip = len(devices)
         self.testing_auto_exit_trip_counter = 0
         
@@ -1177,7 +1177,7 @@ class RapidApp(dbus.service.Object):
         self.thumbnails.set_selected(self.preview_image.unique_id, value)
         
     # # #
-    # Events related to displaying preview images and thumbnails
+    # Events and tasks related to displaying preview images and thumbnails
     # # #
     
     def on_preview_eventbox_button_press_event(self, widget, event):
@@ -1218,6 +1218,14 @@ class RapidApp(dbus.service.Object):
     
     def on_prev_image_action_activate(self, action):
         self.thumbnails.show_prev_image(self.preview_image.unique_id)
+        
+    def set_thumbnail_sort(self):
+        """
+        If the scans are complete, sets the sort order
+        """
+        if self.scan_manager.active_processes == 0:
+            self.thumbnails.sort_by_timestamp()
+
 
     # # #
     # Volume management
@@ -1327,6 +1335,8 @@ class RapidApp(dbus.service.Object):
                     self.thumbnails.generate_thumbnails(scan_pid)
             self.scan_manager.process_completed()
             self.set_download_action_sensitivity()
+            self.set_thumbnail_sort()
+            
             # signal that no more data is coming, finishing io watch for this pipe
             return False
         else:
