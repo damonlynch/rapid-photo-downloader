@@ -62,6 +62,7 @@ STATUS_CANNOT_DOWNLOAD = 8                  # cannot be downloaded
 
 TINY_SCREEN_HEIGHT = 650
 
-
+DEFAULT_WINDOW_WIDTH = 730
+DEFAULT_WINDOW_HEIGHT = 650
 
 

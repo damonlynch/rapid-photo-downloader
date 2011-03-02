@@ -33,6 +33,8 @@ except:
 import gtk
 import gtk.gdk as gdk
 
+import webbrowser
+
 import getopt, sys, time, types, os, datetime
 
 import gobject, pango, cairo, array, pangocairo, gio
@@ -42,6 +44,8 @@ from multiprocessing import Process, Pipe, Queue, Event, current_process, log_to
 import logging
 logger = log_to_stderr()
 logger.setLevel(logging.INFO)
+
+# Rapid Photo Downloader modules
 
 import media, common, rpdfile
 from media import getDefaultPhotoLocation, getDefaultVideoLocation, \
@@ -263,7 +267,7 @@ class ThumbnailCellRenderer(gtk.CellRenderer):
         cairo_context = window.cairo_create()
         
         x = cell_area.x
-        y = cell_area.y - self.checkbutton_height + 4
+        y = cell_area.y #- self.checkbutton_height + 4
         w = cell_area.width
         h = cell_area.height
         
@@ -301,9 +305,9 @@ class ThumbnailCellRenderer(gtk.CellRenderer):
         
         # draw a thin border around each cell
         # ouch - nasty hardcoding :(
-        cairo_context.set_source_rgb(0.33, 0.33, 0.33)
-        cairo_context.rectangle(x-6.5, y-9.5, w+14, h+31)
-        cairo_context.stroke()
+        #~ cairo_context.set_source_rgb(0.33, 0.33, 0.33)
+        #~ cairo_context.rectangle(x-6.5, y-9.5, w+14, h+31)
+        #~ cairo_context.stroke()
         
         #place the image
         cairo_context.set_source_surface(image, image_x, image_y)
@@ -341,7 +345,8 @@ class ThumbnailCellRenderer(gtk.CellRenderer):
         
         
     def do_get_size(self, widget, cell_area):
-        return (0, 0, self.image_area_size, self.image_area_size + self.text_area_size - self.checkbutton_height + 4)
+        return (0, 0, self.image_area_size, self.image_area_size + self.checkbutton_height + 10)
+        #~ return (0, 0, self.image_area_size, self.image_area_size + self.text_area_size - self.checkbutton_height + 4)
         
 
 gobject.type_register(ThumbnailCellRenderer)
@@ -389,7 +394,7 @@ class ThumbnailDisplay(gtk.IconView):
         checkbutton.props.activatable = True
         checkbutton.props.xalign = 0.0
         checkbutton.connect('toggled', self.on_checkbutton_toggled)
-        self.pack_start(checkbutton, expand=False)
+        self.pack_end(checkbutton, expand=False)
         self.add_attribute(checkbutton, "active", 1)
         
         checkbutton_size = checkbutton.get_size(self, None)
@@ -406,12 +411,13 @@ class ThumbnailDisplay(gtk.IconView):
         self.modify_base(gtk.STATE_NORMAL, gtk.gdk.Color('#444444'))
         
         self.set_spacing(0)
-        self.set_column_spacing(0)
-        self.set_row_spacing(0)
-        self.set_margin(0)
+        #~ self.set_column_spacing(0)
+        self.set_row_spacing(5)
+        #~ self.set_row_spacing(0)
+        self.set_margin(25)
         
         #sort by timestamp
-        self.liststore.set_sort_column_id(self.TIMESTAMP_COL, gtk.SORT_ASCENDING)
+        #~ self.liststore.set_sort_column_id(self.TIMESTAMP_COL, gtk.SORT_ASCENDING)
         
         self.show_all()
         
@@ -420,6 +426,7 @@ class ThumbnailDisplay(gtk.IconView):
     def on_checkbutton_toggled(self, cellrenderertoggle, path):
         iter = self.liststore.get_iter(path)
         self.liststore.set_value(iter, self.SELECTED_COL, not cellrenderertoggle.get_active())
+        self.rapid_app.set_download_action_sensitivity()
         
     def set_selected(self, unique_id, value):
         iter = self.get_iter_from_unique_id(unique_id)
@@ -561,6 +568,16 @@ class ThumbnailDisplay(gtk.IconView):
     def check_all(self, check_all):
         for row in self.liststore:
             row[self.SELECTED_COL] = check_all
+        self.rapid_app.set_download_action_sensitivity()
+            
+    def rows_available_for_download(self):
+        """
+        """
+        for row in self.liststore:
+            if row[self.SELECTED_COL]:
+                # FIXME: need to check status of file too
+                return True
+        return False
             
     def select_image(self, unique_id):
         iter = self.get_iter_from_unique_id(unique_id)
@@ -787,10 +804,12 @@ class TaskManager:
         self._processes = []
         self._pipes = {}
         self.batch_size = batch_size
+        self.active_processes = 0
        
     
     def add_task(self, task):
         self._setup_task(task)
+        self.active_processes += 1
 
         
     def _setup_task(self, task):
@@ -823,15 +842,18 @@ class TaskManager:
     def terminate(self):
         pause = False
 
-        for scan in self.processes():
-            if scan[0].is_alive():
-                scan[1].put(None)
+        for p in self.processes():
+            if p[0].is_alive():
+                p[1].put(None)
                 pause = True
-                run_event = scan[2]
+                run_event = p[2]
                 if not run_event.is_set():
                     run_event.set()
         if pause:
             time.sleep(1)
+            
+    def process_completed(self):
+        self.active_processes -= 1
             
             
     def get_pipe(self, source):
@@ -1057,6 +1079,7 @@ class RapidApp(dbus.service.Object):
         self.rapidapp = builder.get_object("rapidapp")
         self.main_vpaned = builder.get_object("main_vpaned")
         self.main_notebook = builder.get_object("main_notebook")
+        self.download_action = builder.get_object("download_action")
         
         builder.connect_signals(self)
         
@@ -1069,13 +1092,14 @@ class RapidApp(dbus.service.Object):
         # remember the window size from the last time the program was run
         if self.prefs.main_window_maximized:
             self.rapidapp.maximize()
+            self.rapidapp.set_default_size(config.DEFAULT_WINDOW_WIDTH, 
+                                           config.DEFAULT_WINDOW_HEIGHT)
         elif self.prefs.main_window_size_x > 0:
-            logger.info("Setting window size %sx%s", self.prefs.main_window_size_x, self.prefs.main_window_size_y)
             self.rapidapp.set_default_size(self.prefs.main_window_size_x, self.prefs.main_window_size_y)
         else:
             # set a default size
-            logger.info("Setting default window size")
-            self.rapidapp.set_default_size(800, 650)
+            self.rapidapp.set_default_size(config.DEFAULT_WINDOW_WIDTH, 
+                                           config.DEFAULT_WINDOW_HEIGHT)
             
         #collection of devices from which to download
         self.device_collection_viewport = builder.get_object("device_collection_viewport")
@@ -1101,13 +1125,14 @@ class RapidApp(dbus.service.Object):
         #~ image_paths = ['/home/damon/rapid/sample-cr2']
         #~ image_paths = ['/home/damon/Pictures/']
         
-        devices = [dv.Device(path='/home/damon/rapid/sample-cr2')]
+        #~ devices = [dv.Device(path='/home/damon/rapid/sample-cr2')]
+        devices = [dv.Device(path='/home/damon/rapid/sample-cr2'), dv.Device(path='/home/damon/Pictures/processing/2011'), ]
         #~ devices = [dv.Device(path='/home/damon/Pictures/')]
 
         
         self.batch_size = 10
         
-        self.testing_auto_exit = False
+        self.testing_auto_exit = True
         self.testing_auto_exit_trip = len(devices)
         self.testing_auto_exit_trip_counter = 0
         
@@ -1227,6 +1252,28 @@ class RapidApp(dbus.service.Object):
             path = device.get_path() 
     
     # # #
+    # Download and help buttons
+    # # #
+    
+    def on_download_action_activate(self, action):
+        logger.info("Download button clicked")
+    
+    
+    def on_help_action_activate(self, action):
+        webbrowser.open("http://www.damonlynch.net/rapid/documentation")
+        
+    def set_download_action_sensitivity(self):
+        """
+        Sets sensitivity of Download button to enable or disable it
+        """
+        sensitivity = False
+        if self.scan_manager.active_processes == 0:
+            if self.thumbnails.rows_available_for_download():
+                sensitivity = True
+        
+        self.download_action.set_sensitive(sensitivity)
+            
+    # # #
     # Main app window management and setup
     # # #
     
@@ -1278,6 +1325,8 @@ class RapidApp(dbus.service.Object):
             else:
                 if not self.testing_auto_exit:
                     self.thumbnails.generate_thumbnails(scan_pid)
+            self.scan_manager.process_completed()
+            self.set_download_action_sensitivity()
             # signal that no more data is coming, finishing io watch for this pipe
             return False
         else:
@@ -1286,7 +1335,6 @@ class RapidApp(dbus.service.Object):
             else:
                 for i in range(len(data)):
                     rpd_file = data[i]
-                    #~ logger.info('<-- %s from %s' % (rpd_file.full_file_name, source))
                     self.thumbnails.add_file(rpd_file)
         
         # must return True for this method to be called again

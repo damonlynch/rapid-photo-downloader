@@ -26,6 +26,7 @@
                       <object class="GtkImageMenuItem" id="menu_download_pause">
                         <property name="label" translatable="yes">Download / Pause</property>
                         <property name="visible">True</property>
+                        <property name="related_action">download_action</property>
                         <property name="use_stock">False</property>
                         <accelerator key="Return" signal="activate" modifiers="GDK_CONTROL_MASK"/>
                       </object>
@@ -134,80 +135,13 @@
                   <object class="GtkMenu" id="menuitem10_menu">
                     <property name="ubuntu_local">True</property>
                     <child>
-                      <object class="GtkCheckMenuItem" id="menu_display_selection">
-                        <property name="visible">True</property>
-                        <property name="label" translatable="yes">_Preview</property>
-                        <property name="use_underline">True</property>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkMenuItem" id="menu_preview_columns">
-                        <property name="visible">True</property>
-                        <property name="label" translatable="yes">P_review Columns</property>
-                        <property name="use_underline">True</property>
-                        <child type="submenu">
-                          <object class="GtkMenu" id="menu1">
-                            <property name="visible">True</property>
-                            <property name="ubuntu_local">True</property>
-                            <child>
-                              <object class="GtkCheckMenuItem" id="menu_type_column">
-                                <property name="visible">True</property>
-                                <property name="label" translatable="yes">_Type</property>
-                                <property name="use_underline">True</property>
-                              </object>
-                            </child>
-                            <child>
-                              <object class="GtkCheckMenuItem" id="menu_size_column">
-                                <property name="visible">True</property>
-                                <property name="label" translatable="yes">_Size</property>
-                                <property name="use_underline">True</property>
-                              </object>
-                            </child>
-                            <child>
-                              <object class="GtkCheckMenuItem" id="menu_device_column">
-                                <property name="visible">True</property>
-                                <property name="label" translatable="yes">_Device</property>
-                                <property name="use_underline">True</property>
-                              </object>
-                            </child>
-                            <child>
-                              <object class="GtkCheckMenuItem" id="menu_filename_column">
-                                <property name="visible">True</property>
-                                <property name="label" translatable="yes">_Filename</property>
-                                <property name="use_underline">True</property>
-                              </object>
-                            </child>
-                            <child>
-                              <object class="GtkCheckMenuItem" id="menu_path_column">
-                                <property name="visible">True</property>
-                                <property name="label" translatable="yes">_Path</property>
-                                <property name="use_underline">True</property>
-                              </object>
-                            </child>
-                          </object>
-                        </child>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkCheckMenuItem" id="menu_preview_folders">
-                        <property name="visible">True</property>
-                        <property name="label" translatable="yes">Preview _Folders</property>
-                        <property name="use_underline">True</property>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkSeparatorMenuItem" id="seperator40">
-                        <property name="visible">True</property>
-                      </object>
-                    </child>
-                    <child>
                       <object class="GtkImageMenuItem" id="menu_zoom_in">
                         <property name="label">gtk-zoom-in</property>
                         <property name="visible">True</property>
                         <property name="use_underline">True</property>
                         <property name="use_stock">True</property>
-                        <accelerator key="equal" signal="activate" modifiers="GDK_CONTROL_MASK"/>
                         <accelerator key="plus" signal="activate" modifiers="GDK_CONTROL_MASK"/>
+                        <accelerator key="equal" signal="activate" modifiers="GDK_CONTROL_MASK"/>
                       </object>
                     </child>
                     <child>
@@ -501,13 +435,13 @@
                                 <property name="visible">True</property>
                                 <child>
                                   <object class="GtkCheckButton" id="download_this_checkbutton">
-                                    <property name="label" translatable="yes">Include in _download</property>
+                                    <property name="label" translatable="yes">_Include in download</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
                                     <property name="use_underline">True</property>
                                     <property name="draw_indicator">True</property>
-                                    <accelerator key="d" signal="activate"/>
+                                    <accelerator key="i" signal="activate"/>
                                     <signal name="toggled" handler="on_download_this_checkbutton_toggled"/>
                                   </object>
                                   <packing>
@@ -622,11 +556,12 @@
                 <property name="layout_style">edge</property>
                 <child>
                   <object class="GtkButton" id="help_button">
-                    <property name="label">gtk-help</property>
+                    <property name="label">_Help</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
-                    <property name="use_stock">True</property>
+                    <property name="related_action">help_action</property>
+                    <property name="use_underline">True</property>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -636,10 +571,14 @@
                 </child>
                 <child>
                   <object class="GtkButton" id="download_button">
-                    <property name="label" translatable="yes">Download</property>
+                    <property name="label" translatable="yes">_Download</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
+                    <property name="can_default">True</property>
+                    <property name="has_default">True</property>
                     <property name="receives_default">True</property>
+                    <property name="related_action">download_action</property>
+                    <property name="use_underline">True</property>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -694,5 +633,13 @@
   </object>
   <object class="GtkAction" id="uncheck_all_action">
     <signal name="activate" handler="on_uncheck_all_action_activate"/>
+  </object>
+  <object class="GtkAction" id="download_action">
+    <property name="sensitive">False</property>
+    <signal name="activate" handler="on_download_action_activate"/>
+  </object>
+  <object class="GtkAction" id="help_action">
+    <property name="label">Help</property>
+    <signal name="activate" handler="on_help_action_activate"/>
   </object>
 </interface>
