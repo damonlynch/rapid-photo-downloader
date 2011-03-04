@@ -2402,21 +2402,6 @@ You can download photos from multiple devices simultaneously, or you can specify
                                   </packing>
                                 </child>
                                 <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
                                   <widget class="GtkCheckButton" id="auto_exit_force_checkbutton">
                                     <property name="label" translatable="yes">Exit program even if download had warnings or errors</property>
                                     <property name="visible">True</property>
@@ -2431,6 +2416,21 @@ You can download photos from multiple devices simultaneously, or you can specify
                                     <property name="top_attach">4</property>
                                     <property name="bottom_attach">5</property>
                                   </packing>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
                                 </child>
                               </widget>
                               <packing>
@@ -2483,12 +2483,6 @@ You can download photos from multiple devices simultaneously, or you can specify
                                 <property name="visible">True</property>
                                 <property name="n_columns">3</property>
                                 <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
-                                  <placeholder/>
-                                </child>
-                                <child>
                                   <widget class="GtkCheckButton" id="scan_metadata_checkbutton">
                                     <property name="label" translatable="yes">Scan metadata and generate thumbnails during device scan (slower)</property>
                                     <property name="visible">True</property>
@@ -2497,6 +2491,12 @@ You can download photos from multiple devices simultaneously, or you can specify
                                     <property name="draw_indicator">True</property>
                                     <signal name="toggled" handler="on_scan_metadata_checkbutton_toggled"/>
                                   </widget>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
                                 </child>
                               </widget>
                               <packing>
@@ -3192,8 +3192,8 @@ Aron Xu &lt;happyaron.xu@gmail.com&gt;
                         <property name="use_underline">True</property>
                         <property name="use_stock">True</property>
                         <signal name="activate" handler="on_menu_zoom_in_activate"/>
-                        <accelerator key="equal" signal="activate" modifiers="GDK_CONTROL_MASK"/>
                         <accelerator key="plus" signal="activate" modifiers="GDK_CONTROL_MASK"/>
+                        <accelerator key="equal" signal="activate" modifiers="GDK_CONTROL_MASK"/>
                       </widget>
                     </child>
                     <child>

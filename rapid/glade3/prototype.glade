@@ -140,8 +140,8 @@
                         <property name="visible">True</property>
                         <property name="use_underline">True</property>
                         <property name="use_stock">True</property>
-                        <accelerator key="plus" signal="activate" modifiers="GDK_CONTROL_MASK"/>
                         <accelerator key="equal" signal="activate" modifiers="GDK_CONTROL_MASK"/>
+                        <accelerator key="plus" signal="activate" modifiers="GDK_CONTROL_MASK"/>
                       </object>
                     </child>
                     <child>
@@ -600,12 +600,160 @@
           </packing>
         </child>
         <child>
-          <object class="GtkStatusbar" id="statusbar1">
+          <object class="GtkHBox" id="statusbar_hbox">
             <property name="visible">True</property>
-            <property name="spacing">2</property>
+            <child>
+              <object class="GtkHBox" id="download_progressbar_hbox">
+                <property name="visible">True</property>
+                <child>
+                  <object class="GtkProgressBar" id="download_progressbar">
+                    <property name="width_request">0</property>
+                    <property name="visible">True</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkStatusbar" id="rapid_statusbar">
+                <property name="visible">True</property>
+                <property name="spacing">2</property>
+                <property name="has_resize_grip">False</property>
+              </object>
+              <packing>
+                <property name="position">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkVSeparator" id="vseparator1">
+                <property name="visible">True</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="position">2</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkVBox" id="vbox15">
+                <property name="visible">True</property>
+                <child>
+                  <object class="GtkHSeparator" id="hseparator3">
+                    <property name="visible">True</property>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkHBox" id="hbox5">
+                    <property name="visible">True</property>
+                    <child>
+                      <object class="GtkLabel" id="speed_label">
+                        <property name="visible">True</property>
+                        <property name="label" translatable="yes">      </property>
+                        <property name="width_chars">9</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="position">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkEventBox" id="error_eventbox">
+                        <property name="visible">True</property>
+                        <child>
+                          <object class="GtkHBox" id="hbox6">
+                            <property name="visible">True</property>
+                            <child>
+                              <object class="GtkVSeparator" id="warning_vseparator">
+                                <property name="visible">True</property>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="position">0</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkImage" id="error_image">
+                                <property name="visible">True</property>
+                                <property name="xpad">3</property>
+                                <property name="stock">gtk-dialog-error</property>
+                                <property name="icon-size">1</property>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">False</property>
+                                <property name="position">1</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkImage" id="warning_image">
+                                <property name="visible">True</property>
+                                <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
+                                <property name="xpad">3</property>
+                                <property name="stock">gtk-dialog-warning</property>
+                                <property name="icon-size">1</property>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">False</property>
+                                <property name="position">2</property>
+                              </packing>
+                            </child>
+                          </object>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">False</property>
+                        <property name="position">1</property>
+                      </packing>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="position">1</property>
+                  </packing>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="position">3</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkVSeparator" id="vseparator2">
+                <property name="visible">True</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="position">4</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkStatusbar" id="statusbar1">
+                <property name="width_request">15</property>
+                <property name="visible">True</property>
+                <property name="spacing">2</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">False</property>
+                <property name="position">5</property>
+              </packing>
+            </child>
           </object>
           <packing>
             <property name="expand">False</property>
+            <property name="fill">False</property>
+            <property name="pack_type">end</property>
             <property name="position">3</property>
           </packing>
         </child>
