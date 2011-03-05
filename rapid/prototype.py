@@ -63,6 +63,7 @@ import tableplusminus as tpm
 
 import scan as scan_process
 import copyfiles
+import generatename
 
 import device as dv
 
@@ -96,10 +97,6 @@ from config import  STATUS_CANNOT_DOWNLOAD, STATUS_DOWNLOADED, \
 def today():
     return datetime.date.today().strftime('%Y-%m-%d')
 
-def cmd_line(msg):    
-    if verbose:
-        print msg
-        
 
 def date_time_human_readable(date, with_line_break=True):
     if with_line_break:
@@ -931,8 +928,8 @@ class CopyFilesManager(TaskManager):
     def _initiate_task(self, task, task_process_conn, terminate_queue, run_event):
         photo_download_folder = task[0]
         video_download_folder = task[1]
-        files = task[2]
-        scan_pid = files[0].scan_pid
+        scan_pid = task[2]
+        files = task[3]
         
         copy_files = copyfiles.CopyFiles(photo_download_folder,
                                 video_download_folder,
@@ -1182,6 +1179,11 @@ class RapidApp(dbus.service.Object):
             
         self.rapidapp.show()
         
+        # Track download sizes for each device
+        self.size_of_download_in_bytes = dict()
+        self.no_files_in_download = dict()
+        self.file_types_present = dict()
+        
         #~ image_paths = ['/home/damon/rapid/cr2', '/home/damon/Pictures/processing/2011']
         #~ image_paths = ['/media/EOS_DIGITAL/']        
         #~ image_paths = ['/media/EOS_DIGITAL/', '/media/EOS_DIGITAL_/']
@@ -1365,52 +1367,66 @@ class RapidApp(dbus.service.Object):
     
     def start_download(self):
         """
-        Start download of files.
-        
-        Checks validity of download folders. Does not download if any 
-        needed download folder is invalid.
+        Start download, renaming and backup of files.
         """
         
-        stop_download = False
-        
         files_by_scan_pid = self.thumbnails.get_files_checked_for_download()
-        photo_download_folder = self.prefs.download_folder
-        video_download_folder = self.prefs.video_download_folder
+        folders_valid = self.check_download_folder_validity(files_by_scan_pid)
         
-        # check download folder validity based on the files that will 
-        # actually be downloaded
+        #FIXME: if invalid, display some kind of error message to the user
         
-        # first, check what needs to be downloaded
-        need_photo_folder = False
-        need_video_folder = False
-        while not need_photo_folder and not need_video_folder:
+        if folders_valid:
             for scan_pid in files_by_scan_pid:
                 files = files_by_scan_pid[scan_pid]
-                if not need_photo_folder:
-                    if copyfiles.files_of_type_present(files, rpdfile.FILE_TYPE_PHOTO):
-                        need_photo_folder = True
-                if not need_video_folder:
-                    if copyfiles.files_of_type_present(files, rpdfile.FILE_TYPE_VIDEO):
-                        need_video_folder = True
-            
-        # second, check validity
-        if need_photo_folder:
-            if not self.is_valid_download_dir(photo_download_folder):
-                stop_download = True
-                
-        if need_video_folder:
-            if not self.is_valid_download_dir(video_download_folder):
-                stop_download = True
+                self.download_files(files, scan_pid)
+
+    def download_files(self, files, scan_pid):
+        """
+        """
         
-        #FIXME: display some kind of error message to the user
-        if not stop_download:
-            for scan_pid in files_by_scan_pid:
-                files = files_by_scan_pid[scan_pid]            
-                self.copy_files_manager.add_task((photo_download_folder, 
-                                              video_download_folder,
-                                              files))
-                                              
-        return not stop_download
+        # Check which file types will be downloaded for this particular process
+        if self.files_of_type_present(files, rpdfile.FILE_TYPE_PHOTO):
+            photo_download_folder = self.prefs.download_folder
+        else:
+            photo_download_folder = None
+            
+        if self.files_of_type_present(files, rpdfile.FILE_TYPE_VIDEO):
+            video_download_folder = self.prefs.video_download_folder
+        else:
+            video_download_folder = None
+            
+        self.size_of_download_in_bytes[scan_pid] = self.size_files_to_be_downloaded(files)
+        self.no_files_in_download[scan_pid] = len(files)
+        # Initiate copy files process
+        self.copy_files_manager.add_task((photo_download_folder, 
+                              video_download_folder, scan_pid,
+                              files))
+                              
+    def copy_files_results(self, source, condition):
+        """
+        Handle results from copy files process
+        """
+        connection = self.copy_files_manager.get_pipe(source)
+        conn_type, msg_data = connection.recv()
+        if conn_type == rpdmp.CONN_PARTIAL:
+            msg_type, data = msg_data
+            if msg_type == rpdmp.MSG_BYTES:
+                scan_pid, total_downloaded = data
+                percent_complete = (float(total_downloaded) / 
+                                self.size_of_download_in_bytes[scan_pid]) * 100
+                self.device_collection.update_progress(scan_pid, percent_complete,
+                                            None, None)
+            elif msg_type == rpdmp.MSG_FILE:
+                scan_pid, i, temp_full_file_name = data
+                progress_bar_text = _("%(number)s of %(total)s %(filetypes)s") % \
+                                     {'number':  i, 
+                                      'total': self.no_files_in_download[scan_pid],
+                                      'filetypes': self.file_types_present[scan_pid]}
+                self.device_collection.update_progress(scan_pid, None, progress_bar_text, None)                      
+            
+            return True
+        else:
+            return False                              
     
     # # #
     # Main app window management and setup
@@ -1534,6 +1550,56 @@ class RapidApp(dbus.service.Object):
     # Utility functions
     # # #
 
+    def files_of_type_present(self, files, file_type):
+        """
+        Returns true if there is at least one instance of the file_type
+        in the list of files to be copied
+        """
+        for rpd_file in files:
+            if rpd_file.file_type == file_type:
+                return True
+        return False
+        
+    def size_files_to_be_downloaded(self, files):
+        """
+        Returns the total size of the files to be downloaded in bytes
+        """
+        size = 0
+        for i in range(len(files)):
+            size += files[i].size
+
+        return size
+                                              
+    def check_download_folder_validity(self, files_by_scan_pid):
+        """
+        Checks validity of download folders based on the file types the user
+        is attempting to download.
+        """
+        valid = True
+        # first, check what needs to be downloaded - photos and / or videos
+        need_photo_folder = False
+        need_video_folder = False
+        while not need_photo_folder and not need_video_folder:
+            for scan_pid in files_by_scan_pid:
+                files = files_by_scan_pid[scan_pid]
+                if not need_photo_folder:
+                    if self.files_of_type_present(files, rpdfile.FILE_TYPE_PHOTO):
+                        need_photo_folder = True
+                if not need_video_folder:
+                    if self.files_of_type_present(files, rpdfile.FILE_TYPE_VIDEO):
+                        need_video_folder = True
+            
+        # second, check validity
+        if need_photo_folder:
+            if not self.is_valid_download_dir(self.prefs.download_folder):
+                valid = False
+                
+        if need_video_folder:
+            if not self.is_valid_download_dir(self.prefs.video_download_folder):
+                valid = False
+                
+        return valid
+
     def same_file_system(self, file1, file2):
         """Returns True if the files / diretories are on the same file system
         """
@@ -1559,14 +1625,6 @@ class RapidApp(dbus.service.Object):
         f2_id = f2_info.get_attribute_string(gio.FILE_ATTRIBUTE_ID_FILE)
         return f1_id == f2_id
         
-    
-    #~ def check_download_dirs(self):
-        #~ """
-        #~ Check the validity of the photo and video download directories
-        #~ """
-        #~ for path in (self.prefs.download_folder, self.prefs.video_download_folder):
-            #~ self.is_valid_download_dir(path)
-    
     def is_valid_download_dir(self, path):
         """
         Checks the following conditions:
@@ -1613,7 +1671,8 @@ class RapidApp(dbus.service.Object):
             connection.close()
             size, file_type_counter, scan_pid = data
             size = format_size_for_user(size)
-            results_summary = file_type_counter.summarize_file_count()
+            results_summary, file_types_present = file_type_counter.summarize_file_count()
+            self.file_types_present[scan_pid] = file_types_present
             logger.info('Found %s' % results_summary)
             logger.info('Files total %s' % size)
             self.device_collection.update_device(scan_pid, size)
@@ -1641,21 +1700,6 @@ class RapidApp(dbus.service.Object):
         # must return True for this method to be called again
         return True
         
-        
-    # # #
-    # Get results from copy files process
-    # # #
-    
-    def copy_files_results(self, source, condition):
-        connection = self.copy_files_manager.get_pipe(source)
-        conn_type, data = connection.recv()
-        if conn_type == rpdmp.CONN_PARTIAL:
-            scan_pid, percent_complete, progress_bar_text, bytes_downloaded = data
-            self.device_collection.update_progress(scan_pid, percent_complete,
-                                            progress_bar_text, bytes_downloaded)
-            return True
-        else:
-            return False
         
 
     def needJobCodeForRenaming(self):

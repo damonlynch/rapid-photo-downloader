@@ -23,7 +23,15 @@ Generates names for files and folders.
 Runs a daemon process.
 """
 
+import os
+
+import gio, glib
 import multiprocessing
+import logging
+logger = multiprocessing.get_logger()
+
+
+import rpdmultiprocessing as rpdmp
 
 def generate_folder(rpd_file):
     return '/home/damon/photos'

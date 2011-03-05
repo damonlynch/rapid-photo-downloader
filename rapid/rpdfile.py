@@ -121,8 +121,11 @@ class FileTypeCounter:
         #Number of files, e.g. "433 photos and videos" or "23 videos".
         #Displayed in the progress bar at the top of the main application
         #window.
-        return _("%(number)s %(filetypes)s") % {'number':self.count_files(),
-                                        'filetypes':self.file_types_present()} 
+        file_types_present = self.file_types_present()
+        file_count_summary = _("%(number)s %(filetypes)s") % \
+                              {'number':self.count_files(),
+                               'filetypes': file_types_present} 
+        return (file_count_summary, file_types_present)
         
 class RPDFile:
     """

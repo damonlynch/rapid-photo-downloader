@@ -34,15 +34,6 @@ from common import Configi18n
 global _
 _ = Configi18n._
 
-def files_of_type_present(files, file_type):
-    """
-    Returns true if there is at least one instance of the file_type
-    in the list of files to be copied
-    """
-    for rpd_file in files:
-        if rpd_file.file_type == file_type:
-            return True
-    return False
 
 class CopyFiles(multiprocessing.Process):
     def __init__(self, photo_download_folder, video_download_folder, files,
@@ -57,28 +48,15 @@ class CopyFiles(multiprocessing.Process):
         self.video_download_folder = video_download_folder
         self.files = files
         self.scan_pid = scan_pid
-        self.file_size_sum = self._size_files()
         self.no_files= len(self.files)
-        self.display_file_types = "?"
         self.run_event = run_event
-        
-    def _size_files(self):
-        """
-        Returns the total size of the files to be downloaded in bytes
-        """
-        s = 0
-        for i in range(len(self.files)):
-            s += self.files[i].size
-
-        return s        
         
     def progress_callback(self, amount_downloaded, total):
         
         if (amount_downloaded - self.bytes_downloaded > self.batch_size_bytes) or (amount_downloaded == total):
             chunk_downloaded = amount_downloaded - self.bytes_downloaded
             self.bytes_downloaded = amount_downloaded
-            percent_complete = (float(self.total_downloaded + amount_downloaded) / self.file_size_sum) * 100
-            self.results_pipe.send((rpdmp.CONN_PARTIAL, (self.scan_pid, percent_complete, None, None)))
+            self.results_pipe.send((rpdmp.CONN_PARTIAL, (rpdmp.MSG_BYTES, (self.scan_pid, self.total_downloaded + amount_downloaded))))
 
     def run(self):
         """start the actual copying of files"""
@@ -122,8 +100,9 @@ class CopyFiles(multiprocessing.Process):
                 # succeeded or not. It's neccessary to keep the user informed.
                 self.total_downloaded += rpd_file.size
                 
-                progress_bar_text = _("%(number)s of %(total)s %(filetypes)s") % {'number':  i + 1, 'total': self.no_files, 'filetypes':self.display_file_types}
-                self.results_pipe.send((rpdmp.CONN_PARTIAL, (self.scan_pid, None, progress_bar_text, None)))
+                
+                self.results_pipe.send((rpdmp.CONN_PARTIAL, (rpdmp.MSG_FILE, 
+                                    (self.scan_pid, i + 1, temp_full_file_name))))
                     
             
             
@@ -152,9 +131,9 @@ class CopyFiles(multiprocessing.Process):
     
     def create_temp_dirs(self):
         self.photo_temp_dir = self.video_temp_dir = None
-        if files_of_type_present(self.files, rpdfile.FILE_TYPE_PHOTO):
+        if self.photo_download_folder is not None:
             self.photo_temp_dir = self._create_temp_dir(self.photo_download_folder)
-        if files_of_type_present(self.files, rpdfile.FILE_TYPE_VIDEO):
+        if self.video_download_folder is not None:
             self.video_temp_dir = self._create_temp_dir(self.photo_download_folder)
             
     def clean_temp_dirs(self):
