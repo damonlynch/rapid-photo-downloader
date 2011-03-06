@@ -155,7 +155,12 @@ class Scan(multiprocessing.Process):
     def run(self):
         """start the actual scan."""
         source = gio.File(self.path)
-        size = self._gio_scan(source, 0)
+        try:
+            size = self._gio_scan(source, 0)
+        except gio.Error, inst:
+            logger.error("Error while scanning %s: %s", self.path, inst)
+            size = None
+            
         if size is not None:
             if self.counter > 0:
                 # send any remaining results

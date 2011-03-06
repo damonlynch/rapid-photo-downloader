@@ -1001,14 +1001,16 @@ class SubfolderFileManager(DaemonTaskManager):
         self._subfolder_file = subfolderfile.SubfolderFile(self.task_process_conn, self.task_queue, self.run_event)
         self._subfolder_file.start()
         
-    def rename_file_and_move_to_subfolder(self, rpd_file, temp_full_file_name):
-        self.task_queue.put((rpd_file, temp_full_file_name))
+    def rename_file_and_move_to_subfolder(self, download_succeeded, rpd_file, 
+                                          temp_full_file_name):
+                                              
+        self.task_queue.put((download_succeeded, rpd_file, temp_full_file_name))
         DaemonTaskManager.add_task(self)
 
     def task_results(self, source, condition):
         DaemonTaskManager.task_results(self)
-        rpd_file = self.task_results_conn.recv()[0]
-        self.results_callback(rpd_file)
+        move_succeeded, rpd_file = self.task_results_conn.recv()
+        self.results_callback(move_succeeded, rpd_file)
         return True
         
 
@@ -1218,10 +1220,12 @@ class RapidApp(dbus.service.Object):
             
         self.rapidapp.show()
         
-        # Track download sizes for each device
+        # Track download sizes and other values for each device
         self.size_of_download_in_bytes = dict()
         self.no_files_in_download = dict()
         self.file_types_present = dict()
+        self.download_count_for_file = dict()
+        self.download_count = dict()
         
         # Track which temporary directories are created when downloading files
         self.temp_dirs_by_scan_pid = dict()
@@ -1427,6 +1431,7 @@ class RapidApp(dbus.service.Object):
 
     def download_files(self, files, scan_pid):
         """
+        Initiate downloading and renaming of files
         """
         
         # Check which file types will be downloaded for this particular process
@@ -1451,52 +1456,107 @@ class RapidApp(dbus.service.Object):
         """
         Handle results from copy files process
         """
-        #FIXME: must handle termination / pause of copy files process
+        #FIXME: must handle early termination / pause of copy files process
         connection = self.copy_files_manager.get_pipe(source)
         conn_type, msg_data = connection.recv()
         if conn_type == rpdmp.CONN_PARTIAL:
             msg_type, data = msg_data
-            if msg_type == rpdmp.MSG_BYTES:
+
+            if msg_type == rpdmp.MSG_TEMP_DIRS:
+                scan_pid, photo_temp_dir, video_temp_dir = data
+                logger.info("Remembering temp dirs for later deletion: %s %s", photo_temp_dir, video_temp_dir)
+                self.temp_dirs_by_scan_pid[scan_pid] = (photo_temp_dir, video_temp_dir)                
+            elif msg_type == rpdmp.MSG_BYTES:
                 scan_pid, total_downloaded = data
                 percent_complete = (float(total_downloaded) / 
                                 self.size_of_download_in_bytes[scan_pid]) * 100
                 self.device_collection.update_progress(scan_pid, percent_complete,
                                             None, None)
             elif msg_type == rpdmp.MSG_FILE:
-                rpd_file, i, temp_full_file_name = data
+                download_succeeded, rpd_file, download_count, temp_full_file_name = data
                 
+                
+                self.download_count_for_file[rpd_file.unique_id] = download_count
+                self.download_count[rpd_file.scan_pid] = download_count
+                
+                if not download_succeeded:
+                    logger.error("File was not downloaded: %s", rpd_file.full_file_name)
                 
                 self.subfolder_file_manager.rename_file_and_move_to_subfolder(
-                    rpd_file, temp_full_file_name)
-                    
-                # FIXME: move this to another location
+                        download_succeeded, rpd_file, temp_full_file_name)
                 
-                scan_pid = rpd_file.scan_pid
-                progress_bar_text = _("%(number)s of %(total)s %(filetypes)s") % \
-                                     {'number':  i, 
-                                      'total': self.no_files_in_download[scan_pid],
-                                      'filetypes': self.file_types_present[scan_pid]}
-                self.device_collection.update_progress(scan_pid, None, progress_bar_text, None)                      
+                
             return True
         else:
             # Process is complete, i.e. conn_type == rpdmp.CONN_COMPLETE
-            scan_pid, photo_temp_dir, video_temp_dir = msg_data
-            logger.info("Remembering temp dirs for later deletion: %s %s", photo_temp_dir, video_temp_dir)
-            self.temp_dirs_by_scan_pid[scan_pid] = (photo_temp_dir, video_temp_dir)
             self.copy_files_manager.process_completed()
             connection.close()
             return False
+            
+
     
     # # #
     # Create folder and file names for downloaded files
     # # #
     
-    def subfolder_file_results(self, rpd_file):
+    def subfolder_file_results(self, move_succeeded, rpd_file):
         """
         Handle results of subfolder creation and file renaming
         """
-        print rpd_file.download_subfolder, rpd_file.download_name
-    
+
+        scan_pid = rpd_file.scan_pid
+        unique_id = rpd_file.unique_id
+        
+        self._update_file_download_device_progress(scan_pid, unique_id)
+        
+        download_count = self.download_count_for_file[unique_id]
+        if download_count == self.no_files_in_download[scan_pid]:
+            # Last file has been downloaded, so clean temp directory
+            logger.info("Purging temp directories")
+            for temp_dir in self.temp_dirs_by_scan_pid[scan_pid]:
+                self._purge_dir(temp_dir)
+                
+        else:
+            pass
+            #~ logger.info("Download count: %s", download_count)
+
+
+        
+    def _update_file_download_device_progress(self, scan_pid, unique_id):
+        """
+        Increments the progress bar for an individual device
+        """
+        #~ scan_pid = rpd_file.scan_pid
+        #~ unique_id = rpd_file.unique_id
+        progress_bar_text = _("%(number)s of %(total)s %(filetypes)s") % \
+                             {'number':  self.download_count_for_file[unique_id], 
+                              'total': self.no_files_in_download[scan_pid],
+                              'filetypes': self.file_types_present[scan_pid]}
+        self.device_collection.update_progress(scan_pid, None, progress_bar_text, None)        
+
+    def _purge_dir(self, directory):
+        """
+        Deletes all files in the directory, and the directory itself.
+        
+        Does not recursively traverse any subfolders in the directory.
+        """
+        
+        if directory:
+            try:
+                path = gio.File(directory)
+                # first delete any files in the temp directory
+                # assume there are no directories in the temp directory
+                file_attributes = "standard::name,standard::type"
+                children = path.enumerate_children(file_attributes)
+                for child in children:
+                    f = path.get_child(child.get_name())
+                    logger.info("Deleting %s", child.get_name())
+                    f.delete(cancellable=None)
+                path.delete(cancellable=None)
+                logger.info("Deleted temp dir %s", directory)
+            except gio.Error, inst:
+                logger.error("Failure deleting temporary folder %s", directory)
+                logger.error(inst)
     
     # # #
     # Main app window management and setup
@@ -1566,6 +1626,8 @@ class RapidApp(dbus.service.Object):
         if photo_dir and video_dir:
             same_file_system = self.same_file_system(self.prefs.download_folder,
                                             self.prefs.video_download_folder)
+        else:
+            same_file_system = False
                 
         dirs = []
         if photo_dir:
@@ -1704,25 +1766,29 @@ class RapidApp(dbus.service.Object):
         valid = False
         try:
             d = gio.File(path)
-            file_attributes = "standard::type,access::can-read,access::can-write"
-            file_info = d.query_filesystem_info(file_attributes)
-            file_type = file_info.get_file_type()
-            
-            if file_type != gio.FILE_TYPE_DIRECTORY and file_type != gio.FILE_TYPE_UNKNOWN:
-                logger.error("%s is an invalid directory", path)
+            if not d.query_exists(cancellable=None):
+                logger.error("Download directory does not exist: %s", path)
             else:
-                # is the directory writable?
-                try:
-                    temp_dir = tempfile.mkdtemp(prefix="rpd-tmp", dir=path)
-                    valid = True
-                except:
-                    logger.error("%s is not writable", path)
+                file_attributes = "standard::type,access::can-read,access::can-write"
+                file_info = d.query_filesystem_info(file_attributes)
+                file_type = file_info.get_file_type()
+                
+                if file_type != gio.FILE_TYPE_DIRECTORY and file_type != gio.FILE_TYPE_UNKNOWN:
+                    logger.error("%s is an invalid directory", path)
                 else:
-                    f = gio.File(temp_dir)
-                    f.delete(cancellable=None)
+                    # is the directory writable?
+                    try:
+                        temp_dir = tempfile.mkdtemp(prefix="rpd-tmp", dir=path)
+                        valid = True
+                    except:
+                        logger.error("%s is not writable", path)
+                    else:
+                        f = gio.File(temp_dir)
+                        f.delete(cancellable=None)
 
-        except:
-            logger.error("Download directory %s is invalid", path)
+        except gio.Error, inst:
+            logger.error("Error checking download directory %s", path)
+            logger.error(inst)
             
         return valid
                 

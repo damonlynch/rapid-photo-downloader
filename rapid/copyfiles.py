@@ -21,7 +21,7 @@ import multiprocessing
 import tempfile
 import os
 
-import gio, glib
+import gio
 
 import logging
 logger = multiprocessing.get_logger()
@@ -66,6 +66,14 @@ class CopyFiles(multiprocessing.Process):
         
         self.create_temp_dirs()
         
+        # Send the location of both temporary directories, so they can be
+        # removed once another process attempts to rename all the files in them
+        # and move them to generated subfolders
+        self.results_pipe.send((rpdmp.CONN_PARTIAL, (rpdmp.MSG_TEMP_DIRS, 
+                                                     (self.scan_pid,
+                                                     self.photo_temp_dir,
+                                                     self.video_temp_dir))))
+        
         if self.photo_temp_dir or self.video_temp_dir:
             for i in range(len(self.files)):
                 rpd_file = self.files[i]
@@ -77,7 +85,6 @@ class CopyFiles(multiprocessing.Process):
                     x = self.terminate_queue.get()
                     # terminate immediately
                     logger.info("Terminating file copying")
-                    self.clean_temp_dirs()
                     return None
                 
                 source = gio.File(path=rpd_file.full_file_name)
@@ -88,12 +95,11 @@ class CopyFiles(multiprocessing.Process):
                 
                 copy_succeeded = False            
                 try:
-                    if not source.copy(dest, self.progress_callback, cancellable=gio.Cancellable()):
-                        logger.error("Failed to copy %s", rpd_file.full_file_name)
-                    else:
-                        copy_succeeded = True
-                except glib.GError, inst:
-                    logger.error("Copy failure: %s", inst)
+                    source.copy(dest, self.progress_callback, cancellable=None)
+                    copy_succeeded = True
+                except gio.Error, inst:
+                    logger.error("Failed to download file: %s", rpd_file.full_file_name)
+                    logger.error(inst)
                 
                 # increment this amount regardless of whether the copy actually
                 # succeeded or not. It's neccessary to keep the user informed.
@@ -101,18 +107,10 @@ class CopyFiles(multiprocessing.Process):
                 
                 
                 self.results_pipe.send((rpdmp.CONN_PARTIAL, (rpdmp.MSG_FILE, 
-                                    (rpd_file, i + 1, temp_full_file_name))))
+                    (copy_succeeded, rpd_file, i + 1, temp_full_file_name))))
                     
             
-            
-        #FIXME: move this
-        self.clean_temp_dirs()
-        # Send the location of both temporary directories, so they can be
-        # removed once another process attempts to rename all the files in them
-        # and move them to generated subfolders
-        self.results_pipe.send((rpdmp.CONN_COMPLETE, (self.scan_pid,
-                                                     self.photo_temp_dir,
-                                                     self.video_temp_dir)))
+        self.results_pipe.send((rpdmp.CONN_COMPLETE, None))
             
 
     def _get_dest_dir(self, file_type):
@@ -124,7 +122,6 @@ class CopyFiles(multiprocessing.Process):
     def _create_temp_dir(self, folder):
         try:
             temp_dir = tempfile.mkdtemp(prefix="rpd-tmp-", dir=folder)
-            logger.info("Created temp dir %s", temp_dir)
         except OSError, (errno, strerror):
             # FIXME: error reporting
             logger.error("Failed to create temporary directory in %s: %s %s",
@@ -142,32 +139,5 @@ class CopyFiles(multiprocessing.Process):
         if self.video_download_folder is not None:
             self.video_temp_dir = self._create_temp_dir(self.photo_download_folder)
             
-    def clean_temp_dirs(self):
-        """
-        Deletes temporary files and folders using gio
-        """
-        for temp_dir in (self.photo_temp_dir, self.video_temp_dir):
-            if temp_dir:
-                path = gio.File(temp_dir)
-                # first delete any files in the temp directory
-                # assume there are no directories in the temp directory
-                file_attributes = "standard::name,standard::type"
-                children = path.enumerate_children(file_attributes)
-                for child in children:
-                    f = path.get_child(child.get_name())
-                    logger.info("Deleting %s", child.get_name())
-                    f.delete(cancellable=None)
-                path.delete(cancellable=None)
-                logger.info("Deleted temp dir %s", temp_dir)
-                
-                
-            
-            
-                            
-        #~ if size is not None:
-            #~ if self.counter > 0:
-                #~ # send any remaining results
-                #~ self.results_pipe.send((rpdmp.CONN_PARTIAL, self.files))
-            #~ self.results_pipe.send((rpdmp.CONN_COMPLETE, (size, 
-                                    #~ self.file_type_counter, self.pid)))
-            #~ self.results_pipe.close()   
+
+
