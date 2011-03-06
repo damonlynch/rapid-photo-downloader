@@ -63,7 +63,7 @@ import tableplusminus as tpm
 
 import scan as scan_process
 import copyfiles
-import generatename
+import subfolderfile
 
 import device as dv
 
@@ -945,8 +945,15 @@ class ThumbnailManager(TaskManager):
         generator.start()
         self._processes.append((generator, terminate_queue, run_event))
 
-class PreviewManager:
-    def __init__(self, results_callback):
+class DaemonTaskManager:
+    """
+    Base class to manage daemon processes
+    
+    Core (infrastructure) functionality is implemented in this class.
+    Derived classes should implemented functionality to actually implement
+    specific tasks.
+    """
+    def __init__(self, results_callback):    
         self.run_event = Event()
         self.task_queue = Queue()
         self.results_callback = results_callback
@@ -954,24 +961,56 @@ class PreviewManager:
         self.task_results_conn, self.task_process_conn = Pipe(duplex=False)
         
         source = self.task_results_conn.fileno()
-        gobject.io_add_watch(source, gobject.IO_IN, self.preview_results)
+        gobject.io_add_watch(source, gobject.IO_IN, self.task_results)
+        self.queued_items = 0 # track when to let the daemon process run
+        
+    def add_task(self):
+        if not self.run_event.is_set():
+            self.run_event.set()
+        self.queued_items += 1        
+    
+    def task_results(self):
+        """
+        Handles results sent from daemon process. 
+        Expected to be called from derived class.
+        """
+        self.queued_items -= 1
+        if self.queued_items == 0:
+            self.run_event.clear()
+        # rest of functionality should be implemented in derived class
+        
+class PreviewManager(DaemonTaskManager):
+    def __init__(self, results_callback):
+        DaemonTaskManager.__init__(self, results_callback)
         self._get_preview = tn.GetPreviewImage(self.task_process_conn, self.task_queue, self.run_event)
-        self.queued_items = 0
         self._get_preview.start()
         
     def get_preview(self, unique_id, full_file_name, file_type, size_max):
         self.task_queue.put((unique_id, full_file_name, file_type, size_max))
-        if not self.run_event.is_set():
-            self.run_event.set()
-        self.queued_items += 1
+        DaemonTaskManager.add_task(self)
         
-    def preview_results(self, source, condition):
-        self.queued_items -= 1
-        if self.queued_items == 0:
-            self.run_event.clear()
+    def task_results(self, source, condition):
+        DaemonTaskManager.task_results(self) 
         unique_id, preview_full_size, preview_small = self.task_results_conn.recv()
         self.results_callback(unique_id, preview_full_size, preview_small)
         return True 
+        
+class SubfolderFileManager(DaemonTaskManager):
+    def __init__(self, results_callback):
+        DaemonTaskManager.__init__(self, results_callback)
+        self._subfolder_file = subfolderfile.SubfolderFile(self.task_process_conn, self.task_queue, self.run_event)
+        self._subfolder_file.start()
+        
+    def rename_file_and_move_to_subfolder(self, rpd_file, temp_full_file_name):
+        self.task_queue.put((rpd_file, temp_full_file_name))
+        DaemonTaskManager.add_task(self)
+
+    def task_results(self, source, condition):
+        DaemonTaskManager.task_results(self)
+        rpd_file = self.task_results_conn.recv()[0]
+        self.results_callback(rpd_file)
+        return True
+        
 
 
 class ResizblePilImage(gtk.DrawingArea):
@@ -1184,6 +1223,9 @@ class RapidApp(dbus.service.Object):
         self.no_files_in_download = dict()
         self.file_types_present = dict()
         
+        # Track which temporary directories are created when downloading files
+        self.temp_dirs_by_scan_pid = dict()
+        
         #~ image_paths = ['/home/damon/rapid/cr2', '/home/damon/Pictures/processing/2011']
         #~ image_paths = ['/media/EOS_DIGITAL/']        
         #~ image_paths = ['/media/EOS_DIGITAL/', '/media/EOS_DIGITAL_/']
@@ -1210,6 +1252,9 @@ class RapidApp(dbus.service.Object):
         # Set up process managers.
         # A task such as scanning a device or copying files is handled in its
         # own process.
+        
+        self.subfolder_file_manager = SubfolderFileManager(self.subfolder_file_results)
+        
         self.generate_folder = False
         self.scan_manager = ScanManager(self.scan_results, self.batch_size, 
                     self.generate_folder, self.device_collection.add_device)
@@ -1406,6 +1451,7 @@ class RapidApp(dbus.service.Object):
         """
         Handle results from copy files process
         """
+        #FIXME: must handle termination / pause of copy files process
         connection = self.copy_files_manager.get_pipe(source)
         conn_type, msg_data = connection.recv()
         if conn_type == rpdmp.CONN_PARTIAL:
@@ -1417,16 +1463,40 @@ class RapidApp(dbus.service.Object):
                 self.device_collection.update_progress(scan_pid, percent_complete,
                                             None, None)
             elif msg_type == rpdmp.MSG_FILE:
-                scan_pid, i, temp_full_file_name = data
+                rpd_file, i, temp_full_file_name = data
+                
+                
+                self.subfolder_file_manager.rename_file_and_move_to_subfolder(
+                    rpd_file, temp_full_file_name)
+                    
+                # FIXME: move this to another location
+                
+                scan_pid = rpd_file.scan_pid
                 progress_bar_text = _("%(number)s of %(total)s %(filetypes)s") % \
                                      {'number':  i, 
                                       'total': self.no_files_in_download[scan_pid],
                                       'filetypes': self.file_types_present[scan_pid]}
                 self.device_collection.update_progress(scan_pid, None, progress_bar_text, None)                      
-            
             return True
         else:
-            return False                              
+            # Process is complete, i.e. conn_type == rpdmp.CONN_COMPLETE
+            scan_pid, photo_temp_dir, video_temp_dir = msg_data
+            logger.info("Remembering temp dirs for later deletion: %s %s", photo_temp_dir, video_temp_dir)
+            self.temp_dirs_by_scan_pid[scan_pid] = (photo_temp_dir, video_temp_dir)
+            self.copy_files_manager.process_completed()
+            connection.close()
+            return False
+    
+    # # #
+    # Create folder and file names for downloaded files
+    # # #
+    
+    def subfolder_file_results(self, rpd_file):
+        """
+        Handle results of subfolder creation and file renaming
+        """
+        print rpd_file.download_subfolder, rpd_file.download_name
+    
     
     # # #
     # Main app window management and setup

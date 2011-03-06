@@ -65,18 +65,18 @@ def file_type(file_extension):
     
 def get_rpdfile(extension, name, display_name, path, size, 
                 file_system_modification_time, 
-                device_name, download_folder, volume, scan_pid, file_id):
+                scan_pid, file_id):
                     
     if extension in VIDEO_EXTENSIONS:
         return Video(name, display_name, path, size,
                      file_system_modification_time, 
-                     device_name, download_folder, volume, scan_pid, file_id)
+                     scan_pid, file_id)
     else:
         # assume it's a photo - no check for performance reasons (this will be
         # called many times)
         return Photo(name, display_name, path, size,
                      file_system_modification_time, 
-                     device_name, download_folder, volume, scan_pid, file_id)
+                     scan_pid, file_id)
 
 class FileTypeCounter:
     def __init__(self):
@@ -133,8 +133,8 @@ class RPDFile:
     """
 
     def __init__(self, name, display_name, path, size, 
-                 file_system_modification_time, device_name, download_folder,
-                 volume, scan_pid, file_id):
+                 file_system_modification_time, 
+                 scan_pid, file_id):
                      
         self.path = path
 
@@ -146,10 +146,6 @@ class RPDFile:
         self.size = size # type int
         
         self.modification_time = file_system_modification_time
-        self.device_name = device_name
-        
-        self.download_folder = download_folder
-        self.volume = volume
         
         self.status = config.STATUS_NOT_DOWNLOADED
         self.problem = None # class Problem in problemnotifcation.py
@@ -159,6 +155,12 @@ class RPDFile:
         self.scan_pid = scan_pid
         self.file_id = file_id
         self.unique_id = str(scan_pid) + ":" + file_id
+        
+        # generated values
+        self.download_subfolder = ''
+        self.download_path = ''
+        self.download_name = ''
+        self.download_full_file_name = ''        
         
         
     def _assign_file_type(self):

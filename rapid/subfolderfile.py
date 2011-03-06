@@ -36,7 +36,7 @@ import rpdmultiprocessing as rpdmp
 def generate_folder(rpd_file):
     return '/home/damon/photos'
 
-class GenerateName(multiprocessing.Process):
+class SubfolderFile(multiprocessing.Process):
     def __init__(self, results_pipe, task_queue, run_event):
         multiprocessing.Process.__init__(self)
         self.daemon = True
@@ -45,9 +45,24 @@ class GenerateName(multiprocessing.Process):
         self.task_queue = task_queue
         
     def run(self):
+        """
+        Get subfolder and name.
+        Attempt to move the file from it's temporary directory.
+        If successful, increment sequence values.
+        Report any success or failure.
+        """
+        i = 0
         while True:
+            self.run_event.wait()
+            
             task = self.task_queue.get()
-            full_file_name, file_type, rename = task
-            generated_folder = '/home/damon/photos'
-            generated_name = 'sample.cr2'
-            self.results_pipe.send((generated_folder, generated_name))
+            rpd_file, temp_full_file_name = task
+            download_folder = '/home/damon/store/rapid-dump'
+            generated_subfolder = '2011'
+            generated_name = 'sample%s.cr2' % i
+            rpd_file.download_subfolder = generated_subfolder
+            rpd_file.download_name = generated_name
+            
+            self.results_pipe.send((rpd_file,))
+            
+            i += 1

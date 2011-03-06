@@ -121,9 +121,6 @@ class Scan(multiprocessing.Process):
                         display_name = child.get_display_name()
                         size = child.get_size()
                         modification_time = child.get_modification_time()
-                        device = 'foo'
-                        download_folder = 'foo'
-                        volume = 'foo'
                         file_id = child.get_attribute_string(
                                                 gio.FILE_ATTRIBUTE_ID_FILE)
                         scanned_file = rpdfile.get_rpdfile(ext, 
@@ -132,13 +129,13 @@ class Scan(multiprocessing.Process):
                                          path.get_path(),
                                          size,
                                          modification_time, 
-                                         device, 
-                                         download_folder, 
-                                         volume,
                                          self.pid,
                                          file_id)
                                          
                         if self.generate_folder:
+                            # this dramatically slows scanning speed, and it
+                            # is unlikely this will be called this early in the
+                            # workflow
                             scanned_file.read_metadata()
                         
                         self.files.append(scanned_file)

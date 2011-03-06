@@ -94,7 +94,6 @@ class CopyFiles(multiprocessing.Process):
                         copy_succeeded = True
                 except glib.GError, inst:
                     logger.error("Copy failure: %s", inst)
-                    #~ logger.error("Source: %s", rpd_file.full_file_name)
                 
                 # increment this amount regardless of whether the copy actually
                 # succeeded or not. It's neccessary to keep the user informed.
@@ -102,11 +101,18 @@ class CopyFiles(multiprocessing.Process):
                 
                 
                 self.results_pipe.send((rpdmp.CONN_PARTIAL, (rpdmp.MSG_FILE, 
-                                    (self.scan_pid, i + 1, temp_full_file_name))))
+                                    (rpd_file, i + 1, temp_full_file_name))))
                     
             
             
-        self.clean_temp_dirs()    
+        #FIXME: move this
+        self.clean_temp_dirs()
+        # Send the location of both temporary directories, so they can be
+        # removed once another process attempts to rename all the files in them
+        # and move them to generated subfolders
+        self.results_pipe.send((rpdmp.CONN_COMPLETE, (self.scan_pid,
+                                                     self.photo_temp_dir,
+                                                     self.video_temp_dir)))
             
 
     def _get_dest_dir(self, file_type):
