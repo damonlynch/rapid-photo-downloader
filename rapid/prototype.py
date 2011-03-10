@@ -954,43 +954,25 @@ class DaemonTaskManager:
     specific tasks.
     """
     def __init__(self, results_callback):    
-        self.run_event = Event()
-        self.task_queue = Queue()
         self.results_callback = results_callback
         
-        self.task_results_conn, self.task_process_conn = Pipe(duplex=False)
+        self.task_results_conn, self.task_process_conn = Pipe(duplex=True)
         
         source = self.task_results_conn.fileno()
         gobject.io_add_watch(source, gobject.IO_IN, self.task_results)
         self.queued_items = 0 # track when to let the daemon process run
         
-    def add_task(self):
-        if not self.run_event.is_set():
-            self.run_event.set()
-        self.queued_items += 1        
-    
-    def task_results(self):
-        """
-        Handles results sent from daemon process. 
-        Expected to be called from derived class.
-        """
-        self.queued_items -= 1
-        if self.queued_items == 0:
-            self.run_event.clear()
-        # rest of functionality should be implemented in derived class
         
 class PreviewManager(DaemonTaskManager):
     def __init__(self, results_callback):
         DaemonTaskManager.__init__(self, results_callback)
-        self._get_preview = tn.GetPreviewImage(self.task_process_conn, self.task_queue, self.run_event)
+        self._get_preview = tn.GetPreviewImage(self.task_process_conn)
         self._get_preview.start()
         
     def get_preview(self, unique_id, full_file_name, file_type, size_max):
-        self.task_queue.put((unique_id, full_file_name, file_type, size_max))
-        DaemonTaskManager.add_task(self)
+        self.task_results_conn.send((unique_id, full_file_name, file_type, size_max))
         
     def task_results(self, source, condition):
-        DaemonTaskManager.task_results(self) 
         unique_id, preview_full_size, preview_small = self.task_results_conn.recv()
         self.results_callback(unique_id, preview_full_size, preview_small)
         return True 
@@ -998,17 +980,17 @@ class PreviewManager(DaemonTaskManager):
 class SubfolderFileManager(DaemonTaskManager):
     def __init__(self, results_callback):
         DaemonTaskManager.__init__(self, results_callback)
-        self._subfolder_file = subfolderfile.SubfolderFile(self.task_process_conn, self.task_queue, self.run_event)
+        self._subfolder_file = subfolderfile.SubfolderFile(self.task_process_conn)
         self._subfolder_file.start()
         
-    def rename_file_and_move_to_subfolder(self, download_succeeded, rpd_file, 
+    def rename_file_and_move_to_subfolder(self, download_succeeded, download_count, rpd_file, 
                                           temp_full_file_name):
                                               
-        self.task_queue.put((download_succeeded, rpd_file, temp_full_file_name))
-        DaemonTaskManager.add_task(self)
+        self.task_results_conn.send((download_succeeded, download_count, rpd_file, temp_full_file_name))
+        logger.info("Download count: %s.", download_count)
+        
 
     def task_results(self, source, condition):
-        DaemonTaskManager.task_results(self)
         move_succeeded, rpd_file = self.task_results_conn.recv()
         self.results_callback(move_succeeded, rpd_file)
         return True
@@ -1240,7 +1222,8 @@ class RapidApp(dbus.service.Object):
         
         self.display_free_space()
         devices = []
-        devices = [dv.Device(path='/home/damon/rapid/sample-cr2')]
+        devices = [dv.Device(path='/home/damon/rapid/sample-cr2'), dv.Device(path='/home/damon/rapid/sample-cr2')]
+        #~ devices = [dv.Device(path='/home/damon/rapid/sample-cr2')]
         #~ devices = [dv.Device(path='/home/damon/rapid/sample-cr2'), dv.Device(path='/home/damon/Pictures/processing/2011'), ]
         #~ devices = [dv.Device(path='/home/damon/rapid/sample-cr2'), dv.Device(path='/home/damon/Pictures/pbase'), ]
         #~ devices = [dv.Device(path='/home/damon/Pictures/')]
@@ -1479,11 +1462,13 @@ class RapidApp(dbus.service.Object):
                 self.download_count_for_file[rpd_file.unique_id] = download_count
                 self.download_count[rpd_file.scan_pid] = download_count
                 
+                #~ logger.info("Recieved data about %s", download_count)
+                
                 if not download_succeeded:
                     logger.error("File was not downloaded: %s", rpd_file.full_file_name)
                 
                 self.subfolder_file_manager.rename_file_and_move_to_subfolder(
-                        download_succeeded, rpd_file, temp_full_file_name)
+                        download_succeeded, download_count, rpd_file, temp_full_file_name)
                 
                 
             return True
@@ -1515,6 +1500,9 @@ class RapidApp(dbus.service.Object):
             logger.info("Purging temp directories")
             for temp_dir in self.temp_dirs_by_scan_pid[scan_pid]:
                 self._purge_dir(temp_dir)
+            logger.info("Purging download directory")
+            # During development, delete the directory the files were downloaded into
+            self._purge_dir('/home/damon/store/rapid-dump/2011')
                 
         else:
             pass
@@ -1550,10 +1538,10 @@ class RapidApp(dbus.service.Object):
                 children = path.enumerate_children(file_attributes)
                 for child in children:
                     f = path.get_child(child.get_name())
-                    logger.info("Deleting %s", child.get_name())
+                    #~ logger.info("Deleting %s", child.get_name())
                     f.delete(cancellable=None)
                 path.delete(cancellable=None)
-                logger.info("Deleted temp dir %s", directory)
+                logger.info("Deleted directory %s", directory)
             except gio.Error, inst:
                 logger.error("Failure deleting temporary folder %s", directory)
                 logger.error(inst)

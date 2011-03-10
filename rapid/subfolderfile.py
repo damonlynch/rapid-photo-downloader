@@ -26,7 +26,7 @@ Runs a daemon process.
 import os
 
 import gio
-import multiprocessing
+import multiprocessing, Queue
 import logging
 logger = multiprocessing.get_logger()
 
@@ -37,12 +37,10 @@ def generate_folder(rpd_file):
     return '/home/damon/photos'
 
 class SubfolderFile(multiprocessing.Process):
-    def __init__(self, results_pipe, task_queue, run_event):
+    def __init__(self, results_pipe):
         multiprocessing.Process.__init__(self)
         self.daemon = True
         self.results_pipe = results_pipe
-        self.run_event = run_event
-        self.task_queue = task_queue
         
     def progress_callback_no_update(self, amount_downloaded, total):
         pass
@@ -55,11 +53,13 @@ class SubfolderFile(multiprocessing.Process):
         Report any success or failure.
         """
         i = 0
+        download_count = 0
         while True:
-            self.run_event.wait()
-            
-            task = self.task_queue.get()
-            download_succeeded, rpd_file, temp_full_file_name = task
+            logger.info("Finished %s. Getting next task.", download_count)
+
+            task = self.results_pipe.recv()
+                
+            download_succeeded, download_count, rpd_file, temp_full_file_name = task
             
             move_succeeded = False
             
@@ -109,8 +109,11 @@ class SubfolderFile(multiprocessing.Process):
                     except gio.Error, inst:
                         logger.error("Failed to delete temporary file %s", temp_full_file_name)
                         logger.error(inst)
+                
+                logger.info("Moved file: %s", download_count)
                     
             
             self.results_pipe.send((move_succeeded, rpd_file,))
             
             i += 1
+            

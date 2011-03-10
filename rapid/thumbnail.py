@@ -310,19 +310,15 @@ class Thumbnail:
                 
                 
 class GetPreviewImage(multiprocessing.Process):
-    def __init__(self, results_pipe, task_queue, run_event):
+    def __init__(self, results_pipe):
         multiprocessing.Process.__init__(self)
         self.daemon = True
         self.results_pipe = results_pipe
-        self.run_event = run_event
-        self.task_queue = task_queue
         self.thumbnail_maker = Thumbnail()
         
     def run(self):
         while True:
-            self.run_event.wait()
-            
-            unique_id, full_file_name, file_type, size_max = self.task_queue.get()
+            unique_id, full_file_name, file_type, size_max = self.results_pipe.recv()
             full_size_preview, reduced_size_preview = self.thumbnail_maker.get_thumbnail(full_file_name, file_type, size_max=size_max, size_reduced=None)
             self.results_pipe.send((unique_id, full_size_preview, reduced_size_preview))
             
