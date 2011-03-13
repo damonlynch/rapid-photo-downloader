@@ -172,6 +172,7 @@ class Thumbnail:
         return max_size_needed is None or max_size_needed[0] > 160 or max_size_needed[1] > 120 or not metadata.exif_thumbnail.data
     
     def _get_thumbnail_data(self, metadata, max_size_needed):
+        logger.debug("Getting thumbnail data %s", max_size_needed)
         if self._ignore_embedded_160x120_thumbnail(max_size_needed, metadata):
             logger.debug("Ignoring embedded preview")
             lowrez = False
@@ -210,10 +211,12 @@ class Thumbnail:
         name = os.path.basename(full_file_name)
         metadata = pyexiv2.metadata.ImageMetadata(full_file_name)
         try:
+            logger.debug("Read photo metadata...")
             metadata.read()
         except:
             logger.warning("Could not read metadata from %s", full_file_name)
         else:
+            logger.debug("...successfully read photo metadata")
             if metadata.mime_type == "image/jpeg" and self._ignore_embedded_160x120_thumbnail(size_max, metadata):
                 try:
                     image = Image.open(full_file_name)
@@ -304,6 +307,7 @@ class Thumbnail:
     def get_thumbnail(self, full_file_name, file_type, size_max=None, size_reduced=None):
         logger.debug("Getting thumbnail for %s...", full_file_name)
         if file_type == rpdfile.FILE_TYPE_PHOTO:
+            logger.debug("file type is photo")
             return self._get_photo_thumbnail(full_file_name, size_max, size_reduced)
         else:
             return self._get_video_thumbnail(full_file_name, size_max, size_reduced)
@@ -340,10 +344,12 @@ class GenerateThumbnails(multiprocessing.Process):
         
     def run(self):
         counter = 0
+        i = 0
         for f in self.files:
             
             # pause if instructed by the caller
             self.run_event.wait()
+            logger.info(i)
             
             if not self.terminate_queue.empty():
                 x = self.terminate_queue.get()
@@ -365,6 +371,7 @@ class GenerateThumbnails(multiprocessing.Process):
                 self.results_pipe.send((rpdmp.CONN_PARTIAL, self.results))
                 self.results = []
                 counter = 0
+            i += 1
             
         if counter > 0:
             # send any remaining results

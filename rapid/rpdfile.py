@@ -31,6 +31,8 @@ import common
 _ = common.Configi18n._
 
 import config
+import metadataphoto
+import metadatavideo
 
 import thumbnail as tn
 
@@ -160,46 +162,39 @@ class RPDFile:
         self.download_subfolder = ''
         self.download_path = ''
         self.download_name = ''
-        self.download_full_file_name = ''        
+        self.download_full_file_name = ''
+        
+        self.metadata = None
         
         
     def _assign_file_type(self):
         self.file_type = None
     
-    #~ def date_time(self, alternative_if_date_missing=None):
-        #~ date = None
-        #~ if self.metadata:
-            #~ date = self.photometadata.date_time()
-        #~ if not date:
-            #~ if alternative_if_date_missing:
-                #~ date = alternative_if_date_missing
-            #~ else:
-                #~ date = datetime.datetime.fromtimestamp(self.modification_time)
-        #~ return date
+
         
-exif_tags_needed = ('Exif.Photo.FNumber', 
-                    'Exif.Photo.ISOSpeedRatings',
-                    'Exif.Photo.ExposureTime',
-                    'Exif.Photo.FocalLength',
-                    'Exif.Image.Make',
-                    'Exif.Image.Model',
-                    'Exif.Canon.SerialNumber',
-                    'Exif.Nikon3.SerialNumber'
-                    'Exif.OlympusEq.SerialNumber',
-                    'Exif.Olympus.SerialNumber',
-                    'Exif.Olympus.SerialNumber2',
-                    'Exif.Panasonic.SerialNumber',
-                    'Exif.Fujifilm.SerialNumber',
-                    'Exif.Image.CameraSerialNumber',
-                    'Exif.Nikon3.ShutterCount',
-                    'Exif.Canon.FileNumber',
-                    'Exif.Canon.ImageNumber',
-                    'Exif.Canon.OwnerName',
-                    'Exif.Photo.DateTimeOriginal',
-                    'Exif.Image.DateTime',
-                    'Exif.Photo.SubSecTimeOriginal',
-                    'Exif.Image.Orientation'
-                   )
+#~ exif_tags_needed = ('Exif.Photo.FNumber', 
+                    #~ 'Exif.Photo.ISOSpeedRatings',
+                    #~ 'Exif.Photo.ExposureTime',
+                    #~ 'Exif.Photo.FocalLength',
+                    #~ 'Exif.Image.Make',
+                    #~ 'Exif.Image.Model',
+                    #~ 'Exif.Canon.SerialNumber',
+                    #~ 'Exif.Nikon3.SerialNumber'
+                    #~ 'Exif.OlympusEq.SerialNumber',
+                    #~ 'Exif.Olympus.SerialNumber',
+                    #~ 'Exif.Olympus.SerialNumber2',
+                    #~ 'Exif.Panasonic.SerialNumber',
+                    #~ 'Exif.Fujifilm.SerialNumber',
+                    #~ 'Exif.Image.CameraSerialNumber',
+                    #~ 'Exif.Nikon3.ShutterCount',
+                    #~ 'Exif.Canon.FileNumber',
+                    #~ 'Exif.Canon.ImageNumber',
+                    #~ 'Exif.Canon.OwnerName',
+                    #~ 'Exif.Photo.DateTimeOriginal',
+                    #~ 'Exif.Image.DateTime',
+                    #~ 'Exif.Photo.SubSecTimeOriginal',
+                    #~ 'Exif.Image.Orientation'
+                   #~ )
                    
 class Photo(RPDFile):
     
@@ -209,18 +204,22 @@ class Photo(RPDFile):
     def _assign_file_type(self):
         self.file_type = FILE_TYPE_PHOTO
         
-    def read_metadata(self):
-        self.exif_tags = []
-        metadata = pyexiv2.metadata.ImageMetadata(self.full_file_name)
+    def load_metadata(self):
+        #~ self.exif_tags = []
+        
+        self.metadata = metadataphoto.MetaData(self.full_file_name)
         try:
-            metadata.read()
+            self.metadata.read()
         except:
             logger.warning("Could not read metadata from %s" % self.full_file_name)
+            return False
         else:
-            if True:
-                for tag in exif_tags_needed:
-                    if tag in metadata.exif_keys:
-                        self.exif_tags.append(metadata[tag])
+            return True
+            
+            
+                #~ for tag in exif_tags_needed:
+                    #~ if tag in metadata.exif_keys:
+                        #~ self.exif_tags.append(metadata[tag])
     
             
 class Video(RPDFile):
@@ -230,5 +229,9 @@ class Video(RPDFile):
     
     def _assign_file_type(self):
         self.file_type = FILE_TYPE_VIDEO
+        
+    def load_metadata(self):
+        self.metadata = metadatavideo.VideoMetaData(self.full_file_name)
+        return True
 
 

@@ -59,3 +59,4 @@ class Device:
         if not icon_file:
             return icontheme.load_icon('folder', size, gtk.ICON_LOOKUP_USE_BUILTIN)
 
+

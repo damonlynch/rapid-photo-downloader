@@ -45,7 +45,7 @@ from multiprocessing import Process, Pipe, Queue, Event, current_process, log_to
 
 import logging
 logger = log_to_stderr()
-logger.setLevel(logging.INFO)
+logger.setLevel(logging.DEBUG)
 
 # Rapid Photo Downloader modules
 
@@ -983,10 +983,11 @@ class SubfolderFileManager(DaemonTaskManager):
         self._subfolder_file = subfolderfile.SubfolderFile(self.task_process_conn)
         self._subfolder_file.start()
         
-    def rename_file_and_move_to_subfolder(self, download_succeeded, download_count, rpd_file, 
-                                          temp_full_file_name):
+    def rename_file_and_move_to_subfolder(self, download_succeeded, 
+            download_count, rpd_file, temp_full_file_name, download_start_time):
                                               
-        self.task_results_conn.send((download_succeeded, download_count, rpd_file, temp_full_file_name))
+        self.task_results_conn.send((download_succeeded, download_count, 
+            rpd_file, temp_full_file_name, download_start_time))
         logger.info("Download count: %s.", download_count)
         
 
@@ -1222,7 +1223,8 @@ class RapidApp(dbus.service.Object):
         
         self.display_free_space()
         devices = []
-        devices = [dv.Device(path='/home/damon/rapid/sample-cr2'), dv.Device(path='/home/damon/rapid/sample-cr2')]
+        devices = [dv.Device(path='/home/damon/rapid/cr2')]
+        #~ devices = [dv.Device(path='/home/damon/rapid/sample-cr2'), dv.Device(path='/home/damon/rapid/sample-cr2')]
         #~ devices = [dv.Device(path='/home/damon/rapid/sample-cr2')]
         #~ devices = [dv.Device(path='/home/damon/rapid/sample-cr2'), dv.Device(path='/home/damon/Pictures/processing/2011'), ]
         #~ devices = [dv.Device(path='/home/damon/rapid/sample-cr2'), dv.Device(path='/home/damon/Pictures/pbase'), ]
@@ -1402,6 +1404,7 @@ class RapidApp(dbus.service.Object):
         Start download, renaming and backup of files.
         """
         
+        self.download_start_time = datetime.datetime.now()
         files_by_scan_pid = self.thumbnails.get_files_checked_for_download()
         folders_valid = self.check_download_folder_validity(files_by_scan_pid)
         
@@ -1468,7 +1471,11 @@ class RapidApp(dbus.service.Object):
                     logger.error("File was not downloaded: %s", rpd_file.full_file_name)
                 
                 self.subfolder_file_manager.rename_file_and_move_to_subfolder(
-                        download_succeeded, download_count, rpd_file, temp_full_file_name)
+                        download_succeeded, 
+                        download_count, 
+                        rpd_file, 
+                        temp_full_file_name,
+                        self.download_start_time)
                 
                 
             return True
@@ -1502,7 +1509,7 @@ class RapidApp(dbus.service.Object):
                 self._purge_dir(temp_dir)
             logger.info("Purging download directory")
             # During development, delete the directory the files were downloaded into
-            self._purge_dir('/home/damon/store/rapid-dump/2011')
+            #~ self._purge_dir('/home/damon/store/rapid-dump/2011')
                 
         else:
             pass
