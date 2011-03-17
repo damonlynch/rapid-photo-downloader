@@ -81,12 +81,6 @@ class PrefValueKeyComboError(PrefError):
         self.msg = error
 
 
-def convert_date_for_strftime(datetime_user_choice):
-    try:
-        return DATE_TIME_CONVERT[LIST_DATE_TIME_L2.index(datetime_user_choice)]
-    except:
-        raise PrefValueInvalidError(datetime_user_choice)
-        
 def check_pref_valid(pref_defn, prefs, modulo=3):
     """
     Checks to see if prefs are valid according to definition.

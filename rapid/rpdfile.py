@@ -34,6 +34,8 @@ import config
 import metadataphoto
 import metadatavideo
 
+import problemnotification as pn
+
 import thumbnail as tn
 
 
@@ -44,7 +46,7 @@ NON_RAW_IMAGE_EXTENSIONS = ['jpg', 'jpe', 'jpeg', 'tif', 'tiff']
 
 PHOTO_EXTENSIONS = RAW_EXTENSIONS + NON_RAW_IMAGE_EXTENSIONS
 
-if metadatavideo.DOWNLOAD_VIDEO:
+if metadatavideo.DOWNLOAD_VIDEO and False:
     # some distros do not include the necessary libraries that Rapid Photo Downloader 
     # needs to be able to download videos
     VIDEO_EXTENSIONS = ['3gp', 'avi', 'm2t', 'mov', 'mp4', 'mpeg','mpg', 'mod', 
@@ -164,7 +166,14 @@ class RPDFile:
         self.file_id = file_id
         self.unique_id = str(scan_pid) + ":" + file_id
         
+        self.problem = None
+        self.job_code = None
+        
         # generated values
+        
+        self.temp_full_file_name = ''
+        self.download_start_time = None
+        
         self.download_subfolder = ''
         self.download_path = ''
         self.download_name = ''
@@ -172,9 +181,32 @@ class RPDFile:
         
         self.metadata = None
         
+        # Values that will be inserted in download process --
+        # (commented out because they're not needed until then)
+        
+        #self.sequences = None
+        #self.download_folder
+        #self.subfolder_pref_list = []
+        #self.name_pref_list = []
+        #strip_characters = False
+        
         
     def _assign_file_type(self):
         self.file_type = None
+        
+    def initialize_problem(self):
+        self.problem = pn.Problem()
+        
+    def has_problem(self):
+        return self.problem.has_problem()
+        
+    def add_problem(self, component, problem_definition, *args):
+        if self.problem is None:
+            self.initialize_problem()
+        self.problem.add_problem(component, problem_definition, *args)
+    
+    def add_extra_detail(self, extra_detail, *args):
+        self.problem.add_extra_detail(extra_detail, *args)
     
 
         

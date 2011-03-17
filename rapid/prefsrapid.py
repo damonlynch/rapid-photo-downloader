@@ -23,6 +23,7 @@ import prefs
 
 import preferencesdialog as pd
 from generatenameconfig import *
+import rpdfile
 
 import utilities
 import config
@@ -173,9 +174,9 @@ class RapidPreferences(prefs.Preferences):
             self.reset_downloads_today(1)
             return True
 
-    def reset_downloads_today(self,  value=0):
+    def reset_downloads_today(self, value=0):
         now = datetime.datetime.today()
-        hour,  minute = self.get_day_start()
+        hour, minute = self.get_day_start()
         t = datetime.time(hour,  minute)
         if now.time() < t:
             date = today()
@@ -213,6 +214,42 @@ class RapidPreferences(prefs.Preferences):
         self.program_version = __version__
         
         
+    def pref_uses_job_code(self, pref_list):
+        """ Returns True if the particular preferences contains a job code"""
+        for i in range(0, len(pref_list), 3):
+            if pref_list[i] == JOB_CODE:
+                return True
+        return False
+        
+    def any_pref_uses_job_code(self):
+        """ Returns True if any the preferences contain a job code"""      
+        pref_lists = (self.image_rename, self.subfolder, self.video_rename, 
+                     self.video_subfolder)
+                     
+        for pref_list in pref_lists:
+            if self.pref_uses_job_code(pref_list):
+                return True
+        return False
+        
+    def get_pref_lists_by_file_type(self, file_type):
+        """
+        Returns tuple of subfolder and file rename pref lists for the given 
+        file type
+        """
+        if file_type == rpdfile.FILE_TYPE_PHOTO:
+            return (self.subfolder, self.image_rename)
+        else:
+            return (self.video_subfolder, self.video_rename)
+
+    def get_download_folder_for_file_type(self, file_type):
+        """
+        Returns the download folder for the given file type
+        """
+        if file_type == rpdfile.FILE_TYPE_PHOTO:
+            return self.download_folder
+        else:
+            return self.video_download_folder            
+        
             
 def check_prefs_for_validity(prefs):
     """
@@ -233,6 +270,17 @@ def check_prefs_for_validity(prefs):
         return False
     return True
 
+def insert_pref_lists(prefs, rpd_file):
+    """
+    Convenience function to insert subfolder and file rename pref_lists for
+    the given file type.
+    
+    Returns the modified rpd_file
+    """
+    subfolder_pref_list, name_pref_list = prefs.get_pref_lists_by_file_type(rpd_file.file_type)
+    rpd_file.subfolder_pref_list = subfolder_pref_list
+    rpd_file.name_pref_list = name_pref_list
+    return rpd_file
 
 
 

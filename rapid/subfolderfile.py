@@ -36,38 +36,50 @@ import rpdmultiprocessing as rpdmp
 import generatename as gn
 import problemnotification as pn
 
-def generate_subfolder(prefs, rpd_file, download_start_time):
+from gettext import gettext as _
+
+def _generate_name(generator, rpd_file):
     
-    problem = pn.Problem()
-    generate_subfolder = True    
+    do_generation = True
+    if rpd_file.file_type == rpdfile.FILE_TYPE_PHOTO:
+        if rpd_file.metadata is None:        
+            if not rpd_file.load_metadata():
+                # Error in reading metadata
+                rpd_file.add_problem(None, pn.CANNOT_DOWNLOAD_BAD_METADATA, {'filetype': rpd_file.title_capitalized})
+                do_generation = False
+    else:
+        if rpd_file.metadata is None:
+            rpd_file.load_metadata()
+
+    if do_generation:
+        value = generator.generate_name(rpd_file)
+        if value is None:
+            value = ''
+    else:
+        value = ''
+    
+    return value
+
+def generate_subfolder(rpd_file):
     
     if rpd_file.file_type == rpdfile.FILE_TYPE_PHOTO:
-        if not rpd_file.load_metadata():
-            # Error in reading metadata
-            problem.add_problem(None, pn.CANNOT_DOWNLOAD_BAD_METADATA, {'filetype': rpd_file.title_capitalized})
-            generate_subfolder = False
-        else:
-            generator = gn.PhotoSubfolder(prefs, download_start_time)
+        generator = gn.PhotoSubfolder(rpd_file.subfolder_pref_list)
     else:
-        subfolder_prefs = prefs.video_subfolder
-        rpd_file.load_metadata()
-        generator = gn.VideoSubfolder(prefs, download_start_time)
+        generator = gn.VideoSubfolder(rpd_file.subfolder_pref_list)
+        
+    rpd_file.download_subfolder = _generate_name(generator, rpd_file)
+    return rpd_file
     
- 
-    if generate_subfolder:
-        generator.initialize_problem(problem)
-        subfolder = generator.generate_name(rpd_file)
-        logger.debug("Generated subfolder: %s", subfolder)
+def generate_name(rpd_file):
+    do_generation = True
+    
+    if rpd_file.file_type == rpdfile.FILE_TYPE_PHOTO:
+        generator = gn.PhotoName(rpd_file.name_pref_list)
     else:
-        subfolder = None
-    
-    return subfolder
-    
-def get_download_folder_from_prefs(prefs, file_type):
-    if file_type == rpdfile.FILE_TYPE_PHOTO:
-        return prefs.download_folder
-    else:
-        return prefs.video_download_folder
+        generator = gn.VideoName(rpd_file.name_pref_list)
+        
+    rpd_file.download_name = _generate_name(generator, rpd_file)
+    return rpd_file
         
 
 class SubfolderFile(multiprocessing.Process):
@@ -89,31 +101,50 @@ class SubfolderFile(multiprocessing.Process):
         i = 0
         download_count = 0
         
-        # Preferences are 'live', i.e. they can change at any time
-        # Before they are applied to generate file and subfolder names, they
-        # must be accessed each and every time.
-        self.prefs = prefsrapid.RapidPreferences()
+        #~ # Preferences are 'live', i.e. they can change at any time
+        #~ # Before they are applied to generate file and subfolder names, they
+        #~ # must be accessed each and every time.
+        #~ self.prefs = prefsrapid.RapidPreferences()
+        #~ self.prefs.notify_add(self.on_preference_changed)        
+        
+        sequences = gn.Sequences()
         
         while True:
-            logger.info("Finished %s. Getting next task.", download_count)
+            logger.debug("Finished %s. Getting next task.", download_count)
 
             task = self.results_pipe.recv()
-                
-            download_succeeded, download_count, rpd_file, temp_full_file_name, download_start_time = task
+            
+
+                    
+            download_succeeded, download_count, rpd_file = task
             
             move_succeeded = False
             
             if download_succeeded:
-            
-                # Generate subfolder name and new file name
-                download_folder = get_download_folder_from_prefs(self.prefs, rpd_file.file_type)
-                generated_subfolder = generate_subfolder(self.prefs, rpd_file, download_start_time)
-                #~ generated_name = 'sample%s.cr2' % i
-                generated_name = rpd_file.name
-                if generated_subfolder is not None:
-                    rpd_file.download_subfolder = generated_subfolder
-                    rpd_file.download_path = os.path.join('/home/damon/store/rapid-dump', generated_subfolder)
-                    rpd_file.download_name = generated_name
+                temp_file = gio.File(rpd_file.temp_full_file_name)
+
+                # Generate subfolder name and new file name                
+                generation_succeeded = True
+                rpd_file = generate_subfolder(rpd_file)
+                if rpd_file.download_subfolder:
+                    rpd_file.sequences = sequences
+                    rpd_file = generate_name(rpd_file)
+
+                # Check for any errors
+                if not rpd_file.download_subfolder or not rpd_file.download_name:
+                    if not rpd_file.download_subfolder and not rpd_file.download_name:
+                        area = _("subfolder and filename")
+                    elif not rpd_file.download_name:
+                        area = _("filename")
+                    else:
+                        area = _("subfolder")
+                    rpd_file.add_problem(None, pn.ERROR_IN_NAME_GENERATION, {'filetype': rpd_file.title_capitalized, 'area': area})
+                    rpd_file.add_extra_detail(pn.NO_DATA_TO_NAME, {'filetype': area})
+                    generation_succeeded = False
+                    # FIXME: log error
+                    
+                if generation_succeeded:
+                    rpd_file.download_path = os.path.join(rpd_file.download_folder, rpd_file.download_subfolder)
                     rpd_file.download_full_file_name = os.path.join(rpd_file.download_path, rpd_file.download_name)
                     
                     subfolder = gio.File(path=rpd_file.download_path)
@@ -126,7 +157,7 @@ class SubfolderFile(multiprocessing.Process):
                     
                     if not subfolder.query_exists(cancellable=None):
                         try:
-                            subfolder.make_directory_with_parents(cancellable=None)
+                            subfolder.make_directory_with_parents(cancellable=gio.Cancellable())
                         except gio.Error, inst:
                             # The directory may have been created by another process
                             # between the time it takes to query and the time it takes
@@ -136,7 +167,7 @@ class SubfolderFile(multiprocessing.Process):
                                 logger.error(inst)
                     
                     # Move temp file to subfolder
-                    temp_file = gio.File(temp_full_file_name)
+
                     download_file = gio.File(rpd_file.download_full_file_name)
                     
                     try:
@@ -145,13 +176,13 @@ class SubfolderFile(multiprocessing.Process):
                     except gio.Error, inst:
                         logger.error("Failed to create file %s: %s", rpd_file.download_full_file_name, inst)
                         
-                    logger.info("Moved file: %s", download_count)                    
+                    logger.debug("Finish processing file: %s", download_count)                    
                         
                 if not move_succeeded:
                     try:
                         temp_file.delete(cancellable=None)
                     except gio.Error, inst:
-                        logger.error("Failed to delete temporary file %s", temp_full_file_name)
+                        logger.error("Failed to delete temporary file %s", rpd_file.temp_full_file_name)
                         logger.error(inst)
                     
 
@@ -163,3 +194,5 @@ class SubfolderFile(multiprocessing.Process):
             
             i += 1
             
+    #~ def on_preference_changed(self, key, value):
+        #~ logger.debug("Detected change %s: %s", key, value)

@@ -28,6 +28,7 @@ logger = multiprocessing.get_logger()
 
 import rpdmultiprocessing as rpdmp
 import rpdfile
+import problemnotification as pn
 
 
 from gettext import gettext as _
@@ -59,17 +60,22 @@ class CopyFiles(multiprocessing.Process):
             logger.info("Terminating file copying")
             return True
         return False
+        
+        
+    def update_progress(self, amount_downloaded, total):
+        if (amount_downloaded - self.bytes_downloaded > self.batch_size_bytes) or (amount_downloaded == total):
+            chunk_downloaded = amount_downloaded - self.bytes_downloaded
+            self.bytes_downloaded = amount_downloaded
+            self.results_pipe.send((rpdmp.CONN_PARTIAL, (rpdmp.MSG_BYTES, (self.scan_pid, self.total_downloaded + amount_downloaded))))        
     
     def progress_callback(self, amount_downloaded, total):
         
         if self.check_termination_request():
             # FIXME: cancel copy
             pass
-            
-        if (amount_downloaded - self.bytes_downloaded > self.batch_size_bytes) or (amount_downloaded == total):
-            chunk_downloaded = amount_downloaded - self.bytes_downloaded
-            self.bytes_downloaded = amount_downloaded
-            self.results_pipe.send((rpdmp.CONN_PARTIAL, (rpdmp.MSG_BYTES, (self.scan_pid, self.total_downloaded + amount_downloaded))))
+         
+        self.update_progress(amount_downloaded, total)
+        
 
     def run(self):
         """start the actual copying of files"""
@@ -101,15 +107,24 @@ class CopyFiles(multiprocessing.Process):
                 temp_full_file_name = os.path.join(
                                     self._get_dest_dir(rpd_file.file_type), 
                                     rpd_file.name)
+                rpd_file.temp_full_file_name = temp_full_file_name
                 dest = gio.File(path=temp_full_file_name)
                 
-                copy_succeeded = False            
+                copy_succeeded = False
                 try:
                     source.copy(dest, self.progress_callback, cancellable=None)
                     copy_succeeded = True
                 except gio.Error, inst:
+                    rpd_file.add_problem(None,
+                        pn.DOWNLOAD_COPYING_ERROR_W_NO,
+                        {'filetype': rpd_file.title})
+                    rpd_file.add_extra_detail(
+                        pn.DOWNLOAD_COPYING_ERROR_W_NO_DETAIL, 
+                        {'errorno': inst.code, 'strerror': inst.message})
+                        
                     logger.error("Failed to download file: %s", rpd_file.full_file_name)
                     logger.error(inst)
+                    self.update_progress(rpd_file.size, rpd_file.size)
                 
                 # increment this amount regardless of whether the copy actually
                 # succeeded or not. It's neccessary to keep the user informed.

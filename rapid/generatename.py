@@ -30,9 +30,11 @@ from generatenameconfig import *
 from gettext import gettext as _
 
 
-
-
-
+def convert_date_for_strftime(datetime_user_choice):
+    try:
+        return DATE_TIME_CONVERT[LIST_DATE_TIME_L2.index(datetime_user_choice)]
+    except:
+        raise PrefValueInvalidError(datetime_user_choice)
 
 
 class PhotoName:
@@ -41,16 +43,16 @@ class PhotoName:
     of videos, as well as subfolder names for both file types
     """
     
-    def __init__(self, prefs, download_start_time):
-        self.prefs = prefs
-        self.download_start_time = download_start_time
+    def __init__(self, pref_list):
+        self.pref_list = pref_list
+
         
         # Some of the next values are overwritten in derived classes
-        self.pref_list = prefs.image_rename
         self.strip_initial_period_from_extension = False
         self.strip_forward_slash = True
         self.L1_date_check = IMAGE_DATE #used in _get_date_component()
         self.component = pn.FILENAME_COMPONENT #used in error reporting
+        
         
     def _get_values_from_pref_list(self):
         for i in range(0, len(self.pref_list), 3):
@@ -67,7 +69,7 @@ class PhotoName:
             if self.L2 == SUBSECONDS:
                 d = self.rpd_file.metadata.sub_seconds()
                 if d == '00':
-                    self.problem.add_problem(self.component, pn.MISSING_METADATA, _(self.L2))
+                    self.rpd_file.problem.add_problem(self.component, pn.MISSING_METADATA, _(self.L2))
                     return ''
                 else:
                     return d
@@ -80,7 +82,7 @@ class PhotoName:
             delta = datetime.timedelta(days = 1)
             d = datetime.datetime.now() - delta
         elif self.L1 == DOWNLOAD_TIME:
-            d = self.download_start_time
+            d = self.rpd_file.download_start_time
         else:
             raise("Date options invalid")
             
@@ -96,17 +98,17 @@ class PhotoName:
             try:
                 d = datetime.datetime.fromtimestamp(self.rpd_file.modification_time)
             except:
-                self.problem.add_problem(self.component, pn.INVALID_DATE_TIME, '')
+                self.rpd_file.add_problem(self.component, pn.INVALID_DATE_TIME, '')
                 logger.error("Both file modification time and metadata date & time are invalid for file %s", self.rpd_file.full_file_name)
                 return ''
         else:
-            self.problem.add_problem(self.component, pn.MISSING_METADATA, _(self.L1))
+            self.rpd_file.add_problem(self.component, pn.MISSING_METADATA, _(self.L1))
             return ''
         
         try:
             return d.strftime(convert_date_for_strftime(self.L2))
         except:
-            self.problem.add_problem(self.component, pn.INVALID_DATE_TIME, d)
+            self.rpd_file.add_problem(self.component, pn.INVALID_DATE_TIME, d)
             logger.error("Both file modification time and metadata date & time are invalid for file %s", self.rpd_file.full_file_name)
             return ''
     
@@ -132,12 +134,12 @@ class PhotoName:
                     # is a bad idea when it is at the start!
                     filename = extension[1:]
             else:
-                self.problem.add_problem(self.component, pn.MISSING_FILE_EXTENSION)
+                self.rpd_file.add_problem(self.component, pn.MISSING_FILE_EXTENSION)
                 return ""
         elif self.L1 == IMAGE_NUMBER or self.L1 == VIDEO_NUMBER:
             n = re.search("(?P<image_number>[0-9]+$)", name)
             if not n:
-                self.problem.add_problem(self.component, pn.MISSING_IMAGE_NUMBER)
+                self.rpd_file.add_problem(self.component, pn.MISSING_IMAGE_NUMBER)
                 return '' 
             else:
                 image_number = n.group("image_number")
@@ -170,25 +172,25 @@ class PhotoName:
         """
         
         if self.L1 == APERTURE:
-            v = self.metadata.aperture()
+            v = self.rpd_file.metadata.aperture()
         elif self.L1 == ISO:
-            v = self.metadata.iso()
+            v = self.rpd_file.metadata.iso()
         elif self.L1 == EXPOSURE_TIME:
-            v = self.metadata.exposure_time(alternativeFormat=True)
+            v = self.rpd_file.metadata.exposure_time(alternativeFormat=True)
         elif self.L1 == FOCAL_LENGTH:
-            v = self.metadata.focal_length()
+            v = self.rpd_file.metadata.focal_length()
         elif self.L1 == CAMERA_MAKE:
-            v = self.metadata.camera_make()
+            v = self.rpd_file.metadata.camera_make()
         elif self.L1 == CAMERA_MODEL:
-            v = self.metadata.camera_model()
+            v = self.rpd_file.metadata.camera_model()
         elif self.L1 == SHORT_CAMERA_MODEL:
-            v = self.metadata.short_camera_model()
+            v = self.rpd_file.metadata.short_camera_model()
         elif self.L1 == SHORT_CAMERA_MODEL_HYPHEN:
-            v = self.metadata.short_camera_model(includeCharacters = "\-")
+            v = self.rpd_file.metadata.short_camera_model(includeCharacters = "\-")
         elif self.L1 == SERIAL_NUMBER:
-            v = self.metadata.camera_serial()
+            v = self.rpd_file.metadata.camera_serial()
         elif self.L1 == SHUTTER_COUNT:
-            v = self.metadata.shutter_count()
+            v = self.rpd_file.metadata.shutter_count()
             if v:
                 v = int(v)
                 padding = LIST_SHUTTER_COUNT_L2.index(self.L2) + 3
@@ -196,7 +198,7 @@ class PhotoName:
                 v = formatter % v
             
         elif self.L1 == OWNER_NAME:
-            v = self.metadata.owner_name()
+            v = self.rpd_file.metadata.owner_name()
         else:
             raise TypeError("Invalid metadata option specified")
         if self.L1 in [CAMERA_MAKE, CAMERA_MODEL, SHORT_CAMERA_MODEL,
@@ -206,8 +208,29 @@ class PhotoName:
             elif self.L2 == LOWERCASE:
                 v = v.lower()
         if not v:
-            self.problem.add_problem(self.component, pn.MISSING_METADATA, _(self.L1))
-        return v        
+            self.rpd_file.add_problem(self.component, pn.MISSING_METADATA, _(self.L1))
+        return v
+
+    def _formatSequenceNo(self,  value,  amountToPad):
+        padding = LIST_SEQUENCE_NUMBERS_L2.index(amountToPad) + 1
+        formatter = '%0' + str(padding) + "i"
+        return formatter % value
+        
+    def _get_downloads_today_sequence_no(self):
+        return self._formatSequenceNo(self.sequences.getDownloadsTodayUsingCounter(self.sequenceCounter),  self.L2)
+        
+    def _get_sequences_component(self):
+        return '33'
+        #~ if self.L1 == DOWNLOAD_SEQ_NUMBER:
+            #~ return self._get_downloads_today_sequence_no()
+        #~ elif self.L1 == SESSION_SEQ_NUMBER:
+            #~ return self._getSessionSequenceNo()
+        #~ elif self.L1 == SUBFOLDER_SEQ_NUMBER:
+            #~ return self._getSubfolderSequenceNo()
+        #~ elif self.L1 == STORED_SEQ_NUMBER:
+            #~ return self._getStoredSequenceNo()                   
+        #~ elif self.L1 == SEQUENCE_LETTER:
+            #~ return self._getSequenceLetter()        
         
     def _get_component(self):
         #~ try:
@@ -220,10 +243,10 @@ class PhotoName:
                 return self._get_filename_component()
             elif self.L0 == METADATA:
                 return self._get_metadata_component()
-            #~ elif self.L0 == SEQUENCES:
-                #~ return self._getSequencesComponent()
-            #~ elif self.L0 == JOB_CODE:
-                #~ return self.job_code
+            elif self.L0 == SEQUENCES:
+                return self._get_sequences_component()
+            elif self.L0 == JOB_CODE:
+                return self.rpd_file.job_code
             elif self.L0 == SEPARATOR:
                 return os.sep
             else:
@@ -244,7 +267,7 @@ class PhotoName:
             if v:
                 name += v
 
-        if self.prefs.strip_characters:
+        if self.rpd_file.strip_characters:
             for c in r'\:*?"<>|':
                 name = name.replace(c, '')
                 
@@ -255,17 +278,13 @@ class PhotoName:
                     
         return name
 
-    def initialize_problem(self, problem):
-        """
-        Set the problem tracker used in name generation
-        """
-        self.problem = problem    
+   
         
 
 class VideoName:
-    def __init__(self, prefs, download_start_time):
-        PhotoName.__init__(self, prefs, download_start_time)
-        self.pref_list = prefs.video_rename
+    def __init__(self, pref_list):
+        PhotoName.__init__(self, prefs)
+        self.pref_list = pref_list
         self.L1_date_check = VIDEO_DATE  #used in _get_date_component()
         
     def _get_metadata_component(self):
@@ -281,10 +300,9 @@ class PhotoSubfolder(PhotoName):
     Generate subfolder names for photo files
     """
     
-    def __init__(self, prefs, download_start_time):
-        self.prefs = prefs
-        self.download_start_time = download_start_time
-        self.pref_list = prefs.subfolder #overwritten in class VideoSubfolder
+    def __init__(self, pref_list):
+        self.pref_list = pref_list
+        
         self.strip_extraneous_white_space = re.compile(r'\s*%s\s*' % os.sep)
         self.strip_initial_period_from_extension = True
         self.strip_forward_slash = False
@@ -303,7 +321,7 @@ class PhotoSubfolder(PhotoName):
                 subfolders = subfolders[1:]
                 
         # remove any spaces before and after a directory name
-        if subfolders and self.prefs.strip_characters:
+        if subfolders and self.rpd_file.strip_characters:
             subfolders = self.strip_extraneous_white_space.sub(os.sep, subfolders)
             
         return subfolders
@@ -316,9 +334,8 @@ class VideoSubfolder(PhotoSubfolder):
     Generate subfolder names for video files
     """
     
-    def __init__(self, prefs, download_start_time):
-        PhotoSubfolder.__init__(self, prefs, download_start_time)
-        self.pref_list = prefs.video_subfolder
+    def __init__(self, prefs):
+        PhotoSubfolder.__init__(self, pref_list)
         self.L1_date_check = VIDEO_DATE  #used in _get_date_component()
         
         
@@ -359,3 +376,17 @@ def get_video_metadata_component(video):
     if not v:
         video.problem.add_problem(video.component, pn.MISSING_METADATA, _(video.L1))
     return v
+
+class Sequences:
+    """ 
+    Holds sequence numbers and letters used in generating filenames.
+    """
+    #~ def __init__(self, downloads_today, stored_sequence_no):
+        
+        
+    def reset(self, downloads_today, stored_sequence_no):
+        self.downloadsToday = downloadsToday
+        self.downloadsTodayOffset = 0
+        self.storedSequenceNo = storedSequenceNo
+        
+    #~ def get_sequence_counter

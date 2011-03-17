@@ -49,7 +49,7 @@ logger.setLevel(logging.DEBUG)
 
 # Rapid Photo Downloader modules
 
-import common, rpdfile
+import rpdfile
                   
 import problemnotification as pn
 import thumbnail as tn
@@ -900,10 +900,10 @@ class SubfolderFileManager(SingleInstanceTaskManager):
         self._subfolder_file.start()
         
     def rename_file_and_move_to_subfolder(self, download_succeeded, 
-            download_count, rpd_file, temp_full_file_name, download_start_time):
+            download_count, rpd_file):
                                               
         self.task_results_conn.send((download_succeeded, download_count, 
-            rpd_file, temp_full_file_name, download_start_time))
+            rpd_file))
         logger.info("Download count: %s.", download_count)
         
 
@@ -1039,6 +1039,9 @@ class RapidApp(dbus.service.Object):
         
         # Initialize widgets in the main window, and variables that point to them
         self._init_widgets()
+        
+        # Initialize job code handling
+        self._init_job_code()
         
         # Remember the window size from the last time the program was run, or
         # set a default size
@@ -1429,6 +1432,11 @@ class RapidApp(dbus.service.Object):
     # Job codes
     # # #
     
+    
+    def _init_job_code(self):
+        self.job_code = None
+        self.need_job_code_for_naming = self.prefs.any_pref_uses_job_code()
+    
     def assign_job_code(self,  code):
         """ assign job code (which may be empty) to global variable and update user preferences
         
@@ -1589,16 +1597,22 @@ class RapidApp(dbus.service.Object):
                 
                 self.download_count_for_file_by_unique_id[rpd_file.unique_id] = download_count
                 self.download_count_by_scan_pid[rpd_file.scan_pid] = download_count
+                rpd_file.download_start_time = self.download_start_time
                 
-                if not download_succeeded:
-                    logger.error("File was not downloaded: %s", rpd_file.full_file_name)
+                if download_succeeded:
+                    # Insert preference values needed for name generation
+                    rpd_file = prefsrapid.insert_pref_lists(self.prefs, rpd_file)
+                    rpd_file.strip_characters = self.prefs.strip_characters
+                    rpd_file.download_folder = self.prefs.get_download_folder_for_file_type(rpd_file.file_type)
+                
+                #~ if not download_succeeded:
+                    #~ logger.error("File was not downloaded: %s", rpd_file.full_file_name)
                 
                 self.subfolder_file_manager.rename_file_and_move_to_subfolder(
                         download_succeeded, 
                         download_count, 
-                        rpd_file, 
-                        temp_full_file_name,
-                        self.download_start_time)
+                        rpd_file
+                        )
                 
                 
             return True
@@ -1703,6 +1717,12 @@ class RapidApp(dbus.service.Object):
     def _init_prefs(self): 
         self.prefs = prefsrapid.RapidPreferences()
         self.prefs.notify_add(self.on_preference_changed)
+        
+        downloads_today = self.prefs.get_and_maybe_reset_downloads_today()
+        if downloads_today > 0:
+            logger.info("Downloads that have occurred so far today: %s", downloads_today)
+        else:
+            logger.info("No downloads have occurred so far today")
             
         # flag to indicate whether the user changed some preferences that 
         # indicate the image and backup devices should be setup again
@@ -2129,10 +2149,6 @@ class RapidApp(dbus.service.Object):
         return True
         
         
-
-    def needJobCodeForRenaming(self):
-        #FIXME
-        return rn.usesJobCode(self.prefs.image_rename) or rn.usesJobCode(self.prefs.subfolder) or rn.usesJobCode(self.prefs.video_rename) or rn.usesJobCode(self.prefs.video_subfolder)
 
     @dbus.service.method (config.DBUS_NAME,
                            in_signature='', out_signature='b')
