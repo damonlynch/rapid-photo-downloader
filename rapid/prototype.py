@@ -49,40 +49,41 @@ logger.setLevel(logging.DEBUG)
 
 # Rapid Photo Downloader modules
 
-import media, common, rpdfile
-from media import getDefaultPhotoLocation, getDefaultVideoLocation, \
-                  getDefaultBackupPhotoIdentifier, \
-                  getDefaultBackupVideoIdentifier
+import common, rpdfile
                   
-import renamesubfolderprefs as rn
 import problemnotification as pn
 import thumbnail as tn
 import rpdmultiprocessing as rpdmp
 
+import preferencesdialog
+import prefsrapid
+
 import tableplusminus as tpm
+
+from metadatavideo import DOWNLOAD_VIDEO
 
 import scan as scan_process
 import copyfiles
 import subfolderfile
 
 import device as dv
+import utilities
 
 import config
 __version__ = config.version
 
-import prefs
 import paths
 
-from common import Configi18n
-global _
-_ = Configi18n._
+import gettext
+gettext.bindtextdomain(config.APP_NAME)
+gettext.textdomain(config.APP_NAME)
+
+from gettext import gettext as _
 
 
-from common import formatSizeForUser as format_size_for_user
-from common import register_iconsets
+from utilities import format_size_for_user
+from utilities import register_iconsets
 
-
-DOWNLOAD_VIDEO = False
 
 from config import  STATUS_CANNOT_DOWNLOAD, STATUS_DOWNLOADED, \
                     STATUS_DOWNLOADED_WITH_WARNING, \
@@ -196,6 +197,13 @@ class DeviceCollection(gtk.TreeView):
             iter = self._get_process_map(process_id)
             self.liststore.remove(iter)
             del self.map_process_to_row[process_id]
+            
+    def get_all_displayed_processes(self):
+        """
+        yields the processes currently being displayed to the user 
+        """
+        for process_id in self.map_process_to_row:
+            yield process_id
 
 
     def _set_process_map(self, process_id, iter):
@@ -235,7 +243,7 @@ class DeviceCollection(gtk.TreeView):
 
 
 def create_cairo_image_surface(pil_image, image_width, image_height):
-        imgd = pil_image.tostring("raw","BGRA")
+        imgd = pil_image.tostring("raw","BGRA", 0, 1)
         data = array.array('B',imgd)
         stride = image_width * 4
         image = cairo.ImageSurface.create_for_data(data, cairo.FORMAT_ARGB32,
@@ -608,7 +616,7 @@ class ThumbnailDisplay(gtk.IconView):
                     
         return files
                 
-            
+
     def select_image(self, unique_id):
         iter = self.get_iter_from_unique_id(unique_id)
         path = self.liststore.get_path(iter)
@@ -619,7 +627,8 @@ class ThumbnailDisplay(gtk.IconView):
         if file_type == rpdfile.FILE_TYPE_PHOTO:
             return self.stock_photo_thumbnails.stock_thumbnail_image_icon
         else:
-            return self.stock_video_thumbnails.stock_thumbnail_image_icon        
+            return self.stock_video_thumbnails.stock_thumbnail_image_icon
+            
             
     def generate_thumbnails(self, scan_pid):
         """Initiate thumbnail generation for files scanned in one process
@@ -658,7 +667,6 @@ class ThumbnailDisplay(gtk.IconView):
         conn_type, data = connection.recv()
         
         if conn_type == rpdmp.CONN_COMPLETE:
-            self.thumbnail_manager.process_completed()
             connection.close()
             return False
         else:
@@ -691,168 +699,44 @@ class ThumbnailDisplay(gtk.IconView):
             self.rapid_app.update_preview_image(unique_id, preview_image)
                     
     
-class RapidPreferences(prefs.Preferences):
-    zoom = config.MIN_THUMBNAIL_SIZE * 2
+    def clear_all(self, scan_pid=None):
+        """
+        Removes files from display and internal tracking.
         
-    defaults = {
-        "program_version": prefs.Value(prefs.STRING, ""),
-        "download_folder": prefs.Value(prefs.STRING, 
-                                        getDefaultPhotoLocation()),
-        "video_download_folder": prefs.Value(prefs.STRING, 
-                                        getDefaultVideoLocation()),
-        "subfolder": prefs.ListValue(prefs.STRING_LIST, rn.DEFAULT_SUBFOLDER_PREFS),
-        "video_subfolder": prefs.ListValue(prefs.STRING_LIST, rn.DEFAULT_VIDEO_SUBFOLDER_PREFS),
-        "image_rename": prefs.ListValue(prefs.STRING_LIST, [rn.FILENAME, 
-                                        rn.NAME_EXTENSION,
-                                        rn.ORIGINAL_CASE]),
-        "video_rename": prefs.ListValue(prefs.STRING_LIST, [rn.FILENAME, 
-                                        rn.NAME_EXTENSION,
-                                        rn.ORIGINAL_CASE]),
-        "device_autodetection": prefs.Value(prefs.BOOL, True),
-        "device_location": prefs.Value(prefs.STRING, os.path.expanduser('~')), 
-        "device_autodetection_psd": prefs.Value(prefs.BOOL,  False),
-        "device_whitelist": prefs.ListValue(prefs.STRING_LIST,  ['']), 
-        "device_blacklist": prefs.ListValue(prefs.STRING_LIST,  ['']), 
-        "backup_images": prefs.Value(prefs.BOOL, False),
-        "backup_device_autodetection": prefs.Value(prefs.BOOL, True),
-        "backup_identifier": prefs.Value(prefs.STRING, 
-                                        getDefaultBackupPhotoIdentifier()),
-        "video_backup_identifier": prefs.Value(prefs.STRING, 
-                                        getDefaultBackupVideoIdentifier()),
-        "backup_location": prefs.Value(prefs.STRING, os.path.expanduser('~')),
-        "strip_characters": prefs.Value(prefs.BOOL, True),
-        "auto_download_at_startup": prefs.Value(prefs.BOOL, False),
-        "auto_download_upon_device_insertion": prefs.Value(prefs.BOOL, False),
-        "auto_unmount": prefs.Value(prefs.BOOL, False),
-        "auto_exit": prefs.Value(prefs.BOOL, False),
-        "auto_exit_force": prefs.Value(prefs.BOOL, False),
-        "auto_delete": prefs.Value(prefs.BOOL, False),
-        "download_conflict_resolution": prefs.Value(prefs.STRING, 
-                                        config.SKIP_DOWNLOAD),
-        "backup_duplicate_overwrite": prefs.Value(prefs.BOOL, False),
-        "display_selection": prefs.Value(prefs.BOOL, True),
-        "display_size_column": prefs.Value(prefs.BOOL, True),
-        "display_filename_column": prefs.Value(prefs.BOOL, False),
-        "display_type_column": prefs.Value(prefs.BOOL, True),
-        "display_path_column": prefs.Value(prefs.BOOL, False),
-        "display_device_column": prefs.Value(prefs.BOOL, False),
-        "display_preview_folders": prefs.Value(prefs.BOOL, True),
-        "show_log_dialog": prefs.Value(prefs.BOOL, False),
-        "day_start": prefs.Value(prefs.STRING,  "03:00"), 
-        "downloads_today": prefs.ListValue(prefs.STRING_LIST, [today(), '0']), 
-        "stored_sequence_no": prefs.Value(prefs.INT,  0), 
-        "job_codes": prefs.ListValue(prefs.STRING_LIST,  [_('New York'),  
-               _('Manila'),  _('Prague'),  _('Helsinki'),   _('Wellington'), 
-               _('Tehran'), _('Kampala'),  _('Paris'), _('Berlin'),  _('Sydney'), 
-               _('Budapest'), _('Rome'),  _('Moscow'),  _('Delhi'), _('Warsaw'), 
-               _('Jakarta'),  _('Madrid'),  _('Stockholm')]),
-        "synchronize_raw_jpg": prefs.Value(prefs.BOOL, False),
-        "hpaned_pos": prefs.Value(prefs.INT, 0),
-        "vpaned_pos": prefs.Value(prefs.INT, 0),
-        "preview_vpaned_pos": prefs.Value(prefs.INT, 0),
-        "main_window_size_x": prefs.Value(prefs.INT, 0),
-        "main_window_size_y": prefs.Value(prefs.INT, 0),
-        "main_window_maximized": prefs.Value(prefs.INT, 0),
-        "show_warning_downloading_from_camera": prefs.Value(prefs.BOOL, True),
-        "preview_zoom": prefs.Value(prefs.INT, zoom),
-        "enable_previews": prefs.Value(prefs.BOOL, True),
-        }
-
-    def __init__(self):
-        prefs.Preferences.__init__(self, config.GCONF_KEY, self.defaults)
-
-    def getAndMaybeResetDownloadsToday(self):
-        v = self.getDownloadsToday()
-        if v <= 0:
-            self.resetDownloadsToday()
-        return v
-
-    def getDownloadsToday(self):
-        """Returns the preference value for the number of downloads performed today 
-        
-        If value is less than zero, that means the date has changed"""
-        
-        hour,  minute = self.getDayStart()
-        adjustedToday = datetime.datetime.strptime("%s %s:%s" % (self.downloads_today[0], hour,  minute), "%Y-%m-%d %H:%M") 
-        
-        now = datetime.datetime.today()
-
-        if  now < adjustedToday :
-            try:
-                return int(self.downloads_today[1])
-            except ValueError:
-                sys.stderr.write(_("Invalid Downloads Today value.\n"))
-                sys.stderr.write(_("Resetting value to zero.\n"))
-                self.setDownloadsToday(self.downloads_today[0] ,  0)
-                return 0
+        If scan_pid is not None, then only files matching that scan_pid will
+        be removed. Otherwise, everything will be removed.
+        """
+        if scan_pid is None:
+            self.liststore.clear()
+            self.treerow_index = {}
+            self.process_index = {}
+            
+            self.rpd_files = {}
         else:
-            return -1
+            for rpd_file in self.process_index[scan_pid]:
+                treerowref = self.treerow_index[rpd_file.unique_id]
+                path = treerowref.get_path()
+                iter = self.liststore.get_iter(path)
+                self.liststore.remove(iter)
+                del self.treerow_index[rpd_file.unique_id]
+                del self.rpd_files[rpd_file.unique_id]
                 
-    def setDownloadsToday(self, date,  value=0):
-            self.downloads_today = [date,  str(value)]
-            
-    def incrementDownloadsToday(self):
-        """ returns true if day changed """
-        v = self.getDownloadsToday()
-        if v >= 0:
-            self.setDownloadsToday(self.downloads_today[0] ,  v + 1)
-            return False
-        else:
-            self.resetDownloadsToday(1)
-            return True
-
-    def resetDownloadsToday(self,  value=0):
-        now = datetime.datetime.today()
-        hour,  minute = self.getDayStart()
-        t = datetime.time(hour,  minute)
-        if now.time() < t:
-            date = today()
-        else:
-            d = datetime.datetime.today() + datetime.timedelta(days=1)
-            date = d.strftime(('%Y-%m-%d'))
-            
-        self.setDownloadsToday(date,  value)
-        
-    def setDayStart(self,  hour,  minute):
-        self.day_start = "%s:%s" % (hour,  minute)
-
-    def getDayStart(self):
-        try:
-            t1,  t2 = self.day_start.split(":")
-            return (int(t1),  int(t2))
-        except ValueError:
-            sys.stderr.write(_("'Start of day' preference value is corrupted.\n"))
-            sys.stderr.write(_("Resetting to midnight.\n"))
-            self.day_start = "0:0"
-            return 0, 0
-
-    def getSampleJobCode(self):
-        if self.job_codes:
-            return self.job_codes[0]
-        else:
-            return ''
-            
-    def reset(self):
-        """
-        resets all preferences to default values
-        """
-        
-        prefs.Preferences.reset(self)
-        self.program_version = __version__
-    
+            del self.process_index[scan_pid]            
     
 class TaskManager:
     def __init__(self, results_callback, batch_size):
         self.results_callback = results_callback
+        
+        # List of actual process, it's terminate_queue, and it's run_event
         self._processes = []
+        
         self._pipes = {}
         self.batch_size = batch_size
-        self.active_processes = 0
        
     
     def add_task(self, task):
-        self._setup_task(task)
-        self.active_processes += 1
+        pid = self._setup_task(task)
+        return pid
 
         
     def _setup_task(self, task):
@@ -866,7 +750,7 @@ class TaskManager:
         run_event = Event()
         run_event.set()
         
-        self._initiate_task(task, task_process_conn, terminate_queue, run_event)
+        return self._initiate_task(task, task_process_conn, terminate_queue, run_event)
         
     def _initiate_task(self, task, task_process_conn, terminate_queue, run_event):
         logger.error("Implement child class method!")
@@ -882,25 +766,49 @@ class TaskManager:
             if not run_event.is_set():
                 run_event.set()
     
-    def terminate(self):
-        pause = False
-
+    def request_termination(self):
+        """
+        Send a signal to processes that they should immediately terminate
+        """
+        requested = False
         for p in self.processes():
             if p[0].is_alive():
+                requested = True
                 p[1].put(None)
-                pause = True
+                # The process might be paused: let it run
                 run_event = p[2]
                 if not run_event.is_set():
-                    run_event.set()
-        if pause:
-            time.sleep(1)
-            
-    def process_completed(self):
-        self.active_processes -= 1
-            
+                    run_event.set()        
+                    
+        return requested
+    
+    def terminate_forcefully(self):
+        """
+        Forcefully terminates any running processes. Use with great caution.
+        No cleanup action is performed. 
+        
+        As python essential reference (4th edition) says, if the process
+        'holds a lock or is involved with interprocess communication,
+        terminating it might cause a deadlock or corrupted I/O.'
+        """
+        
+        for p in self.processes():
+            if p[0].is_alive():
+                p[1].terminate()
+
             
     def get_pipe(self, source):
         return self._pipes[source]
+        
+    def get_no_active_processes(self):
+        """
+        Returns how many processes are currently active, i.e. running
+        """
+        i = 0
+        for p in self.processes():
+            if p[0].is_alive():
+                i += 1
+        return i
 
 
 class ScanManager(TaskManager):
@@ -923,6 +831,8 @@ class ScanManager(TaskManager):
             # It maybe displayed only briefly if the contents of the device being scanned is small.
             progress_bar_text=_('scanning...'))
             
+        return scan.pid
+            
 class CopyFilesManager(TaskManager):
     
     def _initiate_task(self, task, task_process_conn, terminate_queue, run_event):
@@ -937,6 +847,7 @@ class CopyFilesManager(TaskManager):
                                 task_process_conn, terminate_queue, run_event)
         copy_files.start()
         self._processes.append((copy_files, terminate_queue, run_event))
+        return copy_files.pid
         
 class ThumbnailManager(TaskManager):
         
@@ -944,10 +855,13 @@ class ThumbnailManager(TaskManager):
         generator = tn.GenerateThumbnails(files, self.batch_size, task_process_conn, terminate_queue, run_event)
         generator.start()
         self._processes.append((generator, terminate_queue, run_event))
+        return generator.pid
 
-class DaemonTaskManager:
+
+class SingleInstanceTaskManager:
     """
-    Base class to manage daemon processes
+    Base class to manage single instance processes. Examples are daemon
+    processes, but also a non-daemon process that has one simple task.
     
     Core (infrastructure) functionality is implemented in this class.
     Derived classes should implemented functionality to actually implement
@@ -960,12 +874,11 @@ class DaemonTaskManager:
         
         source = self.task_results_conn.fileno()
         gobject.io_add_watch(source, gobject.IO_IN, self.task_results)
-        self.queued_items = 0 # track when to let the daemon process run
+
         
-        
-class PreviewManager(DaemonTaskManager):
+class PreviewManager(SingleInstanceTaskManager):
     def __init__(self, results_callback):
-        DaemonTaskManager.__init__(self, results_callback)
+        SingleInstanceTaskManager.__init__(self, results_callback)
         self._get_preview = tn.GetPreviewImage(self.task_process_conn)
         self._get_preview.start()
         
@@ -977,9 +890,12 @@ class PreviewManager(DaemonTaskManager):
         self.results_callback(unique_id, preview_full_size, preview_small)
         return True 
         
-class SubfolderFileManager(DaemonTaskManager):
+class SubfolderFileManager(SingleInstanceTaskManager):
+    """
+    Manages the daemon process that renames files and creates subfolders
+    """
     def __init__(self, results_callback):
-        DaemonTaskManager.__init__(self, results_callback)
+        SingleInstanceTaskManager.__init__(self, results_callback)
         self._subfolder_file = subfolderfile.SubfolderFile(self.task_process_conn)
         self._subfolder_file.start()
         
@@ -1100,53 +1016,17 @@ class PreviewImage:
     def update_preview_image(self, unique_id, pil_image):
         if unique_id == self.unique_id:
             self.set_preview_image(unique_id, pil_image)
-    
-    def resize_preview_image(self, max_width=None, max_height=None, overwrite=False):
-        
-        if max_width is not None and max_height is not None:
-            logger.info("Max width and height set to %s, %s" % (max_width, max_height))
-            self.preview_image_size_limit = (max_width, max_height)
-        else:
-            max_width, max_height = self.preview_image_size_limit
-        
-        if self.base_preview_image:
-        
-            base_image_width = self.base_preview_image.size[0]
-            base_image_height = self.base_preview_image.size[1]
-            
-            logger.info("Base image: %s, %s" %(base_image_width, base_image_height))
-
-            image_aspect = float(base_image_width) / base_image_height
-            frame_aspect = float(max_width) / max_height
-    
-
-            # Frame is wider than image
-            if frame_aspect > image_aspect:
-                height = max_height
-                width = int(height * image_aspect)
-            # Frame is taller than image
-            else:
-                width = max_width
-                height = int(width / image_aspect)
-                
-            logger.info("Will resize base image to width and height %s, %s" % (width, height))
-    
-            if width != self.current_preview_size[0] or height!= self.current_preview_size[1] or overwrite:
-                
-                pil_image = self.base_preview_image.copy()
-                if base_image_width < width or base_image_height < height:
-                    pil_image = tn.upsize_pil(pil_image, (width, height))
-                else:
-                    logger.info("Downsizing image")
-                    tn.downsize_pil(pil_image, (width, height))
-                    logger.info("Preview image size %s, %s" % (pil_image.size[0], pil_image.size[1]))
-                    
-                pixbuf = image_to_pixbuf(pil_image)
-                self.preview_image.set_from_pixbuf(pixbuf)
-                self.current_preview_size = (width, height)    
+      
 
         
-class RapidApp(dbus.service.Object): 
+class RapidApp(dbus.service.Object):
+    """
+    The main Rapid Photo Downloader application class.
+    
+    Contains functionality for main program window, and directs all other
+    processes.
+    """
+     
     def __init__(self,  bus, path, name, taskserver=None): 
         
         dbus.service.Object.__init__ (self, bus, path, name)
@@ -1154,129 +1034,83 @@ class RapidApp(dbus.service.Object):
         
         self.taskserver = taskserver
         
-        builder = gtk.Builder()
-        builder.add_from_file(paths.share_dir("glade3/prototype.glade"))
-        self.rapidapp = builder.get_object("rapidapp")
-        self.main_vpaned = builder.get_object("main_vpaned")
-        self.main_notebook = builder.get_object("main_notebook")
-        self.download_action = builder.get_object("download_action")
+        # Setup program preferences, and set callback for when they change
+        self._init_prefs()
         
-        self.download_progressbar = builder.get_object("download_progressbar")
-        self.rapid_statusbar = builder.get_object("rapid_statusbar")
-        self.statusbar_context_id = self.rapid_statusbar.get_context_id("progress")
+        # Initialize widgets in the main window, and variables that point to them
+        self._init_widgets()
         
-        builder.connect_signals(self)
+        # Remember the window size from the last time the program was run, or
+        # set a default size
+        self._set_window_size()
         
-        self.prefs = RapidPreferences()
-        
-        vmonitor = gio.volume_monitor_get()
-        vmonitor.connect("mount-added", self.on_mount_added)
-        vmonitor.connect("mount-removed", self.on_mount_removed)       
-        
-        # remember the window size from the last time the program was run
-        if self.prefs.main_window_maximized:
-            self.rapidapp.maximize()
-            self.rapidapp.set_default_size(config.DEFAULT_WINDOW_WIDTH, 
-                                           config.DEFAULT_WINDOW_HEIGHT)
-        elif self.prefs.main_window_size_x > 0:
-            self.rapidapp.set_default_size(self.prefs.main_window_size_x, self.prefs.main_window_size_y)
-        else:
-            # set a default size
-            self.rapidapp.set_default_size(config.DEFAULT_WINDOW_WIDTH, 
-                                           config.DEFAULT_WINDOW_HEIGHT)
-            
-        #collection of devices from which to download
-        self.device_collection_viewport = builder.get_object("device_collection_viewport")
-        self.device_collection = DeviceCollection(self)
-        self.device_collection_viewport.add(self.device_collection)
-
-
-        self.preview_image = PreviewImage(self, builder)
-
-        thumbnails_scrolledwindow = builder.get_object('thumbnails_scrolledwindow')
-        self.thumbnails = ThumbnailDisplay(self)
-        thumbnails_scrolledwindow.add(self.thumbnails)
-        
-        self._setup_buttons(builder)
+        # Setup various widgets
+        self._setup_buttons()
         self._setup_icons()
-        self._setup_error_icons(builder)
+        self._setup_error_icons()
             
+        # Show the main window
         self.rapidapp.show()
         
-        # Track download sizes and other values for each device
-        self.size_of_download_in_bytes = dict()
-        self.no_files_in_download = dict()
-        self.file_types_present = dict()
-        self.download_count_for_file = dict()
-        self.download_count = dict()
+        # Check program preferences - don't allow auto start if there is a problem
+        prefs_valid = prefsrapid.check_prefs_for_validity(self.prefs)
+        do_not_allow_auto_start = prefs_valid
         
-        # Track which temporary directories are created when downloading files
-        self.temp_dirs_by_scan_pid = dict()
-        
-        #~ image_paths = ['/home/damon/rapid/cr2', '/home/damon/Pictures/processing/2011']
-        #~ image_paths = ['/media/EOS_DIGITAL/']        
-        #~ image_paths = ['/media/EOS_DIGITAL/', '/media/EOS_DIGITAL_/']
-        #~ image_paths = ['/media/EOS_DIGITAL/', '/media/EOS_DIGITAL_/', '/media/EOS_DIGITAL__/']
-        #~ image_paths = ['/home/damon/rapid/cr2']
-        #~ image_paths = ['/home/damon/rapid/sample-cr2']
-        #~ image_paths = ['/home/damon/Pictures/']
-        
-        self.display_free_space()
-        devices = []
-        devices = [dv.Device(path='/home/damon/rapid/cr2')]
-        #~ devices = [dv.Device(path='/home/damon/rapid/sample-cr2'), dv.Device(path='/home/damon/rapid/sample-cr2')]
-        #~ devices = [dv.Device(path='/home/damon/rapid/sample-cr2')]
-        #~ devices = [dv.Device(path='/home/damon/rapid/sample-cr2'), dv.Device(path='/home/damon/Pictures/processing/2011'), ]
-        #~ devices = [dv.Device(path='/home/damon/rapid/sample-cr2'), dv.Device(path='/home/damon/Pictures/pbase'), ]
-        #~ devices = [dv.Device(path='/home/damon/Pictures/')]
-
-        
-        self.batch_size = 10
-        self.batch_size_MB = 2
-        
-        self.testing_auto_exit = False
-        self.testing_auto_exit_trip = len(devices)
-        self.testing_auto_exit_trip_counter = 0
+        # Initialize variables with which to track important downloads results
+        self._init_download_tracking()
         
         # Set up process managers.
         # A task such as scanning a device or copying files is handled in its
         # own process.
+        self._start_process_managers()
         
-        self.subfolder_file_manager = SubfolderFileManager(self.subfolder_file_results)
+        # Setup devices from which to download from and backup to
+        self.setup_devices(on_startup=True, on_preference_change=False, 
+                           do_not_allow_auto_start=do_not_allow_auto_start)
         
-        self.generate_folder = False
-        self.scan_manager = ScanManager(self.scan_results, self.batch_size, 
-                    self.generate_folder, self.device_collection.add_device)
-        self.copy_files_manager = CopyFilesManager(self.copy_files_results, 
-                                                   self.batch_size_MB)
+        # Ensure the device collection scrolled window is not too small
+        self._set_device_collection_size()
         
-        for device in devices:
-            self.scan_manager.add_task(device)
-        
-        self.device_collection_scrolledwindow = builder.get_object("device_collection_scrolledwindow")
-        
-        if self.device_collection.map_process_to_row:
-            height = self.device_collection_viewport.size_request()[1]
-            self.device_collection_scrolledwindow.set_size_request(-1,  height)
-        else:
-            # don't allow the media collection to be absolutely empty
-            self.device_collection_scrolledwindow.set_size_request(-1, 47)
-            
+        #~ preferencesdialog.PreferencesDialog(self)    
     
     def on_rapidapp_destroy(self, widget, data=None):
 
-        self.scan_manager.terminate()        
-        self.thumbnails.thumbnail_manager.terminate()
+        self._terminate_processes()
 
         # save window and component sizes
         self.prefs.vpaned_pos = self.main_vpaned.get_position()
 
         x, y, width, height = self.rapidapp.get_allocation()
-        #~ logger.info("Saving window size %sx%s", width, height)
         self.prefs.main_window_size_x = width
         self.prefs.main_window_size_y = height
         
-        gtk.main_quit()        
+        gtk.main_quit()
+        
+    def _terminate_processes(self, terminate_file_copies=False):
+        
+        #FIXME: need more fine grained tuning here
+
+        scan_termination_requested = self.scan_manager.request_termination()        
+        thumbnails_termination_requested = self.thumbnails.thumbnail_manager.request_termination()
+        if terminate_file_copies:
+            copy_files_termination_requested = self.copy_files_manager.request_termination()
+        else:
+            copy_files_termination_requested = False
+        
+        if scan_termination_requested or thumbnails_termination_requested:
+            time.sleep(1)
+            if (self.scan_manager.get_no_active_processes() > 0 or 
+                self.thumbnails.get_no_active_processes() > 0):
+                time.sleep(1)
+                # must try again, just in case a new scan has meanwhile started!
+                self.scan_manager.request_termination()
+                self.thumbnails.thumbnail_manager.terminate_forcefully()
+                self.scan_manager.terminate_forcefully()
+                
+        if terminate_file_copies and copy_files_termination_requested:
+            time.sleep(1)
+            self.copy_files_manager.terminate_forcefully()
+        
         
         
     # # #
@@ -1331,7 +1165,7 @@ class RapidApp(dbus.service.Object):
         """
         If all the scans are complete, sets the sort order
         """
-        if self.scan_manager.active_processes == 0:
+        if self.scan_manager.get_no_active_processes() == 0:
             self.thumbnails.sort_by_timestamp()
 
 
@@ -1339,6 +1173,180 @@ class RapidApp(dbus.service.Object):
     # Volume management
     # # #
     
+    def start_volume_monitor(self):
+        if not self.vmonitor:
+            self.vmonitor = gio.volume_monitor_get()
+            self.vmonitor.connect("mount-added", self.on_mount_added)
+            self.vmonitor.connect("mount-removed", self.on_mount_removed) 
+    
+    
+    def _setup_testing_devices(self):
+        """
+        """
+        #~ image_paths = ['/home/damon/rapid/cr2', '/home/damon/Pictures/processing/2011']
+        #~ image_paths = ['/media/EOS_DIGITAL/']        
+        #~ image_paths = ['/media/EOS_DIGITAL/', '/media/EOS_DIGITAL_/']
+        #~ image_paths = ['/media/EOS_DIGITAL/', '/media/EOS_DIGITAL_/', '/media/EOS_DIGITAL__/']
+        #~ image_paths = ['/home/damon/rapid/cr2']
+        #~ image_paths = ['/home/damon/rapid/sample-cr2']
+        #~ image_paths = ['/home/damon/Pictures/']
+        
+        #~ devices = [dv.Device(path='/home/damon/rapid/cr2')]
+        #~ devices = [dv.Device(path='/home/damon/rapid/sample-cr2'), dv.Device(path='/home/damon/rapid/sample-cr2')]
+        #~ devices = [dv.Device(path='/home/damon/rapid/sample-cr2')]
+        #~ devices = [dv.Device(path='/home/damon/rapid/sample-cr2'), dv.Device(path='/home/damon/Pictures/processing/2011'), ]
+        #~ devices = [dv.Device(path='/home/damon/rapid/sample-cr2'), dv.Device(path='/home/damon/Pictures/pbase'), ]
+        #~ devices = [dv.Device(path='/home/damon/Pictures/')]        
+            
+    def setup_devices(self, on_startup, on_preference_change, do_not_allow_auto_start):
+        """
+        
+        Setup devices from which to download from and backup to
+        
+        Sets up volumes for downloading from and backing up to
+        
+        on_startup should be True if the program is still starting, 
+        i.e. this is being called from the program's initialization.
+        
+        on_preference_change should be True if this is being called as the
+        result of a preference being changed
+        
+        Removes any image media that are currently not downloaded, 
+        or finished downloading        
+        """
+        
+        if self.using_volume_monitor():
+            self.start_volume_monitor()
+        
+
+        self.clear_non_running_downloads()
+        
+        mounts = []
+        self.backup_devices = {}
+        
+        # Clear download statistics and tracking
+        # FIXME
+        
+        if self.using_volume_monitor():
+            # either using automatically detected backup devices
+            # or download devices
+            for mount in self.vmonitor.get_mounts():
+                if not mount.is_shadowed():
+                    path = mount.get_root().get_path()
+                    if path:
+                        if (path in self.prefs.device_blacklist and 
+                                    self.search_for_PSD()):
+                            logger.info("%s ignored", mount.get_name())
+                        else:
+                            logger.info("Detected %s", mount.get_name())
+                            is_backup_mount = self.check_if_backup_mount(path)
+                            if is_backup_mount:
+                                self.backup_devices[path] = mount
+                            elif (self.prefs.device_autodetection and 
+                                 (dv.is_DCIM_device(path) or 
+                                  self.search_for_PSD())):
+                                mounts.append((path, mount))
+                    
+        
+        if not self.prefs.device_autodetection:
+            # user manually specified the path from which to download 
+            path = self.prefs.device_location
+            if path:
+                logger.info("Using manually specified path %s", path)
+                if utilities.is_directory(path):
+                    mounts.append((path, None))
+                else:
+                    logger.error("Download path does not exist: %s", path)
+
+        if self.prefs.backup_images:
+            if not self.prefs.backup_device_autodetection:
+                # user manually specified backup location
+                # will backup to this path, but don't need any volume info 
+                # associated with it
+                self.backup_devices[self.prefs.backup_location] = None
+        
+        # Display amount of free space in a status bar message
+        self.display_free_space()
+        
+        if do_not_allow_auto_start:
+            self.auto_start_is_on = False
+        else:
+            self.auto_start_is_on = ((not on_preference_change) and
+                                    ((self.prefs.auto_download_at_startup and 
+                                      on_startup) or 
+                                      (self.prefs.auto_download_upon_device_insertion and
+                                       not on_startup)))
+        
+
+        self.testing_auto_exit = False
+        self.testing_auto_exit_trip = len(mounts)
+        self.testing_auto_exit_trip_counter = 0
+        
+
+        for m in mounts:
+            path, mount = m
+            device = dv.Device(path=path, mount=mount)
+            if (self.search_for_PSD() and 
+                    path not in self.prefs.device_whitelist):
+                # prompt user to see if device should be used or not
+                self.get_use_device(device)
+            else:
+                scan_pid = self.scan_manager.add_task(device)
+        
+    def get_use_device(self, device):  
+        """ Prompt user whether or not to download from this device """
+        
+        logger.info("Prompting whether to use %s", device.get_name())
+        d = dv.UseDeviceDialog(self.rapidapp, device, self.got_use_device)
+        
+    def got_use_device(self, dialog, user_selected, permanent_choice, device):
+        """ User has chosen whether or not to use a device to download from """
+        dialog.destroy()
+        
+        path = device.get_path()
+        
+        if user_selected:
+            if permanent_choice and path not in self.prefs.device_whitelist:
+                # do NOT do a list append operation here without the assignment,
+                # or the actual preferences will not be updated!!
+                if len(self.prefs.device_whitelist):
+                    self.prefs.device_whitelist = self.prefs.device_whitelist + [path]
+                else:
+                    self.prefs.device_whitelist = [path]
+            self.scan_manager.add_task(device)
+            
+        elif permanent_choice and path not in self.prefs.device_blacklist:
+            # do not do a list append operation here without the assignment, or the preferences will not be updated!
+            if len(self.prefs.device_blacklist):
+                self.prefs.device_blacklist = self.prefs.device_blacklist + [path]
+            else:
+                self.prefs.device_blacklist = [path]    
+     
+    def search_for_PSD(self):
+        """
+        Check to see if user preferences are to automatically search for 
+        Portable Storage Devices or not
+        """
+        return self.prefs.device_autodetection_psd and self.prefs.device_autodetection
+
+    def check_if_backup_mount(self,  path):
+        """
+        Checks to see if backups are enabled and path represents a valid backup location
+        
+        Checks against user preferences.
+        """
+        identifiers = [self.prefs.backup_identifier]
+        if DOWNLOAD_VIDEO:
+            identifiers.append(self.prefs.video_backup_identifier)
+        if self.prefs.backup_images:
+            if self.prefs.backup_device_autodetection:
+                if dv.is_backup_media(path, identifiers):
+                    return True
+            elif path == self.prefs.backup_location:
+                # user manually specified the path
+                return True
+        return False        
+            
     def using_volume_monitor(self):
         """
         Returns True if programs needs to use gio volume monitor
@@ -1349,26 +1357,41 @@ class RapidApp(dbus.service.Object):
                 self.prefs.backup_device_autodetection
                 ))
                     
-    def on_mount_added(self, volume_monitor, mount):
+    def on_mount_added(self, vmonitor, mount):
         """
         callback run when gio indicates a new volume
         has been mounted
         """
-        if self.using_volume_monitor():
-            device = Device(mount=mount)
-            path = device.get_path()
+        logger.info("Mount added")
+        #FIXME: handle this mount!
             
-    def on_mount_removed(self, volume_monitor, mount):
+    def on_mount_removed(self, vmonitor, mount):
         """
         callback run when gio indicates a new volume
         has been mounted
         """
-        if self.using_volume_monitor():
-            device = Device(mount=mount)
-            path = device.get_path() 
+        logger.info("Mount removed")
+        #FIXME: need to remove from what user sees!
+            
+    def clear_non_running_downloads(self):
+        """
+        Clears the display of downloads that are currently not running
+        """
+        
+        # Stop any processes currently scanning or creating thumbnails
+        self._terminate_processes(terminate_file_copies=False)
+        
+        # Remove them from the user interface
+        for scan_pid in self.device_collection.get_all_displayed_processes():
+            if scan_pid not in self.download_active_by_scan_pid:
+                self.device_collection.remove_device(scan_pid)
+                self.thumbnails.clear_all(scan_pid=scan_pid)
+            
+        
+
     
     # # #
-    # Download and help buttons
+    # Download and help buttons, and menu items
     # # #
     
     def on_download_action_activate(self, action):
@@ -1383,21 +1406,122 @@ class RapidApp(dbus.service.Object):
     def on_help_action_activate(self, action):
         webbrowser.open("http://www.damonlynch.net/rapid/documentation")
         
+    def on_preferences_action_activate(self, action):
+
+        preferencesdialog.PreferencesDialog(self)
+        
     def set_download_action_sensitivity(self):
         """
-        Sets sensitivity of Download button to enable or disable it
+        Sets sensitivity of Download action to enable or disable it
+        
+        Affects download button and menu item
         """
         sensitivity = False
-        if self.scan_manager.active_processes == 0:
+        if self.scan_manager.get_no_active_processes() == 0:
             if self.thumbnails.files_are_checked_to_download():
                 sensitivity = True
         
         self.download_action.set_sensitive(sensitivity)
             
     
+    
+    # # #
+    # Job codes
+    # # #
+    
+    def assign_job_code(self,  code):
+        """ assign job code (which may be empty) to global variable and update user preferences
+        
+        Update preferences only if code is not empty. Do not duplicate job code.
+        """
+        # FIXME
+        #~ global job_code
+        if code == None:
+            code = ''
+        job_code = code
+        
+        if job_code:
+            #add this value to job codes preferences
+            #delete any existing value which is the same
+            #(this way it comes to the front, which is where it should be)
+            #never modify self.prefs.job_codes in place! (or prefs become screwed up)
+            
+            jcs = self.prefs.job_codes
+            while code in jcs:
+                jcs.remove(code)
+                
+            self.prefs.job_codes = [code] + jcs
+
+    def _get_job_code(self,  post_job_code_entry_callback,  autoStart, downloadSelected):
+        """ prompt for a job code """
+        
+        if not self.prompting_for_job_code:
+            logger.debug("Prompting for Job Code")
+            self.prompting_for_job_code = True
+            j = preferencesdialog.JobCodeDialog(parent_window = self.rapidapp,
+                    job_codes = self.prefs.job_codes,
+                    default_job_code = self.last_chosen_job_code, 
+                    post_job_code_entry_callback=post_job_code_entry_callback,
+                    entry_only = False)
+        else:
+            logger.debug("Already prompting for Job Code, do not prompt again")
+        
+    def get_job_code(self):
+        self._get_job_code(self.got_job_code)
+        
+    def got_job_code(self, dialog, user_chose_code, code):
+        dialog.destroy()
+        self.prompting_for_job_code = False
+        
+        if user_chose_code:
+            self.assign_job_code(code)
+            self.last_chosen_job_code = code
+            #~ self.selection_vbox.selection_treeview.apply_job_code(code, overwrite=False, to_all_rows = not downloadSelected)
+            #~ threads = self.selection_vbox.selection_treeview.set_status_to_download_pending(selected_only = downloadSelected)
+            #~ if downloadSelected or not autoStart:
+                #~ logger.debug("Starting downloads")
+                #~ self.startDownload(threads)
+            #~ else:
+                #~ # autostart is true
+                #~ logger.debug("Starting downloads that have been waiting for a Job Code")
+                #~ for w in workers.getWaitingForJobCodeWorkers():
+                    #~ w.startStop()    
+                
+        else:
+            # user cancelled
+            pass
+            #~ logger.debug("No Job Code entered")
+            #~ for w in workers.getWaitingForJobCodeWorkers():
+                #~ w.waitingForJobCode = False
+                #~ 
+            #~ if autoStart:
+                #~ for w in workers.getAutoStartWorkers():
+                    #~ w.autoStart = False        
+    
     # # #
     # Download
     # # #
+    
+    def _init_download_tracking(self):
+        """
+        Initialize variables to track downloads
+        """
+        # Track download sizes and other values for each device.
+        # (Scan id acts as an index to each device. A device could be scanned
+        #  more than once).
+        self.size_of_download_in_bytes_by_scan_pid = dict()
+        self.no_files_in_download_by_scan_pid = dict()
+        self.file_types_present_by_scan_pid = dict()
+        self.download_count_for_file_by_unique_id = dict()
+        self.download_count_by_scan_pid = dict()
+        
+        # Track which temporary directories are created when downloading files
+        self.temp_dirs_by_scan_pid = dict()
+        
+        # Track which downloads are running
+        self.download_active_by_scan_pid = []
+        
+
     
     def start_download(self):
         """
@@ -1431,8 +1555,9 @@ class RapidApp(dbus.service.Object):
         else:
             video_download_folder = None
             
-        self.size_of_download_in_bytes[scan_pid] = self.size_files_to_be_downloaded(files)
-        self.no_files_in_download[scan_pid] = len(files)
+        self.size_of_download_in_bytes_by_scan_pid[scan_pid] = self.size_files_to_be_downloaded(files)
+        self.no_files_in_download_by_scan_pid[scan_pid] = len(files)
+        self.download_active_by_scan_pid.append(scan_pid)
         # Initiate copy files process
         self.copy_files_manager.add_task((photo_download_folder, 
                               video_download_folder, scan_pid,
@@ -1455,17 +1580,15 @@ class RapidApp(dbus.service.Object):
             elif msg_type == rpdmp.MSG_BYTES:
                 scan_pid, total_downloaded = data
                 percent_complete = (float(total_downloaded) / 
-                                self.size_of_download_in_bytes[scan_pid]) * 100
+                                self.size_of_download_in_bytes_by_scan_pid[scan_pid]) * 100
                 self.device_collection.update_progress(scan_pid, percent_complete,
                                             None, None)
             elif msg_type == rpdmp.MSG_FILE:
                 download_succeeded, rpd_file, download_count, temp_full_file_name = data
                 
                 
-                self.download_count_for_file[rpd_file.unique_id] = download_count
-                self.download_count[rpd_file.scan_pid] = download_count
-                
-                #~ logger.info("Recieved data about %s", download_count)
+                self.download_count_for_file_by_unique_id[rpd_file.unique_id] = download_count
+                self.download_count_by_scan_pid[rpd_file.scan_pid] = download_count
                 
                 if not download_succeeded:
                     logger.error("File was not downloaded: %s", rpd_file.full_file_name)
@@ -1481,11 +1604,15 @@ class RapidApp(dbus.service.Object):
             return True
         else:
             # Process is complete, i.e. conn_type == rpdmp.CONN_COMPLETE
-            self.copy_files_manager.process_completed()
             connection.close()
             return False
             
 
+    
+    def download_is_occurring(self):
+        """Returns True if a file is currently being downloaded or renamed
+        """
+        return not len(self.download_active_by_scan_pid) == 0
     
     # # #
     # Create folder and file names for downloaded files
@@ -1501,16 +1628,16 @@ class RapidApp(dbus.service.Object):
         
         self._update_file_download_device_progress(scan_pid, unique_id)
         
-        download_count = self.download_count_for_file[unique_id]
-        if download_count == self.no_files_in_download[scan_pid]:
+        download_count = self.download_count_for_file_by_unique_id[unique_id]
+        if download_count == self.no_files_in_download_by_scan_pid[scan_pid]:
             # Last file has been downloaded, so clean temp directory
             logger.info("Purging temp directories")
             for temp_dir in self.temp_dirs_by_scan_pid[scan_pid]:
                 self._purge_dir(temp_dir)
-            logger.info("Purging download directory")
+            #~ logger.info("Purging download directory")
             # During development, delete the directory the files were downloaded into
             #~ self._purge_dir('/home/damon/store/rapid-dump/2011')
-                
+            self.download_active_by_scan_pid.remove(scan_pid)
         else:
             pass
             #~ logger.info("Download count: %s", download_count)
@@ -1524,9 +1651,9 @@ class RapidApp(dbus.service.Object):
         #~ scan_pid = rpd_file.scan_pid
         #~ unique_id = rpd_file.unique_id
         progress_bar_text = _("%(number)s of %(total)s %(filetypes)s") % \
-                             {'number':  self.download_count_for_file[unique_id], 
-                              'total': self.no_files_in_download[scan_pid],
-                              'filetypes': self.file_types_present[scan_pid]}
+                             {'number':  self.download_count_for_file_by_unique_id[unique_id], 
+                              'total': self.no_files_in_download_by_scan_pid[scan_pid],
+                              'filetypes': self.file_types_present_by_scan_pid[scan_pid]}
         self.device_collection.update_progress(scan_pid, None, progress_bar_text, None)        
 
     def _purge_dir(self, directory):
@@ -1553,30 +1680,177 @@ class RapidApp(dbus.service.Object):
                 logger.error("Failure deleting temporary folder %s", directory)
                 logger.error(inst)
     
+    
+    # # # 
+    # Preferences
+    # # #
+
+    def check_prefs_on_startup(self):
+        """
+        Checks the image & video rename, and subfolder prefs for validity.
+        
+        Returns True if no problem, false otherwise.
+        """
+        prefs_ok = prefsrapid.check_prefs_for_validity(self.prefs.image_rename,
+                                                       self.prefs.subfolder,
+                                                       self.prefs.video_rename,
+                                                       self.prefs.video_subfolder)
+        if not prefs_ok:
+            logger.error("There is an error in the program preferences. Some preferences will be reset.")
+        return prefs_ok
+        
+        
+    def _init_prefs(self): 
+        self.prefs = prefsrapid.RapidPreferences()
+        self.prefs.notify_add(self.on_preference_changed)
+            
+        # flag to indicate whether the user changed some preferences that 
+        # indicate the image and backup devices should be setup again
+        self.rerun_setup_available_image_and_video_media = False
+        self.rerun_setup_available_backup_media = False
+        
+        # flag to indicate that the preferences dialog window is being 
+        # displayed to the user
+        self.preferences_dialog_displayed = False    
+    
+    def on_preference_changed(self, key, value):
+        """
+        Called when user changes the program's preferences
+        """
+        logger.debug("Preference change detected: %s", key)
+        
+
+        if key == 'show_log_dialog':
+            self.menu_log_window.set_active(value)
+        elif key in ['device_autodetection', 'device_autodetection_psd', 'device_location']:
+            self.rerun_setup_available_image_and_video_media = True
+            if not self.preferences_dialog_displayed:
+                self.post_preference_change()
+                
+        elif key in ['backup_images', 'backup_device_autodetection', 'backup_location', 'backup_identifier', 'video_backup_identifier']:
+            self.rerun_setup_available_backup_media = True
+            if not self.preferences_dialog_displayed:
+                self.post_preference_change()
+            
+        #~ elif key == 'job_codes':
+            #~ # update job code list in left pane
+            #~ self.selection_vbox.update_job_code_combo()       
+    
+    def post_preference_change(self):
+        if self.rerun_setup_available_image_and_video_media:
+            if self.using_volume_monitor():
+                self.start_volume_monitor()
+            logger.info("Download device settings preferences were changed.")
+            
+            self.thumbnails.clear_all()
+            self.setup_devices(on_startup = False, on_preference_change = True, do_not_allow_auto_start = True)
+                
+            self.rerun_setup_available_image_and_video_media = False
+            
+        if self.rerun_setup_available_backup_media:
+            if self.using_volume_monitor():
+                self.start_volume_monitor()          
+            logger.info("Backup preferences were changed.")
+            
+            logger.info("self.refreshBackupMedia()")
+            
+            self.rerun_setup_available_backup_media = False
+            
+
+    
     # # #
     # Main app window management and setup
     # # #
     
+    def _init_widgets(self):
+        """
+        Initialize widgets in the main window, and variables that point to them
+        """
+        builder = gtk.Builder()
+        self.builder = builder
+        builder.add_from_file(paths.share_dir("glade3/rapid.ui"))
+        self.rapidapp = builder.get_object("rapidapp")
+        self.main_vpaned = builder.get_object("main_vpaned")
+        self.main_notebook = builder.get_object("main_notebook")
+        self.download_action = builder.get_object("download_action")
+        
+        self.download_progressbar = builder.get_object("download_progressbar")
+        self.rapid_statusbar = builder.get_object("rapid_statusbar")
+        self.statusbar_context_id = self.rapid_statusbar.get_context_id("progress")
+        self.device_collection_scrolledwindow = builder.get_object("device_collection_scrolledwindow")
+        
+        builder.connect_signals(self)
+        
+        self.preview_image = PreviewImage(self, builder)
+
+        thumbnails_scrolledwindow = builder.get_object('thumbnails_scrolledwindow')
+        self.thumbnails = ThumbnailDisplay(self)
+        thumbnails_scrolledwindow.add(self.thumbnails)        
+        
+        #collection of devices from which to download
+        self.device_collection_viewport = builder.get_object("device_collection_viewport")
+        self.device_collection = DeviceCollection(self)
+        self.device_collection_viewport.add(self.device_collection)
+        
+        # monitor to handle mounts and dismounts
+        self.vmonitor = None
+        
+        #job code initialization
+        self.last_chosen_job_code = None
+        self.prompting_for_job_code = False
+
+    def _set_window_size(self):
+        """
+        Remember the window size from the last time the program was run, or
+        set a default size        
+        """
+        
+        if self.prefs.main_window_maximized:
+            self.rapidapp.maximize()
+            self.rapidapp.set_default_size(config.DEFAULT_WINDOW_WIDTH, 
+                                           config.DEFAULT_WINDOW_HEIGHT)
+        elif self.prefs.main_window_size_x > 0:
+            self.rapidapp.set_default_size(self.prefs.main_window_size_x, self.prefs.main_window_size_y)
+        else:
+            # set a default size
+            self.rapidapp.set_default_size(config.DEFAULT_WINDOW_WIDTH, 
+                                           config.DEFAULT_WINDOW_HEIGHT)
+        
+
+    def _set_device_collection_size(self):
+        """
+        Set the size of the device collection scrolled window widget
+        """
+        
+        
+        if self.device_collection.map_process_to_row:
+            height = self.device_collection_viewport.size_request()[1]
+            self.device_collection_scrolledwindow.set_size_request(-1,  height)
+        else:
+            # don't allow the media collection to be absolutely empty
+            self.device_collection_scrolledwindow.set_size_request(-1, 47)
+        
+            
     def on_rapidapp_window_state_event(self, widget, event):
         """ Records the window maximization state in the preferences."""
         
         if event.changed_mask & gdk.WINDOW_STATE_MAXIMIZED:
             self.prefs.main_window_maximized = event.new_window_state & gdk.WINDOW_STATE_MAXIMIZED
         
-    def _setup_buttons(self, builder):
-        thumbnails_button = builder.get_object("thumbnails_button")
+    def _setup_buttons(self):
+        thumbnails_button = self.builder.get_object("thumbnails_button")
         image = gtk.image_new_from_file(paths.share_dir('glade3/thumbnails_icon.png'))
         thumbnails_button.set_image(image)
         
-        preview_button = builder.get_object("preview_button")
+        preview_button = self.builder.get_object("preview_button")
         image = gtk.image_new_from_file(paths.share_dir('glade3/photo_icon.png'))
         preview_button.set_image(image)
         
-        next_image_button = builder.get_object("next_image_button")
+        next_image_button = self.builder.get_object("next_image_button")
         image = gtk.image_new_from_stock(gtk.STOCK_GO_FORWARD, gtk.ICON_SIZE_BUTTON)
         next_image_button.set_image(image)
         
-        prev_image_button = builder.get_object("prev_image_button")
+        prev_image_button = self.builder.get_object("prev_image_button")
         image = gtk.image_new_from_stock(gtk.STOCK_GO_BACK, gtk.ICON_SIZE_BUTTON)
         prev_image_button.set_image(image)
         
@@ -1590,14 +1864,14 @@ class RapidApp(dbus.service.Object):
         icon_list = [(icon, paths.share_dir('glade3/%s.svg' % icon)) for icon in icons]
         register_iconsets(icon_list)
         
-    def _setup_error_icons(self, builder):
+    def _setup_error_icons(self):
         """
         hide display of warning and error symbols in the taskbar until they
         are needed
         """
-        self.error_image = builder.get_object("error_image")
-        self.warning_image = builder.get_object("warning_image")
-        self.warning_vseparator = builder.get_object("warning_vseparator")
+        self.error_image = self.builder.get_object("error_image")
+        self.warning_image = self.builder.get_object("warning_image")
+        self.warning_vseparator = self.builder.get_object("warning_vseparator")
         self.error_image.hide()
         self.warning_image.hide()
         self.warning_vseparator.hide()
@@ -1634,7 +1908,8 @@ class RapidApp(dbus.service.Object):
             dir_info = dirs[i]
             folder = gio.File(dir_info[0])
             file_info = folder.query_filesystem_info(gio.FILE_ATTRIBUTE_FILESYSTEM_FREE)
-            free = common.formatSizeForUser(file_info.get_attribute_uint64(gio.FILE_ATTRIBUTE_FILESYSTEM_FREE))
+            size = file_info.get_attribute_uint64(gio.FILE_ATTRIBUTE_FILESYSTEM_FREE)
+            free = format_size_for_user(bytes=size)
             if len(dirs) > 1:
                 #(videos) or (photos) will be appended to the free space message displayed to the 
                 #user in the status bar.
@@ -1787,13 +2062,36 @@ class RapidApp(dbus.service.Object):
             
         return valid
                 
-            
+    
     
     # # #
-    # Get results from scan process
+    #  Process results and management
     # # #
         
+        
+    def _start_process_managers(self):
+        """
+        Set up process managers.
+        
+        A task such as scanning a device or copying files is handled in its
+        own process.        
+        """
+        
+        self.batch_size = 10
+        self.batch_size_MB = 2
+        
+        self.subfolder_file_manager = SubfolderFileManager(self.subfolder_file_results)
+        
+        self.generate_folder = False
+        self.scan_manager = ScanManager(self.scan_results, self.batch_size, 
+                    self.generate_folder, self.device_collection.add_device)
+        self.copy_files_manager = CopyFilesManager(self.copy_files_results, 
+                                                   self.batch_size_MB)        
+        
     def scan_results(self, source, condition):
+        """
+        Receive results from scan processes
+        """
         connection = self.scan_manager.get_pipe(source)
         
         conn_type, data = connection.recv()
@@ -1801,9 +2099,9 @@ class RapidApp(dbus.service.Object):
         if conn_type == rpdmp.CONN_COMPLETE:
             connection.close()
             size, file_type_counter, scan_pid = data
-            size = format_size_for_user(size)
+            size = format_size_for_user(bytes=size)
             results_summary, file_types_present = file_type_counter.summarize_file_count()
-            self.file_types_present[scan_pid] = file_types_present
+            self.file_types_present_by_scan_pid[scan_pid] = file_types_present
             logger.info('Found %s' % results_summary)
             logger.info('Files total %s' % size)
             self.device_collection.update_device(scan_pid, size)
@@ -1815,7 +2113,6 @@ class RapidApp(dbus.service.Object):
                 if not self.testing_auto_exit:
                     self.download_progressbar.set_text(_("Thumbnails"))
                     self.thumbnails.generate_thumbnails(scan_pid)
-            self.scan_manager.process_completed()
             self.set_download_action_sensitivity()
             self.set_thumbnail_sort()
             
@@ -1834,6 +2131,7 @@ class RapidApp(dbus.service.Object):
         
 
     def needJobCodeForRenaming(self):
+        #FIXME
         return rn.usesJobCode(self.prefs.image_rename) or rn.usesJobCode(self.prefs.subfolder) or rn.usesJobCode(self.prefs.video_rename) or rn.usesJobCode(self.prefs.video_subfolder)
 
     @dbus.service.method (config.DBUS_NAME,

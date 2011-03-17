@@ -21,13 +21,14 @@ import subprocess, os, datetime
 
 import prefs
 
-import renamesubfolderprefs as rn
+import preferencesdialog as pd
+from generatenameconfig import *
+
 import utilities
 import config
+__version__ = config.version
 
-from common import Configi18n
-global _
-_ = Configi18n._
+from gettext import gettext as _
 
 def _get_default_location_legacy(options, ignore_missing_dir=False):
     if ignore_missing_dir:
@@ -72,14 +73,14 @@ class RapidPreferences(prefs.Preferences):
                                         get_default_photo_location()),
         "video_download_folder": prefs.Value(prefs.STRING, 
                                         get_default_video_location()),
-        "subfolder": prefs.ListValue(prefs.STRING_LIST, rn.DEFAULT_SUBFOLDER_PREFS),
-        "video_subfolder": prefs.ListValue(prefs.STRING_LIST, rn.DEFAULT_VIDEO_SUBFOLDER_PREFS),
-        "image_rename": prefs.ListValue(prefs.STRING_LIST, [rn.FILENAME, 
-                                        rn.NAME_EXTENSION,
-                                        rn.ORIGINAL_CASE]),
-        "video_rename": prefs.ListValue(prefs.STRING_LIST, [rn.FILENAME, 
-                                        rn.NAME_EXTENSION,
-                                        rn.ORIGINAL_CASE]),
+        "subfolder": prefs.ListValue(prefs.STRING_LIST, DEFAULT_SUBFOLDER_PREFS),
+        "video_subfolder": prefs.ListValue(prefs.STRING_LIST, DEFAULT_VIDEO_SUBFOLDER_PREFS),
+        "image_rename": prefs.ListValue(prefs.STRING_LIST, [FILENAME, 
+                                        NAME_EXTENSION,
+                                        ORIGINAL_CASE]),
+        "video_rename": prefs.ListValue(prefs.STRING_LIST, [FILENAME, 
+                                        NAME_EXTENSION,
+                                        ORIGINAL_CASE]),
         "device_autodetection": prefs.Value(prefs.BOOL, True),
         "device_location": prefs.Value(prefs.STRING, os.path.expanduser('~')), 
         "device_autodetection_psd": prefs.Value(prefs.BOOL,  False),
@@ -119,7 +120,7 @@ class RapidPreferences(prefs.Preferences):
                _('Budapest'), _('Rome'),  _('Moscow'),  _('Delhi'), _('Warsaw'), 
                _('Jakarta'),  _('Madrid'),  _('Stockholm')]),
         "synchronize_raw_jpg": prefs.Value(prefs.BOOL, False),
-        "hpaned_pos": prefs.Value(prefs.INT, 0),
+        #~ "hpaned_pos": prefs.Value(prefs.INT, 0),
         "vpaned_pos": prefs.Value(prefs.INT, 0),
         "main_window_size_x": prefs.Value(prefs.INT, 0),
         "main_window_size_y": prefs.Value(prefs.INT, 0),
@@ -132,18 +133,18 @@ class RapidPreferences(prefs.Preferences):
     def __init__(self):
         prefs.Preferences.__init__(self, config.GCONF_KEY, self.defaults)
 
-    def getAndMaybeResetDownloadsToday(self):
-        v = self.getDownloadsToday()
+    def get_and_maybe_reset_downloads_today(self):
+        v = self.get_downloads_today()
         if v <= 0:
-            self.resetDownloadsToday()
+            self.reset_downloads_today()
         return v
 
-    def getDownloadsToday(self):
+    def get_downloads_today(self):
         """Returns the preference value for the number of downloads performed today 
         
         If value is less than zero, that means the date has changed"""
         
-        hour,  minute = self.getDayStart()
+        hour,  minute = self.get_day_start()
         adjustedToday = datetime.datetime.strptime("%s %s:%s" % (self.downloads_today[0], hour,  minute), "%Y-%m-%d %H:%M") 
         
         now = datetime.datetime.today()
@@ -154,27 +155,27 @@ class RapidPreferences(prefs.Preferences):
             except ValueError:
                 sys.stderr.write(_("Invalid Downloads Today value.\n"))
                 sys.stderr.write(_("Resetting value to zero.\n"))
-                self.setDownloadsToday(self.downloads_today[0] ,  0)
+                self.get_downloads_today(self.downloads_today[0] ,  0)
                 return 0
         else:
             return -1
                 
-    def setDownloadsToday(self, date,  value=0):
+    def set_downloads_today(self, date,  value=0):
             self.downloads_today = [date,  str(value)]
             
-    def incrementDownloadsToday(self):
+    def increment_downloads_today(self):
         """ returns true if day changed """
-        v = self.getDownloadsToday()
+        v = self.get_downloads_today()
         if v >= 0:
-            self.setDownloadsToday(self.downloads_today[0] ,  v + 1)
+            self.set_downloads_today(self.downloads_today[0], v + 1)
             return False
         else:
-            self.resetDownloadsToday(1)
+            self.reset_downloads_today(1)
             return True
 
-    def resetDownloadsToday(self,  value=0):
+    def reset_downloads_today(self,  value=0):
         now = datetime.datetime.today()
-        hour,  minute = self.getDayStart()
+        hour,  minute = self.get_day_start()
         t = datetime.time(hour,  minute)
         if now.time() < t:
             date = today()
@@ -182,12 +183,12 @@ class RapidPreferences(prefs.Preferences):
             d = datetime.datetime.today() + datetime.timedelta(days=1)
             date = d.strftime(('%Y-%m-%d'))
             
-        self.setDownloadsToday(date,  value)
+        self.set_downloads_today(date, value)
         
-    def setDayStart(self,  hour,  minute):
+    def set_day_start(self,  hour,  minute):
         self.day_start = "%s:%s" % (hour,  minute)
 
-    def getDayStart(self):
+    def get_day_start(self):
         try:
             t1,  t2 = self.day_start.split(":")
             return (int(t1),  int(t2))
@@ -197,7 +198,7 @@ class RapidPreferences(prefs.Preferences):
             self.day_start = "0:0"
             return 0, 0
 
-    def getSampleJobCode(self):
+    def get_sample_job_code(self):
         if self.job_codes:
             return self.job_codes[0]
         else:
@@ -210,4 +211,29 @@ class RapidPreferences(prefs.Preferences):
         
         prefs.Preferences.reset(self)
         self.program_version = __version__
+        
+        
             
+def check_prefs_for_validity(prefs):
+    """
+    Checks preferences for validity (called at program startup)
+    
+    Returns true if the passed in preferences are valid, else returns False
+    """
+    
+    try:
+        tests = ((prefs.image_rename, pd.PhotoNamePrefs), 
+                 (prefs.subfolder, pd.PhotoSubfolderPrefs),
+                 (prefs.video_rename, pd.VideoNamePrefs),
+                 (prefs.video_subfolder, pd.VideoSubfolderPrefs))
+        for pref, pref_widgets in tests:
+            p = pref_widgets(pref)
+            p.check_prefs_for_validity()
+    except:
+        return False
+    return True
+
+
+
+
+

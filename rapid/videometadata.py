@@ -111,7 +111,7 @@ if DOWNLOAD_VIDEO:
                 v = missing
             return v
             
-        def date_time(self, missing=''):
+        def dateTime(self, missing=''):
             return self._get('creation_date', missing)
                 
         def timeStamp(self, missing=''):

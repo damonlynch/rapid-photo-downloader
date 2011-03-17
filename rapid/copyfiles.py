@@ -30,9 +30,7 @@ import rpdmultiprocessing as rpdmp
 import rpdfile
 
 
-from common import Configi18n
-global _
-_ = Configi18n._
+from gettext import gettext as _
 
 
 class CopyFiles(multiprocessing.Process):
@@ -51,8 +49,23 @@ class CopyFiles(multiprocessing.Process):
         self.no_files= len(self.files)
         self.run_event = run_event
         
+    def check_termination_request(self):
+        """
+        Check to see this process has not been requested to immediately terminate
+        """
+        if not self.terminate_queue.empty():
+            x = self.terminate_queue.get()
+            # terminate immediately
+            logger.info("Terminating file copying")
+            return True
+        return False
+    
     def progress_callback(self, amount_downloaded, total):
         
+        if self.check_termination_request():
+            # FIXME: cancel copy
+            pass
+            
         if (amount_downloaded - self.bytes_downloaded > self.batch_size_bytes) or (amount_downloaded == total):
             chunk_downloaded = amount_downloaded - self.bytes_downloaded
             self.bytes_downloaded = amount_downloaded
@@ -81,10 +94,7 @@ class CopyFiles(multiprocessing.Process):
                 # pause if instructed by the caller
                 self.run_event.wait()
                 
-                if not self.terminate_queue.empty():
-                    x = self.terminate_queue.get()
-                    # terminate immediately
-                    logger.info("Terminating file copying")
+                if self.check_termination_request():
                     return None
                 
                 source = gio.File(path=rpd_file.full_file_name)

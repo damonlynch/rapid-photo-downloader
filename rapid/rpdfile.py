@@ -28,7 +28,7 @@ import pyexiv2
 import paths
 import common
 
-_ = common.Configi18n._
+from gettext import gettext as _
 
 import config
 import metadataphoto
@@ -44,10 +44,16 @@ NON_RAW_IMAGE_EXTENSIONS = ['jpg', 'jpe', 'jpeg', 'tif', 'tiff']
 
 PHOTO_EXTENSIONS = RAW_EXTENSIONS + NON_RAW_IMAGE_EXTENSIONS
 
-VIDEO_EXTENSIONS = ['3gp', 'avi', 'm2t', 'mov', 'mp4', 'mpeg','mpg', 'mod', 
-                    'tod']
-#~ VIDEO_EXTENSIONS = []
-VIDEO_THUMBNAIL_EXTENSIONS = ['thm']
+if metadatavideo.DOWNLOAD_VIDEO:
+    # some distros do not include the necessary libraries that Rapid Photo Downloader 
+    # needs to be able to download videos
+    VIDEO_EXTENSIONS = ['3gp', 'avi', 'm2t', 'mov', 'mp4', 'mpeg','mpg', 'mod', 
+                        'tod']
+    VIDEO_THUMBNAIL_EXTENSIONS = ['thm']                        
+else:
+    VIDEO_EXTENSIONS = []
+    VIDEO_THUMBNAIL_EXTENSIONS = []
+
 
 FILE_TYPE_PHOTO = 0
 FILE_TYPE_VIDEO = 1

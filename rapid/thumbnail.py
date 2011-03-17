@@ -1,4 +1,5 @@
 #!/usr/bin/python
+#!/usr/bin/python
 # -*- coding: latin1 -*-
 
 ### Copyright (C) 2011 Damon Lynch <damonlynch@gmail.com>
@@ -33,7 +34,7 @@ import subprocess
 import rpdfile
 import common
 import rpdmultiprocessing as rpdmp
-import dropshadow
+from utilities import image_to_pixbuf, pixbuf_to_image
 import pyexiv2
 
 from filmstrip import add_filmstrip
@@ -43,39 +44,33 @@ logger = multiprocessing.get_logger()
 
 
 def get_stock_photo_image():
-    return Image.open(paths.share_dir('glade3/photo.png'))
+    length = min(gtk.gdk.screen_width(), gtk.gdk.screen_height())
+    pixbuf = gtk.gdk.pixbuf_new_from_file_at_size(paths.share_dir('glade3/photo.svg'), length, length)
+    image = pixbuf_to_image(pixbuf)    
+    return image
     
 def get_stock_photo_image_icon():
     image = Image.open(paths.share_dir('glade3/photo66.png'))
     image = image.convert("RGBA")
     return image
     
-def get_photo_type_icon():
-    return gtk.gdk.pixbuf_new_from_file(paths.share_dir('glade3/photo24.png'))
-    
 def get_stock_video_image():
-    image = Image.open(paths.share_dir('glade3/video.png'))
+    length = min(gtk.gdk.screen_width(), gtk.gdk.screen_height())
+    pixbuf = gtk.gdk.pixbuf_new_from_file_at_size(paths.share_dir('glade3/video.svg'), length, length)
+    image = pixbuf_to_image(pixbuf)    
+    return image
+        
+def get_stock_video_image_icon():
+    image = Image.open(paths.share_dir('glade3/video66.png'))
     image = image.convert("RGBA")
     return image
     
-def get_stock_video_image_icon():
-    return Image.open(paths.share_dir('glade3/video100.png'))
-
-def get_video_type_icon():
-    return gtk.gdk.pixbuf_new_from_file(paths.share_dir('glade3/video24.png'))
-    
-
     
 class PhotoIcons():
-    stock_thumbnail_image = get_stock_photo_image()
     stock_thumbnail_image_icon = get_stock_photo_image_icon()
-    type_icon = get_photo_type_icon()
-    
-class VideoIcons():
-    stock_thumbnail_image = get_stock_video_image()
-    stock_thumbnail_image_icon = get_stock_video_image_icon()
-    type_icon = get_video_type_icon()
 
+class VideoIcons():
+    stock_thumbnail_image_icon = get_stock_video_image_icon()
 
 def upsize_pil(image, size):
     width_max = size[0]
@@ -140,7 +135,7 @@ class PicklablePIL:
         return Image.fromstring(self.mode, self.size, self.image_data)
         
     def get_pixbuf(self):
-        return dropshadow.image_to_pixbuf(self.get_image())
+        return image_to_pixbuf(self.get_image())
 
 def get_video_THM_file(fullFileName):
     """
@@ -284,7 +279,7 @@ class Thumbnail:
                 except:
                     logger.warning("Could not open THM file for %s", full_file_name)
                 thumbnail = add_filmstrip(thumbnail)
-                image = dropshadow.pixbuf_to_image(thumbnail)
+                image = pixbuf_to_image(thumbnail)
         
         if image is None:
             try:
@@ -319,11 +314,28 @@ class GetPreviewImage(multiprocessing.Process):
         self.daemon = True
         self.results_pipe = results_pipe
         self.thumbnail_maker = Thumbnail()
+        self.stock_photo_thumbnail_image = None
+        self.stock_video_thumbnail_image = None        
+        
+    def get_stock_image(self, file_type):
+        """
+        Get stock image for file type scaled to the current size of the 
+        """
+        if file_type == rpdfile.FILE_TYPE_PHOTO:
+            if self.stock_photo_thumbnail_image is None:
+                self.stock_photo_thumbnail_image = PicklablePIL(get_stock_photo_image())
+            return self.stock_photo_thumbnail_image
+        else:
+            if self.stock_video_thumbnail_image is None:
+                self.stock_video_thumbnail_image = PicklablePIL(get_stock_video_image())
+            return self.stock_video_thumbnail_image         
         
     def run(self):
         while True:
             unique_id, full_file_name, file_type, size_max = self.results_pipe.recv()
             full_size_preview, reduced_size_preview = self.thumbnail_maker.get_thumbnail(full_file_name, file_type, size_max=size_max, size_reduced=None)
+            if full_size_preview is None:
+                full_size_preview = self.get_stock_image(file_type)
             self.results_pipe.send((unique_id, full_size_preview, reduced_size_preview))
             
 

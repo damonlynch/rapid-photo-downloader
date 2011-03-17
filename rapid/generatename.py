@@ -27,55 +27,11 @@ import problemnotification as pn
 
 from generatenameconfig import *
 
-from common import Configi18n
-global _
-_ = Configi18n._
+from gettext import gettext as _
 
 
 
-class PrefError(Exception):
-    """ base class """
-    def unpackList(self, l):
-        """
-        Make the preferences presentable to the user
-        """
-        
-        s = ''
-        for i in l:
-            if i <> ORDER_KEY:
-                s += "'" + i + "', "
-        return s[:-2]
 
-    def __str__(self): 
-        return self.msg
-        
-class PrefKeyError(PrefError):
-    def __init__(self, error):
-        value = error[0]
-        expectedValues = self.unpackList(error[1])
-        self.msg = "Preference key '%(key)s' is invalid.\nExpected one of %(value)s" % {
-                            'key': value, 'value': expectedValues}
-
-
-class PrefValueInvalidError(PrefKeyError):
-    def __init__(self, error):
-        value = error[0]
-        self.msg = "Preference value '%(value)s' is invalid" % {'value': value}
-        
-class PrefLengthError(PrefError):
-    def __init__(self, error):
-        self.msg = "These preferences are not well formed:" + "\n %s" % self.unpackList(error)
-        
-class PrefValueKeyComboError(PrefError):
-    def __init__(self, error):    
-        self.msg = error
-
-
-def convert_date_for_strftime(datetime_user_choice):
-    try:
-        return DATE_TIME_CONVERT[LIST_DATE_TIME_L2.index(datetime_user_choice)]
-    except:
-        raise PrefValueInvalidError(datetime_user_choice)
 
 
 
@@ -153,18 +109,117 @@ class PhotoName:
             self.problem.add_problem(self.component, pn.INVALID_DATE_TIME, d)
             logger.error("Both file modification time and metadata date & time are invalid for file %s", self.rpd_file.full_file_name)
             return ''
+    
+    def _get_filename_component(self):
+        """
+        Returns portion of new file / subfolder name based on the file name
+        """
+        
+        name, extension = os.path.splitext(self.rpd_file.name)
+        
+        if self.L1 == NAME_EXTENSION:
+            filename = self.rpd_file.name
+        elif self.L1 == NAME:
+                filename = name
+        elif self.L1 == EXTENSION:
+            if extension:
+                if not self.strip_initial_period_from_extension:
+                    # keep the period / dot of the extension, so the user does not
+                    # need to manually specify it
+                    filename = extension
+                else:
+                    # having the period when this is used as a part of a subfolder name
+                    # is a bad idea when it is at the start!
+                    filename = extension[1:]
+            else:
+                self.problem.add_problem(self.component, pn.MISSING_FILE_EXTENSION)
+                return ""
+        elif self.L1 == IMAGE_NUMBER or self.L1 == VIDEO_NUMBER:
+            n = re.search("(?P<image_number>[0-9]+$)", name)
+            if not n:
+                self.problem.add_problem(self.component, pn.MISSING_IMAGE_NUMBER)
+                return '' 
+            else:
+                image_number = n.group("image_number")
+    
+                if self.L2 == IMAGE_NUMBER_ALL:
+                    filename = image_number
+                elif self.L2 == IMAGE_NUMBER_1:
+                    filename = image_number[-1]
+                elif self.L2 == IMAGE_NUMBER_2:
+                    filename = image_number[-2:]
+                elif self.L2 == IMAGE_NUMBER_3:
+                    filename = image_number[-3:]
+                elif self.L2 == IMAGE_NUMBER_4:
+                    filename = image_number[-4:]
+        else:
+            raise TypeError("Incorrect filename option")
+
+        if self.L2 == UPPERCASE:
+            filename = filename.upper()
+        elif self.L2 == LOWERCASE:
+            filename = filename.lower()
+
+        return filename
+        
+    def _get_metadata_component(self):
+        """
+        Returns portion of new image / subfolder name based on the metadata
+        
+        Note: date time metadata found in _getDateComponent()
+        """
+        
+        if self.L1 == APERTURE:
+            v = self.metadata.aperture()
+        elif self.L1 == ISO:
+            v = self.metadata.iso()
+        elif self.L1 == EXPOSURE_TIME:
+            v = self.metadata.exposure_time(alternativeFormat=True)
+        elif self.L1 == FOCAL_LENGTH:
+            v = self.metadata.focal_length()
+        elif self.L1 == CAMERA_MAKE:
+            v = self.metadata.camera_make()
+        elif self.L1 == CAMERA_MODEL:
+            v = self.metadata.camera_model()
+        elif self.L1 == SHORT_CAMERA_MODEL:
+            v = self.metadata.short_camera_model()
+        elif self.L1 == SHORT_CAMERA_MODEL_HYPHEN:
+            v = self.metadata.short_camera_model(includeCharacters = "\-")
+        elif self.L1 == SERIAL_NUMBER:
+            v = self.metadata.camera_serial()
+        elif self.L1 == SHUTTER_COUNT:
+            v = self.metadata.shutter_count()
+            if v:
+                v = int(v)
+                padding = LIST_SHUTTER_COUNT_L2.index(self.L2) + 3
+                formatter = '%0' + str(padding) + "i"
+                v = formatter % v
             
+        elif self.L1 == OWNER_NAME:
+            v = self.metadata.owner_name()
+        else:
+            raise TypeError("Invalid metadata option specified")
+        if self.L1 in [CAMERA_MAKE, CAMERA_MODEL, SHORT_CAMERA_MODEL,
+                        SHORT_CAMERA_MODEL_HYPHEN,  OWNER_NAME]:
+            if self.L2 == UPPERCASE:
+                v = v.upper()
+            elif self.L2 == LOWERCASE:
+                v = v.lower()
+        if not v:
+            self.problem.add_problem(self.component, pn.MISSING_METADATA, _(self.L1))
+        return v        
+        
     def _get_component(self):
         #~ try:
         if True:
             if self.L0 == DATE_TIME:
                 return self._get_date_component()
-            #~ elif self.L0 == TEXT:
-                #~ return self.L1
-            #~ elif self.L0 == FILENAME:
-                #~ return self._getFilenameComponent()
-            #~ elif self.L0 == METADATA:
-                #~ return self._getMetadataComponent()
+            elif self.L0 == TEXT:
+                return self.L1
+            elif self.L0 == FILENAME:
+                return self._get_filename_component()
+            elif self.L0 == METADATA:
+                return self._get_metadata_component()
             #~ elif self.L0 == SEQUENCES:
                 #~ return self._getSequencesComponent()
             #~ elif self.L0 == JOB_CODE:
@@ -212,6 +267,14 @@ class VideoName:
         PhotoName.__init__(self, prefs, download_start_time)
         self.pref_list = prefs.video_rename
         self.L1_date_check = VIDEO_DATE  #used in _get_date_component()
+        
+    def _get_metadata_component(self):
+        """
+        Returns portion of video / subfolder name based on the metadata
+        
+        Note: date time metadata found in _getDateComponent()
+        """
+        return get_video_metadata_component(self)        
 
 class PhotoSubfolder(PhotoName):
     """
@@ -245,6 +308,7 @@ class PhotoSubfolder(PhotoName):
             
         return subfolders
                 
+        
 
         
 class VideoSubfolder(PhotoSubfolder):
@@ -256,4 +320,42 @@ class VideoSubfolder(PhotoSubfolder):
         PhotoSubfolder.__init__(self, prefs, download_start_time)
         self.pref_list = prefs.video_subfolder
         self.L1_date_check = VIDEO_DATE  #used in _get_date_component()
+        
+        
+    def _get_metadata_component(self):
+        """
+        Returns portion of video / subfolder name based on the metadata
+        
+        Note: date time metadata found in _getDateComponent()
+        """
+        return get_video_metadata_component(self)   
     
+def get_video_metadata_component(video):
+    """
+    Returns portion of video / subfolder name based on the metadata
+
+    This is outside of a class definition because of the inheritence
+    hierarchy.
+    """
+    
+    problem = None
+    if video.L1 == CODEC:
+        v = video.metadata.codec()
+    elif video.L1 == WIDTH:
+        v = video.metadata.width()
+    elif video.L1 == HEIGHT:
+        v = video.metadata.height()
+    elif video.L1 == FPS:
+        v = video.metadata.framesPerSecond()
+    elif video.L1 == LENGTH:
+        v = video.metadata.length()
+    else:
+        raise TypeError("Invalid metadata option specified")
+    if video.L1 in [CODEC]:
+        if video.L2 == UPPERCASE:
+            v = v.upper()
+        elif video.L2 == LOWERCASE:
+            v = v.lower()
+    if not v:
+        video.problem.add_problem(video.component, pn.MISSING_METADATA, _(video.L1))
+    return v

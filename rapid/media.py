@@ -185,7 +185,7 @@ class MediaFile:
     def dateTime(self, alternative_if_date_missing=None):
         date = None
         if self.metadata:
-            date = self.metadata.date_time()
+            date = self.metadata.dateTime()
         if not date:
             if alternative_if_date_missing:
                 date = alternative_if_date_missing

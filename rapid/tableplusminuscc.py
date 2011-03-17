@@ -44,15 +44,15 @@ class TablePlusMinus(gtk.Table):
     def __init__(self, rows=1, columns=1, homogeneous=False):
         if not self.debug:
             gtk.Table.__init__(self, rows, columns + 2, homogeneous)
-            self.extra_cols = 2 # representing minus and plus buttons
+            self.extraCols = 2 # representing minus and plus buttons
         else:            
             gtk.Table.__init__(self, rows, columns + 3, homogeneous)
-            self.extra_cols = 3 # representing minus and plus buttons, and info label
+            self.extraCols = 3 # representing minus and plus buttons, and info label
 
         # no of columns NOT including the + and - buttons
-        self.pm_no_columns = columns  
+        self.pm_noColumns = columns  
         # how many rows there are in the gtk.Table
-        self.pm_no_rows = rows
+        self.pm_noRows = rows
         # list of widgets in the gtk.Table
         self.pm_rows = []
         # dict of callback ids for minus and plus buttons
@@ -67,39 +67,39 @@ class TablePlusMinus(gtk.Table):
             self.set_col_spacing(columns+1, hd.CONTROL_IN_TABLE_SPACE)
         self.set_row_spacings(hd.CONTROL_IN_TABLE_SPACE)
 
-    def _set_minus_button_sensitivity(self):
-        button = self.pm_rows[0][self.pm_no_columns]
+    def _setMinusButtonSensitivity(self):
+        button = self.pm_rows[0][self.pm_noColumns]
         if len(self.pm_rows) == 1:
             button.set_sensitive(False)
         else:
             button.set_sensitive(True)
 
-    def _create_minus_plus_buttons(self, row_position):
+    def _createMinusPlusButtons(self, rowPosition):
         plus_button = gtk.Button()
         plus_button.set_image(gtk.image_new_from_stock(gtk.STOCK_ADD, gtk.ICON_SIZE_MENU))
-        self._create_callback(plus_button, row_position, 'clicked', self.on_plus_button_clicked)
+        self._createCallback(plus_button, rowPosition, 'clicked', self.on_plus_button_clicked)
         minus_button = gtk.Button()
         minus_button.set_image(gtk.image_new_from_stock(gtk.STOCK_REMOVE, gtk.ICON_SIZE_MENU))
-        self._create_callback(minus_button, row_position, 'clicked', self.on_minus_button_clicked)
+        self._createCallback(minus_button, rowPosition, 'clicked', self.on_minus_button_clicked)
 
         return minus_button, plus_button
 
             
         
     def append(self, row):
-        self.insert_after(len(self.pm_rows)-1, row)
+        self.insertAfter(len(self.pm_rows)-1, row)
 
 
-    def _get_minus_and_plus_buttons_for_row(self, row_position):
+    def _getMinusAndPlusButtonsForRow(self, rowPosition):
         """
-        Return as a tuple minus and plus buttons for the row specified by row_position
+        Return as a tuple minus and plus buttons for the row specified by rowPosition
         """
-        return (self.pm_rows[row_position][self.pm_no_columns], self.pm_rows[row_position][self.pm_no_columns+1])
+        return (self.pm_rows[rowPosition][self.pm_noColumns], self.pm_rows[rowPosition][self.pm_noColumns+1])
 
-    def remove_row(self, row_position):
+    def removeRow(self, rowPosition):
         # remove widgets from table
-        for col in range(self.pm_no_columns + self.extra_cols):
-            widget = self.pm_rows[row_position][col]
+        for col in range(self.pm_noColumns + self.extraCols):
+            widget = self.pm_rows[rowPosition][col]
             if widget:
                 self.remove(widget)
                 if self.pm_callbacks.has_key(widget):
@@ -108,61 +108,61 @@ class TablePlusMinus(gtk.Table):
 
 
         # reposition existing rows in gtk.Table
-        self._move_rows(-1, row_position + 1)
+        self._moveRows(-1, rowPosition + 1)
         # remove row from list of rows
-        del self.pm_rows[row_position]
+        del self.pm_rows[rowPosition]
 
-        self._set_minus_button_sensitivity()
-        self.pm_no_rows -= 1
-        self.resize(self.pm_no_rows, self.pm_no_columns + self.extra_cols)
-        self._print_debug_info()
+        self._setMinusButtonSensitivity()
+        self.pm_noRows -= 1
+        self.resize(self.pm_noRows, self.pm_noColumns + self.extraCols)
+        self._printDebugInfo()
 
 
-    def _create_callback(self, widget, row_position, callback_type = None, callbackMethod=None):
-        if callback_type:
-            self.pm_callbacks[widget] = widget.connect(callback_type, callbackMethod, row_position)
+    def _createCallback(self, widget, rowPosition, callbackType = None, callbackMethod=None):
+        if callbackType:
+            self.pm_callbacks[widget] = widget.connect(callbackType, callbackMethod, rowPosition)
         else:
             name = widget.get_name()
             if name == 'GtkComboBox':
-                self.pm_callbacks[widget] = widget.connect("changed", self.on_combobox_changed, row_position)
+                self.pm_callbacks[widget] = widget.connect("changed", self.on_combobox_changed, rowPosition)
             elif name == 'GtkEntry':
-                self.pm_callbacks[widget] = widget.connect("changed", self.on_entry_changed, row_position)
+                self.pm_callbacks[widget] = widget.connect("changed", self.on_entry_changed, rowPosition)
             
     
-    def _move_rows(self, adjustment, start_row, end_row = -1):
+    def _moveRows(self, adjustment, startRow, endRow = -1):
         """
         Moves gtk.Table rows up or down according to adjustment (which MUST be -1 or 1).
 
-        Starts at row start_row and ends at row end_row.  If end_row == -1, then goes to last row in table.
+        Starts at row startRow and ends at row endRow.  If endRow == -1, then goes to last row in table.
         Readjusts callbacks.
         """
-        if end_row == -1:
-            end_row = len(self.pm_rows)
-        for r in range(start_row, end_row):
+        if endRow == -1:
+            endRow = len(self.pm_rows)
+        for r in range(startRow, endRow):
             if self.debug:
-                print "Row %s becomes row %s" % (self.pm_rows[r][self.pm_no_columns + 2].get_label(), r + adjustment)
-                self.pm_rows[r][self.pm_no_columns + 2].set_label(str(r + adjustment))
+                print "Row %s becomes row %s" % (self.pm_rows[r][self.pm_noColumns + 2].get_label(), r + adjustment)
+                self.pm_rows[r][self.pm_noColumns + 2].set_label(str(r + adjustment))
 
-            for col in range(self.pm_no_columns + self.extra_cols):
+            for col in range(self.pm_noColumns + self.extraCols):
                 widget = self.pm_rows[r][col]
                 if widget:
                     self.remove(widget)
                     widget.disconnect(self.pm_callbacks[widget])
                     self.attach(widget, col, col+1, r + adjustment, r  + adjustment + 1)
-                    if col == self.pm_no_columns:
-                        self._create_callback(widget, r + adjustment, 'clicked', self.on_minus_button_clicked)
-                    elif col == self.pm_no_columns + 1:
-                        self._create_callback(widget, r + adjustment, 'clicked', self.on_plus_button_clicked)
+                    if col == self.pm_noColumns:
+                        self._createCallback(widget, r + adjustment, 'clicked', self.on_minus_button_clicked)
+                    elif col == self.pm_noColumns + 1:
+                        self._createCallback(widget, r + adjustment, 'clicked', self.on_plus_button_clicked)
                     else:
-                        self._create_callback(widget, r + adjustment)
+                        self._createCallback(widget, r + adjustment)
 
 
-    def _print_debug_info(self):
+    def _printDebugInfo(self):
         if self.debug:
             print "\nRows in internal list: %s\nTable rows: %s" % \
-                       (len(self.pm_rows), self.pm_no_rows)
+                       (len(self.pm_rows), self.pm_noRows)
 
-            if len(self.pm_rows) <> self.pm_no_rows:
+            if len(self.pm_rows) <> self.pm_noRows:
                 print "|\n\\\n --> Unequal no. of rows"
 
 
@@ -172,42 +172,42 @@ class TablePlusMinus(gtk.Table):
         """
         Override base class attach method, to allow automatic shrinking of minus and plus buttons
         """
-        if left_attach >= self.pm_no_columns and left_attach <= self.pm_no_columns + 1:
+        if left_attach >= self.pm_noColumns and left_attach <= self.pm_noColumns + 1:
             # since we are adding plus or minus button, shrink the button
             gtk.Table.attach(self, child, left_attach, right_attach, top_attach, bottom_attach, gtk.SHRINK, gtk.SHRINK, xpadding, ypadding)
         else:
             gtk.Table.attach(self, child, left_attach, right_attach, top_attach, bottom_attach, xoptions, yoptions, xpadding, ypadding)
 
 
-    def insert_after(self, row_position, row):
+    def insertAfter(self, rowPosition, row):
         """
-        Inserts row into the table at row following row_position
+        Inserts row into the table at row following rowPosition
         """
 
 
         #is table big enough?
-        self.check_table_rows_and_adjust()
+        self.checkTableRowsAndAdjust()
 
         #move (reattach) other widgets & readjust connect
-        self._move_rows(1, row_position + 1)
+        self._moveRows(1, rowPosition + 1)
 
         # insert row
-        for col in range(self.pm_no_columns):
+        for col in range(self.pm_noColumns):
             widget = row[col]
             if widget:
-                self._create_callback(widget, row_position+1)
-                self.attach(widget, col, col+1, row_position+1, row_position+2)
+                self._createCallback(widget, rowPosition+1)
+                self.attach(widget, col, col+1, rowPosition+1, rowPosition+2)
                 
-        minus_button, plus_button = self._create_minus_plus_buttons(row_position+1)
+        minus_button, plus_button = self._createMinusPlusButtons(rowPosition+1)
 
         row.append(minus_button)
         row.append(plus_button)
-        self.attach(minus_button, self.pm_no_columns, self.pm_no_columns+1, row_position+1, row_position+2)
-        self.attach(plus_button, self.pm_no_columns+1, self.pm_no_columns+2, row_position+1, row_position+2)
+        self.attach(minus_button, self.pm_noColumns, self.pm_noColumns+1, rowPosition+1, rowPosition+2)
+        self.attach(plus_button, self.pm_noColumns+1, self.pm_noColumns+2, rowPosition+1, rowPosition+2)
 
         if self.debug:
-            label = gtk.Label(str(row_position+1))
-            self.attach(label, self.pm_no_columns+2, self.pm_no_columns+3, row_position+1, row_position+2)
+            label = gtk.Label(str(rowPosition+1))
+            self.attach(label, self.pm_noColumns+2, self.pm_noColumns+3, rowPosition+1, rowPosition+2)
             row.append(label)
 
         
@@ -217,66 +217,66 @@ class TablePlusMinus(gtk.Table):
 
         #adjust internal reference table
 
-        self.pm_rows.insert(row_position + 1, row)
+        self.pm_rows.insert(rowPosition + 1, row)
 
-        self._set_minus_button_sensitivity()
+        self._setMinusButtonSensitivity()
 
-        self._print_debug_info()
+        self._printDebugInfo()
 
-    def check_table_rows_and_adjust(self, no_rows_to_add=1, adjust_rows=True):
-        no_rows_ok = True
-        if len(self.pm_rows) + no_rows_to_add > self.pm_no_rows:
-            if adjust_rows:
-                extra_rows_to_add = len(self.pm_rows) + no_rows_to_add - self.pm_no_rows
-                self.pm_no_rows += extra_rows_to_add
-                self.resize(self.pm_no_rows, self.pm_no_columns + self.extra_cols)
+    def checkTableRowsAndAdjust(self, noRowsToAdd=1, adjustRows=True):
+        noRowsOk = True
+        if len(self.pm_rows) + noRowsToAdd > self.pm_noRows:
+            if adjustRows:
+                extraRowsToAdd = len(self.pm_rows) + noRowsToAdd - self.pm_noRows
+                self.pm_noRows += extraRowsToAdd
+                self.resize(self.pm_noRows, self.pm_noColumns + self.extraCols)
             else:
-                no_rows_ok = False
-        return no_rows_ok
+                noRowsOk = False
+        return noRowsOk
 
-    def get_default_row(self):
+    def getDefaultRow(self):
         """
         Returns a list of default widgets to insert as a row into the table.
 
         Expected to be implemented in derived class.
         """
     
-        return [None] * self.pm_no_columns
+        return [None] * self.pm_noColumns
 
-    def on_combobox_changed(self, widget, row_position):
+    def on_combobox_changed(self, widget, rowPosition):
         """
         Callback for combobox that is expected to be implemented in derived class
         """
         pass
         
-    def on_entry_changed(self, widget, row_position):
+    def on_entry_changed(self, widget, rowPosition):
         """
         Callback for entry that is expected to be implemented in derived class
         """
         pass
 
-    def _debug_button_pressed(self, buttonText, row_position):
+    def _debugButtonPressed(self, buttonText, rowPosition):
         if self.debug:
             t = datetime.datetime.now().strftime("%H:%M:%S")
-            print "\n****\n%s\n\n%s clicked at %s" %(t, buttonText, row_position)
+            print "\n****\n%s\n\n%s clicked at %s" %(t, buttonText, rowPosition)
 
-    def on_minus_button_clicked(self, widget, row_position):
-        self._debug_button_pressed("Minus", row_position)
-        self.remove_row(row_position)
-        self.on_row_deleted(row_position)        
+    def on_minus_button_clicked(self, widget, rowPosition):
+        self._debugButtonPressed("Minus", rowPosition)
+        self.removeRow(rowPosition)
+        self.on_rowDeleted(rowPosition)        
 
-    def on_plus_button_clicked(self, widget, row_position):
-        self._debug_button_pressed("Plus", row_position)
-        self.insert_after(row_position, self.get_default_row())
-        self.on_row_added(row_position)
+    def on_plus_button_clicked(self, widget, rowPosition):
+        self._debugButtonPressed("Plus", rowPosition)
+        self.insertAfter(rowPosition, self.getDefaultRow())
+        self.on_rowAdded(rowPosition)
         
-    def on_row_added(self, row_position):
+    def on_rowAdded(self, rowPosition):
         """
         Expected to be implemented in derived class
         """
         pass
 
-    def on_row_deleted(self, row_position):
+    def on_rowDeleted(self, rowPosition):
         """
         Expected to be implemented in derived class
         """

@@ -63,12 +63,10 @@ class MetaData(pyexiv2.metadata.ImageMetadata):
         """
         
         try:
-            if  usesRational:
-                a = self["Exif.Photo.FNumber"]
-                a0,  a1 = str(a).split('/')
-            else:
-                a0, a1 = self["Exif.Photo.FNumber"]
-            a = float(a0) / float(a1)
+
+            a = self["Exif.Photo.FNumber"].value
+
+            a = float(a.numerator) / float(a.denominator)
             return "%.1f" % a
         except:
             return missing
@@ -80,11 +78,11 @@ class MetaData(pyexiv2.metadata.ImageMetadata):
         Returns missing if the metadata value is not present.
         """
         try:
-            return "%s" % (self["Exif.Photo.ISOSpeedRatings"])
+            return self["Exif.Photo.ISOSpeedRatings"].human_value
         except:
             return missing
             
-    def exposureTime(self, alternativeFormat=False, missing=''):
+    def exposure_time(self, alternativeFormat=False, missing=''):
         """ 
         Returns in string format the exposure time of the image.
         
@@ -110,20 +108,12 @@ class MetaData(pyexiv2.metadata.ImageMetadata):
         """
 
         try:
-            if usesRational:
 
-                e = str(self["Exif.Photo.ExposureTime"])
+            e = self["Exif.Photo.ExposureTime"].value
 
-                e0,  e1 = e.split('/')
-                e0 = int(e0)
-                e1 = int(e1)
-                # some values, e.g. Nikon, are in the format "10/1600"
-                if (e0 > 1) and (e0 < e1):
-                    e1 = e1 / e0
-                    e0 = 1
-            else:
-                e0, e1 = self["Exif.Photo.ExposureTime"]
-            
+            e0 = int(e.numerator)
+            e1 = int(e.denominator)
+
             if e1 > e0:
                 if alternativeFormat:
                     if e0 == 1:
@@ -143,101 +133,93 @@ class MetaData(pyexiv2.metadata.ImageMetadata):
         except:
             return missing
         
-    def focalLength(self, missing=''):
+    def focal_length(self, missing=''):
         """ 
         Returns in string format the focal length of the lens used to record the image.
         
         Returns missing if the metadata value is not present.
         """
         try:
-            if usesRational:
-                f = str(self["Exif.Photo.FocalLength"])
-                f0,  f1 = f.split('/')
-            else:
-                f0, f1 = self["Exif.Photo.FocalLength"]
+            f = self["Exif.Photo.FocalLength"].value
+            f0 = float(f.numerator)
+            f1 = float(f.denominator)
                 
-            f0 = float(f0)
-            if not f1:
-                f1 = 1.0
-            else:
-                f1 = float(f1)
-
             return "%.0f" % (f0 / f1)
         except:
             return missing
             
             
-    def cameraMake(self, missing=''):
+    def camera_make(self, missing=''):
         """ 
         Returns in string format the camera make (manufacturer) used to record the image.
         
         Returns missing if the metadata value is not present.
         """
         try:
-            return self["Exif.Image.Make"].strip()
+            return self["Exif.Image.Make"].value.strip()
         except:
             return missing
     
-    def cameraModel(self, missing=''):
+    def camera_model(self, missing=''):
         """ 
         Returns in string format the camera model used to record the image.
         
         Returns missing if the metadata value is not present.
         """
         try:
-            return self["Exif.Image.Model"].strip()
+            return self["Exif.Image.Model"].value.strip()
         except:
             return missing
             
-    def cameraSerial(self,  missing=''):
+    def camera_serial(self,  missing=''):
         try:
-            keys = self.rpd_keys()
+            keys = self.exif_keys
             if 'Exif.Canon.SerialNumber' in keys:
-                v = self['Exif.Canon.SerialNumber']
+                v = self['Exif.Canon.SerialNumber'].raw_value
             elif 'Exif.Nikon3.SerialNumber' in keys:
-                v = self['Exif.Nikon3.SerialNumber']
+                v = self['Exif.Nikon3.SerialNumber'].raw_value
             elif 'Exif.OlympusEq.SerialNumber' in keys:
-                v = self['Exif.OlympusEq.SerialNumber']
+                v = self['Exif.OlympusEq.SerialNumber'].raw_value
             elif 'Exif.Olympus.SerialNumber' in keys:
-                v = self['Exif.Olympus.SerialNumber']
+                v = self['Exif.Olympus.SerialNumber'].raw_value
             elif 'Exif.Olympus.SerialNumber2' in keys:
-                v = self['Exif.Olympus.SerialNumber2']
+                v = self['Exif.Olympus.SerialNumber2'].raw_value
             elif 'Exif.Panasonic.SerialNumber' in keys:
-                v = self['Exif.Panasonic.SerialNumber']
+                v = self['Exif.Panasonic.SerialNumber'].raw_value
             elif 'Exif.Fujifilm.SerialNumber' in keys:
-                v = self['Exif.Fujifilm.SerialNumber']
+                v = self['Exif.Fujifilm.SerialNumber'].raw_value
             elif 'Exif.Image.CameraSerialNumber' in keys:
-                v = self['Exif.Image.CameraSerialNumber']
+                v = self['Exif.Image.CameraSerialNumber'].raw_value
             else:
                 return missing
-            v = str(v)
+            v = str(v) # probably not necessary, but just in case
             return v.strip()
         except:
             return missing
             
-    def shutterCount(self,  missing=''):
+    def shutter_count(self,  missing=''):
         try:
-            keys = self.rpd_keys()
+            keys = self.exif_keys
             if 'Exif.Nikon3.ShutterCount' in keys:
-                v = self['Exif.Nikon3.ShutterCount']
+                v = self['Exif.Nikon3.ShutterCount'].raw_value
             elif 'Exif.Canon.FileNumber' in keys:
-                v = self['Exif.Canon.FileNumber']
+                v = self['Exif.Canon.FileNumber'].raw_value
             elif 'Exif.Canon.ImageNumber' in keys:
-                v = self['Exif.Canon.ImageNumber']
+                v = self['Exif.Canon.ImageNumber'].raw_value
             else:
                 return missing
             return str(v)
         except:
             return missing
             
-    def ownerName(self,  missing=''):
+    def owner_name(self,  missing=''):
         """ returns camera name recorded by select Canon cameras"""
         try:
-            return self['Exif.Canon.OwnerName'].strip()
+            return self['Exif.Canon.OwnerName'].value.strip()
         except:
             return missing
             
-    def shortCameraModel(self, includeCharacters = '', missing=''):
+    def short_camera_model(self, includeCharacters = '', missing=''):
         """ 
         Returns in shorterned string format the camera model used to record the image.
         
@@ -289,7 +271,7 @@ class MetaData(pyexiv2.metadata.ImageMetadata):
         
         Note: assume exif values are in ENGLISH, regardless of current platform
         """
-        m = self.cameraModel()
+        m = self.camera_model()
         m = m.replace(' Mark ', 'Mk') 
         if m:
             s = r"(?:[^a-zA-Z0-9%s]?)(?P<model>[a-zA-Z0-9%s]*\d+[a-zA-Z0-9%s]*)"\
@@ -302,23 +284,7 @@ class MetaData(pyexiv2.metadata.ImageMetadata):
                 return model
         else:
             return missing
-    
-    #~ def filter_mangled_dates(self, d):
-        #~ """
-        #~ Some EXIF dates are badly formed. Try to fix them
-        #~ """
-        #~ 
-        #~ _datetime = d.strip()
-        #~ # remove any weird characters at the end of the string
-        #~ while _datetime and not _datetime[-1].isdigit():
-            #~ _datetime = _datetime[:-1]
-        #~ _date,  _time = _datetime.split(' ')
-        #~ _datetime = "%s %s" % (_date.replace(":",  "-") ,  _time.replace("-",  ":"))
-        #~ try:
-            #~ d = datetime.datetime.strptime(_datetime, '%Y-%m-%d %H:%M:%S')
-        #~ except:
-            #~ d = None
-        #~ return d
+
                 
     def date_time(self, missing=''):
         """ 
@@ -335,15 +301,12 @@ class MetaData(pyexiv2.metadata.ImageMetadata):
                 v = self["Exif.Photo.DateTimeOriginal"].value
             else:
                 v = self["Exif.Image.DateTime"].value
-            #~ if isinstance(v, types.StringType):
-                #~ v = self.filterMangledDates(v)
-                #~ if v is None:
-                    #~ v = missing
+
             return v
         except:
             return missing
             
-    def timeStamp(self, missing=''):
+    def time_stamp(self, missing=''):
         dt = self.date_time(missing=None)
         if not dt is None:
             try:
@@ -358,7 +321,7 @@ class MetaData(pyexiv2.metadata.ImageMetadata):
     def sub_seconds(self,  missing='00'):
         """ returns the subsecond the image was taken, as recorded by the camera"""
         try:
-            return str(self["Exif.Photo.SubSecTimeOriginal"])
+            return str(self["Exif.Photo.SubSecTimeOriginal"].value)
         except:
             return missing
             
@@ -368,62 +331,13 @@ class MetaData(pyexiv2.metadata.ImageMetadata):
         Return type int
         """
         try:
-            v = self['Exif.Image.Orientation']
+            v = self['Exif.Image.Orientation'].value
             if isinstance(v, types.StringType):
-                # pyexiv2 >= 0.2 returns a string, not an int
                 v = int(v)
             return v
         except:
             return missing
             
-    # following class methods are designed to cope with using both
-    # pyexiv2 0.1.x and pyexiv2 0.2.x
-            
-    def getThumbnailData(self, max_size_needed=0):
-        """
-        Returns a thumbnail of the image.
-        
-        If the image supports multiple thumbnails, and max_size_needed
-        is not 0, then it will search for the smallest thumbnail that 
-        matches the size required 
-        
-        The image will be in whatever format the thumbnail itself is, 
-        typically a jpeg or tiff.
-        """
-        if self.__version01__:
-            return pyexiv2.Image.getThumbnailData(self)[1]
-
-        else:
-            if not self.previews:
-                return None, None
-            else:
-                if max_size_needed:
-                    for thumbnail in self.previews:
-                        if thumbnail.dimensions[0] >= max_size_needed or thumbnail.dimensions[1] >= max_size_needed:
-                            break
-                else:
-                    thumbnail = self.previews[-1]
-                        
-                return thumbnail.data
-                
-
-            
-    #~ def rpd_keys(self):
-        #~ if self.__version01__:
-            #~ return pyexiv2.Image.exifKeys(self)
-        #~ else:
-            #~ return self.exif_keys
-            
-    #~ def __getitem__(self, key):
-        #~ if self.__version01__:
-            #~ v = pyexiv2.Image.__getitem__(self, key)
-        #~ else:
-            #~ v = pyexiv2.metadata.ImageMetadata.__getitem__(self, key).raw_value
-        #~ # strip out null bytes from strings
-        #~ if isinstance(v, types.StringType):
-            #~ v = v.replace('\x00', '')
-        #~ return v
-        
 
 class DummyMetaData(MetaData):
     """
@@ -447,31 +361,31 @@ class DummyMetaData(MetaData):
     def iso(self, missing=''):
         return "100"
             
-    def exposureTime(self, alternativeFormat=False, missing=''):
+    def exposure_time(self, alternativeFormat=False, missing=''):
         if alternativeFormat:
             return  "4000"
         else:
             return  "1/4000"
         
-    def focalLength(self, missing=''):
+    def focal_length(self, missing=''):
         return "135"
             
-    def cameraMake(self, missing=''):
+    def camera_make(self, missing=''):
         return "Canon"
     
-    def cameraModel(self, missing=''):
+    def camera_model(self, missing=''):
         return "Canon EOS 5D"
             
-    def shortCameraModel(self, includeCharacters = '', missing=''):
+    def short_camera_model(self, includeCharacters = '', missing=''):
         return "5D"
         
-    def cameraSerial(self,  missing=''):
+    def camera_serial(self,  missing=''):
         return '730402168'
         
-    def shutterCount(self,  missing=''):
+    def shutter_count(self,  missing=''):
         return '387'
         
-    def ownerName(self,  missing=''):
+    def owner_name(self,  missing=''):
         return 'Photographer Name'
         
     def date_time(self, missing=''):
@@ -497,16 +411,16 @@ if __name__ == '__main__':
         
     print "f"+ m.aperture('missing ')
     print "ISO " + m.iso('missing ')
-    print m.exposureTime(missing='missing ') + " sec"
-    print m.exposureTime(alternativeFormat=True,  missing='missing ')
-    print m.focalLength('missing ') + "mm"
-    print m.cameraMake()
-    print m.cameraModel()
-    print m.shortCameraModel()
-    print m.shortCameraModel(includeCharacters = "\-")
+    print m.exposure_time(missing='missing ') + " sec"
+    print m.exposure_time(alternativeFormat=True,  missing='missing ')
+    print m.focal_length('missing ') + "mm"
+    print m.camera_make()
+    print m.camera_model()
+    print m.short_camera_model()
+    print m.short_camera_model(includeCharacters = "\-")
     print m.date_time()
     print m.orientation()
-    print 'Serial number:',  m.cameraSerial()
-    print 'Shutter count:', m.shutterCount()
-    print 'Subseconds:',  m.subSeconds()
+    print 'Serial number:',  m.camera_serial()
+    print 'Shutter count:', m.shutter_count()
+    print 'Subseconds:',  m.sub_seconds()
     

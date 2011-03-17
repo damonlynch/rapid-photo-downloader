@@ -95,7 +95,7 @@ from videometadata import DOWNLOAD_VIDEO
 import renamesubfolderprefs as rn
 import problemnotification as pn
 
-import tableplusminus as tpm
+import tableplusminuscc as tpm
 
 __version__ = config.version
 

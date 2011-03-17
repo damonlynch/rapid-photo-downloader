@@ -26,7 +26,7 @@ Runs a daemon process.
 import os
 
 import gio
-import multiprocessing, Queue
+import multiprocessing
 import logging
 logger = multiprocessing.get_logger()
 
