@@ -211,26 +211,60 @@ class PhotoName:
             self.rpd_file.add_problem(self.component, pn.MISSING_METADATA, _(self.L1))
         return v
 
-    def _formatSequenceNo(self,  value,  amountToPad):
+    def _calculate_letter_sequence(self,  sequence):
+
+        def _letters(x):
+            """
+            Adapted from algorithm at http://en.wikipedia.org/wiki/Hexavigesimal
+            """
+            v = ''
+            while x > 25:
+                r = x % 26
+                x= x / 26 - 1
+                v = string.lowercase[r] + v
+            v = string.lowercase[x] + v
+            
+            return v
+            
+        
+        v = _letters(sequence)
+        if self.L2 == UPPERCASE:
+            v = v.upper()
+        
+        return v
+
+    def _format_sequence_no(self,  value,  amountToPad):
         padding = LIST_SEQUENCE_NUMBERS_L2.index(amountToPad) + 1
         formatter = '%0' + str(padding) + "i"
         return formatter % value
         
-    def _get_downloads_today_sequence_no(self):
-        return self._formatSequenceNo(self.sequences.getDownloadsTodayUsingCounter(self.sequenceCounter),  self.L2)
+    def _get_downloads_today(self):
+        return self._format_sequence_no(self.rpd_file.sequences.get_downloads_today(), self.L2)
+
+    def _get_session_sequence_no(self):
+        return self._format_sequence_no(self.rpd_file.sequences.get_session_sequence_no(), self.L2) 
         
+    def _get_stored_sequence_no(self):
+        return self._format_sequence_no(self.rpd_file.sequences.get_stored_sequence_no(), self.L2)
+
+    def _get_sequence_letter(self):
+        return self._calculate_letter_sequence(self.sequences.get_sequence_letter())
+                        
     def _get_sequences_component(self):
-        return '33'
-        #~ if self.L1 == DOWNLOAD_SEQ_NUMBER:
-            #~ return self._get_downloads_today_sequence_no()
-        #~ elif self.L1 == SESSION_SEQ_NUMBER:
-            #~ return self._getSessionSequenceNo()
+        if self.L1 == DOWNLOAD_SEQ_NUMBER:
+            return self._get_downloads_today()        
+        elif self.L1 == SESSION_SEQ_NUMBER:
+            return self._get_session_sequence_no()
+        elif self.L1 == STORED_SEQ_NUMBER:
+            return self._get_stored_sequence_no()             
+        elif self.L1 == SEQUENCE_LETTER:
+            return self._get_sequence_letter() 
+
+
         #~ elif self.L1 == SUBFOLDER_SEQ_NUMBER:
             #~ return self._getSubfolderSequenceNo()
-        #~ elif self.L1 == STORED_SEQ_NUMBER:
-            #~ return self._getStoredSequenceNo()                   
-        #~ elif self.L1 == SEQUENCE_LETTER:
-            #~ return self._getSequenceLetter()        
+                  
+       
         
     def _get_component(self):
         #~ try:
@@ -253,7 +287,7 @@ class PhotoName:
                 # for development phase only
                 return ''
         #~ except:
-            #~ self.problem.add_problem(self.component, pn.ERROR_IN_GENERATION, _(self.L0))
+            #~ self.rpd_file.add_problem(self.component, pn.ERROR_IN_GENERATION, _(self.L0))
             #~ return ''
             
     
@@ -281,10 +315,9 @@ class PhotoName:
    
         
 
-class VideoName:
+class VideoName(PhotoName):
     def __init__(self, pref_list):
-        PhotoName.__init__(self, prefs)
-        self.pref_list = pref_list
+        PhotoName.__init__(self, pref_list)
         self.L1_date_check = VIDEO_DATE  #used in _get_date_component()
         
     def _get_metadata_component(self):
@@ -334,7 +367,7 @@ class VideoSubfolder(PhotoSubfolder):
     Generate subfolder names for video files
     """
     
-    def __init__(self, prefs):
+    def __init__(self, pref_list):
         PhotoSubfolder.__init__(self, pref_list)
         self.L1_date_check = VIDEO_DATE  #used in _get_date_component()
         
@@ -357,15 +390,15 @@ def get_video_metadata_component(video):
     
     problem = None
     if video.L1 == CODEC:
-        v = video.metadata.codec()
+        v = video.rpd_file.metadata.codec()
     elif video.L1 == WIDTH:
-        v = video.metadata.width()
+        v = video.rpd_file.metadata.width()
     elif video.L1 == HEIGHT:
-        v = video.metadata.height()
+        v = video.rpd_file.metadata.height()
     elif video.L1 == FPS:
-        v = video.metadata.framesPerSecond()
+        v = video.rpd_file.metadata.frames_per_second()
     elif video.L1 == LENGTH:
-        v = video.metadata.length()
+        v = video.rpd_file.metadata.length()
     else:
         raise TypeError("Invalid metadata option specified")
     if video.L1 in [CODEC]:
@@ -374,19 +407,38 @@ def get_video_metadata_component(video):
         elif video.L2 == LOWERCASE:
             v = v.lower()
     if not v:
-        video.problem.add_problem(video.component, pn.MISSING_METADATA, _(video.L1))
+        video.rpd_file.add_problem(video.component, pn.MISSING_METADATA, _(video.L1))
     return v
 
 class Sequences:
     """ 
     Holds sequence numbers and letters used in generating filenames.
     """
-    #~ def __init__(self, downloads_today, stored_sequence_no):
+    def __init__(self, downloads_today_tracker, stored_sequence_no):
+        self.session_sequence_no = 0
+        self.sequence_letter = 0
+        self.downloads_today_tracker = downloads_today_tracker
+        self.stored_sequence_no =  stored_sequence_no
         
+    def get_session_sequence_no(self):
+        return self.session_sequence_no + 1
         
-    def reset(self, downloads_today, stored_sequence_no):
-        self.downloadsToday = downloadsToday
-        self.downloadsTodayOffset = 0
-        self.storedSequenceNo = storedSequenceNo
+    def get_sequence_letter(self):
+        return self.sequence_letter + 1
         
-    #~ def get_sequence_counter
+    def increment(self):
+        #FIXME
+        self.session_sequence_no += 1
+        self.sequence_letter += 1
+        
+    def get_downloads_today(self):
+        v = self.downloads_today_tracker.get_downloads_today()
+        if v == -1:
+            return 1
+        else:
+            return v + 1
+        
+    def get_stored_sequence_no(self):
+        # Must add 1 to the value, for historic reasons (that is how it used
+        # to work)
+        return self.stored_sequence_no + 1

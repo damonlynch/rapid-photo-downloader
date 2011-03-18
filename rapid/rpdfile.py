@@ -46,7 +46,7 @@ NON_RAW_IMAGE_EXTENSIONS = ['jpg', 'jpe', 'jpeg', 'tif', 'tiff']
 
 PHOTO_EXTENSIONS = RAW_EXTENSIONS + NON_RAW_IMAGE_EXTENSIONS
 
-if metadatavideo.DOWNLOAD_VIDEO and False:
+if metadatavideo.DOWNLOAD_VIDEO:
     # some distros do not include the necessary libraries that Rapid Photo Downloader 
     # needs to be able to download videos
     VIDEO_EXTENSIONS = ['3gp', 'avi', 'm2t', 'mov', 'mp4', 'mpeg','mpg', 'mod', 

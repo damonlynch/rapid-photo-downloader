@@ -25,14 +25,16 @@ import time
 import subprocess
 import tempfile
 
+import multiprocessing
+import logging
+logger = multiprocessing.get_logger()
+
 import gtk
-import media
 import paths
 
 import rpdfile
 
 try:
-    #~ import kaa.metadata
     from hachoir_core.cmd_line import unicodeFilename
     from hachoir_parser import createParser
     from hachoir_metadata import extractMetadata
@@ -78,9 +80,18 @@ if DOWNLOAD_VIDEO:
             self.metadata = extractMetadata(self.parser)
             
             
-        def _kaa_get(self, key, missing, stream=None):
+        def _kaa_get(self, key, missing, stream=None): 
+            
             if not hasattr(self, 'info'):
-                self.info = kaa.metadata.parse(self.filename)
+                try:
+                    from kaa.metadata import parse
+                except ImportError:
+                    msg = """The package Kaa metadata does not exist.
+It is needed to access FPS and codec video file metadata."""
+                    logger.error(msg)
+                    self.info = None
+                else:
+                    self.info = parse(self.filename)
             if self.info:
                 if stream != None:
                     v = self.info['video'][stream][key]

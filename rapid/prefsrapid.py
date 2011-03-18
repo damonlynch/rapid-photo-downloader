@@ -29,6 +29,10 @@ import utilities
 import config
 __version__ = config.version
 
+import multiprocessing
+import logging
+logger = multiprocessing.get_logger()
+
 from gettext import gettext as _
 
 def _get_default_location_legacy(options, ignore_missing_dir=False):
@@ -134,76 +138,40 @@ class RapidPreferences(prefs.Preferences):
     def __init__(self):
         prefs.Preferences.__init__(self, config.GCONF_KEY, self.defaults)
 
-    def get_and_maybe_reset_downloads_today(self):
-        v = self.get_downloads_today()
-        if v <= 0:
-            self.reset_downloads_today()
-        return v
-
-    def get_downloads_today(self):
-        """Returns the preference value for the number of downloads performed today 
-        
-        If value is less than zero, that means the date has changed"""
-        
-        hour,  minute = self.get_day_start()
-        adjustedToday = datetime.datetime.strptime("%s %s:%s" % (self.downloads_today[0], hour,  minute), "%Y-%m-%d %H:%M") 
-        
-        now = datetime.datetime.today()
-
-        if  now < adjustedToday :
-            try:
-                return int(self.downloads_today[1])
-            except ValueError:
-                sys.stderr.write(_("Invalid Downloads Today value.\n"))
-                sys.stderr.write(_("Resetting value to zero.\n"))
-                self.get_downloads_today(self.downloads_today[0] ,  0)
-                return 0
-        else:
-            return -1
                 
-    def set_downloads_today(self, date,  value=0):
-            self.downloads_today = [date,  str(value)]
-            
-    def increment_downloads_today(self):
-        """ returns true if day changed """
-        v = self.get_downloads_today()
-        if v >= 0:
-            self.set_downloads_today(self.downloads_today[0], v + 1)
-            return False
-        else:
-            self.reset_downloads_today(1)
-            return True
-
-    def reset_downloads_today(self, value=0):
-        now = datetime.datetime.today()
-        hour, minute = self.get_day_start()
-        t = datetime.time(hour,  minute)
-        if now.time() < t:
-            date = today()
-        else:
-            d = datetime.datetime.today() + datetime.timedelta(days=1)
-            date = d.strftime(('%Y-%m-%d'))
-            
-        self.set_downloads_today(date, value)
+    def get_downloads_today_tracker(self):
+        return DownloadsTodayTracker(downloads_today_date = self.downloads_today[0],
+                                     downloads_today = self.downloads_today[1],
+                                     day_start = self.day_start
+                                    )
         
-    def set_day_start(self,  hour,  minute):
-        self.day_start = "%s:%s" % (hour,  minute)
-
-    def get_day_start(self):
-        try:
-            t1,  t2 = self.day_start.split(":")
-            return (int(t1),  int(t2))
-        except ValueError:
-            sys.stderr.write(_("'Start of day' preference value is corrupted.\n"))
-            sys.stderr.write(_("Resetting to midnight.\n"))
-            self.day_start = "0:0"
-            return 0, 0
+    def set_downloads_today_from_tracker(self, downloads_today_tracker):
+        self.downloads_today = downloads_today_tracker.downloads_today
+        self.day_start = downloads_today_tracker.day_start
 
     def get_sample_job_code(self):
         if self.job_codes:
             return self.job_codes[0]
         else:
             return ''
+            
+    def _get_pref_lists(self):
+        return (self.image_rename, self.subfolder, self.video_rename, 
+                     self.video_subfolder)
+    
+    def pref_uses_stored_sequence_no(self, pref_list):
+        for i in range(0, len(pref_list), 3):
+            if pref_list[i+1] == STORED_SEQ_NUMBER:
+                return True
+        return False        
+    
+    def any_pref_uses_stored_sequence_no(self):
+        """Returns True if any of the pref lists contain a stored sequence no"""
+        for pref_list in self._get_pref_lists():
+            if self.pref_uses_stored_sequence_no(pref_list):
+                return True
+        return False        
+        
             
     def reset(self):
         """
@@ -222,11 +190,8 @@ class RapidPreferences(prefs.Preferences):
         return False
         
     def any_pref_uses_job_code(self):
-        """ Returns True if any the preferences contain a job code"""      
-        pref_lists = (self.image_rename, self.subfolder, self.video_rename, 
-                     self.video_subfolder)
-                     
-        for pref_list in pref_lists:
+        """ Returns True if any of the preferences contain a job code"""
+        for pref_list in self._get_pref_lists():
             if self.pref_uses_job_code(pref_list):
                 return True
         return False
@@ -250,7 +215,120 @@ class RapidPreferences(prefs.Preferences):
         else:
             return self.video_download_folder            
         
+
+class DownloadsTodayTracker:
+    """
+    Handles tracking the number of downloads undertaken on any one day.
+    
+    When a day starts is flexible. See http://damonlynch.net/rapid/documentation/#renameoptions
+    """
+    def __init__(self, downloads_today_date, downloads_today, day_start):
+        self.day_start = day_start # string
+        self.downloads_today = [downloads_today_date, str(downloads_today)] # two strings
+        
+    def get_and_maybe_reset_downloads_today(self):
+        v = self.get_downloads_today()
+        if v <= 0:
+            self.reset_downloads_today()
+        return v
+
+    def get_downloads_today(self):
+        """Returns the preference value for the number of downloads performed today 
+        
+        If value is less than zero, that means the date has changed"""
+        
+        hour, minute = self.get_day_start()
+        try:
+            adjusted_today = datetime.datetime.strptime("%s %s:%s" % (self.downloads_today[0], hour,  minute), "%Y-%m-%d %H:%M") 
+        except:
+            logger.critical("Failed to calculate date adjustment. Download today values appear to be corrupted: %s %s:%s", 
+                            self.downloads_today[0], hour, minute)
+            adjusted_today = None
+        
+        now = datetime.datetime.today()
+        
+        if adjusted_today is None:
+            return -1
             
+        if  now < adjusted_today :
+            try:
+                return int(self.downloads_today[1])
+            except ValueError:
+                logger.error("Invalid Downloads Today value. Resetting value to zero.")
+                self.get_downloads_today(self.downloads_today[0] ,  0)
+                return 0
+        else:
+            return -1
+            
+    def get_raw_downloads_today(self):
+        """
+        Gets value without changing it in any way, except to check for type convesion error.
+        If there is an error, then the value is reset
+        """
+        try:
+            return int(self.downloads_today[1])
+        except ValueError:
+            logger.critical("Downloads today value is corrupted: %s", self.downloads_today[1])
+            self.downloads_today[1] = '0'
+            return 0
+            
+    def set_raw_downloads_today_from_int(self, downloads_today):
+        self.downloads_today[1] = str(downloads_today)
+        
+    def set_raw_downloads_today_date(self, downloads_today_date):
+        self.downloads_today[0] = downloads_today_date
+            
+    def get_raw_downloads_today_date(self):
+        return self.downloads_today[0]
+
+    def get_raw_day_start(self):
+        """
+        Gets value without changing it in any way
+        """
+        return self.day_start
+        
+    def get_day_start(self):
+        try:
+            t1,  t2 = self.day_start.split(":")
+            return (int(t1),  int(t2))
+        except ValueError:
+            logger.error("'Start of day' preference value %s is corrupted. Resetting to midnight", self.day_start)
+            self.day_start = "0:0"
+            return 0, 0        
+            
+    def increment_downloads_today(self):
+        """ returns true if day changed """
+        v = self.get_downloads_today()
+        if v >= 0:
+            self.set_downloads_today(self.downloads_today[0], v + 1)
+            return False
+        else:
+            self.reset_downloads_today(1)
+            return True
+
+    def reset_downloads_today(self, value=0):
+        now = datetime.datetime.today()
+        hour, minute = self.get_day_start()
+        t = datetime.time(hour, minute)
+        if now.time() < t:
+            date = today()
+        else:
+            d = datetime.datetime.today() + datetime.timedelta(days=1)
+            date = d.strftime(('%Y-%m-%d'))
+            
+        self.set_downloads_today(date, value)            
+        
+    def set_downloads_today(self, date, value=0):
+        self.downloads_today = [date, str(value)]
+        
+    def set_day_start(self, hour, minute):
+        self.day_start = "%s:%s" % (hour, minute)
+        
+    def log_vals(self):
+        logger.info("Date %s Value %s Day start %s", self.downloads_today[0], self.downloads_today[1], self.day_start)
+        
+        
+
 def check_prefs_for_validity(prefs):
     """
     Checks preferences for validity (called at program startup)
@@ -282,6 +360,23 @@ def insert_pref_lists(prefs, rpd_file):
     rpd_file.name_pref_list = name_pref_list
     return rpd_file
 
-
+def format_pref_list_for_pretty_print(pref_list):
+    """ returns a string useful for printing the preferences"""
+    
+    v = ''
+    
+    for i in range(0, len(pref_list), 3):
+        if (pref_list[i+1] or pref_list[i+2]):
+            c = ':'
+        else: 
+            c = ''
+        s = "%s%s " % (pref_list[i], c) 
+        
+        if self.prefList[i+1]:
+            s = "%s%s" % (s, pref_list[i+1])
+        if self.prefList[i+2]:
+            s = "%s (%s)" % (s, pref_list[i+2])
+        v += s + "\n"
+    return v
 
 

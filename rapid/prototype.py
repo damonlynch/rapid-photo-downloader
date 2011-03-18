@@ -41,11 +41,12 @@ import getopt, sys, time, types, os, datetime
 
 import gobject, pango, cairo, array, pangocairo, gio
 
-from multiprocessing import Process, Pipe, Queue, Event, current_process, log_to_stderr
+from multiprocessing import Process, Pipe, Queue, Event, Value, Array, current_process, log_to_stderr
+from ctypes import c_int, c_bool, c_char
 
 import logging
 logger = log_to_stderr()
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.INFO)
 
 # Rapid Photo Downloader modules
 
@@ -59,6 +60,7 @@ import preferencesdialog
 import prefsrapid
 
 import tableplusminus as tpm
+import generatename as gn
 
 from metadatavideo import DOWNLOAD_VIDEO
 
@@ -894,9 +896,9 @@ class SubfolderFileManager(SingleInstanceTaskManager):
     """
     Manages the daemon process that renames files and creates subfolders
     """
-    def __init__(self, results_callback):
+    def __init__(self, results_callback, sequence_values):
         SingleInstanceTaskManager.__init__(self, results_callback)
-        self._subfolder_file = subfolderfile.SubfolderFile(self.task_process_conn)
+        self._subfolder_file = subfolderfile.SubfolderFile(self.task_process_conn, sequence_values)
         self._subfolder_file.start()
         
     def rename_file_and_move_to_subfolder(self, download_succeeded, 
@@ -904,7 +906,7 @@ class SubfolderFileManager(SingleInstanceTaskManager):
                                               
         self.task_results_conn.send((download_succeeded, download_count, 
             rpd_file))
-        logger.info("Download count: %s.", download_count)
+        logger.debug("Download count: %s.", download_count)
         
 
     def task_results(self, source, condition):
@@ -1086,6 +1088,8 @@ class RapidApp(dbus.service.Object):
         x, y, width, height = self.rapidapp.get_allocation()
         self.prefs.main_window_size_x = width
         self.prefs.main_window_size_y = height
+        
+        self.prefs.set_downloads_today_from_tracker(self.downloads_today_tracker)
         
         gtk.main_quit()
         
@@ -1583,7 +1587,6 @@ class RapidApp(dbus.service.Object):
 
             if msg_type == rpdmp.MSG_TEMP_DIRS:
                 scan_pid, photo_temp_dir, video_temp_dir = data
-                logger.info("Remembering temp dirs for later deletion: %s %s", photo_temp_dir, video_temp_dir)
                 self.temp_dirs_by_scan_pid[scan_pid] = (photo_temp_dir, video_temp_dir)                
             elif msg_type == rpdmp.MSG_BYTES:
                 scan_pid, total_downloaded = data
@@ -1636,22 +1639,29 @@ class RapidApp(dbus.service.Object):
         """
         Handle results of subfolder creation and file renaming
         """
-
+            
         scan_pid = rpd_file.scan_pid
         unique_id = rpd_file.unique_id
         
         self._update_file_download_device_progress(scan_pid, unique_id)
         
+        
         download_count = self.download_count_for_file_by_unique_id[unique_id]
         if download_count == self.no_files_in_download_by_scan_pid[scan_pid]:
             # Last file has been downloaded, so clean temp directory
-            logger.info("Purging temp directories")
+            logger.debug("Purging temp directories")
             for temp_dir in self.temp_dirs_by_scan_pid[scan_pid]:
                 self._purge_dir(temp_dir)
-            #~ logger.info("Purging download directory")
-            # During development, delete the directory the files were downloaded into
-            #~ self._purge_dir('/home/damon/store/rapid-dump/2011')
             self.download_active_by_scan_pid.remove(scan_pid)
+            
+            if not self.download_is_occurring():
+                logger.debug("Download completed")
+                
+                self.prefs.stored_sequence_no = self.stored_sequence_value.value
+                self.downloads_today_tracker.set_raw_downloads_today_from_int(self.downloads_today_value.value)
+                self.downloads_today_tracker.set_raw_downloads_today_date(self.downloads_today_date_value.value)
+                self.prefs.set_downloads_today_from_tracker(self.downloads_today_tracker)
+                #~ self.downloads_today_tracker.log_vals()
         else:
             pass
             #~ logger.info("Download count: %s", download_count)
@@ -1689,7 +1699,7 @@ class RapidApp(dbus.service.Object):
                     #~ logger.info("Deleting %s", child.get_name())
                     f.delete(cancellable=None)
                 path.delete(cancellable=None)
-                logger.info("Deleted directory %s", directory)
+                logger.debug("Deleted directory %s", directory)
             except gio.Error, inst:
                 logger.error("Failure deleting temporary folder %s", directory)
                 logger.error(inst)
@@ -1718,12 +1728,6 @@ class RapidApp(dbus.service.Object):
         self.prefs = prefsrapid.RapidPreferences()
         self.prefs.notify_add(self.on_preference_changed)
         
-        downloads_today = self.prefs.get_and_maybe_reset_downloads_today()
-        if downloads_today > 0:
-            logger.info("Downloads that have occurred so far today: %s", downloads_today)
-        else:
-            logger.info("No downloads have occurred so far today")
-            
         # flag to indicate whether the user changed some preferences that 
         # indicate the image and backup devices should be setup again
         self.rerun_setup_available_image_and_video_media = False
@@ -1731,7 +1735,29 @@ class RapidApp(dbus.service.Object):
         
         # flag to indicate that the preferences dialog window is being 
         # displayed to the user
-        self.preferences_dialog_displayed = False    
+        self.preferences_dialog_displayed = False
+
+        # flag to indicate that the user has modified the download today
+        # related values in the preferences dialog window
+        self.refresh_downloads_today = False
+        
+        self.downloads_today_tracker = self.prefs.get_downloads_today_tracker()
+        
+        downloads_today = self.downloads_today_tracker.get_and_maybe_reset_downloads_today()
+        if downloads_today > 0:
+            logger.info("Downloads that have occurred so far today: %s", downloads_today)
+        else:
+            logger.info("No downloads have occurred so far today")        
+
+        self.downloads_today_value = Value(c_int, 
+                        self.downloads_today_tracker.get_raw_downloads_today())
+        self.downloads_today_date_value = Array(c_char,
+                        self.downloads_today_tracker.get_raw_downloads_today_date())
+        self.day_start_value = Array(c_char, 
+                        self.downloads_today_tracker.get_raw_day_start())
+        self.refresh_downloads_today_value = Value(c_bool, False)
+        self.stored_sequence_value = Value(c_int, self.prefs.stored_sequence_no)
+        self.uses_stored_sequence_no_value = Value(c_bool, self.prefs.any_pref_uses_stored_sequence_no())
     
     def on_preference_changed(self, key, value):
         """
@@ -1751,6 +1777,22 @@ class RapidApp(dbus.service.Object):
             self.rerun_setup_available_backup_media = True
             if not self.preferences_dialog_displayed:
                 self.post_preference_change()
+                
+        # Downloads today and stored sequence numbers are kept in shared memory,
+        # so that the subfolderfile daemon process can access and modify them
+        
+        # Note, totally ignore any changes in downloads today, as it
+        # is modified in a special manner via a tracking class
+                
+        elif key == 'stored_sequence_no':
+            if type(value) <> types.IntType:
+                logger.critical("Stored sequence number value is malformed")
+            else:
+                self.stored_sequence_value.value = value
+                
+        elif key in ['image_rename', 'subfolder', 'video_rename', 'video_subfolder']:
+            # Check if stored sequence no is being used
+            self.uses_stored_sequence_no_value = self.prefs.any_pref_uses_stored_sequence_no()
             
         #~ elif key == 'job_codes':
             #~ # update job code list in left pane
@@ -1775,6 +1817,13 @@ class RapidApp(dbus.service.Object):
             logger.info("self.refreshBackupMedia()")
             
             self.rerun_setup_available_backup_media = False
+            
+        if self.refresh_downloads_today:
+            self.downloads_today_value.value = self.downloads_today_tracker.get_raw_downloads_today()
+            self.downloads_today_date_value.value = self.downloads_today_tracker.get_raw_downloads_today_date()
+            self.day_start_value.value = self.downloads_today_tracker.get_raw_day_start()
+            self.refresh_downloads_today_value.value = True
+            self.prefs.set_downloads_today_from_tracker(self.downloads_today_tracker)
             
 
     
@@ -2100,7 +2149,17 @@ class RapidApp(dbus.service.Object):
         self.batch_size = 10
         self.batch_size_MB = 2
         
-        self.subfolder_file_manager = SubfolderFileManager(self.subfolder_file_results)
+        sequence_values = (self.downloads_today_value,
+                           self.downloads_today_date_value,
+                           self.day_start_value,
+                           self.refresh_downloads_today_value,
+                           self.stored_sequence_value, 
+                           self.uses_stored_sequence_no_value)
+                           
+        self.subfolder_file_manager = SubfolderFileManager(
+                                        self.subfolder_file_results,
+                                        sequence_values)
+            
         
         self.generate_folder = False
         self.scan_manager = ScanManager(self.scan_results, self.batch_size, 

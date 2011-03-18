@@ -41,6 +41,8 @@ import generatename as gn
 from generatenameconfig import *
 import problemnotification as pn
 
+from prefsrapid import format_pref_list_for_pretty_print
+
 from gettext import gettext as _
 
 class PrefError(Exception):
@@ -454,9 +456,9 @@ class PhotoRenameTable(tpm.TablePlusMinus):
         except (PrefValueInvalidError, PrefLengthError, 
                 PrefValueKeyComboError,  PrefKeyError),  e:
 
-            sys.stderr.write(self.error_title + "\n")
-            sys.stderr.write(_("Sorry,these preferences contain an error:\n"))
-            sys.stderr.write(self.prefs_factory.formatPreferencesForPrettyPrint() + "\n")
+            logger.error(self.error_title)
+            logger.error("Sorry, these preferences contain an error:")
+            logger.error(format_pref_list_for_pretty_print(self.prefs_factory.pref_list))
             
             # the preferences were invalid
             # reset them to their default
@@ -466,8 +468,8 @@ class PhotoRenameTable(tpm.TablePlusMinus):
             self.update_parentapp_prefs()
 
             msg = "%s.\n" % e
-            msg += _("Resetting to default values." + "\n")
-            sys.stderr.write(msg)
+            msg += "Resetting to default values."
+            logger.error(msg)
             
             
             misc.run_dialog(self.error_title, msg, 
@@ -489,7 +491,7 @@ class PhotoRenameTable(tpm.TablePlusMinus):
                     elif name == 'GtkEntry':
                         value = widget.get_text()
                     else:
-                        sys.stderr.write("Program error: Unknown preference widget!")
+                        logger.critical("Program error: Unknown preference widget!")
                         value = ''
                 else:
                     value = ''
@@ -1015,7 +1017,7 @@ class PreferencesDialog(gtk.Window):
         self.stored_number_entry = ValidatedEntry.ValidatedEntry(ValidatedEntry.bounded(ValidatedEntry.v_int, int, 1))
         self.downloads_today_entry.connect('changed', self.on_downloads_today_entry_changed)
         self.stored_number_entry.connect('changed', self.on_stored_number_entry_changed)
-        v = self.prefs.get_and_maybe_reset_downloads_today()
+        v = self.rapidapp.downloads_today_tracker.get_and_maybe_reset_downloads_today()
         self.downloads_today_entry.set_text(str(v))
         # make the displayed value of stored sequence no 1 more than actual value
         # so as not to confuse the user
@@ -1024,7 +1026,7 @@ class PreferencesDialog(gtk.Window):
         self.sequence_vbox.pack_start(self.stored_number_entry, expand=False)
         self.downloads_today_entry.show()
         self.stored_number_entry.show()
-        hour, minute = self.prefs.get_day_start()
+        hour, minute = self.rapidapp.downloads_today_tracker.get_day_start()
         self.hour_spinbutton.set_value(float(hour))
         self.minute_spinbutton.set_value(float(minute))
 
@@ -1224,13 +1226,13 @@ class PreferencesDialog(gtk.Window):
     def on_hour_spinbutton_value_changed(self, spinbutton):
         hour = spinbutton.get_value_as_int()
         minute = self.minute_spinbutton.get_value_as_int()
-        self.prefs.setDayStart(hour, minute)
+        self.rapidapp.downloads_today_tracker.set_day_start(hour, minute)
         self.on_downloads_today_entry_changed(self.downloads_today_entry)
         
     def on_minute_spinbutton_value_changed(self, spinbutton):
         hour = self.hour_spinbutton.get_value_as_int()
         minute = spinbutton.get_value_as_int()
-        self.prefs.setDayStart(hour, minute)
+        self.rapidapp.downloads_today_tracker.set_day_start(hour, minute)
         self.on_downloads_today_entry_changed(self.downloads_today_entry)
 
     def on_downloads_today_entry_changed(self, entry):
@@ -1245,8 +1247,9 @@ class PreferencesDialog(gtk.Window):
                 v = 0
             if v < 0:
                 v = 0
-            self.prefs.reset_downloads_today(v)
-            #~ sequences.setDownloadsToday(v)
+            self.rapidapp.downloads_today_tracker.reset_downloads_today(v)
+            self.rapidapp.downloads_today_tracker.log_vals()
+            self.rapidapp.refresh_downloads_today = True
             self.update_image_rename_example()
         
     def on_stored_number_entry_changed(self, entry):
@@ -1264,7 +1267,6 @@ class PreferencesDialog(gtk.Window):
             if v < 0:
                 v = 0
             self.prefs.stored_sequence_no = v
-            #~ sequences.setStoredSequenceNo(v)
             self.update_image_rename_example()
 
     def _update_subfolder_pref_on_error(self, new_pref_list):

@@ -361,7 +361,6 @@ class GenerateThumbnails(multiprocessing.Process):
             
             # pause if instructed by the caller
             self.run_event.wait()
-            logger.info(i)
             
             if not self.terminate_queue.empty():
                 x = self.terminate_queue.get()

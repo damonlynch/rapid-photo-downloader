@@ -18,7 +18,6 @@
 version = '0.4.0b1'
 
 GCONF_KEY="/apps/rapid-photo-downloader"
-GLADE_FILE = "glade3/rapid.glade"
 
 DBUS_NAME = "net.damonlynch.RapidPhotoDownloader"
 
@@ -38,17 +37,9 @@ DEFAULT_VIDEO_BACKUP_LOCATION = 'Videos'
 
 DEFAULT_VIDEO_LOCATIONS = ['Videos']
 
-MAX_NO_READERS = 20
-
 CRITICAL_ERROR = 1
 SERIOUS_ERROR = 2
 WARNING = 3
-
-MAX_LENGTH_DEVICE_NAME = 15
-
-MIN_THUMBNAIL_SIZE = 80
-max_thumbnail_size = 320 # will be overridden when the screen is tiny
-THUMBNAIL_INCREMENT = 50
 
 STATUS_DOWNLOAD_PENDING = 0                 # going to try to download it
 STATUS_DOWNLOADED = 1                       # downloaded successfully
@@ -59,8 +50,6 @@ STATUS_DOWNLOAD_AND_BACKUP_FAILED = 5       # tried to download but failed, and 
 STATUS_DOWNLOAD_FAILED = 6                  # tried to download but failed
 STATUS_WARNING = 7                          # warning (shown in pre-download preview)
 STATUS_CANNOT_DOWNLOAD = 8                  # cannot be downloaded
-
-TINY_SCREEN_HEIGHT = 650
 
 DEFAULT_WINDOW_WIDTH = 730
 DEFAULT_WINDOW_HEIGHT = 650

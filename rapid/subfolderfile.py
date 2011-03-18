@@ -30,13 +30,16 @@ import multiprocessing
 import logging
 logger = multiprocessing.get_logger()
 
-import prefsrapid
+
 import rpdfile
 import rpdmultiprocessing as rpdmp
 import generatename as gn
 import problemnotification as pn
+import prefsrapid
 
 from gettext import gettext as _
+
+
 
 def _generate_name(generator, rpd_file):
     
@@ -83,10 +86,22 @@ def generate_name(rpd_file):
         
 
 class SubfolderFile(multiprocessing.Process):
-    def __init__(self, results_pipe):
+    def __init__(self, results_pipe, sequence_values):
         multiprocessing.Process.__init__(self)
         self.daemon = True
         self.results_pipe = results_pipe
+        
+        self.downloads_today = sequence_values[0]
+        self.downloads_today_date = sequence_values[1]
+        self.day_start = sequence_values[2]
+        self.refresh_downloads_today = sequence_values[3]
+        self.stored_sequence_no = sequence_values[4]
+        self.uses_stored_sequence_no = sequence_values[5]
+        
+        logger.debug("Start of day is set to %s", self.day_start.value)
+        
+
+
         
     def progress_callback_no_update(self, amount_downloaded, total):
         pass
@@ -100,26 +115,33 @@ class SubfolderFile(multiprocessing.Process):
         """
         i = 0
         download_count = 0
-        
-        #~ # Preferences are 'live', i.e. they can change at any time
-        #~ # Before they are applied to generate file and subfolder names, they
-        #~ # must be accessed each and every time.
-        #~ self.prefs = prefsrapid.RapidPreferences()
-        #~ self.prefs.notify_add(self.on_preference_changed)        
-        
-        sequences = gn.Sequences()
-        
+
+
+        # Track downloads today, using a class whose purpose is to 
+        # take the value in the user prefs, increment, and then be used
+        # to update the prefs (which can only happen via the main process)
+        self.downloads_today_tracker = prefsrapid.DownloadsTodayTracker(
+                                        day_start = self.day_start.value,
+                                        downloads_today = self.downloads_today.value,
+                                        downloads_today_date = self.downloads_today_date.value)
+                                                
+        # Track sequences using shared downloads today and stored sequence number
+        # (shared with main process)
+        self.sequences = gn.Sequences(self.downloads_today_tracker, 
+                                      self.stored_sequence_no.value)
+                                      
+
         while True:
             logger.debug("Finished %s. Getting next task.", download_count)
 
             task = self.results_pipe.recv()
             
-
-                    
+            # rename file and move to generated subfolder                    
             download_succeeded, download_count, rpd_file = task
             
             move_succeeded = False
             
+
             if download_succeeded:
                 temp_file = gio.File(rpd_file.temp_full_file_name)
 
@@ -127,7 +149,21 @@ class SubfolderFile(multiprocessing.Process):
                 generation_succeeded = True
                 rpd_file = generate_subfolder(rpd_file)
                 if rpd_file.download_subfolder:
-                    rpd_file.sequences = sequences
+                    
+                    if self.refresh_downloads_today.value:
+                        # overwrite downloads today value tracked here,
+                        # as user has modified their preferences
+                        self.downloads_today_tracker.set_raw_downloads_today_from_int(self.downloads_today.value)
+                        self.downloads_today_tracker.set_raw_downloads_today_date(self.downloads_today_date.value)
+                        self.downloads_today_tracker.day_start = self.day_start.value
+                        self.refresh_downloads_today.value = False
+                        self.downloads_today_tracker.log_vals()
+                        
+                    # update whatever the stored value is
+                    self.sequences.stored_sequence_no = self.stored_sequence_no.value
+                    rpd_file.sequences = self.sequences
+                    
+                    # generate the file name
                     rpd_file = generate_name(rpd_file)
 
                 # Check for any errors
@@ -177,8 +213,20 @@ class SubfolderFile(multiprocessing.Process):
                         logger.error("Failed to create file %s: %s", rpd_file.download_full_file_name, inst)
                         
                     logger.debug("Finish processing file: %s", download_count)                    
-                        
+                
+                if move_succeeded:
+                    self.sequences.increment()
+                    if self.uses_stored_sequence_no.value:
+                        self.stored_sequence_no.value += 1
+                    self.downloads_today_tracker.increment_downloads_today()
+                    self.downloads_today.value = self.downloads_today_tracker.get_raw_downloads_today()
+                    self.downloads_today_date.value = self.downloads_today_tracker.get_raw_downloads_today_date()
+                    #~ self.downloads_today_tracker.log_vals()
+                
                 if not move_succeeded:
+                    logger.error("%s: %s - %s", rpd_file.full_file_name, 
+                                 rpd_file.problem.get_title(), 
+                                 rpd_file.problem.get_problems())
                     try:
                         temp_file.delete(cancellable=None)
                     except gio.Error, inst:
@@ -194,5 +242,5 @@ class SubfolderFile(multiprocessing.Process):
             
             i += 1
             
-    #~ def on_preference_changed(self, key, value):
-        #~ logger.debug("Detected change %s: %s", key, value)
+
+

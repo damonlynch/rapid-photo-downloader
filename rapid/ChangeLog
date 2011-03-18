@@ -1,18 +1,45 @@
+Version 0.4.0 alpha 1
+---------------------
+
+Rapid Photo Downloader is much faster and sports a new user interface. It will
+use multiple CPU cores if they are available. It is about 50 times faster in 
+tasks like scanning photos and videos in preperation for download. It also 
+performs the actual downloads quicker.
+
+Rapid Photo Downloader now requires version 0.3.0 or newer of pyexiv2. It also
+requries Python Imaging (PIL) to run. It will only run on recent Linux
+distributions such as Ubuntu 10.04 or newer. It has been tested on Ubuntu 10.04,
+10.10 and 11.04, as well as Fedora 14.
+
+This is an alpha release because it is missing features that are present in 
+version 0.3.5. Missing features include:
+
+* Notifications of download completion
+* Job Codes
+* Backups as you download
+* Automation features, e.g. automatically start download at startup
+* Error log window
+* Time remaining status messages
+* Synchronize RAW + JPEG Sequence Numbers
+* Mount added after program startup
+
+These will be added in subsequent alpha and beta releases.
+
+Kaa-metadata is no longer required to download videos. However, if you 
+want to use Frames Per Second or Codec metadata information in subfolder or
+video file names, you must ensure it is installed. This is no longer checked at 
+program startup. 
+ 
+
 Version 0.3.5
 -------------
 
 2011-xx-xx
 
-You can now choose to disable the scanning of photo and video metadata during
-the device scan. This is very helpful for users who generate hundreds if not
-thousands of photos & videos before downloading them. Sometimes you are not 
-interested in seeing the thumbnails or exactly how they will be renamed -- you
-just want to download them as quickly as possible, with no fuss. This option
-allows you to do that.
+The primrary purpose of this release is to fix bug #714039. 
 
-The "Exit Program When Download Completes" now has a new addition: you can
-optionally specify that you want the program to automatically exit even if there
-were any warnings or errors.
+This is the very last release in the 0.3.x series. In version 0.4, Rapid Photo 
+Downloader is much faster and sports a new user interface.
 
 
 Version 0.3.4
