@@ -1105,7 +1105,7 @@ class RapidApp(dbus.service.Object):
         
         # FIXME: need more fine grained tuning here - must cancel large file
         # copies midstream
-        logger.info("Terminating.....")
+        logger.info("Terminating...")
 
         scan_termination_requested = self.scan_manager.request_termination()        
         thumbnails_termination_requested = self.thumbnails.thumbnail_manager.request_termination()
@@ -1117,7 +1117,7 @@ class RapidApp(dbus.service.Object):
         if scan_termination_requested or thumbnails_termination_requested:
             time.sleep(1)
             if (self.scan_manager.get_no_active_processes() > 0 or 
-                self.thumbnails.get_no_active_processes() > 0):
+                self.thumbnails.thumbnail_manager.get_no_active_processes() > 0):
                 time.sleep(1)
                 # must try again, just in case a new scan has meanwhile started!
                 self.scan_manager.request_termination()
