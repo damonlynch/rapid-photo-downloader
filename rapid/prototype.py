@@ -97,8 +97,6 @@ from config import  STATUS_CANNOT_DOWNLOAD, STATUS_DOWNLOADED, \
                     STATUS_WARNING
 
 
-def today():
-    return datetime.date.today().strftime('%Y-%m-%d')
 
 
 def date_time_human_readable(date, with_line_break=True):
@@ -202,10 +200,9 @@ class DeviceCollection(gtk.TreeView):
             
     def get_all_displayed_processes(self):
         """
-        yields the processes currently being displayed to the user 
+        returns a list of the processes currently being displayed to the user 
         """
-        for process_id in self.map_process_to_row:
-            yield process_id
+        return self.map_process_to_row.keys()
 
 
     def _set_process_map(self, process_id, iter):
@@ -715,15 +712,16 @@ class ThumbnailDisplay(gtk.IconView):
             
             self.rpd_files = {}
         else:
-            for rpd_file in self.process_index[scan_pid]:
-                treerowref = self.treerow_index[rpd_file.unique_id]
-                path = treerowref.get_path()
-                iter = self.liststore.get_iter(path)
-                self.liststore.remove(iter)
-                del self.treerow_index[rpd_file.unique_id]
-                del self.rpd_files[rpd_file.unique_id]
-                
-            del self.process_index[scan_pid]            
+            if scan_pid in self.process_index:
+                for rpd_file in self.process_index[scan_pid]:
+                    treerowref = self.treerow_index[rpd_file.unique_id]
+                    path = treerowref.get_path()
+                    iter = self.liststore.get_iter(path)
+                    self.liststore.remove(iter)
+                    del self.treerow_index[rpd_file.unique_id]
+                    del self.rpd_files[rpd_file.unique_id]
+                    
+                del self.process_index[scan_pid]            
     
 class TaskManager:
     def __init__(self, results_callback, batch_size):
@@ -1299,6 +1297,8 @@ class RapidApp(dbus.service.Object):
                 self.get_use_device(device)
             else:
                 scan_pid = self.scan_manager.add_task(device)
+                if mount is not None:
+                    self.mounts_by_path[path] = scan_pid
         
     def get_use_device(self, device):  
         """ Prompt user whether or not to download from this device """
@@ -1320,7 +1320,8 @@ class RapidApp(dbus.service.Object):
                     self.prefs.device_whitelist = self.prefs.device_whitelist + [path]
                 else:
                     self.prefs.device_whitelist = [path]
-            self.scan_manager.add_task(device)
+            scan_pid = self.scan_manager.add_task(device)
+            self.mounts_by_path[path] = scan_pid
             
         elif permanent_choice and path not in self.prefs.device_blacklist:
             # do not do a list append operation here without the assignment, or the preferences will not be updated!
@@ -1369,16 +1370,68 @@ class RapidApp(dbus.service.Object):
         callback run when gio indicates a new volume
         has been mounted
         """
-        logger.info("Mount added")
-        #FIXME: handle this mount!
+
+
+        if mount.is_shadowed():
+            # ignore this type of mount
+            return
+            
+        path = mount.get_root().get_path()
+
+        if path in self.prefs.device_blacklist and self.search_for_PSD():
+            logger.info("Device %(device)s (%(path)s) ignored" % {
+                        'device': mount.get_name(), 'path': path})
+        else:
+            is_backup_mount = self.check_if_backup_mount(path)
+                        
+            if is_backup_mount:
+                if path not in self.backup_devices:
+                    self.backup_devices[path] = mount
+                    self.display_free_space()
+
+            elif self.prefs.device_autodetection and (dv.is_DCIM_device(path) or 
+                                                        self.search_for_PSD()):
+                
+                device = dv.Device(path=path, mount=mount)
+                if self.search_for_PSD() and path not in self.prefs.device_whitelist:
+                    # prompt user if device should be used or not
+                    self.get_use_device(device)
+                else:   
+                    scan_pid = self.scan_manager.add_task(device)
+                    self.mounts_by_path[path] = scan_pid
             
     def on_mount_removed(self, vmonitor, mount):
         """
         callback run when gio indicates a new volume
         has been mounted
         """
-        logger.info("Mount removed")
-        #FIXME: need to remove from what user sees!
+        
+        path = mount.get_root().get_path()
+
+        # three scenarios -
+        # the mount has been scanned but downloading has not yet started
+        # files are being downloaded from mount (it must be a messy unmount)
+        # files have finished downloading from mount
+        
+        if path in self.mounts_by_path:
+            scan_pid = self.mounts_by_path[path]
+            del self.mounts_by_path[path]
+            # temp directory should be cleaned by finishing of process
+            
+            #~ if scan_pid in self.download_active_by_scan_pid:
+                #~ self._clean_temp_dirs_for_scan_pid(scan_pid)
+            self.thumbnails.clear_all(scan_pid)
+            self.device_collection.remove_device(scan_pid)
+            
+                
+                    
+        # remove backup volumes
+        elif path in self.backup_devices:
+            del self.backup_devices[path]
+            self.display_free_space()
+                
+        # may need to disable download button and menu
+        self.set_download_action_sensitivity()
             
     def clear_non_running_downloads(self):
         """
@@ -1650,8 +1703,9 @@ class RapidApp(dbus.service.Object):
         if download_count == self.no_files_in_download_by_scan_pid[scan_pid]:
             # Last file has been downloaded, so clean temp directory
             logger.debug("Purging temp directories")
-            for temp_dir in self.temp_dirs_by_scan_pid[scan_pid]:
-                self._purge_dir(temp_dir)
+            self._clean_temp_dirs_for_scan_pid(scan_pid)
+            del self.no_files_in_download_by_scan_pid[scan_pid]
+            del self.size_of_download_in_bytes_by_scan_pid[scan_pid]
             self.download_active_by_scan_pid.remove(scan_pid)
             
             if not self.download_is_occurring():
@@ -1661,7 +1715,8 @@ class RapidApp(dbus.service.Object):
                 self.downloads_today_tracker.set_raw_downloads_today_from_int(self.downloads_today_value.value)
                 self.downloads_today_tracker.set_raw_downloads_today_date(self.downloads_today_date_value.value)
                 self.prefs.set_downloads_today_from_tracker(self.downloads_today_tracker)
-                #~ self.downloads_today_tracker.log_vals()
+                
+                self.display_free_space()
         else:
             pass
             #~ logger.info("Download count: %s", download_count)
@@ -1679,6 +1734,14 @@ class RapidApp(dbus.service.Object):
                               'total': self.no_files_in_download_by_scan_pid[scan_pid],
                               'filetypes': self.file_types_present_by_scan_pid[scan_pid]}
         self.device_collection.update_progress(scan_pid, None, progress_bar_text, None)        
+
+    def _clean_temp_dirs_for_scan_pid(self, scan_pid):
+        """
+        Deletes temp files and folders used in download
+        """
+        for temp_dir in self.temp_dirs_by_scan_pid[scan_pid]:
+            self._purge_dir(temp_dir)
+        del self.temp_dirs_by_scan_pid[scan_pid]
 
     def _purge_dir(self, directory):
         """
@@ -1870,6 +1933,8 @@ class RapidApp(dbus.service.Object):
         
         # monitor to handle mounts and dismounts
         self.vmonitor = None
+        # track scan ids for mount paths - very useful when a device is unmounted
+        self.mounts_by_path = {}
         
         #job code initialization
         self.last_chosen_job_code = None

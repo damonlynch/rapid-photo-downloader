@@ -75,7 +75,7 @@ class UseDeviceDialog(gtk.Dialog):
     Simple dialog window that prompt's the user whether to use a certain 
     device or not
     """
-    def __init__(self,  parent_window,  device,  post_choice_callback):
+    def __init__(self,  parent_window, device, post_choice_callback):
         gtk.Dialog.__init__(self, _('Device Detected'), None,
                    gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
                    (gtk.STOCK_NO, gtk.RESPONSE_CANCEL, 
@@ -90,11 +90,11 @@ class UseDeviceDialog(gtk.Dialog):
         prompt_hbox = gtk.HBox()
         prompt_hbox.pack_start(prompt_label, False, False, padding=6)
         device_label = gtk.Label()
-        device_label.set_markup("<b>%s</b>" % mount.get_name())
+        device_label.set_markup("<b>%s</b>" % device.get_name())
         device_hbox = gtk.HBox()
         device_hbox.pack_start(device_label, False, False)
         path_label = gtk.Label()
-        path_label.set_markup("<i>%s</i>" % path)
+        path_label.set_markup("<i>%s</i>" % device.get_path())
         path_hbox = gtk.HBox()
         path_hbox.pack_start(path_label, False, False)
         
