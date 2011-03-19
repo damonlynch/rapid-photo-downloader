@@ -1248,7 +1248,6 @@ class PreferencesDialog(gtk.Window):
             if v < 0:
                 v = 0
             self.rapidapp.downloads_today_tracker.reset_downloads_today(v)
-            self.rapidapp.downloads_today_tracker.log_vals()
             self.rapidapp.refresh_downloads_today = True
             self.update_image_rename_example()
         

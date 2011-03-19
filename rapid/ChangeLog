@@ -1,10 +1,12 @@
 Version 0.4.0 alpha 1
 ---------------------
 
-Rapid Photo Downloader is much faster and sports a new user interface. It will
-use multiple CPU cores if they are available. It is about 50 times faster in 
-tasks like scanning photos and videos in preperation for download. It also 
-performs the actual downloads quicker.
+2011-xx-xx
+
+Rapid Photo Downloader is much faster and sports a new user interface. It is
+about 50 times faster in tasks like scanning photos and videos before the 
+download. It also performs the actual downloads quicker. It will use
+multiple CPU cores if they are available. 
 
 Rapid Photo Downloader now requires version 0.3.0 or newer of pyexiv2. It also
 requries Python Imaging (PIL) to run. It will only run on recent Linux
@@ -21,7 +23,6 @@ version 0.3.5. Missing features include:
 * Error log window
 * Time remaining status messages
 * Synchronize RAW + JPEG Sequence Numbers
-* Mount added after program startup
 
 These will be added in subsequent alpha and beta releases.
 
@@ -36,7 +37,8 @@ Version 0.3.5
 
 2011-xx-xx
 
-The primrary purpose of this release is to fix bug #714039. 
+The primrary purpose of this release is to fix bug #714039, where under
+certain circumstances the program could crash while downloading files. 
 
 This is the very last release in the 0.3.x series. In version 0.4, Rapid Photo 
 Downloader is much faster and sports a new user interface.

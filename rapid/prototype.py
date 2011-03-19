@@ -732,6 +732,8 @@ class TaskManager:
         
         self._pipes = {}
         self.batch_size = batch_size
+        
+        self.paused = False
        
     
     def add_task(self, task):
@@ -761,10 +763,18 @@ class TaskManager:
             yield self._processes[i]        
     
     def start(self):
+        self.paused = False
         for scan in self.processes():
             run_event = scan[2]
             if not run_event.is_set():
                 run_event.set()
+                
+    def pause(self):
+        self.paused = True
+        for scan in self.processes():
+            run_event = scan[2]
+            if run_event.is_set():
+                run_event.clear()
     
     def request_termination(self):
         """
@@ -778,7 +788,7 @@ class TaskManager:
                 # The process might be paused: let it run
                 run_event = p[2]
                 if not run_event.is_set():
-                    run_event.set()        
+                    run_event.set()
                     
         return requested
     
@@ -794,7 +804,7 @@ class TaskManager:
         
         for p in self.processes():
             if p[0].is_alive():
-                p[1].terminate()
+                p[0].terminate()
 
             
     def get_pipe(self, source):
@@ -1078,7 +1088,7 @@ class RapidApp(dbus.service.Object):
     
     def on_rapidapp_destroy(self, widget, data=None):
 
-        self._terminate_processes()
+        self._terminate_processes(terminate_file_copies = True)
 
         # save window and component sizes
         self.prefs.vpaned_pos = self.main_vpaned.get_position()
@@ -1093,7 +1103,9 @@ class RapidApp(dbus.service.Object):
         
     def _terminate_processes(self, terminate_file_copies=False):
         
-        #FIXME: need more fine grained tuning here
+        # FIXME: need more fine grained tuning here - must cancel large file
+        # copies midstream
+        logger.info("Terminating.....")
 
         scan_termination_requested = self.scan_manager.request_termination()        
         thumbnails_termination_requested = self.thumbnails.thumbnail_manager.request_termination()
@@ -1116,7 +1128,8 @@ class RapidApp(dbus.service.Object):
             time.sleep(1)
             self.copy_files_manager.terminate_forcefully()
         
-        
+        if terminate_file_copies:
+            self._clean_all_temp_dirs()
         
     # # #
     # Events and tasks related to displaying preview images and thumbnails
@@ -1459,8 +1472,16 @@ class RapidApp(dbus.service.Object):
         Called when a download is activated
         """
         
-        logger.info("Download activated")
-        self.start_download()
+        if self.copy_files_manager.paused:
+            logger.debug("Download resumed")
+            self.resume_download()
+        else:
+            logger.debug("Download activated")
+            
+            if self.download_action_is_download:
+                self.start_download()
+            else:
+                self.pause_download()
 
     
     def on_help_action_activate(self, action):
@@ -1483,7 +1504,17 @@ class RapidApp(dbus.service.Object):
         
         self.download_action.set_sensitive(sensitivity)
             
-    
+    def set_download_action_label(self, is_download):
+        """
+        Toggles label betwen pause and download 
+        """
+        
+        if is_download:
+            self.download_action.set_label(_("Download"))
+            self.download_action_is_download = True
+        else:
+            self.download_action.set_label(_("Pause"))
+            self.download_action_is_download = False
     
     # # #
     # Job codes
@@ -1603,6 +1634,19 @@ class RapidApp(dbus.service.Object):
             for scan_pid in files_by_scan_pid:
                 files = files_by_scan_pid[scan_pid]
                 self.download_files(files, scan_pid)
+                
+        self.set_download_action_label(is_download = False)
+        
+    def pause_download(self):
+        
+        self.copy_files_manager.pause()
+        
+        # set action to display Download
+        if not self.download_action_is_download:
+            self.set_download_action_label(is_download = True)
+            
+    def resume_download(self):
+        self.copy_files_manager.start()
 
     def download_files(self, files, scan_pid):
         """
@@ -1717,6 +1761,8 @@ class RapidApp(dbus.service.Object):
                 self.prefs.set_downloads_today_from_tracker(self.downloads_today_tracker)
                 
                 self.display_free_space()
+                
+                self.set_download_action_label(is_download=True)
         else:
             pass
             #~ logger.info("Download count: %s", download_count)
@@ -1735,6 +1781,17 @@ class RapidApp(dbus.service.Object):
                               'filetypes': self.file_types_present_by_scan_pid[scan_pid]}
         self.device_collection.update_progress(scan_pid, None, progress_bar_text, None)        
 
+    def _clean_all_temp_dirs(self):
+        """
+        Cleans all temp dirs if they exist
+        """
+        for scan_pid in self.temp_dirs_by_scan_pid:
+            for temp_dir in self.temp_dirs_by_scan_pid[scan_pid]:
+                self._purge_dir(temp_dir)
+                
+        self.temp_dirs_by_scan_pid = {}
+            
+    
     def _clean_temp_dirs_for_scan_pid(self, scan_pid):
         """
         Deletes temp files and folders used in download
@@ -1935,6 +1992,9 @@ class RapidApp(dbus.service.Object):
         self.vmonitor = None
         # track scan ids for mount paths - very useful when a device is unmounted
         self.mounts_by_path = {}
+        
+        # Download action state
+        self.download_action_is_download = True
         
         #job code initialization
         self.last_chosen_job_code = None
