@@ -1758,6 +1758,13 @@ class RapidApp(dbus.service.Object):
         self.refresh_downloads_today_value = Value(c_bool, False)
         self.stored_sequence_value = Value(c_int, self.prefs.stored_sequence_no)
         self.uses_stored_sequence_no_value = Value(c_bool, self.prefs.any_pref_uses_stored_sequence_no())
+        self.uses_session_sequece_no_value = Value(c_bool, self.prefs.any_pref_uses_session_sequece_no())
+        self.uses_sequence_letter_value = Value(c_bool, self.prefs.any_pref_uses_sequence_letter_value())
+        
+    def _check_for_sequence_value_use(self):
+        self.uses_stored_sequence_no_value.value = self.prefs.any_pref_uses_stored_sequence_no()
+        self.uses_session_sequece_no_value.value = self.prefs.any_pref_uses_session_sequece_no()
+        self.uses_sequence_letter_value.value = self.prefs.any_pref_uses_sequence_letter_value()    
     
     def on_preference_changed(self, key, value):
         """
@@ -1792,7 +1799,7 @@ class RapidApp(dbus.service.Object):
                 
         elif key in ['image_rename', 'subfolder', 'video_rename', 'video_subfolder']:
             # Check if stored sequence no is being used
-            self.uses_stored_sequence_no_value = self.prefs.any_pref_uses_stored_sequence_no()
+            self._check_for_sequence_value_use()
             
         #~ elif key == 'job_codes':
             #~ # update job code list in left pane
@@ -2154,7 +2161,9 @@ class RapidApp(dbus.service.Object):
                            self.day_start_value,
                            self.refresh_downloads_today_value,
                            self.stored_sequence_value, 
-                           self.uses_stored_sequence_no_value)
+                           self.uses_stored_sequence_no_value,
+                           self.uses_session_sequece_no_value,
+                           self.uses_sequence_letter_value)
                            
         self.subfolder_file_manager = SubfolderFileManager(
                                         self.subfolder_file_results,

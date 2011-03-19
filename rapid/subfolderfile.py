@@ -97,6 +97,8 @@ class SubfolderFile(multiprocessing.Process):
         self.refresh_downloads_today = sequence_values[3]
         self.stored_sequence_no = sequence_values[4]
         self.uses_stored_sequence_no = sequence_values[5]
+        self.uses_session_sequece_no = sequence_values[6]
+        self.uses_sequence_letter = sequence_values[7]
         
         logger.debug("Start of day is set to %s", self.day_start.value)
         
@@ -157,7 +159,7 @@ class SubfolderFile(multiprocessing.Process):
                         self.downloads_today_tracker.set_raw_downloads_today_date(self.downloads_today_date.value)
                         self.downloads_today_tracker.day_start = self.day_start.value
                         self.refresh_downloads_today.value = False
-                        self.downloads_today_tracker.log_vals()
+                        #~ self.downloads_today_tracker.log_vals()
                         
                     # update whatever the stored value is
                     self.sequences.stored_sequence_no = self.stored_sequence_no.value
@@ -215,7 +217,10 @@ class SubfolderFile(multiprocessing.Process):
                     logger.debug("Finish processing file: %s", download_count)                    
                 
                 if move_succeeded:
-                    self.sequences.increment()
+                    if self.uses_session_sequece_no.value or self.uses_sequence_letter.value:
+                        self.sequences.increment(
+                                        self.uses_session_sequece_no.value, 
+                                        self.uses_sequence_letter.value)
                     if self.uses_stored_sequence_no.value:
                         self.stored_sequence_no.value += 1
                     self.downloads_today_tracker.increment_downloads_today()

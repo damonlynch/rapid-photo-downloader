@@ -17,7 +17,7 @@
 ### along with this program; if not, write to the Free Software
 ### Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-import os, re, datetime
+import os, re, datetime, string
 
 import multiprocessing
 import logging
@@ -211,7 +211,7 @@ class PhotoName:
             self.rpd_file.add_problem(self.component, pn.MISSING_METADATA, _(self.L1))
         return v
 
-    def _calculate_letter_sequence(self,  sequence):
+    def _calculate_letter_sequence(self, sequence):
 
         def _letters(x):
             """
@@ -248,7 +248,7 @@ class PhotoName:
         return self._format_sequence_no(self.rpd_file.sequences.get_stored_sequence_no(), self.L2)
 
     def _get_sequence_letter(self):
-        return self._calculate_letter_sequence(self.sequences.get_sequence_letter())
+        return self._calculate_letter_sequence(self.rpd_file.sequences.get_sequence_letter())
                         
     def _get_sequences_component(self):
         if self.L1 == DOWNLOAD_SEQ_NUMBER:
@@ -416,7 +416,7 @@ class Sequences:
     """
     def __init__(self, downloads_today_tracker, stored_sequence_no):
         self.session_sequence_no = 0
-        self.sequence_letter = 0
+        self.sequence_letter = -1
         self.downloads_today_tracker = downloads_today_tracker
         self.stored_sequence_no =  stored_sequence_no
         
@@ -426,10 +426,11 @@ class Sequences:
     def get_sequence_letter(self):
         return self.sequence_letter + 1
         
-    def increment(self):
-        #FIXME
-        self.session_sequence_no += 1
-        self.sequence_letter += 1
+    def increment(self, uses_session_sequece_no, uses_sequence_letter):
+        if uses_session_sequece_no:
+            self.session_sequence_no += 1
+        if uses_sequence_letter:
+            self.sequence_letter += 1
         
     def get_downloads_today(self):
         v = self.downloads_today_tracker.get_downloads_today()

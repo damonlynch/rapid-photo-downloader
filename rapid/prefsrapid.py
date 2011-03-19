@@ -159,19 +159,32 @@ class RapidPreferences(prefs.Preferences):
         return (self.image_rename, self.subfolder, self.video_rename, 
                      self.video_subfolder)
     
-    def pref_uses_stored_sequence_no(self, pref_list):
+    def _pref_list_uses_component(self, pref_list, pref_component, offset):
         for i in range(0, len(pref_list), 3):
-            if pref_list[i+1] == STORED_SEQ_NUMBER:
+            if pref_list[i+offset] == pref_component:
                 return True
         return False        
     
     def any_pref_uses_stored_sequence_no(self):
         """Returns True if any of the pref lists contain a stored sequence no"""
         for pref_list in self._get_pref_lists():
-            if self.pref_uses_stored_sequence_no(pref_list):
+            if self._pref_list_uses_component(pref_list, STORED_SEQ_NUMBER, 1):
                 return True
         return False        
         
+    def any_pref_uses_session_sequece_no(self):
+        """Returns True if any of the pref lists contain a session sequence no"""
+        for pref_list in self._get_pref_lists():
+            if self._pref_list_uses_component(pref_list, SESSION_SEQ_NUMBER, 1):
+                return True
+        return False 
+        
+    def any_pref_uses_sequence_letter_value(self):
+        """Returns True if any of the pref lists contain a sequence letter"""
+        for pref_list in self._get_pref_lists():
+            if self._pref_list_uses_component(pref_list, SEQUENCE_LETTER, 1):
+                return True
+        return False         
             
     def reset(self):
         """
