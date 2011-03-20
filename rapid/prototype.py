@@ -257,7 +257,11 @@ class ThumbnailCellRenderer(gtk.CellRenderer):
         
         "filename": (gobject.TYPE_STRING, "Filename", 
         "Filename", '', gobject.PARAM_READWRITE),
+        
+        "status": (gtk.gdk.Pixbuf, "Status",
+        "Status", gobject.PARAM_READWRITE),
     }
+    
     def __init__(self, checkbutton_height):
         gtk.CellRenderer.__init__(self)
         self.image = None
@@ -266,6 +270,7 @@ class ThumbnailCellRenderer(gtk.CellRenderer):
         self.text_area_size = 30
         self.padding = 6
         self.checkbutton_height = checkbutton_height
+        self.icon_width = 20
         
     def do_set_property(self, pspec, value):
         setattr(self, pspec.name, value)
@@ -278,7 +283,7 @@ class ThumbnailCellRenderer(gtk.CellRenderer):
         cairo_context = window.cairo_create()
         
         x = cell_area.x
-        y = cell_area.y #- self.checkbutton_height + 4
+        y = cell_area.y + self.checkbutton_height - 8
         w = cell_area.width
         h = cell_area.height
         
@@ -328,12 +333,14 @@ class ThumbnailCellRenderer(gtk.CellRenderer):
         context = pangocairo.CairoContext(cairo_context)
         
         text_y = y + self.image_area_size + 10
-        context.rectangle(x, text_y, w, 15)
-        context.clip()        
+        text_w = w - self.icon_width
+        text_x = x + self.icon_width
+        #~ context.rectangle(text_x, text_y, text_w, 15)
+        #~ context.clip()        
         
         layout = context.create_layout()
 
-        width = w * pango.SCALE
+        width = text_w * pango.SCALE
         layout.set_width(width)
         
         layout.set_alignment(pango.ALIGN_CENTER)
@@ -351,13 +358,16 @@ class ThumbnailCellRenderer(gtk.CellRenderer):
 
         layout.set_text(self.filename)        
 
-        context.move_to(x, text_y)
+        context.move_to(text_x, text_y)
         context.show_layout(layout)
-        
+
+        #status
+        cairo_context.set_source_pixbuf(self.status, x, y + self.image_area_size + 10)
+        cairo_context.paint()
         
     def do_get_size(self, widget, cell_area):
-        return (0, 0, self.image_area_size, self.image_area_size + self.checkbutton_height + 10)
-        #~ return (0, 0, self.image_area_size, self.image_area_size + self.text_area_size - self.checkbutton_height + 4)
+        #~ return (0, 0, self.image_area_size, self.image_area_size + self.checkbutton_height + 10)
+        return (0, 0, self.image_area_size, self.image_area_size + self.text_area_size - self.checkbutton_height + 4)
         
 
 gobject.type_register(ThumbnailCellRenderer)
@@ -392,6 +402,9 @@ class ThumbnailDisplay(gtk.IconView):
         self.UNIQUE_ID_COL = 2
         self.TIMESTAMP_COL = 4
         self.FILETYPE_COL = 5
+        self.CHECKBUTTON_VISIBLE_COL = 6
+        self.DOWNLOAD_STATUS_COL = 7
+        self.STATUS_ICON_COL = 8
         
         self.liststore = gtk.ListStore(
              gobject.TYPE_PYOBJECT, # 0 PIL thumbnail
@@ -400,6 +413,9 @@ class ThumbnailDisplay(gtk.IconView):
              str,                   # 3 file name
              int,                   # 4 timestamp for sorting, converted float
              int,                   # 5 file type i.e. photo or video
+             gobject.TYPE_BOOLEAN,  # 6 visibility of checkbutton
+             int,                   # 7 status of download
+             gtk.gdk.Pixbuf,        # 8 status icon
              )
 
 
@@ -413,15 +429,21 @@ class ThumbnailDisplay(gtk.IconView):
         checkbutton.connect('toggled', self.on_checkbutton_toggled)
         self.pack_end(checkbutton, expand=False)
         self.add_attribute(checkbutton, "active", 1)
+        self.add_attribute(checkbutton, "visible", 6)
         
         checkbutton_size = checkbutton.get_size(self, None)
         checkbutton_height = checkbutton_size[3]
         checkbutton_width = checkbutton_size[2]
         
+        #~ status_icon = gtk.CellRendererPixbuf()
+        #~ self.pack_start(status_icon, expand=False)
+        #~ self.add_attribute(status_icon, "pixbuf", self.STATUS_ICON_COL)
+        
         image = ThumbnailCellRenderer(checkbutton_height)
         self.pack_start(image, expand=True)
         self.add_attribute(image, "image", 0)
         self.add_attribute(image, "filename", 3)
+        self.add_attribute(image, "status", 8)
 
         
         #set the background color to a darkish grey
@@ -433,10 +455,66 @@ class ThumbnailDisplay(gtk.IconView):
         #~ self.set_row_spacing(0)
         self.set_margin(25)
         
+        self._setup_icons()
+        
         self.show_all()
         
         self.connect('item-activated', self.on_item_activated)
         
+    def _setup_icons(self):
+        # icons to be displayed in status column
+
+        size = 16
+        # standard icons
+        failed = self.render_icon(gtk.STOCK_DIALOG_ERROR, gtk.ICON_SIZE_MENU)
+        self.download_failed_icon = failed.scale_simple(size, size, gtk.gdk.INTERP_HYPER)
+        error = self.render_icon(gtk.STOCK_DIALOG_ERROR, gtk.ICON_SIZE_MENU)
+        self.error_icon = error.scale_simple(size, size, gtk.gdk.INTERP_HYPER)
+        warning = self.render_icon(gtk.STOCK_DIALOG_WARNING, gtk.ICON_SIZE_MENU)
+        self.warning_icon = warning.scale_simple(size, size, gtk.gdk.INTERP_HYPER)
+
+        # Rapid Photo Downloader specific icons
+        self.downloaded_icon = gtk.gdk.pixbuf_new_from_file_at_size(
+               paths.share_dir('glade3/rapid-photo-downloader-downloaded.svg'),
+               size, size)
+        self.download_pending_icon = gtk.gdk.pixbuf_new_from_file_at_size(
+               paths.share_dir('glade3/rapid-photo-downloader-download-pending.svg'),
+               size, size) 
+        self.downloaded_with_warning_icon = gtk.gdk.pixbuf_new_from_file_at_size(
+               paths.share_dir('glade3/rapid-photo-downloader-downloaded-with-warning.svg'),
+               size, size)
+        self.downloaded_with_error_icon = gtk.gdk.pixbuf_new_from_file_at_size(
+               paths.share_dir('glade3/rapid-photo-downloader-downloaded-with-error.svg'),
+               size, size)
+        
+        # make the not yet downloaded icon a transparent square
+        self.not_downloaded_icon = gtk.gdk.Pixbuf(gtk.gdk.COLORSPACE_RGB, False, 8, 16, 16)
+        self.not_downloaded_icon.fill(0xffffffff)
+        self.not_downloaded_icon = self.not_downloaded_icon.add_alpha(True, chr(255), chr(255), chr(255))
+        
+    def get_status_icon(self, status):
+        """
+        Returns the correct icon, based on the status
+        """
+        if status == STATUS_WARNING:
+            status_icon = self.warning_icon
+        elif status == STATUS_CANNOT_DOWNLOAD:
+            status_icon = self.error_icon
+        elif status == STATUS_DOWNLOADED:
+            status_icon =  self.downloaded_icon
+        elif status == STATUS_NOT_DOWNLOADED:
+            status_icon = self.not_downloaded_icon
+        elif status in [STATUS_DOWNLOADED_WITH_WARNING, STATUS_BACKUP_PROBLEM]:
+            status_icon = self.downloaded_with_warning_icon
+        elif status in [STATUS_DOWNLOAD_FAILED, STATUS_DOWNLOAD_AND_BACKUP_FAILED]:
+            status_icon = self.downloaded_with_error_icon
+        elif status == STATUS_DOWNLOAD_PENDING:
+            status_icon = self.download_pending_icon
+        else:
+            logger.critical("FIXME: unknown status: %s", status)
+            status_icon = self.not_downloaded_icon
+        return status_icon        
+    
     def sort_by_timestamp(self):
         self.liststore.set_sort_column_id(self.TIMESTAMP_COL, gtk.SORT_ASCENDING)
         
@@ -462,7 +540,10 @@ class ThumbnailDisplay(gtk.IconView):
                                       unique_id,
                                       rpd_file.display_name,
                                       timestamp,
-                                      rpd_file.file_type
+                                      rpd_file.file_type,
+                                      True,
+                                      STATUS_NOT_DOWNLOADED,
+                                      self.not_downloaded_icon
                                       ))
         
         path = self.liststore.get_path(iter)
@@ -532,7 +613,9 @@ class ThumbnailDisplay(gtk.IconView):
                 preview_image = self.get_stock_icon(rpd_file.file_type)
         
         checked = self.liststore.get_value(iter, self.SELECTED_COL)
-        self.rapid_app.show_preview_image(unique_id, preview_image, checked)
+        include_checkbutton_visible = rpd_file.status == STATUS_NOT_DOWNLOADED
+        self.rapid_app.show_preview_image(unique_id, preview_image, 
+                                            include_checkbutton_visible, checked)
             
     def _get_next_iter(self, iter):
         iter = self.liststore.iter_next(iter)
@@ -587,11 +670,12 @@ class ThumbnailDisplay(gtk.IconView):
             
     def check_all(self, check_all, file_type=None):
         for row in self.liststore:
-            if file_type is not None:
-                if row[self.FILETYPE_COL] == file_type:
+            if row[self.CHECKBUTTON_VISIBLE_COL]:
+                if file_type is not None:
+                    if row[self.FILETYPE_COL] == file_type:
+                        row[self.SELECTED_COL] = check_all
+                else:
                     row[self.SELECTED_COL] = check_all
-            else:
-                row[self.SELECTED_COL] = check_all
         self.rapid_app.set_download_action_sensitivity()
             
     def files_are_checked_to_download(self):
@@ -636,6 +720,13 @@ class ThumbnailDisplay(gtk.IconView):
         else:
             return self.stock_video_thumbnails.stock_thumbnail_image_icon
             
+    def update_status_post_download(self, rpd_file):
+        iter = self.get_iter_from_unique_id(rpd_file.unique_id)
+        self.liststore.set_value(iter, self.CHECKBUTTON_VISIBLE_COL, False)
+        self.liststore.set_value(iter, self.SELECTED_COL, False)
+        icon = self.get_status_icon(rpd_file.status)
+        self.liststore.set_value(iter, self.STATUS_ICON_COL, icon)
+        self.rpd_files[rpd_file.unique_id] = rpd_file
             
     def generate_thumbnails(self, scan_pid):
         """Initiate thumbnail generation for files scanned in one process
@@ -1024,7 +1115,8 @@ class PreviewImage:
         
         self.unique_id = None
         
-    def set_preview_image(self, unique_id, pil_image, checked=None):
+    def set_preview_image(self, unique_id, pil_image, include_checkbutton_visible=None, 
+                          checked=None):
         """
         """
         self.preview_image.set_image(pil_image)
@@ -1032,6 +1124,9 @@ class PreviewImage:
         if checked is not None:
             self.download_this_checkbutton.set_active(checked)
             self.download_this_checkbutton.grab_focus()
+
+        if include_checkbutton_visible is not None:
+            self.download_this_checkbutton.props.visible = include_checkbutton_visible
         
     def update_preview_image(self, unique_id, pil_image):
         if unique_id == self.unique_id:
@@ -1069,7 +1164,6 @@ class RapidApp(dbus.service.Object):
         
         # Setup various widgets
         self._setup_buttons()
-        self._setup_icons()
         self._setup_error_icons()
             
         # Show the main window
@@ -1147,8 +1241,8 @@ class RapidApp(dbus.service.Object):
 
     def on_download_this_checkbutton_toggled(self, checkbutton):
         value = checkbutton.get_active()
-        logger.debug("on_download_this_checkbutton_toggled %s", value)
         self.thumbnails.set_selected(self.preview_image.unique_id, value)
+        self.set_download_action_sensitivity()
     
     def on_preview_eventbox_button_press_event(self, widget, event):
         
@@ -1203,11 +1297,11 @@ class RapidApp(dbus.service.Object):
     def on_donate_action_activate(self, action):
         webbrowser.open("http://www.damonlynch.net/rapid/donate.html")
              
-    def show_preview_image(self, unique_id, image, checked):
+    def show_preview_image(self, unique_id, image, include_checkbutton_visible, checked):
         if self.main_notebook.get_current_page() == 0: # thumbnails
             logger.debug("Switching to preview image display")
             self.main_notebook.set_current_page(1)
-        self.preview_image.set_preview_image(unique_id, image, checked)
+        self.preview_image.set_preview_image(unique_id, image, include_checkbutton_visible, checked)
         self.next_image_action.set_sensitive(True)
         self.prev_image_action.set_sensitive(True)
         
@@ -1248,24 +1342,6 @@ class RapidApp(dbus.service.Object):
             self.vmonitor.connect("mount-added", self.on_mount_added)
             self.vmonitor.connect("mount-removed", self.on_mount_removed) 
     
-    
-    def _setup_testing_devices(self):
-        """
-        """
-        #~ image_paths = ['/home/damon/rapid/cr2', '/home/damon/Pictures/processing/2011']
-        #~ image_paths = ['/media/EOS_DIGITAL/']        
-        #~ image_paths = ['/media/EOS_DIGITAL/', '/media/EOS_DIGITAL_/']
-        #~ image_paths = ['/media/EOS_DIGITAL/', '/media/EOS_DIGITAL_/', '/media/EOS_DIGITAL__/']
-        #~ image_paths = ['/home/damon/rapid/cr2']
-        #~ image_paths = ['/home/damon/rapid/sample-cr2']
-        #~ image_paths = ['/home/damon/Pictures/']
-        
-        #~ devices = [dv.Device(path='/home/damon/rapid/cr2')]
-        #~ devices = [dv.Device(path='/home/damon/rapid/sample-cr2'), dv.Device(path='/home/damon/rapid/sample-cr2')]
-        #~ devices = [dv.Device(path='/home/damon/rapid/sample-cr2')]
-        #~ devices = [dv.Device(path='/home/damon/rapid/sample-cr2'), dv.Device(path='/home/damon/Pictures/processing/2011'), ]
-        #~ devices = [dv.Device(path='/home/damon/rapid/sample-cr2'), dv.Device(path='/home/damon/Pictures/pbase'), ]
-        #~ devices = [dv.Device(path='/home/damon/Pictures/')]        
             
     def setup_devices(self, on_startup, on_preference_change, do_not_allow_auto_start):
         """
@@ -1548,12 +1624,13 @@ class RapidApp(dbus.service.Object):
         
         Affects download button and menu item
         """
-        sensitivity = False
-        if self.scan_manager.get_no_active_processes() == 0:
-            if self.thumbnails.files_are_checked_to_download():
-                sensitivity = True
-        
-        self.download_action.set_sensitive(sensitivity)
+        if not self.download_is_occurring():
+            sensitivity = False
+            if self.scan_manager.get_no_active_processes() == 0:
+                if self.thumbnails.files_are_checked_to_download():
+                    sensitivity = True
+            
+            self.download_action.set_sensitive(sensitivity)
             
     def set_download_action_label(self, is_download):
         """
@@ -1793,6 +1870,7 @@ class RapidApp(dbus.service.Object):
         
         self._update_file_download_device_progress(scan_pid, unique_id)
         
+        self.thumbnails.update_status_post_download(rpd_file)
         
         download_count = self.download_count_for_file_by_unique_id[unique_id]
         if download_count == self.no_files_in_download_by_scan_pid[scan_pid]:
@@ -1814,6 +1892,7 @@ class RapidApp(dbus.service.Object):
                 self.display_free_space()
                 
                 self.set_download_action_label(is_download=True)
+                self.set_download_action_sensitivity()
         else:
             pass
             #~ logger.info("Download count: %s", download_count)
@@ -2115,16 +2194,6 @@ class RapidApp(dbus.service.Object):
         prev_image_button = self.builder.get_object("prev_image_button")
         image = gtk.image_new_from_stock(gtk.STOCK_GO_BACK, gtk.ICON_SIZE_BUTTON)
         prev_image_button.set_image(image)
-        
-    def _setup_icons(self):
-        icons = ['rapid-photo-downloader-downloaded', 
-             'rapid-photo-downloader-downloaded-with-error',
-             'rapid-photo-downloader-downloaded-with-warning',
-             'rapid-photo-downloader-download-pending',
-             'rapid-photo-downloader-jobcode']
-        
-        icon_list = [(icon, paths.share_dir('glade3/%s.svg' % icon)) for icon in icons]
-        register_iconsets(icon_list)
         
     def _setup_error_icons(self):
         """

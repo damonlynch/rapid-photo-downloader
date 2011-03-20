@@ -36,6 +36,7 @@ import rpdmultiprocessing as rpdmp
 import generatename as gn
 import problemnotification as pn
 import prefsrapid
+import config
 
 from gettext import gettext as _
 
@@ -159,7 +160,6 @@ class SubfolderFile(multiprocessing.Process):
                         self.downloads_today_tracker.set_raw_downloads_today_date(self.downloads_today_date.value)
                         self.downloads_today_tracker.day_start = self.day_start.value
                         self.refresh_downloads_today.value = False
-                        #~ self.downloads_today_tracker.log_vals()
                         
                     # update whatever the stored value is
                     self.sequences.stored_sequence_no = self.stored_sequence_no.value
@@ -167,6 +167,9 @@ class SubfolderFile(multiprocessing.Process):
                     
                     # generate the file name
                     rpd_file = generate_name(rpd_file)
+                    
+                    if rpd_file.has_problem():
+                        rpd_file.status = config.STATUS_DOWNLOADED_WITH_WARNING
 
                 # Check for any errors
                 if not rpd_file.download_subfolder or not rpd_file.download_name:
@@ -179,6 +182,7 @@ class SubfolderFile(multiprocessing.Process):
                     rpd_file.add_problem(None, pn.ERROR_IN_NAME_GENERATION, {'filetype': rpd_file.title_capitalized, 'area': area})
                     rpd_file.add_extra_detail(pn.NO_DATA_TO_NAME, {'filetype': area})
                     generation_succeeded = False
+                    rpd_file.status = config.STATUS_DOWNLOAD_FAILED
                     # FIXME: log error
                     
                 if generation_succeeded:
@@ -211,7 +215,11 @@ class SubfolderFile(multiprocessing.Process):
                     try:
                         temp_file.move(download_file, self.progress_callback_no_update, cancellable=None)
                         move_succeeded = True
+                        if rpd_file.status <> config.STATUS_DOWNLOADED_WITH_WARNING:
+                            rpd_file.status = config.STATUS_DOWNLOADED
                     except gio.Error, inst:
+                        rpd_file.add_problem(None, pn.DOWNLOAD_COPYING_ERROR, {'filetype': rpd_file.title})
+                        rpd_file.add_extra_detail(pn.DOWNLOAD_COPYING_ERROR_DETAIL, inst)
                         logger.error("Failed to create file %s: %s", rpd_file.download_full_file_name, inst)
                         
                     logger.debug("Finish processing file: %s", download_count)                    

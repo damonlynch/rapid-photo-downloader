@@ -198,7 +198,10 @@ class RPDFile:
         self.problem = pn.Problem()
         
     def has_problem(self):
-        return self.problem.has_problem()
+        if self.problem is None:
+            return False
+        else:
+            return self.problem.has_problem()
         
     def add_problem(self, component, problem_definition, *args):
         if self.problem is None:

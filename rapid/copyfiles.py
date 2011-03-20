@@ -29,6 +29,7 @@ logger = multiprocessing.get_logger()
 import rpdmultiprocessing as rpdmp
 import rpdfile
 import problemnotification as pn
+import config
 
 
 from gettext import gettext as _
@@ -122,6 +123,7 @@ class CopyFiles(multiprocessing.Process):
                         pn.DOWNLOAD_COPYING_ERROR_W_NO_DETAIL, 
                         {'errorno': inst.code, 'strerror': inst.message})
                         
+                    rpd_file.status = config.STATUS_DOWNLOAD_FAILED
                     logger.error("Failed to download file: %s", rpd_file.full_file_name)
                     logger.error(inst)
                     self.update_progress(rpd_file.size, rpd_file.size)
