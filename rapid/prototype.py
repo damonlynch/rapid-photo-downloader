@@ -26,18 +26,14 @@ import dbus.service
 from dbus.mainloop.glib import DBusGMainLoop
 DBusGMainLoop(set_as_default=True)
 
-try: 
-    import pygtk 
-    pygtk.require("2.0") 
-except: 
-    pass 
+from optparse import OptionParser
 
 import gtk
 import gtk.gdk as gdk
 
 import webbrowser
 
-import getopt, sys, time, types, os, datetime
+import sys, time, types, os, datetime
 
 import gobject, pango, cairo, array, pangocairo, gio
 
@@ -46,7 +42,6 @@ from ctypes import c_int, c_bool, c_char
 
 import logging
 logger = log_to_stderr()
-logger.setLevel(logging.INFO)
 
 # Rapid Photo Downloader modules
 
@@ -63,6 +58,8 @@ import tableplusminus as tpm
 import generatename as gn
 
 from metadatavideo import DOWNLOAD_VIDEO
+import metadataphoto
+import metadatavideo
 
 import scan as scan_process
 import copyfiles
@@ -2482,25 +2479,68 @@ class RapidApp(dbus.service.Object):
                             in_signature='', out_signature='')
     def start (self):
         if self.is_running():
-            self.window.present()
+            self.rapidapp.present()
         else:
             self.running = True
             gtk.main()
         
 def start():
 
-    global debug_info
-    global verbose
+    is_beta = config.version.find('~') > 0
     
-    debug_info = verbose = True
+    parser = OptionParser(version= "%%prog %s" % utilities.human_readable_version(config.version))
+    parser.set_defaults(verbose=is_beta,  extensions=False)
+    # Translators: this text is displayed to the user when they request information on the command line options. 
+    # The text %default should not be modified or left out.
+    parser.add_option("-v",  "--verbose",  action="store_true", dest="verbose",  help=_("display program information on the command line as the program runs (default: %default)"))
+    parser.add_option("-d", "--debug", action="store_true", dest="debug", help=_('display debugging information when run from the command line'))
+    parser.add_option("-q", "--quiet",  action="store_false", dest="verbose",  help=_("only output errors to the command line"))
+    # image file extensions are recognized RAW files plus TIFF and JPG
+    parser.add_option("-e",  "--extensions", action="store_true", dest="extensions", help=_("list photo and video file extensions the program recognizes and exit"))
+    parser.add_option("--reset-settings", action="store_true", dest="reset", help=_("reset all program settings and preferences and exit"))
+    (options, args) = parser.parse_args()
+    
+    if options.debug:
+        logging_level = logging.DEBUG
+    elif options.verbose:
+        logging_level = logging.INFO
+    else:
+        logging_level = logging.ERROR
+    
+    logger.setLevel(logging_level)
+
+    if options.extensions:
+        extensions = ((rpdfile.RAW_FILE_EXTENSIONS + rpdfile.NON_RAW_IMAGE_FILE_EXTENSIONS, _("Photos:")), (rpdfile.VIDEO_FILE_EXTENSIONS, _("Videos:")))
+        for exts, file_type in extensions:
+            v = ''
+            for e in exts[:-1]:
+                v += '%s, ' % e.upper()
+            v = file_type + " " + v[:-1] + ' '+ (_('and %s') % exts[-1].upper())
+            print v
+            
+        sys.exit(0)
+        
+    if options.reset:
+        prefs = RapidPreferences()
+        prefs.reset()
+        print _("All settings and preferences have been reset")
+        sys.exit(0)
+
+    logger.info("Rapid Photo Downloader %s", utilities.human_readable_version(config.version))
+    logger.info("Using pyexiv2 %s", metadataphoto.pyexiv2_version_info())
+    logger.info("Using exiv2 %s", metadataphoto.exiv2_version_info())
+    if DOWNLOAD_VIDEO:
+        logger.info("Using hachoir %s", metadatavideo.version_info())
+    else:
+        logger.info(_("Video downloading functionality disabled.\nTo download videos, please install the hachoir metadata and kaa metadata packages for python."))
 
     bus = dbus.SessionBus ()
     request = bus.request_name (config.DBUS_NAME, dbus.bus.NAME_FLAG_DO_NOT_QUEUE)
-    if request != dbus.bus.REQUEST_NAME_REPLY_EXISTS or True: # FIXME CHANGE THIS
+    if request != dbus.bus.REQUEST_NAME_REPLY_EXISTS: 
         app = RapidApp(bus, '/', config.DBUS_NAME)
     else:
         # this application is already running
-        print "program is already running"
+        print "Rapid Photo Downloader is already running"
         object = bus.get_object (config.DBUS_NAME, "/")
         app = dbus.Interface (object, config.DBUS_NAME)
     

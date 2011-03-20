@@ -23,6 +23,7 @@ version 0.3.5. Missing features include:
 * Error log window
 * Time remaining status messages
 * Synchronize RAW + JPEG Sequence Numbers
+* Add unique identifier if file already exists
 
 These will be added in subsequent alpha and beta releases.
 
