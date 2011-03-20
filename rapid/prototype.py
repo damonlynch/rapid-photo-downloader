@@ -96,8 +96,9 @@ from config import  STATUS_CANNOT_DOWNLOAD, STATUS_DOWNLOADED, \
                     STATUS_DOWNLOAD_AND_BACKUP_FAILED, \
                     STATUS_WARNING
 
-
-
+#Translators: if neccessary, for guidance in how to translate this program, you may see http://damonlynch.net/translate.html 
+PROGRAM_NAME = _('Rapid Photo Downloader')
+__version__ = config.version
 
 def date_time_human_readable(date, with_line_break=True):
     if with_line_break:
@@ -390,6 +391,7 @@ class ThumbnailDisplay(gtk.IconView):
         self.SELECTED_COL = 1
         self.UNIQUE_ID_COL = 2
         self.TIMESTAMP_COL = 4
+        self.FILETYPE_COL = 5
         
         self.liststore = gtk.ListStore(
              gobject.TYPE_PYOBJECT, # 0 PIL thumbnail
@@ -397,6 +399,7 @@ class ThumbnailDisplay(gtk.IconView):
              str,                   # 2 unique id
              str,                   # 3 file name
              int,                   # 4 timestamp for sorting, converted float
+             int,                   # 5 file type i.e. photo or video
              )
 
 
@@ -458,7 +461,8 @@ class ThumbnailDisplay(gtk.IconView):
                                       True,
                                       unique_id,
                                       rpd_file.display_name,
-                                      timestamp
+                                      timestamp,
+                                      rpd_file.file_type
                                       ))
         
         path = self.liststore.get_path(iter)
@@ -581,9 +585,13 @@ class ThumbnailDisplay(gtk.IconView):
                 rpd_file = self.rpd_files[unique_id]
                 self._get_preview(unique_id, rpd_file)
             
-    def check_all(self, check_all):
+    def check_all(self, check_all, file_type=None):
         for row in self.liststore:
-            row[self.SELECTED_COL] = check_all
+            if file_type is not None:
+                if row[self.FILETYPE_COL] == file_type:
+                    row[self.SELECTED_COL] = check_all
+            else:
+                row[self.SELECTED_COL] = check_all
         self.rapid_app.set_download_action_sensitivity()
             
     def files_are_checked_to_download(self):
@@ -1014,6 +1022,8 @@ class PreviewImage:
         self.current_preview_size = (0,0)
         self.preview_image_size_limit = (0,0)
         
+        self.unique_id = None
+        
     def set_preview_image(self, unique_id, pil_image, checked=None):
         """
         """
@@ -1158,12 +1168,48 @@ class RapidApp(dbus.service.Object):
         
     def on_uncheck_all_action_activate(self, action):
         self.thumbnails.check_all(check_all=False)
+
+    def on_check_all_photos_action_activate(self, action):
+        self.thumbnails.check_all(check_all=True, 
+                                  file_type=rpdfile.FILE_TYPE_PHOTO)
+        
+    def on_check_all_videos_action_activate(self, action):
+        self.thumbnails.check_all(check_all=True, 
+                                  file_type=rpdfile.FILE_TYPE_VIDEO)
+                                  
+    def on_quit_action_activate(self, action):
+        self.on_rapidapp_destroy(widget=self.rapidapp, data=None)
+        
+    def on_refresh_action_activate(self, action):
+        self.setup_devices(on_startup=False, on_preference_change=False,
+                           do_not_allow_auto_start=True)
+                           
+    def on_get_help_action_activate(self, action):
+        webbrowser.open("http://www.damonlynch.net/rapid/help.html")
+        
+    def on_about_action_activate(self, action):
+        self.about.set_property("name", PROGRAM_NAME)
+        self.about.set_property("version", utilities.human_readable_version(
+                                                                __version__))
+        self.about.run()
+        self.about.destroy() 
+        
+    def on_report_problem_action_activate(self, action):
+        webbrowser.open("https://bugs.launchpad.net/rapid")
+        
+    def on_translate_action_activate(self, action):
+        webbrowser.open("http://www.damonlynch.net/rapid/translate.html")
      
+    def on_donate_action_activate(self, action):
+        webbrowser.open("http://www.damonlynch.net/rapid/donate.html")
+             
     def show_preview_image(self, unique_id, image, checked):
         if self.main_notebook.get_current_page() == 0: # thumbnails
             logger.debug("Switching to preview image display")
             self.main_notebook.set_current_page(1)
         self.preview_image.set_preview_image(unique_id, image, checked)
+        self.next_image_action.set_sensitive(True)
+        self.prev_image_action.set_sensitive(True)
         
     def update_preview_image(self, unique_id, image):
         self.preview_image.update_preview_image(unique_id, image)
@@ -1172,12 +1218,17 @@ class RapidApp(dbus.service.Object):
         logger.debug("Switching to thumbnails display")
         self.main_notebook.set_current_page(0)
         self.thumbnails.select_image(self.preview_image.unique_id)
+        self.next_image_action.set_sensitive(False)
+        self.prev_image_action.set_sensitive(False)
+        
         
     def on_next_image_action_activate(self, action):
-        self.thumbnails.show_next_image(self.preview_image.unique_id)
+        if self.preview_image.unique_id is not None:
+            self.thumbnails.show_next_image(self.preview_image.unique_id)
     
     def on_prev_image_action_activate(self, action):
-        self.thumbnails.show_prev_image(self.preview_image.unique_id)
+        if self.preview_image.unique_id is not None:        
+            self.thumbnails.show_prev_image(self.preview_image.unique_id)
         
     def set_thumbnail_sort(self):
         """
@@ -1974,6 +2025,16 @@ class RapidApp(dbus.service.Object):
         self.rapid_statusbar = builder.get_object("rapid_statusbar")
         self.statusbar_context_id = self.rapid_statusbar.get_context_id("progress")
         self.device_collection_scrolledwindow = builder.get_object("device_collection_scrolledwindow")
+        self.next_image_action = builder.get_object("next_image_action")
+        self.prev_image_action = builder.get_object("prev_image_action")
+        
+        # Only enable this action when actually displaying a preview
+        self.next_image_action.set_sensitive(False)
+        self.prev_image_action.set_sensitive(False)        
+        
+        # About dialog
+        builder.add_from_file(paths.share_dir("glade3/about.ui"))
+        self.about = builder.get_object("about")
         
         builder.connect_signals(self)
         

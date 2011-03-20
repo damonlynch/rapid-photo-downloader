@@ -21,6 +21,7 @@ import os
 import gio
 import gtk
 from PIL import Image
+import distutils.version
 
 def get_full_path(path):
     """ make path relative to home directory if not an absolute path """
@@ -136,3 +137,14 @@ def pixbuf_to_image(pb):
         image = image.convert("RGBA")
 
     return image
+    
+def pythonify_version(v):
+    """ makes version number a version number in distutils sense"""
+    return distutils.version.StrictVersion(v.replace( '~',''))
+    
+def human_readable_version(v):
+    """ returns a version in human readable form"""
+    v = v.replace('~a', ' alpha ')
+    v = v.replace('~b', ' beta ')
+    return v
+        

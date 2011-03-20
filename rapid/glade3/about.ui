@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <requires lib="gtk+" version="2.24"/>
+  <!-- interface-naming-policy project-wide -->
+  <object class="GtkAboutDialog" id="about">
+    <property name="can_focus">False</property>
+    <property name="border_width">5</property>
+    <property name="destroy_with_parent">True</property>
+    <property name="icon">rapid-photo-downloader.svg</property>
+    <property name="type_hint">dialog</property>
+    <property name="program_name">Rapid Photo Downloader</property>
+    <property name="copyright" translatable="yes">Copyright Damon Lynch 2007-11</property>
+    <property name="comments" translatable="yes">Import your photos and videos efficiently and reliably</property>
+    <property name="website">http://www.damonlynch.net/rapid</property>
+    <property name="license" translatable="yes">Rapid Photo Downloader is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.
+
+Rapid Photo Downloader is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License along with Rapid Photo Downloader; if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.</property>
+    <property name="authors">Damon Lynch &lt;damonlynch@gmail.com&gt;</property>
+    <property name="translator_credits" translatable="yes">Anton Alyab'ev &lt;subeditor@dolgopa.org&gt;
+Lőrincz András &lt;level.andrasnak@gmail.com&gt;
+Michel Ange &lt;michelange@wanadoo.fr&gt;
+Alain J. Baudrez &lt;a.baudrez@gmail.com&gt;
+Martin Dahl Moe
+Martin Egger &lt;martin.egger@gmx.net&gt;
+Miroslav Matejaš &lt;silverspace@ubuntu-hr.org&gt;
+Nicolás M. Zahlut &lt;nzahlut@live.com&gt;
+Erik M
+Jose Luis Navarro &lt;jlnavarro111@gmail.com&gt;
+Tomas Novak &lt;kuvaly@seznam.cz&gt;
+Abel O'Rian &lt;abel.orian@gmail.com&gt;
+Balazs Oveges &lt;ovegesb@freemail.hu&gt;
+Daniel Paessler &lt;daniel@paessler.org&gt;
+Miloš Popović &lt;gpopac@gmail.com&gt;
+Michal Predotka &lt;mpredotka@googlemail.com&gt;
+Ye Qing &lt;allen19920930@gmail.com&gt;
+Luca Reverberi &lt;thereve@gmail.com&gt;
+Mikko Ruohola &lt;polarfox@polarfox.net&gt;
+Sergiy Gavrylov &lt;sergiovana@bigmir.net&gt;
+Sergei Sedov &lt;sedov@webmail.perm.ru&gt;
+Marco Solari &lt;marcosolari@gmail.com&gt;
+Toni Lähdekorpi &lt;toni@lygon.net&gt;
+Ulf Urdén &lt;ulf.urden@purplescout.com&gt;
+Julien Valroff &lt;julien@kirya.net&gt;
+Aron Xu &lt;happyaron.xu@gmail.com&gt;
+梁其学 &lt;yalongbay@gmail.com&gt;</property>
+    <property name="logo">rapid-photo-downloader.svg</property>
+    <property name="wrap_license">True</property>
+    <child internal-child="vbox">
+      <object class="GtkVBox" id="dialog-vbox1">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="spacing">2</property>
+        <child internal-child="action_area">
+          <object class="GtkHButtonBox" id="dialog-action_area1">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="layout_style">end</property>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="pack_type">end</property>
+            <property name="position">0</property>
+          </packing>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+      </object>
+    </child>
+  </object>
+</interface>
