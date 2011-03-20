@@ -9,16 +9,16 @@
     <property name="icon">rapid-photo-downloader.svg</property>
     <property name="type_hint">dialog</property>
     <property name="program_name">Rapid Photo Downloader</property>
-    <property name="copyright" translatable="yes">Copyright Damon Lynch 2007-11</property>
+    <property name="copyright">Copyright Damon Lynch 2007-11</property>
     <property name="comments" translatable="yes">Import your photos and videos efficiently and reliably</property>
     <property name="website">http://www.damonlynch.net/rapid</property>
-    <property name="license" translatable="yes">Rapid Photo Downloader is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.
+    <property name="license">Rapid Photo Downloader is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.
 
 Rapid Photo Downloader is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License along with Rapid Photo Downloader; if not, write to the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301, USA.</property>
     <property name="authors">Damon Lynch &lt;damonlynch@gmail.com&gt;</property>
-    <property name="translator_credits" translatable="yes">Anton Alyab'ev &lt;subeditor@dolgopa.org&gt;
+    <property name="translator_credits">Anton Alyab'ev &lt;subeditor@dolgopa.org&gt;
 Lőrincz András &lt;level.andrasnak@gmail.com&gt;
 Michel Ange &lt;michelange@wanadoo.fr&gt;
 Alain J. Baudrez &lt;a.baudrez@gmail.com&gt;

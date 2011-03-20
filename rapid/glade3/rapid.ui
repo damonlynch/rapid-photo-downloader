@@ -128,6 +128,7 @@
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="related_action">refresh_action</property>
+                        <property name="use_underline">True</property>
                         <property name="use_stock">True</property>
                         <accelerator key="r" signal="activate" modifiers="GDK_CONTROL_MASK"/>
                       </object>
@@ -251,8 +252,8 @@
                         <property name="use_action_appearance">False</property>
                         <property name="use_underline">True</property>
                         <property name="use_stock">True</property>
-                        <accelerator key="plus" signal="activate" modifiers="GDK_CONTROL_MASK"/>
                         <accelerator key="equal" signal="activate" modifiers="GDK_CONTROL_MASK"/>
+                        <accelerator key="plus" signal="activate" modifiers="GDK_CONTROL_MASK"/>
                       </object>
                     </child>
                     <child>
@@ -332,6 +333,7 @@
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="related_action">get_help_action</property>
+                        <property name="use_underline">True</property>
                         <property name="use_stock">True</property>
                         <accelerator key="F1" signal="activate"/>
                       </object>
@@ -535,7 +537,7 @@
                       <object class="GtkLabel" id="label1">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="label" translatable="yes">page 1</property>
+                        <property name="label">page 1</property>
                       </object>
                       <packing>
                         <property name="tab_fill">False</property>
@@ -698,7 +700,7 @@
                       <object class="GtkLabel" id="label2">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="label" translatable="yes">page 2</property>
+                        <property name="label">page 2</property>
                       </object>
                       <packing>
                         <property name="position">1</property>
@@ -712,7 +714,7 @@
                       <object class="GtkLabel" id="label3">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="label" translatable="yes">page 3</property>
+                        <property name="label">page 3</property>
                       </object>
                       <packing>
                         <property name="position">2</property>
@@ -870,7 +872,7 @@
                       <object class="GtkLabel" id="speed_label">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="label" translatable="yes">      </property>
+                        <property name="label">      </property>
                         <property name="width_chars">9</property>
                       </object>
                       <packing>

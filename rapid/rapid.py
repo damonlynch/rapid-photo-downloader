@@ -1162,6 +1162,7 @@ class RapidApp(dbus.service.Object):
         # Setup various widgets
         self._setup_buttons()
         self._setup_error_icons()
+        self._setup_icons()
             
         # Show the main window
         self.rapidapp.show()
@@ -2050,7 +2051,10 @@ class RapidApp(dbus.service.Object):
             
         #~ elif key == 'job_codes':
             #~ # update job code list in left pane
-            #~ self.selection_vbox.update_job_code_combo()       
+            #~ self.selection_vbox.update_job_code_combo()
+            
+        elif key in ['download_folder', 'video_download_folder']:
+            self.display_free_space()
     
     def post_preference_change(self):
         if self.rerun_setup_available_image_and_video_media:
@@ -2191,7 +2195,12 @@ class RapidApp(dbus.service.Object):
         prev_image_button = self.builder.get_object("prev_image_button")
         image = gtk.image_new_from_stock(gtk.STOCK_GO_BACK, gtk.ICON_SIZE_BUTTON)
         prev_image_button.set_image(image)
-        
+    
+    def _setup_icons(self):
+        icons = ['rapid-photo-downloader-jobcode',]
+        icon_list = [(icon, paths.share_dir('glade3/%s.svg' % icon)) for icon in icons]        
+        register_iconsets(icon_list)
+    
     def _setup_error_icons(self):
         """
         hide display of warning and error symbols in the taskbar until they
@@ -2215,9 +2224,8 @@ class RapidApp(dbus.service.Object):
         Displays the amount of space free on the filesystem the files will be 
         downloaded to.
         
-        Also displays backup volumes / path being used.
+        Also displays backup volumes / path being used. (NOT IMPLEMENTED YET)
         """
-        msg = ''
         photo_dir = self.is_valid_download_dir(self.prefs.download_folder)
         video_dir = self.is_valid_download_dir(self.prefs.video_download_folder)
         if photo_dir and video_dir:
@@ -2232,6 +2240,9 @@ class RapidApp(dbus.service.Object):
         if video_dir and not same_file_system:
             dirs.append((self.prefs.video_download_folder, _("videos")))
         
+        if len(dirs) > 1:
+            msg = ' ' + _('Free space:') + ' '
+            
         for i in range(len(dirs)):
             dir_info = dirs[i]
             folder = gio.File(dir_info[0])
@@ -2246,18 +2257,23 @@ class RapidApp(dbus.service.Object):
 
                 #Freespace available on the filesystem for downloading to
                 #Displayed in status bar message on main window                
-                msg += _("%(free)s available %(file_type)s") % {'free': free, 'file_type': file_type}
+                msg += _("%(free)s %(file_type)s") % {'free': free, 'file_type': file_type}
                 if i == 0:
                     #Inserted in the middle of the statusbar message concerning the amount of freespace
                     #Used to differentiate between two different file systems
-                    #e.g. 21.3GB available (photos); 14.7GB available (videos)
+                    #e.g. Free space: 21.3GB (photos); 14.7GB (videos).
                     msg += _("; ")
+                else:
+                    #Inserted at the end of the statusbar message concerning the amount of freespace
+                    #Used to differentiate between two different file systems
+                    #e.g. Free space: 21.3GB (photos); 14.7GB (videos).                    
+                    msg += _(".")
                 
             else:
                 #Freespace available on the filesystem for downloading to
                 #Displayed in status bar message on main window
                 #e.g. 14.7GB available
-                msg = _("%(free)s available") % {'free': free}
+                msg = " " + _("%(free)s free") % {'free': free}
         
             
         if self.prefs.backup_images and False: #FIXME: skip this for now!
@@ -2272,7 +2288,7 @@ class RapidApp(dbus.service.Object):
             else:
                 msg = msg2
         
-        msg = msg.strip()
+        msg = msg.rstrip()
             
         self.statusbar_message(msg)
     
