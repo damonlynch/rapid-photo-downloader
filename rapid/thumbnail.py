@@ -32,7 +32,7 @@ import tempfile
 import subprocess
 
 import rpdfile
-import common
+
 import rpdmultiprocessing as rpdmp
 from utilities import image_to_pixbuf, pixbuf_to_image
 import pyexiv2

@@ -19,9 +19,7 @@
 
 import sys
 import types
-from common import Configi18n
-global _
-_ = Configi18n._
+from gettext import gettext as _
 
 
 # components

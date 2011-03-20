@@ -26,7 +26,6 @@ logger = multiprocessing.get_logger()
 import pyexiv2
 
 import paths
-import common
 
 from gettext import gettext as _
 

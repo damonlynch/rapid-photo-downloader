@@ -1,5 +1,5 @@
 #!/usr/bin/python
 
-import rapid.prototype
+import rapid.rapid
 
-rapid.prototype.start ()
+rapid.rapid.start()
