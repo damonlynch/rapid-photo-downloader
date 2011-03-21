@@ -11,7 +11,8 @@ multiple CPU cores if they are available.
 Rapid Photo Downloader now requires version 0.3.0 or newer of pyexiv2. It also
 requries Python Imaging (PIL) to run. It will only run on recent Linux
 distributions such as Ubuntu 10.04 or newer. It has been tested on Ubuntu 10.04,
-10.10 and 11.04, as well as Fedora 14.
+10.10 and 11.04, as well as Fedora 14. (There is currently an unusual bug 
+adjusting some preferences when running Ubuntu 11.04. See bug #739021).
 
 This is an alpha release because it is missing features that are present in 
 version 0.3.5. Missing features include:
@@ -20,17 +21,20 @@ version 0.3.5. Missing features include:
 * Job Codes
 * Backups as you download
 * Automation features, e.g. automatically start download at startup
-* Error log window
+* Error log window (currently you must check the command line for error output)
 * Time remaining status messages
 * Synchronize RAW + JPEG Sequence Numbers
 * Add unique identifier if file already exists
+* Sample file names and subfolders are not displayed in the preferences window
 
-These will be added in subsequent alpha and beta releases.
+These missing features will be added in subsequent alpha and beta releases.
 
 Kaa-metadata is no longer required to download videos. However, if you 
 want to use Frames Per Second or Codec metadata information in subfolder or
 video file names, you must ensure it is installed. This is no longer checked at 
 program startup. 
+
+Thanks go to Robert Park for refreshing the tranlsations code.
  
 
 Version 0.3.5
