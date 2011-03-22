@@ -385,9 +385,9 @@ def format_pref_list_for_pretty_print(pref_list):
             c = ''
         s = "%s%s " % (pref_list[i], c) 
         
-        if self.prefList[i+1]:
+        if pref_list[i+1]:
             s = "%s%s" % (s, pref_list[i+1])
-        if self.prefList[i+2]:
+        if pref_list[i+2]:
             s = "%s (%s)" % (s, pref_list[i+2])
         v += s + "\n"
     return v

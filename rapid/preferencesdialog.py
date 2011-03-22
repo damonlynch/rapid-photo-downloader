@@ -27,6 +27,7 @@ import logging
 logger = multiprocessing.get_logger()
 
 import ValidatedEntry
+import misc
 
 import config
 import paths
@@ -136,7 +137,7 @@ def _check_pref_valid(pref_defn, prefs):
                     raise gn.PrefKeyValue((value, next_pref_defn))
                 return True
     else:
-        raise gn.PrefKeyError((key, pref_defn[ORDER_KEY]))
+        raise PrefKeyError((key, pref_defn[ORDER_KEY]))
 
 
 def filter_subfolder_prefs(pref_list):
@@ -199,8 +200,9 @@ class Comboi18n(gtk.ComboBox):
         
 class PreferenceWidgets:
     
-    def __init__(self, default_row, pref_defn_L0, pref_list):
+    def __init__(self, default_row, default_prefs, pref_defn_L0, pref_list):
         self.default_row = default_row
+        self.default_prefs = default_prefs
         self.pref_defn_L0 = pref_defn_L0
         self.pref_list = pref_list
         
@@ -314,6 +316,7 @@ class PhotoNamePrefs(PreferenceWidgets):
     def __init__(self, pref_list):
         PreferenceWidgets.__init__(self, 
             default_row = [FILENAME, NAME_EXTENSION, ORIGINAL_CASE],
+            default_prefs = [FILENAME, NAME_EXTENSION, ORIGINAL_CASE],
             pref_defn_L0 = DICT_IMAGE_RENAME_L0,
             pref_list = pref_list)
 
@@ -321,6 +324,7 @@ class VideoNamePrefs(PreferenceWidgets):
     def __init__(self, pref_list):
         PreferenceWidgets.__init__(self,
             default_row = [FILENAME, NAME_EXTENSION, ORIGINAL_CASE],
+            default_prefs = [FILENAME, NAME_EXTENSION, ORIGINAL_CASE],
             pref_defn_L0 = DICT_VIDEO_RENAME_L0,
             pref_list = pref_list)
                 
@@ -330,10 +334,9 @@ class PhotoSubfolderPrefs(PreferenceWidgets):
         
         PreferenceWidgets.__init__(self,
             default_row = [DATE_TIME, IMAGE_DATE, LIST_DATE_TIME_L2[0]],
+            default_prefs = DEFAULT_SUBFOLDER_PREFS,
             pref_defn_L0 = DICT_SUBFOLDER_L0,
             pref_list = pref_list)
-                    
-        #~ self.defaultPrefs = DEFAULT_SUBFOLDER_PREFS
 
     def filter_preferences(self):
         filtered,  pref_list = filter_subfolder_prefs(self.pref_list)
@@ -374,10 +377,9 @@ class VideoSubfolderPrefs(PhotoSubfolderPrefs):
     def __init__(self, pref_list):
         PreferenceWidgets.__init__(self, 
             default_row = [DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[0]],
+            default_prefs = DEFAULT_VIDEO_SUBFOLDER_PREFS,
             pref_defn_L0 = DICT_VIDEO_SUBFOLDER_L0,
             pref_list = pref_list)
-                    
-        #~ self.defaultPrefs = DEFAULT_VIDEO_SUBFOLDER_PREFS
 
 class RemoveAllJobCodeDialog(gtk.Dialog):
     def __init__(self, parent_window, post_choice_callback):
@@ -463,7 +465,7 @@ class PhotoRenameTable(tpm.TablePlusMinus):
             # the preferences were invalid
             # reset them to their default
 
-            self.pref_list = self.prefs_factory.defaultPrefs
+            self.pref_list = self.prefs_factory.default_prefs
             self.get_prefs_factory()
             self.update_parentapp_prefs()
 
@@ -800,6 +802,7 @@ class PreferencesDialog(gtk.Window):
         self.builder.connect_signals(self)
         
         self.dialog = self.preferencesdialog
+        self.widget = self.dialog
         self.dialog.set_transient_for(rapidapp.rapidapp)
         self.prefs = rapidapp.prefs
         
