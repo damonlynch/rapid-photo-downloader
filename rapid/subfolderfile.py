@@ -220,6 +220,7 @@ class SubfolderFile(multiprocessing.Process):
                     except gio.Error, inst:
                         rpd_file.add_problem(None, pn.DOWNLOAD_COPYING_ERROR, {'filetype': rpd_file.title})
                         rpd_file.add_extra_detail(pn.DOWNLOAD_COPYING_ERROR_DETAIL, inst)
+                        rpd_file.status = config.STATUS_DOWNLOAD_FAILED
                         logger.error("Failed to create file %s: %s", rpd_file.download_full_file_name, inst)
                         
                     logger.debug("Finish processing file: %s", download_count)                    
@@ -234,7 +235,6 @@ class SubfolderFile(multiprocessing.Process):
                     self.downloads_today_tracker.increment_downloads_today()
                     self.downloads_today.value = self.downloads_today_tracker.get_raw_downloads_today()
                     self.downloads_today_date.value = self.downloads_today_tracker.get_raw_downloads_today_date()
-                    #~ self.downloads_today_tracker.log_vals()
                 
                 if not move_succeeded:
                     logger.error("%s: %s - %s", rpd_file.full_file_name, 

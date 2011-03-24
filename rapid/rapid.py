@@ -92,6 +92,8 @@ from config import  STATUS_CANNOT_DOWNLOAD, STATUS_DOWNLOADED, \
                     STATUS_NOT_DOWNLOADED, \
                     STATUS_DOWNLOAD_AND_BACKUP_FAILED, \
                     STATUS_WARNING
+                    
+DOWNLOADED = [STATUS_DOWNLOADED, STATUS_DOWNLOADED_WITH_WARNING, STATUS_BACKUP_PROBLEM]
 
 #Translators: if neccessary, for guidance in how to translate this program, you may see http://damonlynch.net/translate.html 
 PROGRAM_NAME = _('Rapid Photo Downloader')
@@ -380,8 +382,8 @@ class ThumbnailDisplay(gtk.IconView):
         self.thumbnail_manager = ThumbnailManager(self.thumbnail_results, self.batch_size)
         self.preview_manager = PreviewManager(self.preview_results)
         
-        self.treerow_index = {}
-        self.process_index = {}
+        self.treerow_index = {} 
+        self.process_index = {} 
         
         self.rpd_files = {}
         
@@ -547,9 +549,9 @@ class ThumbnailDisplay(gtk.IconView):
         treerowref = gtk.TreeRowReference(self.liststore, path)
         
         if scan_pid in self.process_index:
-            self.process_index[scan_pid].append(rpd_file)
+            self.process_index[scan_pid].append(unique_id)
         else:
-            self.process_index[scan_pid] = [rpd_file,]
+            self.process_index[scan_pid] = [unique_id,]
             
         self.treerow_index[unique_id] = treerowref
         self.rpd_files[unique_id] = rpd_file
@@ -574,7 +576,12 @@ class ThumbnailDisplay(gtk.IconView):
     
     def _get_preview(self, unique_id, rpd_file):
         if unique_id not in self.previews_being_fetched:
-            self.preview_manager.get_preview(unique_id, rpd_file.full_file_name,
+            #check if preview should be from a downloaded file, or the source
+            if rpd_file.status in DOWNLOADED:
+                file_location = rpd_file.download_full_file_name
+            else:
+                file_location = rpd_file.full_file_name
+            self.preview_manager.get_preview(unique_id, file_location,
                                             rpd_file.file_type, size_max=None,)
                                             
             self.previews_being_fetched.add(unique_id)
@@ -682,8 +689,9 @@ class ThumbnailDisplay(gtk.IconView):
         """
         for row in self.liststore:
             if row[self.SELECTED_COL]:
-                # FIXME: need to check status of file too
-                return True
+                rpd_file = self.rpd_files[row[self.UNIQUE_ID_COL]]
+                if rpd_file.status not in DOWNLOADED:
+                    return True
         return False
         
     def get_files_checked_for_download(self):
@@ -694,17 +702,32 @@ class ThumbnailDisplay(gtk.IconView):
         files = dict()
         for row in self.liststore:
             if row[self.SELECTED_COL]:
-                # FIXME: need to check status of file too
                 rpd_file = self.rpd_files[row[self.UNIQUE_ID_COL]]
-                scan_pid = rpd_file.scan_pid
-                if scan_pid in files:
-                    files[scan_pid].append(rpd_file)
-                else:
-                    files[scan_pid] = [rpd_file,]
+                if rpd_file.status not in DOWNLOADED:
+                    scan_pid = rpd_file.scan_pid
+                    if scan_pid in files:
+                        files[scan_pid].append(rpd_file)
+                    else:
+                        files[scan_pid] = [rpd_file,]
                     
         return files
                 
 
+    def mark_download_pending(self, files_by_scan_pid):
+        """
+        Sets status to download pending and updates thumbnails display
+        """
+        for scan_pid in files_by_scan_pid:
+            for rpd_file in files_by_scan_pid[scan_pid]:
+                unique_id = rpd_file.unique_id
+                self.rpd_files[unique_id].status = STATUS_DOWNLOAD_PENDING
+                iter = self.get_iter_from_unique_id(unique_id)
+                self.liststore.set_value(iter, self.CHECKBUTTON_VISIBLE_COL, False)
+                self.liststore.set_value(iter, self.SELECTED_COL, False)
+                self.liststore.set_value(iter, self.DOWNLOAD_STATUS_COL, STATUS_DOWNLOAD_PENDING)
+                icon = self.get_status_icon(STATUS_DOWNLOAD_PENDING)
+                self.liststore.set_value(iter, self.STATUS_ICON_COL, icon)
+                
     def select_image(self, unique_id):
         iter = self.get_iter_from_unique_id(unique_id)
         path = self.liststore.get_path(iter)
@@ -719,8 +742,7 @@ class ThumbnailDisplay(gtk.IconView):
             
     def update_status_post_download(self, rpd_file):
         iter = self.get_iter_from_unique_id(rpd_file.unique_id)
-        self.liststore.set_value(iter, self.CHECKBUTTON_VISIBLE_COL, False)
-        self.liststore.set_value(iter, self.SELECTED_COL, False)
+        self.liststore.set_value(iter, self.DOWNLOAD_STATUS_COL, rpd_file.status)
         icon = self.get_status_icon(rpd_file.status)
         self.liststore.set_value(iter, self.STATUS_ICON_COL, icon)
         self.rpd_files[rpd_file.unique_id] = rpd_file
@@ -728,7 +750,8 @@ class ThumbnailDisplay(gtk.IconView):
     def generate_thumbnails(self, scan_pid):
         """Initiate thumbnail generation for files scanned in one process
         """
-        self.thumbnail_manager.add_task(self.process_index[scan_pid])
+        rpd_files = [self.rpd_files[unique_id] for unique_id in self.process_index[scan_pid]]
+        self.thumbnail_manager.add_task(rpd_files)
     
     def update_thumbnail(self, thumbnail_data):
         """
@@ -794,14 +817,17 @@ class ThumbnailDisplay(gtk.IconView):
             self.rapid_app.update_preview_image(unique_id, preview_image)
                     
     
-    def clear_all(self, scan_pid=None):
+    def clear_all(self, scan_pid=None, keep_downloaded_files=False):
         """
         Removes files from display and internal tracking.
         
         If scan_pid is not None, then only files matching that scan_pid will
         be removed. Otherwise, everything will be removed.
+        
+        If keep_downloaded_files is True, files will not be removed if they
+        have been downloaded.
         """
-        if scan_pid is None:
+        if scan_pid is None and not keep_downloaded_files:
             self.liststore.clear()
             self.treerow_index = {}
             self.process_index = {}
@@ -809,15 +835,17 @@ class ThumbnailDisplay(gtk.IconView):
             self.rpd_files = {}
         else:
             if scan_pid in self.process_index:
-                for rpd_file in self.process_index[scan_pid]:
-                    treerowref = self.treerow_index[rpd_file.unique_id]
-                    path = treerowref.get_path()
-                    iter = self.liststore.get_iter(path)
-                    self.liststore.remove(iter)
-                    del self.treerow_index[rpd_file.unique_id]
-                    del self.rpd_files[rpd_file.unique_id]
-                    
-                del self.process_index[scan_pid]            
+                for unique_id in self.process_index[scan_pid]:
+                    rpd_file = self.rpd_files[unique_id]
+                    if not keep_downloaded_files or not rpd_file.status in DOWNLOADED:
+                        treerowref = self.treerow_index[rpd_file.unique_id]
+                        path = treerowref.get_path()
+                        iter = self.liststore.get_iter(path)
+                        self.liststore.remove(iter)
+                        del self.treerow_index[rpd_file.unique_id]
+                        del self.rpd_files[rpd_file.unique_id]
+                if not keep_downloaded_files or not len(self.process_index[scan_pid]):
+                    del self.process_index[scan_pid]
     
 class TaskManager:
     def __init__(self, results_callback, batch_size):
@@ -1558,7 +1586,8 @@ class RapidApp(dbus.service.Object):
             
             #~ if scan_pid in self.download_active_by_scan_pid:
                 #~ self._clean_temp_dirs_for_scan_pid(scan_pid)
-            self.thumbnails.clear_all(scan_pid)
+            self.thumbnails.clear_all(scan_pid = scan_pid, 
+                                      keep_downloaded_files = True)
             self.device_collection.remove_device(scan_pid)
             
                 
@@ -1757,6 +1786,7 @@ class RapidApp(dbus.service.Object):
         #FIXME: if invalid, display some kind of error message to the user
         
         if folders_valid:
+            self.thumbnails.mark_download_pending(files_by_scan_pid)
             for scan_pid in files_by_scan_pid:
                 files = files_by_scan_pid[scan_pid]
                 self.download_files(files, scan_pid)
