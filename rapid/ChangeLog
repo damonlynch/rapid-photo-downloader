@@ -1,7 +1,7 @@
 Version 0.4.0 alpha 1
 ---------------------
 
-2011-xx-xx
+2011-03-24
 
 Rapid Photo Downloader is much faster and sports a new user interface. It is
 about 50 times faster in tasks like scanning photos and videos before the 
@@ -17,14 +17,15 @@ adjusting some preferences when running Ubuntu 11.04. See bug #739021).
 This is an alpha release because it is missing features that are present in 
 version 0.3.5. Missing features include:
 
-* Notifications of download completion
+* System Notifications of download completion
 * Job Codes
 * Backups as you download
 * Automation features, e.g. automatically start download at startup
 * Error log window (currently you must check the command line for error output)
 * Time remaining status messages
 * Synchronize RAW + JPEG Sequence Numbers
-* Add unique identifier if file already exists
+* Add unique identifier to a filename if a file with the same name already 
+  exists
 * Sample file names and subfolders are not displayed in the preferences window
 
 These missing features will be added in subsequent alpha and beta releases.
@@ -40,13 +41,18 @@ Thanks go to Robert Park for refreshing the tranlsations code.
 Version 0.3.5
 -------------
 
-2011-xx-xx
+2011-03-23
 
-The primrary purpose of this release is to fix bug #714039, where under
-certain circumstances the program could crash while downloading files. 
+The primrary purpose of this release is update translations and fix bug #714039,
+where under certain circumstances the program could crash while downloading 
+files. 
 
-This is the very last release in the 0.3.x series. In version 0.4, Rapid Photo 
-Downloader is much faster and sports a new user interface.
+This is intended to be the last release in the 0.3.x series. In the upcoming 
+version 0.4.0, Rapid Photo Downloader is much faster and sports a new user 
+interface.
+
+Added Romanian translation. Updated Brazilian, Chinese, Croatian, Czech, Dutch, 
+Finnish, German, Italian, Polish and Russian translations.
 
 
 Version 0.3.4

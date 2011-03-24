@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2010-12-28 02:49-0600\n"
-"PO-Revision-Date: 2010-12-28 16:28+0000\n"
+"PO-Revision-Date: 2010-12-31 06:58+0000\n"
 "Last-Translator: Sergey Sedov <sedov@webmail.perm.ru>\n"
 "Language-Team: Russian <ru@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2010-12-31 04:44+0000\n"
-"X-Generator: Launchpad (build 12138)\n"
+"X-Launchpad-Export-Date: 2011-03-20 22:12+0000\n"
+"X-Generator: Launchpad (build 12617)\n"
 
 #. Translators: if neccessary, for guidance in how to translate this program, you may see http://damonlynch.net/translate.html
 #: rapid/rapid.py:124 rapid/rapid.py:6468 rapid/glade3/rapid.glade.h:71
@@ -2520,6 +2520,10 @@ msgstr "_Просмотр"
 #, python-format
 #~ msgid "Could not open %(filetype)s"
 #~ msgstr "Невозможно открыть %(filetype)s"
+
+#, python-format
+#~ msgid "Could not open %s(filetype)s"
+#~ msgstr "Невозможно открыть %s(filetype)s"
 
 #, python-format
 #~ msgid "%s metadata is not present in video"

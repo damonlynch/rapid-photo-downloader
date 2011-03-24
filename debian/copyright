@@ -1,51 +1,40 @@
-This package was debianized by Damon Lynch <damonlynch@gmail.com>
-2009-01-21
+Format-Specification: http://svn.debian.org/wsvn/dep/web/deps/dep5.mdwn?op=file&rev=135
+Name: rapid-photo-downloader
+Maintainer: Damon Lynch <damonlynch@gmail.com>
+Source: https://launchpad.net/rapid
 
-It was downloaded from: https://launchpad.net/rapid
+Files: *
+Copyright: 2007-2011 Damon Lynch <damonlynch@gmail.com>
+License: GPL-2+
+ On Debian systems the full text of the GNU Lesser General Public
+ License can be found in the `/usr/share/common-licenses/GPL'
+ file.
 
-Upstream Author: Damon Lynch 
+Files: rapid/ValidatedEntry.py
+Copyright: 2006 Daniel J. Popowich <dpopowich@astro.umass.edu>
+License: other
+ Permission is hereby granted, free of charge, to any person
+ obtaining a copy of this software and associated documentation files
+ (the "Software"), to deal in the Software without restriction,
+ including without limitation the rights to use, copy, modify, merge,
+ publish, distribute, sublicense, and/or sell copies of the Software,
+ and to permit persons to whom the Software is furnished to do so,
+ subject to the following conditions:
+ . 
+ The above copyright notice and this permission notice shall be
+ included in all copies or substantial portions of the Software.
 
-Copyright:
-        Copyright (C) 2007,2008,2009,2010 by Damon Lynch
-        
-        * rapid/ValidatedEntry.py
-            Copyright (c) 2006 by Daniel J. Popowich
-            
-        * rapid/gnomeglade.py
-            Based on gnomeglade.py Copyright (C) 2002-2006 Stephen Kennedy
-            <stevek@gnome.org>
-            
-        * rapid/idletube.py
-            Copyright (c) 2005 Antoon Pardon    
-            
-        * rapid/misc.py
-            Based on misc.py Copyright (C) 2002-2006 Stephen Kennedy
-            
-        * rapid/prefs.py
-            Based on prefs.py Copyright (C) 2002-2006 Stephen Kennedy
-            
-        * rapid/idletube.py
-            Based on idletube.py Copyright (C) 2005 Antoon Pardon
+Files: rapid/gnomeglade.py, rapid/misc.py, rapid/prefs.py, rapid/paths.py
+Copyright: 2002-2006 Stephen Kennedy <stevek@gnome.org>
+License: GPL-2+
+ On Debian systems the full text of the GNU Lesser General Public
+ License can be found in the `/usr/share/common-licenses/GPL'
+ file.
 
-License:
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2, or (at your option)
-any later version.
-
-This program is distributed in the hope that it will be useful, but
-WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-General Public License for more details.
-
-You should have received a copy of the GNU General Public License with
-your Debian GNU system, in /usr/share/common-licenses/GPL, or with the
-Debian GNU hello source package as the file COPYING.  If not, write to
-the Free Software Foundation, Inc., 51 Franklin Street, Fifth Floor,
-Boston, MA 02110-1301 USA.
-
-Packaging:
-        Copyright (C) 2009 by Damon Lynch
-        released under the GPL.
-
+Files: debian/*
+Copyright: 2009-2011 Damon Lynch <damonlynch@gmail.com>
+           2009-2010 Julien Valroff <julien@kirya.net>
+License: GPL-2+.
+ On Debian systems the full text of the GNU Lesser General Public
+ License can be found in the `/usr/share/common-licenses/GPL'
+ file.

@@ -2039,6 +2039,8 @@ class RapidApp(dbus.service.Object):
         self.uses_session_sequece_no_value = Value(c_bool, self.prefs.any_pref_uses_session_sequece_no())
         self.uses_sequence_letter_value = Value(c_bool, self.prefs.any_pref_uses_sequence_letter_value())
         
+        self.prefs.program_version = __version__
+        
     def _check_for_sequence_value_use(self):
         self.uses_stored_sequence_no_value.value = self.prefs.any_pref_uses_stored_sequence_no()
         self.uses_session_sequece_no_value.value = self.prefs.any_pref_uses_session_sequece_no()

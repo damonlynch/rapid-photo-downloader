@@ -2,31 +2,30 @@ Source: rapid-photo-downloader
 Section: graphics
 Priority: optional
 Maintainer: Damon Lynch <damonlynch@gmail.com>
-Build-Depends: cdbs (>= 0.4.49),
-               debhelper (>= 5.0.38),
-               python-central (>= 0.5.6),
-               perl
-XS-Python-Version: >= 2.5, << 2.7
-Standards-Version: 3.7.2
+Build-Depends: debhelper (>= 7.0.50~),
+               python
+Build-Depends-Indep: python-support (>= 0.90),
+                     gettext
+X-Python-Version: >= 2.6
+Standards-Version: 3.9.1
 Homepage: http://damonlynch.net/rapid
 
 Package: rapid-photo-downloader
 Architecture: all
-XB-Python-Version: ${python:Versions}
 Depends: ${python:Depends},
          ${misc:Depends}, 
-         python-gnome2,
-         python-gtk2 (>= 2.12),
-         python-glade2 (>= 2.10),
-         python-pyexiv2 (>= 0.1.1),
-         python-notify,
-         python-imaging,
-         librsvg2-common,
+         python-gnome2 (>= 2.28),
+         python-gtk2 (>= 2.17),
+         python-gconf (>= 2.28),
+         python-pyexiv2 (>= 0.3.0),
+         python-notify (>=0.1.1),
+         python-imaging (>=1.1.7),
+         librsvg2-common (>=2.26),
          python-hachoir-metadata,
          python-kaa-metadata,
          ffmpegthumbnailer,
-         gnome-icon-theme,
-         exiv2
+         gnome-icon-theme
+XB-Python-Version: ${python:Versions}
 Description: Photo and video importer from cameras, memory cards and other devices
  Rapid Photo Downloader is written by a photographer for professional and
  amateur photographers. It can  download photos and videos from multiple

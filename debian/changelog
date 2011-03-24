@@ -1,3 +1,18 @@
+rapid-photo-downloader (0.4.0~a1-0ubuntu1~ppa1) lucid; urgency=low
+
+  * First development release of the 0.4.x series, using python
+    multiprocessing and a new user interface
+
+ -- Damon Lynch <damonlynch@gmail.com>  Thu, 24 Mar 2011 01:42:51 -0500
+
+rapid-photo-downloader (0.3.5-0ubuntu1~ppa1) hardy; urgency=low
+
+  * Update translations
+
+  * Fixed #714039: fix crash when downloading files
+
+ -- Damon Lynch <damonlynch@gmail.com>  Wed, 23 Mar 2011 23:04:31 -0500
+
 rapid-photo-downloader (0.3.4-0ubuntu1~ppa1) hardy; urgency=low
 
   * Enable zooming in and out of preview image.
