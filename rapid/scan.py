@@ -93,7 +93,7 @@ class Scan(multiprocessing.Process):
             if not self.terminate_queue.empty():
                 x = self.terminate_queue.get()
                 # terminate immediately
-                print "terminating..."
+                logger.info("terminating scan...")
                 self.files = []
                 return None
 

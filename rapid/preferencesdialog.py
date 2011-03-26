@@ -22,6 +22,7 @@ import datetime
 
 import gtk
 
+import datetime
 import multiprocessing
 import logging
 logger = multiprocessing.get_logger()
@@ -31,6 +32,7 @@ import misc
 
 import config
 import paths
+import rpdfile
 import higdefaults as hd
 import metadataphoto
 import metadatavideo
@@ -42,7 +44,7 @@ import generatename as gn
 from generatenameconfig import *
 import problemnotification as pn
 
-from prefsrapid import format_pref_list_for_pretty_print
+from prefsrapid import format_pref_list_for_pretty_print, DownloadsTodayTracker
 
 from gettext import gettext as _
 
@@ -449,8 +451,7 @@ class PhotoRenameTable(tpm.TablePlusMinus):
 
 
         self.get_preferencesdialog_prefs()
-        self.get_prefs_factory()
-        #~ self.prefs_factory.setDownloadStartTime(datetime.datetime.now())
+        self.setup_prefs_factory()
         
         try:
             self.prefs_factory.check_prefs_for_validity()
@@ -466,7 +467,7 @@ class PhotoRenameTable(tpm.TablePlusMinus):
             # reset them to their default
 
             self.pref_list = self.prefs_factory.default_prefs
-            self.get_prefs_factory()
+            self.setup_prefs_factory()
             self.update_parentapp_prefs()
 
             msg = "%s.\n" % e
@@ -535,7 +536,7 @@ class PhotoRenameTable(tpm.TablePlusMinus):
         self.pref_list = self.preferencesdialog.prefs.image_rename
         
     
-    def get_prefs_factory(self):
+    def setup_prefs_factory(self):
         self.prefs_factory = PhotoNamePrefs(self.pref_list)
         
     def update_parentapp_prefs(self):
@@ -548,7 +549,7 @@ class PhotoRenameTable(tpm.TablePlusMinus):
         #~ self.prefs_factory.setJobCode(job_code)
         
     def update_example(self):
-        self.preferencesdialog.update_image_rename_example()
+        self.preferencesdialog.update_photo_rename_example()
     
     def get_default_row(self):
         return self.prefs_factory.get_default_row()
@@ -618,7 +619,7 @@ class VideoRenameTable(PhotoRenameTable):
     def get_preferencesdialog_prefs(self):
         self.pref_list = self.preferencesdialog.prefs.video_rename
     
-    def get_prefs_factory(self):
+    def setup_prefs_factory(self):
         self.prefs_factory = VideoNamePrefs(self.pref_list)
         
     def update_parentapp_prefs(self):
@@ -639,7 +640,7 @@ class SubfolderTable(PhotoRenameTable):
     def get_preferencesdialog_prefs(self):
         self.pref_list = self.preferencesdialog.prefs.subfolder
     
-    def get_prefs_factory(self):
+    def setup_prefs_factory(self):
         self.prefs_factory = PhotoSubfolderPrefs(self.pref_list)
         
     def update_parentapp_prefs(self):
@@ -656,7 +657,7 @@ class VideoSubfolderTable(PhotoRenameTable):
     def get_preferencesdialog_prefs(self):
         self.pref_list = self.preferencesdialog.prefs.video_subfolder
     
-    def get_prefs_factory(self):
+    def setup_prefs_factory(self):
         self.prefs_factory = VideoSubfolderPrefs(self.pref_list)
         
     def update_parentapp_prefs(self):
@@ -808,6 +809,8 @@ class PreferencesDialog(gtk.Window):
         
         rapidapp.preferences_dialog_displayed = True
         
+        self.pref_dialog_startup = True
+        
         self.rapidapp = rapidapp
 
         self._setup_tab_selector()
@@ -819,31 +822,7 @@ class PreferencesDialog(gtk.Window):
         else:
             self.file_types = _("photos")
 
-        # get example photo and video data
-        #~ try:
-        #~ w = workers.firstWorkerReadyToDownload()
-        #~ mediaFile = w.firstImage() 
-        #~ self.sample_image_name = mediaFile.name
-        #~ # assume the metadata is already read
-        #~ self.sample_image = mediaFile.metadata
-        #~ except:
-        self.sample_image = metadataphoto.DummyMetaData()
-        self.sample_image_name = 'IMG_0524.CR2'
-        
-        if not metadatavideo.DOWNLOAD_VIDEO:
-            self.sample_video = None
-            self.sample_video_name = ''
-        else:
-            #~ try:
-            #~ mediaFile = w.firstVideo()
-            #~ self.sample_video_name = mediaFile.name
-            #~ self.sample_video = mediaFile.metadata
-            #~ self.videoFallBackDate = mediaFile.modificationTime
-            #~ except:
-            self.sample_video = metadatavideo.DummyMetaData()
-            self.sample_video_name = 'MVI_1379.MOV'
-            #~ self.videoFallBackDate = datetime.datetime.now()
-            
+        self._setup_sample_names()
         
         # setup tabs
         self._setup_photo_download_folder_tab()
@@ -875,6 +854,8 @@ class PreferencesDialog(gtk.Window):
         self.rename_scrolledwindow.set_size_request(self.rename_table.allocation.width + extra,   -1)
 
         self.dialog.show()
+        
+        self.pref_dialog_startup = False
 
     def __getattr__(self, key):
         """Allow builder widgets to be accessed as self.widgetname
@@ -887,7 +868,7 @@ class PreferencesDialog(gtk.Window):
         
     def on_preferencesdialog_destroy(self,  widget):
         """ Delete variables from memory that cause a file descriptor to be created on a mounted media"""
-        del self.sample_image, self.rename_table.prefs_factory, self.subfolder_table.prefs_factory
+        logger.debug("Preference window closing")
         
     def _setup_tab_selector(self):
         self.notebook.set_show_tabs(0)
@@ -922,7 +903,49 @@ class PreferencesDialog(gtk.Window):
         
     def on_device_location_filechooser_button_selection_changed(self, widget):
         self.prefs.device_location = widget.get_current_folder()
+    
+    def _setup_sample_names(self, use_dummy_data = False):
+        """
+        If use_dummy_data is True, then samples will not attempt to get
+        data from actual download files
+        """
+        self.downloads_today_tracker = DownloadsTodayTracker(
+                                    day_start = self.prefs.day_start,
+                                    downloads_today = self.prefs.downloads_today[1],
+                                    downloads_today_date = self.prefs.downloads_today[0])
+        self.sequences = gn.Sequences(self.downloads_today_tracker, 
+                                      self.prefs.stored_sequence_no)
+                                      
+        # get example photo and video data
+        if use_dummy_data:
+            self.sample_photo = None
+        else:
+            self.sample_photo = self.rapidapp.thumbnails.get_sample_file(rpdfile.FILE_TYPE_PHOTO)
+            if self.sample_photo is not None:
+                # try to load metadata from the file returned
+                # if it fails, give up with this sample file
+                if not self.sample_photo.load_metadata():
+                    self.sample_photo = None
+                else:
+                    self.sample_photo.sequences = self.sequences
+                    self.sample_photo.download_start_time = datetime.datetime.now()
+                
+        if self.sample_photo is None:
+            self.sample_photo = rpdfile.SamplePhoto(sequences=self.sequences)
         
+        self.sample_video = None
+        if metadatavideo.DOWNLOAD_VIDEO:
+            if not use_dummy_data:
+                self.sample_video = self.rapidapp.thumbnails.get_sample_file(rpdfile.FILE_TYPE_VIDEO)
+                if self.sample_video is not None:
+                    self.sample_video.load_metadata()
+                    self.sample_video.sequences = self.sequences
+                    self.sample_video.download_start_time = datetime.datetime.now()                
+            if self.sample_video is None:
+                self.sample_video = rpdfile.SampleVideo(sequences=self.sequences)
+
+
+    
     def _setup_control_spacing(self):
         """
         set spacing of some but not all controls
@@ -1002,16 +1025,25 @@ class PreferencesDialog(gtk.Window):
         self.rename_table = PhotoRenameTable(self, self.rename_scrolledwindow)
         self.rename_table_vbox.pack_start(self.rename_table)
         self.rename_table.show_all()
-        self.original_name_label.set_markup("<i>%s</i>" % self.sample_image_name)
-        self.update_image_rename_example()
-        
+        self._setup_photo_original_name()
+        self.update_photo_rename_example()
+
+    def _setup_photo_original_name(self):
+        self.original_name_label.set_markup("<i>%s</i>" % self.sample_photo.display_name)
+    
     def _setup_video_rename_tab(self):
 
         self.video_rename_table = VideoRenameTable(self, self.video_rename_scrolledwindow)
         self.video_rename_table_vbox.pack_start(self.video_rename_table)
         self.video_rename_table.show_all()
-        self.video_original_name_label.set_markup("<i>%s</i>" % self.sample_video_name)
+        self._setup_video_original_name()
         self.update_video_rename_example()
+        
+    def _setup_video_original_name(self):
+        if self.sample_video is not None:
+            self.video_original_name_label.set_markup("<i>%s</i>" % self.sample_video.display_name)
+        else:
+            self.video_original_name_label.set_markup("")        
                 
     def _setup_rename_options_tab(self):
         
@@ -1154,77 +1186,100 @@ class PreferencesDialog(gtk.Window):
             self.backup_duplicate_skip_radiobutton.set_active(True)
 
     
-    def update_example_file_name(self, display_table, rename_table, sample, sampleName, example_label, fallback_date = None):
-        problem = pn.Problem()
-        name = 'file.cr2'
-        #~ if hasattr(self, display_table):
-            #~ rename_table.update_example_job_code()
-            #~ rename_table.prefs_factory.initializeProblem(problem)
-            #~ name = rename_table.prefs_factory.generateNameUsingPreferences(
-                    #~ sample, sampleName,
-                    #~ self.prefs.strip_characters, sequencesPreliminary=False, fallback_date=fallback_date)
-        #~ else:
-            #~ name = ''
+    def update_example_file_name(self, display_table, rename_table, sample_rpd_file, generator, example_label):
+        if hasattr(self, display_table) and sample_rpd_file is not None:
+            sample_rpd_file.download_folder = self.prefs.get_download_folder_for_file_type(sample_rpd_file.file_type)
+            sample_rpd_file.strip_characters = self.prefs.strip_characters
+            sample_rpd_file.initialize_problem() 
+            name = generator.generate_name(sample_rpd_file)
+        else:
+            name = ''
             
         # since this is markup, escape it
         text = "<i>%s</i>" % utilities.escape(name)
         
-        if problem.has_problem():
-            text += "\n"
-            # Translators: please do not modify or leave out html formatting tags like <i> and <b>. These are used to format the text the users sees
-            text += _("<i><b>Warning:</b> There is insufficient metadata to fully generate the name. Please use other renaming options.</i>")
+        if sample_rpd_file is not None:
+            if sample_rpd_file.has_problem():
+                text += "\n"
+                # Translators: please do not modify or leave out html formatting tags like <i> and <b>. These are used to format the text the users sees
+                text += _("<i><b>Warning:</b> There is insufficient metadata to fully generate the name. Please use other renaming options.</i>")
 
         example_label.set_markup(text)        
     
-    def update_image_rename_example(self):
+    def update_photo_rename_example(self):
         """ 
         Displays example image name to the user 
         """
-        self.update_example_file_name('rename_table', self.rename_table, self.sample_image,  self.sample_image_name, self.new_name_label)
+        generator = gn.PhotoName(self.prefs.image_rename)
+        self.update_example_file_name('rename_table', self.rename_table, 
+                                      self.sample_photo, generator, 
+                                      self.new_name_label)
 
         
     def update_video_rename_example(self):
         """
         Displays example video name to the user
         """
-        self.update_example_file_name('video_rename_table', self.video_rename_table, self.sample_video,  self.sample_video_name, self.video_new_name_label)
+        if self.sample_video is not None:
+            generator = gn.VideoName(self.prefs.video_rename)
+        else:
+            generator = None
+        self.update_example_file_name('video_rename_table', 
+                                      self.video_rename_table, 
+                                      self.sample_video, generator, 
+                                      self.video_new_name_label)
             
-    def update_download_folder_example(self, display_table, subfolder_table, download_folder, sample, sampleName, example_download_path_label, subfolder_warning_label):
+    def update_download_folder_example(self, display_table, subfolder_table, 
+                                       download_folder, sample_rpd_file, 
+                                       generator,
+                                       example_download_path_label, 
+                                       subfolder_warning_label):
         """ 
         Displays example subfolder name(s) to the user 
         """
         
-        problem = pn.Problem()
-        #~ if hasattr(self, display_table):
+        if hasattr(self, display_table) and sample_rpd_file is not None:
             #~ subfolder_table.update_example_job_code()
-            #~ subfolder_table.update_example_job_code()
-            #~ subfolder_table.prefs_factory.initializeProblem(problem)
-            #~ path = subfolder_table.prefs_factory.generateNameUsingPreferences(
-                            #~ sample, sampleName,
-                            #~ self.prefs.strip_characters, fallback_date = fallback_date)
-        #~ else:
-            #~ path = ''
+            sample_rpd_file.strip_characters = self.prefs.strip_characters
+            sample_rpd_file.initialize_problem()
+            path = generator.generate_name(sample_rpd_file)
+        else:
+            path = ''
             
-        path = 'sample'
-        
         text = os.path.join(download_folder, path)
         # since this is markup, escape it
         path = utilities.escape(text)
-        if problem.has_problem():
-            warning = _("<i><b>Warning:</b> There is insufficient metadata to fully generate subfolders. Please use other subfolder naming options.</i>" )
-        else:
-            warning = ""
+
+        warning = ""
+        if sample_rpd_file is not None:
+            if sample_rpd_file.has_problem():
+                warning = _("<i><b>Warning:</b> There is insufficient metadata to fully generate subfolders. Please use other subfolder naming options.</i>" )
+
         # Translators: you should not modify or leave out the %s. This is a code used by the programming language python to insert a value that thes user will see
         example_download_path_label.set_markup(_("<i>Example: %s</i>") % text)
         subfolder_warning_label.set_markup(warning)
         
     def update_photo_download_folder_example(self):
         if hasattr(self, 'subfolder_table'):
-            self.update_download_folder_example('subfolder_table', self.subfolder_table, self.prefs.download_folder, self.sample_image, self.sample_image_name, self.example_photo_download_path_label, self.photo_subfolder_warning_label)
+            generator = gn.PhotoSubfolder(self.prefs.subfolder)
+            self.update_download_folder_example('subfolder_table', 
+                            self.subfolder_table, self.prefs.download_folder,
+                            self.sample_photo, generator, 
+                            self.example_photo_download_path_label, 
+                            self.photo_subfolder_warning_label)
         
     def update_video_download_folder_example(self):
         if hasattr(self, 'video_subfolder_table'):
-            self.update_download_folder_example('video_subfolder_table', self.video_subfolder_table, self.prefs.video_download_folder, self.sample_video, self.sample_video_name, self.example_video_download_path_label, self.video_subfolder_warning_label)
+            if self.sample_video is not None:
+                generator = gn.VideoSubfolder(self.prefs.video_subfolder)
+            else:
+                generator = None
+            self.update_download_folder_example('video_subfolder_table', 
+                        self.video_subfolder_table,
+                        self.prefs.video_download_folder,
+                        self.sample_video, generator, 
+                        self.example_video_download_path_label, 
+                        self.video_subfolder_warning_label)
         
     def on_hour_spinbutton_value_changed(self, spinbutton):
         hour = spinbutton.get_value_as_int()
@@ -1252,7 +1307,7 @@ class PreferencesDialog(gtk.Window):
                 v = 0
             self.rapidapp.downloads_today_tracker.reset_downloads_today(v)
             self.rapidapp.refresh_downloads_today = True
-            self.update_image_rename_example()
+            self.update_photo_rename_example()
         
     def on_stored_number_entry_changed(self, entry):
         # do not update value if a download is occurring - it will mess it up!        
@@ -1269,7 +1324,7 @@ class PreferencesDialog(gtk.Window):
             if v < 0:
                 v = 0
             self.prefs.stored_sequence_no = v
-            self.update_image_rename_example()
+            self.update_photo_rename_example()
 
     def _update_subfolder_pref_on_error(self, new_pref_list):
         self.prefs.subfolder = new_pref_list
@@ -1364,7 +1419,7 @@ class PreferencesDialog(gtk.Window):
                     selection.select_path((row,))
 
         self.update_job_codes()
-        self.update_image_rename_example()
+        self.update_photo_rename_example()
         self.update_video_rename_example()
         self.update_photo_download_folder_example()
         self.update_video_download_folder_example()
@@ -1377,7 +1432,7 @@ class PreferencesDialog(gtk.Window):
         if user_selected:
             self.job_code_liststore.clear()
             self.update_job_codes()
-            self.update_image_rename_example()
+            self.update_photo_rename_example()
             self.update_video_rename_example()
             self.update_photo_download_folder_example()
             self.update_video_download_folder_example()
@@ -1386,7 +1441,7 @@ class PreferencesDialog(gtk.Window):
         iter = self.job_code_liststore.get_iter(path)
         self.job_code_liststore.set_value(iter,  0,  new_text)
         self.update_job_codes()
-        self.update_image_rename_example()
+        self.update_photo_rename_example()
         self.update_video_rename_example()
         self.update_photo_download_folder_example()
         self.update_video_download_folder_example()
@@ -1447,7 +1502,7 @@ class PreferencesDialog(gtk.Window):
         
     def on_strip_characters_checkbutton_toggled(self, check_button):
         self.prefs.strip_characters = check_button.get_active()
-        self.update_image_rename_example()
+        self.update_photo_rename_example()
         self.update_photo_download_folder_example()
         self.update_video_download_folder_example()
         
@@ -1462,6 +1517,7 @@ class PreferencesDialog(gtk.Window):
         """
         Sets sensitivity of image device controls
         """
+
         controls = [self.device_location_explanation_label,
                     self.device_location_label,
                     self.device_location_filechooser_button]
@@ -1476,6 +1532,16 @@ class PreferencesDialog(gtk.Window):
                 c.set_sensitive(True)
             self.autodetect_psd_checkbutton.set_sensitive(False)
             self.autodetect_image_devices_label.set_sensitive(False)
+            
+        if not self.pref_dialog_startup:
+            logger.debug("Resetting sample file photo and video files")
+            self._setup_sample_names(use_dummy_data = True)
+            self._setup_photo_original_name()
+            self.update_photo_download_folder_example()
+            self.update_photo_rename_example()
+            self.update_video_download_folder_example()
+            self._setup_video_original_name()
+            self.update_video_rename_example()
     
     def update_misc_controls(self):
         """

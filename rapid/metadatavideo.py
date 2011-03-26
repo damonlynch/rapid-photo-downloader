@@ -41,7 +41,6 @@ try:
 except ImportError:
     DOWNLOAD_VIDEO = False
 
-
 if DOWNLOAD_VIDEO:
 
     def version_info():
@@ -174,11 +173,11 @@ class DummyMetaData():
     
     See VideoMetaData class for documentation of class methods.        
     """
-    def __init__(self):
+    def __init__(self, filename):
         pass        
     
     def date_time(self, missing=''):
-        return date_time.date_time.now()
+        return datetime.datetime.now()
         
     def codec(self, stream=0, missing=''):
         return 'H.264 AVC'

@@ -558,6 +558,16 @@ class ThumbnailDisplay(gtk.IconView):
         
         self.total_files += 1
 
+    def get_sample_file(self, file_type):
+        """Returns an rpd_file for of a given file type, or None if it does 
+        not exist"""
+        for unique_id, rpd_file in self.rpd_files.iteritems():
+            if rpd_file.file_type == file_type:
+                if rpd_file.status <> STATUS_CANNOT_DOWNLOAD:
+                    return rpd_file
+                    
+        return None
+    
     def get_unique_id_from_iter(self, iter):
         return self.liststore.get_value(iter, 2)
         
@@ -1235,7 +1245,8 @@ class RapidApp(dbus.service.Object):
         
         # FIXME: need more fine grained tuning here - must cancel large file
         # copies midstream
-        logger.info("Terminating...")
+        if terminate_file_copies:
+            logger.info("Terminating all processes...")
 
         scan_termination_requested = self.scan_manager.request_termination()        
         thumbnails_termination_requested = self.thumbnails.thumbnail_manager.request_termination()
@@ -2272,6 +2283,7 @@ class RapidApp(dbus.service.Object):
         if video_dir and not same_file_system:
             dirs.append((self.prefs.video_download_folder, _("videos")))
         
+        msg = ''
         if len(dirs) > 1:
             msg = ' ' + _('Free space:') + ' '
             

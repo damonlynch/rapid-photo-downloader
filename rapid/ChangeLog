@@ -1,3 +1,19 @@
+Version 0.4.0 alpha 2
+---------------------
+
+2011-04-xx
+
+Sample file names and subfolders are now displayed in the preferences dialog
+window.
+
+Updated INSTALL file to match new package requirements.
+
+Added program icon to main window.
+
+Bug fix: don't crash on startup when trying to display free space
+and photo or video download folders do not exist.
+
+
 Version 0.4.0 alpha 1
 ---------------------
 
@@ -35,7 +51,7 @@ want to use Frames Per Second or Codec metadata information in subfolder or
 video file names, you must ensure it is installed. This is no longer checked at 
 program startup. 
 
-Thanks go to Robert Park for refreshing the tranlsations code.
+Thanks go to Robert Park for refreshing the translations code.
  
 
 Version 0.3.5

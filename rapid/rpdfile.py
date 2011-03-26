@@ -20,6 +20,8 @@
 import os
 import gtk
 
+import time, datetime
+
 import multiprocessing, logging
 logger = multiprocessing.get_logger()
 
@@ -245,7 +247,6 @@ class Photo(RPDFile):
         self.file_type = FILE_TYPE_PHOTO
         
     def load_metadata(self):
-        #~ self.exif_tags = []
         
         self.metadata = metadataphoto.MetaData(self.full_file_name)
         try:
@@ -255,11 +256,6 @@ class Photo(RPDFile):
             return False
         else:
             return True
-            
-            
-                #~ for tag in exif_tags_needed:
-                    #~ if tag in metadata.exif_keys:
-                        #~ self.exif_tags.append(metadata[tag])
     
             
 class Video(RPDFile):
@@ -273,5 +269,29 @@ class Video(RPDFile):
     def load_metadata(self):
         self.metadata = metadatavideo.VideoMetaData(self.full_file_name)
         return True
-
-
+        
+class SamplePhoto(Photo):
+    def __init__(self, sample_name='IMG_0524.CR2', sequences=None):
+        Photo.__init__(self, name=sample_name,
+                       display_name=sample_name,
+                       path='/media/EOS_DIGITAL/DCIM/100EOS5D',
+                       size=23516764, 
+                       file_system_modification_time=time.time(), 
+                       scan_pid=2033,
+                       file_id='9873afe')
+        self.sequences = sequences
+        self.metadata = metadataphoto.DummyMetaData()
+        self.download_start_time = datetime.datetime.now()
+        
+class SampleVideo(Video):
+    def __init__(self, sample_name='MVI_1379.MOV', sequences=None):
+        Video.__init__(self, name=sample_name,
+                       display_name=sample_name,
+                       path='/media/EOS_DIGITAL/DCIM/100EOS5D',
+                       size=823513764, 
+                       file_system_modification_time=time.time(), 
+                       scan_pid=2033,
+                       file_id='9873qrsfe')
+        self.sequences = sequences
+        self.metadata = metadatavideo.DummyMetaData(filename=sample_name)
+        self.download_start_time = datetime.datetime.now()
