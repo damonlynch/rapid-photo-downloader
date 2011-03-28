@@ -132,7 +132,9 @@ class CopyFiles(multiprocessing.Process):
                 # succeeded or not. It's neccessary to keep the user informed.
                 self.total_downloaded += rpd_file.size
                 
-                
+                if rpd_file.metadata is not None:
+                    rpd_file.metadata = None
+                    
                 self.results_pipe.send((rpdmp.CONN_PARTIAL, (rpdmp.MSG_FILE, 
                     (copy_succeeded, rpd_file, i + 1, temp_full_file_name))))
                     

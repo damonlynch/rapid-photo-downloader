@@ -10,6 +10,9 @@ Updated INSTALL file to match new package requirements.
 
 Added program icon to main window.
 
+Bug fix: leave file preview mode when download devices are changed in the 
+preferences.
+
 Bug fix: don't crash on startup when trying to display free space
 and photo or video download folders do not exist.
 

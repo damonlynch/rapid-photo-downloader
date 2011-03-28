@@ -872,6 +872,7 @@ class TaskManager:
     
     def add_task(self, task):
         pid = self._setup_task(task)
+        logger.debug("TaskManager PID: %s", pid)
         return pid
 
         
@@ -1042,6 +1043,7 @@ class SubfolderFileManager(SingleInstanceTaskManager):
         SingleInstanceTaskManager.__init__(self, results_callback)
         self._subfolder_file = subfolderfile.SubfolderFile(self.task_process_conn, sequence_values)
         self._subfolder_file.start()
+        logger.debug("SubfolderFile PID: %s", self._subfolder_file.pid)
         
     def rename_file_and_move_to_subfolder(self, download_succeeded, 
             download_count, rpd_file):
@@ -2107,6 +2109,8 @@ class RapidApp(dbus.service.Object):
             
             self.thumbnails.clear_all()
             self.setup_devices(on_startup = False, on_preference_change = True, do_not_allow_auto_start = True)
+            if self.main_notebook.get_current_page() == 1: # preview of file
+                self.main_notebook.set_current_page(0)
                 
             self.rerun_setup_available_image_and_video_media = False
             
