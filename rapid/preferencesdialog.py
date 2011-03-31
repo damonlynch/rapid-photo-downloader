@@ -188,6 +188,8 @@ class Comboi18n(gtk.ComboBox):
         cell = gtk.CellRendererText()
         self.pack_start(cell,  True)
         self.add_attribute(cell, 'text', 1)
+        # must name the combo box on pygtk used in Ubuntu 11.04, Fedora 15, etc.
+        self.set_name('GtkComboBox') 
         
     def append_text(self,  text):
         model = self.get_model()
