@@ -1,3 +1,23 @@
+rapid-photo-downloader (0.4.0~a2-0ubuntu1~ppa1) lucid; urgency=low
+
+  * Sample file names and subfolders are now displayed in the 
+    preferences dialog window
+
+  * The option to add a unique identifier to a filename if a file with 
+    the same name already exists
+
+  * Updated INSTALL file to match new package requirements
+
+  * Added program icon to main window
+
+  * Bug fix: leave file preview mode when download devices are changed
+    in the preferences
+
+  * Bug fix: don't crash on startup when trying to display free space
+    and photo or video download folders do not exist
+
+ -- Damon Lynch <damonlynch@gmail.com>  Wed, 30 Mar 2011 22:25:40 -0500
+
 rapid-photo-downloader (0.4.0~a1-0ubuntu1~ppa1) lucid; urgency=low
 
   * First development release of the 0.4.x series, using python
