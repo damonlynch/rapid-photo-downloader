@@ -1873,6 +1873,7 @@ class RapidApp(dbus.service.Object):
                     rpd_file = prefsrapid.insert_pref_lists(self.prefs, rpd_file)
                     rpd_file.strip_characters = self.prefs.strip_characters
                     rpd_file.download_folder = self.prefs.get_download_folder_for_file_type(rpd_file.file_type)
+                    rpd_file.download_conflict_resolution = self.prefs.download_conflict_resolution
                 
                 #~ if not download_succeeded:
                     #~ logger.error("File was not downloaded: %s", rpd_file.full_file_name)

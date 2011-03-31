@@ -1,20 +1,26 @@
 Version 0.4.0 alpha 2
 ---------------------
 
-2011-04-xx
+2011-03-31
 
-Sample file names and subfolders are now displayed in the preferences dialog
-window.
+Features added since alpha 1:
 
-Updated INSTALL file to match new package requirements.
+* Sample file names and subfolders are now displayed in the preferences dialog
+  window.
+* The option to add a unique identifier to a filename if a file with the same
+  name already exists
 
-Added program icon to main window.
+Other changes:
 
-Bug fix: leave file preview mode when download devices are changed in the 
-preferences.
+* Updated INSTALL file to match new package requirements.
 
-Bug fix: don't crash on startup when trying to display free space
-and photo or video download folders do not exist.
+* Added program icon to main window.
+
+* Bug fix: leave file preview mode when download devices are changed in the 
+  preferences.
+
+* Bug fix: don't crash on startup when trying to display free space and photo or
+  video download folders do not exist.
 
 
 Version 0.4.0 alpha 1

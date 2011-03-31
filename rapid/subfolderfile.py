@@ -23,7 +23,7 @@ Generates names for files and folders.
 Runs a daemon process.
 """
 
-import os
+import os, datetime
 
 import gio
 import multiprocessing
@@ -109,6 +109,53 @@ class SubfolderFile(multiprocessing.Process):
     def progress_callback_no_update(self, amount_downloaded, total):
         pass
         
+    def file_exists(self, rpd_file, identifier=None):
+        """
+        Notify user that the download file already exists
+        """
+        # get information on when the existing file was last modified
+        try:
+            modification_time = os.path.getmtime(rpd_file.download_full_file_name)
+            dt = datetime.datetime.fromtimestamp(modification_time)
+            date = dt.strftime("%x")
+            time = dt.strftime("%X")
+        except:
+            logger.warning("Could not determine the file modification time of %s", 
+                                rpd_file.download_full_file_name)
+            date = time = ''
+            
+        if not identifier:
+            rpd_file.add_problem(None, pn.FILE_ALREADY_EXISTS_NO_DOWNLOAD, 
+                                {'filetype':rpd_file.title_capitalized})
+            rpd_file.add_extra_detail(pn.EXISTING_FILE, 
+                                {'filetype': rpd_file.title, 
+                                'date': date, 'time': time})
+            rpd_file.status = config.STATUS_DOWNLOAD_FAILED
+            #~ log_status = config.SERIOUS_ERROR
+            #~ problem_text = pn.extra_detail_definitions[pn.EXISTING_FILE] % {'date':date, 'time':time, 'filetype': rpd_file.displayName}
+        else:
+            rpd_file.add_problem(None, pn.UNIQUE_IDENTIFIER_ADDED, 
+                                {'filetype':rpd_file.title_capitalized})
+            rpd_file.add_extra_detail(pn.UNIQUE_IDENTIFIER, 
+                                {'identifier': identifier, 
+                                'filetype': rpd_file.title,
+                                'date': date, 'time': time})
+            rpd_file.status = config.STATUS_DOWNLOADED_WITH_WARNING
+            #~ log_status = config.WARNING
+            #~ problem_text = pn.extra_detail_definitions[pn.UNIQUE_IDENTIFIER] % {'identifier': identifier, 'filetype': rpd_file.displayName, 'date': date, 'time': time}
+        return rpd_file
+        
+    def download_failure_file_error(self, rpd_file, inst):
+        """
+        Handle cases where file failed to download
+        """
+        rpd_file.add_problem(None, pn.DOWNLOAD_COPYING_ERROR, {'filetype': rpd_file.title})
+        rpd_file.add_extra_detail(pn.DOWNLOAD_COPYING_ERROR_DETAIL, inst)
+        rpd_file.status = config.STATUS_DOWNLOAD_FAILED
+        logger.error("Failed to create file %s: %s", rpd_file.download_full_file_name, inst)        
+        return rpd_file
+        
+        
     def run(self):
         """
         Get subfolder and name.
@@ -118,6 +165,8 @@ class SubfolderFile(multiprocessing.Process):
         """
         i = 0
         download_count = 0
+        
+        duplicate_files = {}
 
 
         # Track downloads today, using a class whose purpose is to 
@@ -212,16 +261,50 @@ class SubfolderFile(multiprocessing.Process):
 
                     download_file = gio.File(rpd_file.download_full_file_name)
                     
+                    add_unique_identifier = False
                     try:
                         temp_file.move(download_file, self.progress_callback_no_update, cancellable=None)
                         move_succeeded = True
                         if rpd_file.status <> config.STATUS_DOWNLOADED_WITH_WARNING:
                             rpd_file.status = config.STATUS_DOWNLOADED
                     except gio.Error, inst:
-                        rpd_file.add_problem(None, pn.DOWNLOAD_COPYING_ERROR, {'filetype': rpd_file.title})
-                        rpd_file.add_extra_detail(pn.DOWNLOAD_COPYING_ERROR_DETAIL, inst)
-                        rpd_file.status = config.STATUS_DOWNLOAD_FAILED
-                        logger.error("Failed to create file %s: %s", rpd_file.download_full_file_name, inst)
+                        if inst.code == gio.ERROR_EXISTS:
+                            if (rpd_file.download_conflict_resolution == 
+                                config.ADD_UNIQUE_IDENTIFIER):
+                                add_unique_identifier = True
+                            else:
+                                rpd_file = self.file_exists(rpd_file)
+                        else:
+                            rpd_file = self.download_failure_file_error(rpd_file, inst)
+                    
+                    if add_unique_identifier:
+                        name = os.path.splitext(rpd_file.download_name)
+                        full_name = rpd_file.download_full_file_name
+                        suffix_already_used = True
+                        while suffix_already_used:
+                            duplicate_files[full_name] = duplicate_files.get(
+                                                              full_name, 0) + 1
+                            identifier = '_%s' % duplicate_files[full_name]
+                            rpd_file.download_name = name[0] + identifier + name[1]
+                            rpd_file.download_full_file_name = os.path.join(
+                                                    rpd_file.download_path,
+                                                    rpd_file.download_name)
+                            download_file = gio.File(
+                                            rpd_file.download_full_file_name)
+                            
+                            try:
+                                temp_file.move(download_file, self.progress_callback_no_update, cancellable=None)
+                                move_succeeded = True
+                                suffix_already_used = False
+                                rpd_file = self.file_exists(rpd_file, identifier)
+                                logger.error("%s: %s - %s", rpd_file.full_file_name, 
+                                    rpd_file.problem.get_title(), 
+                                    rpd_file.problem.get_problems())
+                            except gio.Error, inst:
+                                if inst.code <> gio.ERROR_EXISTS:
+                                    rpd_file = self.download_failure_file_error(rpd_file, inst)
+                            
+                        
                         
                     logger.debug("Finish processing file: %s", download_count)                    
                 
