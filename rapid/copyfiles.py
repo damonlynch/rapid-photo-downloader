@@ -64,10 +64,15 @@ class CopyFiles(multiprocessing.Process):
         
         
     def update_progress(self, amount_downloaded, total):
-        if (amount_downloaded - self.bytes_downloaded > self.batch_size_bytes) or (amount_downloaded == total):
-            chunk_downloaded = amount_downloaded - self.bytes_downloaded
-            self.bytes_downloaded = amount_downloaded
-            self.results_pipe.send((rpdmp.CONN_PARTIAL, (rpdmp.MSG_BYTES, (self.scan_pid, self.total_downloaded + amount_downloaded))))        
+        # first check if process is being terminated
+        if not self.terminate_queue.empty():
+            # it is - cancel the current copy
+            self.cancel_copy.cancel()
+        else:
+            if (amount_downloaded - self.bytes_downloaded > self.batch_size_bytes) or (amount_downloaded == total):
+                chunk_downloaded = amount_downloaded - self.bytes_downloaded
+                self.bytes_downloaded = amount_downloaded
+                self.results_pipe.send((rpdmp.CONN_PARTIAL, (rpdmp.MSG_BYTES, (self.scan_pid, self.total_downloaded + amount_downloaded))))        
     
     def progress_callback(self, amount_downloaded, total):
         
@@ -83,6 +88,8 @@ class CopyFiles(multiprocessing.Process):
         
         self.bytes_downloaded = 0
         self.total_downloaded = 0
+        
+        self.cancel_copy = gio.Cancellable()
         
         self.create_temp_dirs()
         
@@ -113,7 +120,7 @@ class CopyFiles(multiprocessing.Process):
                 
                 copy_succeeded = False
                 try:
-                    source.copy(dest, self.progress_callback, cancellable=None)
+                    source.copy(dest, self.progress_callback, cancellable=self.cancel_copy)
                     copy_succeeded = True
                 except gio.Error, inst:
                     rpd_file.add_problem(None,
@@ -124,6 +131,12 @@ class CopyFiles(multiprocessing.Process):
                         {'errorno': inst.code, 'strerror': inst.message})
                         
                     rpd_file.status = config.STATUS_DOWNLOAD_FAILED
+                    
+                    rpd_file.error_title = rpd_file.problem.get_title()
+                    rpd_file.error_msg = _("%(problem)s\nFile: %(file)s") % \
+                                  {'problem': rpd_file.problem.get_problems(),
+                                   'file': rpd_file.full_file_name}
+                    
                     logger.error("Failed to download file: %s", rpd_file.full_file_name)
                     logger.error(inst)
                     self.update_progress(rpd_file.size, rpd_file.size)

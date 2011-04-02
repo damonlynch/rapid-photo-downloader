@@ -131,8 +131,8 @@ class SubfolderFile(multiprocessing.Process):
                                 {'filetype': rpd_file.title, 
                                 'date': date, 'time': time})
             rpd_file.status = config.STATUS_DOWNLOAD_FAILED
-            #~ log_status = config.SERIOUS_ERROR
-            #~ problem_text = pn.extra_detail_definitions[pn.EXISTING_FILE] % {'date':date, 'time':time, 'filetype': rpd_file.displayName}
+            rpd_file.error_extra_detail = pn.extra_detail_definitions[pn.EXISTING_FILE] % \
+                  {'date':date, 'time':time, 'filetype': rpd_file.title}
         else:
             rpd_file.add_problem(None, pn.UNIQUE_IDENTIFIER_ADDED, 
                                 {'filetype':rpd_file.title_capitalized})
@@ -141,8 +141,13 @@ class SubfolderFile(multiprocessing.Process):
                                 'filetype': rpd_file.title,
                                 'date': date, 'time': time})
             rpd_file.status = config.STATUS_DOWNLOADED_WITH_WARNING
-            #~ log_status = config.WARNING
-            #~ problem_text = pn.extra_detail_definitions[pn.UNIQUE_IDENTIFIER] % {'identifier': identifier, 'filetype': rpd_file.displayName, 'date': date, 'time': time}
+            rpd_file.error_extra_detail = pn.extra_detail_definitions[pn.UNIQUE_IDENTIFIER] % \
+                   {'identifier': identifier, 'filetype': rpd_file.title,
+                    'date': date, 'time': time}
+        rpd_file.error_title = rpd_file.problem.get_title()
+        rpd_file.error_msg = _("Source: %(source)s\nDestination: %(destination)s") \
+                % {'source': rpd_file.full_file_name, 
+                   'destination': rpd_file.download_full_file_name}
         return rpd_file
         
     def download_failure_file_error(self, rpd_file, inst):
@@ -152,7 +157,13 @@ class SubfolderFile(multiprocessing.Process):
         rpd_file.add_problem(None, pn.DOWNLOAD_COPYING_ERROR, {'filetype': rpd_file.title})
         rpd_file.add_extra_detail(pn.DOWNLOAD_COPYING_ERROR_DETAIL, inst)
         rpd_file.status = config.STATUS_DOWNLOAD_FAILED
-        logger.error("Failed to create file %s: %s", rpd_file.download_full_file_name, inst)        
+        logger.error("Failed to create file %s: %s", rpd_file.download_full_file_name, inst)
+        
+        rpd_file.error_title = rpd_file.problem.get_title()
+        rpd_file.error_msg = _("%(problem)s\nFile: %(file)s") % \
+                              {'problem': rpd_file.problem.get_problems(),
+                               'file': rpd_file.full_file_name}
+        
         return rpd_file
         
         
@@ -232,7 +243,12 @@ class SubfolderFile(multiprocessing.Process):
                     rpd_file.add_extra_detail(pn.NO_DATA_TO_NAME, {'filetype': area})
                     generation_succeeded = False
                     rpd_file.status = config.STATUS_DOWNLOAD_FAILED
-                    # FIXME: log error
+                    
+                    rpd_file.error_title = rpd_file.problem.get_title()
+                    rpd_file.error_msg = _("%(problem)s\nFile: %(file)s") % \
+                                 {'problem': rpd_file.problem.get_problems(),
+                                  'file': rpd_file.full_file_name}
+                    
                     
                 if generation_succeeded:
                     rpd_file.download_path = os.path.join(rpd_file.download_folder, rpd_file.download_subfolder)
@@ -254,8 +270,10 @@ class SubfolderFile(multiprocessing.Process):
                             # between the time it takes to query and the time it takes
                             # to create a new directory. Ignore such errors.
                             if inst.code <> gio.ERROR_EXISTS:
-                                logger.error("Failed to create directory: %s", rpd_file.download_path)
+                                logger.error("Failed to create download subfolder: %s", rpd_file.download_path)
                                 logger.error(inst)
+                                rpd_file.error_title = _("Failed to create download subfolder")
+                                rpd_file.error_msg = _("Path: %s") % rpd_file.download_path
                     
                     # Move temp file to subfolder
 

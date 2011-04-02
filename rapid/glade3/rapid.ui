@@ -253,8 +253,8 @@
                         <property name="use_action_appearance">False</property>
                         <property name="use_underline">True</property>
                         <property name="use_stock">True</property>
-                        <accelerator key="plus" signal="activate" modifiers="GDK_CONTROL_MASK"/>
                         <accelerator key="equal" signal="activate" modifiers="GDK_CONTROL_MASK"/>
+                        <accelerator key="plus" signal="activate" modifiers="GDK_CONTROL_MASK"/>
                       </object>
                     </child>
                     <child>
@@ -281,6 +281,7 @@
                         <property name="use_action_appearance">False</property>
                         <property name="label" translatable="yes">_Error Log</property>
                         <property name="use_underline">True</property>
+                        <signal name="toggled" handler="on_menu_log_window_toggled" swapped="no"/>
                       </object>
                     </child>
                     <child>
@@ -886,6 +887,7 @@
                       <object class="GtkEventBox" id="error_eventbox">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
+                        <signal name="button-press-event" handler="on_error_eventbox_button_press_event" swapped="no"/>
                         <child>
                           <object class="GtkHBox" id="hbox6">
                             <property name="visible">True</property>

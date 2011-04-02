@@ -790,7 +790,7 @@ class JobCodeDialog(gtk.Dialog):
         self.post_job_code_entry_callback(self, user_chose_code, self.get_job_code())
         
 
-class PreferencesDialog(gtk.Window):
+class PreferencesDialog():
     """
     Dialog window to show Rapid Photo Downloader preferences.
     

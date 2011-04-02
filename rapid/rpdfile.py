@@ -197,6 +197,9 @@ class RPDFile:
         
     def initialize_problem(self):
         self.problem = pn.Problem()
+        # these next values are used to display in the error log window
+        # the information in them can vary from other forms of display of errors
+        self.error_title = self.error_msg = self.error_extra_detail = ''
         
     def has_problem(self):
         if self.problem is None:
