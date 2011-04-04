@@ -57,6 +57,8 @@ import prefsrapid
 import tableplusminus as tpm
 import generatename as gn
 
+import downloadtracker
+
 from metadatavideo import DOWNLOAD_VIDEO
 import metadataphoto
 import metadatavideo
@@ -230,9 +232,9 @@ class DeviceCollection(gtk.TreeView):
         else:
             return None
     
-    def update_progress(self, process_id, percent_complete, progress_bar_text, bytes_downloaded):
+    def update_progress(self, scan_pid, percent_complete, progress_bar_text, bytes_downloaded):
         
-        iter = self._get_process_map(process_id)
+        iter = self._get_process_map(scan_pid)
         if iter:
             if percent_complete:
                 self.liststore.set_value(iter, 3, percent_complete)
@@ -1775,11 +1777,7 @@ class RapidApp(dbus.service.Object):
         # Track download sizes and other values for each device.
         # (Scan id acts as an index to each device. A device could be scanned
         #  more than once).
-        self.size_of_download_in_bytes_by_scan_pid = dict()
-        self.no_files_in_download_by_scan_pid = dict()
-        self.file_types_present_by_scan_pid = dict()
-        self.download_count_for_file_by_unique_id = dict()
-        self.download_count_by_scan_pid = dict()
+        self.download_tracker = downloadtracker.DownloadTracker()
         
         # Track which temporary directories are created when downloading files
         self.temp_dirs_by_scan_pid = dict()
@@ -1841,8 +1839,10 @@ class RapidApp(dbus.service.Object):
         else:
             video_download_folder = None
             
-        self.size_of_download_in_bytes_by_scan_pid[scan_pid] = self.size_files_to_be_downloaded(files)
-        self.no_files_in_download_by_scan_pid[scan_pid] = len(files)
+        self.download_tracker.init_stats(scan_pid=scan_pid, 
+                                bytes=self.size_files_to_be_downloaded(files),
+                                no_files=len(files))
+            
         self.download_active_by_scan_pid.append(scan_pid)
         # Initiate copy files process
         self.copy_files_manager.add_task((photo_download_folder, 
@@ -1864,16 +1864,18 @@ class RapidApp(dbus.service.Object):
                 self.temp_dirs_by_scan_pid[scan_pid] = (photo_temp_dir, video_temp_dir)                
             elif msg_type == rpdmp.MSG_BYTES:
                 scan_pid, total_downloaded = data
-                percent_complete = (float(total_downloaded) / 
-                                self.size_of_download_in_bytes_by_scan_pid[scan_pid]) * 100
+                self.download_tracker.set_total_bytes_copied(scan_pid, 
+                                                             total_downloaded)
+                percent_complete = self.download_tracker.get_percent_complete(scan_pid)
                 self.device_collection.update_progress(scan_pid, percent_complete,
                                             None, None)
             elif msg_type == rpdmp.MSG_FILE:
                 download_succeeded, rpd_file, download_count, temp_full_file_name = data
                 
-                
-                self.download_count_for_file_by_unique_id[rpd_file.unique_id] = download_count
-                self.download_count_by_scan_pid[rpd_file.scan_pid] = download_count
+                self.download_tracker.set_download_count_for_file(
+                                            rpd_file.unique_id, download_count)
+                self.download_tracker.set_download_count(
+                                            rpd_file.scan_pid, download_count)
                 rpd_file.download_start_time = self.download_start_time
                 
                 if download_succeeded:
@@ -1882,9 +1884,6 @@ class RapidApp(dbus.service.Object):
                     rpd_file.strip_characters = self.prefs.strip_characters
                     rpd_file.download_folder = self.prefs.get_download_folder_for_file_type(rpd_file.file_type)
                     rpd_file.download_conflict_resolution = self.prefs.download_conflict_resolution
-                
-                #~ if not download_succeeded:
-                    #~ logger.error("File was not downloaded: %s", rpd_file.full_file_name)
                 
                 self.subfolder_file_manager.rename_file_and_move_to_subfolder(
                         download_succeeded, 
@@ -1918,10 +1917,9 @@ class RapidApp(dbus.service.Object):
         scan_pid = rpd_file.scan_pid
         unique_id = rpd_file.unique_id
         
-        self._update_file_download_device_progress(scan_pid, unique_id)
-        
         self.thumbnails.update_status_post_download(rpd_file)
         
+        # Update error log window if neccessary
         if not move_succeeded:
             self.log_error(config.SERIOUS_ERROR, rpd_file.error_title, 
                            rpd_file.error_msg, rpd_file.error_extra_detail)
@@ -1929,13 +1927,15 @@ class RapidApp(dbus.service.Object):
             self.log_error(config.WARNING, rpd_file.error_title, 
                            rpd_file.error_msg, rpd_file.error_extra_detail)
         
-        download_count = self.download_count_for_file_by_unique_id[unique_id]
-        if download_count == self.no_files_in_download_by_scan_pid[scan_pid]:
+        self.download_tracker.file_downloaded_increment(scan_pid)
+        self._update_file_download_device_progress(scan_pid, unique_id)
+                
+        download_count = self.download_tracker.get_download_count_for_file(unique_id)
+        if download_count == self.download_tracker.get_no_files_in_download(scan_pid):
             # Last file has been downloaded, so clean temp directory
             logger.debug("Purging temp directories")
             self._clean_temp_dirs_for_scan_pid(scan_pid)
-            del self.no_files_in_download_by_scan_pid[scan_pid]
-            del self.size_of_download_in_bytes_by_scan_pid[scan_pid]
+            self.download_tracker.purge(scan_pid)
             self.download_active_by_scan_pid.remove(scan_pid)
             
             if not self.download_is_occurring():
@@ -1960,13 +1960,15 @@ class RapidApp(dbus.service.Object):
         """
         Increments the progress bar for an individual device
         """
-        #~ scan_pid = rpd_file.scan_pid
-        #~ unique_id = rpd_file.unique_id
         progress_bar_text = _("%(number)s of %(total)s %(filetypes)s") % \
-                             {'number':  self.download_count_for_file_by_unique_id[unique_id], 
-                              'total': self.no_files_in_download_by_scan_pid[scan_pid],
-                              'filetypes': self.file_types_present_by_scan_pid[scan_pid]}
-        self.device_collection.update_progress(scan_pid, None, progress_bar_text, None)        
+                             {'number':  self.download_tracker.get_download_count_for_file(unique_id), 
+                              'total': self.download_tracker.get_no_files_in_download(scan_pid),
+                              'filetypes': self.download_tracker.get_file_types_present(scan_pid)}
+        percent_complete = self.download_tracker.get_percent_complete(scan_pid)
+        self.device_collection.update_progress(scan_pid=scan_pid,
+                                        percent_complete=percent_complete,
+                                        progress_bar_text=progress_bar_text, 
+                                        bytes_downloaded=None)        
 
     def _clean_all_temp_dirs(self):
         """
@@ -2583,7 +2585,7 @@ class RapidApp(dbus.service.Object):
             size, file_type_counter, scan_pid = data
             size = format_size_for_user(bytes=size)
             results_summary, file_types_present = file_type_counter.summarize_file_count()
-            self.file_types_present_by_scan_pid[scan_pid] = file_types_present
+            self.download_tracker.set_file_types_present(scan_pid, file_types_present)
             logger.info('Found %s' % results_summary)
             logger.info('Files total %s' % size)
             self.device_collection.update_device(scan_pid, size)
