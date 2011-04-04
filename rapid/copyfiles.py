@@ -76,9 +76,9 @@ class CopyFiles(multiprocessing.Process):
     
     def progress_callback(self, amount_downloaded, total):
         
-        if self.check_termination_request():
-            # FIXME: cancel copy
-            pass
+        #~ if self.check_termination_request():
+            #~ # FIXME: cancel copy
+            #~ pass
          
         self.update_progress(amount_downloaded, total)
         

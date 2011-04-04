@@ -74,6 +74,5 @@ class DownloadTracker:
         
     def purge(self, scan_pid):
         del self.no_files_in_download_by_scan_pid[scan_pid]
-        del self.size_of_download_in_bytes_by_scan_pid[scan_pid]        
+        del self.size_of_download_in_bytes_by_scan_pid[scan_pid]
         
-

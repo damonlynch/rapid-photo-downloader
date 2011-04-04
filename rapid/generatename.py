@@ -17,7 +17,7 @@
 ### along with this program; if not, write to the Free Software
 ### Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-import os, re, datetime, string
+import os, re, datetime, string, collections
 
 import multiprocessing
 import logging
@@ -267,8 +267,7 @@ class PhotoName:
        
         
     def _get_component(self):
-        #~ try:
-        if True:
+        try:
             if self.L0 == DATE_TIME:
                 return self._get_date_component()
             elif self.L0 == TEXT:
@@ -283,12 +282,9 @@ class PhotoName:
                 return self.rpd_file.job_code
             elif self.L0 == SEPARATOR:
                 return os.sep
-            else:
-                # for development phase only
-                return ''
-        #~ except:
-            #~ self.rpd_file.add_problem(self.component, pn.ERROR_IN_GENERATION, _(self.L0))
-            #~ return ''
+        except:
+            self.rpd_file.add_problem(self.component, pn.ERROR_IN_GENERATION, _(self.L0))
+            return ''
             
     
     def generate_name(self, rpd_file):
@@ -418,12 +414,28 @@ class Sequences:
         self.session_sequence_no = 0
         self.sequence_letter = -1
         self.downloads_today_tracker = downloads_today_tracker
-        self.stored_sequence_no =  stored_sequence_no
+        self.stored_sequence_no = stored_sequence_no
+        self.matched_sequences = None
+        
+    def set_matched_sequence_value(self, matched_sequences):
+        self.matched_sequences = matched_sequences
         
     def get_session_sequence_no(self):
+        if self.matched_sequences is not None:
+            return self.matched_sequences.session_sequence_no
+        else:
+            return self._get_session_sequence_no()
+    
+    def _get_session_sequence_no(self):
         return self.session_sequence_no + 1
         
     def get_sequence_letter(self):
+        if self.matched_sequences is not None:
+            return self.matched_sequences.sequence_letter
+        else:
+            return self._get_sequence_letter()
+            
+    def _get_sequence_letter(self):
         return self.sequence_letter + 1
         
     def increment(self, uses_session_sequece_no, uses_sequence_letter):
@@ -433,6 +445,12 @@ class Sequences:
             self.sequence_letter += 1
         
     def get_downloads_today(self):
+        if self.matched_sequences is not None:
+            return self.matched_sequences.downloads_today
+        else:
+            return self._get_downloads_today()
+            
+    def _get_downloads_today(self):
         v = self.downloads_today_tracker.get_downloads_today()
         if v == -1:
             return 1
@@ -440,6 +458,23 @@ class Sequences:
             return v + 1
         
     def get_stored_sequence_no(self):
+        if self.matched_sequences is not None:
+            return self.matched_sequences.stored_sequence_no
+        else:
+            return self._get_stored_sequence_no()
+            
+    def _get_stored_sequence_no(self):
         # Must add 1 to the value, for historic reasons (that is how it used
         # to work)
         return self.stored_sequence_no + 1
+            
+    def create_matched_sequences(self):
+        sequences = collections.namedtuple(
+            'AssignedSequences',
+            'session_sequence_no sequence_letter downloads_today stored_sequence_no'
+            )
+        sequences.session_sequence_no = self._get_session_sequence_no()
+        sequences.sequence_letter = self._get_sequence_letter()
+        sequences.downloads_today = self._get_downloads_today()
+        sequences.stored_sequence_no = self._get_stored_sequence_no()
+        return sequences

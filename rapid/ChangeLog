@@ -1,9 +1,12 @@
 Version 0.4.0 alpha 3
 ---------------------
 
-2011-04-0x
+2011-04-04
 
-Add error log window to display warnings and errors.
+Features added since alpha 2:
+
+* Error log window to display download warnings and errors.
+* Synchronize RAW + JPEG Sequence values.
 
 Fixed bug #739021: unable to set subfolder and file rename preferences on 
 alpha and beta Linux distributions such as Ubuntu 11.04 or Fedora 15.

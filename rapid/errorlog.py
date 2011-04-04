@@ -19,9 +19,6 @@
 
 import gtk
 
-#~ import logging
-#~ logger = multiprocessing.get_logger()
-
 import pango
 import config
 import paths

@@ -109,13 +109,6 @@ def date_time_human_readable(date, with_line_break=True):
     else:
         return _("%(date)s %(time)s") % {'date':date.strftime("%x"), 'time':date.strftime("%X")}
         
-def time_subseconds_human_readable(date, subseconds):
-    return _("%(hour)s:%(minute)s:%(second)s:%(subsecond)s") % \
-            {'hour':date.strftime("%H"),
-             'minute':date.strftime("%M"), 
-             'second':date.strftime("%S"),
-             'subsecond': subseconds}
-
 def date_time_subseconds_human_readable(date, subseconds):
     return _("%(date)s %(hour)s:%(minute)s:%(second)s:%(subsecond)s") % \
             {'date':date.strftime("%x"), 
@@ -1884,6 +1877,7 @@ class RapidApp(dbus.service.Object):
                     rpd_file.strip_characters = self.prefs.strip_characters
                     rpd_file.download_folder = self.prefs.get_download_folder_for_file_type(rpd_file.file_type)
                     rpd_file.download_conflict_resolution = self.prefs.download_conflict_resolution
+                    rpd_file.synchronize_raw_jpg = self.prefs.must_synchronize_raw_jpg() 
                 
                 self.subfolder_file_manager.rename_file_and_move_to_subfolder(
                         download_succeeded, 

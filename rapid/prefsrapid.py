@@ -165,6 +165,15 @@ class RapidPreferences(prefs.Preferences):
                 return True
         return False        
     
+    def must_synchronize_raw_jpg(self):
+        """Returns True if synchronize_raw_jpg is True and photo renaming
+        uses sequence values"""
+        if self.synchronize_raw_jpg:
+            for s in LIST_SEQUENCE_L1:
+                if self._pref_list_uses_component(self.image_rename, s, 1):
+                    return True
+        return False
+    
     def any_pref_uses_stored_sequence_no(self):
         """Returns True if any of the pref lists contain a stored sequence no"""
         for pref_list in self._get_pref_lists():
