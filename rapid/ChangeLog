@@ -10,7 +10,8 @@ Features added since alpha 2:
 
 Fixed bug #739021: unable to set subfolder and file rename preferences on 
 alpha and beta Linux distributions such as Ubuntu 11.04 or Fedora 15.
- 
+
+Updated Brazilian, Dutch, French, German and Spanish translations. 
 
 Version 0.4.0 alpha 2
 ---------------------
@@ -75,6 +76,8 @@ video file names, you must ensure it is installed. This is no longer checked at
 program startup. 
 
 Thanks go to Robert Park for refreshing the translations code.
+
+Added Romanian translation.
  
 
 Version 0.3.5

@@ -1,3 +1,16 @@
+rapid-photo-downloader (0.4.0~a3-0ubuntu1~ppa1) lucid; urgency=low
+
+  * Added error log window to display download warnings and errors.
+
+  * Added option to synchronize RAW + JPEG Sequence values.
+
+  * Fixed bug #739021: unable to set subfolder and file rename 
+    preferences
+
+  * Updated Brazilian, Dutch, French, German and Spanish translations. 
+
+ -- Damon Lynch <damonlynch@gmail.com>  Mon, 04 Apr 2011 00:36:54 -0500
+
 rapid-photo-downloader (0.4.0~a2-0ubuntu1~ppa1) lucid; urgency=low
 
   * Sample file names and subfolders are now displayed in the 
