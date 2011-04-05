@@ -1,3 +1,11 @@
+Version 0.4.0 alpha 4
+---------------------
+
+2011-04-04
+
+Fixed bug #750808: errorlog.ui not included in setup.py.
+
+
 Version 0.4.0 alpha 3
 ---------------------
 

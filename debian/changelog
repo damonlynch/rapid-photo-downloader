@@ -1,3 +1,9 @@
+rapid-photo-downloader (0.4.0~a4-0ubuntu1~ppa1) lucid; urgency=low
+
+  * Fixed bug #750808: errorlog.ui not included in setup.py
+
+ -- Damon Lynch <damonlynch@gmail.com>  Mon, 04 Apr 2011 21:24:56 -0500
+
 rapid-photo-downloader (0.4.0~a3-0ubuntu1~ppa1) lucid; urgency=low
 
   * Added error log window to display download warnings and errors.
