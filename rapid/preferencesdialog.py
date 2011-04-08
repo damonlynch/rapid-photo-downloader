@@ -911,6 +911,9 @@ class PreferencesDialog():
         If use_dummy_data is True, then samples will not attempt to get
         data from actual download files
         """
+        job_code = self.prefs.most_recent_job_code()
+        if job_code is None:
+            job_code = _("Job Code")
         self.downloads_today_tracker = DownloadsTodayTracker(
                                     day_start = self.prefs.day_start,
                                     downloads_today = self.prefs.downloads_today[1],
@@ -934,6 +937,8 @@ class PreferencesDialog():
                 
         if self.sample_photo is None:
             self.sample_photo = rpdfile.SamplePhoto(sequences=self.sequences)
+            
+        self.sample_photo.job_code = job_code
         
         self.sample_video = None
         if metadatavideo.DOWNLOAD_VIDEO:
@@ -945,6 +950,7 @@ class PreferencesDialog():
                     self.sample_video.download_start_time = datetime.datetime.now()                
             if self.sample_video is None:
                 self.sample_video = rpdfile.SampleVideo(sequences=self.sequences)
+            self.sample_video.job_code = job_code
 
 
     

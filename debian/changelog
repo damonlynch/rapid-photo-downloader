@@ -1,3 +1,12 @@
+rapid-photo-downloader (0.3.6-0ubuntu1~ppa1) hardy; urgency=low
+
+  * Minor fix to allow program preferences to be changed on upcoming 
+    Linux distributions like Ubuntu 11.04 and Fedora 15.
+
+  * minor packaging change so it can be installed in Ubuntu 11.04
+
+ -- Damon Lynch <damonlynch@gmail.com>  Tue, 05 Apr 2011 20:23:17 -0500 
+ 
 rapid-photo-downloader (0.4.0~a4-0ubuntu1~ppa1) lucid; urgency=low
 
   * Fixed bug #750808: errorlog.ui not included in setup.py

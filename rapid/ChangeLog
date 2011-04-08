@@ -1,3 +1,25 @@
+Version 0.4.0 alpha 5
+---------------------
+
+2011-04-xx
+
+Features added since alpha 4:
+
+* Job code functionality, mimicking that found in version 0.2.3. 
+
+
+Version 0.3.6
+-------------
+
+2011-04-05
+
+This release contains a minor fix to allow program preferences to be changed
+on upcoming Linux distributions like Ubuntu 11.04 and Fedora 15. 
+
+It also contains a minor packaging change so it can be installed in Ubuntu 
+11.04.
+
+
 Version 0.4.0 alpha 4
 ---------------------
 
@@ -86,7 +108,7 @@ program startup.
 Thanks go to Robert Park for refreshing the translations code.
 
 Added Romanian translation.
- 
+
 
 Version 0.3.5
 -------------

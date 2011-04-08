@@ -218,6 +218,12 @@ class RapidPreferences(prefs.Preferences):
                 return True
         return False
         
+    def most_recent_job_code(self):
+        if len(self.job_codes) > 0:
+            return self.job_codes[0]
+        else:
+            return None
+        
     def get_pref_lists_by_file_type(self, file_type):
         """
         Returns tuple of subfolder and file rename pref lists for the given 

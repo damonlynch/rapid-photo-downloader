@@ -1643,7 +1643,10 @@ class RapidApp(dbus.service.Object):
             logger.debug("Download activated")
             
             if self.download_action_is_download:
-                self.start_download()
+                if self.need_job_code_for_naming and not self.prompting_for_job_code:
+                    self.get_job_code()
+                else:
+                    self.start_download()
             else:
                 self.pause_download()
 
@@ -1687,21 +1690,19 @@ class RapidApp(dbus.service.Object):
     
     
     def _init_job_code(self):
-        self.job_code = None
+        self.job_code = ''
         self.need_job_code_for_naming = self.prefs.any_pref_uses_job_code()
+        self.prompting_for_job_code = False
     
-    def assign_job_code(self,  code):
-        """ assign job code (which may be empty) to global variable and update user preferences
+    def assign_job_code(self, code):
+        """ assign job code (which may be empty) to member variable and update user preferences
         
         Update preferences only if code is not empty. Do not duplicate job code.
         """
-        # FIXME
-        #~ global job_code
-        if code == None:
-            code = ''
-        job_code = code
+
+        self.job_code = code
         
-        if job_code:
+        if code:
             #add this value to job codes preferences
             #delete any existing value which is the same
             #(this way it comes to the front, which is where it should be)
@@ -1713,7 +1714,7 @@ class RapidApp(dbus.service.Object):
                 
             self.prefs.job_codes = [code] + jcs
 
-    def _get_job_code(self,  post_job_code_entry_callback,  autoStart, downloadSelected):
+    def _get_job_code(self, post_job_code_entry_callback):
         """ prompt for a job code """
         
         if not self.prompting_for_job_code:
@@ -1735,10 +1736,12 @@ class RapidApp(dbus.service.Object):
         self.prompting_for_job_code = False
         
         if user_chose_code:
+            if code is None:
+                code = ''
             self.assign_job_code(code)
             self.last_chosen_job_code = code
-            #~ self.selection_vbox.selection_treeview.apply_job_code(code, overwrite=False, to_all_rows = not downloadSelected)
-            #~ threads = self.selection_vbox.selection_treeview.set_status_to_download_pending(selected_only = downloadSelected)
+            logger.debug("Job Code %s entered", self.job_code)
+            self.start_download()
             #~ if downloadSelected or not autoStart:
                 #~ logger.debug("Starting downloads")
                 #~ self.startDownload(threads)
@@ -1750,8 +1753,8 @@ class RapidApp(dbus.service.Object):
                 
         else:
             # user cancelled
-            pass
-            #~ logger.debug("No Job Code entered")
+            logger.debug("No Job Code entered")
+            self.job_code = ''
             #~ for w in workers.getWaitingForJobCodeWorkers():
                 #~ w.waitingForJobCode = False
                 #~ 
@@ -1877,7 +1880,8 @@ class RapidApp(dbus.service.Object):
                     rpd_file.strip_characters = self.prefs.strip_characters
                     rpd_file.download_folder = self.prefs.get_download_folder_for_file_type(rpd_file.file_type)
                     rpd_file.download_conflict_resolution = self.prefs.download_conflict_resolution
-                    rpd_file.synchronize_raw_jpg = self.prefs.must_synchronize_raw_jpg() 
+                    rpd_file.synchronize_raw_jpg = self.prefs.must_synchronize_raw_jpg()
+                    rpd_file.job_code = self.job_code 
                 
                 self.subfolder_file_manager.rename_file_and_move_to_subfolder(
                         download_succeeded, 
@@ -1944,6 +1948,8 @@ class RapidApp(dbus.service.Object):
                 
                 self.set_download_action_label(is_download=True)
                 self.set_download_action_sensitivity()
+                
+                self.job_code = ''
         else:
             pass
             #~ logger.info("Download count: %s", download_count)
