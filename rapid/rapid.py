@@ -127,9 +127,12 @@ class DeviceCollection(gtk.TreeView):
 
         self.parent_app = parent_app
         # device icon & name, size of images on the device (human readable), 
-        # copy progress (%), copy text
-        self.liststore = gtk.ListStore(gtk.gdk.Pixbuf, str, str, float, str)
+        # copy progress (%), copy text, eject button (None if irrelevant),
+        # process id
+        self.liststore = gtk.ListStore(gtk.gdk.Pixbuf, str, str, float, str,
+                                       gtk.gdk.Pixbuf, int)
         self.map_process_to_row = {}
+        self.devices_by_scan_pid = {}
 
         gtk.TreeView.__init__(self, self.liststore)
         
@@ -145,11 +148,14 @@ class DeviceCollection(gtk.TreeView):
         pixbuf_renderer = gtk.CellRendererPixbuf()
         text_renderer = gtk.CellRendererText()
         text_renderer.props.ellipsize = pango.ELLIPSIZE_MIDDLE
-        text_renderer.set_fixed_size(160, -1)        
+        text_renderer.set_fixed_size(160, -1)
+        eject_renderer = gtk.CellRendererPixbuf()
         column0.pack_start(pixbuf_renderer, expand=False)
         column0.pack_start(text_renderer, expand=True)
+        column0.pack_end(eject_renderer, expand=False)
         column0.add_attribute(pixbuf_renderer, 'pixbuf', 0)
         column0.add_attribute(text_renderer, 'text', 1)
+        column0.add_attribute(eject_renderer, 'pixbuf', 5)
         self.append_column(column0)
         
         
@@ -165,16 +171,38 @@ class DeviceCollection(gtk.TreeView):
         self.append_column(column2)
         self.show_all()
         
+        icontheme = gtk.icon_theme_get_default()
+        try:
+            self.eject_pixbuf = icontheme.load_icon('media-eject', 16, 
+                                                gtk.ICON_LOOKUP_USE_BUILTIN)
+        except:
+            self.eject_pixbuf = gtk.gdk.pixbuf_new_from_file(
+                                    paths.share_dir('glade3/media-eject.png'))
+                                    
+        self.add_events(gtk.gdk.BUTTON_PRESS_MASK)
+        self.connect('button-press-event', self.button_clicked)
+        
+
     def add_device(self, process_id, device, progress_bar_text = ''):
         
         # add the row, and get a temporary pointer to the row
         size_files = ''
         progress = 0.0
+        
+        if device.mount is None:
+            eject = None
+        else:
+            eject = self.eject_pixbuf
+            
+        self.devices_by_scan_pid[process_id] = device
+            
         iter = self.liststore.append((device.get_icon(),
                                       device.get_name(),
                                       size_files,
                                       progress,
-                                      progress_bar_text))
+                                      progress_bar_text,
+                                      eject,
+                                      process_id))
         
         self._set_process_map(process_id, iter)
         
@@ -195,13 +223,14 @@ class DeviceCollection(gtk.TreeView):
             iter = self._get_process_map(process_id)
             self.liststore.set_value(iter, 2, total_size_files)
         else:
-            logger.error("This device is unknown")
+            logger.critical("This device is unknown")
     
     def remove_device(self, process_id):
         if process_id in self.map_process_to_row:
             iter = self._get_process_map(process_id)
             self.liststore.remove(iter)
             del self.map_process_to_row[process_id]
+            del self.devices_by_scan_pid[process_id]
             
     def get_all_displayed_processes(self):
         """
@@ -244,6 +273,34 @@ class DeviceCollection(gtk.TreeView):
             if percent_complete or bytes_downloaded:
                 pass
                 #~ logger.info("Implement update overall progress")
+
+    def button_clicked(self, widget, event):
+        """
+        Look for left single click on eject button
+        """
+        if event.button == 1:
+            x = int(event.x)
+            y = int(event.y)
+            path, column, cell_x, cell_y = self.get_path_at_pos(x, y)
+            if path is not None:
+                if column == self.get_column(0):
+                    if cell_x >= column.get_width() - self.eject_pixbuf.get_width():
+                        iter = self.liststore.get_iter(path)
+                        if self.liststore.get_value(iter, 5) is not None:
+                            self.unmount(process_id = self.liststore.get_value(iter, 6))
+            
+    def unmount(self, process_id):
+        logger.debug("Unmounting device with scan pid %s", process_id)
+        device = self.devices_by_scan_pid[process_id]
+        device.mount.unmount(self.unmount_callback)
+        
+    
+    def unmount_callback(self, mount, result):
+        try:
+            mount.unmount_finish(result)
+            logger.debug("Device successfully unmounted")
+        except gio.Error, inst:
+            logger.error("Device did not unmount: %s", inst)
 
 
 def create_cairo_image_surface(pil_image, image_width, image_height):
@@ -824,6 +881,7 @@ class ThumbnailDisplay(gtk.IconView):
             if self.thumbnails_generated == self.total_files:
                 self.rapid_app.download_progressbar.set_fraction(0.0)
                 self.rapid_app.download_progressbar.set_text('')
+
             else:
                 self.rapid_app.download_progressbar.set_fraction(
                     float(self.thumbnails_generated) / self.total_files)

@@ -1,15 +1,17 @@
 Version 0.4.0 alpha 5
 ---------------------
 
-2011-04-xx
+2011-04-09
 
 Features added since alpha 4:
 
 * Job code functionality, mimicking that found in version 0.2.3. 
 * Option to automatically start a download at program startup or when a device
   is inserted.
+* Eject device button for each unmountable device.
   
 Bug fix: adjust vertical pane position when a device is inserted
+Bug fix: display file and subfolder naming warnings in error log
 
 
 Version 0.3.6
