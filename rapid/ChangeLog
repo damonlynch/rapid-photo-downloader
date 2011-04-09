@@ -6,6 +6,10 @@ Version 0.4.0 alpha 5
 Features added since alpha 4:
 
 * Job code functionality, mimicking that found in version 0.2.3. 
+* Option to automatically start a download at program startup or when a device
+  is inserted.
+  
+Bug fix: adjust vertical pane position when a device is inserted
 
 
 Version 0.3.6

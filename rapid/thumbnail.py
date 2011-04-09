@@ -374,11 +374,9 @@ class GenerateThumbnails(multiprocessing.Process):
                                     f.file_type,
                                     (160, 120), (100,100))
             
-            #~ logger.debug("Appending results for %s" %f.full_file_name)
             self.results.append((f.unique_id, thumbnail_icon, thumbnail))
             counter += 1
             if counter == self.batch_size:
-                #~ logger.debug("Sending results....")
                 self.results_pipe.send((rpdmp.CONN_PARTIAL, self.results))
                 self.results = []
                 counter = 0
@@ -386,7 +384,6 @@ class GenerateThumbnails(multiprocessing.Process):
             
         if counter > 0:
             # send any remaining results
-            #~ logger.debug("Sending final results....")
             self.results_pipe.send((rpdmp.CONN_PARTIAL, self.results))
         self.results_pipe.send((rpdmp.CONN_COMPLETE, None))
         self.results_pipe.close()

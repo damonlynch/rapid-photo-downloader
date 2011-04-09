@@ -328,7 +328,11 @@ class SubfolderFile(multiprocessing.Process):
                         
                         if rpd_file.has_problem():
                             rpd_file.status = config.STATUS_DOWNLOADED_WITH_WARNING
-
+                            rpd_file.error_title = rpd_file.problem.get_title()
+                            rpd_file.error_msg = _("%(problem)s\nFile: %(file)s") % \
+                                     {'problem': rpd_file.problem.get_problems(),
+                                      'file': rpd_file.full_file_name}
+                                      
                     # Check for any errors
                     if not rpd_file.download_subfolder or not rpd_file.download_name:
                         if not rpd_file.download_subfolder and not rpd_file.download_name:

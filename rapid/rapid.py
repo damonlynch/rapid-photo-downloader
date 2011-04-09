@@ -177,7 +177,15 @@ class DeviceCollection(gtk.TreeView):
                                       progress_bar_text))
         
         self._set_process_map(process_id, iter)
+        
+        # adjust scrolled window height, based on row height and number of ready to start downloads
 
+        # please note, at program startup, self.row_height() will be less than it will be when already running
+        # e.g. when starting with 3 cards, it could be 18, but when adding 2 cards to the already running program
+        # (with one card at startup), it could be 21
+        row_height = self.get_background_area(0, self.get_column(0))[3] + 1
+        height = (len(self.map_process_to_row) + 1) * row_height
+        self.parent_app.device_collection_scrolledwindow.set_size_request(-1, height)
         
     def update_device(self, process_id, total_size_files):
         """
@@ -283,7 +291,6 @@ class ThumbnailCellRenderer(gtk.CellRenderer):
         w = cell_area.width
         h = cell_area.height
         
-        
         #constrain operations to cell area, allowing for a 1 pixel border 
         #either side
         #~ cairo_context.rectangle(x-1, y-1, w+2, h+2)
@@ -316,9 +323,8 @@ class ThumbnailCellRenderer(gtk.CellRenderer):
         cairo_context.stroke()
         
         # draw a thin border around each cell
-        # ouch - nasty hardcoding :(
-        #~ cairo_context.set_source_rgb(0.33, 0.33, 0.33)
-        #~ cairo_context.rectangle(x-6.5, y-9.5, w+14, h+31)
+        #~ cairo_context.set_source_rgb(0.33,0.33,0.33)
+        #~ cairo_context.rectangle(x, y, w, h)
         #~ cairo_context.stroke()
         
         #place the image
@@ -362,7 +368,6 @@ class ThumbnailCellRenderer(gtk.CellRenderer):
         cairo_context.paint()
         
     def do_get_size(self, widget, cell_area):
-        #~ return (0, 0, self.image_area_size, self.image_area_size + self.checkbutton_height + 10)
         return (0, 0, self.image_area_size, self.image_area_size + self.text_area_size - self.checkbutton_height + 4)
         
 
@@ -372,6 +377,10 @@ gobject.type_register(ThumbnailCellRenderer)
 class ThumbnailDisplay(gtk.IconView):
     def __init__(self, parent_app):
         gtk.IconView.__init__(self)
+        self.set_spacing(0)
+        self.set_row_spacing(5)
+        self.set_margin(25)
+                
         self.rapid_app = parent_app
         
         self.batch_size = 10
@@ -414,9 +423,9 @@ class ThumbnailDisplay(gtk.IconView):
              gtk.gdk.Pixbuf,        # 8 status icon
              )
 
-
         self.clear()
         self.set_model(self.liststore)
+        
         
         checkbutton = gtk.CellRendererToggle()
         checkbutton.set_radio(False)
@@ -424,6 +433,7 @@ class ThumbnailDisplay(gtk.IconView):
         checkbutton.props.xalign = 0.0
         checkbutton.connect('toggled', self.on_checkbutton_toggled)
         self.pack_end(checkbutton, expand=False)
+
         self.add_attribute(checkbutton, "active", 1)
         self.add_attribute(checkbutton, "visible", 6)
         
@@ -431,29 +441,22 @@ class ThumbnailDisplay(gtk.IconView):
         checkbutton_height = checkbutton_size[3]
         checkbutton_width = checkbutton_size[2]
         
-        #~ status_icon = gtk.CellRendererPixbuf()
-        #~ self.pack_start(status_icon, expand=False)
-        #~ self.add_attribute(status_icon, "pixbuf", self.STATUS_ICON_COL)
-        
         image = ThumbnailCellRenderer(checkbutton_height)
         self.pack_start(image, expand=True)
         self.add_attribute(image, "image", 0)
         self.add_attribute(image, "filename", 3)
         self.add_attribute(image, "status", 8)
 
+
         
         #set the background color to a darkish grey
         self.modify_base(gtk.STATE_NORMAL, gtk.gdk.Color('#444444'))
         
-        self.set_spacing(0)
-        #~ self.set_column_spacing(0)
-        self.set_row_spacing(5)
-        #~ self.set_row_spacing(0)
-        self.set_margin(25)
+        self.show_all()
         
         self._setup_icons()
-        
-        self.show_all()
+                
+
         
         self.connect('item-activated', self.on_item_activated)
         
@@ -474,7 +477,7 @@ class ThumbnailDisplay(gtk.IconView):
                paths.share_dir('glade3/rapid-photo-downloader-downloaded.svg'),
                size, size)
         self.download_pending_icon = gtk.gdk.pixbuf_new_from_file_at_size(
-               paths.share_dir('glade3/rapid-photo-downloader-download-pending.svg'),
+               paths.share_dir('glade3/rapid-photo-downloader-download-pending.png'),
                size, size) 
         self.downloaded_with_warning_icon = gtk.gdk.pixbuf_new_from_file_at_size(
                paths.share_dir('glade3/rapid-photo-downloader-downloaded-with-warning.svg'),
@@ -701,22 +704,32 @@ class ThumbnailDisplay(gtk.IconView):
                     return True
         return False
         
-    def get_files_checked_for_download(self):
+    def get_files_checked_for_download(self, scan_pid):
         """
         Returns a dict of scan ids and associated files the user has indicated
         they want to download
+        
+        If scan_pid is not None, then returns only those files from that scan_pid
         """
         files = dict()
-        for row in self.liststore:
-            if row[self.SELECTED_COL]:
-                rpd_file = self.rpd_files[row[self.UNIQUE_ID_COL]]
+        if scan_pid is None:
+            for row in self.liststore:
+                if row[self.SELECTED_COL]:
+                    rpd_file = self.rpd_files[row[self.UNIQUE_ID_COL]]
+                    if rpd_file.status not in DOWNLOADED:
+                        scan_pid = rpd_file.scan_pid
+                        if scan_pid in files:
+                            files[scan_pid].append(rpd_file)
+                        else:
+                            files[scan_pid] = [rpd_file,]
+        else:
+            files[scan_pid] = []
+            for unique_id in self.process_index[scan_pid]:
+                rpd_file = self.rpd_files[unique_id]
                 if rpd_file.status not in DOWNLOADED:
-                    scan_pid = rpd_file.scan_pid
-                    if scan_pid in files:
+                    iter = self.get_iter_from_unique_id(unique_id)
+                    if self.liststore.get_value(iter, self.SELECTED_COL):
                         files[scan_pid].append(rpd_file)
-                    else:
-                        files[scan_pid] = [rpd_file,]
-                    
         return files
                 
 
@@ -729,7 +742,11 @@ class ThumbnailDisplay(gtk.IconView):
                 unique_id = rpd_file.unique_id
                 self.rpd_files[unique_id].status = STATUS_DOWNLOAD_PENDING
                 iter = self.get_iter_from_unique_id(unique_id)
-                self.liststore.set_value(iter, self.CHECKBUTTON_VISIBLE_COL, False)
+                if not self.rapid_app.auto_start_is_on:
+                    # don't make the checkbox invisible immediately when on auto start
+                    # otherwise the box can be rendred at the wrong size, as it is
+                    # realized after the checkbox has already been made invisible
+                    self.liststore.set_value(iter, self.CHECKBUTTON_VISIBLE_COL, False)
                 self.liststore.set_value(iter, self.SELECTED_COL, False)
                 self.liststore.set_value(iter, self.DOWNLOAD_STATUS_COL, STATUS_DOWNLOAD_PENDING)
                 icon = self.get_status_icon(STATUS_DOWNLOAD_PENDING)
@@ -752,6 +769,7 @@ class ThumbnailDisplay(gtk.IconView):
         self.liststore.set_value(iter, self.DOWNLOAD_STATUS_COL, rpd_file.status)
         icon = self.get_status_icon(rpd_file.status)
         self.liststore.set_value(iter, self.STATUS_ICON_COL, icon)
+        self.liststore.set_value(iter, self.CHECKBUTTON_VISIBLE_COL, False)
         self.rpd_files[rpd_file.unique_id] = rpd_file
             
     def generate_thumbnails(self, scan_pid):
@@ -982,10 +1000,12 @@ class CopyFilesManager(TaskManager):
         video_download_folder = task[1]
         scan_pid = task[2]
         files = task[3]
+        generate_thumbnails = task[4]
         
         copy_files = copyfiles.CopyFiles(photo_download_folder,
                                 video_download_folder,
-                                files, scan_pid, self.batch_size, 
+                                files, generate_thumbnails,
+                                scan_pid, self.batch_size, 
                                 task_process_conn, terminate_queue, run_event)
         copy_files.start()
         self._processes.append((copy_files, terminate_queue, run_event))
@@ -1570,6 +1590,7 @@ class RapidApp(dbus.service.Object):
             elif self.prefs.device_autodetection and (dv.is_DCIM_device(path) or 
                                                         self.search_for_PSD()):
                 
+                self.auto_start_is_on = self.prefs.auto_download_upon_device_insertion
                 device = dv.Device(path=path, mount=mount)
                 if self.search_for_PSD() and path not in self.prefs.device_whitelist:
                     # prompt user if device should be used or not
@@ -1743,26 +1764,14 @@ class RapidApp(dbus.service.Object):
             self.assign_job_code(code)
             self.last_chosen_job_code = code
             logger.debug("Job Code %s entered", self.job_code)
-            self.start_download()
-            #~ if downloadSelected or not autoStart:
-                #~ logger.debug("Starting downloads")
-                #~ self.startDownload(threads)
-            #~ else:
-                #~ # autostart is true
-                #~ logger.debug("Starting downloads that have been waiting for a Job Code")
-                #~ for w in workers.getWaitingForJobCodeWorkers():
-                    #~ w.startStop()    
+            self.start_download() 
                 
         else:
             # user cancelled
             logger.debug("No Job Code entered")
             self.job_code = ''
-            #~ for w in workers.getWaitingForJobCodeWorkers():
-                #~ w.waitingForJobCode = False
-                #~ 
-            #~ if autoStart:
-                #~ for w in workers.getAutoStartWorkers():
-                    #~ w.autoStart = False        
+            self.auto_start_is_on = False
+   
     
     # # #
     # Download
@@ -1785,13 +1794,14 @@ class RapidApp(dbus.service.Object):
         
 
     
-    def start_download(self):
+    def start_download(self, scan_pid=None):
         """
         Start download, renaming and backup of files.
+        
+        If scan_pid is specified, only files matching it will be downloaded
         """
         
-        self.download_start_time = datetime.datetime.now()
-        files_by_scan_pid = self.thumbnails.get_files_checked_for_download()
+        files_by_scan_pid = self.thumbnails.get_files_checked_for_download(scan_pid)
         folders_valid, invalid_dirs = self.check_download_folder_validity(files_by_scan_pid)
         
         if not folders_valid:
@@ -1803,6 +1813,11 @@ class RapidApp(dbus.service.Object):
             self.log_error(config.CRITICAL_ERROR, _("Download cannot proceed"),
                 msg)
         else:
+            # set time download is starting if it is not already set
+            # it is unset when all downloads are completed
+            if self.download_start_time is None:
+                self.download_start_time = datetime.datetime.now()  
+            
             self.thumbnails.mark_download_pending(files_by_scan_pid)
             for scan_pid in files_by_scan_pid:
                 files = files_by_scan_pid[scan_pid]
@@ -1845,7 +1860,7 @@ class RapidApp(dbus.service.Object):
         # Initiate copy files process
         self.copy_files_manager.add_task((photo_download_folder, 
                               video_download_folder, scan_pid,
-                              files))
+                              files, self.auto_start_is_on))
                               
     def copy_files_results(self, source, condition):
         """
@@ -1890,7 +1905,10 @@ class RapidApp(dbus.service.Object):
                         download_count, 
                         rpd_file
                         )
-                
+            elif msg_type == rpdmp.MSG_THUMB:
+                #~ unique_id, thumbnail, thumbnail_icon = data
+                #~ thumbnail_data = (unique_id
+                self.thumbnails.update_thumbnail(data)    
                 
             return True
         else:
@@ -1952,6 +1970,7 @@ class RapidApp(dbus.service.Object):
                 self.set_download_action_sensitivity()
                 
                 self.job_code = ''
+                self.download_start_time = None
         else:
             pass
             #~ logger.info("Download count: %s", download_count)
@@ -2194,6 +2213,9 @@ class RapidApp(dbus.service.Object):
         # Download action state
         self.download_action_is_download = True
         
+        # Track the time a download commences
+        self.download_start_time = None
+        
 
 
     def _set_window_size(self):
@@ -2370,7 +2392,7 @@ class RapidApp(dbus.service.Object):
             
     def notify_prefs_are_invalid(self, details):
         title = _("Program preferences are invalid")
-        logger.info(title)
+        logger.critical(title)
         self.log_error(severity=config.CRITICAL_ERROR, problem=title,
                        details=details)
     
@@ -2583,13 +2605,20 @@ class RapidApp(dbus.service.Object):
             self.device_collection.update_device(scan_pid, size)
             self.device_collection.update_progress(scan_pid, 0.0, results_summary, 0)
             self.testing_auto_exit_trip_counter += 1
+            self.set_download_action_sensitivity()
+                        
             if self.testing_auto_exit_trip_counter == self.testing_auto_exit_trip and self.testing_auto_exit:
                 self.on_rapidapp_destroy(self.rapidapp)
             else:
-                if not self.testing_auto_exit:
+                if not self.testing_auto_exit and not self.auto_start_is_on:
                     self.download_progressbar.set_text(_("Thumbnails"))
                     self.thumbnails.generate_thumbnails(scan_pid)
-            self.set_download_action_sensitivity()
+                elif self.auto_start_is_on:
+                    if self.need_job_code_for_naming and not self.job_code:
+                        self.get_job_code()
+                    else:
+                        self.start_download(scan_pid=scan_pid)
+
             self.set_thumbnail_sort()
             
             # signal that no more data is coming, finishing io watch for this pipe

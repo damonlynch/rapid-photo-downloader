@@ -51,7 +51,7 @@ STATUS_DOWNLOAD_FAILED = 6                  # tried to download but failed
 STATUS_WARNING = 7                          # warning (shown in pre-download preview)
 STATUS_CANNOT_DOWNLOAD = 8                  # cannot be downloaded
 
-DEFAULT_WINDOW_WIDTH = 730
+DEFAULT_WINDOW_WIDTH = 670
 DEFAULT_WINDOW_HEIGHT = 650
 
 

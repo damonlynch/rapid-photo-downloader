@@ -30,6 +30,7 @@ import rpdmultiprocessing as rpdmp
 import rpdfile
 import problemnotification as pn
 import config
+import thumbnail as tn
 
 
 from gettext import gettext as _
@@ -37,7 +38,7 @@ from gettext import gettext as _
 
 class CopyFiles(multiprocessing.Process):
     def __init__(self, photo_download_folder, video_download_folder, files,
-                 scan_pid, 
+                 generate_thumbnails, scan_pid, 
                  batch_size_MB, results_pipe, terminate_queue, 
                  run_event):
         multiprocessing.Process.__init__(self)
@@ -47,6 +48,7 @@ class CopyFiles(multiprocessing.Process):
         self.photo_download_folder = photo_download_folder
         self.video_download_folder = video_download_folder
         self.files = files
+        self.generate_thumbnails = generate_thumbnails
         self.scan_pid = scan_pid
         self.no_files= len(self.files)
         self.run_event = run_event
@@ -75,11 +77,6 @@ class CopyFiles(multiprocessing.Process):
                 self.results_pipe.send((rpdmp.CONN_PARTIAL, (rpdmp.MSG_BYTES, (self.scan_pid, self.total_downloaded + amount_downloaded))))        
     
     def progress_callback(self, amount_downloaded, total):
-        
-        #~ if self.check_termination_request():
-            #~ # FIXME: cancel copy
-            #~ pass
-         
         self.update_progress(amount_downloaded, total)
         
 
@@ -102,6 +99,10 @@ class CopyFiles(multiprocessing.Process):
                                                      self.video_temp_dir))))
         
         if self.photo_temp_dir or self.video_temp_dir:
+            
+            if self.generate_thumbnails:
+                self.thumbnail_maker = tn.Thumbnail()
+                
             for i in range(len(self.files)):
                 rpd_file = self.files[i]
                 
@@ -144,6 +145,15 @@ class CopyFiles(multiprocessing.Process):
                 # increment this amount regardless of whether the copy actually
                 # succeeded or not. It's neccessary to keep the user informed.
                 self.total_downloaded += rpd_file.size
+                
+                if copy_succeeded and self.generate_thumbnails:
+                    thumbnail, thumbnail_icon = self.thumbnail_maker.get_thumbnail(
+                                    temp_full_file_name,
+                                    rpd_file.file_type,
+                                    (160, 120), (100,100))
+                    self.results_pipe.send((rpdmp.CONN_PARTIAL, 
+                        (rpdmp.MSG_THUMB, (rpd_file.unique_id, 
+                         thumbnail_icon, thumbnail))))
                 
                 if rpd_file.metadata is not None:
                     rpd_file.metadata = None
