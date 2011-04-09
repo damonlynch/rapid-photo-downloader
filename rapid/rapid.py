@@ -1205,8 +1205,9 @@ class RapidApp(dbus.service.Object):
         self.rapidapp.show()
         
         # Check program preferences - don't allow auto start if there is a problem
-        prefs_valid = prefsrapid.check_prefs_for_validity(self.prefs)
-        do_not_allow_auto_start = prefs_valid
+        prefs_valid, msg = prefsrapid.check_prefs_for_validity(self.prefs)
+        if not prefs_valid:
+            self.notify_prefs_are_invalid(details=msg)
         
         # Initialize variables with which to track important downloads results
         self._init_download_tracking()
@@ -1218,12 +1219,10 @@ class RapidApp(dbus.service.Object):
         
         # Setup devices from which to download from and backup to
         self.setup_devices(on_startup=True, on_preference_change=False, 
-                           do_not_allow_auto_start=do_not_allow_auto_start)
+                           block_auto_start=not prefs_valid)
         
         # Ensure the device collection scrolled window is not too small
         self._set_device_collection_size()
-        
-        #~ preferencesdialog.PreferencesDialog(self)    
     
     def on_rapidapp_destroy(self, widget, data=None):
 
@@ -1312,7 +1311,7 @@ class RapidApp(dbus.service.Object):
         
     def on_refresh_action_activate(self, action):
         self.setup_devices(on_startup=False, on_preference_change=False,
-                           do_not_allow_auto_start=True)
+                           block_auto_start=True)
                            
     def on_get_help_action_activate(self, action):
         webbrowser.open("http://www.damonlynch.net/rapid/help.html")
@@ -1379,7 +1378,7 @@ class RapidApp(dbus.service.Object):
             self.vmonitor.connect("mount-removed", self.on_mount_removed) 
     
             
-    def setup_devices(self, on_startup, on_preference_change, do_not_allow_auto_start):
+    def setup_devices(self, on_startup, on_preference_change, block_auto_start):
         """
         
         Setup devices from which to download from and backup to
@@ -1391,6 +1390,9 @@ class RapidApp(dbus.service.Object):
         
         on_preference_change should be True if this is being called as the
         result of a preference being changed
+        
+        block_auto_start should be True if automation options to automatically
+        start a download should be ignored
         
         Removes any image media that are currently not downloaded, 
         or finished downloading        
@@ -1449,7 +1451,7 @@ class RapidApp(dbus.service.Object):
         # Display amount of free space in a status bar message
         self.display_free_space()
         
-        if do_not_allow_auto_start:
+        if block_auto_start:
             self.auto_start_is_on = False
         else:
             self.auto_start_is_on = ((not on_preference_change) and
@@ -1690,10 +1692,10 @@ class RapidApp(dbus.service.Object):
     
     
     def _init_job_code(self):
-        self.job_code = ''
+        self.job_code = self.last_chosen_job_code = ''
         self.need_job_code_for_naming = self.prefs.any_pref_uses_job_code()
         self.prompting_for_job_code = False
-    
+
     def assign_job_code(self, code):
         """ assign job code (which may be empty) to member variable and update user preferences
         
@@ -2017,20 +2019,6 @@ class RapidApp(dbus.service.Object):
     # # # 
     # Preferences
     # # #
-
-    def check_prefs_on_startup(self):
-        """
-        Checks the image & video rename, and subfolder prefs for validity.
-        
-        Returns True if no problem, false otherwise.
-        """
-        prefs_ok = prefsrapid.check_prefs_for_validity(self.prefs.image_rename,
-                                                       self.prefs.subfolder,
-                                                       self.prefs.video_rename,
-                                                       self.prefs.video_subfolder)
-        if not prefs_ok:
-            logger.error("There is an error in the program preferences relating to file renaming and subfolder creation. Some preferences will be reset.")
-        return prefs_ok
         
         
     def _init_prefs(self): 
@@ -2126,7 +2114,7 @@ class RapidApp(dbus.service.Object):
             logger.info("Download device settings preferences were changed.")
             
             self.thumbnails.clear_all()
-            self.setup_devices(on_startup = False, on_preference_change = True, do_not_allow_auto_start = True)
+            self.setup_devices(on_startup = False, on_preference_change = True, block_auto_start = True)
             if self.main_notebook.get_current_page() == 1: # preview of file
                 self.main_notebook.set_current_page(0)
                 
@@ -2206,9 +2194,7 @@ class RapidApp(dbus.service.Object):
         # Download action state
         self.download_action_is_download = True
         
-        #job code initialization
-        self.last_chosen_job_code = None
-        self.prompting_for_job_code = False
+
 
     def _set_window_size(self):
         """
@@ -2381,6 +2367,12 @@ class RapidApp(dbus.service.Object):
             self.error_log.widget.show()
         else:
             self.error_log.widget.hide()
+            
+    def notify_prefs_are_invalid(self, details):
+        title = _("Program preferences are invalid")
+        logger.info(title)
+        self.log_error(severity=config.CRITICAL_ERROR, problem=title,
+                       details=details)
     
     
     # # #

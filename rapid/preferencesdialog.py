@@ -313,7 +313,6 @@ class PreferenceWidgets:
         Checks preferences validity
         """
         
-        #~ print logger.debug(dir(self))
         return check_pref_valid(self.pref_defn_L0, self.pref_list)        
 
 class PhotoNamePrefs(PreferenceWidgets):
