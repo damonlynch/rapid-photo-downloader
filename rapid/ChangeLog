@@ -18,7 +18,7 @@ Features added since alpha 4:
     * Eject a device when all files have been downloaded from it.
     * Exit when all files have been downloaded.
 
-The automation feature to delete downloaded files from a device will be added only when version 0.4.0 is released.
+The automation feature to delete downloaded files from a device will be added only when the non-alpha/beta of version 0.4.0 is released.
 
 Note: if videos are downloaded, the device may not be able to be unmounted
 until Rapid Photo Downloader is exited. See bug #744012 for details.

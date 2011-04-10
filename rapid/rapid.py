@@ -455,7 +455,7 @@ class ThumbnailDisplay(gtk.IconView):
         
         self.rpd_files = {}
         
-        self.total_files = 0
+        self.total_thumbs_to_generate = 0
         self.thumbnails_generated = 0
         
         self.thumbnails = {}
@@ -588,7 +588,7 @@ class ThumbnailDisplay(gtk.IconView):
         iter = self.get_iter_from_unique_id(unique_id)
         self.liststore.set_value(iter, self.SELECTED_COL, value)
     
-    def add_file(self, rpd_file):
+    def add_file(self, rpd_file, generate_thumbnail):
 
         thumbnail_icon = self.get_stock_icon(rpd_file.file_type)
         unique_id = rpd_file.unique_id
@@ -618,7 +618,8 @@ class ThumbnailDisplay(gtk.IconView):
         self.treerow_index[unique_id] = treerowref
         self.rpd_files[unique_id] = rpd_file
         
-        self.total_files += 1
+        if generate_thumbnail:
+            self.total_thumbs_to_generate += 1
 
     def get_sample_file(self, file_type):
         """Returns an rpd_file for of a given file type, or None if it does 
@@ -905,13 +906,15 @@ class ThumbnailDisplay(gtk.IconView):
             
             # clear progress bar information if all thumbnails have been
             # extracted
-            if self.thumbnails_generated == self.total_files:
+            if self.thumbnails_generated == self.total_thumbs_to_generate:
                 self.rapid_app.download_progressbar.set_fraction(0.0)
                 self.rapid_app.download_progressbar.set_text('')
+                self.thumbnails_generated = 0
+                self.total_thumbs_to_generate = 0
 
             else:
                 self.rapid_app.download_progressbar.set_fraction(
-                    float(self.thumbnails_generated) / self.total_files)
+                    float(self.thumbnails_generated) / self.total_thumbs_to_generate)
             
         
         return True
@@ -2372,6 +2375,8 @@ class RapidApp(dbus.service.Object):
             
             self.thumbnails.clear_all()
             self.setup_devices(on_startup = False, on_preference_change = True, block_auto_start = True)
+            self._set_device_collection_size()
+            
             if self.main_notebook.get_current_page() == 1: # preview of file
                 self.main_notebook.set_current_page(0)
                 
@@ -2900,7 +2905,8 @@ class RapidApp(dbus.service.Object):
                 logger.critical("incoming pipe length is unexpectedly long: %s" % len(data))
             else:
                 for rpd_file in data:
-                    self.thumbnails.add_file(rpd_file)
+                    self.thumbnails.add_file(rpd_file=rpd_file, 
+                                        generate_thumbnail = not self.auto_start_is_on)
         
         # must return True for this method to be called again
         return True
