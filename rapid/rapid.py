@@ -36,6 +36,7 @@ import webbrowser
 import sys, time, types, os, datetime
 
 import gobject, pango, cairo, array, pangocairo, gio
+import pynotify
 
 from multiprocessing import Process, Pipe, Queue, Event, Value, Array, current_process, log_to_stderr
 from ctypes import c_int, c_bool, c_char
@@ -224,6 +225,9 @@ class DeviceCollection(gtk.TreeView):
             self.liststore.set_value(iter, 2, total_size_files)
         else:
             logger.critical("This device is unknown")
+            
+    def get_device(self, process_id):
+        return self.devices_by_scan_pid.get(process_id)
     
     def remove_device(self, process_id):
         if process_id in self.map_process_to_row:
@@ -290,9 +294,10 @@ class DeviceCollection(gtk.TreeView):
                             self.unmount(process_id = self.liststore.get_value(iter, 6))
             
     def unmount(self, process_id):
-        logger.debug("Unmounting device with scan pid %s", process_id)
         device = self.devices_by_scan_pid[process_id]
-        device.mount.unmount(self.unmount_callback)
+        if device.mount is not None:
+            logger.debug("Unmounting device with scan pid %s", process_id)
+            device.mount.unmount(self.unmount_callback)
         
     
     def unmount_callback(self, mount, result):
@@ -789,6 +794,28 @@ class ThumbnailDisplay(gtk.IconView):
                         files[scan_pid].append(rpd_file)
         return files
                 
+    def get_no_files_remaining(self, scan_pid):
+        """
+        Returns the number of files that have not yet been downloaded for the
+        scan_pid
+        """
+        i = 0
+        for unique_id in self.process_index[scan_pid]:
+            rpd_file = self.rpd_files[unique_id]
+            if rpd_file.status == STATUS_NOT_DOWNLOADED:
+                i += 1
+        return i
+        
+    def files_remain_to_download(self):
+        """
+        Returns True if any files remain that are not downloaded, else returns 
+        False
+        """
+        for row in self.liststore:
+            if row[self.DOWNLOAD_STATUS_COL] == STATUS_NOT_DOWNLOADED:
+                return True
+        return False
+            
 
     def mark_download_pending(self, files_by_scan_pid):
         """
@@ -1266,6 +1293,7 @@ class RapidApp(dbus.service.Object):
         
         # Initialize widgets in the main window, and variables that point to them
         self._init_widgets()
+        self._init_pynotify()
         
         # Initialize job code handling
         self._init_job_code()
@@ -1915,6 +1943,9 @@ class RapidApp(dbus.service.Object):
                                 no_files=len(files))
             
         self.download_active_by_scan_pid.append(scan_pid)
+        if len(self.download_active_by_scan_pid) > 1:
+            self.display_summary_notification = True
+            
         # Initiate copy files process
         self.copy_files_manager.add_task((photo_download_folder, 
                               video_download_folder, scan_pid,
@@ -2003,25 +2034,40 @@ class RapidApp(dbus.service.Object):
             self.log_error(config.WARNING, rpd_file.error_title, 
                            rpd_file.error_msg, rpd_file.error_extra_detail)
         
-        self.download_tracker.file_downloaded_increment(scan_pid)
-        self._update_file_download_device_progress(scan_pid, unique_id)
+        self.download_tracker.file_downloaded_increment(scan_pid, 
+                                                        rpd_file.file_type,
+                                                        rpd_file.status)
+                                                        
+        completed, files_remaining = self._update_file_download_device_progress(scan_pid, unique_id)
                 
-        download_count = self.download_tracker.get_download_count_for_file(unique_id)
-        if download_count == self.download_tracker.get_no_files_in_download(scan_pid):
-            # Last file has been downloaded, so clean temp directory
+        if completed:
+            # Last file for this scan pid has been downloaded, so clean temp directory
             logger.debug("Purging temp directories")
             self._clean_temp_dirs_for_scan_pid(scan_pid)
-            self.download_tracker.purge(scan_pid)
             self.download_active_by_scan_pid.remove(scan_pid)
+            self.notify_downloaded_from_device(scan_pid)
+            if files_remaining == 0 and self.prefs.auto_unmount:
+                self.device_collection.unmount(scan_pid)
             
-            if not self.download_is_occurring():
+            
+            if self.download_is_occurring():
+                self.download_tracker.purge(scan_pid)
+            else:
                 logger.debug("Download completed")
+                self.notify_download_complete()
                 
                 self.prefs.stored_sequence_no = self.stored_sequence_value.value
                 self.downloads_today_tracker.set_raw_downloads_today_from_int(self.downloads_today_value.value)
                 self.downloads_today_tracker.set_raw_downloads_today_date(self.downloads_today_date_value.value)
                 self.prefs.set_downloads_today_from_tracker(self.downloads_today_tracker)
-                
+
+                if ((self.prefs.auto_exit and self.download_tracker.no_errors_or_warnings()) 
+                                                or self.prefs.auto_exit_force):
+                    if not self.thumbnails.files_remain_to_download():
+                        gtk.main_quit()
+                        
+                self.download_tracker.purge_all()
+                                        
                 self.display_free_space()
                 
                 self.set_download_action_label(is_download=True)
@@ -2029,25 +2075,159 @@ class RapidApp(dbus.service.Object):
                 
                 self.job_code = ''
                 self.download_start_time = None
+                
+
+            
+    def file_types_by_number(self, no_photos, no_videos):
+        """ 
+        returns a string to be displayed to the user that can be used
+        to show if a value refers to photos or videos or both, or just one
+        of each
+        """
+        if (no_videos > 0) and (no_photos > 0):
+            v = _('photos and videos')
+        elif (no_videos == 0) and (no_photos == 0):
+            v = _('photos or videos')
+        elif no_videos > 0:
+            if no_videos > 1:
+                v = _('videos')
+            else:
+                v = _('video')
         else:
-            pass
-            #~ logger.info("Download count: %s", download_count)
+            if no_photos > 1:
+                v = _('photos')
+            else:
+                v = _('photo')
+        return v
 
-
+    def notify_downloaded_from_device(self, scan_pid):
+        device = self.device_collection.get_device(scan_pid)
+        
+        if device.mount is None:
+            notificationName = PROGRAM_NAME
+        else:
+            notificationName  = device.get_name()
+        
+        noImagesDownloaded = self.download_tracker.get_no_files_downloaded(
+                                            scan_pid, rpdfile.FILE_TYPE_PHOTO)
+        noVideosDownloaded = self.download_tracker.get_no_files_downloaded(
+                                            scan_pid, rpdfile.FILE_TYPE_VIDEO)
+        noImagesSkipped = self.download_tracker.get_no_files_failed(
+                                            scan_pid, rpdfile.FILE_TYPE_PHOTO)
+        noVideosSkipped = self.download_tracker.get_no_files_failed(
+                                            scan_pid, rpdfile.FILE_TYPE_VIDEO)
+        noFilesDownloaded = noImagesDownloaded + noVideosDownloaded
+        noFilesSkipped = noImagesSkipped + noVideosSkipped
+        no_warnings = self.download_tracker.get_no_warnings(scan_pid)
+                                            
+        file_types = self.file_types_by_number(noImagesDownloaded, noVideosDownloaded)
+        file_types_failed = self.file_types_by_number(noImagesSkipped, noVideosSkipped)
+        message = _("%(noFiles)s %(filetypes)s downloaded") % \
+                   {'noFiles':noFilesDownloaded, 'filetypes': file_types}
+                   
+        
+        if noFilesSkipped:
+            message += "\n" + _("%(noFiles)s %(filetypes)s failed to download") % {'noFiles':noFilesSkipped, 'filetypes':file_types_failed}
+        
+        if no_warnings:
+            message = "%s\n%s " % (message,  no_warnings) + _("warnings") 
+  
+        n = pynotify.Notification(notificationName,  message)
+        n.set_icon_from_pixbuf(device.get_icon(self.notification_icon_size))
+        
+        n.show()
+    
+    def notify_download_complete(self):
+        if self.display_summary_notification:
+            message = _("All downloads complete")
+            
+            # photo downloads
+            photo_downloads = self.download_tracker.total_photos_downloaded
+            if photo_downloads:
+                filetype = self.file_types_by_number(photo_downloads, 0)
+                message += "\n" + _("%(number)s %(numberdownloaded)s") % \
+                            {'number': photo_downloads, 
+                            'numberdownloaded': _("%(filetype)s downloaded") % \
+                            {'filetype': filetype}}
+            
+            # photo failures
+            photo_failures = self.download_tracker.total_photo_failures
+            if photo_failures:
+                filetype = self.file_types_by_number(photo_failures, 0)
+                message += "\n" + _("%(number)s %(numberdownloaded)s") % \
+                            {'number': photo_failures,
+                            'numberdownloaded': _("%(filetype)s failed to download") % \
+                            {'filetype': filetype}}
+                            
+            # video downloads
+            video_downloads = self.download_tracker.total_videos_downloaded
+            if video_downloads:
+                filetype = self.file_types_by_number(0, video_downloads)
+                message += "\n" + _("%(number)s %(numberdownloaded)s") % \
+                            {'number': video_downloads, 
+                            'numberdownloaded': _("%(filetype)s downloaded") % \
+                            {'filetype': filetype}}
+                            
+            # video failures
+            video_failures = self.download_tracker.total_video_failures
+            if video_failures:
+                filetype = self.file_types_by_number(0, video_failures)
+                message += "\n" + _("%(number)s %(numberdownloaded)s") % \
+                            {'number': video_failures,
+                            'numberdownloaded': _("%(filetype)s failed to download") % \
+                            {'filetype': filetype}}
+            
+            # warnings
+            warnings = self.download_tracker.total_warnings 
+            if warnings:
+                message += "\n" + _("%(number)s %(numberdownloaded)s") % \
+                            {'number': warnings, 
+                            'numberdownloaded': _("warnings")}
+                            
+            n = pynotify.Notification(PROGRAM_NAME, message)
+            n.set_icon_from_pixbuf(self.application_icon)
+            n.show()
+            self.display_summary_notification = False # don't show it again unless needed
+      
         
     def _update_file_download_device_progress(self, scan_pid, unique_id):
         """
         Increments the progress bar for an individual device
+        
+        Returns if the download is completed for that scan_pid
+        It also returns the number of files remaining for the scan_pid, BUT
+        this value is valid ONLY if the download is completed
         """
-        progress_bar_text = _("%(number)s of %(total)s %(filetypes)s") % \
-                             {'number':  self.download_tracker.get_download_count_for_file(unique_id), 
-                              'total': self.download_tracker.get_no_files_in_download(scan_pid),
-                              'filetypes': self.download_tracker.get_file_types_present(scan_pid)}
+        
+        files_downloaded = self.download_tracker.get_download_count_for_file(unique_id)
+        files_to_download = self.download_tracker.get_no_files_in_download(scan_pid)
+        file_types = self.download_tracker.get_file_types_present(scan_pid)
+        completed = files_downloaded == files_to_download
+        
+        if completed:
+            files_remaining = self.thumbnails.get_no_files_remaining(scan_pid)
+        else:
+            files_remaining = 0
+                    
+        if completed and files_remaining:
+            progress_bar_text = _("%(number)s of %(total)s %(filetypes)s (%(remaining)s remaining)") % {
+                                  'number':  files_downloaded, 
+                                  'total': files_to_download,
+                                  'filetypes': file_types,
+                                  'remaining': files_remaining}
+        else:
+            progress_bar_text = _("%(number)s of %(total)s %(filetypes)s") % \
+                                 {'number':  files_downloaded, 
+                                  'total': files_to_download,
+                                  'filetypes': file_types}
         percent_complete = self.download_tracker.get_percent_complete(scan_pid)
         self.device_collection.update_progress(scan_pid=scan_pid,
                                         percent_complete=percent_complete,
                                         progress_bar_text=progress_bar_text, 
-                                        bytes_downloaded=None)        
+                                        bytes_downloaded=None)
+                                        
+        return (completed, files_remaining)
+        
 
     def _clean_all_temp_dirs(self):
         """
@@ -2219,6 +2399,36 @@ class RapidApp(dbus.service.Object):
     # Main app window management and setup
     # # #
     
+    def _init_pynotify(self):
+        """
+        Initialize system notification messages
+        """
+        
+        if not pynotify.init("TestCaps"):
+            logger.critical("Problem using pynotify.")
+            gtk.main_quit()
+
+        do_not_size_icon = False
+        self.notification_icon_size = 48 
+        try:
+            info = pynotify.get_server_info()
+        except:
+            logger.warning("Desktop environment notification server is incorrectly configured.")
+        else:
+            try:
+                if info["name"] == 'notify-osd':
+                    do_not_size_icon = True
+            except:
+                pass
+        
+        if do_not_size_icon:
+            self.application_icon = gtk.gdk.pixbuf_new_from_file(
+                        paths.share_dir('glade3/rapid-photo-downloader.svg'))
+        else:
+            self.application_icon = gtk.gdk.pixbuf_new_from_file_at_size(
+                    paths.share_dir('glade3/rapid-photo-downloader.svg'),
+                    self.notification_icon_size, self.notification_icon_size)
+
     def _init_widgets(self):
         """
         Initialize widgets in the main window, and variables that point to them
@@ -2273,6 +2483,10 @@ class RapidApp(dbus.service.Object):
         
         # Track the time a download commences
         self.download_start_time = None
+        
+        # Whether a system wide notifcation message should be shown
+        # after a download has occurred in parallel
+        self.display_summary_notification = False
         
 
 

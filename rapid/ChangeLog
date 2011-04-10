@@ -1,16 +1,29 @@
 Version 0.4.0 alpha 5
 ---------------------
 
-2011-04-09
+2011-04-10
 
 Features added since alpha 4:
 
-* Job code functionality, mimicking that found in version 0.2.3. 
-* Option to automatically start a download at program startup or when a device
-  is inserted.
-* Eject device button for each unmountable device.
-  
-Bug fix: adjust vertical pane position when a device is inserted
+* Job Code functionality, mimicking that found in version 0.2.3.
+* Eject device button for each unmountable device in main window.
+* When some files remain to be downloaded from a device, the number is displayed
+  in the device's progress bar
+* System notification messages
+* Automation features:
+    * Automatically start a download at program startup or when a device
+      is inserted. When this is enabled, to optimize performance instead of
+      thumbnails being generated before the files are downloaded, they are
+      generated during the download.
+    * Eject a device when all files have been downloaded from it.
+    * Exit when all files have been downloaded.
+
+The automation feature to delete downloaded files from a device will be added only when version 0.4.0 is released.
+
+Note: if videos are downloaded, the device may not be able to be unmounted
+until Rapid Photo Downloader is exited. See bug #744012 for details.
+
+Bug fix: adjust vertical pane position when additional devices are inserted
 Bug fix: display file and subfolder naming warnings in error log
 
 
