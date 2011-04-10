@@ -1673,29 +1673,30 @@ class RapidApp(dbus.service.Object):
             return
             
         path = mount.get_root().get_path()
+        if path is not None:
 
-        if path in self.prefs.device_blacklist and self.search_for_PSD():
-            logger.info("Device %(device)s (%(path)s) ignored" % {
-                        'device': mount.get_name(), 'path': path})
-        else:
-            is_backup_mount = self.check_if_backup_mount(path)
-                        
-            if is_backup_mount:
-                if path not in self.backup_devices:
-                    self.backup_devices[path] = mount
-                    self.display_free_space()
+            if path in self.prefs.device_blacklist and self.search_for_PSD():
+                logger.info("Device %(device)s (%(path)s) ignored" % {
+                            'device': mount.get_name(), 'path': path})
+            else:
+                is_backup_mount = self.check_if_backup_mount(path)
+                            
+                if is_backup_mount:
+                    if path not in self.backup_devices:
+                        self.backup_devices[path] = mount
+                        self.display_free_space()
 
-            elif self.prefs.device_autodetection and (dv.is_DCIM_device(path) or 
-                                                        self.search_for_PSD()):
-                
-                self.auto_start_is_on = self.prefs.auto_download_upon_device_insertion
-                device = dv.Device(path=path, mount=mount)
-                if self.search_for_PSD() and path not in self.prefs.device_whitelist:
-                    # prompt user if device should be used or not
-                    self.get_use_device(device)
-                else:   
-                    scan_pid = self.scan_manager.add_task(device)
-                    self.mounts_by_path[path] = scan_pid
+                elif self.prefs.device_autodetection and (dv.is_DCIM_device(path) or 
+                                                            self.search_for_PSD()):
+                    
+                    self.auto_start_is_on = self.prefs.auto_download_upon_device_insertion
+                    device = dv.Device(path=path, mount=mount)
+                    if self.search_for_PSD() and path not in self.prefs.device_whitelist:
+                        # prompt user if device should be used or not
+                        self.get_use_device(device)
+                    else:   
+                        scan_pid = self.scan_manager.add_task(device)
+                        self.mounts_by_path[path] = scan_pid
             
     def on_mount_removed(self, vmonitor, mount):
         """
