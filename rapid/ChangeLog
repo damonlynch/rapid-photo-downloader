@@ -7,8 +7,10 @@ Features added since alpha 4:
 
 * Job Code functionality, mimicking that found in version 0.2.3.
 * Eject device button for each unmountable device in main window.
-* When some files remain to be downloaded from a device, the number is displayed
-  in the device's progress bar
+* When not all files have been downloaded from a device, the number remaining
+  is displayed in the device's progress bar
+* Overall download progress is displayed in progress bar at bottom of window
+* Time remaining and download speed are displayed in the status bar
 * System notification messages
 * Automation features:
     * Automatically start a download at program startup or when a device
@@ -19,6 +21,8 @@ Features added since alpha 4:
     * Exit when all files have been downloaded.
 
 The automation feature to delete downloaded files from a device will be added only when the non-alpha/beta of version 0.4.0 is released.
+
+The major feature currently not implemented is backups.
 
 Note: if videos are downloaded, the device may not be able to be unmounted
 until Rapid Photo Downloader is exited. See bug #744012 for details.

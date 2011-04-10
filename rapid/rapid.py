@@ -301,11 +301,20 @@ class DeviceCollection(gtk.TreeView):
         
     
     def unmount_callback(self, mount, result):
+        name = mount.get_name()
+
         try:
             mount.unmount_finish(result)
-            logger.debug("Device successfully unmounted")
+            logger.debug("%s successfully unmounted" % name)
         except gio.Error, inst:
-            logger.error("Device did not unmount: %s", inst)
+            logger.error("%s did not unmount: %s", name, inst)
+            
+            title = _("%(device)s did not unmount") % {'device': name}
+            message = '%s' % inst
+                       
+            n = pynotify.Notification(title, message)
+            n.set_icon_from_pixbuf(self.parent_app.application_icon)
+            n.show()             
 
 
 def create_cairo_image_surface(pil_image, image_width, image_height):
@@ -1922,7 +1931,14 @@ class RapidApp(dbus.service.Object):
         if not self.download_action_is_download:
             self.set_download_action_label(is_download = True)
             
+        self.time_check.pause()
+            
     def resume_download(self):
+        for scan_pid in self.download_active_by_scan_pid:
+            self.time_remaining.set_time_mark(scan_pid)
+        
+        self.time_check.set_download_mark()
+            
         self.copy_files_manager.start()
 
     def download_files(self, files, scan_pid):
@@ -1940,12 +1956,18 @@ class RapidApp(dbus.service.Object):
             video_download_folder = self.prefs.video_download_folder
         else:
             video_download_folder = None
-            
+        
+        download_size = self.size_files_to_be_downloaded(files)
         self.download_tracker.init_stats(scan_pid=scan_pid, 
-                                bytes=self.size_files_to_be_downloaded(files),
+                                bytes=download_size,
                                 no_files=len(files))
+        
+        self.time_remaining.set(scan_pid, download_size)
+        self.time_check.set_download_mark()
             
         self.download_active_by_scan_pid.append(scan_pid)
+        
+        
         if len(self.download_active_by_scan_pid) > 1:
             self.display_summary_notification = True
             
@@ -1968,12 +1990,14 @@ class RapidApp(dbus.service.Object):
                 scan_pid, photo_temp_dir, video_temp_dir = data
                 self.temp_dirs_by_scan_pid[scan_pid] = (photo_temp_dir, video_temp_dir)                
             elif msg_type == rpdmp.MSG_BYTES:
-                scan_pid, total_downloaded = data
+                scan_pid, total_downloaded, chunk_downloaded = data
                 self.download_tracker.set_total_bytes_copied(scan_pid, 
                                                              total_downloaded)
+                self.time_check.increment(bytes_downloaded=chunk_downloaded)
                 percent_complete = self.download_tracker.get_percent_complete(scan_pid)
                 self.device_collection.update_progress(scan_pid, percent_complete,
                                             None, None)
+                self.time_remaining.update(scan_pid, total_downloaded)
             elif msg_type == rpdmp.MSG_FILE:
                 download_succeeded, rpd_file, download_count, temp_full_file_name = data
                 
@@ -2013,7 +2037,9 @@ class RapidApp(dbus.service.Object):
     def download_is_occurring(self):
         """Returns True if a file is currently being downloaded or renamed
         """
-        return not len(self.download_active_by_scan_pid) == 0
+        v = not len(self.download_active_by_scan_pid) == 0
+        #~ logger.info("Download is occurring: %s", v)
+        return v
     
     # # #
     # Create folder and file names for downloaded files
@@ -2042,22 +2068,25 @@ class RapidApp(dbus.service.Object):
                                                         rpd_file.status)
                                                         
         completed, files_remaining = self._update_file_download_device_progress(scan_pid, unique_id)
+        
+        if self.download_is_occurring():
+            self.update_time_remaining()
                 
         if completed:
             # Last file for this scan pid has been downloaded, so clean temp directory
             logger.debug("Purging temp directories")
             self._clean_temp_dirs_for_scan_pid(scan_pid)
             self.download_active_by_scan_pid.remove(scan_pid)
+            self.time_remaining.remove(scan_pid)
             self.notify_downloaded_from_device(scan_pid)
             if files_remaining == 0 and self.prefs.auto_unmount:
                 self.device_collection.unmount(scan_pid)
             
             
-            if self.download_is_occurring():
-                self.download_tracker.purge(scan_pid)
-            else:
+            if not self.download_is_occurring():
                 logger.debug("Download completed")
                 self.notify_download_complete()
+                self.download_progressbar.set_fraction(0.0)
                 
                 self.prefs.stored_sequence_no = self.stored_sequence_value.value
                 self.downloads_today_tracker.set_raw_downloads_today_from_int(self.downloads_today_value.value)
@@ -2070,6 +2099,7 @@ class RapidApp(dbus.service.Object):
                         gtk.main_quit()
                         
                 self.download_tracker.purge_all()
+                self.speed_label.set_label(" ")
                                         
                 self.display_free_space()
                 
@@ -2079,7 +2109,32 @@ class RapidApp(dbus.service.Object):
                 self.job_code = ''
                 self.download_start_time = None
                 
-
+                
+    def update_time_remaining(self):
+        update, download_speed = self.time_check.check_for_update()
+        if update:
+            self.speed_label.set_text(download_speed)
+            
+            time_remaining = self.time_remaining.time_remaining()
+            if time_remaining:
+                secs =  int(time_remaining)
+            
+                if secs == 0:
+                    message = ""
+                elif secs == 1:
+                    message = _("About 1 second remaining")
+                elif secs < 60:
+                    message = _("About %i seconds remaining") % secs 
+                elif secs == 60:
+                    message = _("About 1 minute remaining")
+                else:
+                    # Translators: in the text '%(minutes)i:%(seconds)02i', only the : should be translated, if needed. 
+                    # '%(minutes)i' and '%(seconds)02i' should not be modified or left out. They are used to format and display the amount
+                    # of time the download has remainging, e.g. 'About 5:36 minutes remaining'
+                    message = _("About %(minutes)i:%(seconds)02i minutes remaining") % {'minutes': secs / 60, 'seconds': secs % 60}
+                
+                self.rapid_statusbar.pop(self.statusbar_context_id)
+                self.rapid_statusbar.push(self.statusbar_context_id, message)         
             
     def file_types_by_number(self, no_photos, no_videos):
         """ 
@@ -2111,26 +2166,25 @@ class RapidApp(dbus.service.Object):
         else:
             notificationName  = device.get_name()
         
-        noImagesDownloaded = self.download_tracker.get_no_files_downloaded(
+        no_photos_downloaded = self.download_tracker.get_no_files_downloaded(
                                             scan_pid, rpdfile.FILE_TYPE_PHOTO)
-        noVideosDownloaded = self.download_tracker.get_no_files_downloaded(
+        no_videos_downloaded = self.download_tracker.get_no_files_downloaded(
                                             scan_pid, rpdfile.FILE_TYPE_VIDEO)
-        noImagesSkipped = self.download_tracker.get_no_files_failed(
+        no_photos_failed = self.download_tracker.get_no_files_failed(
                                             scan_pid, rpdfile.FILE_TYPE_PHOTO)
-        noVideosSkipped = self.download_tracker.get_no_files_failed(
+        no_videos_failed = self.download_tracker.get_no_files_failed(
                                             scan_pid, rpdfile.FILE_TYPE_VIDEO)
-        noFilesDownloaded = noImagesDownloaded + noVideosDownloaded
-        noFilesSkipped = noImagesSkipped + noVideosSkipped
+        no_files_downloaded = no_photos_downloaded + no_videos_downloaded
+        no_files_failed = no_photos_failed + no_videos_failed
         no_warnings = self.download_tracker.get_no_warnings(scan_pid)
                                             
-        file_types = self.file_types_by_number(noImagesDownloaded, noVideosDownloaded)
-        file_types_failed = self.file_types_by_number(noImagesSkipped, noVideosSkipped)
+        file_types = self.file_types_by_number(no_photos_downloaded, no_videos_downloaded)
+        file_types_failed = self.file_types_by_number(no_photos_failed, no_videos_failed)
         message = _("%(noFiles)s %(filetypes)s downloaded") % \
-                   {'noFiles':noFilesDownloaded, 'filetypes': file_types}
-                   
+                   {'noFiles':no_files_downloaded, 'filetypes': file_types}
         
-        if noFilesSkipped:
-            message += "\n" + _("%(noFiles)s %(filetypes)s failed to download") % {'noFiles':noFilesSkipped, 'filetypes':file_types_failed}
+        if no_files_failed:
+            message += "\n" + _("%(noFiles)s %(filetypes)s failed to download") % {'noFiles':no_files_failed, 'filetypes':file_types_failed}
         
         if no_warnings:
             message = "%s\n%s " % (message,  no_warnings) + _("warnings") 
@@ -2213,12 +2267,14 @@ class RapidApp(dbus.service.Object):
             files_remaining = 0
                     
         if completed and files_remaining:
+            # e.g.: 3 of 205 photos and videos (202 remaining)
             progress_bar_text = _("%(number)s of %(total)s %(filetypes)s (%(remaining)s remaining)") % {
                                   'number':  files_downloaded, 
                                   'total': files_to_download,
                                   'filetypes': file_types,
                                   'remaining': files_remaining}
         else:
+            # e.g.: 205 of 205 photos and videos
             progress_bar_text = _("%(number)s of %(total)s %(filetypes)s") % \
                                  {'number':  files_downloaded, 
                                   'total': files_to_download,
@@ -2228,6 +2284,9 @@ class RapidApp(dbus.service.Object):
                                         percent_complete=percent_complete,
                                         progress_bar_text=progress_bar_text, 
                                         bytes_downloaded=None)
+        
+        percent_complete = self.download_tracker.get_overall_percent_complete()
+        self.download_progressbar.set_fraction(percent_complete)
                                         
         return (completed, files_remaining)
         
@@ -2267,7 +2326,6 @@ class RapidApp(dbus.service.Object):
                 children = path.enumerate_children(file_attributes)
                 for child in children:
                     f = path.get_child(child.get_name())
-                    #~ logger.info("Deleting %s", child.get_name())
                     f.delete(cancellable=None)
                 path.delete(cancellable=None)
                 logger.debug("Deleted directory %s", directory)
@@ -2369,8 +2427,7 @@ class RapidApp(dbus.service.Object):
     
     def post_preference_change(self):
         if self.rerun_setup_available_image_and_video_media:
-            if self.using_volume_monitor():
-                self.start_volume_monitor()
+
             logger.info("Download device settings preferences were changed.")
             
             self.thumbnails.clear_all()
@@ -2453,6 +2510,7 @@ class RapidApp(dbus.service.Object):
         self.next_image_action = builder.get_object("next_image_action")
         self.prev_image_action = builder.get_object("prev_image_action")
         self.menu_log_window = builder.get_object("menu_log_window")
+        self.speed_label = builder.get_object("speed_label")
         
         # Only enable this action when actually displaying a preview
         self.next_image_action.set_sensitive(False)
@@ -2493,7 +2551,10 @@ class RapidApp(dbus.service.Object):
         # after a download has occurred in parallel
         self.display_summary_notification = False
         
-
+        # Values used to display how much longer a download will take
+        self.time_remaining = downloadtracker.TimeRemaining()
+        self.time_check = downloadtracker.TimeCheck()
+        
 
     def _set_window_size(self):
         """
