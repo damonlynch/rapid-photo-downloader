@@ -980,11 +980,13 @@ class TaskManager:
         self.batch_size = batch_size
         
         self.paused = False
+        self.no_tasks = 0
        
     
     def add_task(self, task):
         pid = self._setup_task(task)
         logger.debug("TaskManager PID: %s", pid)
+        self.no_tasks += 1
         return pid
 
         
@@ -1595,6 +1597,8 @@ class RapidApp(dbus.service.Object):
                 scan_pid = self.scan_manager.add_task(device)
                 if mount is not None:
                     self.mounts_by_path[path] = scan_pid
+        if not mounts:
+            self.set_download_action_sensitivity()
         
     def get_use_device(self, device):  
         """ Prompt user whether or not to download from this device """
@@ -1788,10 +1792,10 @@ class RapidApp(dbus.service.Object):
         """
         if not self.download_is_occurring():
             sensitivity = False
-            if self.scan_manager.get_no_active_processes() == 0:
+            if self.scan_manager.no_tasks == 0:
                 if self.thumbnails.files_are_checked_to_download():
                     sensitivity = True
-            
+                    
             self.download_action.set_sensitive(sensitivity)
             
     def set_download_action_label(self, is_download):
@@ -2935,6 +2939,7 @@ class RapidApp(dbus.service.Object):
         
         if conn_type == rpdmp.CONN_COMPLETE:
             connection.close()
+            self.scan_manager.no_tasks -= 1
             size, file_type_counter, scan_pid = data
             size = format_size_for_user(bytes=size)
             results_summary, file_types_present = file_type_counter.summarize_file_count()
