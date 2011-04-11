@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-04-04 00:18-0500\n"
+"POT-Creation-Date: 2011-04-10 19:59-0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,60 +18,65 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 
 #. Translators: if neccessary, for guidance in how to translate this program, you may see http://damonlynch.net/translate.html
-#: rapid/rapid.py:103 rapid/glade3/rapid.ui.h:11
+#: rapid/rapid.py:104 rapid/glade3/rapid.ui.h:11
 msgid "Rapid Photo Downloader"
 msgstr ""
 
-#: rapid/rapid.py:108
+#: rapid/rapid.py:109
 #, python-format
 msgid ""
 "%(date)s\n"
 "%(time)s"
 msgstr ""
 
-#: rapid/rapid.py:110
+#: rapid/rapid.py:111
 #, python-format
 msgid "%(date)s %(time)s"
 msgstr ""
 
-#: rapid/rapid.py:113
+#: rapid/rapid.py:114
 #, python-format
 msgid "%(date)s %(hour)s:%(minute)s:%(second)s:%(subsecond)s"
 msgstr ""
 
 #. Device refers to a thing like a camera, memory card in its reader,
 #. external hard drive, Portable Storage Device, etc.
-#: rapid/rapid.py:144
+#: rapid/rapid.py:148
 msgid "Device"
 msgstr ""
 
 #. Size refers to the total size of images on the device, typically in
 #. MB or GB
-#: rapid/rapid.py:158
+#: rapid/rapid.py:165
 msgid "Size"
 msgstr ""
 
-#: rapid/rapid.py:161
+#: rapid/rapid.py:168
 msgid "Download Progress"
+msgstr ""
+
+#: rapid/rapid.py:312
+#, python-format
+msgid "%(device)s did not unmount"
 msgstr ""
 
 #. This refers to when a device like a hard drive is having its contents scanned,
 #. looking for photos or videos. It is visible initially in the progress bar for each device
 #. (which normally holds "x photos and videos").
 #. It maybe displayed only briefly if the contents of the device being scanned is small.
-#: rapid/rapid.py:974
+#: rapid/rapid.py:1091
 msgid "scanning..."
 msgstr ""
 
-#: rapid/rapid.py:1678
+#: rapid/rapid.py:1807
 msgid "Download"
 msgstr ""
 
-#: rapid/rapid.py:1681
+#: rapid/rapid.py:1810
 msgid "Pause"
 msgstr ""
 
-#: rapid/rapid.py:1794
+#: rapid/rapid.py:1912
 #, python-format
 msgid ""
 "These download folders are invalid:\n"
@@ -79,45 +84,127 @@ msgid ""
 "%(folder2)s"
 msgstr ""
 
-#: rapid/rapid.py:1797
+#: rapid/rapid.py:1915
 #, python-format
 msgid ""
 "This download folder is invalid:\n"
 "%s"
 msgstr ""
 
-#: rapid/rapid.py:1798
+#: rapid/rapid.py:1916
 msgid "Download cannot proceed"
 msgstr ""
 
-#: rapid/rapid.py:1957
+#: rapid/rapid.py:2130
+msgid "About 1 second remaining"
+msgstr ""
+
+#: rapid/rapid.py:2132
+#, python-format
+msgid "About %i seconds remaining"
+msgstr ""
+
+#: rapid/rapid.py:2134
+msgid "About 1 minute remaining"
+msgstr ""
+
+#. Translators: in the text '%(minutes)i:%(seconds)02i', only the : should be translated, if needed.
+#. '%(minutes)i' and '%(seconds)02i' should not be modified or left out. They are used to format and display the amount
+#. of time the download has remainging, e.g. 'About 5:36 minutes remaining'
+#: rapid/rapid.py:2139
+#, python-format
+msgid "About %(minutes)i:%(seconds)02i minutes remaining"
+msgstr ""
+
+#: rapid/rapid.py:2151 rapid/preferencesdialog.py:822 rapid/rpdfile.py:110
+msgid "photos and videos"
+msgstr ""
+
+#: rapid/rapid.py:2153 rapid/rpdfile.py:112
+msgid "photos or videos"
+msgstr ""
+
+#: rapid/rapid.py:2156 rapid/rapid.py:2661 rapid/rpdfile.py:115
+msgid "videos"
+msgstr ""
+
+#: rapid/rapid.py:2158 rapid/preferencesdialog.py:1371 rapid/rpdfile.py:117
+#: rapid/rpdfile.py:266
+msgid "video"
+msgstr ""
+
+#: rapid/rapid.py:2161 rapid/rapid.py:2659 rapid/preferencesdialog.py:824
+#: rapid/rpdfile.py:120
+msgid "photos"
+msgstr ""
+
+#. check subfolder preferences for bad values
+#: rapid/rapid.py:2163 rapid/preferencesdialog.py:1370 rapid/rpdfile.py:122
+#: rapid/rpdfile.py:246
+msgid "photo"
+msgstr ""
+
+#: rapid/rapid.py:2188
+#, python-format
+msgid "%(noFiles)s %(filetypes)s downloaded"
+msgstr ""
+
+#: rapid/rapid.py:2192
+#, python-format
+msgid "%(noFiles)s %(filetypes)s failed to download"
+msgstr ""
+
+#: rapid/rapid.py:2195 rapid/rapid.py:2247
+msgid "warnings"
+msgstr ""
+
+#: rapid/rapid.py:2204
+msgid "All downloads complete"
+msgstr ""
+
+#: rapid/rapid.py:2210 rapid/rapid.py:2219 rapid/rapid.py:2228
+#: rapid/rapid.py:2237 rapid/rapid.py:2245
+#, python-format
+msgid "%(number)s %(numberdownloaded)s"
+msgstr ""
+
+#: rapid/rapid.py:2212 rapid/rapid.py:2230
+#, python-format
+msgid "%(filetype)s downloaded"
+msgstr ""
+
+#: rapid/rapid.py:2221 rapid/rapid.py:2239
+#, python-format
+msgid "%(filetype)s failed to download"
+msgstr ""
+
+#. e.g.: 3 of 205 photos and videos (202 remaining)
+#: rapid/rapid.py:2276
+#, python-format
+msgid "%(number)s of %(total)s %(filetypes)s (%(remaining)s remaining)"
+msgstr ""
+
+#. e.g.: 205 of 205 photos and videos
+#: rapid/rapid.py:2283
 #, python-format
 msgid "%(number)s of %(total)s %(filetypes)s"
 msgstr ""
 
-#: rapid/rapid.py:2302 rapid/preferencesdialog.py:825 rapid/rpdfile.py:120
-msgid "photos"
-msgstr ""
-
-#: rapid/rapid.py:2304 rapid/rpdfile.py:115
-msgid "videos"
-msgstr ""
-
-#: rapid/rapid.py:2308
+#: rapid/rapid.py:2665
 msgid "Free space:"
 msgstr ""
 
 #. (videos) or (photos) will be appended to the free space message displayed to the
 #. user in the status bar.
 #. you should only translate this if your language does not use parantheses
-#: rapid/rapid.py:2320
+#: rapid/rapid.py:2677
 #, python-format
 msgid "(%(file_type)s)"
 msgstr ""
 
 #. Freespace available on the filesystem for downloading to
 #. Displayed in status bar message on main window
-#: rapid/rapid.py:2324
+#: rapid/rapid.py:2681
 #, python-format
 msgid "%(free)s %(file_type)s"
 msgstr ""
@@ -125,120 +212,124 @@ msgstr ""
 #. Inserted in the middle of the statusbar message concerning the amount of freespace
 #. Used to differentiate between two different file systems
 #. e.g. Free space: 21.3GB (photos); 14.7GB (videos).
-#: rapid/rapid.py:2329
+#: rapid/rapid.py:2686
 msgid "; "
 msgstr ""
 
 #. Inserted at the end of the statusbar message concerning the amount of freespace
 #. Used to differentiate between two different file systems
 #. e.g. Free space: 21.3GB (photos); 14.7GB (videos).
-#: rapid/rapid.py:2334
+#: rapid/rapid.py:2691
 msgid "."
 msgstr ""
 
 #. Freespace available on the filesystem for downloading to
 #. Displayed in status bar message on main window
 #. e.g. 14.7GB available
-#: rapid/rapid.py:2340
+#: rapid/rapid.py:2697
 #, python-format
 msgid "%(free)s free"
 msgstr ""
 
 #. user manually specified backup location
-#: rapid/rapid.py:2346
+#: rapid/rapid.py:2703
 #, python-format
 msgid "Backing up to %(path)s"
 msgstr ""
 
-#: rapid/rapid.py:2351
+#: rapid/rapid.py:2708
 #, python-format
 msgid "%(freespace)s. %(backuppaths)s."
 msgstr ""
 
-#: rapid/rapid.py:2479 rapid/rpdfile.py:247
+#: rapid/rapid.py:2737
+msgid "Program preferences are invalid"
+msgstr ""
+
+#: rapid/rapid.py:2842 rapid/rpdfile.py:247
 msgid "Photo"
 msgstr ""
 
-#: rapid/rapid.py:2481 rapid/rpdfile.py:267
+#: rapid/rapid.py:2844 rapid/rpdfile.py:267
 msgid "Video"
 msgstr ""
 
-#: rapid/rapid.py:2490
+#: rapid/rapid.py:2853
 #, python-format
 msgid "%(file_type)s download folder does not exist"
 msgstr ""
 
-#: rapid/rapid.py:2492 rapid/rapid.py:2506 rapid/rapid.py:2519
+#: rapid/rapid.py:2855 rapid/rapid.py:2869 rapid/rapid.py:2882
 #, python-format
 msgid "Folder: %s"
 msgstr ""
 
-#: rapid/rapid.py:2504
+#: rapid/rapid.py:2867
 #, python-format
 msgid "%(file_type)s download folder is invalid"
 msgstr ""
 
-#: rapid/rapid.py:2517
+#: rapid/rapid.py:2880
 #, python-format
 msgid "%(file_type)s download folder is not writable"
 msgstr ""
 
-#: rapid/rapid.py:2592
+#: rapid/rapid.py:2958
 msgid "Thumbnails"
 msgstr ""
 
 #. Translators: this text is displayed to the user when they request information on the command line options.
 #. The text %default should not be modified or left out.
-#: rapid/rapid.py:2633
+#: rapid/rapid.py:3005
 #, python-format
 msgid ""
 "display program information on the command line as the program runs "
 "(default: %default)"
 msgstr ""
 
-#: rapid/rapid.py:2634
+#: rapid/rapid.py:3006
 msgid "display debugging information when run from the command line"
 msgstr ""
 
-#: rapid/rapid.py:2635
+#: rapid/rapid.py:3007
 msgid "only output errors to the command line"
 msgstr ""
 
 #. image file extensions are recognized RAW files plus TIFF and JPG
-#: rapid/rapid.py:2637
+#: rapid/rapid.py:3009
 msgid "list photo and video file extensions the program recognizes and exit"
 msgstr ""
 
-#: rapid/rapid.py:2638
+#: rapid/rapid.py:3010
 msgid "reset all program settings and preferences and exit"
 msgstr ""
 
-#: rapid/rapid.py:2651
+#: rapid/rapid.py:3023
 msgid "Photos:"
 msgstr ""
 
-#: rapid/rapid.py:2651
+#: rapid/rapid.py:3023
 msgid "Videos:"
 msgstr ""
 
-#: rapid/rapid.py:2656
+#: rapid/rapid.py:3028
 #, python-format
 msgid "and %s"
 msgstr ""
 
-#: rapid/rapid.py:2664
+#: rapid/rapid.py:3036
 msgid "All settings and preferences have been reset"
 msgstr ""
 
-#: rapid/rapid.py:2673
+#: rapid/rapid.py:3045
 msgid ""
 "Video downloading functionality disabled.\n"
 "To download videos, please install the hachoir metadata and kaa metadata "
 "packages for python."
 msgstr ""
 
-#: rapid/copyfiles.py:136 rapid/subfolderfile.py:209
-#: rapid/subfolderfile.py:346
+#: rapid/copyfiles.py:142 rapid/subfolderfile.py:209
+#: rapid/subfolderfile.py:332 rapid/subfolderfile.py:350
 #, python-format
 msgid ""
 "%(problem)s\n"
@@ -258,6 +349,10 @@ msgstr ""
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#usedeviceprompt
 #: rapid/device.py:107
 msgid "_Remember this choice"
+msgstr ""
+
+#: rapid/downloadtracker.py:217
+msgid "MB/s"
 msgstr ""
 
 #: rapid/generatenameconfig.py:143
@@ -281,7 +376,7 @@ msgid "Sequences"
 msgstr ""
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#jobcode
-#: rapid/generatenameconfig.py:149 rapid/preferencesdialog.py:550
+#: rapid/generatenameconfig.py:149 rapid/preferencesdialog.py:549
 msgid "Job code"
 msgstr ""
 
@@ -603,107 +698,107 @@ msgstr ""
 msgid "SS"
 msgstr ""
 
-#: rapid/preferencesdialog.py:371
+#: rapid/preferencesdialog.py:370
 #, python-format
 msgid "Subfolder preferences should not start with a %s"
 msgstr ""
 
-#: rapid/preferencesdialog.py:373
+#: rapid/preferencesdialog.py:372
 #, python-format
 msgid "Subfolder preferences should not end with a %s"
 msgstr ""
 
-#: rapid/preferencesdialog.py:377
+#: rapid/preferencesdialog.py:376
 #, python-format
 msgid "Subfolder preferences should not contain two %s one after the other"
 msgstr ""
 
-#: rapid/preferencesdialog.py:390 rapid/preferencesdialog.py:673
+#: rapid/preferencesdialog.py:389 rapid/preferencesdialog.py:672
 msgid "Remove all Job Codes?"
 msgstr ""
 
-#: rapid/preferencesdialog.py:407 rapid/preferencesdialog.py:690
+#: rapid/preferencesdialog.py:406 rapid/preferencesdialog.py:689
 msgid "Should all Job Codes be removed?"
 msgstr ""
 
-#: rapid/preferencesdialog.py:437
+#: rapid/preferencesdialog.py:436
 msgid "Error in Photo Rename preferences"
 msgstr ""
 
-#: rapid/preferencesdialog.py:618
+#: rapid/preferencesdialog.py:617
 msgid "Error in Video Rename preferences"
 msgstr ""
 
-#: rapid/preferencesdialog.py:639
+#: rapid/preferencesdialog.py:638
 msgid "Error in Photo Download Subfolders preferences"
 msgstr ""
 
-#: rapid/preferencesdialog.py:656
+#: rapid/preferencesdialog.py:655
 msgid "Error in Video Download Subfolders preferences"
 msgstr ""
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#jobcode
-#: rapid/preferencesdialog.py:715
+#: rapid/preferencesdialog.py:714
 msgid "Enter a Job Code"
 msgstr ""
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#jobcode
-#: rapid/preferencesdialog.py:732
+#: rapid/preferencesdialog.py:731
 msgid "Enter a new Job Code, or select a previous one"
 msgstr ""
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#jobcode
-#: rapid/preferencesdialog.py:735
+#: rapid/preferencesdialog.py:734
 msgid "Enter a new Job Code"
 msgstr ""
 
-#: rapid/preferencesdialog.py:740
+#: rapid/preferencesdialog.py:739
 msgid "Job Code:"
 msgstr ""
 
-#: rapid/preferencesdialog.py:823 rapid/rpdfile.py:110
-msgid "photos and videos"
+#: rapid/preferencesdialog.py:915
+msgid "Job Code"
 msgstr ""
 
-#: rapid/preferencesdialog.py:992
+#: rapid/preferencesdialog.py:997
 msgid "Select a folder to download photos to"
 msgstr ""
 
-#: rapid/preferencesdialog.py:1010
+#: rapid/preferencesdialog.py:1015
 msgid "Select a folder to download videos to"
 msgstr ""
 
-#: rapid/preferencesdialog.py:1101
+#: rapid/preferencesdialog.py:1106
 #, python-format
 msgid "Select a folder containing %(file_types)s"
 msgstr ""
 
-#: rapid/preferencesdialog.py:1123
+#: rapid/preferencesdialog.py:1128
 #, python-format
 msgid "Select a folder in which to backup %(file_types)s"
 msgstr ""
 
 #. Translators: please do not modify or leave out html formatting tags like <i> and <b>. These are used to format the text the users sees
-#: rapid/preferencesdialog.py:1207
+#: rapid/preferencesdialog.py:1212
 msgid ""
 "<i><b>Warning:</b> There is insufficient metadata to fully generate the "
 "name. Please use other renaming options.</i>"
 msgstr ""
 
-#: rapid/preferencesdialog.py:1258
+#: rapid/preferencesdialog.py:1263
 msgid ""
 "<i><b>Warning:</b> There is insufficient metadata to fully generate "
 "subfolders. Please use other subfolder naming options.</i>"
 msgstr ""
 
 #. Translators: you should not modify or leave out the %s. This is a code used by the programming language python to insert a value that thes user will see
-#: rapid/preferencesdialog.py:1261
+#: rapid/preferencesdialog.py:1266
 #, python-format
 msgid "<i>Example: %s</i>"
 msgstr ""
 
 #. Preferences list is now empty
-#: rapid/preferencesdialog.py:1351
+#: rapid/preferencesdialog.py:1356
 #, python-format
 msgid ""
 "The %(filetype)s subfolder preferences entered are invalid and cannot be "
@@ -711,22 +806,13 @@ msgid ""
 "They will be reset to their default values."
 msgstr ""
 
-#. check subfolder preferences for bad values
-#: rapid/preferencesdialog.py:1365 rapid/rpdfile.py:122 rapid/rpdfile.py:246
-msgid "photo"
-msgstr ""
-
-#: rapid/preferencesdialog.py:1366 rapid/rpdfile.py:117 rapid/rpdfile.py:266
-msgid "video"
-msgstr ""
-
 #. Translators: this value is used as an example device when automatic backup device detection is enabled. You should translate this.
-#: rapid/preferencesdialog.py:1637
+#: rapid/preferencesdialog.py:1642
 msgid "externaldrive1"
 msgstr ""
 
 #. Translators: this value is used as an example device when automatic backup device detection is enabled. You should translate this.
-#: rapid/preferencesdialog.py:1639
+#: rapid/preferencesdialog.py:1644
 msgid "externaldrive2"
 msgstr ""
 
@@ -803,11 +889,11 @@ msgid "Stockholm"
 msgstr ""
 
 #. components
-#: rapid/problemnotification.py:26 rapid/subfolderfile.py:339
+#: rapid/problemnotification.py:26 rapid/subfolderfile.py:343
 msgid "subfolder"
 msgstr ""
 
-#: rapid/problemnotification.py:27 rapid/subfolderfile.py:337
+#: rapid/problemnotification.py:27 rapid/subfolderfile.py:341
 msgid "filename"
 msgstr ""
 
@@ -1079,10 +1165,6 @@ msgstr ""
 msgid "%(previousproblem)s, and %(backinguperror)s"
 msgstr ""
 
-#: rapid/rpdfile.py:112
-msgid "photos or videos"
-msgstr ""
-
 #: rapid/rpdfile.py:136
 #, python-format
 msgid "%(number)s %(filetypes)s"
@@ -1109,15 +1191,15 @@ msgstr ""
 msgid "Source: %(source)s"
 msgstr ""
 
-#: rapid/subfolderfile.py:335
+#: rapid/subfolderfile.py:339
 msgid "subfolder and filename"
 msgstr ""
 
-#: rapid/subfolderfile.py:373
+#: rapid/subfolderfile.py:377
 msgid "Failed to create download subfolder"
 msgstr ""
 
-#: rapid/subfolderfile.py:374
+#: rapid/subfolderfile.py:378
 #, python-format
 msgid "Path: %s"
 msgstr ""

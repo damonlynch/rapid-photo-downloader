@@ -1,3 +1,28 @@
+rapid-photo-downloader (0.4.0~b1-0ubuntu1~ppa1) lucid; urgency=low
+
+  * Job Code functionality
+
+  * Eject device button for each unmountable device
+
+  * Display remaining files to be downloaded in progress bar
+
+  * Display overall download progress in lower progress bar
+
+  * Time remaining and download speed are displayed in the status bar
+
+  * System notification messages
+
+  * Automation features: auto download, auto exit, auto unmount
+
+  * Bug fix: adjust vertical pane position when additional devices are 
+    inserted
+
+  * Bug fix: display file and subfolder naming warnings in error log
+
+  * Updated Czech, French and Russian translations.
+
+ -- Damon Lynch <damonlynch@gmail.com>  Sun, 10 Apr 2011 20:07:51 -0500
+
 rapid-photo-downloader (0.3.6-0ubuntu1~ppa1) hardy; urgency=low
 
   * Minor fix to allow program preferences to be changed on upcoming 

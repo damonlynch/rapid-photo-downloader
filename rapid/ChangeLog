@@ -1,5 +1,5 @@
-Version 0.4.0 alpha 5
----------------------
+Version 0.4.0 beta 1
+--------------------
 
 2011-04-10
 
@@ -20,7 +20,8 @@ Features added since alpha 4:
     * Eject a device when all files have been downloaded from it.
     * Exit when all files have been downloaded.
 
-The automation feature to delete downloaded files from a device will be added only when the non-alpha/beta of version 0.4.0 is released.
+The automation feature to delete downloaded files from a device will be added 
+only when the non-alpha/beta of version 0.4.0 is released.
 
 The major feature currently not implemented is backups.
 
@@ -29,6 +30,8 @@ until Rapid Photo Downloader is exited. See bug #744012 for details.
 
 Bug fix: adjust vertical pane position when additional devices are inserted
 Bug fix: display file and subfolder naming warnings in error log
+
+Updated Czech, French and Russian translations.
 
 
 Version 0.3.6
