@@ -125,14 +125,13 @@ class RapidPreferences(prefs.Preferences):
                _('Budapest'), _('Rome'),  _('Moscow'),  _('Delhi'), _('Warsaw'), 
                _('Jakarta'),  _('Madrid'),  _('Stockholm')]),
         "synchronize_raw_jpg": prefs.Value(prefs.BOOL, False),
-        #~ "hpaned_pos": prefs.Value(prefs.INT, 0),
         "vpaned_pos": prefs.Value(prefs.INT, 0),
         "main_window_size_x": prefs.Value(prefs.INT, 0),
         "main_window_size_y": prefs.Value(prefs.INT, 0),
         "main_window_maximized": prefs.Value(prefs.INT, 0),
         "show_warning_downloading_from_camera": prefs.Value(prefs.BOOL, True),
         #~ "preview_zoom": prefs.Value(prefs.INT, zoom),
-        "enable_previews": prefs.Value(prefs.BOOL, True),
+        "generate_thumbnails": prefs.Value(prefs.BOOL, True),
         }
 
     def __init__(self):

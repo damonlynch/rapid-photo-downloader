@@ -48,7 +48,6 @@ class CopyFiles(multiprocessing.Process):
         self.photo_download_folder = photo_download_folder
         self.video_download_folder = video_download_folder
         self.files = files
-        #~ self.generate_thumbnails = generate_thumbnails
         self.scan_pid = scan_pid
         self.no_files= len(self.files)
         self.run_event = run_event
@@ -155,15 +154,16 @@ class CopyFiles(multiprocessing.Process):
                                     temp_full_file_name,
                                     rpd_file.file_type,
                                     (160, 120), (100,100))
-                    self.results_pipe.send((rpdmp.CONN_PARTIAL, 
-                        (rpdmp.MSG_THUMB, (rpd_file.unique_id, 
-                         thumbnail_icon, thumbnail))))
+                else:
+                    thumbnail = None
+                    thumbnail_icon = None
                 
                 if rpd_file.metadata is not None:
                     rpd_file.metadata = None
                     
                 self.results_pipe.send((rpdmp.CONN_PARTIAL, (rpdmp.MSG_FILE, 
-                    (copy_succeeded, rpd_file, i + 1, temp_full_file_name))))
+                    (copy_succeeded, rpd_file, i + 1, temp_full_file_name, 
+                     thumbnail_icon, thumbnail))))
                     
             
         self.results_pipe.send((rpdmp.CONN_COMPLETE, None))

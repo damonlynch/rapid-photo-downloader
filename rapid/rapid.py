@@ -2026,7 +2026,7 @@ class RapidApp(dbus.service.Object):
         if len(self.download_active_by_scan_pid) > 1:
             self.display_summary_notification = True
             
-        if self.auto_start_is_on:
+        if self.auto_start_is_on and self.prefs.generate_thumbnails:
             for rpd_file in files:
                 rpd_file.generate_thumbnail = True
             
@@ -2058,7 +2058,12 @@ class RapidApp(dbus.service.Object):
                                             None, None)
                 self.time_remaining.update(scan_pid, total_downloaded)
             elif msg_type == rpdmp.MSG_FILE:
-                download_succeeded, rpd_file, download_count, temp_full_file_name = data
+                download_succeeded, rpd_file, download_count, temp_full_file_name, thumbnail_icon, thumbnail = data
+                
+                if thumbnail is not None or thumbnail_icon is not None:
+                    self.thumbnails.update_thumbnail((rpd_file.unique_id, 
+                                                      thumbnail_icon, 
+                                                      thumbnail))
                 
                 self.download_tracker.set_download_count_for_file(
                                             rpd_file.unique_id, download_count)
@@ -2079,11 +2084,7 @@ class RapidApp(dbus.service.Object):
                         download_succeeded, 
                         download_count, 
                         rpd_file
-                        )
-            elif msg_type == rpdmp.MSG_THUMB:
-                #~ unique_id, thumbnail, thumbnail_icon = data
-                #~ thumbnail_data = (unique_id
-                self.thumbnails.update_thumbnail(data)    
+                        ) 
                 
             return True
         else:
@@ -3006,7 +3007,9 @@ class RapidApp(dbus.service.Object):
             if self.testing_auto_exit_trip_counter == self.testing_auto_exit_trip and self.testing_auto_exit:
                 self.on_rapidapp_destroy(self.rapidapp)
             else:
-                if not self.testing_auto_exit and not self.auto_start_is_on:
+                if (not self.testing_auto_exit and
+                    not self.auto_start_is_on and
+                    self.prefs.generate_thumbnails):
                     self.download_progressbar.set_text(_("Thumbnails"))
                     self.thumbnails.generate_thumbnails(scan_pid)
                 elif self.auto_start_is_on:

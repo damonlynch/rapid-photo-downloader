@@ -7,6 +7,10 @@ When clicking the Download button before thumbnails are finished generating,
 the thumbnails remaining to be generated will rendered during the download 
 itself.
 
+Added preferences option to disable thumbnail generation. When auto start is
+enabled, this can speed-up transfers if downloading from very high-speed 
+devices.
+
 
 Version 0.4.0 beta 1
 --------------------

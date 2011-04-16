@@ -1177,6 +1177,8 @@ class PreferencesDialog():
                         self.prefs.auto_exit_force)
         self.auto_delete_checkbutton.set_active(
                         self.prefs.auto_delete)
+        self.generate_thumbnails_checkbutton.set_active(
+                        self.prefs.generate_thumbnails)
                         
         self.update_misc_controls()
 
@@ -1484,15 +1486,15 @@ class PreferencesDialog():
     def on_auto_exit_force_checkbutton_toggled(self, checkbutton):
         self.prefs.auto_exit_force = checkbutton.get_active()
     
-    def on_scan_metadata_checkbutton_toggled(self, checkbutton):
-        self.prefs.enable_previews = checkbutton.get_active()
-        
     def on_autodetect_device_checkbutton_toggled(self, checkbutton):
         self.prefs.device_autodetection = checkbutton.get_active()
         self.update_device_controls()
 
-    def on_autodetect_psd_checkbutton_toggled(self,  checkbutton):
+    def on_autodetect_psd_checkbutton_toggled(self, checkbutton):
         self.prefs.device_autodetection_psd = checkbutton.get_active()
+        
+    def on_generate_thumbnails_checkbutton_toggled(self, checkbutton):
+        self.prefs.generate_thumbnails = checkbutton.get_active()
         
     def on_backup_duplicate_overwrite_radiobutton_toggled(self,  widget):
         self.prefs.backup_duplicate_overwrite = widget.get_active()
