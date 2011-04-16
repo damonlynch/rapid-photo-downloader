@@ -283,15 +283,16 @@ class DeviceCollection(gtk.TreeView):
         Look for left single click on eject button
         """
         if event.button == 1:
-            x = int(event.x)
-            y = int(event.y)
-            path, column, cell_x, cell_y = self.get_path_at_pos(x, y)
-            if path is not None:
-                if column == self.get_column(0):
-                    if cell_x >= column.get_width() - self.eject_pixbuf.get_width():
-                        iter = self.liststore.get_iter(path)
-                        if self.liststore.get_value(iter, 5) is not None:
-                            self.unmount(process_id = self.liststore.get_value(iter, 6))
+            if len (self.liststore):
+                x = int(event.x)
+                y = int(event.y)
+                path, column, cell_x, cell_y = self.get_path_at_pos(x, y)
+                if path is not None:
+                    if column == self.get_column(0):
+                        if cell_x >= column.get_width() - self.eject_pixbuf.get_width():
+                            iter = self.liststore.get_iter(path)
+                            if self.liststore.get_value(iter, 5) is not None:
+                                self.unmount(process_id = self.liststore.get_value(iter, 6))
             
     def unmount(self, process_id):
         device = self.devices_by_scan_pid[process_id]
@@ -467,6 +468,12 @@ class ThumbnailDisplay(gtk.IconView):
         self.total_thumbs_to_generate = 0
         self.thumbnails_generated = 0
         
+        # dict of scan_pids that are having thumbnails generated
+        # value is the thumbnail process id
+        # this is needed when terminating thumbnailing early such as when
+        # user clicks download before the thumbnailing is finished
+        self.generating_thumbnails = {}
+        
         self.thumbnails = {}
         self.previews = {}
         self.previews_being_fetched = set()
@@ -518,16 +525,11 @@ class ThumbnailDisplay(gtk.IconView):
         self.add_attribute(image, "filename", 3)
         self.add_attribute(image, "status", 8)
 
-
-        
         #set the background color to a darkish grey
         self.modify_base(gtk.STATE_NORMAL, gtk.gdk.Color('#444444'))
         
         self.show_all()
-        
         self._setup_icons()
-                
-
         
         self.connect('item-activated', self.on_item_activated)
         
@@ -870,7 +872,8 @@ class ThumbnailDisplay(gtk.IconView):
         """Initiate thumbnail generation for files scanned in one process
         """
         rpd_files = [self.rpd_files[unique_id] for unique_id in self.process_index[scan_pid]]
-        self.thumbnail_manager.add_task(rpd_files)
+        thumbnail_pid = self.thumbnail_manager.add_task((scan_pid, rpd_files))
+        self.generating_thumbnails[scan_pid] = thumbnail_pid
     
     def update_thumbnail(self, thumbnail_data):
         """
@@ -897,13 +900,45 @@ class ThumbnailDisplay(gtk.IconView):
                 # get the 2nd image in PIL format
                 self.thumbnails[unique_id] = thumbnail_data[2].get_image()
 
+    def terminate_thumbnail_generation(self, scan_pid):
+        """
+        Terminates thumbnail generation if thumbnails are currently 
+        being generated for this scan_pid
+        """
+        
+        if scan_pid in self.generating_thumbnails:
+            terminated = True
+            self.thumbnail_manager.terminate_process(
+                                        self.generating_thumbnails[scan_pid])
+            del self.generating_thumbnails[scan_pid]
             
+            if len(self.generating_thumbnails) == 0:
+                self._reset_thumbnail_tracking_and_display()
+        else:
+            terminated = False
+            
+        return terminated
+                
+    def mark_thumbnails_needed(self, rpd_files):
+        for rpd_file in rpd_files:
+            if rpd_file.unique_id not in self.thumbnails:
+                rpd_file.generate_thumbnail = True
+        
+            
+    def _reset_thumbnail_tracking_and_display(self):
+        self.rapid_app.download_progressbar.set_fraction(0.0)
+        self.rapid_app.download_progressbar.set_text('')
+        self.thumbnails_generated = 0
+        self.total_thumbs_to_generate = 0
+    
     def thumbnail_results(self, source, condition):
         connection = self.thumbnail_manager.get_pipe(source)
         
         conn_type, data = connection.recv()
         
         if conn_type == rpdmp.CONN_COMPLETE:
+            scan_pid = data
+            del self.generating_thumbnails[scan_pid]
             connection.close()
             return False
         else:
@@ -916,14 +951,11 @@ class ThumbnailDisplay(gtk.IconView):
             # clear progress bar information if all thumbnails have been
             # extracted
             if self.thumbnails_generated == self.total_thumbs_to_generate:
-                self.rapid_app.download_progressbar.set_fraction(0.0)
-                self.rapid_app.download_progressbar.set_text('')
-                self.thumbnails_generated = 0
-                self.total_thumbs_to_generate = 0
-
+                self._reset_thumbnail_tracking_and_display()
             else:
-                self.rapid_app.download_progressbar.set_fraction(
-                    float(self.thumbnails_generated) / self.total_thumbs_to_generate)
+                if self.total_thumbs_to_generate:
+                    self.rapid_app.download_progressbar.set_fraction(
+                        float(self.thumbnails_generated) / self.total_thumbs_to_generate)
             
         
         return True
@@ -1024,6 +1056,23 @@ class TaskManager:
             run_event = scan[2]
             if run_event.is_set():
                 run_event.clear()
+                
+    def _terminate_process(self, p):
+        p[1].put(None)
+        # The process might be paused: let it run
+        run_event = p[2]
+        if not run_event.is_set():
+            run_event.set()        
+    
+    def terminate_process(self, process_id):
+        """
+        Send a signal to process with matching process_id that it should
+        immediately terminate
+        """
+        for p in self.processes():
+            if p[0].pid == process_id:
+                if p[0].is_alive():
+                    self._terminate_process(p)
     
     def request_termination(self):
         """
@@ -1033,11 +1082,7 @@ class TaskManager:
         for p in self.processes():
             if p[0].is_alive():
                 requested = True
-                p[1].put(None)
-                # The process might be paused: let it run
-                run_event = p[2]
-                if not run_event.is_set():
-                    run_event.set()
+                self._terminate_process(p)
                     
         return requested
     
@@ -1099,11 +1144,10 @@ class CopyFilesManager(TaskManager):
         video_download_folder = task[1]
         scan_pid = task[2]
         files = task[3]
-        generate_thumbnails = task[4]
         
         copy_files = copyfiles.CopyFiles(photo_download_folder,
                                 video_download_folder,
-                                files, generate_thumbnails,
+                                files, 
                                 scan_pid, self.batch_size, 
                                 task_process_conn, terminate_queue, run_event)
         copy_files.start()
@@ -1112,8 +1156,10 @@ class CopyFilesManager(TaskManager):
         
 class ThumbnailManager(TaskManager):
         
-    def _initiate_task(self, files, task_process_conn, terminate_queue, run_event):
-        generator = tn.GenerateThumbnails(files, self.batch_size, task_process_conn, terminate_queue, run_event)
+    def _initiate_task(self, task, task_process_conn, terminate_queue, run_event):
+        scan_pid = task[0]
+        files = task[1]
+        generator = tn.GenerateThumbnails(scan_pid, files, self.batch_size, task_process_conn, terminate_queue, run_event)
         generator.start()
         self._processes.append((generator, terminate_queue, run_event))
         return generator.pid
@@ -1361,8 +1407,6 @@ class RapidApp(dbus.service.Object):
         
     def _terminate_processes(self, terminate_file_copies=False):
         
-        # FIXME: need more fine grained tuning here - must cancel large file
-        # copies midstream
         if terminate_file_copies:
             logger.info("Terminating all processes...")
 
@@ -1920,10 +1964,16 @@ class RapidApp(dbus.service.Object):
             # it is unset when all downloads are completed
             if self.download_start_time is None:
                 self.download_start_time = datetime.datetime.now()  
-            
+
+            # Set status to download pending 
             self.thumbnails.mark_download_pending(files_by_scan_pid)
+            
             for scan_pid in files_by_scan_pid:
                 files = files_by_scan_pid[scan_pid]
+                # if generating thumbnails for this scan_pid, stop it
+                if self.thumbnails.terminate_thumbnail_generation(scan_pid):
+                    self.thumbnails.mark_thumbnails_needed(files)
+                
                 self.download_files(files, scan_pid)
                 
             self.set_download_action_label(is_download = False)
@@ -1976,10 +2026,14 @@ class RapidApp(dbus.service.Object):
         if len(self.download_active_by_scan_pid) > 1:
             self.display_summary_notification = True
             
+        if self.auto_start_is_on:
+            for rpd_file in files:
+                rpd_file.generate_thumbnail = True
+            
         # Initiate copy files process
         self.copy_files_manager.add_task((photo_download_folder, 
                               video_download_folder, scan_pid,
-                              files, self.auto_start_is_on))
+                              files))
                               
     def copy_files_results(self, source, condition):
         """
@@ -2042,9 +2096,7 @@ class RapidApp(dbus.service.Object):
     def download_is_occurring(self):
         """Returns True if a file is currently being downloaded or renamed
         """
-        v = not len(self.download_active_by_scan_pid) == 0
-        #~ logger.info("Download is occurring: %s", v)
-        return v
+        return not len(self.download_active_by_scan_pid) == 0
     
     # # #
     # Create folder and file names for downloaded files

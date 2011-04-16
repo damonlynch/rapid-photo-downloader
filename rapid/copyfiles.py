@@ -38,7 +38,7 @@ from gettext import gettext as _
 
 class CopyFiles(multiprocessing.Process):
     def __init__(self, photo_download_folder, video_download_folder, files,
-                 generate_thumbnails, scan_pid, 
+                 scan_pid, 
                  batch_size_MB, results_pipe, terminate_queue, 
                  run_event):
         multiprocessing.Process.__init__(self)
@@ -48,7 +48,7 @@ class CopyFiles(multiprocessing.Process):
         self.photo_download_folder = photo_download_folder
         self.video_download_folder = video_download_folder
         self.files = files
-        self.generate_thumbnails = generate_thumbnails
+        #~ self.generate_thumbnails = generate_thumbnails
         self.scan_pid = scan_pid
         self.no_files= len(self.files)
         self.run_event = run_event
@@ -105,8 +105,7 @@ class CopyFiles(multiprocessing.Process):
         
         if self.photo_temp_dir or self.video_temp_dir:
             
-            if self.generate_thumbnails:
-                self.thumbnail_maker = tn.Thumbnail()
+            self.thumbnail_maker = tn.Thumbnail()
                 
             for i in range(len(self.files)):
                 rpd_file = self.files[i]
@@ -151,7 +150,7 @@ class CopyFiles(multiprocessing.Process):
                 # succeeded or not. It's neccessary to keep the user informed.
                 self.total_downloaded += rpd_file.size
                 
-                if copy_succeeded and self.generate_thumbnails:
+                if copy_succeeded and rpd_file.generate_thumbnail:
                     thumbnail, thumbnail_icon = self.thumbnail_maker.get_thumbnail(
                                     temp_full_file_name,
                                     rpd_file.file_type,

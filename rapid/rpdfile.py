@@ -170,6 +170,10 @@ class RPDFile:
         self.problem = None
         self.job_code = None
         
+        # indicates whether to generate a thumbnail during the copy
+        # files process
+        self.generate_thumbnail = False
+        
         # generated values
         
         self.temp_full_file_name = ''

@@ -341,7 +341,7 @@ class GetPreviewImage(multiprocessing.Process):
 
 
 class GenerateThumbnails(multiprocessing.Process):
-    def __init__(self, files, batch_size, results_pipe, terminate_queue, 
+    def __init__(self, scan_pid, files, batch_size, results_pipe, terminate_queue, 
                  run_event):
         multiprocessing.Process.__init__(self)
         self.results_pipe = results_pipe
@@ -352,6 +352,8 @@ class GenerateThumbnails(multiprocessing.Process):
         self.results = []
         
         self.thumbnail_maker = Thumbnail()
+        
+        self.scan_pid = scan_pid
         
         
     def run(self):
@@ -385,6 +387,6 @@ class GenerateThumbnails(multiprocessing.Process):
         if counter > 0:
             # send any remaining results
             self.results_pipe.send((rpdmp.CONN_PARTIAL, self.results))
-        self.results_pipe.send((rpdmp.CONN_COMPLETE, None))
+        self.results_pipe.send((rpdmp.CONN_COMPLETE, self.scan_pid))
         self.results_pipe.close()
         
