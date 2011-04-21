@@ -333,7 +333,7 @@ class GetPreviewImage(multiprocessing.Process):
     def run(self):
         while True:
             unique_id, full_file_name, file_type, size_max = self.results_pipe.recv()
-            full_size_preview, reduced_size_preview = self.thumbnail_maker.get_thumbnail(full_file_name, file_type, size_max=size_max, size_reduced=None)
+            full_size_preview, reduced_size_preview = self.thumbnail_maker.get_thumbnail(full_file_name, file_type, size_max=size_max, size_reduced=(100,100))
             if full_size_preview is None:
                 full_size_preview = self.get_stock_image(file_type)
             self.results_pipe.send((unique_id, full_size_preview, reduced_size_preview))

@@ -70,15 +70,17 @@ class CopyFiles(multiprocessing.Process):
             # it is - cancel the current copy
             self.cancel_copy.cancel()
         else:
-            chunk_downloaded = amount_downloaded - self.bytes_downloaded
-            if (chunk_downloaded > self.batch_size_bytes) or (amount_downloaded == total):
-                self.bytes_downloaded = amount_downloaded
-                if amount_downloaded == total:
-                    # this function is called a couple of times when total is reached
-                    chunk_downloaded = 0
-                self.results_pipe.send((rpdmp.CONN_PARTIAL, (rpdmp.MSG_BYTES, (self.scan_pid, self.total_downloaded + amount_downloaded, chunk_downloaded))))
-                if amount_downloaded == total:
-                    self.bytes_downloaded = 0
+            if not self.total_reached:
+                chunk_downloaded = amount_downloaded - self.bytes_downloaded
+                if (chunk_downloaded > self.batch_size_bytes) or (amount_downloaded == total):
+                    self.bytes_downloaded = amount_downloaded
+                    if amount_downloaded == total:
+                        # this function is called a couple of times when total is reached
+                        self.total_reached = True
+                        
+                    self.results_pipe.send((rpdmp.CONN_PARTIAL, (rpdmp.MSG_BYTES, (self.scan_pid, self.total_downloaded + amount_downloaded, chunk_downloaded))))
+                    if amount_downloaded == total:
+                        self.bytes_downloaded = 0
     
     def progress_callback(self, amount_downloaded, total):
         self.update_progress(amount_downloaded, total)
@@ -108,6 +110,7 @@ class CopyFiles(multiprocessing.Process):
                 
             for i in range(len(self.files)):
                 rpd_file = self.files[i]
+                self.total_reached = False
                 
                 # pause if instructed by the caller
                 self.run_event.wait()

@@ -146,5 +146,6 @@ def human_readable_version(v):
     """ returns a version in human readable form"""
     v = v.replace('~a', ' alpha ')
     v = v.replace('~b', ' beta ')
+    v = v.replace('~rc', ' RC ')
     return v
         

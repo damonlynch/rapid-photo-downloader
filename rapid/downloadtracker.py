@@ -29,7 +29,9 @@ class DownloadTracker:
     """
     def __init__(self):
         self.size_of_download_in_bytes_by_scan_pid = dict()
-        self.total_bytes_copied_in_bytes_by_scan_pid = dict()
+        self.raw_size_of_download_in_bytes_by_scan_pid = dict()
+        self.total_bytes_copied_by_scan_pid = dict()
+        self.total_bytes_backed_up_by_scan_pid = dict()
         self.no_files_in_download_by_scan_pid = dict()
         self.file_types_present_by_scan_pid = dict()
         # 'Download count' tracks the index of the file being downloaded
@@ -50,11 +52,16 @@ class DownloadTracker:
         self.total_video_failures = 0
         self.total_warnings = 0
         self.total_bytes_to_download = 0
+        self.backups_performed_by_unique_id = dict()
+        
+    def set_no_backup_devices(self, no_backup_devices):
+        self.no_backup_devices = no_backup_devices
         
     def init_stats(self, scan_pid, bytes, no_files):
         self.no_files_in_download_by_scan_pid[scan_pid] = no_files
         self.rename_chunk[scan_pid] = bytes / 10 / no_files
         self.size_of_download_in_bytes_by_scan_pid[scan_pid] = bytes + self.rename_chunk[scan_pid] * no_files
+        self.raw_size_of_download_in_bytes_by_scan_pid[scan_pid] = bytes
         self.total_bytes_to_download += self.size_of_download_in_bytes_by_scan_pid[scan_pid]
         self.files_downloaded[scan_pid] = 0
         self.photos_downloaded[scan_pid] = 0
@@ -62,6 +69,7 @@ class DownloadTracker:
         self.photo_failures[scan_pid] = 0
         self.video_failures[scan_pid] = 0
         self.warnings[scan_pid] = 0
+        self.total_bytes_backed_up_by_scan_pid[scan_pid] = 0
         
     def get_no_files_in_download(self, scan_pid):
         return self.no_files_in_download_by_scan_pid[scan_pid]
@@ -81,6 +89,14 @@ class DownloadTracker:
             
     def get_no_warnings(self, scan_pid):
         return self.warnings.get(scan_pid, 0)
+
+    def file_backed_up(self, unique_id):
+        self.backups_performed_by_unique_id[unique_id] = \
+                    self.backups_performed_by_unique_id.get(unique_id, 0) + 1
+        
+    def all_files_backed_up(self, unique_id):
+        v = self.backups_performed_by_unique_id[unique_id] == self.no_backup_devices
+        return v
             
     def file_downloaded_increment(self, scan_pid, file_type, status):
         self.files_downloaded[scan_pid] += 1
@@ -112,16 +128,19 @@ class DownloadTracker:
         """
         
         # three components: copy (download), rename, and backup
-        percent_complete = ((float(
-                  self.total_bytes_copied_in_bytes_by_scan_pid[scan_pid]) 
+        percent_complete = (((float(
+                  self.total_bytes_copied_by_scan_pid[scan_pid]) 
                 + self.rename_chunk[scan_pid] * self.files_downloaded[scan_pid])
-                / self.size_of_download_in_bytes_by_scan_pid[scan_pid]) * 100
+                + self.total_bytes_backed_up_by_scan_pid[scan_pid])
+                / (self.size_of_download_in_bytes_by_scan_pid[scan_pid] + 
+                   self.raw_size_of_download_in_bytes_by_scan_pid[scan_pid] * 
+                   self.no_backup_devices)) * 100
         return percent_complete
         
     def get_overall_percent_complete(self):
         total = 0
-        for scan_pid in self.total_bytes_copied_in_bytes_by_scan_pid:
-            total += (self.total_bytes_copied_in_bytes_by_scan_pid[scan_pid] +
+        for scan_pid in self.total_bytes_copied_by_scan_pid:
+            total += (self.total_bytes_copied_by_scan_pid[scan_pid] +
                      (self.rename_chunk[scan_pid] * 
                       self.files_downloaded[scan_pid]))
                       
@@ -129,7 +148,10 @@ class DownloadTracker:
         return percent_complete
         
     def set_total_bytes_copied(self, scan_pid, total_bytes):
-        self.total_bytes_copied_in_bytes_by_scan_pid[scan_pid] = total_bytes
+        self.total_bytes_copied_by_scan_pid[scan_pid] = total_bytes
+        
+    def increment_bytes_backed_up(self, scan_pid, chunk_downloaded):
+        self.total_bytes_backed_up_by_scan_pid[scan_pid] += chunk_downloaded
         
     def set_download_count_for_file(self, unique_id, download_count):
         self.download_count_for_file_by_unique_id[unique_id] = download_count
@@ -152,12 +174,13 @@ class DownloadTracker:
         else return False
         """
         return (self.total_warnings == 0 and
-                self.photo_failures == 0 and 
-                self.video_failures == 0)
+                self.total_photo_failures == 0 and 
+                self.total_video_failures == 0)
         
     def purge(self, scan_pid):
         del self.no_files_in_download_by_scan_pid[scan_pid]
         del self.size_of_download_in_bytes_by_scan_pid[scan_pid]
+        del self.raw_size_of_download_in_bytes_by_scan_pid[scan_pid]
         del self.photos_downloaded[scan_pid]
         del self.videos_downloaded[scan_pid]
         del self.files_downloaded[scan_pid]
@@ -241,9 +264,9 @@ class TimeRemaining:
         t.time_mark = time.time()
         self.times[scan_pid] = t
     
-    def update(self, scan_pid, total_size):
+    def update(self, scan_pid, bytes_downloaded):
         if scan_pid in self.times:
-            self.times[scan_pid].downloaded = total_size
+            self.times[scan_pid].downloaded += bytes_downloaded
             now = time.time()
             tm = self.times[scan_pid].time_mark
             amt_time = now - tm
