@@ -19,7 +19,8 @@
 
 import time
 from rpdfile import FILE_TYPE_PHOTO, FILE_TYPE_VIDEO
-from config import STATUS_DOWNLOAD_FAILED, STATUS_DOWNLOADED_WITH_WARNING
+from config import STATUS_DOWNLOAD_FAILED, STATUS_DOWNLOADED_WITH_WARNING, \
+                   STATUS_DOWNLOAD_AND_BACKUP_FAILED, STATUS_BACKUP_PROBLEM
 
 from gettext import gettext as _
 
@@ -28,12 +29,17 @@ class DownloadTracker:
     Track file downloads - their size, number, and any problems
     """
     def __init__(self):
+        self.file_types_present_by_scan_pid = dict()
+        self._refresh_values()
+        
+    def _refresh_values(self):
+        """ these values are reset when a download is completed"""
         self.size_of_download_in_bytes_by_scan_pid = dict()
         self.raw_size_of_download_in_bytes_by_scan_pid = dict()
         self.total_bytes_copied_by_scan_pid = dict()
         self.total_bytes_backed_up_by_scan_pid = dict()
         self.no_files_in_download_by_scan_pid = dict()
-        self.file_types_present_by_scan_pid = dict()
+        
         # 'Download count' tracks the index of the file being downloaded
         # into the list of files that need to be downloaded -- much like
         # a counter in a for loop, e.g. 'for i in list', where i is the counter
@@ -101,7 +107,7 @@ class DownloadTracker:
     def file_downloaded_increment(self, scan_pid, file_type, status):
         self.files_downloaded[scan_pid] += 1
         
-        if status <> STATUS_DOWNLOAD_FAILED:
+        if status <> STATUS_DOWNLOAD_FAILED and status <> STATUS_DOWNLOAD_AND_BACKUP_FAILED:
             if file_type == FILE_TYPE_PHOTO:
                 self.photos_downloaded[scan_pid] += 1
                 self.total_photos_downloaded += 1
@@ -109,7 +115,7 @@ class DownloadTracker:
                 self.videos_downloaded[scan_pid] += 1
                 self.total_videos_downloaded += 1
                 
-            if status == STATUS_DOWNLOADED_WITH_WARNING:
+            if status == STATUS_DOWNLOADED_WITH_WARNING or status == STATUS_BACKUP_PROBLEM:
                 self.warnings[scan_pid] += 1
                 self.total_warnings += 1
         else:
@@ -189,7 +195,7 @@ class DownloadTracker:
         del self.warnings[scan_pid]
         
     def purge_all(self):
-        self.__init__()
+        self._refresh_values()
 
 
 

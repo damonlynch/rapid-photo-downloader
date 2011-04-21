@@ -1652,9 +1652,6 @@ class RapidApp(dbus.service.Object):
         mounts = []
         self.backup_devices = {}
         
-        # Clear download statistics and tracking
-        # FIXME
-        
         if self.using_volume_monitor():
             # either using automatically detected backup devices
             # or download devices
@@ -1711,12 +1708,6 @@ class RapidApp(dbus.service.Object):
                                       (self.prefs.auto_download_upon_device_insertion and
                                        not on_startup)))
         
-
-        self.testing_auto_exit = False
-        self.testing_auto_exit_trip = len(mounts)
-        self.testing_auto_exit_trip_counter = 0
-        
-
         for m in mounts:
             path, mount = m
             device = dv.Device(path=path, mount=mount)
@@ -3228,22 +3219,17 @@ class RapidApp(dbus.service.Object):
             logger.info('Files total %s' % size)
             self.device_collection.update_device(scan_pid, size)
             self.device_collection.update_progress(scan_pid, 0.0, results_summary, 0)
-            self.testing_auto_exit_trip_counter += 1
             self.set_download_action_sensitivity()
                         
-            if self.testing_auto_exit_trip_counter == self.testing_auto_exit_trip and self.testing_auto_exit:
-                self.on_rapidapp_destroy(self.rapidapp)
-            else:
-                if (not self.testing_auto_exit and
-                    not self.auto_start_is_on and
-                    self.prefs.generate_thumbnails):
-                    self.download_progressbar.set_text(_("Thumbnails"))
-                    self.thumbnails.generate_thumbnails(scan_pid)
-                elif self.auto_start_is_on:
-                    if self.need_job_code_for_naming and not self.job_code:
-                        self.get_job_code()
-                    else:
-                        self.start_download(scan_pid=scan_pid)
+            if (not self.auto_start_is_on and
+                self.prefs.generate_thumbnails):
+                self.download_progressbar.set_text(_("Thumbnails"))
+                self.thumbnails.generate_thumbnails(scan_pid)
+            elif self.auto_start_is_on:
+                if self.need_job_code_for_naming and not self.job_code:
+                    self.get_job_code()
+                else:
+                    self.start_download(scan_pid=scan_pid)
 
             self.set_thumbnail_sort()
             

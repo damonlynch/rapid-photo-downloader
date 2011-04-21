@@ -175,7 +175,6 @@ class BackupFiles(multiprocessing.Process):
             self.total_downloaded += rpd_file.size
             bytes_not_downloaded = rpd_file.size - self.amount_downloaded
             if bytes_not_downloaded:
-                logger.info("Some bytes were not downloaded: %s", bytes_not_downloaded)
                 self.results_pipe.send((rpdmp.CONN_PARTIAL, (rpdmp.MSG_BYTES, (self.scan_pid, self.pid, self.total_downloaded, bytes_not_downloaded))))
                 
             self.results_pipe.send((rpdmp.CONN_PARTIAL, (rpdmp.MSG_FILE,
