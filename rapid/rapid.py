@@ -213,6 +213,7 @@ class DeviceCollection(gtk.TreeView):
         # please note, at program startup, self.row_height() will be less than it will be when already running
         # e.g. when starting with 3 cards, it could be 18, but when adding 2 cards to the already running program
         # (with one card at startup), it could be 21
+        # must account for header row at the top
         row_height = self.get_background_area(0, self.get_column(0))[3] + 1
         height = (len(self.map_process_to_row) + 1) * row_height
         self.parent_app.device_collection_scrolledwindow.set_size_request(-1, height)
@@ -2335,8 +2336,6 @@ class RapidApp(dbus.service.Object):
                 self.downloads_today_tracker.set_raw_downloads_today_date(self.downloads_today_date_value.value)
                 self.prefs.set_downloads_today_from_tracker(self.downloads_today_tracker)
 
-                print self.prefs.auto_exit, self.download_tracker.no_errors_or_warnings(), self.prefs.auto_exit_force, self.thumbnails.files_remain_to_download()
-                
                 if ((self.prefs.auto_exit and self.download_tracker.no_errors_or_warnings()) 
                                                 or self.prefs.auto_exit_force):
                     if not self.thumbnails.files_remain_to_download():
@@ -2637,7 +2636,6 @@ class RapidApp(dbus.service.Object):
         Called when user changes the program's preferences
         """
         logger.debug("Preference change detected: %s", key)
-        
 
         if key == 'show_log_dialog':
             self.menu_log_window.set_active(value)
@@ -2666,10 +2664,6 @@ class RapidApp(dbus.service.Object):
         elif key in ['image_rename', 'subfolder', 'video_rename', 'video_subfolder']:
             # Check if stored sequence no is being used
             self._check_for_sequence_value_use()
-            
-        #~ elif key == 'job_codes':
-            #~ # update job code list in left pane
-            #~ self.selection_vbox.update_job_code_combo()
             
         elif key in ['download_folder', 'video_download_folder']:
             self.display_free_space()
@@ -2829,11 +2823,10 @@ class RapidApp(dbus.service.Object):
         """
         Set the size of the device collection scrolled window widget
         """
-        
-        
         if self.device_collection.map_process_to_row:
             height = self.device_collection_viewport.size_request()[1]
             self.device_collection_scrolledwindow.set_size_request(-1,  height)
+            self.main_vpaned.set_position(height)
         else:
             # don't allow the media collection to be absolutely empty
             self.device_collection_scrolledwindow.set_size_request(-1, 47)
