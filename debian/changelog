@@ -1,3 +1,25 @@
+rapid-photo-downloader (0.4.0~rc1-0ubuntu2~ppa1) lucid; urgency=low
+
+  * Publish to testing PPA
+
+ -- Damon Lynch <damonlynch@gmail.com>  Thu, 21 Apr 2011 01:55:55 -0500
+
+rapid-photo-downloader (0.4.0~rc1-0ubuntu1~ppa1) lucid; urgency=low
+
+  * Backups have been implemented
+
+  * Added preferences option to disable thumbnail generation
+
+  * Render thumbnails during download when Download button is clicked
+    before all thumbnails have been rendered
+
+  * Bug fix: don't crash when downloading some files after having 
+    previously downloaded some others in the same session.
+
+  * Updated Brazilian, Dutch, German and Russian translations.
+
+ -- Damon Lynch <damonlynch@gmail.com>  Thu, 21 Apr 2011 01:33:55 -0500
+
 rapid-photo-downloader (0.4.0~b1-0ubuntu1~ppa1) lucid; urgency=low
 
   * Job Code functionality

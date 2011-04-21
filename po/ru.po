@@ -7,22 +7,22 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2011-04-04 00:18-0500\n"
-"PO-Revision-Date: 2011-04-08 16:07+0000\n"
+"POT-Creation-Date: 2011-04-10 19:59-0500\n"
+"PO-Revision-Date: 2011-04-15 18:27+0000\n"
 "Last-Translator: Sergey Sedov <sedov@webmail.perm.ru>\n"
 "Language-Team: Russian <ru@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-04-11 01:01+0000\n"
-"X-Generator: Launchpad (build 12757)\n"
+"X-Launchpad-Export-Date: 2011-04-21 06:12+0000\n"
+"X-Generator: Launchpad (build 12883)\n"
 
 #. Translators: if neccessary, for guidance in how to translate this program, you may see http://damonlynch.net/translate.html
-#: rapid/rapid.py:103 rapid/glade3/rapid.ui.h:11
+#: rapid/rapid.py:104 rapid/glade3/rapid.ui.h:11
 msgid "Rapid Photo Downloader"
 msgstr "Rapid Photo Downloader"
 
-#: rapid/rapid.py:108
+#: rapid/rapid.py:109
 #, python-format
 msgid ""
 "%(date)s\n"
@@ -31,49 +31,54 @@ msgstr ""
 "%(date)s\n"
 "%(time)s"
 
-#: rapid/rapid.py:110
+#: rapid/rapid.py:111
 #, python-format
 msgid "%(date)s %(time)s"
 msgstr "%(date)s %(time)s"
 
-#: rapid/rapid.py:113
+#: rapid/rapid.py:114
 #, python-format
 msgid "%(date)s %(hour)s:%(minute)s:%(second)s:%(subsecond)s"
 msgstr "%(date)s %(hour)s:%(minute)s:%(second)s:%(subsecond)s"
 
 #. Device refers to a thing like a camera, memory card in its reader,
 #. external hard drive, Portable Storage Device, etc.
-#: rapid/rapid.py:144
+#: rapid/rapid.py:148
 msgid "Device"
 msgstr "Носитель"
 
 #. Size refers to the total size of images on the device, typically in
 #. MB or GB
-#: rapid/rapid.py:158
+#: rapid/rapid.py:165
 msgid "Size"
 msgstr "Размер"
 
-#: rapid/rapid.py:161
+#: rapid/rapid.py:168
 msgid "Download Progress"
 msgstr "Ход загрузки"
+
+#: rapid/rapid.py:312
+#, python-format
+msgid "%(device)s did not unmount"
+msgstr ""
 
 #. This refers to when a device like a hard drive is having its contents scanned,
 #. looking for photos or videos. It is visible initially in the progress bar for each device
 #. (which normally holds "x photos and videos").
 #. It maybe displayed only briefly if the contents of the device being scanned is small.
-#: rapid/rapid.py:974
+#: rapid/rapid.py:1091
 msgid "scanning..."
 msgstr "сканирование..."
 
-#: rapid/rapid.py:1678
+#: rapid/rapid.py:1807
 msgid "Download"
 msgstr "Загрузка"
 
-#: rapid/rapid.py:1681
+#: rapid/rapid.py:1810
 msgid "Pause"
 msgstr "Пауза"
 
-#: rapid/rapid.py:1794
+#: rapid/rapid.py:1912
 #, python-format
 msgid ""
 "These download folders are invalid:\n"
@@ -81,45 +86,127 @@ msgid ""
 "%(folder2)s"
 msgstr ""
 
-#: rapid/rapid.py:1797
+#: rapid/rapid.py:1915
 #, python-format
 msgid ""
 "This download folder is invalid:\n"
 "%s"
 msgstr ""
 
-#: rapid/rapid.py:1798
+#: rapid/rapid.py:1916
 msgid "Download cannot proceed"
 msgstr "Невозможно загрузить"
 
-#: rapid/rapid.py:1957
+#: rapid/rapid.py:2130
+msgid "About 1 second remaining"
+msgstr "Осталась примерно 1 секунда"
+
+#: rapid/rapid.py:2132
+#, python-format
+msgid "About %i seconds remaining"
+msgstr "Осталось %i  секунд"
+
+#: rapid/rapid.py:2134
+msgid "About 1 minute remaining"
+msgstr "Осталась примерно 1 минута"
+
+#. Translators: in the text '%(minutes)i:%(seconds)02i', only the : should be translated, if needed.
+#. '%(minutes)i' and '%(seconds)02i' should not be modified or left out. They are used to format and display the amount
+#. of time the download has remainging, e.g. 'About 5:36 minutes remaining'
+#: rapid/rapid.py:2139
+#, python-format
+msgid "About %(minutes)i:%(seconds)02i minutes remaining"
+msgstr "Осталось примерно %(minutes)i:%(seconds)02i"
+
+#: rapid/rapid.py:2151 rapid/preferencesdialog.py:822 rapid/rpdfile.py:110
+msgid "photos and videos"
+msgstr "фото и видео"
+
+#: rapid/rapid.py:2153 rapid/rpdfile.py:112
+msgid "photos or videos"
+msgstr "фото или видео"
+
+#: rapid/rapid.py:2156 rapid/rapid.py:2661 rapid/rpdfile.py:115
+msgid "videos"
+msgstr "видео"
+
+#: rapid/rapid.py:2158 rapid/preferencesdialog.py:1371 rapid/rpdfile.py:117
+#: rapid/rpdfile.py:266
+msgid "video"
+msgstr "видео"
+
+#: rapid/rapid.py:2161 rapid/rapid.py:2659 rapid/preferencesdialog.py:824
+#: rapid/rpdfile.py:120
+msgid "photos"
+msgstr "фото"
+
+#. check subfolder preferences for bad values
+#: rapid/rapid.py:2163 rapid/preferencesdialog.py:1370 rapid/rpdfile.py:122
+#: rapid/rpdfile.py:246
+msgid "photo"
+msgstr "фото"
+
+#: rapid/rapid.py:2188
+#, python-format
+msgid "%(noFiles)s %(filetypes)s downloaded"
+msgstr "%(noFiles)s %(filetypes)s загружено"
+
+#: rapid/rapid.py:2192
+#, python-format
+msgid "%(noFiles)s %(filetypes)s failed to download"
+msgstr "%(noFiles)s %(filetypes)s не удалось загрузить"
+
+#: rapid/rapid.py:2195 rapid/rapid.py:2247
+msgid "warnings"
+msgstr "предупреждения"
+
+#: rapid/rapid.py:2204
+msgid "All downloads complete"
+msgstr "Все загрузки завершены"
+
+#: rapid/rapid.py:2210 rapid/rapid.py:2219 rapid/rapid.py:2228
+#: rapid/rapid.py:2237 rapid/rapid.py:2245
+#, python-format
+msgid "%(number)s %(numberdownloaded)s"
+msgstr "%(number)s %(numberdownloaded)s"
+
+#: rapid/rapid.py:2212 rapid/rapid.py:2230
+#, python-format
+msgid "%(filetype)s downloaded"
+msgstr "%(filetype)s загружено"
+
+#: rapid/rapid.py:2221 rapid/rapid.py:2239
+#, python-format
+msgid "%(filetype)s failed to download"
+msgstr "%(filetype)s не удалось загрузить"
+
+#. e.g.: 3 of 205 photos and videos (202 remaining)
+#: rapid/rapid.py:2276
+#, python-format
+msgid "%(number)s of %(total)s %(filetypes)s (%(remaining)s remaining)"
+msgstr "%(number)s из %(total)s %(filetypes)s (%(remaining)s осталось)"
+
+#. e.g.: 205 of 205 photos and videos
+#: rapid/rapid.py:2283
 #, python-format
 msgid "%(number)s of %(total)s %(filetypes)s"
 msgstr "%(number)s из %(total)s %(filetypes)s"
 
-#: rapid/rapid.py:2302 rapid/preferencesdialog.py:825 rapid/rpdfile.py:120
-msgid "photos"
-msgstr "фото"
-
-#: rapid/rapid.py:2304 rapid/rpdfile.py:115
-msgid "videos"
-msgstr "видео"
-
-#: rapid/rapid.py:2308
+#: rapid/rapid.py:2665
 msgid "Free space:"
 msgstr "Свободное место:"
 
 #. (videos) or (photos) will be appended to the free space message displayed to the
 #. user in the status bar.
 #. you should only translate this if your language does not use parantheses
-#: rapid/rapid.py:2320
+#: rapid/rapid.py:2677
 #, python-format
 msgid "(%(file_type)s)"
 msgstr ""
 
 #. Freespace available on the filesystem for downloading to
 #. Displayed in status bar message on main window
-#: rapid/rapid.py:2324
+#: rapid/rapid.py:2681
 #, python-format
 msgid "%(free)s %(file_type)s"
 msgstr ""
@@ -127,71 +214,75 @@ msgstr ""
 #. Inserted in the middle of the statusbar message concerning the amount of freespace
 #. Used to differentiate between two different file systems
 #. e.g. Free space: 21.3GB (photos); 14.7GB (videos).
-#: rapid/rapid.py:2329
+#: rapid/rapid.py:2686
 msgid "; "
 msgstr ""
 
 #. Inserted at the end of the statusbar message concerning the amount of freespace
 #. Used to differentiate between two different file systems
 #. e.g. Free space: 21.3GB (photos); 14.7GB (videos).
-#: rapid/rapid.py:2334
+#: rapid/rapid.py:2691
 msgid "."
 msgstr ""
 
 #. Freespace available on the filesystem for downloading to
 #. Displayed in status bar message on main window
 #. e.g. 14.7GB available
-#: rapid/rapid.py:2340
+#: rapid/rapid.py:2697
 #, python-format
 msgid "%(free)s free"
 msgstr ""
 
 #. user manually specified backup location
-#: rapid/rapid.py:2346
+#: rapid/rapid.py:2703
 #, python-format
 msgid "Backing up to %(path)s"
 msgstr "Резервное копирование в  %(path)s"
 
-#: rapid/rapid.py:2351
+#: rapid/rapid.py:2708
 #, python-format
 msgid "%(freespace)s. %(backuppaths)s."
 msgstr "%(freespace)s. %(backuppaths)s."
 
-#: rapid/rapid.py:2479 rapid/rpdfile.py:247
+#: rapid/rapid.py:2737
+msgid "Program preferences are invalid"
+msgstr "Настройки программы не корректны"
+
+#: rapid/rapid.py:2842 rapid/rpdfile.py:247
 msgid "Photo"
 msgstr "Фото"
 
-#: rapid/rapid.py:2481 rapid/rpdfile.py:267
+#: rapid/rapid.py:2844 rapid/rpdfile.py:267
 msgid "Video"
 msgstr "Видео"
 
-#: rapid/rapid.py:2490
+#: rapid/rapid.py:2853
 #, python-format
 msgid "%(file_type)s download folder does not exist"
-msgstr ""
+msgstr "%(file_type)s каталог для закачки не существует"
 
-#: rapid/rapid.py:2492 rapid/rapid.py:2506 rapid/rapid.py:2519
+#: rapid/rapid.py:2855 rapid/rapid.py:2869 rapid/rapid.py:2882
 #, python-format
 msgid "Folder: %s"
 msgstr "Каталог: %s"
 
-#: rapid/rapid.py:2504
+#: rapid/rapid.py:2867
 #, python-format
 msgid "%(file_type)s download folder is invalid"
 msgstr ""
 
-#: rapid/rapid.py:2517
+#: rapid/rapid.py:2880
 #, python-format
 msgid "%(file_type)s download folder is not writable"
-msgstr ""
+msgstr "%(file_type)s в каталог для закачки невозможно записать"
 
-#: rapid/rapid.py:2592
+#: rapid/rapid.py:2958
 msgid "Thumbnails"
 msgstr "Миниатюры"
 
 #. Translators: this text is displayed to the user when they request information on the command line options.
 #. The text %default should not be modified or left out.
-#: rapid/rapid.py:2633
+#: rapid/rapid.py:3005
 #, python-format
 msgid ""
 "display program information on the command line as the program runs "
@@ -200,42 +291,42 @@ msgstr ""
 "отобразить информацию о программе в командной строке при запуске программы "
 "(по умолчанию: %default)"
 
-#: rapid/rapid.py:2634
+#: rapid/rapid.py:3006
 msgid "display debugging information when run from the command line"
 msgstr "отображать отладочную информацию при запуске из командной строки"
 
-#: rapid/rapid.py:2635
+#: rapid/rapid.py:3007
 msgid "only output errors to the command line"
 msgstr "выводить в командную строку только ошибки"
 
 #. image file extensions are recognized RAW files plus TIFF and JPG
-#: rapid/rapid.py:2637
+#: rapid/rapid.py:3009
 msgid "list photo and video file extensions the program recognizes and exit"
 msgstr ""
 "вывести расширения фото- и видеофайлов, которые распознает программа, и выйти"
 
-#: rapid/rapid.py:2638
+#: rapid/rapid.py:3010
 msgid "reset all program settings and preferences and exit"
 msgstr "сбросить все настройки и выйти"
 
-#: rapid/rapid.py:2651
+#: rapid/rapid.py:3023
 msgid "Photos:"
 msgstr "Фото:"
 
-#: rapid/rapid.py:2651
+#: rapid/rapid.py:3023
 msgid "Videos:"
 msgstr "Видео:"
 
-#: rapid/rapid.py:2656
+#: rapid/rapid.py:3028
 #, python-format
 msgid "and %s"
 msgstr "и %s"
 
-#: rapid/rapid.py:2664
+#: rapid/rapid.py:3036
 msgid "All settings and preferences have been reset"
 msgstr "Все установки и настройки были сброшены"
 
-#: rapid/rapid.py:2673
+#: rapid/rapid.py:3045
 msgid ""
 "Video downloading functionality disabled.\n"
 "To download videos, please install the hachoir metadata and kaa metadata "
@@ -245,13 +336,15 @@ msgstr ""
 "Для загрузки видеороликов, пожалуйста, установите пакеты метаданных hachoir "
 "и kaa."
 
-#: rapid/copyfiles.py:136 rapid/subfolderfile.py:209
-#: rapid/subfolderfile.py:346
+#: rapid/copyfiles.py:142 rapid/subfolderfile.py:209
+#: rapid/subfolderfile.py:332 rapid/subfolderfile.py:350
 #, python-format
 msgid ""
 "%(problem)s\n"
 "File: %(file)s"
 msgstr ""
+"%(problem)s\n"
+"Файл: %(file)s"
 
 #: rapid/device.py:79
 msgid "Device Detected"
@@ -267,6 +360,10 @@ msgstr "Следует ли загрузить фото или видео с э�
 #: rapid/device.py:107
 msgid "_Remember this choice"
 msgstr "_Запомнить мой выбор"
+
+#: rapid/downloadtracker.py:217
+msgid "MB/s"
+msgstr "МБ/с"
 
 #: rapid/generatenameconfig.py:143
 msgid "Date time"
@@ -289,7 +386,7 @@ msgid "Sequences"
 msgstr "Последовательности"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#jobcode
-#: rapid/generatenameconfig.py:149 rapid/preferencesdialog.py:550
+#: rapid/generatenameconfig.py:149 rapid/preferencesdialog.py:549
 msgid "Job code"
 msgstr "Метка"
 
@@ -611,89 +708,89 @@ msgstr "ММ (мин.)"
 msgid "SS"
 msgstr "СС"
 
-#: rapid/preferencesdialog.py:371
+#: rapid/preferencesdialog.py:370
 #, python-format
 msgid "Subfolder preferences should not start with a %s"
 msgstr "Настройки подкаталога не должны начинаться с %s"
 
-#: rapid/preferencesdialog.py:373
+#: rapid/preferencesdialog.py:372
 #, python-format
 msgid "Subfolder preferences should not end with a %s"
 msgstr "Настройки подкаталога не должны заканчиваться с %s"
 
-#: rapid/preferencesdialog.py:377
+#: rapid/preferencesdialog.py:376
 #, python-format
 msgid "Subfolder preferences should not contain two %s one after the other"
 msgstr "Настройки подкаталога не должны содержать две %s одну за другой"
 
-#: rapid/preferencesdialog.py:390 rapid/preferencesdialog.py:673
+#: rapid/preferencesdialog.py:389 rapid/preferencesdialog.py:672
 msgid "Remove all Job Codes?"
 msgstr "Удалить все метки?"
 
-#: rapid/preferencesdialog.py:407 rapid/preferencesdialog.py:690
+#: rapid/preferencesdialog.py:406 rapid/preferencesdialog.py:689
 msgid "Should all Job Codes be removed?"
 msgstr "Вы действительно хотите удалить все метки?"
 
-#: rapid/preferencesdialog.py:437
+#: rapid/preferencesdialog.py:436
 msgid "Error in Photo Rename preferences"
 msgstr "Ошибка в параметрах Переименования фото"
 
-#: rapid/preferencesdialog.py:618
+#: rapid/preferencesdialog.py:617
 msgid "Error in Video Rename preferences"
 msgstr "Ошибка в параметрах Переименования видео"
 
-#: rapid/preferencesdialog.py:639
+#: rapid/preferencesdialog.py:638
 msgid "Error in Photo Download Subfolders preferences"
 msgstr "Ошибка в параметрах Подкаталогов для загрузки фото"
 
-#: rapid/preferencesdialog.py:656
+#: rapid/preferencesdialog.py:655
 msgid "Error in Video Download Subfolders preferences"
 msgstr "Ошибка в параметрах Подкаталогов для загрузки видео"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#jobcode
-#: rapid/preferencesdialog.py:715
+#: rapid/preferencesdialog.py:714
 msgid "Enter a Job Code"
 msgstr "Введите метку"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#jobcode
-#: rapid/preferencesdialog.py:732
+#: rapid/preferencesdialog.py:731
 msgid "Enter a new Job Code, or select a previous one"
 msgstr "Введите новую метку или выберите одну из существующих"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#jobcode
-#: rapid/preferencesdialog.py:735
+#: rapid/preferencesdialog.py:734
 msgid "Enter a new Job Code"
 msgstr "Введите новую метку"
 
-#: rapid/preferencesdialog.py:740
+#: rapid/preferencesdialog.py:739
 msgid "Job Code:"
 msgstr "Метка:"
 
-#: rapid/preferencesdialog.py:823 rapid/rpdfile.py:110
-msgid "photos and videos"
-msgstr "фото и видео"
+#: rapid/preferencesdialog.py:915
+msgid "Job Code"
+msgstr "Метка"
 
-#: rapid/preferencesdialog.py:992
+#: rapid/preferencesdialog.py:997
 msgid "Select a folder to download photos to"
 msgstr "Выберите каталог для загрузки фото"
 
-#: rapid/preferencesdialog.py:1010
+#: rapid/preferencesdialog.py:1015
 msgid "Select a folder to download videos to"
 msgstr "Выберите каталог для загрузки видео"
 
-#: rapid/preferencesdialog.py:1101
+#: rapid/preferencesdialog.py:1106
 #, python-format
 msgid "Select a folder containing %(file_types)s"
 msgstr "Выберите каталог, содержащий %(file_types)s"
 
-#: rapid/preferencesdialog.py:1123
+#: rapid/preferencesdialog.py:1128
 #, python-format
 msgid "Select a folder in which to backup %(file_types)s"
 msgstr ""
 "Выберите каталог в котором будут храниться резервные копии %(file_types)s"
 
 #. Translators: please do not modify or leave out html formatting tags like <i> and <b>. These are used to format the text the users sees
-#: rapid/preferencesdialog.py:1207
+#: rapid/preferencesdialog.py:1212
 msgid ""
 "<i><b>Warning:</b> There is insufficient metadata to fully generate the "
 "name. Please use other renaming options.</i>"
@@ -701,7 +798,7 @@ msgstr ""
 "<i><b>Внимание:</b> Недостаточно метаданных для создания имен файлов. "
 "Пожалуйста, используйте другие варианты переименования.</i>"
 
-#: rapid/preferencesdialog.py:1258
+#: rapid/preferencesdialog.py:1263
 msgid ""
 "<i><b>Warning:</b> There is insufficient metadata to fully generate "
 "subfolders. Please use other subfolder naming options.</i>"
@@ -711,13 +808,13 @@ msgstr ""
 "подкаталогов.</i>"
 
 #. Translators: you should not modify or leave out the %s. This is a code used by the programming language python to insert a value that thes user will see
-#: rapid/preferencesdialog.py:1261
+#: rapid/preferencesdialog.py:1266
 #, python-format
 msgid "<i>Example: %s</i>"
 msgstr "<i>Пример: %s</i>"
 
 #. Preferences list is now empty
-#: rapid/preferencesdialog.py:1351
+#: rapid/preferencesdialog.py:1356
 #, python-format
 msgid ""
 "The %(filetype)s subfolder preferences entered are invalid and cannot be "
@@ -728,22 +825,13 @@ msgstr ""
 "использованы.\n"
 "Они сброшены до значений по умолчанию."
 
-#. check subfolder preferences for bad values
-#: rapid/preferencesdialog.py:1365 rapid/rpdfile.py:122 rapid/rpdfile.py:246
-msgid "photo"
-msgstr "фото"
-
-#: rapid/preferencesdialog.py:1366 rapid/rpdfile.py:117 rapid/rpdfile.py:266
-msgid "video"
-msgstr "видео"
-
 #. Translators: this value is used as an example device when automatic backup device detection is enabled. You should translate this.
-#: rapid/preferencesdialog.py:1637
+#: rapid/preferencesdialog.py:1642
 msgid "externaldrive1"
 msgstr "внешнийдиск1"
 
 #. Translators: this value is used as an example device when automatic backup device detection is enabled. You should translate this.
-#: rapid/preferencesdialog.py:1639
+#: rapid/preferencesdialog.py:1644
 msgid "externaldrive2"
 msgstr "внешнийдиск2"
 
@@ -820,11 +908,11 @@ msgid "Stockholm"
 msgstr "Стокгольм"
 
 #. components
-#: rapid/problemnotification.py:26 rapid/subfolderfile.py:339
+#: rapid/problemnotification.py:26 rapid/subfolderfile.py:343
 msgid "subfolder"
 msgstr "подкаталог"
 
-#: rapid/problemnotification.py:27 rapid/subfolderfile.py:337
+#: rapid/problemnotification.py:27 rapid/subfolderfile.py:341
 msgid "filename"
 msgstr "имя файла"
 
@@ -845,18 +933,18 @@ msgstr ""
 #: rapid/problemnotification.py:84
 #, python-format
 msgid "Error generating component %s."
-msgstr ""
+msgstr "Ошибка создания компонента %s."
 
 #. a generic problem
 #: rapid/problemnotification.py:86
 #, python-format
 msgid "%(filetype)s metadata cannot be read"
-msgstr ""
+msgstr "%(filetype)s метаданные невозможно прочесть"
 
 #: rapid/problemnotification.py:88
 #, python-format
 msgid "%(filetype)s %(area)s could not be generated"
-msgstr ""
+msgstr "%(filetype)s %(area)s не удалось создать"
 
 #: rapid/problemnotification.py:90 rapid/problemnotification.py:91
 #, python-format
@@ -924,23 +1012,23 @@ msgstr ""
 #: rapid/problemnotification.py:223
 #, python-format
 msgid " It was backed up to %(volume)s"
-msgstr ""
+msgstr " Сделана резервная копия на %(volume)s"
 
 #: rapid/problemnotification.py:225
 msgid " It was backed up to these devices: "
-msgstr ""
+msgstr " Сделана резервная копия на: "
 
 #: rapid/problemnotification.py:227 rapid/problemnotification.py:288
 #: rapid/problemnotification.py:300
 #, python-format
 msgid "%s, "
-msgstr ""
+msgstr "%s, "
 
 #: rapid/problemnotification.py:228 rapid/problemnotification.py:289
 #: rapid/problemnotification.py:301
 #, python-format
 msgid "%(volumes)s and %(final_volume)s."
-msgstr ""
+msgstr "%(volumes)s и %(final_volume)s."
 
 #: rapid/problemnotification.py:240
 #, python-format
@@ -948,6 +1036,8 @@ msgid ""
 "Photos detected with the same filenames, but taken at different times: "
 "%(details)s"
 msgstr ""
+"Обнаружены фотографии с одинаковыми названиями, но сделанные в разное время: "
+"%(details)s"
 
 #: rapid/problemnotification.py:257
 #, python-format
@@ -968,7 +1058,7 @@ msgstr ""
 #: rapid/problemnotification.py:265 rapid/problemnotification.py:313
 #, python-format
 msgid "%(volume)s (%(inst)s), "
-msgstr ""
+msgstr "%(volume)s (%(inst)s), "
 
 #: rapid/problemnotification.py:267
 #, python-format
@@ -983,16 +1073,16 @@ msgstr ""
 #: rapid/problemnotification.py:276
 #, python-format
 msgid "%(volumes)s and %(volume)s."
-msgstr ""
+msgstr "%(volumes)s и %(volume)s."
 
 #: rapid/problemnotification.py:284
 #, python-format
 msgid "Backup already exists on %(volume)s."
-msgstr ""
+msgstr "Уже существует резервная копия на %(volume)s."
 
 #: rapid/problemnotification.py:286
 msgid "Backups already exist in these locations: "
-msgstr ""
+msgstr "Уже существует резервная копия на: "
 
 #: rapid/problemnotification.py:296
 #, python-format
@@ -1006,12 +1096,12 @@ msgstr ""
 #: rapid/problemnotification.py:309
 #, python-format
 msgid "An error occurred when creating directories on %(volume)s: %(inst)s."
-msgstr ""
+msgstr "Произошла ошибка при создании каталогов на %(volume)s: %(inst)s."
 
 #: rapid/problemnotification.py:311
 msgid ""
 "Errors occurred when creating directories on the following backup devices: "
-msgstr ""
+msgstr "Произошла ошибка при создании каталогов на следующих устройствах: "
 
 #: rapid/problemnotification.py:322
 #, python-format
@@ -1035,7 +1125,7 @@ msgstr ""
 
 #: rapid/problemnotification.py:343
 msgid "The following metadata is missing: "
-msgstr ""
+msgstr "Эти метаданные пропущены: "
 
 #: rapid/problemnotification.py:346
 #, python-format
@@ -1072,7 +1162,7 @@ msgstr ""
 
 #: rapid/problemnotification.py:401
 msgid "Multiple problems were encountered"
-msgstr ""
+msgstr "Обнаружены многочисленные проблемы"
 
 #: rapid/problemnotification.py:403 rapid/subfolderfile.py:228
 msgid "Photos detected with the same filenames, but taken at different times"
@@ -1100,10 +1190,6 @@ msgstr ""
 #, python-format
 msgid "%(previousproblem)s, and %(backinguperror)s"
 msgstr ""
-
-#: rapid/rpdfile.py:112
-msgid "photos or videos"
-msgstr "фото или видео"
 
 #: rapid/rpdfile.py:136
 #, python-format
@@ -1133,34 +1219,34 @@ msgstr "Фото уже загружено"
 msgid "Source: %(source)s"
 msgstr "Источник: %(source)s"
 
-#: rapid/subfolderfile.py:335
+#: rapid/subfolderfile.py:339
 msgid "subfolder and filename"
 msgstr "подкаталог и название файла"
 
-#: rapid/subfolderfile.py:373
+#: rapid/subfolderfile.py:377
 msgid "Failed to create download subfolder"
 msgstr ""
 
-#: rapid/subfolderfile.py:374
+#: rapid/subfolderfile.py:378
 #, python-format
 msgid "Path: %s"
-msgstr ""
+msgstr "Путь: %s"
 
 #: rapid/glade3/rapid.ui.h:1
 msgid "About..."
-msgstr ""
+msgstr "О программе"
 
 #: rapid/glade3/rapid.ui.h:2
 msgid "Check All"
-msgstr ""
+msgstr "Выбрать всё"
 
 #: rapid/glade3/rapid.ui.h:3
 msgid "Check All Photos"
-msgstr ""
+msgstr "Выбрать все фото"
 
 #: rapid/glade3/rapid.ui.h:4
 msgid "Check All Videos"
-msgstr ""
+msgstr "Выбрать все видео"
 
 #: rapid/glade3/rapid.ui.h:5
 msgid "Download / Pause"
@@ -1172,27 +1258,27 @@ msgstr ""
 
 #: rapid/glade3/rapid.ui.h:7
 msgid "Make a Donation..."
-msgstr ""
+msgstr "Сделать пожертвование..."
 
 #: rapid/glade3/rapid.ui.h:8
 msgid "Next File"
-msgstr ""
+msgstr "Следующий файл"
 
 #: rapid/glade3/rapid.ui.h:9
 msgid "Previous File"
-msgstr ""
+msgstr "Предыдущий файл"
 
 #: rapid/glade3/rapid.ui.h:10
 msgid "Quit"
-msgstr ""
+msgstr "Выйти"
 
 #: rapid/glade3/rapid.ui.h:12
 msgid "Refresh"
-msgstr ""
+msgstr "Обновить"
 
 #: rapid/glade3/rapid.ui.h:13
 msgid "Report a Problem..."
-msgstr ""
+msgstr "Сообщить о проблеме..."
 
 #: rapid/glade3/rapid.ui.h:14
 msgid "Select All Wit_h Job Code"
@@ -1670,9 +1756,6 @@ msgstr "Импортируйте ваши фото и видео быстро и
 #~ msgid "Image has no metadata"
 #~ msgstr "Фотография не содержит метаданных"
 
-#~ msgid "warnings"
-#~ msgstr "предупреждения"
-
 #, python-format
 #~ msgid "%s images skipped"
 #~ msgstr "%s фотографий пропущено"
@@ -1700,16 +1783,6 @@ msgstr "Импортируйте ваши фото и видео быстро и
 
 #~ msgid "and"
 #~ msgstr "и"
-
-#, python-format
-#~ msgid "About %i seconds remaining"
-#~ msgstr "Осталось %i  секунд"
-
-#~ msgid "About 1 minute remaining"
-#~ msgstr "Осталась примерно 1 минута"
-
-#~ msgid "About 1 second remaining"
-#~ msgstr "Осталась примерно 1 секунда"
 
 #~ msgid "images skipped"
 #~ msgstr "фотографий пропущено"
@@ -1753,10 +1826,6 @@ msgstr "Импортируйте ваши фото и видео быстро и
 #~ "Подкаталог: %(subfolder)s\n"
 #~ "Фотография: %(image)s\n"
 #~ "Проблема: %(problem)s"
-
-#, python-format
-#~ msgid "About %(minutes)i:%(seconds)02i minutes remaining"
-#~ msgstr "Осталось примерно %(minutes)i:%(seconds)02i"
 
 #~ msgid "Goodbye"
 #~ msgstr "До свидания"
@@ -2110,9 +2179,6 @@ msgstr "Импортируйте ваши фото и видео быстро и
 #~ msgid "Job Code entered"
 #~ msgstr "Метка введена"
 
-#~ msgid "MB/s"
-#~ msgstr "МБ/с"
-
 #, python-format
 #~ msgid "Image: %(source)s"
 #~ msgstr "Изображение: %(source)s"
@@ -2368,9 +2434,6 @@ msgstr "Импортируйте ваши фото и видео быстро и
 #~ msgid "Automatically start download is true"
 #~ msgstr "Автоматически начинать загрузку - да"
 
-#~ msgid "All downloads complete"
-#~ msgstr "Все загрузки завершены"
-
 #~ msgid "videos downloaded"
 #~ msgstr "видеороликов загружено"
 
@@ -2425,10 +2488,6 @@ msgstr "Импортируйте ваши фото и видео быстро и
 #, python-format
 #~ msgid "The %(filetype)s was not copied."
 #~ msgstr "The %(filetype)s не скопирован."
-
-#, python-format
-#~ msgid "%(noFiles)s %(filetypes)s downloaded"
-#~ msgstr "%(noFiles)s %(filetypes)s загружено"
 
 #, python-format
 #~ msgid ""
@@ -2699,18 +2758,11 @@ msgstr "Импортируйте ваши фото и видео быстро и
 #~ msgstr "Статус"
 
 #, python-format
-#~ msgid "%(noFiles)s %(filetypes)s failed to download"
-#~ msgstr "%(noFiles)s %(filetypes)s не удалось загрузить"
-
-#, python-format
 #~ msgid "Error: %(inst)s"
 #~ msgstr "Ошибка: %(inst)s"
 
 #~ msgid "File"
 #~ msgstr "Файл"
-
-#~ msgid "Job Code"
-#~ msgstr "Метка"
 
 #~ msgid "Type"
 #~ msgstr "Тип"
@@ -2759,10 +2811,6 @@ msgstr "Импортируйте ваши фото и видео быстро и
 #~ msgstr ""
 #~ "Загрузка непосредственно с камеры может работать плохо или не работать вовсе"
 
-#, python-format
-#~ msgid "%(filetype)s downloaded"
-#~ msgstr "%(filetype)s загружено"
-
 #~ msgid "Enter a new Job Code and press Enter, or select an existing Job Code"
 #~ msgstr "Введите новую метку и нажмите Enter или выберите существующую метку"
 
@@ -2801,10 +2849,6 @@ msgstr "Импортируйте ваши фото и видео быстро и
 #~ "идет загрузка"
 
 #, python-format
-#~ msgid "%(filetype)s failed to download"
-#~ msgstr "%(filetype)s не удалось загрузить"
-
-#, python-format
 #~ msgid ""
 #~ "Source: %(source)s\n"
 #~ "Destination: %(destination)s\n"
@@ -2826,10 +2870,6 @@ msgstr "Импортируйте ваши фото и видео быстро и
 #~ msgid "Download device settings preferences were changed."
 #~ msgstr "Настройки устройства загрузки были изменены."
 
-#, python-format
-#~ msgid "%(number)s %(numberdownloaded)s"
-#~ msgstr "%(number)s %(numberdownloaded)s"
-
 #~ msgid "Displaying warning about downloading directly from camera"
 #~ msgstr "Отображает предупреждения о прямой загрузке с камеры"
 
@@ -2847,10 +2887,6 @@ msgstr "Импортируйте ваши фото и видео быстро и
 
 #~ msgid "Subfolder and filename preferences were changed."
 #~ msgstr "Настройки каталогов и названий файлов были изменены."
-
-#, python-format
-#~ msgid "%(number)s of %(total)s %(filetypes)s (%(remaining)s remaining)"
-#~ msgstr "%(number)s из %(total)s %(filetypes)s (%(remaining)s осталось)"
 
 #, python-format
 #~ msgid "Photo: %(source)s"

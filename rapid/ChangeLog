@@ -1,6 +1,8 @@
 Version 0.4.0 RC 1
 ------------------
 
+2011-04-21
+
 Features added since beta 1:
 
 Backups have been implemented. If you are backing up to more than one device,
@@ -15,7 +17,12 @@ Added preferences option to disable thumbnail generation. When auto start is
 enabled, this can speed-up transfers when downloading from high-speed devices.
 
 Access to the preferences window is now disable while a download is occurring, 
-as changing preferences when files are being download can cause prolems.
+as changing preferences when files are being download can cause problems.
+
+Bug fix: don't crash when downloading some files after having previously 
+downloaded some others in the same session.
+
+Updated Brazilian, Dutch, German and Russian translations.
 
 
 Version 0.4.0 beta 1
