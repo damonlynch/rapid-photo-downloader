@@ -1,3 +1,10 @@
+Version 0.4.0 RC 2
+------------------
+
+Bug fix: don't crash when completing download with backups enabled no backup
+devices detected.
+
+
 Version 0.4.0 RC 1
 ------------------
 
@@ -16,7 +23,7 @@ will rendered during the download itself.
 Added preferences option to disable thumbnail generation. When auto start is
 enabled, this can speed-up transfers when downloading from high-speed devices.
 
-Access to the preferences window is now disable while a download is occurring, 
+Access to the preferences window is now disabled while a download is occurring, 
 as changing preferences when files are being download can cause problems.
 
 Bug fix: don't crash when downloading some files after having previously 

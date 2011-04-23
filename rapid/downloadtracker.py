@@ -18,6 +18,11 @@
 ### Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 import time
+
+import multiprocessing
+import logging
+logger = multiprocessing.get_logger()
+
 from rpdfile import FILE_TYPE_PHOTO, FILE_TYPE_VIDEO
 from config import STATUS_DOWNLOAD_FAILED, STATUS_DOWNLOADED_WITH_WARNING, \
                    STATUS_DOWNLOAD_AND_BACKUP_FAILED, STATUS_BACKUP_PROBLEM
@@ -101,8 +106,12 @@ class DownloadTracker:
                     self.backups_performed_by_unique_id.get(unique_id, 0) + 1
         
     def all_files_backed_up(self, unique_id):
-        v = self.backups_performed_by_unique_id[unique_id] == self.no_backup_devices
-        return v
+        if unique_id in self.backups_performed_by_unique_id:
+            return self.backups_performed_by_unique_id[unique_id] == self.no_backup_devices
+        else:
+            logger.critical("Unexpected unique_id in self.backups_performed_by_unique_id")
+            return True
+
             
     def file_downloaded_increment(self, scan_pid, file_type, status):
         self.files_downloaded[scan_pid] += 1

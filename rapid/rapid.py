@@ -2497,7 +2497,7 @@ class RapidApp(dbus.service.Object):
         files_to_download = self.download_tracker.get_no_files_in_download(scan_pid)
         file_types = self.download_tracker.get_file_types_present(scan_pid)
         completed = files_downloaded == files_to_download
-        if completed and self.prefs.backup_images:
+        if completed and (self.prefs.backup_images and len(self.backup_devices)):
             completed = self.download_tracker.all_files_backed_up(unique_id)
         
         if completed:
@@ -2952,7 +2952,7 @@ class RapidApp(dbus.service.Object):
                     #Used to differentiate between two different file systems
                     #e.g. Free space: 21.3GB (photos); 14.7GB (videos).
                     msg += _("; ")
-                else:
+                elif not self.prefs.backup_images:
                     #Inserted at the end of the statusbar message concerning the amount of freespace
                     #Used to differentiate between two different file systems
                     #e.g. Free space: 21.3GB (photos); 14.7GB (videos).                    
