@@ -64,6 +64,7 @@ class DownloadTracker:
         self.total_warnings = 0
         self.total_bytes_to_download = 0
         self.backups_performed_by_unique_id = dict()
+        self.auto_delete = dict()
         
     def set_no_backup_devices(self, no_backup_devices):
         self.no_backup_devices = no_backup_devices
@@ -100,6 +101,19 @@ class DownloadTracker:
             
     def get_no_warnings(self, scan_pid):
         return self.warnings.get(scan_pid, 0)
+        
+    def add_to_auto_delete(self, rpd_file):
+        if rpd_file.scan_pid in self.auto_delete:
+            self.auto_delete[rpd_file.scan_pid].append(rpd_file.full_file_name)
+        else:
+            self.auto_delete[rpd_file.scan_pid] = [rpd_file.full_file_name,]
+            
+    def get_files_to_auto_delete(self, scan_pid):
+        return self.auto_delete[scan_pid]
+        
+    def clear_auto_delete(self, scan_pid):
+        if scan_pid in self.auto_delete:
+            del self.auto_delete[scan_pid]
 
     def file_backed_up(self, unique_id):
         self.backups_performed_by_unique_id[unique_id] = \
@@ -134,8 +148,7 @@ class DownloadTracker:
             else:
                 self.video_failures[scan_pid] += 1
                 self.total_video_failures += 1
-        
-        
+                
     def get_percent_complete(self, scan_pid):
         """
         Returns a float representing how much of the download

@@ -1,9 +1,11 @@
 Version 0.4.0
 -------------
 
+2011-04-28
+
 Features added since Release Candiate 1:
 
-* Allow multiple selection.
+* Allow multiple selection of files to check or uncheck for downloading.
 * Automation feature to delete downloaded files from a device.
 
 Bug fix: translation fixes.

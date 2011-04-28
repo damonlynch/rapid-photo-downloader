@@ -1,3 +1,20 @@
+rapid-photo-downloader (0.4.0-0ubuntu1~ppa1) lucid; urgency=low
+
+  * Allow multiple selection of files to check or uncheck for 
+    downloading.
+
+  * Automation feature to delete downloaded files from a device.
+
+  * Bug fix: translation fixes.
+
+  * Bug fix: don't crash when completing download with backups enabled
+    and no backup devices detected.
+
+  * Updated Dutch, French, German, Polish, Russian, Serbian and Spanish 
+    translations.
+
+ -- Damon Lynch <damonlynch@gmail.com>  Thu, 28 Apr 2011 15:14:13 -0500
+
 rapid-photo-downloader (0.4.0~rc1-0ubuntu2~ppa1) lucid; urgency=low
 
   * Publish to testing PPA
