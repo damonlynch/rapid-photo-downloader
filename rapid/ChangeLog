@@ -1,6 +1,11 @@
 Version 0.4.0
 -------------
 
+Features added since Release Candiate 1:
+
+* Allow multiple selection.
+* Automation feature to delete downloaded files from a device.
+
 Bug fix: translation fixes.
 
 Bug fix: don't crash when completing download with backups enabled and no backup

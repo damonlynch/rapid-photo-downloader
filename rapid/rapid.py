@@ -454,7 +454,11 @@ class ThumbnailDisplay(gtk.IconView):
         self.set_spacing(0)
         self.set_row_spacing(5)
         self.set_margin(25)
-                
+        
+        self.set_selection_mode(gtk.SELECTION_MULTIPLE)
+        self.connect('selection-changed', self.on_selection_changed)
+        self._selected_items = []
+        
         self.rapid_app = parent_app
         
         self.batch_size = 10
@@ -591,11 +595,20 @@ class ThumbnailDisplay(gtk.IconView):
     
     def sort_by_timestamp(self):
         self.liststore.set_sort_column_id(self.TIMESTAMP_COL, gtk.SORT_ASCENDING)
+    
+    def on_selection_changed(self, iconview):
+        self._selected_items = self.get_selected_items()
         
     def on_checkbutton_toggled(self, cellrenderertoggle, path):
-        iter = self.liststore.get_iter(path)
-        self.liststore.set_value(iter, self.SELECTED_COL, not cellrenderertoggle.get_active())
+        if not self._selected_items:
+            self._selected_items = [path,]
+        for path in self._selected_items:
+            iter = self.liststore.get_iter(path)
+            self.liststore.set_value(iter, self.SELECTED_COL, not cellrenderertoggle.get_active())
+            self.select_path(path)
+            
         self.rapid_app.set_download_action_sensitivity()
+        
         
     def set_selected(self, unique_id, value):
         iter = self.get_iter_from_unique_id(unique_id)
