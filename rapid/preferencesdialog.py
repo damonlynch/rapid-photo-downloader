@@ -800,6 +800,7 @@ class PreferencesDialog():
     def __init__(self, rapidapp):
 
         self.builder = gtk.Builder()
+        self.builder.set_translation_domain(config.APP_NAME)
         self.builder.add_from_file(paths.share_dir("glade3/prefs.ui"))
         self.builder.connect_signals(self)
         

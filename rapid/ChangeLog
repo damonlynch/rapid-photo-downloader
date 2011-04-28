@@ -1,8 +1,13 @@
-Version 0.4.0 RC 2
-------------------
+Version 0.4.0
+-------------
 
-Bug fix: don't crash when completing download with backups enabled no backup
+Bug fix: translation fixes.
+
+Bug fix: don't crash when completing download with backups enabled and no backup
 devices detected.
+
+Updated Dutch, French, German, Polish, Russian, Serbian and Spanish 
+translations.
 
 
 Version 0.4.0 RC 1

@@ -2730,6 +2730,7 @@ class RapidApp(dbus.service.Object):
         Initialize widgets in the main window, and variables that point to them
         """
         builder = gtk.Builder()
+        builder.set_translation_domain(config.APP_NAME)
         self.builder = builder
         builder.add_from_file(paths.share_dir("glade3/rapid.ui"))
         self.rapidapp = builder.get_object("rapidapp")

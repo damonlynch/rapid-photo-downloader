@@ -34,6 +34,7 @@ class ErrorLog():
         """
         
         self.builder = gtk.Builder()
+        self.builder.set_translation_domain(config.APP_NAME)
         self.builder.add_from_file(paths.share_dir("glade3/errorlog.ui"))
         self.builder.connect_signals(self)
         self.widget = self.builder.get_object("errorlog")
