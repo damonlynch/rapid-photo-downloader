@@ -83,7 +83,7 @@ import gettext
 gettext.bindtextdomain(config.APP_NAME)
 gettext.textdomain(config.APP_NAME)
 
-from gettext import gettext as _
+_ = gettext.gettext
 
 
 from utilities import format_size_for_user

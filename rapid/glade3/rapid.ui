@@ -24,7 +24,7 @@
     <signal name="activate" handler="on_donate_action_activate" swapped="no"/>
   </object>
   <object class="GtkAction" id="download_action">
-    <property name="label">Download</property>
+    <property name="label" translatable="yes">Download</property>
     <property name="icon_name">system-run</property>
     <property name="sensitive">False</property>
     <signal name="activate" handler="on_download_action_activate" swapped="no"/>
@@ -35,7 +35,7 @@
     <signal name="activate" handler="on_get_help_action_activate" swapped="no"/>
   </object>
   <object class="GtkAction" id="help_action">
-    <property name="label">Help</property>
+    <property name="label" translatable="yes">Help</property>
     <signal name="activate" handler="on_help_action_activate" swapped="no"/>
   </object>
   <object class="GtkAction" id="next_image_action">
@@ -46,7 +46,7 @@
     <signal name="activate" handler="on_next_image_action_activate" swapped="no"/>
   </object>
   <object class="GtkAction" id="preferences_action">
-    <property name="label">Preferences</property>
+    <property name="label" translatable="yes">Preferences</property>
     <signal name="activate" handler="on_preferences_action_activate" swapped="no"/>
   </object>
   <object class="GtkAction" id="prev_image_action">
@@ -253,8 +253,8 @@
                         <property name="use_action_appearance">False</property>
                         <property name="use_underline">True</property>
                         <property name="use_stock">True</property>
-                        <accelerator key="plus" signal="activate" modifiers="GDK_CONTROL_MASK"/>
                         <accelerator key="equal" signal="activate" modifiers="GDK_CONTROL_MASK"/>
+                        <accelerator key="plus" signal="activate" modifiers="GDK_CONTROL_MASK"/>
                       </object>
                     </child>
                     <child>
