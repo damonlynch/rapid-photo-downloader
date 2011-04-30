@@ -23,7 +23,7 @@ Generates names for files and folders.
 Runs a daemon process.
 """
 
-import os, datetime, collections
+import os, datetime, collections, fractions
 
 import gio
 import multiprocessing
@@ -308,6 +308,22 @@ class SubfolderFile(multiprocessing.Process):
                 else:
                     # Generate subfolder name and new file name
                     generation_succeeded = True
+                    experimental = False
+                    if experimental and rpd_file.file_type == rpdfile.FILE_TYPE_PHOTO:
+                        if load_metadata(rpd_file):
+                            a = rpd_file.metadata.aperture()
+                            if a == '0.0':
+                                fl = rpd_file.metadata["Exif.Photo.FocalLength"].value
+                                logger.info("Samyang lens - adjusting focal length and aperture... ")
+                                #~ try:
+                                rpd_file.metadata["Exif.Photo.FocalLength"] = fractions.Fraction(14,1)
+                                rpd_file.metadata["Exif.Photo.FNumber"] = fractions.Fraction(8,1)
+                                    #~ rpd_file.metadata.write(preserve_timestamps=True)
+                                #~ logger.info("...wrote new value")
+                                #~ except:
+                                    #~ logger.error("failed to write value!") 
+                            
+                        
                     rpd_file = generate_subfolder(rpd_file)
                     if rpd_file.download_subfolder:
                         

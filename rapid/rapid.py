@@ -2736,8 +2736,8 @@ class RapidApp(dbus.service.Object):
         """
         
         if not pynotify.init("TestCaps"):
-            logger.critical("Problem using pynotify.")
-            gtk.main_quit()
+            logger.warning("There might be problems using pynotify.")
+            #~ sys.exit(1)
 
         do_not_size_icon = False
         self.notification_icon_size = 48 
