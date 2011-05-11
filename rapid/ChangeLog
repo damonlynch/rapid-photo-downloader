@@ -7,6 +7,9 @@ time.
 Relaxed startup test to check whether pynotify is working. On some systems,
 pynotify reports it is not working even though it is.
 
+Added the start of an Indonesian translation. Updated Brazilian, French, German,
+Hungarian, Italian, Polish, Russian, Spanish and Ukrainian translations.
+
 
 Version 0.4.0
 -------------
