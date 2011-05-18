@@ -1,10 +1,15 @@
 Version 0.4.1
 -------------
 
+2011-05-xx
+
 Fixed bug #774476: thumbnails occassionally not sorted by file modification
 time.
 
-Fixed bug #784399: Job code not prompted for after preference change.
+Fixed bug #784399: job code not prompted for after preference change.
+
+Fixed bug #778085: crash when trying to scan inaccessible files on mounted
+camera.
 
 Relaxed startup test to check whether pynotify is working. On some systems,
 pynotify reports it is not working even though it is.

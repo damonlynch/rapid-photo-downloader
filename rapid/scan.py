@@ -114,40 +114,36 @@ class Scan(multiprocessing.Process):
                     
                     file_type = rpdfile.file_type(ext)
                     if file_type is not None:
-                        # count how many files of each type are included
-                        # e.g. photo, video
-                        self.file_type_counter.add(file_type)
-                        self.counter += 1
-                        display_name = child.get_display_name()
-                        size = child.get_size()
-                        modification_time = child.get_modification_time()
                         file_id = child.get_attribute_string(
                                                 gio.FILE_ATTRIBUTE_ID_FILE)
-                        scanned_file = rpdfile.get_rpdfile(ext, 
-                                         name, 
-                                         display_name, 
-                                         path.get_path(),
-                                         size,
-                                         modification_time, 
-                                         self.pid,
-                                         file_id)
+                        if file_id is not None:
+                            # count how many files of each type are included
+                            # e.g. photo, video
+                            self.file_type_counter.add(file_type)
+                            self.counter += 1
+                            display_name = child.get_display_name()
+                            size = child.get_size()
+                            modification_time = child.get_modification_time()
+
+                            scanned_file = rpdfile.get_rpdfile(ext, 
+                                             name, 
+                                             display_name, 
+                                             path.get_path(),
+                                             size,
+                                             modification_time, 
+                                             self.pid,
+                                             file_id)
                                          
-                        if self.generate_folder:
-                            # this dramatically slows scanning speed, and it
-                            # is unlikely this will be called this early in the
-                            # workflow
-                            scanned_file.read_metadata()
+                            self.files.append(scanned_file)
                         
-                        self.files.append(scanned_file)
-                        
-                        if self.counter == self.batch_size:
-                            # send batch of results
-                            self.results_pipe.send((rpdmp.CONN_PARTIAL, 
-                                                    self.files))
-                            self.files = []
-                            self.counter = 0
-                        
-                        file_size_sum += size
+                            if self.counter == self.batch_size:
+                                # send batch of results
+                                self.results_pipe.send((rpdmp.CONN_PARTIAL, 
+                                                        self.files))
+                                self.files = []
+                                self.counter = 0
+                            
+                            file_size_sum += size
 
         return file_size_sum
         
