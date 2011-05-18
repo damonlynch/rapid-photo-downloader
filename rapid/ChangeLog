@@ -4,6 +4,8 @@ Version 0.4.1
 Fixed bug #774476: thumbnails occassionally not sorted by file modification
 time.
 
+Fixed bug #784399: Job code not prompted for after preference change.
+
 Relaxed startup test to check whether pynotify is working. On some systems,
 pynotify reports it is not working even though it is.
 

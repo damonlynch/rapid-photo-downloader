@@ -2686,6 +2686,7 @@ class RapidApp(dbus.service.Object):
                 self.stored_sequence_value.value = value
                 
         elif key in ['image_rename', 'subfolder', 'video_rename', 'video_subfolder']:
+            self.need_job_code_for_naming = self.prefs.any_pref_uses_job_code()
             # Check if stored sequence no is being used
             self._check_for_sequence_value_use()
             
