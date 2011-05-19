@@ -20,7 +20,6 @@
 import re
 import datetime
 import sys
-#~ import subprocess
 import config
 import types
 import time
@@ -219,6 +218,20 @@ class MetaData(pyexiv2.metadata.ImageMetadata):
         except:
             return missing
             
+    def copyright(self, missing=''):
+        """returns copyright exif information"""
+        try:
+            return self['Exif.Image.Copyright'].value.strip()
+        except:
+            return missing
+            
+    def artist(self, missing=''):
+        """returns exif artis information"""
+        try:
+            return self['Exif.Image.Artist'].value.strip()
+        except:
+            return missing
+            
     def short_camera_model(self, includeCharacters = '', missing=''):
         """ 
         Returns in shorterned string format the camera model used to record the image.
@@ -285,7 +298,7 @@ class MetaData(pyexiv2.metadata.ImageMetadata):
         else:
             return missing
 
-                
+    
     def date_time(self, missing=''):
         """ 
         Returns in python datetime format the date and time the image was 

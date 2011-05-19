@@ -69,6 +69,8 @@ SHORT_CAMERA_MODEL_HYPHEN = 'Hyphenated short camera model'
 SERIAL_NUMBER = 'Serial number'
 SHUTTER_COUNT = 'Shutter count'
 OWNER_NAME = 'Owner name'
+COPYRIGHT = 'Copyright'
+ARTIST = 'Artist'
 
 # Video metadata
 CODEC = 'Codec'
@@ -189,6 +191,8 @@ class i18TranslateMeThanks:
         _('Height')
         _('Length')
         _('Frames Per Second')
+        _('Artist')
+        _('Copyright')
         # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#sequencenumbers
         _('Downloads today')
         # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#sequencenumbers
@@ -364,7 +368,9 @@ LIST_METADATA_L1 = [APERTURE, ISO, EXPOSURE_TIME, FOCAL_LENGTH,
                     SHORT_CAMERA_MODEL_HYPHEN, 
                     SERIAL_NUMBER, 
                     SHUTTER_COUNT, 
-                    OWNER_NAME]
+                    OWNER_NAME,
+                    ARTIST,
+                    COPYRIGHT]
                     
 LIST_VIDEO_METADATA_L1 = [CODEC, WIDTH, HEIGHT, LENGTH, FPS]
 
@@ -380,6 +386,8 @@ DICT_METADATA_L1 = {
                     SERIAL_NUMBER: None, 
                     SHUTTER_COUNT: LIST_SHUTTER_COUNT_L2, 
                     OWNER_NAME: LIST_CASE_L2, 
+                    ARTIST: LIST_CASE_L2,
+                    COPYRIGHT: LIST_CASE_L2,
                     ORDER_KEY: LIST_METADATA_L1
                 }
 
