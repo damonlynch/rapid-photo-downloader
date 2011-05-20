@@ -1,3 +1,23 @@
+rapid-photo-downloader (0.4.1-0ubuntu1~ppa1) lucid; urgency=low
+
+  * Added exif Artist and Copyright metadata options to file and
+    subfolder name generation.
+
+  * Fixed bug #774476: thumbnails occassionally not sorted by file 
+    modification time.
+
+  * Fixed bug #784399: job code not prompted for after preference 
+    change.
+
+  * Fixed bug #778085: crash when trying to scan inaccessible files on
+    mounted camera.
+
+  * Relaxed startup test to check whether pynotify is working.
+
+  * Updated translations
+
+ -- Damon Lynch <damonlynch@gmail.com>  Thu, 19 May 2011 20:23:21 -0500
+
 rapid-photo-downloader (0.4.0-0ubuntu1~ppa1) lucid; urgency=low
 
   * Allow multiple selection of files to check or uncheck for 

@@ -1,9 +1,10 @@
 Version 0.4.1
 -------------
 
-2011-05-xx
+2011-05-19
 
-Added EXIF Artist and Copyright metadata option.
+Added exif Artist and Copyright metadata options to file and subfolder name
+generation.
 
 Fixed bug #774476: thumbnails occassionally not sorted by file modification
 time.

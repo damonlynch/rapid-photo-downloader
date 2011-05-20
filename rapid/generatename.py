@@ -206,7 +206,8 @@ class PhotoName:
         else:
             raise TypeError("Invalid metadata option specified")
         if self.L1 in [CAMERA_MAKE, CAMERA_MODEL, SHORT_CAMERA_MODEL,
-                        SHORT_CAMERA_MODEL_HYPHEN,  OWNER_NAME]:
+                       SHORT_CAMERA_MODEL_HYPHEN, OWNER_NAME, ARTIST, 
+                       COPYRIGHT]:
             if self.L2 == UPPERCASE:
                 v = v.upper()
             elif self.L2 == LOWERCASE:
