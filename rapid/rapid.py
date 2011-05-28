@@ -1687,7 +1687,10 @@ class RapidApp(dbus.service.Object):
                             elif (self.prefs.device_autodetection and 
                                  (dv.is_DCIM_device(path) or 
                                   self.search_for_PSD())):
+                                logger.debug("Appending %s", mount.get_name())
                                 mounts.append((path, mount))
+                            else:
+                                logger.debug("Ignoring %s", mount.get_name())
                     
         
         if not self.prefs.device_autodetection:

@@ -1,3 +1,13 @@
+Version 0.4.2
+-------------
+
+2011-06-xx
+
+Fixed bug #768026: added option to ignore paths from which to download. 
+
+Fixed bug #774488: added manual backup path for videos, in addition to photos.
+
+
 Version 0.4.1
 -------------
 

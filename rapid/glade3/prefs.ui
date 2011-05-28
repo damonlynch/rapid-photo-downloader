@@ -1993,8 +1993,10 @@
                             <property name="can_focus">False</property>
                             <property name="xalign">0</property>
                             <property name="xpad">12</property>
-                            <property name="label" translatable="yes">&lt;b&gt;Devices&lt;/b&gt;</property>
-                            <property name="use_markup">True</property>
+                            <property name="label" translatable="yes">Devices</property>
+                            <attributes>
+                              <attribute name="weight" value="bold"/>
+                            </attributes>
                           </object>
                           <packing>
                             <property name="expand">False</property>
@@ -2010,9 +2012,9 @@
                             <property name="xpad">12</property>
                             <property name="label" translatable="yes">Devices are from where to download photos and videos, such as cameras, memory cards or Portable Storage Devices.
 
-You can download photos from multiple devices simultaneously, or you can specify a location on your hard drive.
+You can download from multiple devices simultaneously, or you can specify a location on your hard drive.
 
-&lt;i&gt;If downloading directly from your camera works poorly or not at all, try setting it to PTP mode. If that is not possible, consider using a card reader.&lt;/i&gt;</property>
+&lt;i&gt;Downloading directly from cameras is currently an experimental feature. If downloading directly from your camera works poorly or not at all, try setting it to PTP mode. If that is not possible, a card reader must be used.&lt;/i&gt;</property>
                             <property name="use_markup">True</property>
                             <property name="wrap">True</property>
                           </object>
@@ -2083,7 +2085,9 @@ You can download photos from multiple devices simultaneously, or you can specify
                                     <property name="can_focus">False</property>
                                     <property name="xalign">0</property>
                                     <property name="ypad">6</property>
-                                    <property name="label" translatable="yes">If you enable automatic detection of Portable Storage Devices, the entire device will be scanned for images. On large devices, this could take some time.</property>
+                                    <property name="label" translatable="yes">If you enable automatic detection of Portable Storage Devices, the entire device will be scanned. On large devices, this could take some time.
+
+When this option is enabled, and a potential device is detected, you will be prompted to determine if it should be scanned or not.</property>
                                     <property name="wrap">True</property>
                                   </object>
                                   <packing>
@@ -2158,7 +2162,7 @@ You can download photos from multiple devices simultaneously, or you can specify
                                     <property name="xalign">0</property>
                                     <property name="xpad">12</property>
                                     <property name="ypad">12</property>
-                                    <property name="label" translatable="yes">If you disable automatic detection, choose the exact location of the images and videos.</property>
+                                    <property name="label" translatable="yes">If you disable automatic detection, choose the exact location of the photos and videos.</property>
                                     <property name="wrap">True</property>
                                   </object>
                                   <packing>
@@ -2217,6 +2221,401 @@ You can download photos from multiple devices simultaneously, or you can specify
                   </object>
                   <packing>
                     <property name="position">6</property>
+                    <property name="tab_fill">False</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkVBox" id="device_options_tab">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <child>
+                      <object class="GtkHBox" id="exclusions_header_hbox">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="spacing">6</property>
+                        <child>
+                          <object class="GtkImage" id="image10">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="stock">gtk-preferences</property>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">True</property>
+                            <property name="position">0</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkLabel" id="exclusionlabel">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="label" translatable="yes">&lt;span weight="bold" size="x-large"&gt;Device Options&lt;/span&gt;</property>
+                            <property name="use_markup">True</property>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">True</property>
+                            <property name="position">1</property>
+                          </packing>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="position">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkHSeparator" id="hseparator3">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">True</property>
+                        <property name="position">1</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkVBox" id="vbox2">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="spacing">12</property>
+                        <child>
+                          <object class="GtkVBox" id="vbox15">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="spacing">12</property>
+                            <child>
+                              <object class="GtkLabel" id="remebered_devices_label">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="xalign">0</property>
+                                <property name="xpad">12</property>
+                                <property name="label" translatable="yes">Remembered Devices</property>
+                                <attributes>
+                                  <attribute name="weight" value="bold"/>
+                                </attributes>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">True</property>
+                                <property name="position">0</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkLabel" id="remembered_devices_explanation_label">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="xalign">0</property>
+                                <property name="xpad">12</property>
+                                <property name="label" translatable="yes">Remebered devices are those devices you have chosen to always scan or never scan when automatic detection of Portable Storage Devices is enabled.</property>
+                                <property name="wrap">True</property>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">True</property>
+                                <property name="position">1</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkHBox" id="remembered_devices_hbox">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="spacing">12</property>
+                                <child>
+                                  <object class="GtkLabel" id="remembered_devices_spacer_label">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">False</property>
+                                  </object>
+                                  <packing>
+                                    <property name="expand">False</property>
+                                    <property name="fill">True</property>
+                                    <property name="position">0</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkScrolledWindow" id="remembered_devices_scrolledwindow">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">True</property>
+                                    <property name="hscrollbar_policy">automatic</property>
+                                    <property name="vscrollbar_policy">automatic</property>
+                                    <child>
+                                      <object class="GtkTreeView" id="remembered_devices_treeview">
+                                        <property name="visible">True</property>
+                                        <property name="can_focus">True</property>
+                                      </object>
+                                    </child>
+                                  </object>
+                                  <packing>
+                                    <property name="expand">False</property>
+                                    <property name="fill">True</property>
+                                    <property name="position">1</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkHBox" id="remembered_devices_button_hbox">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">False</property>
+                                    <child>
+                                      <object class="GtkVButtonBox" id="remembered_devices_vbuttonbox">
+                                        <property name="visible">True</property>
+                                        <property name="can_focus">False</property>
+                                        <property name="spacing">12</property>
+                                        <property name="layout_style">start</property>
+                                        <child>
+                                          <object class="GtkButton" id="remove_remembered_device_button">
+                                            <property name="label">gtk-remove</property>
+                                            <property name="visible">True</property>
+                                            <property name="can_focus">True</property>
+                                            <property name="receives_default">True</property>
+                                            <property name="use_action_appearance">False</property>
+                                            <property name="use_stock">True</property>
+                                            <signal name="clicked" handler="on_remove_remembered_device_button_clicked" swapped="no"/>
+                                          </object>
+                                          <packing>
+                                            <property name="expand">False</property>
+                                            <property name="fill">False</property>
+                                            <property name="position">0</property>
+                                          </packing>
+                                        </child>
+                                        <child>
+                                          <object class="GtkButton" id="remove_all_remembered_device_button">
+                                            <property name="label" translatable="yes" comments="The underscore after the C signifies that the l is the accelerator key. This is the standard 'Clear' button, but I needed to change the accelerator from the standard 'c' to 'l' because the close button also used 'c'">R_emove All</property>
+                                            <property name="visible">True</property>
+                                            <property name="can_focus">True</property>
+                                            <property name="receives_default">True</property>
+                                            <property name="use_action_appearance">False</property>
+                                            <property name="use_underline">True</property>
+                                            <signal name="clicked" handler="on_remove_all_remembered_device_button_clicked" swapped="no"/>
+                                          </object>
+                                          <packing>
+                                            <property name="expand">False</property>
+                                            <property name="fill">False</property>
+                                            <property name="position">1</property>
+                                          </packing>
+                                        </child>
+                                      </object>
+                                      <packing>
+                                        <property name="expand">True</property>
+                                        <property name="fill">True</property>
+                                        <property name="position">0</property>
+                                      </packing>
+                                    </child>
+                                  </object>
+                                  <packing>
+                                    <property name="expand">False</property>
+                                    <property name="fill">True</property>
+                                    <property name="position">2</property>
+                                  </packing>
+                                </child>
+                              </object>
+                              <packing>
+                                <property name="expand">True</property>
+                                <property name="fill">True</property>
+                                <property name="position">2</property>
+                              </packing>
+                            </child>
+                          </object>
+                          <packing>
+                            <property name="expand">True</property>
+                            <property name="fill">True</property>
+                            <property name="padding">12</property>
+                            <property name="position">0</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkVBox" id="vbox1">
+                            <property name="visible">True</property>
+                            <property name="can_focus">False</property>
+                            <property name="spacing">12</property>
+                            <child>
+                              <object class="GtkLabel" id="ignored_paths_label">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="xalign">0</property>
+                                <property name="xpad">12</property>
+                                <property name="label" translatable="yes">Ignored Paths	</property>
+                                <attributes>
+                                  <attribute name="weight" value="bold"/>
+                                </attributes>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">True</property>
+                                <property name="position">0</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkHBox" id="ignored_paths_hbox">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="spacing">12</property>
+                                <child>
+                                  <object class="GtkLabel" id="ignored_paths_spacer_label">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">False</property>
+                                  </object>
+                                  <packing>
+                                    <property name="expand">False</property>
+                                    <property name="fill">True</property>
+                                    <property name="position">0</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkScrolledWindow" id="ignored_paths_scrolledwindow">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">True</property>
+                                    <property name="hscrollbar_policy">automatic</property>
+                                    <property name="vscrollbar_policy">automatic</property>
+                                    <child>
+                                      <object class="GtkTreeView" id="ignored_paths_treeview">
+                                        <property name="visible">True</property>
+                                        <property name="can_focus">True</property>
+                                      </object>
+                                    </child>
+                                  </object>
+                                  <packing>
+                                    <property name="expand">False</property>
+                                    <property name="fill">True</property>
+                                    <property name="position">1</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkHBox" id="ignored_paths_button_hbox">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">False</property>
+                                    <child>
+                                      <object class="GtkVButtonBox" id="ignored_paths_vbuttonbox">
+                                        <property name="visible">True</property>
+                                        <property name="can_focus">False</property>
+                                        <property name="spacing">12</property>
+                                        <property name="layout_style">start</property>
+                                        <child>
+                                          <object class="GtkButton" id="add_ignored_path_button">
+                                            <property name="label" translatable="yes">_Add...</property>
+                                            <property name="visible">True</property>
+                                            <property name="can_focus">True</property>
+                                            <property name="receives_default">True</property>
+                                            <property name="use_action_appearance">False</property>
+                                            <property name="use_underline">True</property>
+                                            <signal name="clicked" handler="on_add_ignored_path_button_clicked" swapped="no"/>
+                                          </object>
+                                          <packing>
+                                            <property name="expand">False</property>
+                                            <property name="fill">False</property>
+                                            <property name="position">0</property>
+                                          </packing>
+                                        </child>
+                                        <child>
+                                          <object class="GtkButton" id="remove_ignored_path_button">
+                                            <property name="label">gtk-remove</property>
+                                            <property name="visible">True</property>
+                                            <property name="can_focus">True</property>
+                                            <property name="receives_default">True</property>
+                                            <property name="use_action_appearance">False</property>
+                                            <property name="use_stock">True</property>
+                                            <signal name="clicked" handler="on_remove_ignored_path_button_clicked" swapped="no"/>
+                                          </object>
+                                          <packing>
+                                            <property name="expand">False</property>
+                                            <property name="fill">False</property>
+                                            <property name="position">1</property>
+                                          </packing>
+                                        </child>
+                                        <child>
+                                          <object class="GtkButton" id="remove_all_ignored_paths_button">
+                                            <property name="label" translatable="yes" comments="The underscore after the C signifies that the l is the accelerator key. This is the standard 'Clear' button, but I needed to change the accelerator from the standard 'c' to 'l' because the close button also used 'c'">Re_move All</property>
+                                            <property name="visible">True</property>
+                                            <property name="can_focus">True</property>
+                                            <property name="receives_default">True</property>
+                                            <property name="use_action_appearance">False</property>
+                                            <property name="use_underline">True</property>
+                                            <signal name="clicked" handler="on_remove_all_ignored_paths_button_clicked" swapped="no"/>
+                                          </object>
+                                          <packing>
+                                            <property name="expand">False</property>
+                                            <property name="fill">False</property>
+                                            <property name="position">2</property>
+                                          </packing>
+                                        </child>
+                                      </object>
+                                      <packing>
+                                        <property name="expand">True</property>
+                                        <property name="fill">True</property>
+                                        <property name="position">0</property>
+                                      </packing>
+                                    </child>
+                                  </object>
+                                  <packing>
+                                    <property name="expand">False</property>
+                                    <property name="fill">True</property>
+                                    <property name="position">2</property>
+                                  </packing>
+                                </child>
+                              </object>
+                              <packing>
+                                <property name="expand">True</property>
+                                <property name="fill">True</property>
+                                <property name="position">1</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkHBox" id="hbox1">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <child>
+                                  <object class="GtkCheckButton" id="ignored_paths_use_re_checkbutton">
+                                    <property name="label" translatable="yes">_Use regular expressions</property>
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">True</property>
+                                    <property name="receives_default">False</property>
+                                    <property name="use_action_appearance">False</property>
+                                    <property name="use_underline">True</property>
+                                    <property name="draw_indicator">True</property>
+                                    <signal name="toggled" handler="on_ignored_paths_use_re_checkbutton_toggled" swapped="no"/>
+                                  </object>
+                                  <packing>
+                                    <property name="expand">False</property>
+                                    <property name="fill">True</property>
+                                    <property name="padding">12</property>
+                                    <property name="position">0</property>
+                                  </packing>
+                                </child>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">True</property>
+                                <property name="position">2</property>
+                              </packing>
+                            </child>
+                          </object>
+                          <packing>
+                            <property name="expand">True</property>
+                            <property name="fill">True</property>
+                            <property name="position">1</property>
+                          </packing>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="expand">True</property>
+                        <property name="fill">True</property>
+                        <property name="position">2</property>
+                      </packing>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="position">7</property>
+                  </packing>
+                </child>
+                <child type="tab">
+                  <object class="GtkLabel" id="device_options_label">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <property name="label" translatable="yes">Device Options</property>
+                  </object>
+                  <packing>
+                    <property name="position">7</property>
                     <property name="tab_fill">False</property>
                   </packing>
                 </child>
@@ -2321,7 +2720,7 @@ You can download photos from multiple devices simultaneously, or you can specify
                               <object class="GtkTable" id="backup_table">
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
-                                <property name="n_rows">9</property>
+                                <property name="n_rows">10</property>
                                 <property name="n_columns">4</property>
                                 <child>
                                   <object class="GtkLabel" id="backup_location_explanation_label">
@@ -2330,7 +2729,7 @@ You can download photos from multiple devices simultaneously, or you can specify
                                     <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
                                     <property name="xalign">0</property>
                                     <property name="ypad">12</property>
-                                    <property name="label" translatable="yes">If you disable automatic detection, choose the exact backup location.</property>
+                                    <property name="label" translatable="yes">If you disable automatic detection, choose the exact backup locations.</property>
                                     <property name="wrap">True</property>
                                   </object>
                                   <packing>
@@ -2338,6 +2737,7 @@ You can download photos from multiple devices simultaneously, or you can specify
                                     <property name="right_attach">4</property>
                                     <property name="top_attach">7</property>
                                     <property name="bottom_attach">8</property>
+                                    <property name="y_options">GTK_FILL</property>
                                   </packing>
                                 </child>
                                 <child>
@@ -2415,7 +2815,7 @@ You can download photos from multiple devices simultaneously, or you can specify
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
                                     <property name="xalign">0</property>
-                                    <property name="label" translatable="yes">Backup location:</property>
+                                    <property name="label" translatable="yes">Photo backup location:</property>
                                   </object>
                                   <packing>
                                     <property name="left_attach">1</property>
@@ -2538,6 +2938,28 @@ You can download photos from multiple devices simultaneously, or you can specify
                                   </packing>
                                 </child>
                                 <child>
+                                  <object class="GtkLabel" id="video_backup_location_label">
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">False</property>
+                                    <property name="xalign">0</property>
+                                    <property name="label" translatable="yes">Video backup location:</property>
+                                  </object>
+                                  <packing>
+                                    <property name="left_attach">1</property>
+                                    <property name="right_attach">3</property>
+                                    <property name="top_attach">9</property>
+                                    <property name="bottom_attach">10</property>
+                                    <property name="x_options">GTK_FILL</property>
+                                    <property name="y_options"></property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
                                   <placeholder/>
                                 </child>
                                 <child>
@@ -2608,7 +3030,7 @@ You can download photos from multiple devices simultaneously, or you can specify
                     </child>
                   </object>
                   <packing>
-                    <property name="position">7</property>
+                    <property name="position">8</property>
                   </packing>
                 </child>
                 <child type="tab">
@@ -2618,7 +3040,7 @@ You can download photos from multiple devices simultaneously, or you can specify
                     <property name="label" translatable="yes">Backup</property>
                   </object>
                   <packing>
-                    <property name="position">7</property>
+                    <property name="position">8</property>
                     <property name="tab_fill">False</property>
                   </packing>
                 </child>
@@ -2956,7 +3378,7 @@ You can download photos from multiple devices simultaneously, or you can specify
                     </child>
                   </object>
                   <packing>
-                    <property name="position">8</property>
+                    <property name="position">9</property>
                   </packing>
                 </child>
                 <child type="tab">
@@ -2967,7 +3389,7 @@ You can download photos from multiple devices simultaneously, or you can specify
                     <property name="label" translatable="yes">Miscellaneous</property>
                   </object>
                   <packing>
-                    <property name="position">8</property>
+                    <property name="position">9</property>
                     <property name="tab_fill">False</property>
                   </packing>
                 </child>
@@ -3278,7 +3700,7 @@ You can download photos from multiple devices simultaneously, or you can specify
                     </child>
                   </object>
                   <packing>
-                    <property name="position">9</property>
+                    <property name="position">10</property>
                   </packing>
                 </child>
                 <child type="tab">
@@ -3289,7 +3711,7 @@ You can download photos from multiple devices simultaneously, or you can specify
                     <property name="label" translatable="yes">Error Handling</property>
                   </object>
                   <packing>
-                    <property name="position">9</property>
+                    <property name="position">10</property>
                     <property name="tab_fill">False</property>
                   </packing>
                 </child>
