@@ -7,6 +7,9 @@ Fixed bug #768026: added option to ignore paths from which to download.
 
 Fixed bug #774488: added manual backup path for videos, in addition to photos.
 
+Fixed bug #789995: crash when --reset-settings option is given on the command 
+line.
+
 
 Version 0.4.1
 -------------

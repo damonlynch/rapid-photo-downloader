@@ -3337,7 +3337,7 @@ def start():
         sys.exit(0)
         
     if options.reset:
-        prefs = RapidPreferences()
+        prefs = prefsrapid.RapidPreferences()
         prefs.reset()
         print _("All settings and preferences have been reset")
         sys.exit(0)
