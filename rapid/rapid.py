@@ -1150,16 +1150,22 @@ class TaskManager:
 
 class ScanManager(TaskManager):
     
-    def __init__(self, results_callback, batch_size, generate_folder,
+    def __init__(self, results_callback, batch_size, 
                  add_device_function):
         TaskManager.__init__(self, results_callback, batch_size)
         self.add_device_function = add_device_function
-        self.generate_folder = generate_folder
         
-    def _initiate_task(self, device, task_results_conn, task_process_conn, 
+    def _initiate_task(self, task, task_results_conn, task_process_conn, 
                        terminate_queue, run_event):
-                           
-        scan = scan_process.Scan(device.get_path(), self.batch_size, self.generate_folder, 
+        
+        device = task[0]
+        ignored_paths = task[1]
+        use_re_ignored_paths = task[2]
+        
+        scan = scan_process.Scan(device.get_path(),
+                                ignored_paths,
+                                use_re_ignored_paths,
+                                self.batch_size, 
                                 task_process_conn, terminate_queue, run_event)
         scan.start()
         self._processes.append((scan, terminate_queue, run_event))
@@ -1289,9 +1295,10 @@ class SubfolderFileManager(SingleInstanceTaskManager):
     """
     Manages the daemon process that renames files and creates subfolders
     """
-    def __init__(self, results_callback, sequence_values):
+    def __init__(self, results_callback, sequence_values, focal_length):
         SingleInstanceTaskManager.__init__(self, results_callback)
-        self._subfolder_file = subfolderfile.SubfolderFile(self.task_process_conn, sequence_values)
+        self._subfolder_file = subfolderfile.SubfolderFile(self.task_process_conn, 
+                                                sequence_values, focal_length)
         self._subfolder_file.start()
         logger.debug("SubfolderFile PID: %s", self._subfolder_file.pid)
         
@@ -1427,12 +1434,14 @@ class RapidApp(dbus.service.Object):
     processes.
     """
      
-    def __init__(self,  bus, path, name, taskserver=None): 
+    def __init__(self,  bus, path, name, taskserver=None, focal_length=None): 
         
         dbus.service.Object.__init__ (self, bus, path, name)
         self.running = False
         
         self.taskserver = taskserver
+        
+        self.focal_length = focal_length
         
         # Setup program preferences, and set callback for when they change
         self._init_prefs()
@@ -1640,6 +1649,15 @@ class RapidApp(dbus.service.Object):
             name = self.backup_devices[path].get_name()
         return name
         
+    def start_device_scan(self, device):
+        """
+        Commences the scanning of a device using the preference values for 
+        any paths to ignore while scanning
+        """
+        return self.scan_manager.add_task([device, 
+                                          self.prefs.ignored_paths,
+                                          self.prefs.use_re_ignored_paths])
+        
     def setup_devices(self, on_startup, on_preference_change, block_auto_start):
         """
         
@@ -1736,7 +1754,7 @@ class RapidApp(dbus.service.Object):
                 # prompt user to see if device should be used or not
                 self.get_use_device(device)
             else:
-                scan_pid = self.scan_manager.add_task(device)
+                scan_pid = self.start_device_scan(device)
                 if mount is not None:
                     self.mounts_by_path[path] = scan_pid
         if not mounts:
@@ -1762,7 +1780,7 @@ class RapidApp(dbus.service.Object):
                     self.prefs.device_whitelist = self.prefs.device_whitelist + [path]
                 else:
                     self.prefs.device_whitelist = [path]
-            scan_pid = self.scan_manager.add_task(device)
+            scan_pid = self.start_device_scan(device)
             self.mounts_by_path[path] = scan_pid
             
         elif permanent_choice and path not in self.prefs.device_blacklist:
@@ -1881,7 +1899,7 @@ class RapidApp(dbus.service.Object):
                         # prompt user if device should be used or not
                         self.get_use_device(device)
                     else:   
-                        scan_pid = self.scan_manager.add_task(device)
+                        scan_pid = self.start_device_scan(device)
                         self.mounts_by_path[path] = scan_pid
             
     def on_mount_removed(self, vmonitor, mount):
@@ -2666,7 +2684,9 @@ class RapidApp(dbus.service.Object):
 
         if key == 'show_log_dialog':
             self.menu_log_window.set_active(value)
-        elif key in ['device_autodetection', 'device_autodetection_psd', 'device_location']:
+        elif key in ['device_autodetection', 'device_autodetection_psd', 
+                     'device_location', 'ignored_paths',
+                     'use_re_ignored_paths', 'device_blacklist']:
             self.rerun_setup_available_image_and_video_media = True
             if not self.preferences_dialog_displayed:
                 self.post_preference_change()
@@ -3226,12 +3246,12 @@ class RapidApp(dbus.service.Object):
                            
         self.subfolder_file_manager = SubfolderFileManager(
                                         self.subfolder_file_results,
-                                        sequence_values)
+                                        sequence_values,
+                                        self.focal_length)
             
         
-        self.generate_folder = False
         self.scan_manager = ScanManager(self.scan_results, self.batch_size, 
-                    self.generate_folder, self.device_collection.add_device)
+                                        self.device_collection.add_device)
         self.copy_files_manager = CopyFilesManager(self.copy_files_results, 
                                                    self.batch_size_MB)
         self.backup_manager = BackupFilesManager(self.backup_results,
@@ -3313,6 +3333,7 @@ def start():
     parser.add_option("-q", "--quiet",  action="store_false", dest="verbose",  help=_("only output errors to the command line"))
     # image file extensions are recognized RAW files plus TIFF and JPG
     parser.add_option("-e",  "--extensions", action="store_true", dest="extensions", help=_("list photo and video file extensions the program recognizes and exit"))
+    parser.add_option("--focal-length", type=int, dest="focal_length", help="If an aperture value of 0.0 is encountered, for file renaming purposes the metadata for that photo will temporarily have its focal length set to the number passed, and its aperture to f8")
     parser.add_option("--reset-settings", action="store_true", dest="reset", help=_("reset all program settings and preferences and exit"))
     (options, args) = parser.parse_args()
     
@@ -3341,10 +3362,19 @@ def start():
         prefs.reset()
         print _("All settings and preferences have been reset")
         sys.exit(0)
+        
+    if options.focal_length:
+        focal_length = options.focal_length
+    else:
+        focal_length = None
 
     logger.info("Rapid Photo Downloader %s", utilities.human_readable_version(config.version))
     logger.info("Using pyexiv2 %s", metadataphoto.pyexiv2_version_info())
     logger.info("Using exiv2 %s", metadataphoto.exiv2_version_info())
+    
+    if focal_length:
+        logger.info("Focal length of %s will be used when an aperture of 0.0 is encountered", focal_length)
+        
     if DOWNLOAD_VIDEO:
         logger.info("Using hachoir %s", metadatavideo.version_info())
     else:
@@ -3353,7 +3383,7 @@ def start():
     bus = dbus.SessionBus ()
     request = bus.request_name (config.DBUS_NAME, dbus.bus.NAME_FLAG_DO_NOT_QUEUE)
     if request != dbus.bus.REQUEST_NAME_REPLY_EXISTS: 
-        app = RapidApp(bus, '/', config.DBUS_NAME)
+        app = RapidApp(bus, '/', config.DBUS_NAME, focal_length=focal_length)
     else:
         # this application is already running
         print "Rapid Photo Downloader is already running"

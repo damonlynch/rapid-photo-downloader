@@ -17,7 +17,7 @@
 ### along with this program; if not, write to the Free Software
 ### Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-import subprocess, os, datetime
+import subprocess, os, datetime, re
 
 import prefs
 
@@ -91,6 +91,9 @@ class RapidPreferences(prefs.Preferences):
         "device_autodetection_psd": prefs.Value(prefs.BOOL,  False),
         "device_whitelist": prefs.ListValue(prefs.STRING_LIST,  ['']), 
         "device_blacklist": prefs.ListValue(prefs.STRING_LIST,  ['']), 
+        "ignored_paths": prefs.ListValue(prefs.STRING_LIST,  ['.Trash',
+                '.thumbnails']),
+        "use_re_ignored_paths": prefs.Value(prefs.BOOL, False),
         "backup_images": prefs.Value(prefs.BOOL, False),
         "backup_device_autodetection": prefs.Value(prefs.BOOL, True),
         "backup_identifier": prefs.Value(prefs.STRING, 
@@ -412,5 +415,33 @@ def format_pref_list_for_pretty_print(pref_list):
             s = "%s (%s)" % (s, pref_list[i+2])
         v += s + "\n"
     return v
-
-
+    
+    
+def check_and_compile_re(ignored_paths):
+    """
+    configure regular expression to search for, checking to see it is valid
+    
+    returns compiled RE, or None if invalid
+    """
+    
+    pattern = ''
+    for path in ignored_paths:
+        # check for validity
+        try:
+            re.match(path, '')
+            pattern += '.*%s$|' % path
+        except:
+            logger.error("Ignoring invalid regular expression: %s", path)
+    if pattern:
+        pattern = pattern[:-1]
+        
+    logger.debug("Ignored paths regular expression pattern: %s", pattern)
+    if not pattern:
+        logger.warning("No regular expression is specified")
+        return None
+    else:
+        try:
+            return re.compile(pattern)
+        except:
+            logger.error('This regular expression is invalid: %s', pattern)
+            return None

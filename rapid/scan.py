@@ -19,6 +19,7 @@
 
 import os
 import multiprocessing
+import re
 
 import gio
 import gtk
@@ -27,6 +28,7 @@ import pyexiv2
 
 import rpdmultiprocessing as rpdmp
 import rpdfile
+import prefsrapid
 
 
 import logging
@@ -48,12 +50,19 @@ class Scan(multiprocessing.Process):
     files in bytes.
     """
     
-    def __init__(self, path, batch_size, generate_folder, results_pipe, 
+    def __init__(self, path, ignored_paths, use_re_ignored_paths,
+                 batch_size, results_pipe, 
                  terminate_queue, run_event):
                      
         """Setup values needed to conduct the scan.
         
         'path' is a string of the path to be scanned, which is passed to gio.
+        
+        'ignored_paths' is a list of paths that should not be scanned. Any path
+        ending with one of the values will be ignored.
+        
+        'use_re_ignored_paths': if true, pytho regular expressions will be used
+        to determine which paths to ignore
         
         'batch_size' is the number of files that should be sent back to the 
         calling function at one time.
@@ -69,16 +78,16 @@ class Scan(multiprocessing.Process):
         
         multiprocessing.Process.__init__(self)
         self.path = path
+        self.ignored_paths = ignored_paths
+        self.use_re_ignored_paths = use_re_ignored_paths
         self.results_pipe = results_pipe
         self.terminate_queue = terminate_queue
         self.run_event = run_event
         self.batch_size = batch_size
-        self.generate_folder = generate_folder
         self.counter = 0
         self.files = []
         self.file_type_counter = rpdfile.FileTypeCounter()
-
-
+        
     def _gio_scan(self, path, file_size_sum):
         """recursive function to scan a directory and its subdirectories
         for photos and possibly videos"""
@@ -104,7 +113,8 @@ class Scan(multiprocessing.Process):
                 file_type = child.get_file_type()
                 name = child.get_name()
                 if file_type == gio.FILE_TYPE_DIRECTORY:
-                    file_size_sum = self._gio_scan(path.get_child(name), 
+                    if not self.ignore_this_path(name):
+                        file_size_sum = self._gio_scan(path.get_child(name), 
                                                    file_size_sum)
                     if file_size_sum is None:
                         return None
@@ -150,9 +160,16 @@ class Scan(multiprocessing.Process):
 
     def run(self):
         """start the actual scan."""
+        
+        if self.use_re_ignored_paths and len(self.ignored_paths):
+            self.re_pattern = prefsrapid.check_and_compile_re(self.ignored_paths)
+        
         source = gio.File(self.path)
         try:
-            size = self._gio_scan(source, 0)
+            if not self.ignore_this_path(self.path):
+                size = self._gio_scan(source, 0)
+            else:
+                size = None
         except gio.Error, inst:
             logger.error("Error while scanning %s: %s", self.path, inst)
             size = None
@@ -164,3 +181,21 @@ class Scan(multiprocessing.Process):
             self.results_pipe.send((rpdmp.CONN_COMPLETE, (size, 
                                     self.file_type_counter, self.pid)))
             self.results_pipe.close()                
+
+    def ignore_this_path(self, path):
+        """
+        determines if the path should be ignored according to the preferences
+        chosen by the user
+        """
+        
+        if len(self.ignored_paths):
+            if self.use_re_ignored_paths and self.re_pattern:
+                # regular expressions are being used
+                if self.re_pattern.match(path):
+                    return True
+            else:
+                # regular expressions are not being used
+                if path.endswith(tuple(self.ignored_paths)):
+                    return True
+                    
+        return False

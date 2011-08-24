@@ -2292,7 +2292,7 @@ When this option is enabled, and a potential device is detected, you will be pro
                                 <property name="can_focus">False</property>
                                 <property name="xalign">0</property>
                                 <property name="xpad">12</property>
-                                <property name="label" translatable="yes">Remembered Devices</property>
+                                <property name="label" translatable="yes">Remembered Paths</property>
                                 <attributes>
                                   <attribute name="weight" value="bold"/>
                                 </attributes>
@@ -2309,7 +2309,7 @@ When this option is enabled, and a potential device is detected, you will be pro
                                 <property name="can_focus">False</property>
                                 <property name="xalign">0</property>
                                 <property name="xpad">12</property>
-                                <property name="label" translatable="yes">Remembered devices are those devices you have chosen to always scan or never scan when automatic detection of Portable Storage Devices is enabled.</property>
+                                <property name="label" translatable="yes">Remembered paths are those that you have chosen to always scan or ignore when automatic detection of Portable Storage Devices is enabled.</property>
                                 <property name="wrap">True</property>
                               </object>
                               <packing>
@@ -2342,8 +2342,10 @@ When this option is enabled, and a potential device is detected, you will be pro
                                     <property name="vscrollbar_policy">automatic</property>
                                     <child>
                                       <object class="GtkTreeView" id="remembered_devices_treeview">
+                                        <property name="width_request">250</property>
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
+                                        <property name="headers_visible">False</property>
                                       </object>
                                     </child>
                                   </object>
@@ -2435,7 +2437,7 @@ When this option is enabled, and a potential device is detected, you will be pro
                                 <property name="can_focus">False</property>
                                 <property name="xalign">0</property>
                                 <property name="xpad">12</property>
-                                <property name="label" translatable="yes">Ignored Paths	</property>
+                                <property name="label" translatable="yes">Ignored Paths</property>
                                 <attributes>
                                   <attribute name="weight" value="bold"/>
                                 </attributes>
@@ -2444,6 +2446,21 @@ When this option is enabled, and a potential device is detected, you will be pro
                                 <property name="expand">False</property>
                                 <property name="fill">True</property>
                                 <property name="position">0</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkLabel" id="ignored_paths_explanation_label">
+                                <property name="visible">True</property>
+                                <property name="can_focus">False</property>
+                                <property name="xalign">0</property>
+                                <property name="xpad">12</property>
+                                <property name="label" translatable="yes">Specify any paths you want ignored when scanning devices for photos or videos. Any path ending with the values below will not be scanned.</property>
+                                <property name="wrap">True</property>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">True</property>
+                                <property name="position">1</property>
                               </packing>
                             </child>
                             <child>
@@ -2470,8 +2487,10 @@ When this option is enabled, and a potential device is detected, you will be pro
                                     <property name="vscrollbar_policy">automatic</property>
                                     <child>
                                       <object class="GtkTreeView" id="ignored_paths_treeview">
+                                        <property name="width_request">250</property>
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
+                                        <property name="headers_visible">False</property>
                                       </object>
                                     </child>
                                   </object>
@@ -2557,7 +2576,7 @@ When this option is enabled, and a potential device is detected, you will be pro
                               <packing>
                                 <property name="expand">True</property>
                                 <property name="fill">True</property>
-                                <property name="position">1</property>
+                                <property name="position">2</property>
                               </packing>
                             </child>
                             <child>
@@ -2566,7 +2585,7 @@ When this option is enabled, and a potential device is detected, you will be pro
                                 <property name="can_focus">False</property>
                                 <child>
                                   <object class="GtkCheckButton" id="ignored_paths_use_re_checkbutton">
-                                    <property name="label" translatable="yes">_Use regular expressions</property>
+                                    <property name="label" translatable="yes">Use _python-style regular expressions</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
@@ -2586,7 +2605,7 @@ When this option is enabled, and a potential device is detected, you will be pro
                               <packing>
                                 <property name="expand">False</property>
                                 <property name="fill">True</property>
-                                <property name="position">2</property>
+                                <property name="position">3</property>
                               </packing>
                             </child>
                           </object>

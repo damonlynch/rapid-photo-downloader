@@ -55,7 +55,7 @@ char *s = N_("If you disable automatic detection, choose the exact location of t
 char *s = N_("If you enable automatic detection of Portable Storage Devices, the entire device will be scanned. On large devices, this could take some time.\n"
              "\n"
              "When this option is enabled, and a potential device is detected, you will be prompted to determine if it should be scanned or not.");
-char *s = N_("Ignored Paths	");
+char *s = N_("Ignored Paths");
 char *s = N_("Job Codes");
 char *s = N_("Location:");
 char *s = N_("Miscellaneous");
@@ -70,12 +70,13 @@ char *s = N_("Preferences: Rapid Photo Downloader");
 char *s = N_("R_emove All");
 /* The underscore after the C signifies that the l is the accelerator key. This is the standard 'Clear' button, but I needed to change the accelerator from the standard 'c' to 'l' because the close button also used 'c' */
 char *s = N_("Re_move All");
-char *s = N_("Remembered Devices");
-char *s = N_("Remembered devices are those devices you have chosen to always scan or never scan when automatic detection of Portable Storage Devices is enabled.");
+char *s = N_("Remembered Paths");
+char *s = N_("Remembered paths are those that you have chosen to always scan or ignore when automatic detection of Portable Storage Devices is enabled.");
 char *s = N_("Rename Options");
 char *s = N_("Skip");
 char *s = N_("Skip download");
 char *s = N_("Sorry, video downloading functionality disabled. To download videos, please install the <i>hachoir metadata</i> and <i>kaa metadata</i> packages for python.");
+char *s = N_("Specify any paths you want ignored when scanning devices for photos or videos. Any path ending with the values below will not be scanned.");
 char *s = N_("Specify the folder in which backups are stored on the device.  \n"
              "\n"
              "<i>Note: this will also be used to determine whether or not the device is used for backups. For each device you wish to use for backing up to, create a folder in it with one of these names.</i>");
@@ -87,6 +88,7 @@ char *s = N_("Stored number:");
 char *s = N_("Strip incompatible characters");
 char *s = N_("Synchronize RAW + JPEG sequence numbers");
 char *s = N_("Unmount (\"eject\") device upon download completion");
+char *s = N_("Use _python-style regular expressions");
 char *s = N_("Video Folders");
 char *s = N_("Video Rename");
 char *s = N_("Video backup folder name:");
@@ -95,4 +97,3 @@ char *s = N_("When a photo or video of the same name has already been downloaded
 char *s = N_("When backing up, choose whether to overwrite a file on the backup device that has the same name, or skip backing it up.");
 char *s = N_("You can have your photos and videos backed up to multiple locations as they are downloaded, e.g. external hard drives.");
 char *s = N_("_Add...");
-char *s = N_("_Use regular expressions");

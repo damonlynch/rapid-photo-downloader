@@ -18,7 +18,7 @@
 ### Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 
-import datetime
+import datetime, re
 
 import gtk
 
@@ -384,9 +384,9 @@ class VideoSubfolderPrefs(PhotoSubfolderPrefs):
             pref_defn_L0 = DICT_VIDEO_SUBFOLDER_L0,
             pref_list = pref_list)
 
-class RemoveAllJobCodeDialog(gtk.Dialog):
-    def __init__(self, parent_window, post_choice_callback):
-        gtk.Dialog.__init__(self, _('Remove all Job Codes?'), None,
+class QuestionDialog(gtk.Dialog):
+    def __init__(self, parent_window, title, question, post_choice_callback):
+        gtk.Dialog.__init__(self, title, None,
                    gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
                    (gtk.STOCK_NO, gtk.RESPONSE_CANCEL, 
                    gtk.STOCK_YES, gtk.RESPONSE_OK))
@@ -403,7 +403,7 @@ class RemoveAllJobCodeDialog(gtk.Dialog):
             image.set_from_pixbuf(icon)
             prompt_hbox.pack_start(image, False, False, padding = 6)
             
-        prompt_label = gtk.Label(_('Should all Job Codes be removed?'))
+        prompt_label = gtk.Label(question)
         prompt_label.set_line_wrap(True)
         prompt_hbox.pack_start(prompt_label, False, False, padding=6)
                     
@@ -420,11 +420,32 @@ class RemoveAllJobCodeDialog(gtk.Dialog):
 
         
         self.connect('response', self.on_response)
-        
+
     def on_response(self,  device_dialog, response):
         user_selected = response == gtk.RESPONSE_OK
         self.post_choice_callback(self, user_selected)
 
+class RemoveAllJobCodeDialog(QuestionDialog):
+    def __init__(self, parent_window, post_choice_callback):
+        QuestionDialog.__init__(self, parent_window,
+                                _('Remove all Job Codes?'),
+                                _('Should all Job Codes be removed?'),
+                                post_choice_callback)
+                                
+class RemoveAllRemeberedDevicesDialog(QuestionDialog):
+    def __init__(self, parent_window, post_choice_callback):
+        QuestionDialog.__init__(self, parent_window,
+                                _('Remove all Remembered Devices?'),
+                                _('Should all remembered devices be removed?'),
+                                post_choice_callback)
+    
+class RemoveAllIgnoredPathsDialog(QuestionDialog):
+    def __init__(self, parent_window, post_choice_callback):
+        QuestionDialog.__init__(self, parent_window,
+                                _('Remove all Ignored Paths?'),
+                                _('Should all ignored paths be removed?'),
+                                post_choice_callback)
+                                
 class PhotoRenameTable(tpm.TablePlusMinus):
 
     def __init__(self, preferencesdialog, adjust_scroll_window):
@@ -716,7 +737,6 @@ class JobCodeDialog(gtk.Dialog):
                    (gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL, 
                    gtk.STOCK_OK, gtk.RESPONSE_OK))
                         
-        
         self.set_icon_from_file(paths.share_dir('glade3/rapid-photo-downloader.svg'))
         self.post_job_code_entry_callback = post_job_code_entry_callback
         
@@ -788,6 +808,54 @@ class JobCodeDialog(gtk.Dialog):
             logger.debug("Job Code not entered")
         self.post_job_code_entry_callback(self, user_chose_code, self.get_job_code())
         
+class IgnorePathDialog(gtk.Dialog):
+    """ Dialog prompting for a path to ignore when scanning devices"""
+    
+    def __init__(self, parent_window, post_entry_callback):
+        gtk.Dialog.__init__(self,  _('Enter a Path to Ignore'), None,
+                   gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
+                   (gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL, 
+                   gtk.STOCK_OK, gtk.RESPONSE_OK))
+                        
+        self.set_icon_from_file(paths.share_dir('glade3/rapid-photo-downloader.svg'))
+        self.post_entry_callback = post_entry_callback
+        
+        self.path_entry = gtk.Entry(max=0)
+            
+        self.ignored_path_hbox = gtk.HBox(homogeneous = False)
+        
+        task_label = gtk.Label(_('Specify a path that will never be scanned for photos or videos'))            
+        task_label.set_line_wrap(True)
+        task_hbox = gtk.HBox()
+        task_hbox.pack_start(task_label, False, False, padding=6)
+
+        label = gtk.Label(_('Path:'))
+        self.ignored_path_hbox.pack_start(label, False, False, padding=6)
+        self.ignored_path_hbox.pack_start(self.path_entry, True, True, padding=6)
+        
+        self.set_border_width(6)
+        self.set_has_separator(False)
+        
+        # when user hits enter, close the dialog window
+        self.set_default_response(gtk.RESPONSE_OK)
+        self.path_entry.set_activates_default(True)
+
+        self.vbox.pack_start(task_hbox, False, False, padding = 6)
+        self.vbox.pack_start(self.ignored_path_hbox, False, False, padding=12)
+        
+        self.set_transient_for(parent_window)
+        self.show_all()
+        self.connect('response', self.on_ignored_path_resp)
+
+    def on_ignored_path_resp(self, ignored_path_dialog, response):
+        user_chose_path = False
+        if response == gtk.RESPONSE_OK:
+            user_chose_path = True
+            logger.debug("Ignored Path entered")
+        else:
+            logger.debug("Ignored Path not entered")
+        self.post_entry_callback(self, user_chose_path, self.path_entry.get_text())
+
 
 class PreferencesDialog():
     """
@@ -834,6 +902,7 @@ class PreferencesDialog():
         self._setup_rename_options_tab()
         self._setup_job_code_tab()
         self._setup_device_tab()
+        self._setup_device_options_tab()    
         self._setup_backup_tab()
         self._setup_miscellaneous_tab()
         self._setup_error_tab()
@@ -905,6 +974,95 @@ class PreferencesDialog():
         
     def on_device_location_filechooser_button_selection_changed(self, widget):
         self.prefs.device_location = widget.get_current_folder()
+        
+    def on_add_ignored_path_button_clicked(self, widget):
+        i = IgnorePathDialog(parent_window = self.dialog, 
+                             post_entry_callback = self.add_ignored_path)
+        
+    def add_ignored_path(self, dialog, user_chose_path, path):
+        dialog.destroy()
+        if user_chose_path:
+            if path and path not in self.prefs.ignored_paths:
+                self.ignored_paths_liststore.prepend((path,  ))
+                self.update_ignored_paths()
+                selection = self.ignored_paths_treeview.get_selection()
+                selection.unselect_all()
+                selection.select_path((0, ))
+                #scroll to the top
+                adjustment = self.ignored_paths_scrolledwindow.get_vadjustment()
+                adjustment.set_value(adjustment.lower)
+                
+    def on_ignored_paths_use_re_checkbutton_toggled(self, checkbutton):
+        self.prefs.use_re_ignored_paths = checkbutton.get_active()
+        if self.prefs.use_re_ignored_paths and not self.pref_dialog_startup:
+            # check for invalid regular expressions
+            self.update_ignored_paths()
+        
+    def on_remove_ignored_path_button_clicked(self, button):
+        self._remove_from_treeview(self.ignored_paths_treeview)
+        self.update_ignored_paths()
+        
+    def on_remove_all_ignored_paths_button_clicked(self, button):
+        i = RemoveAllIgnoredPathsDialog(self.dialog, self.remove_all_ignored_paths)
+        
+    def remove_all_ignored_paths(self, dialog, user_selected):
+        dialog.destroy()
+        if user_selected:
+            self.ignored_paths_liststore.clear()
+            self.update_ignored_paths()        
+        
+    def on_remove_remembered_device_button_clicked(self, button):
+        """
+        uses remembered devices treeview to delete any removed items from the 
+        device_whitelist and device_blacklist prefs
+        """
+        blacklist = [i for i in self.prefs.device_blacklist if i]
+        whitelist = [i for i in self.prefs.device_whitelist if i]
+        selection = self.remembered_devices_treeview.get_selection()
+        model, selected = selection.get_selected_rows()
+        iters = [model.get_iter(path) for path in selected]
+        # only delete if a value is selected
+        if iters:
+            no = len(iters)
+            path = None
+            for i in range(0, no):
+                iter = iters[i]
+                if i == no - 1:
+                    path = model.get_path(iter) 
+                v = self.remembered_devices_liststore.get_value(iter, 0)
+                if v in blacklist:
+                    blacklist.remove(v)
+                elif v in whitelist:
+                    whitelist.remove(v)
+                else:
+                    logger.debug("Unknown remembered device %s", v)
+                model.remove(iter)
+            
+            # now that we removed the selection, play nice with 
+            # the user and select the next item
+            selection.select_path(path)
+            
+            # if there was no selection that meant the user
+            # removed the last entry, so we try to select the 
+            # last item
+            if not selection.path_is_selected(path):
+                 row = path[0]-1
+                 # test case for empty lists
+                 if row >= 0:
+                    selection.select_path((row,))            
+        
+        self.prefs.device_blacklist = blacklist
+        self.prefs.device_whitelist = whitelist
+        
+    def on_remove_all_remembered_device_button_clicked(self, button):
+        r = RemoveAllRemeberedDevicesDialog(self.dialog, self.remove_all_remembered_devices)
+        
+    def remove_all_remembered_devices(self, dialog, user_selected):
+        dialog.destroy()
+        if user_selected:
+            self.remembered_devices_liststore.clear()
+            self.prefs.device_blacklist = []
+            self.prefs.device_whitelist = []
     
     def _setup_sample_names(self, use_dummy_data = False):
         """
@@ -1085,7 +1243,7 @@ class PreferencesDialog():
         column = gtk.TreeViewColumn()
         rentext = gtk.CellRendererText()
         rentext.connect('edited', self.on_job_code_edited)
-        rentext .set_property('editable', True)
+        rentext.set_property('editable', True)
 
         column.pack_start(rentext, expand=0)
         column.set_attributes(rentext, text=0)
@@ -1101,6 +1259,60 @@ class PreferencesDialog():
         self.remove_all_job_code_button.set_image(gtk.image_new_from_stock(
                                                 gtk.STOCK_CLEAR,
                                                 gtk.ICON_SIZE_BUTTON))  
+    def _setup_device_options_tab(self):
+        """
+        Setup ignored paths and remembered devices tab in prefs dialog
+        """
+
+        self.ignored_paths_use_re_checkbutton.set_active(
+                    self.prefs.use_re_ignored_paths)
+        
+        self.ignored_paths_liststore = gtk.ListStore(str)
+        column = gtk.TreeViewColumn()
+        rentext = gtk.CellRendererText()
+        rentext.connect('edited', self.on_ignored_path_edited)
+        rentext.set_property('editable', True)
+
+        column.pack_start(rentext, expand=0)
+        column.set_attributes(rentext, text=0)
+        self.ignored_paths_treeview_column = column
+        self.ignored_paths_treeview.append_column(column)
+        self.ignored_paths_treeview.props.model = self.ignored_paths_liststore
+        for path in self.prefs.ignored_paths:
+            self.ignored_paths_liststore.append((path, ))
+            
+        self.ignored_paths_treeview.get_selection().set_mode(gtk.SELECTION_MULTIPLE)
+        self.remove_all_ignored_paths_button.set_image(gtk.image_new_from_stock(
+                                                gtk.STOCK_CLEAR,
+                                                gtk.ICON_SIZE_BUTTON))
+                                                
+        # Remembered devices are a little different in that they cannot be
+        # edited, and they can only added when the user is prompted by the 
+        # program. Moreover, the list the user sees is a combination of two
+        # lists: device_whitelist and device_blacklist
+        
+        self.remembered_devices_liststore = gtk.ListStore(str)
+        column = gtk.TreeViewColumn()
+        rentext = gtk.CellRendererText()
+        rentext.set_property('editable', False)
+
+        column.pack_start(rentext, expand=0)
+        column.set_attributes(rentext, text=0)
+        self.remembered_devices_treeview_column = column
+        self.remembered_devices_treeview.append_column(column)
+        self.remembered_devices_treeview.props.model = self.remembered_devices_liststore
+        for device in self.prefs.device_whitelist:
+            if device:
+                self.remembered_devices_liststore.append((device, ))
+        for device in self.prefs.device_blacklist:
+            if device:
+                self.remembered_devices_liststore.append((device, ))
+        
+        self.remembered_devices_treeview.get_selection().set_mode(gtk.SELECTION_MULTIPLE)
+        self.remove_all_remembered_device_button.set_image(gtk.image_new_from_stock(
+                                                gtk.STOCK_CLEAR,
+                                                gtk.ICON_SIZE_BUTTON))
+                
     def _setup_device_tab(self):
 
         self.device_location_filechooser_button = gtk.FileChooserButton(
@@ -1400,12 +1612,14 @@ class PreferencesDialog():
                 adjustment = self.job_code_scrolledwindow.get_vadjustment()
                 adjustment.set_value(adjustment.lower)
 
-    def on_remove_job_code_button_clicked(self,  button):
-        """ remove selected job codes (can be multiple selection)"""
-        selection = self.job_code_treeview.get_selection()
+    def _remove_from_treeview(self, treeview):
+        """
+        Removes selected items from a treeview, allowing multiple selections
+        """
+        selection = treeview.get_selection()
         model, selected = selection.get_selected_rows()
         iters = [model.get_iter(path) for path in selected]
-        # only delete if a jobe code is selected
+        # only delete if a value is selected
         if iters:
             no = len(iters)
             path = None
@@ -1419,7 +1633,7 @@ class PreferencesDialog():
             # the user and select the next item
             selection.select_path(path)
             
-            #  if there was no selection that meant the user
+            # if there was no selection that meant the user
             # removed the last entry, so we try to select the 
             # last item
             if not selection.path_is_selected(path):
@@ -1427,14 +1641,19 @@ class PreferencesDialog():
                  # test case for empty lists
                  if row >= 0:
                     selection.select_path((row,))
-
+    
+    
+    def on_remove_job_code_button_clicked(self, button):
+        """ remove selected job codes (can be multiple selection)"""
+        
+        self._remove_from_treeview(self.job_code_treeview)
         self.update_job_codes()
         self.update_photo_rename_example()
         self.update_video_rename_example()
         self.update_photo_download_folder_example()
         self.update_video_download_folder_example()
         
-    def on_remove_all_job_code_button_clicked(self,  button):
+    def on_remove_all_job_code_button_clicked(self, button):
         j = RemoveAllJobCodeDialog(self.dialog, self.remove_all_job_code)
         
     def remove_all_job_code(self, dialog, user_selected):
@@ -1456,13 +1675,51 @@ class PreferencesDialog():
         self.update_photo_download_folder_example()
         self.update_video_download_folder_example()
 
+    def _update_prefs_list(self, liststore):
+        replacement_list = []
+        for row in liststore:
+            replacement_list.append(row[0])
+        return replacement_list        
+    
     def update_job_codes(self):
         """ update preferences with list of job codes"""
-        job_codes = []
-        for row in self.job_code_liststore:
-            job_codes.append(row[0])
-        self.prefs.job_codes = job_codes
+        self.prefs.job_codes = self._update_prefs_list(self.job_code_liststore)
         
+    def on_ignored_path_edited(self, widget, path, new_text):
+        iter = self.ignored_paths_liststore.get_iter(path)
+        self.ignored_paths_liststore.set_value(iter, 0, new_text)
+        self.update_ignored_paths()        
+        
+    def update_ignored_paths(self):
+        ignored_paths = self._update_prefs_list(self.ignored_paths_liststore)
+        
+        # remove any trailing slashes
+        ignored_paths = [path.rstrip('/') for path in ignored_paths if path]
+        # remove any blank values from ignored_paths
+        ignored_paths = [path for path in ignored_paths if path]
+
+        if self.prefs.use_re_ignored_paths:
+            ip = []
+            bad_paths = ''
+            for path in ignored_paths:
+                # check for validity
+                try:
+                    re.match(path, '')
+                    ip.append(path)
+                except:
+                    logger.error("Ignoring invalid regular expression: %s", path)
+                    bad_paths += path + '\n'
+            ignored_paths = ip
+            if bad_paths:
+                bad_paths = bad_paths[:-1]
+                if bad_paths.find('\n') >= 0:
+                    msg = _("The following regular expressions are invalid, and will be removed unless you correct them:\n %s") % bad_paths
+                else:
+                    msg = _("This regular expression is invalid, and will be removed unless you correct it:\n %s") % bad_paths
+                misc.run_dialog(_("Invalid regular expression"), msg, self)
+                
+        self.prefs.ignored_paths = ignored_paths
+                                
     def on_auto_startup_checkbutton_toggled(self, checkbutton):
         self.prefs.auto_download_at_startup = checkbutton.get_active()
         
@@ -1471,7 +1728,6 @@ class PreferencesDialog():
         
     def on_auto_unmount_checkbutton_toggled(self, checkbutton):
         self.prefs.auto_unmount = checkbutton.get_active()
-        
 
     def on_auto_delete_checkbutton_toggled(self, checkbutton):
         self.prefs.auto_delete = checkbutton.get_active()

@@ -3,7 +3,15 @@ Version 0.4.2
 
 2011-08-xx
 
+Added feature in Prefences window to remove any paths that have previously
+been marked to always be scanned or ignored. These paths can be specified when
+automatic detection of Portable Storage Devices is enabled.
+
 Fixed bug #768026: added option to ignore paths from which to download. 
+
+You can now specify specific paths never to scan for photos or videos. By 
+default, any path ending in .Trash or .thumbnails is ignored.  Advanced users
+can specify python-style regular expressions.
 
 Fixed bug #774488: added manual backup path for videos, in addition to photos.
 
@@ -11,6 +19,9 @@ Fixed bug #789995: crash when --reset-settings option is given on the command
 line.
 
 Fixed bug #795446: small error in translation template.
+
+Updated Brazilian, Dutch, Français, German, Japanese, Polish, Russian, Spanish 
+and Turkish translations.
 
 
 Version 0.4.1

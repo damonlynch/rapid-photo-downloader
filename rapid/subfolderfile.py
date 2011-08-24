@@ -136,7 +136,7 @@ def generate_name(rpd_file):
         
 
 class SubfolderFile(multiprocessing.Process):
-    def __init__(self, results_pipe, sequence_values):
+    def __init__(self, results_pipe, sequence_values, focal_length):
         multiprocessing.Process.__init__(self)
         self.daemon = True
         self.results_pipe = results_pipe
@@ -149,6 +149,8 @@ class SubfolderFile(multiprocessing.Process):
         self.uses_stored_sequence_no = sequence_values[5]
         self.uses_session_sequece_no = sequence_values[6]
         self.uses_sequence_letter = sequence_values[7]
+        
+        self.focal_length = focal_length
         
         logger.debug("Start of day is set to %s", self.day_start.value)
         
@@ -308,8 +310,9 @@ class SubfolderFile(multiprocessing.Process):
                 else:
                     # Generate subfolder name and new file name
                     generation_succeeded = True
-                    experimental = False
-                    if experimental and rpd_file.file_type == rpdfile.FILE_TYPE_PHOTO:
+                    
+                    # check to see if focal length and aperture data should be manipulated
+                    if self.focal_length is not None and rpd_file.file_type == rpdfile.FILE_TYPE_PHOTO:
                         if load_metadata(rpd_file):
                             a = rpd_file.metadata.aperture()
                             if a == '0.0':
