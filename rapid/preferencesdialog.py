@@ -435,8 +435,8 @@ class RemoveAllJobCodeDialog(QuestionDialog):
 class RemoveAllRemeberedDevicesDialog(QuestionDialog):
     def __init__(self, parent_window, post_choice_callback):
         QuestionDialog.__init__(self, parent_window,
-                                _('Remove all Remembered Devices?'),
-                                _('Should all remembered devices be removed?'),
+                                _('Remove all Remembered Paths?'),
+                                _('Should all remembered paths be removed?'),
                                 post_choice_callback)
     
 class RemoveAllIgnoredPathsDialog(QuestionDialog):

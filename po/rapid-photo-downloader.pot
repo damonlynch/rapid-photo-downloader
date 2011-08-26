@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-08-24 19:49+0600\n"
+"POT-Creation-Date: 2011-08-27 04:16+0600\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -767,11 +767,11 @@ msgid "Should all Job Codes be removed?"
 msgstr ""
 
 #: rapid/preferencesdialog.py:438
-msgid "Remove all Remembered Devices?"
+msgid "Remove all Remembered Paths?"
 msgstr ""
 
 #: rapid/preferencesdialog.py:439
-msgid "Should all remembered devices be removed?"
+msgid "Should all remembered paths be removed?"
 msgstr ""
 
 #: rapid/preferencesdialog.py:445
