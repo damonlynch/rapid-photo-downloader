@@ -101,6 +101,7 @@ class RapidPreferences(prefs.Preferences):
         "video_backup_identifier": prefs.Value(prefs.STRING, 
                                         get_default_backup_video_identifier()),
         "backup_location": prefs.Value(prefs.STRING, os.path.expanduser('~')),
+        "backup_video_location": prefs.Value(prefs.STRING, os.path.expanduser('~')),
         "strip_characters": prefs.Value(prefs.BOOL, True),
         "auto_download_at_startup": prefs.Value(prefs.BOOL, False),
         "auto_download_upon_device_insertion": prefs.Value(prefs.BOOL, False),

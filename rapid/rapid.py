@@ -2669,12 +2669,40 @@ class RapidApp(dbus.service.Object):
         self.uses_session_sequece_no_value = Value(c_bool, self.prefs.any_pref_uses_session_sequece_no())
         self.uses_sequence_letter_value = Value(c_bool, self.prefs.any_pref_uses_sequence_letter_value())
         
+        self.check_prefs_upgrade(__version__)
         self.prefs.program_version = __version__
         
     def _check_for_sequence_value_use(self):
         self.uses_stored_sequence_no_value.value = self.prefs.any_pref_uses_stored_sequence_no()
         self.uses_session_sequece_no_value.value = self.prefs.any_pref_uses_session_sequece_no()
         self.uses_sequence_letter_value.value = self.prefs.any_pref_uses_sequence_letter_value()    
+    
+    def check_prefs_upgrade(self, running_version):
+        """
+        Checks if the running version of the program is different from the 
+        version recorded in the preferences.
+        
+        If the version is different, the preferences are checked to see
+        whether they should be upgraded or not.
+        """
+        previous_version = self.prefs.program_version
+        if len(previous_version) > 0:
+            # the program has been run previously for this user
+        
+            pv = utilities.pythonify_version(previous_version)
+            rv = utilities.pythonify_version(running_version)
+        
+            if pv <> rv:
+                # 0.4.1 and below had only one manual backup location
+                # 0.4.2 introduced a distinct video back up location that can be manually set
+                # Therefore must duplicate the previous photo & video manual backup location into the 
+                # new video field, unless it has already been changed already.
+                
+                if pv < utilities.pythonify_version('0.4.2'):
+                    if self.prefs.backup_video_location == os.path.expanduser('~'):
+                        self.prefs.backup_video_location = self.prefs.backup_location
+                        logger.info("Migrated manual backup location preference to videos: %s", 
+                                    self.prefs.backup_video_location)
     
     def on_preference_changed(self, key, value):
         """

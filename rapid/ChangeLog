@@ -15,6 +15,11 @@ can specify python-style regular expressions.
 
 Fixed bug #774488: added manual backup path for videos, in addition to photos.
 
+You can now manually specify a path specifically in which to backup videos. This
+can be the same or different from the path in which to backup photos.
+
+Fixed bug: on automatically detected backup volumes, only backup photos and videos if the folder identifier has manually been created by the user.
+
 Fixed bug #789995: crash when --reset-settings option is given on the command 
 line.
 

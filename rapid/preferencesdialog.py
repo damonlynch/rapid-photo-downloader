@@ -972,6 +972,10 @@ class PreferencesDialog():
         self.prefs.backup_location = widget.get_current_folder()
         self.update_backup_example()
         
+    def on_backup_video_folder_filechooser_button_selection_changed(self, widget):
+        self.prefs.backup_video_location = widget.get_current_folder()
+        self.update_backup_example()
+        
     def on_device_location_filechooser_button_selection_changed(self, widget):
         self.prefs.device_location = widget.get_current_folder()
         
@@ -1337,8 +1341,12 @@ class PreferencesDialog():
         
 
     def _setup_backup_tab(self):
+        """
+        Setup and configure backup tab 
+        """
+        #Manual backup location for photos file chooser
         self.backup_folder_filechooser_button = gtk.FileChooserButton(
-                            _("Select a folder in which to backup %(file_types)s") % {'file_types':self.file_types})
+                            _("Select a folder in which to backup photos"))
         self.backup_folder_filechooser_button.set_current_folder(
                             self.prefs.backup_location)
         self.backup_folder_filechooser_button.set_action(
@@ -1348,6 +1356,20 @@ class PreferencesDialog():
         self.backup_table.attach(self.backup_folder_filechooser_button,
                             3, 4, 8, 9, yoptions = gtk.SHRINK)
         self.backup_folder_filechooser_button.show()
+        
+        #Manual backup location for videos file chooser
+        self.backup_video_folder_filechooser_button = gtk.FileChooserButton(
+                            _("Select a folder in which to backup videos"))
+        self.backup_video_folder_filechooser_button.set_current_folder(
+                            self.prefs.backup_video_location)
+        self.backup_video_folder_filechooser_button.set_action(
+                            gtk.FILE_CHOOSER_ACTION_SELECT_FOLDER)
+        self.backup_video_folder_filechooser_button.connect("selection-changed", 
+                    self.on_backup_video_folder_filechooser_button_selection_changed)
+        self.backup_table.attach(self.backup_video_folder_filechooser_button,
+                            3, 4, 9, 10, yoptions = gtk.SHRINK)
+        self.backup_video_folder_filechooser_button.show()
+
         self.backup_identifier_entry.set_text(self.prefs.backup_identifier)
         self.video_backup_identifier_entry.set_text(self.prefs.video_backup_identifier)
         
@@ -1361,6 +1383,14 @@ class PreferencesDialog():
         self._backup_controls2 = [self.backup_location_label,
                                 self.backup_folder_filechooser_button,
                                 self.backup_location_explanation_label]
+                                
+        if metadatavideo.DOWNLOAD_VIDEO:
+            self._backup_controls2 += [self.backup_video_folder_filechooser_button,
+                                self.backup_video_location_label]
+        else:
+            self.backup_video_folder_filechooser_button.set_sensitive(False)
+            self.backup_video_location_label.set_sensitive(False)
+            
         self._backup_controls = self._backup_controls0 + self._backup_controls1 + \
                                 self._backup_controls2
                                 

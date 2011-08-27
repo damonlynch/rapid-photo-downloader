@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-08-27 04:16+0600\n"
+"POT-Creation-Date: 2011-08-27 17:19+0600\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -124,22 +124,22 @@ msgstr ""
 msgid "photos or videos"
 msgstr ""
 
-#: rapid/rapid.py:2440 rapid/rapid.py:2987 rapid/rpdfile.py:115
+#: rapid/rapid.py:2440 rapid/rapid.py:3015 rapid/rpdfile.py:115
 msgid "videos"
 msgstr ""
 
-#: rapid/rapid.py:2442 rapid/preferencesdialog.py:1586 rapid/rpdfile.py:117
+#: rapid/rapid.py:2442 rapid/preferencesdialog.py:1616 rapid/rpdfile.py:117
 #: rapid/rpdfile.py:270
 msgid "video"
 msgstr ""
 
-#: rapid/rapid.py:2445 rapid/rapid.py:2985 rapid/preferencesdialog.py:893
+#: rapid/rapid.py:2445 rapid/rapid.py:3013 rapid/preferencesdialog.py:893
 #: rapid/rpdfile.py:120
 msgid "photos"
 msgstr ""
 
 #. check subfolder preferences for bad values
-#: rapid/rapid.py:2447 rapid/preferencesdialog.py:1585 rapid/rpdfile.py:122
+#: rapid/rapid.py:2447 rapid/preferencesdialog.py:1615 rapid/rpdfile.py:122
 #: rapid/rpdfile.py:250
 msgid "photo"
 msgstr ""
@@ -190,37 +190,37 @@ msgstr ""
 msgid "%(number)s of %(total)s %(filetypes)s"
 msgstr ""
 
-#: rapid/rapid.py:2955
+#: rapid/rapid.py:2983
 msgid "and"
 msgstr ""
 
-#: rapid/rapid.py:2960
+#: rapid/rapid.py:2988
 msgid "Using backup devices"
 msgstr ""
 
-#: rapid/rapid.py:2962
+#: rapid/rapid.py:2990
 msgid "Using backup device"
 msgstr ""
 
-#: rapid/rapid.py:2964
+#: rapid/rapid.py:2992
 msgid "No backup devices detected"
 msgstr ""
 
-#: rapid/rapid.py:2991
+#: rapid/rapid.py:3019
 msgid "Free space:"
 msgstr ""
 
 #. (videos) or (photos) will be appended to the free space message displayed to the
 #. user in the status bar.
 #. you should only translate this if your language does not use parantheses
-#: rapid/rapid.py:3003
+#: rapid/rapid.py:3031
 #, python-format
 msgid "(%(file_type)s)"
 msgstr ""
 
 #. Freespace available on the filesystem for downloading to
 #. Displayed in status bar message on main window
-#: rapid/rapid.py:3007
+#: rapid/rapid.py:3035
 #, python-format
 msgid "%(free)s %(file_type)s"
 msgstr ""
@@ -228,116 +228,116 @@ msgstr ""
 #. Inserted in the middle of the statusbar message concerning the amount of freespace
 #. Used to differentiate between two different file systems
 #. e.g. Free space: 21.3GB (photos); 14.7GB (videos).
-#: rapid/rapid.py:3012
+#: rapid/rapid.py:3040
 msgid "; "
 msgstr ""
 
 #. Inserted at the end of the statusbar message concerning the amount of freespace
 #. Used to differentiate between two different file systems
 #. e.g. Free space: 21.3GB (photos); 14.7GB (videos).
-#: rapid/rapid.py:3017
+#: rapid/rapid.py:3045
 msgid "."
 msgstr ""
 
 #. Freespace available on the filesystem for downloading to
 #. Displayed in status bar message on main window
 #. e.g. 14.7GB available
-#: rapid/rapid.py:3023
+#: rapid/rapid.py:3051
 #, python-format
 msgid "%(free)s free"
 msgstr ""
 
 #. user manually specified backup location
-#: rapid/rapid.py:3029
+#: rapid/rapid.py:3057
 #, python-format
 msgid "Backing up to %(path)s"
 msgstr ""
 
-#: rapid/rapid.py:3034
+#: rapid/rapid.py:3062
 #, python-format
 msgid "%(freespace)s. %(backuppaths)s."
 msgstr ""
 
-#: rapid/rapid.py:3063
+#: rapid/rapid.py:3091
 msgid "Program preferences are invalid"
 msgstr ""
 
-#: rapid/rapid.py:3168 rapid/rpdfile.py:251
+#: rapid/rapid.py:3196 rapid/rpdfile.py:251
 msgid "Photo"
 msgstr ""
 
-#: rapid/rapid.py:3170 rapid/rpdfile.py:271
+#: rapid/rapid.py:3198 rapid/rpdfile.py:271
 msgid "Video"
 msgstr ""
 
-#: rapid/rapid.py:3179
+#: rapid/rapid.py:3207
 #, python-format
 msgid "%(file_type)s download folder does not exist"
 msgstr ""
 
-#: rapid/rapid.py:3181 rapid/rapid.py:3195 rapid/rapid.py:3208
+#: rapid/rapid.py:3209 rapid/rapid.py:3223 rapid/rapid.py:3236
 #, python-format
 msgid "Folder: %s"
 msgstr ""
 
-#: rapid/rapid.py:3193
+#: rapid/rapid.py:3221
 #, python-format
 msgid "%(file_type)s download folder is invalid"
 msgstr ""
 
-#: rapid/rapid.py:3206
+#: rapid/rapid.py:3234
 #, python-format
 msgid "%(file_type)s download folder is not writable"
 msgstr ""
 
-#: rapid/rapid.py:3284
+#: rapid/rapid.py:3312
 msgid "Thumbnails"
 msgstr ""
 
 #. Translators: this text is displayed to the user when they request information on the command line options.
 #. The text %default should not be modified or left out.
-#: rapid/rapid.py:3331
+#: rapid/rapid.py:3359
 #, python-format
 msgid ""
 "display program information on the command line as the program runs "
 "(default: %default)"
 msgstr ""
 
-#: rapid/rapid.py:3332
+#: rapid/rapid.py:3360
 msgid "display debugging information when run from the command line"
 msgstr ""
 
-#: rapid/rapid.py:3333
+#: rapid/rapid.py:3361
 msgid "only output errors to the command line"
 msgstr ""
 
 #. image file extensions are recognized RAW files plus TIFF and JPG
-#: rapid/rapid.py:3335
+#: rapid/rapid.py:3363
 msgid "list photo and video file extensions the program recognizes and exit"
 msgstr ""
 
-#: rapid/rapid.py:3337
+#: rapid/rapid.py:3365
 msgid "reset all program settings and preferences and exit"
 msgstr ""
 
-#: rapid/rapid.py:3350
+#: rapid/rapid.py:3378
 msgid "Photos:"
 msgstr ""
 
-#: rapid/rapid.py:3350
+#: rapid/rapid.py:3378
 msgid "Videos:"
 msgstr ""
 
-#: rapid/rapid.py:3355
+#: rapid/rapid.py:3383
 #, python-format
 msgid "and %s"
 msgstr ""
 
-#: rapid/rapid.py:3363
+#: rapid/rapid.py:3391
 msgid "All settings and preferences have been reset"
 msgstr ""
 
-#: rapid/rapid.py:3381
+#: rapid/rapid.py:3409
 msgid ""
 "Video downloading functionality disabled.\n"
 "To download videos, please install the hachoir metadata and kaa metadata "
@@ -829,49 +829,52 @@ msgstr ""
 msgid "Path:"
 msgstr ""
 
-#: rapid/preferencesdialog.py:1074
+#: rapid/preferencesdialog.py:1078
 msgid "Job Code"
 msgstr ""
 
-#: rapid/preferencesdialog.py:1156
+#: rapid/preferencesdialog.py:1160
 msgid "Select a folder to download photos to"
 msgstr ""
 
-#: rapid/preferencesdialog.py:1174
+#: rapid/preferencesdialog.py:1178
 msgid "Select a folder to download videos to"
 msgstr ""
 
-#: rapid/preferencesdialog.py:1319
+#: rapid/preferencesdialog.py:1323
 #, python-format
 msgid "Select a folder containing %(file_types)s"
 msgstr ""
 
-#: rapid/preferencesdialog.py:1341
-#, python-format
-msgid "Select a folder in which to backup %(file_types)s"
+#: rapid/preferencesdialog.py:1349
+msgid "Select a folder in which to backup photos"
+msgstr ""
+
+#: rapid/preferencesdialog.py:1362
+msgid "Select a folder in which to backup videos"
 msgstr ""
 
 #. Translators: please do not modify or leave out html formatting tags like <i> and <b>. These are used to format the text the users sees
-#: rapid/preferencesdialog.py:1427
+#: rapid/preferencesdialog.py:1457
 msgid ""
 "<i><b>Warning:</b> There is insufficient metadata to fully generate the "
 "name. Please use other renaming options.</i>"
 msgstr ""
 
-#: rapid/preferencesdialog.py:1478
+#: rapid/preferencesdialog.py:1508
 msgid ""
 "<i><b>Warning:</b> There is insufficient metadata to fully generate "
 "subfolders. Please use other subfolder naming options.</i>"
 msgstr ""
 
 #. Translators: you should not modify or leave out the %s. This is a code used by the programming language python to insert a value that thes user will see
-#: rapid/preferencesdialog.py:1481
+#: rapid/preferencesdialog.py:1511
 #, python-format
 msgid "<i>Example: %s</i>"
 msgstr ""
 
 #. Preferences list is now empty
-#: rapid/preferencesdialog.py:1571
+#: rapid/preferencesdialog.py:1601
 #, python-format
 msgid ""
 "The %(filetype)s subfolder preferences entered are invalid and cannot be "
@@ -879,7 +882,7 @@ msgid ""
 "They will be reset to their default values."
 msgstr ""
 
-#: rapid/preferencesdialog.py:1716
+#: rapid/preferencesdialog.py:1746
 #, python-format
 msgid ""
 "The following regular expressions are invalid, and will be removed unless "
@@ -887,7 +890,7 @@ msgid ""
 " %s"
 msgstr ""
 
-#: rapid/preferencesdialog.py:1718
+#: rapid/preferencesdialog.py:1748
 #, python-format
 msgid ""
 "This regular expression is invalid, and will be removed unless you correct "
@@ -895,89 +898,89 @@ msgid ""
 " %s"
 msgstr ""
 
-#: rapid/preferencesdialog.py:1719
+#: rapid/preferencesdialog.py:1749
 msgid "Invalid regular expression"
 msgstr ""
 
 #. Translators: this value is used as an example device when automatic backup device detection is enabled. You should translate this.
-#: rapid/preferencesdialog.py:1901
+#: rapid/preferencesdialog.py:1931
 msgid "externaldrive1"
 msgstr ""
 
 #. Translators: this value is used as an example device when automatic backup device detection is enabled. You should translate this.
-#: rapid/preferencesdialog.py:1903
+#: rapid/preferencesdialog.py:1933
 msgid "externaldrive2"
 msgstr ""
 
-#: rapid/prefsrapid.py:125
+#: rapid/prefsrapid.py:126
 msgid "New York"
 msgstr ""
 
-#: rapid/prefsrapid.py:126
+#: rapid/prefsrapid.py:127
 msgid "Manila"
 msgstr ""
 
-#: rapid/prefsrapid.py:126
+#: rapid/prefsrapid.py:127
 msgid "Prague"
 msgstr ""
 
-#: rapid/prefsrapid.py:126
+#: rapid/prefsrapid.py:127
 msgid "Helsinki"
 msgstr ""
 
-#: rapid/prefsrapid.py:126
+#: rapid/prefsrapid.py:127
 msgid "Wellington"
 msgstr ""
 
-#: rapid/prefsrapid.py:127
+#: rapid/prefsrapid.py:128
 msgid "Tehran"
 msgstr ""
 
-#: rapid/prefsrapid.py:127
+#: rapid/prefsrapid.py:128
 msgid "Kampala"
 msgstr ""
 
-#: rapid/prefsrapid.py:127
+#: rapid/prefsrapid.py:128
 msgid "Paris"
 msgstr ""
 
-#: rapid/prefsrapid.py:127
+#: rapid/prefsrapid.py:128
 msgid "Berlin"
 msgstr ""
 
-#: rapid/prefsrapid.py:127
+#: rapid/prefsrapid.py:128
 msgid "Sydney"
 msgstr ""
 
-#: rapid/prefsrapid.py:128
+#: rapid/prefsrapid.py:129
 msgid "Budapest"
 msgstr ""
 
-#: rapid/prefsrapid.py:128
+#: rapid/prefsrapid.py:129
 msgid "Rome"
 msgstr ""
 
-#: rapid/prefsrapid.py:128
+#: rapid/prefsrapid.py:129
 msgid "Moscow"
 msgstr ""
 
-#: rapid/prefsrapid.py:128
+#: rapid/prefsrapid.py:129
 msgid "Delhi"
 msgstr ""
 
-#: rapid/prefsrapid.py:128
+#: rapid/prefsrapid.py:129
 msgid "Warsaw"
 msgstr ""
 
-#: rapid/prefsrapid.py:129
+#: rapid/prefsrapid.py:130
 msgid "Jakarta"
 msgstr ""
 
-#: rapid/prefsrapid.py:129
+#: rapid/prefsrapid.py:130
 msgid "Madrid"
 msgstr ""
 
-#: rapid/prefsrapid.py:129
+#: rapid/prefsrapid.py:130
 msgid "Stockholm"
 msgstr ""
 

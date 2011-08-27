@@ -2957,7 +2957,7 @@ When this option is enabled, and a potential device is detected, you will be pro
                                   </packing>
                                 </child>
                                 <child>
-                                  <object class="GtkLabel" id="video_backup_location_label">
+                                  <object class="GtkLabel" id="backup_video_location_label">
                                     <property name="visible">True</property>
                                     <property name="can_focus">False</property>
                                     <property name="xalign">0</property>
