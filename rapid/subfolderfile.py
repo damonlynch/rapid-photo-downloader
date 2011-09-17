@@ -317,9 +317,9 @@ class SubfolderFile(multiprocessing.Process):
                             a = rpd_file.metadata.aperture()
                             if a == '0.0':
                                 fl = rpd_file.metadata["Exif.Photo.FocalLength"].value
-                                logger.info("Samyang lens - adjusting focal length and aperture... ")
+                                logger.info("Adjusting focal length and aperture for %s", rpd_file.full_file_name)
                                 #~ try:
-                                rpd_file.metadata["Exif.Photo.FocalLength"] = fractions.Fraction(14,1)
+                                rpd_file.metadata["Exif.Photo.FocalLength"] = fractions.Fraction(self.focal_length,1)
                                 rpd_file.metadata["Exif.Photo.FNumber"] = fractions.Fraction(8,1)
                                     #~ rpd_file.metadata.write(preserve_timestamps=True)
                                 #~ logger.info("...wrote new value")

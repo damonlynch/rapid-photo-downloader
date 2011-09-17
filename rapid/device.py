@@ -156,21 +156,5 @@ def is_DCIM_device(path):
     test_path = os.path.join(path, "DCIM")
     return utilities.is_directory(test_path)
     
-def is_backup_media(path, identifiers, writeable=True):
-    """  Test to see if path is used as a backup medium for storing photos or videos
-    
-    Identifiers is expected to be a list of folder names to check to see
-    if the path is a backup path. Only one of them needs to be present
-    for the path to be considered a backup medium.
-    
-    If writeable is True, the directory must be writeable by the user """
-    suitable = False
-    
-    for identifier in identifiers:
-        if os.path.isdir(os.path.join(path, identifier)):
-            if writeable:
-                suitable = os.access(os.path.join(path, identifier), os.W_OK)
-            else:
-                suitable = True
-    return suitable
+
 

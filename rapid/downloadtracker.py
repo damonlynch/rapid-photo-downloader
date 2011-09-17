@@ -40,10 +40,16 @@ class DownloadTracker:
     def _refresh_values(self):
         """ these values are reset when a download is completed"""
         self.size_of_download_in_bytes_by_scan_pid = dict()
+        self.total_bytes_backed_up_by_scan_pid = dict()
+        self.size_of_photo_backup_in_bytes_by_scan_pid = dict()
+        self.size_of_video_backup_in_bytes_by_scan_pid = dict()
         self.raw_size_of_download_in_bytes_by_scan_pid = dict()
         self.total_bytes_copied_by_scan_pid = dict()
-        self.total_bytes_backed_up_by_scan_pid = dict()
+        self.total_bytes_video_backed_up_by_scan_pid = dict()
         self.no_files_in_download_by_scan_pid = dict()
+        self.no_photos_in_download_by_scan_pid = dict()
+        self.no_videos_in_download_by_scan_pid = dict()
+        
         
         # 'Download count' tracks the index of the file being downloaded
         # into the list of files that need to be downloaded -- much like
@@ -66,11 +72,30 @@ class DownloadTracker:
         self.backups_performed_by_unique_id = dict()
         self.auto_delete = dict()
         
-    def set_no_backup_devices(self, no_backup_devices):
-        self.no_backup_devices = no_backup_devices
+    def set_no_backup_devices(self, no_photo_backup_devices, no_video_backup_devices):
+        self.no_photo_backup_devices = no_photo_backup_devices
+        self.no_video_backup_devices = no_video_backup_devices
+        self.no_backup_devices = no_photo_backup_devices + no_video_backup_devices
         
-    def init_stats(self, scan_pid, bytes, no_files):
+    def get_no_backup_devices(self):
+        """
+        Returns how many devices are being used to backup files of each type
+        Return value is an integer tuple: photo and video
+        """
+        return (self.no_photo_backup_devices, self.no_video_backup_devices)
+        
+    def init_stats(self, scan_pid, photo_size_in_bytes, video_size_in_bytes, no_photos_to_download, no_videos_to_download):
+        no_files = no_photos_to_download + no_videos_to_download
         self.no_files_in_download_by_scan_pid[scan_pid] = no_files
+        self.no_photos_in_download_by_scan_pid[scan_pid] = no_photos_to_download
+        self.no_videos_in_download_by_scan_pid[scan_pid] = no_videos_to_download
+        self.size_of_photo_backup_in_bytes_by_scan_pid[scan_pid] = photo_size_in_bytes * self.no_photo_backup_devices
+        self.size_of_video_backup_in_bytes_by_scan_pid[scan_pid] = video_size_in_bytes * self.no_video_backup_devices
+        bytes = photo_size_in_bytes + video_size_in_bytes
+        # rename_chunk is used to account for the time it takes to rename a file
+        # it is arbitrarily set to 10% of the time it takes to copy it
+        # this makes a difference to the user when they're downloading from a 
+        # a high speed source
         self.rename_chunk[scan_pid] = bytes / 10 / no_files
         self.size_of_download_in_bytes_by_scan_pid[scan_pid] = bytes + self.rename_chunk[scan_pid] * no_files
         self.raw_size_of_download_in_bytes_by_scan_pid[scan_pid] = bytes
@@ -85,7 +110,6 @@ class DownloadTracker:
         
     def get_no_files_in_download(self, scan_pid):
         return self.no_files_in_download_by_scan_pid[scan_pid]
-        
         
     def get_no_files_downloaded(self, scan_pid, file_type):
         if file_type == FILE_TYPE_PHOTO:
@@ -119,9 +143,12 @@ class DownloadTracker:
         self.backups_performed_by_unique_id[unique_id] = \
                     self.backups_performed_by_unique_id.get(unique_id, 0) + 1
         
-    def all_files_backed_up(self, unique_id):
+    def all_files_backed_up(self, unique_id, file_type):
         if unique_id in self.backups_performed_by_unique_id:
-            return self.backups_performed_by_unique_id[unique_id] == self.no_backup_devices
+            if file_type == FILE_TYPE_PHOTO:
+                return self.backups_performed_by_unique_id[unique_id] == self.no_photo_backup_devices
+            else:
+                return self.backups_performed_by_unique_id[unique_id] == self.no_video_backup_devices
         else:
             logger.critical("Unexpected unique_id in self.backups_performed_by_unique_id")
             return True
@@ -155,14 +182,17 @@ class DownloadTracker:
         has been completed 
         """
         
-        # three components: copy (download), rename, and backup
+        # when calculating the percentage, there are three components: 
+        # copy (download), rename ('rename_chunk'), and backup
         percent_complete = (((float(
                   self.total_bytes_copied_by_scan_pid[scan_pid]) 
                 + self.rename_chunk[scan_pid] * self.files_downloaded[scan_pid])
                 + self.total_bytes_backed_up_by_scan_pid[scan_pid])
                 / (self.size_of_download_in_bytes_by_scan_pid[scan_pid] + 
-                   self.raw_size_of_download_in_bytes_by_scan_pid[scan_pid] * 
-                   self.no_backup_devices)) * 100
+                   self.size_of_photo_backup_in_bytes_by_scan_pid[scan_pid] +
+                   self.size_of_video_backup_in_bytes_by_scan_pid[scan_pid]
+                   )) * 100
+        
         return percent_complete
         
     def get_overall_percent_complete(self):

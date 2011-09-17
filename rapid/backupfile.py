@@ -31,6 +31,9 @@ import rpdfile
 import problemnotification as pn
 import config
 
+PHOTO_BACKUP = 1
+VIDEO_BACKUP = 2
+PHOTO_VIDEO_BACKUP = 3
 
 from gettext import gettext as _
 

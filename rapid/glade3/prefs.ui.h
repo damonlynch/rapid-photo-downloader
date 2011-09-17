@@ -71,12 +71,12 @@ char *s = N_("R_emove All");
 /* The underscore after the C signifies that the l is the accelerator key. This is the standard 'Clear' button, but I needed to change the accelerator from the standard 'c' to 'l' because the close button also used 'c' */
 char *s = N_("Re_move All");
 char *s = N_("Remembered Paths");
-char *s = N_("Remembered paths are those that you have chosen to always scan or ignore when automatic detection of Portable Storage Devices is enabled.");
+char *s = N_("Remembered paths are those associated with devices that you have chosen to always scan or ignore when automatic detection of Portable Storage Devices is enabled.");
 char *s = N_("Rename Options");
 char *s = N_("Skip");
 char *s = N_("Skip download");
 char *s = N_("Sorry, video downloading functionality disabled. To download videos, please install the <i>hachoir metadata</i> and <i>kaa metadata</i> packages for python.");
-char *s = N_("Specify any paths you want ignored when scanning devices for photos or videos. Any path ending with the values below will not be scanned.");
+char *s = N_("Specify the ending portion of any paths you want ignored when scanning devices for photos or videos. Any path ending with the values below will not be scanned.");
 char *s = N_("Specify the folder in which backups are stored on the device.  \n"
              "\n"
              "<i>Note: this will also be used to determine whether or not the device is used for backups. For each device you wish to use for backing up to, create a folder in it with one of these names.</i>");

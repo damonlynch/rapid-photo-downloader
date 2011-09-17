@@ -99,7 +99,7 @@ problem_definitions = {
     BACKUP_DIRECTORY_CREATION:      (BACKUP_PROBLEM,         "%s", True),
     NO_DOWNLOAD_WAS_BACKED_UP:      (BACKUP_OK,              "%s", True),
     
-    SAME_FILE_DIFFERENT_EXIF:       (DIFFERENT_EXIF,        _("%(image1)s was taken at on %(image1_date)s at %(image1_time)s, and %(image2)s on %(image2_date)s at %(image2_time)s."), False),
+    SAME_FILE_DIFFERENT_EXIF:       (DIFFERENT_EXIF,        _("%(image1)s was taken on %(image1_date)s at %(image1_time)s, and %(image2)s on %(image2_date)s at %(image2_time)s."), False),
     FILE_ALREADY_DOWNLOADED:        (FILE_ALREADY_DOWN_CAT, _('%(filetype)s was already downloaded'), False),
 }
 
