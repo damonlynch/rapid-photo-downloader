@@ -37,8 +37,9 @@ line.
 
 Fixed bugs #795446 and #844714: small errors in translation template.
 
-Updated Brazilian, Dutch, French, German, Japanese, Polish, Russian, Spanish 
-and Turkish translations.
+Added Danish translation, by Torben Gundtofte-Bruun. Updated Brazilian, Czech,
+Dutch, French, German, Japanese, Polish, Russian, Serbian, Spanish and Turkish
+translations.
 
 
 Version 0.4.1
