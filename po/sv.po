@@ -1491,7 +1491,7 @@ msgstr ":"
 
 #: rapid/glade3/rapid.glade.h:5
 msgid "<b>Backup</b>"
-msgstr "<b>Säkerhetskopia</b"
+msgstr "<b>Säkerhetskopia</b>"
 
 #: rapid/glade3/rapid.glade.h:6
 msgid "<b>Compatibility with Other Operating Systems</b>"

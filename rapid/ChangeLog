@@ -3,7 +3,7 @@ Version 0.4.2
 
 2011-09-xx
 
-Added feature in Prefences window to remove any paths that have previously
+Added feature in Preferences window to remove any paths that have previously
 been marked to always be scanned or ignored. These paths can be specified when
 automatic detection of Portable Storage Devices is enabled.
 
@@ -29,17 +29,20 @@ Fixed bug #815727: Backup errors and warnings incorrectly displayed in log
 window -
 
 Fixed a bug that occurred when backing up errors are encountered, the log window
-does not display them correctly, although they are correctly outputted to the 
-terminal window.
+did not display them correctly, although they were correctly outputted to the 
+terminal window. This only occurred when more than one backup device was being
+used during a download.
 
 Fixed bug #789995: crash when --reset-settings option is given on the command 
 line.
 
 Fixed bugs #795446 and #844714: small errors in translation template.
 
+Fixed a bug in the Swedish translation. 
+
 Added Danish translation, by Torben Gundtofte-Bruun. Updated Brazilian, Czech,
-Dutch, French, German, Japanese, Polish, Russian, Serbian, Spanish and Turkish
-translations.
+Dutch, French, German, Italian, Japanese, Polish, Russian, Serbian, Spanish and 
+Turkish translations.
 
 
 Version 0.4.1
@@ -50,7 +53,7 @@ Version 0.4.1
 Added exif Artist and Copyright metadata options to file and subfolder name
 generation.
 
-Fixed bug #774476: thumbnails occassionally not sorted by file modification
+Fixed bug #774476: thumbnails occasionally not sorted by file modification
 time.
 
 Fixed bug #784399: job code not prompted for after preference change.
@@ -70,7 +73,7 @@ Version 0.4.0
 
 2011-04-28
 
-Features added since Release Candiate 1:
+Features added since Release Candidate 1:
 
 * Allow multiple selection of files to check or uncheck for downloading.
 * Automation feature to delete downloaded files from a device.
@@ -218,7 +221,7 @@ download. It also performs the actual downloads quicker. It will use
 multiple CPU cores if they are available. 
 
 Rapid Photo Downloader now requires version 0.3.0 or newer of pyexiv2. It also
-requries Python Imaging (PIL) to run. It will only run on recent Linux
+requires Python Imaging (PIL) to run. It will only run on recent Linux
 distributions such as Ubuntu 10.04 or newer. It has been tested on Ubuntu 10.04,
 10.10 and 11.04, as well as Fedora 14. (There is currently an unusual bug 
 adjusting some preferences when running Ubuntu 11.04. See bug #739021).
@@ -254,7 +257,7 @@ Version 0.3.5
 
 2011-03-23
 
-The primrary purpose of this release is update translations and fix bug #714039,
+The primary purpose of this release is update translations and fix bug #714039,
 where under certain circumstances the program could crash while downloading 
 files. 
 
@@ -309,7 +312,7 @@ is that the video creation date is now correctly read (the creation time read by
 kaa metadata was sometimes wrong by a few hours). Kaa-metadata is still used to
 extract some the codec, fourcc and frames per second (FPS) metadata.
 
-Fixed bug #640722: Added preliminary support for Samusung SRW files. Current
+Fixed bug #640722: Added preliminary support for Samsung SRW files. Current
 versions of Exiv2 and pyexiv2 can read some but not all metadata from this new
 RAW format. If you try to use metadata that cannot be extracted, Rapid Photo 
 Downloader will issue a warning.
@@ -335,7 +338,7 @@ Version 0.3.2
 Added Norwegian Nynorsk translation. Updated Chinese, Finnish, Hungarian, Dutch, 
 Occitan (post 1500), Polish, Brazilian Portuguese, and Russian translations.
 
-Fixed crash on startup when checking for freespace, and the download folder does
+Fixed crash on startup when checking for free space, and the download folder does
 not exist.
 
 
@@ -348,7 +351,7 @@ The main window now works more effectively on tiny screens, such as those found
 on netbooks. If the screen height is less than or equal to 650 pixels, elements
 in the preview pane are removed, and the spacing is tightened.
 
-The amount of free space available on the filesystem where photos are to be
+The amount of free space available on the file-system where photos are to be
 downloaded is now displayed in the status bar. (Note this is only the case on
 moderately up-to-date Linux distributions that use GVFS, such as Ubuntu 8.10 or
 higher).
@@ -449,7 +452,7 @@ Don't stop a file being downloaded if a valid subfolder or filename can be
 generated using a Job Code.
 
 Bug fix: don't automatically exit if there were errors or warnings and a 
-download was occuring from more than one device.
+download was occurring from more than one device.
 
 Auto start now works correctly again.
 
@@ -578,7 +581,7 @@ system has, it must either be running pyexiv2 >= 0.2.0, or have exiv2 installed.
 
 Fixed bug #483222: sometimes images could not be downloaded to NTFS partitions.
 This fix was a welcome side effect of using GIO to copy images, instead of 
-relying on the python standard libary.
+relying on the python standard library.
 
 Error message headings in the Error Log are now displayed in a red font.
 
@@ -612,7 +615,7 @@ dialog window.
 Fixed bug #510484: Crashes when fails to create temporary download directory.
 
 Fixed bug #510516: Program now checks to see if the download folder exists and
-is writeable. If automatic detection of image devices is not enabled, it checks
+is writable. If automatic detection of image devices is not enabled, it checks
 to see if the image location path exists.
 
 Updated Czech, Dutch, Finnish, French, German, Hungarian, Italian, Polish, 
@@ -635,7 +638,7 @@ example, if 200 RAW images and 200 matching JPEG images are downloaded, the
 value of Downloads today will be incremented by 200, and not 400. The same goes 
 for the rest of the sequence values, including the Stored number sequence 
 number. Images are detected by comparing filename, as well as the exif value for
-the date and time the image was created (including subseconds when the camera 
+the date and time the image was created (including sub seconds when the camera 
 records this value). This option will take effect regardless of whether the RAW 
 and JPEG images are stored on different memory cards or the same memory card. 
 Furthermore, if they are stored on separate memory cards, you can download from 
@@ -791,7 +794,7 @@ to the documentation found online at the program's website. This documentation
 is now complete.
 
 The Preferences Dialog Window is now navigated using a list control, as it was
-in early versions of the program. This change was necesseary because with some
+in early versions of the program. This change was necessary because with some
 translations, the dialog window was becoming too wide with the normal tab 
 layout. Usability of the preferences dialog is improved: it will now resize 
 itself based on its content.
@@ -946,7 +949,7 @@ more helpful information is printed to the console output.
 Bug fix: better handle automated shortening Canon names like 'Canon 5D Mark II'.
 It is now shortened to '5DMkII' instead of merely '5D'.
 
-Bug fix: reenable example of image renaming and subfolder name generation by
+Bug fix: re-enable example of image renaming and subfolder name generation by
 using first image from the first available download device. This was
 inadvertently disabled in an earlier beta.
 
@@ -1019,7 +1022,7 @@ Version 0.0.8 beta 2
 
 2009-03-25
 
-First Ububtu package.
+First Ubuntu package.
 
 Rename tarball package to suit package name.
 
@@ -1064,7 +1067,7 @@ robust.
 Remove list control from preferences, reverting to normal tabbed preferences, 
 as the window was becoming too wide.
 
-Show notifcations via libnotify.
+Show notifications via libnotify.
 
 Error and warning icons can now be clicked on to open log window.
 

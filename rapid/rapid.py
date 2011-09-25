@@ -1884,21 +1884,22 @@ class RapidApp(dbus.service.Object):
         return (False, None)
 
     def update_no_backup_devices(self):
-        no_photo_backups = 0
-        no_video_backups = 0
+        self.no_photo_backup_devices = 0
+        self.no_video_backup_devices = 0
         for path, value in self.backup_devices.iteritems():
             backup_type = value[1]
             if backup_type == PHOTO_BACKUP:
-                no_photo_backups += 1
+                self.no_photo_backup_devices += 1
             elif backup_type == VIDEO_BACKUP:
-                no_video_backups += 1
+                self.no_video_backup_devices += 1
             else:
                 #both videos and photos are backed up to this device / path
-                no_photo_backups += 1
-                no_video_backups += 1
-        logger.info("# photo backup devices: %s; # video backup devices: %s", no_photo_backups, no_video_backups)
-        self.download_tracker.set_no_backup_devices(no_photo_backups, 
-                                                    no_video_backups)
+                self.no_photo_backup_devices += 1
+                self.no_video_backup_devices += 1
+        logger.info("# photo backup devices: %s; # video backup devices: %s", 
+                    self.no_photo_backup_devices, self.no_video_backup_devices)
+        self.download_tracker.set_no_backup_devices(self.no_photo_backup_devices, 
+                                                    self.no_video_backup_devices)
 
     def refresh_backup_media(self):
         """
@@ -2269,9 +2270,8 @@ class RapidApp(dbus.service.Object):
         download_size = photo_download_size + video_download_size
         
         if self.prefs.backup_images:
-            photo_backups, video_backups = self.download_tracker.get_no_backup_devices()
-            download_size = download_size + ((photo_backups * photo_download_size) +
-                                             (video_backups * video_download_size))
+            download_size = download_size + ((self.no_photo_backup_devices * photo_download_size) +
+                                             (self.no_video_backup_devices * video_download_size))
             
         self.time_remaining.set(scan_pid, download_size)
         self.time_check.set_download_mark()
@@ -2371,10 +2371,6 @@ class RapidApp(dbus.service.Object):
         if rpd_file.status == config.STATUS_DOWNLOADED_WITH_WARNING:
             self.log_error(config.WARNING, rpd_file.error_title, 
                            rpd_file.error_msg, rpd_file.error_extra_detail)
-            self.error_title = ''
-            self.error_msg = ''
-            self.error_extra_detail = ''
-                           
                            
         if self.prefs.backup_images and len(self.backup_devices):
             if self.prefs.backup_device_autodetection:
@@ -2391,7 +2387,16 @@ class RapidApp(dbus.service.Object):
         else:
             self.file_download_finished(move_succeeded, rpd_file)
      
-     
+    
+    def multiple_backup_devices(self, file_type):
+        """Returns true if more than one backup device is being used for that
+        file type
+        """
+        return ((file_type == rpdfile.FILE_TYPE_PHOTO and 
+                 self.no_photo_backup_devices > 1) or
+                (file_type == rpdfile.FILE_TYPE_VIDEO and 
+                 self.no_video_backup_devices > 1))
+                                 
     def backup_results(self, source, condition):
         """
         Handle results sent from backup processes
@@ -2413,6 +2418,17 @@ class RapidApp(dbus.service.Object):
                 
             elif msg_type == rpdmp.MSG_FILE:
                 backup_succeeded, rpd_file = data
+                
+                # Only show an error message if there is more than one device
+                # backing up files of this type - if that is the case,
+                # do not want to reply on showing an error message in the 
+                # function file_download_finished, as it is only called once,
+                # when all files have been backed up
+                if not backup_succeeded and self.multiple_backup_devices(rpd_file.file_type):
+                    self.log_error(config.SERIOUS_ERROR, 
+                        rpd_file.error_title, 
+                        rpd_file.error_msg, rpd_file.error_extra_detail)
+                
                 self.download_tracker.file_backed_up(rpd_file.unique_id)
                 if self.download_tracker.all_files_backed_up(rpd_file.unique_id,
                                                              rpd_file.file_type):
@@ -2423,10 +2439,13 @@ class RapidApp(dbus.service.Object):
 
     
     def file_download_finished(self, succeeded, rpd_file):
+        """
+        Called when a file has been downloaded i.e. copied, renamed, and backed up
+        """
         scan_pid = rpd_file.scan_pid
         unique_id = rpd_file.unique_id
         # Update error log window if neccessary
-        if not succeeded:
+        if not succeeded and not self.multiple_backup_devices(rpd_file.file_type):
             self.log_error(config.SERIOUS_ERROR, rpd_file.error_title, 
                            rpd_file.error_msg, rpd_file.error_extra_detail)
         elif self.prefs.auto_delete:
@@ -2747,6 +2766,11 @@ class RapidApp(dbus.service.Object):
         # flag to indicate that the user has modified the download today
         # related values in the preferences dialog window
         self.refresh_downloads_today = False
+        
+        # these values are used to track the number of backup devices / 
+        # locations for each file type
+        self.no_photo_backup_devices = 0
+        self.no_video_backup_devices = 0
         
         self.downloads_today_tracker = self.prefs.get_downloads_today_tracker()
         
