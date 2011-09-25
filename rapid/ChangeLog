@@ -36,6 +36,8 @@ used during a download.
 Fixed bug #859242: Crash when displaying a preview of file without an extracted
 thumbnail.
 
+Fixed bug #810559: Crash when generating thumbnail images
+
 Fixed bug #789995: crash when --reset-settings option is given on the command 
 line.
 

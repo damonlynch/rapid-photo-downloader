@@ -891,9 +891,10 @@ class ThumbnailDisplay(gtk.IconView):
     def generate_thumbnails(self, scan_pid):
         """Initiate thumbnail generation for files scanned in one process
         """
-        rpd_files = [self.rpd_files[unique_id] for unique_id in self.process_index[scan_pid]]
-        thumbnail_pid = self.thumbnail_manager.add_task((scan_pid, rpd_files))
-        self.generating_thumbnails[scan_pid] = thumbnail_pid
+        if scan_pid in self.process_index:
+            rpd_files = [self.rpd_files[unique_id] for unique_id in self.process_index[scan_pid]]
+            thumbnail_pid = self.thumbnail_manager.add_task((scan_pid, rpd_files))
+            self.generating_thumbnails[scan_pid] = thumbnail_pid
     
     def _set_thumbnail(self, unique_id, icon):
         treerowref = self.treerow_index[unique_id]
