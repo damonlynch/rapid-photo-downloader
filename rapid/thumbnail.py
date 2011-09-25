@@ -319,7 +319,7 @@ class GetPreviewImage(multiprocessing.Process):
         
     def get_stock_image(self, file_type):
         """
-        Get stock image for file type scaled to the current size of the 
+        Get stock image for file type scaled to the current size of the screen
         """
         if file_type == rpdfile.FILE_TYPE_PHOTO:
             if self.stock_photo_thumbnail_image is None:
@@ -337,7 +337,6 @@ class GetPreviewImage(multiprocessing.Process):
             if full_size_preview is None:
                 full_size_preview = self.get_stock_image(file_type)
             self.results_pipe.send((unique_id, full_size_preview, reduced_size_preview))
-            
 
 
 class GenerateThumbnails(multiprocessing.Process):

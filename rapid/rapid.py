@@ -992,7 +992,7 @@ class ThumbnailDisplay(gtk.IconView):
             self.rapid_app.update_preview_image(unique_id, preview_image)
             
             # user can turn off option for thumbnail generation after a scan
-            if unique_id not in self.thumbnails:
+            if unique_id not in self.thumbnails and preview_small is not None:
                 self._set_thumbnail(unique_id, preview_small.get_image())
                 
     

@@ -33,6 +33,9 @@ did not display them correctly, although they were correctly outputted to the
 terminal window. This only occurred when more than one backup device was being
 used during a download.
 
+Fixed bug #859242: Crash when displaying a preview of file without an extracted
+thumbnail.
+
 Fixed bug #789995: crash when --reset-settings option is given on the command 
 line.
 
