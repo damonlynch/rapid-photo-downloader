@@ -7,15 +7,15 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2011-09-08 06:50-0500\n"
-"PO-Revision-Date: 2011-09-09 13:38+0000\n"
+"POT-Creation-Date: 2011-09-19 14:04-0500\n"
+"PO-Revision-Date: 2011-09-26 07:43+0000\n"
 "Last-Translator: Torben Gundtofte-Bruun <torben@g-b.dk>\n"
 "Language-Team: Danish <da@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-09-19 19:06+0000\n"
-"X-Generator: Launchpad (build 13980)\n"
+"X-Launchpad-Export-Date: 2011-09-27 23:44+0000\n"
+"X-Generator: Launchpad (build 14041)\n"
 
 #. Translators: if neccessary, for guidance in how to translate this program, you may see http://damonlynch.net/translate.html
 #: rapid/rapid.py:106 rapid/glade3/rapid.ui.h:14
@@ -70,15 +70,15 @@ msgstr "%(device)s kunne ikke afmonteres"
 msgid "scanning..."
 msgstr "gennemsøger..."
 
-#: rapid/rapid.py:2077 rapid/glade3/rapid.ui.h:5
+#: rapid/rapid.py:2086 rapid/glade3/rapid.ui.h:5
 msgid "Download"
 msgstr "Hent"
 
-#: rapid/rapid.py:2080
+#: rapid/rapid.py:2089
 msgid "Pause"
 msgstr "Pause"
 
-#: rapid/rapid.py:2181
+#: rapid/rapid.py:2190
 #, python-format
 msgid ""
 "These download folders are invalid:\n"
@@ -89,7 +89,7 @@ msgstr ""
 "%(folder1)s\n"
 "%(folder2)s"
 
-#: rapid/rapid.py:2184
+#: rapid/rapid.py:2193
 #, python-format
 msgid ""
 "This download folder is invalid:\n"
@@ -98,136 +98,136 @@ msgstr ""
 "Denne download mappe er ugyldig:\n"
 "%s"
 
-#: rapid/rapid.py:2185
+#: rapid/rapid.py:2194
 msgid "Download cannot proceed"
 msgstr "Download kan ikke fortsætte"
 
-#: rapid/rapid.py:2490
+#: rapid/rapid.py:2503
 msgid "About 1 second remaining"
 msgstr "Cirka 1 sekund endnu"
 
-#: rapid/rapid.py:2492
+#: rapid/rapid.py:2505
 #, python-format
 msgid "About %i seconds remaining"
 msgstr "Cirka %i sekunder endnu"
 
-#: rapid/rapid.py:2494
+#: rapid/rapid.py:2507
 msgid "About 1 minute remaining"
 msgstr "Cirka 1 minut endnu"
 
 #. Translators: in the text '%(minutes)i:%(seconds)02i', only the : should be translated, if needed.
 #. '%(minutes)i' and '%(seconds)02i' should not be modified or left out. They are used to format and display the amount
 #. of time the download has remainging, e.g. 'About 5:36 minutes remaining'
-#: rapid/rapid.py:2499
+#: rapid/rapid.py:2512
 #, python-format
 msgid "About %(minutes)i:%(seconds)02i minutes remaining"
 msgstr "Cirka %(minutes)i:%(seconds)02i sekunder endnu"
 
-#: rapid/rapid.py:2521 rapid/preferencesdialog.py:891 rapid/rpdfile.py:110
+#: rapid/rapid.py:2534 rapid/preferencesdialog.py:891 rapid/rpdfile.py:110
 msgid "photos and videos"
 msgstr "fotos og videoer"
 
-#: rapid/rapid.py:2523 rapid/rpdfile.py:112
+#: rapid/rapid.py:2536 rapid/rpdfile.py:112
 msgid "photos or videos"
 msgstr "fotos eller videoer"
 
-#: rapid/rapid.py:2526 rapid/rapid.py:3103 rapid/rpdfile.py:115
+#: rapid/rapid.py:2539 rapid/rapid.py:3116 rapid/rpdfile.py:115
 msgid "videos"
 msgstr "videoer"
 
-#: rapid/rapid.py:2528 rapid/preferencesdialog.py:1616 rapid/rpdfile.py:117
+#: rapid/rapid.py:2541 rapid/preferencesdialog.py:1616 rapid/rpdfile.py:117
 #: rapid/rpdfile.py:270
 msgid "video"
 msgstr "video"
 
-#: rapid/rapid.py:2531 rapid/rapid.py:3101 rapid/preferencesdialog.py:893
+#: rapid/rapid.py:2544 rapid/rapid.py:3114 rapid/preferencesdialog.py:893
 #: rapid/rpdfile.py:120
 msgid "photos"
 msgstr "fotos"
 
 #. check subfolder preferences for bad values
-#: rapid/rapid.py:2533 rapid/preferencesdialog.py:1615 rapid/rpdfile.py:122
+#: rapid/rapid.py:2546 rapid/preferencesdialog.py:1615 rapid/rpdfile.py:122
 #: rapid/rpdfile.py:250
 msgid "photo"
 msgstr "foto"
 
-#: rapid/rapid.py:2560
+#: rapid/rapid.py:2573
 #, python-format
 msgid "%(noFiles)s %(filetypes)s downloaded"
 msgstr "%(noFiles)s %(filetypes)s hentet"
 
-#: rapid/rapid.py:2564
+#: rapid/rapid.py:2577
 #, python-format
 msgid "%(noFiles)s %(filetypes)s failed to download"
 msgstr "%(noFiles)s %(filetypes)s kunne ikke hentes"
 
-#: rapid/rapid.py:2567 rapid/rapid.py:2619
+#: rapid/rapid.py:2580 rapid/rapid.py:2632
 msgid "warnings"
 msgstr "advarsler"
 
-#: rapid/rapid.py:2576
+#: rapid/rapid.py:2589
 msgid "All downloads complete"
 msgstr "Alle downloads er afsluttet"
 
-#: rapid/rapid.py:2582 rapid/rapid.py:2591 rapid/rapid.py:2600
-#: rapid/rapid.py:2609 rapid/rapid.py:2617
+#: rapid/rapid.py:2595 rapid/rapid.py:2604 rapid/rapid.py:2613
+#: rapid/rapid.py:2622 rapid/rapid.py:2630
 #, python-format
 msgid "%(number)s %(numberdownloaded)s"
 msgstr "%(number)s %(numberdownloaded)s"
 
-#: rapid/rapid.py:2584 rapid/rapid.py:2602
+#: rapid/rapid.py:2597 rapid/rapid.py:2615
 #, python-format
 msgid "%(filetype)s downloaded"
 msgstr "%(filetype)s hentet"
 
-#: rapid/rapid.py:2593 rapid/rapid.py:2611
+#: rapid/rapid.py:2606 rapid/rapid.py:2624
 #, python-format
 msgid "%(filetype)s failed to download"
 msgstr "%(filetype)s kunne ikke hentes"
 
 #. e.g.: 3 of 205 photos and videos (202 remaining)
-#: rapid/rapid.py:2650
+#: rapid/rapid.py:2663
 #, python-format
 msgid "%(number)s of %(total)s %(filetypes)s (%(remaining)s remaining)"
 msgstr "%(number)s af %(total)s %(filetypes)s (%(remaining)s endnu)"
 
 #. e.g.: 205 of 205 photos and videos
-#: rapid/rapid.py:2657
+#: rapid/rapid.py:2670
 #, python-format
 msgid "%(number)s of %(total)s %(filetypes)s"
 msgstr "%(number)s af %(total)s %(filetypes)s"
 
-#: rapid/rapid.py:3071
+#: rapid/rapid.py:3084
 msgid "and"
 msgstr "og"
 
-#: rapid/rapid.py:3076
+#: rapid/rapid.py:3089
 msgid "Using backup devices"
 msgstr "Benytter backup enheder"
 
-#: rapid/rapid.py:3078
+#: rapid/rapid.py:3091
 msgid "Using backup device"
 msgstr "Benytter backup enhed"
 
-#: rapid/rapid.py:3080
+#: rapid/rapid.py:3093
 msgid "No backup devices detected"
 msgstr "Ingen backup enheder fundet"
 
-#: rapid/rapid.py:3107
+#: rapid/rapid.py:3120
 msgid "Free space:"
 msgstr "Fri plads:"
 
 #. (videos) or (photos) will be appended to the free space message displayed to the
 #. user in the status bar.
 #. you should only translate this if your language does not use parantheses
-#: rapid/rapid.py:3119
+#: rapid/rapid.py:3132
 #, python-format
 msgid "(%(file_type)s)"
 msgstr "(%(file_type)s)"
 
 #. Freespace available on the filesystem for downloading to
 #. Displayed in status bar message on main window
-#: rapid/rapid.py:3123
+#: rapid/rapid.py:3136
 #, python-format
 msgid "%(free)s %(file_type)s"
 msgstr "%(free)s %(file_type)s"
@@ -235,87 +235,87 @@ msgstr "%(free)s %(file_type)s"
 #. Inserted in the middle of the statusbar message concerning the amount of freespace
 #. Used to differentiate between two different file systems
 #. e.g. Free space: 21.3GB (photos); 14.7GB (videos).
-#: rapid/rapid.py:3128
+#: rapid/rapid.py:3141
 msgid "; "
 msgstr ", "
 
 #. Inserted at the end of the statusbar message concerning the amount of freespace
 #. Used to differentiate between two different file systems
 #. e.g. Free space: 21.3GB (photos); 14.7GB (videos).
-#: rapid/rapid.py:3133
+#: rapid/rapid.py:3146
 msgid "."
 msgstr ","
 
 #. Freespace available on the filesystem for downloading to
 #. Displayed in status bar message on main window
 #. e.g. 14.7GB available
-#: rapid/rapid.py:3139
+#: rapid/rapid.py:3152
 #, python-format
 msgid "%(free)s free"
 msgstr "%(free)s fri plads"
 
 #. user manually specified the same location for photos and video backups
-#: rapid/rapid.py:3147
+#: rapid/rapid.py:3160
 #, python-format
 msgid "Backing up photos and videos to %(path)s"
-msgstr ""
+msgstr "Sikkerhedskopierer fotos og videoer til %(path)s"
 
 #. user manually specified backup location
-#: rapid/rapid.py:3150
+#: rapid/rapid.py:3163
 #, python-format
 msgid "Backing up to %(path)s"
 msgstr "Tager sikkerhedskopi til %(path)s"
 
 #. user manually specified different locations for photo and video backups
-#: rapid/rapid.py:3153
+#: rapid/rapid.py:3166
 #, python-format
 msgid "Backing up photos to %(path)s and videos to %(path2)s"
-msgstr ""
+msgstr "Sikkerhedskopierer fotos til %(path)s og videoer til %(path2)s"
 
-#: rapid/rapid.py:3160
+#: rapid/rapid.py:3173
 #, python-format
 msgid "%(freespace)s. %(backuppaths)s."
 msgstr "%(freespace)s. %(backuppaths)s."
 
-#: rapid/rapid.py:3189
+#: rapid/rapid.py:3202
 msgid "Program preferences are invalid"
 msgstr "Programmets indstillinger er ugyldige"
 
-#: rapid/rapid.py:3308 rapid/rpdfile.py:251
+#: rapid/rapid.py:3321 rapid/rpdfile.py:251
 msgid "Photo"
 msgstr "Foto"
 
-#: rapid/rapid.py:3310 rapid/rpdfile.py:271
+#: rapid/rapid.py:3323 rapid/rpdfile.py:271
 msgid "Video"
 msgstr "Video"
 
-#: rapid/rapid.py:3319
+#: rapid/rapid.py:3332
 #, python-format
 msgid "%(file_type)s download folder does not exist"
 msgstr "%(file_type)s download mappe findes ikke"
 
-#: rapid/rapid.py:3321 rapid/rapid.py:3335 rapid/rapid.py:3348
+#: rapid/rapid.py:3334 rapid/rapid.py:3348 rapid/rapid.py:3361
 #, python-format
 msgid "Folder: %s"
 msgstr "Mappe: %s"
 
-#: rapid/rapid.py:3333
+#: rapid/rapid.py:3346
 #, python-format
 msgid "%(file_type)s download folder is invalid"
 msgstr "%(file_type)s download mappe er ugyldig"
 
-#: rapid/rapid.py:3346
+#: rapid/rapid.py:3359
 #, python-format
 msgid "%(file_type)s download folder is not writable"
 msgstr "%(file_type)s download mappe er skrivebeskyttet"
 
-#: rapid/rapid.py:3424
+#: rapid/rapid.py:3437
 msgid "Thumbnails"
 msgstr "Små billeder"
 
 #. Translators: this text is displayed to the user when they request information on the command line options.
 #. The text %default should not be modified or left out.
-#: rapid/rapid.py:3471
+#: rapid/rapid.py:3484
 #, python-format
 msgid ""
 "display program information on the command line as the program runs "
@@ -324,42 +324,42 @@ msgstr ""
 "vis programinformation på kommandolinien mens programmet kører (standard: "
 "%default)"
 
-#: rapid/rapid.py:3472
+#: rapid/rapid.py:3485
 msgid "display debugging information when run from the command line"
 msgstr ""
 "vis fejlsøgningsinformation når programmet startes fra kommandolinien"
 
-#: rapid/rapid.py:3473
+#: rapid/rapid.py:3486
 msgid "only output errors to the command line"
 msgstr "vis kun fejl på kommandolinien"
 
 #. image file extensions are recognized RAW files plus TIFF and JPG
-#: rapid/rapid.py:3475
+#: rapid/rapid.py:3488
 msgid "list photo and video file extensions the program recognizes and exit"
 msgstr "vis hvilke foto og video formater programmet kender, og afslut"
 
-#: rapid/rapid.py:3477
+#: rapid/rapid.py:3490
 msgid "reset all program settings and preferences and exit"
 msgstr "nulstil alle programindstillinger og afslut"
 
-#: rapid/rapid.py:3490
+#: rapid/rapid.py:3503
 msgid "Photos:"
 msgstr "Fotos:"
 
-#: rapid/rapid.py:3490
+#: rapid/rapid.py:3503
 msgid "Videos:"
 msgstr "Videoer:"
 
-#: rapid/rapid.py:3495
+#: rapid/rapid.py:3508
 #, python-format
 msgid "and %s"
 msgstr "og %s"
 
-#: rapid/rapid.py:3503
+#: rapid/rapid.py:3516
 msgid "All settings and preferences have been reset"
 msgstr "Alle indstillinger er blevet nulstillet"
 
-#: rapid/rapid.py:3521
+#: rapid/rapid.py:3534
 msgid ""
 "Video downloading functionality disabled.\n"
 "To download videos, please install the hachoir metadata and kaa metadata "
@@ -417,7 +417,7 @@ msgstr "Skal fotos og videoer hentes fra denne enhed?"
 msgid "_Remember this choice"
 msgstr "_Husk dette valg"
 
-#: rapid/downloadtracker.py:291
+#: rapid/downloadtracker.py:298
 msgid "MB/s"
 msgstr "MB/s"
 
@@ -1089,6 +1089,8 @@ msgid ""
 "%(image1)s was taken on %(image1_date)s at %(image1_time)s, and %(image2)s "
 "on %(image2_date)s at %(image2_time)s."
 msgstr ""
+"%(image1)s blev taget den %(image1_date)s kl. %(image1_time)s, og %(image2)s "
+"den %(image2_date)s kl. %(image2_time)s."
 
 #: rapid/problemnotification.py:103
 #, python-format
@@ -1778,6 +1780,8 @@ msgid ""
 "always scan or ignore when automatic detection of Portable Storage Devices "
 "is enabled."
 msgstr ""
+"Huskede stier er stier til bestemte enheder, som enten altid eller aldrig "
+"gennemsøges, når automatisk genkendelse af bærbare enheder er slået til."
 
 #: rapid/glade3/prefs.ui.h:75
 msgid "Rename Options"
@@ -1806,6 +1810,8 @@ msgid ""
 "devices for photos or videos. Any path ending with the values below will not "
 "be scanned."
 msgstr ""
+"Angiv den sidste del af stier, der skal ignoreres ved gennemsøgning af "
+"enheder. Stier, der ender med disse værdier, vil ikke bliev gennemsøgt."
 
 #: rapid/glade3/prefs.ui.h:80
 msgid ""
