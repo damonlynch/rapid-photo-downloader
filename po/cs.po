@@ -7,15 +7,15 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2011-09-08 06:50-0500\n"
-"PO-Revision-Date: 2011-08-29 11:18+0000\n"
+"POT-Creation-Date: 2011-09-19 14:04-0500\n"
+"PO-Revision-Date: 2011-09-28 07:09+0000\n"
 "Last-Translator: Kuvaly [LCT] <kuvaly@seznam.cz>\n"
 "Language-Team: Czech <cs@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-09-19 19:06+0000\n"
-"X-Generator: Launchpad (build 13980)\n"
+"X-Launchpad-Export-Date: 2011-10-01 15:09+0000\n"
+"X-Generator: Launchpad (build 14071)\n"
 
 #. Translators: if neccessary, for guidance in how to translate this program, you may see http://damonlynch.net/translate.html
 #: rapid/rapid.py:106 rapid/glade3/rapid.ui.h:14
@@ -70,15 +70,15 @@ msgstr "%(device)s se neodpojilo"
 msgid "scanning..."
 msgstr "skenování..."
 
-#: rapid/rapid.py:2077 rapid/glade3/rapid.ui.h:5
+#: rapid/rapid.py:2086 rapid/glade3/rapid.ui.h:5
 msgid "Download"
 msgstr "Stáhnout"
 
-#: rapid/rapid.py:2080
+#: rapid/rapid.py:2089
 msgid "Pause"
 msgstr "Pozastavit"
 
-#: rapid/rapid.py:2181
+#: rapid/rapid.py:2190
 #, python-format
 msgid ""
 "These download folders are invalid:\n"
@@ -89,7 +89,7 @@ msgstr ""
 "%(folder1)s\n"
 "%(folder2)s"
 
-#: rapid/rapid.py:2184
+#: rapid/rapid.py:2193
 #, python-format
 msgid ""
 "This download folder is invalid:\n"
@@ -98,136 +98,136 @@ msgstr ""
 "Následující složka je neplatná:\n"
 "%s"
 
-#: rapid/rapid.py:2185
+#: rapid/rapid.py:2194
 msgid "Download cannot proceed"
 msgstr "Stahování nemůže pokračovat"
 
-#: rapid/rapid.py:2490
+#: rapid/rapid.py:2503
 msgid "About 1 second remaining"
 msgstr "Zbývá 1 sekunda"
 
-#: rapid/rapid.py:2492
+#: rapid/rapid.py:2505
 #, python-format
 msgid "About %i seconds remaining"
 msgstr "Zbývá %i sekund"
 
-#: rapid/rapid.py:2494
+#: rapid/rapid.py:2507
 msgid "About 1 minute remaining"
 msgstr "Zbývá 1 minuta"
 
 #. Translators: in the text '%(minutes)i:%(seconds)02i', only the : should be translated, if needed.
 #. '%(minutes)i' and '%(seconds)02i' should not be modified or left out. They are used to format and display the amount
 #. of time the download has remainging, e.g. 'About 5:36 minutes remaining'
-#: rapid/rapid.py:2499
+#: rapid/rapid.py:2512
 #, python-format
 msgid "About %(minutes)i:%(seconds)02i minutes remaining"
 msgstr "Zbývá %(minutes)i:%(seconds)02i minut"
 
-#: rapid/rapid.py:2521 rapid/preferencesdialog.py:891 rapid/rpdfile.py:110
+#: rapid/rapid.py:2534 rapid/preferencesdialog.py:891 rapid/rpdfile.py:110
 msgid "photos and videos"
 msgstr "fotografie a videa"
 
-#: rapid/rapid.py:2523 rapid/rpdfile.py:112
+#: rapid/rapid.py:2536 rapid/rpdfile.py:112
 msgid "photos or videos"
 msgstr "fotografie či videa"
 
-#: rapid/rapid.py:2526 rapid/rapid.py:3103 rapid/rpdfile.py:115
+#: rapid/rapid.py:2539 rapid/rapid.py:3116 rapid/rpdfile.py:115
 msgid "videos"
 msgstr "videa"
 
-#: rapid/rapid.py:2528 rapid/preferencesdialog.py:1616 rapid/rpdfile.py:117
+#: rapid/rapid.py:2541 rapid/preferencesdialog.py:1616 rapid/rpdfile.py:117
 #: rapid/rpdfile.py:270
 msgid "video"
 msgstr "video"
 
-#: rapid/rapid.py:2531 rapid/rapid.py:3101 rapid/preferencesdialog.py:893
+#: rapid/rapid.py:2544 rapid/rapid.py:3114 rapid/preferencesdialog.py:893
 #: rapid/rpdfile.py:120
 msgid "photos"
 msgstr "fotografie"
 
 #. check subfolder preferences for bad values
-#: rapid/rapid.py:2533 rapid/preferencesdialog.py:1615 rapid/rpdfile.py:122
+#: rapid/rapid.py:2546 rapid/preferencesdialog.py:1615 rapid/rpdfile.py:122
 #: rapid/rpdfile.py:250
 msgid "photo"
 msgstr "fotografie"
 
-#: rapid/rapid.py:2560
+#: rapid/rapid.py:2573
 #, python-format
 msgid "%(noFiles)s %(filetypes)s downloaded"
 msgstr "%(noFiles)s %(filetypes)s staženo"
 
-#: rapid/rapid.py:2564
+#: rapid/rapid.py:2577
 #, python-format
 msgid "%(noFiles)s %(filetypes)s failed to download"
 msgstr "%(noFiles)s %(filetypes)s nebyly staženy"
 
-#: rapid/rapid.py:2567 rapid/rapid.py:2619
+#: rapid/rapid.py:2580 rapid/rapid.py:2632
 msgid "warnings"
 msgstr "varování"
 
-#: rapid/rapid.py:2576
+#: rapid/rapid.py:2589
 msgid "All downloads complete"
 msgstr "Všechna stahování kompletní"
 
-#: rapid/rapid.py:2582 rapid/rapid.py:2591 rapid/rapid.py:2600
-#: rapid/rapid.py:2609 rapid/rapid.py:2617
+#: rapid/rapid.py:2595 rapid/rapid.py:2604 rapid/rapid.py:2613
+#: rapid/rapid.py:2622 rapid/rapid.py:2630
 #, python-format
 msgid "%(number)s %(numberdownloaded)s"
-msgstr ""
+msgstr "%(number)s %(numberdownloaded)s"
 
-#: rapid/rapid.py:2584 rapid/rapid.py:2602
+#: rapid/rapid.py:2597 rapid/rapid.py:2615
 #, python-format
 msgid "%(filetype)s downloaded"
 msgstr "%(filetype)s staženo"
 
-#: rapid/rapid.py:2593 rapid/rapid.py:2611
+#: rapid/rapid.py:2606 rapid/rapid.py:2624
 #, python-format
 msgid "%(filetype)s failed to download"
-msgstr ""
+msgstr "%(filetype)s nelze stáhnout"
 
 #. e.g.: 3 of 205 photos and videos (202 remaining)
-#: rapid/rapid.py:2650
+#: rapid/rapid.py:2663
 #, python-format
 msgid "%(number)s of %(total)s %(filetypes)s (%(remaining)s remaining)"
-msgstr ""
+msgstr "%(number)s z %(total)s %(filetypes)s (%(remaining)s remaining)"
 
 #. e.g.: 205 of 205 photos and videos
-#: rapid/rapid.py:2657
+#: rapid/rapid.py:2670
 #, python-format
 msgid "%(number)s of %(total)s %(filetypes)s"
 msgstr "%(number)s z celkem %(total)s %(filetypes)s"
 
-#: rapid/rapid.py:3071
+#: rapid/rapid.py:3084
 msgid "and"
 msgstr "a"
 
-#: rapid/rapid.py:3076
+#: rapid/rapid.py:3089
 msgid "Using backup devices"
 msgstr "Používání zálohovacích zařízení"
 
-#: rapid/rapid.py:3078
+#: rapid/rapid.py:3091
 msgid "Using backup device"
 msgstr "Používání zálohovacího zařízení"
 
-#: rapid/rapid.py:3080
+#: rapid/rapid.py:3093
 msgid "No backup devices detected"
 msgstr "Zálohovací zařízení nebylo detekováno"
 
-#: rapid/rapid.py:3107
+#: rapid/rapid.py:3120
 msgid "Free space:"
 msgstr "Volné místo:"
 
 #. (videos) or (photos) will be appended to the free space message displayed to the
 #. user in the status bar.
 #. you should only translate this if your language does not use parantheses
-#: rapid/rapid.py:3119
+#: rapid/rapid.py:3132
 #, python-format
 msgid "(%(file_type)s)"
 msgstr "(%(file_type)s)"
 
 #. Freespace available on the filesystem for downloading to
 #. Displayed in status bar message on main window
-#: rapid/rapid.py:3123
+#: rapid/rapid.py:3136
 #, python-format
 msgid "%(free)s %(file_type)s"
 msgstr "%(free)s %(file_type)s"
@@ -235,128 +235,128 @@ msgstr "%(free)s %(file_type)s"
 #. Inserted in the middle of the statusbar message concerning the amount of freespace
 #. Used to differentiate between two different file systems
 #. e.g. Free space: 21.3GB (photos); 14.7GB (videos).
-#: rapid/rapid.py:3128
+#: rapid/rapid.py:3141
 msgid "; "
 msgstr "; "
 
 #. Inserted at the end of the statusbar message concerning the amount of freespace
 #. Used to differentiate between two different file systems
 #. e.g. Free space: 21.3GB (photos); 14.7GB (videos).
-#: rapid/rapid.py:3133
+#: rapid/rapid.py:3146
 msgid "."
 msgstr "."
 
 #. Freespace available on the filesystem for downloading to
 #. Displayed in status bar message on main window
 #. e.g. 14.7GB available
-#: rapid/rapid.py:3139
+#: rapid/rapid.py:3152
 #, python-format
 msgid "%(free)s free"
 msgstr "%(free)s volné"
 
 #. user manually specified the same location for photos and video backups
-#: rapid/rapid.py:3147
+#: rapid/rapid.py:3160
 #, python-format
 msgid "Backing up photos and videos to %(path)s"
-msgstr ""
+msgstr "Zálohování fotografií a videí do %(path)s"
 
 #. user manually specified backup location
-#: rapid/rapid.py:3150
+#: rapid/rapid.py:3163
 #, python-format
 msgid "Backing up to %(path)s"
 msgstr "Zálohování %(path)s"
 
 #. user manually specified different locations for photo and video backups
-#: rapid/rapid.py:3153
+#: rapid/rapid.py:3166
 #, python-format
 msgid "Backing up photos to %(path)s and videos to %(path2)s"
-msgstr ""
+msgstr "Zálohování fotografií do %(path)s a videí do %(path2)s"
 
-#: rapid/rapid.py:3160
+#: rapid/rapid.py:3173
 #, python-format
 msgid "%(freespace)s. %(backuppaths)s."
 msgstr "%(freespace)s. %(backuppaths)s."
 
-#: rapid/rapid.py:3189
+#: rapid/rapid.py:3202
 msgid "Program preferences are invalid"
-msgstr ""
+msgstr "Nastavení programu je nevalidní"
 
-#: rapid/rapid.py:3308 rapid/rpdfile.py:251
+#: rapid/rapid.py:3321 rapid/rpdfile.py:251
 msgid "Photo"
 msgstr "Fotografie"
 
-#: rapid/rapid.py:3310 rapid/rpdfile.py:271
+#: rapid/rapid.py:3323 rapid/rpdfile.py:271
 msgid "Video"
 msgstr "Video"
 
-#: rapid/rapid.py:3319
+#: rapid/rapid.py:3332
 #, python-format
 msgid "%(file_type)s download folder does not exist"
 msgstr "%(file_type)s složka neexistuje"
 
-#: rapid/rapid.py:3321 rapid/rapid.py:3335 rapid/rapid.py:3348
+#: rapid/rapid.py:3334 rapid/rapid.py:3348 rapid/rapid.py:3361
 #, python-format
 msgid "Folder: %s"
 msgstr "Složka: %s"
 
-#: rapid/rapid.py:3333
+#: rapid/rapid.py:3346
 #, python-format
 msgid "%(file_type)s download folder is invalid"
 msgstr "%(file_type)s složka je neplatná"
 
-#: rapid/rapid.py:3346
+#: rapid/rapid.py:3359
 #, python-format
 msgid "%(file_type)s download folder is not writable"
 msgstr "%(file_type)s do složky nelze zapisovat"
 
-#: rapid/rapid.py:3424
+#: rapid/rapid.py:3437
 msgid "Thumbnails"
 msgstr "Náhledy"
 
 #. Translators: this text is displayed to the user when they request information on the command line options.
 #. The text %default should not be modified or left out.
-#: rapid/rapid.py:3471
+#: rapid/rapid.py:3484
 #, python-format
 msgid ""
 "display program information on the command line as the program runs "
 "(default: %default)"
 msgstr "zobrazit informace o programu na příkazové řádce (default: %default)"
 
-#: rapid/rapid.py:3472
+#: rapid/rapid.py:3485
 msgid "display debugging information when run from the command line"
 msgstr "Zobrazit ladicí informace při spuštění z příkazové řádky"
 
-#: rapid/rapid.py:3473
+#: rapid/rapid.py:3486
 msgid "only output errors to the command line"
 msgstr "pouze výstup chyb do příkazové řádky"
 
 #. image file extensions are recognized RAW files plus TIFF and JPG
-#: rapid/rapid.py:3475
+#: rapid/rapid.py:3488
 msgid "list photo and video file extensions the program recognizes and exit"
 msgstr "zobrazit přípony souborů, které program rozpozná, a skončit"
 
-#: rapid/rapid.py:3477
+#: rapid/rapid.py:3490
 msgid "reset all program settings and preferences and exit"
 msgstr "resetovat nastavení programu a skončit"
 
-#: rapid/rapid.py:3490
+#: rapid/rapid.py:3503
 msgid "Photos:"
 msgstr "Fotografie:"
 
-#: rapid/rapid.py:3490
+#: rapid/rapid.py:3503
 msgid "Videos:"
 msgstr "Videa:"
 
-#: rapid/rapid.py:3495
+#: rapid/rapid.py:3508
 #, python-format
 msgid "and %s"
 msgstr "a %s"
 
-#: rapid/rapid.py:3503
+#: rapid/rapid.py:3516
 msgid "All settings and preferences have been reset"
 msgstr "Všechna nastavení a předvolby byly nastaveny na výchozí hodnoty"
 
-#: rapid/rapid.py:3521
+#: rapid/rapid.py:3534
 msgid ""
 "Video downloading functionality disabled.\n"
 "To download videos, please install the hachoir metadata and kaa metadata "
@@ -414,7 +414,7 @@ msgstr "Nacházejí se na tomto zařízení fotografie nebo videa ke stažení?"
 msgid "_Remember this choice"
 msgstr "_Zapamatovat si tuto volbu"
 
-#: rapid/downloadtracker.py:291
+#: rapid/downloadtracker.py:298
 msgid "MB/s"
 msgstr "MB/s"
 
@@ -794,7 +794,7 @@ msgstr "Chcete odstranit všechny pracovní kódy?"
 
 #: rapid/preferencesdialog.py:438
 msgid "Remove all Remembered Paths?"
-msgstr ""
+msgstr "Odstranit všechny zapamatované cesty?"
 
 #: rapid/preferencesdialog.py:439
 msgid "Should all remembered paths be removed?"
@@ -802,7 +802,7 @@ msgstr ""
 
 #: rapid/preferencesdialog.py:445
 msgid "Remove all Ignored Paths?"
-msgstr ""
+msgstr "Odstranit všechny ignorované cesty?"
 
 #: rapid/preferencesdialog.py:446
 msgid "Should all ignored paths be removed?"
@@ -853,7 +853,7 @@ msgstr ""
 
 #: rapid/preferencesdialog.py:832
 msgid "Path:"
-msgstr ""
+msgstr "Cesta:"
 
 #: rapid/preferencesdialog.py:1078
 msgid "Job Code"
@@ -874,11 +874,11 @@ msgstr "Vyberte složku, která obsahuje %(file_types)s"
 
 #: rapid/preferencesdialog.py:1349
 msgid "Select a folder in which to backup photos"
-msgstr ""
+msgstr "Zvolte složku, ve které bude uložena záloha fotografií"
 
 #: rapid/preferencesdialog.py:1362
 msgid "Select a folder in which to backup videos"
-msgstr ""
+msgstr "Zvolte složku ve které budou zálohována videa"
 
 #. Translators: please do not modify or leave out html formatting tags like <i> and <b>. These are used to format the text the users sees
 #: rapid/preferencesdialog.py:1457
@@ -935,7 +935,7 @@ msgstr ""
 
 #: rapid/preferencesdialog.py:1749
 msgid "Invalid regular expression"
-msgstr ""
+msgstr "Neplatný regulární výraz"
 
 #. Translators: this value is used as an example device when automatic backup device detection is enabled. You should translate this.
 #: rapid/preferencesdialog.py:1931
@@ -1723,7 +1723,7 @@ msgstr "Název složky pro zálohu fotek"
 
 #: rapid/glade3/prefs.ui.h:67
 msgid "Photo backup location:"
-msgstr ""
+msgstr "Umístění zálohy fotografií:"
 
 #: rapid/glade3/prefs.ui.h:68
 msgid "Preferences: Rapid Photo Downloader"
@@ -1739,7 +1739,7 @@ msgstr "_Odstranit vše"
 
 #: rapid/glade3/prefs.ui.h:73
 msgid "Remembered Paths"
-msgstr ""
+msgstr "Zapamatované cesty"
 
 #: rapid/glade3/prefs.ui.h:74
 msgid ""
@@ -1831,7 +1831,7 @@ msgstr "Po stažení souborů odpojit zařízení"
 
 #: rapid/glade3/prefs.ui.h:91
 msgid "Use _python-style regular expressions"
-msgstr ""
+msgstr "Použijte _python-style regulární zkratky"
 
 #: rapid/glade3/prefs.ui.h:92
 msgid "Video Folders"
@@ -1847,7 +1847,7 @@ msgstr "Název složky pro zálohu videí"
 
 #: rapid/glade3/prefs.ui.h:95
 msgid "Video backup location:"
-msgstr ""
+msgstr "Umístění zálohy videí:"
 
 #: rapid/glade3/prefs.ui.h:96
 msgid ""

@@ -1,3 +1,33 @@
+rapid-photo-downloader (0.4.2-0ubuntu1~ppa1) lucid; urgency=low
+
+  * Added feature in Preferences window to remove any paths that have
+    previously been marked to always be scanned or ignored.
+
+  * Added option to ignore paths from which to download.
+
+  * Added manual backup path for videos, in addition to photos.
+
+  * Bug fix: wrong file types may be backed up to external devices.
+
+  * Bug fix: Backup errors and warnings incorrectly displayed in log 
+    window.
+
+  * Bug fix: Crash when displaying a preview of file without an 
+    extracted thumbnail.
+
+  * Bug fix: Crash when generating thumbnail images.
+
+  * Bug fix: Crash when --reset-settings option is given on the command 
+    line.
+
+  * Bug fix: Small errors in translation template.
+
+  * Fixed a bug in the Swedish translation.
+
+  * Updated translations.
+
+ -- Damon Lynch <damonlynch@gmail.com>  Sat, 01 Oct 2011 10:14:56 -0500
+
 rapid-photo-downloader (0.4.1-0ubuntu1~ppa1) lucid; urgency=low
 
   * Added exif Artist and Copyright metadata options to file and
