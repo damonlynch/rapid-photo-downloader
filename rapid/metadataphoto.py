@@ -202,12 +202,15 @@ class MetaData(pyexiv2.metadata.ImageMetadata):
             if 'Exif.Nikon3.ShutterCount' in keys:
                 v = self['Exif.Nikon3.ShutterCount'].raw_value
             elif 'Exif.CanonFi.FileNumber' in keys:
-                v = self['Exif.CanonFi.FileNumber'].raw_value
-		v = int(v)
-                d = (v & 0xffc00) >> 10
-                while d < 100:
-                  d += 0x40
-                v =  d*10000 + ((v & 0x3ff ) << 4 ) + ((v >> 20) & 0x0f);
+                if self["Exif.Image.Model"].value.strip() == "Canon EOS 400D DIGITAL":
+                    v = self['Exif.CanonFi.FileNumber'].raw_value
+                    v = int(v)
+                    d = (v & 0xffc00) >> 10
+                    while d < 100:
+                      d += 0x40
+                    v =  d*10000 + ((v & 0x3ff ) << 4 ) + ((v >> 20) & 0x0f)
+                else:
+                    v = self['Exif.CanonFi.FileNumber'].raw_value
             elif 'Exif.Canon.FileNumber' in keys:
                 v = self['Exif.Canon.FileNumber'].raw_value
             elif 'Exif.Canon.ImageNumber' in keys:
