@@ -191,19 +191,15 @@ class PhotoName:
             v = self.rpd_file.metadata.camera_serial()
         elif self.L1 == SHUTTER_COUNT:
             v = self.rpd_file.metadata.shutter_count()
-            if self.L2 in  [ SUBFOLDER_SEQ_NUMBER, STORED_SEQ_NUMBER ] :
-                if self.L2 ==  SUBFOLDER_SEQ_NUMBER :
-                    v = str(v)
-                    v = v[:-4] 
-                if self.L2 == STORED_SEQ_NUMBER :
-                    v = str(v)
-                    v = v[-4:]
-            else:
-                if v:
-                    v = int(v)
-                    padding = LIST_SHUTTER_COUNT_L2.index(self.L2) + 3
-                    formatter = '%0' + str(padding) + "i"
-                    v = formatter % v
+            if v:
+                v = int(v)
+                padding = LIST_SHUTTER_COUNT_L2.index(self.L2) + 3
+                formatter = '%0' + str(padding) + "i"
+                v = formatter % v
+        elif self.L1 == FILE_NUMBER:
+            v = self.rpd_file.metadata.file_number()
+            if v and self.L2 == FILE_NUMBER_FOLDER:
+                v = v[:3]
         elif self.L1 == OWNER_NAME:
             v = self.rpd_file.metadata.owner_name()
         elif self.L1 == ARTIST:

@@ -31,7 +31,7 @@ ORDER_KEY = "__order__"
 # is to have them put into the translation template. If you change the values below
 # then you MUST change the value in class i18TranslateMeThanks as well!! 
 
-# *** Level 0
+# *** Level 0, i.e. first column of values presented to user
 DATE_TIME = 'Date time'
 TEXT = 'Text'
 FILENAME = 'Filename'
@@ -41,7 +41,7 @@ JOB_CODE = 'Job code'
 
 SEPARATOR = os.sep
 
-# *** Level 1
+# *** Level 1, i.e. second column of values presented to user
 
 # Date time
 IMAGE_DATE = 'Image date'
@@ -68,6 +68,9 @@ SHORT_CAMERA_MODEL = 'Short camera model'
 SHORT_CAMERA_MODEL_HYPHEN = 'Hyphenated short camera model'
 SERIAL_NUMBER = 'Serial number'
 SHUTTER_COUNT = 'Shutter count'
+#Currently the only file number is Exif.Canon.FileNumber,
+#which is in the format xxx-yyyy, where xxx is the folder and yyyy the image
+FILE_NUMBER = 'File number'
 OWNER_NAME = 'Owner name'
 COPYRIGHT = 'Copyright'
 ARTIST = 'Artist'
@@ -84,12 +87,11 @@ DOWNLOAD_SEQ_NUMBER = 'Downloads today'
 SESSION_SEQ_NUMBER = 'Session number'
 SUBFOLDER_SEQ_NUMBER = 'Subfolder number'
 STORED_SEQ_NUMBER = 'Stored number'
-
 SEQUENCE_LETTER = 'Sequence letter'
 
 
 
-# *** Level 2
+# *** Level 2, i.e. third and final column of values presented to user
 
 # Image number
 IMAGE_NUMBER_ALL = 'All digits'
@@ -113,6 +115,9 @@ SEQUENCE_NUMBER_5 = "Five digits"
 SEQUENCE_NUMBER_6 = "Six digits"
 SEQUENCE_NUMBER_7 = "Seven digits"
 
+#File number
+FILE_NUMBER_FOLDER = "Folder only"
+FILE_NUMBER_ALL = "Folder and file"
 
 # Now, define dictionaries and lists of valid combinations of preferences.
 
@@ -184,6 +189,12 @@ class i18TranslateMeThanks:
         _('Serial number')
         # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
         _('Shutter count')
+        #File number currently refers to the Exif value Exif.Canon.FileNumber
+        _('File number')
+        #Only the folder component of the Exif.Canon.FileNumber value
+        _('Folder only')
+        #The folder and file component of the Exif.Canon.FileNumber value
+        _('Folder and file')
         # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
         _('Owner name')
         _('Codec')
@@ -310,10 +321,12 @@ LIST_SHUTTER_COUNT_L2 = [
                      SEQUENCE_NUMBER_3, 
                      SEQUENCE_NUMBER_4, 
                      SEQUENCE_NUMBER_5, 
-                     SEQUENCE_NUMBER_6,                      
-                     SUBFOLDER_SEQ_NUMBER,
-                     STORED_SEQ_NUMBER, 
+                     SEQUENCE_NUMBER_6,
                      ]
+FILE_NUMBER_L2 = [
+                    FILE_NUMBER_FOLDER,
+                    FILE_NUMBER_ALL
+                 ]
 
 # Level 1
 LIST_DATE_TIME_L1 = [IMAGE_DATE, TODAY, YESTERDAY, DOWNLOAD_TIME]
@@ -369,7 +382,8 @@ LIST_METADATA_L1 = [APERTURE, ISO, EXPOSURE_TIME, FOCAL_LENGTH,
                     SHORT_CAMERA_MODEL, 
                     SHORT_CAMERA_MODEL_HYPHEN, 
                     SERIAL_NUMBER, 
-                    SHUTTER_COUNT, 
+                    SHUTTER_COUNT,
+                    FILE_NUMBER, 
                     OWNER_NAME,
                     ARTIST,
                     COPYRIGHT]
@@ -386,7 +400,8 @@ DICT_METADATA_L1 = {
                     SHORT_CAMERA_MODEL: LIST_CASE_L2, 
                     SHORT_CAMERA_MODEL_HYPHEN: LIST_CASE_L2,
                     SERIAL_NUMBER: None, 
-                    SHUTTER_COUNT: LIST_SHUTTER_COUNT_L2, 
+                    SHUTTER_COUNT: LIST_SHUTTER_COUNT_L2,
+                    FILE_NUMBER: FILE_NUMBER_L2,
                     OWNER_NAME: LIST_CASE_L2, 
                     ARTIST: LIST_CASE_L2,
                     COPYRIGHT: LIST_CASE_L2,

@@ -201,16 +201,6 @@ class MetaData(pyexiv2.metadata.ImageMetadata):
             keys = self.exif_keys
             if 'Exif.Nikon3.ShutterCount' in keys:
                 v = self['Exif.Nikon3.ShutterCount'].raw_value
-            elif 'Exif.CanonFi.FileNumber' in keys:
-                if self["Exif.Image.Model"].value.strip() == "Canon EOS 400D DIGITAL":
-                    v = self['Exif.CanonFi.FileNumber'].raw_value
-                    v = int(v)
-                    d = (v & 0xffc00) >> 10
-                    while d < 100:
-                      d += 0x40
-                    v =  d*10000 + ((v & 0x3ff ) << 4 ) + ((v >> 20) & 0x0f)
-                else:
-                    v = self['Exif.CanonFi.FileNumber'].raw_value
             elif 'Exif.Canon.FileNumber' in keys:
                 v = self['Exif.Canon.FileNumber'].raw_value
             elif 'Exif.Canon.ImageNumber' in keys:
@@ -220,6 +210,24 @@ class MetaData(pyexiv2.metadata.ImageMetadata):
             return str(v)
         except:
             return missing
+            
+    def file_number(self, missing=''):
+        """returns Exif.CanonFi.FileNumber, not to be confused with 
+        Exif.Canon.FileNumber"""
+        try:
+            if 'Exif.CanonFi.FileNumber' in self.exif_keys:
+                v = self['Exif.CanonFi.FileNumber'].raw_value
+                v = int(v)
+                d = (v & 0xffc00) >> 10
+                while d < 100:
+                  d += 0x40
+                v =  d*10000 + ((v & 0x3ff ) << 4 ) + ((v >> 20) & 0x0f)
+                return str(v)
+            else:
+                return missing
+        except:
+            return missing
+
             
     def owner_name(self,  missing=''):
         """ returns camera name recorded by select Canon cameras"""
