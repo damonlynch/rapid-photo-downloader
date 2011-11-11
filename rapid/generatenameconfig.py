@@ -311,6 +311,8 @@ LIST_SHUTTER_COUNT_L2 = [
                      SEQUENCE_NUMBER_4, 
                      SEQUENCE_NUMBER_5, 
                      SEQUENCE_NUMBER_6,                      
+                     SUBFOLDER_SEQ_NUMBER,
+                     STORED_SEQ_NUMBER, 
                      ]
 
 # Level 1
