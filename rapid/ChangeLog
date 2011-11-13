@@ -3,6 +3,10 @@ Version 0.4.3
 
 2011-xx-xx
 
+Fixed bug #695517: Added functionality to download MTS video files. There is
+currently no python based library to read metadata from MTS files, but ExifTool
+works. ExifTool is now a required dependency for Rapid Photo Downloader.
+
 Added FileNumber metadata renaming option, which is a Canon-specific Exif value
 in the form xxx-yyyy, where xxx is the folder number and yyyy is the image
 number.

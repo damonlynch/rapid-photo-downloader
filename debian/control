@@ -24,6 +24,7 @@ Depends: ${python:Depends},
          python-hachoir-metadata,
          python-kaa-metadata,
          ffmpegthumbnailer,
+         exiftool,
          gnome-icon-theme
 XB-Python-Version: ${python:Versions}
 Description: Photo and video importer from cameras, memory cards and other devices

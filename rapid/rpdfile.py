@@ -34,6 +34,7 @@ from gettext import gettext as _
 import config
 import metadataphoto
 import metadatavideo
+import metadataexiftool
 
 import problemnotification as pn
 
@@ -51,8 +52,8 @@ if metadatavideo.DOWNLOAD_VIDEO:
     # some distros do not include the necessary libraries that Rapid Photo Downloader 
     # needs to be able to download videos
     VIDEO_EXTENSIONS = ['3gp', 'avi', 'm2t', 'mov', 'mp4', 'mpeg','mpg', 'mod', 
-                        'tod']
-    VIDEO_THUMBNAIL_EXTENSIONS = ['thm']                        
+                        'tod', 'mts']
+    VIDEO_THUMBNAIL_EXTENSIONS = ['thm']
 else:
     VIDEO_EXTENSIONS = []
     VIDEO_THUMBNAIL_EXTENSIONS = []
@@ -274,7 +275,12 @@ class Video(RPDFile):
         self.file_type = FILE_TYPE_VIDEO
         
     def load_metadata(self):
-        self.metadata = metadatavideo.VideoMetaData(self.full_file_name)
+        ext = os.path.splitext(self.name)[1]
+        if ext.lower() == '.mts':
+            logger.debug("Using ExifTool parser")
+            self.metadata = metadataexiftool.ExifToolMetaData(self.full_file_name)
+        else:
+            self.metadata = metadatavideo.VideoMetaData(self.full_file_name)
         return True
         
 class SamplePhoto(Photo):

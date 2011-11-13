@@ -22,8 +22,6 @@ DOWNLOAD_VIDEO = True
 import os
 import datetime
 import time
-import subprocess
-import tempfile
 
 import multiprocessing
 import logging
