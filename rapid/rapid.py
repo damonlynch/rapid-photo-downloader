@@ -60,7 +60,7 @@ import generatename as gn
 
 import downloadtracker
 
-from metadatavideo import DOWNLOAD_VIDEO
+from metadatavideo import DOWNLOAD_VIDEO, file_types_to_download
 import metadataphoto
 import metadatavideo
 
@@ -143,12 +143,14 @@ class DeviceCollection(gtk.TreeView):
         # make it impossible to select a row
         selection = self.get_selection()
         selection.set_mode(gtk.SELECTION_NONE)
+        self.set_headers_visible(False)
         
         
         # Device refers to a thing like a camera, memory card in its reader, 
         # external hard drive, Portable Storage Device, etc.
         column0 = gtk.TreeViewColumn(_("Device"))
         pixbuf_renderer = gtk.CellRendererPixbuf()
+        pixbuf_renderer.set_padding(2, 0)
         text_renderer = gtk.CellRendererText()
         text_renderer.props.ellipsize = pango.ELLIPSIZE_MIDDLE
         text_renderer.set_fixed_size(160, -1)
@@ -216,7 +218,7 @@ class DeviceCollection(gtk.TreeView):
         # (with one card at startup), it could be 21
         # must account for header row at the top
         row_height = self.get_background_area(0, self.get_column(0))[3] + 1
-        height = (len(self.map_process_to_row) + 1) * row_height
+        height = max(((len(self.map_process_to_row) + 1) * row_height), 24)
         self.parent_app.device_collection_scrolledwindow.set_size_request(-1, height)
         
     def update_device(self, process_id, total_size_files):
@@ -2840,8 +2842,10 @@ class RapidApp(dbus.service.Object):
                      'device_location', 'ignored_paths',
                      'use_re_ignored_paths', 'device_blacklist']:
             self.rerun_setup_available_image_and_video_media = True
+            self._set_from_toolbar_state()
             if not self.preferences_dialog_displayed:
                 self.post_preference_change()
+            
                 
         elif key in ['backup_images', 'backup_device_autodetection', 
                      'backup_location', 'backup_video_location', 
@@ -2868,6 +2872,7 @@ class RapidApp(dbus.service.Object):
             self._check_for_sequence_value_use()
             
         elif key in ['download_folder', 'video_download_folder']:
+            self._set_to_toolbar_values()
             self.display_free_space()
     
     def post_preference_change(self):
@@ -2945,9 +2950,14 @@ class RapidApp(dbus.service.Object):
         self.builder = builder
         builder.add_from_file(paths.share_dir("glade3/rapid.ui"))
         self.rapidapp = builder.get_object("rapidapp")
+        self.from_toolbar = builder.get_object("from_toolbar")
+        self.copy_toolbar = builder.get_object("copy_toolbar")
+        self.dest_toolbar = builder.get_object("dest_toolbar")
+        self.menu_toolbar = builder.get_object("menu_toolbar")
         self.main_vpaned = builder.get_object("main_vpaned")
         self.main_notebook = builder.get_object("main_notebook")
         self.download_action = builder.get_object("download_action")
+        self.download_button = builder.get_object("download_button")
         
         self.download_progressbar = builder.get_object("download_progressbar")
         self.rapid_statusbar = builder.get_object("rapid_statusbar")
@@ -2962,7 +2972,9 @@ class RapidApp(dbus.service.Object):
         
         # Only enable this action when actually displaying a preview
         self.next_image_action.set_sensitive(False)
-        self.prev_image_action.set_sensitive(False)        
+        self.prev_image_action.set_sensitive(False)
+        
+        self._init_toolbars()
         
         # About dialog
         builder.add_from_file(paths.share_dir("glade3/about.ui"))
@@ -3003,6 +3015,229 @@ class RapidApp(dbus.service.Object):
         self.time_remaining = downloadtracker.TimeRemaining()
         self.time_check = downloadtracker.TimeCheck()
         
+    def _init_toolbars(self):
+        """ Setup the 3 vertical toolbars on the main screen """
+        self._setup_from_toolbar()
+        self._setup_copy_move_toolbar()
+        self._setup_dest_toolbar()
+        
+        # size label widths so they are equal, or else the left border of the file chooser will not match
+        self.photo_dest_label.realize()
+        self._make_widget_widths_equal(self.photo_dest_label, self.video_dest_label)
+        self.photo_dest_label.set_alignment(xalign=0.0, yalign=0.5)
+        self.video_dest_label.set_alignment(xalign=0.0, yalign=0.5)
+        
+        # size copy / move buttons so they are equal in length, so arrows align
+        self._make_widget_widths_equal(self.copy_button, self.move_button)
+        
+    def _setup_from_toolbar(self):
+        self.from_toolbar.set_style(gtk.TOOLBAR_TEXT)
+        self.from_toolbar.set_border_width(5)
+        
+        from_label = gtk.Label()
+        from_label.set_markup("<i>" + _("From") + "</i>")
+        self.from_toolbar_label = gtk.ToolItem()
+        self.from_toolbar_label.add(from_label)
+        self.from_toolbar_label.set_is_important(True)
+        self.from_toolbar.insert(self.from_toolbar_label, 0)
+
+        self.auto_detect_button = gtk.ToggleToolButton()
+        self.auto_detect_button.set_is_important(True)
+        self.auto_detect_button.set_label(_("Auto Detect"))
+        self.from_toolbar.insert(self.auto_detect_button, 1)
+
+        self.from_filechooser_button = gtk.FileChooserButton(
+            _("Select a folder containing %(file_types)s") % {'file_types':file_types_to_download()})
+        self.from_filechooser_button.set_action(
+                            gtk.FILE_CHOOSER_ACTION_SELECT_FOLDER)
+        
+        self.from_filechooser = gtk.ToolItem()
+        self.from_filechooser.set_is_important(True)
+        self.from_filechooser.add(self.from_filechooser_button)
+        self.from_filechooser.set_expand(True)
+        self.from_toolbar.insert(self.from_filechooser, 2)
+        
+        self._set_from_toolbar_state()
+        
+        #set events after having initialized the values
+        self.auto_detect_button.connect("toggled", self.on_auto_detect_button_toggled_event)
+        self.from_filechooser_button.connect("selection-changed", 
+                            self.on_from_filechooser_button_selection_changed)
+                
+        self.from_toolbar.show_all()
+    
+    def _setup_copy_move_toolbar(self):
+        self.copy_toolbar.set_style(gtk.TOOLBAR_TEXT)
+        self.copy_toolbar.set_border_width(5)
+        
+        copy_move_label = gtk.Label(" ")
+        self.copy_move_toolbar_label = gtk.ToolItem()
+        self.copy_move_toolbar_label.add(copy_move_label)
+        self.copy_move_toolbar_label.set_is_important(True)
+        self.copy_toolbar.insert(self.copy_move_toolbar_label, 0)
+        
+        self.copy_hbox = gtk.HBox()
+        self.move_hbox = gtk.HBox()
+        self.forward_image = gtk.image_new_from_stock(gtk.STOCK_GO_FORWARD, gtk.ICON_SIZE_SMALL_TOOLBAR)
+        self.forward_image2 = gtk.image_new_from_stock(gtk.STOCK_GO_FORWARD, gtk.ICON_SIZE_SMALL_TOOLBAR)
+        self.forward_image3 = gtk.image_new_from_stock(gtk.STOCK_GO_FORWARD, gtk.ICON_SIZE_SMALL_TOOLBAR)
+        self.forward_image4 = gtk.image_new_from_stock(gtk.STOCK_GO_FORWARD, gtk.ICON_SIZE_SMALL_TOOLBAR)
+        self.forward_label = gtk.Label(" ")
+        self.forward_label2 = gtk.Label(" ")
+        self.forward_label3 = gtk.Label(" ")
+        self.forward_label4 = gtk.Label(" ")
+        
+        self.copy_button = gtk.RadioToolButton()
+        self.copy_button.set_label(_("Copy"))
+        self.copy_button.set_is_important(True)
+
+        self.copy_hbox.pack_start(self.forward_label)
+        self.copy_hbox.pack_start(self.forward_image)
+        self.copy_hbox.pack_start(self.copy_button, expand=False, fill=False)
+        self.copy_hbox.pack_start(self.forward_image2)
+        self.copy_hbox.pack_start(self.forward_label2)
+        copy_box = gtk.ToolItem()
+        copy_box.add(self.copy_hbox)
+        self.copy_toolbar.insert(copy_box, 1)
+            
+        self.move_button = gtk.RadioToolButton(self.copy_button)
+        self.move_button.set_label(_("Move"))
+        self.move_button.set_is_important(True)
+        self.move_hbox.pack_start(self.forward_label3)
+        self.move_hbox.pack_start(self.forward_image3)
+        self.move_hbox.pack_start(self.move_button, expand=False, fill=False)
+        self.move_hbox.pack_start(self.forward_image4)
+        self.move_hbox.pack_start(self.forward_label4)
+        move_box = gtk.ToolItem()
+        move_box.add(self.move_hbox)
+        self.copy_toolbar.insert(move_box, 2)
+        
+        self.move_button.set_active(self.prefs.auto_delete)
+        self.copy_button.connect("toggled", self.on_copy_button_toggle_event)        
+        
+        self.copy_toolbar.show_all()
+        self._set_copy_toolbar_active_arrows()    
+    
+    def _setup_dest_toolbar(self):
+        #Destination Toolbar
+        self.dest_toolbar.set_border_width(5)
+        
+        dest_label = gtk.Label()
+        dest_label.set_markup("<i>" + _("To") + "</i>")
+        self.dest_toolbar_label = gtk.ToolItem()
+        self.dest_toolbar_label.add(dest_label)
+        self.dest_toolbar_label.set_is_important(True)
+        self.dest_toolbar.insert(self.dest_toolbar_label, 0)
+        
+        photo_dest_hbox = gtk.HBox()
+        self.photo_dest_label = gtk.Label(_("Photos:"))
+        
+        self.to_photo_filechooser_button = gtk.FileChooserButton(
+                _("Select a folder to download photos to"))
+        self.to_photo_filechooser_button.set_action(
+                            gtk.FILE_CHOOSER_ACTION_SELECT_FOLDER)
+        photo_dest_hbox.pack_start(self.photo_dest_label, expand=False, fill=False, padding=6)
+        photo_dest_hbox.pack_start(self.to_photo_filechooser_button)
+        self.to_photo_filechooser = gtk.ToolItem()
+        self.to_photo_filechooser.set_is_important(True)
+        self.to_photo_filechooser.set_expand(True)
+        self.to_photo_filechooser.add(photo_dest_hbox)
+        self.dest_toolbar.insert(self.to_photo_filechooser, 1)
+
+        video_dest_hbox = gtk.HBox()
+        self.video_dest_label = gtk.Label(_("Videos:"))
+        self.to_video_filechooser_button = gtk.FileChooserButton(
+                _("Select a folder to download videos to"))
+        self.to_video_filechooser_button.set_action(
+                        gtk.FILE_CHOOSER_ACTION_SELECT_FOLDER)
+        video_dest_hbox.pack_start(self.video_dest_label, expand=False, fill=False, padding=6)
+        video_dest_hbox.pack_start(self.to_video_filechooser_button)
+        self.to_video_filechooser = gtk.ToolItem()
+        self.to_video_filechooser.set_is_important(True)
+        self.to_video_filechooser.set_expand(True)
+        self.to_video_filechooser.add(video_dest_hbox)
+        self.dest_toolbar.insert(self.to_video_filechooser, 2)
+        
+        self._set_to_toolbar_values()
+        self.to_photo_filechooser_button.connect("selection-changed", 
+                        self.on_to_photo_filechooser_button_selection_changed)
+        self.to_video_filechooser_button.connect("selection-changed",
+                        self.on_to_video_filechooser_button_selection_changed)
+        self.dest_toolbar.show_all()
+
+    def _make_widget_widths_equal(self, widget1, widget2):
+        """takes two widgets and sets a width for both equal to widest one"""
+        
+        x1, y1, w1, h1 = widget1.get_allocation()
+        x2, y2, w2, h2 = widget2.get_allocation()
+        w = max(w1, w2)
+        h = max(h1, h2)
+        widget1.set_size_request(w,h)
+        widget2.set_size_request(w,h)
+        
+    def _set_copy_toolbar_active_arrows(self):
+        if self.copy_button.get_active():
+            self.forward_image.set_visible(True)
+            self.forward_image2.set_visible(True)
+            self.forward_image3.set_visible(False)
+            self.forward_image4.set_visible(False)
+            self.forward_label.set_visible(False)
+            self.forward_label2.set_visible(False)
+            self.forward_label3.set_visible(True)
+            self.forward_label4.set_visible(True)
+        else:
+            self.forward_image.set_visible(False)
+            self.forward_image2.set_visible(False)
+            self.forward_image3.set_visible(True)
+            self.forward_image4.set_visible(True)
+            self.forward_label.set_visible(True)
+            self.forward_label2.set_visible(True)
+            self.forward_label3.set_visible(False)
+            self.forward_label4.set_visible(False)
+
+    def on_copy_button_toggle_event(self, radio_button):
+        self._set_copy_toolbar_active_arrows()
+        self.prefs.auto_delete = not self.copy_button.get_active()
+                    
+    def _set_from_toolbar_state(self):
+        logger.debug("_set_from_toolbar_state")
+        self.auto_detect_button.set_active(self.prefs.device_autodetection)
+        if self.prefs.device_autodetection:
+            self.from_filechooser_button.set_sensitive(False)
+        self.from_filechooser_button.set_current_folder(self.prefs.device_location)
+    
+    def on_auto_detect_button_toggled_event(self, button):
+        self.from_filechooser_button.set_sensitive(not button.get_active())
+        if not self.rerun_setup_available_image_and_video_media:
+            self.prefs.device_autodetection = button.get_active()
+            self.rerun_setup_available_image_and_video_media = True
+            if not self.preferences_dialog_displayed:
+                self.post_preference_change()
+                
+    def on_from_filechooser_button_selection_changed(self, filechooserbutton):
+        logger.debug("on_from_filechooser_button_selection_changed")
+        path = filechooserbutton.get_current_folder()
+        if path and not self.rerun_setup_available_image_and_video_media:
+            self.prefs.device_location = path
+            
+    def on_to_photo_filechooser_button_selection_changed(self, filechooserbutton):
+        path = filechooserbutton.get_current_folder()
+        if path:
+            self.prefs.download_folder = path
+    
+    def on_to_video_filechooser_button_selection_changed(self, filechooserbutton):
+        path = filechooserbutton.get_current_folder()
+        if path:
+            self.prefs.video_download_folder = path
+            
+    def _set_to_toolbar_values(self):
+        self.to_photo_filechooser_button.set_current_folder(self.prefs.download_folder)
+        self.to_video_filechooser_button.set_current_folder(self.prefs.video_download_folder)
+
+    def toolbar_event(self, widget, toolbar):
+        pass
+
+
 
     def _set_window_size(self):
         """
@@ -3027,7 +3262,7 @@ class RapidApp(dbus.service.Object):
         Set the size of the device collection scrolled window widget
         """
         if self.device_collection.map_process_to_row:
-            height = self.device_collection_viewport.size_request()[1]
+            height = max(self.device_collection_viewport.size_request()[1], 24)
             self.device_collection_scrolledwindow.set_size_request(-1,  height)
             self.main_vpaned.set_position(height)
         else:
@@ -3468,6 +3703,7 @@ class RapidApp(dbus.service.Object):
                     self.start_download(scan_pid=scan_pid)
 
             self.set_thumbnail_sort()
+            self.download_button.grab_focus()
             
             # signal that no more data is coming, finishing io watch for this pipe
             return False

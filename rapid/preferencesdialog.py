@@ -36,6 +36,7 @@ import rpdfile
 import higdefaults as hd
 import metadataphoto
 import metadatavideo
+
 import tableplusminus as tpm
 
 import utilities
@@ -887,10 +888,7 @@ class PreferencesDialog():
         
         self._setup_control_spacing()
         
-        if metadatavideo.DOWNLOAD_VIDEO:
-            self.file_types = _("photos and videos")
-        else:
-            self.file_types = _("photos")
+        self.file_types = metadatavideo.file_types_to_download()
 
         self._setup_sample_names()
         
@@ -1418,8 +1416,6 @@ class PreferencesDialog():
                         self.prefs.auto_exit)
         self.auto_exit_force_checkbutton.set_active(
                         self.prefs.auto_exit_force)
-        self.auto_delete_checkbutton.set_active(
-                        self.prefs.auto_delete)
         self.generate_thumbnails_checkbutton.set_active(
                         self.prefs.generate_thumbnails)
                         
@@ -1758,9 +1754,6 @@ class PreferencesDialog():
         
     def on_auto_unmount_checkbutton_toggled(self, checkbutton):
         self.prefs.auto_unmount = checkbutton.get_active()
-
-    def on_auto_delete_checkbutton_toggled(self, checkbutton):
-        self.prefs.auto_delete = checkbutton.get_active()
 
     def on_auto_exit_checkbutton_toggled(self, checkbutton):
         active = checkbutton.get_active()

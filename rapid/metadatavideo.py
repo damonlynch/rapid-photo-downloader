@@ -31,6 +31,7 @@ import gtk
 import paths
 
 import rpdfile
+from gettext import gettext as _
 
 try:
     from hachoir_core.cmd_line import unicodeFilename
@@ -38,6 +39,14 @@ try:
     from hachoir_metadata import extractMetadata
 except ImportError:
     DOWNLOAD_VIDEO = False
+
+
+def file_types_to_download():
+    """Returns a string with the types of file to download, to display to the user"""
+    if DOWNLOAD_VIDEO:
+        return _("photos and videos")
+    else:
+        return _("photos")
 
 if DOWNLOAD_VIDEO:
 
