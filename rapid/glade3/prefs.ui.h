@@ -36,7 +36,6 @@ char *s = N_("Backup photos and videos when downloading");
 char *s = N_("Choose the download folder. Subfolders for the downloaded photos will be automatically created in this folder using the structure specified below.");
 char *s = N_("Choose the download folder. Subfolders for the downloaded videos will be automatically created in this folder using the structure specified below.");
 char *s = N_("Day start:");
-char *s = N_("Delete photos and videos from device upon download completion");
 char *s = N_("Device Options");
 char *s = N_("Devices");
 char *s = N_("Devices are from where to download photos and videos, such as cameras, memory cards or Portable Storage Devices.\n"
@@ -75,7 +74,7 @@ char *s = N_("Remembered paths are those associated with devices that you have c
 char *s = N_("Rename Options");
 char *s = N_("Skip");
 char *s = N_("Skip download");
-char *s = N_("Sorry, video downloading functionality disabled. To download videos, please install the <i>hachoir metadata</i> and <i>kaa metadata</i> packages for python.");
+char *s = N_("Sorry, video downloading functionality disabled. To download videos, please install either the <i>hachoir metadata</i> and <i>kaa metadata</i> packages for python, or exiftool.");
 char *s = N_("Specify the ending portion of any paths you want ignored when scanning devices for photos or videos. Any path ending with the values below will not be scanned.");
 char *s = N_("Specify the folder in which backups are stored on the device.  \n"
              "\n"

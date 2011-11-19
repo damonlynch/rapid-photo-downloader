@@ -63,6 +63,7 @@ import downloadtracker
 from metadatavideo import DOWNLOAD_VIDEO, file_types_to_download
 import metadataphoto
 import metadatavideo
+import metadataexiftool
 
 import scan as scan_process
 import copyfiles
@@ -3761,7 +3762,7 @@ def start():
     logger.setLevel(logging_level)
 
     if options.extensions:
-        extensions = ((rpdfile.RAW_FILE_EXTENSIONS + rpdfile.NON_RAW_IMAGE_FILE_EXTENSIONS, _("Photos:")), (rpdfile.VIDEO_FILE_EXTENSIONS, _("Videos:")))
+        extensions = ((rpdfile.PHOTO_EXTENSIONS, _("Photos:")), (rpdfile.VIDEO_EXTENSIONS, _("Videos:")))
         for exts, file_type in extensions:
             v = ''
             for e in exts[:-1]:
@@ -3785,14 +3786,16 @@ def start():
     logger.info("Rapid Photo Downloader %s", utilities.human_readable_version(config.version))
     logger.info("Using pyexiv2 %s", metadataphoto.pyexiv2_version_info())
     logger.info("Using exiv2 %s", metadataphoto.exiv2_version_info())
-    
+    if metadataexiftool.EXIFTOOL_VERSION is None:
+        logger.info("Exiftool not detected")
+    else:
+        logger.info("Using exiftool %s", metadataexiftool.EXIFTOOL_VERSION)
+    if metadatavideo.HAVE_HACHOIR:
+        logger.info("Using hachoir %s", metadatavideo.version_info())
+
+
     if focal_length:
         logger.info("Focal length of %s will be used when an aperture of 0.0 is encountered", focal_length)
-        
-    if DOWNLOAD_VIDEO:
-        logger.info("Using hachoir %s", metadatavideo.version_info())
-    else:
-        logger.info(_("Video downloading functionality disabled.\nTo download videos, please install the hachoir metadata and kaa metadata packages for python."))
 
     bus = dbus.SessionBus ()
     request = bus.request_name (config.DBUS_NAME, dbus.bus.NAME_FLAG_DO_NOT_QUEUE)

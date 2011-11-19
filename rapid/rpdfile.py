@@ -52,7 +52,9 @@ if metadatavideo.DOWNLOAD_VIDEO:
     # some distros do not include the necessary libraries that Rapid Photo Downloader 
     # needs to be able to download videos
     VIDEO_EXTENSIONS = ['3gp', 'avi', 'm2t', 'mov', 'mp4', 'mpeg','mpg', 'mod', 
-                        'tod', 'mts']
+                        'tod']
+    if metadataexiftool.EXIFTOOL_VERSION is not None:
+        VIDEO_EXTENSIONS += ['mts']
     VIDEO_THUMBNAIL_EXTENSIONS = ['thm']
 else:
     VIDEO_EXTENSIONS = []
@@ -219,32 +221,6 @@ class RPDFile:
     
     def add_extra_detail(self, extra_detail, *args):
         self.problem.add_extra_detail(extra_detail, *args)
-    
-
-        
-#~ exif_tags_needed = ('Exif.Photo.FNumber', 
-                    #~ 'Exif.Photo.ISOSpeedRatings',
-                    #~ 'Exif.Photo.ExposureTime',
-                    #~ 'Exif.Photo.FocalLength',
-                    #~ 'Exif.Image.Make',
-                    #~ 'Exif.Image.Model',
-                    #~ 'Exif.Canon.SerialNumber',
-                    #~ 'Exif.Nikon3.SerialNumber'
-                    #~ 'Exif.OlympusEq.SerialNumber',
-                    #~ 'Exif.Olympus.SerialNumber',
-                    #~ 'Exif.Olympus.SerialNumber2',
-                    #~ 'Exif.Panasonic.SerialNumber',
-                    #~ 'Exif.Fujifilm.SerialNumber',
-                    #~ 'Exif.Image.CameraSerialNumber',
-                    #~ 'Exif.Nikon3.ShutterCount',
-                    #~ 'Exif.Canon.FileNumber',
-                    #~ 'Exif.Canon.ImageNumber',
-                    #~ 'Exif.Canon.OwnerName',
-                    #~ 'Exif.Photo.DateTimeOriginal',
-                    #~ 'Exif.Image.DateTime',
-                    #~ 'Exif.Photo.SubSecTimeOriginal',
-                    #~ 'Exif.Image.Orientation'
-                   #~ )
                    
 class Photo(RPDFile):
     
@@ -276,8 +252,9 @@ class Video(RPDFile):
         
     def load_metadata(self):
         ext = os.path.splitext(self.name)[1]
-        if ext.lower() == '.mts':
-            logger.debug("Using ExifTool parser")
+        if ext.lower() == '.mts' or not metadatavideo.HAVE_HACHOIR:
+            if metadatavideo.HAVE_HACHOIR:
+                logger.debug("Using ExifTool parser")
             self.metadata = metadataexiftool.ExifToolMetaData(self.full_file_name)
         else:
             self.metadata = metadatavideo.VideoMetaData(self.full_file_name)

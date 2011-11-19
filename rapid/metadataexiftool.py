@@ -26,6 +26,16 @@ import multiprocessing
 import logging
 logger = multiprocessing.get_logger()
 
+def version_info():
+    """returns the version of exiftool being used"""
+    try:
+        v = subprocess.check_output(['exiftool', '-ver']).strip()
+    except OSError:
+        v = None
+    return v
+    
+EXIFTOOL_VERSION = version_info()
+
 class ExifToolMetaData:
     """
     Class to use when a python based metadata parser fails to correctly load
@@ -42,7 +52,7 @@ class ExifToolMetaData:
         
     def _get(self, key, missing):
         
-        if key == "VideoStreamType":
+        if key == "VideoStreamType" or "FileNumber":
             # special case: want exiftool's string formatting
             if self.metadata_string_format is None:
                 try:
@@ -122,6 +132,13 @@ class ExifToolMetaData:
         else:
             v = missing
         return v
+        
+    def file_number(self, missing=''):
+        v = self._get("FileNumber", None)
+        if v is not None:
+            return str(v)
+        else:
+            return missing
             
     def width(self, missing=''):
         v = self._get('ImageWidth', None)

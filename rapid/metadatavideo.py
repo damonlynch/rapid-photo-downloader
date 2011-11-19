@@ -17,11 +17,13 @@
 ### along with this program; if not, write to the Free Software
 ### Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
+HAVE_HACHOIR = True
 DOWNLOAD_VIDEO = True
 
 import os
 import datetime
 import time
+import subprocess
 
 import multiprocessing
 import logging
@@ -38,8 +40,12 @@ try:
     from hachoir_parser import createParser
     from hachoir_metadata import extractMetadata
 except ImportError:
-    DOWNLOAD_VIDEO = False
+    HAVE_HACHOIR = False
 
+if not HAVE_HACHOIR:
+    v = metadataexiftool.version_info()
+    if v is None:
+        DOWNLOAD_VIDEO = False
 
 def file_types_to_download():
     """Returns a string with the types of file to download, to display to the user"""
@@ -48,7 +54,7 @@ def file_types_to_download():
     else:
         return _("photos")
 
-if DOWNLOAD_VIDEO:
+if HAVE_HACHOIR:
 
     def version_info():
         from hachoir_metadata.version import VERSION

@@ -30,7 +30,7 @@ except ImportError:
     sys.stderr.write("You need to install pyexiv2, the python binding for exiv2, to run this program.\n" )
     sys.exit(1)
     
-
+import metadataexiftool
 
 def __version_info(version):
     if not version:
@@ -39,7 +39,7 @@ def __version_info(version):
         v = ''
         for i in version:
             v += '.%s' % i
-        return v[1:]    
+        return v[1:]
     
 def pyexiv2_version_info():
     return __version_info(pyexiv2.version_info)
@@ -53,6 +53,16 @@ class MetaData(pyexiv2.metadata.ImageMetadata):
     Class providing human readable access to image metadata
 
     """
+    
+    def __init__(self, full_file_name):
+        pyexiv2.metadata.ImageMetadata.__init__(self, full_file_name)
+        self.rpd_metadata_exiftool = None
+        self.rpd_full_file_name = full_file_name
+        
+    def _load_exiftool(self):
+        if self.rpd_metadata_exiftool is None:
+            self.rpd_metadata_exiftool = metadataexiftool.ExifToolMetaData(self.rpd_full_file_name)
+            
     
     def aperture(self, missing=''):
         """ 
@@ -216,13 +226,8 @@ class MetaData(pyexiv2.metadata.ImageMetadata):
         Exif.Canon.FileNumber"""
         try:
             if 'Exif.CanonFi.FileNumber' in self.exif_keys:
-                v = self['Exif.CanonFi.FileNumber'].raw_value
-                v = int(v)
-                d = (v & 0xffc00) >> 10
-                while d < 100:
-                  d += 0x40
-                v =  d*10000 + ((v & 0x3ff ) << 4 ) + ((v >> 20) & 0x0f)
-                return str(v)
+                self._load_exiftool()
+                return self.rpd_metadata_exiftool.file_number(missing)
             else:
                 return missing
         except:

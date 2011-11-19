@@ -468,8 +468,7 @@ class PhotoRenameTable(tpm.TablePlusMinus):
             self.connect("add",  self.size_adjustment)
             self.connect("remove",  self.size_adjustment)
 
-            # get scrollbar thickness from parent app scrollbar - very hackish, but what to do??
-            self.bump = 16# self.preferencesdialog.parentApp.image_scrolledwindow.get_hscrollbar().allocation.height
+            self.bump = 16
             self.have_vertical_scrollbar = False
 
 
@@ -1911,7 +1910,6 @@ class PreferencesDialog():
 
     def on_backup_identifier_entry_changed(self, widget):
         self.update_backup_example()
-        #~ self.prefs.
     
     def on_video_backup_identifier_entry_changed(self, widget):
         self.update_backup_example()

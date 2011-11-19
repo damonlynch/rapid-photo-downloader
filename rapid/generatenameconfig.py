@@ -68,7 +68,7 @@ SHORT_CAMERA_MODEL = 'Short camera model'
 SHORT_CAMERA_MODEL_HYPHEN = 'Hyphenated short camera model'
 SERIAL_NUMBER = 'Serial number'
 SHUTTER_COUNT = 'Shutter count'
-#Currently the only file number is Exif.Canon.FileNumber,
+#Currently the only file number is Exif.CanonFi.FileNumber,
 #which is in the format xxx-yyyy, where xxx is the folder and yyyy the image
 FILE_NUMBER = 'File number'
 OWNER_NAME = 'Owner name'

@@ -3,13 +3,33 @@ Version 0.4.3
 
 2011-xx-xx
 
-Fixed bug #695517: Added functionality to download MTS video files. There is
-currently no python based library to read metadata from MTS files, but ExifTool
-works. ExifTool is now a required dependency for Rapid Photo Downloader.
+ExifTool is now a required dependency for Rapid Photo Downloader. ExifTool
+can be used to help download videos on Linux distributions that have not
+packaged hachoir-metadata, such as Fedora.
+
+Fixed bug #704482: Delete photos option should be easily accessible -
+
+Added a toolbar at the top of the main program window, which gives immediate
+access to the most commonly changed configuration options: where files will
+be transferred from, whether they will be copied or moved, and where they will
+be transferred to.
+
+Fixed bug #754531: extract Exif.CanonFi.FileNumber metadata -
 
 Added FileNumber metadata renaming option, which is a Canon-specific Exif value
 in the form xxx-yyyy, where xxx is the folder number and yyyy is the image
-number.
+number. Uses ExifTool. Thanks go to Etieene Charlier for researching the fix
+and contributing code to get it implemented.
+
+Fixed bug #695517: Added functionality to download MTS video files. There is
+currently no python based library to read metadata from MTS files, but ExifTool
+works. 
+
+Fixed a bug where the device progress bar would occasionally disappear when 
+the download device was changed. 
+
+Fixed a bug where the file extensions the program downloads could not be
+displayed from the command line.
 
 
 Version 0.4.2
