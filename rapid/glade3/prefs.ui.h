@@ -31,6 +31,7 @@ char *s = N_("Add unique identifier");
 char *s = N_("Automatically detect Portable Storage Devices");
 char *s = N_("Automatically detect backup devices");
 char *s = N_("Automatically detect devices");
+char *s = N_("Automatically rotate JPEG images");
 char *s = N_("Backup");
 char *s = N_("Backup photos and videos when downloading");
 char *s = N_("Choose the download folder. Subfolders for the downloaded photos will be automatically created in this folder using the structure specified below.");

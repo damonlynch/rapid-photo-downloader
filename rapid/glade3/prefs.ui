@@ -3155,7 +3155,7 @@ When this option is enabled, and a potential device is detected, you will be pro
                               <object class="GtkTable" id="automation_table">
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
-                                <property name="n_rows">5</property>
+                                <property name="n_rows">6</property>
                                 <property name="n_columns">3</property>
                                 <child>
                                   <object class="GtkCheckButton" id="auto_unmount_checkbutton">
@@ -3165,6 +3165,7 @@ When this option is enabled, and a potential device is detected, you will be pro
                                     <property name="receives_default">False</property>
                                     <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
                                     <property name="use_action_appearance">False</property>
+                                    <property name="xalign">0</property>
                                     <property name="draw_indicator">True</property>
                                     <signal name="toggled" handler="on_auto_unmount_checkbutton_toggled" swapped="no"/>
                                   </object>
@@ -3182,6 +3183,7 @@ When this option is enabled, and a potential device is detected, you will be pro
                                     <property name="receives_default">False</property>
                                     <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
                                     <property name="use_action_appearance">False</property>
+                                    <property name="xalign">0</property>
                                     <property name="draw_indicator">True</property>
                                     <signal name="toggled" handler="on_auto_startup_checkbutton_toggled" swapped="no"/>
                                   </object>
@@ -3197,6 +3199,7 @@ When this option is enabled, and a potential device is detected, you will be pro
                                     <property name="receives_default">False</property>
                                     <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
                                     <property name="use_action_appearance">False</property>
+                                    <property name="xalign">0</property>
                                     <property name="draw_indicator">True</property>
                                     <signal name="toggled" handler="on_auto_insertion_checkbutton_toggled" swapped="no"/>
                                   </object>
@@ -3213,6 +3216,7 @@ When this option is enabled, and a potential device is detected, you will be pro
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
                                     <property name="use_action_appearance">False</property>
+                                    <property name="xalign">0</property>
                                     <property name="draw_indicator">True</property>
                                     <signal name="toggled" handler="on_auto_exit_checkbutton_toggled" swapped="no"/>
                                   </object>
@@ -3229,6 +3233,7 @@ When this option is enabled, and a potential device is detected, you will be pro
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
                                     <property name="use_action_appearance">False</property>
+                                    <property name="xalign">0</property>
                                     <property name="draw_indicator">True</property>
                                     <signal name="toggled" handler="on_auto_exit_force_checkbutton_toggled" swapped="no"/>
                                   </object>
@@ -3237,6 +3242,22 @@ When this option is enabled, and a potential device is detected, you will be pro
                                     <property name="right_attach">2</property>
                                     <property name="top_attach">4</property>
                                     <property name="bottom_attach">5</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkCheckButton" id="auto_rotate_checkbutton">
+                                    <property name="label" translatable="yes">Automatically rotate JPEG images</property>
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">True</property>
+                                    <property name="receives_default">False</property>
+                                    <property name="use_action_appearance">False</property>
+                                    <property name="xalign">0</property>
+                                    <property name="draw_indicator">True</property>
+                                  </object>
+                                  <packing>
+                                    <property name="right_attach">3</property>
+                                    <property name="top_attach">5</property>
+                                    <property name="bottom_attach">6</property>
                                   </packing>
                                 </child>
                                 <child>
