@@ -35,7 +35,7 @@ def run_dialog( text, secondarytext=None,  parent=None, messagetype=gtk.MESSAGE_
         text
         )
     if parent:
-        d.set_transient_for(parent.widget.get_toplevel())
+        d.set_transient_for(parent.get_toplevel())
     for b,rid in extrabuttons:
         d.add_button(b,rid)
     d.vbox.set_spacing(12)

@@ -386,7 +386,8 @@ class VideoSubfolderPrefs(PhotoSubfolderPrefs):
             pref_list = pref_list)
 
 class QuestionDialog(gtk.Dialog):
-    def __init__(self, parent_window, title, question, post_choice_callback):
+    def __init__(self, parent_window, title, question, use_markup=False, 
+                default_to_yes=True, post_choice_callback=None):
         gtk.Dialog.__init__(self, title, None,
                    gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
                    (gtk.STOCK_NO, gtk.RESPONSE_CANCEL, 
@@ -405,6 +406,7 @@ class QuestionDialog(gtk.Dialog):
             prompt_hbox.pack_start(image, False, False, padding = 6)
             
         prompt_label = gtk.Label(question)
+        prompt_label.set_use_markup(use_markup)
         prompt_label.set_line_wrap(True)
         prompt_hbox.pack_start(prompt_label, False, False, padding=6)
                     
@@ -413,16 +415,18 @@ class QuestionDialog(gtk.Dialog):
         self.set_border_width(6)
         self.set_has_separator(False)   
         
-        self.set_default_response(gtk.RESPONSE_OK)
+        if default_to_yes: 
+            self.set_default_response(gtk.RESPONSE_OK)
+        else:
+            self.set_default_response(gtk.RESPONSE_CANCEL)
       
-       
         self.set_transient_for(parent_window)
         self.show_all()
 
-        
-        self.connect('response', self.on_response)
+        if post_choice_callback:
+            self.connect('response', self.on_response)
 
-    def on_response(self,  device_dialog, response):
+    def on_response(self, device_dialog, response):
         user_selected = response == gtk.RESPONSE_OK
         self.post_choice_callback(self, user_selected)
 
@@ -431,21 +435,21 @@ class RemoveAllJobCodeDialog(QuestionDialog):
         QuestionDialog.__init__(self, parent_window,
                                 _('Remove all Job Codes?'),
                                 _('Should all Job Codes be removed?'),
-                                post_choice_callback)
+                                post_choice_callback=post_choice_callback)
                                 
 class RemoveAllRemeberedDevicesDialog(QuestionDialog):
     def __init__(self, parent_window, post_choice_callback):
         QuestionDialog.__init__(self, parent_window,
                                 _('Remove all Remembered Paths?'),
                                 _('Should all remembered paths be removed?'),
-                                post_choice_callback)
+                                post_choice_callback=post_choice_callback)
     
 class RemoveAllIgnoredPathsDialog(QuestionDialog):
     def __init__(self, parent_window, post_choice_callback):
         QuestionDialog.__init__(self, parent_window,
                                 _('Remove all Ignored Paths?'),
                                 _('Should all ignored paths be removed?'),
-                                post_choice_callback)
+                                post_choice_callback=post_choice_callback)
                                 
 class PhotoRenameTable(tpm.TablePlusMinus):
 

@@ -1443,7 +1443,6 @@ class PreviewImage:
     def update_preview_image(self, unique_id, pil_image):
         if unique_id == self.unique_id:
             self.set_preview_image(unique_id, pil_image)
-      
 
         
 class RapidApp(dbus.service.Object):
@@ -1605,7 +1604,7 @@ class RapidApp(dbus.service.Object):
         self.about.set_property("version", utilities.human_readable_version(
                                                                 __version__))
         self.about.run()
-        self.about.destroy() 
+        self.about.hide()
         
     def on_report_problem_action_activate(self, action):
         webbrowser.open("https://bugs.launchpad.net/rapid")
@@ -1678,6 +1677,34 @@ class RapidApp(dbus.service.Object):
                                           self.prefs.ignored_paths,
                                           self.prefs.use_re_ignored_paths])
         
+    def confirm_manual_location(self):
+        """
+        Queries the user to ask if they really want to download from locations 
+        that could take a very long time to scan. They can choose yes or no.
+        
+        Returns True if yes or there was no need to ask the user, False if the
+        user said no.
+        """
+        l = self.prefs.device_location
+        if l in ['/media', os.path.expanduser('~'), '/']:
+            logger.info("Prompting whether to download from %s", l)
+            if l == '/':
+                #this location is a human readable explanation for /, and is inserted into Downloading from %(location)s
+                l = _('the root of the file system')
+            c = preferencesdialog.QuestionDialog(parent_window=self.rapidapp,
+                    title=_('Rapid Photo Downloader'),
+                    #message in dialog box which asks the user if they really want to be downloading from this location
+                    question="<b>" + _("Downloading from %(location)s.") %  {'location': l} + "</b>\n\n" +
+                    _("Do you really want to download from here? On some systems, scanning this location can take a very long time."),
+                    default_to_yes=False,
+                    use_markup=True)        
+            response = c.run()
+            user_confirmed = response == gtk.RESPONSE_OK
+            c.destroy()
+            if not user_confirmed:
+                return False
+        return True
+    
     def setup_devices(self, on_startup, on_preference_change, block_auto_start):
         """
         
@@ -1700,10 +1727,12 @@ class RapidApp(dbus.service.Object):
         
         if self.using_volume_monitor():
             self.start_volume_monitor()
-        
 
         self.clear_non_running_downloads()
-        
+        if not self.prefs.device_autodetection:
+            if not self.confirm_manual_location():
+                return
+            
         mounts = []
         self.backup_devices = {}
         
@@ -3208,12 +3237,10 @@ class RapidApp(dbus.service.Object):
         self.from_filechooser_button.set_current_folder(self.prefs.device_location)
     
     def on_auto_detect_button_toggled_event(self, button):
+        logger.debug("on_auto_detect_button_toggled_event")
         self.from_filechooser_button.set_sensitive(not button.get_active())
         if not self.rerun_setup_available_image_and_video_media:
             self.prefs.device_autodetection = button.get_active()
-            self.rerun_setup_available_image_and_video_media = True
-            if not self.preferences_dialog_displayed:
-                self.post_preference_change()
                 
     def on_from_filechooser_button_selection_changed(self, filechooserbutton):
         logger.debug("on_from_filechooser_button_selection_changed")

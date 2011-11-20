@@ -33,6 +33,8 @@ import gtk
 import paths
 
 import rpdfile
+import metadataexiftool
+
 from gettext import gettext as _
 
 try:

@@ -187,17 +187,24 @@ class Thumbnail:
         return (thumbnail.data, lowrez)
         
     def _process_thumbnail(self, image, size_reduced):
+        image_ok = True
         if image.mode <> "RGBA":
-            image = image.convert("RGBA")
+            try:
+                image = image.convert("RGBA")
+            except:
+                logger.error("Image thumbnail is corrupt")
+                image_ok = False
 
-        thumbnail = PicklablePIL(image)
-        if size_reduced is not None:
-            thumbnail_icon = image.copy()
-            downsize_pil(thumbnail_icon, size_reduced, fit=False)                
-            thumbnail_icon = PicklablePIL(thumbnail_icon)
+        if image_ok:
+            thumbnail = PicklablePIL(image)
+            if size_reduced is not None:
+                thumbnail_icon = image.copy()
+                downsize_pil(thumbnail_icon, size_reduced, fit=False)                
+                thumbnail_icon = PicklablePIL(thumbnail_icon)
+            else:
+                thumbnail_icon = None
         else:
-            thumbnail_icon = None
-            
+            thumbnail = thumbnail_icon = None
         return (thumbnail, thumbnail_icon)
     
     def _get_photo_thumbnail(self, full_file_name, size_max, size_reduced):
