@@ -20,7 +20,7 @@
 """
 Generates names for files and folders.
 
-Runs a daemon process.
+Runs as a daemon process.
 """
 
 import os, datetime, collections, fractions
@@ -133,7 +133,7 @@ def generate_name(rpd_file):
         
     rpd_file.download_name = _generate_name(generator, rpd_file)
     return rpd_file
-        
+    
 
 class SubfolderFile(multiprocessing.Process):
     def __init__(self, results_pipe, sequence_values, focal_length):
@@ -237,6 +237,7 @@ class SubfolderFile(multiprocessing.Process):
         """
         Get subfolder and name.
         Attempt to move the file from it's temporary directory.
+        Move video THM file if there is one.
         If successful, increment sequence values.
         Report any success or failure.
         """
@@ -468,6 +469,24 @@ class SubfolderFile(multiprocessing.Process):
                         self.downloads_today_tracker.increment_downloads_today()
                         self.downloads_today.value = self.downloads_today_tracker.get_raw_downloads_today()
                         self.downloads_today_date.value = self.downloads_today_tracker.get_raw_downloads_today_date()
+                        
+                    if rpd_file.temp_thm_full_name:
+                        # copy THM video file
+                        source = gio.File(path=rpd_file.temp_thm_full_name)
+                        base_name = os.path.splitext(rpd_file.download_full_file_name)[0]
+                        ext = None
+                        if hasattr(rpd_file, 'thm_extension'):
+                            if rpd_file.thm_extension:
+                                ext = rpd_file.thm_extension
+                        if ext is None:
+                            ext = '.THM'
+                        download_thm_full_name = base_name + ext
+                        dest = gio.File(path=download_thm_full_name)
+                        try:
+                            source.move(dest, self.progress_callback_no_update, cancellable=None)
+                            rpd_file.download_thm_full_name = download_thm_full_name
+                        except gio.Error, inst:
+                            logger.error("Failed to move video THM file %s", download_thm_full_name)
                 
                 if not move_succeeded:
                     logger.error("%s: %s - %s", rpd_file.full_file_name, 

@@ -90,6 +90,10 @@ class CopyFiles(multiprocessing.Process):
     def progress_callback(self, amount_downloaded, total):
         self.update_progress(amount_downloaded, total)
         
+    def thm_progress_callback(self, amount_downloaded, total):
+        # we don't care about tracking download progress for tiny THM files!
+        pass
+        
 
     def run(self):
         """start the actual copying of files"""
@@ -127,8 +131,10 @@ class CopyFiles(multiprocessing.Process):
                     return None
                 
                 source = gio.File(path=rpd_file.full_file_name)
+                
                 #generate temporary name 5 digits long, no extension
                 temp_name = ''.join(random.choice(filename_characters) for i in xrange(5))
+                
                 temp_full_file_name = os.path.join(
                                     self._get_dest_dir(rpd_file.file_type), 
                                     temp_name)
@@ -161,6 +167,20 @@ class CopyFiles(multiprocessing.Process):
                 # increment this amount regardless of whether the copy actually
                 # succeeded or not. It's neccessary to keep the user informed.
                 self.total_downloaded += rpd_file.size
+                
+                # copy THM (video thumbnail file) if there is one
+                if copy_succeeded and rpd_file.thm_full_name:
+                    source = gio.File(path=rpd_file.thm_full_name)
+                    # reuse video's file name
+                    temp_thm_full_name = temp_full_file_name + '__rpd__thm'
+                    dest = gio.File(path=temp_thm_full_name)
+                    try:
+                        source.copy(dest, self.thm_progress_callback, cancellable=self.cancel_copy)
+                        rpd_file.temp_thm_full_name = temp_thm_full_name
+                        logger.debug("Copied video THM file %s", rpd_file.temp_thm_full_name)
+                    except gio.Error, inst:
+                        logger.error("Failed to download video THM file: %s", rpd_file.thm_full_name)
+                        
                 
                 if copy_succeeded and rpd_file.generate_thumbnail:
                     thumbnail, thumbnail_icon = self.thumbnail_maker.get_thumbnail(

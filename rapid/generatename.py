@@ -112,6 +112,17 @@ class PhotoName:
             logger.error("Both file modification time and metadata date & time are invalid for file %s", self.rpd_file.full_file_name)
             return ''
     
+    def _get_thm_extension(self):
+        if self.rpd_file.thm_full_name:
+            thm_extension = os.path.splitext(self.rpd_file.thm_full_name)[1]
+            if self.L2 == UPPERCASE:
+                thm_extension = thm_extension.upper()
+            elif self.L2 == LOWERCASE:
+                thm_extension = thm_extension.lower()
+            self.rpd_file.thm_extension = thm_extension
+        else:
+            self.rpd_file.thm_extension = None
+    
     def _get_filename_component(self):
         """
         Returns portion of new file / subfolder name based on the file name
@@ -121,9 +132,11 @@ class PhotoName:
         
         if self.L1 == NAME_EXTENSION:
             filename = self.rpd_file.name
+            self._get_thm_extension()
         elif self.L1 == NAME:
                 filename = name
         elif self.L1 == EXTENSION:
+            self._get_thm_extension()
             if extension:
                 if not self.strip_initial_period_from_extension:
                     # keep the period / dot of the extension, so the user does not

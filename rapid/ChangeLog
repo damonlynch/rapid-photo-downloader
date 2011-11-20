@@ -25,7 +25,13 @@ Fixed bug #695517: Added functionality to download MTS video files. There is
 currently no python based library to read metadata from MTS files, but ExifTool
 works. 
 
-Fixed bug #859012: Confirm if really want to download from /home or /media
+Fixed bug #859998: Download THM video thumbnail files 
+
+Some video files have THM video thumbnail files associated with them. Rapid 
+Photo Downloader now downloads them and renames them to match the name of the
+video it is associated with.
+
+Fixed bug #859012: Confirm if really want to download from /home, /media or / -
 
 It is possible for the program's preferences to be set to download from /home,
 /media or / (the root of the file system). This can result in the program 

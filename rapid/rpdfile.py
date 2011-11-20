@@ -78,18 +78,18 @@ def file_type(file_extension):
     return None
     
 def get_rpdfile(extension, name, display_name, path, size, 
-                file_system_modification_time, 
-                scan_pid, file_id):
+                file_system_modification_time, thm_full_name,
+                scan_pid, file_id, file_type):
                     
-    if extension in VIDEO_EXTENSIONS:
+    if file_type == FILE_TYPE_VIDEO:
         return Video(name, display_name, path, size,
-                     file_system_modification_time, 
+                     file_system_modification_time, thm_full_name,
                      scan_pid, file_id)
     else:
         # assume it's a photo - no check for performance reasons (this will be
         # called many times)
         return Photo(name, display_name, path, size,
-                     file_system_modification_time, 
+                     file_system_modification_time, thm_full_name,
                      scan_pid, file_id)
 
 class FileTypeCounter:
@@ -147,7 +147,7 @@ class RPDFile:
     """
 
     def __init__(self, name, display_name, path, size, 
-                 file_system_modification_time, 
+                 file_system_modification_time, thm_full_name,
                  scan_pid, file_id):
                      
         self.path = path
@@ -160,6 +160,9 @@ class RPDFile:
         self.size = size # type int
         
         self.modification_time = file_system_modification_time
+        
+        #full path and name of thumbnail file that is associated with some videos
+        self.thm_full_name = thm_full_name
         
         self.status = config.STATUS_NOT_DOWNLOADED
         self.problem = None # class Problem in problemnotifcation.py
@@ -180,12 +183,15 @@ class RPDFile:
         # generated values
         
         self.temp_full_file_name = ''
+        self.temp_thm_full_name = ''
+        
         self.download_start_time = None
         
         self.download_subfolder = ''
         self.download_path = ''
         self.download_name = ''
         self.download_full_file_name = ''
+        self.download_thm_full_name = ''
         
         self.metadata = None
         
@@ -197,6 +203,7 @@ class RPDFile:
         #self.subfolder_pref_list = []
         #self.name_pref_list = []
         #strip_characters = False
+        #self.thm_extension = ''
         
         
     def _assign_file_type(self):

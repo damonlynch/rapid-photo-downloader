@@ -41,6 +41,24 @@ file_attributes = "standard::name,standard::display-name,\
 standard::type,standard::size,time::modified,access::can-read,id::file"
 
 
+def get_video_THM_file(full_file_name_no_ext):
+    """
+    Checks to see if a thumbnail file (THM) is in the same directory as the 
+    file. Expects a full path to be part of the file name.
+    
+    Returns the filename, including path, if found, else returns None.
+    """
+    
+    f = None
+    for e in rpdfile.VIDEO_THUMBNAIL_EXTENSIONS:
+        if os.path.exists(full_file_name_no_ext + '.' + e):
+            f = full_file_name_no_ext + '.' + e
+            break
+        if os.path.exists(full_file_name_no_ext + '.' + e.upper()):
+            f = full_file_name_no_ext + '.' + e.upper()
+            break
+        
+    return f 
 
 class Scan(multiprocessing.Process):
 
@@ -120,7 +138,8 @@ class Scan(multiprocessing.Process):
                         return None
 
                 elif file_type == gio.FILE_TYPE_REGULAR:
-                    ext = os.path.splitext(name)[1].lower()[1:]
+                    base_name, ext = os.path.splitext(name)
+                    ext = ext.lower()[1:]
                     
                     file_type = rpdfile.file_type(ext)
                     if file_type is not None:
@@ -134,15 +153,24 @@ class Scan(multiprocessing.Process):
                             display_name = child.get_display_name()
                             size = child.get_size()
                             modification_time = child.get_modification_time()
-
+                            path_name = path.get_path()
+                            
+                            # look for thumbnail file for videos
+                            if file_type == rpdfile.FILE_TYPE_VIDEO:
+                                thm_full_name = get_video_THM_file(os.path.join(path_name, base_name))
+                            else:
+                                thm_full_name = None
+                                
                             scanned_file = rpdfile.get_rpdfile(ext, 
                                              name, 
                                              display_name, 
-                                             path.get_path(),
+                                             path_name,
                                              size,
-                                             modification_time, 
+                                             modification_time,
+                                             thm_full_name, 
                                              self.pid,
-                                             file_id)
+                                             file_id,
+                                             file_type)
                                          
                             self.files.append(scanned_file)
                         

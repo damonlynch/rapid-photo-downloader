@@ -686,9 +686,13 @@ class ThumbnailDisplay(gtk.IconView):
             #check if preview should be from a downloaded file, or the source
             if rpd_file.status in DOWNLOADED:
                 file_location = rpd_file.download_full_file_name
+                thm_file_name = rpd_file.download_thm_full_name
             else:
                 file_location = rpd_file.full_file_name
+                thm_file_name = rpd_file.thm_full_name
+                
             self.preview_manager.get_preview(unique_id, file_location,
+                                            thm_file_name,
                                             rpd_file.file_type, size_max=None,)
                                             
             self.previews_being_fetched.add(unique_id)
@@ -1303,8 +1307,8 @@ class PreviewManager(SingleInstanceTaskManager):
         self._get_preview = tn.GetPreviewImage(self.task_process_conn)
         self._get_preview.start()
         
-    def get_preview(self, unique_id, full_file_name, file_type, size_max):
-        self.task_results_conn.send((unique_id, full_file_name, file_type, size_max))
+    def get_preview(self, unique_id, full_file_name, thm_file_name, file_type, size_max):
+        self.task_results_conn.send((unique_id, full_file_name, thm_file_name, file_type, size_max))
         
     def task_results(self, source, condition):
         unique_id, preview_full_size, preview_small = self.task_results_conn.recv()
