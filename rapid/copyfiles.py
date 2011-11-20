@@ -20,6 +20,8 @@
 import multiprocessing
 import tempfile
 import os
+import random
+import string
 
 import gio
 
@@ -37,6 +39,9 @@ from gettext import gettext as _
 
 
 class CopyFiles(multiprocessing.Process):
+    """
+    Copies files from source to temporary directory, giving them a random name
+    """
     def __init__(self, photo_download_folder, video_download_folder, files,
                  scan_pid, 
                  batch_size_MB, results_pipe, terminate_queue, 
@@ -89,6 +94,9 @@ class CopyFiles(multiprocessing.Process):
     def run(self):
         """start the actual copying of files"""
         
+        #characters used to generate temporary filenames
+        filename_characters = string.letters + string.digits
+        
         self.bytes_downloaded = 0
         self.total_downloaded = 0
         
@@ -119,9 +127,11 @@ class CopyFiles(multiprocessing.Process):
                     return None
                 
                 source = gio.File(path=rpd_file.full_file_name)
+                #generate temporary name 5 digits long, no extension
+                temp_name = ''.join(random.choice(filename_characters) for i in xrange(5))
                 temp_full_file_name = os.path.join(
                                     self._get_dest_dir(rpd_file.file_type), 
-                                    rpd_file.name)
+                                    temp_name)
                 rpd_file.temp_full_file_name = temp_full_file_name
                 dest = gio.File(path=temp_full_file_name)
                 
