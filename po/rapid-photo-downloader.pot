@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-11-20 13:11-0600\n"
+"POT-Creation-Date: 2011-11-20 13:25-0600\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -145,7 +145,7 @@ msgstr ""
 msgid "videos"
 msgstr ""
 
-#: rapid/rapid.py:2597 rapid/preferencesdialog.py:1615 rapid/rpdfile.py:120
+#: rapid/rapid.py:2597 rapid/preferencesdialog.py:1617 rapid/rpdfile.py:120
 #: rapid/rpdfile.py:254
 msgid "video"
 msgstr ""
@@ -155,7 +155,7 @@ msgid "photos"
 msgstr ""
 
 #. check subfolder preferences for bad values
-#: rapid/rapid.py:2602 rapid/preferencesdialog.py:1614 rapid/rpdfile.py:125
+#: rapid/rapid.py:2602 rapid/preferencesdialog.py:1616 rapid/rpdfile.py:125
 #: rapid/rpdfile.py:234
 msgid "photo"
 msgstr ""
@@ -911,26 +911,26 @@ msgid "Select a folder in which to backup videos"
 msgstr ""
 
 #. Translators: please do not modify or leave out html formatting tags like <i> and <b>. These are used to format the text the users sees
-#: rapid/preferencesdialog.py:1456
+#: rapid/preferencesdialog.py:1458
 msgid ""
 "<i><b>Warning:</b> There is insufficient metadata to fully generate the "
 "name. Please use other renaming options.</i>"
 msgstr ""
 
-#: rapid/preferencesdialog.py:1507
+#: rapid/preferencesdialog.py:1509
 msgid ""
 "<i><b>Warning:</b> There is insufficient metadata to fully generate "
 "subfolders. Please use other subfolder naming options.</i>"
 msgstr ""
 
 #. Translators: you should not modify or leave out the %s. This is a code used by the programming language python to insert a value that thes user will see
-#: rapid/preferencesdialog.py:1510
+#: rapid/preferencesdialog.py:1512
 #, python-format
 msgid "<i>Example: %s</i>"
 msgstr ""
 
 #. Preferences list is now empty
-#: rapid/preferencesdialog.py:1600
+#: rapid/preferencesdialog.py:1602
 #, python-format
 msgid ""
 "The %(filetype)s subfolder preferences entered are invalid and cannot be "
@@ -938,7 +938,7 @@ msgid ""
 "They will be reset to their default values."
 msgstr ""
 
-#: rapid/preferencesdialog.py:1745
+#: rapid/preferencesdialog.py:1747
 #, python-format
 msgid ""
 "The following regular expressions are invalid, and will be removed unless "
@@ -946,7 +946,7 @@ msgid ""
 " %s"
 msgstr ""
 
-#: rapid/preferencesdialog.py:1747
+#: rapid/preferencesdialog.py:1749
 #, python-format
 msgid ""
 "This regular expression is invalid, and will be removed unless you correct "
@@ -954,17 +954,17 @@ msgid ""
 " %s"
 msgstr ""
 
-#: rapid/preferencesdialog.py:1748
+#: rapid/preferencesdialog.py:1750
 msgid "Invalid regular expression"
 msgstr ""
 
 #. Translators: this value is used as an example device when automatic backup device detection is enabled. You should translate this.
-#: rapid/preferencesdialog.py:1926
+#: rapid/preferencesdialog.py:1931
 msgid "externaldrive1"
 msgstr ""
 
 #. Translators: this value is used as an example device when automatic backup device detection is enabled. You should translate this.
-#: rapid/preferencesdialog.py:1928
+#: rapid/preferencesdialog.py:1933
 msgid "externaldrive2"
 msgstr ""
 
@@ -1773,7 +1773,7 @@ msgstr ""
 msgid ""
 "Sorry, video downloading functionality disabled. To download videos, please "
 "install either the <i>hachoir metadata</i> and <i>kaa metadata</i> packages "
-"for python, or exiftool."
+"for python, or <i>exiftool</i>."
 msgstr ""
 
 #: rapid/glade3/prefs.ui.h:79

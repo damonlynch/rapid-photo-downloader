@@ -136,6 +136,7 @@ class RapidPreferences(prefs.Preferences):
         "show_warning_downloading_from_camera": prefs.Value(prefs.BOOL, True),
         #~ "preview_zoom": prefs.Value(prefs.INT, zoom),
         "generate_thumbnails": prefs.Value(prefs.BOOL, True),
+        "auto_rotate_jpeg": prefs.Value(prefs.BOOL, False),
         }
 
     def __init__(self):

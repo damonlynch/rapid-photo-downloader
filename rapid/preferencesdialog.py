@@ -1421,6 +1421,8 @@ class PreferencesDialog():
                         self.prefs.auto_exit_force)
         self.generate_thumbnails_checkbutton.set_active(
                         self.prefs.generate_thumbnails)
+        self.auto_rotate_checkbutton.set_active(
+                        self.prefs.auto_rotate_jpeg)
                         
         self.update_misc_controls()
 
@@ -1757,6 +1759,9 @@ class PreferencesDialog():
         
     def on_auto_unmount_checkbutton_toggled(self, checkbutton):
         self.prefs.auto_unmount = checkbutton.get_active()
+        
+    def on_auto_rotate_checkbutton_toggled(self, checkbutton):
+        self.prefs.auto_rotate_jpeg = checkbutton.get_active()
 
     def on_auto_exit_checkbutton_toggled(self, checkbutton):
         active = checkbutton.get_active()
