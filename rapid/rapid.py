@@ -3674,7 +3674,7 @@ class RapidApp(dbus.service.Object):
         Set up process managers.
         
         A task such as scanning a device or copying files is handled in its
-        own process.        
+        own process.
         """
         
         self.batch_size = 10
@@ -3688,17 +3688,22 @@ class RapidApp(dbus.service.Object):
                            self.uses_stored_sequence_no_value,
                            self.uses_session_sequece_no_value,
                            self.uses_sequence_letter_value)
-                           
+        
+        # process to rename files and create subfolders                   
         self.subfolder_file_manager = SubfolderFileManager(
                                         self.subfolder_file_results,
                                         sequence_values,
                                         self.focal_length)
-            
         
+        # process to scan source devices / paths
         self.scan_manager = ScanManager(self.scan_results, self.batch_size, 
                                         self.device_collection.add_device)
+                                        
+        #process to copy files from source to destination
         self.copy_files_manager = CopyFilesManager(self.copy_files_results, 
                                                    self.batch_size_MB)
+                                                   
+        #process to back files up
         self.backup_manager = BackupFilesManager(self.backup_results,
                                                  self.batch_size_MB)
         

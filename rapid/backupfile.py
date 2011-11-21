@@ -85,7 +85,10 @@ class BackupFiles(multiprocessing.Process):
     def progress_callback(self, amount_downloaded, total):
         self.update_progress(amount_downloaded, total)
         
-
+    def progress_callback_no_update(self, amount_downloaded, total):
+        """called when copying very small files"""
+        pass
+        
     def run(self):
         
         self.cancel_copy = gio.Cancellable()
@@ -174,6 +177,16 @@ class BackupFiles(multiprocessing.Process):
                         rpd_file.status = config.STATUS_DOWNLOAD_AND_BACKUP_FAILED
                     else:
                         rpd_file.status = config.STATUS_BACKUP_PROBLEM
+                elif rpd_file.download_thm_full_name:
+                    # need to copy THM thumbnail file too
+                    source = gio.File(rpd_file.download_thm_full_name)
+                    dest_name = os.path.join(dest_dir, os.path.split(rpd_file.download_thm_full_name)[1])
+                    logger.debug("Backing up THM to: %s", dest_name)
+                    dest=gio.File(dest_name)
+                    try:
+                        source.copy(dest, self.progress_callback_no_update, cancellable=None)
+                    except gio.Error, inst:
+                            logger.error("Failed to copy video THM file %s", download_thm_full_name)
             
             self.total_downloaded += rpd_file.size
             bytes_not_downloaded = rpd_file.size - self.amount_downloaded
