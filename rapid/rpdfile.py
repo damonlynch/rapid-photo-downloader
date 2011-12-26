@@ -44,7 +44,9 @@ import thumbnail as tn
 RAW_EXTENSIONS = ['arw', 'dcr', 'cr2', 'crw',  'dng', 'mos', 'mef', 'mrw', 
                   'nef', 'orf', 'pef', 'raf', 'raw', 'rw2', 'sr2', 'srw']
                         
-NON_RAW_IMAGE_EXTENSIONS = ['jpg', 'jpe', 'jpeg', 'tif', 'tiff']
+JPEG_EXTENSIONS = ['jpg', 'jpe', 'jpeg']
+
+NON_RAW_IMAGE_EXTENSIONS = JPEG_EXTENSIONS + ['tif', 'tiff']
 
 PHOTO_EXTENSIONS = RAW_EXTENSIONS + NON_RAW_IMAGE_EXTENSIONS
 
@@ -156,6 +158,7 @@ class RPDFile:
         self.display_name = display_name
 
         self.full_file_name = os.path.join(path, name)
+        self.extension = os.path.splitext(name)[1][1:].lower()
         
         self.size = size # type int
         
@@ -258,8 +261,7 @@ class Video(RPDFile):
         self.file_type = FILE_TYPE_VIDEO
         
     def load_metadata(self):
-        ext = os.path.splitext(self.name)[1]
-        if ext.lower() == '.mts' or not metadatavideo.HAVE_HACHOIR:
+        if self.extension == 'mts' or not metadatavideo.HAVE_HACHOIR:
             if metadatavideo.HAVE_HACHOIR:
                 logger.debug("Using ExifTool parser")
             self.metadata = metadataexiftool.ExifToolMetaData(self.full_file_name)

@@ -24,8 +24,9 @@ Depends: ${python:Depends},
          python-hachoir-metadata,
          python-kaa-metadata,
          ffmpegthumbnailer,
-         exiftool,
-         gnome-icon-theme
+         libimage-exiftool-perl,
+         gnome-icon-theme,
+         exiftran,
 XB-Python-Version: ${python:Versions}
 Description: Photo and video importer from cameras, memory cards and other devices
  Rapid Photo Downloader is written by a photographer for professional and

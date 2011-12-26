@@ -9,6 +9,7 @@ Rapid Photo Downloader requires the following software:
 * python-imaging 1.1.7 or higher
 * librsvg2-common 2.26 or higher
 * exiftool
+* exiftran
 
 To run Rapid Photo Downloader you will need all the software mentioned above.
 

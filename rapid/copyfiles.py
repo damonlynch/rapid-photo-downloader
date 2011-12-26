@@ -43,6 +43,7 @@ class CopyFiles(multiprocessing.Process):
     Copies files from source to temporary directory, giving them a random name
     """
     def __init__(self, photo_download_folder, video_download_folder, files,
+                 modify_files_during_download, modify_pipe,
                  scan_pid, 
                  batch_size_MB, results_pipe, terminate_queue, 
                  run_event):
@@ -53,6 +54,8 @@ class CopyFiles(multiprocessing.Process):
         self.photo_download_folder = photo_download_folder
         self.video_download_folder = video_download_folder
         self.files = files
+        self.modify_files_during_download = modify_files_during_download
+        self.modify_pipe = modify_pipe
         self.scan_pid = scan_pid
         self.no_files= len(self.files)
         self.run_event = run_event
@@ -119,8 +122,8 @@ class CopyFiles(multiprocessing.Process):
         if self.photo_temp_dir or self.video_temp_dir:
             
             self.thumbnail_maker = tn.Thumbnail()
-                
-            for i in range(len(self.files)):
+            
+            for i in range(self.no_files):
                 rpd_file = self.files[i]
                 self.total_reached = False
                 
@@ -193,10 +196,19 @@ class CopyFiles(multiprocessing.Process):
                 
                 if rpd_file.metadata is not None:
                     rpd_file.metadata = None
-                    
-                self.results_pipe.send((rpdmp.CONN_PARTIAL, (rpdmp.MSG_FILE, 
-                    (copy_succeeded, rpd_file, i + 1, temp_full_file_name, 
-                     thumbnail_icon, thumbnail))))
+                
+                
+                download_count = i + 1
+                if self.modify_files_during_download and copy_succeeded:
+                    copy_finished = download_count == self.no_files
+                        
+                    self.modify_pipe.send((rpd_file, download_count, temp_full_file_name, 
+                        thumbnail_icon, thumbnail, copy_finished))
+                else:
+                    self.results_pipe.send((rpdmp.CONN_PARTIAL, (rpdmp.MSG_FILE, 
+                        (copy_succeeded, rpd_file, download_count,
+                         temp_full_file_name, 
+                         thumbnail_icon, thumbnail))))
                     
             
         self.results_pipe.send((rpdmp.CONN_COMPLETE, None))

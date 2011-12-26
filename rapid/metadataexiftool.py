@@ -29,7 +29,9 @@ logger = multiprocessing.get_logger()
 def version_info():
     """returns the version of exiftool being used"""
     try:
-        v = subprocess.check_output(['exiftool', '-ver']).strip()
+        # unfortunately subprocess.check_output does not exist on python 2.6
+        proc = subprocess.Popen(['exiftool', '-ver'], stdout=subprocess.PIPE)
+        v = proc.communicate()[0].strip()
     except OSError:
         v = None
     return v
@@ -56,7 +58,8 @@ class ExifToolMetaData:
             # special case: want exiftool's string formatting
             if self.metadata_string_format is None:
                 try:
-                    s = subprocess.check_output(['exiftool', '-j', self.filename])
+                    proc = subprocess.Popen(['exiftool', '-j', self.filename], stdout=subprocess.PIPE)
+                    s = proc.communicate()[0]
                 except:
                     logger.error(self.exiftool_error, self.filename)
                     return missing
@@ -75,7 +78,8 @@ class ExifToolMetaData:
         elif self.metadata is None:
             # note: exiftool's string formatting is OFF (-n switch)
             try:
-                s = subprocess.check_output(['exiftool', '-j', '-n', self.filename])
+                proc = subprocess.Popen(['exiftool', '-j', '-n', self.filename], stdout=subprocess.PIPE)
+                s = proc.communicate()[0]
             except:
                 logger.error(self.exiftool_error, self.filename)
                 return missing

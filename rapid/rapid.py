@@ -60,6 +60,8 @@ import generatename as gn
 
 import downloadtracker
 
+import filemodify
+
 from metadatavideo import DOWNLOAD_VIDEO, file_types_to_download
 import metadataphoto
 import metadatavideo
@@ -1195,10 +1197,14 @@ class CopyFilesManager(TaskManager):
         video_download_folder = task[1]
         scan_pid = task[2]
         files = task[3]
+        modify_files_during_download = task[4]
+        modify_pipe = task[5]
         
         copy_files = copyfiles.CopyFiles(photo_download_folder,
                                 video_download_folder,
                                 files, 
+                                modify_files_during_download,
+                                modify_pipe,
                                 scan_pid, self.batch_size, 
                                 task_process_conn, terminate_queue, run_event)
         copy_files.start()
@@ -1216,12 +1222,50 @@ class ThumbnailManager(TaskManager):
         generator.start()
         self._processes.append((generator, terminate_queue, run_event))
         return generator.pid
+
+class FileModifyManager(TaskManager):
+    """Handles the modification of downloaded files before they are renamed
+    Duplex, multiprocess, similar to BackupFilesManager
+    """
+    def __init__(self, results_callback):
+        TaskManager.__init__(self, results_callback=results_callback, 
+                            batch_size=0)
+        self.file_modify_by_scan_pid = {}
+                            
+    def _initiate_task(self, task, task_results_conn, task_process_conn, 
+                       terminate_queue, run_event):
+        scan_pid = task[0]
+        auto_rotate_jpeg = task[1]
+        
+        file_modify = filemodify.FileModify(auto_rotate_jpeg, 
+                                        task_process_conn, terminate_queue, 
+                                        run_event)
+        file_modify.start()
+        self._processes.append((file_modify, terminate_queue, run_event, 
+                                task_results_conn))
+                                
+        self.file_modify_by_scan_pid[scan_pid] = (task_results_conn, file_modify.pid)
+        
+        return file_modify.pid
+
+    def _setup_pipe(self):
+        return Pipe(duplex=True)
+        
+    def _send_termination_msg(self, p):
+        p[1].put(None)
+        p[3].send((None, None))
+        
+    def get_modify_pipe(self, scan_pid):
+        return self.file_modify_by_scan_pid[scan_pid][0]
+        
         
 class BackupFilesManager(TaskManager):
     """
-    Handles backup processes. This is a little different from other Task
+    Handles backup processes. This is a little different from some other Task
     Manager classes in that its pipe is Duplex, and the work done by it
     is not pre-assigned when the process is started.
+    
+    Duplex, multiprocess.
     """
     def __init__(self, results_callback, batch_size):
         TaskManager.__init__(self, results_callback, batch_size)
@@ -1531,6 +1575,7 @@ class RapidApp(dbus.service.Object):
         scan_termination_requested = self.scan_manager.request_termination()        
         thumbnails_termination_requested = self.thumbnails.thumbnail_manager.request_termination()
         backup_termination_requested = self.backup_manager.request_termination()
+        file_modify_termination_requested = self.file_modify_manager.request_termination()
         
         if terminate_file_copies:
             copy_files_termination_requested = self.copy_files_manager.request_termination()
@@ -1538,17 +1583,19 @@ class RapidApp(dbus.service.Object):
             copy_files_termination_requested = False
         
         if (scan_termination_requested or thumbnails_termination_requested or
-                                                backup_termination_requested):
+                backup_termination_requested or file_modify_termination_requested):
             time.sleep(1)
             if (self.scan_manager.get_no_active_processes() > 0 or 
                 self.thumbnails.thumbnail_manager.get_no_active_processes() > 0 or
-                self.backup_manager.get_no_active_processes() > 0):
+                self.backup_manager.get_no_active_processes() > 0 or
+                self.file_modify_manager.get_no_active_processes() > 0):
                 time.sleep(1)
                 # must try again, just in case a new scan has meanwhile started!
                 self.scan_manager.request_termination()
                 self.thumbnails.thumbnail_manager.terminate_forcefully()
                 self.scan_manager.terminate_forcefully()
                 self.backup_manager.terminate_forcefully()
+                self.file_modify_manager.terminate_forcefully()
                 
         if terminate_file_copies and copy_files_termination_requested:
             time.sleep(1)
@@ -2211,6 +2258,12 @@ class RapidApp(dbus.service.Object):
         
         # Track which downloads are running
         self.download_active_by_scan_pid = []
+        
+    def modify_files_during_download(self):
+        """ Returns True if there is a need to modify files during download
+        (currently the only need is autorotate)
+        """
+        return self.prefs.auto_rotate_jpeg
 
     
     def start_download(self, scan_pid=None):
@@ -2322,11 +2375,20 @@ class RapidApp(dbus.service.Object):
         if self.auto_start_is_on and self.prefs.generate_thumbnails:
             for rpd_file in files:
                 rpd_file.generate_thumbnail = True
+
+        modify_files_during_download = self.modify_files_during_download()
+        if modify_files_during_download:
+            self.file_modify_manager.add_task((scan_pid, self.prefs.auto_rotate_jpeg))
+            modify_pipe = self.file_modify_manager.get_modify_pipe(scan_pid)
+        else:
+            modify_pipe = None
+
             
         # Initiate copy files process
         self.copy_files_manager.add_task((photo_download_folder, 
                               video_download_folder, scan_pid,
-                              files))
+                              files, modify_files_during_download,
+                              modify_pipe))
                               
     def copy_files_results(self, source, condition):
         """
@@ -2351,33 +2413,7 @@ class RapidApp(dbus.service.Object):
                                             None, None)
                 self.time_remaining.update(scan_pid, bytes_downloaded=chunk_downloaded)
             elif msg_type == rpdmp.MSG_FILE:
-                download_succeeded, rpd_file, download_count, temp_full_file_name, thumbnail_icon, thumbnail = data
-                
-                if thumbnail is not None or thumbnail_icon is not None:
-                    self.thumbnails.update_thumbnail((rpd_file.unique_id, 
-                                                      thumbnail_icon, 
-                                                      thumbnail))
-                
-                self.download_tracker.set_download_count_for_file(
-                                            rpd_file.unique_id, download_count)
-                self.download_tracker.set_download_count(
-                                            rpd_file.scan_pid, download_count)
-                rpd_file.download_start_time = self.download_start_time
-                
-                if download_succeeded:
-                    # Insert preference values needed for name generation
-                    rpd_file = prefsrapid.insert_pref_lists(self.prefs, rpd_file)
-                    rpd_file.strip_characters = self.prefs.strip_characters
-                    rpd_file.download_folder = self.prefs.get_download_folder_for_file_type(rpd_file.file_type)
-                    rpd_file.download_conflict_resolution = self.prefs.download_conflict_resolution
-                    rpd_file.synchronize_raw_jpg = self.prefs.must_synchronize_raw_jpg()
-                    rpd_file.job_code = self.job_code 
-                
-                self.subfolder_file_manager.rename_file_and_move_to_subfolder(
-                        download_succeeded, 
-                        download_count, 
-                        rpd_file
-                        ) 
+                self.copy_file_results_single_file(data)
                 
             return True
         else:
@@ -2385,6 +2421,63 @@ class RapidApp(dbus.service.Object):
             connection.close()
             return False
             
+
+    def copy_file_results_single_file(self, data):
+        """
+        Handles results from one of two processes:
+        1. copy_files
+        2. file_modify
+        
+        Operates after a single file has been copied from the download device
+        to the local folder.
+        
+        Calls the process to rename files and create subfolders (subfolderfile)
+        """
+        
+        download_succeeded, rpd_file, download_count, temp_full_file_name, thumbnail_icon, thumbnail = data
+        
+        if thumbnail is not None or thumbnail_icon is not None:
+            self.thumbnails.update_thumbnail((rpd_file.unique_id, 
+                                              thumbnail_icon, 
+                                              thumbnail))
+        
+        self.download_tracker.set_download_count_for_file(
+                                    rpd_file.unique_id, download_count)
+        self.download_tracker.set_download_count(
+                                    rpd_file.scan_pid, download_count)
+        rpd_file.download_start_time = self.download_start_time
+        
+        if download_succeeded:
+            # Insert preference values needed for name generation
+            rpd_file = prefsrapid.insert_pref_lists(self.prefs, rpd_file)
+            rpd_file.strip_characters = self.prefs.strip_characters
+            rpd_file.download_folder = self.prefs.get_download_folder_for_file_type(rpd_file.file_type)
+            rpd_file.download_conflict_resolution = self.prefs.download_conflict_resolution
+            rpd_file.synchronize_raw_jpg = self.prefs.must_synchronize_raw_jpg()
+            rpd_file.job_code = self.job_code
+            
+            self.subfolder_file_manager.rename_file_and_move_to_subfolder(
+                    download_succeeded, 
+                    download_count, 
+                    rpd_file
+                    )         
+    def file_modify_results(self, source, condition):
+        """
+        'file modify' is a process that runs immediately after 'copy files', 
+        meaning there can be more than one at one time. 
+        
+        It runs before the renaming process.
+        """
+        connection = self.file_modify_manager.get_pipe(source)
+        
+        conn_type, data = connection.recv()
+        if conn_type == rpdmp.CONN_PARTIAL:
+            self.copy_file_results_single_file(data)
+            return True
+        else:
+            # Process is complete, i.e. conn_type == rpdmp.CONN_COMPLETE
+            connection.close()
+            return False            
 
     
     def download_is_occurring(self):
@@ -3689,7 +3782,7 @@ class RapidApp(dbus.service.Object):
                            self.uses_session_sequece_no_value,
                            self.uses_sequence_letter_value)
         
-        # process to rename files and create subfolders                   
+        # daemon process to rename files and create subfolders                   
         self.subfolder_file_manager = SubfolderFileManager(
                                         self.subfolder_file_results,
                                         sequence_values,
@@ -3706,6 +3799,10 @@ class RapidApp(dbus.service.Object):
         #process to back files up
         self.backup_manager = BackupFilesManager(self.backup_results,
                                                  self.batch_size_MB)
+                                                 
+        #process to enhance files after they've been copied and before they're
+        #renamed
+        self.file_modify_manager = FileModifyManager(self.file_modify_results)
         
         
     def scan_results(self, source, condition):
@@ -3754,7 +3851,6 @@ class RapidApp(dbus.service.Object):
         
         # must return True for this method to be called again
         return True
-        
         
 
     @dbus.service.method (config.DBUS_NAME,

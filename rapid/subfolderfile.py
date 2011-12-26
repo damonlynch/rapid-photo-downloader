@@ -266,10 +266,8 @@ class SubfolderFile(multiprocessing.Process):
         while True:
             logger.debug("Finished %s. Getting next task.", download_count)
 
-            task = self.results_pipe.recv()
-            
             # rename file and move to generated subfolder                    
-            download_succeeded, download_count, rpd_file = task
+            download_succeeded, download_count, rpd_file = self.results_pipe.recv()
             
             move_succeeded = False
             

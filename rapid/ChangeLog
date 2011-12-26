@@ -25,11 +25,18 @@ Fixed bug #695517: Added functionality to download MTS video files. There is
 currently no python based library to read metadata from MTS files, but ExifTool
 works. 
 
-Fixed bug #859998: Download THM video thumbnail files 
+Fixed bug #859998: Download THM video thumbnail files -
 
 Some video files have THM video thumbnail files associated with them. Rapid 
 Photo Downloader now downloads them and renames them to match the name of the
 video it is associated with.
+
+Fixed bug #594533: Lossless JPEG rotation based on EXIF data after picture 
+transfer -
+
+There is now an option to automatically rotate JPEG photos as they are
+downloaded. The program exiftran is used to do the rotation. The feature is
+turned on default. 
 
 Fixed bug #859012: Confirm if really want to download from /home, /media or / -
 
