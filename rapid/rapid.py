@@ -1644,6 +1644,7 @@ class RapidApp(dbus.service.Object):
         self.on_rapidapp_destroy(widget=self.rapidapp, data=None)
         
     def on_refresh_action_activate(self, action):
+        self.thumbnails.clear_all()
         self.setup_devices(on_startup=False, on_preference_change=False,
                            block_auto_start=True)
                            
