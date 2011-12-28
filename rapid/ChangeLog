@@ -55,6 +55,9 @@ displayed from the command line.
 Fixed a bug where the program would crash when trying to convert a malformed
 thumbnail from one image mode to another.
 
+Updated Czech, Danish, Dutch, French, German, Hungarian, Italian, Norwegian,
+Polish, Serbian, Slovak, Spanish and Swedish translations.
+
 
 Version 0.4.2
 -------------
