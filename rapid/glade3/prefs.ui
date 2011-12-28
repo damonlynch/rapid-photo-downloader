@@ -1,6 +1,7 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0"?>
 <interface>
   <requires lib="gtk+" version="2.16"/>
+  <!-- interface-naming-policy toplevel-contextual -->
   <object class="GtkAdjustment" id="hour_adjustment">
     <property name="upper">23</property>
     <property name="step_increment">1</property>
@@ -12,7 +13,6 @@
     <property name="page_increment">10</property>
   </object>
   <object class="GtkDialog" id="preferencesdialog">
-    <property name="can_focus">False</property>
     <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
     <property name="border_width">5</property>
     <property name="title" translatable="yes">Preferences: Rapid Photo Downloader</property>
@@ -21,61 +21,15 @@
     <property name="default_height">500</property>
     <property name="icon">rapid-photo-downloader.svg</property>
     <property name="type_hint">dialog</property>
-    <signal name="destroy" handler="on_preferencesdialog_destroy" swapped="no"/>
-    <signal name="response" handler="on_preferencesdialog_response" swapped="no"/>
+    <signal name="destroy" handler="on_preferencesdialog_destroy"/>
+    <signal name="response" handler="on_preferencesdialog_response"/>
     <child internal-child="vbox">
-      <object class="GtkBox" id="dialog-vbox2">
+      <object class="GtkVBox" id="dialog-vbox2">
         <property name="visible">True</property>
-        <property name="can_focus">False</property>
         <property name="spacing">2</property>
-        <child internal-child="action_area">
-          <object class="GtkButtonBox" id="dialog-action_area2">
-            <property name="visible">True</property>
-            <property name="can_focus">False</property>
-            <property name="layout_style">end</property>
-            <child>
-              <object class="GtkButton" id="help_button1">
-                <property name="label">gtk-help</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">True</property>
-                <property name="use_action_appearance">False</property>
-                <property name="use_stock">True</property>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">False</property>
-                <property name="position">0</property>
-                <property name="secondary">True</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkButton" id="close_button">
-                <property name="label">gtk-close</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">True</property>
-                <property name="use_action_appearance">False</property>
-                <property name="use_stock">True</property>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">False</property>
-                <property name="position">1</property>
-              </packing>
-            </child>
-          </object>
-          <packing>
-            <property name="expand">False</property>
-            <property name="fill">True</property>
-            <property name="pack_type">end</property>
-            <property name="position">0</property>
-          </packing>
-        </child>
         <child>
           <object class="GtkHBox" id="hbox7">
             <property name="visible">True</property>
-            <property name="can_focus">False</property>
             <property name="spacing">2</property>
             <child>
               <object class="GtkScrolledWindow" id="scrolled_window">
@@ -90,16 +44,11 @@
                     <property name="can_focus">True</property>
                     <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
                     <property name="headers_visible">False</property>
-                    <signal name="cursor-changed" handler="on_treeview_cursor_changed" swapped="no"/>
-                    <child internal-child="selection">
-                      <object class="GtkTreeSelection" id="treeview-selection1"/>
-                    </child>
+                    <signal name="cursor_changed" handler="on_treeview_cursor_changed"/>
                   </object>
                 </child>
               </object>
               <packing>
-                <property name="expand">True</property>
-                <property name="fill">True</property>
                 <property name="padding">5</property>
                 <property name="position">0</property>
               </packing>
@@ -112,33 +61,27 @@
                 <child>
                   <object class="GtkVBox" id="folder_tab">
                     <property name="visible">True</property>
-                    <property name="can_focus">False</property>
                     <property name="spacing">12</property>
                     <child>
                       <object class="GtkVBox" id="vbox6">
                         <property name="visible">True</property>
-                        <property name="can_focus">False</property>
                         <child>
                           <object class="GtkHBox" id="hbox8">
                             <property name="visible">True</property>
-                            <property name="can_focus">False</property>
                             <property name="spacing">6</property>
                             <child>
                               <object class="GtkImage" id="image2">
                                 <property name="visible">True</property>
-                                <property name="can_focus">False</property>
                                 <property name="stock">gtk-directory</property>
                               </object>
                               <packing>
                                 <property name="expand">False</property>
-                                <property name="fill">True</property>
                                 <property name="position">0</property>
                               </packing>
                             </child>
                             <child>
                               <object class="GtkLabel" id="label4">
                                 <property name="visible">True</property>
-                                <property name="can_focus">False</property>
                                 <property name="label" translatable="yes">&lt;span weight="bold" size="x-large"&gt;Photo Download Folders&lt;/span&gt;</property>
                                 <property name="use_markup">True</property>
                               </object>
@@ -150,19 +93,15 @@
                             </child>
                           </object>
                           <packing>
-                            <property name="expand">True</property>
-                            <property name="fill">True</property>
                             <property name="position">0</property>
                           </packing>
                         </child>
                         <child>
                           <object class="GtkHSeparator" id="hseparator1">
                             <property name="visible">True</property>
-                            <property name="can_focus">False</property>
                           </object>
                           <packing>
                             <property name="expand">False</property>
-                            <property name="fill">True</property>
                             <property name="position">1</property>
                           </packing>
                         </child>
@@ -176,29 +115,24 @@
                     <child>
                       <object class="GtkHBox" id="hbox9">
                         <property name="visible">True</property>
-                        <property name="can_focus">False</property>
                         <property name="spacing">12</property>
                         <child>
                           <object class="GtkLabel" id="label16">
                             <property name="visible">True</property>
-                            <property name="can_focus">False</property>
                           </object>
                           <packing>
                             <property name="expand">False</property>
-                            <property name="fill">True</property>
                             <property name="position">0</property>
                           </packing>
                         </child>
                         <child>
                           <object class="GtkTable" id="download_folder_table">
                             <property name="visible">True</property>
-                            <property name="can_focus">False</property>
                             <property name="n_rows">7</property>
                             <property name="n_columns">3</property>
                             <child>
                               <object class="GtkLabel" id="example_photo_download_path_label">
                                 <property name="visible">True</property>
-                                <property name="can_focus">False</property>
                                 <property name="xalign">0</property>
                                 <property name="label" translatable="yes">&lt;i&gt;Example: /home/user/Pictures&lt;/i&gt;</property>
                                 <property name="use_markup">True</property>
@@ -214,7 +148,6 @@
                             <child>
                               <object class="GtkLabel" id="label8">
                                 <property name="visible">True</property>
-                                <property name="can_focus">False</property>
                                 <property name="xalign">0</property>
                                 <property name="label" translatable="yes">&lt;b&gt;Download Subfolders&lt;/b&gt;</property>
                                 <property name="use_markup">True</property>
@@ -229,7 +162,6 @@
                             <child>
                               <object class="GtkLabel" id="lblPhotos1">
                                 <property name="visible">True</property>
-                                <property name="can_focus">False</property>
                                 <property name="xalign">0</property>
                                 <property name="label" translatable="yes">Download folder:</property>
                               </object>
@@ -245,7 +177,6 @@
                             <child>
                               <object class="GtkLabel" id="label7">
                                 <property name="visible">True</property>
-                                <property name="can_focus">False</property>
                                 <property name="xalign">0</property>
                                 <property name="ypad">12</property>
                                 <property name="label" translatable="yes">Choose the download folder. Subfolders for the downloaded photos will be automatically created in this folder using the structure specified below.</property>
@@ -263,7 +194,6 @@
                             <child>
                               <object class="GtkLabel" id="label5">
                                 <property name="visible">True</property>
-                                <property name="can_focus">False</property>
                                 <property name="xalign">0</property>
                                 <property name="label" translatable="yes">&lt;b&gt;Download Folder&lt;/b&gt;</property>
                                 <property name="use_markup">True</property>
@@ -276,7 +206,6 @@
                             <child>
                               <object class="GtkLabel" id="photo_subfolder_warning_label">
                                 <property name="visible">True</property>
-                                <property name="can_focus">False</property>
                                 <property name="xalign">0</property>
                                 <property name="yalign">0</property>
                                 <property name="wrap">True</property>
@@ -293,7 +222,6 @@
                             <child>
                               <object class="GtkVBox" id="subfolder_vbox">
                                 <property name="visible">True</property>
-                                <property name="can_focus">False</property>
                                 <child>
                                   <placeholder/>
                                 </child>
@@ -326,26 +254,20 @@
                             </child>
                           </object>
                           <packing>
-                            <property name="expand">True</property>
-                            <property name="fill">True</property>
                             <property name="position">1</property>
                           </packing>
                         </child>
                         <child>
                           <object class="GtkLabel" id="label23">
                             <property name="visible">True</property>
-                            <property name="can_focus">False</property>
                           </object>
                           <packing>
                             <property name="expand">False</property>
-                            <property name="fill">True</property>
                             <property name="position">2</property>
                           </packing>
                         </child>
                       </object>
                       <packing>
-                        <property name="expand">True</property>
-                        <property name="fill">True</property>
                         <property name="padding">12</property>
                         <property name="position">1</property>
                       </packing>
@@ -358,7 +280,6 @@
                 <child type="tab">
                   <object class="GtkLabel" id="download_label">
                     <property name="visible">True</property>
-                    <property name="can_focus">False</property>
                     <property name="label" translatable="yes">Photo Folders</property>
                   </object>
                   <packing>
@@ -368,57 +289,46 @@
                 <child>
                   <object class="GtkVBox" id="rename_tab">
                     <property name="visible">True</property>
-                    <property name="can_focus">False</property>
                     <property name="spacing">12</property>
                     <child>
                       <object class="GtkVBox" id="vbox7">
                         <property name="visible">True</property>
-                        <property name="can_focus">False</property>
                         <child>
                           <object class="GtkHBox" id="hbox10">
                             <property name="visible">True</property>
-                            <property name="can_focus">False</property>
                             <property name="spacing">6</property>
                             <child>
                               <object class="GtkImage" id="image3">
                                 <property name="visible">True</property>
-                                <property name="can_focus">False</property>
                                 <property name="stock">gtk-convert</property>
                               </object>
                               <packing>
                                 <property name="expand">False</property>
-                                <property name="fill">True</property>
                                 <property name="position">0</property>
                               </packing>
                             </child>
                             <child>
                               <object class="GtkLabel" id="label6">
                                 <property name="visible">True</property>
-                                <property name="can_focus">False</property>
                                 <property name="label" translatable="yes">&lt;span weight="bold" size="x-large"&gt;Photo Rename&lt;/span&gt;	</property>
                                 <property name="use_markup">True</property>
                               </object>
                               <packing>
                                 <property name="expand">False</property>
-                                <property name="fill">True</property>
                                 <property name="position">1</property>
                               </packing>
                             </child>
                           </object>
                           <packing>
-                            <property name="expand">True</property>
-                            <property name="fill">True</property>
                             <property name="position">0</property>
                           </packing>
                         </child>
                         <child>
                           <object class="GtkHSeparator" id="hseparator2">
                             <property name="visible">True</property>
-                            <property name="can_focus">False</property>
                           </object>
                           <packing>
                             <property name="expand">False</property>
-                            <property name="fill">True</property>
                             <property name="position">1</property>
                           </packing>
                         </child>
@@ -432,34 +342,28 @@
                     <child>
                       <object class="GtkHBox" id="hbox12">
                         <property name="visible">True</property>
-                        <property name="can_focus">False</property>
                         <property name="spacing">12</property>
                         <child>
                           <object class="GtkLabel" id="label24">
                             <property name="visible">True</property>
-                            <property name="can_focus">False</property>
                           </object>
                           <packing>
                             <property name="expand">False</property>
-                            <property name="fill">True</property>
                             <property name="position">0</property>
                           </packing>
                         </child>
                         <child>
                           <object class="GtkVBox" id="rename_vbox">
                             <property name="visible">True</property>
-                            <property name="can_focus">False</property>
                             <property name="spacing">12</property>
                             <child>
                               <object class="GtkLabel" id="label42">
-                                <property name="can_focus">False</property>
                                 <property name="xalign">0</property>
                                 <property name="label" translatable="yes">&lt;b&gt;Photo Rename&lt;/b&gt;</property>
                                 <property name="use_markup">True</property>
                               </object>
                               <packing>
                                 <property name="expand">False</property>
-                                <property name="fill">True</property>
                                 <property name="position">0</property>
                               </packing>
                             </child>
@@ -471,13 +375,11 @@
                                 <child>
                                   <object class="GtkViewport" id="viewport2">
                                     <property name="visible">True</property>
-                                    <property name="can_focus">False</property>
                                     <property name="resize_mode">queue</property>
                                     <property name="shadow_type">none</property>
                                     <child>
                                       <object class="GtkVBox" id="rename_table_vbox">
                                         <property name="visible">True</property>
-                                        <property name="can_focus">False</property>
                                         <child>
                                           <placeholder/>
                                         </child>
@@ -487,21 +389,17 @@
                                 </child>
                               </object>
                               <packing>
-                                <property name="expand">True</property>
-                                <property name="fill">True</property>
                                 <property name="position">1</property>
                               </packing>
                             </child>
                             <child>
                               <object class="GtkTable" id="rename_example_table">
                                 <property name="visible">True</property>
-                                <property name="can_focus">False</property>
                                 <property name="n_rows">3</property>
                                 <property name="n_columns">3</property>
                                 <child>
                                   <object class="GtkLabel" id="label17">
                                     <property name="visible">True</property>
-                                    <property name="can_focus">False</property>
                                     <property name="label" translatable="yes"> </property>
                                   </object>
                                   <packing>
@@ -513,7 +411,6 @@
                                 <child>
                                   <object class="GtkLabel" id="label15">
                                     <property name="visible">True</property>
-                                    <property name="can_focus">False</property>
                                     <property name="label" translatable="yes"> </property>
                                   </object>
                                   <packing>
@@ -526,7 +423,6 @@
                                 <child>
                                   <object class="GtkLabel" id="new_name_label">
                                     <property name="visible">True</property>
-                                    <property name="can_focus">False</property>
                                     <property name="xalign">0</property>
                                     <property name="yalign">0</property>
                                     <property name="label">translators please ignore this</property>
@@ -543,7 +439,6 @@
                                 <child>
                                   <object class="GtkLabel" id="original_name_label">
                                     <property name="visible">True</property>
-                                    <property name="can_focus">False</property>
                                     <property name="xalign">0</property>
                                     <property name="label">translators please ignore this</property>
                                   </object>
@@ -558,7 +453,6 @@
                                 <child>
                                   <object class="GtkLabel" id="label21">
                                     <property name="visible">True</property>
-                                    <property name="can_focus">False</property>
                                     <property name="xalign">0</property>
                                     <property name="yalign">0</property>
                                     <property name="label" translatable="yes">&lt;i&gt;New:&lt;/i&gt;</property>
@@ -576,7 +470,6 @@
                                 <child>
                                   <object class="GtkLabel" id="label20">
                                     <property name="visible">True</property>
-                                    <property name="can_focus">False</property>
                                     <property name="xalign">0</property>
                                     <property name="label" translatable="yes">&lt;i&gt;Original:&lt;/i&gt;</property>
                                     <property name="use_markup">True</property>
@@ -593,7 +486,6 @@
                                 <child>
                                   <object class="GtkLabel" id="label14">
                                     <property name="visible">True</property>
-                                    <property name="can_focus">False</property>
                                     <property name="xalign">0</property>
                                     <property name="label" translatable="yes">&lt;b&gt;Example&lt;/b&gt;</property>
                                     <property name="use_markup">True</property>
@@ -612,26 +504,20 @@
                             </child>
                           </object>
                           <packing>
-                            <property name="expand">True</property>
-                            <property name="fill">True</property>
                             <property name="position">1</property>
                           </packing>
                         </child>
                         <child>
                           <object class="GtkLabel" id="label25">
                             <property name="visible">True</property>
-                            <property name="can_focus">False</property>
                           </object>
                           <packing>
                             <property name="expand">False</property>
-                            <property name="fill">True</property>
                             <property name="position">2</property>
                           </packing>
                         </child>
                       </object>
                       <packing>
-                        <property name="expand">True</property>
-                        <property name="fill">True</property>
                         <property name="padding">12</property>
                         <property name="position">1</property>
                       </packing>
@@ -645,7 +531,6 @@
                 <child type="tab">
                   <object class="GtkLabel" id="rename_label">
                     <property name="visible">True</property>
-                    <property name="can_focus">False</property>
                     <property name="label" translatable="yes">Photo Rename</property>
                   </object>
                   <packing>
@@ -656,33 +541,27 @@
                 <child>
                   <object class="GtkVBox" id="folder_tab1">
                     <property name="visible">True</property>
-                    <property name="can_focus">False</property>
                     <property name="spacing">12</property>
                     <child>
                       <object class="GtkVBox" id="vbox12">
                         <property name="visible">True</property>
-                        <property name="can_focus">False</property>
                         <child>
                           <object class="GtkHBox" id="hbox11">
                             <property name="visible">True</property>
-                            <property name="can_focus">False</property>
                             <property name="spacing">6</property>
                             <child>
                               <object class="GtkImage" id="image5">
                                 <property name="visible">True</property>
-                                <property name="can_focus">False</property>
                                 <property name="stock">gtk-directory</property>
                               </object>
                               <packing>
                                 <property name="expand">False</property>
-                                <property name="fill">True</property>
                                 <property name="position">0</property>
                               </packing>
                             </child>
                             <child>
                               <object class="GtkLabel" id="label46">
                                 <property name="visible">True</property>
-                                <property name="can_focus">False</property>
                                 <property name="label" translatable="yes">&lt;span weight="bold" size="x-large"&gt;Video Download Folders&lt;/span&gt;</property>
                                 <property name="use_markup">True</property>
                               </object>
@@ -694,19 +573,15 @@
                             </child>
                           </object>
                           <packing>
-                            <property name="expand">True</property>
-                            <property name="fill">True</property>
                             <property name="position">0</property>
                           </packing>
                         </child>
                         <child>
                           <object class="GtkHSeparator" id="hseparator8">
                             <property name="visible">True</property>
-                            <property name="can_focus">False</property>
                           </object>
                           <packing>
                             <property name="expand">False</property>
-                            <property name="fill">True</property>
                             <property name="position">1</property>
                           </packing>
                         </child>
@@ -719,10 +594,8 @@
                     </child>
                     <child>
                       <object class="GtkHBox" id="folder_videos_cannot_be_downloaded_hbox">
-                        <property name="can_focus">False</property>
                         <child>
                           <object class="GtkLabel" id="folder_videos_cannot_be_downloaded_label">
-                            <property name="can_focus">False</property>
                             <property name="xalign">0</property>
                             <property name="xpad">12</property>
                             <property name="ypad">10</property>
@@ -731,8 +604,6 @@
                             <property name="wrap">True</property>
                           </object>
                           <packing>
-                            <property name="expand">True</property>
-                            <property name="fill">True</property>
                             <property name="position">0</property>
                           </packing>
                         </child>
@@ -746,29 +617,24 @@
                     <child>
                       <object class="GtkHBox" id="video_folders_hbox">
                         <property name="visible">True</property>
-                        <property name="can_focus">False</property>
                         <property name="spacing">12</property>
                         <child>
                           <object class="GtkLabel" id="label57">
                             <property name="visible">True</property>
-                            <property name="can_focus">False</property>
                           </object>
                           <packing>
                             <property name="expand">False</property>
-                            <property name="fill">True</property>
                             <property name="position">0</property>
                           </packing>
                         </child>
                         <child>
                           <object class="GtkTable" id="video_download_folder_table">
                             <property name="visible">True</property>
-                            <property name="can_focus">False</property>
                             <property name="n_rows">7</property>
                             <property name="n_columns">3</property>
                             <child>
                               <object class="GtkLabel" id="lblPhotos2">
                                 <property name="visible">True</property>
-                                <property name="can_focus">False</property>
                                 <property name="xalign">0</property>
                                 <property name="label" translatable="yes">Download folder:</property>
                               </object>
@@ -784,7 +650,6 @@
                             <child>
                               <object class="GtkLabel" id="label59">
                                 <property name="visible">True</property>
-                                <property name="can_focus">False</property>
                                 <property name="xalign">0</property>
                                 <property name="ypad">12</property>
                                 <property name="label" translatable="yes">Choose the download folder. Subfolders for the downloaded videos will be automatically created in this folder using the structure specified below.</property>
@@ -802,7 +667,6 @@
                             <child>
                               <object class="GtkLabel" id="label61">
                                 <property name="visible">True</property>
-                                <property name="can_focus">False</property>
                                 <property name="xalign">0</property>
                                 <property name="label" translatable="yes">&lt;b&gt;Download Folder&lt;/b&gt;</property>
                                 <property name="use_markup">True</property>
@@ -815,7 +679,6 @@
                             <child>
                               <object class="GtkLabel" id="label62">
                                 <property name="visible">True</property>
-                                <property name="can_focus">False</property>
                                 <property name="xalign">0</property>
                                 <property name="label" translatable="yes">&lt;b&gt;Download Subfolders&lt;/b&gt;</property>
                                 <property name="use_markup">True</property>
@@ -830,7 +693,6 @@
                             <child>
                               <object class="GtkLabel" id="example_video_download_path_label">
                                 <property name="visible">True</property>
-                                <property name="can_focus">False</property>
                                 <property name="xalign">0</property>
                                 <property name="label" translatable="yes">&lt;i&gt;Example: /home/user/Pictures&lt;/i&gt;</property>
                                 <property name="use_markup">True</property>
@@ -846,7 +708,6 @@
                             <child>
                               <object class="GtkLabel" id="video_subfolder_warning_label">
                                 <property name="visible">True</property>
-                                <property name="can_focus">False</property>
                                 <property name="xalign">0</property>
                                 <property name="yalign">0</property>
                                 <property name="wrap">True</property>
@@ -863,7 +724,6 @@
                             <child>
                               <object class="GtkVBox" id="video_subfolder_vbox">
                                 <property name="visible">True</property>
-                                <property name="can_focus">False</property>
                                 <child>
                                   <placeholder/>
                                 </child>
@@ -896,26 +756,20 @@
                             </child>
                           </object>
                           <packing>
-                            <property name="expand">True</property>
-                            <property name="fill">True</property>
                             <property name="position">1</property>
                           </packing>
                         </child>
                         <child>
                           <object class="GtkLabel" id="label63">
                             <property name="visible">True</property>
-                            <property name="can_focus">False</property>
                           </object>
                           <packing>
                             <property name="expand">False</property>
-                            <property name="fill">True</property>
                             <property name="position">2</property>
                           </packing>
                         </child>
                       </object>
                       <packing>
-                        <property name="expand">True</property>
-                        <property name="fill">True</property>
                         <property name="padding">12</property>
                         <property name="position">2</property>
                       </packing>
@@ -928,7 +782,6 @@
                 <child type="tab">
                   <object class="GtkLabel" id="video_download_folder">
                     <property name="visible">True</property>
-                    <property name="can_focus">False</property>
                     <property name="label" translatable="yes">Video Folders</property>
                   </object>
                   <packing>
@@ -939,57 +792,46 @@
                 <child>
                   <object class="GtkVBox" id="video_rename_tab">
                     <property name="visible">True</property>
-                    <property name="can_focus">False</property>
                     <property name="spacing">12</property>
                     <child>
                       <object class="GtkVBox" id="vbox10">
                         <property name="visible">True</property>
-                        <property name="can_focus">False</property>
                         <child>
                           <object class="GtkHBox" id="hbox13">
                             <property name="visible">True</property>
-                            <property name="can_focus">False</property>
                             <property name="spacing">6</property>
                             <child>
                               <object class="GtkImage" id="image1">
                                 <property name="visible">True</property>
-                                <property name="can_focus">False</property>
                                 <property name="stock">gtk-convert</property>
                               </object>
                               <packing>
                                 <property name="expand">False</property>
-                                <property name="fill">True</property>
                                 <property name="position">0</property>
                               </packing>
                             </child>
                             <child>
                               <object class="GtkLabel" id="label32">
                                 <property name="visible">True</property>
-                                <property name="can_focus">False</property>
                                 <property name="label" translatable="yes">&lt;span weight="bold" size="x-large"&gt;Video Rename&lt;/span&gt;	</property>
                                 <property name="use_markup">True</property>
                               </object>
                               <packing>
                                 <property name="expand">False</property>
-                                <property name="fill">True</property>
                                 <property name="position">1</property>
                               </packing>
                             </child>
                           </object>
                           <packing>
-                            <property name="expand">True</property>
-                            <property name="fill">True</property>
                             <property name="position">0</property>
                           </packing>
                         </child>
                         <child>
                           <object class="GtkHSeparator" id="hseparator4">
                             <property name="visible">True</property>
-                            <property name="can_focus">False</property>
                           </object>
                           <packing>
                             <property name="expand">False</property>
-                            <property name="fill">True</property>
                             <property name="position">1</property>
                           </packing>
                         </child>
@@ -1003,27 +845,22 @@
                     <child>
                       <object class="GtkHBox" id="hbox14">
                         <property name="visible">True</property>
-                        <property name="can_focus">False</property>
                         <property name="spacing">12</property>
                         <child>
                           <object class="GtkLabel" id="label44">
                             <property name="visible">True</property>
-                            <property name="can_focus">False</property>
                           </object>
                           <packing>
                             <property name="expand">False</property>
-                            <property name="fill">True</property>
                             <property name="position">0</property>
                           </packing>
                         </child>
                         <child>
                           <object class="GtkVBox" id="rename_vbox1">
                             <property name="visible">True</property>
-                            <property name="can_focus">False</property>
                             <property name="spacing">12</property>
                             <child>
                               <object class="GtkLabel" id="videos_cannot_be_downloaded_label">
-                                <property name="can_focus">False</property>
                                 <property name="xalign">0</property>
                                 <property name="label" translatable="yes">Sorry, video downloading functionality disabled. To download videos, please install either the &lt;i&gt;hachoir metadata&lt;/i&gt; and &lt;i&gt;kaa metadata&lt;/i&gt; packages for python, or &lt;i&gt;exiftool&lt;/i&gt;.</property>
                                 <property name="use_markup">True</property>
@@ -1043,13 +880,11 @@
                                 <child>
                                   <object class="GtkViewport" id="viewport1">
                                     <property name="visible">True</property>
-                                    <property name="can_focus">False</property>
                                     <property name="resize_mode">queue</property>
                                     <property name="shadow_type">none</property>
                                     <child>
                                       <object class="GtkVBox" id="video_rename_table_vbox">
                                         <property name="visible">True</property>
-                                        <property name="can_focus">False</property>
                                         <child>
                                           <placeholder/>
                                         </child>
@@ -1059,21 +894,17 @@
                                 </child>
                               </object>
                               <packing>
-                                <property name="expand">True</property>
-                                <property name="fill">True</property>
                                 <property name="position">1</property>
                               </packing>
                             </child>
                             <child>
                               <object class="GtkTable" id="video_rename_example_table">
                                 <property name="visible">True</property>
-                                <property name="can_focus">False</property>
                                 <property name="n_rows">3</property>
                                 <property name="n_columns">3</property>
                                 <child>
                                   <object class="GtkLabel" id="label55">
                                     <property name="visible">True</property>
-                                    <property name="can_focus">False</property>
                                     <property name="label" translatable="yes"> </property>
                                   </object>
                                   <packing>
@@ -1085,7 +916,6 @@
                                 <child>
                                   <object class="GtkLabel" id="label56">
                                     <property name="visible">True</property>
-                                    <property name="can_focus">False</property>
                                     <property name="label" translatable="yes"> </property>
                                   </object>
                                   <packing>
@@ -1098,7 +928,6 @@
                                 <child>
                                   <object class="GtkLabel" id="video_new_name_label">
                                     <property name="visible">True</property>
-                                    <property name="can_focus">False</property>
                                     <property name="xalign">0</property>
                                     <property name="yalign">0</property>
                                     <property name="label">translators please ignore this</property>
@@ -1115,7 +944,6 @@
                                 <child>
                                   <object class="GtkLabel" id="video_original_name_label">
                                     <property name="visible">True</property>
-                                    <property name="can_focus">False</property>
                                     <property name="xalign">0</property>
                                     <property name="label">translators please ignore this</property>
                                   </object>
@@ -1130,7 +958,6 @@
                                 <child>
                                   <object class="GtkLabel" id="new_video_filename_label">
                                     <property name="visible">True</property>
-                                    <property name="can_focus">False</property>
                                     <property name="xalign">0</property>
                                     <property name="yalign">0</property>
                                     <property name="label" translatable="yes">&lt;i&gt;New:&lt;/i&gt;</property>
@@ -1148,7 +975,6 @@
                                 <child>
                                   <object class="GtkLabel" id="original_video_filename_label">
                                     <property name="visible">True</property>
-                                    <property name="can_focus">False</property>
                                     <property name="xalign">0</property>
                                     <property name="label" translatable="yes">&lt;i&gt;Original:&lt;/i&gt;</property>
                                     <property name="use_markup">True</property>
@@ -1165,7 +991,6 @@
                                 <child>
                                   <object class="GtkLabel" id="example_video_filename_label">
                                     <property name="visible">True</property>
-                                    <property name="can_focus">False</property>
                                     <property name="xalign">0</property>
                                     <property name="label" translatable="yes">&lt;b&gt;Example&lt;/b&gt;</property>
                                     <property name="use_markup">True</property>
@@ -1184,26 +1009,20 @@
                             </child>
                           </object>
                           <packing>
-                            <property name="expand">True</property>
-                            <property name="fill">True</property>
                             <property name="position">1</property>
                           </packing>
                         </child>
                         <child>
                           <object class="GtkLabel" id="label60">
                             <property name="visible">True</property>
-                            <property name="can_focus">False</property>
                           </object>
                           <packing>
                             <property name="expand">False</property>
-                            <property name="fill">True</property>
                             <property name="position">2</property>
                           </packing>
                         </child>
                       </object>
                       <packing>
-                        <property name="expand">True</property>
-                        <property name="fill">True</property>
                         <property name="padding">12</property>
                         <property name="position">1</property>
                       </packing>
@@ -1216,7 +1035,6 @@
                 <child type="tab">
                   <object class="GtkLabel" id="video_rename_label">
                     <property name="visible">True</property>
-                    <property name="can_focus">False</property>
                     <property name="label" translatable="yes">Video Rename</property>
                   </object>
                   <packing>
@@ -1227,57 +1045,46 @@
                 <child>
                   <object class="GtkVBox" id="rename_options_tab">
                     <property name="visible">True</property>
-                    <property name="can_focus">False</property>
                     <property name="spacing">12</property>
                     <child>
                       <object class="GtkVBox" id="vbox14">
                         <property name="visible">True</property>
-                        <property name="can_focus">False</property>
                         <child>
                           <object class="GtkHBox" id="hbox18">
                             <property name="visible">True</property>
-                            <property name="can_focus">False</property>
                             <property name="spacing">6</property>
                             <child>
                               <object class="GtkImage" id="image7">
                                 <property name="visible">True</property>
-                                <property name="can_focus">False</property>
                                 <property name="icon_name">input-keyboard</property>
                               </object>
                               <packing>
                                 <property name="expand">False</property>
-                                <property name="fill">True</property>
                                 <property name="position">0</property>
                               </packing>
                             </child>
                             <child>
                               <object class="GtkLabel" id="label10">
                                 <property name="visible">True</property>
-                                <property name="can_focus">False</property>
                                 <property name="label" translatable="yes">&lt;span weight="bold" size="x-large"&gt;Rename Options&lt;/span&gt;</property>
                                 <property name="use_markup">True</property>
                               </object>
                               <packing>
                                 <property name="expand">False</property>
-                                <property name="fill">True</property>
                                 <property name="position">1</property>
                               </packing>
                             </child>
                           </object>
                           <packing>
-                            <property name="expand">True</property>
-                            <property name="fill">True</property>
                             <property name="position">0</property>
                           </packing>
                         </child>
                         <child>
                           <object class="GtkHSeparator" id="hseparator5">
                             <property name="visible">True</property>
-                            <property name="can_focus">False</property>
                           </object>
                           <packing>
                             <property name="expand">False</property>
-                            <property name="fill">True</property>
                             <property name="position">1</property>
                           </packing>
                         </child>
@@ -1291,11 +1098,9 @@
                     <child>
                       <object class="GtkVBox" id="reame_options_vbox">
                         <property name="visible">True</property>
-                        <property name="can_focus">False</property>
                         <child>
                           <object class="GtkLabel" id="sequence_number_label">
                             <property name="visible">True</property>
-                            <property name="can_focus">False</property>
                             <property name="xalign">0</property>
                             <property name="xpad">12</property>
                             <property name="label" translatable="yes">&lt;b&gt;Sequence Numbers&lt;/b&gt;</property>
@@ -1303,138 +1108,112 @@
                           </object>
                           <packing>
                             <property name="expand">False</property>
-                            <property name="fill">True</property>
                             <property name="position">0</property>
                           </packing>
                         </child>
                         <child>
                           <object class="GtkHBox" id="sequence_number_hbox">
                             <property name="visible">True</property>
-                            <property name="can_focus">False</property>
                             <property name="spacing">12</property>
                             <child>
                               <object class="GtkLabel" id="spacer_seq_label">
                                 <property name="visible">True</property>
-                                <property name="can_focus">False</property>
                                 <property name="xpad">12</property>
                               </object>
                               <packing>
                                 <property name="expand">False</property>
-                                <property name="fill">True</property>
                                 <property name="position">0</property>
                               </packing>
                             </child>
                             <child>
                               <object class="GtkVBox" id="seq_vbox">
                                 <property name="visible">True</property>
-                                <property name="can_focus">False</property>
                                 <property name="spacing">12</property>
                                 <child>
                                   <object class="GtkLabel" id="label47">
                                     <property name="visible">True</property>
-                                    <property name="can_focus">False</property>
                                     <property name="xalign">0</property>
                                     <property name="label" translatable="yes">Specify the time in 24 hour format at which the &lt;i&gt;Downloads today&lt;/i&gt; sequence number should be reset.</property>
                                     <property name="use_markup">True</property>
                                     <property name="wrap">True</property>
                                   </object>
                                   <packing>
-                                    <property name="expand">True</property>
-                                    <property name="fill">True</property>
                                     <property name="position">0</property>
                                   </packing>
                                 </child>
                                 <child>
                                   <object class="GtkHBox" id="hbox23">
                                     <property name="visible">True</property>
-                                    <property name="can_focus">False</property>
                                     <child>
                                       <object class="GtkVBox" id="vbox3">
                                         <property name="visible">True</property>
-                                        <property name="can_focus">False</property>
                                         <property name="spacing">6</property>
                                         <child>
                                           <object class="GtkLabel" id="label49">
                                             <property name="visible">True</property>
-                                            <property name="can_focus">False</property>
                                             <property name="xalign">0</property>
                                             <property name="label" translatable="yes">Day start:</property>
                                           </object>
                                           <packing>
-                                            <property name="expand">True</property>
-                                            <property name="fill">True</property>
                                             <property name="position">0</property>
                                           </packing>
                                         </child>
                                         <child>
                                           <object class="GtkLabel" id="label51">
                                             <property name="visible">True</property>
-                                            <property name="can_focus">False</property>
                                             <property name="xalign">0</property>
                                             <property name="label" translatable="yes">Downloads today:</property>
                                           </object>
                                           <packing>
-                                            <property name="expand">True</property>
-                                            <property name="fill">True</property>
                                             <property name="position">1</property>
                                           </packing>
                                         </child>
                                         <child>
                                           <object class="GtkLabel" id="label52">
                                             <property name="visible">True</property>
-                                            <property name="can_focus">False</property>
                                             <property name="xalign">0</property>
                                             <property name="label" translatable="yes">Stored number:</property>
                                           </object>
                                           <packing>
-                                            <property name="expand">True</property>
-                                            <property name="fill">True</property>
                                             <property name="position">2</property>
                                           </packing>
                                         </child>
                                       </object>
                                       <packing>
                                         <property name="expand">False</property>
-                                        <property name="fill">True</property>
                                         <property name="position">0</property>
                                       </packing>
                                     </child>
                                     <child>
                                       <object class="GtkLabel" id="label54">
                                         <property name="visible">True</property>
-                                        <property name="can_focus">False</property>
                                         <property name="xpad">6</property>
                                         <property name="label" translatable="yes"> </property>
                                       </object>
                                       <packing>
                                         <property name="expand">False</property>
-                                        <property name="fill">True</property>
                                         <property name="position">1</property>
                                       </packing>
                                     </child>
                                     <child>
                                       <object class="GtkVBox" id="sequence_vbox">
                                         <property name="visible">True</property>
-                                        <property name="can_focus">False</property>
                                         <property name="spacing">6</property>
                                         <child>
                                           <object class="GtkHBox" id="hbox22">
                                             <property name="visible">True</property>
-                                            <property name="can_focus">False</property>
                                             <child>
                                               <object class="GtkSpinButton" id="hour_spinbutton">
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">True</property>
                                                 <property name="max_length">2</property>
-                                                <property name="invisible_char">•</property>
+                                                <property name="invisible_char">&#x2022;</property>
                                                 <property name="width_chars">2</property>
                                                 <property name="xalign">1</property>
                                                 <property name="truncate_multiline">True</property>
-                                                <property name="primary_icon_activatable">False</property>
-                                                <property name="secondary_icon_activatable">False</property>
                                                 <property name="adjustment">hour_adjustment</property>
                                                 <property name="numeric">True</property>
-                                                <signal name="value-changed" handler="on_hour_spinbutton_value_changed" swapped="no"/>
+                                                <signal name="value_changed" handler="on_hour_spinbutton_value_changed"/>
                                               </object>
                                               <packing>
                                                 <property name="expand">False</property>
@@ -1445,7 +1224,6 @@
                                             <child>
                                               <object class="GtkLabel" id="label50">
                                                 <property name="visible">True</property>
-                                                <property name="can_focus">False</property>
                                                 <property name="label" translatable="yes">:</property>
                                               </object>
                                               <packing>
@@ -1459,15 +1237,13 @@
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">True</property>
                                                 <property name="max_length">2</property>
-                                                <property name="invisible_char">•</property>
+                                                <property name="invisible_char">&#x2022;</property>
                                                 <property name="width_chars">2</property>
                                                 <property name="xalign">1</property>
                                                 <property name="truncate_multiline">True</property>
-                                                <property name="primary_icon_activatable">False</property>
-                                                <property name="secondary_icon_activatable">False</property>
                                                 <property name="adjustment">minute_adjustment</property>
                                                 <property name="numeric">True</property>
-                                                <signal name="value-changed" handler="on_minute_spinbutton_value_changed" swapped="no"/>
+                                                <signal name="value_changed" handler="on_minute_spinbutton_value_changed"/>
                                               </object>
                                               <packing>
                                                 <property name="expand">False</property>
@@ -1478,20 +1254,17 @@
                                             <child>
                                               <object class="GtkLabel" id="label53">
                                                 <property name="visible">True</property>
-                                                <property name="can_focus">False</property>
                                                 <property name="xalign">0</property>
                                                 <property name="label" translatable="yes"> hh:mm</property>
                                               </object>
                                               <packing>
                                                 <property name="expand">False</property>
-                                                <property name="fill">True</property>
                                                 <property name="position">3</property>
                                               </packing>
                                             </child>
                                           </object>
                                           <packing>
                                             <property name="expand">False</property>
-                                            <property name="fill">True</property>
                                             <property name="position">0</property>
                                           </packing>
                                         </child>
@@ -1504,14 +1277,11 @@
                                       </object>
                                       <packing>
                                         <property name="expand">False</property>
-                                        <property name="fill">True</property>
                                         <property name="position">2</property>
                                       </packing>
                                     </child>
                                   </object>
                                   <packing>
-                                    <property name="expand">True</property>
-                                    <property name="fill">True</property>
                                     <property name="position">1</property>
                                   </packing>
                                 </child>
@@ -1521,38 +1291,30 @@
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
-                                    <property name="use_action_appearance">False</property>
                                     <property name="draw_indicator">True</property>
-                                    <signal name="toggled" handler="on_synchronize_raw_jpg_checkbutton_toggled" swapped="no"/>
+                                    <signal name="toggled" handler="on_synchronize_raw_jpg_checkbutton_toggled"/>
                                   </object>
                                   <packing>
-                                    <property name="expand">True</property>
-                                    <property name="fill">True</property>
                                     <property name="position">2</property>
                                   </packing>
                                 </child>
                               </object>
                               <packing>
-                                <property name="expand">True</property>
-                                <property name="fill">True</property>
                                 <property name="position">1</property>
                               </packing>
                             </child>
                             <child>
                               <object class="GtkLabel" id="label48">
                                 <property name="visible">True</property>
-                                <property name="can_focus">False</property>
                               </object>
                               <packing>
                                 <property name="expand">False</property>
-                                <property name="fill">True</property>
                                 <property name="position">2</property>
                               </packing>
                             </child>
                           </object>
                           <packing>
                             <property name="expand">False</property>
-                            <property name="fill">True</property>
                             <property name="padding">12</property>
                             <property name="position">1</property>
                           </packing>
@@ -1560,7 +1322,6 @@
                         <child>
                           <object class="GtkLabel" id="compatibility_label">
                             <property name="visible">True</property>
-                            <property name="can_focus">False</property>
                             <property name="xalign">0</property>
                             <property name="xpad">12</property>
                             <property name="label" translatable="yes">&lt;b&gt;Compatibility with Other Operating Systems&lt;/b&gt;</property>
@@ -1568,37 +1329,31 @@
                           </object>
                           <packing>
                             <property name="expand">False</property>
-                            <property name="fill">True</property>
                             <property name="position">3</property>
                           </packing>
                         </child>
                         <child>
                           <object class="GtkHBox" id="compatibility_hbox">
                             <property name="visible">True</property>
-                            <property name="can_focus">False</property>
                             <property name="spacing">12</property>
                             <child>
                               <object class="GtkLabel" id="compatibility_spacer_label">
                                 <property name="visible">True</property>
-                                <property name="can_focus">False</property>
                                 <property name="xpad">12</property>
                               </object>
                               <packing>
                                 <property name="expand">False</property>
-                                <property name="fill">True</property>
                                 <property name="position">0</property>
                               </packing>
                             </child>
                             <child>
                               <object class="GtkTable" id="compatibility_table">
                                 <property name="visible">True</property>
-                                <property name="can_focus">False</property>
                                 <property name="n_rows">2</property>
                                 <property name="n_columns">2</property>
                                 <child>
                                   <object class="GtkLabel" id="label9">
                                     <property name="visible">True</property>
-                                    <property name="can_focus">False</property>
                                     <property name="xalign">0</property>
                                     <property name="label" translatable="yes">Specify whether photo, video and folder names should have any characters removed that are not allowed by other operating systems.</property>
                                     <property name="wrap">True</property>
@@ -1613,10 +1368,9 @@
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
-                                    <property name="use_action_appearance">False</property>
                                     <property name="use_underline">True</property>
                                     <property name="draw_indicator">True</property>
-                                    <signal name="toggled" handler="on_strip_characters_checkbutton_toggled" swapped="no"/>
+                                    <signal name="toggled" handler="on_strip_characters_checkbutton_toggled"/>
                                   </object>
                                   <packing>
                                     <property name="right_attach">2</property>
@@ -1626,34 +1380,27 @@
                                 </child>
                               </object>
                               <packing>
-                                <property name="expand">True</property>
-                                <property name="fill">True</property>
                                 <property name="position">1</property>
                               </packing>
                             </child>
                             <child>
                               <object class="GtkLabel" id="label33">
                                 <property name="visible">True</property>
-                                <property name="can_focus">False</property>
                               </object>
                               <packing>
                                 <property name="expand">False</property>
-                                <property name="fill">True</property>
                                 <property name="position">2</property>
                               </packing>
                             </child>
                           </object>
                           <packing>
                             <property name="expand">False</property>
-                            <property name="fill">True</property>
                             <property name="padding">12</property>
                             <property name="position">4</property>
                           </packing>
                         </child>
                       </object>
                       <packing>
-                        <property name="expand">True</property>
-                        <property name="fill">True</property>
                         <property name="padding">12</property>
                         <property name="position">1</property>
                       </packing>
@@ -1666,7 +1413,6 @@
                 <child type="tab">
                   <object class="GtkLabel" id="rename_options_label">
                     <property name="visible">True</property>
-                    <property name="can_focus">False</property>
                     <property name="label" translatable="yes">Rename Options</property>
                   </object>
                   <packing>
@@ -1677,57 +1423,46 @@
                 <child>
                   <object class="GtkVBox" id="job_codes_tab">
                     <property name="visible">True</property>
-                    <property name="can_focus">False</property>
                     <property name="spacing">12</property>
                     <child>
                       <object class="GtkVBox" id="job_codes_header_vbox">
                         <property name="visible">True</property>
-                        <property name="can_focus">False</property>
                         <child>
                           <object class="GtkHBox" id="hbox188">
                             <property name="visible">True</property>
-                            <property name="can_focus">False</property>
                             <property name="spacing">6</property>
                             <child>
                               <object class="GtkImage" id="image77">
                                 <property name="visible">True</property>
-                                <property name="can_focus">False</property>
                                 <property name="stock">rapid-photo-downloader-jobcode</property>
                               </object>
                               <packing>
                                 <property name="expand">False</property>
-                                <property name="fill">True</property>
                                 <property name="position">0</property>
                               </packing>
                             </child>
                             <child>
                               <object class="GtkLabel" id="label1340">
                                 <property name="visible">True</property>
-                                <property name="can_focus">False</property>
                                 <property name="label" translatable="yes">&lt;span weight="bold" size="x-large"&gt;Job Codes&lt;/span&gt;</property>
                                 <property name="use_markup">True</property>
                               </object>
                               <packing>
                                 <property name="expand">False</property>
-                                <property name="fill">True</property>
                                 <property name="position">1</property>
                               </packing>
                             </child>
                           </object>
                           <packing>
-                            <property name="expand">True</property>
-                            <property name="fill">True</property>
                             <property name="position">0</property>
                           </packing>
                         </child>
                         <child>
                           <object class="GtkHSeparator" id="hseparator44">
                             <property name="visible">True</property>
-                            <property name="can_focus">False</property>
                           </object>
                           <packing>
                             <property name="expand">False</property>
-                            <property name="fill">True</property>
                             <property name="position">1</property>
                           </packing>
                         </child>
@@ -1741,14 +1476,11 @@
                     <child>
                       <object class="GtkVBox" id="job_codes_vbox">
                         <property name="visible">True</property>
-                        <property name="can_focus">False</property>
                         <child>
                           <object class="GtkVBox" id="job_code_vbox">
                             <property name="visible">True</property>
-                            <property name="can_focus">False</property>
                             <child>
                               <object class="GtkLabel" id="job_code_label">
-                                <property name="can_focus">False</property>
                                 <property name="xalign">0</property>
                                 <property name="xpad">12</property>
                                 <property name="label" translatable="yes">&lt;b&gt;Job Codes&lt;/b&gt;</property>
@@ -1756,23 +1488,19 @@
                               </object>
                               <packing>
                                 <property name="expand">False</property>
-                                <property name="fill">True</property>
                                 <property name="position">0</property>
                               </packing>
                             </child>
                             <child>
                               <object class="GtkHBox" id="job_code_hbox">
                                 <property name="visible">True</property>
-                                <property name="can_focus">False</property>
                                 <property name="spacing">12</property>
                                 <child>
                                   <object class="GtkLabel" id="job_code_spacer_label">
                                     <property name="visible">True</property>
-                                    <property name="can_focus">False</property>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
-                                    <property name="fill">True</property>
                                     <property name="position">0</property>
                                   </packing>
                                 </child>
@@ -1788,26 +1516,20 @@
                                         <property name="can_focus">True</property>
                                         <property name="headers_visible">False</property>
                                         <property name="rubber_banding">True</property>
-                                        <child internal-child="selection">
-                                          <object class="GtkTreeSelection" id="treeview-selection2"/>
-                                        </child>
                                       </object>
                                     </child>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
-                                    <property name="fill">True</property>
                                     <property name="position">1</property>
                                   </packing>
                                 </child>
                                 <child>
                                   <object class="GtkHBox" id="job_code_button_hbox">
                                     <property name="visible">True</property>
-                                    <property name="can_focus">False</property>
                                     <child>
                                       <object class="GtkVButtonBox" id="job_code_vbuttonbox">
                                         <property name="visible">True</property>
-                                        <property name="can_focus">False</property>
                                         <property name="spacing">12</property>
                                         <property name="layout_style">start</property>
                                         <child>
@@ -1816,9 +1538,8 @@
                                             <property name="visible">True</property>
                                             <property name="can_focus">True</property>
                                             <property name="receives_default">True</property>
-                                            <property name="use_action_appearance">False</property>
                                             <property name="use_underline">True</property>
-                                            <signal name="clicked" handler="on_add_job_code_button_clicked" swapped="no"/>
+                                            <signal name="clicked" handler="on_add_job_code_button_clicked"/>
                                           </object>
                                           <packing>
                                             <property name="expand">False</property>
@@ -1832,9 +1553,8 @@
                                             <property name="visible">True</property>
                                             <property name="can_focus">True</property>
                                             <property name="receives_default">True</property>
-                                            <property name="use_action_appearance">False</property>
                                             <property name="use_stock">True</property>
-                                            <signal name="clicked" handler="on_remove_job_code_button_clicked" swapped="no"/>
+                                            <signal name="clicked" handler="on_remove_job_code_button_clicked"/>
                                           </object>
                                           <packing>
                                             <property name="expand">False</property>
@@ -1848,9 +1568,8 @@
                                             <property name="visible">True</property>
                                             <property name="can_focus">True</property>
                                             <property name="receives_default">True</property>
-                                            <property name="use_action_appearance">False</property>
                                             <property name="use_underline">True</property>
-                                            <signal name="clicked" handler="on_remove_all_job_code_button_clicked" swapped="no"/>
+                                            <signal name="clicked" handler="on_remove_all_job_code_button_clicked"/>
                                           </object>
                                           <packing>
                                             <property name="expand">False</property>
@@ -1860,22 +1579,17 @@
                                         </child>
                                       </object>
                                       <packing>
-                                        <property name="expand">True</property>
-                                        <property name="fill">True</property>
                                         <property name="position">0</property>
                                       </packing>
                                     </child>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
-                                    <property name="fill">True</property>
                                     <property name="position">2</property>
                                   </packing>
                                 </child>
                               </object>
                               <packing>
-                                <property name="expand">True</property>
-                                <property name="fill">True</property>
                                 <property name="position">1</property>
                               </packing>
                             </child>
@@ -1884,15 +1598,11 @@
                             </child>
                           </object>
                           <packing>
-                            <property name="expand">True</property>
-                            <property name="fill">True</property>
                             <property name="position">0</property>
                           </packing>
                         </child>
                       </object>
                       <packing>
-                        <property name="expand">True</property>
-                        <property name="fill">True</property>
                         <property name="position">1</property>
                       </packing>
                     </child>
@@ -1904,7 +1614,6 @@
                 <child type="tab">
                   <object class="GtkLabel" id="job_codes_tab_label">
                     <property name="visible">True</property>
-                    <property name="can_focus">False</property>
                     <property name="label" translatable="yes">Job Codes</property>
                   </object>
                   <packing>
@@ -1915,57 +1624,46 @@
                 <child>
                   <object class="GtkVBox" id="device_tab">
                     <property name="visible">True</property>
-                    <property name="can_focus">False</property>
                     <property name="spacing">12</property>
                     <child>
                       <object class="GtkVBox" id="vbox4">
                         <property name="visible">True</property>
-                        <property name="can_focus">False</property>
                         <child>
                           <object class="GtkHBox" id="hbox15">
                             <property name="visible">True</property>
-                            <property name="can_focus">False</property>
                             <property name="spacing">6</property>
                             <child>
                               <object class="GtkImage" id="image6">
                                 <property name="visible">True</property>
-                                <property name="can_focus">False</property>
                                 <property name="icon_name">drive-removable-media</property>
                               </object>
                               <packing>
                                 <property name="expand">False</property>
-                                <property name="fill">True</property>
                                 <property name="position">0</property>
                               </packing>
                             </child>
                             <child>
                               <object class="GtkLabel" id="label22">
                                 <property name="visible">True</property>
-                                <property name="can_focus">False</property>
                                 <property name="label" translatable="yes">&lt;span weight="bold" size="x-large"&gt;Devices&lt;/span&gt;</property>
                                 <property name="use_markup">True</property>
                               </object>
                               <packing>
                                 <property name="expand">False</property>
-                                <property name="fill">True</property>
                                 <property name="position">1</property>
                               </packing>
                             </child>
                           </object>
                           <packing>
-                            <property name="expand">True</property>
-                            <property name="fill">True</property>
                             <property name="position">0</property>
                           </packing>
                         </child>
                         <child>
                           <object class="GtkHSeparator" id="hseparator6">
                             <property name="visible">True</property>
-                            <property name="can_focus">False</property>
                           </object>
                           <packing>
                             <property name="expand">False</property>
-                            <property name="fill">True</property>
                             <property name="position">1</property>
                           </packing>
                         </child>
@@ -1979,11 +1677,9 @@
                     <child>
                       <object class="GtkVBox" id="vbox5">
                         <property name="visible">True</property>
-                        <property name="can_focus">False</property>
                         <property name="spacing">12</property>
                         <child>
                           <object class="GtkLabel" id="label41">
-                            <property name="can_focus">False</property>
                             <property name="xalign">0</property>
                             <property name="xpad">12</property>
                             <property name="label" translatable="yes">Devices</property>
@@ -1993,14 +1689,12 @@
                           </object>
                           <packing>
                             <property name="expand">False</property>
-                            <property name="fill">True</property>
                             <property name="position">0</property>
                           </packing>
                         </child>
                         <child>
                           <object class="GtkLabel" id="label18">
                             <property name="visible">True</property>
-                            <property name="can_focus">False</property>
                             <property name="xalign">0</property>
                             <property name="xpad">12</property>
                             <property name="label" translatable="yes">Devices are from where to download photos and videos, such as cameras, memory cards or Portable Storage Devices.
@@ -2012,31 +1706,25 @@ You can download from multiple devices simultaneously, or you can specify a loca
                             <property name="wrap">True</property>
                           </object>
                           <packing>
-                            <property name="expand">True</property>
-                            <property name="fill">True</property>
                             <property name="position">1</property>
                           </packing>
                         </child>
                         <child>
                           <object class="GtkHBox" id="hbox16">
                             <property name="visible">True</property>
-                            <property name="can_focus">False</property>
                             <child>
                               <object class="GtkLabel" id="label26">
                                 <property name="visible">True</property>
-                                <property name="can_focus">False</property>
                                 <property name="xpad">3</property>
                               </object>
                               <packing>
                                 <property name="expand">False</property>
-                                <property name="fill">True</property>
                                 <property name="position">0</property>
                               </packing>
                             </child>
                             <child>
                               <object class="GtkTable" id="devices_table">
                                 <property name="visible">True</property>
-                                <property name="can_focus">False</property>
                                 <property name="n_rows">3</property>
                                 <property name="n_columns">2</property>
                                 <property name="row_spacing">3</property>
@@ -2046,9 +1734,8 @@ You can download from multiple devices simultaneously, or you can specify a loca
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
-                                    <property name="use_action_appearance">False</property>
                                     <property name="draw_indicator">True</property>
-                                    <signal name="toggled" handler="on_autodetect_psd_checkbutton_toggled" swapped="no"/>
+                                    <signal name="toggled" handler="on_autodetect_psd_checkbutton_toggled"/>
                                   </object>
                                   <packing>
                                     <property name="left_attach">1</property>
@@ -2064,9 +1751,8 @@ You can download from multiple devices simultaneously, or you can specify a loca
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
                                     <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
-                                    <property name="use_action_appearance">False</property>
                                     <property name="draw_indicator">True</property>
-                                    <signal name="toggled" handler="on_autodetect_device_checkbutton_toggled" swapped="no"/>
+                                    <signal name="toggled" handler="on_autodetect_device_checkbutton_toggled"/>
                                   </object>
                                   <packing>
                                     <property name="right_attach">2</property>
@@ -2075,7 +1761,6 @@ You can download from multiple devices simultaneously, or you can specify a loca
                                 <child>
                                   <object class="GtkLabel" id="autodetect_image_devices_label">
                                     <property name="visible">True</property>
-                                    <property name="can_focus">False</property>
                                     <property name="xalign">0</property>
                                     <property name="ypad">6</property>
                                     <property name="label" translatable="yes">If you enable automatic detection of Portable Storage Devices, the entire device will be scanned. On large devices, this could take some time.
@@ -2098,44 +1783,36 @@ When this option is enabled, and a potential device is detected, you will be pro
                                 </child>
                               </object>
                               <packing>
-                                <property name="expand">True</property>
-                                <property name="fill">True</property>
                                 <property name="position">1</property>
                               </packing>
                             </child>
                             <child>
                               <object class="GtkLabel" id="label28">
                                 <property name="visible">True</property>
-                                <property name="can_focus">False</property>
                               </object>
                               <packing>
                                 <property name="expand">False</property>
-                                <property name="fill">True</property>
                                 <property name="position">2</property>
                               </packing>
                             </child>
                           </object>
                           <packing>
                             <property name="expand">False</property>
-                            <property name="fill">True</property>
                             <property name="position">2</property>
                           </packing>
                         </child>
                         <child>
                           <object class="GtkHBox" id="hbox17">
                             <property name="visible">True</property>
-                            <property name="can_focus">False</property>
                             <property name="spacing">12</property>
                             <child>
                               <object class="GtkTable" id="devices2_table">
                                 <property name="visible">True</property>
-                                <property name="can_focus">False</property>
                                 <property name="n_rows">2</property>
                                 <property name="n_columns">2</property>
                                 <child>
                                   <object class="GtkLabel" id="device_location_label">
                                     <property name="visible">True</property>
-                                    <property name="can_focus">False</property>
                                     <property name="xalign">0</property>
                                     <property name="xpad">12</property>
                                     <property name="label" translatable="yes">Location:</property>
@@ -2150,7 +1827,6 @@ When this option is enabled, and a potential device is detected, you will be pro
                                 <child>
                                   <object class="GtkLabel" id="device_location_explanation_label">
                                     <property name="visible">True</property>
-                                    <property name="can_focus">False</property>
                                     <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
                                     <property name="xalign">0</property>
                                     <property name="xpad">12</property>
@@ -2167,8 +1843,6 @@ When this option is enabled, and a potential device is detected, you will be pro
                                 </child>
                               </object>
                               <packing>
-                                <property name="expand">True</property>
-                                <property name="fill">True</property>
                                 <property name="position">0</property>
                               </packing>
                             </child>
@@ -2178,25 +1852,21 @@ When this option is enabled, and a potential device is detected, you will be pro
                             <child>
                               <object class="GtkLabel" id="label30">
                                 <property name="visible">True</property>
-                                <property name="can_focus">False</property>
                               </object>
                               <packing>
                                 <property name="expand">False</property>
-                                <property name="fill">True</property>
                                 <property name="position">2</property>
                               </packing>
                             </child>
                           </object>
                           <packing>
                             <property name="expand">False</property>
-                            <property name="fill">True</property>
                             <property name="position">3</property>
                           </packing>
                         </child>
                       </object>
                       <packing>
                         <property name="expand">False</property>
-                        <property name="fill">True</property>
                         <property name="padding">12</property>
                         <property name="position">1</property>
                       </packing>
@@ -2209,7 +1879,6 @@ When this option is enabled, and a potential device is detected, you will be pro
                 <child type="tab">
                   <object class="GtkLabel" id="device_label">
                     <property name="visible">True</property>
-                    <property name="can_focus">False</property>
                     <property name="label" translatable="yes">Devices</property>
                   </object>
                   <packing>
@@ -2220,69 +1889,57 @@ When this option is enabled, and a potential device is detected, you will be pro
                 <child>
                   <object class="GtkVBox" id="device_options_tab">
                     <property name="visible">True</property>
-                    <property name="can_focus">False</property>
                     <child>
                       <object class="GtkHBox" id="exclusions_header_hbox">
                         <property name="visible">True</property>
-                        <property name="can_focus">False</property>
                         <property name="spacing">6</property>
                         <child>
                           <object class="GtkImage" id="image10">
                             <property name="visible">True</property>
-                            <property name="can_focus">False</property>
                             <property name="stock">gtk-preferences</property>
                           </object>
                           <packing>
                             <property name="expand">False</property>
-                            <property name="fill">True</property>
                             <property name="position">0</property>
                           </packing>
                         </child>
                         <child>
                           <object class="GtkLabel" id="exclusionlabel">
                             <property name="visible">True</property>
-                            <property name="can_focus">False</property>
                             <property name="label" translatable="yes">&lt;span weight="bold" size="x-large"&gt;Device Options&lt;/span&gt;</property>
                             <property name="use_markup">True</property>
                           </object>
                           <packing>
                             <property name="expand">False</property>
-                            <property name="fill">True</property>
                             <property name="position">1</property>
                           </packing>
                         </child>
                       </object>
                       <packing>
                         <property name="expand">False</property>
-                        <property name="fill">True</property>
                         <property name="position">0</property>
                       </packing>
                     </child>
                     <child>
                       <object class="GtkHSeparator" id="hseparator3">
                         <property name="visible">True</property>
-                        <property name="can_focus">False</property>
                       </object>
                       <packing>
                         <property name="expand">False</property>
-                        <property name="fill">True</property>
                         <property name="position">1</property>
                       </packing>
                     </child>
                     <child>
                       <object class="GtkVBox" id="vbox2">
                         <property name="visible">True</property>
-                        <property name="can_focus">False</property>
                         <property name="spacing">12</property>
                         <child>
                           <object class="GtkVBox" id="vbox15">
                             <property name="visible">True</property>
-                            <property name="can_focus">False</property>
                             <property name="spacing">12</property>
                             <child>
                               <object class="GtkLabel" id="remebered_devices_label">
                                 <property name="visible">True</property>
-                                <property name="can_focus">False</property>
                                 <property name="xalign">0</property>
                                 <property name="xpad">12</property>
                                 <property name="label" translatable="yes">Remembered Paths</property>
@@ -2292,14 +1949,12 @@ When this option is enabled, and a potential device is detected, you will be pro
                               </object>
                               <packing>
                                 <property name="expand">False</property>
-                                <property name="fill">True</property>
                                 <property name="position">0</property>
                               </packing>
                             </child>
                             <child>
                               <object class="GtkLabel" id="remembered_devices_explanation_label">
                                 <property name="visible">True</property>
-                                <property name="can_focus">False</property>
                                 <property name="xalign">0</property>
                                 <property name="xpad">12</property>
                                 <property name="label" translatable="yes">Remembered paths are those associated with devices that you have chosen to always scan or ignore when automatic detection of Portable Storage Devices is enabled.</property>
@@ -2307,23 +1962,19 @@ When this option is enabled, and a potential device is detected, you will be pro
                               </object>
                               <packing>
                                 <property name="expand">False</property>
-                                <property name="fill">True</property>
                                 <property name="position">1</property>
                               </packing>
                             </child>
                             <child>
                               <object class="GtkHBox" id="remembered_devices_hbox">
                                 <property name="visible">True</property>
-                                <property name="can_focus">False</property>
                                 <property name="spacing">12</property>
                                 <child>
                                   <object class="GtkLabel" id="remembered_devices_spacer_label">
                                     <property name="visible">True</property>
-                                    <property name="can_focus">False</property>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
-                                    <property name="fill">True</property>
                                     <property name="position">0</property>
                                   </packing>
                                 </child>
@@ -2337,26 +1988,20 @@ When this option is enabled, and a potential device is detected, you will be pro
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
                                         <property name="headers_visible">False</property>
-                                        <child internal-child="selection">
-                                          <object class="GtkTreeSelection" id="treeview-selection3"/>
-                                        </child>
                                       </object>
                                     </child>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
-                                    <property name="fill">True</property>
                                     <property name="position">1</property>
                                   </packing>
                                 </child>
                                 <child>
                                   <object class="GtkHBox" id="remembered_devices_button_hbox">
                                     <property name="visible">True</property>
-                                    <property name="can_focus">False</property>
                                     <child>
                                       <object class="GtkVButtonBox" id="remembered_devices_vbuttonbox">
                                         <property name="visible">True</property>
-                                        <property name="can_focus">False</property>
                                         <property name="spacing">12</property>
                                         <property name="layout_style">start</property>
                                         <child>
@@ -2365,9 +2010,8 @@ When this option is enabled, and a potential device is detected, you will be pro
                                             <property name="visible">True</property>
                                             <property name="can_focus">True</property>
                                             <property name="receives_default">True</property>
-                                            <property name="use_action_appearance">False</property>
                                             <property name="use_stock">True</property>
-                                            <signal name="clicked" handler="on_remove_remembered_device_button_clicked" swapped="no"/>
+                                            <signal name="clicked" handler="on_remove_remembered_device_button_clicked"/>
                                           </object>
                                           <packing>
                                             <property name="expand">False</property>
@@ -2381,9 +2025,8 @@ When this option is enabled, and a potential device is detected, you will be pro
                                             <property name="visible">True</property>
                                             <property name="can_focus">True</property>
                                             <property name="receives_default">True</property>
-                                            <property name="use_action_appearance">False</property>
                                             <property name="use_underline">True</property>
-                                            <signal name="clicked" handler="on_remove_all_remembered_device_button_clicked" swapped="no"/>
+                                            <signal name="clicked" handler="on_remove_all_remembered_device_button_clicked"/>
                                           </object>
                                           <packing>
                                             <property name="expand">False</property>
@@ -2393,29 +2036,22 @@ When this option is enabled, and a potential device is detected, you will be pro
                                         </child>
                                       </object>
                                       <packing>
-                                        <property name="expand">True</property>
-                                        <property name="fill">True</property>
                                         <property name="position">0</property>
                                       </packing>
                                     </child>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
-                                    <property name="fill">True</property>
                                     <property name="position">2</property>
                                   </packing>
                                 </child>
                               </object>
                               <packing>
-                                <property name="expand">True</property>
-                                <property name="fill">True</property>
                                 <property name="position">2</property>
                               </packing>
                             </child>
                           </object>
                           <packing>
-                            <property name="expand">True</property>
-                            <property name="fill">True</property>
                             <property name="padding">12</property>
                             <property name="position">0</property>
                           </packing>
@@ -2423,12 +2059,10 @@ When this option is enabled, and a potential device is detected, you will be pro
                         <child>
                           <object class="GtkVBox" id="vbox1">
                             <property name="visible">True</property>
-                            <property name="can_focus">False</property>
                             <property name="spacing">12</property>
                             <child>
                               <object class="GtkLabel" id="ignored_paths_label">
                                 <property name="visible">True</property>
-                                <property name="can_focus">False</property>
                                 <property name="xalign">0</property>
                                 <property name="xpad">12</property>
                                 <property name="label" translatable="yes">Ignored Paths</property>
@@ -2438,14 +2072,12 @@ When this option is enabled, and a potential device is detected, you will be pro
                               </object>
                               <packing>
                                 <property name="expand">False</property>
-                                <property name="fill">True</property>
                                 <property name="position">0</property>
                               </packing>
                             </child>
                             <child>
                               <object class="GtkLabel" id="ignored_paths_explanation_label">
                                 <property name="visible">True</property>
-                                <property name="can_focus">False</property>
                                 <property name="xalign">0</property>
                                 <property name="xpad">12</property>
                                 <property name="label" translatable="yes">Specify the ending portion of any paths you want ignored when scanning devices for photos or videos. Any path ending with the values below will not be scanned.</property>
@@ -2453,23 +2085,19 @@ When this option is enabled, and a potential device is detected, you will be pro
                               </object>
                               <packing>
                                 <property name="expand">False</property>
-                                <property name="fill">True</property>
                                 <property name="position">1</property>
                               </packing>
                             </child>
                             <child>
                               <object class="GtkHBox" id="ignored_paths_hbox">
                                 <property name="visible">True</property>
-                                <property name="can_focus">False</property>
                                 <property name="spacing">12</property>
                                 <child>
                                   <object class="GtkLabel" id="ignored_paths_spacer_label">
                                     <property name="visible">True</property>
-                                    <property name="can_focus">False</property>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
-                                    <property name="fill">True</property>
                                     <property name="position">0</property>
                                   </packing>
                                 </child>
@@ -2483,26 +2111,20 @@ When this option is enabled, and a potential device is detected, you will be pro
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
                                         <property name="headers_visible">False</property>
-                                        <child internal-child="selection">
-                                          <object class="GtkTreeSelection" id="treeview-selection4"/>
-                                        </child>
                                       </object>
                                     </child>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
-                                    <property name="fill">True</property>
                                     <property name="position">1</property>
                                   </packing>
                                 </child>
                                 <child>
                                   <object class="GtkHBox" id="ignored_paths_button_hbox">
                                     <property name="visible">True</property>
-                                    <property name="can_focus">False</property>
                                     <child>
                                       <object class="GtkVButtonBox" id="ignored_paths_vbuttonbox">
                                         <property name="visible">True</property>
-                                        <property name="can_focus">False</property>
                                         <property name="spacing">12</property>
                                         <property name="layout_style">start</property>
                                         <child>
@@ -2511,9 +2133,8 @@ When this option is enabled, and a potential device is detected, you will be pro
                                             <property name="visible">True</property>
                                             <property name="can_focus">True</property>
                                             <property name="receives_default">True</property>
-                                            <property name="use_action_appearance">False</property>
                                             <property name="use_underline">True</property>
-                                            <signal name="clicked" handler="on_add_ignored_path_button_clicked" swapped="no"/>
+                                            <signal name="clicked" handler="on_add_ignored_path_button_clicked"/>
                                           </object>
                                           <packing>
                                             <property name="expand">False</property>
@@ -2527,9 +2148,8 @@ When this option is enabled, and a potential device is detected, you will be pro
                                             <property name="visible">True</property>
                                             <property name="can_focus">True</property>
                                             <property name="receives_default">True</property>
-                                            <property name="use_action_appearance">False</property>
                                             <property name="use_stock">True</property>
-                                            <signal name="clicked" handler="on_remove_ignored_path_button_clicked" swapped="no"/>
+                                            <signal name="clicked" handler="on_remove_ignored_path_button_clicked"/>
                                           </object>
                                           <packing>
                                             <property name="expand">False</property>
@@ -2543,9 +2163,8 @@ When this option is enabled, and a potential device is detected, you will be pro
                                             <property name="visible">True</property>
                                             <property name="can_focus">True</property>
                                             <property name="receives_default">True</property>
-                                            <property name="use_action_appearance">False</property>
                                             <property name="use_underline">True</property>
-                                            <signal name="clicked" handler="on_remove_all_ignored_paths_button_clicked" swapped="no"/>
+                                            <signal name="clicked" handler="on_remove_all_ignored_paths_button_clicked"/>
                                           </object>
                                           <packing>
                                             <property name="expand">False</property>
@@ -2555,43 +2174,35 @@ When this option is enabled, and a potential device is detected, you will be pro
                                         </child>
                                       </object>
                                       <packing>
-                                        <property name="expand">True</property>
-                                        <property name="fill">True</property>
                                         <property name="position">0</property>
                                       </packing>
                                     </child>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
-                                    <property name="fill">True</property>
                                     <property name="position">2</property>
                                   </packing>
                                 </child>
                               </object>
                               <packing>
-                                <property name="expand">True</property>
-                                <property name="fill">True</property>
                                 <property name="position">2</property>
                               </packing>
                             </child>
                             <child>
                               <object class="GtkHBox" id="hbox1">
                                 <property name="visible">True</property>
-                                <property name="can_focus">False</property>
                                 <child>
                                   <object class="GtkCheckButton" id="ignored_paths_use_re_checkbutton">
                                     <property name="label" translatable="yes">Use _python-style regular expressions</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
-                                    <property name="use_action_appearance">False</property>
                                     <property name="use_underline">True</property>
                                     <property name="draw_indicator">True</property>
-                                    <signal name="toggled" handler="on_ignored_paths_use_re_checkbutton_toggled" swapped="no"/>
+                                    <signal name="toggled" handler="on_ignored_paths_use_re_checkbutton_toggled"/>
                                   </object>
                                   <packing>
                                     <property name="expand">False</property>
-                                    <property name="fill">True</property>
                                     <property name="padding">12</property>
                                     <property name="position">0</property>
                                   </packing>
@@ -2599,21 +2210,16 @@ When this option is enabled, and a potential device is detected, you will be pro
                               </object>
                               <packing>
                                 <property name="expand">False</property>
-                                <property name="fill">True</property>
                                 <property name="position">3</property>
                               </packing>
                             </child>
                           </object>
                           <packing>
-                            <property name="expand">True</property>
-                            <property name="fill">True</property>
                             <property name="position">1</property>
                           </packing>
                         </child>
                       </object>
                       <packing>
-                        <property name="expand">True</property>
-                        <property name="fill">True</property>
                         <property name="position">2</property>
                       </packing>
                     </child>
@@ -2625,7 +2231,6 @@ When this option is enabled, and a potential device is detected, you will be pro
                 <child type="tab">
                   <object class="GtkLabel" id="device_options_label">
                     <property name="visible">True</property>
-                    <property name="can_focus">False</property>
                     <property name="label" translatable="yes">Device Options</property>
                   </object>
                   <packing>
@@ -2636,56 +2241,45 @@ When this option is enabled, and a potential device is detected, you will be pro
                 <child>
                   <object class="GtkVBox" id="backup_tab">
                     <property name="visible">True</property>
-                    <property name="can_focus">False</property>
                     <child>
                       <object class="GtkVBox" id="vbox8">
                         <property name="visible">True</property>
-                        <property name="can_focus">False</property>
                         <child>
                           <object class="GtkHBox" id="hbox19">
                             <property name="visible">True</property>
-                            <property name="can_focus">False</property>
                             <property name="spacing">6</property>
                             <child>
                               <object class="GtkImage" id="image8">
                                 <property name="visible">True</property>
-                                <property name="can_focus">False</property>
                                 <property name="icon_name">drive-removable-media</property>
                               </object>
                               <packing>
                                 <property name="expand">False</property>
-                                <property name="fill">True</property>
                                 <property name="position">0</property>
                               </packing>
                             </child>
                             <child>
                               <object class="GtkLabel" id="label27">
                                 <property name="visible">True</property>
-                                <property name="can_focus">False</property>
                                 <property name="label" translatable="yes">&lt;span weight="bold" size="x-large"&gt;Backup&lt;/span&gt;	</property>
                                 <property name="use_markup">True</property>
                               </object>
                               <packing>
                                 <property name="expand">False</property>
-                                <property name="fill">True</property>
                                 <property name="position">1</property>
                               </packing>
                             </child>
                           </object>
                           <packing>
-                            <property name="expand">True</property>
-                            <property name="fill">True</property>
                             <property name="position">0</property>
                           </packing>
                         </child>
                         <child>
                           <object class="GtkHSeparator" id="hseparator7">
                             <property name="visible">True</property>
-                            <property name="can_focus">False</property>
                           </object>
                           <packing>
                             <property name="expand">False</property>
-                            <property name="fill">True</property>
                             <property name="position">1</property>
                           </packing>
                         </child>
@@ -2699,10 +2293,8 @@ When this option is enabled, and a potential device is detected, you will be pro
                     <child>
                       <object class="GtkVBox" id="vbox9">
                         <property name="visible">True</property>
-                        <property name="can_focus">False</property>
                         <child>
                           <object class="GtkLabel" id="label43">
-                            <property name="can_focus">False</property>
                             <property name="xalign">0</property>
                             <property name="xpad">12</property>
                             <property name="label" translatable="yes">&lt;b&gt;Backup&lt;/b&gt;</property>
@@ -2710,36 +2302,30 @@ When this option is enabled, and a potential device is detected, you will be pro
                           </object>
                           <packing>
                             <property name="expand">False</property>
-                            <property name="fill">True</property>
                             <property name="position">0</property>
                           </packing>
                         </child>
                         <child>
                           <object class="GtkHBox" id="hbox20">
                             <property name="visible">True</property>
-                            <property name="can_focus">False</property>
                             <property name="spacing">12</property>
                             <child>
                               <object class="GtkLabel" id="label38">
                                 <property name="visible">True</property>
-                                <property name="can_focus">False</property>
                               </object>
                               <packing>
                                 <property name="expand">False</property>
-                                <property name="fill">True</property>
                                 <property name="position">0</property>
                               </packing>
                             </child>
                             <child>
                               <object class="GtkTable" id="backup_table">
                                 <property name="visible">True</property>
-                                <property name="can_focus">False</property>
                                 <property name="n_rows">10</property>
                                 <property name="n_columns">4</property>
                                 <child>
                                   <object class="GtkLabel" id="backup_location_explanation_label">
                                     <property name="visible">True</property>
-                                    <property name="can_focus">False</property>
                                     <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
                                     <property name="xalign">0</property>
                                     <property name="ypad">12</property>
@@ -2761,9 +2347,8 @@ When this option is enabled, and a potential device is detected, you will be pro
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
                                     <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
-                                    <property name="use_action_appearance">False</property>
                                     <property name="draw_indicator">True</property>
-                                    <signal name="toggled" handler="on_auto_detect_backup_checkbutton_toggled" swapped="no"/>
+                                    <signal name="toggled" handler="on_auto_detect_backup_checkbutton_toggled"/>
                                   </object>
                                   <packing>
                                     <property name="left_attach">1</property>
@@ -2776,7 +2361,6 @@ When this option is enabled, and a potential device is detected, you will be pro
                                 <child>
                                   <object class="GtkLabel" id="label11">
                                     <property name="visible">True</property>
-                                    <property name="can_focus">False</property>
                                     <property name="xalign">0</property>
                                     <property name="ypad">12</property>
                                     <property name="label" translatable="yes">You can have your photos and videos backed up to multiple locations as they are downloaded, e.g. external hard drives.</property>
@@ -2793,10 +2377,9 @@ When this option is enabled, and a potential device is detected, you will be pro
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
-                                    <property name="use_action_appearance">False</property>
                                     <property name="use_underline">True</property>
                                     <property name="draw_indicator">True</property>
-                                    <signal name="toggled" handler="on_backup_checkbutton_toggled" swapped="no"/>
+                                    <signal name="toggled" handler="on_backup_checkbutton_toggled"/>
                                   </object>
                                   <packing>
                                     <property name="right_attach">4</property>
@@ -2808,7 +2391,6 @@ When this option is enabled, and a potential device is detected, you will be pro
                                 <child>
                                   <object class="GtkLabel" id="backup_identifier_explanation_label">
                                     <property name="visible">True</property>
-                                    <property name="can_focus">False</property>
                                     <property name="xalign">0</property>
                                     <property name="ypad">6</property>
                                     <property name="label" translatable="yes">Specify the folder in which backups are stored on the device.  
@@ -2827,7 +2409,6 @@ When this option is enabled, and a potential device is detected, you will be pro
                                 <child>
                                   <object class="GtkLabel" id="backup_location_label">
                                     <property name="visible">True</property>
-                                    <property name="can_focus">False</property>
                                     <property name="xalign">0</property>
                                     <property name="label" translatable="yes">Photo backup location:</property>
                                   </object>
@@ -2843,7 +2424,6 @@ When this option is enabled, and a potential device is detected, you will be pro
                                 <child>
                                   <object class="GtkLabel" id="backup_identifier_label">
                                     <property name="visible">True</property>
-                                    <property name="can_focus">False</property>
                                     <property name="xalign">0</property>
                                     <property name="label" translatable="yes">Photo backup folder name:</property>
                                   </object>
@@ -2860,7 +2440,6 @@ When this option is enabled, and a potential device is detected, you will be pro
                                 <child>
                                   <object class="GtkLabel" id="backup_example_label">
                                     <property name="visible">True</property>
-                                    <property name="can_focus">False</property>
                                     <property name="xalign">0</property>
                                     <property name="yalign">0</property>
                                     <property name="ypad">6</property>
@@ -2878,7 +2457,6 @@ When this option is enabled, and a potential device is detected, you will be pro
                                 <child>
                                   <object class="GtkLabel" id="example_backup_path_label">
                                     <property name="visible">True</property>
-                                    <property name="can_focus">False</property>
                                     <property name="xalign">0</property>
                                     <property name="yalign">0</property>
                                     <property name="ypad">6</property>
@@ -2897,10 +2475,8 @@ When this option is enabled, and a potential device is detected, you will be pro
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
-                                    <property name="invisible_char">•</property>
-                                    <property name="primary_icon_activatable">False</property>
-                                    <property name="secondary_icon_activatable">False</property>
-                                    <signal name="changed" handler="on_backup_identifier_entry_changed" swapped="no"/>
+                                    <property name="invisible_char">&#x2022;</property>
+                                    <signal name="changed" handler="on_backup_identifier_entry_changed"/>
                                   </object>
                                   <packing>
                                     <property name="left_attach">3</property>
@@ -2914,7 +2490,6 @@ When this option is enabled, and a potential device is detected, you will be pro
                                 <child>
                                   <object class="GtkLabel" id="video_backup_identifier_label">
                                     <property name="visible">True</property>
-                                    <property name="can_focus">False</property>
                                     <property name="xalign">0</property>
                                     <property name="label" translatable="yes">Video backup folder name:</property>
                                   </object>
@@ -2933,10 +2508,8 @@ When this option is enabled, and a potential device is detected, you will be pro
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
-                                    <property name="invisible_char">•</property>
-                                    <property name="primary_icon_activatable">False</property>
-                                    <property name="secondary_icon_activatable">False</property>
-                                    <signal name="changed" handler="on_video_backup_identifier_entry_changed" swapped="no"/>
+                                    <property name="invisible_char">&#x2022;</property>
+                                    <signal name="changed" handler="on_video_backup_identifier_entry_changed"/>
                                   </object>
                                   <packing>
                                     <property name="left_attach">3</property>
@@ -2950,7 +2523,6 @@ When this option is enabled, and a potential device is detected, you will be pro
                                 <child>
                                   <object class="GtkLabel" id="backup_video_location_label">
                                     <property name="visible">True</property>
-                                    <property name="can_focus">False</property>
                                     <property name="xalign">0</property>
                                     <property name="label" translatable="yes">Video backup location:</property>
                                   </object>
@@ -3007,33 +2579,26 @@ When this option is enabled, and a potential device is detected, you will be pro
                                 </child>
                               </object>
                               <packing>
-                                <property name="expand">True</property>
-                                <property name="fill">True</property>
                                 <property name="position">1</property>
                               </packing>
                             </child>
                             <child>
                               <object class="GtkLabel" id="label39">
                                 <property name="visible">True</property>
-                                <property name="can_focus">False</property>
                               </object>
                               <packing>
                                 <property name="expand">False</property>
-                                <property name="fill">True</property>
                                 <property name="position">2</property>
                               </packing>
                             </child>
                           </object>
                           <packing>
                             <property name="expand">False</property>
-                            <property name="fill">True</property>
                             <property name="position">1</property>
                           </packing>
                         </child>
                       </object>
                       <packing>
-                        <property name="expand">True</property>
-                        <property name="fill">True</property>
                         <property name="padding">12</property>
                         <property name="position">1</property>
                       </packing>
@@ -3046,7 +2611,6 @@ When this option is enabled, and a potential device is detected, you will be pro
                 <child type="tab">
                   <object class="GtkLabel" id="backup_label">
                     <property name="visible">True</property>
-                    <property name="can_focus">False</property>
                     <property name="label" translatable="yes">Backup</property>
                   </object>
                   <packing>
@@ -3057,56 +2621,45 @@ When this option is enabled, and a potential device is detected, you will be pro
                 <child>
                   <object class="GtkVBox" id="automation_tab">
                     <property name="visible">True</property>
-                    <property name="can_focus">False</property>
                     <child>
                       <object class="GtkVBox" id="vbox11">
                         <property name="visible">True</property>
-                        <property name="can_focus">False</property>
                         <child>
                           <object class="GtkHBox" id="hbox21">
                             <property name="visible">True</property>
-                            <property name="can_focus">False</property>
                             <property name="spacing">6</property>
                             <child>
                               <object class="GtkImage" id="image4">
                                 <property name="visible">True</property>
-                                <property name="can_focus">False</property>
                                 <property name="stock">gtk-execute</property>
                               </object>
                               <packing>
                                 <property name="expand">False</property>
-                                <property name="fill">True</property>
                                 <property name="position">0</property>
                               </packing>
                             </child>
                             <child>
                               <object class="GtkLabel" id="label31">
                                 <property name="visible">True</property>
-                                <property name="can_focus">False</property>
                                 <property name="label" translatable="yes">&lt;span weight="bold" size="x-large"&gt;Miscellaneous&lt;/span&gt;</property>
                                 <property name="use_markup">True</property>
                               </object>
                               <packing>
                                 <property name="expand">False</property>
-                                <property name="fill">True</property>
                                 <property name="position">1</property>
                               </packing>
                             </child>
                           </object>
                           <packing>
-                            <property name="expand">True</property>
-                            <property name="fill">True</property>
                             <property name="position">0</property>
                           </packing>
                         </child>
                         <child>
                           <object class="GtkHSeparator" id="hseparator9">
                             <property name="visible">True</property>
-                            <property name="can_focus">False</property>
                           </object>
                           <packing>
                             <property name="expand">False</property>
-                            <property name="fill">True</property>
                             <property name="position">1</property>
                           </packing>
                         </child>
@@ -3120,11 +2673,9 @@ When this option is enabled, and a potential device is detected, you will be pro
                     <child>
                       <object class="GtkVBox" id="vbox13">
                         <property name="visible">True</property>
-                        <property name="can_focus">False</property>
                         <child>
                           <object class="GtkLabel" id="label45">
                             <property name="visible">True</property>
-                            <property name="can_focus">False</property>
                             <property name="xalign">0</property>
                             <property name="xpad">12</property>
                             <property name="label" translatable="yes">&lt;b&gt;Program Automation&lt;/b&gt;</property>
@@ -3132,29 +2683,23 @@ When this option is enabled, and a potential device is detected, you will be pro
                           </object>
                           <packing>
                             <property name="expand">False</property>
-                            <property name="fill">True</property>
                             <property name="position">0</property>
                           </packing>
                         </child>
                         <child>
                           <object class="GtkHBox" id="hbox24">
                             <property name="visible">True</property>
-                            <property name="can_focus">False</property>
                             <property name="spacing">6</property>
                             <child>
-                              <object class="GtkLabel" id="label34">
-                                <property name="can_focus">False</property>
-                              </object>
+                              <object class="GtkLabel" id="label34"/>
                               <packing>
                                 <property name="expand">False</property>
-                                <property name="fill">True</property>
                                 <property name="position">0</property>
                               </packing>
                             </child>
                             <child>
                               <object class="GtkTable" id="automation_table">
                                 <property name="visible">True</property>
-                                <property name="can_focus">False</property>
                                 <property name="n_rows">6</property>
                                 <property name="n_columns">3</property>
                                 <child>
@@ -3164,10 +2709,9 @@ When this option is enabled, and a potential device is detected, you will be pro
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
                                     <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
-                                    <property name="use_action_appearance">False</property>
                                     <property name="xalign">0</property>
                                     <property name="draw_indicator">True</property>
-                                    <signal name="toggled" handler="on_auto_unmount_checkbutton_toggled" swapped="no"/>
+                                    <signal name="toggled" handler="on_auto_unmount_checkbutton_toggled"/>
                                   </object>
                                   <packing>
                                     <property name="right_attach">3</property>
@@ -3182,10 +2726,9 @@ When this option is enabled, and a potential device is detected, you will be pro
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
                                     <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
-                                    <property name="use_action_appearance">False</property>
                                     <property name="xalign">0</property>
                                     <property name="draw_indicator">True</property>
-                                    <signal name="toggled" handler="on_auto_startup_checkbutton_toggled" swapped="no"/>
+                                    <signal name="toggled" handler="on_auto_startup_checkbutton_toggled"/>
                                   </object>
                                   <packing>
                                     <property name="right_attach">3</property>
@@ -3198,10 +2741,9 @@ When this option is enabled, and a potential device is detected, you will be pro
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
                                     <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
-                                    <property name="use_action_appearance">False</property>
                                     <property name="xalign">0</property>
                                     <property name="draw_indicator">True</property>
-                                    <signal name="toggled" handler="on_auto_insertion_checkbutton_toggled" swapped="no"/>
+                                    <signal name="toggled" handler="on_auto_insertion_checkbutton_toggled"/>
                                   </object>
                                   <packing>
                                     <property name="right_attach">3</property>
@@ -3215,10 +2757,9 @@ When this option is enabled, and a potential device is detected, you will be pro
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
-                                    <property name="use_action_appearance">False</property>
                                     <property name="xalign">0</property>
                                     <property name="draw_indicator">True</property>
-                                    <signal name="toggled" handler="on_auto_exit_checkbutton_toggled" swapped="no"/>
+                                    <signal name="toggled" handler="on_auto_exit_checkbutton_toggled"/>
                                   </object>
                                   <packing>
                                     <property name="right_attach">3</property>
@@ -3232,10 +2773,9 @@ When this option is enabled, and a potential device is detected, you will be pro
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
-                                    <property name="use_action_appearance">False</property>
                                     <property name="xalign">0</property>
                                     <property name="draw_indicator">True</property>
-                                    <signal name="toggled" handler="on_auto_exit_force_checkbutton_toggled" swapped="no"/>
+                                    <signal name="toggled" handler="on_auto_exit_force_checkbutton_toggled"/>
                                   </object>
                                   <packing>
                                     <property name="left_attach">1</property>
@@ -3250,10 +2790,9 @@ When this option is enabled, and a potential device is detected, you will be pro
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
-                                    <property name="use_action_appearance">False</property>
                                     <property name="xalign">0</property>
                                     <property name="draw_indicator">True</property>
-                                    <signal name="toggled" handler="on_auto_rotate_checkbutton_toggled" swapped="no"/>
+                                    <signal name="toggled" handler="on_auto_rotate_checkbutton_toggled"/>
                                   </object>
                                   <packing>
                                     <property name="right_attach">3</property>
@@ -3269,8 +2808,6 @@ When this option is enabled, and a potential device is detected, you will be pro
                                 </child>
                               </object>
                               <packing>
-                                <property name="expand">True</property>
-                                <property name="fill">True</property>
                                 <property name="padding">24</property>
                                 <property name="position">1</property>
                               </packing>
@@ -3278,18 +2815,15 @@ When this option is enabled, and a potential device is detected, you will be pro
                             <child>
                               <object class="GtkLabel" id="label35">
                                 <property name="visible">True</property>
-                                <property name="can_focus">False</property>
                               </object>
                               <packing>
                                 <property name="expand">False</property>
-                                <property name="fill">True</property>
                                 <property name="position">2</property>
                               </packing>
                             </child>
                           </object>
                           <packing>
                             <property name="expand">False</property>
-                            <property name="fill">True</property>
                             <property name="padding">12</property>
                             <property name="position">1</property>
                           </packing>
@@ -3297,7 +2831,6 @@ When this option is enabled, and a potential device is detected, you will be pro
                         <child>
                           <object class="GtkLabel" id="label1">
                             <property name="visible">True</property>
-                            <property name="can_focus">False</property>
                             <property name="xalign">0</property>
                             <property name="xpad">12</property>
                             <property name="label" translatable="yes">Performance</property>
@@ -3307,29 +2840,23 @@ When this option is enabled, and a potential device is detected, you will be pro
                           </object>
                           <packing>
                             <property name="expand">False</property>
-                            <property name="fill">True</property>
                             <property name="position">2</property>
                           </packing>
                         </child>
                         <child>
                           <object class="GtkHBox" id="hbox25">
                             <property name="visible">True</property>
-                            <property name="can_focus">False</property>
                             <property name="spacing">6</property>
                             <child>
-                              <object class="GtkLabel" id="label19">
-                                <property name="can_focus">False</property>
-                              </object>
+                              <object class="GtkLabel" id="label19"/>
                               <packing>
                                 <property name="expand">False</property>
-                                <property name="fill">True</property>
                                 <property name="position">0</property>
                               </packing>
                             </child>
                             <child>
                               <object class="GtkTable" id="table1">
                                 <property name="visible">True</property>
-                                <property name="can_focus">False</property>
                                 <property name="n_columns">3</property>
                                 <child>
                                   <object class="GtkCheckButton" id="generate_thumbnails_checkbutton">
@@ -3337,9 +2864,8 @@ When this option is enabled, and a potential device is detected, you will be pro
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
-                                    <property name="use_action_appearance">False</property>
                                     <property name="draw_indicator">True</property>
-                                    <signal name="toggled" handler="on_generate_thumbnails_checkbutton_toggled" swapped="no"/>
+                                    <signal name="toggled" handler="on_generate_thumbnails_checkbutton_toggled"/>
                                   </object>
                                 </child>
                                 <child>
@@ -3350,8 +2876,6 @@ When this option is enabled, and a potential device is detected, you will be pro
                                 </child>
                               </object>
                               <packing>
-                                <property name="expand">True</property>
-                                <property name="fill">True</property>
                                 <property name="padding">24</property>
                                 <property name="position">1</property>
                               </packing>
@@ -3359,26 +2883,21 @@ When this option is enabled, and a potential device is detected, you will be pro
                             <child>
                               <object class="GtkLabel" id="label29">
                                 <property name="visible">True</property>
-                                <property name="can_focus">False</property>
                               </object>
                               <packing>
                                 <property name="expand">False</property>
-                                <property name="fill">True</property>
                                 <property name="position">2</property>
                               </packing>
                             </child>
                           </object>
                           <packing>
                             <property name="expand">False</property>
-                            <property name="fill">True</property>
                             <property name="padding">12</property>
                             <property name="position">3</property>
                           </packing>
                         </child>
                       </object>
                       <packing>
-                        <property name="expand">True</property>
-                        <property name="fill">True</property>
                         <property name="padding">12</property>
                         <property name="position">1</property>
                       </packing>
@@ -3391,7 +2910,6 @@ When this option is enabled, and a potential device is detected, you will be pro
                 <child type="tab">
                   <object class="GtkLabel" id="miscillaneous_label">
                     <property name="visible">True</property>
-                    <property name="can_focus">False</property>
                     <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
                     <property name="label" translatable="yes">Miscellaneous</property>
                   </object>
@@ -3403,57 +2921,46 @@ When this option is enabled, and a potential device is detected, you will be pro
                 <child>
                   <object class="GtkVBox" id="error_tab">
                     <property name="visible">True</property>
-                    <property name="can_focus">False</property>
                     <property name="spacing">12</property>
                     <child>
                       <object class="GtkVBox" id="vbox16">
                         <property name="visible">True</property>
-                        <property name="can_focus">False</property>
                         <child>
                           <object class="GtkHBox" id="hbox26">
                             <property name="visible">True</property>
-                            <property name="can_focus">False</property>
                             <property name="spacing">6</property>
                             <child>
                               <object class="GtkImage" id="image9">
                                 <property name="visible">True</property>
-                                <property name="can_focus">False</property>
                                 <property name="stock">gtk-dialog-error</property>
                               </object>
                               <packing>
                                 <property name="expand">False</property>
-                                <property name="fill">True</property>
                                 <property name="position">0</property>
                               </packing>
                             </child>
                             <child>
                               <object class="GtkLabel" id="label40">
                                 <property name="visible">True</property>
-                                <property name="can_focus">False</property>
                                 <property name="label" translatable="yes">&lt;span weight="bold" size="x-large"&gt;Error Handling&lt;/span&gt;</property>
                                 <property name="use_markup">True</property>
                               </object>
                               <packing>
                                 <property name="expand">False</property>
-                                <property name="fill">True</property>
                                 <property name="position">1</property>
                               </packing>
                             </child>
                           </object>
                           <packing>
-                            <property name="expand">True</property>
-                            <property name="fill">True</property>
                             <property name="position">0</property>
                           </packing>
                         </child>
                         <child>
                           <object class="GtkHSeparator" id="hseparator10">
                             <property name="visible">True</property>
-                            <property name="can_focus">False</property>
                           </object>
                           <packing>
                             <property name="expand">False</property>
-                            <property name="fill">True</property>
                             <property name="position">1</property>
                           </packing>
                         </child>
@@ -3467,29 +2974,24 @@ When this option is enabled, and a potential device is detected, you will be pro
                     <child>
                       <object class="GtkHBox" id="hbox27">
                         <property name="visible">True</property>
-                        <property name="can_focus">False</property>
                         <property name="spacing">12</property>
                         <child>
                           <object class="GtkLabel" id="label36">
                             <property name="visible">True</property>
-                            <property name="can_focus">False</property>
                           </object>
                           <packing>
                             <property name="expand">False</property>
-                            <property name="fill">True</property>
                             <property name="position">0</property>
                           </packing>
                         </child>
                         <child>
                           <object class="GtkTable" id="error_table">
                             <property name="visible">True</property>
-                            <property name="can_focus">False</property>
                             <property name="n_rows">14</property>
                             <property name="n_columns">2</property>
                             <child>
                               <object class="GtkLabel" id="label13">
                                 <property name="visible">True</property>
-                                <property name="can_focus">False</property>
                                 <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
                                 <property name="label" translatable="yes"> </property>
                               </object>
@@ -3503,7 +3005,6 @@ When this option is enabled, and a potential device is detected, you will be pro
                             <child>
                               <object class="GtkLabel" id="label37">
                                 <property name="visible">True</property>
-                                <property name="can_focus">False</property>
                                 <property name="xalign">0</property>
                                 <property name="label" translatable="yes">&lt;b&gt;Photo and Video Name Conflicts&lt;/b&gt;</property>
                                 <property name="use_markup">True</property>
@@ -3519,11 +3020,10 @@ When this option is enabled, and a potential device is detected, you will be pro
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="receives_default">False</property>
-                                <property name="use_action_appearance">False</property>
                                 <property name="use_underline">True</property>
                                 <property name="active">True</property>
                                 <property name="draw_indicator">True</property>
-                                <signal name="toggled" handler="on_add_identifier_radiobutton_toggled" swapped="no"/>
+                                <signal name="toggled" handler="on_add_identifier_radiobutton_toggled"/>
                               </object>
                               <packing>
                                 <property name="left_attach">1</property>
@@ -3539,7 +3039,6 @@ When this option is enabled, and a potential device is detected, you will be pro
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="receives_default">False</property>
-                                <property name="use_action_appearance">False</property>
                                 <property name="use_underline">True</property>
                                 <property name="draw_indicator">True</property>
                                 <property name="group">add_identifier_radiobutton</property>
@@ -3555,7 +3054,6 @@ When this option is enabled, and a potential device is detected, you will be pro
                             <child>
                               <object class="GtkLabel" id="label58">
                                 <property name="visible">True</property>
-                                <property name="can_focus">False</property>
                                 <property name="xalign">0</property>
                                 <property name="ypad">12</property>
                                 <property name="label" translatable="yes">When a photo or video of the same name has already been downloaded, choose whether to skip downloading the file, or to add a unique indentifier.</property>
@@ -3572,7 +3070,6 @@ When this option is enabled, and a potential device is detected, you will be pro
                             <child>
                               <object class="GtkLabel" id="label64">
                                 <property name="visible">True</property>
-                                <property name="can_focus">False</property>
                                 <property name="xalign">0</property>
                                 <property name="ypad">12</property>
                                 <property name="label" translatable="yes">When backing up, choose whether to overwrite a file on the backup device that has the same name, or skip backing it up.</property>
@@ -3592,10 +3089,9 @@ When this option is enabled, and a potential device is detected, you will be pro
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="receives_default">False</property>
-                                <property name="use_action_appearance">False</property>
                                 <property name="draw_indicator">True</property>
                                 <property name="group">backup_duplicate_skip_radiobutton</property>
-                                <signal name="toggled" handler="on_backup_duplicate_overwrite_radiobutton_toggled" swapped="no"/>
+                                <signal name="toggled" handler="on_backup_duplicate_overwrite_radiobutton_toggled"/>
                               </object>
                               <packing>
                                 <property name="left_attach">1</property>
@@ -3610,10 +3106,9 @@ When this option is enabled, and a potential device is detected, you will be pro
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="receives_default">False</property>
-                                <property name="use_action_appearance">False</property>
                                 <property name="active">True</property>
                                 <property name="draw_indicator">True</property>
-                                <signal name="toggled" handler="on_backup_duplicate_skip_radiobutton_toggled" swapped="no"/>
+                                <signal name="toggled" handler="on_backup_duplicate_skip_radiobutton_toggled"/>
                               </object>
                               <packing>
                                 <property name="left_attach">1</property>
@@ -3681,26 +3176,21 @@ When this option is enabled, and a potential device is detected, you will be pro
                             </child>
                           </object>
                           <packing>
-                            <property name="expand">True</property>
-                            <property name="fill">True</property>
                             <property name="position">1</property>
                           </packing>
                         </child>
                         <child>
                           <object class="GtkLabel" id="label65">
                             <property name="visible">True</property>
-                            <property name="can_focus">False</property>
                           </object>
                           <packing>
                             <property name="expand">False</property>
-                            <property name="fill">True</property>
                             <property name="position">2</property>
                           </packing>
                         </child>
                       </object>
                       <packing>
                         <property name="expand">False</property>
-                        <property name="fill">True</property>
                         <property name="padding">12</property>
                         <property name="position">1</property>
                       </packing>
@@ -3713,7 +3203,6 @@ When this option is enabled, and a potential device is detected, you will be pro
                 <child type="tab">
                   <object class="GtkLabel" id="error_label">
                     <property name="visible">True</property>
-                    <property name="can_focus">False</property>
                     <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
                     <property name="label" translatable="yes">Error Handling</property>
                   </object>
@@ -3724,22 +3213,58 @@ When this option is enabled, and a potential device is detected, you will be pro
                 </child>
               </object>
               <packing>
-                <property name="expand">True</property>
-                <property name="fill">True</property>
                 <property name="padding">6</property>
                 <property name="position">1</property>
               </packing>
             </child>
           </object>
           <packing>
-            <property name="expand">True</property>
-            <property name="fill">True</property>
             <property name="padding">5</property>
             <property name="position">1</property>
           </packing>
         </child>
         <child>
           <placeholder/>
+        </child>
+        <child internal-child="action_area">
+          <object class="GtkHButtonBox" id="dialog-action_area2">
+            <property name="visible">True</property>
+            <property name="layout_style">end</property>
+            <child>
+              <object class="GtkButton" id="help_button1">
+                <property name="label">gtk-help</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+                <property name="use_stock">True</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">False</property>
+                <property name="position">0</property>
+                <property name="secondary">True</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkButton" id="close_button">
+                <property name="label">gtk-close</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+                <property name="use_stock">True</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">False</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="pack_type">end</property>
+            <property name="position">0</property>
+          </packing>
         </child>
       </object>
     </child>
