@@ -1,3 +1,36 @@
+rapid-photo-downloader (0.4.3~b5-0ubuntu1~ppa1) lucid; urgency=low
+
+  * Fixed bug #704482: Added a toolbar at the top of the main program
+    window.
+
+  * Fixed bug #754531: extract Exif.CanonFi.FileNumber metadata.
+
+  * Fixed bug #695517: Added functionality to download MTS video files.
+
+  * Fixed bug #859998: Download THM video thumbnail files.
+
+  * Fixed bug #594533: Lossless JPEG rotation.
+
+  * Fixed bug #859012: Confirm if really want to download from /, 
+    /home or /media.
+
+  * Fixed bug #792228: clear all thumbnails when refresh commmand
+    issued.
+
+  * Fix bug where device progress bar could disappear.
+
+  * Fixed a bug where the file extensions the program downloads could
+    not be displayed from the command line.
+
+  * Fixed a bug where the program would crash when trying to convert a
+    malformed thumbnail from one image mode to another.
+
+  * Updated Czech, Danish, Dutch, French, German, Hungarian, Italian,
+    Norwegian,Polish, Serbian, Slovak, Spanish and Swedish 
+    translations.
+
+ -- Damon Lynch <damonlynch@gmail.com>  Wed, 28 Dec 2011 03:43:55 -0600
+
 rapid-photo-downloader (0.4.2-0ubuntu1~ppa1) lucid; urgency=low
 
   * Added feature in Preferences window to remove any paths that have

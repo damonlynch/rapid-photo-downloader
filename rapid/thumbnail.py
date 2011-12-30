@@ -1,5 +1,4 @@
 #!/usr/bin/python
-#!/usr/bin/python
 # -*- coding: latin1 -*-
 
 ### Copyright (C) 2011 Damon Lynch <damonlynch@gmail.com>

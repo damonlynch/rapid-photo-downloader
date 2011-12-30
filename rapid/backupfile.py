@@ -89,6 +89,17 @@ class BackupFiles(multiprocessing.Process):
         """called when copying very small files"""
         pass
         
+    def backup_additional_file(self, dest_dir, full_file_name):
+        """Backs up small files like XMP or THM files"""
+        source = gio.File(full_file_name)
+        dest_name = os.path.join(dest_dir, os.path.split(full_file_name)[1])
+        logger.debug("Backing up %s", dest_name)
+        dest=gio.File(dest_name)
+        try:
+            source.copy(dest, self.progress_callback_no_update, cancellable=None)
+        except gio.Error, inst:
+                logger.error("Failed to backup file %s", full_file_name)        
+        
     def run(self):
         
         self.cancel_copy = gio.Cancellable()
@@ -177,16 +188,14 @@ class BackupFiles(multiprocessing.Process):
                         rpd_file.status = config.STATUS_DOWNLOAD_AND_BACKUP_FAILED
                     else:
                         rpd_file.status = config.STATUS_BACKUP_PROBLEM
-                elif rpd_file.download_thm_full_name:
-                    # need to copy THM thumbnail file too
-                    source = gio.File(rpd_file.download_thm_full_name)
-                    dest_name = os.path.join(dest_dir, os.path.split(rpd_file.download_thm_full_name)[1])
-                    logger.debug("Backing up THM to: %s", dest_name)
-                    dest=gio.File(dest_name)
-                    try:
-                        source.copy(dest, self.progress_callback_no_update, cancellable=None)
-                    except gio.Error, inst:
-                            logger.error("Failed to copy video THM file %s", download_thm_full_name)
+                else:
+                    # backup any THM or XMP files
+                    if rpd_file.download_thm_full_name:
+                        self.backup_additional_file(dest_dir,
+                                        rpd_file.download_thm_full_name)
+                    if rpd_file.download_xmp_full_name:
+                        self.backup_additional_file(dest_dir,
+                                        rpd_file.download_xmp_full_name)
             
             self.total_downloaded += rpd_file.size
             bytes_not_downloaded = rpd_file.size - self.amount_downloaded

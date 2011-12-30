@@ -113,6 +113,9 @@ class PhotoName:
             return ''
     
     def _get_thm_extension(self):
+        """
+        Generates THM extension with correct capitalization, if needed
+        """
         if self.rpd_file.thm_full_name:
             thm_extension = os.path.splitext(self.rpd_file.thm_full_name)[1]
             if self.L2 == UPPERCASE:
@@ -122,6 +125,25 @@ class PhotoName:
             self.rpd_file.thm_extension = thm_extension
         else:
             self.rpd_file.thm_extension = None
+            
+    def _get_xmp_extension(self, extension):
+        """
+        Generates XMP extension with correct capitalization, if needed.
+        """
+        if self.rpd_file.temp_xmp_full_name:
+            if self.L2 == UPPERCASE:
+                self.rpd_file.xmp_extension = '.XMP'
+            elif self.L2 == LOWERCASE:
+                self.rpd_file.xmp_extension = '.xmp'
+            else:
+                # mimic capitalization of extension
+                if extension.isupper():
+                    self.rpd_file.xmp_extension = '.XMP'
+                else:
+                    self.rpd_file.xmp_extension = '.xmp'
+        else:
+            self.rpd_file.xmp_extension = None
+            
     
     def _get_filename_component(self):
         """
@@ -133,10 +155,12 @@ class PhotoName:
         if self.L1 == NAME_EXTENSION:
             filename = self.rpd_file.name
             self._get_thm_extension()
+            self._get_xmp_extension(extension)
         elif self.L1 == NAME:
                 filename = name
         elif self.L1 == EXTENSION:
             self._get_thm_extension()
+            self._get_xmp_extension(extension)
             if extension:
                 if not self.strip_initial_period_from_extension:
                     # keep the period / dot of the extension, so the user does not

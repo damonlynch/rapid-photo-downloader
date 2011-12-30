@@ -25,12 +25,13 @@ logger = multiprocessing.get_logger()
 
 import rpdmultiprocessing as rpdmp
 import rpdfile
+import metadataxmp as mxmp
 
 def lossless_rotate(jpeg):
     """using exiftran, performs a lossless, inplace translation of a jpeg, preserving time stamps"""
     try:
         logger.debug("Auto rotating %s", jpeg)
-        v = proc = subprocess.Popen(['exiftran', '-a', '-i', '-p', jpeg], stdout=subprocess.PIPE)
+        proc = subprocess.Popen(['exiftran', '-a', '-i', '-p', jpeg], stdout=subprocess.PIPE)
         v = proc.communicate()[0].strip()
     except OSError:
         v = None
@@ -80,7 +81,15 @@ class FileModify(multiprocessing.Process):
             if self.auto_rotate_jpeg and rpd_file.file_type == rpdfile.FILE_TYPE_PHOTO:
                 if rpd_file.extension in rpdfile.JPEG_EXTENSIONS:
                     lossless_rotate(rpd_file.temp_full_file_name)
-                    file_modified = True
+
+            if False:
+                xmp = mxmp.XmpMetadata(rpd_file.temp_full_file_name)
+                xmp.set_contact_url('http://www.website.net')
+                xmp.set_contact_email('user@email.com')
+                o = xmp.write_xmp_sidecar()
+                logger.debug("Wrote XMP sidecar file")
+                logger.debug("exiv2 output: %s", o)
+                rpd_file.temp_xmp_full_name = rpd_file.temp_full_file_name + '.xmp'
                 
             copy_succeeded = True
             self.results_pipe.send((rpdmp.CONN_PARTIAL, 

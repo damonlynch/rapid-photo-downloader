@@ -187,14 +187,17 @@ class RPDFile:
         
         self.temp_full_file_name = ''
         self.temp_thm_full_name = ''
+        self.temp_xmp_full_name = ''
         
         self.download_start_time = None
         
         self.download_subfolder = ''
         self.download_path = ''
         self.download_name = ''
-        self.download_full_file_name = ''
-        self.download_thm_full_name = ''
+        self.download_full_file_name = '' #file name with path
+        self.download_full_base_name = '' #file name with path but no extension
+        self.download_thm_full_name = ''  #name of THM (thumbnail) file with path
+        self.download_xmp_full_name = ''  #name of XMP sidecar with path
         
         self.metadata = None
         
@@ -207,6 +210,7 @@ class RPDFile:
         #self.name_pref_list = []
         #strip_characters = False
         #self.thm_extension = ''
+        #self.xmp_extension = ''
         
         
     def _assign_file_type(self):

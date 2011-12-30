@@ -373,6 +373,7 @@ class SubfolderFile(multiprocessing.Process):
                 if generation_succeeded:
                     rpd_file.download_path = os.path.join(rpd_file.download_folder, rpd_file.download_subfolder)
                     rpd_file.download_full_file_name = os.path.join(rpd_file.download_path, rpd_file.download_name)
+                    rpd_file.download_full_base_name = os.path.splitext(rpd_file.download_full_file_name)[0]
                     
                     subfolder = gio.File(path=rpd_file.download_path)
                     
@@ -469,22 +470,34 @@ class SubfolderFile(multiprocessing.Process):
                         self.downloads_today_date.value = self.downloads_today_tracker.get_raw_downloads_today_date()
                         
                     if rpd_file.temp_thm_full_name:
-                        # copy THM video file
+                        # copy and rename THM video file
                         source = gio.File(path=rpd_file.temp_thm_full_name)
-                        base_name = os.path.splitext(rpd_file.download_full_file_name)[0]
                         ext = None
                         if hasattr(rpd_file, 'thm_extension'):
                             if rpd_file.thm_extension:
                                 ext = rpd_file.thm_extension
                         if ext is None:
                             ext = '.THM'
-                        download_thm_full_name = base_name + ext
+                        download_thm_full_name = rpd_file.download_full_base_name + ext
                         dest = gio.File(path=download_thm_full_name)
                         try:
                             source.move(dest, self.progress_callback_no_update, cancellable=None)
                             rpd_file.download_thm_full_name = download_thm_full_name
                         except gio.Error, inst:
                             logger.error("Failed to move video THM file %s", download_thm_full_name)
+                            
+                    if rpd_file.temp_xmp_full_name:
+                        # copy and rename XMP sidecar file
+                        source = gio.File(path=rpd_file.temp_xmp_full_name)
+                        # generate_name() has generated xmp extension with correct capitalization
+                        download_xmp_full_name = rpd_file.download_full_base_name + rpd_file.xmp_extension
+                        dest = gio.File(path=download_xmp_full_name)
+                        try:
+                            source.move(dest, self.progress_callback_no_update, cancellable=None)
+                            rpd_file.download_xmp_full_name = download_xmp_full_name
+                        except gio.Error, inst:
+                            logger.error("Failed to move XMP sidecar file %s", download_xmp_full_name)
+                            
                 
                 if not move_succeeded:
                     logger.error("%s: %s - %s", rpd_file.full_file_name, 

@@ -241,8 +241,8 @@
                         <property name="use_action_appearance">False</property>
                         <property name="use_underline">True</property>
                         <property name="use_stock">True</property>
-                        <accelerator key="equal" signal="activate" modifiers="GDK_CONTROL_MASK"/>
                         <accelerator key="plus" signal="activate" modifiers="GDK_CONTROL_MASK"/>
+                        <accelerator key="equal" signal="activate" modifiers="GDK_CONTROL_MASK"/>
                       </object>
                     </child>
                     <child>
@@ -292,6 +292,8 @@
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="related_action">prev_image_action</property>
+                        <property name="use_action_appearance">False</property>
+                        <property name="label" translatable="yes">Previous File</property>
                         <accelerator key="bracketleft" signal="activate"/>
                       </object>
                     </child>
@@ -300,6 +302,8 @@
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                         <property name="related_action">next_image_action</property>
+                        <property name="use_action_appearance">False</property>
+                        <property name="label" translatable="yes">Next File</property>
                         <accelerator key="bracketright" signal="activate"/>
                       </object>
                     </child>
