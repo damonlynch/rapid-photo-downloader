@@ -212,9 +212,20 @@ class RPDFile:
         #self.thm_extension = ''
         #self.xmp_extension = ''
         
+        #these values are set only if they were written to an xmp sidecar 
+        #in the filemodify process
+        #self.new_aperture = ''
+        #self.new_focal_length = ''
+        
         
     def _assign_file_type(self):
         self.file_type = None
+        
+    def _load_file_for_metadata(self, temp_file):
+        if temp_file:
+            return self.temp_full_file_name
+        else:
+            return self.full_file_name        
         
     def initialize_problem(self):
         self.problem = pn.Problem()
@@ -244,9 +255,8 @@ class Photo(RPDFile):
     def _assign_file_type(self):
         self.file_type = FILE_TYPE_PHOTO
         
-    def load_metadata(self):
-        
-        self.metadata = metadataphoto.MetaData(self.full_file_name)
+    def load_metadata(self, temp_file=False):
+        self.metadata = metadataphoto.MetaData(self._load_file_for_metadata(temp_file))
         try:
             self.metadata.read()
         except:
@@ -264,13 +274,13 @@ class Video(RPDFile):
     def _assign_file_type(self):
         self.file_type = FILE_TYPE_VIDEO
         
-    def load_metadata(self):
+    def load_metadata(self, temp_file=False):
         if self.extension == 'mts' or not metadatavideo.HAVE_HACHOIR:
             if metadatavideo.HAVE_HACHOIR:
                 logger.debug("Using ExifTool parser")
-            self.metadata = metadataexiftool.ExifToolMetaData(self.full_file_name)
+            self.metadata = metadataexiftool.ExifToolMetaData(self._load_file_for_metadata(temp_file))
         else:
-            self.metadata = metadatavideo.VideoMetaData(self.full_file_name)
+            self.metadata = metadatavideo.VideoMetaData(self._load_file_for_metadata(temp_file))
         return True
         
 class SamplePhoto(Photo):

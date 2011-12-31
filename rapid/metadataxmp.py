@@ -22,7 +22,7 @@ import subprocess
 import multiprocessing, logging
 logger = multiprocessing.get_logger()
 
-class XmpMetadata:
+class XmpMetadataSidecar:
     
     def __init__(self, filename):
         self.filename = filename
@@ -30,6 +30,7 @@ class XmpMetadata:
     
     def _add_pair(self, key_value_pair):
         self.keys.append(key_value_pair)
+        logger.debug(key_value_pair)
         
     def _generate_exiv2_command_line(self):
         # -f option: overwrites any existing xmp file
@@ -49,6 +50,9 @@ class XmpMetadata:
         
     def _generate_exiv2_iptc(self, key, value):
         return "-M set Xmp.iptc.%s %s" % (key, value)
+        
+    def _generate_exiv2_exif(self, key, value):
+        return "-M set Xmp.exif.%s %s" % (key, value)
         
     def set_location(self, location):
         self._add_pair(self._generate_exiv2_iptc('Location', location))
@@ -139,7 +143,10 @@ class XmpMetadata:
         
     def set_contact_url(self, url):
         """Multiple URLs can be given, separated by a comma."""
-        self._add_pair(self._generate_exiv2_contact_info('CiUrlWork', url))          
+        self._add_pair(self._generate_exiv2_contact_info('CiUrlWork', url))
+        
+    def set_exif_value(self, key, value):
+        self._add_pair(self._generate_exiv2_exif(key, value))
         
     def write_xmp_sidecar(self):
         cmd = self._generate_exiv2_command_line()
@@ -161,7 +168,7 @@ if __name__ == '__main__':
         print 'Usage: ' + sys.argv[0] + ' path/to/photo/containing/metadata'
         
     else:
-        x = XmpMetadata(sys.argv[1])
+        x = XmpMetadataSidecar(sys.argv[1])
         x.set_description("This is image is just a sample and is nothing serious. I used to test out writing XMP files in Rapid Photo Downloader.")
         x.set_description_writer("Damon Lynch wrote caption")
         x.set_headline("Sample image to test XMP")

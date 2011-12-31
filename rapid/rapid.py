@@ -1236,8 +1236,9 @@ class FileModifyManager(TaskManager):
                        terminate_queue, run_event):
         scan_pid = task[0]
         auto_rotate_jpeg = task[1]
+        focal_length = task[2]
         
-        file_modify = filemodify.FileModify(auto_rotate_jpeg, 
+        file_modify = filemodify.FileModify(auto_rotate_jpeg, focal_length,
                                         task_process_conn, terminate_queue, 
                                         run_event)
         file_modify.start()
@@ -1363,10 +1364,10 @@ class SubfolderFileManager(SingleInstanceTaskManager):
     """
     Manages the daemon process that renames files and creates subfolders
     """
-    def __init__(self, results_callback, sequence_values, focal_length):
+    def __init__(self, results_callback, sequence_values):
         SingleInstanceTaskManager.__init__(self, results_callback)
         self._subfolder_file = subfolderfile.SubfolderFile(self.task_process_conn, 
-                                                sequence_values, focal_length)
+                                                sequence_values)
         self._subfolder_file.start()
         logger.debug("SubfolderFile PID: %s", self._subfolder_file.pid)
         
@@ -2379,7 +2380,7 @@ class RapidApp(dbus.service.Object):
 
         modify_files_during_download = self.modify_files_during_download()
         if modify_files_during_download:
-            self.file_modify_manager.add_task((scan_pid, self.prefs.auto_rotate_jpeg))
+            self.file_modify_manager.add_task((scan_pid, self.prefs.auto_rotate_jpeg, self.focal_length))
             modify_pipe = self.file_modify_manager.get_modify_pipe(scan_pid)
         else:
             modify_pipe = None
@@ -3786,8 +3787,7 @@ class RapidApp(dbus.service.Object):
         # daemon process to rename files and create subfolders                   
         self.subfolder_file_manager = SubfolderFileManager(
                                         self.subfolder_file_results,
-                                        sequence_values,
-                                        self.focal_length)
+                                        sequence_values)
         
         # process to scan source devices / paths
         self.scan_manager = ScanManager(self.scan_results, self.batch_size, 
@@ -3881,7 +3881,7 @@ def start():
     parser.add_option("-q", "--quiet",  action="store_false", dest="verbose",  help=_("only output errors to the command line"))
     # image file extensions are recognized RAW files plus TIFF and JPG
     parser.add_option("-e",  "--extensions", action="store_true", dest="extensions", help=_("list photo and video file extensions the program recognizes and exit"))
-    parser.add_option("--focal-length", type=int, dest="focal_length", help="If an aperture value of 0.0 is encountered, for file renaming purposes the metadata for that photo will temporarily have its focal length set to the number passed, and its aperture to f8")
+    parser.add_option("--focal-length", type=int, dest="focal_length", help="If an aperture value of 0.0 is encountered, the focal length metadata will be set to the number passed, and its aperture metadata to f8")
     parser.add_option("--reset-settings", action="store_true", dest="reset", help=_("reset all program settings and preferences and exit"))
     (options, args) = parser.parse_args()
     
