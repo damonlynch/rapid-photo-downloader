@@ -262,9 +262,12 @@ class Thumbnail:
                 try:
                     thumbnail = gtk.gdk.pixbuf_new_from_file(thm_full_name)
                 except:
-                    logger.warning("Could not open THM file for %s", full_file_name)
-                thumbnail = add_filmstrip(thumbnail)
-                image = pixbuf_to_image(thumbnail)
+                    logger.error("Could not open THM file for %s", full_file_name)
+                    logger.error("Thumbnail file is %s", thm_full_name)
+                    image = None
+                else:
+                    thumbnail = add_filmstrip(thumbnail)
+                    image = pixbuf_to_image(thumbnail)
         
         if image is None:
             try:

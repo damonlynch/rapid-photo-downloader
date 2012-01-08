@@ -2262,10 +2262,8 @@ class RapidApp(dbus.service.Object):
         self.download_active_by_scan_pid = []
         
     def modify_files_during_download(self):
-        """ Returns True if there is a need to modify files during download
-        (currently the only need is autorotate)
-        """
-        return self.prefs.auto_rotate_jpeg
+        """ Returns True if there is a need to modify files during download"""
+        return self.prefs.auto_rotate_jpeg or (self.focal_length is not None)
 
     
     def start_download(self, scan_pid=None):

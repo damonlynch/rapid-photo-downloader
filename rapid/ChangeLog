@@ -1,7 +1,7 @@
 Version 0.4.3
 -------------
 
-2011-xx-xx
+2012-01-07
 
 ExifTool is now a required dependency for Rapid Photo Downloader. ExifTool
 can be used to help download videos on Linux distributions that have not

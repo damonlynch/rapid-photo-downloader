@@ -183,11 +183,14 @@ class CopyFiles(multiprocessing.Process):
                         logger.debug("Copied video THM file %s", rpd_file.temp_thm_full_name)
                     except gio.Error, inst:
                         logger.error("Failed to download video THM file: %s", rpd_file.thm_full_name)
+                else:
+                    temp_thm_full_name = None
                         
                 
                 if copy_succeeded and rpd_file.generate_thumbnail:
                     thumbnail, thumbnail_icon = self.thumbnail_maker.get_thumbnail(
                                     temp_full_file_name,
+                                    temp_thm_full_name,
                                     rpd_file.file_type,
                                     (160, 120), (100,100))
                 else:
