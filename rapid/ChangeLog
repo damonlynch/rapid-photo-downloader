@@ -56,6 +56,8 @@ confirm if this is really what they want to do.
 
 Fixed bug #792228: clear all thumbnails when refresh command issued.
 
+Fixed bug #890949: Panasonic MOD format and duplicate filename issue
+
 Fixed a bug where the device progress bar would occasionally disappear when 
 the download device was changed. 
 

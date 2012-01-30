@@ -23,7 +23,7 @@ rapid-photo-downloader (0.4.3~b5-0ubuntu1~ppa1) lucid; urgency=low
   * Fixed bug #859012: Confirm if really want to download from /, 
     /home or /media.
 
-  * Fixed bug #792228: clear all thumbnails when refresh commmand
+  * Fixed bug #792228: clear all thumbnails when refresh command
     issued.
 
   * Fix bug where device progress bar could disappear.

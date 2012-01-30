@@ -1237,8 +1237,10 @@ class FileModifyManager(TaskManager):
         scan_pid = task[0]
         auto_rotate_jpeg = task[1]
         focal_length = task[2]
+        xmp_metadata = task[3]
         
         file_modify = filemodify.FileModify(auto_rotate_jpeg, focal_length,
+                                        xmp_metadata,
                                         task_process_conn, terminate_queue, 
                                         run_event)
         file_modify.start()
@@ -1510,6 +1512,9 @@ class RapidApp(dbus.service.Object):
         self.taskserver = taskserver
         
         self.focal_length = focal_length
+        
+        #FIXME
+        self.xmp_metadata = None
         
         # Setup program preferences, and set callback for when they change
         self._init_prefs()
@@ -2263,7 +2268,7 @@ class RapidApp(dbus.service.Object):
         
     def modify_files_during_download(self):
         """ Returns True if there is a need to modify files during download"""
-        return self.prefs.auto_rotate_jpeg or (self.focal_length is not None)
+        return self.prefs.auto_rotate_jpeg or (self.focal_length is not None) or (self.xmp_metadata is not None)
 
     
     def start_download(self, scan_pid=None):
@@ -2378,7 +2383,7 @@ class RapidApp(dbus.service.Object):
 
         modify_files_during_download = self.modify_files_during_download()
         if modify_files_during_download:
-            self.file_modify_manager.add_task((scan_pid, self.prefs.auto_rotate_jpeg, self.focal_length))
+            self.file_modify_manager.add_task((scan_pid, self.prefs.auto_rotate_jpeg, self.focal_length, self.xmp_metadata))
             modify_pipe = self.file_modify_manager.get_modify_pipe(scan_pid)
         else:
             modify_pipe = None
