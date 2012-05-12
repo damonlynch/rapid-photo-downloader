@@ -144,7 +144,7 @@ DEFAULT_VIDEO_SUBFOLDER_PREFS = [DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[9], '/
 
 class i18TranslateMeThanks:
     """ this class is never used in actual running code
-    It's purpose is to have these values inserted into the program's i18n template file
+    Its purpose is to have these values inserted into the program's i18n template file
     
     """
     def __init__(self):

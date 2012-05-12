@@ -402,7 +402,7 @@ class QuestionDialog(gtk.Dialog):
         prompt_hbox = gtk.HBox()
         
         icontheme = gtk.icon_theme_get_default()
-        icon = icontheme.load_icon('gtk-dialog-question', 36, gtk.ICON_LOOKUP_USE_BUILTIN)        
+        icon = icontheme.load_icon('dialog-question', 36, gtk.ICON_LOOKUP_USE_BUILTIN)        
         if icon:
             image = gtk.Image()
             image.set_from_pixbuf(icon)
@@ -708,7 +708,7 @@ class RemoveAllJobCodeDialog(gtk.Dialog):
         prompt_hbox = gtk.HBox()
         
         icontheme = gtk.icon_theme_get_default()
-        icon = icontheme.load_icon('gtk-dialog-question', 36, gtk.ICON_LOOKUP_USE_BUILTIN)        
+        icon = icontheme.load_icon('dialog-question', 36, gtk.ICON_LOOKUP_USE_BUILTIN)        
         if icon:
             image = gtk.Image()
             image.set_from_pixbuf(icon)
