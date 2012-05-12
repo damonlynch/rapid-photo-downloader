@@ -27,6 +27,8 @@ import multiprocessing
 import logging
 logger = multiprocessing.get_logger()
 
+import webbrowser
+
 import ValidatedEntry
 import misc
 

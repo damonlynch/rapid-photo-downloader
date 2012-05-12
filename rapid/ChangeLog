@@ -6,6 +6,8 @@ Version 0.4.4
 Fixed bug #998320: Apply patch from Dmitry Kazimirov for option to have 
 subfolder generation and file renaming use a month in text format.
 
+Fixed bug #995769: The Help button in the preferences dialog does not work.
+
 
 Version 0.4.3
 -------------
