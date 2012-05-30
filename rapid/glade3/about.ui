@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
   <requires lib="gtk+" version="2.20"/>
+  <!-- interface-naming-policy toplevel-contextual -->
   <object class="GtkAboutDialog" id="about">
     <property name="can_focus">False</property>
     <property name="border_width">5</property>
@@ -8,7 +9,7 @@
     <property name="icon">rapid-photo-downloader.svg</property>
     <property name="type_hint">dialog</property>
     <property name="program_name">Rapid Photo Downloader</property>
-    <property name="copyright">Copyright Damon Lynch 2007-11</property>
+    <property name="copyright">Copyright Damon Lynch 2007-12</property>
     <property name="comments" translatable="yes">Import your photos and videos efficiently and reliably</property>
     <property name="website">http://www.damonlynch.net/rapid</property>
     <property name="license">Rapid Photo Downloader is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.
@@ -26,6 +27,7 @@ Bert &lt;crinbert@yahoo.com&gt;
 Martin Dahl Moe
 Marco de Freitas &lt;marcodefreitas@gmail.com&gt;
 Martin Egger &lt;martin.egger@gmx.net&gt;
+Tauno Erik &lt;tauno.erik@gmail.com&gt;
 Emanuele Grande &lt;caccolangrifata@gmail.com&gt;
 Torben Gundtofte-Bruun &lt;torben@g-b.dk&gt;
 Miroslav Matejaš &lt;silverspace@ubuntu-hr.org&gt;
@@ -52,13 +54,12 @@ Aron Xu &lt;happyaron.xu@gmail.com&gt;
     <property name="logo">rapid-photo-downloader.svg</property>
     <property name="wrap_license">True</property>
     <child internal-child="vbox">
-      <object class="GtkBox" id="dialog-vbox1">
+      <object class="GtkVBox" id="dialog-vbox1">
         <property name="visible">True</property>
         <property name="can_focus">False</property>
-        <property name="orientation">vertical</property>
         <property name="spacing">2</property>
         <child internal-child="action_area">
-          <object class="GtkButtonBox" id="dialog-action_area1">
+          <object class="GtkHButtonBox" id="dialog-action_area1">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
             <property name="layout_style">end</property>

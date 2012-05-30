@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: latin1 -*-
 
-### Copyright (C) 2007 - 2011 Damon Lynch <damonlynch@gmail.com>
+### Copyright (C) 2007-2012 Damon Lynch <damonlynch@gmail.com>
 
 ### This program is free software; you can redistribute it and/or modify
 ### it under the terms of the GNU General Public License as published by
@@ -15,7 +15,8 @@
 
 ### You should have received a copy of the GNU General Public License
 ### along with this program; if not, write to the Free Software
-### Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+### Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
+### USA
 
 
 import datetime, re
@@ -26,6 +27,8 @@ import datetime
 import multiprocessing
 import logging
 logger = multiprocessing.get_logger()
+
+import webbrowser
 
 import ValidatedEntry
 import misc
@@ -399,7 +402,7 @@ class QuestionDialog(gtk.Dialog):
         prompt_hbox = gtk.HBox()
         
         icontheme = gtk.icon_theme_get_default()
-        icon = icontheme.load_icon('gtk-dialog-question', 36, gtk.ICON_LOOKUP_USE_BUILTIN)        
+        icon = icontheme.load_icon('dialog-question', 36, gtk.ICON_LOOKUP_USE_BUILTIN)        
         if icon:
             image = gtk.Image()
             image.set_from_pixbuf(icon)
@@ -705,7 +708,7 @@ class RemoveAllJobCodeDialog(gtk.Dialog):
         prompt_hbox = gtk.HBox()
         
         icontheme = gtk.icon_theme_get_default()
-        icon = icontheme.load_icon('gtk-dialog-question', 36, gtk.ICON_LOOKUP_USE_BUILTIN)        
+        icon = icontheme.load_icon('dialog-question', 36, gtk.ICON_LOOKUP_USE_BUILTIN)        
         if icon:
             image = gtk.Image()
             image.set_from_pixbuf(icon)

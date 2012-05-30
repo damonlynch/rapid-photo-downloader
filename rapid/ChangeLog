@@ -1,3 +1,23 @@
+Version 0.4.4
+-------------
+
+2012-05-30
+
+Fixed bug #998320: Applied patch from Dmitry Kazimirov for option to have 
+subfolder generation and file renaming use a month in text format. Thanks
+Dmitry!
+
+Fixed bug #986681: Crash when showing question dialog on some non-Gnome systems.
+Thanks go to Liudas Ališauskas for the suggested fix.
+
+Fixed bug #995769: The Help button in the preferences dialog does not work.
+
+Fixed bug #996613: Updated Free Software Foundation address.
+
+Added Estonian translation. Updated Brazilian, Dutch, French, German, Norwegian 
+Bokmal, Polish, Spanish and Russian translations.
+
+
 Version 0.4.3
 -------------
 

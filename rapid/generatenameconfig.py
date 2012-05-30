@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: latin1 -*-
 
-### Copyright (C) 2007, 2008, 2009, 2010, 2011 Damon Lynch <damonlynch@gmail.com>
+### Copyright (C) 2007-2012 Damon Lynch <damonlynch@gmail.com>
 
 ### This program is free software; you can redistribute it and/or modify
 ### it under the terms of the GNU General Public License as published by
@@ -15,7 +15,8 @@
 
 ### You should have received a copy of the GNU General Public License
 ### along with this program; if not, write to the Free Software
-### Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+### Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
+### USA
 
 # Special key in each dictionary which specifies the order of elements.
 # It is very important to have a consistent and rational order when displaying 
@@ -132,7 +133,7 @@ SUBSECONDS = 'Subseconds'
 LIST_DATE_TIME_L2 = ['YYYYMMDD', 'YYYY-MM-DD','YYMMDD', 'YY-MM-DD', 
                     'MMDDYYYY', 'MMDDYY', 'MMDD', 
                     'DDMMYYYY', 'DDMMYY', 'YYYY', 'YY', 
-                    'MM', 'DD', 
+                    'MM', 'DD', 'Month (full)', 'Month (abbreviated)',
                     'HHMMSS', 'HHMM', 'HH-MM-SS',  'HH-MM',  'HH',  'MM (minutes)',  'SS']
                     
 
@@ -143,7 +144,7 @@ DEFAULT_VIDEO_SUBFOLDER_PREFS = [DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[9], '/
 
 class i18TranslateMeThanks:
     """ this class is never used in actual running code
-    It's purpose is to have these values inserted into the program's i18n template file
+    Its purpose is to have these values inserted into the program's i18n template file
     
     """
     def __init__(self):
@@ -266,6 +267,10 @@ class i18TranslateMeThanks:
         # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
         _('DD')
         # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
+        _('Month (full)'),
+        # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
+        _('Month (abbreviated)'),
+        # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
         _('HHMMSS')
         # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
         _('HHMM')
@@ -287,7 +292,7 @@ class i18TranslateMeThanks:
 DATE_TIME_CONVERT = ['%Y%m%d', '%Y-%m-%d','%y%m%d', '%y-%m-%d', 
                     '%m%d%Y', '%m%d%y', '%m%d',
                     '%d%m%Y', '%d%m%y', '%Y', '%y', 
-                    '%m', '%d',
+                    '%m', '%d', '%B', '%b',
                     '%H%M%S', '%H%M', '%H-%M-%S',  '%H-%M',  
                     '%H',  '%M',  '%S']
                     
