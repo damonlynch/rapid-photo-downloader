@@ -1,3 +1,21 @@
+rapid-photo-downloader (0.4.4-0ubuntu1~ppa1) lucid; urgency=low
+
+  * Fixed bug #998320: Option to have subfolder generation and file 
+    renaming use a month in text format
+
+  * Fixed bug #986681: Crash when showing question dialog on some 
+    non-Gnome systems
+
+  * Fixed bug #995769: The Help button in the preferences dialog does 
+    not work
+
+  * Fixed bug #996613: Updated Free Software Foundation address
+
+  * Added Estonian translation. Updated Brazilian, Dutch, French, 
+    German, Norwegian Bokmal, Polish, Spanish and Russian translations
+
+ -- Damon Lynch <damonlynch@gmail.com>  Wed, 30 May 2012 00:12:14 -0500
+
 rapid-photo-downloader (0.4.3-0ubuntu1~ppa1) lucid; urgency=low
 
   * Fixed generation of thumbnails when auto start download is on

@@ -1,10 +1,11 @@
 Version 0.4.4
 -------------
 
-2012-xx-xx
+2012-05-30
 
 Fixed bug #998320: Applied patch from Dmitry Kazimirov for option to have 
-subfolder generation and file renaming use a month in text format.
+subfolder generation and file renaming use a month in text format. Thanks
+Dmitry!
 
 Fixed bug #986681: Crash when showing question dialog on some non-Gnome systems.
 Thanks go to Liudas Ališauskas for the suggested fix.
