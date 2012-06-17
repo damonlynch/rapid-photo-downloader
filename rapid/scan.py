@@ -104,6 +104,7 @@ class Scan(multiprocessing.Process):
         self.run_event = run_event
         self.batch_size = batch_size
         self.counter = 0
+        self.files_scanned = 0
         self.files = []
         self.file_type_counter = rpdfile.FileTypeCounter()
         
@@ -139,6 +140,11 @@ class Scan(multiprocessing.Process):
                         return None
 
                 elif file_type == gio.FILE_TYPE_REGULAR:
+                    
+                    self.files_scanned += 1
+                    if self.files_scanned % 100 == 0:
+                        logger.debug("Scanned %s files", self.files_scanned)
+                        
                     base_name, ext = os.path.splitext(name)
                     ext = ext.lower()[1:]
                     
@@ -174,15 +180,17 @@ class Scan(multiprocessing.Process):
                                              file_type)
                                          
                             self.files.append(scanned_file)
-                        
+                            file_size_sum += size
+                                                    
                             if self.counter == self.batch_size:
                                 # send batch of results
                                 self.results_pipe.send((rpdmp.CONN_PARTIAL, 
-                                                        self.files))
+                                                        (file_size_sum, 
+                                                        self.file_type_counter,
+                                                        self.pid,
+                                                        self.files)))
                                 self.files = []
                                 self.counter = 0
-                            
-                            file_size_sum += size
 
         return file_size_sum
         
@@ -206,7 +214,11 @@ class Scan(multiprocessing.Process):
         if size is not None:
             if self.counter > 0:
                 # send any remaining results
-                self.results_pipe.send((rpdmp.CONN_PARTIAL, self.files))
+                self.results_pipe.send((rpdmp.CONN_PARTIAL, (size, 
+                    self.file_type_counter,
+                    self.pid,
+                    self.files)))
+                    
             self.results_pipe.send((rpdmp.CONN_COMPLETE, (size, 
                                     self.file_type_counter, self.pid)))
             self.results_pipe.close()                

@@ -1740,7 +1740,7 @@ class RapidApp(dbus.service.Object):
         user said no.
         """
         l = self.prefs.device_location
-        if l in ['/media', os.path.expanduser('~'), '/']:
+        if l in ['/media', '/run', os.path.expanduser('~'), '/']:
             logger.info("Prompting whether to download from %s", l)
             if l == '/':
                 #this location is a human readable explanation for /, and is inserted into Downloading from %(location)s
@@ -2403,7 +2403,19 @@ class RapidApp(dbus.service.Object):
 
             if msg_type == rpdmp.MSG_TEMP_DIRS:
                 scan_pid, photo_temp_dir, video_temp_dir = data
-                self.temp_dirs_by_scan_pid[scan_pid] = (photo_temp_dir, video_temp_dir)                
+                self.temp_dirs_by_scan_pid[scan_pid] = (photo_temp_dir, video_temp_dir)
+                
+                # Report which temporary directories are being used for this
+                # download
+                if photo_temp_dir and video_temp_dir:
+                    logger.debug("Using temp dirs %s (photos) & %s (videos)",
+                                photo_temp_dir, video_temp_dir)
+                elif photo_temp_dir:
+                    logger.debug("Using temp dir %s (photos)",
+                                photo_temp_dir)
+                else:
+                    logger.debug("Using temp dir %s (videos)",
+                                video_temp_dir)                    
             elif msg_type == rpdmp.MSG_BYTES:
                 scan_pid, total_downloaded, chunk_downloaded = data
                 self.download_tracker.set_total_bytes_copied(scan_pid, 
@@ -3658,12 +3670,19 @@ class RapidApp(dbus.service.Object):
                                                         is_photo_dir=True):
                 valid = False
                 invalid_dirs.append(self.prefs.download_folder)
+            else:
+                logger.debug("Photo download folder is valid: %s", 
+                        self.prefs.download_folder)
                 
         if need_video_folder:
             if not self.is_valid_download_dir(self.prefs.video_download_folder,
                                                         is_photo_dir=False):            
                 valid = False
                 invalid_dirs.append(self.prefs.video_download_folder)
+            else:
+                logger.debug("Video download folder is valid: %s", 
+                        self.prefs.video_download_folder)
+
                 
         return (valid, invalid_dirs)
 
@@ -3842,10 +3861,17 @@ class RapidApp(dbus.service.Object):
             # signal that no more data is coming, finishing io watch for this pipe
             return False
         else:
+            # partial results
             if len(data) > self.batch_size:
                 logger.critical("incoming pipe length is unexpectedly long: %s" % len(data))
             else:
-                for rpd_file in data:
+                size, file_type_counter, scan_pid, rpd_files = data
+                size = format_size_for_user(bytes=size)
+                scanning_progress = file_type_counter.running_file_count()
+                self.device_collection.update_device(scan_pid, size)
+                self.device_collection.update_progress(scan_pid, 0.0, scanning_progress, 0)
+                
+                for rpd_file in rpd_files:
                     self.thumbnails.add_file(rpd_file=rpd_file, 
                                         generate_thumbnail = not self.auto_start_is_on)
         

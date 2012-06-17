@@ -67,7 +67,6 @@ else:
 FILE_TYPE_PHOTO = 0
 FILE_TYPE_VIDEO = 1
 
-
 def file_type(file_extension):
     """
     Uses file extentsion to determine the type of file - photo or video.
@@ -102,6 +101,14 @@ class FileTypeCounter:
     def add(self, file_type):
         self._counter[file_type] = self._counter.setdefault(file_type, 0) + 1
         
+    def no_videos(self):
+        """Returns the number of videos"""
+        return self._counter.setdefault(FILE_TYPE_VIDEO, 0)
+        
+    def no_photos(self):
+        """Returns the number of photos"""
+        return self._counter.setdefault(FILE_TYPE_PHOTO, 0)
+        
     def file_types_present(self):
         """ 
         returns a string to be displayed to the user that can be used
@@ -109,8 +116,8 @@ class FileTypeCounter:
         of each
         """
         
-        no_videos = self._counter.setdefault(FILE_TYPE_VIDEO, 0)
-        no_images = self._counter.setdefault(FILE_TYPE_PHOTO, 0)
+        no_videos = self.no_videos()
+        no_images = self.no_photos()
         
         if (no_videos > 0) and (no_images > 0):
             v = _('photos and videos')
@@ -135,6 +142,10 @@ class FileTypeCounter:
         return i
         
     def summarize_file_count(self):
+        """
+        Summarizes the total number of photos and/or videos that can be
+        downloaded. Displayed after a scan is finished.
+        """
         #Number of files, e.g. "433 photos and videos" or "23 videos".
         #Displayed in the progress bar at the top of the main application
         #window.
@@ -143,6 +154,14 @@ class FileTypeCounter:
                               {'number':self.count_files(),
                                'filetypes': file_types_present} 
         return (file_count_summary, file_types_present)
+        
+    def running_file_count(self):
+        """
+        Displays raw numbers of photos and videos. Displayed as a scan is 
+        occurring. 
+        """
+        return _("scanning (found %(photos)s photos and %(videos)s videos)...") % ({'photos': self.no_photos(),
+                'videos': self.no_videos()})
         
 class RPDFile:
     """

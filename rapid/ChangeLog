@@ -1,3 +1,14 @@
+Version 0.4.5
+-------------
+
+2012-06-xx
+
+A running total of the number of photos and videos found is now displaying
+as a scan of a device is occurring.
+
+Added extra information to debugging output.
+
+
 Version 0.4.4
 -------------
 
