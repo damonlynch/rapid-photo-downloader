@@ -1,3 +1,30 @@
+Version 0.4.5 Beta 1
+--------------------
+
+2012-06-17
+
+To increase performance, thumbnails are now no longer displayed until all 
+devices have finished being scanned. To indicate the scan is occurring, the
+progress bar now pulses and it displays a running total of the number of photos 
+and videos found. If scanning a very large number of files from a fast device, 
+the progress bar may pause. If this happens, just wait for the scan to complete.
+
+Fixed bug #1014203: Very poor program performance after download device changed.
+The program now displays the results of scanning files much quicker if the
+program's download device preferences are changed and a scan begins of a new
+device. 
+
+You can now specify via the command line whether you would like to automatically
+detect devices from which to download, or manually specify the path of the 
+device. If specified, the option will overwrite the existing program 
+preferences.
+
+Added extra information to debugging output.
+
+Fixed bug #1014219: File Modify process crashes if program exits during 
+download. 
+
+
 Version 0.4.4
 -------------
 

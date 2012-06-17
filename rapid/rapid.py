@@ -32,6 +32,8 @@ from optparse import OptionParser
 import gtk
 import gtk.gdk as gdk
 
+from gobject.constants import G_MAXINT
+
 import webbrowser
 
 import sys, time, types, os, datetime
@@ -135,9 +137,9 @@ class DeviceCollection(gtk.TreeView):
         self.parent_app = parent_app
         # device icon & name, size of images on the device (human readable), 
         # copy progress (%), copy text, eject button (None if irrelevant),
-        # process id
+        # process id, pulse
         self.liststore = gtk.ListStore(gtk.gdk.Pixbuf, str, str, float, str,
-                                       gtk.gdk.Pixbuf, int)
+                                       gtk.gdk.Pixbuf, int, int)
         self.map_process_to_row = {}
         self.devices_by_scan_pid = {}
 
@@ -176,7 +178,8 @@ class DeviceCollection(gtk.TreeView):
         column2 = gtk.TreeViewColumn(_("Download Progress"), 
                                     gtk.CellRendererProgress(),
                                     value=3,
-                                    text=4)
+                                    text=4,
+                                    pulse=7)
         self.append_column(column2)
         self.show_all()
         
@@ -211,7 +214,8 @@ class DeviceCollection(gtk.TreeView):
                                       progress,
                                       progress_bar_text,
                                       eject,
-                                      process_id))
+                                      process_id,
+                                      -1))
         
         self._set_process_map(process_id, iter)
         
@@ -275,7 +279,7 @@ class DeviceCollection(gtk.TreeView):
         else:
             return None
     
-    def update_progress(self, scan_pid, percent_complete, progress_bar_text, bytes_downloaded):
+    def update_progress(self, scan_pid, percent_complete, progress_bar_text, bytes_downloaded, pulse=None):
         
         iter = self._get_process_map(scan_pid)
         if iter:
@@ -283,9 +287,19 @@ class DeviceCollection(gtk.TreeView):
                 self.liststore.set_value(iter, 3, percent_complete)
             if progress_bar_text:
                 self.liststore.set_value(iter, 4, progress_bar_text)
-            if percent_complete or bytes_downloaded:
-                pass
-                #~ logger.info("Implement update overall progress")
+                
+            if pulse is not None:
+                if pulse:
+                    # Make the bar pulse
+                    self.liststore.set_value(iter, 7, self.liststore.get_value(iter, 7) + 1)
+                else:
+                    # Set to finished state
+                    self.liststore.set_value(iter, 7, G_MAXINT)
+            else:
+                # Reset to allow fraction to be set
+                self.liststore.set_value(iter, 7, -1)
+
+
 
     def button_clicked(self, widget, event):
         """
@@ -502,20 +516,10 @@ class ThumbnailDisplay(gtk.IconView):
         self.DOWNLOAD_STATUS_COL = 7
         self.STATUS_ICON_COL = 8
         
-        self.liststore = gtk.ListStore(
-             gobject.TYPE_PYOBJECT, # 0 PIL thumbnail
-             gobject.TYPE_BOOLEAN,  # 1 selected or not
-             str,                   # 2 unique id
-             str,                   # 3 file name
-             int,                   # 4 timestamp for sorting, converted float
-             int,                   # 5 file type i.e. photo or video
-             gobject.TYPE_BOOLEAN,  # 6 visibility of checkbutton
-             int,                   # 7 status of download
-             gtk.gdk.Pixbuf,        # 8 status icon
-             )
+        self._create_liststore()
 
         self.clear()
-        self.set_model(self.liststore)
+        #~ self.set_model(self.liststore)
         
         
         checkbutton = gtk.CellRendererToggle()
@@ -545,6 +549,22 @@ class ThumbnailDisplay(gtk.IconView):
         self._setup_icons()
         
         self.connect('item-activated', self.on_item_activated)
+        
+    def _create_liststore(self):
+        """
+        Creates the default list store to hold the icons
+        """
+        self.liststore = gtk.ListStore(
+             gobject.TYPE_PYOBJECT, # 0 PIL thumbnail
+             gobject.TYPE_BOOLEAN,  # 1 selected or not
+             str,                   # 2 unique id
+             str,                   # 3 file name
+             int,                   # 4 timestamp for sorting, converted float
+             int,                   # 5 file type i.e. photo or video
+             gobject.TYPE_BOOLEAN,  # 6 visibility of checkbutton
+             int,                   # 7 status of download
+             gtk.gdk.Pixbuf,        # 8 status icon
+             )        
         
     def _setup_icons(self):
         # icons to be displayed in status column
@@ -1018,7 +1038,12 @@ class ThumbnailDisplay(gtk.IconView):
         have been downloaded.
         """
         if scan_pid is None and not keep_downloaded_files:
-            self.liststore.clear()
+            
+            # Here it is critically important to create a brand new liststore,
+            # because the old one is set to be sorted, which is extremely slow.
+            self.set_model(None)
+            self._create_liststore()
+
             self.treerow_index = {}
             self.process_index = {}
             
@@ -1036,6 +1061,9 @@ class ThumbnailDisplay(gtk.IconView):
                         del self.rpd_files[rpd_file.unique_id]
                 if not keep_downloaded_files or not len(self.process_index[scan_pid]):
                     del self.process_index[scan_pid]
+                    
+    def display_thumbnails(self):
+        self.set_model(self.liststore)
     
 class TaskManager:
     def __init__(self, results_callback, batch_size):
@@ -1505,7 +1533,8 @@ class RapidApp(dbus.service.Object):
     processes.
     """
      
-    def __init__(self,  bus, path, name, taskserver=None, focal_length=None): 
+    def __init__(self,  bus, path, name, taskserver=None, focal_length=None,
+    auto_detect=None, device_location=None): 
         
         dbus.service.Object.__init__ (self, bus, path, name)
         self.running = False
@@ -1518,7 +1547,7 @@ class RapidApp(dbus.service.Object):
         self.xmp_metadata = None
         
         # Setup program preferences, and set callback for when they change
-        self._init_prefs()
+        self._init_prefs(auto_detect, device_location)
         
         # Initialize widgets in the main window, and variables that point to them
         self._init_widgets()
@@ -1707,6 +1736,7 @@ class RapidApp(dbus.service.Object):
         """
         if self.scan_manager.no_tasks == 0:
             self.thumbnails.sort_by_timestamp()
+            self.thumbnails.display_thumbnails()
 
 
     # # #
@@ -1745,7 +1775,7 @@ class RapidApp(dbus.service.Object):
         user said no.
         """
         l = self.prefs.device_location
-        if l in ['/media', os.path.expanduser('~'), '/']:
+        if l in ['/media', '/run', os.path.expanduser('~'), '/']:
             logger.info("Prompting whether to download from %s", l)
             if l == '/':
                 #this location is a human readable explanation for /, and is inserted into Downloading from %(location)s
@@ -2408,7 +2438,19 @@ class RapidApp(dbus.service.Object):
 
             if msg_type == rpdmp.MSG_TEMP_DIRS:
                 scan_pid, photo_temp_dir, video_temp_dir = data
-                self.temp_dirs_by_scan_pid[scan_pid] = (photo_temp_dir, video_temp_dir)                
+                self.temp_dirs_by_scan_pid[scan_pid] = (photo_temp_dir, video_temp_dir)
+                
+                # Report which temporary directories are being used for this
+                # download
+                if photo_temp_dir and video_temp_dir:
+                    logger.debug("Using temp dirs %s (photos) & %s (videos)",
+                                photo_temp_dir, video_temp_dir)
+                elif photo_temp_dir:
+                    logger.debug("Using temp dir %s (photos)",
+                                photo_temp_dir)
+                else:
+                    logger.debug("Using temp dir %s (videos)",
+                                video_temp_dir)                    
             elif msg_type == rpdmp.MSG_BYTES:
                 scan_pid, total_downloaded, chunk_downloaded = data
                 self.download_tracker.set_total_bytes_copied(scan_pid, 
@@ -2886,8 +2928,17 @@ class RapidApp(dbus.service.Object):
     # # #
         
         
-    def _init_prefs(self): 
+    def _init_prefs(self, auto_detect, device_location): 
         self.prefs = prefsrapid.RapidPreferences()
+        
+        # handle device preferences set from the command line
+        # do this before preference changes are handled with notify_add
+        if auto_detect:
+            self.prefs.device_autodetection = True
+        elif device_location:
+            self.prefs.device_location = device_location
+            self.prefs.device_autodetection = False
+                    
         self.prefs.notify_add(self.on_preference_changed)
         
         # flag to indicate whether the user changed some preferences that 
@@ -3011,7 +3062,7 @@ class RapidApp(dbus.service.Object):
     def post_preference_change(self):
         if self.rerun_setup_available_image_and_video_media:
 
-            logger.info("Download device settings preferences were changed.")
+            logger.info("Download device settings preferences were changed")
             
             self.thumbnails.clear_all()
             self.setup_devices(on_startup = False, on_preference_change = True, block_auto_start = True)
@@ -3663,12 +3714,19 @@ class RapidApp(dbus.service.Object):
                                                         is_photo_dir=True):
                 valid = False
                 invalid_dirs.append(self.prefs.download_folder)
+            else:
+                logger.debug("Photo download folder is valid: %s", 
+                        self.prefs.download_folder)
                 
         if need_video_folder:
             if not self.is_valid_download_dir(self.prefs.video_download_folder,
                                                         is_photo_dir=False):            
                 valid = False
                 invalid_dirs.append(self.prefs.video_download_folder)
+            else:
+                logger.debug("Video download folder is valid: %s", 
+                        self.prefs.video_download_folder)
+
                 
         return (valid, invalid_dirs)
 
@@ -3828,7 +3886,7 @@ class RapidApp(dbus.service.Object):
             logger.info('Found %s' % results_summary)
             logger.info('Files total %s' % size)
             self.device_collection.update_device(scan_pid, size)
-            self.device_collection.update_progress(scan_pid, 0.0, results_summary, 0)
+            self.device_collection.update_progress(scan_pid, 0.0, results_summary, 0, pulse=False)
             self.set_download_action_sensitivity()
                         
             if (not self.auto_start_is_on and
@@ -3847,10 +3905,17 @@ class RapidApp(dbus.service.Object):
             # signal that no more data is coming, finishing io watch for this pipe
             return False
         else:
+            # partial results
             if len(data) > self.batch_size:
                 logger.critical("incoming pipe length is unexpectedly long: %s" % len(data))
             else:
-                for rpd_file in data:
+                size, file_type_counter, scan_pid, rpd_files = data
+                size = format_size_for_user(bytes=size)
+                scanning_progress = file_type_counter.running_file_count()
+                self.device_collection.update_device(scan_pid, size)
+                self.device_collection.update_progress(scan_pid, 0.0, scanning_progress, 0, pulse=True)
+                
+                for rpd_file in rpd_files:
                     self.thumbnails.add_file(rpd_file=rpd_file, 
                                         generate_thumbnail = not self.auto_start_is_on)
         
@@ -3886,6 +3951,8 @@ def start():
     # image file extensions are recognized RAW files plus TIFF and JPG
     parser.add_option("-e",  "--extensions", action="store_true", dest="extensions", help=_("list photo and video file extensions the program recognizes and exit"))
     parser.add_option("--focal-length", type=int, dest="focal_length", help="If an aperture value of 0.0 is encountered, the focal length metadata will be set to the number passed, and its aperture metadata to f8")
+    parser.add_option("-a", "--auto-detect", action="store_true", dest="auto_detect", help=_("automatically detect devices from which to download, overwriting existing program preferences"))
+    parser.add_option("-l", "--device-location", type="string", metavar="PATH", dest="device_location", help=_("manually specify the PATH of the device from which to download, overwriting existing program preferences"))
     parser.add_option("--reset-settings", action="store_true", dest="reset", help=_("reset all program settings and preferences and exit"))
     (options, args) = parser.parse_args()
     
@@ -3897,6 +3964,22 @@ def start():
         logging_level = logging.ERROR
     
     logger.setLevel(logging_level)
+    
+    if options.auto_detect and options.device_location:
+        logger.info(_("Error: specify device auto-detection or manually specifiy a device's path from which to download, but do not do both."))
+        sys.exit(1)
+        
+    if options.auto_detect:
+        auto_detect=True
+        logger.info("Device auto detection set from command line")
+    else:
+        auto_detect=None
+        
+    if options.device_location:
+        device_location=options.device_location
+        logger.info("Device location set from command line: %s", device_location)
+    else:
+        device_location=None
 
     if options.extensions:
         extensions = ((rpdfile.PHOTO_EXTENSIONS, _("Photos:")), (rpdfile.VIDEO_EXTENSIONS, _("Videos:")))
@@ -3937,7 +4020,8 @@ def start():
     bus = dbus.SessionBus ()
     request = bus.request_name (config.DBUS_NAME, dbus.bus.NAME_FLAG_DO_NOT_QUEUE)
     if request != dbus.bus.REQUEST_NAME_REPLY_EXISTS: 
-        app = RapidApp(bus, '/', config.DBUS_NAME, focal_length=focal_length)
+        app = RapidApp(bus, '/', config.DBUS_NAME, focal_length=focal_length,
+        auto_detect=auto_detect, device_location=device_location)
     else:
         # this application is already running
         print "Rapid Photo Downloader is already running"
