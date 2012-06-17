@@ -72,7 +72,11 @@ class FileModify(multiprocessing.Process):
         while not copy_finished:        
             logger.debug("Finished %s. Getting next task.", download_count)
             
-            rpd_file, download_count, temp_full_file_name, thumbnail_icon, thumbnail, copy_finished = self.results_pipe.recv()
+            data = self.results_pipe.recv()
+            if len(data) > 2:
+                rpd_file, download_count, temp_full_file_name, thumbnail_icon, thumbnail, copy_finished = data
+            else:
+                rpd_file, copy_finished = data
             if rpd_file is None:
                 # this is a termination signal
                 logger.info("Terminating file modify via pipe")

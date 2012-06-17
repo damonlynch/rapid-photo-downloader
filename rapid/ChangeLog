@@ -1,7 +1,7 @@
-Version 0.4.5
--------------
+Version 0.4.5 Beta 1
+--------------------
 
-2012-06-xx
+2012-06-17
 
 To increase performance, thumbnails are now no longer displayed until all 
 devices have finished being scanned. To indicate the scan is occurring, the
@@ -20,6 +20,9 @@ device. If specified, the option will overwrite the existing program
 preferences.
 
 Added extra information to debugging output.
+
+Fixed bug #1014219: File Modify process crashes if program exits during 
+download. 
 
 
 Version 0.4.4
