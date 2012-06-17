@@ -1503,7 +1503,8 @@ class RapidApp(dbus.service.Object):
     processes.
     """
      
-    def __init__(self,  bus, path, name, taskserver=None, focal_length=None): 
+    def __init__(self,  bus, path, name, taskserver=None, focal_length=None,
+    auto_detect=None, device_location=None): 
         
         dbus.service.Object.__init__ (self, bus, path, name)
         self.running = False
@@ -1513,7 +1514,7 @@ class RapidApp(dbus.service.Object):
         self.focal_length = focal_length
         
         # Setup program preferences, and set callback for when they change
-        self._init_prefs()
+        self._init_prefs(auto_detect, device_location)
         
         # Initialize widgets in the main window, and variables that point to them
         self._init_widgets()
@@ -2893,8 +2894,17 @@ class RapidApp(dbus.service.Object):
     # # #
         
         
-    def _init_prefs(self): 
+    def _init_prefs(self, auto_detect, device_location): 
         self.prefs = prefsrapid.RapidPreferences()
+        
+        # handle device preferences set from the command line
+        # do this before preference changes are handled with notify_add
+        if auto_detect:
+            self.prefs.device_autodetection = True
+        elif device_location:
+            self.prefs.device_location = device_location
+            self.prefs.device_autodetection = False
+                    
         self.prefs.notify_add(self.on_preference_changed)
         
         # flag to indicate whether the user changed some preferences that 
@@ -3907,6 +3917,8 @@ def start():
     # image file extensions are recognized RAW files plus TIFF and JPG
     parser.add_option("-e",  "--extensions", action="store_true", dest="extensions", help=_("list photo and video file extensions the program recognizes and exit"))
     parser.add_option("--focal-length", type=int, dest="focal_length", help="If an aperture value of 0.0 is encountered, the focal length metadata will be set to the number passed, and its aperture metadata to f8")
+    parser.add_option("-a", "--auto-detect", action="store_true", dest="auto_detect", help=_("automatically detect devices from which to download, overwriting existing program preferences"))
+    parser.add_option("-l", "--device-location", type="string", metavar="PATH", dest="device_location", help=_("manually specify the PATH of the device from which to download, overwriting existing program preferences"))
     parser.add_option("--reset-settings", action="store_true", dest="reset", help=_("reset all program settings and preferences and exit"))
     (options, args) = parser.parse_args()
     
@@ -3918,6 +3930,22 @@ def start():
         logging_level = logging.ERROR
     
     logger.setLevel(logging_level)
+    
+    if options.auto_detect and options.device_location:
+        logger.info(_("Error: specify device auto-detection or manually specifiy a device's path from which to download, but do not do both."))
+        sys.exit(1)
+        
+    if options.auto_detect:
+        auto_detect=True
+        logger.info("Device auto detection set from command line")
+    else:
+        auto_detect=None
+        
+    if options.device_location:
+        device_location=options.device_location
+        logger.info("Device location set from command line: %s", device_location)
+    else:
+        device_location=None
 
     if options.extensions:
         extensions = ((rpdfile.PHOTO_EXTENSIONS, _("Photos:")), (rpdfile.VIDEO_EXTENSIONS, _("Videos:")))
@@ -3958,7 +3986,8 @@ def start():
     bus = dbus.SessionBus ()
     request = bus.request_name (config.DBUS_NAME, dbus.bus.NAME_FLAG_DO_NOT_QUEUE)
     if request != dbus.bus.REQUEST_NAME_REPLY_EXISTS: 
-        app = RapidApp(bus, '/', config.DBUS_NAME, focal_length=focal_length)
+        app = RapidApp(bus, '/', config.DBUS_NAME, focal_length=focal_length,
+        auto_detect=auto_detect, device_location=device_location)
     else:
         # this application is already running
         print "Rapid Photo Downloader is already running"

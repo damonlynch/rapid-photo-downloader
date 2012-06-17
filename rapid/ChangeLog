@@ -3,8 +3,14 @@ Version 0.4.5
 
 2012-06-xx
 
+You can now specify via the command line whether you would like to automatically
+detect devices from which to download, or manually specify the path of the 
+device. If specified, the option will overwrite the existing program 
+preferences.
+
 A running total of the number of photos and videos found is now displaying
-as a scan of a device is occurring.
+as a scan of a device is occurring. If scanning from a fast device, the running
+total may not be updated very often.
 
 Added extra information to debugging output.
 
