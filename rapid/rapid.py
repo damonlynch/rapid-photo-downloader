@@ -32,6 +32,8 @@ from optparse import OptionParser
 import gtk
 import gtk.gdk as gdk
 
+from gobject.constants import G_MAXINT
+
 import webbrowser
 
 import sys, time, types, os, datetime
@@ -135,9 +137,9 @@ class DeviceCollection(gtk.TreeView):
         self.parent_app = parent_app
         # device icon & name, size of images on the device (human readable), 
         # copy progress (%), copy text, eject button (None if irrelevant),
-        # process id
+        # process id, pulse
         self.liststore = gtk.ListStore(gtk.gdk.Pixbuf, str, str, float, str,
-                                       gtk.gdk.Pixbuf, int)
+                                       gtk.gdk.Pixbuf, int, int)
         self.map_process_to_row = {}
         self.devices_by_scan_pid = {}
 
@@ -176,7 +178,8 @@ class DeviceCollection(gtk.TreeView):
         column2 = gtk.TreeViewColumn(_("Download Progress"), 
                                     gtk.CellRendererProgress(),
                                     value=3,
-                                    text=4)
+                                    text=4,
+                                    pulse=7)
         self.append_column(column2)
         self.show_all()
         
@@ -211,7 +214,8 @@ class DeviceCollection(gtk.TreeView):
                                       progress,
                                       progress_bar_text,
                                       eject,
-                                      process_id))
+                                      process_id,
+                                      -1))
         
         self._set_process_map(process_id, iter)
         
@@ -275,7 +279,7 @@ class DeviceCollection(gtk.TreeView):
         else:
             return None
     
-    def update_progress(self, scan_pid, percent_complete, progress_bar_text, bytes_downloaded):
+    def update_progress(self, scan_pid, percent_complete, progress_bar_text, bytes_downloaded, pulse=None):
         
         iter = self._get_process_map(scan_pid)
         if iter:
@@ -283,9 +287,19 @@ class DeviceCollection(gtk.TreeView):
                 self.liststore.set_value(iter, 3, percent_complete)
             if progress_bar_text:
                 self.liststore.set_value(iter, 4, progress_bar_text)
-            if percent_complete or bytes_downloaded:
-                pass
-                #~ logger.info("Implement update overall progress")
+                
+            if pulse is not None:
+                if pulse:
+                    # Make the bar pulse
+                    self.liststore.set_value(iter, 7, self.liststore.get_value(iter, 7) + 1)
+                else:
+                    # Set to finished state
+                    self.liststore.set_value(iter, 7, G_MAXINT)
+            else:
+                # Reset to allow fraction to be set
+                self.liststore.set_value(iter, 7, -1)
+
+
 
     def button_clicked(self, widget, event):
         """
@@ -502,20 +516,10 @@ class ThumbnailDisplay(gtk.IconView):
         self.DOWNLOAD_STATUS_COL = 7
         self.STATUS_ICON_COL = 8
         
-        self.liststore = gtk.ListStore(
-             gobject.TYPE_PYOBJECT, # 0 PIL thumbnail
-             gobject.TYPE_BOOLEAN,  # 1 selected or not
-             str,                   # 2 unique id
-             str,                   # 3 file name
-             int,                   # 4 timestamp for sorting, converted float
-             int,                   # 5 file type i.e. photo or video
-             gobject.TYPE_BOOLEAN,  # 6 visibility of checkbutton
-             int,                   # 7 status of download
-             gtk.gdk.Pixbuf,        # 8 status icon
-             )
+        self._create_liststore()
 
         self.clear()
-        self.set_model(self.liststore)
+        #~ self.set_model(self.liststore)
         
         
         checkbutton = gtk.CellRendererToggle()
@@ -545,6 +549,22 @@ class ThumbnailDisplay(gtk.IconView):
         self._setup_icons()
         
         self.connect('item-activated', self.on_item_activated)
+        
+    def _create_liststore(self):
+        """
+        Creates the default list store to hold the icons
+        """
+        self.liststore = gtk.ListStore(
+             gobject.TYPE_PYOBJECT, # 0 PIL thumbnail
+             gobject.TYPE_BOOLEAN,  # 1 selected or not
+             str,                   # 2 unique id
+             str,                   # 3 file name
+             int,                   # 4 timestamp for sorting, converted float
+             int,                   # 5 file type i.e. photo or video
+             gobject.TYPE_BOOLEAN,  # 6 visibility of checkbutton
+             int,                   # 7 status of download
+             gtk.gdk.Pixbuf,        # 8 status icon
+             )        
         
     def _setup_icons(self):
         # icons to be displayed in status column
@@ -1018,7 +1038,12 @@ class ThumbnailDisplay(gtk.IconView):
         have been downloaded.
         """
         if scan_pid is None and not keep_downloaded_files:
-            self.liststore.clear()
+            
+            # Here it is critically important to create a brand new liststore,
+            # because the old one is set to be sorted, which is extremely slow.
+            self.set_model(None)
+            self._create_liststore()
+
             self.treerow_index = {}
             self.process_index = {}
             
@@ -1036,6 +1061,9 @@ class ThumbnailDisplay(gtk.IconView):
                         del self.rpd_files[rpd_file.unique_id]
                 if not keep_downloaded_files or not len(self.process_index[scan_pid]):
                     del self.process_index[scan_pid]
+                    
+    def display_thumbnails(self):
+        self.set_model(self.liststore)
     
 class TaskManager:
     def __init__(self, results_callback, batch_size):
@@ -1703,6 +1731,7 @@ class RapidApp(dbus.service.Object):
         """
         if self.scan_manager.no_tasks == 0:
             self.thumbnails.sort_by_timestamp()
+            self.thumbnails.display_thumbnails()
 
 
     # # #
@@ -3028,7 +3057,7 @@ class RapidApp(dbus.service.Object):
     def post_preference_change(self):
         if self.rerun_setup_available_image_and_video_media:
 
-            logger.info("Download device settings preferences were changed.")
+            logger.info("Download device settings preferences were changed")
             
             self.thumbnails.clear_all()
             self.setup_devices(on_startup = False, on_preference_change = True, block_auto_start = True)
@@ -3852,7 +3881,7 @@ class RapidApp(dbus.service.Object):
             logger.info('Found %s' % results_summary)
             logger.info('Files total %s' % size)
             self.device_collection.update_device(scan_pid, size)
-            self.device_collection.update_progress(scan_pid, 0.0, results_summary, 0)
+            self.device_collection.update_progress(scan_pid, 0.0, results_summary, 0, pulse=False)
             self.set_download_action_sensitivity()
                         
             if (not self.auto_start_is_on and
@@ -3879,7 +3908,7 @@ class RapidApp(dbus.service.Object):
                 size = format_size_for_user(bytes=size)
                 scanning_progress = file_type_counter.running_file_count()
                 self.device_collection.update_device(scan_pid, size)
-                self.device_collection.update_progress(scan_pid, 0.0, scanning_progress, 0)
+                self.device_collection.update_progress(scan_pid, 0.0, scanning_progress, 0, pulse=True)
                 
                 for rpd_file in rpd_files:
                     self.thumbnails.add_file(rpd_file=rpd_file, 
