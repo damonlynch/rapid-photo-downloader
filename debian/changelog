@@ -1,3 +1,22 @@
+rapid-photo-downloader (0.4.5~b1-0ubuntu1~ppa1) lucid; urgency=low
+
+  * Increase performance by displaying thumbnails only when
+    the scan of all devices has completed.
+
+  * Make progress bar pulse when scanning.
+
+  * Fixed bug #1014203: Very poor program performance after download 
+    device changed.
+
+  * Added command line options to specify download device.
+
+  * Added extra information to debugging output.
+
+  * Fixed bug #1014219: File Modify process crashes if program exits 
+    during download. 
+
+ -- Damon Lynch <damonlynch@gmail.com>  Sun, 17 Jun 2012 03:07:34 -0500
+
 rapid-photo-downloader (0.4.4-0ubuntu1~ppa1) lucid; urgency=low
 
   * Fixed bug #998320: Option to have subfolder generation and file 
