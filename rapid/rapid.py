@@ -3962,7 +3962,7 @@ def start():
     logger.setLevel(logging_level)
     
     if options.auto_detect and options.device_location:
-        logger.info(_("Error: specify device auto-detection or manually specifiy a device's path from which to download, but do not do both."))
+        logger.info(_("Error: specify device auto-detection or manually specify a device's path from which to download, but do not do both."))
         sys.exit(1)
         
     if options.auto_detect:
