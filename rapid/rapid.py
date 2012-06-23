@@ -519,8 +519,6 @@ class ThumbnailDisplay(gtk.IconView):
         self._create_liststore()
 
         self.clear()
-        #~ self.set_model(self.liststore)
-        
         
         checkbutton = gtk.CellRendererToggle()
         checkbutton.set_radio(False)
@@ -1041,6 +1039,7 @@ class ThumbnailDisplay(gtk.IconView):
             
             # Here it is critically important to create a brand new liststore,
             # because the old one is set to be sorted, which is extremely slow.
+            logger.debug("Creating new thumbnails model")
             self.set_model(None)
             self._create_liststore()
 
@@ -1730,9 +1729,10 @@ class RapidApp(dbus.service.Object):
         if self.preview_image.unique_id is not None:        
             self.thumbnails.show_prev_image(self.preview_image.unique_id)
         
-    def set_thumbnail_sort(self):
+    def display_scan_thumbnails(self):
         """
-        If all the scans are complete, sets the sort order
+        If all the scans are complete, sets the sort order and displays
+        thumbnails in the icon view
         """
         if self.scan_manager.no_tasks == 0:
             self.thumbnails.sort_by_timestamp()
@@ -3899,7 +3899,8 @@ class RapidApp(dbus.service.Object):
                 else:
                     self.start_download(scan_pid=scan_pid)
 
-            self.set_thumbnail_sort()
+            logger.debug("Turning on display of thumbnails")
+            self.display_scan_thumbnails()
             self.download_button.grab_focus()
             
             # signal that no more data is coming, finishing io watch for this pipe
@@ -3966,7 +3967,7 @@ def start():
     logger.setLevel(logging_level)
     
     if options.auto_detect and options.device_location:
-        logger.info(_("Error: specify device auto-detection or manually specifiy a device's path from which to download, but do not do both."))
+        logger.info(_("Error: specify device auto-detection or manually specify a device's path from which to download, but do not do both."))
         sys.exit(1)
         
     if options.auto_detect:
