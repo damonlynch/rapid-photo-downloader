@@ -3951,7 +3951,7 @@ def start():
     parser.add_option("-q", "--quiet",  action="store_false", dest="verbose",  help=_("only output errors to the command line"))
     # image file extensions are recognized RAW files plus TIFF and JPG
     parser.add_option("-e",  "--extensions", action="store_true", dest="extensions", help=_("list photo and video file extensions the program recognizes and exit"))
-    parser.add_option("--focal-length", type=int, dest="focal_length", help="If an aperture value of 0.0 is encountered, the focal length metadata will be set to the number passed, and its aperture metadata to f8")
+    parser.add_option("--focal-length", type=int, dest="focal_length", help="If an aperture value of 0.0 is encountered, the focal length metadata will be set to the number passed, and its aperture metadata to f/8")
     parser.add_option("-a", "--auto-detect", action="store_true", dest="auto_detect", help=_("automatically detect devices from which to download, overwriting existing program preferences"))
     parser.add_option("-l", "--device-location", type="string", metavar="PATH", dest="device_location", help=_("manually specify the PATH of the device from which to download, overwriting existing program preferences"))
     parser.add_option("--reset-settings", action="store_true", dest="reset", help=_("reset all program settings and preferences and exit"))
@@ -3978,6 +3978,8 @@ def start():
         
     if options.device_location:
         device_location=options.device_location
+        if device_location[-1]=='/':
+            device_location = device_location[:-1]
         logger.info("Device location set from command line: %s", device_location)
     else:
         device_location=None

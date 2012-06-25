@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2012-06-17 03:05-0500\n"
-"PO-Revision-Date: 2012-06-15 13:28+0000\n"
-"Last-Translator: Luigi Agosto <Unknown>\n"
+"POT-Creation-Date: 2012-06-23 04:00-0500\n"
+"PO-Revision-Date: 2012-06-22 15:28+0000\n"
+"Last-Translator: Marco Solari <marcosolari@gmail.com>\n"
 "Language-Team: Italian <it@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2012-06-22 14:41+0000\n"
+"X-Launchpad-Export-Date: 2012-06-25 00:48+0000\n"
 "X-Generator: Launchpad (build 15461)\n"
 
 #. Translators: if neccessary, for guidance in how to translate this program, you may see http://damonlynch.net/translate.html
@@ -66,7 +66,7 @@ msgstr "%(device)s non si è smontato correttamente"
 #. looking for photos or videos. It is visible initially in the progress bar for each device
 #. (which normally holds "x photos and videos").
 #. It maybe displayed only briefly if the contents of the device being scanned is small.
-#: rapid/rapid.py:1217
+#: rapid/rapid.py:1216
 msgid "scanning..."
 msgstr "scansione in corso..."
 
@@ -240,7 +240,7 @@ msgstr "Sposta"
 msgid "To"
 msgstr "A"
 
-#: rapid/rapid.py:3317 rapid/rapid.py:3985
+#: rapid/rapid.py:3317 rapid/rapid.py:3986
 msgid "Photos:"
 msgstr "Foto:"
 
@@ -248,7 +248,7 @@ msgstr "Foto:"
 msgid "Select a folder to download photos to"
 msgstr "Selezionare una cartella in cui scaricare le foto"
 
-#: rapid/rapid.py:3332 rapid/rapid.py:3985
+#: rapid/rapid.py:3332 rapid/rapid.py:3986
 msgid "Videos:"
 msgstr "Video:"
 
@@ -374,7 +374,7 @@ msgstr "Miniature"
 
 #. Translators: this text is displayed to the user when they request information on the command line options.
 #. The text %default should not be modified or left out.
-#: rapid/rapid.py:3948
+#: rapid/rapid.py:3949
 #, python-format
 msgid ""
 "display program information on the command line as the program runs "
@@ -383,49 +383,53 @@ msgstr ""
 "visualizza informazioni sul programma sulla riga comando quando il programma "
 "è in esecuzione (default: %default)"
 
-#: rapid/rapid.py:3949
+#: rapid/rapid.py:3950
 msgid "display debugging information when run from the command line"
 msgstr "visualizza informazioni di debug quando eseguito dalla riga comando"
 
-#: rapid/rapid.py:3950
+#: rapid/rapid.py:3951
 msgid "only output errors to the command line"
 msgstr "visualizza solo gli errori sulla riga comando"
 
 #. image file extensions are recognized RAW files plus TIFF and JPG
-#: rapid/rapid.py:3952
+#: rapid/rapid.py:3953
 msgid "list photo and video file extensions the program recognizes and exit"
 msgstr ""
 "elenca le estensioni delle foto e dei video riconosciute dal programma ed "
 "esce"
 
-#: rapid/rapid.py:3954
+#: rapid/rapid.py:3955
 msgid ""
 "automatically detect devices from which to download, overwriting existing "
 "program preferences"
 msgstr ""
+"rileva automaticamente i dispositivi da cui scaricare, sovrascrivendo le "
+"preferenze di programma esistenti"
 
-#: rapid/rapid.py:3955
+#: rapid/rapid.py:3956
 msgid ""
 "manually specify the PATH of the device from which to download, overwriting "
 "existing program preferences"
 msgstr ""
+"specifica manualmente il PATH del dispositivo da cui scaricare, "
+"sovrascrivendo le preferenze di programma esistenti"
 
-#: rapid/rapid.py:3956
+#: rapid/rapid.py:3957
 msgid "reset all program settings and preferences and exit"
 msgstr "resetta tutte le impostazioni e preferenze del programma ed esce"
 
-#: rapid/rapid.py:3969
+#: rapid/rapid.py:3970
 msgid ""
-"Error: specify device auto-detection or manually specifiy a device's path "
+"Error: specify device auto-detection or manually specify a device's path "
 "from which to download, but do not do both."
 msgstr ""
 
-#: rapid/rapid.py:3990
+#: rapid/rapid.py:3991
 #, python-format
 msgid "and %s"
 msgstr "e %s"
 
-#: rapid/rapid.py:3998
+#: rapid/rapid.py:3999
 msgid "All settings and preferences have been reset"
 msgstr "Tutte le impostazioni e preferenze sono state resettate"
 
@@ -822,7 +826,7 @@ msgstr "Mese"
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
 #: rapid/generatenameconfig.py:272
 msgid "Month (abbreviated)"
-msgstr ""
+msgstr "Mese"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
 #: rapid/generatenameconfig.py:274
@@ -1411,6 +1415,7 @@ msgstr "%(number)s %(filetypes)s"
 #, python-format
 msgid "scanning (found %(photos)s photos and %(videos)s videos)..."
 msgstr ""
+"scansione in corso (trovate %(photos)s fotografie e %(videos)s video)..."
 
 #: rapid/subfolderfile.py:80
 #, python-format

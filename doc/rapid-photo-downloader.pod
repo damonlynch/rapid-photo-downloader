@@ -12,6 +12,9 @@ Options:
   -v, --verbose
   -q, --quiet
   -e, --extensions
+  --focal-length=FOCAL_LENGTH
+  -a, --auto-detect
+  -l PATH, --device-location=PATH
   --reset-settings
   
 =head1 DESCRIPTION
@@ -48,6 +51,20 @@ Only display output errors and warnings to the command line as the program runs.
 =item B<-e, --extensions>
 
 Displays image file extensions the program recognizes and exits.
+
+=item B<--focal-length=FOCAL_LENGTH>
+
+If an aperture value of 0.0 is encountered, the focal length metadata will be set to the 
+number passed, and its aperture metadata to f/8.
+
+=item B<-a, --auto-detect>
+
+Automatically detect devices from which to download, overwriting existing program preferences.
+
+=item B<-l PATH, --device-location=PATH>
+
+Manually specify the PATH of the device from which to download, overwriting existing program 
+preferences.
 
 =item B<--reset-settings>
 

@@ -7,15 +7,15 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-06-17 03:05-0500\n"
-"PO-Revision-Date: 2012-06-06 13:09+0000\n"
+"POT-Creation-Date: 2012-06-23 04:00-0500\n"
+"PO-Revision-Date: 2012-06-24 09:07+0000\n"
 "Last-Translator: A.J. Baudrez <a.baudrez@gmail.com>\n"
 "Language-Team: Dutch <nl@li.org>\n"
 "Language: nl\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2012-06-22 14:41+0000\n"
+"X-Launchpad-Export-Date: 2012-06-25 00:48+0000\n"
 "X-Generator: Launchpad (build 15461)\n"
 
 #. Translators: if neccessary, for guidance in how to translate this program, you may see http://damonlynch.net/translate.html
@@ -67,7 +67,7 @@ msgstr "%(device)s werd niet ontkoppeld"
 #. looking for photos or videos. It is visible initially in the progress bar for each device
 #. (which normally holds "x photos and videos").
 #. It maybe displayed only briefly if the contents of the device being scanned is small.
-#: rapid/rapid.py:1217
+#: rapid/rapid.py:1216
 msgid "scanning..."
 msgstr "Aan het scannen..."
 
@@ -241,7 +241,7 @@ msgstr "Verplaatsen"
 msgid "To"
 msgstr "Naar"
 
-#: rapid/rapid.py:3317 rapid/rapid.py:3985
+#: rapid/rapid.py:3317 rapid/rapid.py:3986
 msgid "Photos:"
 msgstr "Foto's:"
 
@@ -249,7 +249,7 @@ msgstr "Foto's:"
 msgid "Select a folder to download photos to"
 msgstr "Duid een map aan om de foto's naar toe te downloaden"
 
-#: rapid/rapid.py:3332 rapid/rapid.py:3985
+#: rapid/rapid.py:3332 rapid/rapid.py:3986
 msgid "Videos:"
 msgstr "Video's:"
 
@@ -375,7 +375,7 @@ msgstr "Miniaturen"
 
 #. Translators: this text is displayed to the user when they request information on the command line options.
 #. The text %default should not be modified or left out.
-#: rapid/rapid.py:3948
+#: rapid/rapid.py:3949
 #, python-format
 msgid ""
 "display program information on the command line as the program runs "
@@ -384,49 +384,55 @@ msgstr ""
 "vertoon programma informatie op de commando lijn wanneer het programma "
 "draait (standaard: %default)"
 
-#: rapid/rapid.py:3949
+#: rapid/rapid.py:3950
 msgid "display debugging information when run from the command line"
 msgstr "vertoon debug informatie wanneer uitgevoerd vanaf de commando prompt"
 
-#: rapid/rapid.py:3950
+#: rapid/rapid.py:3951
 msgid "only output errors to the command line"
 msgstr "alleen fouten naar de commandolijn sturen"
 
 #. image file extensions are recognized RAW files plus TIFF and JPG
-#: rapid/rapid.py:3952
+#: rapid/rapid.py:3953
 msgid "list photo and video file extensions the program recognizes and exit"
 msgstr ""
 "vertoon de foto en video bestandsextenties welke het programma herkent en "
 "verlaat het programma"
 
-#: rapid/rapid.py:3954
+#: rapid/rapid.py:3955
 msgid ""
 "automatically detect devices from which to download, overwriting existing "
 "program preferences"
 msgstr ""
+"detecteer automatisch apparaten om van te downloaden, overschrijf daarbij de "
+"programma voorkeuren"
 
-#: rapid/rapid.py:3955
+#: rapid/rapid.py:3956
 msgid ""
 "manually specify the PATH of the device from which to download, overwriting "
 "existing program preferences"
 msgstr ""
+"specificeer manueel het PAD van het apparaat om van te downloaden, "
+"overschrijf daarbij de programma voorkeuren"
 
-#: rapid/rapid.py:3956
+#: rapid/rapid.py:3957
 msgid "reset all program settings and preferences and exit"
 msgstr "herstel alle programma instellingen en verlaat het programma"
 
-#: rapid/rapid.py:3969
+#: rapid/rapid.py:3970
 msgid ""
-"Error: specify device auto-detection or manually specifiy a device's path "
+"Error: specify device auto-detection or manually specify a device's path "
 "from which to download, but do not do both."
 msgstr ""
+"Fout: Specificeer auto-detectie apparaat of geef manueel het pad op van waar "
+"gedownload moet worden, maar doe beiden niet samen."
 
-#: rapid/rapid.py:3990
+#: rapid/rapid.py:3991
 #, python-format
 msgid "and %s"
 msgstr "en %s"
 
-#: rapid/rapid.py:3998
+#: rapid/rapid.py:3999
 msgid "All settings and preferences have been reset"
 msgstr "Alle instellingen en voorkeuren werden hersteld"
 
@@ -1403,7 +1409,7 @@ msgstr "%(number)s %(filetypes)s"
 #: rapid/rpdfile.py:163
 #, python-format
 msgid "scanning (found %(photos)s photos and %(videos)s videos)..."
-msgstr ""
+msgstr "aan het scannen (vond %(photos)s foto's en  %(videos)s video's)..."
 
 #: rapid/subfolderfile.py:80
 #, python-format
