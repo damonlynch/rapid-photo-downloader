@@ -43,7 +43,8 @@ import thumbnail as tn
 
 
 RAW_EXTENSIONS = ['arw', 'dcr', 'cr2', 'crw',  'dng', 'mos', 'mef', 'mrw', 
-                  'nef', 'orf', 'pef', 'raf', 'raw', 'rw2', 'sr2', 'srw']
+                  'nef', 'nrw', 'orf', 'pef', 'raf', 'raw', 'rw2', 'sr2', 
+                  'srw']
                         
 JPEG_EXTENSIONS = ['jpg', 'jpe', 'jpeg']
 

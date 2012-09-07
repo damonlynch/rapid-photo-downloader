@@ -1,3 +1,15 @@
+Version 0.4.6
+-------------
+
+2012-xx-xx
+
+Fixed bug #1023586:Added RAW file support for Nikon NRW files. Rapid Photo
+Downloader uses the exiv2 program to read a photo's metadata. Although the NRW
+format is not officially supported by exiv2, it appears to work. If you have
+NRW files and Rapid Photo Downloader crashes while reading this files, please 
+file a bug report.
+
+
 Version 0.4.5
 -------------
 
