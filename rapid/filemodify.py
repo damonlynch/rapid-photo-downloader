@@ -18,7 +18,6 @@
 ### Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
 ### USA
 
-import collections
 import os.path, fractions
 import subprocess
 import multiprocessing
@@ -41,14 +40,9 @@ def lossless_rotate(jpeg):
     except OSError:
         v = None
     return v
-
-#~ XmpLocation = collections.namedtuple('XmpLocation', 'location', 'city', 'state', 'country'
-    #~ 'country_code')
-    #~ 
-#~ XmpContactInfo = collections.namedtuple()
     
 class FileModify(multiprocessing.Process):
-    def __init__(self, auto_rotate_jpeg, focal_length, xmp_metadata, results_pipe, terminate_queue, 
+    def __init__(self, auto_rotate_jpeg, focal_length, results_pipe, terminate_queue, 
                  run_event):
         multiprocessing.Process.__init__(self)
         self.results_pipe = results_pipe
@@ -57,7 +51,6 @@ class FileModify(multiprocessing.Process):
         
         self.auto_rotate_jpeg = auto_rotate_jpeg
         self.focal_length = focal_length
-        self.xmp_metadata = xmp_metadata
 
     def check_termination_request(self):
         """
@@ -118,16 +111,16 @@ class FileModify(multiprocessing.Process):
                                 logger.error("failed to write new focal length and aperture to %s (%s)!", rpd_file.temp_full_file_name, rpd_file.name)
                         else:
                             # write to xmp sidecar
-                            #~ xmp_sidecar = mxmp.Exiv2XmpMetadataSidecar(rpd_file.temp_full_file_name)
-                            #~ xmp_sidecar.set_exif_value('FocalLength', self.create_rational(new_focal_length))
-                            #~ xmp_sidecar.set_exif_value('FNumber', self.create_rational(new_aperture))
-                            
+                            xmp_sidecar = mxmp.XmpMetadataSidecar(rpd_file.temp_full_file_name)
+                            xmp_sidecar.set_exif_value('FocalLength', self.create_rational(new_focal_length))
+                            xmp_sidecar.set_exif_value('FNumber', self.create_rational(new_aperture))
                             # store values in rpd_file, so they can be used in the subfolderfile process
                             rpd_file.new_focal_length = new_focal_length
                             rpd_file.new_aperture = new_aperture
 
-            if self.xmp_metadata:
-                pass
+            if False:
+                xmp_sidecar.set_contact_url('http://www.website.net')
+                xmp_sidecar.set_contact_email('user@email.com')
                 
             if xmp_sidecar is not None:
                 # need to write out xmp sidecar
