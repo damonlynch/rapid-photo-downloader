@@ -7,15 +7,15 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2012-06-17 03:05-0500\n"
-"PO-Revision-Date: 2012-06-17 10:05+0000\n"
+"POT-Creation-Date: 2012-06-23 04:00-0500\n"
+"PO-Revision-Date: 2012-06-25 09:45+0000\n"
 "Last-Translator: Erik M <Unknown>\n"
 "Language-Team: Norwegian Bokmal <nb@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2012-06-22 14:40+0000\n"
-"X-Generator: Launchpad (build 15461)\n"
+"X-Launchpad-Export-Date: 2012-09-11 00:24+0000\n"
+"X-Generator: Launchpad (build 15924)\n"
 
 #. Translators: if neccessary, for guidance in how to translate this program, you may see http://damonlynch.net/translate.html
 #: rapid/rapid.py:112 rapid/rapid.py:1784 rapid/glade3/rapid.ui.h:1
@@ -66,7 +66,7 @@ msgstr "%(device)s ble ikke utløst"
 #. looking for photos or videos. It is visible initially in the progress bar for each device
 #. (which normally holds "x photos and videos").
 #. It maybe displayed only briefly if the contents of the device being scanned is small.
-#: rapid/rapid.py:1217
+#: rapid/rapid.py:1216
 msgid "scanning..."
 msgstr "søker..."
 
@@ -240,7 +240,7 @@ msgstr "Flytt"
 msgid "To"
 msgstr "Til"
 
-#: rapid/rapid.py:3317 rapid/rapid.py:3985
+#: rapid/rapid.py:3317 rapid/rapid.py:3986
 msgid "Photos:"
 msgstr "Bilder:"
 
@@ -248,7 +248,7 @@ msgstr "Bilder:"
 msgid "Select a folder to download photos to"
 msgstr "Velg katalog for å laste inn bilder"
 
-#: rapid/rapid.py:3332 rapid/rapid.py:3985
+#: rapid/rapid.py:3332 rapid/rapid.py:3986
 msgid "Videos:"
 msgstr "Videoer:"
 
@@ -374,7 +374,7 @@ msgstr "Miniatyrbilder"
 
 #. Translators: this text is displayed to the user when they request information on the command line options.
 #. The text %default should not be modified or left out.
-#: rapid/rapid.py:3948
+#: rapid/rapid.py:3949
 #, python-format
 msgid ""
 "display program information on the command line as the program runs "
@@ -383,48 +383,48 @@ msgstr ""
 "vis programinformasjon på kommandolinjen når programmet kjører (standard: "
 "%default)"
 
-#: rapid/rapid.py:3949
+#: rapid/rapid.py:3950
 msgid "display debugging information when run from the command line"
 msgstr "vis feilrettingsinformasjon ved kjøring fra kommandolinje"
 
-#: rapid/rapid.py:3950
+#: rapid/rapid.py:3951
 msgid "only output errors to the command line"
 msgstr "vis bare feil på kommandolinjen"
 
 #. image file extensions are recognized RAW files plus TIFF and JPG
-#: rapid/rapid.py:3952
+#: rapid/rapid.py:3953
 msgid "list photo and video file extensions the program recognizes and exit"
 msgstr ""
 "vis hvilke bilde- og videofiltyper programmet gjenkjenner, og avslutt"
 
-#: rapid/rapid.py:3954
+#: rapid/rapid.py:3955
 msgid ""
 "automatically detect devices from which to download, overwriting existing "
 "program preferences"
 msgstr ""
 
-#: rapid/rapid.py:3955
+#: rapid/rapid.py:3956
 msgid ""
 "manually specify the PATH of the device from which to download, overwriting "
 "existing program preferences"
 msgstr ""
 
-#: rapid/rapid.py:3956
+#: rapid/rapid.py:3957
 msgid "reset all program settings and preferences and exit"
 msgstr "nullstill alle programinnstillinger og avslutt"
 
-#: rapid/rapid.py:3969
+#: rapid/rapid.py:3970
 msgid ""
-"Error: specify device auto-detection or manually specifiy a device's path "
+"Error: specify device auto-detection or manually specify a device's path "
 "from which to download, but do not do both."
 msgstr ""
 
-#: rapid/rapid.py:3990
+#: rapid/rapid.py:3991
 #, python-format
 msgid "and %s"
 msgstr "og %s"
 
-#: rapid/rapid.py:3998
+#: rapid/rapid.py:3999
 msgid "All settings and preferences have been reset"
 msgstr "Alle innstillingene er nullstillte"
 
@@ -1650,7 +1650,7 @@ msgstr "Alternativer for gi nytt navn"
 
 #: rapid/glade3/prefs.ui.h:35
 msgid "<span weight=\"bold\" size=\"x-large\">Job Codes</span>"
-msgstr "<span weight=\"bold\" size=\"x-large\">Jobbnamn</span>"
+msgstr "<span weight=\"bold\" size=\"x-large\">Jobbnavn</span>"
 
 #: rapid/glade3/prefs.ui.h:36
 msgid "<b>Job Codes</b>"

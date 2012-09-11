@@ -9,6 +9,9 @@ format is not officially supported by exiv2, it appears to work. If you have
 NRW files and Rapid Photo Downloader crashes while reading this files, please 
 file a bug report.
 
+Added Arabic translation. Updated Czech, Danish, Italian, Norwegian, Russian and
+Spanish translations.
+
 
 Version 0.4.5
 -------------
