@@ -12,6 +12,10 @@ file a bug report.
 Added Arabic translation. Updated Czech, Danish, Italian, Norwegian, Russian and
 Spanish translations.
 
+Fixed missing dependencies on python-dbus and exiv2 in Debian/control file.
+
+Added extra debugging output to help trace program execution progress.
+
 
 Version 0.4.5
 -------------

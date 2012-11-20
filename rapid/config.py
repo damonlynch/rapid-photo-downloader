@@ -16,7 +16,7 @@
 ### Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
 ### USA
 
-version = '0.4.6'
+version = '0.4.6~b1'
 
 GCONF_KEY="/apps/rapid-photo-downloader"
 
@@ -30,9 +30,9 @@ MEDIA_LOCATION = "/media"
 SKIP_DOWNLOAD = "skip download"
 ADD_UNIQUE_IDENTIFIER = "add unique identifier"
 
-# These next three values are fall back values that are used only 
+# These next three values are fall back values that are used only
 # if calls to xdg-user-dir fail
-DEFAULT_PHOTO_LOCATIONS = ['Pictures',  'Photos'] 
+DEFAULT_PHOTO_LOCATIONS = ['Pictures',  'Photos']
 DEFAULT_BACKUP_LOCATION = 'Pictures'
 DEFAULT_VIDEO_BACKUP_LOCATION = 'Videos'
 

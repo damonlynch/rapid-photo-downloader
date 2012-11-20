@@ -13,13 +13,14 @@ Homepage: http://damonlynch.net/rapid
 Package: rapid-photo-downloader
 Architecture: all
 Depends: ${python:Depends},
-         ${misc:Depends}, 
+         ${misc:Depends},
          python-gnome2 (>= 2.28),
          python-gtk2 (>= 2.17),
          python-gconf (>= 2.28),
          python-pyexiv2 (>= 0.3.0),
          python-notify (>=0.1.1),
          python-imaging (>=1.1.7),
+         python-dbus,
          librsvg2-common (>=2.26),
          python-hachoir-metadata,
          python-kaa-metadata,
@@ -27,10 +28,11 @@ Depends: ${python:Depends},
          libimage-exiftool-perl,
          gnome-icon-theme,
          exiftran,
+         exiv2,
 XB-Python-Version: ${python:Versions}
 Description: Photo and video importer from cameras, memory cards and other devices
  Rapid Photo Downloader is written by a photographer for professional and
  amateur photographers. It can  download photos and videos from multiple
- cameras, memory cards and Portable Storage Devices simultaneously. It 
+ cameras, memory cards and Portable Storage Devices simultaneously. It
  provides many flexible, user-defined options for subfolder creation,
  photo and video renaming, and backup.
