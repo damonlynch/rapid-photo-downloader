@@ -13,8 +13,8 @@ Preliminary and tentative fix for bug #1025908: Application freezes under
 Ubuntu 12.10. This fix should not be considered final, and needs further 
 testing.
 
-Added Arabic translation. Updated Czech, Danish, Italian, Norwegian, Russian and
-Spanish translations.
+Added Arabic translation. Updated Czech, Danish, French, Italian, Norwegian, 
+Russian, Serbian, Spanish and Swedish translations.
 
 Fixed missing dependencies on python-dbus and exiv2 in Debian/control file.
 
