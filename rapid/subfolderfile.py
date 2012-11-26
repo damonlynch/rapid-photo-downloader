@@ -26,6 +26,8 @@ Runs as a daemon process.
 
 import os, datetime, collections
 
+import shutil
+import errno
 import gio
 import multiprocessing
 import logging
@@ -154,6 +156,9 @@ class SubfolderFile(multiprocessing.Process):
         self.uses_stored_sequence_no = sequence_values[5]
         self.uses_session_sequece_no = sequence_values[6]
         self.uses_sequence_letter = sequence_values[7]
+        # As of Ubuntu 12.10, the file move/rename command is running agonisingly slowly
+        # A hackish workaround is to replace it with the standard python function
+        self.use_gnome_file_operations = False
 
         logger.debug("Start of day is set to %s", self.day_start.value)
 
@@ -219,6 +224,31 @@ class SubfolderFile(multiprocessing.Process):
 
         return rpd_file
 
+    def download_file_exists(self, rpd_file):
+        """
+        Check how to handle a download file already existing
+        """
+        if (rpd_file.download_conflict_resolution ==
+            config.ADD_UNIQUE_IDENTIFIER):
+            add_unique_identifier = True
+            logger.debug("Will add unique identifier to avoid duplicate filename")
+        else:
+            rpd_file = self.file_exists(rpd_file)
+            add_unique_identifier = False
+        return (rpd_file, add_unique_identifier)
+
+    def added_unique_identifier(self, rpd_file):
+        """
+        Track fact that a unique identifier was added to a file name
+        """
+        move_succeeded = True
+        suffix_already_used = False
+        rpd_file = self.file_exists(rpd_file, identifier)
+        logger.error("%s: %s - %s", rpd_file.full_file_name,
+            rpd_file.problem.get_title(),
+            rpd_file.problem.get_problems())
+        return (rpd_file, move_succeeded, suffix_already_used)
+
     def same_name_different_exif(self, sync_photo_name, rpd_file):
         """Notify the user that a file was already downloaded with the same name, but the exif information was different"""
         i1_ext, i1_date_time, i1_subseconds = self.sync_raw_jpeg.ext_exif_date_time(sync_photo_name)
@@ -278,7 +308,8 @@ class SubfolderFile(multiprocessing.Process):
 
 
             if download_succeeded:
-                temp_file = gio.File(rpd_file.temp_full_file_name)
+                if self.use_gnome_file_operations:
+                    temp_file = gio.File(rpd_file.temp_full_file_name)
 
                 synchronize_raw_jpg_failed = False
                 if not (rpd_file.synchronize_raw_jpg and
@@ -392,43 +423,70 @@ class SubfolderFile(multiprocessing.Process):
 
                     logger.debug("Probing to see if subfolder already exists...")
                     if not subfolder.query_exists(cancellable=None):
-                        try:
-                            logger.debug("...subfolder doesn't exist: creating it...")
-                            subfolder.make_directory_with_parents(cancellable=gio.Cancellable())
-                            logger.debug("...subfolder created")
-                        except gio.Error, inst:
-                            # The directory may have been created by another process
-                            # between the time it takes to query and the time it takes
-                            # to create a new directory. Ignore such errors.
-                            if inst.code <> gio.ERROR_EXISTS:
-                                logger.error("Failed to create download subfolder: %s", rpd_file.download_path)
-                                logger.error(inst)
-                                rpd_file.error_title = _("Failed to create download subfolder")
-                                rpd_file.error_msg = _("Path: %s") % rpd_file.download_path
+                        if self.use_gnome_file_operations:
+                            try:
+                                logger.debug("...subfolder doesn't exist: creating it using gnome...")
+                                subfolder.make_directory_with_parents(cancellable=gio.Cancellable())
+                                logger.debug("...subfolder created")
+                            except gio.Error, inst:
+                                # The directory may have been created by another process
+                                # between the time it takes to query and the time it takes
+                                # to create a new directory. Ignore such errors.
+                                if inst.code <> gio.ERROR_EXISTS:
+                                    logger.error("Failed to create download subfolder: %s", rpd_file.download_path)
+                                    logger.error(inst)
+                                    rpd_file.error_title = _("Failed to create download subfolder")
+                                    rpd_file.error_msg = _("Path: %s") % rpd_file.download_path
+                        else:
+                            try:
+                                logger.debug("...subfolder doesn't exist: creating it using python...")
+                                os.makedirs(rpd_file.download_path)
+                                logger.debug("...subfolder created")
+                            except IOError as inst:
+                                if inst.errno <> errno.EEXIST:
+                                    logger.error("Failed to create download subfolder: %s", rpd_file.download_path)
+                                    logger.error(inst)
+                                    rpd_file.error_title = _("Failed to create download subfolder")
+                                    rpd_file.error_msg = _("Path: %s") % rpd_file.download_path
                     else:
                         logger.debug("...subfolder already exists")
 
                     # Move temp file to subfolder
 
-                    download_file = gio.File(rpd_file.download_full_file_name)
-
                     add_unique_identifier = False
-                    try:
-                        logger.debug("Attempting to rename file %s to %s .....", rpd_file.temp_full_file_name, rpd_file.download_full_file_name)
-                        temp_file.move(download_file, self.progress_callback_no_update, cancellable=None)
-                        logger.debug("....successfully renamed file")
-                        move_succeeded = True
-                        if rpd_file.status <> config.STATUS_DOWNLOADED_WITH_WARNING:
-                            rpd_file.status = config.STATUS_DOWNLOADED
-                    except gio.Error, inst:
-                        if inst.code == gio.ERROR_EXISTS:
-                            if (rpd_file.download_conflict_resolution ==
-                                config.ADD_UNIQUE_IDENTIFIER):
-                                add_unique_identifier = True
+                    if self.use_gnome_file_operations:
+                        download_file = gio.File(rpd_file.download_full_file_name)
+                        try:
+                            logger.debug("Attempting to use Gnome to rename file %s to %s .....", rpd_file.temp_full_file_name, rpd_file.download_full_file_name)
+                            temp_file.move(download_file, self.progress_callback_no_update, cancellable=None)
+                            logger.debug("....successfully renamed file")
+                            move_succeeded = True
+                            if rpd_file.status <> config.STATUS_DOWNLOADED_WITH_WARNING:
+                                rpd_file.status = config.STATUS_DOWNLOADED
+                        except gio.Error as inst:
+                            if inst.code == gio.ERROR_EXISTS:
+                                rpd_file, add_unique_identifier = download_file_exists(rpd_file)
                             else:
-                                rpd_file = self.file_exists(rpd_file)
-                        else:
-                            rpd_file = self.download_failure_file_error(rpd_file, inst)
+                                rpd_file = self.download_failure_file_error(rpd_file, inst)
+                    else:
+                        # Use python library functions to rename file
+                        # Sadly this code basically duplicates the logic of the previous block
+                        try:
+                            if os.path.exists(rpd_file.download_full_file_name):
+                                raise IOError(errno.EEXIST, "File exists: %s" % rpd_file.download_full_file_name)
+                            logger.debug("Attempting to use python to rename file %s to %s .....", rpd_file.temp_full_file_name, rpd_file.download_full_file_name)
+                            shutil.move(rpd_file.temp_full_file_name, rpd_file.download_full_file_name)
+                            logger.debug("....successfully renamed file")
+                            move_succeeded = True
+                            if rpd_file.status <> config.STATUS_DOWNLOADED_WITH_WARNING:
+                                rpd_file.status = config.STATUS_DOWNLOADED
+                        except IOError as inst:
+                            if inst.errno == errno.EEXIST:
+                                rpd_file, add_unique_identifier = self.download_file_exists(rpd_file)
+                            else:
+                                rpd_file = self.download_failure_file_error(rpd_file, inst.strerror)
+                        except:
+                            rpd_file = self.download_failure_file_error(rpd_file, inst.strerror)
 
                     if add_unique_identifier:
                         name = os.path.splitext(rpd_file.download_name)
@@ -442,20 +500,30 @@ class SubfolderFile(multiprocessing.Process):
                             rpd_file.download_full_file_name = os.path.join(
                                                     rpd_file.download_path,
                                                     rpd_file.download_name)
-                            download_file = gio.File(
-                                            rpd_file.download_full_file_name)
 
-                            try:
-                                temp_file.move(download_file, self.progress_callback_no_update, cancellable=None)
-                                move_succeeded = True
-                                suffix_already_used = False
-                                rpd_file = self.file_exists(rpd_file, identifier)
-                                logger.error("%s: %s - %s", rpd_file.full_file_name,
-                                    rpd_file.problem.get_title(),
-                                    rpd_file.problem.get_problems())
-                            except gio.Error, inst:
-                                if inst.code <> gio.ERROR_EXISTS:
+                            if self.use_gnome_file_operations:
+                                download_file = gio.File(
+                                            rpd_file.download_full_file_name)
+                                try:
+                                    temp_file.move(download_file, self.progress_callback_no_update, cancellable=None)
+                                    rpd_file, move_succeeded, suffix_already_used = self.added_unique_identifier(rpd_file)
+                                except gio.Error, inst:
+                                    if inst.code <> gio.ERROR_EXISTS:
+                                        rpd_file = self.download_failure_file_error(rpd_file, inst)
+                            else:
+                                try:
+                                    if os.path.exists(rpd_file.download_full_file_name):
+                                        raise IOError(errno.EEXIST, "File exists: %s" % rpd_file.download_full_file_name)
+                                    shutil.move(rpd_file.temp_full_file_name, rpd_file.download_full_file_name)
+                                    rpd_file, move_succeeded, suffix_already_used = self.added_unique_identifier(rpd_file)
+                                except IOError as inst:
+                                    if inst.errno <> errno.EEXIST:
+                                        rpd_file = self.download_failure_file_error(rpd_file, inst)
+                                        break
+                                except:
                                     rpd_file = self.download_failure_file_error(rpd_file, inst)
+                                    break
+
 
 
 
@@ -484,8 +552,6 @@ class SubfolderFile(multiprocessing.Process):
                         self.downloads_today_date.value = self.downloads_today_tracker.get_raw_downloads_today_date()
 
                     if rpd_file.temp_thm_full_name:
-                        # copy and rename THM video file
-                        source = gio.File(path=rpd_file.temp_thm_full_name)
                         ext = None
                         if hasattr(rpd_file, 'thm_extension'):
                             if rpd_file.thm_extension:
@@ -493,35 +559,59 @@ class SubfolderFile(multiprocessing.Process):
                         if ext is None:
                             ext = '.THM'
                         download_thm_full_name = rpd_file.download_full_base_name + ext
-                        dest = gio.File(path=download_thm_full_name)
-                        try:
-                            source.move(dest, self.progress_callback_no_update, cancellable=None)
-                            rpd_file.download_thm_full_name = download_thm_full_name
-                        except gio.Error, inst:
-                            logger.error("Failed to move video THM file %s", download_thm_full_name)
+
+                        # copy and rename THM video file
+                        if self.use_gnome_file_operations:
+                            source = gio.File(path=rpd_file.temp_thm_full_name)
+                            dest = gio.File(path=download_thm_full_name)
+                            try:
+                                source.move(dest, self.progress_callback_no_update, cancellable=None)
+                                rpd_file.download_thm_full_name = download_thm_full_name
+                            except gio.Error, inst:
+                                logger.error("Failed to move video THM file %s", download_thm_full_name)
+                        else:
+                            try:
+                                # don't check to see if it already exists
+                                shutil.move(rpd_file.temp_thm_full_name, download_thm_full_name)
+                                rpd_file.download_thm_full_name = download_thm_full_name
+                            except:
+                                logger.error("Failed to move video THM file %s", download_thm_full_name)
 
                     if rpd_file.temp_xmp_full_name:
                         # copy and rename XMP sidecar file
-                        source = gio.File(path=rpd_file.temp_xmp_full_name)
                         # generate_name() has generated xmp extension with correct capitalization
                         download_xmp_full_name = rpd_file.download_full_base_name + rpd_file.xmp_extension
-                        dest = gio.File(path=download_xmp_full_name)
-                        try:
-                            source.move(dest, self.progress_callback_no_update, cancellable=None)
-                            rpd_file.download_xmp_full_name = download_xmp_full_name
-                        except gio.Error, inst:
-                            logger.error("Failed to move XMP sidecar file %s", download_xmp_full_name)
+                        if self.use_gnome_file_operations:
+                            source = gio.File(path=rpd_file.temp_xmp_full_name)
+                            dest = gio.File(path=download_xmp_full_name)
+                            try:
+                                source.move(dest, self.progress_callback_no_update, cancellable=None)
+                                rpd_file.download_xmp_full_name = download_xmp_full_name
+                            except gio.Error, inst:
+                                logger.error("Failed to move XMP sidecar file %s", download_xmp_full_name)
+                        else:
+                            try:
+                                shutil.move(rpd_file.temp_xmp_full_name, download_xmp_full_name)
+                                rpd_file.download_xmp_full_name = download_xmp_full_name
+                            except:
+                                logger.error("Failed to move XMP sidecar file %s", download_xmp_full_name)
 
 
                 if not move_succeeded:
                     logger.error("%s: %s - %s", rpd_file.full_file_name,
                                  rpd_file.problem.get_title(),
                                  rpd_file.problem.get_problems())
-                    try:
-                        temp_file.delete(cancellable=None)
-                    except gio.Error, inst:
-                        logger.error("Failed to delete temporary file %s", rpd_file.temp_full_file_name)
-                        logger.error(inst)
+                    if self.use_gnome_file_operations:
+                        try:
+                            temp_file.delete(cancellable=None)
+                        except gio.Error, inst:
+                            logger.error("Failed to delete temporary file %s", rpd_file.temp_full_file_name)
+                            logger.error(inst)
+                    else:
+                        try:
+                            os.remove(rpd_file.temp_full_file_name)
+                        except:
+                            logger.error("Failed to delete temporary file %s", rpd_file.temp_full_file_name)
 
 
 

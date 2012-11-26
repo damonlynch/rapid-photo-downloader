@@ -1,13 +1,17 @@
-Version 0.4.6
+Version 0.4.6 Beta 1
 -------------
 
-2012-xx-xx
+2012-11-26
 
-Fixed bug #1023586:Added RAW file support for Nikon NRW files. Rapid Photo
+Fixed bug #1023586: Added RAW file support for Nikon NRW files. Rapid Photo
 Downloader uses the exiv2 program to read a photo's metadata. Although the NRW
 format is not officially supported by exiv2, it appears to work. If you have
 NRW files and Rapid Photo Downloader crashes while reading this files, please 
 file a bug report.
+
+Preliminary and tentative fix for bug #1025908: Application freezes under
+Ubuntu 12.10. This fix should not be considered final, and needs further 
+testing.
 
 Added Arabic translation. Updated Czech, Danish, Italian, Norwegian, Russian and
 Spanish translations.

@@ -1405,7 +1405,6 @@ class SubfolderFileManager(SingleInstanceTaskManager):
         logger.debug("Sending file for rename: %s.", download_count)
         self.task_results_conn.send((download_succeeded, download_count,
             rpd_file))
-        #~ logger.debug("Download count: %s.", download_count)
 
 
     def task_results(self, source, condition):
