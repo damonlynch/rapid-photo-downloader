@@ -229,6 +229,7 @@ class DeviceCollection(gtk.TreeView):
         height = max(((len(self.map_process_to_row) + 1) * row_height), 24)
         self.parent_app.device_collection_scrolledwindow.set_size_request(-1, height)
 
+
     def update_device(self, process_id, total_size_files):
         """
         Updates the size of the photos and videos on the device, displayed to the user
@@ -1757,6 +1758,7 @@ class RapidApp(dbus.service.Object):
         Commences the scanning of a device using the preference values for
         any paths to ignore while scanning
         """
+        logger.debug("Starting a device scan for device %s", device.get_name())
         return self.scan_manager.add_task([device,
                                           self.prefs.ignored_paths,
                                           self.prefs.use_re_ignored_paths])
@@ -1873,19 +1875,31 @@ class RapidApp(dbus.service.Object):
                                       (self.prefs.auto_download_upon_device_insertion and
                                        not on_startup)))
 
+        logger.debug("Working with %s devices", len(mounts))
         for m in mounts:
             path, mount = m
             device = dv.Device(path=path, mount=mount)
-            if (self.search_for_PSD() and
-                    path not in self.prefs.device_whitelist):
-                # prompt user to see if device should be used or not
-                self.get_use_device(device)
-            else:
-                scan_pid = self.start_device_scan(device)
-                if mount is not None:
-                    self.mounts_by_path[path] = scan_pid
+
+
+            if not self._device_already_detected(device):
+                if (self.search_for_PSD() and
+                        path not in self.prefs.device_whitelist):
+                    # prompt user to see if device should be used or not
+                    self.get_use_device(device)
+                else:
+                    scan_pid = self.start_device_scan(device)
+                    if mount is not None:
+                        self.mounts_by_path[path] = scan_pid
         if not mounts:
             self.set_download_action_sensitivity()
+
+    def _device_already_detected(self, device):
+        path = device.get_path()
+        if path in self.mounts_by_path:
+            logger.debug("Ignoring device %s as already have path %s", device.get_name(), path)
+            return True
+        else:
+            return False
 
     def _setup_manual_backup(self):
         """
@@ -1923,6 +1937,14 @@ class RapidApp(dbus.service.Object):
         """ Prompt user whether or not to download from this device """
 
         logger.info("Prompting whether to use %s", device.get_name())
+
+        # On some systems, e.g. Ubuntu 12.10, the GTK/Gnome environment
+        # unexpectedly results in a device being added twice and not once.
+        # The hack on the next line ensures the user is not prompted twice
+        # for the same device.
+
+        self.mounts_by_path[device.get_path()] = "PROMPTING"
+
         d = dv.UseDeviceDialog(self.rapidapp, device, self.got_use_device)
 
     def got_use_device(self, dialog, user_selected, permanent_choice, device):
@@ -2092,12 +2114,14 @@ class RapidApp(dbus.service.Object):
 
                     self.auto_start_is_on = self.prefs.auto_download_upon_device_insertion
                     device = dv.Device(path=path, mount=mount)
-                    if self.search_for_PSD() and path not in self.prefs.device_whitelist:
-                        # prompt user if device should be used or not
-                        self.get_use_device(device)
-                    else:
-                        scan_pid = self.start_device_scan(device)
-                        self.mounts_by_path[path] = scan_pid
+
+                    if not self._device_already_detected(device):
+                        if self.search_for_PSD() and path not in self.prefs.device_whitelist:
+                            # prompt user if device should be used or not
+                            self.get_use_device(device)
+                        else:
+                            scan_pid = self.start_device_scan(device)
+                            self.mounts_by_path[path] = scan_pid
 
     def on_mount_removed(self, vmonitor, mount):
         """
