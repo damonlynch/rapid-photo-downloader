@@ -1,8 +1,14 @@
 Version 0.4.6
 -------------
 
+2013-01-22
+
 Fixed bug #1083756: Application shows duplicate sources.
 Fixed bug #1093330: Photo rename ignores SubSeconds when 00.
+
+Added extra debugging output to help trace program execution progress.
+
+Updated German and Spanish translations.
 
 Version 0.4.6 Beta 1
 -------------

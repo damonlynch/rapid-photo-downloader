@@ -7,15 +7,15 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2012-06-17 03:05-0500\n"
-"PO-Revision-Date: 2012-06-07 14:17+0000\n"
-"Last-Translator: Uwe Dulz <uwe.dulz@gmail.com>\n"
+"POT-Creation-Date: 2012-06-23 04:00-0500\n"
+"PO-Revision-Date: 2013-01-03 18:47+0000\n"
+"Last-Translator: Dennis Baudys <Unknown>\n"
 "Language-Team: German <de@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2012-06-22 14:40+0000\n"
-"X-Generator: Launchpad (build 15461)\n"
+"X-Launchpad-Export-Date: 2013-01-22 23:36+0000\n"
+"X-Generator: Launchpad (build 16430)\n"
 
 #. Translators: if neccessary, for guidance in how to translate this program, you may see http://damonlynch.net/translate.html
 #: rapid/rapid.py:112 rapid/rapid.py:1784 rapid/glade3/rapid.ui.h:1
@@ -55,7 +55,7 @@ msgstr "Grösse"
 
 #: rapid/rapid.py:178
 msgid "Download Progress"
-msgstr "Fortschritt beim Herunterladen"
+msgstr "Fortschritt des Herunterladens"
 
 #: rapid/rapid.py:336
 #, python-format
@@ -66,7 +66,7 @@ msgstr "%(device)s konnte nicht entfernt werden"
 #. looking for photos or videos. It is visible initially in the progress bar for each device
 #. (which normally holds "x photos and videos").
 #. It maybe displayed only briefly if the contents of the device being scanned is small.
-#: rapid/rapid.py:1217
+#: rapid/rapid.py:1216
 msgid "scanning..."
 msgstr "Laufwerk wird durchsucht …"
 
@@ -144,7 +144,7 @@ msgstr "Etwa %(minutes)i:%(seconds)02i Minuten verbleibend"
 
 #: rapid/rapid.py:2731 rapid/rpdfile.py:123
 msgid "photos and videos"
-msgstr "BIlder und Filme"
+msgstr "Bilder und Filme"
 
 #: rapid/rapid.py:2733 rapid/rpdfile.py:125
 msgid "photos or videos"
@@ -217,7 +217,7 @@ msgstr "%(number)s von %(total)s %(filetypes)s"
 
 #: rapid/rapid.py:3222
 msgid "From"
-msgstr "von"
+msgstr "Von"
 
 #: rapid/rapid.py:3230
 msgid "Auto Detect"
@@ -238,9 +238,9 @@ msgstr "Verschieben"
 
 #: rapid/rapid.py:3310
 msgid "To"
-msgstr "An"
+msgstr "Nach"
 
-#: rapid/rapid.py:3317 rapid/rapid.py:3985
+#: rapid/rapid.py:3317 rapid/rapid.py:3986
 msgid "Photos:"
 msgstr "Bilder:"
 
@@ -248,7 +248,7 @@ msgstr "Bilder:"
 msgid "Select a folder to download photos to"
 msgstr "Wählen Sie ein Verzeichnis für den Download der Bilder"
 
-#: rapid/rapid.py:3332 rapid/rapid.py:3985
+#: rapid/rapid.py:3332 rapid/rapid.py:3986
 msgid "Videos:"
 msgstr "Filme:"
 
@@ -376,7 +376,7 @@ msgstr "Vorschaubilder"
 
 #. Translators: this text is displayed to the user when they request information on the command line options.
 #. The text %default should not be modified or left out.
-#: rapid/rapid.py:3948
+#: rapid/rapid.py:3949
 #, python-format
 msgid ""
 "display program information on the command line as the program runs "
@@ -385,50 +385,57 @@ msgstr ""
 "Zeige die Programminformationen an, wenn das Programm aus der Kommandozeile "
 "aufgerufen wurde  (Voreinstellung: %default)"
 
-#: rapid/rapid.py:3949
+#: rapid/rapid.py:3950
 msgid "display debugging information when run from the command line"
 msgstr ""
 "Während des Ausführens von der Kommandozeile Debug-Informationen anzeigen"
 
-#: rapid/rapid.py:3950
+#: rapid/rapid.py:3951
 msgid "only output errors to the command line"
 msgstr "Zeige Fehlermeldungen nur auf der Kommandozeile an"
 
 #. image file extensions are recognized RAW files plus TIFF and JPG
-#: rapid/rapid.py:3952
+#: rapid/rapid.py:3953
 msgid "list photo and video file extensions the program recognizes and exit"
 msgstr ""
 "Anzeigen der Dateitypen für Bilder und Filme anzeigen, welche das Programm "
 "erkennt und beenden"
 
-#: rapid/rapid.py:3954
+#: rapid/rapid.py:3955
 msgid ""
 "automatically detect devices from which to download, overwriting existing "
 "program preferences"
 msgstr ""
+"Laufwerke zum Herunterladen automatisch erkennen, bestehende "
+"Programmeinstellungen übergehen"
 
-#: rapid/rapid.py:3955
+#: rapid/rapid.py:3956
 msgid ""
 "manually specify the PATH of the device from which to download, overwriting "
 "existing program preferences"
 msgstr ""
+"PFAD zum Laufwerk für das Herunterladen manuell angeben, bestehende "
+"Programmeinstellungen übergehen"
 
-#: rapid/rapid.py:3956
+#: rapid/rapid.py:3957
 msgid "reset all program settings and preferences and exit"
 msgstr "Alle Einstellungen auf Standardwerte zurücksetzten und beenden"
 
-#: rapid/rapid.py:3969
+#: rapid/rapid.py:3970
 msgid ""
-"Error: specify device auto-detection or manually specifiy a device's path "
+"Error: specify device auto-detection or manually specify a device's path "
 "from which to download, but do not do both."
 msgstr ""
+"Fehler: Wählen Sie entweder »Laufwerke zum Herunterladen automatisch "
+"erkennen« oder »PFAD zum Laufwerk für das Herunterladen manuell angeben«, "
+"aber nicht beides gleichzeitig."
 
-#: rapid/rapid.py:3990
+#: rapid/rapid.py:3991
 #, python-format
 msgid "and %s"
 msgstr "und %s"
 
-#: rapid/rapid.py:3998
+#: rapid/rapid.py:3999
 msgid "All settings and preferences have been reset"
 msgstr "Alle Einstellungen wurden zurückgesetzt"
 
@@ -1355,21 +1362,21 @@ msgstr ""
 
 #: rapid/problemnotification.py:364
 msgid "Problems in subfolder and filename generation"
-msgstr "Probleme bei der Erstllung der Order und Dateinamen"
+msgstr "Probleme bei der Erstellung der Order und Dateinamen"
 
 #: rapid/problemnotification.py:366
 msgid "Problem in subfolder and filename generation"
-msgstr "Problem bei der Erstllung der Order und Dateinamen"
+msgstr "Problem bei der Erstellung der Order und Dateinamen"
 
 #: rapid/problemnotification.py:369
 #, python-format
 msgid "Problems in %s generation"
-msgstr "Probleme bei der Erstllung von %s"
+msgstr "Probleme bei der Erstellung von %s"
 
 #: rapid/problemnotification.py:371
 #, python-format
 msgid "Problem in %s generation"
-msgstr "Problem bei der Erstllung von %s"
+msgstr "Problem bei der Erstellung von %s"
 
 #: rapid/problemnotification.py:380
 #, python-format
@@ -1422,7 +1429,7 @@ msgstr "%(number)s %(filetypes)s"
 #: rapid/rpdfile.py:163
 #, python-format
 msgid "scanning (found %(photos)s photos and %(videos)s videos)..."
-msgstr ""
+msgstr "Suche läuft (%(photos)s Fotos und %(videos)s Videos gefunden) …"
 
 #: rapid/subfolderfile.py:80
 #, python-format

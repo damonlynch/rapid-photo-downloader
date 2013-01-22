@@ -1,3 +1,16 @@
+rapid-photo-downloader (0.4.6-0ubuntu1~ppa1) lucid; urgency=low
+
+  * Fixed bug #1083756: Application shows duplicate sources
+
+  * Fixed bug #1093330: Photo rename ignores SubSeconds when 00
+
+  * Added extra debugging output to help trace program execution
+    progress
+
+  * Updated German and Spanish translations
+
+ -- Damon Lynch <damonlynch@gmail.com>  Tue, 22 Jan 2013 17:53:20 -0600
+
 rapid-photo-downloader (0.4.6~b1-0ubuntu1~ppa1) quantal; urgency=low
 
   * Fixed bug #1023586: Added RAW file support for Nikon NRW files

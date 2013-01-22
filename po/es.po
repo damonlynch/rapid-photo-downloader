@@ -8,20 +8,20 @@ msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2012-06-23 04:00-0500\n"
-"PO-Revision-Date: 2012-07-09 14:06+0000\n"
-"Last-Translator: Jose Navajo Bardera <Unknown>\n"
+"PO-Revision-Date: 2013-01-12 00:14+0000\n"
+"Last-Translator: Adolfo Jayme Barrientos <fitoschido@gmail.com>\n"
 "Language-Team: Spanish <es@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2012-09-11 00:24+0000\n"
-"X-Generator: Launchpad (build 15924)\n"
+"X-Launchpad-Export-Date: 2013-01-22 23:36+0000\n"
+"X-Generator: Launchpad (build 16430)\n"
 "Language: es\n"
 
 #. Translators: if neccessary, for guidance in how to translate this program, you may see http://damonlynch.net/translate.html
 #: rapid/rapid.py:112 rapid/rapid.py:1784 rapid/glade3/rapid.ui.h:1
 msgid "Rapid Photo Downloader"
-msgstr "Gestión Rápida de Fotografías"
+msgstr "Descargador rápido de fotos"
 
 #: rapid/rapid.py:117
 #, python-format
@@ -61,7 +61,7 @@ msgstr "Progreso de la descarga"
 #: rapid/rapid.py:336
 #, python-format
 msgid "%(device)s did not unmount"
-msgstr "%(device)s no se puede expulsar el dispositivo"
+msgstr "%(device)s no se desmontó"
 
 #. This refers to when a device like a hard drive is having its contents scanned,
 #. looking for photos or videos. It is visible initially in the progress bar for each device
