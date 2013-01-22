@@ -18,6 +18,7 @@
 ### Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
 ### USA
 
+use_pynotify = True
 
 import tempfile
 
@@ -39,7 +40,9 @@ import webbrowser
 import sys, time, types, os, datetime
 
 import gobject, pango, cairo, array, pangocairo, gio
-import pynotify
+
+if use_pynotify:
+    import pynotify
 
 from multiprocessing import Process, Pipe, Queue, Event, Value, Array, current_process, log_to_stderr
 from ctypes import c_int, c_bool, c_char
@@ -334,12 +337,13 @@ class DeviceCollection(gtk.TreeView):
         except gio.Error, inst:
             logger.error("%s did not unmount: %s", name, inst)
 
-            title = _("%(device)s did not unmount") % {'device': name}
-            message = '%s' % inst
+            if use_pynotify:
+                title = _("%(device)s did not unmount") % {'device': name}
+                message = '%s' % inst
 
-            n = pynotify.Notification(title, message)
-            n.set_icon_from_pixbuf(self.parent_app.application_icon)
-            n.show()
+                n = pynotify.Notification(title, message)
+                n.set_icon_from_pixbuf(self.parent_app.application_icon)
+                n.show()
 
 
 def create_cairo_image_surface(pil_image, image_width, image_height):
@@ -1306,7 +1310,7 @@ class BackupFilesManager(TaskManager):
 
     def _send_termination_msg(self, p):
         p[1].put(None)
-        p[3].send((None, None, None, None))
+        p[3].send((None, None, None, None, None))
 
     def _initiate_task(self, task, task_results_conn, task_process_conn,
                        terminate_queue, run_event):
@@ -1326,7 +1330,8 @@ class BackupFilesManager(TaskManager):
         return backup_files.pid
 
     def backup_file(self, move_succeeded, rpd_file, path_suffix,
-                                                backup_duplicate_overwrite):
+                                                backup_duplicate_overwrite,
+                                                download_count):
 
         if rpd_file.file_type == rpdfile.FILE_TYPE_PHOTO:
             logger.debug("Backing up photo %s", rpd_file.download_name)
@@ -1341,7 +1346,7 @@ class BackupFilesManager(TaskManager):
                 logger.debug("Backing up to %s", path)
                 task_results_conn = self.backup_devices_by_path[path][0]
                 task_results_conn.send((move_succeeded, rpd_file, path_suffix,
-                                    backup_duplicate_overwrite))
+                                    backup_duplicate_overwrite, download_count))
             else:
                 logger.debug("Not backing up to %s", path)
 
@@ -1409,8 +1414,8 @@ class SubfolderFileManager(SingleInstanceTaskManager):
 
 
     def task_results(self, source, condition):
-        move_succeeded, rpd_file = self.task_results_conn.recv()
-        self.results_callback(move_succeeded, rpd_file)
+        move_succeeded, rpd_file, download_count = self.task_results_conn.recv()
+        self.results_callback(move_succeeded, rpd_file, download_count)
         return True
 
 class ResizblePilImage(gtk.DrawingArea):
@@ -1546,7 +1551,9 @@ class RapidApp(dbus.service.Object):
 
         # Initialize widgets in the main window, and variables that point to them
         self._init_widgets()
-        self._init_pynotify()
+
+        if use_pynotify:
+            self._init_pynotify()
 
         # Initialize job code handling
         self._init_job_code()
@@ -2557,7 +2564,7 @@ class RapidApp(dbus.service.Object):
     # Create folder and file names for downloaded files
     # # #
 
-    def subfolder_file_results(self, move_succeeded, rpd_file):
+    def subfolder_file_results(self, move_succeeded, rpd_file, download_count):
         """
         Handle results of subfolder creation and file renaming
         """
@@ -2580,7 +2587,8 @@ class RapidApp(dbus.service.Object):
 
             self.backup_manager.backup_file(move_succeeded, rpd_file,
                                     path_suffix,
-                                    self.prefs.backup_duplicate_overwrite)
+                                    self.prefs.backup_duplicate_overwrite,
+                                    download_count)
         else:
             self.file_download_finished(move_succeeded, rpd_file)
 
@@ -2795,10 +2803,11 @@ class RapidApp(dbus.service.Object):
         if no_warnings:
             message = "%s\n%s " % (message,  no_warnings) + _("warnings")
 
-        n = pynotify.Notification(notification_name, message)
-        n.set_icon_from_pixbuf(icon)
+        if use_pynotify:
+            n = pynotify.Notification(notification_name, message)
+            n.set_icon_from_pixbuf(icon)
 
-        n.show()
+            n.show()
 
     def notify_download_complete(self):
         if self.display_summary_notification:
@@ -2847,9 +2856,10 @@ class RapidApp(dbus.service.Object):
                             {'number': warnings,
                             'numberdownloaded': _("warnings")}
 
-            n = pynotify.Notification(PROGRAM_NAME, message)
-            n.set_icon_from_pixbuf(self.application_icon)
-            n.show()
+            if use_pynotify:
+                n = pynotify.Notification(PROGRAM_NAME, message)
+                n.set_icon_from_pixbuf(self.application_icon)
+                n.show()
             self.display_summary_notification = False # don't show it again unless needed
 
 
@@ -3121,7 +3131,6 @@ class RapidApp(dbus.service.Object):
 
         if not pynotify.init("TestCaps"):
             logger.warning("There might be problems using pynotify.")
-            #~ sys.exit(1)
 
         do_not_size_icon = False
         self.notification_icon_size = 48

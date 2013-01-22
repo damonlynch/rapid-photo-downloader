@@ -2,6 +2,7 @@ Version 0.4.6
 -------------
 
 Fixed bug #1083756: Application shows duplicate sources.
+Fixed bug #1093330: Photo rename ignores SubSeconds when 00.
 
 Version 0.4.6 Beta 1
 -------------

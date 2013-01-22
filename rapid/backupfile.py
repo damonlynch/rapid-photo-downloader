@@ -23,6 +23,7 @@ import tempfile
 import os
 
 import gio
+import shutil
 
 import logging
 logger = multiprocessing.get_logger()
@@ -41,7 +42,7 @@ from gettext import gettext as _
 
 class BackupFiles(multiprocessing.Process):
     def __init__(self, path, name,
-                 batch_size_MB, results_pipe, terminate_queue, 
+                 batch_size_MB, results_pipe, terminate_queue,
                  run_event):
         multiprocessing.Process.__init__(self)
         self.results_pipe = results_pipe
@@ -50,7 +51,11 @@ class BackupFiles(multiprocessing.Process):
         self.path = path
         self.mount_name = name
         self.run_event = run_event
-        
+
+        # As of Ubuntu 12.10 / Fedora 18, the file move/rename command is running agonisingly slowly
+        # A hackish workaround is to replace it with the standard python function
+        self.use_gnome_file_operations = True
+
     def check_termination_request(self):
         """
         Check to see this process has not been requested to immediately terminate
@@ -61,8 +66,8 @@ class BackupFiles(multiprocessing.Process):
             logger.info("Terminating file backup")
             return True
         return False
-        
-        
+
+
     def update_progress(self, amount_downloaded, total):
         # first check if process is being terminated
         self.amount_downloaded = amount_downloaded
@@ -74,22 +79,22 @@ class BackupFiles(multiprocessing.Process):
                 chunk_downloaded = amount_downloaded - self.bytes_downloaded
                 if (chunk_downloaded > self.batch_size_bytes) or (amount_downloaded == total):
                     self.bytes_downloaded = amount_downloaded
-                    
+
                     if amount_downloaded == total:
                         # this function is called a couple of times when total is reached
                         self.total_reached = True
-                        
+
                     self.results_pipe.send((rpdmp.CONN_PARTIAL, (rpdmp.MSG_BYTES, (self.scan_pid, self.pid, self.total_downloaded + amount_downloaded, chunk_downloaded))))
                     if amount_downloaded == total:
                         self.bytes_downloaded = 0
-    
+
     def progress_callback(self, amount_downloaded, total):
         self.update_progress(amount_downloaded, total)
-        
+
     def progress_callback_no_update(self, amount_downloaded, total):
         """called when copying very small files"""
         pass
-        
+
     def backup_additional_file(self, dest_dir, full_file_name):
         """Backs up small files like XMP or THM files"""
         source = gio.File(full_file_name)
@@ -99,55 +104,57 @@ class BackupFiles(multiprocessing.Process):
         try:
             source.copy(dest, self.progress_callback_no_update, cancellable=None)
         except gio.Error, inst:
-                logger.error("Failed to backup file %s", full_file_name)        
-        
+                logger.error("Failed to backup file %s", full_file_name)
+
     def run(self):
-        
+
         self.cancel_copy = gio.Cancellable()
         self.bytes_downloaded = 0
         self.total_downloaded = 0
-        
+
         while True:
-            
+
             self.amount_downloaded = 0
-            move_succeeded, rpd_file, path_suffix, backup_duplicate_overwrite = self.results_pipe.recv()
+            move_succeeded, rpd_file, path_suffix, backup_duplicate_overwrite, download_count = self.results_pipe.recv()
             if rpd_file is None:
                 # this is a termination signal
                 return None
             # pause if instructed by the caller
             self.run_event.wait()
-                
+
             if self.check_termination_request():
                 return None
-                
+
             backup_succeeded = False
             self.scan_pid = rpd_file.scan_pid
-            
+
             if move_succeeded:
                 self.total_reached = False
-                    
+
                 source = gio.File(path=rpd_file.download_full_file_name)
-                
+
                 if path_suffix is None:
                     dest_base_dir = self.path
                 else:
                     dest_base_dir = os.path.join(self.path, path_suffix)
-                    
-                
+
+
                 dest_dir = os.path.join(dest_base_dir, rpd_file.download_subfolder)
                 backup_full_file_name = os.path.join(
-                                    dest_dir, 
-                                    rpd_file.download_name)            
-                
+                                    dest_dir,
+                                    rpd_file.download_name)
+
                 subfolder = gio.File(path=dest_dir)
                 if not subfolder.query_exists(cancellable=None):
                     # create the subfolders on the backup path
                     try:
+                        logger.debug("Creating subfolder %s on backup device %s...", dest_dir, self.mount_name)
                         subfolder.make_directory_with_parents(cancellable=gio.Cancellable())
+                        logger.debug("...backup subfolder created")
                     except gio.Error, inst:
                         # There is a tiny chance directory may have been created by
                         # another process between the time it takes to query and
-                        # the time it takes to create a new directory. 
+                        # the time it takes to create a new directory.
                         # Ignore such errors.
                         if inst.code <> gio.ERROR_EXISTS:
                             logger.error("Failed to create backup subfolder: %s", dest_dir)
@@ -159,7 +166,7 @@ class BackupFiles(multiprocessing.Process):
                                  _("Destination directory could not be created: %(directory)s\n") % \
                                   {'directory': subfolder,  } + \
                                  _("Source: %(source)s\nDestination: %(destination)s") % \
-                                  {'source': rpd_file.download_full_file_name, 
+                                  {'source': rpd_file.download_full_file_name,
                                    'destination': backup_full_file_name} + "\n" + \
                                  _("Error: %(inst)s") % {'inst': inst}
 
@@ -168,21 +175,33 @@ class BackupFiles(multiprocessing.Process):
                     flags = gio.FILE_COPY_OVERWRITE
                 else:
                     flags = gio.FILE_COPY_NONE
-                    
-                try:
-                    source.copy(dest, self.progress_callback, flags, 
-                                        cancellable=self.cancel_copy)
-                    backup_succeeded = True
-                except gio.Error, inst:
-                    fileNotBackedUpMessageDisplayed = True
-                    rpd_file.add_problem(None, pn.BACKUP_ERROR, self.mount_name)
-                    rpd_file.add_extra_detail('%s%s' % (pn.BACKUP_ERROR, self.mount_name), inst)
-                    rpd_file.error_title = _('Backing up error')
-                    rpd_file.error_msg = \
-                            _("Source: %(source)s\nDestination: %(destination)s") % \
-                             {'source': rpd_file.download_full_file_name, 'destination': backup_full_file_name} + "\n" + \
-                            _("Error: %(inst)s") % {'inst': inst}
-                    logger.error("%s:\n%s", rpd_file.error_title, rpd_file.error_msg)
+
+                if self.use_gnome_file_operations:
+                    try:
+                        logger.debug("Backing up file %s on device %s...", download_count, self.mount_name)
+                        source.copy(dest, self.progress_callback, flags,
+                                            cancellable=self.cancel_copy)
+                        backup_succeeded = True
+                        logger.debug("...backing up file %s on device %s succeeded", download_count, self.mount_name)
+                    except gio.Error, inst:
+                        fileNotBackedUpMessageDisplayed = True
+                        rpd_file.add_problem(None, pn.BACKUP_ERROR, self.mount_name)
+                        rpd_file.add_extra_detail('%s%s' % (pn.BACKUP_ERROR, self.mount_name), inst)
+                        rpd_file.error_title = _('Backing up error')
+                        rpd_file.error_msg = \
+                                _("Source: %(source)s\nDestination: %(destination)s") % \
+                                 {'source': rpd_file.download_full_file_name, 'destination': backup_full_file_name} + "\n" + \
+                                _("Error: %(inst)s") % {'inst': inst}
+                        logger.error("%s:\n%s", rpd_file.error_title, rpd_file.error_msg)
+                else:
+                    try:
+                        logger.debug("Using python to back up file %s on device %s...", download_count, self.mount_name)
+                        shutil.copy(rpd_file.download_full_file_name, backup_full_file_name)
+                        backup_succeeded = True
+                        logger.debug("...backing up file %s on device %s succeeded", download_count, self.mount_name)
+                    except:
+                        logger.error("Backup of %s failed", backup_full_file_name)
+
 
                 if not backup_succeeded:
                     if rpd_file.status ==  config.STATUS_DOWNLOAD_FAILED:
@@ -197,17 +216,17 @@ class BackupFiles(multiprocessing.Process):
                     if rpd_file.download_xmp_full_name:
                         self.backup_additional_file(dest_dir,
                                         rpd_file.download_xmp_full_name)
-            
+
             self.total_downloaded += rpd_file.size
             bytes_not_downloaded = rpd_file.size - self.amount_downloaded
             if bytes_not_downloaded:
                 self.results_pipe.send((rpdmp.CONN_PARTIAL, (rpdmp.MSG_BYTES, (self.scan_pid, self.pid, self.total_downloaded, bytes_not_downloaded))))
-                
+
             self.results_pipe.send((rpdmp.CONN_PARTIAL, (rpdmp.MSG_FILE,
                                    (backup_succeeded, rpd_file))))
-            
 
 
-            
+
+
 
 

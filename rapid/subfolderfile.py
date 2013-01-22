@@ -156,7 +156,7 @@ class SubfolderFile(multiprocessing.Process):
         self.uses_stored_sequence_no = sequence_values[5]
         self.uses_session_sequece_no = sequence_values[6]
         self.uses_sequence_letter = sequence_values[7]
-        # As of Ubuntu 12.10, the file move/rename command is running agonisingly slowly
+        # As of Ubuntu 12.10 / Fedora 18, the file move/rename command is running agonisingly slowly
         # A hackish workaround is to replace it with the standard python function
         self.use_gnome_file_operations = False
 
@@ -299,7 +299,8 @@ class SubfolderFile(multiprocessing.Process):
 
 
         while True:
-            logger.debug("Finished %s. Getting next task.", download_count)
+            if download_count:
+                logger.debug("Finished %s. Getting next task.", download_count)
 
             # rename file and move to generated subfolder
             download_succeeded, download_count, rpd_file = self.results_pipe.recv()
@@ -619,7 +620,7 @@ class SubfolderFile(multiprocessing.Process):
 
             rpd_file.metadata = None #purge metadata, as it cannot be pickled
             rpd_file.sequences = None
-            self.results_pipe.send((move_succeeded, rpd_file,))
+            self.results_pipe.send((move_succeeded, rpd_file, download_count))
 
             i += 1
 
