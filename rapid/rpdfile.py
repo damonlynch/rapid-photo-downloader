@@ -326,7 +326,8 @@ class SamplePhoto(Photo):
                        file_system_modification_time=time.time(),
                        scan_pid=2033,
                        file_id='9873afe',
-                       thm_full_name=None)
+                       thm_full_name=None,
+                       audio_file_full_name=None)
         self.sequences = sequences
         self.metadata = metadataphoto.DummyMetaData()
         self.download_start_time = datetime.datetime.now()
@@ -340,7 +341,8 @@ class SampleVideo(Video):
                        file_system_modification_time=time.time(),
                        scan_pid=2033,
                        file_id='9873qrsfe',
-                       thm_full_name=None)
+                       thm_full_name=None,
+                       audio_file_full_name=None)
         self.sequences = sequences
         self.metadata = metadatavideo.DummyMetaData(filename=sample_name)
         self.download_start_time = datetime.datetime.now()

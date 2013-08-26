@@ -343,7 +343,10 @@ class DeviceCollection(gtk.TreeView):
 
                 n = pynotify.Notification(title, message)
                 n.set_icon_from_pixbuf(self.parent_app.application_icon)
-                n.show()
+                try:
+                    n.show()
+                except:
+                    logger.error("Unable to display message using notification system")
 
 
 def create_cairo_image_surface(pil_image, image_width, image_height):
@@ -1838,7 +1841,7 @@ class RapidApp(dbus.service.Object):
                     if path:
                         if (path in self.prefs.device_blacklist and
                                     self.search_for_PSD()):
-                            logger.info("%s ignored", mount.get_name())
+                            logger.info("blacklisted device %s ignored", mount.get_name())
                         else:
                             logger.info("Detected %s", mount.get_name())
                             is_backup_mount, backup_file_type = self.check_if_backup_mount(path)
@@ -2807,7 +2810,10 @@ class RapidApp(dbus.service.Object):
             n = pynotify.Notification(notification_name, message)
             n.set_icon_from_pixbuf(icon)
 
-            n.show()
+            try:
+                n.show()
+            except:
+                logger.error("Unable to display message using notification system")
 
     def notify_download_complete(self):
         if self.display_summary_notification:
@@ -2859,7 +2865,10 @@ class RapidApp(dbus.service.Object):
             if use_pynotify:
                 n = pynotify.Notification(PROGRAM_NAME, message)
                 n.set_icon_from_pixbuf(self.application_icon)
-                n.show()
+                try:
+                    n.show()
+                except:
+                    logger.error("Unable to display message using notification system")
             self.display_summary_notification = False # don't show it again unless needed
 
 
