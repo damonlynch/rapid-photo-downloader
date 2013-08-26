@@ -54,7 +54,7 @@ class BackupFiles(multiprocessing.Process):
 
         # As of Ubuntu 12.10 / Fedora 18, the file move/rename command is running agonisingly slowly
         # A hackish workaround is to replace it with the standard python function
-        self.use_gnome_file_operations = True
+        self.use_gnome_file_operations = False
 
     def check_termination_request(self):
         """
@@ -99,12 +99,22 @@ class BackupFiles(multiprocessing.Process):
         """Backs up small files like XMP or THM files"""
         source = gio.File(full_file_name)
         dest_name = os.path.join(dest_dir, os.path.split(full_file_name)[1])
-        logger.debug("Backing up %s", dest_name)
-        dest=gio.File(dest_name)
-        try:
-            source.copy(dest, self.progress_callback_no_update, cancellable=None)
-        except gio.Error, inst:
-                logger.error("Failed to backup file %s", full_file_name)
+
+        if self.use_gnome_file_operations:
+            logger.debug("Backing up additional file %s...", dest_name)
+            dest=gio.File(dest_name)
+            try:
+                source.copy(dest, self.progress_callback_no_update, cancellable=None)
+                logger.debug("...backing up additional file %s succeeded", dest_name)
+            except gio.Error, inst:
+                    logger.error("Failed to backup file %s: %s", full_file_name, inst)
+        else:
+            try:
+                logger.debug("Using python to back up additional file %s...", dest_name)
+                shutil.copy(full_file_name, dest_name)
+                logger.debug("...backing up additional file %s succeeded", dest_name)
+            except:
+                logger.error("Backup of %s failed", full_file_name)
 
     def run(self):
 
@@ -215,7 +225,7 @@ class BackupFiles(multiprocessing.Process):
                                         rpd_file.download_thm_full_name)
                     if rpd_file.download_audio_full_name:
                         self.backup_additional_file(dest_dir,
-                                        rpd_file.download_thm_full_name)
+                                        rpd_file.download_audio_full_name)
                     if rpd_file.download_xmp_full_name:
                         self.backup_additional_file(dest_dir,
                                         rpd_file.download_xmp_full_name)
