@@ -8,26 +8,26 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2011-04-30 15:03-0500\n"
-"PO-Revision-Date: 2011-05-02 07:42+0000\n"
-"Last-Translator: Fedik <Unknown>\n"
+"POT-Creation-Date: 2012-06-23 04:00-0500\n"
+"PO-Revision-Date: 2013-04-11 12:07+0000\n"
+"Last-Translator: Stuartlittle1970@gmail.com <Stuartlittle1970@gmail.com>\n"
 "Language-Team: Ukrainian <uk@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2011-05-11 03:48+0000\n"
-"X-Generator: Launchpad (build 12981)\n"
+"X-Launchpad-Export-Date: 2013-08-26 05:20+0000\n"
+"X-Generator: Launchpad (build 16738)\n"
 
-#: rapid/glade3/prefs.ui.h:41
+#: rapid/glade3/prefs.ui.h:42
 msgid "Devices"
 msgstr "Пристрої"
 
 #. Translators: if neccessary, for guidance in how to translate this program, you may see http://damonlynch.net/translate.html
-#: rapid/rapid.py:105 rapid/glade3/rapid.ui.h:14
+#: rapid/rapid.py:112 rapid/rapid.py:1784 rapid/glade3/rapid.ui.h:1
 msgid "Rapid Photo Downloader"
 msgstr "Rapid Photo Downloader"
 
-#: rapid/rapid.py:110
+#: rapid/rapid.py:117
 #, python-format
 msgid ""
 "%(date)s\n"
@@ -36,54 +36,73 @@ msgstr ""
 "%(date)s\n"
 "%(time)s"
 
-#: rapid/rapid.py:112
+#: rapid/rapid.py:119
 #, python-format
 msgid "%(date)s %(time)s"
 msgstr "%(date)s %(time)s"
 
-#: rapid/rapid.py:115
+#: rapid/rapid.py:122
 #, python-format
 msgid "%(date)s %(hour)s:%(minute)s:%(second)s:%(subsecond)s"
 msgstr "%(date)s %(hour)s:%(minute)s:%(second)s:%(subsecond)s"
 
 #. Device refers to a thing like a camera, memory card in its reader,
 #. external hard drive, Portable Storage Device, etc.
-#: rapid/rapid.py:149
+#: rapid/rapid.py:157
 msgid "Device"
 msgstr "Пристрій"
 
 #. Size refers to the total size of images on the device, typically in
 #. MB or GB
-#: rapid/rapid.py:166
+#: rapid/rapid.py:175
 msgid "Size"
 msgstr "Розмір"
 
-#: rapid/rapid.py:169
+#: rapid/rapid.py:178
 msgid "Download Progress"
 msgstr "Поступ завантаження"
 
-#: rapid/rapid.py:315
+#: rapid/rapid.py:336
 #, python-format
 msgid "%(device)s did not unmount"
-msgstr "%(device)s не відєднано"
+msgstr "%(device)s не від’єднано"
 
 #. This refers to when a device like a hard drive is having its contents scanned,
 #. looking for photos or videos. It is visible initially in the progress bar for each device
 #. (which normally holds "x photos and videos").
 #. It maybe displayed only briefly if the contents of the device being scanned is small.
-#: rapid/rapid.py:1171
+#: rapid/rapid.py:1216
 msgid "scanning..."
 msgstr "сканування..."
 
-#: rapid/rapid.py:1986 rapid/glade3/rapid.ui.h:5
+#. this location is a human readable explanation for /, and is inserted into Downloading from %(location)s
+#: rapid/rapid.py:1782
+msgid "the root of the file system"
+msgstr "корінь файлової системи"
+
+#. message in dialog box which asks the user if they really want to be downloading from this location
+#: rapid/rapid.py:1786
+#, python-format
+msgid "Downloading from %(location)s."
+msgstr "Завантаження з %(location)s."
+
+#: rapid/rapid.py:1787
+msgid ""
+"Do you really want to download from here? On some systems, scanning this "
+"location can take a very long time."
+msgstr ""
+"Ви справді бажаєте завантажити звідси? На деяких системах сканування цього "
+"місцезнаходження може зайняти багато часу."
+
+#: rapid/rapid.py:2209
 msgid "Download"
 msgstr "Завантажити"
 
-#: rapid/rapid.py:1989
+#: rapid/rapid.py:2212
 msgid "Pause"
-msgstr "Пауза"
+msgstr "Призупинити"
 
-#: rapid/rapid.py:2092
+#: rapid/rapid.py:2317
 #, python-format
 msgid ""
 "These download folders are invalid:\n"
@@ -94,7 +113,7 @@ msgstr ""
 "%(folder1)s\n"
 "%(folder2)s"
 
-#: rapid/rapid.py:2095
+#: rapid/rapid.py:2320
 #, python-format
 msgid ""
 "This download folder is invalid:\n"
@@ -103,136 +122,176 @@ msgstr ""
 "Ці каталоги завантаження є некоректними:\n"
 "%s"
 
-#: rapid/rapid.py:2096
+#: rapid/rapid.py:2321
 msgid "Download cannot proceed"
 msgstr "Неможливо продовжити завантаження"
 
-#: rapid/rapid.py:2385
+#: rapid/rapid.py:2700
 msgid "About 1 second remaining"
 msgstr "Залишилось біля 1 секунди"
 
-#: rapid/rapid.py:2387
+#: rapid/rapid.py:2702
 #, python-format
 msgid "About %i seconds remaining"
 msgstr "Залишилось біля %i секунд"
 
-#: rapid/rapid.py:2389
+#: rapid/rapid.py:2704
 msgid "About 1 minute remaining"
 msgstr "Залишилось біля 1 хвилини"
 
 #. Translators: in the text '%(minutes)i:%(seconds)02i', only the : should be translated, if needed.
 #. '%(minutes)i' and '%(seconds)02i' should not be modified or left out. They are used to format and display the amount
 #. of time the download has remainging, e.g. 'About 5:36 minutes remaining'
-#: rapid/rapid.py:2394
+#: rapid/rapid.py:2709
 #, python-format
 msgid "About %(minutes)i:%(seconds)02i minutes remaining"
 msgstr "Залишилось біля %(minutes)i:%(seconds)02i"
 
-#: rapid/rapid.py:2416 rapid/preferencesdialog.py:823 rapid/rpdfile.py:110
+#: rapid/rapid.py:2731 rapid/rpdfile.py:123
 msgid "photos and videos"
 msgstr "фото та відео"
 
-#: rapid/rapid.py:2418 rapid/rpdfile.py:112
+#: rapid/rapid.py:2733 rapid/rpdfile.py:125
 msgid "photos or videos"
 msgstr "фото або відео"
 
-#: rapid/rapid.py:2421 rapid/rapid.py:2965 rapid/rpdfile.py:115
+#: rapid/rapid.py:2736 rapid/rapid.py:3558 rapid/rpdfile.py:128
 msgid "videos"
 msgstr "відео"
 
-#: rapid/rapid.py:2423 rapid/preferencesdialog.py:1374 rapid/rpdfile.py:117
-#: rapid/rpdfile.py:270
+#: rapid/rapid.py:2738 rapid/preferencesdialog.py:1620 rapid/rpdfile.py:130
+#: rapid/rpdfile.py:291
 msgid "video"
 msgstr "відео"
 
-#: rapid/rapid.py:2426 rapid/rapid.py:2963 rapid/preferencesdialog.py:825
-#: rapid/rpdfile.py:120
+#: rapid/rapid.py:2741 rapid/rapid.py:3556 rapid/rpdfile.py:133
 msgid "photos"
 msgstr "фото"
 
 #. check subfolder preferences for bad values
-#: rapid/rapid.py:2428 rapid/preferencesdialog.py:1373 rapid/rpdfile.py:122
-#: rapid/rpdfile.py:250
+#: rapid/rapid.py:2743 rapid/preferencesdialog.py:1619 rapid/rpdfile.py:135
+#: rapid/rpdfile.py:272
 msgid "photo"
 msgstr "фото"
 
-#: rapid/rapid.py:2455
+#: rapid/rapid.py:2770
 #, python-format
 msgid "%(noFiles)s %(filetypes)s downloaded"
 msgstr "Завантажено %(noFiles)s %(filetypes)s"
 
-#: rapid/rapid.py:2459
+#: rapid/rapid.py:2774
 #, python-format
 msgid "%(noFiles)s %(filetypes)s failed to download"
 msgstr "%(noFiles)s %(filetypes)s не вдалось завантажити"
 
-#: rapid/rapid.py:2462 rapid/rapid.py:2514
+#: rapid/rapid.py:2777 rapid/rapid.py:2829
 msgid "warnings"
 msgstr "застереження"
 
-#: rapid/rapid.py:2471
+#: rapid/rapid.py:2786
 msgid "All downloads complete"
 msgstr "Всі завантаження завершені"
 
-#: rapid/rapid.py:2477 rapid/rapid.py:2486 rapid/rapid.py:2495
-#: rapid/rapid.py:2504 rapid/rapid.py:2512
+#: rapid/rapid.py:2792 rapid/rapid.py:2801 rapid/rapid.py:2810
+#: rapid/rapid.py:2819 rapid/rapid.py:2827
 #, python-format
 msgid "%(number)s %(numberdownloaded)s"
 msgstr "%(number)s %(numberdownloaded)s"
 
-#: rapid/rapid.py:2479 rapid/rapid.py:2497
+#: rapid/rapid.py:2794 rapid/rapid.py:2812
 #, python-format
 msgid "%(filetype)s downloaded"
 msgstr "%(filetype)s завантажено"
 
-#: rapid/rapid.py:2488 rapid/rapid.py:2506
+#: rapid/rapid.py:2803 rapid/rapid.py:2821
 #, python-format
 msgid "%(filetype)s failed to download"
 msgstr "%(filetype)s не вдалось завантажити"
 
 #. e.g.: 3 of 205 photos and videos (202 remaining)
-#: rapid/rapid.py:2545
+#: rapid/rapid.py:2860
 #, python-format
 msgid "%(number)s of %(total)s %(filetypes)s (%(remaining)s remaining)"
 msgstr "%(number)s з %(total)s %(filetypes)s (%(remaining)s залишилось)"
 
 #. e.g.: 205 of 205 photos and videos
-#: rapid/rapid.py:2552
+#: rapid/rapid.py:2867
 #, python-format
 msgid "%(number)s of %(total)s %(filetypes)s"
 msgstr "%(number)s з %(total)s %(filetypes)s"
 
-#: rapid/rapid.py:2933
+#: rapid/rapid.py:3222
+msgid "From"
+msgstr "З"
+
+#: rapid/rapid.py:3230
+msgid "Auto Detect"
+msgstr "Автоматичне визначення"
+
+#: rapid/rapid.py:3234 rapid/preferencesdialog.py:1327
+#, python-format
+msgid "Select a folder containing %(file_types)s"
+msgstr "Виберіть теку, що містить %(file_types)s"
+
+#: rapid/rapid.py:3275
+msgid "Copy"
+msgstr "Копіювати"
+
+#: rapid/rapid.py:3288
+msgid "Move"
+msgstr "Переміщення"
+
+#: rapid/rapid.py:3310
+msgid "To"
+msgstr "До"
+
+#: rapid/rapid.py:3317 rapid/rapid.py:3986
+msgid "Photos:"
+msgstr "Фото:"
+
+#: rapid/rapid.py:3320 rapid/preferencesdialog.py:1164
+msgid "Select a folder to download photos to"
+msgstr "Виберіть теку для завантаження фото"
+
+#: rapid/rapid.py:3332 rapid/rapid.py:3986
+msgid "Videos:"
+msgstr "Відео:"
+
+#: rapid/rapid.py:3334 rapid/preferencesdialog.py:1182
+msgid "Select a folder to download videos to"
+msgstr "Виберіть теку для завантаження відео"
+
+#: rapid/rapid.py:3526
 msgid "and"
 msgstr "та"
 
-#: rapid/rapid.py:2938
+#: rapid/rapid.py:3531
 msgid "Using backup devices"
 msgstr "Використання пристроїв для резервного копіювання"
 
-#: rapid/rapid.py:2940
+#: rapid/rapid.py:3533
 msgid "Using backup device"
 msgstr "Використання пристрою для резервного копіювання"
 
-#: rapid/rapid.py:2942
+#: rapid/rapid.py:3535
 msgid "No backup devices detected"
 msgstr "Пристроїв для резервного копіювання не виявлено"
 
-#: rapid/rapid.py:2969
+#: rapid/rapid.py:3562
 msgid "Free space:"
 msgstr "Вільний простір:"
 
 #. (videos) or (photos) will be appended to the free space message displayed to the
 #. user in the status bar.
 #. you should only translate this if your language does not use parantheses
-#: rapid/rapid.py:2981
+#: rapid/rapid.py:3574
 #, python-format
 msgid "(%(file_type)s)"
 msgstr "(%(file_type)s)"
 
 #. Freespace available on the filesystem for downloading to
 #. Displayed in status bar message on main window
-#: rapid/rapid.py:2985
+#: rapid/rapid.py:3578
 #, python-format
 msgid "%(free)s %(file_type)s"
 msgstr "%(free)s %(file_type)s"
@@ -240,75 +299,88 @@ msgstr "%(free)s %(file_type)s"
 #. Inserted in the middle of the statusbar message concerning the amount of freespace
 #. Used to differentiate between two different file systems
 #. e.g. Free space: 21.3GB (photos); 14.7GB (videos).
-#: rapid/rapid.py:2990
+#: rapid/rapid.py:3583
 msgid "; "
 msgstr "; "
 
 #. Inserted at the end of the statusbar message concerning the amount of freespace
 #. Used to differentiate between two different file systems
 #. e.g. Free space: 21.3GB (photos); 14.7GB (videos).
-#: rapid/rapid.py:2995
+#: rapid/rapid.py:3588
 msgid "."
 msgstr ","
 
 #. Freespace available on the filesystem for downloading to
 #. Displayed in status bar message on main window
 #. e.g. 14.7GB available
-#: rapid/rapid.py:3001
+#: rapid/rapid.py:3594
 #, python-format
 msgid "%(free)s free"
 msgstr "%(free)s вільно"
 
+#. user manually specified the same location for photos and video backups
+#: rapid/rapid.py:3602
+#, python-format
+msgid "Backing up photos and videos to %(path)s"
+msgstr "Резервне копіювання фотографій та відеозаписів до %(path)s"
+
 #. user manually specified backup location
-#: rapid/rapid.py:3007
+#: rapid/rapid.py:3605
 #, python-format
 msgid "Backing up to %(path)s"
 msgstr "Резервне копіювання до %(path)s"
 
-#: rapid/rapid.py:3012
+#. user manually specified different locations for photo and video backups
+#: rapid/rapid.py:3608
+#, python-format
+msgid "Backing up photos to %(path)s and videos to %(path2)s"
+msgstr ""
+"Резервне копіювання фотографій до %(path)s та відеозаписів до %(path2)s"
+
+#: rapid/rapid.py:3615
 #, python-format
 msgid "%(freespace)s. %(backuppaths)s."
 msgstr "%(freespace)s. %(backuppaths)s."
 
-#: rapid/rapid.py:3041
+#: rapid/rapid.py:3644
 msgid "Program preferences are invalid"
 msgstr "Налаштування програми є хибними"
 
-#: rapid/rapid.py:3146 rapid/rpdfile.py:251
+#: rapid/rapid.py:3770 rapid/rpdfile.py:273
 msgid "Photo"
 msgstr "Фото"
 
-#: rapid/rapid.py:3148 rapid/rpdfile.py:271
+#: rapid/rapid.py:3772 rapid/rpdfile.py:292
 msgid "Video"
 msgstr "Відео"
 
-#: rapid/rapid.py:3157
+#: rapid/rapid.py:3781
 #, python-format
 msgid "%(file_type)s download folder does not exist"
 msgstr "%(file_type)s каталог завантаження не існує"
 
-#: rapid/rapid.py:3159 rapid/rapid.py:3173 rapid/rapid.py:3186
+#: rapid/rapid.py:3783 rapid/rapid.py:3797 rapid/rapid.py:3810
 #, python-format
 msgid "Folder: %s"
 msgstr "Каталог: %s"
 
-#: rapid/rapid.py:3171
+#: rapid/rapid.py:3795
 #, python-format
 msgid "%(file_type)s download folder is invalid"
 msgstr "%(file_type)s каталог завантаження є хибним"
 
-#: rapid/rapid.py:3184
+#: rapid/rapid.py:3808
 #, python-format
 msgid "%(file_type)s download folder is not writable"
 msgstr "%(file_type)s каталог завантаження не доступний для запису"
 
-#: rapid/rapid.py:3262
+#: rapid/rapid.py:3894
 msgid "Thumbnails"
 msgstr "Мініатюри"
 
 #. Translators: this text is displayed to the user when they request information on the command line options.
 #. The text %default should not be modified or left out.
-#: rapid/rapid.py:3309
+#: rapid/rapid.py:3949
 #, python-format
 msgid ""
 "display program information on the command line as the program runs "
@@ -316,62 +388,69 @@ msgid ""
 msgstr ""
 "показати дані програми в командному рядку під час запуску (типово: %default)"
 
-#: rapid/rapid.py:3310
+#: rapid/rapid.py:3950
 msgid "display debugging information when run from the command line"
 msgstr ""
 "показувати інструкцію зі зневадження під час запуску з командного рядка"
 
-#: rapid/rapid.py:3311
+#: rapid/rapid.py:3951
 msgid "only output errors to the command line"
 msgstr "виводити в командний рядок лише помилки"
 
 #. image file extensions are recognized RAW files plus TIFF and JPG
-#: rapid/rapid.py:3313
+#: rapid/rapid.py:3953
 msgid "list photo and video file extensions the program recognizes and exit"
 msgstr ""
 "вивести список розширень фото та відео файлів, розпізнаних програмою і вийти"
 
-#: rapid/rapid.py:3314
+#: rapid/rapid.py:3955
+msgid ""
+"automatically detect devices from which to download, overwriting existing "
+"program preferences"
+msgstr ""
+"автоматично визначати пристрій, з якого буде виконуватися завантаження, "
+"замінюючи налаштування програми що існують"
+
+#: rapid/rapid.py:3956
+msgid ""
+"manually specify the PATH of the device from which to download, overwriting "
+"existing program preferences"
+msgstr ""
+"самостійно вкажіть розміщення (PATH) пристрою, з якого буде виконуватися "
+"завантаження, замінюючи налаштування програми що існують"
+
+#: rapid/rapid.py:3957
 msgid "reset all program settings and preferences and exit"
 msgstr "скинути всі параметри та налаштування програми і вийти"
 
-#: rapid/rapid.py:3327
-msgid "Photos:"
-msgstr "Фото:"
+#: rapid/rapid.py:3970
+msgid ""
+"Error: specify device auto-detection or manually specify a device's path "
+"from which to download, but do not do both."
+msgstr ""
+"Помилка: вкажіть автоматичне визначення пристрою або самостійно вкажіть "
+"розміщення пристрою, з якого буде виконуватися завантаження, але не "
+"використовуйте відразу обидва варіанти."
 
-#: rapid/rapid.py:3327
-msgid "Videos:"
-msgstr "Відео:"
-
-#: rapid/rapid.py:3332
+#: rapid/rapid.py:3991
 #, python-format
 msgid "and %s"
 msgstr "та %s"
 
-#: rapid/rapid.py:3340
+#: rapid/rapid.py:3999
 msgid "All settings and preferences have been reset"
 msgstr "Всі параметри та налаштування скинуті"
 
-#: rapid/rapid.py:3349
-msgid ""
-"Video downloading functionality disabled.\n"
-"To download videos, please install the hachoir metadata and kaa metadata "
-"packages for python."
-msgstr ""
-"Функція завантаження відео вимкнена.\n"
-"Для завантаження відео, будь ласка, встановіть пакунки hachoir metadata та "
-"kaa для python."
-
-#: rapid/backupfile.py:139 rapid/backupfile.py:162
+#: rapid/backupfile.py:157 rapid/backupfile.py:180
 msgid "Backing up error"
 msgstr "Помилка резервного копіювання"
 
-#: rapid/backupfile.py:141
+#: rapid/backupfile.py:159
 #, python-format
 msgid "Destination directory could not be created: %(directory)s\n"
 msgstr "Не вдалось створити теку адресата: %(directory)s\n"
 
-#: rapid/backupfile.py:143 rapid/backupfile.py:164 rapid/subfolderfile.py:194
+#: rapid/backupfile.py:161 rapid/backupfile.py:182 rapid/subfolderfile.py:199
 #, python-format
 msgid ""
 "Source: %(source)s\n"
@@ -380,13 +459,13 @@ msgstr ""
 "Джерело: %(source)s\n"
 "Адресат: %(destination)s"
 
-#: rapid/backupfile.py:146 rapid/backupfile.py:166
+#: rapid/backupfile.py:164 rapid/backupfile.py:184
 #, python-format
 msgid "Error: %(inst)s"
 msgstr "Помилка: %(inst)s"
 
-#: rapid/copyfiles.py:143 rapid/subfolderfile.py:209
-#: rapid/subfolderfile.py:348 rapid/subfolderfile.py:366
+#: rapid/copyfiles.py:163 rapid/subfolderfile.py:214
+#: rapid/subfolderfile.py:347 rapid/subfolderfile.py:365
 #, python-format
 msgid ""
 "%(problem)s\n"
@@ -395,12 +474,12 @@ msgstr ""
 "%(problem)s\n"
 "Файл: %(file)s"
 
-#: rapid/device.py:79
+#: rapid/device.py:80
 msgid "Device Detected"
 msgstr "Виявлений пристрій"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#usedeviceprompt
-#: rapid/device.py:88
+#: rapid/device.py:89
 msgid ""
 "Should this device or partition be used to download photos or videos from?"
 msgstr ""
@@ -408,439 +487,492 @@ msgstr ""
 "відео?"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#usedeviceprompt
-#: rapid/device.py:107
+#: rapid/device.py:108
 msgid "_Remember this choice"
 msgstr "_Пам’ятати цей вибір"
 
-#: rapid/downloadtracker.py:268
+#: rapid/downloadtracker.py:299
 msgid "MB/s"
 msgstr "МБ/с"
 
-#: rapid/generatenameconfig.py:143
+#: rapid/generatenameconfig.py:151
 msgid "Date time"
 msgstr "Дата і час"
 
-#: rapid/generatenameconfig.py:144
+#: rapid/generatenameconfig.py:152
 msgid "Text"
 msgstr "Текст"
 
-#: rapid/generatenameconfig.py:145
+#: rapid/generatenameconfig.py:153
 msgid "Filename"
-msgstr "Назва файла"
+msgstr "Назва файлу"
 
-#: rapid/generatenameconfig.py:146
+#: rapid/generatenameconfig.py:154
 msgid "Metadata"
 msgstr "Метадані"
 
-#: rapid/generatenameconfig.py:147
+#: rapid/generatenameconfig.py:155
 msgid "Sequences"
 msgstr "Послідовності"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#jobcode
-#: rapid/generatenameconfig.py:149 rapid/preferencesdialog.py:549
+#: rapid/generatenameconfig.py:157 rapid/preferencesdialog.py:577
 msgid "Job code"
 msgstr "Мітка"
 
-#: rapid/generatenameconfig.py:150
+#: rapid/generatenameconfig.py:158
 msgid "Image date"
 msgstr "Дата фото"
 
-#: rapid/generatenameconfig.py:151
+#: rapid/generatenameconfig.py:159
 msgid "Video date"
 msgstr "Дата відео"
 
-#: rapid/generatenameconfig.py:152
+#: rapid/generatenameconfig.py:160
 msgid "Today"
 msgstr "Сьогодні"
 
-#: rapid/generatenameconfig.py:153
+#: rapid/generatenameconfig.py:161
 msgid "Yesterday"
 msgstr "Вчора"
 
 #. Translators: Download time is the time and date that the download started (when the user clicked the Download button)
-#: rapid/generatenameconfig.py:155
+#: rapid/generatenameconfig.py:163
 msgid "Download time"
 msgstr "Час та дата завантаження"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamefilename
-#: rapid/generatenameconfig.py:157
+#: rapid/generatenameconfig.py:165
 msgid "Name + extension"
 msgstr "Назва + розширення"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamefilename
-#: rapid/generatenameconfig.py:159
+#: rapid/generatenameconfig.py:167
 msgid "Name"
 msgstr "Назва"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamefilename
-#: rapid/generatenameconfig.py:161
+#: rapid/generatenameconfig.py:169
 msgid "Extension"
 msgstr "Розширення"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamefilename
-#: rapid/generatenameconfig.py:163
+#: rapid/generatenameconfig.py:171
 msgid "Image number"
 msgstr "Номер фото"
 
-#: rapid/generatenameconfig.py:164
+#: rapid/generatenameconfig.py:172
 msgid "Video number"
 msgstr "Номер відео"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
-#: rapid/generatenameconfig.py:166
+#: rapid/generatenameconfig.py:174
 msgid "Aperture"
 msgstr "Діафрагма"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
-#: rapid/generatenameconfig.py:168
+#: rapid/generatenameconfig.py:176
 msgid "ISO"
 msgstr "ISO"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
-#: rapid/generatenameconfig.py:170
+#: rapid/generatenameconfig.py:178
 msgid "Exposure time"
 msgstr "Час експозиції"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
-#: rapid/generatenameconfig.py:172
+#: rapid/generatenameconfig.py:180
 msgid "Focal length"
 msgstr "Фокусна відстань"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
-#: rapid/generatenameconfig.py:174
+#: rapid/generatenameconfig.py:182
 msgid "Camera make"
 msgstr "Виробник камери"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
-#: rapid/generatenameconfig.py:176
+#: rapid/generatenameconfig.py:184
 msgid "Camera model"
 msgstr "Модель камери"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
-#: rapid/generatenameconfig.py:178
+#: rapid/generatenameconfig.py:186
 msgid "Short camera model"
 msgstr "Скорочена назва камери"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
-#: rapid/generatenameconfig.py:180
+#: rapid/generatenameconfig.py:188
 msgid "Hyphenated short camera model"
 msgstr "Написана через дефіс коротка назва моделі"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
-#: rapid/generatenameconfig.py:182
+#: rapid/generatenameconfig.py:190
 msgid "Serial number"
 msgstr "Серійний номер"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
-#: rapid/generatenameconfig.py:184
+#: rapid/generatenameconfig.py:192
 msgid "Shutter count"
 msgstr "Кількість затворів"
 
+#. File number currently refers to the Exif value Exif.Canon.FileNumber
+#: rapid/generatenameconfig.py:194
+msgid "File number"
+msgstr "Номер файлу"
+
+#. Only the folder component of the Exif.Canon.FileNumber value
+#: rapid/generatenameconfig.py:196
+msgid "Folder only"
+msgstr "Лише тека"
+
+#. The folder and file component of the Exif.Canon.FileNumber value
+#: rapid/generatenameconfig.py:198
+msgid "Folder and file"
+msgstr "Тека та файл"
+
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
-#: rapid/generatenameconfig.py:186
+#: rapid/generatenameconfig.py:200
 msgid "Owner name"
 msgstr "Ім’я власника"
 
-#: rapid/generatenameconfig.py:187
+#: rapid/generatenameconfig.py:201
 msgid "Codec"
 msgstr "Кодек"
 
-#: rapid/generatenameconfig.py:188
+#: rapid/generatenameconfig.py:202
 msgid "Width"
 msgstr "Ширина"
 
-#: rapid/generatenameconfig.py:189
+#: rapid/generatenameconfig.py:203
 msgid "Height"
 msgstr "Висота"
 
-#: rapid/generatenameconfig.py:190
+#: rapid/generatenameconfig.py:204
 msgid "Length"
 msgstr "Тривалість"
 
-#: rapid/generatenameconfig.py:191
+#: rapid/generatenameconfig.py:205
 msgid "Frames Per Second"
 msgstr "Кадрів за секунду"
 
+#: rapid/generatenameconfig.py:206
+msgid "Artist"
+msgstr "Виконавець"
+
+#: rapid/generatenameconfig.py:207
+msgid "Copyright"
+msgstr "Авторське право"
+
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#sequencenumbers
-#: rapid/generatenameconfig.py:193
+#: rapid/generatenameconfig.py:209
 msgid "Downloads today"
 msgstr "Завантажень сьогодні"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#sequencenumbers
-#: rapid/generatenameconfig.py:195
+#: rapid/generatenameconfig.py:211
 msgid "Session number"
 msgstr "Номер сеансу"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#sequencenumbers
-#: rapid/generatenameconfig.py:197
+#: rapid/generatenameconfig.py:213
 msgid "Subfolder number"
 msgstr "Номер підтеки"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#sequencenumbers
-#: rapid/generatenameconfig.py:199
+#: rapid/generatenameconfig.py:215
 msgid "Stored number"
 msgstr "Номер збереження"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#sequenceletters
-#: rapid/generatenameconfig.py:201
+#: rapid/generatenameconfig.py:217
 msgid "Sequence letter"
 msgstr "Послідовність знаків"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamefilename
-#: rapid/generatenameconfig.py:203
+#: rapid/generatenameconfig.py:219
 msgid "All digits"
 msgstr "Всі цифри"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamefilename
-#: rapid/generatenameconfig.py:205
+#: rapid/generatenameconfig.py:221
 msgid "Last digit"
 msgstr "Остання цифра"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamefilename
-#: rapid/generatenameconfig.py:207
+#: rapid/generatenameconfig.py:223
 msgid "Last 2 digits"
 msgstr "Останні 2 цифри"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamefilename
-#: rapid/generatenameconfig.py:209
+#: rapid/generatenameconfig.py:225
 msgid "Last 3 digits"
 msgstr "Останні 3 цифри"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamefilename
-#: rapid/generatenameconfig.py:211
+#: rapid/generatenameconfig.py:227
 msgid "Last 4 digits"
 msgstr "Останні 4 цифри"
 
 #. Translators: please not the capitalization of this text, and keep it the same if your language features capitalization
-#: rapid/generatenameconfig.py:213
+#: rapid/generatenameconfig.py:229
 msgid "Original Case"
 msgstr "Початковий регістр"
 
 #. Translators: please not the capitalization of this text, and keep it the same if your language features capitalization
-#: rapid/generatenameconfig.py:215
+#: rapid/generatenameconfig.py:231
 msgid "UPPERCASE"
 msgstr "ВЕРХНІЙ РЕГІСТР"
 
 #. Translators: please not the capitalization of this text, and keep it the same if your language features capitalization
-#: rapid/generatenameconfig.py:217
+#: rapid/generatenameconfig.py:233
 msgid "lowercase"
 msgstr "нижній регістр"
 
-#: rapid/generatenameconfig.py:218
+#: rapid/generatenameconfig.py:234
 msgid "One digit"
 msgstr "Одна цифра"
 
-#: rapid/generatenameconfig.py:219
+#: rapid/generatenameconfig.py:235
 msgid "Two digits"
 msgstr "Дві цифри"
 
-#: rapid/generatenameconfig.py:220
+#: rapid/generatenameconfig.py:236
 msgid "Three digits"
 msgstr "Три цифри"
 
-#: rapid/generatenameconfig.py:221
+#: rapid/generatenameconfig.py:237
 msgid "Four digits"
 msgstr "Чотири цифри"
 
-#: rapid/generatenameconfig.py:222
+#: rapid/generatenameconfig.py:238
 msgid "Five digits"
 msgstr "П’ять цифр"
 
-#: rapid/generatenameconfig.py:223
+#: rapid/generatenameconfig.py:239
 msgid "Six digits"
 msgstr "Шість цифр"
 
-#: rapid/generatenameconfig.py:224
+#: rapid/generatenameconfig.py:240
 msgid "Seven digits"
 msgstr "Сім цифр"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-#: rapid/generatenameconfig.py:226
+#: rapid/generatenameconfig.py:242
 msgid "Subseconds"
 msgstr "Підсекунди"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-#: rapid/generatenameconfig.py:228
+#: rapid/generatenameconfig.py:244
 msgid "YYYYMMDD"
 msgstr "РРРРММДД"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-#: rapid/generatenameconfig.py:230
+#: rapid/generatenameconfig.py:246
 msgid "YYYY-MM-DD"
 msgstr "РРРР-ММ-ДД"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-#: rapid/generatenameconfig.py:232
+#: rapid/generatenameconfig.py:248
 msgid "YYMMDD"
 msgstr "РРММДД"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-#: rapid/generatenameconfig.py:234
+#: rapid/generatenameconfig.py:250
 msgid "YY-MM-DD"
 msgstr "РР-ММ-ДД"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-#: rapid/generatenameconfig.py:236
+#: rapid/generatenameconfig.py:252
 msgid "MMDDYYYY"
 msgstr "ММДДРРРР"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-#: rapid/generatenameconfig.py:238
+#: rapid/generatenameconfig.py:254
 msgid "MMDDYY"
 msgstr "ММДДРР"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-#: rapid/generatenameconfig.py:240
+#: rapid/generatenameconfig.py:256
 msgid "MMDD"
 msgstr "ММДД"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-#: rapid/generatenameconfig.py:242
+#: rapid/generatenameconfig.py:258
 msgid "DDMMYYYY"
 msgstr "ДДММГГГГ"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-#: rapid/generatenameconfig.py:244
+#: rapid/generatenameconfig.py:260
 msgid "DDMMYY"
 msgstr "ДДММРР"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-#: rapid/generatenameconfig.py:246
+#: rapid/generatenameconfig.py:262
 msgid "YYYY"
 msgstr "РРРР"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-#: rapid/generatenameconfig.py:248
+#: rapid/generatenameconfig.py:264
 msgid "YY"
 msgstr "РР"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-#: rapid/generatenameconfig.py:250
+#: rapid/generatenameconfig.py:266
 msgid "MM"
 msgstr "ММ"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-#: rapid/generatenameconfig.py:252
+#: rapid/generatenameconfig.py:268
 msgid "DD"
 msgstr "ДД"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-#: rapid/generatenameconfig.py:254
+#: rapid/generatenameconfig.py:270
+msgid "Month (full)"
+msgstr "Місяць (повністю)"
+
+#. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
+#: rapid/generatenameconfig.py:272
+msgid "Month (abbreviated)"
+msgstr "Місяць (коротко)"
+
+#. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
+#: rapid/generatenameconfig.py:274
 msgid "HHMMSS"
 msgstr "ГГХХСС"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-#: rapid/generatenameconfig.py:256
+#: rapid/generatenameconfig.py:276
 msgid "HHMM"
 msgstr "ГГХХ"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-#: rapid/generatenameconfig.py:258
+#: rapid/generatenameconfig.py:278
 msgid "HH-MM-SS"
 msgstr "ГГ-ХХ-СС"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-#: rapid/generatenameconfig.py:260
+#: rapid/generatenameconfig.py:280
 msgid "HH-MM"
 msgstr "ГГ-ХХ"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-#: rapid/generatenameconfig.py:262
+#: rapid/generatenameconfig.py:282
 msgid "HH"
 msgstr "ГГ"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-#: rapid/generatenameconfig.py:264
+#: rapid/generatenameconfig.py:284
 msgid "MM (minutes)"
 msgstr "ХХ (хвилин)"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-#: rapid/generatenameconfig.py:266
+#: rapid/generatenameconfig.py:286
 msgid "SS"
 msgstr "СС"
 
-#: rapid/preferencesdialog.py:370
+#: rapid/preferencesdialog.py:374
 #, python-format
 msgid "Subfolder preferences should not start with a %s"
 msgstr "Параметри підтеки не повинні починатись з %s"
 
-#: rapid/preferencesdialog.py:372
+#: rapid/preferencesdialog.py:376
 #, python-format
 msgid "Subfolder preferences should not end with a %s"
 msgstr "Параметри підтеки не повинні завершуватись %s"
 
-#: rapid/preferencesdialog.py:376
+#: rapid/preferencesdialog.py:380
 #, python-format
 msgid "Subfolder preferences should not contain two %s one after the other"
 msgstr "Параметри підтеки не повинні містити два %s одне за одним"
 
-#: rapid/preferencesdialog.py:389 rapid/preferencesdialog.py:672
+#: rapid/preferencesdialog.py:439 rapid/preferencesdialog.py:700
 msgid "Remove all Job Codes?"
 msgstr "Вилучити всі мітки?"
 
-#: rapid/preferencesdialog.py:406 rapid/preferencesdialog.py:689
+#: rapid/preferencesdialog.py:440 rapid/preferencesdialog.py:717
 msgid "Should all Job Codes be removed?"
 msgstr "Чи потрібно вилучити всі мітки?"
 
-#: rapid/preferencesdialog.py:436
+#: rapid/preferencesdialog.py:446
+msgid "Remove all Remembered Paths?"
+msgstr "Вилучити усі запам’ятовані розміщення?"
+
+#: rapid/preferencesdialog.py:447
+msgid "Should all remembered paths be removed?"
+msgstr "Чи має бути вилучено усі заппам’ятовані розміщення?"
+
+#: rapid/preferencesdialog.py:453
+msgid "Remove all Ignored Paths?"
+msgstr "Вилучити усі розміщення що ігноруються?"
+
+#: rapid/preferencesdialog.py:454
+msgid "Should all ignored paths be removed?"
+msgstr "Чи має бути вилучено усі ігноровані розміщення?"
+
+#: rapid/preferencesdialog.py:465
 msgid "Error in Photo Rename preferences"
 msgstr "Помилка в параметрі «Перейменування фото»"
 
-#: rapid/preferencesdialog.py:617
+#: rapid/preferencesdialog.py:645
 msgid "Error in Video Rename preferences"
 msgstr "Помилка в налаштуваннях «Перейменування відео»"
 
-#: rapid/preferencesdialog.py:638
+#: rapid/preferencesdialog.py:666
 msgid "Error in Photo Download Subfolders preferences"
 msgstr "Помилка в налаштуваннях «Підтеки для завантаження фото»"
 
-#: rapid/preferencesdialog.py:655
+#: rapid/preferencesdialog.py:683
 msgid "Error in Video Download Subfolders preferences"
 msgstr "Помилка в налаштуваннях «Підтеки для завантаження відео»"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#jobcode
-#: rapid/preferencesdialog.py:714
+#: rapid/preferencesdialog.py:742
 msgid "Enter a Job Code"
 msgstr "Введіть мітку"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#jobcode
-#: rapid/preferencesdialog.py:731
+#: rapid/preferencesdialog.py:758
 msgid "Enter a new Job Code, or select a previous one"
 msgstr "Введіть нову мітку або виберіть попередню"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#jobcode
-#: rapid/preferencesdialog.py:734
+#: rapid/preferencesdialog.py:761
 msgid "Enter a new Job Code"
 msgstr "Введіть нову мітку"
 
-#: rapid/preferencesdialog.py:739
+#: rapid/preferencesdialog.py:766
 msgid "Job Code:"
 msgstr "Мітка:"
 
-#: rapid/preferencesdialog.py:916
+#: rapid/preferencesdialog.py:822
+msgid "Enter a Path to Ignore"
+msgstr "Введіть розміщення, яке бажаєте ігнорувати"
+
+#: rapid/preferencesdialog.py:834
+msgid "Specify a path that will never be scanned for photos or videos"
+msgstr ""
+"Вкажіть  розміщення, яке не буде скануватися на наявність фотографій або "
+"відеофрагментів"
+
+#: rapid/preferencesdialog.py:839
+msgid "Path:"
+msgstr "Шлях:"
+
+#: rapid/preferencesdialog.py:1082
 msgid "Job Code"
 msgstr "Мітка"
 
-#: rapid/preferencesdialog.py:998
-msgid "Select a folder to download photos to"
-msgstr "Виберіть теку для завантаження фото"
+#: rapid/preferencesdialog.py:1353
+msgid "Select a folder in which to backup photos"
+msgstr "Оберіть теку у якій будуть зберігатися резервні копії фотографій"
 
-#: rapid/preferencesdialog.py:1016
-msgid "Select a folder to download videos to"
-msgstr "Виберіть теку для завантаження відео"
-
-#: rapid/preferencesdialog.py:1107
-#, python-format
-msgid "Select a folder containing %(file_types)s"
-msgstr "Виберіть теку, що містить %(file_types)s"
-
-#: rapid/preferencesdialog.py:1129
-#, python-format
-msgid "Select a folder in which to backup %(file_types)s"
-msgstr "Виберіть теку для резервних копій %(file_types)s"
+#: rapid/preferencesdialog.py:1366
+msgid "Select a folder in which to backup videos"
+msgstr "Оберіть теку у якій будуть зберігатися резервні копії відеофрагметів"
 
 #. Translators: please do not modify or leave out html formatting tags like <i> and <b>. These are used to format the text the users sees
-#: rapid/preferencesdialog.py:1215
+#: rapid/preferencesdialog.py:1461
 msgid ""
 "<i><b>Warning:</b> There is insufficient metadata to fully generate the "
 "name. Please use other renaming options.</i>"
@@ -848,7 +980,7 @@ msgstr ""
 "<i><b>Увага:</b> Недостатньо метаданих для повного створення назви. "
 "Використовуйте інші варіанти перейменування.</i>"
 
-#: rapid/preferencesdialog.py:1266
+#: rapid/preferencesdialog.py:1512
 msgid ""
 "<i><b>Warning:</b> There is insufficient metadata to fully generate "
 "subfolders. Please use other subfolder naming options.</i>"
@@ -857,13 +989,13 @@ msgstr ""
 "Використовуйте інші варіанти найменування підтек.</i>"
 
 #. Translators: you should not modify or leave out the %s. This is a code used by the programming language python to insert a value that thes user will see
-#: rapid/preferencesdialog.py:1269
+#: rapid/preferencesdialog.py:1515
 #, python-format
 msgid "<i>Example: %s</i>"
 msgstr "<i>Приклад: %s</i>"
 
 #. Preferences list is now empty
-#: rapid/preferencesdialog.py:1359
+#: rapid/preferencesdialog.py:1605
 #, python-format
 msgid ""
 "The %(filetype)s subfolder preferences entered are invalid and cannot be "
@@ -874,138 +1006,163 @@ msgstr ""
 "використовуватимуться.\n"
 "Ці значення будуть скинуті до типових."
 
+#: rapid/preferencesdialog.py:1750
+#, python-format
+msgid ""
+"The following regular expressions are invalid, and will be removed unless "
+"you correct them:\n"
+" %s"
+msgstr ""
+"Наступні регулярні вирази неприпустимі й будуть вилучені, якщо ви не "
+"виправите їх:\n"
+" %s"
+
+#: rapid/preferencesdialog.py:1752
+#, python-format
+msgid ""
+"This regular expression is invalid, and will be removed unless you correct "
+"it:\n"
+" %s"
+msgstr ""
+"Регулярний вираз неприпустимий й буде вилучено, якщо ви не виправите його:\n"
+" %s"
+
+#: rapid/preferencesdialog.py:1753
+msgid "Invalid regular expression"
+msgstr "Неприпустимий регулярний вираз"
+
 #. Translators: this value is used as an example device when automatic backup device detection is enabled. You should translate this.
-#: rapid/preferencesdialog.py:1645
+#: rapid/preferencesdialog.py:1934
 msgid "externaldrive1"
 msgstr "зовнішній пристрій 1"
 
 #. Translators: this value is used as an example device when automatic backup device detection is enabled. You should translate this.
-#: rapid/preferencesdialog.py:1647
+#: rapid/preferencesdialog.py:1936
 msgid "externaldrive2"
 msgstr "зовнішній пристрій 2"
 
-#: rapid/prefsrapid.py:122
+#: rapid/prefsrapid.py:127
 msgid "New York"
 msgstr "Нью-Йорк"
 
-#: rapid/prefsrapid.py:123
+#: rapid/prefsrapid.py:128
 msgid "Manila"
-msgstr "Манила"
+msgstr "Маніла"
 
-#: rapid/prefsrapid.py:123
+#: rapid/prefsrapid.py:128
 msgid "Prague"
 msgstr "Прага"
 
-#: rapid/prefsrapid.py:123
+#: rapid/prefsrapid.py:128
 msgid "Helsinki"
 msgstr "Гельсінкі"
 
-#: rapid/prefsrapid.py:123
+#: rapid/prefsrapid.py:128
 msgid "Wellington"
 msgstr "Веллінгтон"
 
-#: rapid/prefsrapid.py:124
+#: rapid/prefsrapid.py:129
 msgid "Tehran"
 msgstr "Тегеран"
 
-#: rapid/prefsrapid.py:124
+#: rapid/prefsrapid.py:129
 msgid "Kampala"
 msgstr "Кампала"
 
-#: rapid/prefsrapid.py:124
+#: rapid/prefsrapid.py:129
 msgid "Paris"
 msgstr "Париж"
 
-#: rapid/prefsrapid.py:124
+#: rapid/prefsrapid.py:129
 msgid "Berlin"
 msgstr "Берлін"
 
-#: rapid/prefsrapid.py:124
+#: rapid/prefsrapid.py:129
 msgid "Sydney"
 msgstr "Сідней"
 
-#: rapid/prefsrapid.py:125
+#: rapid/prefsrapid.py:130
 msgid "Budapest"
 msgstr "Будапешт"
 
-#: rapid/prefsrapid.py:125
+#: rapid/prefsrapid.py:130
 msgid "Rome"
 msgstr "Рим"
 
-#: rapid/prefsrapid.py:125
+#: rapid/prefsrapid.py:130
 msgid "Moscow"
 msgstr "Москва"
 
-#: rapid/prefsrapid.py:125
+#: rapid/prefsrapid.py:130
 msgid "Delhi"
 msgstr "Делі"
 
-#: rapid/prefsrapid.py:125
+#: rapid/prefsrapid.py:130
 msgid "Warsaw"
 msgstr "Варшава"
 
-#: rapid/prefsrapid.py:126
+#: rapid/prefsrapid.py:131
 msgid "Jakarta"
 msgstr "Джакарта"
 
-#: rapid/prefsrapid.py:126
+#: rapid/prefsrapid.py:131
 msgid "Madrid"
 msgstr "Мадрид"
 
-#: rapid/prefsrapid.py:126
+#: rapid/prefsrapid.py:131
 msgid "Stockholm"
 msgstr "Стокгольм"
 
 #. components
-#: rapid/problemnotification.py:26 rapid/subfolderfile.py:359
+#: rapid/problemnotification.py:27 rapid/subfolderfile.py:358
 msgid "subfolder"
 msgstr "підтека"
 
-#: rapid/problemnotification.py:27 rapid/subfolderfile.py:357
+#: rapid/problemnotification.py:28 rapid/subfolderfile.py:356
 msgid "filename"
-msgstr "назва файла"
-
-#: rapid/problemnotification.py:80
-#, python-format
-msgid "Date time value %s appears invalid."
-msgstr ""
+msgstr "назва файлу"
 
 #: rapid/problemnotification.py:81
+#, python-format
+msgid "Date time value %s appears invalid."
+msgstr "Значення дати та часу %s встановлено неправильно."
+
+#: rapid/problemnotification.py:82
 msgid "Filename does not have an extension."
 msgstr "В імені файлу відсутнє розширення"
 
 #. a number component is something like the 8346 in IMG_8346.JPG
-#: rapid/problemnotification.py:83
-msgid "Filename does not have a number component."
-msgstr "В імені файлу відсутнії числовий компонент."
-
 #: rapid/problemnotification.py:84
+msgid "Filename does not have a number component."
+msgstr "В імені файлу відсутній числовий компонент."
+
+#: rapid/problemnotification.py:85
 #, python-format
 msgid "Error generating component %s."
 msgstr "Помилка створення компонента %s."
 
 #. a generic problem
-#: rapid/problemnotification.py:86
+#: rapid/problemnotification.py:87
 #, python-format
 msgid "%(filetype)s metadata cannot be read"
 msgstr "%(filetype)s не можливо прочитати метадані"
 
-#: rapid/problemnotification.py:88
+#: rapid/problemnotification.py:89
 #, python-format
 msgid "%(filetype)s %(area)s could not be generated"
 msgstr "%(filetype)s %(area)s не може бути згенерованим"
 
-#: rapid/problemnotification.py:90 rapid/problemnotification.py:91
+#: rapid/problemnotification.py:91 rapid/problemnotification.py:92
 #, python-format
 msgid "An error occurred when copying the %(filetype)s"
-msgstr "Сталася помилка при копіювання %(filetype)s"
+msgstr "Сталася помилка при копіюванні %(filetype)s"
 
-#: rapid/problemnotification.py:93 rapid/problemnotification.py:94
+#: rapid/problemnotification.py:94 rapid/problemnotification.py:95
 #, python-format
 msgid "%(filetype)s already exists"
 msgstr "%(filetype)s вже існує"
 
-#: rapid/problemnotification.py:97
+#: rapid/problemnotification.py:98
 #, python-format
 msgid ""
 "%(filetype)s could not be backed up because no suitable backup locations "
@@ -1014,19 +1171,21 @@ msgstr ""
 "%(filetype)s не може бути збережений в резервну копію, тому, що не вказано "
 "місце для збереження резервних копій."
 
-#: rapid/problemnotification.py:102
+#: rapid/problemnotification.py:103
 #, python-format
 msgid ""
-"%(image1)s was taken at on %(image1_date)s at %(image1_time)s, and "
-"%(image2)s on %(image2_date)s at %(image2_time)s."
+"%(image1)s was taken on %(image1_date)s at %(image1_time)s, and %(image2)s "
+"on %(image2_date)s at %(image2_time)s."
 msgstr ""
+"%(image1)s було створено %(image1_date)s у %(image1_time)s та %(image2)s "
+"створено %(image2_date)s у %(image2_time)s."
 
-#: rapid/problemnotification.py:103
+#: rapid/problemnotification.py:104
 #, python-format
 msgid "%(filetype)s was already downloaded"
 msgstr "%(filetype)s вже було завантажено"
 
-#: rapid/problemnotification.py:107
+#: rapid/problemnotification.py:108
 #, python-format
 msgid ""
 "The existing %(filetype)s was last modified on %(date)s at %(time)s. Unique "
@@ -1035,53 +1194,53 @@ msgstr ""
 "Існуючий фал %(filetype)s було модифіковано %(date)s в %(time)s. Додано "
 "унікальний ідентифікатор '%(identifier)s' ."
 
-#: rapid/problemnotification.py:108
+#: rapid/problemnotification.py:109
 #, python-format
 msgid "The existing %(filetype)s was last modified on %(date)s at %(time)s."
 msgstr "Існуючий фал %(filetype)s було модифіковано %(date)s в %(time)s."
 
-#: rapid/problemnotification.py:109
+#: rapid/problemnotification.py:110
 #, python-format
 msgid "There is no data with which to name the %(filetype)s."
 msgstr "Не існує даних з ім’ям %(filetype)s."
 
-#: rapid/problemnotification.py:111
+#: rapid/problemnotification.py:112
 #, python-format
 msgid "Error: %(errorno)s %(strerror)s"
 msgstr "Помилка: %(errorno)s %(strerror)s"
 
-#: rapid/problemnotification.py:201
+#: rapid/problemnotification.py:202
 msgid "The metadata might be corrupt."
 msgstr "Метадані можуть бути пошкодженими."
 
-#: rapid/problemnotification.py:204
+#: rapid/problemnotification.py:205
 msgid ""
 "The filename, extension and Exif information indicate it has already been "
 "downloaded."
 msgstr "Файл, розширення та Exif інформація вже були завантажені."
 
-#: rapid/problemnotification.py:223
+#: rapid/problemnotification.py:224
 #, python-format
 msgid " It was backed up to %(volume)s"
 msgstr " Було створено резервну копію на %(volume)s"
 
-#: rapid/problemnotification.py:225
+#: rapid/problemnotification.py:226
 msgid " It was backed up to these devices: "
 msgstr " Було створено резервну копію на цих пристроях: "
-
-#: rapid/problemnotification.py:227 rapid/problemnotification.py:288
-#: rapid/problemnotification.py:300
-#, python-format
-msgid "%s, "
-msgstr "%s, "
 
 #: rapid/problemnotification.py:228 rapid/problemnotification.py:289
 #: rapid/problemnotification.py:301
 #, python-format
+msgid "%s, "
+msgstr "%s, "
+
+#: rapid/problemnotification.py:229 rapid/problemnotification.py:290
+#: rapid/problemnotification.py:302
+#, python-format
 msgid "%(volumes)s and %(final_volume)s."
 msgstr "%(volumes)s та %(final_volume)s."
 
-#: rapid/problemnotification.py:240
+#: rapid/problemnotification.py:241
 #, python-format
 msgid ""
 "Photos detected with the same filenames, but taken at different times: "
@@ -1089,456 +1248,287 @@ msgid ""
 msgstr ""
 "Виявлені файли з однаковими назвами, проте створені в різний час: %(details)s"
 
-#: rapid/problemnotification.py:257
+#: rapid/problemnotification.py:258
 #, python-format
 msgid "An error occurred when backing up on %(volume)s: %(inst)s."
 msgstr ""
 "Сталася помилка при створенні резервної копії на %(volume)s: %(inst)s."
 
-#: rapid/problemnotification.py:259
+#: rapid/problemnotification.py:260
 #, python-format
 msgid "An error occurred when backing up on %(volume)s."
 msgstr "Сталася помилка при створенні резервної копії на %(volume)s."
 
-#: rapid/problemnotification.py:261
+#: rapid/problemnotification.py:262
 msgid "Errors occurred when backing up on the following backup devices: "
-msgstr "Сталася помилка при створенні резервної копії на наступні пристрої: "
+msgstr ""
+"Сталася помилка при створенні резервної копії на наступних пристроях: "
 
-#: rapid/problemnotification.py:265 rapid/problemnotification.py:313
+#: rapid/problemnotification.py:266 rapid/problemnotification.py:314
 #, python-format
 msgid "%(volume)s (%(inst)s), "
 msgstr "%(volume)s (%(inst)s), "
 
-#: rapid/problemnotification.py:267
+#: rapid/problemnotification.py:268
 #, python-format
 msgid "%(volume)s, "
 msgstr "%(volume)s, "
 
-#: rapid/problemnotification.py:271 rapid/problemnotification.py:315
+#: rapid/problemnotification.py:272 rapid/problemnotification.py:316
 #, python-format
 msgid "%(volumes)s and %(volume)s (%(inst)s)."
 msgstr "%(volumes)s та %(volume)s (%(inst)s)."
 
-#: rapid/problemnotification.py:276
+#: rapid/problemnotification.py:277
 #, python-format
 msgid "%(volumes)s and %(volume)s."
 msgstr "%(volumes)s та %(volume)s."
 
-#: rapid/problemnotification.py:284
+#: rapid/problemnotification.py:285
 #, python-format
 msgid "Backup already exists on %(volume)s."
 msgstr "Резервна копія вже існує на %(volume)s."
 
-#: rapid/problemnotification.py:286
+#: rapid/problemnotification.py:287
 msgid "Backups already exist in these locations: "
 msgstr "Резервна копія вже існує на: "
 
-#: rapid/problemnotification.py:296
+#: rapid/problemnotification.py:297
 #, python-format
 msgid "Backup overwritten on %(volume)s."
-msgstr ""
+msgstr "Резервну копію на %(volume)s перезаписано."
 
-#: rapid/problemnotification.py:298
+#: rapid/problemnotification.py:299
 msgid "Backups overwritten on these devices: "
-msgstr ""
+msgstr "Перезаписано резервну копію на пристрої: "
 
-#: rapid/problemnotification.py:309
+#: rapid/problemnotification.py:310
 #, python-format
 msgid "An error occurred when creating directories on %(volume)s: %(inst)s."
-msgstr ""
+msgstr "Сталася помилка при створені каталогів на %(volume)s: %(inst)s."
 
-#: rapid/problemnotification.py:311
+#: rapid/problemnotification.py:312
 msgid ""
 "Errors occurred when creating directories on the following backup devices: "
-msgstr ""
+msgstr "Сталася помилка при створені каталогів на наступних пристроях: "
 
-#: rapid/problemnotification.py:322
+#: rapid/problemnotification.py:323
 #, python-format
 msgid "%(previousproblem)s Additionally, %(newproblem)s"
-msgstr ""
+msgstr "У доповнення до %(previousproblem)s: %(newproblem)s"
 
-#: rapid/problemnotification.py:330
+#: rapid/problemnotification.py:331
 #, python-format
 msgid " Furthermore, there were %(problems)s."
-msgstr ""
+msgstr " До того ж є %(problems)s."
 
-#: rapid/problemnotification.py:332
+#: rapid/problemnotification.py:333
 #, python-format
 msgid " Furthermore, there was a %(problem)s."
-msgstr ""
+msgstr " До того ж була %(problem)s."
 
-#: rapid/problemnotification.py:341
+#: rapid/problemnotification.py:342
 #, python-format
 msgid "The %(type)s metadata is missing."
-msgstr ""
+msgstr "У метаданих пропущено %(type)s"
 
-#: rapid/problemnotification.py:343
+#: rapid/problemnotification.py:344
 msgid "The following metadata is missing: "
-msgstr ""
+msgstr "Ці метадані пропущено: "
 
-#: rapid/problemnotification.py:346
+#: rapid/problemnotification.py:347
 #, python-format
 msgid "%(missing_metadata_elements)s and %(final_missing_metadata_element)s."
-msgstr ""
+msgstr "%(missing_metadata_elements)s, %(final_missing_metadata_element)s."
 
-#: rapid/problemnotification.py:363
+#: rapid/problemnotification.py:364
 msgid "Problems in subfolder and filename generation"
-msgstr ""
+msgstr "При створенні ім’я каталогу та файлу сталися помилки."
 
-#: rapid/problemnotification.py:365
+#: rapid/problemnotification.py:366
 msgid "Problem in subfolder and filename generation"
-msgstr ""
+msgstr "Помилка при створенні імені каталогу та файлу."
 
-#: rapid/problemnotification.py:368
+#: rapid/problemnotification.py:369
 #, python-format
 msgid "Problems in %s generation"
-msgstr ""
+msgstr "Сталися помилки при створенні %s"
 
-#: rapid/problemnotification.py:370
+#: rapid/problemnotification.py:371
 #, python-format
 msgid "Problem in %s generation"
-msgstr ""
+msgstr "Помилка %s при створенні"
 
-#: rapid/problemnotification.py:379
+#: rapid/problemnotification.py:380
 #, python-format
 msgid "%(filetype)s already exists, but it was backed up"
-msgstr ""
+msgstr "Хоч %(filetype)s вже існує, резервна копія все одно створена."
 
-#: rapid/problemnotification.py:381
+#: rapid/problemnotification.py:382
 #, python-format
 msgid "An error occurred when copying the %(filetype)s, but it was backed up"
 msgstr ""
+"При копіюванні %(filetype)s сталася помилка, але резервна копія все одно "
+"створена."
 
-#: rapid/problemnotification.py:401
+#: rapid/problemnotification.py:402
 msgid "Multiple problems were encountered"
-msgstr ""
+msgstr "Виявлено чисельні проблеми"
 
-#: rapid/problemnotification.py:403 rapid/subfolderfile.py:228
+#: rapid/problemnotification.py:404 rapid/subfolderfile.py:233
 msgid "Photos detected with the same filenames, but taken at different times"
 msgstr "Виявлені фото з однаковою назвою, але зроблені в різний час"
 
-#: rapid/problemnotification.py:409
-msgid "there were errors backing up"
-msgstr ""
-
 #: rapid/problemnotification.py:410
-msgid "There were errors backing up"
-msgstr ""
+msgid "there were errors backing up"
+msgstr "Помилки при створенні резервної копії"
 
-#: rapid/problemnotification.py:412
-msgid "there was an error backing up"
-msgstr ""
+#: rapid/problemnotification.py:411
+msgid "There were errors backing up"
+msgstr "Помилки при створенні резервної копії"
 
 #: rapid/problemnotification.py:413
+msgid "there was an error backing up"
+msgstr "була помилка при резевному копіюванні"
+
+#: rapid/problemnotification.py:414
 msgid "There was an error backing up"
-msgstr ""
+msgstr "Була помилка при резевному копіюванні"
 
 #. e.g.
-#: rapid/problemnotification.py:416
+#: rapid/problemnotification.py:417
 #, python-format
 msgid "%(previousproblem)s, and %(backinguperror)s"
-msgstr ""
+msgstr "%(previousproblem)s, ще %(backinguperror)s"
 
-#: rapid/rpdfile.py:136
+#: rapid/rpdfile.py:153
 #, python-format
 msgid "%(number)s %(filetypes)s"
 msgstr "%(number)s %(filetypes)s"
 
-#: rapid/subfolderfile.py:79
+#: rapid/rpdfile.py:163
+#, python-format
+msgid "scanning (found %(photos)s photos and %(videos)s videos)..."
+msgstr ""
+"перевірка (знайдено %(photos)s фотографій та %(videos)s відеозаписів)..."
+
+#: rapid/subfolderfile.py:80
 #, python-format
 msgid "%(hour)s:%(minute)s:%(second)s:%(subsecond)s"
 msgstr "%(hour)s:%(minute)s:%(second)s:%(subsecond)s"
 
-#: rapid/subfolderfile.py:297
+#: rapid/subfolderfile.py:301
 msgid "Photo has already been downloaded"
 msgstr "Фото вже були завантажені"
 
-#: rapid/subfolderfile.py:298
+#: rapid/subfolderfile.py:302
 #, python-format
 msgid "Source: %(source)s"
 msgstr "Джерело: %(source)s"
 
-#: rapid/subfolderfile.py:355
+#: rapid/subfolderfile.py:354
 msgid "subfolder and filename"
-msgstr "підтека та назва файла"
+msgstr "підтека та назва файлу"
 
 #: rapid/subfolderfile.py:393
 msgid "Failed to create download subfolder"
-msgstr ""
+msgstr "Не вдалося створити каталог для завантаження"
 
 #: rapid/subfolderfile.py:394
 #, python-format
 msgid "Path: %s"
-msgstr ""
-
-#: rapid/glade3/rapid.ui.h:1
-msgid "About..."
-msgstr ""
+msgstr "Шлях: %s"
 
 #: rapid/glade3/rapid.ui.h:2
-msgid "Check All"
-msgstr ""
-
-#: rapid/glade3/rapid.ui.h:3
-msgid "Check All Photos"
-msgstr ""
-
-#: rapid/glade3/rapid.ui.h:4
-msgid "Check All Videos"
-msgstr ""
-
-#: rapid/glade3/rapid.ui.h:6
-msgid "Download / Pause"
-msgstr "Завантаження / Пауза"
-
-#: rapid/glade3/rapid.ui.h:7
-msgid "Get Help Online..."
-msgstr ""
-
-#: rapid/glade3/rapid.ui.h:8
-msgid "Help"
-msgstr ""
-
-#: rapid/glade3/rapid.ui.h:9
-msgid "Make a Donation..."
-msgstr ""
-
-#: rapid/glade3/rapid.ui.h:10
-msgid "Next File"
-msgstr ""
-
-#: rapid/glade3/rapid.ui.h:11
-msgid "Preferences"
-msgstr ""
-
-#: rapid/glade3/rapid.ui.h:12
-msgid "Previous File"
-msgstr ""
-
-#: rapid/glade3/rapid.ui.h:13
-msgid "Quit"
-msgstr ""
-
-#: rapid/glade3/rapid.ui.h:15
-msgid "Refresh"
-msgstr ""
-
-#: rapid/glade3/rapid.ui.h:16
-msgid "Report a Problem..."
-msgstr ""
-
-#: rapid/glade3/rapid.ui.h:17
-msgid "Select All Wit_h Job Code"
-msgstr "Вибрати всі з _мітками"
-
-#: rapid/glade3/rapid.ui.h:18
-msgid "Select All Without _Job Code"
-msgstr "Вибрати всі без _міток"
-
-#: rapid/glade3/rapid.ui.h:19
-msgid "Translate this Application..."
-msgstr ""
-
-#: rapid/glade3/rapid.ui.h:20
-msgid "Uncheck All"
-msgstr ""
-
-#: rapid/glade3/rapid.ui.h:21
-msgid "_Check All"
-msgstr ""
-
-#: rapid/glade3/rapid.ui.h:22
-msgid "_Clear Completed Downloads"
-msgstr "_Очистити завершені завантаження"
-
-#: rapid/glade3/rapid.ui.h:23
-msgid "_Download"
-msgstr ""
-
-#: rapid/glade3/rapid.ui.h:24
-msgid "_Error Log"
-msgstr "_Журнал помилок"
-
-#: rapid/glade3/rapid.ui.h:25
 msgid "_File"
 msgstr "_Файл"
 
-#: rapid/glade3/rapid.ui.h:26
-msgid "_Help"
-msgstr "_Довідка"
+#: rapid/glade3/rapid.ui.h:3
+msgid "Download / Pause"
+msgstr "Завантаження / Призупинити"
 
-#: rapid/glade3/rapid.ui.h:27
-msgid "_Include in download"
-msgstr ""
-
-#: rapid/glade3/rapid.ui.h:28
-msgid "_Make a Donation..."
-msgstr "_Зробити пожертву..."
-
-#: rapid/glade3/rapid.ui.h:29
+#: rapid/glade3/rapid.ui.h:4
 msgid "_Select"
 msgstr "_Вибрати"
 
-#: rapid/glade3/rapid.ui.h:30
-msgid "_Translate this Application..."
-msgstr "_Перекласти цю програму..."
+#: rapid/glade3/rapid.ui.h:5
+msgid "Select All Without _Job Code"
+msgstr "Вибрати всі без _міток"
 
-#: rapid/glade3/rapid.ui.h:31
-msgid "_Uncheck All"
-msgstr ""
+#: rapid/glade3/rapid.ui.h:6
+msgid "Select All Wit_h Job Code"
+msgstr "Вибрати всі з _мітками"
 
-#: rapid/glade3/rapid.ui.h:32
+#: rapid/glade3/rapid.ui.h:7
 msgid "_View"
 msgstr "_Перегляд"
 
+#: rapid/glade3/rapid.ui.h:8
+msgid "_Error Log"
+msgstr "_Журнал помилок"
+
+#: rapid/glade3/rapid.ui.h:9
+msgid "_Clear Completed Downloads"
+msgstr "_Очистити завершені завантаження"
+
+#: rapid/glade3/rapid.ui.h:10
+msgid "Previous File"
+msgstr "Попередній Файл"
+
+#: rapid/glade3/rapid.ui.h:11
+msgid "Next File"
+msgstr "Наступний файл"
+
+#: rapid/glade3/rapid.ui.h:12
+msgid "_Help"
+msgstr "_Довідка"
+
+#: rapid/glade3/rapid.ui.h:13
+msgid "_Make a Donation..."
+msgstr "_Зробити пожертву..."
+
+#: rapid/glade3/rapid.ui.h:14
+msgid "_Translate this Application..."
+msgstr "_Перекласти цю програму..."
+
+#: rapid/glade3/rapid.ui.h:15
+msgid "_Check All"
+msgstr "_Позначити все"
+
+#: rapid/glade3/rapid.ui.h:16
+msgid "_Uncheck All"
+msgstr "_Скасувати позначку всього"
+
+#: rapid/glade3/rapid.ui.h:17
+msgid "_Include in download"
+msgstr "Включити у завантаження"
+
+#: rapid/glade3/rapid.ui.h:18
+msgid "_Download"
+msgstr "_Завантажити"
+
 #: rapid/glade3/prefs.ui.h:1
-msgid " "
-msgstr " "
+msgid "Preferences: Rapid Photo Downloader"
+msgstr "Параметри: Rapid Photo Downloader"
 
 #: rapid/glade3/prefs.ui.h:2
-msgid " hh:mm"
-msgstr " гг:хх"
-
-#: rapid/glade3/prefs.ui.h:3
-msgid ":"
-msgstr ":"
-
-#: rapid/glade3/prefs.ui.h:4
-msgid "<b>Backup</b>"
-msgstr "<b>Резервне копіювання</b>"
-
-#: rapid/glade3/prefs.ui.h:5
-msgid "<b>Compatibility with Other Operating Systems</b>"
-msgstr "<b>Сумісність з іншими операційними системами</b>"
-
-#: rapid/glade3/prefs.ui.h:6
-msgid "<b>Devices</b>"
-msgstr "<b>Пристрої</b>"
-
-#: rapid/glade3/prefs.ui.h:7
-msgid "<b>Download Folder</b>"
-msgstr "<b>Тека для завантаження</b>"
-
-#: rapid/glade3/prefs.ui.h:8
-msgid "<b>Download Subfolders</b>"
-msgstr "<b>Підтеки для завантаження</b>"
-
-#: rapid/glade3/prefs.ui.h:9
-msgid "<b>Example</b>"
-msgstr "<b>Приклад</b>"
-
-#: rapid/glade3/prefs.ui.h:10
-msgid "<b>Job Codes</b>"
-msgstr "<b>Мітки</b>"
-
-#: rapid/glade3/prefs.ui.h:11
-msgid "<b>Photo Rename</b>"
-msgstr "<b>Перейменування фото</b>"
-
-#: rapid/glade3/prefs.ui.h:12
-msgid "<b>Photo and Video Name Conflicts</b>"
-msgstr "<b>Конфлікти назв фото та відео</b>"
-
-#: rapid/glade3/prefs.ui.h:13
-msgid "<b>Program Automation</b>"
-msgstr "<b>Автоматизація програми</b>"
-
-#: rapid/glade3/prefs.ui.h:14
-msgid "<b>Sequence Numbers</b>"
-msgstr "<b>Послідовність номерів</b>"
-
-#: rapid/glade3/prefs.ui.h:15
-msgid "<i>/media/externaldrive/Photos</i>"
-msgstr "<i>/media/externaldrive/Photos</i>"
-
-#: rapid/glade3/prefs.ui.h:16
-msgid "<i>Example: /home/user/Pictures</i>"
-msgstr "<i>Приклад: /home/user/Pictures</i>"
-
-#: rapid/glade3/prefs.ui.h:17
-msgid "<i>Example:</i>"
-msgstr "<i>Приклад:</i>"
-
-#: rapid/glade3/prefs.ui.h:18
-msgid "<i>New:</i>"
-msgstr "<i>Нова назва:</i>"
-
-#: rapid/glade3/prefs.ui.h:19
-msgid "<i>Original:</i>"
-msgstr "<i>Початкова назва:</i>"
-
-#: rapid/glade3/prefs.ui.h:20
-msgid "<span weight=\"bold\" size=\"x-large\">Backup</span>\t"
-msgstr "<span weight=\"bold\" size=\"x-large\">Резервне копіювання</span>\t"
-
-#: rapid/glade3/prefs.ui.h:21
-msgid "<span weight=\"bold\" size=\"x-large\">Devices</span>"
-msgstr "<span weight=\"bold\" size=\"x-large\">Пристрої</span>"
-
-#: rapid/glade3/prefs.ui.h:22
-msgid "<span weight=\"bold\" size=\"x-large\">Error Handling</span>"
-msgstr "<span weight=\"bold\" size=\"x-large\">Обробка помилок</span>"
-
-#: rapid/glade3/prefs.ui.h:23
-msgid "<span weight=\"bold\" size=\"x-large\">Job Codes</span>"
-msgstr "<span weight=\"bold\" size=\"x-large\">Мітки</span>"
-
-#: rapid/glade3/prefs.ui.h:24
-msgid "<span weight=\"bold\" size=\"x-large\">Miscellaneous</span>"
-msgstr ""
-
-#: rapid/glade3/prefs.ui.h:25
 msgid "<span weight=\"bold\" size=\"x-large\">Photo Download Folders</span>"
 msgstr ""
 "<span weight=\"bold\" size=\"x-large\">Теки для завантаження фото</span>"
 
-#: rapid/glade3/prefs.ui.h:26
-msgid "<span weight=\"bold\" size=\"x-large\">Photo Rename</span>\t"
-msgstr "<span weight=\"bold\" size=\"x-large\">Перейменування фото</span>\t"
+#: rapid/glade3/prefs.ui.h:3
+msgid "<i>Example: /home/user/Pictures</i>"
+msgstr "<i>Приклад: /home/user/Pictures</i>"
 
-#: rapid/glade3/prefs.ui.h:27
-msgid "<span weight=\"bold\" size=\"x-large\">Rename Options</span>"
-msgstr ""
-"<span weight=\"bold\" size=\"x-large\">Параметри перейменування</span>"
+#: rapid/glade3/prefs.ui.h:4
+msgid "<b>Download Subfolders</b>"
+msgstr "<b>Підтеки для завантаження</b>"
 
-#: rapid/glade3/prefs.ui.h:28
-msgid "<span weight=\"bold\" size=\"x-large\">Video Download Folders</span>"
-msgstr ""
-"<span weight=\"bold\" size=\"x-large\">Теки для завантаження відео</span>"
+#: rapid/glade3/prefs.ui.h:5
+msgid "Download folder:"
+msgstr "Тека для завантаження:"
 
-#: rapid/glade3/prefs.ui.h:29
-msgid "<span weight=\"bold\" size=\"x-large\">Video Rename</span>\t"
-msgstr "<span weight=\"bold\" size=\"x-large\">Перейменування відео</span>\t"
-
-#: rapid/glade3/prefs.ui.h:30
-msgid "Add unique identifier"
-msgstr "Додати унікальний ідентифікатор"
-
-#: rapid/glade3/prefs.ui.h:31
-msgid "Automatically detect Portable Storage Devices"
-msgstr "Автоматичне виявляти портативні пристрої зберігання"
-
-#: rapid/glade3/prefs.ui.h:32
-msgid "Automatically detect backup devices"
-msgstr "Автоматичне виявляти пристрої для резервного копіювання"
-
-#: rapid/glade3/prefs.ui.h:33
-msgid "Automatically detect devices"
-msgstr "Автоматичне виявляти пристрої"
-
-#: rapid/glade3/prefs.ui.h:34
-msgid "Backup"
-msgstr "Резервне копіювання"
-
-#: rapid/glade3/prefs.ui.h:35
-msgid "Backup location:"
-msgstr "Місце для резервного копіювання:"
-
-#: rapid/glade3/prefs.ui.h:36
-msgid "Backup photos and videos when downloading"
-msgstr "Резервне копіювання фото та відео під час завантаження"
-
-#: rapid/glade3/prefs.ui.h:37
+#: rapid/glade3/prefs.ui.h:6
 msgid ""
 "Choose the download folder. Subfolders for the downloaded photos will be "
 "automatically created in this folder using the structure specified below."
@@ -1546,7 +1536,58 @@ msgstr ""
 "Виберіть теку для завантаження. В цій теці автоматично створюватимуться "
 "підтеки для завантажених фото використовуючи структуру, зазначену нижче."
 
-#: rapid/glade3/prefs.ui.h:38
+#: rapid/glade3/prefs.ui.h:7
+msgid "<b>Download Folder</b>"
+msgstr "<b>Тека для завантаження</b>"
+
+#: rapid/glade3/prefs.ui.h:8
+msgid "Photo Folders"
+msgstr "Теки з фото"
+
+#: rapid/glade3/prefs.ui.h:9
+msgid "<span weight=\"bold\" size=\"x-large\">Photo Rename</span>\t"
+msgstr "<span weight=\"bold\" size=\"x-large\">Перейменування фото</span>\t"
+
+#: rapid/glade3/prefs.ui.h:10
+msgid "<b>Photo Rename</b>"
+msgstr "<b>Перейменування фото</b>"
+
+#: rapid/glade3/prefs.ui.h:11
+msgid " "
+msgstr " "
+
+#: rapid/glade3/prefs.ui.h:12
+msgid "<i>New:</i>"
+msgstr "<i>Нова назва:</i>"
+
+#: rapid/glade3/prefs.ui.h:13
+msgid "<i>Original:</i>"
+msgstr "<i>Початкова назва:</i>"
+
+#: rapid/glade3/prefs.ui.h:14
+msgid "<b>Example</b>"
+msgstr "<b>Приклад</b>"
+
+#: rapid/glade3/prefs.ui.h:15
+msgid "Photo Rename"
+msgstr "Перейменування фото"
+
+#: rapid/glade3/prefs.ui.h:16
+msgid "<span weight=\"bold\" size=\"x-large\">Video Download Folders</span>"
+msgstr ""
+"<span weight=\"bold\" size=\"x-large\">Теки для завантаження відео</span>"
+
+#: rapid/glade3/prefs.ui.h:17
+msgid ""
+"Sorry, video downloading functionality disabled. To download videos, please "
+"install either the <i>hachoir metadata</i> and <i>kaa metadata</i> packages "
+"for python, or <i>exiftool</i>."
+msgstr ""
+"Вибачте, але стягнення відео вимкнено. Для того щоб мати можливість "
+"завантажувати відео, будь-ласка, встановіть пакунки <i>hachoir metadata</i> "
+"та <i>kaa metadata</i> для Пітона або <i>exiftool</i>."
+
+#: rapid/glade3/prefs.ui.h:18
 msgid ""
 "Choose the download folder. Subfolders for the downloaded videos will be "
 "automatically created in this folder using the structure specified below."
@@ -1554,144 +1595,236 @@ msgstr ""
 "Виберіть теку для завантаження. В цій теці автоматично створюватимуться "
 "підтеки для завантажених відео використовуючи структуру, зазначену нижче."
 
-#: rapid/glade3/prefs.ui.h:39
+#: rapid/glade3/prefs.ui.h:19
+msgid "Video Folders"
+msgstr "Теки відео"
+
+#: rapid/glade3/prefs.ui.h:20
+msgid "<span weight=\"bold\" size=\"x-large\">Video Rename</span>\t"
+msgstr "<span weight=\"bold\" size=\"x-large\">Перейменування відео</span>\t"
+
+#: rapid/glade3/prefs.ui.h:21
+msgid "Video Rename"
+msgstr "Перейменування відео"
+
+#: rapid/glade3/prefs.ui.h:22
+msgid "<span weight=\"bold\" size=\"x-large\">Rename Options</span>"
+msgstr ""
+"<span weight=\"bold\" size=\"x-large\">Параметри перейменування</span>"
+
+#: rapid/glade3/prefs.ui.h:23
+msgid "<b>Sequence Numbers</b>"
+msgstr "<b>Послідовність номерів</b>"
+
+#: rapid/glade3/prefs.ui.h:24
+msgid ""
+"Specify the time in 24 hour format at which the <i>Downloads today</i> "
+"sequence number should be reset."
+msgstr ""
+"Вкажіть час в 24-годинному форматі, коли буде скинута послідовність номерів "
+"для параметра <i>Завантажень сьогодні</i>."
+
+#: rapid/glade3/prefs.ui.h:25
 msgid "Day start:"
 msgstr "Початок дня:"
 
-#: rapid/glade3/prefs.ui.h:40
-msgid "Delete photos and videos from device upon download completion"
-msgstr "Вилучати фото та відео з пристрою після завершення завантаження"
+#: rapid/glade3/prefs.ui.h:26
+msgid "Downloads today:"
+msgstr "Завантажень сьогодні:"
 
-#: rapid/glade3/prefs.ui.h:42
+#: rapid/glade3/prefs.ui.h:27
+msgid "Stored number:"
+msgstr "Номер зберігання:"
+
+#: rapid/glade3/prefs.ui.h:28
+msgid ":"
+msgstr ":"
+
+#: rapid/glade3/prefs.ui.h:29
+msgid " hh:mm"
+msgstr " гг:хх"
+
+#: rapid/glade3/prefs.ui.h:30
+msgid "Synchronize RAW + JPEG sequence numbers"
+msgstr "Синхронізувати послідовність номерів RAW + JPEG"
+
+#: rapid/glade3/prefs.ui.h:31
+msgid "<b>Compatibility with Other Operating Systems</b>"
+msgstr "<b>Сумісність з іншими операційними системами</b>"
+
+#: rapid/glade3/prefs.ui.h:32
+msgid ""
+"Specify whether photo, video and folder names should have any characters "
+"removed that are not allowed by other operating systems."
+msgstr ""
+"Вкажіть, чи вилучати з назв фото, відео та тек всі символи, що не дозволені "
+"в інших операційних системах."
+
+#: rapid/glade3/prefs.ui.h:33
+msgid "Strip incompatible characters"
+msgstr "Вилучати несумісні символи"
+
+#: rapid/glade3/prefs.ui.h:34
+msgid "Rename Options"
+msgstr "Параметри перейменування"
+
+#: rapid/glade3/prefs.ui.h:35
+msgid "<span weight=\"bold\" size=\"x-large\">Job Codes</span>"
+msgstr "<span weight=\"bold\" size=\"x-large\">Мітки</span>"
+
+#: rapid/glade3/prefs.ui.h:36
+msgid "<b>Job Codes</b>"
+msgstr "<b>Мітки</b>"
+
+#: rapid/glade3/prefs.ui.h:37
+msgid "_Add..."
+msgstr "Д_одати..."
+
+#: rapid/glade3/prefs.ui.h:39
+msgid "R_emove All"
+msgstr "В_илучити все"
+
+#: rapid/glade3/prefs.ui.h:40
+msgid "Job Codes"
+msgstr "Мітки"
+
+#: rapid/glade3/prefs.ui.h:41
+msgid "<span weight=\"bold\" size=\"x-large\">Devices</span>"
+msgstr "<span weight=\"bold\" size=\"x-large\">Пристрої</span>"
+
+#: rapid/glade3/prefs.ui.h:43
 msgid ""
 "Devices are from where to download photos and videos, such as cameras, "
 "memory cards or Portable Storage Devices.\n"
 "\n"
-"You can download photos from multiple devices simultaneously, or you can "
-"specify a location on your hard drive.\n"
+"You can download from multiple devices simultaneously, or you can specify a "
+"location on your hard drive.\n"
 "\n"
-"<i>If downloading directly from your camera works poorly or not at all, try "
-"setting it to PTP mode. If that is not possible, consider using a card "
-"reader.</i>"
+"<i>Downloading directly from cameras is currently an experimental feature. "
+"If downloading directly from your camera works poorly or not at all, try "
+"setting it to PTP mode. If that is not possible, a card reader must be "
+"used.</i>"
 msgstr ""
-"Пристрої — це звідки ви завантажуєте фото та відео: камери, карти пам'яті "
-"або портативні пристрої для зберігання даних.\n"
+"Пристрої - з них завантажується фото та відео, наприклад, камера, карта "
+"пам’яті або переносний накопичувач.\n"
 "\n"
-"Завантажувати фото можна з кількох пристроїв одночасно, або ж можете вказати "
-"місце на жорсткому диску.\n"
+"Ви можете налаштувати завантаження з декількох пристроїв одночасно або "
+"вказати місце для завантаження на жорсткому  диску\n"
 "\n"
-"<i>Якщо завантаження прямо з камери працює погано або зовсім не працює, "
-"спробуйте встановити режим PTP. Якщо це неможливо, використовуйте пристрій "
-"для читання карток.</i>"
-
-#: rapid/glade3/prefs.ui.h:47
-msgid "Download folder:"
-msgstr "Тека для завантаження:"
+"<i>Завантаження напряму з камери поки що є пробною можливістю. Якщо "
+"завантаження напряму з камери працює погано або не працює взагалі, "
+"перемикніть її у режим PTP. Якщо це неможливо, використовуйте пристрій для "
+"читання карт пам’яті.</i>"
 
 #: rapid/glade3/prefs.ui.h:48
-msgid "Downloads today:"
-msgstr "Завантажень сьогодні:"
+msgid "Automatically detect Portable Storage Devices"
+msgstr "Автоматично виявляти портативні пристрої зберігання"
 
 #: rapid/glade3/prefs.ui.h:49
-msgid "Error Handling"
-msgstr "Обробка помилок"
+msgid "Automatically detect devices"
+msgstr "Автоматично виявляти пристрої"
 
 #: rapid/glade3/prefs.ui.h:50
-msgid "Exit program even if download had warnings or errors"
-msgstr ""
-
-#: rapid/glade3/prefs.ui.h:51
-msgid "Exit program when download completes"
-msgstr ""
-
-#: rapid/glade3/prefs.ui.h:52
-msgid "Generate thumbnails (slower)"
-msgstr ""
-
-#: rapid/glade3/prefs.ui.h:53
-msgid "If you disable automatic detection, choose the exact backup location."
-msgstr ""
-"Якщо автоматичне виявлення вимкнено, виберіть точне місце для резервного "
-"копіювання."
-
-#: rapid/glade3/prefs.ui.h:54
-msgid ""
-"If you disable automatic detection, choose the exact location of the images "
-"and videos."
-msgstr ""
-"Якщо автоматичне виявлення вимкнено, виберіть точне місце для зображень та "
-"відео."
-
-#: rapid/glade3/prefs.ui.h:55
 msgid ""
 "If you enable automatic detection of Portable Storage Devices, the entire "
-"device will be scanned for images. On large devices, this could take some "
-"time."
+"device will be scanned. On large devices, this could take some time.\n"
+"\n"
+"When this option is enabled, and a potential device is detected, you will be "
+"prompted to determine if it should be scanned or not."
 msgstr ""
-"Якщо автоматичне виявлення портативних пристроїв для зберігання увімкнено, "
-"вони скануватимуться для пошуку фото. На пристроях великого об’єму це може "
-"зайняти досить багато часу."
+"Якщо ви увімкнули автовизначення переносного накопичувача, буде проскановано "
+"увесь накопичувач. На пристроях більшої ємності це може зайняти час\n"
+"\n"
+"Коли цей параметр увімкнено, й відповідний пристрій знайдено, програма "
+"спитає вас, чи потрібно  його сканувати."
 
-#: rapid/glade3/prefs.ui.h:56
-msgid "Job Codes"
-msgstr "Мітки"
-
-#: rapid/glade3/prefs.ui.h:57
+#: rapid/glade3/prefs.ui.h:53
 msgid "Location:"
 msgstr "Розташування:"
 
-#: rapid/glade3/prefs.ui.h:58
-msgid "Miscellaneous"
+#: rapid/glade3/prefs.ui.h:54
+msgid ""
+"If you disable automatic detection, choose the exact location of the photos "
+"and videos."
 msgstr ""
+"Якщо ви вимикаєте автовизначення, оберіть містце для резервного копіювання "
+"фото та відео."
+
+#: rapid/glade3/prefs.ui.h:55
+msgid "<span weight=\"bold\" size=\"x-large\">Device Options</span>"
+msgstr "<span weight=\"bold\" size=\"x-large\">Налаштування пристроїв</span>"
+
+#: rapid/glade3/prefs.ui.h:56
+msgid "Remembered Paths"
+msgstr "Розміщення які запам’ятовано"
+
+#: rapid/glade3/prefs.ui.h:57
+msgid ""
+"Remembered paths are those associated with devices that you have chosen to "
+"always scan or ignore when automatic detection of Portable Storage Devices "
+"is enabled."
+msgstr ""
+"Запам’ятованими адресами є ті, які асоціюються з пристроями вибраними вами "
+"для виконання їх постійного сканування або ігнорування, при залученій "
+"можливості автоматичного визначення Портативного пристрою зберігання."
+
+#: rapid/glade3/prefs.ui.h:58
+msgid "Ignored Paths"
+msgstr "Ігноровані розміщення"
 
 #: rapid/glade3/prefs.ui.h:59
-msgid "Overwrite"
-msgstr "Перезаписати"
-
-#: rapid/glade3/prefs.ui.h:60
-msgid "Performance"
+msgid ""
+"Specify the ending portion of any paths you want ignored when scanning "
+"devices for photos or videos. Any path ending with the values below will not "
+"be scanned."
 msgstr ""
+"Вкажіть кінцівку будь-якої адреси, яку ви бажаєте ігнорувати при скануванні "
+"пристроїв, на вміст фотографій та відеозаписів. Усі адреси що закінчуються "
+"значеннями вказаними нижче, скануватися не будуть."
 
 #: rapid/glade3/prefs.ui.h:61
-msgid "Photo Folders"
-msgstr "Теки з фото"
+msgid "Re_move All"
+msgstr "Вилучити все"
 
 #: rapid/glade3/prefs.ui.h:62
-msgid "Photo Rename"
-msgstr "Перейменування фото"
+msgid "Use _python-style regular expressions"
+msgstr "Використовувати регулярні вирази стилю _python"
 
 #: rapid/glade3/prefs.ui.h:63
-msgid "Photo backup folder name:"
-msgstr "Назва теки для резервного копіювання фото:"
+msgid "Device Options"
+msgstr "Параметри пристрою"
 
 #: rapid/glade3/prefs.ui.h:64
-msgid "Preferences: Rapid Photo Downloader"
-msgstr "Параметри: Rapid Photo Downloader"
+msgid "<span weight=\"bold\" size=\"x-large\">Backup</span>\t"
+msgstr "<span weight=\"bold\" size=\"x-large\">Резервне копіювання</span>\t"
+
+#: rapid/glade3/prefs.ui.h:65
+msgid "<b>Backup</b>"
+msgstr "<b>Резервне копіювання</b>"
 
 #: rapid/glade3/prefs.ui.h:66
-msgid "R_emove All"
-msgstr "В_илучити все"
+msgid ""
+"If you disable automatic detection, choose the exact backup locations."
+msgstr ""
+"Якщо ви вимикаєте автовизначення, оберіть місце для резервного копіювання."
 
 #: rapid/glade3/prefs.ui.h:67
-msgid "Rename Options"
-msgstr "Параметри перейменування"
+msgid "Automatically detect backup devices"
+msgstr "Автоматичне виявляти пристрої для резервного копіювання"
 
 #: rapid/glade3/prefs.ui.h:68
-msgid "Skip"
-msgstr "Пропустити"
+msgid ""
+"You can have your photos and videos backed up to multiple locations as they "
+"are downloaded, e.g. external hard drives."
+msgstr ""
+"Ви можете створювати резервні копії фото та відео в кількох місцях прямо під "
+"час завантаження, наприклад, на зовнішніх жорстких дисках."
 
 #: rapid/glade3/prefs.ui.h:69
-msgid "Skip download"
-msgstr "Пропустити завантаження"
+msgid "Backup photos and videos when downloading"
+msgstr "Резервне копіювання фото та відео під час завантаження"
 
 #: rapid/glade3/prefs.ui.h:70
-msgid ""
-"Sorry, video downloading functionality disabled. To download videos, please "
-"install the <i>hachoir metadata</i> and <i>kaa metadata</i> packages for "
-"python."
-msgstr ""
-
-#: rapid/glade3/prefs.ui.h:71
 msgid ""
 "Specify the folder in which backups are stored on the device.  \n"
 "\n"
@@ -1706,67 +1839,103 @@ msgstr ""
 "використовуватимете, в цьому каталозі створюватиметься тека з відповідною "
 "назвою.</i>"
 
+#: rapid/glade3/prefs.ui.h:73
+msgid "Photo backup location:"
+msgstr "Розміщення для резервного копіювання фото:"
+
 #: rapid/glade3/prefs.ui.h:74
-msgid ""
-"Specify the time in 24 hour format at which the <i>Downloads today</i> "
-"sequence number should be reset."
-msgstr ""
-"Вкажіть час в 24-годинному форматі, коли буде скинута послідовність номерів "
-"для параметра <i>Завантажень сьогодні</i>."
+msgid "Photo backup folder name:"
+msgstr "Назва теки для резервного копіювання фото:"
 
 #: rapid/glade3/prefs.ui.h:75
-msgid ""
-"Specify whether photo, video and folder names should have any characters "
-"removed that are not allowed by other operating systems."
-msgstr ""
-"Вкажіть, чи вилучати з назв фото, відео та тек всі символи, що не дозволені "
-"в інших операційних системах."
+msgid "<i>Example:</i>"
+msgstr "<i>Приклад:</i>"
 
 #: rapid/glade3/prefs.ui.h:76
-msgid "Start downloading at program startup"
-msgstr "Розпочинати завантаження під час запуску програми"
+msgid "<i>/media/externaldrive/Photos</i>"
+msgstr "<i>/media/externaldrive/Photos</i>"
 
 #: rapid/glade3/prefs.ui.h:77
-msgid "Start downloading upon device insertion"
-msgstr "Розпочинати завантаження після під’єднання пристрою"
-
-#: rapid/glade3/prefs.ui.h:78
-msgid "Stored number:"
-msgstr "Номер зберігання:"
-
-#: rapid/glade3/prefs.ui.h:79
-msgid "Strip incompatible characters"
-msgstr "Вилучати несумісні символи"
-
-#: rapid/glade3/prefs.ui.h:80
-msgid "Synchronize RAW + JPEG sequence numbers"
-msgstr "Синхронізувати послідовність номерів RAW + JPEG"
-
-#: rapid/glade3/prefs.ui.h:81
-msgid "Unmount (\"eject\") device upon download completion"
-msgstr "Від’єднати («витягти») пристрій після завершення завантаження"
-
-#: rapid/glade3/prefs.ui.h:82
-msgid "Video Folders"
-msgstr "Теки відео"
-
-#: rapid/glade3/prefs.ui.h:83
-msgid "Video Rename"
-msgstr "Перейменування відео"
-
-#: rapid/glade3/prefs.ui.h:84
 msgid "Video backup folder name:"
 msgstr "Назва теки для резервного копіювання відео:"
 
+#: rapid/glade3/prefs.ui.h:78
+msgid "Video backup location:"
+msgstr "Розміщення для резервного копіювання відео:"
+
+#: rapid/glade3/prefs.ui.h:79
+msgid "Backup"
+msgstr "Резервне копіювання"
+
+#: rapid/glade3/prefs.ui.h:80
+msgid "<span weight=\"bold\" size=\"x-large\">Miscellaneous</span>"
+msgstr "<span weight=\"bold\" size=\"x-large\">Решта налаштувань</span>"
+
+#: rapid/glade3/prefs.ui.h:81
+msgid "<b>Program Automation</b>"
+msgstr "<b>Автоматизація програми</b>"
+
+#: rapid/glade3/prefs.ui.h:82
+msgid "Unmount (\"eject\") device upon download completion"
+msgstr "Від’єднати («витягти») пристрій після завершення завантаження"
+
+#: rapid/glade3/prefs.ui.h:83
+msgid "Start downloading at program startup"
+msgstr "Розпочинати завантаження під час запуску програми"
+
+#: rapid/glade3/prefs.ui.h:84
+msgid "Start downloading upon device insertion"
+msgstr "Розпочинати завантаження після під’єднання пристрою"
+
 #: rapid/glade3/prefs.ui.h:85
+msgid "Exit program when download completes"
+msgstr "Закінчити програму після завантаження"
+
+#: rapid/glade3/prefs.ui.h:86
+msgid "Exit program even if download had warnings or errors"
+msgstr "Закінчити програму навіть при помилках завантаження"
+
+#: rapid/glade3/prefs.ui.h:87
+msgid "Automatically rotate JPEG images"
+msgstr "Автоматично повертати зображення JPEG"
+
+#: rapid/glade3/prefs.ui.h:88
+msgid "Performance"
+msgstr "Швидкодія"
+
+#: rapid/glade3/prefs.ui.h:89
+msgid "Generate thumbnails (slower)"
+msgstr "Створювати мініатюри (довше копіюється)"
+
+#: rapid/glade3/prefs.ui.h:90
+msgid "Miscellaneous"
+msgstr "Інше"
+
+#: rapid/glade3/prefs.ui.h:91
+msgid "<span weight=\"bold\" size=\"x-large\">Error Handling</span>"
+msgstr "<span weight=\"bold\" size=\"x-large\">Обробка помилок</span>"
+
+#: rapid/glade3/prefs.ui.h:92
+msgid "<b>Photo and Video Name Conflicts</b>"
+msgstr "<b>Конфлікти назв фото та відео</b>"
+
+#: rapid/glade3/prefs.ui.h:93
+msgid "Add unique identifier"
+msgstr "Додати унікальний ідентифікатор"
+
+#: rapid/glade3/prefs.ui.h:94
+msgid "Skip download"
+msgstr "Пропустити завантаження"
+
+#: rapid/glade3/prefs.ui.h:95
 msgid ""
 "When a photo or video of the same name has already been downloaded, choose "
 "whether to skip downloading the file, or to add a unique indentifier."
 msgstr ""
 "Коли фото або відео з такою ж назвою вже завантажені, виберіть, чи "
-"пропустити завантаження цього файла, чи додати унікальний ідентифікатор."
+"пропустити завантаження цього файлу, чи додати унікальний ідентифікатор."
 
-#: rapid/glade3/prefs.ui.h:86
+#: rapid/glade3/prefs.ui.h:96
 msgid ""
 "When backing up, choose whether to overwrite a file on the backup device "
 "that has the same name, or skip backing it up."
@@ -1774,17 +1943,17 @@ msgstr ""
 "Чи слід під час резервного копіювання перезаписати файл, що має однакову "
 "назву з файлом на пристрої, чи пропустити його?"
 
-#: rapid/glade3/prefs.ui.h:87
-msgid ""
-"You can have your photos and videos backed up to multiple locations as they "
-"are downloaded, e.g. external hard drives."
-msgstr ""
-"Ви можете створювати резервні копії фото та відео в кількох місцях прямо під "
-"час завантаження, наприклад, на зовнішніх жорстких дисках."
+#: rapid/glade3/prefs.ui.h:97
+msgid "Overwrite"
+msgstr "Перезаписати"
 
-#: rapid/glade3/prefs.ui.h:88
-msgid "_Add..."
-msgstr "Д_одати..."
+#: rapid/glade3/prefs.ui.h:98
+msgid "Skip"
+msgstr "Пропустити"
+
+#: rapid/glade3/prefs.ui.h:99
+msgid "Error Handling"
+msgstr "Обробка помилок"
 
 #: rapid/glade3/about.ui.h:1
 msgid "Import your photos and videos efficiently and reliably"
@@ -1808,27 +1977,6 @@ msgstr "Імпортуйте фото та відео ефективно та н
 #~ msgid "Resetting to default values."
 #~ msgstr "Скинути до типових значень."
 
-#~ msgid ""
-#~ "Downloads today value not updated, as a download is currently occurring"
-#~ msgstr ""
-#~ "Значення «Завантажень сьогодні» не оновлене, завантаження ще продовжується"
-
-#~ msgid "Stored number value not updated, as a download is currently occurring"
-#~ msgstr ""
-#~ "Значення «Збережено під номером» не оновлене, завантаження ще продовжується"
-
-#, python-format
-#~ msgid ""
-#~ "The %(filetype)s subfolder preferences had some unnecessary values removed."
-#~ msgstr "Параметри підтеки %(filetype)s мають деякі вилучені зайві значення."
-
-#~ msgid "The following download path could not be created:\n"
-#~ msgstr "Не вдалось створити такий шлях завантаження:\n"
-
-#, python-format
-#~ msgid "%(path)s: "
-#~ msgstr "%(path)s: "
-
 #~ msgid "There is an error in the program preferences."
 #~ msgstr "Помилка в налаштуваннях програми."
 
@@ -1840,48 +1988,11 @@ msgstr "Імпортуйте фото та відео ефективно та н
 #~ "Перевірте налаштування, перезапустіть програму та спробуйте знову."
 
 #, python-format
-#~ msgid "0 of %(number)s %(filetypes)s"
-#~ msgstr "0 з %(number)s %(filetypes)s"
-
-#, python-format
-#~ msgid "Device scan complete: found %(number)s %(filetypes)s on %(device)s"
-#~ msgstr ""
-#~ "Сканування завершене: знайдено %(number)s %(filetypes)s на %(device)s"
-
-#, python-format
-#~ msgid "Device scan complete: no %(filetypes)s found on %(device)s"
-#~ msgstr "Сканування завершене: не знайдено %(filetypes)s на %(device)s"
-
-#, python-format
-#~ msgid "%(filetype)s filename could not be generated"
-#~ msgstr "Назву файла %(filetype)s не вдалось згенерувати"
-
-#, python-format
 #~ msgid ""
 #~ "Source: %(source)s\n"
 #~ "Problem: %(problem)s"
 #~ msgstr ""
 #~ "Джерело: %(source)s\n"
-#~ "Проблема: %(problem)s"
-
-#, python-format
-#~ msgid ""
-#~ "%(filetype)s filename could not be properly generated. Check to ensure there "
-#~ "is sufficient metadata."
-#~ msgstr ""
-#~ "Назву файла %(filetype)s не вдалось згенерувати правильно. Переконайтесь чи "
-#~ "достатньо матаданих."
-
-#, python-format
-#~ msgid ""
-#~ "Source: %(source)s\n"
-#~ "Partially generated filename: %(newname)s\n"
-#~ "Destination: %(destination)s\n"
-#~ "Problem: %(problem)s"
-#~ msgstr ""
-#~ "Джерело: %(source)s\n"
-#~ "Частково згенерована назва: %(newname)s\n"
-#~ "Адресат: %(destination)s\n"
 #~ "Проблема: %(problem)s"
 
 #, python-format
@@ -1902,57 +2013,8 @@ msgstr "Імпортуйте фото та відео ефективно та н
 #~ "Помилка: %(errorno)s %(strerror)s"
 
 #, python-format
-#~ msgid "The %(filetype)s was not copied."
-#~ msgstr "%(filetype)s не скопійований."
-
-#~ msgid ""
-#~ "Photos detected with the same filenames, but taken at different times:"
-#~ msgstr "Виявлені фото з однаковими назвами, але зроблені в різний час:"
-
-#, python-format
-#~ msgid ""
-#~ "First photo: %(image1)s %(image1_date_time)s:%(image1_subseconds)s\n"
-#~ "Second photo: %(image2)s %(image2_date_time)s:%(image2_subseconds)s"
-#~ msgstr ""
-#~ "Перше фото: %(image1)s %(image1_date_time)s:%(image1_subseconds)s\n"
-#~ "Друге фото: %(image2)s %(image2_date_time)s:%(image2_subseconds)s"
-
-#, python-format
-#~ msgid "Could not open %(filetype)s"
-#~ msgstr "Не вдалось відкрити %(filetype)s"
-
-#, python-format
 #~ msgid "Source: %s"
 #~ msgstr "Джерело: %s"
-
-#, python-format
-#~ msgid "%(filetype)s has no metadata"
-#~ msgstr "%(filetype)s не має метаданих"
-
-#, python-format
-#~ msgid ""
-#~ "Metadata is essential for generating subfolder and/or file names.\n"
-#~ "Source: %s"
-#~ msgstr ""
-#~ "Метадані необхідні для створення підтеки та/або назв файлів.\n"
-#~ "Джерело: %s"
-
-#~ msgid ""
-#~ "Subfolder name could not be properly generated. Check to ensure there is "
-#~ "sufficient metadata."
-#~ msgstr ""
-#~ "Не вдалось згенерувати правильну назву підтеки. Переконайтесь чи достатньо "
-#~ "метаданих."
-
-#, python-format
-#~ msgid ""
-#~ "Subfolder: %(subfolder)s\n"
-#~ "File: %(file)s\n"
-#~ "Problem: %(problem)s"
-#~ msgstr ""
-#~ "Підтека: %(subfolder)s\n"
-#~ "Файл: %(file)s\n"
-#~ "Проблема: %(problem)s"
 
 #~ msgid "New day has started - resetting 'Downloads Today' sequence number"
 #~ msgstr ""
@@ -1960,38 +2022,6 @@ msgstr "Імпортуйте фото та відео ефективно та н
 #~ "сьогодні»"
 
 #, python-format
-#~ msgid "Backup of %(file_type)s already exists"
-#~ msgstr "Резервна копія %(file_type)s вже наявна"
-
-#, python-format
-#~ msgid "Backup %(file_type)s overwritten"
-#~ msgstr "Резервна копія %(file_type)s перезаписана"
-
-#, python-format
-#~ msgid "%(file_type)s not backed up to %(volume)s"
-#~ msgstr "Не створена резервна копія %(file_type)s у %(volume)s"
-
-#, python-format
-#~ msgid "%(file_type)s not backed up"
-#~ msgstr "Не створена резервна копія %(file_type)s"
-
-#, python-format
-#~ msgid ""
-#~ "Source: %(source)s\n"
-#~ "Destination: %(destination)s\n"
-#~ msgstr ""
-#~ "Джерело: %(source)s\n"
-#~ "Адресат: %(destination)s\n"
-
-#, python-format
-#~ msgid "Error: %(errno)s %(strerror)s"
-#~ msgstr "Помилка: %(errno)s %(strerror)s"
-
-#, python-format
-#~ msgid "The %(file_type)s was not backed up."
-#~ msgstr "Не створена резервна копія %(file_type)s."
-
-#, python-format
 #~ msgid ""
 #~ "Source: %(source)s\n"
 #~ "Destination: %(destination)s\n"
@@ -2001,101 +2031,18 @@ msgstr "Імпортуйте фото та відео ефективно та н
 #~ "Адресат: %(destination)s\n"
 #~ "Помилка: %(errno)s %(strerror)s"
 
-#, python-format
-#~ msgid "%(file_type)s could not be backed up"
-#~ msgstr "Не вдалось створити резервну копію %(file_type)s"
-
-#~ msgid "No suitable backup volume was found"
-#~ msgstr "Не знайдено відповідного носія для резервного копіювання"
-
-#~ msgid "A backup location was not found"
-#~ msgstr "Не знайдено місця для резервного копіювання"
-
 #~ msgid "The device can now be safely removed"
 #~ msgstr "Зараз можна безпечно вилучити носій"
 
-#, python-format
-#~ msgid "%(noFiles)s %(filetypes)s skipped"
-#~ msgstr "Зігноровано %(noFiles)s %(filetypes)s"
-
 #~ msgid "errors"
 #~ msgstr "помилки"
-
-#~ msgid "Photo thumbnail could not be extracted"
-#~ msgstr "Не вдалось витягти мініатюру фото"
-
-#, python-format
-#~ msgid "Source: %s\n"
-#~ msgstr "Джерело: %s\n"
-
-#, python-format
-#~ msgid "Device: %s\n"
-#~ msgstr "Носій: %s\n"
-
-#, python-format
-#~ msgid "Destination: %s"
-#~ msgstr "Адресат: %s"
-
-#~ msgid "Could not create temporary download directory"
-#~ msgstr "Не вдалось створити тимчасову теку для завантаження"
-
-#~ msgid "Error:"
-#~ msgstr "Помилка:"
-
-#, python-format
-#~ msgid "This device has no %(types_searched_for)s to download from."
-#~ msgstr "На цьому носії немає %(types_searched_for)s для завантаження."
 
 #, python-format
 #~ msgid "Download has started from %s"
 #~ msgstr "Завантаження почалось з %s"
 
-#~ msgid "Backup path does not exist"
-#~ msgstr "Немає шляху для резервного копіювання"
-
-#, python-format
-#~ msgid "The path %s could not be created"
-#~ msgstr "Шлях %s не вдалось створити"
-
-#~ msgid "No backups can occur"
-#~ msgstr "Резервне копіювання не може відбутись"
-
 #~ msgid "Backup device missing"
 #~ msgstr "Відсутній пристрій для резервного копіювання"
-
-#~ msgid "No backup device was automatically detected"
-#~ msgstr "Не вдалося автоматично виявити носій для резервного копіювання"
-
-#~ msgid "Photo skipped"
-#~ msgstr "Пропущене фото"
-
-#~ msgid "Photo already exists"
-#~ msgstr "Фото вже наявне"
-
-#~ msgid "Video skipped"
-#~ msgstr "Пропущене відео"
-
-#~ msgid "Video already exists"
-#~ msgstr "Відео вже наявне"
-
-#~ msgid "Could not delete photo or video from device"
-#~ msgstr "Не вдалось вилучити фото або відео з пристрою"
-
-#, python-format
-#~ msgid ""
-#~ "Photo: %(source)s\n"
-#~ "Error: %(errno)s %(strerror)s"
-#~ msgstr ""
-#~ "Фото: %(source)s\n"
-#~ "Помилка: %(errno)s %(strerror)s"
-
-#, python-format
-#~ msgid "Photo: %(source)s"
-#~ msgstr "Фото: %(source)s"
-
-#, python-format
-#~ msgid "Deleted %(number)i %(filetypes)s from device"
-#~ msgstr "З пристрою вилучено %(number)i %(filetypes)s"
 
 #, python-format
 #~ msgid "Download complete from %s"
@@ -2132,45 +2079,6 @@ msgstr "Імпортуйте фото та відео ефективно та н
 #~ msgid "Job Code not entered"
 #~ msgstr "Мітка не введена"
 
-#, python-format
-#~ msgid ""
-#~ "Sorry, this device location does not exist:\n"
-#~ "%(path)s\n"
-#~ "\n"
-#~ "Please resolve the problem, or modify your preferences."
-#~ msgstr ""
-#~ "На жаль, цієї адреси пристрою немає:\n"
-#~ "%(path)s\n"
-#~ "\n"
-#~ "Вирішіть цю проблему або змініть налаштування."
-
-#~ msgid "Problem with Device Location Folder"
-#~ msgstr "Проблема з текою призначення пристрою"
-
-#, python-format
-#~ msgid "The %(file_type)s Download Folder does not exist.\n"
-#~ msgstr "Теки для завантаження %(file_type)s не існує.\n"
-
-#, python-format
-#~ msgid "The %(file_type)s Download Folder exists but cannot be written to.\n"
-#~ msgstr ""
-#~ "Тека для завантаження %(file_type)s існує, але в неї не можна записувати.\n"
-
-#~ msgid ""
-#~ "Sorry, problems were encountered with your download folders. Please fix the "
-#~ "problems or modify the preferences.\n"
-#~ "\n"
-#~ msgstr ""
-#~ "На жаль, виникли проблеми з теками для завантаження. Виправіть ці проблеми "
-#~ "або змініть налаштування.\n"
-#~ "\n"
-
-#~ msgid "Problem with Download Folder"
-#~ msgstr "Проблема з текою для завантаження"
-
-#~ msgid "Problem with Download Folders"
-#~ msgstr "Проблема з теками для завантаження"
-
 #~ msgid "Some preferences will be reset."
 #~ msgstr "Деякі параметри будуть скинуті."
 
@@ -2189,22 +2097,6 @@ msgstr "Імпортуйте фото та відео ефективно та н
 
 #~ msgid "Starting downloads"
 #~ msgstr "Розпочинаються завантаження"
-
-#, python-format
-#~ msgid "Creating photo download folder %(folder)s"
-#~ msgstr "Створення теки для завантаження фото %(folder)s"
-
-#, python-format
-#~ msgid "Failed to create default photo download folder %(folder)s"
-#~ msgstr "Не вдалось створити типову теку для завантаження фото %(folder)s"
-
-#, python-format
-#~ msgid "Creating video download folder %(folder)s"
-#~ msgstr "Створення теки для завантаження відео %(folder)s"
-
-#, python-format
-#~ msgid "Failed to create default video download folder %(folder)s"
-#~ msgstr "Не вдалось створити типову теку для завантаження відео %(folder)s"
 
 #~ msgid ""
 #~ "A newer version of this program was previously run on this computer.\n"
@@ -2264,10 +2156,6 @@ msgstr "Імпортуйте фото та відео ефективно та н
 #~ msgid "Failed to receive pynotify server capabilities."
 #~ msgstr "Не вдалося отримати властивості сервера pynotify."
 
-#~ msgid ""
-#~ "Warning: desktop environment notification server is incorrectly configured."
-#~ msgstr "Увага: сервер повідомлень середовища налаштований неправильно."
-
 #, python-format
 #~ msgid "Device %(device)s (%(path)s) ignored"
 #~ msgstr "Пристрій %(device)s (%(path)s) проігнорований"
@@ -2285,18 +2173,6 @@ msgstr "Імпортуйте фото та відео ефективно та н
 #~ msgid "Using manually specified path"
 #~ msgstr "Використовувати вручну зазначений шлях"
 
-#~ msgid "photos downloaded"
-#~ msgstr "завантажено фото"
-
-#~ msgid "photos skipped"
-#~ msgstr "пропущено фото"
-
-#~ msgid "videos downloaded"
-#~ msgstr "завантажено відео"
-
-#~ msgid "videos skipped"
-#~ msgstr "пропущено відео"
-
 #~ msgid "_Download "
 #~ msgstr "_Завантажити "
 
@@ -2311,9 +2187,6 @@ msgstr "Імпортуйте фото та відео ефективно та н
 
 #~ msgid "Using"
 #~ msgstr "Використання"
-
-#~ msgid "\n"
-#~ msgstr "\n"
 
 #, python-format
 #~ msgid "%s is already running"
@@ -2334,35 +2207,13 @@ msgstr "Імпортуйте фото та відео ефективно та н
 #~ msgid "These preferences are not well formed:"
 #~ msgstr "Ці параметри не дуже добре підібрані:"
 
-#~ msgid "Subsecond metadata not present in photo"
-#~ msgstr "На фото немає метаданих підсекунд"
-
-#, python-format
-#~ msgid "%s metadata is not present"
-#~ msgstr "%s метадані не представлені"
-
 #, python-format
 #~ msgid "Error in date time component. Value %s appears invalid"
 #~ msgstr "Помилка в компоненті дати та часу. Виникає помилкове значення %s"
 
-#~ msgid "extension was specified but filename does not have an extension"
-#~ msgstr "розширення було зазначене, але в назві файла його немає"
-
-#~ msgid "image or video number was specified but filename has no number"
-#~ msgstr ""
-#~ "номер зображення або відео було зазначене, але в назві файла його немає"
-
-#, python-format
-#~ msgid "%s metadata is not present in photo"
-#~ msgstr "%s метадані не представлені на фото"
-
 #, python-format
 #~ msgid "error generating name with component %s"
 #~ msgstr "помилка генерування назви компонентом %s"
-
-#, python-format
-#~ msgid "%s metadata is not present in video"
-#~ msgstr "%s метадані не представлені на відео"
 
 #~ msgid "      "
 #~ msgstr "      "
@@ -2376,21 +2227,16 @@ msgstr "Імпортуйте фото та відео ефективно та н
 #~ msgid "Automation"
 #~ msgstr "Автоматизація"
 
-#~ msgid ""
-#~ "Choose whether to skip downloading the file, or to add a unique indentifier."
-#~ msgstr ""
-#~ "Виберіть, чи пропустити завантаження файла, чи слід додати до назви "
-#~ "унікальний ідентифікатор."
-
-#~ msgid "Copyright Damon Lynch 2007-10"
-#~ msgstr "Авторське право: Damon Lynch 2007-10"
+#~ msgid "Backup location:"
+#~ msgstr "Місце для резервного копіювання:"
 
 #~ msgid "Error Log"
 #~ msgstr "Журнал помилок"
 
-#~ msgid "Exit program if download completes without any warnings or errors"
+#~ msgid "If you disable automatic detection, choose the exact backup location."
 #~ msgstr ""
-#~ "Вийти з програми, якщо завантаження завершилась без зауважень та помилок"
+#~ "Якщо автоматичне виявлення вимкнено, виберіть точне місце для резервного "
+#~ "копіювання."
 
 #~ msgid "Ignore"
 #~ msgstr "Ігнорувати"
@@ -2429,20 +2275,6 @@ msgstr "Імпортуйте фото та відео ефективно та н
 
 #~ msgid "Report an error"
 #~ msgstr "Попередити про помилку"
-
-#~ msgid ""
-#~ "Sorry, video downloading functionality disabled. To download videos, please "
-#~ "install the <i>kaa metadata</i> package for python."
-#~ msgstr ""
-#~ "На жаль, немає можливості завантажувати відео. Щоб завантажувати відео, "
-#~ "встановіть пакунок <i>kaa metadata</i> для python."
-
-#~ msgid ""
-#~ "Specify what to do when a photo or video of the same name has already been "
-#~ "downloaded or backed up."
-#~ msgstr ""
-#~ "Вкажіть, що робити, якщо фото або відео з такою назвою вже завантажено або "
-#~ "створена його резервна копія."
 
 #~ msgid "Specify what to do when there are no backup devices."
 #~ msgstr "Вкажіть, що робити, якщо немає пристроїв для резервного копіювання."
@@ -2684,6 +2516,15 @@ msgstr "Імпортуйте фото та відео ефективно та н
 #~ msgstr ""
 #~ "Якщо автоматичне виявлення вимкнено, виберіть точне місце розташування фото."
 
+#~ msgid ""
+#~ "If you enable automatic detection of Portable Storage Devices, the entire "
+#~ "device will be scanned for images. On large devices, this could take some "
+#~ "time."
+#~ msgstr ""
+#~ "Якщо автоматичне виявлення портативних пристроїв для зберігання увімкнено, "
+#~ "вони скануватимуться для пошуку фото. На пристроях великого об’єму це може "
+#~ "зайняти досить багато часу."
+
 #~ msgid "Image Devices"
 #~ msgstr "Пристрої для фото"
 
@@ -2762,162 +2603,3 @@ msgstr "Імпортуйте фото та відео ефективно та н
 #~ msgstr ""
 #~ "Ви можете створювати резервні копії фото в кількох місцях прямо під час "
 #~ "завантаження, наприклад, на зовнішніх жорстких дисках."
-
-#, python-format
-#~ msgid ""
-#~ "Source: %(source)s\n"
-#~ "Destination: %(destination)s\n"
-#~ "%(problem)s"
-#~ msgstr ""
-#~ "Джерело: %(source)s\n"
-#~ "Адресат: %(destination)s\n"
-#~ "%(problem)s"
-
-#~ msgid "_Show this message again"
-#~ msgstr "_Показувати це повідомлення знову"
-
-#~ msgid "Downloading From Cameras"
-#~ msgstr "Звантаження з камер"
-
-#~ msgid "Downloading directly from a camera may work poorly or not at all"
-#~ msgstr "Звантаження з камери може працювати погано або не працювати зовсім"
-
-#~ msgid ""
-#~ "Downloading from a card reader always works and is generally much faster. It "
-#~ "is strongly recommended to use a card reader."
-#~ msgstr ""
-#~ "Звантаження з пристрою для читання карток працює завжди і, як правило, "
-#~ "набагато швидше. Настійно рекомендується використовувати його."
-
-#, python-format
-#~ msgid "Attempting to download %s files"
-#~ msgstr "Спроба завантаження %s файлів"
-
-#~ msgid "Please check your system and try again."
-#~ msgstr "Перевірте систему та спробуйте знову."
-
-#~ msgid "Path"
-#~ msgstr "Шлях"
-
-#~ msgid "Date"
-#~ msgstr "Дата"
-
-#, python-format
-#~ msgid "%(filetype)s was not downloaded"
-#~ msgstr "%(filetype)s не завантажено"
-
-#, python-format
-#~ msgid "%(filetype)s was downloaded successfully"
-#~ msgstr "%(filetype)s завантажено успішно"
-
-#~ msgid "File"
-#~ msgstr "Файл"
-
-#~ msgid "Status"
-#~ msgstr "Статус"
-
-#~ msgid "Type"
-#~ msgstr "Тип"
-
-#, python-format
-#~ msgid "%(filetype)s was downloaded but there were problems backing up"
-#~ msgstr "%(filetype)s завантажено, але виникли проблеми резервування"
-
-#, python-format
-#~ msgid "%(filetype)s was downloaded with warnings"
-#~ msgstr "%(filetype)s завантажено зі застереженнями"
-
-#, python-format
-#~ msgid "%(filetype)s is ready to be downloaded"
-#~ msgstr "%(filetype)s готово до завантаження"
-
-#, python-format
-#~ msgid "%(filetype)s will be downloaded with warnings"
-#~ msgstr "%(filetype)s буде завантажено зі застереженнями"
-
-#, python-format
-#~ msgid "%(filetype)s is about to be downloaded"
-#~ msgstr "приблизно %(filetype)s для завантаження"
-
-#, python-format
-#~ msgid "%(filetype)s was neither downloaded nor backed up"
-#~ msgstr "%(filetype)s не завантажено і не зарезервовано"
-
-#~ msgid "Enter a new Job Code and press Enter, or select an existing Job Code"
-#~ msgstr "Введіть нову мітку і натисніть «Enter», або виберіть наявну мітку"
-
-#, python-format
-#~ msgid "%(filetype)s cannot be downloaded"
-#~ msgstr "%(filetype)s не буде завантажено"
-
-#~ msgid "Preview"
-#~ msgstr "Попередній перегляд"
-
-#~ msgid "Displaying warning about downloading directly from camera"
-#~ msgstr "Показувати застереження під час завантаження прямо з камери"
-
-#~ msgid "Download device settings preferences were changed."
-#~ msgstr "Завантаження налаштувань пристрою уподобання змінилися."
-
-#, python-format
-#~ msgid "Warning: backup device %(device)s is currently being downloaded from"
-#~ msgstr ""
-#~ "Попередження:  резервний пристрій %(device)s на цей час, буде завантажений з"
-
-#~ msgid "D_ownload Selected"
-#~ msgstr "З_авантажити вибрані"
-
-#~ msgid "_Resume"
-#~ msgstr "_Продовжити"
-
-#~ msgid "_Download All"
-#~ msgstr "З_авантажити все"
-
-#~ msgid "Select All Vi_deos"
-#~ msgstr "Вибрати всі _відео"
-
-#~ msgid "Select All Pho_tos"
-#~ msgstr "Вибрати всі _фото"
-
-#~ msgid "Se_lect None"
-#~ msgstr "_Зняти вибір"
-
-#~ msgid "Preview _Folders"
-#~ msgstr "Показувати _теки"
-
-#~ msgid "P_review Columns"
-#~ msgstr "По_казувати стовпчики"
-
-#~ msgid "Download folder preferences were changed."
-#~ msgstr "Параметри теки для завантаження змінились."
-
-#~ msgid "Select _All"
-#~ msgstr "Вибрати _все"
-
-#~ msgid "_Device"
-#~ msgstr "_Пристрій"
-
-#~ msgid "_Filename"
-#~ msgstr "_Назва файла"
-
-#~ msgid "_Path"
-#~ msgstr "_Шлях"
-
-#~ msgid "_Preview"
-#~ msgstr "_Попередній перегляд"
-
-#~ msgid "_Size"
-#~ msgstr "_Розмір"
-
-#~ msgid "_Type"
-#~ msgstr "_Тип"
-
-#~ msgid "Subfolder and filename preferences were changed."
-#~ msgstr "Параметри підтеки та назва файла змінились."
-
-#~ msgid "Backup preferences were changed."
-#~ msgstr "Параметри резервування змінились."
-
-#, python-format
-#~ msgid "%(free)s available"
-#~ msgstr "Доступно %(free)s"
