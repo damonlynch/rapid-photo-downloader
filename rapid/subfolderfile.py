@@ -268,6 +268,67 @@ class SubfolderFile(multiprocessing.Process):
         return rpd_file
 
 
+    def _move_associate_file(self, extension, full_base_name, temp_associate_file):
+        """Move (rename) the associate file using the pregenerated name
+
+        Returns tuple of result (True if succeeded, False otherwise) and
+        full path and filename"""
+
+        download_full_name = full_base_name + extension
+
+        # move (rename) associate file
+        if self.use_gnome_file_operations:
+            source = gio.File(path=temp_associate_file)
+            dest = gio.File(path=download_full_name)
+            try:
+                source.move(dest, self.progress_callback_no_update, cancellable=None)
+                success = True
+            except gio.Error, inst:
+                success = False
+        else:
+            try:
+                # don't check to see if it already exists
+                shutil.move(temp_associate_file, download_full_name)
+                success = True
+            except:
+                success = False
+
+        return (success, download_full_name)
+
+    def move_thm_file(self, rpd_file):
+        """Move (rename) the THM thumbnail file using the pregenerated name"""
+        ext = None
+        if hasattr(rpd_file, 'thm_extension'):
+            if rpd_file.thm_extension:
+                ext = rpd_file.thm_extension
+        if ext is None:
+            ext = '.THM'
+
+        result, rpd_file.download_thm_full_name = self._move_associate_file(ext, rpd_file.download_full_base_name, rpd_file.temp_thm_full_name)
+
+        if not result:
+            logger.error("Failed to move video THM file %s", rpd_file.download_thm_full_name)
+
+        return rpd_file
+
+    def move_audio_file(self, rpd_file):
+        """Move (rename) the associate audio file using the pregenerated name"""
+        ext = None
+        if hasattr(rpd_file, 'audio_extension'):
+            if rpd_file.audio_extension:
+                ext = rpd_file.audio_extension
+        if ext is None:
+            ext = '.WAV'
+
+        result, rpd_file.download_audio_full_name = self._move_associate_file(ext, rpd_file.download_full_base_name, rpd_file.temp_audio_full_name)
+
+        if not result:
+            logger.error("Failed to move file's associated audio file %s", rpd_file.download_audio_full_name)
+
+        return rpd_file
+
+
+
     def run(self):
         """
         Get subfolder and name.
@@ -487,7 +548,7 @@ class SubfolderFile(multiprocessing.Process):
                             else:
                                 rpd_file = self.download_failure_file_error(rpd_file, inst.strerror)
                         except:
-                            rpd_file = self.download_failure_file_error(rpd_file, inst.strerror)
+                            rpd_file = self.download_failure_file_error(rpd_file, "An unknown error occurred while renaming the file")
 
                     if add_unique_identifier:
                         name = os.path.splitext(rpd_file.download_name)
@@ -553,30 +614,10 @@ class SubfolderFile(multiprocessing.Process):
                         self.downloads_today_date.value = self.downloads_today_tracker.get_raw_downloads_today_date()
 
                     if rpd_file.temp_thm_full_name:
-                        ext = None
-                        if hasattr(rpd_file, 'thm_extension'):
-                            if rpd_file.thm_extension:
-                                ext = rpd_file.thm_extension
-                        if ext is None:
-                            ext = '.THM'
-                        download_thm_full_name = rpd_file.download_full_base_name + ext
+                        rpd_file = self.move_thm_file(rpd_file)
 
-                        # copy and rename THM video file
-                        if self.use_gnome_file_operations:
-                            source = gio.File(path=rpd_file.temp_thm_full_name)
-                            dest = gio.File(path=download_thm_full_name)
-                            try:
-                                source.move(dest, self.progress_callback_no_update, cancellable=None)
-                                rpd_file.download_thm_full_name = download_thm_full_name
-                            except gio.Error, inst:
-                                logger.error("Failed to move video THM file %s", download_thm_full_name)
-                        else:
-                            try:
-                                # don't check to see if it already exists
-                                shutil.move(rpd_file.temp_thm_full_name, download_thm_full_name)
-                                rpd_file.download_thm_full_name = download_thm_full_name
-                            except:
-                                logger.error("Failed to move video THM file %s", download_thm_full_name)
+                    if rpd_file.temp_audio_full_name:
+                        rpd_file = self.move_audio_file(rpd_file)
 
                     if rpd_file.temp_xmp_full_name:
                         # copy and rename XMP sidecar file

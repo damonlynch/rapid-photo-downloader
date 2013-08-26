@@ -1,3 +1,11 @@
+Version 0.4.7
+-------------
+
+2013-08-xx
+
+Added feature to download audio files that are associated with photos such as
+those created by the Canon 1D series of cameras.
+
 Version 0.4.6
 -------------
 
@@ -11,7 +19,7 @@ Added extra debugging output to help trace program execution progress.
 Updated German and Spanish translations.
 
 Version 0.4.6 Beta 1
--------------
+--------------------
 
 2012-11-26
 

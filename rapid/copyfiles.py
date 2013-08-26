@@ -45,8 +45,8 @@ class CopyFiles(multiprocessing.Process):
     """
     def __init__(self, photo_download_folder, video_download_folder, files,
                  modify_files_during_download, modify_pipe,
-                 scan_pid, 
-                 batch_size_MB, results_pipe, terminate_queue, 
+                 scan_pid,
+                 batch_size_MB, results_pipe, terminate_queue,
                  run_event):
         multiprocessing.Process.__init__(self)
         self.results_pipe = results_pipe
@@ -60,7 +60,7 @@ class CopyFiles(multiprocessing.Process):
         self.scan_pid = scan_pid
         self.no_files= len(self.files)
         self.run_event = run_event
-        
+
     def check_termination_request(self):
         """
         Check to see this process has not been requested to immediately terminate
@@ -71,8 +71,8 @@ class CopyFiles(multiprocessing.Process):
             logger.info("Terminating file copying")
             return True
         return False
-        
-        
+
+
     def update_progress(self, amount_downloaded, total):
         # first check if process is being terminated
         if not self.terminate_queue.empty():
@@ -86,65 +86,65 @@ class CopyFiles(multiprocessing.Process):
                     if amount_downloaded == total:
                         # this function is called a couple of times when total is reached
                         self.total_reached = True
-                        
+
                     self.results_pipe.send((rpdmp.CONN_PARTIAL, (rpdmp.MSG_BYTES, (self.scan_pid, self.total_downloaded + amount_downloaded, chunk_downloaded))))
                     if amount_downloaded == total:
                         self.bytes_downloaded = 0
-    
+
     def progress_callback(self, amount_downloaded, total):
         self.update_progress(amount_downloaded, total)
-        
+
     def thm_progress_callback(self, amount_downloaded, total):
         # we don't care about tracking download progress for tiny THM files!
         pass
-        
+
 
     def run(self):
         """start the actual copying of files"""
-        
+
         #characters used to generate temporary filenames
         filename_characters = string.letters + string.digits
-        
+
         self.bytes_downloaded = 0
         self.total_downloaded = 0
-        
+
         self.cancel_copy = gio.Cancellable()
-        
+
         self.create_temp_dirs()
-        
+
         # Send the location of both temporary directories, so they can be
         # removed once another process attempts to rename all the files in them
         # and move them to generated subfolders
-        self.results_pipe.send((rpdmp.CONN_PARTIAL, (rpdmp.MSG_TEMP_DIRS, 
+        self.results_pipe.send((rpdmp.CONN_PARTIAL, (rpdmp.MSG_TEMP_DIRS,
                                                      (self.scan_pid,
                                                      self.photo_temp_dir,
                                                      self.video_temp_dir))))
-        
+
         if self.photo_temp_dir or self.video_temp_dir:
-            
+
             self.thumbnail_maker = tn.Thumbnail()
-            
+
             for i in range(self.no_files):
                 rpd_file = self.files[i]
                 self.total_reached = False
-                
+
                 # pause if instructed by the caller
                 self.run_event.wait()
-                
+
                 if self.check_termination_request():
                     return None
-                
+
                 source = gio.File(path=rpd_file.full_file_name)
-                
+
                 #generate temporary name 5 digits long, no extension
                 temp_name = ''.join(random.choice(filename_characters) for i in xrange(5))
-                
+
                 temp_full_file_name = os.path.join(
-                                    self._get_dest_dir(rpd_file.file_type), 
+                                    self._get_dest_dir(rpd_file.file_type),
                                     temp_name)
                 rpd_file.temp_full_file_name = temp_full_file_name
                 dest = gio.File(path=temp_full_file_name)
-                
+
                 copy_succeeded = False
                 try:
                     source.copy(dest, self.progress_callback, cancellable=self.cancel_copy)
@@ -154,24 +154,24 @@ class CopyFiles(multiprocessing.Process):
                         pn.DOWNLOAD_COPYING_ERROR_W_NO,
                         {'filetype': rpd_file.title})
                     rpd_file.add_extra_detail(
-                        pn.DOWNLOAD_COPYING_ERROR_W_NO_DETAIL, 
+                        pn.DOWNLOAD_COPYING_ERROR_W_NO_DETAIL,
                         {'errorno': inst.code, 'strerror': inst.message})
-                        
+
                     rpd_file.status = config.STATUS_DOWNLOAD_FAILED
-                    
+
                     rpd_file.error_title = rpd_file.problem.get_title()
                     rpd_file.error_msg = _("%(problem)s\nFile: %(file)s") % \
                                   {'problem': rpd_file.problem.get_problems(),
                                    'file': rpd_file.full_file_name}
-                    
+
                     logger.error("Failed to download file: %s", rpd_file.full_file_name)
                     logger.error(inst)
                     self.update_progress(rpd_file.size, rpd_file.size)
-                
+
                 # increment this amount regardless of whether the copy actually
                 # succeeded or not. It's neccessary to keep the user informed.
                 self.total_downloaded += rpd_file.size
-                
+
                 # copy THM (video thumbnail file) if there is one
                 if copy_succeeded and rpd_file.thm_full_name:
                     source = gio.File(path=rpd_file.thm_full_name)
@@ -186,8 +186,21 @@ class CopyFiles(multiprocessing.Process):
                         logger.error("Failed to download video THM file: %s", rpd_file.thm_full_name)
                 else:
                     temp_thm_full_name = None
-                        
-                
+
+                #copy audio file if there is one
+                if copy_succeeded and rpd_file.audio_file_full_name:
+                    source = gio.File(path=rpd_file.audio_file_full_name)
+                    # reuse photo's file name
+                    temp_audio_full_name = temp_full_file_name + '__rpd__audio'
+                    dest = gio.File(path=temp_audio_full_name)
+                    try:
+                        source.copy(dest, self.thm_progress_callback, cancellable=self.cancel_copy)
+                        rpd_file.temp_audio_full_name = temp_audio_full_name
+                        logger.debug("Copied audio file %s", rpd_file.temp_audio_full_name)
+                    except gio.Error, inst:
+                        logger.error("Failed to download audio file: %s", rpd_file.audio_file_full_name)
+
+
                 if copy_succeeded and rpd_file.generate_thumbnail:
                     thumbnail, thumbnail_icon = self.thumbnail_maker.get_thumbnail(
                                     temp_full_file_name,
@@ -197,33 +210,33 @@ class CopyFiles(multiprocessing.Process):
                 else:
                     thumbnail = None
                     thumbnail_icon = None
-                
+
                 if rpd_file.metadata is not None:
                     rpd_file.metadata = None
-                
-                
+
+
                 download_count = i + 1
                 if self.modify_files_during_download and copy_succeeded:
                     copy_finished = download_count == self.no_files
-                        
-                    self.modify_pipe.send((rpd_file, download_count, temp_full_file_name, 
+
+                    self.modify_pipe.send((rpd_file, download_count, temp_full_file_name,
                         thumbnail_icon, thumbnail, copy_finished))
                 else:
-                    self.results_pipe.send((rpdmp.CONN_PARTIAL, (rpdmp.MSG_FILE, 
+                    self.results_pipe.send((rpdmp.CONN_PARTIAL, (rpdmp.MSG_FILE,
                         (copy_succeeded, rpd_file, download_count,
-                         temp_full_file_name, 
+                         temp_full_file_name,
                          thumbnail_icon, thumbnail))))
-                    
-            
+
+
         self.results_pipe.send((rpdmp.CONN_COMPLETE, None))
-            
+
 
     def _get_dest_dir(self, file_type):
         if file_type == rpdfile.FILE_TYPE_PHOTO:
             return self.photo_temp_dir
         else:
             return self.video_temp_dir
-    
+
     def _create_temp_dir(self, folder):
         try:
             temp_dir = tempfile.mkdtemp(prefix="rpd-tmp-", dir=folder)
@@ -234,15 +247,15 @@ class CopyFiles(multiprocessing.Process):
                          strerror,
                          folder)
             temp_dir = None
-        
+
         return temp_dir
-    
+
     def create_temp_dirs(self):
         self.photo_temp_dir = self.video_temp_dir = None
         if self.photo_download_folder is not None:
             self.photo_temp_dir = self._create_temp_dir(self.photo_download_folder)
         if self.video_download_folder is not None:
             self.video_temp_dir = self._create_temp_dir(self.photo_download_folder)
-            
+
 
 

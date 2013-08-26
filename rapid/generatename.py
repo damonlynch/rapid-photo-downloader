@@ -113,19 +113,34 @@ class PhotoName:
             logger.error("Both file modification time and metadata date & time are invalid for file %s", self.rpd_file.full_file_name)
             return ''
 
+    def _get_associated_file_extension(self, associate_file):
+        """
+        Generates extensions with correct capitalization for files like
+        thumbnail or audio files.
+        """
+        if associate_file:
+            extension = os.path.splitext(associate_file)[1]
+            if self.L2 == UPPERCASE:
+                extension = extension.upper()
+            elif self.L2 == LOWERCASE:
+                extension = extension.lower()
+        else:
+            extension = None
+        return extension
+
+
     def _get_thm_extension(self):
         """
         Generates THM extension with correct capitalization, if needed
         """
-        if self.rpd_file.thm_full_name:
-            thm_extension = os.path.splitext(self.rpd_file.thm_full_name)[1]
-            if self.L2 == UPPERCASE:
-                thm_extension = thm_extension.upper()
-            elif self.L2 == LOWERCASE:
-                thm_extension = thm_extension.lower()
-            self.rpd_file.thm_extension = thm_extension
-        else:
-            self.rpd_file.thm_extension = None
+        self.rpd_file.thm_extension = self._get_associated_file_extension(self.rpd_file.thm_full_name)
+
+    def _get_audio_extension(self):
+        """
+        Generates audio extension with correct capitalization, if needed
+        e.g. WAV or wav
+        """
+        self.rpd_file.audio_extension = self._get_associated_file_extension(self.rpd_file.audio_file_full_name)
 
     def _get_xmp_extension(self, extension):
         """
@@ -156,11 +171,13 @@ class PhotoName:
         if self.L1 == NAME_EXTENSION:
             filename = self.rpd_file.name
             self._get_thm_extension()
+            self._get_audio_extension()
             self._get_xmp_extension(extension)
         elif self.L1 == NAME:
                 filename = name
         elif self.L1 == EXTENSION:
             self._get_thm_extension()
+            self._get_audio_extension()
             self._get_xmp_extension(extension)
             if extension:
                 if not self.strip_initial_period_from_extension:

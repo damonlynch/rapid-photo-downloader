@@ -209,8 +209,11 @@ class BackupFiles(multiprocessing.Process):
                     else:
                         rpd_file.status = config.STATUS_BACKUP_PROBLEM
                 else:
-                    # backup any THM or XMP files
+                    # backup any THM, audio or XMP files
                     if rpd_file.download_thm_full_name:
+                        self.backup_additional_file(dest_dir,
+                                        rpd_file.download_thm_full_name)
+                    if rpd_file.download_audio_full_name:
                         self.backup_additional_file(dest_dir,
                                         rpd_file.download_thm_full_name)
                     if rpd_file.download_xmp_full_name:
