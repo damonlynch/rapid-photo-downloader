@@ -19,6 +19,8 @@
 ### USA
 
 # modified by Damon Lynch 2009 to remove default bold formatting and alignment
+# modified by Damon Lynch 2103 to add function to get folder chosen by user in file chooser button
+
 """Module of commonly used helper classes and functions
 
 """
@@ -44,3 +46,15 @@ def run_dialog( text, secondarytext=None,  parent=None, messagetype=gtk.MESSAGE_
     ret = d.run()
     d.destroy()
     return ret
+
+def get_folder_selection(filechooserbutton):
+    """
+    Returns the path (folder) the user has chosen in a filechooserbutton
+    """
+    # this no longer works on Ubuntu 13.10:
+    # path = filechooserbutton.get_current_folder()
+    # but this works on Ubuntu 13.10:    
+    path = filechooserbutton.get_filenames() #returns a list
+    if path:
+        path = path[0]
+    return path

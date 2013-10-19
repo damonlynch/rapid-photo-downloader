@@ -6,6 +6,11 @@ Version 0.4.7
 Added feature to download audio files that are associated with photos such as
 those created by the Canon 1D series of cameras.
 
+Fixed bug #1242119: Choosing a new folder does not work in Ubuntu 13.10. In
+Ubuntu 13.10, choosing a destination or source folder from its bookmark does not
+work. The correct value is displayed in the file chooser button, but this value
+is not used by Rapid Photo Downloader.
+
 Fixed bug #1206853: Crashes when system message notifications not functioning
 properly.
 

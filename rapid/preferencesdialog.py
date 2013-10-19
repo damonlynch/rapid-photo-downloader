@@ -965,23 +965,33 @@ class PreferencesDialog():
         self.treeview.set_cursor(0,column)
     
     def on_download_folder_filechooser_button_selection_changed(self, widget):
-        self.prefs.download_folder = widget.get_current_folder()
-        self.update_photo_download_folder_example()
+        path = misc.get_folder_selection(widget)
+        if path:
+            self.prefs.download_folder = path
+            self.update_photo_download_folder_example()
         
     def on_video_download_folder_filechooser_button_selection_changed(self, widget):
-        self.prefs.video_download_folder = widget.get_current_folder()
-        self.update_video_download_folder_example()
+        path = misc.get_folder_selection(widget)
+        if path:
+            self.prefs.video_download_folder = path
+            self.update_video_download_folder_example()
     
     def on_backup_folder_filechooser_button_selection_changed(self, widget):
-        self.prefs.backup_location = widget.get_current_folder()
-        self.update_backup_example()
+        path = misc.get_folder_selection(widget)
+        if path:        
+            self.prefs.backup_location = path
+            self.update_backup_example()
         
     def on_backup_video_folder_filechooser_button_selection_changed(self, widget):
-        self.prefs.backup_video_location = widget.get_current_folder()
-        self.update_backup_example()
+        path = misc.get_folder_selection(widget)
+        if path:
+            self.prefs.backup_video_location = path
+            self.update_backup_example()
         
     def on_device_location_filechooser_button_selection_changed(self, widget):
-        self.prefs.device_location = widget.get_current_folder()
+        path = misc.get_folder_selection(widget)
+        if path:        
+            self.prefs.device_location = path
         
     def on_add_ignored_path_button_clicked(self, widget):
         i = IgnorePathDialog(parent_window = self.dialog, 

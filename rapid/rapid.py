@@ -54,6 +54,8 @@ logger = log_to_stderr()
 
 import rpdfile
 
+from misc import get_folder_selection
+
 import problemnotification as pn
 import thumbnail as tn
 import rpdmultiprocessing as rpdmp
@@ -3396,6 +3398,10 @@ class RapidApp(dbus.service.Object):
         self._set_to_toolbar_values()
         self.to_photo_filechooser_button.connect("selection-changed",
                         self.on_to_photo_filechooser_button_selection_changed)
+        #~ self.to_photo_filechooser_button.connect("file-set",
+                        #~ self.on_to_photo_filechooser_button_file_set)
+        #~ self.to_photo_filechooser_button.connect("current-folder-changed",
+                        #~ self.on_to_photo_filechooser_button_current_folder_changed)
         self.to_video_filechooser_button.connect("selection-changed",
                         self.on_to_video_filechooser_button_selection_changed)
         self.dest_toolbar.show_all()
@@ -3449,17 +3455,28 @@ class RapidApp(dbus.service.Object):
 
     def on_from_filechooser_button_selection_changed(self, filechooserbutton):
         logger.debug("on_from_filechooser_button_selection_changed")
-        path = filechooserbutton.get_current_folder()
+        path = get_folder_selection(filechooserbutton)
         if path and not self.rerun_setup_available_image_and_video_media:
             self.prefs.device_location = path
 
+    def on_from_filechooser_button_file_set(self, button):
+        logger.debug("on_from_filechooser_button_file_set")
+
+    def on_to_photo_filechooser_button_file_set(self, filechooserbutton):
+        logger.debug("on_to_filechooser_button_file_set")
+
     def on_to_photo_filechooser_button_selection_changed(self, filechooserbutton):
-        path = filechooserbutton.get_current_folder()
+        logger.debug("on_to_filechooser_button_selection_changed")
+        path = get_folder_selection(filechooserbutton)
+        #~ logger.debug("Path: %s", path)
         if path:
             self.prefs.download_folder = path
 
+    def on_to_photo_filechooser_button_current_folder_changed(self, filechooserbutton):
+        logger.debug("on_to_photo_filechooser_button_current_folder_changed")
+
     def on_to_video_filechooser_button_selection_changed(self, filechooserbutton):
-        path = filechooserbutton.get_current_folder()
+        path = get_folder_selection(filechooserbutton)
         if path:
             self.prefs.video_download_folder = path
 
