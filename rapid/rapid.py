@@ -630,6 +630,20 @@ class ThumbnailDisplay(gtk.IconView):
         self.liststore.set_sort_column_id(self.TIMESTAMP_COL, gtk.SORT_ASCENDING)
 
     def on_selection_changed(self, iconview):
+        """
+        Allow selections by row (and not GTK default by square) when user is
+        dragging the mouse or using the keyboard to select
+        """
+        selections = self.get_selected_items()
+        if len(selections) > 1:
+            previous_sel = selections[0][0] + 1
+            # seleted items list always starts with the highest selected item
+            for selection in selections:
+                current_sel = selection[0]
+                if current_sel <> (previous_sel-1):
+                    for i in range(previous_sel-1, current_sel, -1):
+                        self.select_path(i)
+                previous_sel = current_sel
         self._selected_items = self.get_selected_items()
 
     def on_checkbutton_toggled(self, cellrenderertoggle, path):

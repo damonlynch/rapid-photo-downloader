@@ -1,7 +1,7 @@
 Version 0.4.7
 -------------
 
-2013-08-xx
+2013-09-xx
 
 Added feature to download audio files that are associated with photos such as
 those created by the Canon 1D series of cameras.
@@ -9,7 +9,11 @@ those created by the Canon 1D series of cameras.
 Fixed bug #1206853: Crashes when system message notifications not functioning
 properly.
 
-Added Belarusian translation. Updated Swedish and Ukrainian translations.
+Fixed bug #909405: Allow selections by row (and not GTK default by square) when
+user is dragging the mouse or using the keyboard to select.
+
+Added Belarusian translation -- thanks go to Ilya Tsimokhin. Updated Swedish and 
+Ukrainian translations.
 
 Version 0.4.6
 -------------
