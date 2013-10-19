@@ -10,7 +10,12 @@ Fixed bug #1206853: Crashes when system message notifications not functioning
 properly.
 
 Fixed bug #909405: Allow selections by row (and not GTK default by square) when
-user is dragging the mouse or using the keyboard to select.
+user is dragging the mouse or using the keyboard to select. Thank you to
+user 'Salukibob' for the patch.
+
+Added a KDE Solid action. Solid is KDE4's hardware-related framework. It detects
+when the user connects a new device and display a list of related actions.
+Thanks to dju` for the patch.
 
 Added Belarusian translation -- thanks go to Ilya Tsimokhin. Updated Swedish and 
 Ukrainian translations.

@@ -52,8 +52,8 @@ package_data={'rapid': ['glade3/about.ui',
               'glade3/errorlog.ui',
               'glade3/media-eject.png',
               'glade3/rapid-photo-downloader.svg',
-              'glade3/rapid-photo-downloader-download-pending.png', 
-              'glade3/rapid-photo-downloader-downloaded-with-error.svg', 
+              'glade3/rapid-photo-downloader-download-pending.png',
+              'glade3/rapid-photo-downloader-downloaded-with-error.svg',
               'glade3/rapid-photo-downloader-downloaded-with-warning.svg',
               'glade3/rapid-photo-downloader-downloaded.svg',
               'glade3/rapid-photo-downloader-jobcode.svg',
@@ -75,12 +75,12 @@ setup(name=name,
     long_description=
 """Rapid Photo Downloader is written by a photographer for professional and
 amateur photographers. It can  download photos and videos from multiple
-cameras, memory cards and Portable Storage Devices simultaneously. It 
+cameras, memory cards and Portable Storage Devices simultaneously. It
 provides many flexible, user-defined options for subfolder creation,
 photo and video renaming, and backup.
 """,
-    packages = ['rapid'], 
-    package_data=package_data, 
+    packages = ['rapid'],
+    package_data=package_data,
     scripts=['rapid-photo-downloader'],
     platforms=['linux'],
     data_files=[
@@ -91,6 +91,7 @@ photo and video renaming, and backup.
         ('share/icons/hicolor/22x22/apps', glob.glob('data/icons/22x22/apps/*.png')),
         ('share/icons/hicolor/24x24/apps', glob.glob('data/icons/24x24/apps/*.png')),
         ('share/icons/hicolor/48x48/apps', glob.glob('data/icons/48x48/apps/*.png')),
-    ],      
-    cmdclass={'install_data': InstallData}     
+        ('/usr/share/kde4/apps/solid/actions/', ['data/rapid-photo-downloader.desktop']),
+    ],
+    cmdclass={'install_data': InstallData}
 )
