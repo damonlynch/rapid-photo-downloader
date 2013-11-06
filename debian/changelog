@@ -1,3 +1,24 @@
+rapid-photo-downloader (0.4.7-0ubuntu1~ppa1) precise; urgency=low
+
+  * Added feature to download audio files that are associated with 
+    photos such as those created by the Canon 1D series of cameras.
+
+  * Fixed bug #1242119: Choosing a new folder does not work in Ubuntu
+    13.10.
+
+  * Fixed bug #1206853: Crashes when system message notifications not
+    functioning properly
+
+  * Fixed bug #909405: Allow selections by row (and not GTK default by
+    square)
+
+  * Added a KDE Solid action
+
+  * Added Belarusian translation. Updated Swedish and Ukrainian 
+    translations
+
+ -- Damon Lynch <damonlynch@gmail.com>  Sat, 19 Oct 2013 23:22:46 +0500
+
 rapid-photo-downloader (0.4.6-0ubuntu1~ppa1) lucid; urgency=low
 
   * Fixed bug #1083756: Application shows duplicate sources
