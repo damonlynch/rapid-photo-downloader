@@ -2066,8 +2066,8 @@ msgstr "Descargue sus fotografías y vídeos de forma eficaz y segura"
 #~ msgid "_Photos"
 #~ msgstr "_Fotos"
 
-#~ msgid "_Get Help Online..."
-#~ msgstr "_Conseguir ayuda online"
+msgid "_Get Help Online..."
+msgstr "_Conseguir ayuda online"
 
 #~ msgid "_Thumbnails"
 #~ msgstr "_Miniaturas"
@@ -2625,8 +2625,8 @@ msgstr "Descargue sus fotografías y vídeos de forma eficaz y segura"
 #~ msgid "Image filename could not be generated"
 #~ msgstr "No se pudo generar el nombre del archivo de imagen"
 
-#~ msgid "_Report a Problem..."
-#~ msgstr "_Reportar problema..."
+msgid "_Report a Problem..."
+msgstr "_Reportar problema..."
 
 #~ msgid ""
 #~ "You can have your photos backed up to multiple locations as they are "

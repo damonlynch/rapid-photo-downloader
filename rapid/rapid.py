@@ -743,39 +743,40 @@ class ThumbnailDisplay(gtk.IconView):
             self.previews_being_fetched.add(unique_id)
 
     def show_preview(self, unique_id=None, iter=None):
-        if unique_id is not None:
-            iter = self.get_iter_from_unique_id(unique_id)
-        elif iter is not None:
-            unique_id = self.get_unique_id_from_iter(iter)
-        else:
-            # neither an iter or a unique_id were passed
-            # use iter from first selected file
-            # if none is selected, choose the first file
-            selected = self.get_selected_items()
-            if selected:
-                path = selected[0]
+        if len(self.liststore):
+            if unique_id is not None:
+                iter = self.get_iter_from_unique_id(unique_id)
+            elif iter is not None:
+                unique_id = self.get_unique_id_from_iter(iter)
             else:
-                path = 0
-            iter = self.liststore.get_iter(path)
-            unique_id = self.get_unique_id_from_iter(iter)
+                # neither an iter or a unique_id were passed
+                # use iter from first selected file
+                # if none is selected, choose the first file
+                selected = self.get_selected_items()
+                if selected:
+                    path = selected[0]
+                else:
+                    path = 0
+                iter = self.liststore.get_iter(path)
+                unique_id = self.get_unique_id_from_iter(iter)
 
 
-        rpd_file = self.rpd_files[unique_id]
+            rpd_file = self.rpd_files[unique_id]
 
-        if unique_id in self.previews:
-            preview_image = self.previews[unique_id]
-        else:
-            # request daemon process to get a full size thumbnail
-            self._get_preview(unique_id, rpd_file)
-            if unique_id in self.thumbnails:
-                preview_image = self.thumbnails[unique_id]
+            if unique_id in self.previews:
+                preview_image = self.previews[unique_id]
             else:
-                preview_image = self.get_stock_icon(rpd_file.file_type)
+                # request daemon process to get a full size thumbnail
+                self._get_preview(unique_id, rpd_file)
+                if unique_id in self.thumbnails:
+                    preview_image = self.thumbnails[unique_id]
+                else:
+                    preview_image = self.get_stock_icon(rpd_file.file_type)
 
-        checked = self.liststore.get_value(iter, self.SELECTED_COL)
-        include_checkbutton_visible = rpd_file.status == STATUS_NOT_DOWNLOADED
-        self.rapid_app.show_preview_image(unique_id, preview_image,
-                                            include_checkbutton_visible, checked)
+            checked = self.liststore.get_value(iter, self.SELECTED_COL)
+            include_checkbutton_visible = rpd_file.status == STATUS_NOT_DOWNLOADED
+            self.rapid_app.show_preview_image(unique_id, preview_image,
+                                                include_checkbutton_visible, checked)
 
     def _get_next_iter(self, iter):
         iter = self.liststore.iter_next(iter)

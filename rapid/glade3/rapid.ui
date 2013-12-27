@@ -1,40 +1,39 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <interface>
   <requires lib="gtk+" version="2.20"/>
+  <!-- interface-naming-policy toplevel-contextual -->
   <object class="GtkAction" id="about_action">
-    <property name="label">About...</property>
-    <property name="stock_id">gtk-about</property>
+    <property name="label" translatable="yes">About...</property>
     <signal name="activate" handler="on_about_action_activate" swapped="no"/>
   </object>
   <object class="GtkAction" id="check_all_action">
-    <property name="label">Check All</property>
+    <property name="label" translatable="yes">_Check All</property>
     <signal name="activate" handler="on_check_all_action_activate" swapped="no"/>
   </object>
   <object class="GtkAction" id="check_all_photos_action">
-    <property name="label">Check All Photos</property>
+    <property name="label" translatable="yes">Check All Photos</property>
     <signal name="activate" handler="on_check_all_photos_action_activate" swapped="no"/>
   </object>
   <object class="GtkAction" id="check_all_videos_action">
-    <property name="label">Check All Videos</property>
+    <property name="label" translatable="yes">Check All Videos</property>
     <signal name="activate" handler="on_check_all_videos_action_activate" swapped="no"/>
   </object>
   <object class="GtkAction" id="donate_action">
-    <property name="label">Make a Donation...</property>
+    <property name="label" translatable="yes">_Make a Donation...</property>
     <signal name="activate" handler="on_donate_action_activate" swapped="no"/>
   </object>
   <object class="GtkAction" id="download_action">
-    <property name="label">Download</property>
+    <property name="label" translatable="yes">Download</property>
     <property name="icon_name">system-run</property>
     <property name="sensitive">False</property>
     <signal name="activate" handler="on_download_action_activate" swapped="no"/>
   </object>
   <object class="GtkAction" id="get_help_action">
-    <property name="label">Get Help Online...</property>
-    <property name="stock_id">gtk-help</property>
+    <property name="label" translatable="yes">_Get Help Online...</property>
     <signal name="activate" handler="on_get_help_action_activate" swapped="no"/>
   </object>
   <object class="GtkAction" id="help_action">
-    <property name="label">Help</property>
+    <property name="label" translatable="yes">Help</property>
     <signal name="activate" handler="on_help_action_activate" swapped="no"/>
   </object>
   <object class="GtkAction" id="next_image_action">
@@ -42,7 +41,7 @@
     <signal name="activate" handler="on_next_image_action_activate" swapped="no"/>
   </object>
   <object class="GtkAction" id="preferences_action">
-    <property name="label">Preferences</property>
+    <property name="label" translatable="yes">Preferences</property>
     <signal name="activate" handler="on_preferences_action_activate" swapped="no"/>
   </object>
   <object class="GtkAction" id="prev_image_action">
@@ -50,17 +49,15 @@
     <signal name="activate" handler="on_prev_image_action_activate" swapped="no"/>
   </object>
   <object class="GtkAction" id="quit_action">
-    <property name="label">Quit</property>
-    <property name="stock_id">gtk-quit</property>
+    <property name="label" translatable="yes">Quit</property>
     <signal name="activate" handler="on_quit_action_activate" swapped="no"/>
   </object>
   <object class="GtkAction" id="refresh_action">
-    <property name="label">Refresh</property>
-    <property name="stock_id">gtk-refresh</property>
+    <property name="label" translatable="yes">Refresh</property>
     <signal name="activate" handler="on_refresh_action_activate" swapped="no"/>
   </object>
   <object class="GtkAction" id="report_problem_action">
-    <property name="label">Report a Problem...</property>
+    <property name="label" translatable="yes">_Report a Problem...</property>
     <property name="stock_id">gtk-dialog-warning</property>
     <signal name="activate" handler="on_report_problem_action_activate" swapped="no"/>
   </object>
@@ -73,11 +70,11 @@
     <signal name="activate" handler="on_show_thumbnails_action_activate" swapped="no"/>
   </object>
   <object class="GtkAction" id="translate_action">
-    <property name="label">Translate this Application...</property>
+    <property name="label" translatable="yes">Translate this Application...</property>
     <signal name="activate" handler="on_translate_action_activate" swapped="no"/>
   </object>
   <object class="GtkAction" id="uncheck_all_action">
-    <property name="label">Uncheck All</property>
+    <property name="label" translatable="yes">_Uncheck All</property>
     <signal name="activate" handler="on_uncheck_all_action_activate" swapped="no"/>
   </object>
   <object class="GtkWindow" id="rapidapp">
@@ -97,9 +94,9 @@
             <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
             <child>
               <object class="GtkMenuItem" id="menuitem7">
+                <property name="use_action_appearance">False</property>
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="use_action_appearance">False</property>
                 <property name="label" translatable="yes">_File</property>
                 <property name="use_underline">True</property>
                 <child type="submenu">
@@ -108,18 +105,18 @@
                     <child>
                       <object class="GtkImageMenuItem" id="menu_download_pause">
                         <property name="label" translatable="yes">Download / Pause</property>
+                        <property name="related_action">download_action</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="related_action">download_action</property>
                         <property name="use_stock">False</property>
                         <accelerator key="Return" signal="activate" modifiers="GDK_CONTROL_MASK"/>
                       </object>
                     </child>
                     <child>
                       <object class="GtkImageMenuItem" id="menu_refresh">
+                        <property name="related_action">refresh_action</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="related_action">refresh_action</property>
                         <property name="use_underline">True</property>
                         <property name="use_stock">True</property>
                         <accelerator key="r" signal="activate" modifiers="GDK_CONTROL_MASK"/>
@@ -128,9 +125,9 @@
                     <child>
                       <object class="GtkImageMenuItem" id="menu_preferences">
                         <property name="label">gtk-preferences</property>
+                        <property name="related_action">preferences_action</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="related_action">preferences_action</property>
                         <property name="use_underline">True</property>
                         <property name="use_stock">True</property>
                         <accelerator key="p" signal="activate" modifiers="GDK_CONTROL_MASK"/>
@@ -139,9 +136,9 @@
                     <child>
                       <object class="GtkImageMenuItem" id="menu_quit">
                         <property name="label">gtk-quit</property>
+                        <property name="related_action">quit_action</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="related_action">quit_action</property>
                         <property name="use_underline">True</property>
                         <property name="use_stock">True</property>
                         <accelerator key="q" signal="activate" modifiers="GDK_CONTROL_MASK"/>
@@ -153,9 +150,9 @@
             </child>
             <child>
               <object class="GtkMenuItem" id="select_menuitem">
+                <property name="use_action_appearance">False</property>
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="use_action_appearance">False</property>
                 <property name="label" translatable="yes">_Select</property>
                 <property name="use_underline">True</property>
                 <child type="submenu">
@@ -163,33 +160,33 @@
                     <property name="can_focus">False</property>
                     <child>
                       <object class="GtkMenuItem" id="menu_check_all">
+                        <property name="related_action">check_all_action</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="related_action">check_all_action</property>
                         <accelerator key="a" signal="activate" modifiers="GDK_CONTROL_MASK"/>
                       </object>
                     </child>
                     <child>
                       <object class="GtkMenuItem" id="menu_check_all_photos">
+                        <property name="related_action">check_all_photos_action</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="related_action">check_all_photos_action</property>
                         <accelerator key="t" signal="activate" modifiers="GDK_CONTROL_MASK"/>
                       </object>
                     </child>
                     <child>
                       <object class="GtkMenuItem" id="menu_check_all_videos">
+                        <property name="related_action">check_all_videos_action</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="related_action">check_all_videos_action</property>
                         <accelerator key="d" signal="activate" modifiers="GDK_CONTROL_MASK"/>
                       </object>
                     </child>
                     <child>
                       <object class="GtkMenuItem" id="menu_uncheck_all">
+                        <property name="related_action">uncheck_all_action</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="related_action">uncheck_all_action</property>
                         <accelerator key="l" signal="activate" modifiers="GDK_CONTROL_MASK"/>
                       </object>
                     </child>
@@ -201,9 +198,9 @@
                     </child>
                     <child>
                       <object class="GtkMenuItem" id="menu_select_all_without_job_code">
+                        <property name="use_action_appearance">False</property>
                         <property name="can_focus">False</property>
                         <property name="no_show_all">True</property>
-                        <property name="use_action_appearance">False</property>
                         <property name="label" translatable="yes">Select All Without _Job Code</property>
                         <property name="use_underline">True</property>
                         <accelerator key="j" signal="activate" modifiers="GDK_CONTROL_MASK"/>
@@ -211,9 +208,9 @@
                     </child>
                     <child>
                       <object class="GtkMenuItem" id="menu_select_all_with_job_code">
+                        <property name="use_action_appearance">False</property>
                         <property name="can_focus">False</property>
                         <property name="no_show_all">True</property>
-                        <property name="use_action_appearance">False</property>
                         <property name="label" translatable="yes">Select All Wit_h Job Code</property>
                         <property name="use_underline">True</property>
                         <accelerator key="h" signal="activate" modifiers="GDK_CONTROL_MASK"/>
@@ -225,9 +222,9 @@
             </child>
             <child>
               <object class="GtkMenuItem" id="menuitem10">
+                <property name="use_action_appearance">False</property>
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="use_action_appearance">False</property>
                 <property name="label" translatable="yes">_View</property>
                 <property name="use_underline">True</property>
                 <child type="submenu">
@@ -236,21 +233,21 @@
                     <child>
                       <object class="GtkImageMenuItem" id="menu_zoom_in">
                         <property name="label">gtk-zoom-in</property>
+                        <property name="use_action_appearance">False</property>
                         <property name="can_focus">False</property>
                         <property name="no_show_all">True</property>
-                        <property name="use_action_appearance">False</property>
                         <property name="use_underline">True</property>
                         <property name="use_stock">True</property>
-                        <accelerator key="plus" signal="activate" modifiers="GDK_CONTROL_MASK"/>
                         <accelerator key="equal" signal="activate" modifiers="GDK_CONTROL_MASK"/>
+                        <accelerator key="plus" signal="activate" modifiers="GDK_CONTROL_MASK"/>
                       </object>
                     </child>
                     <child>
                       <object class="GtkImageMenuItem" id="menu_zoom_out">
                         <property name="label">gtk-zoom-out</property>
+                        <property name="use_action_appearance">False</property>
                         <property name="can_focus">False</property>
                         <property name="no_show_all">True</property>
-                        <property name="use_action_appearance">False</property>
                         <property name="use_underline">True</property>
                         <property name="use_stock">True</property>
                         <accelerator key="minus" signal="activate" modifiers="GDK_CONTROL_MASK"/>
@@ -264,9 +261,9 @@
                     </child>
                     <child>
                       <object class="GtkCheckMenuItem" id="menu_log_window">
+                        <property name="use_action_appearance">False</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="use_action_appearance">False</property>
                         <property name="label" translatable="yes">_Error Log</property>
                         <property name="use_underline">True</property>
                         <signal name="toggled" handler="on_menu_log_window_toggled" swapped="no"/>
@@ -274,9 +271,9 @@
                     </child>
                     <child>
                       <object class="GtkMenuItem" id="menu_clear">
+                        <property name="use_action_appearance">False</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="use_action_appearance">False</property>
                         <property name="label" translatable="yes">_Clear Completed Downloads</property>
                         <property name="use_underline">True</property>
                       </object>
@@ -289,20 +286,20 @@
                     </child>
                     <child>
                       <object class="GtkMenuItem" id="previous_image_menuitem">
+                        <property name="use_action_appearance">False</property>
+                        <property name="related_action">prev_image_action</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="related_action">prev_image_action</property>
-                        <property name="use_action_appearance">False</property>
                         <property name="label" translatable="yes">Previous File</property>
                         <accelerator key="bracketleft" signal="activate"/>
                       </object>
                     </child>
                     <child>
                       <object class="GtkMenuItem" id="next_file_menuitem">
+                        <property name="use_action_appearance">False</property>
+                        <property name="related_action">next_image_action</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="related_action">next_image_action</property>
-                        <property name="use_action_appearance">False</property>
                         <property name="label" translatable="yes">Next File</property>
                         <accelerator key="bracketright" signal="activate"/>
                       </object>
@@ -313,9 +310,9 @@
             </child>
             <child>
               <object class="GtkMenuItem" id="help_menuitem">
+                <property name="use_action_appearance">False</property>
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
-                <property name="use_action_appearance">False</property>
                 <property name="label" translatable="yes">_Help</property>
                 <property name="use_underline">True</property>
                 <child type="submenu">
@@ -323,9 +320,9 @@
                     <property name="can_focus">False</property>
                     <child>
                       <object class="GtkImageMenuItem" id="menu_get_help_online">
+                        <property name="related_action">get_help_action</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="related_action">get_help_action</property>
                         <property name="use_underline">True</property>
                         <property name="use_stock">True</property>
                         <accelerator key="F1" signal="activate"/>
@@ -333,25 +330,25 @@
                     </child>
                     <child>
                       <object class="GtkMenuItem" id="menu_report_problem">
+                        <property name="related_action">report_problem_action</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="related_action">report_problem_action</property>
                       </object>
                     </child>
                     <child>
                       <object class="GtkMenuItem" id="menu_donate">
+                        <property name="related_action">donate_action</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="related_action">donate_action</property>
                         <property name="label" translatable="yes">_Make a Donation...</property>
                         <property name="use_underline">True</property>
                       </object>
                     </child>
                     <child>
                       <object class="GtkMenuItem" id="menu_translate">
+                        <property name="related_action">translate_action</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="related_action">translate_action</property>
                         <property name="label" translatable="yes">_Translate this Application...</property>
                         <property name="use_underline">True</property>
                       </object>
@@ -364,11 +361,9 @@
                     </child>
                     <child>
                       <object class="GtkImageMenuItem" id="menu_about">
-                        <property name="label">gtk-about</property>
+                        <property name="related_action">about_action</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="related_action">about_action</property>
-                        <property name="use_underline">True</property>
                         <property name="use_stock">True</property>
                       </object>
                     </child>
@@ -529,10 +524,10 @@
                                 </child>
                                 <child>
                                   <object class="GtkButton" id="preview_button">
+                                    <property name="related_action">show_image_action</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">True</property>
-                                    <property name="related_action">show_image_action</property>
                                     <property name="relief">none</property>
                                     <property name="focus_on_click">False</property>
                                   </object>
@@ -544,11 +539,10 @@
                                 </child>
                                 <child>
                                   <object class="GtkButton" id="check_all_button">
-                                    <property name="label" translatable="yes">_Check All</property>
+                                    <property name="related_action">check_all_action</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">True</property>
-                                    <property name="related_action">check_all_action</property>
                                     <property name="relief">none</property>
                                     <property name="use_underline">True</property>
                                     <property name="focus_on_click">False</property>
@@ -562,10 +556,10 @@
                                 <child>
                                   <object class="GtkButton" id="uncheck_all_button">
                                     <property name="label" translatable="yes">_Uncheck All</property>
+                                    <property name="related_action">uncheck_all_action</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">True</property>
-                                    <property name="related_action">uncheck_all_action</property>
                                     <property name="relief">none</property>
                                     <property name="use_underline">True</property>
                                     <property name="focus_on_click">False</property>
@@ -638,10 +632,10 @@
                                 <property name="spacing">6</property>
                                 <child>
                                   <object class="GtkButton" id="next_image_button">
+                                    <property name="related_action">next_image_action</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">True</property>
-                                    <property name="related_action">next_image_action</property>
                                     <property name="relief">none</property>
                                     <property name="focus_on_click">False</property>
                                     <accelerator key="bracketright" signal="activate"/>
@@ -658,10 +652,10 @@
                                 </child>
                                 <child>
                                   <object class="GtkButton" id="prev_image_button">
+                                    <property name="related_action">prev_image_action</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">True</property>
-                                    <property name="related_action">prev_image_action</property>
                                     <property name="relief">none</property>
                                     <property name="focus_on_click">False</property>
                                     <accelerator key="bracketleft" signal="activate"/>
@@ -691,10 +685,10 @@
                                 <property name="can_focus">False</property>
                                 <child>
                                   <object class="GtkButton" id="thumbnails_button">
+                                    <property name="related_action">show_thumbnails_action</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">True</property>
-                                    <property name="related_action">show_thumbnails_action</property>
                                     <property name="relief">none</property>
                                     <property name="use_underline">True</property>
                                     <property name="focus_on_click">False</property>
@@ -723,10 +717,10 @@
                                 <child>
                                   <object class="GtkCheckButton" id="download_this_checkbutton">
                                     <property name="label" translatable="yes">_Include in download</property>
+                                    <property name="use_action_appearance">False</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
-                                    <property name="use_action_appearance">False</property>
                                     <property name="use_underline">True</property>
                                     <property name="draw_indicator">True</property>
                                     <accelerator key="i" signal="activate"/>
@@ -813,10 +807,10 @@
                 <child>
                   <object class="GtkButton" id="help_button">
                     <property name="label">_Help</property>
+                    <property name="related_action">help_action</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
-                    <property name="related_action">help_action</property>
                     <property name="use_underline">True</property>
                   </object>
                   <packing>
@@ -828,12 +822,12 @@
                 <child>
                   <object class="GtkButton" id="download_button">
                     <property name="label" translatable="yes">_Download</property>
+                    <property name="related_action">download_action</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="can_default">True</property>
                     <property name="has_default">True</property>
                     <property name="receives_default">True</property>
-                    <property name="related_action">download_action</property>
                     <property name="use_underline">True</property>
                   </object>
                   <packing>

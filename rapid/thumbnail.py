@@ -46,26 +46,26 @@ logger = multiprocessing.get_logger()
 def get_stock_photo_image():
     length = min(gtk.gdk.screen_width(), gtk.gdk.screen_height())
     pixbuf = gtk.gdk.pixbuf_new_from_file_at_size(paths.share_dir('glade3/photo.svg'), length, length)
-    image = pixbuf_to_image(pixbuf)    
+    image = pixbuf_to_image(pixbuf)
     return image
-    
+
 def get_stock_photo_image_icon():
     image = Image.open(paths.share_dir('glade3/photo66.png'))
     image = image.convert("RGBA")
     return image
-    
+
 def get_stock_video_image():
     length = min(gtk.gdk.screen_width(), gtk.gdk.screen_height())
     pixbuf = gtk.gdk.pixbuf_new_from_file_at_size(paths.share_dir('glade3/video.svg'), length, length)
-    image = pixbuf_to_image(pixbuf)    
+    image = pixbuf_to_image(pixbuf)
     return image
-        
+
 def get_stock_video_image_icon():
     image = Image.open(paths.share_dir('glade3/video66.png'))
     image = image.convert("RGBA")
     return image
-    
-    
+
+
 class PhotoIcons():
     stock_thumbnail_image_icon = get_stock_photo_image_icon()
 
@@ -83,7 +83,7 @@ def upsize_pil(image, size):
     else:
         width = int((width_orig / height_orig) * height_max)
         height=height_max
-        
+
     return image.resize((width, height), Image.ANTIALIAS)
 
 def downsize_pil(image, box, fit=False):
@@ -91,7 +91,7 @@ def downsize_pil(image, box, fit=False):
    image: Image -  an Image-object
    box: tuple(x, y) - the bounding box of the result image
    fix: boolean - crop the image to fill the box
-   
+
    Code adpated from example by Christian Harms
    Source: http://united-coders.com/christian-harms/image-resizing-tips-every-coder-should-know
    """
@@ -105,7 +105,7 @@ def downsize_pil(image, box, fit=False):
         logger.debug("quick resize %sx%s", image.size[0]/factor, image.size[1]/factor)
         image.thumbnail((image.size[0]/factor, image.size[1]/factor), Image.NEAREST)
         logger.debug("did first thumbnail")
- 
+
     #calculate the cropping box and get the cropped part
     if fit:
         x1 = y1 = 0
@@ -119,33 +119,33 @@ def downsize_pil(image, box, fit=False):
             x1 = x2/2-box[0]*hRatio/2
             x2 = x2/2+box[0]*hRatio/2
         image = image.crop((x1,y1,x2,y2))
- 
+
     #Resize the image with best quality algorithm ANTI-ALIAS
     logger.debug("about to actually downsize using image.thumbnail")
     image.thumbnail(box, Image.ANTIALIAS)
     logger.debug("it downsized")
-    
+
 class PicklablePIL:
     def __init__(self, image):
         self.size = image.size
         self.mode = image.mode
         self.image_data = image.tostring()
-        
+
     def get_image(self):
         return Image.fromstring(self.mode, self.size, self.image_data)
-        
+
     def get_pixbuf(self):
         return image_to_pixbuf(self.get_image())
 
 class Thumbnail:
-    
+
     # file types from which to remove letterboxing (black bands in the thumbnail
     # previews)
     crop_thumbnails = ('CR2', 'DNG', 'RAF', 'ORF', 'PEF', 'ARW')
-    
+
     def _ignore_embedded_160x120_thumbnail(self, max_size_needed, metadata):
         return max_size_needed is None or max_size_needed[0] > 160 or max_size_needed[1] > 120 or not metadata.exif_thumbnail.data
-    
+
     def _get_thumbnail_data(self, metadata, max_size_needed):
         logger.debug("Getting thumbnail data %s", max_size_needed)
         if self._ignore_embedded_160x120_thumbnail(max_size_needed, metadata):
@@ -165,7 +165,7 @@ class Thumbnail:
             thumbnail = metadata.exif_thumbnail
             lowrez = True
         return (thumbnail.data, lowrez)
-        
+
     def _process_thumbnail(self, image, size_reduced):
         image_ok = True
         if image.mode <> "RGBA":
@@ -179,14 +179,14 @@ class Thumbnail:
             thumbnail = PicklablePIL(image)
             if size_reduced is not None:
                 thumbnail_icon = image.copy()
-                downsize_pil(thumbnail_icon, size_reduced, fit=False)                
+                downsize_pil(thumbnail_icon, size_reduced, fit=False)
                 thumbnail_icon = PicklablePIL(thumbnail_icon)
             else:
                 thumbnail_icon = None
         else:
             thumbnail = thumbnail_icon = None
         return (thumbnail, thumbnail_icon)
-    
+
     def _get_photo_thumbnail(self, full_file_name, size_max, size_reduced):
         thumbnail = None
         thumbnail_icon = None
@@ -224,14 +224,14 @@ class Thumbnail:
                 try:
                     orientation = metadata['Exif.Image.Orientation'].value
                 except:
-                    orientation = None                
+                    orientation = None
                 if lowrez:
                     # need to remove letterboxing / pillarboxing from some
                     # RAW thumbnails
                     if os.path.splitext(full_file_name)[1][1:].upper() in Thumbnail.crop_thumbnails:
                         image2 = image.crop((0, 8, 160, 112))
                         image2.load()
-                        image = image2                    
+                        image = image2
                 if size_max is not None and (image.size[0] > size_max[0] or image.size[1] > size_max[1]):
                     logger.debug("downsizing")
                     downsize_pil(image, size_max, fit=False)
@@ -249,7 +249,7 @@ class Thumbnail:
 
         logger.debug("...got thumbnail for %s", full_file_name)
         return (thumbnail, thumbnail_icon)
-        
+
     def _get_video_thumbnail(self, full_file_name, thm_full_name, size_max, size_reduced):
         thumbnail = None
         thumbnail_icon = None
@@ -269,7 +269,7 @@ class Thumbnail:
                 else:
                     thumbnail = add_filmstrip(thumbnail)
                     image = pixbuf_to_image(thumbnail)
-        
+
         if image is None:
             try:
                 tmp_dir = tempfile.mkdtemp(prefix="rpd-tmp")
@@ -284,10 +284,10 @@ class Thumbnail:
                 logger.error("Error generating thumbnail for %s", full_file_name)
         if image:
             thumbnail, thumbnail_icon = self._process_thumbnail(image, size_reduced)
-        
-        logger.debug("...got thumbnail for %s", full_file_name)    
+
+        logger.debug("...got thumbnail for %s", full_file_name)
         return (thumbnail, thumbnail_icon)
-    
+
     def get_thumbnail(self, full_file_name, thm_full_name, file_type, size_max=None, size_reduced=None):
         logger.debug("Getting thumbnail for %s...", full_file_name)
         if file_type == rpdfile.FILE_TYPE_PHOTO:
@@ -295,8 +295,8 @@ class Thumbnail:
             return self._get_photo_thumbnail(full_file_name, size_max, size_reduced)
         else:
             return self._get_video_thumbnail(full_file_name, thm_full_name, size_max, size_reduced)
-                
-                
+
+
 class GetPreviewImage(multiprocessing.Process):
     def __init__(self, results_pipe):
         multiprocessing.Process.__init__(self)
@@ -304,8 +304,8 @@ class GetPreviewImage(multiprocessing.Process):
         self.results_pipe = results_pipe
         self.thumbnail_maker = Thumbnail()
         self.stock_photo_thumbnail_image = None
-        self.stock_video_thumbnail_image = None        
-        
+        self.stock_video_thumbnail_image = None
+
     def get_stock_image(self, file_type):
         """
         Get stock image for file type scaled to the current size of the screen
@@ -317,8 +317,8 @@ class GetPreviewImage(multiprocessing.Process):
         else:
             if self.stock_video_thumbnail_image is None:
                 self.stock_video_thumbnail_image = PicklablePIL(get_stock_video_image())
-            return self.stock_video_thumbnail_image         
-        
+            return self.stock_video_thumbnail_image
+
     def run(self):
         while True:
             unique_id, full_file_name, thm_full_name, file_type, size_max = self.results_pipe.recv()
@@ -329,7 +329,7 @@ class GetPreviewImage(multiprocessing.Process):
 
 
 class GenerateThumbnails(multiprocessing.Process):
-    def __init__(self, scan_pid, files, batch_size, results_pipe, terminate_queue, 
+    def __init__(self, scan_pid, files, batch_size, results_pipe, terminate_queue,
                  run_event):
         multiprocessing.Process.__init__(self)
         self.results_pipe = results_pipe
@@ -338,32 +338,33 @@ class GenerateThumbnails(multiprocessing.Process):
         self.files = files
         self.run_event = run_event
         self.results = []
-        
+
         self.thumbnail_maker = Thumbnail()
-        
+
         self.scan_pid = scan_pid
-        
-        
+
+
     def run(self):
         counter = 0
         i = 0
         for f in self.files:
-            
+
             # pause if instructed by the caller
             self.run_event.wait()
-            
+
             if not self.terminate_queue.empty():
                 x = self.terminate_queue.get()
                 # terminate immediately
                 logger.info("Terminating thumbnailing")
                 return None
-            
+
             thumbnail, thumbnail_icon = self.thumbnail_maker.get_thumbnail(
                                     f.full_file_name,
                                     f.thm_full_name,
                                     f.file_type,
+                                    #~ f.extension,
                                     (160, 120), (100,100))
-            
+
             self.results.append((f.unique_id, thumbnail_icon, thumbnail))
             counter += 1
             if counter == self.batch_size:
@@ -371,10 +372,10 @@ class GenerateThumbnails(multiprocessing.Process):
                 self.results = []
                 counter = 0
             i += 1
-            
+
         if counter > 0:
             # send any remaining results
             self.results_pipe.send((rpdmp.CONN_PARTIAL, self.results))
         self.results_pipe.send((rpdmp.CONN_COMPLETE, self.scan_pid))
         self.results_pipe.close()
-        
+

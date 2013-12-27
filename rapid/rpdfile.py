@@ -48,7 +48,7 @@ RAW_EXTENSIONS = ['arw', 'dcr', 'cr2', 'crw',  'dng', 'mos', 'mef', 'mrw',
 
 JPEG_EXTENSIONS = ['jpg', 'jpe', 'jpeg']
 
-NON_RAW_IMAGE_EXTENSIONS = JPEG_EXTENSIONS + ['tif', 'tiff']
+NON_RAW_IMAGE_EXTENSIONS = JPEG_EXTENSIONS + ['tif', 'tiff', 'mpo']
 
 PHOTO_EXTENSIONS = RAW_EXTENSIONS + NON_RAW_IMAGE_EXTENSIONS
 
