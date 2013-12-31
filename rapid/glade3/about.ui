@@ -9,7 +9,7 @@
     <property name="icon">rapid-photo-downloader.svg</property>
     <property name="type_hint">dialog</property>
     <property name="program_name">Rapid Photo Downloader</property>
-    <property name="copyright">Copyright Damon Lynch 2007-12</property>
+    <property name="copyright">Copyright Damon Lynch 2007-13</property>
     <property name="comments" translatable="yes">Import your photos and videos efficiently and reliably</property>
     <property name="website">http://www.damonlynch.net/rapid</property>
     <property name="license">Rapid Photo Downloader is free software; you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation; either version 2 of the License, or (at your option) any later version.

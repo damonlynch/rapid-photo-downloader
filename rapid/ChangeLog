@@ -1,7 +1,7 @@
 Version 0.4.8
 -------------
 
-2013-12-28
+2013-12-31
 
 Fixed bug #1263237: Added support for MPO files (3D images). Thanks to Jan 
 Kaluza for reporting it.
@@ -9,6 +9,8 @@ Kaluza for reporting it.
 Fixed bug #1263483: Some terms in the user interface are not being translated.
 Thanks to Jose Luis Tirado for alerting me to the problem, which has probably 
 existed for some time.
+
+Updated Dutch, French Italian, Polish and Spanish translations.
 
 Version 0.4.7
 -------------
