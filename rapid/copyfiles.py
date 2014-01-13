@@ -24,8 +24,6 @@ import os
 import random
 import string
 
-import gio
-
 import logging
 logger = multiprocessing.get_logger()
 
@@ -34,7 +32,9 @@ import rpdfile
 import problemnotification as pn
 import config
 import thumbnail as tn
-
+import io
+import shutil
+import stat
 
 from gettext import gettext as _
 
@@ -52,6 +52,7 @@ class CopyFiles(multiprocessing.Process):
         self.results_pipe = results_pipe
         self.terminate_queue = terminate_queue
         self.batch_size_bytes = batch_size_MB * 1048576 # * 1024 * 1024
+        self.io_buffer = 1048576
         self.photo_download_folder = photo_download_folder
         self.video_download_folder = video_download_folder
         self.files = files
@@ -60,6 +61,35 @@ class CopyFiles(multiprocessing.Process):
         self.scan_pid = scan_pid
         self.no_files= len(self.files)
         self.run_event = run_event
+
+    def copy_file_metadata(self, src, dst):
+        """Copy all stat info (mode bits, atime, mtime, flags) from src to dst.
+
+        Adapated from python's shutil.copystat.
+
+        Necessary because on Ubuntu 13.10 and newer, there can be problems
+        with chmod when writing to ntfs"""
+
+        st = os.stat(src)
+        mode = stat.S_IMODE(st.st_mode)
+        try:
+            os.utime(dst, (st.st_atime, st.st_mtime))
+        except OSError as inst:
+            logger.error("Couldn't adjust file modification time when copying %s. %s: %s", src, inst.errno, inst.strerror)
+        try:
+            os.chmod(dst, mode)
+        except OSError as inst:
+            logger.error("Couldn't adjust file permissions when copying %s. %s: %s", src, inst.errno, inst.strerror)
+
+        if hasattr(os, 'chflags') and hasattr(st, 'st_flags'):
+            try:
+                os.chflags(dst, st.st_flags)
+            except OSError as inst:
+                for err in 'EOPNOTSUPP', 'ENOTSUP':
+                    if hasattr(errno, err) and inst.errno == getattr(errno, err):
+                        break
+                else:
+                    raise
 
     def check_termination_request(self):
         """
@@ -77,26 +107,21 @@ class CopyFiles(multiprocessing.Process):
         # first check if process is being terminated
         if not self.terminate_queue.empty():
             # it is - cancel the current copy
-            self.cancel_copy.cancel()
+            # FIXME
+            #~ self.cancel_copy.cancel()
+            pass
         else:
-            if not self.total_reached:
-                chunk_downloaded = amount_downloaded - self.bytes_downloaded
-                if (chunk_downloaded > self.batch_size_bytes) or (amount_downloaded == total):
-                    self.bytes_downloaded = amount_downloaded
-                    if amount_downloaded == total:
-                        # this function is called a couple of times when total is reached
-                        self.total_reached = True
+            #~ if not self.total_reached:
+            chunk_downloaded = amount_downloaded - self.bytes_downloaded
+            if (chunk_downloaded > self.batch_size_bytes) or (amount_downloaded == total):
+                self.bytes_downloaded = amount_downloaded
+                #~ if amount_downloaded == total:
+                    # this function is called a couple of times when total is reached
+                    #~ self.total_reached = True
 
-                    self.results_pipe.send((rpdmp.CONN_PARTIAL, (rpdmp.MSG_BYTES, (self.scan_pid, self.total_downloaded + amount_downloaded, chunk_downloaded))))
-                    if amount_downloaded == total:
-                        self.bytes_downloaded = 0
-
-    def progress_callback(self, amount_downloaded, total):
-        self.update_progress(amount_downloaded, total)
-
-    def thm_progress_callback(self, amount_downloaded, total):
-        # we don't care about tracking download progress for tiny THM files!
-        pass
+                self.results_pipe.send((rpdmp.CONN_PARTIAL, (rpdmp.MSG_BYTES, (self.scan_pid, self.total_downloaded + amount_downloaded, chunk_downloaded))))
+                if amount_downloaded == total:
+                    self.bytes_downloaded = 0
 
 
     def run(self):
@@ -108,7 +133,7 @@ class CopyFiles(multiprocessing.Process):
         self.bytes_downloaded = 0
         self.total_downloaded = 0
 
-        self.cancel_copy = gio.Cancellable()
+        #~ self.cancel_copy = gio.Cancellable()
 
         self.create_temp_dirs()
 
@@ -126,15 +151,13 @@ class CopyFiles(multiprocessing.Process):
 
             for i in range(self.no_files):
                 rpd_file = self.files[i]
-                self.total_reached = False
+                #~ self.total_reached = False
 
                 # pause if instructed by the caller
                 self.run_event.wait()
 
                 if self.check_termination_request():
                     return None
-
-                source = gio.File(path=rpd_file.full_file_name)
 
                 #generate temporary name 5 digits long, no extension
                 temp_name = ''.join(random.choice(filename_characters) for i in xrange(5))
@@ -143,19 +166,27 @@ class CopyFiles(multiprocessing.Process):
                                     self._get_dest_dir(rpd_file.file_type),
                                     temp_name)
                 rpd_file.temp_full_file_name = temp_full_file_name
-                dest = gio.File(path=temp_full_file_name)
 
                 copy_succeeded = False
+                source = rpd_file.full_file_name
+
                 try:
-                    source.copy(dest, self.progress_callback, cancellable=self.cancel_copy)
+                    dest = io.open(temp_full_file_name, 'wb', self.io_buffer)
+                    total = os.stat(source).st_size
+                    amount_downloaded = 0
+                    for chunk in io.open(source, 'rb', self.io_buffer):
+                        dest.write(chunk)
+                        amount_downloaded += len(chunk)
+                        self.update_progress(amount_downloaded, total)
+                    dest.close()
                     copy_succeeded = True
-                except gio.Error, inst:
+                except IOError as inst:
                     rpd_file.add_problem(None,
                         pn.DOWNLOAD_COPYING_ERROR_W_NO,
                         {'filetype': rpd_file.title})
                     rpd_file.add_extra_detail(
                         pn.DOWNLOAD_COPYING_ERROR_W_NO_DETAIL,
-                        {'errorno': inst.code, 'strerror': inst.message})
+                        {'errorno': inst.errno, 'strerror': inst.strerror})
 
                     rpd_file.status = config.STATUS_DOWNLOAD_FAILED
 
@@ -172,33 +203,46 @@ class CopyFiles(multiprocessing.Process):
                 # succeeded or not. It's neccessary to keep the user informed.
                 self.total_downloaded += rpd_file.size
 
+                try:
+                    self.copy_file_metadata(source, temp_full_file_name)
+                except:
+                    logger.error("Unknown error updating filesystem metadata when copying %s", source)
+
                 # copy THM (video thumbnail file) if there is one
                 if copy_succeeded and rpd_file.thm_full_name:
-                    source = gio.File(path=rpd_file.thm_full_name)
                     # reuse video's file name
                     temp_thm_full_name = temp_full_file_name + '__rpd__thm'
-                    dest = gio.File(path=temp_thm_full_name)
                     try:
-                        source.copy(dest, self.thm_progress_callback, cancellable=self.cancel_copy)
+                        shutil.copyfile(rpd_file.thm_full_name, temp_thm_full_name)
                         rpd_file.temp_thm_full_name = temp_thm_full_name
                         logger.debug("Copied video THM file %s", rpd_file.temp_thm_full_name)
-                    except gio.Error, inst:
+                    except (IOError, OSError) as inst:
                         logger.error("Failed to download video THM file: %s", rpd_file.thm_full_name)
+                        logger.error("%s: %s", inst.errno, inst.strerror)
+                    try:
+                        self.copy_file_metadata(rpd_file.thm_full_name, temp_thm_full_name)
+                    except:
+                        logger.error("Unknown error updating filesystem metadata when copying %s", rpd_file.thm_full_name)
+
                 else:
                     temp_thm_full_name = None
 
                 #copy audio file if there is one
                 if copy_succeeded and rpd_file.audio_file_full_name:
-                    source = gio.File(path=rpd_file.audio_file_full_name)
                     # reuse photo's file name
                     temp_audio_full_name = temp_full_file_name + '__rpd__audio'
-                    dest = gio.File(path=temp_audio_full_name)
                     try:
-                        source.copy(dest, self.thm_progress_callback, cancellable=self.cancel_copy)
+                        shutil.copyfile(rpd_file.audio_file_full_name, temp_audio_full_name)
                         rpd_file.temp_audio_full_name = temp_audio_full_name
                         logger.debug("Copied audio file %s", rpd_file.temp_audio_full_name)
-                    except gio.Error, inst:
+                    except (IOError, OSError) as inst:
                         logger.error("Failed to download audio file: %s", rpd_file.audio_file_full_name)
+                        logger.error("%s: %s", inst.errno, inst.strerror)
+                    try:
+                        self.copy_file_metadata(rpd_file.audio_file_full_name, temp_audio_full_name)
+                    except:
+                        logger.error("Unknown error updating filesystem metadata when copying %s", rpd_file.audio_file_full_name)
+
 
 
                 if copy_succeeded and rpd_file.generate_thumbnail:

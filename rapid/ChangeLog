@@ -1,3 +1,20 @@
+Version 0.4.9 Beta 1
+--------------------
+
+2014-01-xx
+
+Fixed bugs #1025908 and #1186955: Fix severe performance problems that arose
+from the combination of Gnome's GIO file functionality and python's 
+multiprocessing. 
+
+Fixed bug #1268291: Handle cases where filesystem metadata (e.g. file 
+permissions) could not be copied under recent Linux distributions such as
+Ubuntu 13.10 when writing to certain file system types such as NTFS.
+
+Fixed some minor bugs when handling back up errors, such as the backup file
+already existing. 
+
+
 Version 0.4.8
 -------------
 
