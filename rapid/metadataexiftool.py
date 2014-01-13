@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: latin1 -*-
 
-### Copyright (C) 2011-2012 Damon Lynch <damonlynch@gmail.com>
+### Copyright (C) 2011-2014 Damon Lynch <damonlynch@gmail.com>
 
 ### This program is free software; you can redistribute it and/or modify
 ### it under the terms of the GNU General Public License as published by
@@ -36,7 +36,7 @@ def version_info():
     except OSError:
         v = None
     return v
-    
+
 EXIFTOOL_VERSION = version_info()
 
 class ExifToolMetaData:
@@ -52,9 +52,9 @@ class ExifToolMetaData:
         self.metadata_string_format = None
         self.exiftool_error = "Error encountered using exiftool with file %s"
         self.exiftool_output = "Unexpected output from exiftool with file %s"
-        
+
     def _get(self, key, missing):
-        
+
         if key == "VideoStreamType" or "FileNumber":
             # special case: want exiftool's string formatting
             if self.metadata_string_format is None:
@@ -69,13 +69,13 @@ class ExifToolMetaData:
                 except:
                     logger.error(self.exiftool_output, self.filename)
                     return missing
-                
+
             try:
                 v = self.metadata_string_format[0][key]
             except:
                 return missing
             return v
-                
+
         elif self.metadata is None:
             # note: exiftool's string formatting is OFF (-n switch)
             try:
@@ -89,22 +89,22 @@ class ExifToolMetaData:
             except:
                 logger.error(self.exiftool_output, self.filename)
                 return missing
-            
+
         try:
             v = self.metadata[0][key]
         except:
             return missing
         return v
-        
-        
+
+
     def date_time(self, missing=''):
-        """ 
-        Returns in python datetime format the date and time the image was 
+        """
+        Returns in python datetime format the date and time the image was
         recorded.
-        
+
         Trys to get value from key "DateTimeOriginal"
         If that fails, tries "CreateDate"
-        
+
         Returns missing either metadata value is not present.
         """
         d = self._get('DateTimeOriginal', None)
@@ -121,11 +121,11 @@ class ExifToolMetaData:
             except:
                 logger.error("Error reading date metadata with file %s", self.filename)
                 return missing
-        
+
             return dt
         else:
             return missing
-            
+
     def time_stamp(self, missing=''):
         """
         Returns a float value representing the time stamp, if it exists
@@ -137,32 +137,32 @@ class ExifToolMetaData:
         else:
             v = missing
         return v
-        
+
     def file_number(self, missing=''):
         v = self._get("FileNumber", None)
         if v is not None:
             return str(v)
         else:
             return missing
-            
+
     def width(self, missing=''):
         v = self._get('ImageWidth', None)
         if v is not None:
             return str(v)
         else:
             return missing
-        
+
     def height(self, missing=''):
         v = self._get('ImageHeight', None)
         if v is not None:
             return str(v)
         else:
             return missing
-            
+
     def length(self, missing=''):
         """
         return the duration (length) of the video, rounded to the nearest second, in string format
-        """ 
+        """
         v = self._get("Duration", None)
         if v is not None:
             try:
@@ -181,7 +181,7 @@ class ExifToolMetaData:
         v = self._get("FrameRate", None)
         if v is None:
             v = self._get("VideoFrameRate", None)
-            
+
         if v is None:
             return missing
         try:
@@ -189,7 +189,7 @@ class ExifToolMetaData:
         except:
             return missing
         return v
-            
+
     def codec(self, stream=0, missing=''):
         """
         value stream is ignored (kept for compatibilty with code calling kaa)
@@ -201,17 +201,17 @@ class ExifToolMetaData:
             return v
         else:
             return missing
-        
+
     def fourcc(self, stream=0, missing=''):
         """
         value stream is ignored (kept for compatibilty with code calling kaa)
         """
         return self._get("CompressorID", missing)
-        
+
 if __name__ == '__main__':
     import sys
-    
-    
+
+
     if (len(sys.argv) != 2):
         print 'Usage: ' + sys.argv[0] + ' path/to/video/containing/metadata'
         sys.exit(0)

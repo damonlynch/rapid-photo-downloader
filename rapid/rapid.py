@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: latin1 -*-
 
-### Copyright (C) 2011-2012 Damon Lynch <damonlynch@gmail.com>
+### Copyright (C) 2011-2014 Damon Lynch <damonlynch@gmail.com>
 
 ### This program is free software; you can redistribute it and/or modify
 ### it under the terms of the GNU General Public License as published by
@@ -2646,7 +2646,7 @@ class RapidApp(dbus.service.Object):
 
                 # Only show an error message if there is more than one device
                 # backing up files of this type - if that is the case,
-                # do not want to reply on showing an error message in the
+                # do not want to rely on showing an error message in the
                 # function file_download_finished, as it is only called once,
                 # when all files have been backed up
                 if not backup_succeeded and self.multiple_backup_devices(rpd_file.file_type):
