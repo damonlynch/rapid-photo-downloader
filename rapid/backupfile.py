@@ -174,14 +174,33 @@ class BackupFiles(multiprocessing.Process):
                 else:
                     try:
                         logger.debug("Backing up file %s on device %s...", download_count, self.mount_name)
-                        i = copy_file_with_progress(rpd_file.download_full_file_name, backup_full_file_name, self.io_buffer, self.update_progress, self.check_termination_request, logger)
-                        if i is None:
-                            return None
+
+                        dest = io.open(backup_full_file_name, 'wb', self.io_buffer)
+                        src = io.open(rpd_file.download_full_file_name, 'rb', self.io_buffer)
+                        total = os.stat(rpd_file.download_full_file_name).st_size
+                        amount_downloaded = 0
+                        while True:
+                            # first check if process is being terminated
+                            if self.check_termination_request():
+                                logger.debug("Closing partially written temporary file")
+                                dest.close()
+                                src.close()
+                                return None
+                            else:
+                                chunk = src.read(self.io_buffer)
+                                if chunk:
+                                    dest.write(chunk)
+                                    amount_downloaded += len(chunk)
+                                    self.update_progress(amount_downloaded, total)
+                                else:
+                                    break
+                        dest.close()
+                        src.close()
                         backup_succeeded = True
                         logger.debug("...backing up file %s on device %s succeeded", download_count, self.mount_name)
                         if backup_already_exists:
                             logger.warning(msg)
-                    except IOError as inst:
+                    except (IOError, OSError) as inst:
                         logger.error("Backup of %s failed", backup_full_file_name)
                         msg = "%s %s", inst.errno, inst.strerror
                         rpd_file.add_problem(None, pn.BACKUP_ERROR, self.mount_name)
@@ -192,6 +211,12 @@ class BackupFiles(multiprocessing.Process):
                                  {'source': rpd_file.download_full_file_name, 'destination': backup_full_file_name} + "\n" + \
                                 _("Error: %(inst)s") % {'inst': msg}
                         logger.error("%s:\n%s", rpd_file.error_title, rpd_file.error_msg)
+
+                    if backup_succeeded:
+                        try:
+                            copy_file_metadata(rpd_file.download_full_file_name, backup_full_file_name, logger)
+                        except:
+                            logger.error("Unknown error updating filesystem metadata when copying %s", rpd_file.download_full_file_name)
 
 
                 if not backup_succeeded:

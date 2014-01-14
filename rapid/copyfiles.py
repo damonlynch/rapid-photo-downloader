@@ -70,7 +70,6 @@ def copy_file_metadata(src, dst, logger=None):
                 raise
 
 
-
 class CopyFiles(multiprocessing.Process):
     """
     Copies files from source to temporary directory, giving them a random name
