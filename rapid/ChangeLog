@@ -1,11 +1,12 @@
 Version 0.4.9 Beta 1
 --------------------
 
-2014-01-xx
+2014-01-16
 
-Fixed bugs #1025908 and #1186955: Fix severe performance problems that arose
-from the combination of Gnome's GIO file functionality and python's 
-multiprocessing. 
+Fixed bugs #1025908 and #1186955: Finalize fix severe performance problems and
+crashes that arose from the combination of Gnome's GIO file functionality and 
+python's multiprocessing. The solution was to remove GIO and replace it with
+regular python file processing.
 
 Fixed bug #1268291: Handle cases where filesystem metadata (e.g. file 
 permissions) could not be copied under recent Linux distributions such as

@@ -75,11 +75,11 @@ class CopyFiles(multiprocessing.Process):
         try:
             os.utime(dst, (st.st_atime, st.st_mtime))
         except OSError as inst:
-            logger.error("Couldn't adjust file modification time when copying %s. %s: %s", src, inst.errno, inst.strerror)
+            logger.warning("Couldn't adjust file modification time when copying %s. %s: %s", src, inst.errno, inst.strerror)
         try:
             os.chmod(dst, mode)
         except OSError as inst:
-            logger.error("Couldn't adjust file permissions when copying %s. %s: %s", src, inst.errno, inst.strerror)
+            logger.warning("Couldn't adjust file permissions when copying %s. %s: %s", src, inst.errno, inst.strerror)
 
         if hasattr(os, 'chflags') and hasattr(st, 'st_flags'):
             try:
@@ -104,24 +104,13 @@ class CopyFiles(multiprocessing.Process):
 
 
     def update_progress(self, amount_downloaded, total):
-        # first check if process is being terminated
-        if not self.terminate_queue.empty():
-            # it is - cancel the current copy
-            # FIXME
-            #~ self.cancel_copy.cancel()
-            pass
-        else:
-            #~ if not self.total_reached:
-            chunk_downloaded = amount_downloaded - self.bytes_downloaded
-            if (chunk_downloaded > self.batch_size_bytes) or (amount_downloaded == total):
-                self.bytes_downloaded = amount_downloaded
-                #~ if amount_downloaded == total:
-                    # this function is called a couple of times when total is reached
-                    #~ self.total_reached = True
 
-                self.results_pipe.send((rpdmp.CONN_PARTIAL, (rpdmp.MSG_BYTES, (self.scan_pid, self.total_downloaded + amount_downloaded, chunk_downloaded))))
-                if amount_downloaded == total:
-                    self.bytes_downloaded = 0
+        chunk_downloaded = amount_downloaded - self.bytes_downloaded
+        if (chunk_downloaded > self.batch_size_bytes) or (amount_downloaded == total):
+            self.bytes_downloaded = amount_downloaded
+            self.results_pipe.send((rpdmp.CONN_PARTIAL, (rpdmp.MSG_BYTES, (self.scan_pid, self.total_downloaded + amount_downloaded, chunk_downloaded))))
+            if amount_downloaded == total:
+                self.bytes_downloaded = 0
 
 
     def run(self):
@@ -168,17 +157,29 @@ class CopyFiles(multiprocessing.Process):
                 rpd_file.temp_full_file_name = temp_full_file_name
 
                 copy_succeeded = False
-                source = rpd_file.full_file_name
 
                 try:
                     dest = io.open(temp_full_file_name, 'wb', self.io_buffer)
-                    total = os.stat(source).st_size
+                    src = io.open(rpd_file.full_file_name, 'rb', self.io_buffer)
+                    total = os.stat(rpd_file.full_file_name).st_size
                     amount_downloaded = 0
-                    for chunk in io.open(source, 'rb', self.io_buffer):
-                        dest.write(chunk)
-                        amount_downloaded += len(chunk)
-                        self.update_progress(amount_downloaded, total)
+                    while True:
+                        # first check if process is being terminated
+                        if self.check_termination_request():
+                            logger.debug("Closing partially written temporary file")
+                            dest.close()
+                            src.close()
+                            return None
+                        else:
+                            chunk = src.read(self.io_buffer)
+                            if chunk:
+                                dest.write(chunk)
+                                amount_downloaded += len(chunk)
+                                self.update_progress(amount_downloaded, total)
+                            else:
+                                break
                     dest.close()
+                    src.close()
                     copy_succeeded = True
                 except IOError as inst:
                     rpd_file.add_problem(None,
@@ -204,9 +205,9 @@ class CopyFiles(multiprocessing.Process):
                 self.total_downloaded += rpd_file.size
 
                 try:
-                    self.copy_file_metadata(source, temp_full_file_name)
+                    self.copy_file_metadata(rpd_file.full_file_name, temp_full_file_name)
                 except:
-                    logger.error("Unknown error updating filesystem metadata when copying %s", source)
+                    logger.error("Unknown error updating filesystem metadata when copying %s", rpd_file.full_file_name)
 
                 # copy THM (video thumbnail file) if there is one
                 if copy_succeeded and rpd_file.thm_full_name:
