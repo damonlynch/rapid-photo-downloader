@@ -26,7 +26,7 @@ Runs as a daemon process.
 
 import os, datetime, collections
 
-import shutil
+#~ import shutil
 import errno
 import multiprocessing
 import logging
@@ -275,7 +275,7 @@ class SubfolderFile(multiprocessing.Process):
         # move (rename) associate file
         try:
             # don't check to see if it already exists
-            shutil.move(temp_associate_file, download_full_name)
+            os.rename(temp_associate_file, download_full_name)
             success = True
         except:
             success = False
@@ -315,6 +315,29 @@ class SubfolderFile(multiprocessing.Process):
         return rpd_file
 
 
+    def check_for_fatal_name_generation_errors(self, rpd_file):
+        """Returns False if either the download subfolder or filename are blank
+
+        Else returns True"""
+
+        if not rpd_file.download_subfolder or not rpd_file.download_name:
+            if not rpd_file.download_subfolder and not rpd_file.download_name:
+                area = _("subfolder and filename")
+            elif not rpd_file.download_name:
+                area = _("filename")
+            else:
+                area = _("subfolder")
+            rpd_file.add_problem(None, pn.ERROR_IN_NAME_GENERATION, {'filetype': rpd_file.title_capitalized, 'area': area})
+            rpd_file.add_extra_detail(pn.NO_DATA_TO_NAME, {'filetype': area})
+            rpd_file.status = config.STATUS_DOWNLOAD_FAILED
+
+            rpd_file.error_title = rpd_file.problem.get_title()
+            rpd_file.error_msg = _("%(problem)s\nFile: %(file)s") % \
+                         {'problem': rpd_file.problem.get_problems(),
+                          'file': rpd_file.full_file_name}
+            return False
+        else:
+            return True
 
     def run(self):
         """
@@ -368,6 +391,8 @@ class SubfolderFile(multiprocessing.Process):
                     sync_photo_name, sync_photo_ext = os.path.splitext(rpd_file.name)
                     if not load_metadata(rpd_file):
                         synchronize_raw_jpg_failed = True
+                        rpd_file.status = config.STATUS_DOWNLOAD_FAILED
+                        self.check_for_fatal_name_generation_errors(rpd_file)
                     else:
                         j, sequence_to_use = self.sync_raw_jpeg.matching_pair(
                                 name=sync_photo_name, extension=sync_photo_ext,
@@ -437,22 +462,9 @@ class SubfolderFile(multiprocessing.Process):
                         logger.debug("Failed to generate subfolder name for file: %s", rpd_file.name)
 
                     # Check for any errors
-                    if not rpd_file.download_subfolder or not rpd_file.download_name:
-                        if not rpd_file.download_subfolder and not rpd_file.download_name:
-                            area = _("subfolder and filename")
-                        elif not rpd_file.download_name:
-                            area = _("filename")
-                        else:
-                            area = _("subfolder")
-                        rpd_file.add_problem(None, pn.ERROR_IN_NAME_GENERATION, {'filetype': rpd_file.title_capitalized, 'area': area})
-                        rpd_file.add_extra_detail(pn.NO_DATA_TO_NAME, {'filetype': area})
-                        generation_succeeded = False
-                        rpd_file.status = config.STATUS_DOWNLOAD_FAILED
+                    generation_succeeded = self.check_for_fatal_name_generation_errors(rpd_file)
 
-                        rpd_file.error_title = rpd_file.problem.get_title()
-                        rpd_file.error_msg = _("%(problem)s\nFile: %(file)s") % \
-                                     {'problem': rpd_file.problem.get_problems(),
-                                      'file': rpd_file.full_file_name}
+
 
 
                 if generation_succeeded:
@@ -483,12 +495,12 @@ class SubfolderFile(multiprocessing.Process):
                         if os.path.exists(rpd_file.download_full_file_name):
                             raise IOError(errno.EEXIST, "File exists: %s" % rpd_file.download_full_file_name)
                         logger.debug("Attempting to rename file %s to %s .....", rpd_file.temp_full_file_name, rpd_file.download_full_file_name)
-                        shutil.move(rpd_file.temp_full_file_name, rpd_file.download_full_file_name)
+                        os.rename(rpd_file.temp_full_file_name, rpd_file.download_full_file_name)
                         logger.debug("....successfully renamed file")
                         move_succeeded = True
                         if rpd_file.status <> config.STATUS_DOWNLOADED_WITH_WARNING:
                             rpd_file.status = config.STATUS_DOWNLOADED
-                    except IOError as inst:
+                    except (IOError, OSError) as inst:
                         if inst.errno == errno.EEXIST:
                             rpd_file, add_unique_identifier = self.download_file_exists(rpd_file)
                         else:
@@ -512,7 +524,7 @@ class SubfolderFile(multiprocessing.Process):
                             try:
                                 if os.path.exists(rpd_file.download_full_file_name):
                                     raise IOError(errno.EEXIST, "File exists: %s" % rpd_file.download_full_file_name)
-                                shutil.move(rpd_file.temp_full_file_name, rpd_file.download_full_file_name)
+                                os.rename(rpd_file.temp_full_file_name, rpd_file.download_full_file_name)
                                 rpd_file, move_succeeded, suffix_already_used = self.added_unique_identifier(rpd_file)
                             except IOError as inst:
                                 if inst.errno <> errno.EEXIST:
@@ -561,7 +573,7 @@ class SubfolderFile(multiprocessing.Process):
                         download_xmp_full_name = rpd_file.download_full_base_name + rpd_file.xmp_extension
 
                         try:
-                            shutil.move(rpd_file.temp_xmp_full_name, download_xmp_full_name)
+                            os.rename(rpd_file.temp_xmp_full_name, download_xmp_full_name)
                             rpd_file.download_xmp_full_name = download_xmp_full_name
                         except:
                             logger.error("Failed to move XMP sidecar file %s", download_xmp_full_name)

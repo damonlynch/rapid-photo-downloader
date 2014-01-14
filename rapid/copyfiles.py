@@ -299,8 +299,10 @@ class CopyFiles(multiprocessing.Process):
         self.photo_temp_dir = self.video_temp_dir = None
         if self.photo_download_folder is not None:
             self.photo_temp_dir = self._create_temp_dir(self.photo_download_folder)
+            logger.debug("Photo temporary directory: %s", self.photo_temp_dir)
         if self.video_download_folder is not None:
-            self.video_temp_dir = self._create_temp_dir(self.photo_download_folder)
+            self.video_temp_dir = self._create_temp_dir(self.video_download_folder)
+            logger.debug("Video temporary directory: %s", self.video_temp_dir)
 
 
 
