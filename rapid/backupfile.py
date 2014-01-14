@@ -24,6 +24,7 @@ import os
 import errno
 
 import shutil
+import io
 
 import logging
 logger = multiprocessing.get_logger()
@@ -38,6 +39,7 @@ VIDEO_BACKUP = 2
 PHOTO_VIDEO_BACKUP = 3
 
 from gettext import gettext as _
+from copyfiles import copy_file_metadata
 
 
 class BackupFiles(multiprocessing.Process):
@@ -48,6 +50,7 @@ class BackupFiles(multiprocessing.Process):
         self.results_pipe = results_pipe
         self.terminate_queue = terminate_queue
         self.batch_size_bytes = batch_size_MB * 1048576 # * 1024 * 1024
+        self.io_buffer = 1048576
         self.path = path
         self.mount_name = name
         self.run_event = run_event
@@ -66,31 +69,13 @@ class BackupFiles(multiprocessing.Process):
 
 
     def update_progress(self, amount_downloaded, total):
-        # first check if process is being terminated
         self.amount_downloaded = amount_downloaded
-        if not self.terminate_queue.empty():
-            # it is - cancel the current copy
-            pass
-        else:
-            if not self.total_reached:
-                chunk_downloaded = amount_downloaded - self.bytes_downloaded
-                if (chunk_downloaded > self.batch_size_bytes) or (amount_downloaded == total):
-                    self.bytes_downloaded = amount_downloaded
-
-                    if amount_downloaded == total:
-                        # this function is called a couple of times when total is reached
-                        self.total_reached = True
-
-                    self.results_pipe.send((rpdmp.CONN_PARTIAL, (rpdmp.MSG_BYTES, (self.scan_pid, self.pid, self.total_downloaded + amount_downloaded, chunk_downloaded))))
-                    if amount_downloaded == total:
-                        self.bytes_downloaded = 0
-
-    def progress_callback(self, amount_downloaded, total):
-        self.update_progress(amount_downloaded, total)
-
-    def progress_callback_no_update(self, amount_downloaded, total):
-        """called when copying very small files"""
-        pass
+        chunk_downloaded = amount_downloaded - self.bytes_downloaded
+        if (chunk_downloaded > self.batch_size_bytes) or (amount_downloaded == total):
+            self.bytes_downloaded = amount_downloaded
+            self.results_pipe.send((rpdmp.CONN_PARTIAL, (rpdmp.MSG_BYTES, (self.scan_pid, self.pid, self.total_downloaded + amount_downloaded, chunk_downloaded))))
+            if amount_downloaded == total:
+                self.bytes_downloaded = 0
 
     def backup_additional_file(self, dest_dir, full_file_name):
         """Backs up small files like XMP or THM files"""
@@ -98,10 +83,15 @@ class BackupFiles(multiprocessing.Process):
 
         try:
             logger.debug("Backing up additional file %s...", dest_name)
-            shutil.copy(full_file_name, dest_name)
+            shutil.copyfile(full_file_name, dest_name)
             logger.debug("...backing up additional file %s succeeded", dest_name)
         except:
             logger.error("Backup of %s failed", full_file_name)
+
+        try:
+            copy_file_metadata(full_file_name, dest_name, logger)
+        except:
+            logger.error("Unknown error updating filesystem metadata when copying %s", full_file_name)
 
     def run(self):
 
@@ -178,14 +168,15 @@ class BackupFiles(multiprocessing.Process):
                     rpd_file.error_msg = \
                             _("Source: %(source)s\nDestination: %(destination)s") % \
                              {'source': rpd_file.download_full_file_name, 'destination': backup_full_file_name} + "\n" + msg
-                    #~ rpd_file.add_extra_detail('%s%s' % (pn.BACKUP_ERROR, self.mount_name), msg)
 
                 if backup_already_exists and not backup_duplicate_overwrite:
                     logger.warning(msg)
                 else:
                     try:
                         logger.debug("Backing up file %s on device %s...", download_count, self.mount_name)
-                        shutil.copy(rpd_file.download_full_file_name, backup_full_file_name)
+                        i = copy_file_with_progress(rpd_file.download_full_file_name, backup_full_file_name, self.io_buffer, self.update_progress, self.check_termination_request, logger)
+                        if i is None:
+                            return None
                         backup_succeeded = True
                         logger.debug("...backing up file %s on device %s succeeded", download_count, self.mount_name)
                         if backup_already_exists:

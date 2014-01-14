@@ -38,6 +38,38 @@ import stat
 
 from gettext import gettext as _
 
+def copy_file_metadata(src, dst, logger=None):
+    """Copy all stat info (mode bits, atime, mtime, flags) from src to dst.
+
+    Adapated from python's shutil.copystat.
+
+    Necessary because on Ubuntu 13.10 and newer, there can be problems
+    with chmod when writing to ntfs"""
+
+    st = os.stat(src)
+    mode = stat.S_IMODE(st.st_mode)
+    try:
+        os.utime(dst, (st.st_atime, st.st_mtime))
+    except OSError as inst:
+        if logger:
+            logger.warning("Couldn't adjust file modification time when copying %s. %s: %s", src, inst.errno, inst.strerror)
+    try:
+        os.chmod(dst, mode)
+    except OSError as inst:
+        if logger:
+            logger.warning("Couldn't adjust file permissions when copying %s. %s: %s", src, inst.errno, inst.strerror)
+
+    if hasattr(os, 'chflags') and hasattr(st, 'st_flags'):
+        try:
+            os.chflags(dst, st.st_flags)
+        except OSError as inst:
+            for err in 'EOPNOTSUPP', 'ENOTSUP':
+                if hasattr(errno, err) and inst.errno == getattr(errno, err):
+                    break
+            else:
+                raise
+
+
 
 class CopyFiles(multiprocessing.Process):
     """
@@ -62,34 +94,6 @@ class CopyFiles(multiprocessing.Process):
         self.no_files= len(self.files)
         self.run_event = run_event
 
-    def copy_file_metadata(self, src, dst):
-        """Copy all stat info (mode bits, atime, mtime, flags) from src to dst.
-
-        Adapated from python's shutil.copystat.
-
-        Necessary because on Ubuntu 13.10 and newer, there can be problems
-        with chmod when writing to ntfs"""
-
-        st = os.stat(src)
-        mode = stat.S_IMODE(st.st_mode)
-        try:
-            os.utime(dst, (st.st_atime, st.st_mtime))
-        except OSError as inst:
-            logger.warning("Couldn't adjust file modification time when copying %s. %s: %s", src, inst.errno, inst.strerror)
-        try:
-            os.chmod(dst, mode)
-        except OSError as inst:
-            logger.warning("Couldn't adjust file permissions when copying %s. %s: %s", src, inst.errno, inst.strerror)
-
-        if hasattr(os, 'chflags') and hasattr(st, 'st_flags'):
-            try:
-                os.chflags(dst, st.st_flags)
-            except OSError as inst:
-                for err in 'EOPNOTSUPP', 'ENOTSUP':
-                    if hasattr(errno, err) and inst.errno == getattr(errno, err):
-                        break
-                else:
-                    raise
 
     def check_termination_request(self):
         """
@@ -122,8 +126,6 @@ class CopyFiles(multiprocessing.Process):
         self.bytes_downloaded = 0
         self.total_downloaded = 0
 
-        #~ self.cancel_copy = gio.Cancellable()
-
         self.create_temp_dirs()
 
         # Send the location of both temporary directories, so they can be
@@ -140,7 +142,6 @@ class CopyFiles(multiprocessing.Process):
 
             for i in range(self.no_files):
                 rpd_file = self.files[i]
-                #~ self.total_reached = False
 
                 # pause if instructed by the caller
                 self.run_event.wait()
@@ -181,7 +182,7 @@ class CopyFiles(multiprocessing.Process):
                     dest.close()
                     src.close()
                     copy_succeeded = True
-                except IOError as inst:
+                except (IOError, OSError) as inst:
                     rpd_file.add_problem(None,
                         pn.DOWNLOAD_COPYING_ERROR_W_NO,
                         {'filetype': rpd_file.title})
@@ -205,7 +206,7 @@ class CopyFiles(multiprocessing.Process):
                 self.total_downloaded += rpd_file.size
 
                 try:
-                    self.copy_file_metadata(rpd_file.full_file_name, temp_full_file_name)
+                    copy_file_metadata(rpd_file.full_file_name, temp_full_file_name, logger)
                 except:
                     logger.error("Unknown error updating filesystem metadata when copying %s", rpd_file.full_file_name)
 
@@ -221,7 +222,7 @@ class CopyFiles(multiprocessing.Process):
                         logger.error("Failed to download video THM file: %s", rpd_file.thm_full_name)
                         logger.error("%s: %s", inst.errno, inst.strerror)
                     try:
-                        self.copy_file_metadata(rpd_file.thm_full_name, temp_thm_full_name)
+                        copy_file_metadata(rpd_file.thm_full_name, temp_thm_full_name. logger)
                     except:
                         logger.error("Unknown error updating filesystem metadata when copying %s", rpd_file.thm_full_name)
 
@@ -240,7 +241,7 @@ class CopyFiles(multiprocessing.Process):
                         logger.error("Failed to download audio file: %s", rpd_file.audio_file_full_name)
                         logger.error("%s: %s", inst.errno, inst.strerror)
                     try:
-                        self.copy_file_metadata(rpd_file.audio_file_full_name, temp_audio_full_name)
+                        copy_file_metadata(rpd_file.audio_file_full_name, temp_audio_full_name, logger)
                     except:
                         logger.error("Unknown error updating filesystem metadata when copying %s", rpd_file.audio_file_full_name)
 
