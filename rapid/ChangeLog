@@ -6,17 +6,19 @@ Version 0.4.9 Beta 1
 Fixed bugs #1025908 and #1186955: Finalize fix severe performance problems and
 crashes that arose from the combination of Gnome's GIO file functionality and 
 python's multiprocessing. The solution was to remove GIO and replace it with
-regular python file processing.
+regular python file processing. A nice side effect is that the program now runs
+faster than ever before.
 
 Fixed bug #1268291: Handle cases where filesystem metadata (e.g. file 
-permissions) could not be copied when writing to certain file system types such
-as NTFS.
+permissions) could not be copied when writing to certain file systems such as
+NTFS. The program will now consider a file is copied succesfully even if the
+filesystem metadata could not be updated.
 
 Fixed bug #1269032: When Sync RAW + JPEG sequence numbers is enabled, the 
-program fails to notify the user about files with corrupt exif metadata
+program fails to properly deal with photos with corrupt EXIF metadata.
 
-Fixed some minor bugs when handling back up errors, such as the backup file
-already existing. 
+Fixed bug #1269079: Download failure when folder exists for only one of photo or
+video on auto detected back devices. 
 
 
 Version 0.4.8

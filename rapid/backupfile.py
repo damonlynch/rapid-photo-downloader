@@ -101,7 +101,7 @@ class BackupFiles(multiprocessing.Process):
         while True:
 
             self.amount_downloaded = 0
-            move_succeeded, rpd_file, path_suffix, backup_duplicate_overwrite, download_count = self.results_pipe.recv()
+            move_succeeded, do_backup, rpd_file, path_suffix, backup_duplicate_overwrite, download_count = self.results_pipe.recv()
             if rpd_file is None:
                 # this is a termination signal
                 return None
@@ -114,7 +114,7 @@ class BackupFiles(multiprocessing.Process):
             backup_succeeded = False
             self.scan_pid = rpd_file.scan_pid
 
-            if move_succeeded:
+            if move_succeeded and do_backup:
                 self.total_reached = False
 
                 if path_suffix is None:
@@ -177,7 +177,7 @@ class BackupFiles(multiprocessing.Process):
 
                         dest = io.open(backup_full_file_name, 'wb', self.io_buffer)
                         src = io.open(rpd_file.download_full_file_name, 'rb', self.io_buffer)
-                        total = os.stat(rpd_file.download_full_file_name).st_size
+                        total = rpd_file.size
                         amount_downloaded = 0
                         while True:
                             # first check if process is being terminated
@@ -238,11 +238,11 @@ class BackupFiles(multiprocessing.Process):
 
             self.total_downloaded += rpd_file.size
             bytes_not_downloaded = rpd_file.size - self.amount_downloaded
-            if bytes_not_downloaded:
+            if bytes_not_downloaded and do_backup:
                 self.results_pipe.send((rpdmp.CONN_PARTIAL, (rpdmp.MSG_BYTES, (self.scan_pid, self.pid, self.total_downloaded, bytes_not_downloaded))))
 
             self.results_pipe.send((rpdmp.CONN_PARTIAL, (rpdmp.MSG_FILE,
-                                   (backup_succeeded, rpd_file))))
+                                   (backup_succeeded, do_backup, rpd_file))))
 
 
 

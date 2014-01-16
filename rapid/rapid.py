@@ -1330,7 +1330,7 @@ class BackupFilesManager(TaskManager):
 
     def _send_termination_msg(self, p):
         p[1].put(None)
-        p[3].send((None, None, None, None, None))
+        p[3].send((None, None, None, None, None, None))
 
     def _initiate_task(self, task, task_results_conn, task_process_conn,
                        terminate_queue, run_event):
@@ -1360,15 +1360,20 @@ class BackupFilesManager(TaskManager):
 
         for path in self.backup_devices_by_path:
             backup_type = self.backup_devices_by_path[path][2]
-            if ((backup_type == PHOTO_VIDEO_BACKUP) or
+            do_backup = ((backup_type == PHOTO_VIDEO_BACKUP) or
                     (rpd_file.file_type == rpdfile.FILE_TYPE_PHOTO and backup_type == PHOTO_BACKUP) or
-                    (rpd_file.file_type == rpdfile.FILE_TYPE_VIDEO and backup_type == VIDEO_BACKUP)):
+                    (rpd_file.file_type == rpdfile.FILE_TYPE_VIDEO and backup_type == VIDEO_BACKUP))
+            if do_backup:
                 logger.debug("Backing up to %s", path)
-                task_results_conn = self.backup_devices_by_path[path][0]
-                task_results_conn.send((move_succeeded, rpd_file, path_suffix,
-                                    backup_duplicate_overwrite, download_count))
             else:
                 logger.debug("Not backing up to %s", path)
+            # Even if not going to backup to this device, need to send it anyway so
+            # progress bar can be updated. Not this most efficient but the
+            # code is much more simple
+            task_results_conn = self.backup_devices_by_path[path][0]
+            task_results_conn.send((move_succeeded, do_backup, rpd_file,
+                                path_suffix,
+                                backup_duplicate_overwrite, download_count))
 
     def add_device(self, path, name, backup_type):
         """
@@ -2356,6 +2361,7 @@ class RapidApp(dbus.service.Object):
         """
 
         files_by_scan_pid = self.thumbnails.get_files_checked_for_download(scan_pid)
+        self.check_file_types_to_be_downloaded(files_by_scan_pid)
         folders_valid, invalid_dirs = self.check_download_folder_validity(files_by_scan_pid)
 
         if not folders_valid:
@@ -2367,6 +2373,18 @@ class RapidApp(dbus.service.Object):
             self.log_error(config.CRITICAL_ERROR, _("Download cannot proceed"),
                 msg)
         else:
+            missing_destinations = self.backup_destinations_missing()
+            if missing_destinations is not None:
+                # Warn user that they have specified that they want to backup a file type, but no such folder exists on backup devices
+                if not missing_destinations[0]:
+                    logger.warning("No backup device contains a valid folder for backing up photos")
+                    msg = _("No backup device contains a valid folder for backing up photos")
+                else:
+                    logger.warning("No backup device contains a valid folder for backing up videos")
+                    msg = _("No backup device contains a valid folder for backing up videos")
+
+                self.log_error(config.WARNING, _("Backup problem"), msg)
+
             # set time download is starting if it is not already set
             # it is unset when all downloads are completed
             if self.download_start_time is None:
@@ -2596,21 +2614,37 @@ class RapidApp(dbus.service.Object):
             self.log_error(config.WARNING, rpd_file.error_title,
                            rpd_file.error_msg, rpd_file.error_extra_detail)
 
-        if self.prefs.backup_images and len(self.backup_devices):
-            if self.prefs.backup_device_autodetection:
-                if rpd_file.file_type == rpdfile.FILE_TYPE_PHOTO:
-                    path_suffix = self.prefs.backup_identifier
+        if self.prefs.backup_images:
+            if self.backup_possible(rpd_file.file_type):
+                if self.prefs.backup_device_autodetection:
+                    if rpd_file.file_type == rpdfile.FILE_TYPE_PHOTO:
+                        path_suffix = self.prefs.backup_identifier
+                    else:
+                        path_suffix = self.prefs.video_backup_identifier
                 else:
-                    path_suffix = self.prefs.video_backup_identifier
-            else:
-                path_suffix = None
+                    path_suffix = None
 
-            self.backup_manager.backup_file(move_succeeded, rpd_file,
-                                    path_suffix,
-                                    self.prefs.backup_duplicate_overwrite,
-                                    download_count)
+                self.backup_manager.backup_file(move_succeeded, rpd_file,
+                                        path_suffix,
+                                        self.prefs.backup_duplicate_overwrite,
+                                        download_count)
+            else:
+                if rpd_file.status ==  config.STATUS_DOWNLOAD_FAILED:
+                    rpd_file.status = config.STATUS_DOWNLOAD_AND_BACKUP_FAILED
+                else:
+                    rpd_file.status = config.STATUS_BACKUP_PROBLEM
+
+                self.file_download_finished(move_succeeded, rpd_file)
         else:
             self.file_download_finished(move_succeeded, rpd_file)
+
+    def backup_possible(self, file_type):
+        if file_type == rpdfile.FILE_TYPE_PHOTO:
+            return self.no_photo_backup_devices > 0
+        elif file_type == rpdfile.FILE_TYPE_VIDEO:
+            return self.no_video_backup_devices > 0
+        else:
+            logger.critical("Unrecognized file type when determining if backup is possible")
 
 
     def multiple_backup_devices(self, file_type):
@@ -2642,22 +2676,25 @@ class RapidApp(dbus.service.Object):
                 self.time_remaining.update(scan_pid, bytes_downloaded=chunk_downloaded)
 
             elif msg_type == rpdmp.MSG_FILE:
-                backup_succeeded, rpd_file = data
+                backup_succeeded, do_backup, rpd_file = data
+                #~ logger.debug("Backup of %s actually occured: %s. Asked it to occur: %s", rpd_file.download_name, backup_succeeded, do_backup)
 
                 # Only show an error message if there is more than one device
                 # backing up files of this type - if that is the case,
                 # do not want to rely on showing an error message in the
                 # function file_download_finished, as it is only called once,
                 # when all files have been backed up
-                if not backup_succeeded and self.multiple_backup_devices(rpd_file.file_type):
+                if not backup_succeeded and self.multiple_backup_devices(rpd_file.file_type) and do_backup:
                     self.log_error(config.SERIOUS_ERROR,
                         rpd_file.error_title,
                         rpd_file.error_msg, rpd_file.error_extra_detail)
 
-                self.download_tracker.file_backed_up(rpd_file.unique_id)
-                if self.download_tracker.all_files_backed_up(rpd_file.unique_id,
+                if do_backup:
+                    self.download_tracker.file_backed_up(rpd_file.unique_id)
+                    if self.download_tracker.all_files_backed_up(rpd_file.unique_id,
                                                              rpd_file.file_type):
-                    self.file_download_finished(backup_succeeded, rpd_file)
+                        logger.debug("File %s will not be backed up to any more locations", rpd_file.download_name)
+                        self.file_download_finished(backup_succeeded or not do_backup, rpd_file)
             return True
         else:
             return False
@@ -2902,7 +2939,7 @@ class RapidApp(dbus.service.Object):
         files_to_download = self.download_tracker.get_no_files_in_download(scan_pid)
         file_types = self.download_tracker.get_file_types_present(scan_pid)
         completed = files_downloaded == files_to_download
-        if completed and (self.prefs.backup_images and len(self.backup_devices)):
+        if completed and (self.prefs.backup_images and self.backup_possible(file_type)):
             completed = self.download_tracker.all_files_backed_up(unique_id, file_type)
 
         if completed:
@@ -3754,6 +3791,22 @@ class RapidApp(dbus.service.Object):
 
         return (photo_size, video_size)
 
+    def check_file_types_to_be_downloaded(self, files_by_scan_pid):
+        """Determines what types of files need to be downloaded, setting
+        self.downloading_photos and self.downloading_videos accordingly"""
+        self.downloading_photos = False
+        self.downloading_videos = False
+        while not self.downloading_photos and not self.downloading_videos:
+            for scan_pid in files_by_scan_pid:
+                files = files_by_scan_pid[scan_pid]
+                if not self.downloading_photos:
+                    if self.files_of_type_present(files, rpdfile.FILE_TYPE_PHOTO):
+                        self.downloading_photos = True
+                if not self.downloading_videos:
+                    if self.files_of_type_present(files, rpdfile.FILE_TYPE_VIDEO):
+                        self.downloading_videos = True
+
+
     def check_download_folder_validity(self, files_by_scan_pid):
         """
         Checks validity of download folders based on the file types the user
@@ -3764,21 +3817,8 @@ class RapidApp(dbus.service.Object):
         """
         valid = True
         invalid_dirs = []
-        # first, check what needs to be downloaded - photos and / or videos
-        need_photo_folder = False
-        need_video_folder = False
-        while not need_photo_folder and not need_video_folder:
-            for scan_pid in files_by_scan_pid:
-                files = files_by_scan_pid[scan_pid]
-                if not need_photo_folder:
-                    if self.files_of_type_present(files, rpdfile.FILE_TYPE_PHOTO):
-                        need_photo_folder = True
-                if not need_video_folder:
-                    if self.files_of_type_present(files, rpdfile.FILE_TYPE_VIDEO):
-                        need_video_folder = True
 
-        # second, check validity
-        if need_photo_folder:
+        if self.downloading_photos:
             if not self.is_valid_download_dir(self.prefs.download_folder,
                                                         is_photo_dir=True):
                 valid = False
@@ -3787,7 +3827,7 @@ class RapidApp(dbus.service.Object):
                 logger.debug("Photo download folder is valid: %s",
                         self.prefs.download_folder)
 
-        if need_video_folder:
+        if self.downloading_videos:
             if not self.is_valid_download_dir(self.prefs.video_download_folder,
                                                         is_photo_dir=False):
                 valid = False
@@ -3798,6 +3838,19 @@ class RapidApp(dbus.service.Object):
 
 
         return (valid, invalid_dirs)
+
+    def backup_destinations_missing(self):
+        if self.prefs.backup_images and self.prefs.backup_device_autodetection:
+            photo_backup_ok = video_backup_ok = True
+            if self.downloading_photos and not self.backup_possible(rpdfile.FILE_TYPE_PHOTO):
+                photo_backup_ok = False
+            if self.downloading_videos and not self.backup_possible(rpdfile.FILE_TYPE_VIDEO):
+                video_backup_ok = False
+            if photo_backup_ok and video_backup_ok:
+                return None
+            else:
+                return (photo_backup_ok, video_backup_ok)
+        return None
 
     def same_file_system(self, file1, file2):
         """Returns True if the files / diretories are on the same file system

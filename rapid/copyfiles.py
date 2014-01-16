@@ -43,8 +43,8 @@ def copy_file_metadata(src, dst, logger=None):
 
     Adapated from python's shutil.copystat.
 
-    Necessary because on Ubuntu 13.10 and newer, there can be problems
-    with chmod when writing to ntfs"""
+    Necessary because with some NTFS file systems, there can be problems
+    with setting filesystem metadata like permissions and modification time"""
 
     st = os.stat(src)
     mode = stat.S_IMODE(st.st_mode)
@@ -161,7 +161,7 @@ class CopyFiles(multiprocessing.Process):
                 try:
                     dest = io.open(temp_full_file_name, 'wb', self.io_buffer)
                     src = io.open(rpd_file.full_file_name, 'rb', self.io_buffer)
-                    total = os.stat(rpd_file.full_file_name).st_size
+                    total = rpd_file.size
                     amount_downloaded = 0
                     while True:
                         # first check if process is being terminated
