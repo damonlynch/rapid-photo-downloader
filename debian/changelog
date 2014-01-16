@@ -1,6 +1,28 @@
-rapid-photo-downloader (0.4.8-0ubuntu1~ppa1) precise; urgency=low
+rapid-photo-downloader (0.4.9~b1-0ubuntu1~ppa1) precise; urgency=low
 
-  * Fixed bug #1263237: Added support for MPO files (3D images).
+  * Fixed bugs #1025908 and #1186955: Finalize fix for severe 
+    performance problems and crashes that arose from the combination of
+    Gnome's GIO file functionality and python's multiprocessing. The
+    solution was to remove GIO and replace it with regular python
+    file processing. A nice side effect is that the program now runs
+    faster than ever before.
+
+  * Fixed bug #1268291: Handle cases where filesystem metadata (e.g.
+    file permissions) could not be copied when writing to certain file
+    systems such as NTFS.
+
+  * Fixed bug #1269032: When Sync RAW + JPEG sequence numbers is
+    enabled, the program fails to properly deal with photos with
+    corrupt EXIF metadata.
+
+  * Fixed bug #1269079: Download failure when folder exists for only
+    one of photo or video on auto detected back devices. 
+
+  * Updated Norwegian and Serbian translations.
+
+ -- Damon Lynch <damonlynch@gmail.com>  Thu, 16 Jan 2014 19:53:16 +0600
+
+rapid-photo-downloader (0.4.8-0ubuntu1~ppa1) precise; urgency=low
 
   * Fixed bug #1263237: Added support for MPO files (3D images).
 

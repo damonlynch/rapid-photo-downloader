@@ -3,9 +3,9 @@ Version 0.4.9 Beta 1
 
 2014-01-16
 
-Fixed bugs #1025908 and #1186955: Finalize fix severe performance problems and
-crashes that arose from the combination of Gnome's GIO file functionality and 
-python's multiprocessing. The solution was to remove GIO and replace it with
+Fixed bugs #1025908 and #1186955: Finalize fix for severe performance problems 
+and crashes that arose from the combination of Gnome's GIO file functionality 
+and python's multiprocessing. The solution was to remove GIO and replace it with
 regular python file processing. A nice side effect is that the program now runs
 faster than ever before.
 
