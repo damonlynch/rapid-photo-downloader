@@ -35,6 +35,7 @@ import thumbnail as tn
 import io
 import shutil
 import stat
+import hashlib
 
 from gettext import gettext as _
 
@@ -158,6 +159,8 @@ class CopyFiles(multiprocessing.Process):
 
                 copy_succeeded = False
 
+                src_bytes = ''
+
                 try:
                     dest = io.open(temp_full_file_name, 'wb', self.io_buffer)
                     src = io.open(rpd_file.full_file_name, 'rb', self.io_buffer)
@@ -174,6 +177,7 @@ class CopyFiles(multiprocessing.Process):
                             chunk = src.read(self.io_buffer)
                             if chunk:
                                 dest.write(chunk)
+                                src_bytes += chunk
                                 amount_downloaded += len(chunk)
                                 self.update_progress(amount_downloaded, total)
                             else:
@@ -255,6 +259,10 @@ class CopyFiles(multiprocessing.Process):
                 else:
                     thumbnail = None
                     thumbnail_icon = None
+
+                #~ if copy_succeeded:
+                    #~ rpd_file.src_md5 = hashlib.md5(src_bytes).hexdigest()
+                    #~ logger.info("MD5: %s", rpd_file.src_md5)
 
                 if rpd_file.metadata is not None:
                     rpd_file.metadata = None

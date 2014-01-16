@@ -28,6 +28,7 @@ import rpdmultiprocessing as rpdmp
 import rpdfile
 import metadataxmp as mxmp
 import subfolderfile
+import hashlib
 
 WRITE_XMP_INPLACE = rpdfile.NON_RAW_IMAGE_EXTENSIONS + ['dng']
 
@@ -118,9 +119,7 @@ class FileModify(multiprocessing.Process):
                             rpd_file.new_focal_length = new_focal_length
                             rpd_file.new_aperture = new_aperture
 
-            #~ if False:
-                #~ xmp_sidecar.set_contact_url('http://www.website.net')
-                #~ xmp_sidecar.set_contact_email('user@email.com')
+
 
             if xmp_sidecar is not None:
                 # need to write out xmp sidecar
@@ -128,6 +127,12 @@ class FileModify(multiprocessing.Process):
                 logger.debug("Wrote XMP sidecar file")
                 logger.debug("exiv2 output: %s", o)
                 rpd_file.temp_xmp_full_name = rpd_file.temp_full_file_name + '.xmp'
+
+            #~ md5 = hashlib.md5(open(temp_full_file_name).read()).hexdigest()
+            #~ if md5 <> rpd_file.src_md5:
+                #~ logger.critical("MD5 do not match")
+            #~ else:
+                #~ logger.debug("MD5 match")
 
 
             copy_succeeded = True
