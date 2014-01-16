@@ -20,6 +20,8 @@ program fails to properly deal with photos with corrupt EXIF metadata.
 Fixed bug #1269079: Download failure when folder exists for only one of photo or
 video on auto detected back devices. 
 
+Updated Norwegian and Serbian translations.
+
 
 Version 0.4.8
 -------------
