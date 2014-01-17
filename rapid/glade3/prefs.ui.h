@@ -85,6 +85,8 @@ char *s = N_("Start downloading upon device insertion");
 char *s = N_("Exit program when download completes");
 char *s = N_("Exit program even if download had warnings or errors");
 char *s = N_("Automatically rotate JPEG images");
+/* Checks files using MD5 to ensure they have downloaded and been saved correctly */
+char *s = N_("Verify files as they are downloaded");
 char *s = N_("Performance");
 char *s = N_("Generate thumbnails (slower)");
 char *s = N_("Miscellaneous");
