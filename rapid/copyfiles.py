@@ -76,6 +76,7 @@ class CopyFiles(multiprocessing.Process):
     Copies files from source to temporary directory, giving them a random name
     """
     def __init__(self, photo_download_folder, video_download_folder, files,
+                 verify_file,
                  modify_files_during_download, modify_pipe,
                  scan_pid,
                  batch_size_MB, results_pipe, terminate_queue,
@@ -88,6 +89,7 @@ class CopyFiles(multiprocessing.Process):
         self.photo_download_folder = photo_download_folder
         self.video_download_folder = video_download_folder
         self.files = files
+        self.verify_file = verify_file
         self.modify_files_during_download = modify_files_during_download
         self.modify_pipe = modify_pipe
         self.scan_pid = scan_pid
@@ -203,6 +205,23 @@ class CopyFiles(multiprocessing.Process):
                     logger.error("Failed to download file: %s", rpd_file.full_file_name)
                     logger.error(inst)
                     self.update_progress(rpd_file.size, rpd_file.size)
+                except:
+                    rpd_file.add_problem(None,
+                        pn.DOWNLOAD_COPYING_ERROR,
+                        {'filetype': rpd_file.title})
+                    rpd_file.add_extra_detail(
+                        pn.DOWNLOAD_COPYING_ERROR_DETAIL,
+                        _("An unknown error occurred"))
+
+                    rpd_file.status = config.STATUS_DOWNLOAD_FAILED
+
+                    rpd_file.error_title = rpd_file.problem.get_title()
+                    rpd_file.error_msg = _("%(problem)s\nFile: %(file)s") % \
+                                  {'problem': rpd_file.problem.get_problems(),
+                                   'file': rpd_file.full_file_name}
+
+                    logger.error("Failed to download file: %s", rpd_file.full_file_name)
+                    self.update_progress(rpd_file.size, rpd_file.size)
 
                 # increment this amount regardless of whether the copy actually
                 # succeeded or not. It's neccessary to keep the user informed.
@@ -260,9 +279,8 @@ class CopyFiles(multiprocessing.Process):
                     thumbnail = None
                     thumbnail_icon = None
 
-                #~ if copy_succeeded:
-                    #~ rpd_file.src_md5 = hashlib.md5(src_bytes).hexdigest()
-                    #~ logger.info("MD5: %s", rpd_file.src_md5)
+                if copy_succeeded and self.verify_file:
+                    rpd_file.md5 = hashlib.md5(src_bytes).hexdigest()
 
                 if rpd_file.metadata is not None:
                     rpd_file.metadata = None

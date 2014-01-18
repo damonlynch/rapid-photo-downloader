@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: latin1 -*-
 
-### Copyright (C) 2010-2012 Damon Lynch <damonlynch@gmail.com>
+### Copyright (C) 2010-2014 Damon Lynch <damonlynch@gmail.com>
 
 ### This program is free software; you can redistribute it and/or modify
 ### it under the terms of the GNU General Public License as published by
@@ -39,6 +39,7 @@ UNIQUE_IDENTIFIER_CAT = 8
 BACKUP_PROBLEM = 9
 BACKUP_OK = 10
 FILE_ALREADY_DOWN_CAT = 11
+VERIFICATION_PROBLEM = 12
 
 # problem text
 MISSING_METADATA = 1
@@ -66,6 +67,9 @@ SAME_FILE_DIFFERENT_EXIF = 17
 NO_DOWNLOAD_WAS_BACKED_UP = 18
 FILE_ALREADY_DOWNLOADED = 19
 
+FILE_VERIFICATION_FAILED = 20
+#~ BACKUP_VERIFICATION_FAILED = 21
+
 #extra details
 UNIQUE_IDENTIFIER = '__1'
 EXISTING_FILE = '__2'
@@ -73,6 +77,7 @@ NO_DATA_TO_NAME = '__3'
 DOWNLOAD_COPYING_ERROR_DETAIL = '__4'
 DOWNLOAD_COPYING_ERROR_W_NO_DETAIL = '__5'
 BACKUP_OK_TYPE = '__6'
+#~ VERIFICATION_DETAIL = '__7'
 
 #                                   category,               text, duplicates allowed
 problem_definitions = {
@@ -90,6 +95,9 @@ problem_definitions = {
 
     DOWNLOAD_COPYING_ERROR:         (DOWNLOAD_PROBLEM,      _("An error occurred when copying the %(filetype)s"), False),
     DOWNLOAD_COPYING_ERROR_W_NO:    (DOWNLOAD_PROBLEM_W_NO, _("An error occurred when copying the %(filetype)s"), False),
+
+    FILE_VERIFICATION_FAILED:       (VERIFICATION_PROBLEM,  _("The %(filetype)s did not download correctly"), False),
+    #~ BACKUP_VERIFICATION_FAILED:     (VERIFICATION_PROBLEM,  _("The %(filetype)s did not backup correctly"), True),
 
     FILE_ALREADY_EXISTS_NO_DOWNLOAD:(FILE_ALREADY_EXISTS,   _("%(filetype)s already exists"), False),
     UNIQUE_IDENTIFIER_ADDED:        (UNIQUE_IDENTIFIER_CAT, _("%(filetype)s already exists"), False),
@@ -111,6 +119,7 @@ extra_detail_definitions = {
     DOWNLOAD_COPYING_ERROR_DETAIL:      "%s",
     DOWNLOAD_COPYING_ERROR_W_NO_DETAIL: _("Error: %(errorno)s %(strerror)s"),
     BACKUP_OK_TYPE:                     "%s",
+    #~ VERIFICATION_DETAIL:             "Original file: %(filename)s",
 }
 
 class Problem:
@@ -198,6 +207,10 @@ class Problem:
         v = ''
 
         # special cases
+
+        if VERIFICATION_PROBLEM in self.categories:
+            return _("File verfication failed. The downloaded version is different from the original.")
+
         if FILE_PROBLEM in self.categories:
             return _("The metadata might be corrupt.")
 
@@ -244,6 +257,7 @@ class Problem:
         if BACKUP_PROBLEM in self.categories:
             vv = ''
             for p in self.problems:
+                details = self.problems[p]
                 details = self.problems[p]
 
                 if p == NO_BACKUP_PERFORMED:
@@ -382,6 +396,8 @@ class Problem:
                 v = _('An error occurred when copying the %(filetype)s, but it was backed up') % {'filetype': self.extra_detail[BACKUP_OK_TYPE]}
 
         # High priority problems
+        elif VERIFICATION_PROBLEM in self.categories:
+            v = self.problems[FILE_VERIFICATION_FAILED][0]
         elif FILE_ALREADY_DOWN_CAT in self.categories:
             v = self.problems[FILE_ALREADY_DOWNLOADED][0]
         elif DOWNLOAD_PROBLEM in self.categories:

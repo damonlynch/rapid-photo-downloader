@@ -1250,12 +1250,14 @@ class CopyFilesManager(TaskManager):
         video_download_folder = task[1]
         scan_pid = task[2]
         files = task[3]
-        modify_files_during_download = task[4]
-        modify_pipe = task[5]
+        verify_files = task[4]
+        modify_files_during_download = task[5]
+        modify_pipe = task[6]
 
         copy_files = copyfiles.CopyFiles(photo_download_folder,
                                 video_download_folder,
                                 files,
+                                verify_files,
                                 modify_files_during_download,
                                 modify_pipe,
                                 scan_pid, self.batch_size,
@@ -1277,7 +1279,7 @@ class ThumbnailManager(TaskManager):
         return generator.pid
 
 class FileModifyManager(TaskManager):
-    """Handles the modification of downloaded files before they are renamed
+    """Handles the modification or verfication of of downloaded files before they are renamed
     Duplex, multiprocess, similar to BackupFilesManager
     """
     def __init__(self, results_callback):
@@ -1290,8 +1292,11 @@ class FileModifyManager(TaskManager):
         scan_pid = task[0]
         auto_rotate_jpeg = task[1]
         focal_length = task[2]
+        verify_file = task[3]
+        refresh_md5_on_file_change = task[4]
 
         file_modify = filemodify.FileModify(auto_rotate_jpeg, focal_length,
+                                        verify_file, refresh_md5_on_file_change,
                                         task_process_conn, terminate_queue,
                                         run_event)
         file_modify.start()
@@ -2349,8 +2354,8 @@ class RapidApp(dbus.service.Object):
         self.download_active_by_scan_pid = []
 
     def modify_files_during_download(self):
-        """ Returns True if there is a need to modify files during download"""
-        return self.prefs.auto_rotate_jpeg or (self.focal_length is not None)
+        """ Returns True if there is a need to modify or verify files during download"""
+        return self.prefs.auto_rotate_jpeg or (self.focal_length is not None) or self.verify_files
 
 
     def start_download(self, scan_pid=None):
@@ -2476,9 +2481,17 @@ class RapidApp(dbus.service.Object):
             for rpd_file in files:
                 rpd_file.generate_thumbnail = True
 
+        verify_file = self.prefs.verify_file
+        if verify_file:
+            # since a file might be modified in the file modify process,
+            # if it will be backed up, need to refresh the md5 once it has
+            # been modified
+            refresh_md5_on_file_change = self.prefs.backup_images
+        else:
+            refresh_md5_on_file_change = False
         modify_files_during_download = self.modify_files_during_download()
         if modify_files_during_download:
-            self.file_modify_manager.add_task((scan_pid, self.prefs.auto_rotate_jpeg, self.focal_length))
+            self.file_modify_manager.add_task((scan_pid, self.prefs.auto_rotate_jpeg, self.focal_length, verify_file, refresh_md5_on_file_change))
             modify_pipe = self.file_modify_manager.get_modify_pipe(scan_pid)
         else:
             modify_pipe = None
@@ -2487,7 +2500,8 @@ class RapidApp(dbus.service.Object):
         # Initiate copy files process
         self.copy_files_manager.add_task((photo_download_folder,
                               video_download_folder, scan_pid,
-                              files, modify_files_during_download,
+                              files, verify_file,
+                              modify_files_during_download,
                               modify_pipe))
 
     def copy_files_results(self, source, condition):
@@ -2559,7 +2573,7 @@ class RapidApp(dbus.service.Object):
                                     rpd_file.scan_pid, download_count)
         rpd_file.download_start_time = self.download_start_time
 
-        if download_succeeded:
+        if download_succeeded: #FIXME why only if download succeeded??
             # Insert preference values needed for name generation
             rpd_file = prefsrapid.insert_pref_lists(self.prefs, rpd_file)
             rpd_file.strip_characters = self.prefs.strip_characters
@@ -2568,11 +2582,13 @@ class RapidApp(dbus.service.Object):
             rpd_file.synchronize_raw_jpg = self.prefs.must_synchronize_raw_jpg()
             rpd_file.job_code = self.job_code
 
-            self.subfolder_file_manager.rename_file_and_move_to_subfolder(
-                    download_succeeded,
-                    download_count,
-                    rpd_file
-                    )
+        # Call this even if download did not succeed e.g. file verification error
+        self.subfolder_file_manager.rename_file_and_move_to_subfolder(
+                download_succeeded,
+                download_count,
+                rpd_file
+                )
+
     def file_modify_results(self, source, condition):
         """
         'file modify' is a process that runs immediately after 'copy files',
