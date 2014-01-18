@@ -102,7 +102,7 @@ class FileModify(multiprocessing.Process):
             if self.verify_file:
                 logger.debug("Verifying file %s....", rpd_file.name)
                 md5 = hashlib.md5(open(temp_full_file_name).read()).hexdigest()
-                if md5 <> rpd_file.md5 or True:
+                if md5 <> rpd_file.md5:
                     logger.critical("%s file verification FAILED", rpd_file.name)
                     logger.critical("The %s did not download correctly!", rpd_file.title)
 

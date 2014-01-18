@@ -22,6 +22,7 @@ import multiprocessing
 import tempfile
 import os
 import errno
+import hashlib
 
 import shutil
 import io
@@ -101,7 +102,7 @@ class BackupFiles(multiprocessing.Process):
         while True:
 
             self.amount_downloaded = 0
-            move_succeeded, do_backup, rpd_file, path_suffix, backup_duplicate_overwrite, download_count = self.results_pipe.recv()
+            move_succeeded, do_backup, rpd_file, path_suffix, backup_duplicate_overwrite, verify_file, download_count = self.results_pipe.recv()
             if rpd_file is None:
                 # this is a termination signal
                 return None
@@ -197,6 +198,18 @@ class BackupFiles(multiprocessing.Process):
                         dest.close()
                         src.close()
                         backup_succeeded = True
+                        if verify_file:
+                            md5 = hashlib.md5(open(backup_full_file_name).read()).hexdigest()
+                            if md5 <> rpd_file.md5:
+                                backup_succeeded = False
+                                logger.critical("%s file verification FAILED", rpd_file.name)
+                                logger.critical("The %s did not backup correctly!", rpd_file.title)
+                                rpd_file.add_problem(None, pn.BACKUP_VERIFICATION_FAILED, self.mount_name)
+                                rpd_file.error_title = rpd_file.problem.get_title()
+                                rpd_file.error_msg = _("%(problem)s\nFile: %(file)s") % \
+                                  {'problem': rpd_file.problem.get_problems(),
+                                   'file': rpd_file.download_full_file_name}
+
                         logger.debug("...backing up file %s on device %s succeeded", download_count, self.mount_name)
                         if backup_already_exists:
                             logger.warning(msg)

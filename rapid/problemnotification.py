@@ -68,7 +68,7 @@ NO_DOWNLOAD_WAS_BACKED_UP = 18
 FILE_ALREADY_DOWNLOADED = 19
 
 FILE_VERIFICATION_FAILED = 20
-#~ BACKUP_VERIFICATION_FAILED = 21
+BACKUP_VERIFICATION_FAILED = 21
 
 #extra details
 UNIQUE_IDENTIFIER = '__1'
@@ -77,7 +77,6 @@ NO_DATA_TO_NAME = '__3'
 DOWNLOAD_COPYING_ERROR_DETAIL = '__4'
 DOWNLOAD_COPYING_ERROR_W_NO_DETAIL = '__5'
 BACKUP_OK_TYPE = '__6'
-#~ VERIFICATION_DETAIL = '__7'
 
 #                                   category,               text, duplicates allowed
 problem_definitions = {
@@ -97,7 +96,7 @@ problem_definitions = {
     DOWNLOAD_COPYING_ERROR_W_NO:    (DOWNLOAD_PROBLEM_W_NO, _("An error occurred when copying the %(filetype)s"), False),
 
     FILE_VERIFICATION_FAILED:       (VERIFICATION_PROBLEM,  _("The %(filetype)s did not download correctly"), False),
-    #~ BACKUP_VERIFICATION_FAILED:     (VERIFICATION_PROBLEM,  _("The %(filetype)s did not backup correctly"), True),
+    BACKUP_VERIFICATION_FAILED:     (BACKUP_PROBLEM,         "%s", True),
 
     FILE_ALREADY_EXISTS_NO_DOWNLOAD:(FILE_ALREADY_EXISTS,   _("%(filetype)s already exists"), False),
     UNIQUE_IDENTIFIER_ADDED:        (UNIQUE_IDENTIFIER_CAT, _("%(filetype)s already exists"), False),
@@ -119,7 +118,6 @@ extra_detail_definitions = {
     DOWNLOAD_COPYING_ERROR_DETAIL:      "%s",
     DOWNLOAD_COPYING_ERROR_W_NO_DETAIL: _("Error: %(errorno)s %(strerror)s"),
     BACKUP_OK_TYPE:                     "%s",
-    #~ VERIFICATION_DETAIL:             "Original file: %(filename)s",
 }
 
 class Problem:
@@ -258,7 +256,6 @@ class Problem:
             vv = ''
             for p in self.problems:
                 details = self.problems[p]
-                details = self.problems[p]
 
                 if p == NO_BACKUP_PERFORMED:
                     vv = details[0]
@@ -332,6 +329,19 @@ class Problem:
                             'volume': volume,
                             'inst': get_dir_creation_inst(volume)} \
                              + ' '
+
+                elif p == BACKUP_VERIFICATION_FAILED:
+                    if len(details) == 1:
+                        vv += _("File verfication failed on %(volume)s. The backed up version is different from the downloaded version.") % {'volume': details[0]} + ' '
+                    else:
+                        vv += _("File verfication failed on these devices: ")
+                        for d in details[:-1]:
+                            vv += _("%s, ") % d
+                        vv = _("%(volumes)s and %(final_volume)s.") % \
+                            {'volumes': vv[:-2],
+                            'final_volume': details[-1]} \
+                             + ' '
+
 
             if v:
                 v = _('%(previousproblem)s Additionally, %(newproblem)s') % {'previousproblem': v, 'newproblem': vv[0].lower() + vv[1:]}

@@ -1335,7 +1335,7 @@ class BackupFilesManager(TaskManager):
 
     def _send_termination_msg(self, p):
         p[1].put(None)
-        p[3].send((None, None, None, None, None, None))
+        p[3].send((None, None, None, None, None, None, None))
 
     def _initiate_task(self, task, task_results_conn, task_process_conn,
                        terminate_queue, run_event):
@@ -1356,6 +1356,7 @@ class BackupFilesManager(TaskManager):
 
     def backup_file(self, move_succeeded, rpd_file, path_suffix,
                                                 backup_duplicate_overwrite,
+                                                verify_file,
                                                 download_count):
 
         if rpd_file.file_type == rpdfile.FILE_TYPE_PHOTO:
@@ -1378,7 +1379,8 @@ class BackupFilesManager(TaskManager):
             task_results_conn = self.backup_devices_by_path[path][0]
             task_results_conn.send((move_succeeded, do_backup, rpd_file,
                                 path_suffix,
-                                backup_duplicate_overwrite, download_count))
+                                backup_duplicate_overwrite,
+                                verify_file, download_count))
 
     def add_device(self, path, name, backup_type):
         """
@@ -2355,7 +2357,7 @@ class RapidApp(dbus.service.Object):
 
     def modify_files_during_download(self):
         """ Returns True if there is a need to modify or verify files during download"""
-        return self.prefs.auto_rotate_jpeg or (self.focal_length is not None) or self.verify_files
+        return self.prefs.auto_rotate_jpeg or (self.focal_length is not None) or self.prefs.verify_file
 
 
     def start_download(self, scan_pid=None):
@@ -2573,7 +2575,7 @@ class RapidApp(dbus.service.Object):
                                     rpd_file.scan_pid, download_count)
         rpd_file.download_start_time = self.download_start_time
 
-        if download_succeeded: #FIXME why only if download succeeded??
+        if download_succeeded:
             # Insert preference values needed for name generation
             rpd_file = prefsrapid.insert_pref_lists(self.prefs, rpd_file)
             rpd_file.strip_characters = self.prefs.strip_characters
@@ -2643,6 +2645,7 @@ class RapidApp(dbus.service.Object):
                 self.backup_manager.backup_file(move_succeeded, rpd_file,
                                         path_suffix,
                                         self.prefs.backup_duplicate_overwrite,
+                                        self.prefs.verify_file,
                                         download_count)
             else:
                 if rpd_file.status ==  config.STATUS_DOWNLOAD_FAILED:
@@ -2693,7 +2696,6 @@ class RapidApp(dbus.service.Object):
 
             elif msg_type == rpdmp.MSG_FILE:
                 backup_succeeded, do_backup, rpd_file = data
-                #~ logger.debug("Backup of %s actually occured: %s. Asked it to occur: %s", rpd_file.download_name, backup_succeeded, do_backup)
 
                 # Only show an error message if there is more than one device
                 # backing up files of this type - if that is the case,
