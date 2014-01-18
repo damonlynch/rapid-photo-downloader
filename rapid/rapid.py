@@ -2385,10 +2385,10 @@ class RapidApp(dbus.service.Object):
                 # Warn user that they have specified that they want to backup a file type, but no such folder exists on backup devices
                 if not missing_destinations[0]:
                     logger.warning("No backup device contains a valid folder for backing up photos")
-                    msg = _("No backup device contains a valid folder for backing up photos")
+                    msg = _("No backup device contains a valid folder for backing up %(filetype)s") % {'filetype': _('photos')}
                 else:
                     logger.warning("No backup device contains a valid folder for backing up videos")
-                    msg = _("No backup device contains a valid folder for backing up videos")
+                    msg = _("No backup device contains a valid folder for backing up %(filetype)s") % {'filetype': _('videos')}
 
                 self.log_error(config.WARNING, _("Backup problem"), msg)
 
