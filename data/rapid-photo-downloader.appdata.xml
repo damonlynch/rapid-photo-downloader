@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright 2014 Damon Lynch -->
+<application>
+  <id type="desktop">rapid-photo-downloader.desktop</id>
+  <licence>CC-BY</licence>
+  <description>
+    <p>
+      Rapid Photo Downloader imports photos and videos from memory cards and 
+      other devices at high speed. It can be configured to rename photos and 
+      videos with meaningful filenames. It can back up photos and videos as 
+      they are downloaded. It can download from and back up to multiple devices 
+      simultaneously, which is valuable when importing from multiple memory
+      cards or backing up to multiple external drives. 
+    </p>
+    <p>
+      Written by a photographer for professional and amateur photographers, 
+      Rapid Photo Downloader is easy to configure and use. Program preferences
+      are configured without the need for complicated codes. Common tasks can be
+      automated, such as unmounting a memory card when the download is complete.
+    </p>
+    <p>
+      Downloading directly from a camera works only with some cameras. It works
+      well with some cameras, and not at all with others. For best performance,
+      using a memory card reader is recommended. 
+    </p>
+  </description>
+  <url type="homepage">http://www.damonlynch.net/rapid/</url>
+  <screenshots>
+    <screenshot type="default">http://www.damonlynch.net/rapid/appdata/2014/01/mainwindow.png</screenshot>
+    <screenshot>http://www.damonlynch.net/rapid/appdata/2014/01/subfolder-preferences.png</screenshot>
+    <screenshot>http://www.damonlynch.net/rapid/appdata/2014/01/rename-preferences.png</screenshot>    
+    <screenshot>http://www.damonlynch.net/rapid/appdata/2014/01/backup-preferences.png</screenshot>    
+  </screenshots>
+  <updatecontact>damonlynch@gmail.com</updatecontact>
+</application>

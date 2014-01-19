@@ -92,6 +92,7 @@ photo and video renaming, and backup.
         ('share/icons/hicolor/24x24/apps', glob.glob('data/icons/24x24/apps/*.png')),
         ('share/icons/hicolor/48x48/apps', glob.glob('data/icons/48x48/apps/*.png')),
         ('/usr/share/kde4/apps/solid/actions/', ['data/kde/rapid-photo-downloader.desktop']),
+        ('/usr/share/appdata/', ['data/rapid-photo-downloader.appdata.xml']),
     ],
     cmdclass={'install_data': InstallData}
 )
