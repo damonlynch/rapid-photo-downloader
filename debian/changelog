@@ -1,3 +1,11 @@
+rapid-photo-downloader (0.4.9~b2-0ubuntu1~ppa1) precise; urgency=low
+
+  * Added file verification of downloaded and backed up files
+
+  * Updated translations. Added Catalan translation.
+
+ -- Damon Lynch <damonlynch@gmail.com>  Mon, 20 Jan 2014 17:57:31 +0600
+
 rapid-photo-downloader (0.4.9~b1-0ubuntu1~ppa1) precise; urgency=low
 
   * Fixed bugs #1025908 and #1186955: Finalize fix for severe 

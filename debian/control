@@ -2,12 +2,11 @@ Source: rapid-photo-downloader
 Section: graphics
 Priority: optional
 Maintainer: Damon Lynch <damonlynch@gmail.com>
-Build-Depends: debhelper (>= 7.0.50~),
-               python
-Build-Depends-Indep: python-support (>= 0.90),
-                     gettext
-X-Python-Version: >= 2.6
-Standards-Version: 3.9.1
+Build-Depends: debhelper (>= 8),
+               python (>= 2.7),
+               gettext
+Standards-Version: 3.9.4               
+X-Python-Version: 2.7
 Homepage: http://damonlynch.net/rapid
 
 Package: rapid-photo-downloader
@@ -29,10 +28,12 @@ Depends: ${python:Depends},
          gnome-icon-theme,
          exiftran,
          exiv2,
-XB-Python-Version: ${python:Versions}
-Description: Photo and video importer from cameras, memory cards and other devices
- Rapid Photo Downloader is written by a photographer for professional and
- amateur photographers. It can  download photos and videos from multiple
- cameras, memory cards and Portable Storage Devices simultaneously. It
- provides many flexible, user-defined options for subfolder creation,
- photo and video renaming, and backup.
+Description: Photo and video importer from memory cards, cameras and other devices
+ Rapid Photo Downloader imports photos and videos from memory cards and 
+ other devices at high speed. It can be configured to rename photos and 
+ videos with meaningful filenames. It can back up photos and videos as 
+ they are downloaded. It can download from and back up to multiple devices 
+ simultaneously, which is valuable when importing from multiple memory
+ cards or backing up to multiple external drives. Written by a photographer
+ for professional and amateur photographers, Rapid Photo Downloader is easy
+ to configure and use.

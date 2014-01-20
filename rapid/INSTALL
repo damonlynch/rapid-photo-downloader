@@ -1,6 +1,6 @@
 Rapid Photo Downloader requires the following software:
 
-* Python 2.6 or 2.7
+* Python 2.7
 * Pyexiv2 0.3.0 or higher
 * python-gnome2 2.28 or higher
 * python-gtk2 2.17 or higher
