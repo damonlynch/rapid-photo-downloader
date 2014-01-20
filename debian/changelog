@@ -1,3 +1,9 @@
+rapid-photo-downloader (0.4.9~b3-0ubuntu1~ppa1) precise; urgency=low
+
+  * Fixed packaging error
+
+ -- Damon Lynch <damonlynch@gmail.com>  Mon, 20 Jan 2014 19:23:17 +0600
+
 rapid-photo-downloader (0.4.9~b2-0ubuntu1~ppa1) precise; urgency=low
 
   * Added file verification of downloaded and backed up files
