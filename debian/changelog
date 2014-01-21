@@ -1,3 +1,11 @@
+rapid-photo-downloader (0.4.9-0ubuntu1~ppa1) precise; urgency=low
+
+  * Updated Catalan and Spanish translations.
+
+  * Fixed occasional incorrect use of term "backup".
+
+ -- Damon Lynch <damonlynch@gmail.com>  Tue, 21 Jan 2014 22:16:14 +0600
+
 rapid-photo-downloader (0.4.9~b3-0ubuntu1~ppa1) precise; urgency=low
 
   * Fixed packaging error
