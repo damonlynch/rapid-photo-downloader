@@ -1779,7 +1779,7 @@ msgstr ""
 "discos rígidos externos."
 
 #: rapid/glade3/prefs.ui.h:69
-msgid "Backup photos and videos when downloading"
+msgid "Back up photos and videos when downloading"
 msgstr "Fazer backup de fotos e vídeos ao baixar"
 
 #: rapid/glade3/prefs.ui.h:70

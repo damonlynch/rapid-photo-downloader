@@ -1849,7 +1849,7 @@ msgstr ""
 "lastar ned, t.d. til eksterne harddisker."
 
 #: rapid/glade3/prefs.ui.h:69
-msgid "Backup photos and videos when downloading"
+msgid "Back up photos and videos when downloading"
 msgstr "Ta tryggleikskopi av bilete og videoar ved nedlasting"
 
 #: rapid/glade3/prefs.ui.h:70

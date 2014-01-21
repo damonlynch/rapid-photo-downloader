@@ -2824,7 +2824,7 @@ When this option is enabled, and a potential device is detected, you will be pro
                                 </child>
                                 <child>
                                   <object class="GtkCheckButton" id="backup_checkbutton">
-                                    <property name="label" translatable="yes">Backup photos and videos when downloading</property>
+                                    <property name="label" translatable="yes">Back up photos and videos when downloading</property>
                                     <property name="use_action_appearance">False</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
@@ -3044,7 +3044,7 @@ When this option is enabled, and a potential device is detected, you will be pro
                   <object class="GtkLabel" id="backup_label">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
-                    <property name="label" translatable="yes">Backup</property>
+                    <property name="label" translatable="yes">Back up</property>
                   </object>
                   <packing>
                     <property name="position">8</property>
@@ -3344,6 +3344,12 @@ When this option is enabled, and a potential device is detected, you will be pro
                                 <property name="visible">True</property>
                                 <property name="can_focus">False</property>
                                 <property name="n_columns">3</property>
+                                <child>
+                                  <placeholder/>
+                                </child>
+                                <child>
+                                  <placeholder/>
+                                </child>
                                 <child>
                                   <placeholder/>
                                 </child>

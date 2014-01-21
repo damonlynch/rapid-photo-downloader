@@ -1812,7 +1812,7 @@ msgstr ""
 "downloades, for eksempel en ekstern harddisk."
 
 #: rapid/glade3/prefs.ui.h:69
-msgid "Backup photos and videos when downloading"
+msgid "Back up photos and videos when downloading"
 msgstr "Tag sikkerhedskopi af fotos og videoer mens de downloades"
 
 #: rapid/glade3/prefs.ui.h:70

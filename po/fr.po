@@ -1887,7 +1887,7 @@ msgstr ""
 "dès lors qu'elles sont transférées, sur différents disques durs par exemple."
 
 #: rapid/glade3/prefs.ui.h:69
-msgid "Backup photos and videos when downloading"
+msgid "Back up photos and videos when downloading"
 msgstr "Sauvegarder les photos et les vidéos lors du transfert"
 
 #: rapid/glade3/prefs.ui.h:70

@@ -1,3 +1,13 @@
+Version 0.4.9
+-------------
+
+2014-01-21
+
+Updated Catalan and Spanish translations.
+
+Fixed occasional incorrect use of term "backup".
+
+
 Version 0.4.9 Beta 3
 --------------------
 
@@ -263,10 +273,10 @@ You can now specify paths never to scan for photos or videos. By default, any
 path ending in .Trash or .thumbnails is ignored.  Advanced users can specify
 paths to never scan using python-style regular expressions.
 
-Fixed bug #774488: added manual backup path for videos, in addition to photos -
+Fixed bug #774488: added manual back up path for videos, in addition to photos -
 
-You can now manually specify a path specifically in which to backup videos. This
-can be the same as or different than the path in which to backup photos.
+You can now manually specify a path specifically in which to back up videos. This
+can be the same as or different than the path in which to back up photos.
 
 Fixed bug #838722: wrong file types may be backed up to external devices - 
 
@@ -275,12 +285,12 @@ type might be backed up. For instance, if the backup device is only meant to
 store videos, and the download contains photos, photos would incorrectly be
 backed up to the device in addition to videos.
 
-Fixed bug #815727: Backup errors and warnings incorrectly displayed in log 
+Fixed bug #815727: Back up errors and warnings incorrectly displayed in log 
 window -
 
 Fixed a bug that occurred when backing up errors are encountered, the log window
 did not display them correctly, although they were correctly outputted to the 
-terminal window. This only occurred when more than one backup device was being
+terminal window. This only occurred when more than one back up device was being
 used during a download.
 
 Fixed bug #859242: Crash when displaying a preview of file without an extracted

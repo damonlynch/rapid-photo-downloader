@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-01-18 22:35+0600\n"
+"POT-Creation-Date: 2014-01-21 21:34+0600\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1197,7 +1197,7 @@ msgstr ""
 
 #: rapid/problemnotification.py:210
 msgid ""
-"File verfication failed. The downloaded version is different from the "
+"File verification failed. The downloaded version is different from the "
 "original."
 msgstr ""
 
@@ -1304,12 +1304,12 @@ msgstr ""
 #: rapid/problemnotification.py:335
 #, python-format
 msgid ""
-"File verfication failed on %(volume)s. The backed up version is different "
+"File verification failed on %(volume)s. The backed up version is different "
 "from the downloaded version."
 msgstr ""
 
 #: rapid/problemnotification.py:337
-msgid "File verfication failed on these devices: "
+msgid "File verification failed on these devices: "
 msgstr ""
 
 #: rapid/problemnotification.py:347
@@ -1821,7 +1821,7 @@ msgid ""
 msgstr ""
 
 #: rapid/glade3/prefs.ui.h:69
-msgid "Backup photos and videos when downloading"
+msgid "Back up photos and videos when downloading"
 msgstr ""
 
 #: rapid/glade3/prefs.ui.h:70
@@ -1858,7 +1858,7 @@ msgid "Video backup location:"
 msgstr ""
 
 #: rapid/glade3/prefs.ui.h:79
-msgid "Backup"
+msgid "Back up"
 msgstr ""
 
 #: rapid/glade3/prefs.ui.h:80

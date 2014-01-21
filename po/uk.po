@@ -1821,7 +1821,7 @@ msgstr ""
 "час завантаження, наприклад, на зовнішніх жорстких дисках."
 
 #: rapid/glade3/prefs.ui.h:69
-msgid "Backup photos and videos when downloading"
+msgid "Back up photos and videos when downloading"
 msgstr "Резервне копіювання фото та відео під час завантаження"
 
 #: rapid/glade3/prefs.ui.h:70

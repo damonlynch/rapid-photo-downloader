@@ -1612,7 +1612,7 @@ msgid "Backup"
 msgstr "Záloha"
 
 #: rapid/glade3/prefs.ui.h:36
-msgid "Backup photos and videos when downloading"
+msgid "Back up photos and videos when downloading"
 msgstr ""
 
 #: rapid/glade3/prefs.ui.h:37

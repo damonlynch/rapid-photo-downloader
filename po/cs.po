@@ -1765,7 +1765,7 @@ msgstr ""
 "externí disky."
 
 #: rapid/glade3/prefs.ui.h:69
-msgid "Backup photos and videos when downloading"
+msgid "Back up photos and videos when downloading"
 msgstr "Zálohovat fotografie a videa při stahování"
 
 #: rapid/glade3/prefs.ui.h:70

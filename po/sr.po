@@ -1239,7 +1239,7 @@ msgstr "Грешка: %(errorno)s %(strerror)s"
 
 #: rapid/problemnotification.py:210
 msgid ""
-"File verfication failed. The downloaded version is different from the "
+"File verification failed. The downloaded version is different from the "
 "original."
 msgstr ""
 "Провера датотеке није успела. Преузето издање се разликује од изворног."
@@ -1350,14 +1350,14 @@ msgstr "Грешка при образовању директоријума на
 #: rapid/problemnotification.py:335
 #, python-format
 msgid ""
-"File verfication failed on %(volume)s. The backed up version is different "
+"File verification failed on %(volume)s. The backed up version is different "
 "from the downloaded version."
 msgstr ""
 "Провера датотеке на „%(volume)s“ није успела. Издање резерве се разликује од "
 "преузетог издања."
 
 #: rapid/problemnotification.py:337
-msgid "File verfication failed on these devices: "
+msgid "File verification failed on these devices: "
 msgstr "Провера датотеке није успела на овим уређајима: "
 
 #: rapid/problemnotification.py:347
@@ -1908,7 +1908,7 @@ msgstr ""
 "нпр. на спољним дисковима."
 
 #: rapid/glade3/prefs.ui.h:69
-msgid "Backup photos and videos when downloading"
+msgid "Back up photos and videos when downloading"
 msgstr "Направи резерву слика и видеа при преузимању"
 
 #: rapid/glade3/prefs.ui.h:70

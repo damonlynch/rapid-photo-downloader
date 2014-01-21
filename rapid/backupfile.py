@@ -203,7 +203,7 @@ class BackupFiles(multiprocessing.Process):
                             if md5 <> rpd_file.md5:
                                 backup_succeeded = False
                                 logger.critical("%s file verification FAILED", rpd_file.name)
-                                logger.critical("The %s did not backup correctly!", rpd_file.title)
+                                logger.critical("The %s did not back up correctly!", rpd_file.title)
                                 rpd_file.add_problem(None, pn.BACKUP_VERIFICATION_FAILED, self.mount_name)
                                 rpd_file.error_title = rpd_file.problem.get_title()
                                 rpd_file.error_msg = _("%(problem)s\nFile: %(file)s") % \

@@ -66,7 +66,7 @@ char *s = N_("<b>Backup</b>");
 char *s = N_("If you disable automatic detection, choose the exact backup locations.");
 char *s = N_("Automatically detect backup devices");
 char *s = N_("You can have your photos and videos backed up to multiple locations as they are downloaded, e.g. external hard drives.");
-char *s = N_("Backup photos and videos when downloading");
+char *s = N_("Back up photos and videos when downloading");
 char *s = N_("Specify the folder in which backups are stored on the device.  \n"
              "\n"
              "<i>Note: this will also be used to determine whether or not the device is used for backups. For each device you wish to use for backing up to, create a folder in it with one of these names.</i>");
@@ -76,7 +76,7 @@ char *s = N_("<i>Example:</i>");
 char *s = N_("<i>/media/externaldrive/Photos</i>");
 char *s = N_("Video backup folder name:");
 char *s = N_("Video backup location:");
-char *s = N_("Backup");
+char *s = N_("Back up");
 char *s = N_("<span weight=\"bold\" size=\"x-large\">Miscellaneous</span>");
 char *s = N_("<b>Program Automation</b>");
 char *s = N_("Unmount (\"eject\") device upon download completion");

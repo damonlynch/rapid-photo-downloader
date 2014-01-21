@@ -1240,7 +1240,7 @@ msgstr "Hiba: %(errorno)s %(strerror)s"
 
 #: rapid/problemnotification.py:210
 msgid ""
-"File verfication failed. The downloaded version is different from the "
+"File verification failed. The downloaded version is different from the "
 "original."
 msgstr ""
 "A fájl ellenőrzés hibát talált. A letöltött verzió eltér az eredetitől."
@@ -1354,14 +1354,14 @@ msgstr "Hiba lépett fel a könyvtárak létrehozáskor ezen az eszközökön: "
 #: rapid/problemnotification.py:335
 #, python-format
 msgid ""
-"File verfication failed on %(volume)s. The backed up version is different "
+"File verification failed on %(volume)s. The backed up version is different "
 "from the downloaded version."
 msgstr ""
 "A fájl ellenőrzés hibát talált a %(volume)s. A letöltött verzió eltér az "
 "eredetitől."
 
 #: rapid/problemnotification.py:337
-msgid "File verfication failed on these devices: "
+msgid "File verification failed on these devices: "
 msgstr "A fájl ellenörzés hibát talált ezen az eszközön: "
 
 #: rapid/problemnotification.py:347
@@ -1915,7 +1915,7 @@ msgstr ""
 "helyekre, például külső merevlemezre."
 
 #: rapid/glade3/prefs.ui.h:69
-msgid "Backup photos and videos when downloading"
+msgid "Back up photos and videos when downloading"
 msgstr "A fényképek és vidók biztonsági mentése letöltés közben"
 
 #: rapid/glade3/prefs.ui.h:70

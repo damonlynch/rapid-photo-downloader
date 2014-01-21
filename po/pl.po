@@ -1247,7 +1247,7 @@ msgstr "Błąd: %(errorno)s %(strerror)s"
 
 #: rapid/problemnotification.py:210
 msgid ""
-"File verfication failed. The downloaded version is different from the "
+"File verification failed. The downloaded version is different from the "
 "original."
 msgstr "Nieudana weryfikacja plików. Pobrana wersja różni się od oryginału."
 
@@ -1359,14 +1359,14 @@ msgstr ""
 #: rapid/problemnotification.py:335
 #, python-format
 msgid ""
-"File verfication failed on %(volume)s. The backed up version is different "
+"File verification failed on %(volume)s. The backed up version is different "
 "from the downloaded version."
 msgstr ""
 "Nieudana weryfikacja plików na %(volume)s. Kopia zapasowa różni się od "
 "wersji pobranej."
 
 #: rapid/problemnotification.py:337
-msgid "File verfication failed on these devices: "
+msgid "File verification failed on these devices: "
 msgstr "Nieudana weryfikacja plików na tych urządzeniach: "
 
 #: rapid/problemnotification.py:347
@@ -1926,7 +1926,7 @@ msgstr ""
 "filmów, np. na zewnętrznych dyskach twardych."
 
 #: rapid/glade3/prefs.ui.h:69
-msgid "Backup photos and videos when downloading"
+msgid "Back up photos and videos when downloading"
 msgstr "Utwórz kopię zapasową zdjęć i filmów podczas pobierania"
 
 #: rapid/glade3/prefs.ui.h:70

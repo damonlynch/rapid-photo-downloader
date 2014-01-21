@@ -1642,7 +1642,7 @@ msgid "Backup location:"
 msgstr "Varmuuskopioiden sijainti:"
 
 #: rapid/glade3/rapid.glade.h:38
-msgid "Backup photos and videos when downloading"
+msgid "Back up photos and videos when downloading"
 msgstr "Varmuuskopioi kuvat ja videot ladattaessa"
 
 #: rapid/glade3/rapid.glade.h:39

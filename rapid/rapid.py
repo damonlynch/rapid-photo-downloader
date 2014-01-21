@@ -1279,7 +1279,7 @@ class ThumbnailManager(TaskManager):
         return generator.pid
 
 class FileModifyManager(TaskManager):
-    """Handles the modification or verfication of of downloaded files before they are renamed
+    """Handles the modification or verification of of downloaded files before they are renamed
     Duplex, multiprocess, similar to BackupFilesManager
     """
     def __init__(self, results_callback):

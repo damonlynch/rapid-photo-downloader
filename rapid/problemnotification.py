@@ -207,7 +207,7 @@ class Problem:
         # special cases
 
         if VERIFICATION_PROBLEM in self.categories:
-            return _("File verfication failed. The downloaded version is different from the original.")
+            return _("File verification failed. The downloaded version is different from the original.")
 
         if FILE_PROBLEM in self.categories:
             return _("The metadata might be corrupt.")
@@ -332,9 +332,9 @@ class Problem:
 
                 elif p == BACKUP_VERIFICATION_FAILED:
                     if len(details) == 1:
-                        vv += _("File verfication failed on %(volume)s. The backed up version is different from the downloaded version.") % {'volume': details[0]} + ' '
+                        vv += _("File verification failed on %(volume)s. The backed up version is different from the downloaded version.") % {'volume': details[0]} + ' '
                     else:
-                        vv += _("File verfication failed on these devices: ")
+                        vv += _("File verification failed on these devices: ")
                         for d in details[:-1]:
                             vv += _("%s, ") % d
                         vv = _("%(volumes)s and %(final_volume)s.") % \

@@ -1844,7 +1844,7 @@ msgstr ""
 "werden, z.B. auf externe Laufwerke."
 
 #: rapid/glade3/prefs.ui.h:69
-msgid "Backup photos and videos when downloading"
+msgid "Back up photos and videos when downloading"
 msgstr "Sicherungskopien während dem Herunterladen erstellen"
 
 #: rapid/glade3/prefs.ui.h:70

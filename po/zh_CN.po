@@ -1598,7 +1598,7 @@ msgid "Backup location:"
 msgstr "备份位置："
 
 #: rapid/glade3/rapid.glade.h:38
-msgid "Backup photos and videos when downloading"
+msgid "Back up photos and videos when downloading"
 msgstr "下载时备份照片和视频"
 
 #: rapid/glade3/rapid.glade.h:39

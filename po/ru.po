@@ -1828,7 +1828,7 @@ msgstr ""
 "прямо во время загрузки, в том числе на внешних жёстких дисках."
 
 #: rapid/glade3/prefs.ui.h:69
-msgid "Backup photos and videos when downloading"
+msgid "Back up photos and videos when downloading"
 msgstr ""
 "Создавать резервные копии фотографий и видеороликов во время загрузки"
 

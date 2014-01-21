@@ -1728,7 +1728,7 @@ msgid ""
 msgstr ""
 
 #: rapid/glade3/prefs.ui.h:69
-msgid "Backup photos and videos when downloading"
+msgid "Back up photos and videos when downloading"
 msgstr ""
 
 #: rapid/glade3/prefs.ui.h:70

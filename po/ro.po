@@ -1326,7 +1326,7 @@ msgid "Backup location:"
 msgstr "Locație copie de rezervă"
 
 #: rapid/glade3/prefs.ui.h:36
-msgid "Backup photos and videos when downloading"
+msgid "Back up photos and videos when downloading"
 msgstr "Copiază de siguranță fotografiile șî video cănd descărci"
 
 #: rapid/glade3/prefs.ui.h:37
