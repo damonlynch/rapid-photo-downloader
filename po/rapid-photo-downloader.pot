@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-01-21 21:34+0600\n"
+"POT-Creation-Date: 2014-02-23 21:38+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -1858,7 +1858,7 @@ msgid "Video backup location:"
 msgstr ""
 
 #: rapid/glade3/prefs.ui.h:79
-msgid "Back up"
+msgid "Backup"
 msgstr ""
 
 #: rapid/glade3/prefs.ui.h:80

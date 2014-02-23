@@ -76,7 +76,7 @@ char *s = N_("<i>Example:</i>");
 char *s = N_("<i>/media/externaldrive/Photos</i>");
 char *s = N_("Video backup folder name:");
 char *s = N_("Video backup location:");
-char *s = N_("Back up");
+char *s = N_("Backup");
 char *s = N_("<span weight=\"bold\" size=\"x-large\">Miscellaneous</span>");
 char *s = N_("<b>Program Automation</b>");
 char *s = N_("Unmount (\"eject\") device upon download completion");

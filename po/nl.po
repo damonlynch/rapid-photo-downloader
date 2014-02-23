@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-01-18 22:35+0600\n"
-"PO-Revision-Date: 2014-01-18 17:45+0000\n"
+"POT-Creation-Date: 2014-01-21 21:34+0600\n"
+"PO-Revision-Date: 2014-01-22 00:17+0000\n"
 "Last-Translator: A.J. Baudrez <a.baudrez@gmail.com>\n"
 "Language-Team: Dutch <nl@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2014-01-20 06:21+0000\n"
+"X-Launchpad-Export-Date: 2014-01-23 13:56+0000\n"
 "X-Generator: Launchpad (build 16901)\n"
 "Language: nl\n"
 
@@ -1966,8 +1966,8 @@ msgid "Video backup location:"
 msgstr "Video backup locatie:"
 
 #: rapid/glade3/prefs.ui.h:79
-msgid "Backup"
-msgstr "Backup"
+msgid "Back up"
+msgstr ""
 
 #: rapid/glade3/prefs.ui.h:80
 msgid "<span weight=\"bold\" size=\"x-large\">Miscellaneous</span>"
@@ -2374,6 +2374,9 @@ msgstr "Importeer je foto's en video's efficiënt en betrouwbaar"
 
 #~ msgid "Automation"
 #~ msgstr "Automatisering"
+
+#~ msgid "Backup"
+#~ msgstr "Backup"
 
 #~ msgid "<span weight=\"bold\" size=\"x-large\">Image Rename</span>\t"
 #~ msgstr "<span weight=\"bold\" size=\"x-large\">Afbeelding Hernoemen</span>\t"

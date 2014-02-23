@@ -16,7 +16,7 @@
 ### Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
 ### USA
 
-version = '0.4.9'
+version = '0.4.10'
 
 GCONF_KEY="/apps/rapid-photo-downloader"
 

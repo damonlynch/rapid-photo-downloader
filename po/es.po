@@ -7,21 +7,21 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2014-01-18 22:35+0600\n"
-"PO-Revision-Date: 2014-01-21 10:50+0000\n"
+"POT-Creation-Date: 2014-01-21 21:34+0600\n"
+"PO-Revision-Date: 2014-01-23 03:30+0000\n"
 "Last-Translator: Adolfo Jayme <fitoschido@gmail.com>\n"
 "Language-Team: Spanish <es@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2014-01-21 14:59+0000\n"
+"X-Launchpad-Export-Date: 2014-01-23 13:56+0000\n"
 "X-Generator: Launchpad (build 16901)\n"
 "Language: es\n"
 
 #. Translators: if neccessary, for guidance in how to translate this program, you may see http://damonlynch.net/translate.html
 #: rapid/rapid.py:117 rapid/rapid.py:1820 rapid/glade3/rapid.ui.h:15
 msgid "Rapid Photo Downloader"
-msgstr "Descargador rápido de fotos"
+msgstr "Rapid Photo Downloader"
 
 #: rapid/rapid.py:122
 #, python-format
@@ -404,7 +404,7 @@ msgstr ""
 
 #: rapid/rapid.py:4091
 msgid "only output errors to the command line"
-msgstr "solo errores de salida en la línea de comando"
+msgstr "solo errores de salida en la línea de órdenes"
 
 #. image file extensions are recognized RAW files plus TIFF and JPG
 #: rapid/rapid.py:4093
@@ -692,7 +692,7 @@ msgstr "Autor"
 
 #: rapid/generatenameconfig.py:207
 msgid "Copyright"
-msgstr "Derechos de autor"
+msgstr "Copyright"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#sequencenumbers
 #: rapid/generatenameconfig.py:209
@@ -979,11 +979,12 @@ msgstr "Código de trabajo:"
 
 #: rapid/preferencesdialog.py:822
 msgid "Enter a Path to Ignore"
-msgstr "Introduce una ruta a ignorar"
+msgstr "Escriba una ruta para ignorar"
 
 #: rapid/preferencesdialog.py:834
 msgid "Specify a path that will never be scanned for photos or videos"
-msgstr "Especifica una ruta que nunca será escaneada para fotos o vídeos"
+msgstr ""
+"Especifique una ruta que nunca se escaneará en busca de fotos o vídeos"
 
 #: rapid/preferencesdialog.py:839
 msgid "Path:"
@@ -1136,7 +1137,7 @@ msgstr "Varsovia"
 
 #: rapid/prefsrapid.py:131
 msgid "Jakarta"
-msgstr "Jakarta"
+msgstr "Yakarta"
 
 #: rapid/prefsrapid.py:131
 msgid "Madrid"
@@ -1254,6 +1255,8 @@ msgid ""
 "File verification failed. The downloaded version is different from the "
 "original."
 msgstr ""
+"Falló la comprobación de archivos. La versión descargada difiere de la "
+"original."
 
 #: rapid/problemnotification.py:213
 msgid "The metadata might be corrupt."
@@ -1372,10 +1375,12 @@ msgid ""
 "File verification failed on %(volume)s. The backed up version is different "
 "from the downloaded version."
 msgstr ""
+"Falló la comprobación de archivos en %(volume)s. La versión respaldada "
+"difiere de la descargada."
 
 #: rapid/problemnotification.py:337
 msgid "File verification failed on these devices: "
-msgstr "Falló la comprobación del archivo en estos dispositivos: "
+msgstr "Falló la comprobación de archivos en estos dispositivos: "
 
 #: rapid/problemnotification.py:347
 #, python-format
@@ -1935,7 +1940,7 @@ msgstr ""
 
 #: rapid/glade3/prefs.ui.h:69
 msgid "Back up photos and videos when downloading"
-msgstr "Realizar copia de seguridad al descargar fotografias y videos"
+msgstr "Realizar copia de seguridad al descargar fotos y vídeos"
 
 #: rapid/glade3/prefs.ui.h:70
 msgid ""
@@ -1978,8 +1983,8 @@ msgid "Video backup location:"
 msgstr "Ubicacion de la copia de seguridad de videos:"
 
 #: rapid/glade3/prefs.ui.h:79
-msgid "Backup"
-msgstr "Copia de seguridad"
+msgid "Back up"
+msgstr ""
 
 #: rapid/glade3/prefs.ui.h:80
 msgid "<span weight=\"bold\" size=\"x-large\">Miscellaneous</span>"
@@ -2728,3 +2733,6 @@ msgstr "Descargue sus fotografías y vídeos de forma eficaz y segura"
 #~ msgstr ""
 #~ "Puede tener respaldos de sus fotos en múltiples ubicaciones, por ejemplo: "
 #~ "discos duros externos."
+
+#~ msgid "Backup"
+#~ msgstr "Copia de seguridad"
