@@ -7,15 +7,15 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2014-01-21 21:34+0600\n"
-"PO-Revision-Date: 2014-01-22 00:16+0000\n"
-"Last-Translator: Damon Lynch <damonlynch@gmail.com>\n"
+"POT-Creation-Date: 2014-02-23 21:38+0500\n"
+"PO-Revision-Date: 2014-05-22 15:33+0000\n"
+"Last-Translator: Tobias Bannert <Unknown>\n"
 "Language-Team: German <de@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2014-01-23 13:56+0000\n"
-"X-Generator: Launchpad (build 16901)\n"
+"X-Launchpad-Export-Date: 2014-05-28 14:01+0000\n"
+"X-Generator: Launchpad (build 17017)\n"
 
 #. Translators: if neccessary, for guidance in how to translate this program, you may see http://damonlynch.net/translate.html
 #: rapid/rapid.py:117 rapid/rapid.py:1820 rapid/glade3/rapid.ui.h:15
@@ -104,7 +104,7 @@ msgid ""
 "%(folder1)s\n"
 "%(folder2)s"
 msgstr ""
-"Diese Download-Verzeichnisse sind ungültig:\n"
+"Diese Übertragungsordner sind ungültig:\n"
 "%(folder1)s\n"
 "%(folder2)s"
 
@@ -114,12 +114,12 @@ msgid ""
 "This download folder is invalid:\n"
 "%s"
 msgstr ""
-"Dieses Download-Verzeichnis ist ungültig:\n"
+"Dieser Übertragungsordner ist ungültig:\n"
 "%s"
 
 #: rapid/rapid.py:2380
 msgid "Download cannot proceed"
-msgstr "Der Download kann nicht weitergeführt werden"
+msgstr "Das Herunterladen kann nicht weitergeführt werden"
 
 #: rapid/rapid.py:2388 rapid/rapid.py:2391
 #, python-format
@@ -138,7 +138,7 @@ msgstr "Filme"
 
 #: rapid/rapid.py:2393
 msgid "Backup problem"
-msgstr ""
+msgstr "Sicherungsproblem"
 
 #: rapid/rapid.py:2802
 msgid "About 1 second remaining"
@@ -196,7 +196,7 @@ msgstr "Warnungen"
 
 #: rapid/rapid.py:2892
 msgid "All downloads complete"
-msgstr "Alle Downloads sind abgeschlossen"
+msgstr "Alle Übertragungen wurden abgeschlossen"
 
 #: rapid/rapid.py:2898 rapid/rapid.py:2907 rapid/rapid.py:2916
 #: rapid/rapid.py:2925 rapid/rapid.py:2933
@@ -257,7 +257,7 @@ msgstr "Bilder:"
 
 #: rapid/rapid.py:3429 rapid/preferencesdialog.py:1174
 msgid "Select a folder to download photos to"
-msgstr "Wählen Sie ein Verzeichnis für den Download der Bilder"
+msgstr "Ein Ordner für das Herunterladen der Bilder auswählen"
 
 #: rapid/rapid.py:3441 rapid/rapid.py:4128
 msgid "Videos:"
@@ -265,7 +265,7 @@ msgstr "Filme:"
 
 #: rapid/rapid.py:3443 rapid/preferencesdialog.py:1192
 msgid "Select a folder to download videos to"
-msgstr "Wählen Sie einen Ordner für den Download von Filmen"
+msgstr "Einen Ordner für das Herunterladen von Filmen auswählen"
 
 #: rapid/rapid.py:3650
 msgid "and"
@@ -364,7 +364,7 @@ msgstr "Film"
 #: rapid/rapid.py:3921
 #, python-format
 msgid "%(file_type)s download folder does not exist"
-msgstr "%(file_type)s Download-Verzeichnis existiert nicht"
+msgstr "%(file_type)s Übertragungsordner existiert nicht"
 
 #: rapid/rapid.py:3923 rapid/rapid.py:3937 rapid/rapid.py:3950
 #, python-format
@@ -374,12 +374,12 @@ msgstr "Verzeichnis: %s"
 #: rapid/rapid.py:3935
 #, python-format
 msgid "%(file_type)s download folder is invalid"
-msgstr "%(file_type)s Download-Verzeichnis ist ungültig"
+msgstr "%(file_type)s Übertragungsordner ist ungültig"
 
 #: rapid/rapid.py:3948
 #, python-format
 msgid "%(file_type)s download folder is not writable"
-msgstr "%(file_type)s Download-Verzeichnis ist schreibgeschützt"
+msgstr "%(file_type)s Übertragungsordner ist schreibgeschützt"
 
 #: rapid/rapid.py:4034
 msgid "Thumbnails"
@@ -425,8 +425,6 @@ msgid ""
 "manually specify the PATH of the device from which to download, overwriting "
 "existing program preferences"
 msgstr ""
-"PFAD zum Laufwerk für das Herunterladen manuell angeben, bestehende "
-"Programmeinstellungen übergehen"
 
 #: rapid/rapid.py:4097
 msgid "reset all program settings and preferences and exit"
@@ -502,7 +500,7 @@ msgstr ""
 
 #: rapid/copyfiles.py:214
 msgid "An unknown error occurred"
-msgstr ""
+msgstr "Es ist ein unbekannter Fehler aufgetreten"
 
 #: rapid/device.py:80
 msgid "Device Detected"
@@ -569,7 +567,7 @@ msgstr "Gestern"
 #. Translators: Download time is the time and date that the download started (when the user clicked the Download button)
 #: rapid/generatenameconfig.py:163
 msgid "Download time"
-msgstr "Download-Zeit"
+msgstr "Übertragungszeit"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamefilename
 #: rapid/generatenameconfig.py:165
@@ -691,12 +689,12 @@ msgstr "Autor"
 
 #: rapid/generatenameconfig.py:207
 msgid "Copyright"
-msgstr "Copyright"
+msgstr "Urheberrecht"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#sequencenumbers
 #: rapid/generatenameconfig.py:209
 msgid "Downloads today"
-msgstr "Downloads heute"
+msgstr "Übertragen heute"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#sequencenumbers
 #: rapid/generatenameconfig.py:211
@@ -952,11 +950,11 @@ msgstr "Fehler in den Vorgaben zur Umbennennung von Filmen"
 
 #: rapid/preferencesdialog.py:666
 msgid "Error in Photo Download Subfolders preferences"
-msgstr "Fehler in den Vorgaben für Bilder-Downloadunterordner"
+msgstr "Fehler in den Vorgaben für Bilderübertragsunterordner"
 
 #: rapid/preferencesdialog.py:683
 msgid "Error in Video Download Subfolders preferences"
-msgstr "Fehler in den Vorgaben zur Filme-Downloadunterordner"
+msgstr "Fehler in den Vorgaben zur Filmeübertragsunterordner"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#jobcode
 #: rapid/preferencesdialog.py:742
@@ -1198,7 +1196,7 @@ msgstr "Beim Kopieren von %(filetype)s ist ein Fehler aufgetreten"
 #: rapid/problemnotification.py:98
 #, python-format
 msgid "The %(filetype)s did not download correctly"
-msgstr ""
+msgstr "Der %(filetype)s wurde nicht richtig heruntergeladen"
 
 #: rapid/problemnotification.py:101 rapid/problemnotification.py:102
 #, python-format
@@ -1260,6 +1258,8 @@ msgid ""
 "File verification failed. The downloaded version is different from the "
 "original."
 msgstr ""
+"Die Überprüfung schlug fehl. Die heruntergeladene Version ist "
+"unterschiedlich im Vergleich zu Original."
 
 #: rapid/problemnotification.py:213
 msgid "The metadata might be corrupt."
@@ -1505,7 +1505,7 @@ msgstr "Quelle: %(source)s"
 
 #: rapid/subfolderfile.py:485
 msgid "Failed to create download subfolder"
-msgstr "Der Download-Unterordner konnte nicht erstellt werden"
+msgstr "Der Übertragungsunterordner konnte nicht erstellt werden"
 
 #: rapid/subfolderfile.py:486
 #, python-format
@@ -1514,7 +1514,7 @@ msgstr "Pfad: %s"
 
 #: rapid/glade3/rapid.ui.h:1
 msgid "About..."
-msgstr ""
+msgstr "Über …"
 
 #: rapid/glade3/rapid.ui.h:2
 msgid "_Check All"
@@ -1522,7 +1522,7 @@ msgstr "_Alle auswählen"
 
 #: rapid/glade3/rapid.ui.h:3
 msgid "Check All Photos"
-msgstr ""
+msgstr "Alle Bilder überprüfen"
 
 #: rapid/glade3/rapid.ui.h:4
 msgid "Check All Videos"
@@ -1530,11 +1530,11 @@ msgstr ""
 
 #: rapid/glade3/rapid.ui.h:5
 msgid "_Make a Donation..."
-msgstr "_Spenden Sie …"
+msgstr "_Etwas Spenden …"
 
 #: rapid/glade3/rapid.ui.h:7
 msgid "_Get Help Online..."
-msgstr "_Online Hilfe ..."
+msgstr "_Im Netz Hilfe erhalten …"
 
 #: rapid/glade3/rapid.ui.h:8
 msgid "Help"
@@ -1554,11 +1554,11 @@ msgstr ""
 
 #: rapid/glade3/rapid.ui.h:12
 msgid "_Report a Problem..."
-msgstr "_Problemmeldung"
+msgstr "_Ein Problem melden …"
 
 #: rapid/glade3/rapid.ui.h:13
 msgid "Translate this Application..."
-msgstr ""
+msgstr "Diese Anwendung übersetzen …"
 
 #: rapid/glade3/rapid.ui.h:14
 msgid "_Uncheck All"
@@ -1570,7 +1570,7 @@ msgstr "_Datei"
 
 #: rapid/glade3/rapid.ui.h:17
 msgid "Download / Pause"
-msgstr "Download / Pause"
+msgstr "Übertragen / Pause"
 
 #: rapid/glade3/rapid.ui.h:18
 msgid "_Select"
@@ -1610,7 +1610,7 @@ msgstr "_Hilfe"
 
 #: rapid/glade3/rapid.ui.h:27
 msgid "_Translate this Application..."
-msgstr "Diese Anwendung überse_tzen …"
+msgstr "_Diese Anwendung übersetzen …"
 
 #: rapid/glade3/rapid.ui.h:28
 msgid "_Include in download"
@@ -1622,11 +1622,11 @@ msgstr "_Herunterladen"
 
 #: rapid/glade3/prefs.ui.h:1
 msgid "Preferences: Rapid Photo Downloader"
-msgstr "Voreinstellungen: Rapid Photo Downloader"
+msgstr "Voreinstellungen: Rapid-Fotoübertrager"
 
 #: rapid/glade3/prefs.ui.h:2
 msgid "<span weight=\"bold\" size=\"x-large\">Photo Download Folders</span>"
-msgstr "<span weight=\"bold\" size=\"x-large\">Bilder Download Ordner</span>"
+msgstr "<span weight=\"bold\" size=\"x-large\">Bildübertragungsordner</span>"
 
 #: rapid/glade3/prefs.ui.h:3
 msgid "<i>Example: /home/user/Pictures</i>"
@@ -1634,23 +1634,23 @@ msgstr "<i>Beispiel: /home/user/Bilder</i>"
 
 #: rapid/glade3/prefs.ui.h:4
 msgid "<b>Download Subfolders</b>"
-msgstr "<b>Download Unterverzeichnis</b>"
+msgstr "<b>Übertragungsunterverzeichnis</b>"
 
 #: rapid/glade3/prefs.ui.h:5
 msgid "Download folder:"
-msgstr "Downloadverzeichnis:"
+msgstr "Übertragungsverzeichnis:"
 
 #: rapid/glade3/prefs.ui.h:6
 msgid ""
 "Choose the download folder. Subfolders for the downloaded photos will be "
 "automatically created in this folder using the structure specified below."
 msgstr ""
-"Wählen Sie das Downloadverzeichnis. Unterverzeichnisse werden je nach "
+"Wählen Sie bitte den Übertragungsordner. Unterverzeichnisse werden je nach "
 "gewählten Voreinstellungen automatisch erzeugt."
 
 #: rapid/glade3/prefs.ui.h:7
 msgid "<b>Download Folder</b>"
-msgstr "<b>Download Verzeichnis</b>"
+msgstr "<b>Übertragungsordner</b>"
 
 #: rapid/glade3/prefs.ui.h:8
 msgid "Photo Folders"
@@ -1686,7 +1686,7 @@ msgstr "Bilder Umbenennen"
 
 #: rapid/glade3/prefs.ui.h:16
 msgid "<span weight=\"bold\" size=\"x-large\">Video Download Folders</span>"
-msgstr "<span weight=\"bold\" size=\"x-large\">Film Download Ordner</span>"
+msgstr "<span weight=\"bold\" size=\"x-large\">Filmübertragungsordner</span>"
 
 #: rapid/glade3/prefs.ui.h:17
 msgid ""
@@ -1703,8 +1703,8 @@ msgid ""
 "Choose the download folder. Subfolders for the downloaded videos will be "
 "automatically created in this folder using the structure specified below."
 msgstr ""
-"Wählen Sie den Download Ordner. Unterordner für die Filme werden automatisch "
-"basierend auf der unten angefügten Struktur erstellt."
+"Wählen Sie bitte den Übertragungsordner. Unterordner für die Filme werden "
+"automatisch basierend auf der unten angefügten Struktur erstellt."
 
 #: rapid/glade3/prefs.ui.h:19
 msgid "Video Folders"
@@ -1733,7 +1733,7 @@ msgid ""
 "sequence number should be reset."
 msgstr ""
 "Geben Sie die Uhrzeit im 24-Stunden Format an, wann die Sequenznummer in "
-"<i>Downloads heute</i> zurückgesetzt werden soll."
+"<i>Übertragungen heute</i> zurückgesetzt werden soll."
 
 #: rapid/glade3/prefs.ui.h:25
 msgid "Day start:"
@@ -1741,7 +1741,7 @@ msgstr "Beginn des Tages:"
 
 #: rapid/glade3/prefs.ui.h:26
 msgid "Downloads today:"
-msgstr "Downloads heute:"
+msgstr "Übertragungen heute:"
 
 #: rapid/glade3/prefs.ui.h:27
 msgid "Stored number:"
@@ -1820,16 +1820,16 @@ msgid ""
 "setting it to PTP mode. If that is not possible, a card reader must be "
 "used.</i>"
 msgstr ""
-"Devices are from where to download photos and videos, such as cameras, "
-"memory cards or Portable Storage Devices.\n"
+"Laufwerke von denen Bilder und Filme heruntergeladen werden, zum Beispiel "
+"von Kameras, Speicher Karten oder externen Festplatten.\n"
 "\n"
-"You can download from multiple devices simultaneously, or you can specify a "
-"location on your hard drive.\n"
+"Sie können von mehreren Laufwerken gleichzeitig herunterladen, oder sie "
+"können einen Ort auf Ihrer lokalen Festplatte festlegen.\n"
 "\n"
-"<i>Downloading directly from cameras is currently an experimental feature. "
-"If downloading directly from your camera works poorly or not at all, try "
-"setting it to PTP mode. If that is not possible, a card reader must be "
-"used.</i>"
+"<i>Die Übertragung direkt von Kameras ist momentan experimentell. Falls die "
+"Übertragung von Ihrer Kamera nur sehr schlecht oder gar nicht funktioniert, "
+"stellen sie Ihrer Kamera bitte auf den PTP-Modus um. Falls das nicht möglich "
+"ist, müssen sie ein Kartenlesegerät verwenden.</i>"
 
 #: rapid/glade3/prefs.ui.h:48
 msgid "Automatically detect Portable Storage Devices"
@@ -1981,8 +1981,8 @@ msgid "Video backup location:"
 msgstr "Sicherungsort für Filme"
 
 #: rapid/glade3/prefs.ui.h:79
-msgid "Back up"
-msgstr ""
+msgid "Backup"
+msgstr "Datensicherung"
 
 #: rapid/glade3/prefs.ui.h:80
 msgid "<span weight=\"bold\" size=\"x-large\">Miscellaneous</span>"
@@ -1999,7 +1999,7 @@ msgstr ""
 
 #: rapid/glade3/prefs.ui.h:83
 msgid "Start downloading at program startup"
-msgstr "Beginn des Downloads bei Programmstart"
+msgstr "Herunterladen beim Programmstart beginnen"
 
 #: rapid/glade3/prefs.ui.h:84
 msgid "Start downloading upon device insertion"
@@ -2007,7 +2007,7 @@ msgstr "Mit dem Herunterladen beginnen, sobald ein Laufwerk verfügbar ist"
 
 #: rapid/glade3/prefs.ui.h:85
 msgid "Exit program when download completes"
-msgstr "Programm beenden wenn alles Downloads abgeschlossen sind"
+msgstr "Programm beenden wenn alles Übertragungen abgeschlossen sind"
 
 #: rapid/glade3/prefs.ui.h:86
 msgid "Exit program even if download had warnings or errors"
@@ -2019,7 +2019,7 @@ msgstr "JPEG-Dateien automatisch rotieren"
 
 #: rapid/glade3/prefs.ui.h:89
 msgid "Verify files as they are downloaded"
-msgstr ""
+msgstr "Nach dem Herunterladen alle Dateien überprüfen"
 
 #: rapid/glade3/prefs.ui.h:90
 msgid "Performance"
@@ -2047,7 +2047,7 @@ msgstr "Füge eine eindeutige Information hinzu"
 
 #: rapid/glade3/prefs.ui.h:96
 msgid "Skip download"
-msgstr "Überspringe Download"
+msgstr "Herunterladen überspringen"
 
 #: rapid/glade3/prefs.ui.h:97
 msgid ""
@@ -2343,9 +2343,6 @@ msgstr "Importieren Sie Ihre Bilder und Filme schnell und zuverlässig"
 
 #~ msgid "Automation"
 #~ msgstr "Automatisierung"
-
-#~ msgid "Backup"
-#~ msgstr "Datensicherung"
 
 #~ msgid "Backup folder name:"
 #~ msgstr "Verzeichnis für Datensicherung:"

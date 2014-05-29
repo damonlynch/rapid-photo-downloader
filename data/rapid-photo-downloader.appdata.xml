@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Copyright 2014 Damon Lynch -->
+<!-- Copyright 2014 Damon Lynch <damonlynch@gmail.com> -->
 <application>
   <id type="desktop">rapid-photo-downloader.desktop</id>
-  <licence>CC-BY</licence>
+  <metadata_license>CC-BY</metadata_license>
+  <project_license>GPL-2.0+</project_license>
   <description>
     <p>
       Rapid Photo Downloader imports photos and videos from memory cards and 

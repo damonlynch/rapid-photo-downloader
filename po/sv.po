@@ -7,15 +7,15 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2014-01-21 21:34+0600\n"
-"PO-Revision-Date: 2014-01-22 00:16+0000\n"
-"Last-Translator: Damon Lynch <damonlynch@gmail.com>\n"
+"POT-Creation-Date: 2014-02-23 21:38+0500\n"
+"PO-Revision-Date: 2014-03-06 21:26+0000\n"
+"Last-Translator: Joachim Johansson <Unknown>\n"
 "Language-Team: Swedish <sv@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2014-01-23 13:56+0000\n"
-"X-Generator: Launchpad (build 16901)\n"
+"X-Launchpad-Export-Date: 2014-05-28 14:01+0000\n"
+"X-Generator: Launchpad (build 17017)\n"
 
 #. Translators: if neccessary, for guidance in how to translate this program, you may see http://damonlynch.net/translate.html
 #: rapid/rapid.py:117 rapid/rapid.py:1820 rapid/glade3/rapid.ui.h:15
@@ -125,6 +125,7 @@ msgstr "Kan inte fortsätta överföringen"
 #, python-format
 msgid "No backup device contains a valid folder for backing up %(filetype)s"
 msgstr ""
+"Ingen enhet innehåller en giltig mapp för att säkerhetskopiera %(filetype)s"
 
 #: rapid/rapid.py:2388 rapid/rapid.py:2843 rapid/rapid.py:3680
 #: rapid/rpdfile.py:139
@@ -138,7 +139,7 @@ msgstr "filmer"
 
 #: rapid/rapid.py:2393
 msgid "Backup problem"
-msgstr ""
+msgstr "Ett problem uppstod vid säkerhetskopieringen"
 
 #: rapid/rapid.py:2802
 msgid "About 1 second remaining"
@@ -471,17 +472,17 @@ msgstr "Fel: %(inst)s"
 #: rapid/backupfile.py:163
 #, python-format
 msgid "Backup %(file_type)s overwritten"
-msgstr ""
+msgstr "Säkerhetskopian av %(file_type)s skrevs över"
 
 #: rapid/backupfile.py:166
 #, python-format
 msgid "%(file_type)s not backed up"
-msgstr ""
+msgstr "%(file_type)s säkerhetskopierades inte"
 
 #: rapid/backupfile.py:168
 #, python-format
 msgid "Backup of %(file_type)s already exists"
-msgstr ""
+msgstr "En säkerhetskopia av %(file_type)s finns redan"
 
 #: rapid/backupfile.py:209 rapid/copyfiles.py:201 rapid/copyfiles.py:219
 #: rapid/subfolderfile.py:217 rapid/subfolderfile.py:335
@@ -496,7 +497,7 @@ msgstr ""
 
 #: rapid/copyfiles.py:214
 msgid "An unknown error occurred"
-msgstr ""
+msgstr "Ett okänt fel inträffade"
 
 #: rapid/device.py:80
 msgid "Device Detected"
@@ -1182,7 +1183,7 @@ msgstr "Ett fel uppstod när %(filetype)s skulle kopieras"
 #: rapid/problemnotification.py:98
 #, python-format
 msgid "The %(filetype)s did not download correctly"
-msgstr ""
+msgstr "%(filetype)s hämtades inte på ett korrekt sätt"
 
 #: rapid/problemnotification.py:101 rapid/problemnotification.py:102
 #, python-format
@@ -1242,6 +1243,8 @@ msgid ""
 "File verification failed. The downloaded version is different from the "
 "original."
 msgstr ""
+"Filverifikationen misslyckades. Den hämtade versionen skiljer sig från "
+"originalet."
 
 #: rapid/problemnotification.py:213
 msgid "The metadata might be corrupt."
@@ -1350,10 +1353,12 @@ msgid ""
 "File verification failed on %(volume)s. The backed up version is different "
 "from the downloaded version."
 msgstr ""
+"Filverifikationen misslyckades på %(volume)s. Säkerhetskopian skiljer sig "
+"från originalet."
 
 #: rapid/problemnotification.py:337
 msgid "File verification failed on these devices: "
-msgstr ""
+msgstr "Filverifikationen misslyckades på dessa enheter: "
 
 #: rapid/problemnotification.py:347
 #, python-format
@@ -1945,8 +1950,8 @@ msgid "Video backup location:"
 msgstr "Plats för säkerhetskopiering av videor:"
 
 #: rapid/glade3/prefs.ui.h:79
-msgid "Back up"
-msgstr ""
+msgid "Backup"
+msgstr "Säkerhetskopia"
 
 #: rapid/glade3/prefs.ui.h:80
 msgid "<span weight=\"bold\" size=\"x-large\">Miscellaneous</span>"
@@ -1982,7 +1987,7 @@ msgstr "Rotera JPEG-bilder automatiskt"
 
 #: rapid/glade3/prefs.ui.h:89
 msgid "Verify files as they are downloaded"
-msgstr ""
+msgstr "Verifiera filerna när de hämtas"
 
 #: rapid/glade3/prefs.ui.h:90
 msgid "Performance"
@@ -2676,6 +2681,3 @@ msgstr "Överför dina bilder och filmer snabbt och enkelt"
 #, python-format
 #~ msgid "Device %(device)s (%(path)s) ignored"
 #~ msgstr "Enhete %(device)s (%(path)s) ignorerades"
-
-#~ msgid "Backup"
-#~ msgstr "Säkerhetskopia"
