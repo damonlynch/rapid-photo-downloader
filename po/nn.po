@@ -7,15 +7,15 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
-"POT-Creation-Date: 2014-01-21 21:34+0600\n"
-"PO-Revision-Date: 2014-01-22 00:14+0000\n"
-"Last-Translator: Damon Lynch <damonlynch@gmail.com>\n"
+"POT-Creation-Date: 2014-02-23 21:38+0500\n"
+"PO-Revision-Date: 2014-05-30 06:48+0000\n"
+"Last-Translator: Kevin Brubeck Unhammer <Unknown>\n"
 "Language-Team: Norwegian Nynorsk <nn@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2014-01-23 13:56+0000\n"
-"X-Generator: Launchpad (build 16901)\n"
+"X-Launchpad-Export-Date: 2014-09-30 15:53+0000\n"
+"X-Generator: Launchpad (build 17196)\n"
 
 #. Translators: if neccessary, for guidance in how to translate this program, you may see http://damonlynch.net/translate.html
 #: rapid/rapid.py:117 rapid/rapid.py:1820 rapid/glade3/rapid.ui.h:15
@@ -125,6 +125,8 @@ msgstr "Kan ikkje gå vidare med nedlasting"
 #, python-format
 msgid "No backup device contains a valid folder for backing up %(filetype)s"
 msgstr ""
+"Fann inga eining å ta tryggleikskopi til som har ei gyldig mappe for "
+"%(filetype)s"
 
 #: rapid/rapid.py:2388 rapid/rapid.py:2843 rapid/rapid.py:3680
 #: rapid/rpdfile.py:139
@@ -138,7 +140,7 @@ msgstr "videoar"
 
 #: rapid/rapid.py:2393
 msgid "Backup problem"
-msgstr ""
+msgstr "Problem med tryggleikskopiering"
 
 #: rapid/rapid.py:2802
 msgid "About 1 second remaining"
@@ -472,17 +474,17 @@ msgstr "Feil: %(inst)s"
 #: rapid/backupfile.py:163
 #, python-format
 msgid "Backup %(file_type)s overwritten"
-msgstr ""
+msgstr "Skreiv over tryggleikskopi av %(file_type)s"
 
 #: rapid/backupfile.py:166
 #, python-format
 msgid "%(file_type)s not backed up"
-msgstr ""
+msgstr "%(file_type)s ikkje tryggleikskopiert"
 
 #: rapid/backupfile.py:168
 #, python-format
 msgid "Backup of %(file_type)s already exists"
-msgstr ""
+msgstr "Tryggleikskopi av %(file_type)s finst alt"
 
 #: rapid/backupfile.py:209 rapid/copyfiles.py:201 rapid/copyfiles.py:219
 #: rapid/subfolderfile.py:217 rapid/subfolderfile.py:335
@@ -497,7 +499,7 @@ msgstr ""
 
 #: rapid/copyfiles.py:214
 msgid "An unknown error occurred"
-msgstr ""
+msgstr "Det oppsto en ukjend feil"
 
 #: rapid/device.py:80
 msgid "Device Detected"
@@ -1183,7 +1185,7 @@ msgstr "Ein feil oppstod ved kopiering av %(filetype)s"
 #: rapid/problemnotification.py:98
 #, python-format
 msgid "The %(filetype)s did not download correctly"
-msgstr ""
+msgstr "%(filetype)s blei ikkje lasta ned rett"
 
 #: rapid/problemnotification.py:101 rapid/problemnotification.py:102
 #, python-format
@@ -1242,7 +1244,7 @@ msgstr "Feil: %(errorno)s %(strerror)s"
 msgid ""
 "File verification failed. The downloaded version is different from the "
 "original."
-msgstr ""
+msgstr "Klarte ikkje validera fila. Den nedlasta utgåva er ulik originalen."
 
 #: rapid/problemnotification.py:213
 msgid "The metadata might be corrupt."
@@ -1352,10 +1354,12 @@ msgid ""
 "File verification failed on %(volume)s. The backed up version is different "
 "from the downloaded version."
 msgstr ""
+"Klarte ikkje validera fil på %(volume)s. Den tryggleikskopierte utgåva er "
+"ulik den nedlasta utgåva."
 
 #: rapid/problemnotification.py:337
 msgid "File verification failed on these devices: "
-msgstr ""
+msgstr "Klarte ikkje validera filer på desse einingane: "
 
 #: rapid/problemnotification.py:347
 #, python-format
@@ -1945,8 +1949,8 @@ msgid "Video backup location:"
 msgstr "Ta tryggleikskopi av videoar til:"
 
 #: rapid/glade3/prefs.ui.h:79
-msgid "Back up"
-msgstr ""
+msgid "Backup"
+msgstr "Tryggleikskopi"
 
 #: rapid/glade3/prefs.ui.h:80
 msgid "<span weight=\"bold\" size=\"x-large\">Miscellaneous</span>"
@@ -1982,7 +1986,7 @@ msgstr "Roter JPEG-bilete automatisk"
 
 #: rapid/glade3/prefs.ui.h:89
 msgid "Verify files as they are downloaded"
-msgstr ""
+msgstr "Valider filer ved nedlasting"
 
 #: rapid/glade3/prefs.ui.h:90
 msgid "Performance"
@@ -2241,9 +2245,6 @@ msgstr "Importer bileta og videoane dine trygt og effektivt"
 
 #~ msgid "Automation"
 #~ msgstr "Automatisering"
-
-#~ msgid "Backup"
-#~ msgstr "Tryggleikskopi"
 
 #~ msgid "Backup location:"
 #~ msgstr "Kopier til:"

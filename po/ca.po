@@ -8,14 +8,14 @@ msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2014-02-23 21:38+0500\n"
-"PO-Revision-Date: 2014-05-13 06:51+0000\n"
+"PO-Revision-Date: 2014-07-25 03:45+0000\n"
 "Last-Translator: Adolfo Jayme <fitoschido@gmail.com>\n"
 "Language-Team: Catalan <ca@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2014-05-28 14:01+0000\n"
-"X-Generator: Launchpad (build 17017)\n"
+"X-Launchpad-Export-Date: 2014-09-30 15:52+0000\n"
+"X-Generator: Launchpad (build 17196)\n"
 
 #. Translators: if neccessary, for guidance in how to translate this program, you may see http://damonlynch.net/translate.html
 #: rapid/rapid.py:117 rapid/rapid.py:1820 rapid/glade3/rapid.ui.h:15
@@ -342,7 +342,7 @@ msgstr "S’està copiant en %(path)s"
 #: rapid/rapid.py:3732
 #, python-format
 msgid "Backing up photos to %(path)s and videos to %(path2)s"
-msgstr ""
+msgstr "S’estan copiant les fotos en %(path)s i els vídeos en %(path2)s"
 
 #: rapid/rapid.py:3739
 #, python-format
@@ -575,11 +575,11 @@ msgstr "Extensió"
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamefilename
 #: rapid/generatenameconfig.py:171
 msgid "Image number"
-msgstr ""
+msgstr "Número d’imatge"
 
 #: rapid/generatenameconfig.py:172
 msgid "Video number"
-msgstr ""
+msgstr "Número de vídeo"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
 #: rapid/generatenameconfig.py:174
@@ -634,7 +634,7 @@ msgstr ""
 #. File number currently refers to the Exif value Exif.Canon.FileNumber
 #: rapid/generatenameconfig.py:194
 msgid "File number"
-msgstr ""
+msgstr "Número del fitxer"
 
 #. Only the folder component of the Exif.Canon.FileNumber value
 #: rapid/generatenameconfig.py:196
@@ -810,7 +810,7 @@ msgstr ""
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
 #: rapid/generatenameconfig.py:256
 msgid "MMDD"
-msgstr ""
+msgstr "MMDD"
 
 #. Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
 #: rapid/generatenameconfig.py:258
@@ -1020,6 +1020,9 @@ msgid ""
 "you correct them:\n"
 " %s"
 msgstr ""
+"Les expressions regulars següents no són vàlides i se suprimiran si no les "
+"corregiu:\n"
+" %s"
 
 #: rapid/preferencesdialog.py:1764
 #, python-format
@@ -1028,6 +1031,8 @@ msgid ""
 "it:\n"
 " %s"
 msgstr ""
+"Aquesta expressió regular no és vàlida i es treurà si no la corregiu:\n"
+" %s"
 
 #: rapid/preferencesdialog.py:1765
 msgid "Invalid regular expression"
@@ -1131,12 +1136,12 @@ msgstr ""
 
 #: rapid/problemnotification.py:86
 msgid "Filename does not have an extension."
-msgstr ""
+msgstr "El nom del fitxer no hi té cap extensió."
 
 #. a number component is something like the 8346 in IMG_8346.JPG
 #: rapid/problemnotification.py:88
 msgid "Filename does not have a number component."
-msgstr ""
+msgstr "El nom del fitxer no hi té el component numèric."
 
 #: rapid/problemnotification.py:89
 #, python-format
@@ -1147,7 +1152,7 @@ msgstr "S’ha produït un error en generar el component %s."
 #: rapid/problemnotification.py:91
 #, python-format
 msgid "%(filetype)s metadata cannot be read"
-msgstr ""
+msgstr "No s’han pogut llegir els metadades de «%(filetype)s»"
 
 #: rapid/problemnotification.py:93
 #, python-format
@@ -1186,7 +1191,7 @@ msgstr ""
 #: rapid/problemnotification.py:111
 #, python-format
 msgid "%(filetype)s was already downloaded"
-msgstr ""
+msgstr "%(filetype)s ja s’havia baixat"
 
 #: rapid/problemnotification.py:115
 #, python-format
