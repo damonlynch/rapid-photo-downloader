@@ -142,7 +142,7 @@ class Problem:
 
             if args:
                 # check for special case of named arguments in a dictionary
-                if isinstance(args[0], types.DictType):
+                if isinstance(args[0], dict):
                     problem_details = problem % args[0]
                 else:
                     problem_details = problem % args
@@ -175,7 +175,7 @@ class Problem:
             detail = extra_detail_definitions[extra_detail]
 
             if args:
-                if isinstance(args[0], types.DictType):
+                if isinstance(args[0], dict):
                     extra_details = detail % args[0]
                 else:
                     extra_details = detail % args

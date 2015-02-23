@@ -1,46 +1,42 @@
-#!/usr/bin/python
-# -*- coding: latin1 -*-
+__author__ = 'Damon Lynch'
 
-### Copyright (C) 2011-2014 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2011-2015 Damon Lynch <damonlynch@gmail.com>
 
-### This program is free software; you can redistribute it and/or modify
-### it under the terms of the GNU General Public License as published by
-### the Free Software Foundation; either version 2 of the License, or
-### (at your option) any later version.
-
-### This program is distributed in the hope that it will be useful,
-### but WITHOUT ANY WARRANTY; without even the implied warranty of
-### MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-### GNU General Public License for more details.
-
-### You should have received a copy of the GNU General Public License
-### along with this program; if not, write to the Free Software
-### Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-### USA
+# This file is part of Rapid Photo Downloader.
+#
+# Rapid Photo Downloader is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Rapid Photo Downloader is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Rapid Photo Downloader.  If not,
+# see <http://www.gnu.org/licenses/>.
 
 import os
-import gtk
-
-import time, datetime
-
-import multiprocessing, logging
-logger = multiprocessing.get_logger()
-
-import pyexiv2
-
-import paths
+import time
+import datetime
+import uuid
+import logging
+import mimetypes
 
 from gettext import gettext as _
 
+import exiftool
 import config
 import metadataphoto
 import metadatavideo
-import metadataexiftool
 
 import problemnotification as pn
 
-import thumbnail as tn
+# import thumbnail as tn
 
+logger = logging.getLogger('scan')
 
 RAW_EXTENSIONS = ['arw', 'dcr', 'cr2', 'crw',  'dng', 'mos', 'mef', 'mrw',
                   'nef', 'nrw', 'orf', 'pef', 'raf', 'raw', 'rw2', 'sr2',
@@ -48,23 +44,18 @@ RAW_EXTENSIONS = ['arw', 'dcr', 'cr2', 'crw',  'dng', 'mos', 'mef', 'mrw',
 
 JPEG_EXTENSIONS = ['jpg', 'jpe', 'jpeg']
 
+# FIXME does QT5 QImage even support TIFF?
 NON_RAW_IMAGE_EXTENSIONS = JPEG_EXTENSIONS + ['tif', 'tiff', 'mpo']
 
 PHOTO_EXTENSIONS = RAW_EXTENSIONS + NON_RAW_IMAGE_EXTENSIONS
 
 AUDIO_EXTENSIONS = ['wav', 'mp3']
 
-if metadatavideo.DOWNLOAD_VIDEO:
-    # some distros do not include the necessary libraries that Rapid Photo Downloader
-    # needs to be able to download videos
-    VIDEO_EXTENSIONS = ['3gp', 'avi', 'm2t', 'mov', 'mp4', 'mpeg','mpg', 'mod',
-                        'tod']
-    if metadataexiftool.EXIFTOOL_VERSION is not None:
-        VIDEO_EXTENSIONS += ['mts']
-    VIDEO_THUMBNAIL_EXTENSIONS = ['thm']
-else:
-    VIDEO_EXTENSIONS = []
-    VIDEO_THUMBNAIL_EXTENSIONS = []
+
+VIDEO_EXTENSIONS = ['3gp', 'avi', 'm2t', 'mov', 'mp4', 'mpeg','mpg', 'mod',
+                    'tod', 'mts']
+
+VIDEO_THUMBNAIL_EXTENSIONS = ['thm']
 
 
 FILE_TYPE_PHOTO = 0
@@ -72,33 +63,36 @@ FILE_TYPE_VIDEO = 1
 
 def file_type(file_extension):
     """
-    Uses file extentsion to determine the type of file - photo or video.
+    Returns file type (photo/video), or None if it's neither.
+    Checks only the file's extension
 
-    Returns True if yes, else False.
+    :type file_extension: str
+    :return: FILE_TYPE_PHOTO|FILE_TYPE_VIDEO|None
     """
+
     if file_extension in PHOTO_EXTENSIONS:
         return FILE_TYPE_PHOTO
     elif file_extension in VIDEO_EXTENSIONS:
         return FILE_TYPE_VIDEO
     return None
 
-def get_rpdfile(extension, name, display_name, path, size,
+def get_rpdfile(extension, name, path, size,
                 file_system_modification_time,
                 thm_full_name, audio_file_full_name,
-                scan_pid, file_id, file_type):
+                scan_id, file_type, from_camera):
 
     if file_type == FILE_TYPE_VIDEO:
-        return Video(name, display_name, path, size,
+        return Video(name, path, size,
                      file_system_modification_time, thm_full_name,
                      audio_file_full_name,
-                     scan_pid, file_id)
+                     scan_id, from_camera)
     else:
         # assume it's a photo - no check for performance reasons (this will be
         # called many times)
-        return Photo(name, display_name, path, size,
+        return Photo(name, path, size,
                      file_system_modification_time, thm_full_name,
                      audio_file_full_name,
-                     scan_pid, file_id)
+                     scan_id, from_camera)
 
 class FileTypeCounter:
     def __init__(self):
@@ -174,40 +168,57 @@ class RPDFile:
     Base class for photo or video file, with metadata
     """
 
-    def __init__(self, name, display_name, path, size,
-                 file_system_modification_time, thm_full_name,
-                 audio_file_full_name,
-                 scan_pid, file_id):
+    def __init__(self, name: str, path: str, size: int,
+                 modification_time: float, thm_full_name: str,
+                 audio_file_full_name: str,
+                 scan_id: bytes,
+                 from_camera: bool):
+        """
+
+        :param name: filename
+        :param path: path of the file
+        :param size: file size
+        :param modification_time: file modification time
+        :param thm_full_name: name and path of and associated thumbnail
+               file
+        :param audio_file_full_name: name and path of any associated
+               audio file
+        :param scan_id: id of the scan
+        :param from_camera: whether the file is being downloaded from a
+               camera
+        """
+
+        self.from_camera = from_camera
 
         self.path = path
 
         self.name = name
-        self.display_name = display_name
 
         self.full_file_name = os.path.join(path, name)
         self.extension = os.path.splitext(name)[1][1:].lower()
 
-        self.size = size # type int
+        self.mime_type = mimetypes.guess_type(name)[0]
 
-        self.modification_time = file_system_modification_time
+        self.size = size
+
+        self.modification_time = modification_time
 
         #full path and name of thumbnail file that is associated with some videos
         self.thm_full_name = thm_full_name
 
-        #full path and name of audio file that is associated with some photos and maybe one day videos
-        #think Canon 1D series of cameras
+        #full path and name of audio file that is associated with some photos
+        # and maybe one day videos, e.g. found with the Canon 1D series of
+        # cameras
         self.audio_file_full_name = audio_file_full_name
 
         self.status = config.STATUS_NOT_DOWNLOADED
         self.problem = None # class Problem in problemnotifcation.py
 
-        self._assign_file_type()
+        self._assign_file_type() # Indicate whether file is a photo or video
 
-        self.scan_pid = scan_pid
-        self.file_id = file_id
-        self.unique_id = str(scan_pid) + ":" + file_id
+        self.scan_id = int(scan_id)
+        self.unique_id = '{}:{}'.format(self.scan_id, uuid.uuid4())
 
-        self.problem = None
         self.job_code = None
 
         # indicates whether to generate a thumbnail during the copy
@@ -251,6 +262,19 @@ class RPDFile:
         #self.new_aperture = ''
         #self.new_focal_length = ''
 
+    def is_jpeg(self) -> bool:
+        """
+        Uses guess from mimetypes module
+        :return:True if the image is a jpeg image
+        """
+        return self.mime_type == 'image/jpeg'
+
+    def is_raw(self) -> bool:
+        """
+        Inspects file extenstion to determine if a RAW file
+        :return: True if the image is a RAW file
+        """
+        return self.extension in RAW_EXTENSIONS
 
     def _assign_file_type(self):
         self.file_type = None
@@ -294,7 +318,8 @@ class Photo(RPDFile):
         try:
             self.metadata.read()
         except:
-            logger.warning("Could not read metadata from %s" % self.full_file_name)
+            logger.warning("Could not read metadata from {}".format(
+                           self.full_file_name))
             return False
         else:
             return True
@@ -309,13 +334,11 @@ class Video(RPDFile):
         self.file_type = FILE_TYPE_VIDEO
 
     def load_metadata(self, temp_file=False):
-        if self.extension == 'mts' or not metadatavideo.HAVE_HACHOIR:
-            if metadatavideo.HAVE_HACHOIR:
-                logger.debug("Using ExifTool parser")
-            self.metadata = metadataexiftool.ExifToolMetaData(self._load_file_for_metadata(temp_file))
-        else:
-            self.metadata = metadatavideo.VideoMetaData(self._load_file_for_metadata(temp_file))
+        self.metadata = metadatavideo.ExifToolMetaData(
+            self._load_file_for_metadata(temp_file))
         return True
+
+
 
 class SamplePhoto(Photo):
     def __init__(self, sample_name='IMG_0524.CR2', sequences=None):
@@ -344,5 +367,5 @@ class SampleVideo(Video):
                        thm_full_name=None,
                        audio_file_full_name=None)
         self.sequences = sequences
-        self.metadata = metadatavideo.DummyMetaData(filename=sample_name)
+        self.metadata = metadatavideo.DummyMetaData(sample_name, None)
         self.download_start_time = datetime.datetime.now()

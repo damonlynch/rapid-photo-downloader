@@ -1,381 +1,464 @@
-#!/usr/bin/python
-# -*- coding: latin1 -*-
+#!/usr/bin/python3
+__author__ = 'Damon Lynch'
 
-### Copyright (C) 2011-2014 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2011-2015 Damon Lynch <damonlynch@gmail.com>
 
-### This program is free software; you can redistribute it and/or modify
-### it under the terms of the GNU General Public License as published by
-### the Free Software Foundation; either version 2 of the License, or
-### (at your option) any later version.
+# This file is part of Rapid Photo Downloader.
+#
+# Rapid Photo Downloader is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Rapid Photo Downloader is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Rapid Photo Downloader.  If not,
+# see <http://www.gnu.org/licenses/>.
 
-### This program is distributed in the hope that it will be useful,
-### but WITHOUT ANY WARRANTY; without even the implied warranty of
-### MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-### GNU General Public License for more details.
-
-### You should have received a copy of the GNU General Public License
-### along with this program; if not, write to the Free Software
-### Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-### USA
-
-import multiprocessing
-import types
 import os
-
-import gtk
-
-import paths
-
-from PIL import Image
-import cStringIO
+import logging
+import pickle
 import tempfile
 import subprocess
+import shlex
 
-import rpdfile
 
-import rpdmultiprocessing as rpdmp
-from utilities import image_to_pixbuf, pixbuf_to_image
-import pyexiv2
+from PyQt5.QtGui import QImage, QTransform
+from PyQt5.QtCore import QSize, Qt, QIODevice, QBuffer
+from gi.repository import GExiv2
+
+
+from rpdfile import RPDFile, FILE_TYPE_PHOTO
+
+from interprocess import (WorkerInPublishPullPipeline,
+                          GenerateThumbnailsArguments)
 
 from filmstrip import add_filmstrip
 
-import logging
-logger = multiprocessing.get_logger()
+from config import DOWNLOADED
+from camera import Camera
+
+#FIXME free camera in case of early termination
+
+logging.basicConfig(format='%(levelname)s:%(asctime)s:%(message)s',
+                    datefmt='%H:%M:%S',
+                    level=logging.DEBUG)
 
 
-def get_stock_photo_image():
-    length = min(gtk.gdk.screen_width(), gtk.gdk.screen_height())
-    pixbuf = gtk.gdk.pixbuf_new_from_file_at_size(paths.share_dir('glade3/photo.svg'), length, length)
-    image = pixbuf_to_image(pixbuf)
-    return image
+# def get_stock_photo_image():
+#     length = min(gtk.gdk.screen_width(), gtk.gdk.screen_height())
+#     pixbuf = gtk.gdk.pixbuf_new_from_file_at_size(paths.share_dir('glade3/photo.svg'), length, length)
+#     image = pixbuf_to_image(pixbuf)
+#     return image
+#
+# def get_stock_photo_image_icon():
+#     image = Image.open(paths.share_dir('glade3/photo66.png'))
+#     image = image.convert("RGBA")
+#     return image
+#
+# def get_stock_video_image():
+#     length = min(gtk.gdk.screen_width(), gtk.gdk.screen_height())
+#     pixbuf = gtk.gdk.pixbuf_new_from_file_at_size(paths.share_dir('glade3/video.svg'), length, length)
+#     image = pixbuf_to_image(pixbuf)
+#     return image
+#
+# def get_stock_video_image_icon():
+#     image = Image.open(paths.share_dir('glade3/video66.png'))
+#     image = image.convert("RGBA")
+#     return image
+#
+#
+# class PhotoIcons():
+#     stock_thumbnail_image_icon = get_stock_photo_image_icon()
+#
+# class VideoIcons():
+#     stock_thumbnail_image_icon = get_stock_video_image_icon()
 
-def get_stock_photo_image_icon():
-    image = Image.open(paths.share_dir('glade3/photo66.png'))
-    image = image.convert("RGBA")
-    return image
-
-def get_stock_video_image():
-    length = min(gtk.gdk.screen_width(), gtk.gdk.screen_height())
-    pixbuf = gtk.gdk.pixbuf_new_from_file_at_size(paths.share_dir('glade3/video.svg'), length, length)
-    image = pixbuf_to_image(pixbuf)
-    return image
-
-def get_stock_video_image_icon():
-    image = Image.open(paths.share_dir('glade3/video66.png'))
-    image = image.convert("RGBA")
-    return image
-
-
-class PhotoIcons():
-    stock_thumbnail_image_icon = get_stock_photo_image_icon()
-
-class VideoIcons():
-    stock_thumbnail_image_icon = get_stock_video_image_icon()
-
-def upsize_pil(image, size):
-    width_max = size[0]
-    height_max = size[1]
-    width_orig = float(image.size[0])
-    height_orig = float(image.size[1])
-    if (width_orig / width_max) > (height_orig / height_max):
-        height = int((height_orig / width_orig) * width_max)
-        width = width_max
-    else:
-        width = int((width_orig / height_orig) * height_max)
-        height=height_max
-
-    return image.resize((width, height), Image.ANTIALIAS)
-
-def downsize_pil(image, box, fit=False):
-    """Downsample the PIL image.
-   image: Image -  an Image-object
-   box: tuple(x, y) - the bounding box of the result image
-   fix: boolean - crop the image to fill the box
-
-   Code adpated from example by Christian Harms
-   Source: http://united-coders.com/christian-harms/image-resizing-tips-every-coder-should-know
-   """
-    #preresize image with factor 2, 4, 8 and fast algorithm
-    factor = 1
-    logger.debug("Image size %sx%s", image.size[0], image.size[1])
-    logger.debug("Box size %sx%s", box[0],box[1])
-    while image.size[0]/factor > 2*box[0] and image.size[1]*2/factor > 2*box[1]:
-        factor *=2
-    if factor > 1:
-        logger.debug("quick resize %sx%s", image.size[0]/factor, image.size[1]/factor)
-        image.thumbnail((image.size[0]/factor, image.size[1]/factor), Image.NEAREST)
-        logger.debug("did first thumbnail")
-
-    #calculate the cropping box and get the cropped part
-    if fit:
-        x1 = y1 = 0
-        x2, y2 = image.size
-        wRatio = 1.0 * x2/box[0]
-        hRatio = 1.0 * y2/box[1]
-        if hRatio > wRatio:
-            y1 = y2/2-box[1]*wRatio/2
-            y2 = y2/2+box[1]*wRatio/2
-        else:
-            x1 = x2/2-box[0]*hRatio/2
-            x2 = x2/2+box[0]*hRatio/2
-        image = image.crop((x1,y1,x2,y2))
-
-    #Resize the image with best quality algorithm ANTI-ALIAS
-    logger.debug("about to actually downsize using image.thumbnail")
-    image.thumbnail(box, Image.ANTIALIAS)
-    logger.debug("it downsized")
-
-class PicklablePIL:
-    def __init__(self, image):
-        self.size = image.size
-        self.mode = image.mode
-        self.image_data = image.tostring()
-
-    def get_image(self):
-        return Image.fromstring(self.mode, self.size, self.image_data)
-
-    def get_pixbuf(self):
-        return image_to_pixbuf(self.get_image())
 
 class Thumbnail:
+    """
+    Extract thumbnails from a photo or video in QImage format
+    """
 
-    # file types from which to remove letterboxing (black bands in the thumbnail
-    # previews)
-    crop_thumbnails = ('CR2', 'DNG', 'RAF', 'ORF', 'PEF', 'ARW')
+    # file types from which to remove letterboxing (black bands in the
+    # thumbnail previews)
+    crop_thumbnails = ('cr2', 'dng', 'raf', 'orf', 'pef', 'arw')
 
-    def _ignore_embedded_160x120_thumbnail(self, max_size_needed, metadata):
-        return max_size_needed is None or max_size_needed[0] > 160 or max_size_needed[1] > 120 or not metadata.exif_thumbnail.data
+    # Exif rotation constants
+    rotate_90 = '6'
+    rotate_180 = '3'
+    rotate_270 = '8'
+    stock_photo = QImage("images/photo66.png")
+    stock_video = QImage("images/video66.png")
 
-    def _get_thumbnail_data(self, metadata, max_size_needed):
-        logger.debug("Getting thumbnail data %s", max_size_needed)
-        if self._ignore_embedded_160x120_thumbnail(max_size_needed, metadata):
-            logger.debug("Ignoring embedded preview")
-            lowrez = False
-            previews = metadata.previews
-            if not previews:
-                return (None, None)
-            else:
-                if max_size_needed:
-                    for thumbnail in previews:
-                        if thumbnail.dimensions[0] >= max_size_needed or thumbnail.dimensions[1] >= max_size_needed:
-                            break
-                else:
-                    thumbnail = previews[-1]
-        else:
-            thumbnail = metadata.exif_thumbnail
-            lowrez = True
-        return (thumbnail.data, lowrez)
+    def __init__(self, rpd_file: RPDFile, camera: Camera):
+        """
+        :param rpd_file: file from which to extract the thumbnails
+        :param camera: if not None, the camera from which to get the
+        thumbnails
+        """
+        self.rpd_file = rpd_file
+        self.metadata = None
+        self.camera = camera
 
-    def _process_thumbnail(self, image, size_reduced):
-        image_ok = True
-        if image.mode <> "RGBA":
+    def _ignore_embedded_160x120_thumbnail(self) -> bool:
+        """
+        Most photos contain a 160x120 thumbnail as part of the exif
+        metadata. If the size of the thumbnail being sought is bigger,
+        or it's missing, then it should be ignored.
+
+        :return: True if the embedded exif thumbnail should be ignored
+        """
+
+        if self.width_sought is None:
+            return True
+        # height is compared against 106 because we're going to crop the
+        # thumbnail to remove the black bands
+        # 106 = 160 // 1.5
+        return (self.width_sought > 160 or self.height_sought > 106 or
+                not self.metadata.get_exif_thumbnail())
+
+    def _crop_160x120_thumbnail(self, thumbnail: QImage,
+                                vertical_space: int) -> QImage:
+        """
+        Remove black bands from the top and bottom of thumbnail
+        :param thumbnail: thumbnail to crop
+        :param vertical_space: how much to remove from the top and bottom
+        :return: cropped thumbnail
+        """
+        return thumbnail.copy(0, vertical_space, 160, 120 - vertical_space*2)
+
+    def _get_photo_thumbnail(self, file_name, size: QSize) -> QImage:
+        """
+        Returns a correctly sized and rotated thumbnail for the file
+
+        :param file_name: photo from which to get the thumbnail
+        :param size: size of the thumbnail needed (maximum height and
+                     width). If size is None, return maximum size.
+        :return a QImage of the thumbnail
+        """
+
+        thumbnail = None
+        could_not_load_jpeg = False
+
+        # Even for jpeg, need to read the metadata, so as to get the
+        # orientation tag
+        if self.metadata is None:
             try:
-                image = image.convert("RGBA")
+                self.metadata = GExiv2.Metadata(file_name)
             except:
-                logger.error("Image thumbnail is corrupt")
-                image_ok = False
+                logging.warning("Could not read metadata from %s", file_name)
 
-        if image_ok:
-            thumbnail = PicklablePIL(image)
-            if size_reduced is not None:
-                thumbnail_icon = image.copy()
-                downsize_pil(thumbnail_icon, size_reduced, fit=False)
-                thumbnail_icon = PicklablePIL(thumbnail_icon)
-            else:
-                thumbnail_icon = None
-        else:
-            thumbnail = thumbnail_icon = None
-        return (thumbnail, thumbnail_icon)
-
-    def _get_photo_thumbnail(self, full_file_name, size_max, size_reduced):
-        thumbnail = None
-        thumbnail_icon = None
-        name = os.path.basename(full_file_name)
-        metadata = pyexiv2.metadata.ImageMetadata(full_file_name)
-        try:
-            logger.debug("Read photo metadata...")
-            metadata.read()
-        except:
-            logger.warning("Could not read metadata from %s", full_file_name)
-        else:
-            logger.debug("...successfully read photo metadata")
-            if metadata.mime_type == "image/jpeg" and self._ignore_embedded_160x120_thumbnail(size_max, metadata):
+            if self.metadata:
                 try:
-                    image = Image.open(full_file_name)
-                    lowrez = False
-                except:
-                    logger.warning("Could not generate thumbnail for jpeg %s ", full_file_name)
-                    image = None
+                    self.orientation = self.metadata['Exif.Image.Orientation']
+                except KeyError:
+                    self.orientation = None
+
+        # Create a thumbnail out of the file itself if it's a jpeg and
+        # we need the maximum size, or there is no metadata
+        if self.rpd_file.is_jpeg():
+            if not self.metadata or size is None:
+                thumbnail = QImage(file_name)
+                if thumbnail.isNull():
+                    could_not_load_jpeg = True
+                    logging.error(
+                        "Unable to create a thumbnail out of the jpeg "
+                        "{}".format(file_name))
+
+        if self.metadata and thumbnail is None:
+            # Get preliminary information about what we need and what
+            # metadata we have
+            if size is not None:
+                self.width_sought = size.width()
+                self.height_sought = size.height()
             else:
-                thumbnail_data, lowrez = self._get_thumbnail_data(metadata, max_size_needed=size_max)
-                logger.debug("_get_thumbnail_data returned")
-                if not isinstance(thumbnail_data, types.StringType):
-                    image = None
+                self.width_sought = self.height_sought = None
+
+            # Orientation is important because it affects calculations
+            # around image width and height
+            if self.orientation in (self.rotate_90, self.rotate_270):
+                if size is not None:
+                    self.width_sought = size.height()
+                    self.height_sought = size.width()
+
+
+            self.ignore_embedded_thumbnail = \
+                self._ignore_embedded_160x120_thumbnail()
+            self.previews = self.metadata.get_preview_properties()
+            self.is_jpeg = self.metadata.get_mime_type() == "image/jpeg"
+
+            # Check for special case of a RAW file with no previews and
+            # only an embedded thumbnail. We need that embedded thumbnail
+            # no matter how small it is
+            if not self.is_jpeg and not self.previews:
+                if self.metadata.get_exif_thumbnail():
+                    self.ignore_embedded_thumbnail = False
+
+            if not self.ignore_embedded_thumbnail:
+                thumbnail = QImage.fromData(self.metadata.get_exif_thumbnail())
+                if thumbnail.isNull():
+                    logging.warning("Could not extract thumbnail from {"
+                                    "}".format(file_name))
+                    thumbnail = None
+                if (self.rpd_file.extension in self.crop_thumbnails and
+                            thumbnail is not None):
+                    # args: x, y, image width, image height
+                    thumbnail = self._crop_160x120_thumbnail(thumbnail, 8)
+
+            if self.previews and thumbnail is None:
+                if size is None:
+                    # Use the largest preview we have access to
+                    preview = self.previews[-1]
                 else:
-                    td = cStringIO.StringIO(thumbnail_data)
-                    logger.debug("got td")
+                    # Get the biggest preview we need
+                    for preview in self.previews:
+                        if (preview.get_width() >= self.width_sought and
+                                preview.get_height() >= self.height_sought):
+                            break
+
+                data = self.metadata.get_preview_image(preview).get_data()
+                if isinstance(data, bytes):
                     try:
-                        image = Image.open(td)
+                        thumbnail = QImage.fromData(data)
                     except:
-                        logger.warning("Unreadable thumbnail for %s", full_file_name)
-                        image = None
-            logger.debug("opened image")
-            if image:
-                try:
-                    orientation = metadata['Exif.Image.Orientation'].value
-                except:
-                    orientation = None
-                if lowrez:
-                    # need to remove letterboxing / pillarboxing from some
-                    # RAW thumbnails
-                    if os.path.splitext(full_file_name)[1][1:].upper() in Thumbnail.crop_thumbnails:
-                        image2 = image.crop((0, 8, 160, 112))
-                        image2.load()
-                        image = image2
-                if size_max is not None and (image.size[0] > size_max[0] or image.size[1] > size_max[1]):
-                    logger.debug("downsizing")
-                    downsize_pil(image, size_max, fit=False)
-                    logger.debug("downsized")
-                if orientation == 8:
-                    # rotate counter clockwise
-                    image = image.rotate(90)
-                elif orientation == 6:
-                    # rotate clockwise
-                    image = image.rotate(270)
-                elif orientation == 3:
-                    # rotate upside down
-                    image = image.rotate(180)
-                thumbnail, thumbnail_icon = self._process_thumbnail(image, size_reduced)
+                        logging.warning("Could not load thumbnail from "
+                                        "metadata preview for {}".format(
+                                        file_name))
 
-        logger.debug("...got thumbnail for %s", full_file_name)
-        return (thumbnail, thumbnail_icon)
+        if thumbnail is None and self.rpd_file.is_jpeg() and not \
+                could_not_load_jpeg:
+            # Unable to get thumbnail from metadata
+            logging.debug("Creating thumbnail from the jpeg "
+                          "itself: {}".format(file_name))
+            thumbnail = QImage(file_name)
+            if thumbnail.isNull():
+                thumbnail = None
+                logging.error(
+                    "Unable to create a thumbnail out of the jpeg: "
+                    "{}".format(file_name))
 
-    def _get_video_thumbnail(self, full_file_name, thm_full_name, size_max, size_reduced):
-        thumbnail = None
-        thumbnail_icon = None
-        if size_max is None:
-            size = 0
+
+        if thumbnail is not None and not thumbnail.isNull():
+            if self.orientation == self.rotate_90:
+                thumbnail = thumbnail.transformed(QTransform().rotate(90))
+            elif self.orientation == self.rotate_270:
+                thumbnail = thumbnail.transformed(QTransform().rotate(270))
+            elif self.orientation == self.rotate_180:
+                thumbnail = thumbnail.transformed(QTransform().rotate(180))
+
+            if size is not None:
+                thumbnail = thumbnail.scaled(size, Qt.KeepAspectRatio)
         else:
-            size = max(size_max[0], size_max[1])
-        image = None
-        if size > 0 and size <= 160:
-            if thm_full_name:
-                try:
-                    thumbnail = gtk.gdk.pixbuf_new_from_file(thm_full_name)
-                except:
-                    logger.error("Could not open THM file for %s", full_file_name)
-                    logger.error("Thumbnail file is %s", thm_full_name)
-                    image = None
-                else:
-                    thumbnail = add_filmstrip(thumbnail)
-                    image = pixbuf_to_image(thumbnail)
+            thumbnail = self.stock_photo
+        return thumbnail
 
-        if image is None:
+    def _get_photo_thumbnail_from_camera(self, file_name: str,
+                                         size: QSize) -> QImage:
+
+        thumbnail = None
+        ignore_embedded_thumbnail = True
+        is_raw_image =   self.rpd_file.is_raw()
+        if self.camera.can_fetch_thumbnails:
+            if is_raw_image:
+                # without first downloading the photo, there is no way to get
+                # a bigger preview
+                ignore_embedded_thumbnail = False
+            else:
+                # we don't know the image orientation and it seems gphoto2
+                # provides no way of knowing it without downloading the file
+                if size is not None:
+                    ignore_embedded_thumbnail = size.width() > 160
+
+        if not (is_raw_image and not self.camera.can_fetch_thumbnails):
+            thumbnail = self.camera.get_thumbnail(self.rpd_file.path,
+                                                  self.rpd_file.name,
+                                                  ignore_embedded_thumbnail)
+            if thumbnail.isNull():
+                thumbnail = None
+                logging.error(
+                    "Unable to create a thumbnail out of the jpeg "
+                    "{}".format(file_name))
+
+            if not ignore_embedded_thumbnail and self.rpd_file.extension in \
+                    self.crop_thumbnails:
+                thumbnail = self._crop_160x120_thumbnail(thumbnail, 8)
+
+            if size is not None:
+                thumbnail = thumbnail.scaled(size, Qt.KeepAspectRatio)
+
+        if thumbnail is None:
+            return self.stock_photo
+        else:
+            return  thumbnail
+
+
+    def _get_video_thumbnail(self, file_name: str, size: QSize, downloaded:
+    bool) -> QImage:
+        """
+        Returns a correctly sized thumbnail for the file.
+        Assumes a horizontal orientation
+
+        :param file_name: file from which to extract the thumnbnail
+        :param size: size of the thumbnail needed (maximum height and
+                     width). If size is None, return maximum size.
+        :param downloaded: if True, the file has already been downloaded
+        :return a QImage of the thumbnail
+        """
+
+        thumbnail = None
+
+        use_thm = False
+        if self.rpd_file.thm_full_name is not None:
+            if self.rpd_file.from_camera and not downloaded:
+                use_thm = True
+            elif size is not None:
+                if size.width() <= 160:
+                    use_thm = True
+
+        if use_thm:
+            if downloaded:
+                thumbnail = QImage(
+                    self.rpd_file.download_thm_full_name)
+            else:
+                thm_file = self.rpd_file.thm_full_name
+                if self.rpd_file.from_camera:
+                    thumbnail = self.camera.get_THM_file(thm_file)
+                else:
+                    thumbnail = QImage(thm_file)
+
+            if thumbnail.isNull():
+                logging.error("Could not open THM file for %s",
+                              file_name)
+                logging.error("Thumbnail file is %s", thm_file)
+                thumbnail = None
+            else:
+                thumbnail = self._crop_160x120_thumbnail(thumbnail, 15)
+                if size.width() != 160:
+                    thumbnail = thumbnail.scaled(size,
+                                                 Qt.KeepAspectRatio)
+                thumbnail = add_filmstrip(thumbnail)
+
+
+        if thumbnail is None and not (self.rpd_file.from_camera and not
+        downloaded):
+            # extract a frame from the video file and scale it
+            #FIXME haven't handled case of missing program
             try:
+                if size is None:
+                    thumbnail_size = 0
+                else:
+                    thumbnail_size = size.width()
                 tmp_dir = tempfile.mkdtemp(prefix="rpd-tmp")
                 thm = os.path.join(tmp_dir, 'thumbnail.jpg')
-                subprocess.check_call(['ffmpegthumbnailer', '-i', full_file_name, '-t', '10', '-f', '-o', thm, '-s', str(size)])
-                image = Image.open(thm)
-                image.load()
+                command = shlex.split('ffmpegthumbnailer -i {} -t 10 -f -o {'
+                                      '} -s {}'.format(file_name, thm,
+                                                       thumbnail_size))
+                subprocess.check_call(command)
+                thumbnail = QImage(thm)
                 os.unlink(thm)
                 os.rmdir(tmp_dir)
             except:
-                image = None
-                logger.error("Error generating thumbnail for %s", full_file_name)
-        if image:
-            thumbnail, thumbnail_icon = self._process_thumbnail(image, size_reduced)
+                thumbnail = None
+                logging.error("Error generating thumbnail for {}".format(
+                    file_name))
 
-        logger.debug("...got thumbnail for %s", full_file_name)
-        return (thumbnail, thumbnail_icon)
+        if thumbnail is None or thumbnail.isNull():
+            thumbnail = self.stock_video
 
-    def get_thumbnail(self, full_file_name, thm_full_name, file_type, size_max=None, size_reduced=None):
-        logger.debug("Getting thumbnail for %s...", full_file_name)
-        if file_type == rpdfile.FILE_TYPE_PHOTO:
-            logger.debug("file type is photo")
-            return self._get_photo_thumbnail(full_file_name, size_max, size_reduced)
-        else:
-            return self._get_video_thumbnail(full_file_name, thm_full_name, size_max, size_reduced)
+        return thumbnail
 
-
-class GetPreviewImage(multiprocessing.Process):
-    def __init__(self, results_pipe):
-        multiprocessing.Process.__init__(self)
-        self.daemon = True
-        self.results_pipe = results_pipe
-        self.thumbnail_maker = Thumbnail()
-        self.stock_photo_thumbnail_image = None
-        self.stock_video_thumbnail_image = None
-
-    def get_stock_image(self, file_type):
+    def get_thumbnail(self, size=None) -> QImage:
         """
-        Get stock image for file type scaled to the current size of the screen
+        :param size: size of the thumbnail needed (maximum height and
+                     width). If size is None, return maximum size.
+        :type size: QSize
         """
-        if file_type == rpdfile.FILE_TYPE_PHOTO:
-            if self.stock_photo_thumbnail_image is None:
-                self.stock_photo_thumbnail_image = PicklablePIL(get_stock_photo_image())
-            return self.stock_photo_thumbnail_image
+
+        # If the file is already downloaded, cannot assume the source
+        # file is still available
+        downloaded = self.rpd_file.status in DOWNLOADED
+        if downloaded:
+            file_name = self.rpd_file.download_full_file_name
         else:
-            if self.stock_video_thumbnail_image is None:
-                self.stock_video_thumbnail_image = PicklablePIL(get_stock_video_image())
-            return self.stock_video_thumbnail_image
+            file_name = self.rpd_file.full_file_name
 
-    def run(self):
-        while True:
-            unique_id, full_file_name, thm_full_name, file_type, size_max = self.results_pipe.recv()
-            full_size_preview, reduced_size_preview = self.thumbnail_maker.get_thumbnail(full_file_name, thm_full_name, file_type, size_max=size_max, size_reduced=(100,100))
-            if full_size_preview is None:
-                full_size_preview = self.get_stock_image(file_type)
-            self.results_pipe.send((unique_id, full_size_preview, reduced_size_preview))
+        if self.rpd_file.file_type == FILE_TYPE_PHOTO:
+            if self.rpd_file.from_camera and not downloaded:
+                return self._get_photo_thumbnail_from_camera(file_name, size)
+            else:
+                return self._get_photo_thumbnail(file_name, size)
+        else:
+            return self._get_video_thumbnail(file_name, size, downloaded)
 
 
-class GenerateThumbnails(multiprocessing.Process):
-    def __init__(self, scan_pid, files, batch_size, results_pipe, terminate_queue,
-                 run_event):
-        multiprocessing.Process.__init__(self)
-        self.results_pipe = results_pipe
-        self.terminate_queue = terminate_queue
-        self.batch_size = batch_size
-        self.files = files
-        self.run_event = run_event
-        self.results = []
+# class GetPreviewImage(multiprocessing.Process):
+#     def __init__(self, results_pipe):
+#         multiprocessing.Process.__init__(self)
+#         self.daemon = True
+#         self.results_pipe = results_pipe
+#         self.thumbnail_maker = Thumbnail()
+#         self.stock_photo_thumbnail_image = None
+#         self.stock_video_thumbnail_image = None
+#
+#     def get_stock_image(self, file_type):
+#         """
+#         Get stock image for file type scaled to the current size of the screen
+#         """
+#         if file_type == rpdfile.FILE_TYPE_PHOTO:
+#             if self.stock_photo_thumbnail_image is None:
+#                 self.stock_photo_thumbnail_image = PicklablePIL(get_stock_photo_image())
+#             return self.stock_photo_thumbnail_image
+#         else:
+#             if self.stock_video_thumbnail_image is None:
+#                 self.stock_video_thumbnail_image = PicklablePIL(get_stock_video_image())
+#             return self.stock_video_thumbnail_image
+#
+#     def run(self):
+#         while True:
+#             unique_id, full_file_name, thm_full_name, file_type, size_max = self.results_pipe.recv()
+#             full_size_preview, reduced_size_preview = self.thumbnail_maker.get_thumbnail(full_file_name, thm_full_name, file_type, size_max=size_max, size_reduced=(100,100))
+#             if full_size_preview is None:
+#                 full_size_preview = self.get_stock_image(file_type)
+#             self.results_pipe.send((unique_id, full_size_preview, reduced_size_preview))
 
-        self.thumbnail_maker = Thumbnail()
 
-        self.scan_pid = scan_pid
+class GenerateThumbnails(WorkerInPublishPullPipeline):
+
+    def do_work(self):
+        logging.debug("Generating thumbnails...")
+        arguments = pickle.loads(self.content)
+        if arguments.camera:
+            camera = Camera(arguments.camera, arguments.port)
+        else:
+            camera = None
+
+        for rpd_file in arguments.rpd_files:
+
+            # Check to see if the process has received a command
+            self.check_for_command()
+
+            # The maximum size of the embedded exif thumbnail is typically
+            # 160x120.
+            thumbnail = Thumbnail(rpd_file, camera)
+            thumbnail_icon = thumbnail.get_thumbnail(size=QSize(100,100))
+
+            buffer = QBuffer()
+            buffer.open(QIODevice.WriteOnly)
+            thumbnail_icon.save(buffer, "PNG")
+
+            self.content= pickle.dumps((rpd_file.unique_id, buffer.data()))
+            self.send_message_to_sink()
+
+        if arguments.camera:
+            camera.free_camera()
+        logging.debug("...finished thumbnail generation")
+        self.send_finished_command()
 
 
-    def run(self):
-        counter = 0
-        i = 0
-        for f in self.files:
-
-            # pause if instructed by the caller
-            self.run_event.wait()
-
-            if not self.terminate_queue.empty():
-                x = self.terminate_queue.get()
-                # terminate immediately
-                logger.info("Terminating thumbnailing")
-                return None
-
-            thumbnail, thumbnail_icon = self.thumbnail_maker.get_thumbnail(
-                                    f.full_file_name,
-                                    f.thm_full_name,
-                                    f.file_type,
-                                    #~ f.extension,
-                                    (160, 120), (100,100))
-
-            self.results.append((f.unique_id, thumbnail_icon, thumbnail))
-            counter += 1
-            if counter == self.batch_size:
-                self.results_pipe.send((rpdmp.CONN_PARTIAL, self.results))
-                self.results = []
-                counter = 0
-            i += 1
-
-        if counter > 0:
-            # send any remaining results
-            self.results_pipe.send((rpdmp.CONN_PARTIAL, self.results))
-        self.results_pipe.send((rpdmp.CONN_COMPLETE, self.scan_pid))
-        self.results_pipe.close()
-
+if __name__ == "__main__":
+    generate_thumbnails = GenerateThumbnails()

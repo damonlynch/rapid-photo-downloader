@@ -1,52 +1,23 @@
 Rapid Photo Downloader requires the following software:
 
-* Python 2.7
-* Pyexiv2 0.3.0 or higher
-* python-gnome2 2.28 or higher
-* python-gtk2 2.17 or higher
-* python-gconf 2.28 or higher
-* python-notify 0.1.1 or higher
-* python-imaging 1.1.7 or higher
-* librsvg2-common 2.26 or higher
+* Python 3.4
+* PyQt 5.4
+* Python3-zmq
+* Python3-gphoto2
+* Python3-scandir
+* Python 3 bindings for gobject-introspection libraries
+* GObject-based wrapper around the Exiv2 library introspection data
+* Libgudev-1.0 introspection data
+* GObject-based wrapper library for libudev
 * exiftool
-* exiftran
 
 To run Rapid Photo Downloader you will need all the software mentioned above.
 
 If you want to download videos, you should install:
 
-- python-hachoir-metadata
-- python-kaa-metadata
-- ffmpegthumbnailer
+* ffmpegthumbnailer
 
-hachoir metadata is required to download videos. kaa metadata is used to
-extract additional metadata from videos. ffmpegthumbnailer is used only to 
-display thumbnail images before the download occurs. This is a useful feature, 
-and if you can install it, it is strongly recommended.
+ffmpegthumbnailer is used only to display thumbnail images of videos. This
+is a useful feature, and if you can install it, it is recommended.
 
-hachoir metadata, kaa metadata and ffmpegthumbnailer are optional. The program 
-will run without them.
 
-To start from a fairly basic system, I suggest the following:
-
-1. Install the required gnome packages from your Linux distribution's package 
-   repositories.  On a recent Linux distribution, expect all to be available for
-   easy download and installation.  If you already use gnome, most of the 
-   packages will already be installed.  Do confirm that python-gconf, 
-   python-glade2, and gnome-python are installed, because they
-   may not be quite so common in a base system.
-    
-2. Install pyexiv2.  You can probably do that using your distributions's package 
-   repositories (look for python-pyexiv2). But if not, there are instructions 
-   here: 
-   
-   http://tilloy.net/dev/pyexiv2/download.html
-   
-3. Install this application from the tarball. You probably need to be the 
-   super user (root) to be able to do this:
-
-   sudo python setup.py install
-
-   If you get an error saying 'Error while running msgfmt', you will need to
-   install the gettext package on your system, which contains the msgfmt 
-   program.

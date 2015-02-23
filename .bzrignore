@@ -1,17 +1,8 @@
 *~
 *pyc
-Rapid.e3?
-ha_choir_stuff.txt
+__pycache__
 .bzrignore
-experimental code
-bad metadata
-create-benchmarking-env.py
-leak.py
-gthumb-icons
-old
-ppastats.py
-rpd-i18n.txt
-rapid44.geany
 trunkbackup.po
+.idea
 Rapid-Photo-Downloader.odg
 .~lock.Rapid-Photo-Downloader.odg#

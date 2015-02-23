@@ -1,239 +1,245 @@
-#!/usr/bin/python
-# -*- coding: latin1 -*-
+#!/usr/bin/python3
+__author__ = 'Damon Lynch'
 
-### Copyright (C) 2007-2012 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2011-2015 Damon Lynch <damonlynch@gmail.com>
 
-### This program is free software; you can redistribute it and/or modify
-### it under the terms of the GNU General Public License as published by
-### the Free Software Foundation; either version 2 of the License, or
-### (at your option) any later version.
+# This file is part of Rapid Photo Downloader.
+#
+# Rapid Photo Downloader is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Rapid Photo Downloader is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Rapid Photo Downloader.  If not,
+# see <http://www.gnu.org/licenses/>.
 
-### This program is distributed in the hope that it will be useful,
-### but WITHOUT ANY WARRANTY; without even the implied warranty of
-### MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-### GNU General Public License for more details.
-
-### You should have received a copy of the GNU General Public License
-### along with this program; if not, write to the Free Software
-### Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-### USA
-
-HAVE_HACHOIR = True
-DOWNLOAD_VIDEO = True
-
-import os
-import datetime
-import time
 import subprocess
+import datetime, time
 
-import multiprocessing
+import exiftool
+
 import logging
-logger = multiprocessing.get_logger()
 
-import gtk
-import paths
+def version_info() -> str:
+    """
+    returns the version of Exiftool being used
 
-import rpdfile
-import metadataexiftool
+    :return version number, or None if Exiftool cannot be found
+    """
+    try:
+        return subprocess.check_output(['exiftool', '-ver']).strip().decode()
+    except OSError:
+        logging.error("Could not locate Exiftool")
+        return None
 
-from gettext import gettext as _
+EXIFTOOL_VERSION = version_info()
 
-try:
-    from hachoir_core.cmd_line import unicodeFilename
-    from hachoir_parser import createParser
-    from hachoir_metadata import extractMetadata
-except ImportError:
-    HAVE_HACHOIR = False
+# Run Exiftool in a context manager, which will ensure it is terminated
+# properly. Then call this class
+# with exiftool.ExifTool() as et_process:
 
-if not HAVE_HACHOIR:
-    v = metadataexiftool.version_info()
-    if v is None:
-        DOWNLOAD_VIDEO = False
+class ExifToolMetaData:
+    """
+    Get video metadata using Exiftool
 
-def file_types_to_download():
-    """Returns a string with the types of file to download, to display to the user"""
-    if DOWNLOAD_VIDEO:
-        return _("photos and videos")
-    else:
-        return _("photos")
+    :param filename: the file from which to get metadata
+    :param et_process: instance of ExifTool class, which allows
+    calling EXifTool without it exiting with each call
+    """
+    def __init__(self, filename: str, et_process: exiftool.ExifTool):
 
-if HAVE_HACHOIR:
 
-    def version_info():
-        from hachoir_metadata.version import VERSION
-        return VERSION
-        
-    def get_video_THM_file(full_filename):
-        """
-        Checks to see if a thumbnail file (THM) is in the same directory as the 
-        file. Expects a full path to be part of the file name.
-        
-        Returns the filename, including path, if found, else returns None.
-        """
-        
-        f = None
-        name, ext = os.path.splitext(full_filename)
-        for e in rpdfile.VIDEO_THUMBNAIL_FILE_EXTENSIONS:
-            if os.path.exists(name + '.' + e):
-                f = name + '.' + e
-                break
-            if os.path.exists(name + '.' + e.upper()):
-                f = name + '.' + e.upper()
-                break
-            
-        return f        
+        self.filename = filename
+        self.metadata = dict()
+        self.metadata_string_format = dict()
+        self.et_process = et_process
 
-    class VideoMetaData():
-        def __init__(self, filename):
-            """
-            Initialize by loading metadata using hachoir
-            """
-            
-            self.filename = filename
-            self.u_filename = unicodeFilename(filename)
-            self.metadata = None
-            
-        def _kaa_get(self, key, missing, stream=None): 
-            if not hasattr(self, 'info'):
-                try:
-                    from kaa.metadata import parse
-                except ImportError:
-                    msg = """The package Kaa metadata does not exist.
-It is needed to access FPS and codec video file metadata."""
-                    logger.error(msg)
-                    self.info = None
-                else:
-                    self.info = parse(self.filename)
-            if self.info:
-                if stream != None:
-                    v = self.info['video'][stream][key]
-                else:
-                    v = self.info[key]
-            else:
-                v = None
-            if v:
-                return str(v)
-            else:
-                return missing                
-        
-        def _load_hachoir_metadata_parser(self):
-            self.parser = createParser(self.u_filename, self.filename)
-            self.metadata = extractMetadata(self.parser) 
-        
-        def _get(self, key, missing):
-            if self.metadata is None:
-                self._load_hachoir_metadata_parser()
-                
+    def _get(self, key, missing):
+
+        if key in ("VideoStreamType", "FileNumber"):
+            # special case: want exiftool's string formatting
+            # i.e. no -n tag
+            if not self.metadata_string_format:
+                self.metadata_string_format = \
+                    self.et_process.execute_json_no_formatting(self.filename)
             try:
-                v = self.metadata.get(key)
+                return self.metadata_string_format[0][key]
             except:
-                v = missing
-            return v
-            
-        def date_time(self, missing=''):
-            return self._get('creation_date', missing)
-                
-        def time_stamp(self, missing=''):
-            """
-            Returns a float value representing the time stamp, if it exists
-            """
-            dt = self.date_time(missing=None)
-            if dt:
-                # convert it to a time stamp (not optimal, but better than nothing!)
-                v = time.mktime(dt.timetuple())
-            else:
-                v = missing
-            return v
-            
-        def codec(self, stream=0, missing=''):
-            return self._kaa_get('codec', missing, stream)
-            
-        def length(self, missing=''):
-            """
-            return the duration (length) of the video, rounded to the nearest second, in string format
-            """
-            delta = self.metadata.get('duration')
-            l = '%.0f' % (86400 * delta.days + delta.seconds + float('.%s' % delta.microseconds))
-            return l
-            
-            
-        def width(self, missing=''):
-            v = self._get('width', missing)
-            if v != None:
-                return str(v)
-            else:
-                return None
-            
-        def height(self, missing=''):
-            v = self._get('height', missing)
-            if v != None:
-                return str(v)
-            else:
-                return None
-            
-        def frames_per_second(self, stream=0, missing=''):
-            fps = self._kaa_get('fps', missing, stream)
-            try:
-                fps = '%.0f' % float(fps)
-            except:
-                pass
-            return fps
-        
-        def fourcc(self, stream=0, missing=''):
-            return self._kaa_get('fourcc', missing, stream)
-            
+                return missing
 
-            
+        elif not self.metadata:
+            self.metadata = self.et_process.get_metadata(self.filename)
+
+        try:
+            return self.metadata[key]
+        except:
+            return missing
+
+
+    def date_time(self, missing=''):
+        """
+        Returns in python datetime format the date and time the image was
+        recorded.
+
+        Trys to get value from key "DateTimeOriginal"
+        If that fails, tries "CreateDate"
+
+        Returns missing either metadata value is not present.
+        """
+        d = self._get('DateTimeOriginal', None)
+        if d is None:
+            d = self._get('CreateDate', None)
+        if d is None:
+            d = self._get('FileModifyDate', None)
+        if d is not None:
+            try:
+                # returned value may or may not have a time offset
+                # strip it if need be
+                dt = d[:19]
+                dt = datetime.datetime.strptime(dt, "%Y:%m:%d %H:%M:%S")
+            except:
+                logging.error("Error reading date metadata with file %s", self.filename)
+                return missing
+
+            return dt
+        else:
+            return missing
+
+    def time_stamp(self, missing=''):
+        """
+        Returns a float value representing the time stamp, if it exists
+        """
+        dt = self.date_time(missing=None)
+        if dt:
+            # convert it to a time stamp (not optimal, but better than nothing!)
+            v = time.mktime(dt.timetuple())
+        else:
+            v = missing
+        return v
+
+    def file_number(self, missing=''):
+        v = self._get("FileNumber", None)
+        if v is not None:
+            return str(v)
+        else:
+            return missing
+
+    def width(self, missing=''):
+        v = self._get('ImageWidth', None)
+        if v is not None:
+            return str(v)
+        else:
+            return missing
+
+    def height(self, missing=''):
+        v = self._get('ImageHeight', None)
+        if v is not None:
+            return str(v)
+        else:
+            return missing
+
+    def length(self, missing=''):
+        """
+        return the duration (length) of the video, rounded to the nearest second, in string format
+        """
+        v = self._get("Duration", None)
+        if v is not None:
+            try:
+                v = float(v)
+                v = "%0.f" % v
+            except:
+                return missing
+            return v
+        else:
+            return missing
+
+    def frames_per_second(self, stream=0, missing=''):
+        """
+        value stream is ignored (kept for compatibilty with code calling kaa)
+        """
+        v = self._get("FrameRate", None)
+        if v is None:
+            v = self._get("VideoFrameRate", None)
+
+        if v is None:
+            return missing
+        try:
+            v = '%.0f' % v
+        except:
+            return missing
+        return v
+
+    def codec(self, stream=0, missing=''):
+        """
+        value stream is ignored (kept for compatibilty with code calling kaa)
+        """
+        v = self._get("VideoStreamType", None)
+        if v is None:
+            v = self._get("VideoCodec", None)
+        if v is not None:
+            return v
+        else:
+            return missing
+
+    def fourcc(self, stream=0, missing=''):
+        """
+        value stream is ignored (kept for compatibilty with code calling kaa)
+        """
+        return self._get("CompressorID", missing)
+
+
 class DummyMetaData():
     """
     Class which gives metadata values for an imaginary video.
-    
+
     Useful for displaying in preference examples etc. when no video is ready to
     be downloaded.
-    
-    See VideoMetaData class for documentation of class methods.        
     """
-    def __init__(self, filename):
-        pass        
-    
+    def __init__(self, filename, et_process):
+        pass
+
     def date_time(self, missing=''):
         return datetime.datetime.now()
-        
+
     def codec(self, stream=0, missing=''):
         return 'H.264 AVC'
-        
+
     def length(self, missing=''):
         return '57'
-        
+
     def width(self, stream=0, missing=''):
         return '1920'
-        
+
     def height(self, stream=0, missing=''):
         return '1080'
-        
+
     def frames_per_second(self, stream=0, missing=''):
         return '24'
-    
+
     def fourcc(self, stream=0, missing=''):
         return 'AVC1'
-                    
-            
+
 if __name__ == '__main__':
     import sys
-    
-    
-    if (len(sys.argv) != 2):
-        print 'Usage: ' + sys.argv[0] + ' path/to/video/containing/metadata'
-        sys.exit(0)
 
-    else:
-        m = VideoMetaData(sys.argv[1])
-        dt = m.date_time()
-        if dt:
-            print dt.strftime('%Y%m%d-%H:%M:%S')
-        print "codec: %s" % m.codec()
-        print "%s seconds" % m.length()
-        print "%sx%s" % (m.width(), m.height())
-        print "%s fps" % m.frames_per_second()
-        print "Fourcc: %s" % (m.fourcc())
-            
+    with exiftool.ExifTool() as et_process:
+        if (len(sys.argv) != 2):
+            print('Usage: ' + sys.argv[0] + ' path/to/video/containing/metadata')
+        else:
+            file = sys.argv[1]
+
+            print("ExifTool", EXIFTOOL_VERSION)
+            m = ExifToolMetaData(file, et_process)
+            dt = m.date_time()
+            print(dt)
+            print("%sx%s" % (m.width(), m.height()))
+            print(m.length())
+            print(m.frames_per_second())
+            print(m.codec())
+
