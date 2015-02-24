@@ -228,8 +228,8 @@ class PublishPullPipelineManager(QtCore.QObject):
 
 class WorkerInPublishPullPipeline():
 
-    def __init__(self):
-        logging.debug("Worker started")
+    def __init__(self, worker_type):
+        logging.debug("{} worker started".format(worker_type))
         parser = argparse.ArgumentParser()
         parser.add_argument("--receive", required=True)
         parser.add_argument("--send", required=True)

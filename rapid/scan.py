@@ -53,6 +53,10 @@ logging.basicConfig(format='%(levelname)s:%(asctime)s:%(message)s',
 #FIXME free camera in case of early termination
 
 class ScanWorker(WorkerInPublishPullPipeline):
+
+    def __init__(self):
+        super(ScanWorker, self).__init__('Scan')
+
     def do_work(self):
         scan_arguments = pickle.loads(self.content)
         self.scan_preferences = scan_arguments.scan_preferences

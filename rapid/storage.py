@@ -3,6 +3,7 @@ __author__ = 'Damon Lynch'
 import logging
 import os
 import re
+import sys
 
 from PyQt5.QtCore import (QStorageInfo, QObject, pyqtSignal)
 from gi.repository.GUdev import Client, Device
@@ -24,6 +25,48 @@ def mounted_volumes():
     # QStorageInfo.refresh()
     for q in QStorageInfo.mountedVolumes():
         print(q.rootPath(), q.displayName())
+
+def contains_dcim_folder(path):
+    if "DCIM" in os.listdir(path):
+        return os.path.isdir(os.path.join(path, 'DCIM'))
+
+def mount_points_in_fstab():
+    """
+    Yields a list of mount points in /etc/fstab
+    The mount points will exclude /, /home, and swap
+    """
+    with open('/etc/fstab') as f:
+        l = []
+        for line in f:
+            m = re.match(r'^(?![\t ]*#)\S+\s+(?!(none|/[\t ]|/home))('
+                         r'?P<point>\S+)',
+                         line)
+            if m is not None:
+                yield (m.group('point'))
+
+def get_valid_mount_points():
+    """
+    Get the places in which it's sensible for a user to mount a
+    partition.
+    Includes /home/<USER> , /media/<USER>, and /run/media/<USER>
+    Includes directories in /etc/fstab, except /, /home, and swap
+
+    :return: tuple of the valid mount points
+    :rtype: Tuple(str)
+    """
+    home_dir = os.path.expanduser('~')
+    if sys.platform.startswith('linux'):
+        try:
+            # this next line fails on some sessions
+            media_dir = '/media/{}'.format(os.getlogin())
+        except FileNotFoundError:
+            media_dir = '/media/{}'.format(os.getenv('USER', ''))
+        valid_points = [home_dir, media_dir,'/run{}'.format(media_dir)]
+        for point in mount_points_in_fstab():
+            valid_points.append(point)
+        return tuple(valid_points)
+    else:
+        raise("get_valid_mount_points() not implemented on %s", sys.platform())
 
 class DeviceHotplug(QObject):
     cameraAdded = pyqtSignal()
@@ -107,18 +150,27 @@ if using_gio:
 
         cameraUnmounted = pyqtSignal(bool, str, str)
         cameraMounted = pyqtSignal()
-        partitionAdded = pyqtSignal()
-        partitionRemoved = pyqtSignal()
+        partitionMounted = pyqtSignal(str)
+        partitionUnmounted = pyqtSignal(str)
+
+
         def __init__(self):
             super(GVolumeMonitor, self).__init__()
             self.vm = Gio.VolumeMonitor.get()
             self.vm.connect('mount-added', self.mountAdded)
-            # self.vm.connect('mount-removed', self.mountRemoved)
+            self.vm.connect('volume-added', self.volumeAdded)
+            self.vm.connect('mount-removed', self.mountRemoved)
             self.portSearch = re.compile(r'usb:([\d]+),([\d]+)')
-            homeDir = os.path.expanduser('~')
-            mediaDir = '/media/{}'.format(os.getlogin())
-            # mediaDir = '/media/damon'
-            self.validMountDirs = (homeDir, mediaDir,'/run{}'.format(mediaDir))
+            self.validMountPoints = get_valid_mount_points()
+            assert '/' not in self.validMountPoints
+            msg = "Valid partitions must be mounted under one of "
+            for p in self.validMountPoints[:-2]:
+                msg += "{}, ".format(p)
+            msg += "{} or {}".format(self.validMountPoints[-2],
+                                         self.validMountPoints[-1])
+            logging.debug(msg)
+
+
 
         def unmountCamera(self, model: str, port: str) -> bool:
             """
@@ -176,7 +228,7 @@ if using_gio:
                     userData[0]))
                 self.cameraUnmounted.emit(False, userData[0], userData[1])
 
-        def mountIsCamera(self, mount: Gio.Mount):
+        def mountIsCamera(self, mount: Gio.Mount) -> str:
             """
             Determine if the mount point is that of a camera
             :param mount: the mount to examine
@@ -195,11 +247,13 @@ if using_gio:
                             return folder_name[len(s):]
             return None
 
-        def mountIsPartition(self, mount: Gio.Mount):
+        def mountIsPartition(self, mount: Gio.Mount) -> bool:
             """
-            Determine if the mount point is that of a partition
-            :param mount:
-            :return:
+            Determine if the mount point is that of a valid partition,
+            i.e. is mounted in a valid location, which is under one of
+            self.validMountDirs
+            :param mount: the mount to examine
+            :return: True if the mount is a valid partiion
             """
             root = mount.get_root()
             if root is not None:
@@ -207,12 +261,22 @@ if using_gio:
                 if path:
                     logging.debug("Looking for partition at mount {}".format(
                         path))
-                    for s in self.validMountDirs:
+                    for s in self.validMountPoints:
                         if path.startswith(s):
                             return True
+            return False
 
         def mountAdded(self, volumeMonitor, mount: Gio.Mount):
             if self.mountIsCamera(mount):
                 self.cameraMounted.emit()
             elif self.mountIsPartition(mount):
-                self.partitionAdded.emit()
+                self.partitionMounted.emit(mount.get_root().get_path())
+
+        def mountRemoved(self, volumeMonitor, mount: Gio.Mount):
+            if not self.mountIsCamera(mount):
+                if self.mountIsPartition(mount):
+                    logging.debug("%s has been unmounted", mount.get_name())
+                    self.partitionUnmounted.emit(mount.get_root().get_path())
+
+        def volumeAdded(self, volumeMonitor, volume: Gio.Volume):
+            logging.debug("Volume added %s", volume.get_name())

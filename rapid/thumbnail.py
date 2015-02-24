@@ -429,6 +429,9 @@ class Thumbnail:
 
 class GenerateThumbnails(WorkerInPublishPullPipeline):
 
+    def __init__(self):
+        super(GenerateThumbnails, self).__init__('Thumbnails')
+
     def do_work(self):
         logging.debug("Generating thumbnails...")
         arguments = pickle.loads(self.content)

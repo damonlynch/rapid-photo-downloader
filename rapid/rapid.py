@@ -37,7 +37,7 @@ import gphoto2 as gp
 
 from PyQt5 import QtCore, QtWidgets, QtGui
 
-from PyQt5.QtCore import QThread, Qt
+from PyQt5.QtCore import QThread, Qt, QStorageInfo
 from PyQt5.QtGui import QStandardItemModel, QStandardItem, QPixmap
 from PyQt5.QtWidgets import (QAction, QApplication, QFileDialog, QLabel,
         QMainWindow, QMenu, QMessageBox, QScrollArea, QSizePolicy,
@@ -168,6 +168,8 @@ class RapidWindow(QtWidgets.QMainWindow):
         return True
 
     def initialise(self):
+        #FIXME get scan preferences from actual user prefs
+        self.scan_preferences = ScanPreferences(['.Trash', '.thumbnails'])
 
         # Initalize use of libgphoto2
         self.gp_context = gp.Context()
@@ -187,6 +189,7 @@ class RapidWindow(QtWidgets.QMainWindow):
             self.gvolumeMonitor = storage.GVolumeMonitor()
             self.gvolumeMonitor.cameraUnmounted.connect(self.cameraUnmounted)
             self.gvolumeMonitor.cameraMounted.connect(self.cameraMounted)
+            self.gvolumeMonitor.partitionMounted.connect(self.partitionMounted)
 
         self.devices = DeviceCollection()
         # Setup the Scan processes
@@ -388,6 +391,20 @@ class RapidWindow(QtWidgets.QMainWindow):
         if not using_gio:
             self.searchForCameras()
 
+
+    def partitionMounted(self, path):
+        #FIXME add code from old setup_devices()
+        if storage.contains_dcim_folder(path):
+            device = Device()
+            name = QStorageInfo(path).displayName()
+            device.set_path(path, name)
+            scan_id = self.devices.add_device(device)
+            scan_arguments = ScanArguments(self.scan_preferences, device)
+            self.scanmq.add_worker(scan_id, scan_arguments)
+
+
+
+
     def cameraMounted(self):
         if using_gio:
             self.searchForCameras()
@@ -429,12 +446,10 @@ class RapidWindow(QtWidgets.QMainWindow):
                     self.startCameraScan(model, port)
 
     def startCameraScan(self, model: str, port: str):
-        #FIXME get scan preferences from actual user prefs
-        scan_preferences = ScanPreferences(['.Trash', '.thumbnails'])
         device = Device()
         device.set_download_from_camera(model, port)
         scan_id = self.devices.add_device(device)
-        scan_arguments = ScanArguments(scan_preferences, device)
+        scan_arguments = ScanArguments(self.scan_preferences, device)
         self.scanmq.add_worker(scan_id, scan_arguments)
 
 
