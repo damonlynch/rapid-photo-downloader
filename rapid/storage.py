@@ -23,7 +23,7 @@ logging.debug("Using GIO: %s", using_gio)
 def mounted_volumes():
     # QStorageInfo.refresh()
     for q in QStorageInfo.mountedVolumes():
-        print(q.rootPath())
+        print(q.rootPath(), q.displayName())
 
 class DeviceHotplug(QObject):
     cameraAdded = pyqtSignal()
@@ -100,16 +100,25 @@ class DeviceHotplug(QObject):
 if using_gio:
     class GVolumeMonitor(QObject):
         r"""
+        Monitor the addition or removal of cameras or partitions
+        using Gnome's GIO/GVFS.
         Unmount cameras automatically mounted by GVFS.
         """
 
         cameraUnmounted = pyqtSignal(bool, str, str)
         cameraMounted = pyqtSignal()
+        partitionAdded = pyqtSignal()
+        partitionRemoved = pyqtSignal()
         def __init__(self):
             super(GVolumeMonitor, self).__init__()
             self.vm = Gio.VolumeMonitor.get()
             self.vm.connect('mount-added', self.mountAdded)
-            self.port_search = re.compile(r'usb:([\d]+),([\d]+)')
+            # self.vm.connect('mount-removed', self.mountRemoved)
+            self.portSearch = re.compile(r'usb:([\d]+),([\d]+)')
+            homeDir = os.path.expanduser('~')
+            mediaDir = '/media/{}'.format(os.getlogin())
+            # mediaDir = '/media/damon'
+            self.validMountDirs = (homeDir, mediaDir,'/run{}'.format(mediaDir))
 
         def unmountCamera(self, model: str, port: str) -> bool:
             """
@@ -121,7 +130,7 @@ if using_gio:
              :return: True if an unmount operation has been initiated,
              else returns False.
             """
-            p = self.port_search.match(port)
+            p = self.portSearch.match(port)
             assert p is not None
             p1 = p.group(1)
             p2 = p.group(2)
@@ -186,6 +195,24 @@ if using_gio:
                             return folder_name[len(s):]
             return None
 
+        def mountIsPartition(self, mount: Gio.Mount):
+            """
+            Determine if the mount point is that of a partition
+            :param mount:
+            :return:
+            """
+            root = mount.get_root()
+            if root is not None:
+                path = root.get_path()
+                if path:
+                    logging.debug("Looking for partition at mount {}".format(
+                        path))
+                    for s in self.validMountDirs:
+                        if path.startswith(s):
+                            return True
+
         def mountAdded(self, volumeMonitor, mount: Gio.Mount):
             if self.mountIsCamera(mount):
                 self.cameraMounted.emit()
+            elif self.mountIsPartition(mount):
+                self.partitionAdded.emit()

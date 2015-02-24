@@ -47,7 +47,6 @@ def is_data_message(directive):
     >>> is_data_message("data")
     False
 
-
     >>> is_data_message(b"cmd")
     False
     """
@@ -69,10 +68,10 @@ def make_filter_from_worker_id(worker_id):
     r"""
     Returns a python byte string from an integer or string
 
-    >>>make_filter_from_worker_id(54)
+    >>> make_filter_from_worker_id(54)
     b'54'
 
-    >>>make_filter_from_worker_id('54')
+    >>> make_filter_from_worker_id('54')
     b'54'
     """
     if isinstance(worker_id, int):
@@ -315,20 +314,59 @@ class WorkerInPublishPullPipeline():
         self.sender.send_multipart([self.worker_id, b'cmd', b'FINISHED'])
 
 class Device:
+    r"""
+    Representation of a camera or an object with a file system type that
+    will have files downloaded from.
+
+    >>> d = Device()
+    >>> d.set_path('/media/damon/EOS_DIGITAL', 'EOS_DIGITAL')
+    >>> d
+    'EOS_DIGITAL':'/media/damon/EOS_DIGITAL'
+    >>> str(d)
+    '/media/damon/EOS_DIGITAL (EOS_DIGITAL)'
+    >>> d.camera_model
+    >>> d.camera_port
+
+    >>> c = Device()
+    >>> c.set_download_from_camera('Canon EOS 1D X', 'usb:001,002')
+    >>> c
+    'Canon EOS 1D X':'usb:001,002'
+    >>> str(c)
+    'Canon EOS 1D X on port usb:001,002'
+    >>> c.path
+    >>> c.display_name
+    """
     def __init__(self):
         self.camera_model = None
         self.camera_port = None
         self.path = None
+        self.display_name = None
         self.download_from_camera = None
+
+    def __repr__(self):
+        if self.download_from_camera:
+            return "%r:%r" % (self.camera_model, self.camera_port)
+        else:
+            return "%r:%r" % (self.display_name, self.path)
+
+    def __str__(self):
+        if self.download_from_camera:
+            return "%s on port %s" % (self.camera_model, self.camera_port)
+        else:
+            if self.path != self.display_name:
+                return "%s (%s)" % (self.path, self.display_name)
+            else:
+                return "%s" % (self.path)
 
     def set_download_from_camera(self, camera_model: str, camera_port: str):
         self.download_from_camera = True
         self.camera_model = camera_model
         self.camera_port = camera_port
-        self.path = None
+        self.path = self.display_name = None
 
-    def set_path(self, path):
+    def set_path(self, path, display_name):
         self.path = path
+        self.display_name = display_name
         self.download_from_camera = False
         self.camera_port = self.camera_model = None
 

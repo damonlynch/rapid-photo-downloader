@@ -394,7 +394,6 @@ class RapidWindow(QtWidgets.QMainWindow):
 
     def unmountCamera(self, model, port):
         if using_gio:
-            #FIXME assign to dictionary immeidately?
             self.camerasToUnmount[port] = model
             if self.gvolumeMonitor.unmountCamera(model, port):
                 return True
