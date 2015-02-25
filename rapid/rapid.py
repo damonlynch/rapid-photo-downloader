@@ -47,7 +47,8 @@ from PyQt5.QtWidgets import (QAction, QApplication, QFileDialog, QLabel,
 # from dbus.mainloop.pyqt5 import DBusQtMainLoop
 
 
-from storage import mounted_volumes, DeviceHotplug, using_gio
+from storage import (mounted_volumes, CameraHotplug, UDisks2Monitor,
+                     GVolumeMonitor, have_gio)
 import storage
 
 from interprocess import PublishPullPipelineManager, ScanArguments, Device
@@ -171,22 +172,39 @@ class RapidWindow(QtWidgets.QMainWindow):
         #FIXME get scan preferences from actual user prefs
         self.scan_preferences = ScanPreferences(['.Trash', '.thumbnails'])
 
+        logging.debug("Desktop environment: %s",
+                      storage.get_desktop_environment())
+        logging.debug("Have GIO module: %s", have_gio)
+
         # Initalize use of libgphoto2
         self.gp_context = gp.Context()
 
-        if not using_gio:
-            # Monitor when the user adds or removes a camera or partition (drive)
-            self.deviceHotplug = DeviceHotplug()
-            self.deviceHotplugThread = QThread()
-            self.deviceHotplug.moveToThread(self.deviceHotplugThread)
-            self.deviceHotplug.cameraAdded.connect(self.cameraAdded)
+        self.gvfsControlsMounts = storage.gvfs_controls_mounts() and have_gio
+        if have_gio:
+            logging.debug("Using GIO: %s", self.gvfsControlsMounts)
+
+        if not self.gvfsControlsMounts:
+            # Monitor when the user adds or removes a camera
+            self.cameraHotplug = CameraHotplug()
+            self.cameraHotplugThread = QThread()
+            self.cameraHotplug.moveToThread(self.cameraHotplugThread)
+            self.cameraHotplug.cameraAdded.connect(self.cameraAdded)
             # Start the monitor only on the thread it will be running on
-            self.deviceHotplug.startMonitor()
+            self.cameraHotplug.startMonitor()
+
+            # Monitor when the user adds or removes a partition
+            self.udisks2Monitor = UDisks2Monitor()
+            self.udisks2MonitorThread = QThread()
+            self.udisks2Monitor.moveToThread(self.udisks2MonitorThread)
+            self.udisks2Monitor.partitionMounted.connect(self.partitionMounted)
+            # Start the monitor only on the thread it will be running on
+            self.udisks2Monitor.startMonitor()
 
         #Track the unmounting of cameras by port and model
         self.camerasToUnmount = {}
-        if using_gio:
-            self.gvolumeMonitor = storage.GVolumeMonitor()
+
+        if self.gvfsControlsMounts:
+            self.gvolumeMonitor = GVolumeMonitor()
             self.gvolumeMonitor.cameraUnmounted.connect(self.cameraUnmounted)
             self.gvolumeMonitor.cameraMounted.connect(self.cameraMounted)
             self.gvolumeMonitor.partitionMounted.connect(self.partitionMounted)
@@ -200,8 +218,6 @@ class RapidWindow(QtWidgets.QMainWindow):
         self.scanThread.started.connect(self.scanmq.run_sink)
         self.scanmq.message.connect(self.scanMessageReceived)
         self.scanmq.workerFinished.connect(self.scanFinished)
-
-        # Setup the Thumbnail processes
 
         # call the slot with no delay
         QtCore.QTimer.singleShot(0, self.scanThread.start)
@@ -217,9 +233,6 @@ class RapidWindow(QtWidgets.QMainWindow):
             self.scanmq.add_worker(scan_id, scan_arguments)
 
         self.searchForCameras()
-
-
-
 
     def createActions(self):
         self.downloadAct = QAction("&Download", self, shortcut="Ctrl+Return",
@@ -385,14 +398,19 @@ class RapidWindow(QtWidgets.QMainWindow):
         self.thumbnailModel.thumbnailmq.stop()
         self.scanThread.quit()
         self.scanThread.wait()
+        if not self.gvfsControlsMounts:
+            self.udisks2MonitorThread.quit()
+            self.udisks2MonitorThread.wait()
+            self.cameraHotplugThread.quit()
+            self.cameraHotplugThread.wait()
 
     def cameraAdded(self):
-        return
-        if not using_gio:
-            self.searchForCameras()
-
+        logging.debug("Assuming camera will not be mounted: "
+                      "immediately proceeding with scan")
+        self.searchForCameras()
 
     def partitionMounted(self, path):
+        assert path in storage.mountPaths()
         #FIXME add code from old setup_devices()
         if storage.contains_dcim_folder(path):
             device = Device()
@@ -402,15 +420,12 @@ class RapidWindow(QtWidgets.QMainWindow):
             scan_arguments = ScanArguments(self.scan_preferences, device)
             self.scanmq.add_worker(scan_id, scan_arguments)
 
-
-
-
     def cameraMounted(self):
-        if using_gio:
+        if have_gio:
             self.searchForCameras()
 
     def unmountCamera(self, model, port):
-        if using_gio:
+        if self.gvfsControlsMounts:
             self.camerasToUnmount[port] = model
             if self.gvolumeMonitor.unmountCamera(model, port):
                 return True

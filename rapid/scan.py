@@ -102,7 +102,8 @@ class ScanWorker(WorkerInPublishPullPipeline):
 
                 # locate photos and videos, filtering out duplicate files
                 for dcim_folder in self.camera.dcim_folders:
-                    logging.debug("Scanning %s", dcim_folder)
+                    logging.debug("Scanning %s on %s", dcim_folder,
+                                  self.camera.model)
                     self.locate_files_on_camera(dcim_folder)
 
                 for self.dir_name, self.file_name in \
@@ -113,6 +114,11 @@ class ScanWorker(WorkerInPublishPullPipeline):
                                 self.camera.model)
 
             self.camera.free_camera()
+
+        if self.files_scanned > 0 and not (self.files_scanned == 0 and
+                                                   self.download_from_camera):
+            logging.debug("{} total files scanned".format(
+                self.files_scanned))
 
         self.send_finished_command()
 
