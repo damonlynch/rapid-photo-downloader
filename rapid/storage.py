@@ -20,7 +20,9 @@ __author__ = 'Damon Lynch'
 # see <http://www.gnu.org/licenses/>.
 
 """
-Handle addition and removal of cameras and devices with file systems.
+The primary task of this module is to handle addition and removal of
+(1) cameras and (2) devices with file systems.
+
 There are two scenarios:
 
 1) User is running under a Gnome-like environment in which GVFS will
@@ -58,14 +60,96 @@ try:
 except ImportError:
     have_gio = False
 
-def mounted_volumes():
-    for q in QStorageInfo.mountedVolumes():
-        print(q.rootPath(), q.displayName())
+
+class ValidMounts():
+    r"""
+    Operations to find 'valid' mount points, i.e. the places in which
+    it's sensible for a user to mount a partition. Valid mount points:
+    Include /home/<USER> , /media/<USER>, and /run/media/<USER>
+    Include directories in /etc/fstab, except /, /home, and swap
+    """
+    def __init__(self):
+        self.validMountFolders = None # type: Tuple(str)
+        self._setValidMountFolders()
+        assert '/' not in self.validMountFolders
+        if logging_level == logging.DEBUG:
+            self.logValidMountFolders()
+
+    def pathIsValidMountPoint(self, path: str) -> bool:
+        """
+        Determine if path indicates a mount point under a valid mount
+        point
+        :param path: path to be tested
+        :return:True if path is a mount under a valid mount, else False
+        """
+        for m in self.validMountFolders:
+            if path.startswith(m):
+                return True
+        return False
+
+    def mountedValidMountPoints(self):
+        """
+        Return all the currently mounted partitions that are valid
+        :return: tuple of currently mounted valid partitions
+        """
+        return tuple(filter(self.pathIsValidMountPoint, mountPaths()))
+
+    def _setValidMountFolders(self):
+        """
+        Determine the valid mount point folders and set them in
+        self.validMountFolders, e.g. /media/<USER>, etc.
+        """
+        if sys.platform.startswith('linux'):
+            home_dir = os.path.expanduser('~')
+            try:
+                # this next line fails on some sessions
+                media_dir = '/media/{}'.format(os.getlogin())
+            except FileNotFoundError:
+                media_dir = '/media/{}'.format(os.getenv('USER', ''))
+            validPoints = [home_dir, media_dir,'/run{}'.format(media_dir)]
+            for point in self.mountPointInFstab():
+                validPoints.append(point)
+            self.validMountFolders = tuple(validPoints)
+        else:
+            raise("Mounts.setValidMountPoints() not implemented on %s",
+                  sys.platform())
+
+    def mountPointInFstab(self):
+        """
+        Yields a list of mount points in /etc/fstab
+        The mount points will exclude /, /home, and swap
+        """
+        with open('/etc/fstab') as f:
+            l = []
+            for line in f:
+                # As per fstab specs: white space is either Tab or space
+                # Ignore comments, blank lines
+                # Also ignore swap file (mount point none), root, and /home
+                m = re.match(r'^(?![\t ]*#)\S+\s+(?!(none|/[\t ]|/home))('
+                             r'?P<point>\S+)',
+                             line)
+                if m is not None:
+                    yield (m.group('point'))
+
+    def logValidMountFolders(self):
+        """
+        Output nicely formatted debug logging message
+        :param validMountPoints: the mount points, of which there must be
+        at least three
+        """
+        assert len(self.validMountFolders) > 2
+        if logging_level == logging.DEBUG:
+            msg = "Valid partitions must be mounted under one of "
+            for p in self.validMountFolders[:-2]:
+                msg += "{}, ".format(p)
+            msg += "{} or {}".format(self.validMountFolders[-2],
+                                         self.validMountFolders[-1])
+            logging.debug(msg)
 
 
 def mountPaths():
     """
-    Yield all the mounts returned by QStorageInfo
+    Yield all the mount paths returned by QStorageInfo
     """
     for m in QStorageInfo.mountedVolumes():
         yield m.rootPath()
@@ -74,61 +158,6 @@ def contains_dcim_folder(path):
     if "DCIM" in os.listdir(path):
         return os.path.isdir(os.path.join(path, 'DCIM'))
     return False
-
-def mount_points_in_fstab():
-    """
-    Yields a list of mount points in /etc/fstab
-    The mount points will exclude /, /home, and swap
-    """
-    with open('/etc/fstab') as f:
-        l = []
-        for line in f:
-            # As per fstab specs: white space is either Tab or space
-            # Ignore comments, blank lines
-            # Also ignore swap file (mount point none), root, and /home
-            m = re.match(r'^(?![\t ]*#)\S+\s+(?!(none|/[\t ]|/home))('
-                         r'?P<point>\S+)',
-                         line)
-            if m is not None:
-                yield (m.group('point'))
-
-def get_valid_mount_points():
-    """
-    Get the places in which it's sensible for a user to mount a
-    partition.
-    Includes /home/<USER> , /media/<USER>, and /run/media/<USER>
-    Includes directories in /etc/fstab, except /, /home, and swap
-
-    :return: tuple of the valid mount points
-    :rtype: Tuple(str)
-    """
-    if sys.platform.startswith('linux'):
-        home_dir = os.path.expanduser('~')
-        try:
-            # this next line fails on some sessions
-            media_dir = '/media/{}'.format(os.getlogin())
-        except FileNotFoundError:
-            media_dir = '/media/{}'.format(os.getenv('USER', ''))
-        valid_points = [home_dir, media_dir,'/run{}'.format(media_dir)]
-        for point in mount_points_in_fstab():
-            valid_points.append(point)
-        return tuple(valid_points)
-    else:
-        raise("get_valid_mount_points() not implemented on %s", sys.platform())
-
-def log_valid_mount_points(validMountPoints):
-    """
-    Output nicely formatted debug logging message
-    :param validMountPoints: the mount points, of which there must be
-    at least three
-    """
-    if logging_level == logging.DEBUG:
-        msg = "Valid partitions must be mounted under one of "
-        for p in validMountPoints[:-2]:
-            msg += "{}, ".format(p)
-        msg += "{} or {}".format(validMountPoints[-2],
-                                     validMountPoints[-1])
-        logging.debug(msg)
 
 def get_desktop_environment():
     return os.getenv('XDG_CURRENT_DESKTOP')
@@ -180,7 +209,6 @@ class CameraHotplug(QObject):
                 del self.cameras[path]
                 self.cameraRemoved.emit()
 
-
 class UDisks2Monitor(QObject):
     #TODO credit usb-creator
     partitionMounted = pyqtSignal(str)
@@ -194,11 +222,9 @@ class UDisks2Monitor(QObject):
     '/org/freedesktop/UDisks2/block_devices/zram',
     )
 
-    def __init__(self):
+    def __init__(self, validMounts: ValidMounts):
         super(UDisks2Monitor, self).__init__()
-        self.validMountPoints = get_valid_mount_points()
-        assert '/' not in self.validMountPoints
-        log_valid_mount_points(self.validMountPoints)
+        self.validMounts = validMounts
 
     def startMonitor(self):
         self.udisks = UDisks.Client.new_sync(None)
@@ -257,9 +283,8 @@ class UDisks2Monitor(QObject):
                 mount_point = mount_points[0]
                 logging.debug("UDisks: already mounted at %s", mount_point)
 
-            for s in get_valid_mount_points():
-                if mount_point.startswith(s):
-                    self.partitionMounted.emit(mount_point)
+            if self.validMounts.pathIsValidMountPoint(mount_point):
+                self.partitionMounted.emit(mount_point)
 
         else:
             logging.debug("Udisks: partition has no file system %s", path)
@@ -317,18 +342,14 @@ if have_gio:
         partitionUnmounted = pyqtSignal(str)
         volumeAddedNoAutomount = pyqtSignal()
 
-
-        def __init__(self):
+        def __init__(self, validMounts: ValidMounts):
             super(GVolumeMonitor, self).__init__()
             self.vm = Gio.VolumeMonitor.get()
             self.vm.connect('mount-added', self.mountAdded)
             self.vm.connect('volume-added', self.volumeAdded)
             self.vm.connect('mount-removed', self.mountRemoved)
             self.portSearch = re.compile(r'usb:([\d]+),([\d]+)')
-            self.validMountPoints = get_valid_mount_points()
-            assert '/' not in self.validMountPoints
-            log_valid_mount_points(self.validMountPoints)
-
+            self.validMounts = validMounts
 
         def unmountCamera(self, model: str, port: str) -> bool:
             """
@@ -422,9 +443,8 @@ if have_gio:
                     logging.debug("GIO: Looking for partition at mount {"
                                   "}".format(
                         path))
-                    for s in self.validMountPoints:
-                        if path.startswith(s):
-                            return True
+                    if self.validMounts.pathIsValidMountPoint(path):
+                        return True
             logging.debug("GIO: partition is not valid: {}".format(path))
             return False
 
@@ -437,7 +457,8 @@ if have_gio:
         def mountRemoved(self, volumeMonitor, mount: Gio.Mount):
             if not self.mountIsCamera(mount):
                 if self.mountIsPartition(mount):
-                    logging.debug("%s has been unmounted", mount.get_name())
+                    logging.debug("GIO: %s has been unmounted",
+                                  mount.get_name())
                     self.partitionUnmounted.emit(mount.get_root().get_path())
 
         def volumeAdded(self, volumeMonitor, volume: Gio.Volume):

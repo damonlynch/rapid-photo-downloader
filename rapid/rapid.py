@@ -47,7 +47,7 @@ from PyQt5.QtWidgets import (QAction, QApplication, QFileDialog, QLabel,
 # from dbus.mainloop.pyqt5 import DBusQtMainLoop
 
 
-from storage import (mounted_volumes, CameraHotplug, UDisks2Monitor,
+from storage import (ValidMounts, CameraHotplug, UDisks2Monitor,
                      GVolumeMonitor, have_gio)
 import storage
 
@@ -179,6 +179,8 @@ class RapidWindow(QtWidgets.QMainWindow):
         # Initalize use of libgphoto2
         self.gp_context = gp.Context()
 
+        self.validMounts = ValidMounts()
+
         self.gvfsControlsMounts = storage.gvfs_controls_mounts() and have_gio
         if have_gio:
             logging.debug("Using GIO: %s", self.gvfsControlsMounts)
@@ -193,7 +195,7 @@ class RapidWindow(QtWidgets.QMainWindow):
             self.cameraHotplug.startMonitor()
 
             # Monitor when the user adds or removes a partition
-            self.udisks2Monitor = UDisks2Monitor()
+            self.udisks2Monitor = UDisks2Monitor(self.validMounts)
             self.udisks2MonitorThread = QThread()
             self.udisks2Monitor.moveToThread(self.udisks2MonitorThread)
             self.udisks2Monitor.partitionMounted.connect(self.partitionMounted)
@@ -204,10 +206,12 @@ class RapidWindow(QtWidgets.QMainWindow):
         self.camerasToUnmount = {}
 
         if self.gvfsControlsMounts:
-            self.gvolumeMonitor = GVolumeMonitor()
+            self.gvolumeMonitor = GVolumeMonitor(self.validMounts)
             self.gvolumeMonitor.cameraUnmounted.connect(self.cameraUnmounted)
             self.gvolumeMonitor.cameraMounted.connect(self.cameraMounted)
             self.gvolumeMonitor.partitionMounted.connect(self.partitionMounted)
+            self.gvolumeMonitor.volumeAddedNoAutomount.connect(
+                self.noGVFSAutoMount)
 
         self.devices = DeviceCollection()
         # Setup the Scan processes
@@ -420,6 +424,15 @@ class RapidWindow(QtWidgets.QMainWindow):
             scan_arguments = ScanArguments(self.scan_preferences, device)
             self.scanmq.add_worker(scan_id, scan_arguments)
 
+    def noGVFSAutoMount(self):
+        """
+        In Gnome like environment we rely on Gnome automatically
+        mounting cameras and devices with file systems. But sometimes
+        it will not automatically mount them, for whatever reason.
+        Try to handle those cases.
+        """
+        print("Implement noGVFSAutoMount()")
+
     def cameraMounted(self):
         if have_gio:
             self.searchForCameras()
@@ -466,6 +479,120 @@ class RapidWindow(QtWidgets.QMainWindow):
         scan_id = self.devices.add_device(device)
         scan_arguments = ScanArguments(self.scan_preferences, device)
         self.scanmq.add_worker(scan_id, scan_arguments)
+
+    def setupDevices(self, onStartup, onPreferenceChange, blockAutoStart):
+        """
+
+        Setup devices from which to download from and backup to
+
+        Sets up volumes for downloading from and backing up to
+
+        onStartup should be True if the program is still starting,
+        i.e. this is being called from the program's initialization.
+
+        onPreferenceChange should be True if this is being called as the
+        result of a preference being changed
+
+        blockAutoStart should be True if automation options to automatically
+        start a download should be ignored
+
+        Removes any image media that are currently not downloaded,
+        or finished downloading
+        """
+
+        self.clearNonRunningDownloads()
+        # if not self.prefs.device_autodetection:
+        #     if not self.confirm_manual_location():
+        #         return
+
+        mounts = []
+        self.backupDevices = {}
+        """
+        if self.using_volume_monitor():
+            # either using automatically detected backup devices
+            # or download devices
+            for mount in self.vmonitor.get_mounts():
+                if not mount.is_shadowed():
+                    path = mount.get_root().get_path()
+                    if path:
+                        if (path in self.prefs.device_blacklist and
+                                    self.search_for_PSD()):
+                            logging.info("blacklisted device %s ignored", mount.get_name())
+                        else:
+                            logging.info("Detected %s", mount.get_name())
+                            is_backup_mount, backup_file_type = self.check_if_backup_mount(path)
+                            if is_backup_mount:
+                                self.backup_devices[path] = (mount, backup_file_type)
+                            elif (self.prefs.device_autodetection and
+                                 (dv.is_DCIM_device(path) or
+                                  self.search_for_PSD())):
+                                logging.debug("Appending %s", mount.get_name())
+                                mounts.append((path, mount))
+                            else:
+                                logging.debug("Ignoring %s", mount.get_name())
+
+
+        if not self.prefs.device_autodetection:
+            # user manually specified the path from which to download
+            path = self.prefs.device_location
+            if path:
+                logging.info("Using manually specified path %s", path)
+                if utilities.is_directory(path):
+                    mounts.append((path, None))
+                else:
+                    logging.error("Download path does not exist: %s", path)
+
+        if self.prefs.backup_images:
+            if not self.prefs.backup_device_autodetection:
+                self._setup_manual_backup()
+            self._add_backup_devices()
+
+        self.update_no_backup_devices()
+
+        # Display amount of free space in a status bar message
+        self.display_free_space()
+
+        if blockAutoStart:
+            self.auto_start_is_on = False
+        else:
+            self.auto_start_is_on = ((not onPreferenceChange) and
+                                    ((self.prefs.auto_download_at_startup and
+                                      onStartup) or
+                                      (self.prefs.auto_download_upon_device_insertion and
+                                       not onStartup)))
+
+        logging.debug("Working with %s devices", len(mounts))
+        for m in mounts:
+            path, mount = m
+            device = dv.Device(path=path, mount=mount)
+
+
+            if not self._device_already_detected(device):
+                if (self.search_for_PSD() and
+                        path not in self.prefs.device_whitelist):
+                    # prompt user to see if device should be used or not
+                    self.get_use_device(device)
+                else:
+                    scan_pid = self.start_device_scan(device)
+                    if mount is not None:
+                        self.mounts_by_path[path] = scan_pid
+        if not mounts:
+            self.set_download_action_sensitivity()
+        """
+
+    def clearNonRunningDownloads(self):
+        """
+        Clears the display of downloads that are currently not running
+        """
+
+        # Stop any processes currently scanning or creating thumbnails
+        pass
+
+        # Remove them from the user interface
+        # for scan_pid in self.device_collection.get_all_displayed_processes():
+        #     if scan_pid not in self.download_active_by_scan_pid:
+        #         self.device_collection.remove_device(scan_pid)
+        #         self.thumbnails.clear_all(scan_pid=scan_pid)
 
 
 
