@@ -141,8 +141,6 @@ def gvfs_controls_mounts():
 class CameraHotplug(QObject):
     cameraAdded = pyqtSignal()
     cameraRemoved = pyqtSignal()
-    # partitionAdded = pyqtSignal()
-    # partitionRemoved = pyqtSignal()
 
     def __init__(self):
         super(CameraHotplug, self).__init__()
@@ -162,7 +160,6 @@ class CameraHotplug(QObject):
         # For some reason, the add and remove camera event is triggered twice.
         # The second time the device information is a variation on information
         # from the first time.
-        logging.debug("%s camera", action.capitalize())
         path = device.get_sysfs_path()
         parent_device = device.get_parent()
         parent_path = parent_device.get_sysfs_path()
@@ -170,35 +167,18 @@ class CameraHotplug(QObject):
         if action == 'add':
             if parent_path not in self.cameras:
                 model = device.get_property('ID_MODEL')
-                logging.debug("New camera: %s", model)
+                logging.debug("Hotplug: new camera: %s", model)
                 self.cameras[path] = model
                 self.cameraAdded.emit()
             else:
-                logging.debug("Already know about %s", self.cameras[
+                logging.debug("Hotplug: already know about %s", self.cameras[
                     parent_path])
 
         elif action == 'remove':
             if path in self.cameras:
-                logging.debug("%s has been removed", self.cameras[path])
+                logging.debug("Hotplug: %s has been removed", self.cameras[path])
                 del self.cameras[path]
                 self.cameraRemoved.emit()
-
-    def printDevice(self, device: GUdev.Device):
-        # from Canonical's udev-usb-speed.py
-        for func in ('get_action', 'get_device_file', 'get_device_file_symlinks',
-                 'get_device_number', 'get_device_type', 'get_devtype',
-                 'get_driver', 'get_is_initialized', 'get_name', 'get_number',
-                 'get_parent',
-                 # skipping get_parent_with_subsystem()
-                 # skipping get_property*()
-                 'get_seqnum', 'get_subsystem',
-                 # skipping get_syfs_attr*()
-                 'get_sysfs_path', 'get_tags', 'get_usec_since_initialized'):
-            func_ret_value = getattr(device, func)()
-            print("  {}(): {!r}".format(func, func_ret_value))
-        for prop_name in device.get_property_keys():
-            prop_value = device.get_property(prop_name)
-            print("  get_property({!r}): {!r}".format(prop_name, prop_value))
 
 
 class UDisks2Monitor(QObject):
