@@ -21,12 +21,13 @@ __author__ = 'Damon Lynch'
 
 import logging
 import re
+from enum import Enum
 
 
 class ScanPreferences:
     r"""
-    Handle user preferences while scanning devices like memory cards, cameras
-    or the filesystem
+    Handle user preferences while scanning devices like memory cards,
+    cameras or the filesystem. Pickled and passed between processes.
 
     Sets data attribute valid to True if ignored paths are valid. An ignored
     path is always assumed to be valid unless regular expressions are used.
@@ -98,7 +99,8 @@ class ScanPreferences:
                 re.match(path, '')
                 pattern += '.*{}s$|'.format(path)
             except re.error:
-                logging.error("Ignoring malformed regular expression: {}".format(path))
+                logging.error("Ignoring malformed regular expression: {"
+                              "}".format(path))
                 error_encountered = True
 
         if pattern:
@@ -107,10 +109,18 @@ class ScanPreferences:
             try:
                 self.re_pattern = re.compile(pattern)
             except re.error:
-                logging.error('This regular expression is invalid: {}'.format(pattern))
+                logging.error('This regular expression is invalid: {'
+                              '}'.format(pattern))
                 self.re_pattern = None
                 error_encountered = True
 
-        logging.debug("Ignored paths regular expression pattern: {}".format(pattern))
+        logging.debug("Ignored paths regular expression pattern: {}".format(
+            pattern))
 
         return not error_encountered
+
+
+class BackupLocationForFileType(Enum):
+    photos = 1
+    videos = 2
+    photos_and_videos = 3

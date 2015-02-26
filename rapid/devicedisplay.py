@@ -18,5 +18,6 @@ __author__ = 'Damon Lynch'
 # along with Rapid Photo Downloader.  If not,
 # see <http://www.gnu.org/licenses/>.
 
-from PyQt5.QtCore import  QAbstractTableModel
+from PyQt5.QtCore import QAbstractTableModel
 from PyQt5.QtWidgets import QTableView
+

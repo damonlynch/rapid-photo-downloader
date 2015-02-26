@@ -31,22 +31,6 @@ def get_full_path(path):
     else:
         return os.path.join(os.path.expanduser('~'), path)
         
-def is_directory(path):
-    
-    # for some very strange reason, doing it the GIO way fails with
-    # unknown type, even for directories!
-    return os.path.isdir(path)
-    
-    if False:
-        d = gio.File(path)
-        if d.query_exists():
-            file_info = d.query_filesystem_info(attributes="standard::type")
-            file_type = file_info.get_file_type()
-            if file_type == gio.FILE_TYPE_DIRECTORY:
-                return True
-            
-        return False
-
 def format_size_for_user(bytes, zero_string="", with_decimals=True, kb_only=False):
     """Format an int containing the number of bytes into a string suitable for
     printing out to the user.  zero_string is the string to use if bytes == 0.

@@ -65,15 +65,35 @@ class ValidMounts():
     r"""
     Operations to find 'valid' mount points, i.e. the places in which
     it's sensible for a user to mount a partition. Valid mount points:
-    Include /home/<USER> , /media/<USER>, and /run/media/<USER>
-    Include directories in /etc/fstab, except /, /home, and swap
+    include /home/<USER> , /media/<USER>, and /run/media/<USER>
+    include directories in /etc/fstab, except /, /home, and swap
+    However if only considering external mounts, the the mount must be
+    under /media/<USER> or /run/media/<user>
     """
-    def __init__(self):
+    def __init__(self, onlyExternalMounts: bool):
+        """
+
+        :param onlyExternalMounts:
+        :return:
+        """
         self.validMountFolders = None # type: Tuple(str)
+        self.onlyExternalMounts = onlyExternalMounts
         self._setValidMountFolders()
         assert '/' not in self.validMountFolders
         if logging_level == logging.DEBUG:
             self.logValidMountFolders()
+
+    def isValidMountPoint(self, mount: QStorageInfo) -> bool:
+        """
+        Determine if mount indicates a mount point under a valid mount
+        point
+        :param mount: QStorageInfo to be tested
+        :return:True if mount is a mount under a valid mount, else False
+        """
+        for m in self.validMountFolders:
+            if mount.rootPath().startswith(m):
+                return True
+        return False
 
     def pathIsValidMountPoint(self, path: str) -> bool:
         """
@@ -87,12 +107,24 @@ class ValidMounts():
                 return True
         return False
 
-    def mountedValidMountPoints(self):
+    def mountedValidMountPointPaths(self):
         """
-        Return all the currently mounted partitions that are valid
-        :return: tuple of currently mounted valid partitions
+        Return paths of all the currently mounted partitions that are
+        valid
+        :return: tuple of currently mounted valid partition paths
+        :rtype Tuple(str)
         """
         return tuple(filter(self.pathIsValidMountPoint, mountPaths()))
+
+    def mountedValidMountPoints(self):
+        """
+        Return mount points of all the currently mounted partitions
+        that are valid
+        :return: tuple of currently mounted valid partition
+        :rtype Tuple(QStorageInfo)
+        """
+        return tuple(filter(self.isValidMountPoint,
+                            QStorageInfo.mountedVolumes()))
 
     def _setValidMountFolders(self):
         """
@@ -100,16 +132,19 @@ class ValidMounts():
         self.validMountFolders, e.g. /media/<USER>, etc.
         """
         if sys.platform.startswith('linux'):
-            home_dir = os.path.expanduser('~')
             try:
                 # this next line fails on some sessions
                 media_dir = '/media/{}'.format(os.getlogin())
             except FileNotFoundError:
                 media_dir = '/media/{}'.format(os.getenv('USER', ''))
-            validPoints = [home_dir, media_dir,'/run{}'.format(media_dir)]
-            for point in self.mountPointInFstab():
-                validPoints.append(point)
-            self.validMountFolders = tuple(validPoints)
+            if self.onlyExternalMounts:
+                self.validMountFolders = (media_dir,'/run{}'.format(media_dir))
+            else:
+                home_dir = os.path.expanduser('~')
+                validPoints = [home_dir, media_dir,'/run{}'.format(media_dir)]
+                for point in self.mountPointInFstab():
+                    validPoints.append(point)
+                self.validMountFolders = tuple(validPoints)
         else:
             raise("Mounts.setValidMountPoints() not implemented on %s",
                   sys.platform())
@@ -134,16 +169,20 @@ class ValidMounts():
     def logValidMountFolders(self):
         """
         Output nicely formatted debug logging message
-        :param validMountPoints: the mount points, of which there must be
-        at least three
         """
-        assert len(self.validMountFolders) > 2
+        assert len(self.validMountFolders) > 0
         if logging_level == logging.DEBUG:
-            msg = "Valid partitions must be mounted under one of "
-            for p in self.validMountFolders[:-2]:
-                msg += "{}, ".format(p)
-            msg += "{} or {}".format(self.validMountFolders[-2],
-                                         self.validMountFolders[-1])
+            msg = "To be recognized, partitions must be mounted under one of "
+            if len(self.validMountFolders) > 2:
+                for p in self.validMountFolders[:-2]:
+                    msg += "{}, ".format(p)
+                msg += "{} or {}".format(self.validMountFolders[-2],
+                                             self.validMountFolders[-1])
+            elif len(self.validMountFolders) == 2:
+                msg += "{} or {}".format(self.validMountFolders[0],
+                                         self.validMountFolders[1])
+            else:
+                msg += self.validMountFolders[0]
             logging.debug(msg)
 
 
@@ -154,9 +193,23 @@ def mountPaths():
     for m in QStorageInfo.mountedVolumes():
         yield m.rootPath()
 
-def contains_dcim_folder(path):
-    if "DCIM" in os.listdir(path):
-        return os.path.isdir(os.path.join(path, 'DCIM'))
+def has_non_empty_dcim_folder(path: str) -> bool:
+    """
+    Checks to see if below the path there is a DCIM folder,
+    if the folder is readable, and if it has any contents
+    :param path: path to check
+    :return: True if has valid DCIM, False otherwise
+    """
+    try:
+        has_dcim = "DCIM" in os.listdir(path)
+    except PermissionError:
+        return False
+    except FileNotFoundError:
+        return False
+    if has_dcim:
+        dcim_folder = os.path.join(path, 'DCIM')
+        if os.path.isdir(dcim_folder) and os.access(dcim_folder, os.R_OK):
+            return len(os.listdir(dcim_folder)) > 0
     return False
 
 def get_desktop_environment():
@@ -466,4 +519,5 @@ if have_gio:
                           volume.get_name(),
                           volume.should_automount())
             if not volume.should_automount():
+                #TODO is it possible to determine the device type?
                 self.volumeAddedNoAutomount.emit()

@@ -25,11 +25,12 @@ import subprocess
 import shlex
 import time
 
-from PyQt5 import QtCore
+from PyQt5.QtCore import (pyqtSignal, QObject)
 
 import zmq
 
 from rpdfile import RPDFile
+from devices import Device
 from preferences import ScanPreferences
 
 logging_level = logging.DEBUG
@@ -80,7 +81,7 @@ def make_filter_from_worker_id(worker_id):
         return worker_id.encode()
     raise(TypeError)
 
-class PublishPullPipelineManager(QtCore.QObject):
+class PublishPullPipelineManager(QObject):
     """
     Set of standard operations when managing a 0MQ Pipeline that
     distributes work with a publisher to one or more workers, and pulls
@@ -91,8 +92,8 @@ class PublishPullPipelineManager(QtCore.QObject):
     Worker counterpart is interprocess.WorkerInPublishPullPipeline
     """
 
-    message = QtCore.pyqtSignal(str) # Derived class will change this
-    workerFinished = QtCore.pyqtSignal(int)
+    message = pyqtSignal(str) # Derived class will change this
+    workerFinished = pyqtSignal(int)
     def __init__(self, context):
         super(PublishPullPipelineManager, self).__init__()
 
@@ -313,62 +314,6 @@ class WorkerInPublishPullPipeline():
     def send_finished_command(self):
         self.sender.send_multipart([self.worker_id, b'cmd', b'FINISHED'])
 
-class Device:
-    r"""
-    Representation of a camera or an object with a file system type that
-    will have files downloaded from.
-
-    >>> d = Device()
-    >>> d.set_path('/media/damon/EOS_DIGITAL', 'EOS_DIGITAL')
-    >>> d
-    'EOS_DIGITAL':'/media/damon/EOS_DIGITAL'
-    >>> str(d)
-    '/media/damon/EOS_DIGITAL (EOS_DIGITAL)'
-    >>> d.camera_model
-    >>> d.camera_port
-
-    >>> c = Device()
-    >>> c.set_download_from_camera('Canon EOS 1D X', 'usb:001,002')
-    >>> c
-    'Canon EOS 1D X':'usb:001,002'
-    >>> str(c)
-    'Canon EOS 1D X on port usb:001,002'
-    >>> c.path
-    >>> c.display_name
-    """
-    def __init__(self):
-        self.camera_model = None
-        self.camera_port = None
-        self.path = None
-        self.display_name = None
-        self.download_from_camera = None
-
-    def __repr__(self):
-        if self.download_from_camera:
-            return "%r:%r" % (self.camera_model, self.camera_port)
-        else:
-            return "%r:%r" % (self.display_name, self.path)
-
-    def __str__(self):
-        if self.download_from_camera:
-            return "%s on port %s" % (self.camera_model, self.camera_port)
-        else:
-            if self.path != self.display_name:
-                return "%s (%s)" % (self.path, self.display_name)
-            else:
-                return "%s" % (self.path)
-
-    def set_download_from_camera(self, camera_model: str, camera_port: str):
-        self.download_from_camera = True
-        self.camera_model = camera_model
-        self.camera_port = camera_port
-        self.path = self.display_name = None
-
-    def set_path(self, path, display_name):
-        self.path = path
-        self.display_name = display_name
-        self.download_from_camera = False
-        self.camera_port = self.camera_model = None
 
 class ScanArguments:
     """
@@ -377,6 +322,12 @@ class ScanArguments:
     def __init__(self, scan_preferences: ScanPreferences, device: Device):
         self.scan_preferences = scan_preferences
         self.device = device
+
+class BackupArguments:
+    """
+    Pass arguments to the backup process
+    """
+    pass
 
 
 class GenerateThumbnailsArguments:

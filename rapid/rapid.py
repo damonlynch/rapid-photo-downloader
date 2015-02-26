@@ -48,18 +48,17 @@ from PyQt5.QtWidgets import (QAction, QApplication, QFileDialog, QLabel,
 
 
 from storage import (ValidMounts, CameraHotplug, UDisks2Monitor,
-                     GVolumeMonitor, have_gio)
-import storage
-
-from interprocess import PublishPullPipelineManager, ScanArguments, Device
-from preferences import ScanPreferences
-from thumbnaildisplay import (ThumbnailView, ThumbnailTableModel, \
+                     GVolumeMonitor, have_gio, has_non_empty_dcim_folder,
+                     mountPaths, get_desktop_environment, gvfs_controls_mounts)
+from interprocess import (PublishPullPipelineManager, ScanArguments)
+from devices import (Device, DeviceCollection)
+from preferences import (ScanPreferences, BackupLocationForFileType)
+from thumbnaildisplay import (ThumbnailView, ThumbnailTableModel,
     ThumbnailDelegate)
 import rpdfile
 
 logging_level = logging.DEBUG
 logging.basicConfig(format='%(asctime)s %(message)s', level=logging_level)
-
 
 
 class ScanManager(PublishPullPipelineManager):
@@ -69,38 +68,6 @@ class ScanManager(PublishPullPipelineManager):
         self._process_name = 'Scan Manager'
         self._process_to_run = 'scan.py'
 
-
-class DeviceCollection:
-    def __init__(self):
-        self.devices = {}
-        self.cameras = {}
-
-    def add_device(self, device: Device):
-        scan_id = len(self.devices)
-        self.devices[scan_id] = device
-        if device.camera_port:
-            port = device.camera_port
-            assert port not in self.cameras
-            self.cameras[port] = device.camera_model
-        return scan_id
-
-    def known_camera(self, model: str, port: str) -> bool:
-        """
-        Check if the camera is already in the list of devices
-        :param model: camera model as specified by libgohoto2
-        :param port: camera port as specified by libgohoto2
-        :return: True if this camera is already being processed, else False
-        """
-        if port in self.cameras:
-            assert self.cameras[port] == model
-            return True
-        return False
-
-    def __getitem__(self, item):
-        return self.devices[item]
-
-    def __len__(self):
-        return len(self.devices)
 
 class RapidWindow(QtWidgets.QMainWindow):
     def __init__(self, parent=None):
@@ -172,16 +139,17 @@ class RapidWindow(QtWidgets.QMainWindow):
         #FIXME get scan preferences from actual user prefs
         self.scan_preferences = ScanPreferences(['.Trash', '.thumbnails'])
 
-        logging.debug("Desktop environment: %s",
-                      storage.get_desktop_environment())
-        logging.debug("Have GIO module: %s", have_gio)
-
         # Initalize use of libgphoto2
         self.gp_context = gp.Context()
 
-        self.validMounts = ValidMounts()
+        #TODO add new preference: auto detect only external mounts (
+        # default), or in any valid mount point
+        self.validMounts = ValidMounts(onlyExternalMounts=True)
 
-        self.gvfsControlsMounts = storage.gvfs_controls_mounts() and have_gio
+        logging.debug("Desktop environment: %s",
+                      get_desktop_environment())
+        logging.debug("Have GIO module: %s", have_gio)
+        self.gvfsControlsMounts = gvfs_controls_mounts() and have_gio
         if have_gio:
             logging.debug("Using GIO: %s", self.gvfsControlsMounts)
 
@@ -226,17 +194,9 @@ class RapidWindow(QtWidgets.QMainWindow):
         # call the slot with no delay
         QtCore.QTimer.singleShot(0, self.scanThread.start)
 
-        if False:
-            scan_preferences = ScanPreferences(['.Trash', '.thumbnails'])
-            device = Device()
-            device.set_path('/home/damon/Desktop/DCIM')
-            # device.set_path('/home/damon/Pictures/final')
-            # device.set_path('/data/Photos/processing/2014')
-            scan_id = self.devices.add_device(device)
-            scan_arguments = ScanArguments(scan_preferences, device)
-            self.scanmq.add_worker(scan_id, scan_arguments)
-
         self.searchForCameras()
+        self.setupNonCameraDevices(onStartup=True, onPreferenceChange=False,
+                                   blockAutoStart=False)
 
     def createActions(self):
         self.downloadAct = QAction("&Download", self, shortcut="Ctrl+Return",
@@ -413,17 +373,6 @@ class RapidWindow(QtWidgets.QMainWindow):
                       "immediately proceeding with scan")
         self.searchForCameras()
 
-    def partitionMounted(self, path):
-        assert path in storage.mountPaths()
-        #FIXME add code from old setup_devices()
-        if storage.contains_dcim_folder(path):
-            device = Device()
-            name = QStorageInfo(path).displayName()
-            device.set_path(path, name)
-            scan_id = self.devices.add_device(device)
-            scan_arguments = ScanArguments(self.scan_preferences, device)
-            self.scanmq.add_worker(scan_id, scan_arguments)
-
     def noGVFSAutoMount(self):
         """
         In Gnome like environment we rely on Gnome automatically
@@ -431,6 +380,7 @@ class RapidWindow(QtWidgets.QMainWindow):
         it will not automatically mount them, for whatever reason.
         Try to handle those cases.
         """
+        #TODO Implement noGVFSAutoMount()
         print("Implement noGVFSAutoMount()")
 
     def cameraMounted(self):
@@ -463,6 +413,8 @@ class RapidWindow(QtWidgets.QMainWindow):
                 logging.debug("Already unmounting %s", model)
             elif self.devices.known_camera(model, port):
                 logging.debug("Camera %s is known", model)
+            elif self.cameraBlacklisted(model):
+                logging.debug("Ignoring blacklisted camera %s", model)
             elif not port.startswith('disk:'):
                 logging.debug("Detected %s on port %s", model, port)
                 # libgphoto2 cannot access a camera when it is mounted
@@ -476,115 +428,216 @@ class RapidWindow(QtWidgets.QMainWindow):
     def startCameraScan(self, model: str, port: str):
         device = Device()
         device.set_download_from_camera(model, port)
+        self.startDeviceScan(device)
+
+    def startDeviceScan(self, device: Device):
         scan_id = self.devices.add_device(device)
         scan_arguments = ScanArguments(self.scan_preferences, device)
         self.scanmq.add_worker(scan_id, scan_arguments)
 
-    def setupDevices(self, onStartup, onPreferenceChange, blockAutoStart):
+
+    def partitionValid(self, mount: QStorageInfo) -> bool:
         """
+        A valid partition is one that is:
+        1) available
+        2) if devices without DCIM folders are to be scanned (e.g.
+        Portable Storage Devices), then the path should not be
+        blacklisted
+        :param mount: the mount point to check
+        :return: True if valid, False otherwise
+        """
+        if mount.isValid() and mount.isReady():
+            path = mount.rootPath()
+            if self.pathBlacklisted(path) and self.scanEvenIfNoDCIM():
+                logging.info("blacklisted device %s ignored",
+                             mount.displayName())
+                return False
+            else:
+                return True
+        return False
 
-        Setup devices from which to download from and backup to
+    def shouldScanMountPath(self, path: str) -> bool:
+        if self.downloadFromAutoDetectedPartitions():
+            if self.scanEvenIfNoDCIM() or has_non_empty_dcim_folder(path):
+                return True
+        return False
 
-        Sets up volumes for downloading from and backing up to
+    def prepareNonCameraDeviceScan(self, device: Device):
+        if not self.devices.known_device(device):
+            if (self.scanEvenIfNoDCIM() and
+                    not self.pathWhiteListed(device.path)):
+                # prompt user to see if device should be used or not
+                pass
+                #self.get_use_device(device)
+            else:
+                self.startDeviceScan(device)
+                # if mount is not None:
+                #     self.mounts_by_path[path] = scan_pid
 
-        onStartup should be True if the program is still starting,
-        i.e. this is being called from the program's initialization.
+    def partitionMounted(self, path):
+        """
+        Setup devices from which to download from and backup to, and
+        if relevant start scanning them
 
-        onPreferenceChange should be True if this is being called as the
-        result of a preference being changed
+        :param path: the path of the mounted partition
+        """
+        assert path in mountPaths()
 
-        blockAutoStart should be True if automation options to automatically
-        start a download should be ignored
+        if self.monitorPartitionChanges():
+            mount = QStorageInfo(path)
+            if self.partitionValid(mount):
+                backupFileType = self.isBackupPath(path)
+
+                if backupFileType is not None:
+                    #TODO implement backup handling
+                    pass
+                    # if path not in self.backup_devices:
+                    #     self.backup_devices[path] = mount
+                    #     name = self._backup_device_name(path)
+                    #     self.backup_manager.add_device(path, name, backup_file_type)
+                    #     self.update_no_backup_devices()
+                    #     self.display_free_space()
+
+                elif self.shouldScanMountPath(path):
+                    #TODO implement autostart
+                    #self.auto_start_is_on =
+                    # self.prefs.auto_download_upon_device_insertion
+                    device = Device()
+                    device.set_download_from_path(path, mount.displayName)
+                    self.prepareNonCameraDeviceScan(device)
+
+    def setupNonCameraDevices(self, onStartup: bool, onPreferenceChange: bool,
+                              blockAutoStart: bool):
+        """
+        Setup devices from which to download from and backup to, and
+        if relevant start scanning them
 
         Removes any image media that are currently not downloaded,
         or finished downloading
+
+        :param onStartup: should be True if the program is still
+        starting i.e. this is being called from the program's
+        initialization.
+        :param onPreferenceChange: should be True if this is being
+        called as the result of a program preference being changed
+        :param blockAutoStart: should be True if automation options to
+        automatically start a download should be ignored
         """
 
         self.clearNonRunningDownloads()
-        # if not self.prefs.device_autodetection:
-        #     if not self.confirm_manual_location():
-        #         return
+        if not self.downloadFromAutoDetectedPartitions():
+             if not self.confirmManualDownloadLocation():
+                return
 
         mounts = []
         self.backupDevices = {}
-        """
-        if self.using_volume_monitor():
+
+        if self.monitorPartitionChanges():
             # either using automatically detected backup devices
             # or download devices
-            for mount in self.vmonitor.get_mounts():
-                if not mount.is_shadowed():
-                    path = mount.get_root().get_path()
-                    if path:
-                        if (path in self.prefs.device_blacklist and
-                                    self.search_for_PSD()):
-                            logging.info("blacklisted device %s ignored", mount.get_name())
-                        else:
-                            logging.info("Detected %s", mount.get_name())
-                            is_backup_mount, backup_file_type = self.check_if_backup_mount(path)
-                            if is_backup_mount:
-                                self.backup_devices[path] = (mount, backup_file_type)
-                            elif (self.prefs.device_autodetection and
-                                 (dv.is_DCIM_device(path) or
-                                  self.search_for_PSD())):
-                                logging.debug("Appending %s", mount.get_name())
-                                mounts.append((path, mount))
-                            else:
-                                logging.debug("Ignoring %s", mount.get_name())
+            for mount in self.validMounts.mountedValidMountPoints():
+                if self.partitionValid(mount):
+                    path = mount.rootPath()
+                    logging.debug("Detected %s", mount.displayName())
+                    backupFileType = self.isBackupPath(path)
+                    if backupFileType is not None:
+                        #TODO use namedtuple or better
+                        self.backup_devices[path] = (mount, backupFileType)
+                    elif self.shouldScanMountPath(path):
+                        logging.debug("Appending %s", mount.displayName())
+                        mounts.append(mount)
+                    else:
+                        logging.debug("Ignoring %s", mount.displayName())
 
-
-        if not self.prefs.device_autodetection:
-            # user manually specified the path from which to download
-            path = self.prefs.device_location
-            if path:
-                logging.info("Using manually specified path %s", path)
-                if utilities.is_directory(path):
-                    mounts.append((path, None))
-                else:
-                    logging.error("Download path does not exist: %s", path)
-
-        if self.prefs.backup_images:
-            if not self.prefs.backup_device_autodetection:
-                self._setup_manual_backup()
-            self._add_backup_devices()
-
-        self.update_no_backup_devices()
+        # if self.prefs.backup_images:
+        #     if not self.prefs.backup_device_autodetection:
+        #         self._setup_manual_backup()
+        #     self._add_backup_devices()
+        #
+        # self.update_no_backup_devices()
 
         # Display amount of free space in a status bar message
-        self.display_free_space()
+        # self.display_free_space()
 
         if blockAutoStart:
-            self.auto_start_is_on = False
-        else:
-            self.auto_start_is_on = ((not onPreferenceChange) and
-                                    ((self.prefs.auto_download_at_startup and
-                                      onStartup) or
-                                      (self.prefs.auto_download_upon_device_insertion and
-                                       not onStartup)))
+            self.autoStartIsOn = False
+        # else:
+        #     self.autoStartIsOn = ((not onPreferenceChange) and
+        #                             ((self.prefs.auto_download_at_startup and
+        #                               onStartup) or
+        #                               (self.prefs.auto_download_upon_device_insertion and
+        #                                not onStartup)))
 
-        logging.debug("Working with %s devices", len(mounts))
-        for m in mounts:
-            path, mount = m
-            device = dv.Device(path=path, mount=mount)
-
-
-            if not self._device_already_detected(device):
-                if (self.search_for_PSD() and
-                        path not in self.prefs.device_whitelist):
-                    # prompt user to see if device should be used or not
-                    self.get_use_device(device)
+        if not self.downloadFromAutoDetectedPartitions():
+            # user manually specified the path from which to download
+            path = '/some/path' #self.prefs.device_location
+            if path:
+                logging.debug("Using manually specified path %s", path)
+                if os.path.isdir(path) and os.access(path, os.R_OK):
+                    device = Device()
+                    device.set_download_from_path(path, path)
+                    self.startDeviceScan(device)
                 else:
-                    scan_pid = self.start_device_scan(device)
-                    if mount is not None:
-                        self.mounts_by_path[path] = scan_pid
-        if not mounts:
-            self.set_download_action_sensitivity()
+                    logging.error("Download path is invalid: %s", path)
+            else:
+                logging.error("Download path is not specified")
+
+        else:
+            for mount in mounts:
+                device = Device()
+                device.set_download_from_path(mount.rootPath(),
+                                              mount.displayName())
+                self.prepareNonCameraDeviceScan(device)
+        # if not mounts:
+        #     self.set_download_action_sensitivity()
+
+    def isBackupPath(self, path: str) -> BackupLocationForFileType:
         """
+        Checks to see if backups are enabled and path represents a
+        valid backup location. It must be writeable.
+
+        Checks against user preferences.
+
+        :return The type of file that should be backed up to the path,
+        else if nothing should be, return None
+        """
+        #TODO implement once preferences code is complete
+        if False: #self.prefs.backup_images:
+            # if self.prefs.backup_device_autodetection:
+            # Determine if the auto-detected backup device is
+            # to be used to backup only photos, or videos, or both.
+            # Use the presence of a corresponding directory to
+            # determine this.
+            # The directory must be writable.
+            photo_path = os.path.join(path, self.prefs.backup_identifier)
+            p_backup = os.path.isdir(photo_path) and os.access(photo_path, os.W_OK)
+            video_path = os.path.join(path, self.prefs.video_backup_identifier)
+            v_backup = os.path.isdir(video_path) and os.access(video_path, os.W_OK)
+            if p_backup and v_backup:
+                logging.info("Photos and videos will be backed up to %s", path)
+                return BackupLocationForFileType.photos_and_videos
+            elif p_backup:
+                logging.info("Photos will be backed up to %s", path)
+                return BackupLocationForFileType.photos
+            elif v_backup:
+                logging.info("Videos will be backed up to %s", path)
+                return BackupLocationForFileType.videos
+        elif False: #path == self.prefs.backup_location:
+            # user manually specified the path
+            if os.access(self.prefs.backup_location, os.W_OK):
+                return BackupLocationForFileType.photos
+        elif False: #path == self.prefs.backup_video_location:
+            # user manually specified the path
+            if os.access(self.prefs.backup_video_location, os.W_OK):
+                return BackupLocationForFileType.videos
+        return None
 
     def clearNonRunningDownloads(self):
         """
         Clears the display of downloads that are currently not running
         """
 
+        #TODO implement once UI is more complete
         # Stop any processes currently scanning or creating thumbnails
         pass
 
@@ -594,12 +647,84 @@ class RapidWindow(QtWidgets.QMainWindow):
         #         self.device_collection.remove_device(scan_pid)
         #         self.thumbnails.clear_all(scan_pid=scan_pid)
 
+    def monitorPartitionChanges(self) -> bool:
+        """
+        If the user is downloading from a manually specified location,
+        and is not using any automatically detected backup devices,
+        then there is no need to monitor for devices with filesystems
+        being added or removed
+        :return: True if should monitor, False otherwise
+        """
+        #TODO implement once preferences code is complete
+        return True
 
+    def pathBlacklisted(self, path: str) -> bool:
+        """
+        The user can specify that some paths should never be downloaded
+        from.
+        :return: True if path should never be scanned, False otherwise
+        """
+        #TODO implement once preferences code is complete
+        return False
+
+    def pathWhiteListed(self, path: str) -> bool:
+        """
+        The user can specify that some paths should always be downloaded
+        from.
+        :return: True if path should always be scanned, False otherwise
+        """
+        #TODO implement once preferences code is complete
+        return True
+
+    def cameraBlacklisted(self, model: str) -> bool:
+        """
+        The user can specify that some cameras should never be downloaded
+        from.
+        :return: True if camera should never be scanned, False
+        otherwise
+        """
+        #TODO implement once preferences code is complete
+        return False
+
+    def downloadFromAutoDetectedPartitions(self) -> bool:
+        """
+        :return True if auto detection of partitions is on, else False
+        """
+        #TODO implement once preferences code is complete
+        return True
+
+    def confirmManualDownloadLocation(self) -> bool:
+        """
+        Queries the user to ask if they really want to download from locations
+        that could take a very long time to scan. They can choose yes or no.
+
+        Returns True if yes or there was no need to ask the user, False if the
+        user said no.
+        """
+        #TODO implement
+        return True
+
+    def scanEvenIfNoDCIM(self) -> bool:
+        """
+        Determines if partitions should be scanned even if there is
+        no DCIM folder present in the base folder of the file system.
+
+        This is necessary when both portable storage device automatic
+        detection is on, and downloading from automaticallyd detected
+        is on.
+        :return: True if scans of such partitions should occur, else
+        False
+        """
+        #TODO implement once preferences code is complete
+        # return self.prefs.device_autodetection_psd and
+        # self.downloadFromAutoDetectedPartitions()
+        return False
 
 if __name__ == "__main__":
 
     app = QtWidgets.QApplication(sys.argv)
-    app.setWindowIcon(QtGui.QIcon(os.path.join('images', 'rapid-photo-downloader.svg')))
+    app.setWindowIcon(QtGui.QIcon(os.path.join('images',
+                                               'rapid-photo-downloader.svg')))
 
     rw = RapidWindow()
     rw.show()
