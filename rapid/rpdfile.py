@@ -211,7 +211,7 @@ class RPDFile:
         # cameras
         self.audio_file_full_name = audio_file_full_name
 
-        self.status = config.STATUS_NOT_DOWNLOADED
+        self.status = config.DownloadStatus.not_downloaded
         self.problem = None # class Problem in problemnotifcation.py
 
         self._assign_file_type() # Indicate whether file is a photo or video

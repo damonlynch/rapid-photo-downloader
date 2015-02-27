@@ -19,16 +19,14 @@ __author__ = 'Damon Lynch'
 # along with Rapid Photo Downloader.  If not,
 # see <http://www.gnu.org/licenses/>.
 
-version = '0.5.0~a1'
+from enum import Enum
 
-GCONF_KEY="/apps/rapid-photo-downloader"
+version = '0.5.0~a1'
 
 DBUS_NAME = "net.damonlynch.RapidPhotoDownloader"
 
 #i18n
 APP_NAME = "rapid-photo-downloader"
-
-MEDIA_LOCATION = "/media"
 
 SKIP_DOWNLOAD = "skip download"
 ADD_UNIQUE_IDENTIFIER = "add unique identifier"
@@ -41,34 +39,31 @@ DEFAULT_VIDEO_BACKUP_LOCATION = 'Videos'
 
 DEFAULT_VIDEO_LOCATIONS = ['Videos']
 
-CRITICAL_ERROR = 1
-SERIOUS_ERROR = 2
-WARNING = 3
+class ErrorType(Enum):
+    critical_error = 1
+    serious_error = 2
+    warning= 3
 
-# going to try to download it
-STATUS_DOWNLOAD_PENDING = 0
+class DownloadStatus(Enum):
+    # going to try to download it
+    download_pending = 1
+    # downloaded successfully
+    downloaded = 2
+    # downloaded ok but there was a warning
+    downloaded_with_warning = 3
+    # downloaded ok, but the file was not backed up, or had a problem
+    # (overwrite or duplicate)
+    backup_problem = 4
+    # has not yet been downloaded (but might be if the user chooses)
+    not_downloaded = 5
+    # tried to download but failed, and the backup failed or had an error
+    download_and_backup_failed = 6
+    # tried to download but failed
+    download_failed = 7
 
-# downloaded successfully
-STATUS_DOWNLOADED = 1
-
-# downloaded ok but there was a warning
-STATUS_DOWNLOADED_WITH_WARNING = 2
-
-# downloaded ok, but the file was not backed up, or had a problem
-# (overwrite or duplicate)
-STATUS_BACKUP_PROBLEM = 3
-
-# has not yet been downloaded (but might be if the user chooses)
-STATUS_NOT_DOWNLOADED = 4
-
-# tried to download but failed, and the backup failed or had an error
-STATUS_DOWNLOAD_AND_BACKUP_FAILED = 5
-
-# tried to download but failed
-STATUS_DOWNLOAD_FAILED = 6
-
-DOWNLOADED = [STATUS_DOWNLOADED, STATUS_DOWNLOADED_WITH_WARNING,
-              STATUS_BACKUP_PROBLEM]
+Downloaded = (DownloadStatus.downloaded,
+              DownloadStatus.downloaded_with_warning,
+              DownloadStatus.backup_problem)
 
 DEFAULT_WINDOW_WIDTH = 670
 DEFAULT_WINDOW_HEIGHT = 650

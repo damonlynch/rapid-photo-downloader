@@ -39,7 +39,7 @@ from interprocess import (WorkerInPublishPullPipeline,
 
 from filmstrip import add_filmstrip
 
-from config import DOWNLOADED
+import config
 from camera import Camera
 
 #FIXME free camera in case of early termination
@@ -381,7 +381,7 @@ class Thumbnail:
 
         # If the file is already downloaded, cannot assume the source
         # file is still available
-        downloaded = self.rpd_file.status in DOWNLOADED
+        downloaded = self.rpd_file.status in config.Downloaded
         if downloaded:
             file_name = self.rpd_file.download_full_file_name
         else:

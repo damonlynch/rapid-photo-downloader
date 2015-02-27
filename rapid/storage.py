@@ -1,7 +1,8 @@
 __author__ = 'Damon Lynch'
 
 # Copyright (C) 2015 Damon Lynch <damonlynch@gmail.com>
-#TODO add copyright for code from other projects - probably essential
+# Copyright (C) 2008-2015 Canonical Ltd.
+# Copyright (C) Bernard Baeyens
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -267,7 +268,8 @@ class CameraHotplug(QObject):
                 self.cameraRemoved.emit()
 
 class UDisks2Monitor(QObject):
-    #TODO credit usb-creator
+    #Most of this class is Copyright 2008-2015 Canonical
+
     partitionMounted = pyqtSignal(str)
     partitionUnmounted = pyqtSignal(str)
     #TODO partition unmounted code
@@ -347,7 +349,7 @@ class UDisks2Monitor(QObject):
             logging.debug("Udisks: partition has no file system %s", path)
 
     def retry_mount(self, fs, fstype):
-        #TODO: credit berbae and usb-creator
+        #Variant paramater construction Copyright Bernard Baeyens
         list_options = ''
         if fstype == 'vfat':
             list_options = 'flush'
