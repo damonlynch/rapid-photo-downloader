@@ -38,6 +38,9 @@ monitor when cameras and other devices are added or removed ourselvs.
 To do this, use udev for cameras, and udisks2 for devices with file
 systems. When a device with a file system is inserted, if it is not
 already mounted, attempt to mount it.
+
+The secondary task of this module is to provide miscellaneous serivces
+regarding mount points.
 """
 
 import logging
@@ -172,8 +175,9 @@ class ValidMounts():
         """
         assert len(self.validMountFolders) > 0
         if logging_level == logging.DEBUG:
-            msg = "To be recognized, partitions must be mounted under one of "
+            msg = "To be recognized, partitions must be mounted under "
             if len(self.validMountFolders) > 2:
+                msg += "one of "
                 for p in self.validMountFolders[:-2]:
                     msg += "{}, ".format(p)
                 msg += "{} or {}".format(self.validMountFolders[-2],
