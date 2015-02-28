@@ -25,7 +25,7 @@ import logging
 logger = multiprocessing.get_logger()
 
 from rpdfile import FILE_TYPE_PHOTO, FILE_TYPE_VIDEO
-from config import STATUS_DOWNLOAD_FAILED, STATUS_DOWNLOADED_WITH_WARNING, \
+from constants import STATUS_DOWNLOAD_FAILED, STATUS_DOWNLOADED_WITH_WARNING, \
                    STATUS_DOWNLOAD_AND_BACKUP_FAILED, STATUS_BACKUP_PROBLEM
 
 from gettext import gettext as _

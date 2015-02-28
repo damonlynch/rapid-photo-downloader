@@ -29,7 +29,7 @@ import rpdmultiprocessing as rpdmp
 import rpdfile
 import metadataxmp as mxmp
 import subfolderfile
-import config
+import constants
 import problemnotification as pn
 
 from gettext import gettext as _
@@ -106,7 +106,7 @@ class FileModify(multiprocessing.Process):
                     logger.critical("%s file verification FAILED", rpd_file.name)
                     logger.critical("The %s did not download correctly!", rpd_file.title)
 
-                    rpd_file.status = config.STATUS_DOWNLOAD_FAILED
+                    rpd_file.status = constants.STATUS_DOWNLOAD_FAILED
 
                     rpd_file.add_problem(None, pn.FILE_VERIFICATION_FAILED,
                                          {'filetype': rpd_file.title})

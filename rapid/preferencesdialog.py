@@ -33,7 +33,7 @@ import webbrowser
 import ValidatedEntry
 import misc
 
-import config
+import constants
 import paths
 import rpdfile
 import higdefaults as hd
@@ -875,7 +875,7 @@ class PreferencesDialog():
     def __init__(self, rapidapp):
 
         self.builder = gtk.Builder()
-        self.builder.set_translation_domain(config.APP_NAME)
+        self.builder.set_translation_domain(constants.APP_NAME)
         self.builder.add_from_file(paths.share_dir("glade3/prefs.ui"))
         self.builder.connect_signals(self)
 
@@ -1443,7 +1443,7 @@ class PreferencesDialog():
 
 
     def _setup_error_tab(self):
-        if self.prefs.download_conflict_resolution == config.SKIP_DOWNLOAD:
+        if self.prefs.download_conflict_resolution == constants.SKIP_DOWNLOAD:
             self.skip_download_radiobutton.set_active(True)
         else:
             self.add_identifier_radiobutton.set_active(True)
@@ -1823,9 +1823,9 @@ class PreferencesDialog():
 
     def on_add_identifier_radiobutton_toggled(self, widget):
         if widget.get_active():
-            self.prefs.download_conflict_resolution = config.ADD_UNIQUE_IDENTIFIER
+            self.prefs.download_conflict_resolution = constants.ADD_UNIQUE_IDENTIFIER
         else:
-            self.prefs.download_conflict_resolution = config.SKIP_DOWNLOAD
+            self.prefs.download_conflict_resolution = constants.SKIP_DOWNLOAD
 
 
     def update_device_controls(self):
@@ -1946,9 +1946,9 @@ class PreferencesDialog():
 
     def update_backup_example(self):
         # Translators: this value is used as an example device when automatic backup device detection is enabled. You should translate this.
-        drive1 = os.path.join(config.MEDIA_LOCATION, _("externaldrive1"))
+        drive1 = os.path.join(constants.MEDIA_LOCATION, _("externaldrive1"))
         # Translators: this value is used as an example device when automatic backup device detection is enabled. You should translate this.
-        drive2 = os.path.join(config.MEDIA_LOCATION, _("externaldrive2"))
+        drive2 = os.path.join(constants.MEDIA_LOCATION, _("externaldrive2"))
 
         path = os.path.join(drive1, self.backup_identifier_entry.get_text())
         path2 = os.path.join(drive2, self.backup_identifier_entry.get_text())

@@ -21,7 +21,7 @@
 import gtk
 
 import pango
-import config
+import constants
 import paths
 
 class ErrorLog():
@@ -35,7 +35,7 @@ class ErrorLog():
         """
         
         self.builder = gtk.Builder()
-        self.builder.set_translation_domain(config.APP_NAME)
+        self.builder.set_translation_domain(constants.APP_NAME)
         self.builder.add_from_file(paths.share_dir("glade3/errorlog.ui"))
         self.builder.connect_signals(self)
         self.widget = self.builder.get_object("errorlog")
@@ -53,14 +53,14 @@ class ErrorLog():
         self.extra_detail_tag = self.textbuffer.create_tag(style=pango.STYLE_ITALIC)
         
     def add_message(self, severity, problem, details, extra_detail):
-        if severity in [config.CRITICAL_ERROR, config.SERIOUS_ERROR]:
+        if severity in [constants.CRITICAL_ERROR, constants.SERIOUS_ERROR]:
             self.rapidapp.error_image.show()
-        elif severity == config.WARNING:
+        elif severity == constants.WARNING:
             self.rapidapp.warning_image.show()
         self.rapidapp.warning_vseparator.show()
         
         iter = self.textbuffer.get_end_iter()
-        if severity in [config.CRITICAL_ERROR, config.SERIOUS_ERROR]:
+        if severity in [constants.CRITICAL_ERROR, constants.SERIOUS_ERROR]:
             self.textbuffer.insert_with_tags(iter, problem +"\n", self.error_tag)
         else:
             self.textbuffer.insert_with_tags(iter, problem +"\n", self.warning_tag)

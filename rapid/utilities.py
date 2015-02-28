@@ -65,22 +65,6 @@ def format_size_for_user(bytes, zero_string="", with_decimals=True, kb_only=Fals
         return zero_string
     return format % value
 
-def register_iconsets(icon_info):
-    """
-    Register icons in the icon set if they're not already used
-    
-    From http://faq.pygtk.org/index.py?req=show&file=faq08.012.htp
-    """
-    
-    icon_factory = gtk.IconFactory()
-    stock_ids = gtk.stock_list_ids()
-    for stock_id, file in icon_info:
-        # only load image files when our stock_id is not present
-        if stock_id not in stock_ids:
-            pixbuf = gtk.gdk.pixbuf_new_from_file(file)
-            iconset = gtk.IconSet(pixbuf)
-            icon_factory.add(stock_id, iconset)
-    icon_factory.add_default()
 
 def escape(s):
     """
@@ -91,37 +75,7 @@ def escape(s):
         s = s.replace(e[0], e[1:])
     return s
 
-def image_to_pixbuf(image):
-    # convert PIL image to pixbuf
-    # this one handles transparency, unlike the default example in the pygtk FAQ
-    # this is also from the pygtk FAQ
-    IS_RGBA = image.mode=='RGBA'
-    return gtk.gdk.pixbuf_new_from_data(
-            image.tostring(), # data
-            gtk.gdk.COLORSPACE_RGB, # color mode
-            IS_RGBA, # has alpha
-            8, # bits
-            image.size[0], # width
-            image.size[1], # height
-            (IS_RGBA and 4 or 3) * image.size[0] # rowstride
-            ) 
 
-def pixbuf_to_image(pb):
-    assert(pb.get_colorspace() == gtk.gdk.COLORSPACE_RGB)
-    dimensions = pb.get_width(), pb.get_height()
-    stride = pb.get_rowstride()
-    pixels = pb.get_pixels()
-
-    mode = pb.get_has_alpha() and "RGBA" or "RGB"
-    image = Image.frombuffer(mode, dimensions, pixels,
-                            "raw", mode, stride, 1)
-                            
-    if mode == "RGB":
-        # convert to having an alpha value, so that the image can
-        # act as a mask in the drop shadow paste 
-        image = image.convert("RGBA")
-
-    return image
     
 def pythonify_version(v):
     """ makes version number a version number in distutils sense"""

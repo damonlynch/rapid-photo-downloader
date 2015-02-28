@@ -183,6 +183,7 @@ class ThumbnailTableModel(QAbstractTableModel):
             rpd_files = list((self.rpd_files[unique_id] for unique_id in
                          self.scan_index[scan_id]))
 
+            #TODO investigate thumbnail quality!
             generate_arguments = GenerateThumbnailsArguments(scan_id,
                                                      rpd_files,
                                                      device.camera_model,

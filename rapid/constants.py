@@ -28,16 +28,8 @@ DBUS_NAME = "net.damonlynch.RapidPhotoDownloader"
 #i18n
 APP_NAME = "rapid-photo-downloader"
 
-SKIP_DOWNLOAD = "skip download"
-ADD_UNIQUE_IDENTIFIER = "add unique identifier"
-
-# These next three values are fall back values that are used only
-# if calls to xdg-user-dir fail
-DEFAULT_PHOTO_LOCATIONS = ['Pictures',  'Photos']
-DEFAULT_BACKUP_LOCATION = 'Pictures'
-DEFAULT_VIDEO_BACKUP_LOCATION = 'Videos'
-
-DEFAULT_VIDEO_LOCATIONS = ['Videos']
+SKIP_DOWNLOAD = "skip"
+ADD_UNIQUE_IDENTIFIER = "unique identifier"
 
 class ErrorType(Enum):
     critical_error = 1
@@ -65,8 +57,10 @@ Downloaded = (DownloadStatus.downloaded,
               DownloadStatus.downloaded_with_warning,
               DownloadStatus.backup_problem)
 
-DEFAULT_WINDOW_WIDTH = 670
-DEFAULT_WINDOW_HEIGHT = 650
+class BackupLocationForFileType(Enum):
+    photos = 1
+    videos = 2
+    photos_and_videos = 3
 
 
 

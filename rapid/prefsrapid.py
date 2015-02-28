@@ -27,8 +27,8 @@ from generatenameconfig import *
 import rpdfile
 
 import utilities
-import config
-__version__ = config.version
+import constants
+__version__ = constants.version
 
 import multiprocessing
 import logging
@@ -54,13 +54,13 @@ def get_default_photo_location(ignore_missing_dir=False):
     try:
         return _get_default_location_XDG('PICTURES')
     except:
-        return _get_default_location_legacy(config.DEFAULT_PHOTO_LOCATIONS, ignore_missing_dir)
+        return _get_default_location_legacy(constants.DEFAULT_PHOTO_LOCATIONS, ignore_missing_dir)
 
 def get_default_video_location(ignore_missing_dir=False):
     try:
         return _get_default_location_XDG('VIDEOS')
     except:
-        return _get_default_location_legacy(config.DEFAULT_VIDEO_LOCATIONS, ignore_missing_dir)
+        return _get_default_location_legacy(constants.DEFAULT_VIDEO_LOCATIONS, ignore_missing_dir)
 
 def get_default_backup_photo_identifier():
     return os.path.split(get_default_photo_location(ignore_missing_dir = True))[1]
@@ -111,7 +111,7 @@ class RapidPreferences(prefs.Preferences):
         "auto_exit_force": prefs.Value(prefs.BOOL, False),
         "auto_delete": prefs.Value(prefs.BOOL, False),
         "download_conflict_resolution": prefs.Value(prefs.STRING,
-                                        config.SKIP_DOWNLOAD),
+                                        constants.SKIP_DOWNLOAD),
         "backup_duplicate_overwrite": prefs.Value(prefs.BOOL, False),
         "display_selection": prefs.Value(prefs.BOOL, True),
         "display_size_column": prefs.Value(prefs.BOOL, True),
@@ -142,7 +142,7 @@ class RapidPreferences(prefs.Preferences):
         }
 
     def __init__(self):
-        prefs.Preferences.__init__(self, config.GCONF_KEY, self.defaults)
+        prefs.Preferences.__init__(self, constants.GCONF_KEY, self.defaults)
 
 
     def get_downloads_today_tracker(self):

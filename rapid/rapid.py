@@ -37,7 +37,7 @@ import gphoto2 as gp
 
 from PyQt5 import QtCore, QtWidgets, QtGui
 
-from PyQt5.QtCore import QThread, Qt, QStorageInfo
+from PyQt5.QtCore import (QThread, Qt, QStorageInfo, QSettings, QPoint, QSize)
 from PyQt5.QtGui import QStandardItemModel, QStandardItem, QPixmap
 from PyQt5.QtWidgets import (QAction, QApplication, QFileDialog, QLabel,
         QMainWindow, QMenu, QMessageBox, QScrollArea, QSizePolicy,
@@ -52,7 +52,8 @@ from storage import (ValidMounts, CameraHotplug, UDisks2Monitor,
                      mountPaths, get_desktop_environment, gvfs_controls_mounts)
 from interprocess import (PublishPullPipelineManager, ScanArguments)
 from devices import (Device, DeviceCollection)
-from preferences import (ScanPreferences, BackupLocationForFileType)
+from preferences import (Preferences, ScanPreferences)
+from constants import BackupLocationForFileType
 from thumbnaildisplay import (ThumbnailView, ThumbnailTableModel,
     ThumbnailDelegate)
 import rpdfile
@@ -77,7 +78,8 @@ class RapidWindow(QtWidgets.QMainWindow):
         self.context = zmq.Context()
 
         self.setWindowTitle(_("Rapid Photo Downloader"))
-        self.setWindowSize()
+        self.readWindowSettings()
+        self.prefs = Preferences()
         self.setupWindow()
 
         # frame = QtWidgets.QFrame()
@@ -113,9 +115,21 @@ class RapidWindow(QtWidgets.QMainWindow):
             self, QtCore.QEvent(self.do_init), QtCore.Qt.LowEventPriority - 1)
 
 
-    def setWindowSize(self):
-        #FIXME figure out what minimum window size was in previous version
-        self.setMinimumSize(650, 670)
+    def readWindowSettings(self):
+        settings = QSettings()
+        settings.beginGroup("MainWindow")
+        pos = settings.value("pos", QPoint(200, 200))
+        size = settings.value("size", QSize(650, 670))
+        settings.endGroup()
+        self.resize(size)
+        self.move(pos)
+
+    def writeWindowSettings(self):
+        settings = QSettings()
+        settings.beginGroup("MainWindow")
+        settings.setValue("pos", self.pos())
+        settings.setValue("size", self.size())
+        settings.endGroup()
 
     def setupWindow(self):
         status = self.statusBar()
@@ -136,15 +150,11 @@ class RapidWindow(QtWidgets.QMainWindow):
         return True
 
     def initialise(self):
-        #FIXME get scan preferences from actual user prefs
-        self.scan_preferences = ScanPreferences(['.Trash', '.thumbnails'])
-
         # Initalize use of libgphoto2
         self.gp_context = gp.Context()
 
-        #TODO add new preference: auto detect only external mounts (
-        # default), or in any valid mount point
-        self.validMounts = ValidMounts(onlyExternalMounts=True)
+        self.validMounts = ValidMounts(onlyExternalMounts=self.prefs[
+            'only_external_mounts'])
 
         logging.debug("Desktop environment: %s",
                       get_desktop_environment())
@@ -358,10 +368,13 @@ class RapidWindow(QtWidgets.QMainWindow):
             worker_id])
 
     def closeEvent(self, event):
+        self.writeWindowSettings()
         self.scanmq.stop()
         self.thumbnailModel.thumbnailmq.stop()
         self.scanThread.quit()
         self.scanThread.wait()
+        self.thumbnailModel.thumbnailThread.quit()
+        self.thumbnailModel.thumbnailThread.wait()
         if not self.gvfsControlsMounts:
             self.udisks2MonitorThread.quit()
             self.udisks2MonitorThread.wait()
@@ -369,8 +382,11 @@ class RapidWindow(QtWidgets.QMainWindow):
             self.cameraHotplugThread.wait()
 
     def cameraAdded(self):
-        logging.debug("Assuming camera will not be mounted: "
-                      "immediately proceeding with scan")
+        if not self.prefs['device_autodetection']:
+            logging.debug("Ignoring camera as device auto detection is off")
+        else:
+            logging.debug("Assuming camera will not be mounted: "
+                          "immediately proceeding with scan")
         self.searchForCameras()
 
     def noGVFSAutoMount(self):
@@ -406,24 +422,25 @@ class RapidWindow(QtWidgets.QMainWindow):
                           "unmounted", model)
 
     def searchForCameras(self):
-        cameras = self.gp_context.camera_autodetect()
-        for model, port in cameras:
-            if port in self.camerasToUnmount:
-                assert self.camerasToUnmount[port] == model
-                logging.debug("Already unmounting %s", model)
-            elif self.devices.known_camera(model, port):
-                logging.debug("Camera %s is known", model)
-            elif self.cameraBlacklisted(model):
-                logging.debug("Ignoring blacklisted camera %s", model)
-            elif not port.startswith('disk:'):
-                logging.debug("Detected %s on port %s", model, port)
-                # libgphoto2 cannot access a camera when it is mounted
-                # by another process, like Gnome's GVFS or any other
-                # system. Before attempting to scan the camera, check
-                # to see if it's mounted and if so, unmount it.
-                # Unmounting is asynchronous.
-                if not self.unmountCamera(model, port):
-                    self.startCameraScan(model, port)
+        if self.prefs['device_autodetection']:
+            cameras = self.gp_context.camera_autodetect()
+            for model, port in cameras:
+                if port in self.camerasToUnmount:
+                    assert self.camerasToUnmount[port] == model
+                    logging.debug("Already unmounting %s", model)
+                elif self.devices.known_camera(model, port):
+                    logging.debug("Camera %s is known", model)
+                elif model in self.prefs['camera_blacklist']:
+                    logging.debug("Ignoring blacklisted camera %s", model)
+                elif not port.startswith('disk:'):
+                    logging.debug("Detected %s on port %s", model, port)
+                    # libgphoto2 cannot access a camera when it is mounted
+                    # by another process, like Gnome's GVFS or any other
+                    # system. Before attempting to scan the camera, check
+                    # to see if it's mounted and if so, unmount it.
+                    # Unmounting is asynchronous.
+                    if not self.unmountCamera(model, port):
+                        self.startCameraScan(model, port)
 
     def startCameraScan(self, model: str, port: str):
         device = Device()
@@ -432,7 +449,8 @@ class RapidWindow(QtWidgets.QMainWindow):
 
     def startDeviceScan(self, device: Device):
         scan_id = self.devices.add_device(device)
-        scan_arguments = ScanArguments(self.scan_preferences, device)
+        scan_preferences = ScanPreferences(self.prefs['ignored_paths'])
+        scan_arguments = ScanArguments(scan_preferences, device)
         self.scanmq.add_worker(scan_id, scan_arguments)
 
 
@@ -448,7 +466,8 @@ class RapidWindow(QtWidgets.QMainWindow):
         """
         if mount.isValid() and mount.isReady():
             path = mount.rootPath()
-            if self.pathBlacklisted(path) and self.scanEvenIfNoDCIM():
+            if (path in self.prefs['path_blacklist'] and
+                    self.scanEvenIfNoDCIM()):
                 logging.info("blacklisted device %s ignored",
                              mount.displayName())
                 return False
@@ -457,15 +476,16 @@ class RapidWindow(QtWidgets.QMainWindow):
         return False
 
     def shouldScanMountPath(self, path: str) -> bool:
-        if self.downloadFromAutoDetectedPartitions():
-            if self.scanEvenIfNoDCIM() or has_non_empty_dcim_folder(path):
+        if self.prefs['device_autodetection']:
+            if (self.prefs['device_without_dcim_autodetection'] or
+                    has_non_empty_dcim_folder(path)):
                 return True
         return False
 
     def prepareNonCameraDeviceScan(self, device: Device):
         if not self.devices.known_device(device):
             if (self.scanEvenIfNoDCIM() and
-                    not self.pathWhiteListed(device.path)):
+                    not device.path in self.prefs['path_whitelist']):
                 # prompt user to see if device should be used or not
                 pass
                 #self.get_use_device(device)
@@ -525,7 +545,7 @@ class RapidWindow(QtWidgets.QMainWindow):
         """
 
         self.clearNonRunningDownloads()
-        if not self.downloadFromAutoDetectedPartitions():
+        if not self.prefs['device_autodetection']:
              if not self.confirmManualDownloadLocation():
                 return
 
@@ -561,16 +581,16 @@ class RapidWindow(QtWidgets.QMainWindow):
 
         if blockAutoStart:
             self.autoStartIsOn = False
-        # else:
-        #     self.autoStartIsOn = ((not onPreferenceChange) and
-        #                             ((self.prefs.auto_download_at_startup and
-        #                               onStartup) or
-        #                               (self.prefs.auto_download_upon_device_insertion and
-        #                                not onStartup)))
+        else:
+            self.autoStartIsOn = ((not onPreferenceChange) and
+                    ((self.prefs['auto_download_at_startup'] and
+                      onStartup) or
+                      (self.prefs['auto_download_upon_device_insertion'] and
+                       not onStartup)))
 
-        if not self.downloadFromAutoDetectedPartitions():
+        if not self.prefs['device_autodetection']:
             # user manually specified the path from which to download
-            path = '/some/path' #self.prefs.device_location
+            path = self.prefs['device_location']
             if path:
                 logging.debug("Using manually specified path %s", path)
                 if os.path.isdir(path) and os.access(path, os.R_OK):
@@ -601,36 +621,40 @@ class RapidWindow(QtWidgets.QMainWindow):
         :return The type of file that should be backed up to the path,
         else if nothing should be, return None
         """
-        #TODO implement once preferences code is complete
-        if False: #self.prefs.backup_images:
-            # if self.prefs.backup_device_autodetection:
-            # Determine if the auto-detected backup device is
-            # to be used to backup only photos, or videos, or both.
-            # Use the presence of a corresponding directory to
-            # determine this.
-            # The directory must be writable.
-            photo_path = os.path.join(path, self.prefs.backup_identifier)
-            p_backup = os.path.isdir(photo_path) and os.access(photo_path, os.W_OK)
-            video_path = os.path.join(path, self.prefs.video_backup_identifier)
-            v_backup = os.path.isdir(video_path) and os.access(video_path, os.W_OK)
-            if p_backup and v_backup:
-                logging.info("Photos and videos will be backed up to %s", path)
-                return BackupLocationForFileType.photos_and_videos
-            elif p_backup:
-                logging.info("Photos will be backed up to %s", path)
-                return BackupLocationForFileType.photos
-            elif v_backup:
-                logging.info("Videos will be backed up to %s", path)
-                return BackupLocationForFileType.videos
-        elif False: #path == self.prefs.backup_location:
-            # user manually specified the path
-            if os.access(self.prefs.backup_location, os.W_OK):
-                return BackupLocationForFileType.photos
-        elif False: #path == self.prefs.backup_video_location:
-            # user manually specified the path
-            if os.access(self.prefs.backup_video_location, os.W_OK):
-                return BackupLocationForFileType.videos
-        return None
+        if self.prefs['backup_images']:
+            if self.prefs['backup_device_autodetection']:
+                # Determine if the auto-detected backup device is
+                # to be used to backup only photos, or videos, or both.
+                # Use the presence of a corresponding directory to
+                # determine this.
+                # The directory must be writable.
+                photo_path = os.path.join(path, self.prefs[
+                    'photo_backup_identifier'])
+                p_backup = os.path.isdir(photo_path) and os.access(
+                    photo_path, os.W_OK)
+                video_path = os.path.join(path, self.prefs[
+                    'video_backup_identifier'])
+                v_backup = os.path.isdir(video_path) and os.access(
+                    video_path, os.W_OK)
+                if p_backup and v_backup:
+                    logging.info("Photos and videos will be backed up to "
+                                 "%s", path)
+                    return BackupLocationForFileType.photos_and_videos
+                elif p_backup:
+                    logging.info("Photos will be backed up to %s", path)
+                    return BackupLocationForFileType.photos
+                elif v_backup:
+                    logging.info("Videos will be backed up to %s", path)
+                    return BackupLocationForFileType.videos
+            elif path == self.prefs['backup_photo_location']:
+                # user manually specified the path
+                if os.access(path, os.W_OK):
+                    return BackupLocationForFileType.photos
+            elif path == self.prefs['backup_video_location']:
+                # user manually specified the path
+                if os.access(path, os.W_OK):
+                    return BackupLocationForFileType.videos
+            return None
 
     def clearNonRunningDownloads(self):
         """
@@ -655,43 +679,8 @@ class RapidWindow(QtWidgets.QMainWindow):
         being added or removed
         :return: True if should monitor, False otherwise
         """
-        #TODO implement once preferences code is complete
-        return True
-
-    def pathBlacklisted(self, path: str) -> bool:
-        """
-        The user can specify that some paths should never be downloaded
-        from.
-        :return: True if path should never be scanned, False otherwise
-        """
-        #TODO implement once preferences code is complete
-        return False
-
-    def pathWhiteListed(self, path: str) -> bool:
-        """
-        The user can specify that some paths should always be downloaded
-        from.
-        :return: True if path should always be scanned, False otherwise
-        """
-        #TODO implement once preferences code is complete
-        return True
-
-    def cameraBlacklisted(self, model: str) -> bool:
-        """
-        The user can specify that some cameras should never be downloaded
-        from.
-        :return: True if camera should never be scanned, False
-        otherwise
-        """
-        #TODO implement once preferences code is complete
-        return False
-
-    def downloadFromAutoDetectedPartitions(self) -> bool:
-        """
-        :return True if auto detection of partitions is on, else False
-        """
-        #TODO implement once preferences code is complete
-        return True
+        return (self.prefs['device_autodetection'] or self.prefs[
+            'backup_device_autodetection'])
 
     def confirmManualDownloadLocation(self) -> bool:
         """
@@ -715,14 +704,16 @@ class RapidWindow(QtWidgets.QMainWindow):
         :return: True if scans of such partitions should occur, else
         False
         """
-        #TODO implement once preferences code is complete
-        # return self.prefs.device_autodetection_psd and
-        # self.downloadFromAutoDetectedPartitions()
-        return False
+        return (self.prefs['device_autodetection'] and self.prefs[
+            'device_without_dcim_autodetection'])
 
 if __name__ == "__main__":
 
     app = QtWidgets.QApplication(sys.argv)
+    app.setOrganizationName("Rapid Photo Downloader")
+    app.setOrganizationDomain("damonlynch.net")
+    app.setApplicationName("Rapid Photo Downloader")
+    #FIXME move this to qrc file, so it doesn't fail when cwd is different
     app.setWindowIcon(QtGui.QIcon(os.path.join('images',
                                                'rapid-photo-downloader.svg')))
 

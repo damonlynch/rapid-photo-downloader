@@ -30,7 +30,7 @@ logger = multiprocessing.get_logger()
 import rpdmultiprocessing as rpdmp
 import rpdfile
 import problemnotification as pn
-import config
+import constants
 import thumbnail as tn
 import io
 import shutil
@@ -195,7 +195,7 @@ class CopyFiles(multiprocessing.Process):
                         pn.DOWNLOAD_COPYING_ERROR_W_NO_DETAIL,
                         {'errorno': inst.errno, 'strerror': inst.strerror})
 
-                    rpd_file.status = config.STATUS_DOWNLOAD_FAILED
+                    rpd_file.status = constants.STATUS_DOWNLOAD_FAILED
 
                     rpd_file.error_title = rpd_file.problem.get_title()
                     rpd_file.error_msg = _("%(problem)s\nFile: %(file)s") % \
@@ -213,7 +213,7 @@ class CopyFiles(multiprocessing.Process):
                         pn.DOWNLOAD_COPYING_ERROR_DETAIL,
                         _("An unknown error occurred"))
 
-                    rpd_file.status = config.STATUS_DOWNLOAD_FAILED
+                    rpd_file.status = constants.STATUS_DOWNLOAD_FAILED
 
                     rpd_file.error_title = rpd_file.problem.get_title()
                     rpd_file.error_msg = _("%(problem)s\nFile: %(file)s") % \

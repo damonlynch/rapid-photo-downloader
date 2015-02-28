@@ -39,7 +39,7 @@ from interprocess import (WorkerInPublishPullPipeline,
 
 from filmstrip import add_filmstrip
 
-import config
+import constants
 from camera import Camera
 
 #FIXME free camera in case of early termination
@@ -381,7 +381,7 @@ class Thumbnail:
 
         # If the file is already downloaded, cannot assume the source
         # file is still available
-        downloaded = self.rpd_file.status in config.Downloaded
+        downloaded = self.rpd_file.status in constants.Downloaded
         if downloaded:
             file_name = self.rpd_file.download_full_file_name
         else:
@@ -454,7 +454,8 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
             buffer.open(QIODevice.WriteOnly)
             thumbnail_icon.save(buffer, "PNG")
 
-            self.content= pickle.dumps((rpd_file.unique_id, buffer.data()))
+            self.content= pickle.dumps((rpd_file.unique_id, buffer.data()),
+                                       pickle.HIGHEST_PROTOCOL)
             self.send_message_to_sink()
 
         if arguments.camera:

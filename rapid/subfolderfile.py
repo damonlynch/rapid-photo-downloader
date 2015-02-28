@@ -38,7 +38,7 @@ import rpdmultiprocessing as rpdmp
 import generatename as gn
 import problemnotification as pn
 import prefsrapid
-import config
+import constants
 
 from gettext import gettext as _
 
@@ -184,7 +184,7 @@ class SubfolderFile(multiprocessing.Process):
             rpd_file.add_extra_detail(pn.EXISTING_FILE,
                                 {'filetype': rpd_file.title,
                                 'date': date, 'time': time})
-            rpd_file.status = config.STATUS_DOWNLOAD_FAILED
+            rpd_file.status = constants.STATUS_DOWNLOAD_FAILED
             rpd_file.error_extra_detail = pn.extra_detail_definitions[pn.EXISTING_FILE] % \
                   {'date':date, 'time':time, 'filetype': rpd_file.title}
         else:
@@ -194,7 +194,7 @@ class SubfolderFile(multiprocessing.Process):
                                 {'identifier': identifier,
                                 'filetype': rpd_file.title,
                                 'date': date, 'time': time})
-            rpd_file.status = config.STATUS_DOWNLOADED_WITH_WARNING
+            rpd_file.status = constants.STATUS_DOWNLOADED_WITH_WARNING
             rpd_file.error_extra_detail = pn.extra_detail_definitions[pn.UNIQUE_IDENTIFIER] % \
                    {'identifier': identifier, 'filetype': rpd_file.title,
                     'date': date, 'time': time}
@@ -210,7 +210,7 @@ class SubfolderFile(multiprocessing.Process):
         """
         rpd_file.add_problem(None, pn.DOWNLOAD_COPYING_ERROR, {'filetype': rpd_file.title})
         rpd_file.add_extra_detail(pn.DOWNLOAD_COPYING_ERROR_DETAIL, inst)
-        rpd_file.status = config.STATUS_DOWNLOAD_FAILED
+        rpd_file.status = constants.STATUS_DOWNLOAD_FAILED
         logger.error("Failed to create file %s: %s", rpd_file.download_full_file_name, inst)
 
         rpd_file.error_title = rpd_file.problem.get_title()
@@ -225,7 +225,7 @@ class SubfolderFile(multiprocessing.Process):
         Check how to handle a download file already existing
         """
         if (rpd_file.download_conflict_resolution ==
-            config.ADD_UNIQUE_IDENTIFIER):
+            constants.ADD_UNIQUE_IDENTIFIER):
             add_unique_identifier = True
             logger.debug("Will add unique identifier to avoid duplicate filename")
         else:
@@ -260,7 +260,7 @@ class SubfolderFile(multiprocessing.Process):
 
         rpd_file.error_title = _('Photos detected with the same filenames, but taken at different times')
         rpd_file.error_msg = pn.problem_definitions[pn.SAME_FILE_DIFFERENT_EXIF][1] % detail
-        rpd_file.status = config.STATUS_DOWNLOADED_WITH_WARNING
+        rpd_file.status = constants.STATUS_DOWNLOADED_WITH_WARNING
         return rpd_file
 
 
@@ -329,7 +329,7 @@ class SubfolderFile(multiprocessing.Process):
                 area = _("subfolder")
             rpd_file.add_problem(None, pn.ERROR_IN_NAME_GENERATION, {'filetype': rpd_file.title_capitalized, 'area': area})
             rpd_file.add_extra_detail(pn.NO_DATA_TO_NAME, {'filetype': area})
-            rpd_file.status = config.STATUS_DOWNLOAD_FAILED
+            rpd_file.status = constants.STATUS_DOWNLOAD_FAILED
 
             rpd_file.error_title = rpd_file.problem.get_title()
             rpd_file.error_msg = _("%(problem)s\nFile: %(file)s") % \
@@ -391,7 +391,7 @@ class SubfolderFile(multiprocessing.Process):
                     sync_photo_name, sync_photo_ext = os.path.splitext(rpd_file.name)
                     if not load_metadata(rpd_file):
                         synchronize_raw_jpg_failed = True
-                        rpd_file.status = config.STATUS_DOWNLOAD_FAILED
+                        rpd_file.status = constants.STATUS_DOWNLOAD_FAILED
                         self.check_for_fatal_name_generation_errors(rpd_file)
                     else:
                         j, sequence_to_use = self.sync_raw_jpeg.matching_pair(
@@ -401,11 +401,11 @@ class SubfolderFile(multiprocessing.Process):
                         if j == -1:
                             # this exact file has already been downloaded (same extension, same filename, and same exif date time subsecond info)
                             if (rpd_file.download_conflict_resolution <>
-                                    config.ADD_UNIQUE_IDENTIFIER):
+                                    constants.ADD_UNIQUE_IDENTIFIER):
                                 rpd_file.add_problem(None, pn.FILE_ALREADY_DOWNLOADED, {'filetype': rpd_file.title_capitalized})
                                 rpd_file.error_title = _('Photo has already been downloaded')
                                 rpd_file.error_msg = _("Source: %(source)s") % {'source': rpd_file.full_file_name}
-                                rpd_file.status = config.STATUS_DOWNLOAD_FAILED
+                                rpd_file.status = constants.STATUS_DOWNLOAD_FAILED
                                 synchronize_raw_jpg_failed = True
                         else:
                             self.sequences.set_matched_sequence_value(sequence_to_use)
@@ -451,7 +451,7 @@ class SubfolderFile(multiprocessing.Process):
 
                         if rpd_file.has_problem():
                             logger.debug("Encountered a problem generating file name for file %s", rpd_file.name)
-                            rpd_file.status = config.STATUS_DOWNLOADED_WITH_WARNING
+                            rpd_file.status = constants.STATUS_DOWNLOADED_WITH_WARNING
                             rpd_file.error_title = rpd_file.problem.get_title()
                             rpd_file.error_msg = _("%(problem)s\nFile: %(file)s") % \
                                      {'problem': rpd_file.problem.get_problems(),
@@ -498,8 +498,8 @@ class SubfolderFile(multiprocessing.Process):
                         os.rename(rpd_file.temp_full_file_name, rpd_file.download_full_file_name)
                         logger.debug("....successfully renamed file")
                         move_succeeded = True
-                        if rpd_file.status <> config.STATUS_DOWNLOADED_WITH_WARNING:
-                            rpd_file.status = config.STATUS_DOWNLOADED
+                        if rpd_file.status <> constants.STATUS_DOWNLOADED_WITH_WARNING:
+                            rpd_file.status = constants.STATUS_DOWNLOADED
                     except (IOError, OSError) as inst:
                         if inst.errno == errno.EEXIST:
                             rpd_file, add_unique_identifier = self.download_file_exists(rpd_file)

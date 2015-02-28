@@ -22,7 +22,7 @@
 import re
 import datetime
 import sys
-import config
+import constants
 import types
 import time
 

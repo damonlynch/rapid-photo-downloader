@@ -28,7 +28,7 @@ import mimetypes
 from gettext import gettext as _
 
 import exiftool
-import config
+import constants
 import metadataphoto
 import metadatavideo
 
@@ -44,7 +44,8 @@ RAW_EXTENSIONS = ['arw', 'dcr', 'cr2', 'crw',  'dng', 'mos', 'mef', 'mrw',
 
 JPEG_EXTENSIONS = ['jpg', 'jpe', 'jpeg']
 
-# FIXME does QT5 QImage even support TIFF?
+# FIXME does QT5 QImage even support TIFF? On Ubuntu, yes.
+#
 NON_RAW_IMAGE_EXTENSIONS = JPEG_EXTENSIONS + ['tif', 'tiff', 'mpo']
 
 PHOTO_EXTENSIONS = RAW_EXTENSIONS + NON_RAW_IMAGE_EXTENSIONS
@@ -211,7 +212,7 @@ class RPDFile:
         # cameras
         self.audio_file_full_name = audio_file_full_name
 
-        self.status = config.DownloadStatus.not_downloaded
+        self.status = constants.DownloadStatus.not_downloaded
         self.problem = None # class Problem in problemnotifcation.py
 
         self._assign_file_type() # Indicate whether file is a photo or video

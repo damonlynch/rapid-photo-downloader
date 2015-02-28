@@ -30,7 +30,7 @@ import logging
 
 import rpdfile
 import problemnotification as pn
-import config
+import constants
 
 PHOTO_BACKUP = 1
 VIDEO_BACKUP = 2

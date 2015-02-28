@@ -1,4 +1,5 @@
 #!/usr/bin/python3
+
 __author__ = 'Damon Lynch'
 
 # Copyright (C) 2011-2015 Damon Lynch <damonlynch@gmail.com>
@@ -21,7 +22,16 @@ __author__ = 'Damon Lynch'
 
 import logging
 import re
-from enum import Enum
+import os
+import datetime
+
+from PyQt5.QtCore import QSettings
+
+from gettext import gettext as _
+
+from storage import xdg_photos_directory, xdg_videos_directory
+from generatenameconfig import *
+import constants
 
 
 class ScanPreferences:
@@ -120,7 +130,104 @@ class ScanPreferences:
         return not error_encountered
 
 
-class BackupLocationForFileType(Enum):
-    photos = 1
-    videos = 2
-    photos_and_videos = 3
+def today():
+    return datetime.date.today().strftime('%Y-%m-%d')
+
+class Preferences:
+    rename_defaults = dict(photo_download_folder=xdg_photos_directory(),
+                           video_download_folder=xdg_videos_directory(),
+                           photo_subfolder=DEFAULT_SUBFOLDER_PREFS,
+                           video_subfolder=DEFAULT_VIDEO_SUBFOLDER_PREFS,
+                           photo_rename=[FILENAME, NAME_EXTENSION,
+                                         ORIGINAL_CASE],
+                           video_rename=[FILENAME, NAME_EXTENSION,
+                                         ORIGINAL_CASE],
+                           day_start="03:00",
+                           downloads_today=[today(), '0'],
+                           stored_sequence_no=0,
+                           strip_characters=True,
+                           synchronize_raw_jpg=False,
+                           job_codes=[_('New York'), _('Manila'),
+                                      _('Prague'),  _('Helsinki'),
+                                      _('Wellington'), _('Tehran'),
+                                      _('Kampala'),   _('Paris'),
+                                      _('Berlin'),  _('Sydney'),
+                                      _('Budapest'), _('Rome'),
+                                      _('Moscow'),  _('Delhi'), _('Warsaw'),
+                                      _('Jakarta'),  _('Madrid'),
+                                      _('Stockholm')],
+                          )
+    device_defaults = dict(only_external_mounts=True,
+                           device_autodetection=True,
+                           device_location=os.path.expanduser('~'),
+                           device_without_dcim_autodetection=False,
+                           path_whitelist=[''],
+                           path_blacklist=[''],
+                           camera_blacklist=[''],
+                           ignored_paths=['.Trash', '.thumbnails'],
+                           use_re_ignored_paths=False
+                          )
+    backup_defaults = dict(backup_images=False,
+                           backup_device_autodetection=True,
+                           photo_backup_identifier=os.path.split(
+                               xdg_photos_directory())[1],
+                           video_backup_identifier=os.path.split(
+                               xdg_videos_directory())[1],
+                           backup_photo_location=os.path.expanduser('~'),
+                           backup_video_location=os.path.expanduser('~'),
+                          )
+    automation_defaults = dict(auto_download_at_startup=False,
+                               auto_download_upon_device_insertion=False,
+                               auto_unmount=False,
+                               auto_exit=False,
+                               auto_exit_force=False,
+                               move=False,
+                               verify_file=False
+                              )
+    performance_defaults = dict(generate_thumbnails=True,
+                                thumbnail_quality_lower=False)
+    error_defaults = dict(conflict_resolution=constants.SKIP_DOWNLOAD,
+                          backup_duplicate_overwrite=False)
+
+
+    def __init__(self):
+        self.settings = QSettings()
+        dicts = (self.rename_defaults, self.device_defaults,
+                 self.backup_defaults, self.automation_defaults,
+                 self.performance_defaults, self.error_defaults)
+        # Create quick lookup table for types of each value, including the
+        # special case of lists, which use the type of what they contain.
+        # While we're at it also merge the dictionaries into one dictionary
+        # of default values.
+        self.types = {}
+        self.defaults = {}
+        for d in dicts:
+            for key, value in d.items():
+                if isinstance(value, list):
+                    t = type(value[0])
+                else:
+                    t = type(value)
+                self.types[key] = t
+                self.defaults[key] = value
+
+    def __getitem__(self, item):
+        return self.settings.value(item, self.defaults[item], self.types[item])
+
+    def __setitem__(self, key, value):
+        if key in self.rename_defaults:
+            group = 'Rename'
+        elif key in self.device_defaults:
+            group = 'Device'
+        elif key in self.backup_defaults:
+            group = 'Backup'
+        elif key in self.automation_defaults:
+            group = 'Automation'
+        elif key in self.performance_defaults:
+            group = 'Performance'
+        elif key in self.error_defaults:
+            group = 'ErrorHandling'
+        else:
+            group = 'General'
+        self.settings.beginGroup(group)
+        self.settings.setValue(key, value)
+        self.settings.endGroup(group)

@@ -262,7 +262,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
                                                self.worker_id,
                                                file_type,
                                                self.download_from_camera)
-                self.content = pickle.dumps(rpd_file)
+                self.content = pickle.dumps(rpd_file, pickle.HIGHEST_PROTOCOL)
                 self.send_message_to_sink()
 
     def get_video_THM_file(self, base_name: str) -> str:

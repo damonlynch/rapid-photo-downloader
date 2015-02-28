@@ -225,6 +225,20 @@ def gvfs_controls_mounts():
     return get_desktop_environment().lower() in ('gnome', 'unity',
                                                  'x-cinnamon')
 
+def xdg_photos_directory() -> str:
+    """
+    Get localized version of /home/<USER>/Pictures
+    :return: the directory
+    """
+    return GLib.get_user_special_dir(GLib.USER_DIRECTORY_PICTURES)
+
+def xdg_videos_directory() -> str:
+    """
+    Get localized version of /home/<USER>/Videos
+    :return: the directory
+    """
+    return GLib.get_user_special_dir(GLib.USER_DIRECTORY_VIDEOS)
+
 class CameraHotplug(QObject):
     cameraAdded = pyqtSignal()
     cameraRemoved = pyqtSignal()

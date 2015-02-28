@@ -176,7 +176,7 @@ class PublishPullPipelineManager(QObject):
             self.terminate_socket.send_multipart([b'0', b'cmd', b'KILL'])
 
     def add_worker(self, worker_id, process_arguments):
-        cmd = os.path.join(os.getcwd(), self._process_to_run)
+        cmd = os.path.join(os.path.dirname(__file__), self._process_to_run)
         command_line = '{} --receive {} --send {} --controller {} ' \
                        '--syncclient {} --filter {} --logginglevel {}'.format(
                         cmd,
@@ -212,7 +212,7 @@ class PublishPullPipelineManager(QObject):
                 time.sleep(.01)
 
         # Send data to process to tell it what to scan
-        data = pickle.dumps(process_arguments)
+        data = pickle.dumps(process_arguments, pickle.HIGHEST_PROTOCOL)
         message = [make_filter_from_worker_id(worker_id), b'data', data]
         self.publisher_socket.send_multipart(message)
 

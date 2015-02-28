@@ -3,30 +3,24 @@ Section: graphics
 Priority: optional
 Maintainer: Damon Lynch <damonlynch@gmail.com>
 Build-Depends: debhelper (>= 8),
-               python (>= 2.7),
+               python (>= 3.4),
                gettext
 Standards-Version: 3.9.4               
-X-Python-Version: 2.7
+X-Python-Version: 3.4
 Homepage: http://damonlynch.net/rapid
 
 Package: rapid-photo-downloader
 Architecture: all
 Depends: ${python:Depends},
          ${misc:Depends},
-         python-gnome2 (>= 2.28),
-         python-gtk2 (>= 2.17),
-         python-gconf (>= 2.28),
-         python-pyexiv2 (>= 0.3.0),
-         python-notify (>=0.1.1),
-         python-imaging (>=1.1.7),
-         python-dbus,
-         librsvg2-common (>=2.26),
-         python-hachoir-metadata,
-         python-kaa-metadata,
+         python3-pyqt5,
+         python3-zmq,
+         gir1.2-gexiv2,
+         gir1.2-gudev,
+         gir1.2-udisks,
+         qt5-image-formats-plugins,
          ffmpegthumbnailer,
          libimage-exiftool-perl,
-         gnome-icon-theme,
-         exiftran,
          exiv2,
 Description: Photo and video importer from memory cards, cameras and other devices
  Rapid Photo Downloader imports photos and videos from memory cards and 
