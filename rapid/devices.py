@@ -18,13 +18,15 @@ __author__ = 'Damon Lynch'
 # along with Rapid Photo Downloader.  If not,
 # see <http://www.gnu.org/licenses/>.
 
+from constants import DeviceType
+
 class Device:
     r"""
     Representation of a camera or an object with a file system that
     will have files downloaded from it
 
     >>> d = Device()
-    >>> d.set_download_from_path('/media/damon/EOS_DIGITAL', 'EOS_DIGITAL')
+    >>> d.set_download_from_volume('/media/damon/EOS_DIGITAL', 'EOS_DIGITAL')
     >>> d
     'EOS_DIGITAL':'/media/damon/EOS_DIGITAL'
     >>> str(d)
@@ -42,7 +44,7 @@ class Device:
     >>> c.display_name
 
     >>> e = Device()
-    >>> e.set_download_from_path('/media/damon/EOS_DIGITAL', 'EOS_DIGITAL')
+    >>> e.set_download_from_volume('/media/damon/EOS_DIGITAL', 'EOS_DIGITAL')
     >>> e == d
     True
     >>> e != c
@@ -53,52 +55,65 @@ class Device:
     True
     """
     def __init__(self):
+        self.clear()
+
+    def clear(self):
         self.camera_model = None
         self.camera_port = None
         self.path = None
         self.display_name = None
-        self.download_from_camera = None
+        self.device_type = None
+        self.icon_names = None
+        self.can_eject = None
 
     def __repr__(self):
-        if self.download_from_camera:
+        if self.device_type == DeviceType.camera:
             return "%r:%r" % (self.camera_model, self.camera_port)
-        else:
+        elif self.device_type == DeviceType.volume:
             return "%r:%r" % (self.display_name, self.path)
+        else:
+            return "%r" % self.path
 
     def __str__(self):
-        if self.download_from_camera:
+        if self.device_type == DeviceType.camera:
             return "%s on port %s" % (self.camera_model, self.camera_port)
-        else:
+        elif self.device_type == DeviceType.volume:
             if self.path != self.display_name:
                 return "%s (%s)" % (self.path, self.display_name)
             else:
                 return "%s" % (self.path)
+        else:
+            return "%s" % (self.path)
 
     def __eq__(self, other):
-        for attr in ('download_from_camera', 'camera_model', 'camera_port',
-                     'path', 'display_name'):
+        for attr in ('device_type', 'camera_model', 'camera_port',
+                     'path', 'display_name', 'icon_names', 'can_eject'):
             if getattr(self, attr) != getattr(other, attr):
                 return False
         return True
 
     def __ne__(self, other):
-        for attr in ('download_from_camera', 'camera_model', 'camera_port',
-                     'path', 'display_name'):
-            if getattr(self, attr) != getattr(other, attr):
-                return True
-        return False
+        return not self.__eq__(other)
 
     def set_download_from_camera(self, camera_model: str, camera_port: str):
-        self.download_from_camera = True
+        self.clear()
+        self.device_type = DeviceType.camera
         self.camera_model = camera_model
         self.camera_port = camera_port
-        self.path = self.display_name = None
 
-    def set_download_from_path(self, path, display_name):
+    def set_download_from_volume(self, path: str, display_name: str,
+                                 icon_names=None, can_eject=None):
+        self.clear()
+        self.device_type = DeviceType.volume
         self.path = path
+        self.icon_names = icon_names
         self.display_name = display_name
-        self.download_from_camera = False
-        self.camera_port = self.camera_model = None
+        self.can_eject = can_eject
+
+    def set_download_from_path(self, path: str):
+        self.clear()
+        self.device_type = DeviceType.path
+        self.path = path
 
 
 class DeviceCollection:
@@ -109,11 +124,11 @@ class DeviceCollection:
     When a device is added, a scan_id is generated and returned.
 
     >>> d = Device()
-    >>> d.set_download_from_path('/media/damon/EOS_DIGITAL', 'EOS_DIGITAL')
+    >>> d.set_download_from_volume('/media/damon/EOS_DIGITAL', 'EOS_DIGITAL')
     >>> c = Device()
     >>> c.set_download_from_camera('Canon EOS 1D X', 'usb:001,002')
     >>> e = Device()
-    >>> e.set_download_from_path('/media/damon/EOS_DIGITAL', 'EOS_DIGITAL')
+    >>> e.set_download_from_volume('/media/damon/EOS_DIGITAL', 'EOS_DIGITAL')
     >>> dc = DeviceCollection()
     >>> d_scan_id = dc.add_device(d)
     >>> d_scan_id
@@ -206,7 +221,7 @@ class DeviceCollection:
 
     def __delitem__(self, scan_id):
         d = self.devices[scan_id]
-        if d.download_from_camera:
+        if d.device_type == DeviceType.camera:
             del self.cameras[d.camera_port]
         del self.devices[scan_id]
 

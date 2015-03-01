@@ -210,8 +210,8 @@ class Preferences:
                 self.types[key] = t
                 self.defaults[key] = value
 
-    def __getitem__(self, item):
-        return self.settings.value(item, self.defaults[item], self.types[item])
+    def __getitem__(self, key):
+        return self.settings.value(key, self.defaults[key], self.types[key])
 
     def __setitem__(self, key, value):
         if key in self.rename_defaults:

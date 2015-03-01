@@ -68,19 +68,19 @@ class ThumbnailTableModel(QAbstractTableModel):
         self.thumbnailmq.message.connect(self.thumbnailReceived)
 
         QTimer.singleShot(0, self.thumbnailThread.start)
-        """
-                self.liststore = gtk.ListStore(
-             gobject.TYPE_PYOBJECT, # 0 PIL thumbnail
-             gobject.TYPE_BOOLEAN,  # 1 selected or not
-             str,                   # 2 unique id
-             str,                   # 3 file name
-             int,                   # 4 timestamp for sorting, converted float
-             int,                   # 5 file type i.e. photo or video
-             gobject.TYPE_BOOLEAN,  # 6 visibility of checkbutton
-             int,                   # 7 status of download
-             gtk.gdk.Pixbuf,        # 8 status icon
-             )
-        """
+
+        # self.liststore = gtk.ListStore(
+        #      gobject.TYPE_PYOBJECT, # 0 PIL thumbnail
+        #      gobject.TYPE_BOOLEAN,  # 1 selected or not
+        #      str,                   # 2 unique id
+        #      str,                   # 3 file name
+        #      int,                   # 4 timestamp for sorting, converted float
+        #      int,                   # 5 file type i.e. photo or video
+        #      gobject.TYPE_BOOLEAN,  # 6 visibility of checkbutton
+        #      int,                   # 7 status of download
+        #      gtk.gdk.Pixbuf,        # 8 status icon
+        #  )
+
 
         # dict of scan_pids that are having thumbnails generated
         # value is the thumbnail process id
@@ -113,25 +113,9 @@ class ThumbnailTableModel(QAbstractTableModel):
             assert unique_id in self.thumbnails
             return self.thumbnails[unique_id]
 
-    # def setData(self, index, value, role=Qt.EditRole):
-    #     row = index.row()
-    #     if index.isValid() and 0 <= row < self.no_thubmnails:
-    #         assert row in self.row_to_unique_id[row]
-    #         row = self.row_to_unique_id[row]
-    #
-    #         column = index.column()
-    #         if column == 0:
-    #             print("Added name", value)
-    #             self.file_names[unique_id] = value
-    #         else:
-    #             self.qpixList[unique_id] = value
-    #         self.dataChanged.emit(index,index)
-
 
     def insertRows(self, position, rows=1, index=QModelIndex()):
         self.beginInsertRows(QModelIndex(), position, position + rows - 1)
-        # for row in range(rows):
-        #     self.file_names.insert(position + row, None)
         self.no_thubmnails += 1
         self.endInsertRows()
 

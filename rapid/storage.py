@@ -280,10 +280,11 @@ class CameraHotplug(QObject):
                 del self.cameras[path]
                 self.cameraRemoved.emit()
 
+
 class UDisks2Monitor(QObject):
     #Most of this class is Copyright 2008-2015 Canonical
 
-    partitionMounted = pyqtSignal(str)
+    partitionMounted = pyqtSignal(str, list, bool)
     partitionUnmounted = pyqtSignal(str)
     #TODO partition unmounted code
 
@@ -313,11 +314,7 @@ class UDisks2Monitor(QObject):
         if not block:
             return
 
-        drive_name = block.get_cached_property('Drive').get_string()
-        if drive_name != '/':
-            drive = self.udisks.get_object(drive_name).get_drive()
-        else:
-            drive = None
+        drive = self._get_drive(block)
 
         part = obj.get_partition()
         is_system = block.get_cached_property('HintSystem').get_boolean()
@@ -327,6 +324,13 @@ class UDisks2Monitor(QObject):
             if part:
                 self._udisks_partition_added(obj, block, drive, path)
 
+    def _get_drive(self, block):
+        drive_name = block.get_cached_property('Drive').get_string()
+        if drive_name != '/':
+            return self.udisks.get_object(drive_name).get_drive()
+        else:
+            return None
+
     def _udisks_partition_added(self, obj, block, drive, path):
         logging.debug('UDisks: partition added: %s' % path)
         fstype = block.get_cached_property('IdType').get_string()
@@ -335,6 +339,12 @@ class UDisks2Monitor(QObject):
         fs = obj.get_filesystem()
 
         if fs:
+            icon_names = self.get_icon_names(obj)
+
+            if drive is not None:
+                ejectable = drive.get_property('ejectable')
+            else:
+                ejectable = False
             mount_point = ''
             mount_points = fs.get_cached_property(
                 'MountPoints').get_bytestring_array()
@@ -356,7 +366,7 @@ class UDisks2Monitor(QObject):
                 logging.debug("UDisks: already mounted at %s", mount_point)
 
             if self.validMounts.pathIsValidMountPoint(mount_point):
-                self.partitionMounted.emit(mount_point)
+                self.partitionMounted.emit(mount_point, icon_names, ejectable)
 
         else:
             logging.debug("Udisks: partition has no file system %s", path)
@@ -397,6 +407,33 @@ class UDisks2Monitor(QObject):
                 timeout -= 1
         return ''
 
+    def get_icon_names(self, obj: UDisks.Object):
+        # Get icon information, if possible
+        icon_names = []
+        if have_gio:
+            info = self.udisks.get_object_info(obj)
+            icon = info.get_icon()
+            if isinstance(icon, Gio.ThemedIcon):
+                icon_names = icon.get_names()
+        return icon_names
+
+    # Next two class member functions from Damon Lynch, not Canonical
+    def get_can_eject(self, obj: UDisks.Object):
+        block = obj.get_block()
+        drive = self._get_drive(block)
+        if drive is not None:
+            return drive.get_property('ejectable')
+        return False
+
+    def get_device_props(self, device_path: str):
+        object_path = '/org/freedesktop/UDisks2/block_devices/{}'.format(
+            os.path.split(device_path)[1])
+        obj = self.udisks.get_object(object_path)
+        icon_names = self.get_icon_names(obj)
+        can_eject = self.get_can_eject(obj)
+        return (icon_names, can_eject)
+
+
 if have_gio:
     class GVolumeMonitor(QObject):
         r"""
@@ -412,7 +449,7 @@ if have_gio:
 
         cameraUnmounted = pyqtSignal(bool, str, str)
         cameraMounted = pyqtSignal()
-        partitionMounted = pyqtSignal(str)
+        partitionMounted = pyqtSignal(str, list, bool)
         partitionUnmounted = pyqtSignal(str)
         volumeAddedNoAutomount = pyqtSignal()
 
@@ -472,6 +509,7 @@ if have_gio:
             unmounted, in the format of libgphoto2
             :type userData: Tuple[str,str]
             """
+            icon_names = self.getIconNames(mount)
             if mount.unmount_with_operation_finish(result):
                 logging.debug("...successfully unmounted {}".format(
                     userData[0]))
@@ -526,7 +564,10 @@ if have_gio:
             if self.mountIsCamera(mount):
                 self.cameraMounted.emit()
             elif self.mountIsPartition(mount):
-                self.partitionMounted.emit(mount.get_root().get_path())
+                icon_names = self.getIconNames(mount)
+                self.partitionMounted.emit(mount.get_root().get_path(),
+                                           icon_names,
+                                           mount.can_eject())
 
         def mountRemoved(self, volumeMonitor, mount: Gio.Mount):
             if not self.mountIsCamera(mount):
@@ -542,3 +583,20 @@ if have_gio:
             if not volume.should_automount():
                 #TODO is it possible to determine the device type?
                 self.volumeAddedNoAutomount.emit()
+
+        def getIconNames(self, mount: Gio.Mount):
+            icon_names = []
+            icon = mount.get_icon()
+            if isinstance(icon, Gio.ThemedIcon):
+                icon_names = icon.get_names()
+            return icon_names
+
+        def getProps(self, path: str):
+            for mount in self.vm.get_mounts():
+                root = mount.get_root()
+                if root is not None:
+                    p = root.get_path()
+                    if path == p:
+                        icon_names = self.getIconNames(mount)
+                        return (icon_names, mount.can_eject())
+            return (None, None)

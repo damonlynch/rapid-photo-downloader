@@ -37,11 +37,12 @@ import gphoto2 as gp
 
 from PyQt5 import QtCore, QtWidgets, QtGui
 
-from PyQt5.QtCore import (QThread, Qt, QStorageInfo, QSettings, QPoint, QSize)
-from PyQt5.QtGui import QStandardItemModel, QStandardItem, QPixmap
+from PyQt5.QtCore import (QThread, Qt, QStorageInfo, QSettings, QPoint,
+                          QSize, QFileInfo)
+from PyQt5.QtGui import QStandardItemModel, QStandardItem, QPixmap, QIcon
 from PyQt5.QtWidgets import (QAction, QApplication, QFileDialog, QLabel,
         QMainWindow, QMenu, QMessageBox, QScrollArea, QSizePolicy,
-        QProgressBar, QSplitter)
+        QProgressBar, QSplitter, QFileIconProvider)
 
 # import dbus
 # from dbus.mainloop.pyqt5 import DBusQtMainLoop
@@ -53,9 +54,10 @@ from storage import (ValidMounts, CameraHotplug, UDisks2Monitor,
 from interprocess import (PublishPullPipelineManager, ScanArguments)
 from devices import (Device, DeviceCollection)
 from preferences import (Preferences, ScanPreferences)
-from constants import BackupLocationForFileType
+from constants import BackupLocationForFileType, DeviceType
 from thumbnaildisplay import (ThumbnailView, ThumbnailTableModel,
     ThumbnailDelegate)
+from devicedisplay import (DeviceTableModel, DeviceView, DeviceDelegate)
 import rpdfile
 
 logging_level = logging.DEBUG
@@ -92,11 +94,17 @@ class RapidWindow(QtWidgets.QMainWindow):
         self.thumbnailView.setModel(self.thumbnailModel)
         self.thumbnailView.setItemDelegate(ThumbnailDelegate(self))
 
+        self.deviceView = DeviceView()
+        self.deviceModel = DeviceTableModel(self)
+        self.deviceView.setModel(self.deviceModel)
+        self.deviceView.setItemDelegate(DeviceDelegate(self))
+
         # self.stopButton.released.connect(self.handleStopButton)
         # self.pauseButton.released.connect(self.handlePauseButton)
 
         splitter = QSplitter()
         splitter.setOrientation(Qt.Vertical)
+        # splitter.addWidget(self.deviceView)
         splitter.addWidget(self.thumbnailView)
         layout = QtWidgets.QVBoxLayout()
         # layout.addWidget(self.stopButton)
@@ -381,6 +389,49 @@ class RapidWindow(QtWidgets.QMainWindow):
             self.cameraHotplugThread.quit()
             self.cameraHotplugThread.wait()
 
+    def getDeviceIcon(self, device: Device) -> QIcon:
+        if device.device_type == DeviceType.volume:
+            icon = None
+            if device.icon_names is not None:
+                for i in device.icon_names:
+                    if QIcon.hasThemeIcon(i):
+                        icon = QIcon.fromTheme(i)
+                        break
+            if icon is not None:
+                return icon
+            else:
+                return QFileIconProvider().icon(QFileIconProvider.Drive)
+        elif device.device_type == DeviceType.path:
+            return QFileIconProvider().icon(QFileIconProvider.Folder)
+        else:
+            assert device.device_type == DeviceType.camera
+            for i in ('camera-photo', 'camera'):
+                if QIcon.hasThemeIcon(i):
+                    return QIcon.fromTheme(i)
+            return None
+
+    def getIconsAndEjectableForMount(self, mount: QStorageInfo):
+        if self.gvfsControlsMounts:
+            iconNames, canEject = self.gvolumeMonitor.getProps(
+                mount.rootPath())
+        else:
+            systemDevice = bytes(mount.device()).decode()
+            iconNames, canEject = self.udisks2Monitor.get_device_props(
+                systemDevice)
+        return (iconNames, canEject)
+
+
+    def addToDeviceDisplay(self, device: Device):
+        deviceIcon = self.getDeviceIcon(device)
+        if device.can_eject:
+            ejectIcon = QIcon.fromTheme('media-eject')
+        else:
+            ejectIcon = None
+        textDisplay = _('scanning...')
+        # self.deviceModel.addDevice(scan_id, deviceIcon, device.display_name,
+        #                            ejectIcon, textDisplay)
+
+
     def cameraAdded(self):
         if not self.prefs['device_autodetection']:
             logging.debug("Ignoring camera as device auto detection is off")
@@ -449,6 +500,7 @@ class RapidWindow(QtWidgets.QMainWindow):
 
     def startDeviceScan(self, device: Device):
         scan_id = self.devices.add_device(device)
+        self.addToDeviceDisplay(device)
         scan_preferences = ScanPreferences(self.prefs['ignored_paths'])
         scan_arguments = ScanArguments(scan_preferences, device)
         self.scanmq.add_worker(scan_id, scan_arguments)
@@ -494,12 +546,16 @@ class RapidWindow(QtWidgets.QMainWindow):
                 # if mount is not None:
                 #     self.mounts_by_path[path] = scan_pid
 
-    def partitionMounted(self, path):
+    def partitionMounted(self, path: str, iconNames, canEject: bool):
         """
         Setup devices from which to download from and backup to, and
         if relevant start scanning them
 
         :param path: the path of the mounted partition
+        :param iconNames: a list of names of icons used in themed icons
+        associated with this partition
+        :param canEject: whether the partition can be ejected or not
+        :type iconNames: List[str]
         """
         assert path in mountPaths()
 
@@ -523,7 +579,8 @@ class RapidWindow(QtWidgets.QMainWindow):
                     #self.auto_start_is_on =
                     # self.prefs.auto_download_upon_device_insertion
                     device = Device()
-                    device.set_download_from_path(path, mount.displayName)
+                    device.set_download_from_volume(path, mount.displayName,
+                                                    iconNames, canEject)
                     self.prepareNonCameraDeviceScan(device)
 
     def setupNonCameraDevices(self, onStartup: bool, onPreferenceChange: bool,
@@ -595,7 +652,7 @@ class RapidWindow(QtWidgets.QMainWindow):
                 logging.debug("Using manually specified path %s", path)
                 if os.path.isdir(path) and os.access(path, os.R_OK):
                     device = Device()
-                    device.set_download_from_path(path, path)
+                    device.set_download_from_path(path)
                     self.startDeviceScan(device)
                 else:
                     logging.error("Download path is invalid: %s", path)
@@ -604,9 +661,12 @@ class RapidWindow(QtWidgets.QMainWindow):
 
         else:
             for mount in mounts:
+                iconNames, canEject = self.getIconsAndEjectableForMount(mount)
                 device = Device()
-                device.set_download_from_path(mount.rootPath(),
-                                              mount.displayName())
+                device.set_download_from_volume(mount.rootPath(),
+                                              mount.displayName(),
+                                              iconNames,
+                                              canEject)
                 self.prepareNonCameraDeviceScan(device)
         # if not mounts:
         #     self.set_download_action_sensitivity()

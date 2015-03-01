@@ -42,6 +42,7 @@ from preferences import ScanPreferences
 from interprocess import WorkerInPublishPullPipeline
 from camera import Camera
 import rpdfile
+from constants import DeviceType
 
 FileInfo = namedtuple('FileInfo', ['path', 'modification_time', 'size',
                                    'ext_lower', 'base_name', 'file_type'])
@@ -60,7 +61,8 @@ class ScanWorker(WorkerInPublishPullPipeline):
     def do_work(self):
         scan_arguments = pickle.loads(self.content)
         self.scan_preferences = scan_arguments.scan_preferences
-        self.download_from_camera = scan_arguments.device.download_from_camera
+        self.download_from_camera = scan_arguments.device.device_type == \
+                                    DeviceType.camera
 
         # FIXME send file size sum
         self.file_size_sum = 0
