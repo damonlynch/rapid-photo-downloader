@@ -176,16 +176,23 @@ class ThumbnailTableModel(QAbstractTableModel):
             self.rapidApp.downloadProgressBar.setValue(
                 self.thumbnails_generated)
 
-    def generateThumbnails(self, scan_id: int, device: Device):
+    def generateThumbnails(self, scan_id: int, device: Device,
+                           thumbnail_quality_lower: bool):
+        """
+        Initiates generation of thumbnails for the device. We already
+        know which files to generate the thumbnails for.
+        :param thumbnail_quality_lower: whether to generate the
+        thumbnail high or low quality as it is scaled by Qt
+        """
         if scan_id in self.scan_index:
             self.rapidApp.downloadProgressBar.setMaximum(
                 self.total_thumbs_to_generate)
             rpd_files = list((self.rpd_files[unique_id] for unique_id in
                          self.scan_index[scan_id]))
 
-            #TODO investigate thumbnail quality!
             generate_arguments = GenerateThumbnailsArguments(scan_id,
                                                      rpd_files,
+                                                     thumbnail_quality_lower,
                                                      device.camera_model,
                                                      device.camera_port)
             self.thumbnailmq.add_worker(scan_id, generate_arguments)

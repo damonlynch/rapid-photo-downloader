@@ -95,15 +95,19 @@ class Thumbnail:
     stock_photo = QImage("images/photo66.png")
     stock_video = QImage("images/video66.png")
 
-    def __init__(self, rpd_file: RPDFile, camera: Camera):
+    def __init__(self, rpd_file: RPDFile, camera: Camera,
+                 thumbnail_transform: Qt.TransformationMode):
         """
         :param rpd_file: file from which to extract the thumbnails
         :param camera: if not None, the camera from which to get the
         thumbnails
+        :param: whether to generate the thumbnail high or low quality
+        as it is scaled by Qt
         """
         self.rpd_file = rpd_file
         self.metadata = None
         self.camera = camera
+        self.thumbnail_transform = thumbnail_transform
 
     def _ignore_embedded_160x120_thumbnail(self) -> bool:
         """
@@ -252,7 +256,8 @@ class Thumbnail:
                 thumbnail = thumbnail.transformed(QTransform().rotate(180))
 
             if size is not None:
-                thumbnail = thumbnail.scaled(size, Qt.KeepAspectRatio)
+                thumbnail = thumbnail.scaled(size, Qt.KeepAspectRatio,
+                                             self.thumbnail_transform)
         else:
             thumbnail = self.stock_photo
         return thumbnail
@@ -289,7 +294,8 @@ class Thumbnail:
                 thumbnail = self._crop_160x120_thumbnail(thumbnail, 8)
 
             if size is not None:
-                thumbnail = thumbnail.scaled(size, Qt.KeepAspectRatio)
+                thumbnail = thumbnail.scaled(size, Qt.KeepAspectRatio,
+                                             self.thumbnail_transform)
 
         if thumbnail is None:
             return self.stock_photo
@@ -340,7 +346,8 @@ class Thumbnail:
                 thumbnail = self._crop_160x120_thumbnail(thumbnail, 15)
                 if size.width() != 160:
                     thumbnail = thumbnail.scaled(size,
-                                                 Qt.KeepAspectRatio)
+                                                 Qt.KeepAspectRatio,
+                                                 self.thumbnail_transform)
                 thumbnail = add_filmstrip(thumbnail)
 
 
@@ -435,6 +442,12 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
     def do_work(self):
         logging.debug("Generating thumbnails...")
         arguments = pickle.loads(self.content)
+
+        if arguments.thumbnail_quality_lower:
+            thumbnail_transform = Qt.FastTransformation
+        else:
+            thumbnail_transform = Qt.SmoothTransformation
+
         if arguments.camera:
             camera = Camera(arguments.camera, arguments.port)
         else:
@@ -447,7 +460,7 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
 
             # The maximum size of the embedded exif thumbnail is typically
             # 160x120.
-            thumbnail = Thumbnail(rpd_file, camera)
+            thumbnail = Thumbnail(rpd_file, camera, thumbnail_transform)
             thumbnail_icon = thumbnail.get_thumbnail(size=QSize(100,100))
 
             buffer = QBuffer()

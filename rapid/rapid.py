@@ -365,7 +365,7 @@ class RapidWindow(QtWidgets.QMainWindow):
     def scanFinished(self, worker_id):
         # Generate thumbnails for finished scan
         self.thumbnailModel.generateThumbnails(worker_id, self.devices[
-            worker_id])
+            worker_id], self.prefs['thumbnail_quality_lower'])
 
     def closeEvent(self, event):
         self.writeWindowSettings()

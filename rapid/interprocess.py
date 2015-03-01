@@ -331,13 +331,15 @@ class BackupArguments:
 
 
 class GenerateThumbnailsArguments:
-    def __init__(self, scan_id: int, rpd_files, camera=None,
-                 port=None):
+    def __init__(self, scan_id: int, rpd_files, thumbnail_quality_lower: bool,
+                 camera=None, port=None):
         """
         List of files for which thumbnails are to be generated.
         All files  are assumed to have the same scan id.
         :param scan_id: id of the scan
         :param rpd_files: list of files from which to extract thumbnails
+        :param thumbnail_quality_lower: whether to generate the
+        thumbnail high or low quality as it is scaled by Qt
         :param camera: If the thumbnails are being downloaded from a camera,
         this is the name of the camera, else None
         :param port: If the thumbnails are being downloaded from a camera,
@@ -348,6 +350,7 @@ class GenerateThumbnailsArguments:
         """
         self.rpd_files = rpd_files
         self.scan_id = scan_id
+        self.thumbnail_quality_lower = thumbnail_quality_lower
         if camera is not None:
             assert port is not None
         self.camera = camera

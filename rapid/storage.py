@@ -76,9 +76,8 @@ class ValidMounts():
     """
     def __init__(self, onlyExternalMounts: bool):
         """
-
-        :param onlyExternalMounts:
-        :return:
+        :param onlyExternalMounts: if True, valid mounts must be under
+        /media/<USER> or /run/media/<user>
         """
         self.validMountFolders = None # type: Tuple(str)
         self.onlyExternalMounts = onlyExternalMounts
@@ -363,7 +362,9 @@ class UDisks2Monitor(QObject):
             logging.debug("Udisks: partition has no file system %s", path)
 
     def retry_mount(self, fs, fstype):
-        #Variant paramater construction Copyright Bernard Baeyens
+        # Variant paramater construction Copyright Bernard Baeyens, and is
+        # licensed under GNU General Public License Version 2.
+        # https://github.com/berbae/udisksvm
         list_options = ''
         if fstype == 'vfat':
             list_options = 'flush'
