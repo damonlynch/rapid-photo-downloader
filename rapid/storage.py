@@ -426,6 +426,14 @@ class UDisks2Monitor(QObject):
         return False
 
     def get_device_props(self, device_path: str):
+        """
+        Given a device, get the icon names suggested by udev, and
+        determine whether the mount is ejectable or not.
+        :param device_path: system path of the device to check,
+        e.g. /dev/sdc1
+        :return: icon names and eject boolean
+        :rtype Tuple[str, bool]
+        """
         object_path = '/org/freedesktop/UDisks2/block_devices/{}'.format(
             os.path.split(device_path)[1])
         obj = self.udisks.get_object(object_path)
@@ -592,6 +600,14 @@ if have_gio:
             return icon_names
 
         def getProps(self, path: str):
+            """
+            Given a mount's path, get the icon names suggested by the
+            volume monitor, and determine whether the mount is
+            ejectable or not.
+            :param path: the path of mount to check
+            :return: icon names and eject boolean
+            :rtype Tuple[str, bool]
+            """
             for mount in self.vm.get_mounts():
                 root = mount.get_root()
                 if root is not None:

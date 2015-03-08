@@ -39,7 +39,7 @@ from PyQt5 import QtCore, QtWidgets, QtGui
 
 from PyQt5.QtCore import (QThread, Qt, QStorageInfo, QSettings, QPoint,
                           QSize, QFileInfo)
-from PyQt5.QtGui import QStandardItemModel, QStandardItem, QPixmap, QIcon
+from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import (QAction, QApplication, QFileDialog, QLabel,
         QMainWindow, QMenu, QMessageBox, QScrollArea, QSizePolicy,
         QProgressBar, QSplitter, QFileIconProvider)
@@ -104,8 +104,10 @@ class RapidWindow(QtWidgets.QMainWindow):
 
         splitter = QSplitter()
         splitter.setOrientation(Qt.Vertical)
-        # splitter.addWidget(self.deviceView)
+        splitter.addWidget(self.deviceView)
         splitter.addWidget(self.thumbnailView)
+        #FIXME set these to something sensible
+        splitter.setSizes([40, 2000])
         layout = QtWidgets.QVBoxLayout()
         # layout.addWidget(self.stopButton)
         # layout.addWidget(self.pauseButton)
@@ -411,25 +413,35 @@ class RapidWindow(QtWidgets.QMainWindow):
             return None
 
     def getIconsAndEjectableForMount(self, mount: QStorageInfo):
+        """
+        Given a mount, get the icon names suggested by udev, and
+        determine whether the mount is ejectable or not.
+        :param mount:  the mount to check
+        :return: icon names and eject boolean
+        :rtype Tuple[str, bool]
+        """
         if self.gvfsControlsMounts:
             iconNames, canEject = self.gvolumeMonitor.getProps(
                 mount.rootPath())
         else:
+            # get the system device e.g. /dev/sdc1
             systemDevice = bytes(mount.device()).decode()
             iconNames, canEject = self.udisks2Monitor.get_device_props(
                 systemDevice)
         return (iconNames, canEject)
 
 
-    def addToDeviceDisplay(self, device: Device):
+    def addToDeviceDisplay(self, device: Device, scan_id: int):
         deviceIcon = self.getDeviceIcon(device)
         if device.can_eject:
             ejectIcon = QIcon.fromTheme('media-eject')
         else:
             ejectIcon = None
-        textDisplay = _('scanning...')
-        # self.deviceModel.addDevice(scan_id, deviceIcon, device.display_name,
-        #                            ejectIcon, textDisplay)
+        textDisplay = _('scanning ...')
+        self.deviceModel.addDevice(scan_id, deviceIcon, device.name(),
+                                   ejectIcon, textDisplay)
+        self.deviceView.resizeColumns()
+        self.deviceView.resizeRowsToContents()
 
 
     def cameraAdded(self):
@@ -500,7 +512,7 @@ class RapidWindow(QtWidgets.QMainWindow):
 
     def startDeviceScan(self, device: Device):
         scan_id = self.devices.add_device(device)
-        self.addToDeviceDisplay(device)
+        self.addToDeviceDisplay(device, scan_id)
         scan_preferences = ScanPreferences(self.prefs['ignored_paths'])
         scan_arguments = ScanArguments(scan_preferences, device)
         self.scanmq.add_worker(scan_id, scan_arguments)

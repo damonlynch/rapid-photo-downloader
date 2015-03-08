@@ -115,6 +115,13 @@ class Device:
         self.device_type = DeviceType.path
         self.path = path
 
+    def name(self):
+        if self.device_type == DeviceType.camera:
+            return self.camera_model
+        elif self.device_type == DeviceType.volume:
+            return self.display_name
+        else:
+            return self.path
 
 class DeviceCollection:
     """

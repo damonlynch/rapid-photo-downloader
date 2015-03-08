@@ -48,13 +48,14 @@ class ThumbnailTableModel(QAbstractTableModel):
         self.rapidApp = parent
         self.file_names = {} # type: Dict[int, str]
         self.thumbnails = {} # type: Dict[int, QPixmap]
-        self.no_thubmnails = 0
+        self.no_thumbmnails = 0
 
         self.unique_id_to_row = {}
         self.row_to_unique_id = {}
         self.scan_index = {}
         self.rpd_files = {}
 
+        #FIXME change this placeholer image
         self.photo_icon = QPixmap('images/photo66.png')
 
         self.total_thumbs_to_generate = 0
@@ -92,14 +93,14 @@ class ThumbnailTableModel(QAbstractTableModel):
         return 1
 
     def rowCount(self, parent=QModelIndex()):
-        return self.no_thubmnails
+        return self.no_thumbmnails
 
-    def data(self, index, role=Qt.DisplayRole):
+    def data(self, index: QModelIndex, role=Qt.DisplayRole):
         if not index.isValid():
             return None
 
         row = index.row()
-        if row >= self.no_thubmnails or row < 0:
+        if row >= self.no_thumbmnails or row < 0:
             return None
         if row not in self.row_to_unique_id:
             return None
@@ -107,16 +108,14 @@ class ThumbnailTableModel(QAbstractTableModel):
             unique_id = self.row_to_unique_id[row]
 
         if role == Qt.DisplayRole:
-            assert unique_id in self.file_names
             return self.file_names[unique_id]
         elif role == Qt.DecorationRole:
-            assert unique_id in self.thumbnails
             return self.thumbnails[unique_id]
 
 
     def insertRows(self, position, rows=1, index=QModelIndex()):
         self.beginInsertRows(QModelIndex(), position, position + rows - 1)
-        self.no_thubmnails += 1
+        self.no_thumbmnails += 1
         self.endInsertRows()
 
         return True
@@ -195,8 +194,9 @@ class ThumbnailView(QListView):
         super(ThumbnailView, self).__init__(uniformItemSizes=True, spacing=16)
         self.setViewMode(QListView.IconMode)
         self.setStyleSheet("background-color:#444444")
-        # QColor(68,68,68)
-        # palette = self.palette(); palette.setColor(self.backgroundRole(),Qt.gray); self.setPalette(palette)
+        # palette = self.palette()
+        # palette.setColor(self.backgroundRole(), QColor(68,68,68))
+        # self.setPalette(palette)
 
 
 class ThumbnailDelegate(QStyledItemDelegate):
