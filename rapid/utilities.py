@@ -31,39 +31,7 @@ def get_full_path(path):
     else:
         return os.path.join(os.path.expanduser('~'), path)
         
-def format_size_for_user(bytes, zero_string="", with_decimals=True, kb_only=False):
-    """Format an int containing the number of bytes into a string suitable for
-    printing out to the user.  zero_string is the string to use if bytes == 0.
-    source: https://develop.participatoryculture.org/trac/democracy/browser/trunk/tv/portable/util.py?rev=3993
-    
-    """
-    if bytes > (1 << 30) and not kb_only:
-        value = (bytes / (1024.0 * 1024.0 * 1024.0))
-        if with_decimals:
-            format = "%1.1fGB"
-        else:
-            format = "%dGB"
-    elif bytes > (1 << 20) and not kb_only:
-        value = (bytes / (1024.0 * 1024.0))
-        if with_decimals:
-            format = "%1.1fMB"
-        else:
-            format = "%dMB"
-    elif bytes > (1 << 10):
-        value = (bytes / 1024.0)
-        if with_decimals:
-            format = "%1.1fKB"
-        else:
-            format = "%dKB"
-    elif bytes > 1:
-        value = bytes
-        if with_decimals:
-            format = "%1.1fB"
-        else:
-            format = "%dB"
-    else:
-        return zero_string
-    return format % value
+
 
 
 def escape(s):

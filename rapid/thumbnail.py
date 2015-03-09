@@ -32,14 +32,14 @@ from PyQt5.QtCore import QSize, Qt, QIODevice, QBuffer
 from gi.repository import GExiv2
 
 
-from rpdfile import RPDFile, FILE_TYPE_PHOTO
+from rpdfile import RPDFile
 
 from interprocess import (WorkerInPublishPullPipeline,
                           GenerateThumbnailsArguments)
 
 from filmstrip import add_filmstrip
 
-import constants
+from constants import (Downloaded, FileType)
 from camera import Camera
 
 #FIXME free camera in case of early termination
@@ -388,13 +388,13 @@ class Thumbnail:
 
         # If the file is already downloaded, cannot assume the source
         # file is still available
-        downloaded = self.rpd_file.status in constants.Downloaded
+        downloaded = self.rpd_file.status in Downloaded
         if downloaded:
             file_name = self.rpd_file.download_full_file_name
         else:
             file_name = self.rpd_file.full_file_name
 
-        if self.rpd_file.file_type == FILE_TYPE_PHOTO:
+        if self.rpd_file.file_type == FileType.photo:
             if self.rpd_file.from_camera and not downloaded:
                 return self._get_photo_thumbnail_from_camera(file_name, size)
             else:

@@ -19,6 +19,7 @@ __author__ = 'Damon Lynch'
 # see <http://www.gnu.org/licenses/>.
 
 from constants import DeviceType
+from rpdfile import FileTypeCounter
 
 class Device:
     r"""
@@ -65,6 +66,8 @@ class Device:
         self.device_type = None
         self.icon_names = None
         self.can_eject = None
+        self.file_size_sum = 0
+        self.file_type_counter = FileTypeCounter()
 
     def __repr__(self):
         if self.device_type == DeviceType.camera:

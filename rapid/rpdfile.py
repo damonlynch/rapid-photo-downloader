@@ -24,19 +24,16 @@ import datetime
 import uuid
 import logging
 import mimetypes
+from collections import Counter
 
 from gettext import gettext as _
 
-import exiftool
-import constants
+from constants import (DownloadStatus, FileType)
 import metadataphoto
 import metadatavideo
 
 import problemnotification as pn
 
-# import thumbnail as tn
-
-logger = logging.getLogger('scan')
 
 RAW_EXTENSIONS = ['arw', 'dcr', 'cr2', 'crw',  'dng', 'mos', 'mef', 'mrw',
                   'nef', 'nrw', 'orf', 'pef', 'raf', 'raw', 'rw2', 'sr2',
@@ -59,70 +56,75 @@ VIDEO_EXTENSIONS = ['3gp', 'avi', 'm2t', 'mov', 'mp4', 'mpeg','mpg', 'mod',
 VIDEO_THUMBNAIL_EXTENSIONS = ['thm']
 
 
-FILE_TYPE_PHOTO = 0
-FILE_TYPE_VIDEO = 1
-
-def file_type(file_extension):
+def file_type(file_extension: str) -> FileType:
     """
     Returns file type (photo/video), or None if it's neither.
     Checks only the file's extension
-
-    :type file_extension: str
-    :return: FILE_TYPE_PHOTO|FILE_TYPE_VIDEO|None
     """
 
     if file_extension in PHOTO_EXTENSIONS:
-        return FILE_TYPE_PHOTO
+        return FileType.photo
     elif file_extension in VIDEO_EXTENSIONS:
-        return FILE_TYPE_VIDEO
+        return FileType.video
     return None
 
-def get_rpdfile(extension, name, path, size,
+def get_rpdfile(name, path, size,
                 file_system_modification_time,
                 thm_full_name, audio_file_full_name,
                 scan_id, file_type, from_camera):
 
-    if file_type == FILE_TYPE_VIDEO:
+    if file_type == FileType.video:
         return Video(name, path, size,
                      file_system_modification_time, thm_full_name,
                      audio_file_full_name,
                      scan_id, from_camera)
     else:
-        # assume it's a photo - no check for performance reasons (this will be
-        # called many times)
         return Photo(name, path, size,
                      file_system_modification_time, thm_full_name,
                      audio_file_full_name,
                      scan_id, from_camera)
 
-class FileTypeCounter:
-    def __init__(self):
-        self._counter = dict()
+class FileTypeCounter(Counter):
+    r"""
+    Track the number of photos and videos in a scan, and display the
+    results to the user
 
-    def add(self, file_type):
-        self._counter[file_type] = self._counter.setdefault(file_type, 0) + 1
+    >>> f = FileTypeCounter()
+    >>> f.summarize_file_count()
+    ('0 photos or videos', 'photos or videos')
+    >>> f.running_file_count()
+    'scanning (found 0 photos and 0 videos)...'
+    >>> f[FileType.photo] += 1
+    >>> f.summarize_file_count()
+    ('1 photo', 'photo')
+    >>> f.running_file_count()
+    'scanning (found 1 photos and 0 videos)...'
+    >>> f[FileType.video] += 3
+    >>> f
+    FileTypeCounter({<FileType.video: 2>: 3, <FileType.photo: 1>: 1})
+    >>> f[FileType.photo] += 5
+    >>> f
+    FileTypeCounter({<FileType.photo: 1>: 6, <FileType.video: 2>: 3})
+    >>> f.summarize_file_count()
+    ('9 photos and videos', 'photos and videos')
+    >>> f.running_file_count()
+    'scanning (found 6 photos and 3 videos)...'
+    """
 
-    def no_videos(self):
-        """Returns the number of videos"""
-        return self._counter.setdefault(FILE_TYPE_VIDEO, 0)
-
-    def no_photos(self):
-        """Returns the number of photos"""
-        return self._counter.setdefault(FILE_TYPE_PHOTO, 0)
-
-    def file_types_present(self):
+    def file_types_present(self) -> str:
         """
-        returns a string to be displayed to the user that can be used
-        to show if a value refers to photos or videos or both, or just one
-        of each
+        Display the types of files present in the scan
+        :return a string to be displayed to the user that can be used
+        to show if a value refers to photos or videos or both, or just
+        one of each
         """
 
-        no_videos = self.no_videos()
-        no_images = self.no_photos()
+        no_videos = self[FileType.video]
+        no_photos = self[FileType.photo]
 
-        if (no_videos > 0) and (no_images > 0):
+        if (no_videos > 0) and (no_photos > 0):
             v = _('photos and videos')
-        elif (no_videos == 0) and (no_images == 0):
+        elif (no_videos == 0) and (no_photos == 0):
             v = _('photos or videos')
         elif no_videos > 0:
             if no_videos > 1:
@@ -130,39 +132,36 @@ class FileTypeCounter:
             else:
                 v = _('video')
         else:
-            if no_images > 1:
+            if no_photos > 1:
                 v = _('photos')
             else:
                 v = _('photo')
         return v
 
-    def count_files(self):
-        i = 0
-        for key in self._counter:
-            i += self._counter[key]
-        return i
-
-    def summarize_file_count(self):
+    def summarize_file_count(self) -> str:
         """
         Summarizes the total number of photos and/or videos that can be
-        downloaded. Displayed after a scan is finished.
+        downloaded. Displayed in the progress bar at the top of the
+        main application window after a scan is finished.
+
+        :return number of files, e.g. "433 photos and videos" or
+        "23 videos".
         """
-        #Number of files, e.g. "433 photos and videos" or "23 videos".
-        #Displayed in the progress bar at the top of the main application
-        #window.
         file_types_present = self.file_types_present()
         file_count_summary = _("%(number)s %(filetypes)s") % \
-                              {'number':self.count_files(),
+                              {'number': sum(self.values()),
                                'filetypes': file_types_present}
         return (file_count_summary, file_types_present)
 
-    def running_file_count(self):
+    def running_file_count(self) -> str:
         """
-        Displays raw numbers of photos and videos. Displayed as a scan is
-        occurring.
+        Displays raw numbers of photos and videos. Displayed as a scan
+        is occurring.
+        :return some variaton of 'scanning (found 6 photos and 3 videos)...'
         """
-        return _("scanning (found %(photos)s photos and %(videos)s videos)...") % ({'photos': self.no_photos(),
-                'videos': self.no_videos()})
+        return _("scanning (found %(photos)s photos and %(videos)s videos)...") \
+               % ({'photos': self[FileType.photo], 'videos': self[
+            FileType.video]})
 
 class RPDFile:
     """
@@ -212,7 +211,7 @@ class RPDFile:
         # cameras
         self.audio_file_full_name = audio_file_full_name
 
-        self.status = constants.DownloadStatus.not_downloaded
+        self.status = DownloadStatus.not_downloaded
         self.problem = None # class Problem in problemnotifcation.py
 
         self._assign_file_type() # Indicate whether file is a photo or video
@@ -312,18 +311,18 @@ class Photo(RPDFile):
     title_capitalized = _("Photo")
 
     def _assign_file_type(self):
-        self.file_type = FILE_TYPE_PHOTO
+        self.file_type = FileType.photo
 
-    def load_metadata(self, temp_file=False):
-        self.metadata = metadataphoto.MetaData(self._load_file_for_metadata(temp_file))
-        try:
-            self.metadata.read()
-        except:
-            logger.warning("Could not read metadata from {}".format(
-                           self.full_file_name))
-            return False
-        else:
-            return True
+    # def load_metadata(self, temp_file=False):
+    #     self.metadata = metadataphoto.MetaData(self._load_file_for_metadata(temp_file))
+    #     try:
+    #         self.metadata.read()
+    #     except:
+    #         logger.warning("Could not read metadata from {}".format(
+    #                        self.full_file_name))
+    #         return False
+    #     else:
+    #         return True
 
 
 class Video(RPDFile):
@@ -332,7 +331,7 @@ class Video(RPDFile):
     title_capitalized = _("Video")
 
     def _assign_file_type(self):
-        self.file_type = FILE_TYPE_VIDEO
+        self.file_type = FileType.video
 
     def load_metadata(self, temp_file=False):
         self.metadata = metadatavideo.ExifToolMetaData(

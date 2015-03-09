@@ -370,12 +370,24 @@ class RapidWindow(QtWidgets.QMainWindow):
             self.paused = True
 
     def scanMessageReceived(self, rpd_file: rpdfile.RPDFile):
+        # Update scan running totals
+        scan_id = rpd_file.scan_id
+        device = self.devices[scan_id]
+        device.file_type_counter[rpd_file.file_type] += 1
+        device.file_size_sum += rpd_file.size
+        size = self.formatSizeForUser(device.file_size_sum)
+        text = device.file_type_counter.running_file_count()
+        self.deviceModel.updateDeviceScan(scan_id, text, size)
+
         self.thumbnailModel.addFile(rpd_file, True)
 
-    def scanFinished(self, worker_id):
+    def scanFinished(self, scan_id: int):
+        device = self.devices[scan_id]
+        text = device.file_type_counter.summarize_file_count()[0]
+        self.deviceModel.updateDeviceScan(scan_id, text, scanCompleted=True)
         # Generate thumbnails for finished scan
-        self.thumbnailModel.generateThumbnails(worker_id, self.devices[
-            worker_id], self.prefs['thumbnail_quality_lower'])
+        self.thumbnailModel.generateThumbnails(scan_id, self.devices[
+            scan_id], self.prefs['thumbnail_quality_lower'])
 
     def closeEvent(self, event):
         self.writeWindowSettings()
@@ -437,9 +449,8 @@ class RapidWindow(QtWidgets.QMainWindow):
             ejectIcon = QIcon.fromTheme('media-eject')
         else:
             ejectIcon = None
-        textDisplay = _('scanning ...')
         self.deviceModel.addDevice(scan_id, deviceIcon, device.name(),
-                                   ejectIcon, textDisplay)
+                                   ejectIcon)
         self.deviceView.resizeColumns()
         self.deviceView.resizeRowsToContents()
 
@@ -778,6 +789,46 @@ class RapidWindow(QtWidgets.QMainWindow):
         """
         return (self.prefs['device_autodetection'] and self.prefs[
             'device_without_dcim_autodetection'])
+
+    def formatSizeForUser(self, size: int, zero_string='',
+                             with_decimals=True,
+                             kb_only=False):
+        """
+        Format an int containing the number of bytes into a string
+        suitable for displaying to the user.
+
+        :param size: size in bytes
+        :param zero_string: string to use if size == 0
+        :param kb_only: display in KB or B
+        source: https://develop.participatoryculture.org/trac/democracy/browser/trunk/tv/portable/util.py?rev=3993
+        """
+        if size > (1 << 30) and not kb_only:
+            value = (size / (1024.0 * 1024.0 * 1024.0))
+            if with_decimals:
+                format = "%1.1fGB"
+            else:
+                format = "%dGB"
+        elif size > (1 << 20) and not kb_only:
+            value = (size / (1024.0 * 1024.0))
+            if with_decimals:
+                format = "%1.1fMB"
+            else:
+                format = "%dMB"
+        elif size > (1 << 10):
+            value = (size / 1024.0)
+            if with_decimals:
+                format = "%1.1fKB"
+            else:
+                format = "%dKB"
+        elif size > 1:
+            value = size
+            if with_decimals:
+                format = "%1.1fB"
+            else:
+                format = "%dB"
+        else:
+            return zero_string
+        return format % value
 
 if __name__ == "__main__":
 

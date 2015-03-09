@@ -42,7 +42,7 @@ from preferences import ScanPreferences
 from interprocess import WorkerInPublishPullPipeline
 from camera import Camera
 import rpdfile
-from constants import DeviceType
+from constants import (DeviceType, FileType)
 
 FileInfo = namedtuple('FileInfo', ['path', 'modification_time', 'size',
                                    'ext_lower', 'base_name', 'file_type'])
@@ -64,10 +64,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
         self.download_from_camera = scan_arguments.device.device_type == \
                                     DeviceType.camera
 
-        # FIXME send file size sum
-        self.file_size_sum = 0
         self.files_scanned = 0
-        self.file_type_counter = rpdfile.FileTypeCounter()
 
         if not self.download_from_camera:
             # Download from file system
@@ -233,8 +230,6 @@ class ScanWorker(WorkerInPublishPullPipeline):
                 assert base_name is not None
 
             if file_type is not None:
-                self.file_type_counter.add(file_type)
-
                 if self.download_from_camera:
                     modification_time = file_info.modification_time
                     size = file_info.size
@@ -242,10 +237,8 @@ class ScanWorker(WorkerInPublishPullPipeline):
                     size = os.path.getsize(file)
                     modification_time = os.path.getmtime(file)
 
-                self.file_size_sum += size
-
                 # look for thumbnail file (extension THM) for videos
-                if file_type == rpdfile.FILE_TYPE_VIDEO:
+                if file_type == FileType.video:
                     thm_full_name = self.get_video_THM_file(base_name)
                 else:
                     thm_full_name = None
@@ -254,8 +247,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
                 # check if an audio file is associated with the photo or video
                 audio_file_full_name = self.get_audio_file(base_name)
 
-                rpd_file = rpdfile.get_rpdfile(ext,
-                                               self.file_name,
+                rpd_file = rpdfile.get_rpdfile(self.file_name,
                                                self.dir_name,
                                                size,
                                                modification_time,

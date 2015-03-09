@@ -20,14 +20,15 @@ __author__ = 'Damon Lynch'
 
 from collections import namedtuple
 
+from gettext import gettext as _
+
 from PyQt5.QtCore import (QAbstractTableModel, QModelIndex, QSize, Qt)
 from PyQt5.QtWidgets import (QTableView, QStyledItemDelegate,
                              QStyleOptionViewItem, QStyleOptionProgressBar,
                              QApplication, QStyle)
 from PyQt5.QtGui import (QPixmap, QPainter, QIcon)
 
-DeviceRow = namedtuple('DeviceRow', ['icon', 'name', 'ejection', 'size',
-                                     'text'])
+DeviceRow = namedtuple('DeviceRow', ['icon', 'name', 'ejection'])
 DEVICE, SIZE, TEXT = range(3)
 
 class DeviceTableModel(QAbstractTableModel):
@@ -37,7 +38,11 @@ class DeviceTableModel(QAbstractTableModel):
         # copy progress (%), copy text, eject button (None if irrelevant),
         # process id, pulse
         self.devices = {}
+        self.sizes = {}
+        self.texts = {}
+        self.scanCompleted = {}
         self.row_to_scan_id = {}
+        self.scan_id_to_row = {}
         self.no_devices = 0
 
     def columnCount(self, parent=QModelIndex()):
@@ -59,22 +64,39 @@ class DeviceTableModel(QAbstractTableModel):
 
         final_pos = position + rows - 1
         self.beginRemoveRows(QModelIndex(), position, final_pos)
-        # remap the dict to match rows the correct scan ids
+        # remap the dicts to match rows the correct scan ids
         scan_ids = [scan_id for row, scan_id in self.row_to_scan_id.items() if
                     row < position or row > final_pos]
         self.row_to_scan_id = dict(enumerate(scan_ids))
+        self.scan_id_to_row =  dict(((y,x) for x, y in list(enumerate(
+            scan_ids))))
         self.endRemoveRows()
         return True
 
 
     def addDevice(self, scan_id: int, deviceIcon: QPixmap, deviceName: str,
-                  ejectIcon: QPixmap, textDisplay: str):
+                  ejectIcon: QPixmap):
         row = self.rowCount()
         self.insertRow(row)
 
-        self.devices[scan_id] = DeviceRow(deviceIcon, deviceName, ejectIcon,
-                                          '1GB', textDisplay)
+        self.devices[scan_id] = DeviceRow(deviceIcon, deviceName, ejectIcon)
+        self.sizes[scan_id] = _('0GB')
+        self.texts[scan_id] = _('scanning ...')
+        self.scanCompleted[scan_id] = False
         self.row_to_scan_id[row] = scan_id
+        self.scan_id_to_row[scan_id] = row
+
+    def updateDeviceScan(self, scan_id: int, textToDisplay: str, size=None,
+                         scanCompleted=False):
+        self.texts[scan_id] = textToDisplay
+        if size is not None:
+            self.sizes[scan_id] = size
+            column = 1
+        else:
+            column = 2
+        self.scanCompleted[scan_id] = scanCompleted
+        row = self.scan_id_to_row[scan_id]
+        self.dataChanged.emit(self.index(row, column), self.index(row, 2))
 
     def data(self, index: QModelIndex, role=Qt.DisplayRole):
 
@@ -89,14 +111,21 @@ class DeviceTableModel(QAbstractTableModel):
         elif role == Qt.DisplayRole:
             scan_id = self.row_to_scan_id[row]
             column = index.column()
-            device = self.devices[scan_id] # type: DeviceRow
             if column == DEVICE:
+                device = self.devices[scan_id] # type: DeviceRow
                 return (device.icon, device.name, device.ejection)
             elif column == SIZE:
-                return device.size
+                return self.sizes[scan_id]
             else:
                 assert column == TEXT
-                return device.text
+                if self.scanCompleted[scan_id]:
+                    maximum = 100
+                    progress = 100
+                else:
+                    progress = 0
+                    maximum = 0
+
+                return (self.texts[scan_id], progress, maximum)
         else:
             pass
             # print("Unknown role:", role)
@@ -131,15 +160,17 @@ class DeviceDelegate(QStyledItemDelegate):
             icon, name, ejection = index.model().data(index, Qt.DisplayRole)
             assert isinstance(icon, QIcon)
 
+            y = option.rect.y()
+
             height = option.rect.height()
-            icon_y = round((height-self.iconSize) / 2)
+            icon_y = round((height-self.iconSize) / 2) + y
             icon.paint(painter, self.padding, icon_y,
                        self.iconSize, self.iconSize)
 
             assert isinstance(name, str)
             metrics = option.fontMetrics
             width = metrics.width(name)
-            painter.drawText(self.padding * 3 + self.iconSize, 0,
+            painter.drawText(self.padding * 3 + self.iconSize, y,
                              width,height, Qt.AlignCenter, name)
             if ejection is not None:
                 x = option.rect.width() - self.padding - self.iconSize
@@ -155,15 +186,15 @@ class DeviceDelegate(QStyledItemDelegate):
             painter.restore()
         else:
             assert index.column() == TEXT
-            text = index.model().data(index, Qt.DisplayRole)
+            text, progress, maximum = index.model().data(index, Qt.DisplayRole)
             progressStyle = QStyleOptionProgressBar()
             progressStyle.state = QStyle.State_Enabled
             progressStyle.direction = QApplication.layoutDirection()
             progressStyle.rect = option.rect
             progressStyle.fontmetrics = QApplication.fontMetrics()
             progressStyle.minimum = 0
-            progressStyle.maximum = 0
-            progressStyle.progress = 1
+            progressStyle.maximum = maximum
+            progressStyle.progress = progress
             progressStyle.text = text
             progressStyle.textAlignment = Qt.AlignCenter
             progressStyle.textVisible = True
@@ -174,7 +205,7 @@ class DeviceDelegate(QStyledItemDelegate):
         metrics = option.fontMetrics
         if index.column() == DEVICE:
             icon, name, ejection = index.model().data(index, Qt.DisplayRole)
-            if ejection is not None:
+            if ejection is not None or True:
                 ejectionWidth = self.padding * 2 + self.iconSize + 10
             else:
                 ejectionWidth = 0
@@ -182,9 +213,10 @@ class DeviceDelegate(QStyledItemDelegate):
                          ejectionWidth,
                          max(self.iconSize, metrics.height()) + self.padding*2)
         elif index.column() == SIZE:
-            size = index.model().data(index, Qt.DisplayRole)
-            return QSize(metrics.width(size), metrics.height())
+            # size = index.model().data(index, Qt.DisplayRole)
+            width = metrics.width('99999.9GB')
+            return QSize(width, metrics.height())
         else:
             assert index.column() == TEXT
-            text = index.model().data(index, Qt.DisplayRole)
+            text, progress, maximum = index.model().data(index, Qt.DisplayRole)
             return QSize(metrics.width(text), metrics.height())
