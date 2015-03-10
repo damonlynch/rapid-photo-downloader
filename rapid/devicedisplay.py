@@ -134,7 +134,9 @@ class DeviceView(QTableView):
     def __init__(self):
         super(DeviceView, self).__init__()
         self.horizontalHeader().setStretchLastSection(True)
+        # self.verticalHeader().setHighlightSections(False)
         self.verticalHeader().setVisible(False)
+        # self.horizontalHeader().setHighlightSections(False)
         self.horizontalHeader().setVisible(False)
 
     def resizeColumns(self):
@@ -146,11 +148,6 @@ class DeviceDelegate(QStyledItemDelegate):
     padding = 2
     def __init__(self, parent=None):
         super(DeviceDelegate, self).__init__(parent)
-
-    def deviceColumnHeight(self, option):
-        metrics = option.fontMetrics
-        return
-
 
     def paint(self, painter: QPainter, option: QStyleOptionViewItem,
               index: QModelIndex):

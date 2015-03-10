@@ -106,8 +106,6 @@ class RapidWindow(QtWidgets.QMainWindow):
         splitter.setOrientation(Qt.Vertical)
         splitter.addWidget(self.deviceView)
         splitter.addWidget(self.thumbnailView)
-        #FIXME set these to something sensible
-        splitter.setSizes([40, 2000])
         layout = QtWidgets.QVBoxLayout()
         # layout.addWidget(self.stopButton)
         # layout.addWidget(self.pauseButton)
@@ -453,6 +451,20 @@ class RapidWindow(QtWidgets.QMainWindow):
                                    ejectIcon)
         self.deviceView.resizeColumns()
         self.deviceView.resizeRowsToContents()
+        self.resizeDeviceView()
+
+    def resizeDeviceView(self):
+        """
+        Sets the maximum height for the device view table to match the
+        number of rows. which has the happy side effect of moving the
+        splitter.
+        """
+        # TODO call this when device is removed too, or after clear
+        if len(self.devices):
+            self.deviceView.setMaximumHeight(len(self.devices) *
+                                             (self.deviceView.rowHeight(0)+1))
+        else:
+            self.deviceView.setMaximumHeight(20)
 
 
     def cameraAdded(self):
@@ -602,7 +614,7 @@ class RapidWindow(QtWidgets.QMainWindow):
                     #self.auto_start_is_on =
                     # self.prefs.auto_download_upon_device_insertion
                     device = Device()
-                    device.set_download_from_volume(path, mount.displayName,
+                    device.set_download_from_volume(path, mount.displayName(),
                                                     iconNames, canEject)
                     self.prepareNonCameraDeviceScan(device)
 
