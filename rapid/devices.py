@@ -129,7 +129,7 @@ class Device:
 class DeviceCollection:
     """
     Maintain collection of devices that are being scanned, where a
-    device of type Device.
+    device is of type Device.
 
     When a device is added, a scan_id is generated and returned.
 
@@ -181,9 +181,11 @@ class DeviceCollection:
     def __init__(self):
         self.devices = {} # type Dict[int, Device]
         self.cameras = {} # type Dict[str, str]
+        self.scan_counter = 0
 
     def add_device(self, device: Device):
-        scan_id = len(self.devices)
+        scan_id = self.scan_counter
+        self.scan_counter += 1
         self.devices[scan_id] = device
         if device.camera_port:
             port = device.camera_port
@@ -216,6 +218,20 @@ class DeviceCollection:
 
     def known_device(self, device: Device) -> bool:
         return device in list(self.devices.values())
+
+    def scan_id_from_path(self, path: str):
+        for scan_id in self.devices:
+            if self.devices[scan_id].path == path:
+                return scan_id
+        return None
+
+    def scan_id_from_camera_model_port(self, model: str, port: str):
+        camera = Device()
+        camera.set_download_from_camera(model, port)
+        for scan_id in self.devices:
+            if self.devices[scan_id] == camera:
+                return scan_id
+
 
     def delete_device(self, device: Device) -> bool:
         """

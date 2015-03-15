@@ -94,6 +94,8 @@ class RapidWindow(QtWidgets.QMainWindow):
         self.thumbnailView.setModel(self.thumbnailModel)
         self.thumbnailView.setItemDelegate(ThumbnailDelegate(self))
 
+        # Devices are cameras and partitions
+        self.devices = DeviceCollection()
         self.deviceView = DeviceView()
         self.deviceModel = DeviceTableModel(self)
         self.deviceView.setModel(self.deviceModel)
@@ -107,6 +109,7 @@ class RapidWindow(QtWidgets.QMainWindow):
         splitter.addWidget(self.deviceView)
         splitter.addWidget(self.thumbnailView)
         layout = QtWidgets.QVBoxLayout()
+        self.resizeDeviceView()
         # layout.addWidget(self.stopButton)
         # layout.addWidget(self.pauseButton)
 
@@ -177,6 +180,7 @@ class RapidWindow(QtWidgets.QMainWindow):
             self.cameraHotplugThread = QThread()
             self.cameraHotplug.moveToThread(self.cameraHotplugThread)
             self.cameraHotplug.cameraAdded.connect(self.cameraAdded)
+            self.cameraHotplug.cameraRemoved.connect(self.cameraRemoved)
             # Start the monitor only on the thread it will be running on
             self.cameraHotplug.startMonitor()
 
@@ -185,6 +189,8 @@ class RapidWindow(QtWidgets.QMainWindow):
             self.udisks2MonitorThread = QThread()
             self.udisks2Monitor.moveToThread(self.udisks2MonitorThread)
             self.udisks2Monitor.partitionMounted.connect(self.partitionMounted)
+            self.udisks2Monitor.partitionUnmounted.connect(
+                self.partitionUmounted)
             # Start the monitor only on the thread it will be running on
             self.udisks2Monitor.startMonitor()
 
@@ -196,10 +202,13 @@ class RapidWindow(QtWidgets.QMainWindow):
             self.gvolumeMonitor.cameraUnmounted.connect(self.cameraUnmounted)
             self.gvolumeMonitor.cameraMounted.connect(self.cameraMounted)
             self.gvolumeMonitor.partitionMounted.connect(self.partitionMounted)
+            self.gvolumeMonitor.partitionUnmounted.connect(
+                self.partitionUmounted)
             self.gvolumeMonitor.volumeAddedNoAutomount.connect(
                 self.noGVFSAutoMount)
+            self.gvolumeMonitor.cameraPossiblyRemoved.connect(
+                self.cameraRemoved)
 
-        self.devices = DeviceCollection()
         # Setup the Scan processes
         self.scanThread = QThread()
         self.scanmq = ScanManager(self.context)
@@ -460,6 +469,7 @@ class RapidWindow(QtWidgets.QMainWindow):
         splitter.
         """
         # TODO call this when device is removed too, or after clear
+        assert len(self.devices) == self.deviceModel.rowCount()
         if len(self.devices):
             self.deviceView.setMaximumHeight(len(self.devices) *
                                              (self.deviceView.rowHeight(0)+1))
@@ -474,6 +484,22 @@ class RapidWindow(QtWidgets.QMainWindow):
             logging.debug("Assuming camera will not be mounted: "
                           "immediately proceeding with scan")
         self.searchForCameras()
+
+    def cameraRemoved(self):
+        """
+        Handle the possible removal of a camera by comparing the
+        cameras the OS knows about compared to the cameras we are
+        tracking. Remove tracked cameras if they are not on the OS.
+        """
+        sc = self.gp_context.camera_autodetect()
+        system_cameras = [(model, port) for model, port in sc if not
+                          port.startswith('disk:')]
+        kc = self.devices.cameras.items()
+        known_cameras = [(model, port) for port, model in kc]
+        removed_cameras = set(known_cameras) - set(system_cameras)
+        for model, port in removed_cameras:
+            scan_id = self.devices.scan_id_from_camera_model_port(model, port)
+            self.removeDevice(scan_id)
 
     def noGVFSAutoMount(self):
         """
@@ -617,6 +643,42 @@ class RapidWindow(QtWidgets.QMainWindow):
                     device.set_download_from_volume(path, mount.displayName(),
                                                     iconNames, canEject)
                     self.prepareNonCameraDeviceScan(device)
+
+    def partitionUmounted(self, path: str):
+        """
+        Handle the unmounting of partitions by the system / user
+        :param path: the path of the partition just unmounted
+        """
+        if not path:
+            return
+
+        if self.devices.known_path(path):
+            # four scenarios -
+            # the mount is being scanned
+            # the mount has been scanned but downloading has not yet started
+            # files are being downloaded from mount
+            # files have finished downloading from mount
+            scan_id = self.devices.scan_id_from_path(path)
+            self.removeDevice(scan_id)
+
+        elif False: #path in self.backup_devices:
+            pass
+            # del self.backup_devices[path]
+            # self.display_free_space()
+            # self.backup_manager.remove_device(path)
+            # self.update_no_backup_devices()
+
+        # may need to disable download button and menu
+        # self.set_download_action_sensitivity()
+
+
+    def removeDevice(self, scan_id):
+        assert scan_id is not None
+        self.thumbnailModel.clearAll(scan_id=scan_id,
+                                     keep_downloaded_files=True)
+        self.deviceModel.removeDevice(scan_id)
+        del self.devices[scan_id]
+        self.resizeDeviceView()
 
     def setupNonCameraDevices(self, onStartup: bool, onPreferenceChange: bool,
                               blockAutoStart: bool):
@@ -794,8 +856,8 @@ class RapidWindow(QtWidgets.QMainWindow):
         no DCIM folder present in the base folder of the file system.
 
         This is necessary when both portable storage device automatic
-        detection is on, and downloading from automaticallyd detected
-        is on.
+        detection is on, and downloading from automatically detected
+        partitions is on.
         :return: True if scans of such partitions should occur, else
         False
         """

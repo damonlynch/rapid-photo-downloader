@@ -2,7 +2,7 @@ __author__ = 'Damon Lynch'
 
 # Copyright (C) 2015 Damon Lynch <damonlynch@gmail.com>
 # Copyright (C) 2008-2015 Canonical Ltd.
-# Copyright (C) Bernard Baeyens
+# Copyright (C) 2013 Bernard Baeyens
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -286,7 +286,6 @@ class UDisks2Monitor(QObject):
 
     partitionMounted = pyqtSignal(str, list, bool)
     partitionUnmounted = pyqtSignal(str)
-    #TODO partition unmounted code
 
     loop_prefix = '/org/freedesktop/UDisks2/block_devices/loop'
     not_interesting = (
@@ -304,6 +303,20 @@ class UDisks2Monitor(QObject):
         self.manager = self.udisks.get_object_manager()
         self.manager.connect('object-added',
                              lambda man, obj: self._udisks_obj_added(obj))
+        self.manager.connect('object-removed',
+                             lambda man, obj: self._device_removed(obj))
+
+        # Track the paths of the mount points, which is useful when unmounting
+        # objects.
+        self.known_mounts = {}
+        for obj in self.manager.get_objects():
+            path = obj.get_object_path()
+            fs = obj.get_filesystem()
+            if fs:
+                mount_points = fs.get_cached_property(
+                    'MountPoints').get_bytestring_array()
+                if mount_points:
+                    self.known_mounts[path] = mount_points[0]
 
     def _udisks_obj_added(self, obj):
         path = obj.get_object_path()
@@ -365,6 +378,7 @@ class UDisks2Monitor(QObject):
                 mount_point = mount_points[0]
                 logging.debug("UDisks: already mounted at %s", mount_point)
 
+            self.known_mounts[path] = mount_point
             if self.validMounts.pathIsValidMountPoint(mount_point):
                 self.partitionMounted.emit(mount_point, icon_names, ejectable)
 
@@ -373,7 +387,7 @@ class UDisks2Monitor(QObject):
 
     def retry_mount(self, fs, fstype):
         # Variant paramater construction Copyright Bernard Baeyens, and is
-        # licensed under GNU General Public License Version 2.
+        # licensed under GNU General Public License Version 2 or higher.
         # https://github.com/berbae/udisksvm
         list_options = ''
         if fstype == 'vfat':
@@ -417,7 +431,15 @@ class UDisks2Monitor(QObject):
                 icon_names = icon.get_names()
         return icon_names
 
-    # Next two class member functions from Damon Lynch, not Canonical
+    # Next three class member functions from Damon Lynch, not Canonical
+    def _device_removed(self, obj: UDisks.Object):
+        # path here refers to the udev / udisks path, not the mount point
+        path = obj.get_object_path()
+        if path in self.known_mounts:
+            mount_point = self.known_mounts[path]
+            del self.known_mounts[path]
+            self.partitionUnmounted.emit(mount_point)
+
     def get_can_eject(self, obj: UDisks.Object):
         block = obj.get_block()
         drive = self._get_drive(block)
@@ -460,6 +482,7 @@ if have_gio:
         partitionMounted = pyqtSignal(str, list, bool)
         partitionUnmounted = pyqtSignal(str)
         volumeAddedNoAutomount = pyqtSignal()
+        cameraPossiblyRemoved = pyqtSignal()
 
         def __init__(self, validMounts: ValidMounts):
             super(GVolumeMonitor, self).__init__()
@@ -467,6 +490,7 @@ if have_gio:
             self.vm.connect('mount-added', self.mountAdded)
             self.vm.connect('volume-added', self.volumeAdded)
             self.vm.connect('mount-removed', self.mountRemoved)
+            self.vm.connect('volume-removed', self.volumeRemoved)
             self.portSearch = re.compile(r'usb:([\d]+),([\d]+)')
             self.validMounts = validMounts
 
@@ -591,6 +615,12 @@ if have_gio:
             if not volume.should_automount():
                 #TODO is it possible to determine the device type?
                 self.volumeAddedNoAutomount.emit()
+
+        def volumeRemoved(self, volumeMonitor, volume: Gio.Volume):
+            logging.debug("GIO: %s volume removed", volume.get_name())
+            if volume.get_activation_root() is not None:
+                logging.debug("GIO: %s might be a camera", volume.get_name())
+                self.cameraPossiblyRemoved.emit()
 
         def getIconNames(self, mount: Gio.Mount):
             icon_names = []

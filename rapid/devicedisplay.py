@@ -28,8 +28,11 @@ from PyQt5.QtWidgets import (QTableView, QStyledItemDelegate,
                              QApplication, QStyle)
 from PyQt5.QtGui import (QPixmap, QPainter, QIcon)
 
+from viewutils import RowTracker
+
 DeviceRow = namedtuple('DeviceRow', ['icon', 'name', 'ejection'])
 DEVICE, SIZE, TEXT = range(3)
+
 
 class DeviceTableModel(QAbstractTableModel):
     def __init__(self, parent):
@@ -41,35 +44,28 @@ class DeviceTableModel(QAbstractTableModel):
         self.sizes = {}
         self.texts = {}
         self.scanCompleted = {}
-        self.row_to_scan_id = {}
-        self.scan_id_to_row = {}
-        self.no_devices = 0
+        self.rows = RowTracker()
 
     def columnCount(self, parent=QModelIndex()):
         return 3
 
     def rowCount(self, parent=QModelIndex()):
-        return self.no_devices
+        return len(self.rows)
 
     def insertRows(self, position, rows=1, index=QModelIndex()):
         self.beginInsertRows(QModelIndex(), position, position + rows - 1)
-        self.no_devices += 1
         self.endInsertRows()
 
         return True
 
     def removeRows(self, position, rows=1, index=QModelIndex()):
-        if not index.isValid():
-            return
-
-        final_pos = position + rows - 1
-        self.beginRemoveRows(QModelIndex(), position, final_pos)
-        # remap the dicts to match rows the correct scan ids
-        scan_ids = [scan_id for row, scan_id in self.row_to_scan_id.items() if
-                    row < position or row > final_pos]
-        self.row_to_scan_id = dict(enumerate(scan_ids))
-        self.scan_id_to_row =  dict(((y,x) for x, y in list(enumerate(
-            scan_ids))))
+        self.beginRemoveRows(QModelIndex(), position, position + rows - 1)
+        scan_ids = self.rows.removeRows(position, rows)
+        for scan_id in scan_ids:
+            del self.texts[scan_id]
+            del self.devices[scan_id]
+            del self.sizes[scan_id]
+            del self.scanCompleted[scan_id]
         self.endRemoveRows()
         return True
 
@@ -83,8 +79,11 @@ class DeviceTableModel(QAbstractTableModel):
         self.sizes[scan_id] = _('0GB')
         self.texts[scan_id] = _('scanning ...')
         self.scanCompleted[scan_id] = False
-        self.row_to_scan_id[row] = scan_id
-        self.scan_id_to_row[scan_id] = row
+        self.rows[row] = scan_id
+
+    def removeDevice(self, scan_id: int):
+        row = self.rows.row(scan_id)
+        self.removeRows(row)
 
     def updateDeviceScan(self, scan_id: int, textToDisplay: str, size=None,
                          scanCompleted=False):
@@ -95,7 +94,7 @@ class DeviceTableModel(QAbstractTableModel):
         else:
             column = 2
         self.scanCompleted[scan_id] = scanCompleted
-        row = self.scan_id_to_row[scan_id]
+        row = self.rows.row(scan_id)
         self.dataChanged.emit(self.index(row, column), self.index(row, 2))
 
     def data(self, index: QModelIndex, role=Qt.DisplayRole):
@@ -104,12 +103,12 @@ class DeviceTableModel(QAbstractTableModel):
             return None
 
         row = index.row()
-        if row >= self.no_devices or row < 0:
+        if row >= len(self.rows) or row < 0:
             return None
-        if row not in self.row_to_scan_id:
+        if row not in self.rows:
             return None
         elif role == Qt.DisplayRole:
-            scan_id = self.row_to_scan_id[row]
+            scan_id = self.rows[row]
             column = index.column()
             if column == DEVICE:
                 device = self.devices[scan_id] # type: DeviceRow
