@@ -82,6 +82,7 @@ class ThumbnailTableModel(QAbstractTableModel):
     def initalize(self):
         self.file_names = {} # type: Dict[int, str]
         self.thumbnails = {} # type: Dict[int, QPixmap]
+        self.marked = {} # type: Dict[bool]
 
         self.rows = RowTracker()
         self.scan_index = defaultdict(list)
@@ -129,6 +130,7 @@ class ThumbnailTableModel(QAbstractTableModel):
         for unique_id in unique_ids:
             del self.file_names[unique_id]
             del self.thumbnails[unique_id]
+            del self.marked[unique_id]
             scan_id = self.rpd_files[unique_id].scan_id
             self.scan_index[scan_id].remove(unique_id)
             del self.rpd_files[unique_id]
@@ -145,6 +147,7 @@ class ThumbnailTableModel(QAbstractTableModel):
         self.rpd_files[unique_id] = rpd_file
         self.file_names[unique_id] = rpd_file.name
         self.thumbnails[unique_id] = self.photo_icon
+        self.marked[unique_id] = True
 
         self.scan_index[rpd_file.scan_id].append(unique_id)
 
@@ -227,6 +230,19 @@ class ThumbnailTableModel(QAbstractTableModel):
             self.removeRows(rows[start], len(rows[start:]))
             if not keep_downloaded_files or not len(self.scan_index[scan_id]):
                 del self.scan_index[scan_id]
+
+    def filesAreMarkedForDownload(self) -> bool:
+        """
+        Checks for the presence of checkmark besides any file that has
+        not yet been downloaded.
+        :return: True if there is any file that the user has indicated
+        they intend to download, else False.
+        """
+        for unique_id, marked in self.marked.items():
+            if marked:
+                if self.rpd_files[unique_id].status not in Downloaded:
+                    return True
+        return False
 
 class ThumbnailView(QListView):
     def __init__(self):

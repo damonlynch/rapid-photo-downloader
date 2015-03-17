@@ -40,7 +40,7 @@ To do this, use udev for cameras, and udisks2 for devices with file
 systems. When a device with a file system is inserted, if it is not
 already mounted, attempt to mount it.
 
-The secondary task of this module is to provide miscellaneous serivces
+The secondary task of this module is to provide miscellaneous services
 regarding mount points.
 """
 
@@ -88,8 +88,8 @@ class ValidMounts():
 
     def isValidMountPoint(self, mount: QStorageInfo) -> bool:
         """
-        Determine if mount indicates a mount point under a valid mount
-        point
+        Determine if the path of the mount point starts with a valid
+        path
         :param mount: QStorageInfo to be tested
         :return:True if mount is a mount under a valid mount, else False
         """
@@ -569,7 +569,8 @@ if have_gio:
                     for s in ('gphoto2:host=', 'mtp:host='):
                         if folder_name.startswith(s):
                             return folder_name[len(s):]
-            logging.debug("GIO: camera not found at {}".format(path))
+            if path is not None:
+                logging.debug("GIO: camera not found at {}".format(path))
             return None
 
         def mountIsPartition(self, mount: Gio.Mount) -> bool:
@@ -584,12 +585,15 @@ if have_gio:
             if root is not None:
                 path = root.get_path()
                 if path:
-                    logging.debug("GIO: Looking for partition at mount {"
+                    logging.debug("GIO: Looking for valid partition at mount {"
                                   "}".format(
                         path))
                     if self.validMounts.pathIsValidMountPoint(path):
+                        logging.debug("GIO: partition found at {}".format(
+                            path))
                         return True
-            logging.debug("GIO: partition is not valid: {}".format(path))
+            if path is not None:
+                logging.debug("GIO: partition is not valid: {}".format(path))
             return False
 
         def mountAdded(self, volumeMonitor, mount: Gio.Mount):

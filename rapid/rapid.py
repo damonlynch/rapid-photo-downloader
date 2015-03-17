@@ -42,7 +42,8 @@ from PyQt5.QtCore import (QThread, Qt, QStorageInfo, QSettings, QPoint,
 from PyQt5.QtGui import QIcon
 from PyQt5.QtWidgets import (QAction, QApplication, QFileDialog, QLabel,
         QMainWindow, QMenu, QMessageBox, QScrollArea, QSizePolicy,
-        QProgressBar, QSplitter, QFileIconProvider)
+        QPushButton, QFrame, QWidget, QDialogButtonBox,
+        QProgressBar, QSplitter, QFileIconProvider, QHBoxLayout, QVBoxLayout)
 
 # import dbus
 # from dbus.mainloop.pyqt5 import DBusQtMainLoop
@@ -72,7 +73,7 @@ class ScanManager(PublishPullPipelineManager):
         self._process_to_run = 'scan.py'
 
 
-class RapidWindow(QtWidgets.QMainWindow):
+class RapidWindow(QMainWindow):
     def __init__(self, parent=None):
         self.do_init = QtCore.QEvent.registerEventType()
         super(RapidWindow, self).__init__(parent)
@@ -84,10 +85,7 @@ class RapidWindow(QtWidgets.QMainWindow):
         self.prefs = Preferences()
         self.setupWindow()
 
-        # frame = QtWidgets.QFrame()
-        # self.stopButton = QtWidgets.QPushButton("Cancel")
-        # self.pauseButton = QtWidgets.QPushButton("Pause")
-        # self.paused = False
+        centralWidget = QWidget()
 
         self.thumbnailView = ThumbnailView()
         self.thumbnailModel = ThumbnailTableModel(self)
@@ -101,25 +99,12 @@ class RapidWindow(QtWidgets.QMainWindow):
         self.deviceView.setModel(self.deviceModel)
         self.deviceView.setItemDelegate(DeviceDelegate(self))
 
-        # self.stopButton.released.connect(self.handleStopButton)
-        # self.pauseButton.released.connect(self.handlePauseButton)
-
-        splitter = QSplitter()
-        splitter.setOrientation(Qt.Vertical)
-        splitter.addWidget(self.deviceView)
-        splitter.addWidget(self.thumbnailView)
-        layout = QtWidgets.QVBoxLayout()
-        self.resizeDeviceView()
-        # layout.addWidget(self.stopButton)
-        # layout.addWidget(self.pauseButton)
-
-        layout.addWidget(splitter)
-
         self.createActions()
+        self.createLayoutAndButtons(centralWidget)
         self.createMenus()
 
-        # a main-window-style application has only one central widget
-        self.setCentralWidget(splitter)
+        # a main-window application must have one and only one central widget
+        self.setCentralWidget(centralWidget)
 
         # defer full initialisation (slow operation) until gui is visible
         QtWidgets.QApplication.postEvent(
@@ -197,6 +182,9 @@ class RapidWindow(QtWidgets.QMainWindow):
         #Track the unmounting of cameras by port and model
         self.camerasToUnmount = {}
 
+        #Track which downloads are running
+        self.activeDownloadsByScanId = set()
+
         if self.gvfsControlsMounts:
             self.gvolumeMonitor = GVolumeMonitor(self.validMounts)
             self.gvolumeMonitor.cameraUnmounted.connect(self.cameraUnmounted)
@@ -221,65 +209,117 @@ class RapidWindow(QtWidgets.QMainWindow):
         # call the slot with no delay
         QtCore.QTimer.singleShot(0, self.scanThread.start)
 
+        self.setDownloadActionSensitivity()
         self.searchForCameras()
         self.setupNonCameraDevices(onStartup=True, onPreferenceChange=False,
                                    blockAutoStart=False)
 
     def createActions(self):
         self.downloadAct = QAction("&Download", self, shortcut="Ctrl+Return",
-                                   triggered=self.download)
+                                   triggered=self.doDownloadAction)
 
         self.refreshAct = QAction("&Refresh...", self, shortcut="Ctrl+R",
-                                  triggered=self.refresh)
+                                  triggered=self.doRefreshAction)
 
         self.preferencesAct = QAction("&Preferences", self,
                                       shortcut="Ctrl+P",
-                                      triggered=self.preferences)
+                                      triggered=self.doPreferencesAction)
 
         self.quitAct = QAction("&Quit", self, shortcut="Ctrl+Q",
                                triggered=self.close)
 
         self.checkAllAct = QAction("&Check All", self, shortcut="Ctrl+A",
-                                   triggered=self.checkAll)
+                                   triggered=self.doCheckAllAction)
 
         self.checkAllPhotosAct = QAction("Check All Photos", self,
                                          shortcut="Ctrl+T",
-                                         triggered=self.checkAllPhotos)
+                                         triggered=self.doCheckAllPhotosAction)
 
         self.checkAllVideosAct = QAction("Check All Videos", self,
                                          shortcut="Ctrl+D",
-                                         triggered=self.checkAllVideos)
+                                         triggered=self.doCheckAllVideosAction)
 
         self.uncheckAllAct = QAction("&Uncheck All", self, shortcut="Ctrl+L",
-                                     triggered=self.uncheckAll)
+                                     triggered=self.doUncheckAllAction)
 
         self.errorLogAct = QAction("Error Log", self, enabled=False,
                                    checkable=True,
-                                   triggered=self.errorLog)
+                                   triggered=self.doErrorLogAction)
 
         self.clearDownloadsAct = QAction("Clear Completed Downloads", self,
-                                         triggered=self.clearDownloads)
+                                         triggered=self.doClearDownloadsAction)
 
         self.previousFileAct = QAction("Previous File", self, shortcut="[",
-                                       triggered=self.previousFile)
+                                       triggered=self.doPreviousFileAction)
 
         self.nextFileAct = QAction("Next File", self, shortcut="]",
-                                   triggered=self.nextFile)
+                                   triggered=self.doNextFileAction)
 
         self.helpAct = QAction("Get Help Online...", self, shortcut="F1",
                                triggered=help)
 
         self.reportProblemAct = QAction("Report a Problem...", self,
-                                        triggered=self.reportProblem)
+                                        triggered=self.doReportProblemAction)
 
         self.makeDonationAct = QAction("Make a Donation...", self,
-                                       triggered=self.makeDonation)
+                                       triggered=self.doMakeDonationAction)
 
         self.translateApplicationAct = QAction("Translate this Application...",
                                                self,
-                                               triggered=self.translateApplication)
+                                               triggered=self.doTranslateApplicationAction)
 
-        self.aboutAct = QAction("&About...", self, triggered=self.about)
+        self.aboutAct = QAction("&About...", self, triggered=self.doAboutAction)
+
+    def createLayoutAndButtons(self, centralWidget):
+        #TODO change splitter to something else since user can't manipulate it
+        splitter = QSplitter()
+        splitter.setOrientation(Qt.Vertical)
+        splitter.addWidget(self.deviceView)
+        splitter.addWidget(self.thumbnailView)
+        verticalLayout = QVBoxLayout()
+        centralWidget.setLayout(verticalLayout)
+        verticalLayout.setContentsMargins(0, 0, 0, 0)
+        self.resizeDeviceView()
+
+        verticalLayout.addWidget(splitter)
+
+        # Help and Download buttons
+        horizontalLayout = QHBoxLayout()
+        horizontalLayout.setContentsMargins(7, 7, 7, 7)
+        verticalLayout.addLayout(horizontalLayout, 0)
+        self.downloadButton = QPushButton(self.downloadAct.text())
+        self.downloadButton.addAction(self.downloadAct)
+        self.downloadButton.setDefault(True)
+        buttons = QDialogButtonBox(QDialogButtonBox.Help)
+        buttons.addButton(self.downloadButton, QDialogButtonBox.ApplyRole)
+        horizontalLayout.addWidget(buttons)
+
+    def setDownloadActionSensitivity(self):
+        """
+        Sets sensitivity of Download action to enable or disable it.
+        Affects download button and menu item.
+        """
+        if not self.downloadIsRunning():
+            enabled = False
+            # Don't enable starting a download while devices are being scanned
+            if len(self.scanmq) == 0:
+                enabled = self.thumbnailModel.filesAreMarkedForDownload()
+
+            self.downloadAct.setEnabled(enabled)
+            self.downloadButton.setEnabled(enabled)
+
+    def set_download_action_label(self, is_download):
+        """
+        Toggles label betwen pause and download
+        """
+
+        if is_download:
+            self.download_action.set_label(_("Download"))
+            self.download_action_is_download = True
+        else:
+            self.download_action.set_label(_("Pause"))
+            self.download_action_is_download = False
+
 
     def createMenus(self):
         self.fileMenu = QMenu("&File", self)
@@ -315,56 +355,53 @@ class RapidWindow(QtWidgets.QMainWindow):
         self.menuBar().addMenu(self.viewMenu)
         self.menuBar().addMenu(self.helpMenu)
 
-    def download(self):
+    def doDownloadAction(self):
+        self.downloadButton.animateClick()
+
+    def doRefreshAction(self):
         pass
 
-    def refresh(self):
+    def doPreferencesAction(self):
         pass
 
-    def preferences(self):
+    def doCheckAllAction(self):
         pass
 
-    def checkAll(self):
+    def doCheckAllPhotosAction(self):
         pass
 
-    def checkAllPhotos(self):
+    def doCheckAllVideosAction(self):
         pass
 
-    def checkAllVideos(self):
+    def doUncheckAllAction(self):
         pass
 
-    def uncheckAll(self):
+    def doErrorLogAction(self):
         pass
 
-    def errorLog(self):
+    def doClearDownloadsAction(self):
         pass
 
-    def clearDownloads(self):
+    def doPreviousFileAction(self):
         pass
 
-    def previousFile(self):
+    def doNextFileAction(self):
         pass
 
-    def nextFile(self):
+    def doHelpAction(self):
         pass
 
-    def help(self):
+    def doReportProblemAction(self):
         pass
 
-    def reportProblem(self):
+    def doMakeDonationAction(self):
         pass
 
-    def makeDonation(self):
+    def doTranslateApplicationAction(self):
         pass
 
-    def translateApplication(self):
+    def doAboutAction(self):
         pass
-
-    def about(self):
-        pass
-
-    def handleStopButton(self):
-        self.scanmq.stop()
 
     def handlePauseButton(self):
         if self.paused:
@@ -375,6 +412,13 @@ class RapidWindow(QtWidgets.QMainWindow):
             self.scanmq.pause()
             self.pauseButton.setText("Resume")
             self.paused = True
+
+    def downloadIsRunning(self) -> bool:
+        """
+        :return True if a file is currently being downloaded, renamed
+        or backed up, else False
+        """
+        return len(self.activeDownloadsByScanId) > 0
 
     def scanMessageReceived(self, rpd_file: rpdfile.RPDFile):
         # Update scan running totals
@@ -395,6 +439,7 @@ class RapidWindow(QtWidgets.QMainWindow):
         # Generate thumbnails for finished scan
         self.thumbnailModel.generateThumbnails(scan_id, self.devices[
             scan_id], self.prefs['thumbnail_quality_lower'])
+        self.setDownloadActionSensitivity()
 
     def closeEvent(self, event):
         self.writeWindowSettings()
@@ -468,7 +513,6 @@ class RapidWindow(QtWidgets.QMainWindow):
         number of rows. which has the happy side effect of moving the
         splitter.
         """
-        # TODO call this when device is removed too, or after clear
         assert len(self.devices) == self.deviceModel.rowCount()
         if len(self.devices):
             self.deviceView.setMaximumHeight(len(self.devices) *
@@ -490,6 +534,10 @@ class RapidWindow(QtWidgets.QMainWindow):
         Handle the possible removal of a camera by comparing the
         cameras the OS knows about compared to the cameras we are
         tracking. Remove tracked cameras if they are not on the OS.
+
+        We need this brute force method because I don't know if it's
+        possible to query GIO or udev to return the info needed by
+        libgphoto2
         """
         sc = self.gp_context.camera_autodetect()
         system_cameras = [(model, port) for model, port in sc if not
@@ -500,6 +548,9 @@ class RapidWindow(QtWidgets.QMainWindow):
         for model, port in removed_cameras:
             scan_id = self.devices.scan_id_from_camera_model_port(model, port)
             self.removeDevice(scan_id)
+
+        if removed_cameras:
+            self.setDownloadActionSensitivity()
 
     def noGVFSAutoMount(self):
         """
@@ -565,6 +616,7 @@ class RapidWindow(QtWidgets.QMainWindow):
         scan_preferences = ScanPreferences(self.prefs['ignored_paths'])
         scan_arguments = ScanArguments(scan_preferences, device)
         self.scanmq.add_worker(scan_id, scan_arguments)
+        self.setDownloadActionSensitivity()
 
 
     def partitionValid(self, mount: QStorageInfo) -> bool:
@@ -668,8 +720,7 @@ class RapidWindow(QtWidgets.QMainWindow):
             # self.backup_manager.remove_device(path)
             # self.update_no_backup_devices()
 
-        # may need to disable download button and menu
-        # self.set_download_action_sensitivity()
+        self.setDownloadActionSensitivity()
 
 
     def removeDevice(self, scan_id):
@@ -906,7 +957,7 @@ class RapidWindow(QtWidgets.QMainWindow):
 
 if __name__ == "__main__":
 
-    app = QtWidgets.QApplication(sys.argv)
+    app = QApplication(sys.argv)
     app.setOrganizationName("Rapid Photo Downloader")
     app.setOrganizationDomain("damonlynch.net")
     app.setApplicationName("Rapid Photo Downloader")

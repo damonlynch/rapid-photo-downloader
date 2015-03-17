@@ -120,7 +120,7 @@ class PublishPullPipelineManager(QObject):
         self.terminating = False
 
         # Monitor which workers we have running
-        self.workers = []
+        self.workers = [] # type list[int]
 
     def run_sink(self):
         logging.debug("Running sink for %s", self._process_name)
@@ -175,7 +175,7 @@ class PublishPullPipelineManager(QObject):
         else:
             self.terminate_socket.send_multipart([b'0', b'cmd', b'KILL'])
 
-    def add_worker(self, worker_id, process_arguments):
+    def add_worker(self, worker_id: int, process_arguments):
         cmd = os.path.join(os.path.dirname(__file__), self._process_to_run)
         command_line = '{} --receive {} --send {} --controller {} ' \
                        '--syncclient {} --filter {} --logginglevel {}'.format(
@@ -225,6 +225,8 @@ class PublishPullPipelineManager(QObject):
     def resume(self):
         self.controller_socket.send(b'RESUME')
 
+    def __len__(self):
+        return len(self.workers)
 
 
 class WorkerInPublishPullPipeline():

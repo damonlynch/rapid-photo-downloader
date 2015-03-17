@@ -1,8 +1,26 @@
 __author__ = 'Damon Lynch'
 
+# Copyright (C) 2015 Damon Lynch <damonlynch@gmail.com>
+
+# This file is part of Rapid Photo Downloader.
+#
+# Rapid Photo Downloader is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Rapid Photo Downloader is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Rapid Photo Downloader.  If not,
+# see <http://www.gnu.org/licenses/>.
+
 class RowTracker:
     r"""
-    Simple class to map rows to ids and vice versa, used in
+    Simple class to map model rows to ids and vice versa, used in
     table and list views.
 
     >>> r = RowTracker()
@@ -52,9 +70,18 @@ class RowTracker:
         return '%r %r' % (self.rowToId, self.idToRow)
 
     def row(self, idValue):
+        """
+        :param idValue: the ID, e.g. scan_id, unique_id
+        :return: the row associated with the ID
+        """
         return self.idToRow[idValue]
 
     def removeRows(self, position, rows=1):
+        """
+        :param position: the position of the first row to remove
+        :param rows: how many rows to remove
+        :return: the ids of those rows which were removed
+        """
         finalPos = position + rows - 1
         idsToKeep = [idValue for row, idValue in self.rowToId.items() if
                     row < position or row > finalPos]

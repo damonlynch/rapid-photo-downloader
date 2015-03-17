@@ -25,7 +25,7 @@ from gettext import gettext as _
 from PyQt5.QtCore import (QAbstractTableModel, QModelIndex, QSize, Qt)
 from PyQt5.QtWidgets import (QTableView, QStyledItemDelegate,
                              QStyleOptionViewItem, QStyleOptionProgressBar,
-                             QApplication, QStyle)
+                             QApplication, QStyle, QAbstractItemView)
 from PyQt5.QtGui import (QPixmap, QPainter, QIcon)
 
 from viewutils import RowTracker
@@ -77,7 +77,7 @@ class DeviceTableModel(QAbstractTableModel):
 
         self.devices[scan_id] = DeviceRow(deviceIcon, deviceName, ejectIcon)
         self.sizes[scan_id] = _('0GB')
-        self.texts[scan_id] = _('scanning ...')
+        self.texts[scan_id] = _('scanning...')
         self.scanCompleted[scan_id] = False
         self.rows[row] = scan_id
 
@@ -125,18 +125,21 @@ class DeviceTableModel(QAbstractTableModel):
                     maximum = 0
 
                 return (self.texts[scan_id], progress, maximum)
-        else:
-            pass
-            # print("Unknown role:", role)
+        # else:
+        #     pass
+        #     # print("Unknown role:", role)
 
 class DeviceView(QTableView):
     def __init__(self):
         super(DeviceView, self).__init__()
+        # Set the last column (with the progressbar) to fill the remaining
+        # width
         self.horizontalHeader().setStretchLastSection(True)
-        # self.verticalHeader().setHighlightSections(False)
+        # Hide the headers
         self.verticalHeader().setVisible(False)
-        # self.horizontalHeader().setHighlightSections(False)
         self.horizontalHeader().setVisible(False)
+        # Disallow the user from being able to select the table cells
+        self.setSelectionMode(QAbstractItemView.NoSelection)
 
     def resizeColumns(self):
         for column in (DEVICE, SIZE):
@@ -177,11 +180,13 @@ class DeviceDelegate(QStyledItemDelegate):
             painter.save()
             size = index.model().data(index, Qt.DisplayRole)
             painter.drawText(option.rect.x(), option.rect.y(),
-                             option.rect.width(), option.rect.height(),
-                             Qt.AlignCenter, size)
+                             option.rect.width()-self.padding,
+                             option.rect.height(),
+                             Qt.AlignRight | Qt.AlignVCenter, size)
             painter.restore()
         else:
             assert index.column() == TEXT
+            painter.save()
             text, progress, maximum = index.model().data(index, Qt.DisplayRole)
             progressStyle = QStyleOptionProgressBar()
             progressStyle.state = QStyle.State_Enabled
@@ -196,6 +201,7 @@ class DeviceDelegate(QStyledItemDelegate):
             progressStyle.textVisible = True
             QApplication.style().drawControl(QStyle.CE_ProgressBar,
                                              progressStyle, painter)
+            painter.restore()
 
     def sizeHint(self, option, index):
         metrics = option.fontMetrics
@@ -210,7 +216,7 @@ class DeviceDelegate(QStyledItemDelegate):
                          max(self.iconSize, metrics.height()) + self.padding*2)
         elif index.column() == SIZE:
             # size = index.model().data(index, Qt.DisplayRole)
-            width = metrics.width('99999.9GB')
+            width = metrics.width('9999.9GB')
             return QSize(width, metrics.height())
         else:
             assert index.column() == TEXT
