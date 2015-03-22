@@ -28,7 +28,9 @@ Everything else should follow PEP 8.
 import sys
 import logging
 import time
+import datetime
 import os
+from collections import namedtuple
 
 from gettext import gettext as _
 
@@ -52,18 +54,24 @@ from PyQt5.QtWidgets import (QAction, QApplication, QFileDialog, QLabel,
 from storage import (ValidMounts, CameraHotplug, UDisks2Monitor,
                      GVolumeMonitor, have_gio, has_non_empty_dcim_folder,
                      mountPaths, get_desktop_environment, gvfs_controls_mounts)
-from interprocess import (PublishPullPipelineManager, ScanArguments)
-from devices import (Device, DeviceCollection)
+from interprocess import (PublishPullPipelineManager, ScanArguments,
+                          CopyFilesArguments)
+from devices import (Device, DeviceCollection, BackupDevice,
+                     BackupDeviceCollection)
 from preferences import (Preferences, ScanPreferences)
-from constants import BackupLocationForFileType, DeviceType
+from constants import (BackupLocationForFileType, DeviceType, ErrorType,
+                       FileType)
 from thumbnaildisplay import (ThumbnailView, ThumbnailTableModel,
-    ThumbnailDelegate)
+    ThumbnailDelegate, DownloadTypes, DownloadStats)
 from devicedisplay import (DeviceTableModel, DeviceView, DeviceDelegate)
 import rpdfile
+import downloadtracker
 
 logging_level = logging.DEBUG
 logging.basicConfig(format='%(asctime)s %(message)s', level=logging_level)
 
+
+BackupMissing = namedtuple('BackupMissing', ['photo', 'video'])
 
 class ScanManager(PublishPullPipelineManager):
     message = QtCore.pyqtSignal(rpdfile.RPDFile)
@@ -71,6 +79,14 @@ class ScanManager(PublishPullPipelineManager):
         super(ScanManager, self).__init__(context)
         self._process_name = 'Scan Manager'
         self._process_to_run = 'scan.py'
+
+
+class CopyFilesManager(PublishPullPipelineManager):
+    message = QtCore.pyqtSignal(rpdfile.RPDFile)
+    def __init__(self, context):
+        super(CopyFilesManager, self).__init__(context)
+        self._process_name = 'Copy Files Manager'
+        self._process_to_run = 'copyfiles.py'
 
 
 class RapidWindow(QMainWindow):
@@ -182,9 +198,6 @@ class RapidWindow(QMainWindow):
         #Track the unmounting of cameras by port and model
         self.camerasToUnmount = {}
 
-        #Track which downloads are running
-        self.activeDownloadsByScanId = set()
-
         if self.gvfsControlsMounts:
             self.gvolumeMonitor = GVolumeMonitor(self.validMounts)
             self.gvolumeMonitor.cameraUnmounted.connect(self.cameraUnmounted)
@@ -197,7 +210,23 @@ class RapidWindow(QMainWindow):
             self.gvolumeMonitor.cameraPossiblyRemoved.connect(
                 self.cameraRemoved)
 
-        # Setup the Scan processes
+        #Track which downloads are running
+        self.active_downloads_by_scan_id = set()
+
+        # Track the time a download commences
+        self.download_start_time = None
+
+        # Whether a system wide notification message should be shown
+        # after a download has occurred in parallel
+        self.display_summary_notification = False
+
+        self.download_tracker = downloadtracker.DownloadTracker()
+
+        # Values used to display how much longer a download will take
+        self.time_remaining = downloadtracker.TimeRemaining()
+        self.time_check = downloadtracker.TimeCheck()
+
+        # Setup the scan processes
         self.scanThread = QThread()
         self.scanmq = ScanManager(self.context)
         self.scanmq.moveToThread(self.scanThread)
@@ -209,10 +238,19 @@ class RapidWindow(QMainWindow):
         # call the slot with no delay
         QtCore.QTimer.singleShot(0, self.scanThread.start)
 
+        # Setup the copyfiles process
+        self.copyfilesThread = QThread()
+        self.copyfilesmq = CopyFilesManager(self.context)
+        self.copyfilesmq.moveToThread(self.copyfilesThread)
+
+        self.copyfilesThread.started.connect(self.copyfilesmq.run_sink)
+        self.copyfilesmq.message.connect(self.copyfilesMessageReceived)
+        self.copyfilesmq.workerFinished.connect(self.copyfilesFinished)
+
         self.setDownloadActionSensitivity()
         self.searchForCameras()
-        self.setupNonCameraDevices(onStartup=True, onPreferenceChange=False,
-                                   blockAutoStart=False)
+        self.setupNonCameraDevices(on_startup=True, on_preference_change=False,
+                                   block_auto_start=False)
 
     def createActions(self):
         self.downloadAct = QAction("&Download", self, shortcut="Ctrl+Return",
@@ -308,18 +346,18 @@ class RapidWindow(QMainWindow):
             self.downloadAct.setEnabled(enabled)
             self.downloadButton.setEnabled(enabled)
 
-    def set_download_action_label(self, is_download):
+    def setDownloadActionLabel(self, is_download: bool):
         """
-        Toggles label betwen pause and download
+        Toggles action and download button text between pause and
+        download
         """
-
-        if is_download:
-            self.download_action.set_label(_("Download"))
-            self.download_action_is_download = True
+        self.download_action_is_download = is_download
+        if self.download_action_is_download:
+            text = _("Download")
         else:
-            self.download_action.set_label(_("Pause"))
-            self.download_action_is_download = False
-
+            text = _("Pause")
+        self.downloadAct.setText(text)
+        self.downloadButton.setText(text)
 
     def createMenus(self):
         self.fileMenu = QMenu("&File", self)
@@ -403,22 +441,256 @@ class RapidWindow(QMainWindow):
     def doAboutAction(self):
         pass
 
-    def handlePauseButton(self):
-        if self.paused:
-            self.scanmq.resume()
-            self.paused = False
-            self.pauseButton.setText("Pause")
-        else:
-            self.scanmq.pause()
-            self.pauseButton.setText("Resume")
-            self.paused = True
-
     def downloadIsRunning(self) -> bool:
         """
         :return True if a file is currently being downloaded, renamed
         or backed up, else False
         """
-        return len(self.activeDownloadsByScanId) > 0
+        return len(self.active_downloads_by_scan_id) > 0
+
+    def startDownload(self, scan_id=None):
+        """
+        Start download, renaming and backup of files.
+
+        :param scan_id: if specified, only files matching it will be
+        downloaded
+        :type scan_id: int
+        """
+
+        download_files = self.thumbnailModel.getFilesMarkedForDownload(scan_id)
+        invalid_dirs = self.invalidDownloadFolders(
+            download_files.download_types)
+
+        if invalid_dirs:
+            if len(invalid_dirs) > 1:
+                msg = _("These download folders are invalid:\n%("
+                        "folder1)s\n%(folder2)s")  % {
+                        'folder1': invalid_dirs[0], 'folder2': invalid_dirs[1]}
+            else:
+                msg = _("This download folder is invalid:\n%s") % \
+                      invalid_dirs[0]
+            self.log_error(ErrorType.critical_error, _("Download cannot "
+                                                       "proceed"), msg)
+        else:
+            missing_destinations = self.backupDestinationsMissing()
+            if missing_destinations is not None:
+                # Warn user that they have specified that they want to
+                # backup a file type, but no such folder exists on backup
+                # devices
+                if not missing_destinations[0]:
+                    logging.warning("No backup device contains a valid "
+                                    "folder for backing up photos")
+                    msg = _("No backup device contains a valid folder for "
+                            "backing up %(filetype)s") % {'filetype': _(
+                            'photos')}
+                else:
+                    logging.warning("No backup device contains a valid "
+                                    "folder for backing up videos")
+                    msg = _("No backup device contains a valid folder for "
+                            "backing up %(filetype)s") % {'filetype': _(
+                            'videos')}
+
+                self.log_error(ErrorType.warning, _("Backup problem"), msg)
+
+            # set time download is starting if it is not already set
+            # it is unset when all downloads are completed
+            if self.download_start_time is None:
+                self.download_start_time = datetime.datetime.now()
+
+            # Set status to download pending
+            self.thumbnailModel.markDownloadPending(download_files.files)
+
+            # disable refresh and preferences change while download is occurring
+            # self.enable_prefs_and_refresh(enabled=False)
+
+            for scan_id in download_files.files:
+                files = download_files.files[scan_id]
+                # if generating thumbnails for this scan_id, stop it
+                if self.thumbnailModel.terminateThumbnailGeneration(scan_id):
+                    self.thumbnailModel.markThumbnailsNeeded(files)
+
+                self.downloadFiles(files, scan_id,
+                                   download_files.download_stats[scan_id])
+
+            self.set_download_action_label(is_download = False)
+
+
+    def downloadFiles(self, files, scan_id: int, download_stats:
+                      DownloadStats):
+        """
+
+        :param files: list of the files to download
+        :param scan_id: the device from which to download the files
+        :param download_stats: count of files and their size
+        """
+
+        if download_stats.photos:
+            photo_download_folder = self.prefs['photo_download_folder']
+        else:
+            photo_download_folder = None
+
+        if download_stats.videos:
+            video_download_folder = self.prefs['video_download_folder']
+        else:
+            video_download_folder = None
+
+        self.download_tracker.init_stats(scan_id=scan_id,
+                                photo_size_in_bytes=download_stats.photos_size,
+                                video_size_in_bytes=download_stats.videos_size,
+                                no_photos_to_download=download_stats.photos,
+                                no_videos_to_download=download_stats.videos)
+
+
+        download_size = download_stats.photos_size + download_stats.videos_size
+
+        if self.prefs['backup_images']:
+            download_size += ((self.no_photo_backup_devices *
+                               download_stats.photos_size) + (
+                               self.no_video_backup_devices *
+                               download_stats.videos_size))
+
+        self.time_remaining[scan_id] = download_size
+        self.time_check.set_download_mark()
+
+        self.active_downloads_by_scan_id.add(scan_id)
+
+
+        if len(self.active_downloads_by_scan_id) > 1:
+            # Display an additional notification once all devices have been
+            # downloaded from that summarizes the downloads.
+            self.display_summary_notification = True
+
+        if self.auto_start_is_on and self.prefs['generate_thumbnails']:
+            for rpd_file in files:
+                rpd_file.generate_thumbnail = True
+
+        verify_file = self.prefs['verify_file']
+        if verify_file:
+            # since a file might be modified in the file modify process,
+            # if it will be backed up, need to refresh the md5 once it has
+            # been modified
+            refresh_md5_on_file_change = self.prefs['backup_images']
+        else:
+            refresh_md5_on_file_change = False
+
+        #modify_files_during_download = self.modify_files_during_download()
+        # if modify_files_during_download:
+        #     self.file_modify_manager.add_task((scan_pid, self.prefs.auto_rotate_jpeg, self.focal_length, verify_file, refresh_md5_on_file_change))
+        #     modify_pipe = self.file_modify_manager.get_modify_pipe(scan_pid)
+        # else:
+        #     modify_pipe = None
+
+
+        # Initiate copy files process
+
+        copyfiles_args = CopyFilesArguments(photo_download_folder,
+                                            video_download_folder, files,
+                                            verify_file)
+        self.copyfilesmq.add_worker(scan_id, copyfiles_args)
+
+    def copyfilesMessageReceived(self):
+        pass
+
+    def copyfilesFinished(self):
+        pass
+
+    def invalidDownloadFolders(self, downloading: DownloadTypes):
+        """
+        Checks validity of download folders based on the file types the
+        user is attempting to download.
+
+        :rtype List(str)
+        :return list of the invalid directories, if any, or empty list .
+        """
+        invalid_dirs = []
+        if downloading.photos:
+            if not self.isValidDownloadDir(self.prefs.photo_download_folder,
+                                                        is_photo_dir=True):
+                invalid_dirs.append(self.prefs.photo_download_folder)
+        if downloading.videos:
+            if not self.isValidDownloadDir(self.prefs.video_download_folder,
+                                                        is_photo_dir=False):
+                invalid_dirs.append(self.prefs.video_download_folder)
+        return invalid_dirs
+
+    def isValidDownloadDir(self, path, is_photo_dir: bool,
+                           show_error_in_log=False) -> bool:
+        """
+        Checks directory following conditions:
+        Does it exist? Is it writable?
+
+        :param show_error_in_log: if  True, then display warning in log
+        window
+        :type show_error_in_log: bool
+        :param is_photo_dir: if true the download directory is for
+        photos, else for videos
+        :return True if directory is valid, else False
+        """
+        valid = False
+        if is_photo_dir:
+            download_folder_type = _("Photo")
+        else:
+            download_folder_type = _("Video")
+
+        if not os.path.isdir(path):
+            logging.error("%s download folder does not exist: %s",
+                         download_folder_type, path)
+            if show_error_in_log:
+                severity = ErrorType.warning
+                problem = _("%(file_type)s download folder is invalid") % {
+                            'file_type': download_folder_type}
+                details = _("Folder: %s") % path
+                self.log_error(severity, problem, details)
+        elif not os.access(path, os.W_OK):
+            logging.error("%s is not writable", path)
+            if show_error_in_log:
+                severity = ErrorType.warning
+                problem = _("%(file_type)s download folder is not writable") \
+                            % {'file_type': download_folder_type}
+                details = _("Folder: %s") % path
+                self.log_error(severity, problem, details)
+        else:
+            valid = True
+        return valid
+
+    def log_error(self, severity, problem, details, extra_detail=None):
+        """
+        Display error and warning messages to user in log window
+        """
+        #TODO implement error log window
+        pass
+        # self.error_log.add_message(severity, problem, details, extra_detail)
+
+    def backupDestinationsMissing(self, downloading: DownloadTypes) -> \
+                                  BackupMissing:
+        """
+        Checks if there are backup destinations matching the files
+        going to be downloaded
+        :param downloading: the types of file that will be downloaded
+        :return: None if no problems, or BackupMissing
+        """
+        backup_missing = BackupMissing(False, False)
+        if self.prefs.backup_images and self.prefs.backup_device_autodetection:
+            if downloading.photos and not self.backupPossible(
+                    FileType.photo):
+                backup_missing.photo = True
+            if downloading.videos and not self.backupPossible(
+                    FileType.video):
+                backup_missing.video = True
+            if not (backup_missing.photo and backup_missing.video):
+                return None
+            else:
+                return backup_missing
+        return None
+
+    def backupPossible(self, file_type: FileType) -> bool:
+        #TODO implement backup device monitoring
+        if file_type == FileType.photo:
+            return True
+            # return self.no_photo_backup_devices > 0
+        assert file_type == FileType.video
+        return True
+            # return self.no_video_backup_devices > 0
 
     def scanMessageReceived(self, rpd_file: rpdfile.RPDFile):
         # Update scan running totals
@@ -731,8 +1003,9 @@ class RapidWindow(QMainWindow):
         del self.devices[scan_id]
         self.resizeDeviceView()
 
-    def setupNonCameraDevices(self, onStartup: bool, onPreferenceChange: bool,
-                              blockAutoStart: bool):
+    def setupNonCameraDevices(self, on_startup: bool,
+                              on_preference_change: bool,
+                              block_auto_start: bool):
         """
         Setup devices from which to download from and backup to, and
         if relevant start scanning them
@@ -740,12 +1013,12 @@ class RapidWindow(QMainWindow):
         Removes any image media that are currently not downloaded,
         or finished downloading
 
-        :param onStartup: should be True if the program is still
+        :param on_startup: should be True if the program is still
         starting i.e. this is being called from the program's
         initialization.
-        :param onPreferenceChange: should be True if this is being
+        :param on_preference_change: should be True if this is being
         called as the result of a program preference being changed
-        :param blockAutoStart: should be True if automation options to
+        :param block_auto_start: should be True if automation options to
         automatically start a download should be ignored
         """
 
@@ -755,7 +1028,7 @@ class RapidWindow(QMainWindow):
                 return
 
         mounts = []
-        self.backupDevices = {}
+        self.backup_devices = BackupDeviceCollection()
 
         if self.monitorPartitionChanges():
             # either using automatically detected backup devices
@@ -764,19 +1037,19 @@ class RapidWindow(QMainWindow):
                 if self.partitionValid(mount):
                     path = mount.rootPath()
                     logging.debug("Detected %s", mount.displayName())
-                    backupFileType = self.isBackupPath(path)
-                    if backupFileType is not None:
-                        #TODO use namedtuple or better
-                        self.backup_devices[path] = (mount, backupFileType)
+                    backup_type = self.isBackupPath(path)
+                    if backup_type is not None:
+                        self.backup_devices[path] = BackupDevice(mount=mount,
+                                                     backup_type=backup_type)
                     elif self.shouldScanMountPath(path):
                         logging.debug("Appending %s", mount.displayName())
                         mounts.append(mount)
                     else:
                         logging.debug("Ignoring %s", mount.displayName())
 
-        # if self.prefs.backup_images:
-        #     if not self.prefs.backup_device_autodetection:
-        #         self._setup_manual_backup()
+        if self.prefs['backup_images']:
+            if not self.prefs['backup_device_autodetection']:
+                self.setupManualBackup()
         #     self._add_backup_devices()
         #
         # self.update_no_backup_devices()
@@ -784,14 +1057,14 @@ class RapidWindow(QMainWindow):
         # Display amount of free space in a status bar message
         # self.display_free_space()
 
-        if blockAutoStart:
-            self.autoStartIsOn = False
+        if block_auto_start:
+            self.auto_start_is_on = False
         else:
-            self.autoStartIsOn = ((not onPreferenceChange) and
+            self.auto_start_is_on = ((not on_preference_change) and
                     ((self.prefs['auto_download_at_startup'] and
-                      onStartup) or
+                      on_startup) or
                       (self.prefs['auto_download_upon_device_insertion'] and
-                       not onStartup)))
+                       not on_startup)))
 
         if not self.prefs['device_autodetection']:
             # user manually specified the path from which to download
@@ -809,15 +1082,50 @@ class RapidWindow(QMainWindow):
 
         else:
             for mount in mounts:
-                iconNames, canEject = self.getIconsAndEjectableForMount(mount)
+                icon_names, can_eject = self.getIconsAndEjectableForMount(
+                                             mount)
                 device = Device()
                 device.set_download_from_volume(mount.rootPath(),
                                               mount.displayName(),
-                                              iconNames,
-                                              canEject)
+                                              icon_names,
+                                              can_eject)
                 self.prepareNonCameraDeviceScan(device)
         # if not mounts:
         #     self.set_download_action_sensitivity()
+
+    def setupManualBackup(self):
+        """
+        Setup backup devices that the user has manually specified.
+
+        Depending on the folder the user has chosen, the paths for
+        photo and video backup will either be the same or they will
+        differ.
+
+        Because the paths are manually specified, there is no mount
+        associated with them.
+        """
+
+        backup_photo_location = self.prefs['backup_photo_location']
+        backup_video_location = self.prefs['backup_video_location']
+
+        if backup_photo_location != backup_video_location:
+            backup_photo_device =  BackupDevice(mount=None,
+                                backup_type=BackupLocationForFileType.photos)
+            backup_video_device = BackupDevice(mount=None,
+                                backup_type=BackupLocationForFileType.videos)
+            self.backup_devices[backup_photo_location] = backup_photo_device
+            self.backup_devices[backup_video_location] = backup_video_device
+
+            logging.info("Backing up photos to %s", backup_photo_location)
+            logging.info("Backing up videos to %s", backup_video_location)
+        else:
+            # videos and photos are being backed up to the same location
+            backup_device = BackupDevice(mount=None,
+                     backup_type=BackupLocationForFileType.photos_and_videos)
+            self.backup_devices[backup_photo_location] = backup_device
+
+            logging.info("Backing up photos and videos to %s",
+                         backup_photo_location)
 
     def isBackupPath(self, path: str) -> BackupLocationForFileType:
         """
@@ -827,7 +1135,7 @@ class RapidWindow(QMainWindow):
         Checks against user preferences.
 
         :return The type of file that should be backed up to the path,
-        else if nothing should be, return None
+        else if nothing should be, None
         """
         if self.prefs['backup_images']:
             if self.prefs['backup_device_autodetection']:

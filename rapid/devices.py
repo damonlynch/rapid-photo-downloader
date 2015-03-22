@@ -18,8 +18,12 @@ __author__ = 'Damon Lynch'
 # along with Rapid Photo Downloader.  If not,
 # see <http://www.gnu.org/licenses/>.
 
-from constants import DeviceType
+from collections import namedtuple
+from PyQt5.QtCore import QStorageInfo
+
+from constants import DeviceType, BackupLocationForFileType
 from rpdfile import FileTypeCounter
+
 
 class Device:
     r"""
@@ -259,4 +263,39 @@ class DeviceCollection:
 
     def __contains__(self, scan_id):
         return scan_id in self.devices
+
+
+BackupDevice = namedtuple('BackupDevice', ['mount', 'backup_type'])
+
+class BackupDeviceCollection:
+    def __init__(self):
+        self.devices = {}
+
+    def __setitem__(self, path: str, device: BackupDevice):
+        self.devices[path] = device
+
+    def __repr__(self):
+        s = '{'
+        for key, value in self.devices.items():
+            s += r'%r:%r %r, ' % (key, value.mount, value.backup_type)
+        s = s[:-2] + '}'
+        return s
+
+    def __contains__(self, key):
+        return key in self.devices
+
+    def __len__(self):
+        return len(self.devices)
+
+    def name(self, path):
+        if self.devices[path].mount is None:
+            return path
+        else:
+            mount = self.devices[path].mount
+            """ :type : QStorageInfo"""
+            return mount.displayName()
+
+    def backup_type(self, path):
+        return self.devices[path].backup_type
+
 

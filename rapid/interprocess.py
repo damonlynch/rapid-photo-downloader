@@ -99,23 +99,28 @@ class PublishPullPipelineManager(QObject):
 
         # Ventilator socket to send messages to workers on
         self.publisher_socket = context.socket(zmq.PUB)
-        self.publisher_port= self.publisher_socket.bind_to_random_port('tcp://*')
+        self.publisher_port= self.publisher_socket.bind_to_random_port(
+            'tcp://*')
 
-        # Sink socket to receive results of the scan workers
+        # Sink socket to receive results of the workers
         self.receiver_socket = context.socket(zmq.PULL)
-        self.receiver_port = self.receiver_socket.bind_to_random_port("tcp://*")
+        self.receiver_port = self.receiver_socket.bind_to_random_port(
+            "tcp://*")
 
         # Socket to synchronize the start of each worker
         self.sync_service_socket = context.socket(zmq.REP)
-        self.sync_service_port = self.sync_service_socket.bind_to_random_port("tcp://*")
+        self.sync_service_port = \
+            self.sync_service_socket.bind_to_random_port("tcp://*")
 
         # Socket to communicate directly with the sink, bypassing the workers
         self.terminate_socket = context.socket(zmq.PUSH)
-        self.terminate_socket.connect("tcp://localhost:{}".format(self.receiver_port))
+        self.terminate_socket.connect("tcp://localhost:{}".format(
+            self.receiver_port))
 
         # Socket for worker control: pause, resume, stop
         self.controller_socket = context.socket(zmq.PUB)
-        self.controller_port = self.controller_socket.bind_to_random_port("tcp://*")
+        self.controller_port = self.controller_socket.bind_to_random_port(
+            "tcp://*")
 
         self.terminating = False
 
@@ -136,7 +141,8 @@ class PublishPullPipelineManager(QObject):
                 assert command in [b"STOPPED", b"FINISHED", b"KILL"]
                 if command == b"KILL":
                     # Terminate immediately, without regard for any incoming
-                    # messages
+                    # messages. This message is only sent from this manager
+                    # to itself, using the self.terminate_socket
                     logging.debug("{} is terminating".format(
                         self._process_name))
                     break
@@ -166,14 +172,27 @@ class PublishPullPipelineManager(QObject):
         self.message.emit(data)
 
     def stop(self):
+        """
+        Permanently stop all the workers and terminate
+        """
         # TODO: exit when a worker has crashed
         logging.debug("{} halting".format(self._process_name))
         self.terminating = True
         if self.workers:
             # Signal workers they must immediately stop
-            self.controller_socket.send(b"STOP")
+            for worker_id in self.workers:
+                message = [make_filter_from_worker_id(worker_id),b'STOP']
+                self.controller_socket.send_multipart(message)
         else:
             self.terminate_socket.send_multipart([b'0', b'cmd', b'KILL'])
+
+    def stop_worker(self, worker_id: int):
+        """
+        Permanently stop one worker
+        """
+        assert worker_id in self.workers
+        message = [make_filter_from_worker_id(worker_id),b'STOP']
+        self.controller_socket.send_multipart(message)
 
     def add_worker(self, worker_id: int, process_arguments):
         cmd = os.path.join(os.path.dirname(__file__), self._process_to_run)
@@ -211,7 +230,7 @@ class PublishPullPipelineManager(QObject):
                 # There is no point flooding the network
                 time.sleep(.01)
 
-        # Send data to process to tell it what to scan
+        # Send data to process to tell it what to work on
         data = pickle.dumps(process_arguments, pickle.HIGHEST_PROTOCOL)
         message = [make_filter_from_worker_id(worker_id), b'data', data]
         self.publisher_socket.send_multipart(message)
@@ -220,13 +239,20 @@ class PublishPullPipelineManager(QObject):
         pass
 
     def pause(self):
-        self.controller_socket.send(b'PAUSE')
+        for worker_id in self.workers:
+            message = [make_filter_from_worker_id(worker_id),b'PAUSE']
+            self.controller_socket.send_multipart(message)
 
     def resume(self):
-        self.controller_socket.send(b'RESUME')
+        for worker_id in self.workers:
+            message = [make_filter_from_worker_id(worker_id),b'RESUME']
+            self.controller_socket.send_multipart(message)
 
     def __len__(self):
         return len(self.workers)
+
+    def __contains__(self, item):
+        return item in self.workers
 
 
 class WorkerInPublishPullPipeline():
@@ -258,7 +284,7 @@ class WorkerInPublishPullPipeline():
         # Socket for control input: pause, resume, stop
         self.controller = context.socket(zmq.SUB)
         self.controller.connect("tcp://localhost:{}".format(args.controller))
-        self.controller.setsockopt(zmq.SUBSCRIBE, b'')
+        self.controller.setsockopt(zmq.SUBSCRIBE, subscription_filter)
 
         # Socket to synchronize the start of receiving data from upstream
         sync_client = context.socket(zmq.REQ)
@@ -292,8 +318,9 @@ class WorkerInPublishPullPipeline():
         try:
             # Don't block if process is running regularly
             # If there is no command,exception will occur
-            command = self.controller.recv(zmq.DONTWAIT)
+            worker_id, command = self.controller.recv(zmq.DONTWAIT)
             assert command in [b'PAUSE', b'STOP']
+            assert  worker_id == self.worker_id
 
             if command == b'PAUSE':
                 # Because the process is paused, do a blocking read to wait for
@@ -324,6 +351,21 @@ class ScanArguments:
     def __init__(self, scan_preferences: ScanPreferences, device: Device):
         self.scan_preferences = scan_preferences
         self.device = device
+
+
+class CopyFilesArguments:
+    """
+    Pass arugments to the copyfiles process
+    """
+    def  __init__(self, photo_download_folder: str, video_download_folder:str,
+                  files, verify_file: bool):
+        """
+        :param files: List(rpd_file)
+        """
+        self.photo_download_folder = photo_download_folder
+        self.video_download_folder = video_download_folder
+        self.files = files
+        self.verify_file = verify_file
 
 class BackupArguments:
     """

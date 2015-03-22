@@ -29,7 +29,18 @@ from PyQt5.QtGui import QPixmap, QImage, QPainter, QColor, QFontMetrics
 from viewutils import RowTracker
 from interprocess import (PublishPullPipelineManager,
     GenerateThumbnailsArguments, Device)
-from constants import DownloadStatus, Downloaded
+from constants import (DownloadStatus, Downloaded, FileType)
+
+DownloadTypes = namedtuple('DownloadTypes', ['photos', 'videos'])
+DownloadFiles = namedtuple('DownloadFiles', ['files', 'download_types',
+                                             'download_stats'])
+
+class DownloadStats:
+    def __init__(self):
+        self.photos = 0
+        self.videos = 0
+        self.photos_size = 0
+        self.videos_size = 0
 
 class ThumbnailManager(PublishPullPipelineManager):
     message = pyqtSignal(str, QPixmap)
@@ -82,7 +93,7 @@ class ThumbnailTableModel(QAbstractTableModel):
     def initalize(self):
         self.file_names = {} # type: Dict[int, str]
         self.thumbnails = {} # type: Dict[int, QPixmap]
-        self.marked = {} # type: Dict[bool]
+        self.marked = set()
 
         self.rows = RowTracker()
         self.scan_index = defaultdict(list)
@@ -93,6 +104,7 @@ class ThumbnailTableModel(QAbstractTableModel):
 
         self.total_thumbs_to_generate = 0
         self.thumbnails_generated = 0
+        self.no_thumbnails_by_scan = defaultdict(int)
 
     def columnCount(self, parent=QModelIndex()):
         return 1
@@ -147,18 +159,20 @@ class ThumbnailTableModel(QAbstractTableModel):
         self.rpd_files[unique_id] = rpd_file
         self.file_names[unique_id] = rpd_file.name
         self.thumbnails[unique_id] = self.photo_icon
-        self.marked[unique_id] = True
+        self.marked.add(unique_id)
 
         self.scan_index[rpd_file.scan_id].append(unique_id)
 
         if generate_thumbnail:
             self.total_thumbs_to_generate += 1
+            self.no_thumbnails_by_scan[rpd_file.scan_id] += 1
 
     def thumbnailReceived(self, unique_id, thumbnail):
         row = self.rows.row(unique_id)
         self.thumbnails[unique_id] = thumbnail
         self.dataChanged.emit(self.index(row,0),self.index(row,0))
         self.thumbnails_generated += 1
+        self.no_thumbnails_by_scan[self.rpd_files[unique_id].scan_id] -= 1
         if self.thumbnails_generated == self.total_thumbs_to_generate:
             self.resetThumbnailTrackingAndDisplay()
         elif self.total_thumbs_to_generate:
@@ -238,11 +252,98 @@ class ThumbnailTableModel(QAbstractTableModel):
         :return: True if there is any file that the user has indicated
         they intend to download, else False.
         """
-        for unique_id, marked in self.marked.items():
-            if marked:
-                if self.rpd_files[unique_id].status not in Downloaded:
-                    return True
+        for unique_id in self.marked:
+            if self.rpd_files[unique_id].status not in Downloaded:
+                return True
         return False
+
+    def getFilesMarkedForDownload(self, scan_id) -> DownloadFiles:
+        """
+        Returns a dict of scan ids and associated files the user has
+        indicated they want to download, and whether there are photos
+        or videos included in the download.
+
+        :param scan_id: if not None, then returns those files only from
+        the device associated with that scan_id
+        :return: namedtuple DownloadFiles with defaultdict() indexed by
+        scan_id with value List(rpd_file), namedtuple DownloadTypes,
+        and defaultdict() indexed by scan_id with value DownloadStats
+        """
+
+        def addFile(unique_id):
+            rpd_file = self.rpd_files[unique_id]
+            """ :type : rpdfile"""
+            if rpd_file.status not in Downloaded:
+                scan_id = rpd_file.scan_id
+                files[scan_id].append(rpd_file)
+                if rpd_file.file_type == FileType.photo:
+                    download_types.photos = True
+                    download_stats[scan_id].photos += 1
+                    download_stats[scan_id].photo_size += rpd_file.size
+                else:
+                    download_types.videos = True
+                    download_stats[scan_id].videos += 1
+                    download_stats[scan_id].video_size += rpd_file.size
+
+        files = defaultdict(list)
+        download_types = DownloadTypes(photos=False, videos=False)
+        download_stats = defaultdict(DownloadStats)
+        if scan_id is None:
+            for unique_id in self.marked:
+                addFile(unique_id)
+        else:
+            for unique_id in self.scan_index[scan_id]:
+                if unique_id in self.marked:
+                    addFile(unique_id)
+
+        return DownloadFiles(files=files, download_types=download_types,
+                             download_stats=download_stats)
+
+    def markDownloadPending(self, files):
+        """
+        Sets status to download pending and updates thumbnails display
+
+        :param files: rpd_files by scan
+        :type files: defaultdict(int, List[rpd_file])
+        """
+        for scan_id in files:
+            for rpd_file in files[scan_id]:
+                unique_id = rpd_file.unique_id
+                self.rpd_files[unique_id].status = \
+                    DownloadStatus.download_pending
+                self.marked.remove(unique_id)
+                #TODO finish implementing logic to display download status
+
+    def markThumbnailsNeeded(self, rpd_files):
+        for rpd_file in rpd_files:
+            if rpd_file.unique_id not in self.thumbnails:
+                rpd_file.generate_thumbnail = True
+
+    def terminateThumbnailGeneration(self, scan_id: int) -> bool:
+        """
+        Terminates thumbnail generation if thumbnails are currently
+        being generated for this scan_id
+        :return True if thumbnail generation had to be terminated, else
+        False
+        """
+
+        terminated = scan_id in self.thumbnailmq
+        if terminated:
+            no_workers = len(self.thumbnailmq)
+            self.thumbnailmq.stop_worker(scan_id)
+            if no_workers == 1:
+                # Don't be fooled: the number of workers will become zero
+                # momentarily!
+                self.resetThumbnailTrackingAndDisplay()
+            else:
+                #Recalculate the percentages for the toolbar
+                self.total_thumbs_to_generate -= self.no_thumbnails_by_scan[
+                    scan_id]
+                self.rapidApp.downloadProgressBar.setMaximum(
+                    self.total_thumbs_to_generate)
+                del self.no_thumbnails_by_scan[scan_id]
+        return terminated
+
 
 class ThumbnailView(QListView):
     def __init__(self):

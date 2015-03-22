@@ -304,7 +304,7 @@ class Thumbnail:
 
 
     def _get_video_thumbnail(self, file_name: str, size: QSize, downloaded:
-    bool) -> QImage:
+                             bool) -> QImage:
         """
         Returns a correctly sized thumbnail for the file.
         Assumes a horizontal orientation
