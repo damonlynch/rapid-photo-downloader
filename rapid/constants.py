@@ -57,7 +57,7 @@ Downloaded = (DownloadStatus.downloaded,
               DownloadStatus.downloaded_with_warning,
               DownloadStatus.backup_problem)
 
-class BackupLocationForFileType(Enum):
+class BackupLocationType(Enum):
     photos = 1
     videos = 2
     photos_and_videos = 3

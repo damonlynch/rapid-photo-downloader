@@ -36,7 +36,7 @@ from . import problemnotification as pn
 
 from interprocess import CopyFilesArguments
 from interprocess import WorkerInPublishPullPipeline
-from constants import FileType
+from constants import FileType, DownloadStatus
 from . import thumbnail as tn
 
 from gettext import gettext as _
@@ -98,12 +98,12 @@ class CopyFilesWorker(WorkerInPublishPullPipeline):
             self.check_for_command()
 
 
-class CopyFiles(multiprocessing.Process):
+#class CopyFiles(multiprocessing.Process):
     """
     Copies files from source to temporary directory, giving them a random name
     """
 
-    def __init__(self, photo_download_folder, video_download_folder, files,
+    """def __init__(self, photo_download_folder, video_download_folder, files,
                  verify_file,
                  modify_files_during_download, modify_pipe,
                  scan_pid,
@@ -122,7 +122,7 @@ class CopyFiles(multiprocessing.Process):
         self.modify_pipe = modify_pipe
         self.scan_pid = scan_pid
         self.no_files = len(self.files)
-        self.run_event = run_event
+        self.run_event = run_event"""
 
 
     def check_termination_request(self):
@@ -230,7 +230,7 @@ class CopyFiles(multiprocessing.Process):
                         pn.DOWNLOAD_COPYING_ERROR_W_NO_DETAIL,
                         {'errorno': inst.errno, 'strerror': inst.strerror})
 
-                    rpd_file.status = constants.STATUS_DOWNLOAD_FAILED
+                    rpd_file.status = DownloadStatus.download_failed
 
                     rpd_file.error_title = rpd_file.problem.get_title()
                     rpd_file.error_msg = _("%(problem)s\nFile: %(file)s") % \
@@ -251,7 +251,7 @@ class CopyFiles(multiprocessing.Process):
                         pn.DOWNLOAD_COPYING_ERROR_DETAIL,
                         _("An unknown error occurred"))
 
-                    rpd_file.status = constants.STATUS_DOWNLOAD_FAILED
+                    rpd_file.status = DownloadStatus.download_failed
 
                     rpd_file.error_title = rpd_file.problem.get_title()
                     rpd_file.error_msg = _("%(problem)s\nFile: %(file)s") % \

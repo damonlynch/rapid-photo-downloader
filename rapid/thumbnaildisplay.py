@@ -31,7 +31,11 @@ from interprocess import (PublishPullPipelineManager,
     GenerateThumbnailsArguments, Device)
 from constants import (DownloadStatus, Downloaded, FileType)
 
-DownloadTypes = namedtuple('DownloadTypes', ['photos', 'videos'])
+class DownloadTypes:
+    def __init__(self):
+        self.photos = False
+        self.videos = False
+
 DownloadFiles = namedtuple('DownloadFiles', ['files', 'download_types',
                                              'download_stats'])
 
@@ -279,14 +283,14 @@ class ThumbnailTableModel(QAbstractTableModel):
                 if rpd_file.file_type == FileType.photo:
                     download_types.photos = True
                     download_stats[scan_id].photos += 1
-                    download_stats[scan_id].photo_size += rpd_file.size
+                    download_stats[scan_id].photos_size += rpd_file.size
                 else:
                     download_types.videos = True
                     download_stats[scan_id].videos += 1
-                    download_stats[scan_id].video_size += rpd_file.size
+                    download_stats[scan_id].videos_size += rpd_file.size
 
         files = defaultdict(list)
-        download_types = DownloadTypes(photos=False, videos=False)
+        download_types = DownloadTypes()
         download_stats = defaultdict(DownloadStats)
         if scan_id is None:
             for unique_id in self.marked:

@@ -21,7 +21,7 @@ __author__ = 'Damon Lynch'
 from collections import namedtuple
 from PyQt5.QtCore import QStorageInfo
 
-from constants import DeviceType, BackupLocationForFileType
+from constants import DeviceType, BackupLocationType
 from rpdfile import FileTypeCounter
 
 
@@ -268,11 +268,81 @@ class DeviceCollection:
 BackupDevice = namedtuple('BackupDevice', ['mount', 'backup_type'])
 
 class BackupDeviceCollection:
+    r"""
+    Track and manage devices (and manual paths) used for backing up.
+    Photos can be backed up to one location, and videos to another; or
+    they can be backed up to the same location.
+
+    >>> b = BackupDeviceCollection()
+    >>> p = BackupDevice(mount=None, backup_type=BackupLocationType.photos)
+    >>> v = BackupDevice(mount=None, backup_type=BackupLocationType.videos)
+    >>> pv = BackupDevice(mount=None,
+    ...                   backup_type=BackupLocationType.photos_and_videos)
+    >>> pv2 = BackupDevice(mount=None,
+    ...                   backup_type=BackupLocationType.photos_and_videos)
+    >>> b['/some/path'] = p
+    >>> b['/some/other/path'] = v
+    >>> len(b)
+    2
+    >>> '/some/path' in b
+    True
+    >>> b.no_photo_backup_devices
+    1
+    >>> b.no_video_backup_devices
+    1
+    >>> b['/yet/another/path'] = pv
+    >>> b.no_photo_backup_devices
+    2
+    >>> b.no_video_backup_devices
+    2
+    >>> del b['/some/path']
+    >>> b.no_photo_backup_devices
+    1
+    >>> b.no_video_backup_devices
+    2
+    >>> b['/some/other/path'] = pv2
+    >>> b.no_photo_backup_devices
+    2
+    >>> b.no_video_backup_devices
+    2
+    >>> del b['/some/other/path']
+    >>> del b['/yet/another/path']
+    >>> len(b)
+    0
+    >>> b.no_photo_backup_devices
+    0
+    >>> b.no_video_backup_devices
+    0
+    """
     def __init__(self):
         self.devices = {}
+        self.no_photo_backup_devices = 0
+        self.no_video_backup_devices = 0
 
     def __setitem__(self, path: str, device: BackupDevice):
+        if path in self.devices:
+            del self[path]
         self.devices[path] = device
+        backup_type = device.backup_type
+        if backup_type in [BackupLocationType.photos,
+                           BackupLocationType.photos_and_videos]:
+            self.no_photo_backup_devices += 1
+        if backup_type in [BackupLocationType.videos,
+                           BackupLocationType.photos_and_videos]:
+            self.no_video_backup_devices += 1
+
+
+    def __delitem__(self, path):
+        backup_type = self.devices[path].backup_type
+        if backup_type in [BackupLocationType.photos,
+                           BackupLocationType.photos_and_videos]:
+            self.no_photo_backup_devices -= 1
+        if backup_type in [BackupLocationType.videos,
+                                   BackupLocationType.photos_and_videos]:
+            self.no_video_backup_devices -= 1
+        assert self.no_video_backup_devices >= 0
+        assert self.no_photo_backup_devices >= 0
+        del self.devices[path]
 
     def __repr__(self):
         s = '{'
@@ -286,6 +356,9 @@ class BackupDeviceCollection:
 
     def __len__(self):
         return len(self.devices)
+
+    def __getitem__(self, path):
+        return self.devices[path]
 
     def name(self, path):
         if self.devices[path].mount is None:

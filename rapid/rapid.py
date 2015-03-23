@@ -59,7 +59,7 @@ from interprocess import (PublishPullPipelineManager, ScanArguments,
 from devices import (Device, DeviceCollection, BackupDevice,
                      BackupDeviceCollection)
 from preferences import (Preferences, ScanPreferences)
-from constants import (BackupLocationForFileType, DeviceType, ErrorType,
+from constants import (BackupLocationType, DeviceType, ErrorType,
                        FileType)
 from thumbnaildisplay import (ThumbnailView, ThumbnailTableModel,
     ThumbnailDelegate, DownloadTypes, DownloadStats)
@@ -328,6 +328,8 @@ class RapidWindow(QMainWindow):
         self.downloadButton = QPushButton(self.downloadAct.text())
         self.downloadButton.addAction(self.downloadAct)
         self.downloadButton.setDefault(True)
+        self.downloadButton.clicked.connect(self.downloadButtonClicked)
+        self.download_action_is_download = True
         buttons = QDialogButtonBox(QDialogButtonBox.Help)
         buttons.addButton(self.downloadButton, QDialogButtonBox.ApplyRole)
         horizontalLayout.addWidget(buttons)
@@ -441,6 +443,42 @@ class RapidWindow(QMainWindow):
     def doAboutAction(self):
         pass
 
+    def downloadButtonClicked(self):
+        if False: #self.copy_files_manager.paused:
+            logging.debug("Download resumed")
+            self.resumeDownload()
+        else:
+            logging.debug("Download activated")
+
+            if self.download_action_is_download:
+                if False:#self.need_job_code_for_naming and not \
+                        #self.prompting_for_job_code:
+
+                    #self.get_job_code()
+                    pass
+                else:
+                    self.startDownload()
+            else:
+                self.pauseDownload()
+
+    def pauseDownload(self):
+
+        self.copyfilesmq.pause()
+
+        # set action to display Download
+        if not self.download_action_is_download:
+            self.setDownloadActionLabel(is_download = True)
+
+        self.time_check.pause()
+
+    def resumeDownload(self):
+        for scan_id in self.active_downloads_by_scan_id:
+            self.time_remaining.set_time_mark(scan_id)
+
+        self.time_check.set_download_mark()
+
+        self.copyfilesmq.resume()
+
     def downloadIsRunning(self) -> bool:
         """
         :return True if a file is currently being downloaded, renamed
@@ -472,7 +510,8 @@ class RapidWindow(QMainWindow):
             self.log_error(ErrorType.critical_error, _("Download cannot "
                                                        "proceed"), msg)
         else:
-            missing_destinations = self.backupDestinationsMissing()
+            missing_destinations = self.backupDestinationsMissing(
+                download_files.download_types)
             if missing_destinations is not None:
                 # Warn user that they have specified that they want to
                 # backup a file type, but no such folder exists on backup
@@ -512,7 +551,7 @@ class RapidWindow(QMainWindow):
                 self.downloadFiles(files, scan_id,
                                    download_files.download_stats[scan_id])
 
-            self.set_download_action_label(is_download = False)
+            self.setDownloadActionLabel(is_download = False)
 
 
     def downloadFiles(self, files, scan_id: int, download_stats:
@@ -604,13 +643,13 @@ class RapidWindow(QMainWindow):
         """
         invalid_dirs = []
         if downloading.photos:
-            if not self.isValidDownloadDir(self.prefs.photo_download_folder,
+            if not self.isValidDownloadDir(self.prefs['photo_download_folder'],
                                                         is_photo_dir=True):
-                invalid_dirs.append(self.prefs.photo_download_folder)
+                invalid_dirs.append(self.prefs['photo_download_folder'])
         if downloading.videos:
-            if not self.isValidDownloadDir(self.prefs.video_download_folder,
+            if not self.isValidDownloadDir(self.prefs['video_download_folder'],
                                                         is_photo_dir=False):
-                invalid_dirs.append(self.prefs.video_download_folder)
+                invalid_dirs.append(self.prefs['video_download_folder'])
         return invalid_dirs
 
     def isValidDownloadDir(self, path, is_photo_dir: bool,
@@ -670,7 +709,8 @@ class RapidWindow(QMainWindow):
         :return: None if no problems, or BackupMissing
         """
         backup_missing = BackupMissing(False, False)
-        if self.prefs.backup_images and self.prefs.backup_device_autodetection:
+        if self.prefs['backup_images'] and self.prefs[
+            'backup_device_autodetection']:
             if downloading.photos and not self.backupPossible(
                     FileType.photo):
                 backup_missing.photo = True
@@ -721,6 +761,8 @@ class RapidWindow(QMainWindow):
         self.scanThread.wait()
         self.thumbnailModel.thumbnailThread.quit()
         self.thumbnailModel.thumbnailThread.wait()
+        self.copyfilesThread.quit()
+        self.copyfilesThread.wait()
         if not self.gvfsControlsMounts:
             self.udisks2MonitorThread.quit()
             self.udisks2MonitorThread.wait()
@@ -947,16 +989,19 @@ class RapidWindow(QMainWindow):
         if self.monitorPartitionChanges():
             mount = QStorageInfo(path)
             if self.partitionValid(mount):
-                backupFileType = self.isBackupPath(path)
+                backup_file_type = self.isBackupPath(path)
 
-                if backupFileType is not None:
-                    #TODO implement backup handling
-                    pass
-                    # if path not in self.backup_devices:
-                    #     self.backup_devices[path] = mount
+                if backup_file_type is not None:
+                    if path not in self.backup_devices:
+                        device = BackupDevice(mount=mount,
+                                              backup_type=backup_file_type)
+                        self.backup_devices[path] = device
+                        #TODO add backup device to manager
                     #     name = self._backup_device_name(path)
                     #     self.backup_manager.add_device(path, name, backup_file_type)
-                    #     self.update_no_backup_devices()
+                        self.download_tracker.set_no_backup_devices(
+                            self.backup_devices.no_photo_backup_devices,
+                            self.backup_devices.no_video_backup_devices)
                     #     self.display_free_space()
 
                 elif self.shouldScanMountPath(path):
@@ -985,12 +1030,14 @@ class RapidWindow(QMainWindow):
             scan_id = self.devices.scan_id_from_path(path)
             self.removeDevice(scan_id)
 
-        elif False: #path in self.backup_devices:
-            pass
-            # del self.backup_devices[path]
+        elif path in self.backup_devices:
+            del self.backup_devices[path]
             # self.display_free_space()
+             #TODO remove backup device from manager
             # self.backup_manager.remove_device(path)
-            # self.update_no_backup_devices()
+            self.download_tracker.set_no_backup_devices(
+                self.backup_devices.no_photo_backup_devices,
+                self.backup_devices.no_video_backup_devices)
 
         self.setDownloadActionSensitivity()
 
@@ -1050,9 +1097,13 @@ class RapidWindow(QMainWindow):
         if self.prefs['backup_images']:
             if not self.prefs['backup_device_autodetection']:
                 self.setupManualBackup()
+                # TODO add backup devices to backup manager MQ
         #     self._add_backup_devices()
         #
-        # self.update_no_backup_devices()
+
+        self.download_tracker.set_no_backup_devices(
+            self.backup_devices.no_photo_backup_devices,
+            self.backup_devices.no_video_backup_devices)
 
         # Display amount of free space in a status bar message
         # self.display_free_space()
@@ -1110,9 +1161,9 @@ class RapidWindow(QMainWindow):
 
         if backup_photo_location != backup_video_location:
             backup_photo_device =  BackupDevice(mount=None,
-                                backup_type=BackupLocationForFileType.photos)
+                                backup_type=BackupLocationType.photos)
             backup_video_device = BackupDevice(mount=None,
-                                backup_type=BackupLocationForFileType.videos)
+                                backup_type=BackupLocationType.videos)
             self.backup_devices[backup_photo_location] = backup_photo_device
             self.backup_devices[backup_video_location] = backup_video_device
 
@@ -1121,13 +1172,13 @@ class RapidWindow(QMainWindow):
         else:
             # videos and photos are being backed up to the same location
             backup_device = BackupDevice(mount=None,
-                     backup_type=BackupLocationForFileType.photos_and_videos)
+                     backup_type=BackupLocationType.photos_and_videos)
             self.backup_devices[backup_photo_location] = backup_device
 
             logging.info("Backing up photos and videos to %s",
                          backup_photo_location)
 
-    def isBackupPath(self, path: str) -> BackupLocationForFileType:
+    def isBackupPath(self, path: str) -> BackupLocationType:
         """
         Checks to see if backups are enabled and path represents a
         valid backup location. It must be writeable.
@@ -1155,21 +1206,21 @@ class RapidWindow(QMainWindow):
                 if p_backup and v_backup:
                     logging.info("Photos and videos will be backed up to "
                                  "%s", path)
-                    return BackupLocationForFileType.photos_and_videos
+                    return BackupLocationType.photos_and_videos
                 elif p_backup:
                     logging.info("Photos will be backed up to %s", path)
-                    return BackupLocationForFileType.photos
+                    return BackupLocationType.photos
                 elif v_backup:
                     logging.info("Videos will be backed up to %s", path)
-                    return BackupLocationForFileType.videos
+                    return BackupLocationType.videos
             elif path == self.prefs['backup_photo_location']:
                 # user manually specified the path
                 if os.access(path, os.W_OK):
-                    return BackupLocationForFileType.photos
+                    return BackupLocationType.photos
             elif path == self.prefs['backup_video_location']:
                 # user manually specified the path
                 if os.access(path, os.W_OK):
-                    return BackupLocationForFileType.videos
+                    return BackupLocationType.videos
             return None
 
     def clearNonRunningDownloads(self):

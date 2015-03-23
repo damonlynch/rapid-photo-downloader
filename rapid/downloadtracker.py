@@ -76,14 +76,6 @@ class DownloadTracker:
     def set_no_backup_devices(self, no_photo_backup_devices, no_video_backup_devices):
         self.no_photo_backup_devices = no_photo_backup_devices
         self.no_video_backup_devices = no_video_backup_devices
-        #~ self.no_backup_devices = no_photo_backup_devices + no_video_backup_devices
-#~
-    #~ def get_no_backup_devices(self):
-        #~ """
-        #~ Returns how many devices are being used to backup files of each type
-        #~ Return value is an integer tuple: photo and video
-        #~ """
-        #~ return (self.no_photo_backup_devices, self.no_video_backup_devices)
 
     def init_stats(self, scan_id, photo_size_in_bytes, video_size_in_bytes, no_photos_to_download, no_videos_to_download):
         no_files = no_photos_to_download + no_videos_to_download
