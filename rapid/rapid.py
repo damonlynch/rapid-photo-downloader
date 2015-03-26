@@ -27,7 +27,7 @@ Everything else should follow PEP 8.
 """
 import sys
 import logging
-import time
+import shutil
 import datetime
 import os
 from collections import namedtuple
@@ -53,7 +53,8 @@ from PyQt5.QtWidgets import (QAction, QApplication, QFileDialog, QLabel,
 
 from storage import (ValidMounts, CameraHotplug, UDisks2Monitor,
                      GVolumeMonitor, have_gio, has_non_empty_dcim_folder,
-                     mountPaths, get_desktop_environment, gvfs_controls_mounts)
+                     mountPaths, get_desktop_environment,
+                     gvfs_controls_mounts, get_program_cache_directory)
 from interprocess import (PublishPullPipelineManager, ScanArguments,
                           CopyFilesArguments)
 from devices import (Device, DeviceCollection, BackupDevice,
@@ -246,6 +247,8 @@ class RapidWindow(QMainWindow):
         self.copyfilesThread.started.connect(self.copyfilesmq.run_sink)
         self.copyfilesmq.message.connect(self.copyfilesMessageReceived)
         self.copyfilesmq.workerFinished.connect(self.copyfilesFinished)
+
+        QtCore.QTimer.singleShot(0, self.copyfilesThread.start)
 
         self.setDownloadActionSensitivity()
         self.searchForCameras()
@@ -546,29 +549,35 @@ class RapidWindow(QMainWindow):
                 files = download_files.files[scan_id]
                 # if generating thumbnails for this scan_id, stop it
                 if self.thumbnailModel.terminateThumbnailGeneration(scan_id):
-                    self.thumbnailModel.markThumbnailsNeeded(files)
+                    generate_thumbnails = self.thumbnailModel\
+                        .markThumbnailsNeeded(files)
+                else:
+                    generate_thumbnails = False
 
                 self.downloadFiles(files, scan_id,
-                                   download_files.download_stats[scan_id])
+                                   download_files.download_stats[scan_id],
+                                   generate_thumbnails)
 
             self.setDownloadActionLabel(is_download = False)
 
 
-    def downloadFiles(self, files, scan_id: int, download_stats:
-                      DownloadStats):
+    def downloadFiles(self, files, scan_id: int, download_stats: \
+                      DownloadStats, generate_thumbnails: bool):
         """
 
         :param files: list of the files to download
         :param scan_id: the device from which to download the files
         :param download_stats: count of files and their size
+        :param generate_thumbnails: whether thumbnails must be
+        generated in the copy files process.
         """
 
-        if download_stats.photos:
+        if download_stats.photos > 0:
             photo_download_folder = self.prefs['photo_download_folder']
         else:
             photo_download_folder = None
 
-        if download_stats.videos:
+        if download_stats.videos > 0:
             video_download_folder = self.prefs['video_download_folder']
         else:
             video_download_folder = None
@@ -602,6 +611,7 @@ class RapidWindow(QMainWindow):
         if self.auto_start_is_on and self.prefs['generate_thumbnails']:
             for rpd_file in files:
                 rpd_file.generate_thumbnail = True
+            generate_thumbnails = True
 
         verify_file = self.prefs['verify_file']
         if verify_file:
@@ -622,10 +632,22 @@ class RapidWindow(QMainWindow):
 
         # Initiate copy files process
 
-        copyfiles_args = CopyFilesArguments(photo_download_folder,
-                                            video_download_folder, files,
-                                            verify_file)
-        self.copyfilesmq.add_worker(scan_id, copyfiles_args)
+        if generate_thumbnails:
+            thumbnail_quality_lower = self.prefs['thumbnail_quality_lower']
+        else:
+            thumbnail_quality_lower = None
+
+        device = self.devices[scan_id]
+        copyfiles_args = CopyFilesArguments(device,
+                                photo_download_folder,
+                                video_download_folder,
+                                files,
+                                verify_file,
+                                generate_thumbnails,
+                                thumbnail_quality_lower
+                                )
+
+        # self.copyfilesmq.add_worker(scan_id, copyfiles_args)
 
     def copyfilesMessageReceived(self):
         pass
@@ -742,21 +764,32 @@ class RapidWindow(QMainWindow):
         text = device.file_type_counter.running_file_count()
         self.deviceModel.updateDeviceScan(scan_id, text, size)
 
-        self.thumbnailModel.addFile(rpd_file, True)
+        self.thumbnailModel.addFile(rpd_file, generate_thumbnail=not
+                                    self.auto_start_is_on)
 
     def scanFinished(self, scan_id: int):
         device = self.devices[scan_id]
         text = device.file_type_counter.summarize_file_count()[0]
         self.deviceModel.updateDeviceScan(scan_id, text, scanCompleted=True)
-        # Generate thumbnails for finished scan
-        self.thumbnailModel.generateThumbnails(scan_id, self.devices[
-            scan_id], self.prefs['thumbnail_quality_lower'])
         self.setDownloadActionSensitivity()
+
+        if (not self.auto_start_is_on and  self.prefs['generate_thumbnails']):
+            # Generate thumbnails for finished scan
+            self.thumbnailModel.generateThumbnails(scan_id, self.devices[
+                        scan_id], self.prefs['thumbnail_quality_lower'])
+        elif self.auto_start_is_on:
+            #TODO implement get job code
+            if False: #self.need_job_code_for_naming and not self.job_code:
+                pass
+                #self.get_job_code()
+            else:
+                self.start_download(scan_id=scan_id)
 
     def closeEvent(self, event):
         self.writeWindowSettings()
         self.scanmq.stop()
         self.thumbnailModel.thumbnailmq.stop()
+        self.copyfilesmq.stop()
         self.scanThread.quit()
         self.scanThread.wait()
         self.thumbnailModel.thumbnailThread.quit()
@@ -768,6 +801,22 @@ class RapidWindow(QMainWindow):
             self.udisks2MonitorThread.wait()
             self.cameraHotplugThread.quit()
             self.cameraHotplugThread.wait()
+
+        cache_dir = get_program_cache_directory()
+        # Out of an abundance of caution, under no circumstance try the
+        # dangerous rmtree command unless certain that the folder is safely
+        # located
+        assert cache_dir.startswith(os.path.join(os.path.expanduser('~'),
+                                                 '.cache'))
+        if os.path.isdir(cache_dir):
+            try:
+                shutil.rmtree(cache_dir, ignore_errors=True)
+            except:
+                logging.error("Unknown error deleting cache directory %s",
+                              cache_dir)
+
+        self.devices.delete_cache_dirs()
+
 
     def getDeviceIcon(self, device: Device) -> QIcon:
         if device.device_type == DeviceType.volume:
@@ -1005,9 +1054,8 @@ class RapidWindow(QMainWindow):
                     #     self.display_free_space()
 
                 elif self.shouldScanMountPath(path):
-                    #TODO implement autostart
-                    #self.auto_start_is_on =
-                    # self.prefs.auto_download_upon_device_insertion
+                    self.auto_start_is_on = self.prefs[
+                        'auto_download_upon_device_insertion']
                     device = Device()
                     device.set_download_from_volume(path, mount.displayName(),
                                                     iconNames, canEject)
@@ -1108,6 +1156,7 @@ class RapidWindow(QMainWindow):
         # Display amount of free space in a status bar message
         # self.display_free_space()
 
+        #TODO hey need to think about this now that we have cameras too
         if block_auto_start:
             self.auto_start_is_on = False
         else:

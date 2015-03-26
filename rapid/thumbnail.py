@@ -35,12 +35,14 @@ from gi.repository import GExiv2
 from rpdfile import RPDFile
 
 from interprocess import (WorkerInPublishPullPipeline,
-                          GenerateThumbnailsArguments)
+                          GenerateThumbnailsArguments,
+                          GenerateThumbnailsResults)
 
 from filmstrip import add_filmstrip
 
 from constants import (Downloaded, FileType)
 from camera import Camera
+from utilities import (GenerateRandomFileName, create_temp_dir)
 
 #FIXME free camera in case of early termination
 
@@ -96,18 +98,31 @@ class Thumbnail:
     stock_video = QImage("images/video66.png")
 
     def __init__(self, rpd_file: RPDFile, camera: Camera,
-                 thumbnail_transform: Qt.TransformationMode):
+                 thumbnail_quality_lower: bool,
+                 use_temp_file: bool, photo_cache_dir=None):
         """
         :param rpd_file: file from which to extract the thumbnails
         :param camera: if not None, the camera from which to get the
         thumbnails
-        :param: whether to generate the thumbnail high or low quality
-        as it is scaled by Qt
+        :param thumbnail_quality_lower: whether to generate the
+        thumbnail high or low quality as it is scaled by Qt
+        :param use_temp_file: if True, generate the thumbnail from the
+        temporary file that has been downloaded
+        :param photo_cache_dir: if specified, the folder in which
+        full size photos from a camera should be cached
+        :type photo_cache_dir: str
         """
         self.rpd_file = rpd_file
         self.metadata = None
         self.camera = camera
-        self.thumbnail_transform = thumbnail_transform
+        if thumbnail_quality_lower:
+            self.thumbnail_transform = Qt.FastTransformation
+        else:
+            self.thumbnail_transform = Qt.SmoothTransformation
+        self.use_temp_file = use_temp_file
+        self.photo_cache_dir = photo_cache_dir
+        if photo_cache_dir is not None:
+            self.random_filename = GenerateRandomFileName()
 
     def _ignore_embedded_160x120_thumbnail(self) -> bool:
         """
@@ -267,7 +282,7 @@ class Thumbnail:
 
         thumbnail = None
         ignore_embedded_thumbnail = True
-        is_raw_image =   self.rpd_file.is_raw()
+        is_raw_image =  self.rpd_file.is_raw()
         if self.camera.can_fetch_thumbnails:
             if is_raw_image:
                 # without first downloading the photo, there is no way to get
@@ -280,9 +295,17 @@ class Thumbnail:
                     ignore_embedded_thumbnail = size.width() > 160
 
         if not (is_raw_image and not self.camera.can_fetch_thumbnails):
+            if ignore_embedded_thumbnail:
+                cache_full_file_name = os.path.join(
+                    self.photo_cache_dir, '{}.{}'.format(
+                        self.random_filename.name(), self.rpd_file.extension))
+            else:
+                cache_full_file_name = None
             thumbnail = self.camera.get_thumbnail(self.rpd_file.path,
                                                   self.rpd_file.name,
-                                                  ignore_embedded_thumbnail)
+                                                  ignore_embedded_thumbnail,
+                                                  cache_full_file_name)
+            self.rpd_file.cache_full_file_name = cache_full_file_name
             if thumbnail.isNull():
                 thumbnail = None
                 logging.error(
@@ -320,16 +343,18 @@ class Thumbnail:
 
         use_thm = False
         if self.rpd_file.thm_full_name is not None:
-            if self.rpd_file.from_camera and not downloaded:
+            if self.rpd_file.from_camera and not (downloaded or
+                                                      self.use_temp_file):
                 use_thm = True
             elif size is not None:
                 if size.width() <= 160:
                     use_thm = True
 
         if use_thm:
-            if downloaded:
-                thumbnail = QImage(
-                    self.rpd_file.download_thm_full_name)
+            if self.use_temp_file:
+                thumbnail = QImage(self.rpd_file.temp_thm_full_name)
+            elif downloaded:
+                thumbnail = QImage(self.rpd_file.download_thm_full_name)
             else:
                 thm_file = self.rpd_file.thm_full_name
                 if self.rpd_file.from_camera:
@@ -351,8 +376,8 @@ class Thumbnail:
                 thumbnail = add_filmstrip(thumbnail)
 
 
-        if thumbnail is None and not (self.rpd_file.from_camera and not
-        downloaded):
+        if thumbnail is None and (downloaded or self.use_temp_file or (not
+                                                   self.rpd_file.from_camera)):
             # extract a frame from the video file and scale it
             #FIXME haven't handled case of missing program
             try:
@@ -386,16 +411,20 @@ class Thumbnail:
         :type size: QSize
         """
 
-        # If the file is already downloaded, cannot assume the source
-        # file is still available
-        downloaded = self.rpd_file.status in Downloaded
-        if downloaded:
-            file_name = self.rpd_file.download_full_file_name
+        if self.use_temp_file:
+            file_name = self.rpd_file.temp_full_file_name
         else:
-            file_name = self.rpd_file.full_file_name
+            # If the file is already downloaded, cannot assume the source
+            # file is still available
+            downloaded = self.rpd_file.status in Downloaded
+            if downloaded:
+                file_name = self.rpd_file.download_full_file_name
+            else:
+                file_name = self.rpd_file.full_file_name
 
         if self.rpd_file.file_type == FileType.photo:
-            if self.rpd_file.from_camera and not downloaded:
+            if (self.rpd_file.from_camera and not (downloaded or
+                self.use_temp_file)):
                 return self._get_photo_thumbnail_from_camera(file_name, size)
             else:
                 return self._get_photo_thumbnail(file_name, size)
@@ -440,16 +469,25 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
         super(GenerateThumbnails, self).__init__('Thumbnails')
 
     def do_work(self):
-        logging.debug("Generating thumbnails...")
         arguments = pickle.loads(self.content)
+        """ :type : GenerateThumbnailsArguments"""
+        logging.debug("Generating thumbnails for %s...", arguments.name)
 
-        if arguments.thumbnail_quality_lower:
-            thumbnail_transform = Qt.FastTransformation
-        else:
-            thumbnail_transform = Qt.SmoothTransformation
+
 
         if arguments.camera:
             camera = Camera(arguments.camera, arguments.port)
+            # Sometimes need to download complete copy of the files to
+            # generate previews.
+            # May as well cache them to speed up the download process
+            photo_cache_dir = create_temp_dir(
+                folder=arguments.photo_cache_folder,
+                prefix='rpd-cache-{}-'.format(arguments.name[:10]))
+            #TODO Don't forget about filesystem metadata too
+            self.content = pickle.dumps(GenerateThumbnailsResults(
+                    scan_id=arguments.scan_id,
+                    photo_cache_dir=photo_cache_dir), pickle.HIGHEST_PROTOCOL)
+            self.send_message_to_sink()
         else:
             camera = None
 
@@ -460,20 +498,29 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
 
             # The maximum size of the embedded exif thumbnail is typically
             # 160x120.
-            thumbnail = Thumbnail(rpd_file, camera, thumbnail_transform)
+            thumbnail = Thumbnail(rpd_file, camera,
+                                  arguments.thumbnail_quality_lower,
+                                  use_temp_file=False,
+                                  photo_cache_dir=photo_cache_dir)
             thumbnail_icon = thumbnail.get_thumbnail(size=QSize(100,100))
 
             buffer = QBuffer()
             buffer.open(QIODevice.WriteOnly)
             thumbnail_icon.save(buffer, "PNG")
 
-            self.content= pickle.dumps((rpd_file.unique_id, buffer.data()),
-                                       pickle.HIGHEST_PROTOCOL)
+            self.content= pickle.dumps(GenerateThumbnailsResults(
+                rpd_file=rpd_file, png_data=buffer.data()),
+                pickle.HIGHEST_PROTOCOL)
             self.send_message_to_sink()
 
         if arguments.camera:
             camera.free_camera()
-        logging.debug("...finished thumbnail generation")
+            # Delete our temporary cache directory only if it's empty
+            if not os.listdir(photo_cache_dir):
+                os.rmdir(photo_cache_dir)
+
+        logging.debug("...finished thumbnail generation for %s",
+                      arguments.name)
         self.send_finished_command()
 
 

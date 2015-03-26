@@ -133,7 +133,8 @@ class PublishPullPipelineManager(QObject):
             try:
                 # Receive messages from the workers
                 # (or the terminate socket)
-                worker_id, directive, content = self.receiver_socket.recv_multipart()
+                worker_id, directive, content = \
+                    self.receiver_socket.recv_multipart()
             except KeyboardInterrupt:
                 break
             if directive == b'cmd':
@@ -328,12 +329,20 @@ class WorkerInPublishPullPipeline():
                 command = self.controller.recv()
                 assert (command in [b'RESUME', b'STOP'])
             if command == b'STOP':
+                self.cleanup_pre_stop()
                 # signal to sink that we've terminated before finishing
                 self.sender.send_multipart([self.worker_id, b'cmd',
                                             b'STOPPED'])
                 sys.exit(0)
         except zmq.Again:
             pass # Continue scanning
+
+    def cleanup_pre_stop(self):
+        """
+        Implement in child class if needed. Operations to run if
+        process is stopped.
+        """
+        pass
 
     def send_message_to_sink(self):
 
@@ -357,15 +366,36 @@ class CopyFilesArguments:
     """
     Pass arugments to the copyfiles process
     """
-    def  __init__(self, photo_download_folder: str, video_download_folder:str,
-                  files, verify_file: bool):
+    def  __init__(self, device: Device,
+                  photo_download_folder: str,
+                  video_download_folder: str,
+                  files,
+                  verify_file: bool,
+                  generate_thumbnails: bool,
+                  thumbnail_quality_lower: bool):
         """
         :param files: List(rpd_file)
         """
+        self.device = device
         self.photo_download_folder = photo_download_folder
         self.video_download_folder = video_download_folder
         self.files = files
+        self.generate_thumbnails = generate_thumbnails
+        self.thumbnail_quality_lower = thumbnail_quality_lower
         self.verify_file = verify_file
+
+class CopyFilesResult:
+    """
+    Receive results from the copyfiles process
+    """
+    def __init__(self):
+        pass
+        # copy_succeeded
+        # rpd_file
+        # download_count
+        # temp_full_file_name
+        # thumbnail_icon, thumbnail
+
 
 class BackupArguments:
     """
@@ -376,6 +406,7 @@ class BackupArguments:
 
 class GenerateThumbnailsArguments:
     def __init__(self, scan_id: int, rpd_files, thumbnail_quality_lower: bool,
+                 name: str, photo_cache_folder: str,
                  camera=None, port=None):
         """
         List of files for which thumbnails are to be generated.
@@ -383,11 +414,14 @@ class GenerateThumbnailsArguments:
         :param scan_id: id of the scan
         :param rpd_files: list of files from which to extract thumbnails
         :param thumbnail_quality_lower: whether to generate the
-        thumbnail high or low quality as it is scaled by Qt
-        :param camera: If the thumbnails are being downloaded from a camera,
-        this is the name of the camera, else None
-        :param port: If the thumbnails are being downloaded from a camera,
-        this is the port of the camera, else None
+         thumbnail high or low quality as it is scaled by Qt
+        :param name: name of the device
+        :param photo_cache_folder: full path of where the photos will
+         downloaded to
+        :param camera: If the thumbnails are being downloaded from a
+         camera, this is the name of the camera, else None
+        :param port: If the thumbnails are being downloaded from a
+         camera, this is the port of the camera, else None
         :type rpd_files: List[RPDFile]
         :type camera: str
         :type port: str
@@ -395,7 +429,18 @@ class GenerateThumbnailsArguments:
         self.rpd_files = rpd_files
         self.scan_id = scan_id
         self.thumbnail_quality_lower = thumbnail_quality_lower
+        self.name = name
+        self.photo_cache_folder = photo_cache_folder
         if camera is not None:
             assert port is not None
         self.camera = camera
         self.port = port
+
+
+class GenerateThumbnailsResults:
+    def __init__(self, rpd_file=None, png_data=None,
+                 scan_id=None, photo_cache_dir=None):
+        self.rpd_file = rpd_file
+        self.png_data = png_data
+        self.scan_id = scan_id
+        self.photo_cache_dir = photo_cache_dir

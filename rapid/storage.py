@@ -238,6 +238,30 @@ def xdg_videos_directory() -> str:
     """
     return GLib.get_user_special_dir(GLib.USER_DIRECTORY_VIDEOS)
 
+def get_program_cache_directory(create_if_not_exist=False) -> str:
+    """
+    Get Rapid Photo Downloader cache directory, which is assumed to be
+    under ~/.cache.
+    :param create_if_not_exist: creates directory if it does not exist.
+    :return: the full path of the cache directory
+    """
+    assert sys.platform.startswith('linux')
+    cache_dir = os.path.join(os.path.expanduser('~'),
+                       '.cache/rapid-photo-downloader')
+    if not create_if_not_exist:
+        return cache_dir
+    else:
+        try:
+            if not os.path.exists(cache_dir):
+                if not os.path.isdir(cache_dir):
+                    os.remove(cache_dir)
+                os.mkdir(cache_dir)
+            return cache_dir
+        except:
+            logging.error("An error occurred while creating the cache "
+                          "directory")
+            return None
+
 class CameraHotplug(QObject):
     cameraAdded = pyqtSignal()
     cameraRemoved = pyqtSignal()

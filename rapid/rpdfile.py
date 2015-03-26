@@ -227,6 +227,7 @@ class RPDFile:
 
         # generated values
 
+        self.cache_full_file_name = ''
         self.temp_full_file_name = ''
         self.temp_thm_full_name = ''
         self.temp_audio_full_name = ''

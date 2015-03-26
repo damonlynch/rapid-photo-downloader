@@ -19,6 +19,7 @@ __author__ = 'Damon Lynch'
 # see <http://www.gnu.org/licenses/>.
 
 import pickle
+import os
 from collections import (namedtuple, defaultdict)
 
 from PyQt5.QtCore import  (QAbstractTableModel, QModelIndex, Qt, pyqtSignal,
@@ -27,9 +28,11 @@ from PyQt5.QtWidgets import QListView, QStyledItemDelegate
 from PyQt5.QtGui import QPixmap, QImage, QPainter, QColor, QFontMetrics
 
 from viewutils import RowTracker
+from rpdfile import RPDFile
 from interprocess import (PublishPullPipelineManager,
-    GenerateThumbnailsArguments, Device)
+    GenerateThumbnailsArguments, Device, GenerateThumbnailsResults)
 from constants import (DownloadStatus, Downloaded, FileType)
+from storage import get_program_cache_directory
 
 class DownloadTypes:
     def __init__(self):
@@ -47,23 +50,30 @@ class DownloadStats:
         self.videos_size = 0
 
 class ThumbnailManager(PublishPullPipelineManager):
-    message = pyqtSignal(str, QPixmap)
+    message = pyqtSignal(RPDFile, QPixmap)
+    cache_dir = pyqtSignal(int, str)
     def __init__(self, context):
         super(ThumbnailManager, self).__init__(context)
         self._process_name = 'Thumbnail Manager'
         self._process_to_run = 'thumbnail.py'
 
     def process_sink_data(self):
-        unique_id, thumbnail = pickle.loads(self.content)
-        thumbnail = QImage.fromData(thumbnail)
-        thumbnail = QPixmap.fromImage(thumbnail)
-        self.message.emit(unique_id, thumbnail)
+        data = pickle.loads(self.content)
+        """ :type : GenerateThumbnailsResults"""
+        if data.rpd_file is not None:
+            thumbnail = QImage.fromData(data.png_data)
+            thumbnail = QPixmap.fromImage(thumbnail)
+            self.message.emit(data.rpd_file, thumbnail)
+        else:
+            assert data.photo_cache_dir is not None
+            self.cache_dir.emit(data.scan_id, data.photo_cache_dir)
 
 
 class ThumbnailTableModel(QAbstractTableModel):
     def __init__(self, parent):
         super(ThumbnailTableModel, self).__init__(parent)
         self.rapidApp = parent
+        """ :type : rapid.RapidWindow"""
         self.initalize()
 
         self.thumbnailThread = QThread()
@@ -72,6 +82,7 @@ class ThumbnailTableModel(QAbstractTableModel):
 
         self.thumbnailThread.started.connect(self.thumbnailmq.run_sink)
         self.thumbnailmq.message.connect(self.thumbnailReceived)
+        self.thumbnailmq.cache_dir.connect(self.cacheDirReceived)
 
         QTimer.singleShot(0, self.thumbnailThread.start)
 
@@ -171,7 +182,12 @@ class ThumbnailTableModel(QAbstractTableModel):
             self.total_thumbs_to_generate += 1
             self.no_thumbnails_by_scan[rpd_file.scan_id] += 1
 
-    def thumbnailReceived(self, unique_id, thumbnail):
+    def cacheDirReceived(self, scan_id: int, cache_dir: str):
+        self.rapidApp.devices[scan_id].photo_cache_dir = cache_dir
+
+    def thumbnailReceived(self, rpd_file, thumbnail):
+        unique_id = rpd_file.unique_id
+        self.rpd_files[unique_id] = rpd_file
         row = self.rows.row(unique_id)
         self.thumbnails[unique_id] = thumbnail
         self.dataChanged.emit(self.index(row,0),self.index(row,0))
@@ -197,11 +213,22 @@ class ThumbnailTableModel(QAbstractTableModel):
             rpd_files = list((self.rpd_files[unique_id] for unique_id in
                          self.scan_index[scan_id]))
 
+            if self.rapidApp.isValidDownloadDir(self.rapidApp.prefs[
+                'photo_download_folder'], is_photo_dir=True):
+                photo_cache_folder = self.rapidApp.prefs[
+                'photo_download_folder']
+            else:
+                photo_cache_folder = get_program_cache_directory(
+                    create_if_not_exist=True)
+                if photo_cache_folder is None:
+                    photo_cache_folder = os.path.expanduser('~')
             generate_arguments = GenerateThumbnailsArguments(scan_id,
-                                                     rpd_files,
-                                                     thumbnail_quality_lower,
-                                                     device.camera_model,
-                                                     device.camera_port)
+                                 rpd_files,
+                                 thumbnail_quality_lower,
+                                 device.name(),
+                                 photo_cache_folder,
+                                 device.camera_model,
+                                 device.camera_port)
             self.thumbnailmq.add_worker(scan_id, generate_arguments)
 
 
@@ -318,10 +345,19 @@ class ThumbnailTableModel(QAbstractTableModel):
                 self.marked.remove(unique_id)
                 #TODO finish implementing logic to display download status
 
-    def markThumbnailsNeeded(self, rpd_files):
+    def markThumbnailsNeeded(self, rpd_files) -> bool:
+        """
+        Analyzes the files that will be downloaded, and sees if any of
+        them still need to have their thumbnails generated.
+        :param rpd_files: list of files to examine
+        :return: True if at least one thumbnail needs to be generated
+        """
+        generation_needed = False
         for rpd_file in rpd_files:
             if rpd_file.unique_id not in self.thumbnails:
                 rpd_file.generate_thumbnail = True
+                generation_needed = True
+        return generation_needed
 
     def terminateThumbnailGeneration(self, scan_id: int) -> bool:
         """

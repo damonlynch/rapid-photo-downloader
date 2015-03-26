@@ -18,11 +18,18 @@ __author__ = 'Damon Lynch'
 # along with Rapid Photo Downloader.  If not,
 # see <http://www.gnu.org/licenses/>.
 
+import shutil
+import os
+import logging
 from collections import namedtuple
 from PyQt5.QtCore import QStorageInfo
 
 from constants import DeviceType, BackupLocationType
 from rpdfile import FileTypeCounter
+
+logging.basicConfig(format='%(levelname)s:%(asctime)s:%(message)s',
+                    datefmt='%H:%M:%S',
+                    level=logging.DEBUG)
 
 
 class Device:
@@ -70,6 +77,7 @@ class Device:
         self.device_type = None
         self.icon_names = None
         self.can_eject = None
+        self.photo_cache_dir = None
         self.file_size_sum = 0
         self.file_type_counter = FileTypeCounter()
 
@@ -248,6 +256,22 @@ class DeviceCollection:
                 del self[scan_id]
                 return True
         return False
+
+    def delete_cache_dirs(self):
+        """
+        Delete all cache dirs and their contents any devices might have
+        """
+        for device in self.devices.values():
+            if device.photo_cache_dir is not None:
+                try:
+                    if os.path.isdir(device.photo_cache_dir):
+                        assert device.photo_cache_dir != os.path.expanduser(
+                            '~')
+                        shutil.rmtree(device.photo_cache_dir,
+                                      ignore_errors=True)
+                except:
+                    logging.error("Unknown error deleting cache directory %s",
+                                  device.photo_cache_dir)
 
     def __delitem__(self, scan_id):
         d = self.devices[scan_id]

@@ -77,7 +77,7 @@ class Camera:
         Check whether the camera has been initialized and if a DCIM folder
         has been located
 
-        :return: True if the camera is intialized and a DCIM folder has
+        :return: True if the camera is initialized and a DCIM folder has
                  been located
         """
         if self.camera_initialized:
@@ -101,7 +101,8 @@ class Camera:
         return (modification_time, size)
 
     def get_thumbnail(self, dir_name: str, file_name: str,
-                      ignore_embedded_thumbnail=False) -> \
+                      ignore_embedded_thumbnail=False,
+                      cache_full_filename=None) -> \
     QImage:
         """
 
@@ -109,6 +110,9 @@ class Camera:
         :param file_name: the photo or video
         :param ignore_embedded_thumbnail: if True, do not retrieve the
         embedded thumbnail
+        :param cache_full_filename: full path including filename where the
+        thumbnail will be saved. If none, will not save it.
+        :type cache_full_filename: str
         :return: QImage of the thumbnail, which will be full resolution
         if the embedded thumbnail is not selected
         """
@@ -119,6 +123,8 @@ class Camera:
         camera_file = gp.check_result(gp.gp_camera_file_get(
                          self.camera, dir_name, file_name,
                          get_file_type, self.context))
+        if cache_full_filename is not None:
+            gp.check_result(gp.gp_file_save(camera_file, cache_full_filename))
         thumbnail_data = gp.check_result(gp.gp_file_get_data_and_size(
                 camera_file))
         image = QImage.fromData(thumbnail_data)
