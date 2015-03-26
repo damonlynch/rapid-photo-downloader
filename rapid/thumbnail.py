@@ -474,7 +474,7 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
         logging.debug("Generating thumbnails for %s...", arguments.name)
 
 
-
+        photo_cache_dir = None
         if arguments.camera:
             camera = Camera(arguments.camera, arguments.port)
             # Sometimes need to download complete copy of the files to

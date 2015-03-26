@@ -216,7 +216,8 @@ class PublishPullPipelineManager(QObject):
         # Add to list of running workers
         self.workers.append(worker_id)
 
-        # Send START commands until scan worker indicates it is ready to receive data
+        # Send START commands until scan worker indicates it is ready to
+        # receive data
         while True:
             self.publisher_socket.send_multipart([str(worker_id).encode(),
                                                   b'cmd', b'START'])
@@ -319,7 +320,8 @@ class WorkerInPublishPullPipeline():
         try:
             # Don't block if process is running regularly
             # If there is no command,exception will occur
-            worker_id, command = self.controller.recv(zmq.DONTWAIT)
+            data = self.controller.recv_multipart(zmq.DONTWAIT)
+            worker_id, command = data
             assert command in [b'PAUSE', b'STOP']
             assert  worker_id == self.worker_id
 
