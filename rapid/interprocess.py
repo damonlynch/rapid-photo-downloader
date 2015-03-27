@@ -320,8 +320,7 @@ class WorkerInPublishPullPipeline():
         try:
             # Don't block if process is running regularly
             # If there is no command,exception will occur
-            data = self.controller.recv_multipart(zmq.DONTWAIT)
-            worker_id, command = data
+            worker_id, command = self.controller.recv_multipart(zmq.DONTWAIT)
             assert command in [b'PAUSE', b'STOP']
             assert  worker_id == self.worker_id
 
@@ -337,7 +336,7 @@ class WorkerInPublishPullPipeline():
                                             b'STOPPED'])
                 sys.exit(0)
         except zmq.Again:
-            pass # Continue scanning
+            pass # Continue working
 
     def cleanup_pre_stop(self):
         """
@@ -368,7 +367,8 @@ class CopyFilesArguments:
     """
     Pass arugments to the copyfiles process
     """
-    def  __init__(self, device: Device,
+    def  __init__(self, scan_id: int,
+                  device: Device,
                   photo_download_folder: str,
                   video_download_folder: str,
                   files,
@@ -378,6 +378,7 @@ class CopyFilesArguments:
         """
         :param files: List(rpd_file)
         """
+        self.scan_id = scan_id
         self.device = device
         self.photo_download_folder = photo_download_folder
         self.video_download_folder = video_download_folder
@@ -386,17 +387,20 @@ class CopyFilesArguments:
         self.thumbnail_quality_lower = thumbnail_quality_lower
         self.verify_file = verify_file
 
-class CopyFilesResult:
+class CopyFilesResults:
     """
     Receive results from the copyfiles process
     """
-    def __init__(self):
-        pass
+    def __init__(self, scan_id=None, photo_temp_dir=None, video_temp_dir=None):
+        self.scan_id = scan_id
+        self.photo_temp_dir = photo_temp_dir
+        self.video_temp_dir = video_temp_dir
         # copy_succeeded
         # rpd_file
         # download_count
         # temp_full_file_name
         # thumbnail_icon, thumbnail
+
 
 
 class BackupArguments:

@@ -34,9 +34,10 @@ from . import rpdfile
 from . import problemnotification as pn
 from camera import Camera
 
-from interprocess import CopyFilesArguments
-from interprocess import WorkerInPublishPullPipeline
+from interprocess import (WorkerInPublishPullPipeline, CopyFilesArguments,
+                          CopyFilesResults)
 from constants import FileType, DownloadStatus, DeviceType
+from thumbnail import Thumbnail
 from utilities import (GenerateRandomFileName, create_temp_dirs)
 
 from gettext import gettext as _
@@ -125,12 +126,7 @@ class CopyFilesWorker(WorkerInPublishPullPipeline):
         else:
             camera = None
 
-        if args.generate_thumbnails:
-            pass
-
-
         random_filename = GenerateRandomFileName()
-
 
         self.bytes_downloaded = 0
         self.total_downloaded = 0
@@ -139,8 +135,14 @@ class CopyFilesWorker(WorkerInPublishPullPipeline):
         video_download_folder = args.video_download_folder
         photo_temp_dir, video_temp_dir = create_temp_dirs(
             photo_download_folder, video_download_folder)
-        #TODO notify calling process of temp directory names
 
+        # Notify main process of temp directory names
+        self.content = pickle.dumps(CopyFilesResults(
+                    scan_id=args.scan_id,
+                    photo_temp_dir=photo_temp_dir,
+                    video_temp_dir=video_temp_dir),
+                    pickle.HIGHEST_PROTOCOL)
+        self.send_message_to_sink()
 
         """gp_camera_file_read 	( 	Camera *  	camera,
                 const char *  	folder,
@@ -290,6 +292,15 @@ class CopyFilesWorker(WorkerInPublishPullPipeline):
 
             else:
                 temp_thm_full_name = None
+
+            if args.generate_thumbnails:
+                thumbnail = Thumbnail(rpd_file,
+                                      args.thumbnail_quality_lower,
+                                      use_temp_file=True
+                                     )
+                thumbnail_icon = thumbnail.get_thumbnail(size=QSize(100,100))
+            else:
+                thumbnail_icon = None
 
             #copy audio file if there is one
             if copy_succeeded and rpd_file.audio_file_full_name:

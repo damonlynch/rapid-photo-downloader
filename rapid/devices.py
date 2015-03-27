@@ -138,6 +138,16 @@ class Device:
         else:
             return self.path
 
+    def delete_cache_dir(self):
+        if self.photo_cache_dir is not None:
+            if os.path.isdir(self.photo_cache_dir):
+                assert self.photo_cache_dir != os.path.expanduser('~')
+                try:
+                    shutil.rmtree(self.photo_cache_dir, ignore_errors=True)
+                except:
+                    logging.error("Unknown error deleting cache "
+                                      "directory %s", self.photo_cache_dir)
+
 class DeviceCollection:
     """
     Maintain collection of devices that are being scanned, where a
@@ -257,26 +267,21 @@ class DeviceCollection:
                 return True
         return False
 
+
     def delete_cache_dirs(self):
         """
         Delete all cache dirs and their contents any devices might have
         """
         for device in self.devices.values():
-            if device.photo_cache_dir is not None:
-                try:
-                    if os.path.isdir(device.photo_cache_dir):
-                        assert device.photo_cache_dir != os.path.expanduser(
-                            '~')
-                        shutil.rmtree(device.photo_cache_dir,
-                                      ignore_errors=True)
-                except:
-                    logging.error("Unknown error deleting cache directory %s",
-                                  device.photo_cache_dir)
+            device.delete_cache_dir()
+
 
     def __delitem__(self, scan_id):
         d = self.devices[scan_id]
+        """ :type : Device"""
         if d.device_type == DeviceType.camera:
             del self.cameras[d.camera_port]
+        d.delete_cache_dir()
         del self.devices[scan_id]
 
     def __getitem__(self, scan_id):

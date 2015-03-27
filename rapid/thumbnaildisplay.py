@@ -51,7 +51,7 @@ class DownloadStats:
 
 class ThumbnailManager(PublishPullPipelineManager):
     message = pyqtSignal(RPDFile, QPixmap)
-    cache_dir = pyqtSignal(int, str)
+    cacheDir = pyqtSignal(int, str)
     def __init__(self, context):
         super(ThumbnailManager, self).__init__(context)
         self._process_name = 'Thumbnail Manager'
@@ -66,7 +66,7 @@ class ThumbnailManager(PublishPullPipelineManager):
             self.message.emit(data.rpd_file, thumbnail)
         else:
             assert data.photo_cache_dir is not None
-            self.cache_dir.emit(data.scan_id, data.photo_cache_dir)
+            self.cacheDir.emit(data.scan_id, data.photo_cache_dir)
 
 
 class ThumbnailTableModel(QAbstractTableModel):
@@ -82,7 +82,7 @@ class ThumbnailTableModel(QAbstractTableModel):
 
         self.thumbnailThread.started.connect(self.thumbnailmq.run_sink)
         self.thumbnailmq.message.connect(self.thumbnailReceived)
-        self.thumbnailmq.cache_dir.connect(self.cacheDirReceived)
+        self.thumbnailmq.cacheDir.connect(self.cacheDirReceived)
 
         QTimer.singleShot(0, self.thumbnailThread.start)
 
@@ -157,7 +157,7 @@ class ThumbnailTableModel(QAbstractTableModel):
         for unique_id in unique_ids:
             del self.file_names[unique_id]
             del self.thumbnails[unique_id]
-            del self.marked[unique_id]
+            self.marked.remove(unique_id)
             scan_id = self.rpd_files[unique_id].scan_id
             self.scan_index[scan_id].remove(unique_id)
             del self.rpd_files[unique_id]

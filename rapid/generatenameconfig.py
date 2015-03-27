@@ -1,22 +1,23 @@
-#!/usr/bin/python
-# -*- coding: latin1 -*-
+#!/usr/bin/python3
+__author__ = 'Damon Lynch'
 
-### Copyright (C) 2007-2012 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2007-2015 Damon Lynch <damonlynch@gmail.com>
 
-### This program is free software; you can redistribute it and/or modify
-### it under the terms of the GNU General Public License as published by
-### the Free Software Foundation; either version 2 of the License, or
-### (at your option) any later version.
-
-### This program is distributed in the hope that it will be useful,
-### but WITHOUT ANY WARRANTY; without even the implied warranty of
-### MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-### GNU General Public License for more details.
-
-### You should have received a copy of the GNU General Public License
-### along with this program; if not, write to the Free Software
-### Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-### USA
+# This file is part of Rapid Photo Downloader.
+#
+# Rapid Photo Downloader is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Rapid Photo Downloader is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Rapid Photo Downloader.  If not,
+# see <http://www.gnu.org/licenses/>.
 
 # Special key in each dictionary which specifies the order of elements.
 # It is very important to have a consistent and rational order when displaying 
@@ -128,19 +129,25 @@ FILE_NUMBER_ALL = "Folder and file"
 
 SUBSECONDS = 'Subseconds'
 
-# ****** NOTE 1: if changing LIST_DATE_TIME_L2, you MUST update the default subfolder preference below *****
-# ****** NOTE 2: if changing LIST_DATE_TIME_L2, you MUST update DATE_TIME_CONVERT below *****
-LIST_DATE_TIME_L2 = ['YYYYMMDD', 'YYYY-MM-DD','YYMMDD', 'YY-MM-DD', 
-                    'MMDDYYYY', 'MMDDYY', 'MMDD', 
-                    'DDMMYYYY', 'DDMMYY', 'YYYY', 'YY', 
-                    'MM', 'DD', 'Month (full)', 'Month (abbreviated)',
-                    'HHMMSS', 'HHMM', 'HH-MM-SS',  'HH-MM',  'HH',  'MM (minutes)',  'SS']
+# NOTE 1: if changing LIST_DATE_TIME_L2, you MUST update the default
+# subfolder preference immediately below
+# NOTE 2: if changing LIST_DATE_TIME_L2, you MUST also update
+# DATE_TIME_CONVERT below
+LIST_DATE_TIME_L2 = ['YYYYMMDD', 'YYYY-MM-DD', 'YYYY_MM_DD', 'YYMMDD',
+                     'YY-MM-DD', 'YY_MM_DD',
+                     'MMDDYYYY', 'MMDDYY', 'MMDD',
+                     'DDMMYYYY', 'DDMMYY', 'YYYY', 'YY',
+                     'MM', 'DD', 'Month (full)', 'Month (abbreviated)',
+                     'HHMMSS', 'HHMM', 'HH-MM-SS', 'HH-MM', 'HH',
+                     'MM (minutes)', 'SS']
                     
 
 LIST_IMAGE_DATE_TIME_L2 = LIST_DATE_TIME_L2 + [SUBSECONDS]
 
-DEFAULT_SUBFOLDER_PREFS = [DATE_TIME, IMAGE_DATE, LIST_DATE_TIME_L2[9], '/',  '', '', DATE_TIME, IMAGE_DATE, LIST_DATE_TIME_L2[0]]
-DEFAULT_VIDEO_SUBFOLDER_PREFS = [DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[9], '/',  '', '', DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[0]]
+DEFAULT_SUBFOLDER_PREFS = [DATE_TIME, IMAGE_DATE, LIST_DATE_TIME_L2[11], '/',
+                           '', '', DATE_TIME, IMAGE_DATE, LIST_DATE_TIME_L2[0]]
+DEFAULT_VIDEO_SUBFOLDER_PREFS = [DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[
+    11], '/',  '', '', DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[0]]
 
 class i18TranslateMeThanks:
     """ this class is never used in actual running code
@@ -245,11 +252,15 @@ class i18TranslateMeThanks:
         # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
         _('YYYY-MM-DD')
         # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-        _('YYMMDD') 
+        _('YYYY_MM_DD')
+        # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
+        _('YYMMDD')
         # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
         _('YY-MM-DD') 
         # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-        _('MMDDYYYY') 
+        _('YY_MM_DD')
+        # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
+        _('MMDDYYYY')
         # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
         _('MMDDYY') 
         # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
@@ -289,12 +300,13 @@ class i18TranslateMeThanks:
 # Convenience values for python datetime conversion using values in 
 # LIST_DATE_TIME_L2.  Obviously the two must remain synchronized.
 
-DATE_TIME_CONVERT = ['%Y%m%d', '%Y-%m-%d','%y%m%d', '%y-%m-%d', 
-                    '%m%d%Y', '%m%d%y', '%m%d',
-                    '%d%m%Y', '%d%m%y', '%Y', '%y', 
-                    '%m', '%d', '%B', '%b',
-                    '%H%M%S', '%H%M', '%H-%M-%S',  '%H-%M',  
-                    '%H',  '%M',  '%S']
+DATE_TIME_CONVERT = ['%Y%m%d', '%Y-%m-%d', '%Y_%m_%d', '%y%m%d', '%y-%m-%d',
+                     '%y_%m_%d',
+                     '%m%d%Y', '%m%d%y', '%m%d',
+                     '%d%m%Y', '%d%m%y', '%Y', '%y',
+                     '%m', '%d', '%B', '%b',
+                     '%H%M%S', '%H%M', '%H-%M-%S', '%H-%M',
+                     '%H', '%M', '%S']
                     
 
 LIST_IMAGE_NUMBER_L2 = [IMAGE_NUMBER_ALL, IMAGE_NUMBER_1, IMAGE_NUMBER_2, 

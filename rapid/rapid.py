@@ -30,6 +30,7 @@ import logging
 import shutil
 import datetime
 import os
+import pickle
 from collections import namedtuple
 
 from gettext import gettext as _
@@ -56,7 +57,7 @@ from storage import (ValidMounts, CameraHotplug, UDisks2Monitor,
                      mountPaths, get_desktop_environment,
                      gvfs_controls_mounts, get_program_cache_directory)
 from interprocess import (PublishPullPipelineManager, ScanArguments,
-                          CopyFilesArguments)
+                          CopyFilesArguments, CopyFilesResults)
 from devices import (Device, DeviceCollection, BackupDevice,
                      BackupDeviceCollection)
 from preferences import (Preferences, ScanPreferences)
@@ -84,10 +85,19 @@ class ScanManager(PublishPullPipelineManager):
 
 class CopyFilesManager(PublishPullPipelineManager):
     message = QtCore.pyqtSignal(rpdfile.RPDFile)
+    tempDirs = QtCore.pyqtSignal(int, str,str)
     def __init__(self, context):
         super(CopyFilesManager, self).__init__(context)
         self._process_name = 'Copy Files Manager'
         self._process_to_run = 'copyfiles.py'
+
+    def process_sink_data(self):
+        data = pickle.loads(self.content)
+        """ :type : CopyFilesResults"""
+        if data.photo_temp_dir is not None or data.video_temp_dir is not None:
+            assert data.scan_id is not None
+            self.tempDirs.emit(data.scan_id, data.photo_temp_dir,
+                               data.video_temp_dir)
 
 
 class RapidWindow(QMainWindow):
@@ -211,7 +221,10 @@ class RapidWindow(QMainWindow):
             self.gvolumeMonitor.cameraPossiblyRemoved.connect(
                 self.cameraRemoved)
 
-        #Track which downloads are running
+        # Track the creation of temporary directories
+        self.temp_dirs_by_scan_id = {}
+
+        # Track which downloads are running
         self.active_downloads_by_scan_id = set()
 
         # Track the time a download commences
@@ -246,6 +259,7 @@ class RapidWindow(QMainWindow):
 
         self.copyfilesThread.started.connect(self.copyfilesmq.run_sink)
         self.copyfilesmq.message.connect(self.copyfilesMessageReceived)
+        self.copyfilesmq.tempDirs.connect(self.tempDirsReceivedFromCopyFiles)
         self.copyfilesmq.workerFinished.connect(self.copyfilesFinished)
 
         QtCore.QTimer.singleShot(0, self.copyfilesThread.start)
@@ -648,6 +662,34 @@ class RapidWindow(QMainWindow):
                                 )
 
         # self.copyfilesmq.add_worker(scan_id, copyfiles_args)
+
+    def tempDirsReceivedFromCopyFiles(self, scan_id: int, photo_temp_dir: str,
+                                      video_temp_dir: str):
+        self.temp_dirs_by_scan_id[scan_id] = list(filter(None,[photo_temp_dir,
+                                                  video_temp_dir]))
+
+    def cleanAllTempDirs(self):
+        """
+        Deletes temporary files and folders used in all downloads
+        """
+        for scan_id in self.temp_dirs_by_scan_id:
+            self.cleanTempDirsForScanId(scan_id)
+        self.temp_dirs_by_scan_id = {}
+
+    def cleanTempDirsForScanId(self, scan_id: int):
+        """
+        Deletes temporary files and folders used in download
+        """
+        home_dir = os.path.expanduser("~")
+        for d in self.temp_dirs_by_scan_id[scan_id]:
+            assert d != home_dir
+            if os.path.isdir(d):
+                try:
+                    shutil.rmtree(d, ignore_errors=True)
+                except:
+                    logging.error("Unknown error deleting temporary  "
+                                      "directory %s", d)
+        del self.temp_dirs_by_scan_id[scan_id]
 
     def copyfilesMessageReceived(self):
         pass
