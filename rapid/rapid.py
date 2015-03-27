@@ -66,6 +66,7 @@ from constants import (BackupLocationType, DeviceType, ErrorType,
 from thumbnaildisplay import (ThumbnailView, ThumbnailTableModel,
     ThumbnailDelegate, DownloadTypes, DownloadStats)
 from devicedisplay import (DeviceTableModel, DeviceView, DeviceDelegate)
+from utilities import (same_file_system, makeInternationalizedList)
 import rpdfile
 import downloadtracker
 
@@ -157,8 +158,9 @@ class RapidWindow(QMainWindow):
     def setupWindow(self):
         status = self.statusBar()
         self.downloadProgressBar = QProgressBar()
+        self.downloadProgressBar.setMaximumWidth(150)
         # self.statusLabel.setFrameStyle()
-        status.addPermanentWidget(self.downloadProgressBar)
+        status.addPermanentWidget(self.downloadProgressBar, .1)
 
     def event(self, event):
         # Code borrowed from Jim Easterbrook
@@ -268,6 +270,7 @@ class RapidWindow(QMainWindow):
         self.searchForCameras()
         self.setupNonCameraDevices(on_startup=True, on_preference_change=False,
                                    block_auto_start=False)
+        self.displayFreeSpaceAndBackups()
 
     def createActions(self):
         self.downloadAct = QAction("&Download", self, shortcut="Ctrl+Return",
@@ -1093,7 +1096,7 @@ class RapidWindow(QMainWindow):
                         self.download_tracker.set_no_backup_devices(
                             self.backup_devices.no_photo_backup_devices,
                             self.backup_devices.no_video_backup_devices)
-                    #     self.display_free_space()
+                        self.displayFreeSpaceAndBackups()
 
                 elif self.shouldScanMountPath(path):
                     self.auto_start_is_on = self.prefs[
@@ -1367,17 +1370,24 @@ class RapidWindow(QMainWindow):
 
     def formatSizeForUser(self, size: int, zero_string='',
                              with_decimals=True,
-                             kb_only=False):
+                             kb_only=False) -> str:
         """
         Format an int containing the number of bytes into a string
         suitable for displaying to the user.
 
+        source: https://develop.participatoryculture.org/trac/democracy/browser/trunk/tv/portable/util.py?rev=3993
+
         :param size: size in bytes
         :param zero_string: string to use if size == 0
         :param kb_only: display in KB or B
-        source: https://develop.participatoryculture.org/trac/democracy/browser/trunk/tv/portable/util.py?rev=3993
         """
-        if size > (1 << 30) and not kb_only:
+        if size > (1 << 40) and not kb_only:
+            value = (size / (1024.0 * 1024.0 * 1024.0 * 1024.0))
+            if with_decimals:
+                format = "%1.1fTB"
+            else:
+                format = "%dTB"
+        elif size > (1 << 30) and not kb_only:
             value = (size / (1024.0 * 1024.0 * 1024.0))
             if with_decimals:
                 format = "%1.1fGB"
@@ -1404,6 +1414,100 @@ class RapidWindow(QMainWindow):
         else:
             return zero_string
         return format % value
+
+    def displayFreeSpaceAndBackups(self):
+        """
+        Displays on status bar the amount of space free on the
+        filesystem the files will be downloaded to.
+
+        Also displays backup volumes / path being used.
+        """
+        photo_dir = self.isValidDownloadDir(
+            path=self.prefs['photo_download_folder'],
+            is_photo_dir=True,
+            show_error_in_log=True)
+        video_dir = self.isValidDownloadDir(
+            path=self.prefs['video_download_folder'],
+            is_photo_dir=False,
+            show_error_in_log=True)
+        if photo_dir and video_dir:
+            same_fs = same_file_system(self.prefs['photo_download_folder'],
+                                       self.prefs['video_download_folder'])
+        else:
+            same_fs = False
+
+        dirs = []
+        if photo_dir:
+            dirs.append(self.prefs['photo_download_folder'])
+        if video_dir and not same_fs:
+            dirs.append(self.prefs['video_download_folder'])
+
+        if len(dirs) == 1:
+            free = self.formatSizeForUser(size=shutil.disk_usage(dirs[0]).free)
+            # Free space available on the filesystem for downloading to
+            # Displayed in status bar message on main window
+            # e.g. 14.7GB free
+            msg = _("%(free)s free") % {'free': free}
+        elif len(dirs) == 2:
+            free1, free2 = (self.formatSizeForUser(size=shutil.disk_usage(
+                path).free) for path in dirs)
+            # Free space available on the filesystem for downloading to
+            # Displayed in status bar message on main window
+            # e.g. Free space: 21.3GB (photos); 14.7GB (videos).
+            msg = _('Free space: %(photos)s (photos); %(videos)s (videos).') \
+                  % {'photos': free1, 'videos': free2}
+        else:
+            msg = ''
+
+        if self.prefs['backup_images']:
+            if not self.prefs['backup_device_autodetection']:
+                if self.prefs['photo_backup_location'] ==  self.prefs[
+                    'backup_video_location']:
+                    # user manually specified the same location for photos
+                    # and video backups
+                    msg2 = _('Backing up photos and videos to %(path)s') % {
+                        'path':self.prefs['photo_backup_location']}
+                else:
+                    # user manually specified different locations for photo
+                    # and video backups
+                    msg2 = _('Backing up photos to %(path)s and videos to %('
+                             'path2)s')  % {
+                             'path': self.prefs['photo_backup_location'],
+                             'path2': self.prefs['backup_video_location']}
+            else:
+                msg2 = self.displayBackupMounts()
+
+            if msg:
+                msg = _("%(freespace)s %(backuppaths)s.") % {'freespace':
+                                                  msg, 'backuppaths': msg2}
+            else:
+                msg = msg2
+
+        msg = msg.rstrip()
+
+        self.statusBar().showMessage(msg)
+
+    def displayBackupMounts(self) -> str:
+        """
+        Create a message to be displayed to the user showing which
+        backup mounts will be used
+        :return the string to be displayed
+        """
+        message =  ''
+
+        backup_device_names = [self.backup_devices.name(path) for path in
+                          self.backup_devices]
+        message = makeInternationalizedList(backup_device_names)
+
+        if len(backup_device_names) > 1:
+            message = _("Using backup devices %(devices)s") % dict(
+                devices=message)
+        elif len(backup_device_names) == 1:
+            message = _("Using backup device %(device)s")  % dict(
+                device=message)
+        else:
+            message = _("No backup devices detected")
+        return message
 
 if __name__ == "__main__":
 

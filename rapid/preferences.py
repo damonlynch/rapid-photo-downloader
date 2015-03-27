@@ -192,9 +192,14 @@ class Preferences:
 
     def __init__(self):
         self.settings = QSettings()
+        # These next two values must be kept in sync
         dicts = (self.rename_defaults, self.device_defaults,
                  self.backup_defaults, self.automation_defaults,
                  self.performance_defaults, self.error_defaults)
+        group_names = ('Rename', 'Device', 'Backup', 'Automation',
+                       'Performance', 'ErrorHandling')
+        assert len(dicts) == len(group_names)
+
         # Create quick lookup table for types of each value, including the
         # special case of lists, which use the type of what they contain.
         # While we're at it also merge the dictionaries into one dictionary
@@ -209,25 +214,21 @@ class Preferences:
                     t = type(value)
                 self.types[key] = t
                 self.defaults[key] = value
+        # Create quick lookup table of the group each key is in
+        self.groups = {}
+        for idx, d in enumerate(dicts):
+            for key in d:
+                self.groups[key] = group_names[idx]
 
     def __getitem__(self, key):
-        return self.settings.value(key, self.defaults[key], self.types[key])
+        group = self.groups.get(key, 'General')
+        self.settings.beginGroup(group)
+        v = self.settings.value(key, self.defaults[key], self.types[key])
+        self.settings.endGroup()
+        return v
 
     def __setitem__(self, key, value):
-        if key in self.rename_defaults:
-            group = 'Rename'
-        elif key in self.device_defaults:
-            group = 'Device'
-        elif key in self.backup_defaults:
-            group = 'Backup'
-        elif key in self.automation_defaults:
-            group = 'Automation'
-        elif key in self.performance_defaults:
-            group = 'Performance'
-        elif key in self.error_defaults:
-            group = 'ErrorHandling'
-        else:
-            group = 'General'
+        group = self.groups.get(key, 'General')
         self.settings.beginGroup(group)
         self.settings.setValue(key, value)
-        self.settings.endGroup(group)
+        self.settings.endGroup()

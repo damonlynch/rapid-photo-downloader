@@ -293,6 +293,9 @@ class DeviceCollection:
     def __contains__(self, scan_id):
         return scan_id in self.devices
 
+    def __iter__(self):
+        return iter(self.devices)
+
 
 BackupDevice = namedtuple('BackupDevice', ['mount', 'backup_type'])
 
@@ -315,6 +318,8 @@ class BackupDeviceCollection:
     2
     >>> '/some/path' in b
     True
+    >>> b['/some/path']
+    BackupDevice(mount=None, backup_type=<BackupLocationType.photos: 1>)
     >>> b.no_photo_backup_devices
     1
     >>> b.no_video_backup_devices
@@ -388,6 +393,9 @@ class BackupDeviceCollection:
 
     def __getitem__(self, path):
         return self.devices[path]
+
+    def __iter__(self):
+        return iter(self.devices)
 
     def name(self, path):
         if self.devices[path].mount is None:

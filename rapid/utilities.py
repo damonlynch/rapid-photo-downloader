@@ -25,6 +25,7 @@ import random
 import string
 import tempfile
 import logging
+from gettext import gettext as _
 
 logging.basicConfig(format='%(levelname)s:%(asctime)s:%(message)s',
                     datefmt='%H:%M:%S',
@@ -85,24 +86,74 @@ def create_temp_dirs(photo_download_folder: str,
     return TempDirs(photo_temp_dir, video_temp_dir)
 
 
-def get_full_path(path):
-    """ make path relative to home directory if not an absolute path """
-    if os.path.isabs(path):
-        return path
-    else:
-        return os.path.join(os.path.expanduser('~'), path)
-        
-
-
-
-def escape(s):
+def same_file_system(file1: str, file2: str) -> bool:
     """
-    Replace special characters by SGML entities.
+    Returns True if the files / directories are on the same filesystem
+    :param file1: first file / directory to check
+    :param file2: second file / directory to check
+    :return: True if the same file system, else false
     """
-    entities = ("&&amp;", "<&lt;", ">&gt;")
-    for e in entities:
-        s = s.replace(e[0], e[1:])
-    return s
+    dev1 = os.stat(file1).st_dev
+    dev2 = os.stat(file2).st_dev
+    return dev1 == dev2
+
+def makeInternationalizedList(items) -> str:
+    r"""
+    Makes a string of items conforming to i18n
+
+    >>> print(makeInternationalizedList([]))
+    <BLANKLINE>
+    >>> print(makeInternationalizedList(['one']))
+    one
+    >>> print(makeInternationalizedList(['one', 'two']))
+    one and two
+    >>> print(makeInternationalizedList(['one', 'two', 'three']))
+    one, two and three
+    >>> print(makeInternationalizedList(['one', 'two', 'three', 'four']))
+    one, two, three and four
+
+    Loosely follows the guideline here:
+    http://cldr.unicode.org/translation/lists
+
+    :param items: the list of items to make a string out of
+    :return: internationalized string
+    """
+    if len(items) == 1:
+        return items[0]
+    if len(items) == 2:
+        # two things in a list e.g. "device1 and device2"
+        return _('%(first_item)s and %(last_item)s') % dict(
+            first_item=items[0], last_item=items[1])
+    if len(items) > 2:
+        s = items[0]
+        for item in items[1:-1]:
+            # the middle of a list of things
+            s =  '%(first_items)s, %(last_items)s'% dict(first_items=s,
+                                                         last_items=item)
+        # the end of a list of things
+        s = '%(start_items)s and %(last_item)s' % dict(start_items=s,
+                                                       last_item=items[-1])
+        return s
+    return ''
+
+# def get_full_path(path):
+#     """ make path relative to home directory if not an absolute path """
+#     if os.path.isabs(path):
+#         return path
+#     else:
+#         return os.path.join(os.path.expanduser('~'), path)
+#
+#
+#
+#
+# def escape(s):
+#     """
+#     Replace special characters by SGML entities.
+#     """
+#     entities = ("&&amp;", "<&lt;", ">&gt;")
+#     for e in entities:
+#         s = s.replace(e[0], e[1:])
+#     return s
 
 
     
