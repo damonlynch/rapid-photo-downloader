@@ -391,16 +391,22 @@ class CopyFilesResults:
     """
     Receive results from the copyfiles process
     """
-    def __init__(self, scan_id=None, photo_temp_dir=None, video_temp_dir=None):
+    def __init__(self, scan_id=None, photo_temp_dir=None, video_temp_dir=None,
+                 total_downloaded=None, chunk_downloaded=None,
+                 copy_succeeded=None, rpd_file=None,
+                 download_count=None, png_data=None):
         self.scan_id = scan_id
+
         self.photo_temp_dir = photo_temp_dir
         self.video_temp_dir = video_temp_dir
-        # copy_succeeded
-        # rpd_file
-        # download_count
-        # temp_full_file_name
-        # thumbnail_icon, thumbnail
 
+        self.total_downloaded = total_downloaded
+        self.chunk_downloaded = chunk_downloaded
+
+        self.copy_succeeded = copy_succeeded
+        self.rpd_file = rpd_file
+        self.download_count = download_count
+        self.png_data = png_data
 
 
 class BackupArguments:

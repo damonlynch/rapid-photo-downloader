@@ -71,5 +71,10 @@ class FileType(Enum):
     photo = 1
     video = 2
 
+class DeviceState(Enum):
+    scanning = 1
+    scanned = 2
+    downloading = 3
+
 
 

@@ -1,34 +1,39 @@
-#!/usr/bin/python
-# -*- coding: latin1 -*-
+#!/usr/bin/python3
+__author__ = 'Damon Lynch'
 
-### Copyright (C) 2007-2012 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2007-2015 Damon Lynch <damonlynch@gmail.com>
 
-### This program is free software; you can redistribute it and/or modify
-### it under the terms of the GNU General Public License as published by
-### the Free Software Foundation; either version 2 of the License, or
-### (at your option) any later version.
-
-### This program is distributed in the hope that it will be useful,
-### but WITHOUT ANY WARRANTY; without even the implied warranty of
-### MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-### GNU General Public License for more details.
-
-### You should have received a copy of the GNU General Public License
-### along with this program; if not, write to the Free Software
-### Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
+# This file is part of Rapid Photo Downloader.
+#
+# Rapid Photo Downloader is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Rapid Photo Downloader is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Rapid Photo Downloader.  If not,
+# see <http://www.gnu.org/licenses/>.
 ### USA
 
 import os, re, datetime, string, collections
 
-import multiprocessing
 import logging
-logger = multiprocessing.get_logger()
 
 import problemnotification as pn
 
 from generatenameconfig import *
 
 from gettext import gettext as _
+
+logging_level = logging.DEBUG
+logging.basicConfig(format='%(levelname)s:%(asctime)s:%(message)s',
+                    datefmt='%H:%M:%S',
+                    level=logging_level)
 
 
 def convert_date_for_strftime(datetime_user_choice):
@@ -92,7 +97,7 @@ class PhotoName:
             try:
                 return d.strftime(convert_date_for_strftime(self.L2))
             except:
-                logger.warning("Exif date time value appears invalid for file %s", self.rpd_file.full_file_name)
+                logging.warning("Exif date time value appears invalid for file %s", self.rpd_file.full_file_name)
 
         # step 3: handle a missing value using file modification time
         if self.rpd_file.modification_time:
@@ -100,7 +105,7 @@ class PhotoName:
                 d = datetime.datetime.fromtimestamp(self.rpd_file.modification_time)
             except:
                 self.rpd_file.add_problem(self.component, pn.INVALID_DATE_TIME, '')
-                logger.error("Both file modification time and metadata date & time are invalid for file %s", self.rpd_file.full_file_name)
+                logging.error("Both file modification time and metadata date & time are invalid for file %s", self.rpd_file.full_file_name)
                 return ''
         else:
             self.rpd_file.add_problem(self.component, pn.MISSING_METADATA, _(self.L1))
@@ -110,7 +115,7 @@ class PhotoName:
             return d.strftime(convert_date_for_strftime(self.L2))
         except:
             self.rpd_file.add_problem(self.component, pn.INVALID_DATE_TIME, d)
-            logger.error("Both file modification time and metadata date & time are invalid for file %s", self.rpd_file.full_file_name)
+            logging.error("Both file modification time and metadata date & time are invalid for file %s", self.rpd_file.full_file_name)
             return ''
 
     def _get_associated_file_extension(self, associate_file):
@@ -446,7 +451,7 @@ def get_video_metadata_component(video):
     """
     Returns portion of video / subfolder name based on the metadata
 
-    This is outside of a class definition because of the inheritence
+    This is outside of a class definition because of the inheritance
     hierarchy.
     """
 

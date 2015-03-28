@@ -1,31 +1,45 @@
-#!/usr/bin/python
-# -*- coding: latin1 -*-
+#!/usr/bin/python3
+__author__ = 'Damon Lynch'
 
-### Copyright (C) 2010-2014 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2010-2015 Damon Lynch <damonlynch@gmail.com>
 
-### This program is free software; you can redistribute it and/or modify
-### it under the terms of the GNU General Public License as published by
-### the Free Software Foundation; either version 2 of the License, or
-### (at your option) any later version.
-
-### This program is distributed in the hope that it will be useful,
-### but WITHOUT ANY WARRANTY; without even the implied warranty of
-### MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-### GNU General Public License for more details.
-
-### You should have received a copy of the GNU General Public License
-### along with this program; if not, write to the Free Software
-### Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-### USA
+# This file is part of Rapid Photo Downloader.
+#
+# Rapid Photo Downloader is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Rapid Photo Downloader is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Rapid Photo Downloader.  If not,
+# see <http://www.gnu.org/licenses/>.
 
 import sys
-import types
+from enum import Enum
 from gettext import gettext as _
 
 
 # components
 SUBFOLDER_COMPONENT = _('subfolder')
 FILENAME_COMPONENT = _('filename')
+
+class ProblemType(Enum):
+    metadata = 1
+    file = 2
+    generation = 3
+    download = 4
+    different_exif = 5
+    file_already_exists = 6
+    unique_identifier_added = 7
+    backup = 8
+    download_failed_backup_ok = 9
+    file_already_downloaded = 10
+    verification_problem = 11
 
 # problem categories
 METADATA_PROBLEM = 1
@@ -119,6 +133,18 @@ extra_detail_definitions = {
     DOWNLOAD_COPYING_ERROR_W_NO_DETAIL: _("Error: %(errorno)s %(strerror)s"),
     BACKUP_OK_TYPE:                     "%s",
 }
+
+# class Problem:
+#     def __init__(self):
+#         self.problems = set()
+#     def add_problem(self, problem: ProblemType):
+#         self.problems.add(problem)
+#
+#     def get_problem(self) -> str:
+#         s = ''
+#         for problem in self.problems:
+#
+
 
 class Problem:
     """
@@ -283,7 +309,7 @@ class Problem:
                             vv = _("%(volumes)s and %(volume)s (%(inst)s).") % \
                                 {'volumes': vv[:-2],
                                 'volume': volume,
-                                'inst': get_inst(volume)}
+                                'inst': get_backup_error_inst(volume)}
                         else:
                             vv = _("%(volumes)s and %(volume)s.") % \
                                 {'volumes': vv[:-2],

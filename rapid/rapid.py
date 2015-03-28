@@ -42,7 +42,7 @@ from PyQt5 import QtCore, QtWidgets, QtGui
 
 from PyQt5.QtCore import (QThread, Qt, QStorageInfo, QSettings, QPoint,
                           QSize, QFileInfo)
-from PyQt5.QtGui import QIcon
+from PyQt5.QtGui import (QIcon, QPixmap, QImage)
 from PyQt5.QtWidgets import (QAction, QApplication, QFileDialog, QLabel,
         QMainWindow, QMenu, QMessageBox, QScrollArea, QSizePolicy,
         QPushButton, QFrame, QWidget, QDialogButtonBox,
@@ -67,7 +67,7 @@ from thumbnaildisplay import (ThumbnailView, ThumbnailTableModel,
     ThumbnailDelegate, DownloadTypes, DownloadStats)
 from devicedisplay import (DeviceTableModel, DeviceView, DeviceDelegate)
 from utilities import (same_file_system, makeInternationalizedList)
-import rpdfile
+from rpdfile import RPDFile
 import downloadtracker
 
 logging_level = logging.DEBUG
@@ -77,7 +77,7 @@ logging.basicConfig(format='%(asctime)s %(message)s', level=logging_level)
 BackupMissing = namedtuple('BackupMissing', ['photo', 'video'])
 
 class ScanManager(PublishPullPipelineManager):
-    message = QtCore.pyqtSignal(rpdfile.RPDFile)
+    message = QtCore.pyqtSignal(RPDFile)
     def __init__(self, context):
         super(ScanManager, self).__init__(context)
         self._process_name = 'Scan Manager'
@@ -85,8 +85,10 @@ class ScanManager(PublishPullPipelineManager):
 
 
 class CopyFilesManager(PublishPullPipelineManager):
-    message = QtCore.pyqtSignal(rpdfile.RPDFile)
+    message = QtCore.pyqtSignal(bool, RPDFile, int)
+    thumbnail = QtCore.pyqtSignal(RPDFile, QPixmap)
     tempDirs = QtCore.pyqtSignal(int, str,str)
+    bytesDownloaded = QtCore.pyqtSignal(int, int, int)
     def __init__(self, context):
         super(CopyFilesManager, self).__init__(context)
         self._process_name = 'Copy Files Manager'
@@ -95,7 +97,25 @@ class CopyFilesManager(PublishPullPipelineManager):
     def process_sink_data(self):
         data = pickle.loads(self.content)
         """ :type : CopyFilesResults"""
-        if data.photo_temp_dir is not None or data.video_temp_dir is not None:
+        if data.total_downloaded is not None:
+            assert data.scan_id is not None
+            assert data.chunk_downloaded is not None
+            self.bytesDownloaded.emit(data.scan_id, data.total_downloaded,
+                                      data.chunk_downloaded)
+
+        elif data.copy_succeeded is not None:
+            assert data.rpd_file is not None
+            assert data.download_count is not None
+            self.message.emit(data.copy_succeeded, data.rpd_file,
+                              data.download_count)
+            if data.png_data is not None:
+                thumbnail = QImage.fromData(data.png_data)
+                thumbnail = QPixmap.fromImage(thumbnail)
+                self.thumbnail.emit(data.rpd_file, thumbnail)
+
+        else:
+            assert (data.photo_temp_dir is not None or
+                    data.video_temp_dir is not None)
             assert data.scan_id is not None
             self.tempDirs.emit(data.scan_id, data.photo_temp_dir,
                                data.video_temp_dir)
@@ -112,6 +132,9 @@ class RapidWindow(QMainWindow):
         self.readWindowSettings()
         self.prefs = Preferences()
         self.setupWindow()
+
+        self.prefs['photo_download_folder'] = '/data/Photos/Test'
+        # self.prefs['auto_download_at_startup'] = False
 
         centralWidget = QWidget()
 
@@ -260,7 +283,10 @@ class RapidWindow(QMainWindow):
         self.copyfilesmq.moveToThread(self.copyfilesThread)
 
         self.copyfilesThread.started.connect(self.copyfilesmq.run_sink)
-        self.copyfilesmq.message.connect(self.copyfilesMessageReceived)
+        self.copyfilesmq.message.connect(self.copyfilesDownloaded)
+        self.copyfilesmq.thumbnail.connect(
+            self.thumbnailModel.thumbnailReceived)
+        self.copyfilesmq.bytesDownloaded.connect(self.copyfilesBytesDownloaded)
         self.copyfilesmq.tempDirs.connect(self.tempDirsReceivedFromCopyFiles)
         self.copyfilesmq.workerFinished.connect(self.copyfilesFinished)
 
@@ -609,9 +635,9 @@ class RapidWindow(QMainWindow):
         download_size = download_stats.photos_size + download_stats.videos_size
 
         if self.prefs['backup_images']:
-            download_size += ((self.no_photo_backup_devices *
+            download_size += ((self.backup_devices.no_photo_backup_devices *
                                download_stats.photos_size) + (
-                               self.no_video_backup_devices *
+                               self.backup_devices.no_video_backup_devices *
                                download_stats.videos_size))
 
         self.time_remaining[scan_id] = download_size
@@ -655,7 +681,8 @@ class RapidWindow(QMainWindow):
             thumbnail_quality_lower = None
 
         device = self.devices[scan_id]
-        copyfiles_args = CopyFilesArguments(device,
+        copyfiles_args = CopyFilesArguments(scan_id,
+                                device,
                                 photo_download_folder,
                                 video_download_folder,
                                 files,
@@ -664,7 +691,7 @@ class RapidWindow(QMainWindow):
                                 thumbnail_quality_lower
                                 )
 
-        # self.copyfilesmq.add_worker(scan_id, copyfiles_args)
+        self.copyfilesmq.add_worker(scan_id, copyfiles_args)
 
     def tempDirsReceivedFromCopyFiles(self, scan_id: int, photo_temp_dir: str,
                                       video_temp_dir: str):
@@ -694,8 +721,22 @@ class RapidWindow(QMainWindow):
                                       "directory %s", d)
         del self.temp_dirs_by_scan_id[scan_id]
 
-    def copyfilesMessageReceived(self):
-        pass
+    def copyfilesDownloaded(self, download_succeeded: bool,
+                                      rpd_file: RPDFile, download_count: int):
+        print(download_count)
+
+    # def copyfilesThumbnail(self, rpd_file: RPDFile, thumbnail: QPixmap):
+    #     self.thumbnailModel.
+
+    def copyfilesBytesDownloaded(self, scan_id: int, total_downloaded: int,
+                                 chunk_downloaded: int):
+        self.download_tracker.set_total_bytes_copied(scan_id,
+                                                     total_downloaded)
+        self.time_check.increment(bytes_downloaded=chunk_downloaded)
+        percent_complete = self.download_tracker.get_percent_complete(scan_id)
+        self.deviceModel.updateDownloadProgress(scan_id, percent_complete,
+                                    None, None)
+        self.time_remaining.update(scan_id, bytes_downloaded=chunk_downloaded)
 
     def copyfilesFinished(self):
         pass
@@ -799,7 +840,7 @@ class RapidWindow(QMainWindow):
         return True
             # return self.no_video_backup_devices > 0
 
-    def scanMessageReceived(self, rpd_file: rpdfile.RPDFile):
+    def scanMessageReceived(self, rpd_file: RPDFile):
         # Update scan running totals
         scan_id = rpd_file.scan_id
         device = self.devices[scan_id]
@@ -815,7 +856,7 @@ class RapidWindow(QMainWindow):
     def scanFinished(self, scan_id: int):
         device = self.devices[scan_id]
         text = device.file_type_counter.summarize_file_count()[0]
-        self.deviceModel.updateDeviceScan(scan_id, text, scanCompleted=True)
+        self.deviceModel.updateDeviceScan(scan_id, text, scan_completed=True)
         self.setDownloadActionSensitivity()
 
         if (not self.auto_start_is_on and  self.prefs['generate_thumbnails']):
@@ -828,7 +869,7 @@ class RapidWindow(QMainWindow):
                 pass
                 #self.get_job_code()
             else:
-                self.start_download(scan_id=scan_id)
+                self.startDownload(scan_id=scan_id)
 
     def closeEvent(self, event):
         self.writeWindowSettings()
@@ -1125,7 +1166,7 @@ class RapidWindow(QMainWindow):
 
         elif path in self.backup_devices:
             del self.backup_devices[path]
-            # self.display_free_space()
+            self.displayFreeSpaceAndBackups()
              #TODO remove backup device from manager
             # self.backup_manager.remove_device(path)
             self.download_tracker.set_no_backup_devices(

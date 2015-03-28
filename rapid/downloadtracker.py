@@ -171,10 +171,11 @@ class DownloadTracker:
                 self.video_failures[scan_id] += 1
                 self.total_video_failures += 1
 
-    def get_percent_complete(self, scan_id):
+    def get_percent_complete(self, scan_id: int) -> float:
         """
         Returns a float representing how much of the download
         has been completed
+        :return a value between 0.0 and 100.0
         """
 
         # when calculating the percentage, there are three components:

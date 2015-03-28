@@ -483,7 +483,6 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
             photo_cache_dir = create_temp_dir(
                 folder=arguments.photo_cache_folder,
                 prefix='rpd-cache-{}-'.format(arguments.name[:10]))
-            #TODO Don't forget about filesystem metadata too
             self.content = pickle.dumps(GenerateThumbnailsResults(
                     scan_id=arguments.scan_id,
                     photo_cache_dir=photo_cache_dir), pickle.HIGHEST_PROTOCOL)

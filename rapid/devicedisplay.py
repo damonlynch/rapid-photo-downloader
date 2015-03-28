@@ -18,7 +18,7 @@ __author__ = 'Damon Lynch'
 # along with Rapid Photo Downloader.  If not,
 # see <http://www.gnu.org/licenses/>.
 
-from collections import namedtuple
+from collections import namedtuple, defaultdict
 
 from gettext import gettext as _
 
@@ -29,6 +29,7 @@ from PyQt5.QtWidgets import (QTableView, QStyledItemDelegate,
 from PyQt5.QtGui import (QPixmap, QPainter, QIcon)
 
 from viewutils import RowTracker
+from constants import DeviceState
 
 DeviceRow = namedtuple('DeviceRow', ['icon', 'name', 'ejection'])
 DEVICE, SIZE, TEXT = range(3)
@@ -37,13 +38,11 @@ DEVICE, SIZE, TEXT = range(3)
 class DeviceTableModel(QAbstractTableModel):
     def __init__(self, parent):
         super(DeviceTableModel, self).__init__(parent)
-        # device icon & name, size of images on the device (human readable),
-        # copy progress (%), copy text, eject button (None if irrelevant),
-        # process id, pulse
         self.devices = {}
         self.sizes = {}
         self.texts = {}
-        self.scanCompleted = {}
+        self.state = {}
+        self.progress = defaultdict(float)
         self.rows = RowTracker()
 
     def columnCount(self, parent=QModelIndex()):
@@ -55,7 +54,6 @@ class DeviceTableModel(QAbstractTableModel):
     def insertRows(self, position, rows=1, index=QModelIndex()):
         self.beginInsertRows(QModelIndex(), position, position + rows - 1)
         self.endInsertRows()
-
         return True
 
     def removeRows(self, position, rows=1, index=QModelIndex()):
@@ -65,10 +63,10 @@ class DeviceTableModel(QAbstractTableModel):
             del self.texts[scan_id]
             del self.devices[scan_id]
             del self.sizes[scan_id]
-            del self.scanCompleted[scan_id]
+            del self.state[scan_id]
+            del self.progress[scan_id]
         self.endRemoveRows()
         return True
-
 
     def addDevice(self, scan_id: int, deviceIcon: QPixmap, deviceName: str,
                   ejectIcon: QPixmap):
@@ -78,7 +76,7 @@ class DeviceTableModel(QAbstractTableModel):
         self.devices[scan_id] = DeviceRow(deviceIcon, deviceName, ejectIcon)
         self.sizes[scan_id] = _('0GB')
         self.texts[scan_id] = _('scanning...')
-        self.scanCompleted[scan_id] = False
+        self.state[scan_id] = DeviceState.scanning
         self.rows[row] = scan_id
 
     def removeDevice(self, scan_id: int):
@@ -86,15 +84,25 @@ class DeviceTableModel(QAbstractTableModel):
         self.removeRows(row)
 
     def updateDeviceScan(self, scan_id: int, textToDisplay: str, size=None,
-                         scanCompleted=False):
+                         scan_completed=False):
         self.texts[scan_id] = textToDisplay
         if size is not None:
             self.sizes[scan_id] = size
             column = 1
         else:
             column = 2
-        self.scanCompleted[scan_id] = scanCompleted
+        if scan_completed:
+            self.state[scan_id] = DeviceState.scanned
         row = self.rows.row(scan_id)
+        self.dataChanged.emit(self.index(row, column), self.index(row, 2))
+
+    def updateDownloadProgress(self, scan_id: int, percent_complete: float,
+                               progress_bar_text, bytes_downloaded):
+        self.state[scan_id] = DeviceState.downloading
+        if percent_complete:
+            self.progress[scan_id] = percent_complete
+        row = self.rows.row(scan_id)
+        column = 2
         self.dataChanged.emit(self.index(row, column), self.index(row, 2))
 
     def data(self, index: QModelIndex, role=Qt.DisplayRole):
@@ -117,12 +125,16 @@ class DeviceTableModel(QAbstractTableModel):
                 return self.sizes[scan_id]
             else:
                 assert column == TEXT
-                if self.scanCompleted[scan_id]:
+                state = self.state[scan_id]
+                if state == DeviceState.downloading:
+                    progress = self.progress[scan_id]
                     maximum = 100
-                    progress = 100
-                else:
+                elif state == DeviceState.scanning:
                     progress = 0
                     maximum = 0
+                elif state == DeviceState.scanned:
+                    maximum = 100
+                    progress = 100
 
                 return (self.texts[scan_id], progress, maximum)
         # else:
