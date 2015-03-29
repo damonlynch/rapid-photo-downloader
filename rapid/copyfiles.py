@@ -32,6 +32,7 @@ from PyQt5.QtCore import QSize, Qt, QIODevice, QBuffer
 
 import problemnotification as pn
 from camera import Camera
+import gphoto2 as gp
 
 from interprocess import (WorkerInPublishPullPipeline, CopyFilesArguments,
                           CopyFilesResults)
@@ -84,7 +85,6 @@ def copy_file_metadata(src, dst):
                     break
             else:
                 raise
-
 
 
 class CopyFilesWorker(WorkerInPublishPullPipeline):
@@ -183,29 +183,75 @@ class CopyFilesWorker(WorkerInPublishPullPipeline):
         #                   rpd_file.full_file_name)
         #     self.update_progress(rpd_file.size, rpd_file.size)
 
-    def copy_from_camera(self):
-        pass
-        # """gp_camera_file_read 	( 	Camera *  	camera,
-        #         const char *  	folder,
-        #         const char *  	file,
-        #         CameraFileType  	type,
-        #         uint64_t  	offset,
-        #         char *  	buf,
-        #         uint64_t *  	size,
-        #         GPContext *  	context
-        #     )
-        #
-        # Reads a file partially from the Camera.
-        #
-        # Parameters
-        #     camera	a Camera
-        #     folder	a folder
-        #     file	the name of a file
-        #     type	the CameraFileType
-        #     offset	the offset into the camera file
-        #     data	the buffer receiving the data
-        #     size	the size to be read and that was read
-        #     context	a GPContext"""
+    def copy_from_camera(self, rpd_file: RPDFile) -> bool:
+        # path = rpd_file.path
+        # name = rpd_file.name
+        # offset = 0
+        # size = rpd_file.size
+        # buffer = []
+        # self.dest = io.open(rpd_file.temp_full_file_name, 'wb',
+        #                         size)
+
+        copy_succeeded = self.camera.save_file(rpd_file.path, rpd_file.name,
+                                               rpd_file.temp_full_file_name)
+
+        # # try:
+        # buffer = self.camera.camera.file_read(
+        #                       path, name, gp.GP_FILE_TYPE_NORMAL, offset,
+        #                       size, self.camera.context)
+        # self.dest.write(buffer)
+        # # except:
+        # #     print("An error occurred reading from the camera")
+        # copy_succeeded = False
+
+        # self.dest.close()
+        return copy_succeeded
+
+    def copy_associate_file(self, rpd_file: RPDFile, temp_name: str,
+                            dest_dir: str, associate_file_fullname: str,
+                            file_type: str) -> str:
+
+        ext = os.path.splitext(associate_file_fullname)[1]
+        temp_thm_ext = '{}{}'.format(temp_name, ext)
+        temp_full_name = os.path.join(dest_dir, temp_thm_ext)
+        try:
+            if rpd_file.from_camera:
+                dir_name, file_name = \
+                    os.path.split(rpd_file.thm_full_name)
+                succeeded = self.camera.save_file(dir_name, file_name,
+                                      temp_full_name)
+                if not succeeded:
+                    raise
+            else:
+                shutil.copyfile(rpd_file.thm_full_name,
+                            temp_full_name)
+            logging.debug("Copied %s file %s", file_type,
+                          rpd_file.temp_thm_full_name)
+        except (IOError, OSError) as inst:
+            logging.error("Failed to download %s file: %s", file_type,
+                          associate_file_fullname)
+            logging.error("%s: %s", inst.errno, inst.strerror)
+            return None
+        except:
+            logging.error("Failed to download %s file: %s", file_type,
+                          associate_file_fullname)
+            return None
+
+        # Adjust file modification times and other file system metadata
+        try:
+            if rpd_file.from_camera:
+                os.utime(temp_full_name, (rpd_file.modification_time,
+                                          rpd_file.modification_time))
+            else:
+                copy_file_metadata(associate_file_fullname,
+                               temp_full_name)
+        except:
+            logging.error(
+                "Unknown error updating filesystem metadata when "
+                "copying %s",
+                rpd_file.thm_full_name)
+        return temp_full_name
+
 
     def do_work(self):
         args = pickle.loads(self.content)
@@ -220,7 +266,7 @@ class CopyFilesWorker(WorkerInPublishPullPipeline):
         random_filename = GenerateRandomFileName()
 
         self.io_buffer = 1024 * 1024
-        self.batch_size_bytes = 2 * 1024 * 1024
+        self.batch_size_bytes = 5 * 1024 * 1024
 
         self.bytes_downloaded = 0
         self.total_downloaded = 0
@@ -253,6 +299,7 @@ class CopyFilesWorker(WorkerInPublishPullPipeline):
             # least some of the files
 
             if rpd_file.cache_full_file_name:
+                # Scenario 3
                 temp_file_name = os.path.split(
                     rpd_file.cache_full_file_name)[1]
                 temp_name = os.path.splitext(temp_file_name)[0]
@@ -263,13 +310,17 @@ class CopyFilesWorker(WorkerInPublishPullPipeline):
                     # Fortunately that doesn't matter when using shutil.move().
                     # The assumption here is that most of these images will be
                     # relatively small jpegs being copied locally
-                    shutil.move(rpd_file.cache_full_file_name)
+                    shutil.move(rpd_file.cache_full_file_name,
+                                temp_full_file_name)
+                    os.utime(temp_full_file_name, (rpd_file.modification_time,
+                                          rpd_file.modification_time))
                     copy_succeeded = True
                 except (IOError, OSError) as inst:
                     copy_succeeded = False
                     #TODO log error
                     self.update_progress(rpd_file.size, rpd_file.size)
             else:
+                # Scenario 1 or 2
                 # Generate temporary name 5 digits long, because we cannot
                 # guarantee the source does not have duplicate file names in
                 # different directories, and here we are copying the files into
@@ -283,6 +334,7 @@ class CopyFilesWorker(WorkerInPublishPullPipeline):
 
             if not rpd_file.cache_full_file_name:
                 if rpd_file.from_camera:
+                    # Scenario 2
                     if self.camera is None:
                         self.camera = Camera(args.device.camera_model,
                                         args.device.camera_port)
@@ -297,6 +349,7 @@ class CopyFilesWorker(WorkerInPublishPullPipeline):
                     else:
                         copy_succeeded = self.copy_from_camera(rpd_file)
                 else:
+                    # Scenario 1
                     copy_succeeded = self.copy_from_filesystem(rpd_file)
 
 
@@ -304,67 +357,27 @@ class CopyFilesWorker(WorkerInPublishPullPipeline):
             # succeeded or not. It's necessary to keep the user informed.
             self.total_downloaded += rpd_file.size
 
-            try:
-                copy_file_metadata(rpd_file.full_file_name,
-                                   temp_full_file_name)
-            except:
-                logging.error(
-                    "Unknown error updating filesystem metadata when "
-                    "copying %s",
-                    rpd_file.full_file_name)
+            if copy_succeeded:
+                try:
+                    copy_file_metadata(rpd_file.full_file_name,
+                                       temp_full_file_name)
+                except:
+                    logging.error(
+                        "Unknown error updating filesystem metadata when "
+                        "copying %s",
+                        rpd_file.full_file_name)
 
             # copy THM (video thumbnail file) if there is one
             if copy_succeeded and rpd_file.thm_full_name:
-                # reuse video's file name
-                ext = os.path.splitext(rpd_file.thm_full_name)[1]
-                temp_thm_ext = '{}{}'.format(temp_name, ext)
-                temp_thm_full_name = os.path.join(dest_dir, temp_thm_ext)
-                try:
-                    shutil.copyfile(rpd_file.thm_full_name,
-                                    temp_thm_full_name)
-                    rpd_file.temp_thm_full_name = temp_thm_full_name
-                    logging.debug("Copied video THM file %s",
-                                  rpd_file.temp_thm_full_name)
-                except (IOError, OSError) as inst:
-                    logging.error("Failed to download video THM file: %s",
-                                  rpd_file.thm_full_name)
-                    logging.error("%s: %s", inst.errno, inst.strerror)
-                try:
-                    copy_file_metadata(rpd_file.thm_full_name,
-                                       temp_thm_full_name)
-                except:
-                    logging.error(
-                        "Unknown error updating filesystem metadata when "
-                        "copying %s",
-                        rpd_file.thm_full_name)
-
-            else:
-                temp_thm_full_name = None
+                rpd_file.temp_thm_full_name = self.copy_associate_file(
+                    rpd_file, temp_name, dest_dir, rpd_file.thm_full_name,
+                    'video THM')
 
             #copy audio file if there is one
             if copy_succeeded and rpd_file.audio_file_full_name:
-                # reuse photo's file name
-                ext = os.path.splitext(rpd_file.audio_file_full_name)[1]
-                temp_audio_ext = '{}{}'.format(temp_name, ext)
-                temp_audio_full_name = os.path.join(dest_dir,temp_audio_ext)
-                try:
-                    shutil.copyfile(rpd_file.audio_file_full_name,
-                                    temp_audio_full_name)
-                    rpd_file.temp_audio_full_name = temp_audio_full_name
-                    logging.debug("Copied audio file %s",
-                                  rpd_file.temp_audio_full_name)
-                except (IOError, OSError) as inst:
-                    logging.error("Failed to download audio file: %s",
-                                  rpd_file.audio_file_full_name)
-                    logging.error("%s: %s", inst.errno, inst.strerror)
-                try:
-                    copy_file_metadata(rpd_file.audio_file_full_name,
-                                       temp_audio_full_name, logging)
-                except:
-                    logging.error(
-                        "Unknown error updating filesystem metadata when "
-                        "copying %s",
-                        rpd_file.audio_file_full_name)
+                rpd_file.temp_audio_full_name = self.copy_associate_file(
+                    rpd_file, temp_name, dest_dir,
+                    rpd_file.audio_file_full_name, 'audio')
 
 
             if (copy_succeeded and rpd_file.generate_thumbnail and

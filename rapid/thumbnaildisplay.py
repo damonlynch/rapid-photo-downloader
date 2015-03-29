@@ -157,7 +157,8 @@ class ThumbnailTableModel(QAbstractTableModel):
         for unique_id in unique_ids:
             del self.file_names[unique_id]
             del self.thumbnails[unique_id]
-            self.marked.remove(unique_id)
+            if unique_id in self.marked:
+                self.marked.remove(unique_id)
             scan_id = self.rpd_files[unique_id].scan_id
             self.scan_index[scan_id].remove(unique_id)
             del self.rpd_files[unique_id]

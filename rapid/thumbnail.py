@@ -296,6 +296,7 @@ class Thumbnail:
 
         if not (is_raw_image and not self.camera.can_fetch_thumbnails):
             if ignore_embedded_thumbnail:
+                # locally cache the full size image
                 cache_full_file_name = os.path.join(
                     self.photo_cache_dir, '{}.{}'.format(
                         self.random_filename.name(), self.rpd_file.extension))
@@ -305,15 +306,20 @@ class Thumbnail:
                                                   self.rpd_file.name,
                                                   ignore_embedded_thumbnail,
                                                   cache_full_file_name)
-            self.rpd_file.cache_full_file_name = cache_full_file_name
-            if thumbnail.isNull():
+            if thumbnail is None:
+                logging.error("Unable to get thumbnail from %s for %s",
+                              self.camera.model, file_name)
+            elif thumbnail.isNull():
                 thumbnail = None
                 logging.error(
-                    "Unable to create a thumbnail out of the jpeg "
-                    "{}".format(file_name))
+                    "Unable to get thumbnail from %s for %s",
+                    self.camera.model, file_name)
+            else:
+                self.rpd_file.cache_full_file_name = cache_full_file_name
+
 
             if not ignore_embedded_thumbnail and self.rpd_file.extension in \
-                    self.crop_thumbnails:
+                    self.crop_thumbnails and thumbnail is not None:
                 thumbnail = self._crop_160x120_thumbnail(thumbnail, 8)
 
             if size is not None:
@@ -362,7 +368,11 @@ class Thumbnail:
                 else:
                     thumbnail = QImage(thm_file)
 
-            if thumbnail.isNull():
+            if thumbnail is None:
+                logging.error("Could not get THM file from %s for %s",
+                              self.camera.model, file_name)
+                logging.error("Thumbnail file is %s", thm_file)
+            elif thumbnail.isNull():
                 logging.error("Could not open THM file for %s",
                               file_name)
                 logging.error("Thumbnail file is %s", thm_file)
@@ -413,6 +423,7 @@ class Thumbnail:
 
         if self.use_temp_file:
             file_name = self.rpd_file.temp_full_file_name
+            downloaded = False
         else:
             # If the file is already downloaded, cannot assume the source
             # file is still available

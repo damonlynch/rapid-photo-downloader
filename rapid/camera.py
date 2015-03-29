@@ -100,9 +100,53 @@ class Camera:
         size = info.file.size
         return (modification_time, size)
 
+
+    def _get_file(self, dir_name: str, file_name: str,
+                  dest_full_filename:str=None,
+                  file_type:int=gp.GP_FILE_TYPE_NORMAL):
+
+        camera_file = None
+        succeeded = False
+        try:
+            camera_file = gp.check_result(gp.gp_camera_file_get(
+                         self.camera, dir_name, file_name,
+                         file_type, self.context))
+            succeeded = True
+        except gp.GPhoto2Error as ex:
+            logging.error('Error reading %s from camera. Code: %s',
+                          os.path.join(dir_name, file_name), ex.code)
+
+        if succeeded and dest_full_filename is not None:
+            try:
+                gp.check_result(gp.gp_file_save(camera_file,
+                                              dest_full_filename))
+            except gp.GPhoto2Error as ex:
+                logging.error('Error saving %s from camera. Code: %s',
+                          os.path.join(dir_name, file_name), ex.code)
+                succeeded = False
+
+        return (succeeded, camera_file)
+
+    def save_file(self, dir_name: str, file_name: str,
+                  dest_full_filename: str) -> bool:
+        """
+        Save the file from the camera to a local destination
+
+        :param dir_name: directory on the camera
+        :param file_name: the photo or video
+        :param dest_full_filename: full path including filename where
+        the file will be saved.
+        :return: True if the file was successfully saved, else False
+        """
+
+        succeeded, camera_file = self._get_file(dir_name, file_name,
+                                        dest_full_filename)
+        return succeeded
+
+
     def get_thumbnail(self, dir_name: str, file_name: str,
                       ignore_embedded_thumbnail=False,
-                      cache_full_filename=None) -> \
+                      cache_full_filename:str=None) -> \
     QImage:
         """
 
@@ -120,26 +164,28 @@ class Camera:
             get_file_type = gp.GP_FILE_TYPE_PREVIEW
         else:
             get_file_type = gp.GP_FILE_TYPE_NORMAL
-        camera_file = gp.check_result(gp.gp_camera_file_get(
-                         self.camera, dir_name, file_name,
-                         get_file_type, self.context))
-        if cache_full_filename is not None:
-            gp.check_result(gp.gp_file_save(camera_file, cache_full_filename))
-        thumbnail_data = gp.check_result(gp.gp_file_get_data_and_size(
-                camera_file))
-        image = QImage.fromData(thumbnail_data)
-        return image
 
-    def get_THM_file(self, full_THM_name):
-        get_file_type = gp.GP_FILE_TYPE_NORMAL
-        dir_name, file_name = os.path.split(full_THM_name)
-        camera_file = gp.check_result(gp.gp_camera_file_get(
-                         self.camera, dir_name, file_name,
-                         get_file_type, self.context))
-        thumbnail_data = gp.check_result(gp.gp_file_get_data_and_size(
+        succeeded, camera_file = self._get_file(dir_name, file_name,
+                                      cache_full_filename, get_file_type)
+
+        if succeeded:
+            thumbnail_data = gp.check_result(gp.gp_file_get_data_and_size(
                 camera_file))
-        image = QImage.fromData(thumbnail_data)
-        return image
+            image = QImage.fromData(thumbnail_data)
+            return image
+        else:
+            return None
+
+    def get_THM_file(self, full_THM_name) -> QImage:
+        dir_name, file_name = os.path.split(full_THM_name)
+        succeeded, camera_file = self._get_file(dir_name, file_name)
+        if succeeded:
+            thumbnail_data = gp.check_result(gp.gp_file_get_data_and_size(
+                camera_file))
+            image = QImage.fromData(thumbnail_data)
+            return image
+        else:
+            return None
 
 
     def _locate_DCIM_folders(self, path: str):

@@ -134,7 +134,8 @@ class RapidWindow(QMainWindow):
         self.setupWindow()
 
         self.prefs['photo_download_folder'] = '/data/Photos/Test'
-        # self.prefs['auto_download_at_startup'] = False
+        self.prefs['video_download_folder'] = '/data/Photos/Test'
+        self.prefs['auto_download_at_startup'] = False
 
         centralWidget = QWidget()
 
@@ -994,6 +995,8 @@ class RapidWindow(QMainWindow):
         kc = self.devices.cameras.items()
         known_cameras = [(model, port) for port, model in kc]
         removed_cameras = set(known_cameras) - set(system_cameras)
+        #TODO handle situation when this is called twice, with dual  memory
+        # cards
         for model, port in removed_cameras:
             scan_id = self.devices.scan_id_from_camera_model_port(model, port)
             self.removeDevice(scan_id)
