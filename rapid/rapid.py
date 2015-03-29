@@ -1181,11 +1181,12 @@ class RapidWindow(QMainWindow):
 
     def removeDevice(self, scan_id):
         assert scan_id is not None
-        self.thumbnailModel.clearAll(scan_id=scan_id,
-                                     keep_downloaded_files=True)
-        self.deviceModel.removeDevice(scan_id)
-        del self.devices[scan_id]
-        self.resizeDeviceView()
+        if scan_id in self.devices:
+            self.thumbnailModel.clearAll(scan_id=scan_id,
+                                         keep_downloaded_files=True)
+            self.deviceModel.removeDevice(scan_id)
+            del self.devices[scan_id]
+            self.resizeDeviceView()
 
     def setupNonCameraDevices(self, on_startup: bool,
                               on_preference_change: bool,

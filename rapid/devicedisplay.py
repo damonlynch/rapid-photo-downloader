@@ -64,7 +64,8 @@ class DeviceTableModel(QAbstractTableModel):
             del self.devices[scan_id]
             del self.sizes[scan_id]
             del self.state[scan_id]
-            del self.progress[scan_id]
+            if scan_id in self.progress:
+                del self.progress[scan_id]
         self.endRemoveRows()
         return True
 
