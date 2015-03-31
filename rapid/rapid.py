@@ -136,6 +136,7 @@ class RapidWindow(QMainWindow):
         self.prefs['photo_download_folder'] = '/data/Photos/Test'
         self.prefs['video_download_folder'] = '/data/Photos/Test'
         self.prefs['auto_download_at_startup'] = False
+        self.prefs['verify_file'] = True
 
         centralWidget = QWidget()
 

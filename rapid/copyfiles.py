@@ -114,7 +114,7 @@ class CopyFilesWorker(WorkerInPublishPullPipeline):
                 self.bytes_downloaded = 0
 
     def copy_from_filesystem(self, rpd_file:RPDFile) -> bool:
-        src_bytes = b''
+        src_chunks = []
         try:
             self.dest = io.open(rpd_file.temp_full_file_name, 'wb',
                                 self.io_buffer)
@@ -128,7 +128,8 @@ class CopyFilesWorker(WorkerInPublishPullPipeline):
                 chunk = self.src.read(self.io_buffer)
                 if chunk:
                     self.dest.write(chunk)
-                    src_bytes += chunk
+                    if self.verify_file:
+                        src_chunks.append(chunk)
                     amount_downloaded += len(chunk)
                     self.update_progress(amount_downloaded, total)
                 else:
@@ -137,6 +138,7 @@ class CopyFilesWorker(WorkerInPublishPullPipeline):
             self.src.close()
 
             if self.verify_file:
+                src_bytes = b''.join(src_chunks)
                 rpd_file.md5 = hashlib.md5(src_bytes).hexdigest()
 
             return True
@@ -184,27 +186,41 @@ class CopyFilesWorker(WorkerInPublishPullPipeline):
         #     self.update_progress(rpd_file.size, rpd_file.size)
 
     def copy_from_camera(self, rpd_file: RPDFile) -> bool:
-        # path = rpd_file.path
-        # name = rpd_file.name
-        # offset = 0
-        # size = rpd_file.size
-        # buffer = []
-        # self.dest = io.open(rpd_file.temp_full_file_name, 'wb',
-        #                         size)
+        copy_succeeded = True
+        path = rpd_file.path
+        name = rpd_file.name
+        size = rpd_file.size
+        view = memoryview(bytearray(size))
+        chunk_size = 1024 * 1024
+        amount_downloaded = 0
+        for offset in range(0, size, chunk_size):
+            stop = min(offset + chunk_size, size)
+            try:
+                bytes_read = gp.check_result(self.camera.camera.file_read(
+                    path, name, gp.GP_FILE_TYPE_NORMAL,
+                    offset, view[offset:stop], self.camera.context))
+                amount_downloaded += bytes_read
+                self.update_progress(amount_downloaded, size)
+            except gp.GPhoto2Error as ex:
+                logging.error('Error copying file %s from camera %s. Code '
+                              '%s', rpd_file.full_file_name,
+                              self.camera.model, ex.code)
+                copy_succeeded = False
+                break
+        try:
+            self.dest = io.open(rpd_file.temp_full_file_name, 'wb')
+            src_bytes = view.tobytes()
+            self.dest.write(src_bytes)
+            self.dest.close()
+        except OSError as ex:
+            logging.error('Error saving file %s from camera %s. Code '
+                          '%s', rpd_file.full_file_name,
+                          self.camera.model, ex.code)
+            copy_succeeded = False
 
-        copy_succeeded = self.camera.save_file(rpd_file.path, rpd_file.name,
-                                               rpd_file.temp_full_file_name)
+        if copy_succeeded and self.verify_file:
+            rpd_file.md5 = hashlib.md5(src_bytes).hexdigest()
 
-        # # try:
-        # buffer = self.camera.camera.file_read(
-        #                       path, name, gp.GP_FILE_TYPE_NORMAL, offset,
-        #                       size, self.camera.context)
-        # self.dest.write(buffer)
-        # # except:
-        # #     print("An error occurred reading from the camera")
-        # copy_succeeded = False
-
-        # self.dest.close()
         return copy_succeeded
 
     def copy_associate_file(self, rpd_file: RPDFile, temp_name: str,
@@ -315,10 +331,14 @@ class CopyFilesWorker(WorkerInPublishPullPipeline):
                     os.utime(temp_full_file_name, (rpd_file.modification_time,
                                           rpd_file.modification_time))
                     copy_succeeded = True
+                    if self.verify_file:
+                        rpd_file.md5 = hashlib.md5(open(
+                            temp_full_file_name).read()).hexdigest()
                 except (IOError, OSError) as inst:
                     copy_succeeded = False
                     #TODO log error
-                    self.update_progress(rpd_file.size, rpd_file.size)
+                self.update_progress(rpd_file.size, rpd_file.size)
+
             else:
                 # Scenario 1 or 2
                 # Generate temporary name 5 digits long, because we cannot

@@ -169,8 +169,13 @@ class Camera:
                                       cache_full_filename, get_file_type)
 
         if succeeded:
-            thumbnail_data = gp.check_result(gp.gp_file_get_data_and_size(
-                camera_file))
+            try:
+                thumbnail_data = gp.check_result(gp.gp_file_get_data_and_size(
+                    camera_file))
+            except gp.GPhoto2Error as ex:
+                logging.error('Error getting image %s from camera. Code: '
+                              '%s',
+                          os.path.join(dir_name, file_name), ex.code)
             image = QImage.fromData(thumbnail_data)
             return image
         else:
@@ -180,8 +185,13 @@ class Camera:
         dir_name, file_name = os.path.split(full_THM_name)
         succeeded, camera_file = self._get_file(dir_name, file_name)
         if succeeded:
-            thumbnail_data = gp.check_result(gp.gp_file_get_data_and_size(
-                camera_file))
+            try:
+                thumbnail_data = gp.check_result(gp.gp_file_get_data_and_size(
+                    camera_file))
+            except gp.GPhoto2Error as ex:
+                logging.error('Error getting THM file %s from camera. Code: '
+                              '%s',
+                              os.path.join(dir_name, file_name), ex.code)
             image = QImage.fromData(thumbnail_data)
             return image
         else:
