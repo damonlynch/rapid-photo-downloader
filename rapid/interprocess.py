@@ -81,6 +81,7 @@ def make_filter_from_worker_id(worker_id):
         return worker_id.encode()
     raise(TypeError)
 
+
 class PublishPullPipelineManager(QObject):
     """
     Set of standard operations when managing a 0MQ Pipeline that
@@ -218,6 +219,7 @@ class PublishPullPipelineManager(QObject):
 
         # Send START commands until scan worker indicates it is ready to
         # receive data
+        # Worker ID must be in bytes format
         while True:
             self.publisher_socket.send_multipart([str(worker_id).encode(),
                                                   b'cmd', b'START'])
@@ -407,6 +409,24 @@ class CopyFilesResults:
         self.rpd_file = rpd_file
         self.download_count = download_count
         self.png_data = png_data
+
+class RenameAndMoveFileArguments:
+    """
+    Pass arguments to the renameandmovefile process
+    """
+    def __init__(self, rpd_file: RPDFile, download_count: int,
+                 download_succeeded: bool):
+        self.rpd_file = rpd_file
+        self.download_count = download_count
+        self.download_succeeded = download_succeeded
+
+
+class RenameAndMoveFileResults:
+    def __init__(self, move_succeeded: bool, rpd_file: RPDFile,
+                 download_count: int):
+        self.move_succeeded = move_succeeded
+        self.rpd_file = rpd_file
+        self.download_count = download_count
 
 
 class BackupArguments:

@@ -28,7 +28,7 @@ import hashlib
 import logging
 import pickle
 
-from PyQt5.QtCore import QSize, Qt, QIODevice, QBuffer
+from PyQt5.QtCore import QSize, QIODevice, QBuffer
 
 import problemnotification as pn
 from camera import Camera
@@ -36,7 +36,7 @@ import gphoto2 as gp
 
 from interprocess import (WorkerInPublishPullPipeline, CopyFilesArguments,
                           CopyFilesResults)
-from constants import FileType, DownloadStatus, DeviceType
+from constants import FileType, DownloadStatus
 from thumbnail import Thumbnail
 from utilities import (GenerateRandomFileName, create_temp_dirs)
 from rpdfile import RPDFile
@@ -207,16 +207,17 @@ class CopyFilesWorker(WorkerInPublishPullPipeline):
                               self.camera.model, ex.code)
                 copy_succeeded = False
                 break
-        try:
-            self.dest = io.open(rpd_file.temp_full_file_name, 'wb')
-            src_bytes = view.tobytes()
-            self.dest.write(src_bytes)
-            self.dest.close()
-        except OSError as ex:
-            logging.error('Error saving file %s from camera %s. Code '
-                          '%s', rpd_file.full_file_name,
-                          self.camera.model, ex.code)
-            copy_succeeded = False
+        if copy_succeeded:
+            try:
+                self.dest = io.open(rpd_file.temp_full_file_name, 'wb')
+                src_bytes = view.tobytes()
+                self.dest.write(src_bytes)
+                self.dest.close()
+            except OSError as ex:
+                logging.error('Error saving file %s from camera %s. Code '
+                              '%s', rpd_file.full_file_name,
+                              self.camera.model, ex.code)
+                copy_succeeded = False
 
         if copy_succeeded and self.verify_file:
             rpd_file.md5 = hashlib.md5(src_bytes).hexdigest()

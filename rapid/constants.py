@@ -28,8 +28,9 @@ DBUS_NAME = "net.damonlynch.RapidPhotoDownloader"
 #i18n
 APP_NAME = "rapid-photo-downloader"
 
-SKIP_DOWNLOAD = "skip"
-ADD_UNIQUE_IDENTIFIER = "unique identifier"
+class ConflictResolution:
+    skip = 1
+    add_identifier = 2
 
 class ErrorType(Enum):
     critical_error = 1

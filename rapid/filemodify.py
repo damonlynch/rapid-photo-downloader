@@ -28,7 +28,7 @@ logger = multiprocessing.get_logger()
 import rpdmultiprocessing as rpdmp
 import rpdfile
 import metadataxmp as mxmp
-import subfolderfile
+import renameandplacefile
 import constants
 import problemnotification as pn
 
@@ -128,7 +128,7 @@ class FileModify(multiprocessing.Process):
                 xmp_sidecar = None
                 # check to see if focal length and aperture data should be manipulated
                 if self.focal_length is not None and rpd_file.file_type == rpdfile.FILE_TYPE_PHOTO:
-                    if subfolderfile.load_metadata(rpd_file, temp_file=True):
+                    if renameandplacefile.load_metadata(rpd_file, temp_file=True):
                         a = rpd_file.metadata.aperture()
                         if a == '0.0':
                             logger.info("Adjusting focal length and aperture for %s (%s)", rpd_file.temp_full_file_name, rpd_file.name)

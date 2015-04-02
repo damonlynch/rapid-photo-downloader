@@ -29,17 +29,32 @@ import os, datetime, collections
 
 #~ import shutil
 import errno
-import multiprocessing
 import logging
+import pickle
 
 
-import rpdfile
 import generatename as gn
 import problemnotification as pn
 import prefsrapid
-import constants
+from constants import ConflictResolution, FileType, DownloadStatus
+from enum import Enum
+from collections import namedtuple
+from interprocess import (RenameAndMoveFileArguments,
+                          RenameAndMoveFileResults)
 
 from gettext import gettext as _
+
+logging.basicConfig(format='%(levelname)s:%(asctime)s:%(message)s',
+                    datefmt='%H:%M:%S',
+                    level=logging.DEBUG)
+
+class SyncRawJpegStatus(Enum):
+    matching_pair = 1
+    no_match = 2
+    error_already_downloaded = 3
+    error_datetime_mismatch = 4
+
+SyncRawJpegMatch = namedtuple('SyncRawJpegMatch', 'status, sequence_number')
 
 class SyncRawJpeg:
     def __init__(self):
@@ -65,12 +80,16 @@ class SyncRawJpeg:
         if name in self.photos:
             if self.photos[name][1] == date_time and self.photos[name][2] == sub_seconds:
                 if extension in self.photos[name][0]:
-                    return (-1, self.photos[name][3])
+                    return SyncRawJpegMatch(
+                        SyncRawJpegStatus.error_already_downloaded,
+                        self.photos[name][3])
                 else:
-                    return (0, self.photos[name][3])
+                    return SyncRawJpegMatch(SyncRawJpegStatus.matching_pair,
+                                            self.photos[name][3])
             else:
-                return (-99, None)
-        return (1, None)
+                return SyncRawJpegMatch(
+                    SyncRawJpegStatus.error_datetime_mismatch, None)
+        return SyncRawJpegMatch(SyncRawJpegStatus.no_match, None)
 
     def ext_exif_date_time(self, name):
         """Returns first extension, exif date time and subseconds data for the already downloaded photo"""
@@ -103,7 +122,7 @@ def load_metadata(rpd_file, temp_file=True):
 def _generate_name(generator, rpd_file):
 
     do_generation = True
-    if rpd_file.file_type == rpdfile.FILE_TYPE_PHOTO:
+    if rpd_file.file_type == FileType.photo:
         do_generation = load_metadata(rpd_file)
     else:
         if rpd_file.metadata is None:
@@ -120,7 +139,7 @@ def _generate_name(generator, rpd_file):
 
 def generate_subfolder(rpd_file):
 
-    if rpd_file.file_type == rpdfile.FILE_TYPE_PHOTO:
+    if rpd_file.file_type == FileType.photo:
         generator = gn.PhotoSubfolder(rpd_file.subfolder_pref_list)
     else:
         generator = gn.VideoSubfolder(rpd_file.subfolder_pref_list)
@@ -131,7 +150,7 @@ def generate_subfolder(rpd_file):
 def generate_name(rpd_file):
     do_generation = True
 
-    if rpd_file.file_type == rpdfile.FILE_TYPE_PHOTO:
+    if rpd_file.file_type == FileType.photo:
         generator = gn.PhotoName(rpd_file.name_pref_list)
     else:
         generator = gn.VideoName(rpd_file.name_pref_list)
@@ -155,12 +174,12 @@ class SubfolderFile(multiprocessing.Process):
         self.uses_session_sequece_no = sequence_values[6]
         self.uses_sequence_letter = sequence_values[7]
 
-        logger.debug("Start of day is set to %s", self.day_start.value)
+        logging.debug("Start of day is set to %s", self.day_start.value)
 
     def progress_callback_no_update(self, amount_downloaded, total):
         pass
         #~ if debug_progress:
-            #~ logger.debug("%.1f", amount_downloaded / float(total))
+            #~ logging.debug("%.1f", amount_downloaded / float(total))
 
     def file_exists(self, rpd_file, identifier=None):
         """
@@ -173,7 +192,7 @@ class SubfolderFile(multiprocessing.Process):
             date = dt.strftime("%x")
             time = dt.strftime("%X")
         except:
-            logger.warning("Could not determine the file modification time of %s",
+            logging.warning("Could not determine the file modification time of %s",
                                 rpd_file.download_full_file_name)
             date = time = ''
 
@@ -183,7 +202,7 @@ class SubfolderFile(multiprocessing.Process):
             rpd_file.add_extra_detail(pn.EXISTING_FILE,
                                 {'filetype': rpd_file.title,
                                 'date': date, 'time': time})
-            rpd_file.status = constants.STATUS_DOWNLOAD_FAILED
+            rpd_file.status = DownloadStatus.download_failed
             rpd_file.error_extra_detail = pn.extra_detail_definitions[pn.EXISTING_FILE] % \
                   {'date':date, 'time':time, 'filetype': rpd_file.title}
         else:
@@ -193,7 +212,7 @@ class SubfolderFile(multiprocessing.Process):
                                 {'identifier': identifier,
                                 'filetype': rpd_file.title,
                                 'date': date, 'time': time})
-            rpd_file.status = constants.STATUS_DOWNLOADED_WITH_WARNING
+            rpd_file.status = DownloadStatus.downloaded_with_warning
             rpd_file.error_extra_detail = pn.extra_detail_definitions[pn.UNIQUE_IDENTIFIER] % \
                    {'identifier': identifier, 'filetype': rpd_file.title,
                     'date': date, 'time': time}
@@ -209,8 +228,8 @@ class SubfolderFile(multiprocessing.Process):
         """
         rpd_file.add_problem(None, pn.DOWNLOAD_COPYING_ERROR, {'filetype': rpd_file.title})
         rpd_file.add_extra_detail(pn.DOWNLOAD_COPYING_ERROR_DETAIL, inst)
-        rpd_file.status = constants.STATUS_DOWNLOAD_FAILED
-        logger.error("Failed to create file %s: %s", rpd_file.download_full_file_name, inst)
+        rpd_file.status = DownloadStatus.download_failed
+        logging.error("Failed to create file %s: %s", rpd_file.download_full_file_name, inst)
 
         rpd_file.error_title = rpd_file.problem.get_title()
         rpd_file.error_msg = _("%(problem)s\nFile: %(file)s") % \
@@ -224,9 +243,9 @@ class SubfolderFile(multiprocessing.Process):
         Check how to handle a download file already existing
         """
         if (rpd_file.download_conflict_resolution ==
-            constants.ADD_UNIQUE_IDENTIFIER):
+            ConflictResolution.add_identifier):
             add_unique_identifier = True
-            logger.debug("Will add unique identifier to avoid duplicate filename")
+            logging.debug("Will add unique identifier to avoid duplicate filename")
         else:
             rpd_file = self.file_exists(rpd_file)
             add_unique_identifier = False
@@ -239,7 +258,7 @@ class SubfolderFile(multiprocessing.Process):
         move_succeeded = True
         suffix_already_used = False
         rpd_file = self.file_exists(rpd_file, identifier)
-        logger.error("%s: %s - %s", rpd_file.full_file_name,
+        logging.error("%s: %s - %s", rpd_file.full_file_name,
             rpd_file.problem.get_title(),
             rpd_file.problem.get_problems())
         return (rpd_file, move_succeeded, suffix_already_used)
@@ -259,7 +278,7 @@ class SubfolderFile(multiprocessing.Process):
 
         rpd_file.error_title = _('Photos detected with the same filenames, but taken at different times')
         rpd_file.error_msg = pn.problem_definitions[pn.SAME_FILE_DIFFERENT_EXIF][1] % detail
-        rpd_file.status = constants.STATUS_DOWNLOADED_WITH_WARNING
+        rpd_file.status = DownloadStatus.downloaded_with_warning
         return rpd_file
 
 
@@ -293,7 +312,7 @@ class SubfolderFile(multiprocessing.Process):
         result, rpd_file.download_thm_full_name = self._move_associate_file(ext, rpd_file.download_full_base_name, rpd_file.temp_thm_full_name)
 
         if not result:
-            logger.error("Failed to move video THM file %s", rpd_file.download_thm_full_name)
+            logging.error("Failed to move video THM file %s", rpd_file.download_thm_full_name)
 
         return rpd_file
 
@@ -309,7 +328,7 @@ class SubfolderFile(multiprocessing.Process):
         result, rpd_file.download_audio_full_name = self._move_associate_file(ext, rpd_file.download_full_base_name, rpd_file.temp_audio_full_name)
 
         if not result:
-            logger.error("Failed to move file's associated audio file %s", rpd_file.download_audio_full_name)
+            logging.error("Failed to move file's associated audio file %s", rpd_file.download_audio_full_name)
 
         return rpd_file
 
@@ -328,7 +347,7 @@ class SubfolderFile(multiprocessing.Process):
                 area = _("subfolder")
             rpd_file.add_problem(None, pn.ERROR_IN_NAME_GENERATION, {'filetype': rpd_file.title_capitalized, 'area': area})
             rpd_file.add_extra_detail(pn.NO_DATA_TO_NAME, {'filetype': area})
-            rpd_file.status = constants.STATUS_DOWNLOAD_FAILED
+            rpd_file.status = DownloadStatus.download_failed
 
             rpd_file.error_title = rpd_file.problem.get_title()
             rpd_file.error_msg = _("%(problem)s\nFile: %(file)s") % \
@@ -370,7 +389,7 @@ class SubfolderFile(multiprocessing.Process):
 
         while True:
             if download_count:
-                logger.debug("Finished %s. Getting next task.", download_count)
+                logging.debug("Finished %s. Getting next task.", download_count)
 
             # rename file and move to generated subfolder
             download_succeeded, download_count, rpd_file = self.results_pipe.recv()
@@ -382,7 +401,7 @@ class SubfolderFile(multiprocessing.Process):
 
                 synchronize_raw_jpg_failed = False
                 if not (rpd_file.synchronize_raw_jpg and
-                    rpd_file.file_type == rpdfile.FILE_TYPE_PHOTO):
+                    rpd_file.file_type == FileType.photo):
                     synchronize_raw_jpg = False
                     sequence_to_use = None
                 else:
@@ -390,25 +409,30 @@ class SubfolderFile(multiprocessing.Process):
                     sync_photo_name, sync_photo_ext = os.path.splitext(rpd_file.name)
                     if not load_metadata(rpd_file):
                         synchronize_raw_jpg_failed = True
-                        rpd_file.status = constants.STATUS_DOWNLOAD_FAILED
+                        rpd_file.status = DownloadStatus.download_failed
                         self.check_for_fatal_name_generation_errors(rpd_file)
                     else:
-                        j, sequence_to_use = self.sync_raw_jpeg.matching_pair(
+                        matching_pair = self.sync_raw_jpeg.matching_pair(
                                 name=sync_photo_name, extension=sync_photo_ext,
                                 date_time=rpd_file.metadata.date_time(),
                                 sub_seconds=rpd_file.metadata.sub_seconds())
-                        if j == -1:
+                        """ :type : SyncRawJpegMatch"""
+                        sequence_to_use = matching_pair.sequence_number
+                        if matching_pair.status == \
+                                SyncRawJpegStatus.error_already_downloaded:
                             # this exact file has already been downloaded (same extension, same filename, and same exif date time subsecond info)
-                            if (rpd_file.download_conflict_resolution <>
-                                    constants.ADD_UNIQUE_IDENTIFIER):
+                            if (rpd_file.download_conflict_resolution !=
+                                    ConflictResolution.add_identifier):
                                 rpd_file.add_problem(None, pn.FILE_ALREADY_DOWNLOADED, {'filetype': rpd_file.title_capitalized})
                                 rpd_file.error_title = _('Photo has already been downloaded')
                                 rpd_file.error_msg = _("Source: %(source)s") % {'source': rpd_file.full_file_name}
-                                rpd_file.status = constants.STATUS_DOWNLOAD_FAILED
+                                rpd_file.status = DownloadStatus.download_failed
                                 synchronize_raw_jpg_failed = True
                         else:
-                            self.sequences.set_matched_sequence_value(sequence_to_use)
-                            if j == -99:
+                            self.sequences.set_matched_sequence_value(
+                                matching_pair.sequence_number)
+                            if matching_pair.status == \
+                                    SyncRawJpegStatus.error_datetime_mismatch:
                                 rpd_file = self.same_name_different_exif(sync_photo_name, rpd_file)
 
                 if synchronize_raw_jpg_failed:
@@ -417,7 +441,7 @@ class SubfolderFile(multiprocessing.Process):
                     # Generate subfolder name and new file name
                     generation_succeeded = True
 
-                    if rpd_file.file_type == rpdfile.FILE_TYPE_PHOTO:
+                    if rpd_file.file_type == FileType.photo:
                         if hasattr(rpd_file, 'new_focal_length'):
                             # A RAW file has had its focal length and aperture adjusted.
                             # These have been written out to an XMP sidecar, but they won't
@@ -431,7 +455,7 @@ class SubfolderFile(multiprocessing.Process):
 
 
                     if rpd_file.download_subfolder:
-                        logger.debug("Generated subfolder name %s for file %s", rpd_file.download_subfolder, rpd_file.name)
+                        logging.debug("Generated subfolder name %s for file %s", rpd_file.download_subfolder, rpd_file.name)
 
                         if self.refresh_downloads_today.value:
                             # overwrite downloads today value tracked here,
@@ -449,16 +473,16 @@ class SubfolderFile(multiprocessing.Process):
                         rpd_file = generate_name(rpd_file)
 
                         if rpd_file.has_problem():
-                            logger.debug("Encountered a problem generating file name for file %s", rpd_file.name)
-                            rpd_file.status = constants.STATUS_DOWNLOADED_WITH_WARNING
+                            logging.debug("Encountered a problem generating file name for file %s", rpd_file.name)
+                            rpd_file.status = DownloadStatus.downloaded_with_warning
                             rpd_file.error_title = rpd_file.problem.get_title()
                             rpd_file.error_msg = _("%(problem)s\nFile: %(file)s") % \
                                      {'problem': rpd_file.problem.get_problems(),
                                       'file': rpd_file.full_file_name}
                         else:
-                            logger.debug("Generated file name %s for file %s", rpd_file.download_name, rpd_file.name)
+                            logging.debug("Generated file name %s for file %s", rpd_file.download_name, rpd_file.name)
                     else:
-                        logger.debug("Failed to generate subfolder name for file: %s", rpd_file.name)
+                        logging.debug("Failed to generate subfolder name for file: %s", rpd_file.name)
 
                     # Check for any errors
                     generation_succeeded = self.check_for_fatal_name_generation_errors(rpd_file)
@@ -471,20 +495,20 @@ class SubfolderFile(multiprocessing.Process):
                     rpd_file.download_full_file_name = os.path.join(rpd_file.download_path, rpd_file.download_name)
                     rpd_file.download_full_base_name = os.path.splitext(rpd_file.download_full_file_name)[0]
 
-                    logger.debug("Probing to see if subfolder already exists...")
+                    logging.debug("Probing to see if subfolder already exists...")
                     if not os.path.isdir(rpd_file.download_path):
                         try:
-                            logger.debug("...subfolder doesn't exist: creating it...")
+                            logging.debug("...subfolder doesn't exist: creating it...")
                             os.makedirs(rpd_file.download_path)
-                            logger.debug("...subfolder created")
+                            logging.debug("...subfolder created")
                         except IOError as inst:
-                            if inst.errno <> errno.EEXIST:
-                                logger.error("Failed to create download subfolder: %s", rpd_file.download_path)
-                                logger.error(inst)
+                            if inst.errno != errno.EEXIST:
+                                logging.error("Failed to create download subfolder: %s", rpd_file.download_path)
+                                logging.error(inst)
                                 rpd_file.error_title = _("Failed to create download subfolder")
                                 rpd_file.error_msg = _("Path: %s") % rpd_file.download_path
                     else:
-                        logger.debug("...subfolder already exists")
+                        logging.debug("...subfolder already exists")
 
                     # Move temp file to subfolder
 
@@ -493,12 +517,12 @@ class SubfolderFile(multiprocessing.Process):
                     try:
                         if os.path.exists(rpd_file.download_full_file_name):
                             raise IOError(errno.EEXIST, "File exists: %s" % rpd_file.download_full_file_name)
-                        logger.debug("Attempting to rename file %s to %s .....", rpd_file.temp_full_file_name, rpd_file.download_full_file_name)
+                        logging.debug("Attempting to rename file %s to %s .....", rpd_file.temp_full_file_name, rpd_file.download_full_file_name)
                         os.rename(rpd_file.temp_full_file_name, rpd_file.download_full_file_name)
-                        logger.debug("....successfully renamed file")
+                        logging.debug("....successfully renamed file")
                         move_succeeded = True
-                        if rpd_file.status <> constants.STATUS_DOWNLOADED_WITH_WARNING:
-                            rpd_file.status = constants.STATUS_DOWNLOADED
+                        if rpd_file.status != DownloadStatus.downloaded_with_warning:
+                            rpd_file.status = DownloadStatus.downloaded
                     except (IOError, OSError) as inst:
                         if inst.errno == errno.EEXIST:
                             rpd_file, add_unique_identifier = self.download_file_exists(rpd_file)
@@ -526,7 +550,7 @@ class SubfolderFile(multiprocessing.Process):
                                 os.rename(rpd_file.temp_full_file_name, rpd_file.download_full_file_name)
                                 rpd_file, move_succeeded, suffix_already_used = self.added_unique_identifier(rpd_file)
                             except IOError as inst:
-                                if inst.errno <> errno.EEXIST:
+                                if inst.errno != errno.EEXIST:
                                     rpd_file = self.download_failure_file_error(rpd_file, inst)
                                     break
                             except:
@@ -536,7 +560,7 @@ class SubfolderFile(multiprocessing.Process):
 
 
 
-                    logger.debug("Finish processing file: %s", download_count)
+                    logging.debug("Finish processing file: %s", download_count)
 
                 if move_succeeded:
                     if synchronize_raw_jpg:
@@ -575,25 +599,28 @@ class SubfolderFile(multiprocessing.Process):
                             os.rename(rpd_file.temp_xmp_full_name, download_xmp_full_name)
                             rpd_file.download_xmp_full_name = download_xmp_full_name
                         except:
-                            logger.error("Failed to move XMP sidecar file %s", download_xmp_full_name)
+                            logging.error("Failed to move XMP sidecar file %s", download_xmp_full_name)
 
 
                 if not move_succeeded:
-                    logger.error("%s: %s - %s", rpd_file.full_file_name,
+                    logging.error("%s: %s - %s", rpd_file.full_file_name,
                                  rpd_file.problem.get_title(),
                                  rpd_file.problem.get_problems())
                     try:
                         os.remove(rpd_file.temp_full_file_name)
                     except:
-                        logger.error("Failed to delete temporary file %s", rpd_file.temp_full_file_name)
-
-
-
+                        logging.error("Failed to delete temporary file %s", rpd_file.temp_full_file_name)
 
 
             rpd_file.metadata = None #purge metadata, as it cannot be pickled
             rpd_file.sequences = None
-            self.results_pipe.send((move_succeeded, rpd_file, download_count))
+
+            self.content =  pickle.dumps(RenameAndMoveFileResults(
+                                            move_succeeded=move_succeeded,
+                                            rpd_file=rpd_file,
+                                            download_count=download_count),
+                                            pickle.HIGHEST_PROTOCOL)
+            self.send_message_to_sink()
 
             i += 1
 
