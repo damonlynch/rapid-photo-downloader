@@ -41,7 +41,7 @@ import gphoto2 as gp
 from PyQt5 import QtCore, QtWidgets, QtGui
 
 from PyQt5.QtCore import (QThread, Qt, QStorageInfo, QSettings, QPoint,
-                          QSize, QFileInfo)
+                          QSize, QFileInfo, QObject)
 from PyQt5.QtGui import (QIcon, QPixmap, QImage)
 from PyQt5.QtWidgets import (QAction, QApplication, QFileDialog, QLabel,
         QMainWindow, QMenu, QMessageBox, QScrollArea, QSizePolicy,
@@ -57,7 +57,8 @@ from storage import (ValidMounts, CameraHotplug, UDisks2Monitor,
                      mountPaths, get_desktop_environment,
                      gvfs_controls_mounts, get_program_cache_directory)
 from interprocess import (PublishPullPipelineManager, ScanArguments,
-                          CopyFilesArguments, CopyFilesResults)
+                          CopyFilesArguments, CopyFilesResults,
+                          PushPullDaemonManager)
 from devices import (Device, DeviceCollection, BackupDevice,
                      BackupDeviceCollection)
 from preferences import (Preferences, ScanPreferences)
@@ -76,9 +77,15 @@ logging.basicConfig(format='%(asctime)s %(message)s', level=logging_level)
 
 BackupMissing = namedtuple('BackupMissing', ['photo', 'video'])
 
+class RenameMoveFileManager(PushPullDaemonManager):
+    def __init__(self, context: zmq.Context):
+        super(RenameMoveFileManager, self).__init__(context)
+        self._process_name = 'Rename and Move File Manager'
+        self._process_to_run = 'renameandmovefile.py'
+
 class ScanManager(PublishPullPipelineManager):
     message = QtCore.pyqtSignal(RPDFile)
-    def __init__(self, context):
+    def __init__(self, context: zmq.Context):
         super(ScanManager, self).__init__(context)
         self._process_name = 'Scan Manager'
         self._process_to_run = 'scan.py'
@@ -89,7 +96,7 @@ class CopyFilesManager(PublishPullPipelineManager):
     thumbnail = QtCore.pyqtSignal(RPDFile, QPixmap)
     tempDirs = QtCore.pyqtSignal(int, str,str)
     bytesDownloaded = QtCore.pyqtSignal(int, int, int)
-    def __init__(self, context):
+    def __init__(self, context: zmq.Context):
         super(CopyFilesManager, self).__init__(context)
         self._process_name = 'Copy Files Manager'
         self._process_to_run = 'copyfiles.py'

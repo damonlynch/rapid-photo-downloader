@@ -39,8 +39,8 @@ import prefsrapid
 from constants import ConflictResolution, FileType, DownloadStatus
 from enum import Enum
 from collections import namedtuple
-from interprocess import (RenameAndMoveFileArguments,
-                          RenameAndMoveFileResults)
+from interprocess import (RenameAndMoveFileData,
+                          RenameAndMoveFileResults, DaemonProcess)
 
 from gettext import gettext as _
 
@@ -159,22 +159,22 @@ def generate_name(rpd_file):
     return rpd_file
 
 
-class SubfolderFile(multiprocessing.Process):
-    def __init__(self, results_pipe, sequence_values):
-        multiprocessing.Process.__init__(self)
-        self.daemon = True
-        self.results_pipe = results_pipe
-
-        self.downloads_today = sequence_values[0]
-        self.downloads_today_date = sequence_values[1]
-        self.day_start = sequence_values[2]
-        self.refresh_downloads_today = sequence_values[3]
-        self.stored_sequence_no = sequence_values[4]
-        self.uses_stored_sequence_no = sequence_values[5]
-        self.uses_session_sequece_no = sequence_values[6]
-        self.uses_sequence_letter = sequence_values[7]
-
-        logging.debug("Start of day is set to %s", self.day_start.value)
+class SubfolderFile(DaemonProcess):
+    # def __init__(self, results_pipe, sequence_values):
+    #     multiprocessing.Process.__init__(self)
+    #     self.daemon = True
+    #     self.results_pipe = results_pipe
+    #
+    #     self.downloads_today = sequence_values[0]
+    #     self.downloads_today_date = sequence_values[1]
+    #     self.day_start = sequence_values[2]
+    #     self.refresh_downloads_today = sequence_values[3]
+    #     self.stored_sequence_no = sequence_values[4]
+    #     self.uses_stored_sequence_no = sequence_values[5]
+    #     self.uses_session_sequece_no = sequence_values[6]
+    #     self.uses_sequence_letter = sequence_values[7]
+    #
+    #     logging.debug("Start of day is set to %s", self.day_start.value)
 
     def progress_callback_no_update(self, amount_downloaded, total):
         pass
@@ -392,12 +392,20 @@ class SubfolderFile(multiprocessing.Process):
                 logging.debug("Finished %s. Getting next task.", download_count)
 
             # rename file and move to generated subfolder
-            download_succeeded, download_count, rpd_file = self.results_pipe.recv()
+            directive, content = self.receiver.recv_multipart()
+
+            self.check_for_command(directive, content)
+
+            data = pickle.loads(content)
+            """ :type : RenameAndMoveFileData"""
+
+            rpd_file = data.rpd_file
+            # download_succeeded, download_count, rpd_file
 
             move_succeeded = False
 
 
-            if download_succeeded:
+            if data.download_succeeded:
 
                 synchronize_raw_jpg_failed = False
                 if not (rpd_file.synchronize_raw_jpg and

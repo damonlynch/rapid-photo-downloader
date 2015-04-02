@@ -19,7 +19,7 @@ __author__ = 'Damon Lynch'
 # along with Rapid Photo Downloader.  If not,
 # see <http://www.gnu.org/licenses/>.
 
-from enum import Enum
+from enum import (Enum, IntEnum)
 
 version = '0.5.0~a1'
 
@@ -28,7 +28,7 @@ DBUS_NAME = "net.damonlynch.RapidPhotoDownloader"
 #i18n
 APP_NAME = "rapid-photo-downloader"
 
-class ConflictResolution:
+class ConflictResolution(IntEnum):
     skip = 1
     add_identifier = 2
 

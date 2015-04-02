@@ -186,7 +186,8 @@ class Preferences:
                               )
     performance_defaults = dict(generate_thumbnails=True,
                                 thumbnail_quality_lower=False)
-    error_defaults = dict(conflict_resolution=constants.SKIP_DOWNLOAD,
+    error_defaults = dict(conflict_resolution=int(constants.ConflictResolution
+                          .skip),
                           backup_duplicate_overwrite=False)
 
 

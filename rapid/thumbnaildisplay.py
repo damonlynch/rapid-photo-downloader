@@ -27,6 +27,8 @@ from PyQt5.QtCore import  (QAbstractTableModel, QModelIndex, Qt, pyqtSignal,
 from PyQt5.QtWidgets import QListView, QStyledItemDelegate
 from PyQt5.QtGui import QPixmap, QImage, QPainter, QColor, QFontMetrics
 
+import zmq
+
 from viewutils import RowTracker
 from rpdfile import RPDFile
 from interprocess import (PublishPullPipelineManager,
@@ -52,7 +54,7 @@ class DownloadStats:
 class ThumbnailManager(PublishPullPipelineManager):
     message = pyqtSignal(RPDFile, QPixmap)
     cacheDir = pyqtSignal(int, str)
-    def __init__(self, context):
+    def __init__(self, context: zmq.Context):
         super(ThumbnailManager, self).__init__(context)
         self._process_name = 'Thumbnail Manager'
         self._process_to_run = 'thumbnail.py'

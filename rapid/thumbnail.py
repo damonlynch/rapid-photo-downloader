@@ -322,7 +322,7 @@ class Thumbnail:
                     self.crop_thumbnails and thumbnail is not None:
                 thumbnail = self._crop_160x120_thumbnail(thumbnail, 8)
 
-            if size is not None:
+            if size is not None and thumbnail is not None:
                 thumbnail = thumbnail.scaled(size, Qt.KeepAspectRatio,
                                              self.thumbnail_transform)
 
