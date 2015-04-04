@@ -4,6 +4,7 @@ Rapid Photo Downloader requires the following software:
 * PyQt 5.4
 * Python3-zmq
 * Python3-gphoto2
+* Python3-psutil
 * Python3-scandir
 * Python 3 bindings for gobject-introspection libraries
 * GObject-based wrapper around the Exiv2 library introspection data
@@ -18,6 +19,7 @@ On a distribution like Ubuntu, relevant packages are:
 
 python3-pyqt5
 python3-zmq
+python3-psutil
 gir1.2-gudev
 gir1.2-udisks
 gir1.2-gexiv2

@@ -25,6 +25,7 @@ import subprocess
 import shlex
 import time
 
+from psutil import (Process, wait_procs, pid_exists)
 from PyQt5.QtCore import (pyqtSignal, QObject)
 
 import zmq
@@ -83,6 +84,8 @@ class PullPipelineManager(QObject):
         # Monitor which workers we have running
         self.workers = [] # type list[int]
 
+        self.processes = {}
+
         self.terminating = False
 
     def run_sink(self):
@@ -115,6 +118,7 @@ class PullPipelineManager(QObject):
                     # Worker has finished its work
                     self.workerFinished.emit(worker_id)
                 self.workers.remove(worker_id)
+                del self.processes[worker_id]
                 if not self.workers:
                     logging.debug("{} currently has no workers".format(
                         self._process_name))
@@ -136,6 +140,58 @@ class PullPipelineManager(QObject):
     def worker_finished(worker_id):
         pass
 
+    def forcefully_terminate(self):
+        """
+        Forcefully terminate any running child processes, and then
+        shut down the sink.
+        """
+
+        def on_terminate(proc: Process):
+            logging.debug("Process %s (%s) terminated", proc.name(), proc.pid)
+
+        terminated = []
+        for proc in self.processes.values():
+            if pid_exists(proc.pid):
+                try:
+                    p = Process(proc.pid)
+                except:
+                    p = None
+                if p is not None and p == proc:
+                    logging.debug("Process %s (%s) has %s status",
+                                  p.name(), p.pid, p.status())
+                    try:
+                        p.terminate()
+                        terminated.append(p)
+                    except:
+                        logging.error("Terminating process %s with "
+                                  "pid %s failed", p.name(), p.pid)
+        if terminated:
+            gone, alive = wait_procs(terminated, timeout=2,
+                                     callback=on_terminate)
+            for p in alive:
+                logging.debug("Killing process %s", p)
+                try:
+                    p.kill()
+                except:
+                    logging.debug("Failed to kill process %s with pid %s",
+                                  p.name(), p.pid)
+
+        self.terminate_sink()
+
+    def process_alive(self, worker_id: int) -> bool:
+        """
+        Process IDs are reused by the system. Check to make sure
+        a new process has not been created with the same process id.
+
+        :param worker_id: the process to check
+        :return True if the process is the same, False otherwise
+        """
+        if pid_exists(self.processes[worker_id].pid):
+            return Process(self.processes[worker_id].pid) \
+                              == self.processes[worker_id]
+        return False
+
+
 DAEMON_WORKER_ID = 0
 
 class PushPullDaemonManager(PullPipelineManager):
@@ -150,18 +206,31 @@ class PushPullDaemonManager(PullPipelineManager):
 
     def stop(self):
         """
-        Permanently stop all the daemon process and terminate
+        Permanently stop the daemon process and terminate
         """
-        # TODO: exit when a worker has crashed
         logging.debug("{} halting".format(self._process_name))
         self.terminating = True
-        self.ventilator_socket.send_multipart(b'cmd', b'STOP')
+
+        # Only send stop command if the process is still running
+        if self.process_alive(DAEMON_WORKER_ID):
+            try:
+                self.ventilator_socket.send_multipart([b'cmd', b'STOP'],
+                                                  zmq.DONTWAIT)
+            except zmq.Again:
+                logging.debug(
+                    "Terminating %s sink because child process did not "
+                    "receive message",
+                    self._process_name)
+                self.terminate_sink()
+        else:
+            # The process may have crashed. Stop the sink.
+            self.terminate_sink()
 
     def start(self):
         cmd = os.path.join(os.path.dirname(__file__), self._process_to_run)
         command_line = '{} --receive {} --send {} --logginglevel {}'.format(
                         cmd,
-                        self.publisher_port,
+                        self.ventilator_port,
                         self.receiver_port,
                         logging_level)
 
@@ -173,6 +242,7 @@ class PushPullDaemonManager(PullPipelineManager):
 
         # Add to list of running workers
         self.workers.append(DAEMON_WORKER_ID)
+        self.processes[DAEMON_WORKER_ID] = Process(pid)
 
 class PublishPullPipelineManager(PullPipelineManager):
     """
@@ -210,9 +280,20 @@ class PublishPullPipelineManager(PullPipelineManager):
         self.terminating = True
         if self.workers:
             # Signal workers they must immediately stop
-            for worker_id in self.workers:
+            termination_signal_sent = False
+            alive_workers = [worker_id for worker_id in self.workers if
+                             self.process_alive(worker_id)]
+            for worker_id in alive_workers:
                 message = [make_filter_from_worker_id(worker_id),b'STOP']
-                self.controller_socket.send_multipart(message)
+                try:
+                    self.controller_socket.send_multipart(message,
+                                                          zmq.DONTWAIT)
+                    termination_signal_sent = True
+                except zmq.Again:
+                    pass
+
+            if not termination_signal_sent:
+                self.terminate_sink()
         else:
             self.terminate_sink()
 
@@ -244,6 +325,7 @@ class PublishPullPipelineManager(PullPipelineManager):
 
         # Add to list of running workers
         self.workers.append(worker_id)
+        self.processes[worker_id] = Process(pid)
 
         # Send START commands until scan worker indicates it is ready to
         # receive data
@@ -350,7 +432,6 @@ class WorkerInPublishPullPipeline(WorkerProcess):
 
     def __init__(self, worker_type):
         super(WorkerInPublishPullPipeline, self).__init__(worker_type)
-        logging.debug("{} worker started".format(worker_type))
         self.parser.add_argument("--controller", required=True)
         self.parser.add_argument("--syncclient", required=True)
         self.parser.add_argument("--filter", required=True)

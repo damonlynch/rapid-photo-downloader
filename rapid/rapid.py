@@ -41,7 +41,7 @@ import gphoto2 as gp
 from PyQt5 import QtCore, QtWidgets, QtGui
 
 from PyQt5.QtCore import (QThread, Qt, QStorageInfo, QSettings, QPoint,
-                          QSize, QFileInfo, QObject)
+                          QSize, QFileInfo, QTimer)
 from PyQt5.QtGui import (QIcon, QPixmap, QImage)
 from PyQt5.QtWidgets import (QAction, QApplication, QFileDialog, QLabel,
         QMainWindow, QMenu, QMessageBox, QScrollArea, QSizePolicy,
@@ -89,7 +89,6 @@ class ScanManager(PublishPullPipelineManager):
         super(ScanManager, self).__init__(context)
         self._process_name = 'Scan Manager'
         self._process_to_run = 'scan.py'
-
 
 class CopyFilesManager(PublishPullPipelineManager):
     message = QtCore.pyqtSignal(bool, RPDFile, int)
@@ -274,6 +273,17 @@ class RapidWindow(QMainWindow):
         self.time_remaining = downloadtracker.TimeRemaining()
         self.time_check = downloadtracker.TimeCheck()
 
+        self.renameThread = QThread()
+        self.renamemq = RenameMoveFileManager(self.context)
+        self.renamemq.moveToThread(self.renameThread)
+
+        self.renameThread.started.connect(self.renamemq.run_sink)
+        self.renamemq.message.connect(self.fileRenamedAndMoved)
+        self.renamemq.workerFinished.connect(self.fileRenamedAndMovedFinished)
+
+        QTimer.singleShot(0, self.renameThread.start)
+        self.renamemq.start()
+
         # Setup the scan processes
         self.scanThread = QThread()
         self.scanmq = ScanManager(self.context)
@@ -284,7 +294,7 @@ class RapidWindow(QMainWindow):
         self.scanmq.workerFinished.connect(self.scanFinished)
 
         # call the slot with no delay
-        QtCore.QTimer.singleShot(0, self.scanThread.start)
+        QTimer.singleShot(0, self.scanThread.start)
 
         # Setup the copyfiles process
         self.copyfilesThread = QThread()
@@ -299,7 +309,7 @@ class RapidWindow(QMainWindow):
         self.copyfilesmq.tempDirs.connect(self.tempDirsReceivedFromCopyFiles)
         self.copyfilesmq.workerFinished.connect(self.copyfilesFinished)
 
-        QtCore.QTimer.singleShot(0, self.copyfilesThread.start)
+        QTimer.singleShot(0, self.copyfilesThread.start)
 
         self.setDownloadActionSensitivity()
         self.searchForCameras()
@@ -750,6 +760,13 @@ class RapidWindow(QMainWindow):
     def copyfilesFinished(self):
         pass
 
+    def fileRenamedAndMoved(self):
+        pass
+
+    def fileRenamedAndMovedFinished(self):
+        pass
+
+
     def invalidDownloadFolders(self, downloading: DownloadTypes):
         """
         Checks validity of download folders based on the file types the
@@ -882,15 +899,22 @@ class RapidWindow(QMainWindow):
 
     def closeEvent(self, event):
         self.writeWindowSettings()
+        self.renamemq.stop()
         self.scanmq.stop()
         self.thumbnailModel.thumbnailmq.stop()
         self.copyfilesmq.stop()
+        self.renameThread.quit()
+        if not self.renameThread.wait(500):
+            self.renamemq.forcefully_terminate()
         self.scanThread.quit()
-        self.scanThread.wait()
+        if not self.scanThread.wait(2000):
+            self.scanmq.forcefully_terminate()
         self.thumbnailModel.thumbnailThread.quit()
-        self.thumbnailModel.thumbnailThread.wait()
+        if not self.thumbnailModel.thumbnailThread.wait(1000):
+            self.thumbnailModel.thumbnailmq.forcefully_terminate()
         self.copyfilesThread.quit()
-        self.copyfilesThread.wait()
+        if not self.copyfilesThread.wait(1000):
+            self.copyfilesmq.forcefully_terminate()
         if not self.gvfsControlsMounts:
             self.udisks2MonitorThread.quit()
             self.udisks2MonitorThread.wait()

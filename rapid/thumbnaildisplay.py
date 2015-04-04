@@ -186,7 +186,8 @@ class ThumbnailTableModel(QAbstractTableModel):
             self.no_thumbnails_by_scan[rpd_file.scan_id] += 1
 
     def cacheDirReceived(self, scan_id: int, cache_dir: str):
-        self.rapidApp.devices[scan_id].photo_cache_dir = cache_dir
+        if scan_id in self.rapidApp.devices:
+            self.rapidApp.devices[scan_id].photo_cache_dir = cache_dir
 
     def thumbnailReceived(self, rpd_file, thumbnail):
         unique_id = rpd_file.unique_id
@@ -275,7 +276,8 @@ class ThumbnailTableModel(QAbstractTableModel):
                     group = rows[start:index+1]
                     self.removeRows(group[0], len(group))
                     start = index+1
-            self.removeRows(rows[start], len(rows[start:]))
+            if rows:
+                self.removeRows(rows[start], len(rows[start:]))
             if not keep_downloaded_files or not len(self.scan_index[scan_id]):
                 del self.scan_index[scan_id]
 

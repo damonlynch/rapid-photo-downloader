@@ -20,6 +20,7 @@ __author__ = 'Damon Lynch'
 # see <http://www.gnu.org/licenses/>.
 
 import os
+import sys
 import logging
 import pickle
 import tempfile
@@ -488,6 +489,13 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
         photo_cache_dir = None
         if arguments.camera:
             camera = Camera(arguments.camera, arguments.port)
+            if not camera.camera_initialized:
+                # There is nothing to do here: exit!
+                logging.debug("Prematurely exiting thumbnail generation due "
+                              "to lack of access to camera %s",
+                              arguments.camera)
+                self.send_finished_command()
+                sys.exit(0)
             # Sometimes need to download complete copy of the files to
             # generate previews.
             # May as well cache them to speed up the download process

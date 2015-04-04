@@ -159,7 +159,7 @@ def generate_name(rpd_file):
     return rpd_file
 
 
-class SubfolderFile(DaemonProcess):
+class RenameMoveFileWorker(DaemonProcess):
     # def __init__(self, results_pipe, sequence_values):
     #     multiprocessing.Process.__init__(self)
     #     self.daemon = True
@@ -633,4 +633,5 @@ class SubfolderFile(DaemonProcess):
             i += 1
 
 
-
+if __name__ == '__main__':
+    rename = RenameMoveFileWorker()
