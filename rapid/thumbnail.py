@@ -43,7 +43,7 @@ from filmstrip import add_filmstrip
 
 from constants import (Downloaded, FileType)
 from camera import Camera
-from utilities import (GenerateRandomFileName, create_temp_dir)
+from utilities import (GenerateRandomFileName, create_temp_dir, CacheDirs)
 
 #FIXME free camera in case of early termination
 
@@ -500,11 +500,15 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
             # generate previews.
             # May as well cache them to speed up the download process
             photo_cache_dir = create_temp_dir(
-                folder=arguments.photo_cache_folder,
+                folder=arguments.cache_dirs.photo_cache_dir,
                 prefix='rpd-cache-{}-'.format(arguments.name[:10]))
+            video_cache_dir = create_temp_dir(
+                folder=arguments.cache_dirs.video_cache_dir,
+                prefix='rpd-cache-{}-'.format(arguments.name[:10]))
+            cache_dirs = CacheDirs(photo_cache_dir, video_cache_dir)
             self.content = pickle.dumps(GenerateThumbnailsResults(
                     scan_id=arguments.scan_id,
-                    photo_cache_dir=photo_cache_dir), pickle.HIGHEST_PROTOCOL)
+                    cache_dirs=cache_dirs), pickle.HIGHEST_PROTOCOL)
             self.send_message_to_sink()
         else:
             camera = None

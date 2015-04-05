@@ -67,7 +67,7 @@ from constants import (BackupLocationType, DeviceType, ErrorType,
 from thumbnaildisplay import (ThumbnailView, ThumbnailTableModel,
     ThumbnailDelegate, DownloadTypes, DownloadStats)
 from devicedisplay import (DeviceTableModel, DeviceView, DeviceDelegate)
-from utilities import (same_file_system, makeInternationalizedList)
+from utilities import (same_file_system, makeInternationalizedList, CacheDirs)
 from rpdfile import RPDFile
 import downloadtracker
 
@@ -139,10 +139,10 @@ class RapidWindow(QMainWindow):
         self.prefs = Preferences()
         self.setupWindow()
 
-        self.prefs['photo_download_folder'] = '/data/Photos/Test'
-        self.prefs['video_download_folder'] = '/data/Photos/Test'
-        self.prefs['auto_download_at_startup'] = False
-        self.prefs['verify_file'] = True
+        self.prefs.photo_download_folder = '/data/Photos/Test'
+        self.prefs.video_download_folder = '/data/Photos/Test'
+        self.prefs.auto_download_at_startup = False
+        self.prefs.verify_file = True
 
         centralWidget = QWidget()
 
@@ -209,8 +209,8 @@ class RapidWindow(QMainWindow):
         # Initalize use of libgphoto2
         self.gp_context = gp.Context()
 
-        self.validMounts = ValidMounts(onlyExternalMounts=self.prefs[
-            'only_external_mounts'])
+        self.validMounts = ValidMounts(
+            onlyExternalMounts=self.prefs.only_external_mounts)
 
         logging.debug("Desktop environment: %s",
                       get_desktop_environment())
@@ -635,12 +635,12 @@ class RapidWindow(QMainWindow):
         """
 
         if download_stats.photos > 0:
-            photo_download_folder = self.prefs['photo_download_folder']
+            photo_download_folder = self.prefs.photo_download_folder
         else:
             photo_download_folder = None
 
         if download_stats.videos > 0:
-            video_download_folder = self.prefs['video_download_folder']
+            video_download_folder = self.prefs.video_download_folder
         else:
             video_download_folder = None
 
@@ -653,7 +653,7 @@ class RapidWindow(QMainWindow):
 
         download_size = download_stats.photos_size + download_stats.videos_size
 
-        if self.prefs['backup_images']:
+        if self.prefs.backup_images:
             download_size += ((self.backup_devices.no_photo_backup_devices *
                                download_stats.photos_size) + (
                                self.backup_devices.no_video_backup_devices *
@@ -670,17 +670,17 @@ class RapidWindow(QMainWindow):
             # downloaded from that summarizes the downloads.
             self.display_summary_notification = True
 
-        if self.auto_start_is_on and self.prefs['generate_thumbnails']:
+        if self.auto_start_is_on and self.prefs.generate_thumbnails:
             for rpd_file in files:
                 rpd_file.generate_thumbnail = True
             generate_thumbnails = True
 
-        verify_file = self.prefs['verify_file']
+        verify_file = self.prefs.verify_file
         if verify_file:
             # since a file might be modified in the file modify process,
             # if it will be backed up, need to refresh the md5 once it has
             # been modified
-            refresh_md5_on_file_change = self.prefs['backup_images']
+            refresh_md5_on_file_change = self.prefs.backup_images
         else:
             refresh_md5_on_file_change = False
 
@@ -695,7 +695,7 @@ class RapidWindow(QMainWindow):
         # Initiate copy files process
 
         if generate_thumbnails:
-            thumbnail_quality_lower = self.prefs['thumbnail_quality_lower']
+            thumbnail_quality_lower = self.prefs.thumbnail_quality_lower
         else:
             thumbnail_quality_lower = None
 
@@ -777,13 +777,13 @@ class RapidWindow(QMainWindow):
         """
         invalid_dirs = []
         if downloading.photos:
-            if not self.isValidDownloadDir(self.prefs['photo_download_folder'],
+            if not self.isValidDownloadDir(self.prefs.photo_download_folder,
                                                         is_photo_dir=True):
-                invalid_dirs.append(self.prefs['photo_download_folder'])
+                invalid_dirs.append(self.prefs.photo_download_folder)
         if downloading.videos:
-            if not self.isValidDownloadDir(self.prefs['video_download_folder'],
+            if not self.isValidDownloadDir(self.prefs.video_download_folder,
                                                         is_photo_dir=False):
-                invalid_dirs.append(self.prefs['video_download_folder'])
+                invalid_dirs.append(self.prefs.video_download_folder)
         return invalid_dirs
 
     def isValidDownloadDir(self, path, is_photo_dir: bool,
@@ -843,8 +843,8 @@ class RapidWindow(QMainWindow):
         :return: None if no problems, or BackupMissing
         """
         backup_missing = BackupMissing(False, False)
-        if self.prefs['backup_images'] and self.prefs[
-            'backup_device_autodetection']:
+        if self.prefs.backup_images and \
+                self.prefs.backup_device_autodetection:
             if downloading.photos and not self.backupPossible(
                     FileType.photo):
                 backup_missing.photo = True
@@ -885,10 +885,10 @@ class RapidWindow(QMainWindow):
         self.deviceModel.updateDeviceScan(scan_id, text, scan_completed=True)
         self.setDownloadActionSensitivity()
 
-        if (not self.auto_start_is_on and  self.prefs['generate_thumbnails']):
+        if (not self.auto_start_is_on and  self.prefs.generate_thumbnails):
             # Generate thumbnails for finished scan
             self.thumbnailModel.generateThumbnails(scan_id, self.devices[
-                        scan_id], self.prefs['thumbnail_quality_lower'])
+                        scan_id], self.prefs.thumbnail_quality_lower)
         elif self.auto_start_is_on:
             #TODO implement get job code
             if False: #self.need_job_code_for_naming and not self.job_code:
@@ -1004,7 +1004,7 @@ class RapidWindow(QMainWindow):
 
 
     def cameraAdded(self):
-        if not self.prefs['device_autodetection']:
+        if not self.prefs.device_autodetection:
             logging.debug("Ignoring camera as device auto detection is off")
         else:
             logging.debug("Assuming camera will not be mounted: "
@@ -1069,7 +1069,7 @@ class RapidWindow(QMainWindow):
                           "unmounted", model)
 
     def searchForCameras(self):
-        if self.prefs['device_autodetection']:
+        if self.prefs.device_autodetection:
             cameras = self.gp_context.camera_autodetect()
             for model, port in cameras:
                 if port in self.camerasToUnmount:
@@ -1077,7 +1077,7 @@ class RapidWindow(QMainWindow):
                     logging.debug("Already unmounting %s", model)
                 elif self.devices.known_camera(model, port):
                     logging.debug("Camera %s is known", model)
-                elif model in self.prefs['camera_blacklist']:
+                elif model in self.prefs.camera_blacklist:
                     logging.debug("Ignoring blacklisted camera %s", model)
                 elif not port.startswith('disk:'):
                     logging.debug("Detected %s on port %s", model, port)
@@ -1097,7 +1097,7 @@ class RapidWindow(QMainWindow):
     def startDeviceScan(self, device: Device):
         scan_id = self.devices.add_device(device)
         self.addToDeviceDisplay(device, scan_id)
-        scan_preferences = ScanPreferences(self.prefs['ignored_paths'])
+        scan_preferences = ScanPreferences(self.prefs.ignored_paths)
         scan_arguments = ScanArguments(scan_preferences, device)
         self.scanmq.add_worker(scan_id, scan_arguments)
         self.setDownloadActionSensitivity()
@@ -1115,7 +1115,7 @@ class RapidWindow(QMainWindow):
         """
         if mount.isValid() and mount.isReady():
             path = mount.rootPath()
-            if (path in self.prefs['path_blacklist'] and
+            if (path in self.prefs.path_blacklist and
                     self.scanEvenIfNoDCIM()):
                 logging.info("blacklisted device %s ignored",
                              mount.displayName())
@@ -1125,8 +1125,8 @@ class RapidWindow(QMainWindow):
         return False
 
     def shouldScanMountPath(self, path: str) -> bool:
-        if self.prefs['device_autodetection']:
-            if (self.prefs['device_without_dcim_autodetection'] or
+        if self.prefs.device_autodetection:
+            if (self.prefs.device_without_dcim_autodetection or
                     has_non_empty_dcim_folder(path)):
                 return True
         return False
@@ -1134,7 +1134,7 @@ class RapidWindow(QMainWindow):
     def prepareNonCameraDeviceScan(self, device: Device):
         if not self.devices.known_device(device):
             if (self.scanEvenIfNoDCIM() and
-                    not device.path in self.prefs['path_whitelist']):
+                    not device.path in self.prefs.path_whitelist):
                 # prompt user to see if device should be used or not
                 pass
                 #self.get_use_device(device)
@@ -1175,8 +1175,8 @@ class RapidWindow(QMainWindow):
                         self.displayFreeSpaceAndBackups()
 
                 elif self.shouldScanMountPath(path):
-                    self.auto_start_is_on = self.prefs[
-                        'auto_download_upon_device_insertion']
+                    self.auto_start_is_on = \
+                        self.prefs.auto_download_upon_device_insertion
                     device = Device()
                     device.set_download_from_volume(path, mount.displayName(),
                                                     iconNames, canEject)
@@ -1240,7 +1240,7 @@ class RapidWindow(QMainWindow):
         """
 
         self.clearNonRunningDownloads()
-        if not self.prefs['device_autodetection']:
+        if not self.prefs.device_autodetection:
              if not self.confirmManualDownloadLocation():
                 return
 
@@ -1264,8 +1264,8 @@ class RapidWindow(QMainWindow):
                     else:
                         logging.debug("Ignoring %s", mount.displayName())
 
-        if self.prefs['backup_images']:
-            if not self.prefs['backup_device_autodetection']:
+        if self.prefs.backup_images:
+            if not self.prefs.backup_device_autodetection:
                 self.setupManualBackup()
                 # TODO add backup devices to backup manager MQ
         #     self._add_backup_devices()
@@ -1283,14 +1283,14 @@ class RapidWindow(QMainWindow):
             self.auto_start_is_on = False
         else:
             self.auto_start_is_on = ((not on_preference_change) and
-                    ((self.prefs['auto_download_at_startup'] and
+                    ((self.prefs.auto_download_at_startup and
                       on_startup) or
-                      (self.prefs['auto_download_upon_device_insertion'] and
+                      (self.prefs.auto_download_upon_device_insertion and
                        not on_startup)))
 
-        if not self.prefs['device_autodetection']:
+        if not self.prefs.device_autodetection:
             # user manually specified the path from which to download
-            path = self.prefs['device_location']
+            path = self.prefs.device_location
             if path:
                 logging.debug("Using manually specified path %s", path)
                 if os.path.isdir(path) and os.access(path, os.R_OK):
@@ -1327,8 +1327,8 @@ class RapidWindow(QMainWindow):
         associated with them.
         """
 
-        backup_photo_location = self.prefs['backup_photo_location']
-        backup_video_location = self.prefs['backup_video_location']
+        backup_photo_location = self.prefs.backup_photo_location
+        backup_video_location = self.prefs.backup_video_location
 
         if backup_photo_location != backup_video_location:
             backup_photo_device =  BackupDevice(mount=None,
@@ -1359,19 +1359,19 @@ class RapidWindow(QMainWindow):
         :return The type of file that should be backed up to the path,
         else if nothing should be, None
         """
-        if self.prefs['backup_images']:
-            if self.prefs['backup_device_autodetection']:
+        if self.prefs.backup_images:
+            if self.prefs.backup_device_autodetection:
                 # Determine if the auto-detected backup device is
                 # to be used to backup only photos, or videos, or both.
                 # Use the presence of a corresponding directory to
                 # determine this.
                 # The directory must be writable.
-                photo_path = os.path.join(path, self.prefs[
-                    'photo_backup_identifier'])
+                photo_path = os.path.join(path,
+                                          self.prefs.photo_backup_identifier)
                 p_backup = os.path.isdir(photo_path) and os.access(
                     photo_path, os.W_OK)
-                video_path = os.path.join(path, self.prefs[
-                    'video_backup_identifier'])
+                video_path = os.path.join(path,
+                                          self.prefs.video_backup_identifier)
                 v_backup = os.path.isdir(video_path) and os.access(
                     video_path, os.W_OK)
                 if p_backup and v_backup:
@@ -1384,11 +1384,11 @@ class RapidWindow(QMainWindow):
                 elif v_backup:
                     logging.info("Videos will be backed up to %s", path)
                     return BackupLocationType.videos
-            elif path == self.prefs['backup_photo_location']:
+            elif path == self.prefs.backup_photo_location:
                 # user manually specified the path
                 if os.access(path, os.W_OK):
                     return BackupLocationType.photos
-            elif path == self.prefs['backup_video_location']:
+            elif path == self.prefs.backup_video_location:
                 # user manually specified the path
                 if os.access(path, os.W_OK):
                     return BackupLocationType.videos
@@ -1417,8 +1417,8 @@ class RapidWindow(QMainWindow):
         being added or removed
         :return: True if should monitor, False otherwise
         """
-        return (self.prefs['device_autodetection'] or self.prefs[
-            'backup_device_autodetection'])
+        return (self.prefs.device_autodetection or
+                self.prefs.backup_device_autodetection)
 
     def confirmManualDownloadLocation(self) -> bool:
         """
@@ -1442,8 +1442,8 @@ class RapidWindow(QMainWindow):
         :return: True if scans of such partitions should occur, else
         False
         """
-        return (self.prefs['device_autodetection'] and self.prefs[
-            'device_without_dcim_autodetection'])
+        return (self.prefs.device_autodetection and
+                self.prefs.device_without_dcim_autodetection)
 
     def formatSizeForUser(self, size: int, zero_string='',
                              with_decimals=True,
@@ -1500,24 +1500,24 @@ class RapidWindow(QMainWindow):
         Also displays backup volumes / path being used.
         """
         photo_dir = self.isValidDownloadDir(
-            path=self.prefs['photo_download_folder'],
+            path=self.prefs.photo_download_folder,
             is_photo_dir=True,
             show_error_in_log=True)
         video_dir = self.isValidDownloadDir(
-            path=self.prefs['video_download_folder'],
+            path=self.prefs.video_download_folder,
             is_photo_dir=False,
             show_error_in_log=True)
         if photo_dir and video_dir:
-            same_fs = same_file_system(self.prefs['photo_download_folder'],
-                                       self.prefs['video_download_folder'])
+            same_fs = same_file_system(self.prefs.photo_download_folder,
+                                       self.prefs.video_download_folder)
         else:
             same_fs = False
 
         dirs = []
         if photo_dir:
-            dirs.append(self.prefs['photo_download_folder'])
+            dirs.append(self.prefs.photo_download_folder)
         if video_dir and not same_fs:
-            dirs.append(self.prefs['video_download_folder'])
+            dirs.append(self.prefs.video_download_folder)
 
         if len(dirs) == 1:
             free = self.formatSizeForUser(size=shutil.disk_usage(dirs[0]).free)
@@ -1536,21 +1536,21 @@ class RapidWindow(QMainWindow):
         else:
             msg = ''
 
-        if self.prefs['backup_images']:
-            if not self.prefs['backup_device_autodetection']:
-                if self.prefs['photo_backup_location'] ==  self.prefs[
-                    'backup_video_location']:
+        if self.prefs.backup_images:
+            if not self.prefs.backup_device_autodetection:
+                if self.prefs.photo_backup_location ==  \
+                        self.prefs.backup_video_location:
                     # user manually specified the same location for photos
                     # and video backups
                     msg2 = _('Backing up photos and videos to %(path)s') % {
-                        'path':self.prefs['photo_backup_location']}
+                        'path':self.prefs.photo_backup_location}
                 else:
                     # user manually specified different locations for photo
                     # and video backups
                     msg2 = _('Backing up photos to %(path)s and videos to %('
                              'path2)s')  % {
-                             'path': self.prefs['photo_backup_location'],
-                             'path2': self.prefs['backup_video_location']}
+                             'path': self.prefs.photo_backup_location,
+                             'path2': self.prefs.backup_video_location}
             else:
                 msg2 = self.displayBackupMounts()
 

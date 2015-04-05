@@ -35,6 +35,7 @@ from interprocess import (PublishPullPipelineManager,
     GenerateThumbnailsArguments, Device, GenerateThumbnailsResults)
 from constants import (DownloadStatus, Downloaded, FileType)
 from storage import get_program_cache_directory
+from utilities import (CacheDirs)
 
 class DownloadTypes:
     def __init__(self):
@@ -53,7 +54,7 @@ class DownloadStats:
 
 class ThumbnailManager(PublishPullPipelineManager):
     message = pyqtSignal(RPDFile, QPixmap)
-    cacheDir = pyqtSignal(int, str)
+    cacheDirs = pyqtSignal(int, CacheDirs)
     def __init__(self, context: zmq.Context):
         super(ThumbnailManager, self).__init__(context)
         self._process_name = 'Thumbnail Manager'
@@ -67,8 +68,8 @@ class ThumbnailManager(PublishPullPipelineManager):
             thumbnail = QPixmap.fromImage(thumbnail)
             self.message.emit(data.rpd_file, thumbnail)
         else:
-            assert data.photo_cache_dir is not None
-            self.cacheDir.emit(data.scan_id, data.photo_cache_dir)
+            assert data.cache_dirs is not None
+            self.cacheDirs.emit(data.scan_id, data.cache_dirs)
 
 
 class ThumbnailTableModel(QAbstractTableModel):
@@ -84,7 +85,7 @@ class ThumbnailTableModel(QAbstractTableModel):
 
         self.thumbnailThread.started.connect(self.thumbnailmq.run_sink)
         self.thumbnailmq.message.connect(self.thumbnailReceived)
-        self.thumbnailmq.cacheDir.connect(self.cacheDirReceived)
+        self.thumbnailmq.cacheDirs.connect(self.cacheDirsReceived)
 
         QTimer.singleShot(0, self.thumbnailThread.start)
 
@@ -185,9 +186,13 @@ class ThumbnailTableModel(QAbstractTableModel):
             self.total_thumbs_to_generate += 1
             self.no_thumbnails_by_scan[rpd_file.scan_id] += 1
 
-    def cacheDirReceived(self, scan_id: int, cache_dir: str):
+    def cacheDirsReceived(self, scan_id: int, cache_dirs: CacheDirs):
         if scan_id in self.rapidApp.devices:
-            self.rapidApp.devices[scan_id].photo_cache_dir = cache_dir
+            self.rapidApp.devices[scan_id].photo_cache_dir = \
+                cache_dirs.photo_cache_dir
+            self.rapidApp.devices[scan_id].video_cache_dir = \
+                cache_dirs.video_cache_dir
+
 
     def thumbnailReceived(self, rpd_file, thumbnail):
         unique_id = rpd_file.unique_id
@@ -203,6 +208,26 @@ class ThumbnailTableModel(QAbstractTableModel):
             self.rapidApp.downloadProgressBar.setValue(
                 self.thumbnails_generated)
 
+    def _get_cache_location(self, download_folder: str, is_photo_dir: bool) \
+                            -> str:
+        if self.rapidApp.isValidDownloadDir(download_folder,
+                                            is_photo_dir=is_photo_dir):
+            return download_folder
+        else:
+            folder = get_program_cache_directory(
+                create_if_not_exist=True)
+            if folder is not None:
+                return folder
+            else:
+                return os.path.expanduser('~')
+
+    def get_cache_locations(self) -> CacheDirs:
+        photo_cache_folder = self._get_cache_location(
+            self.rapidApp.prefs.photo_download_folder, is_photo_dir=True)
+        video_cache_folder = self._get_cache_location(
+            self.rapidApp.prefs.video_download_folder, is_photo_dir=False)
+        return CacheDirs(photo_cache_folder, video_cache_folder)
+
     def generateThumbnails(self, scan_id: int, device: Device,
                            thumbnail_quality_lower: bool):
         """
@@ -216,21 +241,13 @@ class ThumbnailTableModel(QAbstractTableModel):
                 self.total_thumbs_to_generate)
             rpd_files = list((self.rpd_files[unique_id] for unique_id in
                          self.scan_index[scan_id]))
+            cache_dirs = self.get_cache_locations()
 
-            if self.rapidApp.isValidDownloadDir(self.rapidApp.prefs[
-                'photo_download_folder'], is_photo_dir=True):
-                photo_cache_folder = self.rapidApp.prefs[
-                'photo_download_folder']
-            else:
-                photo_cache_folder = get_program_cache_directory(
-                    create_if_not_exist=True)
-                if photo_cache_folder is None:
-                    photo_cache_folder = os.path.expanduser('~')
             generate_arguments = GenerateThumbnailsArguments(scan_id,
                                  rpd_files,
                                  thumbnail_quality_lower,
                                  device.name(),
-                                 photo_cache_folder,
+                                 cache_dirs,
                                  device.camera_model,
                                  device.camera_port)
             self.thumbnailmq.add_worker(scan_id, generate_arguments)

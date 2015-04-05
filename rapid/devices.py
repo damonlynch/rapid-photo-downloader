@@ -78,6 +78,7 @@ class Device:
         self.icon_names = None
         self.can_eject = None
         self.photo_cache_dir = None
+        self.video_cache_dir = None
         self.file_size_sum = 0
         self.file_type_counter = FileTypeCounter()
 
@@ -138,15 +139,21 @@ class Device:
         else:
             return self.path
 
-    def delete_cache_dir(self):
-        if self.photo_cache_dir is not None:
-            if os.path.isdir(self.photo_cache_dir):
-                assert self.photo_cache_dir != os.path.expanduser('~')
+
+
+    def _delete_cache_dir(self, cache_dir):
+        if cache_dir is not None:
+            if os.path.isdir(cache_dir):
+                assert cache_dir != os.path.expanduser('~')
                 try:
-                    shutil.rmtree(self.photo_cache_dir, ignore_errors=True)
+                    shutil.rmtree(cache_dir, ignore_errors=True)
                 except:
                     logging.error("Unknown error deleting cache "
-                                      "directory %s", self.photo_cache_dir)
+                                      "directory %s", cache_dir)
+
+    def delete_cache_dirs(self):
+        self._delete_cache_dir(self.photo_cache_dir)
+        self._delete_cache_dir(self.video_cache_dir)
 
 class DeviceCollection:
     """
@@ -273,7 +280,7 @@ class DeviceCollection:
         Delete all cache dirs and their contents any devices might have
         """
         for device in self.devices.values():
-            device.delete_cache_dir()
+            device.delete_cache_dirs()
 
 
     def __delitem__(self, scan_id):

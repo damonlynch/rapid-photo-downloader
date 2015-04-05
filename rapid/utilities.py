@@ -44,7 +44,8 @@ class GenerateRandomFileName:
         return ''.join(random.sample(self.filename_characters, 5))
 
 
-TempDirs = namedtuple('TempDirs', ['photo_temp_dir', 'video_temp_dir'])
+TempDirs = namedtuple('TempDirs', 'photo_temp_dir, video_temp_dir')
+CacheDirs = namedtuple('CacheDirs', 'photo_cache_dir, video_cache_dir')
 
 def create_temp_dir(folder: str, prefix=None) -> str:
     """

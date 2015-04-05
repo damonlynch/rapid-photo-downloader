@@ -33,6 +33,7 @@ import zmq
 from rpdfile import RPDFile
 from devices import Device
 from preferences import ScanPreferences
+from utilities import CacheDirs
 
 logging_level = logging.DEBUG
 logging.basicConfig(format='%(levelname)s:%(asctime)s:%(message)s',
@@ -591,7 +592,7 @@ class BackupArguments:
 
 class GenerateThumbnailsArguments:
     def __init__(self, scan_id: int, rpd_files, thumbnail_quality_lower: bool,
-                 name: str, photo_cache_folder: str,
+                 name: str, cache_dirs: CacheDirs,
                  camera=None, port=None):
         """
         List of files for which thumbnails are to be generated.
@@ -601,8 +602,8 @@ class GenerateThumbnailsArguments:
         :param thumbnail_quality_lower: whether to generate the
          thumbnail high or low quality as it is scaled by Qt
         :param name: name of the device
-        :param photo_cache_folder: full path of where the photos will
-         downloaded to
+        :param cache_dirs: the location where the cache directories
+         should be created
         :param camera: If the thumbnails are being downloaded from a
          camera, this is the name of the camera, else None
         :param port: If the thumbnails are being downloaded from a
@@ -615,7 +616,7 @@ class GenerateThumbnailsArguments:
         self.scan_id = scan_id
         self.thumbnail_quality_lower = thumbnail_quality_lower
         self.name = name
-        self.photo_cache_folder = photo_cache_folder
+        self.cache_dirs = cache_dirs
         if camera is not None:
             assert port is not None
         self.camera = camera
@@ -624,8 +625,8 @@ class GenerateThumbnailsArguments:
 
 class GenerateThumbnailsResults:
     def __init__(self, rpd_file=None, png_data=None,
-                 scan_id=None, photo_cache_dir=None):
+                 scan_id=None, cache_dirs: CacheDirs=None):
         self.rpd_file = rpd_file
         self.png_data = png_data
         self.scan_id = scan_id
-        self.photo_cache_dir = photo_cache_dir
+        self.cache_dirs = cache_dirs

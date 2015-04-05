@@ -192,7 +192,9 @@ class Preferences:
 
 
     def __init__(self):
-        self.settings = QSettings()
+        # To avoid infinite recursions arising from the use of __setattr__,
+        # manually assign class values to the class dict
+        self.__dict__['settings'] = QSettings()
         # These next two values must be kept in sync
         dicts = (self.rename_defaults, self.device_defaults,
                  self.backup_defaults, self.automation_defaults,
@@ -205,8 +207,8 @@ class Preferences:
         # special case of lists, which use the type of what they contain.
         # While we're at it also merge the dictionaries into one dictionary
         # of default values.
-        self.types = {}
-        self.defaults = {}
+        self.__dict__['types'] = {}
+        self.__dict__['defaults'] = {}
         for d in dicts:
             for key, value in d.items():
                 if isinstance(value, list):
@@ -216,7 +218,7 @@ class Preferences:
                 self.types[key] = t
                 self.defaults[key] = value
         # Create quick lookup table of the group each key is in
-        self.groups = {}
+        self.__dict__['groups'] = {}
         for idx, d in enumerate(dicts):
             for key in d:
                 self.groups[key] = group_names[idx]
@@ -228,8 +230,14 @@ class Preferences:
         self.settings.endGroup()
         return v
 
+    def __getattr__(self, key):
+        return self[key]
+
     def __setitem__(self, key, value):
         group = self.groups.get(key, 'General')
         self.settings.beginGroup(group)
         self.settings.setValue(key, value)
         self.settings.endGroup()
+
+    def __setattr__(self, key, value):
+        self[key] = value
