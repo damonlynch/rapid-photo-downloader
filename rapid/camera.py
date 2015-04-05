@@ -150,7 +150,9 @@ class Camera:
     def save_file_by_chunks(self, dir_name: str, file_name: str, size: int,
                   dest_full_filename: str,
                   progress_callback,
-                  check_for_command, chunk_size=1048576) -> CopyChunks:
+                  check_for_command,
+                  return_file_bytes = False,
+                  chunk_size=1048576) -> CopyChunks:
         """
 
         :param dir_name: directory on the camera
@@ -162,6 +164,8 @@ class Camera:
          copy progress
         :param check_for_command: a function with which to check to see
          if the execution should pause, resume or stop
+        :param return_file_bytes: if True, return a copy of the file's
+         bytes, else make that part of the return value None
         :param chunk_size: the size of the chunks to copy. The default
          is 1MB.
         :return: True if the file was successfully saved, else False,
@@ -188,6 +192,7 @@ class Camera:
                 copy_succeeded = False
                 break
         if copy_succeeded:
+            dest_file = None
             try:
                 dest_file = io.open(dest_full_filename, 'wb')
                 src_bytes = view.tobytes()
@@ -197,10 +202,13 @@ class Camera:
                 logging.error('Error saving file %s from camera %s. Code '
                               '%s', os.path.join(dir_name, file_name),
                               self.camera.model, ex.code)
-                dest_file.close()
+                if dest_file is not None:
+                    dest_file.close()
                 copy_succeeded = False
-
-        return CopyChunks(copy_succeeded, src_bytes)
+        if return_file_bytes:
+            return CopyChunks(copy_succeeded, src_bytes)
+        else:
+            return CopyChunks(copy_succeeded, None)
 
 
     def get_thumbnail(self, dir_name: str, file_name: str,
@@ -215,7 +223,6 @@ class Camera:
         embedded thumbnail
         :param cache_full_filename: full path including filename where the
         thumbnail will be saved. If none, will not save it.
-        :type cache_full_filename: str
         :return: QImage of the thumbnail, which will be full resolution
         if the embedded thumbnail is not selected
         """
@@ -228,6 +235,7 @@ class Camera:
                                       cache_full_filename, get_file_type)
 
         if succeeded:
+            thumbnail_data = None
             try:
                 thumbnail_data = gp.check_result(gp.gp_file_get_data_and_size(
                     camera_file))
@@ -235,8 +243,11 @@ class Camera:
                 logging.error('Error getting image %s from camera. Code: '
                               '%s',
                           os.path.join(dir_name, file_name), ex.code)
-            image = QImage.fromData(thumbnail_data)
-            return image
+            if thumbnail_data:
+                image = QImage.fromData(thumbnail_data)
+                return image
+            else:
+                return None
         else:
             return None
 

@@ -196,7 +196,8 @@ class CopyFilesWorker(WorkerInPublishPullPipeline):
                              size=rpd_file.size,
                              dest_full_filename=rpd_file.temp_full_file_name,
                              progress_callback=self.update_progress,
-                             check_for_command=self.check_for_command)
+                             check_for_command=self.check_for_command,
+                             return_file_bytes=self.verify_file)
 
         if copy_chunks.copy_succeeded and self.verify_file:
             rpd_file.md5 = hashlib.md5(copy_chunks.src_bytes).hexdigest()
@@ -380,6 +381,7 @@ class CopyFilesWorker(WorkerInPublishPullPipeline):
                     rpd_file.audio_file_full_name, 'audio')
 
 
+            #TODO do this in another process, and generate thumbnails http://specifications.freedesktop.org/thumbnail-spec/thumbnail-spec-latest.html
             if (copy_succeeded and rpd_file.generate_thumbnail and
                     args.generate_thumbnails):
                 thumbnail_maker = Thumbnail(rpd_file, camera=None,

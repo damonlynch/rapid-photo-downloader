@@ -42,7 +42,7 @@ from interprocess import (WorkerInPublishPullPipeline,
 from filmstrip import add_filmstrip
 
 from constants import (Downloaded, FileType)
-from camera import Camera
+from camera import (Camera, CopyChunks)
 from utilities import (GenerateRandomFileName, create_temp_dir, CacheDirs)
 
 #FIXME free camera in case of early termination
@@ -100,18 +100,21 @@ class Thumbnail:
 
     def __init__(self, rpd_file: RPDFile, camera: Camera,
                  thumbnail_quality_lower: bool,
-                 use_temp_file: bool, photo_cache_dir=None):
+                 use_temp_file: bool, photo_cache_dir: str=None,
+                 video_cache_dir: str=None,
+                 check_for_command=None):
         """
         :param rpd_file: file from which to extract the thumbnails
         :param camera: if not None, the camera from which to get the
-        thumbnails
+         thumbnails
         :param thumbnail_quality_lower: whether to generate the
-        thumbnail high or low quality as it is scaled by Qt
+         thumbnail high or low quality as it is scaled by Qt
         :param use_temp_file: if True, generate the thumbnail from the
-        temporary file that has been downloaded
+         temporary file that has been downloaded
         :param photo_cache_dir: if specified, the folder in which
-        full size photos from a camera should be cached
-        :type photo_cache_dir: str
+         full size photos from a camera should be cached
+        :param video_cache_dir: if specified, the folder in which
+         videos from a camera should be cached
         """
         self.rpd_file = rpd_file
         self.metadata = None
@@ -122,8 +125,10 @@ class Thumbnail:
             self.thumbnail_transform = Qt.SmoothTransformation
         self.use_temp_file = use_temp_file
         self.photo_cache_dir = photo_cache_dir
-        if photo_cache_dir is not None:
+        self.video_cache_dir = video_cache_dir
+        if photo_cache_dir is not None or video_cache_dir is not None:
             self.random_filename = GenerateRandomFileName()
+        self.check_for_command = check_for_command
 
     def _ignore_embedded_160x120_thumbnail(self) -> bool:
         """
@@ -278,6 +283,29 @@ class Thumbnail:
             thumbnail = self.stock_photo
         return thumbnail
 
+    def _cache_full_size_file(self):
+        if self.rpd_file.file_type == FileType.photo:
+            cache_dir = self.photo_cache_dir
+        else:
+            cache_dir = self.video_cache_dir
+        cache_full_file_name = os.path.join(
+            cache_dir, '{}.{}'.format(
+                self.random_filename.name(), self.rpd_file.extension))
+        copy_chunks = self.camera.save_file_by_chunks(
+                        dir_name=self.rpd_file.path,
+                        file_name=self.rpd_file.name,
+                        size=self.rpd_file.size,
+                        dest_full_filename=cache_full_file_name,
+                        progress_callback=None,
+                        check_for_command=self.check_for_command,
+                        return_file_bytes=False)
+        """:type : CopyChunks"""
+        if copy_chunks.copy_succeeded:
+            self.rpd_file.cache_full_file_name = cache_full_file_name
+            return True
+        else:
+            return False
+
     def _get_photo_thumbnail_from_camera(self, file_name: str,
                                          size: QSize) -> QImage:
 
@@ -298,15 +326,18 @@ class Thumbnail:
         if not (is_raw_image and not self.camera.can_fetch_thumbnails):
             if ignore_embedded_thumbnail:
                 # locally cache the full size image
-                cache_full_file_name = os.path.join(
-                    self.photo_cache_dir, '{}.{}'.format(
-                        self.random_filename.name(), self.rpd_file.extension))
+                thumbnail_data = self._cache_full_size_file()
+                if thumbnail_data is not None:
+                    thumbnail = QImage(self.rpd_file.cache_full_file_name)
+                    if thumbnail.isNull():
+                        self.rpd_file.cache_full_file_name = None
+                else:
+                    thumbnail = None
             else:
-                cache_full_file_name = None
-            thumbnail = self.camera.get_thumbnail(self.rpd_file.path,
-                                                  self.rpd_file.name,
-                                                  ignore_embedded_thumbnail,
-                                                  cache_full_file_name)
+                thumbnail = self.camera.get_thumbnail(self.rpd_file.path,
+                                                      self.rpd_file.name,
+                                                      ignore_embedded_thumbnail
+                                                      )
             if thumbnail is None:
                 logging.error("Unable to get thumbnail from %s for %s",
                               self.camera.model, file_name)
@@ -315,8 +346,6 @@ class Thumbnail:
                 logging.error(
                     "Unable to get thumbnail from %s for %s",
                     self.camera.model, file_name)
-            else:
-                self.rpd_file.cache_full_file_name = cache_full_file_name
 
 
             if not ignore_embedded_thumbnail and self.rpd_file.extension in \
@@ -523,7 +552,8 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
             thumbnail = Thumbnail(rpd_file, camera,
                                   arguments.thumbnail_quality_lower,
                                   use_temp_file=False,
-                                  photo_cache_dir=photo_cache_dir)
+                                  photo_cache_dir=photo_cache_dir,
+                                  check_for_command=self.check_for_command)
             thumbnail_icon = thumbnail.get_thumbnail(size=QSize(100,100))
 
             buffer = QBuffer()
