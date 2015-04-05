@@ -31,7 +31,7 @@ import pickle
 from PyQt5.QtCore import QSize, QIODevice, QBuffer
 
 import problemnotification as pn
-from camera import Camera
+from camera import (Camera, CopyChunks)
 import gphoto2 as gp
 
 from interprocess import (WorkerInPublishPullPipeline, CopyFilesArguments,
@@ -97,6 +97,9 @@ class CopyFilesWorker(WorkerInPublishPullPipeline):
             self.dest.close()
         if self.src is not None:
             self.src.close()
+        if self.camera is not None:
+            if self.camera.camera_initialized:
+                self.camera.free_camera()
 
     def update_progress(self, amount_downloaded, total):
 
@@ -186,43 +189,19 @@ class CopyFilesWorker(WorkerInPublishPullPipeline):
         #     self.update_progress(rpd_file.size, rpd_file.size)
 
     def copy_from_camera(self, rpd_file: RPDFile) -> bool:
-        copy_succeeded = True
-        path = rpd_file.path
-        name = rpd_file.name
-        size = rpd_file.size
-        view = memoryview(bytearray(size))
-        chunk_size = 1024 * 1024
-        amount_downloaded = 0
-        for offset in range(0, size, chunk_size):
-            stop = min(offset + chunk_size, size)
-            try:
-                bytes_read = gp.check_result(self.camera.camera.file_read(
-                    path, name, gp.GP_FILE_TYPE_NORMAL,
-                    offset, view[offset:stop], self.camera.context))
-                amount_downloaded += bytes_read
-                self.update_progress(amount_downloaded, size)
-            except gp.GPhoto2Error as ex:
-                logging.error('Error copying file %s from camera %s. Code '
-                              '%s', rpd_file.full_file_name,
-                              self.camera.model, ex.code)
-                copy_succeeded = False
-                break
-        if copy_succeeded:
-            try:
-                self.dest = io.open(rpd_file.temp_full_file_name, 'wb')
-                src_bytes = view.tobytes()
-                self.dest.write(src_bytes)
-                self.dest.close()
-            except OSError as ex:
-                logging.error('Error saving file %s from camera %s. Code '
-                              '%s', rpd_file.full_file_name,
-                              self.camera.model, ex.code)
-                copy_succeeded = False
 
-        if copy_succeeded and self.verify_file:
-            rpd_file.md5 = hashlib.md5(src_bytes).hexdigest()
+        copy_chunks = self.camera.save_file_by_chunks(
+                             dir_name=rpd_file.path,
+                             file_name=rpd_file.name,
+                             size=rpd_file.size,
+                             dest_full_filename=rpd_file.temp_full_file_name,
+                             progress_callback=self.update_progress,
+                             check_for_command=self.check_for_command)
 
-        return copy_succeeded
+        if copy_chunks.copy_succeeded and self.verify_file:
+            rpd_file.md5 = hashlib.md5(copy_chunks.src_bytes).hexdigest()
+
+        return copy_chunks.copy_succeeded
 
     def copy_associate_file(self, rpd_file: RPDFile, temp_name: str,
                             dest_dir: str, associate_file_fullname: str,
@@ -263,8 +242,8 @@ class CopyFilesWorker(WorkerInPublishPullPipeline):
                 copy_file_metadata(associate_file_fullname,
                                temp_full_name)
         except:
-            logging.error(
-                "Unknown error updating filesystem metadata when "
+            logging.warning(
+                "Could not update filesystem metadata when "
                 "copying %s",
                 rpd_file.thm_full_name)
         return temp_full_name
@@ -383,8 +362,8 @@ class CopyFilesWorker(WorkerInPublishPullPipeline):
                     copy_file_metadata(rpd_file.full_file_name,
                                        temp_full_file_name)
                 except:
-                    logging.error(
-                        "Unknown error updating filesystem metadata when "
+                    logging.warning(
+                        "Could not update filesystem metadata when "
                         "copying %s",
                         rpd_file.full_file_name)
 

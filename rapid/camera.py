@@ -22,6 +22,8 @@ __author__ = 'Damon Lynch'
 
 import logging
 import os
+import io
+from collections import namedtuple
 
 from PyQt5.QtGui import QImage
 
@@ -31,6 +33,8 @@ import gphoto2 as gp
 logging.basicConfig(format='%(levelname)s:%(asctime)s:%(message)s',
                     datefmt='%H:%M:%S',
                     level=logging.DEBUG)
+
+CopyChunks = namedtuple('CopyChunks', 'copy_succeeded, src_bytes')
 
 class Camera:
     def __init__(self, model: str, port:str):
@@ -143,11 +147,66 @@ class Camera:
                                         dest_full_filename)
         return succeeded
 
+    def save_file_by_chunks(self, dir_name: str, file_name: str, size: int,
+                  dest_full_filename: str,
+                  progress_callback,
+                  check_for_command, chunk_size=1048576) -> CopyChunks:
+        """
+
+        :param dir_name: directory on the camera
+        :param file_name: the photo or video
+        :param size: the size of the file in bytes
+        :param dest_full_filename: full path including filename where
+         the file will be saved
+        :param progress_callback: a function with which to update
+         copy progress
+        :param check_for_command: a function with which to check to see
+         if the execution should pause, resume or stop
+        :param chunk_size: the size of the chunks to copy. The default
+         is 1MB.
+        :return: True if the file was successfully saved, else False,
+         and the bytes that were copied
+        """
+        copy_succeeded = True
+        src_bytes = None
+        view = memoryview(bytearray(size))
+        amount_downloaded = 0
+        for offset in range(0, size, chunk_size):
+            check_for_command()
+            stop = min(offset + chunk_size, size)
+            try:
+                bytes_read = gp.check_result(self.camera.file_read(
+                    dir_name, file_name, gp.GP_FILE_TYPE_NORMAL,
+                    offset, view[offset:stop], self.context))
+                amount_downloaded += bytes_read
+                if progress_callback is not None:
+                    progress_callback(amount_downloaded, size)
+            except gp.GPhoto2Error as ex:
+                logging.error('Error copying file %s from camera %s. Code '
+                              '%s', os.path.join(dir_name, file_name),
+                              self.camera.model, ex.code)
+                copy_succeeded = False
+                break
+        if copy_succeeded:
+            try:
+                dest_file = io.open(dest_full_filename, 'wb')
+                src_bytes = view.tobytes()
+                dest_file.write(src_bytes)
+                dest_file.close()
+            except OSError as ex:
+                logging.error('Error saving file %s from camera %s. Code '
+                              '%s', os.path.join(dir_name, file_name),
+                              self.camera.model, ex.code)
+                dest_file.close()
+                copy_succeeded = False
+
+        return CopyChunks(copy_succeeded, src_bytes)
+
 
     def get_thumbnail(self, dir_name: str, file_name: str,
                       ignore_embedded_thumbnail=False,
                       cache_full_filename:str=None) -> \
-    QImage:
+                      QImage:
         """
 
         :param dir_name: directory on the camera
