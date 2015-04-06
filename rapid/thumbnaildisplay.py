@@ -33,7 +33,7 @@ from viewutils import RowTracker
 from rpdfile import RPDFile
 from interprocess import (PublishPullPipelineManager,
     GenerateThumbnailsArguments, Device, GenerateThumbnailsResults)
-from constants import (DownloadStatus, Downloaded, FileType)
+from constants import (DownloadStatus, Downloaded, FileType, ThumbnailSize)
 from storage import get_program_cache_directory
 from utilities import (CacheDirs)
 
@@ -422,7 +422,7 @@ class ThumbnailDelegate(QStyledItemDelegate):
     def __init__(self, parent=None):
         super(ThumbnailDelegate, self).__init__(parent)
         # Thumbnail is located in a 100px square...
-        self.imageAreaSize = 100
+        self.imageAreaSize = max(ThumbnailSize.width, ThumbnailSize.height)
         # ...surrounded by a 1px frame...
         self.imageFrameBorderSize = 1
         #...which is bottom aligned

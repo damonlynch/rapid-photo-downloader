@@ -92,7 +92,6 @@ class ScanManager(PublishPullPipelineManager):
 
 class CopyFilesManager(PublishPullPipelineManager):
     message = QtCore.pyqtSignal(bool, RPDFile, int)
-    thumbnail = QtCore.pyqtSignal(RPDFile, QPixmap)
     tempDirs = QtCore.pyqtSignal(int, str,str)
     bytesDownloaded = QtCore.pyqtSignal(int, int, int)
     def __init__(self, context: zmq.Context):
@@ -114,10 +113,6 @@ class CopyFilesManager(PublishPullPipelineManager):
             assert data.download_count is not None
             self.message.emit(data.copy_succeeded, data.rpd_file,
                               data.download_count)
-            if data.png_data is not None:
-                thumbnail = QImage.fromData(data.png_data)
-                thumbnail = QPixmap.fromImage(thumbnail)
-                self.thumbnail.emit(data.rpd_file, thumbnail)
 
         else:
             assert (data.photo_temp_dir is not None or
@@ -303,8 +298,6 @@ class RapidWindow(QMainWindow):
 
         self.copyfilesThread.started.connect(self.copyfilesmq.run_sink)
         self.copyfilesmq.message.connect(self.copyfilesDownloaded)
-        self.copyfilesmq.thumbnail.connect(
-            self.thumbnailModel.thumbnailReceived)
         self.copyfilesmq.bytesDownloaded.connect(self.copyfilesBytesDownloaded)
         self.copyfilesmq.tempDirs.connect(self.tempDirsReceivedFromCopyFiles)
         self.copyfilesmq.workerFinished.connect(self.copyfilesFinished)

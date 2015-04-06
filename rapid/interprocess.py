@@ -550,7 +550,7 @@ class CopyFilesResults:
     def __init__(self, scan_id=None, photo_temp_dir=None, video_temp_dir=None,
                  total_downloaded=None, chunk_downloaded=None,
                  copy_succeeded=None, rpd_file=None,
-                 download_count=None, png_data=None):
+                 download_count=None):
         self.scan_id = scan_id
 
         self.photo_temp_dir = photo_temp_dir
@@ -562,7 +562,6 @@ class CopyFilesResults:
         self.copy_succeeded = copy_succeeded
         self.rpd_file = rpd_file
         self.download_count = download_count
-        self.png_data = png_data
 
 class RenameAndMoveFileData:
     """

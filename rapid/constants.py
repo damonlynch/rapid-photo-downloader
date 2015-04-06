@@ -77,5 +77,8 @@ class DeviceState(Enum):
     scanned = 2
     downloading = 3
 
+class ThumbnailSize(IntEnum):
+    width = 160
+    height = 120
 
 

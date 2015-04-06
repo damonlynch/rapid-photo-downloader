@@ -380,32 +380,12 @@ class CopyFilesWorker(WorkerInPublishPullPipeline):
                     rpd_file, temp_name, dest_dir,
                     rpd_file.audio_file_full_name, 'audio')
 
-
-            #TODO do this in another process, and generate thumbnails http://specifications.freedesktop.org/thumbnail-spec/thumbnail-spec-latest.html
-            if (copy_succeeded and rpd_file.generate_thumbnail and
-                    args.generate_thumbnails):
-                thumbnail_maker = Thumbnail(rpd_file, camera=None,
-                        thumbnail_quality_lower=args.thumbnail_quality_lower,
-                        use_temp_file=True)
-                thumbnail_icon = thumbnail_maker.get_thumbnail(size=QSize(
-                    100,100))
-                buffer = QBuffer()
-                buffer.open(QIODevice.WriteOnly)
-                thumbnail_icon.save(buffer, "PNG")
-                thumbnail_data = buffer.data()
-            else:
-                thumbnail_data = None
-
-            if rpd_file.metadata is not None:
-                rpd_file.metadata = None
-
             download_count = idx + 1
 
             self.content =  pickle.dumps(CopyFilesResults(
                                             copy_succeeded=copy_succeeded,
                                             rpd_file=rpd_file,
-                                            download_count=download_count,
-                                            png_data=thumbnail_data),
+                                            download_count=download_count),
                                             pickle.HIGHEST_PROTOCOL)
             self.send_message_to_sink()
 
