@@ -288,7 +288,7 @@ class DeviceCollection:
         """ :type : Device"""
         if d.device_type == DeviceType.camera:
             del self.cameras[d.camera_port]
-        d.delete_cache_dir()
+        d.delete_cache_dirs()
         del self.devices[scan_id]
 
     def __getitem__(self, scan_id):

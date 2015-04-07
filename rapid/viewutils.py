@@ -90,3 +90,16 @@ class RowTracker:
         self.rowToId = dict(enumerate(idsToKeep))
         self.idToRow =  dict(((y,x) for x, y in list(enumerate(idsToKeep))))
         return idsToRemove
+
+
+class SortedListItem:
+    def __init__(self, id_value, modification_time: int):
+        self.id_value = id_value
+        self.modification_time = modification_time
+
+    def __repr__(self):
+        return '%r:%r' % (self.id_value, self.modification_time)
+
+    def __eq__(self, other):
+        return (self.id_value == other.id_value and self.modification_time
+                == other.modification_time)

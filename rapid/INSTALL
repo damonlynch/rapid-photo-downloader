@@ -6,6 +6,7 @@ Rapid Photo Downloader requires the following software:
 * Python3-gphoto2
 * Python3-psutil
 * Python3-scandir
+* Python3-sortedcontainers
 * Python 3 bindings for gobject-introspection libraries
 * GObject-based wrapper around the Exiv2 library introspection data
 * GObject based library to access udisks2 introspection data
@@ -25,10 +26,11 @@ gir1.2-udisks
 gir1.2-gexiv2
 libimage-exiftool-perl
 
-The following two components may not be packaged in your Linux distribution.
-You can install them by following the instructions
+The following three components may not be packaged in your Linux distribution.
+You can install them by following the instructions outlined here:
 * https://github.com/jim-easterbrook/python-gphoto2
 * https://github.com/benhoyt/scandir
+* http://grantjenks.com/docs/sortedcontainers/
 
 If you want to download videos, you should install:
 

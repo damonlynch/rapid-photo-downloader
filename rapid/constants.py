@@ -68,7 +68,7 @@ class DeviceType(Enum):
     volume = 2
     path = 3
 
-class FileType(Enum):
+class FileType(IntEnum):
     photo = 1
     video = 2
 

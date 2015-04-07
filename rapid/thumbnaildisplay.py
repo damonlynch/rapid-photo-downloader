@@ -21,6 +21,9 @@ __author__ = 'Damon Lynch'
 import pickle
 import os
 from collections import (namedtuple, defaultdict)
+from operator import attrgetter
+
+from sortedcontainers import SortedListWithKey
 
 from PyQt5.QtCore import  (QAbstractTableModel, QModelIndex, Qt, pyqtSignal,
     QThread, QTimer, QSize, QRect)
@@ -29,7 +32,7 @@ from PyQt5.QtGui import QPixmap, QImage, QPainter, QColor, QFontMetrics
 
 import zmq
 
-from viewutils import RowTracker
+from viewutils import RowTracker, SortedListItem
 from rpdfile import RPDFile
 from interprocess import (PublishPullPipelineManager,
     GenerateThumbnailsArguments, Device, GenerateThumbnailsResults)
@@ -77,7 +80,7 @@ class ThumbnailTableModel(QAbstractTableModel):
         super(ThumbnailTableModel, self).__init__(parent)
         self.rapidApp = parent
         """ :type : rapid.RapidWindow"""
-        self.initalize()
+        self.initialize()
 
         self.thumbnailThread = QThread()
         self.thumbnailmq = ThumbnailManager(self.rapidApp.context)
@@ -108,12 +111,12 @@ class ThumbnailTableModel(QAbstractTableModel):
         # user clicks download before the thumbnailing is finished
         self.generating_thumbnails = {}
 
-    def initalize(self):
+    def initialize(self):
         self.file_names = {} # type: Dict[int, str]
         self.thumbnails = {} # type: Dict[int, QPixmap]
         self.marked = set()
 
-        self.rows = RowTracker()
+        self.rows = SortedListWithKey(key=attrgetter('modification_time'))
         self.scan_index = defaultdict(list)
         self.rpd_files = {}
 
@@ -123,6 +126,11 @@ class ThumbnailTableModel(QAbstractTableModel):
         self.total_thumbs_to_generate = 0
         self.thumbnails_generated = 0
         self.no_thumbnails_by_scan = defaultdict(int)
+
+    def rowFromUniqueId(self, unique_id: str) -> int:
+        list_item = SortedListItem(unique_id,
+                        self.rpd_files[unique_id].modification_time)
+        return self.rows.index(list_item)
 
     def columnCount(self, parent=QModelIndex()):
         return 1
@@ -137,10 +145,7 @@ class ThumbnailTableModel(QAbstractTableModel):
         row = index.row()
         if row >= len(self.rows) or row < 0:
             return None
-        if row not in self.rows:
-            return None
-        else:
-            unique_id = self.rows[row]
+        unique_id = self.rows[row].id_value
 
         if role == Qt.DisplayRole:
             return self.file_names[unique_id]
@@ -156,7 +161,9 @@ class ThumbnailTableModel(QAbstractTableModel):
 
     def removeRows(self, position, rows=1, index=QModelIndex()):
         self.beginRemoveRows(QModelIndex(), position, position + rows - 1)
-        unique_ids = self.rows.removeRows(position, rows)
+        unique_ids = [item.id_value for item in self.rows[
+                                                position:position+rows]]
+        del self.rows[position:position+rows]
         for unique_id in unique_ids:
             del self.file_names[unique_id]
             del self.thumbnails[unique_id]
@@ -169,13 +176,17 @@ class ThumbnailTableModel(QAbstractTableModel):
         return True
 
 
-    def addFile(self, rpd_file, generate_thumbnail):
-        row = self.rowCount()
+    def addFile(self, rpd_file: RPDFile, generate_thumbnail: bool):
+        unique_id = rpd_file.unique_id
+        list_item = SortedListItem(unique_id, rpd_file.modification_time)
+        self.rows.add(list_item)
+        row = self.rows.index(list_item)
+
         self.insertRow(row)
 
-        unique_id = rpd_file.unique_id
-        self.rows[row] = unique_id
         self.rpd_files[unique_id] = rpd_file
+        assert row == self.rowFromUniqueId(unique_id)
+
         self.file_names[unique_id] = rpd_file.name
         self.thumbnails[unique_id] = self.photo_icon
         self.marked.add(unique_id)
@@ -197,7 +208,7 @@ class ThumbnailTableModel(QAbstractTableModel):
     def thumbnailReceived(self, rpd_file, thumbnail):
         unique_id = rpd_file.unique_id
         self.rpd_files[unique_id] = rpd_file
-        row = self.rows.row(unique_id)
+        row = self.rowFromUniqueId(unique_id)
         self.thumbnails[unique_id] = thumbnail
         self.dataChanged.emit(self.index(row,0),self.index(row,0))
         self.thumbnails_generated += 1
@@ -273,17 +284,17 @@ class ThumbnailTableModel(QAbstractTableModel):
         :type scan_id: int
         """
         if scan_id is None and not keep_downloaded_files:
-            self.initalize()
+            self.initialize()
         else:
             assert scan_id is not None
             # Generate list of thumbnails to remove
             if keep_downloaded_files:
-                rows = [self.rows.row(unique_id) for unique_id in
-                        self.scan_index[scan_id]
+                rows = [self.rowFromUniqueId(unique_id)
+                        for unique_id in self.scan_index[scan_id]
                         if not self.rpd_files[unique_id].status in Downloaded]
             else:
-                rows = [self.rows.row(unique_id) for unique_id in
-                        self.scan_index[scan_id]]
+                rows = [self.rowFromUniqueId(unique_id)
+                        for unique_id in self.scan_index[scan_id]]
 
             # Generate groups of rows, and remove that group
             rows.sort()

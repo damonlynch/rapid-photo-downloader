@@ -246,8 +246,12 @@ def get_program_cache_directory(create_if_not_exist=False) -> str:
     :return: the full path of the cache directory
     """
     assert sys.platform.startswith('linux')
-    cache_dir = os.path.join(os.path.expanduser('~'),
-                       '.cache/rapid-photo-downloader')
+    xdg = os.getenv('XDG_CACHE_HOME')
+    if xdg is not None:
+        path = xdg
+    else:
+        path = os.path.join(os.path.expanduser('~'), '.cache')
+    cache_dir = os.path.join(path, 'rapid-photo-downloader')
     if not create_if_not_exist:
         return cache_dir
     else:

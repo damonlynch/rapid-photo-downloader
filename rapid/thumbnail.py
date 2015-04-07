@@ -26,6 +26,7 @@ import pickle
 import tempfile
 import subprocess
 import shlex
+from operator import attrgetter
 
 
 from PyQt5.QtGui import QImage, QTransform
@@ -203,8 +204,7 @@ class Thumbnail:
             assert video_cache_dir is not None
         self.photo_cache_dir = photo_cache_dir
         self.video_cache_dir = video_cache_dir
-        if photo_cache_dir is not None or video_cache_dir is not None:
-            self.random_filename = GenerateRandomFileName()
+        self.random_filename = GenerateRandomFileName()
         self.check_for_command = check_for_command
 
 
@@ -251,8 +251,8 @@ class Thumbnail:
         if self.rpd_file.is_jpeg():
             if not self.metadata or size is None:
                 thumbnail = QImage(file_name)
-                if thumbnail.isNull():
-                    could_not_load_jpeg = True
+                could_not_load_jpeg = thumbnail.isNull()
+                if could_not_load_jpeg:
                     logging.error(
                         "Unable to create a thumbnail out of the jpeg "
                         "{}".format(file_name))
@@ -282,7 +282,7 @@ class Thumbnail:
             if self.previews and thumbnail is None:
                 # Use the largest preview we have access to
                 # Let's hope it's not a TIFF, as there seem to be problems
-                # displaying that (very dark image)
+                # displaying that (get a very dark image)
                 preview = self.previews[-1]
 
                 data = self.metadata.get_preview_image(preview).get_data()
@@ -308,6 +308,10 @@ class Thumbnail:
 
 
         if thumbnail is not None and not thumbnail.isNull():
+            if size is not None:
+                thumbnail = thumbnail.scaled(size, Qt.KeepAspectRatio,
+                                             self.thumbnail_transform)
+
             if orientation == self.rotate_90:
                 thumbnail = thumbnail.transformed(QTransform().rotate(90))
             elif orientation == self.rotate_270:
@@ -315,9 +319,6 @@ class Thumbnail:
             elif orientation == self.rotate_180:
                 thumbnail = thumbnail.transformed(QTransform().rotate(180))
 
-            if size is not None:
-                thumbnail = thumbnail.scaled(size, Qt.KeepAspectRatio,
-                                             self.thumbnail_transform)
         else:
             thumbnail = self.stock_photo
         return thumbnail
@@ -476,9 +477,19 @@ class Thumbnail:
          available.
          :return the thumbnail, or stock image if generation failed
         """
+        downloaded = self.rpd_file.status in Downloaded
+
+        # Special case: video on camera. Even if libgphoto2 can provide
+        # thumbnails from the camera, it probably can't do it for videos
+        if (not downloaded and self.rpd_file.from_camera and
+                 self.rpd_file.file_type == FileType.video):
+            # However, if we can get the THM file and it's big enough, there is
+            # no need to locally cache the video.
+            self.cache_file_from_camera = not (try_to_use_embedded_thumbnail(
+                size) and self.rpd_file.thm_full_name is not None)
 
         if self.cache_file_from_camera:
-            downloaded = False
+
             if self._cache_full_size_file_from_camera():
                 file_name = self.rpd_file.cache_full_file_name
             elif self.rpd_file.file_type == FileType.photo:
@@ -487,7 +498,6 @@ class Thumbnail:
                 return self.stock_video
         else:
             # If the file is already downloaded, get the thumbnail from it
-            downloaded = self.rpd_file.status in Downloaded
             if downloaded:
                 file_name = self.rpd_file.download_full_file_name
             else:
@@ -521,6 +531,18 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
         photo_cache_dir = video_cache_dir = None
         cache_file_from_camera = False
 
+        rpd_files = arguments.rpd_files
+
+        #TODO prioritize thumbnail generation
+
+        # Get thumbnails for photos first, then videos
+        rpd_files = sorted(rpd_files, key=attrgetter('file_type',
+                                              'modification_time'))
+
+        # Rely on fact that videos are now at the end, if they are there at all
+        might_need_video_cache_dir = (rpd_files[-1].file_type == FileType.video
+                                        and arguments.camera)
+
         if arguments.camera:
             camera = Camera(arguments.camera, arguments.port)
             if not camera.camera_initialized:
@@ -531,13 +553,15 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
                 self.send_finished_command()
                 sys.exit(0)
 
-            if (not camera.can_fetch_thumbnails
+            must_make_cache_dirs = (not camera.can_fetch_thumbnails
                 or not try_to_use_embedded_thumbnail(thumbnail_size_needed)
-                or cache_file_from_camera):
-                # Need to download complete copy of the files to
-                # generate previews.
-                # May as well cache them to speed up the download process
-                cache_file_from_camera = True
+                or cache_file_from_camera)
+
+            if must_make_cache_dirs or might_need_video_cache_dir:
+                # If downloading complete copy of the files to
+                # generate previews, then may as well cache them to speed up
+                # the download process
+                cache_file_from_camera = must_make_cache_dirs
                 photo_cache_dir = create_temp_dir(
                     folder=arguments.cache_dirs.photo_cache_dir,
                     prefix='rpd-cache-{}-'.format(arguments.name[:10]))
@@ -552,7 +576,7 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
         else:
             camera = None
 
-        for rpd_file in arguments.rpd_files:
+        for rpd_file in rpd_files:
 
             # Check to see if the process has received a command
             self.check_for_command()
@@ -578,6 +602,7 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
         if arguments.camera:
             camera.free_camera()
             # Delete our temporary cache directory only if it's empty
+            #TODO delete only if not None and also videos
             if not os.listdir(photo_cache_dir):
                 os.rmdir(photo_cache_dir)
 
