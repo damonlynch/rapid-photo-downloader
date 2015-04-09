@@ -916,19 +916,6 @@ class RapidWindow(QMainWindow):
             self.cameraHotplugThread.quit()
             self.cameraHotplugThread.wait()
 
-        cache_dir = get_program_cache_directory()
-        # Out of an abundance of caution, under no circumstance try the
-        # dangerous rmtree command unless certain that the folder is safely
-        # located
-        assert cache_dir.startswith(os.path.join(os.path.expanduser('~'),
-                                                 '.cache'))
-        if os.path.isdir(cache_dir):
-            try:
-                shutil.rmtree(cache_dir, ignore_errors=True)
-            except:
-                logging.error("Unknown error deleting cache directory %s",
-                              cache_dir)
-
         self.devices.delete_cache_dirs()
 
 

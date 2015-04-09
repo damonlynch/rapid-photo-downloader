@@ -26,9 +26,10 @@ import pickle
 import tempfile
 import subprocess
 import shlex
+import hashlib
 from operator import attrgetter
 from collections import deque
-
+from urllib.request import pathname2url
 
 from PyQt5.QtGui import QImage, QTransform
 from PyQt5.QtCore import QSize, Qt, QIODevice, QBuffer
@@ -45,42 +46,13 @@ from filmstrip import add_filmstrip
 from constants import (Downloaded, FileType, ThumbnailSize)
 from camera import (Camera, CopyChunks)
 from utilities import (GenerateRandomFileName, create_temp_dir, CacheDirs)
+from storage import get_program_cache_directory
 
 #FIXME free camera in case of early termination
 
 logging.basicConfig(format='%(levelname)s:%(asctime)s:%(message)s',
                     datefmt='%H:%M:%S',
                     level=logging.DEBUG)
-
-
-# def get_stock_photo_image():
-#     length = min(gtk.gdk.screen_width(), gtk.gdk.screen_height())
-#     pixbuf = gtk.gdk.pixbuf_new_from_file_at_size(paths.share_dir('glade3/photo.svg'), length, length)
-#     image = pixbuf_to_image(pixbuf)
-#     return image
-#
-# def get_stock_photo_image_icon():
-#     image = Image.open(paths.share_dir('glade3/photo66.png'))
-#     image = image.convert("RGBA")
-#     return image
-#
-# def get_stock_video_image():
-#     length = min(gtk.gdk.screen_width(), gtk.gdk.screen_height())
-#     pixbuf = gtk.gdk.pixbuf_new_from_file_at_size(paths.share_dir('glade3/video.svg'), length, length)
-#     image = pixbuf_to_image(pixbuf)
-#     return image
-#
-# def get_stock_video_image_icon():
-#     image = Image.open(paths.share_dir('glade3/video66.png'))
-#     image = image.convert("RGBA")
-#     return image
-#
-#
-# class PhotoIcons():
-#     stock_thumbnail_image_icon = get_stock_photo_image_icon()
-#
-# class VideoIcons():
-#     stock_thumbnail_image_icon = get_stock_video_image_icon()
 
 
 def split_list(alist: list, wanted_parts=2):
@@ -99,7 +71,11 @@ def split_indexes(length: int):
     """
     For the length of a list, return a list of indexes into it such
     that the indexes start with the middle item, then the middle item
-    of the remaining two parts of the list, and so forth
+    of the remaining two parts of the list, and so forth.
+
+    Perhaps this algorithm could be optimized, as I did it myself. But
+    hey it works and for now that's the main thing.
+
     :param length: the length of the list i.e. the number of indexes
      to be created
     :return: the list of indexes
@@ -224,6 +200,132 @@ def try_to_use_embedded_thumbnail(size: QSize,
     return width_sought <= thumbnail_width and height_sought <= \
                                                thumbnail_height
 
+
+"""
+Notes to self:
+
+Same file detection:
+filename, size, modification_time
+Save in SQL: filename, size, modification_time
+don't care about path. Save once file is confirmed as downloaded.
+Also need to know: time downloaded (to prioritize deletion)
+
+System thumbnail:
+full URI, modification time: different if modification time !=
+Required PNG atttributes: Thumb::URI, Thumb::MTime
+Size: 128x128 and 256x256
+MD5 hash for URL
+save in $XDG_CACHE_HOME/thumbnails/normal $XDG_CACHE_HOME/thumbnails/large
+"""
+
+class CacheThumbnail:
+    """
+    Creates a thumbnail cache in the Rapid Photo Downloader cache
+    directory. Saves and checks for presence of thumbnails in it.
+    Mostly conforms to
+    http://specifications.freedesktop.org/thumbnail-spec/thumbnail-spec-latest.html
+    But does not check or change the image format.
+    """
+    def __init__(self):
+        cache_dir = get_program_cache_directory(create_if_not_exist=True)
+        self.valid = cache_dir is not None
+        self.cache_dir = self.random_filename = self.fs_encoding = None
+        assert sys.platform.startswith('linux')
+        if self.valid:
+            self.cache_dir = os.path.join(cache_dir, 'thumbnails/normal')
+            try:
+                if not os.path.exists(self.cache_dir):
+                    os.makedirs(self.cache_dir, 0o700)
+                    logging.info("Created thumbnails cache %s", self.cache_dir)
+                elif not os.path.isdir(self.cache_dir):
+                    os.remove(self.cache_dir)
+                    logging.warning("Removed file %s", self.cache_dir)
+                    os.makedirs(self.cache_dir, 0o700)
+                    logging.info("Created thumbnails cache %s", self.cache_dir)
+            except:
+                logging.error("Failed to create thumbnails cache %s",
+                              self.cache_dir)
+                self.valid = False
+                self.cache_dir = None
+            else:
+                self.random_filename = GenerateRandomFileName()
+                self.fs_encoding = sys.getfilesystemencoding()
+
+    def md5_hash_name(self, full_file_name: str, camera_model: str):
+        if camera_model is None:
+            prefix = 'file://'
+            path = os.path.abspath(full_file_name)
+        else:
+            # This is not a system standard: I'm using this for my own
+            # purposes (the port is not included)
+            prefix = 'gphoto2://'
+            path = '{}/{}'.format(camera_model, full_file_name)
+
+        uri = '{}{}'.format(prefix, pathname2url(path))
+        return '{}.png'.format(hashlib.md5(uri.encode(
+            self.fs_encoding)).hexdigest())
+
+    def save_thumbnail(self, full_file_name: str, size: int,
+                       modification_time: int, thumbnail: QImage,
+                       camera_model: str=None) -> str:
+        """
+        Save a thumbnail in the thumbnail cache.
+        :param full_file_name: full path of the file (including file
+        name). Will be turned into an absolute path if it is a file
+        system path
+        :param size: size of the file in bytes
+        :param modification_time: file modification time
+        :param thumbnail: the thumbnail to be saved. Will not be
+         resized.
+        :param camera_model: optional camera model. If the thumbnail is
+         not from a camera, then should be None.
+        :return the path of the saved file, else None if operation failed
+        """
+        if not self.valid:
+            return None
+
+        path = os.path.join(self.cache_dir,
+                            self.md5_hash_name(full_file_name, camera_model))
+        thumbnail.setText('Thumb::URI', path)
+        thumbnail.setText('Thumb::MTime', str(modification_time))
+        thumbnail.setText('Thumb::Size', str(size))
+
+        #TODO assign proper format - important for system
+        temp_path = os.path.join(self.cache_dir, self.random_filename.name(
+            extension='png'))
+        if thumbnail.save(temp_path):
+            os.rename(temp_path, path)
+            os.chmod(path, 0o600)
+            return path
+        else:
+            return None
+
+    def get_thumbnail(self, full_file_name: str, modification_time: int,
+                      camera_model: str=None) -> QImage:
+        """
+        Attempt to retrieve a thumbnail from the thumbnail cache.
+        :param full_file_name: full path of the file (including file
+        name). Will be turned into an absolute path if it is a file
+        system path
+        :param modification_time: file modification time
+        :param camera_model: optional camera model. If the thumbnail is
+         not from a camera, then should be None.
+        :return the thumbnail if it was found, else None
+        """
+
+        if not self.valid:
+            return None
+        path = os.path.join(self.cache_dir,
+                            self.md5_hash_name(full_file_name, camera_model))
+        if os.path.exists(path):
+            png = QImage(path)
+            if not png.isNull():
+                mtime = int(png.text('Thumb::MTime'))
+                if mtime == modification_time:
+                    return png
+        return None
+
+
 class Thumbnail:
     """
     Extract thumbnails from a photo or video in QImage format
@@ -242,6 +344,7 @@ class Thumbnail:
 
     def __init__(self, rpd_file: RPDFile, camera: Camera,
                  thumbnail_quality_lower: bool,
+                 cache_thumbnail: CacheThumbnail,
                  cache_file_from_camera: bool=False,
                  photo_cache_dir: str=None,
                  video_cache_dir: str=None,
@@ -252,6 +355,9 @@ class Thumbnail:
          thumbnails
         :param thumbnail_quality_lower: whether to generate the
          thumbnail high or low quality as it is scaled by Qt
+        :param cache_thumbnail: used to cache thumbnails on the file
+         system. Not to be confused with caching files for use in the
+         download process.
         :param cache_file_from_camera: if True, get the file from the
          camera, save it in cache directory, and extract thumbnail from
          it. Otherwise,
@@ -263,6 +369,11 @@ class Thumbnail:
         self.rpd_file = rpd_file
         self.metadata = None
         self.camera = camera
+        if camera is not None:
+            self.camera_model = camera.model
+        else:
+            self.camera_model= None
+        self.cache_thumbnail =  cache_thumbnail
         if thumbnail_quality_lower:
             self.thumbnail_transform = Qt.FastTransformation
         else:
@@ -388,6 +499,9 @@ class Thumbnail:
             elif orientation == self.rotate_180:
                 thumbnail = thumbnail.transformed(QTransform().rotate(180))
 
+            self.cache_thumbnail.save_thumbnail(
+                self.rpd_file.full_file_name,self. rpd_file.size,
+                self.rpd_file.modification_time, thumbnail, self.camera_model)
         else:
             thumbnail = self.stock_photo
         return thumbnail
@@ -458,6 +572,9 @@ class Thumbnail:
         if thumbnail is None:
             return self.stock_photo
         else:
+            self.cache_thumbnail.save_thumbnail(
+                self.rpd_file.full_file_name,self. rpd_file.size,
+                self.rpd_file.modification_time, thumbnail, self.camera_model)
             return  thumbnail
 
     def _get_video_thumbnail(self, file_name: str, size: QSize, downloaded: \
@@ -536,7 +653,10 @@ class Thumbnail:
 
         if thumbnail is None or thumbnail.isNull():
             thumbnail = self.stock_video
-
+        else:
+            self.cache_thumbnail.save_thumbnail(
+                self.rpd_file.full_file_name,self. rpd_file.size,
+                self.rpd_file.modification_time, thumbnail, self.camera_model)
         return thumbnail
 
     def get_thumbnail(self, size: QSize=None) -> QImage:
@@ -596,6 +716,8 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
         thumbnail_size_needed =  QSize(ThumbnailSize.width,
                                        ThumbnailSize.height)
 
+        # Access and generate Rapid Photo Downloader thumbnail cache
+        cache_thumbnail = CacheThumbnail()
 
         photo_cache_dir = video_cache_dir = None
         cache_file_from_camera = False
@@ -645,7 +767,7 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
         assert len(rpd_files) == len(rpd_files2)
         rpd_files = rpd_files2
 
-        if arguments.camera:
+        if arguments.camera is not None:
             camera = Camera(arguments.camera, arguments.port)
             if not camera.camera_initialized:
                 # There is nothing to do here: exit!
@@ -679,18 +801,23 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
             camera = None
 
         for rpd_file in rpd_files:
-
             # Check to see if the process has received a command
             self.check_for_command()
 
-            thumbnail = Thumbnail(rpd_file, camera,
+            thumbnail_icon = cache_thumbnail.get_thumbnail(
+                rpd_file.full_file_name, rpd_file.modification_time,
+                arguments.camera)
+
+            if thumbnail_icon is None:
+                thumbnail = Thumbnail(rpd_file, camera,
                               arguments.thumbnail_quality_lower,
+                              cache_thumbnail=cache_thumbnail,
                               cache_file_from_camera=cache_file_from_camera,
                               photo_cache_dir=photo_cache_dir,
                               video_cache_dir=video_cache_dir,
                               check_for_command=self.check_for_command)
-            thumbnail_icon = thumbnail.get_thumbnail(
-                size=thumbnail_size_needed)
+                thumbnail_icon = thumbnail.get_thumbnail(
+                    size=thumbnail_size_needed)
 
             buffer = QBuffer()
             buffer.open(QIODevice.WriteOnly)

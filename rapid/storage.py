@@ -241,7 +241,7 @@ def xdg_videos_directory() -> str:
 def get_program_cache_directory(create_if_not_exist=False) -> str:
     """
     Get Rapid Photo Downloader cache directory, which is assumed to be
-    under ~/.cache.
+    under $XDG_CACHE_HOME/.cache or if that doesn't exist,  ~/.cache.
     :param create_if_not_exist: creates directory if it does not exist.
     :return: the full path of the cache directory
     """
@@ -257,8 +257,9 @@ def get_program_cache_directory(create_if_not_exist=False) -> str:
     else:
         try:
             if not os.path.exists(cache_dir):
-                if not os.path.isdir(cache_dir):
-                    os.remove(cache_dir)
+                os.mkdir(cache_dir)
+            elif not os.path.isdir(cache_dir):
+                os.remove(cache_dir)
                 os.mkdir(cache_dir)
             return cache_dir
         except:

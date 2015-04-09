@@ -36,12 +36,17 @@ class GenerateRandomFileName:
         # the characters used to generate temporary filenames
         self.filename_characters = list(string.ascii_letters + string.digits)
 
-    def name(self) -> str:
+    def name(self, extension: str=None) -> str:
         """
 
         :return: filename 5 characters long without any extension
         """
-        return ''.join(random.sample(self.filename_characters, 5))
+        if extension is not None:
+            return '{}.{}'.format(''.join(
+                random.sample(self.filename_characters, 5)),
+                extension)
+        else:
+            return ''.join(random.sample(self.filename_characters, 5))
 
 
 TempDirs = namedtuple('TempDirs', 'photo_temp_dir, video_temp_dir')
