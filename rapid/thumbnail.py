@@ -832,10 +832,13 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
 
         if arguments.camera:
             camera.free_camera()
-            # Delete our temporary cache directory only if it's empty
-            #TODO delete only if not None and also videos
-            if not os.listdir(photo_cache_dir):
-                os.rmdir(photo_cache_dir)
+            # Delete our temporary cache directories if they are empty
+            if photo_cache_dir is not None:
+                if not os.listdir(photo_cache_dir):
+                    os.rmdir(photo_cache_dir)
+            if video_cache_dir is not None:
+                if not os.listdir(video_cache_dir):
+                    os.rmdir(video_cache_dir)
 
         logging.debug("...finished thumbnail generation for %s",
                       arguments.name)
