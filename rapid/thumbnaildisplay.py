@@ -116,6 +116,7 @@ class ThumbnailTableModel(QAbstractTableModel):
         self.thumbnails = {} # type: Dict[int, QPixmap]
         self.marked = set()
 
+        # Sort thumbnails based on the time the files were modified
         self.rows = SortedListWithKey(key=attrgetter('modification_time'))
         self.scan_index = defaultdict(list)
         self.rpd_files = {}
@@ -185,8 +186,6 @@ class ThumbnailTableModel(QAbstractTableModel):
         self.insertRow(row)
 
         self.rpd_files[unique_id] = rpd_file
-        assert row == self.rowFromUniqueId(unique_id)
-
         self.file_names[unique_id] = rpd_file.name
         self.thumbnails[unique_id] = self.photo_icon
         self.marked.add(unique_id)

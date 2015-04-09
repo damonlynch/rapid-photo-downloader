@@ -306,6 +306,10 @@ class RPDFile:
     def add_extra_detail(self, extra_detail, *args):
         self.problem.add_extra_detail(extra_detail, *args)
 
+    def __repr__(self):
+        return "{}\t{}".format(self.name, datetime.datetime.fromtimestamp(
+            self.modification_time).strftime('%Y-%m-%d %H:%M:%S'))
+
 class Photo(RPDFile):
 
     title = _("photo")
@@ -313,6 +317,7 @@ class Photo(RPDFile):
 
     def _assign_file_type(self):
         self.file_type = FileType.photo
+
 
     # def load_metadata(self, temp_file=False):
     #     self.metadata = metadataphoto.MetaData(self._load_file_for_metadata(temp_file))

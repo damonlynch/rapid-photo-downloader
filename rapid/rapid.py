@@ -137,7 +137,9 @@ class RapidWindow(QMainWindow):
         self.prefs.photo_download_folder = '/data/Photos/Test'
         self.prefs.video_download_folder = '/data/Photos/Test'
         self.prefs.auto_download_at_startup = False
-        self.prefs.verify_file = True
+        self.prefs.verify_file = False
+        self.prefs.device_autodetection = True
+        self.prefs.device_location = '/windows/Photos/photos/final/'
 
         centralWidget = QWidget()
 
@@ -201,7 +203,7 @@ class RapidWindow(QMainWindow):
         return True
 
     def initialise(self):
-        # Initalize use of libgphoto2
+        # Initialise use of libgphoto2
         self.gp_context = gp.Context()
 
         self.validMounts = ValidMounts(

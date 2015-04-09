@@ -27,12 +27,12 @@ import tempfile
 import subprocess
 import shlex
 from operator import attrgetter
+from collections import deque
 
 
 from PyQt5.QtGui import QImage, QTransform
 from PyQt5.QtCore import QSize, Qt, QIODevice, QBuffer
 from gi.repository import GExiv2
-
 
 from rpdfile import RPDFile
 
@@ -81,6 +81,75 @@ logging.basicConfig(format='%(levelname)s:%(asctime)s:%(message)s',
 #
 # class VideoIcons():
 #     stock_thumbnail_image_icon = get_stock_video_image_icon()
+
+
+def split_list(alist: list, wanted_parts=2):
+    """
+    Split list into smaller parts
+    http://stackoverflow.com/questions/752308/split-list-into-smaller-lists
+    :param alist: the list
+    :param wanted_parts: how many lists it should be split into
+    :return: the split lists
+    """
+    length = len(alist)
+    return [ alist[i*length // wanted_parts: (i+1)*length // wanted_parts]
+             for i in range(wanted_parts) ]
+
+def split_indexes(length: int):
+    """
+    For the length of a list, return a list of indexes into it such
+    that the indexes start with the middle item, then the middle item
+    of the remaining two parts of the list, and so forth
+    :param length: the length of the list i.e. the number of indexes
+     to be created
+    :return: the list of indexes
+    """
+    l = list(range(length))
+    n = []
+    master = deque([l])
+    while master:
+        l1, l2 = split_list(master.popleft())
+        if l2:
+            n.append(l2[0])
+            l2 = l2[1:]
+        if l1:
+            master.append(l1)
+        if l2:
+            master.append(l2)
+    return n
+
+def get_temporal_gaps_and_sequences(rpd_files, temporal_span):
+    """
+    For a sorted list of rpd_files, identify those rpd_files which are
+    more than the temporal span away from each other, and those which are
+    less than the temporal span from each other.
+
+    Does not analyze clusters.
+
+    For instance, you have 1000 photos from a day's photography. You
+    sort them into a list ordered by time, earliest to latest. You then
+    get all the photos that were take more than an hour after the
+    previous photo, and those that were taken within an hour of the
+    previous photo.
+    .
+    :param rpd_files: the sorted list of rpd_files, earliest first
+    :param temporal_span: the time span that triggers a gap
+    :return: the rpd_files that signify gaps, and all the rest of the
+    rpd_files (which are in sequence)
+    """
+    if rpd_files:
+        prev = rpd_files[0]
+        gaps = [prev]
+        sequences = []
+        for i, rpd_file in enumerate(rpd_files[1:]):
+            if rpd_file.modification_time - prev.modification_time > \
+                    temporal_span:
+                gaps.append(rpd_file)
+            else:
+                sequences.append(rpd_file)
+            prev = rpd_file
+        return (gaps, sequences)
+    return None
 
 def try_to_use_embedded_thumbnail(size: QSize,
                                   ignore_orientation: bool=True,
@@ -533,15 +602,48 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
 
         rpd_files = arguments.rpd_files
 
-        #TODO prioritize thumbnail generation
-
         # Get thumbnails for photos first, then videos
+        # Are relying on the file type for photos being an int smaller than
+        # that for videos
         rpd_files = sorted(rpd_files, key=attrgetter('file_type',
                                               'modification_time'))
 
         # Rely on fact that videos are now at the end, if they are there at all
-        might_need_video_cache_dir = (rpd_files[-1].file_type == FileType.video
-                                        and arguments.camera)
+        have_video = rpd_files[-1].file_type == FileType.video
+        have_photo = rpd_files[0].file_type == FileType.photo
+        might_need_video_cache_dir = (have_video and arguments.camera)
+
+        if have_video and not have_photo:
+            videos = rpd_files
+            photos = []
+        elif have_video:
+            # find the first video and split the list into two
+            first_video = [rpd_file.file_type for rpd_file in rpd_files].index(
+                FileType.video)
+            photos = rpd_files[:first_video]
+            videos = rpd_files[first_video:]
+        else:
+            photos = rpd_files
+            videos = []
+
+        # 60 seconds * 60 minutes i.e. one hour
+        photo_time_span = video_time_span = 60 * 60
+
+        # Prioritize the order in which we generate the thumbnails
+        rpd_files2 = []
+        for file_list, time_span in ((photos, photo_time_span),
+                                     (videos, video_time_span)):
+            if file_list:
+                gaps, sequences = get_temporal_gaps_and_sequences(
+                file_list, time_span)
+
+                rpd_files2.extend(gaps)
+
+                indexes = split_indexes(len(sequences))
+                rpd_files2.extend([sequences[idx] for idx in indexes])
+
+        assert len(rpd_files) == len(rpd_files2)
+        rpd_files = rpd_files2
 
         if arguments.camera:
             camera = Camera(arguments.camera, arguments.port)
