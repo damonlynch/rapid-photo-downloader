@@ -266,7 +266,7 @@ class CacheThumbnail:
             self.fs_encoding)).hexdigest())
 
     def save_thumbnail(self, full_file_name: str, size: int,
-                       modification_time: int, thumbnail: QImage,
+                       modification_time, thumbnail: QImage,
                        camera_model: str=None) -> str:
         """
         Save a thumbnail in the thumbnail cache.
@@ -274,7 +274,8 @@ class CacheThumbnail:
         name). Will be turned into an absolute path if it is a file
         system path
         :param size: size of the file in bytes
-        :param modification_time: file modification time
+        :param modification_time: file modification time, to be turned
+         into a float if it's not already
         :param thumbnail: the thumbnail to be saved. Will not be
          resized.
         :param camera_model: optional camera model. If the thumbnail is
@@ -287,7 +288,7 @@ class CacheThumbnail:
         path = os.path.join(self.cache_dir,
                             self.md5_hash_name(full_file_name, camera_model))
         thumbnail.setText('Thumb::URI', path)
-        thumbnail.setText('Thumb::MTime', str(modification_time))
+        thumbnail.setText('Thumb::MTime', str(float(modification_time)))
         thumbnail.setText('Thumb::Size', str(size))
 
         #TODO assign proper format - important for system
@@ -300,14 +301,15 @@ class CacheThumbnail:
         else:
             return None
 
-    def get_thumbnail(self, full_file_name: str, modification_time: int,
+    def get_thumbnail(self, full_file_name: str, modification_time,
                       camera_model: str=None) -> QImage:
         """
         Attempt to retrieve a thumbnail from the thumbnail cache.
         :param full_file_name: full path of the file (including file
         name). Will be turned into an absolute path if it is a file
         system path
-        :param modification_time: file modification time
+        :param modification_time: file modification time, to be turned
+         into a float if it's not already
         :param camera_model: optional camera model. If the thumbnail is
          not from a camera, then should be None.
         :return the thumbnail if it was found, else None
@@ -320,8 +322,8 @@ class CacheThumbnail:
         if os.path.exists(path):
             png = QImage(path)
             if not png.isNull():
-                mtime = int(png.text('Thumb::MTime'))
-                if mtime == modification_time:
+                mtime = float(png.text('Thumb::MTime'))
+                if mtime == float(modification_time):
                     return png
         return None
 

@@ -138,7 +138,7 @@ class RapidWindow(QMainWindow):
         self.prefs.video_download_folder = '/data/Photos/Test'
         self.prefs.auto_download_at_startup = False
         self.prefs.verify_file = False
-        self.prefs.device_autodetection = True
+        self.prefs.device_autodetection = False
         self.prefs.device_location = '/windows/Photos/photos/final/'
 
         centralWidget = QWidget()
