@@ -138,7 +138,7 @@ class RapidWindow(QMainWindow):
         self.prefs.video_download_folder = '/data/Photos/Test'
         self.prefs.auto_download_at_startup = False
         self.prefs.verify_file = False
-        self.prefs.device_autodetection = False
+        self.prefs.device_autodetection = True
         self.prefs.device_location = '/windows/Photos/photos/final/'
 
         centralWidget = QWidget()
@@ -237,7 +237,7 @@ class RapidWindow(QMainWindow):
             self.udisks2Monitor.startMonitor()
 
         #Track the unmounting of cameras by port and model
-        self.camerasToUnmount = {}
+        self.cameras_to_unmount = {}
 
         if self.gvfsControlsMounts:
             self.gvolumeMonitor = GVolumeMonitor(self.validMounts)
@@ -306,10 +306,14 @@ class RapidWindow(QMainWindow):
 
         QTimer.singleShot(0, self.copyfilesThread.start)
 
+        prefs_valid, msg = self.prefs.check_prefs_for_validity()
+        if not prefs_valid:
+            self.notifyPrefsAreInvalid(details=msg)
+
         self.setDownloadActionSensitivity()
         self.searchForCameras()
         self.setupNonCameraDevices(on_startup=True, on_preference_change=False,
-                                   block_auto_start=False)
+                                   block_auto_start=not prefs_valid)
         self.displayFreeSpaceAndBackups()
 
     def createActions(self):
@@ -821,7 +825,13 @@ class RapidWindow(QMainWindow):
             valid = True
         return valid
 
-    def log_error(self, severity, problem, details, extra_detail=None):
+    def notifyPrefsAreInvalid(self, details):
+        title = _("Program preferences are invalid")
+        logging.critical(title)
+        self.log_error(severity=ErrorType.critical_error, problem=title,
+                       details=details)
+
+    def logError(self, severity, problem, details, extra_detail=None):
         """
         Display error and warning messages to user in log window
         """
@@ -1034,16 +1044,16 @@ class RapidWindow(QMainWindow):
 
     def unmountCamera(self, model, port):
         if self.gvfsControlsMounts:
-            self.camerasToUnmount[port] = model
+            self.cameras_to_unmount[port] = model
             if self.gvolumeMonitor.unmountCamera(model, port):
                 return True
             else:
-                del self.camerasToUnmount[port]
+                del self.cameras_to_unmount[port]
         return False
 
     def cameraUnmounted(self, result, model, port):
-        assert self.camerasToUnmount[port] == model
-        del self.camerasToUnmount[port]
+        assert self.cameras_to_unmount[port] == model
+        del self.cameras_to_unmount[port]
         if result:
             self.startCameraScan(model, port)
         else:
@@ -1054,8 +1064,8 @@ class RapidWindow(QMainWindow):
         if self.prefs.device_autodetection:
             cameras = self.gp_context.camera_autodetect()
             for model, port in cameras:
-                if port in self.camerasToUnmount:
-                    assert self.camerasToUnmount[port] == model
+                if port in self.cameras_to_unmount:
+                    assert self.cameras_to_unmount[port] == model
                     logging.debug("Already unmounting %s", model)
                 elif self.devices.known_camera(model, port):
                     logging.debug("Camera %s is known", model)

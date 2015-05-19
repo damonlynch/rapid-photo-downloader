@@ -65,10 +65,7 @@ import json
 import warnings
 import codecs
 
-try:        # Py3k compatibility
-    basestring
-except NameError:
-    basestring = (bytes, str)
+basestring = (bytes, str)
 
 executable = "exiftool"
 """The name of the executable to run.

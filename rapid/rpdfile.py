@@ -26,6 +26,7 @@ import logging
 import mimetypes
 from collections import Counter
 
+import exiftool
 from gettext import gettext as _
 
 from constants import (DownloadStatus, FileType)
@@ -168,6 +169,9 @@ class RPDFile:
     Base class for photo or video file, with metadata
     """
 
+    title = ''
+    title_capitalized = ''
+
     def __init__(self, name: str, path: str, size: int,
                  modification_time: float, thm_full_name: str,
                  audio_file_full_name: str,
@@ -235,6 +239,7 @@ class RPDFile:
 
         self.download_start_time = None
 
+        self.download_folder = ''
         self.download_subfolder = ''
         self.download_path = ''
         self.download_name = ''
@@ -251,9 +256,8 @@ class RPDFile:
 
         #self.sequences = None
         #self.download_folder
-        #self.subfolder_pref_list = []
-        #self.name_pref_list = []
-        #strip_characters = False
+        self.subfolder_pref_list = []
+        self.name_pref_list = []
         #self.thm_extension = ''
         #self.wav_extension = ''
         #self.xmp_extension = ''
@@ -280,7 +284,7 @@ class RPDFile:
     def _assign_file_type(self):
         self.file_type = None
 
-    def _load_file_for_metadata(self, temp_file):
+    def _load_file_for_metadata(self, temp_file: bool) -> str:
         if temp_file:
             return self.temp_full_file_name
         else:
@@ -319,16 +323,24 @@ class Photo(RPDFile):
         self.file_type = FileType.photo
 
 
-    # def load_metadata(self, temp_file=False):
-    #     self.metadata = metadataphoto.MetaData(self._load_file_for_metadata(temp_file))
-    #     try:
-    #         self.metadata.read()
-    #     except:
-    #         logger.warning("Could not read metadata from {}".format(
-    #                        self.full_file_name))
-    #         return False
-    #     else:
-    #         return True
+    def load_metadata(self, exiftool_process: exiftool.ExifTool,
+                      temp_file: bool=False) -> bool:
+        """
+        Use GExiv2 to read the photograph's metadata
+        :param exiftool_process: the deamon exiftool process
+        :param temp_file: if True, use the temp file to read the
+         metadata
+        :return: True if successful, False otherwise
+        """
+        try:
+            self.metadata = metadataphoto.MetaData(
+                self._load_file_for_metadata(temp_file), exiftool_process)
+        except:
+            logging.warning("Could not read metadata from {}".format(
+                           self.full_file_name))
+            return False
+        else:
+            return True
 
 
 class Video(RPDFile):
@@ -339,9 +351,18 @@ class Video(RPDFile):
     def _assign_file_type(self):
         self.file_type = FileType.video
 
-    def load_metadata(self, temp_file=False):
-        self.metadata = metadatavideo.ExifToolMetaData(
-            self._load_file_for_metadata(temp_file))
+    def load_metadata(self, exiftool_process: exiftool.ExifTool,
+                      temp_file: bool=False) -> bool:
+        """
+        Use ExifTool to read the video's metadata
+        :param exiftool_process: the deamon exiftool process
+        :param temp_file: if True, use the temp file to read the
+         metadata
+        :return: True if successful, False otherwise
+        """
+
+        self.metadata = metadatavideo.MetaData(
+            self._load_file_for_metadata(temp_file), exiftool_process)
         return True
 
 

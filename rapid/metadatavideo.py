@@ -44,7 +44,7 @@ EXIFTOOL_VERSION = version_info()
 # properly. Then call this class
 # with exiftool.ExifTool() as et_process:
 
-class ExifToolMetaData:
+class MetaData:
     """
     Get video metadata using Exiftool
 
@@ -76,10 +76,7 @@ class ExifToolMetaData:
         elif not self.metadata:
             self.metadata = self.et_process.get_metadata(self.filename)
 
-        try:
-            return self.metadata[key]
-        except:
-            return missing
+        return self.metadata.get(key, missing)
 
 
     def date_time(self, missing=''):
@@ -235,11 +232,11 @@ if __name__ == '__main__':
             file = sys.argv[1]
 
             print("ExifTool", EXIFTOOL_VERSION)
-            m = ExifToolMetaData(file, et_process)
+            m = MetaData(file, et_process)
             dt = m.date_time()
             print(dt)
             print("%sx%s" % (m.width(), m.height()))
-            print(m.length())
-            print(m.frames_per_second())
-            print(m.codec())
+            print("Length:", m.length())
+            print("FPS: ", m.frames_per_second())
+            print("Codec:", m.codec())
 

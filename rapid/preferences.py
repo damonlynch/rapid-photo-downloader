@@ -130,6 +130,133 @@ class ScanPreferences:
         return not error_encountered
 
 
+class DownloadsTodayTracker:
+    """
+    Handles tracking the number of downloads undertaken on any one day.
+
+    When a day starts is flexible. See
+    http://damonlynch.net/rapid/documentation/#renameoptions
+    """
+
+    def __init__(self, downloads_today, day_start: str):
+        self.day_start = day_start
+        self.downloads_today = downloads_today
+
+    def get_and_maybe_reset_downloads_today(self):
+        v = self.get_downloads_today()
+        if v <= 0:
+            self.reset_downloads_today()
+        return v
+
+    def get_downloads_today(self) -> int:
+        """Returns the preference value for the number of downloads
+        performed today
+
+        If value is less than zero, that means the date has changed"""
+
+        hour, minute = self.get_day_start()
+        try:
+            adjusted_today = datetime.datetime.strptime(
+                "%s %s:%s" % (self.downloads_today[0], hour, minute),
+                "%Y-%m-%d %H:%M")
+        except:
+            logging.critical(
+                "Failed to calculate date adjustment. Download today values "
+                "appear to be corrupted: %s %s:%s",
+                self.downloads_today[0], hour, minute)
+            adjusted_today = None
+
+        now = datetime.datetime.today()
+
+        if adjusted_today is None:
+            return -1
+
+        if now < adjusted_today:
+            try:
+                return int(self.downloads_today[1])
+            except ValueError:
+                logging.error(
+                    "Invalid Downloads Today value. Resetting value to zero.")
+                self.get_downloads_today(self.downloads_today[0], 0)
+                return 0
+        else:
+            return -1
+
+    def get_raw_downloads_today(self):
+        """
+        Gets value without changing it in any way, except to check for type
+        conversion error.
+        If there is an error, then the value is reset
+        """
+        try:
+            return int(self.downloads_today[1])
+        except ValueError:
+            logging.critical("Downloads today value is corrupted: %s",
+                             self.downloads_today[1])
+            self.downloads_today[1] = '0'
+            return 0
+
+    def set_raw_downloads_today_from_int(self, downloads_today):
+        self.downloads_today[1] = str(downloads_today)
+
+    def set_raw_downloads_today_date(self, downloads_today_date):
+        self.downloads_today[0] = downloads_today_date
+
+    def get_raw_downloads_today_date(self):
+        return self.downloads_today[0]
+
+    def get_raw_day_start(self):
+        """
+        Gets value without changing it in any way
+        """
+        return self.day_start
+
+    def get_day_start(self):
+        try:
+            t1, t2 = self.day_start.split(":")
+            return (int(t1), int(t2))
+        except ValueError:
+            logging.error(
+                "'Start of day' preference value %s is corrupted. Resetting "
+                "to midnight",
+                self.day_start)
+            self.day_start = "0:0"
+            return 0, 0
+
+    def increment_downloads_today(self):
+        """ returns true if day changed """
+        v = self.get_downloads_today()
+        if v >= 0:
+            self.set_downloads_today(self.downloads_today[0], v + 1)
+            return False
+        else:
+            self.reset_downloads_today(1)
+            return True
+
+    def reset_downloads_today(self, value=0):
+        now = datetime.datetime.today()
+        hour, minute = self.get_day_start()
+        t = datetime.time(hour, minute)
+        if now.time() < t:
+            date = today()
+        else:
+            d = datetime.datetime.today() + datetime.timedelta(days=1)
+            date = d.strftime(('%Y-%m-%d'))
+
+        self.set_downloads_today(date, value)
+
+    def set_downloads_today(self, date, value=0):
+        self.downloads_today = [date, str(value)]
+
+    def set_day_start(self, hour, minute):
+        self.day_start = "%s:%s" % (hour, minute)
+
+    def log_vals(self):
+        logging.info("Date %s Value %s Day start %s", self.downloads_today[0],
+                     self.downloads_today[1], self.day_start)
+
+
+
 def today():
     return datetime.date.today().strftime('%Y-%m-%d')
 
@@ -194,7 +321,8 @@ class Preferences:
     def __init__(self):
         # To avoid infinite recursions arising from the use of __setattr__,
         # manually assign class values to the class dict
-        self.__dict__['settings'] = QSettings()
+        self.__dict__['settings'] = QSettings("Rapid Photo Downloader",
+                                              "Rapid Photo Downloader")
         # These next two values must be kept in sync
         dicts = (self.rename_defaults, self.device_defaults,
                  self.backup_defaults, self.automation_defaults,
@@ -241,3 +369,159 @@ class Preferences:
 
     def __setattr__(self, key, value):
         self[key] = value
+
+    def _pref_list_uses_component(self, pref_list, pref_component, offset:
+        int=1) -> bool:
+        for i in range(0, len(pref_list), 3):
+            if pref_list[i+offset] == pref_component:
+                return True
+        return False
+
+    def any_pref_uses_stored_sequence_no(self) -> bool:
+        """
+        :return True if any of the pref lists contain a stored sequence no
+        """
+        for pref_list in self.get_pref_lists():
+            if self._pref_list_uses_component(pref_list, STORED_SEQ_NUMBER):
+                return True
+        return False
+
+    def any_pref_uses_session_sequence_no(self) -> bool:
+        """
+        :return True if any of the pref lists contain a session sequence no
+        """
+        for pref_list in self.get_pref_lists():
+            if self._pref_list_uses_component(pref_list, SESSION_SEQ_NUMBER):
+                return True
+        return False
+
+    def any_pref_uses_sequence_letter_value(self) -> bool:
+        """
+        :return True if any of the pref lists contain a sequence letter
+        """
+        for pref_list in self.get_pref_lists():
+            if self._pref_list_uses_component(pref_list, SEQUENCE_LETTER):
+                return True
+        return False
+
+    def check_prefs_for_validity(self) -> tuple:
+        """
+        Checks photo & video rename, and subfolder generation
+        preferences ensure they follow name generation rules. Moreover,
+        subfolder name specifications must not:
+        1. start with a separator
+        2. end with a separator
+        3. have two separators in a row
+
+        :return: tuple with two values: (1) bool and error message if
+         prefs are invalid (else empy string)
+        """
+
+        msg = ''
+        valid = True
+        tests = ((self.photo_rename, DICT_IMAGE_RENAME_L0),
+                 (self.video_rename, DICT_VIDEO_RENAME_L0),
+                 (self.photo_subfolder, DICT_SUBFOLDER_L0),
+                 (self.video_subfolder, DICT_VIDEO_SUBFOLDER_L0))
+
+        # test file renaming
+        for pref, pref_defn in tests[:2]:
+            try:
+                check_pref_valid(pref_defn, pref)
+            except PrefError as e:
+                valid = False
+                msg += e.msg + "\n"
+
+        # test subfolder generation
+        for pref, pref_defn in tests[2:]:
+            try:
+                check_pref_valid(pref_defn, pref)
+
+                L1s = [pref[i] for i in range(0, len(pref), 3)]
+
+                if L1s[0] == SEPARATOR:
+                    raise PrefValueKeyComboError(_(
+                        "Subfolder preferences should not start with a %s")
+                                                 % os.sep)
+                elif L1s[-1] == SEPARATOR:
+                    raise PrefValueKeyComboError(_(
+                        "Subfolder preferences should not end with a %s") %
+                                                 os.sep)
+                else:
+                    for i in range(len(L1s) - 1):
+                        if L1s[i] == SEPARATOR and L1s[i + 1] == SEPARATOR:
+                            raise PrefValueKeyComboError(_(
+                                "Subfolder preferences should not contain "
+                                "two %s one after the other") % os.sep)
+
+            except PrefError as e:
+                valid = False
+                msg += e.msg + "\n"
+
+        return (valid, msg)
+
+    def must_synchronize_raw_jpg(self) -> bool:
+        """
+        :return: True if synchronize_raw_jpg is True and photo
+        renaming uses sequence values
+        """
+        if self.synchronize_raw_jpg:
+            for s in LIST_SEQUENCE_L1:
+                if self._pref_list_uses_component(self.photo_rename, s, 1):
+                    return True
+        return False
+
+    def format_pref_list_for_pretty_print(self, pref_list) -> str:
+        """
+        :return: string useful for printing the preferences
+        """
+
+        v = ''
+        for i in range(0, len(pref_list), 3):
+            if (pref_list[i+1] or pref_list[i+2]):
+                c = ':'
+            else:
+                c = ''
+            s = "%s%s " % (pref_list[i], c)
+
+            if pref_list[i+1]:
+                s = "%s%s" % (s, pref_list[i+1])
+            if pref_list[i+2]:
+                s = "%s (%s)" % (s, pref_list[i+2])
+            v += s + "\n"
+        return v
+
+    def get_pref_lists(self) -> tuple:
+        """
+        :return: a tuple of the photo & video rename and subfolder
+         generation preferences
+        """
+        return (self.photo_rename, self.photo_subfolder, self.video_rename,
+                     self.video_subfolder)
+
+    def pref_uses_job_code(self, pref_list):
+        """ Returns True if the particular preferences contains a job code"""
+        for i in range(0, len(pref_list), 3):
+            if pref_list[i] == JOB_CODE:
+                return True
+        return False
+
+    def any_pref_uses_job_code(self):
+        """ Returns True if any of the preferences contain a job code"""
+        for pref_list in self.get_pref_lists():
+            if self.pref_uses_job_code(pref_list):
+                return True
+        return False
+
+    def most_recent_job_code(self) -> str:
+        if len(self.job_codes) > 0:
+            return self.job_codes[0]
+        else:
+            return ''
+
+    def reset(self):
+        """
+        Reset all program preferences to their default settings
+        """
+        self.settings.clear()
+        #TODO insert program version

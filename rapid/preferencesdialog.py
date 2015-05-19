@@ -36,8 +36,6 @@ import misc
 import constants
 import paths
 import rpdfile
-import higdefaults as hd
-import metadataphoto
 import metadatavideo
 
 import tableplusminus as tpm
@@ -52,130 +50,7 @@ from prefsrapid import format_pref_list_for_pretty_print, DownloadsTodayTracker
 
 from gettext import gettext as _
 
-class PrefError(Exception):
-    """ base class """
-    def unpackList(self, l):
-        """
-        Make the preferences presentable to the user
-        """
 
-        s = ''
-        for i in l:
-            if i <> ORDER_KEY:
-                s += "'" + i + "', "
-        return s[:-2]
-
-    def __str__(self):
-        return self.msg
-
-class PrefKeyError(PrefError):
-    def __init__(self, error):
-        value = error[0]
-        expectedValues = self.unpackList(error[1])
-        self.msg = "Preference key '%(key)s' is invalid.\nExpected one of %(value)s" % {
-                            'key': value, 'value': expectedValues}
-
-
-class PrefValueInvalidError(PrefKeyError):
-    def __init__(self, error):
-        value = error[0]
-        self.msg = "Preference value '%(value)s' is invalid" % {'value': value}
-
-class PrefLengthError(PrefError):
-    def __init__(self, error):
-        self.msg = "These preferences are not well formed:" + "\n %s" % self.unpackList(error)
-
-class PrefValueKeyComboError(PrefError):
-    def __init__(self, error):
-        self.msg = error
-
-
-def check_pref_valid(pref_defn, prefs, modulo=3):
-    """
-    Checks to see if prefs are valid according to definition.
-
-    prefs is a list of preferences.
-    pref_defn is a Dict specifying what is valid.
-    modulo is how many list elements are equivalent to one line of preferences.
-
-    Returns True if prefs match with pref_defn,
-    else raises appropriate error.
-    """
-
-    if (len(prefs) % modulo <> 0) or not prefs:
-        raise PrefLengthError(prefs)
-    else:
-        for i in range(0,  len(prefs),  modulo):
-            _check_pref_valid(pref_defn, prefs[i:i+modulo])
-
-    return True
-
-def _check_pref_valid(pref_defn, prefs):
-
-    key = prefs[0]
-    value = prefs[1]
-
-
-    if pref_defn.has_key(key):
-
-        next_pref_defn = pref_defn[key]
-
-        if value == None:
-            # value should never be None, at any time
-            raise PrefValueInvalidError((None, next_pref_defn))
-
-        if next_pref_defn and not value:
-            raise gn.PrefValueInvalidError((value, next_pref_defn))
-
-        if type(next_pref_defn) == type({}):
-            return _check_pref_valid(next_pref_defn, prefs[1:])
-        else:
-            if type(next_pref_defn) == type([]):
-                result = value in next_pref_defn
-                if not result:
-                    raise gn.PrefValueInvalidError((value, next_pref_defn))
-                return True
-            elif not next_pref_defn:
-                return True
-            else:
-                result = next_pref_defn == value
-                if not result:
-                    raise gn.PrefKeyValue((value, next_pref_defn))
-                return True
-    else:
-        raise PrefKeyError((key, pref_defn[ORDER_KEY]))
-
-
-def filter_subfolder_prefs(pref_list):
-    """
-    Filters out extraneous preference choices
-    """
-    prefs_changed = False
-    continue_check = True
-    while continue_check and pref_list:
-        continue_check = False
-        if pref_list[0] == SEPARATOR:
-            # subfolder preferences should not start with a /
-            pref_list = pref_list[3:]
-            prefs_changed = True
-            continue_check = True
-        elif pref_list[-3] == SEPARATOR:
-            # subfolder preferences should not end with a /
-            pref_list = pref_list[:-3]
-            continue_check = True
-            prefs_changed = True
-        else:
-            for i in range(0, len(pref_list) - 3, 3):
-                if pref_list[i] == SEPARATOR and pref_list[i+3] == SEPARATOR:
-                    # subfolder preferences should not contain two /s side by side
-                    continue_check = True
-                    prefs_changed = True
-                    # note we are messing with the contents of the pref list,
-                    # must exit loop and try again
-                    pref_list = pref_list[:i] + pref_list[i+3:]
-                    break
-
-    return (prefs_changed,  pref_list)
 
 class Comboi18n(gtk.ComboBox):
     """ very simple i18n version of the venerable combo box
@@ -486,7 +361,7 @@ class PhotoRenameTable(tpm.TablePlusMinus):
             self.prefs_factory.check_prefs_for_validity()
 
         except (PrefValueInvalidError, PrefLengthError,
-                PrefValueKeyComboError,  PrefKeyError),  e:
+                PrefValueKeyComboError,  PrefKeyError) as e:
 
             logger.error(self.error_title)
             logger.error("Sorry, these preferences contain an error:")
@@ -601,7 +476,7 @@ class PhotoRenameTable(tpm.TablePlusMinus):
         for i in range(col + 1, self.pm_no_columns):
             selection.append('')
 
-        if col <> (self.pm_no_columns - 1):
+        if col != (self.pm_no_columns - 1):
             widgets = self.prefs_factory.get_widgets_based_on_user_selection(selection)
 
             for i in range(col + 1, self.pm_no_columns):

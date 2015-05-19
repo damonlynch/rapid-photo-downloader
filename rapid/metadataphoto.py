@@ -22,10 +22,9 @@
 import re
 import datetime
 import sys
-import constants
-import types
 import time
 
+import exiftool
 
 try:
     from gi.repository import GExiv2
@@ -33,8 +32,6 @@ except ImportError:
     sys.stderr.write("You need to install GExiv2, the python binding for "
                      "exiv2, to run this program.\n")
     sys.exit(1)
-
-import metadatavideo
 
 
 VENDOR_SERIAL_CODES = (
@@ -61,15 +58,11 @@ class MetaData(GExiv2.Metadata):
     Class providing human readable access to image metadata
     """
 
-    def __init__(self, full_file_name):
+    def __init__(self, full_file_name: str, et_process:
+                 exiftool.ExifTool=None):
         GExiv2.Metadata.__init__(self, full_file_name)
-        self.rpd_metadata_exiftool = None
+        self.et_process = et_process
         self.rpd_full_file_name = full_file_name
-
-    def _load_exiftool(self):
-        if self.rpd_metadata_exiftool is None:
-            self.rpd_metadata_exiftool = metadatavideo.ExifToolMetaData(
-                self.rpd_full_file_name)
 
     def aperture(self, missing=''):
         """
@@ -201,15 +194,25 @@ class MetaData(GExiv2.Metadata):
         return self._fetch_vendor(VENDOR_SHUTTER_COUNT, missing)
 
     def file_number(self, missing=''):
-        """Returns Exif.CanonFi.FileNumber, not to be confused with
-        Exif.Canon.FileNumber"""
-        try:
-            if 'Exif.CanonFi.FileNumber' in self:
-                self._load_exiftool()
-                return self.rpd_metadata_exiftool.file_number(missing)
+        """
+        Returns Exif.CanonFi.FileNumber, not to be confused with
+        Exif.Canon.FileNumber.
+
+        Uses exiftool to extract the value, as the exiv2
+        implementation is broken
+
+        See:
+        https://bugs.launchpad.net/rapid/+bug/754531
+        """
+        if 'Exif.CanonFi.FileNumber' in self:
+            assert self.et_process is not None
+            fn = self.et_process.get_tags(['FileNumber'],
+                                        self.rpd_full_file_name)
+            if fn:
+                return fn['FileNumber']
             else:
                 return missing
-        except:
+        else:
             return missing
 
     def owner_name(self, missing=''):
@@ -306,12 +309,15 @@ class MetaData(GExiv2.Metadata):
         Returns in python datetime format the date and time the image was
         recorded.
 
-        Trys to get value from exif key "Exif.Photo.DateTimeOriginal".
-        If that does not exist, trys key "Exif.Image.DateTime"
+        Tries to get value from exif key "Exif.Photo.DateTimeOriginal".
+        If that does not exist, tries key "Exif.Image.DateTime"
 
         Returns missing either metadata value is not present.
         """
-        return self.get_date_time() or missing
+        try:
+            return self.get_date_time() or missing
+        except KeyError:
+            return missing
 
     def time_stamp(self, missing=''):
         dt = self.date_time(missing=None)

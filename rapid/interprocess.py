@@ -407,7 +407,6 @@ class DaemonProcess(WorkerProcess):
         self.receiver = context.socket(zmq.PULL)
         self.receiver.connect("tcp://localhost:{}".format(args.receive))
 
-        self.run()
 
     def run(self):
         pass
@@ -416,17 +415,17 @@ class DaemonProcess(WorkerProcess):
         if directive == b'cmd':
             assert content == b'STOP'
             self.cleanup_pre_stop()
-            # signal to sink that we've terminated
-            self.sender.send_multipart([DAEMON_WORKER_ID, b'cmd',
-                                        b'STOPPED'])
+            # signal to sink that we've terminated before finishing
+            self.sender.send_multipart([make_filter_from_worker_id(
+                DAEMON_WORKER_ID), b'cmd', b'STOPPED'])
             sys.exit(0)
 
 
     def send_message_to_sink(self):
         # Must use a dummy value for the worker id, as there is only ever one
         # instance.
-        self.sender.send_multipart([DAEMON_WORKER_ID, b'data',
-                                    self.content])
+        self.sender.send_multipart([make_filter_from_worker_id(
+            DAEMON_WORKER_ID), b'data', self.content])
 
 
 class WorkerInPublishPullPipeline(WorkerProcess):

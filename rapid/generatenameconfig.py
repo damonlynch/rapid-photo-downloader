@@ -491,7 +491,8 @@ DICT_SUBFOLDER_L0 = {
                     ORDER_KEY: LIST_SUBFOLDER_L0
                    }
                                       
-LIST_VIDEO_SUBFOLDER_L0 = [DATE_TIME, TEXT, FILENAME, METADATA, JOB_CODE,  SEPARATOR]
+LIST_VIDEO_SUBFOLDER_L0 = [DATE_TIME, TEXT, FILENAME, METADATA, JOB_CODE,
+                           SEPARATOR]
                    
 DICT_VIDEO_SUBFOLDER_L0 = {
                     DATE_TIME: VIDEO_DICT_DATE_TIME_L1,
@@ -522,3 +523,128 @@ SEQUENCE_ELEMENTS = [
 DYNAMIC_NON_METADATA_ELEMENTS = [
              TODAY, YESTERDAY, 
              FILENAME]  + SEQUENCE_ELEMENTS
+
+
+class PrefError(Exception):
+    """ base class """
+    def unpackList(self, l):
+        """
+        Make the preferences presentable to the user
+        """
+
+        s = ''
+        for i in l:
+            if i != ORDER_KEY:
+                s += "'" + i + "', "
+        return s[:-2]
+
+    def __str__(self):
+        return self.msg
+
+class PrefKeyError(PrefError):
+    def __init__(self, error):
+        value = error[0]
+        expectedValues = self.unpackList(error[1])
+        self.msg = "Preference key '%(key)s' is invalid.\nExpected one of %(value)s" % {
+                            'key': value, 'value': expectedValues}
+
+class PrefValueInvalidError(PrefKeyError):
+    def __init__(self, error):
+        value = error[0]
+        self.msg = "Preference value '%(value)s' is invalid" % {'value': value}
+
+class PrefLengthError(PrefError):
+    def __init__(self, error):
+        self.msg = "These preferences are not well formed:" + "\n %s" % self.unpackList(error)
+
+class PrefValueKeyComboError(PrefError):
+    def __init__(self, error):
+        self.msg = error
+
+
+def check_pref_valid(pref_defn, prefs, modulo=3) -> bool:
+    """
+    Checks to see if user preferences are valid according to their
+    definition. Raises appropriate exception if an error is found.
+
+    :param prefs: list of preferences
+    :param pref_defn: is a Dict specifying what is valid
+    :param modulo: how many list elements are equivalent to one line
+    of preferences.
+    :return: True if prefs match with pref_defn
+    """
+
+    if (len(prefs) % modulo != 0) or not prefs:
+        raise PrefLengthError(prefs)
+    else:
+        for i in range(0,  len(prefs),  modulo):
+            _check_pref_valid(pref_defn, prefs[i:i+modulo])
+
+    return True
+
+def _check_pref_valid(pref_defn, prefs):
+
+    key = prefs[0]
+    value = prefs[1]
+
+
+    if key in pref_defn:
+
+        next_pref_defn = pref_defn[key]
+
+        if value is None:
+            # value should never be None, at any time
+            raise PrefValueInvalidError((None, next_pref_defn))
+
+        if next_pref_defn and not value:
+            raise PrefValueInvalidError((value, next_pref_defn))
+
+        if isinstance(next_pref_defn, dict):
+            return _check_pref_valid(next_pref_defn, prefs[1:])
+        else:
+            if isinstance(next_pref_defn, list):
+                result = value in next_pref_defn
+                if not result:
+                    raise PrefValueInvalidError((value, next_pref_defn))
+                return True
+            elif not next_pref_defn:
+                return True
+            else:
+                result = next_pref_defn == value
+                if not result:
+                    raise PrefValueInvalidError((value, next_pref_defn))
+                return True
+    else:
+        raise PrefKeyError((key, pref_defn[ORDER_KEY]))
+
+
+def filter_subfolder_prefs(pref_list):
+    """
+    Filters out extraneous preference choices
+    """
+    prefs_changed = False
+    continue_check = True
+    while continue_check and pref_list:
+        continue_check = False
+        if pref_list[0] == SEPARATOR:
+            # subfolder preferences should not start with a /
+            pref_list = pref_list[3:]
+            prefs_changed = True
+            continue_check = True
+        elif pref_list[-3] == SEPARATOR:
+            # subfolder preferences should not end with a /
+            pref_list = pref_list[:-3]
+            continue_check = True
+            prefs_changed = True
+        else:
+            for i in range(0, len(pref_list) - 3, 3):
+                if pref_list[i] == SEPARATOR and pref_list[i+3] == SEPARATOR:
+                    # subfolder preferences should not contain two /s side by side
+                    continue_check = True
+                    prefs_changed = True
+                    # note we are messing with the contents of the pref list,
+                    # must exit loop and try again
+                    pref_list = pref_list[:i] + pref_list[i+3:]
+                    break
+
+    return (prefs_changed,  pref_list)
