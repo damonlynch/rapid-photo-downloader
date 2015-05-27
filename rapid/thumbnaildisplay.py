@@ -260,7 +260,7 @@ class ThumbnailTableModel(QAbstractTableModel):
                                  cache_dirs,
                                  device.camera_model,
                                  device.camera_port)
-            self.thumbnailmq.add_worker(scan_id, generate_arguments)
+            self.thumbnailmq.start_worker(scan_id, generate_arguments)
 
 
     def resetThumbnailTrackingAndDisplay(self):

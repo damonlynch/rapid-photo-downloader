@@ -58,7 +58,7 @@ from storage import (ValidMounts, CameraHotplug, UDisks2Monitor,
                      gvfs_controls_mounts, get_program_cache_directory)
 from interprocess import (PublishPullPipelineManager, ScanArguments,
                           CopyFilesArguments, CopyFilesResults,
-                          PushPullDaemonManager)
+                          PushPullDaemonManager, RenameAndMoveFileData)
 from devices import (Device, DeviceCollection, BackupDevice,
                      BackupDeviceCollection)
 from preferences import (Preferences, ScanPreferences)
@@ -82,6 +82,9 @@ class RenameMoveFileManager(PushPullDaemonManager):
         super(RenameMoveFileManager, self).__init__(context)
         self._process_name = 'Rename and Move File Manager'
         self._process_to_run = 'renameandmovefile.py'
+
+    def rename_file(self, data: RenameAndMoveFileData):
+        self.send_message_to_worker(data)
 
 class ScanManager(PublishPullPipelineManager):
     message = QtCore.pyqtSignal(RPDFile)
@@ -709,7 +712,7 @@ class RapidWindow(QMainWindow):
                                 thumbnail_quality_lower
                                 )
 
-        self.copyfilesmq.add_worker(scan_id, copyfiles_args)
+        self.copyfilesmq.start_worker(scan_id, copyfiles_args)
 
     def tempDirsReceivedFromCopyFiles(self, scan_id: int, photo_temp_dir: str,
                                       video_temp_dir: str):
@@ -741,7 +744,15 @@ class RapidWindow(QMainWindow):
 
     def copyfilesDownloaded(self, download_succeeded: bool,
                                       rpd_file: RPDFile, download_count: int):
-        print(download_count)
+
+        self.download_tracker.set_download_count_for_file(rpd_file.unique_id,
+                                                 download_count)
+        self.download_tracker.set_download_count(rpd_file.scan_id,
+                                                 download_count)
+        rpd_file.download_start_time = self.download_start_time
+        data = RenameAndMoveFileData(rpd_file, download_count,
+                                   download_succeeded)
+        self.renamemq.rename_file(data)
 
     # def copyfilesThumbnail(self, rpd_file: RPDFile, thumbnail: QPixmap):
     #     self.thumbnailModel.
@@ -1091,7 +1102,7 @@ class RapidWindow(QMainWindow):
         self.addToDeviceDisplay(device, scan_id)
         scan_preferences = ScanPreferences(self.prefs.ignored_paths)
         scan_arguments = ScanArguments(scan_preferences, device)
-        self.scanmq.add_worker(scan_id, scan_arguments)
+        self.scanmq.start_worker(scan_id, scan_arguments)
         self.setDownloadActionSensitivity()
 
 
@@ -1268,7 +1279,7 @@ class RapidWindow(QMainWindow):
             self.backup_devices.no_video_backup_devices)
 
         # Display amount of free space in a status bar message
-        # self.display_free_space()
+        self.displayFreeSpaceAndBackups()
 
         #TODO hey need to think about this now that we have cameras too
         if block_auto_start:
@@ -1516,7 +1527,10 @@ class RapidWindow(QMainWindow):
             # Free space available on the filesystem for downloading to
             # Displayed in status bar message on main window
             # e.g. 14.7GB free
-            msg = _("%(free)s free") % {'free': free}
+            if self.prefs.backup_images:
+                msg = _("%(free)s free.") % {'free': free}
+            else:
+                msg = _("%(free)s free") % {'free': free}
         elif len(dirs) == 2:
             free1, free2 = (self.formatSizeForUser(size=shutil.disk_usage(
                 path).free) for path in dirs)

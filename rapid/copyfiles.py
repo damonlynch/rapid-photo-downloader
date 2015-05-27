@@ -365,8 +365,9 @@ class CopyFilesWorker(WorkerInPublishPullPipeline):
                 except:
                     logging.warning(
                         "Could not update filesystem metadata when "
-                        "copying %s",
-                        rpd_file.full_file_name)
+                        "copying %s to %s",
+                        rpd_file.full_file_name,
+                        rpd_file.temp_full_file_name)
 
             # copy THM (video thumbnail file) if there is one
             if copy_succeeded and rpd_file.thm_full_name:

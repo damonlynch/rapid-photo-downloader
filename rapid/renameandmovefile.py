@@ -57,11 +57,9 @@ class SyncRawJpegStatus(Enum):
     error_datetime_mismatch = 4
 
 
-
-
 SyncRawJpegMatch = namedtuple('SyncRawJpegMatch', 'status, sequence_number')
 SyncRawJpegResult = namedtuple('SyncRawJpegResult', 'sequence_to_use, '
-                                'failed, photo_name, photo_ext')
+                                                    'failed, photo_name, photo_ext')
 
 class SyncRawJpeg:
     """
@@ -79,7 +77,6 @@ class SyncRawJpeg:
         else:
             if extension not in self.photos[name][0]:
                 self.photos[name][0].append(extension)
-
 
     def matching_pair(self, name, extension, date_time, sub_seconds):
         """Checks to see if the image matches an image that has already been
@@ -163,6 +160,7 @@ def _generate_name(generator, rpd_file):
 
     return value
 
+
 def generate_subfolder(rpd_file: RPDFile):
     if rpd_file.file_type == FileType.photo:
         generator = gn.PhotoSubfolder(rpd_file.subfolder_pref_list)
@@ -170,6 +168,7 @@ def generate_subfolder(rpd_file: RPDFile):
         generator = gn.VideoSubfolder(rpd_file.subfolder_pref_list)
 
     rpd_file.download_subfolder = _generate_name(generator, rpd_file)
+
 
 def generate_name(rpd_file: RPDFile):
     if rpd_file.file_type == FileType.photo:
@@ -198,13 +197,12 @@ class RenameMoveFileWorker(DaemonProcess):
 
         self.sync_raw_jpeg = SyncRawJpeg()
 
-
         logging.debug("Start of day is set to %s", self.prefs.day_start)
 
     def progress_callback_no_update(self, amount_downloaded, total):
         pass
         # ~ if debug_progress:
-        #~ logging.debug("%.1f", amount_downloaded / float(total))
+        # ~ logging.debug("%.1f", amount_downloaded / float(total))
 
     def notify_file_already_exists(self, rpd_file: RPDFile, identifier=None):
         """
@@ -289,7 +287,7 @@ class RenameMoveFileWorker(DaemonProcess):
         name, but the exif information was different"""
         i1_ext, i1_date_time, i1_subseconds = \
             self.sync_raw_jpeg.ext_exif_date_time(
-            sync_photo_name)
+                sync_photo_name)
         detail = {'image1': "%s%s" % (sync_photo_name, i1_ext),
                   'image1_date': i1_date_time.strftime("%x"),
                   'image1_time': time_subseconds_human_readable(i1_date_time,
@@ -305,9 +303,8 @@ class RenameMoveFileWorker(DaemonProcess):
             'Photos detected with the same filenames, but taken at different '
             'times')
         rpd_file.error_msg = \
-        pn.problem_definitions[pn.SAME_FILE_DIFFERENT_EXIF][1] % detail
+            pn.problem_definitions[pn.SAME_FILE_DIFFERENT_EXIF][1] % detail
         rpd_file.status = DownloadStatus.downloaded_with_warning
-
 
     def _move_associate_file(self, extension, full_base_name,
                              temp_associate_file):
@@ -366,9 +363,8 @@ class RenameMoveFileWorker(DaemonProcess):
 
         return rpd_file
 
-
     def check_for_fatal_name_generation_errors(self, rpd_file: RPDFile) -> \
-        bool:
+            bool:
         """
         :return False if either the download subfolder or filename are
          blank, else returns True
@@ -416,8 +412,8 @@ class RenameMoveFileWorker(DaemonProcess):
                                      name[1]
             rpd_file.download_full_file_name = \
                 os.path.join(
-                rpd_file.download_path,
-                rpd_file.download_name)
+                    rpd_file.download_path,
+                    rpd_file.download_name)
 
             try:
                 if os.path.exists(
@@ -437,10 +433,10 @@ class RenameMoveFileWorker(DaemonProcess):
                     return False
 
     def sync_raw_jpg(self, rpd_file: RPDFile, et_process: exiftool.ExifTool) \
-        -> SyncRawJpegResult:
+            -> SyncRawJpegResult:
 
         failed = False
-        sequence_to_use= None
+        sequence_to_use = None
         photo_name, photo_ext = os.path.splitext(
             rpd_file.name)
         if not load_metadata(rpd_file, et_process):
@@ -463,16 +459,13 @@ class RenameMoveFileWorker(DaemonProcess):
                 if (self.prefs.conflict_resolution !=
                         ConflictResolution.add_identifier):
                     rpd_file.add_problem(None,
-                                         pn.FILE_ALREADY_DOWNLOADED,
-                                         {
-                                             'filetype':
-                                                 rpd_file.title_capitalized})
+                                    pn.FILE_ALREADY_DOWNLOADED, {
+                                    'filetype':rpd_file.title_capitalized})
                     rpd_file.error_title = _(
                         'Photo has already been downloaded')
                     rpd_file.error_msg = _(
                         "Source: %(source)s") % {
-                                             'source':
-                                                 rpd_file.full_file_name}
+                                         'source': rpd_file.full_file_name}
                     rpd_file.status = \
                         DownloadStatus.download_failed
                     failed = True
@@ -500,7 +493,6 @@ class RenameMoveFileWorker(DaemonProcess):
             rpd_file.subfolder_pref_list = self.prefs.video_subfolder
             rpd_file.name_pref_list = self.prefs.video_rename
 
-
     def process_rename_failure(self, rpd_file: RPDFile):
         logging.error("%s: %s - %s", rpd_file.full_file_name,
                       rpd_file.problem.get_title(),
@@ -511,13 +503,12 @@ class RenameMoveFileWorker(DaemonProcess):
             logging.error("Failed to delete temporary file %s",
                           rpd_file.temp_full_file_name)
 
-
     def generate_names(self, rpd_file: RPDFile) -> bool:
         generate_subfolder(rpd_file)
 
         if rpd_file.download_subfolder:
             logging.debug("Generated subfolder name %s for file %s",
-                rpd_file.download_subfolder, rpd_file.name)
+                          rpd_file.download_subfolder, rpd_file.name)
 
             rpd_file.sequences = self.sequences
 
@@ -532,14 +523,14 @@ class RenameMoveFileWorker(DaemonProcess):
                 rpd_file.error_title = rpd_file.problem.get_title()
                 rpd_file.error_msg = _(
                     "%(problem)s\nFile: %(file)s") % {'problem':
-                                        rpd_file.problem.get_problems(),
-                                        'file': rpd_file.full_file_name}
+                                                                                               rpd_file.problem.get_problems(),
+                                                      'file': rpd_file.full_file_name}
             else:
                 logging.debug("Generated file name %s for file %s",
-                    rpd_file.download_name, rpd_file.name)
+                              rpd_file.download_name, rpd_file.name)
         else:
             logging.debug("Failed to generate subfolder name for file: %s",
-                rpd_file.name)
+                          rpd_file.name)
 
         return self.check_for_fatal_name_generation_errors(rpd_file)
 
@@ -550,7 +541,7 @@ class RenameMoveFileWorker(DaemonProcess):
         rpd_file.download_full_file_name = os.path.join(
             rpd_file.download_path, rpd_file.download_name)
         rpd_file.download_full_base_name = \
-        os.path.splitext(rpd_file.download_full_file_name)[0]
+            os.path.splitext(rpd_file.download_full_file_name)[0]
 
         if not os.path.isdir(rpd_file.download_path):
             try:
@@ -591,7 +582,7 @@ class RenameMoveFileWorker(DaemonProcess):
             if inst.errno == errno.EEXIST:
                 add_unique_identifier = \
                     self.download_file_exists(
-                    rpd_file)
+                        rpd_file)
             else:
                 rpd_file = self.notify_download_failure_file_error(
                     rpd_file, inst.strerror)
@@ -603,7 +594,6 @@ class RenameMoveFileWorker(DaemonProcess):
 
         if add_unique_identifier:
             self.add_unique_identifier(rpd_file)
-
 
     def process_file(self, rpd_file: RPDFile, et_process: exiftool.ExifTool,
                      download_count: int):
@@ -621,7 +611,7 @@ class RenameMoveFileWorker(DaemonProcess):
 
         # TODO modify file
         if rpd_file.file_type == FileType.photo and hasattr(rpd_file,
-                                                        'new_focal_length'):
+                                                            'new_focal_length'):
             # A RAW file has had its focal length and
             # aperture adjusted.
             # These have been written out to an XMP
@@ -631,7 +621,7 @@ class RenameMoveFileWorker(DaemonProcess):
             # without saving them.
 
             if load_metadata(rpd_file, et_process):
-                #TODO make sure these values are populated
+                # TODO make sure these values are populated
                 rpd_file.metadata['Exif.Photo.FocalLength'] = \
                     rpd_file.new_focal_length
                 rpd_file.metadata['Exif.Photo.FNumber'] = \
@@ -663,7 +653,7 @@ class RenameMoveFileWorker(DaemonProcess):
                 uses_sequence_letter = self.prefs.any_pref_uses_sequence_letter_value()
                 if uses_sequence_session_no or uses_sequence_letter:
                     self.sequences.increment(uses_sequence_session_no,
-                        uses_sequence_letter)
+                                             uses_sequence_letter)
                 if self.prefs.any_pref_uses_stored_sequence_no():
                     self.prefs.stored_sequence_no += 1
                 self.downloads_today_tracker.increment_downloads_today()

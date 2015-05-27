@@ -61,16 +61,20 @@ class PullPipelineManager(QObject):
     """
     Base class from which more specialized 0MQ classes are derived.
 
-    Receives data into ts sink via a ZMQ PULL socket, but does not
+    Receives data into its sink via a ZMQ PULL socket, but does not
     specify how workers should be sent data.
 
-    Sends Signals using Qt.
+    Outputs signals using Qt.
     """
 
     message = pyqtSignal(str) # Derived class will change this
     workerFinished = pyqtSignal(int)
     def __init__(self, context: zmq.Context):
         super(PullPipelineManager, self).__init__()
+
+        # Subclasses must define the type of port they need to send messages
+        self.ventilator_socket = None
+        self.ventilator_port = None
 
         # Sink socket to receive results of the workers
         self.receiver_socket = context.socket(zmq.PULL)
@@ -88,6 +92,8 @@ class PullPipelineManager(QObject):
         self.processes = {}
 
         self.terminating = False
+
+        self.command_line = ''
 
     def run_sink(self):
         logging.debug("Running sink for %s", self._process_name)
@@ -137,6 +143,31 @@ class PullPipelineManager(QObject):
 
     def terminate_sink(self):
         self.terminate_socket.send_multipart([b'0', b'cmd', b'KILL'])
+
+    def _get_cmd(self) -> str:
+        return os.path.join(os.path.dirname(__file__), self._process_to_run)
+
+    def _get_command_line(self, worker_id: int) -> str:
+        """
+        Implement in sublcass
+        """
+        return ''
+
+    def _get_ventilator_start_message(self, worker_id: int) -> str:
+        return [make_filter_from_worker_id(worker_id), b'cmd', b'START']
+
+    def add_worker(self, worker_id: int):
+
+        command_line = self._get_command_line(worker_id)
+        args = shlex.split(command_line)
+
+        # run command immediately, without waiting a reply
+        pid = subprocess.Popen(args).pid
+        # logging.debug("Started '%s' with pid %s", command_line, pid)
+
+        # Add to list of running workers
+        self.workers.append(worker_id)
+        self.processes[worker_id] = Process(pid)
 
     def worker_finished(worker_id):
         pass
@@ -192,6 +223,14 @@ class PullPipelineManager(QObject):
                               == self.processes[worker_id]
         return False
 
+    def send_message_to_worker(self, data, worker_id:int = None):
+        data = pickle.dumps(data, pickle.HIGHEST_PROTOCOL)
+        if worker_id is not None:
+            message = [make_filter_from_worker_id(worker_id), b'data', data]
+        else:
+            message = [b'data', data]
+        self.ventilator_socket.send_multipart(message)
+
 
 DAEMON_WORKER_ID = 0
 
@@ -227,23 +266,21 @@ class PushPullDaemonManager(PullPipelineManager):
             # The process may have crashed. Stop the sink.
             self.terminate_sink()
 
-    def start(self):
-        cmd = os.path.join(os.path.dirname(__file__), self._process_to_run)
-        command_line = '{} --receive {} --send {} --logginglevel {}'.format(
+    def _get_command_line(self, worker_id: int) -> str:
+        cmd = self._get_cmd()
+        return '{} --receive {} --send {} --logginglevel {' \
+               '}'.format(
                         cmd,
                         self.ventilator_port,
                         self.receiver_port,
                         logging_level)
 
-        args = shlex.split(command_line)
+    def _get_ventilator_start_message(self, worker_id: int) -> str:
+        return [b'cmd', b'START']
 
-        # run command immediately, without waiting a reply
-        pid = subprocess.Popen(args).pid
-        # logging.debug("Started '%s' with pid %s", command_line, pid)
+    def start(self):
+        self.add_worker(worker_id=DAEMON_WORKER_ID)
 
-        # Add to list of running workers
-        self.workers.append(DAEMON_WORKER_ID)
-        self.processes[DAEMON_WORKER_ID] = Process(pid)
 
 class PublishPullPipelineManager(PullPipelineManager):
     """
@@ -258,19 +295,19 @@ class PublishPullPipelineManager(PullPipelineManager):
         super(PublishPullPipelineManager, self).__init__(context)
 
         # Ventilator socket to send messages to workers on
-        self.publisher_socket = context.socket(zmq.PUB)
-        self.publisher_port= self.publisher_socket.bind_to_random_port(
+        self.ventilator_socket = context.socket(zmq.PUB)
+        self.ventilator_port= self.ventilator_socket.bind_to_random_port(
             'tcp://*')
-
-        # Socket to synchronize the start of each worker
-        self.sync_service_socket = context.socket(zmq.REP)
-        self.sync_service_port = \
-            self.sync_service_socket.bind_to_random_port("tcp://*")
 
         # Socket for worker control: pause, resume, stop
         self.controller_socket = context.socket(zmq.PUB)
         self.controller_port = self.controller_socket.bind_to_random_port(
             "tcp://*")
+
+        # Socket to synchronize the start of each worker
+        self.sync_service_socket = context.socket(zmq.REP)
+        self.sync_service_port = \
+            self.sync_service_socket.bind_to_random_port("tcp://*")
 
     def stop(self):
         """
@@ -306,34 +343,16 @@ class PublishPullPipelineManager(PullPipelineManager):
         message = [make_filter_from_worker_id(worker_id),b'STOP']
         self.controller_socket.send_multipart(message)
 
-    def add_worker(self, worker_id: int, process_arguments):
-        cmd = os.path.join(os.path.dirname(__file__), self._process_to_run)
-        command_line = '{} --receive {} --send {} --controller {} ' \
-                       '--syncclient {} --filter {} --logginglevel {}'.format(
-                        cmd,
-                        self.publisher_port,
-                        self.receiver_port,
-                        self.controller_port,
-                        self.sync_service_port,
-                        worker_id,
-                        logging_level)
+    def start_worker(self, worker_id: int, process_arguments):
 
-        args = shlex.split(command_line)
-
-        # run command immediately, without waiting a reply
-        pid = subprocess.Popen(args).pid
-        # logging.debug("Started '%s' with pid %s", command_line, pid)
-
-        # Add to list of running workers
-        self.workers.append(worker_id)
-        self.processes[worker_id] = Process(pid)
+        self.add_worker(worker_id)
 
         # Send START commands until scan worker indicates it is ready to
         # receive data
         # Worker ID must be in bytes format
         while True:
-            self.publisher_socket.send_multipart([str(worker_id).encode(),
-                                                  b'cmd', b'START'])
+            self.ventilator_socket.send_multipart(
+                self._get_ventilator_start_message(worker_id))
             try:
                 # look for synchronization request
                 self.sync_service_socket.recv(zmq.DONTWAIT)
@@ -346,9 +365,20 @@ class PublishPullPipelineManager(PullPipelineManager):
                 time.sleep(.01)
 
         # Send data to process to tell it what to work on
-        data = pickle.dumps(process_arguments, pickle.HIGHEST_PROTOCOL)
-        message = [make_filter_from_worker_id(worker_id), b'data', data]
-        self.publisher_socket.send_multipart(message)
+        self.send_message_to_worker(process_arguments, worker_id)
+
+    def _get_command_line(self, worker_id: int) -> str:
+        cmd = self._get_cmd()
+
+        return '{} --receive {} --send {} --controller {} --syncclient {} ' \
+               '--filter {} --logginglevel {}'.format(
+                        cmd,
+                        self.ventilator_port,
+                        self.receiver_port,
+                        self.controller_port,
+                        self.sync_service_port,
+                        worker_id,
+                        logging_level)
 
     def pause(self):
         for worker_id in self.workers:
@@ -388,6 +418,29 @@ class WorkerProcess():
         self.sender.send_multipart([self.worker_id, b'data',
                                     self.content])
 
+    def initialise_process(self, receiver):
+        # Wait to receive "START" message
+        worker_id, directive, content = receiver.recv_multipart()
+        assert directive == b'cmd'
+        assert content == b'START'
+
+        # send a synchronization request
+        self.sync_client.send(b'')
+
+        # wait for synchronization reply
+        self.sync_client.recv()
+
+        # Receive next "START" message and discard, looking for data message
+        while True:
+            worker_id, directive, content = receiver.recv_multipart()
+            if directive == b'data':
+                break
+            else:
+                assert directive == b'cmd'
+                assert content == b'START'
+
+        self.content = content
+
 
 class DaemonProcess(WorkerProcess):
     """
@@ -407,7 +460,6 @@ class DaemonProcess(WorkerProcess):
         self.receiver = context.socket(zmq.PULL)
         self.receiver.connect("tcp://localhost:{}".format(args.receive))
 
-
     def run(self):
         pass
 
@@ -419,7 +471,6 @@ class DaemonProcess(WorkerProcess):
             self.sender.send_multipart([make_filter_from_worker_id(
                 DAEMON_WORKER_ID), b'cmd', b'STOPPED'])
             sys.exit(0)
-
 
     def send_message_to_sink(self):
         # Must use a dummy value for the worker id, as there is only ever one
@@ -433,8 +484,8 @@ class WorkerInPublishPullPipeline(WorkerProcess):
     def __init__(self, worker_type):
         super(WorkerInPublishPullPipeline, self).__init__(worker_type)
         self.parser.add_argument("--controller", required=True)
-        self.parser.add_argument("--syncclient", required=True)
         self.parser.add_argument("--filter", required=True)
+        self.parser.add_argument("--syncclient", required=True)
         args = self.parser.parse_args()
 
         subscription_filter = self.worker_id = args.filter.encode()
@@ -456,30 +507,11 @@ class WorkerInPublishPullPipeline(WorkerProcess):
         self.controller.setsockopt(zmq.SUBSCRIBE, subscription_filter)
 
         # Socket to synchronize the start of receiving data from upstream
-        sync_client = context.socket(zmq.REQ)
-        sync_client.connect("tcp://localhost:{}".format(args.syncclient))
+        self.sync_client = context.socket(zmq.REQ)
+        self.sync_client.connect("tcp://localhost:{}".format(args.syncclient))
 
-        # Wait to receive "START" message
-        worker_id, directive, content = receiver.recv_multipart()
-        assert directive == b'cmd'
-        assert content == b'START'
+        self.initialise_process(receiver)
 
-        # send a synchronization request
-        sync_client.send(b'')
-
-        # wait for synchronization reply
-        sync_client.recv()
-
-        # Receive next "START" message and discard, looking for data message
-        while True:
-            worker_id, directive, content = receiver.recv_multipart()
-            if directive == b'data':
-                break
-            else:
-                assert directive == b'cmd'
-                assert content == b'START'
-
-        self.content = content
         self.do_work()
 
 
