@@ -244,7 +244,8 @@ class Camera:
                               '%s',
                           os.path.join(dir_name, file_name), ex.code)
             if thumbnail_data:
-                image = QImage.fromData(thumbnail_data)
+                data = memoryview(thumbnail_data)
+                image = QImage.fromData(data.tobytes())
                 return image
             else:
                 return None
@@ -255,6 +256,7 @@ class Camera:
         dir_name, file_name = os.path.split(full_THM_name)
         succeeded, camera_file = self._get_file(dir_name, file_name)
         if succeeded:
+            thumbnail_data = None
             try:
                 thumbnail_data = gp.check_result(gp.gp_file_get_data_and_size(
                     camera_file))
@@ -262,8 +264,13 @@ class Camera:
                 logging.error('Error getting THM file %s from camera. Code: '
                               '%s',
                               os.path.join(dir_name, file_name), ex.code)
-            image = QImage.fromData(thumbnail_data)
-            return image
+
+            if thumbnail_data:
+                data = memoryview(thumbnail_data)
+                image = QImage.fromData(data.tobytes())
+                return image
+            else:
+                return None
         else:
             return None
 

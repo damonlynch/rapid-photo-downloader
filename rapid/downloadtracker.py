@@ -76,22 +76,31 @@ class DownloadTracker:
         self.no_photo_backup_devices = no_photo_backup_devices
         self.no_video_backup_devices = no_video_backup_devices
 
-    def init_stats(self, scan_id, photo_size_in_bytes, video_size_in_bytes, no_photos_to_download, no_videos_to_download):
+    def init_stats(self, scan_id: int, photo_size_in_bytes: int,
+                   video_size_in_bytes: int, no_photos_to_download: int,
+                   no_videos_to_download: int):
         no_files = no_photos_to_download + no_videos_to_download
         self.no_files_in_download_by_scan_id[scan_id] = no_files
         self.no_photos_in_download_by_scan_id[scan_id] = no_photos_to_download
         self.no_videos_in_download_by_scan_id[scan_id] = no_videos_to_download
-        self.size_of_photo_backup_in_bytes_by_scan_id[scan_id] = photo_size_in_bytes * self.no_photo_backup_devices
-        self.size_of_video_backup_in_bytes_by_scan_id[scan_id] = video_size_in_bytes * self.no_video_backup_devices
-        bytes = photo_size_in_bytes + video_size_in_bytes
-        # rename_chunk is used to account for the time it takes to rename a file
-        # it is arbitrarily set to 10% of the time it takes to copy it
-        # this makes a difference to the user when they're downloading from a
-        # a high speed source
-        self.rename_chunk[scan_id] = bytes / 10 / no_files
-        self.size_of_download_in_bytes_by_scan_id[scan_id] = bytes + self.rename_chunk[scan_id] * no_files
-        self.raw_size_of_download_in_bytes_by_scan_id[scan_id] = bytes
-        self.total_bytes_to_download += self.size_of_download_in_bytes_by_scan_id[scan_id]
+        self.size_of_photo_backup_in_bytes_by_scan_id[
+            scan_id] = photo_size_in_bytes * self.no_photo_backup_devices
+        self.size_of_video_backup_in_bytes_by_scan_id[
+            scan_id] = video_size_in_bytes * self.no_video_backup_devices
+        total_bytes = photo_size_in_bytes + video_size_in_bytes
+        # rename_chunk is used to account for the time it takes to rename a
+        # file.
+        # It is arbitrarily set to 10% of the time it takes to copy it.
+        # This makes a difference to the user when they're downloading from a
+        # a high speed source.
+        self.rename_chunk[scan_id] = int(total_bytes / 10 / no_files)
+        self.size_of_download_in_bytes_by_scan_id[scan_id] = total_bytes + \
+                                                             self.rename_chunk[
+                                                                 scan_id] * \
+                                                             no_files
+        self.raw_size_of_download_in_bytes_by_scan_id[scan_id] = total_bytes
+        self.total_bytes_to_download += \
+        self.size_of_download_in_bytes_by_scan_id[scan_id]
         self.files_downloaded[scan_id] = 0
         self.photos_downloaded[scan_id] = 0
         self.videos_downloaded[scan_id] = 0
@@ -174,7 +183,7 @@ class DownloadTracker:
     def get_percent_complete(self, scan_id: int) -> float:
         """
         Returns a float representing how much of the download
-        has been completed
+        has been completed for one particular device
         :return a value between 0.0 and 100.0
         """
 
@@ -191,18 +200,24 @@ class DownloadTracker:
 
         return percent_complete
 
-    def get_overall_percent_complete(self) -> int:
+    def get_overall_percent_complete(self) -> float:
+        """
+        Returns a float representing how much of the download from one
+        or more devices
+        :return: a value between 0.0 and 1.0
+        """
         total = 0
         for scan_id in self.total_bytes_copied_by_scan_id:
-            total += (self.total_bytes_copied_by_scan_id[scan_id] +
+            device_total = (self.total_bytes_copied_by_scan_id[scan_id] +
                      (self.rename_chunk[scan_id] *
                       self.files_downloaded[scan_id]))
+            total += device_total
 
-        percent_complete = round(float(total) / self.total_bytes_to_download *
-                              100)
+        percent_complete = float(total) / self.total_bytes_to_download
         return percent_complete
 
     def set_total_bytes_copied(self, scan_id, total_bytes):
+        assert total_bytes >= 0
         self.total_bytes_copied_by_scan_id[scan_id] = total_bytes
 
     def increment_bytes_backed_up(self, scan_id, chunk_downloaded):

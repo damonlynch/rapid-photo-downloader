@@ -208,6 +208,7 @@ class RPDFile:
 
         self.mime_type = mimetypes.guess_type(name)[0]
 
+        assert size > 0
         self.size = size
 
         self.modification_time = modification_time

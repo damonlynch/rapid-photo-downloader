@@ -31,9 +31,16 @@ import shutil
 import datetime
 import os
 import pickle
+import inspect
 from collections import namedtuple
 from gettext import gettext as _
 from gi.repository import Notify
+
+try:
+    from gi.repository import Unity
+    have_unity = True
+except ImportError:
+    have_unity = False
 
 import zmq
 import gphoto2 as gp
@@ -44,7 +51,7 @@ from PyQt5.QtGui import (QIcon)
 from PyQt5.QtWidgets import (QAction, QApplication, QMainWindow, QMenu,
                              QPushButton, QWidget, QDialogButtonBox,
         QProgressBar, QSplitter, QFileIconProvider, QHBoxLayout, QVBoxLayout)
-
+import qrc_resources
 
 # import dbus
 # from dbus.mainloop.pyqt5 import DBusQtMainLoop
@@ -111,7 +118,10 @@ class CopyFilesManager(PublishPullPipelineManager):
         """ :type : CopyFilesResults"""
         if data.total_downloaded is not None:
             assert data.scan_id is not None
-            assert data.chunk_downloaded is not None
+            assert data.chunk_downloaded >= 0
+            assert data.total_downloaded >= 0
+            print("process_sink_data data.total_downloaded:",
+                  data.total_downloaded)
             self.bytesDownloaded.emit(data.scan_id, data.total_downloaded,
                                       data.chunk_downloaded)
 
@@ -211,16 +221,27 @@ class RapidWindow(QMainWindow):
 
     def initialise(self):
         # Setup notification system
-        Notify.init('rapid-photo-downloader')
+        self.have_libnotify = Notify.init('rapid-photo-downloader')
 
+        module_path = os.path.dirname(os.path.abspath(inspect.getfile(
+            inspect.currentframe())))
+        self.program_svg = os.path.join(module_path,
+                         os.path.join('images', 'rapid-photo-downloader.svg'))
         # Initialise use of libgphoto2
         self.gp_context = gp.Context()
 
         self.validMounts = ValidMounts(
             onlyExternalMounts=self.prefs.only_external_mounts)
 
-        logging.debug("Desktop environment: %s",
-                      get_desktop_environment())
+        desktop_env = get_desktop_environment()
+        self.unity_progress = desktop_env.lower() == 'unity' and have_unity
+        if self.unity_progress:
+            self.deskop_launcher = Unity.LauncherEntry.get_for_desktop_id(
+                "rapid-photo-downloader.desktop")
+            if self.deskop_launcher is None:
+                self.unity_progress = False
+
+        logging.debug("Desktop environment: %s", desktop_env)
         logging.debug("Have GIO module: %s", have_gio)
         self.gvfsControlsMounts = gvfs_controls_mounts() and have_gio
         if have_gio:
@@ -771,6 +792,9 @@ class RapidWindow(QMainWindow):
 
     def copyfilesBytesDownloaded(self, scan_id: int, total_downloaded: int,
                                  chunk_downloaded: int):
+        print("copyfilesBytesDownloaded total_downloaded:", total_downloaded)
+        assert total_downloaded >= 0
+        assert chunk_downloaded >= 0
         self.download_tracker.set_total_bytes_copied(scan_id,
                                                      total_downloaded)
         self.time_check.increment(bytes_downloaded=chunk_downloaded)
@@ -845,7 +869,10 @@ class RapidWindow(QMainWindow):
                                         progress_bar_text=progress_bar_text)
 
         percent_complete = self.download_tracker.get_overall_percent_complete()
-        self.downloadProgressBar.setValue(percent_complete)
+        self.downloadProgressBar.setValue(round(percent_complete*100))
+        if self.unity_progress:
+            self.deskop_launcher.set_property('progress', percent_complete)
+            self.deskop_launcher.set_property('progress_visible', True)
 
         return (completed, files_remaining)
 
@@ -895,8 +922,11 @@ class RapidWindow(QMainWindow):
             if not self.downloadIsRunning():
                 logging.debug("Download completed")
                 self.enablePrefsAndRefresh(enabled=True)
-                self.notify_download_complete()
+                self.notifyDownloadComplete()
                 self.downloadProgressBar.reset()
+                if self.unity_progress:
+                    self.deskop_launcher.set_property('progress_visible',
+                                                      False)
 
                 if ((self.prefs.auto_exit and self.download_tracker.no_errors_or_warnings())
                                                 or self.prefs.auto_exit_force):
@@ -999,8 +1029,8 @@ class RapidWindow(QMainWindow):
         else:
             notification_name  = device.name()
 
-        if device.icon_names is not None:
-            icon = device.icon_names[0]
+        if device.icon_name is not None:
+            icon = device.icon_name
         else:
             icon = None
 
@@ -1032,56 +1062,65 @@ class RapidWindow(QMainWindow):
         if no_warnings:
             message = "%s\n%s " % (message, no_warnings) + _("warnings")
 
+        message_shown = False
+        if self.have_libnotify:
             if icon is not None:
                 # summary, body, icon (icon theme icon name or filename)
                 n = Notify.Notification.new(notification_name, message, icon)
             else:
                 n = Notify.Notification.new(notification_name, message)
             try:
-                n.show()
+                message_shown =  n.show()
             except:
                 logging.error("Unable to display message using notification "
                           "system")
+            if not message_shown:
+                logging.info("{}: {}".format(notification_name, message))
 
-    def notify_download_complete(self):
+
+    def notifyDownloadComplete(self):
         if self.display_summary_notification:
             message = _("All downloads complete")
 
             # photo downloads
             photo_downloads = self.download_tracker.total_photos_downloaded
             if photo_downloads:
-                filetype = self.file_types_by_number(photo_downloads, 0)
+                filetype = file_types_by_number(photo_downloads, 0)
                 message += "\n" + _("%(number)s %(numberdownloaded)s") % \
-                            {'number': photo_downloads,
-                            'numberdownloaded': _("%(filetype)s downloaded") % \
-                            {'filetype': filetype}}
+                                  {'number': photo_downloads,
+                                   'numberdownloaded': _(
+                                       "%(filetype)s downloaded") % \
+                                                       {'filetype': filetype}}
 
             # photo failures
             photo_failures = self.download_tracker.total_photo_failures
             if photo_failures:
-                filetype = self.file_types_by_number(photo_failures, 0)
+                filetype = file_types_by_number(photo_failures, 0)
                 message += "\n" + _("%(number)s %(numberdownloaded)s") % \
-                            {'number': photo_failures,
-                            'numberdownloaded': _("%(filetype)s failed to download") % \
-                            {'filetype': filetype}}
+                                  {'number': photo_failures,
+                                   'numberdownloaded': _(
+                                       "%(filetype)s failed to download") % \
+                                                       {'filetype': filetype}}
 
             # video downloads
             video_downloads = self.download_tracker.total_videos_downloaded
             if video_downloads:
-                filetype = self.file_types_by_number(0, video_downloads)
+                filetype = file_types_by_number(0, video_downloads)
                 message += "\n" + _("%(number)s %(numberdownloaded)s") % \
-                            {'number': video_downloads,
-                            'numberdownloaded': _("%(filetype)s downloaded") % \
-                            {'filetype': filetype}}
+                                  {'number': video_downloads,
+                                   'numberdownloaded': _(
+                                       "%(filetype)s downloaded") % \
+                                                       {'filetype': filetype}}
 
             # video failures
             video_failures = self.download_tracker.total_video_failures
             if video_failures:
-                filetype = self.file_types_by_number(0, video_failures)
+                filetype = file_types_by_number(0, video_failures)
                 message += "\n" + _("%(number)s %(numberdownloaded)s") % \
-                            {'number': video_failures,
-                            'numberdownloaded': _("%(filetype)s failed to download") % \
-                            {'filetype': filetype}}
+                                  {'number': video_failures,
+                                   'numberdownloaded': _(
+                                       "%(filetype)s failed to download") % \
+                                                       {'filetype': filetype}}
 
             # warnings
             warnings = self.download_tracker.total_warnings
@@ -1090,14 +1129,21 @@ class RapidWindow(QMainWindow):
                             {'number': warnings,
                             'numberdownloaded': _("warnings")}
 
+            message_shown = False
+            if self.have_libnotify:
                 n = Notify.Notification.new(_('Rapid Photo Downloader'),
-                                            message)
+                                message,
+                                self.program_svg)
                 try:
-                    n.show()
+                    message_shown = n.show()
                 except:
                     logging.error("Unable to display message using "
                                 "notification system")
-            self.display_summary_notification = False # don't show it again unless needed
+            if not message_shown:
+                logging.info(message)
+
+            # don't show summary again unless needed
+            self.display_summary_notification = False
 
     def invalidDownloadFolders(self, downloading: DownloadTypes):
         """
@@ -1275,21 +1321,18 @@ class RapidWindow(QMainWindow):
         """
         if device.device_type == DeviceType.volume:
             icon = None
-            if device.icon_names is not None:
-                for i in device.icon_names:
-                    if QIcon.hasThemeIcon(i):
-                        icon = QIcon.fromTheme(i)
-                        break
+            if device.icon_name is not None:
+                icon = QIcon.fromTheme(device.icon_name)
             if icon is not None:
                 return icon
             else:
                 return QFileIconProvider().icon(QFileIconProvider.Drive)
         elif device.device_type == DeviceType.path:
-            return QFileIconProvider().icon(QFileIconProvider.Folder)
+            return QIcon.fromTheme(device.icon_name)
         else:
             assert device.device_type == DeviceType.camera
-            if device.icon_names is not None:
-                return QIcon.fromTheme(device.icon_names[0])
+            if device.icon_name is not None:
+                return QIcon.fromTheme(device.icon_name)
             else:
                 return None
 
@@ -1931,8 +1974,7 @@ if __name__ == "__main__":
     app.setOrganizationDomain("damonlynch.net")
     app.setApplicationName("Rapid Photo Downloader")
     #FIXME move this to qrc file, so it doesn't fail when cwd is different
-    app.setWindowIcon(QtGui.QIcon(os.path.join('images',
-                                               'rapid-photo-downloader.svg')))
+    app.setWindowIcon(QtGui.QIcon(':/rapid-photo-downloader.svg'))
 
     rw = RapidWindow()
     rw.show()

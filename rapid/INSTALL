@@ -3,7 +3,7 @@ Rapid Photo Downloader requires the following software:
 * Python 3.4
 * PyQt 5.4
 * Python3-zmq
-* Python3-gphoto2
+* Python3-gphoto2 >= 1.2.0
 * Python3-psutil
 * Python3-scandir
 * Python3-sortedcontainers

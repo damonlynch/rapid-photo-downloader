@@ -77,7 +77,7 @@ class Device:
         self.path = None
         self.display_name = None
         self.device_type = None
-        self.icon_names = None
+        self.icon_name = None
         self.can_eject = None
         self.photo_cache_dir = None
         self.video_cache_dir = None
@@ -105,7 +105,7 @@ class Device:
 
     def __eq__(self, other):
         for attr in ('device_type', 'camera_model', 'camera_port',
-                     'path', 'display_name', 'icon_names', 'can_eject'):
+                     'path', 'display_name', 'icon_name', 'can_eject'):
             if getattr(self, attr) != getattr(other, attr):
                 return False
         return True
@@ -113,22 +113,25 @@ class Device:
     def __ne__(self, other):
         return not self.__eq__(other)
 
+    def _get_valid_icon_name(self, possible_names):
+        for icon_name in possible_names:
+            if QIcon.hasThemeIcon(icon_name):
+                return icon_name
+        return None
+
     def set_download_from_camera(self, camera_model: str, camera_port: str):
         self.clear()
         self.device_type = DeviceType.camera
         self.camera_model = camera_model
         self.camera_port = camera_port
-        for i in ('camera-photo', 'camera'):
-            if QIcon.hasThemeIcon(i):
-                self.icon_names = i
-                break
+        self.icon_name = self._get_valid_icon_name(('camera-photo', 'camera'))
 
     def set_download_from_volume(self, path: str, display_name: str,
                                  icon_names=None, can_eject=None):
         self.clear()
         self.device_type = DeviceType.volume
         self.path = path
-        self.icon_names = icon_names
+        self.icon_name = self._get_valid_icon_name(icon_names)
         self.display_name = display_name
         self.can_eject = can_eject
 
@@ -138,7 +141,7 @@ class Device:
         self.path = path
         # the next value is almost certainly ("folder",), but I guess it's
         # better to generate it from code
-        self.icon_names = ('{}'.format(QFileIconProvider().icon(
+        self.icon_name = ('{}'.format(QFileIconProvider().icon(
             QFileIconProvider.Folder).name()))
 
     def name(self) -> str:

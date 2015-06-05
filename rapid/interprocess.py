@@ -588,6 +588,8 @@ class CopyFilesResults:
         self.photo_temp_dir = photo_temp_dir
         self.video_temp_dir = video_temp_dir
 
+        # if total_downloaded is not None:
+        #     assert total_downloaded >= 0
         self.total_downloaded = total_downloaded
         self.chunk_downloaded = chunk_downloaded
 
