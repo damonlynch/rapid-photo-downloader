@@ -203,7 +203,6 @@ class ThumbnailTableModel(QAbstractTableModel):
             self.rapidApp.devices[scan_id].video_cache_dir = \
                 cache_dirs.video_cache_dir
 
-
     def thumbnailReceived(self, rpd_file, thumbnail):
         unique_id = rpd_file.unique_id
         self.rpd_files[unique_id] = rpd_file
@@ -391,6 +390,18 @@ class ThumbnailTableModel(QAbstractTableModel):
                 generation_needed = True
         return generation_needed
 
+    def getNoFilesRemaining(self, scan_id: int) -> int:
+        """
+        :return: the number of files that have not yet been downloaded
+        for the scan_id
+        """
+        i = 0
+        for unique_id in self.scan_index[scan_id]:
+            if self.rpd_files[unique_id].status == \
+                    DownloadStatus.not_downloaded:
+                i += 1
+        return i
+
     def terminateThumbnailGeneration(self, scan_id: int) -> bool:
         """
         Terminates thumbnail generation if thumbnails are currently
@@ -415,6 +426,26 @@ class ThumbnailTableModel(QAbstractTableModel):
                     self.total_thumbs_to_generate)
                 del self.no_thumbnails_by_scan[scan_id]
         return terminated
+
+    def updateStatusPostDownload(self, rpd_file: RPDFile):
+        #TODO implement download status update
+        pass
+        # iter = self.get_iter_from_unique_id(rpd_file.unique_id)
+        # self.liststore.set_value(iter, self.DOWNLOAD_STATUS_COL, rpd_file.status)
+        # icon = self.get_status_icon(rpd_file.status)
+        # self.liststore.set_value(iter, self.STATUS_ICON_COL, icon)
+        # self.liststore.set_value(iter, self.CHECKBUTTON_VISIBLE_COL, False)
+        # self.rpd_files[rpd_file.unique_id] = rpd_file
+
+    def filesRemainToDownload(self) -> bool:
+        """
+        :return True if any files remain that are not downloaded, else
+         returns False
+        """
+        for rpd_file in self.rpd_files:
+            if rpd_file.status == DownloadStatus.not_downloaded:
+                return True
+        return False
 
 
 class ThumbnailView(QListView):

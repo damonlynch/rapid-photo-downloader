@@ -98,10 +98,12 @@ class DeviceTableModel(QAbstractTableModel):
         self.dataChanged.emit(self.index(row, column), self.index(row, 2))
 
     def updateDownloadProgress(self, scan_id: int, percent_complete: float,
-                               progress_bar_text, bytes_downloaded):
+                               progress_bar_text: str):
         self.state[scan_id] = DeviceState.downloading
         if percent_complete:
             self.progress[scan_id] = percent_complete
+        if progress_bar_text:
+            self.texts[scan_id] = progress_bar_text
         row = self.rows.row(scan_id)
         column = 2
         self.dataChanged.emit(self.index(row, column), self.index(row, 2))

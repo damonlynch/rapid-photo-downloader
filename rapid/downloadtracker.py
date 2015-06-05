@@ -1,25 +1,24 @@
-#!/usr/bin/python
-# -*- coding: latin1 -*-
+__author__ = 'Damon Lynch'
+# Copyright (C) 2011-2015 Damon Lynch <damonlynch@gmail.com>
 
-### Copyright (C) 2011-2014 Damon Lynch <damonlynch@gmail.com>
+# This file is part of Rapid Photo Downloader.
+#
+# Rapid Photo Downloader is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Rapid Photo Downloader is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Rapid Photo Downloader.  If not,
+# see <http://www.gnu.org/licenses/>.
 
-### This program is free software; you can redistribute it and/or modify
-### it under the terms of the GNU General Public License as published by
-### the Free Software Foundation; either version 2 of the License, or
-### (at your option) any later version.
-
-### This program is distributed in the hope that it will be useful,
-### but WITHOUT ANY WARRANTY; without even the implied warranty of
-### MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-### GNU General Public License for more details.
-
-### You should have received a copy of the GNU General Public License
-### along with this program; if not, write to the Free Software
-### Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-### USA
-
+from collections import defaultdict
 import time
-
 import logging
 
 from constants import DownloadStatus, FileType
@@ -71,7 +70,7 @@ class DownloadTracker:
         self.total_warnings = 0
         self.total_bytes_to_download = 0
         self.backups_performed_by_unique_id = dict()
-        self.auto_delete = dict()
+        self.auto_delete = defaultdict(list)
 
     def set_no_backup_devices(self, no_photo_backup_devices, no_video_backup_devices):
         self.no_photo_backup_devices = no_photo_backup_devices
@@ -120,10 +119,7 @@ class DownloadTracker:
         return self.warnings.get(scan_id, 0)
 
     def add_to_auto_delete(self, rpd_file):
-        if rpd_file.scan_id in self.auto_delete:
-            self.auto_delete[rpd_file.scan_id].append(rpd_file.full_file_name)
-        else:
-            self.auto_delete[rpd_file.scan_id] = [rpd_file.full_file_name,]
+        self.auto_delete[rpd_file.scan_id].append(rpd_file.full_file_name)
 
     def get_files_to_auto_delete(self, scan_id):
         return self.auto_delete[scan_id]
@@ -136,18 +132,22 @@ class DownloadTracker:
         self.backups_performed_by_unique_id[unique_id] = \
                     self.backups_performed_by_unique_id.get(unique_id, 0) + 1
 
-    def all_files_backed_up(self, unique_id, file_type):
+    def all_files_backed_up(self, unique_id: str, file_type: FileType) -> bool:
         if unique_id in self.backups_performed_by_unique_id:
             if file_type == FileType.photo:
-                return self.backups_performed_by_unique_id[unique_id] == self.no_photo_backup_devices
+                return self.backups_performed_by_unique_id[
+                           unique_id] == self.no_photo_backup_devices
             else:
-                return self.backups_performed_by_unique_id[unique_id] == self.no_video_backup_devices
+                return self.backups_performed_by_unique_id[
+                           unique_id] == self.no_video_backup_devices
         else:
-            logging.critical("Unexpected unique_id in self.backups_performed_by_unique_id")
+            logging.critical(
+                "Unexpected unique_id in self.backups_performed_by_unique_id")
             return True
 
 
-    def file_downloaded_increment(self, scan_id, file_type, status):
+    def file_downloaded_increment(self, scan_id: int, file_type: FileType,
+                                  status: DownloadStatus):
         self.files_downloaded[scan_id] += 1
 
         if status not in (DownloadStatus.download_failed,
@@ -191,14 +191,15 @@ class DownloadTracker:
 
         return percent_complete
 
-    def get_overall_percent_complete(self):
+    def get_overall_percent_complete(self) -> int:
         total = 0
         for scan_id in self.total_bytes_copied_by_scan_id:
             total += (self.total_bytes_copied_by_scan_id[scan_id] +
                      (self.rename_chunk[scan_id] *
                       self.files_downloaded[scan_id]))
 
-        percent_complete = float(total) / self.total_bytes_to_download
+        percent_complete = round(float(total) / self.total_bytes_to_download *
+                              100)
         return percent_complete
 
     def set_total_bytes_copied(self, scan_id, total_bytes):
@@ -219,7 +220,7 @@ class DownloadTracker:
     def get_file_types_present(self, scan_id):
         return self.file_types_present_by_scan_id[scan_id]
 
-    def set_file_types_present(self, scan_id, file_types_present):
+    def set_file_types_present(self, scan_id: int, file_types_present):
         self.file_types_present_by_scan_id[scan_id] = file_types_present
 
     def no_errors_or_warnings(self):
@@ -302,14 +303,18 @@ class TimeForDownload:
     pass
 
 class TimeRemaining:
-    """
+    r"""
     Calculate how much time is remaining to finish a download
+
+    >>> t = TimeRemaining()
+    >>> t[0] = 1024*1024*1024
+    >>> del t[0]
     """
     gap = 3
     def __init__(self):
         self.clear()
 
-    def __setitem__(self, scan_id, size):
+    def __setitem__(self, scan_id, size: int):
         t = TimeForDownload()
         t.time_remaining = None
         t.size = size
@@ -326,12 +331,16 @@ class TimeRemaining:
             amt_time = now - tm
             if amt_time > self.gap:
                 self.times[scan_id].time_mark = now
-                amt_downloaded = self.times[scan_id].downloaded - self.times[scan_id].size_mark
+                amt_downloaded = self.times[scan_id].downloaded - self.times[
+                    scan_id].size_mark
                 self.times[scan_id].size_mark = self.times[scan_id].downloaded
                 timefraction = amt_downloaded / float(amt_time)
-                amt_to_download = float(self.times[scan_id].size) - self.times[scan_id].downloaded
+                amt_to_download = float(self.times[scan_id].size) - self.times[
+                    scan_id].downloaded
                 if timefraction:
-                    self.times[scan_id].time_remaining = amt_to_download / timefraction
+                    self.times[
+                        scan_id].time_remaining = amt_to_download / \
+                                                  timefraction
 
     def _time_estimates(self):
         for t in self.times:

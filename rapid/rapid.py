@@ -32,21 +32,19 @@ import datetime
 import os
 import pickle
 from collections import namedtuple
-
 from gettext import gettext as _
+from gi.repository import Notify
 
 import zmq
 import gphoto2 as gp
-
 from PyQt5 import QtCore, QtWidgets, QtGui
-
 from PyQt5.QtCore import (QThread, Qt, QStorageInfo, QSettings, QPoint,
-                          QSize, QFileInfo, QTimer)
-from PyQt5.QtGui import (QIcon, QPixmap, QImage)
-from PyQt5.QtWidgets import (QAction, QApplication, QFileDialog, QLabel,
-        QMainWindow, QMenu, QMessageBox, QScrollArea, QSizePolicy,
-        QPushButton, QFrame, QWidget, QDialogButtonBox,
+                          QSize, QTimer)
+from PyQt5.QtGui import (QIcon)
+from PyQt5.QtWidgets import (QAction, QApplication, QMainWindow, QMenu,
+                             QPushButton, QWidget, QDialogButtonBox,
         QProgressBar, QSplitter, QFileIconProvider, QHBoxLayout, QVBoxLayout)
+
 
 # import dbus
 # from dbus.mainloop.pyqt5 import DBusQtMainLoop
@@ -55,20 +53,19 @@ from PyQt5.QtWidgets import (QAction, QApplication, QFileDialog, QLabel,
 from storage import (ValidMounts, CameraHotplug, UDisks2Monitor,
                      GVolumeMonitor, have_gio, has_non_empty_dcim_folder,
                      mountPaths, get_desktop_environment,
-                     gvfs_controls_mounts, get_program_cache_directory)
+                     gvfs_controls_mounts)
 from interprocess import (PublishPullPipelineManager, ScanArguments,
-                          CopyFilesArguments, CopyFilesResults,
-                          PushPullDaemonManager, RenameAndMoveFileData)
+                          CopyFilesArguments, PushPullDaemonManager, RenameAndMoveFileData)
 from devices import (Device, DeviceCollection, BackupDevice,
                      BackupDeviceCollection)
 from preferences import (Preferences, ScanPreferences)
 from constants import (BackupLocationType, DeviceType, ErrorType,
-                       FileType)
+                       FileType, DownloadStatus)
 from thumbnaildisplay import (ThumbnailView, ThumbnailTableModel,
     ThumbnailDelegate, DownloadTypes, DownloadStats)
 from devicedisplay import (DeviceTableModel, DeviceView, DeviceDelegate)
-from utilities import (same_file_system, makeInternationalizedList, CacheDirs)
-from rpdfile import RPDFile
+from utilities import (same_file_system, makeInternationalizedList)
+from rpdfile import RPDFile, file_types_by_number
 import downloadtracker
 
 logging_level = logging.DEBUG
@@ -78,6 +75,7 @@ logging.basicConfig(format='%(asctime)s %(message)s', level=logging_level)
 BackupMissing = namedtuple('BackupMissing', ['photo', 'video'])
 
 class RenameMoveFileManager(PushPullDaemonManager):
+    message = QtCore.pyqtSignal(bool, RPDFile, int)
     def __init__(self, context: zmq.Context):
         super(RenameMoveFileManager, self).__init__(context)
         self._process_name = 'Rename and Move File Manager'
@@ -85,6 +83,12 @@ class RenameMoveFileManager(PushPullDaemonManager):
 
     def rename_file(self, data: RenameAndMoveFileData):
         self.send_message_to_worker(data)
+
+    def process_sink_data(self):
+        data = pickle.loads(self.content)
+        """ :type : RenameAndMoveFileResults """
+        self.message.emit(data.move_succeeded, data.rpd_file,
+                          data.download_count)
 
 class ScanManager(PublishPullPipelineManager):
     message = QtCore.pyqtSignal(RPDFile)
@@ -206,6 +210,9 @@ class RapidWindow(QMainWindow):
         return True
 
     def initialise(self):
+        # Setup notification system
+        Notify.init('rapid-photo-downloader')
+
         # Initialise use of libgphoto2
         self.gp_context = gp.Context()
 
@@ -606,8 +613,13 @@ class RapidWindow(QMainWindow):
             # Set status to download pending
             self.thumbnailModel.markDownloadPending(download_files.files)
 
-            # disable refresh and preferences change while download is occurring
-            # self.enable_prefs_and_refresh(enabled=False)
+            # disable refresh and preferences change while download is
+            # occurring
+            self.enablePrefsAndRefresh(enabled=False)
+
+            # Maximum value of progress bar may have been set to the number
+            # of thumbnails being generated. Reset it to use a percentage.
+            self.downloadProgressBar.setMaximum(100)
 
             for scan_id in download_files.files:
                 files = download_files.files[scan_id]
@@ -622,7 +634,7 @@ class RapidWindow(QMainWindow):
                                    download_files.download_stats[scan_id],
                                    generate_thumbnails)
 
-            self.setDownloadActionLabel(is_download = False)
+            self.setDownloadActionLabel(is_download=False)
 
 
     def downloadFiles(self, files, scan_id: int, download_stats: \
@@ -764,18 +776,328 @@ class RapidWindow(QMainWindow):
         self.time_check.increment(bytes_downloaded=chunk_downloaded)
         percent_complete = self.download_tracker.get_percent_complete(scan_id)
         self.deviceModel.updateDownloadProgress(scan_id, percent_complete,
-                                    None, None)
+                                    None)
         self.time_remaining.update(scan_id, bytes_downloaded=chunk_downloaded)
 
     def copyfilesFinished(self):
         pass
 
-    def fileRenamedAndMoved(self):
-        pass
+    def fileRenamedAndMoved(self, move_succeeded: bool, rpd_file: RPDFile,
+                            download_count: int):
+        if rpd_file.status == DownloadStatus.downloaded_with_warning:
+            self.log_error(ErrorType.warning, rpd_file.error_title,
+                           rpd_file.error_msg, rpd_file.error_extra_detail)
+
+        if self.prefs.backup_images:
+            scan_pid = rpd_file.scan_id
+            unique_id = rpd_file.unique_id
+
+            #TODO: implement backupimages
+
+        self.fileDownloadFinished(move_succeeded, rpd_file)
 
     def fileRenamedAndMovedFinished(self):
         pass
 
+    def updateFileDownloadDeviceProgress(self, scan_id: int, unique_id,
+                                              file_type):
+        """
+        Increments the progress bar for an individual device
+
+        Returns if the download is completed for that scan_pid
+        It also returns the number of files remaining for the scan_pid, BUT
+        this value is valid ONLY if the download is completed
+        """
+
+        files_downloaded = \
+            self.download_tracker.get_download_count_for_file(unique_id)
+        files_to_download = self.download_tracker.get_no_files_in_download(
+            scan_id)
+        file_types = self.download_tracker.get_file_types_present(scan_id)
+        completed = files_downloaded == files_to_download
+        if completed and (self.prefs.backup_images and
+                              self.backup_devices.backup_possible(file_type)):
+            completed = self.download_tracker.all_files_backed_up(unique_id,
+                                                                  file_type)
+
+        if completed:
+            files_remaining = self.thumbnailModel.getNoFilesRemaining(scan_id)
+        else:
+            files_remaining = 0
+
+        if completed and files_remaining:
+            # e.g.: 3 of 205 photos and videos (202 remaining)
+            progress_bar_text = _("%(number)s of %(total)s %(filetypes)s (%("
+                                  "remaining)s remaining)") % {
+                                  'number':  files_downloaded,
+                                  'total': files_to_download,
+                                  'filetypes': file_types,
+                                  'remaining': files_remaining}
+        else:
+            # e.g.: 205 of 205 photos and videos
+            progress_bar_text = _("%(number)s of %(total)s %(filetypes)s") % \
+                                 {'number':  files_downloaded,
+                                  'total': files_to_download,
+                                  'filetypes': file_types}
+        percent_complete = self.download_tracker.get_percent_complete(scan_id)
+        self.deviceModel.updateDownloadProgress(scan_id=scan_id,
+                                        percent_complete=percent_complete,
+                                        progress_bar_text=progress_bar_text)
+
+        percent_complete = self.download_tracker.get_overall_percent_complete()
+        self.downloadProgressBar.setValue(percent_complete)
+
+        return (completed, files_remaining)
+
+    def fileDownloadFinished(self, succeeded: bool, rpd_file: RPDFile):
+        """
+        Called when a file has been downloaded i.e. copied, renamed,
+        and backed up
+        """
+        scan_id = rpd_file.scan_id
+        unique_id = rpd_file.unique_id
+        # Update error log window if neccessary
+        if not succeeded and not self.backup_devices.multiple_backup_devices(
+                rpd_file.file_type):
+            self.logError(ErrorType.serious_error, rpd_file.error_title,
+                           rpd_file.error_msg, rpd_file.error_extra_detail)
+        elif self.prefs.move:
+            # record which files to automatically delete when download
+            # completes
+            self.download_tracker.add_to_auto_delete(rpd_file)
+
+        self.thumbnailModel.updateStatusPostDownload(rpd_file)
+        self.download_tracker.file_downloaded_increment(scan_id,
+                                                        rpd_file.file_type,
+                                                        rpd_file.status)
+
+        completed, files_remaining = \
+            self.updateFileDownloadDeviceProgress(scan_id, unique_id,
+                                                       rpd_file.file_type)
+
+        if self.downloadIsRunning():
+            self.updateTimeRemaining()
+
+        if completed:
+            # Last file for this scan id has been downloaded, so clean temp directory
+            logging.debug("Purging temp directories")
+            self.cleanTempDirsForScanId(scan_id)
+            if self.prefs.move:
+                logging.debug("Deleting downloaded source files")
+                self.deleteSourceFiles(scan_id)
+                self.download_tracker.clear_auto_delete(scan_id)
+            self.active_downloads_by_scan_id.remove(scan_id)
+            del self.time_remaining[scan_id]
+            self.notifyDownloadedFromDevice(scan_id)
+            if files_remaining == 0 and self.prefs.auto_unmount:
+                self.unmount_volume(scan_id)
+
+            if not self.downloadIsRunning():
+                logging.debug("Download completed")
+                self.enablePrefsAndRefresh(enabled=True)
+                self.notify_download_complete()
+                self.downloadProgressBar.reset()
+
+                if ((self.prefs.auto_exit and self.download_tracker.no_errors_or_warnings())
+                                                or self.prefs.auto_exit_force):
+                    if not self.thumbnailModel.filesRemainToDownload():
+                        self.quit()
+
+                self.download_tracker.purge_all()
+                # self.speed_label.set_label(" ")
+
+                self.displayFreeSpaceAndBackups()
+
+                self.setDownloadActionLabel(is_download=True)
+                self.setDownloadActionSensitivity()
+
+                self.job_code = ''
+                self.download_start_time = None
+
+    def updateTimeRemaining(self):
+        update, download_speed = self.time_check.check_for_update()
+        #TODO implement label showing download time remaining
+        if update and False:
+            self.speedLabel.set_text(download_speed)
+
+            time_remaining = self.time_remaining.time_remaining()
+            if time_remaining:
+                secs =  int(time_remaining)
+
+                if secs == 0:
+                    message = ""
+                elif secs == 1:
+                    message = _("About 1 second remaining")
+                elif secs < 60:
+                    message = _("About %i seconds remaining") % secs
+                elif secs == 60:
+                    message = _("About 1 minute remaining")
+                else:
+                    # Translators: in the text '%(minutes)i:%(seconds)02i',
+                    # only the : should be translated, if needed.
+                    # '%(minutes)i' and '%(seconds)02i' should not be
+                    # modified or left out. They are used to format and
+                    # display the amount
+                    # of time the download has remainging, e.g. 'About 5:36
+                    # minutes remaining'
+                    message = _(
+                        "About %(minutes)i:%(seconds)02i minutes remaining")\
+                              % {
+                              'minutes': secs / 60, 'seconds': secs % 60}
+
+                self.rapid_statusbar.pop(self.statusbar_context_id)
+                self.rapid_statusbar.push(self.statusbar_context_id, message)
+
+    def enablePrefsAndRefresh(self, enabled: bool):
+        """
+        Disable the user being to access the refresh command or change
+        program preferences while a download is occurring.
+
+        :param enabled: if True, then the user is able to activate the
+        preferences and refresh commands.
+
+        """
+        self.refreshAct.setEnabled(enabled)
+        self.preferencesAct.setEnabled(enabled)
+
+    def unmount_volume(self, scan_id: int):
+        """
+        Cameras are already unmounted, so no need to unmount them!
+        :param scan_id: the scan id of the device to be umounted
+        """
+        device = self.devices[scan_id]
+        """ :type : Device"""
+
+        if device.device_type == DeviceType.volume:
+            #TODO implement
+            if self.gvfsControlsMounts:
+                #self.gvolumeMonitor.
+                pass
+            else:
+                #self.udisks2Monitor.
+                pass
+
+
+    def deleteSourceFiles(self, scan_id: int):
+        """
+        Delete files from download device at completion of download
+        """
+        #TODO delete from cameras and from other devics
+        # should assign this to a process or a thread, and delete then
+        to_delete = self.download_tracker.get_files_to_auto_delete(scan_id)
+
+    def notifyDownloadedFromDevice(self, scan_id: int):
+        """
+        Display a system notification to the user using libnotify
+        that the files have been downloaded from the device
+        :param scan_id: identifies which device
+        """
+        device = self.devices[scan_id]
+
+        if device.device_type == DeviceType.path:
+            notification_name = _('Rapid Photo Downloader')
+        else:
+            notification_name  = device.name()
+
+        if device.icon_names is not None:
+            icon = device.icon_names[0]
+        else:
+            icon = None
+
+        no_photos_downloaded = self.download_tracker.get_no_files_downloaded(
+                                            scan_id, FileType.photo)
+        no_videos_downloaded = self.download_tracker.get_no_files_downloaded(
+                                            scan_id, FileType.video)
+        no_photos_failed = self.download_tracker.get_no_files_failed(
+                                            scan_id, FileType.photo)
+        no_videos_failed = self.download_tracker.get_no_files_failed(
+                                            scan_id, FileType.video)
+        no_files_downloaded = no_photos_downloaded + no_videos_downloaded
+        no_files_failed = no_photos_failed + no_videos_failed
+        no_warnings = self.download_tracker.get_no_warnings(scan_id)
+
+        file_types = file_types_by_number(no_photos_downloaded,
+                                               no_videos_downloaded)
+        file_types_failed = file_types_by_number(no_photos_failed,
+                                                      no_videos_failed)
+        message = _("%(noFiles)s %(filetypes)s downloaded") % \
+                  {'noFiles': no_files_downloaded, 'filetypes': file_types}
+
+        if no_files_failed:
+            message += "\n" + _(
+                "%(noFiles)s %(filetypes)s failed to download") % {
+                              'noFiles': no_files_failed,
+                              'filetypes': file_types_failed}
+
+        if no_warnings:
+            message = "%s\n%s " % (message, no_warnings) + _("warnings")
+
+            if icon is not None:
+                # summary, body, icon (icon theme icon name or filename)
+                n = Notify.Notification.new(notification_name, message, icon)
+            else:
+                n = Notify.Notification.new(notification_name, message)
+            try:
+                n.show()
+            except:
+                logging.error("Unable to display message using notification "
+                          "system")
+
+    def notify_download_complete(self):
+        if self.display_summary_notification:
+            message = _("All downloads complete")
+
+            # photo downloads
+            photo_downloads = self.download_tracker.total_photos_downloaded
+            if photo_downloads:
+                filetype = self.file_types_by_number(photo_downloads, 0)
+                message += "\n" + _("%(number)s %(numberdownloaded)s") % \
+                            {'number': photo_downloads,
+                            'numberdownloaded': _("%(filetype)s downloaded") % \
+                            {'filetype': filetype}}
+
+            # photo failures
+            photo_failures = self.download_tracker.total_photo_failures
+            if photo_failures:
+                filetype = self.file_types_by_number(photo_failures, 0)
+                message += "\n" + _("%(number)s %(numberdownloaded)s") % \
+                            {'number': photo_failures,
+                            'numberdownloaded': _("%(filetype)s failed to download") % \
+                            {'filetype': filetype}}
+
+            # video downloads
+            video_downloads = self.download_tracker.total_videos_downloaded
+            if video_downloads:
+                filetype = self.file_types_by_number(0, video_downloads)
+                message += "\n" + _("%(number)s %(numberdownloaded)s") % \
+                            {'number': video_downloads,
+                            'numberdownloaded': _("%(filetype)s downloaded") % \
+                            {'filetype': filetype}}
+
+            # video failures
+            video_failures = self.download_tracker.total_video_failures
+            if video_failures:
+                filetype = self.file_types_by_number(0, video_failures)
+                message += "\n" + _("%(number)s %(numberdownloaded)s") % \
+                            {'number': video_failures,
+                            'numberdownloaded': _("%(filetype)s failed to download") % \
+                            {'filetype': filetype}}
+
+            # warnings
+            warnings = self.download_tracker.total_warnings
+            if warnings:
+                message += "\n" + _("%(number)s %(numberdownloaded)s") % \
+                            {'number': warnings,
+                            'numberdownloaded': _("warnings")}
+
+                n = Notify.Notification.new(_('Rapid Photo Downloader'),
+                                            message)
+                try:
+                    n.show()
+                except:
+                    logging.error("Unable to display message using "
+                                "notification system")
+            self.display_summary_notification = False # don't show it again unless needed
 
     def invalidDownloadFolders(self, downloading: DownloadTypes):
         """
@@ -897,8 +1219,12 @@ class RapidWindow(QMainWindow):
 
     def scanFinished(self, scan_id: int):
         device = self.devices[scan_id]
-        text = device.file_type_counter.summarize_file_count()[0]
-        self.deviceModel.updateDeviceScan(scan_id, text, scan_completed=True)
+        results_summary, file_types_present  = \
+            device.file_type_counter.summarize_file_count()
+        self.download_tracker.set_file_types_present(scan_id,
+                                                     file_types_present)
+        self.deviceModel.updateDeviceScan(scan_id, results_summary,
+                                          scan_completed=True)
         self.setDownloadActionSensitivity()
 
         if (not self.auto_start_is_on and  self.prefs.generate_thumbnails):
@@ -938,9 +1264,15 @@ class RapidWindow(QMainWindow):
             self.cameraHotplugThread.wait()
 
         self.devices.delete_cache_dirs()
-
+        Notify.uninit()
 
     def getDeviceIcon(self, device: Device) -> QIcon:
+        """
+        Return Qt icon for the device
+        :param device: the device from which to get the icon
+        :return: QIcon for the device, or None if it's not possible to
+         get the icon (which should be extremely rare!)
+        """
         if device.device_type == DeviceType.volume:
             icon = None
             if device.icon_names is not None:
@@ -956,15 +1288,15 @@ class RapidWindow(QMainWindow):
             return QFileIconProvider().icon(QFileIconProvider.Folder)
         else:
             assert device.device_type == DeviceType.camera
-            for i in ('camera-photo', 'camera'):
-                if QIcon.hasThemeIcon(i):
-                    return QIcon.fromTheme(i)
-            return None
+            if device.icon_names is not None:
+                return QIcon.fromTheme(device.icon_names[0])
+            else:
+                return None
 
     def getIconsAndEjectableForMount(self, mount: QStorageInfo):
         """
-        Given a mount, get the icon names suggested by udev, and
-        determine whether the mount is ejectable or not.
+        Given a mount, get the icon names suggested by udev or
+        GVFS, and  determine whether the mount is ejectable or not.
         :param mount:  the mount to check
         :return: icon names and eject boolean
         :rtype Tuple[str, bool]

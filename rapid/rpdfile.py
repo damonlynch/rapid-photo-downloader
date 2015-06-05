@@ -85,6 +85,28 @@ def get_rpdfile(name, path, size,
                      audio_file_full_name,
                      scan_id, from_camera)
 
+def file_types_by_number(no_photos: int, no_videos:int) -> str:
+        """
+        generate a string to be displayed to the user that can be used
+        to show if a value refers to photos or videos or both, or just
+        one of each
+        """
+        if (no_videos > 0) and (no_photos > 0):
+            v = _('photos and videos')
+        elif (no_videos == 0) and (no_photos == 0):
+            v = _('photos or videos')
+        elif no_videos > 0:
+            if no_videos > 1:
+                v = _('videos')
+            else:
+                v = _('video')
+        else:
+            if no_photos > 1:
+                v = _('photos')
+            else:
+                v = _('photo')
+        return v
+
 class FileTypeCounter(Counter):
     r"""
     Track the number of photos and videos in a scan, and display the
@@ -120,26 +142,9 @@ class FileTypeCounter(Counter):
         one of each
         """
 
-        no_videos = self[FileType.video]
-        no_photos = self[FileType.photo]
+        return file_types_by_number(self[FileType.photo], self[FileType.video])
 
-        if (no_videos > 0) and (no_photos > 0):
-            v = _('photos and videos')
-        elif (no_videos == 0) and (no_photos == 0):
-            v = _('photos or videos')
-        elif no_videos > 0:
-            if no_videos > 1:
-                v = _('videos')
-            else:
-                v = _('video')
-        else:
-            if no_photos > 1:
-                v = _('photos')
-            else:
-                v = _('photo')
-        return v
-
-    def summarize_file_count(self) -> str:
+    def summarize_file_count(self) -> tuple:
         """
         Summarizes the total number of photos and/or videos that can be
         downloaded. Displayed in the progress bar at the top of the

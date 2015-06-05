@@ -1,4 +1,5 @@
 __author__ = 'Damon Lynch'
+# Copyright (C) 2015 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #

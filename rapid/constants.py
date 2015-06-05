@@ -80,5 +80,3 @@ class DeviceState(Enum):
 class ThumbnailSize(IntEnum):
     width = 160
     height = 120
-
-

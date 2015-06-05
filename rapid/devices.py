@@ -23,8 +23,10 @@ import os
 import logging
 from collections import namedtuple
 from PyQt5.QtCore import QStorageInfo
+from PyQt5.QtWidgets import QFileIconProvider
+from PyQt5.QtGui import QIcon
 
-from constants import DeviceType, BackupLocationType
+from constants import DeviceType, BackupLocationType, FileType
 from rpdfile import FileTypeCounter
 
 logging.basicConfig(format='%(levelname)s:%(asctime)s:%(message)s',
@@ -116,6 +118,10 @@ class Device:
         self.device_type = DeviceType.camera
         self.camera_model = camera_model
         self.camera_port = camera_port
+        for i in ('camera-photo', 'camera'):
+            if QIcon.hasThemeIcon(i):
+                self.icon_names = i
+                break
 
     def set_download_from_volume(self, path: str, display_name: str,
                                  icon_names=None, can_eject=None):
@@ -130,16 +136,23 @@ class Device:
         self.clear()
         self.device_type = DeviceType.path
         self.path = path
+        # the next value is almost certainly ("folder",), but I guess it's
+        # better to generate it from code
+        self.icon_names = ('{}'.format(QFileIconProvider().icon(
+            QFileIconProvider.Folder).name()))
 
-    def name(self):
+    def name(self) -> str:
+        """
+        Get the name of the device, suitable to be displayed to the
+        user. If the device is a path, return the path name
+        :return  str containg the name
+        """
         if self.device_type == DeviceType.camera:
             return self.camera_model
         elif self.device_type == DeviceType.volume:
             return self.display_name
         else:
             return self.path
-
-
 
     def _delete_cache_dir(self, cache_dir):
         if cache_dir is not None:
@@ -261,7 +274,6 @@ class DeviceCollection:
             if self.devices[scan_id] == camera:
                 return scan_id
 
-
     def delete_device(self, device: Device) -> bool:
         """
         Delete the device from the collection.
@@ -274,14 +286,12 @@ class DeviceCollection:
                 return True
         return False
 
-
     def delete_cache_dirs(self):
         """
         Delete all cache dirs and their contents any devices might have
         """
         for device in self.devices.values():
             device.delete_cache_dirs()
-
 
     def __delitem__(self, scan_id):
         d = self.devices[scan_id]
@@ -415,4 +425,30 @@ class BackupDeviceCollection:
     def backup_type(self, path):
         return self.devices[path].backup_type
 
+    def multiple_backup_devices(self, file_type: FileType) -> bool:
+        """
+
+        :param file_type: whether the file is a photo or video
+        :return: True if more than one backup device is being used for
+        the file type
+        """
+        return ((file_type == FileType.photo and
+                 self.no_photo_backup_devices > 1) or
+                (file_type == FileType.video and
+                 self.no_video_backup_devices > 1))
+
+    def backup_possible(self, file_type: FileType) -> bool:
+        """
+
+        :param file_type: whether the file is a photo or video
+        :return: True if more a backup device is being used for
+        the file type
+        """
+        if file_type == FileType.photo:
+            return self.no_photo_backup_devices > 0
+        elif file_type == FileType.video:
+            return self.no_video_backup_devices > 0
+        else:
+            logging.critical("Unrecognized file type when determining if "
+                           "backup is possible")
 
