@@ -102,11 +102,7 @@ class CopyFilesWorker(WorkerInPublishPullPipeline):
                 self.camera.free_camera()
 
     def update_progress(self, amount_downloaded, total):
-        assert amount_downloaded > 0
-        assert total > 0
         chunk_downloaded = amount_downloaded - self.bytes_downloaded
-        assert chunk_downloaded >= 0
-        assert self.total_downloaded >= 0
         if (chunk_downloaded > self.batch_size_bytes) or (
             amount_downloaded == total):
             self.bytes_downloaded = amount_downloaded
@@ -360,7 +356,6 @@ class CopyFilesWorker(WorkerInPublishPullPipeline):
             # increment this amount regardless of whether the copy actually
             # succeeded or not. It's necessary to keep the user informed.
             self.total_downloaded += rpd_file.size
-            assert self.total_downloaded >= 0
 
             if copy_succeeded:
                 try:

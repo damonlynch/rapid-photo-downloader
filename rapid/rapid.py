@@ -107,7 +107,7 @@ class ScanManager(PublishPullPipelineManager):
 class CopyFilesManager(PublishPullPipelineManager):
     message = QtCore.pyqtSignal(bool, RPDFile, int)
     tempDirs = QtCore.pyqtSignal(int, str,str)
-    bytesDownloaded = QtCore.pyqtSignal(int, int, int)
+    bytesDownloaded = QtCore.pyqtSignal(bytes)
     def __init__(self, context: zmq.Context):
         super(CopyFilesManager, self).__init__(context)
         self._process_name = 'Copy Files Manager'
@@ -120,10 +120,10 @@ class CopyFilesManager(PublishPullPipelineManager):
             assert data.scan_id is not None
             assert data.chunk_downloaded >= 0
             assert data.total_downloaded >= 0
-            print("process_sink_data data.total_downloaded:",
-                  data.total_downloaded)
-            self.bytesDownloaded.emit(data.scan_id, data.total_downloaded,
-                                      data.chunk_downloaded)
+            # Emit the unpickled data, as when PyQt converts an int to a
+            # C++ int, python ints larger that the maximum C++ int are
+            # corrupted
+            self.bytesDownloaded.emit(self.content)
 
         elif data.copy_succeeded is not None:
             assert data.rpd_file is not None
@@ -790,9 +790,12 @@ class RapidWindow(QMainWindow):
     # def copyfilesThumbnail(self, rpd_file: RPDFile, thumbnail: QPixmap):
     #     self.thumbnailModel.
 
-    def copyfilesBytesDownloaded(self, scan_id: int, total_downloaded: int,
-                                 chunk_downloaded: int):
-        print("copyfilesBytesDownloaded total_downloaded:", total_downloaded)
+    def copyfilesBytesDownloaded(self, pickled_data: bytes):
+        data = pickle.loads(pickled_data)
+        """ :type : CopyFilesResults"""
+        scan_id = data.scan_id
+        total_downloaded = data.total_downloaded
+        chunk_downloaded = data.chunk_downloaded
         assert total_downloaded >= 0
         assert chunk_downloaded >= 0
         self.download_tracker.set_total_bytes_copied(scan_id,
