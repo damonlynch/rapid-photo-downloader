@@ -37,7 +37,6 @@ import gphoto2 as gp
 from interprocess import (WorkerInPublishPullPipeline, CopyFilesArguments,
                           CopyFilesResults)
 from constants import FileType, DownloadStatus
-from thumbnail import Thumbnail
 from utilities import (GenerateRandomFileName, create_temp_dirs)
 from rpdfile import RPDFile
 
@@ -308,15 +307,23 @@ class CopyFilesWorker(WorkerInPublishPullPipeline):
                     # relatively small jpegs being copied locally
                     shutil.move(rpd_file.cache_full_file_name,
                                 temp_full_file_name)
-                    os.utime(temp_full_file_name, (rpd_file.modification_time,
-                                          rpd_file.modification_time))
                     copy_succeeded = True
+                except OSError as inst:
+                    copy_succeeded = False
+                #     #TODO log error
+                if copy_succeeded:
+                    try:
+                        os.utime(temp_full_file_name,
+                                 (rpd_file.modification_time,
+                                  rpd_file.modification_time))
+                    except OSError as inst:
+                        logging.warning(
+                            "Could not update filesystem metadata when "
+                            "copying %s",
+                            rpd_file.full_file_name)
                     if self.verify_file:
                         rpd_file.md5 = hashlib.md5(open(
                             temp_full_file_name).read()).hexdigest()
-                except (IOError, OSError) as inst:
-                    copy_succeeded = False
-                    #TODO log error
                 self.update_progress(rpd_file.size, rpd_file.size)
 
             else:

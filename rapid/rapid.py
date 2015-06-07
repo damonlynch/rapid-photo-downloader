@@ -909,7 +909,8 @@ class RapidWindow(QMainWindow):
             self.updateTimeRemaining()
 
         if completed:
-            # Last file for this scan id has been downloaded, so clean temp directory
+            # Last file for this scan id has been downloaded, so clean temp
+            # directory
             logging.debug("Purging temp directories")
             self.cleanTempDirsForScanId(scan_id)
             if self.prefs.move:
@@ -949,9 +950,9 @@ class RapidWindow(QMainWindow):
 
     def updateTimeRemaining(self):
         update, download_speed = self.time_check.check_for_update()
-        #TODO implement label showing download time remaining
-        if update and False:
-            self.speedLabel.set_text(download_speed)
+        if update:
+            # TODO implement label showing download speed
+            # self.speedLabel.set_text(download_speed)
 
             time_remaining = self.time_remaining.time_remaining()
             if time_remaining:
@@ -978,8 +979,7 @@ class RapidWindow(QMainWindow):
                               % {
                               'minutes': secs / 60, 'seconds': secs % 60}
 
-                self.rapid_statusbar.pop(self.statusbar_context_id)
-                self.rapid_statusbar.push(self.statusbar_context_id, message)
+                self.statusBar().showMessage(message)
 
     def enablePrefsAndRefresh(self, enabled: bool):
         """
@@ -1976,7 +1976,6 @@ if __name__ == "__main__":
     app.setOrganizationName("Rapid Photo Downloader")
     app.setOrganizationDomain("damonlynch.net")
     app.setApplicationName("Rapid Photo Downloader")
-    #FIXME move this to qrc file, so it doesn't fail when cwd is different
     app.setWindowIcon(QtGui.QIcon(':/rapid-photo-downloader.svg'))
 
     rw = RapidWindow()

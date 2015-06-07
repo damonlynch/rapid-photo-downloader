@@ -307,7 +307,8 @@ class TimeCheck:
             self.time_mark = now
             amt_downloaded = self.total_downloaded_so_far - self.size_mark
             self.size_mark = self.total_downloaded_so_far
-            download_speed = "%1.1f" % (amt_downloaded / 1048576 / amt_time) +_("MB/s")
+            download_speed = "%1.1f" % (
+                            amt_downloaded / 1048576 / amt_time) + _("MB/s")
         else:
             download_speed = None
 
