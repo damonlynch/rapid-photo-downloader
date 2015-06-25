@@ -19,6 +19,21 @@ __author__ = 'Damon Lynch'
 # along with Rapid Photo Downloader.  If not,
 # see <http://www.gnu.org/licenses/>.
 
+
+"""
+Rapid Photo Downloader deals with three types of cache:
+1. An image cache whose sole purpose is to store thumbnails of scanned images
+   that have not necessarily been downloaded, but may have. This is only used
+   by Rapid Photo Downloader.
+
+2. A cache of actual full files downloaded from a camera, which are then used
+   to extract the thumbnail from. Since these same files could be downloaded,
+   it makes sense to keep them cached until the program exits.
+
+3. The freedesktop.org thumbnail cache, for files that have been downloaded:
+http://specifications.freedesktop.org/thumbnail-spec/thumbnail-spec-latest.html
+"""
+
 import os
 import sys
 import logging
@@ -43,7 +58,7 @@ from interprocess import (WorkerInPublishPullPipeline,
 
 from filmstrip import add_filmstrip
 
-from constants import (Downloaded, FileType, ThumbnailSize)
+from constants import (Downloaded, FileType, ThumbnailSize, ThumbnailStatus)
 from camera import (Camera, CopyChunks)
 from utilities import (GenerateRandomFileName, create_temp_dir, CacheDirs)
 from storage import get_program_cache_directory
@@ -347,6 +362,8 @@ class Thumbnail:
     def __init__(self, rpd_file: RPDFile, camera: Camera,
                  thumbnail_quality_lower: bool,
                  cache_thumbnail: CacheThumbnail,
+                 generate_sys_cache_thumbs_only_if_optimal: bool=False,
+                 must_generate_sys_cache_thumbs: bool=False,
                  cache_file_from_camera: bool=False,
                  photo_cache_dir: str=None,
                  video_cache_dir: str=None,
@@ -360,6 +377,24 @@ class Thumbnail:
         :param cache_thumbnail: used to cache thumbnails on the file
          system. Not to be confused with caching files for use in the
          download process.
+        :param generate_sys_cache_thumbs_only_if_optimal: If True,
+         attempt to generate image previews for eventual storage in the
+         system thumbnail directory i.e.
+         $XDG_CACHE_HOME/thumbnails/normal and
+         $XDG_CACHE_HOME/thumbnails/large. However only generate them
+         if and only if performance will not be overly impacted. For
+         example, if a 160x120 thumbnails is embedded in a file with
+         horizontal alignment, then generate a 128x102 thumbnail but
+         not a 256x204. thumbnail. If generated, they will be  stored
+         in the rpd_file as PNG images. If not, their value will be
+         unchanged.
+        :param must_generate_sys_cache_thumbs: If True,
+         attempt to generate image previews for eventual storage in the
+         system thumbnail directory i.e.
+         $XDG_CACHE_HOME/thumbnails/normal and
+         $XDG_CACHE_HOME/thumbnails/large. If generated, they will be
+         stored in the rpd_file as PNG images. If not, their value will
+         be unchanged.
         :param cache_file_from_camera: if True, get the file from the
          camera, save it in cache directory, and extract thumbnail from
          it. Otherwise,
@@ -380,6 +415,9 @@ class Thumbnail:
             self.thumbnail_transform = Qt.FastTransformation
         else:
             self.thumbnail_transform = Qt.SmoothTransformation
+        self.generate_sys_cache_thumbs_only_if_optimal = \
+            generate_sys_cache_thumbs_only_if_optimal
+        self.must_generate_sys_cache_thumbs = must_generate_sys_cache_thumbs
         self.cache_file_from_camera = cache_file_from_camera
         if cache_file_from_camera:
             assert photo_cache_dir is not None
@@ -402,7 +440,8 @@ class Thumbnail:
 
     def _get_photo_thumbnail(self, file_name, size: QSize) -> QImage:
         """
-        Returns a correctly sized and rotated thumbnail for the file
+        Returns a correctly sized and rotated thumbnail for the file,
+        which is asssumed to be on a directly readable file system
 
         :param file_name: photo from which to get the thumbnail
         :param size: size of the thumbnail needed (maximum height and
@@ -491,22 +530,46 @@ class Thumbnail:
 
         if thumbnail is not None and not thumbnail.isNull():
             if size is not None:
-                thumbnail = thumbnail.scaled(size, Qt.KeepAspectRatio,
+                sized_thumbnail = thumbnail.scaled(size, Qt.KeepAspectRatio,
                                              self.thumbnail_transform)
 
             if orientation == self.rotate_90:
-                thumbnail = thumbnail.transformed(QTransform().rotate(90))
+                sized_thumbnail = sized_thumbnail.transformed(QTransform(
+                ).rotate(90))
             elif orientation == self.rotate_270:
-                thumbnail = thumbnail.transformed(QTransform().rotate(270))
+                sized_thumbnail = sized_thumbnail.transformed(QTransform(
+                ).rotate(270))
             elif orientation == self.rotate_180:
-                thumbnail = thumbnail.transformed(QTransform().rotate(180))
+                sized_thumbnail = sized_thumbnail.transformed(QTransform(
+                ).rotate(180))
+
+            if self.rpd_file.system_thumbnail_128 is None:
+                self.generate_system_cache_thumbs(thumbnail, sized_thumbnail)
 
             self.cache_thumbnail.save_thumbnail(
                 self.rpd_file.full_file_name,self. rpd_file.size,
                 self.rpd_file.modification_time, thumbnail, self.camera_model)
         else:
-            thumbnail = self.stock_photo
-        return thumbnail
+            sized_thumbnail = self.stock_photo
+        return sized_thumbnail
+
+    def generate_system_cache_thumbs(self, ):
+        """
+        Create a system cache thumbnail, i.e. one available to file
+        managers etc.
+        """
+        #
+        #
+        # The thumbnail size should be no greater than 128x128.
+        if sized_thumbnail.width() >= 128 or sized_thumbnail.height(
+        ) > 128:
+            system_thumbnail = sized_thumbnail.scaled(
+                128, 128, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+        elif sized_thumbnail.width() < 128 and \
+                        sized_thumbnail.height() < 128:
+            if thumbnail.size() >= 128 or thumbnail.size >= 128:
+                system_thumbnail = thumbnail.scaled(128, 128,
+                        Qt.KeepAspectRatio, Qt.SmoothTransformation)
 
     def _cache_full_size_file_from_camera(self) -> bool:
         """
@@ -810,9 +873,15 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
                 rpd_file.full_file_name, rpd_file.modification_time,
                 arguments.camera)
 
-            if thumbnail_icon is None:
+            if thumbnail_icon is not None:
+                if camera is not None:
+                    if camera.can_fetch_thumbnails:
+                        rpd_file.thumbnail_status = \
+                            ThumbnailStatus.from_rpd_cache_sys_write_invalid
+            else:
                 thumbnail = Thumbnail(rpd_file, camera,
                               arguments.thumbnail_quality_lower,
+                              generate_sys_cache_thumbs=True,
                               cache_thumbnail=cache_thumbnail,
                               cache_file_from_camera=cache_file_from_camera,
                               photo_cache_dir=photo_cache_dir,

@@ -203,7 +203,7 @@ class ThumbnailTableModel(QAbstractTableModel):
             self.rapidApp.devices[scan_id].video_cache_dir = \
                 cache_dirs.video_cache_dir
 
-    def thumbnailReceived(self, rpd_file, thumbnail):
+    def thumbnailReceived(self, rpd_file: RPDFile, thumbnail: QPixmap):
         unique_id = rpd_file.unique_id
         self.rpd_files[unique_id] = rpd_file
         row = self.rowFromUniqueId(unique_id)

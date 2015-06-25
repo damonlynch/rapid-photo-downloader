@@ -97,12 +97,14 @@ class RenameMoveFileManager(PushPullDaemonManager):
         self.message.emit(data.move_succeeded, data.rpd_file,
                           data.download_count)
 
+
 class ScanManager(PublishPullPipelineManager):
     message = QtCore.pyqtSignal(RPDFile)
     def __init__(self, context: zmq.Context):
         super(ScanManager, self).__init__(context)
         self._process_name = 'Scan Manager'
         self._process_to_run = 'scan.py'
+
 
 class CopyFilesManager(PublishPullPipelineManager):
     message = QtCore.pyqtSignal(bool, RPDFile, int)
@@ -783,8 +785,9 @@ class RapidWindow(QMainWindow):
         self.download_tracker.set_download_count(rpd_file.scan_id,
                                                  download_count)
         rpd_file.download_start_time = self.download_start_time
+        thumbnail = self.thumbnailModel.thumbnails[rpd_file.unique_id]
         data = RenameAndMoveFileData(rpd_file, download_count,
-                                   download_succeeded)
+                                   download_succeeded, thumbnail)
         self.renamemq.rename_file(data)
 
     # def copyfilesThumbnail(self, rpd_file: RPDFile, thumbnail: QPixmap):

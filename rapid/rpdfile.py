@@ -29,7 +29,7 @@ from collections import Counter
 import exiftool
 from gettext import gettext as _
 
-from constants import (DownloadStatus, FileType)
+from constants import (DownloadStatus, FileType, ThumbnailStatus)
 import metadataphoto
 import metadatavideo
 
@@ -231,9 +231,9 @@ class RPDFile:
 
         self.job_code = None
 
-        # indicates whether to generate a thumbnail during the copy
-        # files process
-        self.generate_thumbnail = False
+        self.thumbnail_status = ThumbnailStatus.not_ready
+        self.system_thumbnail_128 = None
+        self.system_thumbnail_256 = None
 
         # generated values
 

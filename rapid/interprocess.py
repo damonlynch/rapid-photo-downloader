@@ -27,7 +27,9 @@ import shlex
 import time
 
 from psutil import (Process, wait_procs, pid_exists)
+
 from PyQt5.QtCore import (pyqtSignal, QObject)
+from PyQt5.QtGui import QPixmap
 
 import zmq
 
@@ -602,10 +604,11 @@ class RenameAndMoveFileData:
     Pass arguments to the renameandmovefile process
     """
     def __init__(self, rpd_file: RPDFile, download_count: int,
-                 download_succeeded: bool):
+                 download_succeeded: bool, thumbnail: QPixmap):
         self.rpd_file = rpd_file
         self.download_count = download_count
         self.download_succeeded = download_succeeded
+        self.thumbnail = thumbnail
 
 
 class RenameAndMoveFileResults:

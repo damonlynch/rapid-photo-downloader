@@ -2,7 +2,7 @@ Version x.x.x
 -------------
 
 New features:
-* Download from all cameras supported by gphoto2
+* Download from all cameras supported by gphoto2, including smartphones
 * Cache thumbnails generated when a device is scanned
 * Generate system thumbnails for downloaded files
 * Remember files that have already been downloaded
@@ -12,7 +12,7 @@ Changes under the hood:
 * Switch from Python 2.7 to Python 3.4
 * Switch from python multi-processing to 0mq
 * Switch from pyexiv2 to GExiv2
-* Switch from PyGtk to PyQt 5.4
+* Switch from PyGtk 2 to PyQt 5.4
 
 Missing features:
 * Program configuration (preferences) must be manually modified

@@ -58,6 +58,12 @@ Downloaded = (DownloadStatus.downloaded,
               DownloadStatus.downloaded_with_warning,
               DownloadStatus.backup_problem)
 
+class ThumbnailStatus(Enum):
+    not_ready = 1
+    from_rpd_cache_sys_write_invalid = 2
+    suitable_for_rpd_cache_write = 3
+    suitable_for_system_cache_write = 4
+
 class BackupLocationType(Enum):
     photos = 1
     videos = 2

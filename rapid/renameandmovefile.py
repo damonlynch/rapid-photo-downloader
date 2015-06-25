@@ -34,6 +34,8 @@ import errno
 import logging
 import pickle
 
+from PyQt5.QtGui import QPixmap
+
 import exiftool
 import generatename as gn
 import problemnotification as pn
@@ -695,6 +697,17 @@ class RenameMoveFileWorker(DaemonProcess):
 
         return move_succeeded
 
+    def process_renamed_file(self, rpd_file: RPDFile, thumbnail: QPixmap):
+        pass
+        # TODO confirm thumbnail is able to be put in system wide cache
+        # rule:
+        # only photos with confirmed thumbnails
+        # not from RAW from camera, as orientation might be wrong
+        # might need to update main display
+
+
+        # TODO what about thumbnails not yet generated?
+
     def run(self):
         """
         Generate subfolder and filename, and attempt to move the file
@@ -733,6 +746,10 @@ class RenameMoveFileWorker(DaemonProcess):
                                                        download_count)
                     if not move_succeeded:
                         self.process_rename_failure(rpd_file)
+                    else:
+                        # Add system-wide thumbnail and record downloaded
+                        # file in SQLite database
+                        self.process_renamed_file(rpd_file, data.thumbnail)
                 else:
                     move_succeeded = False
 
