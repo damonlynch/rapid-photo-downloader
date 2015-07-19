@@ -29,7 +29,7 @@ from collections import Counter
 import exiftool
 from gettext import gettext as _
 
-from constants import (DownloadStatus, FileType, ThumbnailStatus)
+from constants import (DownloadStatus, FileType, ThumbnailCacheStatus)
 import metadataphoto
 import metadatavideo
 
@@ -72,18 +72,18 @@ def file_type(file_extension: str) -> FileType:
 def get_rpdfile(name, path, size,
                 file_system_modification_time,
                 thm_full_name, audio_file_full_name,
-                scan_id, file_type, from_camera):
+                scan_id, file_type, from_camera, camera_model):
 
     if file_type == FileType.video:
         return Video(name, path, size,
                      file_system_modification_time, thm_full_name,
                      audio_file_full_name,
-                     scan_id, from_camera)
+                     scan_id, from_camera, camera_model)
     else:
         return Photo(name, path, size,
                      file_system_modification_time, thm_full_name,
                      audio_file_full_name,
-                     scan_id, from_camera)
+                     scan_id, from_camera, camera_model)
 
 def file_types_by_number(no_photos: int, no_videos:int) -> str:
         """
@@ -181,7 +181,8 @@ class RPDFile:
                  modification_time: float, thm_full_name: str,
                  audio_file_full_name: str,
                  scan_id: bytes,
-                 from_camera: bool):
+                 from_camera: bool,
+                 camera_model: str=None):
         """
 
         :param name: filename
@@ -189,15 +190,18 @@ class RPDFile:
         :param size: file size
         :param modification_time: file modification time
         :param thm_full_name: name and path of and associated thumbnail
-               file
+         file
         :param audio_file_full_name: name and path of any associated
-               audio file
+         audio file
         :param scan_id: id of the scan
         :param from_camera: whether the file is being downloaded from a
-               camera
+         camera
+        :param camera_model: if downloaded from a camera, the camera
+         model name (not including the port)
         """
 
         self.from_camera = from_camera
+        self.camera_model = camera_model
 
         self.path = path
 
@@ -231,9 +235,11 @@ class RPDFile:
 
         self.job_code = None
 
-        self.thumbnail_status = ThumbnailStatus.not_ready
-        self.system_thumbnail_128 = None
-        self.system_thumbnail_256 = None
+        # freedesktop.org cache thumbnails
+        # http://specifications.freedesktop.org/thumbnail-spec/thumbnail-spec-latest.html
+        self.thumbnail_status = ThumbnailCacheStatus.not_ready
+        self.fdo_thumbnail_128 = None
+        self.fdo_thumbnail_256 = None
 
         # generated values
 

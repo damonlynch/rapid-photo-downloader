@@ -599,24 +599,25 @@ class CopyFilesResults:
         self.rpd_file = rpd_file
         self.download_count = download_count
 
+
 class RenameAndMoveFileData:
     """
     Pass arguments to the renameandmovefile process
     """
     def __init__(self, rpd_file: RPDFile, download_count: int,
-                 download_succeeded: bool, thumbnail: QPixmap):
+                 download_succeeded: bool):
         self.rpd_file = rpd_file
         self.download_count = download_count
         self.download_succeeded = download_succeeded
-        self.thumbnail = thumbnail
 
 
 class RenameAndMoveFileResults:
     def __init__(self, move_succeeded: bool, rpd_file: RPDFile,
-                 download_count: int):
+                 download_count: int, png_data: bytes):
         self.move_succeeded = move_succeeded
         self.rpd_file = rpd_file
         self.download_count = download_count
+        self.png_data = png_data
 
 
 class BackupArguments:

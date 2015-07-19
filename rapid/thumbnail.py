@@ -20,20 +20,6 @@ __author__ = 'Damon Lynch'
 # see <http://www.gnu.org/licenses/>.
 
 
-"""
-Rapid Photo Downloader deals with three types of cache:
-1. An image cache whose sole purpose is to store thumbnails of scanned images
-   that have not necessarily been downloaded, but may have. This is only used
-   by Rapid Photo Downloader.
-
-2. A cache of actual full files downloaded from a camera, which are then used
-   to extract the thumbnail from. Since these same files could be downloaded,
-   it makes sense to keep them cached until the program exits.
-
-3. The freedesktop.org thumbnail cache, for files that have been downloaded:
-http://specifications.freedesktop.org/thumbnail-spec/thumbnail-spec-latest.html
-"""
-
 import os
 import sys
 import logging
@@ -41,10 +27,8 @@ import pickle
 import tempfile
 import subprocess
 import shlex
-import hashlib
 from operator import attrgetter
 from collections import deque
-from urllib.request import pathname2url
 
 from PyQt5.QtGui import QImage, QTransform
 from PyQt5.QtCore import QSize, Qt, QIODevice, QBuffer
@@ -58,10 +42,11 @@ from interprocess import (WorkerInPublishPullPipeline,
 
 from filmstrip import add_filmstrip
 
-from constants import (Downloaded, FileType, ThumbnailSize, ThumbnailStatus)
+from constants import (Downloaded, FileType, ThumbnailSize, ThumbnailCacheStatus)
 from camera import (Camera, CopyChunks)
+from cache import ThumbnailCache
 from utilities import (GenerateRandomFileName, create_temp_dir, CacheDirs)
-from storage import get_program_cache_directory
+
 
 #FIXME free camera in case of early termination
 
@@ -215,137 +200,22 @@ def try_to_use_embedded_thumbnail(size: QSize,
     return width_sought <= thumbnail_width and height_sought <= \
                                                thumbnail_height
 
-
-"""
-Notes to self:
-
-Same file detection:
-filename, size, modification_time
-Save in SQL: filename, size, modification_time
-don't care about path. Save once file is confirmed as downloaded.
-Also need to know: time downloaded (to prioritize deletion)
-
-System thumbnail:
-full URI, modification time: different if modification time !=
-Required PNG atttributes: Thumb::URI, Thumb::MTime
-Size: 128x128 and 256x256
-MD5 hash for URL
-save in $XDG_CACHE_HOME/thumbnails/normal $XDG_CACHE_HOME/thumbnails/large
-"""
-
-class CacheThumbnail:
+def qimage_to_png_buffer(image: QImage) -> QBuffer:
     """
-    Creates a thumbnail cache in the Rapid Photo Downloader cache
-    directory. Saves and checks for presence of thumbnails in it.
-    Mostly conforms to
-    http://specifications.freedesktop.org/thumbnail-spec/thumbnail-spec-latest.html
-    But does not check or change the image format.
+    Save the image data in PNG format in a QBuffer, whose data can then
+    be extracted using the data() member function.
+    :param image: the image to be converted
+    :return: the buffer
     """
-    def __init__(self):
-        cache_dir = get_program_cache_directory(create_if_not_exist=True)
-        self.valid = cache_dir is not None
-        self.cache_dir = self.random_filename = self.fs_encoding = None
-        assert sys.platform.startswith('linux')
-        if self.valid:
-            self.cache_dir = os.path.join(cache_dir, 'thumbnails/normal')
-            try:
-                if not os.path.exists(self.cache_dir):
-                    os.makedirs(self.cache_dir, 0o700)
-                    logging.info("Created thumbnails cache %s", self.cache_dir)
-                elif not os.path.isdir(self.cache_dir):
-                    os.remove(self.cache_dir)
-                    logging.warning("Removed file %s", self.cache_dir)
-                    os.makedirs(self.cache_dir, 0o700)
-                    logging.info("Created thumbnails cache %s", self.cache_dir)
-            except:
-                logging.error("Failed to create thumbnails cache %s",
-                              self.cache_dir)
-                self.valid = False
-                self.cache_dir = None
-            else:
-                self.random_filename = GenerateRandomFileName()
-                self.fs_encoding = sys.getfilesystemencoding()
-
-    def md5_hash_name(self, full_file_name: str, camera_model: str):
-        if camera_model is None:
-            prefix = 'file://'
-            path = os.path.abspath(full_file_name)
-        else:
-            # This is not a system standard: I'm using this for my own
-            # purposes (the port is not included)
-            prefix = 'gphoto2://'
-            path = '{}/{}'.format(camera_model, full_file_name)
-
-        uri = '{}{}'.format(prefix, pathname2url(path))
-        return '{}.png'.format(hashlib.md5(uri.encode(
-            self.fs_encoding)).hexdigest())
-
-    def save_thumbnail(self, full_file_name: str, size: int,
-                       modification_time, thumbnail: QImage,
-                       camera_model: str=None) -> str:
-        """
-        Save a thumbnail in the thumbnail cache.
-        :param full_file_name: full path of the file (including file
-        name). Will be turned into an absolute path if it is a file
-        system path
-        :param size: size of the file in bytes
-        :param modification_time: file modification time, to be turned
-         into a float if it's not already
-        :param thumbnail: the thumbnail to be saved. Will not be
-         resized.
-        :param camera_model: optional camera model. If the thumbnail is
-         not from a camera, then should be None.
-        :return the path of the saved file, else None if operation failed
-        """
-        if not self.valid:
-            return None
-
-        path = os.path.join(self.cache_dir,
-                            self.md5_hash_name(full_file_name, camera_model))
-        thumbnail.setText('Thumb::URI', path)
-        thumbnail.setText('Thumb::MTime', str(float(modification_time)))
-        thumbnail.setText('Thumb::Size', str(size))
-
-        #TODO assign proper format - important for system
-        temp_path = os.path.join(self.cache_dir, self.random_filename.name(
-            extension='png'))
-        if thumbnail.save(temp_path):
-            os.rename(temp_path, path)
-            os.chmod(path, 0o600)
-            return path
-        else:
-            return None
-
-    def get_thumbnail(self, full_file_name: str, modification_time,
-                      camera_model: str=None) -> QImage:
-        """
-        Attempt to retrieve a thumbnail from the thumbnail cache.
-        :param full_file_name: full path of the file (including file
-        name). Will be turned into an absolute path if it is a file
-        system path
-        :param modification_time: file modification time, to be turned
-         into a float if it's not already
-        :param camera_model: optional camera model. If the thumbnail is
-         not from a camera, then should be None.
-        :return the thumbnail if it was found, else None
-        """
-
-        if not self.valid:
-            return None
-        path = os.path.join(self.cache_dir,
-                            self.md5_hash_name(full_file_name, camera_model))
-        if os.path.exists(path):
-            png = QImage(path)
-            if not png.isNull():
-                mtime = float(png.text('Thumb::MTime'))
-                if mtime == float(modification_time):
-                    return png
-        return None
-
+    buffer = QBuffer()
+    buffer.open(QIODevice.WriteOnly)
+    image.save(buffer, "PNG")
+    return buffer
 
 class Thumbnail:
     """
-    Extract thumbnails from a photo or video in QImage format
+    Extract thumbnails from a photo or video in QImage format, and
+    optionally generate thumbnails to be cached
     """
 
     # file types from which to remove letterboxing (black bands in the
@@ -361,43 +231,42 @@ class Thumbnail:
 
     def __init__(self, rpd_file: RPDFile, camera: Camera,
                  thumbnail_quality_lower: bool,
-                 cache_thumbnail: CacheThumbnail,
-                 generate_sys_cache_thumbs_only_if_optimal: bool=False,
-                 must_generate_sys_cache_thumbs: bool=False,
+                 thumbnail_cache: ThumbnailCache,
+                 generate_fdo_thumbs_only_if_optimal: bool=False,
+                 must_generate_fdo_thumbs: bool=False,
                  cache_file_from_camera: bool=False,
                  photo_cache_dir: str=None,
                  video_cache_dir: str=None,
                  check_for_command=None):
         """
+        For definitions of the three different types of cache, see
+        cache.py
         :param rpd_file: file from which to extract the thumbnails
         :param camera: if not None, the camera from which to get the
          thumbnails
         :param thumbnail_quality_lower: whether to generate the
          thumbnail high or low quality as it is scaled by Qt
-        :param cache_thumbnail: used to cache thumbnails on the file
+        :param thumbnail_cache: used to cache thumbnails on the file
          system. Not to be confused with caching files for use in the
-         download process.
-        :param generate_sys_cache_thumbs_only_if_optimal: If True,
+         download process. If None, don't cache.
+        :param generate_fdo_thumbs_only_if_optimal: If True,
          attempt to generate image previews for eventual storage in the
-         system thumbnail directory i.e.
+         freedesktop.org thumbnail directory i.e.
          $XDG_CACHE_HOME/thumbnails/normal and
          $XDG_CACHE_HOME/thumbnails/large. However only generate them
          if and only if performance will not be overly impacted. For
          example, if a 160x120 thumbnails is embedded in a file with
          horizontal alignment, then generate a 128x102 thumbnail but
          not a 256x204. thumbnail. If generated, they will be  stored
-         in the rpd_file as PNG images. If not, their value will be
-         unchanged.
-        :param must_generate_sys_cache_thumbs: If True,
-         attempt to generate image previews for eventual storage in the
-         system thumbnail directory i.e.
-         $XDG_CACHE_HOME/thumbnails/normal and
-         $XDG_CACHE_HOME/thumbnails/large. If generated, they will be
-         stored in the rpd_file as PNG images. If not, their value will
-         be unchanged.
+         in the rpd_file as raw PNG image data. If not, their value
+         will be unchanged.
+        :param must_generate_fdo_thumbs: If True, attempt to generate
+         image previews for eventual storage in the freedesktop.org
+         thumbnail directory (as with previous option), but in both
+         large and normal sizes
         :param cache_file_from_camera: if True, get the file from the
-         camera, save it in cache directory, and extract thumbnail from
-         it. Otherwise,
+         camera, save it in download cache, and extract thumbnail
+         from it.
         :param photo_cache_dir: if specified, the folder in which
          full size photos from a camera should be cached
         :param video_cache_dir: if specified, the folder in which
@@ -406,22 +275,23 @@ class Thumbnail:
         self.rpd_file = rpd_file
         self.metadata = None
         self.camera = camera
-        if camera is not None:
-            self.camera_model = camera.model
+        if camera is not None or rpd_file.from_camera:
+            self.camera_model = rpd_file.camera_model
         else:
             self.camera_model= None
-        self.cache_thumbnail =  cache_thumbnail
-        if thumbnail_quality_lower:
-            self.thumbnail_transform = Qt.FastTransformation
-        else:
-            self.thumbnail_transform = Qt.SmoothTransformation
-        self.generate_sys_cache_thumbs_only_if_optimal = \
-            generate_sys_cache_thumbs_only_if_optimal
-        self.must_generate_sys_cache_thumbs = must_generate_sys_cache_thumbs
+        self.thumbnail_cache =  thumbnail_cache
+        self.generate_fdo_thumbs_only_if_optimal = \
+            generate_fdo_thumbs_only_if_optimal
+        self.must_generate_fdo_thumbs = must_generate_fdo_thumbs
         self.cache_file_from_camera = cache_file_from_camera
         if cache_file_from_camera:
             assert photo_cache_dir is not None
             assert video_cache_dir is not None
+        if generate_fdo_thumbs_only_if_optimal or must_generate_fdo_thumbs \
+                or not thumbnail_quality_lower:
+            self.thumbnail_transform = Qt.SmoothTransformation
+        else:
+            self.thumbnail_transform = Qt.FastTransformation
         self.photo_cache_dir = photo_cache_dir
         self.video_cache_dir = video_cache_dir
         self.random_filename = GenerateRandomFileName()
@@ -478,7 +348,8 @@ class Thumbnail:
                         "Unable to create a thumbnail out of the jpeg "
                         "{}".format(file_name))
 
-        if self.metadata and thumbnail is None:
+        if self.metadata and (thumbnail is None or
+                                  self.must_generate_fdo_thumbs):
             ignore_embedded_thumbnail = not try_to_use_embedded_thumbnail(size)
             self.previews = self.metadata.get_preview_properties()
             self.is_jpeg = self.metadata.get_mime_type() == "image/jpeg"
@@ -490,7 +361,8 @@ class Thumbnail:
                 if self.metadata.get_exif_thumbnail():
                     ignore_embedded_thumbnail = False
 
-            if not ignore_embedded_thumbnail:
+            if not ignore_embedded_thumbnail and not (self.previews and
+                    self.must_generate_fdo_thumbs):
                 thumbnail = QImage.fromData(self.metadata.get_exif_thumbnail())
                 if thumbnail.isNull():
                     logging.warning("Could not extract thumbnail from {"
@@ -527,54 +399,97 @@ class Thumbnail:
                     "Unable to create a thumbnail out of the jpeg: "
                     "{}".format(file_name))
 
-
         if thumbnail is not None and not thumbnail.isNull():
             if size is not None:
                 sized_thumbnail = thumbnail.scaled(size, Qt.KeepAspectRatio,
                                              self.thumbnail_transform)
+            else:
+                sized_thumbnail = thumbnail
 
-            if orientation == self.rotate_90:
-                sized_thumbnail = sized_thumbnail.transformed(QTransform(
-                ).rotate(90))
-            elif orientation == self.rotate_270:
-                sized_thumbnail = sized_thumbnail.transformed(QTransform(
-                ).rotate(270))
-            elif orientation == self.rotate_180:
-                sized_thumbnail = sized_thumbnail.transformed(QTransform(
-                ).rotate(180))
+            sized_thumbnail = self.rotate_thumb(sized_thumbnail, orientation)
 
-            if self.rpd_file.system_thumbnail_128 is None:
-                self.generate_system_cache_thumbs(thumbnail, sized_thumbnail)
+            if self.generate_fdo_thumbs_only_if_optimal or \
+                    self.must_generate_fdo_thumbs:
+                self._generate_fdo_cache_thumbs(thumbnail,
+                                                  sized_thumbnail, orientation)
+            self.rpd_file.thumbnail_status = \
+                ThumbnailCacheStatus.suitable_for_fdo_cache_write
 
-            self.cache_thumbnail.save_thumbnail(
-                self.rpd_file.full_file_name,self. rpd_file.size,
-                self.rpd_file.modification_time, thumbnail, self.camera_model)
+            if self.thumbnail_cache is not None:
+                self.thumbnail_cache.save_thumbnail(
+                    self.rpd_file.full_file_name,self.rpd_file.size,
+                    self.rpd_file.modification_time, sized_thumbnail,
+                    self.camera_model)
         else:
             sized_thumbnail = self.stock_photo
         return sized_thumbnail
 
-    def generate_system_cache_thumbs(self, ):
+    def rotate_thumb(self, thumbnail, orientation):
+        if orientation == self.rotate_90:
+            thumbnail = thumbnail.transformed(QTransform(
+            ).rotate(90))
+        elif orientation == self.rotate_270:
+            thumbnail = thumbnail.transformed(QTransform(
+            ).rotate(270))
+        elif orientation == self.rotate_180:
+            thumbnail = thumbnail.transformed(QTransform(
+            ).rotate(180))
+        return thumbnail
+
+    def _generate_fdo_cache_thumbs(self, thumbnail: QImage,
+                                     sized_thumbnail: QImage,
+                                     orientation: str):
         """
-        Create a system cache thumbnail, i.e. one available to file
+        Create a freedesktop.org cache thumbnail, i.e. one available to file
         managers etc.
         """
-        #
-        #
-        # The thumbnail size should be no greater than 128x128.
-        if sized_thumbnail.width() >= 128 or sized_thumbnail.height(
-        ) > 128:
-            system_thumbnail = sized_thumbnail.scaled(
-                128, 128, Qt.KeepAspectRatio, Qt.SmoothTransformation)
-        elif sized_thumbnail.width() < 128 and \
-                        sized_thumbnail.height() < 128:
-            if thumbnail.size() >= 128 or thumbnail.size >= 128:
-                system_thumbnail = thumbnail.scaled(128, 128,
-                        Qt.KeepAspectRatio, Qt.SmoothTransformation)
+
+        # The larger thumbnail is maximum 256x256
+        fdo_256 = fdo_128 = None
+        if self.rpd_file.fdo_thumbnail_256 is None:
+            if (sized_thumbnail.width() >= 256 or sized_thumbnail.height() >=
+                    256):
+                # No need to rotate when scaling the this thumbnail: it's
+                # already been rotated
+                fdo_256 = sized_thumbnail.scaled(256, 256, Qt.KeepAspectRatio,
+                                                 Qt.SmoothTransformation)
+            elif thumbnail.width() >= 256 or thumbnail.height() >= 256:
+                fdo_256 = thumbnail.scaled(256, 256, Qt.KeepAspectRatio,
+                                           Qt.SmoothTransformation)
+                fdo_256 = self.rotate_thumb(fdo_256, orientation)
+
+        # The smaller thumbnail size is maximum 128x128
+        if self.rpd_file.fdo_thumbnail_128 is None:
+            if fdo_256 is not None:
+                # It's faster to scale down a smaller image
+                fdo_128= fdo_256.scaled(128, 128, Qt.KeepAspectRatio,
+                                        Qt.SmoothTransformation)
+
+            elif sized_thumbnail.width() >= 128 or sized_thumbnail.height(
+                ) >= 128:
+                fdo_128 = sized_thumbnail.scaled(128, 128, Qt.KeepAspectRatio,
+                                                 Qt.SmoothTransformation)
+
+            elif thumbnail.width() >= 128 or thumbnail.height(
+                ) > 128:
+                fdo_128 = thumbnail.scaled(128, 128, Qt.KeepAspectRatio,
+                                           Qt.SmoothTransformation)
+                fdo_128 = self.rotate_thumb(fdo_128, orientation)
+            else:
+                fdo_128 = sized_thumbnail
+
+        # Convert images to raw PNG data, suitable for pickling
+        if fdo_128 is not None:
+            self.rpd_file.fdo_thumbnail_128 = qimage_to_png_buffer(
+                fdo_128).data()
+        if fdo_256 is not None:
+            self.rpd_file.fdo_thumbnail_256 = qimage_to_png_buffer(
+                fdo_256).data()
 
     def _cache_full_size_file_from_camera(self) -> bool:
         """
         Get the file from the camera chunk by chunk and cache it in
-        local cache dir
+        download cache dir
         :return: True if operation succeeded, False otherwise
         """
         if self.rpd_file.file_type == FileType.photo:
@@ -637,9 +552,13 @@ class Thumbnail:
         if thumbnail is None:
             return self.stock_photo
         else:
-            self.cache_thumbnail.save_thumbnail(
-                self.rpd_file.full_file_name,self. rpd_file.size,
-                self.rpd_file.modification_time, thumbnail, self.camera_model)
+            self.rpd_file.thumbnail_status = \
+                ThumbnailCacheStatus.suitable_for_thumb_cache_write
+            if self.thumbnail_cache is not None:
+                self.thumbnail_cache.save_thumbnail(
+                    self.rpd_file.full_file_name,self. rpd_file.size,
+                    self.rpd_file.modification_time, thumbnail,
+                    self.camera_model)
             return  thumbnail
 
     def _get_video_thumbnail(self, file_name: str, size: QSize, downloaded: \
@@ -719,9 +638,11 @@ class Thumbnail:
         if thumbnail is None or thumbnail.isNull():
             thumbnail = self.stock_video
         else:
-            self.cache_thumbnail.save_thumbnail(
-                self.rpd_file.full_file_name,self. rpd_file.size,
-                self.rpd_file.modification_time, thumbnail, self.camera_model)
+            if self.thumbnail_cache is not None:
+                self.thumbnail_cache.save_thumbnail(
+                    self.rpd_file.full_file_name,self. rpd_file.size,
+                    self.rpd_file.modification_time, thumbnail,
+                    self.camera_model)
         return thumbnail
 
     def get_thumbnail(self, size: QSize=None) -> QImage:
@@ -782,7 +703,7 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
                                        ThumbnailSize.height)
 
         # Access and generate Rapid Photo Downloader thumbnail cache
-        cache_thumbnail = CacheThumbnail()
+        thumbnail_cache = ThumbnailCache()
 
         photo_cache_dir = video_cache_dir = None
         cache_file_from_camera = False
@@ -865,11 +786,12 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
         else:
             camera = None
 
+        from_thumb_cache = 0
         for rpd_file in rpd_files:
             # Check to see if the process has received a command
             self.check_for_command()
 
-            thumbnail_icon = cache_thumbnail.get_thumbnail(
+            thumbnail_icon = thumbnail_cache.get_thumbnail(
                 rpd_file.full_file_name, rpd_file.modification_time,
                 arguments.camera)
 
@@ -877,12 +799,13 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
                 if camera is not None:
                     if camera.can_fetch_thumbnails:
                         rpd_file.thumbnail_status = \
-                            ThumbnailStatus.from_rpd_cache_sys_write_invalid
+                            ThumbnailCacheStatus.from_rpd_cache_fdo_write_invalid
+                from_thumb_cache += 1
             else:
                 thumbnail = Thumbnail(rpd_file, camera,
                               arguments.thumbnail_quality_lower,
-                              generate_sys_cache_thumbs=True,
-                              cache_thumbnail=cache_thumbnail,
+                              thumbnail_cache=thumbnail_cache,
+                              generate_fdo_thumbs_only_if_optimal=True,
                               cache_file_from_camera=cache_file_from_camera,
                               photo_cache_dir=photo_cache_dir,
                               video_cache_dir=video_cache_dir,
@@ -890,9 +813,7 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
                 thumbnail_icon = thumbnail.get_thumbnail(
                     size=thumbnail_size_needed)
 
-            buffer = QBuffer()
-            buffer.open(QIODevice.WriteOnly)
-            thumbnail_icon.save(buffer, "PNG")
+            buffer = qimage_to_png_buffer(thumbnail_icon)
 
             self.content= pickle.dumps(GenerateThumbnailsResults(
                 rpd_file=rpd_file, png_data=buffer.data()),
@@ -911,6 +832,9 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
 
         logging.debug("...finished thumbnail generation for %s",
                       arguments.name)
+        if from_thumb_cache:
+            logging.debug("{} thumbnails came from thumbnail cache".format(
+                from_thumb_cache))
         self.send_finished_command()
 
 

@@ -63,6 +63,10 @@ class ScanWorker(WorkerInPublishPullPipeline):
         self.scan_preferences = scan_arguments.scan_preferences
         self.download_from_camera = scan_arguments.device.device_type == \
                                     DeviceType.camera
+        if self.download_from_camera:
+            self.camera_model = scan_arguments.device.camera_model
+        else:
+            self.camera_model = None
 
         self.files_scanned = 0
 
@@ -255,7 +259,8 @@ class ScanWorker(WorkerInPublishPullPipeline):
                                                audio_file_full_name,
                                                self.worker_id,
                                                file_type,
-                                               self.download_from_camera)
+                                               self.download_from_camera,
+                                               self.camera_model)
                 self.content = pickle.dumps(rpd_file, pickle.HIGHEST_PROTOCOL)
                 self.send_message_to_sink()
 

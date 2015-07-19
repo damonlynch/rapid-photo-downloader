@@ -216,13 +216,16 @@ def has_non_empty_dcim_folder(path: str) -> bool:
             return len(os.listdir(dcim_folder)) > 0
     return False
 
+
 def get_desktop_environment():
     return os.getenv('XDG_CURRENT_DESKTOP')
+
 
 #TODO confirm if cinnamon really is x-cinnamon
 def gvfs_controls_mounts():
     return get_desktop_environment().lower() in ('gnome', 'unity',
                                                  'x-cinnamon')
+
 
 def xdg_photos_directory() -> str:
     """
@@ -231,6 +234,7 @@ def xdg_photos_directory() -> str:
     """
     return GLib.get_user_special_dir(GLib.USER_DIRECTORY_PICTURES)
 
+
 def xdg_videos_directory() -> str:
     """
     Get localized version of /home/<USER>/Videos
@@ -238,9 +242,8 @@ def xdg_videos_directory() -> str:
     """
     return GLib.get_user_special_dir(GLib.USER_DIRECTORY_VIDEOS)
 
-def get_program_directory(env_variable: str,
-                           default_dir: str,
-                           create_if_not_exist=False) -> str:
+
+def get_xdg_directory(env_variable: str, default_dir: str) -> str:
     """
     Get a Rapid Photo Downloader program directory, e.g. cache, data
     Catches no exceptions.
@@ -248,15 +251,30 @@ def get_program_directory(env_variable: str,
      directory
     :param default_dir: if environment variable not set, where to
      create the directory
-    :param create_if_not_exist: creates directory if it does not exist
     :return: the full path of the program directory
     """
     assert sys.platform.startswith('linux')
     xdg = os.getenv(env_variable)
     if xdg is not None:
-        path = xdg
+        return xdg
     else:
-        path = os.path.join(os.path.expanduser('~'), default_dir)
+        return os.path.join(os.path.expanduser('~'), default_dir)
+
+
+def get_program_directory(env_variable: str,
+                           default_dir: str,
+                           create_if_not_exist=False) -> str:
+    """
+    Get a Rapid Photo Downloader program directory, e.g. cache, data
+    Catches no exceptions. Includes subpath 'rapid-photo-downloader'
+    :param env_variable: environment variable indicating location of
+     directory
+    :param default_dir: if environment variable not set, where to
+     create the directory
+    :param create_if_not_exist: creates directory if it does not exist
+    :return: the full path of the program directory
+    """
+    path = get_xdg_directory(env_variable, default_dir)
     program_dir = os.path.join(path, 'rapid-photo-downloader')
     if not create_if_not_exist:
         return program_dir
@@ -267,6 +285,7 @@ def get_program_directory(env_variable: str,
             os.remove(program_dir)
             os.mkdir(program_dir)
         return program_dir
+
 
 def get_program_cache_directory(create_if_not_exist=False) -> str:
     """
@@ -283,6 +302,7 @@ def get_program_cache_directory(create_if_not_exist=False) -> str:
         logging.error("An error occurred while creating the cache directory")
         return None
 
+
 def get_program_data_directory(create_if_not_exist=False) -> str:
     """
     Get Rapid Photo Downloader data directory, which is assumed to be
@@ -297,6 +317,12 @@ def get_program_data_directory(create_if_not_exist=False) -> str:
     except:
         logging.error("An error occurred while creating the data directory")
         return None
+
+def get_fdo_cache_thumb_base_directory() -> str:
+    path = get_xdg_directory(env_variable='XDG_CACHE_HOME',
+                               default_dir='.cache')
+    return os.path.join(path, 'thumbnails')
+
 
 class CameraHotplug(QObject):
     cameraAdded = pyqtSignal()

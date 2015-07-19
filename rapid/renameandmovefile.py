@@ -1,4 +1,6 @@
 #!/usr/bin/python3
+from storage import get_program_cache_directory
+
 __author__ = 'Damon Lynch'
 
 # Copyright (C) 2011-2015 Damon Lynch <damonlynch@gmail.com>
@@ -34,16 +36,20 @@ import errno
 import logging
 import pickle
 
-from PyQt5.QtGui import QPixmap
+from PyQt5.QtCore import QSize
+from PyQt5.QtGui import QImage
 
 import exiftool
 import generatename as gn
 import problemnotification as pn
 from preferences import DownloadsTodayTracker, Preferences
-from constants import ConflictResolution, FileType, DownloadStatus
+from constants import (ConflictResolution, FileType, DownloadStatus,
+                       ThumbnailCacheStatus, ThumbnailSize)
 from interprocess import (RenameAndMoveFileData,
                           RenameAndMoveFileResults, DaemonProcess)
 from rpdfile import RPDFile
+from thumbnail import Thumbnail, qimage_to_png_buffer
+from cache import FdoCacheNormal, FdoCacheLarge, ThumbnailCache
 
 from gettext import gettext as _
 
@@ -184,7 +190,7 @@ def generate_name(rpd_file: RPDFile, et_process):
 
 class RenameMoveFileWorker(DaemonProcess):
     def __init__(self):
-        super(RenameMoveFileWorker, self).__init__('Rename and Move')
+        super().__init__('Rename and Move')
 
         self.prefs = Preferences()
 
@@ -200,7 +206,12 @@ class RenameMoveFileWorker(DaemonProcess):
 
         self.sync_raw_jpeg = SyncRawJpeg()
 
+        self.fdo_cache_normal = FdoCacheNormal()
+        self.fdo_cache_large = FdoCacheLarge()
+        self.thumbnail_cache = ThumbnailCache()
+
         logging.debug("Start of day is set to %s", self.prefs.day_start)
+
 
     def progress_callback_no_update(self, amount_downloaded, total):
         pass
@@ -697,16 +708,59 @@ class RenameMoveFileWorker(DaemonProcess):
 
         return move_succeeded
 
-    def process_renamed_file(self, rpd_file: RPDFile, thumbnail: QPixmap):
-        pass
-        # TODO confirm thumbnail is able to be put in system wide cache
-        # rule:
-        # only photos with confirmed thumbnails
-        # not from RAW from camera, as orientation might be wrong
-        # might need to update main display
+    def process_renamed_file(self, rpd_file: RPDFile):
+        thumbnail = None
+        if (rpd_file.fdo_thumbnail_256 is None or
+            rpd_file.fdo_thumbnail_128 is None or
+            rpd_file.thumbnail_status !=
+            ThumbnailCacheStatus.suitable_for_fdo_cache_write):
+            discard_thumbnail = rpd_file.thumbnail_status == \
+                ThumbnailCacheStatus.suitable_for_fdo_cache_write
+
+            # Generate a newly rendered thumbnail for main window and
+            # both sizes of freedesktop.org thumbnails. Note that
+            # thumbnails downloaded from the camera using the gphoto2
+            # get_thumb fuction have no orientation tag, so regenerating
+            # the thumbnail again for those images is no bad thing
+            t = Thumbnail(rpd_file, rpd_file.camera_model,
+                          thumbnail_quality_lower=False,
+                          thumbnail_cache=self.thumbnail_cache,
+                          must_generate_fdo_thumbs=True)
+            thumbnail = t.get_thumbnail(size=QSize(ThumbnailSize.width,
+                                     ThumbnailSize.height))
+            if discard_thumbnail:
+                thumbnail = None
+
+        mtime = os.path.getmtime(rpd_file.download_full_file_name)
+        if rpd_file.fdo_thumbnail_128 is not None:
+            self.fdo_cache_normal.save_thumbnail(
+                full_file_name=rpd_file.download_full_file_name,
+                size=rpd_file.size,
+                modification_time=mtime,
+                thumbnail=QImage.fromData(rpd_file.fdo_thumbnail_128),
+                free_desktop_org=True)
+
+        if rpd_file.fdo_thumbnail_256 is not None:
+            self.fdo_cache_large.save_thumbnail(
+                full_file_name=rpd_file.download_full_file_name,
+                size=rpd_file.size,
+                modification_time=mtime,
+                thumbnail=QImage.fromData(rpd_file.fdo_thumbnail_256),
+                free_desktop_org=True)
 
 
-        # TODO what about thumbnails not yet generated?
+        #TODO SQL stuff
+        """
+        Notes to self:
+
+        Same file detection:
+        filename, size, modification_time
+        Save in SQL: filename, size, modification_time
+        don't care about path. Save once file is confirmed as downloaded.
+        Also need to know: time downloaded (to prioritize deletion)
+
+        """
+        return thumbnail
 
     def run(self):
         """
@@ -740,6 +794,7 @@ class RenameMoveFileWorker(DaemonProcess):
                 """ :type : RenameAndMoveFileData"""
                 rpd_file = data.rpd_file
                 download_count = data.download_count
+                thumbnail = None
 
                 if data.download_succeeded:
                     move_succeeded = self.process_file(rpd_file,
@@ -749,14 +804,19 @@ class RenameMoveFileWorker(DaemonProcess):
                     else:
                         # Add system-wide thumbnail and record downloaded
                         # file in SQLite database
-                        self.process_renamed_file(rpd_file, data.thumbnail)
+                        thumbnail = self.process_renamed_file(rpd_file)
                 else:
                     move_succeeded = False
 
+                if thumbnail is not None:
+                    png_data = qimage_to_png_buffer(thumbnail).data()
+                else:
+                    png_data = None
                 self.content = pickle.dumps(RenameAndMoveFileResults(
                     move_succeeded=move_succeeded,
                     rpd_file=rpd_file,
-                    download_count=download_count),
+                    download_count=download_count,
+                    png_data=png_data),
                     pickle.HIGHEST_PROTOCOL)
                 self.send_message_to_sink()
 

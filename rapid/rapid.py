@@ -47,7 +47,7 @@ import gphoto2 as gp
 from PyQt5 import QtCore, QtWidgets, QtGui
 from PyQt5.QtCore import (QThread, Qt, QStorageInfo, QSettings, QPoint,
                           QSize, QTimer)
-from PyQt5.QtGui import (QIcon)
+from PyQt5.QtGui import (QIcon, QPixmap, QImage)
 from PyQt5.QtWidgets import (QAction, QApplication, QMainWindow, QMenu,
                              QPushButton, QWidget, QDialogButtonBox,
         QProgressBar, QSplitter, QFileIconProvider, QHBoxLayout, QVBoxLayout)
@@ -81,8 +81,9 @@ logging.basicConfig(format='%(asctime)s %(message)s', level=logging_level)
 
 BackupMissing = namedtuple('BackupMissing', ['photo', 'video'])
 
+
 class RenameMoveFileManager(PushPullDaemonManager):
-    message = QtCore.pyqtSignal(bool, RPDFile, int)
+    message = QtCore.pyqtSignal(bool, RPDFile, int, QPixmap)
     def __init__(self, context: zmq.Context):
         super(RenameMoveFileManager, self).__init__(context)
         self._process_name = 'Rename and Move File Manager'
@@ -94,8 +95,13 @@ class RenameMoveFileManager(PushPullDaemonManager):
     def process_sink_data(self):
         data = pickle.loads(self.content)
         """ :type : RenameAndMoveFileResults """
+        if data.png_data is not None:
+            thumbnail = QImage.fromData(data.png_data)
+            thumbnail = QPixmap.fromImage(thumbnail)
+        else:
+            thumbnail = QPixmap()
         self.message.emit(data.move_succeeded, data.rpd_file,
-                          data.download_count)
+                          data.download_count, thumbnail)
 
 
 class ScanManager(PublishPullPipelineManager):
@@ -785,9 +791,8 @@ class RapidWindow(QMainWindow):
         self.download_tracker.set_download_count(rpd_file.scan_id,
                                                  download_count)
         rpd_file.download_start_time = self.download_start_time
-        thumbnail = self.thumbnailModel.thumbnails[rpd_file.unique_id]
         data = RenameAndMoveFileData(rpd_file, download_count,
-                                   download_succeeded, thumbnail)
+                                     download_succeeded)
         self.renamemq.rename_file(data)
 
     # def copyfilesThumbnail(self, rpd_file: RPDFile, thumbnail: QPixmap):
@@ -813,7 +818,13 @@ class RapidWindow(QMainWindow):
         pass
 
     def fileRenamedAndMoved(self, move_succeeded: bool, rpd_file: RPDFile,
-                            download_count: int):
+                            download_count: int, thumbnail: QPixmap):
+
+        if not thumbnail.isNull():
+            logging.debug("Updating GUI thumbnail for {}".format(
+                rpd_file.download_full_file_name))
+            self.thumbnailModel.thumbnailReceived(rpd_file, thumbnail)
+
         if rpd_file.status == DownloadStatus.downloaded_with_warning:
             self.log_error(ErrorType.warning, rpd_file.error_title,
                            rpd_file.error_msg, rpd_file.error_extra_detail)
