@@ -74,6 +74,7 @@ from devicedisplay import (DeviceTableModel, DeviceView, DeviceDelegate)
 from utilities import (same_file_system, makeInternationalizedList)
 from rpdfile import RPDFile, file_types_by_number
 import downloadtracker
+from cache import ThumbnailCache
 
 logging_level = logging.DEBUG
 logging.basicConfig(format='%(asctime)s %(message)s', level=logging_level)
@@ -1327,6 +1328,8 @@ class RapidWindow(QMainWindow):
             self.cameraHotplugThread.wait()
 
         self.devices.delete_cache_dirs()
+        tc = ThumbnailCache()
+        tc.cleanup_cache()
         Notify.uninit()
 
     def getDeviceIcon(self, device: Device) -> QIcon:

@@ -44,6 +44,7 @@ import sys
 import logging
 import hashlib
 from urllib.request import pathname2url
+import time
 
 from PyQt5.QtGui import QImage
 
@@ -149,6 +150,17 @@ class Cache:
                     return png
         return None
 
+    def delete_thumbnail(self, full_file_name: str, camera_model: str=None):
+        """
+        Delete the thumbnail associated with the file if it exists
+        """
+        if not self.valid:
+            return None
+        path = os.path.join(self.cache_dir,
+                            self.md5_hash_name(full_file_name, camera_model))
+        if os.path.isfile(path):
+            os.remove(path)
+
 
 class FdoCacheNormal(Cache):
     """
@@ -158,6 +170,7 @@ class FdoCacheNormal(Cache):
         if path is None:
             path = os.path.join(get_fdo_cache_thumb_base_directory(), 'normal')
         super().__init__(path)
+
 
 class FdoCacheLarge(FdoCacheNormal):
     """
@@ -195,3 +208,28 @@ class ThumbnailCache(Cache):
                 self.cache_dir = None
                 self.random_filename = None
                 self.fs_encoding = None
+
+    def cleanup_cache(self):
+        """
+        Remove all thumbnails that have not been accessed for 30 days
+        """
+        if self.valid:
+            i = 0
+            now = time.time()
+            for f in os.listdir(self.cache_dir):
+                png = os.path.join(self.cache_dir, f)
+                if (os.path.isfile(png) and
+                                        os.path.getatime(png) < now - 2592000):
+                    os.remove(png)
+                    i += 1
+            if i:
+                logging.debug('Deleted {} thumbnail files that had not been '
+                          'accessed for 30 or more days'.format(i))
+
+    def purge_cache(self):
+        """
+        Delete the entire cache of all contents and remvoe the
+        directory
+        """
+        if os.path.isdir(self.cache_dir):
+            os.removedirs(get_program_cache_directory())
