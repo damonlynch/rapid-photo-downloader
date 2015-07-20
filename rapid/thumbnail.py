@@ -22,6 +22,7 @@ __author__ = 'Damon Lynch'
 
 import os
 import sys
+import shutil
 import logging
 import pickle
 import tempfile
@@ -237,7 +238,8 @@ class Thumbnail:
                  cache_file_from_camera: bool=False,
                  photo_cache_dir: str=None,
                  video_cache_dir: str=None,
-                 check_for_command=None):
+                 check_for_command=None,
+                 have_ffmpeg_thumbnailer: bool=True):
         """
         For definitions of the three different types of cache, see
         cache.py
@@ -271,6 +273,8 @@ class Thumbnail:
          full size photos from a camera should be cached
         :param video_cache_dir: if specified, the folder in which
          videos from a camera should be cached
+        :param have_ffmpeg_thumbnailer: If True the program
+         ffmpegthumbnailer is assumed to exist
         """
         self.rpd_file = rpd_file
         self.metadata = None
@@ -296,6 +300,7 @@ class Thumbnail:
         self.video_cache_dir = video_cache_dir
         self.random_filename = GenerateRandomFileName()
         self.check_for_command = check_for_command
+        self.have_ffmpeg_thumbnailer = have_ffmpeg_thumbnailer
 
 
     def _crop_160x120_thumbnail(self, thumbnail: QImage,
@@ -424,7 +429,13 @@ class Thumbnail:
             sized_thumbnail = self.stock_photo
         return sized_thumbnail
 
-    def rotate_thumb(self, thumbnail, orientation):
+    def rotate_thumb(self, thumbnail: QImage, orientation: str) -> QImage:
+        """
+        If required return a rotated copy the thumbnail
+        :param thumbnail: thumbnail to rotate
+        :param orientation: EXIF orientation tag
+        :return: possibly rotated thumbnail
+        """
         if orientation == self.rotate_90:
             thumbnail = thumbnail.transformed(QTransform(
             ).rotate(90))
@@ -440,8 +451,8 @@ class Thumbnail:
                                      sized_thumbnail: QImage,
                                      orientation: str):
         """
-        Create a freedesktop.org cache thumbnail, i.e. one available to file
-        managers etc.
+        Create a freedesktop.org cache thumbnail, i.e. one available to
+        file managers etc. Save in rpd_file.
         """
 
         # The larger thumbnail is maximum 256x256
@@ -526,20 +537,16 @@ class Thumbnail:
         assert self.camera.can_fetch_thumbnails
         assert size is not None
 
-        thumbnail = None
-
-        file_name = os.path.join(self.rpd_file.full_file_name)
-
         thumbnail = self.camera.get_thumbnail(self.rpd_file.path,
                                               self.rpd_file.name)
         if thumbnail is None:
             logging.error("Unable to get thumbnail from %s for %s",
-                          self.camera.model, file_name)
+                          self.camera.model, self.rpd_file.full_file_name)
         elif thumbnail.isNull():
             thumbnail = None
             logging.error(
                 "Unable to get thumbnail from %s for %s",
-                self.camera.model, file_name)
+                self.camera.model, self.rpd_file.full_file_name)
 
         if self.rpd_file.extension in \
                 self.crop_thumbnails and thumbnail is not None:
@@ -579,7 +586,8 @@ class Thumbnail:
         thumbnail = None
 
         use_thm = False
-        if self.rpd_file.thm_full_name is not None and size is not None:
+        if self.rpd_file.thm_full_name is not None and size is not None and \
+                not self.must_generate_fdo_thumbs:
             use_thm = size.width() <= 160
 
         if use_thm:
@@ -609,15 +617,19 @@ class Thumbnail:
                                                  Qt.KeepAspectRatio,
                                                  self.thumbnail_transform)
                 thumbnail = add_filmstrip(thumbnail)
+                self.rpd_file.thumbnail_status = \
+                    ThumbnailCacheStatus.suitable_for_thumb_cache_write
 
 
         if thumbnail is None and (downloaded or self.cache_file_from_camera or
-            not self.rpd_file.from_camera):
+            not self.rpd_file.from_camera) and self.have_ffmpeg_thumbnailer:
             # extract a frame from the video file and scale it
-            #FIXME haven't handled case of missing ffmpegthumbnailer
             try:
                 if size is None:
                     thumbnail_size = 0
+                elif (self.must_generate_fdo_thumbs or
+                            self.generate_fdo_thumbs_only_if_optimal):
+                        thumbnail_size = max(size.width(), 256)
                 else:
                     thumbnail_size = size.width()
                 tmp_dir = tempfile.mkdtemp(prefix="rpd-tmp")
@@ -634,6 +646,16 @@ class Thumbnail:
                 thumbnail = None
                 logging.error("Error generating thumbnail for {}".format(
                     file_name))
+            else:
+                if not thumbnail.isNull():
+                    self.rpd_file.thumbnail_status = \
+                        ThumbnailCacheStatus.suitable_for_fdo_cache_write
+                    self._generate_fdo_cache_thumbs(thumbnail, thumbnail, '')
+                    if size is not None:
+                        if thumbnail.width() > size.width():
+                            thumbnail = thumbnail.scaled(size,
+                                                 Qt.KeepAspectRatio,
+                                                 self.thumbnail_transform)
 
         if thumbnail is None or thumbnail.isNull():
             thumbnail = self.stock_video
@@ -704,6 +726,8 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
 
         # Access and generate Rapid Photo Downloader thumbnail cache
         thumbnail_cache = ThumbnailCache()
+
+        have_ffmpeg_thumbnailer = shutil.which('ffmpegthumbnailer')
 
         photo_cache_dir = video_cache_dir = None
         cache_file_from_camera = False
@@ -809,7 +833,8 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
                               cache_file_from_camera=cache_file_from_camera,
                               photo_cache_dir=photo_cache_dir,
                               video_cache_dir=video_cache_dir,
-                              check_for_command=self.check_for_command)
+                              check_for_command=self.check_for_command,
+                              have_ffmpeg_thumbnailer=have_ffmpeg_thumbnailer)
                 thumbnail_icon = thumbnail.get_thumbnail(
                     size=thumbnail_size_needed)
 

@@ -28,6 +28,7 @@ Runs as a daemon process.
 """
 
 import os
+import shutil
 import datetime
 from enum import Enum
 from collections import namedtuple
@@ -143,7 +144,8 @@ def load_metadata(rpd_file, et_process: exiftool.ExifTool, temp_file=True) \
     :return True if operation succeeded, false otherwise
     """
     if rpd_file.metadata is None:
-        if not rpd_file.load_metadata(temp_file, et_process):
+        if not rpd_file.load_metadata(exiftool_process=et_process,
+                                      temp_file=temp_file):
             # Error in reading metadata
             rpd_file.add_problem(None, pn.CANNOT_DOWNLOAD_BAD_METADATA,
                                  {'filetype': rpd_file.title_capitalized})
@@ -152,12 +154,7 @@ def load_metadata(rpd_file, et_process: exiftool.ExifTool, temp_file=True) \
 
 
 def _generate_name(generator, rpd_file, et_process):
-    do_generation = True
-    if rpd_file.file_type == FileType.photo:
-        do_generation = load_metadata(rpd_file, et_process)
-    else:
-        if rpd_file.metadata is None:
-            rpd_file.load_metadata()
+    do_generation = load_metadata(rpd_file, et_process)
 
     if do_generation:
         value = generator.generate_name(rpd_file)
@@ -725,7 +722,8 @@ class RenameMoveFileWorker(DaemonProcess):
             t = Thumbnail(rpd_file, rpd_file.camera_model,
                           thumbnail_quality_lower=False,
                           thumbnail_cache=self.thumbnail_cache,
-                          must_generate_fdo_thumbs=True)
+                          must_generate_fdo_thumbs=True,
+                          have_ffmpeg_thumbnailer=self.have_ffmpeg_thumbnailer)
             thumbnail = t.get_thumbnail(size=QSize(ThumbnailSize.width,
                                      ThumbnailSize.height))
             if discard_thumbnail:
@@ -779,6 +777,8 @@ class RenameMoveFileWorker(DaemonProcess):
         # suffixes to duplicate files
         self.duplicate_files = {}
 
+        self.have_ffmpeg_thumbnailer = shutil.which('ffmpegthumbnailer')
+
         with exiftool.ExifTool() as self.et_process:
             while True:
                 if i:
@@ -812,6 +812,7 @@ class RenameMoveFileWorker(DaemonProcess):
                     png_data = qimage_to_png_buffer(thumbnail).data()
                 else:
                     png_data = None
+                rpd_file.metadata = None
                 self.content = pickle.dumps(RenameAndMoveFileResults(
                     move_succeeded=move_succeeded,
                     rpd_file=rpd_file,
