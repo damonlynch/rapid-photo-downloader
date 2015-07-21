@@ -43,6 +43,7 @@ from interprocess import WorkerInPublishPullPipeline
 from camera import Camera
 import rpdfile
 from constants import (DeviceType, FileType)
+from sql import DownloadedSQL, FileDownloaded
 
 FileInfo = namedtuple('FileInfo', ['path', 'modification_time', 'size',
                                    'ext_lower', 'base_name', 'file_type'])
@@ -56,7 +57,9 @@ logging.basicConfig(format='%(levelname)s:%(asctime)s:%(message)s',
 class ScanWorker(WorkerInPublishPullPipeline):
 
     def __init__(self):
+        self.downloaded = DownloadedSQL()
         super(ScanWorker, self).__init__('Scan')
+
 
     def do_work(self):
         scan_arguments = pickle.loads(self.content)
@@ -251,9 +254,26 @@ class ScanWorker(WorkerInPublishPullPipeline):
                 # check if an audio file is associated with the photo or video
                 audio_file_full_name = self.get_audio_file(base_name)
 
+                # has the file been downloaded previously?
+                downloaded = self.downloaded.file_downloaded(
+                                        name=self.file_name,
+                                        size=size,
+                                        modification_time=modification_time)
+
+                if downloaded is not None:
+                    prev_full_name = downloaded.download_name
+                    prev_datetime = downloaded.download_datetime
+                    logging.debug('{} previously downloaded on {} to {'
+                                  '}'.format(self.file_name, prev_datetime,
+                                             prev_full_name))
+                else:
+                    prev_full_name = prev_datetime = None
+
                 rpd_file = rpdfile.get_rpdfile(self.file_name,
                                                self.dir_name,
                                                size,
+                                               prev_full_name,
+                                               prev_datetime,
                                                modification_time,
                                                thm_full_name,
                                                audio_file_full_name,

@@ -69,19 +69,26 @@ def file_type(file_extension: str) -> FileType:
         return FileType.video
     return None
 
-def get_rpdfile(name, path, size,
-                file_system_modification_time,
-                thm_full_name, audio_file_full_name,
-                scan_id, file_type, from_camera, camera_model):
+
+def get_rpdfile(name: str, path: str, size: int, prev_full_name: str,
+                prev_datetime: datetime.datetime,
+                file_system_modification_time: float,
+                thm_full_name: str, audio_file_full_name: str,
+                scan_id: bytes, file_type: FileType, from_camera: bool,
+                camera_model: str):
 
     if file_type == FileType.video:
         return Video(name, path, size,
-                     file_system_modification_time, thm_full_name,
+                     prev_full_name, prev_datetime,
+                     file_system_modification_time,
+                     thm_full_name,
                      audio_file_full_name,
                      scan_id, from_camera, camera_model)
     else:
         return Photo(name, path, size,
-                     file_system_modification_time, thm_full_name,
+                     prev_full_name, prev_datetime,
+                     file_system_modification_time,
+                     thm_full_name,
                      audio_file_full_name,
                      scan_id, from_camera, camera_model)
 
@@ -178,6 +185,7 @@ class RPDFile:
     title_capitalized = ''
 
     def __init__(self, name: str, path: str, size: int,
+                 prev_full_name: str, prev_datetime: datetime.datetime,
                  modification_time: float, thm_full_name: str,
                  audio_file_full_name: str,
                  scan_id: bytes,
@@ -185,10 +193,14 @@ class RPDFile:
                  camera_model: str=None):
         """
 
-        :param name: filename
+        :param name: filename (without path)
         :param path: path of the file
         :param size: file size
         :param modification_time: file modification time
+        :param prev_full_name: the name and path the file was
+         previously downloaded with, else None
+        :param prev_datetime: when the file was previously downloaded,
+         else None
         :param thm_full_name: name and path of and associated thumbnail
          file
         :param audio_file_full_name: name and path of any associated
@@ -207,6 +219,9 @@ class RPDFile:
 
         self.name = name
 
+        self.prev_full_name = prev_full_name
+        self.prev_datetime = prev_datetime
+
         self.full_file_name = os.path.join(path, name)
         self.extension = os.path.splitext(name)[1][1:].lower()
 
@@ -216,6 +231,8 @@ class RPDFile:
         self.size = size
 
         self.modification_time = modification_time
+
+
 
         #full path and name of thumbnail file that is associated with some videos
         self.thm_full_name = thm_full_name

@@ -1,6 +1,4 @@
 #!/usr/bin/python3
-from storage import get_program_cache_directory
-
 __author__ = 'Damon Lynch'
 
 # Copyright (C) 2011-2015 Damon Lynch <damonlynch@gmail.com>
@@ -51,6 +49,7 @@ from interprocess import (RenameAndMoveFileData,
 from rpdfile import RPDFile
 from thumbnail import Thumbnail, qimage_to_png_buffer
 from cache import FdoCacheNormal, FdoCacheLarge, ThumbnailCache
+from sql import DownloadedSQL
 
 from gettext import gettext as _
 
@@ -206,6 +205,8 @@ class RenameMoveFileWorker(DaemonProcess):
         self.fdo_cache_normal = FdoCacheNormal()
         self.fdo_cache_large = FdoCacheLarge()
         self.thumbnail_cache = ThumbnailCache()
+
+        self.downloaded = DownloadedSQL()
 
         logging.debug("Start of day is set to %s", self.prefs.day_start)
 
@@ -746,18 +747,11 @@ class RenameMoveFileWorker(DaemonProcess):
                 thumbnail=QImage.fromData(rpd_file.fdo_thumbnail_256),
                 free_desktop_org=True)
 
+        self.downloaded.add_downloaded_file(name=rpd_file.name,
+                size=rpd_file.size,
+                modification_time=rpd_file.modification_time,
+                download_full_file_name=rpd_file.download_full_file_name)
 
-        #TODO SQL stuff
-        """
-        Notes to self:
-
-        Same file detection:
-        filename, size, modification_time
-        Save in SQL: filename, size, modification_time
-        don't care about path. Save once file is confirmed as downloaded.
-        Also need to know: time downloaded (to prioritize deletion)
-
-        """
         return thumbnail
 
     def run(self):
