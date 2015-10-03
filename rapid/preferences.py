@@ -132,27 +132,46 @@ class ScanPreferences:
 
 class DownloadsTodayTracker:
     """
-    Handles tracking the number of downloads undertaken on any one day.
+    Handles tracking the number of successful downloads undertaken
+    during any one day.
 
-    When a day starts is flexible. See
+    When a day starts is flexible. See for more details:
     http://damonlynch.net/rapid/documentation/#renameoptions
     """
 
-    def __init__(self, downloads_today, day_start: str):
+    def __init__(self, downloads_today: list, day_start: str):
+        """
+
+        :param downloads_today: list[str,str] containing date and the
+         number of downloads today e.g. ['2015-08-15', '25']
+        :param day_start: the time the day starts, e.g. "03:00"
+         indicates the day starts at 3 a.m.
+        """
         self.day_start = day_start
         self.downloads_today = downloads_today
 
-    def get_and_maybe_reset_downloads_today(self):
+    def get_or_reset_downloads_today(self) -> int:
+        """
+        Primary method to get the Downloads Today value, because it
+        resets the value if no downloads have already occurred on the
+        day of the download.
+        :return: the number of successful downloads that have occurred
+        today
+        """
         v = self.get_downloads_today()
         if v <= 0:
             self.reset_downloads_today()
+            # -1 was returned in the Gtk+ version of Rapid Photo Downloader -
+            # why?
+            v = 0
         return v
 
     def get_downloads_today(self) -> int:
-        """Returns the preference value for the number of downloads
-        performed today
-
-        If value is less than zero, that means the date has changed"""
+        """
+        :return the preference value for the number of successful
+        downloads performed today. If value is less than zero,
+        the date has changed since the value was last updated.
+        """
 
         hour, minute = self.get_day_start()
         try:
@@ -177,16 +196,17 @@ class DownloadsTodayTracker:
             except ValueError:
                 logging.error(
                     "Invalid Downloads Today value. Resetting value to zero.")
-                self.get_downloads_today(self.downloads_today[0], 0)
+                self.reset_downloads_today()
                 return 0
         else:
             return -1
 
-    def get_raw_downloads_today(self):
+    def get_raw_downloads_today(self) -> int:
         """
         Gets value without changing it in any way, except to check for type
         conversion error.
         If there is an error, then the value is reset
+        :return the downloads today value (i.e. no date component)
         """
         try:
             return int(self.downloads_today[1])
@@ -196,7 +216,7 @@ class DownloadsTodayTracker:
             self.downloads_today[1] = '0'
             return 0
 
-    def set_raw_downloads_today_from_int(self, downloads_today):
+    def set_raw_downloads_today_from_int(self, downloads_today: int):
         self.downloads_today[1] = str(downloads_today)
 
     def set_raw_downloads_today_date(self, downloads_today_date):
@@ -223,8 +243,10 @@ class DownloadsTodayTracker:
             self.day_start = "0:0"
             return 0, 0
 
-    def increment_downloads_today(self):
-        """ returns true if day changed """
+    def increment_downloads_today(self) -> bool:
+        """
+        :return: True if day changed
+        """
         v = self.get_downloads_today()
         if v >= 0:
             self.set_downloads_today(self.downloads_today[0], v + 1)
@@ -233,7 +255,7 @@ class DownloadsTodayTracker:
             self.reset_downloads_today(1)
             return True
 
-    def reset_downloads_today(self, value=0):
+    def reset_downloads_today(self, value: int=0):
         now = datetime.datetime.today()
         hour, minute = self.get_day_start()
         t = datetime.time(hour, minute)
@@ -245,16 +267,15 @@ class DownloadsTodayTracker:
 
         self.set_downloads_today(date, value)
 
-    def set_downloads_today(self, date, value=0):
+    def set_downloads_today(self, date: str, value: int=0):
         self.downloads_today = [date, str(value)]
 
-    def set_day_start(self, hour, minute):
+    def set_day_start(self, hour: int, minute: int):
         self.day_start = "%s:%s" % (hour, minute)
 
     def log_vals(self):
         logging.info("Date %s Value %s Day start %s", self.downloads_today[0],
                      self.downloads_today[1], self.day_start)
-
 
 
 def today():
@@ -369,6 +390,9 @@ class Preferences:
 
     def __setattr__(self, key, value):
         self[key] = value
+
+    def sync(self):
+        self.settings.sync()
 
     def _pref_list_uses_component(self, pref_list, pref_component, offset:
         int=1) -> bool:

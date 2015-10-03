@@ -1,3 +1,5 @@
+from constants import RenameAndMoveStatus
+
 __author__ = 'Damon Lynch'
 # Copyright (C) 2015 Damon Lynch <damonlynch@gmail.com>
 
@@ -604,11 +606,13 @@ class RenameAndMoveFileData:
     """
     Pass arguments to the renameandmovefile process
     """
-    def __init__(self, rpd_file: RPDFile, download_count: int,
-                 download_succeeded: bool):
+    def __init__(self, rpd_file: RPDFile=None, download_count: int=None,
+                 download_succeeded: bool=None,
+                 message: RenameAndMoveStatus=None):
         self.rpd_file = rpd_file
         self.download_count = download_count
         self.download_succeeded = download_succeeded
+        self.message = message
 
 
 class RenameAndMoveFileResults:

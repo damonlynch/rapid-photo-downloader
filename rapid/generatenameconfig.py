@@ -527,6 +527,11 @@ DYNAMIC_NON_METADATA_ELEMENTS = [
 
 class PrefError(Exception):
     """ base class """
+
+    def __init__(self):
+        super().__init__()
+        self.msg = ''
+
     def unpackList(self, l):
         """
         Make the preferences presentable to the user
@@ -543,6 +548,7 @@ class PrefError(Exception):
 
 class PrefKeyError(PrefError):
     def __init__(self, error):
+        super().__init__()
         value = error[0]
         expectedValues = self.unpackList(error[1])
         self.msg = "Preference key '%(key)s' is invalid.\nExpected one of %(value)s" % {
@@ -550,15 +556,18 @@ class PrefKeyError(PrefError):
 
 class PrefValueInvalidError(PrefKeyError):
     def __init__(self, error):
+        super().__init__()
         value = error[0]
         self.msg = "Preference value '%(value)s' is invalid" % {'value': value}
 
 class PrefLengthError(PrefError):
     def __init__(self, error):
+        super().__init__()
         self.msg = "These preferences are not well formed:" + "\n %s" % self.unpackList(error)
 
 class PrefValueKeyComboError(PrefError):
     def __init__(self, error):
+        super().__init__()
         self.msg = error
 
 

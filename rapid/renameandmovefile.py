@@ -43,7 +43,8 @@ import generatename as gn
 import problemnotification as pn
 from preferences import DownloadsTodayTracker, Preferences
 from constants import (ConflictResolution, FileType, DownloadStatus,
-                       ThumbnailCacheStatus, ThumbnailSize)
+                       ThumbnailCacheStatus, ThumbnailSize,
+                       RenameAndMoveStatus)
 from interprocess import (RenameAndMoveFileData,
                           RenameAndMoveFileResults, DaemonProcess)
 from rpdfile import RPDFile
@@ -190,16 +191,6 @@ class RenameMoveFileWorker(DaemonProcess):
 
         self.prefs = Preferences()
 
-        # Track downloads today, using a class whose purpose is to
-        # take the value in the user prefs, increment, and then be used
-        # to update the prefs
-        self.downloads_today_tracker = DownloadsTodayTracker(
-            day_start=self.prefs.day_start,
-            downloads_today=self.prefs.downloads_today)
-
-        self.sequences = gn.Sequences(self.downloads_today_tracker,
-                                      self.prefs.stored_sequence_no)
-
         self.sync_raw_jpeg = SyncRawJpeg()
 
         self.fdo_cache_normal = FdoCacheNormal()
@@ -318,12 +309,14 @@ class RenameMoveFileWorker(DaemonProcess):
             pn.problem_definitions[pn.SAME_FILE_DIFFERENT_EXIF][1] % detail
         rpd_file.status = DownloadStatus.downloaded_with_warning
 
-    def _move_associate_file(self, extension, full_base_name,
-                             temp_associate_file):
-        """Move (rename) the associate file using the pregenerated name
+    def _move_associate_file(self, extension: str, full_base_name: str,
+                             temp_associate_file: str):
+        """
+        Move (rename) the associate file using the pre-generated name
 
-        Returns tuple of result (True if succeeded, False otherwise) and
-        full path and filename"""
+        :return: tuple of result (True if succeeded, False otherwise)
+         and full path and filename
+        """
 
         download_full_name = full_base_name + extension
 
@@ -337,7 +330,7 @@ class RenameMoveFileWorker(DaemonProcess):
 
         return (success, download_full_name)
 
-    def move_thm_file(self, rpd_file):
+    def move_thm_file(self, rpd_file: RPDFile):
         """Move (rename) the THM thumbnail file using the pregenerated name"""
         ext = None
         if hasattr(rpd_file, 'thm_extension'):
@@ -353,11 +346,11 @@ class RenameMoveFileWorker(DaemonProcess):
             logging.error("Failed to move video THM file %s",
                           rpd_file.download_thm_full_name)
 
-        return rpd_file
-
-    def move_audio_file(self, rpd_file):
-        """Move (rename) the associate audio file using the pregenerated
-        name"""
+    def move_audio_file(self, rpd_file: RPDFile):
+        """
+        Move (rename) the associate audio file using the pre-generated
+        name
+        """
         ext = None
         if hasattr(rpd_file, 'audio_extension'):
             if rpd_file.audio_extension:
@@ -372,8 +365,6 @@ class RenameMoveFileWorker(DaemonProcess):
         if not result:
             logging.error("Failed to move file's associated audio file %s",
                           rpd_file.download_audio_full_name)
-
-        return rpd_file
 
     def check_for_fatal_name_generation_errors(self, rpd_file: RPDFile) -> \
             bool:
@@ -523,7 +514,7 @@ class RenameMoveFileWorker(DaemonProcess):
 
         rpd_file.strip_characters = self.prefs.strip_characters
 
-        generate_subfolder(rpd_file, self.et_process)
+        generate_subfolder(rpd_file, self.exiftool_process)
 
         if rpd_file.download_subfolder:
             logging.debug("Generated subfolder name %s for file %s",
@@ -532,7 +523,7 @@ class RenameMoveFileWorker(DaemonProcess):
             rpd_file.sequences = self.sequences
 
             # generate the file name
-            generate_name(rpd_file, self.et_process)
+            generate_name(rpd_file, self.exiftool_process)
 
             if rpd_file.has_problem():
                 logging.debug(
@@ -631,24 +622,6 @@ class RenameMoveFileWorker(DaemonProcess):
             if sync_result.failed:
                 return False
 
-        # TODO modify file
-        if rpd_file.file_type == FileType.photo and hasattr(rpd_file,
-                                                            'new_focal_length'):
-            # A RAW file has had its focal length and
-            # aperture adjusted.
-            # These have been written out to an XMP
-            # sidecar, but they won't
-            # be picked up by pyexiv2. So temporarily
-            # change the values inplace here,
-            # without saving them.
-
-            if load_metadata(rpd_file, self.et_process):
-                # TODO make sure these values are populated
-                rpd_file.metadata['Exif.Photo.FocalLength'] = \
-                    rpd_file.new_focal_length
-                rpd_file.metadata['Exif.Photo.FNumber'] = \
-                    rpd_file.new_aperture
-
         generation_succeeded = self.generate_names(rpd_file)
 
         if generation_succeeded:
@@ -670,25 +643,22 @@ class RenameMoveFileWorker(DaemonProcess):
                     date_time=rpd_file.metadata.date_time(),
                     sub_seconds=rpd_file.metadata.sub_seconds(),
                     sequence_number_used=sequence)
-                if sync_result.sequence_to_use is None:
-                    uses_sequence_session_no = self.prefs.any_pref_uses_session_sequence_no()
-                    uses_sequence_letter = self.prefs.any_pref_uses_sequence_letter_value()
-                    if uses_sequence_session_no or uses_sequence_letter:
-                        self.sequences.increment(uses_sequence_session_no,
-                                                 uses_sequence_letter)
-                    if self.prefs.any_pref_uses_stored_sequence_no():
-                        self.prefs.stored_sequence_no += 1
-                    self.downloads_today_tracker.increment_downloads_today()
-                    self.downloads_today.value = \
-                        self.downloads_today_tracker.get_raw_downloads_today()
-                    self.downloads_today_date.value = \
-                        self.downloads_today_tracker.get_raw_downloads_today_date()
+            if not synchronize_raw_jpg or (synchronize_raw_jpg and \
+                    sync_result.sequence_to_use is None):
+                uses_sequence_session_no = self.prefs.any_pref_uses_session_sequence_no()
+                uses_sequence_letter = self.prefs.any_pref_uses_sequence_letter_value()
+                if uses_sequence_session_no or uses_sequence_letter:
+                    self.sequences.increment(uses_sequence_session_no,
+                                             uses_sequence_letter)
+                if self.prefs.any_pref_uses_stored_sequence_no():
+                    self.prefs.stored_sequence_no += 1
+                self.downloads_today_tracker.increment_downloads_today()
 
             if rpd_file.temp_thm_full_name:
-                rpd_file = self.move_thm_file(rpd_file)
+                self.move_thm_file(rpd_file)
 
             if rpd_file.temp_audio_full_name:
-                rpd_file = self.move_audio_file(rpd_file)
+                self.move_audio_file(rpd_file)
 
             if rpd_file.temp_xmp_full_name:
                 # copy and rename XMP sidecar file
@@ -706,7 +676,13 @@ class RenameMoveFileWorker(DaemonProcess):
 
         return move_succeeded
 
-    def process_renamed_file(self, rpd_file: RPDFile):
+    def process_renamed_file(self, rpd_file: RPDFile) -> QImage:
+        """
+        Generate thumbnails for display (needed only if the thumbnail was
+        from a camera or was not already generated) and for the
+        freedesktop.org cache
+        :return: thumbnail suitable for display to the user, if needed
+        """
         thumbnail = None
         if (rpd_file.fdo_thumbnail_256 is None or
             rpd_file.fdo_thumbnail_128 is None or
@@ -719,7 +695,7 @@ class RenameMoveFileWorker(DaemonProcess):
             # both sizes of freedesktop.org thumbnails. Note that
             # thumbnails downloaded from the camera using the gphoto2
             # get_thumb fuction have no orientation tag, so regenerating
-            # the thumbnail again for those images is no bad thing
+            # the thumbnail again for those images is no bad thing!
             t = Thumbnail(rpd_file, rpd_file.camera_model,
                           thumbnail_quality_lower=False,
                           thumbnail_cache=self.thumbnail_cache,
@@ -767,13 +743,13 @@ class RenameMoveFileWorker(DaemonProcess):
         """
         i = 0
 
-        # filename keys and int values used to track ints to add as
+        # Dict of filename keys and int values used to track ints to add as
         # suffixes to duplicate files
         self.duplicate_files = {}
 
         self.have_ffmpeg_thumbnailer = shutil.which('ffmpegthumbnailer')
 
-        with exiftool.ExifTool() as self.et_process:
+        with exiftool.ExifTool() as self.exiftool_process:
             while True:
                 if i:
                     logging.debug("Finished %s. Getting next task.",
@@ -786,36 +762,66 @@ class RenameMoveFileWorker(DaemonProcess):
 
                 data = pickle.loads(content)
                 """ :type : RenameAndMoveFileData"""
-                rpd_file = data.rpd_file
-                download_count = data.download_count
-                thumbnail = None
+                if data.message == RenameAndMoveStatus.download_started:
+                    # Syncrhonize QSettings instance in preferences class
+                    self.prefs.sync()
 
-                if data.download_succeeded:
-                    move_succeeded = self.process_file(rpd_file,
-                                                       download_count)
-                    if not move_succeeded:
-                        self.process_rename_failure(rpd_file)
+                    # Track downloads today, using a class whose purpose is to
+                    # take the value in the user prefs, increment, and then
+                    # finally used to update the prefs
+                    self.downloads_today_tracker = DownloadsTodayTracker(
+                        day_start=self.prefs.day_start,
+                        downloads_today=self.prefs.downloads_today)
+
+                    self.sequences = gn.Sequences(self.downloads_today_tracker,
+                                              self.prefs.stored_sequence_no)
+                    dl_today = self.downloads_today_tracker\
+                        .get_or_reset_downloads_today()
+                    logging.debug("Completed downloads today: %s", dl_today)
+                elif data.message == RenameAndMoveStatus.download_completed:
+                    # Update prefs with stored sequence number and downloads
+                    # today values
+                    self.prefs.stored_sequence_no = \
+                        self.sequences.stored_sequence_no
+                    self.prefs.downloads_today = \
+                        self.downloads_today_tracker.downloads_today
+                    dl_today = self.downloads_today_tracker\
+                        .get_or_reset_downloads_today()
+                    logging.debug("Saved downloads today value to "
+                                  "preferencees: %s",
+                                  dl_today)
+                    self.prefs.sync()
+                else:
+                    rpd_file = data.rpd_file
+                    download_count = data.download_count
+                    thumbnail = None
+
+                    if data.download_succeeded:
+                        move_succeeded = self.process_file(rpd_file,
+                                                           download_count)
+                        if not move_succeeded:
+                            self.process_rename_failure(rpd_file)
+                        else:
+                            # Add system-wide thumbnail and record downloaded
+                            # file in SQLite database
+                            thumbnail = self.process_renamed_file(rpd_file)
                     else:
-                        # Add system-wide thumbnail and record downloaded
-                        # file in SQLite database
-                        thumbnail = self.process_renamed_file(rpd_file)
-                else:
-                    move_succeeded = False
+                        move_succeeded = False
 
-                if thumbnail is not None:
-                    png_data = qimage_to_png_buffer(thumbnail).data()
-                else:
-                    png_data = None
-                rpd_file.metadata = None
-                self.content = pickle.dumps(RenameAndMoveFileResults(
-                    move_succeeded=move_succeeded,
-                    rpd_file=rpd_file,
-                    download_count=download_count,
-                    png_data=png_data),
-                    pickle.HIGHEST_PROTOCOL)
-                self.send_message_to_sink()
+                    if thumbnail is not None:
+                        png_data = qimage_to_png_buffer(thumbnail).data()
+                    else:
+                        png_data = None
+                    rpd_file.metadata = None
+                    self.content = pickle.dumps(RenameAndMoveFileResults(
+                        move_succeeded=move_succeeded,
+                        rpd_file=rpd_file,
+                        download_count=download_count,
+                        png_data=png_data),
+                        pickle.HIGHEST_PROTOCOL)
+                    self.send_message_to_sink()
 
-                i += 1
+                    i += 1
 
 
 if __name__ == '__main__':

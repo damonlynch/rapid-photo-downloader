@@ -27,6 +27,7 @@ import stat
 import hashlib
 import logging
 import pickle
+from operator import attrgetter
 
 from PyQt5.QtCore import QSize, QIODevice, QBuffer
 
@@ -277,7 +278,10 @@ class CopyFilesWorker(WorkerInPublishPullPipeline):
                     pickle.HIGHEST_PROTOCOL)
         self.send_message_to_sink()
 
-        for idx, rpd_file in enumerate(args.files):
+        # Sort the files to be copied by modification time
+        rpd_files = sorted(args.files, key=attrgetter('modification_time'))
+
+        for idx, rpd_file in enumerate(rpd_files):
 
             self.dest = self.src = None
 

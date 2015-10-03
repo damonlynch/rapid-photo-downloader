@@ -67,7 +67,8 @@ from devices import (Device, DeviceCollection, BackupDevice,
                      BackupDeviceCollection)
 from preferences import (Preferences, ScanPreferences)
 from constants import (BackupLocationType, DeviceType, ErrorType,
-                       FileType, DownloadStatus)
+                       FileType, DownloadStatus, RenameAndMoveStatus,
+                       photo_rename_test)
 from thumbnaildisplay import (ThumbnailView, ThumbnailTableModel,
     ThumbnailDelegate, DownloadTypes, DownloadStats)
 from devicedisplay import (DeviceTableModel, DeviceView, DeviceDelegate)
@@ -75,6 +76,7 @@ from utilities import (same_file_system, makeInternationalizedList)
 from rpdfile import RPDFile, file_types_by_number
 import downloadtracker
 from cache import ThumbnailCache
+from generatenameconfig import *
 
 logging_level = logging.DEBUG
 logging.basicConfig(format='%(asctime)s %(message)s', level=logging_level)
@@ -165,7 +167,9 @@ class RapidWindow(QMainWindow):
         self.prefs.auto_download_at_startup = False
         self.prefs.verify_file = False
         self.prefs.device_autodetection = True
-        self.prefs.device_location = '/windows/Photos/photos/final/'
+        self.prefs.device_location = \
+            '/home/damon/digitalPhotos/rapid/cr2-mpo'
+        self.prefs.photo_rename = photo_rename_test
 
         centralWidget = QWidget()
 
@@ -647,6 +651,12 @@ class RapidWindow(QMainWindow):
             # occurring
             self.enablePrefsAndRefresh(enabled=False)
 
+            # notify renameandmovefile process to read any necessary values
+            # from the program preferences
+            data = RenameAndMoveFileData(
+                message=RenameAndMoveStatus.download_started)
+            self.renamemq.send_message_to_worker(data)
+
             # Maximum value of progress bar may have been set to the number
             # of thumbnails being generated. Reset it to use a percentage.
             self.downloadProgressBar.setMaximum(100)
@@ -792,8 +802,9 @@ class RapidWindow(QMainWindow):
         self.download_tracker.set_download_count(rpd_file.scan_id,
                                                  download_count)
         rpd_file.download_start_time = self.download_start_time
-        data = RenameAndMoveFileData(rpd_file, download_count,
-                                     download_succeeded)
+        data = RenameAndMoveFileData(rpd_file=rpd_file,
+                                     download_count=download_count,
+                                     download_succeeded=download_succeeded)
         self.renamemq.rename_file(data)
 
     # def copyfilesThumbnail(self, rpd_file: RPDFile, thumbnail: QPixmap):
@@ -946,6 +957,12 @@ class RapidWindow(QMainWindow):
                 if self.unity_progress:
                     self.deskop_launcher.set_property('progress_visible',
                                                       False)
+
+                # Update prefs with stored sequence number and downloads today
+                # values
+                data = RenameAndMoveFileData(
+                    message=RenameAndMoveStatus.download_completed)
+                self.renamemq.send_message_to_worker(data)
 
                 if ((self.prefs.auto_exit and self.download_tracker.no_errors_or_warnings())
                                                 or self.prefs.auto_exit_force):

@@ -1111,7 +1111,7 @@ class PreferencesDialog():
         self.stored_number_entry = ValidatedEntry.ValidatedEntry(ValidatedEntry.bounded(ValidatedEntry.v_int, int, 1))
         self.downloads_today_entry.connect('changed', self.on_downloads_today_entry_changed)
         self.stored_number_entry.connect('changed', self.on_stored_number_entry_changed)
-        v = self.rapidapp.downloads_today_tracker.get_and_maybe_reset_downloads_today()
+        v = self.rapidapp.downloads_today_tracker.get_or_reset_downloads_today()
         self.downloads_today_entry.set_text(str(v))
         # make the displayed value of stored sequence no 1 more than actual value
         # so as not to confuse the user

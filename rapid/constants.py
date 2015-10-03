@@ -83,6 +83,18 @@ class DeviceState(Enum):
     scanned = 2
     downloading = 3
 
+class RenameAndMoveStatus(Enum):
+    download_started = 1
+    download_completed = 2
+
 class ThumbnailSize(IntEnum):
     width = 160
     height = 120
+
+photo_rename_test = ['Date time','Image date','YYYYMMDD','Text','-','',
+                    'Date time','Image date','HHMM','Text','-','','Sequences',
+                    'Downloads today','One digit','Text','-iso','',
+                    'Metadata','ISO','','Text','-f','','Metadata',
+                     'Aperture','','Text','-','','Metadata','Focal length','',
+                     'Text','mm-','','Metadata','Exposure time','',
+                     'Filename','Extension','lowercase']

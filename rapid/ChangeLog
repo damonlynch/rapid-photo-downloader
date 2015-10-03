@@ -3,9 +3,15 @@ Version x.x.x
 
 New features:
 * Download from all cameras supported by gphoto2, including smartphones
-* Cache thumbnails generated when a device is scanned
-* Generate system thumbnails for downloaded files
-* Remember files that have already been downloaded
+* Cache thumbnails generated when a device is scanned, making thumbnail
+  generation quicker on subsequent scans
+* Remember files that have already been downloaded  
+* Cache photos and videos on cameras and phones used to generate thumbnails 
+* Change the order in which thumbnails are generated, so that 
+  representative samples (based on time) are priortized
+* Generate freedesktop.org thumbnails for downloaded files, which means 
+  RAW files will have thumbnails in programs like Gnome Files (Nautilus)
+  and KDE Dolphin
 * Added progress bar when running under a Unity desktop
 
 Changes under the hood:
@@ -16,7 +22,7 @@ Changes under the hood:
 
 Missing features:
 * Program configuration (preferences) must be manually modified
-* Individual photos / videos cannot be selected for download
+* Individual photos / videos cannot yet be selected for download
 
 Version 0.4.11
 --------------
