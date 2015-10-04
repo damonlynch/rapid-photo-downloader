@@ -833,12 +833,13 @@ class RapidWindow(QMainWindow):
                             download_count: int, thumbnail: QPixmap):
 
         if not thumbnail.isNull():
-            logging.debug("Updating GUI thumbnail for {}".format(
-                rpd_file.download_full_file_name))
+            logging.debug("Updating GUI thumbnail for {} with unique "
+                          "id {}".format(
+                rpd_file.download_full_file_name, rpd_file.unique_id))
             self.thumbnailModel.thumbnailReceived(rpd_file, thumbnail)
 
         if rpd_file.status == DownloadStatus.downloaded_with_warning:
-            self.log_error(ErrorType.warning, rpd_file.error_title,
+            self.logError(ErrorType.warning, rpd_file.error_title,
                            rpd_file.error_msg, rpd_file.error_extra_detail)
 
         if self.prefs.backup_images:

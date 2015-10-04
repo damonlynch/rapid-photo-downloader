@@ -65,16 +65,19 @@ def copy_file_metadata(src, dst):
     try:
         os.utime(dst, (st.st_atime, st.st_mtime))
     except OSError as inst:
-        logging.warning(
-            "Couldn't adjust file modification time when copying %s. %s: %s",
-            src, inst.errno, inst.strerror)
+        #TODO notify user of this error, somehow
+        pass
+        # logging.warning(
+        #     "Couldn't adjust file modification time when copying %s. %s: %s",
+        #     src, inst.errno, inst.strerror)
     try:
         os.chmod(dst, mode)
     except OSError as inst:
         if logging:
-            logging.warning(
-                "Couldn't adjust file permissions when copying %s. %s: %s",
-                src, inst.errno, inst.strerror)
+            pass
+            # logging.warning(
+            #     "Couldn't adjust file permissions when copying %s. %s: %s",
+            #     src, inst.errno, inst.strerror)
 
     if hasattr(os, 'chflags') and hasattr(st, 'st_flags'):
         try:

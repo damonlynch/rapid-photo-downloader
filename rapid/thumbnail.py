@@ -1,4 +1,5 @@
 #!/usr/bin/python3
+
 __author__ = 'Damon Lynch'
 
 # Copyright (C) 2011-2015 Damon Lynch <damonlynch@gmail.com>
@@ -45,9 +46,9 @@ from filmstrip import add_filmstrip
 
 from constants import (Downloaded, FileType, ThumbnailSize, ThumbnailCacheStatus)
 from camera import (Camera, CopyChunks)
-from cache import ThumbnailCache
+from cache import ThumbnailCache, FdoCacheNormal, FdoCacheLarge
 from utilities import (GenerateRandomFileName, create_temp_dir, CacheDirs)
-
+from preferences import Preferences
 
 #FIXME free camera in case of early termination
 
@@ -65,8 +66,8 @@ def split_list(alist: list, wanted_parts=2):
     :return: the split lists
     """
     length = len(alist)
-    return [ alist[i*length // wanted_parts: (i+1)*length // wanted_parts]
-             for i in range(wanted_parts) ]
+    return [alist[i * length // wanted_parts: (i + 1) * length // wanted_parts]
+             for i in range(wanted_parts)]
 
 def split_indexes(length: int):
     """
@@ -227,19 +228,22 @@ class Thumbnail:
     rotate_90 = '6'
     rotate_180 = '3'
     rotate_270 = '8'
-    stock_photo = QImage("images/photo66.png")
-    stock_video = QImage("images/video66.png")
+    stock_photo = QImage("images/photo106.png")
+    stock_video = QImage("images/video106.png")
 
     def __init__(self, rpd_file: RPDFile, camera: Camera,
                  thumbnail_quality_lower: bool,
                  thumbnail_cache: ThumbnailCache,
+                 fdo_cache_normal: FdoCacheNormal,
+                 fdo_cache_large: FdoCacheLarge,
                  generate_fdo_thumbs_only_if_optimal: bool=False,
                  must_generate_fdo_thumbs: bool=False,
                  cache_file_from_camera: bool=False,
                  photo_cache_dir: str=None,
                  video_cache_dir: str=None,
                  check_for_command=None,
-                 have_ffmpeg_thumbnailer: bool=True):
+                 have_ffmpeg_thumbnailer: bool=True,
+                 modification_time=None):
         """
         For definitions of the three different types of cache, see
         cache.py
@@ -275,6 +279,9 @@ class Thumbnail:
          videos from a camera should be cached
         :param have_ffmpeg_thumbnailer: If True the program
          ffmpegthumbnailer is assumed to exist
+        :param modification_time: the file modification time to be
+         written to the FDO Cache and/or Thumbnail Cache. If none,
+         the modification time will be assumed to be in the RPDFile
         """
         self.rpd_file = rpd_file
         self.metadata = None
@@ -284,6 +291,8 @@ class Thumbnail:
         else:
             self.camera_model= None
         self.thumbnail_cache =  thumbnail_cache
+        self.fdo_cache_normal = fdo_cache_normal
+        self.fdo_cache_large = fdo_cache_large
         self.generate_fdo_thumbs_only_if_optimal = \
             generate_fdo_thumbs_only_if_optimal
         self.must_generate_fdo_thumbs = must_generate_fdo_thumbs
@@ -301,6 +310,10 @@ class Thumbnail:
         self.random_filename = GenerateRandomFileName()
         self.check_for_command = check_for_command
         self.have_ffmpeg_thumbnailer = have_ffmpeg_thumbnailer
+        if modification_time is not None:
+            self.modification_time = modification_time
+        else:
+            self.modification_time = rpd_file.modification_time
 
 
     def _crop_160x120_thumbnail(self, thumbnail: QImage,
@@ -343,9 +356,12 @@ class Thumbnail:
                     pass
 
         # Create a thumbnail out of the file itself if it's a jpeg and
-        # we need the maximum size, or there is no metadata
+        # we need the maximum size, or there is no metadata, or it's from
+        # a phone or camera and we have cached the jpeg (sometimes the
+        # embedded thumbnails are corrupt)
         if self.rpd_file.is_jpeg():
-            if not self.metadata or size is None:
+            if not self.metadata or size is None or (
+                    self.rpd_file.from_camera and self.cache_file_from_camera):
                 thumbnail = QImage(file_name)
                 could_not_load_jpeg = thumbnail.isNull()
                 if could_not_load_jpeg:
@@ -415,16 +431,27 @@ class Thumbnail:
 
             if self.generate_fdo_thumbs_only_if_optimal or \
                     self.must_generate_fdo_thumbs:
-                self._generate_fdo_cache_thumbs(thumbnail,
-                                                  sized_thumbnail, orientation)
+                if self.cache_file_from_camera and not self.downloaded:
+                    file_name = self.rpd_file.full_file_name
+                self._save_fdo_cache_thumbs(file_name, thumbnail,
+                                              sized_thumbnail, orientation)
+
+            if self.thumbnail_cache is not None and ((self.downloaded and
+                    self.rpd_file.from_camera) or not self.downloaded):
+                if self.downloaded:
+                    file_name = self.rpd_file.download_full_file_name
+                    camera_model = None
+                else:
+                    file_name = self.rpd_file.full_file_name
+                    camera_model = self.rpd_file.camera_model
+                self.thumbnail_cache.save_thumbnail(
+                    file_name, self.rpd_file.size,
+                    self.modification_time, sized_thumbnail,
+                    camera_model)
+
             self.rpd_file.thumbnail_status = \
                 ThumbnailCacheStatus.suitable_for_fdo_cache_write
 
-            if self.thumbnail_cache is not None:
-                self.thumbnail_cache.save_thumbnail(
-                    self.rpd_file.full_file_name,self.rpd_file.size,
-                    self.rpd_file.modification_time, sized_thumbnail,
-                    self.camera_model)
         else:
             sized_thumbnail = self.stock_photo
         return sized_thumbnail
@@ -447,17 +474,17 @@ class Thumbnail:
             ).rotate(180))
         return thumbnail
 
-    def _generate_fdo_cache_thumbs(self, thumbnail: QImage,
+    def _save_fdo_cache_thumbs(self, file_name: str, thumbnail: QImage,
                                      sized_thumbnail: QImage,
                                      orientation: str):
         """
         Create a freedesktop.org cache thumbnail, i.e. one available to
-        file managers etc. Save in rpd_file.
+        file managers etc.
         """
 
         # The larger thumbnail is maximum 256x256
         fdo_256 = fdo_128 = None
-        if self.rpd_file.fdo_thumbnail_256 is None:
+        if not self.rpd_file.fdo_thumbnail_256_name:
             if (sized_thumbnail.width() >= 256 or sized_thumbnail.height() >=
                     256):
                 # No need to rotate when scaling the this thumbnail: it's
@@ -470,7 +497,7 @@ class Thumbnail:
                 fdo_256 = self.rotate_thumb(fdo_256, orientation)
 
         # The smaller thumbnail size is maximum 128x128
-        if self.rpd_file.fdo_thumbnail_128 is None:
+        if not self.rpd_file.fdo_thumbnail_128_name:
             if fdo_256 is not None:
                 # It's faster to scale down a smaller image
                 fdo_128= fdo_256.scaled(128, 128, Qt.KeepAspectRatio,
@@ -489,13 +516,22 @@ class Thumbnail:
             else:
                 fdo_128 = sized_thumbnail
 
-        # Convert images to raw PNG data, suitable for pickling
+        if self.downloaded:
+            camera_model = None
+        else:
+            camera_model = self.rpd_file.camera_model
         if fdo_128 is not None:
-            self.rpd_file.fdo_thumbnail_128 = qimage_to_png_buffer(
-                fdo_128).data()
+            self.rpd_file.fdo_thumbnail_128_name = \
+                self.fdo_cache_normal.save_thumbnail(file_name,
+                             self.rpd_file.size,
+                             self.modification_time, fdo_128,
+                             camera_model, True)
         if fdo_256 is not None:
-            self.rpd_file.fdo_thumbnail_256 = qimage_to_png_buffer(
-                fdo_256).data()
+            self.rpd_file.fdo_thumbnail_256_name = \
+                self.fdo_cache_large.save_thumbnail(file_name,
+                             self.rpd_file.size,
+                             self.modification_time, fdo_256,
+                             camera_model, True)
 
     def _cache_full_size_file_from_camera(self) -> bool:
         """
@@ -564,12 +600,11 @@ class Thumbnail:
             if self.thumbnail_cache is not None:
                 self.thumbnail_cache.save_thumbnail(
                     self.rpd_file.full_file_name,self. rpd_file.size,
-                    self.rpd_file.modification_time, thumbnail,
+                    self.modification_time, thumbnail,
                     self.camera_model)
             return  thumbnail
 
-    def _get_video_thumbnail(self, file_name: str, size: QSize, downloaded: \
-                             bool) -> QImage:
+    def _get_video_thumbnail(self, file_name: str, size: QSize) -> QImage:
         """
         Returns a correctly sized thumbnail for the file.
         Prefers to get thumbnail from THM if it's available and it's
@@ -591,7 +626,7 @@ class Thumbnail:
             use_thm = size.width() <= 160
 
         if use_thm:
-            if downloaded:
+            if self.downloaded:
                 thm_file = self.rpd_file.download_thm_full_name
                 thumbnail = QImage(thm_file)
             else:
@@ -621,8 +656,10 @@ class Thumbnail:
                     ThumbnailCacheStatus.suitable_for_thumb_cache_write
 
 
-        if thumbnail is None and (downloaded or self.cache_file_from_camera or
-            not self.rpd_file.from_camera) and self.have_ffmpeg_thumbnailer:
+        if (thumbnail is None and (self.downloaded or
+                    self.cache_file_from_camera or not
+                    self.rpd_file.from_camera) and
+                    self.have_ffmpeg_thumbnailer):
             # extract a frame from the video file and scale it
             try:
                 if size is None:
@@ -650,7 +687,11 @@ class Thumbnail:
                 if not thumbnail.isNull():
                     self.rpd_file.thumbnail_status = \
                         ThumbnailCacheStatus.suitable_for_fdo_cache_write
-                    self._generate_fdo_cache_thumbs(thumbnail, thumbnail, '')
+
+                    if self.generate_fdo_thumbs_only_if_optimal or \
+                            self.must_generate_fdo_thumbs:
+                        self._save_fdo_cache_thumbs(file_name, thumbnail,
+                                                thumbnail, '')
                     if size is not None:
                         if thumbnail.width() > size.width():
                             thumbnail = thumbnail.scaled(size,
@@ -663,8 +704,12 @@ class Thumbnail:
             if self.thumbnail_cache is not None:
                 self.thumbnail_cache.save_thumbnail(
                     self.rpd_file.full_file_name,self. rpd_file.size,
-                    self.rpd_file.modification_time, thumbnail,
+                    self.modification_time, thumbnail,
                     self.camera_model)
+            if (self.must_generate_fdo_thumbs or
+                            self.generate_fdo_thumbs_only_if_optimal):
+                self._save_fdo_cache_thumbs(file_name, thumbnail, thumbnail,
+                                            '')
         return thumbnail
 
     def get_thumbnail(self, size: QSize=None) -> QImage:
@@ -674,11 +719,13 @@ class Thumbnail:
          available.
          :return the thumbnail, or stock image if generation failed
         """
-        downloaded = self.rpd_file.status in Downloaded
+        self.downloaded = self.rpd_file.status in Downloaded
+        logging.debug("File status: %s; Downloaded: %s", self.rpd_file.status,
+                      self.downloaded)
 
         # Special case: video on camera. Even if libgphoto2 can provide
         # thumbnails from the camera, it probably can't do it for videos
-        if (not downloaded and self.rpd_file.from_camera and
+        if (not self.downloaded and self.rpd_file.from_camera and
                  self.rpd_file.file_type == FileType.video):
             # However, if we can get the THM file and it's big enough, there is
             # no need to locally cache the video.
@@ -695,20 +742,20 @@ class Thumbnail:
                 return self.stock_video
         else:
             # If the file is already downloaded, get the thumbnail from it
-            if downloaded:
+            if self.downloaded:
                 file_name = self.rpd_file.download_full_file_name
             else:
                 file_name = self.rpd_file.full_file_name
 
 
         if self.rpd_file.file_type == FileType.photo:
-            if self.rpd_file.from_camera and not (downloaded or
+            if self.rpd_file.from_camera and not (self.downloaded or
                                                   self.cache_file_from_camera):
                 return self._get_photo_thumbnail_from_camera(size)
             else:
                 return self._get_photo_thumbnail(file_name, size)
         else:
-            return self._get_video_thumbnail(file_name, size, downloaded)
+            return self._get_video_thumbnail(file_name, size)
 
 
 class GenerateThumbnails(WorkerInPublishPullPipeline):
@@ -721,11 +768,20 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
         """ :type : GenerateThumbnailsArguments"""
         logging.debug("Generating thumbnails for %s...", arguments.name)
 
+        self.prefs = Preferences()
+
         thumbnail_size_needed =  QSize(ThumbnailSize.width,
                                        ThumbnailSize.height)
 
         # Access and generate Rapid Photo Downloader thumbnail cache
-        thumbnail_cache = ThumbnailCache()
+        if self.prefs.use_thumbnail_cache:
+            thumbnail_cache = ThumbnailCache()
+        else:
+            thumbnail_cache = None
+
+        # Access and generate Freedesktop.org thumbnail caches
+        fdo_cache_normal = FdoCacheNormal()
+        fdo_cache_large = FdoCacheLarge()
 
         have_ffmpeg_thumbnailer = shutil.which('ffmpegthumbnailer')
 
@@ -812,24 +868,44 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
 
         from_thumb_cache = 0
         for rpd_file in rpd_files:
+            """:type : RPDFile"""
             # Check to see if the process has received a command
             self.check_for_command()
 
-            thumbnail_icon = thumbnail_cache.get_thumbnail(
+            thumbnail_icon, thumbnail_path = thumbnail_cache.get_thumbnail(
                 rpd_file.full_file_name, rpd_file.modification_time,
                 arguments.camera)
 
             if thumbnail_icon is not None:
-                if camera is not None:
-                    if camera.can_fetch_thumbnails:
-                        rpd_file.thumbnail_status = \
-                            ThumbnailCacheStatus.from_rpd_cache_fdo_write_invalid
+                if camera is not None and camera.can_fetch_thumbnails:
+                    rpd_file.thumbnail_status = \
+                        ThumbnailCacheStatus.from_rpd_cache_fdo_write_invalid
+                else:
+                    rpd_file.thumbnail_status = \
+                        ThumbnailCacheStatus.suitable_for_fdo_cache_write
+                    png, thumbnail_path = fdo_cache_normal.get_thumbnail(
+                        rpd_file.full_file_name, rpd_file.modification_time,
+                        arguments.camera)
+                    if thumbnail_path:
+                        logging.debug("For %s located FDO thumbnail %s",
+                                      rpd_file.full_file_name, thumbnail_path)
+                        rpd_file.fdo_thumbnail_128_name = thumbnail_path
+                    png, thumbnail_path = fdo_cache_large.get_thumbnail(
+                        rpd_file.full_file_name, rpd_file.modification_time,
+                        arguments.camera)
+                    if thumbnail_path:
+                        logging.debug("For %s located FDO thumbnail %s",
+                                      rpd_file.full_file_name, thumbnail_path)
+                        rpd_file.fdo_thumbnail_256_name = thumbnail_path
                 from_thumb_cache += 1
             else:
                 thumbnail = Thumbnail(rpd_file, camera,
                               arguments.thumbnail_quality_lower,
                               thumbnail_cache=thumbnail_cache,
-                              generate_fdo_thumbs_only_if_optimal=True,
+                              fdo_cache_normal=fdo_cache_normal,
+                              fdo_cache_large=fdo_cache_large,
+                              generate_fdo_thumbs_only_if_optimal=\
+                                          self.prefs.save_fdo_thumbnails,
                               cache_file_from_camera=cache_file_from_camera,
                               photo_cache_dir=photo_cache_dir,
                               video_cache_dir=video_cache_dir,

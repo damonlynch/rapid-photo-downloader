@@ -192,11 +192,6 @@ class RenameMoveFileWorker(DaemonProcess):
         self.prefs = Preferences()
 
         self.sync_raw_jpeg = SyncRawJpeg()
-
-        self.fdo_cache_normal = FdoCacheNormal()
-        self.fdo_cache_large = FdoCacheLarge()
-        self.thumbnail_cache = ThumbnailCache()
-
         self.downloaded = DownloadedSQL()
 
         logging.debug("Start of day is set to %s", self.prefs.day_start)
@@ -684,10 +679,37 @@ class RenameMoveFileWorker(DaemonProcess):
         :return: thumbnail suitable for display to the user, if needed
         """
         thumbnail = None
-        if (rpd_file.fdo_thumbnail_256 is None or
-            rpd_file.fdo_thumbnail_128 is None or
-            rpd_file.thumbnail_status !=
-            ThumbnailCacheStatus.suitable_for_fdo_cache_write):
+
+        # Check to see if existing thumbnail in FDO cache can be modified
+        # and renamed to reflect new URI
+        mtime = os.path.getmtime(rpd_file.download_full_file_name)
+        if rpd_file.fdo_thumbnail_128_name and self.prefs.save_fdo_thumbnails:
+            logging.debug("Copying and modifying existing FDO 128 thumbnail")
+            rpd_file.fdo_thumbnail_128_name = \
+                self.fdo_cache_normal.modify_existing_thumbnail_and_save_copy(
+                    existing_cache_thumbnail=rpd_file.fdo_thumbnail_128_name,
+                    full_file_name=rpd_file.download_full_file_name,
+                    size=rpd_file.size,
+                    modification_time=mtime)
+
+        if rpd_file.fdo_thumbnail_256_name and self.prefs.save_fdo_thumbnails:
+            logging.debug("Copying and modifying existing FDO 256 thumbnail")
+            rpd_file.fdo_thumbnail_256_name = \
+                self.fdo_cache_large.modify_existing_thumbnail_and_save_copy(
+                    existing_cache_thumbnail=rpd_file.fdo_thumbnail_256_name,
+                    full_file_name=rpd_file.download_full_file_name,
+                    size=rpd_file.size,
+                    modification_time=mtime)
+
+        if ((self.prefs.save_fdo_thumbnails and (
+                not rpd_file.fdo_thumbnail_256_name or
+                not rpd_file.fdo_thumbnail_128_name)) or
+                rpd_file.thumbnail_status !=
+                ThumbnailCacheStatus.suitable_for_fdo_cache_write):
+            logging.debug("Thumbnail status: %s", rpd_file.thumbnail_status)
+            logging.debug("Have FDO 128: %s; have FDO 256: %s",
+                          rpd_file.fdo_thumbnail_128_name != '',
+                          rpd_file.fdo_thumbnail_256_name != '')
             discard_thumbnail = rpd_file.thumbnail_status == \
                 ThumbnailCacheStatus.suitable_for_fdo_cache_write
 
@@ -699,29 +721,17 @@ class RenameMoveFileWorker(DaemonProcess):
             t = Thumbnail(rpd_file, rpd_file.camera_model,
                           thumbnail_quality_lower=False,
                           thumbnail_cache=self.thumbnail_cache,
-                          must_generate_fdo_thumbs=True,
-                          have_ffmpeg_thumbnailer=self.have_ffmpeg_thumbnailer)
+                          fdo_cache_normal=self.fdo_cache_normal,
+                          fdo_cache_large=self.fdo_cache_large,
+                          must_generate_fdo_thumbs=
+                                self.prefs.save_fdo_thumbnails,
+                          have_ffmpeg_thumbnailer=self.have_ffmpeg_thumbnailer,
+                          modification_time=mtime)
             thumbnail = t.get_thumbnail(size=QSize(ThumbnailSize.width,
                                      ThumbnailSize.height))
             if discard_thumbnail:
                 thumbnail = None
 
-        mtime = os.path.getmtime(rpd_file.download_full_file_name)
-        if rpd_file.fdo_thumbnail_128 is not None:
-            self.fdo_cache_normal.save_thumbnail(
-                full_file_name=rpd_file.download_full_file_name,
-                size=rpd_file.size,
-                modification_time=mtime,
-                thumbnail=QImage.fromData(rpd_file.fdo_thumbnail_128),
-                free_desktop_org=True)
-
-        if rpd_file.fdo_thumbnail_256 is not None:
-            self.fdo_cache_large.save_thumbnail(
-                full_file_name=rpd_file.download_full_file_name,
-                size=rpd_file.size,
-                modification_time=mtime,
-                thumbnail=QImage.fromData(rpd_file.fdo_thumbnail_256),
-                free_desktop_org=True)
 
         self.downloaded.add_downloaded_file(name=rpd_file.name,
                 size=rpd_file.size,
@@ -778,6 +788,15 @@ class RenameMoveFileWorker(DaemonProcess):
                     dl_today = self.downloads_today_tracker\
                         .get_or_reset_downloads_today()
                     logging.debug("Completed downloads today: %s", dl_today)
+                    if self.prefs.save_fdo_thumbnails:
+                        self.fdo_cache_normal = FdoCacheNormal()
+                        self.fdo_cache_large = FdoCacheLarge()
+                    else:
+                        self.fdo_cache_large = self.fdo_cache_normal = None
+                    if self.prefs.use_thumbnail_cache:
+                        self.thumbnail_cache = ThumbnailCache()
+                    else:
+                        self.thumbnail_cache = None
                 elif data.message == RenameAndMoveStatus.download_completed:
                     # Update prefs with stored sequence number and downloads
                     # today values

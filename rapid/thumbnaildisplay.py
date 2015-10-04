@@ -122,7 +122,8 @@ class ThumbnailTableModel(QAbstractTableModel):
         self.rpd_files = {}
 
         #FIXME change this placeholer image
-        self.photo_icon = QPixmap('images/photo66.png')
+        self.photo_icon = QPixmap('images/photo106.png')
+        self.video_icon = QPixmap('images/video106.png')
 
         self.total_thumbs_to_generate = 0
         self.thumbnails_generated = 0
@@ -187,7 +188,10 @@ class ThumbnailTableModel(QAbstractTableModel):
 
         self.rpd_files[unique_id] = rpd_file
         self.file_names[unique_id] = rpd_file.name
-        self.thumbnails[unique_id] = self.photo_icon
+        if rpd_file.file_type == FileType.photo:
+            self.thumbnails[unique_id] = self.photo_icon
+        else:
+            self.thumbnails[unique_id] = self.video_icon
         self.marked.add(unique_id)
 
         self.scan_index[rpd_file.scan_id].append(unique_id)

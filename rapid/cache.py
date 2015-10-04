@@ -22,18 +22,25 @@ __author__ = 'Damon Lynch'
 """
 Rapid Photo Downloader deals with three types of cache:
 
-1. An image cache whose sole purpose is to store thumbnails of scanned images
+1. An image cache whose sole purpose is to store thumbnails of scanned files
    that have not necessarily been downloaded, but may have. This is only used
    by Rapid Photo Downloader.
-   Name: thumbnail cache
+   Name: Thumbnail Cache
+   Location: /home/USER/.cache/rapid-photo-downloader/thumbnails/normal
+   (Actual location may vary depending on value of environment variable
+   XDG_CACHE_HOME)
 
 2. A cache of actual full files downloaded from a camera, which are then used
    to extract the thumbnail from. Since these same files could be downloaded,
    it makes sense to keep them cached until the program exits.
-   Name: download cache
+   Name: Download Cache
+   Location: temporary subfolder in user specified download folder
 
 3. The freedesktop.org thumbnail cache, for files that have been downloaded.
-   Name: fdo cache
+   Name: FDO Cache
+   Location: /home/USER/.cache/thumbnails/
+   (Actual location may vary depending on value of environment variable
+   XDG_CACHE_HOME
 
 For the fdo cache specs, see:
 http://specifications.freedesktop.org/thumbnail-spec/thumbnail-spec-latest.html
@@ -66,7 +73,8 @@ class Cache:
         else:
             self.random_filename = self.fs_encoding = None
 
-    def md5_hash_name(self, full_file_name: str, camera_model: str=None):
+    def md5_hash_name(self, full_file_name: str, camera_model: str=None) -> \
+            (str, str):
         if camera_model is None:
             prefix = 'file://'
             path = os.path.abspath(full_file_name)
@@ -77,8 +85,8 @@ class Cache:
             path = '{}/{}'.format(camera_model, full_file_name)
 
         uri = '{}{}'.format(prefix, pathname2url(path))
-        return '{}.png'.format(hashlib.md5(uri.encode(
-            self.fs_encoding)).hexdigest())
+        return ('{}.png'.format(hashlib.md5(uri.encode(
+            self.fs_encoding)).hexdigest()), uri)
 
     def save_thumbnail(self, full_file_name: str, size: int,
                        modification_time, thumbnail: QImage,
@@ -104,9 +112,9 @@ class Cache:
         if not self.valid:
             return None
 
-        path = os.path.join(self.cache_dir,
-                            self.md5_hash_name(full_file_name, camera_model))
-        thumbnail.setText('Thumb::URI', path)
+        md5_name, uri = self.md5_hash_name(full_file_name, camera_model)
+        path = os.path.join(self.cache_dir, md5_name)
+        thumbnail.setText('Thumb::URI', uri)
         thumbnail.setText('Thumb::MTime', str(float(modification_time)))
         thumbnail.setText('Thumb::Size', str(size))
 
@@ -118,14 +126,14 @@ class Cache:
         if thumbnail.save(temp_path):
             os.rename(temp_path, path)
             os.chmod(path, 0o600)
-            logging.debug("Wrote {}x{} thumbnail {}".format(thumbnail.width(),
-                           thumbnail.height(), path))
+            logging.debug("Wrote {}x{} thumbnail {} for {}".format(
+                thumbnail.width(), thumbnail.height(), path, uri))
             return path
         else:
             return None
 
     def get_thumbnail(self, full_file_name: str, modification_time,
-                      camera_model: str=None) -> QImage:
+                      camera_model: str=None) -> (QImage, str):
         """
         Attempt to retrieve a thumbnail from the thumbnail cache.
         :param full_file_name: full path of the file (including file
@@ -135,20 +143,40 @@ class Cache:
          into a float if it's not already
         :param camera_model: optional camera model. If the thumbnail is
          not from a camera, then should be None.
-        :return the thumbnail if it was found, else None
+        :return a tuple of (1) the thumbnail if it was found, else None,
+         and (2) the path, else None
         """
 
         if not self.valid:
-            return None
-        path = os.path.join(self.cache_dir,
-                            self.md5_hash_name(full_file_name, camera_model))
+            return (None, None)
+        md5_name, uri = self.md5_hash_name(full_file_name, camera_model)
+        path = os.path.join(self.cache_dir, md5_name)
         if os.path.exists(path):
             png = QImage(path)
             if not png.isNull():
                 mtime = float(png.text('Thumb::MTime'))
                 if mtime == float(modification_time):
-                    return png
-        return None
+                    return (png, path)
+        return (None, None)
+
+    def modify_existing_thumbnail_and_save_copy(self,
+                              existing_cache_thumbnail: str,
+                              full_file_name: str, modification_time,
+                              size: int) -> str:
+        thumbnail = QImage(existing_cache_thumbnail)
+        # try:
+        #     os.remove(existing_cache_thumbnail)
+        # except:
+        #     logging.warning("Failed to remove thumbnail %s",
+        #                     existing_cache_thumbnail)
+        if not thumbnail.isNull():
+            return self.save_thumbnail(full_file_name, size, modification_time,
+                            thumbnail, None, False)
+        else:
+            return None
+
+
+
 
     def delete_thumbnail(self, full_file_name: str, camera_model: str=None):
         """
@@ -156,8 +184,8 @@ class Cache:
         """
         if not self.valid:
             return None
-        path = os.path.join(self.cache_dir,
-                            self.md5_hash_name(full_file_name, camera_model))
+        md5_name, uri = self.md5_hash_name(full_file_name, camera_model)
+        path = os.path.join(self.cache_dir, md5_name)
         if os.path.isfile(path):
             os.remove(path)
 
@@ -181,16 +209,16 @@ class FdoCacheLarge(FdoCacheNormal):
         super().__init__(path)
 
 
-class ThumbnailCache(Cache):
+class BaseThumbnailCache(Cache):
     """
     Creates a thumbnail cache in the Rapid Photo Downloader cache
     directory. Saves and checks for presence of thumbnails in it.
     """
-    def __init__(self):
+    def __init__(self, cache_subfolder):
         cache_dir = get_program_cache_directory(create_if_not_exist=True)
         super().__init__(cache_dir)
         if self.valid:
-            self.cache_dir = os.path.join(self.cache_dir, 'thumbnails/normal')
+            self.cache_dir = os.path.join(self.cache_dir, cache_subfolder)
             try:
                 if not os.path.exists(self.cache_dir):
                     os.makedirs(self.cache_dir, 0o700)
@@ -233,3 +261,8 @@ class ThumbnailCache(Cache):
         """
         if os.path.isdir(self.cache_dir):
             os.removedirs(get_program_cache_directory())
+
+
+class ThumbnailCache(BaseThumbnailCache):
+    def __init__(self):
+        super().__init__('thumbnails/normal')

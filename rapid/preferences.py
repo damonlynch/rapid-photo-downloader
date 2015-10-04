@@ -333,7 +333,9 @@ class Preferences:
                                verify_file=False
                               )
     performance_defaults = dict(generate_thumbnails=True,
-                                thumbnail_quality_lower=False)
+                                thumbnail_quality_lower=False,
+                                use_thumbnail_cache=True,
+                                save_fdo_thumbnails=True)
     error_defaults = dict(conflict_resolution=int(constants.ConflictResolution
                           .skip),
                           backup_duplicate_overwrite=False)
