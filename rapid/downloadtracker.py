@@ -95,10 +95,10 @@ class DownloadTracker:
         # downloading from a a high speed source.
         # Determine the value by calculating how many files need a thumbnail
         # generated after they've been downloaded and renamed.
-        chunk_weight = (stats.post_download_thumb_generation * 30 + (
+        chunk_weight = (stats.post_download_thumb_generation * 60 + (
             no_files - stats.post_download_thumb_generation) * 5) / no_files
         self.rename_chunk[scan_id] = int((total_bytes / no_files) * (
-            chunk_weight / 100 + 1))
+            chunk_weight / 100))
         self.size_of_download_in_bytes_by_scan_id[scan_id] = total_bytes + \
                      self.rename_chunk[scan_id] * no_files
         self.raw_size_of_download_in_bytes_by_scan_id[scan_id] = total_bytes
