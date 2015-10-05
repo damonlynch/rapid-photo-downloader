@@ -798,18 +798,19 @@ class RenameMoveFileWorker(DaemonProcess):
                     else:
                         self.thumbnail_cache = None
                 elif data.message == RenameAndMoveStatus.download_completed:
-                    # Update prefs with stored sequence number and downloads
-                    # today values
-                    self.prefs.stored_sequence_no = \
-                        self.sequences.stored_sequence_no
-                    self.prefs.downloads_today = \
-                        self.downloads_today_tracker.downloads_today
+                    # Ask main application process to update prefs with stored
+                    # sequence number and downloads today values. Cannot do it
+                    # here because to save QSettings, QApplication should be
+                    # used.
+                    self.content = pickle.dumps(RenameAndMoveFileResults(
+                        stored_sequence_no=self.sequences.stored_sequence_no,
+                        downloads_today=\
+                            self.downloads_today_tracker.downloads_today),
+                        pickle.HIGHEST_PROTOCOL)
                     dl_today = self.downloads_today_tracker\
                         .get_or_reset_downloads_today()
-                    logging.debug("Saved downloads today value to "
-                                  "preferencees: %s",
-                                  dl_today)
-                    self.prefs.sync()
+                    logging.debug("Downloads today: %s", dl_today)
+                    self.send_message_to_sink()
                 else:
                     rpd_file = data.rpd_file
                     download_count = data.download_count

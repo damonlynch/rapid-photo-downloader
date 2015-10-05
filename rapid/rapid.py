@@ -87,6 +87,7 @@ BackupMissing = namedtuple('BackupMissing', ['photo', 'video'])
 
 class RenameMoveFileManager(PushPullDaemonManager):
     message = QtCore.pyqtSignal(bool, RPDFile, int, QPixmap)
+    sequencesUpdate = QtCore.pyqtSignal(int, list)
     def __init__(self, context: zmq.Context):
         super(RenameMoveFileManager, self).__init__(context)
         self._process_name = 'Rename and Move File Manager'
@@ -98,13 +99,20 @@ class RenameMoveFileManager(PushPullDaemonManager):
     def process_sink_data(self):
         data = pickle.loads(self.content)
         """ :type : RenameAndMoveFileResults """
-        if data.png_data is not None:
-            thumbnail = QImage.fromData(data.png_data)
-            thumbnail = QPixmap.fromImage(thumbnail)
+        if data.move_succeeded is not None:
+            if data.png_data is not None:
+                thumbnail = QImage.fromData(data.png_data)
+                thumbnail = QPixmap.fromImage(thumbnail)
+            else:
+                thumbnail = QPixmap()
+            self.message.emit(data.move_succeeded, data.rpd_file,
+                              data.download_count, thumbnail)
         else:
-            thumbnail = QPixmap()
-        self.message.emit(data.move_succeeded, data.rpd_file,
-                          data.download_count, thumbnail)
+            assert data.stored_sequence_no is not None
+            assert data.downloads_today is not None
+            assert isinstance(data.downloads_today, list)
+            self.sequencesUpdate.emit(data.stored_sequence_no,
+                                      data.downloads_today)
 
 
 class ScanManager(PublishPullPipelineManager):
@@ -320,6 +328,7 @@ class RapidWindow(QMainWindow):
 
         self.renameThread.started.connect(self.renamemq.run_sink)
         self.renamemq.message.connect(self.fileRenamedAndMoved)
+        self.renamemq.sequencesUpdate.connect(self.updateSequences)
         self.renamemq.workerFinished.connect(self.fileRenamedAndMovedFinished)
 
         QTimer.singleShot(0, self.renameThread.start)
@@ -849,6 +858,16 @@ class RapidWindow(QMainWindow):
             #TODO: implement backupimages
 
         self.fileDownloadFinished(move_succeeded, rpd_file)
+
+    def updateSequences(self, stored_sequence_no: int, downloads_today: list):
+        """
+        Called at conclusion of a download, with values coming from
+        renameandmovefile process
+        """
+        self.prefs.stored_sequence_no = stored_sequence_no
+        self.prefs.downloads_today = downloads_today
+        self.prefs.sync()
+        logging.debug("Saved sequence values to preferences")
 
     def fileRenamedAndMovedFinished(self):
         pass

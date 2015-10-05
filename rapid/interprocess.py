@@ -616,12 +616,15 @@ class RenameAndMoveFileData:
 
 
 class RenameAndMoveFileResults:
-    def __init__(self, move_succeeded: bool, rpd_file: RPDFile,
-                 download_count: int, png_data: bytes):
+    def __init__(self, move_succeeded: bool=None, rpd_file: RPDFile=None,
+                 download_count: int=None, png_data: bytes=None,
+                 stored_sequence_no: int=None, downloads_today: list=None):
         self.move_succeeded = move_succeeded
         self.rpd_file = rpd_file
         self.download_count = download_count
         self.png_data = png_data
+        self.stored_sequence_no = stored_sequence_no
+        self.downloads_today = downloads_today
 
 
 class BackupArguments:
