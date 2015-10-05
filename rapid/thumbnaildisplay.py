@@ -36,7 +36,8 @@ from viewutils import RowTracker, SortedListItem
 from rpdfile import RPDFile
 from interprocess import (PublishPullPipelineManager,
     GenerateThumbnailsArguments, Device, GenerateThumbnailsResults)
-from constants import (DownloadStatus, Downloaded, FileType, ThumbnailSize)
+from constants import (DownloadStatus, Downloaded, FileType, ThumbnailSize,
+                       ThumbnailCacheStatus)
 from storage import get_program_cache_directory
 from utilities import (CacheDirs)
 
@@ -50,10 +51,11 @@ DownloadFiles = namedtuple('DownloadFiles', ['files', 'download_types',
 
 class DownloadStats:
     def __init__(self):
-        self.photos = 0
-        self.videos = 0
-        self.photos_size = 0
-        self.videos_size = 0
+        self.no_photos = 0
+        self.no_videos = 0
+        self.photos_size_in_bytes = 0
+        self.videos_size_in_bytes = 0
+        self.post_download_thumb_generation = 0
 
 class ThumbnailManager(PublishPullPipelineManager):
     message = pyqtSignal(RPDFile, QPixmap)
@@ -338,22 +340,34 @@ class ThumbnailTableModel(QAbstractTableModel):
 
         def addFile(unique_id):
             rpd_file = self.rpd_files[unique_id]
-            """ :type : rpdfile"""
+            """ :type : RPDFile"""
             if rpd_file.status not in Downloaded:
                 scan_id = rpd_file.scan_id
                 files[scan_id].append(rpd_file)
                 if rpd_file.file_type == FileType.photo:
                     download_types.photos = True
-                    download_stats[scan_id].photos += 1
-                    download_stats[scan_id].photos_size += rpd_file.size
+                    download_stats[scan_id].no_photos += 1
+                    download_stats[scan_id].photos_size_in_bytes += \
+                        rpd_file.size
                 else:
                     download_types.videos = True
-                    download_stats[scan_id].videos += 1
-                    download_stats[scan_id].videos_size += rpd_file.size
+                    download_stats[scan_id].no_videos += 1
+                    download_stats[scan_id].videos_size_in_bytes += \
+                        rpd_file.size
+                # Need to generate a thumbnail after a file has been renamed
+                # if large FDO Cache thumbnail does not exist or if the
+                # existing thumbnail has been marked as not suitable for the
+                # FDO Cache (e.g. if we don't know the correct orientation).
+                if ((rpd_file.thumbnail_status !=
+                        ThumbnailCacheStatus.suitable_for_fdo_cache_write) or
+                        (generating_fdo_thumbs and not
+                             rpd_file.fdo_thumbnail_256_name)):
+                    download_stats[scan_id].post_download_thumb_generation += 1
 
         files = defaultdict(list)
         download_types = DownloadTypes()
         download_stats = defaultdict(DownloadStats)
+        generating_fdo_thumbs = self.rapidApp.prefs.save_fdo_thumbnails
         if scan_id is None:
             for unique_id in self.marked:
                 addFile(unique_id)

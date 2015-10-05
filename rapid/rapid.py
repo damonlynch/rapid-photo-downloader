@@ -697,30 +697,24 @@ class RapidWindow(QMainWindow):
         generated in the copy files process.
         """
 
-        if download_stats.photos > 0:
+        if download_stats.no_photos > 0:
             photo_download_folder = self.prefs.photo_download_folder
         else:
             photo_download_folder = None
 
-        if download_stats.videos > 0:
+        if download_stats.no_videos > 0:
             video_download_folder = self.prefs.video_download_folder
         else:
             video_download_folder = None
 
-        self.download_tracker.init_stats(scan_id=scan_id,
-                                photo_size_in_bytes=download_stats.photos_size,
-                                video_size_in_bytes=download_stats.videos_size,
-                                no_photos_to_download=download_stats.photos,
-                                no_videos_to_download=download_stats.videos)
-
-
-        download_size = download_stats.photos_size + download_stats.videos_size
+        self.download_tracker.init_stats(scan_id=scan_id, stats=download_stats)
+        download_size = download_stats.photos_size_in_bytes + download_stats.videos_size_in_bytes
 
         if self.prefs.backup_images:
             download_size += ((self.backup_devices.no_photo_backup_devices *
-                               download_stats.photos_size) + (
+                               download_stats.photos_size_in_bytes) + (
                                self.backup_devices.no_video_backup_devices *
-                               download_stats.videos_size))
+                               download_stats.videos_size_in_bytes))
 
         self.time_remaining[scan_id] = download_size
         self.time_check.set_download_mark()

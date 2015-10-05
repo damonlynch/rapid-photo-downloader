@@ -22,6 +22,7 @@ import time
 import logging
 
 from constants import DownloadStatus, FileType
+from thumbnaildisplay import DownloadStats
 
 from gettext import gettext as _
 
@@ -76,28 +77,30 @@ class DownloadTracker:
         self.no_photo_backup_devices = no_photo_backup_devices
         self.no_video_backup_devices = no_video_backup_devices
 
-    def init_stats(self, scan_id: int, photo_size_in_bytes: int,
-                   video_size_in_bytes: int, no_photos_to_download: int,
-                   no_videos_to_download: int):
-        no_files = no_photos_to_download + no_videos_to_download
+    def init_stats(self, scan_id: int, stats: DownloadStats):
+        no_files = stats.no_photos + stats.no_videos
         self.no_files_in_download_by_scan_id[scan_id] = no_files
-        self.no_photos_in_download_by_scan_id[scan_id] = no_photos_to_download
-        self.no_videos_in_download_by_scan_id[scan_id] = no_videos_to_download
+        self.no_photos_in_download_by_scan_id[scan_id] = stats.no_photos
+        self.no_videos_in_download_by_scan_id[scan_id] = stats.no_videos
         self.size_of_photo_backup_in_bytes_by_scan_id[
-            scan_id] = photo_size_in_bytes * self.no_photo_backup_devices
+            scan_id] = stats.photos_size_in_bytes * \
+                       self.no_photo_backup_devices
         self.size_of_video_backup_in_bytes_by_scan_id[
-            scan_id] = video_size_in_bytes * self.no_video_backup_devices
-        total_bytes = photo_size_in_bytes + video_size_in_bytes
+            scan_id] = stats.videos_size_in_bytes * \
+                       self.no_video_backup_devices
+        total_bytes = stats.photos_size_in_bytes + stats.videos_size_in_bytes
         # rename_chunk is used to account for the time it takes to rename a
-        # file.
-        # It is arbitrarily set to 10% of the time it takes to copy it.
-        # This makes a difference to the user when they're downloading from a
-        # a high speed source.
-        self.rename_chunk[scan_id] = int(total_bytes / 10 / no_files)
+        # file, and potentially to generate thumbnails after it has renamed.
+        # rename_chunk makes a notable difference to the user when they're
+        # downloading from a a high speed source.
+        # Determine the value by calculating how many files need a thumbnail
+        # generated after they've been downloaded and renamed.
+        chunk_weight = (stats.post_download_thumb_generation * 30 + (
+            no_files - stats.post_download_thumb_generation) * 5) / no_files
+        self.rename_chunk[scan_id] = int((total_bytes / no_files) * (
+            chunk_weight / 100 + 1))
         self.size_of_download_in_bytes_by_scan_id[scan_id] = total_bytes + \
-                                                             self.rename_chunk[
-                                                                 scan_id] * \
-                                                             no_files
+                     self.rename_chunk[scan_id] * no_files
         self.raw_size_of_download_in_bytes_by_scan_id[scan_id] = total_bytes
         self.total_bytes_to_download += \
         self.size_of_download_in_bytes_by_scan_id[scan_id]
