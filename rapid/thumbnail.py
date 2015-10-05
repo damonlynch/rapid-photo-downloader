@@ -720,8 +720,8 @@ class Thumbnail:
          :return the thumbnail, or stock image if generation failed
         """
         self.downloaded = self.rpd_file.status in Downloaded
-        logging.debug("File status: %s; Downloaded: %s", self.rpd_file.status,
-                      self.downloaded)
+        # logging.debug("File status: %s; Downloaded: %s", self.rpd_file.status,
+        #               self.downloaded)
 
         # Special case: video on camera. Even if libgphoto2 can provide
         # thumbnails from the camera, it probably can't do it for videos
@@ -872,9 +872,12 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
             # Check to see if the process has received a command
             self.check_for_command()
 
-            thumbnail_icon, thumbnail_path = thumbnail_cache.get_thumbnail(
-                rpd_file.full_file_name, rpd_file.modification_time,
-                arguments.camera)
+            if thumbnail_cache is not None:
+                thumbnail_icon, thumbnail_path = thumbnail_cache.get_thumbnail(
+                    rpd_file.full_file_name, rpd_file.modification_time,
+                    arguments.camera)
+            else:
+                thumbnail_icon = None
 
             if thumbnail_icon is not None:
                 if camera is not None and camera.can_fetch_thumbnails:

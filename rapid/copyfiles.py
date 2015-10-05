@@ -245,10 +245,11 @@ class CopyFilesWorker(WorkerInPublishPullPipeline):
                 copy_file_metadata(associate_file_fullname,
                                temp_full_name)
         except:
-            logging.warning(
-                "Could not update filesystem metadata when "
-                "copying %s",
-                rpd_file.thm_full_name)
+            pass
+            # logging.warning(
+            #     "Could not update filesystem metadata when "
+            #     "copying %s",
+            #     rpd_file.thm_full_name)
         return temp_full_name
 
 
@@ -324,10 +325,11 @@ class CopyFilesWorker(WorkerInPublishPullPipeline):
                                  (rpd_file.modification_time,
                                   rpd_file.modification_time))
                     except OSError as inst:
-                        logging.warning(
-                            "Could not update filesystem metadata when "
-                            "copying %s",
-                            rpd_file.full_file_name)
+                        pass
+                        # logging.warning(
+                        #     "Could not update filesystem metadata when "
+                        #     "copying %s",
+                        #     rpd_file.full_file_name)
                     if self.verify_file:
                         rpd_file.md5 = hashlib.md5(open(
                             temp_full_file_name).read()).hexdigest()
