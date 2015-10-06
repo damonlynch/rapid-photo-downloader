@@ -228,7 +228,7 @@ class DeviceCollection:
         self.cameras = {} # type Dict[str, str]
         self.scan_counter = 0
 
-    def add_device(self, device: Device):
+    def add_device(self, device: Device) -> int:
         scan_id = self.scan_counter
         self.scan_counter += 1
         self.devices[scan_id] = device
@@ -291,7 +291,7 @@ class DeviceCollection:
 
     def delete_cache_dirs(self):
         """
-        Delete all cache dirs and their contents any devices might have
+        Delete all Download Caches and their contents any devices might have
         """
         for device in self.devices.values():
             device.delete_cache_dirs()

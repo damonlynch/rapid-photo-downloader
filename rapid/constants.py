@@ -91,6 +91,11 @@ class ThumbnailSize(IntEnum):
     width = 160
     height = 120
 
+class ApplicationState(Enum):
+    normal = 1
+    exiting = 2
+
+
 photo_rename_test = ['Date time','Image date','YYYYMMDD','Text','-','',
                     'Date time','Image date','HHMM','Text','-','','Sequences',
                     'Downloads today','One digit','Text','-iso','',

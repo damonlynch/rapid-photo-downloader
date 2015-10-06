@@ -68,7 +68,7 @@ from devices import (Device, DeviceCollection, BackupDevice,
 from preferences import (Preferences, ScanPreferences)
 from constants import (BackupLocationType, DeviceType, ErrorType,
                        FileType, DownloadStatus, RenameAndMoveStatus,
-                       photo_rename_test)
+                       photo_rename_test, ApplicationState)
 from thumbnaildisplay import (ThumbnailView, ThumbnailTableModel,
     ThumbnailDelegate, DownloadTypes, DownloadStats)
 from devicedisplay import (DeviceTableModel, DeviceView, DeviceDelegate)
@@ -162,6 +162,8 @@ class RapidWindow(QMainWindow):
     def __init__(self, parent=None):
         self.do_init = QtCore.QEvent.registerEventType()
         super(RapidWindow, self).__init__(parent)
+
+        self.application_state = ApplicationState.normal
 
         self.context = zmq.Context()
 
@@ -779,12 +781,16 @@ class RapidWindow(QMainWindow):
         Deletes temporary files and folders used in all downloads
         """
         for scan_id in self.temp_dirs_by_scan_id:
-            self.cleanTempDirsForScanId(scan_id)
+            self.cleanTempDirsForScanId(scan_id, remove_entry=False)
         self.temp_dirs_by_scan_id = {}
 
-    def cleanTempDirsForScanId(self, scan_id: int):
+    def cleanTempDirsForScanId(self, scan_id: int, remove_entry: bool=True):
         """
         Deletes temporary files and folders used in download
+        :param scan_id: the scan id associated with the temporary
+         directory
+        :param remove_entry: if True, remove the scan_id from the
+         dictionary tracking temporary directories
         """
         home_dir = os.path.expanduser("~")
         for d in self.temp_dirs_by_scan_id[scan_id]:
@@ -795,7 +801,8 @@ class RapidWindow(QMainWindow):
                 except:
                     logging.error("Unknown error deleting temporary  "
                                       "directory %s", d)
-        del self.temp_dirs_by_scan_id[scan_id]
+        if remove_entry:
+            del self.temp_dirs_by_scan_id[scan_id]
 
     def copyfilesDownloaded(self, download_succeeded: bool,
                                       rpd_file: RPDFile, download_count: int):
@@ -862,6 +869,8 @@ class RapidWindow(QMainWindow):
         self.prefs.downloads_today = downloads_today
         self.prefs.sync()
         logging.debug("Saved sequence values to preferences")
+        if self.application_state == ApplicationState.exiting:
+            self.close()
 
     def fileRenamedAndMovedFinished(self):
         pass
@@ -1335,11 +1344,34 @@ class RapidWindow(QMainWindow):
                 self.startDownload(scan_id=scan_id)
 
     def closeEvent(self, event):
+        if self.application_state == ApplicationState.normal:
+            self.application_state = ApplicationState.exiting
+            self.scanmq.stop()
+            self.thumbnailModel.thumbnailmq.stop()
+            self.copyfilesmq.stop()
+
+            if self.downloadIsRunning():
+                logging.debug("Exiting while download is running. Cleaning "
+                              "up...")
+                # Update prefs with stored sequence number and downloads today
+                # values
+                data = RenameAndMoveFileData(
+                    message=RenameAndMoveStatus.download_completed)
+                self.renamemq.send_message_to_worker(data)
+                # renameandmovefile process will send a message with the
+                # updated sequence values. When that occurs,
+                # this application will save the sequence values to the
+                # program preferences, resume closing and this close event
+                # will again be called, but this time the application state
+                # flag will indicate the need to resume below.
+                event.ignore()
+                return
+                # Incidentally, it's the renameandmovefile process that
+                # updates the SQL database with the file downloads,
+                # so no need to update or close it in this main process
+
         self.writeWindowSettings()
         self.renamemq.stop()
-        self.scanmq.stop()
-        self.thumbnailModel.thumbnailmq.stop()
-        self.copyfilesmq.stop()
         self.renameThread.quit()
         if not self.renameThread.wait(500):
             self.renamemq.forcefully_terminate()
@@ -1358,10 +1390,14 @@ class RapidWindow(QMainWindow):
             self.cameraHotplugThread.quit()
             self.cameraHotplugThread.wait()
 
+        self.cleanAllTempDirs()
         self.devices.delete_cache_dirs()
         tc = ThumbnailCache()
         tc.cleanup_cache()
         Notify.uninit()
+
+        event.accept()
+
 
     def getDeviceIcon(self, device: Device) -> QIcon:
         """
