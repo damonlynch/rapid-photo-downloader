@@ -22,6 +22,7 @@ import pickle
 import os
 from collections import (namedtuple, defaultdict)
 from operator import attrgetter
+import datetime
 
 from sortedcontainers import SortedListWithKey
 
@@ -123,7 +124,6 @@ class ThumbnailTableModel(QAbstractTableModel):
         self.scan_index = defaultdict(list)
         self.rpd_files = {}
 
-        #FIXME change this placeholer image
         self.photo_icon = QPixmap('images/photo106.png')
         self.video_icon = QPixmap('images/video106.png')
 
@@ -150,12 +150,19 @@ class ThumbnailTableModel(QAbstractTableModel):
         if row >= len(self.rows) or row < 0:
             return None
         unique_id = self.rows[row].id_value
+        rpd_file = self.rpd_files[unique_id]
 
         if role == Qt.DisplayRole:
             return self.file_names[unique_id]
         elif role == Qt.DecorationRole:
             return self.thumbnails[unique_id]
-
+        elif role == Qt.ToolTipRole:
+            file_name = self.file_names[unique_id]
+            size = self.rapidApp.formatSizeForUser(rpd_file.size)
+            modification_time = datetime.datetime.fromtimestamp(
+                rpd_file.modification_time)
+            modification_time = modification_time.strftime('%c')
+            return '{}\n{}\n{}'.format(file_name, modification_time, size)
 
     def insertRows(self, position, rows=1, index=QModelIndex()):
         self.beginInsertRows(QModelIndex(), position, position + rows - 1)
@@ -480,14 +487,14 @@ class ThumbnailView(QListView):
 class ThumbnailDelegate(QStyledItemDelegate):
     def __init__(self, parent=None):
         super(ThumbnailDelegate, self).__init__(parent)
-        # Thumbnail is located in a 100px square...
+        # Thumbnail is located in a 160px square...
         self.imageAreaSize = max(ThumbnailSize.width, ThumbnailSize.height)
         # ...surrounded by a 1px frame...
         self.imageFrameBorderSize = 1
         #...which is bottom aligned
         self.imageFrameBottom = self.imageAreaSize + 2
         self.width = self.imageAreaSize + self.imageFrameBorderSize * 2
-        # Allow space for text beneath the image
+        # No text beneath the image in this version
         self.height = self.imageAreaSize  + self.imageFrameBorderSize * 2 + 17
 
     def paint(self, painter: QPainter, option, index):
@@ -522,16 +529,16 @@ class ThumbnailDelegate(QStyledItemDelegate):
             painter.drawPixmap(target, thumbnail, source)
 
             # Draw file name
-            file_name = index.model().data(index, Qt.DisplayRole)
-
-            font = painter.font()
-            font.setPixelSize(11)
-            painter.setFont(font)
-            metrics = QFontMetrics(font)
-            elided_text = metrics.elidedText(file_name, Qt.ElideRight,
-                                             self.width)
-            painter.setPen(QColor(Qt.white))
-            painter.drawText(0, self.height, elided_text)
+            # file_name = index.model().data(index, Qt.DisplayRole)
+            #
+            # font = painter.font()
+            # font.setPixelSize(11)
+            # painter.setFont(font)
+            # metrics = QFontMetrics(font)
+            # elided_text = metrics.elidedText(file_name, Qt.ElideRight,
+            #                                  self.width)
+            # painter.setPen(QColor(Qt.white))
+            # painter.drawText(0, self.height, elided_text)
 
             painter.restore()
 

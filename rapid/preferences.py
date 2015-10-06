@@ -201,40 +201,10 @@ class DownloadsTodayTracker:
         else:
             return -1
 
-    def get_raw_downloads_today(self) -> int:
-        """
-        Gets value without changing it in any way, except to check for type
-        conversion error.
-        If there is an error, then the value is reset
-        :return the downloads today value (i.e. no date component)
-        """
-        try:
-            return int(self.downloads_today[1])
-        except ValueError:
-            logging.critical("Downloads today value is corrupted: %s",
-                             self.downloads_today[1])
-            self.downloads_today[1] = '0'
-            return 0
-
-    def set_raw_downloads_today_from_int(self, downloads_today: int):
-        self.downloads_today[1] = str(downloads_today)
-
-    def set_raw_downloads_today_date(self, downloads_today_date):
-        self.downloads_today[0] = downloads_today_date
-
-    def get_raw_downloads_today_date(self):
-        return self.downloads_today[0]
-
-    def get_raw_day_start(self):
-        """
-        Gets value without changing it in any way
-        """
-        return self.day_start
-
-    def get_day_start(self):
+    def get_day_start(self) -> (int, int):
         try:
             t1, t2 = self.day_start.split(":")
-            return (int(t1), int(t2))
+            return int(t1), int(t2)
         except ValueError:
             logging.error(
                 "'Start of day' preference value %s is corrupted. Resetting "
