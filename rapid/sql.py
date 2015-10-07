@@ -115,6 +115,14 @@ class DownloadedSQL:
             tn=self.table_name), (name, size, modification_time))
         row = c.fetchone()
         if row is not None:
+            if isinstance(row[1], str):
+                # convert the str to datetime.datetime
+                # TODO: investigate why this is not happening by default
+                try:
+                    row = [row[0], datetime.datetime.strptime(row[1],
+                                                    "%Y-%m-%d ""%H:%M:%S.%f")]
+                except:
+                    pass
             return FileDownloaded._make(row)
         else:
             return None

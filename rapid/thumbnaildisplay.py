@@ -23,6 +23,7 @@ import os
 from collections import (namedtuple, defaultdict)
 from operator import attrgetter
 import datetime
+from gettext import gettext as _
 
 from sortedcontainers import SortedListWithKey
 
@@ -31,7 +32,7 @@ from PyQt5.QtCore import  (QAbstractTableModel, QModelIndex, Qt, pyqtSignal,
 from PyQt5.QtWidgets import (QListView, QStyledItemDelegate,
                              QStyleOptionViewItem, QApplication, QStyle,
                              QStyleOptionButton)
-from PyQt5.QtGui import QPixmap, QImage, QPainter, QColor, QPen
+from PyQt5.QtGui import QPixmap, QImage, QPainter, QColor, QPen, QBrush
 
 import zmq
 
@@ -153,6 +154,7 @@ class ThumbnailTableModel(QAbstractTableModel):
             return None
         unique_id = self.rows[row].id_value
         rpd_file = self.rpd_files[unique_id]
+        """:type : RPDFile"""
 
         # if role == Qt.DisplayRole:
         #     return self.file_names[unique_id]
@@ -169,7 +171,22 @@ class ThumbnailTableModel(QAbstractTableModel):
             modification_time = datetime.datetime.fromtimestamp(
                 rpd_file.modification_time)
             modification_time = modification_time.strftime('%c')
-            return '{}\n{}\n{}'.format(file_name, modification_time, size)
+            msg = '{}\n{}\n{}'.format(file_name, modification_time, size)
+            if rpd_file.previously_downloaded():
+                if isinstance(rpd_file.prev_datetime, datetime.datetime):
+                    prev_date = rpd_file.prev_datetime.strftime('%c')
+                else:
+                    prev_date = rpd_file.prev_datetime
+                path, prev_file_name = os.path.split(rpd_file.prev_full_name)
+                msg += _('\n\nPreviously downloaded on %(date)s\nwith file '
+                         'name %('
+                         'filename)s'
+                         '\nto %(path)s') % {'date': prev_date,
+                                           'filename': prev_file_name,
+                                           'path': path}
+            return msg
+        elif role == Qt.UserRole:
+            return rpd_file.previously_downloaded()
 
     def insertRows(self, position, rows=1, index=QModelIndex()):
         self.beginInsertRows(QModelIndex(), position, position + rows - 1)
@@ -534,7 +551,23 @@ class ThumbnailDelegate(QStyledItemDelegate):
             x = option.rect.x()
             y = option.rect.y()
 
+            checked = index.model().data(index, Qt.CheckStateRole) == \
+                      Qt.Checked
+            previously_downloaded = index.model().data(index, Qt.UserRole)
+
             thumbnail = index.model().data(index, Qt.DecorationRole)
+            if previously_downloaded and not checked:
+                disabled = QPixmap(thumbnail.size())
+                disabled.fill(Qt.transparent)
+                p = QPainter(disabled)
+                p.setBackgroundMode(Qt.TransparentMode)
+                p.setBackground(QBrush(Qt.transparent))
+                p.eraseRect(thumbnail.rect())
+                p.setOpacity(0.3)
+                p.drawPixmap(0, 0, thumbnail)
+                p.end()
+                thumbnail = disabled
+
             thumbnailWidth = thumbnail.size().width()
             thumbnailHeight = thumbnail.size().height()
 
@@ -559,9 +592,6 @@ class ThumbnailDelegate(QStyledItemDelegate):
             painter.drawPixmap(target, thumbnail, source)
 
             checkboxStyleOption = QStyleOptionButton()
-
-            checked = index.model().data(index, Qt.CheckStateRole) == \
-                      Qt.Checked
             if checked:
                 checkboxStyleOption.state |= QStyle.State_On
             else:
