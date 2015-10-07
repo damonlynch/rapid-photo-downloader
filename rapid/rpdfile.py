@@ -32,6 +32,7 @@ from gettext import gettext as _
 from constants import (DownloadStatus, FileType, ThumbnailCacheStatus)
 import metadataphoto
 import metadatavideo
+from sql import FileDownloaded
 
 import problemnotification as pn
 
@@ -74,7 +75,8 @@ def get_rpdfile(name: str, path: str, size: int, prev_full_name: str,
                 prev_datetime: datetime.datetime,
                 file_system_modification_time: float,
                 thm_full_name: str, audio_file_full_name: str,
-                scan_id: bytes, file_type: FileType, from_camera: bool,
+                scan_id: bytes, file_type: FileType,
+                from_camera: bool,
                 camera_model: str):
 
     if file_type == FileType.video:
@@ -83,14 +85,16 @@ def get_rpdfile(name: str, path: str, size: int, prev_full_name: str,
                      file_system_modification_time,
                      thm_full_name,
                      audio_file_full_name,
-                     scan_id, from_camera, camera_model)
+                     scan_id,
+                     from_camera, camera_model)
     else:
         return Photo(name, path, size,
                      prev_full_name, prev_datetime,
                      file_system_modification_time,
                      thm_full_name,
                      audio_file_full_name,
-                     scan_id, from_camera, camera_model)
+                     scan_id,
+                     from_camera, camera_model)
 
 def file_types_by_number(no_photos: int, no_videos:int) -> str:
         """
@@ -309,6 +313,13 @@ class RPDFile:
         :return: True if the image is a RAW file
         """
         return self.extension in RAW_EXTENSIONS
+
+    def previously_downloaded(self) -> bool:
+        """
+        :return: True if the file has been downloaded before,according
+         to our SQL database
+        """
+        return self.prev_full_name is not None
 
     def _assign_file_type(self):
         self.file_type = None

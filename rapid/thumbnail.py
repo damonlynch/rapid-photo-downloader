@@ -890,15 +890,15 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
                         rpd_file.full_file_name, rpd_file.modification_time,
                         arguments.camera)
                     if thumbnail_path:
-                        logging.debug("For %s located FDO thumbnail %s",
-                                      rpd_file.full_file_name, thumbnail_path)
+                        # logging.debug("For %s located FDO thumbnail %s",
+                        #               rpd_file.full_file_name, thumbnail_path)
                         rpd_file.fdo_thumbnail_128_name = thumbnail_path
                     png, thumbnail_path = fdo_cache_large.get_thumbnail(
                         rpd_file.full_file_name, rpd_file.modification_time,
                         arguments.camera)
                     if thumbnail_path:
-                        logging.debug("For %s located FDO thumbnail %s",
-                                      rpd_file.full_file_name, thumbnail_path)
+                        # logging.debug("For %s located FDO thumbnail %s",
+                        #               rpd_file.full_file_name, thumbnail_path)
                         rpd_file.fdo_thumbnail_256_name = thumbnail_path
                 from_thumb_cache += 1
             else:

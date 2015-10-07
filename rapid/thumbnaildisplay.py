@@ -27,9 +27,11 @@ import datetime
 from sortedcontainers import SortedListWithKey
 
 from PyQt5.QtCore import  (QAbstractTableModel, QModelIndex, Qt, pyqtSignal,
-    QThread, QTimer, QSize, QRect)
-from PyQt5.QtWidgets import QListView, QStyledItemDelegate
-from PyQt5.QtGui import QPixmap, QImage, QPainter, QColor, QFontMetrics
+    QThread, QTimer, QSize, QRect, QEvent, QPoint)
+from PyQt5.QtWidgets import (QListView, QStyledItemDelegate,
+                             QStyleOptionViewItem, QApplication, QStyle,
+                             QStyleOptionButton)
+from PyQt5.QtGui import QPixmap, QImage, QPainter, QColor, QPen
 
 import zmq
 
@@ -152,10 +154,15 @@ class ThumbnailTableModel(QAbstractTableModel):
         unique_id = self.rows[row].id_value
         rpd_file = self.rpd_files[unique_id]
 
-        if role == Qt.DisplayRole:
-            return self.file_names[unique_id]
-        elif role == Qt.DecorationRole:
+        # if role == Qt.DisplayRole:
+        #     return self.file_names[unique_id]
+        if role == Qt.DecorationRole:
             return self.thumbnails[unique_id]
+        elif role == Qt.CheckStateRole:
+            if unique_id in self.marked:
+                return Qt.Checked
+            else:
+                return Qt.Unchecked
         elif role == Qt.ToolTipRole:
             file_name = self.file_names[unique_id]
             size = self.rapidApp.formatSizeForUser(rpd_file.size)
@@ -201,7 +208,8 @@ class ThumbnailTableModel(QAbstractTableModel):
             self.thumbnails[unique_id] = self.photo_icon
         else:
             self.thumbnails[unique_id] = self.video_icon
-        self.marked.add(unique_id)
+        if not rpd_file.previously_downloaded():
+            self.marked.add(unique_id)
 
         self.scan_index[rpd_file.scan_id].append(unique_id)
 
@@ -475,10 +483,13 @@ class ThumbnailTableModel(QAbstractTableModel):
 
 class ThumbnailView(QListView):
     def __init__(self):
-        super(ThumbnailView, self).__init__(uniformItemSizes=True, spacing=16)
+        super(ThumbnailView, self).__init__()
         self.setViewMode(QListView.IconMode)
         self.setResizeMode(QListView.Adjust)
-        self.setStyleSheet("background-color:#444444")
+        self.setStyleSheet("QListView {background-color:#444444;}")
+        # self.setGridSize(QSize(250, 200))
+        self.setUniformItemSizes(True)
+        # self.setSpacing(16)
         # palette = self.palette()
         # palette.setColor(self.backgroundRole(), QColor(68,68,68))
         # self.setPalette(palette)
@@ -487,21 +498,41 @@ class ThumbnailView(QListView):
 class ThumbnailDelegate(QStyledItemDelegate):
     def __init__(self, parent=None):
         super(ThumbnailDelegate, self).__init__(parent)
+
+        self.checkboxStyleOption = QStyleOptionButton()
+        self.checkboxRect = QApplication.style().subElementRect(
+            QStyle.SE_CheckBoxIndicator, self.checkboxStyleOption, None)
+        self.checkboxSize = self.checkboxRect.size().height()
+
+        self.imageWidth = max(ThumbnailSize.width, ThumbnailSize.height)
+        self.imageHeight = max(ThumbnailSize.width, ThumbnailSize.height)
+        self.horizontalSpacing = 20
+        self.verticalSpacing = 10
+        self.imageFooter = self.checkboxSize
+        self.footerPadding = 5
+
+        self.width = self.imageWidth + self.horizontalSpacing * 2
+        self.height = self.imageHeight + self.footerPadding \
+                      + self.imageFooter + \
+            self.verticalSpacing * 2
+
         # Thumbnail is located in a 160px square...
         self.imageAreaSize = max(ThumbnailSize.width, ThumbnailSize.height)
         # ...surrounded by a 1px frame...
         self.imageFrameBorderSize = 1
         #...which is bottom aligned
-        self.imageFrameBottom = self.imageAreaSize + 2
-        self.width = self.imageAreaSize + self.imageFrameBorderSize * 2
-        # No text beneath the image in this version
-        self.height = self.imageAreaSize  + self.imageFrameBorderSize * 2 + 17
+        self.imageFrameBottom = self.imageAreaSize + 2 + self.verticalSpacing
 
-    def paint(self, painter: QPainter, option, index):
+
+    def paint(self, painter: QPainter, option: QStyleOptionViewItem ,
+              index:  QModelIndex):
         if index.column() == 0:
 
             # Save state of painter, restore on function exit
             painter.save()
+
+            x = option.rect.x()
+            y = option.rect.y()
 
             thumbnail = index.model().data(index, Qt.DecorationRole)
             thumbnailWidth = thumbnail.size().width()
@@ -509,8 +540,8 @@ class ThumbnailDelegate(QStyledItemDelegate):
 
             frameWidth = thumbnailWidth + 1
             frameHeight = thumbnailHeight + 1
-            frameX = (self.width - frameWidth) // 2
-            frameY = self.imageFrameBottom - frameHeight
+            frameX = (self.width - frameWidth) // 2 + x
+            frameY = self.imageFrameBottom - frameHeight + y
 
             thumbnailX = frameX + 1
             thumbnailY = frameY + 1
@@ -524,24 +555,69 @@ class ThumbnailDelegate(QStyledItemDelegate):
             # color #a9a9a9
             painter.setPen(QColor(169,169,169))
 
-            painter.translate(option.rect.x(), option.rect.y())
             painter.drawRect(frame)
             painter.drawPixmap(target, thumbnail, source)
 
-            # Draw file name
-            # file_name = index.model().data(index, Qt.DisplayRole)
-            #
-            # font = painter.font()
-            # font.setPixelSize(11)
-            # painter.setFont(font)
-            # metrics = QFontMetrics(font)
-            # elided_text = metrics.elidedText(file_name, Qt.ElideRight,
-            #                                  self.width)
-            # painter.setPen(QColor(Qt.white))
-            # painter.drawText(0, self.height, elided_text)
+            checkboxStyleOption = QStyleOptionButton()
+
+            checked = index.model().data(index, Qt.CheckStateRole) == \
+                      Qt.Checked
+            if checked:
+                checkboxStyleOption.state |= QStyle.State_On
+            else:
+                checkboxStyleOption.state |= QStyle.State_Off
+            checkboxStyleOption.state |= QStyle.State_Enabled
+            checkboxStyleOption.rect = self.getCheckBoxRect(option)
+            QApplication.style().drawControl(QStyle.CE_CheckBox,
+                                             checkboxStyleOption, painter)
 
             painter.restore()
 
 
     def sizeHint(self, option, index):
         return QSize(self.width, self.height)
+
+    def editorEvent(self, event, model, option, index):
+        '''
+        Change the data in the model and the state of the checkbox
+        if the user presses the left mousebutton or presses
+        Key_Space or Key_Select and this cell is editable. Otherwise do nothing.
+        '''
+        # if not (index.flags() & Qt.ItemIsEditable) > 0:
+        #     return False
+
+        # Do not change the checkbox-state
+        if event.type() == QEvent.MouseButtonRelease or event.type() == QEvent.MouseButtonDblClick:
+            print("Click at", event.pos())
+            if event.button() != Qt.LeftButton or not self.getCheckBoxRect(
+                    option).contains(
+                    event.pos()):
+
+                return False
+            if event.type() == QEvent.MouseButtonDblClick:
+                return True
+        elif event.type() == QEvent.KeyPress:
+            if event.key() != Qt.Key_Space and event.key() != Qt.Key_Select:
+                return False
+        else:
+            return False
+
+        # Change the checkbox-state
+        print("Got click on checkbox")
+        self.setModelData(None, model, index)
+        return True
+
+    def setModelData (self, editor, model, index):
+        '''
+        The user wanted to change the old state in the opposite.
+        '''
+        newValue = not (index.model().data(index, Qt.CheckStateRole) ==
+                        Qt.Checked)
+        print(newValue)
+        # model.setData(index, newValue, Qt.EditRole)
+
+    def getCheckBoxRect(self, option):
+        checkboxPoint = QPoint(option.rect.x() + self.horizontalSpacing,
+                               option.rect.y() + self.imageFrameBottom +
+                               self.footerPadding )
+        return QRect(checkboxPoint, self.checkboxRect.size())

@@ -178,7 +178,7 @@ class RapidWindow(QMainWindow):
         self.prefs.verify_file = False
         self.prefs.device_autodetection = True
         self.prefs.device_location = \
-            '/home/damon/digitalPhotos/rapid/cr2-mpo'
+            '/home/damon/digitalPhotos/rapid/sample-cr2'
         self.prefs.photo_rename = photo_rename_test
 
         centralWidget = QWidget()

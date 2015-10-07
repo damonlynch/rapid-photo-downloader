@@ -126,8 +126,8 @@ class Cache:
         if thumbnail.save(temp_path):
             os.rename(temp_path, path)
             os.chmod(path, 0o600)
-            logging.debug("Wrote {}x{} thumbnail {} for {}".format(
-                thumbnail.width(), thumbnail.height(), path, uri))
+            # logging.debug("Wrote {}x{} thumbnail {} for {}".format(
+            #     thumbnail.width(), thumbnail.height(), path, uri))
             return path
         else:
             return None
