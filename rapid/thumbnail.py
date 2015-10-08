@@ -234,8 +234,8 @@ class Thumbnail:
     rotate_90 = '6'
     rotate_180 = '3'
     rotate_270 = '8'
-    stock_photo = QImage("images/photo106.png")
-    stock_video = QImage("images/video106.png")
+    stock_photo = QImage(":/photo.png")
+    stock_video = QImage(":/video.png")
 
     def __init__(self, rpd_file: RPDFile, camera: Camera,
                  thumbnail_quality_lower: bool,

@@ -107,6 +107,7 @@ class ApplicationState(Enum):
 class Roles(IntEnum):
     previously_downloaded = Qt.UserRole
     extension = Qt.UserRole + 1
+    download_status = Qt.UserRole + 2
 
 
 photo_rename_test = ['Date time','Image date','YYYYMMDD','Text','-','',

@@ -128,8 +128,8 @@ class ThumbnailTableModel(QAbstractTableModel):
         self.scan_index = defaultdict(list)
         self.rpd_files = {}
 
-        self.photo_icon = QPixmap('images/photo106.png')
-        self.video_icon = QPixmap('images/video106.png')
+        self.photo_icon = QPixmap(':/photo.png')
+        self.video_icon = QPixmap(':/video.png')
 
         self.total_thumbs_to_generate = 0
         self.thumbnails_generated = 0
@@ -179,15 +179,36 @@ class ThumbnailTableModel(QAbstractTableModel):
                 else:
                     prev_date = rpd_file.prev_datetime
                 path, prev_file_name = os.path.split(rpd_file.prev_full_name)
-                msg += _('\n\nPrevious download:\n%(date)s\n%('
-                         'filename)s''\n%(path)s') % {'date': prev_date,
-                                           'filename': prev_file_name,
-                                           'path': path}
+                path += os.sep
+                msg += _('\n\nPrevious download:\n%(filename)s\n%(path)s\n%('
+                         'date)s') % {'date': prev_date,
+                                       'filename': prev_file_name,
+                                       'path': path}
             return msg
         elif role == Roles.previously_downloaded:
             return rpd_file.previously_downloaded()
         elif role == Roles.extension:
             return rpd_file.extension
+        elif role == Roles.download_status:
+            return rpd_file.status
+
+    def setData(self, index: QModelIndex, value, role: int):
+        if not index.isValid():
+            return False
+
+        row = index.row()
+        if row >= len(self.rows) or row < 0:
+            return False
+        unique_id = self.rows[row].id_value
+        rpd_file = self.rpd_files[unique_id]
+        if role == Qt.CheckStateRole:
+            if value:
+                self.marked.add(unique_id)
+            else:
+                self.marked.remove(unique_id)
+            self.dataChanged.emit(self.index(row,0),self.index(row,0))
+            return True
+        return False
 
     def insertRows(self, position, rows=1, index=QModelIndex()):
         self.beginInsertRows(QModelIndex(), position, position + rows - 1)
@@ -425,7 +446,9 @@ class ThumbnailTableModel(QAbstractTableModel):
                 self.rpd_files[unique_id].status = \
                     DownloadStatus.download_pending
                 self.marked.remove(unique_id)
-                #TODO finish implementing logic to display download status
+                row = self.rowFromUniqueId(unique_id)
+                self.dataChanged.emit(self.index(row,0),self.index(row,0))
+
 
     def markThumbnailsNeeded(self, rpd_files) -> bool:
         """
@@ -479,14 +502,11 @@ class ThumbnailTableModel(QAbstractTableModel):
         return terminated
 
     def updateStatusPostDownload(self, rpd_file: RPDFile):
-        #TODO implement download status update
-        pass
-        # iter = self.get_iter_from_unique_id(rpd_file.unique_id)
-        # self.liststore.set_value(iter, self.DOWNLOAD_STATUS_COL, rpd_file.status)
-        # icon = self.get_status_icon(rpd_file.status)
-        # self.liststore.set_value(iter, self.STATUS_ICON_COL, icon)
-        # self.liststore.set_value(iter, self.CHECKBUTTON_VISIBLE_COL, False)
-        # self.rpd_files[rpd_file.unique_id] = rpd_file
+        unique_id = rpd_file.unique_id
+        self.rpd_files[unique_id] = rpd_file
+        row = self.rowFromUniqueId(rpd_file.unique_id)
+        self.dataChanged.emit(self.index(row,0),self.index(row,0))
+
 
     def filesRemainToDownload(self) -> bool:
         """
@@ -522,6 +542,14 @@ class ThumbnailDelegate(QStyledItemDelegate):
             QStyle.SE_CheckBoxIndicator, self.checkboxStyleOption, None)
         self.checkbox_size = self.checkboxRect.size().height()
 
+        self.downloadPendingIcon = QPixmap(':/download-pending.png')
+        self.downloadedIcon = QPixmap(':/downloaded.png')
+        self.downloadedWarningIcon = QPixmap(':/downloaded-with-warning.png')
+        self.downloadedErrorIcon = QPixmap(':/downloaded-with-error.png')
+
+
+        self.dimmed_opacity = 0.5
+
         self.image_width = max(ThumbnailSize.width, ThumbnailSize.height)
         self.image_height = self.image_width
         self.horizontal_margin = 10
@@ -530,12 +558,9 @@ class ThumbnailDelegate(QStyledItemDelegate):
         self.footer_padding = 5
 
         self.padding = 4
-
         self.width = self.image_width + self.horizontal_margin * 2
-
         self.height = self.image_height + self.footer_padding \
-                      + self.image_footer + \
-            self.vertical_margin * 2
+                      + self.image_footer + self.vertical_margin * 2
 
         # Thumbnail is located in a 160px square...
         self.image_area_size = max(ThumbnailSize.width, ThumbnailSize.height)
@@ -558,6 +583,8 @@ class ThumbnailDelegate(QStyledItemDelegate):
             extension = index.model().data(index, Roles.extension)
             """:type :str"""
             ext_type = extension_type(extension)
+            download_status = index.model().data(index, Roles.download_status)
+            """:type :DownloadStatus"""
 
             # Draw recentangle in which the individual items will be placed
             boxRect = QRect(x, y, self.width, self.height)
@@ -582,7 +609,7 @@ class ThumbnailDelegate(QStyledItemDelegate):
                 p.setBackgroundMode(Qt.TransparentMode)
                 p.setBackground(QBrush(Qt.transparent))
                 p.eraseRect(thumbnail.rect())
-                p.setOpacity(0.3)
+                p.setOpacity(self.dimmed_opacity)
                 p.drawPixmap(0, 0, thumbnail)
                 p.end()
                 thumbnail = disabled
@@ -600,15 +627,33 @@ class ThumbnailDelegate(QStyledItemDelegate):
             source = QRect(0, 0, thumbnail_width, thumbnail_height)
             painter.drawPixmap(target, thumbnail, source)
 
-            checkboxStyleOption = QStyleOptionButton()
-            if checked:
-                checkboxStyleOption.state |= QStyle.State_On
+            if download_status == DownloadStatus.not_downloaded:
+                checkboxStyleOption = QStyleOptionButton()
+                if checked:
+                    checkboxStyleOption.state |= QStyle.State_On
+                else:
+                    checkboxStyleOption.state |= QStyle.State_Off
+                checkboxStyleOption.state |= QStyle.State_Enabled
+                checkboxStyleOption.rect = self.getCheckBoxRect(option)
+                QApplication.style().drawControl(QStyle.CE_CheckBox,
+                                                 checkboxStyleOption, painter)
             else:
-                checkboxStyleOption.state |= QStyle.State_Off
-            checkboxStyleOption.state |= QStyle.State_Enabled
-            checkboxStyleOption.rect = self.getCheckBoxRect(option)
-            QApplication.style().drawControl(QStyle.CE_CheckBox,
-                                             checkboxStyleOption, painter)
+                if download_status == DownloadStatus.download_pending:
+                    pixmap = self.downloadPendingIcon
+                elif download_status == DownloadStatus.downloaded:
+                    pixmap = self.downloadedIcon
+                elif (download_status ==
+                          DownloadStatus.downloaded_with_warning or
+                      download_status == DownloadStatus.backup_problem):
+                    pixmap = self.downloadedWarningIcon
+                elif (download_status == DownloadStatus.download_failed or
+                      download_status ==
+                              DownloadStatus.download_and_backup_failed):
+                    pixmap = self.downloadedErrorIcon
+                else:
+                    pixmap = None
+                if pixmap is not None:
+                    painter.drawPixmap(self.getLeftPoint(option), pixmap)
 
             # Draw a small coloured box containing the file extension in the
             #  bottom right corner
@@ -640,7 +685,8 @@ class ThumbnailDelegate(QStyledItemDelegate):
             else:
                 color = QColor(0, 0, 0)
 
-
+            if previously_downloaded and not checked:
+                painter.setOpacity(self.dimmed_opacity)
             painter.fillRect(text_x, text_y - text_height,
                              extBoundingRect.width(),
                              extBoundingRect.height(),
@@ -665,9 +711,12 @@ class ThumbnailDelegate(QStyledItemDelegate):
         # if not (index.flags() & Qt.ItemIsEditable) > 0:
         #     return False
 
-        # Do not change the checkbox-state
-        if event.type() == QEvent.MouseButtonRelease or event.type() == QEvent.MouseButtonDblClick:
-            print("Click at", event.pos())
+        download_status = model.data(index, Roles.download_status)
+        if download_status != DownloadStatus.not_downloaded:
+            return False
+
+        if (event.type() == QEvent.MouseButtonRelease or event.type() ==
+            QEvent.MouseButtonDblClick):
             if event.button() != Qt.LeftButton or not self.getCheckBoxRect(
                     option).contains(
                     event.pos()):
@@ -682,7 +731,6 @@ class ThumbnailDelegate(QStyledItemDelegate):
             return False
 
         # Change the checkbox-state
-        print("Got click on checkbox")
         self.setModelData(None, model, index)
         return True
 
@@ -692,11 +740,13 @@ class ThumbnailDelegate(QStyledItemDelegate):
         '''
         newValue = not (index.model().data(index, Qt.CheckStateRole) ==
                         Qt.Checked)
-        print(newValue)
-        # model.setData(index, newValue, Qt.EditRole)
+        model.setData(index, newValue, Qt.CheckStateRole)
 
-    def getCheckBoxRect(self, option):
-        checkboxPoint = QPoint(option.rect.x() + self.horizontal_margin,
+
+    def getLeftPoint(self, option):
+        return QPoint(option.rect.x() + self.horizontal_margin,
                                option.rect.y() + self.image_frame_bottom +
                                self.footer_padding )
-        return QRect(checkboxPoint, self.checkboxRect.size())
+
+    def getCheckBoxRect(self, option):
+        return QRect(self.getLeftPoint(option), self.checkboxRect.size())
