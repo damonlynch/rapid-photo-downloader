@@ -442,7 +442,6 @@ class Thumbnail:
                         size, Qt.KeepAspectRatio, self.thumbnail_transform)
             else:
                 sized_thumbnail = thumbnail
-            print(self.rpd_file.full_file_name, thumbnail.size(), orientation)
             sized_thumbnail = self.rotate_thumb(sized_thumbnail, orientation)
 
             if self.generate_fdo_thumbs_only_if_optimal or \

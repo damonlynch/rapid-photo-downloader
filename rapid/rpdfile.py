@@ -29,7 +29,8 @@ from collections import Counter
 import exiftool
 from gettext import gettext as _
 
-from constants import (DownloadStatus, FileType, ThumbnailCacheStatus)
+from constants import (DownloadStatus, FileType, FileExtension,
+                       ThumbnailCacheStatus)
 import metadataphoto
 import metadatavideo
 from sql import FileDownloaded
@@ -45,7 +46,9 @@ JPEG_EXTENSIONS = ['jpg', 'jpe', 'jpeg']
 
 # FIXME does QT5 QImage even support TIFF? On Ubuntu, yes.
 #
-NON_RAW_IMAGE_EXTENSIONS = JPEG_EXTENSIONS + ['tif', 'tiff', 'mpo']
+
+OTHER_PHOTO_EXTENSIONS = ['tif', 'tiff', 'mpo']
+NON_RAW_IMAGE_EXTENSIONS = JPEG_EXTENSIONS + OTHER_PHOTO_EXTENSIONS
 
 PHOTO_EXTENSIONS = RAW_EXTENSIONS + NON_RAW_IMAGE_EXTENSIONS
 
@@ -69,6 +72,25 @@ def file_type(file_extension: str) -> FileType:
     elif file_extension in VIDEO_EXTENSIONS:
         return FileType.video
     return None
+
+def extension_type(file_extension: str) -> FileExtension:
+    """
+    Returns the type of file as indicated by the filename extension
+    :param file_extension: lowercase filename extension
+    :return: Enum indicating file type
+    """
+    if file_extension in RAW_EXTENSIONS:
+        return FileExtension.raw
+    elif file_extension in JPEG_EXTENSIONS:
+        return FileExtension.jpeg
+    elif file_extension in OTHER_PHOTO_EXTENSIONS:
+        return FileExtension.other_photo
+    elif file_extension in VIDEO_EXTENSIONS:
+        return FileExtension.video
+    elif file_extension in AUDIO_EXTENSIONS:
+        return FileExtension.audio
+    else:
+        return FileExtension.unknown
 
 
 def get_rpdfile(name: str, path: str, size: int, prev_full_name: str,

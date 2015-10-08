@@ -20,6 +20,7 @@ __author__ = 'Damon Lynch'
 # see <http://www.gnu.org/licenses/>.
 
 from enum import (Enum, IntEnum)
+from PyQt5.QtCore import Qt
 
 version = '0.5.0~a1'
 
@@ -78,6 +79,14 @@ class FileType(IntEnum):
     photo = 1
     video = 2
 
+class FileExtension(Enum):
+    raw = 1
+    jpeg = 2
+    other_photo = 3
+    video = 4
+    audio = 5
+    unknown = 6
+
 class DeviceState(Enum):
     scanning = 1
     scanned = 2
@@ -94,6 +103,10 @@ class ThumbnailSize(IntEnum):
 class ApplicationState(Enum):
     normal = 1
     exiting = 2
+
+class Roles(IntEnum):
+    previously_downloaded = Qt.UserRole
+    extension = Qt.UserRole + 1
 
 
 photo_rename_test = ['Date time','Image date','YYYYMMDD','Text','-','',

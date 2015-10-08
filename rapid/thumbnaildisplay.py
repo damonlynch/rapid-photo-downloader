@@ -28,20 +28,21 @@ from gettext import gettext as _
 from sortedcontainers import SortedListWithKey
 
 from PyQt5.QtCore import  (QAbstractTableModel, QModelIndex, Qt, pyqtSignal,
-    QThread, QTimer, QSize, QRect, QEvent, QPoint)
+    QThread, QTimer, QSize, QRect, QEvent, QPoint, QMargins)
 from PyQt5.QtWidgets import (QListView, QStyledItemDelegate,
                              QStyleOptionViewItem, QApplication, QStyle,
                              QStyleOptionButton)
-from PyQt5.QtGui import QPixmap, QImage, QPainter, QColor, QPen, QBrush
+from PyQt5.QtGui import (QPixmap, QImage, QPainter, QColor, QPen, QBrush,
+                         QFontMetrics)
 
 import zmq
 
 from viewutils import RowTracker, SortedListItem
-from rpdfile import RPDFile
+from rpdfile import RPDFile, extension_type
 from interprocess import (PublishPullPipelineManager,
     GenerateThumbnailsArguments, Device, GenerateThumbnailsResults)
-from constants import (DownloadStatus, Downloaded, FileType, ThumbnailSize,
-                       ThumbnailCacheStatus)
+from constants import (DownloadStatus, Downloaded, FileType, FileExtension,
+                       ThumbnailSize, ThumbnailCacheStatus, Roles)
 from storage import get_program_cache_directory
 from utilities import (CacheDirs)
 
@@ -156,9 +157,9 @@ class ThumbnailTableModel(QAbstractTableModel):
         rpd_file = self.rpd_files[unique_id]
         """:type : RPDFile"""
 
-        # if role == Qt.DisplayRole:
-        #     return self.file_names[unique_id]
-        if role == Qt.DecorationRole:
+        if role == Qt.DisplayRole:
+            return self.file_names[unique_id]
+        elif role == Qt.DecorationRole:
             return self.thumbnails[unique_id]
         elif role == Qt.CheckStateRole:
             if unique_id in self.marked:
@@ -183,8 +184,10 @@ class ThumbnailTableModel(QAbstractTableModel):
                                            'filename': prev_file_name,
                                            'path': path}
             return msg
-        elif role == Qt.UserRole:
+        elif role == Roles.previously_downloaded:
             return rpd_file.previously_downloaded()
+        elif role == Roles.extension:
+            return rpd_file.extension
 
     def insertRows(self, position, rows=1, index=QModelIndex()):
         self.beginInsertRows(QModelIndex(), position, position + rows - 1)
@@ -498,16 +501,16 @@ class ThumbnailTableModel(QAbstractTableModel):
 
 class ThumbnailView(QListView):
     def __init__(self):
+        style = """
+        QListView {
+        background-color:#555555; padding-left: 4px; padding-top: 4px;
+        }
+        """
         super(ThumbnailView, self).__init__()
         self.setViewMode(QListView.IconMode)
         self.setResizeMode(QListView.Adjust)
-        self.setStyleSheet("QListView {background-color:#444444;}")
-        # self.setGridSize(QSize(250, 200))
+        self.setStyleSheet(style)
         self.setUniformItemSizes(True)
-        # self.setSpacing(16)
-        # palette = self.palette()
-        # palette.setColor(self.backgroundRole(), QColor(68,68,68))
-        # self.setPalette(palette)
 
 
 class ThumbnailDelegate(QStyledItemDelegate):
@@ -517,27 +520,26 @@ class ThumbnailDelegate(QStyledItemDelegate):
         self.checkboxStyleOption = QStyleOptionButton()
         self.checkboxRect = QApplication.style().subElementRect(
             QStyle.SE_CheckBoxIndicator, self.checkboxStyleOption, None)
-        self.checkboxSize = self.checkboxRect.size().height()
+        self.checkbox_size = self.checkboxRect.size().height()
 
-        self.imageWidth = max(ThumbnailSize.width, ThumbnailSize.height)
-        self.imageHeight = max(ThumbnailSize.width, ThumbnailSize.height)
-        self.horizontalSpacing = 10
-        self.verticalSpacing = 10
-        self.imageFooter = self.checkboxSize
-        self.footerPadding = 5
+        self.image_width = max(ThumbnailSize.width, ThumbnailSize.height)
+        self.image_height = self.image_width
+        self.horizontal_margin = 10
+        self.vertical_margin = 10
+        self.image_footer = self.checkbox_size
+        self.footer_padding = 5
 
-        self.width = self.imageWidth + self.horizontalSpacing * 2
-        self.height = self.imageHeight + self.footerPadding \
-                      + self.imageFooter + \
-            self.verticalSpacing * 2
+        self.padding = 4
+
+        self.width = self.image_width + self.horizontal_margin * 2
+
+        self.height = self.image_height + self.footer_padding \
+                      + self.image_footer + \
+            self.vertical_margin * 2
 
         # Thumbnail is located in a 160px square...
-        self.imageAreaSize = max(ThumbnailSize.width, ThumbnailSize.height)
-        # ...surrounded by a 1px frame...
-        self.imageFrameBorderSize = 1
-        #...which is bottom aligned
-        self.imageFrameBottom = self.imageAreaSize + 2 + self.verticalSpacing
-
+        self.image_area_size = max(ThumbnailSize.width, ThumbnailSize.height)
+        self.image_frame_bottom = self.vertical_margin + self.image_area_size
 
     def paint(self, painter: QPainter, option: QStyleOptionViewItem ,
               index:  QModelIndex):
@@ -546,12 +548,31 @@ class ThumbnailDelegate(QStyledItemDelegate):
             # Save state of painter, restore on function exit
             painter.save()
 
-            x = option.rect.x()
-            y = option.rect.y()
+            x = option.rect.x() + self.padding
+            y = option.rect.y() + self.padding
 
             checked = index.model().data(index, Qt.CheckStateRole) == \
                       Qt.Checked
-            previously_downloaded = index.model().data(index, Qt.UserRole)
+            previously_downloaded = index.model().data(
+                index, Roles.previously_downloaded)
+            extension = index.model().data(index, Roles.extension)
+            """:type :str"""
+            ext_type = extension_type(extension)
+
+            # Draw recentangle in which the individual items will be placed
+            boxRect = QRect(x, y, self.width, self.height)
+            shadowRect = QRect(x + self.padding / 2, y + self.padding / 2,
+                               self.width, self.height)
+
+            lightGray = QColor(221,221,221)
+            darkGray = QColor(51, 51, 51)
+            painter.setRenderHint(QPainter.Antialiasing, True)
+            painter.setPen(darkGray)
+            painter.fillRect(shadowRect, darkGray)
+            painter.drawRect(shadowRect)
+            painter.setRenderHint(QPainter.Antialiasing, False)
+            painter.fillRect(boxRect, lightGray)
+
 
             thumbnail = index.model().data(index, Qt.DecorationRole)
             if previously_downloaded and not checked:
@@ -566,27 +587,17 @@ class ThumbnailDelegate(QStyledItemDelegate):
                 p.end()
                 thumbnail = disabled
 
-            thumbnailWidth = thumbnail.size().width()
-            thumbnailHeight = thumbnail.size().height()
+            thumbnail_width = thumbnail.size().width()
+            thumbnail_height = thumbnail.size().height()
 
-            frameWidth = thumbnailWidth + 1
-            frameHeight = thumbnailHeight + 1
-            frameX = (self.width - frameWidth) // 2 + x
-            frameY = self.imageFrameBottom - frameHeight + y
+            thumbnailX = self.horizontal_margin + (self.image_area_size -
+                                                   thumbnail_width) // 2 + x
+            thumbnailY = self.vertical_margin + (self.image_area_size -
+                                                   thumbnail_height) // 2 + y
 
-            thumbnailX = frameX + 1
-            thumbnailY = frameY + 1
-
-            frame = QRect(frameX, frameY, frameWidth, frameHeight)
-            target = QRect(thumbnailX, thumbnailY, thumbnailWidth,
-                           thumbnailHeight)
-            source = QRect(0, 0, thumbnailWidth, thumbnailHeight)
-
-            # set light grey pen for border around thumbnail
-            # color #a9a9a9
-            painter.setPen(QColor(169,169,169))
-
-            painter.drawRect(frame)
+            target = QRect(thumbnailX, thumbnailY, thumbnail_width,
+                           thumbnail_height)
+            source = QRect(0, 0, thumbnail_width, thumbnail_height)
             painter.drawPixmap(target, thumbnail, source)
 
             checkboxStyleOption = QStyleOptionButton()
@@ -599,11 +610,51 @@ class ThumbnailDelegate(QStyledItemDelegate):
             QApplication.style().drawControl(QStyle.CE_CheckBox,
                                              checkboxStyleOption, painter)
 
+            # Draw a small coloured box containing the file extension in the
+            #  bottom right corner
+            extension = extension.upper()
+            # Calculate size of extension text
+            text_padding = 3
+            font = painter.font()
+            font.setPixelSize(9)
+            painter.setFont(font)
+            metrics = QFontMetrics(font)
+            extBoundingRect = metrics.boundingRect(extension).marginsAdded(
+                QMargins(text_padding, 0, text_padding, text_padding))
+            """:type : QRect"""
+            text_width = metrics.width(extension)
+            text_height = metrics.height()
+            text_x = self.width - self.horizontal_margin - text_width - \
+                     text_padding * 2 + x
+            text_y = self.image_frame_bottom + self.footer_padding + \
+                     text_height + y
+
+            if ext_type == FileExtension.raw:
+                color = QColor(Qt.darkBlue)
+            elif ext_type == FileExtension.jpeg:
+                color = QColor(Qt.darkRed)
+            elif ext_type == FileExtension.other_photo:
+                color = QColor(Qt.darkMagenta)
+            elif ext_type == FileExtension.video:
+                color = QColor(0, 77, 0)
+            else:
+                color = QColor(0, 0, 0)
+
+
+            painter.fillRect(text_x, text_y - text_height,
+                             extBoundingRect.width(),
+                             extBoundingRect.height(),
+                             color)
+
+            painter.setPen(QColor(Qt.white))
+            painter.drawText(text_x + text_padding, text_y,
+                             extension)
             painter.restore()
 
 
     def sizeHint(self, option, index):
-        return QSize(self.width, self.height)
+        return QSize(self.width + self.padding * 2, self.height
+                     + self.padding * 2)
 
     def editorEvent(self, event, model, option, index):
         '''
@@ -645,7 +696,7 @@ class ThumbnailDelegate(QStyledItemDelegate):
         # model.setData(index, newValue, Qt.EditRole)
 
     def getCheckBoxRect(self, option):
-        checkboxPoint = QPoint(option.rect.x() + self.horizontalSpacing,
-                               option.rect.y() + self.imageFrameBottom +
-                               self.footerPadding )
+        checkboxPoint = QPoint(option.rect.x() + self.horizontal_margin,
+                               option.rect.y() + self.image_frame_bottom +
+                               self.footer_padding )
         return QRect(checkboxPoint, self.checkboxRect.size())
