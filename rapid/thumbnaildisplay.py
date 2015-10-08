@@ -178,10 +178,8 @@ class ThumbnailTableModel(QAbstractTableModel):
                 else:
                     prev_date = rpd_file.prev_datetime
                 path, prev_file_name = os.path.split(rpd_file.prev_full_name)
-                msg += _('\n\nPreviously downloaded on %(date)s\nwith file '
-                         'name %('
-                         'filename)s'
-                         '\nto %(path)s') % {'date': prev_date,
+                msg += _('\n\nPrevious download:\n%(date)s\n%('
+                         'filename)s''\n%(path)s') % {'date': prev_date,
                                            'filename': prev_file_name,
                                            'path': path}
             return msg
@@ -523,7 +521,7 @@ class ThumbnailDelegate(QStyledItemDelegate):
 
         self.imageWidth = max(ThumbnailSize.width, ThumbnailSize.height)
         self.imageHeight = max(ThumbnailSize.width, ThumbnailSize.height)
-        self.horizontalSpacing = 20
+        self.horizontalSpacing = 10
         self.verticalSpacing = 10
         self.imageFooter = self.checkboxSize
         self.footerPadding = 5
