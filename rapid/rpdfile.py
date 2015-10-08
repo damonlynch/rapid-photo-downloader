@@ -343,6 +343,12 @@ class RPDFile:
         """
         return self.prev_full_name is not None
 
+    def has_audio(self) -> bool:
+        """
+        :return:True if the file has an associated audio file, else False
+        """
+        return self.audio_file_full_name is not None
+
     def _assign_file_type(self):
         self.file_type = None
 

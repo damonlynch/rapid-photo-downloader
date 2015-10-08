@@ -211,8 +211,8 @@ class CopyFilesWorker(WorkerInPublishPullPipeline):
                             file_type: str) -> str:
 
         ext = os.path.splitext(associate_file_fullname)[1]
-        temp_thm_ext = '{}{}'.format(temp_name, ext)
-        temp_full_name = os.path.join(dest_dir, temp_thm_ext)
+        temp_ext = '{}{}'.format(temp_name, ext)
+        temp_full_name = os.path.join(dest_dir, temp_ext)
         try:
             if rpd_file.from_camera:
                 dir_name, file_name = \
@@ -222,10 +222,10 @@ class CopyFilesWorker(WorkerInPublishPullPipeline):
                 if not succeeded:
                     raise
             else:
-                shutil.copyfile(rpd_file.thm_full_name,
+                shutil.copyfile(associate_file_fullname,
                             temp_full_name)
-            logging.debug("Copied %s file %s", file_type,
-                          rpd_file.temp_thm_full_name)
+            logging.debug("Copied %s file %s", file_type, temp_full_name)
+
         except (IOError, OSError) as inst:
             logging.error("Failed to download %s file: %s", file_type,
                           associate_file_fullname)

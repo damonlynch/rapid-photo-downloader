@@ -191,6 +191,8 @@ class ThumbnailTableModel(QAbstractTableModel):
             return rpd_file.extension
         elif role == Roles.download_status:
             return rpd_file.status
+        elif role == Roles.has_audio:
+            return rpd_file.has_audio()
 
     def setData(self, index: QModelIndex, value, role: int):
         if not index.isValid():
@@ -546,7 +548,7 @@ class ThumbnailDelegate(QStyledItemDelegate):
         self.downloadedIcon = QPixmap(':/downloaded.png')
         self.downloadedWarningIcon = QPixmap(':/downloaded-with-warning.png')
         self.downloadedErrorIcon = QPixmap(':/downloaded-with-error.png')
-
+        self.audioIcon = QPixmap(':/audio.png')
 
         self.dimmed_opacity = 0.5
 
@@ -576,15 +578,17 @@ class ThumbnailDelegate(QStyledItemDelegate):
             x = option.rect.x() + self.padding
             y = option.rect.y() + self.padding
 
-            checked = index.model().data(index, Qt.CheckStateRole) == \
-                      Qt.Checked
-            previously_downloaded = index.model().data(
+            model = index.model()
+
+            checked = model.data(index, Qt.CheckStateRole) == Qt.Checked
+            previously_downloaded = model.data(
                 index, Roles.previously_downloaded)
-            extension = index.model().data(index, Roles.extension)
+            extension = model.data(index, Roles.extension)
             """:type :str"""
             ext_type = extension_type(extension)
-            download_status = index.model().data(index, Roles.download_status)
+            download_status = model.data(index, Roles.download_status)
             """:type :DownloadStatus"""
+            has_audio = model.data(index, Roles.has_audio)
 
             # Draw recentangle in which the individual items will be placed
             boxRect = QRect(x, y, self.width, self.height)
@@ -626,6 +630,11 @@ class ThumbnailDelegate(QStyledItemDelegate):
                            thumbnail_height)
             source = QRect(0, 0, thumbnail_width, thumbnail_height)
             painter.drawPixmap(target, thumbnail, source)
+
+            if has_audio:
+                audio_x = self.width // 2 - self.audioIcon.width() // 2 + x
+                audio_y = self.image_frame_bottom + self.footer_padding
+                painter.drawPixmap(audio_x, audio_y, self.audioIcon)
 
             if download_status == DownloadStatus.not_downloaded:
                 checkboxStyleOption = QStyleOptionButton()

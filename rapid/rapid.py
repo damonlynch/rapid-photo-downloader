@@ -1331,6 +1331,8 @@ class RapidWindow(QMainWindow):
                                           scan_completed=True)
         self.setDownloadActionSensitivity()
 
+        #TODO: update user on how many files are marked for download
+
         if (not self.auto_start_is_on and  self.prefs.generate_thumbnails):
             # Generate thumbnails for finished scan
             self.thumbnailModel.generateThumbnails(scan_id, self.devices[
