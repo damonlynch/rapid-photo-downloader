@@ -356,6 +356,7 @@ class ThumbnailTableModel(QAbstractTableModel):
                 self.removeRows(rows[start], len(rows[start:]))
             if not keep_downloaded_files or not len(self.scan_index[scan_id]):
                 del self.scan_index[scan_id]
+            self.rapidApp.displayMessageInStatusBar(update_only_marked=True)
 
     def filesAreMarkedForDownload(self) -> bool:
         """
@@ -582,11 +583,9 @@ class ThumbnailDelegate(QStyledItemDelegate):
             # Save state of painter, restore on function exit
             painter.save()
 
-            x = option.rect.x() + self.padding
-            y = option.rect.y() + self.padding
 
+            # Get data about the file
             model = index.model()
-
             checked = model.data(index, Qt.CheckStateRole) == Qt.Checked
             previously_downloaded = model.data(
                 index, Roles.previously_downloaded)
@@ -596,6 +595,9 @@ class ThumbnailDelegate(QStyledItemDelegate):
             download_status = model.data(index, Roles.download_status)
             """:type :DownloadStatus"""
             has_audio = model.data(index, Roles.has_audio)
+
+            x = option.rect.x() + self.padding
+            y = option.rect.y() + self.padding
 
             # Draw recentangle in which the individual items will be placed
             boxRect = QRect(x, y, self.width, self.height)
@@ -610,7 +612,6 @@ class ThumbnailDelegate(QStyledItemDelegate):
             painter.drawRect(shadowRect)
             painter.setRenderHint(QPainter.Antialiasing, False)
             painter.fillRect(boxRect, lightGray)
-
 
             thumbnail = index.model().data(index, Qt.DecorationRole)
             if previously_downloaded and not checked:
@@ -638,38 +639,13 @@ class ThumbnailDelegate(QStyledItemDelegate):
             source = QRect(0, 0, thumbnail_width, thumbnail_height)
             painter.drawPixmap(target, thumbnail, source)
 
+            if previously_downloaded and not checked:
+                painter.setOpacity(self.dimmed_opacity)
+
             if has_audio:
                 audio_x = self.width // 2 - self.audioIcon.width() // 2 + x
                 audio_y = self.image_frame_bottom + self.footer_padding
                 painter.drawPixmap(audio_x, audio_y, self.audioIcon)
-
-            if download_status == DownloadStatus.not_downloaded:
-                checkboxStyleOption = QStyleOptionButton()
-                if checked:
-                    checkboxStyleOption.state |= QStyle.State_On
-                else:
-                    checkboxStyleOption.state |= QStyle.State_Off
-                checkboxStyleOption.state |= QStyle.State_Enabled
-                checkboxStyleOption.rect = self.getCheckBoxRect(option)
-                QApplication.style().drawControl(QStyle.CE_CheckBox,
-                                                 checkboxStyleOption, painter)
-            else:
-                if download_status == DownloadStatus.download_pending:
-                    pixmap = self.downloadPendingIcon
-                elif download_status == DownloadStatus.downloaded:
-                    pixmap = self.downloadedIcon
-                elif (download_status ==
-                          DownloadStatus.downloaded_with_warning or
-                      download_status == DownloadStatus.backup_problem):
-                    pixmap = self.downloadedWarningIcon
-                elif (download_status == DownloadStatus.download_failed or
-                      download_status ==
-                              DownloadStatus.download_and_backup_failed):
-                    pixmap = self.downloadedErrorIcon
-                else:
-                    pixmap = None
-                if pixmap is not None:
-                    painter.drawPixmap(self.getLeftPoint(option), pixmap)
 
             # Draw a small coloured box containing the file extension in the
             #  bottom right corner
@@ -701,16 +677,48 @@ class ThumbnailDelegate(QStyledItemDelegate):
             else:
                 color = QColor(0, 0, 0)
 
-            if previously_downloaded and not checked:
-                painter.setOpacity(self.dimmed_opacity)
             painter.fillRect(text_x, text_y - text_height,
                              extBoundingRect.width(),
                              extBoundingRect.height(),
                              color)
 
             painter.setPen(QColor(Qt.white))
-            painter.drawText(text_x + text_padding, text_y,
+            painter.drawText(text_x + text_padding, text_y - 1,
                              extension)
+
+            if previously_downloaded and not checked:
+                painter.setOpacity(1.0)
+
+            if download_status == DownloadStatus.not_downloaded:
+                checkboxStyleOption = QStyleOptionButton()
+                if checked:
+                    checkboxStyleOption.state |= QStyle.State_On
+                else:
+                    checkboxStyleOption.state |= QStyle.State_Off
+                checkboxStyleOption.state |= QStyle.State_Enabled
+                checkboxStyleOption.rect = self.getCheckBoxRect(option)
+                QApplication.style().drawControl(QStyle.CE_CheckBox,
+                                                 checkboxStyleOption, painter)
+            else:
+                if download_status == DownloadStatus.download_pending:
+                    pixmap = self.downloadPendingIcon
+                elif download_status == DownloadStatus.downloaded:
+                    pixmap = self.downloadedIcon
+                elif (download_status ==
+                          DownloadStatus.downloaded_with_warning or
+                      download_status == DownloadStatus.backup_problem):
+                    pixmap = self.downloadedWarningIcon
+                elif (download_status == DownloadStatus.download_failed or
+                      download_status ==
+                              DownloadStatus.download_and_backup_failed):
+                    pixmap = self.downloadedErrorIcon
+                else:
+                    pixmap = None
+                if pixmap is not None:
+                    painter.drawPixmap(option.rect.x() +
+                                       self.horizontal_margin, text_y -
+                                       text_height, pixmap)
+
             painter.restore()
 
 
