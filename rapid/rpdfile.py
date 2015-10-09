@@ -142,8 +142,9 @@ def file_types_by_number(no_photos: int, no_videos:int) -> str:
 
 class FileTypeCounter(Counter):
     r"""
-    Track the number of photos and videos in a scan, and display the
-    results to the user
+    Track the number of photos and videos in a scan or for some other
+    function, and display the results to the user. Only the function
+    running_file_count is scan specific.
 
     >>> f = FileTypeCounter()
     >>> f.summarize_file_count()
@@ -177,14 +178,15 @@ class FileTypeCounter(Counter):
 
         return file_types_by_number(self[FileType.photo], self[FileType.video])
 
-    def summarize_file_count(self) -> tuple:
+    def summarize_file_count(self) -> (str, str):
         """
         Summarizes the total number of photos and/or videos that can be
         downloaded. Displayed in the progress bar at the top of the
         main application window after a scan is finished.
 
-        :return number of files, e.g. "433 photos and videos" or
-        "23 videos".
+        :return tuple with (1) number of files, e.g.
+         "433 photos and videos" or "23 videos". and (2) file types
+         present e.g. "photos and videos"
         """
         file_types_present = self.file_types_present()
         file_count_summary = _("%(number)s %(filetypes)s") % \

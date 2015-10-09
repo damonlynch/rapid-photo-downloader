@@ -38,7 +38,7 @@ from PyQt5.QtGui import (QPixmap, QImage, QPainter, QColor, QPen, QBrush,
 import zmq
 
 from viewutils import RowTracker, SortedListItem
-from rpdfile import RPDFile, extension_type
+from rpdfile import RPDFile, extension_type, FileTypeCounter
 from interprocess import (PublishPullPipelineManager,
     GenerateThumbnailsArguments, Device, GenerateThumbnailsResults)
 from constants import (DownloadStatus, Downloaded, FileType, FileExtension,
@@ -98,19 +98,6 @@ class ThumbnailTableModel(QAbstractTableModel):
         self.thumbnailmq.cacheDirs.connect(self.cacheDirsReceived)
 
         QTimer.singleShot(0, self.thumbnailThread.start)
-
-        # self.liststore = gtk.ListStore(
-        #      gobject.TYPE_PYOBJECT, # 0 PIL thumbnail
-        #      gobject.TYPE_BOOLEAN,  # 1 selected or not
-        #      str,                   # 2 unique id
-        #      str,                   # 3 file name
-        #      int,                   # 4 timestamp for sorting, converted float
-        #      int,                   # 5 file type i.e. photo or video
-        #      gobject.TYPE_BOOLEAN,  # 6 visibility of checkbutton
-        #      int,                   # 7 status of download
-        #      gtk.gdk.Pixbuf,        # 8 status icon
-        #  )
-
 
         # dict of scan_pids that are having thumbnails generated
         # value is the thumbnail process id
@@ -209,6 +196,7 @@ class ThumbnailTableModel(QAbstractTableModel):
             else:
                 self.marked.remove(unique_id)
             self.dataChanged.emit(self.index(row,0),self.index(row,0))
+            self.rapidApp.displayMessageInStatusBar(update_only_marked=True)
             return True
         return False
 
@@ -376,10 +364,23 @@ class ThumbnailTableModel(QAbstractTableModel):
         :return: True if there is any file that the user has indicated
         they intend to download, else False.
         """
+        return len(self.marked) > 0
+
+    def getNoFilesMarkedForDownload(self) -> int:
+        return len(self.marked)
+
+    def getSizeOfFilesMarkedForDownload(self) -> int:
+        size = 0
         for unique_id in self.marked:
-            if self.rpd_files[unique_id].status not in Downloaded:
-                return True
-        return False
+            size += self.rpd_files[unique_id].size
+        return size
+
+    def getNoFilesAvailableForDownload(self) -> FileTypeCounter:
+        file_type_counter = FileTypeCounter()
+        for unique_id, rpd_file in self.rpd_files.items():
+            if rpd_file.status == DownloadStatus.not_downloaded:
+                file_type_counter[rpd_file.file_type] += 1
+        return file_type_counter
 
     def getFilesMarkedForDownload(self, scan_id) -> DownloadFiles:
         """
@@ -466,16 +467,22 @@ class ThumbnailTableModel(QAbstractTableModel):
                 generation_needed = True
         return generation_needed
 
-    def getNoFilesRemaining(self, scan_id: int) -> int:
+    def getNoFilesRemaining(self, scan_id: int=None) -> int:
         """
-        :return: the number of files that have not yet been downloaded
-        for the scan_id
+        :param scan_id: if None, returns files remaining to be
+         downloaded for all scan_ids, else only for that scan_id.
+        :return the number of files that have not yet been downloaded
         """
         i = 0
-        for unique_id in self.scan_index[scan_id]:
-            if self.rpd_files[unique_id].status == \
-                    DownloadStatus.not_downloaded:
-                i += 1
+        if scan_id is not None:
+            for unique_id in self.scan_index[scan_id]:
+                if self.rpd_files[unique_id].status == \
+                        DownloadStatus.not_downloaded:
+                    i += 1
+        else:
+            for unique_id, rpd_file in self.rpd_files.items():
+                if rpd_file.status == DownloadStatus.not_downloaded:
+                    i += 1
         return i
 
     def terminateThumbnailGeneration(self, scan_id: int) -> bool:

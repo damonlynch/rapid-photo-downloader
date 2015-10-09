@@ -224,6 +224,7 @@ class RapidWindow(QMainWindow):
         settings.endGroup()
 
     def setupWindow(self):
+        self.basic_status_message = None
         status = self.statusBar()
         self.downloadProgressBar = QProgressBar()
         self.downloadProgressBar.setMaximumWidth(150)
@@ -369,7 +370,7 @@ class RapidWindow(QMainWindow):
         self.searchForCameras()
         self.setupNonCameraDevices(on_startup=True, on_preference_change=False,
                                    block_auto_start=not prefs_valid)
-        self.displayFreeSpaceAndBackups()
+        self.displayMessageInStatusBar()
 
     def createActions(self):
         self.downloadAct = QAction("&Download", self, shortcut="Ctrl+Return",
@@ -995,7 +996,7 @@ class RapidWindow(QMainWindow):
                 self.download_tracker.purge_all()
                 # self.speed_label.set_label(" ")
 
-                self.displayFreeSpaceAndBackups()
+                self.displayMessageInStatusBar()
 
                 self.setDownloadActionLabel(is_download=True)
                 self.setDownloadActionSensitivity()
@@ -1331,7 +1332,7 @@ class RapidWindow(QMainWindow):
                                           scan_completed=True)
         self.setDownloadActionSensitivity()
 
-        #TODO: update user on how many files are marked for download
+        self.displayMessageInStatusBar(update_only_marked=True)
 
         if (not self.auto_start_is_on and  self.prefs.generate_thumbnails):
             # Generate thumbnails for finished scan
@@ -1639,7 +1640,7 @@ class RapidWindow(QMainWindow):
                         self.download_tracker.set_no_backup_devices(
                             self.backup_devices.no_photo_backup_devices,
                             self.backup_devices.no_video_backup_devices)
-                        self.displayFreeSpaceAndBackups()
+                        self.displayMessageInStatusBar()
 
                 elif self.shouldScanMountPath(path):
                     self.auto_start_is_on = \
@@ -1668,7 +1669,7 @@ class RapidWindow(QMainWindow):
 
         elif path in self.backup_devices:
             del self.backup_devices[path]
-            self.displayFreeSpaceAndBackups()
+            self.displayMessageInStatusBar()
              #TODO remove backup device from manager
             # self.backup_manager.remove_device(path)
             self.download_tracker.set_no_backup_devices(
@@ -1743,7 +1744,7 @@ class RapidWindow(QMainWindow):
             self.backup_devices.no_video_backup_devices)
 
         # Display amount of free space in a status bar message
-        self.displayFreeSpaceAndBackups()
+        self.displayMessageInStatusBar()
 
         #TODO hey need to think about this now that we have cameras too
         if block_auto_start:
@@ -1959,13 +1960,48 @@ class RapidWindow(QMainWindow):
             return zero_string
         return format % value
 
-    def displayFreeSpaceAndBackups(self):
+    def displayMessageInStatusBar(self, update_only_marked: bool=False):
         """
-        Displays on status bar the amount of space free on the
-        filesystem the files will be downloaded to.
+        Displays message on status bar:
+        1. files selected for download (if available).
+        2. the amount of space free on the filesystem the files will be
+           downloaded to.
+        3. backup volumes / path being used.
 
-        Also displays backup volumes / path being used.
+        :param update_only_marked: if True, refreshes only the number
+         of files makrked for download, not regnerating other
+         components of the existing status message
         """
+
+        if self.basic_status_message is None or not update_only_marked:
+            self.basic_status_message = self.generateBasicStatusMessage()
+
+        files_avilable = self.thumbnailModel.getNoFilesAvailableForDownload()
+
+        if sum(files_avilable.values()) != 0:
+            files_to_download = \
+                self.thumbnailModel.getNoFilesMarkedForDownload()
+            files_avilable_sum = files_avilable.summarize_file_count()[0]
+            size = self.thumbnailModel.getSizeOfFilesMarkedForDownload()
+            size = self.formatSizeForUser(size)
+            if files_to_download:
+                files_selected = _('%(number)s of %(available files)s '
+                                   '(%(size)s)') % {
+                                   'number': files_to_download,
+                                   'available files': files_avilable_sum,
+                                   'size': size}
+            else:
+                files_selected = _('%(number)s of %(available files)s') % {
+                                   'number': files_to_download,
+                                   'available files': files_avilable_sum}
+            msg = _('%(files_selected)s. %(freespace_and_backups)s') % {
+                'freespace_and_backups': self.basic_status_message,
+                'files_selected': files_selected}
+        else:
+            msg = self.basic_status_message
+        self.statusBar().showMessage(msg)
+
+    def generateBasicStatusMessage(self) -> str:
         photo_dir = self.isValidDownloadDir(
             path=self.prefs.photo_download_folder,
             is_photo_dir=True,
@@ -1991,17 +2027,15 @@ class RapidWindow(QMainWindow):
             # Free space available on the filesystem for downloading to
             # Displayed in status bar message on main window
             # e.g. 14.7GB free
-            if self.prefs.backup_images:
-                msg = _("%(free)s free.") % {'free': free}
-            else:
-                msg = _("%(free)s free") % {'free': free}
+            msg = _("%(free)s free on destination.") % {'free': free}
         elif len(dirs) == 2:
             free1, free2 = (self.formatSizeForUser(size=shutil.disk_usage(
                 path).free) for path in dirs)
             # Free space available on the filesystem for downloading to
             # Displayed in status bar message on main window
             # e.g. Free space: 21.3GB (photos); 14.7GB (videos).
-            msg = _('Free space: %(photos)s (photos); %(videos)s (videos).') \
+            msg = _('Free space on destination drives: %(photos)s (photos); '
+                    '%(videos)s (videos).') \
                   % {'photos': free1, 'videos': free2}
         else:
             msg = ''
@@ -2030,9 +2064,7 @@ class RapidWindow(QMainWindow):
             else:
                 msg = msg2
 
-        msg = msg.rstrip()
-
-        self.statusBar().showMessage(msg)
+        return msg.rstrip()
 
     def displayBackupMounts(self) -> str:
         """
