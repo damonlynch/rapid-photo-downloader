@@ -575,7 +575,7 @@ class RenameMoveFileWorker(DaemonProcess):
                               "File exists: %s" %
                               rpd_file.download_full_file_name)
             logging.debug(
-                "Attempting to rename file %s to %s .....",
+                "Renaming %s to %s .....",
                 rpd_file.temp_full_file_name,
                 rpd_file.download_full_file_name)
             os.rename(rpd_file.temp_full_file_name,

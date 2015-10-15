@@ -1,7 +1,7 @@
 Rapid Photo Downloader requires the following software:
 
-* Python 3.4
-* PyQt 5.4
+* Python >= 3.4
+* PyQt >= 5.4
 * Python3-zmq
 * Python3-gphoto2 >= 1.2.0
 * Python3-psutil
@@ -29,11 +29,11 @@ libimage-exiftool-perl
 The following three components may not be packaged in your Linux distribution.
 You can install them by following the instructions outlined here:
 * https://github.com/jim-easterbrook/python-gphoto2
-* https://github.com/benhoyt/scandir
 * http://grantjenks.com/docs/sortedcontainers/
+Python 3.5 comes with scandir. To install it in Python 3.4, visit:
+* https://github.com/benhoyt/scandir
 
 If you want to download videos, you should install:
-
 * ffmpegthumbnailer
 
 ffmpegthumbnailer is used only to display thumbnail images of videos. This

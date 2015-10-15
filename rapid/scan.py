@@ -156,7 +156,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
                                                          self.camera.context):
             # Check to see if the process has received a command to terminate
             # or pause
-            self.check_for_command()
+            self.check_for_controller_directive()
 
             base_name, ext = os.path.splitext(name)
             ext_lower = ext.lower()[1:]
@@ -208,7 +208,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
     def process_file(self):
         # Check to see if the process has received a command to terminate or
         # pause
-        self.check_for_command()
+        self.check_for_controller_directive()
 
         file = os.path.join(self.dir_name, self.file_name)
 

@@ -29,11 +29,8 @@ import logging
 import pickle
 from operator import attrgetter
 
-from PyQt5.QtCore import QSize, QIODevice, QBuffer
-
 import problemnotification as pn
 from camera import (Camera, CopyChunks)
-import gphoto2 as gp
 
 from interprocess import (WorkerInPublishPullPipeline, CopyFilesArguments,
                           CopyFilesResults)
@@ -89,46 +86,36 @@ def copy_file_metadata(src, dst):
             else:
                 raise
 
-
-class CopyFilesWorker(WorkerInPublishPullPipeline):
-
+class FileCopy:
+    """
+    Used by classes CopyFilesWorker and BackupFilesWorker
+    """
     def __init__(self):
-        super(CopyFilesWorker, self).__init__('CopyFiles')
+        self.io_buffer = 1024 * 1024
+        self.batch_size_bytes = 5 * 1024 * 1024
+        self.dest = self.src = None
+
+        self.bytes_downloaded = 0
+        self.total_downloaded = 0
 
     def cleanup_pre_stop(self):
         if self.dest is not None:
             self.dest.close()
         if self.src is not None:
             self.src.close()
-        if self.camera is not None:
-            if self.camera.camera_initialized:
-                self.camera.free_camera()
 
-    def update_progress(self, amount_downloaded, total):
-        chunk_downloaded = amount_downloaded - self.bytes_downloaded
-        if (chunk_downloaded > self.batch_size_bytes) or (
-            amount_downloaded == total):
-            self.bytes_downloaded = amount_downloaded
-            self.content= pickle.dumps(CopyFilesResults(
-                scan_id=self.scan_id, total_downloaded=self.total_downloaded
-                + amount_downloaded, chunk_downloaded=chunk_downloaded),
-               pickle.HIGHEST_PROTOCOL)
-            self.send_message_to_sink()
-
-            if amount_downloaded == total:
-                self.bytes_downloaded = 0
-
-    def copy_from_filesystem(self, rpd_file:RPDFile) -> bool:
+    def copy_from_filesystem(self, source: str, destination: str,
+                             rpd_file:RPDFile) -> bool:
         src_chunks = []
         try:
-            self.dest = io.open(rpd_file.temp_full_file_name, 'wb',
+            self.dest = io.open(destination, 'wb',
                                 self.io_buffer)
-            self.src = io.open(rpd_file.full_file_name, 'rb', self.io_buffer)
+            self.src = io.open(source, 'rb', self.io_buffer)
             total = rpd_file.size
             amount_downloaded = 0
             while True:
                 # first check if process is being stopped or paused
-                self.check_for_command()
+                self.check_for_controller_directive()
 
                 chunk = self.src.read(self.io_buffer)
                 if chunk:
@@ -148,47 +135,57 @@ class CopyFilesWorker(WorkerInPublishPullPipeline):
 
             return True
         except (IOError, OSError) as inst:
-            rpd_file.add_problem(None,
-                                 pn.DOWNLOAD_COPYING_ERROR_W_NO,
-                                 {'filetype': rpd_file.title})
-            rpd_file.add_extra_detail(
-                pn.DOWNLOAD_COPYING_ERROR_W_NO_DETAIL,
-                {'errorno': inst.errno, 'strerror': inst.strerror})
-
-            rpd_file.status = DownloadStatus.download_failed
-
-            rpd_file.error_title = rpd_file.problem.get_title()
-            rpd_file.error_msg = _("%(problem)s\nFile: %(file)s") % \
-                                 {
-                                 'problem':
-                                     rpd_file.problem.get_problems(),
-                                 'file': rpd_file.full_file_name}
-
-            logging.error("Failed to download file: %s",
-                          rpd_file.full_file_name)
-            logging.error(inst)
-            self.update_progress(rpd_file.size, rpd_file.size)
+            self.copying_file_error(rpd_file, destination, inst)
             return False
-        # except:
-        #     rpd_file.add_problem(None,
-        #                          pn.DOWNLOAD_COPYING_ERROR,
-        #                          {'filetype': rpd_file.title})
-        #     rpd_file.add_extra_detail(
-        #         pn.DOWNLOAD_COPYING_ERROR_DETAIL,
-        #         _("An unknown error occurred"))
-        #
-        #     rpd_file.status = DownloadStatus.download_failed
-        #
-        #     rpd_file.error_title = rpd_file.problem.get_title()
-        #     rpd_file.error_msg = _("%(problem)s\nFile: %(file)s") % \
-        #                          {
-        #                          'problem':
-        #                              rpd_file.problem.get_problems(),
-        #                          'file': rpd_file.full_file_name}
-        #
-        #     logging.error("Failed to download file: %s",
-        #                   rpd_file.full_file_name)
-        #     self.update_progress(rpd_file.size, rpd_file.size)
+
+
+class CopyFilesWorker(WorkerInPublishPullPipeline, FileCopy):
+
+    def __init__(self):
+        super().__init__('CopyFiles')
+        # super(FileCopy)
+
+    def cleanup_pre_stop(self):
+        super().cleanup_pre_stop()
+        if self.camera is not None:
+            if self.camera.camera_initialized:
+                self.camera.free_camera()
+
+    def update_progress(self, amount_downloaded, total):
+        chunk_downloaded = amount_downloaded - self.bytes_downloaded
+        if (chunk_downloaded > self.batch_size_bytes) or (
+            amount_downloaded == total):
+            self.bytes_downloaded = amount_downloaded
+            self.content= pickle.dumps(CopyFilesResults(
+                scan_id=self.scan_id, total_downloaded=self.total_downloaded
+                + amount_downloaded, chunk_downloaded=chunk_downloaded),
+               pickle.HIGHEST_PROTOCOL)
+            self.send_message_to_sink()
+
+            if amount_downloaded == total:
+                self.bytes_downloaded = 0
+
+    def copying_file_error(self, rpd_file: RPDFile, destination: str, inst):
+        rpd_file.add_problem(None,
+                             pn.DOWNLOAD_COPYING_ERROR_W_NO,
+                             {'filetype': rpd_file.title})
+        rpd_file.add_extra_detail(
+            pn.DOWNLOAD_COPYING_ERROR_W_NO_DETAIL,
+            {'errorno': inst.errno, 'strerror': inst.strerror})
+
+        rpd_file.status = DownloadStatus.download_failed
+
+        rpd_file.error_title = rpd_file.problem.get_title()
+        rpd_file.error_msg = _("%(problem)s\nFile: %(file)s") % \
+                             {
+                             'problem':
+                                 rpd_file.problem.get_problems(),
+                             'file': rpd_file.full_file_name}
+
+        logging.error("Failed to download file: %s",
+                      rpd_file.full_file_name)
+        logging.error(inst)
+        self.update_progress(rpd_file.size, rpd_file.size)
 
     def copy_from_camera(self, rpd_file: RPDFile) -> bool:
 
@@ -198,7 +195,7 @@ class CopyFilesWorker(WorkerInPublishPullPipeline):
                              size=rpd_file.size,
                              dest_full_filename=rpd_file.temp_full_file_name,
                              progress_callback=self.update_progress,
-                             check_for_command=self.check_for_command,
+                             check_for_command=self.check_for_controller_directive,
                              return_file_bytes=self.verify_file)
 
         if copy_chunks.copy_succeeded and self.verify_file:
@@ -265,11 +262,6 @@ class CopyFilesWorker(WorkerInPublishPullPipeline):
 
         random_filename = GenerateRandomFileName()
 
-        self.io_buffer = 1024 * 1024
-        self.batch_size_bytes = 5 * 1024 * 1024
-
-        self.bytes_downloaded = 0
-        self.total_downloaded = 0
 
         photo_temp_dir, video_temp_dir = create_temp_dirs(
             args.photo_download_folder, args.video_download_folder)
@@ -283,6 +275,8 @@ class CopyFilesWorker(WorkerInPublishPullPipeline):
         self.send_message_to_sink()
 
         # Sort the files to be copied by modification time
+        # Important to do this with respect to sequence numbers, or else
+        # they'll be downloaded in what looks like a random order
         rpd_files = sorted(args.files, key=attrgetter('modification_time'))
 
         for idx, rpd_file in enumerate(rpd_files):
@@ -296,10 +290,10 @@ class CopyFilesWorker(WorkerInPublishPullPipeline):
 
             # Three scenarios:
             # 1. Downloading from device with file system we can directly
-            # access
+            #    access
             # 2. Downloading from camera using libgphoto2
             # 3. Downloading from camera where we've already cached at
-            # least some of the files
+            #    least some of the files in the Download Cache
 
             if rpd_file.cache_full_file_name:
                 # Scenario 3
@@ -366,7 +360,10 @@ class CopyFilesWorker(WorkerInPublishPullPipeline):
                         copy_succeeded = self.copy_from_camera(rpd_file)
                 else:
                     # Scenario 1
-                    copy_succeeded = self.copy_from_filesystem(rpd_file)
+                    source = rpd_file.full_file_name
+                    destination = rpd_file.temp_full_file_name
+                    copy_succeeded = self.copy_from_filesystem(source,
+                                           destination, rpd_file)
 
 
             # increment this amount regardless of whether the copy actually

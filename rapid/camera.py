@@ -34,6 +34,12 @@ logging.basicConfig(format='%(levelname)s:%(asctime)s:%(message)s',
                     datefmt='%H:%M:%S',
                     level=logging.DEBUG)
 
+def python_gphoto2_version():
+    return  gp.__version__
+
+def gphoto2_version():
+    return gp.gp_library_version(0)[0]
+
 CopyChunks = namedtuple('CopyChunks', 'copy_succeeded, src_bytes')
 
 class Camera:

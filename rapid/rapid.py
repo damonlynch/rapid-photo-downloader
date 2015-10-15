@@ -33,6 +33,9 @@ import os
 import pickle
 import inspect
 from collections import namedtuple
+import platform
+import argparse
+
 from gettext import gettext as _
 from gi.repository import Notify
 
@@ -61,21 +64,35 @@ from storage import (ValidMounts, CameraHotplug, UDisks2Monitor,
                      GVolumeMonitor, have_gio, has_non_empty_dcim_folder,
                      mountPaths, get_desktop_environment,
                      gvfs_controls_mounts)
-from interprocess import (PublishPullPipelineManager, ScanArguments,
-                          CopyFilesArguments, PushPullDaemonManager, RenameAndMoveFileData)
+from interprocess import (PublishPullPipelineManager,
+                          PushPullDaemonManager,
+                          ScanArguments,
+                          CopyFilesArguments,
+                          RenameAndMoveFileData,
+                          BackupArguments,
+                          BackupResults,
+                          CopyFilesResults,
+                          RenameAndMoveFileResults,
+                          BackupFileData)
 from devices import (Device, DeviceCollection, BackupDevice,
                      BackupDeviceCollection)
 from preferences import (Preferences, ScanPreferences)
 from constants import (BackupLocationType, DeviceType, ErrorType,
                        FileType, DownloadStatus, RenameAndMoveStatus,
-                       photo_rename_test, ApplicationState)
+                       photo_rename_test, ApplicationState,
+                       PROGRAM_NAME)
+import constants
 from thumbnaildisplay import (ThumbnailView, ThumbnailTableModel,
     ThumbnailDelegate, DownloadTypes, DownloadStats)
 from devicedisplay import (DeviceTableModel, DeviceView, DeviceDelegate)
-from utilities import (same_file_system, makeInternationalizedList)
+from utilities import (same_file_system, makeInternationalizedList,
+                       human_readable_version)
 from rpdfile import RPDFile, file_types_by_number
 import downloadtracker
 from cache import ThumbnailCache
+from metadataphoto import exiv2_version, gexiv2_version
+from metadatavideo import EXIFTOOL_VERSION
+from camera import gphoto2_version, python_gphoto2_version
 from generatenameconfig import *
 
 logging_level = logging.DEBUG
@@ -123,6 +140,51 @@ class ScanManager(PublishPullPipelineManager):
         self._process_to_run = 'scan.py'
 
 
+class BackupManager(PublishPullPipelineManager):
+    """
+    Each backup "device" (it could be an external drive, or a user-
+    specified path on the local file system) has associated with it one
+    worker process. For example if photos and videos are both being
+    backed up to the same external hard drive, one worker process
+    handles both the photos and the videos. However if photos are being
+    backed up to one drive, and videos to another, there would be a
+    worker process for each drive (2 in total).
+    """
+    message = QtCore.pyqtSignal(int, bool, bool, RPDFile)
+    bytesBackedUp = QtCore.pyqtSignal(bytes)
+    def __init__(self, context: zmq.Context):
+        super().__init__(context)
+        self._process_name = 'Backup Manager'
+        self._process_to_run = 'backupfile.py'
+
+    def add_device(self, device_id: int, backup_arguments: BackupArguments):
+        self.start_worker(device_id, backup_arguments)
+
+    def remove_device(self, device_id: int):
+        self.stop_worker(device_id)
+
+    def backup_file(self, data: BackupFileData, device_id: int):
+        self.send_message_to_worker(data, device_id)
+
+    def process_sink_data(self):
+        data = pickle.loads(self.content)
+        """ :type : BackupResults"""
+        if data.total_downloaded is not None:
+            assert data.scan_id is not None
+            assert data.chunk_downloaded >= 0
+            assert data.total_downloaded >= 0
+            # Emit the unpickled data, as when PyQt converts an int to a
+            # C++ int, python ints larger that the maximum C++ int are
+            # corrupted
+            self.bytesBackedUp.emit(self.content)
+        else:
+            assert data.backup_succeeded is not None
+            assert data.do_backup is not None
+            assert data.rpd_file is not None
+            self.message.emit(data.device_id, data.backup_succeeded,
+                              data.do_backup, data.rpd_file)
+
+
 class CopyFilesManager(PublishPullPipelineManager):
     message = QtCore.pyqtSignal(bool, RPDFile, int)
     tempDirs = QtCore.pyqtSignal(int, str,str)
@@ -165,6 +227,8 @@ class RapidWindow(QMainWindow):
 
         self.application_state = ApplicationState.normal
 
+        logging.debug('Software versions:\n%s', get_versions())
+
         self.context = zmq.Context()
 
         self.setWindowTitle(_("Rapid Photo Downloader"))
@@ -180,6 +244,12 @@ class RapidWindow(QMainWindow):
         self.prefs.device_location = \
             '/home/damon/digitalPhotos/rapid/sample-cr2'
         self.prefs.photo_rename = photo_rename_test
+        self.prefs.backup_files = True
+        self.prefs.backup_device_autodetection = True
+        self.prefs.photo_backup_identifier = 'photos-backup'
+        self.prefs.video_backup_identifier = 'videos-backup'
+        # self.prefs.backup_photo_location = '/data/Photos/Test-backup/'
+        # self.prefs.backup_video_location = '/data/Photos/Test-backup/'
 
         centralWidget = QWidget()
 
@@ -249,8 +319,7 @@ class RapidWindow(QMainWindow):
 
         module_path = os.path.dirname(os.path.abspath(inspect.getfile(
             inspect.currentframe())))
-        self.program_svg = os.path.join(module_path,
-                         os.path.join('images', 'rapid-photo-downloader.svg'))
+        self.program_svg = ':/rapid-photo-downloader.svg'
         # Initialise use of libgphoto2
         self.gp_context = gp.Context()
 
@@ -335,6 +404,8 @@ class RapidWindow(QMainWindow):
         self.renamemq.workerFinished.connect(self.fileRenamedAndMovedFinished)
 
         QTimer.singleShot(0, self.renameThread.start)
+        # Immediately start the only daemon process rename and move files
+        # worker
         self.renamemq.start()
 
         # Setup the scan processes
@@ -362,6 +433,10 @@ class RapidWindow(QMainWindow):
 
         QTimer.singleShot(0, self.copyfilesThread.start)
 
+        self.backup_manager_started = False
+        if self.prefs.backup_files:
+            self.startBackupManager()
+
         prefs_valid, msg = self.prefs.check_prefs_for_validity()
         if not prefs_valid:
             self.notifyPrefsAreInvalid(details=msg)
@@ -371,6 +446,20 @@ class RapidWindow(QMainWindow):
         self.setupNonCameraDevices(on_startup=True, on_preference_change=False,
                                    block_auto_start=not prefs_valid)
         self.displayMessageInStatusBar()
+
+    def startBackupManager(self):
+        if not self.backup_manager_started:
+            self.backupThread = QThread()
+            self.backupmq = BackupManager(self.context)
+            self.backupmq.moveToThread(self.backupThread)
+
+            self.backupThread.started.connect(self.backupmq.run_sink)
+            self.backupmq.message.connect(self.fileBackedUp)
+            self.backupmq.bytesBackedUp.connect(self.backupFileBytesBackedUp)
+
+            QTimer.singleShot(0, self.backupThread.start)
+
+            self.backup_manager_started = True
 
     def createActions(self):
         self.downloadAct = QAction("&Download", self, shortcut="Ctrl+Return",
@@ -604,7 +693,16 @@ class RapidWindow(QMainWindow):
         :return True if a file is currently being downloaded, renamed
         or backed up, else False
         """
-        return len(self.active_downloads_by_scan_id) > 0
+        if len(self.active_downloads_by_scan_id) == 0:
+            if self.prefs.backup_files:
+                if self.download_tracker.all_files_backed_up():
+                    return False
+                else:
+                    return True
+            else:
+                return False
+        else:
+            return True
 
     def startDownload(self, scan_id=None):
         """
@@ -711,9 +809,10 @@ class RapidWindow(QMainWindow):
             video_download_folder = None
 
         self.download_tracker.init_stats(scan_id=scan_id, stats=download_stats)
-        download_size = download_stats.photos_size_in_bytes + download_stats.videos_size_in_bytes
+        download_size = download_stats.photos_size_in_bytes + \
+                        download_stats.videos_size_in_bytes
 
-        if self.prefs.backup_images:
+        if self.prefs.backup_files:
             download_size += ((self.backup_devices.no_photo_backup_devices *
                                download_stats.photos_size_in_bytes) + (
                                self.backup_devices.no_video_backup_devices *
@@ -740,17 +839,9 @@ class RapidWindow(QMainWindow):
             # since a file might be modified in the file modify process,
             # if it will be backed up, need to refresh the md5 once it has
             # been modified
-            refresh_md5_on_file_change = self.prefs.backup_images
+            refresh_md5_on_file_change = self.prefs.backup_files
         else:
             refresh_md5_on_file_change = False
-
-        #modify_files_during_download = self.modify_files_during_download()
-        # if modify_files_during_download:
-        #     self.file_modify_manager.add_task((scan_pid, self.prefs.auto_rotate_jpeg, self.focal_length, verify_file, refresh_md5_on_file_change))
-        #     modify_pipe = self.file_modify_manager.get_modify_pipe(scan_pid)
-        # else:
-        #     modify_pipe = None
-
 
         # Initiate copy files process
 
@@ -853,13 +944,89 @@ class RapidWindow(QMainWindow):
             self.logError(ErrorType.warning, rpd_file.error_title,
                            rpd_file.error_msg, rpd_file.error_extra_detail)
 
-        if self.prefs.backup_images:
-            scan_pid = rpd_file.scan_id
-            unique_id = rpd_file.unique_id
+        if self.prefs.backup_files:
+            if self.backup_devices.backup_possible(rpd_file.file_type):
+                self.backupFile(rpd_file, move_succeeded, download_count)
+            else:
+                self.fileDownloadFinished(move_succeeded, rpd_file)
+        else:
+            self.fileDownloadFinished(move_succeeded, rpd_file)
 
-            #TODO: implement backupimages
+    def backupFile(self, rpd_file: RPDFile, move_succeeded: bool,
+                   download_count: int):
+        if self.prefs.backup_device_autodetection:
+            if rpd_file.file_type == FileType.photo:
+                path_suffix = self.prefs.photo_backup_identifier
+            else:
+                path_suffix = self.prefs.video_backup_identifier
+        else:
+            path_suffix = None
+        if rpd_file.file_type == FileType.photo:
+            logging.debug("Backing up photo %s", rpd_file.download_name)
+        else:
+            logging.debug("Backing up video %s", rpd_file.download_name)
 
-        self.fileDownloadFinished(move_succeeded, rpd_file)
+        for path in self.backup_devices:
+            backup_type = self.backup_devices[path].backup_type
+            do_backup = (
+                (backup_type == BackupLocationType.photos_and_videos) or
+                (rpd_file.file_type == FileType.photo and backup_type ==
+                 BackupLocationType.photos) or
+                (rpd_file.file_type == FileType.video and backup_type ==
+                 BackupLocationType.videos))
+            if do_backup:
+                logging.debug("Backing up to %s", path)
+            else:
+                logging.debug("Not backing up to %s", path)
+            # Even if not going to backup to this device, need to send it
+            # anyway so progress bar can be updated. Not this most efficient
+            # but the code is much more simple
+            # TODO: check if this is still correct with new code!
+
+            device_id = self.backup_devices.device_id(path)
+            data = BackupFileData(rpd_file, move_succeeded, do_backup,
+                                  path_suffix,
+                                  self.prefs.backup_duplicate_overwrite,
+                                  self.prefs.verify_file, download_count)
+            self.backupmq.backup_file(data, device_id)
+
+    def fileBackedUp(self, device_id: int, backup_succeeded: bool, do_backup:
+                     bool, rpd_file: RPDFile):
+
+        # Only show an error message if there is more than one device
+        # backing up files of this type - if that is the case,
+        # do not want to rely on showing an error message in the
+        # function file_download_finished, as it is only called once,
+        # when all files have been backed up
+        if not backup_succeeded and \
+                self.backup_devices.multiple_backup_devices(
+                rpd_file.file_type) and do_backup:
+            # TODO implement error notification on backups
+            pass
+            # self.log_error(config.SERIOUS_ERROR,
+            #     rpd_file.error_title,
+            #     rpd_file.error_msg, rpd_file.error_extra_detail)
+
+        if do_backup:
+            self.download_tracker.file_backed_up(rpd_file.scan_id,
+                                                 rpd_file.unique_id)
+            if self.download_tracker.file_backed_up_to_all_locations(
+                    rpd_file.unique_id, rpd_file.file_type):
+                logging.debug("File %s will not be backed up to any more "
+                            "locations", rpd_file.download_name)
+                self.fileDownloadFinished(backup_succeeded, rpd_file)
+
+    def backupFileBytesBackedUp(self, pickled_data: bytes):
+        data = pickle.loads(pickled_data)
+        """ :type : BackupResults"""
+        scan_id = data.scan_id
+        chunk_downloaded = data.chunk_downloaded
+        self.download_tracker.increment_bytes_backed_up(scan_id,
+                                                     chunk_downloaded)
+        self.time_check.increment(bytes_downloaded=chunk_downloaded)
+        percent_complete = self.download_tracker.get_percent_complete(scan_id)
+        self.deviceModel.updateDownloadProgress(scan_id, percent_complete, '')
+        self.time_remaining.update(scan_id, bytes_downloaded=chunk_downloaded)
 
     def updateSequences(self, stored_sequence_no: int, downloads_today: list):
         """
@@ -876,8 +1043,8 @@ class RapidWindow(QMainWindow):
     def fileRenamedAndMovedFinished(self):
         pass
 
-    def updateFileDownloadDeviceProgress(self, scan_id: int, unique_id,
-                                              file_type):
+    def updateFileDownloadDeviceProgress(self, scan_id: int, unique_id: str,
+                                              file_type: FileType):
         """
         Increments the progress bar for an individual device
 
@@ -887,15 +1054,13 @@ class RapidWindow(QMainWindow):
         """
 
         files_downloaded = \
-            self.download_tracker.get_download_count_for_file(unique_id)
+                self.download_tracker.get_download_count_for_file(unique_id)
         files_to_download = self.download_tracker.get_no_files_in_download(
-            scan_id)
+                scan_id)
         file_types = self.download_tracker.get_file_types_present(scan_id)
         completed = files_downloaded == files_to_download
-        if completed and (self.prefs.backup_images and
-                              self.backup_devices.backup_possible(file_type)):
-            completed = self.download_tracker.all_files_backed_up(unique_id,
-                                                                  file_type)
+        if self.prefs.backup_files and completed:
+            completed = self.download_tracker.all_files_backed_up(scan_id)
 
         if completed:
             files_remaining = self.thumbnailModel.getNoFilesRemaining(scan_id)
@@ -1286,7 +1451,7 @@ class RapidWindow(QMainWindow):
         :return: None if no problems, or BackupMissing
         """
         backup_missing = BackupMissing(False, False)
-        if self.prefs.backup_images and \
+        if self.prefs.backup_files and \
                 self.prefs.backup_device_autodetection:
             if downloading.photos and not self.backupPossible(
                     FileType.photo):
@@ -1387,6 +1552,11 @@ class RapidWindow(QMainWindow):
         self.copyfilesThread.quit()
         if not self.copyfilesThread.wait(1000):
             self.copyfilesmq.forcefully_terminate()
+        if self.backup_manager_started:
+            self.backupmq.stop()
+            self.backupThread.quit()
+            if not self.backupThread.wait(1000):
+                self.backupmq.forcefully_terminate()
         if not self.gvfsControlsMounts:
             self.udisks2MonitorThread.quit()
             self.udisks2MonitorThread.wait()
@@ -1634,9 +1804,7 @@ class RapidWindow(QMainWindow):
                         device = BackupDevice(mount=mount,
                                               backup_type=backup_file_type)
                         self.backup_devices[path] = device
-                        #TODO add backup device to manager
-                    #     name = self._backup_device_name(path)
-                    #     self.backup_manager.add_device(path, name, backup_file_type)
+                        self.addDeviceToBackupManager(path)
                         self.download_tracker.set_no_backup_devices(
                             self.backup_devices.no_photo_backup_devices,
                             self.backup_devices.no_video_backup_devices)
@@ -1668,10 +1836,10 @@ class RapidWindow(QMainWindow):
             self.removeDevice(scan_id)
 
         elif path in self.backup_devices:
+            device_id = self.backup_devices.device_id(path)
+            self.backupmq.remove_device(device_id)
             del self.backup_devices[path]
             self.displayMessageInStatusBar()
-             #TODO remove backup device from manager
-            # self.backup_manager.remove_device(path)
             self.download_tracker.set_no_backup_devices(
                 self.backup_devices.no_photo_backup_devices,
                 self.backup_devices.no_video_backup_devices)
@@ -1726,18 +1894,18 @@ class RapidWindow(QMainWindow):
                     if backup_type is not None:
                         self.backup_devices[path] = BackupDevice(mount=mount,
                                                      backup_type=backup_type)
+                        self.addDeviceToBackupManager(path)
                     elif self.shouldScanMountPath(path):
                         logging.debug("Appending %s", mount.displayName())
                         mounts.append(mount)
                     else:
                         logging.debug("Ignoring %s", mount.displayName())
 
-        if self.prefs.backup_images:
+        if self.prefs.backup_files:
             if not self.prefs.backup_device_autodetection:
                 self.setupManualBackup()
-                # TODO add backup devices to backup manager MQ
-        #     self._add_backup_devices()
-        #
+                for path in self.backup_devices:
+                    self.addDeviceToBackupManager(path)
 
         self.download_tracker.set_no_backup_devices(
             self.backup_devices.no_photo_backup_devices,
@@ -1783,6 +1951,12 @@ class RapidWindow(QMainWindow):
         # if not mounts:
         #     self.set_download_action_sensitivity()
 
+    def addDeviceToBackupManager(self, path: str):
+        device_id = self.backup_devices.device_id(path)
+        backup_args = BackupArguments(path,
+                          self.backup_devices.name(path))
+        self.backupmq.add_device(device_id, backup_args)
+
     def setupManualBackup(self):
         """
         Setup backup devices that the user has manually specified.
@@ -1797,6 +1971,13 @@ class RapidWindow(QMainWindow):
 
         backup_photo_location = self.prefs.backup_photo_location
         backup_video_location = self.prefs.backup_video_location
+
+        if not self.manualBackupPathAvailable(backup_photo_location):
+            logging.warning("Photo backup path unavailable: %s",
+                            backup_photo_location)
+        if not self.manualBackupPathAvailable(backup_video_location):
+            logging.warning("Video backup path unavailable: %s",
+                            backup_video_location)
 
         if backup_photo_location != backup_video_location:
             backup_photo_device =  BackupDevice(mount=None,
@@ -1827,7 +2008,7 @@ class RapidWindow(QMainWindow):
         :return The type of file that should be backed up to the path,
         else if nothing should be, None
         """
-        if self.prefs.backup_images:
+        if self.prefs.backup_files:
             if self.prefs.backup_device_autodetection:
                 # Determine if the auto-detected backup device is
                 # to be used to backup only photos, or videos, or both.
@@ -1854,13 +2035,16 @@ class RapidWindow(QMainWindow):
                     return BackupLocationType.videos
             elif path == self.prefs.backup_photo_location:
                 # user manually specified the path
-                if os.access(path, os.W_OK):
+                if self.manualBackupPathAvailable(path):
                     return BackupLocationType.photos
             elif path == self.prefs.backup_video_location:
                 # user manually specified the path
-                if os.access(path, os.W_OK):
+                if self.manualBackupPathAvailable(path):
                     return BackupLocationType.videos
             return None
+
+    def manualBackupPathAvailable(self, path: str) -> bool:
+        return os.access(path, os.W_OK)
 
     def clearNonRunningDownloads(self):
         """
@@ -2040,20 +2224,20 @@ class RapidWindow(QMainWindow):
         else:
             msg = ''
 
-        if self.prefs.backup_images:
+        if self.prefs.backup_files:
             if not self.prefs.backup_device_autodetection:
-                if self.prefs.photo_backup_location ==  \
+                if self.prefs.backup_photo_location ==  \
                         self.prefs.backup_video_location:
                     # user manually specified the same location for photos
                     # and video backups
                     msg2 = _('Backing up photos and videos to %(path)s') % {
-                        'path':self.prefs.photo_backup_location}
+                        'path':self.prefs.backup_photo_location}
                 else:
                     # user manually specified different locations for photo
                     # and video backups
                     msg2 = _('Backing up photos to %(path)s and videos to %('
                              'path2)s')  % {
-                             'path': self.prefs.photo_backup_location,
+                             'path': self.prefs.backup_photo_location,
                              'path2': self.prefs.backup_video_location}
             else:
                 msg2 = self.displayBackupMounts()
@@ -2088,7 +2272,38 @@ class RapidWindow(QMainWindow):
             message = _("No backup devices detected")
         return message
 
+
+def get_versions() -> str:
+    versions = [
+        'Rapid Photo Downloader: {}'.format(human_readable_version(
+            constants.version)),
+        'Platform: {}'.format(platform.platform()),
+        'Python: {}'.format(platform.python_version()),
+        'Qt: {}'.format(QtCore.QT_VERSION_STR),
+        'PyQt: {}'.format(QtCore.PYQT_VERSION_STR),
+        'ZeroMQ: {}'.format(zmq.zmq_version()),
+        'Python ZeroMQ: {}'.format(zmq.pyzmq_version()),
+        'gPhoto2: {}'.format(gphoto2_version()),
+        'Python gPhoto2: {}'.format(python_gphoto2_version()),
+        'ExifTool: {}'.format(EXIFTOOL_VERSION),
+        'GExiv2: {}'.format(gexiv2_version())]
+    v = exiv2_version()
+    if v:
+        versions.append('Exiv2: {}'.format(v))
+    return '\n'.join(versions)
+
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser(prog=PROGRAM_NAME)
+    parser.add_argument('--version', action='version', version=
+        '%(prog)s {}'.format(human_readable_version(constants.version)))
+    parser.add_argument('--detailed-version', action='store_true',
+                        help="show version numbers of program and "
+                             "its libraries, "
+                             "and exit")
+    args = parser.parse_args()
+    if args.detailed_version:
+        print(get_versions())
+        sys.exit(0)
 
     app = QApplication(sys.argv)
     app.setOrganizationName("Rapid Photo Downloader")

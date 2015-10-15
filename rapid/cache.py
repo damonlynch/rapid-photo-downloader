@@ -40,7 +40,7 @@ Rapid Photo Downloader deals with three types of cache:
    Name: FDO Cache
    Location: /home/USER/.cache/thumbnails/
    (Actual location may vary depending on value of environment variable
-   XDG_CACHE_HOME
+   XDG_CACHE_HOME)
 
 For the fdo cache specs, see:
 http://specifications.freedesktop.org/thumbnail-spec/thumbnail-spec-latest.html

@@ -160,6 +160,13 @@ class ThumbnailTableModel(QAbstractTableModel):
                 rpd_file.modification_time)
             modification_time = modification_time.strftime('%c')
             msg = '{}\n{}\n{}'.format(file_name, modification_time, size)
+
+            if rpd_file.status in Downloaded:
+                path = rpd_file.download_path + os.sep
+                msg += '\n\nDownloaded as:\n%(filename)s\n%(path)s' % {
+                    'filename': rpd_file.download_name,
+                    'path': path}
+
             if rpd_file.previously_downloaded():
                 if isinstance(rpd_file.prev_datetime, datetime.datetime):
                     prev_date = rpd_file.prev_datetime.strftime('%c')
@@ -171,6 +178,7 @@ class ThumbnailTableModel(QAbstractTableModel):
                          'date)s') % {'date': prev_date,
                                        'filename': prev_file_name,
                                        'path': path}
+
             return msg
         elif role == Roles.previously_downloaded:
             return rpd_file.previously_downloaded()
@@ -197,6 +205,7 @@ class ThumbnailTableModel(QAbstractTableModel):
                 self.marked.remove(unique_id)
             self.dataChanged.emit(self.index(row,0),self.index(row,0))
             self.rapidApp.displayMessageInStatusBar(update_only_marked=True)
+            self.rapidApp.setDownloadActionSensitivity()
             return True
         return False
 
@@ -534,6 +543,7 @@ class ThumbnailView(QListView):
         style = """
         QListView {
         background-color:#555555; padding-left: 4px; padding-top: 4px;
+        padding-bottom: 4px;
         }
         """
         super(ThumbnailView, self).__init__()

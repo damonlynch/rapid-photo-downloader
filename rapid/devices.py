@@ -114,9 +114,10 @@ class Device:
         return not self.__eq__(other)
 
     def _get_valid_icon_name(self, possible_names):
-        for icon_name in possible_names:
-            if QIcon.hasThemeIcon(icon_name):
-                return icon_name
+        if possible_names is not None:
+            for icon_name in possible_names:
+                if QIcon.hasThemeIcon(icon_name):
+                    return icon_name
         return None
 
     def set_download_from_camera(self, camera_model: str, camera_port: str):
@@ -326,6 +327,8 @@ class BackupDeviceCollection:
     they can be backed up to the same location.
 
     >>> b = BackupDeviceCollection()
+    >>> len(b)
+    0
     >>> p = BackupDevice(mount=None, backup_type=BackupLocationType.photos)
     >>> v = BackupDevice(mount=None, backup_type=BackupLocationType.videos)
     >>> pv = BackupDevice(mount=None,
@@ -333,9 +336,17 @@ class BackupDeviceCollection:
     >>> pv2 = BackupDevice(mount=None,
     ...                   backup_type=BackupLocationType.photos_and_videos)
     >>> b['/some/path'] = p
+    >>> b
+    {'/some/path':None <BackupLocationType.photos: 1> 0}
+    >>> b.device_id('/some/path')
+    0
     >>> b['/some/other/path'] = v
     >>> len(b)
     2
+    >>> b.device_id('/some/other/path')
+    1
+    >>> b.device_id('/unknown/path')
+    >>>
     >>> '/some/path' in b
     True
     >>> b['/some/path']
@@ -372,6 +383,8 @@ class BackupDeviceCollection:
         self.devices = {}
         self.no_photo_backup_devices = 0
         self.no_video_backup_devices = 0
+        self._device_ids = {}
+        self._device_id = 0
 
     def __setitem__(self, path: str, device: BackupDevice):
         if path in self.devices:
@@ -384,6 +397,8 @@ class BackupDeviceCollection:
         if backup_type in [BackupLocationType.videos,
                            BackupLocationType.photos_and_videos]:
             self.no_video_backup_devices += 1
+        self._device_ids[path] = self._device_id
+        self._device_id += 1
 
 
     def __delitem__(self, path):
@@ -397,11 +412,13 @@ class BackupDeviceCollection:
         assert self.no_video_backup_devices >= 0
         assert self.no_photo_backup_devices >= 0
         del self.devices[path]
+        del self._device_ids[path]
 
     def __repr__(self):
         s = '{'
         for key, value in self.devices.items():
-            s += r'%r:%r %r, ' % (key, value.mount, value.backup_type)
+            s += r'%r:%r %r %s, ' % (key, value.mount, value.backup_type,
+                                     self._device_ids[key])
         s = s[:-2] + '}'
         return s
 
@@ -417,7 +434,12 @@ class BackupDeviceCollection:
     def __iter__(self):
         return iter(self.devices)
 
-    def name(self, path):
+    def device_id(self, path: str) -> int:
+        if path in self:
+            return self._device_ids[path]
+        return None
+
+    def name(self, path) -> str:
         if self.devices[path].mount is None:
             return path
         else:

@@ -885,7 +885,7 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
         for rpd_file in rpd_files:
             """:type : RPDFile"""
             # Check to see if the process has received a command
-            self.check_for_command()
+            self.check_for_controller_directive()
 
             if thumbnail_cache is not None:
                 thumbnail_icon, thumbnail_path = thumbnail_cache.get_thumbnail(
@@ -928,7 +928,7 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
                     cache_file_from_camera=cache_file_from_camera,
                     photo_cache_dir=photo_cache_dir,
                     video_cache_dir=video_cache_dir,
-                    check_for_command=self.check_for_command,
+                    check_for_command=self.check_for_controller_directive,
                     have_ffmpeg_thumbnailer=have_ffmpeg_thumbnailer)
                 thumbnail_icon = thumbnail.get_thumbnail(
                     size=thumbnail_size_needed)

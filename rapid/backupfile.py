@@ -1,262 +1,262 @@
-#!/usr/bin/python
-# -*- coding: latin1 -*-
+#!/usr/bin/python3
+__author__ = 'Damon Lynch'
 
-### Copyright (C) 2011 - 2014 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2011-2015 Damon Lynch <damonlynch@gmail.com>
 
-### This program is free software; you can redistribute it and/or modify
-### it under the terms of the GNU General Public License as published by
-### the Free Software Foundation; either version 2 of the License, or
-### (at your option) any later version.
+# This file is part of Rapid Photo Downloader.
+#
+# Rapid Photo Downloader is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Rapid Photo Downloader is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Rapid Photo Downloader.  If not,
+# see <http://www.gnu.org/licenses/>.
 
-### This program is distributed in the hope that it will be useful,
-### but WITHOUT ANY WARRANTY; without even the implied warranty of
-### MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-### GNU General Public License for more details.
-
-### You should have received a copy of the GNU General Public License
-### along with this program; if not, write to the Free Software
-### Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301
-### USA
-
+import pickle
 import tempfile
 import os
 import errno
 import hashlib
+import sys
 
 import shutil
 import io
 
 import logging
-
-import rpdfile
-import problemnotification as pn
-import constants
-
-PHOTO_BACKUP = 1
-VIDEO_BACKUP = 2
-PHOTO_VIDEO_BACKUP = 3
-
 from gettext import gettext as _
 
-# from copyfiles import copy_file_metadata
+from interprocess import (BackupFileData, BackupResults, BackupArguments,
+                          WorkerInPublishPullPipeline)
+from copyfiles import FileCopy
+from constants import FileType, DownloadStatus
+from rpdfile import RPDFile
+
+import problemnotification as pn
+from copyfiles import copy_file_metadata
 
 
-# class BackupFiles(multiprocessing.Process):
-#     def __init__(self, path, name,
-#                  batch_size_MB, results_pipe, terminate_queue,
-#                  run_event):
-#         multiprocessing.Process.__init__(self)
-#         self.results_pipe = results_pipe
-#         self.terminate_queue = terminate_queue
-#         self.batch_size_bytes = batch_size_MB * 1048576 # * 1024 * 1024
-#         self.io_buffer = 1048576
-#         self.path = path
-#         self.mount_name = name
-#         self.run_event = run_event
-#
-#
-#     def check_termination_request(self):
-#         """
-#         Check to see this process has not been requested to immediately terminate
-#         """
-#         if not self.terminate_queue.empty():
-#             x = self.terminate_queue.get()
-#             # terminate immediately
-#             logger.info("Terminating file backup")
-#             return True
-#         return False
-#
-#
-#     def update_progress(self, amount_downloaded, total):
-#         self.amount_downloaded = amount_downloaded
-#         chunk_downloaded = amount_downloaded - self.bytes_downloaded
-#         if (chunk_downloaded > self.batch_size_bytes) or (amount_downloaded == total):
-#             self.bytes_downloaded = amount_downloaded
-#             self.results_pipe.send((rpdmp.CONN_PARTIAL, (rpdmp.MSG_BYTES, (self.scan_pid, self.pid, self.total_downloaded + amount_downloaded, chunk_downloaded))))
-#             if amount_downloaded == total:
-#                 self.bytes_downloaded = 0
-#
-#     def backup_additional_file(self, dest_dir, full_file_name):
-#         """Backs up small files like XMP or THM files"""
-#         dest_name = os.path.join(dest_dir, os.path.split(full_file_name)[1])
-#
-#         try:
-#             logger.debug("Backing up additional file %s...", dest_name)
-#             shutil.copyfile(full_file_name, dest_name)
-#             logger.debug("...backing up additional file %s succeeded", dest_name)
-#         except:
-#             logger.error("Backup of %s failed", full_file_name)
-#
-#         try:
-#             copy_file_metadata(full_file_name, dest_name, logger)
-#         except:
-#             logger.error("Unknown error updating filesystem metadata when copying %s", full_file_name)
-#
-#     def run(self):
-#
-#         self.bytes_downloaded = 0
-#         self.total_downloaded = 0
-#
-#         while True:
-#
-#             self.amount_downloaded = 0
-#             move_succeeded, do_backup, rpd_file, path_suffix, backup_duplicate_overwrite, verify_file, download_count = self.results_pipe.recv()
-#             if rpd_file is None:
-#                 # this is a termination signal
-#                 return None
-#             # pause if instructed by the caller
-#             self.run_event.wait()
-#
-#             if self.check_termination_request():
-#                 return None
-#
-#             backup_succeeded = False
-#             self.scan_pid = rpd_file.scan_pid
-#
-#             if move_succeeded and do_backup:
-#                 self.total_reached = False
-#
-#                 if path_suffix is None:
-#                     dest_base_dir = self.path
-#                 else:
-#                     dest_base_dir = os.path.join(self.path, path_suffix)
-#
-#
-#                 dest_dir = os.path.join(dest_base_dir, rpd_file.download_subfolder)
-#                 backup_full_file_name = os.path.join(
-#                                     dest_dir,
-#                                     rpd_file.download_name)
-#
-#                 if not os.path.isdir(dest_dir):
-#                     # create the subfolders on the backup path
-#                     try:
-#                         logger.debug("Creating subfolder %s on backup device %s...", dest_dir, self.mount_name)
-#                         os.makedirs(dest_dir)
-#                         logger.debug("...backup subfolder created")
-#                     except IOError as inst:
-#                         # There is a tiny chance directory may have been created by
-#                         # another process between the time it takes to query and
-#                         # the time it takes to create a new directory.
-#                         # Ignore such errors.
-#                         if inst.errno <> errno.EEXIST:
-#                             logger.error("Failed to create backup subfolder: %s", dest_dir)
-#                             msg = "%s %s", inst.errno, inst.strerror
-#                             logger.error(msg)
-#                             rpd_file.add_problem(None, pn.BACKUP_DIRECTORY_CREATION, self.mount_name)
-#                             rpd_file.add_extra_detail('%s%s' % (pn.BACKUP_DIRECTORY_CREATION, self.mount_name), msg)
-#                             rpd_file.error_title = _('Backing up error')
-#                             rpd_file.error_msg = \
-#                                  _("Destination directory could not be created: %(directory)s\n") % \
-#                                   {'directory': dest_dir,  } + \
-#                                  _("Source: %(source)s\nDestination: %(destination)s") % \
-#                                   {'source': rpd_file.download_full_file_name,
-#                                    'destination': backup_full_file_name} + "\n" + \
-#                                  _("Error: %(inst)s") % {'inst': msg}
-#
-#
-#                 backup_already_exists = os.path.exists(backup_full_file_name)
-#                 if backup_already_exists:
-#                     if backup_duplicate_overwrite:
-#                         rpd_file.add_problem(None, pn.BACKUP_EXISTS_OVERWRITTEN, self.mount_name)
-#                         msg = _("Backup %(file_type)s overwritten") % {'file_type': rpd_file.title}
-#                     else:
-#                         rpd_file.add_problem(None, pn.BACKUP_EXISTS, self.mount_name)
-#                         msg = _("%(file_type)s not backed up") % {'file_type': rpd_file.title_capitalized}
-#
-#                     rpd_file.error_title = _("Backup of %(file_type)s already exists") % {'file_type': rpd_file.title}
-#                     rpd_file.error_msg = \
-#                             _("Source: %(source)s\nDestination: %(destination)s") % \
-#                              {'source': rpd_file.download_full_file_name, 'destination': backup_full_file_name} + "\n" + msg
-#
-#                 if backup_already_exists and not backup_duplicate_overwrite:
-#                     logger.warning(msg)
-#                 else:
-#                     try:
-#                         logger.debug("Backing up file %s on device %s...", download_count, self.mount_name)
-#
-#                         dest = io.open(backup_full_file_name, 'wb', self.io_buffer)
-#                         src = io.open(rpd_file.download_full_file_name, 'rb', self.io_buffer)
-#                         total = rpd_file.size
-#                         amount_downloaded = 0
-#                         while True:
-#                             # first check if process is being terminated
-#                             if self.check_termination_request():
-#                                 logger.debug("Closing partially written temporary file")
-#                                 dest.close()
-#                                 src.close()
-#                                 return None
-#                             else:
-#                                 chunk = src.read(self.io_buffer)
-#                                 if chunk:
-#                                     dest.write(chunk)
-#                                     amount_downloaded += len(chunk)
-#                                     self.update_progress(amount_downloaded, total)
-#                                 else:
-#                                     break
-#                         dest.close()
-#                         src.close()
-#                         backup_succeeded = True
-#                         if verify_file:
-#                             md5 = hashlib.md5(open(backup_full_file_name).read()).hexdigest()
-#                             if md5 <> rpd_file.md5:
-#                                 backup_succeeded = False
-#                                 logger.critical("%s file verification FAILED", rpd_file.name)
-#                                 logger.critical("The %s did not back up correctly!", rpd_file.title)
-#                                 rpd_file.add_problem(None, pn.BACKUP_VERIFICATION_FAILED, self.mount_name)
-#                                 rpd_file.error_title = rpd_file.problem.get_title()
-#                                 rpd_file.error_msg = _("%(problem)s\nFile: %(file)s") % \
-#                                   {'problem': rpd_file.problem.get_problems(),
-#                                    'file': rpd_file.download_full_file_name}
-#
-#                         logger.debug("...backing up file %s on device %s succeeded", download_count, self.mount_name)
-#                         if backup_already_exists:
-#                             logger.warning(msg)
-#                     except (IOError, OSError) as inst:
-#                         logger.error("Backup of %s failed", backup_full_file_name)
-#                         msg = "%s %s", inst.errno, inst.strerror
-#                         rpd_file.add_problem(None, pn.BACKUP_ERROR, self.mount_name)
-#                         rpd_file.add_extra_detail('%s%s' % (pn.BACKUP_ERROR, self.mount_name), msg)
-#                         rpd_file.error_title = _('Backing up error')
-#                         rpd_file.error_msg = \
-#                                 _("Source: %(source)s\nDestination: %(destination)s") % \
-#                                  {'source': rpd_file.download_full_file_name, 'destination': backup_full_file_name} + "\n" + \
-#                                 _("Error: %(inst)s") % {'inst': msg}
-#                         logger.error("%s:\n%s", rpd_file.error_title, rpd_file.error_msg)
-#
-#                     if backup_succeeded:
-#                         try:
-#                             copy_file_metadata(rpd_file.download_full_file_name, backup_full_file_name, logger)
-#                         except:
-#                             logger.error("Unknown error updating filesystem metadata when copying %s", rpd_file.download_full_file_name)
-#
-#
-#                 if not backup_succeeded:
-#                     if rpd_file.status ==  config.STATUS_DOWNLOAD_FAILED:
-#                         rpd_file.status = config.STATUS_DOWNLOAD_AND_BACKUP_FAILED
-#                     else:
-#                         rpd_file.status = config.STATUS_BACKUP_PROBLEM
-#                 else:
-#                     # backup any THM, audio or XMP files
-#                     if rpd_file.download_thm_full_name:
-#                         self.backup_additional_file(dest_dir,
-#                                         rpd_file.download_thm_full_name)
-#                     if rpd_file.download_audio_full_name:
-#                         self.backup_additional_file(dest_dir,
-#                                         rpd_file.download_audio_full_name)
-#                     if rpd_file.download_xmp_full_name:
-#                         self.backup_additional_file(dest_dir,
-#                                         rpd_file.download_xmp_full_name)
-#
-#             self.total_downloaded += rpd_file.size
-#             bytes_not_downloaded = rpd_file.size - self.amount_downloaded
-#             if bytes_not_downloaded and do_backup:
-#                 self.results_pipe.send((rpdmp.CONN_PARTIAL, (rpdmp.MSG_BYTES, (self.scan_pid, self.pid, self.total_downloaded, bytes_not_downloaded))))
-#
-#             self.results_pipe.send((rpdmp.CONN_PARTIAL, (rpdmp.MSG_FILE,
-#                                    (backup_succeeded, do_backup, rpd_file))))
-#
-#
-#
-#
-#
-#
+class BackupFilesWorker(WorkerInPublishPullPipeline, FileCopy):
+    def __init__(self):
+        super().__init__('BackupFiles')
+
+    def update_progress(self, amount_downloaded, total):
+        self.amount_downloaded = amount_downloaded
+        chunk_downloaded = amount_downloaded - self.bytes_downloaded
+        if (chunk_downloaded > self.batch_size_bytes) or (
+            amount_downloaded == total):
+            self.bytes_downloaded = amount_downloaded
+            self.content= pickle.dumps(BackupResults(
+                scan_id=self.scan_id,
+                device_id=self.device_id,
+                total_downloaded=self.total_downloaded
+                + amount_downloaded, chunk_downloaded=chunk_downloaded),
+               pickle.HIGHEST_PROTOCOL)
+            self.send_message_to_sink()
+
+            if amount_downloaded == total:
+                self.bytes_downloaded = 0
+
+    def copying_file_error(self, rpd_file: RPDFile, destination:str, inst):
+        logging.error("Backup of %s failed", destination)
+        msg = "%s %s", inst.errno, inst.strerror
+        rpd_file.add_problem(None, pn.BACKUP_ERROR, self.device_name)
+        rpd_file.add_extra_detail('%s%s' % (pn.BACKUP_ERROR,
+                                            self.device_name), msg)
+        rpd_file.error_title = _('Backing up error')
+        rpd_file.error_msg = \
+                _("Source: %(source)s\nDestination: %(destination)s") % \
+                 {'source': rpd_file.download_full_file_name, 'destination': destination} + "\n" + \
+                _("Error: %(inst)s") % {'inst': msg}
+        logging.error("%s:\n%s", rpd_file.error_title, rpd_file.error_msg)
+
+    def create_subdir_error(self, dest_dir: str, inst, rpd_file: RPDFile,
+                            backup_full_file_name):
+        logging.error("Failed to create backup "
+                      "subfolder: %s", dest_dir)
+        msg = "%s %s", inst.errno, inst.strerror
+        logging.error(msg)
+        rpd_file.add_problem(None,
+             pn.BACKUP_DIRECTORY_CREATION,
+             self.device_name)
+        rpd_file.add_extra_detail('%s%s' % (
+            pn.BACKUP_DIRECTORY_CREATION,
+            self.device_name), msg)
+        rpd_file.error_title = _('Backing up error')
+        rpd_file.error_msg = \
+             _("Destination directory could not be "
+               "created: %(directory)s\n")  % \
+              {'directory': dest_dir,  } + \
+             _("Source: %(source)s\nDestination: %("
+               "destination)s")  % \
+              {'source': rpd_file.download_full_file_name,
+               'destination': backup_full_file_name} + "\n" + \
+             _("Error: %(inst)s") % {'inst': msg}
+
+    def backup_associate_file(self, dest_dir, full_file_name):
+        """Backs up small files like XMP or THM files"""
+        dest_name = os.path.join(dest_dir, os.path.split(full_file_name)[1])
+
+        try:
+            logging.debug("Backing up additional file %s...", dest_name)
+            shutil.copyfile(full_file_name, dest_name)
+            logging.debug("...backing up additional file %s succeeded",
+                        dest_name)
+        except:
+            logging.error("Backup of %s failed", full_file_name)
+
+        copy_file_metadata(full_file_name, dest_name)
+
+    def do_work(self):
+        backup_arguments = pickle.loads(self.content)
+        self.path = backup_arguments.path
+        self.device_name = backup_arguments.device_name
+
+        while True:
+            self.amount_downloaded = 0
+            worker_id, directive, content = self.receiver.recv_multipart()
+            self.device_id = int(worker_id)
+
+            self.check_for_command(directive, content)
+
+            data = pickle.loads(content)
+            """ :type : BackupFileData """
+            rpd_file = data.rpd_file
+            backup_succeeded = False
+            self.scan_id = rpd_file.scan_id
+            self.verify_file = data.verify_file
+
+            if data.move_succeeded and data.do_backup:
+                self.total_reached = False
+
+                if data.path_suffix is None:
+                    dest_base_dir = self.path
+                else:
+                    dest_base_dir = os.path.join(self.path,
+                                                 data.path_suffix)
+
+                dest_dir = os.path.join(dest_base_dir,
+                                        rpd_file.download_subfolder)
+                backup_full_file_name = os.path.join(
+                                    dest_dir,
+                                    rpd_file.download_name)
+
+                if not os.path.isdir(dest_dir):
+                    # create the subfolders on the backup path
+                    try:
+                        logging.debug("Creating subfolder %s on backup "
+                            "device %s...", dest_dir, self.device_name)
+                        os.makedirs(dest_dir)
+                        logging.debug("...backup subfolder created")
+                    except IOError as inst:
+                        # There is a miniscule chance directory may have been
+                        # created by another process between the time it
+                        # takes to query and the time it takes to create a
+                        # new directory. Ignore that error.
+                        if inst.errno != errno.EEXIST:
+                            self.create_subdir_error(dest_dir, inst,
+                                     rpd_file, backup_full_file_name )
+
+                backup_already_exists = os.path.exists(backup_full_file_name)
+                if backup_already_exists:
+                    if data.backup_duplicate_overwrite:
+                        rpd_file.add_problem(None,
+                                             pn.BACKUP_EXISTS_OVERWRITTEN,
+                                             self.device_name)
+                        msg = _("Backup %(file_type)s overwritten") % {
+                            'file_type': rpd_file.title}
+                    else:
+                        rpd_file.add_problem(None, pn.BACKUP_EXISTS,
+                                             self.device_name)
+                        msg = _("%(file_type)s not backed up") % {
+                            'file_type': rpd_file.title_capitalized}
+
+                    rpd_file.error_title = _(
+                        "Backup of %(file_type)s already exists") % {
+                                               'file_type': rpd_file.title}
+                    rpd_file.error_msg = \
+                        _("Source: %(source)s\nDestination: %(destination)s") % \
+                        {'source': rpd_file.download_full_file_name,
+                         'destination': backup_full_file_name} + "\n" + msg
+
+                if backup_already_exists and not \
+                        data.backup_duplicate_overwrite:
+                    logging.warning(msg)
+                else:
+                    logging.debug("Backing up file %s on device %s...",
+                                    data.download_count, self.device_name)
+                    source = rpd_file.download_full_file_name
+                    destination = backup_full_file_name
+                    backup_succeeded = self.copy_from_filesystem(source,
+                                           destination, rpd_file)
+                    if backup_succeeded and self.verify_file:
+                        md5 = hashlib.md5(open(backup_full_file_name).
+                            read()).hexdigest()
+                        if md5 != rpd_file.md5:
+                            backup_succeeded = False
+                            logging.critical("%s file verification FAILED",
+                                           rpd_file.name)
+                            logging.critical("The %s did not back up "
+                                           "correctly!", rpd_file.title)
+                            rpd_file.add_problem(None,
+                                                 pn.BACKUP_VERIFICATION_FAILED,
+                                                 self.device_name)
+                            rpd_file.error_title = rpd_file.problem.get_title()
+                            rpd_file.error_msg = _("%(problem)s\nFile: %("
+                                                   "file)s")  % {
+                                'problem': rpd_file.problem.get_problems(),
+                                'file': rpd_file.download_full_file_name}
+                    if backup_succeeded:
+                        logging.debug("...backing up file %s on device %s "
+                                    "succeeded", data.download_count,
+                                      self.device_name)
+                    if backup_already_exists:
+                        logging.warning(msg)
+
+                    if backup_succeeded:
+                        copy_file_metadata(rpd_file.download_full_file_name,
+                                           backup_full_file_name)
+                if not backup_succeeded:
+                    if rpd_file.status ==  \
+                            DownloadStatus.download_failed:
+                        rpd_file.status = \
+                            DownloadStatus.download_and_backup_failed
+                    else:
+                        rpd_file.status = DownloadStatus.backup_problem
+                else:
+                    # backup any THM, audio or XMP files
+                    if rpd_file.download_thm_full_name:
+                        self.backup_associate_file(dest_dir,
+                                        rpd_file.download_thm_full_name)
+                    if rpd_file.download_audio_full_name:
+                        self.backup_associate_file(dest_dir,
+                                        rpd_file.download_audio_full_name)
+                    if rpd_file.download_xmp_full_name:
+                        self.backup_associate_file(dest_dir,
+                                        rpd_file.download_xmp_full_name)
+
+            self.total_downloaded += rpd_file.size
+            bytes_not_downloaded = rpd_file.size - self.amount_downloaded
+            if bytes_not_downloaded and data.do_backup:
+                self.content= pickle.dumps(BackupResults(
+                    scan_id=self.scan_id, device_id=self.device_id,
+                    total_downloaded=self.total_downloaded,
+                    chunk_downloaded=bytes_not_downloaded),
+                    pickle.HIGHEST_PROTOCOL)
+                self.send_message_to_sink()
+
+            self.content = pickle.dumps(BackupResults(
+                scan_id=self.scan_id, device_id=self.device_id,
+                backup_succeeded=backup_succeeded, do_backup=data.do_backup,
+                rpd_file=rpd_file))
+            self.send_message_to_sink()
+
+
+if __name__ == "__main__":
+    backup = BackupFilesWorker()

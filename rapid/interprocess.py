@@ -1,5 +1,3 @@
-from constants import RenameAndMoveStatus
-
 __author__ = 'Damon Lynch'
 # Copyright (C) 2015 Damon Lynch <damonlynch@gmail.com>
 
@@ -39,6 +37,8 @@ from rpdfile import RPDFile
 from devices import Device
 from preferences import ScanPreferences
 from utilities import CacheDirs
+from constants import RenameAndMoveStatus
+
 
 logging_level = logging.DEBUG
 logging.basicConfig(format='%(levelname)s:%(asctime)s:%(message)s',
@@ -158,7 +158,7 @@ class PullPipelineManager(QObject):
         """
         return ''
 
-    def _get_ventilator_start_message(self, worker_id: int) -> str:
+    def _get_ventilator_start_message(self, worker_id: int) -> list:
         return [make_filter_from_worker_id(worker_id), b'cmd', b'START']
 
     def add_worker(self, worker_id: int):
@@ -239,10 +239,19 @@ class PullPipelineManager(QObject):
 
 DAEMON_WORKER_ID = 0
 
+
 class PushPullDaemonManager(PullPipelineManager):
+    """
+    Manage a single isntance daemon worker process that waits to work on data
+    issued by this manager. The data to be worked on is issued in sequence,
+    one after the other.
+
+    Because there is on a single daemon process, a Push-Pull model is most
+    suitable for sending the data.
+    """
 
     def __init__(self, context: zmq.Context):
-        super(PushPullDaemonManager, self).__init__(context)
+        super().__init__(context)
 
         # Ventilator socket to send message to worker
         self.ventilator_socket = context.socket(zmq.PUSH)
@@ -286,39 +295,37 @@ class PushPullDaemonManager(PullPipelineManager):
     def start(self):
         self.add_worker(worker_id=DAEMON_WORKER_ID)
 
-
 class PublishPullPipelineManager(PullPipelineManager):
     """
-    Set of standard operations when managing a 0MQ Pipeline that
-    distributes work with a publisher to one or more workers, and pulls
-    results from the workers into a sink.
+    Manage a collection of worker processes that wait to work on data
+    issued by this manager. The data to be worked on is issued in sequence,
+    one after the other, either once, or many times.
 
-    Worker counterpart is interprocess.WorkerInPublishPullPipeline
+    Because there are multiple worker process, a Publish-Subscribe model is
+    most suitable for sending data to workers.
     """
-
     def __init__(self, context: zmq.Context):
-        super(PublishPullPipelineManager, self).__init__(context)
+        super().__init__(context)
 
         # Ventilator socket to send messages to workers on
         self.ventilator_socket = context.socket(zmq.PUB)
         self.ventilator_port= self.ventilator_socket.bind_to_random_port(
             'tcp://*')
 
-        # Socket for worker control: pause, resume, stop
-        self.controller_socket = context.socket(zmq.PUB)
-        self.controller_port = self.controller_socket.bind_to_random_port(
-            "tcp://*")
-
         # Socket to synchronize the start of each worker
         self.sync_service_socket = context.socket(zmq.REP)
         self.sync_service_port = \
             self.sync_service_socket.bind_to_random_port("tcp://*")
 
+        # Socket for worker control: pause, resume, stop
+        self.controller_socket = context.socket(zmq.PUB)
+        self.controller_port = self.controller_socket.bind_to_random_port(
+            "tcp://*")
+
     def stop(self):
         """
         Permanently stop all the workers and terminate
         """
-        # TODO: exit when a worker has crashed
         logging.debug("{} halting".format(self._process_name))
         self.terminating = True
         if self.workers:
@@ -327,13 +334,14 @@ class PublishPullPipelineManager(PullPipelineManager):
             alive_workers = [worker_id for worker_id in self.workers if
                              self.process_alive(worker_id)]
             for worker_id in alive_workers:
+
                 message = [make_filter_from_worker_id(worker_id),b'STOP']
-                try:
-                    self.controller_socket.send_multipart(message,
-                                                          zmq.DONTWAIT)
-                    termination_signal_sent = True
-                except zmq.Again:
-                    pass
+                self.controller_socket.send_multipart(message)
+
+                message = [make_filter_from_worker_id(worker_id), b'cmd',
+                           b'STOP']
+                self.ventilator_socket.send_multipart(message)
+                termination_signal_sent = True
 
             if not termination_signal_sent:
                 self.terminate_sink()
@@ -347,6 +355,8 @@ class PublishPullPipelineManager(PullPipelineManager):
         assert worker_id in self.workers
         message = [make_filter_from_worker_id(worker_id),b'STOP']
         self.controller_socket.send_multipart(message)
+        message = [make_filter_from_worker_id(worker_id),b'cmd', b'STOP']
+        self.ventilator_socket.send_multipart(message)
 
     def start_worker(self, worker_id: int, process_arguments):
 
@@ -385,6 +395,12 @@ class PublishPullPipelineManager(PullPipelineManager):
                         worker_id,
                         logging_level)
 
+    def __len__(self):
+        return len(self.workers)
+
+    def __contains__(self, item):
+        return item in self.workers
+
     def pause(self):
         for worker_id in self.workers:
             message = [make_filter_from_worker_id(worker_id),b'PAUSE']
@@ -395,15 +411,10 @@ class PublishPullPipelineManager(PullPipelineManager):
             message = [make_filter_from_worker_id(worker_id),b'RESUME']
             self.controller_socket.send_multipart(message)
 
-    def __len__(self):
-        return len(self.workers)
-
-    def __contains__(self, item):
-        return item in self.workers
-
 
 class WorkerProcess():
     def __init__(self, worker_type):
+        super().__init__()
         logging.debug("{} worker started".format(worker_type))
         self.parser = argparse.ArgumentParser()
         self.parser.add_argument("--receive", required=True)
@@ -423,9 +434,9 @@ class WorkerProcess():
         self.sender.send_multipart([self.worker_id, b'data',
                                     self.content])
 
-    def initialise_process(self, receiver):
+    def initialise_process(self):
         # Wait to receive "START" message
-        worker_id, directive, content = receiver.recv_multipart()
+        worker_id, directive, content = self.receiver.recv_multipart()
         assert directive == b'cmd'
         assert content == b'START'
 
@@ -437,7 +448,7 @@ class WorkerProcess():
 
         # Receive next "START" message and discard, looking for data message
         while True:
-            worker_id, directive, content = receiver.recv_multipart()
+            worker_id, directive, content = self.receiver.recv_multipart()
             if directive == b'data':
                 break
             else:
@@ -445,6 +456,9 @@ class WorkerProcess():
                 assert content == b'START'
 
         self.content = content
+
+    def do_work(self):
+        pass
 
 
 class DaemonProcess(WorkerProcess):
@@ -485,28 +499,39 @@ class DaemonProcess(WorkerProcess):
 
 
 class WorkerInPublishPullPipeline(WorkerProcess):
+    """
+    Worker counterpart to PublishPullPipelineManager; multiple instance.
+    """
+    def __init__(self, worker_type: str):
+        super().__init__(worker_type)
+        self.add_args()
 
-    def __init__(self, worker_type):
-        super(WorkerInPublishPullPipeline, self).__init__(worker_type)
-        self.parser.add_argument("--controller", required=True)
+        args = self.parser.parse_args()
+        subscription_filter = self.worker_id = args.filter.encode()
+        context = zmq.Context()
+
+        self.setup_sockets(args, subscription_filter, context)
+
+        self.initialise_process()
+        self.do_work()
+
+    def add_args(self):
         self.parser.add_argument("--filter", required=True)
         self.parser.add_argument("--syncclient", required=True)
-        args = self.parser.parse_args()
+        self.parser.add_argument("--controller", required=True)
 
-        subscription_filter = self.worker_id = args.filter.encode()
-
-        context = zmq.Context()
+    def setup_sockets(self, args, subscription_filter, context):
         # Socket to send messages along the pipe to
         self.sender = context.socket(zmq.PUSH)
         self.sender.set_hwm(10)
         self.sender.connect("tcp://localhost:{}".format(args.send))
 
         # Socket to receive messages from the pipe
-        receiver = context.socket(zmq.SUB)
-        receiver.connect("tcp://localhost:{}".format(args.receive))
-        receiver.setsockopt(zmq.SUBSCRIBE, subscription_filter)
+        self.receiver = context.socket(zmq.SUB)
+        self.receiver.connect("tcp://localhost:{}".format(args.receive))
+        self.receiver.setsockopt(zmq.SUBSCRIBE, subscription_filter)
 
-        # Socket for control input: pause, resume, stop
+        # Socket to receive controller messages: stop, pause, resume
         self.controller = context.socket(zmq.SUB)
         self.controller.connect("tcp://localhost:{}".format(args.controller))
         self.controller.setsockopt(zmq.SUBSCRIBE, subscription_filter)
@@ -515,12 +540,15 @@ class WorkerInPublishPullPipeline(WorkerProcess):
         self.sync_client = context.socket(zmq.REQ)
         self.sync_client.connect("tcp://localhost:{}".format(args.syncclient))
 
-        self.initialise_process(receiver)
+    def check_for_command(self, directive, content):
+        if directive == b'cmd':
+            assert content == b'STOP'
+            self.cleanup_pre_stop()
+            # signal to sink that we've terminated before finishing
+            self.sender.send_multipart([self.worker_id, b'cmd', b'STOPPED'])
+            sys.exit(0)
 
-        self.do_work()
-
-
-    def check_for_command(self):
+    def check_for_controller_directive(self):
         try:
             # Don't block if process is running regularly
             # If there is no command,exception will occur
@@ -629,9 +657,40 @@ class RenameAndMoveFileResults:
 
 class BackupArguments:
     """
-    Pass arguments to the backup process
+    Pass start up data to the back up process
     """
-    pass
+    def __init__(self, path: str, device_name: str):
+        self.path = path
+        self.device_name = device_name
+
+class BackupFileData:
+    """
+    Pass file data to the backup process
+    """
+    def __init__(self, rpd_file: RPDFile, move_succeeded: bool,
+                 do_backup: bool, path_suffix: str,
+                 backup_duplicate_overwrite: bool, verify_file: bool,
+                 download_count: int):
+        self.rpd_file = rpd_file
+        self.move_succeeded = move_succeeded
+        self.do_backup = do_backup
+        self.path_suffix = path_suffix
+        self.backup_duplicate_overwrite = backup_duplicate_overwrite
+        self.verify_file = verify_file
+        self.download_count = download_count
+
+class BackupResults:
+    def __init__(self, scan_id: int, device_id: int,
+                 total_downloaded=None, chunk_downloaded=None,
+                 backup_succeeded: bool=None, do_backup: bool=None, rpd_file:
+                 RPDFile=None):
+        self.scan_id = scan_id
+        self.device_id = device_id
+        self.total_downloaded = total_downloaded
+        self.chunk_downloaded = chunk_downloaded
+        self.backup_succeeded = backup_succeeded
+        self.do_backup = do_backup
+        self.rpd_file = rpd_file
 
 
 class GenerateThumbnailsArguments:

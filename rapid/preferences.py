@@ -285,7 +285,7 @@ class Preferences:
                            ignored_paths=['.Trash', '.thumbnails'],
                            use_re_ignored_paths=False
                           )
-    backup_defaults = dict(backup_images=False,
+    backup_defaults = dict(backup_files=False,
                            backup_device_autodetection=True,
                            photo_backup_identifier=os.path.split(
                                xdg_photos_directory())[1],

@@ -70,7 +70,9 @@ class DownloadTracker:
         self.total_video_failures = 0
         self.total_warnings = 0
         self.total_bytes_to_download = 0
-        self.backups_performed_by_unique_id = dict()
+        self.backups_performed_by_unique_id = defaultdict(int)
+        self.backups_performed_by_scan_id = defaultdict(int)
+        self.no_backups_to_perform_by_scan_id = dict()
         self.auto_delete = defaultdict(list)
 
     def set_no_backup_devices(self, no_photo_backup_devices, no_video_backup_devices):
@@ -88,6 +90,9 @@ class DownloadTracker:
         self.size_of_video_backup_in_bytes_by_scan_id[
             scan_id] = stats.videos_size_in_bytes * \
                        self.no_video_backup_devices
+        self.no_backups_to_perform_by_scan_id[scan_id] = \
+            (stats.no_photos * self.no_photo_backup_devices) + \
+            (stats.no_videos * self.no_video_backup_devices)
         total_bytes = stats.photos_size_in_bytes + stats.videos_size_in_bytes
         # rename_chunk is used to account for the time it takes to rename a
         # file, and potentially to generate thumbnails after it has renamed.
@@ -100,10 +105,10 @@ class DownloadTracker:
         self.rename_chunk[scan_id] = int((total_bytes / no_files) * (
             chunk_weight / 100))
         self.size_of_download_in_bytes_by_scan_id[scan_id] = total_bytes + \
-                     self.rename_chunk[scan_id] * no_files
+                    self.rename_chunk[scan_id] * no_files
         self.raw_size_of_download_in_bytes_by_scan_id[scan_id] = total_bytes
         self.total_bytes_to_download += \
-        self.size_of_download_in_bytes_by_scan_id[scan_id]
+                    self.size_of_download_in_bytes_by_scan_id[scan_id]
         self.files_downloaded[scan_id] = 0
         self.photos_downloaded[scan_id] = 0
         self.videos_downloaded[scan_id] = 0
@@ -140,11 +145,19 @@ class DownloadTracker:
         if scan_id in self.auto_delete:
             del self.auto_delete[scan_id]
 
-    def file_backed_up(self, unique_id):
-        self.backups_performed_by_unique_id[unique_id] = \
-                    self.backups_performed_by_unique_id.get(unique_id, 0) + 1
+    def file_backed_up(self, scan_id: int, unique_id: str):
+        self.backups_performed_by_unique_id[unique_id] += 1
+        self.backups_performed_by_scan_id[scan_id] += 1
 
-    def all_files_backed_up(self, unique_id: str, file_type: FileType) -> bool:
+    def file_backed_up_to_all_locations(self, unique_id: str, file_type: FileType) -> bool:
+        """
+        Determine if this particular file has been backed up to all
+        locations it should be
+        :param unique_id: unique id of the file
+        :param file_type: photo or video
+        :return: True if backups for this particular file have completed, else
+        False
+        """
         if unique_id in self.backups_performed_by_unique_id:
             if file_type == FileType.photo:
                 return self.backups_performed_by_unique_id[
@@ -156,7 +169,22 @@ class DownloadTracker:
             logging.critical(
                 "Unexpected unique_id in self.backups_performed_by_unique_id")
             return True
-
+    def all_files_backed_up(self, scan_id: int=None) -> bool:
+        """
+        Determine if all backups have finished in the download
+        :param scan_id: scan id of the download. If None, then all
+         scans will be checked
+        :return: True if all backups finished, else False
+        """
+        if scan_id is None:
+            for scan_id in self.no_backups_to_perform_by_scan_id:
+                if self.no_backups_to_perform_by_scan_id[scan_id] != \
+                    self.backups_performed_by_scan_id[scan_id]:
+                    return False
+            return True
+        else:
+            return self.no_backups_to_perform_by_scan_id[scan_id] == \
+               self.backups_performed_by_scan_id[scan_id]
 
     def file_downloaded_increment(self, scan_id: int, file_type: FileType,
                                   status: DownloadStatus):
@@ -260,6 +288,7 @@ class DownloadTracker:
         del self.photo_failures[scan_id]
         del self.video_failures[scan_id]
         del self.warnings[scan_id]
+        del self.no_backups_to_perform_by_scan_id[scan_id]
 
     def purge_all(self):
         self._refresh_values()

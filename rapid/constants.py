@@ -22,12 +22,14 @@ __author__ = 'Damon Lynch'
 from enum import (Enum, IntEnum)
 from PyQt5.QtCore import Qt
 
-version = '0.5.0~a1'
+version = '0.9.0~a1'
 
 DBUS_NAME = "net.damonlynch.RapidPhotoDownloader"
 
 #i18n
 APP_NAME = "rapid-photo-downloader"
+
+PROGRAM_NAME = "Rapid Photo Downloader"
 
 class ConflictResolution(IntEnum):
     skip = 1
