@@ -188,6 +188,11 @@ class ThumbnailTableModel(QAbstractTableModel):
             return rpd_file.status
         elif role == Roles.has_audio:
             return rpd_file.has_audio()
+        elif role == Roles.secondary_attribute:
+            if rpd_file.xmp_file_full_name:
+                return 'XMP'
+            else:
+                return None
 
     def setData(self, index: QModelIndex, value, role: int):
         if not index.isValid():
@@ -605,6 +610,7 @@ class ThumbnailDelegate(QStyledItemDelegate):
             download_status = model.data(index, Roles.download_status)
             """:type :DownloadStatus"""
             has_audio = model.data(index, Roles.has_audio)
+            secondary_attribute = model.data(index, Roles.secondary_attribute)
 
             x = option.rect.x() + self.padding
             y = option.rect.y() + self.padding
@@ -695,6 +701,27 @@ class ThumbnailDelegate(QStyledItemDelegate):
             painter.setPen(QColor(Qt.white))
             painter.drawText(text_x + text_padding, text_y - 1,
                              extension)
+
+            # Draw another small colored box to the left of the
+            # file extension box containing a secondary
+            # attribute, if it exists. Currently the secondary attribute is
+            # only an XMP file, but in future it could be used to display a
+            # matching jpeg in a RAW+jpeg set
+            if secondary_attribute:
+                extBoundingRect = metrics.boundingRect(
+                    secondary_attribute).marginsAdded(QMargins(text_padding, 0,
+                    text_padding, text_padding))
+                """:type : QRect"""
+                text_width = metrics.width(secondary_attribute)
+                text_x = text_x - text_width - text_padding * 2 - \
+                         self.footer_padding
+                color = QColor(Qt.darkCyan)
+                painter.fillRect(text_x, text_y - text_height,
+                             extBoundingRect.width(),
+                             extBoundingRect.height(),
+                             color)
+                painter.drawText(text_x + text_padding, text_y - 1,
+                             secondary_attribute)
 
             if previously_downloaded and not checked:
                 painter.setOpacity(1.0)

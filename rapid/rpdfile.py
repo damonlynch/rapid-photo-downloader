@@ -97,6 +97,7 @@ def get_rpdfile(name: str, path: str, size: int, prev_full_name: str,
                 prev_datetime: datetime.datetime,
                 file_system_modification_time: float,
                 thm_full_name: str, audio_file_full_name: str,
+                xmp_file_full_name: str,
                 scan_id: bytes, file_type: FileType,
                 from_camera: bool,
                 camera_model: str):
@@ -107,6 +108,7 @@ def get_rpdfile(name: str, path: str, size: int, prev_full_name: str,
                      file_system_modification_time,
                      thm_full_name,
                      audio_file_full_name,
+                     xmp_file_full_name,
                      scan_id,
                      from_camera, camera_model)
     else:
@@ -115,6 +117,7 @@ def get_rpdfile(name: str, path: str, size: int, prev_full_name: str,
                      file_system_modification_time,
                      thm_full_name,
                      audio_file_full_name,
+                     xmp_file_full_name,
                      scan_id,
                      from_camera, camera_model)
 
@@ -216,6 +219,7 @@ class RPDFile:
                  prev_full_name: str, prev_datetime: datetime.datetime,
                  modification_time: float, thm_full_name: str,
                  audio_file_full_name: str,
+                 xmp_file_full_name: str,
                  scan_id: bytes,
                  from_camera: bool,
                  camera_model: str=None):
@@ -233,6 +237,8 @@ class RPDFile:
          file
         :param audio_file_full_name: name and path of any associated
          audio file
+        :param xmp_file_full_name: name and path of any associated XMP
+         file
         :param scan_id: id of the scan
         :param from_camera: whether the file is being downloaded from a
          camera
@@ -262,13 +268,16 @@ class RPDFile:
 
 
 
-        #full path and name of thumbnail file that is associated with some videos
+        # full path and name of thumbnail file that is associated with some
+        # videos
         self.thm_full_name = thm_full_name
 
-        #full path and name of audio file that is associated with some photos
+        # full path and name of audio file that is associated with some photos
         # and maybe one day videos, e.g. found with the Canon 1D series of
         # cameras
         self.audio_file_full_name = audio_file_full_name
+
+        self.xmp_file_full_name = xmp_file_full_name
 
         self.status = DownloadStatus.not_downloaded
         self.problem = None # class Problem in problemnotifcation.py
@@ -318,11 +327,6 @@ class RPDFile:
         #self.thm_extension = ''
         #self.wav_extension = ''
         #self.xmp_extension = ''
-
-        #these values are set only if they were written to an xmp sidecar
-        #in the filemodify process
-        #self.new_aperture = ''
-        #self.new_focal_length = ''
 
     def is_jpeg(self) -> bool:
         """

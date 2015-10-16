@@ -106,6 +106,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
                 self._camera_file_names = defaultdict(list)
                 self._camera_audio_files = {}
                 self._camera_video_thumbnails = {}
+                self._camera_xmp_files = {}
 
                 # locate photos and videos, filtering out duplicate files
                 for dcim_folder in self.camera.dcim_folders:
@@ -189,6 +190,8 @@ class ScanWorker(WorkerInPublishPullPipeline):
                     self._camera_audio_files[path+base_name] = ext
                 elif ext_lower in rpdfile.VIDEO_THUMBNAIL_EXTENSIONS:
                     self._camera_video_thumbnails[path+base_name] = ext
+                elif ext_lower == 'xmp':
+                    self._camera_xmp_files[path+base_name] = ext
                 else:
                     logging.debug("Ignoring unknown file %s on %s",
                                   os.path.join(path, name), self.camera.model)
@@ -251,6 +254,9 @@ class ScanWorker(WorkerInPublishPullPipeline):
                 else:
                     thm_full_name = None
 
+                # check if an XMP file is associated with the photo or video
+                xmp_file_full_name = self.get_xmp_file(base_name)
+
 
                 # check if an audio file is associated with the photo or video
                 audio_file_full_name = self.get_audio_file(base_name)
@@ -279,6 +285,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
                                                modification_time,
                                                thm_full_name,
                                                audio_file_full_name,
+                                               xmp_file_full_name,
                                                self.worker_id,
                                                file_type,
                                                self.download_from_camera,
@@ -330,7 +337,28 @@ class ScanWorker(WorkerInPublishPullPipeline):
 
         return None
 
-    def _get_associated_file(self, base_name: str, extensions_to_check: str):
+    def get_xmp_file(self, base_name: str) -> str:
+        """
+        Checks to see if an XMP file with the same base name
+        is in the same directory as tthe file.
+
+        :param base_name: the file name without the extension
+        :return: filename, including path, if found, else returns None
+        """
+        if self.download_from_camera:
+            xmp_ext = self._camera_xmp_files.get(
+                self.dir_name+base_name)
+            if xmp_ext is not None:
+                return '{}.{}'.format(
+                    os.path.join(self.dir_name, base_name),
+                    xmp_ext)
+        else:
+            return self._get_associated_file(base_name, ['XMP'])
+
+        return None
+
+    def _get_associated_file(self, base_name: str, extensions_to_check:
+                             list) -> str:
         full_file_name_no_ext = os.path.join(self.dir_name, base_name)
         for e in extensions_to_check:
             possible_file = '{}.{}'.format(full_file_name_no_ext, e)

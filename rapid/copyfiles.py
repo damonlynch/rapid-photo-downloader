@@ -84,7 +84,7 @@ def copy_file_metadata(src, dst):
                 if hasattr(errno, err) and why.errno == getattr(errno, err):
                     break
             else:
-                raise
+                pass
 
 class FileCopy:
     """
@@ -382,17 +382,24 @@ class CopyFilesWorker(WorkerInPublishPullPipeline, FileCopy):
                     #     rpd_file.full_file_name,
                     #     rpd_file.temp_full_file_name)
 
-            # copy THM (video thumbnail file) if there is one
-            if copy_succeeded and rpd_file.thm_full_name:
-                rpd_file.temp_thm_full_name = self.copy_associate_file(
-                    rpd_file, temp_name, dest_dir, rpd_file.thm_full_name,
-                    'video THM')
+            if copy_succeeded:
+                # copy THM (video thumbnail file) if there is one
+                if rpd_file.thm_full_name:
+                    rpd_file.temp_thm_full_name = self.copy_associate_file(
+                        rpd_file, temp_name, dest_dir, rpd_file.thm_full_name,
+                        'video THM')
 
-            #copy audio file if there is one
-            if copy_succeeded and rpd_file.audio_file_full_name:
-                rpd_file.temp_audio_full_name = self.copy_associate_file(
-                    rpd_file, temp_name, dest_dir,
-                    rpd_file.audio_file_full_name, 'audio')
+                # copy audio file if there is one
+                if rpd_file.audio_file_full_name:
+                    rpd_file.temp_audio_full_name = self.copy_associate_file(
+                        rpd_file, temp_name, dest_dir,
+                        rpd_file.audio_file_full_name, 'audio')
+
+                # copy XMP file if there is one
+                if rpd_file.xmp_file_full_name:
+                    rpd_file.temp_xmp_full_name = self.copy_associate_file(
+                        rpd_file, temp_name, dest_dir,
+                        rpd_file.xmp_file_full_name, 'XMP')
 
             download_count = idx + 1
 

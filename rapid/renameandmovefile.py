@@ -361,6 +361,26 @@ class RenameMoveFileWorker(DaemonProcess):
             logging.error("Failed to move file's associated audio file %s",
                           rpd_file.download_audio_full_name)
 
+    def move_xmp_file(self, rpd_file: RPDFile):
+        """
+        Move (rename) the associate XMP file using the pre-generated
+        name
+        """
+        ext = None
+        if hasattr(rpd_file, 'xmp_extension'):
+            if rpd_file.xmp_extension:
+                ext = rpd_file.xmp_extension
+        if ext is None:
+            ext = '.XMP'
+
+        result, rpd_file.download_xmp_full_name = self._move_associate_file(
+            ext, rpd_file.download_full_base_name,
+            rpd_file.temp_xmp_full_name)
+
+        if not result:
+            logging.error("Failed to move file's associated XMP file %s",
+                          rpd_file.download_xmp_full_name)
+
     def check_for_fatal_name_generation_errors(self, rpd_file: RPDFile) -> \
             bool:
         """
@@ -656,18 +676,7 @@ class RenameMoveFileWorker(DaemonProcess):
                 self.move_audio_file(rpd_file)
 
             if rpd_file.temp_xmp_full_name:
-                # copy and rename XMP sidecar file
-                # generate_name() has generated xmp extension with correct capitalization
-                download_xmp_full_name = rpd_file.download_full_base_name + rpd_file.xmp_extension
-
-                try:
-                    os.rename(rpd_file.temp_xmp_full_name,
-                              download_xmp_full_name)
-                    rpd_file.download_xmp_full_name = download_xmp_full_name
-                except:
-                    logging.error(
-                        "Failed to move XMP sidecar file %s",
-                        download_xmp_full_name)
+                self.move_xmp_file(rpd_file)
 
         return move_succeeded
 

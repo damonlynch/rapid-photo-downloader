@@ -110,6 +110,7 @@ class Roles(IntEnum):
     extension = Qt.UserRole + 1
     download_status = Qt.UserRole + 2
     has_audio = Qt.UserRole + 3
+    secondary_attribute = Qt.UserRole + 4
 
 
 photo_rename_test = ['Date time','Image date','YYYYMMDD','Text','-','',
