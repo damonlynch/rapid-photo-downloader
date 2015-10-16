@@ -49,16 +49,14 @@ import zmq
 import gphoto2 as gp
 from PyQt5 import QtCore, QtWidgets, QtGui
 from PyQt5.QtCore import (QThread, Qt, QStorageInfo, QSettings, QPoint,
-                          QSize, QTimer)
+                          QSize, QTimer, QTextStream)
 from PyQt5.QtGui import (QIcon, QPixmap, QImage)
 from PyQt5.QtWidgets import (QAction, QApplication, QMainWindow, QMenu,
                              QPushButton, QWidget, QDialogButtonBox,
         QProgressBar, QSplitter, QFileIconProvider, QHBoxLayout, QVBoxLayout)
+from PyQt5.QtNetwork import QLocalSocket, QLocalServer
+
 import qrc_resources
-
-# import dbus
-# from dbus.mainloop.pyqt5 import DBusQtMainLoop
-
 
 from storage import (ValidMounts, CameraHotplug, UDisks2Monitor,
                      GVolumeMonitor, have_gio, has_non_empty_dcim_folder,
@@ -99,7 +97,6 @@ from generatenameconfig import *
 
 logging_level = logging.DEBUG
 logging.basicConfig(format='%(asctime)s %(message)s', level=logging_level)
-
 
 BackupMissing = namedtuple('BackupMissing', ['photo', 'video'])
 
@@ -226,7 +223,7 @@ class RapidWindow(QMainWindow):
     def __init__(self, auto_detect: bool=None, device_location: str=None,
                  parent=None):
         self.do_init = QtCore.QEvent.registerEventType()
-        super(RapidWindow, self).__init__(parent)
+        super().__init__(parent)
 
         self.application_state = ApplicationState.normal
 
@@ -2283,6 +2280,100 @@ class RapidWindow(QMainWindow):
             message = _("No backup devices detected")
         return message
 
+class QtSingleApplication(QApplication):
+    """
+    Taken from
+    http://stackoverflow.com/questions/12712360/qtsingleapplication-for-pyside-or-pyqt
+    """
+
+    messageReceived = QtCore.pyqtSignal(str)
+
+    def __init__(self, id, *argv):
+        super().__init__(*argv)
+        self._id = id
+        self._activationWindow = None
+        self._activateOnMessage = False
+
+        # Is there another instance running?
+        self._outSocket = QLocalSocket()
+        self._outSocket.connectToServer(self._id)
+        self._isRunning = self._outSocket.waitForConnected()
+
+        self._outStream = None
+        self._inSocket  = None
+        self._inStream  = None
+        self._server    = None
+
+        if self._isRunning:
+            # Yes, there is.
+            self._outStream = QTextStream(self._outSocket)
+            self._outStream.setCodec('UTF-8')
+        else:
+            # No, there isn't, at least not properly.
+            # Cleanup any past, crashed server.
+            error = self._outSocket.error()
+            if error == QLocalSocket.ConnectionRefusedError:
+                self.close()
+                QLocalServer.removeServer(self._id)
+            self._outSocket = None
+            self._server = QLocalServer()
+            self._server.listen(self._id)
+            self._server.newConnection.connect(self._onNewConnection)
+
+    def close(self):
+        if self._inSocket:
+            self._inSocket.disconnectFromServer()
+        if self._outSocket:
+            self._outSocket.disconnectFromServer()
+        if self._server:
+            self._server.close()
+
+    def isRunning(self):
+        return self._isRunning
+
+    def id(self):
+        return self._id
+
+    def activationWindow(self):
+        return self._activationWindow
+
+    def setActivationWindow(self, activationWindow, activateOnMessage = True):
+        self._activationWindow = activationWindow
+        self._activateOnMessage = activateOnMessage
+
+    def activateWindow(self):
+        if not self._activationWindow:
+            return
+        self._activationWindow.setWindowState(
+            self._activationWindow.windowState() & ~Qt.WindowMinimized)
+        self._activationWindow.raise_()
+        self._activationWindow.activateWindow()
+
+    def sendMessage(self, msg):
+        if not self._outStream:
+            return False
+        self._outStream << msg << '\n'
+        self._outStream.flush()
+        return self._outSocket.waitForBytesWritten()
+
+    def _onNewConnection(self):
+        if self._inSocket:
+            self._inSocket.readyRead.disconnect(self._onReadyRead)
+        self._inSocket = self._server.nextPendingConnection()
+        if not self._inSocket:
+            return
+        self._inStream = QTextStream(self._inSocket)
+        self._inStream.setCodec('UTF-8')
+        self._inSocket.readyRead.connect(self._onReadyRead)
+        if self._activateOnMessage:
+            self.activateWindow()
+
+    def _onReadyRead(self):
+        while True:
+            msg = self._inStream.readLine()
+            if not msg: break
+            self.messageReceived.emit(msg)
+
 
 def get_versions(seperator='\n') -> str:
     versions = [
@@ -2358,7 +2449,13 @@ if __name__ == "__main__":
     else:
         device_location=None
 
-    app = QApplication(sys.argv)
+    appGuid = '8dbfb490-b20f-49d3-9b7d-2016012d2aa8'
+
+    app = QtSingleApplication(appGuid, sys.argv)
+    if app.isRunning():
+        print('Rapid Photo Downloader is already running')
+        sys.exit(0)
+
     app.setOrganizationName("Rapid Photo Downloader")
     app.setOrganizationDomain("damonlynch.net")
     app.setApplicationName("Rapid Photo Downloader")
@@ -2378,5 +2475,7 @@ if __name__ == "__main__":
 
     rw = RapidWindow(auto_detect=auto_detect, device_location=device_location)
     rw.show()
+
+    app.setActivationWindow(rw)
 
     sys.exit(app.exec_())
