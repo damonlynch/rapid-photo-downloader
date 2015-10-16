@@ -240,9 +240,9 @@ class RapidWindow(QMainWindow):
         self.prefs.video_download_folder = '/data/Photos/Test'
         self.prefs.auto_download_at_startup = False
         self.prefs.verify_file = False
-        self.prefs.device_autodetection = True
+        self.prefs.device_autodetection = False
         self.prefs.device_location = \
-            '/home/damon/digitalPhotos/rapid/sample-cr2'
+            '/data/Photos/Sample CR2/screenshots renamed'
         self.prefs.photo_rename = photo_rename_test
         self.prefs.backup_files = True
         self.prefs.backup_device_autodetection = True
@@ -987,7 +987,8 @@ class RapidWindow(QMainWindow):
             data = BackupFileData(rpd_file, move_succeeded, do_backup,
                                   path_suffix,
                                   self.prefs.backup_duplicate_overwrite,
-                                  self.prefs.verify_file, download_count)
+                                  self.prefs.verify_file, download_count,
+                                  self.prefs.save_fdo_thumbnails)
             self.backupmq.backup_file(data, device_id)
 
     def fileBackedUp(self, device_id: int, backup_succeeded: bool, do_backup:

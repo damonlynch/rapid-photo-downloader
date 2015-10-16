@@ -670,7 +670,7 @@ class BackupFileData:
     def __init__(self, rpd_file: RPDFile, move_succeeded: bool,
                  do_backup: bool, path_suffix: str,
                  backup_duplicate_overwrite: bool, verify_file: bool,
-                 download_count: int):
+                 download_count: int, save_fdo_thumbnail: int):
         self.rpd_file = rpd_file
         self.move_succeeded = move_succeeded
         self.do_backup = do_backup
@@ -678,6 +678,7 @@ class BackupFileData:
         self.backup_duplicate_overwrite = backup_duplicate_overwrite
         self.verify_file = verify_file
         self.download_count = download_count
+        self.save_fdo_thumbnail = save_fdo_thumbnail
 
 class BackupResults:
     def __init__(self, scan_id: int, device_id: int,

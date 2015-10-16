@@ -37,6 +37,7 @@ from interprocess import (BackupFileData, BackupResults, BackupArguments,
 from copyfiles import FileCopy
 from constants import FileType, DownloadStatus
 from rpdfile import RPDFile
+from cache import FdoCacheNormal, FdoCacheLarge
 
 import problemnotification as pn
 from copyfiles import copy_file_metadata
@@ -72,7 +73,8 @@ class BackupFilesWorker(WorkerInPublishPullPipeline, FileCopy):
         rpd_file.error_title = _('Backing up error')
         rpd_file.error_msg = \
                 _("Source: %(source)s\nDestination: %(destination)s") % \
-                 {'source': rpd_file.download_full_file_name, 'destination': destination} + "\n" + \
+                 {'source': rpd_file.download_full_file_name,
+                  'destination': destination} + "\n" + \
                 _("Error: %(inst)s") % {'inst': msg}
         logging.error("%s:\n%s", rpd_file.error_title, rpd_file.error_msg)
 
@@ -113,10 +115,33 @@ class BackupFilesWorker(WorkerInPublishPullPipeline, FileCopy):
 
         copy_file_metadata(full_file_name, dest_name)
 
+    def save_fdo_thumbnail(self, rpd_file: RPDFile, backup_full_file_name:
+                           str):
+        # Check to see if existing thumbnail in FDO cache can be
+        # modified and renamed to reflect new URI
+        mtime = os.path.getmtime(rpd_file.download_full_file_name)
+        if rpd_file.fdo_thumbnail_128_name:
+            logging.debug("Copying and modifying existing FDO 128 thumbnail")
+            self.fdo_cache_normal.modify_existing_thumbnail_and_save_copy(
+                existing_cache_thumbnail=rpd_file.fdo_thumbnail_128_name,
+                full_file_name=backup_full_file_name,
+                size=rpd_file.size,
+                modification_time=mtime)
+
+        if rpd_file.fdo_thumbnail_256_name:
+            logging.debug("Copying and modifying existing FDO 256 thumbnail")
+            self.fdo_cache_large.modify_existing_thumbnail_and_save_copy(
+                existing_cache_thumbnail=rpd_file.fdo_thumbnail_256_name,
+                full_file_name=backup_full_file_name,
+                size=rpd_file.size,
+                modification_time=mtime)
+
     def do_work(self):
         backup_arguments = pickle.loads(self.content)
         self.path = backup_arguments.path
         self.device_name = backup_arguments.device_name
+        self.fdo_cache_normal = FdoCacheNormal()
+        self.fdo_cache_large = FdoCacheLarge()
 
         while True:
             self.amount_downloaded = 0
@@ -240,6 +265,9 @@ class BackupFilesWorker(WorkerInPublishPullPipeline, FileCopy):
                     if rpd_file.download_xmp_full_name:
                         self.backup_associate_file(dest_dir,
                                         rpd_file.download_xmp_full_name)
+
+            if data.save_fdo_thumbnail:
+                self.save_fdo_thumbnail(rpd_file, backup_full_file_name)
 
             self.total_downloaded += rpd_file.size
             bytes_not_downloaded = rpd_file.size - self.amount_downloaded
