@@ -87,12 +87,14 @@ from thumbnaildisplay import (ThumbnailView, ThumbnailTableModel,
 from devicedisplay import (DeviceTableModel, DeviceView, DeviceDelegate)
 from utilities import (same_file_system, makeInternationalizedList,
                        human_readable_version)
-from rpdfile import RPDFile, file_types_by_number
+from rpdfile import (RPDFile, file_types_by_number, PHOTO_EXTENSIONS,
+                     VIDEO_EXTENSIONS)
 import downloadtracker
 from cache import ThumbnailCache
 from metadataphoto import exiv2_version, gexiv2_version
 from metadatavideo import EXIFTOOL_VERSION
 from camera import gphoto2_version, python_gphoto2_version
+from sql import DownloadedSQL
 from generatenameconfig import *
 
 logging_level = logging.DEBUG
@@ -221,13 +223,14 @@ class CopyFilesManager(PublishPullPipelineManager):
 
 
 class RapidWindow(QMainWindow):
-    def __init__(self, parent=None):
+    def __init__(self, auto_detect: bool=None, device_location: str=None,
+                 parent=None):
         self.do_init = QtCore.QEvent.registerEventType()
         super(RapidWindow, self).__init__(parent)
 
         self.application_state = ApplicationState.normal
 
-        logging.debug('Software versions:\n%s', get_versions())
+        logging.debug('Software versions: %s', get_versions('; '))
 
         self.context = zmq.Context()
 
@@ -236,13 +239,20 @@ class RapidWindow(QMainWindow):
         self.prefs = Preferences()
         self.setupWindow()
 
+        if auto_detect is not None:
+            self.prefs.device_autodetection = auto_detect
+        elif device_location is not None:
+            self.prefs.device_autodetection = False
+            self.prefs.device_location = device_location
+
+
         self.prefs.photo_download_folder = '/data/Photos/Test'
         self.prefs.video_download_folder = '/data/Photos/Test'
         self.prefs.auto_download_at_startup = False
         self.prefs.verify_file = False
-        self.prefs.device_autodetection = False
-        self.prefs.device_location = \
-            '/data/Photos/Sample CR2/screenshots renamed'
+        # self.prefs.device_autodetection = False
+        # self.prefs.device_location = \
+        #     '/data/Photos/Sample CR2/screenshots renamed'
         self.prefs.photo_rename = photo_rename_test
         self.prefs.backup_files = True
         self.prefs.backup_device_autodetection = True
@@ -2274,7 +2284,7 @@ class RapidWindow(QMainWindow):
         return message
 
 
-def get_versions() -> str:
+def get_versions(seperator='\n') -> str:
     versions = [
         'Rapid Photo Downloader: {}'.format(human_readable_version(
             constants.version)),
@@ -2291,20 +2301,62 @@ def get_versions() -> str:
     v = exiv2_version()
     if v:
         versions.append('Exiv2: {}'.format(v))
-    return '\n'.join(versions)
+    return seperator.join(versions)
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(prog=PROGRAM_NAME)
     parser.add_argument('--version', action='version', version=
         '%(prog)s {}'.format(human_readable_version(constants.version)))
     parser.add_argument('--detailed-version', action='store_true',
-                        help="show version numbers of program and "
-                             "its libraries, "
-                             "and exit")
+        help="show version numbers of program and its libraries and exit")
+    parser.add_argument("-a", "--auto-detect", action="store_true",
+        dest="auto_detect", help=_("automatically detect devices from which "
+       "to download, overwriting existing program preferences"))
+    parser.add_argument("-l", "--device-location", type=str,
+        metavar="PATH", dest="device_location",
+        help=_("manually specify the PATH of the device from which to "
+        "download, overwriting existing program preferences"))
+    parser.add_argument("-e",  "--extensions", action="store_true",
+         dest="extensions",
+         help=_("list photo and video file extensions the program recognizes "
+                "and exit"))
+    parser.add_argument("--reset-settings", action="store_true", dest="reset",
+                 help=_("reset all program settings and caches and exit"))
+
     args = parser.parse_args()
     if args.detailed_version:
         print(get_versions())
         sys.exit(0)
+
+    if args.extensions:
+        photos = list((ext.upper() for ext in PHOTO_EXTENSIONS))
+        videos = list((ext.upper() for ext in VIDEO_EXTENSIONS))
+        extensions = ((photos, _("Photos")),
+                      (videos, _("Videos")))
+        for exts, file_type in extensions:
+            extensions = makeInternationalizedList(exts)
+            print('{}: {}'.format(file_type, extensions))
+        sys.exit(0)
+
+    if args.auto_detect and args.device_location:
+        print(_("Error: specify device auto-detection or specify a "
+            "device's path from which to download, but do not do both."))
+        sys.exit(1)
+
+    if args.auto_detect:
+        auto_detect=True
+        logging.info("Device auto detection set from command line")
+    else:
+        auto_detect=None
+
+    if args.device_location:
+        device_location=args.device_location
+        if device_location[-1]=='/':
+            device_location = device_location[:-1]
+        logging.info("Device location set from command line: %s",
+                     device_location)
+    else:
+        device_location=None
 
     app = QApplication(sys.argv)
     app.setOrganizationName("Rapid Photo Downloader")
@@ -2312,7 +2364,19 @@ if __name__ == "__main__":
     app.setApplicationName("Rapid Photo Downloader")
     app.setWindowIcon(QtGui.QIcon(':/rapid-photo-downloader.svg'))
 
-    rw = RapidWindow()
+    # Resetting preferences must occur after QApplication is instantiated
+    if args.reset:
+        prefs = Preferences()
+        prefs.reset()
+        prefs.sync()
+        d = DownloadedSQL()
+        d.update_table(reset=True)
+        cache = ThumbnailCache()
+        cache.purge_cache()
+        print(_("All settings and caches have been reset"))
+        sys.exit(0)
+
+    rw = RapidWindow(auto_detect=auto_detect, device_location=device_location)
     rw.show()
 
     sys.exit(app.exec_())

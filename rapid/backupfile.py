@@ -266,7 +266,7 @@ class BackupFilesWorker(WorkerInPublishPullPipeline, FileCopy):
                         self.backup_associate_file(dest_dir,
                                         rpd_file.download_xmp_full_name)
 
-            if data.save_fdo_thumbnail:
+            if backup_succeeded and data.save_fdo_thumbnail:
                 self.save_fdo_thumbnail(rpd_file, backup_full_file_name)
 
             self.total_downloaded += rpd_file.size

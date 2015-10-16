@@ -52,6 +52,7 @@ import logging
 import hashlib
 from urllib.request import pathname2url
 import time
+import shutil
 
 from PyQt5.QtGui import QImage
 
@@ -259,8 +260,9 @@ class BaseThumbnailCache(Cache):
         Delete the entire cache of all contents and remvoe the
         directory
         """
-        if os.path.isdir(self.cache_dir):
-            os.removedirs(get_program_cache_directory())
+        if self.valid and self.cache_dir is not None:
+            if os.path.isdir(self.cache_dir):
+                shutil.rmtree(self.cache_dir)
 
 
 class ThumbnailCache(BaseThumbnailCache):
