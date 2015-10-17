@@ -630,17 +630,22 @@ if have_gio:
             return to_unmount
 
         def unmountCamera(self, model: str, port: str, download_starting:
-                          bool=False) -> bool:
+                          bool=False, mount_point: Gio.Mount=None) -> bool:
             """
             Unmount camera mounted on gvfs mount point, if it is
             mounted. If not mounted, ignore.
             :param model: model as returned by libgphoto2
             :param port: port as returned by libgphoto2, in format like
              usb:001,004
+            :param mount_point: if not None, try umounting from this
+             mount point without scanning for it first
             :return: True if an unmount operation has been initiated,
              else returns False.
             """
-            to_unmount = self.cameraMountPoint(model, port)
+            if mount_point is None:
+                to_unmount = self.cameraMountPoint(model, port)
+            else:
+                to_unmount = mount_point
 
             if to_unmount is not None:
                 logging.debug("GIO: Attempting to unmount %s...", model)

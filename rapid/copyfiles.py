@@ -213,7 +213,7 @@ class CopyFilesWorker(WorkerInPublishPullPipeline, FileCopy):
         try:
             if rpd_file.from_camera:
                 dir_name, file_name = \
-                    os.path.split(rpd_file.thm_full_name)
+                    os.path.split(associate_file_fullname)
                 succeeded = self.camera.save_file(dir_name, file_name,
                                       temp_full_name)
                 if not succeeded:

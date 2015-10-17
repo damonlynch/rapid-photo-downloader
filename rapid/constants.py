@@ -113,6 +113,7 @@ class Roles(IntEnum):
     secondary_attribute = Qt.UserRole + 4
     path = Qt.UserRole + 5
     uri = Qt.UserRole + 6
+    camera_memory_card = Qt.UserRole + 7
 
 
 photo_rename_test = ['Date time','Image date','YYYYMMDD','Text','-','',

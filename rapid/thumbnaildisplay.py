@@ -49,7 +49,7 @@ from interprocess import (PublishPullPipelineManager,
 from constants import (DownloadStatus, Downloaded, FileType, FileExtension,
                        ThumbnailSize, ThumbnailCacheStatus, Roles)
 from storage import get_program_cache_directory, gvfs_controls_mounts
-from utilities import (CacheDirs)
+from utilities import (CacheDirs, makeInternationalizedList)
 
 class DownloadTypes:
     def __init__(self):
@@ -169,6 +169,11 @@ class ThumbnailTableModel(QAbstractTableModel):
             modification_time = modification_time.strftime('%c')
             msg = '{}\n{}\n{}'.format(file_name, modification_time, size)
 
+            if rpd_file.camera_memory_card_identifiers:
+                cards = _('Memory cards: %s') % makeInternationalizedList(
+                    rpd_file.camera_memory_card_identifiers)
+                msg += '\n' + cards
+
             if rpd_file.status in Downloaded:
                 path = rpd_file.download_path + os.sep
                 msg += '\n\nDownloaded as:\n%(filename)s\n%(path)s' % {
@@ -207,6 +212,8 @@ class ThumbnailTableModel(QAbstractTableModel):
                 return rpd_file.full_file_name
         elif role == Roles.uri:
             return rpd_file.get_uri(gnomify_output=self.gnome_env)
+        elif role == Roles.camera_memory_card:
+            return rpd_file.camera_memory_card_identifiers
 
     def setData(self, index: QModelIndex, value, role: int):
         if not index.isValid():
@@ -601,6 +608,12 @@ class ThumbnailDelegate(QStyledItemDelegate):
         self.image_footer = self.checkbox_size
         self.footer_padding = 5
 
+        # Position of first memory card indicator
+        self.card_x = max(self.checkboxRect.size().width(),
+                          self.downloadPendingIcon.width(),
+                          self.downloadedIcon.width()) + \
+                      self.horizontal_margin + self.footer_padding
+
         self.padding = 4
         self.width = self.image_width + self.horizontal_margin * 2
         self.height = self.image_height + self.footer_padding \
@@ -617,6 +630,7 @@ class ThumbnailDelegate(QStyledItemDelegate):
             self.doOpenInFileBrowserAct)
         self.copyPathAct = self.contextMenu.addAction(_('Copy Path'))
         self.copyPathAct.triggered.connect(self.doCopyPathAction)
+        # store the index in which the user right clicked
         self.clickedIndex = None
 
     def doCopyPathAction(self):
@@ -634,7 +648,7 @@ class ThumbnailDelegate(QStyledItemDelegate):
             args = shlex.split(cmd)
             subprocess.Popen(args)
 
-    def paint(self, painter: QPainter, option: QStyleOptionViewItem ,
+    def paint(self, painter: QPainter, option: QStyleOptionViewItem,
               index:  QModelIndex):
         if index.column() == 0:
 
@@ -654,6 +668,8 @@ class ThumbnailDelegate(QStyledItemDelegate):
             """:type :DownloadStatus"""
             has_audio = model.data(index, Roles.has_audio)
             secondary_attribute = model.data(index, Roles.secondary_attribute)
+            memory_cards = model.data(index, Roles.camera_memory_card)
+            """:type : List[int] """
 
             x = option.rect.x() + self.padding
             y = option.rect.y() + self.padding
@@ -765,6 +781,29 @@ class ThumbnailDelegate(QStyledItemDelegate):
                              color)
                 painter.drawText(text_x + text_padding, text_y - 1,
                              secondary_attribute)
+
+            if memory_cards:
+                # if downloaded from a camera, and the camera has more than
+                # one memory card, a list of numeric identifiers (i.e. 1 or
+                # 2) identifying which memory card the file came from
+                text_x = self.card_x + x
+                for card in memory_cards:
+                    card = str(card)
+                    extBoundingRect = metrics.boundingRect(
+                        card).marginsAdded(QMargins(
+                        text_padding, 0, text_padding, text_padding))
+                    """:type : QRect"""
+                    text_width = metrics.width(card)
+                    color = QColor(70, 70, 70)
+                    painter.fillRect(text_x, text_y - text_height,
+                                 extBoundingRect.width(),
+                                 extBoundingRect.height(),
+                                 color)
+                    painter.drawText(text_x + text_padding, text_y - 1,
+                                 card)
+                    text_x = text_x + extBoundingRect.width() + \
+                             self.footer_padding
+
 
             if previously_downloaded and not checked:
                 painter.setOpacity(1.0)

@@ -729,22 +729,26 @@ class RapidWindow(QMainWindow):
         camera_unmount_called = False
         self.camera_unmounts_needed = set()
         if self.gvfsControlsMounts:
+            mount_points = {}
             for scan_id in self.download_files.camera_access_needed:
                 if self.download_files.camera_access_needed[scan_id]:
                     device = self.devices[scan_id]
                     model = device.camera_model
                     port = device.camera_port
-                    if self.gvolumeMonitor.cameraMountPoint(
-                            model, port):
+                    mount_point = self.gvolumeMonitor.cameraMountPoint(
+                            model, port)
+                    if mount_point is not None:
                         self.camera_unmounts_needed.add((model, port))
+                        mount_points[(model, port)] = mount_point
             if len(self.camera_unmounts_needed):
-                logging.debug("%s cameras need to be unmounted before the "
+                logging.debug("%s camera(s) need to be unmounted before the "
                               "download begins",
                               len(self.camera_unmounts_needed))
                 camera_unmount_called = True
                 for model, port in self.camera_unmounts_needed:
                     self.gvolumeMonitor.unmountCamera(model, port,
-                                                      download_starting=True)
+                          download_starting=True,
+                          mount_point=mount_points[(model, port)])
 
         if not camera_unmount_called:
             self.startDownloadPhase2()

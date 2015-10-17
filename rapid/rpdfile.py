@@ -102,7 +102,8 @@ def get_rpdfile(name: str, path: str, size: int, prev_full_name: str,
                 scan_id: bytes, file_type: FileType,
                 from_camera: bool,
                 camera_model: str,
-                camera_port: str):
+                camera_port: str,
+                camera_memory_card_identifiers: list):
 
     if file_type == FileType.video:
         return Video(name, path, size,
@@ -112,7 +113,8 @@ def get_rpdfile(name: str, path: str, size: int, prev_full_name: str,
                      audio_file_full_name,
                      xmp_file_full_name,
                      scan_id,
-                     from_camera, camera_model, camera_port)
+                     from_camera, camera_model, camera_port,
+                     camera_memory_card_identifiers)
     else:
         return Photo(name, path, size,
                      prev_full_name, prev_datetime,
@@ -121,7 +123,8 @@ def get_rpdfile(name: str, path: str, size: int, prev_full_name: str,
                      audio_file_full_name,
                      xmp_file_full_name,
                      scan_id,
-                     from_camera, camera_model, camera_port)
+                     from_camera, camera_model, camera_port,
+                     camera_memory_card_identifiers)
 
 def file_types_by_number(no_photos: int, no_videos:int) -> str:
         """
@@ -225,7 +228,8 @@ class RPDFile:
                  scan_id: bytes,
                  from_camera: bool,
                  camera_model: str=None,
-                 camera_port: str=None):
+                 camera_port: str=None,
+                 camera_memory_card_identifiers: list=None):
         """
 
         :param name: filename (without path)
@@ -249,6 +253,10 @@ class RPDFile:
          model name (not including the port)
         :param camera_port: if downloaded from a camera, the port
          as reported by gphoto2
+        :param camera_memory_card_identifiers: if downloaded from a
+         camera, and the camera has more than one memory card, a list
+         of numeric identifiers (i.e. 1 or 2) identifying which memory
+         card the file came from
         """
 
         self.from_camera = from_camera
@@ -272,7 +280,9 @@ class RPDFile:
 
         self.modification_time = modification_time
 
-
+        # If a camera has more than one memory card, store a simple numeric
+        # identifier to indicate which memory card it came from
+        self.camera_memory_card_identifiers = camera_memory_card_identifiers
 
         # full path and name of thumbnail file that is associated with some
         # videos
