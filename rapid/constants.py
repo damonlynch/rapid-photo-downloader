@@ -111,6 +111,8 @@ class Roles(IntEnum):
     download_status = Qt.UserRole + 2
     has_audio = Qt.UserRole + 3
     secondary_attribute = Qt.UserRole + 4
+    path = Qt.UserRole + 5
+    uri = Qt.UserRole + 6
 
 
 photo_rename_test = ['Date time','Image date','YYYYMMDD','Text','-','',

@@ -69,8 +69,9 @@ class ScanWorker(WorkerInPublishPullPipeline):
                                     DeviceType.camera
         if self.download_from_camera:
             self.camera_model = scan_arguments.device.camera_model
+            self.camera_port = scan_arguments.device.camera_port
         else:
-            self.camera_model = None
+            self.camera_port = self.camera_model = None
 
         self.files_scanned = 0
 
@@ -289,7 +290,8 @@ class ScanWorker(WorkerInPublishPullPipeline):
                                                self.worker_id,
                                                file_type,
                                                self.download_from_camera,
-                                               self.camera_model)
+                                               self.camera_model,
+                                               self.camera_port)
                 self.content = pickle.dumps(rpd_file, pickle.HIGHEST_PROTOCOL)
                 self.send_message_to_sink()
 

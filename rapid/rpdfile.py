@@ -25,12 +25,13 @@ import uuid
 import logging
 import mimetypes
 from collections import Counter
+from urllib.request import pathname2url
 
 import exiftool
 from gettext import gettext as _
 
 from constants import (DownloadStatus, FileType, FileExtension,
-                       ThumbnailCacheStatus)
+                       ThumbnailCacheStatus, Downloaded)
 import metadataphoto
 import metadatavideo
 from sql import FileDownloaded
@@ -100,7 +101,8 @@ def get_rpdfile(name: str, path: str, size: int, prev_full_name: str,
                 xmp_file_full_name: str,
                 scan_id: bytes, file_type: FileType,
                 from_camera: bool,
-                camera_model: str):
+                camera_model: str,
+                camera_port: str):
 
     if file_type == FileType.video:
         return Video(name, path, size,
@@ -110,7 +112,7 @@ def get_rpdfile(name: str, path: str, size: int, prev_full_name: str,
                      audio_file_full_name,
                      xmp_file_full_name,
                      scan_id,
-                     from_camera, camera_model)
+                     from_camera, camera_model, camera_port)
     else:
         return Photo(name, path, size,
                      prev_full_name, prev_datetime,
@@ -119,7 +121,7 @@ def get_rpdfile(name: str, path: str, size: int, prev_full_name: str,
                      audio_file_full_name,
                      xmp_file_full_name,
                      scan_id,
-                     from_camera, camera_model)
+                     from_camera, camera_model, camera_port)
 
 def file_types_by_number(no_photos: int, no_videos:int) -> str:
         """
@@ -222,7 +224,8 @@ class RPDFile:
                  xmp_file_full_name: str,
                  scan_id: bytes,
                  from_camera: bool,
-                 camera_model: str=None):
+                 camera_model: str=None,
+                 camera_port: str=None):
         """
 
         :param name: filename (without path)
@@ -244,10 +247,13 @@ class RPDFile:
          camera
         :param camera_model: if downloaded from a camera, the camera
          model name (not including the port)
+        :param camera_port: if downloaded from a camera, the port
+         as reported by gphoto2
         """
 
         self.from_camera = from_camera
         self.camera_model = camera_model
+        self.camera_port = camera_port
 
         self.path = path
 
@@ -354,6 +360,38 @@ class RPDFile:
         :return:True if the file has an associated audio file, else False
         """
         return self.audio_file_full_name is not None
+
+    def get_uri(self, gnomify_output: bool) -> str:
+        """
+        Generate and return the URI for the file
+        :param gnomify_output: if True, will to generate a URI accepted
+         by Gnome, which means adjusting the URI if it appears to be an
+         MTP mount. Horribly hackish. Includes the port too.
+        :return: the URI
+        """
+        if self.status in Downloaded:
+            uri = 'file://{}'.format(pathname2url(
+                self.download_full_file_name))
+        else:
+            full_file_name = self.full_file_name
+            if self.camera_model is None:
+                prefix = 'file://'
+            else:
+                if not gnomify_output:
+                    prefix = 'gphoto2://'
+                else:
+                    # Attempt to generate a URI accepted by Gnome
+                    if self.camera_model.find('MTP') >= 0:
+                        prefix = 'mtp://'+ pathname2url(
+                            '[{}]/Internal storage'.format(self.camera_port))
+                        f = full_file_name
+                        # Remove the top level directory
+                        full_file_name = f[f[1:].find('/')+1:]
+                    else:
+                        prefix = 'gphoto2://' + pathname2url('[{}]'.format(
+                            self.camera_port))
+            uri = '{}{}'.format(prefix, pathname2url(full_file_name))
+        return uri
 
     def _assign_file_type(self):
         self.file_type = None

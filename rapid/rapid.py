@@ -61,7 +61,7 @@ import qrc_resources
 from storage import (ValidMounts, CameraHotplug, UDisks2Monitor,
                      GVolumeMonitor, have_gio, has_non_empty_dcim_folder,
                      mountPaths, get_desktop_environment,
-                     gvfs_controls_mounts)
+                     gvfs_controls_mounts, get_default_file_manager)
 from interprocess import (PublishPullPipelineManager,
                           PushPullDaemonManager,
                           ScanArguments,
@@ -324,6 +324,8 @@ class RapidWindow(QMainWindow):
         # Setup notification system
         self.have_libnotify = Notify.init('rapid-photo-downloader')
 
+        self.file_manager = get_default_file_manager()
+
         module_path = os.path.dirname(os.path.abspath(inspect.getfile(
             inspect.currentframe())))
         self.program_svg = ':/rapid-photo-downloader.svg'
@@ -469,60 +471,63 @@ class RapidWindow(QMainWindow):
             self.backup_manager_started = True
 
     def createActions(self):
-        self.downloadAct = QAction("&Download", self, shortcut="Ctrl+Return",
+        self.downloadAct = QAction(_("&Download"), self,
+                                   shortcut="Ctrl+Return",
                                    triggered=self.doDownloadAction)
 
-        self.refreshAct = QAction("&Refresh...", self, shortcut="Ctrl+R",
+        self.refreshAct = QAction(_("&Refresh..."), self, shortcut="Ctrl+R",
                                   triggered=self.doRefreshAction)
 
-        self.preferencesAct = QAction("&Preferences", self,
+        self.preferencesAct = QAction(_("&Preferences"), self,
                                       shortcut="Ctrl+P",
                                       triggered=self.doPreferencesAction)
 
-        self.quitAct = QAction("&Quit", self, shortcut="Ctrl+Q",
+        self.quitAct = QAction(_("&Quit"), self, shortcut="Ctrl+Q",
                                triggered=self.close)
 
-        self.checkAllAct = QAction("&Check All", self, shortcut="Ctrl+A",
+        self.checkAllAct = QAction(_("&Check All"), self, shortcut="Ctrl+A",
                                    triggered=self.doCheckAllAction)
 
-        self.checkAllPhotosAct = QAction("Check All Photos", self,
+        self.checkAllPhotosAct = QAction(_("Check All Photos"), self,
                                          shortcut="Ctrl+T",
                                          triggered=self.doCheckAllPhotosAction)
 
-        self.checkAllVideosAct = QAction("Check All Videos", self,
+        self.checkAllVideosAct = QAction(_("Check All Videos"), self,
                                          shortcut="Ctrl+D",
                                          triggered=self.doCheckAllVideosAction)
 
-        self.uncheckAllAct = QAction("&Uncheck All", self, shortcut="Ctrl+L",
+        self.uncheckAllAct = QAction(_("&Uncheck All"), self,
+                                     shortcut="Ctrl+L",
                                      triggered=self.doUncheckAllAction)
 
-        self.errorLogAct = QAction("Error Log", self, enabled=False,
+        self.errorLogAct = QAction(_("Error Log"), self, enabled=False,
                                    checkable=True,
                                    triggered=self.doErrorLogAction)
 
-        self.clearDownloadsAct = QAction("Clear Completed Downloads", self,
+        self.clearDownloadsAct = QAction(_("Clear Completed Downloads"), self,
                                          triggered=self.doClearDownloadsAction)
 
-        self.previousFileAct = QAction("Previous File", self, shortcut="[",
+        self.previousFileAct = QAction(_("Previous File"), self, shortcut="[",
                                        triggered=self.doPreviousFileAction)
 
-        self.nextFileAct = QAction("Next File", self, shortcut="]",
+        self.nextFileAct = QAction(_("Next File"), self, shortcut="]",
                                    triggered=self.doNextFileAction)
 
-        self.helpAct = QAction("Get Help Online...", self, shortcut="F1",
+        self.helpAct = QAction(_("Get Help Online..."), self, shortcut="F1",
                                triggered=help)
 
-        self.reportProblemAct = QAction("Report a Problem...", self,
+        self.reportProblemAct = QAction(_("Report a Problem..."), self,
                                         triggered=self.doReportProblemAction)
 
-        self.makeDonationAct = QAction("Make a Donation...", self,
+        self.makeDonationAct = QAction(_("Make a Donation..."), self,
                                        triggered=self.doMakeDonationAction)
 
-        self.translateApplicationAct = QAction("Translate this Application...",
-                                               self,
-                                               triggered=self.doTranslateApplicationAction)
+        self.translateApplicationAct = QAction(_("Translate this " \
+                                                "Application..."),
+                           self, triggered=self.doTranslateApplicationAction)
 
-        self.aboutAct = QAction("&About...", self, triggered=self.doAboutAction)
+        self.aboutAct = QAction(_("&About..."), self, \
+                                 triggered=self.doAboutAction)
 
     def createLayoutAndButtons(self, centralWidget):
         #TODO change splitter to something else since user can't manipulate it

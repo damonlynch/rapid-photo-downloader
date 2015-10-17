@@ -49,9 +49,12 @@ import os
 import re
 import sys
 import time
+import subprocess
+import shlex
 
 from PyQt5.QtCore import (QStorageInfo, QObject, pyqtSignal)
 from gi.repository import GUdev, UDisks, GLib
+from xdg.DesktopEntry import DesktopEntry
 
 logging_level = logging.DEBUG
 logging.basicConfig(format='%(levelname)s:%(asctime)s:%(message)s',
@@ -323,6 +326,32 @@ def get_fdo_cache_thumb_base_directory() -> str:
                                default_dir='.cache')
     return os.path.join(path, 'thumbnails')
 
+def get_default_file_manager(remove_args=True) -> str:
+    """
+    Attempt to determine the default file manager for the system
+    :param remove_args: if True, remove any arguments such as %U from
+     the returned command
+    :return: command (without path) if found, else None
+    """
+    assert sys.platform.startswith('linux')
+    cmd = shlex.split('xdg-mime query default inode/directory')
+    try:
+        desktop_file = subprocess.check_output(cmd, universal_newlines=True)
+    except:
+        return None
+    # Remove new line character from output
+    desktop_file = desktop_file[:-1]
+    path = os.path.join('/usr/share/applications/', desktop_file)
+    desktop_entry = DesktopEntry(path)
+    try:
+        desktop_entry.parse(path)
+    except:
+        return None
+    fm = desktop_entry.getExec()
+    if remove_args:
+        return fm.split()[0]
+    else:
+        return fm
 
 class CameraHotplug(QObject):
     cameraAdded = pyqtSignal()

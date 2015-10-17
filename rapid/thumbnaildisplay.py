@@ -20,9 +20,14 @@ __author__ = 'Damon Lynch'
 
 import pickle
 import os
+import sys
 from collections import (namedtuple, defaultdict)
 from operator import attrgetter
 import datetime
+import subprocess
+import shlex
+import logging
+
 from gettext import gettext as _
 
 from sortedcontainers import SortedListWithKey
@@ -31,7 +36,7 @@ from PyQt5.QtCore import  (QAbstractTableModel, QModelIndex, Qt, pyqtSignal,
     QThread, QTimer, QSize, QRect, QEvent, QPoint, QMargins)
 from PyQt5.QtWidgets import (QListView, QStyledItemDelegate,
                              QStyleOptionViewItem, QApplication, QStyle,
-                             QStyleOptionButton)
+                             QStyleOptionButton, QMenu, QAction)
 from PyQt5.QtGui import (QPixmap, QImage, QPainter, QColor, QPen, QBrush,
                          QFontMetrics)
 
@@ -43,7 +48,7 @@ from interprocess import (PublishPullPipelineManager,
     GenerateThumbnailsArguments, Device, GenerateThumbnailsResults)
 from constants import (DownloadStatus, Downloaded, FileType, FileExtension,
                        ThumbnailSize, ThumbnailCacheStatus, Roles)
-from storage import get_program_cache_directory
+from storage import get_program_cache_directory, gvfs_controls_mounts
 from utilities import (CacheDirs)
 
 class DownloadTypes:
@@ -88,6 +93,8 @@ class ThumbnailTableModel(QAbstractTableModel):
         self.rapidApp = parent
         """ :type : rapid.RapidWindow"""
         self.initialize()
+
+        self.gnome_env = gvfs_controls_mounts()
 
         self.thumbnailThread = QThread()
         self.thumbnailmq = ThumbnailManager(self.rapidApp.context)
@@ -178,7 +185,6 @@ class ThumbnailTableModel(QAbstractTableModel):
                          'date)s') % {'date': prev_date,
                                        'filename': prev_file_name,
                                        'path': path}
-
             return msg
         elif role == Roles.previously_downloaded:
             return rpd_file.previously_downloaded()
@@ -193,6 +199,13 @@ class ThumbnailTableModel(QAbstractTableModel):
                 return 'XMP'
             else:
                 return None
+        elif role== Roles.path:
+            if rpd_file.status in Downloaded:
+                return rpd_file.download_full_file_name
+            else:
+                return rpd_file.full_file_name
+        elif role == Roles.uri:
+            return rpd_file.get_uri(gnomify_output=self.gnome_env)
 
     def setData(self, index: QModelIndex, value, role: int):
         if not index.isValid():
@@ -591,6 +604,30 @@ class ThumbnailDelegate(QStyledItemDelegate):
         self.image_area_size = max(ThumbnailSize.width, ThumbnailSize.height)
         self.image_frame_bottom = self.vertical_margin + self.image_area_size
 
+        self.contextMenu = QMenu()
+        self.openInFileBrowserAct = self.contextMenu.addAction(
+            _('Open in File Browser...'))
+        self.openInFileBrowserAct.triggered.connect(
+            self.doOpenInFileBrowserAct)
+        self.copyPathAct = self.contextMenu.addAction(_('Copy Path'))
+        self.copyPathAct.triggered.connect(self.doCopyPathAction)
+        self.clickedIndex = None
+
+    def doCopyPathAction(self):
+        index = self.clickedIndex
+        if index:
+            path = index.model().data(index, Roles.path)
+            QApplication.clipboard().setText(path)
+
+    def doOpenInFileBrowserAct(self):
+        index = self.clickedIndex
+        if index:
+            uri = index.model().data(index, Roles.uri)
+            cmd = '{} {}'.format(self.parent().file_manager, uri)
+            logging.debug("Launching: %s", cmd)
+            args = shlex.split(cmd)
+            subprocess.Popen(args)
+
     def paint(self, painter: QPainter, option: QStyleOptionViewItem ,
               index:  QModelIndex):
         if index.column() == 0:
@@ -773,11 +810,15 @@ class ThumbnailDelegate(QStyledItemDelegate):
         #     return False
 
         download_status = model.data(index, Roles.download_status)
-        if download_status != DownloadStatus.not_downloaded:
-            return False
 
         if (event.type() == QEvent.MouseButtonRelease or event.type() ==
             QEvent.MouseButtonDblClick):
+            if event.button() == Qt.RightButton:
+                self.clickedIndex = index
+                globalPos = self.parent().thumbnailView.viewport().mapToGlobal(
+                    event.pos())
+                self.contextMenu.popup(globalPos)
+                return False
             if event.button() != Qt.LeftButton or not self.getCheckBoxRect(
                     option).contains(
                     event.pos()):
@@ -789,6 +830,9 @@ class ThumbnailDelegate(QStyledItemDelegate):
             if event.key() != Qt.Key_Space and event.key() != Qt.Key_Select:
                 return False
         else:
+            return False
+
+        if download_status != DownloadStatus.not_downloaded:
             return False
 
         # Change the checkbox-state
