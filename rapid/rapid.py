@@ -716,16 +716,42 @@ class RapidWindow(QMainWindow):
         else:
             return True
 
-    def startDownload(self, scan_id=None):
+    def startDownload(self, scan_id: int=None):
         """
         Start download, renaming and backup of files.
 
         :param scan_id: if specified, only files matching it will be
         downloaded
-        :type scan_id: int
         """
 
-        download_files = self.thumbnailModel.getFilesMarkedForDownload(scan_id)
+        self.download_files = self.thumbnailModel.getFilesMarkedForDownload(
+            scan_id)
+        camera_unmount_called = False
+        self.camera_unmounts_needed = set()
+        if self.gvfsControlsMounts:
+            for scan_id in self.download_files.camera_access_needed:
+                if self.download_files.camera_access_needed[scan_id]:
+                    device = self.devices[scan_id]
+                    model = device.camera_model
+                    port = device.camera_port
+                    if self.gvolumeMonitor.cameraMountPoint(
+                            model, port):
+                        self.camera_unmounts_needed.add((model, port))
+            if len(self.camera_unmounts_needed):
+                logging.debug("%s cameras need to be unmounted before the "
+                              "download begins",
+                              len(self.camera_unmounts_needed))
+                camera_unmount_called = True
+                for model, port in self.camera_unmounts_needed:
+                    self.gvolumeMonitor.unmountCamera(model, port,
+                                                      download_starting=True)
+
+        if not camera_unmount_called:
+            self.startDownloadPhase2()
+
+    def startDownloadPhase2(self):
+        download_files = self.download_files
+
         invalid_dirs = self.invalidDownloadFolders(
             download_files.download_types)
 
@@ -1710,14 +1736,24 @@ class RapidWindow(QMainWindow):
                 del self.cameras_to_unmount[port]
         return False
 
-    def cameraUnmounted(self, result, model, port):
-        assert self.cameras_to_unmount[port] == model
-        del self.cameras_to_unmount[port]
-        if result:
-            self.startCameraScan(model, port)
+    def cameraUnmounted(self, result, model, port, download_started):
+        if not download_started:
+            assert self.cameras_to_unmount[port] == model
+            del self.cameras_to_unmount[port]
+            if result:
+                self.startCameraScan(model, port)
+            else:
+                logging.debug("Not scanning %s because it could not be "
+                              "unmounted", model)
         else:
-            logging.debug("Not scanning %s because it could not be "
-                          "unmounted", model)
+            assert (model, port) in self.camera_unmounts_needed
+            if result:
+                self.camera_unmounts_needed.remove((model, port))
+                if not len(self.camera_unmounts_needed):
+                    self.startDownloadPhase2()
+            else:
+                #TODO report error to user!!
+                pass
 
     def searchForCameras(self):
         if self.prefs.device_autodetection:

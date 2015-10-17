@@ -161,7 +161,9 @@ class ScanWorker(WorkerInPublishPullPipeline):
             self.check_for_controller_directive()
 
             base_name, ext = os.path.splitext(name)
-            ext_lower = ext.lower()[1:]
+            # remove the period from the extension
+            ext = ext[1:]
+            ext_lower = ext.lower()
             file_type = rpdfile.file_type(ext_lower)
 
             if file_type is not None:

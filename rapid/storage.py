@@ -592,7 +592,7 @@ if have_gio:
         go unnoticed.
         """
 
-        cameraUnmounted = pyqtSignal(bool, str, str)
+        cameraUnmounted = pyqtSignal(bool, str, str, bool)
         cameraMounted = pyqtSignal()
         partitionMounted = pyqtSignal(str, list, bool)
         partitionUnmounted = pyqtSignal(str)
@@ -609,15 +609,10 @@ if have_gio:
             self.portSearch = re.compile(r'usb:([\d]+),([\d]+)')
             self.validMounts = validMounts
 
-        def unmountCamera(self, model: str, port: str) -> bool:
+        def cameraMountPoint(self, model: str, port: str) -> Gio.Mount:
             """
-            Unmount camera mounted on gvfs mount point, if it is
-            mounted. If not mounted, ignore.
-            :param model: model as returned by libgphoto2
-            :param port: port as returned by libgphoto2, in format like
-             usb:001,004
-             :return: True if an unmount operation has been initiated,
-             else returns False.
+            :return: the mount point of the camera, if it is mounted,
+             else None
             """
             p = self.portSearch.match(port)
             assert p is not None
@@ -632,14 +627,26 @@ if have_gio:
                     if pattern.match(folder_extract):
                         to_unmount = mount
                         break
+            return to_unmount
+
+        def unmountCamera(self, model: str, port: str, download_starting:
+                          bool=False) -> bool:
+            """
+            Unmount camera mounted on gvfs mount point, if it is
+            mounted. If not mounted, ignore.
+            :param model: model as returned by libgphoto2
+            :param port: port as returned by libgphoto2, in format like
+             usb:001,004
+            :return: True if an unmount operation has been initiated,
+             else returns False.
+            """
+            to_unmount = self.cameraMountPoint(model, port)
 
             if to_unmount is not None:
                 logging.debug("GIO: Attempting to unmount %s...", model)
                 to_unmount.unmount_with_operation(0,
-                                                  None,
-                                                  None,
-                                                  self.unmountCallback,
-                                                  (model, port))
+                      None, None, self.unmountCallback,
+                      (model, port, download_starting))
                 return True
 
             return False
@@ -654,17 +661,19 @@ if have_gio:
             :param result: result of the unmount process
             :param userData: model and port of the camera being
             unmounted, in the format of libgphoto2
-            :type userData: Tuple[str,str]
+            :type userData: Tuple[str,str,bool]
             """
             icon_names = self.getIconNames(mount)
             if mount.unmount_with_operation_finish(result):
                 logging.debug("...successfully unmounted {}".format(
                     userData[0]))
-                self.cameraUnmounted.emit(True, userData[0], userData[1])
+                self.cameraUnmounted.emit(True, userData[0], userData[1],
+                                          userData[2])
             else:
                 logging.debug("...failed to unmount {}".format(
                     userData[0]))
-                self.cameraUnmounted.emit(False, userData[0], userData[1])
+                self.cameraUnmounted.emit(False, userData[0], userData[1],
+                                          userData[2])
 
         def mountIsCamera(self, mount: Gio.Mount) -> str:
             """

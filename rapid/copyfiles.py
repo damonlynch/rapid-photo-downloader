@@ -37,6 +37,7 @@ from interprocess import (WorkerInPublishPullPipeline, CopyFilesArguments,
 from constants import FileType, DownloadStatus
 from utilities import (GenerateRandomFileName, create_temp_dirs)
 from rpdfile import RPDFile
+from storage import gvfs_controls_mounts, have_gio, GVolumeMonitor, ValidMounts
 
 from gettext import gettext as _
 
@@ -143,7 +144,6 @@ class CopyFilesWorker(WorkerInPublishPullPipeline, FileCopy):
 
     def __init__(self):
         super().__init__('CopyFiles')
-        # super(FileCopy)
 
     def cleanup_pre_stop(self):
         super().cleanup_pre_stop()
@@ -248,7 +248,6 @@ class CopyFilesWorker(WorkerInPublishPullPipeline, FileCopy):
             #     "copying %s",
             #     rpd_file.thm_full_name)
         return temp_full_name
-
 
     def do_work(self):
         args = pickle.loads(self.content)

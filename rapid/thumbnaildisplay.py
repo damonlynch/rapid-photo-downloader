@@ -57,7 +57,8 @@ class DownloadTypes:
         self.videos = False
 
 DownloadFiles = namedtuple('DownloadFiles', ['files', 'download_types',
-                                             'download_stats'])
+                                             'download_stats',
+                                             'camera_access_needed'])
 
 class DownloadStats:
     def __init__(self):
@@ -439,6 +440,9 @@ class ThumbnailTableModel(QAbstractTableModel):
                     download_stats[scan_id].no_videos += 1
                     download_stats[scan_id].videos_size_in_bytes += \
                         rpd_file.size
+                if rpd_file.from_camera and not rpd_file.cache_full_file_name:
+                    camera_access_needed[scan_id] = True
+
                 # Need to generate a thumbnail after a file has been renamed
                 # if large FDO Cache thumbnail does not exist or if the
                 # existing thumbnail has been marked as not suitable for the
@@ -452,6 +456,7 @@ class ThumbnailTableModel(QAbstractTableModel):
         files = defaultdict(list)
         download_types = DownloadTypes()
         download_stats = defaultdict(DownloadStats)
+        camera_access_needed = defaultdict(bool)
         generating_fdo_thumbs = self.rapidApp.prefs.save_fdo_thumbnails
         if scan_id is None:
             for unique_id in self.marked:
@@ -462,7 +467,8 @@ class ThumbnailTableModel(QAbstractTableModel):
                     addFile(unique_id)
 
         return DownloadFiles(files=files, download_types=download_types,
-                             download_stats=download_stats)
+                             download_stats=download_stats,
+                             camera_access_needed=camera_access_needed)
 
     def markDownloadPending(self, files):
         """
