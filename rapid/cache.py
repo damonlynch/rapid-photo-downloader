@@ -223,12 +223,14 @@ class BaseThumbnailCache(Cache):
             try:
                 if not os.path.exists(self.cache_dir):
                     os.makedirs(self.cache_dir, 0o700)
-                    logging.info("Created thumbnails cache %s", self.cache_dir)
+                    logging.debug("Created thumbnails cache %s",
+                                  self.cache_dir)
                 elif not os.path.isdir(self.cache_dir):
                     os.remove(self.cache_dir)
                     logging.warning("Removed file %s", self.cache_dir)
                     os.makedirs(self.cache_dir, 0o700)
-                    logging.info("Created thumbnails cache %s", self.cache_dir)
+                    logging.debug("Created thumbnails cache %s",
+                                  self.cache_dir)
             except:
                 logging.error("Failed to create Rapid Photo "
                               "Downloader thumbnail cache %s",

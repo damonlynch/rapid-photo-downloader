@@ -626,16 +626,16 @@ class RapidWindow(QMainWindow):
         pass
 
     def doCheckAllAction(self):
-        pass
+        self.thumbnailModel.checkAll(check_all=True)
 
     def doCheckAllPhotosAction(self):
-        pass
+        self.thumbnailModel.checkAll(check_all=True, file_type=FileType.photo)
 
     def doCheckAllVideosAction(self):
-        pass
+        self.thumbnailModel.checkAll(check_all=True, file_type=FileType.video)
 
     def doUncheckAllAction(self):
-        pass
+        self.thumbnailModel.checkAll(check_all=False)
 
     def doErrorLogAction(self):
         pass
@@ -2456,7 +2456,7 @@ if __name__ == "__main__":
          dest="extensions",
          help=_("list photo and video file extensions the program recognizes "
                 "and exit"))
-    parser.add_argument("--reset-settings", action="store_true", dest="reset",
+    parser.add_argument("--reset", action="store_true", dest="reset",
                  help=_("reset all program settings and caches and exit"))
 
     args = parser.parse_args()

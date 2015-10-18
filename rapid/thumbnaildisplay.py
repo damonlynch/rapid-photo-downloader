@@ -121,7 +121,7 @@ class ThumbnailTableModel(QAbstractTableModel):
         # Sort thumbnails based on the time the files were modified
         self.rows = SortedListWithKey(key=attrgetter('modification_time'))
         self.scan_index = defaultdict(list)
-        self.rpd_files = {}
+        self.rpd_files = {} # type: Dict[int, RPDFile]
 
         self.photo_icon = QPixmap(':/photo.png')
         self.video_icon = QPixmap(':/video.png')
@@ -225,15 +225,18 @@ class ThumbnailTableModel(QAbstractTableModel):
         unique_id = self.rows[row].id_value
         rpd_file = self.rpd_files[unique_id]
         if role == Qt.CheckStateRole:
-            if value:
-                self.marked.add(unique_id)
-            else:
-                self.marked.remove(unique_id)
-            self.dataChanged.emit(self.index(row,0),self.index(row,0))
+            self.setCheckedValue(value, unique_id, row)
             self.rapidApp.displayMessageInStatusBar(update_only_marked=True)
             self.rapidApp.setDownloadActionSensitivity()
             return True
         return False
+
+    def setCheckedValue(self, checked: bool, unique_id: str, row: int):
+        if checked:
+            self.marked.add(unique_id)
+        else:
+            self.marked.remove(unique_id)
+        self.dataChanged.emit(self.index(row,0),self.index(row,0))
 
     def insertRows(self, position, rows=1, index=QModelIndex()):
         self.beginInsertRows(QModelIndex(), position, position + rows - 1)
@@ -525,6 +528,18 @@ class ThumbnailTableModel(QAbstractTableModel):
                 if rpd_file.status == DownloadStatus.not_downloaded:
                     i += 1
         return i
+
+    def checkAll(self, check_all: bool, file_type: FileType=None):
+        for unique_id, rpd_file in self.rpd_files.items():
+            if (rpd_file.status == DownloadStatus.not_downloaded and
+                    ((check_all and unique_id not in self.marked) or
+                     (not check_all and unique_id in self.marked)) and (
+                      file_type is None or rpd_file.file_type==file_type)):
+                row = self.rowFromUniqueId(unique_id)
+                self.setCheckedValue(check_all, unique_id, row)
+
+        self.rapidApp.displayMessageInStatusBar(update_only_marked=True)
+        self.rapidApp.setDownloadActionSensitivity()
 
     def terminateThumbnailGeneration(self, scan_id: int) -> bool:
         """

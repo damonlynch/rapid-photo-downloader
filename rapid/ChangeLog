@@ -8,20 +8,24 @@ New features:
   - You can download from multiple cameras/smartphones simultaneously.
   - Please note Rapid Photo Downloader will automatically unmount the camera/
     smartphone so it can gain exclusive access to it using gphoto2. If you
-    attempt to mount it in another application while Rapid Photo Downloader is
-    accessing it (e.g. Gnome Files), the download could be interrupted.
+    attempt to mount it in another application (e.g. Gnome Files) while Rapid
+    Photo Downloader is accessing it, the download could be interrupted.
   - Please also note that the phone should be unlocked before running Rapid
     Photo Downloader, or else it will be inaccessible.
 * Remember files that have already been downloaded. You can still select
   previously downloaded files to download again, but they are unchecked by
   default, and their thumbnails are dimmed so you can differentiate them from
   files that are yet to be downloaded.
+* Right click on thumbnails to open the file in a file browswer or copy the
+  path
+* When downloading from a camera with dual memory cards, indicate which 
+  memory cards the photo or video is on  
 * Cache thumbnails generated when a device is scanned, making thumbnail
   generation quicker on subsequent scans.
 * Cache photos and videos on cameras and phones used to generate thumbnails,
   speeding up their download if they are downloaded in the same session.
 * Change the order in which thumbnails are generated, so that 
-  representative samples (based on time) are priortized. This is helpful when
+  representative samples (based on time) are prioritized. This is helpful when
   downloading thousands of files at a time or over slow USB 2.0 connections.
 * Generate freedesktop.org thumbnails for downloaded files, which means 
   RAW files will have thumbnails in programs like Gnome Files and KDE Dolphin.
