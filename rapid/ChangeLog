@@ -49,10 +49,11 @@ Missing features, still to be developed:
 * Program configuration (preferences) cannot yet adjusted though the Graphical
   User Interface (GUI). However they can be adjust manually using a text 
   editor.
+* Full size previews of files are unavailabe.
 * Clicking the eject icon by a device currently does nothing.
 * There is no error log window.
 * The GUI will not prompt for a Job Code before downloading.
-* Most menu items do nothing.
+* Some menu items do nothing.
 
 
 Version 0.4.11

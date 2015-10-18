@@ -601,9 +601,7 @@ class Thumbnail:
             logging.error(
                 "Unable to get thumbnail from %s for %s",
                 self.camera.model, self.rpd_file.full_file_name)
-
-        if self.rpd_file.extension in \
-                self.crop_thumbnails and thumbnail is not None:
+        else:
             thumbnail = self._crop_160x120_thumbnail(thumbnail, 8)
 
         if size is not None and thumbnail is not None:
