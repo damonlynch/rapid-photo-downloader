@@ -53,7 +53,9 @@ from PyQt5.QtCore import (QThread, Qt, QStorageInfo, QSettings, QPoint,
 from PyQt5.QtGui import (QIcon, QPixmap, QImage)
 from PyQt5.QtWidgets import (QAction, QApplication, QMainWindow, QMenu,
                              QPushButton, QWidget, QDialogButtonBox,
-        QProgressBar, QSplitter, QFileIconProvider, QHBoxLayout, QVBoxLayout)
+                             QProgressBar, QSplitter, QFileIconProvider,
+                             QHBoxLayout, QVBoxLayout, QDialog, QLabel,
+                             QComboBox, QGridLayout, QCheckBox)
 from PyQt5.QtNetwork import QLocalSocket, QLocalServer
 
 import qrc_resources
@@ -78,7 +80,7 @@ from preferences import (Preferences, ScanPreferences)
 from constants import (BackupLocationType, DeviceType, ErrorType,
                        FileType, DownloadStatus, RenameAndMoveStatus,
                        photo_rename_test, ApplicationState,
-                       PROGRAM_NAME)
+                       PROGRAM_NAME, job_code_rename_test)
 import constants
 from thumbnaildisplay import (ThumbnailView, ThumbnailTableModel,
     ThumbnailDelegate, DownloadTypes, DownloadStats)
@@ -218,6 +220,79 @@ class CopyFilesManager(PublishPullPipelineManager):
             self.tempDirs.emit(data.scan_id, data.photo_temp_dir,
                                data.video_temp_dir)
 
+class JobCodeDialog(QDialog):
+    def __init__(self, parent, job_codes: list):
+        super().__init__(parent)
+        self.rapidApp = parent # type: RapidWindow
+        instructionLabel = QLabel(_('Enter a new Job Code, or select a '
+                                    'previous one'))
+        self.jobCodeComboBox = QComboBox()
+        self.jobCodeComboBox.addItems(job_codes)
+        self.jobCodeComboBox.setEditable(True)
+        self.jobCodeComboBox.setInsertPolicy(QComboBox.InsertAtTop)
+        jobCodeLabel = QLabel(_('&Job Code:'))
+        jobCodeLabel.setBuddy(self.jobCodeComboBox)
+        self.rememberCheckBox = QCheckBox(_("&Remember this choice"))
+        self.rememberCheckBox.setChecked(parent.prefs.remember_job_code)
+        buttonBox = QDialogButtonBox(QDialogButtonBox.Ok|
+                                     QDialogButtonBox.Cancel)
+        grid = QGridLayout()
+        grid.addWidget(instructionLabel, 0, 0, 1, 2)
+        grid.addWidget(jobCodeLabel, 1, 0)
+        grid.addWidget(self.jobCodeComboBox, 1, 1)
+        grid.addWidget(self.rememberCheckBox, 2, 0, 1, 2)
+        grid.addWidget(buttonBox, 3, 0, 1, 2)
+        grid.setColumnStretch(1, 1)
+        self.setLayout(grid)
+        self.setWindowTitle(_('Enter a Job Code'))
+
+        buttonBox.accepted.connect(self.accept)
+        buttonBox.rejected.connect(self.reject)
+
+    def accept(self):
+        self.job_code = self.jobCodeComboBox.currentText()
+        self.remember = self.rememberCheckBox.isChecked()
+        self.rapidApp.prefs.remember_job_code = self.remember
+        super().accept()
+
+
+class JobCode:
+    def __init__(self, parent):
+        self.rapidApp = parent
+        self.job_code = ''
+        self.need_job_code_for_naming = parent.prefs.any_pref_uses_job_code()
+        self.prompting_for_job_code = False
+
+    def get_job_code(self):
+        if not self.prompting_for_job_code:
+            self.prompting_for_job_code = True
+            dialog = JobCodeDialog(self.rapidApp,
+                                   self.rapidApp.prefs.job_codes)
+            if dialog.exec():
+                self.prompting_for_job_code = False
+                job_code = dialog.job_code
+                if job_code:
+                    if dialog.remember:
+                        # If the job code is already in the
+                        # preference list, move it to the front
+                        job_codes = self.rapidApp.prefs.job_codes.copy()
+                        while job_code in job_codes:
+                            job_codes.remove(job_code)
+                        # Add the just chosen Job Code to the front
+                        self.rapidApp.prefs.job_codes = [job_code] + job_codes
+                    self.job_code = job_code
+                    self.rapidApp.startDownload()
+            else:
+                self.prompting_for_job_code = False
+
+
+    def need_to_prompt_on_auto_start(self):
+        return not self.job_code and self.need_job_code_for_naming
+
+    def need_to_prompt(self):
+        return self.need_job_code_for_naming and not \
+            self.prompting_for_job_code
+
 
 class RapidWindow(QMainWindow):
     def __init__(self, auto_detect: bool=None, device_location: str=None,
@@ -250,7 +325,8 @@ class RapidWindow(QMainWindow):
         # self.prefs.device_autodetection = False
         # self.prefs.device_location = \
         #     '/data/Photos/Sample CR2/screenshots renamed'
-        self.prefs.photo_rename = photo_rename_test
+        # self.prefs.photo_rename = photo_rename_test
+        self.prefs.photo_rename = job_code_rename_test
         self.prefs.backup_files = True
         self.prefs.backup_device_autodetection = True
         self.prefs.photo_backup_identifier = 'photos-backup'
@@ -334,6 +410,8 @@ class RapidWindow(QMainWindow):
 
         self.validMounts = ValidMounts(
             onlyExternalMounts=self.prefs.only_external_mounts)
+
+        self.job_code = JobCode(self)
 
         desktop_env = get_desktop_environment()
         self.unity_progress = desktop_env.lower() == 'unity' and have_unity
@@ -672,11 +750,8 @@ class RapidWindow(QMainWindow):
             logging.debug("Download activated")
 
             if self.download_action_is_download:
-                if False:#self.need_job_code_for_naming and not \
-                        #self.prompting_for_job_code:
-
-                    #self.get_job_code()
-                    pass
+                if self.job_code.need_to_prompt():
+                    self.job_code.get_job_code()
                 else:
                     self.startDownload()
             else:
@@ -789,7 +864,7 @@ class RapidWindow(QMainWindow):
                             "backing up %(filetype)s") % {'filetype': _(
                             'videos')}
 
-                self.log_error(ErrorType.warning, _("Backup problem"), msg)
+                self.logError(ErrorType.warning, _("Backup problem"), msg)
 
             # set time download is starting if it is not already set
             # it is unset when all downloads are completed
@@ -946,6 +1021,7 @@ class RapidWindow(QMainWindow):
         self.download_tracker.set_download_count(rpd_file.scan_id,
                                                  download_count)
         rpd_file.download_start_time = self.download_start_time
+        rpd_file.job_code = self.job_code.job_code
         data = RenameAndMoveFileData(rpd_file=rpd_file,
                                      download_count=download_count,
                                      download_succeeded=download_succeeded)
@@ -1209,7 +1285,7 @@ class RapidWindow(QMainWindow):
                 self.setDownloadActionLabel(is_download=True)
                 self.setDownloadActionSensitivity()
 
-                self.job_code = ''
+                self.job_code.job_code = ''
                 self.download_start_time = None
 
     def updateTimeRemaining(self):
@@ -1493,29 +1569,20 @@ class RapidWindow(QMainWindow):
         :param downloading: the types of file that will be downloaded
         :return: None if no problems, or BackupMissing
         """
-        backup_missing = BackupMissing(False, False)
+        photo_missing = video_missing = False
         if self.prefs.backup_files and \
                 self.prefs.backup_device_autodetection:
-            if downloading.photos and not self.backupPossible(
+            if downloading.photos and not self.backup_devices.backup_possible(
                     FileType.photo):
-                backup_missing.photo = True
-            if downloading.videos and not self.backupPossible(
+                photo_missing = True
+            if downloading.videos and not self.backup_devices.backup_possible(
                     FileType.video):
-                backup_missing.video = True
-            if not (backup_missing.photo and backup_missing.video):
+                video_missing = True
+            if not(photo_missing or video_missing):
                 return None
             else:
-                return backup_missing
+                return BackupMissing(photo=photo_missing, video=video_missing)
         return None
-
-    def backupPossible(self, file_type: FileType) -> bool:
-        #TODO implement backup device monitoring
-        if file_type == FileType.photo:
-            return True
-            # return self.no_photo_backup_devices > 0
-        assert file_type == FileType.video
-        return True
-            # return self.no_video_backup_devices > 0
 
     def scanMessageReceived(self, rpd_file: RPDFile):
         # Update scan running totals
@@ -1548,9 +1615,8 @@ class RapidWindow(QMainWindow):
                         scan_id], self.prefs.thumbnail_quality_lower)
         elif self.auto_start_is_on:
             #TODO implement get job code
-            if False: #self.need_job_code_for_naming and not self.job_code:
-                pass
-                #self.get_job_code()
+            if self.job_code.need_to_prompt_on_auto_start():
+                self.job_code.get_job_code()
             else:
                 self.startDownload(scan_id=scan_id)
 

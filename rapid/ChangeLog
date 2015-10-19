@@ -18,8 +18,9 @@ New features:
   files that are yet to be downloaded.
 * Right click on thumbnails to open the file in a file browswer or copy the
   path
-* When downloading from a camera with dual memory cards, indicate which 
-  memory cards the photo or video is on  
+* When downloading from a camera with dual memory cards, an emblem beneath the
+  thumbnail indicates which memory cards the photo or video is on  
+* When choosing a Job Code, you specify whether to remember the choice or not.
 * Cache thumbnails generated when a device is scanned, making thumbnail
   generation quicker on subsequent scans.
 * Cache photos and videos on cameras and phones used to generate thumbnails,
@@ -49,6 +50,7 @@ Missing features, still to be developed:
 * Program configuration (preferences) cannot yet adjusted though the Graphical
   User Interface (GUI). However they can be adjust manually using a text 
   editor.
+* Selecting multiple thumbnails does not work.
 * Full size previews of files are unavailabe.
 * Clicking the eject icon by a device currently does nothing.
 * There is no error log window.

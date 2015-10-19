@@ -274,6 +274,7 @@ class Preferences:
                                       _('Moscow'),  _('Delhi'), _('Warsaw'),
                                       _('Jakarta'),  _('Madrid'),
                                       _('Stockholm')],
+                           remember_job_code=True,
                           )
     device_defaults = dict(only_external_mounts=True,
                            device_autodetection=True,

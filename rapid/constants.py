@@ -123,3 +123,7 @@ photo_rename_test = ['Date time','Image date','YYYYMMDD','Text','-','',
                      'Aperture','','Text','-','','Metadata','Focal length','',
                      'Text','mm-','','Metadata','Exposure time','',
                      'Filename','Extension','lowercase']
+
+job_code_rename_test = ['Job code','', '', 'Sequences',
+                    'Downloads today','One digit', 'Filename','Extension',
+                        'lowercase']
