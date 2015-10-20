@@ -16,8 +16,10 @@ New features:
   previously downloaded files to download again, but they are unchecked by
   default, and their thumbnails are dimmed so you can differentiate them from
   files that are yet to be downloaded.
+* Tooltips display information about the file including name, modification
+  time and file size.
 * Right click on thumbnails to open the file in a file browswer or copy the
-  path
+  path.
 * When downloading from a camera with dual memory cards, an emblem beneath the
   thumbnail indicates which memory cards the photo or video is on  
 * When choosing a Job Code, you specify whether to remember the choice or not.
@@ -54,7 +56,6 @@ Missing features, still to be developed:
 * Full size previews of files are unavailabe.
 * Clicking the eject icon by a device currently does nothing.
 * There is no error log window.
-* The GUI will not prompt for a Job Code before downloading.
 * Some menu items do nothing.
 
 

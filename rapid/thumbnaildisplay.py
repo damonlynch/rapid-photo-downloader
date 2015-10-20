@@ -31,6 +31,11 @@ import logging
 from gettext import gettext as _
 
 from sortedcontainers import SortedListWithKey
+try:
+    import arrow.arrow
+    have_arrow = True
+except ImportError:
+    have_arrow = False
 
 from PyQt5.QtCore import  (QAbstractTableModel, QModelIndex, Qt, pyqtSignal,
     QThread, QTimer, QSize, QRect, QEvent, QPoint, QMargins)
@@ -164,10 +169,20 @@ class ThumbnailTableModel(QAbstractTableModel):
         elif role == Qt.ToolTipRole:
             file_name = self.file_names[unique_id]
             size = self.rapidApp.formatSizeForUser(rpd_file.size)
-            modification_time = datetime.datetime.fromtimestamp(
-                rpd_file.modification_time)
-            modification_time = modification_time.strftime('%c')
-            msg = '{}\n{}\n{}'.format(file_name, modification_time, size)
+            if not have_arrow:
+                mtime = datetime.datetime.fromtimestamp(
+                    rpd_file.modification_time)
+                humanized_modification_time = mtime.strftime('%c')
+            else:
+                mtime = arrow.get(rpd_file.modification_time)
+                humanized_modification_time = _(
+                    '%(modification_time)s (%(human_readable)s)' %
+                    {'modification_time': mtime.to('local').naive.strftime(
+                        '%c'),
+                     'human_readable': mtime.humanize()})
+
+            msg = '{}\n{}\n{}'.format(file_name,
+                                      humanized_modification_time, size)
 
             if rpd_file.camera_memory_card_identifiers:
                 cards = _('Memory cards: %s') % makeInternationalizedList(
