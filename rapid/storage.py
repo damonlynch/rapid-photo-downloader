@@ -55,6 +55,7 @@ import shlex
 from PyQt5.QtCore import (QStorageInfo, QObject, pyqtSignal)
 from gi.repository import GUdev, UDisks, GLib
 from xdg.DesktopEntry import DesktopEntry
+from xdg import BaseDirectory
 
 logging_level = logging.DEBUG
 logging.basicConfig(format='%(levelname)s:%(asctime)s:%(message)s',
@@ -322,9 +323,7 @@ def get_program_data_directory(create_if_not_exist=False) -> str:
         return None
 
 def get_fdo_cache_thumb_base_directory() -> str:
-    path = get_xdg_directory(env_variable='XDG_CACHE_HOME',
-                               default_dir='.cache')
-    return os.path.join(path, 'thumbnails')
+    return os.path.join(BaseDirectory.xdg_cache_home, 'thumbnails')
 
 def get_default_file_manager(remove_args=True) -> str:
     """

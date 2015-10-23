@@ -26,6 +26,7 @@ import logging
 import mimetypes
 from collections import Counter
 from urllib.request import pathname2url
+import locale
 
 import exiftool
 from gettext import gettext as _
@@ -34,7 +35,7 @@ from constants import (DownloadStatus, FileType, FileExtension,
                        ThumbnailCacheStatus, Downloaded)
 import metadataphoto
 import metadatavideo
-from sql import FileDownloaded
+from utilities import thousands
 
 import problemnotification as pn
 
@@ -198,7 +199,7 @@ class FileTypeCounter(Counter):
         """
         file_types_present = self.file_types_present()
         file_count_summary = _("%(number)s %(filetypes)s") % \
-                              {'number': sum(self.values()),
+                              {'number': thousands(sum(self.values())),
                                'filetypes': file_types_present}
         return (file_count_summary, file_types_present)
 
@@ -209,8 +210,8 @@ class FileTypeCounter(Counter):
         :return some variaton of 'scanning (found 6 photos and 3 videos)...'
         """
         return _("scanning (found %(photos)s photos and %(videos)s videos)...") \
-               % ({'photos': self[FileType.photo], 'videos': self[
-            FileType.video]})
+               % ({'photos': thousands(self[FileType.photo]),
+                   'videos': thousands(self[FileType.video])})
 
 class RPDFile:
     """
@@ -350,6 +351,12 @@ class RPDFile:
         :return:True if the image is a jpeg image
         """
         return self.mime_type == 'image/jpeg'
+
+    def is_loadable(self) -> bool:
+        """
+        :return: True if the image can be loaded directly using Qt
+        """
+        return self.mime_type in ['image/jpeg', 'image/tiff']
 
     def is_raw(self) -> bool:
         """

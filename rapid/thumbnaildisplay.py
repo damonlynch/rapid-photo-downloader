@@ -31,11 +31,8 @@ import logging
 from gettext import gettext as _
 
 from sortedcontainers import SortedListWithKey
-try:
-    import arrow.arrow
-    have_arrow = True
-except ImportError:
-    have_arrow = False
+import arrow.arrow
+from dateutil.tz import tzlocal
 
 from PyQt5.QtCore import  (QAbstractTableModel, QModelIndex, Qt, pyqtSignal,
     QThread, QTimer, QSize, QRect, QEvent, QPoint, QMargins)
@@ -54,7 +51,9 @@ from interprocess import (PublishPullPipelineManager,
 from constants import (DownloadStatus, Downloaded, FileType, FileExtension,
                        ThumbnailSize, ThumbnailCacheStatus, Roles)
 from storage import get_program_cache_directory, gvfs_controls_mounts
-from utilities import (CacheDirs, makeInternationalizedList)
+from utilities import (CacheDirs, make_internationalized_list)
+from proximity import TemporalProximityGroups
+
 
 class DownloadTypes:
     def __init__(self):
@@ -95,7 +94,7 @@ class ThumbnailManager(PublishPullPipelineManager):
 
 class ThumbnailTableModel(QAbstractTableModel):
     def __init__(self, parent):
-        super(ThumbnailTableModel, self).__init__(parent)
+        super().__init__(parent)
         self.rapidApp = parent
         """ :type : rapid.RapidWindow"""
         self.initialize()
@@ -158,7 +157,8 @@ class ThumbnailTableModel(QAbstractTableModel):
         """:type : RPDFile"""
 
         if role == Qt.DisplayRole:
-            return self.file_names[unique_id]
+            # This is never displayed, but it is used for filtering!
+            return unique_id
         elif role == Qt.DecorationRole:
             return self.thumbnails[unique_id]
         elif role == Qt.CheckStateRole:
@@ -169,23 +169,19 @@ class ThumbnailTableModel(QAbstractTableModel):
         elif role == Qt.ToolTipRole:
             file_name = self.file_names[unique_id]
             size = self.rapidApp.formatSizeForUser(rpd_file.size)
-            if not have_arrow:
-                mtime = datetime.datetime.fromtimestamp(
-                    rpd_file.modification_time)
-                humanized_modification_time = mtime.strftime('%c')
-            else:
-                mtime = arrow.get(rpd_file.modification_time)
-                humanized_modification_time = _(
-                    '%(modification_time)s (%(human_readable)s)' %
-                    {'modification_time': mtime.to('local').naive.strftime(
-                        '%c'),
-                     'human_readable': mtime.humanize()})
+
+            mtime = arrow.get(rpd_file.modification_time)
+            humanized_modification_time = _(
+                '%(date_time)s (%(human_readable)s)' %
+                {'date_time': mtime.to('local').naive.strftime(
+                    '%c'),
+                 'human_readable': mtime.humanize()})
 
             msg = '{}\n{}\n{}'.format(file_name,
                                       humanized_modification_time, size)
 
             if rpd_file.camera_memory_card_identifiers:
-                cards = _('Memory cards: %s') % makeInternationalizedList(
+                cards = _('Memory cards: %s') % make_internationalized_list(
                     rpd_file.camera_memory_card_identifiers)
                 msg += '\n' + cards
 
@@ -196,10 +192,14 @@ class ThumbnailTableModel(QAbstractTableModel):
                     'path': path}
 
             if rpd_file.previously_downloaded():
-                if isinstance(rpd_file.prev_datetime, datetime.datetime):
-                    prev_date = rpd_file.prev_datetime.strftime('%c')
-                else:
-                    prev_date = rpd_file.prev_datetime
+
+                prev_datetime = arrow.get(rpd_file.prev_datetime,
+                                          tzlocal())
+                prev_date = _('%(date_time)s (%(human_readable)s)' %
+                {'date_time': prev_datetime.naive.strftime(
+                    '%c'),
+                 'human_readable': prev_datetime.humanize()})
+
                 path, prev_file_name = os.path.split(rpd_file.prev_full_name)
                 path += os.sep
                 msg += _('\n\nPrevious download:\n%(filename)s\n%(path)s\n%('
@@ -333,7 +333,7 @@ class ThumbnailTableModel(QAbstractTableModel):
             else:
                 return os.path.expanduser('~')
 
-    def get_cache_locations(self) -> CacheDirs:
+    def getCacheLocations(self) -> CacheDirs:
         photo_cache_folder = self._get_cache_location(
             self.rapidApp.prefs.photo_download_folder, is_photo_dir=True)
         video_cache_folder = self._get_cache_location(
@@ -353,7 +353,7 @@ class ThumbnailTableModel(QAbstractTableModel):
                 self.total_thumbs_to_generate)
             rpd_files = list((self.rpd_files[unique_id] for unique_id in
                          self.scan_index[scan_id]))
-            cache_dirs = self.get_cache_locations()
+            cache_dirs = self.getCacheLocations()
 
             generate_arguments = GenerateThumbnailsArguments(scan_id,
                                  rpd_files,
@@ -597,6 +597,11 @@ class ThumbnailTableModel(QAbstractTableModel):
             if rpd_file.status == DownloadStatus.not_downloaded:
                 return True
         return False
+
+    def groupFilesByTemporalProximity(self, seconds: int=3600):
+        groups = TemporalProximityGroups(self.rows, seconds)
+        logging.debug("Found %s groups", len(groups))
+        return groups
 
 
 class ThumbnailView(QListView):

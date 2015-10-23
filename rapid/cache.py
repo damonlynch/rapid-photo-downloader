@@ -24,7 +24,8 @@ Rapid Photo Downloader deals with three types of cache:
 
 1. An image cache whose sole purpose is to store thumbnails of scanned files
    that have not necessarily been downloaded, but may have. This is only used
-   by Rapid Photo Downloader.
+   by Rapid Photo Downloader. It's needed because it's important to save
+   thumbnails that are not degraded by image resizing.
    Name: Thumbnail Cache
    Location: /home/USER/.cache/rapid-photo-downloader/thumbnails/normal
    (Actual location may vary depending on value of environment variable
@@ -53,25 +54,62 @@ import hashlib
 from urllib.request import pathname2url
 import time
 import shutil
+from collections import namedtuple
 
+from PyQt5.QtCore import QSize
 from PyQt5.QtGui import QImage
 
 from storage import get_program_cache_directory, get_fdo_cache_thumb_base_directory
 from utilities import GenerateRandomFileName
+from constants import ThumbnailCacheDiskStatus
 
 logging.basicConfig(format='%(levelname)s:%(asctime)s:%(message)s',
                     datefmt='%H:%M:%S',
                     level=logging.DEBUG)
 
+GetThumbnail = namedtuple('GetThumbnail', 'disk_status thumbnail path')
+
 class Cache:
-    def __init__(self, cache_dir):
+    """
+    Base class with which to write and read cache thumbnails.
+    Creates fail directory if it doesn't exist, but does not create
+    regular cache directory.
+    """
+    def __init__(self, cache_dir, failure_dir):
+        """
+        :param cache_dir: full path of the directory into which
+         thumbnails will be saved / read
+        :param failure_dir: full path of the directory into which
+         failed thumbnails will be saved / read (thumbnails that could
+         not be generated)
+        """
         assert sys.platform.startswith('linux')
         self.cache_dir = cache_dir
-        self.valid = self.cache_dir is not None
+        self.failure_dir = failure_dir
+        self.valid = self.cache_dir is not None and self.failure_dir is not \
+                                                    None
         if self.valid:
             self.random_filename = GenerateRandomFileName()
             self.fs_encoding = sys.getfilesystemencoding()
-        else:
+
+            try:
+                if not os.path.exists(self.failure_dir):
+                    os.makedirs(self.failure_dir, 0o700)
+                    logging.debug("Created thumbnails failure cache %s",
+                                  self.failure_dir)
+                elif not os.path.isdir(self.failure_dir):
+                    os.remove(self.failure_dir)
+                    logging.warning("Removed file %s", self.failure_dir)
+                    os.makedirs(self.failure_dir, 0o700)
+                    logging.debug("Created thumbnails failure cache %s",
+                                  self.failure_dir)
+            except:
+                logging.error("Failed to create Rapid Photo "
+                              "Downloader thumbnail cache at %s",
+                              self.failure_dir)
+                self.valid = False
+
+        if not self.valid:
             self.random_filename = self.fs_encoding = None
 
     def md5_hash_name(self, full_file_name: str, camera_model: str=None) -> \
@@ -90,7 +128,8 @@ class Cache:
             self.fs_encoding)).hexdigest()), uri)
 
     def save_thumbnail(self, full_file_name: str, size: int,
-                       modification_time, thumbnail: QImage,
+                       modification_time, generation_failed: bool,
+                       thumbnail: QImage,
                        camera_model: str=None,
                        free_desktop_org: bool=False) -> str:
         """
@@ -101,8 +140,12 @@ class Cache:
         :param size: size of the file in bytes
         :param modification_time: file modification time, to be turned
          into a float if it's not already
+        :param generation_failed: True if the thumbnail is meant to
+         signify the application failed to generate the thumbnail. If
+         so, it will be saved as an empty PNG in the application
+         subdirectory in the fail cache directory.
         :param thumbnail: the thumbnail to be saved. Will not be
-         resized.
+         resized. Will be ignored if generation_failed is True.
         :param camera_model: optional camera model. If the thumbnail is
          not from a camera, then should be None.
         :param free_desktop_org: if True, then image will be convereted
@@ -114,70 +157,95 @@ class Cache:
             return None
 
         md5_name, uri = self.md5_hash_name(full_file_name, camera_model)
-        path = os.path.join(self.cache_dir, md5_name)
+        if generation_failed:
+            thumbnail = QImage(QSize(1,1), QImage.Format_Indexed8)
+            save_dir = self.failure_dir
+        else:
+            save_dir = self.cache_dir
+        path = os.path.join(save_dir, md5_name)
+
         thumbnail.setText('Thumb::URI', uri)
         thumbnail.setText('Thumb::MTime', str(float(modification_time)))
         thumbnail.setText('Thumb::Size', str(size))
 
-        if free_desktop_org:
+        if free_desktop_org and not generation_failed:
             if thumbnail.depth() != 8:
                 thumbnail = thumbnail.convertToFormat(QImage.Format_Indexed8)
-        temp_path = os.path.join(self.cache_dir, self.random_filename.name(
+
+        temp_path = os.path.join(save_dir, self.random_filename.name(
             extension='png'))
         if thumbnail.save(temp_path):
             os.rename(temp_path, path)
             os.chmod(path, 0o600)
-            # logging.debug("Wrote {}x{} thumbnail {} for {}".format(
-            #     thumbnail.width(), thumbnail.height(), path, uri))
+            if generation_failed:
+                logging.debug("Wrote {}x{} thumbnail {} for {}".format(
+                    thumbnail.width(), thumbnail.height(), path, uri))
             return path
         else:
             return None
 
-    def get_thumbnail(self, full_file_name: str, modification_time,
-                      camera_model: str=None) -> (QImage, str):
+    def get_thumbnail(self, full_file_name: str, modification_time, size: int,
+                      camera_model: str=None) -> GetThumbnail:
         """
         Attempt to retrieve a thumbnail from the thumbnail cache.
         :param full_file_name: full path of the file (including file
         name). Will be turned into an absolute path if it is a file
         system path
+        :param size: size of the file in bytes
         :param modification_time: file modification time, to be turned
          into a float if it's not already
         :param camera_model: optional camera model. If the thumbnail is
          not from a camera, then should be None.
-        :return a tuple of (1) the thumbnail if it was found, else None,
-         and (2) the path, else None
+        :return a GetThumbnail tuple of (1) ThumbnailCacheDiskStatus,
+         to indicate whether the thumbnail was found, a failure, or
+         missing (2) the thumbnail as QImage, if found (or None), and
+         (3) the path, else None,
         """
 
+        def _get_thumbnail():
+            if os.path.exists(path):
+                png = QImage(path)
+                if not png.isNull():
+                    try:
+                        mtime = float(png.text('Thumb::MTime'))
+                        thumb_size = int(png.text('Thumb::Size'))
+                    except ValueError:
+                        return None
+                    if (mtime == float(modification_time) and
+                            thumb_size == size):
+                        return png
+            return None
+
         if not self.valid:
-            return (None, None)
+            return GetThumbnail(ThumbnailCacheDiskStatus.not_foud, None, None)
         md5_name, uri = self.md5_hash_name(full_file_name, camera_model)
         path = os.path.join(self.cache_dir, md5_name)
-        if os.path.exists(path):
-            png = QImage(path)
-            if not png.isNull():
-                mtime = float(png.text('Thumb::MTime'))
-                if mtime == float(modification_time):
-                    return (png, path)
-        return (None, None)
+        png = _get_thumbnail()
+        if png is not None:
+            return GetThumbnail(ThumbnailCacheDiskStatus.found,
+                                        png, path)
+        path = os.path.join(self.failure_dir, md5_name)
+        png = _get_thumbnail()
+        if png is not None:
+            return GetThumbnail(ThumbnailCacheDiskStatus.failure, None, None)
+        return GetThumbnail(ThumbnailCacheDiskStatus.not_foud, None, None)
 
     def modify_existing_thumbnail_and_save_copy(self,
                               existing_cache_thumbnail: str,
                               full_file_name: str, modification_time,
-                              size: int) -> str:
-        thumbnail = QImage(existing_cache_thumbnail)
-        # try:
-        #     os.remove(existing_cache_thumbnail)
-        # except:
-        #     logging.warning("Failed to remove thumbnail %s",
-        #                     existing_cache_thumbnail)
-        if not thumbnail.isNull():
-            return self.save_thumbnail(full_file_name, size, modification_time,
-                            thumbnail, None, False)
+                              size: int, generation_failed: bool) -> str:
+        if generation_failed:
+            #TODO account for failure here
+            pass
         else:
-            return None
-
-
-
+            thumbnail = QImage(existing_cache_thumbnail)
+            if not thumbnail.isNull():
+                return self.save_thumbnail(full_file_name=full_file_name,
+                       size=size, modification_time=modification_time,
+                       generation_failed=False, thumbnail=thumbnail,
+                       camera_model=None, free_desktop_org=False)
+            else:
+                return None
 
     def delete_thumbnail(self, full_file_name: str, camera_model: str=None):
         """
@@ -189,25 +257,32 @@ class Cache:
         path = os.path.join(self.cache_dir, md5_name)
         if os.path.isfile(path):
             os.remove(path)
+        else:
+            path = os.path.join(self.failure_dir, md5_name)
+            if os.path.isfile(path):
+                os.remove(path)
 
 
 class FdoCacheNormal(Cache):
     """
     Freedesktop.org thumbnail cache for thumbnails <= 128x128
     """
-    def __init__(self, path=None):
-        if path is None:
-            path = os.path.join(get_fdo_cache_thumb_base_directory(), 'normal')
-        super().__init__(path)
+    def __init__(self):
+        path = get_fdo_cache_thumb_base_directory()
+        cache_dir = os.path.join(path, 'normal')
+        failure_dir = os.path.join(path, 'fail/rapid-photo-downloader')
+        super().__init__(cache_dir, failure_dir)
 
 
-class FdoCacheLarge(FdoCacheNormal):
+class FdoCacheLarge(Cache):
     """
     Freedesktop.org thumbnail cache for thumbnails > 128x128 & <= 256x256
     """
     def __init__(self):
-        path = os.path.join(get_fdo_cache_thumb_base_directory(), 'large')
-        super().__init__(path)
+        path = get_fdo_cache_thumb_base_directory()
+        cache_dir = os.path.join(path, 'large')
+        failure_dir = os.path.join(path, 'fail/rapid-photo-downloader')
+        super().__init__(cache_dir, failure_dir)
 
 
 class BaseThumbnailCache(Cache):
@@ -215,9 +290,10 @@ class BaseThumbnailCache(Cache):
     Creates a thumbnail cache in the Rapid Photo Downloader cache
     directory. Saves and checks for presence of thumbnails in it.
     """
-    def __init__(self, cache_subfolder):
+    def __init__(self, cache_subfolder, failure_subfolder):
         cache_dir = get_program_cache_directory(create_if_not_exist=True)
-        super().__init__(cache_dir)
+        failure_dir = os.path.join(cache_dir, failure_subfolder)
+        super().__init__(cache_dir, failure_dir)
         if self.valid:
             self.cache_dir = os.path.join(self.cache_dir, cache_subfolder)
             try:
@@ -233,8 +309,8 @@ class BaseThumbnailCache(Cache):
                                   self.cache_dir)
             except:
                 logging.error("Failed to create Rapid Photo "
-                              "Downloader thumbnail cache %s",
-                              self.cache_dir)
+                              "Downloader thumbnail cache at %s",
+                              cache_dir)
                 self.valid = False
                 self.cache_dir = None
                 self.random_filename = None
@@ -247,26 +323,29 @@ class BaseThumbnailCache(Cache):
         if self.valid:
             i = 0
             now = time.time()
-            for f in os.listdir(self.cache_dir):
-                png = os.path.join(self.cache_dir, f)
-                if (os.path.isfile(png) and
-                                        os.path.getatime(png) < now - 2592000):
-                    os.remove(png)
-                    i += 1
-            if i:
-                logging.debug('Deleted {} thumbnail files that had not been '
-                          'accessed for 30 or more days'.format(i))
+            for cache_dir in (self.cache_dir, self.failure_dir):
+                for f in os.listdir(cache_dir ):
+                    png = os.path.join(cache_dir , f)
+                    if (os.path.isfile(png) and
+                            os.path.getatime(png) < now - 2592000):
+                        os.remove(png)
+                        i += 1
+                if i:
+                    logging.debug('Deleted {} thumbnail files that had not been '
+                              'accessed for 30 or more days'.format(i))
 
     def purge_cache(self):
         """
         Delete the entire cache of all contents and remvoe the
         directory
         """
-        if self.valid and self.cache_dir is not None:
-            if os.path.isdir(self.cache_dir):
+        if self.valid:
+            if self.cache_dir is not None and os.path.isdir(self.cache_dir):
                 shutil.rmtree(self.cache_dir)
+            if self.failure_dir is not None and os.path.isdir(self.failure_dir):
+                shutil.rmtree(self.failure_dir)
 
 
 class ThumbnailCache(BaseThumbnailCache):
     def __init__(self):
-        super().__init__('thumbnails/normal')
+        super().__init__('thumbnails/normal', 'thumbnails/fail')

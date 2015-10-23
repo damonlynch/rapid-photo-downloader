@@ -9,6 +9,8 @@ Rapid Photo Downloader requires the following software:
 * Python3-sortedcontainers
 * Python3-xdg
 * Python3-arrow
+* Python3-dateutil
+* Qt 5 Image Formats module
 * Python 3 bindings for gobject-introspection libraries
 * GObject-based wrapper around the Exiv2 library introspection data
 * GObject based library to access udisks2 introspection data
@@ -25,6 +27,8 @@ python3-zmq
 python3-psutil
 python3-xdg
 python3-arrow
+python3-dateutil
+qt5-image-formats-plugins
 gir1.2-gudev
 gir1.2-udisks
 gir1.2-gexiv2

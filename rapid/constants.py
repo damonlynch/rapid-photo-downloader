@@ -65,6 +65,12 @@ class ThumbnailCacheStatus(Enum):
     from_rpd_cache_fdo_write_invalid = 2
     suitable_for_thumb_cache_write = 3
     suitable_for_fdo_cache_write = 4
+    generation_failed=5
+
+class ThumbnailCacheDiskStatus(Enum):
+    found = 1
+    not_foud = 2
+    failure = 3
 
 class BackupLocationType(Enum):
     photos = 1

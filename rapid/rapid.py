@@ -29,7 +29,8 @@ import sys
 import logging
 import shutil
 import datetime
-import os
+import locale
+locale.setlocale(locale.LC_ALL, '')
 import pickle
 import inspect
 from collections import namedtuple
@@ -49,7 +50,8 @@ import zmq
 import gphoto2 as gp
 from PyQt5 import QtCore, QtWidgets, QtGui
 from PyQt5.QtCore import (QThread, Qt, QStorageInfo, QSettings, QPoint,
-                          QSize, QTimer, QTextStream)
+                          QSize, QTimer, QTextStream, QSortFilterProxyModel,
+                          QRegExp)
 from PyQt5.QtGui import (QIcon, QPixmap, QImage)
 from PyQt5.QtWidgets import (QAction, QApplication, QMainWindow, QMenu,
                              QPushButton, QWidget, QDialogButtonBox,
@@ -85,8 +87,8 @@ import constants
 from thumbnaildisplay import (ThumbnailView, ThumbnailTableModel,
     ThumbnailDelegate, DownloadTypes, DownloadStats)
 from devicedisplay import (DeviceTableModel, DeviceView, DeviceDelegate)
-from utilities import (same_file_system, makeInternationalizedList,
-                       human_readable_version)
+from utilities import (same_file_system, make_internationalized_list,
+                       human_readable_version, thousands)
 from rpdfile import (RPDFile, file_types_by_number, PHOTO_EXTENSIONS,
                      VIDEO_EXTENSIONS)
 import downloadtracker
@@ -338,7 +340,9 @@ class RapidWindow(QMainWindow):
 
         self.thumbnailView = ThumbnailView()
         self.thumbnailModel = ThumbnailTableModel(self)
-        self.thumbnailView.setModel(self.thumbnailModel)
+        self.thumbnailProxyModel = QSortFilterProxyModel(self)
+        self.thumbnailProxyModel.setSourceModel(self.thumbnailModel)
+        self.thumbnailView.setModel(self.thumbnailProxyModel)
         self.thumbnailView.setItemDelegate(ThumbnailDelegate(self))
 
         # Devices are cameras and partitions
@@ -1190,15 +1194,15 @@ class RapidWindow(QMainWindow):
             # e.g.: 3 of 205 photos and videos (202 remaining)
             progress_bar_text = _("%(number)s of %(total)s %(filetypes)s (%("
                                   "remaining)s remaining)") % {
-                                  'number':  files_downloaded,
-                                  'total': files_to_download,
+                                  'number':  thousands(files_downloaded),
+                                  'total': thousands(files_to_download),
                                   'filetypes': file_types,
-                                  'remaining': files_remaining}
+                                  'remaining': thousands(files_remaining)}
         else:
             # e.g.: 205 of 205 photos and videos
             progress_bar_text = _("%(number)s of %(total)s %(filetypes)s") % \
-                                 {'number':  files_downloaded,
-                                  'total': files_to_download,
+                                 {'number':  thousands(files_downloaded),
+                                  'total': thousands(files_to_download),
                                   'filetypes': file_types}
         percent_complete = self.download_tracker.get_percent_complete(scan_id)
         self.deviceModel.updateDownloadProgress(scan_id=scan_id,
@@ -1609,12 +1613,18 @@ class RapidWindow(QMainWindow):
 
         self.displayMessageInStatusBar(update_only_marked=True)
 
+        groups = self.thumbnailModel.groupFilesByTemporalProximity()
+        logging.debug("Group Depth: %s", groups.depth())
+        # re = groups.generate_re(list(groups.groups.keys())[1])
+
+        # self.thumbnailProxyModel.setFilterRegExp(QRegExp(re))
+        # self.thumbnailProxyModel.setFilterRegExp('')
+
         if (not self.auto_start_is_on and  self.prefs.generate_thumbnails):
             # Generate thumbnails for finished scan
             self.thumbnailModel.generateThumbnails(scan_id, self.devices[
                         scan_id], self.prefs.thumbnail_quality_lower)
         elif self.auto_start_is_on:
-            #TODO implement get job code
             if self.job_code.need_to_prompt_on_auto_start():
                 self.job_code.get_job_code()
             else:
@@ -2290,12 +2300,12 @@ class RapidWindow(QMainWindow):
             if files_to_download:
                 files_selected = _('%(number)s of %(available files)s '
                                    '(%(size)s)') % {
-                                   'number': files_to_download,
+                                   'number': thousands(files_to_download),
                                    'available files': files_avilable_sum,
                                    'size': size}
             else:
                 files_selected = _('%(number)s of %(available files)s') % {
-                                   'number': files_to_download,
+                                   'number': thousands(files_to_download),
                                    'available files': files_avilable_sum}
             msg = _('%(files_selected)s. %(freespace_and_backups)s') % {
                 'freespace_and_backups': self.basic_status_message,
@@ -2379,7 +2389,7 @@ class RapidWindow(QMainWindow):
 
         backup_device_names = [self.backup_devices.name(path) for path in
                           self.backup_devices]
-        message = makeInternationalizedList(backup_device_names)
+        message = make_internationalized_list(backup_device_names)
 
         if len(backup_device_names) > 1:
             message = _("Using backup devices %(devices)s") % dict(
@@ -2536,7 +2546,7 @@ if __name__ == "__main__":
         extensions = ((photos, _("Photos")),
                       (videos, _("Videos")))
         for exts, file_type in extensions:
-            extensions = makeInternationalizedList(exts)
+            extensions = make_internationalized_list(exts)
             print('{}: {}'.format(file_type, extensions))
         sys.exit(0)
 

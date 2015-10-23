@@ -26,6 +26,7 @@ import random
 import string
 import tempfile
 import logging
+import locale
 from gettext import gettext as _
 
 logging.basicConfig(format='%(levelname)s:%(asctime)s:%(message)s',
@@ -104,19 +105,19 @@ def same_file_system(file1: str, file2: str) -> bool:
     dev2 = os.stat(file2).st_dev
     return dev1 == dev2
 
-def makeInternationalizedList(items) -> str:
+def make_internationalized_list(items) -> str:
     r"""
     Makes a string of items conforming to i18n
 
-    >>> print(makeInternationalizedList([]))
+    >>> print(make_internationalized_list([]))
     <BLANKLINE>
-    >>> print(makeInternationalizedList(['one']))
+    >>> print(make_internationalized_list(['one']))
     one
-    >>> print(makeInternationalizedList(['one', 'two']))
+    >>> print(make_internationalized_list(['one', 'two']))
     one and two
-    >>> print(makeInternationalizedList(['one', 'two', 'three']))
+    >>> print(make_internationalized_list(['one', 'two', 'three']))
     one, two and three
-    >>> print(makeInternationalizedList(['one', 'two', 'three', 'four']))
+    >>> print(make_internationalized_list(['one', 'two', 'three', 'four']))
     one, two, three and four
 
     Loosely follows the guideline here:
@@ -143,33 +144,26 @@ def makeInternationalizedList(items) -> str:
         return s
     return ''
 
-# def get_full_path(path):
-#     """ make path relative to home directory if not an absolute path """
-#     if os.path.isabs(path):
-#         return path
-#     else:
-#         return os.path.join(os.path.expanduser('~'), path)
-#
-#
-#
-#
-# def escape(s):
-#     """
-#     Replace special characters by SGML entities.
-#     """
-#     entities = ("&&amp;", "<&lt;", ">&gt;")
-#     for e in entities:
-#         s = s.replace(e[0], e[1:])
-#     return s
+def thousands(i: int) -> str:
+    """
+    Add a thousands seperator (or it's locale equivalent) to an
+    integer. Assumes the module leve locale setting has already been
+    set.
+    :param i: the integer e.g. 1000
+    :return: string with seperators e.g. '1,000'
+    """
+    try:
+        return locale.format("%d", i, grouping=True)
+    except TypeError:
+        return i
 
-
-    
 def pythonify_version(v):
     """ makes version number a version number in distutils sense"""
     return distutils.version.StrictVersion(v.replace( '~',''))
     
-def human_readable_version(v):
-    """ returns a version in human readable form"""
+def human_readable_version(v: str) -> str:
+    """
+    returns a version in human readable form"""
     v = v.replace('~a', ' alpha ')
     v = v.replace('~b', ' beta ')
     v = v.replace('~rc', ' RC ')

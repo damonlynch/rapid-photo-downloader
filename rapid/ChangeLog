@@ -62,6 +62,19 @@ Missing features, still to be developed:
 Version 0.4.11
 --------------
 
+2015-10-22
+
+Updated Brazilian, Catalan, Croatian, Czech, German, Japanese, Norwegian, 
+Polish, Portuguese and Swedish translations.
+
+Fixed crash on systems using the library Pillow 3.0.
+
+Updated AppData file.
+
+
+Version 0.4.11
+--------------
+
 2014-10-xx
 
 Updated Brazilian, Catalan, Czech, German, Japanese, Norwegian, Portuguese and

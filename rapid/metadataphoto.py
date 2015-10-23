@@ -333,7 +333,7 @@ class MetaData(GExiv2.Metadata):
         else:
             return missing
 
-    def date_time(self, missing=''):
+    def date_time(self, missing='') -> datetime.datetime:
         """
         Returns in python datetime format the date and time the image was
         recorded.
