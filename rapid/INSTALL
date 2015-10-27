@@ -20,24 +20,44 @@ Rapid Photo Downloader requires the following software:
 
 To run Rapid Photo Downloader you will need all the software mentioned above.
 
-On a distribution like Ubuntu, relevant packages are:
+On a distribution like Ubuntu, you can install dependencies like this:
 
-python3-pyqt5
-python3-zmq
-python3-psutil
-python3-xdg
-python3-arrow
-python3-dateutil
-qt5-image-formats-plugins
-gir1.2-gudev
-gir1.2-udisks
-gir1.2-gexiv2
-libimage-exiftool-perl
+sudo apt-get install python3-pyqt5 python3-zmq python3-psutil python3-xdg 
+python3-arrow python3-dateutil qt5-image-formats-plugins gir1.2-gudev
+gir1.2-udisks gir1.2-gexiv2 libimage-exiftool-perl
 
 The following three components may not be packaged in your Linux distribution.
 You can install them by following the instructions outlined here:
 * https://github.com/jim-easterbrook/python-gphoto2
+
+On Ubuntu, to install python-gphoto2 you can install it by running these
+commands:
+
+sudo apt-get install libgphoto2-dev python3-pip
+sudo apt-get install install -v --system gphoto2
+
+Please note, if you're using a system with more than one version of python 3
+(such as Ubuntu 15.10), when installing packages using pip I suggest targetting
+the default version of python 3, not whatever pip3 happens to default to. In 
+Ubuntu 15.10, pip3 defaults to python3.5. To run pip3 with python 3.4, run this
+instead:
+
+sudo python3.4 -m pip install -v --system gphoto2
+
+The version of Python's "sorted containers" is quite old in Ubuntu. To install
+a more recent version for your user (and not system wide), run:
+
+Sorted containers is here:
 * http://grantjenks.com/docs/sortedcontainers/
+
+You can install it with:
+
+sudo pip3 install sortedcontainers
+
+or if necessary, as noted above:
+sudo python3.4 -m pip install -v sortedcontainers
+
+
 Python 3.5 comes with scandir. To install it in Python 3.4, visit:
 * https://github.com/benhoyt/scandir
 

@@ -40,13 +40,20 @@ Removed feature:
   metadata. To preserve file integrity, unfortunately the rotate jpeg option 
   must be removed.  
 
-Switch to:
+The code switches to using:
 * PyQt 5.4, from PyGtk 2
 * Python-gphoto2 to download from cameras, from Gnome GIO
 * Python 3.4, from Python 2.7
-* ZeroMQ for interprocess messaging, from python multi-processing
+* ZeroMQ, from python multi-processing
 * GExiv2 for photo metadata, from pyexiv2
 * Exiftool for video metadata, from kaa-metadata and hachoir-metadata
+
+Please note that ZeroMQ is responsible for Rapid Photo Downloader's 
+interprocess messaging, using TCP/IP. If you use a system monitor that 
+displays network activity, don't be alarmed if it shows increased local 
+network activity while Rapid Photo Downloader is downloading or thumbnailing.
+Rapid Photo Downloader's network traffic is strictly between it's own 
+processes, all running solely on your computer.
 
 Missing features, still to be developed:
 * Program configuration (preferences) cannot yet adjusted though the Graphical

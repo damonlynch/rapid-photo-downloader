@@ -85,7 +85,8 @@ class MetaData:
         recorded.
 
         Trys to get value from key "DateTimeOriginal"
-        If that fails, tries "CreateDate"
+        If that fails, tries "CreateDate", and then finally
+        FileModifyDate
 
         Returns missing either metadata value is not present.
         """

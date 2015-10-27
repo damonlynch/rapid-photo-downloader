@@ -394,8 +394,8 @@ class Thumbnail:
                                               self.must_generate_fdo_thumbs):
                 thumbnail = QImage.fromData(self.metadata.get_exif_thumbnail())
                 if thumbnail.isNull():
-                    logging.warning("Could not extract exif thumbnail from {"
-                                    "}".format(file_name))
+                    logging.warning("Failed extract exif thumbnail from {"
+                        "}, will try metadata previews".format(file_name))
                     thumbnail = None
                 if thumbnail is not None:
                     thumbnail = self._crop_160x120_thumbnail(thumbnail, 8)

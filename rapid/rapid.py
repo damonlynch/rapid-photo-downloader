@@ -57,7 +57,7 @@ from PyQt5.QtWidgets import (QAction, QApplication, QMainWindow, QMenu,
                              QPushButton, QWidget, QDialogButtonBox,
                              QProgressBar, QSplitter, QFileIconProvider,
                              QHBoxLayout, QVBoxLayout, QDialog, QLabel,
-                             QComboBox, QGridLayout, QCheckBox)
+                             QComboBox, QGridLayout, QCheckBox, QSizePolicy)
 from PyQt5.QtNetwork import QLocalSocket, QLocalServer
 
 import qrc_resources
@@ -87,6 +87,7 @@ import constants
 from thumbnaildisplay import (ThumbnailView, ThumbnailTableModel,
     ThumbnailDelegate, DownloadTypes, DownloadStats)
 from devicedisplay import (DeviceTableModel, DeviceView, DeviceDelegate)
+from proximity import TemporalProximityModel, TemporalProximityView
 from utilities import (same_file_system, make_internationalized_list,
                        human_readable_version, thousands)
 from rpdfile import (RPDFile, file_types_by_number, PHOTO_EXTENSIONS,
@@ -98,6 +99,8 @@ from metadatavideo import EXIFTOOL_VERSION
 from camera import gphoto2_version, python_gphoto2_version
 from sql import DownloadedSQL
 from generatenameconfig import *
+from expander import QExpander
+from rotatedpushbutton import RotatedButton, VerticalRotation
 
 logging_level = logging.DEBUG
 logging.basicConfig(format='%(asctime)s %(message)s', level=logging_level)
@@ -344,6 +347,10 @@ class RapidWindow(QMainWindow):
         self.thumbnailProxyModel.setSourceModel(self.thumbnailModel)
         self.thumbnailView.setModel(self.thumbnailProxyModel)
         self.thumbnailView.setItemDelegate(ThumbnailDelegate(self))
+
+        self.temporalProximityView = TemporalProximityView()
+        self.temporalProximityModel = TemporalProximityModel(self)
+        self.temporalProximityView.setModel(self.temporalProximityModel)
 
         # Devices are cameras and partitions
         self.devices = DeviceCollection()
@@ -612,17 +619,74 @@ class RapidWindow(QMainWindow):
                                  triggered=self.doAboutAction)
 
     def createLayoutAndButtons(self, centralWidget):
-        #TODO change splitter to something else since user can't manipulate it
-        splitter = QSplitter()
-        splitter.setOrientation(Qt.Vertical)
-        splitter.addWidget(self.deviceView)
-        splitter.addWidget(self.thumbnailView)
+
+
         verticalLayout = QVBoxLayout()
-        centralWidget.setLayout(verticalLayout)
+
+        verticalLayout.addWidget(self.deviceView)
         verticalLayout.setContentsMargins(0, 0, 0, 0)
+
+        centralWidget.setLayout(verticalLayout)
         self.resizeDeviceView()
 
-        verticalLayout.addWidget(splitter)
+        centralLayout = QHBoxLayout()
+        centralLayout.setContentsMargins(0, 0, 0, 0)
+
+        leftBar = QVBoxLayout()
+        leftBar.setContentsMargins(0, 0, 0, 0)
+
+        self.dateButton = RotatedButton(_('Day'), self,
+                                        VerticalRotation.left_side)
+        self.proximityButton = RotatedButton(_('Proximity'), self,
+                                         VerticalRotation.left_side)
+
+        self.dateButton.setChecked(True)
+        self.dateButton.setSizePolicy(QSizePolicy.Fixed,
+                                           QSizePolicy.Fixed)
+        self.proximityButton.setChecked(True)
+        self.proximityButton.setSizePolicy(QSizePolicy.Fixed,
+                                           QSizePolicy.Fixed)
+        leftBar.addWidget(self.dateButton)
+        leftBar.addWidget(self.proximityButton)
+        leftBar.addStretch()
+
+        centralLayout.addLayout(leftBar)
+
+        splitter = QSplitter()
+        splitter.setOrientation(Qt.Horizontal)
+        self.temporalProximityView.setSizePolicy(QSizePolicy.Maximum,
+                                                 QSizePolicy.Maximum)
+        splitter.addWidget(self.temporalProximityView)
+        splitter.addWidget(self.thumbnailView)
+
+        centralLayout.addWidget(splitter)
+
+        rightBar = QVBoxLayout()
+        rightBar.setContentsMargins(0, 0, 0, 0)
+
+        self.backupButton = RotatedButton(_('Back Up'), self,
+                                          VerticalRotation.right_side)
+        self.renameButton = RotatedButton(_('Rename'), self,
+                                          VerticalRotation.right_side)
+        self.jobcodeButton = RotatedButton(_('Job Code'), self,
+                                          VerticalRotation.right_side)
+        self.backupButton.setChecked(True)
+        self.renameButton.setChecked(True)
+        self.jobcodeButton.setChecked(True)
+        self.backupButton.setSizePolicy(QSizePolicy.Fixed,
+                                           QSizePolicy.Fixed)
+        self.renameButton.setSizePolicy(QSizePolicy.Fixed,
+                                           QSizePolicy.Fixed)
+        self.jobcodeButton.setSizePolicy(QSizePolicy.Fixed,
+                                           QSizePolicy.Fixed)
+        rightBar.addWidget(self.backupButton)
+        rightBar.addWidget(self.renameButton)
+        rightBar.addWidget(self.jobcodeButton)
+        rightBar.addStretch()
+        centralLayout.addLayout(rightBar)
+
+        verticalLayout.addLayout(centralLayout)
+
 
         # Help and Download buttons
         horizontalLayout = QHBoxLayout()
@@ -1614,8 +1678,9 @@ class RapidWindow(QMainWindow):
         self.displayMessageInStatusBar(update_only_marked=True)
 
         groups = self.thumbnailModel.groupFilesByTemporalProximity()
-        logging.debug("Group Depth: %s", groups.depth())
-        # re = groups.generate_re(list(groups.groups.keys())[1])
+        self.temporalProximityModel.setGroup(groups)
+        self.temporalProximityView.resizeColumnsToContents()
+        self.temporalProximityView.resizeRowsToContents()
 
         # self.thumbnailProxyModel.setFilterRegExp(QRegExp(re))
         # self.thumbnailProxyModel.setFilterRegExp('')

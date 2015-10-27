@@ -28,9 +28,11 @@ from sortedcontainers import SortedListWithKey
 from gettext import gettext as _
 
 from PyQt5.QtCore import (QAbstractTableModel, QModelIndex, Qt)
-from PyQt5.QtWidgets import QTableView
+from PyQt5.QtWidgets import QTableView, QTreeView
 
 GroupRow = namedtuple('GroupRow', 'year, month, day, time')
+
+YEAR, MONTH, DAY, TIME = range(4)
 
 def locale_time(t: datetime.datetime, show_seconds: bool=False) -> str:
     """
@@ -105,7 +107,7 @@ class TemporalProximityGroups:
                 end =  arrow.get(end_timestamp).to('local') # type: arrow.Arrow
                 
                 if start.year != end.year:
-                    year = _('%(past_year)s-%(future_year)s') % {
+                    year = _('%(past_year)s - %(future_year)s') % {
                         'past_year': start.year,
                         'future_year': end.year}
                 else:
@@ -116,12 +118,14 @@ class TemporalProximityGroups:
                 else:
                     row_year = ''
 
+                start_month = start.strftime('%B')
+                end_month = end.strftime('%B')
                 if start.month != end.month:
-                    month = _('%(past_month)s-%(future_month)s') % {
-                        'past_month': start.month,
-                        'future_month': end.month}
+                    month = _('%(past_month)s - %(future_month)s') % {
+                        'past_month': start_month,
+                        'future_month': end_month}
                 else:
-                    month = start.month
+                    month = start_month
                 if month != prev_month:
                     row_month = month
                     prev_month = month
@@ -129,7 +133,7 @@ class TemporalProximityGroups:
                     row_month = ''
                     
                 if start.day != end.day:
-                    day = _('%(past_day)s-%(future_day)s') % {
+                    day = _('%(past_day)s - %(future_day)s') % {
                         'past_day': start.day,
                         'future_day': end.day}
                 else:
@@ -143,7 +147,7 @@ class TemporalProximityGroups:
                 start_time = locale_time(start.datetime)
                 end_time = locale_time(end.datetime)
                 if start_time != end_time:
-                    row_time = _('%(past_time)s-%(future_time)s') % {
+                    row_time = _('%(past_time)s - %(future_time)s') % {
                         'past_time': start_time,
                         'future_time': end_time}
                 else:
@@ -151,12 +155,6 @@ class TemporalProximityGroups:
 
                 group_row =  GroupRow(row_year, row_month, row_day, row_time)
                 self.formatted_row[start_timestamp] = group_row
-
-            for row_counter in range(len(self.row)):
-                timestamp = self.row[row_counter]
-                print(self.formatted_row[timestamp])
-
-
 
     def _add_timestamp(self, timestamp):
         a = arrow.get(timestamp).to('local') # type: arrow.Arrow
@@ -167,20 +165,26 @@ class TemporalProximityGroups:
         self.row[self.row_counter] = timestamp
         self.row_counter += 1
 
-    def __contains__(self, key):
-        return key in self.groups
+    def __contains__(self, timestamp):
+        return timestamp in self.groups
 
     def __len__(self):
         return len(self.groups)
 
-    def __getitem__(self, key):
-        return self.groups[key]
+    def __getitem__(self, row_number) -> float:
+        """
+        :return:timestamp for the row
+        """
+        return self.row[row_number]
 
     def __iter__(self):
         return iter(self.groups)
 
-    def generate_re(self, key):
-        return '|'.join(self.groups[key])
+    def generate_re(self, timestamp):
+        return '|'.join(self.groups[timestamp])
+
+    def get_headers(self, timestamp):
+        return self.formatted_row[timestamp]
 
     def depth(self):
         if len(self.years) > 1:
@@ -194,34 +198,44 @@ class TemporalProximityGroups:
 
 
 class TemporalProximityModel(QAbstractTableModel):
+    header_labels = (_('Year'), _('Month'), _('Day'), _('Time'),)
     def __init__(self, parent, groups: TemporalProximityGroups=None):
         super().__init__(parent)
-        self.rapidApp = parent
-        """ :type : rapid.RapidWindow"""
+        self.rapidApp = parent # type: rapid.RapidWindow
         self.groups = groups
 
-    def set_group(self, groups: TemporalProximityGroups):
+
+    def setGroup(self, groups: TemporalProximityGroups):
         self.groups = groups
+        self.endResetModel()
 
     def columnCount(self, parent=QModelIndex()):
         return 4
 
     def rowCount(self, parent=QModelIndex()):
-        return len(self.groups)
+        if self.groups:
+            return len(self.groups)
+        else:
+            return 0
+
+    def headerData(self, section, orientation, role=Qt.DisplayRole):
+        if role == Qt.DisplayRole and orientation == Qt.Horizontal:
+            return self.header_labels[section]
+        return QAbstractTableModel.headerData(self, section, orientation, role)
 
     def data(self, index: QModelIndex, role=Qt.DisplayRole):
         if not index.isValid():
             return None
 
         row = index.row()
-        if row >= len(self.rows) or row < 0:
+        if row >= len(self.groups) or row < 0:
             return None
 
         column = index.column()
         if column < 0 or column > 3:
             return None
         timestamp = self.groups.row[row] # type: float
-        group = self.groups.formatted_row[timestamp] # type: GroupRow
+        group = self.groups.get_headers(timestamp) # type: GroupRow
 
         if role==Qt.DisplayRole:
             if column == 0:
@@ -234,5 +248,5 @@ class TemporalProximityModel(QAbstractTableModel):
                 return group.time
 
 
-class ThumbnailRangeView(QTableView):
+class TemporalProximityView(QTableView):
     pass
