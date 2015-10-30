@@ -56,6 +56,7 @@ class Camera:
         """
         self.model = model
         self.port = port
+        self.display_name = model
         self.camera_config = None
 
         self.context = gp.Context()
@@ -85,8 +86,6 @@ class Camera:
         self.concise_model_name = self._concise_model_name()
         if self.concise_model_name:
             self.display_name = self.concise_model_name
-        else:
-            self.display_name = model
 
         if get_folders:
             try:

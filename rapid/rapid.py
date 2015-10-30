@@ -544,6 +544,7 @@ class RapidWindow(QMainWindow):
         self.searchForCameras()
         self.setupNonCameraDevices(on_startup=True, on_preference_change=False,
                                    block_auto_start=not prefs_valid)
+        self.sourceButton.setText(self.devices.get_main_window_display_name())
         self.displayMessageInStatusBar()
 
     def startBackupManager(self):
@@ -1953,7 +1954,8 @@ class RapidWindow(QMainWindow):
 
     def startCameraScan(self, model: str, port: str):
         device = Device()
-        device.set_download_from_camera(model, port)
+        device.set_download_from_camera(model, port,
+                                        get_camera_attributes=True)
         self.startDeviceScan(device)
 
     def startDeviceScan(self, device: Device):

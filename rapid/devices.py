@@ -21,7 +21,10 @@ __author__ = 'Damon Lynch'
 import shutil
 import os
 import logging
-from collections import namedtuple
+from collections import namedtuple, Counter
+
+from gettext import gettext as _
+
 from PyQt5.QtCore import QStorageInfo
 from PyQt5.QtWidgets import QFileIconProvider
 from PyQt5.QtGui import QIcon
@@ -41,6 +44,9 @@ class Device:
     Representation of a camera, or a device, or a path.
     Files will be downloaded from it.
 
+    To run the doctests, ensure at least one camera is plugged in
+    but not mounted!
+
     >>> d = Device()
     >>> d.set_download_from_volume('/media/damon/EOS_DIGITAL', 'EOS_DIGITAL')
     >>> d
@@ -57,7 +63,7 @@ class Device:
     >>> cameras = gp_context.camera_autodetect()
     >>> c = Device()
     >>> for model, port in cameras:
-    ...     c.set_download_from_camera(model, port)
+    ...     c.set_download_from_camera(model, port, get_camera_attributes=True)
     ...     isinstance(c.no_storage_media, int)
     ...     isinstance(c.display_name, str)
     True
@@ -112,7 +118,7 @@ class Device:
 
     def __eq__(self, other):
         for attr in ('device_type', 'camera_model', 'camera_port',
-                     'path', 'display_name', 'icon_name', 'can_eject'):
+                     'path'):
             if getattr(self, attr) != getattr(other, attr):
                 return False
         return True
@@ -127,18 +133,22 @@ class Device:
                     return icon_name
         return None
 
-    def set_download_from_camera(self, camera_model: str, camera_port: str):
+    def set_download_from_camera(self, camera_model: str, camera_port: str,
+                                 get_camera_attributes: bool=False):
         self.clear()
         self.device_type = DeviceType.camera
         self.camera_model = camera_model
         self.camera_port = camera_port
         self.icon_name = self._get_valid_icon_name(('camera-photo', 'camera'))
-        c =  camera.Camera(camera_model, camera_port,
-                                      get_folders=False)
-        self.display_name = c.display_name
-        self.no_storage_media = c.no_storage_media()
-        for idx in range(self.no_storage_media):
-            self.storage_space.append(c.get_storage_media_capacity(idx))
+        if get_camera_attributes:
+            c =  camera.Camera(camera_model, camera_port,
+                                          get_folders=False)
+            self.display_name = c.display_name
+            self.no_storage_media = c.no_storage_media()
+            for idx in range(self.no_storage_media):
+                self.storage_space.append(c.get_storage_media_capacity(idx))
+        else:
+            self.display_name = camera_model
 
     def set_download_from_volume(self, path: str, display_name: str,
                                  icon_names=None, can_eject=None,
@@ -315,7 +325,8 @@ class DeviceCollection:
 
     def scan_id_from_camera_model_port(self, model: str, port: str):
         camera = Device()
-        camera.set_download_from_camera(model, port)
+        camera.set_download_from_camera(model, port,
+                                        get_camera_attributes=False)
         for scan_id in self.devices:
             if self.devices[scan_id] == camera:
                 return scan_id
@@ -358,6 +369,32 @@ class DeviceCollection:
 
     def __iter__(self):
         return iter(self.devices)
+
+    def get_main_window_display_name(self) -> str:
+        """
+        Generate the name to display at the top left of the main
+        window, indicating the source of the files
+        :return: string to display
+        """
+        #TODO update once device selection code is written
+        if not len(self):
+            return _('Select Source')
+        elif len(self) == 1:
+            return list(self.devices.values())[0].display_name
+        else:
+            device_types = Counter(d.device_type for d in
+                                   self.devices.values())
+            assert len(device_types)
+            if len(device_types) == 1:
+                device_type = list(device_types)[0]
+                if device_type == DeviceType.camera:
+                    # Number of cameras e.g. 2 Cameras
+                    return _('%(no_cameras)s Cameras') % {'no_cameras':
+                             device_types[DeviceType.camera]}
+            # Mixed devices (e.g. cameras, card readers), or only external
+            # volumes
+            return _('%(no_devices)s Devices') % {'no_devices':
+                     device_types[DeviceType.volume]}
 
 
 BackupDevice = namedtuple('BackupDevice', ['mount', 'backup_type'])
