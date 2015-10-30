@@ -361,12 +361,28 @@ class CameraHotplug(QObject):
         self.cameras = {}
 
     def startMonitor(self):
-        self.client = GUdev.Client(subsystems=['usb', 'block']) #
+        self.client = GUdev.Client(subsystems=['usb', 'block'])
         self.client.connect('uevent', self.ueventCallback)
 
-    def ueventCallback(self, client: GUdev.Client, action: str, device:
-    GUdev.Device):
+    def enumerateCameras(self):
+        """
+        Query udev to get the list of cameras store their path and
+        model in our internal dict, which is useful when responding to
+        camera removal.
+        """
+        enumerator = GUdev.Enumerator.new(self.client)
+        enumerator.add_match_property('ID_GPHOTO2', '1')
+        for device in enumerator.execute():
+            model = device.get_property('ID_MODEL')
+            if model is not None:
+                path = device.get_sysfs_path()
+                self.cameras[path] = model
 
+    def ueventCallback(self, client: GUdev.Client, action: str,
+                       device: GUdev.Device):
+
+        # for key in device.get_property_keys():
+        #     print(key, device.get_property(key))
         if device.get_property('ID_GPHOTO2') == '1':
             self.camera(action, device)
 
@@ -389,9 +405,20 @@ class CameraHotplug(QObject):
                     parent_path])
 
         elif action == 'remove':
+            emit_remove = False
+            name = ''
             if path in self.cameras:
-                logging.debug("Hotplug: %s has been removed", self.cameras[path])
+                name = self.cameras[path]
                 del self.cameras[path]
+                emit_remove = True
+            elif device.get_property('ID_GPHOTO2') == '1':
+                # This should not need to be called. However,
+                # self.enumerateCameras may not have been called earlier
+                name = device.get_property('ID_MODEL')
+                if name is not None:
+                    emit_remove = True
+            if emit_remove:
+                logging.debug("Hotplug: %s has been removed", name)
                 self.cameraRemoved.emit()
 
 

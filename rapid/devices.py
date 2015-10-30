@@ -28,6 +28,7 @@ from PyQt5.QtGui import QIcon
 
 from constants import DeviceType, BackupLocationType, FileType
 from rpdfile import FileTypeCounter
+import camera
 
 logging.basicConfig(format='%(levelname)s:%(asctime)s:%(message)s',
                     datefmt='%H:%M:%S',
@@ -126,6 +127,8 @@ class Device:
         self.camera_model = camera_model
         self.camera_port = camera_port
         self.icon_name = self._get_valid_icon_name(('camera-photo', 'camera'))
+        self.concise_camera_model = camera.Camera(camera_model, camera_port,
+                                      get_folders=False).concise_model_name()
 
     def set_download_from_volume(self, path: str, display_name: str,
                                  icon_names=None, can_eject=None):
@@ -152,7 +155,10 @@ class Device:
         :return  str containg the name
         """
         if self.device_type == DeviceType.camera:
-            return self.camera_model
+            if self.concise_camera_model:
+                return self.concise_camera_model
+            else:
+                return self.camera_model
         elif self.device_type == DeviceType.volume:
             return self.display_name
         else:

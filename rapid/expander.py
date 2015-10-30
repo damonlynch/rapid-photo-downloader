@@ -31,7 +31,7 @@
 
 """A Expander widget similar to the GtkExpander."""
 
-from PyQt5.QtCore import pyqtSignal
+from PyQt5.QtCore import pyqtSignal, QSize
 from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QSizePolicy, QVBoxLayout,
                              QWidget)
 
@@ -72,6 +72,9 @@ class QExpanderLabel(QWidget):
     def setText(self, text):
         """Set the text of the label."""
         self.label.setText(text)
+    #
+    # def sizeHint(self):
+    #     return QSize(60, 70)
 
 
 class QExpander(QWidget):
@@ -79,7 +82,7 @@ class QExpander(QWidget):
 
     def __init__(self, label, expanded=False, parent=None):
         """Create a new instance."""
-        super(QExpander, self).__init__(parent)
+        super().__init__(parent)
         self.label = QExpanderLabel(label)
         self.label.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum)
         self.content = None

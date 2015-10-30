@@ -11,7 +11,10 @@ class VerticalRotation(IntEnum):
 
 
 class RotatedButton(QPushButton):
-    def __init__(self, text, parent, rotation: VerticalRotation):
+    leftSide = 270.0
+    rightSide = 90.0
+
+    def __init__(self, text, parent, rotation: float):
         super().__init__(text, parent)
         self.buttonRotation = rotation
 
@@ -23,6 +26,9 @@ class RotatedButton(QPushButton):
         elif self.buttonRotation == VerticalRotation.right_side:
             painter.translate(0, -1 * self.width())
         painter.drawControl(QStyle.CE_PushButton, self.getSyleOptions())
+
+    def setRotation(self, rotation: float):
+        self.buttonRotation = rotation
 
     def minimumSizeHint(self):
         size = super().minimumSizeHint()

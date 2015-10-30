@@ -52,7 +52,7 @@ from PyQt5 import QtCore, QtWidgets, QtGui
 from PyQt5.QtCore import (QThread, Qt, QStorageInfo, QSettings, QPoint,
                           QSize, QTimer, QTextStream, QSortFilterProxyModel,
                           QRegExp)
-from PyQt5.QtGui import (QIcon, QPixmap, QImage)
+from PyQt5.QtGui import (QIcon, QPixmap, QImage, QFont)
 from PyQt5.QtWidgets import (QAction, QApplication, QMainWindow, QMenu,
                              QPushButton, QWidget, QDialogButtonBox,
                              QProgressBar, QSplitter, QFileIconProvider,
@@ -447,6 +447,7 @@ class RapidWindow(QMainWindow):
             self.cameraHotplug.cameraRemoved.connect(self.cameraRemoved)
             # Start the monitor only on the thread it will be running on
             self.cameraHotplug.startMonitor()
+            self.cameraHotplug.enumerateCameras()
 
             # Monitor when the user adds or removes a partition
             self.udisks2Monitor = UDisks2Monitor(self.validMounts)
@@ -623,6 +624,30 @@ class RapidWindow(QMainWindow):
 
         verticalLayout = QVBoxLayout()
 
+        topBar = QHBoxLayout()
+        self.sourceButton = QPushButton(_('Select Source'))
+        self.sourceButton.setSizePolicy(QSizePolicy.Maximum,
+                                        QSizePolicy.Maximum)
+        self.sourceButton.setCheckable(True)
+        self.sourceButton.setFlat(True)
+        font = self.sourceButton.font() # type: QFont
+        font.setPointSize(font.pointSize() + 8)
+        self.sourceButton.setFont(font)
+
+        self.destinationButton = QPushButton(_('Destination'))
+        self.destinationButton.setSizePolicy(QSizePolicy.Maximum,
+                                             QSizePolicy.Maximum)
+        self.destinationButton.setCheckable(True)
+
+
+
+        topBar.addWidget(self.sourceButton)
+        topBar.addWidget(self.destinationButton, 0, Qt.AlignRight)
+        self.destinationButton.setFlat(True)
+        self.destinationButton.setFont(font)
+        verticalLayout.addLayout(topBar)
+
+
         verticalLayout.addWidget(self.deviceView)
         verticalLayout.setContentsMargins(0, 0, 0, 0)
 
@@ -636,14 +661,14 @@ class RapidWindow(QMainWindow):
         leftBar.setContentsMargins(0, 0, 0, 0)
 
         self.dateButton = RotatedButton(_('Day'), self,
-                                        VerticalRotation.left_side)
+                                        RotatedButton.leftSide)
         self.proximityButton = RotatedButton(_('Proximity'), self,
-                                         VerticalRotation.left_side)
+                                         RotatedButton.leftSide)
 
-        self.dateButton.setChecked(True)
+        self.dateButton.setCheckable(True)
         self.dateButton.setSizePolicy(QSizePolicy.Fixed,
                                            QSizePolicy.Fixed)
-        self.proximityButton.setChecked(True)
+        self.proximityButton.setCheckable(True)
         self.proximityButton.setSizePolicy(QSizePolicy.Fixed,
                                            QSizePolicy.Fixed)
         leftBar.addWidget(self.dateButton)
@@ -654,7 +679,7 @@ class RapidWindow(QMainWindow):
 
         splitter = QSplitter()
         splitter.setOrientation(Qt.Horizontal)
-        self.temporalProximityView.setSizePolicy(QSizePolicy.Maximum,
+        self.temporalProximityView.setSizePolicy(QSizePolicy.Minimum,
                                                  QSizePolicy.Maximum)
         splitter.addWidget(self.temporalProximityView)
         splitter.addWidget(self.thumbnailView)
@@ -665,14 +690,14 @@ class RapidWindow(QMainWindow):
         rightBar.setContentsMargins(0, 0, 0, 0)
 
         self.backupButton = RotatedButton(_('Back Up'), self,
-                                          VerticalRotation.right_side)
+                                          RotatedButton.rightSide)
         self.renameButton = RotatedButton(_('Rename'), self,
-                                          VerticalRotation.right_side)
+                                          RotatedButton.rightSide)
         self.jobcodeButton = RotatedButton(_('Job Code'), self,
-                                          VerticalRotation.right_side)
-        self.backupButton.setChecked(True)
-        self.renameButton.setChecked(True)
-        self.jobcodeButton.setChecked(True)
+                                          RotatedButton.rightSide)
+        self.backupButton.setCheckable(True)
+        self.renameButton.setCheckable(True)
+        self.jobcodeButton.setCheckable(True)
         self.backupButton.setSizePolicy(QSizePolicy.Fixed,
                                            QSizePolicy.Fixed)
         self.renameButton.setSizePolicy(QSizePolicy.Fixed,
@@ -1681,6 +1706,10 @@ class RapidWindow(QMainWindow):
         self.temporalProximityModel.setGroup(groups)
         self.temporalProximityView.resizeColumnsToContents()
         self.temporalProximityView.resizeRowsToContents()
+        print("Proximity sizes:", self.temporalProximityView.minimumSizeHint(),
+              self.temporalProximityView.size())
+        # self.temporalProximityView.setMaximumWidth(250)
+        # self.temporalProximityView.hide()
 
         # self.thumbnailProxyModel.setFilterRegExp(QRegExp(re))
         # self.thumbnailProxyModel.setFilterRegExp('')
