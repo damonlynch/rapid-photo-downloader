@@ -121,7 +121,6 @@ class Roles(IntEnum):
     uri = Qt.UserRole + 6
     camera_memory_card = Qt.UserRole + 7
 
-
 photo_rename_test = ['Date time','Image date','YYYYMMDD','Text','-','',
                     'Date time','Image date','HHMM','Text','-','','Sequences',
                     'Downloads today','One digit','Text','-iso','',

@@ -51,6 +51,7 @@ import sys
 import time
 import subprocess
 import shlex
+from collections import namedtuple
 
 from PyQt5.QtCore import (QStorageInfo, QObject, pyqtSignal)
 from gi.repository import GUdev, UDisks, GLib
@@ -67,6 +68,9 @@ try:
     have_gio = True
 except ImportError:
     have_gio = False
+
+StorageSpace = namedtuple('StorageSpace', 'bytes_free,'
+                                          'bytes_total')
 
 
 class ValidMounts():

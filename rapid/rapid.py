@@ -1708,6 +1708,7 @@ class RapidWindow(QMainWindow):
         self.temporalProximityView.resizeRowsToContents()
         print("Proximity sizes:", self.temporalProximityView.minimumSizeHint(),
               self.temporalProximityView.size())
+
         # self.temporalProximityView.setMaximumWidth(250)
         # self.temporalProximityView.hide()
 
@@ -2038,7 +2039,7 @@ class RapidWindow(QMainWindow):
                         self.prefs.auto_download_upon_device_insertion
                     device = Device()
                     device.set_download_from_volume(path, mount.displayName(),
-                                                    iconNames, canEject)
+                                                    iconNames, canEject, mount)
                     self.prepareNonCameraDeviceScan(device)
 
     def partitionUmounted(self, path: str):
@@ -2103,7 +2104,7 @@ class RapidWindow(QMainWindow):
              if not self.confirmManualDownloadLocation():
                 return
 
-        mounts = []
+        mounts = [] # type: List[QStorageInfo]
         self.backup_devices = BackupDeviceCollection()
 
         if self.monitorPartitionChanges():
@@ -2169,7 +2170,8 @@ class RapidWindow(QMainWindow):
                 device.set_download_from_volume(mount.rootPath(),
                                               mount.displayName(),
                                               icon_names,
-                                              can_eject)
+                                              can_eject,
+                                              mount)
                 self.prepareNonCameraDeviceScan(device)
         # if not mounts:
         #     self.set_download_action_sensitivity()

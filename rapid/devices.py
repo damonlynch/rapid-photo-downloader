@@ -28,6 +28,7 @@ from PyQt5.QtGui import QIcon
 
 from constants import DeviceType, BackupLocationType, FileType
 from rpdfile import FileTypeCounter
+from storage import StorageSpace
 import camera
 
 logging.basicConfig(format='%(levelname)s:%(asctime)s:%(message)s',
@@ -37,8 +38,8 @@ logging.basicConfig(format='%(levelname)s:%(asctime)s:%(message)s',
 
 class Device:
     r"""
-    Representation of a camera or an object with a file system that
-    will have files downloaded from it
+    Representation of a camera, or a device, or a path.
+    Files will be downloaded from it.
 
     >>> d = Device()
     >>> d.set_download_from_volume('/media/damon/EOS_DIGITAL', 'EOS_DIGITAL')
@@ -46,18 +47,21 @@ class Device:
     'EOS_DIGITAL':'/media/damon/EOS_DIGITAL'
     >>> str(d)
     '/media/damon/EOS_DIGITAL (EOS_DIGITAL)'
+    >>> d.display_name
+    'EOS_DIGITAL'
     >>> d.camera_model
     >>> d.camera_port
 
+    >>> import gphoto2 as gp
+    >>> gp_context = gp.Context()
+    >>> cameras = gp_context.camera_autodetect()
     >>> c = Device()
-    >>> c.set_download_from_camera('Canon EOS 1D X', 'usb:001,002')
-    >>> c
-    'Canon EOS 1D X':'usb:001,002'
-    >>> str(c)
-    'Canon EOS 1D X on port usb:001,002'
-    >>> c.path
-    >>> c.display_name
-
+    >>> for model, port in cameras:
+    ...     c.set_download_from_camera(model, port)
+    ...     isinstance(c.no_storage_media, int)
+    ...     isinstance(c.display_name, str)
+    True
+    True
     >>> e = Device()
     >>> e.set_download_from_volume('/media/damon/EOS_DIGITAL', 'EOS_DIGITAL')
     >>> e == d
@@ -75,6 +79,8 @@ class Device:
     def clear(self):
         self.camera_model = None
         self.camera_port = None
+        self.no_storage_media = None
+        self.storage_space = []
         self.path = None
         self.display_name = None
         self.device_type = None
@@ -127,26 +133,59 @@ class Device:
         self.camera_model = camera_model
         self.camera_port = camera_port
         self.icon_name = self._get_valid_icon_name(('camera-photo', 'camera'))
-        self.concise_camera_model = camera.Camera(camera_model, camera_port,
-                                      get_folders=False).concise_model_name()
+        c =  camera.Camera(camera_model, camera_port,
+                                      get_folders=False)
+        self.display_name = c.display_name
+        self.no_storage_media = c.no_storage_media()
+        for idx in range(self.no_storage_media):
+            self.storage_space.append(c.get_storage_media_capacity(idx))
 
     def set_download_from_volume(self, path: str, display_name: str,
-                                 icon_names=None, can_eject=None):
+                                 icon_names=None, can_eject=None,
+                                 mount: QStorageInfo=None):
         self.clear()
         self.device_type = DeviceType.volume
         self.path = path
         self.icon_name = self._get_valid_icon_name(icon_names)
         self.display_name = display_name
         self.can_eject = can_eject
+        if not mount:
+            mount = QStorageInfo(path)
+        self.storage_space.append(StorageSpace(
+                        bytes_free=mount.bytesAvailable(),
+                        bytes_total=mount.bytesTotal()))
 
     def set_download_from_path(self, path: str):
         self.clear()
         self.device_type = DeviceType.path
         self.path = path
+        if path.endswith(os.sep):
+            path = path[:-1]
+        display_name = os.path.basename(path)
+        if display_name:
+            self.display_name = display_name
+        else:
+            self.display_name = path
         # the next value is almost certainly ("folder",), but I guess it's
         # better to generate it from code
         self.icon_name = ('{}'.format(QFileIconProvider().icon(
             QFileIconProvider.Folder).name()))
+        mount = QStorageInfo(path)
+        self.storage_space.append(StorageSpace(
+                        bytes_free=mount.bytesAvailable(),
+                        bytes_total=mount.bytesTotal()))
+
+    def get_storage_space(self, index: int=0) -> StorageSpace:
+        """
+        Convenience function to retrieve information about bytes
+        free and bytes total (capacity of the media). Almost all
+        devices have only one storage media, but some cameras have
+        more than one
+        :param index: the storage media to get the values from
+        :return: tuple of bytes free and bytes total
+        """
+        return self.storage_space[index]
+
 
     def name(self) -> str:
         """
@@ -155,10 +194,7 @@ class Device:
         :return  str containg the name
         """
         if self.device_type == DeviceType.camera:
-            if self.concise_camera_model:
-                return self.concise_camera_model
-            else:
-                return self.camera_model
+            return self.display_name
         elif self.device_type == DeviceType.volume:
             return self.display_name
         else:
