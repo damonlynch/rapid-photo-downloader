@@ -2,6 +2,7 @@ __author__ = 'Damon Lynch'
 
 from enum import IntEnum
 
+from PyQt5.QtGui import (QColor, QPalette)
 from PyQt5.QtWidgets import (QPushButton, QStylePainter, QStyle,
                              QStyleOptionButton)
 
@@ -14,9 +15,14 @@ class RotatedButton(QPushButton):
     leftSide = 270.0
     rightSide = 90.0
 
-    def __init__(self, text, parent, rotation: float):
+    def __init__(self, text, parent, rotation: float, flat:bool = True,
+                 checkable: bool=True):
         super().__init__(text, parent)
         self.buttonRotation = rotation
+        if flat:
+            self.setFlat(flat)
+            self.setFlatStyle()
+        self.setCheckable(checkable)
 
     def paintEvent(self, event):
         painter = QStylePainter(self)
@@ -40,12 +46,13 @@ class RotatedButton(QPushButton):
         size.transpose()
         return size
 
-    def getSyleOptions(self):
+    def getSyleOptions(self) -> QStyleOptionButton:
         options = QStyleOptionButton()
         options.initFrom(self)
         size = options.rect.size()
         size.transpose()
         options.rect.setSize(size)
+
         try:
             options.features = QStyleOptionButton.None_
         except AttributeError:
@@ -70,3 +77,21 @@ class RotatedButton(QPushButton):
         options.icon = self.icon()
         options.iconSize = self.iconSize()
         return options
+
+    def setFlatStyle(self):
+        color = self.palette().color(self.backgroundRole())
+        default_color = color.name(QColor.HexRgb)
+        checked_color = color.darker(125).name(QColor.HexRgb)
+        hover_color = color.darker(110).name(QColor.HexRgb)
+
+        # outline:none is used to remove the rectangle that apperas on a
+        # button when the button has focus
+        # http://stackoverflow.com/questions/17280056/qt-css-decoration-on-focus
+        self.setStyleSheet("""
+        QPushButton { background-color: %s; outline: none}
+        QPushButton:checked { background-color: %s; border: none; }
+        QPushButton:hover{ background-color: %s; border-style: inset; }
+        """ % (default_color, checked_color, hover_color))
+
+
+

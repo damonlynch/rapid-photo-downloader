@@ -56,6 +56,8 @@ class Camera:
         """
         self.model = model
         self.port = port
+        # class method _concise_model_name discusses why a display name is
+        # needed
         self.display_name = model
         self.camera_config = None
 
@@ -83,9 +85,9 @@ class Camera:
                               e.code)
             return
 
-        self.concise_model_name = self._concise_model_name()
-        if self.concise_model_name:
-            self.display_name = self.concise_model_name
+        concise_model_name = self._concise_model_name()
+        if concise_model_name:
+            self.display_name = concise_model_name
 
         if get_folders:
             try:
@@ -404,11 +406,22 @@ class Camera:
             return StorageSpace(bytes_free=info.freekbytes * 1024,
                                 bytes_total=info.capacitykbytes * 1024)
 
-    def no_storage_media(self, refresh: bool=False):
+    def no_storage_media(self, refresh: bool=False) -> int:
+        """
+        Return the number of storage media (e.g. memory cards) the
+        camera has
+        :param refresh: if True, refresh the storage information
+        :return: the number of media
+        """
         self._get_storage_info(refresh)
         return len(self.storage_info)
 
     def _get_storage_info(self, refresh: bool):
+        """
+        Load the gphoto2 storage information
+        :param refresh: if True, refresh the storage information, i.e.
+         load it
+        """
         if not self.storage_info or refresh:
             try:
                 self.storage_info = self.camera.get_storageinfo(self.context)

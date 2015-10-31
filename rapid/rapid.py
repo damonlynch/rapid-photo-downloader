@@ -544,7 +544,7 @@ class RapidWindow(QMainWindow):
         self.searchForCameras()
         self.setupNonCameraDevices(on_startup=True, on_preference_change=False,
                                    block_auto_start=not prefs_valid)
-        self.sourceButton.setText(self.devices.get_main_window_display_name())
+        self.updateSourceButton()
         self.displayMessageInStatusBar()
 
     def startBackupManager(self):
@@ -560,6 +560,9 @@ class RapidWindow(QMainWindow):
             QTimer.singleShot(0, self.backupThread.start)
 
             self.backup_manager_started = True
+
+    def updateSourceButton(self):
+        self.sourceButton.setText(self.devices.get_main_window_display_name())
 
     def createActions(self):
         self.downloadAct = QAction(_("&Download"), self,
@@ -620,6 +623,9 @@ class RapidWindow(QMainWindow):
         self.aboutAct = QAction(_("&About..."), self, \
                                  triggered=self.doAboutAction)
 
+
+
+
     def createLayoutAndButtons(self, centralWidget):
 
 
@@ -666,10 +672,8 @@ class RapidWindow(QMainWindow):
         self.proximityButton = RotatedButton(_('Proximity'), self,
                                          RotatedButton.leftSide)
 
-        self.dateButton.setCheckable(True)
         self.dateButton.setSizePolicy(QSizePolicy.Fixed,
                                            QSizePolicy.Fixed)
-        self.proximityButton.setCheckable(True)
         self.proximityButton.setSizePolicy(QSizePolicy.Fixed,
                                            QSizePolicy.Fixed)
         leftBar.addWidget(self.dateButton)
@@ -696,9 +700,6 @@ class RapidWindow(QMainWindow):
                                           RotatedButton.rightSide)
         self.jobcodeButton = RotatedButton(_('Job Code'), self,
                                           RotatedButton.rightSide)
-        self.backupButton.setCheckable(True)
-        self.renameButton.setCheckable(True)
-        self.jobcodeButton.setCheckable(True)
         self.backupButton.setSizePolicy(QSizePolicy.Fixed,
                                            QSizePolicy.Fixed)
         self.renameButton.setSizePolicy(QSizePolicy.Fixed,
@@ -1880,8 +1881,6 @@ class RapidWindow(QMainWindow):
         kc = self.devices.cameras.items()
         known_cameras = [(model, port) for port, model in kc]
         removed_cameras = set(known_cameras) - set(system_cameras)
-        #TODO handle situation when this is called twice, with dual  memory
-        # cards
         for model, port in removed_cameras:
             scan_id = self.devices.scan_id_from_camera_model_port(model, port)
             self.removeDevice(scan_id)
@@ -1961,6 +1960,7 @@ class RapidWindow(QMainWindow):
     def startDeviceScan(self, device: Device):
         scan_id = self.devices.add_device(device)
         self.addToDeviceDisplay(device, scan_id)
+        self.updateSourceButton()
         scan_preferences = ScanPreferences(self.prefs.ignored_paths)
         scan_arguments = ScanArguments(scan_preferences, device)
         self.scanmq.start_worker(scan_id, scan_arguments)
@@ -2081,6 +2081,7 @@ class RapidWindow(QMainWindow):
             self.deviceModel.removeDevice(scan_id)
             del self.devices[scan_id]
             self.resizeDeviceView()
+            self.updateSourceButton()
 
     def setupNonCameraDevices(self, on_startup: bool,
                               on_preference_change: bool,
