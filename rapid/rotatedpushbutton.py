@@ -2,7 +2,7 @@ __author__ = 'Damon Lynch'
 
 from enum import IntEnum
 
-from PyQt5.QtGui import (QColor, QPalette)
+from PyQt5.QtGui import (QColor)
 from PyQt5.QtWidgets import (QPushButton, QStylePainter, QStyle,
                              QStyleOptionButton)
 
@@ -15,7 +15,7 @@ class RotatedButton(QPushButton):
     leftSide = 270.0
     rightSide = 90.0
 
-    def __init__(self, text, parent, rotation: float, flat:bool = True,
+    def __init__(self, text, parent, rotation: float, flat: bool=True,
                  checkable: bool=True):
         super().__init__(text, parent)
         self.buttonRotation = rotation
@@ -36,10 +36,10 @@ class RotatedButton(QPushButton):
     def setRotation(self, rotation: float):
         self.buttonRotation = rotation
 
-    def minimumSizeHint(self):
-        size = super().minimumSizeHint()
-        # size.transpose()
-        return size
+    # def minimumSizeHint(self):
+    #     size = super().minimumSizeHint()
+    #     size.transpose()
+    #     return size
 
     def sizeHint(self):
         size = super().sizeHint()

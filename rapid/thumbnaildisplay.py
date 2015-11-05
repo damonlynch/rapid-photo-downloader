@@ -600,7 +600,6 @@ class ThumbnailTableModel(QAbstractTableModel):
 
     def groupFilesByTemporalProximity(self, seconds: int=3600):
         groups = TemporalProximityGroups(self.rows, seconds)
-        logging.debug("Found %s groups", len(groups))
         return groups
 
 
@@ -612,7 +611,7 @@ class ThumbnailView(QListView):
         padding-bottom: 4px;
         }
         """
-        super(ThumbnailView, self).__init__()
+        super().__init__()
         self.setViewMode(QListView.IconMode)
         self.setResizeMode(QListView.Adjust)
         self.setStyleSheet(style)
@@ -621,7 +620,7 @@ class ThumbnailView(QListView):
 
 class ThumbnailDelegate(QStyledItemDelegate):
     def __init__(self, parent=None):
-        super(ThumbnailDelegate, self).__init__(parent)
+        super().__init__(parent)
 
         self.checkboxStyleOption = QStyleOptionButton()
         self.checkboxRect = QApplication.style().subElementRect(
@@ -874,7 +873,6 @@ class ThumbnailDelegate(QStyledItemDelegate):
                                        text_height, pixmap)
 
             painter.restore()
-
 
     def sizeHint(self, option, index):
         return QSize(self.width + self.padding * 2, self.height

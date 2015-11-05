@@ -87,7 +87,8 @@ import constants
 from thumbnaildisplay import (ThumbnailView, ThumbnailTableModel,
     ThumbnailDelegate, DownloadTypes, DownloadStats)
 from devicedisplay import (DeviceTableModel, DeviceView, DeviceDelegate)
-from proximity import TemporalProximityModel, TemporalProximityView
+from proximity import (TemporalProximityModel, TemporalProximityView,
+                       TemporalProximityDelegate)
 from utilities import (same_file_system, make_internationalized_list,
                        human_readable_version, thousands)
 from rpdfile import (RPDFile, file_types_by_number, PHOTO_EXTENSIONS,
@@ -351,6 +352,9 @@ class RapidWindow(QMainWindow):
         self.temporalProximityView = TemporalProximityView()
         self.temporalProximityModel = TemporalProximityModel(self)
         self.temporalProximityView.setModel(self.temporalProximityModel)
+        self.temporalProximityDelegate = TemporalProximityDelegate(self)
+        self.temporalProximityView.setItemDelegate(
+            self.temporalProximityDelegate)
 
         # Devices are cameras and partitions
         self.devices = DeviceCollection()
@@ -1704,18 +1708,7 @@ class RapidWindow(QMainWindow):
 
         self.displayMessageInStatusBar(update_only_marked=True)
 
-        groups = self.thumbnailModel.groupFilesByTemporalProximity()
-        self.temporalProximityModel.setGroup(groups)
-        self.temporalProximityView.resizeColumnsToContents()
-        self.temporalProximityView.resizeRowsToContents()
-        print("Proximity sizes:", self.temporalProximityView.minimumSizeHint(),
-              self.temporalProximityView.size())
-
-        # self.temporalProximityView.setMaximumWidth(250)
-        # self.temporalProximityView.hide()
-
-        # self.thumbnailProxyModel.setFilterRegExp(QRegExp(re))
-        # self.thumbnailProxyModel.setFilterRegExp('')
+        self.setUpTemporalProximityTable()
 
         if (not self.auto_start_is_on and  self.prefs.generate_thumbnails):
             # Generate thumbnails for finished scan
@@ -1726,6 +1719,29 @@ class RapidWindow(QMainWindow):
                 self.job_code.get_job_code()
             else:
                 self.startDownload(scan_id=scan_id)
+
+    def setUpTemporalProximityTable(self):
+
+        groups = self.thumbnailModel.groupFilesByTemporalProximity()
+        self.temporalProximityModel.setGroup(groups)
+        depth = groups.depth()
+        self.temporalProximityDelegate.setDepth(depth)
+        if depth == 1:
+            self.temporalProximityView.hideColumn(0)
+        for column, row, span in groups.spans:
+            self.temporalProximityView.setSpan(row, column, span, 1)
+
+        self.temporalProximityModel.endResetModel()
+
+        self.temporalProximityView.resizeRowsToContents()
+        self.temporalProximityView.resizeColumnsToContents()
+
+        width = self.temporalProximityView.minimumSizeHint().width()
+        self.temporalProximityView.setMaximumWidth(width)
+        # self.temporalProximityView.hide()
+
+        # self.thumbnailProxyModel.setFilterRegExp(QRegExp(re))
+        # self.thumbnailProxyModel.setFilterRegExp('')
 
     def closeEvent(self, event):
         if self.application_state == ApplicationState.normal:
@@ -1846,8 +1862,7 @@ class RapidWindow(QMainWindow):
     def resizeDeviceView(self):
         """
         Sets the maximum height for the device view table to match the
-        number of rows. which has the happy side effect of moving the
-        splitter.
+        number of rows
         """
         assert len(self.devices) == self.deviceModel.rowCount()
         if len(self.devices):
