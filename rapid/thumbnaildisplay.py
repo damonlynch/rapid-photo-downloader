@@ -49,10 +49,10 @@ from rpdfile import RPDFile, extension_type, FileTypeCounter
 from interprocess import (PublishPullPipelineManager,
     GenerateThumbnailsArguments, Device, GenerateThumbnailsResults)
 from constants import (DownloadStatus, Downloaded, FileType, FileExtension,
-                       ThumbnailSize, ThumbnailCacheStatus, Roles)
+                       ThumbnailSize, ThumbnailCacheStatus, Roles, DeviceType)
 from storage import get_program_cache_directory, gvfs_controls_mounts
-from utilities import (CacheDirs, make_internationalized_list)
-from proximity import TemporalProximityGroups
+from utilities import (CacheDirs, make_internationalized_list,
+                       divide_list)
 
 
 class DownloadTypes:
@@ -79,6 +79,7 @@ class ThumbnailManager(PublishPullPipelineManager):
         super(ThumbnailManager, self).__init__(context)
         self._process_name = 'Thumbnail Manager'
         self._process_to_run = 'thumbnail.py'
+        self._worker_id = 0
 
     def process_sink_data(self):
         data = pickle.loads(self.content)
@@ -91,12 +92,17 @@ class ThumbnailManager(PublishPullPipelineManager):
             assert data.cache_dirs is not None
             self.cacheDirs.emit(data.scan_id, data.cache_dirs)
 
+    def get_worker_id(self) -> int:
+        self._worker_id += 1
+        return self._worker_id
+
 
 class ThumbnailTableModel(QAbstractTableModel):
-    def __init__(self, parent):
+    def __init__(self, parent) -> None:
         super().__init__(parent)
         self.rapidApp = parent
         """ :type : rapid.RapidWindow"""
+
         self.initialize()
 
         self.gnome_env = gvfs_controls_mounts()
@@ -117,7 +123,7 @@ class ThumbnailTableModel(QAbstractTableModel):
         # user clicks download before the thumbnailing is finished
         self.generating_thumbnails = {}
 
-    def initialize(self):
+    def initialize(self) -> None:
         self.file_names = {} # type: Dict[int, str]
         self.thumbnails = {} # type: Dict[int, QPixmap]
         self.marked = set()
@@ -139,10 +145,10 @@ class ThumbnailTableModel(QAbstractTableModel):
                         self.rpd_files[unique_id].modification_time)
         return self.rows.index(list_item)
 
-    def columnCount(self, parent=QModelIndex()):
+    def columnCount(self, parent=QModelIndex()) -> int:
         return 1
 
-    def rowCount(self, parent=QModelIndex()):
+    def rowCount(self, parent=QModelIndex()) -> int:
         return len(self.rows)
 
     def data(self, index: QModelIndex, role=Qt.DisplayRole):
@@ -340,6 +346,32 @@ class ThumbnailTableModel(QAbstractTableModel):
             self.rapidApp.prefs.video_download_folder, is_photo_dir=False)
         return CacheDirs(photo_cache_folder, video_cache_folder)
 
+    def getNoCPUsToGenerateThumbnails(self, scan_id: int) -> int:
+        """
+        Determine the number of CPUs that should be used to generate
+        thumbnails for the device associated with this scan_id. To make
+        life easier, assume that the number of devices being scanned
+        will take the same amount of time to generate their thumbnails.
+        We don't know that of course, and we can't know it, because some
+        devices will not have finished being scanned.
+        Note: if too many processes are generating thumbnails, the main
+        process can become overwhelmed, and the GUI unresponsive.
+        :param scan_id: the scan id of the device in question
+        :return: the number of processes to assign
+        """
+        device = self.rapidApp.devices[scan_id]
+
+        # Cameras can use only one CPU, as only one process can access
+        # camera contents
+        if device.device_type == DeviceType.camera:
+            return 1
+
+        no_cameras = len(self.rapidApp.devices.cameras)
+        no_non_camera_devices = len(self.rapidApp.devices) - no_cameras
+
+        return max(1, self.rapidApp.prefs.max_cpu_cores //
+                   no_non_camera_devices)
+
     def generateThumbnails(self, scan_id: int, device: Device,
                            thumbnail_quality_lower: bool):
         """
@@ -348,22 +380,34 @@ class ThumbnailTableModel(QAbstractTableModel):
         :param thumbnail_quality_lower: whether to generate the
         thumbnail high or low quality as it is scaled by Qt
         """
+
+
         if scan_id in self.scan_index:
+            cpus = self.getNoCPUsToGenerateThumbnails(scan_id)
+            logging.debug("Will use %s CPUs to generate thumbnails for %s",
+                          cpus, self.rapidApp.devices[scan_id].name())
+
             self.rapidApp.downloadProgressBar.setMaximum(
                 self.total_thumbs_to_generate)
+            cache_dirs = self.getCacheLocations()
             rpd_files = list((self.rpd_files[unique_id] for unique_id in
                          self.scan_index[scan_id]))
-            cache_dirs = self.getCacheLocations()
+            if cpus > 1 and len(rpd_files) > 500:
+                rpd_file_slices = divide_list(rpd_files, cpus)
+            else:
+                rpd_file_slices = [rpd_files]
 
-            generate_arguments = GenerateThumbnailsArguments(scan_id,
-                                 rpd_files,
-                                 thumbnail_quality_lower,
-                                 device.name(),
-                                 cache_dirs,
-                                 device.camera_model,
-                                 device.camera_port)
-            self.thumbnailmq.start_worker(scan_id, generate_arguments)
+            for chunk in rpd_file_slices:
+                worker_id = self.thumbnailmq.get_worker_id()
 
+                generate_arguments = GenerateThumbnailsArguments(scan_id,
+                                     chunk,
+                                     thumbnail_quality_lower,
+                                     device.name(),
+                                     cache_dirs,
+                                     device.camera_model,
+                                     device.camera_port)
+                self.thumbnailmq.start_worker(worker_id, generate_arguments)
 
     def resetThumbnailTrackingAndDisplay(self):
         self.rapidApp.downloadProgressBar.reset()

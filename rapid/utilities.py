@@ -66,7 +66,36 @@ def available_cpu_count():
     try:
         return psutil.cpu_count()
     except:
-        return None
+        return 1
+
+def divide_list(source: list, no_pieces: int) -> list:
+    r"""
+    Returns a list containing no_pieces lists, with the items
+    of the original list evenly distributed
+    :param source: the list to divide
+    :param no_pieces: the nubmer of pieces the lists
+    :return: the new list
+
+    >>> divide_list(list(range(12)), 4)
+    [[0, 1, 2], [3, 4, 5], [6, 7, 8], [9, 10, 11]]
+    >>> divide_list(list(range(11)), 4)
+    [[0, 1, 2], [3, 4, 5], [6, 7, 8], [9, 10]]
+    """
+    source_size = len(source)
+    slice_size = source_size // no_pieces
+    remainder = source_size % no_pieces
+    result = []
+
+    extra = 0
+    for i in range(no_pieces):
+        start = i * slice_size + extra
+        source_slice = source[start:start + slice_size]
+        if remainder:
+            source_slice += [source[start + slice_size]]
+            remainder -= 1
+            extra += 1
+        result.append(source_slice)
+    return result
 
 class GenerateRandomFileName:
     def __init__(self):

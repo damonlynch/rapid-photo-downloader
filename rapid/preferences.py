@@ -32,6 +32,7 @@ from gettext import gettext as _
 from storage import xdg_photos_directory, xdg_videos_directory
 from generatenameconfig import *
 import constants
+from utilities import available_cpu_count
 
 
 class ScanPreferences:
@@ -306,7 +307,10 @@ class Preferences:
     performance_defaults = dict(generate_thumbnails=True,
                                 thumbnail_quality_lower=False,
                                 use_thumbnail_cache=True,
-                                save_fdo_thumbnails=True)
+                                save_fdo_thumbnails=True,
+                                max_cpu_cores=max(
+                                    available_cpu_count() // 2, 1)
+                                )
     error_defaults = dict(conflict_resolution=int(constants.ConflictResolution
                           .skip),
                           backup_duplicate_overwrite=False)
