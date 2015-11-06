@@ -556,7 +556,7 @@ class PrefKeyError(PrefError):
 
 class PrefValueInvalidError(PrefKeyError):
     def __init__(self, error):
-        super().__init__()
+        super().__init__(error)
         value = error[0]
         self.msg = "Preference value '%(value)s' is invalid" % {'value': value}
 
