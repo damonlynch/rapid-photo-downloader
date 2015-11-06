@@ -20,6 +20,8 @@ __author__ = 'Damon Lynch'
 # see <http://www.gnu.org/licenses/>.
 
 import os
+import sys
+import re
 import distutils.version
 from collections import namedtuple
 import random
@@ -29,9 +31,42 @@ import logging
 import locale
 from gettext import gettext as _
 
+import psutil
+
+
 logging.basicConfig(format='%(levelname)s:%(asctime)s:%(message)s',
                     datefmt='%H:%M:%S',
                     level=logging.DEBUG)
+
+def available_cpu_count():
+    """
+    Number of available virtual or physical CPUs on this system, i.e.
+    user/real as output by time(1) when called with an optimally scaling
+    userspace-only program
+
+    http://stackoverflow.com/questions/1006289/how-to-find-out-the-number-of-
+    cpus-using-python
+    """
+
+    # cpuset may restrict the number of *available* processors
+    if sys.platform.startswith('linux'):
+        try:
+            m = re.search(r'(?m)^Cpus_allowed:\s*(.*)$',
+                          open('/proc/self/status').read())
+            if m:
+                res = bin(int(m.group(1).replace(',', ''), 16)).count('1')
+                if res > 0:
+                    return res
+        except IOError:
+            pass
+
+    c = os.cpu_count()
+    if c is not None:
+        return c
+    try:
+        return psutil.cpu_count()
+    except:
+        return None
 
 class GenerateRandomFileName:
     def __init__(self):

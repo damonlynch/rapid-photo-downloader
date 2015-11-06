@@ -24,7 +24,6 @@ import datetime
 import logging
 
 import arrow.arrow
-from sortedcontainers import SortedListWithKey
 
 from gettext import gettext as _
 
@@ -184,8 +183,8 @@ def humanize_time_span(start: arrow.Arrow, end: arrow.Arrow,
         
 
 class TemporalProximityGroups:
-    def __init__(self, sorted_list_items: SortedListWithKey,
-                 temporal_span: int):
+    def __init__(self, thumbnail_rows: list,
+                 temporal_span: int=3600):
         self.rows = []
         self.uniqueid_by_proximity = defaultdict(list)
         self.times_by_proximity = defaultdict(list)
@@ -198,10 +197,10 @@ class TemporalProximityGroups:
         self._previous_month = False
 
         # Generate an arrow date time for every timestamp we have.
-        uniqueid_times = [UniqueIdTime(sli.modification_time,
-                                  arrow.get(sli.modification_time).to('local'),
-                                  sli.id_value)
-                     for sli in sorted_list_items]
+        uniqueid_times = [UniqueIdTime(tr.modification_time,
+                                  arrow.get(tr.modification_time).to('local'),
+                                  tr.id_value)
+                          for tr in thumbnail_rows]
 
         if not uniqueid_times:
             return

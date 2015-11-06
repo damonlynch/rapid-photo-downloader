@@ -27,6 +27,7 @@ import shlex
 import time
 
 from psutil import (Process, wait_procs, pid_exists)
+from sortedcontainers import SortedListWithKey
 
 from PyQt5.QtCore import (pyqtSignal, QObject)
 from PyQt5.QtGui import QPixmap
@@ -38,6 +39,7 @@ from devices import Device
 from preferences import ScanPreferences
 from utilities import CacheDirs
 from constants import RenameAndMoveStatus
+from proximity import TemporalProximityGroups
 
 
 logging_level = logging.DEBUG
@@ -167,7 +169,16 @@ class PullPipelineManager(QObject):
         args = shlex.split(command_line)
 
         # run command immediately, without waiting a reply
-        pid = subprocess.Popen(args).pid
+        try:
+            pid = subprocess.Popen(args).pid
+        except OSError as e:
+            logging.critical("Failed to start process: %s", command_line)
+            logging.critical('OSError [Errno %s]: %s', e.errno, e.strerror)
+            if e.errno == 8:
+                logging.critical("Script shebang line might be malformed or "
+                                 "missing: "
+                                 "%s", self._get_cmd())
+            sys.exit(1)
         # logging.debug("Started '%s' with pid %s", command_line, pid)
 
         # Add to list of running workers
@@ -653,6 +664,18 @@ class RenameAndMoveFileResults:
         self.png_data = png_data
         self.stored_sequence_no = stored_sequence_no
         self.downloads_today = downloads_today
+
+
+class OffloadData:
+    def __init__(self, thumbnail_rows: list=None,
+                 proximity_seconds: int=None):
+        self.thumbnail_rows = thumbnail_rows
+        self.proximity_seconds = proximity_seconds
+
+
+class OffloadResults:
+    def __init__(self, proximity_groups: TemporalProximityGroups=None):
+        self.proximity_groups = proximity_groups
 
 
 class BackupArguments:

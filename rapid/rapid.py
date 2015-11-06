@@ -75,7 +75,9 @@ from interprocess import (PublishPullPipelineManager,
                           BackupResults,
                           CopyFilesResults,
                           RenameAndMoveFileResults,
-                          BackupFileData)
+                          BackupFileData,
+                          OffloadData,
+                          OffloadResults)
 from devices import (Device, DeviceCollection, BackupDevice,
                      BackupDeviceCollection)
 from preferences import (Preferences, ScanPreferences)
@@ -88,7 +90,7 @@ from thumbnaildisplay import (ThumbnailView, ThumbnailTableModel,
     ThumbnailDelegate, DownloadTypes, DownloadStats)
 from devicedisplay import (DeviceTableModel, DeviceView, DeviceDelegate)
 from proximity import (TemporalProximityModel, TemporalProximityView,
-                       TemporalProximityDelegate)
+                       TemporalProximityDelegate, TemporalProximityGroups)
 from utilities import (same_file_system, make_internationalized_list,
                        human_readable_version, thousands)
 from rpdfile import (RPDFile, file_types_by_number, PHOTO_EXTENSIONS,
@@ -113,7 +115,7 @@ class RenameMoveFileManager(PushPullDaemonManager):
     message = QtCore.pyqtSignal(bool, RPDFile, int, QPixmap)
     sequencesUpdate = QtCore.pyqtSignal(int, list)
     def __init__(self, context: zmq.Context):
-        super(RenameMoveFileManager, self).__init__(context)
+        super().__init__(context)
         self._process_name = 'Rename and Move File Manager'
         self._process_to_run = 'renameandmovefile.py'
 
@@ -139,10 +141,26 @@ class RenameMoveFileManager(PushPullDaemonManager):
                                       data.downloads_today)
 
 
+class OffloadManager(PushPullDaemonManager):
+    message = QtCore.pyqtSignal(TemporalProximityGroups)
+    def __init__(self, context: zmq.Context):
+        super().__init__(context)
+        self._process_name = 'Offload Manager'
+        self._process_to_run = 'offload.py'
+
+    def assign_work(self, data: OffloadData):
+        self.send_message_to_worker(data)
+
+    def process_sink_data(self):
+        data = pickle.loads(self.content) # type: OffloadResults
+        if data.proximity_groups is not None:
+            self.message.emit(data.proximity_groups)
+
+
 class ScanManager(PublishPullPipelineManager):
     message = QtCore.pyqtSignal(RPDFile)
     def __init__(self, context: zmq.Context):
-        super(ScanManager, self).__init__(context)
+        super().__init__(context)
         self._process_name = 'Scan Manager'
         self._process_to_run = 'scan.py'
 
@@ -496,6 +514,16 @@ class RapidWindow(QMainWindow):
         # Values used to display how much longer a download will take
         self.time_remaining = downloadtracker.TimeRemaining()
         self.time_check = downloadtracker.TimeCheck()
+
+        self.offloadThread = QThread()
+        self.offloadmq = OffloadManager(self.context)
+        self.offloadmq.moveToThread(self.offloadThread)
+
+        self.offloadThread.started.connect(self.offloadmq.run_sink)
+        self.offloadmq.message.connect(self.proximityGroupsGenerated)
+
+        QTimer.singleShot(0, self.offloadThread.start)
+        self.offloadmq.start()
 
         self.renameThread = QThread()
         self.renamemq = RenameMoveFileManager(self.context)
@@ -1708,7 +1736,7 @@ class RapidWindow(QMainWindow):
 
         self.displayMessageInStatusBar(update_only_marked=True)
 
-        self.setUpTemporalProximityTable()
+        self.generateTemporalProximityTableData()
 
         if (not self.auto_start_is_on and  self.prefs.generate_thumbnails):
             # Generate thumbnails for finished scan
@@ -1720,15 +1748,22 @@ class RapidWindow(QMainWindow):
             else:
                 self.startDownload(scan_id=scan_id)
 
-    def setUpTemporalProximityTable(self):
+    def generateTemporalProximityTableData(self):
+        # Convert the thumbnail rows to a regular list, because it's going
+        # to be pickled.
+        # TODO assign a user-defined value to the proximity
+        data = OffloadData(list(self.thumbnailModel.rows), 3600)
+        self.offloadmq.assign_work(data)
 
-        groups = self.thumbnailModel.groupFilesByTemporalProximity()
-        self.temporalProximityModel.setGroup(groups)
-        depth = groups.depth()
+    def proximityGroupsGenerated(self, proximity_groups:
+        TemporalProximityGroups):
+
+        self.temporalProximityModel.setGroup(proximity_groups)
+        depth = proximity_groups.depth()
         self.temporalProximityDelegate.setDepth(depth)
         if depth == 1:
             self.temporalProximityView.hideColumn(0)
-        for column, row, span in groups.spans:
+        for column, row, span in proximity_groups.spans:
             self.temporalProximityView.setSpan(row, column, span, 1)
 
         self.temporalProximityModel.endResetModel()
@@ -1771,24 +1806,35 @@ class RapidWindow(QMainWindow):
                 # so no need to update or close it in this main process
 
         self.writeWindowSettings()
+
+        self.offloadmq.stop()
+        self.offloadThread.quit()
+        if not self.offloadThread.wait(500):
+            self.offloadmq.forcefully_terminate()
+
         self.renamemq.stop()
         self.renameThread.quit()
         if not self.renameThread.wait(500):
             self.renamemq.forcefully_terminate()
+
         self.scanThread.quit()
         if not self.scanThread.wait(2000):
             self.scanmq.forcefully_terminate()
+
         self.thumbnailModel.thumbnailThread.quit()
         if not self.thumbnailModel.thumbnailThread.wait(1000):
             self.thumbnailModel.thumbnailmq.forcefully_terminate()
+
         self.copyfilesThread.quit()
         if not self.copyfilesThread.wait(1000):
             self.copyfilesmq.forcefully_terminate()
+
         if self.backup_manager_started:
             self.backupmq.stop()
             self.backupThread.quit()
             if not self.backupThread.wait(1000):
                 self.backupmq.forcefully_terminate()
+
         if not self.gvfsControlsMounts:
             self.udisks2MonitorThread.quit()
             self.udisks2MonitorThread.wait()

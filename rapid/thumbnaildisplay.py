@@ -21,9 +21,9 @@ __author__ = 'Damon Lynch'
 import pickle
 import os
 import sys
+import datetime
 from collections import (namedtuple, defaultdict)
 from operator import attrgetter
-import datetime
 import subprocess
 import shlex
 import logging
@@ -597,10 +597,6 @@ class ThumbnailTableModel(QAbstractTableModel):
             if rpd_file.status == DownloadStatus.not_downloaded:
                 return True
         return False
-
-    def groupFilesByTemporalProximity(self, seconds: int=3600):
-        groups = TemporalProximityGroups(self.rows, seconds)
-        return groups
 
 
 class ThumbnailView(QListView):

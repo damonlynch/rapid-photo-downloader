@@ -779,8 +779,7 @@ class RenameMoveFileWorker(DaemonProcess):
 
                 self.check_for_command(directive, content)
 
-                data = pickle.loads(content)
-                """ :type : RenameAndMoveFileData"""
+                data = pickle.loads(content) # type: RenameAndMoveFileData
                 if data.message == RenameAndMoveStatus.download_started:
                     # Syncrhonize QSettings instance in preferences class
                     self.prefs.sync()
