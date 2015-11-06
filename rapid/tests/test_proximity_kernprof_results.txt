@@ -1,0 +1,108 @@
+$ kernprof -l -v test_proximity.py 
+3
+Wrote profile results to test_proximity.py.lprof
+Timer unit: 1e-06 s
+
+Total time: 53.883 s
+File: /home/damon/zeromq_pyqt/zeromq_pyqt/rapid/proximity.py
+Function: __init__ at line 187
+
+Line #      Hits         Time  Per Hit   % Time  Line Contents
+==============================================================
+   187                                               @profile
+   188                                               def __init__(self, thumbnail_rows: list,
+   189                                                            temporal_span: int=3600):
+   190         1          461    461.0      0.0          self.rows = []
+   191         1           10     10.0      0.0          self.uniqueid_by_proximity = defaultdict(list)
+   192         1          210    210.0      0.0          self.times_by_proximity = defaultdict(list)
+   193         1         1027   1027.0      0.0          self.text_by_proximity = deque()
+   194         1           11     11.0      0.0          self.day_groups = defaultdict(list)
+   195         1            3      3.0      0.0          self.month_groups = defaultdict(list)
+   196         1            8      8.0      0.0          self.year_groups = defaultdict(list)
+   197         1            3      3.0      0.0          self._depth = None
+   198         1            3      3.0      0.0          self._previous_year = False
+   199         1            2      2.0      0.0          self._previous_month = False
+   200                                           
+   201                                                   # Generate an arrow date time for every timestamp we have.
+   202         1            3      3.0      0.0          uniqueid_times = [UniqueIdTime(tr.modification_time,
+   203                                                                             arrow.get(tr.modification_time).to('local'),
+   204                                                                             tr.id_value)
+   205         1      3546649 3546649.0      6.6                            for tr in thumbnail_rows]
+   206                                           
+   207         1            3      3.0      0.0          if not uniqueid_times:
+   208                                                       return
+   209                                           
+   210         1           57     57.0      0.0          now = arrow.now()
+   211         1           11     11.0      0.0          current_year = now.year
+   212         1            4      4.0      0.0          current_month = now.month
+   213                                           
+   214                                                   # Phase 1: Associate unique ids with their year, month and day
+   215     70274        92101      1.3      0.2          for x in uniqueid_times:
+   216     70273     12101506    172.2     22.5              self.day_groups[x.arrowtime.floor('day')].append(x.unqiue_id)
+   217     70273     12205411    173.7     22.7              self.month_groups[x.arrowtime.floor('month')].append(x.unqiue_id)
+   218     70273     11900406    169.3     22.1              self.year_groups[x.arrowtime.floor('year')].append(x.unqiue_id)
+   219     70273       421354      6.0      0.8              if x.arrowtime.year != current_year:
+   220     44993        73993      1.6      0.1                  self._previous_year = True
+   221     70273       306393      4.4      0.6              if x.arrowtime.month != current_month:
+   222     68771       109571      1.6      0.2                  self._previous_month = True
+   223                                           
+   224                                                   # Phase 2: Identify the proximity groups
+   225         1            1      1.0      0.0          group_no = 0
+   226         1            2      2.0      0.0          prev = uniqueid_times[0]
+   227                                           
+   228         1            4      4.0      0.0          self.uniqueid_by_proximity[group_no].append(prev.unqiue_id)
+   229         1            2      2.0      0.0          self.times_by_proximity[group_no].append(prev.arrowtime)
+   230                                           
+   231         1            2      2.0      0.0          if len(uniqueid_times) > 1:
+   232     70273        90208      1.3      0.2              for current in uniqueid_times[1:]:
+   233     70272       100453      1.4      0.2                  modification_time = current.modification_time
+   234     70272       103466      1.5      0.2                  if (modification_time - prev.modification_time
+   235     70272       100763      1.4      0.2                          > temporal_span):
+   236       801         1169      1.5      0.0                      group_no += 1
+   237     70272       121088      1.7      0.2                  self.times_by_proximity[group_no].append(current.arrowtime)
+   238     70272       117206      1.7      0.2                  self.uniqueid_by_proximity[group_no].append(current.unqiue_id)
+   239     70272        90900      1.3      0.2                  prev = current
+   240                                           
+   241                                                   # Phase 3: Generate the proximity group's text that will appear in
+   242                                                   # the right-most column
+   243       803         1550      1.9      0.0          for i in range(len(self.times_by_proximity)):
+   244       802         1691      2.1      0.0              start = self.times_by_proximity[i][0] # type: arrow.Arrow
+   245       802         1370      1.7      0.0              end = self.times_by_proximity[i][-1] # type: arrow.Arrow
+   246       802         1207      1.5      0.0              self.text_by_proximity.append(humanize_time_span(start, end,
+   247       802       707161    881.7      1.3                                               insert_cr_on_long_line=True))
+   248                                           
+   249                                                   # Phase 4: Generate the rows to be displayed to the user
+   250         1            2      2.0      0.0          self.prev_row_month = None # type: arrow.Arrow
+   251         1            4      4.0      0.0          self.prev_row_day = None  # type: arrow.Arrow
+   252         1            2      2.0      0.0          self.row_index = -1
+   253       803         1119      1.4      0.0          for group_no in range(len(self.times_by_proximity)):
+   254       802         1727      2.2      0.0              arrowtime = self.times_by_proximity[group_no][0]
+   255       802       110641    138.0      0.2              prev_day = arrowtime.floor('day')
+   256       802         1859      2.3      0.0              text = self.text_by_proximity.popleft()
+   257       802         1424      1.8      0.0              self.row_index += 1
+   258       802       284829    355.1      0.5              self.rows.append(self.make_row(arrowtime, text))
+   259       802         2009      2.5      0.0              if len(self.times_by_proximity[group_no]) > 1:
+   260     70239       115990      1.7      0.2                  for arrowtime in self.times_by_proximity[group_no][1:]:
+   261     69471      9475530    136.4     17.6                      day = arrowtime.floor('day')
+   262                                           
+   263     69471      1673425     24.1      3.1                      if prev_day != day:
+   264        14           28      2.0      0.0                          prev_day = day
+   265        14         5168    369.1      0.0                          self.rows.append(self.make_row(arrowtime, ''))
+   266                                           
+   267                                                   # Phase 5: Determine the row spans for each column
+   268         1            2      2.0      0.0          column = 0
+   269         1            2      2.0      0.0          self.spans = []
+   270         1            1      1.0      0.0          column = -1
+   271         4            4      1.0      0.0          for c in (0, 2, 4):
+   272         3            3      1.0      0.0              column += 1
+   273         3            3      1.0      0.0              start_row = 0
+   274      2451         3029      1.2      0.0              for row_index, row in enumerate(self.rows):
+   275      2448         3089      1.3      0.0                  if row[c]:
+   276      1408         1725      1.2      0.0                      row_count = row_index - start_row
+   277      1408         1754      1.2      0.0                      if row_count > 1:
+   278       276          455      1.6      0.0                          self.spans.append((column, start_row, row_count))
+   279      1408         1728      1.2      0.0                      start_row = row_index
+   280         3            5      1.7      0.0              if start_row != len(self.rows) - 1:
+   281         1            2      2.0      0.0                  self.spans.append((column, start_row, len(self.rows) -
+   282         1            1      1.0      0.0                                     start_row))
+

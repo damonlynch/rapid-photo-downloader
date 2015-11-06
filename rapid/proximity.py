@@ -22,6 +22,7 @@ from collections import (namedtuple, defaultdict, deque)
 import locale
 import datetime
 import logging
+import pickle
 
 import arrow.arrow
 
@@ -183,6 +184,7 @@ def humanize_time_span(start: arrow.Arrow, end: arrow.Arrow,
         
 
 class TemporalProximityGroups:
+    # @profile
     def __init__(self, thumbnail_rows: list,
                  temporal_span: int=3600):
         self.rows = []

@@ -6,3 +6,4 @@ trunkbackup.po
 .idea
 Rapid-Photo-Downloader.odg
 .~lock.Rapid-Photo-Downloader.odg#
+*.lprof
