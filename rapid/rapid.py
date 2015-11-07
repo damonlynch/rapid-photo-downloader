@@ -39,6 +39,7 @@ import argparse
 
 from gettext import gettext as _
 from gi.repository import Notify
+import psutil
 
 try:
     from gi.repository import Unity
@@ -75,6 +76,7 @@ from interprocess import (PublishPullPipelineManager,
                           BackupResults,
                           CopyFilesResults,
                           RenameAndMoveFileResults,
+                          ScanResults,
                           BackupFileData,
                           OffloadData,
                           OffloadResults)
@@ -94,7 +96,7 @@ from proximity import (TemporalProximityModel, TemporalProximityView,
 from utilities import (same_file_system, make_internationalized_list,
                        human_readable_version, thousands)
 from rpdfile import (RPDFile, file_types_by_number, PHOTO_EXTENSIONS,
-                     VIDEO_EXTENSIONS)
+                     VIDEO_EXTENSIONS, FileTypeCounter)
 import downloadtracker
 from cache import ThumbnailCache
 from metadataphoto import exiv2_version, gexiv2_version
@@ -158,11 +160,14 @@ class OffloadManager(PushPullDaemonManager):
 
 
 class ScanManager(PublishPullPipelineManager):
-    message = QtCore.pyqtSignal(RPDFile)
+    message = QtCore.pyqtSignal(bytes)
     def __init__(self, context: zmq.Context):
         super().__init__(context)
         self._process_name = 'Scan Manager'
         self._process_to_run = 'scan.py'
+
+    def process_sink_data(self):
+        self.message.emit(self.content)
 
 
 class BackupManager(PublishPullPipelineManager):
@@ -1711,18 +1716,26 @@ class RapidWindow(QMainWindow):
                 return BackupMissing(photo=photo_missing, video=video_missing)
         return None
 
-    def scanMessageReceived(self, rpd_file: RPDFile):
+    def scanMessageReceived(self, pickled_data: bytes) -> None:
+        """
+        Process data received from the scan process. The data is
+        pickled because PyQt converts the Python int into a C++ int,
+        which unlike Pyhon has an upper limit. Unpickle it too early,
+        and the int wraps around to become a negative number.
+        """
+        data = pickle.loads(pickled_data)
         # Update scan running totals
-        scan_id = rpd_file.scan_id
+        scan_id = data.rpd_files[0].scan_id
         device = self.devices[scan_id]
-        device.file_type_counter[rpd_file.file_type] += 1
-        device.file_size_sum += rpd_file.size
-        size = self.formatSizeForUser(device.file_size_sum)
-        text = device.file_type_counter.running_file_count()
+        device.file_type_counter = data.file_type_counter
+        device.file_size_sum = data.file_size_sum
+        size = self.formatSizeForUser(data.file_size_sum)
+        text = data.file_type_counter.running_file_count()
         self.deviceModel.updateDeviceScan(scan_id, text, size)
 
-        self.thumbnailModel.addFile(rpd_file, generate_thumbnail=not
-                                    self.auto_start_is_on)
+        for rpd_file in data.rpd_files:
+            self.thumbnailModel.addFile(rpd_file, generate_thumbnail=not
+                                        self.auto_start_is_on)
 
     def scanFinished(self, scan_id: int):
         device = self.devices[scan_id]

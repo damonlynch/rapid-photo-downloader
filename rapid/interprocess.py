@@ -34,7 +34,7 @@ from PyQt5.QtGui import QPixmap
 
 import zmq
 
-from rpdfile import RPDFile
+from rpdfile import (RPDFile, FileTypeCounter)
 from devices import Device
 from preferences import ScanPreferences
 from utilities import CacheDirs
@@ -551,7 +551,7 @@ class WorkerInPublishPullPipeline(WorkerProcess):
         self.sync_client = context.socket(zmq.REQ)
         self.sync_client.connect("tcp://localhost:{}".format(args.syncclient))
 
-    def check_for_command(self, directive, content):
+    def check_for_command(self, directive, content) -> None:
         if directive == b'cmd':
             assert content == b'STOP'
             self.cleanup_pre_stop()
@@ -559,7 +559,7 @@ class WorkerInPublishPullPipeline(WorkerProcess):
             self.sender.send_multipart([self.worker_id, b'cmd', b'STOPPED'])
             sys.exit(0)
 
-    def check_for_controller_directive(self):
+    def check_for_controller_directive(self) -> None:
         try:
             # Don't block if process is running regularly
             # If there is no command,exception will occur
@@ -581,7 +581,7 @@ class WorkerInPublishPullPipeline(WorkerProcess):
         except zmq.Again:
             pass # Continue working
 
-    def send_finished_command(self):
+    def send_finished_command(self) -> None:
         self.sender.send_multipart([self.worker_id, b'cmd', b'FINISHED'])
 
 
@@ -589,9 +589,20 @@ class ScanArguments:
     """
     Pass arguments to the scan process
     """
-    def __init__(self, scan_preferences: ScanPreferences, device: Device):
+    def __init__(self, scan_preferences: ScanPreferences,
+                 device: Device) -> None:
         self.scan_preferences = scan_preferences
         self.device = device
+
+class ScanResults:
+    """
+    Receive results from the scan process
+    """
+    def __init__(self, rpd_files: list, file_type_counter: FileTypeCounter,
+                 file_size_sum: int) -> None:
+        self.rpd_files = rpd_files
+        self.file_type_counter = file_type_counter
+        self.file_size_sum = file_size_sum
 
 
 class CopyFilesArguments:
@@ -605,7 +616,7 @@ class CopyFilesArguments:
                   files,
                   verify_file: bool,
                   generate_thumbnails: bool,
-                  thumbnail_quality_lower: bool):
+                  thumbnail_quality_lower: bool) -> None:
         """
         :param files: List(rpd_file)
         """
@@ -625,7 +636,7 @@ class CopyFilesResults:
     def __init__(self, scan_id=None, photo_temp_dir=None, video_temp_dir=None,
                  total_downloaded=None, chunk_downloaded=None,
                  copy_succeeded=None, rpd_file=None,
-                 download_count=None):
+                 download_count=None) -> None:
         self.scan_id = scan_id
 
         self.photo_temp_dir = photo_temp_dir
@@ -647,7 +658,7 @@ class RenameAndMoveFileData:
     """
     def __init__(self, rpd_file: RPDFile=None, download_count: int=None,
                  download_succeeded: bool=None,
-                 message: RenameAndMoveStatus=None):
+                 message: RenameAndMoveStatus=None) -> None:
         self.rpd_file = rpd_file
         self.download_count = download_count
         self.download_succeeded = download_succeeded
@@ -657,7 +668,8 @@ class RenameAndMoveFileData:
 class RenameAndMoveFileResults:
     def __init__(self, move_succeeded: bool=None, rpd_file: RPDFile=None,
                  download_count: int=None, png_data: bytes=None,
-                 stored_sequence_no: int=None, downloads_today: list=None):
+                 stored_sequence_no: int=None,
+                 downloads_today: list=None) -> None:
         self.move_succeeded = move_succeeded
         self.rpd_file = rpd_file
         self.download_count = download_count
@@ -668,13 +680,13 @@ class RenameAndMoveFileResults:
 
 class OffloadData:
     def __init__(self, thumbnail_rows: list=None,
-                 proximity_seconds: int=None):
+                 proximity_seconds: int=None) -> None:
         self.thumbnail_rows = thumbnail_rows
         self.proximity_seconds = proximity_seconds
 
 
 class OffloadResults:
-    def __init__(self, proximity_groups: TemporalProximityGroups=None):
+    def __init__(self, proximity_groups: TemporalProximityGroups=None) -> None:
         self.proximity_groups = proximity_groups
 
 
@@ -693,7 +705,7 @@ class BackupFileData:
     def __init__(self, rpd_file: RPDFile, move_succeeded: bool,
                  do_backup: bool, path_suffix: str,
                  backup_duplicate_overwrite: bool, verify_file: bool,
-                 download_count: int, save_fdo_thumbnail: int):
+                 download_count: int, save_fdo_thumbnail: int) -> None:
         self.rpd_file = rpd_file
         self.move_succeeded = move_succeeded
         self.do_backup = do_backup
@@ -707,7 +719,7 @@ class BackupResults:
     def __init__(self, scan_id: int, device_id: int,
                  total_downloaded=None, chunk_downloaded=None,
                  backup_succeeded: bool=None, do_backup: bool=None, rpd_file:
-                 RPDFile=None):
+                 RPDFile=None) -> None:
         self.scan_id = scan_id
         self.device_id = device_id
         self.total_downloaded = total_downloaded
@@ -720,7 +732,7 @@ class BackupResults:
 class GenerateThumbnailsArguments:
     def __init__(self, scan_id: int, rpd_files, thumbnail_quality_lower: bool,
                  name: str, cache_dirs: CacheDirs,
-                 camera=None, port=None):
+                 camera=None, port=None) -> None:
         """
         List of files for which thumbnails are to be generated.
         All files  are assumed to have the same scan id.
@@ -752,7 +764,7 @@ class GenerateThumbnailsArguments:
 
 class GenerateThumbnailsResults:
     def __init__(self, rpd_file=None, png_data=None,
-                 scan_id=None, cache_dirs: CacheDirs=None):
+                 scan_id=None, cache_dirs: CacheDirs=None) -> None:
         self.rpd_file = rpd_file
         self.png_data = png_data
         self.scan_id = scan_id

@@ -39,7 +39,8 @@ import scandir
 # Thus do not remove these two imports
 from interprocess import ScanArguments
 from preferences import ScanPreferences
-from interprocess import WorkerInPublishPullPipeline
+from interprocess import (WorkerInPublishPullPipeline, ScanResults,
+                          ScanArguments)
 from camera import Camera
 import rpdfile
 from constants import (DeviceType, FileType)
@@ -60,11 +61,15 @@ class ScanWorker(WorkerInPublishPullPipeline):
     def __init__(self):
         self.downloaded = DownloadedSQL()
         self.no_previously_downloaded = 0
+        self.file_batch = []
+        self.batch_size = 15
+        self.file_type_counter = rpdfile.FileTypeCounter()
+        self.file_size_sum = 0
         super(ScanWorker, self).__init__('Scan')
 
 
     def do_work(self):
-        scan_arguments = pickle.loads(self.content)
+        scan_arguments = pickle.loads(self.content) # type: ScanArguments
         self.scan_preferences = scan_arguments.scan_preferences
         self.download_from_camera = scan_arguments.device.device_type == \
                                     DeviceType.camera
@@ -140,6 +145,13 @@ class ScanWorker(WorkerInPublishPullPipeline):
 
             self.camera.free_camera()
 
+        if self.file_batch:
+            # Send any remaining files
+            self.content = pickle.dumps(ScanResults(self.file_batch,
+                                        self.file_type_counter,
+                                        self.file_size_sum),
+                                        pickle.HIGHEST_PROTOCOL)
+            self.send_message_to_sink()
         if self.files_scanned > 0 and not (self.files_scanned == 0 and
                                                    self.download_from_camera):
             logging.debug("{} total files scanned".format(
@@ -292,6 +304,8 @@ class ScanWorker(WorkerInPublishPullPipeline):
                 assert base_name is not None
 
             if file_type is not None:
+                self.file_type_counter[file_type] += 1
+
                 if self.download_from_camera:
                     modification_time = file_info.modification_time
                     size = file_info.size
@@ -301,6 +315,8 @@ class ScanWorker(WorkerInPublishPullPipeline):
                     size = os.path.getsize(file)
                     modification_time = os.path.getmtime(file)
                     camera_file = None
+
+                self.file_size_sum += size
 
                 # look for thumbnail file (extension THM) for videos
                 if file_type == FileType.video:
@@ -356,8 +372,14 @@ class ScanWorker(WorkerInPublishPullPipeline):
                                                self.camera_model,
                                                self.camera_port,
                                                camera_memory_card_identifiers)
-                self.content = pickle.dumps(rpd_file, pickle.HIGHEST_PROTOCOL)
-                self.send_message_to_sink()
+                self.file_batch.append(rpd_file)
+                if len(self.file_batch) == self.batch_size:
+                    self.content = pickle.dumps(ScanResults(self.file_batch,
+                                                self.file_type_counter,
+                                                self.file_size_sum),
+                                                pickle.HIGHEST_PROTOCOL)
+                    self.send_message_to_sink()
+                    self.file_batch = []
 
     def _get_associate_file_from_camera(self, base_name: str,
                 associate_files: defaultdict, camera_file: CameraFile) -> str:
