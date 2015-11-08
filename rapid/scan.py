@@ -32,7 +32,17 @@ import pickle
 import logging
 from collections import (namedtuple, defaultdict)
 
-import scandir
+import platform
+v = platform.python_version_tuple()
+if v[0] == '3' and v[1] == '4':
+    import scandir
+    walk = scandir.walk
+else:
+    try:
+        assert int(v[0]) >= 3 and int(v[1]) > 4
+    except ValueError:
+        pass
+    walk = os.walk
 
 
 # Instances of classes ScanArguments and ScanPreferences are passed via pickle
@@ -62,7 +72,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
         self.downloaded = DownloadedSQL()
         self.no_previously_downloaded = 0
         self.file_batch = []
-        self.batch_size = 15
+        self.batch_size = 20
         self.file_type_counter = rpdfile.FileTypeCounter()
         self.file_size_sum = 0
         super(ScanWorker, self).__init__('Scan')
@@ -87,8 +97,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
             self.camera = None
             # Scan the files using lightweight high-performance scandir
             if self.scan_preferences.scan_this_path(path):
-                for self.dir_name, subdirs, self.file_list in scandir.walk(
-                        path):
+                for self.dir_name, subdirs, self.file_list in walk(path):
                     if len(subdirs) > 0:
                         if self.scan_preferences.ignored_paths:
                             # Don't inspect paths the user wants ignored
@@ -159,7 +168,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
 
         self.send_finished_command()
 
-    def locate_files_on_camera(self, path:str, folder_identifier: str):
+    def locate_files_on_camera(self, path: str, folder_identifier: str):
         """
         Scans the memory card(s) on the camera for photos, videos,
         audio files, and video thumbnail (THM) files. Looks only in the
@@ -312,8 +321,9 @@ class ScanWorker(WorkerInPublishPullPipeline):
                     camera_file = CameraFile(name=self.file_name,
                                modification_time=modification_time,size=size)
                 else:
-                    size = os.path.getsize(file)
-                    modification_time = os.path.getmtime(file)
+                    stat = os.stat(file)
+                    size = stat.st_size
+                    modification_time = stat.st_mtime
                     camera_file = None
 
                 self.file_size_sum += size

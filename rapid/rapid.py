@@ -52,7 +52,7 @@ import gphoto2 as gp
 from PyQt5 import QtCore, QtWidgets, QtGui
 from PyQt5.QtCore import (QThread, Qt, QStorageInfo, QSettings, QPoint,
                           QSize, QTimer, QTextStream, QSortFilterProxyModel,
-                          QRegExp)
+                          QModelIndex)
 from PyQt5.QtGui import (QIcon, QPixmap, QImage, QFont)
 from PyQt5.QtWidgets import (QAction, QApplication, QMainWindow, QMenu,
                              QPushButton, QWidget, QDialogButtonBox,
@@ -325,7 +325,7 @@ class JobCode:
 
 class RapidWindow(QMainWindow):
     def __init__(self, auto_detect: bool=None, device_location: str=None,
-                 parent=None):
+                 benchmark: int=None, parent=None) -> None:
         self.do_init = QtCore.QEvent.registerEventType()
         super().__init__(parent)
 
@@ -366,7 +366,7 @@ class RapidWindow(QMainWindow):
         centralWidget = QWidget()
 
         self.thumbnailView = ThumbnailView()
-        self.thumbnailModel = ThumbnailTableModel(self)
+        self.thumbnailModel = ThumbnailTableModel(self, benchmark=benchmark)
         self.thumbnailProxyModel = QSortFilterProxyModel(self)
         self.thumbnailProxyModel.setSourceModel(self.thumbnailModel)
         self.thumbnailView.setModel(self.thumbnailProxyModel)
@@ -378,6 +378,9 @@ class RapidWindow(QMainWindow):
         self.temporalProximityDelegate = TemporalProximityDelegate(self)
         self.temporalProximityView.setItemDelegate(
             self.temporalProximityDelegate)
+        self.temporalProximityView.selectionModel().selectionChanged.connect(
+                                                self.proximitySelectionChanged)
+
 
         # Devices are cameras and partitions
         self.devices = DeviceCollection()
@@ -1749,7 +1752,8 @@ class RapidWindow(QMainWindow):
 
         self.displayMessageInStatusBar(update_only_marked=True)
 
-        self.generateTemporalProximityTableData()
+        if self.thumbnailModel.benchmark is None:
+            self.generateTemporalProximityTableData()
 
         if (not self.auto_start_is_on and  self.prefs.generate_thumbnails):
             # Generate thumbnails for finished scan
@@ -1761,6 +1765,16 @@ class RapidWindow(QMainWindow):
             else:
                 self.startDownload(scan_id=scan_id)
 
+    def quit(self):
+        QTimer.singleShot(0, self.close)
+
+    def proximitySelectionChanged(self, current: QModelIndex,
+                                  previous: QModelIndex) -> None:
+
+        selected = [(i.row(), i.column()) for i in current.indexes()]
+        print(selected)
+
+
     def generateTemporalProximityTableData(self):
         # Convert the thumbnail rows to a regular list, because it's going
         # to be pickled.
@@ -1768,8 +1782,8 @@ class RapidWindow(QMainWindow):
         data = OffloadData(list(self.thumbnailModel.rows), 3600)
         self.offloadmq.assign_work(data)
 
-    def proximityGroupsGenerated(self, proximity_groups:
-        TemporalProximityGroups):
+    def proximityGroupsGenerated(self,
+                         proximity_groups: TemporalProximityGroups) -> None:
 
         self.temporalProximityModel.setGroup(proximity_groups)
         depth = proximity_groups.depth()
@@ -1784,6 +1798,7 @@ class RapidWindow(QMainWindow):
         self.temporalProximityView.resizeRowsToContents()
         self.temporalProximityView.resizeColumnsToContents()
 
+        #TODO fix this farcical attempt to make the table look nice
         width = self.temporalProximityView.minimumSizeHint().width()
         self.temporalProximityView.setMaximumWidth(width)
         # self.temporalProximityView.hide()
@@ -2577,7 +2592,8 @@ class RapidWindow(QMainWindow):
 class QtSingleApplication(QApplication):
     """
     Taken from
-    http://stackoverflow.com/questions/12712360/qtsingleapplication-for-pyside-or-pyqt
+    http://stackoverflow.com/questions/12712360/qtsingleapplication
+    -for-pyside-or-pyqt
     """
 
     messageReceived = QtCore.pyqtSignal(str)
@@ -2705,6 +2721,11 @@ if __name__ == "__main__":
          dest="extensions",
          help=_("list photo and video file extensions the program recognizes "
                 "and exit"))
+    parser.add_argument("-b", "--benchmark", type=int,
+                        metavar="n", dest="benchmark",
+                        help="Use n processes to generate thumbnails, "
+                             "and after thumbnail generation, immediately "
+                             "exit")
     parser.add_argument("--reset", action="store_true", dest="reset",
                  help=_("reset all program settings and caches and exit"))
 
@@ -2767,7 +2788,8 @@ if __name__ == "__main__":
         print(_("All settings and caches have been reset"))
         sys.exit(0)
 
-    rw = RapidWindow(auto_detect=auto_detect, device_location=device_location)
+    rw = RapidWindow(auto_detect=auto_detect, device_location=device_location,
+                     benchmark=args.benchmark)
     rw.show()
 
     app.setActivationWindow(rw)

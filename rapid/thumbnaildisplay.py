@@ -22,7 +22,7 @@ import pickle
 import os
 import sys
 import datetime
-from collections import (namedtuple, defaultdict)
+from collections import (namedtuple, defaultdict, Counter)
 from operator import attrgetter
 import subprocess
 import shlex
@@ -98,10 +98,12 @@ class ThumbnailManager(PublishPullPipelineManager):
 
 
 class ThumbnailTableModel(QAbstractTableModel):
-    def __init__(self, parent) -> None:
+    def __init__(self, parent, benchmark: int=None) -> None:
         super().__init__(parent)
         self.rapidApp = parent
         """ :type : rapid.RapidWindow"""
+
+        self.benchmark = benchmark
 
         self.initialize()
 
@@ -320,8 +322,11 @@ class ThumbnailTableModel(QAbstractTableModel):
         self.dataChanged.emit(self.index(row,0),self.index(row,0))
         self.thumbnails_generated += 1
         self.no_thumbnails_by_scan[self.rpd_files[unique_id].scan_id] -= 1
+
         if self.thumbnails_generated == self.total_thumbs_to_generate:
             self.resetThumbnailTrackingAndDisplay()
+            if self.benchmark is not None:
+                self.rapidApp.quit()
         elif self.total_thumbs_to_generate:
             self.rapidApp.downloadProgressBar.setValue(
                 self.thumbnails_generated)
@@ -365,6 +370,9 @@ class ThumbnailTableModel(QAbstractTableModel):
         # camera contents
         if device.device_type == DeviceType.camera:
             return 1
+
+        if self.benchmark is not None:
+            return self.benchmark
 
         no_cameras = len(self.rapidApp.devices.cameras)
         no_non_camera_devices = len(self.rapidApp.devices) - no_cameras
