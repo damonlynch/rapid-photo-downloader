@@ -392,7 +392,8 @@ class ThumbnailTableModel(QAbstractTableModel):
 
         if scan_id in self.scan_index:
             cpus = self.getNoCPUsToGenerateThumbnails(scan_id)
-            logging.debug("Will use %s CPUs to generate thumbnails for %s",
+            logging.debug("Will use %s logical CPUs to generate thumbnails "
+                          "for %s",
                           cpus, self.rapidApp.devices[scan_id].name())
 
             self.rapidApp.downloadProgressBar.setMaximum(
