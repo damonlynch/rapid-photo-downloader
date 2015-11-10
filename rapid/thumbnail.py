@@ -20,6 +20,16 @@ __author__ = 'Damon Lynch'
 # along with Rapid Photo Downloader.  If not,
 # see <http://www.gnu.org/licenses/>.
 
+try:
+    if 'profile' in dict(__builtins__):
+        pass
+        # Using injected profile
+except:
+    # use of profiler not detected
+    def profile(func):
+        def inner(*args, **kwargs):
+            return func(*args, **kwargs)
+        return inner
 
 import os
 import sys
@@ -333,6 +343,7 @@ class Thumbnail:
         """
         return thumbnail.copy(0, vertical_space, 160, 120 - vertical_space * 2)
 
+    @profile
     def _get_photo_thumbnail(self, file_name, size: QSize) -> QImage:
         """
         Returns a correctly sized and rotated thumbnail for the file,
@@ -803,10 +814,15 @@ class Thumbnail:
 
 
 class GenerateThumbnails(WorkerInPublishPullPipeline):
-    def __init__(self):
-        super(GenerateThumbnails, self).__init__('Thumbnails')
+    def __init__(self) -> None:
+        super().__init__('Thumbnails')
 
-    def do_work(self):
+    def add_args(self):
+        super().add_args()
+        self.parser.add_argument("-b" "--benchmark", dest="benchmark",
+                                 action="store_true")
+    @profile
+    def do_work(self) -> None:
         arguments = pickle.loads(self.content)
         """ :type : GenerateThumbnailsArguments"""
         logging.debug("Generating thumbnails for %s...", arguments.name)
@@ -832,6 +848,9 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
         cache_file_from_camera = False
 
         rpd_files = arguments.rpd_files
+
+        # with open('tests/thumbnail_data_medium_no_tiff', 'wb') as f:
+        #     pickle.dump(rpd_files, f)
 
         # Get thumbnails for photos first, then videos
         # Are relying on the file type for photos being an int smaller than
@@ -912,6 +931,7 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
 
         from_thumb_cache = 0
         from_fdo_cache = 0
+
         for rpd_file in rpd_files:
             """:type : RPDFile"""
             # Check to see if the process has received a command

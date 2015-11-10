@@ -81,6 +81,11 @@ class ScanWorker(WorkerInPublishPullPipeline):
     def do_work(self):
         scan_arguments = pickle.loads(self.content) # type: ScanArguments
         self.scan_preferences = scan_arguments.scan_preferences
+
+        if scan_arguments.ignore_other_types:
+            rpdfile.PHOTO_EXTENSIONS_SCAN = \
+                rpdfile.PHOTO_EXTENSIONS_WITHOUT_OTHER
+
         self.download_from_camera = scan_arguments.device.device_type == \
                                     DeviceType.camera
         if self.download_from_camera:

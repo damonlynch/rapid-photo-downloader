@@ -439,7 +439,6 @@ class WorkerProcess():
         """
         pass
 
-
     def send_message_to_sink(self):
 
         self.sender.send_multipart([self.worker_id, b'data',
@@ -590,9 +589,10 @@ class ScanArguments:
     Pass arguments to the scan process
     """
     def __init__(self, scan_preferences: ScanPreferences,
-                 device: Device) -> None:
+                 device: Device, ignore_other_types: bool) -> None:
         self.scan_preferences = scan_preferences
         self.device = device
+        self.ignore_other_types = ignore_other_types
 
 class ScanResults:
     """

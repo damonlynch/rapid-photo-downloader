@@ -7,3 +7,5 @@ trunkbackup.po
 Rapid-Photo-Downloader.odg
 .~lock.Rapid-Photo-Downloader.odg#
 *.lprof
+thumbnail_data_huge
+thumbnail_data_medium_no_tiff

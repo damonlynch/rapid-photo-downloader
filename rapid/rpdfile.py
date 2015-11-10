@@ -54,6 +54,10 @@ NON_RAW_IMAGE_EXTENSIONS = JPEG_EXTENSIONS + OTHER_PHOTO_EXTENSIONS
 
 PHOTO_EXTENSIONS = RAW_EXTENSIONS + NON_RAW_IMAGE_EXTENSIONS
 
+PHOTO_EXTENSIONS_WITHOUT_OTHER = RAW_EXTENSIONS + JPEG_EXTENSIONS
+
+PHOTO_EXTENSIONS_SCAN = PHOTO_EXTENSIONS
+
 AUDIO_EXTENSIONS = ['wav', 'mp3']
 
 
@@ -69,7 +73,7 @@ def file_type(file_extension: str) -> FileType:
     Checks only the file's extension
     """
 
-    if file_extension in PHOTO_EXTENSIONS:
+    if file_extension in PHOTO_EXTENSIONS_SCAN:
         return FileType.photo
     elif file_extension in VIDEO_EXTENSIONS:
         return FileType.video

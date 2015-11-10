@@ -39,7 +39,6 @@ import argparse
 
 from gettext import gettext as _
 from gi.repository import Notify
-import psutil
 
 try:
     from gi.repository import Unity
@@ -96,7 +95,7 @@ from proximity import (TemporalProximityModel, TemporalProximityView,
 from utilities import (same_file_system, make_internationalized_list,
                        human_readable_version, thousands)
 from rpdfile import (RPDFile, file_types_by_number, PHOTO_EXTENSIONS,
-                     VIDEO_EXTENSIONS, FileTypeCounter)
+                     VIDEO_EXTENSIONS, FileTypeCounter, OTHER_PHOTO_EXTENSIONS)
 import downloadtracker
 from cache import ThumbnailCache
 from metadataphoto import exiv2_version, gexiv2_version
@@ -325,10 +324,12 @@ class JobCode:
 
 class RapidWindow(QMainWindow):
     def __init__(self, auto_detect: bool=None, device_location: str=None,
-                 benchmark: int=None, parent=None) -> None:
+                 benchmark: int=None,
+                 ignore_other_photo_types: bool=None, parent=None) -> None:
         self.do_init = QtCore.QEvent.registerEventType()
         super().__init__(parent)
 
+        self.ignore_other_photo_types = ignore_other_photo_types
         self.application_state = ApplicationState.normal
 
         logging.debug('Software versions: %s', get_versions('; '))
@@ -2051,7 +2052,9 @@ class RapidWindow(QMainWindow):
         self.addToDeviceDisplay(device, scan_id)
         self.updateSourceButton()
         scan_preferences = ScanPreferences(self.prefs.ignored_paths)
-        scan_arguments = ScanArguments(scan_preferences, device)
+        scan_arguments = ScanArguments(scan_preferences=scan_preferences,
+                           device=device,
+                           ignore_other_types=self.ignore_other_photo_types)
         self.scanmq.start_worker(scan_id, scan_arguments)
         self.setDownloadActionSensitivity()
 
@@ -2721,6 +2724,12 @@ if __name__ == "__main__":
          dest="extensions",
          help=_("list photo and video file extensions the program recognizes "
                 "and exit"))
+    parser.add_argument("--ignore-other-photo-file-types", action="store_true",
+                        dest="ignore_other", help=_('ignore photos with the '
+                                                    'following extensions: '
+                                                    '%s') %
+                        make_internationalized_list([s.upper() for s in
+                                                     OTHER_PHOTO_EXTENSIONS]))
     parser.add_argument("-b", "--benchmark", type=int,
                         metavar="n", dest="benchmark",
                         help="Use n processes to generate thumbnails, "
@@ -2789,7 +2798,8 @@ if __name__ == "__main__":
         sys.exit(0)
 
     rw = RapidWindow(auto_detect=auto_detect, device_location=device_location,
-                     benchmark=args.benchmark)
+                     benchmark=args.benchmark,
+                     ignore_other_photo_types=args.ignore_other)
     rw.show()
 
     app.setActivationWindow(rw)

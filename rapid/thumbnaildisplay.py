@@ -75,13 +75,13 @@ class DownloadStats:
 class ThumbnailManager(PublishPullPipelineManager):
     message = pyqtSignal(RPDFile, QPixmap)
     cacheDirs = pyqtSignal(int, CacheDirs)
-    def __init__(self, context: zmq.Context):
-        super(ThumbnailManager, self).__init__(context)
+    def __init__(self, context: zmq.Context) -> None:
+        super().__init__(context)
         self._process_name = 'Thumbnail Manager'
         self._process_to_run = 'thumbnail.py'
         self._worker_id = 0
 
-    def process_sink_data(self):
+    def process_sink_data(self) -> None:
         data = pickle.loads(self.content)
         """ :type : GenerateThumbnailsResults"""
         if data.rpd_file is not None:
@@ -314,7 +314,7 @@ class ThumbnailTableModel(QAbstractTableModel):
             self.rapidApp.devices[scan_id].video_cache_dir = \
                 cache_dirs.video_cache_dir
 
-    def thumbnailReceived(self, rpd_file: RPDFile, thumbnail: QPixmap):
+    def thumbnailReceived(self, rpd_file: RPDFile, thumbnail: QPixmap) -> None:
         unique_id = rpd_file.unique_id
         self.rpd_files[unique_id] = rpd_file
         row = self.rowFromUniqueId(unique_id)
