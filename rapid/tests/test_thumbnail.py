@@ -71,9 +71,12 @@ class TestThumbnail(QTextEdit ):
             self.rpd_files = pickle.load(td)
 
         with tempfile.TemporaryDirectory() as tempdir:
-            gta = GenerateThumbnailsArguments(scan_id, self.rpd_files, False,
-                                              'test',
-                                        CacheDirs(tempdir, tempdir))
+            gta = GenerateThumbnailsArguments(
+                scan_id=scan_id,
+                rpd_files=self.rpd_files,
+                thumbnail_quality_lower=False,
+                name='test',
+                cache_dirs=CacheDirs(tempdir, tempdir))
             self.thread = QThread()
             self.ttm = TestThumbnailManager(context, profile)
             self.ttm.moveToThread(self.thread)

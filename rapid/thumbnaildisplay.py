@@ -82,8 +82,7 @@ class ThumbnailManager(PublishPullPipelineManager):
         self._worker_id = 0
 
     def process_sink_data(self) -> None:
-        data = pickle.loads(self.content)
-        """ :type : GenerateThumbnailsResults"""
+        data = pickle.loads(self.content) # type: GenerateThumbnailsResults
         if data.rpd_file is not None:
             thumbnail = QImage.fromData(data.png_data)
             thumbnail = QPixmap.fromImage(thumbnail)
@@ -100,8 +99,7 @@ class ThumbnailManager(PublishPullPipelineManager):
 class ThumbnailTableModel(QAbstractTableModel):
     def __init__(self, parent, benchmark: int=None) -> None:
         super().__init__(parent)
-        self.rapidApp = parent
-        """ :type : rapid.RapidWindow"""
+        self.rapidApp = parent # type: rapid.RapidWindow
 
         self.benchmark = benchmark
 
@@ -409,13 +407,14 @@ class ThumbnailTableModel(QAbstractTableModel):
             for chunk in rpd_file_slices:
                 worker_id = self.thumbnailmq.get_worker_id()
 
-                generate_arguments = GenerateThumbnailsArguments(scan_id,
-                                     chunk,
-                                     thumbnail_quality_lower,
-                                     device.name(),
-                                     cache_dirs,
-                                     device.camera_model,
-                                     device.camera_port)
+                generate_arguments = GenerateThumbnailsArguments(
+                                     scan_id=scan_id,
+                                     rpd_files=chunk,
+                                     thumbnail_quality_lower=thumbnail_quality_lower,
+                                     name=device.name(),
+                                     cache_dirs=cache_dirs,
+                                     camera=device.camera_model,
+                                     port=device.camera_port)
                 self.thumbnailmq.start_worker(worker_id, generate_arguments)
 
     def resetThumbnailTrackingAndDisplay(self):
@@ -503,8 +502,7 @@ class ThumbnailTableModel(QAbstractTableModel):
         """
 
         def addFile(unique_id):
-            rpd_file = self.rpd_files[unique_id]
-            """ :type : RPDFile"""
+            rpd_file = self.rpd_files[unique_id] # type: RPDFile
             if rpd_file.status not in Downloaded:
                 scan_id = rpd_file.scan_id
                 files[scan_id].append(rpd_file)

@@ -32,10 +32,10 @@ logging.basicConfig(format='%(levelname)s:%(asctime)s:%(message)s',
 
 
 class OffloadWorker(DaemonProcess):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__('Offload')
 
-    def run(self):
+    def run(self) -> None:
         while True:
             directive, content = self.receiver.recv_multipart()
 

@@ -25,6 +25,7 @@ import os
 import subprocess
 import shlex
 import time
+from collections import deque
 
 from psutil import (Process, wait_procs, pid_exists)
 from sortedcontainers import SortedListWithKey
@@ -33,6 +34,8 @@ from PyQt5.QtCore import (pyqtSignal, QObject)
 from PyQt5.QtGui import QPixmap
 
 import zmq
+from zmq.eventloop.ioloop import IOLoop
+from zmq.eventloop.zmqstream import ZMQStream
 
 from rpdfile import (RPDFile, FileTypeCounter)
 from devices import Device
@@ -48,7 +51,7 @@ logging.basicConfig(format='%(levelname)s:%(asctime)s:%(message)s',
                     level=logging_level)
 
 
-def make_filter_from_worker_id(worker_id):
+def make_filter_from_worker_id(worker_id) -> bytes:
     r"""
     Returns a python byte string from an integer or string
 
@@ -64,92 +67,29 @@ def make_filter_from_worker_id(worker_id):
         return worker_id.encode()
     raise(TypeError)
 
-class PullPipelineManager(QObject):
+def create_identity(worker_type: str, identity: str) -> bytes:
+    r"""Generate identity for a worker's 0mq socket.
+
+    >>> create_identity('Worker', '1')
+    b'Worker-1'
+    >>> create_identity('Thumbnail Extractor', '2')
+    b'Thumbnail-Extractor-2'
+    >>> create_identity('Thumbnail Extractor Plus', '22 2')
+    b'Thumbnail-Extractor-Plus-22-2'
     """
-    Base class from which more specialized 0MQ classes are derived.
 
-    Receives data into its sink via a ZMQ PULL socket, but does not
-    specify how workers should be sent data.
+    # Replace any whitespace in the strings with a hyphen
+    return '{}-{}'.format('-'.join(worker_type.split()), '-'.join(identity.split())).encode()
 
-    Outputs signals using Qt.
-    """
+class ProcessManager:
+    def __init__(self) -> None:
+        super().__init__()
 
-    message = pyqtSignal(str) # Derived class will change this
-    workerFinished = pyqtSignal(int)
-    def __init__(self, context: zmq.Context):
-        super(PullPipelineManager, self).__init__()
-
-        # Subclasses must define the type of port they need to send messages
-        self.ventilator_socket = None
-        self.ventilator_port = None
-
-        # Sink socket to receive results of the workers
-        self.receiver_socket = context.socket(zmq.PULL)
-        self.receiver_port = self.receiver_socket.bind_to_random_port(
-            "tcp://*")
-
-        # Socket to communicate directly with the sink, bypassing the workers
-        self.terminate_socket = context.socket(zmq.PUSH)
-        self.terminate_socket.connect("tcp://localhost:{}".format(
-            self.receiver_port))
+        self.processes = {}
+        self._process_to_run = '' # Implement in subclass
 
         # Monitor which workers we have running
         self.workers = [] # type list[int]
-
-        self.processes = {}
-
-        self.terminating = False
-
-        self.command_line = ''
-
-    def run_sink(self):
-        logging.debug("Running sink for %s", self._process_name)
-        while True:
-            try:
-                # Receive messages from the workers
-                # (or the terminate socket)
-                worker_id, directive, content = \
-                    self.receiver_socket.recv_multipart()
-            except KeyboardInterrupt:
-                break
-            if directive == b'cmd':
-                command = content
-                assert command in [b"STOPPED", b"FINISHED", b"KILL"]
-                if command == b"KILL":
-                    # Terminate immediately, without regard for any incoming
-                    # messages. This message is only sent from this manager
-                    # to itself, using the self.terminate_socket
-                    logging.debug("{} is terminating".format(
-                        self._process_name))
-                    break
-                # This worker is done; remove from monitored workers and
-                # continue
-                worker_id = int(worker_id)
-                if command == b"STOPPED":
-                    logging.debug("%s worker %s has stopped",
-                                  self._process_name, worker_id)
-                else:
-                    # Worker has finished its work
-                    self.workerFinished.emit(worker_id)
-                self.workers.remove(worker_id)
-                del self.processes[worker_id]
-                if not self.workers:
-                    logging.debug("{} currently has no workers".format(
-                        self._process_name))
-                if not self.workers and self.terminating:
-                    logging.debug("{} is exiting".format(self._process_name))
-                    break
-            else:
-                assert directive == b'data'
-                self.content = content
-                self.process_sink_data()
-
-    def process_sink_data(self):
-        data = pickle.loads(self.content)
-        self.message.emit(data)
-
-    def terminate_sink(self):
-        self.terminate_socket.send_multipart([b'0', b'cmd', b'KILL'])
 
     def _get_cmd(self) -> str:
         return os.path.join(os.path.dirname(__file__), self._process_to_run)
@@ -160,10 +100,7 @@ class PullPipelineManager(QObject):
         """
         return ''
 
-    def _get_ventilator_start_message(self, worker_id: int) -> list:
-        return [make_filter_from_worker_id(worker_id), b'cmd', b'START']
-
-    def add_worker(self, worker_id: int):
+    def add_worker(self, worker_id: int) -> None:
 
         command_line = self._get_command_line(worker_id)
         args = shlex.split(command_line)
@@ -175,9 +112,8 @@ class PullPipelineManager(QObject):
             logging.critical("Failed to start process: %s", command_line)
             logging.critical('OSError [Errno %s]: %s', e.errno, e.strerror)
             if e.errno == 8:
-                logging.critical("Script shebang line might be malformed or "
-                                 "missing: "
-                                 "%s", self._get_cmd())
+                logging.critical("Script shebang line might be malformed or missing: %s",
+                                 self._get_cmd())
             sys.exit(1)
         # logging.debug("Started '%s' with pid %s", command_line, pid)
 
@@ -185,14 +121,8 @@ class PullPipelineManager(QObject):
         self.workers.append(worker_id)
         self.processes[worker_id] = Process(pid)
 
-    def worker_finished(worker_id):
-        pass
-
-    def forcefully_terminate(self):
-        """
-        Forcefully terminate any running child processes, and then
-        shut down the sink.
-        """
+    def forcefully_terminate(self) -> None:
+        """Forcefully terminate any running child processes."""
 
         def on_terminate(proc: Process):
             logging.debug("Process %s (%s) terminated", proc.name(), proc.pid)
@@ -205,26 +135,20 @@ class PullPipelineManager(QObject):
                 except:
                     p = None
                 if p is not None and p == proc:
-                    logging.debug("Process %s (%s) has %s status",
-                                  p.name(), p.pid, p.status())
+                    logging.debug("Process %s (%s) has %s status", p.name(), p.pid, p.status())
                     try:
                         p.terminate()
                         terminated.append(p)
                     except:
-                        logging.error("Terminating process %s with "
-                                  "pid %s failed", p.name(), p.pid)
+                        logging.error("Terminating process %s with pid %s failed", p.name(), p.pid)
         if terminated:
-            gone, alive = wait_procs(terminated, timeout=2,
-                                     callback=on_terminate)
+            gone, alive = wait_procs(terminated, timeout=2, callback=on_terminate)
             for p in alive:
                 logging.debug("Killing process %s", p)
                 try:
                     p.kill()
                 except:
-                    logging.debug("Failed to kill process %s with pid %s",
-                                  p.name(), p.pid)
-
-        self.terminate_sink()
+                    logging.debug("Failed to kill process %s with pid %s", p.name(), p.pid)
 
     def process_alive(self, worker_id: int) -> bool:
         """
@@ -235,9 +159,86 @@ class PullPipelineManager(QObject):
         :return True if the process is the same, False otherwise
         """
         if pid_exists(self.processes[worker_id].pid):
-            return Process(self.processes[worker_id].pid) \
-                              == self.processes[worker_id]
+            return Process(self.processes[worker_id].pid) == self.processes[worker_id]
         return False
+
+class PullPipelineManager(ProcessManager, QObject):
+    """
+    Base class from which more specialized 0MQ classes are derived.
+
+    Receives data into its sink via a ZMQ PULL socket, but does not
+    specify how workers should be sent data.
+
+    Outputs signals using Qt.
+    """
+
+    message = pyqtSignal(str) # Derived class will change this
+    workerFinished = pyqtSignal(int)
+    def __init__(self, context: zmq.Context):
+        super().__init__()
+
+        # Subclasses must define the type of port they need to send messages
+        self.ventilator_socket = None
+        self.ventilator_port = None
+
+        # Sink socket to receive results of the workers
+        self.receiver_socket = context.socket(zmq.PULL)
+        self.receiver_port = self.receiver_socket.bind_to_random_port('tcp://*')
+
+        # Socket to communicate directly with the sink, bypassing the workers
+        self.terminate_socket = context.socket(zmq.PUSH)
+        self.terminate_socket.connect("tcp://localhost:{}".format(self.receiver_port))
+
+        self.terminating = False
+
+    def run_sink(self) -> None:
+        logging.debug("Running sink for %s", self._process_name)
+        while True:
+            try:
+                # Receive messages from the workers
+                # (or the terminate socket)
+                worker_id, directive, content = self.receiver_socket.recv_multipart()
+            except KeyboardInterrupt:
+                break
+            if directive == b'cmd':
+                command = content
+                assert command in [b"STOPPED", b"FINISHED", b"KILL"]
+                if command == b"KILL":
+                    # Terminate immediately, without regard for any
+                    # incoming messages. This message is only sent
+                    # from this manager to itself, using the
+                    # self.terminate_socket
+                    logging.debug("{} is terminating".format(self._process_name))
+                    break
+                # This worker is done; remove from monitored workers and
+                # continue
+                worker_id = int(worker_id)
+                if command == b"STOPPED":
+                    logging.debug("%s worker %s has stopped", self._process_name, worker_id)
+                else:
+                    # Worker has finished its work
+                    self.workerFinished.emit(worker_id)
+                self.workers.remove(worker_id)
+                del self.processes[worker_id]
+                if not self.workers:
+                    logging.debug("{} currently has no workers".format(self._process_name))
+                if not self.workers and self.terminating:
+                    logging.debug("{} is exiting".format(self._process_name))
+                    break
+            else:
+                assert directive == b'data'
+                self.content = content
+                self.process_sink_data()
+
+    def process_sink_data(self) -> None:
+        data = pickle.loads(self.content)
+        self.message.emit(data)
+
+    def terminate_sink(self) -> None:
+        self.terminate_socket.send_multipart([b'0', b'cmd', b'KILL'])
+
+    def _get_ventilator_start_message(self, worker_id: int) -> list:
+        return [make_filter_from_worker_id(worker_id), b'cmd', b'START']
 
     def send_message_to_worker(self, data, worker_id:int = None):
         data = pickle.dumps(data, pickle.HIGHEST_PROTOCOL)
@@ -247,6 +248,179 @@ class PullPipelineManager(QObject):
             message = [b'data', data]
         self.ventilator_socket.send_multipart(message)
 
+    def forcefully_terminate(self) -> None:
+        """
+        Forcefully terminate any child processes and clean up.
+
+        Shuts down the sink too.
+        """
+
+        super().forcefully_terminate()
+        self.terminate_sink()
+
+
+class LoadBalancerWorkerManager(ProcessManager):
+    def __init__(self, no_workers: int, backend_port: int, sink_port: int) -> None:
+        super().__init__()
+        self.no_workers = no_workers
+        self.backend_port = backend_port
+        self.sink_port = sink_port
+
+    def _get_command_line(self, worker_id: int) -> str:
+        cmd = self._get_cmd()
+
+        return '{} --request {} --send {} --identity {} --logginglevel {}'.format(
+                        cmd,
+                        self.backend_port,
+                        self.sink_port,
+                        worker_id,
+                        logging_level)
+
+    def start_workers(self) -> None:
+        for worker_id in range(self.no_workers):
+            self.add_worker(worker_id)
+
+class LRUQueue:
+    """LRUQueue class using ZMQStream/IOLoop for event dispatching"""
+
+    def __init__(self, backend_socket: zmq.Socket,
+                 frontend_socket: zmq.Socket,
+                 controller_socket: zmq.Socket) -> None:
+
+        self.workers = deque()
+        self.terminating = False
+        self.terminating_workers = set()
+
+        self.backend = ZMQStream(backend_socket)
+        self.frontend = ZMQStream(frontend_socket)
+        self.controller = ZMQStream(controller_socket)
+        self.backend.on_recv(self.handle_backend)
+        self.controller.on_recv(self.handle_controller)
+
+        self.loop = IOLoop.instance()
+
+    def handle_controller(self, msg):
+        self.terminating = True
+
+        while len(self.workers):
+            worker_identity = self.workers.popleft()
+            self.backend.send_multipart([worker_identity, b'', b'cmd', b'STOP'])
+            self.terminating_workers.add(worker_identity)
+
+        self.loop.add_timeout(time.time()+3, self.loop.stop)
+
+    def handle_backend(self, msg):
+        # Queue worker address for LRU routing
+        worker_identity, empty, client_addr = msg[:3]
+
+        # add worker back to the list of workers
+        self.workers.append(worker_identity)
+
+        # Second frame is empty
+        assert empty == b''
+
+        if msg[-1] == b'STOPPED' and self.terminating:
+            self.terminating_workers.remove(worker_identity)
+            if len(self.terminating_workers) == 0:
+                self.loop.add_timeout(time.time()+0.1, self.loop.stop)
+
+        if len(self.workers) == 1:
+            # on first recv, start accepting frontend messages
+            self.frontend.on_recv(self.handle_frontend)
+
+    def handle_frontend(self, request):
+        #  Dequeue and drop the next worker address
+        worker_identity = self.workers.pop()
+
+        message = [worker_identity, b''] + request
+        self.backend.send_multipart(message)
+        if len(self.workers) == 0:
+            # stop receiving until workers become available again
+            self.frontend.stop_on_recv()
+
+class LoadBalancer:
+    def __init__(self, worker_type, process_manager) -> None:
+        logging.debug("{} worker started".format(worker_type))
+        self.worker_type = worker_type
+
+        self.parser = argparse.ArgumentParser()
+        self.parser.add_argument("--receive", required=True)
+        self.parser.add_argument("--send", required=True)
+        self.parser.add_argument("--controller", required=True)
+        self.parser.add_argument("--logginglevel", required=True)
+
+        args = self.parser.parse_args()
+        self.controller_port = args.controller
+
+        context = zmq.Context()
+        frontend = context.socket(zmq.PULL)
+        frontend_port = frontend.bind_to_random_port('tcp://*')
+
+        backend = context.socket(zmq.ROUTER)
+        backend_port = backend.bind_to_random_port('tcp://*')
+
+        reply = context.socket(zmq.REP)
+        reply.connect("tcp://localhost:{}".format(args.receive))
+
+        controller = context.socket(zmq.PULL)
+        controller.connect('tcp://localhost:{}'.format(self.controller_port))
+
+        sink_port = args.send
+
+        logging.debug("{} waiting to be notified how many workers to initialize".format(
+            self.worker_type))
+        no_workers = int(reply.recv())
+        reply.send(str(frontend_port).encode())
+
+        self.process_manager = process_manager(no_workers, backend_port, sink_port)
+        self.process_manager.start_workers()
+
+        # create queue with the sockets
+        queue = LRUQueue(backend, frontend, controller)
+
+        # start reactor, which is an infinite loop
+        IOLoop.instance().start()
+
+        # Finished infinite loop: do some housekeeping
+        self.process_manager.forcefully_terminate()
+
+        frontend.close()
+        backend.close()
+
+
+class LoadBalancerManager(ProcessManager, QObject):
+    load_balancer_started = pyqtSignal(int)
+    def __init__(self, context: zmq.Context, no_workers: int, sink_port: int):
+        super().__init__()
+
+        self.controller_socket = context.socket(zmq.PUSH)
+        self.controller_port = self.controller_socket.bind_to_random_port('tcp://*')
+
+        self.requester = context.socket(zmq.REQ)
+        self.requester_port = self.requester.bind_to_random_port('tcp://*')
+        self.no_workers = no_workers
+        self.sink_port = sink_port
+
+    def start_load_balancer(self) -> None:
+        worker_id = 0
+        self.add_worker(worker_id)
+        self.requester.send(str(self.no_workers).encode())
+        self.frontend_port = int(self.requester.recv())
+        logging.debug("{} front end port: {}".format(self._process_name, self.frontend_port))
+        self.load_balancer_started.emit(self.frontend_port)
+
+    def stop(self):
+        self.controller_socket.send(b'STOP')
+
+    def _get_command_line(self, worker_id: int) -> str:
+        cmd = self._get_cmd()
+
+        return '{} --receive {} --send {} --controller {} --logginglevel {}'.format(
+                        cmd,
+                        self.requester_port,
+                        self.sink_port,
+                        self.controller_port,
+                        logging_level)
 
 DAEMON_WORKER_ID = 0
 
@@ -261,15 +435,14 @@ class PushPullDaemonManager(PullPipelineManager):
     suitable for sending the data.
     """
 
-    def __init__(self, context: zmq.Context):
+    def __init__(self, context: zmq.Context) -> None:
         super().__init__(context)
 
         # Ventilator socket to send message to worker
         self.ventilator_socket = context.socket(zmq.PUSH)
-        self.ventilator_port = self.ventilator_socket.bind_to_random_port(
-            'tcp://*')
+        self.ventilator_port = self.ventilator_socket.bind_to_random_port('tcp://*')
 
-    def stop(self):
+    def stop(self) -> None:
         """
         Permanently stop the daemon process and terminate
         """
@@ -279,12 +452,10 @@ class PushPullDaemonManager(PullPipelineManager):
         # Only send stop command if the process is still running
         if self.process_alive(DAEMON_WORKER_ID):
             try:
-                self.ventilator_socket.send_multipart([b'cmd', b'STOP'],
-                                                  zmq.DONTWAIT)
+                self.ventilator_socket.send_multipart([b'cmd', b'STOP'], zmq.DONTWAIT)
             except zmq.Again:
                 logging.debug(
-                    "Terminating %s sink because child process did not "
-                    "receive message",
+                    "Terminating %s sink because child process did not receive message",
                     self._process_name)
                 self.terminate_sink()
         else:
@@ -303,7 +474,7 @@ class PushPullDaemonManager(PullPipelineManager):
     def _get_ventilator_start_message(self, worker_id: int) -> str:
         return [b'cmd', b'START']
 
-    def start(self):
+    def start(self) -> None:
         self.add_worker(worker_id=DAEMON_WORKER_ID)
 
 class PublishPullPipelineManager(PullPipelineManager):
@@ -315,25 +486,22 @@ class PublishPullPipelineManager(PullPipelineManager):
     Because there are multiple worker process, a Publish-Subscribe model is
     most suitable for sending data to workers.
     """
-    def __init__(self, context: zmq.Context):
+    def __init__(self, context: zmq.Context) -> None:
         super().__init__(context)
 
         # Ventilator socket to send messages to workers on
         self.ventilator_socket = context.socket(zmq.PUB)
-        self.ventilator_port= self.ventilator_socket.bind_to_random_port(
-            'tcp://*')
+        self.ventilator_port= self.ventilator_socket.bind_to_random_port('tcp://*')
 
         # Socket to synchronize the start of each worker
         self.sync_service_socket = context.socket(zmq.REP)
-        self.sync_service_port = \
-            self.sync_service_socket.bind_to_random_port("tcp://*")
+        self.sync_service_port = self.sync_service_socket.bind_to_random_port("tcp://*")
 
         # Socket for worker control: pause, resume, stop
         self.controller_socket = context.socket(zmq.PUB)
-        self.controller_port = self.controller_socket.bind_to_random_port(
-            "tcp://*")
+        self.controller_port = self.controller_socket.bind_to_random_port("tcp://*")
 
-    def stop(self):
+    def stop(self) -> None:
         """
         Permanently stop all the workers and terminate
         """
@@ -349,8 +517,7 @@ class PublishPullPipelineManager(PullPipelineManager):
                 message = [make_filter_from_worker_id(worker_id),b'STOP']
                 self.controller_socket.send_multipart(message)
 
-                message = [make_filter_from_worker_id(worker_id), b'cmd',
-                           b'STOP']
+                message = [make_filter_from_worker_id(worker_id), b'cmd', b'STOP']
                 self.ventilator_socket.send_multipart(message)
                 termination_signal_sent = True
 
@@ -359,7 +526,7 @@ class PublishPullPipelineManager(PullPipelineManager):
         else:
             self.terminate_sink()
 
-    def stop_worker(self, worker_id: int):
+    def stop_worker(self, worker_id: int) -> None:
         """
         Permanently stop one worker
         """
@@ -369,7 +536,7 @@ class PublishPullPipelineManager(PullPipelineManager):
         message = [make_filter_from_worker_id(worker_id),b'cmd', b'STOP']
         self.ventilator_socket.send_multipart(message)
 
-    def start_worker(self, worker_id: int, process_arguments):
+    def start_worker(self, worker_id: int, process_arguments) -> None:
 
         self.add_worker(worker_id)
 
@@ -406,45 +573,47 @@ class PublishPullPipelineManager(PullPipelineManager):
                         worker_id,
                         logging_level)
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.workers)
 
-    def __contains__(self, item):
+    def __contains__(self, item) -> bool:
         return item in self.workers
 
-    def pause(self):
+    def pause(self) -> None:
         for worker_id in self.workers:
             message = [make_filter_from_worker_id(worker_id),b'PAUSE']
             self.controller_socket.send_multipart(message)
 
-    def resume(self):
+    def resume(self) -> None:
         for worker_id in self.workers:
             message = [make_filter_from_worker_id(worker_id),b'RESUME']
             self.controller_socket.send_multipart(message)
 
 
 class WorkerProcess():
-    def __init__(self, worker_type):
+    def __init__(self, worker_type: str) -> None:
         super().__init__()
-        logging.debug("{} worker started".format(worker_type))
+        logging.debug("{} load balancer started".format(worker_type))
         self.parser = argparse.ArgumentParser()
         self.parser.add_argument("--receive", required=True)
         self.parser.add_argument("--send", required=True)
         self.parser.add_argument("--logginglevel", required=True)
 
-    def cleanup_pre_stop(self):
+    def cleanup_pre_stop(self) -> None:
         """
-        Implement in child class if needed. Operations to run if
-        process is stopped.
+        Operations to run if process is stopped.
+
+        Implement in child class if needed.
         """
+
         pass
 
-    def send_message_to_sink(self):
+    def send_message_to_sink(self) -> None:
 
         self.sender.send_multipart([self.worker_id, b'data',
                                     self.content])
 
-    def initialise_process(self):
+    def initialise_process(self) -> None:
         # Wait to receive "START" message
         worker_id, directive, content = self.receiver.recv_multipart()
         assert directive == b'cmd'
@@ -475,8 +644,8 @@ class DaemonProcess(WorkerProcess):
     """
     Single instance
     """
-    def __init__(self, worker_type):
-        super(DaemonProcess, self).__init__(worker_type)
+    def __init__(self, worker_type: str) -> None:
+        super().__init__(worker_type)
 
         args = self.parser.parse_args()
 
@@ -489,10 +658,10 @@ class DaemonProcess(WorkerProcess):
         self.receiver = context.socket(zmq.PULL)
         self.receiver.connect("tcp://localhost:{}".format(args.receive))
 
-    def run(self):
+    def run(self) -> None:
         pass
 
-    def check_for_command(self, directive, content):
+    def check_for_command(self, directive: bytes, content: bytes) -> None:
         if directive == b'cmd':
             assert content == b'STOP'
             self.cleanup_pre_stop()
@@ -501,7 +670,7 @@ class DaemonProcess(WorkerProcess):
                 DAEMON_WORKER_ID), b'cmd', b'STOPPED'])
             sys.exit(0)
 
-    def send_message_to_sink(self):
+    def send_message_to_sink(self) -> None:
         # Must use a dummy value for the worker id, as there is only ever one
         # instance.
         self.sender.send_multipart([make_filter_from_worker_id(
@@ -512,45 +681,46 @@ class WorkerInPublishPullPipeline(WorkerProcess):
     """
     Worker counterpart to PublishPullPipelineManager; multiple instance.
     """
-    def __init__(self, worker_type: str):
+    def __init__(self, worker_type: str) -> None:
         super().__init__(worker_type)
         self.add_args()
 
         args = self.parser.parse_args()
         subscription_filter = self.worker_id = args.filter.encode()
-        context = zmq.Context()
+        self.context = zmq.Context()
 
-        self.setup_sockets(args, subscription_filter, context)
+        self.setup_sockets(args, subscription_filter)
 
         self.initialise_process()
         self.do_work()
 
-    def add_args(self):
+    def add_args(self) -> None:
         self.parser.add_argument("--filter", required=True)
         self.parser.add_argument("--syncclient", required=True)
         self.parser.add_argument("--controller", required=True)
 
-    def setup_sockets(self, args, subscription_filter, context):
+    def setup_sockets(self, args, subscription_filter: bytes) -> None:
+
         # Socket to send messages along the pipe to
-        self.sender = context.socket(zmq.PUSH)
+        self.sender = self.context.socket(zmq.PUSH)
         self.sender.set_hwm(10)
         self.sender.connect("tcp://localhost:{}".format(args.send))
 
         # Socket to receive messages from the pipe
-        self.receiver = context.socket(zmq.SUB)
+        self.receiver = self.context.socket(zmq.SUB)
         self.receiver.connect("tcp://localhost:{}".format(args.receive))
         self.receiver.setsockopt(zmq.SUBSCRIBE, subscription_filter)
 
         # Socket to receive controller messages: stop, pause, resume
-        self.controller = context.socket(zmq.SUB)
+        self.controller = self.context.socket(zmq.SUB)
         self.controller.connect("tcp://localhost:{}".format(args.controller))
         self.controller.setsockopt(zmq.SUBSCRIBE, subscription_filter)
 
         # Socket to synchronize the start of receiving data from upstream
-        self.sync_client = context.socket(zmq.REQ)
+        self.sync_client = self.context.socket(zmq.REQ)
         self.sync_client.connect("tcp://localhost:{}".format(args.syncclient))
 
-    def check_for_command(self, directive, content) -> None:
+    def check_for_command(self, directive: bytes, content) -> None:
         if directive == b'cmd':
             assert content == b'STOP'
             self.cleanup_pre_stop()
@@ -567,13 +737,13 @@ class WorkerInPublishPullPipeline(WorkerProcess):
             assert  worker_id == self.worker_id
 
             if command == b'PAUSE':
-                # Because the process is paused, do a blocking read to wait for
-                # the next command
+                # Because the process is paused, do a blocking read to
+                # wait for the next command
                 command = self.controller.recv()
                 assert (command in [b'RESUME', b'STOP'])
             if command == b'STOP':
                 self.cleanup_pre_stop()
-                # signal to sink that we've terminated before finishing
+                # before finishing, signal to sink that we've terminated
                 self.sender.send_multipart([self.worker_id, b'cmd',
                                             b'STOPPED'])
                 sys.exit(0)
@@ -582,6 +752,57 @@ class WorkerInPublishPullPipeline(WorkerProcess):
 
     def send_finished_command(self) -> None:
         self.sender.send_multipart([self.worker_id, b'cmd', b'FINISHED'])
+
+
+class LoadBalancerWorker:
+    def __init__(self, worker_type: str) -> None:
+        super().__init__()
+        logging.debug("{} worker started".format(worker_type))
+        self.parser = argparse.ArgumentParser()
+        self.parser.add_argument("--request", required=True)
+        self.parser.add_argument("--send", required=True)
+        self.parser.add_argument("--identity", required=True)
+        self.parser.add_argument("--logginglevel", required=True)
+
+        args = self.parser.parse_args()
+
+        self.context = zmq.Context()
+
+        self.requester = self.context.socket(zmq.REQ)
+        self.requester.identity = create_identity(worker_type, args.identity)
+        self.requester.connect("tcp://localhost:{}".format(args.request))
+
+        self.sender = self.context.socket(zmq.PUSH)
+        self.sender.connect("tcp://localhost:{}".format(args.send))
+
+        # Tell the load balancer we are ready for work
+        self.requester.send(b"READY")
+        self.do_work()
+
+    def do_work(self) -> None:
+        # Implement in subclass
+        pass
+
+    def cleanup_pre_stop(self) -> None:
+        """
+        Operations to run if process is stopped.
+
+        Implement in child class if needed.
+        """
+
+        pass
+
+    def check_for_command(self, directive: bytes, content: bytes):
+        if directive == b'cmd':
+            assert content == b'STOP'
+            self.cleanup_pre_stop()
+            identity = self.requester.identity.decode()
+            # signal to load balancer that we've terminated before finishing
+            self.requester.send_multipart([b'', b'', b'STOPPED'])
+            self.requester.close()
+            self.context.term()
+            print("{} stopped".format(identity))
+            sys.exit(0)
 
 
 class ScanArguments:
@@ -618,7 +839,7 @@ class CopyFilesArguments:
                   generate_thumbnails: bool,
                   thumbnail_quality_lower: bool) -> None:
         """
-        :param files: List(rpd_file)
+        :type files: List(rpd_file)
         """
         self.scan_id = scan_id
         self.device = device
@@ -633,10 +854,14 @@ class CopyFilesResults:
     """
     Receive results from the copyfiles process
     """
-    def __init__(self, scan_id=None, photo_temp_dir=None, video_temp_dir=None,
-                 total_downloaded=None, chunk_downloaded=None,
-                 copy_succeeded=None, rpd_file=None,
-                 download_count=None) -> None:
+    def __init__(self, scan_id: int=None,
+                 photo_temp_dir: str=None,
+                 video_temp_dir: str=None,
+                 total_downloaded: int=None,
+                 chunk_downloaded: int=None,
+                 copy_succeeded: bool=None,
+                 rpd_file: RPDFile=None,
+                 download_count: int=None) -> None:
         self.scan_id = scan_id
 
         self.photo_temp_dir = photo_temp_dir
@@ -694,7 +919,7 @@ class BackupArguments:
     """
     Pass start up data to the back up process
     """
-    def __init__(self, path: str, device_name: str):
+    def __init__(self, path: str, device_name: str) -> None:
         self.path = path
         self.device_name = device_name
 
@@ -731,7 +956,7 @@ class BackupResults:
 
 class GenerateThumbnailsArguments:
     def __init__(self, scan_id: int, rpd_files, thumbnail_quality_lower: bool,
-                 name: str, cache_dirs: CacheDirs,
+                 name: str, cache_dirs: CacheDirs, frontend_port: int,
                  camera=None, port=None) -> None:
         """
         List of files for which thumbnails are to be generated.
@@ -743,6 +968,8 @@ class GenerateThumbnailsArguments:
         :param name: name of the device
         :param cache_dirs: the location where the cache directories
          should be created
+        :param frontend_port: port to use to send to load balancer's
+         front end
         :param camera: If the thumbnails are being downloaded from a
          camera, this is the name of the camera, else None
         :param port: If the thumbnails are being downloaded from a
@@ -756,6 +983,7 @@ class GenerateThumbnailsArguments:
         self.thumbnail_quality_lower = thumbnail_quality_lower
         self.name = name
         self.cache_dirs = cache_dirs
+        self.frontend_port = frontend_port
         if camera is not None:
             assert port is not None
         self.camera = camera
@@ -763,9 +991,17 @@ class GenerateThumbnailsArguments:
 
 
 class GenerateThumbnailsResults:
-    def __init__(self, rpd_file=None, png_data=None,
-                 scan_id=None, cache_dirs: CacheDirs=None) -> None:
+    def __init__(self, rpd_file: RPDFile=None, png_data: bytes=None,
+                 scan_id: int=None, cache_dirs: CacheDirs=None) -> None:
         self.rpd_file = rpd_file
         self.png_data = png_data
         self.scan_id = scan_id
         self.cache_dirs = cache_dirs
+
+class GenerateThumbnailsParaResults:
+    def __init__(self, rpd_file: RPDFile) -> None:
+        self.rpd_file = rpd_file
+
+class ThumbnailExtractorArgument:
+    def __init__(self, rpd_file: RPDFile) -> None:
+        self.rpd_file = rpd_file

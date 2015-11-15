@@ -86,8 +86,7 @@ class Cache:
         assert sys.platform.startswith('linux')
         self.cache_dir = cache_dir
         self.failure_dir = failure_dir
-        self.valid = self.cache_dir is not None and self.failure_dir is not \
-                                                    None
+        self.valid = self.cache_dir is not None and self.failure_dir is not None
         if self.valid:
             self.random_filename = GenerateRandomFileName()
             self.fs_encoding = sys.getfilesystemencoding()
@@ -112,8 +111,7 @@ class Cache:
         if not self.valid:
             self.random_filename = self.fs_encoding = None
 
-    def md5_hash_name(self, full_file_name: str, camera_model: str=None) -> \
-            (str, str):
+    def md5_hash_name(self, full_file_name: str, camera_model: str=None) -> (str, str):
         if camera_model is None:
             prefix = 'file://'
             path = os.path.abspath(full_file_name)

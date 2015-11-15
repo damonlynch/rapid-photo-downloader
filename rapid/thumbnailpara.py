@@ -41,6 +41,7 @@ import tempfile
 import subprocess
 import shlex
 from operator import attrgetter
+import zmq
 from collections import deque, defaultdict
 from PyQt5.QtGui import QImage, QTransform
 from PyQt5.QtCore import QSize, Qt, QIODevice, QBuffer
@@ -49,7 +50,8 @@ import qrc_resources
 from rpdfile import RPDFile
 from interprocess import (WorkerInPublishPullPipeline,
                           GenerateThumbnailsArguments,
-                          GenerateThumbnailsResults)
+                          GenerateThumbnailsResults,
+                          ThumbnailExtractorArgument)
 from filmstrip import add_filmstrip
 from constants import (Downloaded, FileType, ThumbnailSize, ThumbnailCacheStatus,
                        ThumbnailCacheDiskStatus)
@@ -810,6 +812,9 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
         arguments = pickle.loads(self.content) # type: GenerateThumbnailsArguments
         logging.debug("Generating thumbnails for %s...", arguments.name)
 
+        self.frontend = self.context.socket(zmq.PUSH)
+        self.frontend.connect("tcp://localhost:{}".format(arguments.frontend_port))
+
         self.prefs = Preferences()
 
         thumbnail_size_needed = QSize(ThumbnailSize.width,
@@ -907,7 +912,7 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
                 self.content = pickle.dumps(GenerateThumbnailsResults(
                     scan_id=arguments.scan_id,
                     cache_dirs=cache_dirs), pickle.HIGHEST_PROTOCOL)
-                self.send_message_to_sink()
+                # self.send_message_to_sink()
         else:
             camera = None
 
@@ -918,88 +923,99 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
             # Check to see if the process has received a command
             self.check_for_controller_directive()
 
-            # Attempt to get thumbnail from Thumbnail Cache
-            # (see cache.py for definitions of various caches)
-            if thumbnail_cache is not None:
-                get_thumbnail = thumbnail_cache.get_thumbnail(
+
+            # Send data to load balancer, which will send to one of its
+            # workers
+            self.content = pickle.dumps(ThumbnailExtractorArgument(
+                rpd_file=rpd_file),
+                pickle.HIGHEST_PROTOCOL)
+            self.frontend.send_multipart([b'data', self.content])
+
+
+            if False:
+
+                # Attempt to get thumbnail from Thumbnail Cache
+                # (see cache.py for definitions of various caches)
+                if thumbnail_cache is not None:
+                    get_thumbnail = thumbnail_cache.get_thumbnail(
+                        full_file_name=rpd_file.full_file_name,
+                        modification_time=rpd_file.modification_time,
+                        size=rpd_file.size,
+                        camera_model=arguments.camera)
+                    if get_thumbnail.disk_status == \
+                            ThumbnailCacheDiskStatus.failure:
+                        rpd_file.thumbnail_status = \
+                            ThumbnailCacheStatus.generation_failed
+                    elif get_thumbnail.disk_status == \
+                            ThumbnailCacheDiskStatus.found:
+                        if camera is not None and camera.can_fetch_thumbnails:
+                            rpd_file.thumbnail_status = \
+                                ThumbnailCacheStatus.from_rpd_cache_fdo_write_invalid
+                        else:
+                            rpd_file.thumbnail_status = \
+                                ThumbnailCacheStatus.suitable_for_fdo_cache_write
+                    thumbnail_icon = get_thumbnail.thumbnail
+                else:
+                    thumbnail_icon = None
+
+                # Attempt to get thumbnail from FDO Cache
+                get_thumbnail = fdo_cache_normal.get_thumbnail(
                     full_file_name=rpd_file.full_file_name,
                     modification_time=rpd_file.modification_time,
                     size=rpd_file.size,
                     camera_model=arguments.camera)
-                if get_thumbnail.disk_status == \
-                        ThumbnailCacheDiskStatus.failure:
-                    rpd_file.thumbnail_status = \
-                        ThumbnailCacheStatus.generation_failed
-                elif get_thumbnail.disk_status == \
-                        ThumbnailCacheDiskStatus.found:
-                    if camera is not None and camera.can_fetch_thumbnails:
-                        rpd_file.thumbnail_status = \
-                            ThumbnailCacheStatus.from_rpd_cache_fdo_write_invalid
+                if get_thumbnail.disk_status == ThumbnailCacheDiskStatus.found:
+                    rpd_file.fdo_thumbnail_128_name = get_thumbnail.path
+                    rpd_file.thumbnail_status = ThumbnailCacheStatus.suitable_for_fdo_cache_write
+                get_thumbnail = fdo_cache_large.get_thumbnail(
+                    full_file_name=rpd_file.full_file_name,
+                    modification_time=rpd_file.modification_time,
+                    size=rpd_file.size,
+                    camera_model=arguments.camera)
+                if get_thumbnail.disk_status == ThumbnailCacheDiskStatus.found:
+                    rpd_file.fdo_thumbnail_256_name = get_thumbnail.path
+                    rpd_file.thumbnail_status = ThumbnailCacheStatus.suitable_for_fdo_cache_write
+                    t = get_thumbnail.thumbnail  # type: QImage
+                    if t.width() >= thumbnail_size_needed.width() or t.height() \
+                            >= thumbnail_size_needed.height():
+                        thumbnail_icon = t.scaled(
+                            thumbnail_size_needed,
+                            Qt.KeepAspectRatio,
+                            arguments.thumbnail_quality_lower)
+                        if thumbnail_icon.isNull():
+                            thumbnail_icon = None
+                        else:
+                            from_fdo_cache += 1
+
+                if rpd_file.thumbnail_status == ThumbnailCacheStatus.generation_failed:
+                    if rpd_file.file_type == FileType.photo:
+                        thumbnail_icon = stock_photo
                     else:
-                        rpd_file.thumbnail_status = \
-                            ThumbnailCacheStatus.suitable_for_fdo_cache_write
-                thumbnail_icon = get_thumbnail.thumbnail
-            else:
-                thumbnail_icon = None
+                        thumbnail_icon = stock_video
+                elif thumbnail_icon is None:
+                    # 80%
+                    thumbnail = Thumbnail(
+                        rpd_file, camera,
+                        arguments.thumbnail_quality_lower,
+                        thumbnail_cache=thumbnail_cache,
+                        fdo_cache_normal=fdo_cache_normal,
+                        fdo_cache_large=fdo_cache_large,
+                        generate_fdo_thumbs_only_if_optimal= self.prefs.save_fdo_thumbnails,
+                        cache_file_from_camera=cache_file_from_camera,
+                        photo_cache_dir=photo_cache_dir,
+                        video_cache_dir=video_cache_dir,
+                        check_for_command=self.check_for_controller_directive,
+                        have_ffmpeg_thumbnailer=have_ffmpeg_thumbnailer)
+                    thumbnail_icon = thumbnail.get_thumbnail(
+                        size=thumbnail_size_needed)
 
-            # Attempt to get thumbnail from FDO Cache
-            get_thumbnail = fdo_cache_normal.get_thumbnail(
-                full_file_name=rpd_file.full_file_name,
-                modification_time=rpd_file.modification_time,
-                size=rpd_file.size,
-                camera_model=arguments.camera)
-            if get_thumbnail.disk_status == ThumbnailCacheDiskStatus.found:
-                rpd_file.fdo_thumbnail_128_name = get_thumbnail.path
-                rpd_file.thumbnail_status = ThumbnailCacheStatus.suitable_for_fdo_cache_write
-            get_thumbnail = fdo_cache_large.get_thumbnail(
-                full_file_name=rpd_file.full_file_name,
-                modification_time=rpd_file.modification_time,
-                size=rpd_file.size,
-                camera_model=arguments.camera)
-            if get_thumbnail.disk_status == ThumbnailCacheDiskStatus.found:
-                rpd_file.fdo_thumbnail_256_name = get_thumbnail.path
-                rpd_file.thumbnail_status = ThumbnailCacheStatus.suitable_for_fdo_cache_write
-                t = get_thumbnail.thumbnail  # type: QImage
-                if t.width() >= thumbnail_size_needed.width() or t.height() \
-                        >= thumbnail_size_needed.height():
-                    thumbnail_icon = t.scaled(
-                        thumbnail_size_needed,
-                        Qt.KeepAspectRatio,
-                        arguments.thumbnail_quality_lower)
-                    if thumbnail_icon.isNull():
-                        thumbnail_icon = None
-                    else:
-                        from_fdo_cache += 1
+                # 16%
+                buffer = qimage_to_png_buffer(thumbnail_icon)
 
-            if rpd_file.thumbnail_status == ThumbnailCacheStatus.generation_failed:
-                if rpd_file.file_type == FileType.photo:
-                    thumbnail_icon = stock_photo
-                else:
-                    thumbnail_icon = stock_video
-            elif thumbnail_icon is None:
-                # 80%
-                thumbnail = Thumbnail(
-                    rpd_file, camera,
-                    arguments.thumbnail_quality_lower,
-                    thumbnail_cache=thumbnail_cache,
-                    fdo_cache_normal=fdo_cache_normal,
-                    fdo_cache_large=fdo_cache_large,
-                    generate_fdo_thumbs_only_if_optimal= self.prefs.save_fdo_thumbnails,
-                    cache_file_from_camera=cache_file_from_camera,
-                    photo_cache_dir=photo_cache_dir,
-                    video_cache_dir=video_cache_dir,
-                    check_for_command=self.check_for_controller_directive,
-                    have_ffmpeg_thumbnailer=have_ffmpeg_thumbnailer)
-                thumbnail_icon = thumbnail.get_thumbnail(
-                    size=thumbnail_size_needed)
-
-            # 16%
-            buffer = qimage_to_png_buffer(thumbnail_icon)
-
-            self.content = pickle.dumps(GenerateThumbnailsResults(
-                rpd_file=rpd_file, png_data=buffer.data()),
-                pickle.HIGHEST_PROTOCOL)
-            self.send_message_to_sink()
+                self.content = pickle.dumps(GenerateThumbnailsResults(
+                    rpd_file=rpd_file, png_data=buffer.data()),
+                    pickle.HIGHEST_PROTOCOL)
+                self.send_message_to_sink()
 
         if arguments.camera:
             camera.free_camera()
