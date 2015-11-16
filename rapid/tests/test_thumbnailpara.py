@@ -26,7 +26,7 @@ import pickle
 import tempfile
 import argparse
 
-from PyQt5.QtCore import (QThread, Qt, QTimer, pyqtSignal, QSize)
+from PyQt5.QtCore import (QThread, Qt, QTimer, pyqtSignal, QSize, QObject)
 from PyQt5.QtWidgets import (QApplication, QTextEdit)
 from PyQt5.QtGui import (QPixmap, QImage)
 import zmq
@@ -65,58 +65,100 @@ class ThumbnailLoadBalancerManager(LoadBalancerManager):
         self._process_name = 'Thumbnail Load Balancer Manager'
         self._process_to_run = 'thumbloadbalancer.py'
 
+class Thumbnailer(QObject):
+    """
+    Extracts, caches and retrieves thumbnails for a set of files.
 
-class TestThumbnail(QTextEdit ):
+    For each set of files, a process runs to extract the files from
+    their source. Each file is then processed, if necessary using
+    worker processes fronted by a load balancer.
+    """
+    ready = pyqtSignal()
+    def __init__(self, parent, no_workers: int) -> None:
+        """
+        :param parent: Qt parent window
+        :param no_workers: how many thumbnail extractor processes to
+         use
+        """
+        super().__init__(parent)
+        self.context = zmq.Context.instance()
+        self.setupThumbnailManager()
+        self.setupLoadBalancer(no_workers)
+
+    def generateThumbnails(self, scan_id: int, rpd_files: list, cache_dirs: CacheDirs) -> None:
+        """
+        Initiates thumbnail generation.
+
+        :param scan_id: worker id of the scan
+        :param rpd_files: list of rpd_files, all of which should be
+         from the same source
+        :param cache_dirs: the location where the cache directories
+         should be created
+        """
+        self.thumbnail_manager.start_worker(scan_id,
+                        GenerateThumbnailsArguments(scan_id, rpd_files, False, 'test', cache_dirs,
+                                        self.frontend_port))
+
+    @property
+    def thumbnailReceived(self) -> pyqtSignal:
+        return self.thumbnail_manager.message
+
+    def setupThumbnailManager(self) -> None:
+        self.thumbnail_manager_thread = QThread()
+        self.thumbnail_manager = ThumbnailManagerPara(self.context)
+        self.thumbnail_manager_sink_port = self.thumbnail_manager.receiver_port
+        self.thumbnail_manager.moveToThread(self.thumbnail_manager_thread)
+        self.thumbnail_manager_thread.started.connect(self.thumbnail_manager.run_sink)
+
+        QTimer.singleShot(0, self.thumbnail_manager_thread.start)
+
+    def setupLoadBalancer(self, no_workers: int) -> None:
+        self.load_balancer_thread =  QThread()
+        self.load_balancer = ThumbnailLoadBalancerManager(self.context, no_workers,
+                                                          self.thumbnail_manager_sink_port)
+        self.load_balancer.moveToThread(self.load_balancer_thread)
+        self.load_balancer_thread.started.connect(self.load_balancer.start_load_balancer)
+
+        self.load_balancer.load_balancer_started.connect(self.loadBalancerFrontendPort)
+        QTimer.singleShot(0, self.load_balancer_thread.start)
+
+    def loadBalancerFrontendPort(self, frontend_port: int):
+        self.frontend_port = frontend_port
+        self.ready.emit()
+
+    def stop(self):
+        self.thumbnail_manager.stop()
+        self.load_balancer.stop()
+        self.thumbnail_manager_thread.quit()
+        if not self.thumbnail_manager_thread.wait(1000):
+            self.thumbnail_manager.forcefully_terminate()
+        self.load_balancer_thread.quit()
+        if not self.load_balancer_thread.wait(1000):
+            self.load_balancer.forcefully_terminate()
+
+
+class TestThumbnail(QTextEdit):
     def __init__(self, testdata: str, profile: bool, no_workers: int, parent=None) -> None:
         super().__init__(parent)
 
-        self.context = zmq.Context()
-        self.scan_id = 0
         self.received = 0
 
         with open(testdata, 'rb') as td:
             self.rpd_files = pickle.load(td)
 
+        self.thumbnailer = Thumbnailer(self, no_workers)
+        self.thumbnailer.ready.connect(self.startGeneration)
+        self.thumbnailer.thumbnailReceived.connect(self.thumbnailReceived)
+
+    def startGeneration(self):
+        print("Starting generation of {} thumbnails....".format(len(self.rpd_files)))
         with tempfile.TemporaryDirectory() as tempdir:
-            self.tempdir = tempdir
-            self.setupThumbnailManager()
-            self.setupLoadBalancer(no_workers)
-
-    def setupThumbnailManager(self):
-
-        self.ttm_thread = QThread()
-        self.ttm = ThumbnailManagerPara(self.context)
-        self.ttm_receiver_port = self.ttm.receiver_port
-        self.ttm.moveToThread(self.ttm_thread)
-        self.ttm_thread.started.connect(self.ttm.run_sink)
-
-        self.ttm.message.connect(self.thumbnailReceived)
-        self.ttm.workerFinished.connect(self.finished)
-        QTimer.singleShot(0, self.ttm_thread.start)
-
-
-    def setupLoadBalancer(self, no_workers: int):
-        self.lb_thread =  QThread()
-        self.lb = ThumbnailLoadBalancerManager(self.context, no_workers, self.ttm_receiver_port)
-        self.lb.moveToThread(self.lb_thread)
-        self.lb_thread.started.connect(self.lb.start_load_balancer)
-
-        self.lb.load_balancer_started.connect(self.loadBalancerFrontendPort)
-        QTimer.singleShot(0, self.lb_thread.start)
-
-    def loadBalancerFrontendPort(self, frontend_port: int):
-        print("Received frontend port {}, now starting worker...".format(frontend_port))
-        gta = GenerateThumbnailsArguments(self.scan_id, self.rpd_files, False, 'test',
-                                          CacheDirs(self.tempdir, self.tempdir), frontend_port)
-        self.ttm.start_worker(self.scan_id, gta)
+            cache_dirs = CacheDirs(tempdir, tempdir)
+            self.thumbnailer.generateThumbnails(0, self.rpd_files, cache_dirs)
 
     def thumbnailReceived(self, rpd_file: RPDFile) -> None:
         self.received += 1
-        self.insertPlainText('{}\n'.format(rpd_file.full_file_name))
-
-    def finished(self):
-        pass
-        # QTimer.singleShot(0, self.close)
+        # self.insertPlainText('{}\n'.format(rpd_file.full_file_name))
 
     def sizeHint(self):
         return QSize(800, 900)
@@ -124,14 +166,7 @@ class TestThumbnail(QTextEdit ):
 
     def closeEvent(self, QCloseEvent):
         assert self.received == len(self.rpd_files)
-        self.ttm.stop()
-        self.lb.stop()
-        self.ttm_thread.quit()
-        if not self.ttm_thread.wait(1000):
-            self.ttm.forcefully_terminate()
-        self.lb_thread.quit()
-        if not self.lb_thread.wait(1000):
-            self.lb.forcefully_terminate()
+        self.thumbnailer.stop()
 
 
 if __name__ == '__main__':

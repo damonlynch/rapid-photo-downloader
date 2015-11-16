@@ -228,6 +228,7 @@ def qimage_to_png_buffer(image: QImage) -> QBuffer:
     """
     buffer = QBuffer()
     buffer.open(QIODevice.WriteOnly)
+    #TODO investiage performance with quality=100 (i.e. uncompressed)
     image.save(buffer, "PNG")
     return buffer
 

@@ -301,6 +301,7 @@ class LRUQueue:
 
     def handle_controller(self, msg):
         self.terminating = True
+        logging.debug("Load balancer requesting %s workers to stop", len(self.workers))
 
         while len(self.workers):
             worker_identity = self.workers.popleft()
@@ -322,7 +323,7 @@ class LRUQueue:
         if msg[-1] == b'STOPPED' and self.terminating:
             self.terminating_workers.remove(worker_identity)
             if len(self.terminating_workers) == 0:
-                self.loop.add_timeout(time.time()+0.1, self.loop.stop)
+                self.loop.add_timeout(time.time()+0.5, self.loop.stop)
 
         if len(self.workers) == 1:
             # on first recv, start accepting frontend messages
@@ -800,8 +801,9 @@ class LoadBalancerWorker:
             # signal to load balancer that we've terminated before finishing
             self.requester.send_multipart([b'', b'', b'STOPPED'])
             self.requester.close()
+            self.sender.close()
             self.context.term()
-            print("{} stopped".format(identity))
+            logging.debug("%s stopped", identity)
             sys.exit(0)
 
 

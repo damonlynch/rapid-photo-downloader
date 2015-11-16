@@ -18,8 +18,6 @@ __author__ = 'Damon Lynch'
 # along with Rapid Photo Downloader.  If not,
 # see <http://www.gnu.org/licenses/>.
 
-import argparse
-import sys
 import logging
 import pickle
 import os
