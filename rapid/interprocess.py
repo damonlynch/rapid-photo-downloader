@@ -285,8 +285,10 @@ class LRUQueue:
 
     def __init__(self, backend_socket: zmq.Socket,
                  frontend_socket: zmq.Socket,
-                 controller_socket: zmq.Socket) -> None:
+                 controller_socket: zmq.Socket,
+                 worker_type: str) -> None:
 
+        self.worker_type = worker_type
         self.workers = deque()
         self.terminating = False
         self.terminating_workers = set()
@@ -301,7 +303,8 @@ class LRUQueue:
 
     def handle_controller(self, msg):
         self.terminating = True
-        logging.debug("Load balancer requesting %s workers to stop", len(self.workers))
+        logging.debug("%s load balancer requesting %s workers to stop", self.worker_type,
+                      len(self.workers))
 
         while len(self.workers):
             worker_identity = self.workers.popleft()
@@ -331,7 +334,7 @@ class LRUQueue:
 
     def handle_frontend(self, request):
         #  Dequeue and drop the next worker address
-        worker_identity = self.workers.pop()
+        worker_identity = self.workers.popleft()
 
         message = [worker_identity, b''] + request
         self.backend.send_multipart(message)
@@ -340,9 +343,8 @@ class LRUQueue:
             self.frontend.stop_on_recv()
 
 class LoadBalancer:
-    def __init__(self, worker_type, process_manager) -> None:
+    def __init__(self, worker_type: str, process_manager) -> None:
         logging.debug("{} worker started".format(worker_type))
-        self.worker_type = worker_type
 
         self.parser = argparse.ArgumentParser()
         self.parser.add_argument("--receive", required=True)
@@ -369,7 +371,7 @@ class LoadBalancer:
         sink_port = args.send
 
         logging.debug("{} waiting to be notified how many workers to initialize".format(
-            self.worker_type))
+            worker_type))
         no_workers = int(reply.recv())
         reply.send(str(frontend_port).encode())
 
@@ -377,7 +379,7 @@ class LoadBalancer:
         self.process_manager.start_workers()
 
         # create queue with the sockets
-        queue = LRUQueue(backend, frontend, controller)
+        queue = LRUQueue(backend, frontend, controller, worker_type)
 
         # start reactor, which is an infinite loop
         IOLoop.instance().start()
@@ -1005,5 +1007,17 @@ class GenerateThumbnailsParaResults:
         self.rpd_file = rpd_file
 
 class ThumbnailExtractorArgument:
-    def __init__(self, rpd_file: RPDFile) -> None:
+    def __init__(self, rpd_file: RPDFile,
+                 thumbnail_full_file_name: str,
+                 thumbnail_quality_lower: bool,
+                 thumbnail: bytes,
+                 orientation: str,
+                 crop160x120: bool) -> None:
         self.rpd_file = rpd_file
+        self.thumbnail_full_file_name = thumbnail_full_file_name
+        self.thumbnail_quality_lower = thumbnail_quality_lower
+        self.thumbnail = thumbnail
+        self.orientation = orientation
+        self.crop160x120 = crop160x120
+
+

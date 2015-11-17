@@ -53,6 +53,7 @@ from constants import (DownloadStatus, Downloaded, FileType, FileExtension,
 from storage import get_program_cache_directory, gvfs_controls_mounts
 from utilities import (CacheDirs, make_internationalized_list,
                        divide_list)
+from thumbnailer import Thumbnailer
 
 
 class DownloadTypes:
@@ -362,6 +363,7 @@ class ThumbnailTableModel(QAbstractTableModel):
         :param scan_id: the scan id of the device in question
         :return: the number of processes to assign
         """
+        return 1
         device = self.rapidApp.devices[scan_id]
 
         # Cameras can use only one CPU, as only one process can access
@@ -414,7 +416,8 @@ class ThumbnailTableModel(QAbstractTableModel):
                                      name=device.name(),
                                      cache_dirs=cache_dirs,
                                      camera=device.camera_model,
-                                     port=device.camera_port)
+                                     port=device.camera_port,
+                                     frontend_port=0)
                 self.thumbnailmq.start_worker(worker_id, generate_arguments)
 
     def resetThumbnailTrackingAndDisplay(self):

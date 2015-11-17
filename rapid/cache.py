@@ -62,12 +62,52 @@ from PyQt5.QtGui import QImage
 from storage import get_program_cache_directory, get_fdo_cache_thumb_base_directory
 from utilities import GenerateRandomFileName
 from constants import ThumbnailCacheDiskStatus
+from sql import CacheSQL
 
 logging.basicConfig(format='%(levelname)s:%(asctime)s:%(message)s',
                     datefmt='%H:%M:%S',
                     level=logging.DEBUG)
 
 GetThumbnail = namedtuple('GetThumbnail', 'disk_status thumbnail path')
+GetThumbnailPath = namedtuple('GetThumbnailPath', 'disk_status path')
+
+class MD5Name:
+    """Generate MD5 hashes for file names."""
+    def __init__(self) -> None:
+        self.fs_encoding = sys.getfilesystemencoding()
+
+    def get_uri(self, full_file_name: str, camera_model: str=None) -> str:
+        """
+        :param full_file_name: path and file name of the file
+        :param camera_model: if file is on a camera, the model of the
+         camera
+        :return: uri
+        """
+        if camera_model is None:
+            prefix = 'file://'
+            path = os.path.abspath(full_file_name)
+        else:
+            # This is not a system standard: I'm using this for my own
+            # purposes (the port is not included, because it could easily vary)
+            prefix = 'gphoto2://'
+            path = '{}/{}'.format(camera_model, full_file_name)
+
+        return '{}{}'.format(prefix, pathname2url(path))
+
+    def md5_hash_name(self, full_file_name: str, camera_model: str=None) -> (str, str):
+        """
+        Generate MD5 hash for the file name.
+
+        Uses file system encoding.
+
+        :param full_file_name: path and file name of the file
+        :param camera_model: if file is on a camera, the model of the
+         camera
+        :return: hash name and uri that was used to generate the hash
+        """
+        uri = self.get_uri(full_file_name, camera_model)
+        return ('{}.png'.format(hashlib.md5(uri.encode(self.fs_encoding)).hexdigest()), uri)
+
 
 class Cache:
     """
@@ -89,8 +129,7 @@ class Cache:
         self.valid = self.cache_dir is not None and self.failure_dir is not None
         if self.valid:
             self.random_filename = GenerateRandomFileName()
-            self.fs_encoding = sys.getfilesystemencoding()
-
+            self.md5 = MD5Name()
             try:
                 if not os.path.exists(self.failure_dir):
                     os.makedirs(self.failure_dir, 0o700)
@@ -111,19 +150,6 @@ class Cache:
         if not self.valid:
             self.random_filename = self.fs_encoding = None
 
-    def md5_hash_name(self, full_file_name: str, camera_model: str=None) -> (str, str):
-        if camera_model is None:
-            prefix = 'file://'
-            path = os.path.abspath(full_file_name)
-        else:
-            # This is not a system standard: I'm using this for my own
-            # purposes (the port is not included, because it could easily vary)
-            prefix = 'gphoto2://'
-            path = '{}/{}'.format(camera_model, full_file_name)
-
-        uri = '{}{}'.format(prefix, pathname2url(path))
-        return ('{}.png'.format(hashlib.md5(uri.encode(
-            self.fs_encoding)).hexdigest()), uri)
 
     def save_thumbnail(self, full_file_name: str, size: int,
                        modification_time, generation_failed: bool,
@@ -154,7 +180,7 @@ class Cache:
         if not self.valid:
             return None
 
-        md5_name, uri = self.md5_hash_name(full_file_name, camera_model)
+        md5_name, uri = self.md5.md5_hash_name(full_file_name, camera_model)
         if generation_failed:
             thumbnail = QImage(QSize(1,1), QImage.Format_Indexed8)
             save_dir = self.failure_dir
@@ -197,7 +223,7 @@ class Cache:
         :return a GetThumbnail tuple of (1) ThumbnailCacheDiskStatus,
          to indicate whether the thumbnail was found, a failure, or
          missing (2) the thumbnail as QImage, if found (or None), and
-         (3) the path, else None,
+         (3) the path (including the md5 name), else None,
         """
 
         def _get_thumbnail():
@@ -216,7 +242,7 @@ class Cache:
 
         if not self.valid:
             return GetThumbnail(ThumbnailCacheDiskStatus.not_foud, None, None)
-        md5_name, uri = self.md5_hash_name(full_file_name, camera_model)
+        md5_name, uri = self.md5.md5_hash_name(full_file_name, camera_model)
         path = os.path.join(self.cache_dir, md5_name)
         png = _get_thumbnail()
         if png is not None:
@@ -234,6 +260,7 @@ class Cache:
                               size: int, generation_failed: bool) -> str:
         if generation_failed:
             #TODO account for failure here
+            #should this ever happen?
             pass
         else:
             thumbnail = QImage(existing_cache_thumbnail)
@@ -344,6 +371,143 @@ class BaseThumbnailCache(Cache):
                 shutil.rmtree(self.failure_dir)
 
 
-class ThumbnailCache(BaseThumbnailCache):
+class ThumbnailCache():
     def __init__(self):
-        super().__init__('thumbnails/normal', 'thumbnails/fail')
+        self.cache_dir = get_program_cache_directory(create_if_not_exist=True)
+        self.valid = self.cache_dir is not None
+        if not self.valid:
+            return
+        self.random_filename = GenerateRandomFileName()
+        self.md5 = MD5Name()
+        self.thumb_db = CacheSQL(self.cache_dir)
+
+    def save_thumbnail(self, full_file_name: str, size: int,
+                       modification_time, generation_failed: bool,
+                       thumbnail: bytes,
+                       camera_model: str=None) -> str:
+        """
+        Save a thumbnail in the thumbnail cache.
+        :param full_file_name: full path of the file (including file
+        name). Will be turned into an absolute path if it is a file
+        system path
+        :param size: size of the file in bytes
+        :param modification_time: file modification time, to be turned
+         into a float if it's not already
+        :param generation_failed: True if the thumbnail is meant to
+         signify the application failed to generate the thumbnail. If
+         so, it will be saved as an empty PNG in the application
+         subdirectory in the fail cache directory.
+        :param thumbnail: the thumbnail to be saved. Will not be
+         resized. Will be ignored if generation_failed is True.
+        :param camera_model: optional camera model. If the thumbnail is
+         not from a camera, then should be None.
+        :return the path of the saved file, else None if operation
+        failed
+        """
+        if not self.valid:
+            return None
+
+        md5_name, uri = self.md5.md5_hash_name(full_file_name, camera_model)
+        self.thumb_db.add_thumbnail(uri, size, modification_time, md5_name,
+                                    generation_failed)
+
+        if generation_failed:
+            return None
+
+        md5_full_name = os.path.join(self.cache_dir, md5_name)
+
+        temp_full_file_name = os.path.join(self.cache_dir, self.random_filename.name())
+        with open(temp_full_file_name, 'wb') as temp_file:
+            temp_file.write(thumbnail)
+
+        try:
+            os.rename(temp_full_file_name, md5_full_name)
+            os.chmod(md5_full_name, 0o600)
+        except OSError:
+            return None
+        return md5_full_name
+
+    def get_thumbnail_path(self, full_file_name: str, modification_time, size: int,
+                      camera_model: str=None) -> GetThumbnailPath:
+        """
+        Attempt to get a thumbnail's path from the thumbnail cache.
+
+        :param full_file_name: full path of the file (including file
+        name). Will be turned into an absolute path if it is a file
+        system path
+        :param size: size of the file in bytes
+        :param modification_time: file modification time, to be turned
+         into a float if it's not already
+        :param camera_model: optional camera model. If the thumbnail is
+         not from a camera, then should be None.
+        :return a GetThumbnail tuple of (1) ThumbnailCacheDiskStatus,
+         to indicate whether the thumbnail was found, a failure, or
+         missing (2) the thumbnail as QImage, if found (or None), and
+         (3) the path (including the md5 name), else None,
+        """
+
+        if not self.valid:
+            return GetThumbnail(ThumbnailCacheDiskStatus.not_foud, None, None)
+
+        uri = self.md5.get_uri(full_file_name, camera_model)
+        in_cache = self.thumb_db.have_thumbnail(uri, size, modification_time)
+
+        if in_cache is None:
+            return GetThumbnailPath(ThumbnailCacheDiskStatus.not_foud, None)
+
+        if in_cache.failure:
+            return GetThumbnailPath(ThumbnailCacheDiskStatus.failure, None)
+
+        path= os.path.join(self.cache_dir, in_cache.md5_name)
+        if not os.path.exists(path):
+            self.thumb_db.delete_thumbnails([in_cache.md5_name])
+            return GetThumbnailPath(ThumbnailCacheDiskStatus.not_foud, None)
+
+        return GetThumbnailPath(ThumbnailCacheDiskStatus.found, path)
+
+
+    def cleanup_cache(self):
+        """
+        Remove all thumbnails that have not been accessed for 30 days
+        """
+        time_period = 60 * 60 * 24 * 30
+        if self.valid:
+            i = 0
+            now = time.time()
+            deleted_thumbnails = []
+            for name in os.listdir(self.cache_dir ):
+                thumbnail = os.path.join(self.cache_dir , name)
+                if (os.path.isfile(thumbnail) and
+                        os.path.getatime(thumbnail) < now - time_period):
+                    os.remove(thumbnail)
+                    deleted_thumbnails.append(name)
+            if len(deleted_thumbnails):
+                self.thumb_db.delete_thumbnails(deleted_thumbnails)
+                logging.debug('Deleted {} thumbnail files that had not been '
+                          'accessed for 30 or more days'.format(len(deleted_thumbnails)))
+
+    def purge_cache(self):
+        """
+        Delete the entire cache of all contents and remvoe the
+        directory
+        """
+        if self.valid:
+            if self.cache_dir is not None and os.path.isdir(self.cache_dir):
+                # Delete the sqlite3 database too
+                shutil.rmtree(self.cache_dir)
+
+
+"""
+Thumbnail cache goals:
+
+if already correct size, store original format from the file
+if need to resize original to save, save 75% jpeg
+use md5 filenames, for obsfucation
+use sqlite3 to save modification time, md5name, and size
+
+Issues:
+
+sqlite might grow big - vacuum
+
+
+"""

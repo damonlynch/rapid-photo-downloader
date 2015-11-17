@@ -97,6 +97,19 @@ def divide_list(source: list, no_pieces: int) -> list:
         result.append(source_slice)
     return result
 
+def divide_list_on_length(source: list, length: int) -> list:
+    r"""
+    Break a list into lists no longer than length.
+
+    >>> l=list(range(11))
+    >>> divide_list_on_length(l, 3)
+    [[0, 1, 2], [3, 4, 5], [6, 7, 8], [9, 10]]
+    >>> l=list(range(12))
+    >>> divide_list_on_length(l, 3)
+    [[0, 1, 2], [3, 4, 5], [6, 7, 8], [9, 10, 11]]
+    """
+    return [source[i:i+length] for i in range(0, len(source), length)]
+
 class GenerateRandomFileName:
     def __init__(self):
         # the characters used to generate temporary filenames

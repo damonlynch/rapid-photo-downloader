@@ -23,19 +23,23 @@ import sqlite3
 import os
 import datetime
 from collections import namedtuple
-from storage import get_program_data_directory
+from storage import (get_program_data_directory, get_program_cache_directory)
+from utilities import divide_list_on_length
 
-FileDownloaded = namedtuple('FileDownloaded', 'download_name, '
-                                              'download_datetime')
+FileDownloaded = namedtuple('FileDownloaded', 'download_name, download_datetime')
+
+InCache = namedtuple('InCache', 'md5_name, failure')
 
 class DownloadedSQL:
     """
+    Previous file download detection.
+
     Used to detect if a file has been downloaded before. A file is the
     same if the file name (excluding path), size and modification time
     are the same. For performance reasons, Exif information is never
     checked.
     """
-    def __init__(self, data_dir: str=None):
+    def __init__(self, data_dir: str=None) -> None:
         """
         :param data_dir: where the database is saved. If None, use
          default
@@ -47,22 +51,21 @@ class DownloadedSQL:
         self.table_name = 'downloaded'
         self.update_table()
 
-    def update_table(self, reset: bool=False):
+    def update_table(self, reset: bool=False) -> None:
         """
         Create or update the database table
         :param reset: if True, delete the contents of the table and
          build it
         """
 
-        conn = sqlite3.connect(self.db,
-                   detect_types=sqlite3.PARSE_DECLTYPES|sqlite3.PARSE_COLNAMES)
-        c = conn.cursor()
+        conn = sqlite3.connect(self.db, detect_types=sqlite3.PARSE_DECLTYPES)
 
         if reset:
-            c.execute(r"""DROP TABLE IF EXISTS {tn}""".format(
+            conn.execute(r"""DROP TABLE IF EXISTS {tn}""".format(
                 tn=self.table_name))
+            conn.execute("VACUUM")
 
-        c.execute("""CREATE TABLE IF NOT EXISTS {tn} (
+        conn.execute("""CREATE TABLE IF NOT EXISTS {tn} (
         file_name TEXT NOT NULL,
         mtime REAL NOT NULL,
         size INTEGER NOT NULL,
@@ -71,14 +74,14 @@ class DownloadedSQL:
         PRIMARY KEY (file_name, mtime, size)
         )""".format(tn=self.table_name))
 
-        c.execute("""CREATE INDEX IF NOT EXISTS download_datetime_idx ON
+        conn.execute("""CREATE INDEX IF NOT EXISTS download_datetime_idx ON
         {tn} (download_name)""".format(tn=self.table_name))
 
         conn.commit()
         conn.close()
 
-    def add_downloaded_file(self, name: str, size: int, modification_time:
-                            float, download_full_file_name: str):
+    def add_downloaded_file(self, name: str, size: int,
+                            modification_time: float, download_full_file_name: str) -> None:
         """
         Add file to database of downloaded files
         :param name: original filename of photo / video, without path
@@ -87,9 +90,8 @@ class DownloadedSQL:
         :param download_full_file_name: renamed file including path
         """
         conn = sqlite3.connect(self.db)
-        c = conn.cursor()
 
-        c.execute(r"""INSERT OR REPLACE INTO {tn} (file_name, size, mtime,
+        conn.execute(r"""INSERT OR REPLACE INTO {tn} (file_name, size, mtime,
         download_name, download_datetime) VALUES (?,?,?,?,?)""".format(
             tn=self.table_name), (name, size, modification_time,
             download_full_file_name, datetime.datetime.now()))
@@ -97,8 +99,7 @@ class DownloadedSQL:
         conn.commit()
         conn.close()
 
-    def file_downloaded(self, name: str, size: int, modification_time:
-                            float) -> FileDownloaded:
+    def file_downloaded(self, name: str, size: int, modification_time: float) -> FileDownloaded:
         """
         Returns download path and filename if a file with matching
         name, modification time and size has previously been downloaded
@@ -108,26 +109,134 @@ class DownloadedSQL:
         :return: download name (including path) and when it was
          downloaded, else None if never downloaded
         """
-        conn = sqlite3.connect(self.db)
+        conn = sqlite3.connect(self.db, detect_types=sqlite3.PARSE_DECLTYPES)
         c = conn.cursor()
-        c.execute("""SELECT download_name, download_datetime FROM {tn} WHERE
+        c.execute("""SELECT download_name, download_datetime as [timestamp] FROM {tn} WHERE
         file_name=? AND size=? AND mtime=?""".format(
             tn=self.table_name), (name, size, modification_time))
         row = c.fetchone()
         if row is not None:
-            if isinstance(row[1], str):
-                # convert the str to datetime.datetime
-                # TODO: investigate why this is not happening by default
-                try:
-                    row = [row[0], datetime.datetime.strptime(row[1],
-                                                    "%Y-%m-%d ""%H:%M:%S.%f")]
-                except:
-                    pass
+            # if isinstance(row[1], str):
+            #     # Convert the str to datetime.datetime. Shouldn't need
+            #     # to do this, but keep it just in case
+            #     try:
+            #         row = [row[0], datetime.datetime.strptime(row[1],
+            #                                         "%Y-%m-%d ""%H:%M:%S.%f")]
+            #     except:
+            #         pass
             return FileDownloaded._make(row)
         else:
             return None
+
+class CacheSQL:
+    def __init__(self, location: str=None) -> None:
+        if location is None:
+            location = get_program_cache_directory(create_if_not_exist=True)
+        self.db = os.path.join(location, 'thumbnail_cache.sqlite')
+        self.table_name = 'cache'
+        self.update_table()
+
+    def update_table(self, reset: bool=False) -> None:
+        """
+        Create or update the database table
+        :param reset: if True, delete the contents of the table and
+         build it
+        """
+        conn = sqlite3.connect(self.db)
+
+        if reset:
+            conn.execute(r"""DROP TABLE IF EXISTS {tn}""".format(
+                tn=self.table_name))
+            conn.execute("VACUUM")
+
+        conn.execute("""CREATE TABLE IF NOT EXISTS {tn} (
+        uri TEXT NOT NULL,
+        mtime REAL NOT NULL,
+        size INTEGER NOT NULL,
+        md5_name INTEGER NOT NULL,
+        failure INTEGER NOT NULL,
+        PRIMARY KEY (uri, mtime, size)
+        )""".format(tn=self.table_name))
+
+        conn.execute("""CREATE INDEX IF NOT EXISTS md5_name_idx ON
+        {tn} (md5_name)""".format(tn=self.table_name))
+
+        conn.commit()
+        conn.close()
+
+    def add_thumbnail(self, uri: str, size: int, modification_time: float, md5_name: str,
+                      failure: bool) -> None:
+        """
+        Add file to database of downloaded files
+        :param uri: original filename of photo / video with path
+        :param size: file size
+        :param modification_time: file modification time
+        :param md5_name: full file name converted to md5
+        :param failure: if True, indicates the thumbnail could not be
+         generated, otherwise False
+        """
+        conn = sqlite3.connect(self.db)
+
+        failure = int(failure)
+
+        conn.execute(r"""INSERT OR REPLACE INTO {tn} (uri, size, mtime,
+        md5_name, failure) VALUES (?,?,?,?,?, ?)""".format(
+            tn=self.table_name), (uri, size, modification_time,
+                                  md5_name, failure))
+
+        conn.commit()
+        conn.close()
+
+    def have_thumbnail(self, uri: str, size: int, modification_time: float) -> InCache:
+        """
+        Returns download path and filename if a file with matching
+        name, modification time and size has previously been downloaded
+        :param uri: file name, including path
+        :param size: file size in bytes
+        :param modification_time: file modification time
+        :return: md5 name (excluding path) and if the value indicates a
+         thumbnail generation failure, else None if thumbnail not
+         present
+        """
+        conn = sqlite3.connect(self.db)
+        c = conn.cursor()
+        c.execute("""SELECT md5_name, failure FROM {tn} WHERE
+        uri=? AND size=? AND mtime=?""".format(
+            tn=self.table_name), (uri, size, modification_time))
+        row = c.fetchone()
+        if row is not None:
+            # convert integer to bool
+            row[1] = bool(row[1])
+            return InCache._make(row)
+        else:
+            return None
+
+    def delete_thumbnails(self, md5_names: list) -> None:
+        """
+        Deletes thumbnails from SQL cache
+        :param md5_names: list of names, without path
+        """
+        def delete(names):
+            conn.execute("""DELETE FROM {tn} WHERE md5_name IN {values}""".format(
+                tn=self.table_name, values=','.join('?' * len(names))), names)
+        if len(md5_names) == 0:
+            return
+
+        conn = sqlite3.connect(self.db)
+        # Limit to number of parameters: 999
+        # See https://www.sqlite.org/limits.html
+        if len(md5_names) > 999:
+            name_chunks = divide_list_on_length(md5_names, 999)
+            for chunk in name_chunks:
+                delete(chunk)
+        else:
+            delete(md5_names)
+        conn.commit()
+        conn.close()
 
 
 if __name__ == '__main__':
     d = DownloadedSQL()
     d.update_table(reset=True)
+    c = CacheSQL()
+    c.update_table(reset=True)

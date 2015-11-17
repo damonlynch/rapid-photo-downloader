@@ -18,6 +18,8 @@ __author__ = 'Damon Lynch'
 # along with Rapid Photo Downloader.  If not,
 # see <http://www.gnu.org/licenses/>.
 
+# Starts load balancer used for thumbnail extraction and caching
+
 from interprocess import LoadBalancerWorkerManager, LoadBalancer
 
 

@@ -226,7 +226,7 @@ def qimage_to_png_buffer(image: QImage) -> QBuffer:
     """
     buffer = QBuffer()
     buffer.open(QIODevice.WriteOnly)
-    image.save(buffer, "PNG")
+    image.save(buffer, "PNG", quality=100)
     return buffer
 
 

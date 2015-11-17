@@ -699,7 +699,8 @@ class RenameMoveFileWorker(DaemonProcess):
                     existing_cache_thumbnail=rpd_file.fdo_thumbnail_128_name,
                     full_file_name=rpd_file.download_full_file_name,
                     size=rpd_file.size,
-                    modification_time=mtime)
+                    modification_time=mtime,
+                    generation_failed=False)
 
         if rpd_file.fdo_thumbnail_256_name and self.prefs.save_fdo_thumbnails:
             logging.debug("Copying and modifying existing FDO 256 thumbnail")
@@ -708,7 +709,8 @@ class RenameMoveFileWorker(DaemonProcess):
                     existing_cache_thumbnail=rpd_file.fdo_thumbnail_256_name,
                     full_file_name=rpd_file.download_full_file_name,
                     size=rpd_file.size,
-                    modification_time=mtime)
+                    modification_time=mtime,
+                    generation_failed=False)
 
         if ((self.prefs.save_fdo_thumbnails and (
                 not rpd_file.fdo_thumbnail_256_name or
