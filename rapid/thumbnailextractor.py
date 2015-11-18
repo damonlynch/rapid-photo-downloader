@@ -21,6 +21,10 @@ __author__ = 'Damon Lynch'
 import logging
 import pickle
 import os
+from collections import namedtuple
+
+
+from gi.repository import GExiv2
 
 from PyQt5.QtGui import QImage, QTransform
 from PyQt5.QtCore import QSize, Qt, QIODevice, QBuffer
@@ -28,6 +32,9 @@ from PyQt5.QtCore import QSize, Qt, QIODevice, QBuffer
 from interprocess import (LoadBalancerWorker, ThumbnailExtractorArgument,
                           GenerateThumbnailsResults)
 from constants import ThumbnailSize
+from rpdfile import RPDFile
+
+ThumbnailDetails = namedtuple('ThumbnailDetails', 'thumbnail orientation crop160x120')
 
 def qimage_to_png_buffer(image: QImage) -> QBuffer:
     """
@@ -77,6 +84,54 @@ class ThumbnailExtractor(LoadBalancerWorker):
             thumbnail = thumbnail.transformed(QTransform().rotate(180))
         return thumbnail
 
+    def image_large_enough(self, size: QSize) -> bool:
+        """Check if image is equal or bigger than thumbnail size."""
+        return (size.width() >= self.thumbnail_size_needed.width() or
+                size.height() >= self.thumbnail_size_needed.height())
+
+    def get_disk_photo_thumb(self, rpd_file: RPDFile) -> ThumbnailDetails:
+
+        full_file_name = rpd_file.full_file_name
+
+        orientation = None
+        thumbnail = None
+        crop160x120 = False
+        try:
+            metadata = GExiv2.Metadata(full_file_name)
+        except:
+            logging.warning("Could not read metadata from %s", full_file_name)
+            metadata = None
+
+        if metadata:
+            try:
+                orientation = metadata['Exif.Image.Orientation']
+            except KeyError:
+                pass
+
+            # not all files have an exif preview, but all CR2 seem to
+            ep = metadata.get_exif_thumbnail()
+            if ep:
+                thumbnail = QImage.fromData(metadata.get_exif_thumbnail())
+                crop160x120 = True
+            else:
+                previews = metadata.get_preview_properties()
+                for preview in previews:
+                    data = metadata.get_preview_image(preview).get_data()
+                    if isinstance(data, bytes):
+                        thumbnail = QImage.fromData(data)
+                        if not thumbnail.isNull():
+                            if self.image_large_enough(thumbnail):
+                                break
+
+        if thumbnail is None and rpd_file.is_loadable():
+            thumbnail = QImage(full_file_name)
+            if thumbnail.isNull():
+                thumbnail = None
+                logging.error(
+                    "Unable to create a thumbnail out of the file: {}".format(full_file_name))
+
+        return ThumbnailDetails(thumbnail, orientation, crop160x120)
+
     def do_work(self):
         while True:
             directive, content = self.requester.recv_multipart()
@@ -90,6 +145,7 @@ class ThumbnailExtractor(LoadBalancerWorker):
             final_thumbnail = None
             png_data = None
             resize = False
+            orientation = None
 
             if data.thumbnail_full_file_name:
                 logging.debug("Attempting to get QImage from file %s",
@@ -98,13 +154,16 @@ class ThumbnailExtractor(LoadBalancerWorker):
                 thumbnail = QImage(data.thumbnail_full_file_name)
                 resize = True
             else:
-                assert data.thumbnail is not None
-                thumbnail = QImage.fromData(data.thumbnail)
-                if data.crop160x120:
-                    #TODO don't crop from jpegs
-                    final_thumbnail = crop_160x120_thumbnail(thumbnail)
-                else:
-                    resize = True
+                thumbnail_details = self.get_disk_photo_thumb(data.rpd_file)
+                thumbnail = thumbnail_details.thumbnail
+
+                if thumbnail is not None:
+                    orientation = thumbnail_details.orientation
+                    if thumbnail_details.crop160x120:
+                        #TODO don't crop from jpegs
+                        final_thumbnail = crop_160x120_thumbnail(thumbnail)
+                    else:
+                        resize = True
 
             if resize:
                 #TODO resizing of thumbnails from cellphones
@@ -115,8 +174,8 @@ class ThumbnailExtractor(LoadBalancerWorker):
                 if final_thumbnail.isNull():
                     final_thumbnail = None
 
-            if data.orientation is not None and final_thumbnail is not None:
-                final_thumbnail =  self.rotate_thumb(final_thumbnail, data.orientation)
+            if orientation is not None and final_thumbnail is not None:
+                final_thumbnail =  self.rotate_thumb(final_thumbnail, orientation)
 
             if final_thumbnail is not None:
                 buffer = qimage_to_png_buffer(final_thumbnail)

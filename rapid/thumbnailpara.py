@@ -46,7 +46,6 @@ from operator import attrgetter
 import zmq
 from PyQt5.QtGui import QImage, QTransform
 from PyQt5.QtCore import QSize, Qt, QIODevice, QBuffer
-from gi.repository import GExiv2
 import qrc_resources
 from rpdfile import RPDFile
 from interprocess import (WorkerInPublishPullPipeline,
@@ -55,9 +54,9 @@ from interprocess import (WorkerInPublishPullPipeline,
                           ThumbnailExtractorArgument)
 from filmstrip import add_filmstrip
 from constants import (Downloaded, FileType, ThumbnailSize, ThumbnailCacheStatus,
-                       ThumbnailCacheDiskStatus)
+                       ThumbnailCacheDiskStatus, FileSortPriority)
 from camera import (Camera, CopyChunks)
-from cache import ThumbnailCache, FdoCacheNormal, FdoCacheLarge, GetThumbnail
+from cache import ThumbnailCacheSql, FdoCacheNormal, FdoCacheLarge
 from utilities import (GenerateRandomFileName, create_temp_dir, CacheDirs)
 from preferences import Preferences
 from thumbnailextractor import qimage_to_png_buffer
@@ -72,7 +71,6 @@ stock_photo = QImage(":/photo.png")
 stock_video = QImage(":/video.png")
 
 
-ThumbnailDetails = namedtuple('ThumbnailDetails', 'thumbnail orientation crop160x120')
 
 def split_list(alist: list, wanted_parts=2):
     """
@@ -232,51 +230,6 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
         return (size.width() >= self.thumbnail_size_needed.width() or
                 size.height() >= self.thumbnail_size_needed.height())
 
-
-    def get_disk_photo_thumb(self, rpd_file: RPDFile) -> ThumbnailDetails:
-
-        full_file_name = rpd_file.full_file_name
-
-        orientation = None
-        thumbnail = None
-        crop160x120 = False
-        try:
-            metadata = GExiv2.Metadata(full_file_name)
-        except:
-            logging.warning("Could not read metadata from %s", full_file_name)
-            metadata = None
-
-        if metadata:
-            try:
-                orientation = metadata['Exif.Image.Orientation']
-            except KeyError:
-                pass
-
-            # not all files have an exif preview, but all CR2 seem to
-            ep = metadata.get_exif_thumbnail()
-            if ep:
-                thumbnail = QImage.fromData(metadata.get_exif_thumbnail())
-                crop160x120 = True
-            else:
-                previews = metadata.get_preview_properties()
-                for preview in previews:
-                    data = metadata.get_preview_image(preview).get_data()
-                    if isinstance(data, bytes):
-                        thumbnail = QImage.fromData(data)
-                        if not thumbnail.isNull():
-                            if self.image_large_enough(thumbnail):
-                                break
-
-        if thumbnail is None and rpd_file.is_loadable():
-            thumbnail = QImage(full_file_name)
-            if thumbnail.isNull():
-                thumbnail = None
-                logging.error(
-                    "Unable to create a thumbnail out of the file: {}".format(full_file_name))
-
-        return ThumbnailDetails(thumbnail, orientation, crop160x120)
-
-
     def do_work(self) -> None:
         arguments = pickle.loads(self.content) # type: GenerateThumbnailsArguments
         logging.debug("Generating thumbnails for %s", arguments.name)
@@ -290,7 +243,7 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
 
         # Access and generate Rapid Photo Downloader thumbnail cache
         if self.prefs.use_thumbnail_cache:
-            thumbnail_cache = ThumbnailCache()
+            thumbnail_cache = ThumbnailCacheSql()
         else:
             thumbnail_cache = None
 
@@ -308,28 +261,28 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
         # with open('tests/thumbnail_data_medium_no_tiff', 'wb') as f:
         #     pickle.dump(rpd_files, f)
 
-        # Get thumbnails for photos first, then videos
-        # Are relying on the file type for photos being an int smaller than
-        # that for videos
-        rpd_files = sorted(rpd_files, key=attrgetter('file_type', 'modification_time'))
 
-        # Rely on fact that videos are now at the end, if they are there at all
-        have_video = rpd_files[-1].file_type == FileType.video
-        have_photo = rpd_files[0].file_type == FileType.photo
-        might_need_video_cache_dir = (have_video and arguments.camera)
+        # Classify files by type:
+        # get thumbnails for core (non-other) photos first, then
+        # videos, then other photos
 
-        if have_video and not have_photo:
-            videos = rpd_files
-            photos = []
-        elif have_video:
-            # find the first video and split the list into two
-            first_video = [rpd_file.file_type for rpd_file in rpd_files].index(
-                FileType.video)
-            photos = rpd_files[:first_video]
-            videos = rpd_files[first_video:]
-        else:
-            photos = rpd_files
-            videos = []
+        photos = []
+        videos = []
+        other_photos = []
+        for rpd_file in rpd_files: # type: RPDFile
+            if rpd_file.file_type == FileType.photo:
+                if rpd_file.sort_priority == FileSortPriority.high:
+                    photos.append(rpd_file)
+                else:
+                    other_photos.append(rpd_file)
+            else:
+                videos.append(rpd_file)
+
+        photos = sorted(photos,  key=attrgetter('modification_time'))
+        videos = sorted(videos,  key=attrgetter('modification_time'))
+        other_photos = sorted(other_photos,  key=attrgetter('modification_time'))
+
+        might_need_video_cache_dir = (len(videos) and arguments.camera)
 
         # 60 seconds * 60 minutes i.e. one hour
         photo_time_span = video_time_span = 60 * 60
@@ -337,7 +290,8 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
         # Prioritize the order in which we generate the thumbnails
         rpd_files2 = []
         for file_list, time_span in ((photos, photo_time_span),
-                                     (videos, video_time_span)):
+                                     (videos, video_time_span),
+                                     (other_photos, photo_time_span)):
             if file_list:
                 gaps, sequences = get_temporal_gaps_and_sequences(
                     file_list, time_span)
@@ -380,14 +334,12 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
                 self.content = pickle.dumps(GenerateThumbnailsResults(
                     scan_id=arguments.scan_id,
                     cache_dirs=cache_dirs), pickle.HIGHEST_PROTOCOL)
-                # self.send_message_to_sink()
+                self.send_message_to_sink()
         else:
             camera = None
 
         from_thumb_cache = 0
         from_fdo_cache = 0
-
-
 
         for rpd_file in rpd_files: # type: RPDFile
             # Check to see if the process has received a command
@@ -396,7 +348,6 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
             final_thumbnail = None
             send_to_worker = False
             full_file_name_to_send = ''
-            thumbnail_details = None
 
             # Attempt to get thumbnail from Thumbnail Cache
             # (see cache.py for definitions of various caches)
@@ -455,8 +406,9 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
                     pass
                 else:
                     if rpd_file.file_type == FileType.photo:
-                        thumbnail_details = self.get_disk_photo_thumb(rpd_file)
-                        send_to_worker = thumbnail_details.thumbnail is not None
+                        send_to_worker = True
+                        with open(rpd_file.full_file_name, 'rb') as photo:
+                            photo.read(4092 * 1024)
 
             if final_thumbnail is not None:
                 buffer = qimage_to_png_buffer(final_thumbnail)
@@ -470,22 +422,10 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
                 # Send data to load balancer, which will send to one of its
                 # workers
 
-                if thumbnail_details is not None:
-                    thumbnail = thumbnail_details.thumbnail
-                    buffer = qimage_to_png_buffer(thumbnail)
-                    png_data = buffer.data()
-                    orientation = thumbnail_details.orientation
-                    crop160x120 = thumbnail_details.crop160x120
-                else:
-                    thumbnail = orientation = crop160x120 = None
-
                 self.content = pickle.dumps(ThumbnailExtractorArgument(
                     rpd_file=rpd_file,
                     thumbnail_full_file_name=full_file_name_to_send,
-                    thumbnail_quality_lower=arguments.thumbnail_quality_lower,
-                    thumbnail=png_data,
-                    orientation=orientation,
-                    crop160x120=crop160x120),
+                    thumbnail_quality_lower=arguments.thumbnail_quality_lower),
                     pickle.HIGHEST_PROTOCOL)
                 self.frontend.send_multipart([b'data', self.content])
 

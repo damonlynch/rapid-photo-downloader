@@ -371,7 +371,12 @@ class BaseThumbnailCache(Cache):
                 shutil.rmtree(self.failure_dir)
 
 
-class ThumbnailCache():
+class ThumbnailCache(BaseThumbnailCache):
+    def __init__(self):
+        super().__init__('thumbnails/normal', 'thumbnails/fail')
+
+
+class ThumbnailCacheSql:
     def __init__(self):
         self.cache_dir = get_program_cache_directory(create_if_not_exist=True)
         self.valid = self.cache_dir is not None

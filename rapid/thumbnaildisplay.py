@@ -45,7 +45,7 @@ from PyQt5.QtGui import (QPixmap, QImage, QPainter, QColor, QPen, QBrush,
 import zmq
 
 from viewutils import RowTracker, SortedListItem
-from rpdfile import RPDFile, extension_type, FileTypeCounter
+from rpdfile import RPDFile, FileTypeCounter
 from interprocess import (PublishPullPipelineManager,
     GenerateThumbnailsArguments, Device, GenerateThumbnailsResults)
 from constants import (DownloadStatus, Downloaded, FileType, FileExtension,
@@ -217,7 +217,7 @@ class ThumbnailTableModel(QAbstractTableModel):
         elif role == Roles.previously_downloaded:
             return rpd_file.previously_downloaded()
         elif role == Roles.extension:
-            return rpd_file.extension
+            return rpd_file.extension, rpd_file.extension_type
         elif role == Roles.download_status:
             return rpd_file.status
         elif role == Roles.has_audio:
@@ -363,7 +363,7 @@ class ThumbnailTableModel(QAbstractTableModel):
         :param scan_id: the scan id of the device in question
         :return: the number of processes to assign
         """
-        return 1
+        return 2
         device = self.rapidApp.devices[scan_id]
 
         # Cameras can use only one CPU, as only one process can access
@@ -745,11 +745,8 @@ class ThumbnailDelegate(QStyledItemDelegate):
             checked = model.data(index, Qt.CheckStateRole) == Qt.Checked
             previously_downloaded = model.data(
                 index, Roles.previously_downloaded)
-            extension = model.data(index, Roles.extension)
-            """:type :str"""
-            ext_type = extension_type(extension)
-            download_status = model.data(index, Roles.download_status)
-            """:type :DownloadStatus"""
+            extension, ext_type = model.data(index, Roles.extension)
+            download_status = model.data(index, Roles.download_status) # type: DownloadStatus
             has_audio = model.data(index, Roles.has_audio)
             secondary_attribute = model.data(index, Roles.secondary_attribute)
             memory_cards = model.data(index, Roles.camera_memory_card)

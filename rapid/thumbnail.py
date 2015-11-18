@@ -832,8 +832,15 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
 
         rpd_files = arguments.rpd_files
 
+        # with open('tests/thumbnail_data_small', 'wb') as f:
+        #     pickle.dump(rpd_files, f)
+        #
         # with open('tests/thumbnail_data_medium_no_tiff', 'wb') as f:
         #     pickle.dump(rpd_files, f)
+        #
+        # with open('tests/thumbnail_data_huge', 'wb') as f:
+        #     pickle.dump(rpd_files, f)
+
 
         # Get thumbnails for photos first, then videos
         # Are relying on the file type for photos being an int smaller than

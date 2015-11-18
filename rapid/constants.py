@@ -94,6 +94,10 @@ class FileExtension(Enum):
     audio = 5
     unknown = 6
 
+class FileSortPriority(IntEnum):
+    high = 1
+    low = 2
+
 class DeviceState(Enum):
     scanning = 1
     scanned = 2

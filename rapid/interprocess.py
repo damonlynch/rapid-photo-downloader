@@ -1009,15 +1009,10 @@ class GenerateThumbnailsParaResults:
 class ThumbnailExtractorArgument:
     def __init__(self, rpd_file: RPDFile,
                  thumbnail_full_file_name: str,
-                 thumbnail_quality_lower: bool,
-                 thumbnail: bytes,
-                 orientation: str,
-                 crop160x120: bool) -> None:
+                 thumbnail_quality_lower: bool) -> None:
         self.rpd_file = rpd_file
         self.thumbnail_full_file_name = thumbnail_full_file_name
         self.thumbnail_quality_lower = thumbnail_quality_lower
-        self.thumbnail = thumbnail
-        self.orientation = orientation
-        self.crop160x120 = crop160x120
+
 
 

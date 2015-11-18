@@ -31,7 +31,7 @@ import locale
 import exiftool
 from gettext import gettext as _
 
-from constants import (DownloadStatus, FileType, FileExtension,
+from constants import (DownloadStatus, FileType, FileExtension, FileSortPriority,
                        ThumbnailCacheStatus, Downloaded)
 import metadataphoto
 import metadatavideo
@@ -46,10 +46,8 @@ RAW_EXTENSIONS = ['arw', 'dcr', 'cr2', 'crw',  'dng', 'mos', 'mef', 'mrw',
 
 JPEG_EXTENSIONS = ['jpg', 'jpe', 'jpeg']
 
-# FIXME does QT5 QImage even support TIFF? On Ubuntu, yes.
-#
-
 OTHER_PHOTO_EXTENSIONS = ['tif', 'tiff', 'mpo']
+
 NON_RAW_IMAGE_EXTENSIONS = JPEG_EXTENSIONS + OTHER_PHOTO_EXTENSIONS
 
 PHOTO_EXTENSIONS = RAW_EXTENSIONS + NON_RAW_IMAGE_EXTENSIONS
@@ -81,7 +79,8 @@ def file_type(file_extension: str) -> FileType:
 
 def extension_type(file_extension: str) -> FileExtension:
     """
-    Returns the type of file as indicated by the filename extension
+    Returns the type of file as indicated by the filename extension.
+
     :param file_extension: lowercase filename extension
     :return: Enum indicating file type
     """
@@ -98,6 +97,21 @@ def extension_type(file_extension: str) -> FileExtension:
     else:
         return FileExtension.unknown
 
+def get_sort_priority(extension: FileExtension, file_type: FileType) -> FileSortPriority:
+    """
+    Classifies the extension by sort priority.
+
+    :param extension: the extension's category
+    :param file_type: whether photo or video
+    :return: priority
+    """
+    if file_type == FileType.photo:
+        if extension in (FileExtension.raw, FileExtension.jpeg):
+            return FileSortPriority.high
+        else:
+            return FileSortPriority.low
+    else:
+        return FileSortPriority.high
 
 def get_rpdfile(name: str, path: str, size: int, prev_full_name: str,
                 prev_datetime: datetime.datetime,
@@ -276,7 +290,14 @@ class RPDFile:
         self.prev_datetime = prev_datetime
 
         self.full_file_name = os.path.join(path, name)
+
+        # Indicate whether file is a photo or video
+        self._assign_file_type()
+
+        # Classify file based on its type e.g. jpeg, raw or tiff etc.
         self.extension = os.path.splitext(name)[1][1:].lower()
+        self.extension_type = extension_type(self.extension)
+        self.sort_priority = get_sort_priority(self.extension_type, self.file_type)
 
         self.mime_type = mimetypes.guess_type(name)[0]
 
@@ -302,8 +323,6 @@ class RPDFile:
 
         self.status = DownloadStatus.not_downloaded
         self.problem = None # class Problem in problemnotifcation.py
-
-        self._assign_file_type() # Indicate whether file is a photo or video
 
         self.scan_id = int(scan_id)
         self.unique_id = '{}:{}'.format(self.scan_id, uuid.uuid4())
@@ -403,14 +422,13 @@ class RPDFile:
                 else:
                     # Attempt to generate a URI accepted by Gnome
                     if self.camera_model.find('MTP') >= 0:
-                        prefix = 'mtp://'+ pathname2url(
-                            '[{}]/Internal storage'.format(self.camera_port))
+                        prefix = 'mtp://'+ pathname2url('[{}]/Internal storage'.format(
+                            self.camera_port))
                         f = full_file_name
                         # Remove the top level directory
                         full_file_name = f[f[1:].find('/')+1:]
                     else:
-                        prefix = 'gphoto2://' + pathname2url('[{}]'.format(
-                            self.camera_port))
+                        prefix = 'gphoto2://' + pathname2url('[{}]'.format(self.camera_port))
             uri = '{}{}'.format(prefix, pathname2url(full_file_name))
         return uri
 
