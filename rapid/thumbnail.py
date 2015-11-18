@@ -600,8 +600,10 @@ class Thumbnail:
         assert self.camera.can_fetch_thumbnails
         assert size is not None
 
-        thumbnail = self.camera.get_thumbnail(self.rpd_file.path,
+        thumbnail_bytes = self.camera.get_thumbnail(self.rpd_file.path,
                                               self.rpd_file.name)
+        thumbnail = QImage.fromData(thumbnail_bytes)
+
         if thumbnail is None:
             logging.error("Unable to get thumbnail from %s for %s",
                           self.camera.model, self.rpd_file.full_file_name)
@@ -840,6 +842,8 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
         #
         # with open('tests/thumbnail_data_huge', 'wb') as f:
         #     pickle.dump(rpd_files, f)
+        # with open('tests/thumbnail_data_camera', 'wb') as f:
+        #     pickle.dump(rpd_files, f)
 
 
         # Get thumbnails for photos first, then videos
@@ -1004,7 +1008,7 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
             buffer = qimage_to_png_buffer(thumbnail_icon)
 
             self.content = pickle.dumps(GenerateThumbnailsResults(
-                rpd_file=rpd_file, png_data=buffer.data()),
+                rpd_file=rpd_file, thumbnail_bytes=buffer.data()),
                 pickle.HIGHEST_PROTOCOL)
             self.send_message_to_sink()
 

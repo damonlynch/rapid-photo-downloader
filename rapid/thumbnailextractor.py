@@ -31,7 +31,7 @@ from PyQt5.QtCore import QSize, Qt, QIODevice, QBuffer
 
 from interprocess import (LoadBalancerWorker, ThumbnailExtractorArgument,
                           GenerateThumbnailsResults)
-from constants import ThumbnailSize
+from constants import ThumbnailSize, ExtractionTask
 from rpdfile import RPDFile
 
 ThumbnailDetails = namedtuple('ThumbnailDetails', 'thumbnail orientation crop160x120')
@@ -146,14 +146,33 @@ class ThumbnailExtractor(LoadBalancerWorker):
             png_data = None
             resize = False
             orientation = None
+            task = data.task
 
-            if data.thumbnail_full_file_name:
+            if task == ExtractionTask.load_file_directly:
                 logging.debug("Attempting to get QImage from file %s",
                               data.thumbnail_full_file_name)
                 assert isinstance(data.thumbnail_full_file_name, str)
+                assert len(data.thumbnail_full_file_name)
                 thumbnail = QImage(data.thumbnail_full_file_name)
                 resize = True
+
+            elif task == ExtractionTask.load_from_bytes:
+                final_thumbnail = QImage.fromData(data.thumbnail_bytes)
+                if data.exif_buffer:
+                    metadata = GExiv2.Metadata()
+                    try:
+                        metadata.open_buf(data.exif_buffer)
+                    except:
+                        logging.error("Extractor failed to load metadata from camera for %s",
+                                      data.rpd_file.name)
+                    else:
+                        try:
+                            orientation = metadata['Exif.Image.Orientation']
+                        except KeyError:
+                            pass
+
             else:
+                assert task == ExtractionTask.load_from_exif
                 thumbnail_details = self.get_disk_photo_thumb(data.rpd_file)
                 thumbnail = thumbnail_details.thumbnail
 
@@ -185,7 +204,7 @@ class ThumbnailExtractor(LoadBalancerWorker):
                     pickle.dumps(
                     GenerateThumbnailsResults(
                         rpd_file=data.rpd_file,
-                        png_data=png_data),
+                        thumbnail_bytes=png_data),
                     pickle.HIGHEST_PROTOCOL)])
             self.requester.send_multipart([b'', b'', b'OK'])
 

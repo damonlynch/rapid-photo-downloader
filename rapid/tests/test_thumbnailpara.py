@@ -30,6 +30,7 @@ from PyQt5.QtCore import QSize
 from PyQt5.QtWidgets import (QApplication, QTextEdit)
 from PyQt5.QtGui import (QPixmap, QImage)
 from xdg import BaseDirectory
+import gphoto2 as gp
 
 from utilities import CacheDirs
 
@@ -39,7 +40,8 @@ from cache import ThumbnailCache
 
 
 class TestThumbnail(QTextEdit):
-    def __init__(self, testdata: str, profile: bool, no_workers: int, parent=None) -> None:
+    def __init__(self, testdata: str, profile: bool, no_workers: int,
+                 camera_model: str, camera_port: str, parent=None) -> None:
         super().__init__(parent)
 
         self.received = 0
@@ -50,12 +52,15 @@ class TestThumbnail(QTextEdit):
         self.thumbnailer = Thumbnailer(self, no_workers)
         self.thumbnailer.ready.connect(self.startGeneration)
         self.thumbnailer.thumbnailReceived.connect(self.thumbnailReceived)
+        self.camera_model = camera_model
+        self.camera_port = camera_port
 
     def startGeneration(self):
         print("Starting generation of {} thumbnails....".format(len(self.rpd_files)))
         with tempfile.TemporaryDirectory() as tempdir:
             cache_dirs = CacheDirs(tempdir, tempdir)
-            self.thumbnailer.generateThumbnails(0, self.rpd_files, cache_dirs)
+            self.thumbnailer.generateThumbnails(0, self.rpd_files, False, 'test', cache_dirs,
+                                                self.camera_model, self.camera_port)
 
     def thumbnailReceived(self, rpd_file: RPDFile, thumbnail: QPixmap) -> None:
         self.received += 1
@@ -101,14 +106,19 @@ if __name__ == '__main__':
                     print(e)
         print('Removed {} XDG thumbnails'.format(i))
 
+    camera_model = camera_port = None
     if args.data is None:
         testdata = 'thumbnail_data_small'
     else:
         testdata = args.data
+        if testdata == 'thumbnail_data_camera':
+            gp_context = gp.Context()
+            cameras = gp_context.camera_autodetect()
+            camera_model, camera_port = cameras[0]
 
     no_workers = 4
     app = QApplication(sys.argv)
-    tt = TestThumbnail(testdata, args.profile, no_workers)
+    tt = TestThumbnail(testdata, args.profile, no_workers, camera_model, camera_port)
     tt.show()
 
     app.setActiveWindow(tt)

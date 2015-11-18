@@ -147,9 +147,9 @@ def create_temp_dir(folder: str, prefix=None) -> str:
     except OSError as inst:
         msg = "Failed to create temporary directory in %s: %s %s" % (
                       folder,
-                      inst.errono,
+                      inst.errno,
                       inst.strerror)
-        logging.critcal(msg)
+        logging.critical(msg)
         temp_dir = None
     return temp_dir
 

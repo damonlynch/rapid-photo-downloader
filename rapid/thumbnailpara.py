@@ -33,6 +33,7 @@ finally:
             return inner
 
 import os
+import io
 import sys
 import shutil
 import logging
@@ -54,7 +55,7 @@ from interprocess import (WorkerInPublishPullPipeline,
                           ThumbnailExtractorArgument)
 from filmstrip import add_filmstrip
 from constants import (Downloaded, FileType, ThumbnailSize, ThumbnailCacheStatus,
-                       ThumbnailCacheDiskStatus, FileSortPriority)
+                       ThumbnailCacheDiskStatus, FileSortPriority, ExtractionTask)
 from camera import (Camera, CopyChunks)
 from cache import ThumbnailCacheSql, FdoCacheNormal, FdoCacheLarge
 from utilities import (GenerateRandomFileName, create_temp_dir, CacheDirs)
@@ -345,9 +346,10 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
             # Check to see if the process has received a command
             self.check_for_controller_directive()
 
-            final_thumbnail = None
-            send_to_worker = False
+            exif_buffer = None
+            thumbnail_bytes = None
             full_file_name_to_send = ''
+            task = ExtractionTask.undetermined
 
             # Attempt to get thumbnail from Thumbnail Cache
             # (see cache.py for definitions of various caches)
@@ -367,9 +369,9 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
                     else:
                         rpd_file.thumbnail_status = \
                             ThumbnailCacheStatus.suitable_for_fdo_cache_write
-                    final_thumbnail = QImage(get_thumbnail.path)
-                    if final_thumbnail.isNull():
-                        final_thumbnail = None
+                    with open(get_thumbnail.path, 'rb') as thumbnail:
+                        thumbnail_bytes = thumbnail.readall()
+                    task = ExtractionTask.bypass
 
             # Attempt to get thumbnails from the two FDO Caches.
             # If it's not found, we're going to generate it anyway.
@@ -392,40 +394,44 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
                 rpd_file.fdo_thumbnail_256_name = get_thumbnail.path
                 rpd_file.thumbnail_status = ThumbnailCacheStatus.suitable_for_fdo_cache_write
 
-                if final_thumbnail is None:
+                if task == ExtractionTask.undetermined:
                     thumb = get_thumbnail.thumbnail  # type: QImage
                     if thumb is not None:
                         if self.image_large_enough(thumb):
-                            send_to_worker = True
+                            task = ExtractionTask.load_file_directly
                             full_file_name_to_send = get_thumbnail.path
                             from_fdo_cache += 1
 
-            if not final_thumbnail or send_to_worker:
-                # Thumbnail was not found in any cache
-                if arguments.camera:
-                    pass
+            if task == ExtractionTask.undetermined:
+                # Thumbnail was not found in any cache: extract it
+                if camera:
+                    if rpd_file.file_type == FileType.photo:
+                        task = ExtractionTask.load_from_bytes
+                        exif_buffer = camera.get_exif_extract(rpd_file.path, rpd_file.name, 128)
+                        thumbnail_bytes = camera.get_thumbnail(rpd_file.path, rpd_file.name)
                 else:
                     if rpd_file.file_type == FileType.photo:
-                        send_to_worker = True
+                        task = ExtractionTask.load_from_exif
                         with open(rpd_file.full_file_name, 'rb') as photo:
-                            photo.read(4092 * 1024)
+                            photo.read(4096 * 1024)
 
-            if final_thumbnail is not None:
-                buffer = qimage_to_png_buffer(final_thumbnail)
-                png_data = buffer.data()
+            if task == ExtractionTask.bypass:
                 self.content = pickle.dumps(GenerateThumbnailsResults(
-                    rpd_file=rpd_file, png_data=png_data),
+                    rpd_file=rpd_file, thumbnail_bytes=thumbnail_bytes),
                     pickle.HIGHEST_PROTOCOL)
                 self.send_message_to_sink()
 
-            elif send_to_worker:
+            elif task != ExtractionTask.undetermined:
                 # Send data to load balancer, which will send to one of its
                 # workers
 
                 self.content = pickle.dumps(ThumbnailExtractorArgument(
                     rpd_file=rpd_file,
+                    task=task,
                     thumbnail_full_file_name=full_file_name_to_send,
-                    thumbnail_quality_lower=arguments.thumbnail_quality_lower),
+                    thumbnail_quality_lower=arguments.thumbnail_quality_lower,
+                    exif_buffer=exif_buffer,
+                    thumbnail_bytes = thumbnail_bytes),
                     pickle.HIGHEST_PROTOCOL)
                 self.frontend.send_multipart([b'data', self.content])
 

@@ -41,7 +41,7 @@ from rpdfile import (RPDFile, FileTypeCounter)
 from devices import Device
 from preferences import ScanPreferences
 from utilities import CacheDirs
-from constants import RenameAndMoveStatus
+from constants import RenameAndMoveStatus, ExtractionTask
 from proximity import TemporalProximityGroups
 
 
@@ -959,9 +959,14 @@ class BackupResults:
 
 
 class GenerateThumbnailsArguments:
-    def __init__(self, scan_id: int, rpd_files, thumbnail_quality_lower: bool,
-                 name: str, cache_dirs: CacheDirs, frontend_port: int,
-                 camera=None, port=None) -> None:
+    def __init__(self, scan_id: int,
+                 rpd_files,
+                 thumbnail_quality_lower: bool,
+                 name: str,
+                 cache_dirs: CacheDirs,
+                 frontend_port: int,
+                 camera: str=None,
+                 port: str=None) -> None:
         """
         List of files for which thumbnails are to be generated.
         All files  are assumed to have the same scan id.
@@ -979,8 +984,6 @@ class GenerateThumbnailsArguments:
         :param port: If the thumbnails are being downloaded from a
          camera, this is the port of the camera, else None
         :type rpd_files: List[RPDFile]
-        :type camera: str
-        :type port: str
         """
         self.rpd_files = rpd_files
         self.scan_id = scan_id
@@ -995,10 +998,10 @@ class GenerateThumbnailsArguments:
 
 
 class GenerateThumbnailsResults:
-    def __init__(self, rpd_file: RPDFile=None, png_data: bytes=None,
+    def __init__(self, rpd_file: RPDFile=None, thumbnail_bytes: bytes=None,
                  scan_id: int=None, cache_dirs: CacheDirs=None) -> None:
         self.rpd_file = rpd_file
-        self.png_data = png_data
+        self.thumbnail_bytes = thumbnail_bytes
         self.scan_id = scan_id
         self.cache_dirs = cache_dirs
 
@@ -1008,11 +1011,17 @@ class GenerateThumbnailsParaResults:
 
 class ThumbnailExtractorArgument:
     def __init__(self, rpd_file: RPDFile,
+                 task: ExtractionTask,
                  thumbnail_full_file_name: str,
-                 thumbnail_quality_lower: bool) -> None:
+                 thumbnail_quality_lower: bool,
+                 exif_buffer: bytearray,
+                 thumbnail_bytes: bytes) -> None:
         self.rpd_file = rpd_file
+        self.task = task
         self.thumbnail_full_file_name = thumbnail_full_file_name
         self.thumbnail_quality_lower = thumbnail_quality_lower
+        self.exif_buffer = exif_buffer
+        self.thumbnail_bytes = thumbnail_bytes
 
 
 

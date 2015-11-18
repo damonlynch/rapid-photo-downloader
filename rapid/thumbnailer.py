@@ -42,7 +42,7 @@ class ThumbnailManagerPara(PublishPullPipelineManager):
     def process_sink_data(self) -> None:
         data = pickle.loads(self.content) # type: GenerateThumbnailsResults
         if data.rpd_file is not None:
-            thumbnail = QImage.fromData(data.png_data)
+            thumbnail = QImage.fromData(data.thumbnail_bytes)
             if thumbnail is not None:
                 thumbnail = QPixmap.fromImage(thumbnail)
             self.message.emit(data.rpd_file, thumbnail)
@@ -82,19 +82,37 @@ class Thumbnailer(QObject):
         self.setupThumbnailManager()
         self.setupLoadBalancer(no_workers)
 
-    def generateThumbnails(self, scan_id: int, rpd_files: list, cache_dirs: CacheDirs) -> None:
+    def generateThumbnails(self, scan_id: int,
+                           rpd_files: list,
+                           thumbnail_quality_lower: bool,
+                           name: str,
+                           cache_dirs: CacheDirs,
+                           camera_model: str=None,
+                           camera_port: str=None) -> None:
         """
         Initiates thumbnail generation.
 
         :param scan_id: worker id of the scan
         :param rpd_files: list of rpd_files, all of which should be
          from the same source
+        :param thumbnail_quality_lower: whether to generate the
+         thumbnail high or low quality as it is scaled by Qt
+        :param name: name of the device
         :param cache_dirs: the location where the cache directories
          should be created
+        :param camera_model: If the thumbnails are being downloaded
+         from a camera, this is the name of the camera, else None
+        :param camera_port: If the thumbnails are being downloaded
+         from a camera, this is the port of the camera, else None
         """
         self.thumbnail_manager.start_worker(scan_id,
-                        GenerateThumbnailsArguments(scan_id, rpd_files, False, 'test', cache_dirs,
-                                        self.frontend_port))
+                        GenerateThumbnailsArguments(
+                            scan_id=scan_id, rpd_files=rpd_files,
+                            thumbnail_quality_lower=thumbnail_quality_lower,
+                            name=name, cache_dirs=cache_dirs,
+                            frontend_port=self.frontend_port,
+                            camera=camera_model,
+                            port=camera_port))
 
     @property
     def thumbnailReceived(self) -> pyqtSignal:

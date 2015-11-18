@@ -85,7 +85,7 @@ class ThumbnailManager(PublishPullPipelineManager):
     def process_sink_data(self) -> None:
         data = pickle.loads(self.content) # type: GenerateThumbnailsResults
         if data.rpd_file is not None:
-            thumbnail = QImage.fromData(data.png_data)
+            thumbnail = QImage.fromData(data.thumbnail_bytes)
             thumbnail = QPixmap.fromImage(thumbnail)
             self.message.emit(data.rpd_file, thumbnail)
         else:

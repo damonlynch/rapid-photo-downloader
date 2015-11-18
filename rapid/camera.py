@@ -78,11 +78,9 @@ class Camera:
                 logging.error("{} is already mounted".format(model))
                 return
             elif e.code == gp.GP_ERROR:
-                logging.error("An error occurred initializing the "
-                              "camera using libgphoto2")
+                logging.error("An error occurred initializing the camera using libgphoto2")
             else:
-                logging.error("Unable to access camera: error %s",
-                              e.code)
+                logging.error("Unable to access camera: error %s", e.code)
             return
 
         concise_model_name = self._concise_model_name()
@@ -93,8 +91,8 @@ class Camera:
             try:
                 self.dcim_folders = self._locate_DCIM_folders('/')
             except gp.GPhoto2Error as e:
-                logging.error("Unable to access camera %s: error %s. Is it "
-                          "locked?", self.display_name, e.code)
+                logging.error("Unable to access camera %s: error %s. Is it locked?",
+                              self.display_name, e.code)
 
         self.folders_and_files = []
         self.audio_files = {}
@@ -129,6 +127,29 @@ class Camera:
         size = info.file.size
         return (modification_time, size)
 
+    def get_exif_extract(self, folder: str, file_name: str, size_in_kb: int=32) -> bytearray:
+        """"
+        Attempt to read only the exif portion of the file.
+
+        Assumes exif is located at the beginning of the file.
+        Use the result like this:
+        metadata = GExiv2.Metadata()
+        metadata.open_buf(buf)
+
+        :param folder: directory on the camera the file is stored
+        :param file_name: the photo's file name
+        :param size_in_kb: how much of the file to read
+        """
+        buffer = bytearray(size_in_kb * 1024)
+        try:
+            self.camera.file_read(folder, file_name, gp.GP_FILE_TYPE_NORMAL, 0, buffer,
+                                  self.context)
+        except gp.GPhoto2Error as e:
+            logging.error("Unable to extract exif from camera: error %s", e.code)
+            return None
+        else:
+            return buffer
+
 
     def _get_file(self, dir_name: str, file_name: str,
                   dest_full_filename:str=None,
@@ -147,8 +168,7 @@ class Camera:
 
         if succeeded and dest_full_filename is not None:
             try:
-                gp.check_result(gp.gp_file_save(camera_file,
-                                              dest_full_filename))
+                gp.check_result(gp.gp_file_save(camera_file, dest_full_filename))
             except gp.GPhoto2Error as ex:
                 logging.error('Error saving %s from camera. Code: %s',
                           os.path.join(dir_name, file_name), ex.code)
@@ -235,11 +255,9 @@ class Camera:
         else:
             return CopyChunks(copy_succeeded, None)
 
-
     def get_thumbnail(self, dir_name: str, file_name: str,
                       ignore_embedded_thumbnail=False,
-                      cache_full_filename:str=None) -> \
-                      QImage:
+                      cache_full_filename:str=None) -> bytes:
         """
 
         :param dir_name: directory on the camera
@@ -248,8 +266,8 @@ class Camera:
         embedded thumbnail
         :param cache_full_filename: full path including filename where the
         thumbnail will be saved. If none, will not save it.
-        :return: QImage of the thumbnail, which will be full resolution
-        if the embedded thumbnail is not selected
+        :return: thumbnail in bytes format, which will be full
+        resolution if the embedded thumbnail is not selected
         """
         if self.can_fetch_thumbnails and not ignore_embedded_thumbnail:
             get_file_type = gp.GP_FILE_TYPE_PREVIEW
@@ -270,8 +288,7 @@ class Camera:
                           os.path.join(dir_name, file_name), ex.code)
             if thumbnail_data:
                 data = memoryview(thumbnail_data)
-                image = QImage.fromData(data.tobytes())
-                return image
+                return data.tobytes()
             else:
                 return None
         else:
