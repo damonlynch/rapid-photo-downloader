@@ -115,8 +115,7 @@ class MetaData(GExiv2.Metadata):
         Returns missing if the metadata value is not present.
         """
         try:
-            return self.get_tag_interpreted_string(
-                "Exif.Photo.ISOSpeedRatings")
+            return self.get_tag_interpreted_string("Exif.Photo.ISOSpeedRatings")
         except:
             return missing
 
