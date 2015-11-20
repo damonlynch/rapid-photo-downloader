@@ -29,6 +29,7 @@ import string
 import tempfile
 import logging
 import locale
+import contextlib
 from gettext import gettext as _
 
 import psutil
@@ -67,6 +68,36 @@ def available_cpu_count():
         return psutil.cpu_count()
     except:
         return 1
+
+
+@contextlib.contextmanager
+def stdchannel_redirected(stdchannel, dest_filename):
+    """
+    A context manager to temporarily redirect stdout or stderr
+
+    Usage:
+    with stdchannel_redirected(sys.stderr, os.devnull):
+       do_work()
+
+    Source: http://marc-abramowitz.com/archives/2013/07/19/
+    python-context-manager-for-redirected-stdout-and-stderr/
+    """
+    oldstdchannel = dest_file = None
+    try:
+        oldstdchannel = os.dup(stdchannel.fileno())
+        dest_file = open(dest_filename, 'w')
+        os.dup2(dest_file.fileno(), stdchannel.fileno())
+
+        yield
+    finally:
+        if oldstdchannel is not None:
+            os.dup2(oldstdchannel, stdchannel.fileno())
+        if dest_file is not None:
+            dest_file.close()
+
+@contextlib.contextmanager
+def show_errors():
+    yield
 
 def divide_list(source: list, no_pieces: int) -> list:
     r"""

@@ -294,8 +294,9 @@ class RPDFile:
         # Indicate whether file is a photo or video
         self._assign_file_type()
 
-        # Classify file based on its type e.g. jpeg, raw or tiff etc.
+        # Remove the period from the extension and make it lower case
         self.extension = os.path.splitext(name)[1][1:].lower()
+        # Classify file based on its type e.g. jpeg, raw or tiff etc.
         self.extension_type = extension_type(self.extension)
         self.sort_priority = get_sort_priority(self.extension_type, self.file_type)
 
@@ -383,10 +384,17 @@ class RPDFile:
 
     def is_raw(self) -> bool:
         """
-        Inspects file extenstion to determine if a RAW file
+        Inspects file extenstion to determine if a RAW file.
+
         :return: True if the image is a RAW file
         """
         return self.extension in RAW_EXTENSIONS
+
+    def is_tiff(self) -> bool:
+        """
+        :return: True if the file is a tiff file
+        """
+        return self.mime_type == 'image/tiff'
 
     def previously_downloaded(self) -> bool:
         """

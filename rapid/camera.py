@@ -127,7 +127,7 @@ class Camera:
         size = info.file.size
         return (modification_time, size)
 
-    def get_exif_extract(self, folder: str, file_name: str, size_in_kb: int=32) -> bytearray:
+    def get_exif_extract(self, folder: str, file_name: str, size_in_bytes: int=200) -> bytearray:
         """"
         Attempt to read only the exif portion of the file.
 
@@ -138,9 +138,10 @@ class Camera:
 
         :param folder: directory on the camera the file is stored
         :param file_name: the photo's file name
-        :param size_in_kb: how much of the file to read
+        :param size_in_bytes: how much of the photo to read, starting
+         from the front of the file
         """
-        buffer = bytearray(size_in_kb * 1024)
+        buffer = bytearray(size_in_bytes)
         try:
             self.camera.file_read(folder, file_name, gp.GP_FILE_TYPE_NORMAL, 0, buffer,
                                   self.context)

@@ -20,6 +20,7 @@ __author__ = 'Damon Lynch'
 
 import logging
 import pickle
+import sys
 import os
 from collections import namedtuple
 
@@ -33,6 +34,7 @@ from interprocess import (LoadBalancerWorker, ThumbnailExtractorArgument,
                           GenerateThumbnailsResults)
 from constants import ThumbnailSize, ExtractionTask
 from rpdfile import RPDFile
+from utilities import stdchannel_redirected, show_errors
 
 ThumbnailDetails = namedtuple('ThumbnailDetails', 'thumbnail orientation crop160x120')
 
@@ -133,80 +135,86 @@ class ThumbnailExtractor(LoadBalancerWorker):
         return ThumbnailDetails(thumbnail, orientation, crop160x120)
 
     def do_work(self):
-        while True:
-            directive, content = self.requester.recv_multipart()
-            self.check_for_command(directive, content)
-            #
-            data = pickle.loads(content) # type: ThumbnailExtractorArgument
+        if True:
+            context = show_errors()
+        else:
+            # Redirect stderr, hiding error output from exiv2
+            context = stdchannel_redirected(sys.stderr, os.devnull)
+        with context:
+            while True:
+                directive, content = self.requester.recv_multipart()
+                self.check_for_command(directive, content)
+                #
+                data = pickle.loads(content) # type: ThumbnailExtractorArgument
 
-            logging.debug("%s is working on %s", self.requester.identity.decode(),
-                          data.rpd_file.name)
+                logging.debug("%s is working on %s", self.requester.identity.decode(),
+                              data.rpd_file.name)
 
-            final_thumbnail = None
-            png_data = None
-            resize = False
-            orientation = None
-            task = data.task
+                final_thumbnail = None
+                png_data = None
+                resize = False
+                orientation = None
+                task = data.task
 
-            if task == ExtractionTask.load_file_directly:
-                logging.debug("Attempting to get QImage from file %s",
-                              data.thumbnail_full_file_name)
-                assert isinstance(data.thumbnail_full_file_name, str)
-                assert len(data.thumbnail_full_file_name)
-                thumbnail = QImage(data.thumbnail_full_file_name)
-                resize = True
+                if task == ExtractionTask.load_file_directly:
+                    logging.debug("Getting QImage from file %s",
+                                  data.thumbnail_full_file_name)
+                    assert isinstance(data.thumbnail_full_file_name, str)
+                    assert len(data.thumbnail_full_file_name)
+                    thumbnail = QImage(data.thumbnail_full_file_name)
+                    resize = True
 
-            elif task == ExtractionTask.load_from_bytes:
-                final_thumbnail = QImage.fromData(data.thumbnail_bytes)
-                if data.exif_buffer:
-                    metadata = GExiv2.Metadata()
-                    try:
-                        metadata.open_buf(data.exif_buffer)
-                    except:
-                        logging.error("Extractor failed to load metadata from camera for %s",
-                                      data.rpd_file.name)
-                    else:
+                elif task == ExtractionTask.load_from_bytes:
+                    final_thumbnail = QImage.fromData(data.thumbnail_bytes)
+                    if data.exif_buffer:
+                        metadata = GExiv2.Metadata()
                         try:
-                            orientation = metadata['Exif.Image.Orientation']
-                        except KeyError:
-                            pass
+                            metadata.open_buf(data.exif_buffer)
+                        except:
+                            logging.error("Extractor failed to load metadata from camera for %s",
+                                          data.rpd_file.name)
+                        else:
+                            try:
+                                orientation = metadata['Exif.Image.Orientation']
+                            except KeyError:
+                                pass
 
-            else:
-                assert task == ExtractionTask.load_from_exif
-                thumbnail_details = self.get_disk_photo_thumb(data.rpd_file)
-                thumbnail = thumbnail_details.thumbnail
+                else:
+                    assert task == ExtractionTask.load_from_exif
+                    thumbnail_details = self.get_disk_photo_thumb(data.rpd_file)
+                    thumbnail = thumbnail_details.thumbnail
 
-                if thumbnail is not None:
-                    orientation = thumbnail_details.orientation
-                    if thumbnail_details.crop160x120:
-                        #TODO don't crop from jpegs
-                        final_thumbnail = crop_160x120_thumbnail(thumbnail)
-                    else:
-                        resize = True
+                    if thumbnail is not None:
+                        orientation = thumbnail_details.orientation
+                        if thumbnail_details.crop160x120:
+                            #TODO don't crop from jpegs
+                            final_thumbnail = crop_160x120_thumbnail(thumbnail)
+                        else:
+                            resize = True
 
-            if resize:
-                #TODO resizing of thumbnails from cellphones
-                final_thumbnail = thumbnail.scaled(
-                    self.thumbnail_size_needed,
-                    Qt.KeepAspectRatio,
-                    data.thumbnail_quality_lower)
-                if final_thumbnail.isNull():
-                    final_thumbnail = None
+                if resize:
+                    #TODO resizing of thumbnails from cellphones
+                    final_thumbnail = thumbnail.scaled(
+                        self.thumbnail_size_needed,
+                        Qt.KeepAspectRatio,
+                        data.thumbnail_quality_lower)
+                    if final_thumbnail.isNull():
+                        final_thumbnail = None
 
-            if orientation is not None and final_thumbnail is not None:
-                final_thumbnail =  self.rotate_thumb(final_thumbnail, orientation)
+                if orientation is not None and final_thumbnail is not None:
+                    final_thumbnail =  self.rotate_thumb(final_thumbnail, orientation)
 
-            if final_thumbnail is not None:
-                buffer = qimage_to_png_buffer(final_thumbnail)
-                png_data = buffer.data()
+                if final_thumbnail is not None:
+                    buffer = qimage_to_png_buffer(final_thumbnail)
+                    png_data = buffer.data()
 
-            self.sender.send_multipart([b'0', b'data',
-                    pickle.dumps(
-                    GenerateThumbnailsResults(
-                        rpd_file=data.rpd_file,
-                        thumbnail_bytes=png_data),
-                    pickle.HIGHEST_PROTOCOL)])
-            self.requester.send_multipart([b'', b'', b'OK'])
+                self.sender.send_multipart([b'0', b'data',
+                        pickle.dumps(
+                        GenerateThumbnailsResults(
+                            rpd_file=data.rpd_file,
+                            thumbnail_bytes=png_data),
+                        pickle.HIGHEST_PROTOCOL)])
+                self.requester.send_multipart([b'', b'', b'OK'])
 
 if __name__ == "__main__":
     thumbnail_extractor = ThumbnailExtractor()

@@ -401,8 +401,8 @@ def vmtouch_output(full_file_name: str) -> tuple:
             num, denom = map(int, currently_paged_percent.split('/'))
             return (num * to_kb, denom * to_kb, in_memory)
 
-def main(folder: str, disk_cach_cleared: bool, scan_types: list, errors: bool,
-         outfile: str, keep_file_names: bool) -> None:
+def scan(folder: str, disk_cach_cleared: bool, scan_types: list, errors: bool,
+                outfile: str, keep_file_names: bool) -> list:
 
     global stop
     global kill
@@ -466,7 +466,6 @@ def main(folder: str, disk_cach_cleared: bool, scan_types: list, errors: bool,
     # Phase 2
     # Get info from files
 
-
     if errors:
         context = show_errors()
     else:
@@ -486,10 +485,6 @@ def main(folder: str, disk_cach_cleared: bool, scan_types: list, errors: bool,
             if have_progresbar and not errors:
                 bar.update()
 
-    print()
-    for pa in photos: # type: PhotoAttributes
-        print(pa)
-
     if outfile is not None:
         if not keep_file_names:
             for pa in photos:
@@ -498,12 +493,35 @@ def main(folder: str, disk_cach_cleared: bool, scan_types: list, errors: bool,
         with open(outfile, 'wb') as save_to:
             pickle.dump(photos, save_to, pickle.HIGHEST_PROTOCOL)
 
+    return photos
+
+def analyze(photos: list):
+    size_by_extension= defaultdict(list)
+    orientation_read = defaultdict(list)
+    for pa in photos: # type: PhotoAttributes
+        size_by_extension[pa.ext].append(pa.bytes_cached_post_thumb)
+        if pa.minimum_exif_read_size_in_bytes is not None:
+            orientation_read[pa.ext].append(pa.minimum_exif_read_size_in_bytes)
+
+    exts = list(size_by_extension.keys())
+    exts.sort()
+    print("Bytes cached after thumbnail extraction:")
+    for ext in exts:
+        print(ext, Counter(size_by_extension[ext]).most_common())
+
+    exts = list(orientation_read.keys())
+    exts.sort()
+
+    print("Orientation tag read:")
+    for ext in exts:
+        print(ext, Counter(orientation_read[ext]).most_common())
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description='Analyze the location of exif data in a variety of RAW and jpeg files.')
-    parser.add_argument('directory', action='store', help="Folder in which to recursively scan "
-                                                          "for photos")
+    parser.add_argument('source', action='store', help="Folder in which to recursively scan "
+                            "for photos, or previously saved outfile.")
     parser.add_argument('outfile',  nargs='?', help="Optional file in which to save the analysis")
     parser.add_argument('--clear', '-c', action='store_true',
                         help="To work, this program requires that the scanned photos not "
@@ -522,29 +540,39 @@ if __name__ == "__main__":
     parser.add_argument('--include-jpeg', '-j', dest='jpeg', action='store_true',
                         help="Scan jpeg images")
     parser.add_argument('--show-errors', '-e', dest='errors', action='store_true',
-                        help="Don't show progress bar, and instead show all errors output by "
-                             "exiv2 (useful if exiv2 crashes, which takes down this script too)")
+                        help="Don't show progress bar while scanning, and instead show all errors "
+                             "output by exiv2 (useful if exiv2 crashes, which takes down this "
+                             "script too)")
+    parser.add_argument('--load', '-l', dest='load', action='store_true',
+                        help="Don't scan. Instead use previously generated outfile as input")
     args = parser.parse_args()
 
-    if args.clear:
-        subprocess.check_call('sync')
-        try:
-            with open('/proc/sys/vm/drop_caches', 'w') as stream:
-                stream.write('3\n')
-        except PermissionError as e:
-            print("You need superuser permission to run this script with the --clear option",
-                  file=sys.stderr)
-            sys.exit(1)
-
-
-    if args.dng:
-        RAW_EXTENSIONS.remove('dng')
-        PHOTO_EXTENSIONS.remove('dng')
-
-    if args.jpeg:
-        scan_types = PHOTO_EXTENSIONS
+    if args.load:
+        with open(args.source, 'rb') as infile:
+            photos = pickle.load(infile)
+        analyze(photos)
     else:
-        scan_types = RAW_EXTENSIONS
+        if args.clear:
+            subprocess.check_call('sync')
+            try:
+                with open('/proc/sys/vm/drop_caches', 'w') as stream:
+                    stream.write('3\n')
+            except PermissionError as e:
+                print("You need superuser permission to run this script with the --clear option",
+                      file=sys.stderr)
+                sys.exit(1)
 
-    main(args.directory, args.clear, scan_types, args.errors, args.outfile, args.keep)
+
+        if args.dng:
+            RAW_EXTENSIONS.remove('dng')
+            PHOTO_EXTENSIONS.remove('dng')
+
+        if args.jpeg:
+            scan_types = PHOTO_EXTENSIONS
+        else:
+            scan_types = RAW_EXTENSIONS
+
+        photos = scan(args.source, args.clear, scan_types, args.errors, args.outfile,
+                            args.keep)
+        analyze(photos)
 

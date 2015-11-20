@@ -33,27 +33,25 @@ finally:
             return inner
 
 import os
-import io
 import sys
 import shutil
 import logging
 import pickle
-import tempfile
-import subprocess
-import shlex
-from collections import deque, namedtuple
+from collections import deque
 from operator import attrgetter
 
 import zmq
 from PyQt5.QtGui import QImage, QTransform
 from PyQt5.QtCore import QSize, Qt, QIODevice, QBuffer
+import psutil
+
 import qrc_resources
+
 from rpdfile import RPDFile
 from interprocess import (WorkerInPublishPullPipeline,
                           GenerateThumbnailsArguments,
                           GenerateThumbnailsResults,
                           ThumbnailExtractorArgument)
-from filmstrip import add_filmstrip
 from constants import (Downloaded, FileType, ThumbnailSize, ThumbnailCacheStatus,
                        ThumbnailCacheDiskStatus, FileSortPriority, ExtractionTask)
 from camera import (Camera, CopyChunks)
@@ -223,6 +221,17 @@ def try_to_use_embedded_thumbnail(size: QSize,
 
 
 class GenerateThumbnails(WorkerInPublishPullPipeline):
+    cached_read = dict(
+        cr2=260 * 1024,
+        dng=504 * 1024,
+        nef=400* 1024
+    )
+    exif_extract = dict(
+        crw=114,
+        dng=144,
+        nef=132
+    )
+
     def __init__(self) -> None:
         super().__init__('Thumbnails')
 
@@ -407,13 +416,26 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
                 if camera:
                     if rpd_file.file_type == FileType.photo:
                         task = ExtractionTask.load_from_bytes
-                        exif_buffer = camera.get_exif_extract(rpd_file.path, rpd_file.name, 128)
+                        bytes_to_read = self.exif_extract.get(rpd_file.extension, 400)
+                        exif_buffer = camera.get_exif_extract(rpd_file.path, rpd_file.name,
+                                                              bytes_to_read)
                         thumbnail_bytes = camera.get_thumbnail(rpd_file.path, rpd_file.name)
                 else:
                     if rpd_file.file_type == FileType.photo:
                         task = ExtractionTask.load_from_exif
-                        with open(rpd_file.full_file_name, 'rb') as photo:
-                            photo.read(4096 * 1024)
+                        if rpd_file.is_tiff():
+                            availabe = psutil.virtual_memory().available
+                            if rpd_file.size <= availabe:
+                                bytes_to_read = rpd_file.size
+                            else:
+                                bytes_to_read = 0
+                                #TODO: handle very large TIFFs with no disk thrashing
+                        else:
+                            bytes_to_read = self.cached_read.get(rpd_file.extension, 400 * 1024)
+                        if bytes_to_read:
+                            with open(rpd_file.full_file_name, 'rb') as photo:
+                                # Bring the file into the disk cache
+                                photo.read(bytes_to_read)
 
             if task == ExtractionTask.bypass:
                 self.content = pickle.dumps(GenerateThumbnailsResults(
