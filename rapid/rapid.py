@@ -1838,9 +1838,10 @@ class RapidWindow(QMainWindow):
         if not self.scanThread.wait(2000):
             self.scanmq.forcefully_terminate()
 
-        self.thumbnailModel.thumbnailThread.quit()
-        if not self.thumbnailModel.thumbnailThread.wait(1000):
-            self.thumbnailModel.thumbnailmq.forcefully_terminate()
+        if self.thumbnailModel.use_linear_thumbnailer:
+            self.thumbnailModel.thumbnailThread.quit()
+            if not self.thumbnailModel.thumbnailThread.wait(1000):
+                self.thumbnailModel.thumbnailmq.forcefully_terminate()
 
         self.copyfilesThread.quit()
         if not self.copyfilesThread.wait(1000):

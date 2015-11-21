@@ -40,11 +40,12 @@ from cache import ThumbnailCache
 
 
 class TestThumbnail(QTextEdit):
-    def __init__(self, testdata: str, profile: bool, no_workers: int,
+    def __init__(self, testdata: str, profile: bool, no_workers: int, cache_dirs: CacheDirs,
                  camera_model: str, camera_port: str, parent=None) -> None:
         super().__init__(parent)
 
         self.received = 0
+        self.cache_dirs = cache_dirs
 
         with open(testdata, 'rb') as td:
             self.rpd_files = pickle.load(td)
@@ -57,9 +58,8 @@ class TestThumbnail(QTextEdit):
 
     def startGeneration(self):
         print("Starting generation of {} thumbnails....".format(len(self.rpd_files)))
-        with tempfile.TemporaryDirectory() as tempdir:
-            cache_dirs = CacheDirs(tempdir, tempdir)
-            self.thumbnailer.generateThumbnails(0, self.rpd_files, False, 'test', cache_dirs,
+
+        self.thumbnailer.generateThumbnails(0, self.rpd_files, False, 'test', self.cache_dirs,
                                                 self.camera_model, self.camera_port)
 
     def thumbnailReceived(self, rpd_file: RPDFile, thumbnail: QPixmap) -> None:
@@ -117,12 +117,17 @@ if __name__ == '__main__':
             camera_model, camera_port = cameras[0]
 
     no_workers = 4
-    app = QApplication(sys.argv)
-    tt = TestThumbnail(testdata, args.profile, no_workers, camera_model, camera_port)
-    tt.show()
 
-    app.setActiveWindow(tt)
-    sys.exit(app.exec_())
+    app = QApplication(sys.argv)
+
+    with tempfile.TemporaryDirectory() as tempdir:
+        cache_dirs = CacheDirs(tempdir, tempdir)
+        tt = TestThumbnail(testdata, args.profile, no_workers, cache_dirs, camera_model,
+                           camera_port)
+        tt.show()
+        app.setActiveWindow(tt)
+        code = app.exec_()
+    sys.exit(code)
 
 
 

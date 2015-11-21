@@ -39,34 +39,46 @@ logging.basicConfig(format='%(levelname)s:%(asctime)s:%(message)s',
                     datefmt='%H:%M:%S',
                     level=logging.DEBUG)
 
-def available_cpu_count():
+def available_cpu_count(physical_only=False) -> int:
     """
-    Number of available virtual or physical CPUs on this system, i.e.
-    user/real as output by time(1) when called with an optimally scaling
-    userspace-only program
+    Determine the number of CPUs available.
 
+    A CPU is "available" if cpuset has not restricted the number of
+    cpus. Portions of this code from
     http://stackoverflow.com/questions/1006289/how-to-find-out-the-number-of-
     cpus-using-python
+
+    :return available CPU count, or 1 if cannot be determined.
+     Value guaranteed to be >= 1.
     """
 
     # cpuset may restrict the number of *available* processors
+    available = None
     if sys.platform.startswith('linux'):
         try:
             m = re.search(r'(?m)^Cpus_allowed:\s*(.*)$',
                           open('/proc/self/status').read())
             if m:
-                res = bin(int(m.group(1).replace(',', ''), 16)).count('1')
-                if res > 0:
-                    return res
+                available = bin(int(m.group(1).replace(',', ''), 16)).count('1')
+                if available > 0 and not physical_only:
+                    return available
         except IOError:
             pass
 
+    if physical_only:
+        physical = psutil.cpu_count(logical=False)
+        if physical is not None:
+            if available is not None:
+                return min(available, physical)
+            return physical
+
     c = os.cpu_count()
     if c is not None:
-        return c
-    try:
-        return psutil.cpu_count()
-    except:
+        return max(c, 1)
+    c = psutil.cpu_count()
+    if c is not None:
+        return max(c, 1)
+    else:
         return 1
 
 

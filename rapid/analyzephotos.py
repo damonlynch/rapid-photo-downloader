@@ -31,7 +31,7 @@ Two goals:
     Need to know how much to read, and where to read it from. The disk
     cache is a proxy to that.
  2) Determine the minimum amount of the file that can be read to get
-    the exif orientation.
+    the exif orientation and the exif date time.
 """
 
 import scandir
@@ -63,7 +63,7 @@ except ImportError:
 
 if not shutil.which('vmtouch'):
     print('You need to install vmtouch. Get it at http://hoytech.com/vmtouch/')
-    sys.exit(0)
+    sys.exit(1)
 
 
 class PreviewSource(IntEnum):
@@ -372,11 +372,9 @@ def format_size_for_user(size: int, zero_string='', with_decimals=True, kb_only=
         else:
             format = "%dKB"
     elif size > 1:
+        # no decimals for bytes!
         value = size
-        if with_decimals:
-            format = "%1.1fB"
-        else:
-            format = "%dB"
+        format = "%dB"
     else:
         return zero_string
     return format % value
@@ -613,7 +611,7 @@ if __name__ == "__main__":
     if args.load:
         with open(args.source, 'rb') as infile:
             photos = pickle.load(infile)
-        analyze(photos)
+        analyze(photos, args.verbose)
     else:
         if args.clear:
             subprocess.check_call('sync')

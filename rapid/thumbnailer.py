@@ -69,7 +69,7 @@ class Thumbnailer(QObject):
     """
 
     ready = pyqtSignal()
-    # See also the thumbnailReceived signal below
+    # See also the thumbnailReceived and cacheDirs signal below
 
     def __init__(self, parent, no_workers: int) -> None:
         """
@@ -117,6 +117,10 @@ class Thumbnailer(QObject):
     @property
     def thumbnailReceived(self) -> pyqtSignal:
         return self.thumbnail_manager.message
+
+    @property
+    def cacheDirs(self) -> pyqtSignal:
+        return self.thumbnail_manager.cacheDirs
 
     def setupThumbnailManager(self) -> None:
         self.thumbnail_manager_thread = QThread()
