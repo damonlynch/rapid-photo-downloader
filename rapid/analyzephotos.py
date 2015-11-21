@@ -49,6 +49,7 @@ import sys
 import time
 import threading
 import contextlib
+import datetime
 
 from gi.repository import GExiv2
 from PyQt5.QtGui import QImage
@@ -90,6 +91,7 @@ PHOTO_EXTENSIONS = RAW_EXTENSIONS + JPEG_EXTENSIONS
 class PhotoAttributes:
     def __init__(self, full_file_name: str, ext: str, metadata: GExiv2.Metadata) -> None:
 
+        self.datetime = None # type: datetime.datetime
         self.iso = None # type: int
         self.height = None # type: int
         self.width = None # type: int
@@ -105,7 +107,8 @@ class PhotoAttributes:
         self.preview_height = None # type: int
         self.preview_extension = None  # type: str
         self.exif_thumbnail_and_preview_identical = None # type: bool
-        self.minimum_exif_read_size_in_bytes = None # type: int
+        self.minimum_exif_read_size_in_bytes_orientation = None # type: int
+        self.minimum_exif_read_size_in_bytes_datetime = None # type: int
 
         self.file_name = full_file_name
         self.ext = ext
@@ -120,36 +123,26 @@ class PhotoAttributes:
         self.bytes_cached_post_thumb, total, self.in_memory_post_thumb = vmtouch_output(
             full_file_name)
         if self.orientation is not None:
-            self.minimum_extract_for_orientation()
+            self.minimum_extract_for_tag(self.orientation_extract)
+        if self.datetime is not None:
+            self.minimum_extract_for_tag(self.datetime_extract)
 
     def assign_photo_attributes(self, metadata: GExiv2.Metadata) -> None:
         # I don't know how GExiv2 gets these values:
         self.width = metadata.get_pixel_width()
         self.height = metadata.get_pixel_height()
-        # try:
-        #     self.width = metadata['Xmp.exif.PixelXDimension']
-        #     self.height = metadata['Xmp.exif.PixelYDimension']
-        # except KeyError:
-        #     if 'Exif.Photo.PixelXDimension' in metadata:
-        #         self.width = metadata['Exif.Photo.PixelXDimension']
-        #         self.height = metadata['Exif.Photo.PixelYDimension']
-        #     else:
-        #         try:
-        #             self.width = metadata['Exif.Image.ImageWidth']
-        #             self.height = metadata['Exif.Image.ImageLength']
-        #         except KeyError:
-        #             pass
         try:
             self.orientation = metadata['Exif.Image.Orientation']
         except KeyError:
             pass
         if 'Exif.Image.Make' in metadata and 'Exif.Image.Model' in metadata:
-            model = '{} {}'.format(metadata['Exif.Image.Make'],
-                                   metadata['Exif.Image.Model']).strip()
+            model = '{} {}'.format(metadata['Exif.Image.Make'].strip(),
+                                   metadata['Exif.Image.Model'].strip())
             self.model = '{} ({})'.format(model, self.ext)
     
         self.has_gps = metadata.get_gps_info()[0]
         self.iso = metadata.get_iso_speed()
+        self.datetime = metadata.get_date_time()
     
     def extract_thumbnail(self, metadata: GExiv2.Metadata) -> None:
         # not all files have an exif preview, but all CR2 seem to
@@ -177,9 +170,22 @@ class PhotoAttributes:
                 self.preview_height = image.get_height()
                 self.preview_extension = image.get_extension()
                 return
+    def orientation_extract(self, metadata: GExiv2.Metadata, size_in_bytes):
+        if metadata['Exif.Image.Orientation'] == self.orientation:
+            self.minimum_exif_read_size_in_bytes_orientation = size_in_bytes
+            return True
+        return False
 
-    def minimum_extract_for_orientation(self):
+    def datetime_extract(self, metadata: GExiv2.Metadata, size_in_bytes):
+        if metadata.get_date_time() == self.datetime:
+            self.minimum_exif_read_size_in_bytes_datetime = size_in_bytes
+            return True
+        return False
+
+    def minimum_extract_for_tag(self, check_extract):
         if self.ext == 'CRW':
+            # Exiv2 can crash while scanning for exif in a very small
+            # extract of a CRW file
             return
         metadata = GExiv2.Metadata()
         for size_in_bytes in exif_scan_range():
@@ -191,12 +197,23 @@ class PhotoAttributes:
                     pass
                 else:
                     try:
-                        assert metadata['Exif.Image.Orientation'] == self.orientation
+                        if check_extract(metadata, size_in_bytes):
+                            break
                     except KeyError:
                         pass
-                    else:
-                        self.minimum_exif_read_size_in_bytes = size_in_bytes
-                        break
+
+    def __repr__(self):
+        if self.model:
+            s = self.model
+        elif self.file_name:
+            s = os.path.split(self.file_name)[1]
+        else:
+            return "Unknown photo"
+        if self.width:
+            s += ' {}x{}'.format(self.width, self.height)
+        if self.ext:
+            s += ' {}'.format(self.ext)
+        return s
 
     def __str__(self):
         s = ''
@@ -206,6 +223,8 @@ class PhotoAttributes:
             s += '{}\n'.format(os.path.split(self.file_name)[1])
         if self.width is not None:
             s += '{}x{}\n'.format(self.width, self.height)
+        if self.datetime: # type: datetime.datetime
+            s += '{}\n'.format(self.datetime.strftime('%c'))
         if self.iso:
             s += 'ISO: {}\n'.format(self.iso)
         if self.orientation is not None:
@@ -221,9 +240,10 @@ class PhotoAttributes:
                               self.no_previews,
                               self.preview_width, self.preview_height,
                               self.preview_extension[1:])
-        if self.exif_thumbnail_and_preview_identical is not None:
-            s += 'Exif thumbnail is identical to preview: {}\n'.format(
-                self.exif_thumbnail_and_preview_identical)
+        if self.exif_thumbnail_and_preview_identical == False:
+            # Check against False as value is one of None, True or
+            # False
+            s += 'Exif thumbnail differs from smallest preview\n'
         s += 'Disk cache after exif read:\n[{}]\n'.format(self.in_memory)
         if self.in_memory != self.in_memory_post_thumb:
             s += 'Disk cache after thumbnail / preview extraction:\n[{}]\n'.format(
@@ -233,15 +253,23 @@ class PhotoAttributes:
         else:
             s += 'Cached: {:,}KB(+{:,}KB after extraction) of {:,}KB\n'.format(
                 self.bytes_cached, self.bytes_cached_post_thumb, self.total)
-        if self.minimum_exif_read_size_in_bytes is not None:
+        if self.minimum_exif_read_size_in_bytes_orientation is not None:
             s += 'Minimum read size to extract orientation tag: {}\n'.format(
-                format_size_for_user(self.minimum_exif_read_size_in_bytes, with_decimals=False))
-        if self.minimum_exif_read_size_in_bytes is None and self.orientation is not None:
+                format_size_for_user(self.minimum_exif_read_size_in_bytes_orientation,
+                                     with_decimals=False))
+        if self.minimum_exif_read_size_in_bytes_orientation is None and self.orientation is not \
+                None:
             s += 'Could not extract orientation tag with minimal read\n'
+        if self.minimum_exif_read_size_in_bytes_datetime is not None:
+            s += 'Minimum read size to extract datetime tag: {}\n'.format(
+                format_size_for_user(self.minimum_exif_read_size_in_bytes_datetime,
+                                     with_decimals=False))
+        if self.minimum_exif_read_size_in_bytes_datetime is None and self.datetime is not None:
+            s += 'Could not extract datetime tag with minimal read\n'
         return s
 
 
-def exif_scan_range() -> int:
+def exif_scan_range() -> iter:
     stop = 20
     for iterations, step in ((108, 1), (97, 4), (16, 32), (16, 256), (16, 512), (8, 1024),
                              (8, 2048 * 4), (32, 2048 * 16)):
@@ -495,26 +523,39 @@ def scan(folder: str, disk_cach_cleared: bool, scan_types: list, errors: bool,
 
     return photos
 
-def analyze(photos: list):
+def analyze(photos: list, verbose: bool) -> None:
     size_by_extension= defaultdict(list)
     orientation_read = defaultdict(list)
+    datetime_read = defaultdict(list)
     for pa in photos: # type: PhotoAttributes
         size_by_extension[pa.ext].append(pa.bytes_cached_post_thumb)
-        if pa.minimum_exif_read_size_in_bytes is not None:
-            orientation_read[pa.ext].append(pa.minimum_exif_read_size_in_bytes)
+        if pa.minimum_exif_read_size_in_bytes_orientation is not None:
+            orientation_read[pa.ext].append(pa.minimum_exif_read_size_in_bytes_orientation)
+        if pa.minimum_exif_read_size_in_bytes_datetime is not None:
+            datetime_read[pa.ext].append(pa.minimum_exif_read_size_in_bytes_datetime)
 
     exts = list(size_by_extension.keys())
     exts.sort()
-    print("Bytes cached after thumbnail extraction:")
+    print("\nKB cached after thumbnail extraction:")
     for ext in exts:
         print(ext, Counter(size_by_extension[ext]).most_common())
 
     exts = list(orientation_read.keys())
     exts.sort()
-
-    print("Orientation tag read:")
+    print("\nOrientation tag read:")
     for ext in exts:
         print(ext, Counter(orientation_read[ext]).most_common())
+
+    exts = list(orientation_read.keys())
+    exts.sort()
+    print("\nDate time tag read:")
+    for ext in exts:
+        print(ext, Counter(datetime_read[ext]).most_common())
+
+    print()
+    if verbose:
+        for pa in photos:
+            print(pa)
 
 
 if __name__ == "__main__":
@@ -544,7 +585,9 @@ if __name__ == "__main__":
                              "output by exiv2 (useful if exiv2 crashes, which takes down this "
                              "script too)")
     parser.add_argument('--load', '-l', dest='load', action='store_true',
-                        help="Don't scan. Instead use previously generated outfile as input")
+                        help="Don't scan. Instead use previously generated outfile as input.")
+    parser.add_argument('--verbose', '-v', dest='verbose', action='store_true',
+                        help="Show more detailed output")
     args = parser.parse_args()
 
     if args.load:
@@ -574,5 +617,5 @@ if __name__ == "__main__":
 
         photos = scan(args.source, args.clear, scan_types, args.errors, args.outfile,
                             args.keep)
-        analyze(photos)
+        analyze(photos, args.verbose)
 

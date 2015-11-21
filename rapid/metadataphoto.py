@@ -337,9 +337,6 @@ class MetaData(GExiv2.Metadata):
         Returns in python datetime format the date and time the image was
         recorded.
 
-        Tries to get value from exif key "Exif.Photo.DateTimeOriginal".
-        If that does not exist, tries key "Exif.Image.DateTime"
-
         Returns missing either metadata value is not present.
         """
         try:
