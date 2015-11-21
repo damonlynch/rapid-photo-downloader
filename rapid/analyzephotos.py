@@ -107,8 +107,11 @@ class PhotoAttributes:
         self.preview_height = None # type: int
         self.preview_extension = None  # type: str
         self.exif_thumbnail_and_preview_identical = None # type: bool
+        self.preview_size_and_types = []
         self.minimum_exif_read_size_in_bytes_orientation = None # type: int
         self.minimum_exif_read_size_in_bytes_datetime = None # type: int
+        self.bytes_cached_post_previews = None
+        self.in_memory_post_previews = None
 
         self.file_name = full_file_name
         self.ext = ext
@@ -122,6 +125,10 @@ class PhotoAttributes:
         self.extract_thumbnail(metadata)
         self.bytes_cached_post_thumb, total, self.in_memory_post_thumb = vmtouch_output(
             full_file_name)
+        self.get_preview_sizes(metadata)
+        self.bytes_cached_post_previews, total, self.in_memory_post_previews = vmtouch_output(
+            full_file_name)
+
         if self.orientation is not None:
             self.minimum_extract_for_tag(self.orientation_extract)
         if self.datetime is not None:
@@ -157,7 +164,7 @@ class PhotoAttributes:
     
         previews = metadata.get_preview_properties()
         self.no_previews = len(previews)
-    
+
         for idx, preview in enumerate(previews):
             image = metadata.get_preview_image(preview)
             if image.get_width() >= 160 and image.get_height() >= 120:
@@ -170,6 +177,14 @@ class PhotoAttributes:
                 self.preview_height = image.get_height()
                 self.preview_extension = image.get_extension()
                 return
+
+    def get_preview_sizes(self, metadata: GExiv2.Metadata):
+        previews = metadata.get_preview_properties()
+        for idx, preview in enumerate(previews):
+            image = metadata.get_preview_image(preview)
+            self.preview_size_and_types.append((image.get_width(), image.get_height(),
+                                                image.get_extension()))
+
     def orientation_extract(self, metadata: GExiv2.Metadata, size_in_bytes):
         if metadata['Exif.Image.Orientation'] == self.orientation:
             self.minimum_exif_read_size_in_bytes_orientation = size_in_bytes
@@ -244,6 +259,11 @@ class PhotoAttributes:
             # Check against False as value is one of None, True or
             # False
             s += 'Exif thumbnail differs from smallest preview\n'
+        if self.preview_size_and_types:
+            s += 'All preview images: '
+            s += '; '.join(['{}x{} {}'.format(width, height, ext[1:]) for width, height, ext in
+             self.preview_size_and_types])
+            s += '\n'
         s += 'Disk cache after exif read:\n[{}]\n'.format(self.in_memory)
         if self.in_memory != self.in_memory_post_thumb:
             s += 'Disk cache after thumbnail / preview extraction:\n[{}]\n'.format(
