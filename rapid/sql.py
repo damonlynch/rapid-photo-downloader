@@ -23,8 +23,12 @@ import sqlite3
 import os
 import datetime
 from collections import namedtuple
+from typing import Optional
+import sys
+
 from storage import (get_program_data_directory, get_program_cache_directory)
 from utilities import divide_list_on_length
+from photoattributes import PhotoAttributes
 
 FileDownloaded = namedtuple('FileDownloaded', 'download_name, download_datetime')
 
@@ -116,14 +120,6 @@ class DownloadedSQL:
             tn=self.table_name), (name, size, modification_time))
         row = c.fetchone()
         if row is not None:
-            # if isinstance(row[1], str):
-            #     # Convert the str to datetime.datetime. Shouldn't need
-            #     # to do this, but keep it just in case
-            #     try:
-            #         row = [row[0], datetime.datetime.strptime(row[1],
-            #                                         "%Y-%m-%d ""%H:%M:%S.%f")]
-            #     except:
-            #         pass
             return FileDownloaded._make(row)
         else:
             return None
@@ -235,8 +231,100 @@ class CacheSQL:
         conn.close()
 
 
+class FileFormatSQL:
+    def __init__(self, data_dir: str=None) -> None:
+        """
+        :param data_dir: where the database is saved. If None, use
+         default
+        """
+        if data_dir is None:
+            data_dir = get_program_data_directory(create_if_not_exist=True)
+
+        self.db = os.path.join(data_dir, 'file_formats.sqlite')
+        self.table_name = 'formats'
+        self.update_table()
+
+    def update_table(self, reset: bool=False) -> None:
+        """
+        Create or update the database table
+        :param reset: if True, delete the contents of the table and
+         build it
+        """
+
+        conn = sqlite3.connect(self.db, detect_types=sqlite3.PARSE_DECLTYPES)
+
+        if reset:
+            conn.execute(r"""DROP TABLE IF EXISTS {tn}""".format(
+                tn=self.table_name))
+            conn.execute("VACUUM")
+
+        conn.execute("""CREATE TABLE IF NOT EXISTS {tn} (
+        id INTEGER PRIMARY KEY,
+        extension TEXT NOT NULL,
+        camera TEXT NOT NULL,
+        size INTEGER NOT NULL,
+        orientation_offset INTEGER NOT NULL,
+        datetime_offset INTEGER NOT NULL,
+        cache INTEGER NOT NULL
+        )""".format(tn=self.table_name))
+
+        conn.execute("""CREATE INDEX IF NOT EXISTS extension_idx ON
+        {tn} (extension)""".format(tn=self.table_name))
+        conn.execute("""CREATE INDEX IF NOT EXISTS camera_idx ON
+        {tn} (camera)""".format(tn=self.table_name))
+
+        conn.commit()
+        conn.close()
+
+    def add_format(self, pa: PhotoAttributes) -> None:
+        conn = sqlite3.connect(self.db)
+        c = conn.cursor()
+        c.execute("""INSERT OR IGNORE INTO {tn} (extension, camera, size, orientation_offset,
+        datetime_offset, cache) VALUES (?, ?, ?, ?, ?, ?)""".format(
+            tn=self.table_name), (pa.ext, pa.model, pa.total,
+                                  pa.minimum_exif_read_size_in_bytes_orientation,
+                                  pa.minimum_exif_read_size_in_bytes_datetime,
+                                  pa.bytes_cached_post_thumb))
+
+        conn.commit()
+        conn.close()
+
+    def get_orientation_bytes(self, extension: str) -> Optional[int]:
+        conn = sqlite3.connect(self.db)
+        c = conn.cursor()
+        c.execute("""SELECT max(orientation_offset) FROM {tn} WHERE extension=(?)""".format(
+            tn=self.table_name), (extension,))
+        row = c.fetchone()
+        if row is not None:
+            return row[0]
+        return None
+
+    def get_datetime_bytes(self, extension: str) -> Optional[int]:
+        conn = sqlite3.connect(self.db)
+        c = conn.cursor()
+        c.execute("""SELECT max(datetime_offset) FROM {tn} WHERE extension=(?)""".format(
+            tn=self.table_name), (extension,))
+        row = c.fetchone()
+        if row is not None:
+            return row[0]
+        return None
+
+
 if __name__ == '__main__':
-    d = DownloadedSQL()
-    d.update_table(reset=True)
-    c = CacheSQL()
-    c.update_table(reset=True)
+    reset = False
+    try:
+        if sys.argv[1] == '--reset':
+            reset = True
+            print("Resetting")
+    except KeyError:
+        pass
+    if False:
+        d = DownloadedSQL()
+        d.update_table(reset=True)
+        c = CacheSQL()
+        c.update_table(reset=True)
+    f = FileFormatSQL()
+    if reset:
+        f.update_table(reset=True)
+    else:
+        print(f.get_orientation_bytes('CR2'))

@@ -26,6 +26,7 @@ import subprocess
 import shlex
 import time
 from collections import deque
+from typing import Optional
 
 from psutil import (Process, wait_procs, pid_exists)
 from sortedcontainers import SortedListWithKey
@@ -965,8 +966,8 @@ class GenerateThumbnailsArguments:
                  name: str,
                  cache_dirs: CacheDirs,
                  frontend_port: int,
-                 camera: str=None,
-                 port: str=None) -> None:
+                 camera: Optional[str]=None,
+                 port: Optional[str]=None) -> None:
         """
         List of files for which thumbnails are to be generated.
         All files  are assumed to have the same scan id.

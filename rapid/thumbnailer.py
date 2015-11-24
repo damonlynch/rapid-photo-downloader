@@ -19,7 +19,7 @@ __author__ = 'Damon Lynch'
 # see <http://www.gnu.org/licenses/>.
 
 import pickle
-
+from typing import Optional
 import zmq
 from PyQt5.QtCore import (QThread, QTimer, pyqtSignal, QObject)
 from PyQt5.QtGui import (QPixmap, QImage)
@@ -87,8 +87,8 @@ class Thumbnailer(QObject):
                            thumbnail_quality_lower: bool,
                            name: str,
                            cache_dirs: CacheDirs,
-                           camera_model: str=None,
-                           camera_port: str=None) -> None:
+                           camera_model: Optional[str]==None,
+                           camera_port: Optional[str]=None) -> None:
         """
         Initiates thumbnail generation.
 

@@ -59,6 +59,7 @@ from cache import ThumbnailCacheSql, FdoCacheNormal, FdoCacheLarge
 from utilities import (GenerateRandomFileName, create_temp_dir, CacheDirs)
 from preferences import Preferences
 from thumbnailextractor import qimage_to_png_buffer
+from sql import FileFormatSQL
 
 # FIXME free camera in case of early termination
 
@@ -219,6 +220,36 @@ def try_to_use_embedded_thumbnail(size: QSize,
     return width_sought <= thumbnail_width and height_sought <= \
                                                thumbnail_height
 
+class Offsets:
+    def __init__(self) -> None:
+        self.sql = FileFormatSQL()
+        self._cache = {}
+
+    def get_orientation_bytes(self, extension: str) -> int:
+        """
+        How much of the file should be read to get the orientation tag.
+
+        Assumes read is from the beginning of the file.
+
+        :param extension: file extension
+        :return: number of bytes to read
+        """
+
+        if extension in ['rw2', 'raw']:
+            return 2048000
+        elif extension == 'mrw':
+            return 204800
+        else:
+            try:
+                return self._cache[extension]
+            except KeyError:
+                self._cache[extension] = self.sql.get_orientation_bytes(extension.upper())
+                if self._cache[extension] is not None:
+                    return self._cache[extension]
+                else:
+                    self._cache[extension] = 2048000
+                    return self._cache[extension]
+
 
 class GenerateThumbnails(WorkerInPublishPullPipeline):
     cached_read = dict(
@@ -226,13 +257,9 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
         dng=504 * 1024,
         nef=400* 1024
     )
-    exif_extract = dict(
-        crw=114,
-        dng=144,
-        nef=132
-    )
 
     def __init__(self) -> None:
+        self.offsets = Offsets()
         super().__init__('Thumbnails')
 
     def image_large_enough(self, size: QSize) -> bool:
@@ -406,7 +433,7 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
                 if task == ExtractionTask.undetermined:
                     thumb = get_thumbnail.thumbnail  # type: QImage
                     if thumb is not None:
-                        if self.image_large_enough(thumb):
+                        if self.image_large_enough(thumb.size()):
                             task = ExtractionTask.load_file_directly
                             full_file_name_to_send = get_thumbnail.path
                             from_fdo_cache += 1
@@ -416,7 +443,7 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
                 if camera:
                     if rpd_file.file_type == FileType.photo:
                         task = ExtractionTask.load_from_bytes
-                        bytes_to_read = self.exif_extract.get(rpd_file.extension, 400)
+                        bytes_to_read = self.offsets.get_orientation_bytes(rpd_file.extension)
                         exif_buffer = camera.get_exif_extract(rpd_file.path, rpd_file.name,
                                                               bytes_to_read)
                         thumbnail_bytes = camera.get_thumbnail(rpd_file.path, rpd_file.name)
@@ -429,7 +456,8 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
                                 bytes_to_read = rpd_file.size
                             else:
                                 bytes_to_read = 0
-                                #TODO: handle very large TIFFs with no disk thrashing
+                                # TODO: handle very large TIFFs with no disk thrashing
+                                # maybe it's best not to thumbnail them!
                         else:
                             bytes_to_read = self.cached_read.get(rpd_file.extension, 400 * 1024)
                         if bytes_to_read:

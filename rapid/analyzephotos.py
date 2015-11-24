@@ -38,21 +38,21 @@ import scandir
 import os
 import textwrap
 import subprocess
-import shlex
 import argparse
-import resource
 import shutil
 import pickle
 from collections import defaultdict, Counter
-from enum import IntEnum
 import sys
 import time
 import threading
-import contextlib
 import datetime
+from typing import List
 
 from gi.repository import GExiv2
-from PyQt5.QtGui import QImage
+
+from photoattributes import PhotoAttributes, vmtouch_output, PreviewSource
+from utilities import stdchannel_redirected, show_errors, confirm
+from sql import FileFormatSQL
 
 try:
     import pyprind
@@ -65,21 +65,6 @@ if not shutil.which('vmtouch'):
     print('You need to install vmtouch. Get it at http://hoytech.com/vmtouch/')
     sys.exit(1)
 
-
-class PreviewSource(IntEnum):
-    preview_1 = 0
-    preview_2 = 1
-    preview_3 = 2
-    preview_4 = 3
-    preview_5 = 4
-    preview_6 = 5
-    
-
-page_size = resource.getpagesize()
-to_kb = page_size // 1024
-
-vmtouch_cmd = 'vmtouch -v "{}"'
-
 RAW_EXTENSIONS = ['arw', 'dcr', 'cr2', 'crw',  'dng', 'mos', 'mef', 'mrw',
                   'nef', 'nrw', 'orf', 'pef', 'raf', 'raw', 'rw2', 'sr2',
                   'srw']
@@ -88,327 +73,6 @@ JPEG_EXTENSIONS = ['jpg', 'jpe', 'jpeg']
 
 PHOTO_EXTENSIONS = RAW_EXTENSIONS + JPEG_EXTENSIONS
 
-class PhotoAttributes:
-    def __init__(self, full_file_name: str, ext: str, metadata: GExiv2.Metadata) -> None:
-
-        self.datetime = None # type: datetime.datetime
-        self.iso = None # type: int
-        self.height = None # type: int
-        self.width = None # type: int
-        self.model = None  # type: str
-        self.has_gps = False  # type: bool
-        self.orientation = None # type: str
-        self.no_previews = None # type: int
-        self.has_exif_thumbnail = False # type: bool
-        self.exif_thumbnail_height = None # type: int
-        self.exif_thumbnail_width = None # type: int
-        self.preview_source = None # type: PreviewSource
-        self.preview_width = None # type: int
-        self.preview_height = None # type: int
-        self.preview_extension = None  # type: str
-        self.exif_thumbnail_and_preview_identical = None # type: bool
-        self.preview_size_and_types = []
-        self.minimum_exif_read_size_in_bytes_orientation = None # type: int
-        self.minimum_exif_read_size_in_bytes_datetime = None # type: int
-        self.bytes_cached_post_previews = None
-        self.in_memory_post_previews = None
-
-        self.file_name = full_file_name
-        self.ext = ext
-
-        # Before doing anything else, understand what has already
-        # been cached after simply reading the exif
-        self.bytes_cached, self.total, self.in_memory = vmtouch_output(full_file_name)
-
-        # Get information about the photo
-        self.assign_photo_attributes(metadata)
-        self.extract_thumbnail(metadata)
-        self.bytes_cached_post_thumb, total, self.in_memory_post_thumb = vmtouch_output(
-            full_file_name)
-        self.get_preview_sizes(metadata)
-        self.bytes_cached_post_previews, total, self.in_memory_post_previews = vmtouch_output(
-            full_file_name)
-
-        if self.orientation is not None:
-            self.minimum_extract_for_tag(self.orientation_extract)
-        if self.datetime is not None:
-            self.minimum_extract_for_tag(self.datetime_extract)
-
-    def assign_photo_attributes(self, metadata: GExiv2.Metadata) -> None:
-        # I don't know how GExiv2 gets these values:
-        self.width = metadata.get_pixel_width()
-        self.height = metadata.get_pixel_height()
-        try:
-            self.orientation = metadata['Exif.Image.Orientation']
-        except KeyError:
-            pass
-        if 'Exif.Image.Make' in metadata and 'Exif.Image.Model' in metadata:
-            model = '{} {}'.format(metadata['Exif.Image.Make'].strip(),
-                                   metadata['Exif.Image.Model'].strip())
-            self.model = '{} ({})'.format(model, self.ext)
-    
-        self.has_gps = metadata.get_gps_info()[0]
-        self.iso = metadata.get_iso_speed()
-        self.datetime = metadata.get_date_time()
-    
-    def extract_thumbnail(self, metadata: GExiv2.Metadata) -> None:
-        # not all files have an exif preview, but all CR2 seem to
-        exif_thumbnail = metadata.get_exif_thumbnail()
-        if exif_thumbnail:
-            # Get the thumbnail but don't save it
-            self.has_exif_thumbnail = True
-            qimage = QImage.fromData(exif_thumbnail)
-            if not qimage.isNull():
-                self.exif_thumbnail_width = qimage.width()
-                self.exif_thumbnail_height = qimage.height()
-    
-        previews = metadata.get_preview_properties()
-        self.no_previews = len(previews)
-
-        for idx, preview in enumerate(previews):
-            image = metadata.get_preview_image(preview)
-            if image.get_width() >= 160 and image.get_height() >= 120:
-                # Get the thumbnail but don't save it
-                preview_thumbnail = metadata.get_preview_image(preview).get_data()
-                if self.has_exif_thumbnail:
-                    self.exif_thumbnail_and_preview_identical = preview_thumbnail == exif_thumbnail
-                self.preview_source = PreviewSource(idx)
-                self.preview_width = image.get_width()
-                self.preview_height = image.get_height()
-                self.preview_extension = image.get_extension()
-                return
-
-    def get_preview_sizes(self, metadata: GExiv2.Metadata):
-        previews = metadata.get_preview_properties()
-        for idx, preview in enumerate(previews):
-            image = metadata.get_preview_image(preview)
-            self.preview_size_and_types.append((image.get_width(), image.get_height(),
-                                                image.get_extension()))
-
-    def orientation_extract(self, metadata: GExiv2.Metadata, size_in_bytes):
-        if metadata['Exif.Image.Orientation'] == self.orientation:
-            self.minimum_exif_read_size_in_bytes_orientation = size_in_bytes
-            return True
-        return False
-
-    def datetime_extract(self, metadata: GExiv2.Metadata, size_in_bytes):
-        if metadata.get_date_time() == self.datetime:
-            self.minimum_exif_read_size_in_bytes_datetime = size_in_bytes
-            return True
-        return False
-
-    def minimum_extract_for_tag(self, check_extract):
-        if self.ext == 'CRW':
-            # Exiv2 can crash while scanning for exif in a very small
-            # extract of a CRW file
-            return
-        metadata = GExiv2.Metadata()
-        for size_in_bytes in exif_scan_range():
-            with open(self.file_name, 'rb') as photo:
-                photo_extract = photo.read(size_in_bytes)
-                try:
-                    metadata.open_buf(photo_extract)
-                except:
-                    pass
-                else:
-                    try:
-                        if check_extract(metadata, size_in_bytes):
-                            break
-                    except KeyError:
-                        pass
-
-    def __repr__(self):
-        if self.model:
-            s = self.model
-        elif self.file_name:
-            s = os.path.split(self.file_name)[1]
-        else:
-            return "Unknown photo"
-        if self.width:
-            s += ' {}x{}'.format(self.width, self.height)
-        if self.ext:
-            s += ' {}'.format(self.ext)
-        return s
-
-    def __str__(self):
-        s = ''
-        if self.model is not None:
-            s += '{}\n'.format(self.model)
-        elif self.file_name is not None:
-            s += '{}\n'.format(os.path.split(self.file_name)[1])
-        if self.width is not None:
-            s += '{}x{}\n'.format(self.width, self.height)
-        if self.datetime: # type: datetime.datetime
-            s += '{}\n'.format(self.datetime.strftime('%c'))
-        if self.iso:
-            s += 'ISO: {}\n'.format(self.iso)
-        if self.orientation is not None:
-            s += 'Orientation: {}\n'.format(self.orientation)
-        if self.has_gps:
-            s += 'Has GPS tag: True\n'
-        if self.has_exif_thumbnail:
-            s += 'Exif thumbnail: {}x{}\n'.format(self.exif_thumbnail_width,
-                                                 self.exif_thumbnail_height)
-        if self.preview_source is not None:
-            s += '{} of {}: {}x{} {}\n'.format(
-                              self.preview_source.name.replace('_', ' ').capitalize(),
-                              self.no_previews,
-                              self.preview_width, self.preview_height,
-                              self.preview_extension[1:])
-        if self.exif_thumbnail_and_preview_identical == False:
-            # Check against False as value is one of None, True or
-            # False
-            s += 'Exif thumbnail differs from smallest preview\n'
-        if self.preview_size_and_types:
-            s += 'All preview images: '
-            s += '; '.join(['{}x{} {}'.format(width, height, ext[1:]) for width, height, ext in
-             self.preview_size_and_types])
-            s += '\n'
-        s += 'Disk cache after exif read:\n[{}]\n'.format(self.in_memory)
-        if self.in_memory != self.in_memory_post_thumb:
-            s += 'Disk cache after thumbnail / preview extraction:\n[{}]\n'.format(
-                self.in_memory_post_thumb)
-        if self.bytes_cached == self.bytes_cached_post_thumb:
-            s += 'Cached: {:,}KB of {:,}KB\n'.format(self.bytes_cached, self.total)
-        else:
-            s += 'Cached: {:,}KB(+{:,}KB after extraction) of {:,}KB\n'.format(
-                self.bytes_cached, self.bytes_cached_post_thumb, self.total)
-        if self.minimum_exif_read_size_in_bytes_orientation is not None:
-            s += 'Minimum read size to extract orientation tag: {}\n'.format(
-                format_size_for_user(self.minimum_exif_read_size_in_bytes_orientation,
-                                     with_decimals=False))
-        if self.minimum_exif_read_size_in_bytes_orientation is None and self.orientation is not \
-                None:
-            s += 'Could not extract orientation tag with minimal read\n'
-        if self.minimum_exif_read_size_in_bytes_datetime is not None:
-            s += 'Minimum read size to extract datetime tag: {}\n'.format(
-                format_size_for_user(self.minimum_exif_read_size_in_bytes_datetime,
-                                     with_decimals=False))
-        if self.minimum_exif_read_size_in_bytes_datetime is None and self.datetime is not None:
-            s += 'Could not extract datetime tag with minimal read\n'
-        return s
-
-
-def exif_scan_range() -> iter:
-    stop = 20
-    for iterations, step in ((108, 1), (97, 4), (16, 32), (16, 256), (16, 512), (8, 1024),
-                             (8, 2048 * 4), (32, 2048 * 16)):
-        start = stop
-        stop = start + step * iterations
-        for b in range(start, stop, step):
-            yield b
-
-def confirm(prompt: str=None, resp: bool=False) -> bool:
-    r"""
-    Prompts for yes or no response from the user.
-
-    :param prompt: prompt displayed to user
-    :param resp: the default value assumed by the caller when user
-     simply types ENTER.
-    :return: True for yes and False for no.
-
-    >>> confirm(prompt='Create Directory?', resp=True)
-    Create Directory? [y]|n:
-    True
-    >>> confirm(prompt='Create Directory?', resp=False)
-    Create Directory? [n]|y:
-    False
-    >>> confirm(prompt='Create Directory?', resp=False)
-    Create Directory? [n]|y: y
-    True
-    """
-
-    if prompt is None:
-        prompt = 'Confirm'
-
-    if resp:
-        prompt = '%s [%s]|%s: ' % (prompt, 'y', 'n')
-    else:
-        prompt = '%s [%s]|%s: ' % (prompt, 'n', 'y')
-
-    while True:
-        ans = input(prompt)
-        if not ans:
-            return resp
-        if ans not in ['y', 'Y', 'n', 'N']:
-            print('please enter y or n.')
-            continue
-        return ans in ['y', 'Y']
-
-def format_size_for_user(size: int, zero_string='', with_decimals=True, kb_only=False) -> str:
-    """
-    Format an int containing the number of bytes into a string
-    suitable for displaying to the user.
-
-    source: https://develop.participatoryculture.org/trac/
-    democracy/browser/trunk/tv/portable/util.py?rev=3993
-
-    :param size: size in bytes
-    :param zero_string: string to use if size == 0
-    :param kb_only: display in KB or B
-    """
-    if size > (1 << 40) and not kb_only:
-        value = (size / (1024.0 * 1024.0 * 1024.0 * 1024.0))
-        if with_decimals:
-            format = "%1.1fTB"
-        else:
-            format = "%dTB"
-    elif size > (1 << 30) and not kb_only:
-        value = (size / (1024.0 * 1024.0 * 1024.0))
-        if with_decimals:
-            format = "%1.1fGB"
-        else:
-            format = "%dGB"
-    elif size > (1 << 20) and not kb_only:
-        value = (size / (1024.0 * 1024.0))
-        if with_decimals:
-            format = "%1.1fMB"
-        else:
-            format = "%dMB"
-    elif size > (1 << 10):
-        value = (size / 1024.0)
-        if with_decimals:
-            format = "%1.1fKB"
-        else:
-            format = "%dKB"
-    elif size > 1:
-        # no decimals for bytes!
-        value = size
-        format = "%dB"
-    else:
-        return zero_string
-    return format % value
-
-@contextlib.contextmanager
-def stdchannel_redirected(stdchannel, dest_filename):
-    """
-    A context manager to temporarily redirect stdout or stderr
-
-    Usage:
-    with stdchannel_redirected(sys.stderr, os.devnull):
-       do_work()
-
-    Source: http://marc-abramowitz.com/archives/2013/07/19/
-    python-context-manager-for-redirected-stdout-and-stderr/
-    """
-    oldstdchannel = dest_file = None
-    try:
-        oldstdchannel = os.dup(stdchannel.fileno())
-        dest_file = open(dest_filename, 'w')
-        os.dup2(dest_file.fileno(), stdchannel.fileno())
-
-        yield
-    finally:
-        if oldstdchannel is not None:
-            os.dup2(oldstdchannel, stdchannel.fileno())
-        if dest_file is not None:
-            dest_file.close()
-
-@contextlib.contextmanager
-def show_errors():
-    print()
-    yield
-    print()
 
 class progress_bar_scanning(threading.Thread):
     # Adapted from http://thelivingpearl.com/2012/12/31/
@@ -436,19 +100,8 @@ class progress_bar_scanning(threading.Thread):
                 print('\b\b done!', flush=True)
 
 
-def vmtouch_output(full_file_name: str) -> tuple:
-    command = shlex.split(vmtouch_cmd.format(full_file_name))
-    output = subprocess.check_output(command, universal_newlines=True) # type: str
-    for line in output.split('\n'):
-        line = line.strip()
-        if line.startswith('['):
-            in_memory = line[1:line.find(']')]
-            currently_paged_percent = line.rsplit(' ', 1)[-1]
-            num, denom = map(int, currently_paged_percent.split('/'))
-            return (num * to_kb, denom * to_kb, in_memory)
-
-def scan(folder: str, disk_cach_cleared: bool, scan_types: list, errors: bool,
-                outfile: str, keep_file_names: bool) -> list:
+def scan(folder: str, disk_cach_cleared: bool, scan_types: List[str], errors: bool,
+                outfile: str, keep_file_names: bool) -> List[PhotoAttributes]:
 
     global stop
     global kill
@@ -518,18 +171,25 @@ def scan(folder: str, disk_cach_cleared: bool, scan_types: list, errors: bool,
         # Redirect stderr, hiding error output from exiv2
         context = stdchannel_redirected(sys.stderr, os.devnull)
 
+    metadata_fail = []
+
     with context:
         for full_file_name, ext in test_files:
             try:
                 metadata = GExiv2.Metadata(full_file_name)
             except:
-                print("Could not read metadata from {}".format(full_file_name))
+                metadata_fail.append(full_file_name)
             else:
                 pa = PhotoAttributes(full_file_name, ext, metadata)
                 photos.append(pa)
 
             if have_progresbar and not errors:
                 bar.update()
+
+    if metadata_fail:
+        print()
+        for full_file_name in metadata_fail:
+            print("Could not read metadata from {}".format(full_file_name))
 
     if outfile is not None:
         if not keep_file_names:
@@ -575,8 +235,11 @@ def analyze(photos: list, verbose: bool) -> None:
         for pa in photos:
             print(pa)
 
+    file_formats = FileFormatSQL()
+    for pa in photos:
+        file_formats.add_format(pa)
 
-if __name__ == "__main__":
+def main():
     parser = argparse.ArgumentParser(
         description='Analyze the location of exif data in a variety of RAW and jpeg files.')
     parser.add_argument('source', action='store', help="Folder in which to recursively scan "
@@ -636,4 +299,8 @@ if __name__ == "__main__":
         photos = scan(args.source, args.clear, scan_types, args.errors, args.outfile,
                             args.keep)
         analyze(photos, args.verbose)
+
+if __name__ == "__main__":
+    main()
+
 

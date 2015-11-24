@@ -81,6 +81,43 @@ def available_cpu_count(physical_only=False) -> int:
     else:
         return 1
 
+def confirm(prompt: str=None, resp: bool=False) -> bool:
+    r"""
+    Prompts for yes or no response from the user.
+
+    :param prompt: prompt displayed to user
+    :param resp: the default value assumed by the caller when user
+     simply types ENTER.
+    :return: True for yes and False for no.
+
+    >>> confirm(prompt='Create Directory?', resp=True)
+    Create Directory? [y]|n:
+    True
+    >>> confirm(prompt='Create Directory?', resp=False)
+    Create Directory? [n]|y:
+    False
+    >>> confirm(prompt='Create Directory?', resp=False)
+    Create Directory? [n]|y: y
+    True
+    """
+
+    if prompt is None:
+        prompt = 'Confirm'
+
+    if resp:
+        prompt = '%s [%s]|%s: ' % (prompt, 'y', 'n')
+    else:
+        prompt = '%s [%s]|%s: ' % (prompt, 'n', 'y')
+
+    while True:
+        ans = input(prompt)
+        if not ans:
+            return resp
+        if ans not in ['y', 'Y', 'n', 'N']:
+            print('please enter y or n.')
+            continue
+        return ans in ['y', 'Y']
+
 
 @contextlib.contextmanager
 def stdchannel_redirected(stdchannel, dest_filename):
@@ -110,6 +147,50 @@ def stdchannel_redirected(stdchannel, dest_filename):
 @contextlib.contextmanager
 def show_errors():
     yield
+
+def format_size_for_user(size: int, zero_string='', with_decimals=True, kb_only=False) -> str:
+    """
+    Format an int containing the number of bytes into a string
+    suitable for displaying to the user.
+
+    source: https://develop.participatoryculture.org/trac/
+    democracy/browser/trunk/tv/portable/util.py?rev=3993
+
+    :param size: size in bytes
+    :param zero_string: string to use if size == 0
+    :param kb_only: display in KB or B
+    """
+    if size > (1 << 40) and not kb_only:
+        value = (size / (1024.0 * 1024.0 * 1024.0 * 1024.0))
+        if with_decimals:
+            format = "%1.1fTB"
+        else:
+            format = "%dTB"
+    elif size > (1 << 30) and not kb_only:
+        value = (size / (1024.0 * 1024.0 * 1024.0))
+        if with_decimals:
+            format = "%1.1fGB"
+        else:
+            format = "%dGB"
+    elif size > (1 << 20) and not kb_only:
+        value = (size / (1024.0 * 1024.0))
+        if with_decimals:
+            format = "%1.1fMB"
+        else:
+            format = "%dMB"
+    elif size > (1 << 10):
+        value = (size / 1024.0)
+        if with_decimals:
+            format = "%1.1fKB"
+        else:
+            format = "%dKB"
+    elif size > 1:
+        # no decimals for bytes!
+        value = size
+        format = "%dB"
+    else:
+        return zero_string
+    return format % value
 
 def divide_list(source: list, no_pieces: int) -> list:
     r"""
