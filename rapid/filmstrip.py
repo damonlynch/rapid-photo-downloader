@@ -26,7 +26,6 @@ same
 
 from PyQt5.QtGui import QImage, QPainter
 
-
 xpm_data = [
     "12 10 27 1",
     "   c #000000",
@@ -70,8 +69,9 @@ xpm_data = [
 
 def add_filmstrip(thumbnail: QImage) -> QImage:
     """
-    Overlays a filmstrip onto the thumbnail, keeping the thumbnail's
-    dimensions the same.
+    Overlays a filmstrip onto the thumbnail.
+
+    Keeps the thumbnail's dimensions the same.
 
     :param thumbnail: thumbnail on which to put the filmstrip
     :return a copy of the thumbnail

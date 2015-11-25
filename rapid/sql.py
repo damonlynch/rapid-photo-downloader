@@ -265,7 +265,12 @@ class FileFormatSQL:
         size INTEGER NOT NULL,
         orientation_offset INTEGER NOT NULL,
         datetime_offset INTEGER NOT NULL,
-        cache INTEGER NOT NULL
+        cache INTEGER NOT NULL,
+        orientation TEXT,
+        exif_thumbnail TEXT,
+        thumbnail_preview_same INTEGER,
+        preview_source TEXT,
+        previews TEXT
         )""".format(tn=self.table_name))
 
         conn.execute("""CREATE INDEX IF NOT EXISTS extension_idx ON
@@ -280,11 +285,20 @@ class FileFormatSQL:
         conn = sqlite3.connect(self.db)
         c = conn.cursor()
         c.execute("""INSERT OR IGNORE INTO {tn} (extension, camera, size, orientation_offset,
-        datetime_offset, cache) VALUES (?, ?, ?, ?, ?, ?)""".format(
-            tn=self.table_name), (pa.ext, pa.model, pa.total,
+        datetime_offset, cache, orientation, exif_thumbnail, thumbnail_preview_same,
+        preview_source, previews)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""".format(tn=self.table_name),
+                                 (pa.ext,
+                                  pa.model,
+                                  pa.total,
                                   pa.minimum_exif_read_size_in_bytes_orientation,
                                   pa.minimum_exif_read_size_in_bytes_datetime,
-                                  pa.bytes_cached_post_thumb))
+                                  pa.bytes_cached_post_thumb,
+                                  pa.orientation,
+                                  pa.exif_thumbnail_details,
+                                  pa.exif_thumbnail_and_preview_identical,
+                                  pa.preview_source,
+                                  pa.preview_size_and_types))
 
         conn.commit()
         conn.close()

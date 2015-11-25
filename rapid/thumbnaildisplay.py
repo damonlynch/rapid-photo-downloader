@@ -27,6 +27,7 @@ from operator import attrgetter
 import subprocess
 import shlex
 import logging
+from typing import Optional
 
 from gettext import gettext as _
 
@@ -326,12 +327,14 @@ class ThumbnailTableModel(QAbstractTableModel):
             self.rapidApp.devices[scan_id].video_cache_dir = \
                 cache_dirs.video_cache_dir
 
-    def thumbnailReceived(self, rpd_file: RPDFile, thumbnail: QPixmap) -> None:
+    def thumbnailReceived(self, rpd_file: RPDFile,
+                          thumbnail: Optional[QPixmap]) -> None:
         unique_id = rpd_file.unique_id
         self.rpd_files[unique_id] = rpd_file
-        row = self.rowFromUniqueId(unique_id)
-        self.thumbnails[unique_id] = thumbnail
-        self.dataChanged.emit(self.index(row,0),self.index(row,0))
+        if not thumbnail.isNull():
+            row = self.rowFromUniqueId(unique_id)
+            self.thumbnails[unique_id] = thumbnail
+            self.dataChanged.emit(self.index(row,0),self.index(row,0))
         self.thumbnails_generated += 1
         self.no_thumbnails_by_scan[self.rpd_files[unique_id].scan_id] -= 1
 

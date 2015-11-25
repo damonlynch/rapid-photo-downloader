@@ -26,7 +26,7 @@ import subprocess
 import shlex
 import time
 from collections import deque
-from typing import Optional
+from typing import Optional, Set, List
 
 from psutil import (Process, wait_procs, pid_exists)
 from sortedcontainers import SortedListWithKey
@@ -42,7 +42,7 @@ from rpdfile import (RPDFile, FileTypeCounter)
 from devices import Device
 from preferences import ScanPreferences
 from utilities import CacheDirs
-from constants import RenameAndMoveStatus, ExtractionTask
+from constants import RenameAndMoveStatus, ExtractionTask, ExtractionProcessing
 from proximity import TemporalProximityGroups
 
 
@@ -961,7 +961,7 @@ class BackupResults:
 
 class GenerateThumbnailsArguments:
     def __init__(self, scan_id: int,
-                 rpd_files,
+                 rpd_files: List[RPDFile],
                  thumbnail_quality_lower: bool,
                  name: str,
                  cache_dirs: CacheDirs,
@@ -972,7 +972,7 @@ class GenerateThumbnailsArguments:
         List of files for which thumbnails are to be generated.
         All files  are assumed to have the same scan id.
         :param scan_id: id of the scan
-        :param rpd_files: list of files from which to extract thumbnails
+        :param rpd_files: files from which to extract thumbnails
         :param thumbnail_quality_lower: whether to generate the
          thumbnail high or low quality as it is scaled by Qt
         :param name: name of the device
@@ -984,7 +984,6 @@ class GenerateThumbnailsArguments:
          camera, this is the name of the camera, else None
         :param port: If the thumbnails are being downloaded from a
          camera, this is the port of the camera, else None
-        :type rpd_files: List[RPDFile]
         """
         self.rpd_files = rpd_files
         self.scan_id = scan_id
@@ -999,27 +998,29 @@ class GenerateThumbnailsArguments:
 
 
 class GenerateThumbnailsResults:
-    def __init__(self, rpd_file: RPDFile=None, thumbnail_bytes: bytes=None,
-                 scan_id: int=None, cache_dirs: CacheDirs=None) -> None:
+    def __init__(self, rpd_file: Optional[RPDFile]=None,
+                 thumbnail_bytes: Optional[bytes]=None,
+                 scan_id: Optional[int]=None,
+                 cache_dirs: Optional[CacheDirs]=None) -> None:
         self.rpd_file = rpd_file
+        # If thumbnail_bytes is None, there is no thumbnail
         self.thumbnail_bytes = thumbnail_bytes
         self.scan_id = scan_id
         self.cache_dirs = cache_dirs
 
-class GenerateThumbnailsParaResults:
-    def __init__(self, rpd_file: RPDFile) -> None:
-        self.rpd_file = rpd_file
 
 class ThumbnailExtractorArgument:
     def __init__(self, rpd_file: RPDFile,
                  task: ExtractionTask,
-                 thumbnail_full_file_name: str,
+                 processing: Set[ExtractionProcessing],
+                 full_file_name_to_work_on: str,
                  thumbnail_quality_lower: bool,
                  exif_buffer: bytearray,
                  thumbnail_bytes: bytes) -> None:
         self.rpd_file = rpd_file
         self.task = task
-        self.thumbnail_full_file_name = thumbnail_full_file_name
+        self.processing = processing
+        self.full_file_name_to_work_on = full_file_name_to_work_on
         self.thumbnail_quality_lower = thumbnail_quality_lower
         self.exif_buffer = exif_buffer
         self.thumbnail_bytes = thumbnail_bytes

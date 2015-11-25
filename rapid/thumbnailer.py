@@ -42,9 +42,14 @@ class ThumbnailManagerPara(PublishPullPipelineManager):
     def process_sink_data(self) -> None:
         data = pickle.loads(self.content) # type: GenerateThumbnailsResults
         if data.rpd_file is not None:
-            thumbnail = QImage.fromData(data.thumbnail_bytes)
-            if thumbnail is not None:
-                thumbnail = QPixmap.fromImage(thumbnail)
+            if data.thumbnail_bytes is None:
+                thumbnail = QPixmap()
+            else:
+                thumbnail = QImage.fromData(data.thumbnail_bytes)
+                if thumbnail.isNull():
+                    thumbnail = QPixmap()
+                else:
+                    thumbnail = QPixmap.fromImage(thumbnail)
             self.message.emit(data.rpd_file, thumbnail)
         else:
             assert data.cache_dirs is not None
@@ -145,7 +150,7 @@ class Thumbnailer(QObject):
         self.frontend_port = frontend_port
         self.ready.emit()
 
-    def stop(self):
+    def stop(self) -> None:
         self.thumbnail_manager.stop()
         self.load_balancer.stop()
         self.thumbnail_manager_thread.quit()

@@ -59,6 +59,7 @@ class PhotoAttributes:
         self.has_exif_thumbnail = False # type: bool
         self.exif_thumbnail_height = None # type: int
         self.exif_thumbnail_width = None # type: int
+        self.exif_thumbnail_details = None # type: str
         self.preview_source = None # type: PreviewSource
         self.preview_width = None # type: int
         self.preview_height = None # type: int
@@ -119,6 +120,8 @@ class PhotoAttributes:
             if not qimage.isNull():
                 self.exif_thumbnail_width = qimage.width()
                 self.exif_thumbnail_height = qimage.height()
+                self.exif_thumbnail_details = '{}x{}'.format(self.exif_thumbnail_width,
+                                                 self.exif_thumbnail_height)
 
         previews = metadata.get_preview_properties()
         self.no_previews = len(previews)
@@ -130,7 +133,7 @@ class PhotoAttributes:
                 preview_thumbnail = metadata.get_preview_image(preview).get_data()
                 if self.has_exif_thumbnail:
                     self.exif_thumbnail_and_preview_identical = preview_thumbnail == exif_thumbnail
-                self.preview_source = PreviewSource(idx)
+                self.preview_source = PreviewSource(idx).name.replace('_', ' ').capitalize()
                 self.preview_width = image.get_width()
                 self.preview_height = image.get_height()
                 self.preview_extension = image.get_extension()
@@ -138,10 +141,13 @@ class PhotoAttributes:
 
     def get_preview_sizes(self, metadata: GExiv2.Metadata):
         previews = metadata.get_preview_properties()
+        sizes_and_types = []
         for idx, preview in enumerate(previews):
             image = metadata.get_preview_image(preview)
-            self.preview_size_and_types.append((image.get_width(), image.get_height(),
+            sizes_and_types.append((image.get_width(), image.get_height(),
                                                 image.get_extension()))
+        self.preview_size_and_types = '; '.join(['{}x{} {}'.format(width, height, ext[1:]) for
+                                                 width, height, ext in sizes_and_types])
 
     def orientation_extract(self, metadata: GExiv2.Metadata, size_in_bytes):
         if metadata['Exif.Image.Orientation'] == self.orientation:
@@ -205,11 +211,10 @@ class PhotoAttributes:
         if self.has_gps:
             s += 'Has GPS tag: True\n'
         if self.has_exif_thumbnail:
-            s += 'Exif thumbnail: {}x{}\n'.format(self.exif_thumbnail_width,
-                                                 self.exif_thumbnail_height)
+            s += 'Exif thumbnail: {}\n'.format(self.exif_thumbnail_details)
         if self.preview_source is not None:
             s += '{} of {}: {}x{} {}\n'.format(
-                              self.preview_source.name.replace('_', ' ').capitalize(),
+                              self.preview_source,
                               self.no_previews,
                               self.preview_width, self.preview_height,
                               self.preview_extension[1:])
@@ -218,10 +223,7 @@ class PhotoAttributes:
             # False
             s += 'Exif thumbnail differs from smallest preview\n'
         if self.preview_size_and_types:
-            s += 'All preview images: '
-            s += '; '.join(['{}x{} {}'.format(width, height, ext[1:]) for width, height, ext in
-             self.preview_size_and_types])
-            s += '\n'
+            s += 'All preview images: {}\n'.format(self.preview_size_and_types)
         s += 'Disk cache after exif read:\n[{}]\n'.format(self.in_memory)
         if self.in_memory != self.in_memory_post_thumb:
             s += 'Disk cache after thumbnail / preview extraction:\n[{}]\n'.format(

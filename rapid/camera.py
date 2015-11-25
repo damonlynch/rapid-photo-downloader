@@ -24,6 +24,7 @@ import logging
 import os
 import io
 from collections import namedtuple
+from typing import Optional
 
 from PyQt5.QtGui import QImage
 
@@ -295,7 +296,7 @@ class Camera:
         else:
             return None
 
-    def get_THM_file(self, full_THM_name) -> QImage:
+    def get_THM_file(self, full_THM_name: str) -> Optional[bytes]:
         dir_name, file_name = os.path.split(full_THM_name)
         succeeded, camera_file = self._get_file(dir_name, file_name)
         if succeeded:
@@ -310,8 +311,7 @@ class Camera:
 
             if thumbnail_data:
                 data = memoryview(thumbnail_data)
-                image = QImage.fromData(data.tobytes())
-                return image
+                return data.tobytes()
             else:
                 return None
         else:

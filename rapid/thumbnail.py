@@ -667,7 +667,9 @@ class Thumbnail:
             else:
                 thm_file = self.rpd_file.thm_full_name
                 if self.rpd_file.from_camera:
-                    thumbnail = self.camera.get_THM_file(thm_file)
+                    data = self.camera.get_THM_file(thm_file)
+                    if data is not None:
+                        thumbnail = QImage.fromData(data)
                 else:
                     thumbnail = QImage(thm_file)
 

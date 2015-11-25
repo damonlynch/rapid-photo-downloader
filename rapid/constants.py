@@ -131,6 +131,13 @@ class ExtractionTask(Enum):
     load_file_directly = 3
     load_from_bytes = 4
     load_from_exif = 5
+    extract_from_file = 6
+
+class ExtractionProcessing(Enum):
+    resize = 1
+    orient = 2
+    strip_bars_photo = 3
+    strip_bars_video = 4
 
 
 photo_rename_test = ['Date time','Image date','YYYYMMDD','Text','-','',
