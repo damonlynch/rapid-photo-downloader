@@ -33,6 +33,8 @@ New features:
 * Generate freedesktop.org thumbnails for downloaded files, which means 
   RAW files will have thumbnails in programs like Gnome Files and KDE Dolphin.
 * Added progress bar when running under a Unity desktop
+* Generate video thumbnails using the python interface to gstreamer, removing
+  dependency on ffmpegthumbnailer
 
 Removed feature:
 * Rotate Jpeg images - to apply Lossless rotation, this feature requires the
@@ -52,7 +54,7 @@ Please note that ZeroMQ is responsible for Rapid Photo Downloader's
 interprocess messaging, using TCP/IP. If you use a system monitor that 
 displays network activity, don't be alarmed if it shows increased local 
 network activity while Rapid Photo Downloader is downloading or thumbnailing.
-Rapid Photo Downloader's network traffic is strictly between it's own 
+Rapid Photo Downloader's network traffic is strictly between its own 
 processes, all running solely on your computer.
 
 Missing features, still to be developed:

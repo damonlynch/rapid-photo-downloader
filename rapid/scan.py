@@ -54,7 +54,7 @@ from interprocess import (WorkerInPublishPullPipeline, ScanResults,
 from camera import Camera
 import rpdfile
 from constants import (DeviceType, FileType)
-from sql import DownloadedSQL, FileDownloaded
+from rapidsql import DownloadedSQL, FileDownloaded
 
 FileInfo = namedtuple('FileInfo', ['path', 'modification_time', 'size',
                                    'ext_lower', 'base_name', 'file_type'])

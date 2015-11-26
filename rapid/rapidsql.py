@@ -176,7 +176,7 @@ class CacheSQL:
         failure = int(failure)
 
         conn.execute(r"""INSERT OR REPLACE INTO {tn} (uri, size, mtime,
-        md5_name, failure) VALUES (?,?,?,?,?, ?)""".format(
+        md5_name, failure) VALUES (?,?,?,?,?)""".format(
             tn=self.table_name), (uri, size, modification_time,
                                   md5_name, failure))
 
@@ -202,7 +202,7 @@ class CacheSQL:
         row = c.fetchone()
         if row is not None:
             # convert integer to bool
-            row[1] = bool(row[1])
+            row = (row[0], bool(row[1]))
             return InCache._make(row)
         else:
             return None
@@ -213,7 +213,7 @@ class CacheSQL:
         :param md5_names: list of names, without path
         """
         def delete(names):
-            conn.execute("""DELETE FROM {tn} WHERE md5_name IN {values}""".format(
+            conn.execute("""DELETE FROM {tn} WHERE md5_name IN ({values})""".format(
                 tn=self.table_name, values=','.join('?' * len(names))), names)
         if len(md5_names) == 0:
             return

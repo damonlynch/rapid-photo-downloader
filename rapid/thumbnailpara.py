@@ -34,15 +34,14 @@ finally:
 
 import os
 import sys
-import shutil
 import logging
 import pickle
 from collections import deque
 from operator import attrgetter
 
 import zmq
-from PyQt5.QtGui import QImage, QTransform
-from PyQt5.QtCore import QSize, Qt, QIODevice, QBuffer
+from PyQt5.QtGui import QImage
+from PyQt5.QtCore import QSize
 import psutil
 
 import qrc_resources
@@ -52,14 +51,14 @@ from interprocess import (WorkerInPublishPullPipeline,
                           GenerateThumbnailsArguments,
                           GenerateThumbnailsResults,
                           ThumbnailExtractorArgument)
-from constants import (Downloaded, FileType, ThumbnailSize, ThumbnailCacheStatus,
+from constants import (FileType, ThumbnailSize, ThumbnailCacheStatus,
                        ThumbnailCacheDiskStatus, FileSortPriority, ExtractionTask,
                        ExtractionProcessing)
 from camera import (Camera, CopyChunks)
 from cache import ThumbnailCacheSql, FdoCacheNormal, FdoCacheLarge
 from utilities import (GenerateRandomFileName, create_temp_dir, CacheDirs)
 from preferences import Preferences
-from sql import FileFormatSQL
+from rapidsql import FileFormatSQL
 
 # FIXME free camera in case of early termination
 
@@ -146,79 +145,6 @@ def get_temporal_gaps_and_sequences(rpd_files, temporal_span):
         return (gaps, sequences)
     return None
 
-
-def try_to_use_embedded_thumbnail(size: QSize,
-                                  ignore_orientation: bool = True,
-                                  image_to_be_rotated: bool = False,
-                                  ignore_letterbox: bool = True) -> bool:
-    r"""
-    Most photos contain a 160x120 thumbnail as part of the exif
-    metadata.
-
-    Determine if size of thumbnail requested is greater than the size
-    of embedded thumbnails.
-
-    :param size: size needed. If None, assume the size needed is the
-     biggest available (and return False).
-    :param ignore_orientation: ignore the fact the image might be
-     rotated e.g. if an image will be only 120px wide after rotation,
-     and the width required is 160px, then still use the embedded
-     thumbnail. This is useful when displaying the image in a 160x160px
-     square.
-    :param image_to_be_rotated: if True, base calculations on the fact
-     the image will be rotated 90 or 270 degrees
-    :param ignore_letterbox: 160//1.5 is 106, therefore embedded
-     thumbnails have a letterbox on them. If True, ignore this in the
-     height and width required calculation
-    :return: True if should try to use embedded thumbnail,otherwise
-     False
-
-    >>> try_to_use_embedded_thumbnail(None)
-    False
-    >>> try_to_use_embedded_thumbnail(QSize(100,100))
-    True
-    >>> try_to_use_embedded_thumbnail(QSize(160,120))
-    True
-    >>> try_to_use_embedded_thumbnail(QSize(160,160))
-    False
-    >>> try_to_use_embedded_thumbnail(QSize(120,120), False, True)
-    True
-    >>> try_to_use_embedded_thumbnail(QSize(160,120), False, True)
-    False
-    >>> try_to_use_embedded_thumbnail(QSize(160,120), False, False)
-    True
-    >>> try_to_use_embedded_thumbnail(QSize(160,106), ignore_letterbox=False)
-    True
-    >>> try_to_use_embedded_thumbnail(QSize(160,120), ignore_letterbox=False)
-    False
-    >>> try_to_use_embedded_thumbnail(QSize(160,106), False, False, False)
-    True
-    >>> try_to_use_embedded_thumbnail(QSize(160,106), False, True, False)
-    False
-    >>> try_to_use_embedded_thumbnail(QSize(106,160), False, True, False)
-    True
-    >>> try_to_use_embedded_thumbnail(QSize(120,160), False, True, False)
-    False
-    """
-    if size is None:
-        return False
-
-    if image_to_be_rotated and not ignore_orientation:
-        width_sought = size.height()
-        height_sought = size.width()
-    else:
-        width_sought = size.width()
-        height_sought = size.height()
-
-    if ignore_letterbox:
-        thumbnail_width = 160
-        thumbnail_height = 120
-    else:
-        thumbnail_width = 160
-        thumbnail_height = 106
-
-    return width_sought <= thumbnail_width and height_sought <= \
-                                               thumbnail_height
 
 class Offsets:
     def __init__(self) -> None:
@@ -381,8 +307,6 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
                 sys.exit(0)
 
             must_make_cache_dirs = (not self.camera.can_fetch_thumbnails
-                                    or not try_to_use_embedded_thumbnail(
-                self.thumbnail_size_needed)
                                     or cache_file_from_camera)
 
             if must_make_cache_dirs or might_need_video_cache_dir:
@@ -436,7 +360,7 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
                         rpd_file.thumbnail_status = \
                             ThumbnailCacheStatus.suitable_for_fdo_cache_write
                     with open(get_thumbnail.path, 'rb') as thumbnail:
-                        thumbnail_bytes = thumbnail.readall()
+                        thumbnail_bytes = thumbnail.read()
                     task = ExtractionTask.bypass
 
             # Attempt to get thumbnails from the two FDO Caches.
@@ -553,7 +477,8 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
                     full_file_name_to_work_on=full_file_name_to_work_on,
                     thumbnail_quality_lower=arguments.thumbnail_quality_lower,
                     exif_buffer=exif_buffer,
-                    thumbnail_bytes = thumbnail_bytes),
+                    thumbnail_bytes = thumbnail_bytes,
+                    use_thumbnail_cache=thumbnail_cache is not None),
                     pickle.HIGHEST_PROTOCOL)
                 self.frontend.send_multipart([b'data', self.content])
 

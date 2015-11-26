@@ -38,6 +38,7 @@ from constants import ThumbnailSize, ExtractionTask, ExtractionProcessing
 from rpdfile import RPDFile
 from utilities import stdchannel_redirected, show_errors
 from filmstrip import add_filmstrip
+from cache import ThumbnailCacheSql
 
 have_gst = Gst.init_check(None)
 
@@ -106,8 +107,12 @@ class ThumbnailExtractor(LoadBalancerWorker):
     rotate_180 = '3'
     rotate_270 = '8'
 
+    max_size = QSize(max(ThumbnailSize.width, ThumbnailSize.height),
+                     max(ThumbnailSize.width, ThumbnailSize.height))
+
     def __init__(self):
         self.thumbnail_size_needed = QSize(ThumbnailSize.width, ThumbnailSize.height)
+        self.thumbnail_cache = ThumbnailCacheSql()
         super().__init__('Thumbnail Extractor')
 
     def rotate_thumb(self, thumbnail: QImage, orientation: str) -> QImage:
@@ -233,10 +238,11 @@ class ThumbnailExtractor(LoadBalancerWorker):
                 orientation = None
                 task = data.task
                 processing = data.processing
+                rpd_file = data.rpd_file
                 add_film_strip_to_thumb = False
 
                 if task == ExtractionTask.load_from_exif:
-                    thumbnail_details = self.get_disk_photo_thumb(data.rpd_file, processing)
+                    thumbnail_details = self.get_disk_photo_thumb(rpd_file, processing)
                     thumbnail = thumbnail_details.thumbnail
                     if thumbnail is not None:
                         orientation = thumbnail_details.orientation
@@ -246,13 +252,13 @@ class ThumbnailExtractor(LoadBalancerWorker):
                                   data.full_file_name_to_work_on)
                     thumbnail = QImage(data.full_file_name_to_work_on)
                     if ExtractionProcessing.orient in processing:
-                        orientation = self.get_orientation(rpd_file=data.rpd_file,
+                        orientation = self.get_orientation(rpd_file=rpd_file,
                                                    full_file_name=data.full_file_name_to_work_on)
 
                 elif task == ExtractionTask.load_from_bytes:
                     thumbnail = QImage.fromData(data.thumbnail_bytes)
                     if data.exif_buffer and ExtractionProcessing.orient in processing:
-                        orientation = self.get_orientation(rpd_file=data.rpd_file,
+                        orientation = self.get_orientation(rpd_file=rpd_file,
                                                            raw_bytes=data.exif_buffer)
                 else:
                     assert task == ExtractionTask.extract_from_file
@@ -272,11 +278,20 @@ class ThumbnailExtractor(LoadBalancerWorker):
                 elif ExtractionProcessing.strip_bars_video in processing:
                     thumbnail = crop_160x120_thumbnail(thumbnail, 15)
                 elif ExtractionProcessing.resize in processing:
-                    # TODO properly handle thumbnail resizing from cellphoens
-                    thumbnail = thumbnail.scaled(
-                        self.thumbnail_size_needed,
-                        Qt.KeepAspectRatio,
-                        data.thumbnail_quality_lower)
+                    # Resize the thumbnail before rotating
+                    if ((orientation == '1' or orientation is None) and
+                                thumbnail.height() > thumbnail.width()):
+                        # Special case: pictures from some cellphones have already
+                        # been rotated
+                        thumbnail = thumbnail.scaled(
+                            self.max_size,
+                            Qt.KeepAspectRatio,
+                            data.thumbnail_quality_lower)
+                    else:
+                        thumbnail = thumbnail.scaled(
+                            self.thumbnail_size_needed,
+                            Qt.KeepAspectRatio,
+                            data.thumbnail_quality_lower)
                     if thumbnail.isNull():
                         thumbnail = None
 
@@ -290,10 +305,19 @@ class ThumbnailExtractor(LoadBalancerWorker):
                     buffer = qimage_to_png_buffer(thumbnail)
                     png_data = buffer.data()
 
+                if data.use_thumbnail_cache:
+                    self.thumbnail_cache.save_thumbnail(
+                        full_file_name=rpd_file.full_file_name,
+                        size=rpd_file.size,
+                        modification_time=rpd_file.modification_time,
+                        generation_failed=thumbnail is None,
+                        thumbnail=thumbnail,
+                        camera_model=rpd_file.camera_model)
+
                 self.sender.send_multipart([b'0', b'data',
                         pickle.dumps(
                         GenerateThumbnailsResults(
-                            rpd_file=data.rpd_file,
+                            rpd_file=rpd_file,
                             thumbnail_bytes=png_data),
                         pickle.HIGHEST_PROTOCOL)])
                 self.requester.send_multipart([b'', b'', b'OK'])

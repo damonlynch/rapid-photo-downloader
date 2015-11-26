@@ -1016,7 +1016,8 @@ class ThumbnailExtractorArgument:
                  full_file_name_to_work_on: str,
                  thumbnail_quality_lower: bool,
                  exif_buffer: bytearray,
-                 thumbnail_bytes: bytes) -> None:
+                 thumbnail_bytes: bytes,
+                 use_thumbnail_cache: bool) -> None:
         self.rpd_file = rpd_file
         self.task = task
         self.processing = processing
@@ -1024,6 +1025,7 @@ class ThumbnailExtractorArgument:
         self.thumbnail_quality_lower = thumbnail_quality_lower
         self.exif_buffer = exif_buffer
         self.thumbnail_bytes = thumbnail_bytes
+        self.use_thumbnail_cache = use_thumbnail_cache
 
 
 

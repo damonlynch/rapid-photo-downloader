@@ -50,7 +50,7 @@ from interprocess import (RenameAndMoveFileData,
 from rpdfile import RPDFile
 from thumbnail import Thumbnail, qimage_to_png_buffer
 from cache import FdoCacheNormal, FdoCacheLarge, ThumbnailCache
-from sql import DownloadedSQL
+from rapidsql import DownloadedSQL
 
 from gettext import gettext as _
 

@@ -55,6 +55,7 @@ from urllib.request import pathname2url
 import time
 import shutil
 from collections import namedtuple
+from typing import Optional, Tuple
 
 from PyQt5.QtCore import QSize
 from PyQt5.QtGui import QImage
@@ -62,7 +63,7 @@ from PyQt5.QtGui import QImage
 from storage import get_program_cache_directory, get_fdo_cache_thumb_base_directory
 from utilities import GenerateRandomFileName
 from constants import ThumbnailCacheDiskStatus
-from sql import CacheSQL
+from rapidsql import CacheSQL
 
 logging.basicConfig(format='%(levelname)s:%(asctime)s:%(message)s',
                     datefmt='%H:%M:%S',
@@ -76,7 +77,7 @@ class MD5Name:
     def __init__(self) -> None:
         self.fs_encoding = sys.getfilesystemencoding()
 
-    def get_uri(self, full_file_name: str, camera_model: str=None) -> str:
+    def get_uri(self, full_file_name: str, camera_model: Optional[str]=None) -> str:
         """
         :param full_file_name: path and file name of the file
         :param camera_model: if file is on a camera, the model of the
@@ -94,7 +95,8 @@ class MD5Name:
 
         return '{}{}'.format(prefix, pathname2url(path))
 
-    def md5_hash_name(self, full_file_name: str, camera_model: str=None) -> (str, str):
+    def md5_hash_name(self, full_file_name: str, camera_model: str=None,
+                      extension: Optional[str]='png') -> Tuple[str, str]:
         """
         Generate MD5 hash for the file name.
 
@@ -103,10 +105,13 @@ class MD5Name:
         :param full_file_name: path and file name of the file
         :param camera_model: if file is on a camera, the model of the
          camera
+        :param extension: the extension to use in the file name
         :return: hash name and uri that was used to generate the hash
         """
         uri = self.get_uri(full_file_name, camera_model)
-        return ('{}.png'.format(hashlib.md5(uri.encode(self.fs_encoding)).hexdigest()), uri)
+        return ('{md5}.{extension}'.format(
+            md5=hashlib.md5(uri.encode(self.fs_encoding)).hexdigest(),
+            extension=extension), uri)
 
 
 class Cache:
@@ -242,7 +247,8 @@ class Cache:
 
         if not self.valid:
             return GetThumbnail(ThumbnailCacheDiskStatus.not_foud, None, None)
-        md5_name, uri = self.md5.md5_hash_name(full_file_name, camera_model)
+        md5_name, uri = self.md5.md5_hash_name(full_file_name=full_file_name,
+                                               camera_model=camera_model)
         path = os.path.join(self.cache_dir, md5_name)
         png = _get_thumbnail()
         if png is not None:
@@ -382,16 +388,40 @@ class ThumbnailCacheSql:
         self.valid = self.cache_dir is not None
         if not self.valid:
             return
-        self.random_filename = GenerateRandomFileName()
-        self.md5 = MD5Name()
-        self.thumb_db = CacheSQL(self.cache_dir)
+
+        assert self.cache_dir is not None
+        self.cache_dir = os.path.join(self.cache_dir, 'thumbnails')
+        try:
+            if not os.path.exists(self.cache_dir):
+                os.makedirs(self.cache_dir, 0o700)
+                logging.debug("Created thumbnails cache %s",
+                              self.cache_dir)
+            elif not os.path.isdir(self.cache_dir):
+                os.remove(self.cache_dir)
+                logging.warning("Removed file %s", self.cache_dir)
+                os.makedirs(self.cache_dir, 0o700)
+                logging.debug("Created thumbnails cache %s",
+                              self.cache_dir)
+        except:
+            logging.error("Failed to create Rapid Photo "
+                          "Downloader thumbnail cache at %s",
+                          self.cache_dir)
+            self.valid = False
+            self.cache_dir = None
+            self.random_filename = None
+            self.fs_encoding = None
+        else:
+            self.random_filename = GenerateRandomFileName()
+            self.md5 = MD5Name()
+            self.thumb_db = CacheSQL(self.cache_dir)
 
     def save_thumbnail(self, full_file_name: str, size: int,
                        modification_time, generation_failed: bool,
-                       thumbnail: bytes,
+                       thumbnail: Optional[QImage],
                        camera_model: str=None) -> str:
         """
-        Save a thumbnail in the thumbnail cache.
+        Save in the thumbnail cache using jpeg 75% compression.
+
         :param full_file_name: full path of the file (including file
         name). Will be turned into an absolute path if it is a file
         system path
@@ -409,10 +439,12 @@ class ThumbnailCacheSql:
         :return the path of the saved file, else None if operation
         failed
         """
+
         if not self.valid:
             return None
 
-        md5_name, uri = self.md5.md5_hash_name(full_file_name, camera_model)
+        md5_name, uri = self.md5.md5_hash_name(full_file_name=full_file_name,
+                                               camera_model=camera_model, extension='jpg')
         self.thumb_db.add_thumbnail(uri, size, modification_time, md5_name,
                                     generation_failed)
 
@@ -421,16 +453,22 @@ class ThumbnailCacheSql:
 
         md5_full_name = os.path.join(self.cache_dir, md5_name)
 
-        temp_full_file_name = os.path.join(self.cache_dir, self.random_filename.name())
-        with open(temp_full_file_name, 'wb') as temp_file:
-            temp_file.write(thumbnail)
+        # thumbnail = thumbnail.convertToFormat()
 
-        try:
-            os.rename(temp_full_file_name, md5_full_name)
-            os.chmod(md5_full_name, 0o600)
-        except OSError:
-            return None
-        return md5_full_name
+        temp_path = os.path.join(self.cache_dir, self.random_filename.name(
+            extension='jpg'))
+
+        if thumbnail.save(temp_path, format='jpg', quality=75):
+            try:
+                os.rename(temp_path, md5_full_name)
+                os.chmod(md5_full_name, 0o600)
+            except OSError:
+                return None
+
+            if generation_failed:
+                logging.debug("Wrote {}x{} thumbnail {} for {}".format(
+                    thumbnail.width(), thumbnail.height(), md5_full_name, uri))
+            return md5_full_name
 
     def get_thumbnail_path(self, full_file_name: str, modification_time, size: int,
                       camera_model: str=None) -> GetThumbnailPath:
@@ -505,10 +543,7 @@ class ThumbnailCacheSql:
 """
 Thumbnail cache goals:
 
-if already correct size, store original format from the file
 if need to resize original to save, save 75% jpeg
-use md5 filenames, for obsfucation
-use sqlite3 to save modification time, md5name, and size
 
 Issues:
 

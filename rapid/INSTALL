@@ -61,10 +61,5 @@ sudo python3.4 -m pip install -v sortedcontainers
 Python 3.5 comes with scandir. To install it in Python 3.4, visit:
 * https://github.com/benhoyt/scandir
 
-If you want to download videos, you should install:
-* ffmpegthumbnailer
-
-ffmpegthumbnailer is used only to display thumbnail images of videos. This
-is a useful feature, and if you can install it, it is recommended.
 
 

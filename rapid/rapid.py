@@ -102,7 +102,7 @@ from cache import ThumbnailCache
 from metadataphoto import exiv2_version, gexiv2_version
 from metadatavideo import EXIFTOOL_VERSION
 from camera import gphoto2_version, python_gphoto2_version
-from sql import DownloadedSQL
+from rapidsql import DownloadedSQL
 from generatenameconfig import *
 from expander import QExpander
 from rotatedpushbutton import RotatedButton, VerticalRotation

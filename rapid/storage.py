@@ -52,6 +52,7 @@ import time
 import subprocess
 import shlex
 from collections import namedtuple
+from typing import Optional, Tuple
 
 from PyQt5.QtCore import (QStorageInfo, QObject, pyqtSignal)
 from gi.repository import GUdev, UDisks, GLib
@@ -72,6 +73,7 @@ except ImportError:
 StorageSpace = namedtuple('StorageSpace', 'bytes_free,'
                                           'bytes_total')
 
+PROGRAM_DIRECTORY = 'rapid-photo-downloader'
 
 class ValidMounts():
     r"""
@@ -87,7 +89,7 @@ class ValidMounts():
         :param onlyExternalMounts: if True, valid mounts must be under
         /media/<USER> or /run/media/<user>
         """
-        self.validMountFolders = None # type: Tuple(str)
+        self.validMountFolders = None # type: Tuple[str]
         self.onlyExternalMounts = onlyExternalMounts
         self._setValidMountFolders()
         assert '/' not in self.validMountFolders
@@ -224,16 +226,13 @@ def has_non_empty_dcim_folder(path: str) -> bool:
             return len(os.listdir(dcim_folder)) > 0
     return False
 
-
 def get_desktop_environment():
+    #TODO confirm if cinnamon really is x-cinnamon
     return os.getenv('XDG_CURRENT_DESKTOP')
 
-
-#TODO confirm if cinnamon really is x-cinnamon
-def gvfs_controls_mounts():
+def gvfs_controls_mounts() -> bool:
     return get_desktop_environment().lower() in ('gnome', 'unity',
                                                  'x-cinnamon')
-
 
 def xdg_photos_directory() -> str:
     """
@@ -242,7 +241,6 @@ def xdg_photos_directory() -> str:
     """
     return GLib.get_user_special_dir(GLib.USER_DIRECTORY_PICTURES)
 
-
 def xdg_videos_directory() -> str:
     """
     Get localized version of /home/<USER>/Videos
@@ -250,52 +248,24 @@ def xdg_videos_directory() -> str:
     """
     return GLib.get_user_special_dir(GLib.USER_DIRECTORY_VIDEOS)
 
+def make_program_directory(path: str) -> str:
+    """
+    Creates a subfolder used by Rapid Photo Downloader.
 
-def get_xdg_directory(env_variable: str, default_dir: str) -> str:
-    """
-    Get a Rapid Photo Downloader program directory, e.g. cache, data
-    Catches no exceptions.
-    :param env_variable: environment variable indicating location of
-     directory
-    :param default_dir: if environment variable not set, where to
-     create the directory
-    :return: the full path of the program directory
-    """
-    assert sys.platform.startswith('linux')
-    xdg = os.getenv(env_variable)
-    if xdg is not None:
-        return xdg
-    else:
-        return os.path.join(os.path.expanduser('~'), default_dir)
+    Does not catch errors.
 
-
-def get_program_directory(env_variable: str,
-                           default_dir: str,
-                           create_if_not_exist=False) -> str:
+    :param path: location where the subfolder should be
+    :return: the full path of the new directory
     """
-    Get a Rapid Photo Downloader program directory, e.g. cache, data
-    Catches no exceptions. Includes subpath 'rapid-photo-downloader'
-    :param env_variable: environment variable indicating location of
-     directory
-    :param default_dir: if environment variable not set, where to
-     create the directory
-    :param create_if_not_exist: creates directory if it does not exist
-    :return: the full path of the program directory
-    """
-    path = get_xdg_directory(env_variable, default_dir)
     program_dir = os.path.join(path, 'rapid-photo-downloader')
-    if not create_if_not_exist:
-        return program_dir
-    else:
-        if not os.path.exists(program_dir):
-            os.mkdir(program_dir)
-        elif not os.path.isdir(program_dir):
-            os.remove(program_dir)
-            os.mkdir(program_dir)
-        return program_dir
+    if not os.path.exists(program_dir):
+        os.mkdir(program_dir)
+    elif not os.path.isdir(program_dir):
+        os.remove(program_dir)
+        os.mkdir(program_dir)
+    return program_dir
 
-
-def get_program_cache_directory(create_if_not_exist=False) -> str:
+def get_program_cache_directory(create_if_not_exist=False) -> Optional[str]:
     """
     Get Rapid Photo Downloader cache directory, which is assumed to be
     under $XDG_CACHE_HOME or if that doesn't exist, ~/.cache.
@@ -303,15 +273,16 @@ def get_program_cache_directory(create_if_not_exist=False) -> str:
     :return: the full path of the cache directory, or None on error
     """
     try:
-        return get_program_directory(env_variable='XDG_CACHE_HOME',
-                               default_dir='.cache',
-                               create_if_not_exist=create_if_not_exist)
-    except:
+        cache_directory = BaseDirectory.xdg_cache_home
+        if not create_if_not_exist:
+            return os.path.join(cache_directory, PROGRAM_DIRECTORY)
+        else:
+            return make_program_directory(cache_directory)
+    except OSError:
         logging.error("An error occurred while creating the cache directory")
         return None
 
-
-def get_program_data_directory(create_if_not_exist=False) -> str:
+def get_program_data_directory(create_if_not_exist=False) -> Optional[str]:
     """
     Get Rapid Photo Downloader data directory, which is assumed to be
     under $XDG_DATA_HOME or if that doesn't exist,  ~/.local/share
@@ -319,10 +290,12 @@ def get_program_data_directory(create_if_not_exist=False) -> str:
     :return: the full path of the data directory, or None on error
     """
     try:
-        return get_program_directory(env_variable='XDG_DATA_HOME',
-                               default_dir='.local/share',
-                               create_if_not_exist=create_if_not_exist)
-    except:
+        data_directory = BaseDirectory.xdg_data_dirs[0]
+        if not create_if_not_exist:
+            return os.path.join(data_directory, PROGRAM_DIRECTORY)
+        else:
+            return make_program_directory(data_directory)
+    except OSError:
         logging.error("An error occurred while creating the data directory")
         return None
 
