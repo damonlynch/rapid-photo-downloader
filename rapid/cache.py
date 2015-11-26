@@ -69,8 +69,8 @@ logging.basicConfig(format='%(levelname)s:%(asctime)s:%(message)s',
                     datefmt='%H:%M:%S',
                     level=logging.DEBUG)
 
-GetThumbnail = namedtuple('GetThumbnail', 'disk_status thumbnail path')
-GetThumbnailPath = namedtuple('GetThumbnailPath', 'disk_status path')
+GetThumbnail = namedtuple('GetThumbnail', 'disk_status, thumbnail, path')
+GetThumbnailPath = namedtuple('GetThumbnailPath', 'disk_status, path, orientation_unknown')
 
 class MD5Name:
     """Generate MD5 hashes for file names."""
@@ -383,6 +383,9 @@ class ThumbnailCache(BaseThumbnailCache):
 
 
 class ThumbnailCacheSql:
+
+    not_found = GetThumbnail(ThumbnailCacheDiskStatus.not_foud, None, None)
+
     def __init__(self):
         self.cache_dir = get_program_cache_directory(create_if_not_exist=True)
         self.valid = self.cache_dir is not None
@@ -417,8 +420,9 @@ class ThumbnailCacheSql:
 
     def save_thumbnail(self, full_file_name: str, size: int,
                        modification_time, generation_failed: bool,
+                       orientation_unknown: bool,
                        thumbnail: Optional[QImage],
-                       camera_model: str=None) -> str:
+                       camera_model: Optional[str]=None) -> Optional[str]:
         """
         Save in the thumbnail cache using jpeg 75% compression.
 
@@ -445,9 +449,10 @@ class ThumbnailCacheSql:
 
         md5_name, uri = self.md5.md5_hash_name(full_file_name=full_file_name,
                                                camera_model=camera_model, extension='jpg')
-        self.thumb_db.add_thumbnail(uri, size, modification_time, md5_name,
-                                    generation_failed)
 
+        self.thumb_db.add_thumbnail(uri=uri, size=size, modification_time=modification_time,
+                                    md5_name=md5_name, orientation_unknown=orientation_unknown,
+                                    failure=generation_failed)
         if generation_failed:
             return None
 
@@ -465,10 +470,8 @@ class ThumbnailCacheSql:
             except OSError:
                 return None
 
-            if generation_failed:
-                logging.debug("Wrote {}x{} thumbnail {} for {}".format(
-                    thumbnail.width(), thumbnail.height(), md5_full_name, uri))
             return md5_full_name
+        return None
 
     def get_thumbnail_path(self, full_file_name: str, modification_time, size: int,
                       camera_model: str=None) -> GetThumbnailPath:
@@ -483,30 +486,31 @@ class ThumbnailCacheSql:
          into a float if it's not already
         :param camera_model: optional camera model. If the thumbnail is
          not from a camera, then should be None.
-        :return a GetThumbnail tuple of (1) ThumbnailCacheDiskStatus,
+        :return a GetThumbnailPath tuple of (1) ThumbnailCacheDiskStatus,
          to indicate whether the thumbnail was found, a failure, or
-         missing (2) the thumbnail as QImage, if found (or None), and
-         (3) the path (including the md5 name), else None,
+         missing, (2) the path (including the md5 name), else None, and
+         (3) a bool indicating whether the orientation of the thumbnail
+          is unknown,
         """
 
         if not self.valid:
-            return GetThumbnail(ThumbnailCacheDiskStatus.not_foud, None, None)
+            return self.not_found
 
         uri = self.md5.get_uri(full_file_name, camera_model)
         in_cache = self.thumb_db.have_thumbnail(uri, size, modification_time)
 
         if in_cache is None:
-            return GetThumbnailPath(ThumbnailCacheDiskStatus.not_foud, None)
+            return self.not_found
 
         if in_cache.failure:
-            return GetThumbnailPath(ThumbnailCacheDiskStatus.failure, None)
+            return GetThumbnailPath(ThumbnailCacheDiskStatus.failure, None, None)
 
         path= os.path.join(self.cache_dir, in_cache.md5_name)
         if not os.path.exists(path):
             self.thumb_db.delete_thumbnails([in_cache.md5_name])
-            return GetThumbnailPath(ThumbnailCacheDiskStatus.not_foud, None)
+            return self.not_found
 
-        return GetThumbnailPath(ThumbnailCacheDiskStatus.found, path)
+        return GetThumbnailPath(ThumbnailCacheDiskStatus.found, path, in_cache.orientation_unknown)
 
 
     def cleanup_cache(self):

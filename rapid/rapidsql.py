@@ -32,7 +32,7 @@ from photoattributes import PhotoAttributes
 
 FileDownloaded = namedtuple('FileDownloaded', 'download_name, download_datetime')
 
-InCache = namedtuple('InCache', 'md5_name, failure')
+InCache = namedtuple('InCache', 'md5_name, orientation_unknown, failure')
 
 class DownloadedSQL:
     """
@@ -150,6 +150,7 @@ class CacheSQL:
         mtime REAL NOT NULL,
         size INTEGER NOT NULL,
         md5_name INTEGER NOT NULL,
+        orientation_unknown INTEGER NOT NULL,
         failure INTEGER NOT NULL,
         PRIMARY KEY (uri, mtime, size)
         )""".format(tn=self.table_name))
@@ -161,6 +162,7 @@ class CacheSQL:
         conn.close()
 
     def add_thumbnail(self, uri: str, size: int, modification_time: float, md5_name: str,
+                      orientation_unknown: bool,
                       failure: bool) -> None:
         """
         Add file to database of downloaded files
@@ -168,6 +170,8 @@ class CacheSQL:
         :param size: file size
         :param modification_time: file modification time
         :param md5_name: full file name converted to md5
+        :param orientation_unknown: if True, the orientation of the
+         file could not be determined, else False
         :param failure: if True, indicates the thumbnail could not be
          generated, otherwise False
         """
@@ -176,14 +180,14 @@ class CacheSQL:
         failure = int(failure)
 
         conn.execute(r"""INSERT OR REPLACE INTO {tn} (uri, size, mtime,
-        md5_name, failure) VALUES (?,?,?,?,?)""".format(
-            tn=self.table_name), (uri, size, modification_time,
-                                  md5_name, failure))
+        md5_name, orientation_unknown, failure) VALUES (?,?,?,?,?,?)""".format(
+            tn=self.table_name), (uri, size, modification_time,md5_name, orientation_unknown,
+                                  failure))
 
         conn.commit()
         conn.close()
 
-    def have_thumbnail(self, uri: str, size: int, modification_time: float) -> InCache:
+    def have_thumbnail(self, uri: str, size: int, modification_time: float) -> Optional[InCache]:
         """
         Returns download path and filename if a file with matching
         name, modification time and size has previously been downloaded
@@ -196,13 +200,13 @@ class CacheSQL:
         """
         conn = sqlite3.connect(self.db)
         c = conn.cursor()
-        c.execute("""SELECT md5_name, failure FROM {tn} WHERE
+        c.execute("""SELECT md5_name, orientation_unknown, failure FROM {tn} WHERE
         uri=? AND size=? AND mtime=?""".format(
             tn=self.table_name), (uri, size, modification_time))
         row = c.fetchone()
         if row is not None:
             # convert integer to bool
-            row = (row[0], bool(row[1]))
+            row = (row[0], bool(row[1]), bool(row[2]))
             return InCache._make(row)
         else:
             return None

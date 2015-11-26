@@ -352,8 +352,7 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
                 if get_thumbnail.disk_status == ThumbnailCacheDiskStatus.failure:
                     rpd_file.thumbnail_status = ThumbnailCacheStatus.generation_failed
                 elif get_thumbnail.disk_status == ThumbnailCacheDiskStatus.found:
-                    #TODO fix this logic when we're able to get orientation from the camera
-                    if self.camera is not None and self.camera.can_fetch_thumbnails:
+                    if get_thumbnail.orientation_unknown:
                         rpd_file.thumbnail_status = \
                             ThumbnailCacheStatus.from_rpd_cache_fdo_write_invalid
                     else:
@@ -444,6 +443,7 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
                                 bytes_to_read = 0
                         else:
                             task = ExtractionTask.load_from_exif
+                            processing.add(ExtractionProcessing.orient)
                             # TODO put a proper value here
                             bytes_to_read = self.cached_read.get(rpd_file.extension, 400 * 1024)
                         if bytes_to_read:

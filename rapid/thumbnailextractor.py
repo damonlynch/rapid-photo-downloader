@@ -136,7 +136,7 @@ class ThumbnailExtractor(LoadBalancerWorker):
                 size.height() >= self.thumbnail_size_needed.height())
 
     def get_disk_photo_thumb(self, rpd_file: RPDFile,
-                             processing: ExtractionProcessing) -> PhotoDetails:
+                             processing: set) -> PhotoDetails:
 
         full_file_name = rpd_file.full_file_name
 
@@ -148,10 +148,9 @@ class ThumbnailExtractor(LoadBalancerWorker):
             logging.warning("Could not read metadata from %s", full_file_name)
             metadata = None
 
-        if metadata:
+        if metadata is not None:
             try:
                 orientation = metadata['Exif.Image.Orientation']
-                processing.add(ExtractionProcessing.orient)
             except KeyError:
                 pass
 
@@ -190,6 +189,7 @@ class ThumbnailExtractor(LoadBalancerWorker):
         if thumbnail is None and rpd_file.is_loadable():
             thumbnail = QImage(full_file_name)
             processing.add(ExtractionProcessing.resize)
+            processing.remove(ExtractionProcessing.orient)
             if thumbnail.isNull():
                 thumbnail = None
                 logging.error(
@@ -306,11 +306,14 @@ class ThumbnailExtractor(LoadBalancerWorker):
                     png_data = buffer.data()
 
                 if data.use_thumbnail_cache:
+                    orientation_unknown = (ExtractionProcessing.orient in processing and
+                                         orientation is None)
                     self.thumbnail_cache.save_thumbnail(
                         full_file_name=rpd_file.full_file_name,
                         size=rpd_file.size,
                         modification_time=rpd_file.modification_time,
                         generation_failed=thumbnail is None,
+                        orientation_unknown=orientation_unknown,
                         thumbnail=thumbnail,
                         camera_model=rpd_file.camera_model)
 
