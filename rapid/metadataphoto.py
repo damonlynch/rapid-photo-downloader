@@ -341,7 +341,7 @@ class MetaData(GExiv2.Metadata):
         """
         try:
             return self.get_date_time() or missing
-        except KeyError:
+        except:
             return missing
 
     def time_stamp(self, missing=''):

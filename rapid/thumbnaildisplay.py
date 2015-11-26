@@ -101,7 +101,7 @@ class ThumbnailManager(PublishPullPipelineManager):
 
 
 class ThumbnailTableModel(QAbstractTableModel):
-    def __init__(self, parent, benchmark: int=None) -> None:
+    def __init__(self, parent, benchmark: Optional[int]=None) -> None:
         super().__init__(parent)
         self.rapidApp = parent # type: rapid.RapidWindow
 

@@ -107,7 +107,7 @@ class PhotoAttributes:
         self.iso = metadata.get_iso_speed()
         try:
             self.datetime = metadata.get_date_time()
-        except KeyError:
+        except (KeyError, ValueError):
             pass
 
     def extract_thumbnail(self, metadata: GExiv2.Metadata) -> None:

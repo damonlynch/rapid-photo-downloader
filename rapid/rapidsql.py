@@ -334,7 +334,7 @@ if __name__ == '__main__':
         if sys.argv[1] == '--reset':
             reset = True
             print("Resetting")
-    except KeyError:
+    except IndexError:
         pass
     if False:
         d = DownloadedSQL()

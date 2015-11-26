@@ -37,6 +37,7 @@ import inspect
 from collections import namedtuple
 import platform
 import argparse
+from typing import Optional
 
 from gettext import gettext as _
 from gi.repository import Notify
@@ -98,7 +99,7 @@ from utilities import (same_file_system, make_internationalized_list,
 from rpdfile import (RPDFile, file_types_by_number, PHOTO_EXTENSIONS,
                      VIDEO_EXTENSIONS, FileTypeCounter, OTHER_PHOTO_EXTENSIONS)
 import downloadtracker
-from cache import ThumbnailCache
+from cache import ThumbnailCacheSql
 from metadataphoto import exiv2_version, gexiv2_version
 from metadatavideo import EXIFTOOL_VERSION
 from camera import gphoto2_version, python_gphoto2_version
@@ -321,9 +322,12 @@ class JobCode:
 
 
 class RapidWindow(QMainWindow):
-    def __init__(self, auto_detect: bool=None, device_location: str=None,
-                 benchmark: int=None,
-                 ignore_other_photo_types: bool=None, parent=None) -> None:
+    def __init__(self, auto_detect: Optional[bool]=None,
+                 device_location: Optional[str]=None,
+                 benchmark: Optional[int]=None,
+                 ignore_other_photo_types: Optional[bool]=None,
+                 thumb_cache: Optional[bool]=None,
+                 parent=None) -> None:
         self.do_init = QtCore.QEvent.registerEventType()
         super().__init__(parent)
 
@@ -337,6 +341,11 @@ class RapidWindow(QMainWindow):
         self.setWindowTitle(_("Rapid Photo Downloader"))
         self.readWindowSettings()
         self.prefs = Preferences()
+
+        if thumb_cache is not None:
+            logging.debug("Use thumbnail cache: %s", thumb_cache)
+            self.prefs.use_thumbnail_cache = thumb_cache
+
         self.setupWindow()
 
         if auto_detect is not None:
@@ -365,7 +374,7 @@ class RapidWindow(QMainWindow):
         centralWidget = QWidget()
 
         self.thumbnailView = ThumbnailView()
-        self.thumbnailModel = ThumbnailTableModel(self, benchmark=benchmark)
+        self.thumbnailModel = ThumbnailTableModel(parent=self, benchmark=benchmark)
         self.thumbnailProxyModel = QSortFilterProxyModel(self)
         self.thumbnailProxyModel.setSourceModel(self.thumbnailModel)
         self.thumbnailView.setModel(self.thumbnailProxyModel)
@@ -1861,7 +1870,7 @@ class RapidWindow(QMainWindow):
 
         self.cleanAllTempDirs()
         self.devices.delete_cache_dirs()
-        tc = ThumbnailCache()
+        tc = ThumbnailCacheSql()
         tc.cleanup_cache()
         Notify.uninit()
 
@@ -2714,6 +2723,10 @@ def main() -> None:
                                                     '%s') %
                         make_internationalized_list([s.upper() for s in
                                                      OTHER_PHOTO_EXTENSIONS]))
+    parser.add_argument("--thumbnail-cache", dest="thumb_cache",
+                        choices=['on','off'],
+                        help="Turn on or off use of the Rapid Photo Downloader Thumbnail Cache, "
+                             "overwriting existing program preferences")
     parser.add_argument("-b", "--benchmark", type=int,
                         metavar="n", dest="benchmark",
                         help="Use n processes to generate thumbnails, "
@@ -2757,6 +2770,11 @@ def main() -> None:
     else:
         device_location=None
 
+    if args.thumb_cache:
+        thumb_cache = args.thumb_cache == 'on'
+    else:
+        thumb_cache = None
+
     appGuid = '8dbfb490-b20f-49d3-9b7d-2016012d2aa8'
 
     app = QtSingleApplication(appGuid, sys.argv)
@@ -2776,14 +2794,15 @@ def main() -> None:
         prefs.sync()
         d = DownloadedSQL()
         d.update_table(reset=True)
-        cache = ThumbnailCache()
+        cache = ThumbnailCacheSql()
         cache.purge_cache()
         print(_("All settings and caches have been reset"))
         sys.exit(0)
 
     rw = RapidWindow(auto_detect=auto_detect, device_location=device_location,
                      benchmark=args.benchmark,
-                     ignore_other_photo_types=args.ignore_other)
+                     ignore_other_photo_types=args.ignore_other,
+                     thumb_cache=thumb_cache)
     rw.show()
 
     app.setActivationWindow(rw)
