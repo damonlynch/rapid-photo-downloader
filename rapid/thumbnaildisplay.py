@@ -27,7 +27,7 @@ from operator import attrgetter
 import subprocess
 import shlex
 import logging
-from typing import Optional
+from typing import Optional, Dict
 
 from gettext import gettext as _
 
@@ -103,7 +103,7 @@ class ThumbnailManager(PublishPullPipelineManager):
 class ThumbnailTableModel(QAbstractTableModel):
     def __init__(self, parent, benchmark: Optional[int]=None) -> None:
         super().__init__(parent)
-        self.rapidApp = parent # type: rapid.RapidWindow
+        self.rapidApp = parent
 
         self.benchmark = benchmark
 
@@ -120,7 +120,11 @@ class ThumbnailTableModel(QAbstractTableModel):
             self.thumbnailThread.started.connect(self.thumbnailmq.run_sink)
             self.thumbnailmq.message.connect(self.thumbnailReceived)
         else:
-            self.thumbnailmq = Thumbnailer(parent=parent, no_workers=parent.prefs.max_cpu_cores)
+            if benchmark is not None:
+                no_workers = benchmark
+            else:
+                no_workers = parent.prefs.max_cpu_cores
+            self.thumbnailmq = Thumbnailer(parent=parent, no_workers=no_workers)
             self.thumbnailmq.ready.connect(self.thumbnailerReady)
             self.thumbnailmq.thumbnailReceived.connect(self.thumbnailReceived)
 

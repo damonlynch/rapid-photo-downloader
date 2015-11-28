@@ -44,8 +44,6 @@ from PyQt5.QtGui import QImage
 from PyQt5.QtCore import QSize
 import psutil
 
-import qrc_resources
-
 from rpdfile import RPDFile
 from interprocess import (WorkerInPublishPullPipeline,
                           GenerateThumbnailsArguments,
@@ -65,11 +63,6 @@ from rapidsql import FileFormatSQL
 logging.basicConfig(format='%(levelname)s:%(asctime)s:%(message)s',
                     datefmt='%H:%M:%S',
                     level=logging.DEBUG)
-
-stock_photo = QImage(":/photo.png")
-stock_video = QImage(":/video.png")
-
-
 
 def split_list(alist: list, wanted_parts=2):
     """
@@ -393,13 +386,18 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
 
             if task == ExtractionTask.undetermined:
                 # Thumbnail was not found in any cache: extract it
-                if self.camera:
+                if self.camera: # type: Camera
+                    """ type: Camera"""
                     if rpd_file.file_type == FileType.photo:
                         if self.camera.can_fetch_thumbnails:
                             task = ExtractionTask.load_from_bytes
                             bytes_to_read = self.offsets.get_orientation_bytes(rpd_file.extension)
-                            exif_buffer = self.camera.get_exif_extract(rpd_file.path, rpd_file.name,
-                                                                  bytes_to_read)
+                            if rpd_file.is_jpeg():
+                                exif_buffer = self.camera.get_exif_extract_from_jpeg(
+                                    rpd_file.path, rpd_file.name)
+                            else:
+                                exif_buffer = self.camera.get_exif_extract_from_raw(
+                                    rpd_file.path, rpd_file.name, bytes_to_read)
                             thumbnail_bytes = self.camera.get_thumbnail(rpd_file.path,
                                                                         rpd_file.name)
                             processing.add(ExtractionProcessing.strip_bars_photo)

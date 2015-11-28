@@ -23,6 +23,7 @@ from enum import IntEnum
 import os
 import datetime
 import resource
+from typing import Optional
 
 from gi.repository import GExiv2
 from PyQt5.QtGui import QImage
@@ -166,6 +167,9 @@ class PhotoAttributes:
             # Exiv2 can crash while scanning for exif in a very small
             # extract of a CRW file
             return
+        elif self.ext in ['JPG', 'JPE', 'JPEG']:
+            return self.read_jpeg_2(check_extract)
+
         metadata = GExiv2.Metadata()
         for size_in_bytes in exif_scan_range():
             with open(self.file_name, 'rb') as photo:
@@ -180,6 +184,124 @@ class PhotoAttributes:
                             break
                     except KeyError:
                         pass
+
+    def get_jpeg_exif_length(self) -> Optional[int]:
+        app0_data_length = 0
+        soi_marker_length = 2
+        marker_length = 2
+        with open(self.file_name, 'rb') as jpeg:
+            soi_marker = jpeg.read(2)
+            if soi_marker != b'\xff\xd8':
+                print("Not a jpeg image: no SOI marker")
+                return None
+
+            app_marker = jpeg.read(2)
+            if app_marker == b'\xff\xe0':
+                # Don't neeed the content of APP0
+                app0_data_length = jpeg.read(1)[0] * 256 + jpeg.read(1)[0]
+                app0 = jpeg.read(app0_data_length - 2)
+                app_marker = jpeg.read(2)
+                app0_data_length = app0_data_length + marker_length
+
+            if app_marker != b'\xff\xe1':
+                print("Could not locate APP1 marker")
+                return None
+
+            header = jpeg.read(8)
+            if header[2:6] != b'Exif' or header[6:8] != b'\x00\x00':
+                print("APP1 is malformed")
+                return None
+        app1_data_length = header[0] * 256 + header[1]
+        return soi_marker_length + marker_length + app1_data_length + app0_data_length
+
+    def read_jpeg(self, check_extract) -> Optional[int]:
+        length = self.get_jpeg_exif_length()
+        # print("Got exif length of", length)
+        if length is not None:
+            metadata = GExiv2.Metadata()
+            with open(self.file_name, 'rb') as photo:
+                photo_extract = photo.read(length)
+                try:
+                    metadata.open_buf(photo_extract)
+                    # print("read exif okay :-)")
+                except:
+                    print("Failed to read exif!")
+                else:
+                    try:
+                        if not check_extract(metadata, length):
+                            print("Read exif okay, but failed to get value from exif!")
+                    except KeyError:
+                        print("Read exif okay, but failed to get value from exif!")
+
+    def read_jpeg_2(self, check_extract) -> None:
+
+        # Step 1: determine the location of APP1 in the jpeg file
+        # See http://dev.exiv2.org/projects/exiv2/wiki/The_Metadata_in_JPEG_files
+
+        app0_data_length = 0
+
+        soi_marker_length = 2
+        marker_length = 2
+        exif_header_length = 8
+        read0_size = soi_marker_length + marker_length + exif_header_length
+        app_length_length = 2
+
+        with open(self.file_name, 'rb') as jpeg:
+            jpeg_header = jpeg.read(read0_size)
+
+
+            if jpeg_header[0:2] != b'\xff\xd8':
+                print("%s not a jpeg image: no SOI marker" % self.file_name)
+                return None
+
+            app_marker = jpeg_header[2:4]
+
+            # Step 2: handle presence of APP0 - it's optional
+            if app_marker == b'\xff\xe0':
+                print('have app0 with', self.file_name)
+                # There is an APP0 before the probable APP1
+                # Don't neeed the content of the APP0
+                app0_data_length = jpeg_header[4] * 256 + jpeg_header[5]
+                # We've already read twelve bytes total, going into the APP1 data.
+                # Now we want to download the rest of the APP1, along with the app0 marker
+                # and the app0 exif header
+                read1_size = app0_data_length + 2
+                app0 = jpeg.read(read1_size)
+                app_marker = app0[(exif_header_length + 2) * -1:exif_header_length * -1]
+                exif_header = app0[exif_header_length * -1:]
+                jpeg_header = jpeg_header + app0
+
+            else:
+                exif_header = jpeg_header[exif_header_length * -1:]
+
+            # Step 3: process exif header
+            if app_marker != b'\xff\xe1':
+                print("Could not locate APP1 marker in %s" % self.file_name)
+                return None
+            if exif_header[2:6] != b'Exif' or exif_header[6:8] != b'\x00\x00':
+                print("APP1 is malformed in %s" % self.file_name)
+                return None
+            app1_data_length = exif_header[0] * 256 + exif_header[1]
+
+            # Step 4: read APP1
+            view = jpeg.read(app1_data_length)
+            photo_extract = jpeg_header + view
+
+        metadata = GExiv2.Metadata()
+        length = app1_data_length + app0_data_length
+
+        try:
+            metadata.open_buf(photo_extract)
+            # print("read exif okay :-)")
+        except:
+            print("Failed to read exif!")
+        else:
+            try:
+                if not check_extract(metadata, length):
+                    print("Read exif okay, but failed to get value from exif!")
+            except KeyError:
+                print("Read exif okay, but failed to get value from exif!")
+
 
     def __repr__(self):
         if self.model:

@@ -371,9 +371,10 @@ class LoadBalancer:
 
         sink_port = args.send
 
-        logging.debug("{} waiting to be notified how many workers to initialize".format(
+        logging.debug("{} worker waiting to be notified how many workers to initialize...".format(
             worker_type))
         no_workers = int(reply.recv())
+        logging.debug("...{} worker will use {} workers".format(worker_type, no_workers))
         reply.send(str(frontend_port).encode())
 
         self.process_manager = process_manager(no_workers, backend_port, sink_port)
@@ -597,7 +598,7 @@ class PublishPullPipelineManager(PullPipelineManager):
 class WorkerProcess():
     def __init__(self, worker_type: str) -> None:
         super().__init__()
-        logging.debug("{} load balancer started".format(worker_type))
+        logging.debug("{} worker started".format(worker_type))
         self.parser = argparse.ArgumentParser()
         self.parser.add_argument("--receive", required=True)
         self.parser.add_argument("--send", required=True)

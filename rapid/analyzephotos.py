@@ -141,7 +141,7 @@ def scan(folder: str, disk_cach_cleared: bool, scan_types: List[str], errors: bo
                 print(line)
         else:
             print("WARNING: these files will not be analyzed because they are already in the "
-                  "kerel disk cache:")
+                  "kernel disk cache:")
             for name in not_tested:
                 print(name)
         print()
@@ -261,6 +261,8 @@ def main():
                         help="Don't scan DNG files")
     parser.add_argument('--include-jpeg', '-j', dest='jpeg', action='store_true',
                         help="Scan jpeg images")
+    parser.add_argument('--only-jpeg', '-J', dest='onlyjpeg', action='store_true',
+                        help="Scan jpeg images")
     parser.add_argument('--show-errors', '-e', dest='errors', action='store_true',
                         help="Don't show progress bar while scanning, and instead show all errors "
                              "output by exiv2 (useful if exiv2 crashes, which takes down this "
@@ -293,6 +295,8 @@ def main():
 
         if args.jpeg:
             scan_types = PHOTO_EXTENSIONS
+        elif args.onlyjpeg:
+            scan_types = JPEG_EXTENSIONS
         else:
             scan_types = RAW_EXTENSIONS
 

@@ -24,7 +24,7 @@ import logging
 import os
 import io
 from collections import namedtuple
-from typing import Optional
+from typing import Optional, List, Tuple
 
 from PyQt5.QtGui import QImage
 
@@ -113,7 +113,7 @@ class Camera:
         """
         return self.camera_initialized and self.dcim_folder_located
 
-    def get_file_info(self, folder, file_name) -> tuple:
+    def get_file_info(self, folder, file_name) -> Tuple[float, int]:
         """
         Returns modification time and file size
 
@@ -128,7 +128,9 @@ class Camera:
         size = info.file.size
         return (modification_time, size)
 
-    def get_exif_extract(self, folder: str, file_name: str, size_in_bytes: int=200) -> bytearray:
+    def get_exif_extract_from_raw(self, folder: str,
+                                  file_name: str,
+                                  size_in_bytes: int=200) -> Optional[bytearray]:
         """"
         Attempt to read only the exif portion of the file.
 
@@ -152,6 +154,98 @@ class Camera:
         else:
             return buffer
 
+    def get_exif_extract_from_jpeg(self, folder: str, file_name: str) -> Optional[bytearray]:
+        """
+        Extract exif section of a jpeg.
+
+        Reads first few bytes of jpeg on camera to determine the
+        location and length of the exif header, then reads in the
+        header.
+
+        Assumes jpeg on camera is straight from the camera, i.e. not
+        modified by an exif altering program off the camera.
+
+        :param folder: directory on the camera where the jpeg is stored
+        :param file_name: name of the jpeg
+        :return: first section of jpeg such that it can be read by
+         exiv2 or similar
+
+        """
+
+        # Step 1: determine the location of APP1 in the jpeg file
+        # See http://dev.exiv2.org/projects/exiv2/wiki/The_Metadata_in_JPEG_files
+
+        soi_marker_length = 2
+        marker_length = 2
+        exif_header_length = 8
+        read0_size = soi_marker_length + marker_length + exif_header_length
+
+        view = memoryview(bytearray(read0_size))
+        try:
+            bytes_read = gp.check_result(self.camera.file_read(
+                folder, file_name, gp.GP_FILE_TYPE_NORMAL,
+                0, view, self.context))
+        except gp.GPhoto2Error as ex:
+            logging.error('Error reading %s from camera. Code: %s',
+                          os.path.join(folder, file_name), ex.code)
+            return None
+
+        jpeg_header = view.tobytes()
+        view.release()
+
+        if jpeg_header[0:2] != b'\xff\xd8':
+            logging.error("%s not a jpeg image: no SOI marker", file_name)
+            return None
+
+        app_marker = jpeg_header[2:4]
+
+        # Step 2: handle presence of APP0 - it's optional
+        if app_marker == b'\xff\xe0':
+            # There is an APP0 before the probable APP1
+            # Don't neeed the content of the APP0
+            app0_data_length = jpeg_header[4] * 256 + jpeg_header[5]
+            # We've already read twelve bytes total, going into the APP1 data.
+            # Now we want to download the rest of the APP1, along with the app0 marker
+            # and the app0 exif header
+            read1_size = app0_data_length + 2
+            app0_view = memoryview(bytearray(read1_size))
+            try:
+                bytes_read = gp.check_result(self.camera.file_read(
+                    folder, file_name, gp.GP_FILE_TYPE_NORMAL,
+                    read0_size, app0_view, self.context))
+            except gp.GPhoto2Error as ex:
+                logging.error('Error reading %s from camera. Code: %s',
+                              os.path.join(folder, file_name), ex.code)
+            app0 = app0_view.tobytes()
+            app0_view.release()
+            app_marker = app0[(exif_header_length + 2) * -1:exif_header_length * -1]
+            exif_header = app0[exif_header_length * -1:]
+            jpeg_header = jpeg_header + app0
+            offset = read0_size + read1_size
+        else:
+            exif_header = jpeg_header[exif_header_length * -1:]
+            offset = read0_size
+
+        # Step 3: process exif header
+        if app_marker != b'\xff\xe1':
+            logging.error("Could not locate APP1 marker in %s", file_name)
+            return None
+        if exif_header[2:6] != b'Exif' or exif_header[6:8] != b'\x00\x00':
+            logging.error("APP1 is malformed in %s", file_name)
+            return None
+        app1_data_length = exif_header[0] * 256 + exif_header[1]
+
+        # Step 4: read APP1
+        view = memoryview(bytearray(app1_data_length))
+        try:
+            bytes_read = gp.check_result(self.camera.file_read(
+                folder, file_name, gp.GP_FILE_TYPE_NORMAL,
+                offset, view, self.context))
+        except gp.GPhoto2Error as ex:
+            logging.error('Error reading %s from camera. Code: %s',
+                          os.path.join(folder, file_name), ex.code)
+            return None
+        return jpeg_header + view.tobytes()
 
     def _get_file(self, dir_name: str, file_name: str,
                   dest_full_filename:str=None,
@@ -178,10 +272,11 @@ class Camera:
 
         return (succeeded, camera_file)
 
-    def save_file(self, dir_name: str, file_name: str,
+    def save_file(self, dir_name: str,
+                  file_name: str,
                   dest_full_filename: str) -> bool:
         """
-        Save the file from the camera to a local destination
+        Save the file from the camera to a local destination.
 
         :param dir_name: directory on the camera
         :param file_name: the photo or video
@@ -194,14 +289,15 @@ class Camera:
                                         dest_full_filename)
         return succeeded
 
-    def save_file_by_chunks(self, dir_name: str, file_name: str, size: int,
-                  dest_full_filename: str,
-                  progress_callback,
-                  check_for_command,
-                  return_file_bytes = False,
-                  chunk_size=1048576) -> CopyChunks:
+    def save_file_by_chunks(self, dir_name: str,
+                            file_name: str,
+                            size: int,
+                            dest_full_filename: str,
+                            progress_callback,
+                            check_for_command,
+                            return_file_bytes = False,
+                            chunk_size=1048576) -> CopyChunks:
         """
-
         :param dir_name: directory on the camera
         :param file_name: the photo or video
         :param size: the size of the file in bytes
@@ -257,7 +353,8 @@ class Camera:
         else:
             return CopyChunks(copy_succeeded, None)
 
-    def get_thumbnail(self, dir_name: str, file_name: str,
+    def get_thumbnail(self, dir_name: str,
+                      file_name: str,
                       ignore_embedded_thumbnail=False,
                       cache_full_filename:str=None) -> bytes:
         """
@@ -297,6 +394,12 @@ class Camera:
             return None
 
     def get_THM_file(self, full_THM_name: str) -> Optional[bytes]:
+        """
+        Get THM thumbnail from camera
+
+        :param full_THM_name: path and file name of the THM file
+        :return: THM in raw bytes
+        """
         dir_name, file_name = os.path.split(full_THM_name)
         succeeded, camera_file = self._get_file(dir_name, file_name)
         if succeeded:
@@ -317,9 +420,11 @@ class Camera:
         else:
             return None
 
-    def _locate_DCIM_folders(self, path: str) -> list:
+    def _locate_DCIM_folders(self, path: str) -> List[str]:
         """
-        Scan camera looking for a DCIM folder in either the root of the
+        Scan camera looking for DCIM folders.
+
+        Looks in either the root of the
         path passed, or in one of the root folders subfolders (it does
         not scan subfolders of those subfolders). Returns all instances
         of a DCIM folder, which is helpful for cameras that have more
@@ -328,7 +433,6 @@ class Camera:
         :param path: the root folder to start scanning in
         :type path: str
         :return: the paths including the DCIM folders (if found), or None
-        :rtype: List[str]
         """
 
         dcim_folders = [] # type: List[str]
@@ -350,7 +454,7 @@ class Camera:
             self.dcim_folder_located = True
             return dcim_folders
 
-    def _select_camera(self, model, port_name):
+    def _select_camera(self, model, port_name)  -> None:
         # Code from Jim Easterbrook's Photoini
         # initialise camera
         self.camera = gp.Camera()
@@ -365,9 +469,9 @@ class Camera:
         idx = port_info_list.lookup_path(str(port_name))
         self.camera.set_port_info(port_info_list[idx])
 
-    def free_camera(self):
+    def free_camera(self) -> None:
         """
-        Disconnects the camera gphoto2
+        Disconnects the camera in gphoto2.
         """
         if self.camera_initialized:
             self.camera.exit(self.context)
@@ -378,7 +482,7 @@ class Camera:
         Workaround the fact that the standard model name generated by
         gphoto2 can be extremely verbose, e.g.
         "Google Inc (for LG Electronics/Samsung) Nexus 4/5/7/10 (MTP)",
-        which is what is generated for a Nexus 4
+        which is what is generated for a Nexus 4!!
         :return: the model name as detected by gphoto2's camera
          information, e.g. in the case above, a Nexus 4. Empty string
          if not found.
@@ -399,8 +503,7 @@ class Camera:
                         return child2.get_value()
         return ''
 
-    def get_storage_media_capacity(self, media_index=0, refresh: bool=False)\
-            -> StorageSpace:
+    def get_storage_media_capacity(self, media_index=0, refresh: bool=False) -> StorageSpace:
         """
         Determine the bytes free and bytes total (media capacity)
         :param media_index: the number of the card / storage media on
@@ -447,8 +550,6 @@ class Camera:
                 logging.error("Unable to determin storage info for camera %s: "
                           "error %s.", self.display_name, e.code)
                 self.storage_info = []
-
-
 
     def unlocked(self) -> bool:
         """
