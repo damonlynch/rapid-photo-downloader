@@ -354,7 +354,6 @@ class RapidWindow(QMainWindow):
             self.prefs.device_autodetection = False
             self.prefs.device_location = device_location
 
-
         self.prefs.photo_download_folder = '/data/Photos/Test'
         self.prefs.video_download_folder = '/data/Photos/Test'
         self.prefs.auto_download_at_startup = False

@@ -20,7 +20,7 @@ __author__ = 'Damon Lynch'
 
 from collections import (namedtuple, defaultdict, deque)
 import locale
-import datetime
+from datetime import datetime
 import logging
 import pickle
 
@@ -40,7 +40,7 @@ ProximityRow = namedtuple('ProximityRow', 'year, month, weekday, day, '
 UniqueIdTime = namedtuple('UniqueIdTime', 'modification_time, arrowtime, '
                                           'unqiue_id')
 
-def locale_time(t: datetime.datetime) -> str:
+def locale_time(t: datetime) -> str:
     """
     Attempt to localize the time without displaying seconds
     Adapted from http://stackoverflow.com/questions/2507726/how-to-display
@@ -70,8 +70,8 @@ def locale_time(t: datetime.datetime) -> str:
             return t.strftime(new_t_fmt)
     return t.strftime(t_fmt)
 
-AM = datetime.datetime(2015,11,3).strftime('%p')
-PM = datetime.datetime(2015,11,3,13).strftime('%p')
+AM = datetime(2015,11,3).strftime('%p')
+PM = datetime(2015,11,3,13).strftime('%p')
 
 def humanize_time_span(start: arrow.Arrow, end: arrow.Arrow,
                        strip_leading_zero_from_time: bool=True,
@@ -136,8 +136,8 @@ def humanize_time_span(start: arrow.Arrow, end: arrow.Arrow,
 
     if start.floor('day') == end.floor('day'):
         # both dates are on the same day
-        start_time = strip_zero(locale_time(start), strip)
-        end_time = strip_zero(locale_time(end), strip)
+        start_time = strip_zero(locale_time(start.datetime), strip)
+        end_time = strip_zero(locale_time(end.datetime), strip)
 
         if (start.hour < 12 and end.hour < 12) or (start.hour >= 12 and
                                                    end.hour >= 12):
@@ -166,9 +166,9 @@ def humanize_time_span(start: arrow.Arrow, end: arrow.Arrow,
 
     # Translators: for example, Nov 3, 12:15 PM
     start_datetime = _('%(date)s, %(time)s') % {
-        'date': start_date, 'time': strip_zero(locale_time(start), strip)}
+        'date': start_date, 'time': strip_zero(locale_time(start.datetime), strip)}
     end_datetime = _('%(date)s, %(time)s') % {
-        'date': end_date, 'time': strip_zero(locale_time(end), strip)}
+        'date': end_date, 'time': strip_zero(locale_time(end.datetime), strip)}
 
     if not insert_cr_on_long_line:
         # Translators: for example, Nov 3, 12:15 PM - Nov 4, 1:00 AM
@@ -198,6 +198,8 @@ class TemporalProximityGroups:
         self._previous_year = False
         self._previous_month = False
 
+        # print(thumbnail_rows[0].modification_time, type(thumbnail_rows[0].modification_time))
+
         # Generate an arrow date time for every timestamp we have.
         uniqueid_times = [UniqueIdTime(tr.modification_time,
                                   arrow.get(tr.modification_time).to('local'),
@@ -207,7 +209,7 @@ class TemporalProximityGroups:
         if not uniqueid_times:
             return
 
-        now = arrow.now()
+        now = arrow.now().to('local')
         current_year = now.year
         current_month = now.month
 
@@ -374,7 +376,7 @@ class TemporalProximityModel(QAbstractTableModel):
 
 
 class TemporalProximityDelegate(QStyledItemDelegate):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         super().__init__(parent)
 
         parent_font = parent.font()
@@ -421,10 +423,10 @@ class TemporalProximityDelegate(QStyledItemDelegate):
         self.proximity_sizes = {}
         self.col2_padding = 20
 
-    def setDepth(self, depth: int):
+    def setDepth(self, depth: int) -> None:
         self.depth = depth
 
-    def calculate_max_col1_size(self):
+    def calculate_max_col1_size(self) -> None:
         day_width = 0
         day_height = 0
         for day in range(10,32):
@@ -438,7 +440,7 @@ class TemporalProximityDelegate(QStyledItemDelegate):
         weekday_width = 0
         weekday_height = 0
         for i in range(1,7):
-            dt = datetime.datetime(2015, 11, i)
+            dt = datetime(2015, 11, i)
             weekday = dt.strftime('%a').upper()
             rect = self.weekday_metrics.boundingRect(str(weekday))
             weekday_width = max(weekday_width, rect.width())
@@ -458,8 +460,7 @@ class TemporalProximityDelegate(QStyledItemDelegate):
             # the consumer of the cached value might transpose it
             return QSize(self.month_sizes[row])
 
-        boundingRect = self.month_metrics.boundingRect(month)
-        """:type : QRect"""
+        boundingRect = self.month_metrics.boundingRect(month) # type: QRect
         height = boundingRect.height()
         width =  int(boundingRect.width() * self.month_kerning)
         size = QSize(width, height)
@@ -482,16 +483,14 @@ class TemporalProximityDelegate(QStyledItemDelegate):
         text = text.split('\n')
         width = height = 0
         for t in text:
-            boundingRect = self.proximity_metrics.boundingRect(t)
-            """:type : QRect"""
+            boundingRect = self.proximity_metrics.boundingRect(t) # type: QRect
             width = max(width, boundingRect.width())
             height += boundingRect.height()
         size = QSize(width, height)
         self.proximity_sizes[row] = QSize(size)
         return size
 
-    def paint(self, painter: QPainter, option: QStyleOptionViewItem,
-              index:  QModelIndex):
+    def paint(self, painter: QPainter, option: QStyleOptionViewItem, index:  QModelIndex)  -> None:
         column = index.column()
         model = index.model()
 
@@ -593,7 +592,7 @@ class TemporalProximityDelegate(QStyledItemDelegate):
         else:
             super().paint(painter, option, index)
 
-    def sizeHint(self, option, index):
+    def sizeHint(self, option, index) -> QSize:
         column = index.column()
         if column == 0:
             model = index.model()
@@ -628,7 +627,7 @@ class TemporalProximityDelegate(QStyledItemDelegate):
 
 
 class TemporalProximityView(QTableView):
-    def __init__(self):
+    def __init__(self) -> None:
         # style = """
         # QListView {
         # border: 0px;
@@ -639,7 +638,7 @@ class TemporalProximityView(QTableView):
         self.horizontalHeader().setVisible(False)
         # self.setShowGrid(False)
 
-    def minimumSizeHint(self):
+    def minimumSizeHint(self) -> QSize:
         model = self.model() # type: TemporalProximityModel
         w = 0
         for i in range(model.columnCount()):

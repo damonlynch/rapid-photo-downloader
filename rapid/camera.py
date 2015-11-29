@@ -99,9 +99,7 @@ class Camera:
         self.audio_files = {}
         self.video_thumbnails = []
         abilities = self.camera.get_abilities()
-        self.can_fetch_thumbnails = abilities.file_operations & \
-                   gp.GP_FILE_OPERATION_PREVIEW != 0
-
+        self.can_fetch_thumbnails = abilities.file_operations & gp.GP_FILE_OPERATION_PREVIEW != 0
 
     def camera_has_dcim(self) -> bool:
         """
@@ -153,6 +151,25 @@ class Camera:
             return None
         else:
             return buffer
+
+    def get_exif_extract_from_jpeg_gphoto(self, folder: str, file_name: str) -> Optional[bytearray]:
+
+        succeeded, camera_file = self._get_file(folder, file_name,None, gp.GP_FILE_TYPE_EXIF)
+
+        if succeeded:
+            exif_data = None
+            try:
+                exif_data = gp.check_result(gp.gp_file_get_data_and_size(camera_file))
+            except gp.GPhoto2Error as ex:
+                logging.error('Error getting exif info for %s from camera. Code: '
+                              '%s', os.path.join(folder, file_name), ex.code)
+            if exif_data:
+                data = memoryview(exif_data)
+                exif = data.tobytes()
+                return bytearray(exif)
+            else:
+                return None
+        return None
 
     def get_exif_extract_from_jpeg(self, folder: str, file_name: str) -> Optional[bytearray]:
         """

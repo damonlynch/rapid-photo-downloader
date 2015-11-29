@@ -36,6 +36,7 @@ to_kb = page_size // 1024
 
 vmtouch_cmd = 'vmtouch -v "{}"'
 
+JPEG_EXTENSIONS = ['jpg', 'jpe', 'jpeg']
 
 class PreviewSource(IntEnum):
     preview_1 = 0
@@ -61,6 +62,7 @@ class PhotoAttributes:
         self.exif_thumbnail_height = None # type: int
         self.exif_thumbnail_width = None # type: int
         self.exif_thumbnail_details = None # type: str
+        self.has_app0 = None
         self.preview_source = None # type: PreviewSource
         self.preview_width = None # type: int
         self.preview_height = None # type: int
@@ -88,8 +90,9 @@ class PhotoAttributes:
         self.bytes_cached_post_previews, total, self.in_memory_post_previews = vmtouch_output(
             full_file_name)
 
-        if self.orientation is not None:
+        if self.orientation is not None or self.ext.lower() in JPEG_EXTENSIONS:
             self.minimum_extract_for_tag(self.orientation_extract)
+
         if self.datetime is not None:
             self.minimum_extract_for_tag(self.datetime_extract)
 
@@ -167,7 +170,7 @@ class PhotoAttributes:
             # Exiv2 can crash while scanning for exif in a very small
             # extract of a CRW file
             return
-        elif self.ext in ['JPG', 'JPE', 'JPEG']:
+        elif self.ext.lower() in JPEG_EXTENSIONS:
             return self.read_jpeg_2(check_extract)
 
         metadata = GExiv2.Metadata()
@@ -258,7 +261,7 @@ class PhotoAttributes:
 
             # Step 2: handle presence of APP0 - it's optional
             if app_marker == b'\xff\xe0':
-                print('have app0 with', self.file_name)
+                self.has_app0 = True
                 # There is an APP0 before the probable APP1
                 # Don't neeed the content of the APP0
                 app0_data_length = jpeg_header[4] * 256 + jpeg_header[5]
@@ -298,9 +301,11 @@ class PhotoAttributes:
         else:
             try:
                 if not check_extract(metadata, length):
-                    print("Read exif okay, but failed to get value from exif!")
+                    pass
+                    # print("Read exif okay, but failed to get value from exif!")
             except KeyError:
-                print("Read exif okay, but failed to get value from exif!")
+                pass
+                # print("Read exif okay, but failed to get value from exif!")
 
 
     def __repr__(self):

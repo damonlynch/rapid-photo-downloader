@@ -236,7 +236,7 @@ def analyze(photos: list, verbose: bool) -> None:
             print(pa)
 
     file_formats = FileFormatSQL()
-    for pa in photos:
+    for pa in photos: # type: PhotoAttributes
         file_formats.add_format(pa)
 
 def main():
