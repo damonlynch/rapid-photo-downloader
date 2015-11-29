@@ -177,8 +177,26 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
         nef=400* 1024
     )
 
+    orientation_offset = dict(
+        arw=106,
+        cr2=126,
+        dcr=7684,
+        dng=144,
+        mef=144,
+        mrw=152580,
+        nef=144,
+        nrw=94,
+        orf=132,
+        pef=118,
+        raf=208,
+        raw=742404,
+        rw2=1004548,
+        sr2=82,
+        srw=46
+    )
+
     def __init__(self) -> None:
-        self.offsets = Offsets()
+        # self.offsets = Offsets()
         self.random_filename = GenerateRandomFileName()
         super().__init__('Thumbnails')
 
@@ -387,15 +405,15 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
             if task == ExtractionTask.undetermined:
                 # Thumbnail was not found in any cache: extract it
                 if self.camera: # type: Camera
-                    """ type: Camera"""
                     if rpd_file.file_type == FileType.photo:
                         if self.camera.can_fetch_thumbnails:
                             task = ExtractionTask.load_from_bytes
-                            bytes_to_read = self.offsets.get_orientation_bytes(rpd_file.extension)
                             if rpd_file.is_jpeg():
                                 exif_buffer = self.camera.get_exif_extract_from_jpeg(
                                     rpd_file.path, rpd_file.name)
                             else:
+                                bytes_to_read = min(rpd_file.size,
+                                    self.orientation_offset.get(rpd_file.extension, 500))
                                 exif_buffer = self.camera.get_exif_extract_from_raw(
                                     rpd_file.path, rpd_file.name, bytes_to_read)
                             thumbnail_bytes = self.camera.get_thumbnail(rpd_file.path,

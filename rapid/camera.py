@@ -153,6 +153,20 @@ class Camera:
             return buffer
 
     def get_exif_extract_from_jpeg(self, folder: str, file_name: str) -> Optional[bytearray]:
+        """
+        Extract strictly the app1 (exif) section of a jpeg.
+
+        Uses libgphoto2 to extract the exif header.
+
+        Assumes jpeg on camera is straight from the camera, i.e. not
+        modified by an exif altering program off the camera.
+
+        :param folder: directory on the camera where the jpeg is stored
+        :param file_name: name of the jpeg
+        :return: first section of jpeg such that it can be read by
+         exiv2 or similar
+
+        """
 
         succeeded, camera_file = self._get_file(folder, file_name,None, gp.GP_FILE_TYPE_EXIF)
 

@@ -20,13 +20,14 @@ __author__ = 'Damon Lynch'
 
 import os
 import time
-import datetime
+from datetime import datetime
 import uuid
 import logging
 import mimetypes
 from collections import Counter
 from urllib.request import pathname2url
 import locale
+from typing import Optional, List
 
 import exiftool
 from gettext import gettext as _
@@ -114,7 +115,7 @@ def get_sort_priority(extension: FileExtension, file_type: FileType) -> FileSort
         return FileSortPriority.high
 
 def get_rpdfile(name: str, path: str, size: int, prev_full_name: str,
-                prev_datetime: datetime.datetime,
+                prev_datetime: datetime,
                 file_system_modification_time: float,
                 thm_full_name: str, audio_file_full_name: str,
                 xmp_file_full_name: str,
@@ -240,15 +241,15 @@ class RPDFile:
     title_capitalized = ''
 
     def __init__(self, name: str, path: str, size: int,
-                 prev_full_name: str, prev_datetime: datetime.datetime,
+                 prev_full_name: str, prev_datetime: datetime,
                  modification_time: float, thm_full_name: str,
                  audio_file_full_name: str,
                  xmp_file_full_name: str,
                  scan_id: bytes,
                  from_camera: bool,
-                 camera_model: str=None,
-                 camera_port: str=None,
-                 camera_memory_card_identifiers: list=None):
+                 camera_model: Optional[str]=None,
+                 camera_port: Optional[str]=None,
+                 camera_memory_card_identifiers: Optional[List[int]]=None) -> None:
         """
 
         :param name: filename (without path)
@@ -305,7 +306,11 @@ class RPDFile:
         assert size > 0
         self.size = size
 
-        self.modification_time = modification_time
+        if not from_camera:
+            self.modification_time = modification_time
+        else:
+            # TODO determine why this should not be done with MTP cameras
+            self.modification_time = datetime.utcfromtimestamp(modification_time).timestamp()
 
         # If a camera has more than one memory card, store a simple numeric
         # identifier to indicate which memory card it came from
@@ -470,7 +475,7 @@ class RPDFile:
         self.problem.add_extra_detail(extra_detail, *args)
 
     def __repr__(self):
-        return "{}\t{}".format(self.name, datetime.datetime.fromtimestamp(
+        return "{}\t{}".format(self.name, datetime.fromtimestamp(
             self.modification_time).strftime('%Y-%m-%d %H:%M:%S'))
 
 class Photo(RPDFile):
@@ -539,7 +544,7 @@ class SamplePhoto(Photo):
                        audio_file_full_name=None)
         self.sequences = sequences
         self.metadata = metadataphoto.DummyMetaData()
-        self.download_start_time = datetime.datetime.now()
+        self.download_start_time = datetime.now()
 
 class SampleVideo(Video):
     def __init__(self, sample_name='MVI_1379.MOV', sequences=None):
@@ -554,4 +559,4 @@ class SampleVideo(Video):
                        audio_file_full_name=None)
         self.sequences = sequences
         self.metadata = metadatavideo.DummyMetaData(sample_name, None)
-        self.download_start_time = datetime.datetime.now()
+        self.download_start_time = datetime.now()

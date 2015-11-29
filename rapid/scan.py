@@ -43,6 +43,7 @@ else:
     except ValueError:
         pass
     walk = os.walk
+from typing import List
 
 
 # Instances of classes ScanArguments and ScanPreferences are passed via pickle
@@ -83,11 +84,9 @@ class ScanWorker(WorkerInPublishPullPipeline):
         self.scan_preferences = scan_arguments.scan_preferences
 
         if scan_arguments.ignore_other_types:
-            rpdfile.PHOTO_EXTENSIONS_SCAN = \
-                rpdfile.PHOTO_EXTENSIONS_WITHOUT_OTHER
+            rpdfile.PHOTO_EXTENSIONS_SCAN = rpdfile.PHOTO_EXTENSIONS_WITHOUT_OTHER
 
-        self.download_from_camera = scan_arguments.device.device_type == \
-                                    DeviceType.camera
+        self.download_from_camera = scan_arguments.device.device_type == DeviceType.camera
         if self.download_from_camera:
             self.camera_model = scan_arguments.device.camera_model
             self.camera_port = scan_arguments.device.camera_port
@@ -146,16 +145,13 @@ class ScanWorker(WorkerInPublishPullPipeline):
                 for dcim_folder in dcim_folders:
                     logging.debug("Scanning %s on %s", dcim_folder,
                                   self.camera.model)
-                    folder_identifier = self._folder_identifiers.get(
-                        dcim_folder)
+                    folder_identifier = self._folder_identifiers.get(dcim_folder)
                     self.locate_files_on_camera(dcim_folder, folder_identifier)
 
-                for self.dir_name, self.file_name in \
-                        self._camera_folders_and_files:
+                for self.dir_name, self.file_name in self._camera_folders_and_files:
                     self.process_file()
             else:
-                logging.warning("Unable to detect any DCIM folders on %s",
-                                self.camera.model)
+                logging.warning("Unable to detect any DCIM folders on %s", self.camera.model)
 
             self.camera.free_camera()
 
@@ -166,14 +162,13 @@ class ScanWorker(WorkerInPublishPullPipeline):
                                         self.file_size_sum),
                                         pickle.HIGHEST_PROTOCOL)
             self.send_message_to_sink()
-        if self.files_scanned > 0 and not (self.files_scanned == 0 and
-                                                   self.download_from_camera):
+        if self.files_scanned > 0 and not (self.files_scanned == 0 and self.download_from_camera):
             logging.debug("{} total files scanned".format(
                 self.files_scanned))
 
         self.send_finished_command()
 
-    def locate_files_on_camera(self, path: str, folder_identifier: str):
+    def locate_files_on_camera(self, path: str, folder_identifier: int):
         """
         Scans the memory card(s) on the camera for photos, videos,
         audio files, and video thumbnail (THM) files. Looks only in the
@@ -213,8 +208,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
          the simple numeric identifier of the memory card being
          scanned right now
         """
-        for name, value in self.camera.camera.folder_list_files(path,
-                                                         self.camera.context):
+        for name, value in self.camera.camera.folder_list_files(path, self.camera.context):
             # Check to see if the process has received a command to terminate
             # or pause
             self.check_for_controller_directive()
@@ -228,20 +222,17 @@ class ScanWorker(WorkerInPublishPullPipeline):
             if file_type is not None:
                 # file is a photo or video
                 file_is_unique = True
-                modification_time, size = self.camera.get_file_info(
-                    path, name)
+                modification_time, size = self.camera.get_file_info(path, name)
 
                 # Store the directory this file is stored in, used when
                 # determining if associate files are part of the download
-                cf = CameraFile(name=name,
-                                modification_time=modification_time, size=size)
+                cf = CameraFile(name=name, modification_time=modification_time, size=size)
                 self._camera_directories_for_file[cf].append(path)
 
                 if folder_identifier is not None:
                     # Store which which card the file came from using a
                     # simple numeric identifier i.e. 1 or 2.
-                    self._folder_identifers_for_file[cf].append(
-                        folder_identifier)
+                    self._folder_identifers_for_file[cf].append(folder_identifier)
 
                 if name in self._camera_file_names:
                     for existing_file_info in self._camera_file_names[name]:
@@ -264,8 +255,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
                 if ext_lower in rpdfile.AUDIO_EXTENSIONS:
                     self._camera_audio_files[base_name].append((path, ext))
                 elif ext_lower in rpdfile.VIDEO_THUMBNAIL_EXTENSIONS:
-                    self._camera_video_thumbnails[base_name].append((path,
-                                                                     ext))
+                    self._camera_video_thumbnails[base_name].append((path, ext))
                 elif ext_lower == 'xmp':
                     self._camera_xmp_files[base_name].append((path, ext))
                 else:
@@ -273,16 +263,13 @@ class ScanWorker(WorkerInPublishPullPipeline):
                                   os.path.join(path, name), self.camera.model)
 
         folders = []
-        for name, value in self.camera.camera.folder_list_folders(path,
-                                                    self.camera.context):
-            if self.scan_preferences.scan_this_path(os.path.join(path,
-                                                                 name)):
+        for name, value in self.camera.camera.folder_list_folders(path, self.camera.context):
+            if self.scan_preferences.scan_this_path(os.path.join(path, name)):
                     folders.append(name)
 
         # recurse over subfolders
         for name in folders:
-            self.locate_files_on_camera(os.path.join(path, name),
-                                        folder_identifier)
+            self.locate_files_on_camera(os.path.join(path, name), folder_identifier)
 
 
     def process_file(self):
@@ -324,7 +311,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
                     modification_time = file_info.modification_time
                     size = file_info.size
                     camera_file = CameraFile(name=self.file_name,
-                               modification_time=modification_time,size=size)
+                               modification_time=modification_time, size=size)
                 else:
                     stat = os.stat(file)
                     size = stat.st_size
@@ -404,8 +391,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
                     os.path.join(path, base_name),ext)
         return None
 
-    def get_video_THM_file(self, base_name: str, camera_file: CameraFile) \
-                           -> str:
+    def get_video_THM_file(self, base_name: str, camera_file: CameraFile) -> str:
         """
         Checks to see if a thumbnail file (THM) with the same base name
         is in the same directory as the file.
@@ -418,8 +404,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
             return  self._get_associate_file_from_camera(base_name,
                      self._camera_video_thumbnails, camera_file)
         else:
-            return self._get_associated_file(
-                base_name, rpdfile.VIDEO_THUMBNAIL_EXTENSIONS)
+            return self._get_associated_file(base_name, rpdfile.VIDEO_THUMBNAIL_EXTENSIONS)
 
     def get_audio_file(self, base_name: str, camera_file: CameraFile) -> str:
         """
@@ -434,8 +419,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
             return  self._get_associate_file_from_camera(base_name,
                      self._camera_audio_files, camera_file)
         else:
-            return self._get_associated_file(
-                base_name, rpdfile.AUDIO_EXTENSIONS)
+            return self._get_associated_file(base_name, rpdfile.AUDIO_EXTENSIONS)
 
     def get_xmp_file(self, base_name: str, camera_file: CameraFile) -> str:
         """
@@ -451,8 +435,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
         else:
             return self._get_associated_file(base_name, ['XMP'])
 
-    def _get_associated_file(self, base_name: str, extensions_to_check:
-                             list) -> str:
+    def _get_associated_file(self, base_name: str, extensions_to_check: List[str]) -> str:
         full_file_name_no_ext = os.path.join(self.dir_name, base_name)
         for e in extensions_to_check:
             possible_file = '{}.{}'.format(full_file_name_no_ext, e)
