@@ -29,7 +29,7 @@ from typing import Optional, List, Tuple
 from PyQt5.QtGui import QImage
 
 import gphoto2 as gp
-
+from gi.repository import GExiv2
 from storage import StorageSpace
 
 
@@ -152,7 +152,7 @@ class Camera:
         else:
             return buffer
 
-    def get_exif_extract_from_jpeg_gphoto(self, folder: str, file_name: str) -> Optional[bytearray]:
+    def get_exif_extract_from_jpeg(self, folder: str, file_name: str) -> Optional[bytearray]:
 
         succeeded, camera_file = self._get_file(folder, file_name,None, gp.GP_FILE_TYPE_EXIF)
 
@@ -164,14 +164,13 @@ class Camera:
                 logging.error('Error getting exif info for %s from camera. Code: '
                               '%s', os.path.join(folder, file_name), ex.code)
             if exif_data:
-                data = memoryview(exif_data)
-                exif = data.tobytes()
-                return bytearray(exif)
+                return bytearray(exif_data)
             else:
                 return None
         return None
 
-    def get_exif_extract_from_jpeg(self, folder: str, file_name: str) -> Optional[bytearray]:
+    def get_exif_extract_from_jpeg_manually(self, folder: str,
+                                            file_name: str) -> Optional[bytearray]:
         """
         Extract exif section of a jpeg.
 
