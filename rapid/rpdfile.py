@@ -47,6 +47,8 @@ RAW_EXTENSIONS = ['arw', 'dcr', 'cr2', 'crw',  'dng', 'mos', 'mef', 'mrw',
 
 JPEG_EXTENSIONS = ['jpg', 'jpe', 'jpeg']
 
+JPEG_TYPE_EXTENSIONS = ['jpg', 'jpe', 'jpeg', 'mpo']
+
 OTHER_PHOTO_EXTENSIONS = ['tif', 'tiff', 'mpo']
 
 NON_RAW_IMAGE_EXTENSIONS = JPEG_EXTENSIONS + OTHER_PHOTO_EXTENSIONS
@@ -306,11 +308,7 @@ class RPDFile:
         assert size > 0
         self.size = size
 
-        if not from_camera:
-            self.modification_time = modification_time
-        else:
-            # TODO determine why this should not be done with MTP cameras
-            self.modification_time = datetime.utcfromtimestamp(modification_time).timestamp()
+        self.modification_time = modification_time
 
         # If a camera has more than one memory card, store a simple numeric
         # identifier to indicate which memory card it came from
@@ -380,6 +378,13 @@ class RPDFile:
         :return:True if the image is a jpeg image
         """
         return self.mime_type == 'image/jpeg'
+
+
+    def is_jpeg_type(self) -> bool:
+        """
+        :return:True if the image is a jpeg or MPO image
+        """
+        return self.mime_type == 'image/jpeg' or self.extension == 'mpo'
 
     def is_loadable(self) -> bool:
         """

@@ -111,7 +111,7 @@ class Camera:
         """
         return self.camera_initialized and self.dcim_folder_located
 
-    def get_file_info(self, folder, file_name) -> Tuple[float, int]:
+    def get_file_info(self, folder, file_name) -> Tuple[int, int]:
         """
         Returns modification time and file size
 
@@ -183,10 +183,13 @@ class Camera:
                 return None
         return None
 
-    def get_exif_extract_from_jpeg_manually(self, folder: str,
+    def get_exif_extract_from_jpeg_manual_parse(self, folder: str,
                                             file_name: str) -> Optional[bytearray]:
         """
         Extract exif section of a jpeg.
+
+        I wrote this before I understood that libpghoto2 provies the
+        same functionality!
 
         Reads first few bytes of jpeg on camera to determine the
         location and length of the exif header, then reads in the

@@ -140,6 +140,49 @@ class ExtractionProcessing(Enum):
     strip_bars_video = 4
 
 
+class GphotoMTime(Enum):
+    undetermined = 1
+    unknown = 2
+    is_utc = 3
+    is_local = 4
+
+orientation_offset = dict(
+    arw=106,
+    cr2=126,
+    dcr=7684,
+    dng=144,
+    mef=144,
+    mrw=152580,
+    nef=144,
+    nrw=94,
+    orf=132,
+    pef=118,
+    raf=208,
+    raw=742404,
+    rw2=1004548,
+    sr2=82,
+    srw=46
+)
+
+datetime_offset = dict(
+    arw=1540,
+    cr2=1028,
+    dng=119812,
+    mef=772,
+    mrw=152580,
+    nef=14340,
+    nrw=1540,
+    orf=6660,
+    pef=836,
+    raf=1796,
+    raw=964,
+    rw2=3844,
+    sr2=836,
+    srw=508
+)
+
+
+
 photo_rename_test = ['Date time','Image date','YYYYMMDD','Text','-','',
                     'Date time','Image date','HHMM','Text','-','','Sequences',
                     'Downloads today','One digit','Text','-iso','',

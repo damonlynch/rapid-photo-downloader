@@ -31,6 +31,7 @@ import os
 import pickle
 import logging
 from collections import (namedtuple, defaultdict)
+from datetime import datetime
 
 import platform
 v = platform.python_version_tuple()
@@ -45,6 +46,7 @@ else:
     walk = os.walk
 from typing import List
 
+from gi.repository import GExiv2
 
 # Instances of classes ScanArguments and ScanPreferences are passed via pickle
 # Thus do not remove these two imports
@@ -54,7 +56,7 @@ from interprocess import (WorkerInPublishPullPipeline, ScanResults,
                           ScanArguments)
 from camera import Camera
 import rpdfile
-from constants import (DeviceType, FileType)
+from constants import (DeviceType, FileType, GphotoMTime, datetime_offset)
 from rapidsql import DownloadedSQL, FileDownloaded
 
 FileInfo = namedtuple('FileInfo', ['path', 'modification_time', 'size',
@@ -76,6 +78,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
         self.batch_size = 20
         self.file_type_counter = rpdfile.FileTypeCounter()
         self.file_size_sum = 0
+        self.gphoto_mtime = GphotoMTime.undetermined
         super(ScanWorker, self).__init__('Scan')
 
 
@@ -224,6 +227,9 @@ class ScanWorker(WorkerInPublishPullPipeline):
                 file_is_unique = True
                 modification_time, size = self.camera.get_file_info(path, name)
 
+                if file_type == FileType.photo and self.gphoto_mtime == GphotoMTime.undetermined:
+                    self.set_gphoto_mtime_(path, name, ext_lower, modification_time, size)
+
                 # Store the directory this file is stored in, used when
                 # determining if associate files are part of the download
                 cf = CameraFile(name=name, modification_time=modification_time, size=size)
@@ -308,7 +314,11 @@ class ScanWorker(WorkerInPublishPullPipeline):
                 self.file_type_counter[file_type] += 1
 
                 if self.download_from_camera:
-                    modification_time = file_info.modification_time
+                    if self.gphoto_mtime == GphotoMTime.is_utc:
+                        modification_time = datetime.utcfromtimestamp(
+                            file_info.modification_time).timestamp()
+                    else:
+                        modification_time = file_info.modification_time
                     size = file_info.size
                     camera_file = CameraFile(name=self.file_name,
                                modification_time=modification_time, size=size)
@@ -382,6 +392,65 @@ class ScanWorker(WorkerInPublishPullPipeline):
                                                 pickle.HIGHEST_PROTOCOL)
                     self.send_message_to_sink()
                     self.file_batch = []
+
+    def set_gphoto_mtime_(self, path: str,
+                          name: str,
+                          extension: str,
+                          modification_time: int,
+                          size: int) -> None:
+        """
+        Determine how libgphoto2 reports modification time.
+
+        Gphoto2 can give surprising results for the file modification
+        time, such that it's off by exactly the time zone.
+        For example, if we're at UTC + 5, the time stamp is five hours
+        in advance of what is recorded on the memory card
+        """
+        metadata = None
+        if extension in rpdfile.JPEG_TYPE_EXTENSIONS:
+            raw_bytes = self.camera.get_exif_extract_from_jpeg(path, name)
+            if raw_bytes is not None:
+                metadata = GExiv2.Metadata()
+                try:
+                    metadata.from_app1_segment(raw_bytes)
+                except:
+                    logging.error("Scanner failed to load metadata from %s on %s", name,
+                                  self.camera.display_name)
+        else:
+            offset = datetime_offset.get(extension)
+            if offset is None:
+                offset = size
+            raw_bytes = self.camera.get_exif_extract_from_raw(path, name, offset)
+            if raw_bytes is not None:
+                metadata = GExiv2.Metadata()
+                try:
+                    metadata.open_buf(raw_bytes)
+                except:
+                    logging.error("Scanner failed to load metadata from %s on %s", name,
+                                  self.camera.display_name)
+        if metadata is not None:
+            dt = None
+            try:
+                dt = metadata.get_date_time() # type: datetime
+            except:
+                logging.error("Scanner failed to extract date time metadata from %s on %s",
+                              name, self.camera.display_name)
+                logging.warning("Could not determine gphoto timezone setting for %s",
+                                self.camera.display_name)
+                self.gphoto_mtime = GphotoMTime.unknown
+            else:
+                if datetime.utcfromtimestamp(modification_time) == dt:
+                    logging.debug("Gphoto timezone setting for %s is UTC",
+                                self.camera.display_name)
+                    self.gphoto_mtime = GphotoMTime.is_utc
+                else:
+                    logging.debug("Gphoto timezone setting for %s is local time",
+                                self.camera.display_name)
+                    self.gphoto_mtime = GphotoMTime.is_local
+        else:
+            logging.warning("Could not determine gphoto timezone setting for %s",
+                                self.camera.display_name)
+            self.gphoto_mtime = GphotoMTime.unknown
 
     def _get_associate_file_from_camera(self, base_name: str,
                 associate_files: defaultdict, camera_file: CameraFile) -> str:

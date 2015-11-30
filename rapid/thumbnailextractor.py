@@ -203,7 +203,7 @@ class ThumbnailExtractor(LoadBalancerWorker):
         if raw_bytes is not None:
             metadata = GExiv2.Metadata()
             try:
-                if rpd_file.is_jpeg():
+                if rpd_file.is_jpeg_type():
                     metadata.from_app1_segment(raw_bytes)
                 else:
                     metadata.open_buf(raw_bytes)

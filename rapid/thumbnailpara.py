@@ -51,7 +51,7 @@ from interprocess import (WorkerInPublishPullPipeline,
                           ThumbnailExtractorArgument)
 from constants import (FileType, ThumbnailSize, ThumbnailCacheStatus,
                        ThumbnailCacheDiskStatus, FileSortPriority, ExtractionTask,
-                       ExtractionProcessing)
+                       ExtractionProcessing, orientation_offset)
 from camera import (Camera, CopyChunks)
 from cache import ThumbnailCacheSql, FdoCacheNormal, FdoCacheLarge
 from utilities import (GenerateRandomFileName, create_temp_dir, CacheDirs)
@@ -175,24 +175,6 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
         cr2=260 * 1024,
         dng=504 * 1024,
         nef=400* 1024
-    )
-
-    orientation_offset = dict(
-        arw=106,
-        cr2=126,
-        dcr=7684,
-        dng=144,
-        mef=144,
-        mrw=152580,
-        nef=144,
-        nrw=94,
-        orf=132,
-        pef=118,
-        raf=208,
-        raw=742404,
-        rw2=1004548,
-        sr2=82,
-        srw=46
     )
 
     def __init__(self) -> None:
@@ -408,12 +390,16 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
                     if rpd_file.file_type == FileType.photo:
                         if self.camera.can_fetch_thumbnails:
                             task = ExtractionTask.load_from_bytes
-                            if rpd_file.is_jpeg():
+                            if rpd_file.is_jpeg_type():
                                 exif_buffer = self.camera.get_exif_extract_from_jpeg(
                                     rpd_file.path, rpd_file.name)
                             else:
-                                bytes_to_read = min(rpd_file.size,
-                                    self.orientation_offset.get(rpd_file.extension, 500))
+                                if rpd_file.extension == 'crw':
+                                    # TODO should be caching this file, since reading its entirety
+                                    bytes_to_read = rpd_file.size
+                                else:
+                                    bytes_to_read = min(rpd_file.size,
+                                        orientation_offset.get(rpd_file.extension, 500))
                                 exif_buffer = self.camera.get_exif_extract_from_raw(
                                     rpd_file.path, rpd_file.name, bytes_to_read)
                             thumbnail_bytes = self.camera.get_thumbnail(rpd_file.path,
