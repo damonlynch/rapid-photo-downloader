@@ -1784,11 +1784,13 @@ class RapidWindow(QMainWindow):
 
         self.temporalProximityModel.setGroup(proximity_groups)
         depth = proximity_groups.depth()
-        self.temporalProximityDelegate.setDepth(depth)
+        self.temporalProximityDelegate.depth = depth
         if depth == 1:
             self.temporalProximityView.hideColumn(0)
-        for column, row, span in proximity_groups.spans:
-            self.temporalProximityView.setSpan(row, column, span, 1)
+        self.temporalProximityDelegate.row_span_for_col0_starts_at = \
+            proximity_groups.row_span_for_col0_starts_at
+        for column, row, row_span in proximity_groups.spans:
+            self.temporalProximityView.setSpan(row, column, row_span, 1)
 
         self.temporalProximityModel.endResetModel()
 

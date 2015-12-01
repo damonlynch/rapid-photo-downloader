@@ -222,7 +222,7 @@ class ThumbnailExtractor(LoadBalancerWorker):
         return None
 
     def do_work(self):
-        if True:
+        if False:
             context = show_errors()
         else:
             # Redirect stderr, hiding error output from exiv2
@@ -234,8 +234,8 @@ class ThumbnailExtractor(LoadBalancerWorker):
                 #
                 data = pickle.loads(content) # type: ThumbnailExtractorArgument
 
-                logging.debug("%s is working on %s", self.requester.identity.decode(),
-                              data.rpd_file.name)
+                # logging.debug("%s is working on %s", self.requester.identity.decode(),
+                #               data.rpd_file.name)
 
                 png_data = None
                 orientation = None
@@ -251,8 +251,7 @@ class ThumbnailExtractor(LoadBalancerWorker):
                         orientation = thumbnail_details.orientation
 
                 elif task == ExtractionTask.load_file_directly:
-                    logging.debug("Getting QImage from file %s",
-                                  data.full_file_name_to_work_on)
+                    # logging.debug("Getting QImage from file %s", data.full_file_name_to_work_on)
                     thumbnail = QImage(data.full_file_name_to_work_on)
                     if ExtractionProcessing.orient in processing:
                         orientation = self.get_orientation(rpd_file=rpd_file,

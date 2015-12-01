@@ -23,6 +23,7 @@ import locale
 from datetime import datetime
 import logging
 import pickle
+import math
 
 import arrow.arrow
 
@@ -267,8 +268,8 @@ class TemporalProximityGroups:
                         self.rows.append(self.make_row(arrowtime, ''))
 
         # Phase 5: Determine the row spans for each column
-        column = 0
         self.spans = []
+        self.row_span_for_col0_starts_at = {}
         column = -1
         for c in (0, 2, 4):
             column += 1
@@ -279,10 +280,15 @@ class TemporalProximityGroups:
                     if row_count > 1:
                         self.spans.append((column, start_row, row_count))
                     start_row = row_index
-            if start_row != len(self.rows) - 1:
-                self.spans.append((column, start_row, len(self.rows) -
-                                   start_row))
+                if column == 0:
+                    self.row_span_for_col0_starts_at[row_index] = start_row
 
+            if start_row != len(self.rows) - 1:
+                self.spans.append((column, start_row, len(self.rows) - start_row))
+                for row_index in range(start_row, len(self.rows)):
+                    self.row_span_for_col0_starts_at[row_index] = start_row
+
+        assert len(self.row_span_for_col0_starts_at) == len(self.rows)
 
     def make_row(self, arrowtime: arrow.Arrow, text: str) -> ProximityRow:
         arrowmonth = arrowtime.floor('month')
@@ -422,9 +428,6 @@ class TemporalProximityDelegate(QStyledItemDelegate):
         self.proximity_metrics = QFontMetrics(self.proximity_font)
         self.proximity_sizes = {}
         self.col2_padding = 20
-
-    def setDepth(self, depth: int) -> None:
-        self.depth = depth
 
     def calculate_max_col1_size(self) -> None:
         day_width = 0
@@ -592,38 +595,81 @@ class TemporalProximityDelegate(QStyledItemDelegate):
         else:
             super().paint(painter, option, index)
 
-    def sizeHint(self, option, index) -> QSize:
+    def sizeHint(self, option: QStyleOptionViewItem, index: QModelIndex) -> QSize:
+
         column = index.column()
         if column == 0:
-            model = index.model()
-            year, month =  model.data(index)
-            # Don't return a cell size for empty cells that have been
-            # merged into the cell with content.
-            if not month:
-                return QSize(0,0)
+            cell_size = self.column0Size(index)
+            if cell_size.isNull():
+                return cell_size
             else:
+                model = index.model() # type: TemporalProximityModel
                 row = index.row()
-                month = self.getMonthText(month, year)
-                size = self.getMonthSize(row, month)
-                # Height and width are reversed because of the rotation
-                size.transpose()
-                return QSize(size.width() + self.col0_padding, size.height() +
-                             self.col0_padding)
+                span = self.parent().temporalProximityView.rowSpan(row,0)
+                if span == 1:
+                    return cell_size
+                else:
+                    #  The height of a particular row is calculated to
+                    # include the row heights of the spanned column as
+                    # if it were not spanned. The result is that other
+                    # cells in the same row can be too high.
+
+                    # Want max of col1_height and column 2 height
+                    col2_height = self.column2Size(model.index(row, 2)).height()
+                    return QSize(cell_size.width(), max(self.col1_height, col2_height))
         elif column == 1:
-            return QSize(self.col1_width, self.col1_height)
-        elif column == 2:
-            model = index.model()
-            text = model.data(index)
-            if not text:
-                return QSize(0,0)
+            row = index.row()
+            span = self.parent().temporalProximityView.rowSpan(row,0)
+            if span == 1:
+                return QSize(self.col1_width, self.col1_height)
             else:
-                row = index.row()
-                text = text.replace('\n', '\n\n')
-                size = self.getProximitySize(row, text)
-                return QSize(size.width() + self.col2_padding, size.height() +
-                             self.col2_padding)
+                # As above, the height of a particular row is calculated to
+                # include the row heights of the spanned column as
+                # if it were not spanned. The result is that other
+                # cells in the same row can be too high.
+
+                # Since we have manipulated the minimum height of
+                # column 0, we need to take into account situations
+                # where column 0 is taller than the contents of the
+                # rows it spans
+
+                # Need minimum height of column 0, divided by span
+                col0_row = self.row_span_for_col0_starts_at[row]
+                column0_height = self.column0Size(index.model().index(col0_row, 0)).height()
+                assert column0_height > 0
+                return QSize(self.col1_width, max(self.col1_height,
+                                                  math.ceil(column0_height / span)))
+        elif column == 2:
+            return self.column2Size(index)
         else:
             return super().sizeHint(option, index)
+
+    def column0Size(self, index) -> QSize:
+        model = index.model() # type: TemporalProximityModel
+        year, month =  model.data(index)
+        # Don't return a cell size for empty cells that have been
+        # merged into the cell with content.
+        if not month:
+            return QSize(0,0)
+        else:
+            row = index.row()
+            month = self.getMonthText(month, year)
+            size = self.getMonthSize(row, month)
+            # Height and width are reversed because of the rotation
+            size.transpose()
+
+            return QSize(size.width() + self.col0_padding, size.height() + self.col0_padding)
+
+    def column2Size(self, index) -> QSize:
+        model = index.model()
+        text = model.data(index)
+        if not text:
+            return QSize(0,0)
+        else:
+            row = index.row()
+            text = text.replace('\n', '\n\n')
+            size = self.getProximitySize(row, text)
+            return QSize(size.width() + self.col2_padding, size.height() + self.col2_padding)
 
 
 class TemporalProximityView(QTableView):
@@ -645,4 +691,5 @@ class TemporalProximityView(QTableView):
             w += self.columnWidth(i)
         h = 100
         return QSize(w, h)
+
 

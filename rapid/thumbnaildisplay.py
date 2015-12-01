@@ -647,7 +647,7 @@ class ThumbnailTableModel(QAbstractTableModel):
 
 
 class ThumbnailView(QListView):
-    def __init__(self):
+    def __init__(self) -> None:
         style = """
         QListView {
         background-color:#555555; padding-left: 4px; padding-top: 4px;
@@ -662,7 +662,7 @@ class ThumbnailView(QListView):
 
 
 class ThumbnailDelegate(QStyledItemDelegate):
-    def __init__(self, parent=None):
+    def __init__(self, parent=None) -> None:
         super().__init__(parent)
 
         self.checkboxStyleOption = QStyleOptionButton()
@@ -710,13 +710,13 @@ class ThumbnailDelegate(QStyledItemDelegate):
         # store the index in which the user right clicked
         self.clickedIndex = None
 
-    def doCopyPathAction(self):
+    def doCopyPathAction(self) -> None:
         index = self.clickedIndex
         if index:
             path = index.model().data(index, Roles.path)
             QApplication.clipboard().setText(path)
 
-    def doOpenInFileBrowserAct(self):
+    def doOpenInFileBrowserAct(self) -> None:
         index = self.clickedIndex
         if index:
             uri = index.model().data(index, Roles.uri)
@@ -725,8 +725,7 @@ class ThumbnailDelegate(QStyledItemDelegate):
             args = shlex.split(cmd)
             subprocess.Popen(args)
 
-    def paint(self, painter: QPainter, option: QStyleOptionViewItem,
-              index:  QModelIndex):
+    def paint(self, painter: QPainter, option: QStyleOptionViewItem, index: QModelIndex) -> None:
         if index.column() == 0:
 
             # Save state of painter, restore on function exit
@@ -806,8 +805,7 @@ class ThumbnailDelegate(QStyledItemDelegate):
             painter.setFont(font)
             metrics = QFontMetrics(font)
             extBoundingRect = metrics.boundingRect(extension).marginsAdded(
-                QMargins(text_padding, 0, text_padding, text_padding))
-            """:type : QRect"""
+                QMargins(text_padding, 0, text_padding, text_padding)) # type: QRect
             text_width = metrics.width(extension)
             text_height = metrics.height()
             text_x = self.width - self.horizontal_margin - text_width - \
@@ -914,11 +912,11 @@ class ThumbnailDelegate(QStyledItemDelegate):
 
             painter.restore()
 
-    def sizeHint(self, option, index):
+    def sizeHint(self, option: QStyleOptionViewItem, index:  QModelIndex) -> QSize:
         return QSize(self.width + self.padding * 2, self.height
                      + self.padding * 2)
 
-    def editorEvent(self, event, model, option, index):
+    def editorEvent(self, event, model, option, index) -> bool:
         '''
         Change the data in the model and the state of the checkbox
         if the user presses the left mousebutton or presses
@@ -957,7 +955,7 @@ class ThumbnailDelegate(QStyledItemDelegate):
         self.setModelData(None, model, index)
         return True
 
-    def setModelData (self, editor, model, index):
+    def setModelData (self, editor, model, index) -> None:
         '''
         The user wanted to change the old state in the opposite.
         '''
@@ -966,10 +964,10 @@ class ThumbnailDelegate(QStyledItemDelegate):
         model.setData(index, newValue, Qt.CheckStateRole)
 
 
-    def getLeftPoint(self, option):
+    def getLeftPoint(self, option) -> QPoint:
         return QPoint(option.rect.x() + self.horizontal_margin,
                                option.rect.y() + self.image_frame_bottom +
                                self.footer_padding )
 
-    def getCheckBoxRect(self, option):
+    def getCheckBoxRect(self, option) -> QRect:
         return QRect(self.getLeftPoint(option), self.checkboxRect.size())
