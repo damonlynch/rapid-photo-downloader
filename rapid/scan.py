@@ -28,6 +28,7 @@ Returns results using the 0mq pipeline pattern.
 """
 
 import os
+import sys
 import pickle
 import logging
 from collections import (namedtuple, defaultdict)
@@ -58,6 +59,7 @@ from camera import Camera
 import rpdfile
 from constants import (DeviceType, FileType, GphotoMTime, datetime_offset)
 from rapidsql import DownloadedSQL, FileDownloaded
+from utilities import stdchannel_redirected
 
 FileInfo = namedtuple('FileInfo', ['path', 'modification_time', 'size',
                                    'ext_lower', 'base_name', 'file_type'])
@@ -412,7 +414,8 @@ class ScanWorker(WorkerInPublishPullPipeline):
             if raw_bytes is not None:
                 metadata = GExiv2.Metadata()
                 try:
-                    metadata.from_app1_segment(raw_bytes)
+                    with stdchannel_redirected(sys.stderr, os.devnull):
+                        metadata.from_app1_segment(raw_bytes)
                 except:
                     logging.error("Scanner failed to load metadata from %s on %s", name,
                                   self.camera.display_name)
@@ -424,7 +427,8 @@ class ScanWorker(WorkerInPublishPullPipeline):
             if raw_bytes is not None:
                 metadata = GExiv2.Metadata()
                 try:
-                    metadata.open_buf(raw_bytes)
+                    with stdchannel_redirected(sys.stderr, os.devnull):
+                        metadata.open_buf(raw_bytes)
                 except:
                     logging.error("Scanner failed to load metadata from %s on %s", name,
                                   self.camera.display_name)

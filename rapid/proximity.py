@@ -285,8 +285,9 @@ class TemporalProximityGroups:
 
             if start_row != len(self.rows) - 1:
                 self.spans.append((column, start_row, len(self.rows) - start_row))
-                for row_index in range(start_row, len(self.rows)):
-                    self.row_span_for_col0_starts_at[row_index] = start_row
+                if column == 0:
+                    for row_index in range(start_row, len(self.rows)):
+                        self.row_span_for_col0_starts_at[row_index] = start_row
 
         assert len(self.row_span_for_col0_starts_at) == len(self.rows)
 
