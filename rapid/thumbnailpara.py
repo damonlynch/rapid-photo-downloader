@@ -56,7 +56,7 @@ from camera import (Camera, CopyChunks)
 from cache import ThumbnailCacheSql, FdoCacheNormal, FdoCacheLarge
 from utilities import (GenerateRandomFileName, create_temp_dir, CacheDirs)
 from preferences import Preferences
-from rapidsql import FileFormatSQL
+from rpdsql import FileFormatSQL
 
 # FIXME free camera in case of early termination
 

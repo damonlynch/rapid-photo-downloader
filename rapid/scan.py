@@ -58,7 +58,7 @@ from interprocess import (WorkerInPublishPullPipeline, ScanResults,
 from camera import Camera
 import rpdfile
 from constants import (DeviceType, FileType, GphotoMTime, datetime_offset)
-from rapidsql import DownloadedSQL, FileDownloaded
+from rpdsql import DownloadedSQL, FileDownloaded
 from utilities import stdchannel_redirected
 
 FileInfo = namedtuple('FileInfo', ['path', 'modification_time', 'size',

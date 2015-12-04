@@ -443,7 +443,6 @@ class RPDFile:
                 if not gnomify_output:
                     prefix = 'gphoto2://'
                 else:
-                    # TODO update to use results of MTP udev query
                     # Attempt to generate a URI accepted by Gnome
                     if self.is_mtp_device:
                         prefix = 'mtp://'+ pathname2url('[{}]/Internal storage'.format(

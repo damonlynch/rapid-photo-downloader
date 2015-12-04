@@ -63,7 +63,7 @@ from PyQt5.QtGui import QImage
 from storage import get_program_cache_directory, get_fdo_cache_thumb_base_directory
 from utilities import GenerateRandomFileName
 from constants import ThumbnailCacheDiskStatus
-from rapidsql import CacheSQL
+from rpdsql import CacheSQL
 
 logging.basicConfig(format='%(levelname)s:%(asctime)s:%(message)s',
                     datefmt='%H:%M:%S',

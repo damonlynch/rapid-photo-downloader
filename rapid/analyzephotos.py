@@ -52,7 +52,7 @@ from gi.repository import GExiv2
 
 from photoattributes import PhotoAttributes, vmtouch_output, PreviewSource
 from utilities import stdchannel_redirected, show_errors, confirm
-from rapidsql import FileFormatSQL
+from rpdsql import FileFormatSQL
 
 try:
     import pyprind
