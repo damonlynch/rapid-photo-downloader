@@ -52,7 +52,7 @@ import time
 import subprocess
 import shlex
 from collections import namedtuple
-from typing import Optional, Tuple
+from typing import Optional, Tuple, List
 
 from PyQt5.QtCore import (QStorageInfo, QObject, pyqtSignal)
 from gi.repository import GUdev, UDisks, GLib
@@ -539,7 +539,7 @@ class UDisks2Monitor(QObject):
                 timeout -= 1
         return ''
 
-    def get_icon_names(self, obj: UDisks.Object):
+    def get_icon_names(self, obj: UDisks.Object) -> List[str]:
         # Get icon information, if possible
         icon_names = []
         if have_gio:
@@ -550,7 +550,7 @@ class UDisks2Monitor(QObject):
         return icon_names
 
     # Next three class member functions from Damon Lynch, not Canonical
-    def _device_removed(self, obj: UDisks.Object):
+    def _device_removed(self, obj: UDisks.Object) -> None:
         # path here refers to the udev / udisks path, not the mount point
         path = obj.get_object_path()
         if path in self.known_mounts:
@@ -558,22 +558,22 @@ class UDisks2Monitor(QObject):
             del self.known_mounts[path]
             self.partitionUnmounted.emit(mount_point)
 
-    def get_can_eject(self, obj: UDisks.Object):
+    def get_can_eject(self, obj: UDisks.Object) -> bool:
         block = obj.get_block()
         drive = self._get_drive(block)
         if drive is not None:
             return drive.get_property('ejectable')
         return False
 
-    def get_device_props(self, device_path: str):
+    def get_device_props(self, device_path: str) -> Tuple[List[str], bool]:
         """
         Given a device, get the icon names suggested by udev, and
         determine whether the mount is ejectable or not.
         :param device_path: system path of the device to check,
         e.g. /dev/sdc1
         :return: icon names and eject boolean
-        :rtype Tuple[str, bool]
         """
+
         object_path = '/org/freedesktop/UDisks2/block_devices/{}'.format(
             os.path.split(device_path)[1])
         obj = self.udisks.get_object(object_path)
@@ -758,22 +758,22 @@ if have_gio:
                 logging.debug("GIO: %s might be a camera", volume.get_name())
                 self.cameraPossiblyRemoved.emit()
 
-        def getIconNames(self, mount: Gio.Mount):
+        def getIconNames(self, mount: Gio.Mount) -> List[str]:
             icon_names = []
             icon = mount.get_icon()
             if isinstance(icon, Gio.ThemedIcon):
                 icon_names = icon.get_names()
             return icon_names
 
-        def getProps(self, path: str):
+        def getProps(self, path: str) -> Optional[Tuple[List[str], bool]]:
             """
             Given a mount's path, get the icon names suggested by the
             volume monitor, and determine whether the mount is
             ejectable or not.
             :param path: the path of mount to check
             :return: icon names and eject boolean
-            :rtype Tuple[str, bool]
             """
+
             for mount in self.vm.get_mounts():
                 root = mount.get_root()
                 if root is not None:

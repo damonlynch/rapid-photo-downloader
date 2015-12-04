@@ -8,5 +8,7 @@
 <file alias="downloaded-with-error.png">images/rapid-photo-downloader-downloaded-with-error.png</file>
 <file alias="downloaded-with-warning.png">images/rapid-photo-downloader-downloaded-with-warning.png</file>
 <file alias="audio.png">images/audio.png</file>
+<file alias="icons/camera.svg">images/camera-photo-symbolic.svg</file>
+<file alias="icons/folder.svg">images/folder-symbolic.svg</file>
 </qresource>
 </RCC>

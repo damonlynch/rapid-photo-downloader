@@ -37,7 +37,7 @@ import inspect
 from collections import namedtuple
 import platform
 import argparse
-from typing import Optional
+from typing import Optional, Tuple, List
 
 from gettext import gettext as _
 from gi.repository import Notify
@@ -608,8 +608,11 @@ class RapidWindow(QMainWindow):
 
             self.backup_manager_started = True
 
-    def updateSourceButton(self):
-        self.sourceButton.setText(self.devices.get_main_window_display_name())
+    def updateSourceButton(self) -> None:
+        text, icon = self.devices.get_main_window_display_name_and_icon()
+        self.sourceButton.setText(text)
+        self.sourceButton.setIcon(icon)
+        self.sourceButton.setIconSize(QSize(self.top_row_icon_size, self.top_row_icon_size))
 
     def createActions(self):
         self.downloadAct = QAction(_("&Download"), self,
@@ -683,15 +686,17 @@ class RapidWindow(QMainWindow):
         self.sourceButton.setCheckable(True)
         self.sourceButton.setFlat(True)
         font = self.sourceButton.font() # type: QFont
-        font.setPointSize(font.pointSize() + 8)
+        self.top_row_font_size = font.pointSize() + 8
+        self.top_row_icon_size = self.top_row_font_size + 10
+        font.setPointSize(self.top_row_font_size)
         self.sourceButton.setFont(font)
 
         self.destinationButton = QPushButton(_('Destination'))
         self.destinationButton.setSizePolicy(QSizePolicy.Maximum,
                                              QSizePolicy.Maximum)
         self.destinationButton.setCheckable(True)
-
-
+        self.destinationButton.setIcon(QIcon(':/icons/folder.svg'))
+        self.destinationButton.setIconSize(QSize(self.top_row_icon_size, self.top_row_icon_size))
 
         topBar.addWidget(self.sourceButton)
         topBar.addWidget(self.destinationButton, 0, Qt.AlignRight)
@@ -1877,32 +1882,7 @@ class RapidWindow(QMainWindow):
 
         event.accept()
 
-
-    def getDeviceIcon(self, device: Device) -> QIcon:
-        """
-        Return Qt icon for the device
-        :param device: the device from which to get the icon
-        :return: QIcon for the device, or None if it's not possible to
-         get the icon (which should be extremely rare!)
-        """
-        if device.device_type == DeviceType.volume:
-            icon = None
-            if device.icon_name is not None:
-                icon = QIcon.fromTheme(device.icon_name)
-            if icon is not None:
-                return icon
-            else:
-                return QFileIconProvider().icon(QFileIconProvider.Drive)
-        elif device.device_type == DeviceType.path:
-            return QIcon.fromTheme(device.icon_name)
-        else:
-            assert device.device_type == DeviceType.camera
-            if device.icon_name is not None:
-                return QIcon.fromTheme(device.icon_name)
-            else:
-                return None
-
-    def getIconsAndEjectableForMount(self, mount: QStorageInfo) -> tuple:
+    def getIconsAndEjectableForMount(self, mount: QStorageInfo) -> Tuple[List[str], bool]:
         """
         Given a mount, get the icon names suggested by udev or
         GVFS, and  determine whether the mount is ejectable or not.
@@ -1921,13 +1901,12 @@ class RapidWindow(QMainWindow):
         return (iconNames, canEject)
 
     def addToDeviceDisplay(self, device: Device, scan_id: int) -> None:
-        deviceIcon = self.getDeviceIcon(device)
+        deviceIcon = device.get_icon()
         if device.can_eject:
             ejectIcon = QIcon.fromTheme('media-eject')
         else:
             ejectIcon = None
-        self.deviceModel.addDevice(scan_id, deviceIcon, device.name(),
-                                   ejectIcon)
+        self.deviceModel.addDevice(scan_id, deviceIcon, device.name(), ejectIcon)
         self.deviceView.resizeColumns()
         self.deviceView.resizeRowsToContents()
         self.resizeDeviceView()

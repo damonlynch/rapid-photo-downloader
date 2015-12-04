@@ -25,7 +25,7 @@ from gettext import gettext as _
 from PyQt5.QtCore import (QAbstractTableModel, QModelIndex, QSize, Qt)
 from PyQt5.QtWidgets import (QTableView, QStyledItemDelegate,
                              QStyleOptionViewItem, QStyleOptionProgressBar,
-                             QApplication, QStyle, QAbstractItemView)
+                             QApplication, QStyle, QAbstractItemView, QWidget)
 from PyQt5.QtGui import (QPixmap, QPainter, QIcon)
 
 from viewutils import RowTracker
@@ -34,6 +34,18 @@ from constants import DeviceState
 DeviceRow = namedtuple('DeviceRow', ['icon', 'name', 'ejection'])
 DEVICE, SIZE, TEXT = range(3)
 
+
+class DeviceWidget(QWidget):
+
+    def __init__(self):
+        super().__init__()
+
+    def paintEvent(self, e):
+      
+        painter = QPainter()
+        painter.begin(self)
+        painter.end()
+          
 
 class DeviceTableModel(QAbstractTableModel):
     def __init__(self, parent):
@@ -69,8 +81,8 @@ class DeviceTableModel(QAbstractTableModel):
         self.endRemoveRows()
         return True
 
-    def addDevice(self, scan_id: int, deviceIcon: QPixmap, deviceName: str,
-                  ejectIcon: QPixmap):
+    def addDevice(self, scan_id: int, deviceIcon: QIcon, deviceName: str,
+                  ejectIcon: QPixmap) -> None:
         row = self.rowCount()
         self.insertRow(row)
 

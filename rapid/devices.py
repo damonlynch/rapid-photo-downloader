@@ -22,12 +22,14 @@ import shutil
 import os
 import logging
 from collections import namedtuple, Counter
+from typing import Tuple
 
 from gettext import gettext as _
 
 from PyQt5.QtCore import QStorageInfo
 from PyQt5.QtWidgets import QFileIconProvider
 from PyQt5.QtGui import QIcon
+import qrc_resources
 
 from constants import DeviceType, BackupLocationType, FileType
 from rpdfile import FileTypeCounter
@@ -210,6 +212,27 @@ class Device:
         else:
             return self.path
 
+    def get_icon(self) -> QIcon:
+        """Return icon for the device."""
+
+        if self.device_type == DeviceType.volume:
+            icon = None
+            if self.icon_name is not None:
+                icon = QIcon.fromTheme(self.icon_name)
+            if icon is not None:
+                return icon
+            else:
+                return QFileIconProvider().icon(QFileIconProvider.Drive)
+        elif self.device_type == DeviceType.path:
+            return QIcon(':/icons/folder.svg')
+        else:
+            assert self.device_type == DeviceType.camera
+            return QIcon(':/icons/camera.svg')
+            # if self.icon_name is not None:
+            #     return QIcon.fromTheme(self.icon_name)
+            # else:
+            #     return None
+
     def _delete_cache_dir(self, cache_dir):
         if cache_dir is not None:
             if os.path.isdir(cache_dir):
@@ -276,7 +299,7 @@ class DeviceCollection:
     >>> dc.delete_device(e)
     False
     """
-    def __init__(self):
+    def __init__(self) -> None:
         self.devices = {} # type Dict[int, Device]
         self.cameras = {} # type Dict[str, str]
         self.scan_counter = 0
@@ -323,7 +346,7 @@ class DeviceCollection:
                 return scan_id
         return None
 
-    def scan_id_from_camera_model_port(self, model: str, port: str):
+    def scan_id_from_camera_model_port(self, model: str, port: str) -> int:
         camera = Device()
         camera.set_download_from_camera(model, port,
                                         get_camera_attributes=False)
@@ -343,7 +366,7 @@ class DeviceCollection:
                 return True
         return False
 
-    def delete_cache_dirs(self):
+    def delete_cache_dirs(self) -> None:
         """
         Delete all Download Caches and their contents any devices might have
         """
@@ -351,8 +374,7 @@ class DeviceCollection:
             device.delete_cache_dirs()
 
     def __delitem__(self, scan_id):
-        d = self.devices[scan_id]
-        """ :type : Device"""
+        d = self.devices[scan_id] # type: Device
         if d.device_type == DeviceType.camera:
             del self.cameras[d.camera_port]
         d.delete_cache_dirs()
@@ -370,31 +392,32 @@ class DeviceCollection:
     def __iter__(self):
         return iter(self.devices)
 
-    def get_main_window_display_name(self) -> str:
+    def get_main_window_display_name_and_icon(self) -> Tuple[str, QIcon]:
         """
         Generate the name to display at the top left of the main
         window, indicating the source of the files
         :return: string to display
         """
-        #TODO update once device selection code is written
+
         if not len(self):
-            return _('Select Source')
+            return _('Select Source'), QIcon(':/folder.svg')
         elif len(self) == 1:
-            return list(self.devices.values())[0].display_name
+            device =list(self.devices.values())[0]
+            return device.display_name, device.get_icon()
         else:
-            device_types = Counter(d.device_type for d in
-                                   self.devices.values())
+            device_types = Counter(d.device_type for d in self.devices.values())
             assert len(device_types)
             if len(device_types) == 1:
                 device_type = list(device_types)[0]
                 if device_type == DeviceType.camera:
                     # Number of cameras e.g. 2 Cameras
-                    return _('%(no_cameras)s Cameras') % {'no_cameras':
-                             device_types[DeviceType.camera]}
+                    text = _('%(no_cameras)s Cameras') % {'no_cameras':
+                                                              device_types[DeviceType.camera]}
+                    return text, QIcon(':/camera-photo.svg')
             # Mixed devices (e.g. cameras, card readers), or only external
             # volumes
-            return _('%(no_devices)s Devices') % {'no_devices':
-                     device_types[DeviceType.volume]}
+            return _('%(no_devices)s Devices') % {'no_devices': device_types[DeviceType.volume]}, \
+                   QIcon(':/folder.svg')
 
 
 BackupDevice = namedtuple('BackupDevice', ['mount', 'backup_type'])
