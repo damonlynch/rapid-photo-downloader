@@ -95,7 +95,7 @@ from devicedisplay import (DeviceTableModel, DeviceView, DeviceDelegate)
 from proximity import (TemporalProximityModel, TemporalProximityView,
                        TemporalProximityDelegate, TemporalProximityGroups)
 from utilities import (same_file_system, make_internationalized_list,
-                       human_readable_version, thousands)
+                       human_readable_version, thousands, addPushButtonLabelSpacer)
 from rpdfile import (RPDFile, file_types_by_number, PHOTO_EXTENSIONS,
                      VIDEO_EXTENSIONS, FileTypeCounter, OTHER_PHOTO_EXTENSIONS)
 import downloadtracker
@@ -610,7 +610,7 @@ class RapidWindow(QMainWindow):
 
     def updateSourceButton(self) -> None:
         text, icon = self.devices.get_main_window_display_name_and_icon()
-        self.sourceButton.setText(text)
+        self.sourceButton.setText(addPushButtonLabelSpacer(text))
         self.sourceButton.setIcon(icon)
         self.sourceButton.setIconSize(QSize(self.top_row_icon_size, self.top_row_icon_size))
 
@@ -674,13 +674,13 @@ class RapidWindow(QMainWindow):
 
 
 
-    def createLayoutAndButtons(self, centralWidget):
 
+    def createLayoutAndButtons(self, centralWidget):
 
         verticalLayout = QVBoxLayout()
 
         topBar = QHBoxLayout()
-        self.sourceButton = QPushButton(_('Select Source'))
+        self.sourceButton = QPushButton(addPushButtonLabelSpacer(_('Select Source')))
         self.sourceButton.setSizePolicy(QSizePolicy.Maximum,
                                         QSizePolicy.Maximum)
         self.sourceButton.setCheckable(True)
@@ -691,7 +691,7 @@ class RapidWindow(QMainWindow):
         font.setPointSize(self.top_row_font_size)
         self.sourceButton.setFont(font)
 
-        self.destinationButton = QPushButton(_('Destination'))
+        self.destinationButton = QPushButton(addPushButtonLabelSpacer(_('Destination')))
         self.destinationButton.setSizePolicy(QSizePolicy.Maximum,
                                              QSizePolicy.Maximum)
         self.destinationButton.setCheckable(True)

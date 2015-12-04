@@ -329,6 +329,23 @@ def get_default_file_manager(remove_args=True) -> str:
     else:
         return fm
 
+def is_mtp_device(devname: str) -> bool:
+    """
+    Query udev to see if device is an MTP device.
+
+    :param devname: udev DEVNAME e.g. '/dev/bus/usb/001/003'
+    :return True if udev property ID_MTP_DEVICE == '1', else False
+    """
+
+    client = GUdev.Client(subsystems=['usb', 'block'])
+    enumerator = GUdev.Enumerator.new(client)
+    enumerator.add_match_property('DEVNAME', devname)
+    for device in enumerator.execute():
+        model = device.get_property('ID_MODEL')
+        if model is not None:
+            return device.get_property('ID_MTP_DEVICE') == '1'
+    return False
+
 class CameraHotplug(QObject):
     cameraAdded = pyqtSignal()
     cameraRemoved = pyqtSignal()
@@ -355,15 +372,14 @@ class CameraHotplug(QObject):
                 path = device.get_sysfs_path()
                 self.cameras[path] = model
 
-    def ueventCallback(self, client: GUdev.Client, action: str,
-                       device: GUdev.Device):
+    def ueventCallback(self, client: GUdev.Client, action: str, device: GUdev.Device) -> None:
 
         # for key in device.get_property_keys():
         #     print(key, device.get_property(key))
         if device.get_property('ID_GPHOTO2') == '1':
             self.camera(action, device)
 
-    def camera(self, action: str, device: GUdev.Device):
+    def camera(self, action: str, device: GUdev.Device) -> None:
         # For some reason, the add and remove camera event is triggered twice.
         # The second time the device information is a variation on information
         # from the first time.
@@ -412,11 +428,11 @@ class UDisks2Monitor(QObject):
     '/org/freedesktop/UDisks2/block_devices/zram',
     )
 
-    def __init__(self, validMounts: ValidMounts):
-        super(UDisks2Monitor, self).__init__()
+    def __init__(self, validMounts: ValidMounts) -> None:
+        super().__init__()
         self.validMounts = validMounts
 
-    def startMonitor(self):
+    def startMonitor(self) -> None:
         self.udisks = UDisks.Client.new_sync(None)
         self.manager = self.udisks.get_object_manager()
         self.manager.connect('object-added',
@@ -436,7 +452,7 @@ class UDisks2Monitor(QObject):
                 if mount_points:
                     self.known_mounts[path] = mount_points[0]
 
-    def _udisks_obj_added(self, obj):
+    def _udisks_obj_added(self, obj) -> None:
         path = obj.get_object_path()
         for boring in self.not_interesting:
             if path.startswith(boring):
@@ -455,14 +471,14 @@ class UDisks2Monitor(QObject):
             if part:
                 self._udisks_partition_added(obj, block, drive, path)
 
-    def _get_drive(self, block):
+    def _get_drive(self, block) -> Optional[UDisks.Drive]:
         drive_name = block.get_cached_property('Drive').get_string()
         if drive_name != '/':
             return self.udisks.get_object(drive_name).get_drive()
         else:
             return None
 
-    def _udisks_partition_added(self, obj, block, drive, path):
+    def _udisks_partition_added(self, obj, block, drive, path) -> None:
         logging.debug('UDisks: partition added: %s' % path)
         fstype = block.get_cached_property('IdType').get_string()
         logging.debug('Udisks: id-type: %s' % fstype)
@@ -486,11 +502,9 @@ class UDisks2Monitor(QObject):
                     if not mount_point:
                         raise
                     else:
-                        logging.debug("UDisks: successfully mounted at %s",
-                                      mount_point)
+                        logging.debug("UDisks: successfully mounted at %s", mount_point)
                 except:
-                    logging.error('UDisks: could not mount the device: %s' %
-                                  path)
+                    logging.error('UDisks: could not mount the device: %s', path)
                     return
             else:
                 mount_point = mount_points[0]
@@ -503,7 +517,7 @@ class UDisks2Monitor(QObject):
         else:
             logging.debug("Udisks: partition has no file system %s", path)
 
-    def retry_mount(self, fs, fstype):
+    def retry_mount(self, fs, fstype) -> str:
         # Variant paramater construction Copyright Bernard Baeyens, and is
         # licensed under GNU General Public License Version 2 or higher.
         # https://github.com/berbae/udisksvm
@@ -694,9 +708,7 @@ if have_gio:
             if root is not None:
                 path = root.get_path()
                 if path:
-                    logging.debug("GIO: Looking for camera at mount {}"
-                                  "".format(
-                        path))
+                    logging.debug("GIO: Looking for camera at mount {}".format(path))
                     folder_name = os.path.split(path)[1]
                     for s in ('gphoto2:host=', 'mtp:host='):
                         if folder_name.startswith(s):
@@ -763,6 +775,7 @@ if have_gio:
             icon = mount.get_icon()
             if isinstance(icon, Gio.ThemedIcon):
                 icon_names = icon.get_names()
+
             return icon_names
 
         def getProps(self, path: str) -> Optional[Tuple[List[str], bool]]:

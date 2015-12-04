@@ -22,6 +22,7 @@ import shutil
 import os
 import logging
 from collections import namedtuple, Counter
+import re
 from typing import Tuple
 
 from gettext import gettext as _
@@ -33,7 +34,7 @@ import qrc_resources
 
 from constants import DeviceType, BackupLocationType, FileType
 from rpdfile import FileTypeCounter
-from storage import StorageSpace
+from storage import StorageSpace, is_mtp_device
 import camera
 
 logging.basicConfig(format='%(levelname)s:%(asctime)s:%(message)s',
@@ -87,6 +88,8 @@ class Device:
     def clear(self):
         self.camera_model = None
         self.camera_port = None
+        # Assume an MTP device is likely a smart phone or tablet
+        self.is_mtp_device = False
         self.no_storage_media = None
         self.storage_space = []
         self.path = None
@@ -142,13 +145,23 @@ class Device:
         self.camera_model = camera_model
         self.camera_port = camera_port
         self.icon_name = self._get_valid_icon_name(('camera-photo', 'camera'))
+
         if get_camera_attributes:
-            c =  camera.Camera(camera_model, camera_port,
-                                          get_folders=False)
+            c =  camera.Camera(camera_model, camera_port, get_folders=False)
             self.display_name = c.display_name
             self.no_storage_media = c.no_storage_media()
             for idx in range(self.no_storage_media):
                 self.storage_space.append(c.get_storage_media_capacity(idx))
+
+            # Generate udev DEVNAME
+            match = re.match('usb:([0-9]+),([0-9]+)', self.camera_port)
+            if match is not None:
+                p1, p2 = match.groups()
+                devname = '/dev/bus/usb/{}/{}'.format(p1, p2)
+                self.is_mtp_device = is_mtp_device(devname)
+            else:
+                logging.error("Could not determine port values for %s %s", self.camera_model,
+                              camera_port)
         else:
             self.display_name = camera_model
 
@@ -227,11 +240,12 @@ class Device:
             return QIcon(':/icons/folder.svg')
         else:
             assert self.device_type == DeviceType.camera
+            if self.is_mtp_device:
+                if self.camera_model.lower().find('tablet') >= 0:
+                    #TODO use tablet icon
+                    pass
+                return QIcon(':icons/smartphone.svg')
             return QIcon(':/icons/camera.svg')
-            # if self.icon_name is not None:
-            #     return QIcon.fromTheme(self.icon_name)
-            # else:
-            #     return None
 
     def _delete_cache_dir(self, cache_dir):
         if cache_dir is not None:
@@ -413,7 +427,7 @@ class DeviceCollection:
                     # Number of cameras e.g. 2 Cameras
                     text = _('%(no_cameras)s Cameras') % {'no_cameras':
                                                               device_types[DeviceType.camera]}
-                    return text, QIcon(':/camera-photo.svg')
+                    return text, QIcon(':/camera.svg')
             # Mixed devices (e.g. cameras, card readers), or only external
             # volumes
             return _('%(no_devices)s Devices') % {'no_devices': device_types[DeviceType.volume]}, \

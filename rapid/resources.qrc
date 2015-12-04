@@ -10,5 +10,6 @@
 <file alias="audio.png">images/audio.png</file>
 <file alias="icons/camera.svg">images/camera-photo-symbolic.svg</file>
 <file alias="icons/folder.svg">images/folder-symbolic.svg</file>
+<file alias="icons/smartphone.svg">images/phone-smartphone-symbolic.svg</file>
 </qresource>
 </RCC>

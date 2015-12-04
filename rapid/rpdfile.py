@@ -125,7 +125,8 @@ def get_rpdfile(name: str, path: str, size: int, prev_full_name: str,
                 from_camera: bool,
                 camera_model: str,
                 camera_port: str,
-                camera_memory_card_identifiers: list):
+                is_mtp_device: bool,
+                camera_memory_card_identifiers: List[int]):
 
     if file_type == FileType.video:
         return Video(name, path, size,
@@ -135,7 +136,7 @@ def get_rpdfile(name: str, path: str, size: int, prev_full_name: str,
                      audio_file_full_name,
                      xmp_file_full_name,
                      scan_id,
-                     from_camera, camera_model, camera_port,
+                     from_camera, camera_model, camera_port, is_mtp_device,
                      camera_memory_card_identifiers)
     else:
         return Photo(name, path, size,
@@ -145,7 +146,7 @@ def get_rpdfile(name: str, path: str, size: int, prev_full_name: str,
                      audio_file_full_name,
                      xmp_file_full_name,
                      scan_id,
-                     from_camera, camera_model, camera_port,
+                     from_camera, camera_model, camera_port, is_mtp_device,
                      camera_memory_card_identifiers)
 
 def file_types_by_number(no_photos: int, no_videos:int) -> str:
@@ -251,6 +252,7 @@ class RPDFile:
                  from_camera: bool,
                  camera_model: Optional[str]=None,
                  camera_port: Optional[str]=None,
+                 is_mtp_device: Optional[bool]=None,
                  camera_memory_card_identifiers: Optional[List[int]]=None) -> None:
         """
 
@@ -275,6 +277,8 @@ class RPDFile:
          model name (not including the port)
         :param camera_port: if downloaded from a camera, the port
          as reported by gphoto2
+        :param is_mtp_device: if downloaded, whether the camera is an
+         MTP device
         :param camera_memory_card_identifiers: if downloaded from a
          camera, and the camera has more than one memory card, a list
          of numeric identifiers (i.e. 1 or 2) identifying which memory
@@ -284,6 +288,7 @@ class RPDFile:
         self.from_camera = from_camera
         self.camera_model = camera_model
         self.camera_port = camera_port
+        self.is_mtp_device = is_mtp_device
 
         self.path = path
 
@@ -438,8 +443,9 @@ class RPDFile:
                 if not gnomify_output:
                     prefix = 'gphoto2://'
                 else:
+                    # TODO update to use results of MTP udev query
                     # Attempt to generate a URI accepted by Gnome
-                    if self.camera_model.find('MTP') >= 0:
+                    if self.is_mtp_device:
                         prefix = 'mtp://'+ pathname2url('[{}]/Internal storage'.format(
                             self.camera_port))
                         f = full_file_name

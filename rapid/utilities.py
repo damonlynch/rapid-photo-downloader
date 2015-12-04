@@ -234,6 +234,9 @@ def divide_list_on_length(source: list, length: int) -> list:
     """
     return [source[i:i+length] for i in range(0, len(source), length)]
 
+def addPushButtonLabelSpacer(s: str) -> str:
+    return ' ' + s
+
 class GenerateRandomFileName:
     def __init__(self):
         # the characters used to generate temporary filenames

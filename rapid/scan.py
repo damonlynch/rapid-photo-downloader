@@ -95,8 +95,9 @@ class ScanWorker(WorkerInPublishPullPipeline):
         if self.download_from_camera:
             self.camera_model = scan_arguments.device.camera_model
             self.camera_port = scan_arguments.device.camera_port
+            self.is_mtp_device = scan_arguments.device.is_mtp_device
         else:
-            self.camera_port = self.camera_model = None
+            self.camera_port = self.camera_model = self.is_mtp_device = None
 
         self.files_scanned = 0
 
@@ -133,7 +134,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
                 self._camera_video_thumbnails = defaultdict(list)
                 self._camera_xmp_files = defaultdict(list)
                 self._folder_identifiers = {}
-                self._folder_identifers_for_file = defaultdict(list)
+                self._folder_identifers_for_file = defaultdict(list) # type: List[int]
                 self._camera_directories_for_file = defaultdict(list)
 
                 dcim_folders = self.camera.dcim_folders
@@ -385,6 +386,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
                                                self.download_from_camera,
                                                self.camera_model,
                                                self.camera_port,
+                                               self.is_mtp_device,
                                                camera_memory_card_identifiers)
                 self.file_batch.append(rpd_file)
                 if len(self.file_batch) == self.batch_size:

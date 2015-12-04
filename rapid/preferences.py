@@ -110,8 +110,7 @@ class ScanPreferences:
                 re.match(path, '')
                 pattern += '.*{}s$|'.format(path)
             except re.error:
-                logging.error("Ignoring malformed regular expression: {"
-                              "}".format(path))
+                logging.error("Ignoring malformed regular expression: {}".format(path))
                 error_encountered = True
 
         if pattern:
@@ -120,13 +119,11 @@ class ScanPreferences:
             try:
                 self.re_pattern = re.compile(pattern)
             except re.error:
-                logging.error('This regular expression is invalid: {'
-                              '}'.format(pattern))
+                logging.error('This regular expression is invalid: {}'.format(pattern))
                 self.re_pattern = None
                 error_encountered = True
 
-        logging.debug("Ignored paths regular expression pattern: {}".format(
-            pattern))
+        logging.debug("Ignored paths regular expression pattern: {}".format(pattern))
 
         return not error_encountered
 

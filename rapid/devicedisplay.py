@@ -44,6 +44,7 @@ class DeviceWidget(QWidget):
       
         painter = QPainter()
         painter.begin(self)
+
         painter.end()
           
 
