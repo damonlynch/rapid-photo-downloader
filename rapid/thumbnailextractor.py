@@ -168,6 +168,8 @@ class ThumbnailExtractor(LoadBalancerWorker):
                     # Perhaps some other obscure cameras also do this too.
                     # The orientation has already been applied to the thumbnail
                     orientation = '1'
+                elif thumbnail.width() > 160 or thumbnail.height() > 120:
+                                processing.add(ExtractionProcessing.resize)
                 elif not rpd_file.is_jpeg():
                     processing.add(ExtractionProcessing.strip_bars_photo)
             else:
@@ -259,6 +261,9 @@ class ThumbnailExtractor(LoadBalancerWorker):
 
                 elif task == ExtractionTask.load_from_bytes:
                     thumbnail = QImage.fromData(data.thumbnail_bytes)
+                    if thumbnail.width() > 160 or thumbnail.height() > 120:
+                        processing.add(ExtractionProcessing.resize)
+                        processing.remove(ExtractionProcessing.strip_bars_photo)
                     if data.exif_buffer and ExtractionProcessing.orient in processing:
                         orientation = self.get_orientation(rpd_file=rpd_file,
                                                            raw_bytes=data.exif_buffer)
