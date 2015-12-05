@@ -165,7 +165,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
                 # locate photos and videos, identifying duplicate files
                 for dcim_folder in dcim_folders:
                     logging.debug("Scanning %s on %s", dcim_folder,
-                                  self.camera.model)
+                                  self.camera.display_name)
                     folder_identifier = self._folder_identifiers.get(dcim_folder)
                     self.locate_files_on_camera(dcim_folder, folder_identifier)
 

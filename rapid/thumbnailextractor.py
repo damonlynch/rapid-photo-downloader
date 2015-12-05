@@ -72,9 +72,13 @@ def get_video_frame(full_file_name: str,
     # Wait for seek to finish.
     pipeline.get_state(Gst.CLOCK_TIME_NONE)
     sample = pipeline.emit('convert-sample', caps)
-    buffer = sample.get_buffer()
-    pipeline.set_state(Gst.State.NULL)
-    return buffer.extract_dup(0, buffer.get_size())
+    if sample is not None:
+        buffer = sample.get_buffer()
+        pipeline.set_state(Gst.State.NULL)
+        return buffer.extract_dup(0, buffer.get_size())
+    else:
+        logging.warning("Could not extract video thumbnail")
+        return None
 
 PhotoDetails = namedtuple('PhotoDetails', 'thumbnail orientation')
 
@@ -273,12 +277,15 @@ class ThumbnailExtractor(LoadBalancerWorker):
                         thumbnail = None
                     else:
                         png = get_video_frame(data.full_file_name_to_work_on)
-                        thumbnail = QImage.fromData(png)
-                        if thumbnail.isNull():
+                        if png is None:
                             thumbnail = None
                         else:
-                            add_film_strip_to_thumb = True
-                            processing.add(ExtractionProcessing.resize)
+                            thumbnail = QImage.fromData(png)
+                            if thumbnail.isNull():
+                                thumbnail = None
+                            else:
+                                add_film_strip_to_thumb = True
+                                processing.add(ExtractionProcessing.resize)
 
                 if ExtractionProcessing.strip_bars_photo in processing:
                     thumbnail = crop_160x120_thumbnail(thumbnail)

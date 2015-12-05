@@ -73,6 +73,7 @@ except ImportError:
     have_gio = False
 
 StorageSpace = namedtuple('StorageSpace', 'bytes_free, bytes_total')
+UdevAttr = namedtuple('UdevAttr', 'is_mtp_device, vendor, model')
 
 PROGRAM_DIRECTORY = 'rapid-photo-downloader'
 
@@ -336,7 +337,7 @@ def get_default_file_manager(remove_args=True) -> str:
     else:
         return fm
 
-def is_mtp_device(devname: str) -> bool:
+def udev_attributes(devname: str) -> Optional[UdevAttr]:
     """
     Query udev to see if device is an MTP device.
 
@@ -350,8 +351,11 @@ def is_mtp_device(devname: str) -> bool:
     for device in enumerator.execute():
         model = device.get_property('ID_MODEL')
         if model is not None:
-            return device.get_property('ID_MTP_DEVICE') == '1'
-    return False
+            is_mtp = device.get_property('ID_MTP_DEVICE') == '1'
+            vendor = device.get_property('ID_VENDOR')
+            return UdevAttr(is_mtp, vendor.strip(), model.strip())
+    return None
+
 
 class CameraHotplug(QObject):
     cameraAdded = pyqtSignal()

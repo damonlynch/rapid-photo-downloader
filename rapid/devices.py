@@ -34,7 +34,7 @@ import qrc_resources
 
 from constants import DeviceType, BackupLocationType, FileType
 from rpdfile import FileTypeCounter
-from storage import StorageSpace, is_mtp_device
+from storage import StorageSpace, udev_attributes, UdevAttr
 from camera import Camera, generate_devname
 
 logging.basicConfig(format='%(levelname)s:%(asctime)s:%(message)s',
@@ -90,6 +90,7 @@ class Device:
         self.camera_port = None
         # Assume an MTP device is likely a smart phone or tablet
         self.is_mtp_device = False
+        self.udev_name = None
         self.no_storage_media = None
         self.storage_space = []
         self.path = None
@@ -145,6 +146,15 @@ class Device:
         self.camera_model = camera_model
         self.camera_port = camera_port
         self.icon_name = self._get_valid_icon_name(('camera-photo', 'camera'))
+        devname = generate_devname(camera_port)
+        if devname is not None:
+            udev_attr = udev_attributes(devname)
+            if udev_attr is not None:
+                self.is_mtp_device = udev_attr.is_mtp_device
+                self.udev_name = udev_attr.model
+        else:
+            logging.error("Could not determine port values for %s %s", self.camera_model,
+                          camera_port)
 
         if get_camera_attributes:
             c =  Camera(camera_model, camera_port, get_folders=False)
@@ -152,13 +162,8 @@ class Device:
             self.no_storage_media = c.no_storage_media()
             for idx in range(self.no_storage_media):
                 self.storage_space.append(c.get_storage_media_capacity(idx))
-
-            devname = generate_devname(camera_port)
-            if devname is not None:
-                self.is_mtp_device = is_mtp_device(devname)
-            else:
-                logging.error("Could not determine port values for %s %s", self.camera_model,
-                              camera_port)
+        elif self.udev_name is not None:
+            self.display_name = self.udev_name
         else:
             self.display_name = camera_model
 
