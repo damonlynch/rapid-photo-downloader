@@ -59,7 +59,8 @@ from PyQt5.QtWidgets import (QAction, QApplication, QMainWindow, QMenu,
                              QPushButton, QWidget, QDialogButtonBox,
                              QProgressBar, QSplitter, QFileIconProvider,
                              QHBoxLayout, QVBoxLayout, QDialog, QLabel,
-                             QComboBox, QGridLayout, QCheckBox, QSizePolicy)
+                             QComboBox, QGridLayout, QCheckBox, QSizePolicy,
+                             QMessageBox)
 from PyQt5.QtNetwork import QLocalSocket, QLocalServer
 
 import qrc_resources
@@ -87,7 +88,7 @@ from preferences import (Preferences, ScanPreferences)
 from constants import (BackupLocationType, DeviceType, ErrorType,
                        FileType, DownloadStatus, RenameAndMoveStatus,
                        photo_rename_test, ApplicationState,
-                       PROGRAM_NAME, job_code_rename_test)
+                       PROGRAM_NAME, job_code_rename_test, CameraErrorCode)
 import constants
 from thumbnaildisplay import (ThumbnailView, ThumbnailTableModel,
     ThumbnailDelegate, DownloadTypes, DownloadStats)
@@ -1723,24 +1724,53 @@ class RapidWindow(QMainWindow):
 
     def scanMessageReceived(self, pickled_data: bytes) -> None:
         """
-        Process data received from the scan process. The data is
+        Process data received from the scan process.
+
+        The data is
         pickled because PyQt converts the Python int into a C++ int,
         which unlike Pyhon has an upper limit. Unpickle it too early,
         and the int wraps around to become a negative number.
         """
-        data = pickle.loads(pickled_data)
-        # Update scan running totals
-        scan_id = data.rpd_files[0].scan_id
-        device = self.devices[scan_id]
-        device.file_type_counter = data.file_type_counter
-        device.file_size_sum = data.file_size_sum
-        size = self.formatSizeForUser(data.file_size_sum)
-        text = data.file_type_counter.running_file_count()
-        self.deviceModel.updateDeviceScan(scan_id, text, size)
 
-        for rpd_file in data.rpd_files:
-            self.thumbnailModel.addFile(rpd_file, generate_thumbnail=not
-                                        self.auto_start_is_on)
+        data = pickle.loads(pickled_data) # type: ScanResults
+        if data.rpd_files is not None:
+            # Update scan running totals
+            scan_id = data.rpd_files[0].scan_id
+            device = self.devices[scan_id]
+            device.file_type_counter = data.file_type_counter
+            device.file_size_sum = data.file_size_sum
+            size = self.formatSizeForUser(data.file_size_sum)
+            text = data.file_type_counter.running_file_count()
+            self.deviceModel.updateDeviceScan(scan_id, text, size)
+
+            for rpd_file in data.rpd_files:
+                self.thumbnailModel.addFile(rpd_file, generate_thumbnail=not
+                                            self.auto_start_is_on)
+        else:
+            # An error occurred
+            scan_id = data.scan_id
+            error_code = data.error_code
+            camera_model = self.devices[scan_id].display_name
+            if error_code == CameraErrorCode.locked:
+                title =_('Device locked')
+                message = _('%(camera)s appears to be locked. You can unlock it now and try '
+                              'again, or ignore this device.') % {'camera': camera_model}
+            else:
+                assert error_code == CameraErrorCode.inaccessible
+                title = _('Device inaccessible')
+                message = _('%(camera)s appears to be in use by another application. You can '
+                          'close any other application (such as a file browser) that is using '
+                          'it and try again, or ignore this device.') % {'camera': camera_model}
+            msgBox = QMessageBox(QMessageBox.Warning, title, message,
+                            QMessageBox.NoButton, self)
+            msgBox.setIconPixmap(self.devices[scan_id].get_pixmap(QSize(30,30)))
+            msgBox.addButton(_("&Try Again"), QMessageBox.AcceptRole)
+            msgBox.addButton("&Ignore This Device", QMessageBox.RejectRole)
+            if msgBox.exec_() == QMessageBox.AcceptRole:
+                self.scanmq.resume(worker_id=scan_id)
+            else:
+                self.scanmq.stop_worker(worker_id=scan_id)
+                self.removeDevice(scan_id)
 
     def scanFinished(self, scan_id: int) -> None:
         device = self.devices[scan_id]
@@ -1978,6 +2008,7 @@ class RapidWindow(QMainWindow):
                 return True
             else:
                 del self.cameras_to_unmount[port]
+        # TODO: handle unmounting other desktop environments, e.g. KDE
         return False
 
     def cameraUnmounted(self, result, model, port, download_started):
@@ -2022,8 +2053,7 @@ class RapidWindow(QMainWindow):
 
     def startCameraScan(self, model: str, port: str) -> None:
         device = Device()
-        device.set_download_from_camera(model, port,
-                                        get_camera_attributes=True)
+        device.set_download_from_camera(model, port, get_camera_attributes=True)
         self.startDeviceScan(device)
 
     def startDeviceScan(self, device: Device) -> None:

@@ -27,9 +27,9 @@ from typing import Tuple
 
 from gettext import gettext as _
 
-from PyQt5.QtCore import QStorageInfo
+from PyQt5.QtCore import QStorageInfo, QSize
 from PyQt5.QtWidgets import QFileIconProvider
-from PyQt5.QtGui import QIcon
+from PyQt5.QtGui import QIcon, QPixmap
 import qrc_resources
 
 from constants import DeviceType, BackupLocationType, FileType
@@ -244,6 +244,10 @@ class Device:
                 return QIcon(':icons/smartphone.svg')
             return QIcon(':/icons/camera.svg')
 
+    def get_pixmap(self, size: QSize) -> QPixmap:
+        icon = self.get_icon()
+        return icon.pixmap(size)
+
     def _delete_cache_dir(self, cache_dir):
         if cache_dir is not None:
             if os.path.isdir(cache_dir):
@@ -391,13 +395,13 @@ class DeviceCollection:
         d.delete_cache_dirs()
         del self.devices[scan_id]
 
-    def __getitem__(self, scan_id):
+    def __getitem__(self, scan_id) -> Device:
         return self.devices[scan_id]
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.devices)
 
-    def __contains__(self, scan_id):
+    def __contains__(self, scan_id) -> bool:
         return scan_id in self.devices
 
     def __iter__(self):

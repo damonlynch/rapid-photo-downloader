@@ -32,6 +32,7 @@ from PyQt5.QtGui import QImage
 import gphoto2 as gp
 from gi.repository import GExiv2
 from storage import StorageSpace
+from constants import CameraErrorCode
 
 
 logging.basicConfig(format='%(levelname)s:%(asctime)s:%(message)s',
@@ -45,6 +46,23 @@ def gphoto2_version():
     return gp.gp_library_version(0)[0]
 
 CopyChunks = namedtuple('CopyChunks', 'copy_succeeded, src_bytes')
+
+
+class CameraError(Exception):
+    def __init__(self, code: CameraErrorCode) -> None:
+        self.code = code
+
+    def __repr__(self) -> str:
+        if self.code == CameraErrorCode.inaccessible:
+            return "inaccessible"
+        else:
+            return "locked"
+
+    def __str__(self) -> str:
+        if self.code == CameraErrorCode.inaccessible:
+            return "The camera is inaccessible"
+        else:
+            return "The camera is locked"
 
 
 def generate_devname(camera_port: str) -> Optional[str]:
@@ -68,13 +86,22 @@ def generate_devname(camera_port: str) -> Optional[str]:
 
 
 class Camera:
-    def __init__(self, model: str, port:str, get_folders: bool=True):
+
+    """Access a camera via libgphoto2."""
+
+    def __init__(self, model: str,
+                 port:str,
+                 get_folders: bool=True,
+                 raise_errors: bool=False)  -> None:
         """
+        Initalize a camera via libgphoto2.
 
         :param model: camera model, as returned by camera_autodetect()
         :param port: camera port, as returned by camera_autodetect()
         :param get_folders: whether to detect the DCIM folders on the
          camera
+        :param raise_errors: if True, if necessary free camera,
+         and raise error that occurs during initialization
         """
         self.model = model
         self.port = port
@@ -98,11 +125,12 @@ class Camera:
         except gp.GPhoto2Error as e:
             if e.code == gp.GP_ERROR_IO_USB_CLAIM:
                 logging.error("{} is already mounted".format(model))
-                return
             elif e.code == gp.GP_ERROR:
                 logging.error("An error occurred initializing the camera using libgphoto2")
             else:
                 logging.error("Unable to access camera: error %s", e.code)
+            if raise_errors:
+                raise CameraError(CameraErrorCode.inaccessible)
             return
 
         concise_model_name = self._concise_model_name()
@@ -115,6 +143,9 @@ class Camera:
             except gp.GPhoto2Error as e:
                 logging.error("Unable to access camera %s: error %s. Is it locked?",
                               self.display_name, e.code)
+                if raise_errors:
+                    self.free_camera()
+                    raise CameraError(CameraErrorCode.locked)
 
         self.folders_and_files = []
         self.audio_files = {}

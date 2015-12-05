@@ -48,6 +48,7 @@ else:
 from typing import List
 
 from gi.repository import GExiv2
+import gphoto2 as gp
 
 # Instances of classes ScanArguments and ScanPreferences are passed via pickle
 # Thus do not remove these two imports
@@ -55,9 +56,9 @@ from interprocess import ScanArguments
 from preferences import ScanPreferences
 from interprocess import (WorkerInPublishPullPipeline, ScanResults,
                           ScanArguments)
-from camera import Camera
+from camera import Camera, CameraError
 import rpdfile
-from constants import (DeviceType, FileType, GphotoMTime, datetime_offset)
+from constants import (DeviceType, FileType, GphotoMTime, datetime_offset, CameraErrorCode)
 from rpdsql import DownloadedSQL, FileDownloaded
 from utilities import stdchannel_redirected
 
@@ -83,8 +84,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
         self.gphoto_mtime = GphotoMTime.undetermined
         super(ScanWorker, self).__init__('Scan')
 
-
-    def do_work(self):
+    def do_work(self) -> None:
         scan_arguments = pickle.loads(self.content) # type: ScanArguments
         self.scan_preferences = scan_arguments.scan_preferences
 
@@ -124,8 +124,21 @@ class ScanWorker(WorkerInPublishPullPipeline):
 
         else:
             # scanning directly from camera
-            self.camera = Camera(scan_arguments.device.camera_model,
-                                 scan_arguments.device.camera_port)
+            while True:
+                try:
+                    self.camera = Camera(model=scan_arguments.device.camera_model,
+                                         port=scan_arguments.device.camera_port,
+                                         raise_errors=True)
+                    break
+                except CameraError as e:
+                    self.content = pickle.dumps(ScanResults(
+                                                error_code=e.code,
+                                                scan_id=int(self.worker_id)),
+                                                pickle.HIGHEST_PROTOCOL)
+                    self.send_message_to_sink()
+                    # Wait for command to resume or halt processing
+                    self.resume_work()
+
             # Download only from the DCIM folder(s) in the camera.
             # Phones especially have many directories with images, which we
             # must ignore
@@ -393,9 +406,10 @@ class ScanWorker(WorkerInPublishPullPipeline):
                                                camera_memory_card_identifiers)
                 self.file_batch.append(rpd_file)
                 if len(self.file_batch) == self.batch_size:
-                    self.content = pickle.dumps(ScanResults(self.file_batch,
-                                                self.file_type_counter,
-                                                self.file_size_sum),
+                    self.content = pickle.dumps(ScanResults(
+                                                rpd_files=self.file_batch,
+                                                file_type_counter=self.file_type_counter,
+                                                file_size_sum=self.file_size_sum),
                                                 pickle.HIGHEST_PROTOCOL)
                     self.send_message_to_sink()
                     self.file_batch = []

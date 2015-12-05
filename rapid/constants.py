@@ -142,6 +142,12 @@ class GphotoMTime(Enum):
     is_utc = 3
     is_local = 4
 
+
+class CameraErrorCode(Enum):
+    inaccessible = 1
+    locked = 2
+
+
 orientation_offset = dict(
     arw=106,
     cr2=126,

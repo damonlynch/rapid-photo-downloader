@@ -393,6 +393,8 @@ class CameraHotplug(QObject):
         path = device.get_sysfs_path()
         parent_device = device.get_parent()
         parent_path = parent_device.get_sysfs_path()
+        logging.debug("Device change: %s. Path: %s Parent Device: %s Parent path: %s",
+                      action, path, parent_device, parent_path)
 
         if action == 'add':
             if parent_path not in self.cameras:

@@ -42,7 +42,7 @@ from rpdfile import (RPDFile, FileTypeCounter)
 from devices import Device
 from preferences import ScanPreferences
 from utilities import CacheDirs
-from constants import RenameAndMoveStatus, ExtractionTask, ExtractionProcessing
+from constants import (RenameAndMoveStatus, ExtractionTask, ExtractionProcessing, CameraErrorCode)
 from proximity import TemporalProximityGroups
 
 
@@ -586,12 +586,16 @@ class PublishPullPipelineManager(PullPipelineManager):
 
     def pause(self) -> None:
         for worker_id in self.workers:
-            message = [make_filter_from_worker_id(worker_id),b'PAUSE']
+            message = [make_filter_from_worker_id(worker_id), b'PAUSE']
             self.controller_socket.send_multipart(message)
 
-    def resume(self) -> None:
-        for worker_id in self.workers:
-            message = [make_filter_from_worker_id(worker_id),b'RESUME']
+    def resume(self, worker_id: Optional[int]=None) -> None:
+        if worker_id is not None:
+            workers = [worker_id]
+        else:
+            workers = self.workers
+        for worker_id in workers:
+            message = [make_filter_from_worker_id(worker_id), b'RESUME']
             self.controller_socket.send_multipart(message)
 
 
@@ -744,16 +748,24 @@ class WorkerInPublishPullPipeline(WorkerProcess):
             if command == b'PAUSE':
                 # Because the process is paused, do a blocking read to
                 # wait for the next command
-                command = self.controller.recv()
+                worker_id, command = self.controller.recv_multipart()
                 assert (command in [b'RESUME', b'STOP'])
             if command == b'STOP':
                 self.cleanup_pre_stop()
                 # before finishing, signal to sink that we've terminated
-                self.sender.send_multipart([self.worker_id, b'cmd',
-                                            b'STOPPED'])
+                self.sender.send_multipart([self.worker_id, b'cmd', b'STOPPED'])
                 sys.exit(0)
         except zmq.Again:
             pass # Continue working
+
+    def resume_work(self) -> None:
+        worker_id, command = self.controller.recv_multipart()
+        assert (command in [b'RESUME', b'STOP'])
+        if command == b'STOP':
+            self.cleanup_pre_stop()
+            # before finishing, signal to sink that we've terminated
+            self.sender.send_multipart([self.worker_id, b'cmd', b'STOPPED'])
+            sys.exit(0)
 
     def send_finished_command(self) -> None:
         self.sender.send_multipart([self.worker_id, b'cmd', b'FINISHED'])
@@ -821,15 +833,21 @@ class ScanArguments:
         self.device = device
         self.ignore_other_types = ignore_other_types
 
+
 class ScanResults:
     """
     Receive results from the scan process
     """
-    def __init__(self, rpd_files: list, file_type_counter: FileTypeCounter,
-                 file_size_sum: int) -> None:
+    def __init__(self, rpd_files: Optional[List[RPDFile]]=None,
+                 file_type_counter: Optional[FileTypeCounter]=None,
+                 file_size_sum: Optional[int] = None,
+                 error_code: Optional[CameraErrorCode]=None,
+                 scan_id: Optional[int]=None) -> None:
         self.rpd_files = rpd_files
         self.file_type_counter = file_type_counter
         self.file_size_sum = file_size_sum
+        self.error_code = error_code
+        self.scan_id = scan_id
 
 
 class CopyFilesArguments:
