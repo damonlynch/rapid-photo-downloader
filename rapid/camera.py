@@ -24,6 +24,7 @@ import logging
 import os
 import io
 from collections import namedtuple
+import re
 from typing import Optional, List, Tuple
 
 from PyQt5.QtGui import QImage
@@ -44,6 +45,26 @@ def gphoto2_version():
     return gp.gp_library_version(0)[0]
 
 CopyChunks = namedtuple('CopyChunks', 'copy_succeeded, src_bytes')
+
+
+def generate_devname(camera_port: str) -> Optional[str]:
+    """
+     Generate udev DEVNAME.
+
+     >>> generate_devname('usb:001,003')
+     '/dev/bus/usb/001/003'
+
+     >>> generate_devname('usb::001,003')
+
+    :param camera_port:
+    :return: devname if it could be generated, else None
+    """
+
+    match = re.match('usb:([0-9]+),([0-9]+)', camera_port)
+    if match is not None:
+        p1, p2 = match.groups()
+        return '/dev/bus/usb/{}/{}'.format(p1, p2)
+    return None
 
 
 class Camera:

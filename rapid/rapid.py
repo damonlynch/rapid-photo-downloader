@@ -126,8 +126,7 @@ class RenameMoveFileManager(PushPullDaemonManager):
         self.send_message_to_worker(data)
 
     def process_sink_data(self):
-        data = pickle.loads(self.content)
-        """ :type : RenameAndMoveFileResults """
+        data = pickle.loads(self.content) # type: RenameAndMoveFileResults
         if data.move_succeeded is not None:
             if data.png_data is not None:
                 thumbnail = QImage.fromData(data.png_data)
@@ -485,6 +484,11 @@ class RapidWindow(QMainWindow):
             # Start the monitor only on the thread it will be running on
             self.cameraHotplug.startMonitor()
             self.cameraHotplug.enumerateCameras()
+
+            if self.cameraHotplug.cameras:
+                logging.debug("Camera Hotplug found %d cameras:", len(self.cameraHotplug.cameras))
+                for port, model in self.cameraHotplug.cameras.items():
+                    logging.debug("%s at %s", model, port)
 
             # Monitor when the user adds or removes a partition
             self.udisks2Monitor = UDisks2Monitor(self.validMounts)

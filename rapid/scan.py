@@ -96,8 +96,10 @@ class ScanWorker(WorkerInPublishPullPipeline):
             self.camera_model = scan_arguments.device.camera_model
             self.camera_port = scan_arguments.device.camera_port
             self.is_mtp_device = scan_arguments.device.is_mtp_device
+            self.camera_display_name = scan_arguments.device.display_name
         else:
             self.camera_port = self.camera_model = self.is_mtp_device = None
+            self.camera_display_name = None
 
         self.files_scanned = 0
 
@@ -386,6 +388,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
                                                self.download_from_camera,
                                                self.camera_model,
                                                self.camera_port,
+                                               self.camera_display_name,
                                                self.is_mtp_device,
                                                camera_memory_card_identifiers)
                 self.file_batch.append(rpd_file)

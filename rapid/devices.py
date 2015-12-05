@@ -35,7 +35,7 @@ import qrc_resources
 from constants import DeviceType, BackupLocationType, FileType
 from rpdfile import FileTypeCounter
 from storage import StorageSpace, is_mtp_device
-import camera
+from camera import Camera, generate_devname
 
 logging.basicConfig(format='%(levelname)s:%(asctime)s:%(message)s',
                     datefmt='%H:%M:%S',
@@ -147,17 +147,14 @@ class Device:
         self.icon_name = self._get_valid_icon_name(('camera-photo', 'camera'))
 
         if get_camera_attributes:
-            c =  camera.Camera(camera_model, camera_port, get_folders=False)
+            c =  Camera(camera_model, camera_port, get_folders=False)
             self.display_name = c.display_name
             self.no_storage_media = c.no_storage_media()
             for idx in range(self.no_storage_media):
                 self.storage_space.append(c.get_storage_media_capacity(idx))
 
-            # Generate udev DEVNAME
-            match = re.match('usb:([0-9]+),([0-9]+)', self.camera_port)
-            if match is not None:
-                p1, p2 = match.groups()
-                devname = '/dev/bus/usb/{}/{}'.format(p1, p2)
+            devname = generate_devname(camera_port)
+            if devname is not None:
                 self.is_mtp_device = is_mtp_device(devname)
             else:
                 logging.error("Could not determine port values for %s %s", self.camera_model,
@@ -414,7 +411,7 @@ class DeviceCollection:
         """
 
         if not len(self):
-            return _('Select Source'), QIcon(':/folder.svg')
+            return _('Select Source'), QIcon(':/icons/folder.svg')
         elif len(self) == 1:
             device =list(self.devices.values())[0]
             return device.display_name, device.get_icon()
@@ -427,11 +424,11 @@ class DeviceCollection:
                     # Number of cameras e.g. 2 Cameras
                     text = _('%(no_cameras)s Cameras') % {'no_cameras':
                                                               device_types[DeviceType.camera]}
-                    return text, QIcon(':/camera.svg')
+                    return text, QIcon(':/icons/camera.svg')
             # Mixed devices (e.g. cameras, card readers), or only external
             # volumes
             return _('%(no_devices)s Devices') % {'no_devices': device_types[DeviceType.volume]}, \
-                   QIcon(':/folder.svg')
+                   QIcon(':/icons/folder.svg')
 
 
 BackupDevice = namedtuple('BackupDevice', ['mount', 'backup_type'])

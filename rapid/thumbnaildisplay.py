@@ -51,7 +51,7 @@ from interprocess import (PublishPullPipelineManager,
     GenerateThumbnailsArguments, Device, GenerateThumbnailsResults)
 from constants import (DownloadStatus, Downloaded, FileType, FileExtension,
                        ThumbnailSize, ThumbnailCacheStatus, Roles, DeviceType)
-from storage import get_program_cache_directory, gvfs_controls_mounts
+from storage import get_program_cache_directory
 from utilities import (CacheDirs, make_internationalized_list)
 from thumbnailer import Thumbnailer
 
@@ -108,8 +108,6 @@ class ThumbnailTableModel(QAbstractTableModel):
         self.benchmark = benchmark
 
         self.initialize()
-
-        self.gnome_env = gvfs_controls_mounts()
 
         self.use_linear_thumbnailer = False
         if self.use_linear_thumbnailer:
@@ -251,7 +249,7 @@ class ThumbnailTableModel(QAbstractTableModel):
             else:
                 return rpd_file.full_file_name
         elif role == Roles.uri:
-            return rpd_file.get_uri(gnomify_output=self.gnome_env)
+            return rpd_file.get_uri(desktop_environment=True)
         elif role == Roles.camera_memory_card:
             return rpd_file.camera_memory_card_identifiers
 

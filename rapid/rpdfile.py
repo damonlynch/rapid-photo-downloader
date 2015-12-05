@@ -30,10 +30,12 @@ import locale
 from typing import Optional, List
 
 import exiftool
+
 from gettext import gettext as _
 
 from constants import (DownloadStatus, FileType, FileExtension, FileSortPriority,
-                       ThumbnailCacheStatus, Downloaded)
+                       ThumbnailCacheStatus, Downloaded, Desktop)
+from storage import get_desktop, gvfs_controls_mounts
 import metadataphoto
 import metadatavideo
 from utilities import thousands
@@ -125,6 +127,7 @@ def get_rpdfile(name: str, path: str, size: int, prev_full_name: str,
                 from_camera: bool,
                 camera_model: str,
                 camera_port: str,
+                camera_display_name: str,
                 is_mtp_device: bool,
                 camera_memory_card_identifiers: List[int]):
 
@@ -136,7 +139,11 @@ def get_rpdfile(name: str, path: str, size: int, prev_full_name: str,
                      audio_file_full_name,
                      xmp_file_full_name,
                      scan_id,
-                     from_camera, camera_model, camera_port, is_mtp_device,
+                     from_camera,
+                     camera_model,
+                     camera_port,
+                     camera_display_name,
+                     is_mtp_device,
                      camera_memory_card_identifiers)
     else:
         return Photo(name, path, size,
@@ -146,7 +153,11 @@ def get_rpdfile(name: str, path: str, size: int, prev_full_name: str,
                      audio_file_full_name,
                      xmp_file_full_name,
                      scan_id,
-                     from_camera, camera_model, camera_port, is_mtp_device,
+                     from_camera,
+                     camera_model,
+                     camera_port,
+                     camera_display_name,
+                     is_mtp_device,
                      camera_memory_card_identifiers)
 
 def file_types_by_number(no_photos: int, no_videos:int) -> str:
@@ -252,6 +263,7 @@ class RPDFile:
                  from_camera: bool,
                  camera_model: Optional[str]=None,
                  camera_port: Optional[str]=None,
+                 camera_display_name: Optional[str]=None,
                  is_mtp_device: Optional[bool]=None,
                  camera_memory_card_identifiers: Optional[List[int]]=None) -> None:
         """
@@ -288,6 +300,7 @@ class RPDFile:
         self.from_camera = from_camera
         self.camera_model = camera_model
         self.camera_port = camera_port
+        self.camera_display_name = camera_display_name
         self.is_mtp_device = is_mtp_device
 
         self.path = path
@@ -424,11 +437,11 @@ class RPDFile:
         """
         return self.audio_file_full_name is not None
 
-    def get_uri(self, gnomify_output: bool) -> str:
+    def get_uri(self, desktop_environment: bool) -> str:
         """
         Generate and return the URI for the file
-        :param gnomify_output: if True, will to generate a URI accepted
-         by Gnome, which means adjusting the URI if it appears to be an
+        :param desktop_environment: if True, will to generate a URI accepted
+         by Gnome and KDE desktops, which means adjusting the URI if it appears to be an
          MTP mount. Horribly hackish. Includes the port too.
         :return: the URI
         """
@@ -440,19 +453,30 @@ class RPDFile:
             if self.camera_model is None:
                 prefix = 'file://'
             else:
-                if not gnomify_output:
+                if not desktop_environment:
                     prefix = 'gphoto2://'
                 else:
-                    # Attempt to generate a URI accepted by Gnome
+                    # Attempt to generate a URI accepted by desktop environments
                     if self.is_mtp_device:
-                        prefix = 'mtp://'+ pathname2url('[{}]/Internal storage'.format(
-                            self.camera_port))
                         f = full_file_name
                         # Remove the top level directory
                         full_file_name = f[f[1:].find('/')+1:]
+
+                        desktop = get_desktop()
+                        if gvfs_controls_mounts():
+                            prefix = 'mtp://'+ pathname2url('[{}]/Internal storage'.format(
+                                self.camera_port))
+                        elif desktop == Desktop.kde:
+                            prefix = 'mtp:/' + pathname2url('{}/Internal storage'.format(
+                                self.camera_display_name))
+                            # Dolphin doesn't highlight the file if it's passed.
+                            # Instead it tries to open it, but fails.
+                            # So don't pass the file, just the directory it's in.
+                            full_file_name = os.path.dirname(full_file_name)
                     else:
                         prefix = 'gphoto2://' + pathname2url('[{}]'.format(self.camera_port))
             uri = '{}{}'.format(prefix, pathname2url(full_file_name))
+            print(uri)
         return uri
 
     def _assign_file_type(self):

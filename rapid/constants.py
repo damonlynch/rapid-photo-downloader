@@ -24,10 +24,6 @@ from PyQt5.QtCore import Qt
 
 version = '0.9.0~a1'
 
-DBUS_NAME = "net.damonlynch.RapidPhotoDownloader"
-
-APP_NAME = "rapid-photo-downloader"
-
 PROGRAM_NAME = "Rapid Photo Downloader"
 
 class ConflictResolution(IntEnum):
@@ -181,6 +177,14 @@ datetime_offset = dict(
     srw=508
 )
 
+
+class Desktop(Enum):
+    gnome = 1
+    unity = 2
+    cinnamon = 3
+    kde = 4
+    xfce = 5
+    unknown = 10
 
 
 photo_rename_test = ['Date time','Image date','YYYYMMDD','Text','-','',

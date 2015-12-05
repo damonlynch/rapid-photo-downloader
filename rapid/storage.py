@@ -59,6 +59,8 @@ from gi.repository import GUdev, UDisks, GLib
 from xdg.DesktopEntry import DesktopEntry
 from xdg import BaseDirectory
 
+from constants import Desktop
+
 logging_level = logging.DEBUG
 logging.basicConfig(format='%(levelname)s:%(asctime)s:%(message)s',
                     datefmt='%H:%M:%S',
@@ -70,8 +72,7 @@ try:
 except ImportError:
     have_gio = False
 
-StorageSpace = namedtuple('StorageSpace', 'bytes_free,'
-                                          'bytes_total')
+StorageSpace = namedtuple('StorageSpace', 'bytes_free, bytes_total')
 
 PROGRAM_DIRECTORY = 'rapid-photo-downloader'
 
@@ -230,9 +231,15 @@ def get_desktop_environment():
     #TODO confirm if cinnamon really is x-cinnamon
     return os.getenv('XDG_CURRENT_DESKTOP')
 
+desktop = dict(gnome=Desktop.gnome, unity=Desktop.unity, xfce=Desktop.xfce, kde=Desktop.kde)
+desktop['x-cinnamon']=Desktop.cinnamon
+
+def get_desktop() -> Desktop:
+    env = get_desktop_environment().lower()
+    return desktop.get(env, Desktop.unknown)
+
 def gvfs_controls_mounts() -> bool:
-    return get_desktop_environment().lower() in ('gnome', 'unity',
-                                                 'x-cinnamon')
+    return get_desktop() in (Desktop.gnome, Desktop.unity,Desktop.cinnamon, Desktop.xfce)
 
 def xdg_photos_directory() -> str:
     """
