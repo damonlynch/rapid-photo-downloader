@@ -124,11 +124,21 @@ class ScanWorker(WorkerInPublishPullPipeline):
 
         else:
             # scanning directly from camera
+            have_optimal_display_name = scan_arguments.device.have_optimal_display_name
             while True:
                 try:
                     self.camera = Camera(model=scan_arguments.device.camera_model,
                                          port=scan_arguments.device.camera_port,
                                          raise_errors=True)
+                    if not have_optimal_display_name:
+                        # Update the GUI with the real name of the camera
+                        have_optimal_display_name = True
+                        self.camera_display_name = self.camera.display_name
+                        self.content = pickle.dumps(ScanResults(
+                                                    optimal_display_name=self.camera_display_name,
+                                                    scan_id=int(self.worker_id)),
+                                                    pickle.HIGHEST_PROTOCOL)
+                        self.send_message_to_sink()
                     break
                 except CameraError as e:
                     self.content = pickle.dumps(ScanResults(
@@ -164,8 +174,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
 
                 # locate photos and videos, identifying duplicate files
                 for dcim_folder in dcim_folders:
-                    logging.debug("Scanning %s on %s", dcim_folder,
-                                  self.camera.display_name)
+                    logging.debug("Scanning %s on %s", dcim_folder, self.camera.display_name)
                     folder_identifier = self._folder_identifiers.get(dcim_folder)
                     self.locate_files_on_camera(dcim_folder, folder_identifier)
 
@@ -229,7 +238,14 @@ class ScanWorker(WorkerInPublishPullPipeline):
          the simple numeric identifier of the memory card being
          scanned right now
         """
-        for name, value in self.camera.camera.folder_list_files(path, self.camera.context):
+
+        folders_and_files = []
+        try:
+            folders_and_files = self.camera.camera.folder_list_files(path, self.camera.context)
+        except gp.GPhoto2Error as e:
+            logging.error("Unable to scan files on camera: error %s", e.code)
+
+        for name, value in folders_and_files:
             # Check to see if the process has received a command to terminate
             # or pause
             self.check_for_controller_directive()

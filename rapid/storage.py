@@ -349,11 +349,13 @@ def udev_attributes(devname: str) -> Optional[UdevAttr]:
     enumerator = GUdev.Enumerator.new(client)
     enumerator.add_match_property('DEVNAME', devname)
     for device in enumerator.execute():
-        model = device.get_property('ID_MODEL')
+        model = device.get_property('ID_MODEL') # type: str
         if model is not None:
             is_mtp = device.get_property('ID_MTP_DEVICE') == '1'
-            vendor = device.get_property('ID_VENDOR')
-            return UdevAttr(is_mtp, vendor.strip(), model.strip())
+            vendor = device.get_property('ID_VENDOR') # type: str
+            model = model.replace('_', ' ').strip()
+            vendor = vendor.replace('_', ' ').strip()
+            return UdevAttr(is_mtp, vendor, model)
     return None
 
 
@@ -721,13 +723,13 @@ if have_gio:
             if root is not None:
                 path = root.get_path()
                 if path:
-                    logging.debug("GIO: Looking for camera at mount {}".format(path))
+                    # logging.debug("GIO: Looking for camera at mount {}".format(path))
                     folder_name = os.path.split(path)[1]
                     for s in ('gphoto2:host=', 'mtp:host='):
                         if folder_name.startswith(s):
                             return folder_name[len(s):]
-            if path is not None:
-                logging.debug("GIO: camera not found at {}".format(path))
+            # if path is not None:
+            #     logging.debug("GIO: camera not found at {}".format(path))
             return None
 
         def mountIsPartition(self, mount: Gio.Mount) -> bool:
@@ -742,15 +744,12 @@ if have_gio:
             if root is not None:
                 path = root.get_path()
                 if path:
-                    logging.debug("GIO: Looking for valid partition at mount {"
-                                  "}".format(
-                        path))
+                    # logging.debug("GIO: Looking for valid partition at mount {}".format(path))
                     if self.validMounts.pathIsValidMountPoint(path):
-                        logging.debug("GIO: partition found at {}".format(
-                            path))
+                        # logging.debug("GIO: partition found at {}".format(path))
                         return True
-            if path is not None:
-                logging.debug("GIO: partition is not valid: {}".format(path))
+            # if path is not None:
+            #     logging.debug("GIO: partition is not valid: {}".format(path))
             return False
 
         def mountAdded(self, volumeMonitor, mount: Gio.Mount):
@@ -780,7 +779,7 @@ if have_gio:
         def volumeRemoved(self, volumeMonitor, volume: Gio.Volume):
             logging.debug("GIO: %s volume removed", volume.get_name())
             if volume.get_activation_root() is not None:
-                logging.debug("GIO: %s might be a camera", volume.get_name())
+                # logging.debug("GIO: %s might be a camera", volume.get_name())
                 self.cameraPossiblyRemoved.emit()
 
         def getIconNames(self, mount: Gio.Mount) -> List[str]:

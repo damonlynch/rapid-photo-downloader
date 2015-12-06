@@ -1736,6 +1736,8 @@ class RapidWindow(QMainWindow):
         if data.rpd_files is not None:
             # Update scan running totals
             scan_id = data.rpd_files[0].scan_id
+            if scan_id not in self.devices:
+                return
             device = self.devices[scan_id]
             device.file_type_counter = data.file_type_counter
             device.file_size_sum = data.file_size_sum
@@ -1747,32 +1749,44 @@ class RapidWindow(QMainWindow):
                 self.thumbnailModel.addFile(rpd_file, generate_thumbnail=not
                                             self.auto_start_is_on)
         else:
-            # An error occurred
             scan_id = data.scan_id
-            error_code = data.error_code
-            camera_model = self.devices[scan_id].display_name
-            if error_code == CameraErrorCode.locked:
-                title =_('Device locked')
-                message = _('%(camera)s appears to be locked. You can unlock it now and try '
-                              'again, or ignore this device.') % {'camera': camera_model}
+            if scan_id not in self.devices:
+                return
+            if data.error_code is not None:
+                # An error occurred
+                error_code = data.error_code
+                camera_model = self.devices[scan_id].display_name
+                print(self.devices[scan_id])
+                if error_code == CameraErrorCode.locked:
+                    title =_('Device locked')
+                    message = _('%(camera)s appears to be locked. You can unlock it now and try '
+                                  'again, or ignore this device.') % {'camera': camera_model}
+                else:
+                    assert error_code == CameraErrorCode.inaccessible
+                    title = _('Device inaccessible')
+                    message = _('%(camera)s appears to be in use by another application. You can '
+                              'close any other application (such as a file browser) that is using '
+                              'it and try again, or ignore this device.') % {'camera': camera_model}
+                msgBox = QMessageBox(QMessageBox.Warning, title, message,
+                                QMessageBox.NoButton, self)
+                msgBox.setIconPixmap(self.devices[scan_id].get_pixmap(QSize(30,30)))
+                msgBox.addButton(_("&Try Again"), QMessageBox.AcceptRole)
+                msgBox.addButton("&Ignore This Device", QMessageBox.RejectRole)
+                if msgBox.exec_() == QMessageBox.AcceptRole:
+                    self.scanmq.resume(worker_id=scan_id)
+                else:
+                    self.scanmq.stop_worker(worker_id=scan_id)
+                    self.removeDevice(scan_id)
             else:
-                assert error_code == CameraErrorCode.inaccessible
-                title = _('Device inaccessible')
-                message = _('%(camera)s appears to be in use by another application. You can '
-                          'close any other application (such as a file browser) that is using '
-                          'it and try again, or ignore this device.') % {'camera': camera_model}
-            msgBox = QMessageBox(QMessageBox.Warning, title, message,
-                            QMessageBox.NoButton, self)
-            msgBox.setIconPixmap(self.devices[scan_id].get_pixmap(QSize(30,30)))
-            msgBox.addButton(_("&Try Again"), QMessageBox.AcceptRole)
-            msgBox.addButton("&Ignore This Device", QMessageBox.RejectRole)
-            if msgBox.exec_() == QMessageBox.AcceptRole:
-                self.scanmq.resume(worker_id=scan_id)
-            else:
-                self.scanmq.stop_worker(worker_id=scan_id)
-                self.removeDevice(scan_id)
+                # Update GUI display with canonical camera display name
+                device = self.devices[scan_id]
+                device.display_name = data.optimal_display_name
+                device.have_optimal_display_name = True
+                self.updateSourceButton()
 
     def scanFinished(self, scan_id: int) -> None:
+        if scan_id not in self.devices:
+            return
         device = self.devices[scan_id]
         results_summary, file_types_present  = device.file_type_counter.summarize_file_count()
         self.download_tracker.set_file_types_present(scan_id,

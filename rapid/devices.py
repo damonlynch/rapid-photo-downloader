@@ -86,20 +86,21 @@ class Device:
         self.clear()
 
     def clear(self):
-        self.camera_model = None
-        self.camera_port = None
+        self.camera_model = None # type: str
+        self.camera_port = None # type: str
         # Assume an MTP device is likely a smart phone or tablet
         self.is_mtp_device = False
-        self.udev_name = None
-        self.no_storage_media = None
-        self.storage_space = []
-        self.path = None
-        self.display_name = None
-        self.device_type = None
-        self.icon_name = None
-        self.can_eject = None
-        self.photo_cache_dir = None
-        self.video_cache_dir = None
+        self.udev_name = None # type: str
+        self.no_storage_media = None # type: int
+        self.storage_space = [] # type: List[StorageSpace]
+        self.path = None # type: str
+        self.display_name = None # type: str
+        self.have_optimal_display_name = False
+        self.device_type = None # type: DeviceType
+        self.icon_name = None # type: str
+        self.can_eject = None # type: bool
+        self.photo_cache_dir = None # type: str
+        self.video_cache_dir = None # type: str
         self.file_size_sum = 0
         self.file_type_counter = FileTypeCounter()
 
@@ -113,7 +114,8 @@ class Device:
 
     def __str__(self):
         if self.device_type == DeviceType.camera:
-            return "%s on port %s" % (self.camera_model, self.camera_port)
+            return '{} on port {}: {}; {}; MTP: {}'.format(self.camera_model, self.camera_port,
+                    self.udev_name, self.display_name, self.is_mtp_device)
         elif self.device_type == DeviceType.volume:
             if self.path != self.display_name:
                 return "%s (%s)" % (self.path, self.display_name)
@@ -144,28 +146,31 @@ class Device:
         self.clear()
         self.device_type = DeviceType.camera
         self.camera_model = camera_model
+        # Set default display name, for when all else fails.
+        # Try to override this value below
+        self.display_name = camera_model
         self.camera_port = camera_port
         self.icon_name = self._get_valid_icon_name(('camera-photo', 'camera'))
+
         devname = generate_devname(camera_port)
         if devname is not None:
             udev_attr = udev_attributes(devname)
             if udev_attr is not None:
                 self.is_mtp_device = udev_attr.is_mtp_device
                 self.udev_name = udev_attr.model
+                self.display_name = udev_attr.model
         else:
             logging.error("Could not determine port values for %s %s", self.camera_model,
                           camera_port)
 
         if get_camera_attributes:
             c =  Camera(camera_model, camera_port, get_folders=False)
-            self.display_name = c.display_name
+            if c.camera_initialized:
+                self.display_name = c.display_name
+                self.have_optimal_display_name = True
             self.no_storage_media = c.no_storage_media()
             for idx in range(self.no_storage_media):
                 self.storage_space.append(c.get_storage_media_capacity(idx))
-        elif self.udev_name is not None:
-            self.display_name = self.udev_name
-        else:
-            self.display_name = camera_model
 
     def set_download_from_volume(self, path: str, display_name: str,
                                  icon_names=None, can_eject=None,
@@ -175,6 +180,7 @@ class Device:
         self.path = path
         self.icon_name = self._get_valid_icon_name(icon_names)
         self.display_name = display_name
+        self.have_optimal_display_name = True
         self.can_eject = can_eject
         if not mount:
             mount = QStorageInfo(path)
@@ -191,6 +197,7 @@ class Device:
         display_name = os.path.basename(path)
         if display_name:
             self.display_name = display_name
+            self.have_optimal_display_name = True
         else:
             self.display_name = path
         # the next value is almost certainly ("folder",), but I guess it's
@@ -266,6 +273,7 @@ class Device:
     def delete_cache_dirs(self):
         self._delete_cache_dir(self.photo_cache_dir)
         self._delete_cache_dir(self.video_cache_dir)
+
 
 class DeviceCollection:
     """

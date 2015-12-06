@@ -842,12 +842,14 @@ class ScanResults:
                  file_type_counter: Optional[FileTypeCounter]=None,
                  file_size_sum: Optional[int] = None,
                  error_code: Optional[CameraErrorCode]=None,
-                 scan_id: Optional[int]=None) -> None:
+                 scan_id: Optional[int]=None,
+                 optimal_display_name: Optional[str]=None) -> None:
         self.rpd_files = rpd_files
         self.file_type_counter = file_type_counter
         self.file_size_sum = file_size_sum
         self.error_code = error_code
         self.scan_id = scan_id
+        self.optimal_display_name = optimal_display_name
 
 
 class CopyFilesArguments:
