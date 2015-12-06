@@ -176,8 +176,7 @@ class ThumbnailTableModel(QAbstractTableModel):
         if row >= len(self.rows) or row < 0:
             return None
         unique_id = self.rows[row].id_value
-        rpd_file = self.rpd_files[unique_id]
-        """:type : RPDFile"""
+        rpd_file = self.rpd_files[unique_id] # type: RPDFile
 
         if role == Qt.DisplayRole:
             # This is never displayed, but it is used for filtering!
@@ -609,10 +608,15 @@ class ThumbnailTableModel(QAbstractTableModel):
         False
         """
 
-        terminated = scan_id in self.thumbnailmq
+        if self.use_linear_thumbnailer:
+            manager = self.thumbnailmq
+        else:
+            manager = self.thumbnailmq.thumbnail_manager
+
+        terminated = scan_id in manager
         if terminated:
-            no_workers = len(self.thumbnailmq)
-            self.thumbnailmq.stop_worker(scan_id)
+            no_workers = len(manager)
+            self.manager.stop_worker(scan_id)
             if no_workers == 1:
                 # Don't be fooled: the number of workers will become zero
                 # momentarily!
@@ -652,6 +656,14 @@ class ThumbnailView(QListView):
         padding-bottom: 4px;
         }
         """
+        # style = """
+        # QListView {
+        # background-color: black; padding-left: 4px; padding-top: 4px;
+        # padding-bottom: 4px;
+        # }
+        # """
+
+
         super().__init__()
         self.setViewMode(QListView.IconMode)
         self.setResizeMode(QListView.Adjust)

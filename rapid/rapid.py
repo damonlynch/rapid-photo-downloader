@@ -54,7 +54,7 @@ from PyQt5 import QtCore, QtWidgets, QtGui
 from PyQt5.QtCore import (QThread, Qt, QStorageInfo, QSettings, QPoint,
                           QSize, QTimer, QTextStream, QSortFilterProxyModel,
                           QModelIndex)
-from PyQt5.QtGui import (QIcon, QPixmap, QImage, QFont)
+from PyQt5.QtGui import (QIcon, QPixmap, QImage, QFont, QColor, QPalette)
 from PyQt5.QtWidgets import (QAction, QApplication, QMainWindow, QMenu,
                              QPushButton, QWidget, QDialogButtonBox,
                              QProgressBar, QSplitter, QFileIconProvider,
@@ -2727,6 +2727,31 @@ def get_versions(seperator='\n') -> str:
         versions.append('Exiv2: {}'.format(v))
     return seperator.join(versions)
 
+def darkFusion(app: QApplication):
+    app.setStyle("Fusion")
+
+    dark_palette = QPalette()
+
+    dark_palette.setColor(QPalette.Window, QColor(53, 53, 53))
+    dark_palette.setColor(QPalette.WindowText, Qt.white)
+    dark_palette.setColor(QPalette.Base, QColor(25, 25, 25))
+    dark_palette.setColor(QPalette.AlternateBase, QColor(53, 53, 53))
+    dark_palette.setColor(QPalette.ToolTipBase, Qt.white)
+    dark_palette.setColor(QPalette.ToolTipText, Qt.white)
+    dark_palette.setColor(QPalette.Text, Qt.white)
+    dark_palette.setColor(QPalette.Button, QColor(53, 53, 53))
+    dark_palette.setColor(QPalette.ButtonText, Qt.white)
+    dark_palette.setColor(QPalette.BrightText, Qt.red)
+    dark_palette.setColor(QPalette.Link, QColor(42, 130, 218))
+    dark_palette.setColor(QPalette.Highlight, QColor(42, 130, 218))
+    dark_palette.setColor(QPalette.HighlightedText, Qt.black)
+
+    app.setPalette(dark_palette)
+    style = """
+    QToolTip { color: #ffffff; background-color: #2a82da; border: 1px solid white; }
+    """
+    app.setStyleSheet(style)
+
 
 def main() -> None:
     parser = argparse.ArgumentParser(prog=PROGRAM_NAME)
@@ -2814,6 +2839,8 @@ def main() -> None:
     app.setOrganizationDomain("damonlynch.net")
     app.setApplicationName("Rapid Photo Downloader")
     app.setWindowIcon(QtGui.QIcon(':/rapid-photo-downloader.svg'))
+
+    # darkFusion(app)
 
     # Resetting preferences must occur after QApplication is instantiated
     if args.reset:
