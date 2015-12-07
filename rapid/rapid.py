@@ -2753,7 +2753,8 @@ def darkFusion(app: QApplication):
     app.setStyleSheet(style)
 
 
-def main() -> None:
+if __name__ == "__main__":
+
     parser = argparse.ArgumentParser(prog=PROGRAM_NAME)
     parser.add_argument('--version', action='version', version=
         '%(prog)s {}'.format(human_readable_version(constants.version)))
@@ -2863,6 +2864,3 @@ def main() -> None:
     app.setActivationWindow(rw)
 
     sys.exit(app.exec_())
-
-if __name__ == "__main__":
-    main()
