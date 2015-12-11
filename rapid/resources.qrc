@@ -11,5 +11,10 @@
 <file alias="icons/camera.svg">images/camera-photo-symbolic.svg</file>
 <file alias="icons/folder.svg">images/folder-symbolic.svg</file>
 <file alias="icons/smartphone.svg">images/phone-smartphone-symbolic.svg</file>
+<file alias="icons/media-eject.svg">images/media-eject.svg</file>
+<file alias="icons/sdcard.svg">images/sdcard-symbolic.svg</file>
+<file alias="icons/drive-removable-media.svg">images/drive-removable-media-symbolic.svg</file>
+<file alias="icons/image-x-generic.svg">images/image-x-generic-symbolic.svg</file>
+<file alias="icons/computer.svg">images/computer-symbolic.svg</file>
 </qresource>
 </RCC>

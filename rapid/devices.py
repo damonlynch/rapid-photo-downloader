@@ -114,8 +114,9 @@ class Device:
 
     def __str__(self):
         if self.device_type == DeviceType.camera:
-            return '{} on port {}: {}; {}; MTP: {}'.format(self.camera_model, self.camera_port,
-                    self.udev_name, self.display_name, self.is_mtp_device)
+            return '{} on port {}. Udev: {}; Display name: {} (optimal: {}); MTP: {' \
+                   '}'.format(self.camera_model, self.camera_port, self.udev_name,
+                              self.display_name, self.have_optimal_display_name, self.is_mtp_device)
         elif self.device_type == DeviceType.volume:
             if self.path != self.display_name:
                 return "%s (%s)" % (self.path, self.display_name)
@@ -220,7 +221,6 @@ class Device:
         """
         return self.storage_space[index]
 
-
     def name(self) -> str:
         """
         Get the name of the device, suitable to be displayed to the
@@ -238,13 +238,7 @@ class Device:
         """Return icon for the device."""
 
         if self.device_type == DeviceType.volume:
-            icon = None
-            if self.icon_name is not None:
-                icon = QIcon.fromTheme(self.icon_name)
-            if icon is not None:
-                return icon
-            else:
-                return QFileIconProvider().icon(QFileIconProvider.Drive)
+            return QIcon(':icons/drive-removable-media.svg')
         elif self.device_type == DeviceType.path:
             return QIcon(':/icons/folder.svg')
         else:
@@ -267,8 +261,7 @@ class Device:
                 try:
                     shutil.rmtree(cache_dir, ignore_errors=True)
                 except:
-                    logging.error("Unknown error deleting cache "
-                                      "directory %s", cache_dir)
+                    logging.error("Unknown error deleting cache directory %s", cache_dir)
 
     def delete_cache_dirs(self):
         self._delete_cache_dir(self.photo_cache_dir)
@@ -376,8 +369,7 @@ class DeviceCollection:
 
     def scan_id_from_camera_model_port(self, model: str, port: str) -> int:
         camera = Device()
-        camera.set_download_from_camera(model, port,
-                                        get_camera_attributes=False)
+        camera.set_download_from_camera(model, port, get_camera_attributes=False)
         for scan_id in self.devices:
             if self.devices[scan_id] == camera:
                 return scan_id
@@ -442,10 +434,14 @@ class DeviceCollection:
                     text = _('%(no_cameras)s Cameras') % {'no_cameras':
                                                               device_types[DeviceType.camera]}
                     return text, QIcon(':/icons/camera.svg')
+                elif device_type == DeviceType.volume:
+                    text = _('%(no_volumes)s Volumes') % {'no_volumes':
+                                                              device_types[DeviceType.volume]}
+                    return text, QIcon(':/icons/drive-removable-media.svg')
             # Mixed devices (e.g. cameras, card readers), or only external
             # volumes
-            return _('%(no_devices)s Devices') % {'no_devices': device_types[DeviceType.volume]}, \
-                   QIcon(':/icons/folder.svg')
+            return _('%(no_devices)s Devices') % {'no_devices': len(self)}, \
+                   QIcon(':/icons/computer.svg')
 
 
 BackupDevice = namedtuple('BackupDevice', ['mount', 'backup_type'])
@@ -573,11 +569,10 @@ class BackupDeviceCollection:
         if self.devices[path].mount is None:
             return path
         else:
-            mount = self.devices[path].mount
-            """ :type : QStorageInfo"""
+            mount = self.devices[path].mount # type:  QStorageInfo
             return mount.displayName()
 
-    def backup_type(self, path):
+    def backup_type(self, path) -> BackupLocationType:
         return self.devices[path].backup_type
 
     def multiple_backup_devices(self, file_type: FileType) -> bool:
@@ -587,10 +582,8 @@ class BackupDeviceCollection:
         :return: True if more than one backup device is being used for
         the file type
         """
-        return ((file_type == FileType.photo and
-                 self.no_photo_backup_devices > 1) or
-                (file_type == FileType.video and
-                 self.no_video_backup_devices > 1))
+        return ((file_type == FileType.photo and self.no_photo_backup_devices > 1) or
+                (file_type == FileType.video and self.no_video_backup_devices > 1))
 
     def backup_possible(self, file_type: FileType) -> bool:
         """
@@ -604,6 +597,5 @@ class BackupDeviceCollection:
         elif file_type == FileType.video:
             return self.no_video_backup_devices > 0
         else:
-            logging.critical("Unrecognized file type when determining if "
-                           "backup is possible")
+            logging.critical("Unrecognized file type when determining if backup is possible")
 

@@ -438,7 +438,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
         """
         Determine how libgphoto2 reports modification time.
 
-        Gphoto2 can give surprising results for the file modification
+        gPhoto2 can give surprising results for the file modification
         time, such that it's off by exactly the time zone.
         For example, if we're at UTC + 5, the time stamp is five hours
         in advance of what is recorded on the memory card
@@ -474,20 +474,20 @@ class ScanWorker(WorkerInPublishPullPipeline):
             except:
                 logging.error("Scanner failed to extract date time metadata from %s on %s",
                               name, self.camera.display_name)
-                logging.warning("Could not determine gphoto timezone setting for %s",
+                logging.warning("Could not determine gPhoto2 timezone setting for %s",
                                 self.camera.display_name)
                 self.gphoto_mtime = GphotoMTime.unknown
             else:
                 if datetime.utcfromtimestamp(modification_time) == dt:
-                    logging.debug("Gphoto timezone setting for %s is UTC",
+                    logging.debug("gPhoto2 timezone setting for %s is UTC",
                                 self.camera.display_name)
                     self.gphoto_mtime = GphotoMTime.is_utc
                 else:
-                    logging.debug("Gphoto timezone setting for %s is local time",
+                    logging.debug("gPhoto2 timezone setting for %s is local time",
                                 self.camera.display_name)
                     self.gphoto_mtime = GphotoMTime.is_local
         else:
-            logging.warning("Could not determine gphoto timezone setting for %s",
+            logging.warning("Could not determine gPhoto2 timezone setting for %s",
                                 self.camera.display_name)
             self.gphoto_mtime = GphotoMTime.unknown
 

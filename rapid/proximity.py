@@ -32,7 +32,7 @@ from gettext import gettext as _
 from PyQt5.QtCore import (QAbstractTableModel, QModelIndex, Qt, QSize,
                           QRect, QPoint)
 from PyQt5.QtWidgets import (QTableView, QStyledItemDelegate,
-                             QStyleOptionViewItem)
+                             QStyleOptionViewItem, QHeaderView)
 from PyQt5.QtGui import (QPainter, QFontMetrics, QFont, QColor)
 
 ProximityRow = namedtuple('ProximityRow', 'year, month, weekday, day, '
@@ -683,6 +683,8 @@ class TemporalProximityView(QTableView):
         super().__init__()
         self.verticalHeader().setVisible(False)
         self.horizontalHeader().setVisible(False)
+        self.setMinimumWidth(200)
+        # self.horizontalHeader().setStretchLastSection(True)
         # self.setShowGrid(False)
 
     def minimumSizeHint(self) -> QSize:
@@ -692,5 +694,9 @@ class TemporalProximityView(QTableView):
             w += self.columnWidth(i)
         h = 100
         return QSize(w, h)
+
+    def SizeHint(self) -> QSize:
+        return self.minimumSizeHint()
+
 
 

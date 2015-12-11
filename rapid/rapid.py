@@ -53,14 +53,14 @@ import gphoto2 as gp
 from PyQt5 import QtCore, QtWidgets, QtGui
 from PyQt5.QtCore import (QThread, Qt, QStorageInfo, QSettings, QPoint,
                           QSize, QTimer, QTextStream, QSortFilterProxyModel,
-                          QModelIndex)
+                          QModelIndex, QRect)
 from PyQt5.QtGui import (QIcon, QPixmap, QImage, QFont, QColor, QPalette)
 from PyQt5.QtWidgets import (QAction, QApplication, QMainWindow, QMenu,
                              QPushButton, QWidget, QDialogButtonBox,
                              QProgressBar, QSplitter, QFileIconProvider,
                              QHBoxLayout, QVBoxLayout, QDialog, QLabel,
                              QComboBox, QGridLayout, QCheckBox, QSizePolicy,
-                             QMessageBox)
+                             QMessageBox, QDesktopWidget)
 from PyQt5.QtNetwork import QLocalSocket, QLocalServer
 
 import qrc_resources
@@ -331,6 +331,8 @@ class RapidWindow(QMainWindow):
         self.do_init = QtCore.QEvent.registerEventType()
         super().__init__(parent)
 
+        self.setFocusPolicy(Qt.StrongFocus)
+
         self.ignore_other_photo_types = ignore_other_photo_types
         self.application_state = ApplicationState.normal
 
@@ -407,12 +409,20 @@ class RapidWindow(QMainWindow):
         QtWidgets.QApplication.postEvent(
             self, QtCore.QEvent(self.do_init), QtCore.Qt.LowEventPriority - 1)
 
-
     def readWindowSettings(self):
         settings = QSettings()
         settings.beginGroup("MainWindow")
-        pos = settings.value("pos", QPoint(200, 200))
-        size = settings.value("size", QSize(650, 670))
+        desktop = QApplication.desktop() # type: QDesktopWidget
+
+        # Calculate window sizes. Does not take into account
+        available = desktop.availableGeometry(desktop.primaryScreen()) # type: QRect
+        screen = desktop.screenGeometry(desktop.primaryScreen())  # type: QRect
+        default_width = available.width() // 2
+        default_x = screen.width() - default_width
+        default_height = available.height()
+        default_y = screen.height() - default_height
+        pos = settings.value("pos", QPoint(default_x, default_y))
+        size = settings.value("size", QSize(default_width, default_height))
         settings.endGroup()
         self.resize(size)
         self.move(pos)
@@ -422,6 +432,7 @@ class RapidWindow(QMainWindow):
         settings.beginGroup("MainWindow")
         settings.setValue("pos", self.pos())
         settings.setValue("size", self.size())
+        settings.setValue("horizatonalSplitterSizes", self.horizontalSplitter.saveState())
         settings.endGroup()
 
     def setupWindow(self):
@@ -598,6 +609,10 @@ class RapidWindow(QMainWindow):
                                    block_auto_start=not prefs_valid)
         self.updateSourceButton()
         self.displayMessageInStatusBar()
+        # TODO why ddoes this have no effect?
+        self.downloadButton.setFocus()
+        logging.debug("Download button has focus: %s", self.downloadButton.hasFocus())
+        logging.debug("Focus widget: %s", self.focusWidget())
 
     def startBackupManager(self):
         if not self.backup_manager_started:
@@ -697,8 +712,7 @@ class RapidWindow(QMainWindow):
         self.sourceButton.setFont(font)
 
         self.destinationButton = QPushButton(addPushButtonLabelSpacer(_('Destination')))
-        self.destinationButton.setSizePolicy(QSizePolicy.Maximum,
-                                             QSizePolicy.Maximum)
+        self.destinationButton.setSizePolicy(QSizePolicy.Maximum, QSizePolicy.Maximum)
         self.destinationButton.setCheckable(True)
         self.destinationButton.setIcon(QIcon(':/icons/folder.svg'))
         self.destinationButton.setIconSize(QSize(self.top_row_icon_size, self.top_row_icon_size))
@@ -710,11 +724,10 @@ class RapidWindow(QMainWindow):
         verticalLayout.addLayout(topBar)
 
 
-        verticalLayout.addWidget(self.deviceView)
         verticalLayout.setContentsMargins(0, 0, 0, 0)
 
         centralWidget.setLayout(verticalLayout)
-        self.resizeDeviceView()
+        # self.resizeDeviceView()
 
         centralLayout = QHBoxLayout()
         centralLayout.setContentsMargins(0, 0, 0, 0)
@@ -722,45 +735,55 @@ class RapidWindow(QMainWindow):
         leftBar = QVBoxLayout()
         leftBar.setContentsMargins(0, 0, 0, 0)
 
-        self.dateButton = RotatedButton(_('Day'), self,
-                                        RotatedButton.leftSide)
-        self.proximityButton = RotatedButton(_('Proximity'), self,
-                                         RotatedButton.leftSide)
+        self.dateButton = RotatedButton(_('Day'), self, RotatedButton.leftSide)
+        self.proximityButton = RotatedButton(_('Proximity'), self, RotatedButton.leftSide)
 
-        self.dateButton.setSizePolicy(QSizePolicy.Fixed,
-                                           QSizePolicy.Fixed)
-        self.proximityButton.setSizePolicy(QSizePolicy.Fixed,
-                                           QSizePolicy.Fixed)
+        self.dateButton.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        self.proximityButton.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         leftBar.addWidget(self.dateButton)
         leftBar.addWidget(self.proximityButton)
         leftBar.addStretch()
 
         centralLayout.addLayout(leftBar)
 
-        splitter = QSplitter()
-        splitter.setOrientation(Qt.Horizontal)
-        self.temporalProximityView.setSizePolicy(QSizePolicy.Minimum,
-                                                 QSizePolicy.Maximum)
-        splitter.addWidget(self.temporalProximityView)
-        splitter.addWidget(self.thumbnailView)
+        self.horizontalSplitter = QSplitter()
+        self.horizontalSplitter.setOrientation(Qt.Horizontal)
 
-        centralLayout.addWidget(splitter)
+        leftPanel = QWidget()
+        leftPanelLayout = QVBoxLayout()
+        leftPanelLayout.setContentsMargins(0, 0, 0, 0)
+        leftPanel.setLayout(leftPanelLayout)
+        leftPanelLayout.addWidget(self.deviceView)
+        self.deviceView.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Fixed)
+        leftPanelLayout.addWidget(self.temporalProximityView)
+        self.temporalProximityView.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.horizontalSplitter.addWidget(leftPanel)
+        self.horizontalSplitter.addWidget(self.thumbnailView)
+        self.horizontalSplitter.setStretchFactor(0, 0)
+        self.horizontalSplitter.setStretchFactor(1, 2)
+        self.horizontalSplitter.setCollapsible(0, False)
+        self.horizontalSplitter.setCollapsible(1, False)
+
+        centralLayout.addWidget(self.horizontalSplitter)
+
+        settings = QSettings()
+        settings.beginGroup("MainWindow")
+        splitterSetting = settings.value("horizatonalSplitterSizes")
+        if splitterSetting is not None:
+            s = splitterSetting
+            self.horizontalSplitter.restoreState(splitterSetting)
+        else:
+            self.horizontalSplitter.setSizes([200, 400])
 
         rightBar = QVBoxLayout()
         rightBar.setContentsMargins(0, 0, 0, 0)
 
-        self.backupButton = RotatedButton(_('Back Up'), self,
-                                          RotatedButton.rightSide)
-        self.renameButton = RotatedButton(_('Rename'), self,
-                                          RotatedButton.rightSide)
-        self.jobcodeButton = RotatedButton(_('Job Code'), self,
-                                          RotatedButton.rightSide)
-        self.backupButton.setSizePolicy(QSizePolicy.Fixed,
-                                           QSizePolicy.Fixed)
-        self.renameButton.setSizePolicy(QSizePolicy.Fixed,
-                                           QSizePolicy.Fixed)
-        self.jobcodeButton.setSizePolicy(QSizePolicy.Fixed,
-                                           QSizePolicy.Fixed)
+        self.backupButton = RotatedButton(_('Back Up'), self, RotatedButton.rightSide)
+        self.renameButton = RotatedButton(_('Rename'), self, RotatedButton.rightSide)
+        self.jobcodeButton = RotatedButton(_('Job Code'), self, RotatedButton.rightSide)
+        self.backupButton.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        self.renameButton.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        self.jobcodeButton.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         rightBar.addWidget(self.backupButton)
         rightBar.addWidget(self.renameButton)
         rightBar.addWidget(self.jobcodeButton)
@@ -768,7 +791,6 @@ class RapidWindow(QMainWindow):
         centralLayout.addLayout(rightBar)
 
         verticalLayout.addLayout(centralLayout)
-
 
         # Help and Download buttons
         horizontalLayout = QHBoxLayout()
@@ -1756,7 +1778,6 @@ class RapidWindow(QMainWindow):
                 # An error occurred
                 error_code = data.error_code
                 camera_model = self.devices[scan_id].display_name
-                print(self.devices[scan_id])
                 if error_code == CameraErrorCode.locked:
                     title =_('Device locked')
                     message = _('%(camera)s appears to be locked. You can unlock it now and try '
@@ -1852,7 +1873,10 @@ class RapidWindow(QMainWindow):
 
         #TODO fix this farcical attempt to make the table look nice
         width = self.temporalProximityView.minimumSizeHint().width()
-        self.temporalProximityView.setMaximumWidth(width)
+        print("prox", self.temporalProximityView.minimumSizeHint().width())
+        print(self.temporalProximityView.size())
+        # print(self.temporalProximityView.sizePolicy().horizontalPolicy())
+        # self.temporalProximityView.setMaximumWidth(width)
         # self.temporalProximityView.hide()
 
         # self.thumbnailProxyModel.setFilterRegExp(QRegExp(re))
@@ -1949,15 +1973,12 @@ class RapidWindow(QMainWindow):
         return (iconNames, canEject)
 
     def addToDeviceDisplay(self, device: Device, scan_id: int) -> None:
-        deviceIcon = device.get_icon()
-        if device.can_eject:
-            ejectIcon = QIcon.fromTheme('media-eject')
-        else:
-            ejectIcon = None
-        self.deviceModel.addDevice(scan_id, deviceIcon, device.name(), ejectIcon)
-        self.deviceView.resizeColumns()
-        self.deviceView.resizeRowsToContents()
-        self.resizeDeviceView()
+        self.deviceModel.addDevice(scan_id, device)
+        # TODO set proper height based on number of devices
+        self.deviceView.setMaximumHeight(100)
+        # self.deviceView.resizeColumns()
+        # self.deviceView.resizeRowsToContents()
+        # self.resizeDeviceView()
 
     def resizeDeviceView(self) -> None:
         """
@@ -1968,7 +1989,7 @@ class RapidWindow(QMainWindow):
         if len(self.devices):
             self.deviceView.setMaximumHeight(len(self.devices) * (self.deviceView.rowHeight(0)+1))
         else:
-            self.deviceView.setMaximumHeight(20)
+            self.deviceView.setMaximumHeight(50)
 
     def cameraAdded(self) -> None:
         if not self.prefs.device_autodetection:

@@ -411,7 +411,7 @@ class LoadBalancerManager(ProcessManager, QObject):
         self.add_worker(worker_id)
         self.requester.send(str(self.no_workers).encode())
         self.frontend_port = int(self.requester.recv())
-        logging.debug("{} front end port: {}".format(self._process_name, self.frontend_port))
+        # logging.debug("{} front end port: {}".format(self._process_name, self.frontend_port))
         self.load_balancer_started.emit(self.frontend_port)
 
     def stop(self):

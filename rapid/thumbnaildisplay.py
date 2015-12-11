@@ -27,7 +27,7 @@ from operator import attrgetter
 import subprocess
 import shlex
 import logging
-from typing import Optional, Dict
+from typing import Optional, Dict, List
 
 from gettext import gettext as _
 
@@ -331,13 +331,17 @@ class ThumbnailTableModel(QAbstractTableModel):
     def thumbnailReceived(self, rpd_file: RPDFile,
                           thumbnail: Optional[QPixmap]) -> None:
         unique_id = rpd_file.unique_id
+        scan_id = rpd_file.scan_id
         self.rpd_files[unique_id] = rpd_file
         if not thumbnail.isNull():
             row = self.rowFromUniqueId(unique_id)
             self.thumbnails[unique_id] = thumbnail
             self.dataChanged.emit(self.index(row,0),self.index(row,0))
         self.thumbnails_generated += 1
-        self.no_thumbnails_by_scan[self.rpd_files[unique_id].scan_id] -= 1
+        self.no_thumbnails_by_scan[scan_id] -= 1
+        if self.no_thumbnails_by_scan[scan_id] == 0:
+            device = self.rapidApp.devices[scan_id]
+            logging.debug('Finished phase 2 of thumbnail generation for %s', device.display_name)
 
         if self.thumbnails_generated == self.total_thumbs_to_generate:
             self.resetThumbnailTrackingAndDisplay()
@@ -616,13 +620,13 @@ class ThumbnailTableModel(QAbstractTableModel):
         terminated = scan_id in manager
         if terminated:
             no_workers = len(manager)
-            self.manager.stop_worker(scan_id)
+            manager.stop_worker(scan_id)
             if no_workers == 1:
                 # Don't be fooled: the number of workers will become zero
                 # momentarily!
                 self.resetThumbnailTrackingAndDisplay()
             else:
-                #Recalculate the percentages for the toolbar
+                # Recalculate the percentages for the toolbar
                 self.total_thumbs_to_generate -= self.no_thumbnails_by_scan[
                     scan_id]
                 self.rapidApp.downloadProgressBar.setMaximum(
@@ -635,7 +639,6 @@ class ThumbnailTableModel(QAbstractTableModel):
         self.rpd_files[unique_id] = rpd_file
         row = self.rowFromUniqueId(rpd_file.unique_id)
         self.dataChanged.emit(self.index(row,0),self.index(row,0))
-
 
     def filesRemainToDownload(self) -> bool:
         """
@@ -751,8 +754,7 @@ class ThumbnailDelegate(QStyledItemDelegate):
             download_status = model.data(index, Roles.download_status) # type: DownloadStatus
             has_audio = model.data(index, Roles.has_audio)
             secondary_attribute = model.data(index, Roles.secondary_attribute)
-            memory_cards = model.data(index, Roles.camera_memory_card)
-            """:type : List[int] """
+            memory_cards = model.data(index, Roles.camera_memory_card) # type: List[int]
 
             x = option.rect.x() + self.padding
             y = option.rect.y() + self.padding
@@ -851,8 +853,7 @@ class ThumbnailDelegate(QStyledItemDelegate):
             if secondary_attribute:
                 extBoundingRect = metrics.boundingRect(
                     secondary_attribute).marginsAdded(QMargins(text_padding, 0,
-                    text_padding, text_padding))
-                """:type : QRect"""
+                    text_padding, text_padding)) # type: QRect
                 text_width = metrics.width(secondary_attribute)
                 text_x = text_x - text_width - text_padding * 2 - \
                          self.footer_padding
@@ -873,8 +874,7 @@ class ThumbnailDelegate(QStyledItemDelegate):
                     card = str(card)
                     extBoundingRect = metrics.boundingRect(
                         card).marginsAdded(QMargins(
-                        text_padding, 0, text_padding, text_padding))
-                    """:type : QRect"""
+                        text_padding, 0, text_padding, text_padding)) # type: QRect
                     text_width = metrics.width(card)
                     color = QColor(70, 70, 70)
                     painter.fillRect(text_x, text_y - text_height,
