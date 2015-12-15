@@ -609,7 +609,6 @@ class Camera:
                 info.fields & gp.GP_STORAGEINFO_FREESPACEKBYTES):
             return StorageSpace(0, 0, '')
         else:
-            print("basedir", info.basedir)
             return StorageSpace(bytes_free=info.freekbytes * 1024,
                                 bytes_total=info.capacitykbytes * 1024,
                                 path=info.basedir)

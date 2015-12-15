@@ -294,7 +294,7 @@ class DeviceDelegate(QStyledItemDelegate):
                 device_used_y = device_size_y
                 painter.drawText(device_used_x, device_used_y, percent_used)
 
-                photos_g_width = (device.file_size_sum[FileType.photo] /
+                photos_g_width = (device.file_size_sum[photo_key] /
                                   storage_space.bytes_total * width)
                 photos_g_x = device_size_x
                 g_height = 25.0
@@ -302,7 +302,7 @@ class DeviceDelegate(QStyledItemDelegate):
                 linearGradient = QLinearGradient(photos_g_x, g_y, photos_g_x, g_y + g_height)
                 color1 = QColor(CustomColors.color1.value)
 
-                if device.file_size_sum[FileType.photo]:
+                if device.file_size_sum[photo_key]:
                     photos_g_rect = QRectF(photos_g_x, g_y, photos_g_width, g_height)
                     linearGradient.setColorAt(0.2, color1.lighter(self.shading_intensity))
                     linearGradient.setColorAt(0.8, color1.darker(self.shading_intensity))
@@ -312,8 +312,8 @@ class DeviceDelegate(QStyledItemDelegate):
 
                 videos_g_x = photos_g_x + photos_g_width
                 color2 = QColor(CustomColors.color2.value)
-                if device.file_size_sum[FileType.video]:
-                    videos_g_width = (device.file_size_sum[FileType.video] /
+                if device.file_size_sum[video_key]:
+                    videos_g_width = (device.file_size_sum[video_key] /
                                       storage_space.bytes_total * width)
                     videos_g_rect = QRectF(videos_g_x, g_y, videos_g_width, g_height)
                     linearGradient.setColorAt(0.2, color2.lighter(self.shading_intensity))

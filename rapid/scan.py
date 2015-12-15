@@ -272,6 +272,8 @@ class ScanWorker(WorkerInPublishPullPipeline):
                 if file_type == FileType.photo and self.gphoto_mtime == GphotoMTime.undetermined:
                     self.set_gphoto_mtime_(path, name, ext_lower, modification_time, size)
 
+                modification_time = self.get_camera_modification_time(modification_time)
+
                 # Store the directory this file is stored in, used when
                 # determining if associate files are part of the download
                 cf = CameraFile(name=name, modification_time=modification_time, size=size)
@@ -284,9 +286,11 @@ class ScanWorker(WorkerInPublishPullPipeline):
 
                 if name in self._camera_file_names:
                     for existing_file_info in self._camera_file_names[name]:
-                        if (existing_file_info.modification_time ==
-                                    modification_time and
-                                    existing_file_info.size == size):
+                        # Don't compare file modification time in this
+                        # comparison, because files can be written to
+                        # different cards several seconds apart when
+                        # the write speeds of the cards differ
+                        if existing_file_info.size == size:
                             file_is_unique = False
                             break
                 if file_is_unique:
@@ -355,11 +359,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
                 self.file_type_counter[file_type] += 1
 
                 if self.download_from_camera:
-                    if self.gphoto_mtime == GphotoMTime.is_utc:
-                        modification_time = datetime.utcfromtimestamp(
-                            file_info.modification_time).timestamp()
-                    else:
-                        modification_time = file_info.modification_time
+                    modification_time = file_info.modification_time
                     size = file_info.size
                     camera_file = CameraFile(name=self.file_name,
                                modification_time=modification_time, size=size)
@@ -435,6 +435,12 @@ class ScanWorker(WorkerInPublishPullPipeline):
                                                 pickle.HIGHEST_PROTOCOL)
                     self.send_message_to_sink()
                     self.file_batch = []
+
+    def get_camera_modification_time(self, modification_time) -> float:
+        if self.gphoto_mtime == GphotoMTime.is_utc:
+            return datetime.utcfromtimestamp(modification_time).timestamp()
+        else:
+            return float(modification_time)
 
     def set_gphoto_mtime_(self, path: str,
                           name: str,
