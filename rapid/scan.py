@@ -45,7 +45,7 @@ else:
     except ValueError:
         pass
     walk = os.walk
-from typing import List
+from typing import List, Dict
 
 from gi.repository import GExiv2
 import gphoto2 as gp
@@ -138,6 +138,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
                                                     optimal_display_name=self.camera_display_name,
                                                     scan_id=int(self.worker_id)),
                                                     pickle.HIGHEST_PROTOCOL)
+                        #TODO what about storage information?
                         self.send_message_to_sink()
                     break
                 except CameraError as e:
@@ -159,7 +160,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
                 self._camera_video_thumbnails = defaultdict(list)
                 self._camera_xmp_files = defaultdict(list)
                 self._folder_identifiers = {}
-                self._folder_identifers_for_file = defaultdict(list) # type: List[int]
+                self._folder_identifers_for_file = defaultdict(list) # type: Dict[int, List[int]]
                 self._camera_directories_for_file = defaultdict(list)
 
                 dcim_folders = self.camera.dcim_folders
@@ -176,7 +177,8 @@ class ScanWorker(WorkerInPublishPullPipeline):
                 for dcim_folder in dcim_folders:
                     logging.debug("Scanning %s on %s", dcim_folder, self.camera.display_name)
                     folder_identifier = self._folder_identifiers.get(dcim_folder)
-                    self.locate_files_on_camera(dcim_folder, folder_identifier)
+                    basedir = dcim_folder[:-len('/DCIM')]
+                    self.locate_files_on_camera(dcim_folder, folder_identifier, basedir)
 
                 for self.dir_name, self.file_name in self._camera_folders_and_files:
                     self.process_file()
@@ -198,7 +200,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
 
         self.send_finished_command()
 
-    def locate_files_on_camera(self, path: str, folder_identifier: int):
+    def locate_files_on_camera(self, path: str, folder_identifier: int, basedir: str) -> None:
         """
         Scans the memory card(s) on the camera for photos, videos,
         audio files, and video thumbnail (THM) files. Looks only in the
@@ -237,6 +239,8 @@ class ScanWorker(WorkerInPublishPullPipeline):
          camera being scanned has more than one memory card, and (2)
          the simple numeric identifier of the memory card being
          scanned right now
+        :param basedir: the base directory of the path, as reported by
+         libgphoto2
         """
 
         folders_and_files = []
@@ -260,6 +264,10 @@ class ScanWorker(WorkerInPublishPullPipeline):
                 # file is a photo or video
                 file_is_unique = True
                 modification_time, size = self.camera.get_file_info(path, name)
+
+                key = rpdfile.make_key(file_type, basedir)
+                self.file_type_counter[key] += 1
+                self.file_size_sum[key] += size
 
                 if file_type == FileType.photo and self.gphoto_mtime == GphotoMTime.undetermined:
                     self.set_gphoto_mtime_(path, name, ext_lower, modification_time, size)
@@ -309,7 +317,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
 
         # recurse over subfolders
         for name in folders:
-            self.locate_files_on_camera(os.path.join(path, name), folder_identifier)
+            self.locate_files_on_camera(os.path.join(path, name), folder_identifier, basedir)
 
 
     def process_file(self):
@@ -328,7 +336,6 @@ class ScanWorker(WorkerInPublishPullPipeline):
             if not self.files_scanned % 1000:
                 logging.debug("Scanned {} files".format(
                     self.files_scanned))
-
 
             if not self.download_from_camera:
                 base_name, ext = os.path.splitext(self.file_name)
@@ -396,8 +403,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
                     prev_full_name = prev_datetime = None
 
                 if self.download_from_camera:
-                    camera_memory_card_identifiers = \
-                        self._folder_identifers_for_file[camera_file]
+                    camera_memory_card_identifiers = self._folder_identifers_for_file[camera_file]
                     if not camera_memory_card_identifiers:
                         camera_memory_card_identifiers = None
                 else:

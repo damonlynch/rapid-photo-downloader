@@ -604,14 +604,15 @@ class Camera:
                              self.display_name)
             return StorageSpace(0, 0)
 
-        # print(self.storage_info)
         info = self.storage_info[media_index]
         if not (info.fields & gp.GP_STORAGEINFO_MAXCAPACITY and
                 info.fields & gp.GP_STORAGEINFO_FREESPACEKBYTES):
-            return StorageSpace(0, 0)
+            return StorageSpace(0, 0, '')
         else:
+            print("basedir", info.basedir)
             return StorageSpace(bytes_free=info.freekbytes * 1024,
-                                bytes_total=info.capacitykbytes * 1024)
+                                bytes_total=info.capacitykbytes * 1024,
+                                path=info.basedir)
 
     def no_storage_media(self, refresh: bool=False) -> int:
         """
@@ -669,10 +670,10 @@ if __name__ == "__main__":
         c = Camera(model=camera, port=port)
         print(c.dcim_folders)
 
-        dir = '/store_00010001/DCIM/100EOS1D'
+        directory = '/store_00010001/DCIM/100EOS1D'
         photo = '_K0V4925.CR2'
 
-        info = c.camera.file_get_info(dir, photo, c.context)
+        info = c.camera.file_get_info(directory, photo, c.context)
         # finfo = gp.gp_camera_file_get_info(c.camera, dir, photo ,c.context)
 
         c.free_camera()

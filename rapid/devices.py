@@ -190,7 +190,8 @@ class Device:
             mount = QStorageInfo(path)
         self.storage_space.append(StorageSpace(
                         bytes_free=mount.bytesAvailable(),
-                        bytes_total=mount.bytesTotal()))
+                        bytes_total=mount.bytesTotal(),
+                        path=path))
 
     def set_download_from_path(self, path: str):
         self.clear()
@@ -211,7 +212,8 @@ class Device:
         mount = QStorageInfo(path)
         self.storage_space.append(StorageSpace(
                         bytes_free=mount.bytesAvailable(),
-                        bytes_total=mount.bytesTotal()))
+                        bytes_total=mount.bytesTotal(),
+                        path=path))
 
     def get_storage_space(self, index: int=0) -> StorageSpace:
         """

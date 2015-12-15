@@ -72,7 +72,7 @@ try:
 except ImportError:
     have_gio = False
 
-StorageSpace = namedtuple('StorageSpace', 'bytes_free, bytes_total')
+StorageSpace = namedtuple('StorageSpace', 'bytes_free, bytes_total, path')
 UdevAttr = namedtuple('UdevAttr', 'is_mtp_device, vendor, model')
 
 PROGRAM_DIRECTORY = 'rapid-photo-downloader'

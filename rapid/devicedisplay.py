@@ -35,10 +35,11 @@ from PyQt5.QtGui import (QPixmap, QPainter, QIcon, QRegion, QFontMetrics, QFont,
                          QColor, QLinearGradient, QBrush)
 
 from viewutils import RowTracker
-from constants import DeviceState, FileType, CustomColors
+from constants import DeviceState, FileType, CustomColors, DeviceType
 from devices import Device
 from utilities import thousands, format_size_for_user
 from storage import StorageSpace
+from rpdfile import make_key
 
 
 class DeviceTableModel(QAbstractTableModel):
@@ -170,7 +171,7 @@ class DeviceView(QListView):
         #     self.resizeColumnToContents(column)
 
     def sizeHint(self):
-        return QSize(200, 250)
+        return QSize(200, 270)
 
 class DeviceDelegate(QStyledItemDelegate):
 
@@ -208,7 +209,6 @@ class DeviceDelegate(QStyledItemDelegate):
     def paint(self, painter: QPainter, option: QStyleOptionViewItem, index: QModelIndex) -> None:
         painter.save()
 
-        text_padding = 3
         x = option.rect.x() + self.padding
         y = option.rect.y() + self.padding
 
@@ -250,88 +250,108 @@ class DeviceDelegate(QStyledItemDelegate):
 
         for storage_space in device.storage_space:
             painter.setFont(standard_font)
-            bytes_total = format_size_for_user(storage_space.bytes_total, no_decimals=0)
-            bytes_used = storage_space.bytes_total-storage_space.bytes_free
 
-            percent_used = '{0:.0%}'.format(bytes_used / storage_space.bytes_total)
-            # Translators: percentage full e.g. 75% full
-            percent_used = '%s full' % percent_used
-            photos_size = format_size_for_user(device.file_size_sum[FileType.photo])
-            videos_size = format_size_for_user(device.file_size_sum[FileType.video])
-            other_bytes = storage_space.bytes_total - device.file_size_sum.sum() - \
+            if device.device_type == DeviceType.camera:
+                photo_key = make_key(FileType.photo, storage_space.path)
+                video_key = make_key(FileType.video, storage_space.path)
+                sum_key = storage_space.path
+            else:
+                photo_key = FileType.photo
+                video_key = FileType.video
+                sum_key = None
+
+            photos = _('%(no_photos)s Photos') % {'no_photos': device.file_type_counter[
+                photo_key]}
+            videos = _('%(no_videos)s Videos') % {'no_videos': device.file_type_counter[
+                video_key]}
+            photos_size = format_size_for_user(device.file_size_sum[photo_key])
+            videos_size = format_size_for_user(device.file_size_sum[video_key])
+            other_bytes = storage_space.bytes_total - device.file_size_sum.sum(sum_key) - \
                           storage_space.bytes_free
             other_size = format_size_for_user(other_bytes)
-            empty_size = format_size_for_user(storage_space.bytes_free)
-            photos = _('%(no_photos)s Photos') % {'no_photos': device.file_type_counter[
-                FileType.photo]}
-            videos = _('%(no_videos)s Videos') % {'no_videos': device.file_type_counter[
-                FileType.video]}
 
-            # Device size
-            metrics = QFontMetrics(self.parent_font)
-            device_size_x = x
-            device_size_y = top + 10 + metrics.height()
-            painter.drawText(device_size_x, device_size_y, bytes_total)
+            # If something went wrong getting the storage details
+            # for this device, the total space will be zero
+            if storage_space.bytes_total:
+                bytes_total = format_size_for_user(storage_space.bytes_total, no_decimals=0)
+                bytes_used = storage_space.bytes_total-storage_space.bytes_free
 
-            device_used_width = metrics.boundingRect(percent_used).width()
-            device_used_x = width - device_used_width
-            device_used_y = device_size_y
-            painter.drawText(device_used_x, device_used_y, percent_used)
+                percent_used = '{0:.0%}'.format(bytes_used / storage_space.bytes_total)
+                # Translators: percentage full e.g. 75% full
+                percent_used = '%s full' % percent_used
+                empty_size = format_size_for_user(storage_space.bytes_free)
 
-            photos_g_width = device.file_size_sum[FileType.photo] / storage_space.bytes_total * \
-                             width
-            photos_g_x = device_size_x
-            g_height = 25.0
-            g_y = device_size_y + self.padding
-            linearGradient = QLinearGradient(photos_g_x, g_y, photos_g_x, g_y + g_height)
-            color1 = QColor(CustomColors.color1.value)
 
-            if device.file_size_sum[FileType.photo]:
-                photos_g_rect = QRectF(photos_g_x, g_y, photos_g_width, g_height)
-                linearGradient.setColorAt(0.2, color1.lighter(self.shading_intensity))
-                linearGradient.setColorAt(0.8, color1.darker(self.shading_intensity))
-                painter.fillRect(photos_g_rect, QBrush(linearGradient))
+                # Device size
+                metrics = QFontMetrics(self.parent_font)
+                device_size_x = x
+                device_size_y = top + 10 + metrics.height()
+                painter.drawText(device_size_x, device_size_y, bytes_total)
+
+                # Percent used
+                device_used_width = metrics.boundingRect(percent_used).width()
+                device_used_x = width - device_used_width
+                device_used_y = device_size_y
+                painter.drawText(device_used_x, device_used_y, percent_used)
+
+                photos_g_width = (device.file_size_sum[FileType.photo] /
+                                  storage_space.bytes_total * width)
+                photos_g_x = device_size_x
+                g_height = 25.0
+                g_y = device_size_y + self.padding
+                linearGradient = QLinearGradient(photos_g_x, g_y, photos_g_x, g_y + g_height)
+                color1 = QColor(CustomColors.color1.value)
+
+                if device.file_size_sum[FileType.photo]:
+                    photos_g_rect = QRectF(photos_g_x, g_y, photos_g_width, g_height)
+                    linearGradient.setColorAt(0.2, color1.lighter(self.shading_intensity))
+                    linearGradient.setColorAt(0.8, color1.darker(self.shading_intensity))
+                    painter.fillRect(photos_g_rect, QBrush(linearGradient))
+                else:
+                    photos_g_width = 0
+
+                videos_g_x = photos_g_x + photos_g_width
+                color2 = QColor(CustomColors.color2.value)
+                if device.file_size_sum[FileType.video]:
+                    videos_g_width = (device.file_size_sum[FileType.video] /
+                                      storage_space.bytes_total * width)
+                    videos_g_rect = QRectF(videos_g_x, g_y, videos_g_width, g_height)
+                    linearGradient.setColorAt(0.2, color2.lighter(self.shading_intensity))
+                    linearGradient.setColorAt(0.8, color2.darker(self.shading_intensity))
+                    painter.fillRect(videos_g_rect, QBrush(linearGradient))
+                else:
+                    videos_g_width = 0
+
+                color3 = QColor(CustomColors.color3.value)
+                if other_bytes:
+                    other_g_width = other_bytes / storage_space.bytes_total * width
+                    other_g_x = videos_g_x + videos_g_width
+                    other_g_rect = QRectF(other_g_x, g_y, other_g_width, g_height)
+                    linearGradient.setColorAt(0.2, color3.lighter(self.shading_intensity))
+                    linearGradient.setColorAt(0.8, color3.darker(self.shading_intensity))
+                    painter.fillRect(other_g_rect, QBrush(linearGradient))
+                else:
+                    other_g_width = 0
+
+                # Rectangle around spatial representation of sizes
+                rect = QRectF(photos_g_x, g_y, width, g_height)
+                painter.setPen(QColor('#cdcdcd'))
+                painter.drawRect(rect)
+                bottom = rect.bottom()
             else:
-                photos_g_width = 0
-
-            videos_g_x = photos_g_x + photos_g_width
-            color2 = QColor(CustomColors.color2.value)
-            if device.file_size_sum[FileType.video]:
-                videos_g_width = device.file_size_sum[FileType.video] / storage_space.bytes_total\
-                                 * width
-                videos_g_rect = QRectF(videos_g_x, g_y, videos_g_width, g_height)
-                linearGradient.setColorAt(0.2, color2.lighter(self.shading_intensity))
-                linearGradient.setColorAt(0.8, color2.darker(self.shading_intensity))
-                painter.fillRect(videos_g_rect, QBrush(linearGradient))
-            else:
-                videos_g_width = 0
-
-            color3 = QColor(CustomColors.color3.value)
-            if other_bytes:
-                other_g_width = other_bytes / storage_space.bytes_total * width
-                other_g_x = videos_g_x + videos_g_width
-                other_g_rect = QRectF(other_g_x, g_y, other_g_width, g_height)
-                linearGradient.setColorAt(0.2, color3.lighter(self.shading_intensity))
-                linearGradient.setColorAt(0.8, color3.darker(self.shading_intensity))
-                painter.fillRect(other_g_rect, QBrush(linearGradient))
-            else:
-                other_g_width = 0
-
-            # Rectangle around spatial representation of sizes
-            rect = QRectF(photos_g_x, g_y, width, g_height)
-            painter.setPen(QColor('#cdcdcd'))
-            painter.drawRect(rect)
+                bottom = top
+                other_bytes = 0
 
             # Details text indicating number and size of photos & videos
             gradient_width = 10
 
             # Photo details
             spacer = 3
-            details_y = rect.bottom() + 10
+            details_y = bottom + 10
             details_height = small_font_metrics.height() * 2 + 2
 
             # Gradient
-            photos_g2_x =  photos_g_x
+            photos_g2_x =  x
             photos_g2_rect = QRect(photos_g2_x, details_y, gradient_width, details_height)
             linearGradient = QLinearGradient(photos_g2_x, details_y,
                                             photos_g2_x, details_y + details_height)
@@ -410,7 +430,7 @@ class DeviceDelegate(QStyledItemDelegate):
 
     def sizeHint(self, option, index):
 
-        return QSize(200, 250)
+        return QSize(200, 130)
 
         # metrics = option.fontMetrics
         # if index.column() == DEVICE:

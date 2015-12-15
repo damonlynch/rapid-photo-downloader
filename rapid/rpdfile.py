@@ -125,11 +125,11 @@ def get_rpdfile(name: str, path: str, size: int, prev_full_name: str,
                 xmp_file_full_name: str,
                 scan_id: bytes, file_type: FileType,
                 from_camera: bool,
-                camera_model: str,
-                camera_port: str,
-                camera_display_name: str,
-                is_mtp_device: bool,
-                camera_memory_card_identifiers: List[int]):
+                camera_model: Optional[str],
+                camera_port: Optional[str],
+                camera_display_name: Optional[str],
+                is_mtp_device: Optional[bool],
+                camera_memory_card_identifiers: Optional[List[int]]):
 
     if file_type == FileType.video:
         return Video(name, path, size,
@@ -182,6 +182,8 @@ def file_types_by_number(no_photos: int, no_videos:int) -> str:
                 v = _('photo')
         return v
 
+def make_key(file_t: FileType, path: str) -> str:
+    return '{}:{}'.format(path, file_t.value)
 
 class FileSizeSum(UserDict):
     """ Sum size in bytes of photos and videos """
@@ -189,8 +191,11 @@ class FileSizeSum(UserDict):
         self[key] = 0
         return self[key]
 
-    def sum(self) -> int:
-        return self[FileType.photo] + self[FileType.video]
+    def sum(self, basedir: Optional[str]=None) -> int:
+        if basedir is not None:
+            return self[make_key(FileType.photo, basedir)] + self[make_key(FileType.video, basedir)]
+        else:
+            return self[FileType.photo] + self[FileType.video]
 
 
 class FileTypeCounter(Counter):
@@ -243,7 +248,7 @@ class FileTypeCounter(Counter):
         """
         file_types_present = self.file_types_present()
         file_count_summary = _("%(number)s %(filetypes)s") % \
-                              {'number': thousands(sum(self.values())),
+                              {'number': thousands(self[FileType.photo] + self[FileType.video]),
                                'filetypes': file_types_present}
         return (file_count_summary, file_types_present)
 
