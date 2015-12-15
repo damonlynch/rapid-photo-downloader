@@ -26,7 +26,7 @@ import subprocess
 import shlex
 import time
 from collections import deque
-from typing import Optional, Set, List
+from typing import Optional, Set, List, Dict
 
 from psutil import (Process, wait_procs, pid_exists)
 from sortedcontainers import SortedListWithKey
@@ -38,11 +38,12 @@ import zmq
 from zmq.eventloop.ioloop import IOLoop
 from zmq.eventloop.zmqstream import ZMQStream
 
-from rpdfile import (RPDFile, FileTypeCounter)
+from rpdfile import (RPDFile, FileTypeCounter, FileSizeSum)
 from devices import Device
 from preferences import ScanPreferences
 from utilities import CacheDirs
-from constants import (RenameAndMoveStatus, ExtractionTask, ExtractionProcessing, CameraErrorCode)
+from constants import (RenameAndMoveStatus, ExtractionTask, ExtractionProcessing,
+                       CameraErrorCode, FileType)
 from proximity import TemporalProximityGroups
 
 
@@ -840,7 +841,7 @@ class ScanResults:
     """
     def __init__(self, rpd_files: Optional[List[RPDFile]]=None,
                  file_type_counter: Optional[FileTypeCounter]=None,
-                 file_size_sum: Optional[int] = None,
+                 file_size_sum: Optional[FileSizeSum]=None,
                  error_code: Optional[CameraErrorCode]=None,
                  scan_id: Optional[int]=None,
                  optimal_display_name: Optional[str]=None) -> None:

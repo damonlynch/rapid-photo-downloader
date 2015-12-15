@@ -80,7 +80,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
         self.file_batch = []
         self.batch_size = 20
         self.file_type_counter = rpdfile.FileTypeCounter()
-        self.file_size_sum = 0
+        self.file_size_sum = rpdfile.FileSizeSum()
         self.gphoto_mtime = GphotoMTime.undetermined
         super(ScanWorker, self).__init__('Scan')
 
@@ -362,7 +362,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
                     modification_time = stat.st_mtime
                     camera_file = None
 
-                self.file_size_sum += size
+                self.file_size_sum[file_type] += size
 
                 # look for thumbnail file (extension THM) for videos
                 if file_type == FileType.video:

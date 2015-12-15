@@ -24,7 +24,7 @@ from datetime import datetime
 import uuid
 import logging
 import mimetypes
-from collections import Counter
+from collections import Counter, UserDict
 from urllib.request import pathname2url
 import locale
 from typing import Optional, List
@@ -181,6 +181,17 @@ def file_types_by_number(no_photos: int, no_videos:int) -> str:
             else:
                 v = _('photo')
         return v
+
+
+class FileSizeSum(UserDict):
+    """ Sum size in bytes of photos and videos """
+    def __missing__(self, key):
+        self[key] = 0
+        return self[key]
+
+    def sum(self) -> int:
+        return self[FileType.photo] + self[FileType.video]
+
 
 class FileTypeCounter(Counter):
     r"""

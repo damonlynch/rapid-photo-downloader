@@ -604,6 +604,7 @@ class Camera:
                              self.display_name)
             return StorageSpace(0, 0)
 
+        # print(self.storage_info)
         info = self.storage_info[media_index]
         if not (info.fields & gp.GP_STORAGEINFO_MAXCAPACITY and
                 info.fields & gp.GP_STORAGEINFO_FREESPACEKBYTES):

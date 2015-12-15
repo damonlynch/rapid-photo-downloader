@@ -33,7 +33,7 @@ from PyQt5.QtCore import (QAbstractTableModel, QModelIndex, Qt, QSize,
                           QRect, QPoint)
 from PyQt5.QtWidgets import (QTableView, QStyledItemDelegate,
                              QStyleOptionViewItem, QHeaderView)
-from PyQt5.QtGui import (QPainter, QFontMetrics, QFont, QColor)
+from PyQt5.QtGui import (QPainter, QFontMetrics, QFont, QColor, QGuiApplication)
 
 ProximityRow = namedtuple('ProximityRow', 'year, month, weekday, day, '
                                           'proximity')
@@ -383,7 +383,7 @@ class TemporalProximityModel(QAbstractTableModel):
 
 
 class TemporalProximityDelegate(QStyledItemDelegate):
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent) -> None:
         super().__init__(parent)
 
         parent_font = parent.font()
@@ -420,8 +420,7 @@ class TemporalProximityDelegate(QStyledItemDelegate):
         self.calculate_max_col1_size()
 
         self.day_proporation = self.max_day_height / self.max_col1_text_height
-        self.weekday_proporation = self.max_weekday_height / \
-                                   self.max_col1_text_height
+        self.weekday_proporation = self.max_weekday_height / self.max_col1_text_height
 
         # Setup column 2
         self.proximity_font = QFont(parent_font) # type: QFont
@@ -429,6 +428,9 @@ class TemporalProximityDelegate(QStyledItemDelegate):
         self.proximity_metrics = QFontMetrics(self.proximity_font)
         self.proximity_sizes = {}
         self.col2_padding = 20
+
+        palette = QGuiApplication.palette()
+        # print(palette.color(palette.Highlight).name()))
 
     def calculate_max_col1_size(self) -> None:
         day_width = 0
@@ -668,8 +670,10 @@ class TemporalProximityDelegate(QStyledItemDelegate):
             return QSize(0,0)
         else:
             row = index.row()
+            # p = text.find('\n') >= 0
             text = text.replace('\n', '\n\n')
             size = self.getProximitySize(row, text)
+            # if p: print(text, size)
             return QSize(size.width() + self.col2_padding, size.height() + self.col2_padding)
 
 
@@ -684,7 +688,8 @@ class TemporalProximityView(QTableView):
         self.verticalHeader().setVisible(False)
         self.horizontalHeader().setVisible(False)
         self.setMinimumWidth(200)
-        # self.horizontalHeader().setStretchLastSection(True)
+        self.horizontalHeader().setStretchLastSection(True)
+        self.setWordWrap(True)
         # self.setShowGrid(False)
 
     def minimumSizeHint(self) -> QSize:

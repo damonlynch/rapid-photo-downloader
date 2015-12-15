@@ -50,9 +50,10 @@ from rpdfile import RPDFile, FileTypeCounter
 from interprocess import (PublishPullPipelineManager,
     GenerateThumbnailsArguments, Device, GenerateThumbnailsResults)
 from constants import (DownloadStatus, Downloaded, FileType, FileExtension,
-                       ThumbnailSize, ThumbnailCacheStatus, Roles, DeviceType)
+                       ThumbnailSize, ThumbnailCacheStatus, Roles, DeviceType,
+                       CustomColors)
 from storage import get_program_cache_directory
-from utilities import (CacheDirs, make_internationalized_list)
+from utilities import (CacheDirs, make_internationalized_list, format_size_for_user)
 from thumbnailer import Thumbnailer
 
 
@@ -190,7 +191,7 @@ class ThumbnailTableModel(QAbstractTableModel):
                 return Qt.Unchecked
         elif role == Qt.ToolTipRole:
             file_name = self.file_names[unique_id]
-            size = self.rapidApp.formatSizeForUser(rpd_file.size)
+            size = format_size_for_user(rpd_file.size)
 
             mtime = arrow.get(rpd_file.modification_time)
             humanized_modification_time = _(
@@ -723,6 +724,12 @@ class ThumbnailDelegate(QStyledItemDelegate):
         # store the index in which the user right clicked
         self.clickedIndex = None
 
+        self.color1 = QColor(CustomColors.color1.value).darker(185)
+        self.color2 = QColor(CustomColors.color2.value).darker(185)
+        self.color3 = QColor(CustomColors.color3.value).darker(185)
+        self.color4 = QColor(CustomColors.color4.value).darker(185)
+        self.color5 = QColor(CustomColors.color5.value).darker(185)
+
     def doCopyPathAction(self) -> None:
         index = self.clickedIndex
         if index:
@@ -826,13 +833,13 @@ class ThumbnailDelegate(QStyledItemDelegate):
                      text_height + y
 
             if ext_type == FileExtension.raw:
-                color = QColor(Qt.darkBlue)
+                color = self.color1
             elif ext_type == FileExtension.jpeg:
-                color = QColor(Qt.darkRed)
+                color = self.color4
             elif ext_type == FileExtension.other_photo:
-                color = QColor(Qt.darkMagenta)
+                color = self.color5
             elif ext_type == FileExtension.video:
-                color = QColor(0, 77, 0)
+                color = self.color2
             else:
                 color = QColor(0, 0, 0)
 
@@ -857,7 +864,7 @@ class ThumbnailDelegate(QStyledItemDelegate):
                 text_width = metrics.width(secondary_attribute)
                 text_x = text_x - text_width - text_padding * 2 - \
                          self.footer_padding
-                color = QColor(Qt.darkCyan)
+                color = QColor(self.color3)
                 painter.fillRect(text_x, text_y - text_height,
                              extBoundingRect.width(),
                              extBoundingRect.height(),

@@ -23,7 +23,7 @@ import os
 import logging
 from collections import namedtuple, Counter
 import re
-from typing import Tuple
+from typing import Tuple, List
 
 from gettext import gettext as _
 
@@ -33,7 +33,7 @@ from PyQt5.QtGui import QIcon, QPixmap
 import qrc_resources
 
 from constants import DeviceType, BackupLocationType, FileType
-from rpdfile import FileTypeCounter
+from rpdfile import FileTypeCounter, FileSizeSum
 from storage import StorageSpace, udev_attributes, UdevAttr
 from camera import Camera, generate_devname
 
@@ -101,7 +101,7 @@ class Device:
         self.can_eject = None # type: bool
         self.photo_cache_dir = None # type: str
         self.video_cache_dir = None # type: str
-        self.file_size_sum = 0
+        self.file_size_sum = FileSizeSum()
         self.file_type_counter = FileTypeCounter()
 
     def __repr__(self):
@@ -180,7 +180,10 @@ class Device:
         self.device_type = DeviceType.volume
         self.path = path
         self.icon_name = self._get_valid_icon_name(icon_names)
-        self.display_name = display_name
+        if not display_name.find(os.sep) >= 0:
+            self.display_name = display_name
+        else:
+            self.display_name = os.path.basename(display_name)
         self.have_optimal_display_name = True
         self.can_eject = can_eject
         if not mount:

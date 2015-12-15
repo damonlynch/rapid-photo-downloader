@@ -96,9 +96,10 @@ from devicedisplay import (DeviceTableModel, DeviceView, DeviceDelegate)
 from proximity import (TemporalProximityModel, TemporalProximityView,
                        TemporalProximityDelegate, TemporalProximityGroups)
 from utilities import (same_file_system, make_internationalized_list,
-                       human_readable_version, thousands, addPushButtonLabelSpacer)
+                       human_readable_version, thousands, addPushButtonLabelSpacer,
+                       format_size_for_user)
 from rpdfile import (RPDFile, file_types_by_number, PHOTO_EXTENSIONS,
-                     VIDEO_EXTENSIONS, FileTypeCounter, OTHER_PHOTO_EXTENSIONS)
+                     VIDEO_EXTENSIONS, FileTypeCounter, OTHER_PHOTO_EXTENSIONS, FileSizeSum)
 import downloadtracker
 from cache import ThumbnailCacheSql
 from metadataphoto import exiv2_version, gexiv2_version
@@ -1748,10 +1749,10 @@ class RapidWindow(QMainWindow):
         """
         Process data received from the scan process.
 
-        The data is
-        pickled because PyQt converts the Python int into a C++ int,
-        which unlike Pyhon has an upper limit. Unpickle it too early,
-        and the int wraps around to become a negative number.
+        The data is pickled because PyQt converts the Python int into
+        a C++ int, which unlike Pyhon has an upper limit. Unpickle it
+        too early, and the int wraps around to become a negative
+        number.
         """
 
         data = pickle.loads(pickled_data) # type: ScanResults
@@ -1763,7 +1764,7 @@ class RapidWindow(QMainWindow):
             device = self.devices[scan_id]
             device.file_type_counter = data.file_type_counter
             device.file_size_sum = data.file_size_sum
-            size = self.formatSizeForUser(data.file_size_sum)
+            size = format_size_for_user(data.file_size_sum.sum())
             text = data.file_type_counter.running_file_count()
             self.deviceModel.updateDeviceScan(scan_id, text, size)
 
@@ -1871,10 +1872,7 @@ class RapidWindow(QMainWindow):
         self.temporalProximityView.resizeRowsToContents()
         self.temporalProximityView.resizeColumnsToContents()
 
-        #TODO fix this farcical attempt to make the table look nice
-        width = self.temporalProximityView.minimumSizeHint().width()
-        print("prox", self.temporalProximityView.minimumSizeHint().width())
-        print(self.temporalProximityView.size())
+        # width = self.temporalProximityView.minimumSizeHint().width()
         # print(self.temporalProximityView.sizePolicy().horizontalPolicy())
         # self.temporalProximityView.setMaximumWidth(width)
         # self.temporalProximityView.hide()
@@ -1975,7 +1973,7 @@ class RapidWindow(QMainWindow):
     def addToDeviceDisplay(self, device: Device, scan_id: int) -> None:
         self.deviceModel.addDevice(scan_id, device)
         # TODO set proper height based on number of devices
-        self.deviceView.setMaximumHeight(100)
+        # self.deviceView.setMaximumHeight(100)
         # self.deviceView.resizeColumns()
         # self.deviceView.resizeRowsToContents()
         # self.resizeDeviceView()
@@ -2459,54 +2457,6 @@ class RapidWindow(QMainWindow):
         return (self.prefs.device_autodetection and
                 self.prefs.device_without_dcim_autodetection)
 
-    def formatSizeForUser(self, size: int, zero_string='',
-                             with_decimals=True,
-                             kb_only=False) -> str:
-        """
-        Format an int containing the number of bytes into a string
-        suitable for displaying to the user.
-
-        source: https://develop.participatoryculture.org/trac/
-        democracy/browser/trunk/tv/portable/util.py?rev=3993
-
-        :param size: size in bytes
-        :param zero_string: string to use if size == 0
-        :param kb_only: display in KB or B
-        """
-        if size > (1 << 40) and not kb_only:
-            value = (size / (1024.0 * 1024.0 * 1024.0 * 1024.0))
-            if with_decimals:
-                format = "%1.1fTB"
-            else:
-                format = "%dTB"
-        elif size > (1 << 30) and not kb_only:
-            value = (size / (1024.0 * 1024.0 * 1024.0))
-            if with_decimals:
-                format = "%1.1fGB"
-            else:
-                format = "%dGB"
-        elif size > (1 << 20) and not kb_only:
-            value = (size / (1024.0 * 1024.0))
-            if with_decimals:
-                format = "%1.1fMB"
-            else:
-                format = "%dMB"
-        elif size > (1 << 10):
-            value = (size / 1024.0)
-            if with_decimals:
-                format = "%1.1fKB"
-            else:
-                format = "%dKB"
-        elif size > 1:
-            value = size
-            if with_decimals:
-                format = "%1.1fB"
-            else:
-                format = "%dB"
-        else:
-            return zero_string
-        return format % value
-
     def displayMessageInStatusBar(self, update_only_marked: bool=False) -> None:
         """
         Displays message on status bar:
@@ -2529,7 +2479,7 @@ class RapidWindow(QMainWindow):
             files_to_download = self.thumbnailModel.getNoFilesMarkedForDownload()
             files_avilable_sum = files_avilable.summarize_file_count()[0]
             size = self.thumbnailModel.getSizeOfFilesMarkedForDownload()
-            size = self.formatSizeForUser(size)
+            size = format_size_for_user(size)
             if files_to_download:
                 files_selected = _('%(number)s of %(available files)s '
                                    '(%(size)s)') % {
@@ -2569,13 +2519,13 @@ class RapidWindow(QMainWindow):
             dirs.append(self.prefs.video_download_folder)
 
         if len(dirs) == 1:
-            free = self.formatSizeForUser(size=shutil.disk_usage(dirs[0]).free)
+            free = format_size_for_user(size_in_bytes=shutil.disk_usage(dirs[0]).free)
             # Free space available on the filesystem for downloading to
             # Displayed in status bar message on main window
             # e.g. 14.7GB free
             msg = _("%(free)s free on destination.") % {'free': free}
         elif len(dirs) == 2:
-            free1, free2 = (self.formatSizeForUser(size=shutil.disk_usage(
+            free1, free2 = (format_size_for_user(size_in_bytes=shutil.disk_usage(
                 path).free) for path in dirs)
             # Free space available on the filesystem for downloading to
             # Displayed in status bar message on main window

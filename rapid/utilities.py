@@ -89,17 +89,17 @@ def confirm(prompt: str=None, resp: bool=False) -> bool:
     :param resp: the default value assumed by the caller when user
      simply types ENTER.
     :return: True for yes and False for no.
-
-    >>> confirm(prompt='Create Directory?', resp=True)
-    Create Directory? [y]|n:
-    True
-    >>> confirm(prompt='Create Directory?', resp=False)
-    Create Directory? [n]|y:
-    False
-    >>> confirm(prompt='Create Directory?', resp=False)
-    Create Directory? [n]|y: y
-    True
     """
+
+    # >>> confirm(prompt='Create Directory?', resp=True)
+    # Create Directory? [y]|n:
+    # True
+    # >>> confirm(prompt='Create Directory?', resp=False)
+    # Create Directory? [n]|y:
+    # False
+    # >>> confirm(prompt='Create Directory?', resp=False)
+    # Create Directory? [n]|y: y
+    # True
 
     if prompt is None:
         prompt = 'Confirm'
@@ -148,49 +148,54 @@ def stdchannel_redirected(stdchannel, dest_filename):
 def show_errors():
     yield
 
-def format_size_for_user(size: int, zero_string='', with_decimals=True, kb_only=False) -> str:
-    """
-    Format an int containing the number of bytes into a string
-    suitable for displaying to the user.
+suffixes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB']
 
-    source: https://develop.participatoryculture.org/trac/
-    democracy/browser/trunk/tv/portable/util.py?rev=3993
+def format_size_for_user(size_in_bytes: int, 
+                         zero_string: str='', 
+                         no_decimals: int=2,
+                         kb_only: bool=False) -> str:
+    r"""
+    Humanize display of bytes.
+
+    Uses Microsoft style i.e. 1000 Bytes = 1 KB
 
     :param size: size in bytes
     :param zero_string: string to use if size == 0
     :param kb_only: display in KB or B
+
+    >>> format_size_for_user(0)
+    ''
+    >>> format_size_for_user(1)
+    '1 B'
+    >>> format_size_for_user(123)
+    '123 B'
+    >>> format_size_for_user(1000)
+    '1 KB'
+    >>> format_size_for_user(1024)
+    '1.02 KB'
+    >>> format_size_for_user(1024, no_decimals=0)
+    '1 KB'
+    >>> format_size_for_user(1100, no_decimals=2)
+    '1.1 KB'
+    >>> format_size_for_user(1000000, no_decimals=2)
+    '1 MB'
+    >>> format_size_for_user(1000001, no_decimals=2)
+    '1 MB'
+    >>> format_size_for_user(1020001, no_decimals=2)
+    '1.02 MB'
     """
-    if size > (1 << 40) and not kb_only:
-        value = (size / (1024.0 * 1024.0 * 1024.0 * 1024.0))
-        if with_decimals:
-            format = "%1.1fTB"
-        else:
-            format = "%dTB"
-    elif size > (1 << 30) and not kb_only:
-        value = (size / (1024.0 * 1024.0 * 1024.0))
-        if with_decimals:
-            format = "%1.1fGB"
-        else:
-            format = "%dGB"
-    elif size > (1 << 20) and not kb_only:
-        value = (size / (1024.0 * 1024.0))
-        if with_decimals:
-            format = "%1.1fMB"
-        else:
-            format = "%dMB"
-    elif size > (1 << 10):
-        value = (size / 1024.0)
-        if with_decimals:
-            format = "%1.1fKB"
-        else:
-            format = "%dKB"
-    elif size > 1:
-        # no decimals for bytes!
-        value = size
-        format = "%dB"
+
+    if size_in_bytes == 0: return zero_string
+    i = 0
+    while size_in_bytes >= 1000 and i < len(suffixes)-1:
+        size_in_bytes /= 1000
+        i += 1
+
+    if no_decimals:
+        s = '{:.{prec}f}'.format(size_in_bytes, prec=no_decimals).rstrip('0').rstrip('.')
     else:
-        return zero_string
-    return format % value
+        s = '{:.0f}'.format(size_in_bytes)
+    return s + ' ' + suffixes[i]
 
 def divide_list(source: list, no_pieces: int) -> list:
     r"""
@@ -350,8 +355,8 @@ def make_internationalized_list(items) -> str:
 
 def thousands(i: int) -> str:
     """
-    Add a thousands seperator (or it's locale equivalent) to an
-    integer. Assumes the module leve locale setting has already been
+    Add a thousands seperator (or its locale equivalent) to an
+    integer. Assumes the module level locale setting has already been
     set.
     :param i: the integer e.g. 1000
     :return: string with seperators e.g. '1,000'

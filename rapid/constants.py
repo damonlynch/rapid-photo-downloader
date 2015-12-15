@@ -148,6 +148,14 @@ class CameraErrorCode(Enum):
     locked = 2
 
 
+class CustomColors(Enum):
+    color1 = '#809cd2'
+    color2 = '#9161a4'
+    color3 = '#db9467'
+    color4 = '#a5d168'
+    color5 = '#e2d84e'
+
+
 orientation_offset = dict(
     arw=106,
     cr2=126,
