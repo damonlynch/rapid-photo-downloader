@@ -64,7 +64,7 @@ from utilities import stdchannel_redirected
 
 FileInfo = namedtuple('FileInfo', ['path', 'modification_time', 'size',
                                    'ext_lower', 'base_name', 'file_type'])
-CameraFile = namedtuple('CameraFile', 'name modification_time size')
+CameraFile = namedtuple('CameraFile', 'name size')
 
 logging.basicConfig(format='%(levelname)s:%(asctime)s:%(message)s',
                     datefmt='%H:%M:%S',
@@ -276,7 +276,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
 
                 # Store the directory this file is stored in, used when
                 # determining if associate files are part of the download
-                cf = CameraFile(name=name, modification_time=modification_time, size=size)
+                cf = CameraFile(name=name, size=size)
                 self._camera_directories_for_file[cf].append(path)
 
                 if folder_identifier is not None:
@@ -361,8 +361,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
                 if self.download_from_camera:
                     modification_time = file_info.modification_time
                     size = file_info.size
-                    camera_file = CameraFile(name=self.file_name,
-                               modification_time=modification_time, size=size)
+                    camera_file = CameraFile(name=self.file_name,size=size)
                 else:
                     stat = os.stat(file)
                     size = stat.st_size
@@ -373,8 +372,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
 
                 # look for thumbnail file (extension THM) for videos
                 if file_type == FileType.video:
-                    thm_full_name = self.get_video_THM_file(base_name,
-                                                            camera_file)
+                    thm_full_name = self.get_video_THM_file(base_name, camera_file)
                 else:
                     thm_full_name = None
 
@@ -383,8 +381,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
 
 
                 # check if an audio file is associated with the photo or video
-                audio_file_full_name = self.get_audio_file(base_name,
-                                                           camera_file)
+                audio_file_full_name = self.get_audio_file(base_name, camera_file)
 
                 # has the file been downloaded previously?
                 downloaded = self.downloaded.file_downloaded(
