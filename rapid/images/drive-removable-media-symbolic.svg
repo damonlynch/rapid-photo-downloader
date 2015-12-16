@@ -26,16 +26,16 @@
      guidetolerance="10"
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
-     inkscape:window-width="640"
-     inkscape:window-height="480"
+     inkscape:window-width="1873"
+     inkscape:window-height="1056"
      id="namedview7"
      showgrid="false"
      inkscape:zoom="14.75"
      inkscape:cx="8"
      inkscape:cy="8"
-     inkscape:window-x="870"
-     inkscape:window-y="179"
-     inkscape:window-maximized="0"
+     inkscape:window-x="47"
+     inkscape:window-y="24"
+     inkscape:window-maximized="1"
      inkscape:current-layer="svg7384" />
   <metadata
      id="metadata90">
@@ -53,11 +53,12 @@
      id="title9167">Gnome Symbolic Icon Theme</title>
   <g
      id="layer10"
-     transform="translate(-221,-467)"
+     transform="translate(-221,-466.38983)"
      style="fill:#4d4d4d">
     <path
        id="rect8463"
        style="fill:#4d4d4d"
-       d="m223.5 468c-1.385 0-2.5 1.115-2.5 2.5v8c0 1.385 1.115 2.5 2.5 2.5h11c1.385 0 2.5-1.115 2.5-2.5v-8c0-1.385-1.115-2.5-2.5-2.5zm0 9h11 0.5v1.5c0 0.277-0.223 0.5-0.5 0.5h-11c-0.277 0-0.5-0.223-0.5-0.5v-1.5z" />
+       d="m 223.5,468 c -1.385,0 -2.5,1.115 -2.5,2.5 l 0,8 c 0,1.385 1.115,2.5 2.5,2.5 l 11,0 c 1.385,0 2.5,-1.115 2.5,-2.5 l 0,-8 c 0,-1.385 -1.115,-2.5 -2.5,-2.5 z m 0,9 11,0 0.5,0 0,1.5 c 0,0.277 -0.223,0.5 -0.5,0.5 l -11,0 c -0.277,0 -0.5,-0.223 -0.5,-0.5 l 0,-1.5 z"
+       inkscape:connector-curvature="0" />
   </g>
 </svg>

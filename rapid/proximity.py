@@ -606,7 +606,7 @@ class TemporalProximityDelegate(QStyledItemDelegate):
             if cell_size.isNull():
                 return cell_size
             else:
-                model = index.model() # type: TemporalProximityModel
+                model = index.model()  # type: TemporalProximityModel
                 row = index.row()
                 span = self.parent().temporalProximityView.rowSpan(row,0)
                 if span == 1:
@@ -633,8 +633,8 @@ class TemporalProximityDelegate(QStyledItemDelegate):
 
                 # Since we have manipulated the minimum height of
                 # column 0, we need to take into account situations
-                # where column 0 is taller than the contents of the
-                # rows it spans
+                # where column 0 is in reality taller than the contents
+                # of the rows it spans
 
                 # Need minimum height of column 0, divided by span
                 col0_row = self.row_span_for_col0_starts_at[row]

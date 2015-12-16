@@ -54,7 +54,8 @@ from PyQt5 import QtCore, QtWidgets, QtGui
 from PyQt5.QtCore import (QThread, Qt, QStorageInfo, QSettings, QPoint,
                           QSize, QTimer, QTextStream, QSortFilterProxyModel,
                           QModelIndex, QRect)
-from PyQt5.QtGui import (QIcon, QPixmap, QImage, QFont, QColor, QPalette)
+from PyQt5.QtGui import (QIcon, QPixmap, QImage, QFont, QColor, QPalette, QFontMetrics,
+                         QGuiApplication)
 from PyQt5.QtWidgets import (QAction, QApplication, QMainWindow, QMenu,
                              QPushButton, QWidget, QDialogButtonBox,
                              QProgressBar, QSplitter, QFileIconProvider,
@@ -394,7 +395,7 @@ class RapidWindow(QMainWindow):
 
         # Devices are cameras and partitions
         self.devices = DeviceCollection()
-        self.deviceView = DeviceView()
+        self.deviceView = DeviceView(self)
         self.deviceModel = DeviceTableModel(self)
         self.deviceView.setModel(self.deviceModel)
         self.deviceView.setItemDelegate(DeviceDelegate(self))
@@ -440,7 +441,7 @@ class RapidWindow(QMainWindow):
         self.basic_status_message = None
         status = self.statusBar()
         self.downloadProgressBar = QProgressBar()
-        self.downloadProgressBar.setMaximumWidth(150)
+        self.downloadProgressBar.setMaximumWidth(QFontMetrics(QGuiApplication.font()).height() * 9)
         # self.statusLabel.setFrameStyle()
         status.addPermanentWidget(self.downloadProgressBar, .1)
 
@@ -1972,22 +1973,19 @@ class RapidWindow(QMainWindow):
 
     def addToDeviceDisplay(self, device: Device, scan_id: int) -> None:
         self.deviceModel.addDevice(scan_id, device)
-        # TODO set proper height based on number of devices
-        # self.deviceView.setMaximumHeight(100)
-        # self.deviceView.resizeColumns()
-        # self.deviceView.resizeRowsToContents()
-        # self.resizeDeviceView()
+        self.resizeDeviceView()
 
     def resizeDeviceView(self) -> None:
         """
         Sets the maximum height for the device view table to match the
-        number of rows
+        number of devices being displayed
         """
         assert len(self.devices) == self.deviceModel.rowCount()
         if len(self.devices):
-            self.deviceView.setMaximumHeight(len(self.devices) * (self.deviceView.rowHeight(0)+1))
+            height = self.deviceView.sizeHint().height()
+            self.deviceView.setMaximumHeight(height)
         else:
-            self.deviceView.setMaximumHeight(50)
+            self.deviceView.setMaximumHeight(130)
 
     def cameraAdded(self) -> None:
         if not self.prefs.device_autodetection:

@@ -78,7 +78,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
         self.downloaded = DownloadedSQL()
         self.no_previously_downloaded = 0
         self.file_batch = []
-        self.batch_size = 20
+        self.batch_size = 50
         self.file_type_counter = rpdfile.FileTypeCounter()
         self.file_size_sum = rpdfile.FileSizeSum()
         self.gphoto_mtime = GphotoMTime.undetermined
