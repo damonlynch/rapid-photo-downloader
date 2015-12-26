@@ -300,12 +300,12 @@ class ThumbnailExtractor(LoadBalancerWorker):
                         thumbnail = thumbnail.scaled(
                             self.max_size,
                             Qt.KeepAspectRatio,
-                            data.thumbnail_quality_lower)
+                            Qt.SmoothTransformation)
                     else:
                         thumbnail = thumbnail.scaled(
                             self.thumbnail_size_needed,
                             Qt.KeepAspectRatio,
-                            data.thumbnail_quality_lower)
+                            Qt.SmoothTransformation)
                     if thumbnail.isNull():
                         thumbnail = None
 

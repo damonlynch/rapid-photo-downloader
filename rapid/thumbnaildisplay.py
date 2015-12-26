@@ -110,27 +110,15 @@ class ThumbnailTableModel(QAbstractTableModel):
 
         self.initialize()
 
-        self.use_linear_thumbnailer = False
-        if self.use_linear_thumbnailer:
-            self.thumbnailThread = QThread()
-            self.thumbnailmq = ThumbnailManager(self.rapidApp.context)
-            self.thumbnailmq.moveToThread(self.thumbnailThread)
-
-            self.thumbnailThread.started.connect(self.thumbnailmq.run_sink)
-            self.thumbnailmq.message.connect(self.thumbnailReceived)
+        if benchmark is not None:
+            no_workers = benchmark
         else:
-            if benchmark is not None:
-                no_workers = benchmark
-            else:
-                no_workers = parent.prefs.max_cpu_cores
-            self.thumbnailmq = Thumbnailer(parent=parent, no_workers=no_workers)
-            self.thumbnailmq.ready.connect(self.thumbnailerReady)
-            self.thumbnailmq.thumbnailReceived.connect(self.thumbnailReceived)
+            no_workers = parent.prefs.max_cpu_cores
+        self.thumbnailmq = Thumbnailer(parent=parent, no_workers=no_workers)
+        self.thumbnailmq.ready.connect(self.thumbnailerReady)
+        self.thumbnailmq.thumbnailReceived.connect(self.thumbnailReceived)
 
         self.thumbnailmq.cacheDirs.connect(self.cacheDirsReceived)
-
-        if self.use_linear_thumbnailer:
-            QTimer.singleShot(0, self.thumbnailThread.start)
 
         # dict of scan_pids that are having thumbnails generated
         # value is the thumbnail process id
@@ -379,15 +367,8 @@ class ThumbnailTableModel(QAbstractTableModel):
                 self.thumbnailmq.generateThumbnails(*gen_args)
             self.thumbnailer_generation_queue = []
 
-    def generateThumbnails(self, scan_id: int, device: Device,
-                           thumbnail_quality_lower: bool) -> None:
-        """
-        Initiates generation of thumbnails for the device.
-
-        :param thumbnail_quality_lower: whether to generate the
-         thumbnail high or low quality as it is scaled by Qt
-        """
-
+    def generateThumbnails(self, scan_id: int, device: Device) -> None:
+        """Initiates generation of thumbnails for the device."""
 
         if scan_id in self.scan_index:
             self.rapidApp.downloadProgressBar.setMaximum(
@@ -396,24 +377,12 @@ class ThumbnailTableModel(QAbstractTableModel):
             rpd_files = list((self.rpd_files[unique_id] for unique_id in
                          self.scan_index[scan_id]))
 
-            if self.use_linear_thumbnailer:
-                generate_arguments = GenerateThumbnailsArguments(
-                                     scan_id=scan_id,
-                                     rpd_files=rpd_files,
-                                     thumbnail_quality_lower=thumbnail_quality_lower,
-                                     name=device.name(),
-                                     cache_dirs=cache_dirs,
-                                     camera=device.camera_model,
-                                     port=device.camera_port,
-                                     frontend_port=0)
-                self.thumbnailmq.start_worker(scan_id, generate_arguments)
+            gen_args = (scan_id, rpd_files, device.name(),
+                        cache_dirs, device.camera_model, device.camera_port)
+            if not self.thumbnailer_ready:
+                self.thumbnailer_generation_queue.append(gen_args)
             else:
-                gen_args = (scan_id, rpd_files, thumbnail_quality_lower, device.name(),
-                            cache_dirs, device.camera_model, device.camera_port)
-                if not self.thumbnailer_ready:
-                    self.thumbnailer_generation_queue.append(gen_args)
-                else:
-                    self.thumbnailmq.generateThumbnails(*gen_args)
+                self.thumbnailmq.generateThumbnails(*gen_args)
 
     def resetThumbnailTrackingAndDisplay(self):
         self.rapidApp.downloadProgressBar.reset()

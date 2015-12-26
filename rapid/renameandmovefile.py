@@ -48,7 +48,6 @@ from constants import (ConflictResolution, FileType, DownloadStatus,
 from interprocess import (RenameAndMoveFileData,
                           RenameAndMoveFileResults, DaemonProcess)
 from rpdfile import RPDFile
-from thumbnail import Thumbnail, qimage_to_png_buffer
 from cache import FdoCacheNormal, FdoCacheLarge, ThumbnailCache
 from rpdsql import DownloadedSQL
 
@@ -689,59 +688,58 @@ class RenameMoveFileWorker(DaemonProcess):
         """
         thumbnail = None
 
-        # Check to see if existing thumbnail in FDO cache can be modified
-        # and renamed to reflect new URI
-        mtime = os.path.getmtime(rpd_file.download_full_file_name)
-        if rpd_file.fdo_thumbnail_128_name and self.prefs.save_fdo_thumbnails:
-            logging.debug("Copying and modifying existing FDO 128 thumbnail")
-            rpd_file.fdo_thumbnail_128_name = \
-                self.fdo_cache_normal.modify_existing_thumbnail_and_save_copy(
-                    existing_cache_thumbnail=rpd_file.fdo_thumbnail_128_name,
-                    full_file_name=rpd_file.download_full_file_name,
-                    size=rpd_file.size,
-                    modification_time=mtime,
-                    generation_failed=False)
-
-        if rpd_file.fdo_thumbnail_256_name and self.prefs.save_fdo_thumbnails:
-            logging.debug("Copying and modifying existing FDO 256 thumbnail")
-            rpd_file.fdo_thumbnail_256_name = \
-                self.fdo_cache_large.modify_existing_thumbnail_and_save_copy(
-                    existing_cache_thumbnail=rpd_file.fdo_thumbnail_256_name,
-                    full_file_name=rpd_file.download_full_file_name,
-                    size=rpd_file.size,
-                    modification_time=mtime,
-                    generation_failed=False)
-
-        if ((self.prefs.save_fdo_thumbnails and (
-                not rpd_file.fdo_thumbnail_256_name or
-                not rpd_file.fdo_thumbnail_128_name)) or
-                rpd_file.thumbnail_status !=
-                ThumbnailCacheStatus.suitable_for_fdo_cache_write):
-            logging.debug("Thumbnail status: %s", rpd_file.thumbnail_status)
-            logging.debug("Have FDO 128: %s; have FDO 256: %s",
-                          rpd_file.fdo_thumbnail_128_name != '',
-                          rpd_file.fdo_thumbnail_256_name != '')
-            discard_thumbnail = rpd_file.thumbnail_status == \
-                ThumbnailCacheStatus.suitable_for_fdo_cache_write
-
-            # Generate a newly rendered thumbnail for main window and
-            # both sizes of freedesktop.org thumbnails. Note that
-            # thumbnails downloaded from the camera using the gphoto2
-            # get_thumb fuction have no orientation tag, so regenerating
-            # the thumbnail again for those images is no bad thing!
-            t = Thumbnail(rpd_file, rpd_file.camera_model,
-                          thumbnail_quality_lower=False,
-                          thumbnail_cache=self.thumbnail_cache,
-                          fdo_cache_normal=self.fdo_cache_normal,
-                          fdo_cache_large=self.fdo_cache_large,
-                          must_generate_fdo_thumbs=
-                                self.prefs.save_fdo_thumbnails,
-                          have_ffmpeg_thumbnailer=self.have_ffmpeg_thumbnailer,
-                          modification_time=mtime)
-            thumbnail = t.get_thumbnail(size=QSize(ThumbnailSize.width,
-                                     ThumbnailSize.height))
-            if discard_thumbnail:
-                thumbnail = None
+        # # Check to see if existing thumbnail in FDO cache can be modified
+        # # and renamed to reflect new URI
+        # mtime = os.path.getmtime(rpd_file.download_full_file_name)
+        # if rpd_file.fdo_thumbnail_128_name and self.prefs.save_fdo_thumbnails:
+        #     logging.debug("Copying and modifying existing FDO 128 thumbnail")
+        #     rpd_file.fdo_thumbnail_128_name = \
+        #         self.fdo_cache_normal.modify_existing_thumbnail_and_save_copy(
+        #             existing_cache_thumbnail=rpd_file.fdo_thumbnail_128_name,
+        #             full_file_name=rpd_file.download_full_file_name,
+        #             size=rpd_file.size,
+        #             modification_time=mtime,
+        #             generation_failed=False)
+        #
+        # if rpd_file.fdo_thumbnail_256_name and self.prefs.save_fdo_thumbnails:
+        #     logging.debug("Copying and modifying existing FDO 256 thumbnail")
+        #     rpd_file.fdo_thumbnail_256_name = \
+        #         self.fdo_cache_large.modify_existing_thumbnail_and_save_copy(
+        #             existing_cache_thumbnail=rpd_file.fdo_thumbnail_256_name,
+        #             full_file_name=rpd_file.download_full_file_name,
+        #             size=rpd_file.size,
+        #             modification_time=mtime,
+        #             generation_failed=False)
+        #
+        # if ((self.prefs.save_fdo_thumbnails and (
+        #         not rpd_file.fdo_thumbnail_256_name or
+        #         not rpd_file.fdo_thumbnail_128_name)) or
+        #         rpd_file.thumbnail_status !=
+        #         ThumbnailCacheStatus.suitable_for_fdo_cache_write):
+        #     logging.debug("Thumbnail status: %s", rpd_file.thumbnail_status)
+        #     logging.debug("Have FDO 128: %s; have FDO 256: %s",
+        #                   rpd_file.fdo_thumbnail_128_name != '',
+        #                   rpd_file.fdo_thumbnail_256_name != '')
+        #     discard_thumbnail = rpd_file.thumbnail_status == \
+        #         ThumbnailCacheStatus.suitable_for_fdo_cache_write
+        #
+        #     # Generate a newly rendered thumbnail for main window and
+        #     # both sizes of freedesktop.org thumbnails. Note that
+        #     # thumbnails downloaded from the camera using the gphoto2
+        #     # get_thumb fuction have no orientation tag, so regenerating
+        #     # the thumbnail again for those images is no bad thing!
+        #     t = Thumbnail(rpd_file, rpd_file.camera_model,
+        #                   thumbnail_cache=self.thumbnail_cache,
+        #                   fdo_cache_normal=self.fdo_cache_normal,
+        #                   fdo_cache_large=self.fdo_cache_large,
+        #                   must_generate_fdo_thumbs=
+        #                         self.prefs.save_fdo_thumbnails,
+        #                   have_ffmpeg_thumbnailer=self.have_ffmpeg_thumbnailer,
+        #                   modification_time=mtime)
+        #     thumbnail = t.get_thumbnail(size=QSize(ThumbnailSize.width,
+        #                              ThumbnailSize.height))
+        #     if discard_thumbnail:
+        #         thumbnail = None
 
 
         self.downloaded.add_downloaded_file(name=rpd_file.name,

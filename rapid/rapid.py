@@ -1136,11 +1136,6 @@ class RapidWindow(QMainWindow):
 
         # Initiate copy files process
 
-        if generate_thumbnails:
-            thumbnail_quality_lower = self.prefs.thumbnail_quality_lower
-        else:
-            thumbnail_quality_lower = None
-
         device = self.devices[scan_id]
         copyfiles_args = CopyFilesArguments(scan_id,
                                 device,
@@ -1148,9 +1143,7 @@ class RapidWindow(QMainWindow):
                                 video_download_folder,
                                 files,
                                 verify_file,
-                                generate_thumbnails,
-                                thumbnail_quality_lower
-                                )
+                                generate_thumbnails)
 
         self.copyfilesmq.start_worker(scan_id, copyfiles_args)
 
@@ -1780,7 +1773,7 @@ class RapidWindow(QMainWindow):
                 camera_model = self.devices[scan_id].display_name
                 if error_code == CameraErrorCode.locked:
                     title =_('Files inaccessible')
-                    message = _('The files on the %(camera)s are inaccessible. It may be locked or '
+                    message = _('All files on the %(camera)s are inaccessible. It may be locked or '
                                 'not configured to allow file transfers using MTP. You can '
                                 'unlock it and if required set it to use MTP, '
                                   'or ignore this device') % {
@@ -1829,8 +1822,7 @@ class RapidWindow(QMainWindow):
 
         if (not self.auto_start_is_on and  self.prefs.generate_thumbnails):
             # Generate thumbnails for finished scan
-            self.thumbnailModel.generateThumbnails(scan_id, self.devices[
-                        scan_id], self.prefs.thumbnail_quality_lower)
+            self.thumbnailModel.generateThumbnails(scan_id, self.devices[scan_id])
         elif self.auto_start_is_on:
             if self.job_code.need_to_prompt_on_auto_start():
                 self.job_code.get_job_code()
@@ -1927,11 +1919,6 @@ class RapidWindow(QMainWindow):
         self.scanThread.quit()
         if not self.scanThread.wait(2000):
             self.scanmq.forcefully_terminate()
-
-        if self.thumbnailModel.use_linear_thumbnailer:
-            self.thumbnailModel.thumbnailThread.quit()
-            if not self.thumbnailModel.thumbnailThread.wait(1000):
-                self.thumbnailModel.thumbnailmq.forcefully_terminate()
 
         self.copyfilesThread.quit()
         if not self.copyfilesThread.wait(1000):

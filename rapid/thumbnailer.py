@@ -89,7 +89,6 @@ class Thumbnailer(QObject):
 
     def generateThumbnails(self, scan_id: int,
                            rpd_files: list,
-                           thumbnail_quality_lower: bool,
                            name: str,
                            cache_dirs: CacheDirs,
                            camera_model: Optional[str]==None,
@@ -100,8 +99,6 @@ class Thumbnailer(QObject):
         :param scan_id: worker id of the scan
         :param rpd_files: list of rpd_files, all of which should be
          from the same source
-        :param thumbnail_quality_lower: whether to generate the
-         thumbnail high or low quality as it is scaled by Qt
         :param name: name of the device
         :param cache_dirs: the location where the cache directories
          should be created
@@ -113,7 +110,6 @@ class Thumbnailer(QObject):
         self.thumbnail_manager.start_worker(scan_id,
                         GenerateThumbnailsArguments(
                             scan_id=scan_id, rpd_files=rpd_files,
-                            thumbnail_quality_lower=thumbnail_quality_lower,
                             name=name, cache_dirs=cache_dirs,
                             frontend_port=self.frontend_port,
                             camera=camera_model,

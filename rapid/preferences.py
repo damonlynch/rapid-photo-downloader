@@ -302,7 +302,6 @@ class Preferences:
                                verify_file=False
                               )
     performance_defaults = dict(generate_thumbnails=True,
-                                thumbnail_quality_lower=False,
                                 use_thumbnail_cache=True,
                                 save_fdo_thumbnails=True,
                                 max_cpu_cores=min(available_cpu_count(), 4)

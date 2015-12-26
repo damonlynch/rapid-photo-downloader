@@ -477,7 +477,6 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
                     task=task,
                     processing=processing,
                     full_file_name_to_work_on=full_file_name_to_work_on,
-                    thumbnail_quality_lower=arguments.thumbnail_quality_lower,
                     exif_buffer=exif_buffer,
                     thumbnail_bytes = thumbnail_bytes,
                     use_thumbnail_cache=thumbnail_cache is not None),
