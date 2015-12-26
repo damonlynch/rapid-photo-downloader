@@ -32,7 +32,7 @@ from PyQt5.QtWidgets import QFileIconProvider
 from PyQt5.QtGui import QIcon, QPixmap
 import qrc_resources
 
-from constants import DeviceType, BackupLocationType, FileType
+from constants import (DeviceType, BackupLocationType, FileType)
 from rpdfile import FileTypeCounter, FileSizeSum
 from storage import StorageSpace, udev_attributes, UdevAttr
 from camera import Camera, generate_devname
@@ -131,6 +131,9 @@ class Device:
             if getattr(self, attr) != getattr(other, attr):
                 return False
         return True
+
+    def __hash__(self):
+        return hash((self.device_type, self.camera_model, self.camera_port, self.path))
 
     def __ne__(self, other):
         return not self.__eq__(other)
@@ -371,7 +374,7 @@ class DeviceCollection:
 
     def scan_id_from_camera_model_port(self, model: str, port: str) -> int:
         camera = Device()
-        camera.set_download_from_camera(model, port, get_camera_attributes=False)
+        camera.set_download_from_camera(model, port)
         for scan_id in self.devices:
             if self.devices[scan_id] == camera:
                 return scan_id

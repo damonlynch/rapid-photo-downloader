@@ -56,6 +56,7 @@ Downloaded = (DownloadStatus.downloaded,
               DownloadStatus.downloaded_with_warning,
               DownloadStatus.backup_problem)
 
+
 class ThumbnailCacheStatus(Enum):
     not_ready = 1
     from_rpd_cache_fdo_write_invalid = 2
@@ -63,10 +64,12 @@ class ThumbnailCacheStatus(Enum):
     suitable_for_fdo_cache_write = 4
     generation_failed=5
 
+
 class ThumbnailCacheDiskStatus(Enum):
     found = 1
     not_foud = 2
     failure = 3
+
 
 class BackupLocationType(Enum):
     photos = 1
@@ -78,9 +81,11 @@ class DeviceType(Enum):
     volume = 2
     path = 3
 
+
 class FileType(IntEnum):
     photo = 1
     video = 2
+
 
 class FileExtension(Enum):
     raw = 1
@@ -90,26 +95,32 @@ class FileExtension(Enum):
     audio = 5
     unknown = 6
 
+
 class FileSortPriority(IntEnum):
     high = 1
     low = 2
+
 
 class DeviceState(Enum):
     scanning = 1
     scanned = 2
     downloading = 3
 
+
 class RenameAndMoveStatus(Enum):
     download_started = 1
     download_completed = 2
+
 
 class ThumbnailSize(IntEnum):
     width = 160
     height = 120
 
+
 class ApplicationState(Enum):
     normal = 1
     exiting = 2
+
 
 class Roles(IntEnum):
     previously_downloaded = Qt.UserRole
@@ -121,6 +132,7 @@ class Roles(IntEnum):
     uri = Qt.UserRole + 6
     camera_memory_card = Qt.UserRole + 7
 
+
 class ExtractionTask(Enum):
     undetermined = 1
     bypass = 2
@@ -128,6 +140,7 @@ class ExtractionTask(Enum):
     load_from_bytes = 4
     load_from_exif = 5
     extract_from_file = 6
+
 
 class ExtractionProcessing(Enum):
     resize = 1
@@ -155,6 +168,15 @@ class CustomColors(Enum):
     color4 = '#5b97e4'
     color5 = '#5f6bfe'
     color6 = '#6d7e90'
+
+
+class Desktop(Enum):
+    gnome = 1
+    unity = 2
+    cinnamon = 3
+    kde = 4
+    xfce = 5
+    unknown = 10
 
 
 orientation_offset = dict(
@@ -191,16 +213,6 @@ datetime_offset = dict(
     sr2=836,
     srw=508
 )
-
-
-class Desktop(Enum):
-    gnome = 1
-    unity = 2
-    cinnamon = 3
-    kde = 4
-    xfce = 5
-    unknown = 10
-
 
 photo_rename_test = ['Date time','Image date','YYYYMMDD','Text','-','',
                     'Date time','Image date','HHMM','Text','-','','Sequences',

@@ -338,6 +338,7 @@ class RapidWindow(QMainWindow):
 
         self.ignore_other_photo_types = ignore_other_photo_types
         self.application_state = ApplicationState.normal
+        self.prompting_for_user_action = {}  # type: Dict[Device, QMessageBox]
 
         logging.debug('Software versions: %s', get_versions('; '))
 
@@ -392,8 +393,7 @@ class RapidWindow(QMainWindow):
         self.temporalProximityView.selectionModel().selectionChanged.connect(
                                                 self.proximitySelectionChanged)
 
-
-        # Devices are cameras and partitions
+        # Devices are cameras and local / external partitions
         self.devices = DeviceCollection()
         self.deviceView = DeviceView(self)
         self.deviceModel = DeviceTableModel(self)
@@ -1770,13 +1770,15 @@ class RapidWindow(QMainWindow):
             if data.error_code is not None:
                 # An error occurred
                 error_code = data.error_code
-                camera_model = self.devices[scan_id].display_name
+                device = self.devices[scan_id]
+                camera_model = device.display_name
                 if error_code == CameraErrorCode.locked:
                     title =_('Files inaccessible')
                     message = _('All files on the %(camera)s are inaccessible. It may be locked or '
                                 'not configured to allow file transfers using MTP. You can '
-                                'unlock it and if required set it to use MTP, '
-                                  'or ignore this device') % {
+                                'unlock it and try again. On some models you also need to change '
+                                'the setting "USB for charging" to "USB for file transfers". '
+                                  'Alternatively, you can also ignore this device.') % {
                         'camera': camera_model}
                 else:
                     assert error_code == CameraErrorCode.inaccessible
@@ -1784,18 +1786,21 @@ class RapidWindow(QMainWindow):
                     message = _('The %(camera)s appears to be in use by another application. You '
                                 'can close any other application (such as a file browser) that is '
                                 'using it and try again, or ignore this device. If that '
-                                'does not work, unplug the %(camera)s from the computer and try '
-                                'again.') % {'camera':camera_model}
+                                'does not work, unplug the %(camera)s from the computer and plug '
+                                'it in again.') % {'camera':camera_model}
                 msgBox = QMessageBox(QMessageBox.Warning, title, message,
                                 QMessageBox.NoButton, self)
                 msgBox.setIconPixmap(self.devices[scan_id].get_pixmap(QSize(30,30)))
                 msgBox.addButton(_("&Try Again"), QMessageBox.AcceptRole)
                 msgBox.addButton("&Ignore This Device", QMessageBox.RejectRole)
-                if msgBox.exec_() == QMessageBox.AcceptRole:
+                self.prompting_for_user_action[device] = msgBox
+                role = msgBox.exec_()
+                if role == QMessageBox.AcceptRole:
                     self.scanmq.resume(worker_id=scan_id)
                 else:
                     self.scanmq.stop_worker(worker_id=scan_id)
                     self.removeDevice(scan_id)
+                del self.prompting_for_user_action[device]
             else:
                 # Update GUI display with canonical camera display name
                 device = self.devices[scan_id]
@@ -2197,12 +2202,15 @@ class RapidWindow(QMainWindow):
     def removeDevice(self, scan_id) -> None:
         assert scan_id is not None
         if scan_id in self.devices:
-            self.thumbnailModel.clearAll(scan_id=scan_id,
-                                         keep_downloaded_files=True)
+            device = self.devices[scan_id]
+            if device in self.prompting_for_user_action:
+                self.prompting_for_user_action[device].reject()
+            self.thumbnailModel.clearAll(scan_id=scan_id, keep_downloaded_files=True)
             self.deviceModel.removeDevice(scan_id)
             del self.devices[scan_id]
             self.resizeDeviceView()
             self.updateSourceButton()
+
 
     def setupNonCameraDevices(self, on_startup: bool,
                               on_preference_change: bool,
