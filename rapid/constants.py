@@ -149,11 +149,12 @@ class CameraErrorCode(Enum):
 
 
 class CustomColors(Enum):
-    color1 = '#809cd2'
-    color2 = '#9161a4'
-    color3 = '#db9467'
-    color4 = '#a5d168'
-    color5 = '#e2d84e'
+    color1 = '#7a9c38'
+    color2 = '#cb493f'
+    color3 = '#d17109'
+    color4 = '#5b97e4'
+    color5 = '#5f6bfe'
+    color6 = '#6d7e90'
 
 
 orientation_offset = dict(
@@ -208,6 +209,10 @@ photo_rename_test = ['Date time','Image date','YYYYMMDD','Text','-','',
                      'Aperture','','Text','-','','Metadata','Focal length','',
                      'Text','mm-','','Metadata','Exposure time','',
                      'Filename','Extension','lowercase']
+
+photo_rename_simple_test = ['Date time','Image date','YYYYMMDD','Text','-','',
+                    'Date time','Image date','HHMM','Text','-','','Sequences',
+                    'Downloads today','One digit', 'Filename','Extension','lowercase']
 
 job_code_rename_test = ['Job code','', '', 'Sequences',
                     'Downloads today','One digit', 'Filename','Extension',

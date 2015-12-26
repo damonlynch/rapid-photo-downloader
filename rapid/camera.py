@@ -588,30 +588,26 @@ class Camera:
                         return child2.get_value()
         return ''
 
-    def get_storage_media_capacity(self, media_index=0, refresh: bool=False) -> StorageSpace:
+    def get_storage_media_capacity(self, refresh: bool=False) -> List[StorageSpace]:
         """
         Determine the bytes free and bytes total (media capacity)
-        :param media_index: the number of the card / storage media on
-        the camera
         :param refresh: if True, get updated instead of cached values
-        :return: tuple of bytes free and bytes total (media capacity)
-         If could not be determined due to an error, both are set to zero.
+        :return: list of StorageSpace tuple. If could not be
+        determined due to an error, return value is None.
         """
 
         self._get_storage_info(refresh)
-        if media_index >= len(self.storage_info):
-            logging.critical('Invalid media index for camera %s',
-                             self.display_name)
-            return StorageSpace(0, 0)
-
-        info = self.storage_info[media_index]
-        if not (info.fields & gp.GP_STORAGEINFO_MAXCAPACITY and
-                info.fields & gp.GP_STORAGEINFO_FREESPACEKBYTES):
-            return StorageSpace(0, 0, '')
-        else:
-            return StorageSpace(bytes_free=info.freekbytes * 1024,
-                                bytes_total=info.capacitykbytes * 1024,
-                                path=info.basedir)
+        storage_capacity = []
+        for media_index in range(len(self.storage_info)):
+            info = self.storage_info[media_index]
+            if not (info.fields & gp.GP_STORAGEINFO_MAXCAPACITY and
+                    info.fields & gp.GP_STORAGEINFO_FREESPACEKBYTES):
+                return None
+            else:
+                storage_capacity.append(StorageSpace(bytes_free=info.freekbytes * 1024,
+                                    bytes_total=info.capacitykbytes * 1024,
+                                    path=info.basedir))
+        return storage_capacity
 
     def no_storage_media(self, refresh: bool=False) -> int:
         """

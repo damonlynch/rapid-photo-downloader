@@ -45,6 +45,7 @@ from utilities import CacheDirs
 from constants import (RenameAndMoveStatus, ExtractionTask, ExtractionProcessing,
                        CameraErrorCode, FileType)
 from proximity import TemporalProximityGroups
+from storage import StorageSpace
 
 
 logging_level = logging.DEBUG
@@ -844,13 +845,15 @@ class ScanResults:
                  file_size_sum: Optional[FileSizeSum]=None,
                  error_code: Optional[CameraErrorCode]=None,
                  scan_id: Optional[int]=None,
-                 optimal_display_name: Optional[str]=None) -> None:
+                 optimal_display_name: Optional[str]=None,
+                 storage_space: Optional[List[StorageSpace]]=None) -> None:
         self.rpd_files = rpd_files
         self.file_type_counter = file_type_counter
         self.file_size_sum = file_size_sum
         self.error_code = error_code
         self.scan_id = scan_id
         self.optimal_display_name = optimal_display_name
+        self.storage_space = storage_space
 
 
 class CopyFilesArguments:

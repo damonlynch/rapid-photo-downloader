@@ -724,11 +724,11 @@ class ThumbnailDelegate(QStyledItemDelegate):
         # store the index in which the user right clicked
         self.clickedIndex = None
 
-        self.color1 = QColor(CustomColors.color1.value).darker(185)
-        self.color2 = QColor(CustomColors.color2.value).darker(185)
-        self.color3 = QColor(CustomColors.color3.value).darker(185)
-        self.color4 = QColor(CustomColors.color4.value).darker(185)
-        self.color5 = QColor(CustomColors.color5.value).darker(185)
+        self.color1 = QColor(CustomColors.color1.value)
+        self.color2 = QColor(CustomColors.color2.value)
+        self.color3 = QColor(CustomColors.color3.value)
+        self.color4 = QColor(CustomColors.color4.value)
+        self.color5 = QColor(CustomColors.color5.value)
 
     def doCopyPathAction(self) -> None:
         index = self.clickedIndex

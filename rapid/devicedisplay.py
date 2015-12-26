@@ -24,15 +24,10 @@ import logging
 
 from gettext import gettext as _
 
-from PyQt5.QtCore import (QAbstractTableModel, QModelIndex, QSize, Qt, QPoint, QRect, QMargins,
-                          QRectF)
-from PyQt5.QtWidgets import (QStyledItemDelegate,
-                             QStyleOptionViewItem, QStyleOptionProgressBar,
-                             QApplication, QStyle, QListView, QWidget, QLabel,
-                             QCheckBox, QGridLayout, QPushButton, QStyleOptionButton,
-                             QAbstractItemView)
-from PyQt5.QtGui import (QPixmap, QPainter, QIcon, QRegion, QFontMetrics, QFont, QGuiApplication,
-                         QColor, QLinearGradient, QBrush)
+from PyQt5.QtCore import (QAbstractTableModel, QModelIndex, QSize, Qt, QPoint, QRect, QRectF)
+from PyQt5.QtWidgets import (QStyledItemDelegate,QStyleOptionViewItem, QApplication, QStyle,
+                             QListView, QStyleOptionButton, QAbstractItemView)
+from PyQt5.QtGui import (QPainter, QFontMetrics, QFont, QColor, QLinearGradient, QBrush, QPalette)
 
 from viewutils import RowTracker
 from constants import DeviceState, FileType, CustomColors, DeviceType
@@ -89,9 +84,7 @@ class DeviceTableModel(QAbstractTableModel):
         row = self.rows.row(scan_id)
         self.removeRows(row)
 
-    def updateDeviceScan(self, scan_id: int, textToDisplay: str, size=None,
-                         scan_completed=False):
-        pass
+    def updateDeviceScan(self, scan_id: int):
         # self.texts[scan_id] = textToDisplay
         # if size is not None:
         #     self.sizes[scan_id] = size
@@ -103,7 +96,7 @@ class DeviceTableModel(QAbstractTableModel):
 
         row = self.rows.row(scan_id)
         column = 0
-        self.dataChanged.emit(self.index(row, column), self.index(row, 2))
+        self.dataChanged.emit(self.index(row, column), self.index(row, column))
 
     def updateDownloadProgress(self, scan_id: int, percent_complete: float,
                                progress_bar_text: str):
@@ -221,6 +214,10 @@ class DeviceDelegate(QStyledItemDelegate):
         
         self.grey_border = QColor('#cdcdcd')
 
+        alternate_color = QPalette().alternateBase().color()
+        self.device_name_highlight_color = QColor(alternate_color).darker(105)
+        self.device_name_height = self.standard_height + self.padding * 3
+
         self.vertical_padding = 10
 
         # Calculate height of device view, including device name/icon/checkbox,
@@ -235,11 +232,16 @@ class DeviceDelegate(QStyledItemDelegate):
 
         x = option.rect.x() + self.padding
         y = option.rect.y() + self.padding
+        width = option.rect.width() - self.padding * 2
 
         standard_pen_color = painter.pen().color()
 
         device = index.model().data(index, Qt.DisplayRole)  # type: Device
         checked = index.model().data(index, Qt.CheckStateRole)
+
+        deviceNameRect = QRect(option.rect.x(), option.rect.y(), option.rect.width(),
+                               self.device_name_height)
+        painter.fillRect(deviceNameRect, self.device_name_highlight_color)
 
         checkboxStyleOption = QStyleOptionButton()
         if checked:
@@ -264,11 +266,9 @@ class DeviceDelegate(QStyledItemDelegate):
         text_x = target.right() + 10
         painter.drawText(text_x, text_y, device.display_name)
 
-        width = option.rect.width() - self.padding * 2
-
         top = text_y
 
-        for storage_space in device.storage_space:
+        for storage_space in device.storage_space:  # type: StorageSpace
             painter.setFont(self.standard_font)
 
             if device.device_type == DeviceType.camera:

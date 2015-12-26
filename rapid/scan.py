@@ -132,13 +132,15 @@ class ScanWorker(WorkerInPublishPullPipeline):
                                          raise_errors=True)
                     if not have_optimal_display_name:
                         # Update the GUI with the real name of the camera
+                        # and its storage information
                         have_optimal_display_name = True
                         self.camera_display_name = self.camera.display_name
+                        storage_space = self.camera.get_storage_media_capacity(refresh=True)
                         self.content = pickle.dumps(ScanResults(
                                                     optimal_display_name=self.camera_display_name,
+                                                    storage_space=storage_space,
                                                     scan_id=int(self.worker_id)),
                                                     pickle.HIGHEST_PROTOCOL)
-                        #TODO what about storage information?
                         self.send_message_to_sink()
                     break
                 except CameraError as e:

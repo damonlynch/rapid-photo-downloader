@@ -89,7 +89,8 @@ from preferences import (Preferences, ScanPreferences)
 from constants import (BackupLocationType, DeviceType, ErrorType,
                        FileType, DownloadStatus, RenameAndMoveStatus,
                        photo_rename_test, ApplicationState,
-                       PROGRAM_NAME, job_code_rename_test, CameraErrorCode)
+                       PROGRAM_NAME, job_code_rename_test, CameraErrorCode,
+                       photo_rename_simple_test)
 import constants
 from thumbnaildisplay import (ThumbnailView, ThumbnailTableModel,
     ThumbnailDelegate, DownloadTypes, DownloadStats)
@@ -363,10 +364,9 @@ class RapidWindow(QMainWindow):
         self.prefs.auto_download_at_startup = False
         self.prefs.verify_file = False
         # self.prefs.device_autodetection = False
-        # self.prefs.device_location = \
-        #     '/data/Photos/Sample CR2/screenshots renamed'
         # self.prefs.photo_rename = photo_rename_test
-        self.prefs.photo_rename = job_code_rename_test
+        self.prefs.photo_rename = photo_rename_simple_test
+        # self.prefs.photo_rename = job_code_rename_test
         self.prefs.backup_files = True
         self.prefs.backup_device_autodetection = True
         self.prefs.photo_backup_identifier = 'photos-backup'
@@ -1765,9 +1765,7 @@ class RapidWindow(QMainWindow):
             device = self.devices[scan_id]
             device.file_type_counter = data.file_type_counter
             device.file_size_sum = data.file_size_sum
-            size = format_size_for_user(data.file_size_sum.sum())
-            text = data.file_type_counter.running_file_count()
-            self.deviceModel.updateDeviceScan(scan_id, text, size)
+            self.deviceModel.updateDeviceScan(scan_id)
 
             for rpd_file in data.rpd_files:
                 self.thumbnailModel.addFile(rpd_file, generate_thumbnail=not
@@ -1781,15 +1779,20 @@ class RapidWindow(QMainWindow):
                 error_code = data.error_code
                 camera_model = self.devices[scan_id].display_name
                 if error_code == CameraErrorCode.locked:
-                    title =_('Device locked')
-                    message = _('%(camera)s appears to be locked. You can unlock it now and try '
-                                  'again, or ignore this device.') % {'camera': camera_model}
+                    title =_('Files inaccessible')
+                    message = _('The files on the %(camera)s are inaccessible. It may be locked or '
+                                'not configured to allow file transfers using MTP. You can '
+                                'unlock it and if required set it to use MTP, '
+                                  'or ignore this device') % {
+                        'camera': camera_model}
                 else:
                     assert error_code == CameraErrorCode.inaccessible
                     title = _('Device inaccessible')
-                    message = _('%(camera)s appears to be in use by another application. You can '
-                              'close any other application (such as a file browser) that is using '
-                              'it and try again, or ignore this device.') % {'camera': camera_model}
+                    message = _('The %(camera)s appears to be in use by another application. You '
+                                'can close any other application (such as a file browser) that is '
+                                'using it and try again, or ignore this device. If that '
+                                'does not work, unplug the %(camera)s from the computer and try '
+                                'again.') % {'camera':camera_model}
                 msgBox = QMessageBox(QMessageBox.Warning, title, message,
                                 QMessageBox.NoButton, self)
                 msgBox.setIconPixmap(self.devices[scan_id].get_pixmap(QSize(30,30)))
@@ -1803,9 +1806,11 @@ class RapidWindow(QMainWindow):
             else:
                 # Update GUI display with canonical camera display name
                 device = self.devices[scan_id]
-                device.display_name = data.optimal_display_name
-                device.have_optimal_display_name = True
+                device.update_camera_attributes(display_name=data.optimal_display_name,
+                                                storage_space=data.storage_space)
                 self.updateSourceButton()
+                self.deviceModel.updateDeviceScan(scan_id)
+                self.resizeDeviceView()
 
     def scanFinished(self, scan_id: int) -> None:
         if scan_id not in self.devices:
@@ -1814,8 +1819,7 @@ class RapidWindow(QMainWindow):
         results_summary, file_types_present  = device.file_type_counter.summarize_file_count()
         self.download_tracker.set_file_types_present(scan_id,
                                                      file_types_present)
-        self.deviceModel.updateDeviceScan(scan_id, results_summary,
-                                          scan_completed=True)
+        self.deviceModel.updateDeviceScan(scan_id)
         self.setDownloadActionSensitivity()
 
         self.displayMessageInStatusBar(update_only_marked=True)
@@ -2084,7 +2088,7 @@ class RapidWindow(QMainWindow):
 
     def startCameraScan(self, model: str, port: str) -> None:
         device = Device()
-        device.set_download_from_camera(model, port, get_camera_attributes=True)
+        device.set_download_from_camera(model, port)
         self.startDeviceScan(device)
 
     def startDeviceScan(self, device: Device) -> None:

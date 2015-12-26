@@ -142,8 +142,7 @@ class Device:
                     return icon_name
         return None
 
-    def set_download_from_camera(self, camera_model: str, camera_port: str,
-                                 get_camera_attributes: bool=False):
+    def set_download_from_camera(self, camera_model: str, camera_port: str) -> None:
         self.clear()
         self.device_type = DeviceType.camera
         self.camera_model = camera_model
@@ -164,18 +163,16 @@ class Device:
             logging.error("Could not determine port values for %s %s", self.camera_model,
                           camera_port)
 
-        if get_camera_attributes:
-            c =  Camera(camera_model, camera_port, get_folders=False)
-            if c.camera_initialized:
-                self.display_name = c.display_name
-                self.have_optimal_display_name = True
-            self.no_storage_media = c.no_storage_media()
-            for idx in range(self.no_storage_media):
-                self.storage_space.append(c.get_storage_media_capacity(idx))
+    def update_camera_attributes(self, display_name: str,
+                                 storage_space: List[StorageSpace]) -> None:
+        self.display_name = display_name
+        self.have_optimal_display_name = True
+        self.no_storage_media = len(storage_space)
+        self.storage_space = storage_space
 
     def set_download_from_volume(self, path: str, display_name: str,
                                  icon_names=None, can_eject=None,
-                                 mount: QStorageInfo=None):
+                                 mount: QStorageInfo=None) -> None:
         self.clear()
         self.device_type = DeviceType.volume
         self.path = path
@@ -193,7 +190,7 @@ class Device:
                         bytes_total=mount.bytesTotal(),
                         path=path))
 
-    def set_download_from_path(self, path: str):
+    def set_download_from_path(self, path: str) -> None:
         self.clear()
         self.device_type = DeviceType.path
         self.path = path
@@ -259,7 +256,7 @@ class Device:
         icon = self.get_icon()
         return icon.pixmap(size)
 
-    def _delete_cache_dir(self, cache_dir):
+    def _delete_cache_dir(self, cache_dir) -> None:
         if cache_dir is not None:
             if os.path.isdir(cache_dir):
                 assert cache_dir != os.path.expanduser('~')
@@ -268,7 +265,7 @@ class Device:
                 except:
                     logging.error("Unknown error deleting cache directory %s", cache_dir)
 
-    def delete_cache_dirs(self):
+    def delete_cache_dirs(self) -> None:
         self._delete_cache_dir(self.photo_cache_dir)
         self._delete_cache_dir(self.video_cache_dir)
 
@@ -366,7 +363,7 @@ class DeviceCollection:
     def known_device(self, device: Device) -> bool:
         return device in list(self.devices.values())
 
-    def scan_id_from_path(self, path: str):
+    def scan_id_from_path(self, path: str) -> int:
         for scan_id in self.devices:
             if self.devices[scan_id].path == path:
                 return scan_id
