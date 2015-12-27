@@ -42,9 +42,8 @@ import exiftool
 import generatename as gn
 import problemnotification as pn
 from preferences import DownloadsTodayTracker, Preferences
-from constants import (ConflictResolution, FileType, DownloadStatus,
-                       ThumbnailCacheStatus, ThumbnailSize,
-                       RenameAndMoveStatus)
+from constants import (ConflictResolution, FileType, DownloadStatus, ThumbnailCacheStatus,
+                       ThumbnailSize, RenameAndMoveStatus)
 from interprocess import (RenameAndMoveFileData,
                           RenameAndMoveFileResults, DaemonProcess)
 from rpdfile import RPDFile
@@ -77,11 +76,9 @@ class SyncRawJpeg:
     def __init__(self):
         self.photos = {}
 
-    def add_download(self, name, extension, date_time, sub_seconds,
-                     sequence_number_used):
+    def add_download(self, name, extension, date_time, sub_seconds, sequence_number_used):
         if name not in self.photos:
-            self.photos[name] = (
-                [extension], date_time, sub_seconds, sequence_number_used)
+            self.photos[name] = ([extension], date_time, sub_seconds, sequence_number_used)
         else:
             if extension not in self.photos[name][0]:
                 self.photos[name][0].append(extension)
@@ -101,15 +98,12 @@ class SyncRawJpeg:
         Returns 1 and a sequence number of None if no match"""
 
         if name in self.photos:
-            if self.photos[name][1] == date_time and self.photos[name][
-                2] == sub_seconds:
+            if self.photos[name][1] == date_time and self.photos[name][2] == sub_seconds:
                 if extension in self.photos[name][0]:
-                    return SyncRawJpegMatch(
-                        SyncRawJpegStatus.error_already_downloaded,
+                    return SyncRawJpegMatch(SyncRawJpegStatus.error_already_downloaded,
                         self.photos[name][3])
                 else:
-                    return SyncRawJpegMatch(SyncRawJpegStatus.matching_pair,
-                                            self.photos[name][3])
+                    return SyncRawJpegMatch(SyncRawJpegStatus.matching_pair, self.photos[name][3])
             else:
                 return SyncRawJpegMatch(
                     SyncRawJpegStatus.error_datetime_mismatch, None)
@@ -118,9 +112,7 @@ class SyncRawJpeg:
     def ext_exif_date_time(self, name):
         """Returns first extension, exif date time and subseconds data for
         the already downloaded photo"""
-        return (
-            self.photos[name][0][0], self.photos[name][1],
-            self.photos[name][2])
+        return (self.photos[name][0][0], self.photos[name][1], self.photos[name][2])
 
 
 def time_subseconds_human_readable(date, subseconds):
@@ -130,9 +122,7 @@ def time_subseconds_human_readable(date, subseconds):
             'second': date.strftime("%S"),
             'subsecond': subseconds}
 
-
-def load_metadata(rpd_file, et_process: exiftool.ExifTool, temp_file=True) \
-        -> bool:
+def load_metadata(rpd_file, et_process: exiftool.ExifTool) -> bool:
     """
     Loads the metadata for the file
 
@@ -144,13 +134,12 @@ def load_metadata(rpd_file, et_process: exiftool.ExifTool, temp_file=True) \
     """
     if rpd_file.metadata is None:
         if not rpd_file.load_metadata(exiftool_process=et_process,
-                                      temp_file=temp_file):
+                                      file_source=rpd_file.temp_full_file_name):
             # Error in reading metadata
             rpd_file.add_problem(None, pn.CANNOT_DOWNLOAD_BAD_METADATA,
                                  {'filetype': rpd_file.title_capitalized})
             return False
     return True
-
 
 def _generate_name(generator, rpd_file, et_process):
     do_generation = load_metadata(rpd_file, et_process)
@@ -164,16 +153,13 @@ def _generate_name(generator, rpd_file, et_process):
 
     return value
 
-
 def generate_subfolder(rpd_file: RPDFile, et_process):
     if rpd_file.file_type == FileType.photo:
         generator = gn.PhotoSubfolder(rpd_file.subfolder_pref_list)
     else:
         generator = gn.VideoSubfolder(rpd_file.subfolder_pref_list)
 
-    rpd_file.download_subfolder = _generate_name(generator, rpd_file,
-                                                 et_process)
-
+    rpd_file.download_subfolder = _generate_name(generator, rpd_file, et_process)
 
 def generate_name(rpd_file: RPDFile, et_process):
     if rpd_file.file_type == FileType.photo:
@@ -194,7 +180,6 @@ class RenameMoveFileWorker(DaemonProcess):
         self.downloaded = DownloadedSQL()
 
         logging.debug("Start of day is set to %s", self.prefs.day_start)
-
 
     def progress_callback_no_update(self, amount_downloaded, total):
         pass

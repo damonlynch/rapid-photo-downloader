@@ -498,12 +498,6 @@ class RPDFile:
     def _assign_file_type(self):
         self.file_type = None
 
-    def _load_file_for_metadata(self, temp_file: bool) -> str:
-        if temp_file:
-            return self.temp_full_file_name
-        else:
-            return self.full_file_name
-
     def initialize_problem(self):
         self.problem = pn.Problem()
         # these next values are used to display in the error log window
@@ -536,22 +530,20 @@ class Photo(RPDFile):
     def _assign_file_type(self):
         self.file_type = FileType.photo
 
-
     def load_metadata(self, exiftool_process: exiftool.ExifTool,
-                      temp_file: bool=False) -> bool:
+                      file_source: Optional[str]=None) -> bool:
         """
         Use GExiv2 to read the photograph's metadata
         :param exiftool_process: the deamon exiftool process
-        :param temp_file: if True, use the temp file to read the
-         metadata
+        :param file_source: full path of file from which file to read
+         the metadata. If not specified, defaults to
+         self.full_file_name.
         :return: True if successful, False otherwise
         """
         try:
-            self.metadata = metadataphoto.MetaData(
-                self._load_file_for_metadata(temp_file), exiftool_process)
+            self.metadata = metadataphoto.MetaData(file_source, exiftool_process)
         except:
-            logging.warning("Could not read metadata from {}".format(
-                           self.full_file_name))
+            logging.warning("Could not read metadata from {}".format(self.full_file_name))
             return False
         else:
             return True
@@ -566,47 +558,46 @@ class Video(RPDFile):
         self.file_type = FileType.video
 
     def load_metadata(self, exiftool_process: exiftool.ExifTool,
-                      temp_file: bool=False) -> bool:
+                      file_source: Optional[str]=None) -> bool:
         """
         Use ExifTool to read the video's metadata
         :param exiftool_process: the deamon exiftool process
-        :param temp_file: if True, use the temp file to read the
-         metadata
+        :param file_source: full path of file from which file to read
+         the metadata. If not specified, defaults to
+         self.full_file_name.
         :return: True if successful, False otherwise
         """
 
-        self.metadata = metadatavideo.MetaData(
-            self._load_file_for_metadata(temp_file), exiftool_process)
+        self.metadata = metadatavideo.MetaData(file_source, exiftool_process)
         return True
 
 
-
-class SamplePhoto(Photo):
-    def __init__(self, sample_name='IMG_0524.CR2', sequences=None):
-        Photo.__init__(self, name=sample_name,
-                       display_name=sample_name,
-                       path='/media/EOS_DIGITAL/DCIM/100EOS5D',
-                       size=23516764,
-                       file_system_modification_time=time.time(),
-                       scan_pid=2033,
-                       file_id='9873afe',
-                       thm_full_name=None,
-                       audio_file_full_name=None)
-        self.sequences = sequences
-        self.metadata = metadataphoto.DummyMetaData()
-        self.download_start_time = datetime.now()
-
-class SampleVideo(Video):
-    def __init__(self, sample_name='MVI_1379.MOV', sequences=None):
-        Video.__init__(self, name=sample_name,
-                       display_name=sample_name,
-                       path='/media/EOS_DIGITAL/DCIM/100EOS5D',
-                       size=823513764,
-                       file_system_modification_time=time.time(),
-                       scan_pid=2033,
-                       file_id='9873qrsfe',
-                       thm_full_name=None,
-                       audio_file_full_name=None)
-        self.sequences = sequences
-        self.metadata = metadatavideo.DummyMetaData(sample_name, None)
-        self.download_start_time = datetime.now()
+# class SamplePhoto(Photo):
+#     def __init__(self, sample_name='IMG_0524.CR2', sequences=None):
+#         Photo.__init__(self, name=sample_name,
+#                        display_name=sample_name,
+#                        path='/media/EOS_DIGITAL/DCIM/100EOS5D',
+#                        size=23516764,
+#                        file_system_modification_time=time.time(),
+#                        scan_pid=2033,
+#                        file_id='9873afe',
+#                        thm_full_name=None,
+#                        audio_file_full_name=None)
+#         self.sequences = sequences
+#         self.metadata = metadataphoto.DummyMetaData()
+#         self.download_start_time = datetime.now()
+#
+# class SampleVideo(Video):
+#     def __init__(self, sample_name='MVI_1379.MOV', sequences=None):
+#         Video.__init__(self, name=sample_name,
+#                        display_name=sample_name,
+#                        path='/media/EOS_DIGITAL/DCIM/100EOS5D',
+#                        size=823513764,
+#                        file_system_modification_time=time.time(),
+#                        scan_pid=2033,
+#                        file_id='9873qrsfe',
+#                        thm_full_name=None,
+#                        audio_file_full_name=None)
+#         self.sequences = sequences
+#         self.metadata = metadatavideo.DummyMetaData(sample_name, None)
+#         self.download_start_time = datetime.now()

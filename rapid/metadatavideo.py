@@ -158,10 +158,7 @@ class MetaData:
         else:
             return missing
 
-    def frames_per_second(self, stream=0, missing=''):
-        """
-        value stream is ignored (kept for compatibilty with code calling kaa)
-        """
+    def frames_per_second(self, missing=''):
         v = self._get("FrameRate", None)
         if v is None:
             v = self._get("VideoFrameRate", None)
@@ -174,23 +171,22 @@ class MetaData:
             return missing
         return v
 
-    def codec(self, stream=0, missing=''):
-        """
-        value stream is ignored (kept for compatibilty with code calling kaa)
-        """
+    def codec(self, missing=''):
         v = self._get("VideoStreamType", None)
         if v is None:
             v = self._get("VideoCodec", None)
         if v is not None:
             return v
-        else:
-            return missing
+        return missing
 
-    def fourcc(self, stream=0, missing=''):
-        """
-        value stream is ignored (kept for compatibilty with code calling kaa)
-        """
+    def fourcc(self, missing=''):
         return self._get("CompressorID", missing)
+
+    def rotation(self, missing=''):
+        v = self._get("Rotation", None)
+        if v is not None:
+            return v
+        return missing
 
 
 class DummyMetaData():
