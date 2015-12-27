@@ -1854,7 +1854,8 @@ class RapidWindow(QMainWindow):
         # Convert the thumbnail rows to a regular list, because it's going
         # to be pickled.
         # TODO assign a user-defined value to the proximity
-        data = OffloadData(list(self.thumbnailModel.rows), 3600)
+        data = OffloadData(thumbnail_rows=list(self.thumbnailModel.rows),
+                           proximity_seconds=3600)
         self.offloadmq.assign_work(data)
 
     def proximityGroupsGenerated(self, proximity_groups: TemporalProximityGroups) -> None:
@@ -1864,6 +1865,10 @@ class RapidWindow(QMainWindow):
         self.temporalProximityDelegate.depth = depth
         if depth == 1:
             self.temporalProximityView.hideColumn(0)
+        else:
+            self.temporalProximityView.showColumn(0)
+        self.temporalProximityView.clearSpans()
+        self.temporalProximityDelegate.reset()
         self.temporalProximityDelegate.row_span_for_col0_starts_at = \
             proximity_groups.row_span_for_col0_starts_at
         for column, row, row_span in proximity_groups.spans:

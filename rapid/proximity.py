@@ -390,8 +390,10 @@ class TemporalProximityDelegate(QStyledItemDelegate):
 
         self.darkGray = QColor(51, 51, 51)
         self.midGray = QColor('#555555')
+
+        self.reset()
+
         # Setup column 0
-        self.month_sizes = {}
         self.month_kerning = 1.2
         self.month_font = QFont(parent_font) # type: QFont
         self.month_font.setPointSize(parent_font.pointSize() - 1)
@@ -426,11 +428,14 @@ class TemporalProximityDelegate(QStyledItemDelegate):
         self.proximity_font = QFont(parent_font) # type: QFont
         self.proximity_font.setPointSize(parent_font.pointSize() -1)
         self.proximity_metrics = QFontMetrics(self.proximity_font)
-        self.proximity_sizes = {}
         self.col2_padding = 20
 
         palette = QGuiApplication.palette()
         # print(palette.color(palette.Highlight).name()))
+
+    def reset(self) -> None:
+        self.month_sizes = {}  # type: Dict[int, QSize]
+        self.proximity_sizes = {}  # type: Dict[int, QSize]
 
     def calculate_max_col1_size(self) -> None:
         day_width = 0
