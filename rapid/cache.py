@@ -419,7 +419,8 @@ class ThumbnailCacheSql:
             self.thumb_db = CacheSQL(self.cache_dir)
 
     def save_thumbnail(self, full_file_name: str, size: int,
-                       modification_time, generation_failed: bool,
+                       modification_time: float,
+                       generation_failed: bool,
                        orientation_unknown: bool,
                        thumbnail: Optional[QImage],
                        camera_model: Optional[str]=None) -> Optional[str]:

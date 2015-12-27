@@ -181,7 +181,7 @@ class CacheSQL:
 
         conn.execute(r"""INSERT OR REPLACE INTO {tn} (uri, size, mtime,
         md5_name, orientation_unknown, failure) VALUES (?,?,?,?,?,?)""".format(
-            tn=self.table_name), (uri, size, modification_time,md5_name, orientation_unknown,
+            tn=self.table_name), (uri, size, modification_time, md5_name, orientation_unknown,
                                   failure))
 
         conn.commit()

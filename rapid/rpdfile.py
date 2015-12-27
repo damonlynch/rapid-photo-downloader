@@ -342,7 +342,7 @@ class RPDFile:
         assert size > 0
         self.size = size
 
-        self.modification_time = modification_time
+        self.modification_time = float(modification_time)
 
         # If a camera has more than one memory card, store a simple numeric
         # identifier to indicate which memory card it came from

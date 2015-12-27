@@ -344,6 +344,7 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
                     camera_model=arguments.camera)
                 if get_thumbnail.disk_status == ThumbnailCacheDiskStatus.failure:
                     rpd_file.thumbnail_status = ThumbnailCacheStatus.generation_failed
+                    task = ExtractionTask.bypass
                 elif get_thumbnail.disk_status == ThumbnailCacheDiskStatus.found:
                     if get_thumbnail.orientation_unknown:
                         rpd_file.thumbnail_status = \
