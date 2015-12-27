@@ -427,15 +427,23 @@ class DeviceCollection:
         if not len(self):
             return _('Select Source'), QIcon(':/icons/folder.svg')
         elif len(self) == 1:
-            device =list(self.devices.values())[0]
+            device = list(self.devices.values())[0]
             return device.display_name, device.get_icon()
         else:
             device_types = Counter(d.device_type for d in self.devices.values())
+            mtp_devices = [d for d in self.devices.values() if d.is_mtp_device]
             assert len(device_types)
             if len(device_types) == 1:
                 device_type = list(device_types)[0]
+                if len(self) == 2:
+                    devices = list(self.devices.values())  # type: List[Device]
+                    text = _('%(device1)s + %(device2)s') % {'device1': devices[0].display_name,
+                                                            'device2': devices[1].display_name}
+                    if device_type == DeviceType.camera and len(mtp_devices) != 2:
+                        return text, QIcon(':/icons/camera.svg')
+                    return text, devices[0].get_icon()
                 if device_type == DeviceType.camera:
-                    # Number of cameras e.g. 2 Cameras
+                    # Number of cameras e.g. 3 Cameras
                     text = _('%(no_cameras)s Cameras') % {'no_cameras':
                                                               device_types[DeviceType.camera]}
                     return text, QIcon(':/icons/camera.svg')
