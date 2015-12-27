@@ -24,6 +24,7 @@ import logging
 import re
 import os
 import datetime
+from typing import List, Tuple
 
 from PyQt5.QtCore import QSettings
 
@@ -137,7 +138,7 @@ class DownloadsTodayTracker:
     http://damonlynch.net/rapid/documentation/#renameoptions
     """
 
-    def __init__(self, downloads_today: list, day_start: str):
+    def __init__(self, downloads_today: List[str], day_start: str) -> None:
         """
 
         :param downloads_today: list[str,str] containing date and the
@@ -199,7 +200,7 @@ class DownloadsTodayTracker:
         else:
             return -1
 
-    def get_day_start(self) -> (int, int):
+    def get_day_start(self) -> Tuple[int, int]:
         try:
             t1, t2 = self.day_start.split(":")
             return int(t1), int(t2)
@@ -223,7 +224,7 @@ class DownloadsTodayTracker:
             self.reset_downloads_today(1)
             return True
 
-    def reset_downloads_today(self, value: int=0):
+    def reset_downloads_today(self, value: int=0) -> None:
         now = datetime.datetime.today()
         hour, minute = self.get_day_start()
         t = datetime.time(hour, minute)
@@ -235,13 +236,13 @@ class DownloadsTodayTracker:
 
         self.set_downloads_today(date, value)
 
-    def set_downloads_today(self, date: str, value: int=0):
+    def set_downloads_today(self, date: str, value: int=0) -> None:
         self.downloads_today = [date, str(value)]
 
-    def set_day_start(self, hour: int, minute: int):
+    def set_day_start(self, hour: int, minute: int) -> None:
         self.day_start = "%s:%s" % (hour, minute)
 
-    def log_vals(self):
+    def log_vals(self) -> None:
         logging.info("Date %s Value %s Day start %s", self.downloads_today[0],
                      self.downloads_today[1], self.day_start)
 
@@ -311,7 +312,7 @@ class Preferences:
                           backup_duplicate_overwrite=False)
 
 
-    def __init__(self):
+    def __init__(self) -> None:
         # To avoid infinite recursions arising from the use of __setattr__,
         # manually assign class values to the class dict
         self.__dict__['settings'] = QSettings("Rapid Photo Downloader",
@@ -366,8 +367,7 @@ class Preferences:
     def sync(self):
         self.settings.sync()
 
-    def _pref_list_uses_component(self, pref_list, pref_component, offset:
-        int=1) -> bool:
+    def _pref_list_uses_component(self, pref_list, pref_component, offset: int=1) -> bool:
         for i in range(0, len(pref_list), 3):
             if pref_list[i+offset] == pref_component:
                 return True
@@ -400,7 +400,7 @@ class Preferences:
                 return True
         return False
 
-    def check_prefs_for_validity(self) -> tuple:
+    def check_prefs_for_validity(self) -> Tuple[bool, str]:
         """
         Checks photo & video rename, and subfolder generation
         preferences ensure they follow name generation rules. Moreover,
@@ -487,22 +487,21 @@ class Preferences:
             v += s + "\n"
         return v
 
-    def get_pref_lists(self) -> tuple:
+    def get_pref_lists(self) -> Tuple[List[str], List[str], List[str], List[str]]:
         """
         :return: a tuple of the photo & video rename and subfolder
          generation preferences
         """
-        return (self.photo_rename, self.photo_subfolder, self.video_rename,
-                     self.video_subfolder)
+        return (self.photo_rename, self.photo_subfolder, self.video_rename, self.video_subfolder)
 
-    def pref_uses_job_code(self, pref_list):
+    def pref_uses_job_code(self, pref_list: List[str]):
         """ Returns True if the particular preferences contains a job code"""
         for i in range(0, len(pref_list), 3):
             if pref_list[i] == JOB_CODE:
                 return True
         return False
 
-    def any_pref_uses_job_code(self):
+    def any_pref_uses_job_code(self) -> bool:
         """ Returns True if any of the preferences contain a job code"""
         for pref_list in self.get_pref_lists():
             if self.pref_uses_job_code(pref_list):
@@ -515,7 +514,7 @@ class Preferences:
         else:
             return ''
 
-    def reset(self):
+    def reset(self) -> None:
         """
         Reset all program preferences to their default settings
         """

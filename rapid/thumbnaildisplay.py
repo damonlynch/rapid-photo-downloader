@@ -133,8 +133,8 @@ class ThumbnailTableModel(QAbstractTableModel):
 
         # Sort thumbnails based on the time the files were modified
         self.rows = SortedListWithKey(key=attrgetter('modification_time'))
-        self.scan_index = defaultdict(list)
-        self.rpd_files = {} # type: Dict[int, RPDFile]
+        self.scan_index = defaultdict(list)  # type: defaultdict[int, List[str]]
+        self.rpd_files = {}  # type: Dict[int, RPDFile]
 
         self.photo_icon = QPixmap(':/photo.png')
         self.video_icon = QPixmap(':/video.png')
@@ -390,7 +390,7 @@ class ThumbnailTableModel(QAbstractTableModel):
         self.thumbnails_generated = 0
         self.total_thumbs_to_generate = 0
 
-    def clearAll(self, scan_id=None, keep_downloaded_files=False):
+    def clearAll(self, scan_id: Optional[int]=None, keep_downloaded_files: bool=False) -> bool:
         """
         Removes files from display and internal tracking.
 
@@ -401,10 +401,11 @@ class ThumbnailTableModel(QAbstractTableModel):
         they have been downloaded.
 
         :param scan_id: if None, keep_downloaded_files must be False
-        :type scan_id: int
+        :return: True if any row was removed, else False
         """
         if scan_id is None and not keep_downloaded_files:
             self.initialize()
+            return True
         else:
             assert scan_id is not None
             # Generate list of thumbnails to remove
@@ -429,6 +430,8 @@ class ThumbnailTableModel(QAbstractTableModel):
             if not keep_downloaded_files or not len(self.scan_index[scan_id]):
                 del self.scan_index[scan_id]
             self.rapidApp.displayMessageInStatusBar(update_only_marked=True)
+
+            return len(rows) > 0
 
     def filesAreMarkedForDownload(self) -> bool:
         """
@@ -455,7 +458,7 @@ class ThumbnailTableModel(QAbstractTableModel):
                 file_type_counter[rpd_file.file_type] += 1
         return file_type_counter
 
-    def getFilesMarkedForDownload(self, scan_id) -> DownloadFiles:
+    def getFilesMarkedForDownload(self, scan_id: int) -> DownloadFiles:
         """
         Returns a dict of scan ids and associated files the user has
         indicated they want to download, and whether there are photos
@@ -476,13 +479,11 @@ class ThumbnailTableModel(QAbstractTableModel):
                 if rpd_file.file_type == FileType.photo:
                     download_types.photos = True
                     download_stats[scan_id].no_photos += 1
-                    download_stats[scan_id].photos_size_in_bytes += \
-                        rpd_file.size
+                    download_stats[scan_id].photos_size_in_bytes += rpd_file.size
                 else:
                     download_types.videos = True
                     download_stats[scan_id].no_videos += 1
-                    download_stats[scan_id].videos_size_in_bytes += \
-                        rpd_file.size
+                    download_stats[scan_id].videos_size_in_bytes += rpd_file.size
                 if rpd_file.from_camera and not rpd_file.cache_full_file_name:
                     camera_access_needed[scan_id] = True
 
@@ -529,8 +530,7 @@ class ThumbnailTableModel(QAbstractTableModel):
                 row = self.rowFromUniqueId(unique_id)
                 self.dataChanged.emit(self.index(row,0),self.index(row,0))
 
-
-    def markThumbnailsNeeded(self, rpd_files) -> bool:
+    def markThumbnailsNeeded(self, rpd_files: List[RPDFile]) -> bool:
         """
         Analyzes the files that will be downloaded, and sees if any of
         them still need to have their thumbnails generated.

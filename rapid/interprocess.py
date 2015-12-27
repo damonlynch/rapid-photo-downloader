@@ -46,6 +46,7 @@ from constants import (RenameAndMoveStatus, ExtractionTask, ExtractionProcessing
                        CameraErrorCode, FileType)
 from proximity import TemporalProximityGroups
 from storage import StorageSpace
+from viewutils import SortedListItem
 
 
 logging_level = logging.DEBUG
@@ -909,7 +910,8 @@ class RenameAndMoveFileData:
     """
     Pass arguments to the renameandmovefile process
     """
-    def __init__(self, rpd_file: RPDFile=None, download_count: int=None,
+    def __init__(self, rpd_file: RPDFile=None,
+                 download_count: int=None,
                  download_succeeded: bool=None,
                  message: RenameAndMoveStatus=None) -> None:
         self.rpd_file = rpd_file
@@ -919,10 +921,12 @@ class RenameAndMoveFileData:
 
 
 class RenameAndMoveFileResults:
-    def __init__(self, move_succeeded: bool=None, rpd_file: RPDFile=None,
-                 download_count: int=None, png_data: bytes=None,
+    def __init__(self, move_succeeded: bool=None,
+                 rpd_file: RPDFile=None,
+                 download_count: int=None,
+                 png_data: bytes=None,
                  stored_sequence_no: int=None,
-                 downloads_today: list=None) -> None:
+                 downloads_today: List[str]=None) -> None:
         self.move_succeeded = move_succeeded
         self.rpd_file = rpd_file
         self.download_count = download_count
@@ -932,14 +936,14 @@ class RenameAndMoveFileResults:
 
 
 class OffloadData:
-    def __init__(self, thumbnail_rows: list=None,
+    def __init__(self, thumbnail_rows: Optional[List[SortedListItem]]=None,
                  proximity_seconds: int=None) -> None:
         self.thumbnail_rows = thumbnail_rows
         self.proximity_seconds = proximity_seconds
 
 
 class OffloadResults:
-    def __init__(self, proximity_groups: TemporalProximityGroups=None) -> None:
+    def __init__(self, proximity_groups: Optional[TemporalProximityGroups]=None) -> None:
         self.proximity_groups = proximity_groups
 
 

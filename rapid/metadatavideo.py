@@ -182,7 +182,7 @@ class MetaData:
     def fourcc(self, missing=''):
         return self._get("CompressorID", missing)
 
-    def rotation(self, missing=''):
+    def rotation(self, missing=0) -> int:
         v = self._get("Rotation", None)
         if v is not None:
             return v

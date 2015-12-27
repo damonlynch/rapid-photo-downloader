@@ -797,8 +797,7 @@ class RenameMoveFileWorker(DaemonProcess):
                     # used.
                     self.content = pickle.dumps(RenameAndMoveFileResults(
                         stored_sequence_no=self.sequences.stored_sequence_no,
-                        downloads_today=\
-                            self.downloads_today_tracker.downloads_today),
+                        downloads_today=self.downloads_today_tracker.downloads_today),
                         pickle.HIGHEST_PROTOCOL)
                     dl_today = self.downloads_today_tracker\
                         .get_or_reset_downloads_today()

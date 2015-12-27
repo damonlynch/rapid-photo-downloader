@@ -18,6 +18,8 @@ __author__ = 'Damon Lynch'
 # along with Rapid Photo Downloader.  If not,
 # see <http://www.gnu.org/licenses/>.
 
+from typing import List, Dict
+
 class RowTracker:
     r"""
     Simple class to map model rows to ids and vice versa, used in
@@ -44,39 +46,39 @@ class RowTracker:
     >>> len(r)
     2
     """
-    def __init__(self):
-        self.rowToId = {} # type: Dict[int, int]
-        self.idToRow = {} # type: Dict[int, int]
+    def __init__(self) -> None:
+        self.rowToId = {}  # type: Dict[int, int]
+        self.idToRow = {}  # type: Dict[int, int]
 
-    def __getitem__(self, row):
+    def __getitem__(self, row) -> int:
         return self.rowToId[row]
 
-    def __setitem__(self, row, idValue):
+    def __setitem__(self, row, idValue) -> None:
         self.rowToId[row] = idValue
         self.idToRow[idValue] = row
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.rowToId)
 
-    def __contains__(self, row):
+    def __contains__(self, row) -> bool:
         return row in self.rowToId
 
-    def __delitem__(self, row):
+    def __delitem__(self, row) -> None:
         id_value = self.rowToId[row]
         del self.rowToId[row]
         del self.idToRow[id_value]
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return '%r %r' % (self.rowToId, self.idToRow)
 
-    def row(self, idValue):
+    def row(self, idValue) -> int:
         """
         :param idValue: the ID, e.g. scan_id, unique_id
         :return: the row associated with the ID
         """
         return self.idToRow[idValue]
 
-    def removeRows(self, position, rows=1):
+    def removeRows(self, position, rows=1) -> List:
         """
         :param position: the position of the first row to remove
         :param rows: how many rows to remove
@@ -93,13 +95,16 @@ class RowTracker:
 
 
 class SortedListItem:
-    def __init__(self, id_value, modification_time: int):
+    def __init__(self, id_value, modification_time: float) -> None:
         self.id_value = id_value
         self.modification_time = modification_time
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return '%r:%r' % (self.id_value, self.modification_time)
 
-    def __eq__(self, other):
-        return (self.id_value == other.id_value and self.modification_time
-                == other.modification_time)
+    def __eq__(self, other) -> bool:
+        return (self.id_value == other.id_value and
+                self.modification_time == other.modification_time)
+
+    def __hash__(self):
+        return hash((self.id_value, self.modification_time))
