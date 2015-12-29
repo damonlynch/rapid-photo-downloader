@@ -582,10 +582,7 @@ class ThumbnailTableModel(QAbstractTableModel):
         False
         """
 
-        if self.use_linear_thumbnailer:
-            manager = self.thumbnailmq
-        else:
-            manager = self.thumbnailmq.thumbnail_manager
+        manager = self.thumbnailmq.thumbnail_manager
 
         terminated = scan_id in manager
         if terminated:
