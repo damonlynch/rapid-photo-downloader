@@ -147,6 +147,7 @@ class ExtractionProcessing(Enum):
     orient = 2
     strip_bars_photo = 3
     strip_bars_video = 4
+    add_film_strip = 5
 
 
 class GphotoMTime(Enum):

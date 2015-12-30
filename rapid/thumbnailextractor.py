@@ -234,7 +234,6 @@ class ThumbnailExtractor(LoadBalancerWorker):
             orientation = rpd_file.metadata.rotation(missing=None)
             # purge metadata, as it cannot be pickled
             rpd_file.metadata = None
-            print('orientation', orientation)
             if orientation == 180:
                 return self.rotate_180
             elif orientation == 90:
@@ -258,7 +257,6 @@ class ThumbnailExtractor(LoadBalancerWorker):
             task = data.task
             processing = data.processing
             rpd_file = data.rpd_file
-            add_film_strip_to_thumb = False
 
             if task == ExtractionTask.load_from_exif:
                 thumbnail_details = self.get_disk_photo_thumb(rpd_file, processing)
@@ -267,7 +265,6 @@ class ThumbnailExtractor(LoadBalancerWorker):
                     orientation = thumbnail_details.orientation
 
             elif task == ExtractionTask.load_file_directly:
-                # logging.debug("Getting QImage from file %s", data.full_file_name_to_work_on)
                 thumbnail = QImage(data.full_file_name_to_work_on)
                 if ExtractionProcessing.orient in processing:
                     orientation = self.get_orientation(rpd_file=rpd_file,
@@ -294,9 +291,11 @@ class ThumbnailExtractor(LoadBalancerWorker):
                         if thumbnail.isNull():
                             thumbnail = None
                         else:
-                            add_film_strip_to_thumb = True
+                            processing.add(ExtractionProcessing.add_film_strip)
                             orientation = self.get_video_rotation(rpd_file,
                                                                 data.full_file_name_to_work_on)
+                            if orientation is not None:
+                                processing.add(ExtractionProcessing.orient)
                             processing.add(ExtractionProcessing.resize)
 
             if ExtractionProcessing.strip_bars_photo in processing:
@@ -324,7 +323,7 @@ class ThumbnailExtractor(LoadBalancerWorker):
             if orientation is not None and thumbnail is not None:
                 thumbnail =  self.rotate_thumb(thumbnail, orientation)
 
-            if add_film_strip_to_thumb:
+            if ExtractionProcessing.add_film_strip in processing:
                 thumbnail = add_filmstrip(thumbnail)
 
             if thumbnail is not None:

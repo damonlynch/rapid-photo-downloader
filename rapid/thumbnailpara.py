@@ -421,6 +421,7 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
                             task = ExtractionTask.load_from_bytes
                             thumbnail_bytes = self.camera.get_THM_file(rpd_file.thm_full_name)
                             processing.add(ExtractionProcessing.strip_bars_video)
+                            processing.add(ExtractionProcessing.add_film_strip)
                         elif self.cache_full_size_file_from_camera(rpd_file):
                             # TODO cache only a small part of the video, not all of it
                             task = ExtractionTask.extract_from_file
@@ -458,6 +459,7 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
                         if rpd_file.thm_full_name is not None:
                             task = ExtractionTask.load_file_directly
                             processing.add(ExtractionProcessing.strip_bars_video)
+                            processing.add(ExtractionProcessing.add_film_strip)
                             full_file_name_to_work_on = rpd_file.thm_full_name
                         else:
                             task = ExtractionTask.extract_from_file
