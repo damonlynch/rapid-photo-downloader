@@ -216,12 +216,18 @@ class TemporalProximityGroups:
 
         # Phase 1: Associate unique ids with their year, month and day
         for x in uniqueid_times:
-            self.day_groups[x.arrowtime.floor('day')].append(x.unqiue_id)
-            self.month_groups[x.arrowtime.floor('month')].append(x.unqiue_id)
-            self.year_groups[x.arrowtime.floor('year')].append(x.unqiue_id)
-            if x.arrowtime.year != current_year:
+            t = x.arrowtime  # type: arrow.Arrow
+            year = t.year
+            month = t.month
+            day = t.day
+
+            # Could use arrow.floor here, but it's very slow
+            self.day_groups[(year, month, day)].append(x.unqiue_id)
+            self.month_groups[(year, month)].append(x.unqiue_id)
+            self.year_groups[year].append(x.unqiue_id)
+            if year != current_year:
                 self._previous_year = True
-            if x.arrowtime.month != current_month:
+            if month != current_month:
                 self._previous_month = True
 
         # Phase 2: Identify the proximity groups
@@ -234,8 +240,7 @@ class TemporalProximityGroups:
         if len(uniqueid_times) > 1:
             for current in uniqueid_times[1:]:
                 modification_time = current.modification_time
-                if (modification_time - prev.modification_time
-                        > temporal_span):
+                if (modification_time - prev.modification_time > temporal_span):
                     group_no += 1
                 self.times_by_proximity[group_no].append(current.arrowtime)
                 self.uniqueid_by_proximity[group_no].append(current.unqiue_id)
@@ -244,8 +249,8 @@ class TemporalProximityGroups:
         # Phase 3: Generate the proximity group's text that will appear in
         # the right-most column
         for i in range(len(self.times_by_proximity)):
-            start = self.times_by_proximity[i][0] # type: arrow.Arrow
-            end = self.times_by_proximity[i][-1] # type: arrow.Arrow
+            start = self.times_by_proximity[i][0]  # type: arrow.Arrow
+            end = self.times_by_proximity[i][-1]  # type: arrow.Arrow
             self.text_by_proximity.append(humanize_time_span(start, end,
                                              insert_cr_on_long_line=True))
 
@@ -255,13 +260,13 @@ class TemporalProximityGroups:
         self.row_index = -1
         for group_no in range(len(self.times_by_proximity)):
             arrowtime = self.times_by_proximity[group_no][0]
-            prev_day = arrowtime.floor('day')
+            prev_day = (arrowtime.year, arrowtime.month, arrowtime.day)
             text = self.text_by_proximity.popleft()
             self.row_index += 1
             self.rows.append(self.make_row(arrowtime, text))
             if len(self.times_by_proximity[group_no]) > 1:
                 for arrowtime in self.times_by_proximity[group_no][1:]:
-                    day = arrowtime.floor('day')
+                    day = (arrowtime.year, arrowtime.month, arrowtime.day)
 
                     if prev_day != day:
                         prev_day = day
@@ -310,9 +315,6 @@ class TemporalProximityGroups:
 
         return ProximityRow(year, month, weekday, day, text)
 
-    # def __contains__(self, timestamp):
-    #     return timestamp in self.uniqueid_by_proximity
-
     def __len__(self):
         return len(self.rows)
 
@@ -324,8 +326,6 @@ class TemporalProximityGroups:
 
     # def generate_re(self, row):
     #     return '|'.join(self.uniqueid_by_proximity[timestamp])
-
-
 
     def depth(self):
         if self._depth is None:
