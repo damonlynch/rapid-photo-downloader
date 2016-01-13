@@ -33,7 +33,7 @@ from gettext import gettext as _
 from PyQt5.QtCore import (QAbstractTableModel, QModelIndex, Qt, QSize,
                           QRect, QPoint)
 from PyQt5.QtWidgets import (QTableView, QStyledItemDelegate,
-                             QStyleOptionViewItem, QHeaderView)
+                             QStyleOptionViewItem, QHeaderView, QStyle, QAbstractItemView)
 from PyQt5.QtGui import (QPainter, QFontMetrics, QFont, QColor, QGuiApplication)
 
 ProximityRow = namedtuple('ProximityRow', 'year, month, weekday, day, '
@@ -324,7 +324,7 @@ class TemporalProximityGroups:
     def __iter__(self):
         return iter(self.rows)
 
-    # def generate_re(self, row):
+    # def generate_re(self, row: int, column: int) -> str:
     #     return '|'.join(self.uniqueid_by_proximity[timestamp])
 
     def depth(self):
@@ -431,7 +431,8 @@ class TemporalProximityDelegate(QStyledItemDelegate):
         self.col2_padding = 20
 
         palette = QGuiApplication.palette()
-        # print(palette.color(palette.Highlight).name()))
+        self.highlight = palette.highlight().color()
+        self.highlightText = palette.highlightedText().color()
 
     def reset(self) -> None:
         self.month_sizes = {}  # type: Dict[int, QSize]
@@ -501,7 +502,7 @@ class TemporalProximityDelegate(QStyledItemDelegate):
         self.proximity_sizes[row] = QSize(size)
         return size
 
-    def paint(self, painter: QPainter, option: QStyleOptionViewItem, index:  QModelIndex)  -> None:
+    def paint(self, painter: QPainter, option: QStyleOptionViewItem, index: QModelIndex)  -> None:
         column = index.column()
         model = index.model()
 
@@ -509,8 +510,14 @@ class TemporalProximityDelegate(QStyledItemDelegate):
             painter.save()
             row = index.row()
 
-            painter.fillRect(option.rect, self.darkGray)
-            painter.setPen(QColor(Qt.white))
+            if option.state & QStyle.State_Selected:
+                color = self.highlight
+                textColor = self.highlightText
+            else:
+                color = self.darkGray
+                textColor = QColor(Qt.white)
+            painter.fillRect(option.rect, color)
+            painter.setPen(textColor)
 
             year, month =  model.data(index)
 
@@ -558,7 +565,16 @@ class TemporalProximityDelegate(QStyledItemDelegate):
         elif column == 1:
             painter.save()
 
-            painter.fillRect(option.rect, self.darkGray)
+            if option.state & QStyle.State_Selected:
+                color = self.highlight
+                weekdayColor = self.highlightText
+                dayColor = self.highlightText
+            else:
+                color = self.darkGray
+                weekdayColor = QColor(221,221,221)
+                dayColor = QColor(Qt.white)
+
+            painter.fillRect(option.rect, color)
             weekday, day = model.data(index)
             weekday = weekday.upper()
             width = option.rect.width()
@@ -568,19 +584,19 @@ class TemporalProximityDelegate(QStyledItemDelegate):
             weekday_rect_bottom = int(height / 2 - self.max_col1_text_height *
                                    self.day_proporation) + \
                                   self.max_weekday_height
-            weekday_rect = QRect(0, 0,
+            weekdayRect = QRect(0, 0,
                                  width, weekday_rect_bottom)
             day_rect_top = weekday_rect_bottom + self.col1_center_space
-            day_rect = QRect(0, day_rect_top, width,
+            dayRect = QRect(0, day_rect_top, width,
                              height-day_rect_top)
 
             painter.setFont(self.weekday_font)
-            painter.setPen(QColor(221,221,221))
-            painter.drawText(weekday_rect, Qt.AlignHCenter | Qt.AlignBottom,
+            painter.setPen(weekdayColor)
+            painter.drawText(weekdayRect, Qt.AlignHCenter | Qt.AlignBottom,
                              weekday)
             painter.setFont(self.day_font)
-            painter.setPen(QColor(Qt.white))
-            painter.drawText(day_rect, Qt.AlignHCenter | Qt.AlignTop, day)
+            painter.setPen(dayColor)
+            painter.drawText(dayRect, Qt.AlignHCenter | Qt.AlignTop, day)
             painter.restore()
 
         elif column == 2:
@@ -589,9 +605,16 @@ class TemporalProximityDelegate(QStyledItemDelegate):
 
             painter.save()
 
-            painter.fillRect(option.rect, self.midGray)
+            if option.state & QStyle.State_Selected:
+                color = self.highlight
+                textColor = self.highlightText
+            else:
+                color = self.midGray
+                textColor = QColor(Qt.white)
+
+            painter.fillRect(option.rect, color)
             painter.setFont(self.proximity_font)
-            painter.setPen(QColor(Qt.white))
+            painter.setPen(textColor)
 
             rect = QRect(option.rect)
             m = self.col2_padding // 2
@@ -695,6 +718,8 @@ class TemporalProximityView(QTableView):
         self.setMinimumWidth(200)
         self.horizontalHeader().setStretchLastSection(True)
         self.setWordWrap(True)
+        # self.setSelectionBehavior(QAbstractItemView.SelectRows)
+        self.setSelectionMode(QAbstractItemView.ExtendedSelection)
         # self.setShowGrid(False)
 
     def minimumSizeHint(self) -> QSize:

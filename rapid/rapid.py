@@ -53,7 +53,7 @@ import gphoto2 as gp
 from PyQt5 import QtCore, QtWidgets, QtGui
 from PyQt5.QtCore import (QThread, Qt, QStorageInfo, QSettings, QPoint,
                           QSize, QTimer, QTextStream, QSortFilterProxyModel,
-                          QModelIndex, QRect)
+                          QRect, QItemSelection, QItemSelectionModel)
 from PyQt5.QtGui import (QIcon, QPixmap, QImage, QFont, QColor, QPalette, QFontMetrics,
                          QGuiApplication)
 from PyQt5.QtWidgets import (QAction, QApplication, QMainWindow, QMenu,
@@ -1842,11 +1842,32 @@ class RapidWindow(QMainWindow):
         """
         QTimer.singleShot(0, self.close)
 
-    def proximitySelectionChanged(self, current: QModelIndex,
-                                  previous: QModelIndex) -> None:
+    def proximitySelectionChanged(self, current: QItemSelection, previous: QItemSelection) -> None:
 
-        selected = [(i.row(), i.column()) for i in current.indexes()]
-        print(selected)
+        # Deselect any child items
+        self.temporalProximityView.selectionModel().blockSignals(True)
+        for i in current.indexes():
+            row = i.row()
+            column = i.column()
+            if column == 0:
+                for c in range(1,3):
+                    self.temporalProximityView.selectionModel().select(
+                            self.temporalProximityModel.index(row, c),
+                            QItemSelectionModel.Deselect)
+                    self.temporalProximityModel.dataChanged.emit(
+                            self.temporalProximityModel.index(row, c),
+                            self.temporalProximityModel.index(row, c))
+            if column == 1:
+                self.temporalProximityView.selectionModel().select(
+                        self.temporalProximityModel.index(row, 2),
+                        QItemSelectionModel.Deselect)
+                self.temporalProximityModel.dataChanged.emit(
+                            self.temporalProximityModel.index(row, 2),
+                            self.temporalProximityModel.index(row, 2))
+        self.temporalProximityView.selectionModel().blockSignals(False)
+
+        # selected = [(i.row(), i.column()) for i in self.temporalProximityView.selectedIndexes()]
+        # print("selected", selected)
 
 
     def generateTemporalProximityTableData(self) -> None:
