@@ -199,8 +199,6 @@ class TemporalProximityGroups:
         self._previous_year = False
         self._previous_month = False
 
-        # print(thumbnail_rows[0].modification_time, type(thumbnail_rows[0].modification_time))
-
         # Generate an arrow date time for every timestamp we have.
         uniqueid_times = [UniqueIdTime(tr.modification_time,
                                   arrow.get(tr.modification_time).to('local'),
@@ -324,8 +322,18 @@ class TemporalProximityGroups:
     def __iter__(self):
         return iter(self.rows)
 
-    # def generate_re(self, row: int, column: int) -> str:
-    #     return '|'.join(self.uniqueid_by_proximity[timestamp])
+    def generate_re(self, selected_rows: List[int]) -> str:
+        """
+        Generate regular expression used to filter thumbnails.
+
+        Based on selection in temporal proximity view.
+
+        :param selected_rows: rows selected in column 2
+        :return: regular expression containing unique ids of thumbnails
+         to be displayed
+        """
+
+        return '|'.join('|'.join(self.uniqueid_by_proximity[row]) for row in selected_rows)
 
     def depth(self):
         if self._depth is None:
@@ -737,6 +745,7 @@ class TemporalProximityView(QTableView):
                                  start_column: int,
                                  child_column: int,
                                  model: TemporalProximityModel) -> None:
+
         for r in range(row, row + self.rowSpan(row, start_column)):
             self.selectionModel().select(model.index(r, child_column), QItemSelectionModel.Select)
         model.dataChanged.emit(model.index(row, child_column), model.index(r, child_column))
@@ -746,6 +755,7 @@ class TemporalProximityView(QTableView):
                                   start_column: int,
                                   examined: set,
                                   model: TemporalProximityModel) -> None:
+
         start_row = model.groups.row_span_for_column_starts_at_row[(row, parent_column)]
         if (start_row, parent_column) not in examined:
             all_selected = True

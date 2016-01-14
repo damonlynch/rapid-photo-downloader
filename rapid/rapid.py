@@ -53,7 +53,7 @@ import gphoto2 as gp
 from PyQt5 import QtCore, QtWidgets, QtGui
 from PyQt5.QtCore import (QThread, Qt, QStorageInfo, QSettings, QPoint,
                           QSize, QTimer, QTextStream, QSortFilterProxyModel,
-                          QRect, QItemSelection, )
+                          QRect, QItemSelection, QRegExp)
 from PyQt5.QtGui import (QIcon, QPixmap, QImage, QFont, QColor, QPalette, QFontMetrics,
                          QGuiApplication)
 from PyQt5.QtWidgets import (QAction, QApplication, QMainWindow, QMenu,
@@ -1843,18 +1843,26 @@ class RapidWindow(QMainWindow):
         QTimer.singleShot(0, self.close)
 
     def proximitySelectionChanged(self, current: QItemSelection, previous: QItemSelection) -> None:
+        """
+        Respond to user selections in Temporal Proximity Table.
 
-        # selected = [(i.row(), i.column()) for i in current.indexes()]
-        # print("current", selected)
-
+        User can select / deselect individual cells. Need to:
+        1. Automatically update selection to include parent or child
+           cells in some cases
+        2. Filter display of thumbnails
+        """
         self.temporalProximityView.updateSelection()
 
-        # selected = [(i.row(), i.column()) for i in self.temporalProximityView.selectedIndexes()]
-        # print("selected", selected)
+        selected_rows = [i.row() for i in self.temporalProximityView.selectedIndexes()
+                         if i.column() == 2]
 
-        # self.thumbnailProxyModel.setFilterRegExp(QRegExp(re))
-        # self.thumbnailProxyModel.setFilterRegExp('')
-
+        if selected_rows:
+            # Unique id is used for filtering
+            # (see Qt.DecorationRole of ThumbnailTableModel)
+            re = self.temporalProximityModel.groups.generate_re(selected_rows)
+            self.thumbnailProxyModel.setFilterRegExp(QRegExp(re))
+        else:
+            self.thumbnailProxyModel.setFilterRegExp('')
 
     def generateTemporalProximityTableData(self) -> None:
         # Convert the thumbnail rows to a regular list, because it's going
