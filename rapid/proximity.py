@@ -24,14 +24,14 @@ from datetime import datetime
 import logging
 import pickle
 import math
-from typing import List
+from typing import Dict, List, Tuple
 
 import arrow.arrow
 
 from gettext import gettext as _
 
 from PyQt5.QtCore import (QAbstractTableModel, QModelIndex, Qt, QSize,
-                          QRect, QPoint)
+                          QRect, QPoint, QItemSelectionModel)
 from PyQt5.QtWidgets import (QTableView, QStyledItemDelegate,
                              QStyleOptionViewItem, QHeaderView, QStyle, QAbstractItemView)
 from PyQt5.QtGui import (QPainter, QFontMetrics, QFont, QColor, QGuiApplication)
@@ -273,8 +273,8 @@ class TemporalProximityGroups:
                         self.rows.append(self.make_row(arrowtime, ''))
 
         # Phase 5: Determine the row spans for each column
-        self.spans = []
-        self.row_span_for_col0_starts_at = {}
+        self.spans = []  # type: List[Tuple[int, int, int]]
+        self.row_span_for_column_starts_at_row = {}  # type: Dict[Tuple[int, int], int]
         column = -1
         for c in (0, 2, 4):
             column += 1
@@ -285,16 +285,16 @@ class TemporalProximityGroups:
                     if row_count > 1:
                         self.spans.append((column, start_row, row_count))
                     start_row = row_index
-                if column == 0:
-                    self.row_span_for_col0_starts_at[row_index] = start_row
+                if column == 0 or column == 1:
+                    self.row_span_for_column_starts_at_row[(row_index, column)] = start_row
 
             if start_row != len(self.rows) - 1:
                 self.spans.append((column, start_row, len(self.rows) - start_row))
-                if column == 0:
+                if column == 0 or column == 1:
                     for row_index in range(start_row, len(self.rows)):
-                        self.row_span_for_col0_starts_at[row_index] = start_row
+                        self.row_span_for_column_starts_at_row[(row_index, column)] = start_row
 
-        assert len(self.row_span_for_col0_starts_at) == len(self.rows)
+        assert len(self.row_span_for_column_starts_at_row) == len(self.rows) * 2
 
     def make_row(self, arrowtime: arrow.Arrow, text: str) -> ProximityRow:
         arrowmonth = arrowtime.floor('month')
@@ -339,14 +339,15 @@ class TemporalProximityGroups:
                 self._depth = 0
         return self._depth
 
+    def __repr__(self) -> str:
+        return 'TemporalProximityGroups with {} rows and depth of {}'.format(len(self.rows),
+                                                                        self.depth())
+
 
 class TemporalProximityModel(QAbstractTableModel):
     def __init__(self, parent, groups: TemporalProximityGroups=None):
         super().__init__(parent)
         self.rapidApp = parent # type: rapid.RapidWindow
-        self.groups = groups
-
-    def setGroup(self, groups: TemporalProximityGroups):
         self.groups = groups
 
     def columnCount(self, parent=QModelIndex()):
@@ -665,7 +666,7 @@ class TemporalProximityDelegate(QStyledItemDelegate):
                 # of the rows it spans
 
                 # Need minimum height of column 0, divided by span
-                col0_row = self.row_span_for_col0_starts_at[row]
+                col0_row = self.row_span_for_column_starts_at_row[(row, 0)]
                 column0_height = self.column0Size(index.model().index(col0_row, 0)).height()
                 assert column0_height > 0
                 return QSize(self.col1_width, max(self.col1_height,
@@ -718,7 +719,6 @@ class TemporalProximityView(QTableView):
         self.setMinimumWidth(200)
         self.horizontalHeader().setStretchLastSection(True)
         self.setWordWrap(True)
-        # self.setSelectionBehavior(QAbstractItemView.SelectRows)
         self.setSelectionMode(QAbstractItemView.ExtendedSelection)
         # self.setShowGrid(False)
 
@@ -727,11 +727,72 @@ class TemporalProximityView(QTableView):
         w = 0
         for i in range(model.columnCount()):
             w += self.columnWidth(i)
-        h = 100
+        h = 80
         return QSize(w, h)
 
     def SizeHint(self) -> QSize:
         return self.minimumSizeHint()
+
+    def _updateSelectionRowChild(self, row: int,
+                                 start_column: int,
+                                 child_column: int,
+                                 model: TemporalProximityModel) -> None:
+        for r in range(row, row + self.rowSpan(row, start_column)):
+            self.selectionModel().select(model.index(r, child_column), QItemSelectionModel.Select)
+        model.dataChanged.emit(model.index(row, child_column), model.index(r, child_column))
+
+    def _updateSelectionRowParent(self, row: int,
+                                  parent_column: int,
+                                  start_column: int,
+                                  examined: set,
+                                  model: TemporalProximityModel) -> None:
+        start_row = model.groups.row_span_for_column_starts_at_row[(row, parent_column)]
+        if (start_row, parent_column) not in examined:
+            all_selected = True
+            for r in range(start_row, start_row + self.rowSpan(row, parent_column)):
+                if not self.selectionModel().isSelected(model.index(r, start_column)):
+                    all_selected = False
+                    break
+            if all_selected:
+                i = model.index(start_row, parent_column)
+                self.selectionModel().select(i, QItemSelectionModel.Select)
+                model.dataChanged.emit(i, i)
+            examined.add((start_row, parent_column))
+
+    def updateSelection(self) -> None:
+        """
+        Modify user selection to include extra columns.
+
+        When the user is selecting table cells, need to mimic the
+        behavior of
+        setSelectionBehavior(QAbstractItemView.SelectRows)
+        However in our case we need to select multiple rows, depending
+        on the row spans.
+        """
+
+        self.selectionModel().blockSignals(True)
+
+        model = self.model()  # type: TemporalProximityModel
+        examined = set()
+
+        for i in self.selectedIndexes():
+            row = i.row()
+            column = i.column()
+            if column == 0:
+                examined.add((row, column))
+                for child_column in (1,2):
+                    self._updateSelectionRowChild(row, column, child_column, model)
+                    examined.add((row, child_column))
+            if column == 1:
+                examined.add((row, column))
+                self._updateSelectionRowChild(row, column, 2, model)
+                self._updateSelectionRowParent(row, 0, column, examined, model)
+                examined.add((row, 2))
+            if column == 2:
+                for parent_column in (1, 0):
+                    self._updateSelectionRowParent(row, parent_column, column, examined, model)
+
+        self.selectionModel().blockSignals(False)
 
 
 

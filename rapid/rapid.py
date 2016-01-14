@@ -53,7 +53,7 @@ import gphoto2 as gp
 from PyQt5 import QtCore, QtWidgets, QtGui
 from PyQt5.QtCore import (QThread, Qt, QStorageInfo, QSettings, QPoint,
                           QSize, QTimer, QTextStream, QSortFilterProxyModel,
-                          QRect, QItemSelection, QItemSelectionModel)
+                          QRect, QItemSelection, )
 from PyQt5.QtGui import (QIcon, QPixmap, QImage, QFont, QColor, QPalette, QFontMetrics,
                          QGuiApplication)
 from PyQt5.QtWidgets import (QAction, QApplication, QMainWindow, QMenu,
@@ -1844,30 +1844,16 @@ class RapidWindow(QMainWindow):
 
     def proximitySelectionChanged(self, current: QItemSelection, previous: QItemSelection) -> None:
 
-        # Deselect any child items
-        self.temporalProximityView.selectionModel().blockSignals(True)
-        for i in current.indexes():
-            row = i.row()
-            column = i.column()
-            if column == 0:
-                for c in range(1,3):
-                    self.temporalProximityView.selectionModel().select(
-                            self.temporalProximityModel.index(row, c),
-                            QItemSelectionModel.Deselect)
-                    self.temporalProximityModel.dataChanged.emit(
-                            self.temporalProximityModel.index(row, c),
-                            self.temporalProximityModel.index(row, c))
-            if column == 1:
-                self.temporalProximityView.selectionModel().select(
-                        self.temporalProximityModel.index(row, 2),
-                        QItemSelectionModel.Deselect)
-                self.temporalProximityModel.dataChanged.emit(
-                            self.temporalProximityModel.index(row, 2),
-                            self.temporalProximityModel.index(row, 2))
-        self.temporalProximityView.selectionModel().blockSignals(False)
+        # selected = [(i.row(), i.column()) for i in current.indexes()]
+        # print("current", selected)
+
+        self.temporalProximityView.updateSelection()
 
         # selected = [(i.row(), i.column()) for i in self.temporalProximityView.selectedIndexes()]
         # print("selected", selected)
+
+        # self.thumbnailProxyModel.setFilterRegExp(QRegExp(re))
+        # self.thumbnailProxyModel.setFilterRegExp('')
 
 
     def generateTemporalProximityTableData(self) -> None:
@@ -1880,7 +1866,7 @@ class RapidWindow(QMainWindow):
 
     def proximityGroupsGenerated(self, proximity_groups: TemporalProximityGroups) -> None:
 
-        self.temporalProximityModel.setGroup(proximity_groups)
+        self.temporalProximityModel.groups = proximity_groups
         depth = proximity_groups.depth()
         self.temporalProximityDelegate.depth = depth
         if depth == 1:
@@ -1889,8 +1875,8 @@ class RapidWindow(QMainWindow):
             self.temporalProximityView.showColumn(0)
         self.temporalProximityView.clearSpans()
         self.temporalProximityDelegate.reset()
-        self.temporalProximityDelegate.row_span_for_col0_starts_at = \
-            proximity_groups.row_span_for_col0_starts_at
+        self.temporalProximityDelegate.row_span_for_column_starts_at_row = \
+            proximity_groups.row_span_for_column_starts_at_row
         for column, row, row_span in proximity_groups.spans:
             self.temporalProximityView.setSpan(row, column, row_span, 1)
 
@@ -1898,14 +1884,6 @@ class RapidWindow(QMainWindow):
 
         self.temporalProximityView.resizeRowsToContents()
         self.temporalProximityView.resizeColumnsToContents()
-
-        # width = self.temporalProximityView.minimumSizeHint().width()
-        # print(self.temporalProximityView.sizePolicy().horizontalPolicy())
-        # self.temporalProximityView.setMaximumWidth(width)
-        # self.temporalProximityView.hide()
-
-        # self.thumbnailProxyModel.setFilterRegExp(QRegExp(re))
-        # self.thumbnailProxyModel.setFilterRegExp('')
 
     def closeEvent(self, event) -> None:
         if self.application_state == ApplicationState.normal:
