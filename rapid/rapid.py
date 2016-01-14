@@ -52,7 +52,7 @@ import zmq
 import gphoto2 as gp
 from PyQt5 import QtCore, QtWidgets, QtGui
 from PyQt5.QtCore import (QThread, Qt, QStorageInfo, QSettings, QPoint,
-                          QSize, QTimer, QTextStream, QSortFilterProxyModel,
+                          QSize, QTimer, QTextStream,
                           QRect, QItemSelection, QRegExp)
 from PyQt5.QtGui import (QIcon, QPixmap, QImage, QFont, QColor, QPalette, QFontMetrics,
                          QGuiApplication)
@@ -92,8 +92,8 @@ from constants import (BackupLocationType, DeviceType, ErrorType,
                        PROGRAM_NAME, job_code_rename_test, CameraErrorCode,
                        photo_rename_simple_test)
 import constants
-from thumbnaildisplay import (ThumbnailView, ThumbnailTableModel,
-    ThumbnailDelegate, DownloadTypes, DownloadStats)
+from thumbnaildisplay import (ThumbnailView, ThumbnailTableModel, ThumbnailDelegate, DownloadTypes,
+                              DownloadStats, ThumbnailSortFilterProxyModel)
 from devicedisplay import (DeviceTableModel, DeviceView, DeviceDelegate)
 from proximity import (TemporalProximityModel, TemporalProximityView,
                        TemporalProximityDelegate, TemporalProximityGroups)
@@ -379,7 +379,7 @@ class RapidWindow(QMainWindow):
 
         self.thumbnailView = ThumbnailView()
         self.thumbnailModel = ThumbnailTableModel(parent=self, benchmark=benchmark)
-        self.thumbnailProxyModel = QSortFilterProxyModel(self)
+        self.thumbnailProxyModel = ThumbnailSortFilterProxyModel(self)
         self.thumbnailProxyModel.setSourceModel(self.thumbnailModel)
         self.thumbnailView.setModel(self.thumbnailProxyModel)
         self.thumbnailView.setItemDelegate(ThumbnailDelegate(self))
@@ -1857,12 +1857,13 @@ class RapidWindow(QMainWindow):
                          if i.column() == 2]
 
         if selected_rows:
-            # Unique id is used for filtering
-            # (see Qt.DecorationRole of ThumbnailTableModel)
-            re = self.temporalProximityModel.groups.generate_re(selected_rows)
-            self.thumbnailProxyModel.setFilterRegExp(QRegExp(re))
+            self.thumbnailProxyModel.selectedRows = \
+                self.temporalProximityModel.groups.selected_thumbnail_rows(selected_rows)
+
+            self.thumbnailProxyModel.invalidateFilter()
         else:
-            self.thumbnailProxyModel.setFilterRegExp('')
+            self.thumbnailProxyModel.selectedRows = set()
+            self.thumbnailProxyModel.invalidateFilter()
 
     def generateTemporalProximityTableData(self) -> None:
         # Convert the thumbnail rows to a regular list, because it's going

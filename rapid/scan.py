@@ -340,7 +340,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
             # count how many files of each type are included
             # i.e. how many photos and videos
             self.files_scanned += 1
-            if not self.files_scanned % 1000:
+            if not self.files_scanned % 10000:
                 logging.debug("Scanned {} files".format(
                     self.files_scanned))
 

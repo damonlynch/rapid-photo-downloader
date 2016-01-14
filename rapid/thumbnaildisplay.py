@@ -35,23 +35,20 @@ from sortedcontainers import SortedListWithKey
 import arrow.arrow
 from dateutil.tz import tzlocal
 
-from PyQt5.QtCore import  (QAbstractTableModel, QModelIndex, Qt, pyqtSignal,
-    QThread, QTimer, QSize, QRect, QEvent, QPoint, QMargins)
-from PyQt5.QtWidgets import (QListView, QStyledItemDelegate,
-                             QStyleOptionViewItem, QApplication, QStyle,
-                             QStyleOptionButton, QMenu, QAction)
-from PyQt5.QtGui import (QPixmap, QImage, QPainter, QColor, QPen, QBrush,
-                         QFontMetrics)
+from PyQt5.QtCore import  (QAbstractTableModel, QModelIndex, Qt, pyqtSignal, QSize, QRect, QEvent,
+                           QPoint, QMargins, QSortFilterProxyModel, QRegExp)
+from PyQt5.QtWidgets import (QListView, QStyledItemDelegate, QStyleOptionViewItem, QApplication,
+                             QStyle, QStyleOptionButton, QMenu)
+from PyQt5.QtGui import (QPixmap, QImage, QPainter, QColor, QBrush, QFontMetrics)
 
 import zmq
 
 from viewutils import RowTracker, SortedListItem
 from rpdfile import RPDFile, FileTypeCounter
-from interprocess import (PublishPullPipelineManager,
-    GenerateThumbnailsArguments, Device, GenerateThumbnailsResults)
-from constants import (DownloadStatus, Downloaded, FileType, FileExtension,
-                       ThumbnailSize, ThumbnailCacheStatus, Roles, DeviceType,
-                       CustomColors)
+from interprocess import (PublishPullPipelineManager, GenerateThumbnailsArguments, Device,
+                          GenerateThumbnailsResults)
+from constants import (DownloadStatus, Downloaded, FileType, FileExtension, ThumbnailSize,
+                       ThumbnailCacheStatus, Roles, DeviceType, CustomColors)
 from storage import get_program_cache_directory
 from utilities import (CacheDirs, make_internationalized_list, format_size_for_user)
 from thumbnailer import Thumbnailer
@@ -169,7 +166,7 @@ class ThumbnailTableModel(QAbstractTableModel):
 
         if role == Qt.DisplayRole:
             # This is never displayed, but it is used for filtering!
-            return unique_id
+            return self.rows[row].modification_time
         elif role == Qt.DecorationRole:
             return self.thumbnails[unique_id]
         elif role == Qt.CheckStateRole:
@@ -954,3 +951,14 @@ class ThumbnailDelegate(QStyledItemDelegate):
 
     def getCheckBoxRect(self, option) -> QRect:
         return QRect(self.getLeftPoint(option), self.checkboxRect.size())
+
+
+class ThumbnailSortFilterProxyModel(QSortFilterProxyModel):
+    def __init__(self,  parent=None) -> None:
+        super().__init__(parent)
+        self.selectedRows = set()
+
+    def filterAcceptsRow(self, sourceRow: int, sourceParent: QModelIndex) -> bool:
+        if len(self.selectedRows) == 0:
+            return True
+        return sourceRow in self.selectedRows

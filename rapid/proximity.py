@@ -24,7 +24,7 @@ from datetime import datetime
 import logging
 import pickle
 import math
-from typing import Dict, List, Tuple
+from typing import Dict, List, Tuple, Set
 
 import arrow.arrow
 
@@ -36,11 +36,9 @@ from PyQt5.QtWidgets import (QTableView, QStyledItemDelegate,
                              QStyleOptionViewItem, QHeaderView, QStyle, QAbstractItemView)
 from PyQt5.QtGui import (QPainter, QFontMetrics, QFont, QColor, QGuiApplication)
 
-ProximityRow = namedtuple('ProximityRow', 'year, month, weekday, day, '
-                                          'proximity')
+ProximityRow = namedtuple('ProximityRow', 'year, month, weekday, day, proximity')
 
-UniqueIdTime = namedtuple('UniqueIdTime', 'modification_time, arrowtime, '
-                                          'unqiue_id')
+UniqueIdTime = namedtuple('UniqueIdTime', 'modification_time, arrowtime, unqiue_id')
 
 def locale_time(t: datetime) -> str:
     """
@@ -188,8 +186,8 @@ def humanize_time_span(start: arrow.Arrow, end: arrow.Arrow,
 class TemporalProximityGroups:
     # @profile
     def __init__(self, thumbnail_rows: list, temporal_span: int=3600):
-        self.rows = []
-        self.uniqueid_by_proximity = defaultdict(list)
+        self.rows = []  # type: List[ProximityRow]
+        self.proximity_row_to_thumbnail_row = defaultdict(set)  # type: Dict[int, Set[int]]
         self.times_by_proximity = defaultdict(list)
         self.text_by_proximity = deque()
         self.day_groups = defaultdict(list)
@@ -232,7 +230,7 @@ class TemporalProximityGroups:
         group_no = 0
         prev = uniqueid_times[0]
 
-        self.uniqueid_by_proximity[group_no].append(prev.unqiue_id)
+        # self.uniqueid_by_proximity[group_no].append(prev.unqiue_id)
         self.times_by_proximity[group_no].append(prev.arrowtime)
 
         if len(uniqueid_times) > 1:
@@ -241,7 +239,7 @@ class TemporalProximityGroups:
                 if (modification_time - prev.modification_time > temporal_span):
                     group_no += 1
                 self.times_by_proximity[group_no].append(current.arrowtime)
-                self.uniqueid_by_proximity[group_no].append(current.unqiue_id)
+                # self.uniqueid_by_proximity[group_no].append(current.unqiue_id)
                 prev = current
 
         # Phase 3: Generate the proximity group's text that will appear in
@@ -255,19 +253,27 @@ class TemporalProximityGroups:
         # Phase 4: Generate the rows to be displayed to the user
         self.prev_row_month = None # type: arrow.Arrow
         self.prev_row_day = None  # type: arrow.Arrow
-        self.row_index = -1
+        row_index = -1
+        thumbnail_row_index = -1
         for group_no in range(len(self.times_by_proximity)):
             arrowtime = self.times_by_proximity[group_no][0]
             prev_day = (arrowtime.year, arrowtime.month, arrowtime.day)
             text = self.text_by_proximity.popleft()
-            self.row_index += 1
+            row_index += 1
+            thumbnail_row_index += 1
             self.rows.append(self.make_row(arrowtime, text))
+            self.proximity_row_to_thumbnail_row[row_index].add(thumbnail_row_index)
+
             if len(self.times_by_proximity[group_no]) > 1:
                 for arrowtime in self.times_by_proximity[group_no][1:]:
+                    thumbnail_row_index += 1
+                    self.proximity_row_to_thumbnail_row[row_index].add(thumbnail_row_index)
+
                     day = (arrowtime.year, arrowtime.month, arrowtime.day)
 
                     if prev_day != day:
                         prev_day = day
+                        row_index += 1
                         self.rows.append(self.make_row(arrowtime, ''))
 
         # Phase 5: Determine the row spans for each column
@@ -293,6 +299,7 @@ class TemporalProximityGroups:
                         self.row_span_for_column_starts_at_row[(row_index, column)] = start_row
 
         assert len(self.row_span_for_column_starts_at_row) == len(self.rows) * 2
+        assert len(self.proximity_row_to_thumbnail_row) == len(self.rows)
 
     def make_row(self, arrowtime: arrow.Arrow, text: str) -> ProximityRow:
         arrowmonth = arrowtime.floor('month')
@@ -322,18 +329,12 @@ class TemporalProximityGroups:
     def __iter__(self):
         return iter(self.rows)
 
-    def generate_re(self, selected_rows: List[int]) -> str:
-        """
-        Generate regular expression used to filter thumbnails.
-
-        Based on selection in temporal proximity view.
-
-        :param selected_rows: rows selected in column 2
-        :return: regular expression containing unique ids of thumbnails
-         to be displayed
-        """
-
-        return '|'.join('|'.join(self.uniqueid_by_proximity[row]) for row in selected_rows)
+    def selected_thumbnail_rows(self, selected_rows: List[int]) -> Set[int]:
+        s = self.proximity_row_to_thumbnail_row[selected_rows[0]]
+        if len(selected_rows) > 1:
+            for row in selected_rows[1:]:
+                s.update(self.proximity_row_to_thumbnail_row[row])
+        return s
 
     def depth(self):
         if self._depth is None:
@@ -803,6 +804,3 @@ class TemporalProximityView(QTableView):
                     self._updateSelectionRowParent(row, parent_column, column, examined, model)
 
         self.selectionModel().blockSignals(False)
-
-
-
