@@ -289,16 +289,16 @@ class TemporalProximityGroups:
                     if row_count > 1:
                         self.spans.append((column, start_row, row_count))
                     start_row = row_index
-                if column == 0 or column == 1:
-                    self.row_span_for_column_starts_at_row[(row_index, column)] = start_row
+                # if column == 0 or column == 1:
+                self.row_span_for_column_starts_at_row[(row_index, column)] = start_row
 
             if start_row != len(self.rows) - 1:
                 self.spans.append((column, start_row, len(self.rows) - start_row))
-                if column == 0 or column == 1:
-                    for row_index in range(start_row, len(self.rows)):
-                        self.row_span_for_column_starts_at_row[(row_index, column)] = start_row
+                # if column == 0 or column == 1:
+                for row_index in range(start_row, len(self.rows)):
+                    self.row_span_for_column_starts_at_row[(row_index, column)] = start_row
 
-        assert len(self.row_span_for_column_starts_at_row) == len(self.rows) * 2
+        assert len(self.row_span_for_column_starts_at_row) == len(self.rows) * 3
         assert len(self.proximity_row_to_thumbnail_row) == len(self.rows)
 
     def make_row(self, arrowtime: arrow.Arrow, text: str) -> ProximityRow:
@@ -742,14 +742,35 @@ class TemporalProximityView(QTableView):
     def SizeHint(self) -> QSize:
         return self.minimumSizeHint()
 
-    def _updateSelectionRowChild(self, row: int,
-                                 start_column: int,
-                                 child_column: int,
-                                 model: TemporalProximityModel) -> None:
+    def _updateSelectionRowChildColumn2(self, row: int, parent_column: int,
+                                        model: TemporalProximityModel) -> None:
 
-        for r in range(row, row + self.rowSpan(row, start_column)):
-            self.selectionModel().select(model.index(r, child_column), QItemSelectionModel.Select)
-        model.dataChanged.emit(model.index(row, child_column), model.index(r, child_column))
+        for parent_row in range(row, row + self.rowSpan(row, parent_column)):
+            start_row =  model.groups.row_span_for_column_starts_at_row[(parent_row, 2)]
+            row_span = self.rowSpan(start_row, 2)
+
+            do_selection = False
+            if row_span > 1:
+                all_selected = True
+                for r in range(start_row, start_row + row_span):
+                    if not self.selectionModel().isSelected(model.index(r, 1)):
+                        all_selected = False
+                        break
+                if all_selected:
+                    do_selection = True
+            else:
+                do_selection = True
+
+            if do_selection:
+                self.selectionModel().select(model.index(start_row, 2), QItemSelectionModel.Select)
+                model.dataChanged.emit(model.index(start_row, 2), model.index(start_row, 2))
+
+    def _updateSelectionRowChildColumn1(self, row: int, model: TemporalProximityModel) -> None:
+
+        for r in range(row, row + self.rowSpan(row, 0)):
+            self.selectionModel().select(model.index(r, 1),
+                                         QItemSelectionModel.Select)
+        model.dataChanged.emit(model.index(row, 1), model.index(r, 1))
 
     def _updateSelectionRowParent(self, row: int,
                                   parent_column: int,
@@ -791,16 +812,18 @@ class TemporalProximityView(QTableView):
             column = i.column()
             if column == 0:
                 examined.add((row, column))
-                for child_column in (1,2):
-                    self._updateSelectionRowChild(row, column, child_column, model)
-                    examined.add((row, child_column))
+                self._updateSelectionRowChildColumn1(row, model)
+                examined.add((row, 1))
+                self._updateSelectionRowChildColumn2(row, 0, model)
+                examined.add((row, 2))
             if column == 1:
                 examined.add((row, column))
-                self._updateSelectionRowChild(row, column, 2, model)
+                self._updateSelectionRowChildColumn2(row, 1, model)
                 self._updateSelectionRowParent(row, 0, column, examined, model)
                 examined.add((row, 2))
             if column == 2:
-                for parent_column in (1, 0):
-                    self._updateSelectionRowParent(row, parent_column, column, examined, model)
+                for r in range(row, row + self.rowSpan(row, 2)):
+                    for parent_column in (1, 0):
+                        self._updateSelectionRowParent(r, parent_column, column, examined, model)
 
         self.selectionModel().blockSignals(False)
