@@ -1853,24 +1853,34 @@ class RapidWindow(QMainWindow):
         """
         self.temporalProximityView.updateSelection()
 
-        selected_rows = [i.row() for i in self.temporalProximityView.selectedIndexes()
-                         if i.column() == 2]
+        groups = self.temporalProximityModel.groups
 
-        if selected_rows:
-            self.thumbnailProxyModel.selectedRows = \
-                self.temporalProximityModel.groups.selected_thumbnail_rows(selected_rows)
+        selected_rows_col2 = [i.row() for i in self.temporalProximityView.selectedIndexes()
+                              if i.column() == 2]
+        selected_rows_col1 = [i.row() for i in self.temporalProximityView.selectedIndexes()
+                              if i.column() == 1 and
+                              groups.row_span_for_column_starts_at_row[(
+                              i.row(), 2)] not in selected_rows_col2]
 
+        if selected_rows_col2 or selected_rows_col1:
+            self.thumbnailProxyModel.selected_rows = groups.selected_thumbnail_rows(
+                    selected_rows_col1, selected_rows_col2)
             self.thumbnailProxyModel.invalidateFilter()
         else:
-            self.thumbnailProxyModel.selectedRows = set()
+            self.thumbnailProxyModel.selected_rows = set()
             self.thumbnailProxyModel.invalidateFilter()
 
     def generateTemporalProximityTableData(self) -> None:
         # Convert the thumbnail rows to a regular list, because it's going
         # to be pickled.
+        rows = list(self.thumbnailModel.rows)
+        rpd_files = self.thumbnailModel.rpd_files
+        file_types = [rpd_files[row.id_value].file_type for row in rows]
         # TODO assign a user-defined value to the proximity
-        data = OffloadData(thumbnail_rows=list(self.thumbnailModel.rows),
-                           proximity_seconds=3600)
+        proximity_seconds=3600
+        data = OffloadData(thumbnail_rows=rows,
+                           thumbnail_types=file_types,
+                           proximity_seconds=proximity_seconds)
         self.offloadmq.assign_work(data)
 
     def proximityGroupsGenerated(self, proximity_groups: TemporalProximityGroups) -> None:

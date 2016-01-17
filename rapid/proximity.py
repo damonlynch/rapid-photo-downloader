@@ -27,18 +27,24 @@ import math
 from typing import Dict, List, Tuple, Set
 
 import arrow.arrow
+from arrow.arrow import Arrow
 
 from gettext import gettext as _
 
 from PyQt5.QtCore import (QAbstractTableModel, QModelIndex, Qt, QSize,
-                          QRect, QPoint, QItemSelectionModel)
+                          QRect, QPoint, QItemSelectionModel, QBuffer, QIODevice)
 from PyQt5.QtWidgets import (QTableView, QStyledItemDelegate,
                              QStyleOptionViewItem, QHeaderView, QStyle, QAbstractItemView)
-from PyQt5.QtGui import (QPainter, QFontMetrics, QFont, QColor, QGuiApplication)
+from PyQt5.QtGui import (QPainter, QFontMetrics, QFont, QColor, QGuiApplication, QPixmap)
+
+from viewutils import SortedListItem
+from constants import FileType
+from rpdfile import FileTypeCounter
 
 ProximityRow = namedtuple('ProximityRow', 'year, month, weekday, day, proximity')
 
 UniqueIdTime = namedtuple('UniqueIdTime', 'modification_time, arrowtime, unqiue_id')
+
 
 def locale_time(t: datetime) -> str:
     """
@@ -70,16 +76,22 @@ def locale_time(t: datetime) -> str:
             return t.strftime(new_t_fmt)
     return t.strftime(t_fmt)
 
-AM = datetime(2015,11,3).strftime('%p')
-PM = datetime(2015,11,3,13).strftime('%p')
 
-def humanize_time_span(start: arrow.Arrow, end: arrow.Arrow,
+AM = datetime(2015, 11, 3).strftime('%p')
+PM = datetime(2015, 11, 3, 13).strftime('%p')
+
+
+def humanize_time_span(start: Arrow, end: Arrow,
                        strip_leading_zero_from_time: bool=True,
                        insert_cr_on_long_line: bool=False) -> str:
     r"""
+    Make timess and time spans human readable.
 
     :param start: start time
     :param end: end time
+    :param strip_leading_zero_from_time: strip all leading zeros
+    :param insert_cr_on_long_line: insert a carriage return on long
+     lines
     :return: time span to be read by humans
 
     >>> locale.setlocale(locale.LC_ALL, ('en_US', 'utf-8'))
@@ -121,6 +133,7 @@ def humanize_time_span(start: arrow.Arrow, end: arrow.Arrow,
     Oct 31 2014, 11:55 AM -
     Nov 2 2015, 03:15 PM
     """
+
     def strip_zero(t: str, strip_zero) -> str:
         if not strip_zero:
             return t
@@ -139,15 +152,12 @@ def humanize_time_span(start: arrow.Arrow, end: arrow.Arrow,
         start_time = strip_zero(locale_time(start.datetime), strip)
         end_time = strip_zero(locale_time(end.datetime), strip)
 
-        if (start.hour < 12 and end.hour < 12) or (start.hour >= 12 and
-                                                   end.hour >= 12):
+        if (start.hour < 12 and end.hour < 12) or (start.hour >= 12 and end.hour >= 12):
             # both dates are in the same meridiem
-            start_time =  strip_ampm(start_time)
+            start_time = strip_ampm(start_time)
 
         # Translators: for example 9:00 AM - 3:55 PM
-        return _('%(starttime)s - %(endtime)s') % {
-                'starttime': start_time,
-                'endtime': end_time}
+        return _('%(starttime)s - %(endtime)s') % {'starttime': start_time, 'endtime': end_time}
 
     # Translators: for example Nov 3 or Dec 31
     start_date = _('%(month)s %(numeric_day)s') % {
@@ -159,10 +169,8 @@ def humanize_time_span(start: arrow.Arrow, end: arrow.Arrow,
 
     if start.floor('year') != end.floor('year'):
         # Translators: for example Nov 3 2015
-        start_date = _('%(date)s %(year)s') % {
-            'date': start_date, 'year': start.year}
-        end_date = _('%(date)s %(year)s') % {
-            'date': end_date, 'year': end.year}
+        start_date = _('%(date)s %(year)s') % {'date': start_date, 'year': start.year}
+        end_date = _('%(date)s %(year)s') % {'date': end_date, 'year': end.year}
 
     # Translators: for example, Nov 3, 12:15 PM
     start_datetime = _('%(date)s, %(time)s') % {
@@ -173,22 +181,32 @@ def humanize_time_span(start: arrow.Arrow, end: arrow.Arrow,
     if not insert_cr_on_long_line:
         # Translators: for example, Nov 3, 12:15 PM - Nov 4, 1:00 AM
         return _('%(earlier_time)s - %(later_time)s') % {
-             'earlier_time': start_datetime, 'later_time': end_datetime}
+            'earlier_time': start_datetime, 'later_time': end_datetime}
     else:
         # Translators, for example:
         # Nov 3 2012, 12:15 PM -
         # Nov 4 2012, 1:00 AM
         # (please keep the line break signified by \n)
         return _('%(earlier_time)s -\n%(later_time)s') % {
-             'earlier_time': start_datetime, 'later_time': end_datetime}
-        
+            'earlier_time': start_datetime, 'later_time': end_datetime}
+
 
 class TemporalProximityGroups:
     # @profile
-    def __init__(self, thumbnail_rows: list, temporal_span: int=3600):
+    def __init__(self, thumbnail_rows: List[SortedListItem],
+                 thumbnail_types: List[FileType],
+                 temporal_span: int = 3600):
+        self.thumbnail_types = thumbnail_types
         self.rows = []  # type: List[ProximityRow]
-        self.proximity_row_to_thumbnail_row = defaultdict(set)  # type: Dict[int, Set[int]]
+        self.proximity_row_to_thumbnail_row_col2 = defaultdict(set)  # type: Dict[int, Set[int]]
+        self.proximity_row_to_thumbnail_row_col1 = defaultdict(set)  # type: Dict[int, Set[int]]
+        self.row_to_group_no = dict()  # type: Dict[int, int]
+        self.unique_ids_in_row_col2 = defaultdict(list)  # type: Dict[int, List[int]]
+        self.unique_ids_in_row_col1 = defaultdict(list)  # type: Dict[int, List[int]]
+        self.unique_ids_in_row_col0 = defaultdict(list)  # type: Dict[int, List[int]]
+        self.file_types_in_cell = dict()  # type: Dict[Tuple[int, int], Tuple[FileType]]
         self.times_by_proximity = defaultdict(list)
+        self.unique_ids_by_proximity = defaultdict(list)
         self.text_by_proximity = deque()
         self.day_groups = defaultdict(list)
         self.month_groups = defaultdict(list)
@@ -197,10 +215,10 @@ class TemporalProximityGroups:
         self._previous_year = False
         self._previous_month = False
 
-        # Generate an arrow date time for every timestamp we have.
+        # Generate an arrow date time for every timestamp we have
         uniqueid_times = [UniqueIdTime(tr.modification_time,
-                                  arrow.get(tr.modification_time).to('local'),
-                                  tr.id_value)
+                                       arrow.get(tr.modification_time).to('local'),
+                                       tr.id_value)
                           for tr in thumbnail_rows]
 
         if not uniqueid_times:
@@ -223,15 +241,15 @@ class TemporalProximityGroups:
             self.year_groups[year].append(x.unqiue_id)
             if year != current_year:
                 self._previous_year = True
-            if month != current_month:
+            if month != current_month or self._previous_year:
                 self._previous_month = True
 
         # Phase 2: Identify the proximity groups
         group_no = 0
         prev = uniqueid_times[0]
 
-        # self.uniqueid_by_proximity[group_no].append(prev.unqiue_id)
         self.times_by_proximity[group_no].append(prev.arrowtime)
+        self.unique_ids_by_proximity[group_no].append(prev.unqiue_id)
 
         if len(uniqueid_times) > 1:
             for current in uniqueid_times[1:]:
@@ -239,42 +257,52 @@ class TemporalProximityGroups:
                 if (modification_time - prev.modification_time > temporal_span):
                     group_no += 1
                 self.times_by_proximity[group_no].append(current.arrowtime)
-                # self.uniqueid_by_proximity[group_no].append(current.unqiue_id)
+                self.unique_ids_by_proximity[group_no].append(current.unqiue_id)
                 prev = current
 
         # Phase 3: Generate the proximity group's text that will appear in
         # the right-most column
         for i in range(len(self.times_by_proximity)):
-            start = self.times_by_proximity[i][0]  # type: arrow.Arrow
-            end = self.times_by_proximity[i][-1]  # type: arrow.Arrow
+            start = self.times_by_proximity[i][0]  # type: Arrow
+            end = self.times_by_proximity[i][-1]  # type: Arrow
             self.text_by_proximity.append(humanize_time_span(start, end,
-                                             insert_cr_on_long_line=True))
+                                                             insert_cr_on_long_line=True))
 
         # Phase 4: Generate the rows to be displayed to the user
-        self.prev_row_month = None # type: arrow.Arrow
-        self.prev_row_day = None  # type: arrow.Arrow
+        self.prev_row_month = None  # type: Tuple[int, int]
+        self.prev_row_day = None  # type: Tuple[int, int, int]
         row_index = -1
         thumbnail_row_index = -1
+        column2_span = 0
         for group_no in range(len(self.times_by_proximity)):
             arrowtime = self.times_by_proximity[group_no][0]
             prev_day = (arrowtime.year, arrowtime.month, arrowtime.day)
             text = self.text_by_proximity.popleft()
-            row_index += 1
+            row_index += 1 + column2_span
             thumbnail_row_index += 1
-            self.rows.append(self.make_row(arrowtime, text))
-            self.proximity_row_to_thumbnail_row[row_index].add(thumbnail_row_index)
+            self.rows.append(self.make_row(arrowtime, text, prev_day, row_index,
+                                           thumbnail_row_index))
+            self.proximity_row_to_thumbnail_row_col2[row_index].add(thumbnail_row_index)
+            self.row_to_group_no[row_index] = group_no
+
+            slice_end = thumbnail_row_index + len(self.times_by_proximity[group_no])
+            file_types = tuple(self.thumbnail_types[thumbnail_row_index:slice_end])
+            self.file_types_in_cell[(row_index, 2)] = file_types
 
             if len(self.times_by_proximity[group_no]) > 1:
+                column2_span = 0
                 for arrowtime in self.times_by_proximity[group_no][1:]:
                     thumbnail_row_index += 1
-                    self.proximity_row_to_thumbnail_row[row_index].add(thumbnail_row_index)
+                    self.proximity_row_to_thumbnail_row_col2[row_index].add(thumbnail_row_index)
 
                     day = (arrowtime.year, arrowtime.month, arrowtime.day)
 
                     if prev_day != day:
                         prev_day = day
-                        row_index += 1
-                        self.rows.append(self.make_row(arrowtime, ''))
+                        column2_span += 1
+                        self.rows.append(self.make_row(arrowtime, '', prev_day,
+                                                       row_index + column2_span,
+                                                       thumbnail_row_index))
 
         # Phase 5: Determine the row spans for each column
         self.spans = []  # type: List[Tuple[int, int, int]]
@@ -299,26 +327,43 @@ class TemporalProximityGroups:
                     self.row_span_for_column_starts_at_row[(row_index, column)] = start_row
 
         assert len(self.row_span_for_column_starts_at_row) == len(self.rows) * 3
-        assert len(self.proximity_row_to_thumbnail_row) == len(self.rows)
 
-    def make_row(self, arrowtime: arrow.Arrow, text: str) -> ProximityRow:
-        arrowmonth = arrowtime.floor('month')
+    def make_row(self, arrowtime: Arrow,
+                 text: str,
+                 day: Tuple[int, int, int],
+                 row_index: int,
+                 thumbnail_row_index: int) -> ProximityRow:
+
+        arrowmonth = day[:2]
         if arrowmonth != self.prev_row_month:
             self.prev_row_month = arrowmonth
             month = arrowtime.datetime.strftime('%B')
             year = arrowtime.year
+            unique_ids = self.month_groups[day[:2]]
+            self.unique_ids_in_row_col0[row_index] = unique_ids
+            slice_end = thumbnail_row_index + len(unique_ids)
+            file_types = tuple(self.thumbnail_types[thumbnail_row_index:slice_end])
+            self.file_types_in_cell[(row_index, 0)] = file_types
         else:
             month = year = ''
 
-        arrowday = arrowtime.floor('day')
-        if arrowday != self.prev_row_day:
-            self.prev_row_day = arrowday
-            day = arrowtime.format('D')
+        if day != self.prev_row_day:
+            self.prev_row_day = day
+            numeric_day = arrowtime.format('D')
             weekday = arrowtime.datetime.strftime('%a')
-        else:
-            weekday = day = ''
 
-        return ProximityRow(year, month, weekday, day, text)
+            # Record which thumbnails are in this day's group, and the
+            # type of file they represent (photo, video)
+            self.unique_ids_in_row_col1[row_index] = self.day_groups[day]
+            slice_end = thumbnail_row_index + len(self.day_groups[day])
+            file_types = tuple(self.thumbnail_types[thumbnail_row_index:slice_end])
+            self.file_types_in_cell[(row_index, 1)] = file_types
+            self.proximity_row_to_thumbnail_row_col1[row_index] = set(range(thumbnail_row_index,
+                                                                            slice_end))
+        else:
+            weekday = numeric_day = ''
+
+        return ProximityRow(year, month, weekday, numeric_day, text)
 
     def __len__(self):
         return len(self.rows)
@@ -329,11 +374,22 @@ class TemporalProximityGroups:
     def __iter__(self):
         return iter(self.rows)
 
-    def selected_thumbnail_rows(self, selected_rows: List[int]) -> Set[int]:
-        s = self.proximity_row_to_thumbnail_row[selected_rows[0]]
-        if len(selected_rows) > 1:
-            for row in selected_rows[1:]:
-                s.update(self.proximity_row_to_thumbnail_row[row])
+    def selected_thumbnail_rows(self, selected_rows_col1: List[int],
+                                selected_rows_col2: List[int]) -> Set[int]:
+        """
+        Associate thumbnails with cells selected by the user.
+
+        :param selected_rows_col1: any selected cells in column 1 that
+         are not already represented by cells selected in column 2
+        :param selected_rows_col2: all selected cells in column 2
+        :return: thumbnail rows associated with selected cells
+        """
+
+        s = set()
+        for row in selected_rows_col1:
+            s.update(self.proximity_row_to_thumbnail_row_col1[row])
+        for row in selected_rows_col2:
+            s.update(self.proximity_row_to_thumbnail_row_col2[row])
         return s
 
     def depth(self):
@@ -350,13 +406,33 @@ class TemporalProximityGroups:
 
     def __repr__(self) -> str:
         return 'TemporalProximityGroups with {} rows and depth of {}'.format(len(self.rows),
-                                                                        self.depth())
+                                                                             self.depth())
+
+
+def base64_thumbnail(pixmap: QPixmap, size: QSize) -> str:
+    """
+    Convert image into format useful for HTML data URIs.
+
+    See https://css-tricks.com/data-uris/
+
+    :param pixmap: image to convert
+    :param size: size to scale to
+    :return: data in base 64 format
+    """
+    pixmap = pixmap.scaled(size, Qt.KeepAspectRatio, Qt.SmoothTransformation)
+    buffer = QBuffer()
+    buffer.open(QIODevice.WriteOnly)
+    # Quality 100 means uncompressed, which is faster.
+    pixmap.save(buffer, "PNG", quality=100)
+    return bytes(buffer.data().toBase64()).decode()
 
 
 class TemporalProximityModel(QAbstractTableModel):
-    def __init__(self, parent, groups: TemporalProximityGroups=None):
+    tooltip_image_size = QSize(90, 90)
+
+    def __init__(self, parent, groups: TemporalProximityGroups = None):
         super().__init__(parent)
-        self.rapidApp = parent # type: rapid.RapidWindow
+        self.rapidApp = parent  # type: rapid.RapidWindow
         self.groups = groups
 
     def columnCount(self, parent=QModelIndex()):
@@ -379,17 +455,49 @@ class TemporalProximityModel(QAbstractTableModel):
         column = index.column()
         if column < 0 or column > 3:
             return None
-        proximity_row = self.groups[row] # type: ProximityRow
+        proximity_row = self.groups[row]  # type: ProximityRow
 
-        if role==Qt.DisplayRole:
+        if role == Qt.DisplayRole:
             if column == 0:
-                # return '{} {}'.format(proximity_row.month,
-                #                       proximity_row.year, )
                 return proximity_row.year, proximity_row.month
             elif column == 1:
                 return proximity_row.weekday, proximity_row.day
             else:
                 return proximity_row.proximity
+        elif role == Qt.ToolTipRole:
+            thumbnails = self.rapidApp.thumbnailModel.thumbnails
+
+            if column == 1:
+                unique_ids = self.groups.unique_ids_in_row_col1[row]
+            elif column == 2:
+                proximity_row = self.groups.row_span_for_column_starts_at_row[(row, 2)]
+                group_no = self.groups.row_to_group_no[proximity_row]
+                unique_ids = self.groups.unique_ids_by_proximity[group_no]
+            else:
+                assert column == 0
+                unique_ids = self.groups.unique_ids_in_row_col0[row]
+
+            length = len(unique_ids)
+            pixmap = thumbnails[unique_ids[0]]  # type: QPixmap
+
+            image = base64_thumbnail(pixmap, self.tooltip_image_size)
+            html_image1 = '<img src="data:image/png;base64,{}">'.format(image)
+
+            if length == 1:
+                center = html_image2 = ''
+            else:
+                pixmap = thumbnails[unique_ids[-1]]  # type: QPixmap
+                image = base64_thumbnail(pixmap, self.tooltip_image_size)
+                if length == 2:
+                    center = '&nbsp;'
+                else:
+                    center = '&nbsp;&hellip;&nbsp;'
+                html_image2 = '<img src="data:image/png;base64,{}">'.format(image)
+
+            c = FileTypeCounter(self.groups.file_types_in_cell[row, column])
+            file_types = c.summarize_file_count()[0]
+            tooltip = '{} {} {}<br>{}'.format(html_image1, center, html_image2, file_types)
+            return tooltip
 
 
 class TemporalProximityDelegate(QStyledItemDelegate):
@@ -405,7 +513,7 @@ class TemporalProximityDelegate(QStyledItemDelegate):
 
         # Setup column 0
         self.month_kerning = 1.2
-        self.month_font = QFont(parent_font) # type: QFont
+        self.month_font = QFont(parent_font)  # type: QFont
         self.month_font.setPointSize(parent_font.pointSize() - 1)
         self.month_font.setLetterSpacing(QFont.PercentageSpacing,
                                          self.month_kerning * 100)
@@ -416,12 +524,12 @@ class TemporalProximityDelegate(QStyledItemDelegate):
         self.col0_center_space_half = 1
 
         # Setup column 1
-        self.weekday_font = QFont(parent_font) # type: QFont
+        self.weekday_font = QFont(parent_font)  # type: QFont
         self.weekday_font.setPointSize(self.weekday_font.pointSize() - 3)
         self.weekday_metrics = QFontMetrics(self.weekday_font)
         self.weekday_height = self.weekday_metrics.height()
 
-        self.day_font = QFont(parent_font) # type: QFont
+        self.day_font = QFont(parent_font)  # type: QFont
         self.day_font.setPointSize(self.day_font.pointSize() + 1)
         self.day_metrics = QFontMetrics(self.day_font)
 
@@ -435,8 +543,8 @@ class TemporalProximityDelegate(QStyledItemDelegate):
         self.weekday_proporation = self.max_weekday_height / self.max_col1_text_height
 
         # Setup column 2
-        self.proximity_font = QFont(parent_font) # type: QFont
-        self.proximity_font.setPointSize(parent_font.pointSize() -1)
+        self.proximity_font = QFont(parent_font)  # type: QFont
+        self.proximity_font.setPointSize(parent_font.pointSize() - 1)
         self.proximity_metrics = QFontMetrics(self.proximity_font)
         self.col2_padding = 20
 
@@ -451,7 +559,7 @@ class TemporalProximityDelegate(QStyledItemDelegate):
     def calculate_max_col1_size(self) -> None:
         day_width = 0
         day_height = 0
-        for day in range(10,32):
+        for day in range(10, 32):
             rect = self.day_metrics.boundingRect(str(day))
             day_width = max(day_width, rect.width())
             day_height = max(day_height, rect.height())
@@ -461,7 +569,7 @@ class TemporalProximityDelegate(QStyledItemDelegate):
 
         weekday_width = 0
         weekday_height = 0
-        for i in range(1,7):
+        for i in range(1, 7):
             dt = datetime(2015, 11, i)
             weekday = dt.strftime('%a').upper()
             rect = self.weekday_metrics.boundingRect(str(weekday))
@@ -471,7 +579,7 @@ class TemporalProximityDelegate(QStyledItemDelegate):
         self.max_weekday_height = weekday_height
         self.max_weekday_width = weekday_width
         self.max_col1_text_height = weekday_height + day_height + \
-                                self.col1_center_space
+                                    self.col1_center_space
         self.max_col1_text_width = max(weekday_width, day_width)
         self.col1_width = self.max_col1_text_width + self.col1_padding
         self.col1_height = self.max_col1_text_height + self.col1_padding
@@ -482,9 +590,9 @@ class TemporalProximityDelegate(QStyledItemDelegate):
             # the consumer of the cached value might transpose it
             return QSize(self.month_sizes[row])
 
-        boundingRect = self.month_metrics.boundingRect(month) # type: QRect
+        boundingRect = self.month_metrics.boundingRect(month)  # type: QRect
         height = boundingRect.height()
-        width =  int(boundingRect.width() * self.month_kerning)
+        width = int(boundingRect.width() * self.month_kerning)
         size = QSize(width, height)
         self.month_sizes[row] = QSize(size)
         return size
@@ -505,14 +613,14 @@ class TemporalProximityDelegate(QStyledItemDelegate):
         text = text.split('\n')
         width = height = 0
         for t in text:
-            boundingRect = self.proximity_metrics.boundingRect(t) # type: QRect
+            boundingRect = self.proximity_metrics.boundingRect(t)  # type: QRect
             width = max(width, boundingRect.width())
             height += boundingRect.height()
         size = QSize(width, height)
         self.proximity_sizes[row] = QSize(size)
         return size
 
-    def paint(self, painter: QPainter, option: QStyleOptionViewItem, index: QModelIndex)  -> None:
+    def paint(self, painter: QPainter, option: QStyleOptionViewItem, index: QModelIndex) -> None:
         column = index.column()
         model = index.model()
 
@@ -529,7 +637,7 @@ class TemporalProximityDelegate(QStyledItemDelegate):
             painter.fillRect(option.rect, color)
             painter.setPen(textColor)
 
-            year, month =  model.data(index)
+            year, month = model.data(index)
 
             month = self.getMonthText(month, year)
 
@@ -581,24 +689,24 @@ class TemporalProximityDelegate(QStyledItemDelegate):
                 dayColor = self.highlightText
             else:
                 color = self.darkGray
-                weekdayColor = QColor(221,221,221)
+                weekdayColor = QColor(221, 221, 221)
                 dayColor = QColor(Qt.white)
 
             painter.fillRect(option.rect, color)
             weekday, day = model.data(index)
             weekday = weekday.upper()
             width = option.rect.width()
-            height =  option.rect.height()
+            height = option.rect.height()
 
             painter.translate(option.rect.x(), option.rect.y())
             weekday_rect_bottom = int(height / 2 - self.max_col1_text_height *
-                                   self.day_proporation) + \
+                                      self.day_proporation) + \
                                   self.max_weekday_height
             weekdayRect = QRect(0, 0,
-                                 width, weekday_rect_bottom)
+                                width, weekday_rect_bottom)
             day_rect_top = weekday_rect_bottom + self.col1_center_space
             dayRect = QRect(0, day_rect_top, width,
-                             height-day_rect_top)
+                            height - day_rect_top)
 
             painter.setFont(self.weekday_font)
             painter.setPen(weekdayColor)
@@ -646,7 +754,7 @@ class TemporalProximityDelegate(QStyledItemDelegate):
             else:
                 model = index.model()  # type: TemporalProximityModel
                 row = index.row()
-                span = self.parent().temporalProximityView.rowSpan(row,0)
+                span = self.parent().temporalProximityView.rowSpan(row, 0)
                 if span == 1:
                     return cell_size
                 else:
@@ -660,7 +768,7 @@ class TemporalProximityDelegate(QStyledItemDelegate):
                     return QSize(cell_size.width(), max(self.col1_height, col2_height))
         elif column == 1:
             row = index.row()
-            span = self.parent().temporalProximityView.rowSpan(row,0)
+            span = self.parent().temporalProximityView.rowSpan(row, 0)
             if span == 1:
                 return QSize(self.col1_width, self.col1_height)
             else:
@@ -686,12 +794,12 @@ class TemporalProximityDelegate(QStyledItemDelegate):
             return super().sizeHint(option, index)
 
     def column0Size(self, index) -> QSize:
-        model = index.model() # type: TemporalProximityModel
-        year, month =  model.data(index)
+        model = index.model()  # type: TemporalProximityModel
+        year, month = model.data(index)
         # Don't return a cell size for empty cells that have been
         # merged into the cell with content.
         if not month:
-            return QSize(0,0)
+            return QSize(0, 0)
         else:
             row = index.row()
             month = self.getMonthText(month, year)
@@ -705,7 +813,7 @@ class TemporalProximityDelegate(QStyledItemDelegate):
         model = index.model()
         text = model.data(index)
         if not text:
-            return QSize(0,0)
+            return QSize(0, 0)
         else:
             row = index.row()
             # p = text.find('\n') >= 0
@@ -717,11 +825,6 @@ class TemporalProximityDelegate(QStyledItemDelegate):
 
 class TemporalProximityView(QTableView):
     def __init__(self) -> None:
-        # style = """
-        # QListView {
-        # border: 0px;
-        # }
-        # """
         super().__init__()
         self.verticalHeader().setVisible(False)
         self.horizontalHeader().setVisible(False)
@@ -732,7 +835,7 @@ class TemporalProximityView(QTableView):
         # self.setShowGrid(False)
 
     def minimumSizeHint(self) -> QSize:
-        model = self.model() # type: TemporalProximityModel
+        model = self.model()  # type: TemporalProximityModel
         w = 0
         for i in range(model.columnCount()):
             w += self.columnWidth(i)
@@ -744,9 +847,17 @@ class TemporalProximityView(QTableView):
 
     def _updateSelectionRowChildColumn2(self, row: int, parent_column: int,
                                         model: TemporalProximityModel) -> None:
+        """
+        Select cells in column 2, based on selections in column 0 or 1.
+
+        :param row: the row of the cell that has been selected
+        :param parent_column: the column of the cell that has been
+         selected
+        :param model: the model the view operates on
+        """
 
         for parent_row in range(row, row + self.rowSpan(row, parent_column)):
-            start_row =  model.groups.row_span_for_column_starts_at_row[(parent_row, 2)]
+            start_row = model.groups.row_span_for_column_starts_at_row[(parent_row, 2)]
             row_span = self.rowSpan(start_row, 2)
 
             do_selection = False
@@ -766,6 +877,12 @@ class TemporalProximityView(QTableView):
                 model.dataChanged.emit(model.index(start_row, 2), model.index(start_row, 2))
 
     def _updateSelectionRowChildColumn1(self, row: int, model: TemporalProximityModel) -> None:
+        """
+        Select cells in column 1, based on selections in column 0.
+
+        :param row: the row of the cell that has been selected
+        :param model: the model the view operates on
+        """
 
         for r in range(row, row + self.rowSpan(row, 0)):
             self.selectionModel().select(model.index(r, 1),
@@ -777,7 +894,17 @@ class TemporalProximityView(QTableView):
                                   start_column: int,
                                   examined: set,
                                   model: TemporalProximityModel) -> None:
+        """
+        Select cells in column 0 or 1, based on selections in column 2.
 
+        :param row: the row of the cell that has been selected
+        :param parent_column: the column in which to select cells
+        :param start_column: the column of the cell that has been
+         selected
+        :param examined: cells that have already been analyzed to see
+         if they should be selected or not
+        :param model: the model the view operates on
+        """
         start_row = model.groups.row_span_for_column_starts_at_row[(row, parent_column)]
         if (start_row, parent_column) not in examined:
             all_selected = True
@@ -799,7 +926,8 @@ class TemporalProximityView(QTableView):
         behavior of
         setSelectionBehavior(QAbstractItemView.SelectRows)
         However in our case we need to select multiple rows, depending
-        on the row spans.
+        on the row spans in columns 0, 1 and 2. Column 2 is a special
+        case.
         """
 
         self.selectionModel().blockSignals(True)
@@ -819,11 +947,11 @@ class TemporalProximityView(QTableView):
             if column == 1:
                 examined.add((row, column))
                 self._updateSelectionRowChildColumn2(row, 1, model)
-                self._updateSelectionRowParent(row, 0, column, examined, model)
+                self._updateSelectionRowParent(row, 0, 1, examined, model)
                 examined.add((row, 2))
             if column == 2:
                 for r in range(row, row + self.rowSpan(row, 2)):
                     for parent_column in (1, 0):
-                        self._updateSelectionRowParent(r, parent_column, column, examined, model)
+                        self._updateSelectionRowParent(r, parent_column, 2, examined, model)
 
         self.selectionModel().blockSignals(False)

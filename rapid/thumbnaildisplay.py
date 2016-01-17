@@ -125,13 +125,13 @@ class ThumbnailTableModel(QAbstractTableModel):
 
     def initialize(self) -> None:
         self.file_names = {} # type: Dict[int, str]
-        self.thumbnails = {} # type: Dict[int, QPixmap]
+        self.thumbnails = {} # type: Dict[str, QPixmap]
         self.marked = set()
 
         # Sort thumbnails based on the time the files were modified
         self.rows = SortedListWithKey(key=attrgetter('modification_time'))
         self.scan_index = defaultdict(list)  # type: defaultdict[int, List[str]]
-        self.rpd_files = {}  # type: Dict[int, RPDFile]
+        self.rpd_files = {}  # type: Dict[str, RPDFile]
 
         self.photo_icon = QPixmap(':/photo.png')
         self.video_icon = QPixmap(':/video.png')
@@ -165,7 +165,7 @@ class ThumbnailTableModel(QAbstractTableModel):
         rpd_file = self.rpd_files[unique_id] # type: RPDFile
 
         if role == Qt.DisplayRole:
-            # This is never displayed, but it is used for filtering!
+            # This is never displayed, but could be used for filtering!
             return self.rows[row].modification_time
         elif role == Qt.DecorationRole:
             return self.thumbnails[unique_id]
@@ -956,9 +956,9 @@ class ThumbnailDelegate(QStyledItemDelegate):
 class ThumbnailSortFilterProxyModel(QSortFilterProxyModel):
     def __init__(self,  parent=None) -> None:
         super().__init__(parent)
-        self.selectedRows = set()
+        self.selected_rows = set()
 
     def filterAcceptsRow(self, sourceRow: int, sourceParent: QModelIndex) -> bool:
-        if len(self.selectedRows) == 0:
+        if len(self.selected_rows) == 0:
             return True
-        return sourceRow in self.selectedRows
+        return sourceRow in self.selected_rows

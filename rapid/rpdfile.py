@@ -27,7 +27,7 @@ import mimetypes
 from collections import Counter, UserDict
 from urllib.request import pathname2url
 import locale
-from typing import Optional, List
+from typing import Optional, List, Tuple
 
 import exiftool
 
@@ -236,7 +236,7 @@ class FileTypeCounter(Counter):
 
         return file_types_by_number(self[FileType.photo], self[FileType.video])
 
-    def summarize_file_count(self) -> (str, str):
+    def summarize_file_count(self) -> Tuple[str, str]:
         """
         Summarizes the total number of photos and/or videos that can be
         downloaded. Displayed in the progress bar at the top of the
