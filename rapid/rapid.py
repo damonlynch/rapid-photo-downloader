@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 __author__ = 'Damon Lynch'
 
-# Copyright (C) 2011-2015 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2011-2016 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -110,7 +110,8 @@ from camera import gphoto2_version, python_gphoto2_version
 from rpdsql import DownloadedSQL
 from generatenameconfig import *
 from expander import QExpander
-from rotatedpushbutton import RotatedButton, VerticalRotation
+from rotatedpushbutton import RotatedButton
+from toppushbutton import TopPushButton
 
 logging_level = logging.DEBUG
 logging.basicConfig(format='%(asctime)s %(message)s', level=logging_level)
@@ -388,8 +389,7 @@ class RapidWindow(QMainWindow):
         self.temporalProximityModel = TemporalProximityModel(self)
         self.temporalProximityView.setModel(self.temporalProximityModel)
         self.temporalProximityDelegate = TemporalProximityDelegate(self)
-        self.temporalProximityView.setItemDelegate(
-            self.temporalProximityDelegate)
+        self.temporalProximityView.setItemDelegate(self.temporalProximityDelegate)
         self.temporalProximityView.selectionModel().selectionChanged.connect(
                                                 self.proximitySelectionChanged)
 
@@ -416,8 +416,8 @@ class RapidWindow(QMainWindow):
         settings.beginGroup("MainWindow")
         desktop = QApplication.desktop() # type: QDesktopWidget
 
-        # Calculate window sizes. Does not take into account
-        available = desktop.availableGeometry(desktop.primaryScreen()) # type: QRect
+        # Calculate window sizes
+        available = desktop.availableGeometry(desktop.primaryScreen())  # type: QRect
         screen = desktop.screenGeometry(desktop.primaryScreen())  # type: QRect
         default_width = available.width() // 2
         default_x = screen.width() - default_width
@@ -434,7 +434,9 @@ class RapidWindow(QMainWindow):
         settings.beginGroup("MainWindow")
         settings.setValue("pos", self.pos())
         settings.setValue("size", self.size())
-        settings.setValue("horizatonalSplitterSizes", self.horizontalSplitter.saveState())
+        settings.setValue("horizontalSplitterSizes", self.horizontalSplitter.saveState())
+        settings.setValue("sourceButtonPressed", self.sourceButton.isChecked())
+        settings.setValue("proximityButtonPressed", self.proximityButton.isChecked())
         settings.endGroup()
 
     def setupWindow(self):
@@ -442,7 +444,6 @@ class RapidWindow(QMainWindow):
         status = self.statusBar()
         self.downloadProgressBar = QProgressBar()
         self.downloadProgressBar.setMaximumWidth(QFontMetrics(QGuiApplication.font()).height() * 9)
-        # self.statusLabel.setFrameStyle()
         status.addPermanentWidget(self.downloadProgressBar, .1)
 
     def event(self, event):
@@ -616,6 +617,13 @@ class RapidWindow(QMainWindow):
         logging.debug("Download button has focus: %s", self.downloadButton.hasFocus())
         logging.debug("Focus widget: %s", self.focusWidget())
 
+        settings = QSettings()
+        settings.beginGroup("MainWindow")
+        self.proximityButton.setChecked(settings.value("proximityButtonPressed", True, bool))
+        self.proximityButtonClicked()
+        self.sourceButton.setChecked(settings.value("sourceButtonPressed", True, bool))
+        self.sourceButtonClicked()
+
     def startBackupManager(self):
         if not self.backup_manager_started:
             self.backupThread = QThread()
@@ -634,9 +642,21 @@ class RapidWindow(QMainWindow):
         text, icon = self.devices.get_main_window_display_name_and_icon()
         self.sourceButton.setText(addPushButtonLabelSpacer(text))
         self.sourceButton.setIcon(icon)
-        self.sourceButton.setIconSize(QSize(self.top_row_icon_size, self.top_row_icon_size))
 
+    def sourceButtonClicked(self) -> None:
+        self.deviceView.setVisible(self.sourceButton.isChecked())
+        self.leftPanel.setVisible(not (self.deviceView.isHidden() and
+                                       self.temporalProximityView.isHidden()))
+
+    def proximityButtonClicked(self) -> None:
+        self.temporalProximityView.setVisible(self.proximityButton.isChecked())
+        self.leftPanel.setVisible(not (self.deviceView.isHidden() and
+                                       self.temporalProximityView.isHidden()))
+        
     def createActions(self):
+        self.sourceAct = QAction(_('&Source'), self, shortcut="Ctrl+s",
+                                 triggered=self.doSourceAction)
+
         self.downloadAct = QAction(_("&Download"), self,
                                    shortcut="Ctrl+Return",
                                    triggered=self.doDownloadAction)
@@ -693,38 +713,23 @@ class RapidWindow(QMainWindow):
 
         self.aboutAct = QAction(_("&About..."), self, triggered=self.doAboutAction)
 
-
-
-
-
     def createLayoutAndButtons(self, centralWidget):
+
+        settings = QSettings()
+        settings.beginGroup("MainWindow")
 
         verticalLayout = QVBoxLayout()
 
         topBar = QHBoxLayout()
-        self.sourceButton = QPushButton(addPushButtonLabelSpacer(_('Select Source')))
-        self.sourceButton.setSizePolicy(QSizePolicy.Maximum,
-                                        QSizePolicy.Maximum)
-        self.sourceButton.setCheckable(True)
-        self.sourceButton.setFlat(True)
-        font = self.sourceButton.font() # type: QFont
-        self.top_row_font_size = font.pointSize() + 8
-        self.top_row_icon_size = self.top_row_font_size + 10
-        font.setPointSize(self.top_row_font_size)
-        self.sourceButton.setFont(font)
+        self.sourceButton = TopPushButton(addPushButtonLabelSpacer(_('Select Source')), self)
+        self.sourceButton.clicked.connect(self.sourceButtonClicked)
 
-        self.destinationButton = QPushButton(addPushButtonLabelSpacer(_('Destination')))
-        self.destinationButton.setSizePolicy(QSizePolicy.Maximum, QSizePolicy.Maximum)
-        self.destinationButton.setCheckable(True)
+        self.destinationButton = TopPushButton(addPushButtonLabelSpacer(_('Destination')), self)
         self.destinationButton.setIcon(QIcon(':/icons/folder.svg'))
-        self.destinationButton.setIconSize(QSize(self.top_row_icon_size, self.top_row_icon_size))
 
         topBar.addWidget(self.sourceButton)
         topBar.addWidget(self.destinationButton, 0, Qt.AlignRight)
-        self.destinationButton.setFlat(True)
-        self.destinationButton.setFont(font)
         verticalLayout.addLayout(topBar)
-
 
         verticalLayout.setContentsMargins(0, 0, 0, 0)
 
@@ -737,12 +742,13 @@ class RapidWindow(QMainWindow):
         leftBar = QVBoxLayout()
         leftBar.setContentsMargins(0, 0, 0, 0)
 
-        self.dateButton = RotatedButton(_('Day'), self, RotatedButton.leftSide)
-        self.proximityButton = RotatedButton(_('Proximity'), self, RotatedButton.leftSide)
+        # self.dateButton = RotatedButton(_('Day'), self, RotatedButton.leftSide)
+        self.proximityButton = RotatedButton(_('Timeline'), self, RotatedButton.leftSide)
 
-        self.dateButton.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        # self.dateButton.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         self.proximityButton.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
-        leftBar.addWidget(self.dateButton)
+        self.proximityButton.clicked.connect(self.proximityButtonClicked)
+        # leftBar.addWidget(self.dateButton)
         leftBar.addWidget(self.proximityButton)
         leftBar.addStretch()
 
@@ -751,15 +757,17 @@ class RapidWindow(QMainWindow):
         self.horizontalSplitter = QSplitter()
         self.horizontalSplitter.setOrientation(Qt.Horizontal)
 
-        leftPanel = QWidget()
+        self.leftPanel = QWidget()
         leftPanelLayout = QVBoxLayout()
         leftPanelLayout.setContentsMargins(0, 0, 0, 0)
-        leftPanel.setLayout(leftPanelLayout)
+        self.leftPanel.setLayout(leftPanelLayout)
         leftPanelLayout.addWidget(self.deviceView)
         self.deviceView.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Fixed)
-        leftPanelLayout.addWidget(self.temporalProximityView)
+        leftPanelLayout.addWidget(self.temporalProximityView, 10)
         self.temporalProximityView.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        self.horizontalSplitter.addWidget(leftPanel)
+        leftPanelLayout.addStretch()
+
+        self.horizontalSplitter.addWidget(self.leftPanel)
         self.horizontalSplitter.addWidget(self.thumbnailView)
         self.horizontalSplitter.setStretchFactor(0, 0)
         self.horizontalSplitter.setStretchFactor(1, 2)
@@ -768,9 +776,7 @@ class RapidWindow(QMainWindow):
 
         centralLayout.addWidget(self.horizontalSplitter)
 
-        settings = QSettings()
-        settings.beginGroup("MainWindow")
-        splitterSetting = settings.value("horizatonalSplitterSizes")
+        splitterSetting = settings.value("horizontalSplitterSizes")
         if splitterSetting is not None:
             s = splitterSetting
             self.horizontalSplitter.restoreState(splitterSetting)
@@ -868,6 +874,9 @@ class RapidWindow(QMainWindow):
         self.menuBar().addMenu(self.viewMenu)
         self.menuBar().addMenu(self.helpMenu)
 
+    def doSourceAction(self):
+        self.sourceButton.animateClick()
+
     def doDownloadAction(self):
         self.downloadButton.animateClick()
 
@@ -916,7 +925,7 @@ class RapidWindow(QMainWindow):
     def doAboutAction(self):
         pass
 
-    def downloadButtonClicked(self):
+    def downloadButtonClicked(self) -> None:
         if False: #self.copy_files_manager.paused:
             logging.debug("Download resumed")
             self.resumeDownload()
@@ -965,7 +974,7 @@ class RapidWindow(QMainWindow):
         else:
             return True
 
-    def startDownload(self, scan_id: int=None):
+    def startDownload(self, scan_id: int=None) -> None:
         """
         Start download, renaming and backup of files.
 
@@ -1002,7 +1011,7 @@ class RapidWindow(QMainWindow):
         if not camera_unmount_called:
             self.startDownloadPhase2()
 
-    def startDownloadPhase2(self):
+    def startDownloadPhase2(self) -> None:
         download_files = self.download_files
 
         invalid_dirs = self.invalidDownloadFolders(
@@ -1074,7 +1083,6 @@ class RapidWindow(QMainWindow):
                                    generate_thumbnails)
 
             self.setDownloadActionLabel(is_download=False)
-
 
     def downloadFiles(self, files: list,
                       scan_id: int,

@@ -437,12 +437,10 @@ class Preferences:
 
                 if L1s[0] == SEPARATOR:
                     raise PrefValueKeyComboError(_(
-                        "Subfolder preferences should not start with a %s")
-                                                 % os.sep)
+                        "Subfolder preferences should not start with a %s") % os.sep)
                 elif L1s[-1] == SEPARATOR:
                     raise PrefValueKeyComboError(_(
-                        "Subfolder preferences should not end with a %s") %
-                                                 os.sep)
+                        "Subfolder preferences should not end with a %s") % os.sep)
                 else:
                     for i in range(len(L1s) - 1):
                         if L1s[i] == SEPARATOR and L1s[i + 1] == SEPARATOR:

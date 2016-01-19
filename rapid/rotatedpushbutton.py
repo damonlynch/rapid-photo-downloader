@@ -1,27 +1,63 @@
 __author__ = 'Damon Lynch'
 
+# Copyright (C) 2015-2016 Damon Lynch <damonlynch@gmail.com>
+
+# This file is part of Rapid Photo Downloader.
+#
+# Rapid Photo Downloader is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Rapid Photo Downloader is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Rapid Photo Downloader.  If not,
+# see <http://www.gnu.org/licenses/>.
+
 from enum import IntEnum
 
-from PyQt5.QtGui import (QColor)
-from PyQt5.QtWidgets import (QPushButton, QStylePainter, QStyle,
-                             QStyleOptionButton)
+from PyQt5.QtGui import (QColor, QPalette)
+from PyQt5.QtWidgets import (QPushButton, QStylePainter, QStyle, QStyleOptionButton)
 
 class VerticalRotation(IntEnum):
     left_side = 270
     right_side = 90
 
+class FlatButton:
+    def setFlatStyle(self, button: QPushButton, darker_if_checked: bool=True) -> None:
+        color = button.palette().color(button.backgroundRole())
+        default_color = color.name(QColor.HexRgb)
+        if darker_if_checked:
+            checked_color = color.darker(125).name(QColor.HexRgb)
+        else:
+            checked_color = default_color
+        hover_color = color.darker(110).name(QColor.HexRgb)
 
-class RotatedButton(QPushButton):
+        # outline:none is used to remove the rectangle that apperas on a
+        # button when the button has focus
+        # http://stackoverflow.com/questions/17280056/qt-css-decoration-on-focus
+        button.setStyleSheet("""
+        QPushButton { background-color: %s; outline: none}
+        QPushButton:checked { background-color: %s; border: none; }
+        QPushButton:hover{ background-color: %s; border-style: inset; }
+        """ % (default_color, checked_color, hover_color))
+
+
+class RotatedButton(QPushButton, FlatButton):
     leftSide = 270.0
     rightSide = 90.0
 
-    def __init__(self, text, parent, rotation: float, flat: bool=True,
-                 checkable: bool=True):
+    def __init__(self, text, parent, rotation: float,
+                 flat: bool=True, checkable: bool=True) -> None:
         super().__init__(text, parent)
         self.buttonRotation = rotation
         if flat:
             self.setFlat(flat)
-            self.setFlatStyle()
+            self.setFlatStyle(self)
         self.setCheckable(checkable)
 
     def paintEvent(self, event):
@@ -78,20 +114,7 @@ class RotatedButton(QPushButton):
         options.iconSize = self.iconSize()
         return options
 
-    def setFlatStyle(self):
-        color = self.palette().color(self.backgroundRole())
-        default_color = color.name(QColor.HexRgb)
-        checked_color = color.darker(125).name(QColor.HexRgb)
-        hover_color = color.darker(110).name(QColor.HexRgb)
 
-        # outline:none is used to remove the rectangle that apperas on a
-        # button when the button has focus
-        # http://stackoverflow.com/questions/17280056/qt-css-decoration-on-focus
-        self.setStyleSheet("""
-        QPushButton { background-color: %s; outline: none}
-        QPushButton:checked { background-color: %s; border: none; }
-        QPushButton:hover{ background-color: %s; border-style: inset; }
-        """ % (default_color, checked_color, hover_color))
 
 
 
