@@ -54,9 +54,9 @@ import gphoto2 as gp
 from PyQt5 import QtCore, QtWidgets, QtGui
 from PyQt5.QtCore import (QThread, Qt, QStorageInfo, QSettings, QPoint,
                           QSize, QTimer, QTextStream, QModelIndex,
-                          QRect, QItemSelection, QItemSelectionModel)
+                          QRect, QItemSelection, QItemSelectionModel, QEventLoop)
 from PyQt5.QtGui import (QIcon, QPixmap, QImage, QFont, QColor, QPalette, QFontMetrics,
-                         QGuiApplication, QPainter)
+                         QGuiApplication, QPainter, QMoveEvent)
 from PyQt5.QtWidgets import (QAction, QApplication, QMainWindow, QMenu,
                              QPushButton, QWidget, QDialogButtonBox,
                              QProgressBar, QSplitter,
@@ -330,14 +330,22 @@ class JobCode:
 
 
 class RapidWindow(QMainWindow):
-    def __init__(self, auto_detect: Optional[bool]=None,
+    def __init__(self, app: 'QtSingleApplication',
+                 auto_detect: Optional[bool]=None,
                  device_location: Optional[str]=None,
                  benchmark: Optional[int]=None,
                  ignore_other_photo_types: Optional[bool]=None,
                  thumb_cache: Optional[bool]=None,
                  parent=None) -> None:
+
         self.do_init = QtCore.QEvent.registerEventType()
         super().__init__(parent)
+        app.processEvents()
+
+        # 3 values to handle window position quirks under X11
+        self.window_show_requested_time = None  # type: datetime.datetime
+        self.window_move_triggered_count = 0
+        self.windowPositionDelta = QPoint(0, 0)
 
         self.setFocusPolicy(Qt.StrongFocus)
 
@@ -350,7 +358,7 @@ class RapidWindow(QMainWindow):
         self.context = zmq.Context()
 
         self.setWindowTitle(_("Rapid Photo Downloader"))
-        self.readWindowSettings()
+        self.readWindowSettings(app)
         self.prefs = Preferences()
 
         if thumb_cache is not None:
@@ -382,6 +390,10 @@ class RapidWindow(QMainWindow):
 
         centralWidget = QWidget()
 
+        # Don't call processEvents() after initiating 0MQ, as it can
+        # cause "Interrupted system call" errors
+        app.processEvents()
+
         self.thumbnailView = ThumbnailView()
         self.thumbnailModel = ThumbnailTableModel(parent=self, benchmark=benchmark)
         self.thumbnailProxyModel = ThumbnailSortFilterProxyModel(self)
@@ -405,16 +417,16 @@ class RapidWindow(QMainWindow):
         self.deviceView.setItemDelegate(DeviceDelegate(self))
 
         self.fileSystemModel = FileSystemModel(self)
-        # self.fileSystemModel.directoryLoaded.connect(self.directoryLoaded)
-
         self.fileSystemView = FileSystemView(self)
         self.fileSystemView.setModel(self.fileSystemModel)
         self.fileSystemView.hideColumns()
         self.fileSystemView.setRootIndex(self.fileSystemModel.index('/'))
-        deviceLocationIndex = self.fileSystemModel.index(self.prefs.device_location)
-        self.fileSystemView.setExpanded(deviceLocationIndex, True)
+        if self.prefs.device_location:
+            deviceLocationIndex = self.fileSystemModel.index(self.prefs.device_location)
+            self.fileSystemView.setExpanded(deviceLocationIndex, True)
         self.fileSystemView.activated.connect(self.devicePathChosen)
         self.fileSystemView.clicked.connect(self.devicePathChosen)
+
         self.createActions()
         self.createLayoutAndButtons(centralWidget)
         self.createMenus()
@@ -426,10 +438,10 @@ class RapidWindow(QMainWindow):
         QtWidgets.QApplication.postEvent(
             self, QtCore.QEvent(self.do_init), QtCore.Qt.LowEventPriority - 1)
 
-    def readWindowSettings(self):
+    def readWindowSettings(self, app: 'QtSingleApplication'):
         settings = QSettings()
         settings.beginGroup("MainWindow")
-        desktop = QApplication.desktop() # type: QDesktopWidget
+        desktop = app.desktop() # type: QDesktopWidget
 
         # Calculate window sizes
         available = desktop.availableGeometry(desktop.primaryScreen())  # type: QRect
@@ -438,8 +450,8 @@ class RapidWindow(QMainWindow):
         default_x = screen.width() - default_width
         default_height = available.height()
         default_y = screen.height() - default_height
-        pos = settings.value("pos", QPoint(default_x, default_y))
-        size = settings.value("size", QSize(default_width, default_height))
+        pos = settings.value("windowPosition", QPoint(default_x, default_y))
+        size = settings.value("windowSize", QSize(default_width, default_height))
         settings.endGroup()
         self.resize(size)
         self.move(pos)
@@ -447,13 +459,42 @@ class RapidWindow(QMainWindow):
     def writeWindowSettings(self):
         settings = QSettings()
         settings.beginGroup("MainWindow")
-        settings.setValue("pos", self.pos())
-        settings.setValue("size", self.size())
+        windowPos = self.pos() + self.windowPositionDelta
+        if windowPos.x() < 0:
+            windowPos.setX(0)
+        if windowPos.y() < 0:
+            windowPos.setY(0)
+        settings.setValue("windowPosition", windowPos)
+        settings.setValue("windowSize", self.size())
         settings.setValue("horizontalSplitterSizes", self.horizontalSplitter.saveState())
         settings.setValue("sourceButtonPressed", self.sourceButton.isChecked())
         settings.setValue("proximityButtonPressed", self.proximityButton.isChecked())
         settings.setValue("leftPanelSplitterSizes", self.leftPanelSplitter.saveState())
         settings.endGroup()
+
+    def moveEvent(self, event: QMoveEvent) -> None:
+        """
+        Handle quirks in window positioning.
+
+        X11 has a feature where the window managager can decorate the
+        windows. A side effect of this is that the position returned by
+        window.pos() can be different between restoring the position
+        from the settings, and saving the position at application exit, even if
+        the user never moved the window.
+        """
+
+        super().moveEvent(event)
+        self.window_move_triggered_count += 1
+
+        if self.window_show_requested_time is None:
+            pass
+            # self.windowPositionDelta = QPoint(0, 0)
+        elif self.window_move_triggered_count == 2:
+            if (datetime.datetime.now() - self.window_show_requested_time).total_seconds() < 1.0:
+                self.windowPositionDelta = event.oldPos() - self.pos()
+                logging.debug("Window position quirk delta: %s", self.windowPositionDelta)
+            self.window_show_requested_time = None
+
 
     def setupWindow(self):
         self.basic_status_message = None
@@ -633,6 +674,7 @@ class RapidWindow(QMainWindow):
         # logging.debug("Download button has focus: %s", self.downloadButton.hasFocus())
         # logging.debug("Focus widget: %s", self.focusWidget())
 
+        self.window_show_requested_time = datetime.datetime.now()
         self.show()
 
         settings = QSettings()
@@ -646,10 +688,6 @@ class RapidWindow(QMainWindow):
         selection = self.fileSystemView.selectionModel()
         selection.select(index, QItemSelectionModel.ClearAndSelect|QItemSelectionModel.Rows)
         self.fileSystemView.scrollTo(index, QAbstractItemView.PositionAtCenter)
-
-
-    def directoryLoaded(self, path: str) -> None:
-        print("path", path)
 
     def startBackupManager(self):
         if not self.backup_manager_started:
@@ -761,7 +799,6 @@ class RapidWindow(QMainWindow):
         verticalLayout.setContentsMargins(0, 0, 0, 0)
 
         centralWidget.setLayout(verticalLayout)
-        # self.resizeDeviceView()
 
         centralLayout = QHBoxLayout()
         centralLayout.setContentsMargins(0, 0, 0, 0)
@@ -769,13 +806,10 @@ class RapidWindow(QMainWindow):
         leftBar = QVBoxLayout()
         leftBar.setContentsMargins(0, 0, 0, 0)
 
-        # self.dateButton = RotatedButton(_('Day'), self, RotatedButton.leftSide)
         self.proximityButton = RotatedButton(_('Timeline'), self, RotatedButton.leftSide)
 
-        # self.dateButton.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         self.proximityButton.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         self.proximityButton.clicked.connect(self.proximityButtonClicked)
-        # leftBar.addWidget(self.dateButton)
         leftBar.addWidget(self.proximityButton)
         leftBar.addStretch()
 
@@ -823,7 +857,6 @@ class RapidWindow(QMainWindow):
             self.leftPanelSplitter.restoreState(splitterSetting)
         else:
             self.horizontalSplitter.setSizes([200, 400])
-
 
         rightBar = QVBoxLayout()
         rightBar.setContentsMargins(0, 0, 0, 0)
@@ -2807,7 +2840,10 @@ def darkFusion(app: QApplication):
 
 class SplashScreen(QSplashScreen):
     def drawContents(self, painter: QPainter):
+        painter.save()
+        painter.setPen(QColor(Qt.black))
         painter.drawText(18, 64, human_readable_version(constants.version).title())
+        painter.restore()
 
 if __name__ == "__main__":
 
@@ -2912,10 +2948,13 @@ if __name__ == "__main__":
 
     splash = SplashScreen(QPixmap(':/splashscreen.png'), Qt.WindowStaysOnTopHint)
     splash.show()
-    sleep(.1)
+    app.processEvents()
+    # Occasionally the splash screen does not show, so pause and let
+    # Qt render it again if need be
+    sleep(.5)
     app.processEvents()
 
-    rw = RapidWindow(auto_detect=auto_detect, device_location=device_location,
+    rw = RapidWindow(app=app, auto_detect=auto_detect, device_location=device_location,
                      benchmark=args.benchmark,
                      ignore_other_photo_types=args.ignore_other,
                      thumb_cache=thumb_cache)
