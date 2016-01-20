@@ -76,6 +76,7 @@ class BackupLocationType(Enum):
     videos = 2
     photos_and_videos = 3
 
+
 class DeviceType(Enum):
     camera = 1
     volume = 2

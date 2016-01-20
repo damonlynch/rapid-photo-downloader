@@ -37,7 +37,7 @@ import inspect
 from collections import namedtuple
 import platform
 import argparse
-from typing import Optional, Tuple, List
+from typing import Optional, Tuple, List, Dict
 from time import sleep
 
 from gettext import gettext as _
@@ -342,7 +342,7 @@ class RapidWindow(QMainWindow):
         super().__init__(parent)
         app.processEvents()
 
-        # 3 values to handle window position quirks under X11
+        # Three values to handle window position quirks under X11:
         self.window_show_requested_time = None  # type: datetime.datetime
         self.window_move_triggered_count = 0
         self.windowPositionDelta = QPoint(0, 0)
@@ -367,6 +367,7 @@ class RapidWindow(QMainWindow):
 
         self.setupWindow()
 
+        # TODO update these
         if auto_detect is not None:
             self.prefs.device_autodetection = auto_detect
         elif device_location is not None:
@@ -377,7 +378,6 @@ class RapidWindow(QMainWindow):
         self.prefs.video_download_folder = '/data/Photos/Test'
         self.prefs.auto_download_at_startup = False
         self.prefs.verify_file = False
-        # self.prefs.device_autodetection = False
         # self.prefs.photo_rename = photo_rename_test
         self.prefs.photo_rename = photo_rename_simple_test
         # self.prefs.photo_rename = job_code_rename_test
@@ -494,7 +494,6 @@ class RapidWindow(QMainWindow):
                 self.windowPositionDelta = event.oldPos() - self.pos()
                 logging.debug("Window position quirk delta: %s", self.windowPositionDelta)
             self.window_show_requested_time = None
-
 
     def setupWindow(self):
         self.basic_status_message = None
@@ -669,10 +668,6 @@ class RapidWindow(QMainWindow):
                                    block_auto_start=not prefs_valid)
         self.updateSourceButton()
         self.displayMessageInStatusBar()
-        # # TODO why ddoes this have no effect?
-        # self.downloadButton.setFocus()
-        # logging.debug("Download button has focus: %s", self.downloadButton.hasFocus())
-        # logging.debug("Focus widget: %s", self.focusWidget())
 
         self.window_show_requested_time = datetime.datetime.now()
         self.show()
@@ -684,10 +679,11 @@ class RapidWindow(QMainWindow):
         self.sourceButton.setChecked(settings.value("sourceButtonPressed", True, bool))
         self.sourceButtonClicked()
 
-        index = self.fileSystemModel.index(self.prefs.device_location)
-        selection = self.fileSystemView.selectionModel()
-        selection.select(index, QItemSelectionModel.ClearAndSelect|QItemSelectionModel.Rows)
-        self.fileSystemView.scrollTo(index, QAbstractItemView.PositionAtCenter)
+        if self.prefs.device_location:
+            index = self.fileSystemModel.index(self.prefs.device_location)
+            selection = self.fileSystemView.selectionModel()
+            selection.select(index, QItemSelectionModel.ClearAndSelect|QItemSelectionModel.Rows)
+            self.fileSystemView.scrollTo(index, QAbstractItemView.PositionAtCenter)
 
     def startBackupManager(self):
         if not self.backup_manager_started:
@@ -1011,8 +1007,14 @@ class RapidWindow(QMainWindow):
 
         path = self.fileSystemModel.filePath(index)
         if path != self.prefs.device_location:
+            logging.debug("Device location path chosen: %s", path)
+            if self.prefs.device_location:
+                scan_id = self.devices.scan_id_from_path(self.prefs.device_location,
+                                                         DeviceType.path)
+                if scan_id is not None:
+                    self.removeDevice(scan_id=scan_id, stop_worker=True)
             self.prefs.device_location = path
-            logging.debug("Device location path chosen: %s", self.prefs.device_location)
+            self.setupManualPath()
 
     def downloadButtonClicked(self) -> None:
         if False: #self.copy_files_manager.paused:
@@ -1896,7 +1898,7 @@ class RapidWindow(QMainWindow):
                     self.scanmq.resume(worker_id=scan_id)
                 else:
                     self.scanmq.stop_worker(worker_id=scan_id)
-                    self.removeDevice(scan_id)
+                    self.removeDevice(scan_id=scan_id, stop_worker=False)
                 del self.prompting_for_user_action[device]
             else:
                 # Update GUI display with canonical camera display name
@@ -2128,7 +2130,7 @@ class RapidWindow(QMainWindow):
         removed_cameras = set(known_cameras) - set(system_cameras)
         for model, port in removed_cameras:
             scan_id = self.devices.scan_id_from_camera_model_port(model, port)
-            self.removeDevice(scan_id)
+            self.removeDevice(scan_id=scan_id, stop_worker=True)
 
         if removed_cameras:
             self.setDownloadActionSensitivity()
@@ -2291,20 +2293,21 @@ class RapidWindow(QMainWindow):
 
     def partitionUmounted(self, path: str) -> None:
         """
-        Handle the unmounting of partitions by the system / user
+        Handle the unmounting of partitions by the system / user.
+
         :param path: the path of the partition just unmounted
         """
         if not path:
             return
 
-        if self.devices.known_path(path):
+        if self.devices.known_path(path, DeviceType.volume):
             # four scenarios -
             # the mount is being scanned
             # the mount has been scanned but downloading has not yet started
             # files are being downloaded from mount
             # files have finished downloading from mount
-            scan_id = self.devices.scan_id_from_path(path)
-            self.removeDevice(scan_id)
+            scan_id = self.devices.scan_id_from_path(path, DeviceType.volume)
+            self.removeDevice(scan_id=scan_id, stop_worker=True)
 
         elif path in self.backup_devices:
             device_id = self.backup_devices.device_id(path)
@@ -2317,7 +2320,7 @@ class RapidWindow(QMainWindow):
 
         self.setDownloadActionSensitivity()
 
-    def removeDevice(self, scan_id) -> None:
+    def removeDevice(self, scan_id: int, stop_worker: bool=True) -> None:
         assert scan_id is not None
         if scan_id in self.devices:
             device = self.devices[scan_id]
@@ -2326,6 +2329,10 @@ class RapidWindow(QMainWindow):
             if self.thumbnailModel.clearAll(scan_id=scan_id, keep_downloaded_files=True):
                 self.generateTemporalProximityTableData()
             self.deviceModel.removeDevice(scan_id)
+            if scan_id in self.scanmq.workers:
+                self.scanmq.stop_worker(scan_id)
+            if scan_id in self.copyfilesmq.workers:
+                self.copyfilesmq.stop_worker(scan_id)
             del self.devices[scan_id]
             self.resizeDeviceView()
             self.updateSourceButton()
@@ -2398,7 +2405,27 @@ class RapidWindow(QMainWindow):
                       (self.prefs.auto_download_upon_device_insertion and
                        not on_startup)))
 
-        if not self.prefs.device_autodetection:
+        self.setupManualPath()
+
+        for mount in mounts:
+            icon_names, can_eject = self.getIconsAndEjectableForMount(
+                                         mount)
+            device = Device()
+            device.set_download_from_volume(mount.rootPath(),
+                                          mount.displayName(),
+                                          icon_names,
+                                          can_eject,
+                                          mount)
+            self.prepareNonCameraDeviceScan(device)
+        # if not mounts:
+        #     self.set_download_action_sensitivity()
+
+    def setupManualPath(self):
+        """
+        Handle initiating scan of manutally specified path
+        :return:
+        """
+        if self.prefs.device_location:
             # user manually specified the path from which to download
             path = self.prefs.device_location
             if path:
@@ -2411,20 +2438,6 @@ class RapidWindow(QMainWindow):
                     logging.error("Download path is invalid: %s", path)
             else:
                 logging.error("Download path is not specified")
-
-        else:
-            for mount in mounts:
-                icon_names, can_eject = self.getIconsAndEjectableForMount(
-                                             mount)
-                device = Device()
-                device.set_download_from_volume(mount.rootPath(),
-                                              mount.displayName(),
-                                              icon_names,
-                                              can_eject,
-                                              mount)
-                self.prepareNonCameraDeviceScan(device)
-        # if not mounts:
-        #     self.set_download_action_sensitivity()
 
     def addDeviceToBackupManager(self, path: str) -> None:
         device_id = self.backup_devices.device_id(path)

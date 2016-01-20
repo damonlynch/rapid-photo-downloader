@@ -23,7 +23,7 @@ import os
 import logging
 from collections import namedtuple, Counter
 import re
-from typing import Tuple, List
+from typing import Tuple, List, Optional
 
 from gettext import gettext as _
 
@@ -66,10 +66,10 @@ class Device:
     >>> cameras = gp_context.camera_autodetect()
     >>> c = Device()
     >>> for model, port in cameras:
-    ...     c.set_download_from_camera(model, port, get_camera_attributes=True)
+    ...     c.set_download_from_camera(model, port)
     ...     isinstance(c.no_storage_media, int)
     ...     isinstance(c.display_name, str)
-    True
+    False
     True
     >>> e = Device()
     >>> e.set_download_from_volume('/media/damon/EOS_DIGITAL', 'EOS_DIGITAL')
@@ -292,10 +292,14 @@ class DeviceCollection:
     0
     >>> d_scan_id in dc
     True
+    >>> dc.known_path(d.path, DeviceType.volume)
+    True
     >>> dc.known_path(d.path)
     True
     >>> dc[d_scan_id] == d
     True
+    >>> dc.known_path('/root', DeviceType.path)
+    False
     >>> dc.known_path('/root')
     False
     >>> c_scan_id = dc.add_device(c)
@@ -352,24 +356,32 @@ class DeviceCollection:
             return True
         return False
 
-    def known_path(self, path: str) -> bool:
+    def known_path(self, path: str, device_type: Optional[DeviceType]=None) -> bool:
         """
         Check if the path is already in the list of devices
         :param path: path to check
         :return: True if the path is already being processed, else False
         """
         for scan_id in self.devices:
-            if self.devices[scan_id].path == path:
-                return True
+            device = self.devices[scan_id]  # type: Device
+            if device.path == path:
+                if device_type is None:
+                    return True
+                elif device.device_type == device_type:
+                    return True
         return False
 
     def known_device(self, device: Device) -> bool:
         return device in list(self.devices.values())
 
-    def scan_id_from_path(self, path: str) -> int:
+    def scan_id_from_path(self, path: str, device_type: Optional[DeviceType]=None) -> Optional[int]:
         for scan_id in self.devices:
-            if self.devices[scan_id].path == path:
-                return scan_id
+            device = self.devices[scan_id]  # type: Device
+            if device.path == path:
+                if device_type is None:
+                    return scan_id
+                elif device.device_type == device_type:
+                    return scan_id
         return None
 
     def scan_id_from_camera_model_port(self, model: str, port: str) -> int:
@@ -458,6 +470,7 @@ class DeviceCollection:
 
 
 BackupDevice = namedtuple('BackupDevice', ['mount', 'backup_type'])
+
 
 class BackupDeviceCollection:
     r"""

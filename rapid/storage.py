@@ -764,8 +764,7 @@ if have_gio:
         def mountRemoved(self, volumeMonitor, mount: Gio.Mount):
             if not self.mountIsCamera(mount):
                 if self.mountIsPartition(mount):
-                    logging.debug("GIO: %s has been unmounted",
-                                  mount.get_name())
+                    logging.debug("GIO: %s has been unmounted", mount.get_name())
                     self.partitionUnmounted.emit(mount.get_root().get_path())
 
         def volumeAdded(self, volumeMonitor, volume: Gio.Volume):

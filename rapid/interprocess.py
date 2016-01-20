@@ -93,7 +93,7 @@ class ProcessManager:
         self._process_to_run = '' # Implement in subclass
 
         # Monitor which workers we have running
-        self.workers = [] # type list[int]
+        self.workers = []  # type: List[int]
 
     def _get_cmd(self) -> str:
         return os.path.join(os.path.dirname(__file__), self._process_to_run)
