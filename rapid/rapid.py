@@ -38,6 +38,7 @@ from collections import namedtuple
 import platform
 import argparse
 from typing import Optional, Tuple, List
+from time import sleep
 
 from gettext import gettext as _
 from gi.repository import Notify
@@ -52,17 +53,19 @@ import zmq
 import gphoto2 as gp
 from PyQt5 import QtCore, QtWidgets, QtGui
 from PyQt5.QtCore import (QThread, Qt, QStorageInfo, QSettings, QPoint,
-                          QSize, QTimer, QTextStream,
-                          QRect, QItemSelection, QRegExp)
+                          QSize, QTimer, QTextStream, QModelIndex,
+                          QRect, QItemSelection, QItemSelectionModel)
 from PyQt5.QtGui import (QIcon, QPixmap, QImage, QFont, QColor, QPalette, QFontMetrics,
-                         QGuiApplication)
+                         QGuiApplication, QPainter)
 from PyQt5.QtWidgets import (QAction, QApplication, QMainWindow, QMenu,
                              QPushButton, QWidget, QDialogButtonBox,
-                             QProgressBar, QSplitter, QFileIconProvider,
+                             QProgressBar, QSplitter,
                              QHBoxLayout, QVBoxLayout, QDialog, QLabel,
                              QComboBox, QGridLayout, QCheckBox, QSizePolicy,
-                             QMessageBox, QDesktopWidget)
+                             QMessageBox, QDesktopWidget, QAbstractItemView, QSplashScreen)
 from PyQt5.QtNetwork import QLocalSocket, QLocalServer
+
+from expander import QExpander
 
 import qrc_resources
 
@@ -112,6 +115,7 @@ from generatenameconfig import *
 from expander import QExpander
 from rotatedpushbutton import RotatedButton
 from toppushbutton import TopPushButton
+from filebrowse import FileSystemView, FileSystemModel
 
 logging_level = logging.DEBUG
 logging.basicConfig(format='%(asctime)s %(message)s', level=logging_level)
@@ -400,6 +404,17 @@ class RapidWindow(QMainWindow):
         self.deviceView.setModel(self.deviceModel)
         self.deviceView.setItemDelegate(DeviceDelegate(self))
 
+        self.fileSystemModel = FileSystemModel(self)
+        # self.fileSystemModel.directoryLoaded.connect(self.directoryLoaded)
+
+        self.fileSystemView = FileSystemView(self)
+        self.fileSystemView.setModel(self.fileSystemModel)
+        self.fileSystemView.hideColumns()
+        self.fileSystemView.setRootIndex(self.fileSystemModel.index('/'))
+        deviceLocationIndex = self.fileSystemModel.index(self.prefs.device_location)
+        self.fileSystemView.setExpanded(deviceLocationIndex, True)
+        self.fileSystemView.activated.connect(self.devicePathChosen)
+        self.fileSystemView.clicked.connect(self.devicePathChosen)
         self.createActions()
         self.createLayoutAndButtons(centralWidget)
         self.createMenus()
@@ -437,6 +452,7 @@ class RapidWindow(QMainWindow):
         settings.setValue("horizontalSplitterSizes", self.horizontalSplitter.saveState())
         settings.setValue("sourceButtonPressed", self.sourceButton.isChecked())
         settings.setValue("proximityButtonPressed", self.proximityButton.isChecked())
+        settings.setValue("leftPanelSplitterSizes", self.leftPanelSplitter.saveState())
         settings.endGroup()
 
     def setupWindow(self):
@@ -612,10 +628,12 @@ class RapidWindow(QMainWindow):
                                    block_auto_start=not prefs_valid)
         self.updateSourceButton()
         self.displayMessageInStatusBar()
-        # TODO why ddoes this have no effect?
-        self.downloadButton.setFocus()
-        logging.debug("Download button has focus: %s", self.downloadButton.hasFocus())
-        logging.debug("Focus widget: %s", self.focusWidget())
+        # # TODO why ddoes this have no effect?
+        # self.downloadButton.setFocus()
+        # logging.debug("Download button has focus: %s", self.downloadButton.hasFocus())
+        # logging.debug("Focus widget: %s", self.focusWidget())
+
+        self.show()
 
         settings = QSettings()
         settings.beginGroup("MainWindow")
@@ -623,6 +641,15 @@ class RapidWindow(QMainWindow):
         self.proximityButtonClicked()
         self.sourceButton.setChecked(settings.value("sourceButtonPressed", True, bool))
         self.sourceButtonClicked()
+
+        index = self.fileSystemModel.index(self.prefs.device_location)
+        selection = self.fileSystemView.selectionModel()
+        selection.select(index, QItemSelectionModel.ClearAndSelect|QItemSelectionModel.Rows)
+        self.fileSystemView.scrollTo(index, QAbstractItemView.PositionAtCenter)
+
+
+    def directoryLoaded(self, path: str) -> None:
+        print("path", path)
 
     def startBackupManager(self):
         if not self.backup_manager_started:
@@ -644,15 +671,15 @@ class RapidWindow(QMainWindow):
         self.sourceButton.setIcon(icon)
 
     def sourceButtonClicked(self) -> None:
-        self.deviceView.setVisible(self.sourceButton.isChecked())
-        self.leftPanel.setVisible(not (self.deviceView.isHidden() and
-                                       self.temporalProximityView.isHidden()))
+        self.devicePanel.setVisible(self.sourceButton.isChecked())
+        self.leftPanelSplitter.setVisible(not (self.devicePanel.isHidden() and
+                                               self.temporalProximityView.isHidden()))
 
     def proximityButtonClicked(self) -> None:
         self.temporalProximityView.setVisible(self.proximityButton.isChecked())
-        self.leftPanel.setVisible(not (self.deviceView.isHidden() and
-                                       self.temporalProximityView.isHidden()))
-        
+        self.leftPanelSplitter.setVisible(not (self.devicePanel.isHidden() and
+                                               self.temporalProximityView.isHidden()))
+
     def createActions(self):
         self.sourceAct = QAction(_('&Source'), self, shortcut="Ctrl+s",
                                  triggered=self.doSourceAction)
@@ -757,17 +784,26 @@ class RapidWindow(QMainWindow):
         self.horizontalSplitter = QSplitter()
         self.horizontalSplitter.setOrientation(Qt.Horizontal)
 
-        self.leftPanel = QWidget()
-        leftPanelLayout = QVBoxLayout()
-        leftPanelLayout.setContentsMargins(0, 0, 0, 0)
-        self.leftPanel.setLayout(leftPanelLayout)
-        leftPanelLayout.addWidget(self.deviceView)
-        self.deviceView.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Fixed)
-        leftPanelLayout.addWidget(self.temporalProximityView, 10)
-        self.temporalProximityView.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        leftPanelLayout.addStretch()
+        self.devicePanel = QWidget()
+        self.leftPanelSplitter = QSplitter()
+        self.leftPanelSplitter.setOrientation(Qt.Vertical)
 
-        self.horizontalSplitter.addWidget(self.leftPanel)
+        devicePanelLayout = QVBoxLayout()
+        devicePanelLayout.setContentsMargins(0, 0, 0, 0)
+        self.devicePanel.setLayout(devicePanelLayout)
+
+        devicePanelLayout.addWidget(self.deviceView)
+        self.deviceView.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Fixed)
+        devicePanelLayout.addStretch()
+        devicePanelLayout.addWidget(self.fileSystemView, 10)
+
+        self.leftPanelSplitter.addWidget(self.devicePanel)
+
+        self.fileSystemView.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.temporalProximityView.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
+        self.leftPanelSplitter.addWidget(self.temporalProximityView)
+
+        self.horizontalSplitter.addWidget(self.leftPanelSplitter)
         self.horizontalSplitter.addWidget(self.thumbnailView)
         self.horizontalSplitter.setStretchFactor(0, 0)
         self.horizontalSplitter.setStretchFactor(1, 2)
@@ -778,10 +814,16 @@ class RapidWindow(QMainWindow):
 
         splitterSetting = settings.value("horizontalSplitterSizes")
         if splitterSetting is not None:
-            s = splitterSetting
             self.horizontalSplitter.restoreState(splitterSetting)
         else:
             self.horizontalSplitter.setSizes([200, 400])
+
+        splitterSetting = settings.value("leftPanelSplitterSizes")
+        if splitterSetting is not None:
+            self.leftPanelSplitter.restoreState(splitterSetting)
+        else:
+            self.horizontalSplitter.setSizes([200, 400])
+
 
         rightBar = QVBoxLayout()
         rightBar.setContentsMargins(0, 0, 0, 0)
@@ -924,6 +966,20 @@ class RapidWindow(QMainWindow):
 
     def doAboutAction(self):
         pass
+
+    def devicePathChosen(self, index: QModelIndex) -> None:
+        """
+        Handle user selecting new device location path.
+
+        Called after single click or folder being activated.
+
+        :param index: cell clicked
+        """
+
+        path = self.fileSystemModel.filePath(index)
+        if path != self.prefs.device_location:
+            self.prefs.device_location = path
+            logging.debug("Device location path chosen: %s", self.prefs.device_location)
 
     def downloadButtonClicked(self) -> None:
         if False: #self.copy_files_manager.paused:
@@ -2749,6 +2805,9 @@ def darkFusion(app: QApplication):
     """
     app.setStyleSheet(style)
 
+class SplashScreen(QSplashScreen):
+    def drawContents(self, painter: QPainter):
+        painter.drawText(18, 64, human_readable_version(constants.version).title())
 
 if __name__ == "__main__":
 
@@ -2816,8 +2875,7 @@ if __name__ == "__main__":
         device_location=args.device_location
         if device_location[-1]=='/':
             device_location = device_location[:-1]
-        logging.info("Device location set from command line: %s",
-                     device_location)
+        logging.info("Device location set from command line: %s", device_location)
     else:
         device_location=None
 
@@ -2852,12 +2910,17 @@ if __name__ == "__main__":
         print(_("All settings and caches have been reset"))
         sys.exit(0)
 
+    splash = SplashScreen(QPixmap(':/splashscreen.png'), Qt.WindowStaysOnTopHint)
+    splash.show()
+    sleep(.1)
+    app.processEvents()
+
     rw = RapidWindow(auto_detect=auto_detect, device_location=device_location,
                      benchmark=args.benchmark,
                      ignore_other_photo_types=args.ignore_other,
                      thumb_cache=thumb_cache)
-    rw.show()
+
+    splash.finish(rw)
 
     app.setActivationWindow(rw)
-
     sys.exit(app.exec_())

@@ -1,6 +1,7 @@
 <!DOCTYPE RCC><RCC version="1.0">
 <qresource>
 <file alias="rapid-photo-downloader.svg">images/rapid-photo-downloader.svg</file>
+<file alias="splashscreen.png">images/splashscreen.png</file>
 <file alias="download-pending.png">images/rapid-photo-downloader-download-pending.png</file>
 <file alias="video.png">images/video106.png</file>
 <file alias="photo.png">images/photo106.png</file>
