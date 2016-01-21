@@ -95,7 +95,7 @@ from constants import (BackupLocationType, DeviceType, ErrorType,
                        PROGRAM_NAME, job_code_rename_test, CameraErrorCode,
                        photo_rename_simple_test)
 import constants
-from thumbnaildisplay import (ThumbnailView, ThumbnailTableModel, ThumbnailDelegate, DownloadTypes,
+from thumbnaildisplay import (ThumbnailView, ThumbnailListModel, ThumbnailDelegate, DownloadTypes,
                               DownloadStats, ThumbnailSortFilterProxyModel)
 from devicedisplay import (DeviceTableModel, DeviceView, DeviceDelegate)
 from proximity import (TemporalProximityModel, TemporalProximityView,
@@ -395,7 +395,7 @@ class RapidWindow(QMainWindow):
         app.processEvents()
 
         self.thumbnailView = ThumbnailView()
-        self.thumbnailModel = ThumbnailTableModel(parent=self, benchmark=benchmark)
+        self.thumbnailModel = ThumbnailListModel(parent=self, benchmark=benchmark)
         self.thumbnailProxyModel = ThumbnailSortFilterProxyModel(self)
         self.thumbnailProxyModel.setSourceModel(self.thumbnailModel)
         self.thumbnailView.setModel(self.thumbnailProxyModel)

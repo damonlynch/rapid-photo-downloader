@@ -29,15 +29,15 @@ import shlex
 from itertools import chain
 import logging
 from timeit import timeit
-from typing import Optional, Dict, List, Generator
+from typing import Optional, Dict, List, Set
 
 from gettext import gettext as _
 
-from sortedcontainers import SortedListWithKey
+from sortedcontainers import (SortedListWithKey, SortedList)
 import arrow.arrow
 from dateutil.tz import tzlocal
 
-from PyQt5.QtCore import  (QAbstractTableModel, QModelIndex, Qt, pyqtSignal, QSize, QRect, QEvent,
+from PyQt5.QtCore import  (QAbstractListModel, QModelIndex, Qt, pyqtSignal, QSize, QRect, QEvent,
                            QPoint, QMargins, QSortFilterProxyModel, QRegExp, QAbstractItemModel)
 from PyQt5.QtWidgets import (QListView, QStyledItemDelegate, QStyleOptionViewItem, QApplication,
                              QStyle, QStyleOptionButton, QMenu, QWidget)
@@ -52,7 +52,7 @@ from interprocess import (PublishPullPipelineManager, GenerateThumbnailsArgument
 from constants import (DownloadStatus, Downloaded, FileType, FileExtension, ThumbnailSize,
                        ThumbnailCacheStatus, Roles, DeviceType, CustomColors)
 from storage import get_program_cache_directory
-from utilities import (CacheDirs, make_internationalized_list, format_size_for_user)
+from utilities import (CacheDirs, make_internationalized_list, format_size_for_user, runs)
 from thumbnailer import Thumbnailer
 
 
@@ -100,7 +100,7 @@ class ThumbnailManager(PublishPullPipelineManager):
         return self._worker_id
 
 
-class ThumbnailTableModel(QAbstractTableModel):
+class ThumbnailListModel(QAbstractListModel):
     def __init__(self, parent, benchmark: Optional[int]=None) -> None:
         super().__init__(parent)
         self.rapidApp = parent
@@ -150,10 +150,10 @@ class ThumbnailTableModel(QAbstractTableModel):
                         self.rpd_files[unique_id].modification_time)
         return self.rows.index(list_item)
 
-    def columnCount(self, parent=QModelIndex()) -> int:
+    def columnCount(self, parent: QModelIndex) -> int:
         return 1
 
-    def rowCount(self, parent=QModelIndex()) -> int:
+    def rowCount(self, parent: QModelIndex) -> int:
         return len(self.rows)
 
     def data(self, index: QModelIndex, role=Qt.DisplayRole):
@@ -250,19 +250,19 @@ class ThumbnailTableModel(QAbstractTableModel):
         unique_id = self.rows[row].id_value
         rpd_file = self.rpd_files[unique_id]
         if role == Qt.CheckStateRole:
-            self.setCheckedValue(value, unique_id, rpd_file.scan_id, row)
+            self.setCheckedValue(value, unique_id, rpd_file.scan_id)
+            self.dataChanged.emit(self.index(row, 0), self.index(row, 0))
             self._syncrhonizeDeviceDisplayCheckMark()
             self.rapidApp.displayMessageInStatusBar(update_only_marked=True)
             self.rapidApp.setDownloadActionSensitivity()
             return True
         return False
 
-    def setCheckedValue(self, checked: bool, unique_id: str, scan_id: int, row: int) -> None:
+    def setCheckedValue(self, checked: bool, unique_id: str, scan_id: int) -> None:
         if checked:
             self.marked[scan_id].add(unique_id)
         else:
             self.marked[scan_id].remove(unique_id)
-        self.dataChanged.emit(self.index(row, 0), self.index(row, 0), [Qt.CheckStateRole])
 
     def insertRows(self, position, rows=1, index=QModelIndex()):
         self.beginInsertRows(QModelIndex(), position, position + rows - 1)
@@ -492,7 +492,7 @@ class ThumbnailTableModel(QAbstractTableModel):
         if scan_id is not None:
             unique_ids = self.marked[scan_id]
         else:
-            unique_ids = (chain(self.marked[scan_id] for scan_id in self.marked))
+            unique_ids = chain.from_iterable((self.marked.values()))
 
         for unique_id in unique_ids:
             rpd_file = self.rpd_files[unique_id] # type: RPDFile
@@ -587,6 +587,18 @@ class ThumbnailTableModel(QAbstractTableModel):
             return (rpd_file.unique_id for rpd_file in self.rpd_files.values()
                     if rpd_file.status == download_status)
 
+    def uniqueIdsByStatusAndType(self, download_status: DownloadStatus,
+                                 file_type: FileType,
+                                 scan_id: Optional[int]=None):
+        if scan_id is not None:
+            return (unique_id for unique_id in self.scan_index[scan_id]
+                    if self.rpd_files[unique_id].status == download_status and
+                    self.rpd_files[unique_id].file_type == file_type)
+        else:
+            return (rpd_file.unique_id for rpd_file in self.rpd_files.values()
+                    if rpd_file.status == download_status and
+                    rpd_file.file_type == file_type)
+
     def checkAll(self, check_all: bool,
                  file_type: Optional[FileType]=None,
                  scan_id: Optional[int]=None) -> None:
@@ -598,25 +610,93 @@ class ThumbnailTableModel(QAbstractTableModel):
         :param scan_id: if specified, affects only files for that scan
         """
 
-        unique_ids = self.uniqueIdsByStatus(DownloadStatus.not_downloaded, scan_id)
+        rows = SortedList()
 
-        start = datetime.datetime.now()
+        # Optimize this code as much as possible, because it's time
+        # sensitive. Sure looks ugly, though.
+        if check_all:
+            if scan_id is not None:
+                if file_type is None:
+                    unique_ids = (unique_id for unique_id in self.scan_index[scan_id]
+                        if self.rpd_files[unique_id].status == DownloadStatus.not_downloaded and
+                            unique_id not in self.marked[scan_id])
+                else:
+                    unique_ids = (unique_id for unique_id in self.scan_index[scan_id]
+                        if self.rpd_files[unique_id].status == DownloadStatus.not_downloaded and
+                            unique_id not in self.marked[scan_id] and
+                            self.rpd_files[unique_id].file_type == file_type)
+                for unique_id in unique_ids:
+                    row = self.rowFromUniqueId(unique_id)
+                    rows.add(row)
+                    self.marked[scan_id].add(unique_id)
+            else:
+                if file_type is None:
+                    unique_ids = self.uniqueIdsByStatus(DownloadStatus.not_downloaded, scan_id)
+                else:
+                    unique_ids = self.uniqueIdsByStatusAndType(DownloadStatus.not_downloaded,
+                                                               file_type, scan_id)
+                for unique_id in unique_ids:
+                    rpd_file = self.rpd_files[unique_id]
+                    scan_id2 = rpd_file.scan_id
+                    if unique_id not in self.marked[scan_id2]:
+                        row = self.rowFromUniqueId(unique_id)
+                        rows.add(row)
+                        self.marked[scan_id2].add(unique_id)
+        else:
+            # uncheck all
+            if file_type is None:
+                if scan_id is not None:
+                    for unique_id in self.marked[scan_id]:
+                        row = self.rowFromUniqueId(unique_id)
+                        rows.add(row)
+                    self.marked[scan_id] = set()
+                else:
+                    unique_ids = chain.from_iterable((self.marked.values()))
+                    for unique_id in unique_ids:
+                        row = self.rowFromUniqueId(unique_id)
+                        rows.add(row)
+                    self.marked = defaultdict(set)  # type: Dict[int, Set[str]]
+            else:
+                # file_type is specified
+                if scan_id is not None:
+                    for unique_id in self.marked[scan_id]:
+                        if self.rpd_files[unique_id].file_type == file_type:
+                            row = self.rowFromUniqueId(unique_id)
+                            rows.add(row)
+                            self.marked[scan_id].remove(unique_id)
+                else:
+                    unique_ids = chain.from_iterable((self.marked.values()))
+                    for unique_id in unique_ids:
+                        if self.rpd_files[unique_id].file_type == file_type:
+                            row = self.rowFromUniqueId(unique_id)
+                            rows.add(row)
+                            self.marked[scan_id].remove(unique_id)
 
-        for unique_id in unique_ids:
-            rpd_file = self.rpd_files[unique_id]
-            scan_id = rpd_file.scan_id
-            if (((check_all and unique_id not in self.marked[scan_id]) or
-                     (not check_all and unique_id in self.marked[scan_id])) and (
-                      file_type is None or rpd_file.file_type==file_type)):
-                row = self.rowFromUniqueId(unique_id)
-                self.setCheckedValue(check_all, unique_id, scan_id, row)
-        finish = datetime.datetime.now()
-        print((finish - start).total_seconds())
+        for first, last in runs(rows):
+            self.dataChanged.emit(self.index(first, 0), self.index(last, 0))
 
         self._syncrhonizeDeviceDisplayCheckMark()
         self.rapidApp.displayMessageInStatusBar(update_only_marked=True)
         self.rapidApp.setDownloadActionSensitivity()
 
+    def visibleRows(self):
+        """
+        Yield rows visible in viewport. Currently not used.
+        """
+
+        view = self.rapidApp.thumbnailView
+        rect = view.viewport().contentsRect()
+        width = view.itemDelegate().width
+        last_row = rect.bottomRight().x() // width * width
+        top = view.indexAt(rect.topLeft())
+        if top.isValid():
+            bottom = view.indexAt(QPoint(last_row, rect.bottomRight().y()))
+            if not bottom.isValid():
+                # take a guess with an arbitrary figure
+                bottom = self.index(top.row() + 15)
+            for row in range(top.row(), bottom.row() + 1):
+                yield row
+    
     def _syncrhonizeDeviceDisplayCheckMark(self):
         for scan_id in self.scan_index:
             can_download = self.filesAreMarkedForDownload(scan_id)
@@ -729,10 +809,8 @@ class ThumbnailDelegate(QStyledItemDelegate):
         self.image_frame_bottom = self.vertical_margin + self.image_area_size
 
         self.contextMenu = QMenu()
-        self.openInFileBrowserAct = self.contextMenu.addAction(
-            _('Open in File Browser...'))
-        self.openInFileBrowserAct.triggered.connect(
-            self.doOpenInFileBrowserAct)
+        self.openInFileBrowserAct = self.contextMenu.addAction(_('Open in File Browser...'))
+        self.openInFileBrowserAct.triggered.connect(self.doOpenInFileBrowserAct)
         self.copyPathAct = self.contextMenu.addAction(_('Copy Path'))
         self.copyPathAct.triggered.connect(self.doCopyPathAction)
         # store the index in which the user right clicked
@@ -764,7 +842,6 @@ class ThumbnailDelegate(QStyledItemDelegate):
 
             # Save state of painter, restore on function exit
             painter.save()
-
 
             # Get data about the file
             model = index.model()
