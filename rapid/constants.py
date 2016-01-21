@@ -132,6 +132,7 @@ class Roles(IntEnum):
     path = Qt.UserRole + 5
     uri = Qt.UserRole + 6
     camera_memory_card = Qt.UserRole + 7
+    scan_id = Qt.UserRole + 8
 
 
 class ExtractionTask(Enum):

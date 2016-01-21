@@ -24,13 +24,14 @@ import logging
 
 from gettext import gettext as _
 
-from PyQt5.QtCore import (QAbstractTableModel, QModelIndex, QSize, Qt, QPoint, QRect, QRectF)
+from PyQt5.QtCore import (QAbstractTableModel, QModelIndex, QSize, Qt, QPoint, QRect, QRectF,
+                          QEvent, QAbstractItemModel)
 from PyQt5.QtWidgets import (QStyledItemDelegate,QStyleOptionViewItem, QApplication, QStyle,
-                             QListView, QStyleOptionButton, QAbstractItemView)
+                             QListView, QStyleOptionButton, QAbstractItemView, QMenu, QWidget)
 from PyQt5.QtGui import (QPainter, QFontMetrics, QFont, QColor, QLinearGradient, QBrush, QPalette)
 
 from viewutils import RowTracker
-from constants import DeviceState, FileType, CustomColors, DeviceType
+from constants import DeviceState, FileType, CustomColors, DeviceType, Roles
 from devices import Device
 from utilities import thousands, format_size_for_user
 from storage import StorageSpace
@@ -42,6 +43,7 @@ def device_view_width(standard_font_size: int) -> int:
 class DeviceTableModel(QAbstractTableModel):
     def __init__(self, parent):
         super(DeviceTableModel, self).__init__(parent)
+        self.rapidApp = parent
         self.devices = {} # type: Dict[int, Device]
         self.state = {} # type: Dict[int, DeviceState]
         self.progress = defaultdict(float) # type: Dict[int, float]
@@ -123,30 +125,34 @@ class DeviceTableModel(QAbstractTableModel):
         scan_id = self.rows[row]
         column = index.column()
         if column == 0:
-            device = self.devices[scan_id] # type: Device
             if role == Qt.DisplayRole:
+                device = self.devices[scan_id] # type: Device
                 return device
             elif role == Qt.CheckStateRole:
                 return self.checked[scan_id]
-            # elif role == Qt.DecorationRole:
-            #     return device.get_icon()
+            elif role == Roles.scan_id:
+                return scan_id
             return None
-        # elif column == 1:
-        #     device = self.devices[scan_id] # type: Device
-        #     return device.can_eject
-        # elif column == 3:
-        #     state = self.state[scan_id]
-        #     if state == DeviceState.downloading:
-        #         progress = self.progress[scan_id]
-        #         maximum = 100
-        #     elif state == DeviceState.scanning:
-        #         progress = 0
-        #         maximum = 0
-        #     elif state == DeviceState.scanned:
-        #         maximum = 100
-        #         progress = 100
-        #
-        #     return (self.texts[scan_id], progress, maximum)
+
+    def setData(self, index: QModelIndex, value, role: int) -> bool:
+        if not index.isValid():
+            return False
+
+        row = index.row()
+        if row >= len(self.rows) or row < 0:
+            return False
+        scan_id = self.rows[row]
+        if role == Qt.CheckStateRole:
+            self.setCheckedValue(value, scan_id, row)
+            self.rapidApp.thumbnailModel.checkAll(value, scan_id=scan_id)
+            return True
+        return False
+
+    def setCheckedValue(self, checked: bool, scan_id: int, row: Optional[int]=None):
+        if row is None:
+            row = self.rows.row(scan_id)
+        self.checked[scan_id] = checked
+        self.dataChanged.emit(self.index(row, 0),self.index(row, 0))
 
 
 class DeviceView(QListView):
@@ -169,6 +175,7 @@ class DeviceView(QListView):
         scrollbar_height = round(self.horizontalScrollBar().height() / 3)
         return QSize(self.view_width, height + scrollbar_height)
 
+
 class DeviceDelegate(QStyledItemDelegate):
 
     padding = 6
@@ -182,6 +189,7 @@ class DeviceDelegate(QStyledItemDelegate):
 
     def __init__(self, parent):
         super(DeviceDelegate, self).__init__(parent)
+        self.rapidApp = parent
 
         self.checkboxStyleOption = QStyleOptionButton()
         self.checkboxRect = QApplication.style().subElementRect(
@@ -226,6 +234,20 @@ class DeviceDelegate(QStyledItemDelegate):
         self.base_height = (self.padding * 2 + self.standard_height + self.footer)
         self.storage_height = (self.vertical_padding * 2 + self.standard_height + self.padding +
                                self.g_height + self.vertical_padding + self.details_height)
+
+        self.contextMenu = QMenu()
+        self.openInFileBrowserAct = self.contextMenu.addAction(
+            _('Remove'))
+        self.openInFileBrowserAct.triggered.connect(
+            self.doRemoveDevice)
+        # store the index in which the user right clicked
+        self.clickedIndex = None  # type: QModelIndex
+
+    def doRemoveDevice(self) -> None:
+        index = self.clickedIndex
+        if index:
+            scan_id = index.model().data(index, Roles.scan_id)  # type: Device
+            self.rapidApp.removeDevice(scan_id)
 
     def paint(self, painter: QPainter, option: QStyleOptionViewItem, index: QModelIndex) -> None:
         painter.save()
@@ -448,3 +470,43 @@ class DeviceDelegate(QStyledItemDelegate):
         device = index.model().data(index, Qt.DisplayRole)  # type: Device
         height = self.base_height + self.storage_height * len(device.storage_space)
         return QSize(self.view_width, height)
+
+    def editorEvent(self, event: QEvent,
+                    model: QAbstractItemModel,
+                    option: QStyleOptionViewItem,
+                    index: QModelIndex) -> bool:
+        """
+        Change the data in the model and the state of the checkbox
+        if the user presses the left mousebutton or presses
+        Key_Space or Key_Select and this cell is editable. Otherwise do nothing.
+        """
+        # if not (index.flags() & Qt.ItemIsEditable) > 0:
+        #     return False
+
+        if (event.type() == QEvent.MouseButtonRelease or event.type() ==
+            QEvent.MouseButtonDblClick):
+            if event.button() == Qt.RightButton:
+                self.clickedIndex = index
+                globalPos = self.parent().deviceView.viewport().mapToGlobal(event.pos())
+                self.contextMenu.popup(globalPos)
+                return False
+            if event.button() != Qt.LeftButton or not self.getCheckBoxRect(
+                    option).contains(event.pos()):
+                return False
+            if event.type() == QEvent.MouseButtonDblClick:
+                return True
+        elif event.type() == QEvent.KeyPress:
+            if event.key() != Qt.Key_Space and event.key() != Qt.Key_Select:
+                return False
+        else:
+            return False
+
+        # Change the checkbox-state
+        self.setModelData(None, model, index)
+        return True
+
+    def setModelData (self, editor: QWidget,
+                      model: QAbstractItemModel,
+                      index: QModelIndex) -> None:
+        newValue = not (index.model().data(index, Qt.CheckStateRole))
+        model.setData(index, newValue, Qt.CheckStateRole)

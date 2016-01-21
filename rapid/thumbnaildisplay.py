@@ -26,8 +26,10 @@ from collections import (namedtuple, defaultdict, Counter)
 from operator import attrgetter
 import subprocess
 import shlex
+from itertools import chain
 import logging
-from typing import Optional, Dict, List
+from timeit import timeit
+from typing import Optional, Dict, List, Generator
 
 from gettext import gettext as _
 
@@ -36,9 +38,9 @@ import arrow.arrow
 from dateutil.tz import tzlocal
 
 from PyQt5.QtCore import  (QAbstractTableModel, QModelIndex, Qt, pyqtSignal, QSize, QRect, QEvent,
-                           QPoint, QMargins, QSortFilterProxyModel, QRegExp)
+                           QPoint, QMargins, QSortFilterProxyModel, QRegExp, QAbstractItemModel)
 from PyQt5.QtWidgets import (QListView, QStyledItemDelegate, QStyleOptionViewItem, QApplication,
-                             QStyle, QStyleOptionButton, QMenu)
+                             QStyle, QStyleOptionButton, QMenu, QWidget)
 from PyQt5.QtGui import (QPixmap, QImage, QPainter, QColor, QBrush, QFontMetrics)
 
 import zmq
@@ -126,7 +128,7 @@ class ThumbnailTableModel(QAbstractTableModel):
     def initialize(self) -> None:
         self.file_names = {} # type: Dict[int, str]
         self.thumbnails = {} # type: Dict[str, QPixmap]
-        self.marked = set()
+        self.marked = defaultdict(set)  # type: Dict[int, Set[str]]
 
         # Sort thumbnails based on the time the files were modified
         self.rows = SortedListWithKey(key=attrgetter('modification_time'))
@@ -170,7 +172,7 @@ class ThumbnailTableModel(QAbstractTableModel):
         elif role == Qt.DecorationRole:
             return self.thumbnails[unique_id]
         elif role == Qt.CheckStateRole:
-            if unique_id in self.marked:
+            if unique_id in self.marked[rpd_file.scan_id]:
                 return Qt.Checked
             else:
                 return Qt.Unchecked
@@ -238,7 +240,7 @@ class ThumbnailTableModel(QAbstractTableModel):
         elif role == Roles.camera_memory_card:
             return rpd_file.camera_memory_card_identifiers
 
-    def setData(self, index: QModelIndex, value, role: int):
+    def setData(self, index: QModelIndex, value, role: int) -> bool:
         if not index.isValid():
             return False
 
@@ -248,24 +250,24 @@ class ThumbnailTableModel(QAbstractTableModel):
         unique_id = self.rows[row].id_value
         rpd_file = self.rpd_files[unique_id]
         if role == Qt.CheckStateRole:
-            self.setCheckedValue(value, unique_id, row)
+            self.setCheckedValue(value, unique_id, rpd_file.scan_id, row)
+            self._syncrhonizeDeviceDisplayCheckMark()
             self.rapidApp.displayMessageInStatusBar(update_only_marked=True)
             self.rapidApp.setDownloadActionSensitivity()
             return True
         return False
 
-    def setCheckedValue(self, checked: bool, unique_id: str, row: int):
+    def setCheckedValue(self, checked: bool, unique_id: str, scan_id: int, row: int) -> None:
         if checked:
-            self.marked.add(unique_id)
+            self.marked[scan_id].add(unique_id)
         else:
-            self.marked.remove(unique_id)
-        self.dataChanged.emit(self.index(row,0),self.index(row,0))
+            self.marked[scan_id].remove(unique_id)
+        self.dataChanged.emit(self.index(row, 0), self.index(row, 0), [Qt.CheckStateRole])
 
     def insertRows(self, position, rows=1, index=QModelIndex()):
         self.beginInsertRows(QModelIndex(), position, position + rows - 1)
         self.endInsertRows()
         return True
-
 
     def removeRows(self, position, rows=1, index=QModelIndex()):
         self.beginRemoveRows(QModelIndex(), position, position + rows - 1)
@@ -273,16 +275,15 @@ class ThumbnailTableModel(QAbstractTableModel):
                                                 position:position+rows]]
         del self.rows[position:position+rows]
         for unique_id in unique_ids:
+            scan_id = self.rpd_files[unique_id].scan_id
             del self.file_names[unique_id]
             del self.thumbnails[unique_id]
-            if unique_id in self.marked:
-                self.marked.remove(unique_id)
-            scan_id = self.rpd_files[unique_id].scan_id
+            if unique_id in self.marked[scan_id]:
+                self.marked[scan_id].remove(unique_id)
             self.scan_index[scan_id].remove(unique_id)
             del self.rpd_files[unique_id]
         self.endRemoveRows()
         return True
-
 
     def addFile(self, rpd_file: RPDFile, generate_thumbnail: bool):
         unique_id = rpd_file.unique_id
@@ -299,7 +300,7 @@ class ThumbnailTableModel(QAbstractTableModel):
         else:
             self.thumbnails[unique_id] = self.video_icon
         if not rpd_file.previously_downloaded():
-            self.marked.add(unique_id)
+            self.marked[rpd_file.scan_id].add(unique_id)
 
         self.scan_index[rpd_file.scan_id].append(unique_id)
 
@@ -430,30 +431,43 @@ class ThumbnailTableModel(QAbstractTableModel):
 
             return len(rows) > 0
 
-    def filesAreMarkedForDownload(self) -> bool:
+    def filesAreMarkedForDownload(self, scan_id: Optional[int]=None) -> bool:
         """
         Checks for the presence of checkmark besides any file that has
         not yet been downloaded.
+
+        :param scan_id: if specified, checks for files only associated
+         with that scan
         :return: True if there is any file that the user has indicated
         they intend to download, else False.
         """
-        return len(self.marked) > 0
+        if scan_id is not None:
+            return len(self.marked[scan_id]) > 0
+        else:
+            for scan_id in self.marked:
+                if len(self.marked[scan_id]) > 0:
+                    return True
+        return False
 
     def getNoFilesMarkedForDownload(self) -> int:
-        return len(self.marked)
+        return sum((len(self.marked[scan_id]) for scan_id in self.marked))
 
     def getSizeOfFilesMarkedForDownload(self) -> int:
-        size = 0
-        for unique_id in self.marked:
-            size += self.rpd_files[unique_id].size
-        return size
+        return sum(self.rpd_files[unique_id].size for scan_id in self.marked for unique_id in
+             self.marked[scan_id])
+        # size = 0
+        # for unique_id in self.marked:
+        #     size += self.rpd_files[unique_id].size
+        # return size
 
     def getNoFilesAvailableForDownload(self) -> FileTypeCounter:
-        file_type_counter = FileTypeCounter()
-        for unique_id, rpd_file in self.rpd_files.items():
-            if rpd_file.status == DownloadStatus.not_downloaded:
-                file_type_counter[rpd_file.file_type] += 1
-        return file_type_counter
+        return FileTypeCounter(rpd_file.file_type for rpd_file in self.rpd_files.values() if
+                                rpd_file.status == DownloadStatus.not_downloaded)
+        # file_type_counter = FileTypeCounter()
+        # for unique_id, rpd_file in self.rpd_files.items():
+        #     if rpd_file.status == DownloadStatus.not_downloaded:
+        #         file_type_counter[rpd_file.file_type] += 1
+        # return file_type_counter
 
     def getFilesMarkedForDownload(self, scan_id: int) -> DownloadFiles:
         """
@@ -468,7 +482,19 @@ class ThumbnailTableModel(QAbstractTableModel):
         and defaultdict() indexed by scan_id with value DownloadStats
         """
 
-        def addFile(unique_id):
+        files = defaultdict(list)
+        download_types = DownloadTypes()
+        download_stats = defaultdict(DownloadStats)
+        camera_access_needed = defaultdict(bool)
+        generating_fdo_thumbs = self.rapidApp.prefs.save_fdo_thumbnails
+
+
+        if scan_id is not None:
+            unique_ids = self.marked[scan_id]
+        else:
+            unique_ids = (chain(self.marked[scan_id] for scan_id in self.marked))
+
+        for unique_id in unique_ids:
             rpd_file = self.rpd_files[unique_id] # type: RPDFile
             if rpd_file.status not in Downloaded:
                 scan_id = rpd_file.scan_id
@@ -488,24 +514,13 @@ class ThumbnailTableModel(QAbstractTableModel):
                 # if large FDO Cache thumbnail does not exist or if the
                 # existing thumbnail has been marked as not suitable for the
                 # FDO Cache (e.g. if we don't know the correct orientation).
+                # TODO check to see if this code should be update given can now
+                # read orientation from most cameras
                 if ((rpd_file.thumbnail_status !=
                         ThumbnailCacheStatus.suitable_for_fdo_cache_write) or
                         (generating_fdo_thumbs and not
                              rpd_file.fdo_thumbnail_256_name)):
                     download_stats[scan_id].post_download_thumb_generation += 1
-
-        files = defaultdict(list)
-        download_types = DownloadTypes()
-        download_stats = defaultdict(DownloadStats)
-        camera_access_needed = defaultdict(bool)
-        generating_fdo_thumbs = self.rapidApp.prefs.save_fdo_thumbnails
-        if scan_id is None:
-            for unique_id in self.marked:
-                addFile(unique_id)
-        else:
-            for unique_id in self.scan_index[scan_id]:
-                if unique_id in self.marked:
-                    addFile(unique_id)
 
         return DownloadFiles(files=files, download_types=download_types,
                              download_stats=download_stats,
@@ -521,9 +536,8 @@ class ThumbnailTableModel(QAbstractTableModel):
         for scan_id in files:
             for rpd_file in files[scan_id]:
                 unique_id = rpd_file.unique_id
-                self.rpd_files[unique_id].status = \
-                    DownloadStatus.download_pending
-                self.marked.remove(unique_id)
+                self.rpd_files[unique_id].status = DownloadStatus.download_pending
+                self.marked[scan_id].remove(unique_id)
                 row = self.rowFromUniqueId(unique_id)
                 self.dataChanged.emit(self.index(row,0),self.index(row,0))
 
@@ -531,9 +545,14 @@ class ThumbnailTableModel(QAbstractTableModel):
         """
         Analyzes the files that will be downloaded, and sees if any of
         them still need to have their thumbnails generated.
+
+        Marks generate_thumbnail in each rpd_file those for that need
+        thumbnails.
+
         :param rpd_files: list of files to examine
         :return: True if at least one thumbnail needs to be generated
         """
+
         generation_needed = False
         for rpd_file in rpd_files:
             if rpd_file.unique_id not in self.thumbnails:
@@ -547,29 +566,61 @@ class ThumbnailTableModel(QAbstractTableModel):
          downloaded for all scan_ids, else only for that scan_id.
         :return the number of files that have not yet been downloaded
         """
+
         i = 0
         if scan_id is not None:
             for unique_id in self.scan_index[scan_id]:
-                if self.rpd_files[unique_id].status == \
-                        DownloadStatus.not_downloaded:
+                if self.rpd_files[unique_id].status == DownloadStatus.not_downloaded:
                     i += 1
         else:
-            for unique_id, rpd_file in self.rpd_files.items():
+            for rpd_file in self.rpd_files.values():
                 if rpd_file.status == DownloadStatus.not_downloaded:
                     i += 1
         return i
 
-    def checkAll(self, check_all: bool, file_type: FileType=None):
-        for unique_id, rpd_file in self.rpd_files.items():
-            if (rpd_file.status == DownloadStatus.not_downloaded and
-                    ((check_all and unique_id not in self.marked) or
-                     (not check_all and unique_id in self.marked)) and (
+    def uniqueIdsByStatus(self, download_status: DownloadStatus,
+                          scan_id: Optional[int]=None):
+        if scan_id is not None:
+            return (unique_id for unique_id in self.scan_index[scan_id]
+                    if self.rpd_files[unique_id].status == download_status)
+        else:
+            return (rpd_file.unique_id for rpd_file in self.rpd_files.values()
+                    if rpd_file.status == download_status)
+
+    def checkAll(self, check_all: bool,
+                 file_type: Optional[FileType]=None,
+                 scan_id: Optional[int]=None) -> None:
+        """
+        Check or uncheck all files that are not downloaded.
+
+        :param check_all: if True, mark as checked, else unmark
+        :param file_type: if specified, files must be of specified type
+        :param scan_id: if specified, affects only files for that scan
+        """
+
+        unique_ids = self.uniqueIdsByStatus(DownloadStatus.not_downloaded, scan_id)
+
+        start = datetime.datetime.now()
+
+        for unique_id in unique_ids:
+            rpd_file = self.rpd_files[unique_id]
+            scan_id = rpd_file.scan_id
+            if (((check_all and unique_id not in self.marked[scan_id]) or
+                     (not check_all and unique_id in self.marked[scan_id])) and (
                       file_type is None or rpd_file.file_type==file_type)):
                 row = self.rowFromUniqueId(unique_id)
-                self.setCheckedValue(check_all, unique_id, row)
+                self.setCheckedValue(check_all, unique_id, scan_id, row)
+        finish = datetime.datetime.now()
+        print((finish - start).total_seconds())
 
+        self._syncrhonizeDeviceDisplayCheckMark()
         self.rapidApp.displayMessageInStatusBar(update_only_marked=True)
         self.rapidApp.setDownloadActionSensitivity()
+
+    def _syncrhonizeDeviceDisplayCheckMark(self):
+        for scan_id in self.scan_index:
+            can_download = self.filesAreMarkedForDownload(scan_id)
+            self.rapidApp.deviceModel.setCheckedValue(can_download, scan_id)
 
     def terminateThumbnailGeneration(self, scan_id: int) -> bool:
         """
@@ -685,7 +736,7 @@ class ThumbnailDelegate(QStyledItemDelegate):
         self.copyPathAct = self.contextMenu.addAction(_('Copy Path'))
         self.copyPathAct.triggered.connect(self.doCopyPathAction)
         # store the index in which the user right clicked
-        self.clickedIndex = None
+        self.clickedIndex = None  # type: QModelIndex
 
         self.color1 = QColor(CustomColors.color1.value)
         self.color2 = QColor(CustomColors.color2.value)
@@ -896,12 +947,15 @@ class ThumbnailDelegate(QStyledItemDelegate):
         return QSize(self.width + self.padding * 2, self.height
                      + self.padding * 2)
 
-    def editorEvent(self, event, model, option, index) -> bool:
-        '''
+    def editorEvent(self, event: QEvent,
+                    model: QAbstractItemModel,
+                    option: QStyleOptionViewItem,
+                    index: QModelIndex) -> bool:
+        """
         Change the data in the model and the state of the checkbox
         if the user presses the left mousebutton or presses
         Key_Space or Key_Select and this cell is editable. Otherwise do nothing.
-        '''
+        """
         # if not (index.flags() & Qt.ItemIsEditable) > 0:
         #     return False
 
@@ -911,14 +965,11 @@ class ThumbnailDelegate(QStyledItemDelegate):
             QEvent.MouseButtonDblClick):
             if event.button() == Qt.RightButton:
                 self.clickedIndex = index
-                globalPos = self.parent().thumbnailView.viewport().mapToGlobal(
-                    event.pos())
+                globalPos = self.parent().thumbnailView.viewport().mapToGlobal(event.pos())
                 self.contextMenu.popup(globalPos)
                 return False
             if event.button() != Qt.LeftButton or not self.getCheckBoxRect(
-                    option).contains(
-                    event.pos()):
-
+                    option).contains(event.pos()):
                 return False
             if event.type() == QEvent.MouseButtonDblClick:
                 return True
@@ -935,14 +986,11 @@ class ThumbnailDelegate(QStyledItemDelegate):
         self.setModelData(None, model, index)
         return True
 
-    def setModelData (self, editor, model, index) -> None:
-        '''
-        The user wanted to change the old state in the opposite.
-        '''
-        newValue = not (index.model().data(index, Qt.CheckStateRole) ==
-                        Qt.Checked)
+    def setModelData (self, editor: QWidget,
+                      model: QAbstractItemModel,
+                      index: QModelIndex) -> None:
+        newValue = not (index.model().data(index, Qt.CheckStateRole) == Qt.Checked)
         model.setData(index, newValue, Qt.CheckStateRole)
-
 
     def getLeftPoint(self, option) -> QPoint:
         return QPoint(option.rect.x() + self.horizontal_margin,

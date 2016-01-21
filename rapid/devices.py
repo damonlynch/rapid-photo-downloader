@@ -365,9 +365,7 @@ class DeviceCollection:
         for scan_id in self.devices:
             device = self.devices[scan_id]  # type: Device
             if device.path == path:
-                if device_type is None:
-                    return True
-                elif device.device_type == device_type:
+                if device_type is None or device.device_type == device_type:
                     return True
         return False
 
@@ -378,9 +376,7 @@ class DeviceCollection:
         for scan_id in self.devices:
             device = self.devices[scan_id]  # type: Device
             if device.path == path:
-                if device_type is None:
-                    return scan_id
-                elif device.device_type == device_type:
+                if device_type is None or device.device_type == device_type:
                     return scan_id
         return None
 

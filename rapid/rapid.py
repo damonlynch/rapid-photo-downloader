@@ -1007,11 +1007,11 @@ class RapidWindow(QMainWindow):
 
         path = self.fileSystemModel.filePath(index)
         if path != self.prefs.device_location:
-            logging.debug("Device location path chosen: %s", path)
             if self.prefs.device_location:
                 scan_id = self.devices.scan_id_from_path(self.prefs.device_location,
                                                          DeviceType.path)
                 if scan_id is not None:
+                    logging.debug("Removing path from device view %s", self.prefs.device_location)
                     self.removeDevice(scan_id=scan_id, stop_worker=True)
             self.prefs.device_location = path
             self.setupManualPath()
@@ -1435,6 +1435,7 @@ class RapidWindow(QMainWindow):
         this value is valid ONLY if the download is completed
         """
 
+        # TODO redo this code to account for new device view
         files_downloaded = self.download_tracker.get_download_count_for_file(unique_id)
         files_to_download = self.download_tracker.get_no_files_in_download(
                 scan_id)
@@ -2333,6 +2334,7 @@ class RapidWindow(QMainWindow):
                 self.scanmq.stop_worker(scan_id)
             if scan_id in self.copyfilesmq.workers:
                 self.copyfilesmq.stop_worker(scan_id)
+            # TODO what about stopping possible thumbnailing?
             del self.devices[scan_id]
             self.resizeDeviceView()
             self.updateSourceButton()
@@ -2594,7 +2596,7 @@ class RapidWindow(QMainWindow):
         3. backup volumes / path being used.
 
         :param update_only_marked: if True, refreshes only the number
-         of files makrked for download, not regnerating other
+         of files marked for download, not regnerating other
          components of the existing status message
         """
 
