@@ -96,7 +96,7 @@ from constants import (BackupLocationType, DeviceType, ErrorType,
 import constants
 from thumbnaildisplay import (ThumbnailView, ThumbnailListModel, ThumbnailDelegate, DownloadTypes,
                               DownloadStats, ThumbnailSortFilterProxyModel)
-from devicedisplay import (DeviceTableModel, DeviceView, DeviceDelegate)
+from devicedisplay import (DeviceModel, DeviceView, DeviceDelegate)
 from proximity import (TemporalProximityModel, TemporalProximityView,
                        TemporalProximityDelegate, TemporalProximityGroups)
 from utilities import (same_file_system, make_internationalized_list,
@@ -410,12 +410,25 @@ class RapidWindow(QMainWindow):
         self.temporalProximityView.selectionModel().selectionChanged.connect(
                                                 self.proximitySelectionChanged)
 
-        # Devices are cameras and local / external partitions
+        # Devices are cameras and external partitions
         self.devices = DeviceCollection()
         self.deviceView = DeviceView(self)
-        self.deviceModel = DeviceTableModel(self)
+        self.deviceModel = DeviceModel(self)
         self.deviceView.setModel(self.deviceModel)
         self.deviceView.setItemDelegate(DeviceDelegate(self))
+
+        # This computer is any local path
+        self.thisComputerView = DeviceView(self)
+        self.thisComputerModel = DeviceModel(self)
+        self.thisComputerView.setModel(self.thisComputerModel)
+        self.thisComputerView.setItemDelegate(DeviceDelegate(self))
+
+        self._mapModel = {DeviceType.path: self.thisComputerModel,
+                         DeviceType.camera: self.deviceModel,
+                         DeviceType.volume: self.deviceModel}
+        self._mapView = {DeviceType.path: self.thisComputerView,
+                         DeviceType.camera: self.deviceView,
+                         DeviceType.volume: self.deviceView}
 
         self.fileSystemModel = FileSystemModel(self)
         self.fileSystemView = FileSystemView(self)
@@ -438,6 +451,12 @@ class RapidWindow(QMainWindow):
         # defer full initialisation (slow operation) until gui is visible
         QtWidgets.QApplication.postEvent(
             self, QtCore.QEvent(self.do_init), QtCore.Qt.LowEventPriority - 1)
+
+    def mapModel(self, scan_id: int) -> DeviceModel:
+        return self._mapModel[self.devices[scan_id].device_type]
+
+    def mapView(self, scan_id: int) -> DeviceView:
+        return self._mapView[self.devices[scan_id].device_type]
 
     def readWindowSettings(self, app: 'QtSingleApplication'):
         settings = QSettings()
@@ -823,8 +842,14 @@ class RapidWindow(QMainWindow):
         devicePanelLayout.setContentsMargins(0, 0, 0, 0)
         self.devicePanel.setLayout(devicePanelLayout)
 
+        self.deviceLabel = QLabel(_('Devices'))
+        devicePanelLayout.addWidget(self.deviceLabel)
         devicePanelLayout.addWidget(self.deviceView)
         self.deviceView.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Fixed)
+
+        self.thisComputerLabel = QLabel(_('This Computer'))
+        devicePanelLayout.addWidget(self.thisComputerLabel)
+        devicePanelLayout.addWidget(self.thisComputerView)
         devicePanelLayout.addStretch()
         devicePanelLayout.addWidget(self.fileSystemView, 10)
 
@@ -1308,6 +1333,7 @@ class RapidWindow(QMainWindow):
                                                      total_downloaded)
         self.time_check.increment(bytes_downloaded=chunk_downloaded)
         percent_complete = self.download_tracker.get_percent_complete(scan_id)
+        # TODO update right model right way
         self.deviceModel.updateDownloadProgress(scan_id, percent_complete,
                                     None)
         self.time_remaining.update(scan_id, bytes_downloaded=chunk_downloaded)
@@ -1407,6 +1433,7 @@ class RapidWindow(QMainWindow):
                                                      chunk_downloaded)
         self.time_check.increment(bytes_downloaded=chunk_downloaded)
         percent_complete = self.download_tracker.get_percent_complete(scan_id)
+        # TODO update right model right way
         self.deviceModel.updateDownloadProgress(scan_id, percent_complete, '')
         self.time_remaining.update(scan_id, bytes_downloaded=chunk_downloaded)
 
@@ -1465,9 +1492,10 @@ class RapidWindow(QMainWindow):
                                   'total': thousands(files_to_download),
                                   'filetypes': file_types}
         percent_complete = self.download_tracker.get_percent_complete(scan_id)
-        self.deviceModel.updateDownloadProgress(scan_id=scan_id,
-                                        percent_complete=percent_complete,
-                                        progress_bar_text=progress_bar_text)
+        # TODO update right model right way
+        # self.deviceModel.updateDownloadProgress(scan_id=scan_id,
+        #                                 percent_complete=percent_complete,
+        #                                 progress_bar_text=progress_bar_text)
 
         percent_complete = self.download_tracker.get_overall_percent_complete()
         self.downloadProgressBar.setValue(round(percent_complete*100))
@@ -1859,7 +1887,7 @@ class RapidWindow(QMainWindow):
             device = self.devices[scan_id]
             device.file_type_counter = data.file_type_counter
             device.file_size_sum = data.file_size_sum
-            self.deviceModel.updateDeviceScan(scan_id)
+            self.mapModel(scan_id).updateDeviceScan(scan_id)
 
             for rpd_file in data.rpd_files:
                 self.thumbnailModel.addFile(rpd_file, generate_thumbnail=not
@@ -1909,7 +1937,7 @@ class RapidWindow(QMainWindow):
                                                 storage_space=data.storage_space)
                 self.updateSourceButton()
                 self.deviceModel.updateDeviceScan(scan_id)
-                self.resizeDeviceView()
+                self.resizeDeviceView(self.deviceView)
 
     def scanFinished(self, scan_id: int) -> None:
         if scan_id not in self.devices:
@@ -1917,7 +1945,7 @@ class RapidWindow(QMainWindow):
         device = self.devices[scan_id]
         results_summary, file_types_present  = device.file_type_counter.summarize_file_count()
         self.download_tracker.set_file_types_present(scan_id, file_types_present)
-        self.deviceModel.updateDeviceScan(scan_id)
+        self.mapModel(scan_id).updateDeviceScan(scan_id)
         self.setDownloadActionSensitivity()
 
         self.displayMessageInStatusBar(update_only_marked=True)
@@ -2091,20 +2119,21 @@ class RapidWindow(QMainWindow):
         return (iconNames, canEject)
 
     def addToDeviceDisplay(self, device: Device, scan_id: int) -> None:
-        self.deviceModel.addDevice(scan_id, device)
-        self.resizeDeviceView()
+        self.mapModel(scan_id).addDevice(scan_id, device)
+        self.resizeDeviceView(self.mapView(scan_id))
 
-    def resizeDeviceView(self) -> None:
+    def resizeDeviceView(self, view: DeviceView) -> None:
         """
         Sets the maximum height for the device view table to match the
         number of devices being displayed
         """
-        assert len(self.devices) == self.deviceModel.rowCount()
-        if len(self.devices):
-            height = self.deviceView.sizeHint().height()
-            self.deviceView.setMaximumHeight(height)
+        assert len(self.devices.volumes_and_cameras) == self.deviceModel.rowCount()
+        assert len(self.devices.this_computer) == self.thisComputerModel.rowCount()
+        if view.model().rowCount() > 0:
+            height = view.sizeHint().height()
+            view.setMaximumHeight(height)
         else:
-            self.deviceView.setMaximumHeight(130)
+            view.setMaximumHeight(20)
 
     def cameraAdded(self) -> None:
         if not self.prefs.device_autodetection:
@@ -2330,14 +2359,14 @@ class RapidWindow(QMainWindow):
                 self.prompting_for_user_action[device].reject()
             if self.thumbnailModel.clearAll(scan_id=scan_id, keep_downloaded_files=True):
                 self.generateTemporalProximityTableData()
-            self.deviceModel.removeDevice(scan_id)
+            self.mapModel(scan_id).removeDevice(scan_id)
             if scan_id in self.scanmq.workers:
                 self.scanmq.stop_worker(scan_id)
             if scan_id in self.copyfilesmq.workers:
                 self.copyfilesmq.stop_worker(scan_id)
             # TODO what about stopping possible thumbnailing?
             del self.devices[scan_id]
-            self.resizeDeviceView()
+            self.resizeDeviceView(self.mapView(scan_id))
             self.updateSourceButton()
 
     def setupNonCameraDevices(self, on_startup: bool,

@@ -253,7 +253,7 @@ class ThumbnailListModel(QAbstractListModel):
         if role == Qt.CheckStateRole:
             self.setCheckedValue(value, unique_id, rpd_file.scan_id)
             self.dataChanged.emit(self.index(row, 0), self.index(row, 0))
-            self._syncrhonizeDeviceDisplayCheckMark()
+            self.synchronizeDeviceDisplayCheckMark()
             self.rapidApp.displayMessageInStatusBar(update_only_marked=True)
             self.rapidApp.setDownloadActionSensitivity()
             return True
@@ -676,7 +676,7 @@ class ThumbnailListModel(QAbstractListModel):
         for first, last in runs(rows):
             self.dataChanged.emit(self.index(first, 0), self.index(last, 0))
 
-        self._syncrhonizeDeviceDisplayCheckMark()
+        self.synchronizeDeviceDisplayCheckMark()
         self.rapidApp.displayMessageInStatusBar(update_only_marked=True)
         self.rapidApp.setDownloadActionSensitivity()
 
@@ -698,10 +698,10 @@ class ThumbnailListModel(QAbstractListModel):
             for row in range(top.row(), bottom.row() + 1):
                 yield row
     
-    def _syncrhonizeDeviceDisplayCheckMark(self):
+    def synchronizeDeviceDisplayCheckMark(self):
         for scan_id in self.scan_index:
             can_download = self.filesAreMarkedForDownload(scan_id)
-            self.rapidApp.deviceModel.setCheckedValue(can_download, scan_id)
+            self.rapidApp.mapModel(scan_id).setCheckedValue(can_download, scan_id)
 
     def terminateThumbnailGeneration(self, scan_id: int) -> bool:
         """

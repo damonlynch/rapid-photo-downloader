@@ -24,8 +24,8 @@ import logging
 
 from gettext import gettext as _
 
-from PyQt5.QtCore import (QAbstractTableModel, QModelIndex, QSize, Qt, QPoint, QRect, QRectF,
-                          QEvent, QAbstractItemModel)
+from PyQt5.QtCore import (QModelIndex, QSize, Qt, QPoint, QRect, QRectF,
+                          QEvent, QAbstractItemModel, QAbstractListModel)
 from PyQt5.QtWidgets import (QStyledItemDelegate,QStyleOptionViewItem, QApplication, QStyle,
                              QListView, QStyleOptionButton, QAbstractItemView, QMenu, QWidget)
 from PyQt5.QtGui import (QPainter, QFontMetrics, QFont, QColor, QLinearGradient, QBrush, QPalette)
@@ -40,9 +40,9 @@ from rpdfile import make_key
 def device_view_width(standard_font_size: int) -> int:
     return standard_font_size * 12
 
-class DeviceTableModel(QAbstractTableModel):
+class DeviceModel(QAbstractListModel):
     def __init__(self, parent):
-        super(DeviceTableModel, self).__init__(parent)
+        super().__init__(parent)
         self.rapidApp = parent
         self.devices = {} # type: Dict[int, Device]
         self.state = {} # type: Dict[int, DeviceState]
@@ -87,15 +87,6 @@ class DeviceTableModel(QAbstractTableModel):
         self.removeRows(row)
 
     def updateDeviceScan(self, scan_id: int):
-        # self.texts[scan_id] = textToDisplay
-        # if size is not None:
-        #     self.sizes[scan_id] = size
-        #     column = 1
-        # else:
-        #     column = 2
-        # if scan_completed:
-        #     self.state[scan_id] = DeviceState.scanned
-
         row = self.rows.row(scan_id)
         column = 0
         self.dataChanged.emit(self.index(row, column), self.index(row, column))
@@ -103,14 +94,6 @@ class DeviceTableModel(QAbstractTableModel):
     def updateDownloadProgress(self, scan_id: int, percent_complete: float,
                                progress_bar_text: str):
         pass
-        # self.state[scan_id] = DeviceState.downloading
-        # if percent_complete:
-        #     self.progress[scan_id] = percent_complete
-        # if progress_bar_text:
-        #     self.texts[scan_id] = progress_bar_text
-        # row = self.rows.row(scan_id)
-        # column = 2
-        # self.dataChanged.emit(self.index(row, column), self.index(row, 2))
 
     def data(self, index: QModelIndex, role=Qt.DisplayRole):
 

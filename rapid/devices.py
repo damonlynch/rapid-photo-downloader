@@ -23,7 +23,7 @@ import os
 import logging
 from collections import namedtuple, Counter
 import re
-from typing import Tuple, List, Optional
+from typing import Tuple, List, Optional, Set
 
 from gettext import gettext as _
 
@@ -37,6 +37,14 @@ from rpdfile import FileTypeCounter, FileSizeSum
 from storage import StorageSpace, udev_attributes, UdevAttr
 from camera import Camera, generate_devname
 from utilities import number
+
+
+# In Rapid Photo Downloader, "Device" has two meanings, depending on
+# the context.
+# 1. In the GUI, a Device is a camera or a volume (external drive)
+# 2. In code, a Device is one of a camera, volume, or path
+
+display_devices = (DeviceType.volume, DeviceType.camera)
 
 
 class Device:
@@ -295,6 +303,10 @@ class DeviceCollection:
     True
     >>> dc[d_scan_id] == d
     True
+    >>> len(dc.volumes_and_cameras)
+    1
+    >>> len(dc.this_computer)
+    0
     >>> dc.known_path('/root', DeviceType.path)
     False
     >>> dc.known_path('/root')
@@ -304,6 +316,10 @@ class DeviceCollection:
     1
     >>> len(dc)
     2
+    >>> len(dc.volumes_and_cameras)
+    2
+    >>> len(dc.this_computer)
+    0
     >>> dc[d_scan_id] == dc[c_scan_id]
     False
     >>> dc.known_camera('Canon EOS 1D X', 'usb:001,002')
@@ -314,6 +330,10 @@ class DeviceCollection:
     True
     >>> len(dc.cameras)
     0
+    >>> len(dc.volumes_and_cameras)
+    1
+    >>> len(dc.this_computer)
+    0
     >>> dc.known_camera('Canon EOS 1D X', 'usb:001,002')
     False
     >>> len(dc)
@@ -323,6 +343,10 @@ class DeviceCollection:
     >>> del dc[d_scan_id]
     >>> len(dc)
     0
+    >>> len(dc.volumes_and_cameras)
+    0
+    >>> len(dc.this_computer)
+    0
     >>> dc.delete_device(e)
     False
     """
@@ -330,6 +354,12 @@ class DeviceCollection:
         self.devices = {} # type Dict[int, Device]
         self.cameras = {} # type Dict[str, str]
         self.scan_counter = 0
+
+        self.volumes_and_cameras = set()
+        self.this_computer = set()
+        self._map_set = {DeviceType.path: self.this_computer,
+                         DeviceType.camera: self.volumes_and_cameras,
+                         DeviceType.volume: self.volumes_and_cameras}
 
     def add_device(self, device: Device) -> int:
         scan_id = self.scan_counter
@@ -339,6 +369,10 @@ class DeviceCollection:
             port = device.camera_port
             assert port not in self.cameras
             self.cameras[port] = device.camera_model
+        if device.device_type in display_devices:
+            self.volumes_and_cameras.add(scan_id)
+        else:
+            self.this_computer.add(scan_id)
         return scan_id
 
     def known_camera(self, model: str, port: str) -> bool:
@@ -403,10 +437,14 @@ class DeviceCollection:
         for device in self.devices.values():
             device.delete_cache_dirs()
 
+    def map_set(self, device: Device) -> Set:
+        return self._map_set[device.device_type]
+
     def __delitem__(self, scan_id):
         d = self.devices[scan_id] # type: Device
         if d.device_type == DeviceType.camera:
             del self.cameras[d.camera_port]
+        self.map_set(d).remove(scan_id)
         d.delete_cache_dirs()
         del self.devices[scan_id]
 
@@ -454,16 +492,16 @@ class DeviceCollection:
                     return text, devices[0].get_icon()
                 if device_type == DeviceType.camera:
                     # Number of cameras e.g. 3 Cameras
-                    text = _('%(no_cameras)s cameras') % {'no_cameras':
+                    text = _('%(no_cameras)s Cameras') % {'no_cameras':
                                                               device_types[DeviceType.camera]}
                     return text, QIcon(':/icons/camera.svg')
                 elif device_type == DeviceType.volume:
-                    text = _('%(no_volumes)s volumes') % {'no_volumes':
+                    text = _('%(no_volumes)s Volumes') % {'no_volumes':
                                                               device_types[DeviceType.volume]}
                     return text, QIcon(':/icons/drive-removable-media.svg')
             # Mixed devices (e.g. cameras, card readers), or only external
             # volumes
-            return _('%(no_devices)s devices') % {'no_devices': text_number}, \
+            return _('%(no_devices)s Devices') % {'no_devices': text_number}, \
                    QIcon(':/icons/computer.svg')
 
 
