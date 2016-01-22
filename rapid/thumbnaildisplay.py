@@ -750,24 +750,16 @@ class ThumbnailListModel(QAbstractListModel):
 class ThumbnailView(QListView):
     def __init__(self) -> None:
         style = """
-        QListView {
-        background-color:#555555; padding-left: 4px; padding-top: 4px;
-        padding-bottom: 4px;
+        QAbstractScrollArea {
+        background-color:#555555;
         }
         """
-        # style = """
-        # QListView {
-        # background-color: black; padding-left: 4px; padding-top: 4px;
-        # padding-bottom: 4px;
-        # }
-        # """
-
-
         super().__init__()
         self.setViewMode(QListView.IconMode)
         self.setResizeMode(QListView.Adjust)
         self.setStyleSheet(style)
         self.setUniformItemSizes(True)
+        self.setSpacing(8)
 
 
 class ThumbnailDelegate(QStyledItemDelegate):
@@ -800,7 +792,7 @@ class ThumbnailDelegate(QStyledItemDelegate):
                           self.downloadedIcon.width()) + \
                       self.horizontal_margin + self.footer_padding
 
-        self.padding = 4
+        self.shadow_size = 2
         self.width = self.image_width + self.horizontal_margin * 2
         self.height = self.image_height + self.footer_padding \
                       + self.image_footer + self.vertical_margin * 2
@@ -822,6 +814,10 @@ class ThumbnailDelegate(QStyledItemDelegate):
         self.color3 = QColor(CustomColors.color3.value)
         self.color4 = QColor(CustomColors.color4.value)
         self.color5 = QColor(CustomColors.color5.value)
+
+        self.lightGray = QColor(221,221,221)
+        self.darkGray = QColor(51, 51, 51)
+
 
     def doCopyPathAction(self) -> None:
         index = self.clickedIndex
@@ -855,22 +851,20 @@ class ThumbnailDelegate(QStyledItemDelegate):
             secondary_attribute = model.data(index, Roles.secondary_attribute)
             memory_cards = model.data(index, Roles.camera_memory_card) # type: List[int]
 
-            x = option.rect.x() + self.padding
-            y = option.rect.y() + self.padding
+            x = option.rect.x()
+            y = option.rect.y()
 
             # Draw recentangle in which the individual items will be placed
             boxRect = QRect(x, y, self.width, self.height)
-            shadowRect = QRect(x + self.padding / 2, y + self.padding / 2,
+            shadowRect = QRect(x + self.shadow_size, y + self.shadow_size,
                                self.width, self.height)
 
-            lightGray = QColor(221,221,221)
-            darkGray = QColor(51, 51, 51)
             painter.setRenderHint(QPainter.Antialiasing, True)
-            painter.setPen(darkGray)
-            painter.fillRect(shadowRect, darkGray)
+            painter.setPen(self.darkGray)
+            painter.fillRect(shadowRect, self.darkGray)
             painter.drawRect(shadowRect)
             painter.setRenderHint(QPainter.Antialiasing, False)
-            painter.fillRect(boxRect, lightGray)
+            painter.fillRect(boxRect, self.lightGray)
 
             thumbnail = index.model().data(index, Qt.DecorationRole)
             if previously_downloaded and not checked:
@@ -1022,8 +1016,8 @@ class ThumbnailDelegate(QStyledItemDelegate):
             painter.restore()
 
     def sizeHint(self, option: QStyleOptionViewItem, index:  QModelIndex) -> QSize:
-        return QSize(self.width + self.padding * 2, self.height
-                     + self.padding * 2)
+        return QSize(self.width + self.shadow_size, self.height
+                     + self.shadow_size)
 
     def editorEvent(self, event: QEvent,
                     model: QAbstractItemModel,
