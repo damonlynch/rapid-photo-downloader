@@ -65,9 +65,6 @@ from utilities import GenerateRandomFileName
 from constants import ThumbnailCacheDiskStatus
 from rpdsql import CacheSQL
 
-logging.basicConfig(format='%(levelname)s:%(asctime)s:%(message)s',
-                    datefmt='%H:%M:%S',
-                    level=logging.DEBUG)
 
 GetThumbnail = namedtuple('GetThumbnail', 'disk_status, thumbnail, path')
 GetThumbnailPath = namedtuple('GetThumbnailPath', 'disk_status, path, orientation_unknown')

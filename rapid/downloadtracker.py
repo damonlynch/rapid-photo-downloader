@@ -26,9 +26,6 @@ from thumbnaildisplay import DownloadStats
 
 from gettext import gettext as _
 
-logging.basicConfig(format='%(levelname)s:%(asctime)s:%(message)s',
-                    datefmt='%H:%M:%S',
-                    level=logging.DEBUG)
 
 class DownloadTracker:
     """

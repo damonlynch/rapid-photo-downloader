@@ -59,17 +59,14 @@ from interprocess import (WorkerInPublishPullPipeline, ScanResults,
                           ScanArguments)
 from camera import Camera, CameraError
 import rpdfile
-from constants import (DeviceType, FileType, GphotoMTime, datetime_offset, CameraErrorCode)
+from constants import (DeviceType, FileType, GphotoMTime, datetime_offset, CameraErrorCode,
+                       logging_format, logging_date_format)
 from rpdsql import DownloadedSQL, FileDownloaded
 from utilities import stdchannel_redirected
 
 FileInfo = namedtuple('FileInfo', ['path', 'modification_time', 'size',
                                    'ext_lower', 'base_name', 'file_type'])
 CameraFile = namedtuple('CameraFile', 'name size')
-
-logging.basicConfig(format='%(levelname)s:%(asctime)s:%(message)s',
-                    datefmt='%H:%M:%S',
-                    level=logging.DEBUG)
 
 #FIXME free camera in case of early termination
 
@@ -83,9 +80,15 @@ class ScanWorker(WorkerInPublishPullPipeline):
         self.file_type_counter = rpdfile.FileTypeCounter()
         self.file_size_sum = rpdfile.FileSizeSum()
         self.gphoto_mtime = GphotoMTime.undetermined
-        super(ScanWorker, self).__init__('Scan')
+        super().__init__('Scan')
 
     def do_work(self) -> None:
+        logging.basicConfig(format=logging_format,
+                    datefmt=logging_date_format,
+                    level=self.logging_level)
+
+        logging.debug("Scan {} worker started".format(self.worker_id.decode()))
+
         scan_arguments = pickle.loads(self.content) # type: ScanArguments
         self.scan_preferences = scan_arguments.scan_preferences
 
@@ -484,7 +487,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
             try:
                 dt = metadata.get_date_time() # type: datetime
             except:
-                logging.error("Scanner failed to extract date time metadata from %s on %s",
+                logging.warning("Scanner failed to extract date time metadata from %s on %s",
                               name, self.camera.display_name)
                 logging.warning("Could not determine gPhoto2 timezone setting for %s",
                                 self.camera.display_name)

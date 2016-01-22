@@ -62,9 +62,6 @@ from xdg import BaseDirectory
 from constants import Desktop
 
 logging_level = logging.DEBUG
-logging.basicConfig(format='%(levelname)s:%(asctime)s:%(message)s',
-                    datefmt='%H:%M:%S',
-                    level=logging_level)
 
 try:
     from gi.repository import Gio

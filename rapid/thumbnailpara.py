@@ -2,7 +2,7 @@
 
 __author__ = 'Damon Lynch'
 
-# Copyright (C) 2011-2015 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2011-2016 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -51,7 +51,8 @@ from interprocess import (WorkerInPublishPullPipeline,
                           ThumbnailExtractorArgument)
 from constants import (FileType, ThumbnailSize, ThumbnailCacheStatus,
                        ThumbnailCacheDiskStatus, FileSortPriority, ExtractionTask,
-                       ExtractionProcessing, orientation_offset)
+                       ExtractionProcessing, orientation_offset, logging_format,
+                       logging_date_format)
 from camera import (Camera, CopyChunks)
 from cache import ThumbnailCacheSql, FdoCacheNormal, FdoCacheLarge
 from utilities import (GenerateRandomFileName, create_temp_dir, CacheDirs)
@@ -60,9 +61,6 @@ from rpdsql import FileFormatSQL
 
 # FIXME free camera in case of early termination
 
-logging.basicConfig(format='%(levelname)s:%(asctime)s:%(message)s',
-                    datefmt='%H:%M:%S',
-                    level=logging.DEBUG)
 
 def split_list(alist: list, wanted_parts=2):
     """
@@ -215,8 +213,13 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
             return False
 
     def do_work(self) -> None:
+        logging.basicConfig(format=logging_format,
+                    datefmt=logging_date_format,
+                    level=self.logging_level)
+
         arguments = pickle.loads(self.content) # type: GenerateThumbnailsArguments
-        logging.debug("Generating thumbnails for %s", arguments.name)
+        logging.debug("Worker %s generating thumbnails for %s", self.worker_id.decode(),
+                      arguments.name)
 
         self.frontend = self.context.socket(zmq.PUSH)
         self.frontend.connect("tcp://localhost:{}".format(arguments.frontend_port))

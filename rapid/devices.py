@@ -37,10 +37,6 @@ from rpdfile import FileTypeCounter, FileSizeSum
 from storage import StorageSpace, udev_attributes, UdevAttr
 from camera import Camera, generate_devname
 
-logging.basicConfig(format='%(levelname)s:%(asctime)s:%(message)s',
-                    datefmt='%H:%M:%S',
-                    level=logging.DEBUG)
-
 
 class Device:
     r"""

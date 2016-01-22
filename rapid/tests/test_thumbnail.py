@@ -21,7 +21,7 @@ __author__ = 'Damon Lynch'
 
 import sys
 import os
-import shutil
+import logging
 import pickle
 import tempfile
 import argparse
@@ -44,7 +44,7 @@ from cache import ThumbnailCache
 class TestThumbnailManager(ThumbnailManager):
     message = pyqtSignal(RPDFile, QPixmap)
     def __init__(self, context: zmq.Context, profile: bool):
-        super().__init__(context)
+        super().__init__(context, logging.DEBUG)
         self._profile = profile
 
     def _get_cmd(self) -> str:

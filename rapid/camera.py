@@ -35,10 +35,6 @@ from storage import StorageSpace
 from constants import CameraErrorCode
 
 
-logging.basicConfig(format='%(levelname)s:%(asctime)s:%(message)s',
-                    datefmt='%H:%M:%S',
-                    level=logging.DEBUG)
-
 def python_gphoto2_version():
     return  gp.__version__
 

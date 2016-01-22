@@ -49,11 +49,21 @@ from storage import StorageSpace
 from viewutils import SortedListItem
 
 
-logging_level = logging.DEBUG
-logging.basicConfig(format='%(levelname)s:%(asctime)s:%(message)s',
-                    datefmt='%H:%M:%S',
-                    level=logging_level)
+def get_logging_level(level: str) -> int:
+    """
+    Convert command line version of logging level to int.
 
+    Primary purpose is to catch exceptions, as conceivably the
+    command line could contain anything.
+
+    :param level: logging level directly from command line arg
+    :return: int of level, else on failure logging.DEBUG
+    """
+
+    try:
+        return int(level)
+    except ValueError:
+        return logging.DEBUG
 
 def make_filter_from_worker_id(worker_id) -> bytes:
     r"""
@@ -86,11 +96,12 @@ def create_identity(worker_type: str, identity: str) -> bytes:
     return '{}-{}'.format('-'.join(worker_type.split()), '-'.join(identity.split())).encode()
 
 class ProcessManager:
-    def __init__(self) -> None:
+    def __init__(self, logging_level: int) -> None:
         super().__init__()
 
         self.processes = {}
         self._process_to_run = '' # Implement in subclass
+        self.logging_level = logging_level
 
         # Monitor which workers we have running
         self.workers = []  # type: List[int]
@@ -178,8 +189,9 @@ class PullPipelineManager(ProcessManager, QObject):
 
     message = pyqtSignal(str) # Derived class will change this
     workerFinished = pyqtSignal(int)
-    def __init__(self, context: zmq.Context):
-        super().__init__()
+
+    def __init__(self, context: zmq.Context, logging_level: int):
+        super().__init__(logging_level)
 
         # Subclasses must define the type of port they need to send messages
         self.ventilator_socket = None
@@ -264,8 +276,9 @@ class PullPipelineManager(ProcessManager, QObject):
 
 
 class LoadBalancerWorkerManager(ProcessManager):
-    def __init__(self, no_workers: int, backend_port: int, sink_port: int) -> None:
-        super().__init__()
+    def __init__(self, no_workers: int, backend_port: int, sink_port: int,
+                 logging_level: int) -> None:
+        super().__init__(logging_level)
         self.no_workers = no_workers
         self.backend_port = backend_port
         self.sink_port = sink_port
@@ -278,7 +291,7 @@ class LoadBalancerWorkerManager(ProcessManager):
                         self.backend_port,
                         self.sink_port,
                         worker_id,
-                        logging_level)
+                        self.logging_level)
 
     def start_workers(self) -> None:
         for worker_id in range(self.no_workers):
@@ -348,7 +361,6 @@ class LRUQueue:
 
 class LoadBalancer:
     def __init__(self, worker_type: str, process_manager) -> None:
-        logging.debug("{} worker started".format(worker_type))
 
         self.parser = argparse.ArgumentParser()
         self.parser.add_argument("--receive", required=True)
@@ -358,6 +370,8 @@ class LoadBalancer:
 
         args = self.parser.parse_args()
         self.controller_port = args.controller
+
+        logging_level = get_logging_level(args.logginglevel)
 
         context = zmq.Context()
         frontend = context.socket(zmq.PULL)
@@ -380,7 +394,7 @@ class LoadBalancer:
         logging.debug("...{} worker will use {} workers".format(worker_type, no_workers))
         reply.send(str(frontend_port).encode())
 
-        self.process_manager = process_manager(no_workers, backend_port, sink_port)
+        self.process_manager = process_manager(no_workers, backend_port, sink_port, logging_level)
         self.process_manager.start_workers()
 
         # create queue with the sockets
@@ -398,8 +412,11 @@ class LoadBalancer:
 
 class LoadBalancerManager(ProcessManager, QObject):
     load_balancer_started = pyqtSignal(int)
-    def __init__(self, context: zmq.Context, no_workers: int, sink_port: int):
-        super().__init__()
+    def __init__(self, context: zmq.Context,
+                 no_workers: int,
+                 sink_port: int,
+                 logging_level: int):
+        super().__init__(logging_level)
 
         self.controller_socket = context.socket(zmq.PUSH)
         self.controller_port = self.controller_socket.bind_to_random_port('tcp://*')
@@ -428,7 +445,7 @@ class LoadBalancerManager(ProcessManager, QObject):
                         self.requester_port,
                         self.sink_port,
                         self.controller_port,
-                        logging_level)
+                        self.logging_level)
 
 DAEMON_WORKER_ID = 0
 
@@ -443,8 +460,8 @@ class PushPullDaemonManager(PullPipelineManager):
     suitable for sending the data.
     """
 
-    def __init__(self, context: zmq.Context) -> None:
-        super().__init__(context)
+    def __init__(self, context: zmq.Context, logging_level: int) -> None:
+        super().__init__(context, logging_level)
 
         # Ventilator socket to send message to worker
         self.ventilator_socket = context.socket(zmq.PUSH)
@@ -477,7 +494,7 @@ class PushPullDaemonManager(PullPipelineManager):
                         cmd,
                         self.ventilator_port,
                         self.receiver_port,
-                        logging_level)
+                        self.logging_level)
 
     def _get_ventilator_start_message(self, worker_id: int) -> str:
         return [b'cmd', b'START']
@@ -494,8 +511,8 @@ class PublishPullPipelineManager(PullPipelineManager):
     Because there are multiple worker process, a Publish-Subscribe model is
     most suitable for sending data to workers.
     """
-    def __init__(self, context: zmq.Context) -> None:
-        super().__init__(context)
+    def __init__(self, context: zmq.Context, logging_level: int) -> None:
+        super().__init__(context, logging_level)
 
         # Ventilator socket to send messages to workers on
         self.ventilator_socket = context.socket(zmq.PUB)
@@ -579,7 +596,7 @@ class PublishPullPipelineManager(PullPipelineManager):
                         self.controller_port,
                         self.sync_service_port,
                         worker_id,
-                        logging_level)
+                        self.logging_level)
 
     def __len__(self) -> int:
         return len(self.workers)
@@ -605,7 +622,6 @@ class PublishPullPipelineManager(PullPipelineManager):
 class WorkerProcess():
     def __init__(self, worker_type: str) -> None:
         super().__init__()
-        logging.debug("{} worker started".format(worker_type))
         self.parser = argparse.ArgumentParser()
         self.parser.add_argument("--receive", required=True)
         self.parser.add_argument("--send", required=True)
@@ -661,6 +677,8 @@ class DaemonProcess(WorkerProcess):
 
         args = self.parser.parse_args()
 
+        self.logging_level = get_logging_level(args.logginglevel)
+
         context = zmq.Context()
         # Socket to send messages along the pipe to
         self.sender = context.socket(zmq.PUSH)
@@ -698,6 +716,8 @@ class WorkerInPublishPullPipeline(WorkerProcess):
         self.add_args()
 
         args = self.parser.parse_args()
+        self.logging_level = get_logging_level(args.logginglevel)
+
         subscription_filter = self.worker_id = args.filter.encode()
         self.context = zmq.Context()
 
@@ -777,7 +797,6 @@ class WorkerInPublishPullPipeline(WorkerProcess):
 class LoadBalancerWorker:
     def __init__(self, worker_type: str) -> None:
         super().__init__()
-        logging.debug("{} worker started".format(worker_type))
         self.parser = argparse.ArgumentParser()
         self.parser.add_argument("--request", required=True)
         self.parser.add_argument("--send", required=True)
@@ -785,6 +804,8 @@ class LoadBalancerWorker:
         self.parser.add_argument("--logginglevel", required=True)
 
         args = self.parser.parse_args()
+
+        self.logging_level = get_logging_level(args.logginglevel)
 
         self.context = zmq.Context()
 
@@ -1049,6 +1070,3 @@ class ThumbnailExtractorArgument:
         self.exif_buffer = exif_buffer
         self.thumbnail_bytes = thumbnail_bytes
         self.use_thumbnail_cache = use_thumbnail_cache
-
-
-

@@ -36,10 +36,6 @@ from gettext import gettext as _
 import psutil
 
 
-logging.basicConfig(format='%(levelname)s:%(asctime)s:%(message)s',
-                    datefmt='%H:%M:%S',
-                    level=logging.DEBUG)
-
 def available_cpu_count(physical_only=False) -> int:
     """
     Determine the number of CPUs available.
@@ -129,15 +125,14 @@ def stdchannel_redirected(stdchannel, dest_filename):
     with stdchannel_redirected(sys.stderr, os.devnull):
        do_work()
 
-    Source: http://marc-abramowitz.com/archives/2013/07/19/
-    python-context-manager-for-redirected-stdout-and-stderr/
+    Source:
+    http://marc-abramowitz.com/archives/2013/07/19/python-context-manager-for-redirected-stdout-and-stderr/
     """
     oldstdchannel = dest_file = None
     try:
         oldstdchannel = os.dup(stdchannel.fileno())
         dest_file = open(dest_filename, 'w')
         os.dup2(dest_file.fileno(), stdchannel.fileno())
-
         yield
     finally:
         if oldstdchannel is not None:

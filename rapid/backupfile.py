@@ -35,7 +35,7 @@ from gettext import gettext as _
 from interprocess import (BackupFileData, BackupResults, BackupArguments,
                           WorkerInPublishPullPipeline)
 from copyfiles import FileCopy
-from constants import FileType, DownloadStatus
+from constants import (FileType, DownloadStatus, logging_format, logging_date_format)
 from rpdfile import RPDFile
 from cache import FdoCacheNormal, FdoCacheLarge
 
@@ -136,6 +136,10 @@ class BackupFilesWorker(WorkerInPublishPullPipeline, FileCopy):
                 modification_time=mtime)
 
     def do_work(self):
+        logging.basicConfig(format=logging_format,
+                datefmt=logging_date_format,
+                level=self.logging_level)
+
         backup_arguments = pickle.loads(self.content)
         self.path = backup_arguments.path
         self.device_name = backup_arguments.device_name

@@ -35,10 +35,6 @@ from generatenameconfig import *
 
 from gettext import gettext as _
 
-logging_level = logging.DEBUG
-logging.basicConfig(format='%(levelname)s:%(asctime)s:%(message)s',
-                    datefmt='%H:%M:%S',
-                    level=logging_level)
 
 MatchedSequences = namedtuple('MatchedSequences', 'session_sequence_no, '
                                                     'sequence_letter, '

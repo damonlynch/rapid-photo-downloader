@@ -24,8 +24,11 @@ from interprocess import LoadBalancerWorkerManager, LoadBalancer
 
 
 class ThumbnailLoadBalancerWorkerManager(LoadBalancerWorkerManager):
-    def __init__(self, no_workers: int, backend_port: int, sink_port: int):
-        super().__init__(no_workers, backend_port, sink_port)
+    def __init__(self, no_workers: int,
+                 backend_port: int,
+                 sink_port: int,
+                 logging_level: int) -> None:
+        super().__init__(no_workers, backend_port, sink_port, logging_level)
         self._process_name = 'Thumbnail Load Balancer Manager'
         self._process_to_run = 'thumbnailextractor.py'
 

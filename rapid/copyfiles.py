@@ -34,16 +34,12 @@ from camera import (Camera, CopyChunks)
 
 from interprocess import (WorkerInPublishPullPipeline, CopyFilesArguments,
                           CopyFilesResults)
-from constants import FileType, DownloadStatus
+from constants import (FileType, DownloadStatus, logging_format, logging_date_format)
 from utilities import (GenerateRandomFileName, create_temp_dirs)
 from rpdfile import RPDFile
 from storage import gvfs_controls_mounts, have_gio, GVolumeMonitor, ValidMounts
 
 from gettext import gettext as _
-
-logging.basicConfig(format='%(levelname)s:%(asctime)s:%(message)s',
-                    datefmt='%H:%M:%S',
-                    level=logging.DEBUG)
 
 
 def copy_file_metadata(src, dst):
@@ -250,8 +246,11 @@ class CopyFilesWorker(WorkerInPublishPullPipeline, FileCopy):
         return temp_full_name
 
     def do_work(self):
-        args = pickle.loads(self.content)
-        """:type : CopyFilesArguments"""
+        logging.basicConfig(format=logging_format,
+                datefmt=logging_date_format,
+                level=self.logging_level)
+
+        args = pickle.loads(self.content)  # type: CopyFilesArguments
 
         self.scan_id = args.scan_id
         self.verify_file = args.verify_file

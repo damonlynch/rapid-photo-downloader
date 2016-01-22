@@ -43,7 +43,7 @@ import generatename as gn
 import problemnotification as pn
 from preferences import DownloadsTodayTracker, Preferences
 from constants import (ConflictResolution, FileType, DownloadStatus, ThumbnailCacheStatus,
-                       ThumbnailSize, RenameAndMoveStatus)
+                       ThumbnailSize, RenameAndMoveStatus, logging_format, logging_date_format)
 from interprocess import (RenameAndMoveFileData,
                           RenameAndMoveFileResults, DaemonProcess)
 from rpdfile import RPDFile
@@ -51,10 +51,6 @@ from cache import FdoCacheNormal, FdoCacheLarge, ThumbnailCache
 from rpdsql import DownloadedSQL
 
 from gettext import gettext as _
-
-logging.basicConfig(format='%(levelname)s:%(asctime)s:%(message)s',
-                    datefmt='%H:%M:%S',
-                    level=logging.DEBUG)
 
 
 class SyncRawJpegStatus(Enum):
@@ -173,6 +169,10 @@ def generate_name(rpd_file: RPDFile, et_process):
 class RenameMoveFileWorker(DaemonProcess):
     def __init__(self):
         super().__init__('Rename and Move')
+
+        logging.basicConfig(format=logging_format,
+                    datefmt=logging_date_format,
+                    level=self.logging_level)
 
         self.prefs = Preferences()
 

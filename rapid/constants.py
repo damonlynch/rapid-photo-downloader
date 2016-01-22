@@ -26,14 +26,20 @@ version = '0.9.0~a1'
 
 PROGRAM_NAME = "Rapid Photo Downloader"
 
+logging_format = '%(asctime)s %(levelname)s: %(message)s'
+logging_date_format = '%H:%M:%S'
+
+
 class ConflictResolution(IntEnum):
     skip = 1
     add_identifier = 2
+
 
 class ErrorType(Enum):
     critical_error = 1
     serious_error = 2
     warning= 3
+
 
 class DownloadStatus(Enum):
     # going to try to download it
@@ -51,6 +57,7 @@ class DownloadStatus(Enum):
     download_and_backup_failed = 6
     # tried to download but failed
     download_failed = 7
+
 
 Downloaded = (DownloadStatus.downloaded,
               DownloadStatus.downloaded_with_warning,

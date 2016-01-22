@@ -33,8 +33,8 @@ from utilities import CacheDirs
 class ThumbnailManagerPara(PublishPullPipelineManager):
     message = pyqtSignal(RPDFile, QPixmap)
     cacheDirs = pyqtSignal(int, CacheDirs)
-    def __init__(self, context: zmq.Context) -> None:
-        super().__init__(context)
+    def __init__(self, context: zmq.Context, logging_level: int) -> None:
+        super().__init__(context, logging_level)
         self._process_name = 'Thumbnail Manager'
         self._process_to_run = 'thumbnailpara.py'
         self._worker_id = 0
@@ -56,8 +56,11 @@ class ThumbnailManagerPara(PublishPullPipelineManager):
             self.cacheDirs.emit(data.scan_id, data.cache_dirs)
 
 class ThumbnailLoadBalancerManager(LoadBalancerManager):
-    def __init__(self, context: zmq.Context, no_workers: int, sink_port: int) -> None:
-        super().__init__(context, no_workers, sink_port)
+    def __init__(self, context: zmq.Context,
+                 no_workers: int,
+                 sink_port: int,
+                 logging_level: int) -> None:
+        super().__init__(context, no_workers, sink_port, logging_level)
         self._process_name = 'Thumbnail Load Balancer Manager'
         self._process_to_run = 'thumbloadbalancer.py'
 
@@ -76,13 +79,14 @@ class Thumbnailer(QObject):
     ready = pyqtSignal()
     # See also the thumbnailReceived and cacheDirs signal below
 
-    def __init__(self, parent, no_workers: int) -> None:
+    def __init__(self, parent, no_workers: int, logging_level: int) -> None:
         """
         :param parent: Qt parent window
         :param no_workers: how many thumbnail extractor processes to
          use
         """
         super().__init__(parent)
+        self.logging_level = logging_level
         self.context = zmq.Context.instance()
         self.setupThumbnailManager()
         self.setupLoadBalancer(no_workers)
@@ -125,7 +129,7 @@ class Thumbnailer(QObject):
 
     def setupThumbnailManager(self) -> None:
         self.thumbnail_manager_thread = QThread()
-        self.thumbnail_manager = ThumbnailManagerPara(self.context)
+        self.thumbnail_manager = ThumbnailManagerPara(self.context, self.logging_level)
         self.thumbnail_manager_sink_port = self.thumbnail_manager.receiver_port
         self.thumbnail_manager.moveToThread(self.thumbnail_manager_thread)
         self.thumbnail_manager_thread.started.connect(self.thumbnail_manager.run_sink)
@@ -135,7 +139,7 @@ class Thumbnailer(QObject):
     def setupLoadBalancer(self, no_workers: int) -> None:
         self.load_balancer_thread =  QThread()
         self.load_balancer = ThumbnailLoadBalancerManager(self.context, no_workers,
-                                                          self.thumbnail_manager_sink_port)
+                          self.thumbnail_manager_sink_port, self.logging_level)
         self.load_balancer.moveToThread(self.load_balancer_thread)
         self.load_balancer_thread.started.connect(self.load_balancer.start_load_balancer)
 

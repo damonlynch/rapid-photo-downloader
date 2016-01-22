@@ -28,6 +28,7 @@ Project line length: 100 characters (i.e. word wrap at 99)
 """
 import sys
 import logging
+
 import shutil
 import datetime
 import locale
@@ -64,8 +65,6 @@ from PyQt5.QtWidgets import (QAction, QApplication, QMainWindow, QMenu,
                              QComboBox, QGridLayout, QCheckBox, QSizePolicy,
                              QMessageBox, QDesktopWidget, QAbstractItemView, QSplashScreen)
 from PyQt5.QtNetwork import QLocalSocket, QLocalServer
-
-from expander import QExpander
 
 import qrc_resources
 
@@ -112,13 +111,9 @@ from metadatavideo import EXIFTOOL_VERSION
 from camera import gphoto2_version, python_gphoto2_version
 from rpdsql import DownloadedSQL
 from generatenameconfig import *
-from expander import QExpander
 from rotatedpushbutton import RotatedButton
 from toppushbutton import TopPushButton
 from filebrowse import FileSystemView, FileSystemModel
-
-logging_level = logging.DEBUG
-logging.basicConfig(format='%(asctime)s %(message)s', level=logging_level)
 
 BackupMissing = namedtuple('BackupMissing', 'photo, video')
 
@@ -126,8 +121,8 @@ BackupMissing = namedtuple('BackupMissing', 'photo, video')
 class RenameMoveFileManager(PushPullDaemonManager):
     message = QtCore.pyqtSignal(bool, RPDFile, int, QPixmap)
     sequencesUpdate = QtCore.pyqtSignal(int, list)
-    def __init__(self, context: zmq.Context):
-        super().__init__(context)
+    def __init__(self, context: zmq.Context, logging_level: int):
+        super().__init__(context, logging_level)
         self._process_name = 'Rename and Move File Manager'
         self._process_to_run = 'renameandmovefile.py'
 
@@ -154,8 +149,8 @@ class RenameMoveFileManager(PushPullDaemonManager):
 
 class OffloadManager(PushPullDaemonManager):
     message = QtCore.pyqtSignal(TemporalProximityGroups)
-    def __init__(self, context: zmq.Context):
-        super().__init__(context)
+    def __init__(self, context: zmq.Context, logging_level: int):
+        super().__init__(context, logging_level)
         self._process_name = 'Offload Manager'
         self._process_to_run = 'offload.py'
 
@@ -170,8 +165,8 @@ class OffloadManager(PushPullDaemonManager):
 
 class ScanManager(PublishPullPipelineManager):
     message = QtCore.pyqtSignal(bytes)
-    def __init__(self, context: zmq.Context):
-        super().__init__(context)
+    def __init__(self, context: zmq.Context, logging_level: int):
+        super().__init__(context, logging_level)
         self._process_name = 'Scan Manager'
         self._process_to_run = 'scan.py'
 
@@ -191,21 +186,22 @@ class BackupManager(PublishPullPipelineManager):
     """
     message = QtCore.pyqtSignal(int, bool, bool, RPDFile)
     bytesBackedUp = QtCore.pyqtSignal(bytes)
-    def __init__(self, context: zmq.Context):
-        super().__init__(context)
+
+    def __init__(self, context: zmq.Context, logging_level: int) -> None:
+        super().__init__(context, logging_level)
         self._process_name = 'Backup Manager'
         self._process_to_run = 'backupfile.py'
 
-    def add_device(self, device_id: int, backup_arguments: BackupArguments):
+    def add_device(self, device_id: int, backup_arguments: BackupArguments) -> None:
         self.start_worker(device_id, backup_arguments)
 
-    def remove_device(self, device_id: int):
+    def remove_device(self, device_id: int) -> None:
         self.stop_worker(device_id)
 
-    def backup_file(self, data: BackupFileData, device_id: int):
+    def backup_file(self, data: BackupFileData, device_id: int) -> None:
         self.send_message_to_worker(data, device_id)
 
-    def process_sink_data(self):
+    def process_sink_data(self) -> None:
         data = pickle.loads(self.content) # type: BackupResults
         if data.total_downloaded is not None:
             assert data.scan_id is not None
@@ -227,12 +223,13 @@ class CopyFilesManager(PublishPullPipelineManager):
     message = QtCore.pyqtSignal(bool, RPDFile, int)
     tempDirs = QtCore.pyqtSignal(int, str,str)
     bytesDownloaded = QtCore.pyqtSignal(bytes)
-    def __init__(self, context: zmq.Context):
-        super(CopyFilesManager, self).__init__(context)
+
+    def __init__(self, context: zmq.Context, logging_level: int) -> None:
+        super().__init__(context, logging_level)
         self._process_name = 'Copy Files Manager'
         self._process_to_run = 'copyfiles.py'
 
-    def process_sink_data(self):
+    def process_sink_data(self) -> None:
         data = pickle.loads(self.content) # type: CopyFilesResults
         if data.total_downloaded is not None:
             assert data.scan_id is not None
@@ -353,7 +350,10 @@ class RapidWindow(QMainWindow):
         self.application_state = ApplicationState.normal
         self.prompting_for_user_action = {}  # type: Dict[Device, QMessageBox]
 
-        logging.debug('Software versions: %s', get_versions('; '))
+        logging.info('Rapid Photo Downloader: %s', human_readable_version(constants.version))
+        logging.info('Platform: %s', platform.platform())
+        for version in get_versions():
+            logging.info('%s', version)
 
         self.context = zmq.Context()
 
@@ -395,7 +395,8 @@ class RapidWindow(QMainWindow):
         app.processEvents()
 
         self.thumbnailView = ThumbnailView()
-        self.thumbnailModel = ThumbnailListModel(parent=self, benchmark=benchmark)
+        self.thumbnailModel = ThumbnailListModel(parent=self, benchmark=benchmark,
+                                                 logging_level=logging_level)
         self.thumbnailProxyModel = ThumbnailSortFilterProxyModel(self)
         self.thumbnailProxyModel.setSourceModel(self.thumbnailModel)
         self.thumbnailView.setModel(self.thumbnailProxyModel)
@@ -606,7 +607,7 @@ class RapidWindow(QMainWindow):
         self.time_check = downloadtracker.TimeCheck()
 
         self.offloadThread = QThread()
-        self.offloadmq = OffloadManager(self.context)
+        self.offloadmq = OffloadManager(self.context, logging_level)
         self.offloadmq.moveToThread(self.offloadThread)
 
         self.offloadThread.started.connect(self.offloadmq.run_sink)
@@ -616,7 +617,7 @@ class RapidWindow(QMainWindow):
         self.offloadmq.start()
 
         self.renameThread = QThread()
-        self.renamemq = RenameMoveFileManager(self.context)
+        self.renamemq = RenameMoveFileManager(self.context, logging_level)
         self.renamemq.moveToThread(self.renameThread)
 
         self.renameThread.started.connect(self.renamemq.run_sink)
@@ -631,7 +632,7 @@ class RapidWindow(QMainWindow):
 
         # Setup the scan processes
         self.scanThread = QThread()
-        self.scanmq = ScanManager(self.context)
+        self.scanmq = ScanManager(self.context, logging_level)
         self.scanmq.moveToThread(self.scanThread)
 
         self.scanThread.started.connect(self.scanmq.run_sink)
@@ -643,7 +644,7 @@ class RapidWindow(QMainWindow):
 
         # Setup the copyfiles process
         self.copyfilesThread = QThread()
-        self.copyfilesmq = CopyFilesManager(self.context)
+        self.copyfilesmq = CopyFilesManager(self.context, logging_level)
         self.copyfilesmq.moveToThread(self.copyfilesThread)
 
         self.copyfilesThread.started.connect(self.copyfilesmq.run_sink)
@@ -688,7 +689,7 @@ class RapidWindow(QMainWindow):
     def startBackupManager(self):
         if not self.backup_manager_started:
             self.backupThread = QThread()
-            self.backupmq = BackupManager(self.context)
+            self.backupmq = BackupManager(self.context, logging_level)
             self.backupmq.moveToThread(self.backupThread)
 
             self.backupThread.started.connect(self.backupmq.run_sink)
@@ -2809,11 +2810,8 @@ class QtSingleApplication(QApplication):
             self.messageReceived.emit(msg)
 
 
-def get_versions(seperator='\n') -> str:
+def get_versions() -> List[str]:
     versions = [
-        'Rapid Photo Downloader: {}'.format(human_readable_version(
-            constants.version)),
-        'Platform: {}'.format(platform.platform()),
         'Python: {}'.format(platform.python_version()),
         'Qt: {}'.format(QtCore.QT_VERSION_STR),
         'PyQt: {}'.format(QtCore.PYQT_VERSION_STR),
@@ -2826,7 +2824,7 @@ def get_versions(seperator='\n') -> str:
     v = exiv2_version()
     if v:
         versions.append('Exiv2: {}'.format(v))
-    return seperator.join(versions)
+    return versions
 
 def darkFusion(app: QApplication):
     app.setStyle("Fusion")
@@ -2878,6 +2876,10 @@ if __name__ == "__main__":
          dest="extensions",
          help=_("list photo and video file extensions the program recognizes "
                 "and exit"))
+    parser.add_argument("--debug", action="store_true", dest="debug",
+         help=_("display debugging information when run from the command line"))
+    parser.add_argument("-v", "--verbose",  action="store_true", dest="verbose",
+         help=_("display program information when run from the command line"))
     parser.add_argument("--ignore-other-photo-file-types", action="store_true",
                         dest="ignore_other", help=_('ignore photos with the '
                                                     'following extensions: '
@@ -2915,6 +2917,19 @@ if __name__ == "__main__":
         print(_("Error: specify device auto-detection or specify a "
             "device's path from which to download, but do not do both."))
         sys.exit(1)
+
+    global logging_level
+
+    if args.debug:
+        logging_level = logging.DEBUG
+    elif args.verbose:
+        logging_level = logging.INFO
+    else:
+        logging_level = logging.ERROR
+
+    logging.basicConfig(format=constants.logging_format,
+                    datefmt=constants.logging_date_format,
+                    level=logging_level)
 
     if args.auto_detect:
         auto_detect=True

@@ -25,10 +25,7 @@ import logging
 from interprocess import DaemonProcess, OffloadData, OffloadResults
 from proximity import TemporalProximityGroups
 from viewutils import SortedListItem
-
-logging.basicConfig(format='%(levelname)s:%(asctime)s:%(message)s',
-                    datefmt='%H:%M:%S',
-                    level=logging.DEBUG)
+from constants import (logging_format, logging_date_format)
 
 
 class OffloadWorker(DaemonProcess):
@@ -36,6 +33,9 @@ class OffloadWorker(DaemonProcess):
         super().__init__('Offload')
 
     def run(self) -> None:
+        logging.basicConfig(format=logging_format,
+                    datefmt=logging_date_format,
+                    level=self.logging_level)
         while True:
             directive, content = self.receiver.recv_multipart()
 
