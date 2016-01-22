@@ -31,6 +31,8 @@ import logging
 import locale
 import contextlib
 from itertools import groupby
+from typing import Optional, List
+
 from gettext import gettext as _
 
 import psutil
@@ -222,7 +224,8 @@ def divide_list(source: list, no_pieces: int) -> list:
         result.append(source_slice)
     return result
 
-def divide_list_on_length(source: list, length: int) -> list:
+def divide_list_on_length(source: List, length: int) -> List:
+
     r"""
     Break a list into lists no longer than length.
 
@@ -233,6 +236,7 @@ def divide_list_on_length(source: list, length: int) -> list:
     >>> divide_list_on_length(l, 3)
     [[0, 1, 2], [3, 4, 5], [6, 7, 8], [9, 10, 11]]
     """
+
     return [source[i:i+length] for i in range(0, len(source), length)]
 
 def addPushButtonLabelSpacer(s: str) -> str:
@@ -382,9 +386,11 @@ class AdjacentKey:
     [[0, 1, 2, 3], [5, 6, 7], [10, 11], [13], [16]]
     """
     __slots__ = ['obj']
-    def __init__(self, obj):
+
+    def __init__(self, obj) -> None:
         self.obj = obj
-    def __eq__(self, other):
+
+    def __eq__(self, other) -> bool:
         ret = self.obj - 1 <= other.obj <= self.obj + 1
         if ret:
             self.obj = other.obj
@@ -408,3 +414,59 @@ def runs(iterable):
 
     for k, g in groupby(iterable, AdjacentKey):
         yield first_and_last(g)
+
+numbers = namedtuple('numbers', 'number, plural')
+
+long_numbers = {
+    1: _('one'),
+    2: _('two'),
+    3: _('three'),
+    4: _('four'),
+    5: _('five'),
+    6: _('six'),
+    7: _('seven'),
+    8: _('eight'),
+    9: _('nine'),
+    10: _('ten'),
+    11: _('eleven'),
+    12: _('twelve'),
+    13: _('thirteen'),
+    14: _('fourteen'),
+    15: _('fifteen'),
+    16: _('sixteen'),
+    17: _('seventeen'),
+    18: _('eighteen'),
+    19: _('ninenteen'),
+    20: _('twenty')
+}
+
+def number(value: int) -> Optional[numbers]:
+    r"""
+    Convert integer to written form, e.g. one, two, etc.
+
+    >>> number(1)
+    numbers(number='one', plural=False)
+    >>> number(2)
+    numbers(number='two', plural=True)
+    >>> number(0.5)
+    >>> number(10)
+    numbers(number='ten', plural=True)
+    >>> number(20)
+    numbers(number='twenty', plural=True)
+    >>> number(21)
+    >>>
+
+    :param value: int between 1 and 20
+    :return: tuple of str and whether it is plural
+    """
+
+    try:
+        plural = value > 1
+    except TypeError:
+        return None
+
+    text = long_numbers.get(value)
+    if text is not None:
+        return numbers(text, plural)
+    else:
+        return None

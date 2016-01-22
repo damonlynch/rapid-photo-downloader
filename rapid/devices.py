@@ -36,6 +36,7 @@ from constants import (DeviceType, BackupLocationType, FileType)
 from rpdfile import FileTypeCounter, FileSizeSum
 from storage import StorageSpace, udev_attributes, UdevAttr
 from camera import Camera, generate_devname
+from utilities import number
 
 
 class Device:
@@ -436,6 +437,11 @@ class DeviceCollection:
         else:
             device_types = Counter(d.device_type for d in self.devices.values())
             mtp_devices = [d for d in self.devices.values() if d.is_mtp_device]
+            n = number(len(self))
+            if n is None:
+                text_number = len(self)
+            else:
+                text_number = n.number.capitalize()
             assert len(device_types)
             if len(device_types) == 1:
                 device_type = list(device_types)[0]
@@ -448,16 +454,16 @@ class DeviceCollection:
                     return text, devices[0].get_icon()
                 if device_type == DeviceType.camera:
                     # Number of cameras e.g. 3 Cameras
-                    text = _('%(no_cameras)s Cameras') % {'no_cameras':
+                    text = _('%(no_cameras)s cameras') % {'no_cameras':
                                                               device_types[DeviceType.camera]}
                     return text, QIcon(':/icons/camera.svg')
                 elif device_type == DeviceType.volume:
-                    text = _('%(no_volumes)s Volumes') % {'no_volumes':
+                    text = _('%(no_volumes)s volumes') % {'no_volumes':
                                                               device_types[DeviceType.volume]}
                     return text, QIcon(':/icons/drive-removable-media.svg')
             # Mixed devices (e.g. cameras, card readers), or only external
             # volumes
-            return _('%(no_devices)s Devices') % {'no_devices': len(self)}, \
+            return _('%(no_devices)s devices') % {'no_devices': text_number}, \
                    QIcon(':/icons/computer.svg')
 
 

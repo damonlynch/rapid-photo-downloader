@@ -20,6 +20,7 @@ __author__ = 'Damon Lynch'
 
 from typing import List, Dict
 
+
 class RowTracker:
     r"""
     Simple class to map model rows to ids and vice versa, used in
