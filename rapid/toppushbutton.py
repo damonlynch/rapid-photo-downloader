@@ -30,7 +30,8 @@ class TopPushButton(QPushButton, FlatButton):
         self.setCheckable(True)
         self.setSizePolicy(QSizePolicy.Maximum, QSizePolicy.Maximum)
         self.setFlat(True)
-        self.setFlatStyle(self, darker_if_checked=False)
+        padding = 'padding-left: 8px; padding-right: 8px; padding-top: 5px; padding-bottom: 5px;'
+        self.setFlatStyle(self, darker_if_checked=False, additional_style=padding)
 
         font = self.font() # type: QFont
         top_row_font_size = font.pointSize() + 8

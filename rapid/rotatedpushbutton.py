@@ -28,7 +28,9 @@ class VerticalRotation(IntEnum):
     right_side = 90
 
 class FlatButton:
-    def setFlatStyle(self, button: QPushButton, darker_if_checked: bool=True) -> None:
+    def setFlatStyle(self, button: QPushButton,
+                     darker_if_checked: bool=True,
+                     additional_style: str='') -> None:
         color = button.palette().color(button.backgroundRole())
         default_color = color.name(QColor.HexRgb)
         if darker_if_checked:
@@ -37,14 +39,14 @@ class FlatButton:
             checked_color = default_color
         hover_color = color.darker(110).name(QColor.HexRgb)
 
-        # outline:none is used to remove the rectangle that apperas on a
+        # outline:none is used to remove the rectangle that appears on a
         # button when the button has focus
         # http://stackoverflow.com/questions/17280056/qt-css-decoration-on-focus
         button.setStyleSheet("""
-        QPushButton { background-color: %s; outline: none}
+        QPushButton { background-color: %s; outline: none; %s}
         QPushButton:checked { background-color: %s; border: none; }
         QPushButton:hover{ background-color: %s; border-style: inset; }
-        """ % (default_color, checked_color, hover_color))
+        """ % (default_color, additional_style, checked_color, hover_color))
 
 
 class RotatedButton(QPushButton, FlatButton):
