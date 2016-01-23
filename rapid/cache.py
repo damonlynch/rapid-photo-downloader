@@ -1,7 +1,6 @@
 #!/usr/bin/python3
-__author__ = 'Damon Lynch'
 
-# Copyright (C) 2015 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2015-2016 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -46,6 +45,9 @@ Rapid Photo Downloader deals with three types of cache:
 For the fdo cache specs, see:
 http://specifications.freedesktop.org/thumbnail-spec/thumbnail-spec-latest.html
 """
+
+__author__ = 'Damon Lynch'
+__copyright__ = "Copyright 2015-2016, Damon Lynch"
 
 import os
 import sys

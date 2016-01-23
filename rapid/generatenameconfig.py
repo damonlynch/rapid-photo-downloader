@@ -1,7 +1,6 @@
 #!/usr/bin/python3
-__author__ = 'Damon Lynch'
 
-# Copyright (C) 2007-2015 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2007-2016 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -22,6 +21,9 @@ __author__ = 'Damon Lynch'
 # Special key in each dictionary which specifies the order of elements.
 # It is very important to have a consistent and rational order when displaying 
 # these prefs to the user, and dictionaries are unsorted.
+
+__author__ = 'Damon Lynch'
+__copyright__ = "Copyright 2007-2016, Damon Lynch"
 
 import os
 

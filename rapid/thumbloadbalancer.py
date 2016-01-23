@@ -1,6 +1,6 @@
 #!/usr/bin/python3
-__author__ = 'Damon Lynch'
-# Copyright (C) 2015 Damon Lynch <damonlynch@gmail.com>
+
+# Copyright (C) 2015-2016 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -18,7 +18,10 @@ __author__ = 'Damon Lynch'
 # along with Rapid Photo Downloader.  If not,
 # see <http://www.gnu.org/licenses/>.
 
-# Starts load balancer used for thumbnail extraction and caching
+"""Starts load balancer used for thumbnail extraction and caching"""
+
+__author__ = 'Damon Lynch'
+__copyright__ = "Copyright 2015-2016, Damon Lynch"
 
 from interprocess import LoadBalancerWorkerManager, LoadBalancer
 

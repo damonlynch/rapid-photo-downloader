@@ -1,6 +1,5 @@
-__author__ = 'Damon Lynch'
 
-# Copyright (C) 2015 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2015-2016 Damon Lynch <damonlynch@gmail.com>
 # Copyright (C) 2008-2015 Canonical Ltd.
 # Copyright (C) 2013 Bernard Baeyens
 
@@ -43,6 +42,10 @@ already mounted, attempt to mount it.
 The secondary task of this module is to provide miscellaneous services
 regarding mount points.
 """
+
+__author__ = 'Damon Lynch'
+__copyright__ = "Copyright 2011-2016, Damon Lynch. Copyright 2008-2015 Canonical Ltd. Copyright" \
+                " 2013 Bernard Baeyens."
 
 import logging
 import os

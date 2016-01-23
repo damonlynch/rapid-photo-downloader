@@ -1,7 +1,6 @@
 #!/usr/bin/python3
-__author__ = 'Damon Lynch'
 
-# Copyright (C) 2011-2015 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2011-2016 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -24,6 +23,9 @@ Generates names for files and folders, and renames (moves) files.
 
 Runs as a daemon process.
 """
+
+__author__ = 'Damon Lynch'
+__copyright__ = "Copyright 2011-2016, Damon Lynch"
 
 import os
 import shutil

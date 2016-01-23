@@ -1,7 +1,6 @@
 #!/usr/bin/python3
-__author__ = 'Damon Lynch'
 
-# Copyright (C) 2015 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2015-2016 Damon Lynch <damonlynch@gmail.com>
 # Copyright (C) 2012-2015 Jim Easterbrook <jim@jim-easterbrook.me.uk>
 
 # This file is part of Rapid Photo Downloader.
@@ -19,6 +18,9 @@ __author__ = 'Damon Lynch'
 # You should have received a copy of the GNU General Public License
 # along with Rapid Photo Downloader.  If not,
 # see <http://www.gnu.org/licenses/>.
+
+__author__ = 'Damon Lynch'
+__copyright__ = "Copyright 2015-2016, Damon Lynch. Copyright 2012-2015 Jim Easterbrook."
 
 import logging
 import os

@@ -1,7 +1,6 @@
 #!/usr/bin/python3
-__author__ = 'Damon Lynch'
 
-# Copyright (C) 2011-2015 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2011-2016 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -23,6 +22,9 @@ __author__ = 'Damon Lynch'
 Overlays a filmstrip onto QImage, keeping the image's dimensions the
 same
 """
+
+__author__ = 'Damon Lynch'
+__copyright__ = "Copyright 2011-2016, Damon Lynch"
 
 from PyQt5.QtGui import QImage, QPainter
 

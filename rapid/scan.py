@@ -1,7 +1,6 @@
 #!/usr/bin/python3
-__author__ = 'Damon Lynch'
 
-# Copyright (C) 2011-2015 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2011-2016 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -26,6 +25,9 @@ audio files that are linked to a photo.
 
 Returns results using the 0mq pipeline pattern.
 """
+
+__author__ = 'Damon Lynch'
+__copyright__ = "Copyright 2011-2016, Damon Lynch"
 
 import os
 import sys

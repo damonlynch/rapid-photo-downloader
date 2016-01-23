@@ -1,5 +1,4 @@
 #!/usr/bin/python3
-__author__ = 'Damon Lynch'
 
 # Copyright (C) 2011-2016 Damon Lynch <damonlynch@gmail.com>
 
@@ -26,6 +25,10 @@ QT related function and variable names use CamelCase.
 Everything else should follow PEP 8.
 Project line length: 100 characters (i.e. word wrap at 99)
 """
+
+__author__ = 'Damon Lynch'
+__copyright__ = "Copyright 2011-2016, Damon Lynch"
+
 import sys
 import logging
 
@@ -114,6 +117,7 @@ from generatenameconfig import *
 from rotatedpushbutton import RotatedButton
 from toppushbutton import TopPushButton
 from filebrowse import FileSystemView, FileSystemModel
+from toggleswitch import QToggleSwitch
 
 BackupMissing = namedtuple('BackupMissing', 'photo, video')
 
@@ -842,13 +846,29 @@ class RapidWindow(QMainWindow):
         devicePanelLayout.setContentsMargins(0, 0, 0, 0)
         self.devicePanel.setLayout(devicePanelLayout)
 
+        deviceHeaderLayout =  QHBoxLayout()
         self.deviceLabel = QLabel(_('Devices'))
-        devicePanelLayout.addWidget(self.deviceLabel)
+        self.deviceToggle = QToggleSwitch()
+        self.deviceToggle.setOn(self.prefs.device_autodetection)
+        self.deviceToggle.valueChanged.connect(self.deviceValueChange)
+        deviceHeaderLayout.addWidget(self.deviceLabel)
+        deviceHeaderLayout.addStretch()
+        deviceHeaderLayout.addWidget(self.deviceToggle)
+        devicePanelLayout.addLayout(deviceHeaderLayout)
         devicePanelLayout.addWidget(self.deviceView)
         self.deviceView.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Fixed)
 
+
+        thisComputerHeaderLayout = QHBoxLayout()
         self.thisComputerLabel = QLabel(_('This Computer'))
-        devicePanelLayout.addWidget(self.thisComputerLabel)
+        self.thisComputerToggle = QToggleSwitch()
+        self.thisComputerToggle.setOn(bool(self.prefs.device_location))
+        self.thisComputerToggle.valueChanged.connect(self.thisComputerValueChanged)
+        thisComputerHeaderLayout.addWidget(self.thisComputerLabel)
+        thisComputerHeaderLayout.addStretch()
+        thisComputerHeaderLayout.addWidget(self.thisComputerToggle)
+
+        devicePanelLayout.addLayout(thisComputerHeaderLayout)
         devicePanelLayout.addWidget(self.thisComputerView)
         devicePanelLayout.addStretch()
         devicePanelLayout.addWidget(self.fileSystemView, 10)
@@ -1021,6 +1041,12 @@ class RapidWindow(QMainWindow):
 
     def doAboutAction(self):
         pass
+
+    def thisComputerValueChanged(self, value: int) -> None:
+        print(self.thisComputerToggle.on())
+
+    def deviceValueChange(self, value: int) -> None:
+        print(self.deviceToggle.on())
 
     def devicePathChosen(self, index: QModelIndex) -> None:
         """
@@ -2365,8 +2391,9 @@ class RapidWindow(QMainWindow):
             if scan_id in self.copyfilesmq.workers:
                 self.copyfilesmq.stop_worker(scan_id)
             # TODO what about stopping possible thumbnailing?
+            view = self.mapView(scan_id)
             del self.devices[scan_id]
-            self.resizeDeviceView(self.mapView(scan_id))
+            self.resizeDeviceView(view)
             self.updateSourceButton()
 
     def setupNonCameraDevices(self, on_startup: bool,

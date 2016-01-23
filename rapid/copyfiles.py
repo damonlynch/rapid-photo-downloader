@@ -1,7 +1,6 @@
 #!/usr/bin/python3
-__author__ = 'Damon Lynch'
 
-# Copyright (C) 2011-2015 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2011-2016 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -18,6 +17,9 @@ __author__ = 'Damon Lynch'
 # You should have received a copy of the GNU General Public License
 # along with Rapid Photo Downloader.  If not,
 # see <http://www.gnu.org/licenses/>.
+
+__author__ = 'Damon Lynch'
+__copyright__ = "Copyright 2011-2016, Damon Lynch"
 
 import os
 import errno
