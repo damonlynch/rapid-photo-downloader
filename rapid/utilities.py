@@ -441,9 +441,12 @@ long_numbers = {
     20: _('twenty')
 }
 
-def number(value: int) -> Optional[numbers]:
+def number(value: int) -> numbers:
     r"""
     Convert integer to written form, e.g. one, two, etc.
+
+    Will propagate TypeError or KeyError on
+    failure.
 
     >>> number(1)
     numbers(number='one', plural=False)
@@ -461,13 +464,6 @@ def number(value: int) -> Optional[numbers]:
     :return: tuple of str and whether it is plural
     """
 
-    try:
-        plural = value > 1
-    except TypeError:
-        return None
-
-    text = long_numbers.get(value)
-    if text is not None:
-        return numbers(text, plural)
-    else:
-        return None
+    plural = value > 1
+    text = long_numbers[value]
+    return numbers(text, plural)

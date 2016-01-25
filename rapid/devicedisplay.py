@@ -16,6 +16,11 @@
 # along with Rapid Photo Downloader.  If not,
 # see <http://www.gnu.org/licenses/>.
 
+"""
+Display details of devices like cameras, external drives and folders on the
+computer.
+"""
+
 __author__ = 'Damon Lynch'
 __copyright__ = "Copyright 2015-2016, Damon Lynch"
 

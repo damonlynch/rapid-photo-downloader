@@ -40,9 +40,10 @@ class QToggleSwitch(QSlider):
     def __init__(self, parent=None):
         super().__init__(Qt.Horizontal, parent)
 
-        self.base_height = QFontMetrics(QFont()).height()
+        self.base_height = QFontMetrics(QFont()).height() // 2 * 2
+        self.radius = self.base_height // 2
 
-        width = self.base_height * 3
+        width = self.base_height * 2
         self.widgetWidth = width
         self.handleWidth = width // 2
         self.sliderRange = width
@@ -60,8 +61,7 @@ class QToggleSwitch(QSlider):
     def stylesheet(self):
         shading_intensity = 104
         windowColor = (QPalette().color(QPalette().Window))  # type: QColor
-
-        baseName = (QPalette().color(QPalette().Base)).name()
+        windowName = windowColor.name()
 
         handleLightName = (QPalette().color(QPalette().Light)).name() # type: QColor
         handleDarkName = (QPalette().color(QPalette().Dark)).name()  # type: QColor
@@ -77,26 +77,24 @@ class QToggleSwitch(QSlider):
 
         return """
             QSlider::groove:horizontal {
-                border: 1px solid #bbb;
-                background: %(baseName)s;
+                background: %(windowName)s;
                 height: %(height)s px;
-                border-radius: 6px;
             }
 
             QSlider::sub-page:horizontal {
             background: qlineargradient(x1: 0, y1: 0.2, x2: 1, y2: 1,
                 stop: 0 %(highlightDarkName)s, stop: 1 %(highlightLightName)s);
             border: 1px solid #777;
-            height: 10px;
-            border-radius: 6px;
+            border-top-left-radius: %(radius)spx;
+            border-bottom-left-radius: %(radius)spx;
             }
 
             QSlider::add-page:horizontal {
             background: qlineargradient(x1: 0, y1: 0.2, x2: 1, y2: 1,
                 stop: 0 %(insetDarkName)s, stop: 1 %(insetLightName)s);
             border: 1px solid #777;
-            height: 10px;
-            border-radius: 6px;
+            border-top-right-radius: %(radius)spx;
+            border-bottom-right-radius: %(radius)spx;
             }
 
             QSlider::handle:horizontal {
@@ -104,16 +102,14 @@ class QToggleSwitch(QSlider):
                 stop:0 %(handleLightName)s, stop:1 %(handleDarkName)s);
             border: 1px solid #777;
             width: %(buttonWidth)s px;
-            margin-top: -1px;
-            margin-bottom: -1px;
-            border-radius: 6px;
+            border-radius: %(radius)spx;
             }
 
             QSlider::handle:horizontal:hover {
             background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
                 stop:0 %(handleHoverLightName)s, stop:1 %(handleHoverDarkName)s);
             border: 1px solid #444;
-            border-radius: 6px;
+            border-radius: %(radius)spx;
             }
 
             QSlider::sub-page:horizontal:disabled {
@@ -129,19 +125,20 @@ class QToggleSwitch(QSlider):
             QSlider::handle:horizontal:disabled {
             background: #eee;
             border: 1px solid #aaa;
-            border-radius: 6px;
+            border-radius: %(radius)spx;
             }
         """ % dict(buttonWidth=self.handleWidth,
                    handleLightName=handleLightName,
                    handleDarkName=handleDarkName,
                    handleHoverLightName=handleHoverLightName,
                    handleHoverDarkName=handleHoverDarkName,
-                   baseName=baseName,
+                   windowName=windowName,
                    highlightDarkName=highlightDarkName,
                    highlightLightName=highlightLightName,
                    height=self.base_height,
                    insetDarkName=insetDarkName,
-                   insetLightName=insetLightName)
+                   insetLightName=insetLightName,
+                   radius=self.radius)
 
     def onActionTriggered(self, action: int) -> None:
         if action != 7:

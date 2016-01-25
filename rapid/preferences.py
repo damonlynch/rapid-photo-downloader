@@ -278,7 +278,8 @@ class Preferences:
                           )
     device_defaults = dict(only_external_mounts=True,
                            device_autodetection=True,
-                           device_location='',
+                           this_computer_source = True,
+                           this_computer_path='',
                            device_without_dcim_autodetection=False,
                            path_whitelist=[''],
                            path_blacklist=[''],

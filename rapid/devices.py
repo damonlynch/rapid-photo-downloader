@@ -16,6 +16,15 @@
 # along with Rapid Photo Downloader.  If not,
 # see <http://www.gnu.org/licenses/>.
 
+"""
+Handle Devices and Device Collections.
+
+In Rapid Photo Downloader, "Device" has two meanings, depending on the
+context:
+1. In the GUI, a Device is a camera or a volume (external drive)
+2. In code, a Device is one of a camera, volume, or path
+"""
+
 __author__ = 'Damon Lynch'
 __copyright__ = "Copyright 2015-2016, Damon Lynch"
 
@@ -38,12 +47,6 @@ from rpdfile import FileTypeCounter, FileSizeSum
 from storage import StorageSpace, udev_attributes, UdevAttr
 from camera import Camera, generate_devname
 from utilities import number
-
-
-# In Rapid Photo Downloader, "Device" has two meanings, depending on
-# the context.
-# 1. In the GUI, a Device is a camera or a volume (external drive)
-# 2. In code, a Device is one of a camera, volume, or path
 
 display_devices = (DeviceType.volume, DeviceType.camera)
 
@@ -361,6 +364,8 @@ class DeviceCollection:
         self._map_set = {DeviceType.path: self.this_computer,
                          DeviceType.camera: self.volumes_and_cameras,
                          DeviceType.volume: self.volumes_and_cameras}
+        self._map_plural_types = {DeviceType.camera: _('Cameras'),
+                                  DeviceType.volume: _('Devices')}
 
     def add_device(self, device: Device) -> int:
         scan_id = self.scan_counter
@@ -441,7 +446,7 @@ class DeviceCollection:
     def map_set(self, device: Device) -> Set:
         return self._map_set[device.device_type]
 
-    def __delitem__(self, scan_id):
+    def __delitem__(self, scan_id: int):
         d = self.devices[scan_id] # type: Device
         if d.device_type == DeviceType.camera:
             del self.cameras[d.camera_port]
@@ -449,61 +454,101 @@ class DeviceCollection:
         d.delete_cache_dirs()
         del self.devices[scan_id]
 
-    def __getitem__(self, scan_id) -> Device:
+    def __getitem__(self, scan_id: int) -> Device:
         return self.devices[scan_id]
 
     def __len__(self) -> int:
         return len(self.devices)
 
-    def __contains__(self, scan_id) -> bool:
+    def __contains__(self, scan_id: int) -> bool:
         return scan_id in self.devices
 
     def __iter__(self):
         return iter(self.devices)
 
+    def _mixed_devices(self, device_type_text: str) -> str:
+        try:
+            text_number = number(len(self.volumes_and_cameras)).number.capitalize()
+        except KeyError:
+            text_number = len(self.volumes_and_cameras)
+        # Translators: e.g. Three Devices
+        return _('%(no_devices)s %(device_type)s') % dict(
+            no_devices=text_number, device_type=device_type_text)
+
     def get_main_window_display_name_and_icon(self) -> Tuple[str, QIcon]:
         """
         Generate the name to display at the top left of the main
-        window, indicating the source of the files
-        :return: string to display
+        window, indicating the source of the files.
+
+
+        :return: string to display and associated icon
         """
 
         if not len(self):
-            return _('Select Source'), QIcon(':/icons/folder.svg')
+            return _('Select Source'), QIcon(':/icons/computer.svg')
         elif len(self) == 1:
+            # includes case where path is the only device
             device = list(self.devices.values())[0]
             return device.display_name, device.get_icon()
         else:
-            device_types = Counter(d.device_type for d in self.devices.values())
-            mtp_devices = [d for d in self.devices.values() if d.is_mtp_device]
-            n = number(len(self))
-            if n is None:
-                text_number = len(self)
-            else:
-                text_number = n.number.capitalize()
-            assert len(device_types)
+            non_pc_devices = [device for device in self.devices.values()
+                              if device.device_type != DeviceType.path]   # type: List[Device]
+            assert len(non_pc_devices) == len(self.volumes_and_cameras)
+            device_types = Counter(d.device_type for d in non_pc_devices)
             if len(device_types) == 1:
                 device_type = list(device_types)[0]
-                if len(self) == 2:
-                    devices = list(self.devices.values())  # type: List[Device]
-                    text = _('%(device1)s + %(device2)s') % {'device1': devices[0].display_name,
-                                                            'device2': devices[1].display_name}
-                    if device_type == DeviceType.camera and len(mtp_devices) != 2:
+                device_type_text = self._map_plural_types[device_type]
+            else:
+                device_type = None
+                device_type_text = _('Devices')
+
+            if len(self.this_computer) == 1:
+                assert len(self.this_computer) < 2
+                assert len(self.this_computer) > 0
+
+                icon = QIcon(':/icons/computer.svg')
+                devices = list(self.volumes_and_cameras)
+                computer_display_name=self.devices[list(self.this_computer)[0]].display_name
+
+                if len(self.volumes_and_cameras) == 1:
+                    device_display_name = self.devices[devices[0]].display_name
+                else:
+                    assert len(self.volumes_and_cameras) > 1
+                    device_display_name = self._mixed_devices(device_type_text)
+
+                text = _('%(device1)s + %(device2)s') % {'device1': device_display_name,
+                                                                'device2': computer_display_name}
+                return text, icon
+            else:
+                assert len(self.this_computer) == 0
+
+                mtp_devices = [d for d in non_pc_devices if d.is_mtp_device]
+
+                if len(device_types) == 1:
+                    if len(self) == 2:
+                        devices = non_pc_devices
+                        text = _('%(device1)s + %(device2)s') % {'device1': devices[0].display_name,
+                                                                'device2': devices[1].display_name}
+                        if device_type == DeviceType.camera and len(mtp_devices) != 2:
+                            return text, QIcon(':/icons/camera.svg')
+                        return text, devices[0].get_icon()
+                    try:
+                        text_number = number(len(self.volumes_and_cameras)).number.capitalize()
+                    except KeyError:
+                        text_number = len(self.volumes_and_cameras)
+                    if device_type == DeviceType.camera:
+                        # Number of cameras e.g. 3 Cameras
+                        text = _('%(no_cameras)s Cameras') % {'no_cameras': text_number}
+                        if len(mtp_devices) == len(self.volumes_and_cameras):
+                            return text, non_pc_devices[0].get_icon()
                         return text, QIcon(':/icons/camera.svg')
-                    return text, devices[0].get_icon()
-                if device_type == DeviceType.camera:
-                    # Number of cameras e.g. 3 Cameras
-                    text = _('%(no_cameras)s Cameras') % {'no_cameras':
-                                                              device_types[DeviceType.camera]}
-                    return text, QIcon(':/icons/camera.svg')
-                elif device_type == DeviceType.volume:
-                    text = _('%(no_volumes)s Volumes') % {'no_volumes':
-                                                              device_types[DeviceType.volume]}
-                    return text, QIcon(':/icons/drive-removable-media.svg')
-            # Mixed devices (e.g. cameras, card readers), or only external
-            # volumes
-            return _('%(no_devices)s Devices') % {'no_devices': text_number}, \
-                   QIcon(':/icons/computer.svg')
+                    elif device_type == DeviceType.volume:
+                        text = _('%(no_devices)s Devices') % dict(no_devices=text_number)
+                        return text, QIcon(':/icons/drive-removable-media.svg')
+                else:
+                    device_display_name = self._mixed_devices(device_type_text)
+                    icon = QIcon(':/icons/computer.svg')
+                    return device_display_name, icon
 
 
 BackupDevice = namedtuple('BackupDevice', ['mount', 'backup_type'])

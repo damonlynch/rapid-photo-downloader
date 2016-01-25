@@ -333,7 +333,7 @@ class JobCode:
 class RapidWindow(QMainWindow):
     def __init__(self, app: 'QtSingleApplication',
                  auto_detect: Optional[bool]=None,
-                 device_location: Optional[str]=None,
+                 this_computer_path: Optional[str]=None,
                  benchmark: Optional[int]=None,
                  ignore_other_photo_types: Optional[bool]=None,
                  thumb_cache: Optional[bool]=None,
@@ -374,9 +374,9 @@ class RapidWindow(QMainWindow):
         # TODO update these
         if auto_detect is not None:
             self.prefs.device_autodetection = auto_detect
-        elif device_location is not None:
+        elif this_computer_path is not None:
             self.prefs.device_autodetection = False
-            self.prefs.device_location = device_location
+            self.prefs.this_computer_path = this_computer_path
 
         self.prefs.photo_download_folder = '/data/Photos/Test'
         self.prefs.video_download_folder = '/data/Photos/Test'
@@ -439,11 +439,11 @@ class RapidWindow(QMainWindow):
         self.fileSystemView.setModel(self.fileSystemModel)
         self.fileSystemView.hideColumns()
         self.fileSystemView.setRootIndex(self.fileSystemModel.index('/'))
-        if self.prefs.device_location:
-            deviceLocationIndex = self.fileSystemModel.index(self.prefs.device_location)
+        if self.prefs.this_computer_path:
+            deviceLocationIndex = self.fileSystemModel.index(self.prefs.this_computer_path)
             self.fileSystemView.setExpanded(deviceLocationIndex, True)
-        self.fileSystemView.activated.connect(self.devicePathChosen)
-        self.fileSystemView.clicked.connect(self.devicePathChosen)
+        self.fileSystemView.activated.connect(self.thisComputerPathChosen)
+        self.fileSystemView.clicked.connect(self.thisComputerPathChosen)
 
         self.createActions()
         self.createLayoutAndButtons(centralWidget)
@@ -703,8 +703,8 @@ class RapidWindow(QMainWindow):
         self.sourceButton.setChecked(settings.value("sourceButtonPressed", True, bool))
         self.sourceButtonClicked()
 
-        if self.prefs.device_location:
-            index = self.fileSystemModel.index(self.prefs.device_location)
+        if self.prefs.this_computer_path:
+            index = self.fileSystemModel.index(self.prefs.this_computer_path)
             selection = self.fileSystemView.selectionModel()
             selection.select(index, QItemSelectionModel.ClearAndSelect|QItemSelectionModel.Rows)
             self.fileSystemView.scrollTo(index, QAbstractItemView.PositionAtCenter)
@@ -850,28 +850,30 @@ class RapidWindow(QMainWindow):
         self.deviceLabel = QLabel(_('Devices'))
         self.deviceToggle = QToggleSwitch()
         self.deviceToggle.setOn(self.prefs.device_autodetection)
-        self.deviceToggle.valueChanged.connect(self.deviceValueChange)
+        self.deviceToggle.valueChanged.connect(self.deviceToggleValueChange)
         deviceHeaderLayout.addWidget(self.deviceLabel)
         deviceHeaderLayout.addStretch()
         deviceHeaderLayout.addWidget(self.deviceToggle)
         devicePanelLayout.addLayout(deviceHeaderLayout)
         devicePanelLayout.addWidget(self.deviceView)
         self.deviceView.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Fixed)
-
+        self.setDeviceViewVisibility()
 
         thisComputerHeaderLayout = QHBoxLayout()
         self.thisComputerLabel = QLabel(_('This Computer'))
         self.thisComputerToggle = QToggleSwitch()
-        self.thisComputerToggle.setOn(bool(self.prefs.device_location))
-        self.thisComputerToggle.valueChanged.connect(self.thisComputerValueChanged)
+        self.thisComputerToggle.setOn(bool(self.prefs.this_computer_source))
+        self.thisComputerToggle.valueChanged.connect(self.thisComputerToggleValueChanged)
         thisComputerHeaderLayout.addWidget(self.thisComputerLabel)
         thisComputerHeaderLayout.addStretch()
         thisComputerHeaderLayout.addWidget(self.thisComputerToggle)
 
         devicePanelLayout.addLayout(thisComputerHeaderLayout)
         devicePanelLayout.addWidget(self.thisComputerView)
+        self.thisComputerView.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Fixed)
         devicePanelLayout.addStretch()
         devicePanelLayout.addWidget(self.fileSystemView, 10)
+        self.setThisComputerViewVisibility()
 
         self.leftPanelSplitter.addWidget(self.devicePanel)
 
@@ -930,7 +932,37 @@ class RapidWindow(QMainWindow):
         buttons.addButton(self.downloadButton, QDialogButtonBox.ApplyRole)
         horizontalLayout.addWidget(buttons)
 
-    def setDownloadActionSensitivity(self):
+    def setDeviceViewVisibility(self) -> bool:
+        """
+        Toggles visibility of view associated with toggle.
+
+        :return: whether view is on or off
+        """
+
+        if not self.deviceToggle.on():
+            self.deviceView.hide()
+            return False
+        else:
+            self.deviceView.setVisible(True)
+            return True
+
+    def setThisComputerViewVisibility(self) -> bool:
+        """
+        Toggles visibility of view associated with toggle.
+
+        :return: whether view is on or off
+        """
+
+        if not self.thisComputerToggle.on():
+            self.thisComputerView.hide()
+            self.fileSystemView.hide()
+            return False
+        else:
+            self.thisComputerView.setVisible(bool(self.prefs.this_computer_path))
+            self.fileSystemView.setVisible(True)
+            return True
+
+    def setDownloadActionSensitivity(self) -> None:
         """
         Sets sensitivity of Download action to enable or disable it.
         Affects download button and menu item.
@@ -1042,13 +1074,44 @@ class RapidWindow(QMainWindow):
     def doAboutAction(self):
         pass
 
-    def thisComputerValueChanged(self, value: int) -> None:
-        print(self.thisComputerToggle.on())
+    def thisComputerToggleValueChanged(self, value: int) -> None:
+        """
+        Respond to This Computer Toggle Switch
 
-    def deviceValueChange(self, value: int) -> None:
-        print(self.deviceToggle.on())
+        :param value: actual value of slider, to be discarded
+        """
 
-    def devicePathChosen(self, index: QModelIndex) -> None:
+        on = self.setThisComputerViewVisibility()
+        self.prefs.this_computer_source = on
+        if not on:
+            path = self.prefs.this_computer_path
+            if path:
+                scan_id = list(self.devices.this_computer)[0]
+                self.removeDevice(scan_id)
+            self.prefs.this_computer_path = ''
+        else:
+            pass
+            # TODO there is no path to scan - let the user know
+
+    def deviceToggleValueChange(self, value: int) -> None:
+        """
+        Respond to Devices Toggle Switch
+
+        :param value: actual value of slider, to be discarded
+        """
+
+        on = self.setDeviceViewVisibility()
+        self.prefs.device_autodetection = on
+        if not on:
+            self.deviceView.hide()
+            for scan_id in list(self.devices.volumes_and_cameras):
+                self.removeDevice(scan_id)
+        else:
+            self.searchForCameras()
+            self.setupNonCameraDevices(on_startup=False, on_preference_change=True,
+                                       block_auto_start=False)
+
+    def thisComputerPathChosen(self, index: QModelIndex) -> None:
         """
         Handle user selecting new device location path.
 
@@ -1058,14 +1121,16 @@ class RapidWindow(QMainWindow):
         """
 
         path = self.fileSystemModel.filePath(index)
-        if path != self.prefs.device_location:
-            if self.prefs.device_location:
-                scan_id = self.devices.scan_id_from_path(self.prefs.device_location,
+        if path != self.prefs.this_computer_path:
+            if self.prefs.this_computer_path:
+                scan_id = self.devices.scan_id_from_path(self.prefs.this_computer_path,
                                                          DeviceType.path)
                 if scan_id is not None:
-                    logging.debug("Removing path from device view %s", self.prefs.device_location)
+                    logging.debug("Removing path from device view %s",
+                                  self.prefs.this_computer_path)
                     self.removeDevice(scan_id=scan_id, stop_worker=True)
-            self.prefs.device_location = path
+            self.prefs.this_computer_path = path
+            self.thisComputerView.show()
             self.setupManualPath()
 
     def downloadButtonClicked(self) -> None:
@@ -2484,9 +2549,9 @@ class RapidWindow(QMainWindow):
         Handle initiating scan of manutally specified path
         :return:
         """
-        if self.prefs.device_location:
+        if self.prefs.this_computer_path:
             # user manually specified the path from which to download
-            path = self.prefs.device_location
+            path = self.prefs.this_computer_path
             if path:
                 logging.debug("Using manually specified path %s", path)
                 if os.path.isdir(path) and os.access(path, os.R_OK):
@@ -2924,9 +2989,9 @@ if __name__ == "__main__":
     parser.add_argument("-a", "--auto-detect", action="store_true",
         dest="auto_detect", help=_("automatically detect devices from which "
        "to download, overwriting existing program preferences"))
-    parser.add_argument("-l", "--device-location", type=str,
-        metavar="PATH", dest="device_location",
-        help=_("manually specify the PATH of the device from which to "
+    parser.add_argument("-p", "--path", type=str,
+        metavar="PATH", dest="this_computer_path",
+        help=_("manually specify the PATH on the computer from which to "
         "download, overwriting existing program preferences"))
     parser.add_argument("-e",  "--extensions", action="store_true",
          dest="extensions",
@@ -2969,11 +3034,6 @@ if __name__ == "__main__":
             print('{}: {}'.format(file_type, extensions))
         sys.exit(0)
 
-    if args.auto_detect and args.device_location:
-        print(_("Error: specify device auto-detection or specify a "
-            "device's path from which to download, but do not do both."))
-        sys.exit(1)
-
     global logging_level
 
     if args.debug:
@@ -2993,13 +3053,13 @@ if __name__ == "__main__":
     else:
         auto_detect=None
 
-    if args.device_location:
-        device_location=args.device_location
-        if device_location[-1]=='/':
-            device_location = device_location[:-1]
-        logging.info("Device location set from command line: %s", device_location)
+    if args.this_computer_path:
+        this_computer_path=args.this_computer_path
+        if this_computer_path[-1]=='/':
+            this_computer_path = this_computer_path[:-1]
+        logging.info("This computer path set from command line: %s", this_computer_path)
     else:
-        device_location=None
+        this_computer_path=None
 
     if args.thumb_cache:
         thumb_cache = args.thumb_cache == 'on'
@@ -3040,7 +3100,7 @@ if __name__ == "__main__":
     sleep(.5)
     app.processEvents()
 
-    rw = RapidWindow(app=app, auto_detect=auto_detect, device_location=device_location,
+    rw = RapidWindow(app=app, auto_detect=auto_detect, this_computer_path=this_computer_path,
                      benchmark=args.benchmark,
                      ignore_other_photo_types=args.ignore_other,
                      thumb_cache=thumb_cache)
