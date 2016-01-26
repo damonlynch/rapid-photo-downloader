@@ -181,6 +181,9 @@ class CustomColors(Enum):
     color6 = '#6d7e90'
 
 
+ThumbnailBackgroundName = '#555555'
+
+
 class Desktop(Enum):
     gnome = 1
     unity = 2

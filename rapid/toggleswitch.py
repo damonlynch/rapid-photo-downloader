@@ -31,13 +31,14 @@ http://thesmithfam.org/blog/2010/03/10/fancy-qslider-stylesheet/
 __author__ = 'Damon Lynch'
 __copyright__ = "Copyright 2016, Damon Lynch"
 
+from typing import Optional
+
 from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QPalette, QColor, QFont,QFontMetrics
 from PyQt5.QtWidgets import QSlider, QApplication
 
-
 class QToggleSwitch(QSlider):
-    def __init__(self, parent=None):
+    def __init__(self, background: Optional[QColor]=None, parent=None) -> None:
         super().__init__(Qt.Horizontal, parent)
 
         self.base_height = QFontMetrics(QFont()).height() // 2 * 2
@@ -53,15 +54,19 @@ class QToggleSwitch(QSlider):
         self.setMaximumWidth(self.widgetWidth)
         self.setFixedHeight(self.base_height + 6)
 
-        self.setStyleSheet(self.stylesheet())
+        self.setStyleSheet(self.stylesheet(background))
 
         self.actionTriggered.connect(self.onActionTriggered)
         self.sliderReleased.connect(self.onSliderRelease)
 
-    def stylesheet(self):
+    def stylesheet(self, background: Optional[QColor]) -> str:
         shading_intensity = 104
         windowColor = (QPalette().color(QPalette().Window))  # type: QColor
-        windowName = windowColor.name()
+
+        if background is None:
+            backgroundName = windowColor.name()
+        else:
+            backgroundName = QColor(background).name()
 
         handleLightName = (QPalette().color(QPalette().Light)).name() # type: QColor
         handleDarkName = (QPalette().color(QPalette().Dark)).name()  # type: QColor
@@ -77,7 +82,7 @@ class QToggleSwitch(QSlider):
 
         return """
             QSlider::groove:horizontal {
-                background: %(windowName)s;
+                background-color: %(backgroundName)s;
                 height: %(height)s px;
             }
 
@@ -132,7 +137,7 @@ class QToggleSwitch(QSlider):
                    handleDarkName=handleDarkName,
                    handleHoverLightName=handleHoverLightName,
                    handleHoverDarkName=handleHoverDarkName,
-                   windowName=windowName,
+                   backgroundName=backgroundName,
                    highlightDarkName=highlightDarkName,
                    highlightLightName=highlightLightName,
                    height=self.base_height,
@@ -161,6 +166,7 @@ class QToggleSwitch(QSlider):
             self.setValue(self.sliderRange)
         else:
             self.setValue(0)
+
 
 if __name__ == "__main__":
     import sys

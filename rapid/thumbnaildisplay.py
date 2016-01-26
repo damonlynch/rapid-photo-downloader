@@ -51,7 +51,8 @@ from rpdfile import RPDFile, FileTypeCounter
 from interprocess import (PublishPullPipelineManager, GenerateThumbnailsArguments, Device,
                           GenerateThumbnailsResults)
 from constants import (DownloadStatus, Downloaded, FileType, FileExtension, ThumbnailSize,
-                       ThumbnailCacheStatus, Roles, DeviceType, CustomColors)
+                       ThumbnailCacheStatus, Roles, DeviceType, CustomColors,
+                       ThumbnailBackgroundName)
 from storage import get_program_cache_directory
 from utilities import (CacheDirs, make_internationalized_list, format_size_for_user, runs)
 from thumbnailer import Thumbnailer
@@ -750,11 +751,7 @@ class ThumbnailListModel(QAbstractListModel):
 
 class ThumbnailView(QListView):
     def __init__(self) -> None:
-        style = """
-        QAbstractScrollArea {
-        background-color:#555555;
-        }
-        """
+        style = """QAbstractScrollArea { background-color: %s;}""" % ThumbnailBackgroundName
         super().__init__()
         self.setViewMode(QListView.IconMode)
         self.setResizeMode(QListView.Adjust)

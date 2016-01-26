@@ -614,7 +614,7 @@ class BackupDeviceCollection:
     0
     """
     def __init__(self):
-        self.devices = {}
+        self.devices = {}  # type: Dict[str, BackupDevice]
         self.no_photo_backup_devices = 0
         self.no_video_backup_devices = 0
         self._device_ids = {}

@@ -95,7 +95,7 @@ from constants import (BackupLocationType, DeviceType, ErrorType,
                        FileType, DownloadStatus, RenameAndMoveStatus,
                        photo_rename_test, ApplicationState,
                        PROGRAM_NAME, job_code_rename_test, CameraErrorCode,
-                       photo_rename_simple_test)
+                       photo_rename_simple_test, ThumbnailBackgroundName)
 import constants
 from thumbnaildisplay import (ThumbnailView, ThumbnailListModel, ThumbnailDelegate, DownloadTypes,
                               DownloadStats, ThumbnailSortFilterProxyModel)
@@ -550,8 +550,7 @@ class RapidWindow(QMainWindow):
         # Initialise use of libgphoto2
         self.gp_context = gp.Context()
 
-        self.validMounts = ValidMounts(
-            onlyExternalMounts=self.prefs.only_external_mounts)
+        self.validMounts = ValidMounts(onlyExternalMounts=self.prefs.only_external_mounts)
 
         self.job_code = JobCode(self)
 
@@ -679,8 +678,10 @@ class RapidWindow(QMainWindow):
         QTimer.singleShot(0, self.copyfilesThread.start)
 
         self.backup_manager_started = False
+        self.backup_devices = BackupDeviceCollection()
         if self.prefs.backup_files:
             self.startBackupManager()
+            self.setupBackupDevices()
 
         prefs_valid, msg = self.prefs.check_prefs_for_validity()
         if not prefs_valid:
@@ -690,11 +691,9 @@ class RapidWindow(QMainWindow):
         self.searchForCameras()
         self.setupNonCameraDevices(on_startup=True, on_preference_change=False,
                                    block_auto_start=not prefs_valid)
+        self.setupManualPath()
         self.updateSourceButton()
         self.displayMessageInStatusBar()
-
-        self.window_show_requested_time = datetime.datetime.now()
-        self.show()
 
         settings = QSettings()
         settings.beginGroup("MainWindow")
@@ -708,6 +707,10 @@ class RapidWindow(QMainWindow):
             selection = self.fileSystemView.selectionModel()
             selection.select(index, QItemSelectionModel.ClearAndSelect|QItemSelectionModel.Rows)
             self.fileSystemView.scrollTo(index, QAbstractItemView.PositionAtCenter)
+
+        self.window_show_requested_time = datetime.datetime.now()
+        self.show()
+
 
     def startBackupManager(self):
         if not self.backup_manager_started:
@@ -844,36 +847,72 @@ class RapidWindow(QMainWindow):
 
         devicePanelLayout = QVBoxLayout()
         devicePanelLayout.setContentsMargins(0, 0, 0, 0)
+        devicePanelLayout.setSpacing(0)
         self.devicePanel.setLayout(devicePanelLayout)
 
+        header_style = """QWidget { background-color: %s; }""" % ThumbnailBackgroundName
+        header_font_style = "QLabel {color: white;}"
+        deviceHeader = QWidget(self)
+        deviceHeader.setStyleSheet(header_style)
         deviceHeaderLayout =  QHBoxLayout()
-        self.deviceLabel = QLabel(_('Devices'))
-        self.deviceToggle = QToggleSwitch()
+        deviceHeaderLayout.setContentsMargins(5, 0, 5, 0)
+        self.deviceLabel = QLabel(_('Devices').upper())
+        self.deviceLabel.setStyleSheet(header_font_style)
+        self.deviceToggle = QToggleSwitch(background=ThumbnailBackgroundName, parent=self)
         self.deviceToggle.setOn(self.prefs.device_autodetection)
         self.deviceToggle.valueChanged.connect(self.deviceToggleValueChange)
+        self.deviceToggle.setToolTip(
+            _('Turn on or off the use of devices attached to this computer as a download source'))
         deviceHeaderLayout.addWidget(self.deviceLabel)
         deviceHeaderLayout.addStretch()
         deviceHeaderLayout.addWidget(self.deviceToggle)
-        devicePanelLayout.addLayout(deviceHeaderLayout)
+        deviceHeader.setLayout(deviceHeaderLayout)
+        # devicePanelLayout.addLayout(deviceHeaderLayout)
+        devicePanelLayout.addWidget(deviceHeader)
         devicePanelLayout.addWidget(self.deviceView)
         self.deviceView.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Fixed)
         self.setDeviceViewVisibility()
 
+        thisComputer = QWidget()
+        thisComputer.setObjectName('thisComputer')
+        thisComputerLayout = QVBoxLayout()
+        thisComputerLayout.setContentsMargins(1, 1, 1, 1)
+        thisComputerLayout.setSpacing(0)
+        #TODO specify border color value from derived value or create new style
+        thisComputer.setStyleSheet('QWidget#thisComputer {border: 1px solid #c4c1bd; }')
+
+        thisComputerHeader = QWidget(self)
+        thisComputerHeader.setStyleSheet(header_style)
         thisComputerHeaderLayout = QHBoxLayout()
-        self.thisComputerLabel = QLabel(_('This Computer'))
-        self.thisComputerToggle = QToggleSwitch()
+        thisComputerHeaderLayout.setContentsMargins(5, 0, 5, 0)
+
+        self.thisComputerLabel = QLabel(_('This Computer').upper())
+        self.thisComputerLabel.setStyleSheet(header_font_style)
+
+        self.thisComputerToggle = QToggleSwitch(background=ThumbnailBackgroundName, parent=self)
         self.thisComputerToggle.setOn(bool(self.prefs.this_computer_source))
+        self.thisComputerToggle.setToolTip(
+            _('Turn on or off the use of a folder on this computer as a download source'))
         self.thisComputerToggle.valueChanged.connect(self.thisComputerToggleValueChanged)
+
         thisComputerHeaderLayout.addWidget(self.thisComputerLabel)
         thisComputerHeaderLayout.addStretch()
         thisComputerHeaderLayout.addWidget(self.thisComputerToggle)
+        thisComputerHeader.setLayout(thisComputerHeaderLayout)
 
-        devicePanelLayout.addLayout(thisComputerHeaderLayout)
-        devicePanelLayout.addWidget(self.thisComputerView)
+        devicePanelLayout.addWidget(thisComputerHeader)
+        thisComputerLayout.addWidget(self.thisComputerView)
+        thisComputerLayout.addStretch()
+        thisComputerLayout.addWidget(self.fileSystemView, 10)
+        thisComputer.setLayout(thisComputerLayout)
+
         self.thisComputerView.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Fixed)
-        devicePanelLayout.addStretch()
-        devicePanelLayout.addWidget(self.fileSystemView, 10)
+        self.thisComputerView.setStyleSheet('QListView {border: 0px solid red;}')
+        self.fileSystemView.setStyleSheet('FileSystemView {border: 0px solid red;}')
         self.setThisComputerViewVisibility()
+
+        devicePanelLayout.addWidget(thisComputer, 10)
+        devicePanelLayout.addStretch()
 
         self.leftPanelSplitter.addWidget(self.devicePanel)
 
@@ -2461,6 +2500,25 @@ class RapidWindow(QMainWindow):
             self.resizeDeviceView(view)
             self.updateSourceButton()
 
+    def setupBackupDevices(self):
+        if self.prefs.backup_device_autodetection:
+            for mount in self.validMounts.mountedValidMountPoints():
+                if self.partitionValid(mount):
+                    path = mount.rootPath()
+                    backup_type = self.isBackupPath(path)
+                    if backup_type is not None:
+                        self.backup_devices[path] = BackupDevice(mount=mount,
+                                                     backup_type=backup_type)
+                        self.addDeviceToBackupManager(path)
+        else:
+            self.setupManualBackup()
+            for path in self.backup_devices:
+                self.addDeviceToBackupManager(path)
+
+        self.download_tracker.set_no_backup_devices(
+            self.backup_devices.no_photo_backup_devices,
+            self.backup_devices.no_video_backup_devices)
+
     def setupNonCameraDevices(self, on_startup: bool,
                               on_preference_change: bool,
                               block_auto_start: bool) -> None:
@@ -2480,60 +2538,30 @@ class RapidWindow(QMainWindow):
         automatically start a download should be ignored
         """
 
-        self.clearNonRunningDownloads()
         if not self.prefs.device_autodetection:
-             if not self.confirmManualDownloadLocation():
-                return
+            return
 
         mounts = [] # type: List[QStorageInfo]
-        self.backup_devices = BackupDeviceCollection()
-
-        if self.monitorPartitionChanges():
-            # either using automatically detected backup devices
-            # or download devices
-            for mount in self.validMounts.mountedValidMountPoints():
-                if self.partitionValid(mount):
-                    path = mount.rootPath()
-                    logging.debug("Detected %s", mount.displayName())
-                    backup_type = self.isBackupPath(path)
-                    if backup_type is not None:
-                        self.backup_devices[path] = BackupDevice(mount=mount,
-                                                     backup_type=backup_type)
-                        self.addDeviceToBackupManager(path)
-                    elif self.shouldScanMountPath(path):
-                        logging.debug("Appending %s", mount.displayName())
-                        mounts.append(mount)
-                    else:
-                        logging.debug("Ignoring %s", mount.displayName())
-
-        if self.prefs.backup_files:
-            if not self.prefs.backup_device_autodetection:
-                self.setupManualBackup()
-                for path in self.backup_devices:
-                    self.addDeviceToBackupManager(path)
-
-        self.download_tracker.set_no_backup_devices(
-            self.backup_devices.no_photo_backup_devices,
-            self.backup_devices.no_video_backup_devices)
-
-        # Display amount of free space in a status bar message
-        self.displayMessageInStatusBar()
+        for mount in self.validMounts.mountedValidMountPoints():
+            if self.partitionValid(mount):
+                path = mount.rootPath()
+                backup_type = self.isBackupPath(path)
+                if path not in self.backup_devices and self.shouldScanMountPath(path):
+                    logging.debug("Will scan %s", mount.displayName())
+                    mounts.append(mount)
+                else:
+                    logging.debug("Will not scan %s", mount.displayName())
 
         #TODO hey need to think about this now that we have cameras too
         if block_auto_start:
             self.auto_start_is_on = False
         else:
             self.auto_start_is_on = ((not on_preference_change) and
-                    ((self.prefs.auto_download_at_startup and
-                      on_startup) or
-                      (self.prefs.auto_download_upon_device_insertion and
-                       not on_startup)))
-
-        self.setupManualPath()
+                    ((self.prefs.auto_download_at_startup and on_startup) or
+                     (self.prefs.auto_download_upon_device_insertion and not on_startup)))
 
         for mount in mounts:
-            icon_names, can_eject = self.getIconsAndEjectableForMount(
-                                         mount)
+            icon_names, can_eject = self.getIconsAndEjectableForMount(mount)
             device = Device()
             device.set_download_from_volume(mount.rootPath(),
                                           mount.displayName(),
@@ -2541,32 +2569,37 @@ class RapidWindow(QMainWindow):
                                           can_eject,
                                           mount)
             self.prepareNonCameraDeviceScan(device)
-        # if not mounts:
-        #     self.set_download_action_sensitivity()
 
-    def setupManualPath(self):
+    def setupManualPath(self) -> None:
         """
         Handle initiating scan of manutally specified path
         :return:
         """
+
+        if not self.prefs.this_computer_source:
+            return
+
         if self.prefs.this_computer_path:
+            if not self.confirmManualDownloadLocation():
+                return
+
             # user manually specified the path from which to download
             path = self.prefs.this_computer_path
+
             if path:
-                logging.debug("Using manually specified path %s", path)
                 if os.path.isdir(path) and os.access(path, os.R_OK):
+                    logging.debug("Using This Computer path %s", path)
                     device = Device()
                     device.set_download_from_path(path)
                     self.startDeviceScan(device)
                 else:
-                    logging.error("Download path is invalid: %s", path)
+                    logging.error("This Computer download path is invalid: %s", path)
             else:
-                logging.error("Download path is not specified")
+                logging.warning("This Computer download path is not specified")
 
     def addDeviceToBackupManager(self, path: str) -> None:
         device_id = self.backup_devices.device_id(path)
-        backup_args = BackupArguments(path,
-                          self.backup_devices.name(path))
+        backup_args = BackupArguments(path, self.backup_devices.name(path))
         self.backupmq.add_device(device_id, backup_args)
 
     def setupManualBackup(self) -> None:

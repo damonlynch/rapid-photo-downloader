@@ -38,7 +38,7 @@ from PyQt5.QtGui import (QPainter, QFontMetrics, QFont, QColor, QLinearGradient,
 
 from viewutils import RowTracker
 from constants import DeviceState, FileType, CustomColors, DeviceType, Roles
-from devices import Device
+from devices import Device, display_devices
 from utilities import thousands, format_size_for_user
 from storage import StorageSpace
 from rpdfile import make_key
@@ -112,16 +112,18 @@ class DeviceModel(QAbstractListModel):
         if row not in self.rows:
             return None
         scan_id = self.rows[row]
-        column = index.column()
-        if column == 0:
-            if role == Qt.DisplayRole:
-                device = self.devices[scan_id] # type: Device
-                return device
-            elif role == Qt.CheckStateRole:
-                return self.checked[scan_id]
-            elif role == Roles.scan_id:
-                return scan_id
-            return None
+        if role == Qt.DisplayRole:
+            device = self.devices[scan_id] # type: Device
+            return device
+        elif role == Qt.CheckStateRole:
+            return self.checked[scan_id]
+        elif role == Roles.scan_id:
+            return scan_id
+        elif role == Qt.ToolTipRole:
+            device = self.devices[scan_id] # type: Device
+            if device.device_type in (DeviceType.path, DeviceType.volume):
+                return device.path
+        return None
 
     def setData(self, index: QModelIndex, value, role: int) -> bool:
         if not index.isValid():
@@ -147,22 +149,20 @@ class DeviceModel(QAbstractListModel):
 class DeviceView(QListView):
     def __init__(self, parent):
         super().__init__(parent)
-        # Set the last column (with the progressbar) to fill the remaining
-        # width
-        # self.horizontalHeader().setStretchLastSection(True)
-        # # Hide the headers
-        # self.verticalHeader().setVisible(False)
-        # self.horizontalHeader().setVisible(False)
         # Disallow the user from being able to select the table cells
         self.setSelectionMode(QAbstractItemView.NoSelection)
         self.view_width = device_view_width(QFontMetrics(parent.font()).height())
+        self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
 
     def sizeHint(self):
         height = 0
         for row in range(self.model().rowCount()):
             height += self.sizeHintForRow(row)
         scrollbar_height = round(self.horizontalScrollBar().height() / 3)
-        return QSize(self.view_width, height + scrollbar_height)
+        delegate = self.itemDelegate()  # type: DeviceDelegate
+        height = height - delegate.footer  # + scrollbar_height
+        return QSize(self.view_width, height)
 
 
 class DeviceDelegate(QStyledItemDelegate):
@@ -184,7 +184,7 @@ class DeviceDelegate(QStyledItemDelegate):
         self.checkboxRect = QApplication.style().subElementRect(
             QStyle.SE_CheckBoxIndicator, self.checkboxStyleOption, None)
         
-        self.standard_font = parent.font()  # type: QFont
+        self.standard_font = QFont()  # type: QFont
         self.standard_font_bold = QFont(self.standard_font)
         self.standard_font_bold.setWeight(63)
         self.standard_metrics = QFontMetrics(self.standard_font)
@@ -223,20 +223,24 @@ class DeviceDelegate(QStyledItemDelegate):
         self.base_height = (self.padding * 2 + self.standard_height + self.footer)
         self.storage_height = (self.vertical_padding * 2 + self.standard_height + self.padding +
                                self.g_height + self.vertical_padding + self.details_height)
-
         self.contextMenu = QMenu()
-        self.openInFileBrowserAct = self.contextMenu.addAction(
-            _('Remove'))
-        self.openInFileBrowserAct.triggered.connect(
-            self.doRemoveDevice)
+        removeDeviceAct = self.contextMenu.addAction(_('Remove'))
+        removeDeviceAct.triggered.connect(self.removeDevice)
+        rescanDeviceAct = self.contextMenu.addAction(_('Rescan'))
+        rescanDeviceAct.triggered.connect(self.rescanDevice)
         # store the index in which the user right clicked
         self.clickedIndex = None  # type: QModelIndex
 
-    def doRemoveDevice(self) -> None:
+    def removeDevice(self) -> None:
         index = self.clickedIndex
         if index:
             scan_id = index.model().data(index, Roles.scan_id)  # type: Device
             self.rapidApp.removeDevice(scan_id)
+
+    def rescanDevice(self) -> None:
+        index = self.clickedIndex
+        if index:
+            pass
 
     def paint(self, painter: QPainter, option: QStyleOptionViewItem, index: QModelIndex) -> None:
         painter.save()
@@ -476,7 +480,11 @@ class DeviceDelegate(QStyledItemDelegate):
             QEvent.MouseButtonDblClick):
             if event.button() == Qt.RightButton:
                 self.clickedIndex = index
-                globalPos = self.parent().deviceView.viewport().mapToGlobal(event.pos())
+                scan_id = index.data(Roles.scan_id)
+                device = index.model().data(index, Qt.DisplayRole)  # type: Device
+
+                view = self.rapidApp.mapView(scan_id)
+                globalPos = view.viewport().mapToGlobal(event.pos())
                 self.contextMenu.popup(globalPos)
                 return False
             if event.button() != Qt.LeftButton or not self.getCheckBoxRect(
