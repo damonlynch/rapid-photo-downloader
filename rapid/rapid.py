@@ -341,6 +341,7 @@ class RapidWindow(QMainWindow):
 
         self.do_init = QtCore.QEvent.registerEventType()
         super().__init__(parent)
+        # Process Qt events - in this case, possible closing of splash screen
         app.processEvents()
 
         # Three values to handle window position quirks under X11:
@@ -375,7 +376,7 @@ class RapidWindow(QMainWindow):
         if auto_detect is not None:
             self.prefs.device_autodetection = auto_detect
         elif this_computer_path is not None:
-            self.prefs.device_autodetection = False
+            self.prefs.this_computer_source = True
             self.prefs.this_computer_path = this_computer_path
 
         self.prefs.photo_download_folder = '/data/Photos/Test'
@@ -544,8 +545,6 @@ class RapidWindow(QMainWindow):
 
         self.file_manager = get_default_file_manager()
 
-        module_path = os.path.dirname(os.path.abspath(inspect.getfile(
-            inspect.currentframe())))
         self.program_svg = ':/rapid-photo-downloader.svg'
         # Initialise use of libgphoto2
         self.gp_context = gp.Context()
@@ -628,6 +627,8 @@ class RapidWindow(QMainWindow):
         self.time_remaining = downloadtracker.TimeRemaining()
         self.time_check = downloadtracker.TimeCheck()
 
+        # Offload process is used to offload work that could otherwise
+        # cause this process and thus the GUI to become unresponsive
         self.offloadThread = QThread()
         self.offloadmq = OffloadManager(self.context, logging_level)
         self.offloadmq.moveToThread(self.offloadThread)
@@ -686,11 +687,13 @@ class RapidWindow(QMainWindow):
         prefs_valid, msg = self.prefs.check_prefs_for_validity()
         if not prefs_valid:
             self.notifyPrefsAreInvalid(details=msg)
+            self.auto_start_is_on = False
+        else:
+            self.auto_start_is_on = self.prefs.auto_download_at_startup
 
         self.setDownloadActionSensitivity()
         self.searchForCameras()
-        self.setupNonCameraDevices(on_startup=True, on_preference_change=False,
-                                   block_auto_start=not prefs_valid)
+        self.setupNonCameraDevices()
         self.setupManualPath()
         self.updateSourceButton()
         self.displayMessageInStatusBar()
@@ -873,13 +876,13 @@ class RapidWindow(QMainWindow):
         self.deviceView.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Fixed)
         self.setDeviceViewVisibility()
 
-        thisComputer = QWidget()
-        thisComputer.setObjectName('thisComputer')
+        self.thisComputer = QWidget()
+        self.thisComputer.setObjectName('thisComputer')
         thisComputerLayout = QVBoxLayout()
         thisComputerLayout.setContentsMargins(1, 1, 1, 1)
         thisComputerLayout.setSpacing(0)
         #TODO specify border color value from derived value or create new style
-        thisComputer.setStyleSheet('QWidget#thisComputer {border: 1px solid #c4c1bd; }')
+        self.thisComputer.setStyleSheet('QWidget#thisComputer {border: 1px solid #c4c1bd; }')
 
         thisComputerHeader = QWidget(self)
         thisComputerHeader.setStyleSheet(header_style)
@@ -904,14 +907,14 @@ class RapidWindow(QMainWindow):
         thisComputerLayout.addWidget(self.thisComputerView)
         thisComputerLayout.addStretch()
         thisComputerLayout.addWidget(self.fileSystemView, 10)
-        thisComputer.setLayout(thisComputerLayout)
+        self.thisComputer.setLayout(thisComputerLayout)
 
         self.thisComputerView.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Fixed)
         self.thisComputerView.setStyleSheet('QListView {border: 0px solid red;}')
         self.fileSystemView.setStyleSheet('FileSystemView {border: 0px solid red;}')
         self.setThisComputerViewVisibility()
 
-        devicePanelLayout.addWidget(thisComputer, 10)
+        devicePanelLayout.addWidget(self.thisComputer, 10)
         devicePanelLayout.addStretch()
 
         self.resizeDeviceView(self.deviceView)
@@ -996,10 +999,10 @@ class RapidWindow(QMainWindow):
         """
 
         if not self.thisComputerToggle.on():
-            self.thisComputerView.hide()
-            self.fileSystemView.hide()
+            self.thisComputer.hide()
             return False
         else:
+            self.thisComputer.setVisible(True)
             self.thisComputerView.setVisible(bool(self.prefs.this_computer_path))
             self.fileSystemView.setVisible(True)
             return True
@@ -1131,6 +1134,7 @@ class RapidWindow(QMainWindow):
                 scan_id = list(self.devices.this_computer)[0]
                 self.removeDevice(scan_id)
             self.prefs.this_computer_path = ''
+            self.fileSystemView.clearSelection()
         else:
             pass
             # TODO there is no path to scan - let the user know
@@ -1145,13 +1149,11 @@ class RapidWindow(QMainWindow):
         on = self.setDeviceViewVisibility()
         self.prefs.device_autodetection = on
         if not on:
-            self.deviceView.hide()
             for scan_id in list(self.devices.volumes_and_cameras):
                 self.removeDevice(scan_id)
         else:
             self.searchForCameras()
-            self.setupNonCameraDevices(on_startup=False, on_preference_change=True,
-                                       block_auto_start=False)
+            self.setupNonCameraDevices()
 
     def thisComputerPathChosen(self, index: QModelIndex) -> None:
         """
@@ -2505,6 +2507,12 @@ class RapidWindow(QMainWindow):
             self.updateSourceButton()
 
     def setupBackupDevices(self):
+        """
+        Setup devices to back up to.
+
+        Includes both auto detected back up devices, and manually
+        specified paths.
+        """
         if self.prefs.backup_device_autodetection:
             for mount in self.validMounts.mountedValidMountPoints():
                 if self.partitionValid(mount):
@@ -2523,23 +2531,9 @@ class RapidWindow(QMainWindow):
             self.backup_devices.no_photo_backup_devices,
             self.backup_devices.no_video_backup_devices)
 
-    def setupNonCameraDevices(self, on_startup: bool,
-                              on_preference_change: bool,
-                              block_auto_start: bool) -> None:
+    def setupNonCameraDevices(self) -> None:
         """
-        Setup devices from which to download from and backup to, and
-        if relevant start scanning them
-
-        Removes any image media that are currently not downloaded,
-        or finished downloading
-
-        :param on_startup: should be True if the program is still
-        starting i.e. this is being called from the program's
-        initialization.
-        :param on_preference_change: should be True if this is being
-        called as the result of a program preference being changed
-        :param block_auto_start: should be True if automation options to
-        automatically start a download should be ignored
+        Setup devices from which to download and initiates their scan.
         """
 
         if not self.prefs.device_autodetection:
@@ -2549,20 +2543,11 @@ class RapidWindow(QMainWindow):
         for mount in self.validMounts.mountedValidMountPoints():
             if self.partitionValid(mount):
                 path = mount.rootPath()
-                backup_type = self.isBackupPath(path)
                 if path not in self.backup_devices and self.shouldScanMountPath(path):
                     logging.debug("Will scan %s", mount.displayName())
                     mounts.append(mount)
                 else:
                     logging.debug("Will not scan %s", mount.displayName())
-
-        #TODO hey need to think about this now that we have cameras too
-        if block_auto_start:
-            self.auto_start_is_on = False
-        else:
-            self.auto_start_is_on = ((not on_preference_change) and
-                    ((self.prefs.auto_download_at_startup and on_startup) or
-                     (self.prefs.auto_download_upon_device_insertion and not on_startup)))
 
         for mount in mounts:
             icon_names, can_eject = self.getIconsAndEjectableForMount(mount)
@@ -2576,7 +2561,7 @@ class RapidWindow(QMainWindow):
 
     def setupManualPath(self) -> None:
         """
-        Handle initiating scan of manutally specified path
+        Setup This Computer path from which to download and initiates scan.
         :return:
         """
 
