@@ -182,6 +182,7 @@ class CustomColors(Enum):
 
 
 ThumbnailBackgroundName = '#555555'
+emptyViewHeight = 20
 
 
 class Desktop(Enum):

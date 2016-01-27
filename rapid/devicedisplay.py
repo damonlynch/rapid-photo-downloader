@@ -37,7 +37,7 @@ from PyQt5.QtWidgets import (QStyledItemDelegate,QStyleOptionViewItem, QApplicat
 from PyQt5.QtGui import (QPainter, QFontMetrics, QFont, QColor, QLinearGradient, QBrush, QPalette)
 
 from viewutils import RowTracker
-from constants import DeviceState, FileType, CustomColors, DeviceType, Roles
+from constants import (DeviceState, FileType, CustomColors, DeviceType, Roles, emptyViewHeight)
 from devices import Device, display_devices
 from utilities import thousands, format_size_for_user
 from storage import StorageSpace
@@ -156,13 +156,14 @@ class DeviceView(QListView):
         self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
 
     def sizeHint(self):
-        height = 0
-        for row in range(self.model().rowCount()):
-            height += self.sizeHintForRow(row)
-        scrollbar_height = round(self.horizontalScrollBar().height() / 3)
-        delegate = self.itemDelegate()  # type: DeviceDelegate
-        height = height - delegate.footer  # + scrollbar_height
-        return QSize(self.view_width, height)
+        if self.model().rowCount() > 0:
+            height = 0
+            for row in range(self.model().rowCount()):
+                height += self.sizeHintForRow(row)
+            delegate = self.itemDelegate()  # type: DeviceDelegate
+            height = height - delegate.footer
+            return QSize(self.view_width, height)
+        return QSize(self.view_width, emptyViewHeight)
 
 
 class DeviceDelegate(QStyledItemDelegate):
@@ -173,7 +174,8 @@ class DeviceDelegate(QStyledItemDelegate):
     videos = _('Videos')
     other = _('Other')
     empty = _('Empty Space')
-    
+    probing_text = _('Probing device...')
+
     shading_intensity = 104
 
     def __init__(self, parent):
@@ -223,6 +225,7 @@ class DeviceDelegate(QStyledItemDelegate):
         self.base_height = (self.padding * 2 + self.standard_height + self.footer)
         self.storage_height = (self.vertical_padding * 2 + self.standard_height + self.padding +
                                self.g_height + self.vertical_padding + self.details_height)
+
         self.contextMenu = QMenu()
         removeDeviceAct = self.contextMenu.addAction(_('Remove'))
         removeDeviceAct.triggered.connect(self.removeDevice)
@@ -451,6 +454,17 @@ class DeviceDelegate(QStyledItemDelegate):
             
             top = photos_g2_rect.bottom()
 
+        if len(device.storage_space) == 0:
+            # Storage space is zero, which for cameras means libgphoto2 is currently
+            # still trying to access the device
+            if device.device_type == DeviceType.camera:
+                painter.setPen(standard_pen_color)
+                painter.setFont(self.small_font)
+                probing_y = self.small_font_metrics.height() + deviceNameRect.bottom() + \
+                            self.padding
+                probing_x = x
+                painter.drawText(probing_x, probing_y, self.probing_text)
+
         painter.restore()
 
     def getLeftPoint(self, option: QStyleOptionViewItem ) -> QPoint:
@@ -461,7 +475,10 @@ class DeviceDelegate(QStyledItemDelegate):
 
     def sizeHint(self, option: QStyleOptionViewItem, index: QModelIndex) -> QSize:
         device = index.model().data(index, Qt.DisplayRole)  # type: Device
-        height = self.base_height + self.storage_height * len(device.storage_space)
+        if device.device_type == DeviceType.camera and len(device.storage_space) == 0:
+            height = self.base_height + self.device_name_height
+        else:
+            height = self.base_height + self.storage_height * len(device.storage_space)
         return QSize(self.view_width, height)
 
     def editorEvent(self, event: QEvent,

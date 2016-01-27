@@ -95,7 +95,7 @@ from constants import (BackupLocationType, DeviceType, ErrorType,
                        FileType, DownloadStatus, RenameAndMoveStatus,
                        photo_rename_test, ApplicationState,
                        PROGRAM_NAME, job_code_rename_test, CameraErrorCode,
-                       photo_rename_simple_test, ThumbnailBackgroundName)
+                       photo_rename_simple_test, ThumbnailBackgroundName, emptyViewHeight)
 import constants
 from thumbnaildisplay import (ThumbnailView, ThumbnailListModel, ThumbnailDelegate, DownloadTypes,
                               DownloadStats, ThumbnailSortFilterProxyModel)
@@ -862,7 +862,7 @@ class RapidWindow(QMainWindow):
         self.deviceToggle.setOn(self.prefs.device_autodetection)
         self.deviceToggle.valueChanged.connect(self.deviceToggleValueChange)
         self.deviceToggle.setToolTip(
-            _('Turn on or off the use of devices attached to this computer as a download source'))
+            _('Turn on or off the use of devices attached to this computer as download sources'))
         deviceHeaderLayout.addWidget(self.deviceLabel)
         deviceHeaderLayout.addStretch()
         deviceHeaderLayout.addWidget(self.deviceToggle)
@@ -913,6 +913,9 @@ class RapidWindow(QMainWindow):
 
         devicePanelLayout.addWidget(thisComputer, 10)
         devicePanelLayout.addStretch()
+
+        self.resizeDeviceView(self.deviceView)
+        self.resizeDeviceView(self.thisComputerView)
 
         self.leftPanelSplitter.addWidget(self.devicePanel)
 
@@ -2044,9 +2047,10 @@ class RapidWindow(QMainWindow):
                     title = _('Device inaccessible')
                     message = _('The %(camera)s appears to be in use by another application. You '
                                 'can close any other application (such as a file browser) that is '
-                                'using it and try again, or ignore this device. If that '
+                                'using it and try again. If that '
                                 'does not work, unplug the %(camera)s from the computer and plug '
-                                'it in again.') % {'camera':camera_model}
+                                'it in again. Alternatively, you can ignore '
+                                'this device.') % {'camera':camera_model}
                 msgBox = QMessageBox(QMessageBox.Warning, title, message,
                                 QMessageBox.NoButton, self)
                 msgBox.setIconPixmap(self.devices[scan_id].get_pixmap(QSize(30,30)))
