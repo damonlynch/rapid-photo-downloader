@@ -58,7 +58,7 @@ import gphoto2 as gp
 from PyQt5 import QtCore, QtWidgets, QtGui
 from PyQt5.QtCore import (QThread, Qt, QStorageInfo, QSettings, QPoint,
                           QSize, QTimer, QTextStream, QModelIndex,
-                          QRect, QItemSelection, QItemSelectionModel, QEventLoop)
+                          QRect, QItemSelection, QItemSelectionModel, pyqtSlot)
 from PyQt5.QtGui import (QIcon, QPixmap, QImage, QFont, QColor, QPalette, QFontMetrics,
                          QGuiApplication, QPainter, QMoveEvent)
 from PyQt5.QtWidgets import (QAction, QApplication, QMainWindow, QMenu,
@@ -286,6 +286,7 @@ class JobCodeDialog(QDialog):
         buttonBox.accepted.connect(self.accept)
         buttonBox.rejected.connect(self.reject)
 
+    @pyqtSlot()
     def accept(self):
         self.job_code = self.jobCodeComboBox.currentText()
         self.remember = self.rememberCheckBox.isChecked()
@@ -601,12 +602,9 @@ class RapidWindow(QMainWindow):
             self.gvolumeMonitor.cameraUnmounted.connect(self.cameraUnmounted)
             self.gvolumeMonitor.cameraMounted.connect(self.cameraMounted)
             self.gvolumeMonitor.partitionMounted.connect(self.partitionMounted)
-            self.gvolumeMonitor.partitionUnmounted.connect(
-                self.partitionUmounted)
-            self.gvolumeMonitor.volumeAddedNoAutomount.connect(
-                self.noGVFSAutoMount)
-            self.gvolumeMonitor.cameraPossiblyRemoved.connect(
-                self.cameraRemoved)
+            self.gvolumeMonitor.partitionUnmounted.connect(self.partitionUmounted)
+            self.gvolumeMonitor.volumeAddedNoAutomount.connect(self.noGVFSAutoMount)
+            self.gvolumeMonitor.cameraPossiblyRemoved.connect(self.cameraRemoved)
 
         # Track the creation of temporary directories
         self.temp_dirs_by_scan_id = {}
@@ -700,10 +698,6 @@ class RapidWindow(QMainWindow):
 
         settings = QSettings()
         settings.beginGroup("MainWindow")
-        self.proximityButton.setChecked(settings.value("proximityButtonPressed", True, bool))
-        self.proximityButtonClicked()
-        self.sourceButton.setChecked(settings.value("sourceButtonPressed", True, bool))
-        self.sourceButtonClicked()
 
         if self.prefs.this_computer_path:
             index = self.fileSystemModel.index(self.prefs.this_computer_path)
@@ -714,6 +708,10 @@ class RapidWindow(QMainWindow):
         self.window_show_requested_time = datetime.datetime.now()
         self.show()
 
+        self.proximityButton.setChecked(settings.value("proximityButtonPressed", True, bool))
+        self.proximityButtonClicked()
+        self.sourceButton.setChecked(settings.value("sourceButtonPressed", True, bool))
+        self.sourceButtonClicked()
 
     def startBackupManager(self):
         if not self.backup_manager_started:
@@ -734,11 +732,13 @@ class RapidWindow(QMainWindow):
         self.sourceButton.setText(addPushButtonLabelSpacer(text))
         self.sourceButton.setIcon(icon)
 
+    @pyqtSlot()
     def sourceButtonClicked(self) -> None:
         self.devicePanel.setVisible(self.sourceButton.isChecked())
         self.leftPanelSplitter.setVisible(not (self.devicePanel.isHidden() and
                                                self.temporalProximityView.isHidden()))
 
+    @pyqtSlot()
     def proximityButtonClicked(self) -> None:
         self.temporalProximityView.setVisible(self.proximityButton.isChecked())
         self.leftPanelSplitter.setVisible(not (self.devicePanel.isHidden() and
@@ -1119,6 +1119,7 @@ class RapidWindow(QMainWindow):
     def doAboutAction(self):
         pass
 
+    @pyqtSlot(int)
     def thisComputerToggleValueChanged(self, value: int) -> None:
         """
         Respond to This Computer Toggle Switch
@@ -1139,6 +1140,7 @@ class RapidWindow(QMainWindow):
             pass
             # TODO there is no path to scan - let the user know
 
+    @pyqtSlot(int)
     def deviceToggleValueChange(self, value: int) -> None:
         """
         Respond to Devices Toggle Switch
@@ -1155,6 +1157,7 @@ class RapidWindow(QMainWindow):
             self.searchForCameras()
             self.setupNonCameraDevices()
 
+    @pyqtSlot(QModelIndex)
     def thisComputerPathChosen(self, index: QModelIndex) -> None:
         """
         Handle user selecting new device location path.
@@ -1177,6 +1180,7 @@ class RapidWindow(QMainWindow):
             self.thisComputerView.show()
             self.setupManualPath()
 
+    @pyqtSlot()
     def downloadButtonClicked(self) -> None:
         if False: #self.copy_files_manager.paused:
             logging.debug("Download resumed")
@@ -1407,6 +1411,7 @@ class RapidWindow(QMainWindow):
 
         self.copyfilesmq.start_worker(scan_id, copyfiles_args)
 
+    @pyqtSlot(int, str, str)
     def tempDirsReceivedFromCopyFiles(self, scan_id: int,
                                       photo_temp_dir: str,
                                       video_temp_dir: str) -> None:
@@ -1442,6 +1447,7 @@ class RapidWindow(QMainWindow):
         if remove_entry:
             del self.temp_dirs_by_scan_id[scan_id]
 
+    @pyqtSlot(bool, RPDFile, int)
     def copyfilesDownloaded(self, download_succeeded: bool,
                             rpd_file: RPDFile,
                             download_count: int) -> None:
@@ -1457,6 +1463,7 @@ class RapidWindow(QMainWindow):
                                      download_succeeded=download_succeeded)
         self.renamemq.rename_file(data)
 
+    @pyqtSlot(bytes)
     def copyfilesBytesDownloaded(self, pickled_data: bytes) -> None:
         data = pickle.loads(pickled_data) # type: CopyFilesResults
         scan_id = data.scan_id
@@ -1473,9 +1480,11 @@ class RapidWindow(QMainWindow):
                                     None)
         self.time_remaining.update(scan_id, bytes_downloaded=chunk_downloaded)
 
+    @pyqtSlot()
     def copyfilesFinished(self) -> None:
         pass
 
+    @pyqtSlot(bool, RPDFile, int, QPixmap)
     def fileRenamedAndMoved(self, move_succeeded: bool, rpd_file: RPDFile,
                             download_count: int, thumbnail: QPixmap) -> None:
 
@@ -1535,8 +1544,9 @@ class RapidWindow(QMainWindow):
                                   self.prefs.save_fdo_thumbnails)
             self.backupmq.backup_file(data, device_id)
 
-    def fileBackedUp(self, device_id: int, backup_succeeded: bool, do_backup:
-                     bool, rpd_file: RPDFile) -> None:
+    @pyqtSlot(int, bool, bool, RPDFile)
+    def fileBackedUp(self, device_id: int, backup_succeeded: bool, do_backup: bool,
+                     rpd_file: RPDFile) -> None:
 
         # Only show an error message if there is more than one device
         # backing up files of this type - if that is the case,
@@ -1560,6 +1570,7 @@ class RapidWindow(QMainWindow):
                             "locations", rpd_file.download_name)
                 self.fileDownloadFinished(backup_succeeded, rpd_file)
 
+    @pyqtSlot(bytes)
     def backupFileBytesBackedUp(self, pickled_data: bytes) -> None:
         data = pickle.loads(pickled_data) # type: BackupResults
         scan_id = data.scan_id
@@ -1572,7 +1583,8 @@ class RapidWindow(QMainWindow):
         self.deviceModel.updateDownloadProgress(scan_id, percent_complete, '')
         self.time_remaining.update(scan_id, bytes_downloaded=chunk_downloaded)
 
-    def updateSequences(self, stored_sequence_no: int, downloads_today: list) -> None:
+    @pyqtSlot(int, list)
+    def updateSequences(self, stored_sequence_no: int, downloads_today: List[str]) -> None:
         """
         Called at conclusion of a download, with values coming from
         renameandmovefile process
@@ -1584,6 +1596,7 @@ class RapidWindow(QMainWindow):
         if self.application_state == ApplicationState.exiting:
             self.close()
 
+    @pyqtSlot()
     def fileRenamedAndMovedFinished(self) -> None:
         pass
 
@@ -2003,6 +2016,7 @@ class RapidWindow(QMainWindow):
                 return BackupMissing(photo=photo_missing, video=video_missing)
         return None
 
+    @pyqtSlot(bytes)
     def scanMessageReceived(self, pickled_data: bytes) -> None:
         """
         Process data received from the scan process.
@@ -2075,6 +2089,7 @@ class RapidWindow(QMainWindow):
                 self.deviceModel.updateDeviceScan(scan_id)
                 self.resizeDeviceView(self.deviceView)
 
+    @pyqtSlot(int)
     def scanFinished(self, scan_id: int) -> None:
         if scan_id not in self.devices:
             return
@@ -2107,6 +2122,7 @@ class RapidWindow(QMainWindow):
         """
         QTimer.singleShot(0, self.close)
 
+    @pyqtSlot(QItemSelection, QItemSelection)
     def proximitySelectionChanged(self, current: QItemSelection, previous: QItemSelection) -> None:
         """
         Respond to user selections in Temporal Proximity Table.
@@ -2148,6 +2164,7 @@ class RapidWindow(QMainWindow):
                            proximity_seconds=proximity_seconds)
         self.offloadmq.assign_work(data)
 
+    @pyqtSlot(TemporalProximityGroups)
     def proximityGroupsGenerated(self, proximity_groups: TemporalProximityGroups) -> None:
 
         self.temporalProximityModel.groups = proximity_groups
@@ -2271,6 +2288,7 @@ class RapidWindow(QMainWindow):
         else:
             view.setMaximumHeight(20)
 
+    @pyqtSlot()
     def cameraAdded(self) -> None:
         if not self.prefs.device_autodetection:
             logging.debug("Ignoring camera as device auto detection is off")
@@ -2279,6 +2297,7 @@ class RapidWindow(QMainWindow):
                           "immediately proceeding with scan")
         self.searchForCameras()
 
+    @pyqtSlot()
     def cameraRemoved(self) -> None:
         """
         Handle the possible removal of a camera by comparing the
@@ -2302,6 +2321,7 @@ class RapidWindow(QMainWindow):
         if removed_cameras:
             self.setDownloadActionSensitivity()
 
+    @pyqtSlot()
     def noGVFSAutoMount(self) -> None:
         """
         In Gnome like environment we rely on Gnome automatically
@@ -2312,21 +2332,22 @@ class RapidWindow(QMainWindow):
         #TODO Implement noGVFSAutoMount()
         print("Implement noGVFSAutoMount()")
 
+    @pyqtSlot()
     def cameraMounted(self):
         if have_gio:
             self.searchForCameras()
 
-    def unmountCamera(self, model, port):
+    def unmountCamera(self, model: str, port: str) -> bool:
         if self.gvfsControlsMounts:
             self.cameras_to_unmount[port] = model
             if self.gvolumeMonitor.unmountCamera(model, port):
                 return True
             else:
                 del self.cameras_to_unmount[port]
-        # TODO: handle unmounting other desktop environments, e.g. KDE
         return False
 
-    def cameraUnmounted(self, result, model, port, download_started):
+    @pyqtSlot(bool, str, str, bool)
+    def cameraUnmounted(self, result: bool, model: str, port: str, download_started: bool) -> None:
         if not download_started:
             assert self.cameras_to_unmount[port] == model
             del self.cameras_to_unmount[port]
@@ -2422,7 +2443,8 @@ class RapidWindow(QMainWindow):
                 # if mount is not None:
                 #     self.mounts_by_path[path] = scan_pid
 
-    def partitionMounted(self, path: str, iconNames: list, canEject: bool) -> None:
+    @pyqtSlot(str, list, bool)
+    def partitionMounted(self, path: str, iconNames: List[str], canEject: bool) -> None:
         """
         Setup devices from which to download from and backup to, and
         if relevant start scanning them
@@ -2431,8 +2453,8 @@ class RapidWindow(QMainWindow):
         :param iconNames: a list of names of icons used in themed icons
         associated with this partition
         :param canEject: whether the partition can be ejected or not
-        :type iconNames: list[str]
         """
+
         assert path in mountPaths()
 
         if self.monitorPartitionChanges():
@@ -2458,6 +2480,7 @@ class RapidWindow(QMainWindow):
                                                     iconNames, canEject, mount)
                     self.prepareNonCameraDeviceScan(device)
 
+    @pyqtSlot(str)
     def partitionUmounted(self, path: str) -> None:
         """
         Handle the unmounting of partitions by the system / user.

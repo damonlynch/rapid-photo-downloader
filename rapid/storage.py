@@ -631,7 +631,7 @@ if have_gio:
         volumeAddedNoAutomount = pyqtSignal()
         cameraPossiblyRemoved = pyqtSignal()
 
-        def __init__(self, validMounts: ValidMounts):
+        def __init__(self, validMounts: ValidMounts) -> None:
             super(GVolumeMonitor, self).__init__()
             self.vm = Gio.VolumeMonitor.get()
             self.vm.connect('mount-added', self.mountAdded)
@@ -682,35 +682,29 @@ if have_gio:
             if to_unmount is not None:
                 logging.debug("GIO: Attempting to unmount %s...", model)
                 to_unmount.unmount_with_operation(0,
-                      None, None, self.unmountCallback,
-                      (model, port, download_starting))
+                      None, None, self.unmountCallback, (model, port, download_starting))
                 return True
 
             return False
 
-        def unmountCallback(self, mount: Gio.Mount, result: Gio.AsyncResult,
-                             userData):
+        def unmountCallback(self, mount: Gio.Mount, result: Gio.AsyncResult, user_data) -> None:
             """
             Called by the asynchronous unmount operation.
             When complete, emits a signal indicating operation
             success, and the camera model and port
             :param mount: camera mount
             :param result: result of the unmount process
-            :param userData: model and port of the camera being
+            :param user_data: model and port of the camera being
             unmounted, in the format of libgphoto2
-            :type userData: Tuple[str,str,bool]
+            :type user_data: Tuple[str,str,bool]
             """
-            icon_names = self.getIconNames(mount)
             if mount.unmount_with_operation_finish(result):
-                logging.debug("...successfully unmounted {}".format(
-                    userData[0]))
-                self.cameraUnmounted.emit(True, userData[0], userData[1],
-                                          userData[2])
+                logging.debug("...successfully unmounted {}".format(user_data[0]))
+                self.cameraUnmounted.emit(True, user_data[0], user_data[1], user_data[2])
             else:
                 logging.debug("...failed to unmount {}".format(
-                    userData[0]))
-                self.cameraUnmounted.emit(False, userData[0], userData[1],
-                                          userData[2])
+                    user_data[0]))
+                self.cameraUnmounted.emit(False, user_data[0], user_data[1], user_data[2])
 
         def mountIsCamera(self, mount: Gio.Mount) -> str:
             """
@@ -752,7 +746,7 @@ if have_gio:
             #     logging.debug("GIO: partition is not valid: {}".format(path))
             return False
 
-        def mountAdded(self, volumeMonitor, mount: Gio.Mount):
+        def mountAdded(self, volumeMonitor, mount: Gio.Mount) -> None:
             if self.mountIsCamera(mount):
                 self.cameraMounted.emit()
             elif self.mountIsPartition(mount):
@@ -761,13 +755,13 @@ if have_gio:
                                            icon_names,
                                            mount.can_eject())
 
-        def mountRemoved(self, volumeMonitor, mount: Gio.Mount):
+        def mountRemoved(self, volumeMonitor, mount: Gio.Mount) -> None:
             if not self.mountIsCamera(mount):
                 if self.mountIsPartition(mount):
                     logging.debug("GIO: %s has been unmounted", mount.get_name())
                     self.partitionUnmounted.emit(mount.get_root().get_path())
 
-        def volumeAdded(self, volumeMonitor, volume: Gio.Volume):
+        def volumeAdded(self, volumeMonitor, volume: Gio.Volume) -> None:
             logging.debug("GIO: Volume added %s. Automount: %s",
                           volume.get_name(),
                           volume.should_automount())
@@ -775,7 +769,7 @@ if have_gio:
                 #TODO is it possible to determine the device type?
                 self.volumeAddedNoAutomount.emit()
 
-        def volumeRemoved(self, volumeMonitor, volume: Gio.Volume):
+        def volumeRemoved(self, volumeMonitor, volume: Gio.Volume) -> None:
             logging.debug("GIO: %s volume removed", volume.get_name())
             if volume.get_activation_root() is not None:
                 # logging.debug("GIO: %s might be a camera", volume.get_name())

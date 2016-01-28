@@ -31,7 +31,7 @@ import logging
 from gettext import gettext as _
 
 from PyQt5.QtCore import (QModelIndex, QSize, Qt, QPoint, QRect, QRectF,
-                          QEvent, QAbstractItemModel, QAbstractListModel)
+                          QEvent, QAbstractItemModel, QAbstractListModel, pyqtSlot)
 from PyQt5.QtWidgets import (QStyledItemDelegate,QStyleOptionViewItem, QApplication, QStyle,
                              QListView, QStyleOptionButton, QAbstractItemView, QMenu, QWidget)
 from PyQt5.QtGui import (QPainter, QFontMetrics, QFont, QColor, QLinearGradient, QBrush, QPalette)
@@ -234,12 +234,14 @@ class DeviceDelegate(QStyledItemDelegate):
         # store the index in which the user right clicked
         self.clickedIndex = None  # type: QModelIndex
 
+    @pyqtSlot()
     def removeDevice(self) -> None:
         index = self.clickedIndex
         if index:
             scan_id = index.model().data(index, Roles.scan_id)  # type: Device
             self.rapidApp.removeDevice(scan_id)
 
+    @pyqtSlot()
     def rescanDevice(self) -> None:
         index = self.clickedIndex
         if index:

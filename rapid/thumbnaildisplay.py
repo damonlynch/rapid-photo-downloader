@@ -38,8 +38,9 @@ from sortedcontainers import (SortedListWithKey, SortedList)
 import arrow.arrow
 from dateutil.tz import tzlocal
 
-from PyQt5.QtCore import  (QAbstractListModel, QModelIndex, Qt, pyqtSignal, QSize, QRect, QEvent,
-                           QPoint, QMargins, QSortFilterProxyModel, QRegExp, QAbstractItemModel)
+from PyQt5.QtCore import (QAbstractListModel, QModelIndex, Qt, pyqtSignal, QSize, QRect, QEvent,
+                          QPoint, QMargins, QSortFilterProxyModel, QRegExp, QAbstractItemModel,
+                          pyqtSlot)
 from PyQt5.QtWidgets import (QListView, QStyledItemDelegate, QStyleOptionViewItem, QApplication,
                              QStyle, QStyleOptionButton, QMenu, QWidget)
 from PyQt5.QtGui import (QPixmap, QImage, QPainter, QColor, QBrush, QFontMetrics)
@@ -311,6 +312,7 @@ class ThumbnailListModel(QAbstractListModel):
             self.total_thumbs_to_generate += 1
             self.no_thumbnails_by_scan[rpd_file.scan_id] += 1
 
+    @pyqtSlot(int, CacheDirs)
     def cacheDirsReceived(self, scan_id: int, cache_dirs: CacheDirs):
         if scan_id in self.rapidApp.devices:
             self.rapidApp.devices[scan_id].photo_cache_dir = \
@@ -318,8 +320,8 @@ class ThumbnailListModel(QAbstractListModel):
             self.rapidApp.devices[scan_id].video_cache_dir = \
                 cache_dirs.video_cache_dir
 
-    def thumbnailReceived(self, rpd_file: RPDFile,
-                          thumbnail: Optional[QPixmap]) -> None:
+    @pyqtSlot(RPDFile, QPixmap)
+    def thumbnailReceived(self, rpd_file: RPDFile, thumbnail: Optional[QPixmap]) -> None:
         unique_id = rpd_file.unique_id
         scan_id = rpd_file.scan_id
         self.rpd_files[unique_id] = rpd_file
@@ -361,6 +363,7 @@ class ThumbnailListModel(QAbstractListModel):
             self.rapidApp.prefs.video_download_folder, is_photo_dir=False)
         return CacheDirs(photo_cache_folder, video_cache_folder)
 
+    @pyqtSlot()
     def thumbnailerReady(self) -> None:
         self.thumbnailer_ready = True
         if self.thumbnailer_generation_queue:
@@ -816,13 +819,14 @@ class ThumbnailDelegate(QStyledItemDelegate):
         self.lightGray = QColor(221,221,221)
         self.darkGray = QColor(51, 51, 51)
 
-
+    @pyqtSlot()
     def doCopyPathAction(self) -> None:
         index = self.clickedIndex
         if index:
             path = index.model().data(index, Roles.path)
             QApplication.clipboard().setText(path)
 
+    @pyqtSlot()
     def doOpenInFileBrowserAct(self) -> None:
         index = self.clickedIndex
         if index:

@@ -22,7 +22,7 @@ __copyright__ = "Copyright 2015-2016, Damon Lynch"
 import pickle
 from typing import Optional
 import zmq
-from PyQt5.QtCore import (QThread, QTimer, pyqtSignal, QObject)
+from PyQt5.QtCore import (QThread, QTimer, pyqtSignal, pyqtSlot, QObject)
 from PyQt5.QtGui import (QPixmap, QImage)
 
 from interprocess import (LoadBalancerManager, PublishPullPipelineManager,
@@ -147,7 +147,8 @@ class Thumbnailer(QObject):
         self.load_balancer.load_balancer_started.connect(self.loadBalancerFrontendPort)
         QTimer.singleShot(0, self.load_balancer_thread.start)
 
-    def loadBalancerFrontendPort(self, frontend_port: int):
+    @pyqtSlot(int)
+    def loadBalancerFrontendPort(self, frontend_port: int) -> None:
         self.frontend_port = frontend_port
         self.ready.emit()
 

@@ -33,7 +33,7 @@ from typing import Optional, Set, List, Dict
 from psutil import (Process, wait_procs, pid_exists)
 from sortedcontainers import SortedListWithKey
 
-from PyQt5.QtCore import (pyqtSignal, QObject)
+from PyQt5.QtCore import (pyqtSignal, QObject, pyqtSlot)
 from PyQt5.QtGui import QPixmap
 
 import zmq
@@ -209,6 +209,7 @@ class PullPipelineManager(ProcessManager, QObject):
 
         self.terminating = False
 
+    @pyqtSlot()
     def run_sink(self) -> None:
         logging.debug("Running sink for %s", self._process_name)
         while True:
@@ -428,6 +429,7 @@ class LoadBalancerManager(ProcessManager, QObject):
         self.no_workers = no_workers
         self.sink_port = sink_port
 
+    @pyqtSlot()
     def start_load_balancer(self) -> None:
         worker_id = 0
         self.add_worker(worker_id)

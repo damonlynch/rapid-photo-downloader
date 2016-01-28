@@ -33,7 +33,7 @@ __copyright__ = "Copyright 2016, Damon Lynch"
 
 from typing import Optional
 
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, pyqtSlot
 from PyQt5.QtGui import QPalette, QColor, QFont,QFontMetrics
 from PyQt5.QtWidgets import QSlider, QApplication
 
@@ -145,6 +145,7 @@ class QToggleSwitch(QSlider):
                    insetLightName=insetLightName,
                    radius=self.radius)
 
+    @pyqtSlot(int)
     def onActionTriggered(self, action: int) -> None:
         if action != 7:
             if action % 2:
@@ -152,6 +153,7 @@ class QToggleSwitch(QSlider):
             else:
                 self.setValue(0)
 
+    @pyqtSlot()
     def onSliderRelease(self) -> None:
         if self.sliderPosition() >= self.sliderMidPoint:
             self.setValue(self.sliderRange)
