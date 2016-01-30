@@ -30,7 +30,7 @@ import shlex
 from itertools import chain
 import logging
 from timeit import timeit
-from typing import Optional, Dict, List, Set
+from typing import Optional, Dict, List, Set, Tuple
 
 from gettext import gettext as _
 
@@ -450,10 +450,7 @@ class ThumbnailListModel(QAbstractListModel):
         if scan_id is not None:
             return len(self.marked[scan_id]) > 0
         else:
-            for scan_id in self.marked:
-                if len(self.marked[scan_id]) > 0:
-                    return True
-        return False
+            return any(len(self.marked[scan_id]) > 0 for scan_id in self.marked)
 
     def getNoFilesMarkedForDownload(self) -> int:
         return sum((len(self.marked[scan_id]) for scan_id in self.marked))
@@ -461,19 +458,10 @@ class ThumbnailListModel(QAbstractListModel):
     def getSizeOfFilesMarkedForDownload(self) -> int:
         return sum(self.rpd_files[unique_id].size for scan_id in self.marked for unique_id in
              self.marked[scan_id])
-        # size = 0
-        # for unique_id in self.marked:
-        #     size += self.rpd_files[unique_id].size
-        # return size
 
     def getNoFilesAvailableForDownload(self) -> FileTypeCounter:
         return FileTypeCounter(rpd_file.file_type for rpd_file in self.rpd_files.values() if
                                 rpd_file.status == DownloadStatus.not_downloaded)
-        # file_type_counter = FileTypeCounter()
-        # for unique_id, rpd_file in self.rpd_files.items():
-        #     if rpd_file.status == DownloadStatus.not_downloaded:
-        #         file_type_counter[rpd_file.file_type] += 1
-        # return file_type_counter
 
     def getFilesMarkedForDownload(self, scan_id: int) -> DownloadFiles:
         """
@@ -520,7 +508,7 @@ class ThumbnailListModel(QAbstractListModel):
                 # if large FDO Cache thumbnail does not exist or if the
                 # existing thumbnail has been marked as not suitable for the
                 # FDO Cache (e.g. if we don't know the correct orientation).
-                # TODO check to see if this code should be update given can now
+                # TODO check to see if this code should be updated given can now
                 # read orientation from most cameras
                 if ((rpd_file.thumbnail_status !=
                         ThumbnailCacheStatus.suitable_for_fdo_cache_write) or
@@ -566,7 +554,7 @@ class ThumbnailListModel(QAbstractListModel):
                 generation_needed = True
         return generation_needed
 
-    def getNoFilesRemaining(self, scan_id: int=None) -> int:
+    def getNoFilesRemaining(self, scan_id: Optional[int]=None) -> int:
         """
         :param scan_id: if None, returns files remaining to be
          downloaded for all scan_ids, else only for that scan_id.
@@ -575,17 +563,14 @@ class ThumbnailListModel(QAbstractListModel):
 
         i = 0
         if scan_id is not None:
-            for unique_id in self.scan_index[scan_id]:
-                if self.rpd_files[unique_id].status == DownloadStatus.not_downloaded:
-                    i += 1
+            return sum(self.rpd_files[unique_id].status == DownloadStatus.not_downloaded
+                       for unique_id in self.scan_index[scan_id])
         else:
-            for rpd_file in self.rpd_files.values():
-                if rpd_file.status == DownloadStatus.not_downloaded:
-                    i += 1
-        return i
+            return sum(rpd_file.status == DownloadStatus.not_downloaded
+                       for rpd_file in self.rpd_files.values())
 
     def uniqueIdsByStatus(self, download_status: DownloadStatus,
-                          scan_id: Optional[int]=None):
+                          scan_id: Optional[int]=None) -> Tuple[str]:
         if scan_id is not None:
             return (unique_id for unique_id in self.scan_index[scan_id]
                     if self.rpd_files[unique_id].status == download_status)
@@ -595,7 +580,7 @@ class ThumbnailListModel(QAbstractListModel):
 
     def uniqueIdsByStatusAndType(self, download_status: DownloadStatus,
                                  file_type: FileType,
-                                 scan_id: Optional[int]=None):
+                                 scan_id: Optional[int]=None) -> Tuple[str]:
         if scan_id is not None:
             return (unique_id for unique_id in self.scan_index[scan_id]
                     if self.rpd_files[unique_id].status == download_status and

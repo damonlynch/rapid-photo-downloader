@@ -76,9 +76,7 @@ class Device:
     >>> c = Device()
     >>> for model, port in cameras:
     ...     c.set_download_from_camera(model, port)
-    ...     isinstance(c.no_storage_media, int)
     ...     isinstance(c.display_name, str)
-    False
     True
     >>> e = Device()
     >>> e.set_download_from_volume('/media/damon/EOS_DIGITAL', 'EOS_DIGITAL')
@@ -100,7 +98,6 @@ class Device:
         # Assume an MTP device is likely a smart phone or tablet
         self.is_mtp_device = False
         self.udev_name = None # type: str
-        self.no_storage_media = None # type: int
         self.storage_space = [] # type: List[StorageSpace]
         self.path = None # type: str
         self.display_name = None # type: str
@@ -172,14 +169,13 @@ class Device:
                 self.udev_name = udev_attr.model
                 self.display_name = udev_attr.model
         else:
-            logging.error("Could not determine port values for %s %s", self.camera_model,
-                          camera_port)
+            logging.error("Could not determine port values for %s %s",
+                          self.camera_model, camera_port)
 
     def update_camera_attributes(self, display_name: str,
                                  storage_space: List[StorageSpace]) -> None:
         self.display_name = display_name
         self.have_optimal_display_name = True
-        self.no_storage_media = len(storage_space)
         self.storage_space = storage_space
 
     def set_download_from_volume(self, path: str, display_name: str,

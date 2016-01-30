@@ -20,12 +20,13 @@
 Display details of devices like cameras, external drives and folders on the
 computer.
 """
+from plainbox.impl import device
 
 __author__ = 'Damon Lynch'
 __copyright__ = "Copyright 2015-2016, Damon Lynch"
 
 from collections import namedtuple, defaultdict
-from typing import Optional, Dict
+from typing import Optional, Dict, List, Set
 import logging
 
 from gettext import gettext as _
@@ -34,10 +35,12 @@ from PyQt5.QtCore import (QModelIndex, QSize, Qt, QPoint, QRect, QRectF,
                           QEvent, QAbstractItemModel, QAbstractListModel, pyqtSlot)
 from PyQt5.QtWidgets import (QStyledItemDelegate,QStyleOptionViewItem, QApplication, QStyle,
                              QListView, QStyleOptionButton, QAbstractItemView, QMenu, QWidget)
-from PyQt5.QtGui import (QPainter, QFontMetrics, QFont, QColor, QLinearGradient, QBrush, QPalette)
+from PyQt5.QtGui import (QPainter, QFontMetrics, QFont, QColor, QLinearGradient, QBrush, QPalette,
+                         QPixmap)
 
 from viewutils import RowTracker
-from constants import (DeviceState, FileType, CustomColors, DeviceType, Roles, emptyViewHeight)
+from constants import (DeviceState, FileType, CustomColors, DeviceType, Roles, emptyViewHeight,
+                       ViewRowType)
 from devices import Device, display_devices
 from utilities import thousands, format_size_for_user
 from storage import StorageSpace
@@ -46,15 +49,25 @@ from rpdfile import make_key
 def device_view_width(standard_font_size: int) -> int:
     return standard_font_size * 12
 
+def icon_size() -> int:
+    return QFontMetrics(QFont()).height()
+
 class DeviceModel(QAbstractListModel):
     def __init__(self, parent):
         super().__init__(parent)
         self.rapidApp = parent
-        self.devices = {} # type: Dict[int, Device]
-        self.state = {} # type: Dict[int, DeviceState]
-        self.progress = defaultdict(float) # type: Dict[int, float]
+        self.devices = {}  # type: Dict[int, Device]
+        self.state = {}  # type: Dict[int, DeviceState]
         self.checked = defaultdict(lambda: True) # type: Dict[int, bool]
-        self.rows = RowTracker()
+        self.icons = {}  # type: Dict[int, QPixmap]
+        self.rows = RowTracker()  # type: RowTracker
+        self.row_id_counter = 0  # type: int
+        self.row_id_to_scan_id = dict()  # type: Dict[int, int]
+        self.scan_id_to_row_ids = defaultdict(list)  # type: Dict[int, List[int]]
+        self.storage= dict()  # type: Dict[int, StorageSpace]
+        self.headers = set()  # type: Set[int]
+
+        self.icon_size = icon_size()
 
     def columnCount(self, parent=QModelIndex()):
         return 1
@@ -69,37 +82,96 @@ class DeviceModel(QAbstractListModel):
 
     def removeRows(self, position, rows=1, index=QModelIndex()):
         self.beginRemoveRows(QModelIndex(), position, position + rows - 1)
-        scan_ids = self.rows.removeRows(position, rows)
-        for scan_id in scan_ids:
-            del self.devices[scan_id]
-            del self.state[scan_id]
-            if scan_id in self.progress:
-                del self.progress[scan_id]
-            if scan_id in self.checked:
-                del self.checked[scan_id]
         self.endRemoveRows()
         return True
 
     def addDevice(self, scan_id: int, device: Device) -> None:
+        no_storage = max(len(device.storage_space), 1)
+        no_rows = no_storage + 1
+
+        if len(device.storage_space):
+            i = 0
+            start_row_id = self.row_id_counter + 1
+            for row_id in range(start_row_id, start_row_id + len(device.storage_space)):
+                self.storage[row_id] = device.storage_space[i]
+                i += 1
+        else:
+            self.storage[self.row_id_counter + 1] = None
+
+        self.headers.add(self.row_id_counter)
+
         row = self.rowCount()
-        self.insertRow(row)
+        self.insertRows(row, no_rows)
+
+        for row_id in range(self.row_id_counter, self.row_id_counter + no_rows):
+            self.row_id_to_scan_id[row_id] = scan_id
+            self.rows[row] = row_id
+            self.scan_id_to_row_ids[scan_id].append(row_id)
+            row += 1
+        self.row_id_counter += no_rows
 
         self.devices[scan_id] = device
         self.state[scan_id] = DeviceState.scanning
-        self.rows[row] = scan_id
+        self.icons[scan_id] = device.get_pixmap(QSize(self.icon_size, self.icon_size))
 
-    def removeDevice(self, scan_id: int):
-        row = self.rows.row(scan_id)
-        self.removeRows(row)
+    def updateDeviceNameAndStorage(self, scan_id: int, device: Device) -> None:
+        """
+        Update Cameras with updated storage information and display
+        name as reported by libgphoto2.
 
-    def updateDeviceScan(self, scan_id: int):
-        row = self.rows.row(scan_id)
-        column = 0
-        self.dataChanged.emit(self.index(row, column), self.index(row, column))
+        If number of storage devies is > 1, adds new additional rows
+        for the camera.
 
-    def updateDownloadProgress(self, scan_id: int, percent_complete: float,
-                               progress_bar_text: str):
-        pass
+        :param scan_id: id of the camera
+        :param device: camera device
+        """
+
+        row_ids = self.scan_id_to_row_ids[scan_id]
+        if len(device.storage_space) > 1:
+            # Add a new row after the current empty storage row
+            row_id = row_ids[1]
+            row = self.rows[row_id]
+
+            for i in range(len(device.storage_space) - 1):
+                row += 1
+                new_row_id = self.row_id_counter + i
+                self.rows.insert_row(row, new_row_id)
+                self.scan_id_to_row_ids[scan_id].append(new_row_id)
+                self.row_id_to_scan_id[new_row_id] = scan_id
+            self.row_id_counter += len(device.storage_space) - 1
+
+        for idx, storage_space in enumerate(device.storage_space):
+            row_id = row_ids[idx + 1]
+            self.storage[row_id] = storage_space
+
+        row = self.rows.row(row_ids[0])
+        self.dataChanged.emit(self.index(row, 0),
+                              self.index(row + len(self.devices[scan_id].storage_space), 0))
+
+    def removeDevice(self, scan_id: int) -> None:
+        row_ids = self.scan_id_to_row_ids[scan_id]
+        row = self.rows.row(row_ids[0])
+        self.rows.remove_rows(row, len(row_ids))
+        del self.devices[scan_id]
+        del self.state[scan_id]
+        if scan_id in self.checked:
+            del self.checked[scan_id]
+        self.headers.remove(row_ids[0])
+
+        self.removeRows(row, len(row_ids))
+
+    def updateDeviceScan(self, scan_id: int) -> None:
+        row_id = self.scan_id_to_row_ids[scan_id][0]
+        row = self.rows.row(row_id)
+        # TODO optimize which storage space is updated
+        self.dataChanged.emit(self.index(row + 1, 0),
+                              self.index(row + len(self.devices[scan_id].storage_space), 0))
+
+    def setDeviceState(self, scan_id: int, state: DeviceState) -> None:
+        self.state[scan_id] = state
+        row_id = self.scan_id_to_row_ids[scan_id][0]
+        row = self.rows.row(row_id)
+        self.dataChanged.emit(self.index(row, 0), self.index(row, 0))
 
     def data(self, index: QModelIndex, role=Qt.DisplayRole):
 
@@ -111,18 +183,28 @@ class DeviceModel(QAbstractListModel):
             return None
         if row not in self.rows:
             return None
-        scan_id = self.rows[row]
+
+        row_id = self.rows[row]
+        scan_id = self.row_id_to_scan_id[row_id]
+
         if role == Qt.DisplayRole:
-            device = self.devices[scan_id] # type: Device
-            return device
+            if row_id in self.headers:
+                return ViewRowType.header
+            else:
+                return ViewRowType.content
         elif role == Qt.CheckStateRole:
             return self.checked[scan_id]
         elif role == Roles.scan_id:
             return scan_id
-        elif role == Qt.ToolTipRole:
+        else:
             device = self.devices[scan_id] # type: Device
-            if device.device_type in (DeviceType.path, DeviceType.volume):
-                return device.path
+            if role == Qt.ToolTipRole:
+                if device.device_type in (DeviceType.path, DeviceType.volume):
+                    return device.path
+            elif role == Roles.device_details:
+                return device.display_name, self.icons[scan_id], self.state[scan_id]
+            elif role == Roles.storage:
+                return device, self.storage[row_id]
         return None
 
     def setData(self, index: QModelIndex, value, role: int) -> bool:
@@ -132,7 +214,9 @@ class DeviceModel(QAbstractListModel):
         row = index.row()
         if row >= len(self.rows) or row < 0:
             return False
-        scan_id = self.rows[row]
+        row_id = self.rows[row]
+        scan_id = self.row_id_to_scan_id[row_id]
+
         if role == Qt.CheckStateRole:
             self.setCheckedValue(value, scan_id, row)
             self.rapidApp.thumbnailModel.checkAll(value, scan_id=scan_id)
@@ -156,12 +240,13 @@ class DeviceView(QListView):
         self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
 
     def sizeHint(self):
-        if self.model().rowCount() > 0:
+        model = self.model()  # type: DeviceModel
+        if model.rowCount() > 0:
             height = 0
             for row in range(self.model().rowCount()):
-                height += self.sizeHintForRow(row)
-            delegate = self.itemDelegate()  # type: DeviceDelegate
-            height = height - delegate.footer
+                row_height = self.sizeHintForRow(row)
+                height += row_height
+            height += len(model.headers) * 1
             return QSize(self.view_width, height)
         return QSize(self.view_width, emptyViewHeight)
 
@@ -185,6 +270,7 @@ class DeviceDelegate(QStyledItemDelegate):
         self.checkboxStyleOption = QStyleOptionButton()
         self.checkboxRect = QApplication.style().subElementRect(
             QStyle.SE_CheckBoxIndicator, self.checkboxStyleOption, None)
+        self.checkbox_right = self.checkboxRect.right()
         
         self.standard_font = QFont()  # type: QFont
         self.standard_font_bold = QFont(self.standard_font)
@@ -192,7 +278,7 @@ class DeviceDelegate(QStyledItemDelegate):
         self.standard_metrics = QFontMetrics(self.standard_font)
         self.standard_height = self.standard_metrics.height()
 
-        self.icon_size = self.standard_height
+        self.icon_size = icon_size()
 
         self.small_font = QFont(self.standard_font)
         self.small_font.setPointSize(self.standard_font.pointSize() - 2)
@@ -208,23 +294,26 @@ class DeviceDelegate(QStyledItemDelegate):
         # Height of the details about the storage e.g. number of photos
         # videos, etc.
         self.details_height = self.small_font_metrics.height() * 2 + 2
-        self.footer = 10
         self.view_width = device_view_width(self.standard_height)
         
         self.grey_border = QColor('#cdcdcd')
 
         alternate_color = QPalette().alternateBase().color()
         self.device_name_highlight_color = QColor(alternate_color).darker(105)
-        self.device_name_height = self.standard_height + self.padding * 3
+
+        # Height of the colored box that includes the device name/icon/checkbox
+        self.device_name_strip_height = self.standard_height + self.padding * 3
+        self.device_name_height = self.device_name_strip_height + self.padding
 
         self.vertical_padding = 10
 
-        # Calculate height of device view, including device name/icon/checkbox,
+        # Calculate height of storage details:
         # text above gradient, gradient, and text below
 
-        self.base_height = (self.padding * 2 + self.standard_height + self.footer)
-        self.storage_height = (self.vertical_padding * 2 + self.standard_height + self.padding +
-                               self.g_height + self.vertical_padding + self.details_height)
+        self.base_height = (self.padding * 2 + self.standard_height)
+        self.storage_height = (self.standard_height + self.padding +
+                               self.g_height + self.vertical_padding + self.details_height +
+                               self.padding * 2)
 
         self.contextMenu = QMenu()
         removeDeviceAct = self.contextMenu.addAction(_('Remove'))
@@ -256,74 +345,79 @@ class DeviceDelegate(QStyledItemDelegate):
 
         standard_pen_color = painter.pen().color()
 
-        device = index.model().data(index, Qt.DisplayRole)  # type: Device
-        checked = index.model().data(index, Qt.CheckStateRole)
+        view_type = index.data(Qt.DisplayRole)  # type: ViewRowType
+        if view_type == ViewRowType.header:
+            display_name, icon, device_state,  = index.data(Roles.device_details)
 
-        deviceNameRect = QRect(option.rect.x(), option.rect.y(), option.rect.width(),
-                               self.device_name_height)
-        painter.fillRect(deviceNameRect, self.device_name_highlight_color)
+            deviceNameRect = QRect(option.rect.x(), option.rect.y(), option.rect.width(),
+                                   self.device_name_strip_height)
+            painter.fillRect(deviceNameRect, self.device_name_highlight_color)
 
-        checkboxStyleOption = QStyleOptionButton()
-        if checked:
-            checkboxStyleOption.state |= QStyle.State_On
-        else:
-            checkboxStyleOption.state |= QStyle.State_Off
-        checkboxStyleOption.state |= QStyle.State_Enabled
+            if device_state not in (DeviceState.scanning, DeviceState.downloading):
+                checked = index.model().data(index, Qt.CheckStateRole)
 
-        checkboxStyleOption.rect = self.getCheckBoxRect(option)
-        QApplication.style().drawControl(QStyle.CE_CheckBox,
-                                         checkboxStyleOption, painter)
+                checkboxStyleOption = QStyleOptionButton()
+                if checked:
+                    checkboxStyleOption.state |= QStyle.State_On
+                else:
+                    checkboxStyleOption.state |= QStyle.State_Off
+                checkboxStyleOption.state |= QStyle.State_Enabled
 
-        icon_x = checkboxStyleOption.rect.right() + 10
-        icon_y = y + self.standard_height / 6
-        icon = device.get_pixmap(QSize(self.icon_size, self.icon_size))
-        target = QRect(icon_x, icon_y, self.icon_size, self.icon_size)
-        source = QRect(0, 0, self.icon_size, self.icon_size)
-        painter.drawPixmap(target, icon, source)
+                checkboxStyleOption.rect = self.getCheckBoxRect(option)
+                QApplication.style().drawControl(QStyle.CE_CheckBox, checkboxStyleOption, painter)
 
-        # painter.setFont(self.standard_font_bold)
-        text_y = y + self.standard_height
-        text_x = target.right() + 10
-        painter.drawText(text_x, text_y, device.display_name)
-
-        top = text_y
-
-        for storage_space in device.storage_space:  # type: StorageSpace
-            painter.setFont(self.standard_font)
-
-            if device.device_type == DeviceType.camera:
-                photo_key = make_key(FileType.photo, storage_space.path)
-                video_key = make_key(FileType.video, storage_space.path)
-                sum_key = storage_space.path
             else:
-                photo_key = FileType.photo
-                video_key = FileType.video
-                sum_key = None
+                # Draw spinning widget
+                pass
 
-            photos = _('%(no_photos)s Photos') % {'no_photos': thousands(device.file_type_counter[
-                photo_key])}
-            videos = _('%(no_videos)s Videos') % {'no_videos': thousands(device.file_type_counter[
-                video_key])}
-            photos_size = format_size_for_user(device.file_size_sum[photo_key])
-            videos_size = format_size_for_user(device.file_size_sum[video_key])
-            other_bytes = storage_space.bytes_total - device.file_size_sum.sum(sum_key) - \
-                          storage_space.bytes_free
-            other_size = format_size_for_user(other_bytes)
+            icon_x = self.checkbox_right + 10
+            icon_y = y + self.standard_height / 6
 
-            # If something went wrong getting the storage details
-            # for this device, the total space will be zero
-            if storage_space.bytes_total:
+            target = QRect(icon_x, icon_y, self.icon_size, self.icon_size)
+            source = QRect(0, 0, self.icon_size, self.icon_size)
+            painter.drawPixmap(target, icon, source)
+
+            text_y = y + self.standard_height
+            text_x = target.right() + 10
+            painter.drawText(text_x, text_y, display_name)
+
+        else:
+            assert view_type == ViewRowType.content
+
+            device, storage_space = index.data(Roles.storage)  # type: Device, StorageSpace
+
+            if storage_space is not None:
+
+                painter.setFont(self.standard_font)
+
+                if device.device_type == DeviceType.camera:
+                    photo_key = make_key(FileType.photo, storage_space.path)
+                    video_key = make_key(FileType.video, storage_space.path)
+                    sum_key = storage_space.path
+                else:
+                    photo_key = FileType.photo
+                    video_key = FileType.video
+                    sum_key = None
+
+                photos = _('%(no_photos)s Photos') % {
+                    'no_photos': thousands(device.file_type_counter[photo_key])}
+                videos = _('%(no_videos)s Videos') % {
+                    'no_videos': thousands(device.file_type_counter[video_key])}
+                photos_size = format_size_for_user(device.file_size_sum[photo_key])
+                videos_size = format_size_for_user(device.file_size_sum[video_key])
+                other_bytes = storage_space.bytes_total - device.file_size_sum.sum(sum_key) - \
+                              storage_space.bytes_free
+                other_size = format_size_for_user(other_bytes)
                 bytes_total = format_size_for_user(storage_space.bytes_total, no_decimals=0)
                 bytes_used = storage_space.bytes_total-storage_space.bytes_free
 
                 percent_used = '{0:.0%}'.format(bytes_used / storage_space.bytes_total)
                 # Translators: percentage full e.g. 75% full
                 percent_used = '%s full' % percent_used
-                # empty_size = format_size_for_user(storage_space.bytes_free)
 
                 # Device size
                 device_size_x = x
-                device_size_y = top + self.vertical_padding + self.standard_height
+                device_size_y = y + self.standard_height - self.padding
                 painter.drawText(device_size_x, device_size_y, bytes_total)
 
                 # Percent used
@@ -359,113 +453,110 @@ class DeviceDelegate(QStyledItemDelegate):
                 else:
                     videos_g_width = 0
 
-                color3 = QColor(CustomColors.color3.value)
                 if other_bytes:
+                    color3 = QColor(CustomColors.color3.value)
                     other_g_width = other_bytes / storage_space.bytes_total * width
                     other_g_x = videos_g_x + videos_g_width
                     other_g_rect = QRectF(other_g_x, g_y, other_g_width, self.g_height)
                     linearGradient.setColorAt(0.2, color3.lighter(self.shading_intensity))
                     linearGradient.setColorAt(0.8, color3.darker(self.shading_intensity))
                     painter.fillRect(other_g_rect, QBrush(linearGradient))
-                else:
-                    other_g_width = 0
 
                 # Rectangle around spatial representation of sizes
                 rect = QRectF(photos_g_x, g_y, width, self.g_height)
                 painter.setPen(QColor('#cdcdcd'))
                 painter.drawRect(rect)
                 bottom = rect.bottom()
-            else:
-                bottom = top
-                other_bytes = 0
 
-            # Details text indicating number and size of photos & videos
-            gradient_width = 10
+                # Details text indicating number and size of photos & videos
+                gradient_width = 10
 
-            # Photo details
-            spacer = 3
-            details_y = bottom + self.vertical_padding
+                # Photo details
+                # =============
 
-            # Gradient
-            photos_g2_x =  x
-            photos_g2_rect = QRect(photos_g2_x, details_y, gradient_width, self.details_height)
-            linearGradient = QLinearGradient(photos_g2_x, details_y,
-                                            photos_g2_x, details_y + self.details_height)
-            linearGradient.setColorAt(0.2, color1.lighter(self.shading_intensity))
-            linearGradient.setColorAt(0.8, color1.darker(self.shading_intensity))
-            painter.fillRect(photos_g2_rect, QBrush(linearGradient))
-            painter.setPen(self.grey_border)
-            painter.drawRect(photos_g2_rect)
-
-            # Text
-            photos_x = photos_g2_x + gradient_width + spacer
-            photos_no_width = self.small_font_metrics.boundingRect(photos).width()
-            photos_size_width = self.small_font_metrics.boundingRect(photos_size).width()
-            photos_width = max(photos_no_width, photos_size_width, self.sample_photos_width)
-            photos_rect = QRect(photos_x, details_y, photos_width, self.details_height)
-
-            painter.setPen(standard_pen_color)
-            painter.setFont(self.small_font)
-            painter.drawText(photos_rect, Qt.AlignLeft|Qt.AlignTop, photos)
-            painter.drawText(photos_rect, Qt.AlignLeft|Qt.AlignBottom, photos_size)
-
-            # Video details
-
-            # Gradient
-            videos_g2_x = photos_rect.right() + 10
-            videos_g2_rect = QRect(videos_g2_x, details_y, gradient_width, self.details_height)
-            linearGradient.setColorAt(0.2, color2.lighter(self.shading_intensity))
-            linearGradient.setColorAt(0.8, color2.darker(self.shading_intensity))
-            painter.fillRect(videos_g2_rect, QBrush(linearGradient))
-            painter.setPen(self.grey_border)
-            painter.drawRect(videos_g2_rect)
-            
-            #Text
-            videos_x = videos_g2_x + gradient_width + spacer
-            videos_no_width = self.small_font_metrics.boundingRect(videos).width()
-            videos_size_width = self.small_font_metrics.boundingRect(videos_size).width()
-            videos_width = max(videos_no_width, videos_size_width, self.sample_videos_width)
-            videos_rect = QRect(videos_x, details_y, videos_width, self.details_height)
-
-            painter.setPen(standard_pen_color)
-            painter.drawText(videos_rect, Qt.AlignLeft|Qt.AlignTop, videos)
-            painter.drawText(videos_rect, Qt.AlignLeft|Qt.AlignBottom, videos_size)
-            
-            if other_bytes:
-                # Other details
+                spacer = 3
+                details_y = bottom + self.vertical_padding
 
                 # Gradient
-                other_g2_x = videos_rect.right() + 10
-                other_g2_rect = QRect(other_g2_x, details_y, gradient_width, self.details_height)
-                linearGradient.setColorAt(0.2, color3.lighter(self.shading_intensity))
-                linearGradient.setColorAt(0.8, color3.darker(self.shading_intensity))
-                painter.fillRect(other_g2_rect, QBrush(linearGradient))
-                painter.setPen(QColor('#cdcdcd'))
-                painter.drawRect(other_g2_rect)
+                photos_g2_x =  x
+                photos_g2_rect = QRect(photos_g2_x, details_y, gradient_width, self.details_height)
+                linearGradient = QLinearGradient(photos_g2_x, details_y,
+                                                photos_g2_x, details_y + self.details_height)
+                linearGradient.setColorAt(0.2, color1.lighter(self.shading_intensity))
+                linearGradient.setColorAt(0.8, color1.darker(self.shading_intensity))
+                painter.fillRect(photos_g2_rect, QBrush(linearGradient))
+                painter.setPen(self.grey_border)
+                painter.drawRect(photos_g2_rect)
 
-                #Text
-                other_x = other_g2_x + gradient_width + spacer
-                other_no_width = self.small_font_metrics.boundingRect(self.other).width()
-                other_size_width = self.small_font_metrics.boundingRect(other_size).width()
-                other_width = max(other_no_width, other_size_width)
-                other_rect = QRect(other_x, details_y, other_width, self.details_height)
+                # Text
+                photos_x = photos_g2_x + gradient_width + spacer
+                photos_no_width = self.small_font_metrics.boundingRect(photos).width()
+                photos_size_width = self.small_font_metrics.boundingRect(photos_size).width()
+                photos_width = max(photos_no_width, photos_size_width, self.sample_photos_width)
+                photos_rect = QRect(photos_x, details_y, photos_width, self.details_height)
 
-                painter.setPen(standard_pen_color)
-                painter.drawText(other_rect, Qt.AlignLeft|Qt.AlignTop, self.other)
-                painter.drawText(other_rect, Qt.AlignLeft|Qt.AlignBottom, other_size)
-            
-            top = photos_g2_rect.bottom()
-
-        if len(device.storage_space) == 0:
-            # Storage space is zero, which for cameras means libgphoto2 is currently
-            # still trying to access the device
-            if device.device_type == DeviceType.camera:
                 painter.setPen(standard_pen_color)
                 painter.setFont(self.small_font)
-                probing_y = self.small_font_metrics.height() + deviceNameRect.bottom() + \
-                            self.padding
-                probing_x = x
-                painter.drawText(probing_x, probing_y, self.probing_text)
+                painter.drawText(photos_rect, Qt.AlignLeft|Qt.AlignTop, photos)
+                painter.drawText(photos_rect, Qt.AlignLeft|Qt.AlignBottom, photos_size)
+
+                # Video details
+                # =============
+
+                # Gradient
+                videos_g2_x = photos_rect.right() + 10
+                videos_g2_rect = QRect(videos_g2_x, details_y, gradient_width, self.details_height)
+                linearGradient.setColorAt(0.2, color2.lighter(self.shading_intensity))
+                linearGradient.setColorAt(0.8, color2.darker(self.shading_intensity))
+                painter.fillRect(videos_g2_rect, QBrush(linearGradient))
+                painter.setPen(self.grey_border)
+                painter.drawRect(videos_g2_rect)
+
+                #Text
+                videos_x = videos_g2_x + gradient_width + spacer
+                videos_no_width = self.small_font_metrics.boundingRect(videos).width()
+                videos_size_width = self.small_font_metrics.boundingRect(videos_size).width()
+                videos_width = max(videos_no_width, videos_size_width, self.sample_videos_width)
+                videos_rect = QRect(videos_x, details_y, videos_width, self.details_height)
+
+                painter.setPen(standard_pen_color)
+                painter.drawText(videos_rect, Qt.AlignLeft|Qt.AlignTop, videos)
+                painter.drawText(videos_rect, Qt.AlignLeft|Qt.AlignBottom, videos_size)
+
+                if other_bytes:
+                    # Other details
+                    # =============
+
+                    # Gradient
+                    other_g2_x = videos_rect.right() + 10
+                    other_g2_rect = QRect(other_g2_x, details_y, gradient_width, self.details_height)
+                    linearGradient.setColorAt(0.2, color3.lighter(self.shading_intensity))
+                    linearGradient.setColorAt(0.8, color3.darker(self.shading_intensity))
+                    painter.fillRect(other_g2_rect, QBrush(linearGradient))
+                    painter.setPen(QColor('#cdcdcd'))
+                    painter.drawRect(other_g2_rect)
+
+                    #Text
+                    other_x = other_g2_x + gradient_width + spacer
+                    other_no_width = self.small_font_metrics.boundingRect(self.other).width()
+                    other_size_width = self.small_font_metrics.boundingRect(other_size).width()
+                    other_width = max(other_no_width, other_size_width)
+                    other_rect = QRect(other_x, details_y, other_width, self.details_height)
+
+                    painter.setPen(standard_pen_color)
+                    painter.drawText(other_rect, Qt.AlignLeft|Qt.AlignTop, self.other)
+                    painter.drawText(other_rect, Qt.AlignLeft|Qt.AlignBottom, other_size)
+
+            else:
+                assert len(device.storage_space) == 0
+                # Storage space not available, which for cameras means libgphoto2 is currently
+                # still trying to access the device
+                if device.device_type == DeviceType.camera:
+                    painter.setPen(standard_pen_color)
+                    painter.setFont(self.small_font)
+                    probing_y = y + self.small_font_metrics.height()
+                    probing_x = x
+                    painter.drawText(probing_x, probing_y, self.probing_text)
 
         painter.restore()
 
@@ -476,11 +567,16 @@ class DeviceDelegate(QStyledItemDelegate):
         return QRect(self.getLeftPoint(option), self.checkboxRect.size())
 
     def sizeHint(self, option: QStyleOptionViewItem, index: QModelIndex) -> QSize:
-        device = index.model().data(index, Qt.DisplayRole)  # type: Device
-        if device.device_type == DeviceType.camera and len(device.storage_space) == 0:
-            height = self.base_height + self.device_name_height
+        view_type = index.data(Qt.DisplayRole)  # type: ViewRowType
+        if view_type == ViewRowType.header:
+            height = self.device_name_height
         else:
-            height = self.base_height + self.storage_height * len(device.storage_space)
+            device, storage_space = index.data(Roles.storage)
+
+            if storage_space is None:
+                height = self.base_height
+            else:
+                height = self.storage_height
         return QSize(self.view_width, height)
 
     def editorEvent(self, event: QEvent,
@@ -500,7 +596,6 @@ class DeviceDelegate(QStyledItemDelegate):
             if event.button() == Qt.RightButton:
                 self.clickedIndex = index
                 scan_id = index.data(Roles.scan_id)
-                device = index.model().data(index, Qt.DisplayRole)  # type: Device
 
                 view = self.rapidApp.mapView(scan_id)
                 globalPos = view.viewport().mapToGlobal(event.pos())

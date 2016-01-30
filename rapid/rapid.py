@@ -95,7 +95,8 @@ from constants import (BackupLocationType, DeviceType, ErrorType,
                        FileType, DownloadStatus, RenameAndMoveStatus,
                        photo_rename_test, ApplicationState,
                        PROGRAM_NAME, job_code_rename_test, CameraErrorCode,
-                       photo_rename_simple_test, ThumbnailBackgroundName, emptyViewHeight)
+                       photo_rename_simple_test, ThumbnailBackgroundName, emptyViewHeight,
+                       DeviceState)
 import constants
 from thumbnaildisplay import (ThumbnailView, ThumbnailListModel, ThumbnailDelegate, DownloadTypes,
                               DownloadStats, ThumbnailSortFilterProxyModel)
@@ -373,10 +374,10 @@ class RapidWindow(QMainWindow):
 
         self.setupWindow()
 
-        # TODO update these
         if auto_detect is not None:
             self.prefs.device_autodetection = auto_detect
-        elif this_computer_path is not None:
+
+        if this_computer_path is not None:
             self.prefs.this_computer_source = True
             self.prefs.this_computer_path = this_computer_path
 
@@ -1786,7 +1787,6 @@ class RapidWindow(QMainWindow):
                 #self.udisks2Monitor.
                 pass
 
-
     def deleteSourceFiles(self, scan_id: int)  -> None:
         """
         Delete files from download device at completion of download
@@ -2086,7 +2086,7 @@ class RapidWindow(QMainWindow):
                 device.update_camera_attributes(display_name=data.optimal_display_name,
                                                 storage_space=data.storage_space)
                 self.updateSourceButton()
-                self.deviceModel.updateDeviceScan(scan_id)
+                self.deviceModel.updateDeviceNameAndStorage(scan_id, device)
                 self.resizeDeviceView(self.deviceView)
 
     @pyqtSlot(int)
@@ -2096,7 +2096,8 @@ class RapidWindow(QMainWindow):
         device = self.devices[scan_id]
         results_summary, file_types_present  = device.file_type_counter.summarize_file_count()
         self.download_tracker.set_file_types_present(scan_id, file_types_present)
-        self.mapModel(scan_id).updateDeviceScan(scan_id)
+        model = self.mapModel(scan_id)
+        model.updateDeviceScan(scan_id)
         self.setDownloadActionSensitivity()
 
         self.displayMessageInStatusBar(update_only_marked=True)
@@ -2106,11 +2107,14 @@ class RapidWindow(QMainWindow):
 
         if (not self.auto_start_is_on and  self.prefs.generate_thumbnails):
             # Generate thumbnails for finished scan
+            model.setDeviceState(scan_id, DeviceState.scanned)
             self.thumbnailModel.generateThumbnails(scan_id, self.devices[scan_id])
         elif self.auto_start_is_on:
             if self.job_code.need_to_prompt_on_auto_start():
+                model.setDeviceState(scan_id, DeviceState.scanned)
                 self.job_code.get_job_code()
             else:
+                model.setDeviceState(scan_id, DeviceState.downloading)
                 self.startDownload(scan_id=scan_id)
 
     def quit(self) -> None:
@@ -2280,13 +2284,11 @@ class RapidWindow(QMainWindow):
         Sets the maximum height for the device view table to match the
         number of devices being displayed
         """
-        assert len(self.devices.volumes_and_cameras) == self.deviceModel.rowCount()
-        assert len(self.devices.this_computer) == self.thisComputerModel.rowCount()
         if view.model().rowCount() > 0:
             height = view.sizeHint().height()
             view.setMaximumHeight(height)
         else:
-            view.setMaximumHeight(20)
+            view.setMaximumHeight(emptyViewHeight)
 
     @pyqtSlot()
     def cameraAdded(self) -> None:
@@ -3031,8 +3033,8 @@ if __name__ == "__main__":
         '%(prog)s {}'.format(human_readable_version(constants.version)))
     parser.add_argument('--detailed-version', action='store_true',
         help="show version numbers of program and its libraries and exit")
-    parser.add_argument("-a", "--auto-detect", action="store_true",
-        dest="auto_detect", help=_("automatically detect devices from which "
+    parser.add_argument("-a", "--auto-detect", choices=['on','off'],
+        dest="auto_detect", help=_("turn on or off automatically detecting devices from which "
        "to download, overwriting existing program preferences"))
     parser.add_argument("-p", "--path", type=str,
         metavar="PATH", dest="this_computer_path",
@@ -3054,11 +3056,11 @@ if __name__ == "__main__":
                                                      OTHER_PHOTO_EXTENSIONS]))
     parser.add_argument("--thumbnail-cache", dest="thumb_cache",
                         choices=['on','off'],
-                        help="Turn on or off use of the Rapid Photo Downloader Thumbnail Cache, "
+                        help="turn on or off use of the Rapid Photo Downloader Thumbnail Cache, "
                              "overwriting existing program preferences")
     parser.add_argument("-b", "--benchmark", type=int,
                         metavar="n", dest="benchmark",
-                        help="Use n processes to generate thumbnails, "
+                        help="use n processes to generate thumbnails, "
                              "and after thumbnail generation, immediately "
                              "exit")
     parser.add_argument("--reset", action="store_true", dest="reset",
@@ -3093,10 +3095,11 @@ if __name__ == "__main__":
                     level=logging_level)
 
     if args.auto_detect:
-        auto_detect=True
-        logging.info("Device auto detection set from command line")
+        auto_detect= args.auto_detect == 'on'
+        logging.info("Device auto detection turned on from command line")
     else:
         auto_detect=None
+        logging.info("Device auto detection turned off from command line")
 
     if args.this_computer_path:
         this_computer_path=args.this_computer_path

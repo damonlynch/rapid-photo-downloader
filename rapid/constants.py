@@ -141,6 +141,8 @@ class Roles(IntEnum):
     uri = Qt.UserRole + 6
     camera_memory_card = Qt.UserRole + 7
     scan_id = Qt.UserRole + 8
+    device_details = Qt.UserRole + 9
+    storage = Qt.UserRole + 10
 
 
 class ExtractionTask(Enum):
@@ -170,6 +172,11 @@ class GphotoMTime(Enum):
 class CameraErrorCode(Enum):
     inaccessible = 1
     locked = 2
+
+
+class ViewRowType(Enum):
+    header = 1
+    content = 2
 
 
 class CustomColors(Enum):

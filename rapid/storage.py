@@ -698,12 +698,17 @@ if have_gio:
             unmounted, in the format of libgphoto2
             :type user_data: Tuple[str,str,bool]
             """
-            if mount.unmount_with_operation_finish(result):
-                logging.debug("...successfully unmounted {}".format(user_data[0]))
-                self.cameraUnmounted.emit(True, user_data[0], user_data[1], user_data[2])
-            else:
-                logging.debug("...failed to unmount {}".format(
-                    user_data[0]))
+            try:
+                if mount.unmount_with_operation_finish(result):
+                    logging.debug("...successfully unmounted {}".format(user_data[0]))
+                    self.cameraUnmounted.emit(True, user_data[0], user_data[1], user_data[2])
+                else:
+                    logging.debug("...failed to unmount {}".format(
+                        user_data[0]))
+                    self.cameraUnmounted.emit(False, user_data[0], user_data[1], user_data[2])
+            except GLib.Error as e:
+                logging.error('Exception occurred unmounting {}'.format(user_data[0]))
+                logging.exception('Traceback:')
                 self.cameraUnmounted.emit(False, user_data[0], user_data[1], user_data[2])
 
         def mountIsCamera(self, mount: Gio.Mount) -> str:
