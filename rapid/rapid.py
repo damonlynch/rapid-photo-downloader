@@ -381,8 +381,8 @@ class RapidWindow(QMainWindow):
             self.prefs.this_computer_source = True
             self.prefs.this_computer_path = this_computer_path
 
-        self.prefs.photo_download_folder = '/data/Photos/Test'
-        self.prefs.video_download_folder = '/data/Photos/Test'
+        self.prefs.photo_download_folder = '/data/Photos/Test2'
+        self.prefs.video_download_folder = '/data/Photos/Test2'
         self.prefs.auto_download_at_startup = False
         self.prefs.verify_file = False
         # self.prefs.photo_rename = photo_rename_test
@@ -1239,8 +1239,7 @@ class RapidWindow(QMainWindow):
         downloaded
         """
 
-        self.download_files = self.thumbnailModel.getFilesMarkedForDownload(
-            scan_id)
+        self.download_files = self.thumbnailModel.getFilesMarkedForDownload(scan_id)
         camera_unmount_called = False
         self.camera_unmounts_needed = set()
         if self.gvfsControlsMounts:
@@ -1256,8 +1255,7 @@ class RapidWindow(QMainWindow):
                         self.camera_unmounts_needed.add((model, port))
                         mount_points[(model, port)] = mount_point
             if len(self.camera_unmounts_needed):
-                logging.debug("%s camera(s) need to be unmounted before the "
-                              "download begins",
+                logging.debug("%s camera(s) need to be unmounted before the download begins",
                               len(self.camera_unmounts_needed))
                 camera_unmount_called = True
                 for model, port in self.camera_unmounts_needed:
@@ -1354,6 +1352,9 @@ class RapidWindow(QMainWindow):
         generated in the copy files process.
         """
 
+        model = self.mapModel(scan_id)
+        model.setDeviceState(scan_id, DeviceState.downloading)
+
         if download_stats.no_photos > 0:
             photo_download_folder = self.prefs.photo_download_folder
         else:
@@ -1378,7 +1379,6 @@ class RapidWindow(QMainWindow):
         self.time_check.set_download_mark()
 
         self.active_downloads_by_scan_id.add(scan_id)
-
 
         if len(self.active_downloads_by_scan_id) > 1:
             # Display an additional notification once all devices have been
@@ -1475,10 +1475,7 @@ class RapidWindow(QMainWindow):
         self.download_tracker.set_total_bytes_copied(scan_id,
                                                      total_downloaded)
         self.time_check.increment(bytes_downloaded=chunk_downloaded)
-        percent_complete = self.download_tracker.get_percent_complete(scan_id)
         # TODO update right model right way
-        self.deviceModel.updateDownloadProgress(scan_id, percent_complete,
-                                    None)
         self.time_remaining.update(scan_id, bytes_downloaded=chunk_downloaded)
 
     @pyqtSlot()
@@ -1685,6 +1682,8 @@ class RapidWindow(QMainWindow):
         if completed:
             # Last file for this scan id has been downloaded, so clean temp
             # directory
+            self.mapModel(scan_id).setDeviceState(scan_id, DeviceState.scanned)
+
             logging.debug("Purging temp directories")
             self.cleanTempDirsForScanId(scan_id)
             if self.prefs.move:
@@ -2114,7 +2113,6 @@ class RapidWindow(QMainWindow):
                 model.setDeviceState(scan_id, DeviceState.scanned)
                 self.job_code.get_job_code()
             else:
-                model.setDeviceState(scan_id, DeviceState.downloading)
                 self.startDownload(scan_id=scan_id)
 
     def quit(self) -> None:

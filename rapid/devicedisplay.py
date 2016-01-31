@@ -1,4 +1,5 @@
 # Copyright (C) 2015-2016 Damon Lynch <damonlynch@gmail.com>
+# Copyright (c) 2012-2014 Alexander Turkin
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -19,12 +20,25 @@
 """
 Display details of devices like cameras, external drives and folders on the
 computer.
+
+See devices.py for an explanation of what "Device" means in the context of
+Rapid Photo Downloader.
+
+Spinner code is derived from QtWaitingSpinner source, which is under the
+MIT License:
+https://github.com/snowwlex/QtWaitingSpinner
+
+Copyright notice from QtWaitingSpinner source:
+    Original Work Copyright (c) 2012-2014 Alexander Turkin
+        Modified 2014 by William Hallatt
+        Modified 2015 by Jacob Dawid
+        Ported to Python3 2015 by Luca Weiss
 """
-from plainbox.impl import device
 
 __author__ = 'Damon Lynch'
 __copyright__ = "Copyright 2015-2016, Damon Lynch"
 
+import math
 from collections import namedtuple, defaultdict
 from typing import Optional, Dict, List, Set
 import logging
@@ -32,7 +46,7 @@ import logging
 from gettext import gettext as _
 
 from PyQt5.QtCore import (QModelIndex, QSize, Qt, QPoint, QRect, QRectF,
-                          QEvent, QAbstractItemModel, QAbstractListModel, pyqtSlot)
+                          QEvent, QAbstractItemModel, QAbstractListModel, pyqtSlot, QTimer)
 from PyQt5.QtWidgets import (QStyledItemDelegate,QStyleOptionViewItem, QApplication, QStyle,
                              QListView, QStyleOptionButton, QAbstractItemView, QMenu, QWidget)
 from PyQt5.QtGui import (QPainter, QFontMetrics, QFont, QColor, QLinearGradient, QBrush, QPalette,
@@ -50,9 +64,26 @@ def device_view_width(standard_font_size: int) -> int:
     return standard_font_size * 12
 
 def icon_size() -> int:
-    return QFontMetrics(QFont()).height()
+    height = QFontMetrics(QFont()).height()
+    if height % 2 == 1:
+        height = height + 1
+    return height
+
+number_spinner_lines = 10
+revolutions_per_second = 1
 
 class DeviceModel(QAbstractListModel):
+    """
+    Stores Device / This Computer data.
+
+    One Device is displayed as multiple rows:
+    1. Header row
+    2. One or more rows displaying storage info
+
+    Therefore must map rows to device and back, which is handled by
+    a row having a row id, and row ids being linked to a scan id.
+    """
+
     def __init__(self, parent):
         super().__init__(parent)
         self.rapidApp = parent
@@ -68,6 +99,14 @@ class DeviceModel(QAbstractListModel):
         self.headers = set()  # type: Set[int]
 
         self.icon_size = icon_size()
+        
+        self.row_ids_active = []  # type: List[int]
+
+        self._rotation_position = 0
+        self._timer = QTimer(self)
+        self._timer.setInterval(1000 / (number_spinner_lines * revolutions_per_second))
+        self._timer.timeout.connect(self.rotateSpinner)
+        self._isSpinning = False
 
     def columnCount(self, parent=QModelIndex()):
         return 1
@@ -99,6 +138,7 @@ class DeviceModel(QAbstractListModel):
             self.storage[self.row_id_counter + 1] = None
 
         self.headers.add(self.row_id_counter)
+        self.row_ids_active.append(self.row_id_counter)
 
         row = self.rowCount()
         self.insertRows(row, no_rows)
@@ -114,12 +154,15 @@ class DeviceModel(QAbstractListModel):
         self.state[scan_id] = DeviceState.scanning
         self.icons[scan_id] = device.get_pixmap(QSize(self.icon_size, self.icon_size))
 
+        if self._isSpinning is False:
+            self.startSpinners()
+
     def updateDeviceNameAndStorage(self, scan_id: int, device: Device) -> None:
         """
         Update Cameras with updated storage information and display
         name as reported by libgphoto2.
 
-        If number of storage devies is > 1, adds new additional rows
+        If number of storage devies is > 1, inserts additional rows
         for the camera.
 
         :param scan_id: id of the camera
@@ -148,15 +191,24 @@ class DeviceModel(QAbstractListModel):
         self.dataChanged.emit(self.index(row, 0),
                               self.index(row + len(self.devices[scan_id].storage_space), 0))
 
+    def getHeaderRowId(self, scan_id: int) -> int:
+        row_ids = self.scan_id_to_row_ids[scan_id]
+        return row_ids[0]
+
     def removeDevice(self, scan_id: int) -> None:
         row_ids = self.scan_id_to_row_ids[scan_id]
-        row = self.rows.row(row_ids[0])
+        header_row_id = row_ids[0]
+        row = self.rows.row(header_row_id)
         self.rows.remove_rows(row, len(row_ids))
         del self.devices[scan_id]
         del self.state[scan_id]
         if scan_id in self.checked:
             del self.checked[scan_id]
-        self.headers.remove(row_ids[0])
+        if header_row_id in self.row_ids_active:
+            self.row_ids_active.remove(header_row_id)
+            if len(self.row_ids_active) == 0:
+                self.stopSpinners()
+        self.headers.remove(header_row_id)
 
         self.removeRows(row, len(row_ids))
 
@@ -168,9 +220,23 @@ class DeviceModel(QAbstractListModel):
                               self.index(row + len(self.devices[scan_id].storage_space), 0))
 
     def setDeviceState(self, scan_id: int, state: DeviceState) -> None:
-        self.state[scan_id] = state
-        row_id = self.scan_id_to_row_ids[scan_id][0]
+        row_id = self.getHeaderRowId(scan_id)
         row = self.rows.row(row_id)
+
+        current_state = self.state[scan_id]
+        current_state_active = current_state in (DeviceState.scanning, DeviceState.downloading)
+
+        if current_state_active and state == DeviceState.scanned:
+            self.row_ids_active.remove(row_id)
+            if len(self.row_ids_active) == 0:
+                self.stopSpinners()
+        # Next line assumes spinners were started when a device was added
+        elif not current_state_active and state == DeviceState.downloading:
+            self.row_ids_active.append(row_id)
+            if not self._isSpinning:
+                self.startSpinners()
+
+        self.state[scan_id] = state
         self.dataChanged.emit(self.index(row, 0), self.index(row, 0))
 
     def data(self, index: QModelIndex, role=Qt.DisplayRole):
@@ -202,7 +268,8 @@ class DeviceModel(QAbstractListModel):
                 if device.device_type in (DeviceType.path, DeviceType.volume):
                     return device.path
             elif role == Roles.device_details:
-                return device.display_name, self.icons[scan_id], self.state[scan_id]
+                return (device.display_name, self.icons[scan_id], self.state[scan_id],
+                        self._rotation_position)
             elif role == Roles.storage:
                 return device, self.storage[row_id]
         return None
@@ -228,6 +295,30 @@ class DeviceModel(QAbstractListModel):
             row = self.rows.row(scan_id)
         self.checked[scan_id] = checked
         self.dataChanged.emit(self.index(row, 0),self.index(row, 0))
+        
+    
+    def startSpinners(self):
+        self._isSpinning = True
+
+        if not self._timer.isActive():
+            self._timer.start()
+            self._rotation_position = 0
+
+    def stopSpinners(self):
+        self._isSpinning = False
+
+        if self._timer.isActive():
+            self._timer.stop()
+            self._rotation_position = 0    
+    
+    @pyqtSlot()
+    def rotateSpinner(self):
+        self._rotation_position += 1
+        if self._rotation_position >= number_spinner_lines:
+            self._rotation_position = 0
+        for row_id in self.row_ids_active:
+            row = self.rows.row(row_id)
+            self.dataChanged.emit(self.index(row, 0),self.index(row, 0))
 
 
 class DeviceView(QListView):
@@ -269,9 +360,9 @@ class DeviceDelegate(QStyledItemDelegate):
 
         self.checkboxStyleOption = QStyleOptionButton()
         self.checkboxRect = QApplication.style().subElementRect(
-            QStyle.SE_CheckBoxIndicator, self.checkboxStyleOption, None)
+            QStyle.SE_CheckBoxIndicator, self.checkboxStyleOption, None)  # type: QRect
         self.checkbox_right = self.checkboxRect.right()
-        
+
         self.standard_font = QFont()  # type: QFont
         self.standard_font_bold = QFont(self.standard_font)
         self.standard_font_bold.setWeight(63)
@@ -291,6 +382,7 @@ class DeviceDelegate(QStyledItemDelegate):
         
         # Height of the graqient bar that visually shows storage use
         self.g_height = self.standard_height * 1.5
+
         # Height of the details about the storage e.g. number of photos
         # videos, etc.
         self.details_height = self.small_font_metrics.height() * 2 + 2
@@ -301,10 +393,16 @@ class DeviceDelegate(QStyledItemDelegate):
         alternate_color = QPalette().alternateBase().color()
         self.device_name_highlight_color = QColor(alternate_color).darker(105)
 
-        # Height of the colored box that includes the device name/icon/checkbox
+        # Height of the colored box that includes the device's
+        # spinner/checkbox, icon & name
         self.device_name_strip_height = self.standard_height + self.padding * 3
         self.device_name_height = self.device_name_strip_height + self.padding
 
+        self.icon_y_offset = (self.device_name_strip_height - self.icon_size) / 2
+        self.checkbox_y_offset = (self.device_name_strip_height - self.checkboxRect.height()) // 2
+
+        self.header_horizontal_padding = 8
+        self.icon_x_offset = self.icon_size + self.header_horizontal_padding
         self.vertical_padding = 10
 
         # Calculate height of storage details:
@@ -323,6 +421,15 @@ class DeviceDelegate(QStyledItemDelegate):
         # store the index in which the user right clicked
         self.clickedIndex = None  # type: QModelIndex
 
+        # Spinner values
+        self.spinner_color = QColor(Qt.black)
+        self.spinner_roundness = 100.0
+        self.spinner_min_trail_opacity = 0.0
+        self.spinner_trail_fade_percent = 60.0
+        self.spinner_line_length = max(self.icon_size // 4, 4)
+        self.spinner_line_width = self.spinner_line_length // 2
+        self.spinner_inner_radius = self.icon_size // 2 - self.spinner_line_length
+
     @pyqtSlot()
     def removeDevice(self) -> None:
         index = self.clickedIndex
@@ -336,6 +443,30 @@ class DeviceDelegate(QStyledItemDelegate):
         if index:
             pass
 
+    def lineCountDistanceFromPrimary(self, current, primary):
+        distance = primary - current
+        if distance < 0:
+            distance += number_spinner_lines
+        return distance
+
+    def currentLineColor(self, countDistance: int) -> QColor:
+        color = QColor(self.spinner_color)
+        if countDistance == 0:
+            return color
+        minAlphaF = self.spinner_min_trail_opacity / 100.0
+        distanceThreshold = int(math.ceil((number_spinner_lines - 1) *
+                                          self.spinner_trail_fade_percent / 100.0))
+        if countDistance > distanceThreshold:
+            color.setAlphaF(minAlphaF)
+        else:
+            alphaDiff = color.alphaF() - minAlphaF
+            gradient = alphaDiff / float(distanceThreshold + 1)
+            resultAlpha = color.alphaF() - gradient * countDistance
+            # If alpha is out of bounds, clip it.
+            resultAlpha = min(1.0, max(0.0, resultAlpha))
+            color.setAlphaF(resultAlpha)
+        return color
+
     def paint(self, painter: QPainter, option: QStyleOptionViewItem, index: QModelIndex) -> None:
         painter.save()
 
@@ -347,7 +478,9 @@ class DeviceDelegate(QStyledItemDelegate):
 
         view_type = index.data(Qt.DisplayRole)  # type: ViewRowType
         if view_type == ViewRowType.header:
-            display_name, icon, device_state,  = index.data(Roles.device_details)
+            painter.setRenderHint(QPainter.Antialiasing, True)
+
+            display_name, icon, device_state, rotation = index.data(Roles.device_details)
 
             deviceNameRect = QRect(option.rect.x(), option.rect.y(), option.rect.width(),
                                    self.device_name_strip_height)
@@ -364,22 +497,41 @@ class DeviceDelegate(QStyledItemDelegate):
                 checkboxStyleOption.state |= QStyle.State_Enabled
 
                 checkboxStyleOption.rect = self.getCheckBoxRect(option)
+
                 QApplication.style().drawControl(QStyle.CE_CheckBox, checkboxStyleOption, painter)
 
             else:
                 # Draw spinning widget
-                pass
+                painter.setPen(Qt.NoPen)
+                for i in range(0, number_spinner_lines):
+                    painter.save()
+                    painter.translate(x + self.spinner_inner_radius + self.spinner_line_length,
+                                      y + 1 + self.spinner_inner_radius + self.spinner_line_length)
+                    rotateAngle = float(360 * i) / float(number_spinner_lines)
+                    painter.rotate(rotateAngle)
+                    painter.translate(self.spinner_inner_radius, 0)
+                    distance = self.lineCountDistanceFromPrimary(i, rotation)
+                    color = self.currentLineColor(distance)
+                    painter.setBrush(color)
+                    rect = QRect(0, -self.spinner_line_width / 2, self.spinner_line_length,
+                                 self.spinner_line_width)
+                    painter.drawRoundedRect(rect, self.spinner_roundness, self.spinner_roundness,
+                                            Qt.RelativeSize)
+                    painter.restore()
 
-            icon_x = self.checkbox_right + 10
-            icon_y = y + self.standard_height / 6
+                painter.setPen(Qt.SolidLine)
+                painter.setPen(standard_pen_color)
 
-            target = QRect(icon_x, icon_y, self.icon_size, self.icon_size)
-            source = QRect(0, 0, self.icon_size, self.icon_size)
+            icon_x = float(x + self.icon_x_offset)
+            icon_y = float(option.rect.y() + self.icon_y_offset)
+
+            target = QRectF(icon_x, icon_y, self.icon_size, self.icon_size)
+            source = QRectF(0, 0, self.icon_size, self.icon_size)
             painter.drawPixmap(target, icon, source)
 
-            text_y = y + self.standard_height
-            text_x = target.right() + 10
-            painter.drawText(text_x, text_y, display_name)
+            text_x = target.right() + self.header_horizontal_padding
+            deviceNameRect.setLeft(text_x)
+            painter.drawText(deviceNameRect, Qt.AlignLeft | Qt.AlignVCenter, display_name)
 
         else:
             assert view_type == ViewRowType.content
@@ -561,7 +713,7 @@ class DeviceDelegate(QStyledItemDelegate):
         painter.restore()
 
     def getLeftPoint(self, option: QStyleOptionViewItem ) -> QPoint:
-        return QPoint(option.rect.x() + self.padding, option.rect.y() + self.padding)
+        return QPoint(option.rect.x() + self.padding, option.rect.y() + self.checkbox_y_offset)
 
     def getCheckBoxRect(self, option: QStyleOptionViewItem) -> QRect:
         return QRect(self.getLeftPoint(option), self.checkboxRect.size())
