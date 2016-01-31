@@ -104,18 +104,14 @@ class ThumbnailManager(PublishPullPipelineManager):
 
 
 class ThumbnailListModel(QAbstractListModel):
-    def __init__(self, parent, logging_level: int, benchmark: Optional[int]=None) -> None:
+    def __init__(self, parent, logging_level: int) -> None:
         super().__init__(parent)
         self.rapidApp = parent
 
-        self.benchmark = benchmark
-
         self.initialize()
 
-        if benchmark is not None:
-            no_workers = benchmark
-        else:
-            no_workers = parent.prefs.max_cpu_cores
+
+        no_workers = parent.prefs.max_cpu_cores
         self.thumbnailmq = Thumbnailer(parent=parent, no_workers=no_workers,
                                        logging_level=logging_level)
         self.thumbnailmq.ready.connect(self.thumbnailerReady)
@@ -337,8 +333,6 @@ class ThumbnailListModel(QAbstractListModel):
 
         if self.thumbnails_generated == self.total_thumbs_to_generate:
             self.resetThumbnailTrackingAndDisplay()
-            if self.benchmark is not None:
-                self.rapidApp.quit()
         elif self.total_thumbs_to_generate:
             self.rapidApp.downloadProgressBar.setValue(
                 self.thumbnails_generated)

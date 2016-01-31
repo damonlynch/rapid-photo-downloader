@@ -336,7 +336,14 @@ class RapidWindow(QMainWindow):
     def __init__(self, app: 'QtSingleApplication',
                  auto_detect: Optional[bool]=None,
                  this_computer_path: Optional[str]=None,
-                 benchmark: Optional[int]=None,
+                 photo_download_folder: Optional[str]=None,
+                 video_download_folder: Optional[str]=None,
+                 backup: Optional[bool]=None,
+                 backup_auto_detect: Optional[bool]=None,
+                 photo_backup_identifier: Optional[str]=None,
+                 video_backup_identifier: Optional[str]=None,
+                 photo_backup_location: Optional[str]=None,
+                 video_backup_location: Optional[str]=None,
                  ignore_other_photo_types: Optional[bool]=None,
                  thumb_cache: Optional[bool]=None,
                  parent=None) -> None:
@@ -357,8 +364,6 @@ class RapidWindow(QMainWindow):
         self.application_state = ApplicationState.normal
         self.prompting_for_user_action = {}  # type: Dict[Device, QMessageBox]
 
-        logging.info('Rapid Photo Downloader: %s', human_readable_version(constants.version))
-        logging.info('Platform: %s', platform.platform())
         for version in get_versions():
             logging.info('%s', version)
 
@@ -376,24 +381,67 @@ class RapidWindow(QMainWindow):
 
         if auto_detect is not None:
             self.prefs.device_autodetection = auto_detect
+        else:
+            logging.info("Device autodetection: %s", self.prefs.device_autodetection)
 
         if this_computer_path is not None:
-            self.prefs.this_computer_source = True
-            self.prefs.this_computer_path = this_computer_path
+            if this_computer_path:
+                self.prefs.this_computer_source = True
+                self.prefs.this_computer_path = this_computer_path
+            else:
+                self.prefs.this_computer_source = False
+                self.prefs.this_computer_path = ''
+        elif self.prefs.this_computer_source:
+            logging.info("This Computer path: %s", self.prefs.this_computer_path)
+        else:
+            logging.info("This Computer is not used as a download source")
 
-        self.prefs.photo_download_folder = '/data/Photos/Test2'
-        self.prefs.video_download_folder = '/data/Photos/Test2'
+        if photo_download_folder is not None:
+            self.prefs.photo_download_folder = photo_download_folder
+        else:
+            logging.info("Photo download location: %s", self.prefs.photo_download_folder)
+        if video_download_folder is not None:
+            self.prefs.video_download_folder = video_download_folder
+        else:
+            logging.info("Video download location: %s", self.prefs.video_download_folder)
+
+        if backup is not None:
+            self.prefs.backup_files = backup
+        else:
+            logging.info("Backing up files: %s", self.prefs.backup_files)
+            
+        if backup_auto_detect is not None:
+            self.prefs.backup_device_autodetection = backup_auto_detect
+        elif self.prefs.backup_files:
+            logging.info("Backup device auto detection: %s", self.prefs.backup_device_autodetection)
+            
+        if photo_backup_identifier is not None:
+            self.prefs.photo_backup_identifier = photo_backup_identifier
+        elif self.prefs.backup_files and self.prefs.backup_device_autodetection:
+            logging.info("Photo backup identifier: %s", self.prefs.photo_backup_identifier)
+
+        if video_backup_identifier is not None:
+            self.prefs.video_backup_identifier = video_backup_identifier
+        elif self.prefs.backup_files and self.prefs.backup_device_autodetection:
+            logging.info("video backup identifier: %s", self.prefs.video_backup_identifier)
+            
+        if photo_backup_location is not None:
+            self.prefs.backup_photo_location = photo_backup_location
+        elif self.prefs.backup_files and not self.prefs.backup_device_autodetection:
+            logging.info("Photo backup location: %s", self.prefs.backup_photo_location)
+
+        if video_backup_location is not None:
+            self.prefs.backup_video_location = video_backup_location
+        elif self.prefs.backup_files and not self.prefs.backup_device_autodetection:
+            logging.info("video backup location: %s", self.prefs.backup_video_location)
+
         self.prefs.auto_download_at_startup = False
         self.prefs.verify_file = False
-        # self.prefs.photo_rename = photo_rename_test
-        self.prefs.photo_rename = photo_rename_simple_test
+        self.prefs.photo_rename = photo_rename_test
+        # self.prefs.photo_rename = photo_rename_simple_test
         # self.prefs.photo_rename = job_code_rename_test
-        self.prefs.backup_files = True
+        self.prefs.backup_files = False
         self.prefs.backup_device_autodetection = True
-        self.prefs.photo_backup_identifier = 'photos-backup'
-        self.prefs.video_backup_identifier = 'videos-backup'
-        # self.prefs.backup_photo_location = '/data/Photos/Test-backup/'
-        # self.prefs.backup_video_location = '/data/Photos/Test-backup/'
 
         centralWidget = QWidget()
 
@@ -402,8 +450,7 @@ class RapidWindow(QMainWindow):
         app.processEvents()
 
         self.thumbnailView = ThumbnailView()
-        self.thumbnailModel = ThumbnailListModel(parent=self, benchmark=benchmark,
-                                                 logging_level=logging_level)
+        self.thumbnailModel = ThumbnailListModel(parent=self, logging_level=logging_level)
         self.thumbnailProxyModel = ThumbnailSortFilterProxyModel(self)
         self.thumbnailProxyModel.setSourceModel(self.thumbnailModel)
         self.thumbnailView.setModel(self.thumbnailProxyModel)
@@ -682,6 +729,8 @@ class RapidWindow(QMainWindow):
         if self.prefs.backup_files:
             self.startBackupManager()
             self.setupBackupDevices()
+        else:
+            self.download_tracker.set_no_backup_devices(0, 0)
 
         prefs_valid, msg = self.prefs.check_prefs_for_validity()
         if not prefs_valid:
@@ -2101,8 +2150,7 @@ class RapidWindow(QMainWindow):
 
         self.displayMessageInStatusBar(update_only_marked=True)
 
-        if self.thumbnailModel.benchmark is None:
-            self.generateTemporalProximityTableData()
+        self.generateTemporalProximityTableData()
 
         if (not self.auto_start_is_on and  self.prefs.generate_thumbnails):
             # Generate thumbnails for finished scan
@@ -2978,6 +3026,8 @@ class QtSingleApplication(QApplication):
 
 def get_versions() -> List[str]:
     versions = [
+        'Rapid Photo Downloader: {}'.format(human_readable_version(constants.version)),
+        'Platform: {}'.format(platform.platform()),
         'Python: {}'.format(platform.python_version()),
         'Qt: {}'.format(QtCore.QT_VERSION_STR),
         'PyQt: {}'.format(QtCore.PYQT_VERSION_STR),
@@ -3031,42 +3081,64 @@ if __name__ == "__main__":
         '%(prog)s {}'.format(human_readable_version(constants.version)))
     parser.add_argument('--detailed-version', action='store_true',
         help="show version numbers of program and its libraries and exit")
-    parser.add_argument("-a", "--auto-detect", choices=['on','off'],
-        dest="auto_detect", help=_("turn on or off automatically detecting devices from which "
-       "to download, overwriting existing program preferences"))
-    parser.add_argument("-p", "--path", type=str,
-        metavar="PATH", dest="this_computer_path",
-        help=_("manually specify the PATH on the computer from which to "
-        "download, overwriting existing program preferences"))
     parser.add_argument("-e",  "--extensions", action="store_true",
          dest="extensions",
          help=_("list photo and video file extensions the program recognizes "
                 "and exit"))
-    parser.add_argument("--debug", action="store_true", dest="debug",
-         help=_("display debugging information when run from the command line"))
+    parser.add_argument("-a", "--auto-detect", choices=['on','off'],
+        dest="auto_detect", help=_("turn on or off the automatic detection of devices from which "
+       "to download"))
+    parser.add_argument("-t", "--this-computer", type=str,
+        metavar=_("PATH"), dest="this_computer_path",
+        help=_("the PATH from which to download (set PATH to '' to turn off)"))
+    parser.add_argument("--photo-destination", type=str,
+        metavar=_("PATH"), dest="photo_location",
+        help=_("the PATH where photos will be downloaded"))
+    parser.add_argument("--video-location", type=str,
+        metavar=_("PATH"), dest="video_location",
+        help=_("the PATH where videos will be downloaded"))
+    parser.add_argument("-b", "--backup", choices=['on','off'],
+        dest="backup", help=_("turn on or off the backing up of photos and videos while "
+                              "downloading"))
+    parser.add_argument("--backup-auto-detect", choices=['on','off'],
+        dest="backup_auto_detect",
+        help=_("turn on or off the automatic detection of backup devices"))
+    parser.add_argument("--photo-backup-identifier", type=str,
+        metavar=_("FOLDER"), dest="photo_backup_identifier",
+        help=_("the FOLDER in which backups are stored on the automatically detected photo backup "
+               "device, with the folder's name being used to identify whether or not the device "
+               "is used for backups. For each device you wish to use for backing up to, "
+               "create a folder on it with this name."))
+    parser.add_argument("--video-backup-identifier", type=str,
+        metavar=_("FOLDER"), dest="video_backup_identifier",
+        help=_("the FOLDER in which backups are stored on the automatically detected video backup "
+               "device, with the folder's name being used to identify whether or not the device "
+               "is used for backups. For each device you wish to use for backing up to, "
+               "create a folder on it with this name."))
+    parser.add_argument("--photo-backup-location", type=str,
+        metavar=_("PATH"), dest="photo_backup_location",
+        help=_("the PATH where photos will be backed up when automatic "
+        "detection of backup devices is turned off"))
+    parser.add_argument("--video-backup-location", type=str,
+        metavar=_("PATH"), dest="video_backup_location",
+        help=_("the PATH where videos will be backed up when automatic "
+        "detection of backup devices is turned off"))
     parser.add_argument("-v", "--verbose",  action="store_true", dest="verbose",
          help=_("display program information when run from the command line"))
-    parser.add_argument("--ignore-other-photo-file-types", action="store_true",
-                        dest="ignore_other", help=_('ignore photos with the '
-                                                    'following extensions: '
-                                                    '%s') %
-                        make_internationalized_list([s.upper() for s in
-                                                     OTHER_PHOTO_EXTENSIONS]))
+    parser.add_argument("--debug", action="store_true", dest="debug",
+         help=_("display debugging information when run from the command line"))
+    parser.add_argument("--ignore-other-photo-file-types", action="store_true", dest="ignore_other",
+                        help=_('ignore photos with the following extensions: %s') %
+                        make_internationalized_list([s.upper() for s in OTHER_PHOTO_EXTENSIONS]))
     parser.add_argument("--thumbnail-cache", dest="thumb_cache",
                         choices=['on','off'],
-                        help="turn on or off use of the Rapid Photo Downloader Thumbnail Cache, "
-                             "overwriting existing program preferences")
-    parser.add_argument("-b", "--benchmark", type=int,
-                        metavar="n", dest="benchmark",
-                        help="use n processes to generate thumbnails, "
-                             "and after thumbnail generation, immediately "
-                             "exit")
+                        help=_("turn on or off use of the Rapid Photo Downloader Thumbnail Cache"))
     parser.add_argument("--reset", action="store_true", dest="reset",
                  help=_("reset all program settings and caches and exit"))
 
     args = parser.parse_args()
     if args.detailed_version:
-        print(get_versions())
+        print('\n'.join(get_versions()))
         sys.exit(0)
 
     if args.extensions:
@@ -3094,11 +3166,13 @@ if __name__ == "__main__":
 
     if args.auto_detect:
         auto_detect= args.auto_detect == 'on'
-        logging.info("Device auto detection turned on from command line")
+        if auto_detect:
+            logging.info("Device auto detection turned on from command line")
+        else:
+            logging.info("Device auto detection turned off from command line")
     else:
         auto_detect=None
-        logging.info("Device auto detection turned off from command line")
-
+        
     if args.this_computer_path:
         this_computer_path=args.this_computer_path
         if this_computer_path[-1]=='/':
@@ -3106,6 +3180,64 @@ if __name__ == "__main__":
         logging.info("This computer path set from command line: %s", this_computer_path)
     else:
         this_computer_path=None
+        
+    if args.photo_location:
+        photo_location=args.photo_location
+        if photo_location[-1]=='/':
+            photo_location = photo_location[:-1]
+        logging.info("Photo location set from command line: %s", photo_location)
+    else:
+        photo_location=None
+        
+    if args.video_location:
+        video_location=args.video_location
+        if video_location[-1]=='/':
+            video_location = video_location[:-1]
+        logging.info("video location set from command line: %s", video_location)
+    else:
+        video_location=None
+
+    if args.backup:
+        backup = args.backup == 'on'
+        if backup:
+            logging.info("Backup turned on from command line")
+        else:
+            logging.info("Backup turned off from command line")
+    else:
+        backup=None
+
+    if args.backup_auto_detect:
+        backup_auto_detect = args.backup_auto_detect == 'on'
+        if backup_auto_detect:
+            logging.info("Automatic detection of backup devices turned on from command line")
+        else:
+            logging.info("Automatic detection of backup devices turned off from command line")
+    else:
+        backup_auto_detect=None
+
+    if args.photo_backup_identifier:
+        photo_backup_identifier=args.photo_backup_identifier
+        logging.info("Photo backup identifier set from command line: %s", photo_backup_identifier)
+    else:
+        photo_backup_identifier=None
+
+    if args.video_backup_identifier:
+        video_backup_identifier=args.video_backup_identifier
+        logging.info("Video backup identifier set from command line: %s", video_backup_identifier)
+    else:
+        video_backup_identifier=None
+
+    if args.photo_backup_location:
+        photo_backup_location=args.photo_backup_location
+        logging.info("Photo backup location set from command line: %s", photo_backup_location)
+    else:
+        photo_backup_location=None
+
+    if args.video_backup_location:
+        video_backup_location=args.video_backup_location
+        logging.info("Video backup location set from command line: %s", video_backup_location)
+    else:
+        video_backup_location=None
 
     if args.thumb_cache:
         thumb_cache = args.thumb_cache == 'on'
@@ -3141,13 +3273,20 @@ if __name__ == "__main__":
     splash = SplashScreen(QPixmap(':/splashscreen.png'), Qt.WindowStaysOnTopHint)
     splash.show()
     app.processEvents()
-    # Occasionally the splash screen does not show, so pause and let
+    # Occasionally the splash screen does not show(!), so pause and let
     # Qt render it again if need be
     sleep(.5)
     app.processEvents()
 
     rw = RapidWindow(app=app, auto_detect=auto_detect, this_computer_path=this_computer_path,
-                     benchmark=args.benchmark,
+                     photo_download_folder=photo_location,
+                     video_download_folder=video_location,
+                     backup=backup,
+                     backup_auto_detect=backup_auto_detect,
+                     photo_backup_identifier=photo_backup_identifier,
+                     video_backup_identifier=video_backup_identifier,
+                     photo_backup_location=photo_backup_location,
+                     video_backup_location=video_backup_location,
                      ignore_other_photo_types=args.ignore_other,
                      thumb_cache=thumb_cache)
 
