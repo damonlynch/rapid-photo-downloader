@@ -337,7 +337,7 @@ class DeviceView(QListView):
             for row in range(self.model().rowCount()):
                 row_height = self.sizeHintForRow(row)
                 height += row_height
-            height += len(model.headers) * 1
+            height += len(model.headers) + 5
             return QSize(self.view_width, height)
         return QSize(self.view_width, emptyViewHeight)
 

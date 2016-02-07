@@ -39,11 +39,12 @@ import arrow.arrow
 from dateutil.tz import tzlocal
 
 from PyQt5.QtCore import (QAbstractListModel, QModelIndex, Qt, pyqtSignal, QSize, QRect, QEvent,
-                          QPoint, QMargins, QSortFilterProxyModel, QRegExp, QAbstractItemModel,
-                          pyqtSlot)
+                          QPoint, QMargins, QSortFilterProxyModel, QItemSelectionModel,
+                          QAbstractItemModel, pyqtSlot)
 from PyQt5.QtWidgets import (QListView, QStyledItemDelegate, QStyleOptionViewItem, QApplication,
-                             QStyle, QStyleOptionButton, QMenu, QWidget)
-from PyQt5.QtGui import (QPixmap, QImage, QPainter, QColor, QBrush, QFontMetrics)
+                             QStyle, QStyleOptionButton, QMenu, QWidget, QAbstractItemView)
+from PyQt5.QtGui import (QPixmap, QImage, QPainter, QColor, QBrush, QFontMetrics,
+                         QGuiApplication, QPen, QMouseEvent)
 
 import zmq
 
@@ -262,7 +263,8 @@ class ThumbnailListModel(QAbstractListModel):
         if checked:
             self.marked[scan_id].add(unique_id)
         else:
-            self.marked[scan_id].remove(unique_id)
+            if unique_id in self.marked[scan_id]:
+                self.marked[scan_id].remove(unique_id)
 
     def insertRows(self, position, rows=1, index=QModelIndex()):
         self.beginInsertRows(QModelIndex(), position, position + rows - 1)
@@ -732,19 +734,53 @@ class ThumbnailListModel(QAbstractListModel):
 
 
 class ThumbnailView(QListView):
-    def __init__(self) -> None:
+    def __init__(self, parent: QWidget) -> None:
         style = """QAbstractScrollArea { background-color: %s;}""" % ThumbnailBackgroundName
-        super().__init__()
+        super().__init__(parent)
+        self.rapidApp = parent
         self.setViewMode(QListView.IconMode)
         self.setResizeMode(QListView.Adjust)
         self.setStyleSheet(style)
         self.setUniformItemSizes(True)
         self.setSpacing(8)
+        self.setSelectionMode(QAbstractItemView.ExtendedSelection)
 
+    @pyqtSlot(QMouseEvent)
+    def mousePressEvent(self, event: QMouseEvent) -> None:
+        """
+        Filter selection changes when click is on a thumbnail checkbox.
+
+        When the user has selected multiple items (thumbnails), and
+        then clicks one of the checkboxes, Qt's default behaviour is to
+        treat that click as selecting the single item, because it doesn't
+        know about our checkboxes. Therefore if the user is in fact
+        clicking on a checkbox, we need to filter that event.
+
+        Note that no matter what we do here, the delegate's editorEvent
+        will still be triggered.
+
+        :param event: the mouse click event
+        """
+
+        checkbox_clicked = False
+        index = self.indexAt(event.pos())
+        if index.row() >= 0:
+            rect = self.visualRect(index)  # type: QRect
+            delegate = self.itemDelegate(index)  # type: ThumbnailDelegate
+            checkboxRect = delegate.getCheckBoxRect(rect)
+            checkbox_clicked = checkboxRect.contains(event.pos())
+            if checkbox_clicked:
+                model = self.rapidApp.thumbnailProxyModel
+                download_status = model.data(index, Roles.download_status) # type: DownloadStatus
+                checkbox_clicked = download_status not in Downloaded
+
+        if not checkbox_clicked:
+            super().mousePressEvent(event)
 
 class ThumbnailDelegate(QStyledItemDelegate):
     def __init__(self, parent=None) -> None:
         super().__init__(parent)
+        self.rapidApp = parent
 
         self.checkboxStyleOption = QStyleOptionButton()
         self.checkboxRect = QApplication.style().subElementRect(
@@ -798,6 +834,16 @@ class ThumbnailDelegate(QStyledItemDelegate):
         self.lightGray = QColor(221,221,221)
         self.darkGray = QColor(51, 51, 51)
 
+        palette = QGuiApplication.palette()
+        self.highlight = palette.highlight().color()
+        self.highlight_size = 3
+        self.highlight_offset = 1
+        self.highlightPen = QPen()
+        self.highlightPen.setColor(self.highlight)
+        self.highlightPen.setWidth(self.highlight_size)
+        self.highlightPen.setStyle(Qt.SolidLine)
+        self.highlightPen.setJoinStyle(Qt.MiterJoin)
+
     @pyqtSlot()
     def doCopyPathAction(self) -> None:
         index = self.clickedIndex
@@ -846,6 +892,14 @@ class ThumbnailDelegate(QStyledItemDelegate):
             painter.drawRect(shadowRect)
             painter.setRenderHint(QPainter.Antialiasing, False)
             painter.fillRect(boxRect, self.lightGray)
+
+            if option.state & QStyle.State_Selected:
+                hightlightRect = QRect(boxRect.left() + self.highlight_offset,
+                                  boxRect.top() + self.highlight_offset,
+                                  boxRect.width() - self.highlight_size,
+                                  boxRect.height() - self.highlight_size)
+                painter.setPen(self.highlightPen)
+                painter.drawRect(hightlightRect)
 
             thumbnail = index.model().data(index, Qt.DecorationRole)
             if previously_downloaded and not checked:
@@ -971,7 +1025,7 @@ class ThumbnailDelegate(QStyledItemDelegate):
                 else:
                     checkboxStyleOption.state |= QStyle.State_Off
                 checkboxStyleOption.state |= QStyle.State_Enabled
-                checkboxStyleOption.rect = self.getCheckBoxRect(option)
+                checkboxStyleOption.rect = self.getCheckBoxRect(option.rect)
                 QApplication.style().drawControl(QStyle.CE_CheckBox,
                                                  checkboxStyleOption, painter)
             else:
@@ -1009,8 +1063,6 @@ class ThumbnailDelegate(QStyledItemDelegate):
         if the user presses the left mousebutton or presses
         Key_Space or Key_Select and this cell is editable. Otherwise do nothing.
         """
-        # if not (index.flags() & Qt.ItemIsEditable) > 0:
-        #     return False
 
         download_status = model.data(index, Roles.download_status)
 
@@ -1022,7 +1074,7 @@ class ThumbnailDelegate(QStyledItemDelegate):
                 self.contextMenu.popup(globalPos)
                 return False
             if event.button() != Qt.LeftButton or not self.getCheckBoxRect(
-                    option).contains(event.pos()):
+                    option.rect).contains(event.pos()):
                 return False
             if event.type() == QEvent.MouseButtonDblClick:
                 return True
@@ -1042,16 +1094,31 @@ class ThumbnailDelegate(QStyledItemDelegate):
     def setModelData (self, editor: QWidget,
                       model: QAbstractItemModel,
                       index: QModelIndex) -> None:
-        newValue = not (index.model().data(index, Qt.CheckStateRole) == Qt.Checked)
-        model.setData(index, newValue, Qt.CheckStateRole)
+        newValue = not (index.data(Qt.CheckStateRole) == Qt.Checked)
+        if len(self.rapidApp.thumbnailView.selectedIndexes()):
+            if index in self.rapidApp.thumbnailView.selectedIndexes():
+                for i in self.rapidApp.thumbnailView.selectedIndexes():
+                    model.setData(i, newValue, Qt.CheckStateRole)
+            else:
+                # The user has clicked on a checkbox that for a
+                # thumbnail that is outside their previous selection
+                selection = self.rapidApp.thumbnailView.selectionModel()
+                selection.clear()
+                selection.select(index, QItemSelectionModel.Select)
+                model.setData(index, newValue, Qt.CheckStateRole)
+        else:
+            # The user has previously selected nothing, so mark this
+            # thumbnail as selected
+            selection = self.rapidApp.thumbnailView.selectionModel()
+            selection.select(index, QItemSelectionModel.Select)
+            model.setData(index, newValue, Qt.CheckStateRole)
 
-    def getLeftPoint(self, option) -> QPoint:
-        return QPoint(option.rect.x() + self.horizontal_margin,
-                               option.rect.y() + self.image_frame_bottom +
-                               self.footer_padding )
+    def getLeftPoint(self, rect: QRect) -> QPoint:
+        return QPoint(rect.x() + self.horizontal_margin,
+                      rect.y() + self.image_frame_bottom + self.footer_padding )
 
-    def getCheckBoxRect(self, option) -> QRect:
-        return QRect(self.getLeftPoint(option), self.checkboxRect.size())
+    def getCheckBoxRect(self, rect: QRect) -> QRect:
+        return QRect(self.getLeftPoint(rect), self.checkboxRect.size())
 
 
 class ThumbnailSortFilterProxyModel(QSortFilterProxyModel):

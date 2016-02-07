@@ -478,7 +478,7 @@ class RapidWindow(QMainWindow):
         # cause "Interrupted system call" errors
         app.processEvents()
 
-        self.thumbnailView = ThumbnailView()
+        self.thumbnailView = ThumbnailView(self)
         self.thumbnailModel = ThumbnailListModel(parent=self, logging_level=logging_level)
         self.thumbnailProxyModel = ThumbnailSortFilterProxyModel(self)
         self.thumbnailProxyModel.setSourceModel(self.thumbnailModel)
