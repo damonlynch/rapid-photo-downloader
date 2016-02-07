@@ -20,8 +20,9 @@
 Toggle Switch reminiscent of Android On/off switches:
 https://www.google.com/design/spec/components/selection-controls.html
 
-Visual style is like a rounded square, close to how Gnome
-handles it, but without the "ON"/"OFF text.
+Visual style is rounded. However by adjusting the style sheet it can be
+made like a rounded square, close to how Gnome handles it, albeit
+without the "ON"/"OFF text.
 
 Inspiration:
 http://stackoverflow.com/questions/14780517/toggle-switch-in-qt
@@ -38,6 +39,11 @@ from PyQt5.QtGui import QPalette, QColor, QFont,QFontMetrics
 from PyQt5.QtWidgets import QSlider, QApplication
 
 class QToggleSwitch(QSlider):
+    """
+    Toggle Switch reminiscent of Android On/off switches.
+
+    Connect to signal valueChanged to react to user setting the switch.
+    """
     def __init__(self, background: Optional[QColor]=None, parent=None) -> None:
         super().__init__(Qt.Horizontal, parent)
 

@@ -61,7 +61,7 @@ from storage import StorageSpace
 from rpdfile import make_key
 
 def device_view_width(standard_font_size: int) -> int:
-    return standard_font_size * 12
+    return standard_font_size * 13
 
 def icon_size() -> int:
     height = QFontMetrics(QFont()).height()
@@ -340,6 +340,9 @@ class DeviceView(QListView):
             height += len(model.headers) * 1
             return QSize(self.view_width, height)
         return QSize(self.view_width, emptyViewHeight)
+
+    def minimumSizeHint(self):
+        return self.sizeHint()
 
 
 class DeviceDelegate(QStyledItemDelegate):

@@ -189,6 +189,7 @@ class CustomColors(Enum):
 
 
 ThumbnailBackgroundName = '#555555'
+BorderName = '#c4c1bd'
 emptyViewHeight = 20
 
 

@@ -58,7 +58,8 @@ import gphoto2 as gp
 from PyQt5 import QtCore, QtWidgets, QtGui
 from PyQt5.QtCore import (QThread, Qt, QStorageInfo, QSettings, QPoint,
                           QSize, QTimer, QTextStream, QModelIndex,
-                          QRect, QItemSelection, QItemSelectionModel, pyqtSlot)
+                          QRect, QItemSelection, QItemSelectionModel, pyqtSlot,
+                          QObjectCleanupHandler)
 from PyQt5.QtGui import (QIcon, QPixmap, QImage, QFont, QColor, QPalette, QFontMetrics,
                          QGuiApplication, QPainter, QMoveEvent)
 from PyQt5.QtWidgets import (QAction, QApplication, QMainWindow, QMenu,
@@ -96,7 +97,7 @@ from constants import (BackupLocationType, DeviceType, ErrorType,
                        photo_rename_test, ApplicationState,
                        PROGRAM_NAME, job_code_rename_test, CameraErrorCode,
                        photo_rename_simple_test, ThumbnailBackgroundName, emptyViewHeight,
-                       DeviceState)
+                       DeviceState, BorderName)
 import constants
 from thumbnaildisplay import (ThumbnailView, ThumbnailListModel, ThumbnailDelegate, DownloadTypes,
                               DownloadStats, ThumbnailSortFilterProxyModel)
@@ -118,7 +119,7 @@ from generatenameconfig import *
 from rotatedpushbutton import RotatedButton
 from toppushbutton import TopPushButton
 from filebrowse import FileSystemView, FileSystemModel
-from toggleswitch import QToggleSwitch
+from toggleview import QToggleView
 
 BackupMissing = namedtuple('BackupMissing', 'photo, video')
 
@@ -331,6 +332,34 @@ class JobCode:
     def need_to_prompt(self):
         return self.need_job_code_for_naming and not self.prompting_for_job_code
 
+class ThisComputerWidget(QWidget):
+    def __init__(self, objectName: str,
+                 view: DeviceView,
+                 fileSystemView: FileSystemView,
+                 parent: QWidget=None) -> None:
+
+        super().__init__(parent)
+        self.setObjectName(objectName)
+        layout = QVBoxLayout()
+        layout.setContentsMargins(1, 1, 1, 1)
+        layout.setSpacing(0)
+        self.setLayout(layout)
+
+        # TODO specify border color value from derived value or create new style
+        style = 'QWidget#%(objectName)s {border: 1px solid %(borderName)s;}' % dict(
+            objectName=objectName, borderName=BorderName)
+        self.setStyleSheet(style)
+
+        self.view = view
+        self.fileSystemView = fileSystemView
+        layout.addWidget(self.view)
+        layout.addStretch()
+        layout.addWidget(self.fileSystemView, 5)
+        self.view.setStyleSheet('QListView {border: 0px solid red;}')
+        self.fileSystemView.setStyleSheet('FileSystemView {border: 0px solid red;}')
+
+    def setViewVisible(self, visible: bool) -> None:
+        self.view.setVisible(visible)
 
 class RapidWindow(QMainWindow):
     def __init__(self, app: 'QtSingleApplication',
@@ -859,6 +888,8 @@ class RapidWindow(QMainWindow):
         settings = QSettings()
         settings.beginGroup("MainWindow")
 
+        self.devicePanel = None
+
         verticalLayout = QVBoxLayout()
 
         topBar = QHBoxLayout()
@@ -894,87 +925,52 @@ class RapidWindow(QMainWindow):
         self.horizontalSplitter = QSplitter()
         self.horizontalSplitter.setOrientation(Qt.Horizontal)
 
-        self.devicePanel = QWidget()
         self.leftPanelSplitter = QSplitter()
         self.leftPanelSplitter.setOrientation(Qt.Vertical)
 
-        devicePanelLayout = QVBoxLayout()
-        devicePanelLayout.setContentsMargins(0, 0, 0, 0)
-        devicePanelLayout.setSpacing(0)
-        self.devicePanel.setLayout(devicePanelLayout)
+        # Devices Header and View
+        tip = _('Turn on or off the use of devices attached to this computer as download sources')
+        self.deviceToggleView = QToggleView(label=_('Devices'),
+                                            toggleToolTip=tip,
+                                            headerColor=QColor(ThumbnailBackgroundName),
+                                            headerFontColor=QColor(Qt.white),
+                                            on=self.prefs.device_autodetection,
+                                            parent=self)
+        self.deviceToggleView.addWidget(self.deviceView)
+        self.deviceToggleView.valueChanged.connect(self.deviceToggleViewValueChange)
+        self.deviceToggleView.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.Maximum)
 
-        header_style = """QWidget { background-color: %s; }""" % ThumbnailBackgroundName
-        header_font_style = "QLabel {color: white;}"
-        deviceHeader = QWidget(self)
-        deviceHeader.setStyleSheet(header_style)
-        deviceHeaderLayout =  QHBoxLayout()
-        deviceHeaderLayout.setContentsMargins(5, 0, 5, 0)
-        self.deviceLabel = QLabel(_('Devices').upper())
-        self.deviceLabel.setStyleSheet(header_font_style)
-        self.deviceToggle = QToggleSwitch(background=ThumbnailBackgroundName, parent=self)
-        self.deviceToggle.setOn(self.prefs.device_autodetection)
-        self.deviceToggle.valueChanged.connect(self.deviceToggleValueChange)
-        self.deviceToggle.setToolTip(
-            _('Turn on or off the use of devices attached to this computer as download sources'))
-        deviceHeaderLayout.addWidget(self.deviceLabel)
-        deviceHeaderLayout.addStretch()
-        deviceHeaderLayout.addWidget(self.deviceToggle)
-        deviceHeader.setLayout(deviceHeaderLayout)
-        # devicePanelLayout.addLayout(deviceHeaderLayout)
-        devicePanelLayout.addWidget(deviceHeader)
-        devicePanelLayout.addWidget(self.deviceView)
-        self.deviceView.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Fixed)
-        self.setDeviceViewVisibility()
+        # This Computer Header and View
 
-        self.thisComputer = QWidget()
-        self.thisComputer.setObjectName('thisComputer')
-        thisComputerLayout = QVBoxLayout()
-        thisComputerLayout.setContentsMargins(1, 1, 1, 1)
-        thisComputerLayout.setSpacing(0)
-        #TODO specify border color value from derived value or create new style
-        self.thisComputer.setStyleSheet('QWidget#thisComputer {border: 1px solid #c4c1bd; }')
+        tip = _('Turn on or off the use of a folder on this computer as a download source')
+        self.thisComputerToggleView = QToggleView(label=_('This Computer'),
+                                                  toggleToolTip=tip,
+                                                  headerColor=QColor(ThumbnailBackgroundName),
+                                                  headerFontColor=QColor(Qt.white),
+                                                  on=bool(self.prefs.this_computer_source),
+                                                  parent=self)
+        self.thisComputerToggleView.valueChanged.connect(self.thisComputerToggleValueChanged)
 
-        thisComputerHeader = QWidget(self)
-        thisComputerHeader.setStyleSheet(header_style)
-        thisComputerHeaderLayout = QHBoxLayout()
-        thisComputerHeaderLayout.setContentsMargins(5, 0, 5, 0)
+        self.thisComputer = ThisComputerWidget('thisComputer', self.thisComputerView,
+                                           self.fileSystemView, self)
+        if self.prefs.this_computer_source:
+            self.thisComputer.setViewVisible(bool(self.prefs.this_computer_path))
 
-        self.thisComputerLabel = QLabel(_('This Computer').upper())
-        self.thisComputerLabel.setStyleSheet(header_font_style)
-
-        self.thisComputerToggle = QToggleSwitch(background=ThumbnailBackgroundName, parent=self)
-        self.thisComputerToggle.setOn(bool(self.prefs.this_computer_source))
-        self.thisComputerToggle.setToolTip(
-            _('Turn on or off the use of a folder on this computer as a download source'))
-        self.thisComputerToggle.valueChanged.connect(self.thisComputerToggleValueChanged)
-
-        thisComputerHeaderLayout.addWidget(self.thisComputerLabel)
-        thisComputerHeaderLayout.addStretch()
-        thisComputerHeaderLayout.addWidget(self.thisComputerToggle)
-        thisComputerHeader.setLayout(thisComputerHeaderLayout)
-
-        devicePanelLayout.addWidget(thisComputerHeader)
-        thisComputerLayout.addWidget(self.thisComputerView)
-        thisComputerLayout.addStretch()
-        thisComputerLayout.addWidget(self.fileSystemView, 10)
-        self.thisComputer.setLayout(thisComputerLayout)
-
-        self.thisComputerView.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Fixed)
-        self.thisComputerView.setStyleSheet('QListView {border: 0px solid red;}')
-        self.fileSystemView.setStyleSheet('FileSystemView {border: 0px solid red;}')
-        self.setThisComputerViewVisibility()
-
-        devicePanelLayout.addWidget(self.thisComputer, 10)
-        devicePanelLayout.addStretch()
+        self.thisComputerToggleView.addWidget(self.thisComputer)
+        self.thisComputerToggleView.setSizePolicy(QSizePolicy.MinimumExpanding,
+                                                  QSizePolicy.MinimumExpanding)
 
         self.resizeDeviceView(self.deviceView)
         self.resizeDeviceView(self.thisComputerView)
+        self.layoutDevices()
 
-        self.leftPanelSplitter.addWidget(self.devicePanel)
-
-        self.fileSystemView.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
-        self.temporalProximityView.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
         self.leftPanelSplitter.addWidget(self.temporalProximityView)
+        self.temporalProximityView.setSizePolicy(QSizePolicy.Preferred,
+                                                 QSizePolicy.MinimumExpanding)
+        self.leftPanelSplitter.setCollapsible(0, False)
+        self.leftPanelSplitter.setCollapsible(1, False)
+        self.leftPanelSplitter.setStretchFactor(0, 0)
+        self.leftPanelSplitter.setStretchFactor(1, 1)
 
         self.horizontalSplitter.addWidget(self.leftPanelSplitter)
         self.horizontalSplitter.addWidget(self.thumbnailView)
@@ -1027,35 +1023,50 @@ class RapidWindow(QMainWindow):
         buttons.addButton(self.downloadButton, QDialogButtonBox.ApplyRole)
         horizontalLayout.addWidget(buttons)
 
-    def setDeviceViewVisibility(self) -> bool:
+    def layoutDevices(self) -> None:
         """
-        Toggles visibility of view associated with toggle.
+        Layout Devices/This Computer in left panel.
 
-        :return: whether view is on or off
+        It turns out to be trickier than what might appear at first
+        glance.
+
+        The problem is that the widgets are not laid out again
+        properly when changes are made to them (i.e. toggled or
+        resized). For example, they are not positioned correctly until
+        the containing widget is resized. Therefore the widget that
+        contains  them, self.devicePanel, must be recreated each time
+        there is a significant change in the child widgets.
         """
 
-        if not self.deviceToggle.on():
-            self.deviceView.hide()
-            return False
+        if self.devicePanel is not None:
+            self.devicePanel.setParent(None)
+            self.devicePanel.deleteLater()
+            # QObjectCleanupHandler().add(self.devicePanel)
+
+        self.devicePanel = QWidget()
+        self.devicePanel.setObjectName('devicePanel')
+        self.devicePanel.setStyleSheet('QWidget#devicePanel {border: 1px solid %(borderName)s;}'
+                                       % dict(borderName=BorderName))
+
+        layout = QVBoxLayout()
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(0)
+
+        devices_stretch = 0
+        bottom_stretch = 0
+        if self.thisComputerToggleView.on():
+            this_computer_stretch = 1
         else:
-            self.deviceView.setVisible(True)
-            return True
+            this_computer_stretch = 0
+            bottom_stretch = 1
 
-    def setThisComputerViewVisibility(self) -> bool:
-        """
-        Toggles visibility of view associated with toggle.
+        layout.addWidget(self.deviceToggleView, devices_stretch)
+        layout.addWidget(self.thisComputerToggleView, this_computer_stretch)
+        if bottom_stretch > 0:
+            layout.addStretch(bottom_stretch)
 
-        :return: whether view is on or off
-        """
-
-        if not self.thisComputerToggle.on():
-            self.thisComputer.hide()
-            return False
-        else:
-            self.thisComputer.setVisible(True)
-            self.thisComputerView.setVisible(bool(self.prefs.this_computer_path))
-            self.fileSystemView.setVisible(True)
-            return True
+        self.devicePanel.setLayout(layout)
+        self.leftPanelSplitter.insertWidget(0, self.devicePanel)
 
     def setDownloadActionSensitivity(self) -> None:
         """
@@ -1169,15 +1180,18 @@ class RapidWindow(QMainWindow):
     def doAboutAction(self):
         pass
 
-    @pyqtSlot(int)
-    def thisComputerToggleValueChanged(self, value: int) -> None:
+    @pyqtSlot(bool)
+    def thisComputerToggleValueChanged(self, on: bool) -> None:
         """
         Respond to This Computer Toggle Switch
 
-        :param value: actual value of slider, to be discarded
+        :param on: whether swich is on or off
         """
 
-        on = self.setThisComputerViewVisibility()
+        self.layoutDevices()
+        if on:
+            self.thisComputer.setViewVisible(bool(self.prefs.this_computer_path))
+
         self.prefs.this_computer_source = on
         if not on:
             path = self.prefs.this_computer_path
@@ -1188,17 +1202,17 @@ class RapidWindow(QMainWindow):
             self.fileSystemView.clearSelection()
         else:
             pass
-            # TODO there is no path to scan - let the user know
+            # TODO there is no path to scan - let the user know?
 
-    @pyqtSlot(int)
-    def deviceToggleValueChange(self, value: int) -> None:
+    @pyqtSlot(bool)
+    def deviceToggleViewValueChange(self, on: bool) -> None:
         """
         Respond to Devices Toggle Switch
 
-        :param value: actual value of slider, to be discarded
+        :param on: whether swich is on or off
         """
 
-        on = self.setDeviceViewVisibility()
+        self.layoutDevices()
         self.prefs.device_autodetection = on
         if not on:
             for scan_id in list(self.devices.volumes_and_cameras):
