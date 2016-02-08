@@ -367,18 +367,7 @@ def thousands(i: int) -> str:
     except TypeError:
         return i
 
-def pythonify_version(v):
-    """ makes version number a version number in distutils sense"""
-    return distutils.version.StrictVersion(v.replace( '~',''))
-    
-def human_readable_version(v: str) -> str:
-    """
-    returns a version in human readable form"""
-    v = v.replace('~a', ' alpha ')
-    v = v.replace('~b', ' beta ')
-    v = v.replace('~rc', ' RC ')
-    return v
-        
+
 # Source of class AdjacentKey, first_and_last and runs:
 # http://stupidpythonideas.blogspot.com/2014/01/grouping-into-runs-of-adjacent-values.html
 class AdjacentKey:

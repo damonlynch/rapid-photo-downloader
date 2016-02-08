@@ -105,7 +105,7 @@ from devicedisplay import (DeviceModel, DeviceView, DeviceDelegate)
 from proximity import (TemporalProximityModel, TemporalProximityView,
                        TemporalProximityDelegate, TemporalProximityGroups)
 from utilities import (same_file_system, make_internationalized_list,
-                       human_readable_version, thousands, addPushButtonLabelSpacer,
+                       thousands, addPushButtonLabelSpacer,
                        format_size_for_user)
 from rpdfile import (RPDFile, file_types_by_number, PHOTO_EXTENSIONS,
                      VIDEO_EXTENSIONS, FileTypeCounter, OTHER_PHOTO_EXTENSIONS, FileSizeSum)
@@ -3040,7 +3040,7 @@ class QtSingleApplication(QApplication):
 
 def get_versions() -> List[str]:
     versions = [
-        'Rapid Photo Downloader: {}'.format(human_readable_version(constants.version)),
+        'Rapid Photo Downloader: {}'.format(constants.version),
         'Platform: {}'.format(platform.platform()),
         'Python: {}'.format(platform.python_version()),
         'Qt: {}'.format(QtCore.QT_VERSION_STR),
@@ -3085,14 +3085,14 @@ class SplashScreen(QSplashScreen):
     def drawContents(self, painter: QPainter):
         painter.save()
         painter.setPen(QColor(Qt.black))
-        painter.drawText(18, 64, human_readable_version(constants.version).title())
+        painter.drawText(18, 64, constants.version)
         painter.restore()
 
-if __name__ == "__main__":
+def main():
 
     parser = argparse.ArgumentParser(prog=PROGRAM_NAME)
     parser.add_argument('--version', action='version', version=
-        '%(prog)s {}'.format(human_readable_version(constants.version)))
+        '%(prog)s {}'.format(constants.version))
     parser.add_argument('--detailed-version', action='store_true',
         help="show version numbers of program and its libraries and exit")
     parser.add_argument("-e",  "--extensions", action="store_true",
@@ -3289,8 +3289,8 @@ if __name__ == "__main__":
     app.processEvents()
     # Occasionally the splash screen does not show(!), so pause and let
     # Qt render it again if need be
-    sleep(.5)
-    app.processEvents()
+    # sleep(.5)
+    # app.processEvents()
 
     rw = RapidWindow(app=app, auto_detect=auto_detect, this_computer_path=this_computer_path,
                      photo_download_folder=photo_location,
@@ -3307,4 +3307,13 @@ if __name__ == "__main__":
     splash.finish(rw)
 
     app.setActivationWindow(rw)
-    sys.exit(app.exec_())
+    code = app.exec_()
+
+    # Avoid segfaults at exit:
+    # http://python.6.x6.nabble.com/Application-crash-on-exit-under-Linux-td5067510.html
+    del rw
+    del app
+    sys.exit(code)
+
+if __name__ == "__main__":
+    main()
