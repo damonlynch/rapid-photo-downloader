@@ -23,8 +23,6 @@ __copyright__ = "Copyright 2007-2016, Damon Lynch"
 from enum import (Enum, IntEnum)
 from PyQt5.QtCore import Qt
 
-version = '0.9.0a1'
-
 PROGRAM_NAME = "Rapid Photo Downloader"
 
 logging_format = '%(asctime)s %(levelname)s: %(message)s'

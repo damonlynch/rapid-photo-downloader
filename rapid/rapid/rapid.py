@@ -120,9 +120,13 @@ from rotatedpushbutton import RotatedButton
 from toppushbutton import TopPushButton
 from filebrowse import FileSystemView, FileSystemModel
 from toggleview import QToggleView
+import __about__
 
 BackupMissing = namedtuple('BackupMissing', 'photo, video')
 
+# Avoid segfaults at exit. Recommended by Kovid Goyal:
+# https://www.riverbankcomputing.com/pipermail/pyqt/2016-February/036932.html
+app = None  # type: 'QtSingleApplication'
 
 class RenameMoveFileManager(PushPullDaemonManager):
     message = QtCore.pyqtSignal(bool, RPDFile, int, QPixmap)
@@ -362,8 +366,7 @@ class ThisComputerWidget(QWidget):
         self.view.setVisible(visible)
 
 class RapidWindow(QMainWindow):
-    def __init__(self, app: 'QtSingleApplication',
-                 auto_detect: Optional[bool]=None,
+    def __init__(self, auto_detect: Optional[bool]=None,
                  this_computer_path: Optional[str]=None,
                  photo_download_folder: Optional[str]=None,
                  video_download_folder: Optional[str]=None,
@@ -3040,7 +3043,7 @@ class QtSingleApplication(QApplication):
 
 def get_versions() -> List[str]:
     versions = [
-        'Rapid Photo Downloader: {}'.format(constants.version),
+        'Rapid Photo Downloader: {}'.format(__about__.__version__),
         'Platform: {}'.format(platform.platform()),
         'Python: {}'.format(platform.python_version()),
         'Qt: {}'.format(QtCore.QT_VERSION_STR),
@@ -3085,14 +3088,14 @@ class SplashScreen(QSplashScreen):
     def drawContents(self, painter: QPainter):
         painter.save()
         painter.setPen(QColor(Qt.black))
-        painter.drawText(18, 64, constants.version)
+        painter.drawText(18, 64, __about__.__version__)
         painter.restore()
 
 def main():
 
     parser = argparse.ArgumentParser(prog=PROGRAM_NAME)
     parser.add_argument('--version', action='version', version=
-        '%(prog)s {}'.format(constants.version))
+        '%(prog)s {}'.format(__about__.__version__))
     parser.add_argument('--detailed-version', action='store_true',
         help="show version numbers of program and its libraries and exit")
     parser.add_argument("-e",  "--extensions", action="store_true",
@@ -3260,6 +3263,8 @@ def main():
 
     appGuid = '8dbfb490-b20f-49d3-9b7d-2016012d2aa8'
 
+    # See note above regarding avoiding crashes
+    global app
     app = QtSingleApplication(appGuid, sys.argv)
     if app.isRunning():
         print('Rapid Photo Downloader is already running')
@@ -3287,12 +3292,8 @@ def main():
     splash = SplashScreen(QPixmap(':/splashscreen.png'), Qt.WindowStaysOnTopHint)
     splash.show()
     app.processEvents()
-    # Occasionally the splash screen does not show(!), so pause and let
-    # Qt render it again if need be
-    # sleep(.5)
-    # app.processEvents()
 
-    rw = RapidWindow(app=app, auto_detect=auto_detect, this_computer_path=this_computer_path,
+    rw = RapidWindow(auto_detect=auto_detect, this_computer_path=this_computer_path,
                      photo_download_folder=photo_location,
                      video_download_folder=video_location,
                      backup=backup,
@@ -3309,10 +3310,6 @@ def main():
     app.setActivationWindow(rw)
     code = app.exec_()
 
-    # Avoid segfaults at exit:
-    # http://python.6.x6.nabble.com/Application-crash-on-exit-under-Linux-td5067510.html
-    del rw
-    del app
     sys.exit(code)
 
 if __name__ == "__main__":

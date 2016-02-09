@@ -15,7 +15,6 @@ Rapid Photo Downloader requires the following software:
 * GObject-based wrapper around the Exiv2 library introspection data
 * GObject based library to access udisks2 introspection data
 * Libgudev-1.0 introspection data
-* GObject-based wrapper library for libudev
 * ExifTool
 
 To run Rapid Photo Downloader you will need all the software mentioned above.
