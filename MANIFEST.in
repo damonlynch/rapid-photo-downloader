@@ -1,8 +1,0 @@
-include rapid-photo-downloader
-include rapid/AUTHORS rapid/ChangeLog rapid/INSTALL rapid/COPYING
-recursive-include data/ *.png *.xpm *.desktop
-recursive-include rapid/glade3 *.ui *.png *.svg *.xpm
-include po/rapid-photo-downloader.pot
-include po/*.po
-include doc/rapid-photo-downloader.pod
-

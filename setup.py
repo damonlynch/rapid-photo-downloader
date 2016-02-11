@@ -1,98 +1,117 @@
-#!/usr/bin/env python
-# -*- coding: latin1 -*-
+#!/usr/bin/python3
 
-from distutils.core import setup
-from distutils.command.install_data import install_data
-from distutils.dep_util import newer
-from distutils.log import info
+# Copyright (C) 2009-2016 Damon Lynch <damonlynch@gmail.com>
 
-from rapid.config import version
-import glob
+# This file is part of Rapid Photo Downloader.
+#
+# Rapid Photo Downloader is free software: you can redistribute it and/or
+# modify it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# Rapid Photo Downloader is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with Rapid Photo Downloader.  If not,
+# see <http://www.gnu.org/licenses/>.
+
+# Contains some elements Copyright 2014 Donald Stufft
+
+__author__ = 'Damon Lynch'
+__copyright__ = "Copyright 2009-2016, Damon Lynch"
+
 import os
+import sys
+import shutil
+from setuptools import setup
 
-name = 'rapid-photo-downloader'
+install_error_message = "This program requires {}.\nPlease install it using your distribution's " \
+                        "standard installation tools.\n"
 
-class InstallData(install_data):
-    """ This class is largely copied from setup.py in Terminator 0.8.1 by Chris Jones <cmsj@tenshu.net>"""
-    def run (self):
-        self.data_files.extend (self._compile_po_files ())
-        install_data.run (self)
+try:
+    import PyQt5
+except ImportError:
+    sys.stderr.write(install_error_message.format('PyQt5'))
+import gi
 
-    def _compile_po_files (self):
-        data_files = []
+try:
+    gi.require_version('GUdev', '1.0')
+except ValueError:
+    sys.stderr.write(install_error_message.format('GUdev 1.0 from gi.repository'))
 
-        PO_DIR = 'po'
-        for po in glob.glob (os.path.join (PO_DIR,'*.po')):
-            lang = os.path.basename(po[:-3])
-            mo = os.path.join('build', 'mo', lang, '%s.mo' % name)
+try:
+    gi.require_version('UDisks', '2.0')
+except ValueError:
+     sys.stderr.write(install_error_message.format('UDisks 2.0 from gi.repository'))
+try:
+     gi.require_version('GLib', '2.0')
+except ValueError:
+    sys.stderr.write(install_error_message.format('GLib 2.0 from gi.repository'))
+try:
+    gi.require_version('GExiv2', '0.10')
+except ValueError:
+    sys.stderr.write(install_error_message.format('GExiv2 0.10 from gi.repository'))
+try:
+    gi.require_version('Gst', '1.0')
+except ValueError:
+    sys.stderr.write(install_error_message.format('Gst 1.0 from gi.repository'))
 
-            directory = os.path.dirname(mo)
-            if not os.path.exists(directory):
-                info('creating %s' % directory)
-                os.makedirs(directory)
+if  shutil.which('exiftool') is None:
+    sys.stderr.write(install_error_message.format('ExifTool'))
 
-            if newer(po, mo):
-                # True if mo doesn't exist
-                cmd = 'msgfmt -o %s %s' % (mo, po)
-                info('compiling %s -> %s' % (po, mo))
-                if os.system(cmd) != 0:
-                    raise SystemExit('Error while running msgfmt')
+here = os.path.abspath(os.path.dirname(__file__))
 
-                dest = os.path.dirname(os.path.join('share', 'locale', lang, 'LC_MESSAGES', '%s.mo' % name))
-                data_files.append((dest, [mo]))
+with open(os.path.join(here, "rapid", "__about__.py")) as f:
+    about = {}
+    exec(f.read(), about)
 
-        return data_files
+with open(os.path.join(here, 'README.rst'), encoding='utf-8') as f:
+    long_description = f.read()
 
-package_data={'rapid': ['glade3/about.ui',
-              'glade3/photo.svg',
-              'glade3/photo66.png',
-              'glade3/photo_icon.png',
-              'glade3/prefs.ui',
-              'glade3/rapid.ui',
-              'glade3/errorlog.ui',
-              'glade3/media-eject.png',
-              'glade3/rapid-photo-downloader.svg',
-              'glade3/rapid-photo-downloader-download-pending.png',
-              'glade3/rapid-photo-downloader-downloaded-with-error.svg',
-              'glade3/rapid-photo-downloader-downloaded-with-warning.svg',
-              'glade3/rapid-photo-downloader-downloaded.svg',
-              'glade3/rapid-photo-downloader-jobcode.svg',
-              'glade3/thumbnails_icon.png',
-              'glade3/video.svg',
-              'glade3/video66.png',
-              'glade3/zoom-in.png',
-              'glade3/zoom-out.png',
-              ]}
+if sys.version_info < (3,5):
+    additional_requires = ['scandir', 'typing']
+else:
+    additional_requires = []
 
-setup(name=name,
-    version=version,
-    description='Rapid Photo Downloader for Linux',
-    license='GPL',
-    author='Damon Lynch',
-    author_email='damonlynch@gmail.com',
-    maintainer='Damon Lynch',
-    url='http://www.damonlynch.net/rapid',
-    long_description=
-"""Rapid Photo Downloader is written by a photographer for professional and
-amateur photographers. It can  download photos and videos from multiple
-cameras, memory cards and Portable Storage Devices simultaneously. It
-provides many flexible, user-defined options for subfolder creation,
-photo and video renaming, and backup.
-""",
+setup(
+    name=about["__title__"],
+    version=about["__version__"],
+
+    description=about["__summary__"],
+    long_description=long_description,
+    license=about["__license__"],
+    url=about["__uri__"],
+
+    author=about["__author__"],
+    author_email=about["__email__"],
+
+    install_requires=['gphoto2',
+                      'pyzmq',
+                      'psutil',
+                      'sortedcontainers',
+                      'pyxdg',
+                      'arrow',
+                      'python-dateutil',
+                      ] + additional_requires,
     packages = ['rapid'],
-    package_data=package_data,
-    scripts=['rapid-photo-downloader'],
-    platforms=['linux'],
-    data_files=[
-        ('share/applications', ['data/rapid-photo-downloader.desktop']),
-        ('share/pixmaps', ['data/icons/48x48/apps/rapid-photo-downloader.png', 'data/icons/rapid-photo-downloader.xpm']),
-        ('share/icons/hicolor/scalable/apps', glob.glob('data/icons/scalable/apps/*.svg')),
-        ('share/icons/hicolor/16x16/apps', glob.glob('data/icons/16x16/apps/*.png')),
-        ('share/icons/hicolor/22x22/apps', glob.glob('data/icons/22x22/apps/*.png')),
-        ('share/icons/hicolor/24x24/apps', glob.glob('data/icons/24x24/apps/*.png')),
-        ('share/icons/hicolor/48x48/apps', glob.glob('data/icons/48x48/apps/*.png')),
-        ('/usr/share/kde4/apps/solid/actions/', ['data/kde/rapid-photo-downloader.desktop']),
-        ('/usr/share/appdata/', ['data/rapid-photo-downloader.appdata.xml']),
-    ],
-    cmdclass={'install_data': InstallData}
+    entry_points={
+        'gui_scripts': [
+            'rapid-photo-downloader=rapid.rapid:main',
+        ]
+    },
+    classifiers=[
+        'Development Status :: 3 - Alpha',
+        'Environment :: X11 Applications :: Qt',
+        'Intended Audience :: End Users/Desktop',
+        'License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)',
+        'Operating System :: POSIX :: Linux',
+        'Programming Language :: Python :: 3.4',
+        'Programming Language :: Python :: 3.5',
+        'Topic :: Multimedia :: Graphics',
+        'Topic :: Multimedia :: Video'
+        ]
+
 )
