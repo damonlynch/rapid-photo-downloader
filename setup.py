@@ -27,6 +27,7 @@ import os
 import sys
 import shutil
 from setuptools import setup
+import DistUtilsExtra
 
 install_error_message = "This program requires {}.\nPlease install it using your distribution's " \
                         "standard installation tools.\n"
@@ -58,13 +59,17 @@ try:
     gi.require_version('Gst', '1.0')
 except ValueError:
     sys.stderr.write(install_error_message.format('Gst 1.0 from gi.repository'))
+try:
+    gi.require_version('Notify', '0.7')
+except ValueError:
+    sys.stderr.write(install_error_message.format('Notify 0.7 from gi.repository'))
 
 if  shutil.which('exiftool') is None:
     sys.stderr.write(install_error_message.format('ExifTool'))
 
 here = os.path.abspath(os.path.dirname(__file__))
 
-with open(os.path.join(here, "rapid", "__about__.py")) as f:
+with open(os.path.join(here, "raphodo", "__about__.py")) as f:
     about = {}
     exec(f.read(), about)
 
@@ -96,7 +101,7 @@ setup(
                       'arrow',
                       'python-dateutil',
                       ] + additional_requires,
-    packages = ['rapid'],
+    packages = ['raphodo'],
     entry_points={
         'gui_scripts': [
             'rapid-photo-downloader=rapid.rapid:main',
@@ -112,6 +117,8 @@ setup(
         'Programming Language :: Python :: 3.5',
         'Topic :: Multimedia :: Graphics',
         'Topic :: Multimedia :: Video'
-        ]
+        ],
+    keywords='photo, video, download, ingest, import, camera, phone, backup, rename, photography,' \
+             ' photographer, transfer, copy, raw, cr2, nef, arw',
 
 )

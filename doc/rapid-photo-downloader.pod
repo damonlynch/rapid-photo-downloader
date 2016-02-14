@@ -1,96 +1,150 @@
 =head1 NAME
 
-rapid-photo-downloader - imports photos and videos from cameras, memory cards and other devices
+rapid-photo-downloader - downloads, renames and backs up photos and videos from cameras, phones,
+memory cards and other devices
 
 =head1 SYNOPSIS
 
 B<rapid-photo-downloader> [options]
 
 Options:
-  --version         
-  -h, --help        
-  -v, --verbose
-  -q, --quiet
-  -e, --extensions
-  --focal-length=FOCAL_LENGTH
-  -a, --auto-detect
-  -l PATH, --device-location=PATH
-  --reset-settings
-  
+
+    -h, --help
+    --version
+    --detailed-version
+    -v, --verbose
+    --debug
+    -e, --extensions
+    -a {on,off}, --auto-detect {on,off}
+    -t PATH, --this-computer PATH
+    ---photo-destination PATH
+    --video-destination PATH
+    -b {on,off}, --backup {on,off}
+    --backup-auto-detect {on,off}
+    --photo-backup-identifier FOLDER
+    --video-backup-identifier FOLDER
+    --photo-backup-location PATH
+    --video-backup-location PATH
+    --ignore-other-photo-file-types
+    --thumbnail-cache {on,off}
+    --delete-thumbnail-cache
+    --reset
+
 =head1 DESCRIPTION
 
-B<Rapid Photo Downloader> imports photos and videos from cameras, memory cards and Portable
-Storage Devices, providing a variety of flexible, user-defined options for subfolder creation,
-photo and video renaming, and backup. It can download from more than one device in parallel.
+B<Rapid Photo Downloader> imports photos and videos from cameras, phones,
+memory cards and other devices at high speed. It can be configured to
+rename photos and videos with meaningful filenames you specify. It can
+back up photos and videos as they are downloaded.
 
+Rapid Photo Downloader can download from and back up to multiple devices
+simultaneously. Unique to Rapid Photo Downloader is its timeline feature,
+allowing you to group photos and videos based on how much time elapsed
+between consecutive shots. You can use this to quickly identify photos
+and videos taken at different periods in a single day or over consecutive
+days.
 
 =head1 OPTIONS
 
 =over
 
+=item B<-h, --help>
+
+Show help message and exit.
+
 =item B<--version>
 
 Displays information about the currently installed version and exits.
 
-=item B<-h, --help>
+=item B<--detailed-version>
 
-Show help message and exit.
+Displays information about the currently installed version and its libraries and exits.
 
 =item B<-v, --verbose>
 
 Displays program information on the command line as the program runs.
 
-=item B<-d, --debug>
+=item B<---debug>
 
 Displays debugging information on the command line as the program runs
-
-=item B<-q, --quiet>
-
-Only display output errors and warnings to the command line as the program runs.
 
 =item B<-e, --extensions>
 
 Displays image file extensions the program recognizes and exits.
 
-=item B<--focal-length=FOCAL_LENGTH>
+=item B<-a {on,off}, --auto-detect {on,off}
 
-If an aperture value of 0.0 is encountered, the focal length metadata will be set to the 
-number passed, and its aperture metadata to f/8.
+Turn on or off the automatic detection of devices from which to download, 
+overwriting existing program preferences.
 
-=item B<-a, --auto-detect>
+=item B<-t PATH, --this-computer PATH>
 
-Automatically detect devices from which to download, overwriting existing program preferences.
+The PATH on this computer from which to download, overwriting existing program 
+preferences. Set PATH to '' to turn off.
 
-=item B<-l PATH, --device-location=PATH>
+=item B<--photo-destination PATH>
 
-Manually specify the PATH of the device from which to download, overwriting existing program 
+Sets the PATH where photos will be downloaded, overwriting existing program 
 preferences.
 
-=item B<--reset-settings>
+=item B<--video-destination PATH>
 
-Resets all program settings and preferences to their default values and exits.
+Sets the PATH where videos will be downloaded, overwriting existing program 
+preferences.
+
+=item B<-b {on,off}, --backup {on,off}>
+
+Turns on or off the backing up of photos and videos while downloading, overwriting
+existing program preferences.
+
+=item B<--backup-auto-detect {on,off}>
+
+Turns on or off the automatic detection of backup devices, overwriting
+existing program preferences.
+
+=item B<--photo-backup-identifier FOLDER>
+
+Sets the FOLDER in which backups are stored on the automatically detected photo backup 
+device, with the folder's name being used to identify whether or not the device
+is used for backups. For each device you wish to use for backing up photos to, 
+create a folder on it with this name. Overwrites existing program preferences.
+
+=item B<--video-backup-identifier FOLDER>
+
+Sets the FOLDER in which backups are stored on the automatically detected video backup 
+device, with the folder's name being used to identify whether or not the device
+is used for backups. For each device you wish to use for backing up videos to, 
+create a folder on it with this name. Overwrites existing program preferences.
+
+=item B<--photo-backup-location PATH>
+
+Sets the PATH where photos will be backed up when automatic detection of backup devices
+is turned off. Overwrites existing program preferences.
+
+=item B<--video-backup-location PATH>
+
+Sets the PATH where videos will be backed up when automatic detection of backup devices
+is turned off. Overwrites existing program preferences.
+
+=item B<--ignore-other-photo-file-types>
+
+Do not download photos with the following extensions: TIF, TIFF and MPO.
+
+=item B<--thumbnail-cache {on,off}>
+
+Turns on or off use of the Rapid Photo Downloader Thumbnail Cache. Does not delete existing
+cache contents.
+
+=item B<--delete-thumbnail-cache>
+
+Deletes all thumbnails in the Rapid Photo Downloader Thumbnail Cache, and exits.
+
+=item B<--reset>
+
+Resets all program settings to their default values, deletes all Thumbnail cache and which files
+have been previously downloaded, and exits.
 
 =back
-
-=head1 ENVIRONMENT VARIABLES
-
-=over
-
-=item B<LOCALEDIR>
-
-If set, overrides the system-wide directory in which translation data will be searched for.
-
-=item B<LANG>
-
-The system-wide locale used for translations.
-
-=back
-
-=head1 BUGS
-
-* Support for downloading directly from cameras is experimental. Not all cameras are supported.
-
-Please report bugs at https://bugs.launchpad.net/rapid
 
 =head1 AUTHORS
 
@@ -102,7 +156,7 @@ This manual page was written by Damon Lynch.
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of the GNU General Public License as published by the
-Free Software Foundation; either version 2, or (at your option) any
+Free Software Foundation; either version 3, or (at your option) any
 later version.
 
 On Debian GNU/Linux systems, the complete text of the GNU General

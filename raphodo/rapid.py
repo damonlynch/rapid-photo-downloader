@@ -3093,13 +3093,19 @@ class SplashScreen(QSplashScreen):
         painter.drawText(18, 64, __about__.__version__)
         painter.restore()
 
-def main():
+def parser_options(formatter_class=argparse.HelpFormatter):
+    parser = argparse.ArgumentParser(prog=__about__.__title__,
+                                     description=__about__.__summary__,
+                                     formatter_class=formatter_class)
 
-    parser = argparse.ArgumentParser(prog=PROGRAM_NAME)
     parser.add_argument('--version', action='version', version=
         '%(prog)s {}'.format(__about__.__version__))
     parser.add_argument('--detailed-version', action='store_true',
         help="show version numbers of program and its libraries and exit")
+    parser.add_argument("-v", "--verbose",  action="store_true", dest="verbose",
+         help=_("display program information when run from the command line"))
+    parser.add_argument("--debug", action="store_true", dest="debug",
+         help=_("display debugging information when run from the command line"))
     parser.add_argument("-e",  "--extensions", action="store_true",
          dest="extensions",
          help=_("list photo and video file extensions the program recognizes "
@@ -3113,7 +3119,7 @@ def main():
     parser.add_argument("--photo-destination", type=str,
         metavar=_("PATH"), dest="photo_location",
         help=_("the PATH where photos will be downloaded"))
-    parser.add_argument("--video-location", type=str,
+    parser.add_argument("--video-destination", type=str,
         metavar=_("PATH"), dest="video_location",
         help=_("the PATH where videos will be downloaded"))
     parser.add_argument("-b", "--backup", choices=['on','off'],
@@ -3126,13 +3132,13 @@ def main():
         metavar=_("FOLDER"), dest="photo_backup_identifier",
         help=_("the FOLDER in which backups are stored on the automatically detected photo backup "
                "device, with the folder's name being used to identify whether or not the device "
-               "is used for backups. For each device you wish to use for backing up to, "
+               "is used for backups. For each device you wish to use for backing photos up to, "
                "create a folder on it with this name."))
     parser.add_argument("--video-backup-identifier", type=str,
         metavar=_("FOLDER"), dest="video_backup_identifier",
         help=_("the FOLDER in which backups are stored on the automatically detected video backup "
                "device, with the folder's name being used to identify whether or not the device "
-               "is used for backups. For each device you wish to use for backing up to, "
+               "is used for backups. For each device you wish to use for backing up videos to, "
                "create a folder on it with this name."))
     parser.add_argument("--photo-backup-location", type=str,
         metavar=_("PATH"), dest="photo_backup_location",
@@ -3142,18 +3148,23 @@ def main():
         metavar=_("PATH"), dest="video_backup_location",
         help=_("the PATH where videos will be backed up when automatic "
         "detection of backup devices is turned off"))
-    parser.add_argument("-v", "--verbose",  action="store_true", dest="verbose",
-         help=_("display program information when run from the command line"))
-    parser.add_argument("--debug", action="store_true", dest="debug",
-         help=_("display debugging information when run from the command line"))
     parser.add_argument("--ignore-other-photo-file-types", action="store_true", dest="ignore_other",
                         help=_('ignore photos with the following extensions: %s') %
                         make_internationalized_list([s.upper() for s in OTHER_PHOTO_EXTENSIONS]))
     parser.add_argument("--thumbnail-cache", dest="thumb_cache",
                         choices=['on','off'],
                         help=_("turn on or off use of the Rapid Photo Downloader Thumbnail Cache"))
+    parser.add_argument("--delete-thumbnail-cache", dest="delete_thumb_cache",
+                        action="store_true",
+                        help=_("Delete all thumbnails in the Rapid Photo Downloader Thumbnail "
+                               "Cache"))
     parser.add_argument("--reset", action="store_true", dest="reset",
                  help=_("reset all program settings and caches and exit"))
+    return parser
+
+def main():
+
+    parser = parser_options()
 
     args = parser.parse_args()
     if args.detailed_version:
@@ -3289,6 +3300,12 @@ def main():
         cache = ThumbnailCacheSql()
         cache.purge_cache()
         print(_("All settings and caches have been reset"))
+        sys.exit(0)
+
+    if args.delete_thumb_cache:
+        cache = ThumbnailCacheSql()
+        cache.purge_cache()
+        print(_("Thumbnail Cache has been reset"))
         sys.exit(0)
 
     splash = SplashScreen(QPixmap(':/splashscreen.png'), Qt.WindowStaysOnTopHint)

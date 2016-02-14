@@ -1,11 +1,13 @@
 [Desktop Entry]
-Version=1.0
-Name=Rapid Photo Downloader
-GenericName=Rapid Photo Downloader
-Comment=Download photos and videos from cameras, memory cards and Portable Storage Devices
+Categories=Graphics;Photography;
+Comment=Download, rename and backup photos and videos from cameras, phones, memory cards and other devices
 Exec=rapid-photo-downloader
+GenericName=Photo Downloader
 Icon=rapid-photo-downloader
 MimeType=x-content/image-dcf;
+Name=Rapid Photo Downloader
+Name[en_US]=Rapid Photo Downloader
 Terminal=false
 Type=Application
-Categories=Graphics;Photography;
+Version=1.0
+Keywords=photo;download;graphics;photography;import;video;RAW;camera;phone;ingest;backup;memory;card;

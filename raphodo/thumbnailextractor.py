@@ -250,6 +250,12 @@ class ThumbnailExtractor(LoadBalancerWorker):
                 return self.rotate_270
         return None
 
+    def check_for_stop(self, directive: bytes, content: bytes):
+        if directive == b'cmd':
+            assert content == b'STOP'
+            return True
+        return False
+
     def process_files(self):
 
         logging.basicConfig(
@@ -261,8 +267,9 @@ class ThumbnailExtractor(LoadBalancerWorker):
 
         while True:
             directive, content = self.requester.recv_multipart()
-            self.check_for_command(directive, content)
-            #
+            if self.check_for_stop(directive, content):
+                break
+
             data = pickle.loads(content) # type: ThumbnailExtractorArgument
 
             # logging.debug("%s is working on %s", self.requester.identity.decode(),
@@ -384,6 +391,7 @@ class ThumbnailExtractor(LoadBalancerWorker):
         with context:
             with exiftool.ExifTool() as self.exiftool_process:
                 self.process_files()
+            self.exit()
 
 if __name__ == "__main__":
     thumbnail_extractor = ThumbnailExtractor()

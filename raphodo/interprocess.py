@@ -30,7 +30,7 @@ import time
 from collections import deque
 from typing import Optional, Set, List, Dict
 
-from psutil import (Process, wait_procs, pid_exists)
+import psutil
 from sortedcontainers import SortedListWithKey
 
 from PyQt5.QtCore import (pyqtSignal, QObject, pyqtSlot)
@@ -45,7 +45,7 @@ from devices import Device
 from preferences import ScanPreferences
 from utilities import CacheDirs
 from constants import (RenameAndMoveStatus, ExtractionTask, ExtractionProcessing,
-                       CameraErrorCode, FileType)
+                       CameraErrorCode, FileType, logging_format, logging_date_format)
 from proximity import TemporalProximityGroups
 from storage import StorageSpace
 from viewutils import SortedListItem
@@ -101,7 +101,7 @@ class ProcessManager:
     def __init__(self, logging_level: int) -> None:
         super().__init__()
 
-        self.processes = {}
+        self.processes = {}  # type: Dict[int, Process]
         self._process_to_run = '' # Implement in subclass
         self.logging_level = logging_level
 
@@ -136,36 +136,26 @@ class ProcessManager:
 
         # Add to list of running workers
         self.workers.append(worker_id)
-        self.processes[worker_id] = Process(pid)
+        self.processes[worker_id] = psutil.Process(pid)
 
     def forcefully_terminate(self) -> None:
         """Forcefully terminate any running child processes."""
 
-        def on_terminate(proc: Process):
-            logging.debug("Process %s (%s) terminated", proc.name(), proc.pid)
-
-        terminated = []
-        for proc in self.processes.values():
-            if pid_exists(proc.pid):
-                try:
-                    p = Process(proc.pid)
-                except:
-                    p = None
-                if p is not None and p == proc:
-                    logging.debug("Process %s (%s) has %s status", p.name(), p.pid, p.status())
+        for p in self.processes.values():  # type: psutil.Process
+            if p.is_running():
+                if p.status() == psutil.STATUS_ZOMBIE:
                     try:
-                        p.terminate()
-                        terminated.append(p)
+                        logging.debug("Killing zombie process %s with pid %s", p.name(), p.pid)
+                        p.kill()
                     except:
-                        logging.error("Terminating process %s with pid %s failed", p.name(), p.pid)
-        if terminated:
-            gone, alive = wait_procs(terminated, timeout=2, callback=on_terminate)
-            for p in alive:
-                logging.debug("Killing process %s", p)
-                try:
-                    p.kill()
-                except:
-                    logging.debug("Failed to kill process %s with pid %s", p.name(), p.pid)
+                        logging.error("Failed to kill process with pid %s", p.pid)
+
+                else:
+                    try:
+                        logging.debug("Terminating process %s with pid %s", p.name(), p.pid)
+                        p.terminate()
+                    except:
+                        logging.error("Terminating process with pid %s failed", p.pid)
 
     def process_alive(self, worker_id: int) -> bool:
         """
@@ -175,9 +165,9 @@ class ProcessManager:
         :param worker_id: the process to check
         :return True if the process is the same, False otherwise
         """
-        if pid_exists(self.processes[worker_id].pid):
-            return Process(self.processes[worker_id].pid) == self.processes[worker_id]
-        return False
+
+        return self.processes[worker_id].is_running()
+
 
 class PullPipelineManager(ProcessManager, QObject):
     """
@@ -376,6 +366,9 @@ class LoadBalancer:
         self.controller_port = args.controller
 
         logging_level = get_logging_level(args.logginglevel)
+        logging.basicConfig(format=logging_format,
+                    datefmt=logging_date_format,
+                    level=logging_level)
 
         context = zmq.Context()
         frontend = context.socket(zmq.PULL)
@@ -392,10 +385,11 @@ class LoadBalancer:
 
         sink_port = args.send
 
-        logging.debug("{} worker waiting to be notified how many workers to initialize...".format(
+        logging.debug("{} load balancer waiting to be notified how many workers to "
+                      "initialize...".format(
             worker_type))
         no_workers = int(reply.recv())
-        logging.debug("...{} worker will use {} workers".format(worker_type, no_workers))
+        logging.debug("...{} load balancer will use {} workers".format(worker_type, no_workers))
         reply.send(str(frontend_port).encode())
 
         self.process_manager = process_manager(no_workers, backend_port, sink_port, logging_level)
@@ -436,7 +430,6 @@ class LoadBalancerManager(ProcessManager, QObject):
         self.add_worker(worker_id)
         self.requester.send(str(self.no_workers).encode())
         self.frontend_port = int(self.requester.recv())
-        # logging.debug("{} front end port: {}".format(self._process_name, self.frontend_port))
         self.load_balancer_started.emit(self.frontend_port)
 
     def stop(self):
@@ -841,18 +834,21 @@ class LoadBalancerWorker:
 
         pass
 
+    def exit(self):
+        self.cleanup_pre_stop()
+        identity = self.requester.identity.decode()
+        # signal to load balancer that we've terminated before finishing
+        self.requester.send_multipart([b'', b'', b'STOPPED'])
+        self.requester.close()
+        self.sender.close()
+        self.context.term()
+        logging.debug("%s stopped", identity)
+        sys.exit(0)
+
     def check_for_command(self, directive: bytes, content: bytes):
         if directive == b'cmd':
             assert content == b'STOP'
-            self.cleanup_pre_stop()
-            identity = self.requester.identity.decode()
-            # signal to load balancer that we've terminated before finishing
-            self.requester.send_multipart([b'', b'', b'STOPPED'])
-            self.requester.close()
-            self.sender.close()
-            self.context.term()
-            logging.debug("%s stopped", identity)
-            sys.exit(0)
+            self.exit()
 
 
 class ScanArguments:

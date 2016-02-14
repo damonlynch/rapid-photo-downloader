@@ -15,13 +15,17 @@ Depends: ${python:Depends},
          ${misc:Depends},
          python3-pyqt5,
          python3-zmq,
-         gir1.2-gexiv2,
+         gir1.2-gexiv2-0.10,
          gir1.2-gudev,
-         gir1.2-udisks,
+         gir1.2-udisks-2.0,
+         gir1.2-notify-0.7,
+         python3-sortedcontainers,
+         python3-arrow,
+         python3-psutil,
          qt5-image-formats-plugins,
-         ffmpegthumbnailer,
          libimage-exiftool-perl,
-         exiv2,
+         exiv2
+         
 Description: Photo and video importer from memory cards, cameras and other devices
  Rapid Photo Downloader imports photos and videos from memory cards and 
  other devices at high speed. It can be configured to rename photos and 
