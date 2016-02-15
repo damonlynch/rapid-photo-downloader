@@ -12,3 +12,4 @@ thumbnail_data_medium_no_tiff
 thumbnail_data_camera
 thumbnail.py
 old_thumbnail.py
+*.egg-info

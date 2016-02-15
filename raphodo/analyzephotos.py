@@ -34,7 +34,11 @@ Two goals:
     the exif orientation and the exif date time.
 """
 
-import scandir
+if sys.version_info < (3,5):
+    import scandir
+    walk = scandir.walk
+else:
+    walk = os.walk
 import os
 import textwrap
 import subprocess
@@ -118,7 +122,7 @@ def scan(folder: str, disk_cach_cleared: bool, scan_types: List[str], errors: bo
     # Phase 1
     # Determine which files are safe to test i.e. are not cached
 
-    for dir_name, subdirs, filenames in scandir.walk(folder):
+    for dir_name, subdirs, filenames in walk(folder):
         for filename in filenames:
             ext = os.path.splitext(filename)[1][1:].lower()
             if ext in scan_types:

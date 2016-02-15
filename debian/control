@@ -2,11 +2,26 @@ Source: rapid-photo-downloader
 Section: graphics
 Priority: optional
 Maintainer: Damon Lynch <damonlynch@gmail.com>
-Build-Depends: debhelper (>= 8),
-               python (>= 3.4),
-               gettext
-Standards-Version: 3.9.4               
-X-Python-Version: 3.4
+Build-Depends: debhelper (>= 9),
+               dhpython,
+               python3-all (>= 3.5),
+               python3-setuptools,
+               python3-distutils-extra,
+               python3-gi,
+               gir1.2-gexiv2-0.10,
+               gir1.2-gudev-1.0,
+               gir1.2-udisks-2.0,
+               gir1.2-notify-0.7,
+               gir1.2-glib-2.0,
+               gir1.2-gstreamer-1.0,
+               libimage-exiftool-perl,
+               intltool,
+               python3-pyqt5,
+               pod2man
+Standards-Version: 3.9.6
+Vcs-Bzr: bazaar.launchpad.net/~dlynch3/rapid/zeromq_pyqt/debian/
+Vcs-Browser: http://bazaar.launchpad.net/~dlynch3/rapid/zeromq_pyqt/files/head:/debian/
+X-Python-Version: 3.5
 Homepage: http://damonlynch.net/rapid
 
 Package: rapid-photo-downloader
@@ -16,9 +31,11 @@ Depends: ${python:Depends},
          python3-pyqt5,
          python3-zmq,
          gir1.2-gexiv2-0.10,
-         gir1.2-gudev,
+         gir1.2-gudev-1.0,
          gir1.2-udisks-2.0,
          gir1.2-notify-0.7,
+         gir1.2-glib-2.0,
+         gir1.2-gstreamer-1.0,
          python3-sortedcontainers,
          python3-arrow,
          python3-psutil,
@@ -26,12 +43,20 @@ Depends: ${python:Depends},
          libimage-exiftool-perl,
          exiv2
          
-Description: Photo and video importer from memory cards, cameras and other devices
- Rapid Photo Downloader imports photos and videos from memory cards and 
- other devices at high speed. It can be configured to rename photos and 
- videos with meaningful filenames. It can back up photos and videos as 
- they are downloaded. It can download from and back up to multiple devices 
- simultaneously, which is valuable when importing from multiple memory
- cards or backing up to multiple external drives. Written by a photographer
- for professional and amateur photographers, Rapid Photo Downloader is easy
- to configure and use.
+Description: Download, rename and back up photos and videos from cameras and other devices
+ Rapid Photo Downloader imports photos and videos from cameras, phones,
+ memory cards and other devices at high speed. It can be configured to
+ rename photos and videos with meaningful filenames you specify. It can also
+ back up photos and videos as they are downloaded. It downloads from and backs
+ up to multiple devices simultaneously.
+ .
+ Rapid Photo Downloader can download from and back up to multiple devices
+ simultaneously. Unique to Rapid Photo Downloader is its timeline feature,
+ allowing you to group photos and videos based on how much time elapsed
+ between consecutive shots. You can use this to quickly identify photos and
+ videos taken at different periods in a single day or over consecutive days.
+ .
+ Written by a photographer for professional and amateur photographers, Rapid
+ Photo Downloader is easy to configure and use. Program preferences are
+ configured without the need for complicated codes. Common tasks can be
+ automated, such as unmounting a memory card when the download is complete.

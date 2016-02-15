@@ -27,7 +27,8 @@ import os
 import sys
 import shutil
 from setuptools import setup
-import DistUtilsExtra
+# from DistUtilsExtra.auto import *
+# from DistUtilsExtra.command import *
 
 install_error_message = "This program requires {}.\nPlease install it using your distribution's " \
                         "standard installation tools.\n"
@@ -76,10 +77,8 @@ with open(os.path.join(here, "raphodo", "__about__.py")) as f:
 with open(os.path.join(here, 'README.rst'), encoding='utf-8') as f:
     long_description = f.read()
 
-if sys.version_info < (3,5):
-    additional_requires = ['scandir', 'typing']
-else:
-    additional_requires = []
+#TODO generate helpful automatically, and install it
+#TODO ensure icons are installed
 
 setup(
     name=about["__title__"],
@@ -100,7 +99,10 @@ setup(
                       'pyxdg',
                       'arrow',
                       'python-dateutil',
-                      ] + additional_requires,
+                      ],
+    extras_require={':python_version == "3.4"': ['scandir', 'typing']},
+    #include_package_data = True,
+    exclude_package_data = {'rapid-photo-downloader': ['doc/rapid-photo-downloader.pod']},
     packages = ['raphodo'],
     entry_points={
         'gui_scripts': [

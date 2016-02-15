@@ -59,6 +59,7 @@ except ImportError:
 import zmq
 import psutil
 import gphoto2 as gp
+import sortedcontainers
 from PyQt5 import QtCore, QtWidgets, QtGui
 from PyQt5.QtCore import (QThread, Qt, QStorageInfo, QSettings, QPoint,
                           QSize, QTimer, QTextStream, QModelIndex,
@@ -3042,6 +3043,7 @@ class QtSingleApplication(QApplication):
             if not msg: break
             self.messageReceived.emit(msg)
 
+
 def get_versions() -> List[str]:
     versions = [
         'Rapid Photo Downloader: {}'.format(__about__.__version__),
@@ -3055,7 +3057,8 @@ def get_versions() -> List[str]:
         'Python gPhoto2: {}'.format(python_gphoto2_version()),
         'ExifTool: {}'.format(EXIFTOOL_VERSION),
         'GExiv2: {}'.format(gexiv2_version()),
-        'psutil: {}'.format('.'.join((str(v) for v in psutil.version_info)))]
+        'psutil: {}'.format('.'.join((str(v) for v in psutil.version_info))),
+        'sortedcontainers: {}'.format(sortedcontainers.__version__)]
     v = exiv2_version()
     if v:
         versions.append('Exiv2: {}'.format(v))
@@ -3289,6 +3292,7 @@ def main():
     app.setWindowIcon(QtGui.QIcon(':/rapid-photo-downloader.svg'))
 
     # darkFusion(app)
+    # app.setStyle('Fusion')
 
     # Resetting preferences must occur after QApplication is instantiated
     if args.reset:

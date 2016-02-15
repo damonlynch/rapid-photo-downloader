@@ -5,8 +5,7 @@ Actions=exec;
 
 [Desktop Action exec]
 # %f gives StorageAccess.filePath, %d gives Block.device, %i gives UDI
-Exec=/usr/bin/rapid-photo-downloader
-Icon=/usr/share/pixmaps/rapid-photo-downloader.png
-Name=Download Photos with Rapid Photo Downloader
-Name[fr]=Téléchargement de photos avec Rapid Photo Downloader
+Exec=rapid-photo-downloader
+Icon=rapid-photo-downloader
+_Name=Download Photos and Videos with Rapid Photo Downloader
 

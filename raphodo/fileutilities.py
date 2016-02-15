@@ -25,7 +25,11 @@ Utility code to aid main code development -- not called from main code
 __author__ = 'Damon Lynch'
 __copyright__ = "Copyright 2015-2016, Damon Lynch"
 
-import scandir
+if sys.version_info < (3,5):
+    import scandir
+    walk = scandir.walk
+else:
+    walk = os.walk
 import os
 import datetime
 import time
@@ -50,7 +54,7 @@ def set_file_modified_time_from_metadata(path: str):
     :param path: the folder which to walk
     """
     with exiftool.ExifTool() as exiftool_process:
-        for dir_name, subdirs, file_list in scandir.walk(path):
+        for dir_name, subdirs, file_list in walk(path):
             for file_name in file_list:
                 base_name, ext = os.path.splitext(file_name)
                 ext = ext.lower()[1:]

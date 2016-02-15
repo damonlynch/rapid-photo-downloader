@@ -2,15 +2,15 @@ Rapid Photo Downloader
 ======================
 
 Rapid Photo Downloader imports photos and videos from cameras, phones,
-memory cards  and other devices at high speed. It can be configured to
-rename photos and videos with meaningful filenames you specify. It can back
-up photos and videos as they are downloaded.
+memory cards and other devices at high speed. It can be configured to
+rename photos and videos with meaningful filenames you specify. It can also
+back up photos and videos as they are downloaded. It downloads from and backs
+up to multiple devices simultaneously.
 
-Rapid Photo Downloader can download from and back up to multiple devices
-simultaneously. Unique to Rapid Photo Downloader is its timeline feature,
-allowing you to group photos and videos based on how much time elapsed
-between consecutive shots. You can use this to quickly identify photos and
-videos taken at different periods in a single day or over consecutive days.
+Unique to Rapid Photo Downloader is its timeline feature, allowing you to
+group photos and videos based on how much time elapsed between consecutive
+shots. You can use this to quickly identify photos and videos taken at
+different periods in a single day or over consecutive days.
 
 Written by a photographer for professional and amateur photographers, Rapid
 Photo Downloader is easy to configure and use. Program preferences are
