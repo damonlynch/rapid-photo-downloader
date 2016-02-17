@@ -23,21 +23,23 @@ Installation
 ------------
 
 To be installed, Rapid Photo Downloader requires:
- * Python 3.4 or greater
- * PyQt 5.4 or greater
- * `Python gobject introspection`_
- * `python-gphoto2`_
- * pyzmq_
- * psutil_
- * sortedcontainers_
- * pyxdg_
- * Arrow_
- * dateutil_ 2.0 or greater
- * If using Python 3.4, these additional modules:
-
-   * typing_
-   * scandir_
-
+ - Python 3.4 or greater
+ - PyQt 5.4 or greater
+ - `Python gobject introspection`_
+ - `python-gphoto2`_
+    - If installing python-gphoto2 from PyPi, you must first install
+      the development packages for libgphoto2, e.g. libgphoto2-dev
+ - pyzmq_
+    - If installing pyzmq from PyPi, you must first install the development
+      packages for libzmq3, e.g. libzmq3-dev
+ - psutil_
+ - sortedcontainers_
+ - pyxdg_
+ - Arrow_
+ - dateutil_ 2.0 or greater
+ - If using Python 3.4, these additional modules:
+    - typing_
+    - scandir_
 
 .. _website: http://damonlynch.net/rapid
 .. _Python gobject introspection: https://wiki.gnome.org/action/show/Projects/PyGObject

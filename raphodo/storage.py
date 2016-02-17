@@ -34,7 +34,7 @@ unmounted before libgphoto2 can access it, so we must handle that too.
 which GVFS may or may not be running. However we can assume GVFS will
 not automatically mount cameras and devices. In this case, using GIO
 to monitor mounts is useless, as the mounts may not occur. So we must
-monitor when cameras and other devices are added or removed ourselvs.
+monitor when cameras and other devices are added or removed ourselves.
 To do this, use udev for cameras, and udisks2 for devices with file
 systems. When a device with a file system is inserted, if it is not
 already mounted, attempt to mount it.

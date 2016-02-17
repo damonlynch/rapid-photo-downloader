@@ -336,6 +336,7 @@ class LRUQueue:
 
         if msg[-1] == b'STOPPED' and self.terminating:
             self.terminating_workers.remove(worker_identity)
+            #TODO os.waitpid(pid, 0) ??
             if len(self.terminating_workers) == 0:
                 self.loop.add_timeout(time.time()+0.5, self.loop.stop)
 
