@@ -23,7 +23,7 @@ from PyQt5.QtCore import QSize
 from PyQt5.QtGui import (QFont, QIcon)
 from PyQt5.QtWidgets import (QPushButton, QSizePolicy)
 
-from rotatedpushbutton import FlatButton
+from raphodo.rotatedpushbutton import FlatButton
 
 class TopPushButton(QPushButton, FlatButton):
     def __init__(self, text, parent) -> None:

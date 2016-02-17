@@ -32,14 +32,14 @@ import pickle
 from operator import attrgetter
 
 import problemnotification as pn
-from camera import (Camera, CopyChunks)
+from raphodo.camera import (Camera, CopyChunks)
 
-from interprocess import (WorkerInPublishPullPipeline, CopyFilesArguments,
+from raphodo.interprocess import (WorkerInPublishPullPipeline, CopyFilesArguments,
                           CopyFilesResults)
-from constants import (FileType, DownloadStatus, logging_format, logging_date_format)
-from utilities import (GenerateRandomFileName, create_temp_dirs)
-from rpdfile import RPDFile
-from storage import gvfs_controls_mounts, have_gio, GVolumeMonitor, ValidMounts
+from raphodo.constants import (FileType, DownloadStatus, logging_format, logging_date_format)
+from raphodo.utilities import (GenerateRandomFileName, create_temp_dirs)
+from raphodo.rpdfile import RPDFile
+from raphodo.storage import gvfs_controls_mounts, have_gio, GVolumeMonitor, ValidMounts
 
 from gettext import gettext as _
 

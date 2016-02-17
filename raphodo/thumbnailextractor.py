@@ -38,16 +38,16 @@ from PyQt5.QtGui import QImage, QTransform
 from PyQt5.QtCore import QSize, Qt, QIODevice, QBuffer
 
 
-from interprocess import (LoadBalancerWorker, ThumbnailExtractorArgument,
+from raphodo.interprocess import (LoadBalancerWorker, ThumbnailExtractorArgument,
                           GenerateThumbnailsResults)
 
-from constants import (ThumbnailSize, ExtractionTask, ExtractionProcessing, logging_format,
+from raphodo.constants import (ThumbnailSize, ExtractionTask, ExtractionProcessing, logging_format,
                        logging_date_format)
-from rpdfile import RPDFile, Video
-from utilities import stdchannel_redirected, show_errors
-from filmstrip import add_filmstrip
-from cache import ThumbnailCacheSql
-import exiftool
+from raphodo.rpdfile import RPDFile, Video
+from raphodo.utilities import stdchannel_redirected, show_errors
+from raphodo.filmstrip import add_filmstrip
+from raphodo.cache import ThumbnailCacheSql
+import raphodo.exiftool as exiftool
 
 have_gst = Gst.init_check(None)
 

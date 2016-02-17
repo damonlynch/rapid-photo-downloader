@@ -25,17 +25,16 @@ __copyright__ = "Copyright 2007-2016, Damon Lynch"
 import re
 import datetime
 import string
-
 from collections import namedtuple
-
 import logging
 
-from preferences import DownloadsTodayTracker
-import problemnotification as pn
-
-from generatenameconfig import *
-
 from gettext import gettext as _
+
+from raphodo.preferences import DownloadsTodayTracker
+import raphodo.problemnotification as pn
+
+from raphodo.generatenameconfig import *
+
 
 
 MatchedSequences = namedtuple('MatchedSequences', 'session_sequence_no, '

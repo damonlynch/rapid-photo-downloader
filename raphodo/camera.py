@@ -30,8 +30,8 @@ import re
 from typing import Optional, List, Tuple
 
 import gphoto2 as gp
-from storage import StorageSpace
-from constants import CameraErrorCode
+from raphodo.storage import StorageSpace
+from raphodo.constants import CameraErrorCode
 
 
 def python_gphoto2_version():

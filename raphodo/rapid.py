@@ -75,11 +75,11 @@ from PyQt5.QtWidgets import (QAction, QApplication, QMainWindow, QMenu,
                              QMessageBox, QDesktopWidget, QAbstractItemView, QSplashScreen)
 from PyQt5.QtNetwork import QLocalSocket, QLocalServer
 
-from storage import (ValidMounts, CameraHotplug, UDisks2Monitor,
+from raphodo.storage import (ValidMounts, CameraHotplug, UDisks2Monitor,
                      GVolumeMonitor, have_gio, has_non_empty_dcim_folder,
                      mountPaths, get_desktop_environment,
                      gvfs_controls_mounts, get_default_file_manager)
-from interprocess import (PublishPullPipelineManager,
+from raphodo.interprocess import (PublishPullPipelineManager,
                           PushPullDaemonManager,
                           ScanArguments,
                           CopyFilesArguments,
@@ -92,38 +92,39 @@ from interprocess import (PublishPullPipelineManager,
                           BackupFileData,
                           OffloadData,
                           OffloadResults)
-from devices import (Device, DeviceCollection, BackupDevice,
+from raphodo.devices import (Device, DeviceCollection, BackupDevice,
                      BackupDeviceCollection)
-from preferences import (Preferences, ScanPreferences)
-from constants import (BackupLocationType, DeviceType, ErrorType,
+from raphodo.preferences import (Preferences, ScanPreferences)
+from raphodo.constants import (BackupLocationType, DeviceType, ErrorType,
                        FileType, DownloadStatus, RenameAndMoveStatus,
                        photo_rename_test, ApplicationState,
                        PROGRAM_NAME, job_code_rename_test, CameraErrorCode,
                        photo_rename_simple_test, ThumbnailBackgroundName, emptyViewHeight,
                        DeviceState, BorderName)
-import constants
-from thumbnaildisplay import (ThumbnailView, ThumbnailListModel, ThumbnailDelegate, DownloadTypes,
-                              DownloadStats, ThumbnailSortFilterProxyModel)
-from devicedisplay import (DeviceModel, DeviceView, DeviceDelegate)
-from proximity import (TemporalProximityModel, TemporalProximityView,
+import raphodo.constants as constants
+from raphodo.thumbnaildisplay import (ThumbnailView, ThumbnailListModel, ThumbnailDelegate,
+                                      DownloadTypes, DownloadStats,
+                                      ThumbnailSortFilterProxyModel)
+from raphodo.devicedisplay import (DeviceModel, DeviceView, DeviceDelegate)
+from raphodo.proximity import (TemporalProximityModel, TemporalProximityView,
                        TemporalProximityDelegate, TemporalProximityGroups)
-from utilities import (same_file_system, make_internationalized_list,
+from raphodo.utilities import (same_file_system, make_internationalized_list,
                        thousands, addPushButtonLabelSpacer,
                        format_size_for_user)
-from rpdfile import (RPDFile, file_types_by_number, PHOTO_EXTENSIONS,
+from raphodo.rpdfile import (RPDFile, file_types_by_number, PHOTO_EXTENSIONS,
                      VIDEO_EXTENSIONS, FileTypeCounter, OTHER_PHOTO_EXTENSIONS, FileSizeSum)
-import downloadtracker
-from cache import ThumbnailCacheSql
-from metadataphoto import exiv2_version, gexiv2_version
-from metadatavideo import EXIFTOOL_VERSION
-from camera import gphoto2_version, python_gphoto2_version
-from rpdsql import DownloadedSQL
-from generatenameconfig import *
-from rotatedpushbutton import RotatedButton
-from toppushbutton import TopPushButton
-from filebrowse import FileSystemView, FileSystemModel
-from toggleview import QToggleView
-import __about__
+import raphodo.downloadtracker as downloadtracker
+from raphodo.cache import ThumbnailCacheSql
+from raphodo.metadataphoto import exiv2_version, gexiv2_version
+from raphodo.metadatavideo import EXIFTOOL_VERSION
+from raphodo.camera import gphoto2_version, python_gphoto2_version
+from raphodo.rpdsql import DownloadedSQL
+from raphodo.generatenameconfig import *
+from raphodo.rotatedpushbutton import RotatedButton
+from raphodo.toppushbutton import TopPushButton
+from raphodo.filebrowse import FileSystemView, FileSystemModel
+from raphodo.toggleview import QToggleView
+import raphodo.__about__ as __about__
 
 BackupMissing = namedtuple('BackupMissing', 'photo, video')
 

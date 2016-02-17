@@ -33,7 +33,7 @@ from PyQt5.QtGui import QColor
 from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QSizePolicy, QVBoxLayout,
                              QWidget)
 
-from toggleswitch import QToggleSwitch
+from raphodo.toggleswitch import QToggleSwitch
 
 class QToggleView(QWidget):
     """

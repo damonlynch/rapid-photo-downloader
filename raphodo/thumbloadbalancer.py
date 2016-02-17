@@ -23,7 +23,7 @@
 __author__ = 'Damon Lynch'
 __copyright__ = "Copyright 2015-2016, Damon Lynch"
 
-from interprocess import LoadBalancerWorkerManager, LoadBalancer
+from raphodo.interprocess import LoadBalancerWorkerManager, LoadBalancer
 
 
 class ThumbnailLoadBalancerWorkerManager(LoadBalancerWorkerManager):

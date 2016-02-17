@@ -48,16 +48,16 @@ from PyQt5.QtGui import (QPixmap, QImage, QPainter, QColor, QBrush, QFontMetrics
 
 import zmq
 
-from viewutils import RowTracker, SortedListItem
-from rpdfile import RPDFile, FileTypeCounter
-from interprocess import (PublishPullPipelineManager, GenerateThumbnailsArguments, Device,
+from raphodo.viewutils import RowTracker, SortedListItem
+from raphodo.rpdfile import RPDFile, FileTypeCounter
+from raphodo.interprocess import (PublishPullPipelineManager, GenerateThumbnailsArguments, Device,
                           GenerateThumbnailsResults)
-from constants import (DownloadStatus, Downloaded, FileType, FileExtension, ThumbnailSize,
+from raphodo.constants import (DownloadStatus, Downloaded, FileType, FileExtension, ThumbnailSize,
                        ThumbnailCacheStatus, Roles, DeviceType, CustomColors,
                        ThumbnailBackgroundName)
-from storage import get_program_cache_directory
-from utilities import (CacheDirs, make_internationalized_list, format_size_for_user, runs)
-from thumbnailer import Thumbnailer
+from raphodo.storage import get_program_cache_directory
+from raphodo.utilities import (CacheDirs, make_internationalized_list, format_size_for_user, runs)
+from raphodo.thumbnailer import Thumbnailer
 
 
 class DownloadTypes:

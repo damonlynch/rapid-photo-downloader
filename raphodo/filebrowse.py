@@ -23,7 +23,7 @@ from PyQt5.QtCore import (QDir, Qt, QModelIndex)
 from PyQt5.QtWidgets import (QTreeView, QAbstractItemView, QFileSystemModel)
 from PyQt5.QtGui import (QIcon)
 
-import qrc_resources
+import raphodo.qrc_resources as qrc_resources
 
 class FileSystemModel(QFileSystemModel):
     def __init__(self, parent) -> None:

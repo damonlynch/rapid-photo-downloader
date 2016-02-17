@@ -25,6 +25,7 @@ Utility code to aid main code development -- not called from main code
 __author__ = 'Damon Lynch'
 __copyright__ = "Copyright 2015-2016, Damon Lynch"
 
+import sys
 if sys.version_info < (3,5):
     import scandir
     walk = scandir.walk
@@ -34,12 +35,11 @@ import os
 import datetime
 import time
 
-import metadataphoto
-import metadatavideo
-from constants import FileType
-import rpdfile
-import exiftool
-import sys
+import raphodo.metadataphoto as metadataphoto
+import raphodo.metadatavideo as metadatavideo
+from raphodo.constants import FileType
+import raphodo.rpdfile as rpdfile
+import raphodo.exiftool as exiftool
 
 
 def set_file_modified_time_from_metadata(path: str):

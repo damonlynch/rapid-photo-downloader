@@ -23,10 +23,9 @@ __copyright__ = "Copyright 2011-2016, Damon Lynch"
 
 import subprocess
 import datetime, time
-
-import exiftool
-
 import logging
+
+import raphodo.exiftool as exiftool
 
 def version_info() -> str:
     """

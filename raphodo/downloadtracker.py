@@ -23,10 +23,10 @@ from collections import defaultdict
 import time
 import logging
 
-from constants import DownloadStatus, FileType
-from thumbnaildisplay import DownloadStats
-
 from gettext import gettext as _
+
+from raphodo.constants import DownloadStatus, FileType
+from raphodo.thumbnaildisplay import DownloadStats
 
 
 class DownloadTracker:

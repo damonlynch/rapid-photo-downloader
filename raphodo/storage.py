@@ -68,7 +68,7 @@ gi.require_version('GExiv2', '0.10')
 gi.require_version('GLib', '2.0')
 from gi.repository import GUdev, UDisks, GLib
 
-from constants import Desktop
+from raphodo.constants import Desktop
 
 logging_level = logging.DEBUG
 

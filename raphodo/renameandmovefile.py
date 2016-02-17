@@ -37,22 +37,22 @@ import errno
 import logging
 import pickle
 
+from gettext import gettext as _
+
 from PyQt5.QtCore import QSize
 from PyQt5.QtGui import QImage
 
-import exiftool
-import generatename as gn
-import problemnotification as pn
-from preferences import DownloadsTodayTracker, Preferences
-from constants import (ConflictResolution, FileType, DownloadStatus, ThumbnailCacheStatus,
+import raphodo.exiftool as exiftool
+import raphodo.generatename as gn
+import raphodo.problemnotification as pn
+from raphodo.preferences import DownloadsTodayTracker, Preferences
+from raphodo.constants import (ConflictResolution, FileType, DownloadStatus, ThumbnailCacheStatus,
                        ThumbnailSize, RenameAndMoveStatus, logging_format, logging_date_format)
-from interprocess import (RenameAndMoveFileData,
+from raphodo.interprocess import (RenameAndMoveFileData,
                           RenameAndMoveFileResults, DaemonProcess)
-from rpdfile import RPDFile
-from cache import FdoCacheNormal, FdoCacheLarge, ThumbnailCache
-from rpdsql import DownloadedSQL
-
-from gettext import gettext as _
+from raphodo.rpdfile import RPDFile
+from raphodo.cache import FdoCacheNormal, FdoCacheLarge, ThumbnailCache
+from raphodo.rpdsql import DownloadedSQL
 
 
 class SyncRawJpegStatus(Enum):

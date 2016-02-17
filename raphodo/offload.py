@@ -25,10 +25,10 @@ __copyright__ = "Copyright 2015-2016, Damon Lynch"
 import pickle
 import logging
 
-from interprocess import DaemonProcess, OffloadData, OffloadResults
-from proximity import TemporalProximityGroups
-from viewutils import SortedListItem
-from constants import (logging_format, logging_date_format)
+from raphodo.interprocess import DaemonProcess, OffloadData, OffloadResults
+from raphodo.proximity import TemporalProximityGroups
+from raphodo.viewutils import SortedListItem
+from raphodo.constants import (logging_format, logging_date_format)
 
 
 class OffloadWorker(DaemonProcess):

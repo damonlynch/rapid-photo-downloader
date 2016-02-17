@@ -40,13 +40,13 @@ from gettext import gettext as _
 from PyQt5.QtCore import QStorageInfo, QSize
 from PyQt5.QtWidgets import QFileIconProvider
 from PyQt5.QtGui import QIcon, QPixmap
-import qrc_resources
 
-from constants import (DeviceType, BackupLocationType, FileType)
-from rpdfile import FileTypeCounter, FileSizeSum
-from storage import StorageSpace, udev_attributes, UdevAttr
-from camera import Camera, generate_devname
-from utilities import number
+import raphodo.qrc_resources as qrc_resources
+from raphodo.constants import (DeviceType, BackupLocationType, FileType)
+from raphodo.rpdfile import FileTypeCounter, FileSizeSum
+from raphodo.storage import StorageSpace, udev_attributes, UdevAttr
+from raphodo.camera import Camera, generate_devname
+from raphodo.utilities import number
 
 display_devices = (DeviceType.volume, DeviceType.camera)
 

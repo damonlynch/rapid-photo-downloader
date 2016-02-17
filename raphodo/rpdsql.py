@@ -28,9 +28,9 @@ from collections import namedtuple
 from typing import Optional
 import sys
 
-from storage import (get_program_data_directory, get_program_cache_directory)
-from utilities import divide_list_on_length
-from photoattributes import PhotoAttributes
+from raphodo.storage import (get_program_data_directory, get_program_cache_directory)
+from raphodo.utilities import divide_list_on_length
+from raphodo.photoattributes import PhotoAttributes
 
 FileDownloaded = namedtuple('FileDownloaded', 'download_name, download_datetime')
 

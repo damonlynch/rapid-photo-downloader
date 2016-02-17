@@ -45,20 +45,20 @@ from PyQt5.QtGui import QImage
 from PyQt5.QtCore import QSize
 import psutil
 
-from rpdfile import RPDFile
-from interprocess import (WorkerInPublishPullPipeline,
+from raphodo.rpdfile import RPDFile
+from raphodo.interprocess import (WorkerInPublishPullPipeline,
                           GenerateThumbnailsArguments,
                           GenerateThumbnailsResults,
                           ThumbnailExtractorArgument)
-from constants import (FileType, ThumbnailSize, ThumbnailCacheStatus,
+from raphodo.constants import (FileType, ThumbnailSize, ThumbnailCacheStatus,
                        ThumbnailCacheDiskStatus, FileSortPriority, ExtractionTask,
                        ExtractionProcessing, orientation_offset, logging_format,
                        logging_date_format)
-from camera import (Camera, CopyChunks)
-from cache import ThumbnailCacheSql, FdoCacheNormal, FdoCacheLarge
-from utilities import (GenerateRandomFileName, create_temp_dir, CacheDirs)
-from preferences import Preferences
-from rpdsql import FileFormatSQL
+from raphodo.camera import (Camera, CopyChunks)
+from raphodo.cache import ThumbnailCacheSql, FdoCacheNormal, FdoCacheLarge
+from raphodo.utilities import (GenerateRandomFileName, create_temp_dir, CacheDirs)
+from raphodo.preferences import Preferences
+from raphodo.rpdsql import FileFormatSQL
 
 # FIXME free camera in case of early termination
 

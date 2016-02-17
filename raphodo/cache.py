@@ -62,10 +62,10 @@ from typing import Optional, Tuple
 from PyQt5.QtCore import QSize
 from PyQt5.QtGui import QImage
 
-from storage import get_program_cache_directory, get_fdo_cache_thumb_base_directory
-from utilities import GenerateRandomFileName
-from constants import ThumbnailCacheDiskStatus
-from rpdsql import CacheSQL
+from raphodo.storage import get_program_cache_directory, get_fdo_cache_thumb_base_directory
+from raphodo.utilities import GenerateRandomFileName
+from raphodo.constants import ThumbnailCacheDiskStatus
+from raphodo.rpdsql import CacheSQL
 
 
 GetThumbnail = namedtuple('GetThumbnail', 'disk_status, thumbnail, path')

@@ -33,7 +33,7 @@ gi.require_version('GExiv2', '0.10')
 from gi.repository import GExiv2
 from PyQt5.QtGui import QImage
 
-from utilities import format_size_for_user
+from raphodo.utilities import format_size_for_user
 
 
 page_size = resource.getpagesize()

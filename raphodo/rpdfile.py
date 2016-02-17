@@ -30,18 +30,18 @@ from urllib.request import pathname2url
 import locale
 from typing import Optional, List, Tuple
 
-import exiftool
-
 from gettext import gettext as _
 
-from constants import (DownloadStatus, FileType, FileExtension, FileSortPriority,
+import raphodo.exiftool as exiftool
+from raphodo.constants import (DownloadStatus, FileType, FileExtension, FileSortPriority,
                        ThumbnailCacheStatus, Downloaded, Desktop)
-from storage import get_desktop, gvfs_controls_mounts
-import metadataphoto
-import metadatavideo
-from utilities import thousands
 
-import problemnotification as pn
+from raphodo.storage import get_desktop, gvfs_controls_mounts
+import raphodo.metadataphoto as metadataphoto
+import raphodo.metadatavideo as metadatavideo
+from raphodo.utilities import thousands
+
+import raphodo.problemnotification as pn
 
 
 RAW_EXTENSIONS = ['arw', 'dcr', 'cr2', 'crw',  'dng', 'mos', 'mef', 'mrw',

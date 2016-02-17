@@ -38,9 +38,9 @@ from PyQt5.QtWidgets import (QTableView, QStyledItemDelegate,
                              QStyleOptionViewItem, QHeaderView, QStyle, QAbstractItemView)
 from PyQt5.QtGui import (QPainter, QFontMetrics, QFont, QColor, QGuiApplication, QPixmap)
 
-from viewutils import SortedListItem
-from constants import FileType
-from rpdfile import FileTypeCounter
+from raphodo.viewutils import SortedListItem
+from raphodo.constants import FileType
+from raphodo.rpdfile import FileTypeCounter
 
 ProximityRow = namedtuple('ProximityRow', 'year, month, weekday, day, proximity')
 

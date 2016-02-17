@@ -31,10 +31,10 @@ from PyQt5.QtCore import QSettings
 
 from gettext import gettext as _
 
-from storage import xdg_photos_directory, xdg_videos_directory
-from generatenameconfig import *
-import constants
-from utilities import available_cpu_count
+from raphodo.storage import xdg_photos_directory, xdg_videos_directory
+from raphodo.generatenameconfig import *
+import raphodo.constants as constants
+from raphodo.utilities import available_cpu_count
 
 
 class ScanPreferences:

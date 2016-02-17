@@ -56,9 +56,9 @@ import gi
 gi.require_version('GExiv2', '0.10')
 from gi.repository import GExiv2
 
-from photoattributes import PhotoAttributes, vmtouch_output, PreviewSource
-from utilities import stdchannel_redirected, show_errors, confirm
-from rpdsql import FileFormatSQL
+from raphodo.photoattributes import PhotoAttributes, vmtouch_output, PreviewSource
+from raphodo.utilities import stdchannel_redirected, show_errors, confirm
+from raphodo.rpdsql import FileFormatSQL
 
 try:
     import pyprind

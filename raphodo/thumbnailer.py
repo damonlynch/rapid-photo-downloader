@@ -25,10 +25,10 @@ import zmq
 from PyQt5.QtCore import (QThread, QTimer, pyqtSignal, pyqtSlot, QObject)
 from PyQt5.QtGui import (QPixmap, QImage)
 
-from interprocess import (LoadBalancerManager, PublishPullPipelineManager,
+from raphodo.interprocess import (LoadBalancerManager, PublishPullPipelineManager,
                           GenerateThumbnailsArguments, GenerateThumbnailsResults)
-from rpdfile import RPDFile
-from utilities import CacheDirs
+from raphodo.rpdfile import RPDFile
+from raphodo.utilities import CacheDirs
 
 
 class ThumbnailManagerPara(PublishPullPipelineManager):

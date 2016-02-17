@@ -40,15 +40,15 @@ import zmq
 from zmq.eventloop.ioloop import IOLoop
 from zmq.eventloop.zmqstream import ZMQStream
 
-from rpdfile import (RPDFile, FileTypeCounter, FileSizeSum)
-from devices import Device
-from preferences import ScanPreferences
-from utilities import CacheDirs
-from constants import (RenameAndMoveStatus, ExtractionTask, ExtractionProcessing,
+from raphodo.rpdfile import (RPDFile, FileTypeCounter, FileSizeSum)
+from raphodo.devices import Device
+from raphodo.preferences import ScanPreferences
+from raphodo.utilities import CacheDirs
+from raphodo.constants import (RenameAndMoveStatus, ExtractionTask, ExtractionProcessing,
                        CameraErrorCode, FileType, logging_format, logging_date_format)
-from proximity import TemporalProximityGroups
-from storage import StorageSpace
-from viewutils import SortedListItem
+from raphodo.proximity import TemporalProximityGroups
+from raphodo.storage import StorageSpace
+from raphodo.viewutils import SortedListItem
 
 
 def get_logging_level(level: str) -> int:

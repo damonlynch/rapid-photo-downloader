@@ -34,15 +34,15 @@ import io
 import logging
 from gettext import gettext as _
 
-from interprocess import (BackupFileData, BackupResults, BackupArguments,
+from raphodo.interprocess import (BackupFileData, BackupResults, BackupArguments,
                           WorkerInPublishPullPipeline)
-from copyfiles import FileCopy
-from constants import (FileType, DownloadStatus, logging_format, logging_date_format)
-from rpdfile import RPDFile
-from cache import FdoCacheNormal, FdoCacheLarge
+from raphodo.copyfiles import FileCopy
+from raphodo.constants import (FileType, DownloadStatus, logging_format, logging_date_format)
+from raphodo.rpdfile import RPDFile
+from raphodo.cache import FdoCacheNormal, FdoCacheLarge
 
-import problemnotification as pn
-from copyfiles import copy_file_metadata
+import raphodo.problemnotification as pn
+from raphodo.copyfiles import copy_file_metadata
 
 
 class BackupFilesWorker(WorkerInPublishPullPipeline, FileCopy):

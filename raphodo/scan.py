@@ -51,16 +51,16 @@ import gphoto2 as gp
 
 # Instances of classes ScanArguments and ScanPreferences are passed via pickle
 # Thus do not remove these two imports
-from interprocess import ScanArguments
-from preferences import ScanPreferences
-from interprocess import (WorkerInPublishPullPipeline, ScanResults,
+from raphodo.interprocess import ScanArguments
+from raphodo.preferences import ScanPreferences
+from raphodo.interprocess import (WorkerInPublishPullPipeline, ScanResults,
                           ScanArguments)
-from camera import Camera, CameraError
-import rpdfile
-from constants import (DeviceType, FileType, GphotoMTime, datetime_offset, CameraErrorCode,
+from raphodo.camera import Camera, CameraError
+import raphodo.rpdfile as rpdfile
+from raphodo.constants import (DeviceType, FileType, GphotoMTime, datetime_offset, CameraErrorCode,
                        logging_format, logging_date_format)
-from rpdsql import DownloadedSQL, FileDownloaded
-from utilities import stdchannel_redirected
+from raphodo.rpdsql import DownloadedSQL, FileDownloaded
+from raphodo.utilities import stdchannel_redirected
 
 FileInfo = namedtuple('FileInfo', ['path', 'modification_time', 'size',
                                    'ext_lower', 'base_name', 'file_type'])

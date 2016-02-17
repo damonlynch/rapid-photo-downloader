@@ -52,13 +52,13 @@ from PyQt5.QtWidgets import (QStyledItemDelegate,QStyleOptionViewItem, QApplicat
 from PyQt5.QtGui import (QPainter, QFontMetrics, QFont, QColor, QLinearGradient, QBrush, QPalette,
                          QPixmap)
 
-from viewutils import RowTracker
-from constants import (DeviceState, FileType, CustomColors, DeviceType, Roles, emptyViewHeight,
-                       ViewRowType)
-from devices import Device, display_devices
-from utilities import thousands, format_size_for_user
-from storage import StorageSpace
-from rpdfile import make_key
+from raphodo.viewutils import RowTracker
+from raphodo.constants import (DeviceState, FileType, CustomColors, DeviceType, Roles,
+                               emptyViewHeight, ViewRowType)
+from raphodo.devices import Device, display_devices
+from raphodo.utilities import thousands, format_size_for_user
+from raphodo.storage import StorageSpace
+from raphodo.rpdfile import make_key
 
 def device_view_width(standard_font_size: int) -> int:
     return standard_font_size * 13
