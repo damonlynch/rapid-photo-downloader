@@ -794,7 +794,7 @@ class RapidWindow(QMainWindow):
         self.window_show_requested_time = datetime.datetime.now()
         self.show()
 
-        self.proximityButton.setChecked(settings.value("proximityButtonPressed", True, bool))
+        self.proximityButton.setChecked(settings.value("proximityButtonPressed", False, bool))
         self.proximityButtonClicked()
         self.sourceButton.setChecked(settings.value("sourceButtonPressed", True, bool))
         self.sourceButtonClicked()
@@ -3122,10 +3122,10 @@ def parser_options(formatter_class=argparse.HelpFormatter):
         help=_("the PATH from which to download (set PATH to '' to turn off)"))
     parser.add_argument("--photo-destination", type=str,
         metavar=_("PATH"), dest="photo_location",
-        help=_("the PATH where photos will be downloaded"))
+        help=_("the PATH where photos will be downloaded to"))
     parser.add_argument("--video-destination", type=str,
         metavar=_("PATH"), dest="video_location",
-        help=_("the PATH where videos will be downloaded"))
+        help=_("the PATH where videos will be downloaded to"))
     parser.add_argument("-b", "--backup", choices=['on','off'],
         dest="backup", help=_("turn on or off the backing up of photos and videos while "
                               "downloading"))
@@ -3157,13 +3157,16 @@ def parser_options(formatter_class=argparse.HelpFormatter):
                         make_internationalized_list([s.upper() for s in OTHER_PHOTO_EXTENSIONS]))
     parser.add_argument("--thumbnail-cache", dest="thumb_cache",
                         choices=['on','off'],
-                        help=_("turn on or off use of the Rapid Photo Downloader Thumbnail Cache"))
+                        help=_("turn on or off use of the Rapid Photo Downloader Thumbnail Cache. "
+                               "Does not delete existing cache contents."))
     parser.add_argument("--delete-thumbnail-cache", dest="delete_thumb_cache",
                         action="store_true",
-                        help=_("Delete all thumbnails in the Rapid Photo Downloader Thumbnail "
+                        help=_("delete all thumbnails in the Rapid Photo Downloader Thumbnail "
                                "Cache"))
     parser.add_argument("--reset", action="store_true", dest="reset",
-                 help=_("reset all program settings and caches and exit"))
+                 help=_("reset all program settings to their default values, delete all thumbnails "
+                        "in the Thumbnail cache, forget which files have been previously "
+                        "downloaded, and exit."))
     return parser
 
 def main():

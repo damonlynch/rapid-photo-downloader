@@ -35,10 +35,10 @@ Options:
 B<Rapid Photo Downloader> imports photos and videos from cameras, phones,
 memory cards and other devices at high speed. It can be configured to
 rename photos and videos with meaningful filenames you specify. It can also
-back up photos and videos as they are downloaded.
+back up photos and videos as they are downloaded. It downloads from and backs
+up to multiple devices simultaneously.
 
-Rapid Photo Downloader can download from and back up to multiple devices
-simultaneously. Unique to Rapid Photo Downloader is its timeline feature,
+Unique to Rapid Photo Downloader is its timeline feature,
 allowing you to group photos and videos based on how much time elapsed
 between consecutive shots. You can use this to quickly identify photos
 and videos taken at different periods in a single day or over consecutive
@@ -72,7 +72,7 @@ Displays debugging information on the command line as the program runs
 
 Displays image file extensions the program recognizes and exits.
 
-=item B<-a {on,off}, --auto-detect {on,off}
+=item B<-a {on,off}, --auto-detect {on,off}>
 
 Turn on or off the automatic detection of devices from which to download, 
 overwriting existing program preferences.
@@ -84,12 +84,12 @@ preferences. Set PATH to '' to turn off.
 
 =item B<--photo-destination PATH>
 
-Sets the PATH where photos will be downloaded, overwriting existing program 
+Sets the PATH where photos will be downloaded to, overwriting existing program
 preferences.
 
 =item B<--video-destination PATH>
 
-Sets the PATH where videos will be downloaded, overwriting existing program 
+Sets the PATH where videos will be downloaded to, overwriting existing program
 preferences.
 
 =item B<-b {on,off}, --backup {on,off}>
@@ -141,8 +141,8 @@ Deletes all thumbnails in the Rapid Photo Downloader Thumbnail Cache, and exits.
 
 =item B<--reset>
 
-Resets all program settings to their default values, deletes all Thumbnail cache and which files
-have been previously downloaded, and exits.
+Resets all program settings to their default values, deletes all thumbnails in the Thumbnail
+cache, forgets which files have been previously downloaded, and exits.
 
 =back
 
