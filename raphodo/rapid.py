@@ -792,7 +792,7 @@ class RapidWindow(QMainWindow):
             self.fileSystemView.scrollTo(index, QAbstractItemView.PositionAtCenter)
 
         self.window_show_requested_time = datetime.datetime.now()
-        self.show()
+        # self.show()
 
         self.proximityButton.setChecked(settings.value("proximityButtonPressed", False, bool))
         self.proximityButtonClicked()
@@ -3333,10 +3333,11 @@ def main():
                      thumb_cache=thumb_cache)
 
     splash.finish(rw)
-
     app.setActivationWindow(rw)
-    code = app.exec_()
 
+    rw.show()
+
+    code = app.exec()
     sys.exit(code)
 
 if __name__ == "__main__":

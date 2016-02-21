@@ -1,18 +1,7 @@
 #!/usr/bin/make -f
 
-DEBVERS := $(shell dpkg-parsechangelog | sed -n -e 's/^Version: //p')
-VERSION := $(shell echo '$(DEBVERS)' | sed -e 's/^[[:digit:]]*://' -e 's/[~-].*//')
+export DH_VERBOSE=1
+export PYBUILD_NAME=rapid-photo-downloader
 
 %:
-	dh $@ --with python2
-
-override_dh_auto_configure:
-	pod2man --section=1 --release=$(VERSION) --center "" doc/rapid-photo-downloader.pod > rapid-photo-downloader.1
-
-override_dh_auto_install:
-	dh_auto_install -- --install-lib=/usr/share/rapid-photo-downloader --install-scripts=/usr/share/rapid-photo-downloader
-
-override_dh_auto_clean:
-	-rm rapid-photo-downloader.1
-	-rm -rf build/
-	dh_auto_clean
+        dh $@ --with python3 --buildsystem=pybuild

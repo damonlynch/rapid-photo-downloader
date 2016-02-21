@@ -32,16 +32,16 @@ import os.path
 from distutils.version import StrictVersion
 from setuptools import setup, Command
 from setuptools.command.install import install
-# import distutils.cmd
-from DistUtilsExtra.command  import * #build_extra, build_i18n, build_icons, clean_i18n
+from DistUtilsExtra.command  import *  # build_extra, build_i18n, build_icons, clean_i18n
 
 def install_instructions():
-    debian = 'On an Ubuntu or Debian-like system, the following command will install all ' \
-             'necessary requirements:\nsudo apt-get install ' \
-             'libimage-exiftool-perl python3-pyqt5 ' \
+    debian = 'On an Ubuntu or Debian-like system, the following command will install ' \
+             'the base installation requirements:\nsudo apt-get install ' \
+             'libimage-exiftool-perl python3-pyqt5 python3-pip ' \
              'python3-distutils-extra gir1.2-gexiv2-0.10 python3-gi gir1.2-gudev-1.0 ' \
              'gir1.2-udisks-2.0 gir1.2-notify-0.7 gir1.2-glib-2.0 gir1.2-gstreamer-1.0 ' \
-             'libgphoto2-dev libzmq3\n'
+             'libgphoto2-dev python3-zmq3 python3-xdg python3-arrow python3-sortedcontainers ' \
+             'python3-psutil\n'
     if os.path.isfile('/etc/os-release'):
         with open('/etc/os-release', 'r') as f:
             for line in f:
@@ -149,16 +149,16 @@ class build_pod2man(Command):
                 sys.stderr.write('Warning: could not locate {}\n'.format(pod_file))
                 continue
             name = os.path.basename(pod_file)[:-6].upper()
+            build_path =  os.path.join('build', os.path.splitext(pod_file)[0])
+            if not os.path.isdir(os.path.join('build', 'doc')):
+                os.mkdir(os.path.join('build', 'doc'))
             self.spawn(['pod2man', '--section=1', '--release={}'.format(about["__version__"]),
                     "--center=General Commands Manual", '--name="{}"'.format(name),
-                    pod_file, os.path.splitext(pod_file)[0]])
+                    pod_file, build_path])
 
 
 with open(os.path.join(here, 'README.rst'), encoding='utf-8') as f:
     long_description = f.read()
-
-#TODO generate help file automatically, and install it
-#TODO ensure icons are installed
 
 setup(
     name=about["__title__"],
@@ -171,7 +171,7 @@ setup(
 
     author=about["__author__"],
     author_email=about["__email__"],
-
+    zip_safe=False,
     install_requires=['gphoto2',
                       'pyzmq',
                       'psutil',
@@ -181,10 +181,12 @@ setup(
                       'python-dateutil',
                       ],
     extras_require={':python_version == "3.4"': ['scandir', 'typing']},
-    include_package_data = True,
-    exclude_package_data = {'rapid-photo-downloader': ['doc/rapid-photo-downloader.pod']},
+    include_package_data = False,
     data_files = [
-        ('/usr/share/man/man1', ['doc/rapid-photo-downloader.1',])
+        ('share/man/man1', ['build/doc/rapid-photo-downloader.1',]),
+        ('share/applications', ['build/share/applications/rapid-photo-downloader.desktop']),
+        ('share/solid/actions', ['build/share/solid/actions/rapid-photo-downloader.desktop'],),
+        ('share/appdata', ['build/share/appdata/rapid-photo-downloader.appdata.xml'])
     ],
     packages = ['raphodo'],
     entry_points={
@@ -205,11 +207,10 @@ setup(
         ],
     keywords='photo, video, download, ingest, import, camera, phone, backup, rename, photography,' \
              ' photographer, transfer, copy, raw, cr2, nef, arw',
-
     cmdclass={
         'build': build_extra,
         'build_pod2man': build_pod2man,
+        "build_icons" : build_icons.build_icons,
         'install': install,
-        # 'clean': clean_extra,
         },
 )
