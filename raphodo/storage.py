@@ -54,6 +54,7 @@ import sys
 import time
 import subprocess
 import shlex
+import pwd
 from collections import namedtuple
 from typing import Optional, Tuple, List
 
@@ -154,10 +155,11 @@ class ValidMounts():
         """
         if sys.platform.startswith('linux'):
             try:
-                # this next line fails on some sessions
-                media_dir = '/media/{}'.format(os.getlogin())
-            except FileNotFoundError:
-                media_dir = '/media/{}'.format(os.getenv('USER', ''))
+                media_dir = '/media/{}'.format(pwd.getpwuid(os.getuid())[0])
+            except:
+                logging.critical("Unable to determine username of this process")
+                media_dir = ''
+            logging.debug("Media dir is %s", media_dir)
             if self.onlyExternalMounts:
                 self.validMountFolders = (media_dir,'/run{}'.format(media_dir))
             else:
@@ -167,8 +169,7 @@ class ValidMounts():
                     validPoints.append(point)
                 self.validMountFolders = tuple(validPoints)
         else:
-            raise("Mounts.setValidMountPoints() not implemented on %s",
-                  sys.platform())
+            raise("Mounts.setValidMountPoints() not implemented on %s", sys.platform())
 
     def mountPointInFstab(self):
         """

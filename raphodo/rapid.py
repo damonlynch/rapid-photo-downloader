@@ -271,8 +271,7 @@ class JobCodeDialog(QDialog):
     def __init__(self, parent, job_codes: list) -> None:
         super().__init__(parent)
         self.rapidApp = parent # type: RapidWindow
-        instructionLabel = QLabel(_('Enter a new Job Code, or select a '
-                                    'previous one'))
+        instructionLabel = QLabel(_('Enter a new Job Code, or select a previous one'))
         self.jobCodeComboBox = QComboBox()
         self.jobCodeComboBox.addItems(job_codes)
         self.jobCodeComboBox.setEditable(True)
@@ -384,7 +383,6 @@ class RapidWindow(QMainWindow):
                  thumb_cache: Optional[bool]=None,
                  parent=None) -> None:
 
-        self.do_init = QtCore.QEvent.registerEventType()
         super().__init__(parent)
         # Process Qt events - in this case, possible closing of splash screen
         app.processEvents()
@@ -538,9 +536,7 @@ class RapidWindow(QMainWindow):
         # a main-window application must have one and only one central widget
         self.setCentralWidget(centralWidget)
 
-        # defer full initialisation (slow operation) until gui is visible
-        QtWidgets.QApplication.postEvent(
-            self, QtCore.QEvent(self.do_init), QtCore.Qt.LowEventPriority - 1)
+        self.initialise()
 
     def mapModel(self, scan_id: int) -> DeviceModel:
         return self._mapModel[self.devices[scan_id].device_type]
@@ -612,32 +608,34 @@ class RapidWindow(QMainWindow):
         self.downloadProgressBar.setMaximumWidth(QFontMetrics(QGuiApplication.font()).height() * 9)
         status.addPermanentWidget(self.downloadProgressBar, .1)
 
-    def event(self, event):
-        # Code borrowed from Jim Easterbrook
-        if event.type() != self.do_init:
-            return QtWidgets.QMainWindow.event(self, event)
-        event.accept()
-        QtWidgets.QApplication.setOverrideCursor(QtCore.Qt.WaitCursor)
-        try:
-            self.initialise()
-        finally:
-            QtWidgets.QApplication.restoreOverrideCursor()
-        return True
-
     def initialise(self):
+        logging.debug("Stage 2 initializing main window")
+
         # Setup notification system
-        self.have_libnotify = Notify.init('rapid-photo-downloader')
+        try:
+            self.have_libnotify = Notify.init('rapid-photo-downloader')
+        except:
+            logging.error("Notification intialization problem")
+            self.have_libnotify = False
 
         self.file_manager = get_default_file_manager()
 
         self.program_svg = ':/rapid-photo-downloader.svg'
         # Initialise use of libgphoto2
-        self.gp_context = gp.Context()
+        logging.debug("Getting gphoto2 context")
+        try:
+            self.gp_context = gp.Context()
+        except:
+            logging.critical("Error getting gphoto2 context")
+            self.gp_context = None
 
+        logging.debug("Probing for valid mounts")
         self.validMounts = ValidMounts(onlyExternalMounts=self.prefs.only_external_mounts)
 
+        logging.debug("Setting up Job Code window")
         self.job_code = JobCode(self)
 
+        logging.debug("Probing desktop environment")
         desktop_env = get_desktop_environment()
         self.unity_progress = desktop_env.lower() == 'unity' and have_unity
         if self.unity_progress:
@@ -791,13 +789,15 @@ class RapidWindow(QMainWindow):
             selection.select(index, QItemSelectionModel.ClearAndSelect|QItemSelectionModel.Rows)
             self.fileSystemView.scrollTo(index, QAbstractItemView.PositionAtCenter)
 
-        self.window_show_requested_time = datetime.datetime.now()
-        # self.show()
-
         self.proximityButton.setChecked(settings.value("proximityButtonPressed", False, bool))
         self.proximityButtonClicked()
         self.sourceButton.setChecked(settings.value("sourceButtonPressed", True, bool))
         self.sourceButtonClicked()
+
+        self.window_show_requested_time = datetime.datetime.now()
+        self.show()
+
+        logging.debug("Completed stage 2 initializing main window")
 
     def startBackupManager(self):
         if not self.backup_manager_started:
@@ -818,17 +818,19 @@ class RapidWindow(QMainWindow):
         self.sourceButton.setText(addPushButtonLabelSpacer(text))
         self.sourceButton.setIcon(icon)
 
+    def setLeftPanelVisibility(self):
+        self.leftPanelSplitter.setVisible(self.sourceButton.isChecked() or
+                                          self.proximityButton.isChecked())
+
     @pyqtSlot()
     def sourceButtonClicked(self) -> None:
         self.devicePanel.setVisible(self.sourceButton.isChecked())
-        self.leftPanelSplitter.setVisible(not (self.devicePanel.isHidden() and
-                                               self.temporalProximityView.isHidden()))
+        self.setLeftPanelVisibility()
 
     @pyqtSlot()
     def proximityButtonClicked(self) -> None:
         self.temporalProximityView.setVisible(self.proximityButton.isChecked())
-        self.leftPanelSplitter.setVisible(not (self.devicePanel.isHidden() and
-                                               self.temporalProximityView.isHidden()))
+        self.setLeftPanelVisibility()
 
     def createActions(self):
         self.sourceAct = QAction(_('&Source'), self, shortcut="Ctrl+s",
@@ -3199,7 +3201,8 @@ def main():
 
     logging.basicConfig(format=constants.logging_format,
                     datefmt=constants.logging_date_format,
-                    level=logging_level)
+                    level=logging_level) #
+                        #filename='/home/damon/lograpid.log')
 
     if args.auto_detect:
         auto_detect= args.auto_detect == 'on'
@@ -3332,12 +3335,11 @@ def main():
                      ignore_other_photo_types=args.ignore_other,
                      thumb_cache=thumb_cache)
 
-    splash.finish(rw)
     app.setActivationWindow(rw)
 
-    rw.show()
+    splash.finish(rw)
 
-    code = app.exec()
+    code = app.exec_()
     sys.exit(code)
 
 if __name__ == "__main__":

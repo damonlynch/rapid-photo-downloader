@@ -18,7 +18,9 @@
 # along with Rapid Photo Downloader.  If not,
 # see <http://www.gnu.org/licenses/>.
 
-# Contains some elements Copyright 2014 Donald Stufft
+# Copyright 2009-2016 Damon Lynch
+# Contains portions Copyright 2014 Donald Stufft
+# Contains portions Copyright 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, Canonical Ltd
 
 __author__ = 'Damon Lynch'
 __copyright__ = "Copyright 2009-2016, Damon Lynch"
@@ -26,8 +28,6 @@ __copyright__ = "Copyright 2009-2016, Damon Lynch"
 import os
 import sys
 import shutil
-# import glob
-# import re
 import os.path
 from distutils.version import StrictVersion
 from setuptools import setup, Command
@@ -116,6 +116,9 @@ with open(os.path.join(here, "raphodo", "__about__.py")) as f:
 
 
 class build_extra(build_extra.build):
+    """
+    Taken from the Canonical project 'germinate'
+    """
     def __init__(self, dist):
         super().__init__(dist)
         self.user_options.extend([('pod2man', None, 'use pod2man')])
@@ -133,6 +136,9 @@ class build_extra(build_extra.build):
 
 
 class build_pod2man(Command):
+    """
+    Based on code in the Canonical project 'germinate'
+    """
     description = "build POD manual pages"
 
     user_options = [('pod-files=', None, 'POD files to build')]
