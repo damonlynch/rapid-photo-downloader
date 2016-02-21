@@ -799,7 +799,7 @@ class RapidWindow(QMainWindow):
 
         logging.debug("Completed stage 2 initializing main window")
 
-    def startBackupManager(self):
+    def startBackupManager(self) -> None:
         if not self.backup_manager_started:
             self.backupThread = QThread()
             self.backupmq = BackupManager(self.context, logging_level)
@@ -818,7 +818,7 @@ class RapidWindow(QMainWindow):
         self.sourceButton.setText(addPushButtonLabelSpacer(text))
         self.sourceButton.setIcon(icon)
 
-    def setLeftPanelVisibility(self):
+    def setLeftPanelVisibility(self) -> None:
         self.leftPanelSplitter.setVisible(self.sourceButton.isChecked() or
                                           self.proximityButton.isChecked())
 
@@ -892,7 +892,7 @@ class RapidWindow(QMainWindow):
 
         self.aboutAct = QAction(_("&About..."), self, triggered=self.doAboutAction)
 
-    def createLayoutAndButtons(self, centralWidget):
+    def createLayoutAndButtons(self, centralWidget) -> None:
 
         settings = QSettings()
         settings.beginGroup("MainWindow")
@@ -1091,7 +1091,7 @@ class RapidWindow(QMainWindow):
             self.downloadAct.setEnabled(enabled)
             self.downloadButton.setEnabled(enabled)
 
-    def setDownloadActionLabel(self, is_download: bool):
+    def setDownloadActionLabel(self, is_download: bool) -> None:
         """
         Toggles action and download button text between pause and
         download
@@ -1104,7 +1104,7 @@ class RapidWindow(QMainWindow):
         self.downloadAct.setText(text)
         self.downloadButton.setText(text)
 
-    def createMenus(self):
+    def createMenus(self) -> None:
         self.fileMenu = QMenu("&File", self)
         self.fileMenu.addAction(self.downloadAct)
         self.fileMenu.addAction(self.refreshAct)
@@ -1269,7 +1269,7 @@ class RapidWindow(QMainWindow):
             else:
                 self.pauseDownload()
 
-    def pauseDownload(self):
+    def pauseDownload(self) -> None:
 
         self.copyfilesmq.pause()
 
@@ -1279,7 +1279,7 @@ class RapidWindow(QMainWindow):
 
         self.time_check.pause()
 
-    def resumeDownload(self):
+    def resumeDownload(self) -> None:
         for scan_id in self.active_downloads_by_scan_id:
             self.time_remaining.set_time_mark(scan_id)
 

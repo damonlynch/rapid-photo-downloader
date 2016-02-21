@@ -113,6 +113,7 @@ def crop_160x120_thumbnail(thumbnail: QImage, vertical_space: int=8) -> QImage:
     """
     return thumbnail.copy(0, vertical_space, 160, 120 - vertical_space * 2)
 
+
 class ThumbnailExtractor(LoadBalancerWorker):
 
     # Exif rotation constants
@@ -123,7 +124,7 @@ class ThumbnailExtractor(LoadBalancerWorker):
     max_size = QSize(max(ThumbnailSize.width, ThumbnailSize.height),
                      max(ThumbnailSize.width, ThumbnailSize.height))
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.thumbnail_size_needed = QSize(ThumbnailSize.width, ThumbnailSize.height)
         self.thumbnail_cache = ThumbnailCacheSql()
         super().__init__('Thumbnail Extractor')

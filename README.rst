@@ -19,14 +19,15 @@ automated, such as unmounting a memory card when the download is complete.
 
 For more information, see the project website_.
 
-It currently only runs on Linux. Theoretically it could be ported to both Mac and Windows
-with minimal effort (apart from the fact that Windows does not have gphoto2, meaning the program
-could not download directly from cameras).
+It currently runs only on Linux. Theoretically it can be ported to both Mac
+and Windows with minimal effort (apart from the fact that Windows does not
+have gphoto2, meaning when run under Windows, it could not download directly
+from cameras).
 
 Installation
 ------------
 
-To be installed, Rapid Photo Downloader requires:
+Rapid Photo Downloader requires:
  - Python 3.4 or greater
  - PyQt 5.4 or greater
  - `Python gobject introspection`_
@@ -85,7 +86,6 @@ Uninstalling
 Assuming you installed using the instructions above, run:
 
 ``sudo python3 -m pip uninstall rapid-photo-downloader``
-
 
 
 

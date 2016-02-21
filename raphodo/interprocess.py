@@ -97,11 +97,23 @@ def create_identity(worker_type: str, identity: str) -> bytes:
     # Replace any whitespace in the strings with a hyphen
     return '{}-{}'.format('-'.join(worker_type.split()), '-'.join(identity.split())).encode()
 
+def get_worker_id_from_identity(identity: bytes) -> int:
+    r"""Extract worker id from the identity used in a 0mq socket
+
+    >>> get_worker_id_from_identity(b'Worker-1')
+    1
+    >>> get_worker_id_from_identity(b'Thumbnail-Extractor-2')
+    2
+    >>> get_worker_id_from_identity(b'Thumbnail-Extractor-Plus-22-2')
+    2
+    """
+    return int(identity.decode().split('-')[-1])
+
 class ProcessManager:
     def __init__(self, logging_level: int) -> None:
         super().__init__()
 
-        self.processes = {}  # type: Dict[int, Process]
+        self.processes = {}  # type: Dict[int, psutil.Process]
         self._process_to_run = '' # Implement in subclass
         self.logging_level = logging_level
 
@@ -132,7 +144,7 @@ class ProcessManager:
                 logging.critical("Script shebang line might be malformed or missing: %s",
                                  self._get_cmd())
             sys.exit(1)
-        # logging.debug("Started '%s' with pid %s", command_line, pid)
+        logging.debug("Started '%s' with pid %s", command_line, pid)
 
         # Add to list of running workers
         self.workers.append(worker_id)
@@ -141,21 +153,29 @@ class ProcessManager:
     def forcefully_terminate(self) -> None:
         """Forcefully terminate any running child processes."""
 
-        for p in self.processes.values():  # type: psutil.Process
-            if p.is_running():
-                if p.status() == psutil.STATUS_ZOMBIE:
-                    try:
-                        logging.debug("Killing zombie process %s with pid %s", p.name(), p.pid)
-                        p.kill()
-                    except:
-                        logging.error("Failed to kill process with pid %s", p.pid)
-
-                else:
-                    try:
-                        logging.debug("Terminating process %s with pid %s", p.name(), p.pid)
-                        p.terminate()
-                    except:
-                        logging.error("Terminating process with pid %s failed", p.pid)
+        zombie_processes = [p for p in self.processes.values()
+                            if p.is_running() and p.status() == psutil.STATUS_ZOMBIE]
+        running_processes = [p for p in self.processes.values()
+                            if p.is_running() and p.status() != psutil.STATUS_ZOMBIE]
+        for p in zombie_processes:  # type: psutil.Process
+            try:
+                logging.debug("Killing zombie process %s with pid %s", p.name(), p.pid)
+                p.kill()
+            except:
+                logging.error("Failed to kill process with pid %s", p.pid)
+        for p in running_processes:  # type: psutil.Process
+            try:
+                logging.debug("Terminating process %s with pid %s", p.name(), p.pid)
+                p.terminate()
+            except:
+                logging.error("Terminating process with pid %s failed", p.pid)
+        gone, alive = psutil.wait_procs(running_processes, timeout=2)
+        for p in alive:
+            try:
+                logging.debug("Killing zombie process %s with pid %s", p.name(), p.pid)
+                p.kill()
+            except:
+                logging.error("Failed to kill process with pid %s", p.pid)
 
     def process_alive(self, worker_id: int) -> bool:
         """
@@ -269,7 +289,9 @@ class PullPipelineManager(ProcessManager, QObject):
 
 
 class LoadBalancerWorkerManager(ProcessManager):
-    def __init__(self, no_workers: int, backend_port: int, sink_port: int,
+    def __init__(self, no_workers: int,
+                 backend_port: int,
+                 sink_port: int,
                  logging_level: int) -> None:
         super().__init__(logging_level)
         self.no_workers = no_workers
@@ -291,18 +313,22 @@ class LoadBalancerWorkerManager(ProcessManager):
         for worker_id in range(self.no_workers):
             self.add_worker(worker_id)
 
+
 class LRUQueue:
     """LRUQueue class using ZMQStream/IOLoop for event dispatching"""
 
     def __init__(self, backend_socket: zmq.Socket,
                  frontend_socket: zmq.Socket,
                  controller_socket: zmq.Socket,
-                 worker_type: str) -> None:
+                 worker_type: str,
+                 process_manager: LoadBalancerWorkerManager) -> None:
 
         self.worker_type = worker_type
+        self.process_manager = process_manager
         self.workers = deque()
         self.terminating = False
-        self.terminating_workers = set()
+        self.terminating_workers = set()  # type: Set[bytes]
+        self.stopped_workers = set()  # type: Set[int]
 
         self.backend = ZMQStream(backend_socket)
         self.frontend = ZMQStream(frontend_socket)
@@ -335,9 +361,17 @@ class LRUQueue:
         assert empty == b''
 
         if msg[-1] == b'STOPPED' and self.terminating:
+            worker_id = get_worker_id_from_identity(worker_identity)
+            self.stopped_workers.add(worker_id)
             self.terminating_workers.remove(worker_identity)
-            #TODO os.waitpid(pid, 0) ??
             if len(self.terminating_workers) == 0:
+                for worker_id in self.stopped_workers:
+                    p = self.process_manager.processes[worker_id]  # type: psutil.Process
+                    if p.is_running():
+                        pid = p.pid
+                        logging.debug("Waiting on %s process %s...", p.status(), pid)
+                        os.waitpid(pid, 0)
+                        logging.debug("...process %s is finished", pid)
                 self.loop.add_timeout(time.time()+0.5, self.loop.stop)
 
         if len(self.workers) == 1:
@@ -353,6 +387,7 @@ class LRUQueue:
         if len(self.workers) == 0:
             # stop receiving until workers become available again
             self.frontend.stop_on_recv()
+
 
 class LoadBalancer:
     def __init__(self, worker_type: str, process_manager) -> None:
@@ -393,28 +428,32 @@ class LoadBalancer:
         logging.debug("...{} load balancer will use {} workers".format(worker_type, no_workers))
         reply.send(str(frontend_port).encode())
 
-        self.process_manager = process_manager(no_workers, backend_port, sink_port, logging_level)
-        self.process_manager.start_workers()
+        process_manager = process_manager(no_workers, backend_port, sink_port, logging_level)
+        process_manager.start_workers()
 
         # create queue with the sockets
-        queue = LRUQueue(backend, frontend, controller, worker_type)
+        queue = LRUQueue(backend, frontend, controller, worker_type, process_manager)
 
         # start reactor, which is an infinite loop
         IOLoop.instance().start()
 
         # Finished infinite loop: do some housekeeping
-        self.process_manager.forcefully_terminate()
+        process_manager.forcefully_terminate()
 
         frontend.close()
         backend.close()
 
 
 class LoadBalancerManager(ProcessManager, QObject):
+    """
+    Launches and requests termination of the Load Balancer process
+    """
+
     load_balancer_started = pyqtSignal(int)
     def __init__(self, context: zmq.Context,
                  no_workers: int,
                  sink_port: int,
-                 logging_level: int):
+                 logging_level: int) -> None:
         super().__init__(logging_level)
 
         self.controller_socket = context.socket(zmq.PUSH)
@@ -843,7 +882,7 @@ class LoadBalancerWorker:
         self.requester.close()
         self.sender.close()
         self.context.term()
-        logging.debug("%s stopped", identity)
+        logging.debug("%s with pid %s stopped", identity, os.getpid())
         sys.exit(0)
 
     def check_for_command(self, directive: bytes, content: bytes):
