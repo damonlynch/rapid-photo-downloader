@@ -37,7 +37,7 @@ from DistUtilsExtra.command  import *  # build_extra, build_i18n, build_icons, c
 def install_instructions():
     debian = 'On an Ubuntu or Debian-like system, the following command will install ' \
              'the base installation requirements:\nsudo apt-get install ' \
-             'libimage-exiftool-perl python3-pyqt5 python3-pip ' \
+             'libimage-exiftool-perl python3-pyqt5 python3-pip python3-dev ' \
              'python3-distutils-extra gir1.2-gexiv2-0.10 python3-gi gir1.2-gudev-1.0 ' \
              'gir1.2-udisks-2.0 gir1.2-notify-0.7 gir1.2-glib-2.0 gir1.2-gstreamer-1.0 ' \
              'libgphoto2-dev python3-zmq3 python3-xdg python3-arrow python3-sortedcontainers ' \

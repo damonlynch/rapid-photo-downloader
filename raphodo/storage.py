@@ -84,6 +84,7 @@ UdevAttr = namedtuple('UdevAttr', 'is_mtp_device, vendor, model')
 
 PROGRAM_DIRECTORY = 'rapid-photo-downloader'
 
+
 class ValidMounts():
     r"""
     Operations to find 'valid' mount points, i.e. the places in which
@@ -280,10 +281,12 @@ def make_program_directory(path: str) -> str:
         os.mkdir(program_dir)
     return program_dir
 
-def get_program_cache_directory(create_if_not_exist=False) -> Optional[str]:
+def get_program_cache_directory(create_if_not_exist: bool=False) -> Optional[str]:
     """
-    Get Rapid Photo Downloader cache directory, which is assumed to be
-    under $XDG_CACHE_HOME or if that doesn't exist, ~/.cache.
+    Get Rapid Photo Downloader cache directory.
+
+    Is assumed to be under $XDG_CACHE_HOME or if that doesn't exist,
+     ~/.cache.
     :param create_if_not_exist: creates directory if it does not exist.
     :return: the full path of the cache directory, or None on error
     """
@@ -296,6 +299,29 @@ def get_program_cache_directory(create_if_not_exist=False) -> Optional[str]:
     except OSError:
         logging.error("An error occurred while creating the cache directory")
         return None
+
+def get_program_logging_directory(create_if_not_exist: bool=False) -> Optional[str]:
+    """
+    Get directory in which to store program log files.
+
+    Log files are kept in the cache dirctory.
+
+    :param create_if_not_exist:
+    :return: the full path of the logging directory, or None on error
+    """
+    cache_directory = get_program_cache_directory(create_if_not_exist=create_if_not_exist)
+    log_dir = os.path.join(cache_directory, 'log')
+    if os.path.isdir(log_dir):
+        return log_dir
+    if create_if_not_exist:
+        try:
+            if os.path.isfile(log_dir):
+                os.remove(log_dir)
+            os.mkdir(log_dir, 0o700)
+            return log_dir
+        except OSError:
+            logging.error("An error occurred while creating the log directory")
+    return None
 
 def get_program_data_directory(create_if_not_exist=False) -> Optional[str]:
     """
@@ -317,7 +343,7 @@ def get_program_data_directory(create_if_not_exist=False) -> Optional[str]:
 def get_fdo_cache_thumb_base_directory() -> str:
     return os.path.join(BaseDirectory.xdg_cache_home, 'thumbnails')
 
-def get_default_file_manager(remove_args=True) -> str:
+def get_default_file_manager(remove_args: bool=True) -> Optional[str]:
     """
     Attempt to determine the default file manager for the system
     :param remove_args: if True, remove any arguments such as %U from
@@ -371,7 +397,7 @@ class CameraHotplug(QObject):
     cameraRemoved = pyqtSignal()
 
     def __init__(self):
-        super(CameraHotplug, self).__init__()
+        super().__init__()
         self.cameras = {}
 
     def startMonitor(self):
@@ -469,8 +495,7 @@ class UDisks2Monitor(QObject):
             path = obj.get_object_path()
             fs = obj.get_filesystem()
             if fs:
-                mount_points = fs.get_cached_property(
-                    'MountPoints').get_bytestring_array()
+                mount_points = fs.get_cached_property('MountPoints').get_bytestring_array()
                 if mount_points:
                     self.known_mounts[path] = mount_points[0]
 
@@ -515,8 +540,7 @@ class UDisks2Monitor(QObject):
             else:
                 ejectable = False
             mount_point = ''
-            mount_points = fs.get_cached_property(
-                'MountPoints').get_bytestring_array()
+            mount_points = fs.get_cached_property('MountPoints').get_bytestring_array()
             if len(mount_points) == 0:
                 try:
                     logging.debug("UDisks: attempting to mount %s", path)

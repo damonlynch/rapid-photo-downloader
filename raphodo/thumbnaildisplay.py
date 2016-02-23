@@ -83,8 +83,8 @@ class DownloadStats:
 class ThumbnailManager(PublishPullPipelineManager):
     message = pyqtSignal(RPDFile, QPixmap)
     cacheDirs = pyqtSignal(int, CacheDirs)
-    def __init__(self, context: zmq.Context, logging_level: int) -> None:
-        super().__init__(context, logging_level)
+    def __init__(self) -> None:
+        super().__init__()
         self._process_name = 'Thumbnail Manager'
         self._process_to_run = 'thumbnail.py'
         self._worker_id = 0
@@ -105,7 +105,7 @@ class ThumbnailManager(PublishPullPipelineManager):
 
 
 class ThumbnailListModel(QAbstractListModel):
-    def __init__(self, parent, logging_level: int) -> None:
+    def __init__(self, parent, logging_port: int) -> None:
         super().__init__(parent)
         self.rapidApp = parent
 
@@ -114,7 +114,7 @@ class ThumbnailListModel(QAbstractListModel):
 
         no_workers = parent.prefs.max_cpu_cores
         self.thumbnailmq = Thumbnailer(parent=parent, no_workers=no_workers,
-                                       logging_level=logging_level)
+                                       logging_port=logging_port)
         self.thumbnailmq.ready.connect(self.thumbnailerReady)
         self.thumbnailmq.thumbnailReceived.connect(self.thumbnailReceived)
 

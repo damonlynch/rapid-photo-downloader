@@ -43,8 +43,8 @@ from cache import ThumbnailCache
 
 class TestThumbnailManager(ThumbnailManager):
     message = pyqtSignal(RPDFile, QPixmap)
-    def __init__(self, context: zmq.Context, profile: bool):
-        super().__init__(context, logging.DEBUG)
+    def __init__(self, profile: bool):
+        super().__init__()
         self._profile = profile
 
     def _get_cmd(self) -> str:
@@ -63,7 +63,6 @@ class TestThumbnail(QTextEdit ):
     def __init__(self, testdata: str, profile: bool, parent=None) -> None:
         super().__init__(parent)
 
-        context = zmq.Context()
         scan_id = 0
         self.received = 0
 
@@ -74,11 +73,10 @@ class TestThumbnail(QTextEdit ):
             gta = GenerateThumbnailsArguments(
                 scan_id=scan_id,
                 rpd_files=self.rpd_files,
-                thumbnail_quality_lower=False,
                 name='test',
                 cache_dirs=CacheDirs(tempdir, tempdir))
             self.thread = QThread()
-            self.ttm = TestThumbnailManager(context, profile)
+            self.ttm = TestThumbnailManager(profile)
             self.ttm.moveToThread(self.thread)
             self.thread.started.connect(self.ttm.run_sink)
 

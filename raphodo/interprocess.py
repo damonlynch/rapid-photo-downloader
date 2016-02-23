@@ -37,6 +37,7 @@ from PyQt5.QtCore import (pyqtSignal, QObject, pyqtSlot)
 from PyQt5.QtGui import QPixmap
 
 import zmq
+import zmq.log.handlers
 from zmq.eventloop.ioloop import IOLoop
 from zmq.eventloop.zmqstream import ZMQStream
 
@@ -110,12 +111,11 @@ def get_worker_id_from_identity(identity: bytes) -> int:
     return int(identity.decode().split('-')[-1])
 
 class ProcessManager:
-    def __init__(self, logging_level: int) -> None:
+    def __init__(self) -> None:
         super().__init__()
 
         self.processes = {}  # type: Dict[int, psutil.Process]
         self._process_to_run = '' # Implement in subclass
-        self.logging_level = logging_level
 
         # Monitor which workers we have running
         self.workers = []  # type: List[int]
@@ -202,8 +202,10 @@ class PullPipelineManager(ProcessManager, QObject):
     message = pyqtSignal(str) # Derived class will change this
     workerFinished = pyqtSignal(int)
 
-    def __init__(self, context: zmq.Context, logging_level: int):
-        super().__init__(logging_level)
+    def __init__(self):
+        super().__init__()
+
+        context = zmq.Context.instance()
 
         # Subclasses must define the type of port they need to send messages
         self.ventilator_socket = None
@@ -292,22 +294,25 @@ class LoadBalancerWorkerManager(ProcessManager):
     def __init__(self, no_workers: int,
                  backend_port: int,
                  sink_port: int,
-                 logging_level: int) -> None:
-        super().__init__(logging_level)
+                 logging_port: int) -> None:
+        super().__init__()
         self.no_workers = no_workers
         self.backend_port = backend_port
         self.sink_port = sink_port
+        self.logging_port = logging_port
 
     def _get_command_line(self, worker_id: int) -> str:
         cmd = self._get_cmd()
+        logging_level = logging.getLogger().getEffectiveLevel()
 
-        return '{} {} --request {} --send {} --identity {} --logginglevel {}'.format(
+        return '{} {} --request {} --send {} --identity {} --logging {} --logginglevel {}'.format(
                         sys.executable,
                         cmd,
                         self.backend_port,
                         self.sink_port,
                         worker_id,
-                        self.logging_level)
+                        self.logging_port,
+                        logging_level)
 
     def start_workers(self) -> None:
         for worker_id in range(self.no_workers):
@@ -369,9 +374,12 @@ class LRUQueue:
                     p = self.process_manager.processes[worker_id]  # type: psutil.Process
                     if p.is_running():
                         pid = p.pid
-                        logging.debug("Waiting on %s process %s...", p.status(), pid)
-                        os.waitpid(pid, 0)
-                        logging.debug("...process %s is finished", pid)
+                        if p.status() != psutil.STATUS_SLEEPING:
+                            logging.debug("Waiting on %s process %s...", p.status(), pid)
+                            os.waitpid(pid, 0)
+                            logging.debug("...process %s is finished", pid)
+                        else:
+                            logging.debug("Process %s is sleeping", pid)
                 self.loop.add_timeout(time.time()+0.5, self.loop.stop)
 
         if len(self.workers) == 1:
@@ -396,6 +404,7 @@ class LoadBalancer:
         self.parser.add_argument("--receive", required=True)
         self.parser.add_argument("--send", required=True)
         self.parser.add_argument("--controller", required=True)
+        self.parser.add_argument("--logging", required=True)
         self.parser.add_argument("--logginglevel", required=True)
 
         args = self.parser.parse_args()
@@ -420,6 +429,7 @@ class LoadBalancer:
         controller.connect('tcp://localhost:{}'.format(self.controller_port))
 
         sink_port = args.send
+        logging_port = args.logging
 
         logging.debug("{} load balancer waiting to be notified how many workers to "
                       "initialize...".format(
@@ -428,7 +438,7 @@ class LoadBalancer:
         logging.debug("...{} load balancer will use {} workers".format(worker_type, no_workers))
         reply.send(str(frontend_port).encode())
 
-        process_manager = process_manager(no_workers, backend_port, sink_port, logging_level)
+        process_manager = process_manager(no_workers, backend_port, sink_port, logging_port)
         process_manager.start_workers()
 
         # create queue with the sockets
@@ -453,8 +463,8 @@ class LoadBalancerManager(ProcessManager, QObject):
     def __init__(self, context: zmq.Context,
                  no_workers: int,
                  sink_port: int,
-                 logging_level: int) -> None:
-        super().__init__(logging_level)
+                 logging_port: int) -> None:
+        super().__init__()
 
         self.controller_socket = context.socket(zmq.PUSH)
         self.controller_port = self.controller_socket.bind_to_random_port('tcp://*')
@@ -463,6 +473,7 @@ class LoadBalancerManager(ProcessManager, QObject):
         self.requester_port = self.requester.bind_to_random_port('tcp://*')
         self.no_workers = no_workers
         self.sink_port = sink_port
+        self.logging_port = logging_port
 
     @pyqtSlot()
     def start_load_balancer(self) -> None:
@@ -477,14 +488,16 @@ class LoadBalancerManager(ProcessManager, QObject):
 
     def _get_command_line(self, worker_id: int) -> str:
         cmd = self._get_cmd()
+        logging_level = logging.getLogger().getEffectiveLevel()
 
-        return '{} {} --receive {} --send {} --controller {} --logginglevel {}'.format(
+        return '{} {} --receive {} --send {} --controller {} --logging {} --logginglevel {}'.format(
                         sys.executable,
                         cmd,
                         self.requester_port,
                         self.sink_port,
                         self.controller_port,
-                        self.logging_level)
+                        self.logging_port,
+                        logging_level)
 
 DAEMON_WORKER_ID = 0
 
@@ -499,8 +512,10 @@ class PushPullDaemonManager(PullPipelineManager):
     suitable for sending the data.
     """
 
-    def __init__(self, context: zmq.Context, logging_level: int) -> None:
-        super().__init__(context, logging_level)
+    def __init__(self) -> None:
+        super().__init__()
+
+        context = zmq.Context.instance()
 
         # Ventilator socket to send message to worker
         self.ventilator_socket = context.socket(zmq.PUSH)
@@ -528,13 +543,15 @@ class PushPullDaemonManager(PullPipelineManager):
 
     def _get_command_line(self, worker_id: int) -> str:
         cmd = self._get_cmd()
+        logging_level = logging.getLogger().getEffectiveLevel()
+
         return '{} {} --receive {} --send {} --logginglevel {' \
                '}'.format(
                         sys.executable,
                         cmd,
                         self.ventilator_port,
                         self.receiver_port,
-                        self.logging_level)
+                        logging_level)
 
     def _get_ventilator_start_message(self, worker_id: int) -> str:
         return [b'cmd', b'START']
@@ -551,8 +568,10 @@ class PublishPullPipelineManager(PullPipelineManager):
     Because there are multiple worker process, a Publish-Subscribe model is
     most suitable for sending data to workers.
     """
-    def __init__(self, context: zmq.Context, logging_level: int) -> None:
-        super().__init__(context, logging_level)
+    def __init__(self) -> None:
+        super().__init__()
+
+        context = zmq.Context.instance()
 
         # Ventilator socket to send messages to workers on
         self.ventilator_socket = context.socket(zmq.PUB)
@@ -627,6 +646,7 @@ class PublishPullPipelineManager(PullPipelineManager):
 
     def _get_command_line(self, worker_id: int) -> str:
         cmd = self._get_cmd()
+        logging_level = logging.getLogger().getEffectiveLevel()
 
         return '{} {} --receive {} --send {} --controller {} --syncclient {} ' \
                '--filter {} --logginglevel {}'.format(
@@ -637,7 +657,7 @@ class PublishPullPipelineManager(PullPipelineManager):
                         self.controller_port,
                         self.sync_service_port,
                         worker_id,
-                        self.logging_level)
+                        logging_level)
 
     def __len__(self) -> int:
         return len(self.workers)
@@ -842,6 +862,7 @@ class LoadBalancerWorker:
         self.parser.add_argument("--request", required=True)
         self.parser.add_argument("--send", required=True)
         self.parser.add_argument("--identity", required=True)
+        self.parser.add_argument("--logging", required=True)
         self.parser.add_argument("--logginglevel", required=True)
 
         args = self.parser.parse_args()
@@ -854,8 +875,21 @@ class LoadBalancerWorker:
         self.requester.identity = create_identity(worker_type, args.identity)
         self.requester.connect("tcp://localhost:{}".format(args.request))
 
+        # Sender is located in the main process. It is where ouput (messages)
+        # from this process are are sent to.
         self.sender = self.context.socket(zmq.PUSH)
         self.sender.connect("tcp://localhost:{}".format(args.send))
+
+        self.logger_pub = self.context.socket(zmq.PUB)
+        self.logger_pub_port = self.logger_pub.bind_to_random_port("tcp://*")
+        handler = zmq.log.handlers.PUBHandler(self.logger_pub)
+        logger = logging.getLogger()
+        logger.addHandler(handler)
+
+        logger_socket = self.context.socket(zmq.PUSH)
+        logger_socket.connect("tcp://localhost:{}".format(args.logging))
+
+        logger_socket.send_multipart([b'CONNECT', str(self.logger_pub_port).encode()])
 
         # Tell the load balancer we are ready for work
         self.requester.send(b"READY")
@@ -881,6 +915,7 @@ class LoadBalancerWorker:
         self.requester.send_multipart([b'', b'', b'STOPPED'])
         self.requester.close()
         self.sender.close()
+        self.logger_pub.close()
         self.context.term()
         logging.debug("%s with pid %s stopped", identity, os.getpid())
         sys.exit(0)
@@ -889,6 +924,69 @@ class LoadBalancerWorker:
         if directive == b'cmd':
             assert content == b'STOP'
             self.exit()
+
+
+class ProcessLoggingManager(QObject):
+
+    ready = pyqtSignal(int)
+
+    def __init__(self):
+        super().__init__()
+
+    def startReceiver(self) -> None:
+        context = zmq.Context.instance()
+        self.receiver = context.socket(zmq.SUB)
+
+        # Socket to receive subscription information, and the stop command
+        info_socket = context.socket(zmq.PULL)
+        self.info_port = info_socket.bind_to_random_port('tcp://*')
+
+        poller = zmq.Poller()
+        poller.register(self.receiver, zmq.POLLIN)
+        poller.register(info_socket, zmq.POLLIN)
+
+        self.ready.emit(self.info_port)
+
+        while True:
+            try:
+                socks = dict(poller.poll())
+            except KeyboardInterrupt:
+                break
+
+            if self.receiver in socks:
+                message = self.receiver.recv_multipart()
+                print(message)
+
+            if info_socket in socks:
+                directive, content = info_socket.recv_multipart()
+                if directive == b'STOP':
+                    break
+                elif directive == b'CONNECT':
+                    self.addSubscription(content)
+                else:
+                    assert directive == b'DISCONNECT'
+                    self.removeSubscription(content)
+
+    def addSubscription(self, port: bytes) -> None:
+        try:
+            port = int(port)
+        except ValueError:
+            logging.critical('Incorrect port value in add subscription: %s', port)
+        else:
+            # TODO add proper filter
+            subscription_filter = b''
+            logging.debug("Subscribing to logging on port %s", port)
+            self.receiver.connect("tcp://localhost:{}".format(port))
+            self.receiver.setsockopt(zmq.SUBSCRIBE, subscription_filter)
+
+    def removeSubscription(self, content):
+        pass
+
+    def stop(self):
+        context = zmq.Context.instance()
+        command =  context.socket(zmq.PUSH)
+        command.connect("tcp://localhost:{}".format(self.info_port))
+        command.send_multipart([b'STOP', b''])
 
 
 class ScanArguments:

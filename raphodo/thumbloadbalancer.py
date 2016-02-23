@@ -30,8 +30,8 @@ class ThumbnailLoadBalancerWorkerManager(LoadBalancerWorkerManager):
     def __init__(self, no_workers: int,
                  backend_port: int,
                  sink_port: int,
-                 logging_level: int) -> None:
-        super().__init__(no_workers, backend_port, sink_port, logging_level)
+                 logging_port: int) -> None:
+        super().__init__(no_workers, backend_port, sink_port, logging_port)
         self._process_name = 'Thumbnail Load Balancer Manager'
         self._process_to_run = 'thumbnailextractor.py'
 

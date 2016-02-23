@@ -319,6 +319,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
                                   os.path.join(path, name), self.camera.model)
 
         folders = []
+        # TODO add exception checking
         for name, value in self.camera.camera.folder_list_folders(path, self.camera.context):
             if self.scan_preferences.scan_this_path(os.path.join(path, name)):
                     folders.append(name)

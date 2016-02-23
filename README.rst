@@ -33,10 +33,11 @@ Rapid Photo Downloader requires:
  - `Python gobject introspection`_
  - `python-gphoto2`_
     - If installing python-gphoto2 from PyPi, you must first install
-      the development packages for libgphoto2, e.g. libgphoto2-dev
+      the development packages for libgphoto2 and Python3, e.g. libgphoto2-dev
+      and python3-dev
  - pyzmq_
     - If installing pyzmq from PyPi, you must first install the development
-      packages for libzmq3, e.g. libzmq3-dev
+      packages for libzmq3 and Python3, e.g. libzmq3-dev and python3-dev
  - psutil_
  - sortedcontainers_
  - pyxdg_
@@ -50,7 +51,7 @@ Rapid Photo Downloader requires:
 The following command will install all necessary requirements that can be satisified with the
 built-in distribution packages on Ubuntu or Debian-like systems:
 
-``sudo apt-get install libimage-exiftool-perl python3-pyqt5 python3-pip
+``sudo apt-get install libimage-exiftool-perl python3-pyqt5 python3-pip python3-dev
 python3-distutils-extra gir1.2-gexiv2-0.10 python3-gi gir1.2-gudev-1.0 gir1.2-udisks-2.0
 gir1.2-notify-0.7 gir1.2-glib-2.0 gir1.2-gstreamer-1.0 libgphoto2-dev python3-sortedcontainers
 python3-arrow python3-psutil qt5-image-formats-plugins python3-zmq exiv2``

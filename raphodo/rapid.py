@@ -80,18 +80,19 @@ from raphodo.storage import (ValidMounts, CameraHotplug, UDisks2Monitor,
                      mountPaths, get_desktop_environment,
                      gvfs_controls_mounts, get_default_file_manager)
 from raphodo.interprocess import (PublishPullPipelineManager,
-                          PushPullDaemonManager,
-                          ScanArguments,
-                          CopyFilesArguments,
-                          RenameAndMoveFileData,
-                          BackupArguments,
-                          BackupResults,
-                          CopyFilesResults,
-                          RenameAndMoveFileResults,
-                          ScanResults,
-                          BackupFileData,
-                          OffloadData,
-                          OffloadResults)
+                                  PushPullDaemonManager,
+                                  ScanArguments,
+                                  CopyFilesArguments,
+                                  RenameAndMoveFileData,
+                                  BackupArguments,
+                                  BackupResults,
+                                  CopyFilesResults,
+                                  RenameAndMoveFileResults,
+                                  ScanResults,
+                                  BackupFileData,
+                                  OffloadData,
+                                  OffloadResults,
+                                  ProcessLoggingManager)
 from raphodo.devices import (Device, DeviceCollection, BackupDevice,
                      BackupDeviceCollection)
 from raphodo.preferences import (Preferences, ScanPreferences)
@@ -132,11 +133,12 @@ BackupMissing = namedtuple('BackupMissing', 'photo, video')
 # https://www.riverbankcomputing.com/pipermail/pyqt/2016-February/036932.html
 app = None  # type: 'QtSingleApplication'
 
+
 class RenameMoveFileManager(PushPullDaemonManager):
     message = QtCore.pyqtSignal(bool, RPDFile, int, QPixmap)
     sequencesUpdate = QtCore.pyqtSignal(int, list)
-    def __init__(self, context: zmq.Context, logging_level: int):
-        super().__init__(context, logging_level)
+    def __init__(self):
+        super().__init__()
         self._process_name = 'Rename and Move File Manager'
         self._process_to_run = 'renameandmovefile.py'
 
@@ -163,8 +165,8 @@ class RenameMoveFileManager(PushPullDaemonManager):
 
 class OffloadManager(PushPullDaemonManager):
     message = QtCore.pyqtSignal(TemporalProximityGroups)
-    def __init__(self, context: zmq.Context, logging_level: int):
-        super().__init__(context, logging_level)
+    def __init__(self):
+        super().__init__()
         self._process_name = 'Offload Manager'
         self._process_to_run = 'offload.py'
 
@@ -179,8 +181,8 @@ class OffloadManager(PushPullDaemonManager):
 
 class ScanManager(PublishPullPipelineManager):
     message = QtCore.pyqtSignal(bytes)
-    def __init__(self, context: zmq.Context, logging_level: int):
-        super().__init__(context, logging_level)
+    def __init__(self):
+        super().__init__()
         self._process_name = 'Scan Manager'
         self._process_to_run = 'scan.py'
 
@@ -201,8 +203,8 @@ class BackupManager(PublishPullPipelineManager):
     message = QtCore.pyqtSignal(int, bool, bool, RPDFile)
     bytesBackedUp = QtCore.pyqtSignal(bytes)
 
-    def __init__(self, context: zmq.Context, logging_level: int) -> None:
-        super().__init__(context, logging_level)
+    def __init__(self) -> None:
+        super().__init__()
         self._process_name = 'Backup Manager'
         self._process_to_run = 'backupfile.py'
 
@@ -238,8 +240,8 @@ class CopyFilesManager(PublishPullPipelineManager):
     tempDirs = QtCore.pyqtSignal(int, str,str)
     bytesDownloaded = QtCore.pyqtSignal(bytes)
 
-    def __init__(self, context: zmq.Context, logging_level: int) -> None:
-        super().__init__(context, logging_level)
+    def __init__(self) -> None:
+        super().__init__()
         self._process_name = 'Copy Files Manager'
         self._process_to_run = 'copyfiles.py'
 
@@ -477,14 +479,34 @@ class RapidWindow(QMainWindow):
         self.prefs.backup_files = False
         self.prefs.backup_device_autodetection = True
 
-        centralWidget = QWidget()
 
         # Don't call processEvents() after initiating 0MQ, as it can
         # cause "Interrupted system call" errors
         app.processEvents()
 
+        self.startProcessLogger()
+
+    def startProcessLogger(self):
+        self.loggermq = ProcessLoggingManager()
+        self.loggermqThread = QThread()
+        self.loggermq.moveToThread(self.loggermqThread)
+
+        self.loggermqThread.started.connect(self.loggermq.startReceiver)
+        self.loggermq.ready.connect(self.initStage2)
+        logging.debug("Starting logging subscription manager...")
+        QTimer.singleShot(0, self.loggermqThread.start)
+
+    @pyqtSlot(int)
+    def initStage2(self, logging_port: int):
+        logging.debug("... logging subscription manager started")
+
+        logging.debug("Stage 2 initialization")
+
+        centralWidget = QWidget()
+
         self.thumbnailView = ThumbnailView(self)
-        self.thumbnailModel = ThumbnailListModel(parent=self, logging_level=logging_level)
+        logging.debug("Starting thumbnail model")
+        self.thumbnailModel = ThumbnailListModel(parent=self, logging_port=logging_port)
         self.thumbnailProxyModel = ThumbnailSortFilterProxyModel(self)
         self.thumbnailProxyModel.setSourceModel(self.thumbnailModel)
         self.thumbnailView.setModel(self.thumbnailProxyModel)
@@ -498,7 +520,7 @@ class RapidWindow(QMainWindow):
         self.temporalProximityView.selectionModel().selectionChanged.connect(
                                                 self.proximitySelectionChanged)
 
-        # Devices are cameras and external partitions
+        # For meaning of 'Devices', see devices.py
         self.devices = DeviceCollection()
         self.deviceView = DeviceView(self)
         self.deviceModel = DeviceModel(self)
@@ -511,6 +533,7 @@ class RapidWindow(QMainWindow):
         self.thisComputerView.setModel(self.thisComputerModel)
         self.thisComputerView.setItemDelegate(DeviceDelegate(self))
 
+        # Map different device types onto their appropriate view and model
         self._mapModel = {DeviceType.path: self.thisComputerModel,
                          DeviceType.camera: self.deviceModel,
                          DeviceType.volume: self.deviceModel}
@@ -530,13 +553,211 @@ class RapidWindow(QMainWindow):
         self.fileSystemView.clicked.connect(self.thisComputerPathChosen)
 
         self.createActions()
+        logging.debug("Laying out main window")
         self.createLayoutAndButtons(centralWidget)
         self.createMenus()
 
         # a main-window application must have one and only one central widget
         self.setCentralWidget(centralWidget)
 
-        self.initialise()
+        self.initStage3()
+
+    def initStage3(self):
+        logging.debug("Stage 3 initialization")
+
+        # Setup notification system
+        try:
+            self.have_libnotify = Notify.init('rapid-photo-downloader')
+        except:
+            logging.error("Notification intialization problem")
+            self.have_libnotify = False
+
+        self.file_manager = get_default_file_manager()
+
+        self.program_svg = ':/rapid-photo-downloader.svg'
+        # Initialise use of libgphoto2
+        logging.debug("Getting gphoto2 context")
+        try:
+            self.gp_context = gp.Context()
+        except:
+            logging.critical("Error getting gphoto2 context")
+            self.gp_context = None
+
+        logging.debug("Probing for valid mounts")
+        self.validMounts = ValidMounts(onlyExternalMounts=self.prefs.only_external_mounts)
+
+        logging.debug("Setting up Job Code window")
+        self.job_code = JobCode(self)
+
+        logging.debug("Probing desktop environment")
+        desktop_env = get_desktop_environment()
+        self.unity_progress = desktop_env.lower() == 'unity' and have_unity
+        if self.unity_progress:
+            self.deskop_launcher = Unity.LauncherEntry.get_for_desktop_id(
+                "rapid-photo-downloader.desktop")
+            if self.deskop_launcher is None:
+                self.unity_progress = False
+
+        logging.debug("Desktop environment: %s", desktop_env)
+        logging.debug("Have GIO module: %s", have_gio)
+        self.gvfsControlsMounts = gvfs_controls_mounts() and have_gio
+        if have_gio:
+            logging.debug("Using GIO: %s", self.gvfsControlsMounts)
+
+        if not self.gvfsControlsMounts:
+            # Monitor when the user adds or removes a camera
+            self.cameraHotplug = CameraHotplug()
+            self.cameraHotplugThread = QThread()
+            self.cameraHotplug.moveToThread(self.cameraHotplugThread)
+            self.cameraHotplug.cameraAdded.connect(self.cameraAdded)
+            self.cameraHotplug.cameraRemoved.connect(self.cameraRemoved)
+            # Start the monitor only on the thread it will be running on
+            logging.debug("Starting camera hotplug monitor...")
+            self.cameraHotplug.startMonitor()
+            logging.debug("... camera hotplug monitor started")
+            self.cameraHotplug.enumerateCameras()
+
+            if self.cameraHotplug.cameras:
+                logging.debug("Camera Hotplug found %d cameras:", len(self.cameraHotplug.cameras))
+                for port, model in self.cameraHotplug.cameras.items():
+                    logging.debug("%s at %s", model, port)
+
+            # Monitor when the user adds or removes a partition
+            self.udisks2Monitor = UDisks2Monitor(self.validMounts)
+            self.udisks2MonitorThread = QThread()
+            self.udisks2Monitor.moveToThread(self.udisks2MonitorThread)
+            self.udisks2Monitor.partitionMounted.connect(self.partitionMounted)
+            self.udisks2Monitor.partitionUnmounted.connect(
+                self.partitionUmounted)
+            # Start the monitor only on the thread it will be running on
+            logging.debug("Starting UDisks2 monitor...")
+            self.udisks2Monitor.startMonitor()
+            logging.debug("... UDisks2 monitor started")
+
+        #Track the unmounting of cameras by port and model
+        self.cameras_to_unmount = {}
+
+        if self.gvfsControlsMounts:
+            logging.debug("Starting GVolumeMonitor...")
+            self.gvolumeMonitor = GVolumeMonitor(self.validMounts)
+            logging.debug("... GVolumeMonitor started")
+            self.gvolumeMonitor.cameraUnmounted.connect(self.cameraUnmounted)
+            self.gvolumeMonitor.cameraMounted.connect(self.cameraMounted)
+            self.gvolumeMonitor.partitionMounted.connect(self.partitionMounted)
+            self.gvolumeMonitor.partitionUnmounted.connect(self.partitionUmounted)
+            self.gvolumeMonitor.volumeAddedNoAutomount.connect(self.noGVFSAutoMount)
+            self.gvolumeMonitor.cameraPossiblyRemoved.connect(self.cameraRemoved)
+
+        # Track the creation of temporary directories
+        self.temp_dirs_by_scan_id = {}
+
+        # Track which downloads are running
+        self.active_downloads_by_scan_id = set()
+
+        # Track the time a download commences
+        self.download_start_time = None
+
+        # Whether a system wide notification message should be shown
+        # after a download has occurred in parallel
+        self.display_summary_notification = False
+
+        self.download_tracker = downloadtracker.DownloadTracker()
+
+        # Values used to display how much longer a download will take
+        self.time_remaining = downloadtracker.TimeRemaining()
+        self.time_check = downloadtracker.TimeCheck()
+
+        # Offload process is used to offload work that could otherwise
+        # cause this process and thus the GUI to become unresponsive
+        self.offloadThread = QThread()
+        self.offloadmq = OffloadManager()
+        self.offloadmq.moveToThread(self.offloadThread)
+
+        self.offloadThread.started.connect(self.offloadmq.run_sink)
+        self.offloadmq.message.connect(self.proximityGroupsGenerated)
+
+        QTimer.singleShot(0, self.offloadThread.start)
+        self.offloadmq.start()
+
+        self.renameThread = QThread()
+        self.renamemq = RenameMoveFileManager()
+        self.renamemq.moveToThread(self.renameThread)
+
+        self.renameThread.started.connect(self.renamemq.run_sink)
+        self.renamemq.message.connect(self.fileRenamedAndMoved)
+        self.renamemq.sequencesUpdate.connect(self.updateSequences)
+        self.renamemq.workerFinished.connect(self.fileRenamedAndMovedFinished)
+
+        QTimer.singleShot(0, self.renameThread.start)
+        # Immediately start the sole daemon process rename and move files
+        # worker
+        self.renamemq.start()
+
+        # Setup the scan processes
+        self.scanThread = QThread()
+        self.scanmq = ScanManager()
+        self.scanmq.moveToThread(self.scanThread)
+
+        self.scanThread.started.connect(self.scanmq.run_sink)
+        self.scanmq.message.connect(self.scanMessageReceived)
+        self.scanmq.workerFinished.connect(self.scanFinished)
+
+        # call the slot with no delay
+        QTimer.singleShot(0, self.scanThread.start)
+
+        # Setup the copyfiles process
+        self.copyfilesThread = QThread()
+        self.copyfilesmq = CopyFilesManager()
+        self.copyfilesmq.moveToThread(self.copyfilesThread)
+
+        self.copyfilesThread.started.connect(self.copyfilesmq.run_sink)
+        self.copyfilesmq.message.connect(self.copyfilesDownloaded)
+        self.copyfilesmq.bytesDownloaded.connect(self.copyfilesBytesDownloaded)
+        self.copyfilesmq.tempDirs.connect(self.tempDirsReceivedFromCopyFiles)
+        self.copyfilesmq.workerFinished.connect(self.copyfilesFinished)
+
+        QTimer.singleShot(0, self.copyfilesThread.start)
+
+        self.backup_manager_started = False
+        self.backup_devices = BackupDeviceCollection()
+        if self.prefs.backup_files:
+            self.startBackupManager()
+            self.setupBackupDevices()
+        else:
+            self.download_tracker.set_no_backup_devices(0, 0)
+
+        prefs_valid, msg = self.prefs.check_prefs_for_validity()
+        if not prefs_valid:
+            self.notifyPrefsAreInvalid(details=msg)
+            self.auto_start_is_on = False
+        else:
+            self.auto_start_is_on = self.prefs.auto_download_at_startup
+
+        self.setDownloadActionSensitivity()
+        self.searchForCameras()
+        self.setupNonCameraDevices()
+        self.setupManualPath()
+        self.updateSourceButton()
+        self.displayMessageInStatusBar()
+
+        settings = QSettings()
+        settings.beginGroup("MainWindow")
+
+        if self.prefs.this_computer_path:
+            index = self.fileSystemModel.index(self.prefs.this_computer_path)
+            selection = self.fileSystemView.selectionModel()
+            selection.select(index, QItemSelectionModel.ClearAndSelect|QItemSelectionModel.Rows)
+            self.fileSystemView.scrollTo(index, QAbstractItemView.PositionAtCenter)
+
+        self.proximityButton.setChecked(settings.value("proximityButtonPressed", False, bool))
+        self.proximityButtonClicked()
+        self.sourceButton.setChecked(settings.value("sourceButtonPressed", True, bool))
+        self.sourceButtonClicked()
+
+        self.window_show_requested_time = datetime.datetime.now()
+        self.show()
+
+        logging.debug("Completed stage 2 initializing main window")
 
     def mapModel(self, scan_id: int) -> DeviceModel:
         return self._mapModel[self.devices[scan_id].device_type]
@@ -608,201 +829,10 @@ class RapidWindow(QMainWindow):
         self.downloadProgressBar.setMaximumWidth(QFontMetrics(QGuiApplication.font()).height() * 9)
         status.addPermanentWidget(self.downloadProgressBar, .1)
 
-    def initialise(self):
-        logging.debug("Stage 2 initializing main window")
-
-        # Setup notification system
-        try:
-            self.have_libnotify = Notify.init('rapid-photo-downloader')
-        except:
-            logging.error("Notification intialization problem")
-            self.have_libnotify = False
-
-        self.file_manager = get_default_file_manager()
-
-        self.program_svg = ':/rapid-photo-downloader.svg'
-        # Initialise use of libgphoto2
-        logging.debug("Getting gphoto2 context")
-        try:
-            self.gp_context = gp.Context()
-        except:
-            logging.critical("Error getting gphoto2 context")
-            self.gp_context = None
-
-        logging.debug("Probing for valid mounts")
-        self.validMounts = ValidMounts(onlyExternalMounts=self.prefs.only_external_mounts)
-
-        logging.debug("Setting up Job Code window")
-        self.job_code = JobCode(self)
-
-        logging.debug("Probing desktop environment")
-        desktop_env = get_desktop_environment()
-        self.unity_progress = desktop_env.lower() == 'unity' and have_unity
-        if self.unity_progress:
-            self.deskop_launcher = Unity.LauncherEntry.get_for_desktop_id(
-                "rapid-photo-downloader.desktop")
-            if self.deskop_launcher is None:
-                self.unity_progress = False
-
-        logging.debug("Desktop environment: %s", desktop_env)
-        logging.debug("Have GIO module: %s", have_gio)
-        self.gvfsControlsMounts = gvfs_controls_mounts() and have_gio
-        if have_gio:
-            logging.debug("Using GIO: %s", self.gvfsControlsMounts)
-
-        if not self.gvfsControlsMounts:
-            # Monitor when the user adds or removes a camera
-            self.cameraHotplug = CameraHotplug()
-            self.cameraHotplugThread = QThread()
-            self.cameraHotplug.moveToThread(self.cameraHotplugThread)
-            self.cameraHotplug.cameraAdded.connect(self.cameraAdded)
-            self.cameraHotplug.cameraRemoved.connect(self.cameraRemoved)
-            # Start the monitor only on the thread it will be running on
-            self.cameraHotplug.startMonitor()
-            self.cameraHotplug.enumerateCameras()
-
-            if self.cameraHotplug.cameras:
-                logging.debug("Camera Hotplug found %d cameras:", len(self.cameraHotplug.cameras))
-                for port, model in self.cameraHotplug.cameras.items():
-                    logging.debug("%s at %s", model, port)
-
-            # Monitor when the user adds or removes a partition
-            self.udisks2Monitor = UDisks2Monitor(self.validMounts)
-            self.udisks2MonitorThread = QThread()
-            self.udisks2Monitor.moveToThread(self.udisks2MonitorThread)
-            self.udisks2Monitor.partitionMounted.connect(self.partitionMounted)
-            self.udisks2Monitor.partitionUnmounted.connect(
-                self.partitionUmounted)
-            # Start the monitor only on the thread it will be running on
-            self.udisks2Monitor.startMonitor()
-
-        #Track the unmounting of cameras by port and model
-        self.cameras_to_unmount = {}
-
-        if self.gvfsControlsMounts:
-            self.gvolumeMonitor = GVolumeMonitor(self.validMounts)
-            self.gvolumeMonitor.cameraUnmounted.connect(self.cameraUnmounted)
-            self.gvolumeMonitor.cameraMounted.connect(self.cameraMounted)
-            self.gvolumeMonitor.partitionMounted.connect(self.partitionMounted)
-            self.gvolumeMonitor.partitionUnmounted.connect(self.partitionUmounted)
-            self.gvolumeMonitor.volumeAddedNoAutomount.connect(self.noGVFSAutoMount)
-            self.gvolumeMonitor.cameraPossiblyRemoved.connect(self.cameraRemoved)
-
-        # Track the creation of temporary directories
-        self.temp_dirs_by_scan_id = {}
-
-        # Track which downloads are running
-        self.active_downloads_by_scan_id = set()
-
-        # Track the time a download commences
-        self.download_start_time = None
-
-        # Whether a system wide notification message should be shown
-        # after a download has occurred in parallel
-        self.display_summary_notification = False
-
-        self.download_tracker = downloadtracker.DownloadTracker()
-
-        # Values used to display how much longer a download will take
-        self.time_remaining = downloadtracker.TimeRemaining()
-        self.time_check = downloadtracker.TimeCheck()
-
-        # Offload process is used to offload work that could otherwise
-        # cause this process and thus the GUI to become unresponsive
-        self.offloadThread = QThread()
-        self.offloadmq = OffloadManager(self.context, logging_level)
-        self.offloadmq.moveToThread(self.offloadThread)
-
-        self.offloadThread.started.connect(self.offloadmq.run_sink)
-        self.offloadmq.message.connect(self.proximityGroupsGenerated)
-
-        QTimer.singleShot(0, self.offloadThread.start)
-        self.offloadmq.start()
-
-        self.renameThread = QThread()
-        self.renamemq = RenameMoveFileManager(self.context, logging_level)
-        self.renamemq.moveToThread(self.renameThread)
-
-        self.renameThread.started.connect(self.renamemq.run_sink)
-        self.renamemq.message.connect(self.fileRenamedAndMoved)
-        self.renamemq.sequencesUpdate.connect(self.updateSequences)
-        self.renamemq.workerFinished.connect(self.fileRenamedAndMovedFinished)
-
-        QTimer.singleShot(0, self.renameThread.start)
-        # Immediately start the only daemon process rename and move files
-        # worker
-        self.renamemq.start()
-
-        # Setup the scan processes
-        self.scanThread = QThread()
-        self.scanmq = ScanManager(self.context, logging_level)
-        self.scanmq.moveToThread(self.scanThread)
-
-        self.scanThread.started.connect(self.scanmq.run_sink)
-        self.scanmq.message.connect(self.scanMessageReceived)
-        self.scanmq.workerFinished.connect(self.scanFinished)
-
-        # call the slot with no delay
-        QTimer.singleShot(0, self.scanThread.start)
-
-        # Setup the copyfiles process
-        self.copyfilesThread = QThread()
-        self.copyfilesmq = CopyFilesManager(self.context, logging_level)
-        self.copyfilesmq.moveToThread(self.copyfilesThread)
-
-        self.copyfilesThread.started.connect(self.copyfilesmq.run_sink)
-        self.copyfilesmq.message.connect(self.copyfilesDownloaded)
-        self.copyfilesmq.bytesDownloaded.connect(self.copyfilesBytesDownloaded)
-        self.copyfilesmq.tempDirs.connect(self.tempDirsReceivedFromCopyFiles)
-        self.copyfilesmq.workerFinished.connect(self.copyfilesFinished)
-
-        QTimer.singleShot(0, self.copyfilesThread.start)
-
-        self.backup_manager_started = False
-        self.backup_devices = BackupDeviceCollection()
-        if self.prefs.backup_files:
-            self.startBackupManager()
-            self.setupBackupDevices()
-        else:
-            self.download_tracker.set_no_backup_devices(0, 0)
-
-        prefs_valid, msg = self.prefs.check_prefs_for_validity()
-        if not prefs_valid:
-            self.notifyPrefsAreInvalid(details=msg)
-            self.auto_start_is_on = False
-        else:
-            self.auto_start_is_on = self.prefs.auto_download_at_startup
-
-        self.setDownloadActionSensitivity()
-        self.searchForCameras()
-        self.setupNonCameraDevices()
-        self.setupManualPath()
-        self.updateSourceButton()
-        self.displayMessageInStatusBar()
-
-        settings = QSettings()
-        settings.beginGroup("MainWindow")
-
-        if self.prefs.this_computer_path:
-            index = self.fileSystemModel.index(self.prefs.this_computer_path)
-            selection = self.fileSystemView.selectionModel()
-            selection.select(index, QItemSelectionModel.ClearAndSelect|QItemSelectionModel.Rows)
-            self.fileSystemView.scrollTo(index, QAbstractItemView.PositionAtCenter)
-
-        self.proximityButton.setChecked(settings.value("proximityButtonPressed", False, bool))
-        self.proximityButtonClicked()
-        self.sourceButton.setChecked(settings.value("sourceButtonPressed", True, bool))
-        self.sourceButtonClicked()
-
-        self.window_show_requested_time = datetime.datetime.now()
-        self.show()
-
-        logging.debug("Completed stage 2 initializing main window")
-
     def startBackupManager(self) -> None:
         if not self.backup_manager_started:
             self.backupThread = QThread()
-            self.backupmq = BackupManager(self.context, logging_level)
+            self.backupmq = BackupManager()
             self.backupmq.moveToThread(self.backupThread)
 
             self.backupThread.started.connect(self.backupmq.run_sink)
@@ -2317,6 +2347,10 @@ class RapidWindow(QMainWindow):
             self.udisks2MonitorThread.wait()
             self.cameraHotplugThread.quit()
             self.cameraHotplugThread.wait()
+
+        self.loggermq.stop()
+        self.loggermqThread.quit()
+        self.loggermqThread.wait()
 
         self.cleanAllTempDirs()
         self.devices.delete_cache_dirs()
