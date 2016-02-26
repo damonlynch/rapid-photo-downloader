@@ -214,8 +214,8 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
 
     def do_work(self) -> None:
         arguments = pickle.loads(self.content) # type: GenerateThumbnailsArguments
-        logging.debug("Worker %s generating thumbnails for %s", self.worker_id.decode(),
-                      arguments.name)
+        logging.debug("Worker %s generating %s thumbnails for %s", self.worker_id.decode(),
+                      len(arguments.rpd_files), arguments.name)
 
         self.frontend = self.context.socket(zmq.PUSH)
         self.frontend.connect("tcp://localhost:{}".format(arguments.frontend_port))
@@ -295,6 +295,7 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
                 logging.debug("Prematurely exiting thumbnail generation due "
                               "to lack of access to camera %s",
                               arguments.camera)
+                self.disconnect_logging()
                 self.send_finished_command()
                 sys.exit(0)
 

@@ -658,13 +658,9 @@ if __name__ == "__main__":
         port = value
         # print(port)
         c = Camera(model=camera, port=port)
-        print(c.dcim_folders)
 
-        directory = '/store_00010001/DCIM/100EOS1D'
-        photo = '_K0V4925.CR2'
-
-        info = c.camera.file_get_info(directory, photo, c.context)
-        # finfo = gp.gp_camera_file_get_info(c.camera, dir, photo ,c.context)
+        for name, value in c.camera.folder_list_files('/', c.context):
+            print(name, value)
 
         c.free_camera()
 

@@ -15,3 +15,4 @@ old_thumbnail.py
 *.egg-info
 test2.py
 ./raphodo/core
+./core

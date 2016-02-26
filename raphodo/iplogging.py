@@ -27,12 +27,28 @@ __author__ = 'Damon Lynch'
 __copyright__ = "Copyright 2016, Damon Lynch"
 
 import logging
-from logging.handlers import QueueHandler
+from logging.handlers import QueueHandler, RotatingFileHandler
 import pickle
+import gzip
 import os
 from typing import Optional
 
+try:
+    import colorlog
+    use_colorlog = True
+except ImportError:
+    use_colorlog = False
+
 logging_format = '%(levelname)s: %(message)s'
+colored_logging_format = '%(log_color)s%(levelname)-8s%(reset)s %(message)s'
+log_colors ={
+        'DEBUG':    'cyan',
+        'INFO':     'green',
+        'WARNING':  'yellow',
+        'ERROR':    'red',
+        'CRITICAL': 'red,bg_white',
+    }
+
 logging_date_format = '%Y-%m-%d %H:%M:%S'
 file_logging_format = '%(asctime)s %(levelname)s %(filename)s %(lineno)d: %(message)s'
 
@@ -41,6 +57,15 @@ class ZeroMQSocketHandler(QueueHandler):
         data = pickle.dumps(record.__dict__)
         self.queue.send(data)
 
+class RotatingGzipFileHandler(RotatingFileHandler):
+    def rotation_filename(self, name):
+        return name + ".gz"
+
+    def rotate(self, source, dest):
+        with open(source, "rb") as sf:
+            with gzip.open(dest, "wb") as df:
+                df.writelines(sf)
+                os.remove(source)
 
 def setup_main_process_logging(log_file_path: Optional[str], logging_level: int) -> logging.Logger:
     """
@@ -56,14 +81,20 @@ def setup_main_process_logging(log_file_path: Optional[str], logging_level: int)
         # so create it in the home directory
         log_file = os.path.join(os.path.expanduser('~'), 'rapid-photo-downloader.log')
     logger = logging.getLogger()
-    filehandler = logging.FileHandler(log_file)
+    max_bytes = 1024 * 1024  # 1 MB
+    filehandler = RotatingGzipFileHandler(log_file, maxBytes=max_bytes, backupCount=5)
     filehandler.setLevel(logging.DEBUG)
     filehandler.setFormatter(logging.Formatter(file_logging_format, logging_date_format))
     logger.addHandler(filehandler)
     logger.setLevel(logging.DEBUG)
+
     consolehandler = logging.StreamHandler()
+    if not use_colorlog:
+        consolehandler.setFormatter(logging.Formatter(logging_format))
+    else:
+        consolehandler.setFormatter(colorlog.ColoredFormatter(fmt=colored_logging_format,
+                                                              log_colors=log_colors))
     consolehandler.setLevel(logging_level)
-    consolehandler.setFormatter(logging.Formatter(logging_format))
     logger.addHandler(consolehandler)
     return logger
 

@@ -57,7 +57,8 @@ from raphodo.interprocess import (WorkerInPublishPullPipeline, ScanResults,
                           ScanArguments)
 from raphodo.camera import Camera, CameraError
 import raphodo.rpdfile as rpdfile
-from raphodo.constants import (DeviceType, FileType, GphotoMTime, datetime_offset, CameraErrorCode)
+from raphodo.constants import (DeviceType, FileType, GphotoMTime, datetime_offset, CameraErrorCode,
+                               FileExtension)
 from raphodo.rpdsql import DownloadedSQL, FileDownloaded
 from raphodo.utilities import stdchannel_redirected
 
@@ -194,8 +195,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
                                         pickle.HIGHEST_PROTOCOL)
             self.send_message_to_sink()
         if self.files_scanned > 0 and not (self.files_scanned == 0 and self.download_from_camera):
-            logging.debug("{} total files scanned".format(
-                self.files_scanned))
+            logging.info("{} total files scanned".format(self.files_scanned))
 
         self.disconnect_logging()
         self.send_finished_command()
@@ -243,21 +243,49 @@ class ScanWorker(WorkerInPublishPullPipeline):
          libgphoto2
         """
 
-        folders_and_files = []
+        files_in_folder = []
+        names = []
         try:
-            folders_and_files = self.camera.camera.folder_list_files(path, self.camera.context)
+            files_in_folder = self.camera.camera.folder_list_files(path, self.camera.context)
         except gp.GPhoto2Error as e:
             logging.error("Unable to scan files on camera: error %s", e.code)
 
-        for name, value in folders_and_files:
+        if files_in_folder:
+
+            # When determining how libgphoto2 reports modification time, extraction order
+            # of preference is (1) jpeg, (2) RAW, and finally least preferred is (3) video
+            names = [name for name, value in files_in_folder]
+            split_names = [os.path.splitext(name) for name in names]
+            exts = [ext[1:] for name, ext in split_names]
+            exts_lower = [ext.lower() for ext in exts]
+            ext_types = [rpdfile.extension_type(ext) for ext in exts_lower]
+
+            if self.gphoto_mtime == GphotoMTime.undetermined:
+                # Insert preferred type of file at front of file lists
+                for e in (FileExtension.jpeg, FileExtension.raw, FileExtension.video):
+                    if ext_types[0] == e:
+                        break
+                    try:
+                        index = ext_types.index(e)
+                    except ValueError:
+                        continue
+                    names.insert(0, names.pop(index))
+                    split_names.insert(0, split_names.pop(index))
+                    exts.insert(0, exts.pop(index))
+                    exts_lower.insert(0, exts_lower.pop(index))
+                    ext_types.insert(0, ext_types.pop(index))
+                    break
+
+        for idx, name in enumerate(names):
             # Check to see if the process has received a command to terminate
             # or pause
             self.check_for_controller_directive()
 
-            base_name, ext = os.path.splitext(name)
+            base_name = split_names[idx][0]
             # remove the period from the extension
-            ext = ext[1:]
-            ext_lower = ext.lower()
+            ext = exts[idx]
+            ext_lower = exts_lower[idx]
+            ext_type = ext_types[idx]
             file_type = rpdfile.file_type(ext_lower)
 
             if file_type is not None:
@@ -269,6 +297,8 @@ class ScanWorker(WorkerInPublishPullPipeline):
                 self.file_type_counter[key] += 1
                 self.file_size_sum[key] += size
 
+                # TODO handle case of video only files
+                # TODO #2 double check time zone offset in some exiftool results
                 if file_type == FileType.photo and self.gphoto_mtime == GphotoMTime.undetermined:
                     self.set_gphoto_mtime_(path, name, ext_lower, modification_time, size)
 
@@ -339,7 +369,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
             # i.e. how many photos and videos
             self.files_scanned += 1
             if not self.files_scanned % 10000:
-                logging.debug("Scanned {} files".format(
+                logging.info("Scanned {} files".format(
                     self.files_scanned))
 
             if not self.download_from_camera:
@@ -484,7 +514,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
             except:
                 logging.warning("Scanner failed to extract date time metadata from %s on %s",
                               name, self.camera.display_name)
-                logging.warning("Could not determine gPhoto2 timezone setting for %s",
+                logging.debug("Could not determine gPhoto2 timezone setting for %s",
                                 self.camera.display_name)
                 self.gphoto_mtime = GphotoMTime.unknown
             else:
@@ -497,7 +527,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
                                 self.camera.display_name)
                     self.gphoto_mtime = GphotoMTime.is_local
         else:
-            logging.warning("Could not determine gPhoto2 timezone setting for %s",
+            logging.debug("Could not determine gPhoto2 timezone setting for %s",
                                 self.camera.display_name)
             self.gphoto_mtime = GphotoMTime.unknown
 

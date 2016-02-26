@@ -103,8 +103,7 @@ class MetaData:
                 dt = d[:19]
                 dt = datetime.datetime.strptime(dt, "%Y:%m:%d %H:%M:%S")
             except:
-                logging.error("Error reading date metadata with file %s",
-                              self.filename)
+                logging.error("Error reading date metadata with file %s", self.filename)
                 return missing
 
             return dt

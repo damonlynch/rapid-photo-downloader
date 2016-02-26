@@ -327,7 +327,11 @@ class ThumbnailListModel(QAbstractListModel):
         scan_id = rpd_file.scan_id
         self.rpd_files[unique_id] = rpd_file
         if not thumbnail.isNull():
-            row = self.rowFromUniqueId(unique_id)
+            try:
+                row = self.rowFromUniqueId(unique_id)
+            except ValueError:
+                logging.debug("Ignoring unknown thumbnail: %s", rpd_file.full_file_name)
+                return
             self.thumbnails[unique_id] = thumbnail
             self.dataChanged.emit(self.index(row,0),self.index(row,0))
         self.thumbnails_generated += 1

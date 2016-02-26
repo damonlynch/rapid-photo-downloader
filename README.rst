@@ -47,6 +47,8 @@ Rapid Photo Downloader requires:
  - If using Python 3.4, these additional modules:
     - typing_
     - scandir_
+ - colorlog_ (optional, install if you want coloured program output when running Rapid Photo
+   Downloader from the terminal)
 
 The following command will install all necessary requirements that can be satisified with the
 built-in distribution packages on Ubuntu or Debian-like systems:
@@ -55,7 +57,7 @@ built-in distribution packages on Ubuntu or Debian-like systems:
 python3-setuptools python3-dev python3-distutils-extra gir1.2-gexiv2-0.10 python3-gi
 gir1.2-gudev-1.0 gir1.2-udisks-2.0 gir1.2-notify-0.7 gir1.2-glib-2.0 gir1.2-gstreamer-1.0
 libgphoto2-dev python3-sortedcontainers python3-arrow python3-psutil qt5-image-formats-plugins
-python3-zmq exiv2``
+python3-zmq exiv2 python3-colorlog``
 
 After satisfying as many requirements as you can using your Linux distribution's standard package
 installation tools, you may install Rapid Photo Downloader using the following steps, assuming
@@ -102,6 +104,7 @@ Assuming you installed using the instructions above, run:
 .. _dateutil: https://labix.org/python-dateutil
 .. _typing: https://pypi.python.org/pypi/typing
 .. _scandir: https://github.com/benhoyt/scandir
+.. _colorlog: https://github.com/borntyping/python-colorlog
 
 
 
