@@ -24,11 +24,12 @@ import sys
 import logging
 import pickle
 import os
-import subprocess
 import shlex
 import time
 from collections import deque
 from typing import Optional, Set, List, Dict
+import signal
+import ctypes
 
 import psutil
 from sortedcontainers import SortedListWithKey
@@ -46,27 +47,22 @@ from raphodo.devices import Device
 from raphodo.preferences import ScanPreferences
 from raphodo.utilities import CacheDirs
 from raphodo.constants import (RenameAndMoveStatus, ExtractionTask, ExtractionProcessing,
-                       CameraErrorCode, FileType, logging_format, logging_date_format)
+                               CameraErrorCode, FileType)
 from raphodo.proximity import TemporalProximityGroups
 from raphodo.storage import StorageSpace
 from raphodo.viewutils import SortedListItem
+from raphodo.iplogging import ZeroMQSocketHandler
 
+logger = logging.getLogger()
 
-def get_logging_level(level: str) -> int:
-    """
-    Convert command line version of logging level to int.
-
-    Primary purpose is to catch exceptions, as conceivably the
-    command line could contain anything.
-
-    :param level: logging level directly from command line arg
-    :return: int of level, else on failure logging.DEBUG
-    """
-
-    try:
-        return int(level)
-    except ValueError:
-        return logging.DEBUG
+# Linux specific code to ensure child processes exit when parent dies
+# See http://stackoverflow.com/questions/19447603/
+# how-to-kill-a-python-child-process-created-with-subprocess-check-output-when-t/
+libc = ctypes.CDLL("libc.so.6")
+def set_pdeathsig(sig = signal.SIGTERM):
+    def callable():
+        return libc.prctl(1, sig)
+    return callable
 
 def make_filter_from_worker_id(worker_id) -> bytes:
     r"""
@@ -111,8 +107,10 @@ def get_worker_id_from_identity(identity: bytes) -> int:
     return int(identity.decode().split('-')[-1])
 
 class ProcessManager:
-    def __init__(self) -> None:
+    def __init__(self, logging_port: int) -> None:
         super().__init__()
+
+        self.logging_port = logging_port
 
         self.processes = {}  # type: Dict[int, psutil.Process]
         self._process_to_run = '' # Implement in subclass
@@ -121,7 +119,9 @@ class ProcessManager:
         self.workers = []  # type: List[int]
 
     def _get_cmd(self) -> str:
-        return os.path.join(os.path.abspath(os.path.dirname(__file__)), self._process_to_run)
+        return '{} {}'.format(sys.executable,
+                              os.path.join(os.path.abspath(os.path.dirname(__file__)),
+                                           self._process_to_run))
 
     def _get_command_line(self, worker_id: int) -> str:
         """
@@ -134,9 +134,10 @@ class ProcessManager:
         command_line = self._get_command_line(worker_id)
         args = shlex.split(command_line)
 
-        # run command immediately, without waiting a reply
+        # run command immediately, without waiting a reply, and instruct the Linux
+        # kernel to send a terminate signal should this process unexpectedly die
         try:
-            pid = subprocess.Popen(args).pid
+            proc = psutil.Popen(args, preexec_fn=set_pdeathsig(signal.SIGTERM))
         except OSError as e:
             logging.critical("Failed to start process: %s", command_line)
             logging.critical('OSError [Errno %s]: %s', e.errno, e.strerror)
@@ -144,11 +145,11 @@ class ProcessManager:
                 logging.critical("Script shebang line might be malformed or missing: %s",
                                  self._get_cmd())
             sys.exit(1)
-        logging.debug("Started '%s' with pid %s", command_line, pid)
+        logging.debug("Started '%s' with pid %s", command_line, proc.pid)
 
         # Add to list of running workers
         self.workers.append(worker_id)
-        self.processes[worker_id] = psutil.Process(pid)
+        self.processes[worker_id] = proc
 
     def forcefully_terminate(self) -> None:
         """Forcefully terminate any running child processes."""
@@ -202,8 +203,8 @@ class PullPipelineManager(ProcessManager, QObject):
     message = pyqtSignal(str) # Derived class will change this
     workerFinished = pyqtSignal(int)
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, logging_port: int):
+        super().__init__(logging_port=logging_port)
 
         context = zmq.Context.instance()
 
@@ -295,24 +296,20 @@ class LoadBalancerWorkerManager(ProcessManager):
                  backend_port: int,
                  sink_port: int,
                  logging_port: int) -> None:
-        super().__init__()
+        super().__init__(logging_port=logging_port)
         self.no_workers = no_workers
         self.backend_port = backend_port
         self.sink_port = sink_port
-        self.logging_port = logging_port
 
     def _get_command_line(self, worker_id: int) -> str:
         cmd = self._get_cmd()
-        logging_level = logging.getLogger().getEffectiveLevel()
 
-        return '{} {} --request {} --send {} --identity {} --logging {} --logginglevel {}'.format(
-                        sys.executable,
+        return '{} --request {} --send {} --identity {} --logging {}'.format(
                         cmd,
                         self.backend_port,
                         self.sink_port,
                         worker_id,
-                        self.logging_port,
-                        logging_level)
+                        self.logging_port)
 
     def start_workers(self) -> None:
         for worker_id in range(self.no_workers):
@@ -405,15 +402,9 @@ class LoadBalancer:
         self.parser.add_argument("--send", required=True)
         self.parser.add_argument("--controller", required=True)
         self.parser.add_argument("--logging", required=True)
-        self.parser.add_argument("--logginglevel", required=True)
 
         args = self.parser.parse_args()
         self.controller_port = args.controller
-
-        logging_level = get_logging_level(args.logginglevel)
-        logging.basicConfig(format=logging_format,
-                    datefmt=logging_date_format,
-                    level=logging_level)
 
         context = zmq.Context()
         frontend = context.socket(zmq.PULL)
@@ -431,9 +422,12 @@ class LoadBalancer:
         sink_port = args.send
         logging_port = args.logging
 
+        self.logger_publisher = ProcessLoggerPublisher(context=context,
+                                                       name=worker_type,
+                                                       notification_port=args.logging)
+
         logging.debug("{} load balancer waiting to be notified how many workers to "
-                      "initialize...".format(
-            worker_type))
+                      "initialize...".format(worker_type))
         no_workers = int(reply.recv())
         logging.debug("...{} load balancer will use {} workers".format(worker_type, no_workers))
         reply.send(str(frontend_port).encode())
@@ -464,7 +458,7 @@ class LoadBalancerManager(ProcessManager, QObject):
                  no_workers: int,
                  sink_port: int,
                  logging_port: int) -> None:
-        super().__init__()
+        super().__init__(logging_port=logging_port)
 
         self.controller_socket = context.socket(zmq.PUSH)
         self.controller_port = self.controller_socket.bind_to_random_port('tcp://*')
@@ -473,7 +467,6 @@ class LoadBalancerManager(ProcessManager, QObject):
         self.requester_port = self.requester.bind_to_random_port('tcp://*')
         self.no_workers = no_workers
         self.sink_port = sink_port
-        self.logging_port = logging_port
 
     @pyqtSlot()
     def start_load_balancer(self) -> None:
@@ -488,16 +481,13 @@ class LoadBalancerManager(ProcessManager, QObject):
 
     def _get_command_line(self, worker_id: int) -> str:
         cmd = self._get_cmd()
-        logging_level = logging.getLogger().getEffectiveLevel()
 
-        return '{} {} --receive {} --send {} --controller {} --logging {} --logginglevel {}'.format(
-                        sys.executable,
+        return '{} --receive {} --send {} --controller {} --logging {}'.format(
                         cmd,
                         self.requester_port,
                         self.sink_port,
                         self.controller_port,
-                        self.logging_port,
-                        logging_level)
+                        self.logging_port)
 
 DAEMON_WORKER_ID = 0
 
@@ -512,8 +502,8 @@ class PushPullDaemonManager(PullPipelineManager):
     suitable for sending the data.
     """
 
-    def __init__(self) -> None:
-        super().__init__()
+    def __init__(self, logging_port: int) -> None:
+        super().__init__(logging_port=logging_port)
 
         context = zmq.Context.instance()
 
@@ -543,15 +533,12 @@ class PushPullDaemonManager(PullPipelineManager):
 
     def _get_command_line(self, worker_id: int) -> str:
         cmd = self._get_cmd()
-        logging_level = logging.getLogger().getEffectiveLevel()
 
-        return '{} {} --receive {} --send {} --logginglevel {' \
-               '}'.format(
-                        sys.executable,
+        return '{} --receive {} --send {} --logging {}'.format(
                         cmd,
                         self.ventilator_port,
                         self.receiver_port,
-                        logging_level)
+                        self.logging_port)
 
     def _get_ventilator_start_message(self, worker_id: int) -> str:
         return [b'cmd', b'START']
@@ -568,8 +555,8 @@ class PublishPullPipelineManager(PullPipelineManager):
     Because there are multiple worker process, a Publish-Subscribe model is
     most suitable for sending data to workers.
     """
-    def __init__(self) -> None:
-        super().__init__()
+    def __init__(self, logging_port: int) -> None:
+        super().__init__(logging_port=logging_port)
 
         context = zmq.Context.instance()
 
@@ -646,18 +633,16 @@ class PublishPullPipelineManager(PullPipelineManager):
 
     def _get_command_line(self, worker_id: int) -> str:
         cmd = self._get_cmd()
-        logging_level = logging.getLogger().getEffectiveLevel()
 
-        return '{} {} --receive {} --send {} --controller {} --syncclient {} ' \
-               '--filter {} --logginglevel {}'.format(
-                        sys.executable,
+        return '{} --receive {} --send {} --controller {} --syncclient {} ' \
+               '--filter {} --logging {}'.format(
                         cmd,
                         self.ventilator_port,
                         self.receiver_port,
                         self.controller_port,
                         self.sync_service_port,
                         worker_id,
-                        logging_level)
+                        self.logging_port)
 
     def __len__(self) -> int:
         return len(self.workers)
@@ -679,6 +664,36 @@ class PublishPullPipelineManager(PullPipelineManager):
             message = [make_filter_from_worker_id(worker_id), b'RESUME']
             self.controller_socket.send_multipart(message)
 
+class ProcessLoggerPublisher:
+    """
+    Setup the sockets for worker processes to send log messages to the
+    main process.
+
+    Two tasks: set up the PUB socket, and then tell the main process
+    what port we're using via a second socket, and when we're closing it.
+    """
+
+    def __init__(self, context: zmq.Context, name: str, notification_port: int) -> None:
+
+        self.logger_pub = context.socket(zmq.PUB)
+        self.logger_pub_port = self.logger_pub.bind_to_random_port("tcp://*")
+        self.handler = ZeroMQSocketHandler(self.logger_pub)
+        self.handler.setLevel(logging.DEBUG)
+
+        self.logger = logging.getLogger()
+        self.logger.setLevel(logging.DEBUG)
+        self.logger.addHandler(self.handler)
+    
+        self.logger_socket = context.socket(zmq.PUSH)
+        self.logger_socket.connect("tcp://localhost:{}".format(notification_port))
+        self.logger_socket.send_multipart([b'CONNECT', str(self.logger_pub_port).encode()])
+
+    def close(self):
+        self.logger.removeHandler(self.handler)
+        self.logger_socket.send_multipart([b'DISCONNECT', str(self.logger_pub_port).encode()])
+        self.logger_pub.close()
+        self.logger_socket.close()
+
 
 class WorkerProcess():
     def __init__(self, worker_type: str) -> None:
@@ -686,7 +701,7 @@ class WorkerProcess():
         self.parser = argparse.ArgumentParser()
         self.parser.add_argument("--receive", required=True)
         self.parser.add_argument("--send", required=True)
-        self.parser.add_argument("--logginglevel", required=True)
+        self.parser.add_argument("--logging", required=True)
 
     def cleanup_pre_stop(self) -> None:
         """
@@ -697,10 +712,24 @@ class WorkerProcess():
 
         pass
 
+    def setup_logging_pub(self, notification_port: int, name: str) -> None:
+        """
+        Sets up the 0MQ socket that sends out logging messages
+
+        :param notification_port: port that should be notified about
+         the new logging publisher
+        :param name: descriptive name to place in the log messages
+        """
+
+        if self.worker_id is not None:
+            name = '{}-{}'.format(name, self.worker_id.decode())
+        self.logger_publisher = ProcessLoggerPublisher(context=self.context,
+                                                       name=name,
+                                                       notification_port=notification_port)
+
     def send_message_to_sink(self) -> None:
 
-        self.sender.send_multipart([self.worker_id, b'data',
-                                    self.content])
+        self.sender.send_multipart([self.worker_id, b'data', self.content])
 
     def initialise_process(self) -> None:
         # Wait to receive "START" message
@@ -738,16 +767,18 @@ class DaemonProcess(WorkerProcess):
 
         args = self.parser.parse_args()
 
-        self.logging_level = get_logging_level(args.logginglevel)
-
-        context = zmq.Context()
+        self.context = zmq.Context()
         # Socket to send messages along the pipe to
-        self.sender = context.socket(zmq.PUSH)
+        self.sender = self.context.socket(zmq.PUSH)
         self.sender.set_hwm(10)
         self.sender.connect("tcp://localhost:{}".format(args.send))
 
-        self.receiver = context.socket(zmq.PULL)
+        self.receiver = self.context.socket(zmq.PULL)
         self.receiver.connect("tcp://localhost:{}".format(args.receive))
+
+        self.worker_id = None
+
+        self.setup_logging_pub(notification_port=args.logging, name=worker_type)
 
     def run(self) -> None:
         pass
@@ -777,12 +808,12 @@ class WorkerInPublishPullPipeline(WorkerProcess):
         self.add_args()
 
         args = self.parser.parse_args()
-        self.logging_level = get_logging_level(args.logginglevel)
 
         subscription_filter = self.worker_id = args.filter.encode()
         self.context = zmq.Context()
 
         self.setup_sockets(args, subscription_filter)
+        self.setup_logging_pub(notification_port=args.logging, name=worker_type)
 
         self.initialise_process()
         self.do_work()
@@ -817,6 +848,7 @@ class WorkerInPublishPullPipeline(WorkerProcess):
         if directive == b'cmd':
             assert content == b'STOP'
             self.cleanup_pre_stop()
+            self.disconnect_logging()
             # signal to sink that we've terminated before finishing
             self.sender.send_multipart([self.worker_id, b'cmd', b'STOPPED'])
             sys.exit(0)
@@ -851,6 +883,9 @@ class WorkerInPublishPullPipeline(WorkerProcess):
             self.sender.send_multipart([self.worker_id, b'cmd', b'STOPPED'])
             sys.exit(0)
 
+    def disconnect_logging(self) -> None:
+        self.logger_publisher.close()
+
     def send_finished_command(self) -> None:
         self.sender.send_multipart([self.worker_id, b'cmd', b'FINISHED'])
 
@@ -863,11 +898,8 @@ class LoadBalancerWorker:
         self.parser.add_argument("--send", required=True)
         self.parser.add_argument("--identity", required=True)
         self.parser.add_argument("--logging", required=True)
-        self.parser.add_argument("--logginglevel", required=True)
 
         args = self.parser.parse_args()
-
-        self.logging_level = get_logging_level(args.logginglevel)
 
         self.context = zmq.Context()
 
@@ -879,17 +911,10 @@ class LoadBalancerWorker:
         # from this process are are sent to.
         self.sender = self.context.socket(zmq.PUSH)
         self.sender.connect("tcp://localhost:{}".format(args.send))
-
-        self.logger_pub = self.context.socket(zmq.PUB)
-        self.logger_pub_port = self.logger_pub.bind_to_random_port("tcp://*")
-        handler = zmq.log.handlers.PUBHandler(self.logger_pub)
-        logger = logging.getLogger()
-        logger.addHandler(handler)
-
-        logger_socket = self.context.socket(zmq.PUSH)
-        logger_socket.connect("tcp://localhost:{}".format(args.logging))
-
-        logger_socket.send_multipart([b'CONNECT', str(self.logger_pub_port).encode()])
+        
+        self.logger_publisher = ProcessLoggerPublisher(context=self.context,
+                                                       name=worker_type,
+                                                       notification_port=args.logging)
 
         # Tell the load balancer we are ready for work
         self.requester.send(b"READY")
@@ -915,7 +940,7 @@ class LoadBalancerWorker:
         self.requester.send_multipart([b'', b'', b'STOPPED'])
         self.requester.close()
         self.sender.close()
-        self.logger_pub.close()
+        self.logger_publisher.close()
         self.context.term()
         logging.debug("%s with pid %s stopped", identity, os.getpid())
         sys.exit(0)
@@ -927,15 +952,20 @@ class LoadBalancerWorker:
 
 
 class ProcessLoggingManager(QObject):
+    """
+    Receive and log logging messages from workers.
+
+    An alternative might be using python logging's QueueListener, which
+    like this code, runs on its own thread.
+    """
 
     ready = pyqtSignal(int)
-
-    def __init__(self):
-        super().__init__()
 
     def startReceiver(self) -> None:
         context = zmq.Context.instance()
         self.receiver = context.socket(zmq.SUB)
+        # Subscribe to all variates of logging messages
+        self.receiver.setsockopt(zmq.SUBSCRIBE, b'')
 
         # Socket to receive subscription information, and the stop command
         info_socket = context.socket(zmq.PULL)
@@ -954,8 +984,9 @@ class ProcessLoggingManager(QObject):
                 break
 
             if self.receiver in socks:
-                message = self.receiver.recv_multipart()
-                print(message)
+                message = self.receiver.recv()
+                record = logging.makeLogRecord(pickle.loads(message))
+                logger.handle(record)
 
             if info_socket in socks:
                 directive, content = info_socket.recv_multipart()
@@ -971,16 +1002,19 @@ class ProcessLoggingManager(QObject):
         try:
             port = int(port)
         except ValueError:
-            logging.critical('Incorrect port value in add subscription: %s', port)
+            logging.critical('Incorrect port value in add logging subscription: %s', port)
         else:
-            # TODO add proper filter
-            subscription_filter = b''
             logging.debug("Subscribing to logging on port %s", port)
             self.receiver.connect("tcp://localhost:{}".format(port))
-            self.receiver.setsockopt(zmq.SUBSCRIBE, subscription_filter)
 
-    def removeSubscription(self, content):
-        pass
+    def removeSubscription(self, port: bytes):
+        try:
+            port = int(port)
+        except ValueError:
+            logging.critical('Incorrect port value in remove logging subscription: %s', port)
+        else:
+            logging.debug("Unsubscribing to logging on port %s", port)
+            self.receiver.disconnect("tcp://localhost:{}".format(port))
 
     def stop(self):
         context = zmq.Context.instance()

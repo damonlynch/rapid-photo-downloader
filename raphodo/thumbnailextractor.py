@@ -41,8 +41,7 @@ from PyQt5.QtCore import QSize, Qt, QIODevice, QBuffer
 from raphodo.interprocess import (LoadBalancerWorker, ThumbnailExtractorArgument,
                           GenerateThumbnailsResults)
 
-from raphodo.constants import (ThumbnailSize, ExtractionTask, ExtractionProcessing, logging_format,
-                       logging_date_format)
+from raphodo.constants import (ThumbnailSize, ExtractionTask, ExtractionProcessing)
 from raphodo.rpdfile import RPDFile, Video
 from raphodo.utilities import stdchannel_redirected, show_errors
 from raphodo.filmstrip import add_filmstrip
@@ -259,11 +258,6 @@ class ThumbnailExtractor(LoadBalancerWorker):
 
     def process_files(self):
 
-        logging.basicConfig(
-            format=logging_format,
-            datefmt=logging_date_format,
-            level=self.logging_level,
-            stream=self.error_stream)
         logging.debug("{} worker started".format(self.requester.identity.decode()))
 
         while True:

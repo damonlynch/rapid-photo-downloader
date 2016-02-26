@@ -37,7 +37,7 @@ from gettext import gettext as _
 from raphodo.interprocess import (BackupFileData, BackupResults, BackupArguments,
                           WorkerInPublishPullPipeline)
 from raphodo.copyfiles import FileCopy
-from raphodo.constants import (FileType, DownloadStatus, logging_format, logging_date_format)
+from raphodo.constants import (FileType, DownloadStatus)
 from raphodo.rpdfile import RPDFile
 from raphodo.cache import FdoCacheNormal, FdoCacheLarge
 
@@ -138,9 +138,6 @@ class BackupFilesWorker(WorkerInPublishPullPipeline, FileCopy):
                 modification_time=mtime)
 
     def do_work(self):
-        logging.basicConfig(format=logging_format,
-                datefmt=logging_date_format,
-                level=self.logging_level)
 
         backup_arguments = pickle.loads(self.content)
         self.path = backup_arguments.path

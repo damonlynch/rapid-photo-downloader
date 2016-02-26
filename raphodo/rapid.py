@@ -78,7 +78,7 @@ from PyQt5.QtNetwork import QLocalSocket, QLocalServer
 from raphodo.storage import (ValidMounts, CameraHotplug, UDisks2Monitor,
                      GVolumeMonitor, have_gio, has_non_empty_dcim_folder,
                      mountPaths, get_desktop_environment,
-                     gvfs_controls_mounts, get_default_file_manager)
+                     gvfs_controls_mounts, get_default_file_manager, get_program_logging_directory)
 from raphodo.interprocess import (PublishPullPipelineManager,
                                   PushPullDaemonManager,
                                   ScanArguments,
@@ -126,6 +126,7 @@ from raphodo.toppushbutton import TopPushButton
 from raphodo.filebrowse import FileSystemView, FileSystemModel
 from raphodo.toggleview import QToggleView
 import raphodo.__about__ as __about__
+import raphodo.iplogging as iplogging
 
 BackupMissing = namedtuple('BackupMissing', 'photo, video')
 
@@ -133,12 +134,14 @@ BackupMissing = namedtuple('BackupMissing', 'photo, video')
 # https://www.riverbankcomputing.com/pipermail/pyqt/2016-February/036932.html
 app = None  # type: 'QtSingleApplication'
 
+logger = None
 
 class RenameMoveFileManager(PushPullDaemonManager):
     message = QtCore.pyqtSignal(bool, RPDFile, int, QPixmap)
     sequencesUpdate = QtCore.pyqtSignal(int, list)
-    def __init__(self):
-        super().__init__()
+
+    def __init__(self, logging_port: int) -> None:
+        super().__init__(logging_port)
         self._process_name = 'Rename and Move File Manager'
         self._process_to_run = 'renameandmovefile.py'
 
@@ -165,8 +168,8 @@ class RenameMoveFileManager(PushPullDaemonManager):
 
 class OffloadManager(PushPullDaemonManager):
     message = QtCore.pyqtSignal(TemporalProximityGroups)
-    def __init__(self):
-        super().__init__()
+    def __init__(self, logging_port: int):
+        super().__init__(logging_port=logging_port)
         self._process_name = 'Offload Manager'
         self._process_to_run = 'offload.py'
 
@@ -181,8 +184,8 @@ class OffloadManager(PushPullDaemonManager):
 
 class ScanManager(PublishPullPipelineManager):
     message = QtCore.pyqtSignal(bytes)
-    def __init__(self):
-        super().__init__()
+    def __init__(self, logging_port: int):
+        super().__init__(logging_port=logging_port)
         self._process_name = 'Scan Manager'
         self._process_to_run = 'scan.py'
 
@@ -203,8 +206,8 @@ class BackupManager(PublishPullPipelineManager):
     message = QtCore.pyqtSignal(int, bool, bool, RPDFile)
     bytesBackedUp = QtCore.pyqtSignal(bytes)
 
-    def __init__(self) -> None:
-        super().__init__()
+    def __init__(self, logging_port: int) -> None:
+        super().__init__(logging_port=logging_port)
         self._process_name = 'Backup Manager'
         self._process_to_run = 'backupfile.py'
 
@@ -240,8 +243,8 @@ class CopyFilesManager(PublishPullPipelineManager):
     tempDirs = QtCore.pyqtSignal(int, str,str)
     bytesDownloaded = QtCore.pyqtSignal(bytes)
 
-    def __init__(self) -> None:
-        super().__init__()
+    def __init__(self, logging_port: int) -> None:
+        super().__init__(logging_port=logging_port)
         self._process_name = 'Copy Files Manager'
         self._process_to_run = 'copyfiles.py'
 
@@ -499,6 +502,7 @@ class RapidWindow(QMainWindow):
     @pyqtSlot(int)
     def initStage2(self, logging_port: int):
         logging.debug("... logging subscription manager started")
+        self.logging_port = logging_port
 
         logging.debug("Stage 2 initialization")
 
@@ -670,7 +674,7 @@ class RapidWindow(QMainWindow):
         # Offload process is used to offload work that could otherwise
         # cause this process and thus the GUI to become unresponsive
         self.offloadThread = QThread()
-        self.offloadmq = OffloadManager()
+        self.offloadmq = OffloadManager(logging_port=self.logging_port)
         self.offloadmq.moveToThread(self.offloadThread)
 
         self.offloadThread.started.connect(self.offloadmq.run_sink)
@@ -680,7 +684,7 @@ class RapidWindow(QMainWindow):
         self.offloadmq.start()
 
         self.renameThread = QThread()
-        self.renamemq = RenameMoveFileManager()
+        self.renamemq = RenameMoveFileManager(logging_port=self.logging_port)
         self.renamemq.moveToThread(self.renameThread)
 
         self.renameThread.started.connect(self.renamemq.run_sink)
@@ -695,7 +699,7 @@ class RapidWindow(QMainWindow):
 
         # Setup the scan processes
         self.scanThread = QThread()
-        self.scanmq = ScanManager()
+        self.scanmq = ScanManager(logging_port=self.logging_port)
         self.scanmq.moveToThread(self.scanThread)
 
         self.scanThread.started.connect(self.scanmq.run_sink)
@@ -707,7 +711,7 @@ class RapidWindow(QMainWindow):
 
         # Setup the copyfiles process
         self.copyfilesThread = QThread()
-        self.copyfilesmq = CopyFilesManager()
+        self.copyfilesmq = CopyFilesManager(logging_port=self.logging_port)
         self.copyfilesmq.moveToThread(self.copyfilesThread)
 
         self.copyfilesThread.started.connect(self.copyfilesmq.run_sink)
@@ -832,7 +836,7 @@ class RapidWindow(QMainWindow):
     def startBackupManager(self) -> None:
         if not self.backup_manager_started:
             self.backupThread = QThread()
-            self.backupmq = BackupManager()
+            self.backupmq = BackupManager(logging_port=self.logging_port)
             self.backupmq.moveToThread(self.backupThread)
 
             self.backupThread.started.connect(self.backupmq.run_sink)
@@ -3233,10 +3237,10 @@ def main():
     else:
         logging_level = logging.ERROR
 
-    logging.basicConfig(format=constants.logging_format,
-                    datefmt=constants.logging_date_format,
-                    level=logging_level) #
-                        #filename='/home/damon/lograpid.log')
+    global logger
+    logger = iplogging.setup_main_process_logging(
+        get_program_logging_directory(create_if_not_exist=True),
+        logging_level=logging_level)
 
     if args.auto_detect:
         auto_detect= args.auto_detect == 'on'

@@ -47,7 +47,7 @@ import raphodo.generatename as gn
 import raphodo.problemnotification as pn
 from raphodo.preferences import DownloadsTodayTracker, Preferences
 from raphodo.constants import (ConflictResolution, FileType, DownloadStatus, ThumbnailCacheStatus,
-                       ThumbnailSize, RenameAndMoveStatus, logging_format, logging_date_format)
+                       ThumbnailSize, RenameAndMoveStatus)
 from raphodo.interprocess import (RenameAndMoveFileData,
                           RenameAndMoveFileResults, DaemonProcess)
 from raphodo.rpdfile import RPDFile
@@ -171,10 +171,6 @@ def generate_name(rpd_file: RPDFile, et_process):
 class RenameMoveFileWorker(DaemonProcess):
     def __init__(self):
         super().__init__('Rename and Move')
-
-        logging.basicConfig(format=logging_format,
-                    datefmt=logging_date_format,
-                    level=self.logging_level)
 
         self.prefs = Preferences()
 

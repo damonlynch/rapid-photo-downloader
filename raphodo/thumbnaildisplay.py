@@ -83,8 +83,9 @@ class DownloadStats:
 class ThumbnailManager(PublishPullPipelineManager):
     message = pyqtSignal(RPDFile, QPixmap)
     cacheDirs = pyqtSignal(int, CacheDirs)
-    def __init__(self) -> None:
-        super().__init__()
+
+    def __init__(self, logging_port: int) -> None:
+        super().__init__(logging_port=logging_port)
         self._process_name = 'Thumbnail Manager'
         self._process_to_run = 'thumbnail.py'
         self._worker_id = 0

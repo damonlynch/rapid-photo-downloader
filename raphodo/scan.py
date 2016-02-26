@@ -57,8 +57,7 @@ from raphodo.interprocess import (WorkerInPublishPullPipeline, ScanResults,
                           ScanArguments)
 from raphodo.camera import Camera, CameraError
 import raphodo.rpdfile as rpdfile
-from raphodo.constants import (DeviceType, FileType, GphotoMTime, datetime_offset, CameraErrorCode,
-                       logging_format, logging_date_format)
+from raphodo.constants import (DeviceType, FileType, GphotoMTime, datetime_offset, CameraErrorCode)
 from raphodo.rpdsql import DownloadedSQL, FileDownloaded
 from raphodo.utilities import stdchannel_redirected
 
@@ -81,10 +80,6 @@ class ScanWorker(WorkerInPublishPullPipeline):
         super().__init__('Scan')
 
     def do_work(self) -> None:
-        logging.basicConfig(format=logging_format,
-                    datefmt=logging_date_format,
-                    level=self.logging_level)
-
         logging.debug("Scan {} worker started".format(self.worker_id.decode()))
 
         scan_arguments = pickle.loads(self.content) # type: ScanArguments
@@ -202,6 +197,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
             logging.debug("{} total files scanned".format(
                 self.files_scanned))
 
+        self.disconnect_logging()
         self.send_finished_command()
 
     def locate_files_on_camera(self, path: str, folder_identifier: int, basedir: str) -> None:

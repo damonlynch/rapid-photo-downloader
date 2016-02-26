@@ -52,8 +52,7 @@ from raphodo.interprocess import (WorkerInPublishPullPipeline,
                           ThumbnailExtractorArgument)
 from raphodo.constants import (FileType, ThumbnailSize, ThumbnailCacheStatus,
                        ThumbnailCacheDiskStatus, FileSortPriority, ExtractionTask,
-                       ExtractionProcessing, orientation_offset, logging_format,
-                       logging_date_format)
+                       ExtractionProcessing, orientation_offset)
 from raphodo.camera import (Camera, CopyChunks)
 from raphodo.cache import ThumbnailCacheSql, FdoCacheNormal, FdoCacheLarge
 from raphodo.utilities import (GenerateRandomFileName, create_temp_dir, CacheDirs)
@@ -214,10 +213,6 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
             return False
 
     def do_work(self) -> None:
-        logging.basicConfig(format=logging_format,
-                    datefmt=logging_date_format,
-                    level=self.logging_level)
-
         arguments = pickle.loads(self.content) # type: GenerateThumbnailsArguments
         logging.debug("Worker %s generating thumbnails for %s", self.worker_id.decode(),
                       arguments.name)
@@ -507,6 +502,7 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
         if from_fdo_cache:
             logging.debug("{} thumbnails came from FDO cache".format(from_fdo_cache))
 
+        self.disconnect_logging()
         self.send_finished_command()
 
 

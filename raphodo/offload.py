@@ -28,7 +28,6 @@ import logging
 from raphodo.interprocess import DaemonProcess, OffloadData, OffloadResults
 from raphodo.proximity import TemporalProximityGroups
 from raphodo.viewutils import SortedListItem
-from raphodo.constants import (logging_format, logging_date_format)
 
 
 class OffloadWorker(DaemonProcess):
@@ -36,9 +35,6 @@ class OffloadWorker(DaemonProcess):
         super().__init__('Offload')
 
     def run(self) -> None:
-        logging.basicConfig(format=logging_format,
-                    datefmt=logging_date_format,
-                    level=self.logging_level)
         while True:
             directive, content = self.receiver.recv_multipart()
 

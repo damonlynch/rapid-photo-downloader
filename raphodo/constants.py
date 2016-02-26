@@ -25,9 +25,6 @@ from PyQt5.QtCore import Qt
 
 PROGRAM_NAME = "Rapid Photo Downloader"
 
-logging_format = '%(asctime)s %(levelname)s: %(message)s'
-logging_date_format = '%H:%M:%S'
-
 
 class ConflictResolution(IntEnum):
     skip = 1

@@ -35,8 +35,8 @@ class ThumbnailManagerPara(PublishPullPipelineManager):
     message = pyqtSignal(RPDFile, QPixmap)
     cacheDirs = pyqtSignal(int, CacheDirs)
 
-    def __init__(self) -> None:
-        super().__init__()
+    def __init__(self, logging_port: int) -> None:
+        super().__init__(logging_port=logging_port)
         self._process_name = 'Thumbnail Manager'
         self._process_to_run = 'thumbnailpara.py'
         self._worker_id = 0
@@ -91,7 +91,7 @@ class Thumbnailer(QObject):
         """
         super().__init__(parent)
         self.context = zmq.Context.instance()
-        self.setupThumbnailManager()
+        self.setupThumbnailManager(logging_port)
         self.setupLoadBalancer(no_workers, logging_port)
 
     def generateThumbnails(self, scan_id: int,
@@ -130,9 +130,9 @@ class Thumbnailer(QObject):
     def cacheDirs(self) -> pyqtSignal:
         return self.thumbnail_manager.cacheDirs
 
-    def setupThumbnailManager(self) -> None:
+    def setupThumbnailManager(self, logging_port: int) -> None:
         self.thumbnail_manager_thread = QThread()
-        self.thumbnail_manager = ThumbnailManagerPara()
+        self.thumbnail_manager = ThumbnailManagerPara(logging_port=logging_port)
         self.thumbnail_manager_sink_port = self.thumbnail_manager.receiver_port
         self.thumbnail_manager.moveToThread(self.thumbnail_manager_thread)
         self.thumbnail_manager_thread.started.connect(self.thumbnail_manager.run_sink)

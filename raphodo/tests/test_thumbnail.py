@@ -44,7 +44,7 @@ from cache import ThumbnailCache
 class TestThumbnailManager(ThumbnailManager):
     message = pyqtSignal(RPDFile, QPixmap)
     def __init__(self, profile: bool):
-        super().__init__()
+        super().__init__(logging_port=2000)
         self._profile = profile
 
     def _get_cmd(self) -> str:

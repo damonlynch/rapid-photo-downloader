@@ -1,4 +1,3 @@
-
 # Copyright (C) 2015-2016 Damon Lynch <damonlynch@gmail.com>
 # Copyright (C) 2008-2015 Canonical Ltd.
 # Copyright (C) 2013 Bernard Baeyens
@@ -61,6 +60,7 @@ from typing import Optional, Tuple, List
 from PyQt5.QtCore import (QStorageInfo, QObject, pyqtSignal)
 from xdg.DesktopEntry import DesktopEntry
 from xdg import BaseDirectory
+import xdg
 
 import gi
 gi.require_version('GUdev', '1.0')
@@ -358,17 +358,22 @@ def get_default_file_manager(remove_args: bool=True) -> Optional[str]:
         return None
     # Remove new line character from output
     desktop_file = desktop_file[:-1]
-    path = os.path.join('/usr/share/applications/', desktop_file)
-    desktop_entry = DesktopEntry(path)
-    try:
-        desktop_entry.parse(path)
-    except:
-        return None
-    fm = desktop_entry.getExec()
-    if remove_args:
-        return fm.split()[0]
-    else:
-        return fm
+    for desktop_path in ('/usr/local/share/applications/', '/usr/share/applications/'):
+        path = os.path.join(desktop_path, desktop_file)
+        if os.path.exists(path):
+            try:
+                desktop_entry = DesktopEntry(path)
+            except xdg.Exceptions.ParsingError:
+                return None
+            try:
+                desktop_entry.parse(path)
+            except:
+                return None
+            fm = desktop_entry.getExec()
+            if remove_args:
+                return fm.split()[0]
+            else:
+                return fm
 
 def udev_attributes(devname: str) -> Optional[UdevAttr]:
     """
@@ -737,7 +742,7 @@ if have_gio:
                     logging.debug("...failed to unmount {}".format(
                         user_data[0]))
                     self.cameraUnmounted.emit(False, user_data[0], user_data[1], user_data[2])
-            except GLib.Error as e:
+            except GLib.GError as e:
                 logging.error('Exception occurred unmounting {}'.format(user_data[0]))
                 logging.exception('Traceback:')
                 self.cameraUnmounted.emit(False, user_data[0], user_data[1], user_data[2])

@@ -36,7 +36,7 @@ from raphodo.camera import (Camera, CopyChunks)
 
 from raphodo.interprocess import (WorkerInPublishPullPipeline, CopyFilesArguments,
                           CopyFilesResults)
-from raphodo.constants import (FileType, DownloadStatus, logging_format, logging_date_format)
+from raphodo.constants import (FileType, DownloadStatus)
 from raphodo.utilities import (GenerateRandomFileName, create_temp_dirs)
 from raphodo.rpdfile import RPDFile
 from raphodo.storage import gvfs_controls_mounts, have_gio, GVolumeMonitor, ValidMounts
@@ -248,10 +248,6 @@ class CopyFilesWorker(WorkerInPublishPullPipeline, FileCopy):
         return temp_full_name
 
     def do_work(self):
-        logging.basicConfig(format=logging_format,
-                datefmt=logging_date_format,
-                level=self.logging_level)
-
         args = pickle.loads(self.content)  # type: CopyFilesArguments
 
         self.scan_id = args.scan_id
@@ -414,6 +410,7 @@ class CopyFilesWorker(WorkerInPublishPullPipeline, FileCopy):
         if self.camera is not None:
             self.camera.free_camera()
 
+        self.disconnect_logging()
         self.send_finished_command()
 
 
