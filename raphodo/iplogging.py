@@ -24,7 +24,7 @@ Log messages at user specified level to console
 """
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2011-2016, Damon Lynch"
+__copyright__ = "Copyright 2016, Damon Lynch"
 
 import logging
 from logging.handlers import QueueHandler
@@ -42,7 +42,13 @@ class ZeroMQSocketHandler(QueueHandler):
         self.queue.send(data)
 
 
-def setup_main_process_logging(log_file_path: Optional[str], logging_level: int):
+def setup_main_process_logging(log_file_path: Optional[str], logging_level: int) -> logging.Logger:
+    """
+    Setup logging at the module level
+    :param log_file_path: path where log file should be stored
+    :param logging_level: logging module's logging level for console output
+    :return: default logging object
+    """
     if log_file_path is not None:
         log_file = os.path.join(log_file_path, 'rapid-photo-downloader.log')
     else:

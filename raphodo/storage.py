@@ -236,19 +236,33 @@ def has_non_empty_dcim_folder(path: str) -> bool:
             return len(os.listdir(dcim_folder)) > 0
     return False
 
-def get_desktop_environment():
-    #TODO confirm if cinnamon really is x-cinnamon
+def get_desktop_environment() -> Optional[str]:
+    """
+    Determine desktop environment using environment variable XDG_CURRENT_DESKTOP
+
+    :return: str with XDG_CURRENT_DESKTOP value
+    """
+
     return os.getenv('XDG_CURRENT_DESKTOP')
 
-desktop = dict(gnome=Desktop.gnome, unity=Desktop.unity, xfce=Desktop.xfce, kde=Desktop.kde)
-desktop['x-cinnamon']=Desktop.cinnamon
-
 def get_desktop() -> Desktop:
+    """
+    Determine desktop environment
+    :return: enum representing desktop environment,
+    Desktop.unknown if unknown.
+    """
+
     env = get_desktop_environment().lower()
-    return desktop.get(env, Desktop.unknown)
+    if env == 'x-cinnamon':
+        env = 'cinnamon'
+    try:
+        return Desktop[env]
+    except KeyError:
+        return Desktop.unknown
 
 def gvfs_controls_mounts() -> bool:
-    return get_desktop() in (Desktop.gnome, Desktop.unity,Desktop.cinnamon, Desktop.xfce)
+    return get_desktop() in (Desktop.gnome, Desktop.unity,Desktop.cinnamon, Desktop.xfce,
+                             Desktop.mate)
 
 def xdg_photos_directory() -> str:
     """
@@ -358,6 +372,8 @@ def get_default_file_manager(remove_args: bool=True) -> Optional[str]:
         return None
     # Remove new line character from output
     desktop_file = desktop_file[:-1]
+    if desktop_file.endswith(';'):
+        desktop_file = desktop_file[:-1]
     for desktop_path in ('/usr/local/share/applications/', '/usr/share/applications/'):
         path = os.path.join(desktop_path, desktop_file)
         if os.path.exists(path):

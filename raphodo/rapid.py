@@ -577,6 +577,10 @@ class RapidWindow(QMainWindow):
             self.have_libnotify = False
 
         self.file_manager = get_default_file_manager()
+        if self.file_manager:
+            logging.debug("Default file manager: %s", self.file_manager)
+        else:
+            logging.debug("Default file manager could not be determined")
 
         self.program_svg = ':/rapid-photo-downloader.svg'
         # Initialise use of libgphoto2

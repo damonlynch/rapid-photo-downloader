@@ -54,8 +54,8 @@ from raphodo.interprocess import (PublishPullPipelineManager, GenerateThumbnails
                           GenerateThumbnailsResults)
 from raphodo.constants import (DownloadStatus, Downloaded, FileType, FileExtension, ThumbnailSize,
                        ThumbnailCacheStatus, Roles, DeviceType, CustomColors,
-                       ThumbnailBackgroundName)
-from raphodo.storage import get_program_cache_directory
+                       ThumbnailBackgroundName, Desktop)
+from raphodo.storage import get_program_cache_directory, get_desktop
 from raphodo.utilities import (CacheDirs, make_internationalized_list, format_size_for_user, runs)
 from raphodo.thumbnailer import Thumbnailer
 
@@ -241,6 +241,8 @@ class ThumbnailListModel(QAbstractListModel):
             return rpd_file.get_uri(desktop_environment=True)
         elif role == Roles.camera_memory_card:
             return rpd_file.camera_memory_card_identifiers
+        elif role == Roles.mtp:
+            return rpd_file.is_mtp_device
 
     def setData(self, index: QModelIndex, value, role: int) -> bool:
         if not index.isValid():
@@ -1065,13 +1067,19 @@ class ThumbnailDelegate(QStyledItemDelegate):
         Key_Space or Key_Select and this cell is editable. Otherwise do nothing.
         """
 
-        download_status = model.data(index, Roles.download_status)
+        download_status = index.data(Roles.download_status)
 
         if (event.type() == QEvent.MouseButtonRelease or event.type() ==
             QEvent.MouseButtonDblClick):
             if event.button() == Qt.RightButton:
                 self.clickedIndex = index
                 globalPos = self.parent().thumbnailView.viewport().mapToGlobal(event.pos())
+                # Disable opening MTP devices in KDE environment, as it won't
+                # release them until them the file browser is closed!
+                is_mtp = index.data(Roles.mtp)
+                desktop = get_desktop()
+                self.openInFileBrowserAct.setEnabled(not (is_mtp and desktop == Desktop.kde and
+                                                          download_status not in Downloaded))
                 self.contextMenu.popup(globalPos)
                 return False
             if event.button() != Qt.LeftButton or not self.getCheckBoxRect(

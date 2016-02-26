@@ -138,6 +138,7 @@ class Roles(IntEnum):
     scan_id = Qt.UserRole + 8
     device_details = Qt.UserRole + 9
     storage = Qt.UserRole + 10
+    mtp = Qt.UserRole + 11
 
 
 class ExtractionTask(Enum):
@@ -194,6 +195,7 @@ class Desktop(Enum):
     cinnamon = 3
     kde = 4
     xfce = 5
+    mate = 6
     unknown = 10
 
 

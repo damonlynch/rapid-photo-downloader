@@ -306,7 +306,7 @@ class RPDFile:
          model name (not including the port)
         :param camera_port: if downloaded from a camera, the port
          as reported by gphoto2
-        :param is_mtp_device: if downloaded, whether the camera is an
+        :param is_mtp_device: if downloaded from a camera, whether the camera is an
          MTP device
         :param camera_memory_card_identifiers: if downloaded from a
          camera, and the camera has more than one memory card, a list
@@ -318,7 +318,7 @@ class RPDFile:
         self.camera_model = camera_model
         self.camera_port = camera_port
         self.camera_display_name = camera_display_name
-        self.is_mtp_device = is_mtp_device
+        self.is_mtp_device = is_mtp_device == True
 
         self.path = path
 
@@ -469,6 +469,10 @@ class RPDFile:
             full_file_name = self.full_file_name
             if self.camera_model is None:
                 prefix = 'file://'
+                if desktop_environment:
+                    desktop = get_desktop()
+                    if desktop in (Desktop.mate, Desktop.kde):
+                        full_file_name = os.path.dirname(full_file_name)
             else:
                 if not desktop_environment:
                     prefix = 'gphoto2://'
@@ -493,7 +497,6 @@ class RPDFile:
                     else:
                         prefix = 'gphoto2://' + pathname2url('[{}]'.format(self.camera_port))
             uri = '{}{}'.format(prefix, pathname2url(full_file_name))
-            print(uri)
         return uri
 
     def _assign_file_type(self):
