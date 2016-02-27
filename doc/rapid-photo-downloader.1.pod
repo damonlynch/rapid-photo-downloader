@@ -16,8 +16,9 @@ Options:
     --debug
     -e, --extensions
     -a {on,off}, --auto-detect {on,off}
-    -t PATH, --this-computer PATH
-    ---photo-destination PATH
+    -t {on,off}, --this-computer {on,off}
+    --this-computer PATH
+    --photo-destination PATH
     --video-destination PATH
     -b {on,off}, --backup {on,off}
     --backup-auto-detect {on,off}
@@ -77,10 +78,14 @@ Displays image file extensions the program recognizes and exits.
 Turn on or off the automatic detection of devices from which to download, 
 overwriting existing program preferences.
 
-=item B<-t PATH, --this-computer PATH>
+=item B<-t {on,off}, --this-computer {on,off}>
+
+Turn on or off downloading from this computer, overwriting existing program preferences.
+
+=item B<--this-computer-location PATH>
 
 The PATH on this computer from which to download, overwriting existing program 
-preferences. Set PATH to '' to turn off.
+preferences.
 
 =item B<--photo-destination PATH>
 
@@ -132,8 +137,8 @@ Do not download photos with the following extensions: TIF, TIFF and MPO.
 
 =item B<--thumbnail-cache {on,off}>
 
-Turns on or off use of the Rapid Photo Downloader Thumbnail Cache. Does not delete existing
-cache contents.
+Turns on or off use of the Rapid Photo Downloader Thumbnail Cache. Turning it off does not
+delete existing cache contents.
 
 =item B<--delete-thumbnail-cache>
 

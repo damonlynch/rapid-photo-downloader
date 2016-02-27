@@ -85,7 +85,6 @@ def get_video_frame(full_file_name: str,
         pipeline.set_state(Gst.State.NULL)
         return buffer.extract_dup(0, buffer.get_size())
     else:
-        logging.warning("Could not extract video thumbnail")
         return None
 
 PhotoDetails = namedtuple('PhotoDetails', 'thumbnail orientation')
@@ -305,6 +304,8 @@ class ThumbnailExtractor(LoadBalancerWorker):
                         png = get_video_frame(data.full_file_name_to_work_on)
                         if png is None:
                             thumbnail = None
+                            logging.warning("Could not extract video thumbnail from %s",
+                                            data.rpd_file.get_display_full_name())
                         else:
                             thumbnail = QImage.fromData(png)
                             if thumbnail.isNull():

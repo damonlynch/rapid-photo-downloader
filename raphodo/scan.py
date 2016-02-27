@@ -95,6 +95,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
             self.camera_port = scan_arguments.device.camera_port
             self.is_mtp_device = scan_arguments.device.is_mtp_device
             self.camera_display_name = scan_arguments.device.display_name
+            self.display_name = self.camera_display_name
         else:
             self.camera_port = self.camera_model = self.is_mtp_device = None
             self.camera_display_name = None
@@ -105,7 +106,9 @@ class ScanWorker(WorkerInPublishPullPipeline):
             # Download from file system
             path = scan_arguments.device.path
             self.camera = None
+            self.display_name = scan_arguments.device.display_name
             # Scan the files using lightweight high-performance scandir
+            logging.info("Scanning {}".format(self.display_name))
             if self.scan_preferences.scan_this_path(path):
                 for self.dir_name, subdirs, self.file_list in walk(path):
                     if len(subdirs) > 0:
@@ -133,6 +136,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
                         # and its storage information
                         have_optimal_display_name = True
                         self.camera_display_name = self.camera.display_name
+                        self.display_name = self.camera_display_name
                         storage_space = self.camera.get_storage_media_capacity(refresh=True)
                         self.content = pickle.dumps(ScanResults(
                                                     optimal_display_name=self.camera_display_name,
@@ -154,6 +158,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
             # Phones especially have many directories with images, which we
             # must ignore
             if self.camera.camera_has_dcim():
+                logging.info("Scanning {}".format(self.display_name))
                 self._camera_folders_and_files = []
                 self._camera_file_names = defaultdict(list)
                 self._camera_audio_files = defaultdict(list)
@@ -183,7 +188,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
                 for self.dir_name, self.file_name in self._camera_folders_and_files:
                     self.process_file()
             else:
-                logging.warning("Unable to detect any DCIM folders on %s", self.camera.model)
+                logging.warning("Unable to detect any DCIM folders on %s", self.display_name)
 
             self.camera.free_camera()
 
@@ -195,7 +200,8 @@ class ScanWorker(WorkerInPublishPullPipeline):
                                         pickle.HIGHEST_PROTOCOL)
             self.send_message_to_sink()
         if self.files_scanned > 0 and not (self.files_scanned == 0 and self.download_from_camera):
-            logging.info("{} total files scanned".format(self.files_scanned))
+            logging.info("{} total files scanned on {}".format(self.files_scanned,
+                                                               self.display_name))
 
         self.disconnect_logging()
         self.send_finished_command()

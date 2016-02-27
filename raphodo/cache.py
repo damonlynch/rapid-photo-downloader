@@ -385,6 +385,8 @@ class ThumbnailCacheSql:
 
     not_found = GetThumbnail(ThumbnailCacheDiskStatus.not_foud, None, None)
 
+    # TODO sqlite might grow big - vacuum
+
     def __init__(self):
         self.cache_dir = get_program_cache_directory(create_if_not_exist=True)
         self.valid = self.cache_dir is not None
@@ -457,8 +459,6 @@ class ThumbnailCacheSql:
             return None
 
         md5_full_name = os.path.join(self.cache_dir, md5_name)
-
-        # thumbnail = thumbnail.convertToFormat()
 
         temp_path = os.path.join(self.cache_dir, self.random_filename.name(
             extension='jpg'))
@@ -542,16 +542,3 @@ class ThumbnailCacheSql:
             if self.cache_dir is not None and os.path.isdir(self.cache_dir):
                 # Delete the sqlite3 database too
                 shutil.rmtree(self.cache_dir)
-
-
-"""
-Thumbnail cache goals:
-
-if need to resize original to save, save 75% jpeg
-
-Issues:
-
-sqlite might grow big - vacuum
-
-
-"""

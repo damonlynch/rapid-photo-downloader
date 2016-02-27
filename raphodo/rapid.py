@@ -375,7 +375,8 @@ class ThisComputerWidget(QWidget):
 
 class RapidWindow(QMainWindow):
     def __init__(self, auto_detect: Optional[bool]=None,
-                 this_computer_path: Optional[str]=None,
+                 this_computer_source: Optional[str]=None,
+                 this_computer_location: Optional[str]=None,
                  photo_download_folder: Optional[str]=None,
                  video_download_folder: Optional[str]=None,
                  backup: Optional[bool]=None,
@@ -423,15 +424,19 @@ class RapidWindow(QMainWindow):
         else:
             logging.info("Device autodetection: %s", self.prefs.device_autodetection)
 
-        if this_computer_path is not None:
-            if this_computer_path:
-                self.prefs.this_computer_source = True
-                self.prefs.this_computer_path = this_computer_path
+        if this_computer_source is not None:
+            self.prefs.this_computer_source = this_computer_source
+
+        if this_computer_location is not None:
+            self.prefs.this_computer_path = this_computer_location
+
+        if self.prefs.this_computer_source:
+            if self.prefs.this_computer_source:
+                logging.info("This Computer is set to be used as a download source, "
+                             "using: %s", self.prefs.this_computer_path)
             else:
-                self.prefs.this_computer_source = False
-                self.prefs.this_computer_path = ''
-        elif self.prefs.this_computer_source:
-            logging.info("This Computer path: %s", self.prefs.this_computer_path)
+                logging.info("This Computer is set to be used as a download source, "
+                             "but the location is not yet set")
         else:
             logging.info("This Computer is not used as a download source")
 
@@ -1241,8 +1246,7 @@ class RapidWindow(QMainWindow):
 
         self.prefs.this_computer_source = on
         if not on:
-            path = self.prefs.this_computer_path
-            if path:
+            if len(self.devices.this_computer) > 0:
                 scan_id = list(self.devices.this_computer)[0]
                 self.removeDevice(scan_id)
             self.prefs.this_computer_path = ''
@@ -3161,9 +3165,12 @@ def parser_options(formatter_class=argparse.HelpFormatter):
     parser.add_argument("-a", "--auto-detect", choices=['on','off'],
         dest="auto_detect", help=_("turn on or off the automatic detection of devices from which "
        "to download"))
-    parser.add_argument("-t", "--this-computer", type=str,
-        metavar=_("PATH"), dest="this_computer_path",
-        help=_("the PATH from which to download (set PATH to '' to turn off)"))
+    parser.add_argument("-t", "--this-computer", choices=['on','off'],
+        dest="this_computer_source",
+        help=_("turn on or off downloading from this computer"))
+    parser.add_argument("--this-computer-location", type=str,
+        metavar=_("PATH"), dest="this_computer_location",
+        help=_("the PATH on this computer from which to download"))
     parser.add_argument("--photo-destination", type=str,
         metavar=_("PATH"), dest="photo_location",
         help=_("the PATH where photos will be downloaded to"))
@@ -3202,7 +3209,7 @@ def parser_options(formatter_class=argparse.HelpFormatter):
     parser.add_argument("--thumbnail-cache", dest="thumb_cache",
                         choices=['on','off'],
                         help=_("turn on or off use of the Rapid Photo Downloader Thumbnail Cache. "
-                               "Does not delete existing cache contents."))
+                               "Turning it off does not delete existing cache contents."))
     parser.add_argument("--delete-thumbnail-cache", dest="delete_thumb_cache",
                         action="store_true",
                         help=_("delete all thumbnails in the Rapid Photo Downloader Thumbnail "
@@ -3243,8 +3250,7 @@ def main():
 
     global logger
     logger = iplogging.setup_main_process_logging(
-        get_program_logging_directory(create_if_not_exist=True),
-        logging_level=logging_level)
+        get_program_logging_directory(create_if_not_exist=True), logging_level=logging_level)
 
     if args.auto_detect:
         auto_detect= args.auto_detect == 'on'
@@ -3255,13 +3261,22 @@ def main():
     else:
         auto_detect=None
         
-    if args.this_computer_path:
-        this_computer_path=args.this_computer_path
-        if this_computer_path[-1]=='/':
-            this_computer_path = this_computer_path[:-1]
-        logging.info("This computer path set from command line: %s", this_computer_path)
+    if args.this_computer_source:
+        this_computer_source = args.this_computer_source == 'on'
+        if auto_detect:
+            logging.info("Downloading from this computer turned on from command line")
+        else:
+            logging.info("Downloading from this computer turned off from command line")
     else:
-        this_computer_path=None
+        this_computer_source=None
+
+    if args.this_computer_location:
+        this_computer_location=args.this_computer_location
+        if this_computer_location[-1]=='/':
+            this_computer_location = this_computer_location[:-1]
+        logging.info("This computer path set from command line: %s", this_computer_location)
+    else:
+        this_computer_location=None
         
     if args.photo_location:
         photo_location=args.photo_location
@@ -3365,7 +3380,9 @@ def main():
     splash.show()
     app.processEvents()
 
-    rw = RapidWindow(auto_detect=auto_detect, this_computer_path=this_computer_path,
+    rw = RapidWindow(auto_detect=auto_detect,
+                     this_computer_source=this_computer_source,
+                     this_computer_location=this_computer_location,
                      photo_download_folder=photo_location,
                      video_download_folder=video_location,
                      backup=backup,

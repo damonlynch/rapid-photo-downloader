@@ -454,7 +454,7 @@ class RPDFile:
         """
         return self.audio_file_full_name is not None
 
-    def get_uri(self, desktop_environment: bool) -> str:
+    def get_uri(self, desktop_environment: Optional[bool]=False) -> str:
         """
         Generate and return the URI for the file
         :param desktop_environment: if True, will to generate a URI accepted
@@ -498,6 +498,21 @@ class RPDFile:
                         prefix = 'gphoto2://' + pathname2url('[{}]'.format(self.camera_port))
             uri = '{}{}'.format(prefix, pathname2url(full_file_name))
         return uri
+
+    def get_display_full_name(self) -> str:
+        """
+        Generate a full name indicating the file source.
+
+        If it's not a camera, it will merely be the full name.
+        If it's a camera, it will include the camera name
+        :return: full name
+        """
+
+        if self.from_camera:
+            return _('%(path)s on %(camera)s') % dict(path=self.full_file_name,
+                                                     camera=self.camera_display_name)
+        else:
+            return self.full_file_name
 
     def _assign_file_type(self):
         self.file_type = None
