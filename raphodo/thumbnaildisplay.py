@@ -54,7 +54,7 @@ from raphodo.interprocess import (PublishPullPipelineManager, GenerateThumbnails
                           GenerateThumbnailsResults)
 from raphodo.constants import (DownloadStatus, Downloaded, FileType, FileExtension, ThumbnailSize,
                        ThumbnailCacheStatus, Roles, DeviceType, CustomColors,
-                       ThumbnailBackgroundName, Desktop)
+                       ThumbnailBackgroundName, Desktop, DeviceState)
 from raphodo.storage import get_program_cache_directory, get_desktop
 from raphodo.utilities import (CacheDirs, make_internationalized_list, format_size_for_user, runs)
 from raphodo.thumbnailer import Thumbnailer
@@ -108,7 +108,7 @@ class ThumbnailManager(PublishPullPipelineManager):
 class ThumbnailListModel(QAbstractListModel):
     def __init__(self, parent, logging_port: int) -> None:
         super().__init__(parent)
-        self.rapidApp = parent
+        self.rapidApp = parent  # type: 'raphodo.rapid.RapidWindow'
 
         self.initialize()
 
@@ -243,6 +243,10 @@ class ThumbnailListModel(QAbstractListModel):
             return rpd_file.camera_memory_card_identifiers
         elif role == Roles.mtp:
             return rpd_file.is_mtp_device
+        elif role == Roles.scan_id:
+            return rpd_file.scan_id
+        elif role == Roles.is_camera:
+            return rpd_file.from_camera
 
     def setData(self, index: QModelIndex, value, role: int) -> bool:
         if not index.isValid():
@@ -337,8 +341,10 @@ class ThumbnailListModel(QAbstractListModel):
         self.thumbnails_generated += 1
         self.no_thumbnails_by_scan[scan_id] -= 1
         if self.no_thumbnails_by_scan[scan_id] == 0:
+            if self.rapidApp.deviceState(scan_id) == DeviceState.thumbnailing:
+                self.rapidApp.devices.set_device_state(scan_id, DeviceState.idle)
             device = self.rapidApp.devices[scan_id]
-            logging.debug('Finished phase 2 of thumbnail generation for %s', device.display_name)
+            logging.info('Finished thumbnail generation for %s', device.name())
 
         if self.thumbnails_generated == self.total_thumbs_to_generate:
             self.resetThumbnailTrackingAndDisplay()
@@ -785,7 +791,7 @@ class ThumbnailView(QListView):
             super().mousePressEvent(event)
 
 class ThumbnailDelegate(QStyledItemDelegate):
-    def __init__(self, parent=None) -> None:
+    def __init__(self, parent) -> None:
         super().__init__(parent)
         self.rapidApp = parent
 
@@ -1078,12 +1084,24 @@ class ThumbnailDelegate(QStyledItemDelegate):
             if event.button() == Qt.RightButton:
                 self.clickedIndex = index
                 globalPos = self.parent().thumbnailView.viewport().mapToGlobal(event.pos())
-                # Disable opening MTP devices in KDE environment, as it won't
-                # release them until them the file browser is closed!
-                is_mtp = index.data(Roles.mtp)
-                desktop = get_desktop()
-                self.openInFileBrowserAct.setEnabled(not (is_mtp and desktop == Desktop.kde and
-                                                          download_status not in Downloaded))
+                # libgphoto2 needs exclusive access to the camera, so there are times when "open
+                # in file browswer" should be disabled:
+                # First, for all desktops, when a camera, disable when thumbnailing or
+                # downloading.
+                # Second, disable opening MTP devices in KDE environment,
+                # as KDE won't release them until them the file browser is closed!
+                # However if the file is already downloaded, we don't care, as can get it from
+                # local source.
+
+                active_camera = disable_kde = False
+                if download_status not in Downloaded:
+                    if index.data(Roles.is_camera):
+                        scan_id = index.data(Roles.scan_id)
+                        active_camera = self.rapidApp.deviceState(scan_id) != DeviceState.idle
+                    if not active_camera:
+                        disable_kde = index.data(Roles.mtp) and get_desktop() == Desktop.kde
+
+                self.openInFileBrowserAct.setEnabled(not (disable_kde or active_camera))
                 self.contextMenu.popup(globalPos)
                 return False
             if event.button() != Qt.LeftButton or not self.getCheckBoxRect(

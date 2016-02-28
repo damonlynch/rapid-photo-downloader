@@ -431,7 +431,7 @@ class RapidWindow(QMainWindow):
             self.prefs.this_computer_path = this_computer_location
 
         if self.prefs.this_computer_source:
-            if self.prefs.this_computer_source:
+            if self.prefs.this_computer_path:
                 logging.info("This Computer is set to be used as a download source, "
                              "using: %s", self.prefs.this_computer_path)
             else:
@@ -662,9 +662,6 @@ class RapidWindow(QMainWindow):
         # Track the creation of temporary directories
         self.temp_dirs_by_scan_id = {}
 
-        # Track which downloads are running
-        self.active_downloads_by_scan_id = set()
-
         # Track the time a download commences
         self.download_start_time = None
 
@@ -760,15 +757,18 @@ class RapidWindow(QMainWindow):
             selection.select(index, QItemSelectionModel.ClearAndSelect|QItemSelectionModel.Rows)
             self.fileSystemView.scrollTo(index, QAbstractItemView.PositionAtCenter)
 
+        self.window_show_requested_time = datetime.datetime.now()
+        self.show()
+
+        # I have no idea why, but if placed before the show() and the button is pressed,
+        # the button style is very much messed up
+
         self.proximityButton.setChecked(settings.value("proximityButtonPressed", False, bool))
         self.proximityButtonClicked()
         self.sourceButton.setChecked(settings.value("sourceButtonPressed", True, bool))
         self.sourceButtonClicked()
 
-        self.window_show_requested_time = datetime.datetime.now()
-        self.show()
-
-        logging.debug("Completed stage 2 initializing main window")
+        logging.debug("Completed stage 3 initializing main window")
 
     def mapModel(self, scan_id: int) -> DeviceModel:
         return self._mapModel[self.devices[scan_id].device_type]
@@ -1288,7 +1288,7 @@ class RapidWindow(QMainWindow):
                 if scan_id is not None:
                     logging.debug("Removing path from device view %s",
                                   self.prefs.this_computer_path)
-                    self.removeDevice(scan_id=scan_id, stop_worker=True)
+                    self.removeDevice(scan_id=scan_id)
             self.prefs.this_computer_path = path
             self.thisComputerView.show()
             self.setupManualPath()
@@ -1320,7 +1320,7 @@ class RapidWindow(QMainWindow):
         self.time_check.pause()
 
     def resumeDownload(self) -> None:
-        for scan_id in self.active_downloads_by_scan_id:
+        for scan_id in self.devices.downloading:
             self.time_remaining.set_time_mark(scan_id)
 
         self.time_check.set_download_mark()
@@ -1332,7 +1332,7 @@ class RapidWindow(QMainWindow):
         :return True if a file is currently being downloaded, renamed
         or backed up, else False
         """
-        if len(self.active_downloads_by_scan_id) == 0:
+        if len(self.devices.downloading) == 0:
             if self.prefs.backup_files:
                 if self.download_tracker.all_files_backed_up():
                     return False
@@ -1465,7 +1465,7 @@ class RapidWindow(QMainWindow):
         """
 
         model = self.mapModel(scan_id)
-        model.setDeviceState(scan_id, DeviceState.downloading)
+        model.setSpinnerState(scan_id, DeviceState.downloading)
 
         if download_stats.no_photos > 0:
             photo_download_folder = self.prefs.photo_download_folder
@@ -1490,9 +1490,9 @@ class RapidWindow(QMainWindow):
         self.time_remaining[scan_id] = download_size
         self.time_check.set_download_mark()
 
-        self.active_downloads_by_scan_id.add(scan_id)
+        self.devices.set_device_state(scan_id, DeviceState.downloading)
 
-        if len(self.active_downloads_by_scan_id) > 1:
+        if len(self.devices.downloading) > 1:
             # Display an additional notification once all devices have been
             # downloaded from that summarizes the downloads.
             self.display_summary_notification = True
@@ -1794,7 +1794,7 @@ class RapidWindow(QMainWindow):
         if completed:
             # Last file for this scan id has been downloaded, so clean temp
             # directory
-            self.mapModel(scan_id).setDeviceState(scan_id, DeviceState.scanned)
+            self.mapModel(scan_id).setSpinnerState(scan_id, DeviceState.idle)
 
             logging.debug("Purging temp directories")
             self.cleanTempDirsForScanId(scan_id)
@@ -1802,7 +1802,7 @@ class RapidWindow(QMainWindow):
                 logging.debug("Deleting downloaded source files")
                 self.deleteSourceFiles(scan_id)
                 self.download_tracker.clear_auto_delete(scan_id)
-            self.active_downloads_by_scan_id.remove(scan_id)
+            self.devices.set_device_state(scan_id, DeviceState.idle)
             del self.time_remaining[scan_id]
             self.notifyDownloadedFromDevice(scan_id)
             if files_remaining == 0 and self.prefs.auto_unmount:
@@ -2127,6 +2127,16 @@ class RapidWindow(QMainWindow):
                 return BackupMissing(photo=photo_missing, video=video_missing)
         return None
 
+    def deviceState(self, scan_id: int) -> DeviceState:
+        """
+        What the device is being used for at the present moment.
+
+        :param scan_id: device to check
+        :return: DeviceState
+        """
+
+        return self.devices.device_state[scan_id]
+
     @pyqtSlot(bytes)
     def scanMessageReceived(self, pickled_data: bytes) -> None:
         """
@@ -2188,8 +2198,8 @@ class RapidWindow(QMainWindow):
                 if role == QMessageBox.AcceptRole:
                     self.scanmq.resume(worker_id=scan_id)
                 else:
-                    self.scanmq.stop_worker(worker_id=scan_id)
-                    self.removeDevice(scan_id=scan_id, stop_worker=False)
+                    # self.scanmq.stop_worker(worker_id=scan_id)
+                    self.removeDevice(scan_id=scan_id, show_warning=False)
                 del self.prompting_for_user_action[device]
             else:
                 # Update GUI display with canonical camera display name
@@ -2205,6 +2215,7 @@ class RapidWindow(QMainWindow):
         if scan_id not in self.devices:
             return
         device = self.devices[scan_id]
+        self.devices.set_device_state(scan_id, DeviceState.idle)
         results_summary, file_types_present  = device.file_type_counter.summarize_file_count()
         self.download_tracker.set_file_types_present(scan_id, file_types_present)
         model = self.mapModel(scan_id)
@@ -2213,15 +2224,17 @@ class RapidWindow(QMainWindow):
 
         self.displayMessageInStatusBar(update_only_marked=True)
 
-        self.generateTemporalProximityTableData()
+        if len(self.devices.scanning) == 0:
+            self.generateTemporalProximityTableData()
 
         if (not self.auto_start_is_on and  self.prefs.generate_thumbnails):
             # Generate thumbnails for finished scan
-            model.setDeviceState(scan_id, DeviceState.scanned)
+            model.setSpinnerState(scan_id, DeviceState.idle)
+            self.devices.set_device_state(scan_id, DeviceState.thumbnailing)
             self.thumbnailModel.generateThumbnails(scan_id, self.devices[scan_id])
         elif self.auto_start_is_on:
             if self.job_code.need_to_prompt_on_auto_start():
-                model.setDeviceState(scan_id, DeviceState.scanned)
+                model.setSpinnerState(scan_id, DeviceState.idle)
                 self.job_code.get_job_code()
             else:
                 self.startDownload(scan_id=scan_id)
@@ -2424,14 +2437,18 @@ class RapidWindow(QMainWindow):
         libgphoto2
         """
         sc = self.gp_context.camera_autodetect()
-        system_cameras = [(model, port) for model, port in sc if not
-                          port.startswith('disk:')]
+        system_cameras = ((model, port) for model, port in sc if not
+                          port.startswith('disk:'))
         kc = self.devices.cameras.items()
-        known_cameras = [(model, port) for port, model in kc]
+        known_cameras = ((model, port) for port, model in kc)
         removed_cameras = set(known_cameras) - set(system_cameras)
         for model, port in removed_cameras:
             scan_id = self.devices.scan_id_from_camera_model_port(model, port)
-            self.removeDevice(scan_id=scan_id, stop_worker=True)
+            device = self.devices[scan_id]
+            # Don't log a warning when the camera was removed while the user was being
+            # informed it was locked or inaccessible
+            show_warning = not device in self.prompting_for_user_action
+            self.removeDevice(scan_id=scan_id, show_warning=show_warning)
 
         if removed_cameras:
             self.setDownloadActionSensitivity()
@@ -2516,6 +2533,7 @@ class RapidWindow(QMainWindow):
                            device=device,
                            ignore_other_types=self.ignore_other_photo_types)
         self.scanmq.start_worker(scan_id, scan_arguments)
+        self.devices.set_device_state(scan_id, DeviceState.scanning)
         self.setDownloadActionSensitivity()
 
     def partitionValid(self, mount: QStorageInfo) -> bool:
@@ -2612,7 +2630,7 @@ class RapidWindow(QMainWindow):
             # files are being downloaded from mount
             # files have finished downloading from mount
             scan_id = self.devices.scan_id_from_path(path, DeviceType.volume)
-            self.removeDevice(scan_id=scan_id, stop_worker=True)
+            self.removeDevice(scan_id=scan_id)
 
         elif path in self.backup_devices:
             device_id = self.backup_devices.device_id(path)
@@ -2625,20 +2643,37 @@ class RapidWindow(QMainWindow):
 
         self.setDownloadActionSensitivity()
 
-    def removeDevice(self, scan_id: int, stop_worker: bool=True) -> None:
+    def removeDevice(self, scan_id: int, show_warning: bool=True) -> None:
         assert scan_id is not None
         if scan_id in self.devices:
             device = self.devices[scan_id]
+            device_state = self.deviceState(scan_id)
+            if show_warning:
+                if device_state == DeviceState.scanning:
+                    logging.warning("Removed device %s was being scanned", device.name())
+                elif device_state == DeviceState.downloading:
+                    logging.error("Removed device %s was being downloaded from", device.name())
+                elif device_state == DeviceState.thumbnailing:
+                    logging.warning("Removed device %s was having thumbnails generated", device.name())
+                else:
+                    logging.info("Device removed: %s", device.name())
+            else:
+                logging.debug("Device removed: %s", device.name())
             if device in self.prompting_for_user_action:
                 self.prompting_for_user_action[device].reject()
             if self.thumbnailModel.clearAll(scan_id=scan_id, keep_downloaded_files=True):
                 self.generateTemporalProximityTableData()
             self.mapModel(scan_id).removeDevice(scan_id)
             if scan_id in self.scanmq.workers:
+                if device_state != DeviceState.scanning:
+                    logging.error("Expected device state to scanning")
                 self.scanmq.stop_worker(scan_id)
-            if scan_id in self.copyfilesmq.workers:
+            elif scan_id in self.copyfilesmq.workers:
+                if device_state != DeviceState.downloading:
+                    logging.error("Expected device state to downloading")
                 self.copyfilesmq.stop_worker(scan_id)
-            # TODO what about stopping possible thumbnailing?
+            elif device_state == DeviceState.thumbnailing:
+                self.thumbnailModel.terminateThumbnailGeneration(scan_id)
             view = self.mapView(scan_id)
             del self.devices[scan_id]
             self.resizeDeviceView(view)

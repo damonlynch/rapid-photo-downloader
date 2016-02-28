@@ -88,7 +88,7 @@ class DeviceModel(QAbstractListModel):
         super().__init__(parent)
         self.rapidApp = parent
         self.devices = {}  # type: Dict[int, Device]
-        self.state = {}  # type: Dict[int, DeviceState]
+        self.spinner_state = {}  # type: Dict[int, DeviceState]
         self.checked = defaultdict(lambda: True) # type: Dict[int, bool]
         self.icons = {}  # type: Dict[int, QPixmap]
         self.rows = RowTracker()  # type: RowTracker
@@ -151,7 +151,7 @@ class DeviceModel(QAbstractListModel):
         self.row_id_counter += no_rows
 
         self.devices[scan_id] = device
-        self.state[scan_id] = DeviceState.scanning
+        self.spinner_state[scan_id] = DeviceState.scanning
         self.icons[scan_id] = device.get_pixmap(QSize(self.icon_size, self.icon_size))
 
         if self._isSpinning is False:
@@ -201,7 +201,7 @@ class DeviceModel(QAbstractListModel):
         row = self.rows.row(header_row_id)
         self.rows.remove_rows(row, len(row_ids))
         del self.devices[scan_id]
-        del self.state[scan_id]
+        del self.spinner_state[scan_id]
         if scan_id in self.checked:
             del self.checked[scan_id]
         if header_row_id in self.row_ids_active:
@@ -219,14 +219,14 @@ class DeviceModel(QAbstractListModel):
         self.dataChanged.emit(self.index(row + 1, 0),
                               self.index(row + len(self.devices[scan_id].storage_space), 0))
 
-    def setDeviceState(self, scan_id: int, state: DeviceState) -> None:
+    def setSpinnerState(self, scan_id: int, state: DeviceState) -> None:
         row_id = self.getHeaderRowId(scan_id)
         row = self.rows.row(row_id)
 
-        current_state = self.state[scan_id]
+        current_state = self.spinner_state[scan_id]
         current_state_active = current_state in (DeviceState.scanning, DeviceState.downloading)
 
-        if current_state_active and state == DeviceState.scanned:
+        if current_state_active and state == DeviceState.idle:
             self.row_ids_active.remove(row_id)
             if len(self.row_ids_active) == 0:
                 self.stopSpinners()
@@ -236,7 +236,7 @@ class DeviceModel(QAbstractListModel):
             if not self._isSpinning:
                 self.startSpinners()
 
-        self.state[scan_id] = state
+        self.spinner_state[scan_id] = state
         self.dataChanged.emit(self.index(row, 0), self.index(row, 0))
 
     def data(self, index: QModelIndex, role=Qt.DisplayRole):
@@ -268,7 +268,7 @@ class DeviceModel(QAbstractListModel):
                 if device.device_type in (DeviceType.path, DeviceType.volume):
                     return device.path
             elif role == Roles.device_details:
-                return (device.display_name, self.icons[scan_id], self.state[scan_id],
+                return (device.display_name, self.icons[scan_id], self.spinner_state[scan_id],
                         self._rotation_position)
             elif role == Roles.storage:
                 return device, self.storage[row_id]

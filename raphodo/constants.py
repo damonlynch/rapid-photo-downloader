@@ -86,6 +86,14 @@ class DeviceType(Enum):
     path = 3
 
 
+class DeviceState(Enum):
+    pre_scan = 1
+    scanning = 2
+    idle = 3
+    thumbnailing = 4
+    downloading = 5
+
+
 class FileType(IntEnum):
     photo = 1
     video = 2
@@ -103,13 +111,6 @@ class FileExtension(Enum):
 class FileSortPriority(IntEnum):
     high = 1
     low = 2
-
-
-class DeviceState(Enum):
-    scanning = 1
-    scanned = 2
-    downloading = 3
-
 
 class RenameAndMoveStatus(Enum):
     download_started = 1
@@ -139,6 +140,7 @@ class Roles(IntEnum):
     device_details = Qt.UserRole + 9
     storage = Qt.UserRole + 10
     mtp = Qt.UserRole + 11
+    is_camera = Qt.UserRole + 12
 
 
 class ExtractionTask(Enum):

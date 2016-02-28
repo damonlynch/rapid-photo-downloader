@@ -42,7 +42,7 @@ from PyQt5.QtWidgets import QFileIconProvider
 from PyQt5.QtGui import QIcon, QPixmap
 
 import raphodo.qrc_resources as qrc_resources
-from raphodo.constants import (DeviceType, BackupLocationType, FileType)
+from raphodo.constants import (DeviceType, BackupLocationType, FileType, DeviceState)
 from raphodo.rpdfile import FileTypeCounter, FileSizeSum
 from raphodo.storage import StorageSpace, udev_attributes, UdevAttr
 from raphodo.camera import Camera, generate_devname
@@ -351,9 +351,14 @@ class DeviceCollection:
     False
     """
     def __init__(self) -> None:
-        self.devices = {} # type Dict[int, Device]
-        self.cameras = {} # type Dict[str, str]
-        self.scan_counter = 0
+        self.devices = {}  # type: Dict[int, Device]
+        self.cameras = {}  # type: Dict[str, str]
+        self.scan_counter = 0  # type: int
+        self.device_state = {}  # type: Dict[int, DeviceState]
+        # Track which devices are being scanned, by scan_id
+        self.scanning = set()  # type: Set[int]
+        # Track which downloads are running, by scan_id
+        self.downloading = set()  # type: Set[int]
 
         self.volumes_and_cameras = set()
         self.this_computer = set()
@@ -367,6 +372,7 @@ class DeviceCollection:
         scan_id = self.scan_counter
         self.scan_counter += 1
         self.devices[scan_id] = device
+        self.device_state[scan_id] = DeviceState.pre_scan
         if device.camera_port:
             port = device.camera_port
             assert port not in self.cameras
@@ -376,6 +382,19 @@ class DeviceCollection:
         else:
             self.this_computer.add(scan_id)
         return scan_id
+
+    def set_device_state(self, scan_id: int, state: DeviceState) -> None:
+        logging.debug("Setting device state for %s to %s",
+                      self.devices[scan_id].display_name, state.name)
+        self.device_state[scan_id] = state
+        if state == DeviceState.scanning:
+            self.scanning.add(scan_id)
+        elif state == DeviceState.downloading:
+            self.downloading.add(scan_id)
+        elif state != DeviceState.scanning and scan_id in self.scanning:
+            self.scanning.remove(scan_id)
+        elif state != DeviceState.downloading and scan_id in self.downloading:
+            self.downloading.remove(scan_id)
 
     def known_camera(self, model: str, port: str) -> bool:
         """
@@ -443,12 +462,16 @@ class DeviceCollection:
         return self._map_set[device.device_type]
 
     def __delitem__(self, scan_id: int):
-        d = self.devices[scan_id] # type: Device
+        d = self.devices[scan_id]  # type: Device
         if d.device_type == DeviceType.camera:
             del self.cameras[d.camera_port]
         self.map_set(d).remove(scan_id)
         d.delete_cache_dirs()
         del self.devices[scan_id]
+        if scan_id in self.scanning:
+            self.scanning.remove(scan_id)
+        elif scan_id in self.downloading:
+            self.downloading.remove(scan_id)
 
     def __getitem__(self, scan_id: int) -> Device:
         return self.devices[scan_id]
@@ -475,7 +498,6 @@ class DeviceCollection:
         """
         Generate the name to display at the top left of the main
         window, indicating the source of the files.
-
 
         :return: string to display and associated icon
         """

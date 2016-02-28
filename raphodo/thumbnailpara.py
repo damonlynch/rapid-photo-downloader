@@ -214,8 +214,7 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
 
     def do_work(self) -> None:
         arguments = pickle.loads(self.content) # type: GenerateThumbnailsArguments
-        logging.debug("Worker %s generating %s thumbnails for %s", self.worker_id.decode(),
-                      len(arguments.rpd_files), arguments.name)
+        logging.info("Generating %s thumbnails for %s", len(arguments.rpd_files), arguments.name)
 
         self.frontend = self.context.socket(zmq.PUSH)
         self.frontend.connect("tcp://localhost:{}".format(arguments.frontend_port))
@@ -359,6 +358,8 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
             # Attempt to get thumbnails from the two FDO Caches.
             # If it's not found, we're going to generate it anyway.
             # So load it here.
+
+            # TODO why do we try to load from small FDO cache here??
             get_thumbnail = fdo_cache_normal.get_thumbnail(
                 full_file_name=rpd_file.full_file_name,
                 modification_time=rpd_file.modification_time,
@@ -387,14 +388,17 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
 
             if task == ExtractionTask.undetermined:
                 # Thumbnail was not found in any cache: extract it
-                if self.camera: # type: Camera
+                if self.camera:  # type: Camera
                     if rpd_file.file_type == FileType.photo:
                         if self.camera.can_fetch_thumbnails:
                             task = ExtractionTask.load_from_bytes
                             if rpd_file.is_jpeg_type():
+                                # gphoto2 knows how to get jpeg thumbnails
                                 exif_buffer = self.camera.get_exif_extract_from_jpeg(
                                     rpd_file.path, rpd_file.name)
                             else:
+                                # gphoto2 does not know how to get RAW thumbnails, so we do that
+                                # part ourselves
                                 if rpd_file.extension == 'crw':
                                     # TODO should be caching this file, since reading its entirety
                                     bytes_to_read = rpd_file.size
@@ -499,9 +503,11 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
 
         logging.debug("Finished phase 1 of thumbnail generation for %s", arguments.name)
         if from_thumb_cache:
-            logging.debug("{} thumbnails came from thumbnail cache".format(from_thumb_cache))
+            logging.info("{} thumbnails for {} came from thumbnail cache".format(
+                arguments.name, from_thumb_cache))
         if from_fdo_cache:
-            logging.debug("{} thumbnails came from FDO cache".format(from_fdo_cache))
+            logging.info("{} thumbnails for {} came from Free Desktop cache".format(
+                arguments.name, from_fdo_cache))
 
         self.disconnect_logging()
         self.send_finished_command()
