@@ -29,6 +29,7 @@ import os
 import sys
 import shutil
 import os.path
+import glob
 from distutils.version import StrictVersion
 from setuptools import setup, Command
 from setuptools.command.install import install
@@ -150,10 +151,7 @@ class build_pod2man(Command):
         pass
 
     def run(self):
-        for pod_file in ('doc/rapid-photo-downloader.1.pod',):
-            if not os.path.exists(pod_file):
-                sys.stderr.write('Warning: could not locate {}\n'.format(pod_file))
-                continue
+        for pod_file in glob.glob('doc/*.1.pod'):
             name = os.path.basename(pod_file)[:-6].upper()
             build_path =  os.path.join('build', os.path.splitext(pod_file)[0])
             if not os.path.isdir(os.path.join('build', 'doc')):
@@ -189,7 +187,8 @@ setup(
     extras_require={':python_version == "3.4"': ['scandir', 'typing']},
     include_package_data = False,
     data_files = [
-        ('share/man/man1', ['build/doc/rapid-photo-downloader.1',]),
+        ('share/man/man1', ['build/doc/rapid-photo-downloader.1',
+                            'build/doc/analyze-pv-structure.1']),
         ('share/applications', ['build/share/applications/rapid-photo-downloader.desktop']),
         ('share/solid/actions', ['build/share/solid/actions/rapid-photo-downloader.desktop'],),
         ('share/appdata', ['build/share/appdata/rapid-photo-downloader.appdata.xml'])

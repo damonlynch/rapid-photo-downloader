@@ -297,15 +297,19 @@ def main():
     parser = argparse.ArgumentParser(
         description='Analyze the location of metadata in a variety of RAW, jpeg and video files.')
     parser.add_argument('source', action='store', help="Folder in which to recursively scan "
-                            "for photos, or previously saved outfile.")
+                            "for photos and videos, or a previously saved outfile.")
     parser.add_argument('outfile',  nargs='?', help="Optional file in which to save the analysis")
     parser.add_argument('--clear', '-c', action='store_true',
-                        help="To work, this program requires that the scanned photos not "
-                             "be in the Linux kernel's disk cache. This command instructs the "
+                        help="To work, this program requires that the scanned photos and videos "
+                             "not be in the Linux kernel's disk cache. This command instructs the "
                              "kernel to sync and then drop clean caches, as well as "
-                        "reclaimable slab objects like dentries and inode. This is a "
+                        "reclaimable slab objects like dentries and inodes. This is a "
                         "non-destructive operation and will not free any dirty objects. "
                         "See https://www.kernel.org/doc/Documentation/sysctl/vm.txt")
+    parser.add_argument('--verbose', '-v', dest='verbose', action='store_true',
+                        help="Show more detailed output")
+    parser.add_argument('--load', '-l', dest='load', action='store_true',
+                        help="Don't scan. Instead use previously generated outfile as input.")
     parser.add_argument('--keep-names', '-k', dest='keep', action='store_true',
                         help="If saving the analysis to file, don't first remove the file names "
                              "and paths from the analysis. Don't specify this option if you want "
@@ -313,9 +317,9 @@ def main():
                              "others.")
     parser.add_argument('--no-dng', '-d', dest='dng', action='store_true',
                         help="Don't scan DNG files")
-    parser.add_argument('--video', action='store_true', help="Scan video images")
-    parser.add_argument('--only-video', dest='only_video', action='store_true', help='Scan only '
-                                                                                     'videos')
+    parser.add_argument('--video', action='store_true', help="Scan videos")
+    parser.add_argument('--only-video', dest='only_video', action='store_true',
+                        help='Scan only videos')
     parser.add_argument('--include-jpeg', '-j', dest='jpeg', action='store_true',
                         help="Scan jpeg images")
     parser.add_argument('--only-jpeg', '-J', dest='onlyjpeg', action='store_true',
@@ -324,14 +328,11 @@ def main():
                         help="Don't show progress bar while scanning, and instead show all errors "
                              "output by exiv2 (useful if exiv2 crashes, which takes down this "
                              "script too)")
-    parser.add_argument('--load', '-l', dest='load', action='store_true',
-                        help="Don't scan. Instead use previously generated outfile as input.")
-    parser.add_argument('--verbose', '-v', dest='verbose', action='store_true',
-                        help="Show more detailed output")
+
     args = parser.parse_args()
 
     if not have_progressbar:
-        print("To see an optional but helpful progress bar install pyprind: "
+        print("To see an optional but helpful progress bar, install pyprind: "
               "https://github.com/rasbt/pyprind")
 
     if not shutil.which('vmtouch'):
@@ -351,7 +352,7 @@ def main():
                 with open('/proc/sys/vm/drop_caches', 'w') as stream:
                     stream.write('3\n')
             except PermissionError as e:
-                print("You need superuser permission to run this script with the --clear option",
+                print("You need superuser permission to run this program with the --clear option",
                       file=sys.stderr)
                 sys.exit(1)
 
@@ -380,7 +381,7 @@ def main():
             analyze(photos, args.verbose)
         if videos:
             print("\nVideos\n======")
-        analyze_videos(videos, args.verbose)
+            analyze_videos(videos, args.verbose)
 
 if __name__ == "__main__":
     main()

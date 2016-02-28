@@ -1,6 +1,6 @@
 =head1 NAME
 
-rapid-photo-downloader - downloads, renames and backs up photos and videos from cameras, phones,
+rapid-photo-downloader - Downloads, renames and backs up photos and videos from cameras, phones,
 memory cards and other devices
 
 =head1 SYNOPSIS
@@ -65,7 +65,7 @@ Displays information about the currently installed version and its libraries and
 
 Displays program information on the command line as the program runs.
 
-=item B<---debug>
+=item B<--debug>
 
 Displays debugging information on the command line as the program runs
 
@@ -150,6 +150,10 @@ Resets all program settings to their default values, deletes all thumbnails in t
 cache, forgets which files have been previously downloaded, and exits.
 
 =back
+
+=head1 SEE ALSO
+
+analyze-pv-structure(1)
 
 =head1 AUTHORS
 
