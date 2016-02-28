@@ -76,17 +76,20 @@ class DeviceModel(QAbstractListModel):
     """
     Stores Device / This Computer data.
 
-    One Device is displayed as multiple rows:
+    One Device is displayed has multiple rows:
     1. Header row
-    2. One or more rows displaying storage info
+    2. One or two rows displaying storage info, depending on how many
+       storage devices the device has (i.e. memory cards or perhaps a
+       combo of onboard flash memory and additional storage)
 
     Therefore must map rows to device and back, which is handled by
     a row having a row id, and row ids being linked to a scan id.
     """
 
-    def __init__(self, parent):
+    def __init__(self, parent, device_display_type: str):
         super().__init__(parent)
         self.rapidApp = parent
+        self.device_display_type = device_display_type
         self.devices = {}  # type: Dict[int, Device]
         self.spinner_state = {}  # type: Dict[int, DeviceState]
         self.checked = defaultdict(lambda: True) # type: Dict[int, bool]
@@ -142,7 +145,8 @@ class DeviceModel(QAbstractListModel):
 
         row = self.rowCount()
         self.insertRows(row, no_rows)
-
+        logging.debug("Adding %s to %s display with scan id %s at row %s",
+                      device.name(), self.device_display_type, scan_id, row)
         for row_id in range(self.row_id_counter, self.row_id_counter + no_rows):
             self.row_id_to_scan_id[row_id] = scan_id
             self.rows[row] = row_id
@@ -173,7 +177,9 @@ class DeviceModel(QAbstractListModel):
         if len(device.storage_space) > 1:
             # Add a new row after the current empty storage row
             row_id = row_ids[1]
-            row = self.rows[row_id]
+            row = self.rows.row(row_id)
+            logging.debug("Adding row %s for additional storage device for %s",
+                          row, device.display_name)
 
             for i in range(len(device.storage_space) - 1):
                 row += 1
@@ -199,6 +205,8 @@ class DeviceModel(QAbstractListModel):
         row_ids = self.scan_id_to_row_ids[scan_id]
         header_row_id = row_ids[0]
         row = self.rows.row(header_row_id)
+        logging.debug("Removing %s rows from %s display, starting at row %s",
+                      len(row_ids), self.device_display_type, row)
         self.rows.remove_rows(row, len(row_ids))
         del self.devices[scan_id]
         del self.spinner_state[scan_id]
@@ -209,6 +217,9 @@ class DeviceModel(QAbstractListModel):
             if len(self.row_ids_active) == 0:
                 self.stopSpinners()
         self.headers.remove(header_row_id)
+        del self.scan_id_to_row_ids[scan_id]
+        for row_id in row_ids:
+            del self.row_id_to_scan_id[row_id]
 
         self.removeRows(row, len(row_ids))
 
@@ -292,7 +303,8 @@ class DeviceModel(QAbstractListModel):
 
     def setCheckedValue(self, checked: bool, scan_id: int, row: Optional[int]=None):
         if row is None:
-            row = self.rows.row(scan_id)
+            row_id = self.scan_id_to_row_ids[scan_id][0]
+            row = self.rows.row(row_id)
         self.checked[scan_id] = checked
         self.dataChanged.emit(self.index(row, 0),self.index(row, 0))
         

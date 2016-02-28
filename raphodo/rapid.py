@@ -530,13 +530,13 @@ class RapidWindow(QMainWindow):
         # For meaning of 'Devices', see devices.py
         self.devices = DeviceCollection()
         self.deviceView = DeviceView(self)
-        self.deviceModel = DeviceModel(self)
+        self.deviceModel = DeviceModel(self, "Devices")
         self.deviceView.setModel(self.deviceModel)
         self.deviceView.setItemDelegate(DeviceDelegate(self))
 
         # This computer is any local path
         self.thisComputerView = DeviceView(self)
-        self.thisComputerModel = DeviceModel(self)
+        self.thisComputerModel = DeviceModel(self, "This Computer")
         self.thisComputerView.setModel(self.thisComputerModel)
         self.thisComputerView.setItemDelegate(DeviceDelegate(self))
 
@@ -2204,6 +2204,11 @@ class RapidWindow(QMainWindow):
             else:
                 # Update GUI display with canonical camera display name
                 device = self.devices[scan_id]
+                logging.debug('%s with scan id %s is now known as %s',
+                              device.display_name, scan_id, data.optimal_display_name)
+                if len(data.storage_space) > 1:
+                    logging.debug('%s has %s storage devices',
+                              data.optimal_display_name, len(data.storage_space))
                 device.update_camera_attributes(display_name=data.optimal_display_name,
                                                 storage_space=data.storage_space)
                 self.updateSourceButton()
@@ -2486,8 +2491,7 @@ class RapidWindow(QMainWindow):
             if result:
                 self.startCameraScan(model, port)
             else:
-                logging.debug("Not scanning %s because it could not be "
-                              "unmounted", model)
+                logging.debug("Not scanning %s because it could not be unmounted", model)
         else:
             assert (model, port) in self.camera_unmounts_needed
             if result:
@@ -2526,6 +2530,7 @@ class RapidWindow(QMainWindow):
 
     def startDeviceScan(self, device: Device) -> None:
         scan_id = self.devices.add_device(device)
+        logging.debug("Assigning scan id %s to %s", scan_id, device.name())
         self.addToDeviceDisplay(device, scan_id)
         self.updateSourceButton()
         scan_preferences = ScanPreferences(self.prefs.ignored_paths)
