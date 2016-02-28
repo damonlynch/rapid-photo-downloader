@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
-__author__ = 'Damon Lynch'
 
-# Copyright (C) 2015 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2015-2016 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -34,19 +33,23 @@ Two goals:
     the exif orientation and the exif date time.
 """
 
+__author__ = 'Damon Lynch'
+__copyright__ = "Copyright 2015-2016, Damon Lynch"
+
+import sys
+import os
+
 if sys.version_info < (3,5):
     import scandir
     walk = scandir.walk
 else:
     walk = os.walk
-import os
 import textwrap
 import subprocess
 import argparse
 import shutil
 import pickle
 from collections import defaultdict, Counter
-import sys
 import time
 import threading
 import datetime
@@ -59,17 +62,15 @@ from gi.repository import GExiv2
 from raphodo.photoattributes import PhotoAttributes, vmtouch_output, PreviewSource
 from raphodo.utilities import stdchannel_redirected, show_errors, confirm
 from raphodo.rpdsql import FileFormatSQL
+from raphodo.exiftool import ExifTool
+from raphodo.videoattributes import VideoAttributes
+from raphodo.utilities import format_size_for_user
 
 try:
     import pyprind
-    have_progresbar = True
+    have_progressbar = True
 except ImportError:
-    print("To see a progress bar install pyprind: https://github.com/rasbt/pyprind")
-    have_progresbar = False
-
-if not shutil.which('vmtouch'):
-    print('You need to install vmtouch. Get it at http://hoytech.com/vmtouch/')
-    sys.exit(1)
+    have_progressbar = False
 
 RAW_EXTENSIONS = ['arw', 'dcr', 'cr2', 'crw',  'dng', 'mos', 'mef', 'mrw',
                   'nef', 'nrw', 'orf', 'pef', 'raf', 'raw', 'rw2', 'sr2',
@@ -78,6 +79,9 @@ RAW_EXTENSIONS = ['arw', 'dcr', 'cr2', 'crw',  'dng', 'mos', 'mef', 'mrw',
 JPEG_EXTENSIONS = ['jpg', 'jpe', 'jpeg', 'mpo']
 
 PHOTO_EXTENSIONS = RAW_EXTENSIONS + JPEG_EXTENSIONS
+
+VIDEO_EXTENSIONS = ['3gp', 'avi', 'm2t', 'mov', 'mp4', 'mpeg','mpg', 'mod',
+                    'tod', 'mts']
 
 
 class progress_bar_scanning(threading.Thread):
@@ -152,18 +156,18 @@ def scan(folder: str, disk_cach_cleared: bool, scan_types: List[str], errors: bo
                 print(name)
         print()
         for line in textwrap.wrap("Run this script as super user and use command line option -c "
-                                  "or "
-                            "--clear to safely clear the disk cache.", width=80):
+                                  "or --clear to safely clear the disk cache.", width=80):
             print(line)
 
         if confirm(prompt='\nDo you want to exit?', resp=True):
             sys.exit(0)
 
     photos = []
+    videos = []
 
     if test_files:
         print("\nAnalyzing {:,} files:".format(len(test_files)))
-        if have_progresbar and not errors:
+        if have_progressbar and not errors:
             bar = pyprind.ProgBar(iterations=len(test_files), stream=1, track_time=False, width=80)
     else:
         print("\nNothing to analyze")
@@ -180,17 +184,22 @@ def scan(folder: str, disk_cach_cleared: bool, scan_types: List[str], errors: bo
     metadata_fail = []
 
     with context:
-        for full_file_name, ext in test_files:
-            try:
-                metadata = GExiv2.Metadata(full_file_name)
-            except:
-                metadata_fail.append(full_file_name)
-            else:
-                pa = PhotoAttributes(full_file_name, ext, metadata)
-                photos.append(pa)
+        with ExifTool() as exiftool_process:
+            for full_file_name, ext in test_files:
+                if ext.lower() in VIDEO_EXTENSIONS:
+                    va = VideoAttributes(full_file_name, ext, exiftool_process)
+                    videos.append(va)
+                else:
+                    try:
+                        metadata = GExiv2.Metadata(full_file_name)
+                    except:
+                        metadata_fail.append(full_file_name)
+                    else:
+                        pa = PhotoAttributes(full_file_name, ext, metadata)
+                        photos.append(pa)
 
-            if have_progresbar and not errors:
-                bar.update()
+                if have_progressbar and not errors:
+                    bar.update()
 
     if metadata_fail:
         print()
@@ -201,13 +210,15 @@ def scan(folder: str, disk_cach_cleared: bool, scan_types: List[str], errors: bo
         if not keep_file_names:
             for pa in photos:
                 pa.file_name = None
+            for va in videos:
+                va.file_name = None
 
         with open(outfile, 'wb') as save_to:
-            pickle.dump(photos, save_to, pickle.HIGHEST_PROTOCOL)
+            pickle.dump((photos, videos), save_to, pickle.HIGHEST_PROTOCOL)
 
-    return photos
+    return photos, videos
 
-def analyze(photos: list, verbose: bool) -> None:
+def analyze(photos: List[PhotoAttributes], verbose: bool) -> None:
     size_by_extension= defaultdict(list)
     orientation_read = defaultdict(list)
     datetime_read = defaultdict(list)
@@ -230,7 +241,7 @@ def analyze(photos: list, verbose: bool) -> None:
     for ext in exts:
         print(ext, Counter(orientation_read[ext]).most_common())
 
-    exts = list(orientation_read.keys())
+    exts = list(datetime_read.keys())
     exts.sort()
     print("\nDate time tag read:")
     for ext in exts:
@@ -245,9 +256,46 @@ def analyze(photos: list, verbose: bool) -> None:
     for pa in photos: # type: PhotoAttributes
         file_formats.add_format(pa)
 
+def analyze_videos(videos: List[VideoAttributes], verbose: bool) -> None:
+    size_by_extension= defaultdict(list)
+    datetime_read = defaultdict(list)
+    thumbnail_extract = defaultdict(list)
+    for va in videos:
+        size_by_extension[va.ext].append(va.bytes_cached)
+        total = format_size_for_user(va.file_size)
+        if va.minimum_read_size_in_bytes_datetime is not None:
+            size = format_size_for_user(va.minimum_read_size_in_bytes_datetime)
+            datetime_read[va.ext].append('{} of {}'.format(size, total))
+        if va.minimum_read_size_in_bytes_thumbnail is not None:
+            size =  format_size_for_user(va.minimum_read_size_in_bytes_thumbnail)
+            thumbnail_extract[va.ext].append('{} of {}'.format(size, total))
+
+    exts = list(size_by_extension.keys())
+    exts.sort()
+    print("\nKB cached after date time extraction:")
+    for ext in exts:
+        print(ext, Counter(size_by_extension[ext]).most_common())
+
+    exts = list(thumbnail_extract.keys())
+    exts.sort()
+    print("\nThumbnail extract:")
+    for ext in exts:
+        print(ext, Counter(thumbnail_extract[ext]).most_common())
+
+    exts = list(datetime_read.keys())
+    exts.sort()
+    print("\nDate time read:")
+    for ext in exts:
+        print(ext, Counter(datetime_read[ext]).most_common())
+
+    print()
+    if verbose:
+        for va in videos:
+            print(va)
+
 def main():
     parser = argparse.ArgumentParser(
-        description='Analyze the location of exif data in a variety of RAW and jpeg files.')
+        description='Analyze the location of metadata in a variety of RAW, jpeg and video files.')
     parser.add_argument('source', action='store', help="Folder in which to recursively scan "
                             "for photos, or previously saved outfile.")
     parser.add_argument('outfile',  nargs='?', help="Optional file in which to save the analysis")
@@ -265,10 +313,13 @@ def main():
                              "others.")
     parser.add_argument('--no-dng', '-d', dest='dng', action='store_true',
                         help="Don't scan DNG files")
+    parser.add_argument('--video', action='store_true', help="Scan video images")
+    parser.add_argument('--only-video', dest='only_video', action='store_true', help='Scan only '
+                                                                                     'videos')
     parser.add_argument('--include-jpeg', '-j', dest='jpeg', action='store_true',
                         help="Scan jpeg images")
     parser.add_argument('--only-jpeg', '-J', dest='onlyjpeg', action='store_true',
-                        help="Scan jpeg images")
+                        help="Scan only jpeg images")
     parser.add_argument('--show-errors', '-e', dest='errors', action='store_true',
                         help="Don't show progress bar while scanning, and instead show all errors "
                              "output by exiv2 (useful if exiv2 crashes, which takes down this "
@@ -279,10 +330,20 @@ def main():
                         help="Show more detailed output")
     args = parser.parse_args()
 
+    if not have_progressbar:
+        print("To see an optional but helpful progress bar install pyprind: "
+              "https://github.com/rasbt/pyprind")
+
+    if not shutil.which('vmtouch'):
+        print('To run this program, you need to install vmtouch. Get it at '
+              'http://hoytech.com/vmtouch/')
+        sys.exit(1)
+
     if args.load:
         with open(args.source, 'rb') as infile:
-            photos = pickle.load(infile)
+            photos, videos = pickle.load(infile)
         analyze(photos, args.verbose)
+        analyze_videos(videos, args.verbose)
     else:
         if args.clear:
             subprocess.check_call('sync')
@@ -294,21 +355,32 @@ def main():
                       file=sys.stderr)
                 sys.exit(1)
 
-
-        if args.dng:
-            RAW_EXTENSIONS.remove('dng')
-            PHOTO_EXTENSIONS.remove('dng')
-
-        if args.jpeg:
-            scan_types = PHOTO_EXTENSIONS
-        elif args.onlyjpeg:
-            scan_types = JPEG_EXTENSIONS
+        if args.only_video:
+            scan_types = VIDEO_EXTENSIONS
         else:
-            scan_types = RAW_EXTENSIONS
 
-        photos = scan(args.source, args.clear, scan_types, args.errors, args.outfile,
+            if args.dng:
+                RAW_EXTENSIONS.remove('dng')
+                PHOTO_EXTENSIONS.remove('dng')
+
+            if args.jpeg:
+                scan_types = PHOTO_EXTENSIONS
+            elif args.onlyjpeg:
+                scan_types = JPEG_EXTENSIONS
+            else:
+                scan_types = RAW_EXTENSIONS
+
+            if args.video:
+                scan_types.extend(VIDEO_EXTENSIONS)
+
+        photos, videos = scan(args.source, args.clear, scan_types, args.errors, args.outfile,
                             args.keep)
-        analyze(photos, args.verbose)
+        if photos:
+            print("\nPhotos\n======")
+            analyze(photos, args.verbose)
+        if videos:
+            print("\nVideos\n======")
+        analyze_videos(videos, args.verbose)
 
 if __name__ == "__main__":
     main()

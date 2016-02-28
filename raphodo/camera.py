@@ -327,9 +327,10 @@ class Camera:
             return None
         return jpeg_header + view.tobytes()
 
-    def _get_file(self, dir_name: str, file_name: str,
-                  dest_full_filename:str=None,
-                  file_type:int=gp.GP_FILE_TYPE_NORMAL):
+    def _get_file(self, dir_name: str,
+                  file_name: str,
+                  dest_full_filename: Optional[str]=None,
+                  file_type: int=gp.GP_FILE_TYPE_NORMAL):
 
         camera_file = None
         succeeded = False
@@ -365,9 +366,41 @@ class Camera:
         :return: True if the file was successfully saved, else False
         """
 
-        succeeded, camera_file = self._get_file(dir_name, file_name,
-                                        dest_full_filename)
+        succeeded, camera_file = self._get_file(dir_name, file_name, dest_full_filename)
         return succeeded
+
+    def save_file_chunk(self, dir_name: str,
+                        file_name: str,
+                        chunk_size_in_bytes: int,
+                        dest_full_filename: str) -> bool:
+        """
+        Save the file from the camera to a local destination.
+
+        :param dir_name: directory on the camera
+        :param file_name: the photo or video
+        :param chunk_size_in_bytes: how much of the file to read, starting
+         from the front of the file
+        :param dest_full_filename: full path including filename where
+        the file will be saved.
+        :return: True if the file was successfully saved, else False
+        """
+        buffer = self.get_exif_extract_from_raw(dir_name, file_name, chunk_size_in_bytes)
+        if buffer is None:
+            return False
+        view = memoryview(buffer)
+        dest_file = None
+        try:
+            dest_file = io.open(dest_full_filename, 'wb')
+            src_bytes = view.tobytes()
+            dest_file.write(src_bytes)
+            dest_file.close()
+        except OSError as ex:
+            logging.error('Error saving file %s from camera %s. Code %s',
+                          os.path.join(dir_name, file_name), self.display_name, ex.code)
+            if dest_file is not None:
+                dest_file.close()
+            return False
+        return True
 
     def save_file_by_chunks(self, dir_name: str,
                             file_name: str,
@@ -409,9 +442,8 @@ class Camera:
                 if progress_callback is not None:
                     progress_callback(amount_downloaded, size)
             except gp.GPhoto2Error as ex:
-                logging.error('Error copying file %s from camera %s. Code '
-                              '%s', os.path.join(dir_name, file_name),
-                              self.camera.model, ex.code)
+                logging.error('Error copying file %s from camera %s. Code %s',
+                              os.path.join(dir_name, file_name), self.display_name, ex.code)
                 copy_succeeded = False
                 break
         if copy_succeeded:
@@ -424,7 +456,7 @@ class Camera:
             except OSError as ex:
                 logging.error('Error saving file %s from camera %s. Code '
                               '%s', os.path.join(dir_name, file_name),
-                              self.camera.model, ex.code)
+                              self.display_name, ex.code)
                 if dest_file is not None:
                     dest_file.close()
                 copy_succeeded = False

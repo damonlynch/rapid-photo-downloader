@@ -15,7 +15,7 @@ recursive-include raphodo *.qrc
 recursive-include raphodo *.txt
 global-exclude *~ *.pyc
 exclude raphodo/test.py
-exclude raphodo/analyzephotos.py
+exclude raphodo/test2.py
 prune raphodo/tests
 prune debian
 prune images

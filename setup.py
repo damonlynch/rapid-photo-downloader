@@ -198,6 +198,9 @@ setup(
     entry_points={
         'gui_scripts': [
             'rapid-photo-downloader=raphodo.rapid:main',
+        ],
+        'console_scripts': [
+            'analyze-pv-structure=raphodo.analyzephotos:main'
         ]
     },
     classifiers=[

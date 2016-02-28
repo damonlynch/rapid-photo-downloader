@@ -442,12 +442,10 @@ class RapidWindow(QMainWindow):
 
         if photo_download_folder is not None:
             self.prefs.photo_download_folder = photo_download_folder
-        else:
-            logging.info("Photo download location: %s", self.prefs.photo_download_folder)
+        logging.info("Photo download location: %s", self.prefs.photo_download_folder)
         if video_download_folder is not None:
             self.prefs.video_download_folder = video_download_folder
-        else:
-            logging.info("Video download location: %s", self.prefs.video_download_folder)
+        logging.info("Video download location: %s", self.prefs.video_download_folder)
 
         if backup is not None:
             self.prefs.backup_files = backup

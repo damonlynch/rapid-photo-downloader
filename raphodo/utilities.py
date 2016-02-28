@@ -32,11 +32,13 @@ import locale
 import contextlib
 from itertools import groupby
 from typing import Optional, List
+from datetime import datetime
+import time
 
 from gettext import gettext as _
 
 import psutil
-
+import arrow
 
 def available_cpu_count(physical_only=False) -> int:
     """
@@ -150,8 +152,7 @@ suffixes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB']
 
 def format_size_for_user(size_in_bytes: int, 
                          zero_string: str='', 
-                         no_decimals: int=2,
-                         kb_only: bool=False) -> str:
+                         no_decimals: int=2) -> str:
     r"""
     Humanize display of bytes.
 
@@ -159,7 +160,6 @@ def format_size_for_user(size_in_bytes: int,
 
     :param size: size in bytes
     :param zero_string: string to use if size == 0
-    :param kb_only: display in KB or B
 
     >>> format_size_for_user(0)
     ''
@@ -242,6 +242,7 @@ def divide_list_on_length(source: List, length: int) -> List:
 def addPushButtonLabelSpacer(s: str) -> str:
     return ' ' + s
 
+
 class GenerateRandomFileName:
     def __init__(self):
         # the characters used to generate temporary filenames
@@ -301,7 +302,6 @@ def create_temp_dirs(photo_download_folder: str,
         video_temp_dir = create_temp_dir(video_download_folder)
         logging.debug("Video temporary directory: %s", video_temp_dir)
     return TempDirs(photo_temp_dir, video_temp_dir)
-
 
 def same_file_system(file1: str, file2: str) -> bool:
     """
@@ -440,12 +440,10 @@ def number(value: int) -> numbers:
     numbers(number='one', plural=False)
     >>> number(2)
     numbers(number='two', plural=True)
-    >>> number(0.5)
     >>> number(10)
     numbers(number='ten', plural=True)
     >>> number(20)
     numbers(number='twenty', plural=True)
-    >>> number(21)
     >>>
 
     :param value: int between 1 and 20
@@ -455,3 +453,22 @@ def number(value: int) -> numbers:
     plural = value > 1
     text = long_numbers[value]
     return numbers(text, plural)
+
+def datetime_roughly_equal(dt1: datetime, dt2: datetime, seconds: int=60) -> bool:
+    r"""
+    Check to see if date times are equal, give or take n seconds
+    :param dt1: python datetime to check
+    :param dt2:python datetime to check
+    :param seconds: number of seconds leeway
+    :return: True if "equal", False otherwise
+
+    >>> dt1 = datetime.now()
+    >>> time.sleep(.1)
+    >>> dt2 = datetime.now()
+    >>> datetime_roughly_equal(dt1, dt2, 1)
+    True
+    """
+
+    at1 = arrow.get(dt1)
+    at2 = arrow.get(dt2)
+    return at1.replace(seconds=-seconds) < at2 < at1.replace(seconds=+seconds)

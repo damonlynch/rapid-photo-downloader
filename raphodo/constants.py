@@ -231,21 +231,25 @@ datetime_offset = dict(
     raw=964,
     rw2=3844,
     sr2=836,
-    srw=508
+    srw=508,
+    mts=5000,
+    mp4=50000,
+    avi=50000
 )
+datetime_offset['3gp'] = 5000
 
 photo_rename_test = ['Date time','Image date','YYYYMMDD','Text','-','',
-                    'Date time','Image date','HHMM','Text','-','','Sequences',
-                    'Downloads today','One digit','Text','-iso','',
-                    'Metadata','ISO','','Text','-f','','Metadata',
+                     'Date time','Image date','HHMM','Text','-','','Sequences',
+                     'Downloads today','One digit','Text','-iso','',
+                     'Metadata','ISO','','Text','-f','','Metadata',
                      'Aperture','','Text','-','','Metadata','Focal length','',
                      'Text','mm-','','Metadata','Exposure time','',
                      'Filename','Extension','lowercase']
 
 photo_rename_simple_test = ['Date time','Image date','YYYYMMDD','Text','-','',
-                    'Date time','Image date','HHMM','Text','-','','Sequences',
-                    'Downloads today','One digit', 'Filename','Extension','lowercase']
+                     'Date time','Image date','HHMM','Text','-','','Sequences',
+                     'Downloads today','One digit', 'Filename','Extension','lowercase']
 
 job_code_rename_test = ['Job code','', '', 'Sequences',
-                    'Downloads today','One digit', 'Filename','Extension',
+                     'Downloads today','One digit', 'Filename','Extension',
                         'lowercase']

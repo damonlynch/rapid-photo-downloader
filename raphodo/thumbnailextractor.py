@@ -51,7 +51,7 @@ import raphodo.exiftool as exiftool
 have_gst = Gst.init_check(None)
 
 def get_video_frame(full_file_name: str,
-                    offset: Optional[int]=5,
+                    offset: Optional[float]=5.0,
                     caps=Gst.Caps.from_string('image/png')) -> bytes:
     """
     Source: https://gist.github.com/dplanella/5563018

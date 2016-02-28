@@ -35,7 +35,7 @@ import pickle
 import logging
 from collections import (namedtuple, defaultdict)
 from datetime import datetime
-from time import sleep
+import tempfile
 
 if sys.version_info < (3,5):
     import scandir
@@ -60,7 +60,9 @@ import raphodo.rpdfile as rpdfile
 from raphodo.constants import (DeviceType, FileType, GphotoMTime, datetime_offset, CameraErrorCode,
                                FileExtension)
 from raphodo.rpdsql import DownloadedSQL, FileDownloaded
-from raphodo.utilities import stdchannel_redirected
+from raphodo.utilities import stdchannel_redirected, datetime_roughly_equal
+from raphodo.exiftool import ExifTool
+import raphodo.metadatavideo as metadatavideo
 
 FileInfo = namedtuple('FileInfo', ['path', 'modification_time', 'size',
                                    'ext_lower', 'base_name', 'file_type'])
@@ -303,9 +305,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
                 self.file_type_counter[key] += 1
                 self.file_size_sum[key] += size
 
-                # TODO handle case of video only files
-                # TODO #2 double check time zone offset in some exiftool results
-                if file_type == FileType.photo and self.gphoto_mtime == GphotoMTime.undetermined:
+                if self.gphoto_mtime == GphotoMTime.undetermined:
                     self.set_gphoto_mtime_(path, name, ext_lower, modification_time, size)
 
                 modification_time = self.get_camera_modification_time(modification_time)
@@ -489,7 +489,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
         For example, if we're at UTC + 5, the time stamp is five hours
         in advance of what is recorded on the memory card
         """
-        metadata = None
+        metadata = dt = None
         if extension in rpdfile.JPEG_TYPE_EXTENSIONS:
             raw_bytes = self.camera.get_exif_extract_from_jpeg(path, name)
             if raw_bytes is not None:
@@ -500,7 +500,11 @@ class ScanWorker(WorkerInPublishPullPipeline):
                 except:
                     logging.error("Scanner failed to load metadata from %s on %s", name,
                                   self.camera.display_name)
-        else:
+                try:
+                    dt = metadata.get_date_time()  # type: datetime
+                except:
+                    dt = None
+        elif extension in rpdfile.RAW_EXTENSIONS:
             offset = datetime_offset.get(extension)
             if offset is None:
                 offset = size
@@ -513,29 +517,44 @@ class ScanWorker(WorkerInPublishPullPipeline):
                 except:
                     logging.error("Scanner failed to load metadata from %s on %s", name,
                                   self.camera.display_name)
-        if metadata is not None:
-            dt = None
-            try:
-                dt = metadata.get_date_time() # type: datetime
-            except:
-                logging.warning("Scanner failed to extract date time metadata from %s on %s",
+                try:
+                    dt = metadata.get_date_time()  # type: datetime
+                except:
+                    dt = None
+        elif extension in rpdfile.VIDEO_EXTENSIONS:
+            offset = datetime_offset.get(extension)
+            # May as well get the whole file if less than 2 MB
+            if offset is None or size < 1024**2 * 2:
+                max_size =  1024**2 * 30  # approx 30 MB
+                if size < max_size:
+                    offset = size
+            if offset is not None:
+                with tempfile.TemporaryDirectory() as tempdir:
+                    temp_name = os.path.join(tempdir, name)
+                    if self.camera.save_file_chunk(path, name, offset, temp_name):
+                        with ExifTool() as et_process:
+                            metadata = metadatavideo.MetaData(temp_name, et_process)
+                            dt = metadata.date_time(missing=None)
+
+        if dt is None:
+            logging.warning("Scanner failed to extract date time metadata from %s on %s",
                               name, self.camera.display_name)
-                logging.debug("Could not determine gPhoto2 timezone setting for %s",
-                                self.camera.display_name)
-                self.gphoto_mtime = GphotoMTime.unknown
-            else:
-                if datetime.utcfromtimestamp(modification_time) == dt:
-                    logging.debug("gPhoto2 timezone setting for %s is UTC",
-                                self.camera.display_name)
-                    self.gphoto_mtime = GphotoMTime.is_utc
-                else:
-                    logging.debug("gPhoto2 timezone setting for %s is local time",
-                                self.camera.display_name)
-                    self.gphoto_mtime = GphotoMTime.is_local
-        else:
             logging.debug("Could not determine gPhoto2 timezone setting for %s",
-                                self.camera.display_name)
+                            self.camera.display_name)
             self.gphoto_mtime = GphotoMTime.unknown
+        else:
+            # Must not compare exact times, as there can be a few seconds difference between
+            # when a file was saved to the flash memory and when it was created in the
+            # camera's memory. Allow for two minutes, to be safe.
+            if datetime_roughly_equal(dt1=datetime.utcfromtimestamp(modification_time),
+                                      dt2=dt, seconds=120):
+                logging.debug("gPhoto2 timezone setting for %s is UTC",
+                            self.camera.display_name)
+                self.gphoto_mtime = GphotoMTime.is_utc
+            else:
+                logging.debug("gPhoto2 timezone setting for %s is local time",
+                            self.camera.display_name)
+                self.gphoto_mtime = GphotoMTime.is_local
 
     def _get_associate_file_from_camera(self, base_name: str,
                 associate_files: defaultdict, camera_file: CameraFile) -> str:

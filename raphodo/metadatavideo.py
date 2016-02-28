@@ -45,6 +45,7 @@ EXIFTOOL_VERSION = version_info()
 # properly. Then call this class
 # with exiftool.ExifTool() as et_process:
 
+
 class MetaData:
     """
     Get video metadata using Exiftool
@@ -79,7 +80,6 @@ class MetaData:
 
         return self.metadata.get(key, missing)
 
-
     def date_time(self, missing='') -> datetime.datetime:
         """
         Returns in python datetime format the date and time the image was
@@ -97,13 +97,18 @@ class MetaData:
         if d is None:
             d = self._get('FileModifyDate', None)
         if d is not None:
+            d = d.strip()
             try:
                 # returned value may or may not have a time offset
-                # strip it if need be
-                dt = d[:19]
-                dt = datetime.datetime.strptime(dt, "%Y:%m:%d %H:%M:%S")
+                if len(d) > 19:
+                    # remove the : from the timzone component, if it's present
+                    if d[-3] == ':' and (d[-6] in ('+', '-')):
+                        tz = d[:-3] + d[-2:]
+                    dt = datetime.datetime.strptime(tz, "%Y:%m:%d %H:%M:%S%z")
+                else:
+                    dt = datetime.datetime.strptime(d, "%Y:%m:%d %H:%M:%S")
             except:
-                logging.error("Error reading date metadata with file %s", self.filename)
+                logging.error("Error reading date metadata %s from file %s", d, self.filename)
                 return missing
 
             return dt

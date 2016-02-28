@@ -16,6 +16,10 @@
 # along with Rapid Photo Downloader.  If not,
 # see <http://www.gnu.org/licenses/>.
 
+"""
+Collects attributes about varieties of photo formats, including how much of the file
+has to be read in order to extract exif information or a preview.
+"""
 
 __author__ = 'Damon Lynch'
 __copyright__ = "Copyright 2015-2016, Damon Lynch"
@@ -367,15 +371,13 @@ class PhotoAttributes:
                 self.bytes_cached, self.bytes_cached_post_thumb, self.total)
         if self.minimum_exif_read_size_in_bytes_orientation is not None:
             s += 'Minimum read size to extract orientation tag: {}\n'.format(
-                format_size_for_user(self.minimum_exif_read_size_in_bytes_orientation,
-                                     with_decimals=False))
+                format_size_for_user(self.minimum_exif_read_size_in_bytes_orientation))
         if self.minimum_exif_read_size_in_bytes_orientation is None and self.orientation is not \
                 None:
             s += 'Could not extract orientation tag with minimal read\n'
         if self.minimum_exif_read_size_in_bytes_datetime is not None:
             s += 'Minimum read size to extract datetime tag: {}\n'.format(
-                format_size_for_user(self.minimum_exif_read_size_in_bytes_datetime,
-                                     with_decimals=False))
+                format_size_for_user(self.minimum_exif_read_size_in_bytes_datetime))
         if self.minimum_exif_read_size_in_bytes_datetime is None and self.datetime is not None:
             s += 'Could not extract datetime tag with minimal read\n'
         return s
