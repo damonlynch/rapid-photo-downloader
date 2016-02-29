@@ -150,6 +150,7 @@ class ExtractionTask(Enum):
     load_from_bytes = 4
     load_from_exif = 5
     extract_from_file = 6
+    extract_from_temp_file = 7
 
 
 class ExtractionProcessing(Enum):
@@ -239,6 +240,18 @@ datetime_offset = dict(
     avi=50000
 )
 datetime_offset['3gp'] = 5000
+
+thumbnail_offset = dict(
+    avi=500000,
+    mod=500000,
+    mov=2000000,
+    mp4=2000000,
+    mts=600000,
+    m2t=600000,
+    mpg=500000,
+    mpeg=500000,
+    tod=500000,
+)
 
 photo_rename_test = ['Date time','Image date','YYYYMMDD','Text','-','',
                      'Date time','Image date','HHMM','Text','-','','Sequences',

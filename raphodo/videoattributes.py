@@ -30,7 +30,7 @@ import datetime
 from raphodo.photoattributes import vmtouch_output
 import raphodo.exiftool as exiftool
 from raphodo.metadatavideo import MetaData
-from raphodo.utilities import format_size_for_user
+from raphodo.utilities import format_size_for_user, datetime_roughly_equal
 from raphodo.thumbnailextractor import get_video_frame
 
 class VideoAttributes:
@@ -41,8 +41,11 @@ class VideoAttributes:
         self.et_process = et_process
         self.minimum_read_size_in_bytes_datetime = None
         self.minimum_read_size_in_bytes_thumbnail = None
-        self.file_size = os.path.getsize(full_file_name)
         self.thumbnail_offset = 0.0
+
+        stat = os.stat(full_file_name)
+        self.fs_datetime = datetime.datetime.fromtimestamp(stat.st_mtime)
+        self.file_size = stat.st_size
 
         self.assign_video_attributes(et_process)
 
@@ -119,7 +122,14 @@ class VideoAttributes:
         else:
             s = self.ext
         if self.datetime: # type: datetime.datetime
-            s += '{}\n'.format(self.datetime.strftime('%c'))
+            s += 'Datetime in metadata: {}\n'.format(self.datetime.strftime('%c'))
+            if not datetime_roughly_equal(self.datetime, self.fs_datetime):
+                s += 'Differs from datetime on file system: {}\n'.format(
+                    self.fs_datetime.strftime('%c'))
+        else:
+            s += 'Datetime on file system: {}\n'.format(self.fs_datetime.strftime('%c'))
+
+        s += 'Disk cache after metadata read:\n[{}]\n'.format(self.in_memory)
         if self.minimum_read_size_in_bytes_datetime is not None:
             s += 'Minimum read size to extract datetime: {} of {}\n'.format(
                 format_size_for_user(self.minimum_read_size_in_bytes_datetime),

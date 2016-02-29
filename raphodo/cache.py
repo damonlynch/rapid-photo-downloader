@@ -490,7 +490,7 @@ class ThumbnailCacheSql:
          to indicate whether the thumbnail was found, a failure, or
          missing, (2) the path (including the md5 name), else None, and
          (3) a bool indicating whether the orientation of the thumbnail
-          is unknown,
+         is unknown,
         """
 
         if not self.valid:

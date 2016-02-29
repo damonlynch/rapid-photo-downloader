@@ -23,7 +23,7 @@ __copyright__ = "Copyright 2015-2016, Damon Lynch"
 
 import sys
 import logging
-
+from urllib.request import pathname2url
 import pickle
 import os
 from collections import namedtuple
@@ -61,8 +61,9 @@ def get_video_frame(full_file_name: str,
     :param caps:
     :return: gstreamer buffer
     """
+    logging.debug("Using gstreamer to generate thumbnail from %s", full_file_name)
     pipeline = Gst.parse_launch('playbin')
-    pipeline.props.uri = 'file://' + os.path.abspath(full_file_name)
+    pipeline.props.uri = 'file://{}'.format(pathname2url(os.path.abspath(full_file_name)))
     pipeline.props.audio_sink = Gst.ElementFactory.make('fakesink', 'fakeaudio')
     pipeline.props.video_sink = Gst.ElementFactory.make('fakesink', 'fakevideo')
     pipeline.set_state(Gst.State.PAUSED)
@@ -96,11 +97,13 @@ def qimage_to_png_buffer(image: QImage) -> QBuffer:
     :param image: the image to be converted
     :return: the buffer
     """
+
     buffer = QBuffer()
     buffer.open(QIODevice.WriteOnly)
     # Quality 100 means uncompressed.
     image.save(buffer, "PNG", quality=100)
     return buffer
+
 
 def crop_160x120_thumbnail(thumbnail: QImage, vertical_space: int=8) -> QImage:
     """
@@ -109,6 +112,7 @@ def crop_160x120_thumbnail(thumbnail: QImage, vertical_space: int=8) -> QImage:
     :param vertical_space: how much to remove from the top and bottom
     :return: cropped thumbnail
     """
+
     return thumbnail.copy(0, vertical_space, 160, 120 - vertical_space * 2)
 
 
@@ -297,11 +301,12 @@ class ThumbnailExtractor(LoadBalancerWorker):
                         orientation = self.get_orientation(rpd_file=rpd_file,
                                                            raw_bytes=data.exif_buffer)
                 else:
-                    assert task == ExtractionTask.extract_from_file
+                    assert task in (ExtractionTask.extract_from_file,
+                                    ExtractionTask.extract_from_temp_file)
                     if not have_gst:
                         thumbnail = None
                     else:
-                        png = get_video_frame(data.full_file_name_to_work_on)
+                        png = get_video_frame(data.full_file_name_to_work_on, 0.0)
                         if png is None:
                             thumbnail = None
                             logging.warning("Could not extract video thumbnail from %s",
@@ -317,6 +322,9 @@ class ThumbnailExtractor(LoadBalancerWorker):
                                 if orientation is not None:
                                     processing.add(ExtractionProcessing.orient)
                                 processing.add(ExtractionProcessing.resize)
+                        if task == ExtractionTask.extract_from_temp_file:
+                            os.remove(data.full_file_name_to_work_on)
+                            rpd_file.temp_cache_full_file_chunk = ''
 
                 if thumbnail is not None:
                     if ExtractionProcessing.strip_bars_photo in processing:
