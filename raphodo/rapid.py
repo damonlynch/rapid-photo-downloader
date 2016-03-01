@@ -15,7 +15,7 @@
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
-# along with Rapid Photo Downloader.  If not,
+# along with Rapid Photo Downloader. If not,
 # see <http://www.gnu.org/licenses/>.
 
 """
@@ -42,6 +42,7 @@ import platform
 import argparse
 from typing import Optional, Tuple, List, Dict
 from time import sleep
+import faulthandler
 
 from gettext import gettext as _
 
@@ -127,6 +128,7 @@ from raphodo.filebrowse import FileSystemView, FileSystemModel
 from raphodo.toggleview import QToggleView
 import raphodo.__about__ as __about__
 import raphodo.iplogging as iplogging
+import raphodo.excepthook
 
 BackupMissing = namedtuple('BackupMissing', 'photo, video')
 
@@ -134,7 +136,10 @@ BackupMissing = namedtuple('BackupMissing', 'photo, video')
 # https://www.riverbankcomputing.com/pipermail/pyqt/2016-February/036932.html
 app = None  # type: 'QtSingleApplication'
 
+faulthandler.enable()
 logger = None
+sys.excepthook = raphodo.excepthook.excepthook
+
 
 class RenameMoveFileManager(PushPullDaemonManager):
     message = QtCore.pyqtSignal(bool, RPDFile, int, QPixmap)
@@ -404,6 +409,7 @@ class RapidWindow(QMainWindow):
         self.application_state = ApplicationState.normal
         self.prompting_for_user_action = {}  # type: Dict[Device, QMessageBox]
 
+        logging.info("*** Rapid Photo Downloader has started ***")
         for version in get_versions():
             logging.info('%s', version)
 
@@ -484,7 +490,6 @@ class RapidWindow(QMainWindow):
         # self.prefs.photo_rename = job_code_rename_test
         self.prefs.backup_files = False
         self.prefs.backup_device_autodetection = True
-
 
         # Don't call processEvents() after initiating 0MQ, as it can
         # cause "Interrupted system call" errors
@@ -3287,8 +3292,7 @@ def main():
         logging_level = logging.ERROR
 
     global logger
-    logger = iplogging.setup_main_process_logging(
-        get_program_logging_directory(create_if_not_exist=True), logging_level=logging_level)
+    logger = iplogging.setup_main_process_logging(logging_level=logging_level)
 
     if args.auto_detect:
         auto_detect= args.auto_detect == 'on'
@@ -3419,18 +3423,18 @@ def main():
     app.processEvents()
 
     rw = RapidWindow(auto_detect=auto_detect,
-                     this_computer_source=this_computer_source,
-                     this_computer_location=this_computer_location,
-                     photo_download_folder=photo_location,
-                     video_download_folder=video_location,
-                     backup=backup,
-                     backup_auto_detect=backup_auto_detect,
-                     photo_backup_identifier=photo_backup_identifier,
-                     video_backup_identifier=video_backup_identifier,
-                     photo_backup_location=photo_backup_location,
-                     video_backup_location=video_backup_location,
-                     ignore_other_photo_types=args.ignore_other,
-                     thumb_cache=thumb_cache)
+             this_computer_source=this_computer_source,
+             this_computer_location=this_computer_location,
+             photo_download_folder=photo_location,
+             video_download_folder=video_location,
+             backup=backup,
+             backup_auto_detect=backup_auto_detect,
+             photo_backup_identifier=photo_backup_identifier,
+             video_backup_identifier=video_backup_identifier,
+             photo_backup_location=photo_backup_location,
+             video_backup_location=video_backup_location,
+             ignore_other_photo_types=args.ignore_other,
+             thumb_cache=thumb_cache)
 
     app.setActivationWindow(rw)
 

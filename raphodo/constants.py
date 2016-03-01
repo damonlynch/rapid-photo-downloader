@@ -24,7 +24,7 @@ from enum import (Enum, IntEnum)
 from PyQt5.QtCore import Qt
 
 PROGRAM_NAME = "Rapid Photo Downloader"
-
+logfile_name = 'rapid-photo-downloader.log'
 
 class ConflictResolution(IntEnum):
     skip = 1
