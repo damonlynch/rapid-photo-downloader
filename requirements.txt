@@ -1,12 +1,15 @@
 # This is an implicit value, here for clarity
 --index-url https://pypi.python.org/simple/
 
-psutil>=2.2.1
+psutil>=3.4.2
 gphoto2>=1.3.3
 pyzmq>=14.4.1
 sortedcontainers>=0.9.6
 pyxdg>=0.25
 arrow>=0.6.0
 python-dateutil>=2.2
+rawkit>=0.5.0
+pyprind>=2.9.4
+colorlog>=2.6
 typing>=3.5.0.1; python_version < '3.5'
 scandir>=1.2; python_version < '3.5'

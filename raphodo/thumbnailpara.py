@@ -53,6 +53,11 @@ import zmq
 from PyQt5.QtGui import QImage
 from PyQt5.QtCore import QSize
 import psutil
+try:
+    import rawkit
+    have_rawkit = True
+except ImportError:
+    have_rawkit = False
 
 from raphodo.rpdfile import RPDFile
 from raphodo.interprocess import (WorkerInPublishPullPipeline,
@@ -211,10 +216,7 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
             return True
         return False
 
-# TODO notfiy this worker if cannot process certain types of thumbnail, e.g. DNG from cellphone
-# TODO notify this worker if could not extract thumbnail from small chunk of file, e.g. video
 # TODO improve extraction order of photos, videos
-# TODO make cache dirs on demand?
 
     def do_work(self) -> None:
         arguments = pickle.loads(self.content) # type: GenerateThumbnailsArguments
@@ -331,6 +333,7 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
             exif_buffer = None
             thumbnail_bytes = None
             full_file_name_to_work_on = ''
+            file_to_work_on_is_temporary = False
             task = ExtractionTask.undetermined
             processing = set()
 
@@ -394,20 +397,42 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
                                 else:
                                     bytes_to_read = min(rpd_file.size,
                                         orientation_offset.get(rpd_file.extension, 500))
-                                exif_buffer = self.camera.get_exif_extract_from_raw(
+                                exif_buffer = self.camera.get_exif_extract(
                                     rpd_file.path, rpd_file.name, bytes_to_read)
                             thumbnail_bytes = self.camera.get_thumbnail(rpd_file.path,
                                                                         rpd_file.name)
                             processing.add(ExtractionProcessing.strip_bars_photo)
                             processing.add(ExtractionProcessing.orient)
-                        elif self.cache_full_size_file_from_camera(rpd_file):
-                            task = ExtractionTask.load_file_directly
-                            processing.add(ExtractionProcessing.resize)
-                            processing.add(ExtractionProcessing.orient)
-                            full_file_name_to_work_on = rpd_file.cache_full_file_name
                         else:
-                            # Failed to generate thumbnail
-                            task == ExtractionTask.bypass
+                            # Many (most?) jpegs from phones don't include jpeg previews,
+                            # so need to render from the entire jpeg itself. Slow!
+
+                            # If rawkit is not installed, then extract merely a part of
+                            # phone's raw format, and try to extract the jpeg preview
+                            # from it (which probably doesn't exist!). This is fast.
+                            # If have rawkit, download and render an image from the
+                            # RAW
+                            if not rpd_file.is_jpeg() and not have_rawkit:
+                                bytes_to_read = thumbnail_offset.get(rpd_file.extension)
+                                if bytes_to_read:
+                                    exif_buffer = self.camera.get_exif_extract(
+                                        rpd_file.path, rpd_file.name, bytes_to_read)
+                                    task = ExtractionTask.load_from_exif_buffer
+                                    processing.add(ExtractionProcessing.orient)
+                            if (task == ExtractionTask.undetermined and
+                                    self.cache_full_size_file_from_camera(rpd_file)):
+                                if rpd_file.is_jpeg():
+                                    task = ExtractionTask.load_file_directly
+                                    processing.add(ExtractionProcessing.resize)
+                                    processing.add(ExtractionProcessing.orient)
+                                else:
+                                    task = ExtractionTask.load_from_exif
+                                    processing.add(ExtractionProcessing.resize)
+                                    processing.add(ExtractionProcessing.orient)
+                                full_file_name_to_work_on = rpd_file.cache_full_file_name
+                            else:
+                                # Failed to generate thumbnail
+                                task == ExtractionTask.bypass
                     else:
                         # video
                         if rpd_file.thm_full_name is not None:
@@ -421,8 +446,9 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
                             # that to generate thumbnail
                             offset = thumbnail_offset.get(rpd_file.extension)
                             if offset and self.cache_file_chunk_from_camera(rpd_file, offset):
-                                task = ExtractionTask.extract_from_temp_file
+                                task = ExtractionTask.extract_from_file
                                 full_file_name_to_work_on = rpd_file.temp_cache_full_file_chunk
+                                file_to_work_on_is_temporary = True
                             elif self.cache_full_size_file_from_camera(rpd_file):
                                 task = ExtractionTask.extract_from_file
                                 full_file_name_to_work_on = rpd_file.cache_full_file_name
@@ -448,6 +474,7 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
                         else:
                             task = ExtractionTask.load_from_exif
                             processing.add(ExtractionProcessing.orient)
+                            full_file_name_to_work_on = rpd_file.full_file_name
                             # TODO put a proper value here
                             bytes_to_read = self.cached_read.get(rpd_file.extension, 400 * 1024)
                         if bytes_to_read:
@@ -482,7 +509,8 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
                     full_file_name_to_work_on=full_file_name_to_work_on,
                     exif_buffer=exif_buffer,
                     thumbnail_bytes = thumbnail_bytes,
-                    use_thumbnail_cache=thumbnail_cache is not None),
+                    use_thumbnail_cache=thumbnail_cache is not None,
+                    file_to_work_on_is_temporary=file_to_work_on_is_temporary),
                     pickle.HIGHEST_PROTOCOL)
                 self.frontend.send_multipart([b'data', self.content])
 

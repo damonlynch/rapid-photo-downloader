@@ -307,7 +307,7 @@ class Preferences:
     performance_defaults = dict(generate_thumbnails=True,
                                 use_thumbnail_cache=True,
                                 save_fdo_thumbnails=True,
-                                max_cpu_cores=min(available_cpu_count(), 4)
+                                max_cpu_cores=max(available_cpu_count(physical_only=True), 2)
                                 )
     error_defaults = dict(conflict_resolution=int(constants.ConflictResolution
                           .skip),

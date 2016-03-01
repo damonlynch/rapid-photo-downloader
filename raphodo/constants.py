@@ -150,7 +150,7 @@ class ExtractionTask(Enum):
     load_from_bytes = 4
     load_from_exif = 5
     extract_from_file = 6
-    extract_from_temp_file = 7
+    load_from_exif_buffer = 7
 
 
 class ExtractionProcessing(Enum):
@@ -242,6 +242,9 @@ datetime_offset = dict(
 datetime_offset['3gp'] = 5000
 
 thumbnail_offset = dict(
+    jpg=100000,
+    jpeg=100000,
+    dng=100000,
     avi=500000,
     mod=500000,
     mov=2000000,

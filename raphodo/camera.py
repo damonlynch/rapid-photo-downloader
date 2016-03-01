@@ -173,9 +173,9 @@ class Camera:
         size = info.file.size
         return (modification_time, size)
 
-    def get_exif_extract_from_raw(self, folder: str,
-                                  file_name: str,
-                                  size_in_bytes: int=200) -> Optional[bytearray]:
+    def get_exif_extract(self, folder: str,
+                         file_name: str,
+                         size_in_bytes: int=200) -> Optional[bytearray]:
         """"
         Attempt to read only the exif portion of the file.
 
@@ -384,7 +384,7 @@ class Camera:
         the file will be saved.
         :return: True if the file was successfully saved, else False
         """
-        buffer = self.get_exif_extract_from_raw(dir_name, file_name, chunk_size_in_bytes)
+        buffer = self.get_exif_extract(dir_name, file_name, chunk_size_in_bytes)
         if buffer is None:
             return False
         view = memoryview(buffer)
@@ -494,8 +494,7 @@ class Camera:
                 thumbnail_data = gp.check_result(gp.gp_file_get_data_and_size(
                     camera_file))
             except gp.GPhoto2Error as ex:
-                logging.error('Error getting image %s from camera. Code: '
-                              '%s',
+                logging.error('Error getting image %s from camera. Code: %s',
                           os.path.join(dir_name, file_name), ex.code)
             if thumbnail_data:
                 data = memoryview(thumbnail_data)

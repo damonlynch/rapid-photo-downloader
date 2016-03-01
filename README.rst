@@ -1,6 +1,19 @@
 Rapid Photo Downloader
 ======================
 
+Contents
+--------
+
+- `Description`_
+- `Quickstart on Ubuntu or Debian-like Systems`_
+- `Software Requirements and Program Installation`_
+    - `Satisfying Software Requirements`_
+    - `Installation`_
+    - `Uninstallation`_
+
+Description
+===========
+
 Rapid Photo Downloader imports photos and videos from cameras, phones,
 memory cards and other devices at high speed. It can be configured to
 rename photos and videos with meaningful filenames you specify. It can also
@@ -12,55 +25,133 @@ group photos and videos based on how much time elapsed between consecutive
 shots. You can use this to quickly identify photos and videos taken at
 different periods in a single day or over consecutive days.
 
-Written by a photographer for professional and amateur photographers, Rapid
+Written by a photographer_ for professional and amateur photographers, Rapid
 Photo Downloader is easy to configure and use. Program preferences are
 configured without the need for complicated codes. Common tasks can be
 automated, such as unmounting a memory card when the download is complete.
 
-For more information, see the project website_.
+A helper command-line program accompanying Rapid Photo Downloader is
+``analyze_pv_structure``, which analyzes photos and videos to help determine
+how much of a file needs to be read to extract its metadata and embedded thumbnail,
+or render a thumbnail.
 
-It currently runs only on Linux. Theoretically it can be ported to both Mac
-and Windows with minimal effort (apart from the fact that Windows does not
+The version of the program described here, 0.9.0a1, is alpha quality software,
+meaning that not all its features have been written. For more information
+about the older, current release of the program, see the project website_.
+
+Rapid Photo Downloader currently runs only on Linux. Theoretically it can be ported
+to both Mac and Windows with minimal effort (apart from the fact that Windows does not
 have gphoto2, meaning when run under Windows, it could not download directly
 from cameras).
 
-Installation
-------------
+The program is licensed under the GPL3_ or later.
 
-Rapid Photo Downloader requires:
- - Python 3.4 or greater
- - PyQt 5.4 or greater
- - `Python gobject introspection`_
- - `python-gphoto2`_
-    - If installing python-gphoto2 from PyPi, you must first install
-      the development packages for libgphoto2 and Python3, e.g. libgphoto2-dev
-      and python3-dev
- - pyzmq_
-    - If installing pyzmq from PyPi, you must first install the development
-      packages for libzmq3 and Python3, e.g. libzmq3-dev and python3-dev
- - psutil_
- - sortedcontainers_
- - pyxdg_
- - Arrow_
- - dateutil_ 2.0 or greater
- - Qt5 plugin for reading TIFF images
- - If using Python 3.4, these additional modules:
-    - typing_
-    - scandir_
- - colorlog_ (optional, install if you want coloured program output when running Rapid Photo
-   Downloader from the terminal)
+Quickstart on Ubuntu or Debian-like Systems
+===========================================
 
-The following command will install all necessary requirements that can be satisified with the
-built-in distribution packages on Ubuntu or Debian-like systems:
+If you use Ubuntu 15.10 or newer, or Debian sid, or an equivalent, first install all necessary
+build and Python module requirements that can be satisified  with the built-in distribution
+packages:
 
 ``sudo apt-get install libimage-exiftool-perl python3-pyqt5 python3-pip
 python3-setuptools python3-dev python3-distutils-extra gir1.2-gexiv2-0.10 python3-gi
 gir1.2-gudev-1.0 gir1.2-udisks-2.0 gir1.2-notify-0.7 gir1.2-glib-2.0 gir1.2-gstreamer-1.0
 libgphoto2-dev python3-sortedcontainers python3-arrow python3-psutil qt5-image-formats-plugins
-python3-zmq exiv2 python3-colorlog``
+python3-zmq exiv2 python3-colorlog libraw-bin``
 
-After satisfying as many requirements as you can using your Linux distribution's standard package
-installation tools, you may install Rapid Photo Downloader using the following steps, assuming
+If not using Ubuntu 16.04, make Python's installation tools up-to-date by executing
+the following two steps (optional: see caution below in `Installation`_):
+
+``sudo python3 -m pip install --upgrade pip``
+
+``sudo python3 -m pip install --upgrade setuptools``
+
+If your system uses Python 3.4 and you didn't upgrade pip and setuptools, run:
+
+``sudo python3 -m pip install typing scandir``
+
+Finally, to install:
+
+``sudo python3 -m pip install rapid-photo-downloader-0.9.0a1.tar.gz``
+
+**Caution:** *untarring the archive, building it and installing it using* ``sudo python3 setup.py
+install`` *is* **not** *supported, and* **not** *recommended.*
+
+Finally, to uninstall:
+
+``sudo python3 -m pip uninstall rapid-photo-downloader``
+
+
+Software Requirements and Program Installation
+==============================================
+
+The program is installed using the Python tool pip_, which automates almost
+all aspects of the program's installation by using PyPi_ to download Python modules.
+
+Rapid Photo Downloader requires:
+
+ - Python 3.4 or greater
+ - PyQt_ 5.4 or greater
+ - `Python gobject introspection`_ modules:
+    - GUdev 1.0
+    - UDisks 2.0
+    - GLib 2.0
+    - GExiv2 0.10
+    - Gst 1.0
+    - Notify 0.7
+ - `python-gphoto2`_ 1.3.4 or newer
+ - pyzmq_
+ - psutil_ 3.4.2 or newer
+ - sortedcontainers_
+ - pyxdg_
+ - Arrow_
+ - dateutil_ 2.0 or newer
+ - exiv2_
+ - ExifTool_
+ - Qt5 plugin for reading TIFF images
+ - If using Python 3.4, these additional modules:
+    - typing_
+    - scandir_
+
+Highly recommended, optional dependencies:
+
+ - colorlog_: generates coloured program output when running Rapid Photo Downloader from the
+   terminal.
+ - rawkit_: renders thumbnails from RAW images from which a thumbnail cannot be extracted using
+   libraw_, which is especially useful when downloading DNG files from Android phones or working
+   with old RAW formats.
+ - pyprind_: shows a progress bar on the command line while running the program
+   ``analyze_pv_structure``.
+
+Satisfying Software Requirements
+--------------------------------
+
+While Rapid Photo Downloader's installer will automatically download and install most
+required Python modules not already found on your system, there are some it cannot install.
+You must install these Python modules and a few other programs prior to installing Rapid Photo
+Downloader. The Python module build requirements are the Python 3 versions
+of:
+
+ - PyQt_ 5.4 or greater
+ - All `Python gobject introspection`_ modules listed above
+
+The non-Python programs required are:
+
+ - ExifTool_
+ - exiv2_
+ - Given `python-gphoto2`_ will almost certainly be installed from PyPi_, the development
+   packages for libgphoto2 and Python3 must be installed first, e.g. libgphoto2-dev
+   and python3-dev
+ - If installing pyzmq_ from PyPi_, you must first install the development
+   packages for libzmq3 and Python3, e.g. libzmq3-dev and python3-dev
+ - Qt5 plugin for reading TIFF images
+ - If installing rawkit_ from PyPi_, libraw is required, e.g. libraw10 or libraw15.
+
+Installation
+------------
+
+After `satisfying software requirements`_ using your Linux distribution's standard package
+installation tools, you should install Rapid Photo Downloader using the following steps, assuming
 you use sudo to get super-user (root) access.
 
 First, you may need to update your system's copy of pip and setuptools (optional):
@@ -69,28 +160,30 @@ First, you may need to update your system's copy of pip and setuptools (optional
 
 ``sudo python3 -m pip install --upgrade setuptools``
 
-**Caution:** the previous two steps will update pip and setuptools system-wide. This could
-negatively affect the installation of other, older Python packages. If you don't want to do update
-these two packages, and you are using Python 3.4 without a recent version of pip and setuptools,
-you must manually install  python's typing and scandir modules:
+**Caution:** the previous two steps will update pip and setuptools system-wide. Potentially this
+could negatively affect the installation of other, older Python packages. If you don't
+want to do update these two packages, and you are using Python 3.4 without a recent version
+of pip and setuptools, you must manually install Python's typing and scandir modules:
 
 ``sudo python3 -m pip install typing scandir``
 
-Be sure to have satisfied the build requirements listed above before running the following
-command, substituting the name of the correct compressed tar file:
+The following command will install all required and optional Python modules not already
+installed on your system, with the exception of those specified above in
+`satisfying software requirements`_:
 
 ``sudo python3 -m pip install rapid-photo-downloader-0.9.0a1.tar.gz``
 
-*Note: untarring the archive, building it and installing it using* ``sudo python3 setup.py
-install`` *is not supported, and not recommended.*
+Substitute the name of the correct compressed tar file if necessary.
 
-Uninstalling
-------------
+**Caution:** *untarring the archive, building it and installing it using* ``sudo python3 setup.py
+install`` *is* **not** *supported, and* **not** *recommended.*
+
+Uninstallation
+--------------
 
 Assuming you installed using the instructions above, run:
 
 ``sudo python3 -m pip uninstall rapid-photo-downloader``
-
 
 
 .. _website: http://damonlynch.net/rapid
@@ -105,6 +198,13 @@ Assuming you installed using the instructions above, run:
 .. _typing: https://pypi.python.org/pypi/typing
 .. _scandir: https://github.com/benhoyt/scandir
 .. _colorlog: https://github.com/borntyping/python-colorlog
-
-
-
+.. _rawkit: https://github.com/photoshell/rawkit
+.. _pyprind: https://github.com/rasbt/pyprind
+.. _exiv2: http://www.exiv2.org/
+.. _ExifTool: http://www.sno.phy.queensu.ca/~phil/exiftool/
+.. _PyPi: https://pypi.python.org/pypi
+.. _GPL3: http://www.gnu.org/licenses/gpl-3.0.en.html
+.. _photographer: http://www.damonlynch.net
+.. _pip: https://pip.pypa.io/en/stable/
+.. _libraw: http://www.libraw.org/
+.. _PyQt: https://riverbankcomputing.com/software/pyqt/intro

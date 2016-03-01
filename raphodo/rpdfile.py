@@ -48,8 +48,6 @@ RAW_EXTENSIONS = ['arw', 'dcr', 'cr2', 'crw',  'dng', 'mos', 'mef', 'mrw',
                   'nef', 'nrw', 'orf', 'pef', 'raf', 'raw', 'rw2', 'sr2',
                   'srw']
 
-RAW_EXTENSIONS.remove('dng')
-
 JPEG_EXTENSIONS = ['jpg', 'jpe', 'jpeg']
 
 JPEG_TYPE_EXTENSIONS = ['jpg', 'jpe', 'jpeg', 'mpo']

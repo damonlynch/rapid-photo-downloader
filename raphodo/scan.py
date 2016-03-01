@@ -508,7 +508,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
             offset = datetime_offset.get(extension)
             if offset is None:
                 offset = size
-            raw_bytes = self.camera.get_exif_extract_from_raw(path, name, offset)
+            raw_bytes = self.camera.get_exif_extract(path, name, offset)
             if raw_bytes is not None:
                 metadata = GExiv2.Metadata()
                 try:

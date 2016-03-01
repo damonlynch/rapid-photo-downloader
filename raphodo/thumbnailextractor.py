@@ -27,7 +27,8 @@ from urllib.request import pathname2url
 import pickle
 import os
 from collections import namedtuple
-from typing import Optional
+import tempfile
+from typing import Optional, Set
 
 import gi
 gi.require_version('GExiv2', '0.10')
@@ -36,13 +37,18 @@ from gi.repository import GExiv2, Gst
 
 from PyQt5.QtGui import QImage, QTransform
 from PyQt5.QtCore import QSize, Qt, QIODevice, QBuffer
-
+try:
+    from rawkit.raw import Raw
+    from rawkit.options import WhiteBalance
+    have_rawkit = True
+except ImportError:
+    have_rawkit = False
 
 from raphodo.interprocess import (LoadBalancerWorker, ThumbnailExtractorArgument,
                           GenerateThumbnailsResults)
 
 from raphodo.constants import (ThumbnailSize, ExtractionTask, ExtractionProcessing)
-from raphodo.rpdfile import RPDFile, Video
+from raphodo.rpdfile import RPDFile, Video, FileType
 from raphodo.utilities import stdchannel_redirected, show_errors
 from raphodo.filmstrip import add_filmstrip
 from raphodo.cache import ThumbnailCacheSql
@@ -88,7 +94,7 @@ def get_video_frame(full_file_name: str,
     else:
         return None
 
-PhotoDetails = namedtuple('PhotoDetails', 'thumbnail orientation')
+PhotoDetails = namedtuple('PhotoDetails', 'thumbnail, orientation')
 
 def qimage_to_png_buffer(image: QImage) -> QBuffer:
     """
@@ -151,13 +157,60 @@ class ThumbnailExtractor(LoadBalancerWorker):
         return (size.width() >= self.thumbnail_size_needed.width() or
                 size.height() >= self.thumbnail_size_needed.height())
 
-    def get_disk_photo_thumb(self, rpd_file: RPDFile,
-                             processing: set) -> PhotoDetails:
 
-        full_file_name = rpd_file.full_file_name
+    def _extract_metadata(self, metadata: GExiv2.Metadata,
+                          rpd_file: RPDFile,
+                          processing: Set[ExtractionProcessing]):
+
+        thumbnail = orientation = None
+        try:
+            orientation = metadata['Exif.Image.Orientation']
+        except KeyError:
+            pass
+
+        # Not all files have an exif preview, but some do
+        # (typically CR2, ARW, PEF, RW2).
+        # If they exist, they are (almost!) always 160x120
+
+        ep = metadata.get_exif_thumbnail()
+        if ep:
+            thumbnail = QImage.fromData(metadata.get_exif_thumbnail())
+            if thumbnail.isNull():
+                thumbnail = None
+            elif thumbnail.width() == 120 and thumbnail.height() == 160:
+                # The Samsung Pro815 can store its thumbnails this way!
+                # Perhaps some other obscure cameras also do this too.
+                # The orientation has already been applied to the thumbnail
+                orientation = '1'
+            elif thumbnail.width() > 160 or thumbnail.height() > 120:
+                            processing.add(ExtractionProcessing.resize)
+            elif not rpd_file.is_jpeg():
+                processing.add(ExtractionProcessing.strip_bars_photo)
+        else:
+            previews = metadata.get_preview_properties()
+            if previews:
+                # In every RAW file I've analyzed, the smallest preview is always first
+                preview = previews[0]
+                data = metadata.get_preview_image(preview).get_data()
+                if isinstance(data, bytes):
+                    thumbnail = QImage.fromData(data)
+                    if thumbnail.isNull():
+                        thumbnail = None
+                    else:
+                        if thumbnail.width() > 160 or thumbnail.height() > 120:
+                            processing.add(ExtractionProcessing.resize)
+                        if not rpd_file.is_jpeg():
+                            processing.add(ExtractionProcessing.strip_bars_photo)
+
+        return PhotoDetails(thumbnail, orientation)
+
+    def get_disk_photo_thumb(self, rpd_file: RPDFile,
+                             full_file_name: str,
+                             processing: Set[ExtractionProcessing]) -> PhotoDetails:
 
         orientation = None
         thumbnail = None
+        photo_details = PhotoDetails(thumbnail, orientation)
         try:
             metadata = GExiv2.Metadata(full_file_name)
         except:
@@ -165,44 +218,43 @@ class ThumbnailExtractor(LoadBalancerWorker):
             metadata = None
 
         if metadata is not None:
+            photo_details = self._extract_metadata(metadata, rpd_file, processing)
+            thumbnail = photo_details.thumbnail
+
+        if thumbnail is not None or not have_rawkit:
+            return photo_details
+        elif rpd_file.is_raw():
+            assert have_rawkit
             try:
-                orientation = metadata['Exif.Image.Orientation']
-            except KeyError:
-                pass
-
-            # Not all files have an exif preview, but some do
-            # (typically CR2, ARW, PEF, RW2).
-            # If they exist, they are (almost!) always 160x120
-
-            ep = metadata.get_exif_thumbnail()
-            if ep:
-                thumbnail = QImage.fromData(metadata.get_exif_thumbnail())
-                if thumbnail.isNull():
-                    thumbnail = None
-                elif thumbnail.width() == 120 and thumbnail.height() == 160:
-                    # The Samsung Pro815 can store its thumbnails this way!
-                    # Perhaps some other obscure cameras also do this too.
-                    # The orientation has already been applied to the thumbnail
-                    orientation = '1'
-                elif thumbnail.width() > 160 or thumbnail.height() > 120:
-                                processing.add(ExtractionProcessing.resize)
-                elif not rpd_file.is_jpeg():
-                    processing.add(ExtractionProcessing.strip_bars_photo)
-            else:
-                previews = metadata.get_preview_properties()
-                if previews:
-                    # In every RAW file I've analyzed, the smallest preview is always first
-                    preview = previews[0]
-                    data = metadata.get_preview_image(preview).get_data()
-                    if isinstance(data, bytes):
-                        thumbnail = QImage.fromData(data)
+                with Raw(filename=full_file_name) as raw:
+                    raw.options.white_balance = WhiteBalance(camera=True, auto=False)
+                    if rpd_file.cache_full_file_name:
+                        temp_file = '{}.tiff'.format(os.path.splitext(full_file_name)[0])
+                        temp_dir = None
+                    else:
+                        temp_dir = tempfile.mkdtemp(prefix="rpd-tmp-")
+                        name = os.path.basename(full_file_name)
+                        temp_file = '{}.tiff'.format(os.path.splitext(name)[0])
+                    try:
+                        raw.save(filename=temp_file)
+                    except:
+                        logging.debug("Rendering %s failed", rpd_file.full_file_name)
+                    else:
+                        thumbnail = QImage(temp_file)
+                        os.remove(temp_file)
                         if thumbnail.isNull():
+                            logging.debug("Qt failed to load rendered %s",
+                                          rpd_file.full_file_name)
                             thumbnail = None
                         else:
-                            if thumbnail.width() > 160 or thumbnail.height() > 120:
-                                processing.add(ExtractionProcessing.resize)
-                            if not rpd_file.is_jpeg():
-                                processing.add(ExtractionProcessing.strip_bars_photo)
+                            logging.debug("Rendered %s using libraw", rpd_file.full_file_name)
+                            processing.add(ExtractionProcessing.resize)
+                            if photo_details.orientation is not None:
+                                processing.add(ExtractionProcessing.orient)
+                if temp_dir:
+                    os.rmdir(temp_dir)
+            except:
+                logging.debug("Rendering %s not suported", rpd_file.full_file_name)
 
         if thumbnail is None and rpd_file.is_loadable():
             thumbnail = QImage(full_file_name)
@@ -214,6 +266,18 @@ class ThumbnailExtractor(LoadBalancerWorker):
                     "Unable to create a thumbnail out of the file: {}".format(full_file_name))
 
         return PhotoDetails(thumbnail, orientation)
+
+    def get_from_buffer(self, rpd_file: RPDFile,
+                        raw_bytes: bytearray,
+                        processing: Set[ExtractionProcessing]) -> PhotoDetails:
+        metadata = GExiv2.Metadata()
+        try:
+            metadata.open_buf(raw_bytes)
+        except:
+            logging.warning("Extractor failed to load metadata from extract of %s", rpd_file.name)
+            return PhotoDetails(None, None)
+        else:
+            return self._extract_metadata(metadata, rpd_file, processing)
 
     def get_orientation(self, rpd_file: RPDFile,
                         full_file_name: Optional[str]=None,
@@ -281,7 +345,8 @@ class ThumbnailExtractor(LoadBalancerWorker):
 
             try:
                 if task == ExtractionTask.load_from_exif:
-                    thumbnail_details = self.get_disk_photo_thumb(rpd_file, processing)
+                    thumbnail_details = self.get_disk_photo_thumb(
+                        rpd_file, data.full_file_name_to_work_on, processing)
                     thumbnail = thumbnail_details.thumbnail
                     if thumbnail is not None:
                         orientation = thumbnail_details.orientation
@@ -300,9 +365,14 @@ class ThumbnailExtractor(LoadBalancerWorker):
                     if data.exif_buffer and ExtractionProcessing.orient in processing:
                         orientation = self.get_orientation(rpd_file=rpd_file,
                                                            raw_bytes=data.exif_buffer)
+                elif task == ExtractionTask.load_from_exif_buffer:
+                    thumbnail_details = self.get_from_buffer(rpd_file, data.exif_buffer,
+                                                             processing)
+                    thumbnail = thumbnail_details.thumbnail
+                    if thumbnail is not None:
+                        orientation = thumbnail_details.orientation
                 else:
-                    assert task in (ExtractionTask.extract_from_file,
-                                    ExtractionTask.extract_from_temp_file)
+                    assert task == ExtractionTask.extract_from_file
                     if not have_gst:
                         thumbnail = None
                     else:
@@ -322,9 +392,10 @@ class ThumbnailExtractor(LoadBalancerWorker):
                                 if orientation is not None:
                                     processing.add(ExtractionProcessing.orient)
                                 processing.add(ExtractionProcessing.resize)
-                        if task == ExtractionTask.extract_from_temp_file:
-                            os.remove(data.full_file_name_to_work_on)
-                            rpd_file.temp_cache_full_file_chunk = ''
+
+                if data.file_to_work_on_is_temporary:
+                    os.remove(data.full_file_name_to_work_on)
+                    rpd_file.temp_cache_full_file_chunk = ''
 
                 if thumbnail is not None:
                     if ExtractionProcessing.strip_bars_photo in processing:

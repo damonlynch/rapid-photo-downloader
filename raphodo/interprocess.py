@@ -1238,11 +1238,13 @@ class ThumbnailExtractorArgument:
                  full_file_name_to_work_on: str,
                  exif_buffer: bytearray,
                  thumbnail_bytes: bytes,
-                 use_thumbnail_cache: bool) -> None:
+                 use_thumbnail_cache: bool,
+                 file_to_work_on_is_temporary: bool) -> None:
         self.rpd_file = rpd_file
         self.task = task
         self.processing = processing
         self.full_file_name_to_work_on = full_file_name_to_work_on
+        self.file_to_work_on_is_temporary = file_to_work_on_is_temporary
         self.exif_buffer = exif_buffer
         self.thumbnail_bytes = thumbnail_bytes
         self.use_thumbnail_cache = use_thumbnail_cache
