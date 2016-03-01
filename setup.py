@@ -42,7 +42,8 @@ def install_instructions():
              'python3-distutils-extra gir1.2-gexiv2-0.10 python3-gi gir1.2-gudev-1.0 ' \
              'gir1.2-udisks-2.0 gir1.2-notify-0.7 gir1.2-glib-2.0 gir1.2-gstreamer-1.0 '\
              'libgphoto2-dev python3-sortedcontainers python3-arrow python3-psutil '\
-             'qt5-image-formats-plugins python3-zmq exiv2 python3-colorlog libraw-bin\n'
+             'qt5-image-formats-plugins python3-zmq exiv2 python3-colorlog libraw-bin ' \
+             'python3-easygui\n'
     if os.path.isfile('/etc/os-release'):
         with open('/etc/os-release', 'r') as f:
             for line in f:
@@ -186,6 +187,7 @@ setup(
                       'colorlog',
                       'pyprind',
                       'rawkit',
+                      'easygui'
                       ],
     extras_require={':python_version == "3.4"': ['scandir', 'typing']},
     include_package_data = False,

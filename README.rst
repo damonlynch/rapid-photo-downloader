@@ -57,7 +57,7 @@ packages:
 python3-setuptools python3-dev python3-distutils-extra gir1.2-gexiv2-0.10 python3-gi
 gir1.2-gudev-1.0 gir1.2-udisks-2.0 gir1.2-notify-0.7 gir1.2-glib-2.0 gir1.2-gstreamer-1.0
 libgphoto2-dev python3-sortedcontainers python3-arrow python3-psutil qt5-image-formats-plugins
-python3-zmq exiv2 python3-colorlog libraw-bin``
+python3-zmq exiv2 python3-colorlog libraw-bin python3-easygui``
 
 If not using Ubuntu 16.04, make Python's installation tools up-to-date by executing
 the following two steps (optional: see caution below in `Installation`_):
@@ -70,7 +70,7 @@ If your system uses Python 3.4 and you didn't upgrade pip and setuptools, run:
 
 ``sudo python3 -m pip install typing scandir``
 
-Finally, to install:
+To install, run:
 
 ``sudo python3 -m pip install rapid-photo-downloader-0.9.0a1.tar.gz``
 
@@ -108,6 +108,7 @@ Rapid Photo Downloader requires:
  - dateutil_ 2.0 or newer
  - exiv2_
  - ExifTool_
+ - EasyGUI_
  - Qt5 plugin for reading TIFF images
  - If using Python 3.4, these additional modules:
     - typing_
@@ -146,6 +147,7 @@ The non-Python programs required are:
    packages for libzmq3 and Python3, e.g. libzmq3-dev and python3-dev
  - Qt5 plugin for reading TIFF images
  - If installing rawkit_ from PyPi_, libraw is required, e.g. libraw10 or libraw15.
+ - If installing EasyGUI_ from PyPi_, ensure the Tkinter package for Python 3 is installed.
 
 Installation
 ------------
@@ -208,3 +210,4 @@ Assuming you installed using the instructions above, run:
 .. _pip: https://pip.pypa.io/en/stable/
 .. _libraw: http://www.libraw.org/
 .. _PyQt: https://riverbankcomputing.com/software/pyqt/intro
+.. _EasyGUI: https://github.com/robertlugg/easygui

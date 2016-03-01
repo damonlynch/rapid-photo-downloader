@@ -24,6 +24,12 @@ from urllib.request import pathname2url
 from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import QMessageBox, QApplication
 from PyQt5.QtGui import QPixmap
+try:
+    from easygui import codebox
+    have_easygui = True
+except ImportError:
+    have_easygui = False
+
 import raphodo.qrc_resources as qrc_resources
 
 from raphodo.iplogging import full_log_file_path
@@ -47,6 +53,8 @@ def excepthook(exception_type, exception_value, traceback_object) -> None:
     log_path, log_file = os.path.split(full_log_file_path())
     log_uri = pathname2url(log_path)
 
+    title="Problem in Rapid Photo Downloader"
+
     if QApplication.instance():
 
         message = r"""<b>A problem occurred in Rapid Photo Downloader</b><br><br>
@@ -55,7 +63,6 @@ Attach the log file <i>{log_file}</i> to your bug report (click
 <a href="{log_path}">here</a> to open the log directory).""".format(
             website='https://bugs.launchpad.net/rapid', log_path=log_uri, log_file=log_file)
 
-        title="Problem in Rapid Photo Downloader"
         icon = QPixmap(':/rapid-photo-downloader.svg')
 
         errorbox = QMessageBox()
@@ -65,3 +72,11 @@ Attach the log file <i>{log_file}</i> to your bug report (click
         errorbox.setText(message)
         errorbox.setDetailedText(traceback_info)
         errorbox.exec_()
+    elif have_easygui:
+        message = 'A problem occurred in Rapid Photo Downloader\n'
+        prefix = """Please report the problem at {website}\n
+Attach the log file to your bug report, found at {log_path}\n\n""".format(
+            website='https://bugs.launchpad.net/rapid', log_path=full_log_file_path())
+        text = prefix + traceback_info
+        codebox(msg=message, title=title, text=text)
+
