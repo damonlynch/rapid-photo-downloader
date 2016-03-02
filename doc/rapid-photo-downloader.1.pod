@@ -149,6 +149,11 @@ Deletes all thumbnails in the Rapid Photo Downloader Thumbnail Cache, and exits.
 Resets all program settings to their default values, deletes all thumbnails in the Thumbnail
 cache, forgets which files have been previously downloaded, and exits.
 
+=item B<--log-gphoto2>
+
+Includes gphoto2 debugging information in log files, which can be useful when analyzing
+any problems libgphoto2 might have accessing a camera.
+
 =back
 
 =head1 SEE ALSO

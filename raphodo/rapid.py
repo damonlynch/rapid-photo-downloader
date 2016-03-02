@@ -43,6 +43,7 @@ import argparse
 from typing import Optional, Tuple, List, Dict
 from time import sleep
 import faulthandler
+import pkg_resources
 
 from gettext import gettext as _
 
@@ -392,6 +393,7 @@ class RapidWindow(QMainWindow):
                  video_backup_location: Optional[str]=None,
                  ignore_other_photo_types: Optional[bool]=None,
                  thumb_cache: Optional[bool]=None,
+                 log_gphoto2: Optional[bool]=None,
                  parent=None) -> None:
 
         super().__init__(parent)
@@ -413,11 +415,15 @@ class RapidWindow(QMainWindow):
         for version in get_versions():
             logging.info('%s', version)
 
+        self.log_gphoto2 = log_gphoto2 == True
+
         self.context = zmq.Context()
 
         self.setWindowTitle(_("Rapid Photo Downloader"))
         self.readWindowSettings(app)
         self.prefs = Preferences()
+        self.checkPrefsUpgrade()
+        self.prefs.program_version = __about__.__version__
 
         if thumb_cache is not None:
             logging.debug("Use thumbnail cache: %s", thumb_cache)
@@ -497,6 +503,21 @@ class RapidWindow(QMainWindow):
 
         self.startProcessLogger()
 
+    def checkPrefsUpgrade(self):
+        if self.prefs.program_version != __about__.__version__:
+            previous_version = self.prefs.program_version
+            if not len(previous_version):
+                logging.debug("Initial program run detected")
+            else:
+                pv = pkg_resources.parse_version(previous_version)
+                rv = pkg_resources.parse_version(__about__.__version__)
+                if pv < rv:
+                    logging.debug("Version upgrade detected, from %s to %s",
+                                  previous_version, __about__.__version__)
+                elif pv > rv:
+                    logging.debug("Version downgrade detected, from %s to %s",
+                                  __about__.__version__, previous_version)
+
     def startProcessLogger(self):
         self.loggermq = ProcessLoggingManager()
         self.loggermqThread = QThread()
@@ -518,7 +539,8 @@ class RapidWindow(QMainWindow):
 
         self.thumbnailView = ThumbnailView(self)
         logging.debug("Starting thumbnail model")
-        self.thumbnailModel = ThumbnailListModel(parent=self, logging_port=logging_port)
+        self.thumbnailModel = ThumbnailListModel(parent=self, logging_port=logging_port,
+                                                 log_gphoto2=self.log_gphoto2)
         self.thumbnailProxyModel = ThumbnailSortFilterProxyModel(self)
         self.thumbnailProxyModel.setSourceModel(self.thumbnailModel)
         self.thumbnailView.setModel(self.thumbnailProxyModel)
@@ -1519,13 +1541,14 @@ class RapidWindow(QMainWindow):
         # Initiate copy files process
 
         device = self.devices[scan_id]
-        copyfiles_args = CopyFilesArguments(scan_id,
-                                device,
-                                photo_download_folder,
-                                video_download_folder,
-                                files,
-                                verify_file,
-                                generate_thumbnails)
+        copyfiles_args = CopyFilesArguments(scan_id=scan_id,
+                                device=device,
+                                photo_download_folder=photo_download_folder,
+                                video_download_folder=video_download_folder,
+                                files=files,
+                                verify_file=verify_file,
+                                generate_thumbnails=generate_thumbnails,
+                                log_gphoto2=self.log_gphoto2)
 
         self.copyfilesmq.start_worker(scan_id, copyfiles_args)
 
@@ -1907,7 +1930,7 @@ class RapidWindow(QMainWindow):
         """
         Delete files from download device at completion of download
         """
-        # TODO delete from cameras and from other devics
+        # TODO delete from cameras and from other devices
         # TODO should assign this to a process or a thread, and delete then
         to_delete = self.download_tracker.get_files_to_auto_delete(scan_id)
 
@@ -2153,7 +2176,7 @@ class RapidWindow(QMainWindow):
         number.
         """
 
-        data = pickle.loads(pickled_data) # type: ScanResults
+        data = pickle.loads(pickled_data)  # type: ScanResults
         if data.rpd_files is not None:
             # Update scan running totals
             scan_id = data.rpd_files[0].scan_id
@@ -2193,6 +2216,7 @@ class RapidWindow(QMainWindow):
                                 'does not work, unplug the %(camera)s from the computer and plug '
                                 'it in again. Alternatively, you can ignore '
                                 'this device.') % {'camera':camera_model}
+
                 msgBox = QMessageBox(QMessageBox.Warning, title, message,
                                 QMessageBox.NoButton, self)
                 msgBox.setIconPixmap(self.devices[scan_id].get_pixmap(QSize(30,30)))
@@ -2294,10 +2318,9 @@ class RapidWindow(QMainWindow):
         rpd_files = self.thumbnailModel.rpd_files
         file_types = [rpd_files[row.id_value].file_type for row in rows]
         # TODO assign a user-defined value to the proximity
-        proximity_seconds=3600
         data = OffloadData(thumbnail_rows=rows,
                            thumbnail_types=file_types,
-                           proximity_seconds=proximity_seconds)
+                           proximity_seconds=self.prefs.proximity_seconds)
         self.offloadmq.assign_work(data)
 
     @pyqtSlot(TemporalProximityGroups)
@@ -2541,7 +2564,8 @@ class RapidWindow(QMainWindow):
         scan_preferences = ScanPreferences(self.prefs.ignored_paths)
         scan_arguments = ScanArguments(scan_preferences=scan_preferences,
                            device=device,
-                           ignore_other_types=self.ignore_other_photo_types)
+                           ignore_other_types=self.ignore_other_photo_types,
+                           log_gphoto2=self.log_gphoto2)
         self.scanmq.start_worker(scan_id, scan_arguments)
         self.devices.set_device_state(scan_id, DeviceState.scanning)
         self.setDownloadActionSensitivity()
@@ -3261,6 +3285,8 @@ def parser_options(formatter_class=argparse.HelpFormatter):
                  help=_("reset all program settings to their default values, delete all thumbnails "
                         "in the Thumbnail cache, forget which files have been previously "
                         "downloaded, and exit."))
+    parser.add_argument("--log-gphoto2", action="store_true",
+        help=_("include gphoto2 debugging information in log files"))
     return parser
 
 def main():
@@ -3383,6 +3409,9 @@ def main():
     else:
         thumb_cache = None
 
+    if args.log_gphoto2:
+        gp.use_python_logging()
+
     appGuid = '8dbfb490-b20f-49d3-9b7d-2016012d2aa8'
 
     # See note above regarding avoiding crashes
@@ -3434,7 +3463,8 @@ def main():
              photo_backup_location=photo_backup_location,
              video_backup_location=video_backup_location,
              ignore_other_photo_types=args.ignore_other,
-             thumb_cache=thumb_cache)
+             thumb_cache=thumb_cache,
+             log_gphoto2=args.log_gphoto2)
 
     app.setActivationWindow(rw)
 

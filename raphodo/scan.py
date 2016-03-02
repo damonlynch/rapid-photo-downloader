@@ -68,7 +68,6 @@ FileInfo = namedtuple('FileInfo', ['path', 'modification_time', 'size',
                                    'ext_lower', 'base_name', 'file_type'])
 CameraFile = namedtuple('CameraFile', 'name size')
 
-#FIXME free camera in case of early termination
 
 class ScanWorker(WorkerInPublishPullPipeline):
 
@@ -85,8 +84,10 @@ class ScanWorker(WorkerInPublishPullPipeline):
     def do_work(self) -> None:
         logging.debug("Scan {} worker started".format(self.worker_id.decode()))
 
-        scan_arguments = pickle.loads(self.content) # type: ScanArguments
+        scan_arguments = pickle.loads(self.content)  # type: ScanArguments
         self.scan_preferences = scan_arguments.scan_preferences
+        if scan_arguments.log_gphoto2:
+            gp.use_python_logging()
 
         if scan_arguments.ignore_other_types:
             rpdfile.PHOTO_EXTENSIONS_SCAN = rpdfile.PHOTO_EXTENSIONS_WITHOUT_OTHER
@@ -103,11 +104,11 @@ class ScanWorker(WorkerInPublishPullPipeline):
             self.camera_display_name = None
 
         self.files_scanned = 0
+        self.camera = None
 
         if not self.download_from_camera:
             # Download from file system
             path = scan_arguments.device.path
-            self.camera = None
             self.display_name = scan_arguments.device.display_name
             # Scan the files using lightweight high-performance scandir
             logging.info("Scanning {}".format(self.display_name))
@@ -216,7 +217,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
         located.
 
         We cannot assume file names are unique on any one memory card,
-        as although it's very unlikely, it's possible that a file with
+        as although it's unlikely, it's possible that a file with
         the same name might be in different subfolders.
 
         For cameras with two memory cards, there are two broad
@@ -299,7 +300,12 @@ class ScanWorker(WorkerInPublishPullPipeline):
             if file_type is not None:
                 # file is a photo or video
                 file_is_unique = True
-                modification_time, size = self.camera.get_file_info(path, name)
+                try:
+                    modification_time, size = self.camera.get_file_info(path, name)
+                except gp.GPhoto2Error as e:
+                    logging.error("Unable to access modification_time or size from %s on %s. "
+                                  "Error code: %s", os.path.join(path, name), self.display_name,
+                                  e.code)
 
                 key = rpdfile.make_key(file_type, basedir)
                 self.file_type_counter[key] += 1
@@ -351,10 +357,13 @@ class ScanWorker(WorkerInPublishPullPipeline):
                                   os.path.join(path, name), self.camera.model)
 
         folders = []
-        # TODO add exception checking
-        for name, value in self.camera.camera.folder_list_folders(path, self.camera.context):
-            if self.scan_preferences.scan_this_path(os.path.join(path, name)):
-                    folders.append(name)
+        try:
+            for name, value in self.camera.camera.folder_list_folders(path, self.camera.context):
+                if self.scan_preferences.scan_this_path(os.path.join(path, name)):
+                        folders.append(name)
+        except gp.GPhoto2Error as e:
+                logging.error("Unable to scan files on %s. Error code: %s", self.display_name,
+                              e.code)
 
         # recurse over subfolders
         for name in folders:
@@ -618,6 +627,12 @@ class ScanWorker(WorkerInPublishPullPipeline):
             if os.path.exists(possible_file):
                 return possible_file
         return None
+
+    def cleanup_pre_stop(self):
+        if self.camera is not None:
+            self.camera.free_camera()
+
+
 
 if __name__ == "__main__":
     scan = ScanWorker()

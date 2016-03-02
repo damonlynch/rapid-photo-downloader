@@ -35,6 +35,7 @@ from raphodo.storage import xdg_photos_directory, xdg_videos_directory
 from raphodo.generatenameconfig import *
 import raphodo.constants as constants
 from raphodo.utilities import available_cpu_count
+import raphodo.__about__
 
 
 class ScanPreferences:
@@ -252,6 +253,7 @@ def today():
     return datetime.date.today().strftime('%Y-%m-%d')
 
 class Preferences:
+    program_defaults = dict(program_version='')
     rename_defaults = dict(photo_download_folder=xdg_photos_directory(),
                            video_download_folder=xdg_videos_directory(),
                            photo_subfolder=DEFAULT_SUBFOLDER_PREFS,
@@ -276,6 +278,7 @@ class Preferences:
                                       _('Stockholm')],
                            remember_job_code=True,
                           )
+    timeline_defaults = dict(proximity_seconds=3600)
     device_defaults = dict(only_external_mounts=True,
                            device_autodetection=True,
                            this_computer_source = True,
@@ -320,11 +323,12 @@ class Preferences:
         self.__dict__['settings'] = QSettings("Rapid Photo Downloader",
                                               "Rapid Photo Downloader")
         # These next two values must be kept in sync
-        dicts = (self.rename_defaults, self.device_defaults,
+        dicts = (self.program_defaults, self.rename_defaults,
+                 self.timeline_defaults, self.device_defaults,
                  self.backup_defaults, self.automation_defaults,
                  self.performance_defaults, self.error_defaults)
-        group_names = ('Rename', 'Device', 'Backup', 'Automation',
-                       'Performance', 'ErrorHandling')
+        group_names = ('Program', 'Rename', 'Timeline', 'Device', 'Backup',
+                       'Automation', 'Performance', 'ErrorHandling')
         assert len(dicts) == len(group_names)
 
         # Create quick lookup table for types of each value, including the
@@ -519,4 +523,4 @@ class Preferences:
         Reset all program preferences to their default settings
         """
         self.settings.clear()
-        #TODO insert program version
+        self.program_version = raphodo.__about__.__version__

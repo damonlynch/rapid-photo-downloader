@@ -194,7 +194,8 @@ class Camera:
             self.camera.file_read(folder, file_name, gp.GP_FILE_TYPE_NORMAL, 0, buffer,
                                   self.context)
         except gp.GPhoto2Error as e:
-            logging.error("Unable to extract exif from camera: error %s", e.code)
+            logging.error("Unable to extract exif from camera %s: error %s", self.display_name,
+                          e.code)
             return None
         else:
             return buffer
@@ -222,8 +223,8 @@ class Camera:
             try:
                 exif_data = gp.check_result(gp.gp_file_get_data_and_size(camera_file))
             except gp.GPhoto2Error as ex:
-                logging.error('Error getting exif info for %s from camera. Code: '
-                              '%s', os.path.join(folder, file_name), ex.code)
+                logging.error('Error getting exif info for %s from camera %s. Code: '
+                              '%s', os.path.join(folder, file_name), self.display_name, ex.code)
             if exif_data:
                 return bytearray(exif_data)
             else:
@@ -340,15 +341,15 @@ class Camera:
                          file_type, self.context))
             succeeded = True
         except gp.GPhoto2Error as ex:
-            logging.error('Error reading %s from camera. Code: %s',
-                          os.path.join(dir_name, file_name), ex.code)
+            logging.error('Error reading %s from camera %s. Code: %s',
+                          os.path.join(dir_name, file_name), self.display_name, ex.code)
 
         if succeeded and dest_full_filename is not None:
             try:
                 gp.check_result(gp.gp_file_save(camera_file, dest_full_filename))
             except gp.GPhoto2Error as ex:
-                logging.error('Error saving %s from camera. Code: %s',
-                          os.path.join(dir_name, file_name), ex.code)
+                logging.error('Error saving %s from camera %s. Code: %s',
+                          os.path.join(dir_name, file_name), self.display_name, ex.code)
                 succeeded = False
 
         return (succeeded, camera_file)
@@ -396,7 +397,7 @@ class Camera:
             dest_file.close()
         except OSError as ex:
             logging.error('Error saving file %s from camera %s. Code %s',
-                          os.path.join(dir_name, file_name), self.display_name, ex.code)
+                          os.path.join(dir_name, file_name), self.display_name, ex.errno)
             if dest_file is not None:
                 dest_file.close()
             return False
@@ -456,7 +457,7 @@ class Camera:
             except OSError as ex:
                 logging.error('Error saving file %s from camera %s. Code '
                               '%s', os.path.join(dir_name, file_name),
-                              self.display_name, ex.code)
+                              self.display_name, ex.errno)
                 if dest_file is not None:
                     dest_file.close()
                 copy_succeeded = False
@@ -494,8 +495,8 @@ class Camera:
                 thumbnail_data = gp.check_result(gp.gp_file_get_data_and_size(
                     camera_file))
             except gp.GPhoto2Error as ex:
-                logging.error('Error getting image %s from camera. Code: %s',
-                          os.path.join(dir_name, file_name), ex.code)
+                logging.error('Error getting image %s from camera %s. Code: %s',
+                          os.path.join(dir_name, file_name), self.display_name, ex.code)
             if thumbnail_data:
                 data = memoryview(thumbnail_data)
                 return data.tobytes()
@@ -519,9 +520,8 @@ class Camera:
                 thumbnail_data = gp.check_result(gp.gp_file_get_data_and_size(
                     camera_file))
             except gp.GPhoto2Error as ex:
-                logging.error('Error getting THM file %s from camera. Code: '
-                              '%s',
-                              os.path.join(dir_name, file_name), ex.code)
+                logging.error('Error getting THM file %s from camera %s. Code: %s',
+                              os.path.join(dir_name, file_name), self.display_name, ex.code)
 
             if thumbnail_data:
                 data = memoryview(thumbnail_data)

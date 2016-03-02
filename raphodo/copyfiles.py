@@ -31,6 +31,8 @@ import logging
 import pickle
 from operator import attrgetter
 
+import gphoto2 as gp
+
 import problemnotification as pn
 from raphodo.camera import (Camera, CopyChunks)
 
@@ -133,7 +135,7 @@ class FileCopy:
                 rpd_file.md5 = hashlib.md5(src_bytes).hexdigest()
 
             return True
-        except (IOError, OSError) as inst:
+        except OSError as inst:
             self.copying_file_error(rpd_file, destination, inst)
             return False
 
@@ -149,7 +151,7 @@ class CopyFilesWorker(WorkerInPublishPullPipeline, FileCopy):
             if self.camera.camera_initialized:
                 self.camera.free_camera()
 
-    def update_progress(self, amount_downloaded, total):
+    def update_progress(self, amount_downloaded, total) -> None:
         chunk_downloaded = amount_downloaded - self.bytes_downloaded
         if (chunk_downloaded > self.batch_size_bytes) or (
             amount_downloaded == total):
@@ -163,7 +165,7 @@ class CopyFilesWorker(WorkerInPublishPullPipeline, FileCopy):
             if amount_downloaded == total:
                 self.bytes_downloaded = 0
 
-    def copying_file_error(self, rpd_file: RPDFile, destination: str, inst):
+    def copying_file_error(self, rpd_file: RPDFile, destination: str, inst) -> None:
         rpd_file.add_problem(None,
                              pn.DOWNLOAD_COPYING_ERROR_W_NO,
                              {'filetype': rpd_file.title})
@@ -250,6 +252,9 @@ class CopyFilesWorker(WorkerInPublishPullPipeline, FileCopy):
     def do_work(self):
         args = pickle.loads(self.content)  # type: CopyFilesArguments
 
+        if args.log_gphoto2:
+            gp.use_python_logging()
+
         self.scan_id = args.scan_id
         self.verify_file = args.verify_file
 
@@ -293,8 +298,7 @@ class CopyFilesWorker(WorkerInPublishPullPipeline, FileCopy):
 
             if rpd_file.cache_full_file_name:
                 # Scenario 3
-                temp_file_name = os.path.split(
-                    rpd_file.cache_full_file_name)[1]
+                temp_file_name = os.path.split(rpd_file.cache_full_file_name)[1]
                 temp_name = os.path.splitext(temp_file_name)[0]
                 temp_full_file_name = os.path.join(dest_dir,temp_file_name)
                 try:
@@ -308,7 +312,8 @@ class CopyFilesWorker(WorkerInPublishPullPipeline, FileCopy):
                     copy_succeeded = True
                 except OSError as inst:
                     copy_succeeded = False
-                #     #TODO log error
+                    logging.error("Could not move cached file %s to temporary file %s. Error code: %s",
+                                  rpd_file.cache_full_file_name, temp_full_file_name, inst.errno)
                 if copy_succeeded:
                     try:
                         os.utime(temp_full_file_name,
@@ -342,15 +347,14 @@ class CopyFilesWorker(WorkerInPublishPullPipeline, FileCopy):
                 if rpd_file.from_camera:
                     # Scenario 2
                     if self.camera is None:
-                        self.camera = Camera(args.device.camera_model,
-                                        args.device.camera_port)
+                        self.camera = Camera(args.device.camera_model, args.device.camera_port)
                         if not self.camera.camera_initialized:
-                            #TODO notify user using problem report
-                            pass
+                            logging.error("Could not intialize camera %s", args.device.display_name)
 
                     if not self.camera.camera_initialized:
                         copy_succeeded = False
-                        #TODO log error
+                        logging.error("Could not copy %s from camera %s",
+                                      rpd_file.full_file_name, args.device.display_name)
                         self.update_progress(rpd_file.size, rpd_file.size)
                     else:
                         copy_succeeded = self.copy_from_camera(rpd_file)

@@ -879,6 +879,7 @@ class WorkerInPublishPullPipeline(WorkerProcess):
         assert (command in [b'RESUME', b'STOP'])
         if command == b'STOP':
             self.cleanup_pre_stop()
+            self.disconnect_logging()
             # before finishing, signal to sink that we've terminated
             self.sender.send_multipart([self.worker_id, b'cmd', b'STOPPED'])
             sys.exit(0)
@@ -1028,10 +1029,13 @@ class ScanArguments:
     Pass arguments to the scan process
     """
     def __init__(self, scan_preferences: ScanPreferences,
-                 device: Device, ignore_other_types: bool) -> None:
+                 device: Device,
+                 ignore_other_types: bool,
+                 log_gphoto2: bool) -> None:
         self.scan_preferences = scan_preferences
         self.device = device
         self.ignore_other_types = ignore_other_types
+        self.log_gphoto2 = log_gphoto2
 
 
 class ScanResults:
@@ -1064,7 +1068,8 @@ class CopyFilesArguments:
                   video_download_folder: str,
                   files,
                   verify_file: bool,
-                  generate_thumbnails: bool) -> None:
+                  generate_thumbnails: bool,
+                  log_gphoto2: bool) -> None:
         """
         :type files: List(rpd_file)
         """
@@ -1075,6 +1080,7 @@ class CopyFilesArguments:
         self.files = files
         self.generate_thumbnails = generate_thumbnails
         self.verify_file = verify_file
+        self.log_gphoto2 = log_gphoto2
 
 class CopyFilesResults:
     """
@@ -1191,6 +1197,7 @@ class GenerateThumbnailsArguments:
                  name: str,
                  cache_dirs: CacheDirs,
                  frontend_port: int,
+                 log_gphoto2: bool,
                  camera: Optional[str]=None,
                  port: Optional[str]=None) -> None:
         """
@@ -1203,6 +1210,7 @@ class GenerateThumbnailsArguments:
          should be created
         :param frontend_port: port to use to send to load balancer's
          front end
+        :param log_gphoto2: if True, log libgphoto2 logging messages
         :param camera: If the thumbnails are being downloaded from a
          camera, this is the name of the camera, else None
         :param port: If the thumbnails are being downloaded from a
@@ -1217,6 +1225,7 @@ class GenerateThumbnailsArguments:
             assert port is not None
         self.camera = camera
         self.port = port
+        self.log_gphoto2 = log_gphoto2
 
 
 class GenerateThumbnailsResults:

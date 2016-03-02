@@ -83,14 +83,20 @@ class Thumbnailer(QObject):
     ready = pyqtSignal()
     # See also the thumbnailReceived and cacheDirs signal below
 
-    def __init__(self, parent, no_workers: int, logging_port: int) -> None:
+    def __init__(self, parent,
+                 no_workers: int,
+                 logging_port: int,
+                 log_gphoto2: bool) -> None:
         """
         :param parent: Qt parent window
         :param no_workers: how many thumbnail extractor processes to
          use
+        :param logging_port: 0MQ port to use for logging control
+        :param log_gphoto2: if True, log libgphoto2 logging message
         """
         super().__init__(parent)
         self.context = zmq.Context.instance()
+        self.log_gphoto2 = log_gphoto2
         self.setupThumbnailManager(logging_port)
         self.setupLoadBalancer(no_workers, logging_port)
 
@@ -119,6 +125,7 @@ class Thumbnailer(QObject):
                             scan_id=scan_id, rpd_files=rpd_files,
                             name=name, cache_dirs=cache_dirs,
                             frontend_port=self.frontend_port,
+                            log_gphoto2=self.log_gphoto2,
                             camera=camera_model,
                             port=camera_port))
 

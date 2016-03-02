@@ -53,6 +53,7 @@ import zmq
 from PyQt5.QtGui import QImage
 from PyQt5.QtCore import QSize
 import psutil
+import gphoto2 as gp
 try:
     import rawkit
     have_rawkit = True
@@ -71,9 +72,6 @@ from raphodo.camera import (Camera, CopyChunks)
 from raphodo.cache import ThumbnailCacheSql, FdoCacheLarge
 from raphodo.utilities import (GenerateRandomFileName, create_temp_dir, CacheDirs)
 from raphodo.preferences import Preferences
-
-# FIXME free camera in case of early termination
-
 
 def split_list(alist: list, wanted_parts=2):
     """
@@ -191,7 +189,7 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
             dest_full_filename=cache_full_file_name,
             progress_callback=None,
             check_for_command=self.check_for_controller_directive,
-            return_file_bytes=False) # type:  CopyChunks
+            return_file_bytes=False)  # type:  CopyChunks
         if copy_chunks.copy_succeeded:
             rpd_file.cache_full_file_name = cache_full_file_name
             return True
@@ -219,8 +217,11 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
 # TODO improve extraction order of photos, videos
 
     def do_work(self) -> None:
-        arguments = pickle.loads(self.content) # type: GenerateThumbnailsArguments
+        self.camera = None
+        arguments = pickle.loads(self.content)  # type: GenerateThumbnailsArguments
         logging.info("Generating %s thumbnails for %s", len(arguments.rpd_files), arguments.name)
+        if arguments.log_gphoto2:
+            gp.use_python_logging()
 
         self.frontend = self.context.socket(zmq.PUSH)
         self.frontend.connect("tcp://localhost:{}".format(arguments.frontend_port))
@@ -320,8 +321,6 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
                     scan_id=arguments.scan_id,
                     cache_dirs=cache_dirs), pickle.HIGHEST_PROTOCOL)
                 self.send_message_to_sink()
-        else:
-            self.camera = None
 
         from_thumb_cache = 0
         from_fdo_cache = 0
@@ -536,6 +535,9 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
         self.disconnect_logging()
         self.send_finished_command()
 
+    def cleanup_pre_stop(self):
+        if self.camera is not None:
+            self.camera.free_camera()
 
 if __name__ == "__main__":
     generate_thumbnails = GenerateThumbnails()

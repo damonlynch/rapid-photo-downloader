@@ -523,7 +523,7 @@ class RenameMoveFileWorker(DaemonProcess):
             generate_name(rpd_file, self.exiftool_process)
 
             if rpd_file.has_problem():
-                logging.debug(
+                logging.warning(
                     "Encountered a problem generating file name for file %s",
                     rpd_file.name)
                 rpd_file.status = DownloadStatus.downloaded_with_warning
@@ -536,7 +536,7 @@ class RenameMoveFileWorker(DaemonProcess):
                 logging.debug("Generated file name %s for file %s",
                               rpd_file.download_name, rpd_file.name)
         else:
-            logging.debug("Failed to generate subfolder name for file: %s",
+            logging.error("Failed to generate subfolder name for file: %s",
                           rpd_file.name)
 
         return self.check_for_fatal_name_generation_errors(rpd_file)

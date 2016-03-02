@@ -106,7 +106,7 @@ class ThumbnailManager(PublishPullPipelineManager):
 
 
 class ThumbnailListModel(QAbstractListModel):
-    def __init__(self, parent, logging_port: int) -> None:
+    def __init__(self, parent, logging_port: int, log_gphoto2: bool) -> None:
         super().__init__(parent)
         self.rapidApp = parent  # type: 'raphodo.rapid.RapidWindow'
 
@@ -115,7 +115,7 @@ class ThumbnailListModel(QAbstractListModel):
 
         no_workers = parent.prefs.max_cpu_cores
         self.thumbnailmq = Thumbnailer(parent=parent, no_workers=no_workers,
-                                       logging_port=logging_port)
+               logging_port=logging_port, log_gphoto2=log_gphoto2)
         self.thumbnailmq.ready.connect(self.thumbnailerReady)
         self.thumbnailmq.thumbnailReceived.connect(self.thumbnailReceived)
 
