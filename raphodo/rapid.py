@@ -112,7 +112,7 @@ from raphodo.devicedisplay import (DeviceModel, DeviceView, DeviceDelegate)
 from raphodo.proximity import (TemporalProximityModel, TemporalProximityView,
                        TemporalProximityDelegate, TemporalProximityGroups)
 from raphodo.utilities import (same_file_system, make_internationalized_list,
-                       thousands, addPushButtonLabelSpacer,
+                       thousands, addPushButtonLabelSpacer, sanitize_download_folder,
                        format_size_for_user)
 from raphodo.rpdfile import (RPDFile, file_types_by_number, PHOTO_EXTENSIONS,
                      VIDEO_EXTENSIONS, FileTypeCounter, OTHER_PHOTO_EXTENSIONS, FileSizeSum)
@@ -968,18 +968,8 @@ class RapidWindow(QMainWindow):
         self.devicePanel = None
 
         verticalLayout = QVBoxLayout()
-
-        topBar = QHBoxLayout()
-        self.sourceButton = TopPushButton(addPushButtonLabelSpacer(_('Select Source')), self)
-        self.sourceButton.clicked.connect(self.sourceButtonClicked)
-
-        self.destinationButton = TopPushButton(addPushButtonLabelSpacer(_('Destination')), self)
-        self.destinationButton.setIcon(QIcon(':/icons/folder.svg'))
-
-        topBar.addWidget(self.sourceButton)
-        topBar.addWidget(self.destinationButton, 0, Qt.AlignRight)
+        topBar = self.createTopBar()
         verticalLayout.addLayout(topBar)
-
         verticalLayout.setContentsMargins(0, 0, 0, 0)
 
         centralWidget.setLayout(verticalLayout)
@@ -987,6 +977,38 @@ class RapidWindow(QMainWindow):
         centralLayout = QHBoxLayout()
         centralLayout.setContentsMargins(0, 0, 0, 0)
 
+        leftBar = self.createLeftBar()
+        rightBar = self.createRightBar()
+
+        self.createCenterPanels()
+        self.createDeviceThisComputerViews()
+        self.layoutDevices()
+        self.configureCenterPanels(settings)
+
+        centralLayout.addLayout(leftBar)
+        centralLayout.addWidget(self.horizontalSplitter)
+        centralLayout.addLayout(rightBar)
+
+        verticalLayout.addLayout(centralLayout)
+
+        # Help and Download buttons
+        horizontalLayout = self.createBottomButtons()
+        verticalLayout.addLayout(horizontalLayout, 0)
+
+    def createTopBar(self) -> QHBoxLayout:
+        topBar = QHBoxLayout()
+        self.sourceButton = TopPushButton(addPushButtonLabelSpacer(_('Select Source')), self)
+        self.sourceButton.clicked.connect(self.sourceButtonClicked)
+
+        self.destinationButton = TopPushButton(addPushButtonLabelSpacer(
+            self.getDownloadDestinationLabel()), self)
+        self.destinationButton.setIcon(QIcon(':/icons/folder.svg'))
+
+        topBar.addWidget(self.sourceButton)
+        topBar.addWidget(self.destinationButton, 0, Qt.AlignRight)
+        return topBar
+
+    def createLeftBar(self) -> QVBoxLayout:
         leftBar = QVBoxLayout()
         leftBar.setContentsMargins(0, 0, 0, 0)
 
@@ -996,15 +1018,25 @@ class RapidWindow(QMainWindow):
         self.proximityButton.clicked.connect(self.proximityButtonClicked)
         leftBar.addWidget(self.proximityButton)
         leftBar.addStretch()
+        return leftBar
 
-        centralLayout.addLayout(leftBar)
+    def createRightBar(self) -> QVBoxLayout:
+        rightBar = QVBoxLayout()
+        rightBar.setContentsMargins(0, 0, 0, 0)
 
-        self.horizontalSplitter = QSplitter()
-        self.horizontalSplitter.setOrientation(Qt.Horizontal)
+        self.backupButton = RotatedButton(_('Back Up'), self, RotatedButton.rightSide)
+        self.renameButton = RotatedButton(_('Rename'), self, RotatedButton.rightSide)
+        self.jobcodeButton = RotatedButton(_('Job Code'), self, RotatedButton.rightSide)
+        self.backupButton.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        self.renameButton.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        self.jobcodeButton.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        rightBar.addWidget(self.backupButton)
+        rightBar.addWidget(self.renameButton)
+        rightBar.addWidget(self.jobcodeButton)
+        rightBar.addStretch()
+        return rightBar
 
-        self.leftPanelSplitter = QSplitter()
-        self.leftPanelSplitter.setOrientation(Qt.Vertical)
-
+    def createDeviceThisComputerViews(self):
         # Devices Header and View
         tip = _('Turn on or off the use of devices attached to this computer as download sources')
         self.deviceToggleView = QToggleView(label=_('Devices'),
@@ -1039,8 +1071,14 @@ class RapidWindow(QMainWindow):
 
         self.resizeDeviceView(self.deviceView)
         self.resizeDeviceView(self.thisComputerView)
-        self.layoutDevices()
 
+    def createCenterPanels(self) -> None:
+        self.horizontalSplitter = QSplitter()
+        self.horizontalSplitter.setOrientation(Qt.Horizontal)
+        self.leftPanelSplitter = QSplitter()
+        self.leftPanelSplitter.setOrientation(Qt.Vertical)
+
+    def configureCenterPanels(self, settings: QSettings):
         self.leftPanelSplitter.addWidget(self.temporalProximityView)
         self.temporalProximityView.setSizePolicy(QSizePolicy.Preferred,
                                                  QSizePolicy.MinimumExpanding)
@@ -1056,8 +1094,6 @@ class RapidWindow(QMainWindow):
         self.horizontalSplitter.setCollapsible(0, False)
         self.horizontalSplitter.setCollapsible(1, False)
 
-        centralLayout.addWidget(self.horizontalSplitter)
-
         splitterSetting = settings.value("horizontalSplitterSizes")
         if splitterSetting is not None:
             self.horizontalSplitter.restoreState(splitterSetting)
@@ -1070,27 +1106,9 @@ class RapidWindow(QMainWindow):
         else:
             self.horizontalSplitter.setSizes([200, 400])
 
-        rightBar = QVBoxLayout()
-        rightBar.setContentsMargins(0, 0, 0, 0)
-
-        self.backupButton = RotatedButton(_('Back Up'), self, RotatedButton.rightSide)
-        self.renameButton = RotatedButton(_('Rename'), self, RotatedButton.rightSide)
-        self.jobcodeButton = RotatedButton(_('Job Code'), self, RotatedButton.rightSide)
-        self.backupButton.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
-        self.renameButton.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
-        self.jobcodeButton.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
-        rightBar.addWidget(self.backupButton)
-        rightBar.addWidget(self.renameButton)
-        rightBar.addWidget(self.jobcodeButton)
-        rightBar.addStretch()
-        centralLayout.addLayout(rightBar)
-
-        verticalLayout.addLayout(centralLayout)
-
-        # Help and Download buttons
+    def createBottomButtons(self) -> QHBoxLayout:
         horizontalLayout = QHBoxLayout()
         horizontalLayout.setContentsMargins(7, 7, 7, 7)
-        verticalLayout.addLayout(horizontalLayout, 0)
         self.downloadButton = QPushButton(self.downloadAct.text())
         self.downloadButton.addAction(self.downloadAct)
         self.downloadButton.setDefault(True)
@@ -1099,6 +1117,7 @@ class RapidWindow(QMainWindow):
         buttons = QDialogButtonBox(QDialogButtonBox.Help)
         buttons.addButton(self.downloadButton, QDialogButtonBox.ApplyRole)
         horizontalLayout.addWidget(buttons)
+        return horizontalLayout
 
     def layoutDevices(self) -> None:
         """
@@ -1145,6 +1164,9 @@ class RapidWindow(QMainWindow):
         self.devicePanel.setLayout(layout)
         self.leftPanelSplitter.insertWidget(0, self.devicePanel)
 
+    def layoutDestinations(self) -> None:
+        pass
+
     def setDownloadActionSensitivity(self) -> None:
         """
         Sets sensitivity of Download action to enable or disable it.
@@ -1171,6 +1193,23 @@ class RapidWindow(QMainWindow):
             text = _("Pause")
         self.downloadAct.setText(text)
         self.downloadButton.setText(text)
+
+    def getDownloadDestinationLabel(self):
+        photo = self.prefs.photo_download_folder.strip() or ''
+        video = self.prefs.video_download_folder.strip() or ''
+        if not os.path.isdir(photo):
+            return (_('Select Destination'))
+        if not os.path.isdir(video):
+            return (_('Select Destination'))
+
+        photo = os.path.abspath(photo)
+        video = os.path.abspath(video)
+        photo_folder = os.path.basename(photo)
+        video_folder = os.path.basename(video)
+        if photo == video:
+            return photo_folder
+        else:
+            return _('%(device1)s + %(device2)s') % dict(device1=photo_folder, device2=video_folder)
 
     def createMenus(self) -> None:
         self.fileMenu = QMenu("&File", self)
@@ -1268,7 +1307,6 @@ class RapidWindow(QMainWindow):
         self.layoutDevices()
         if on:
             self.thisComputer.setViewVisible(bool(self.prefs.this_computer_path))
-
         self.prefs.this_computer_source = on
         if not on:
             if len(self.devices.this_computer) > 0:
@@ -2700,13 +2738,16 @@ class RapidWindow(QMainWindow):
             self.mapModel(scan_id).removeDevice(scan_id)
             if scan_id in self.scanmq.workers:
                 if device_state != DeviceState.scanning:
-                    logging.error("Expected device state to scanning")
+                    logging.error("Expected device state to be 'scanning'")
                 self.scanmq.stop_worker(scan_id)
             elif scan_id in self.copyfilesmq.workers:
                 if device_state != DeviceState.downloading:
-                    logging.error("Expected device state to downloading")
+                    logging.error("Expected device state to be 'downloading'")
                 self.copyfilesmq.stop_worker(scan_id)
-            elif device_state == DeviceState.thumbnailing:
+            # TODO need correct check for "is thumbnailing", given is now asynchronous
+            elif scan_id in self.thumbnailModel.thumbnailmq.thumbnail_manager:
+                if device_state != DeviceState.thumbnailing:
+                    logging.error("Expected device state to be 'thumbnailing'")
                 self.thumbnailModel.terminateThumbnailGeneration(scan_id)
             view = self.mapView(scan_id)
             del self.devices[scan_id]
@@ -3339,25 +3380,19 @@ def main():
         this_computer_source=None
 
     if args.this_computer_location:
-        this_computer_location=args.this_computer_location
-        if this_computer_location[-1]=='/':
-            this_computer_location = this_computer_location[:-1]
+        this_computer_location = os.path.abspath(args.this_computer_location)
         logging.info("This computer path set from command line: %s", this_computer_location)
     else:
         this_computer_location=None
         
     if args.photo_location:
-        photo_location=args.photo_location
-        if photo_location[-1]=='/':
-            photo_location = photo_location[:-1]
+        photo_location = os.path.abspath(args.photo_location)
         logging.info("Photo location set from command line: %s", photo_location)
     else:
         photo_location=None
         
     if args.video_location:
-        video_location=args.video_location
-        if video_location[-1]=='/':
-            video_location = video_location[:-1]
+        video_location = os.path.abspath(args.video_location)
         logging.info("video location set from command line: %s", video_location)
     else:
         video_location=None
@@ -3381,25 +3416,25 @@ def main():
         backup_auto_detect=None
 
     if args.photo_backup_identifier:
-        photo_backup_identifier=args.photo_backup_identifier
+        photo_backup_identifier = args.photo_backup_identifier
         logging.info("Photo backup identifier set from command line: %s", photo_backup_identifier)
     else:
         photo_backup_identifier=None
 
     if args.video_backup_identifier:
-        video_backup_identifier=args.video_backup_identifier
+        video_backup_identifier = args.video_backup_identifier
         logging.info("Video backup identifier set from command line: %s", video_backup_identifier)
     else:
         video_backup_identifier=None
 
     if args.photo_backup_location:
-        photo_backup_location=args.photo_backup_location
+        photo_backup_location = os.path.abspath(args.photo_backup_location)
         logging.info("Photo backup location set from command line: %s", photo_backup_location)
     else:
         photo_backup_location=None
 
     if args.video_backup_location:
-        video_backup_location=args.video_backup_location
+        video_backup_location = os.path.abspath(args.video_backup_location)
         logging.info("Video backup location set from command line: %s", video_backup_location)
     else:
         video_backup_location=None

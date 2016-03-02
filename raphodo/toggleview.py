@@ -34,8 +34,9 @@ from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QSizePolicy, QVBoxLayout,
                              QWidget)
 
 from raphodo.toggleswitch import QToggleSwitch
+from raphodo.panelview import QPanelView
 
-class QToggleView(QWidget):
+class QToggleView(QPanelView):
     """
     A header bar with tooggle switch over a widget that is switched on/off.
     """
@@ -49,62 +50,23 @@ class QToggleView(QWidget):
                  on: bool=True,
                  parent: QWidget=None) -> None:
 
-        super().__init__(parent)
-
-        self.header = QWidget(self)
-        if headerColor is not None:
-            headerStyle = """QWidget { background-color: %s; }""" % headerColor.name()
-            self.header.setStyleSheet(headerStyle)
-        self.header.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.Fixed)
-
-        headerLayout = QHBoxLayout()
-        headerLayout.setContentsMargins(5, 0, 5, 0)
-
-        self.label = QLabel(label.upper())
-        if headerFontColor is not None:
-            headerFontStyle =  "QLabel {color: %s;}" % headerFontColor.name()
-            self.label.setStyleSheet(headerFontStyle)
+        super().__init__(label=label, headerColor=headerColor, headerFontColor=headerFontColor,
+                         parent=parent)
 
         self.toggleSwitch = QToggleSwitch(background=headerColor, parent=self)
         self.toggleSwitch.valueChanged.connect(self.toggled)
         if toggleToolTip:
             self.toggleSwitch.setToolTip(toggleToolTip)
-
-        self.header.setLayout(headerLayout)
-        headerLayout.addWidget(self.label)
-        headerLayout.addStretch()
-        headerLayout.addWidget(self.toggleSwitch)
-
-        self.content = None
-        layout = QVBoxLayout()
-        layout.setContentsMargins(0, 0, 0, 0)
-        layout.setSpacing(0)
-        self.setLayout(layout)
-        layout.addWidget(self.header)
+        self.addHeaderWidget(self.toggleSwitch)
         self.toggleSwitch.setOn(on)
 
-    def addWidget(self, widget: QWidget) -> None:
-        """
-        Add a widget to the expander.
-
-        The previous widget will be removed.
-        """
-        if self.content is not None:
-            self.layout().removeWidget(self.content)
-        self.content = widget
-        self.layout().addWidget(self.content)
+    def addWidget(self, widget: QWidget):
+        super().addWidget(widget)
         self.toggled(0)
 
-    def text(self) -> str:
-        """Return the text of the label."""
-        return self.label.text()
-
-    def setText(self, text: str) -> None:
-        """Set the text of the label."""
-        self.label.setText(text)
-
-    def on(self):
+    def on(self) -> bool:
         """Return if widget is expanded."""
+
         return self.toggleSwitch.on()
 
     def setOn(self, isOn: bool) -> None:

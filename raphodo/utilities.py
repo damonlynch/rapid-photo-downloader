@@ -429,6 +429,7 @@ long_numbers = {
     20: _('twenty')
 }
 
+
 def number(value: int) -> numbers:
     r"""
     Convert integer to written form, e.g. one, two, etc.
@@ -454,6 +455,7 @@ def number(value: int) -> numbers:
     text = long_numbers[value]
     return numbers(text, plural)
 
+
 def datetime_roughly_equal(dt1: datetime, dt2: datetime, seconds: int=60) -> bool:
     r"""
     Check to see if date times are equal, give or take n seconds
@@ -472,3 +474,20 @@ def datetime_roughly_equal(dt1: datetime, dt2: datetime, seconds: int=60) -> boo
     at1 = arrow.get(dt1)
     at2 = arrow.get(dt2)
     return at1.replace(seconds=-seconds) < at2 < at1.replace(seconds=+seconds)
+
+
+def sanitize_download_folder(path: Optional[str], make_absolute: bool=True) -> str:
+    """
+    Gracefully normalize path. Does not check for existence.
+
+    :param path: path to normalize
+    :param make_absolute: if True,
+    :return: path such that it's guaranteed to
+    """
+
+    if path is None:
+        path = ''
+    if make_absolute:
+        return os.path.abspath(path)
+    else:
+        return os.path.normpath(path)

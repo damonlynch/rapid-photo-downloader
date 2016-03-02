@@ -30,6 +30,8 @@ import hashlib
 import logging
 import pickle
 from operator import attrgetter
+from collections import defaultdict
+from typing import Dict, Optional
 
 import gphoto2 as gp
 
@@ -39,7 +41,7 @@ from raphodo.camera import (Camera, CopyChunks)
 from raphodo.interprocess import (WorkerInPublishPullPipeline, CopyFilesArguments,
                           CopyFilesResults)
 from raphodo.constants import (FileType, DownloadStatus)
-from raphodo.utilities import (GenerateRandomFileName, create_temp_dirs)
+from raphodo.utilities import (GenerateRandomFileName, create_temp_dirs, same_file_system)
 from raphodo.rpdfile import RPDFile
 from raphodo.storage import gvfs_controls_mounts, have_gio, GVolumeMonitor, ValidMounts
 
@@ -105,12 +107,10 @@ class FileCopy:
         if self.src is not None:
             self.src.close()
 
-    def copy_from_filesystem(self, source: str, destination: str,
-                             rpd_file:RPDFile) -> bool:
+    def copy_from_filesystem(self, source: str, destination: str, rpd_file:RPDFile) -> bool:
         src_chunks = []
         try:
-            self.dest = io.open(destination, 'wb',
-                                self.io_buffer)
+            self.dest = io.open(destination, 'wb', self.io_buffer)
             self.src = io.open(source, 'rb', self.io_buffer)
             total = rpd_file.size
             amount_downloaded = 0
@@ -151,7 +151,7 @@ class CopyFilesWorker(WorkerInPublishPullPipeline, FileCopy):
             if self.camera.camera_initialized:
                 self.camera.free_camera()
 
-    def update_progress(self, amount_downloaded, total) -> None:
+    def update_progress(self, amount_downloaded: int, total: int) -> None:
         chunk_downloaded = amount_downloaded - self.bytes_downloaded
         if (chunk_downloaded > self.batch_size_bytes) or (
             amount_downloaded == total):
@@ -182,8 +182,7 @@ class CopyFilesWorker(WorkerInPublishPullPipeline, FileCopy):
                                  rpd_file.problem.get_problems(),
                              'file': rpd_file.full_file_name}
 
-        logging.error("Failed to download file: %s",
-                      rpd_file.full_file_name)
+        logging.error("Failed to download file: %s", rpd_file.full_file_name )
         logging.error(inst)
         self.update_progress(rpd_file.size, rpd_file.size)
 
@@ -263,6 +262,7 @@ class CopyFilesWorker(WorkerInPublishPullPipeline, FileCopy):
 
         random_filename = GenerateRandomFileName()
 
+        rpd_cache_same_fs = defaultdict(lambda: None)  # type: Dict[FileType, Optional[bool]]
 
         photo_temp_dir, video_temp_dir = create_temp_dirs(
             args.photo_download_folder, args.video_download_folder)
@@ -301,19 +301,39 @@ class CopyFilesWorker(WorkerInPublishPullPipeline, FileCopy):
                 temp_file_name = os.path.split(rpd_file.cache_full_file_name)[1]
                 temp_name = os.path.splitext(temp_file_name)[0]
                 temp_full_file_name = os.path.join(dest_dir,temp_file_name)
-                try:
-                    # The download folder may have changed since the scan
-                    # occurred, so cannot assume it's on the same filesystem.
-                    # Fortunately that doesn't matter when using shutil.move().
-                    # The assumption here is that most of these images will be
-                    # relatively small jpegs being copied locally
-                    shutil.move(rpd_file.cache_full_file_name,
-                                temp_full_file_name)
-                    copy_succeeded = True
-                except OSError as inst:
-                    copy_succeeded = False
-                    logging.error("Could not move cached file %s to temporary file %s. Error code: %s",
-                                  rpd_file.cache_full_file_name, temp_full_file_name, inst.errno)
+
+                if rpd_cache_same_fs[rpd_file.file_type] is None:
+                    rpd_cache_same_fs[rpd_file.file_type] = same_file_system(
+                        rpd_file.cache_full_file_name, dest_dir)
+
+                if rpd_cache_same_fs[rpd_file.file_type]:
+                    try:
+                        shutil.move(rpd_file.cache_full_file_name,
+                                    temp_full_file_name)
+                        copy_succeeded = True
+                    except OSError as inst:
+                        copy_succeeded = False
+                        logging.error("Could not move cached file %s to temporary file %s. Error "
+                                      "code: %s",
+                                      rpd_file.cache_full_file_name, temp_full_file_name,
+                                      inst.errno)
+                    if self.verify_file:
+                        rpd_file.md5 = hashlib.md5(open(
+                            temp_full_file_name).read()).hexdigest()
+                    self.update_progress(rpd_file.size, rpd_file.size)
+                else:
+                    # The download folder changed since the scan occurred, and is now
+                    # on a different file system compared to that where the devices
+                    # files were cached
+                    source = rpd_file.cache_full_file_name
+                    destination = temp_full_file_name
+                    copy_succeeded = self.copy_from_filesystem(source, destination, rpd_file)
+                    try:
+                        os.remove(source)
+                    except OSError as e:
+                        logging.error("Error removing RPD Cache file %s while copying %s. Error "
+                                      "code: %s",
+                                      source, rpd_file.full_file_name, e.errno)
                 if copy_succeeded:
                     try:
                         os.utime(temp_full_file_name,
@@ -325,10 +345,6 @@ class CopyFilesWorker(WorkerInPublishPullPipeline, FileCopy):
                         #     "Could not update filesystem metadata when "
                         #     "copying %s",
                         #     rpd_file.full_file_name)
-                    if self.verify_file:
-                        rpd_file.md5 = hashlib.md5(open(
-                            temp_full_file_name).read()).hexdigest()
-                self.update_progress(rpd_file.size, rpd_file.size)
 
             else:
                 # Scenario 1 or 2
@@ -362,9 +378,7 @@ class CopyFilesWorker(WorkerInPublishPullPipeline, FileCopy):
                     # Scenario 1
                     source = rpd_file.full_file_name
                     destination = rpd_file.temp_full_file_name
-                    copy_succeeded = self.copy_from_filesystem(source,
-                                           destination, rpd_file)
-
+                    copy_succeeded = self.copy_from_filesystem(source, destination, rpd_file)
 
             # increment this amount regardless of whether the copy actually
             # succeeded or not. It's necessary to keep the user informed.
