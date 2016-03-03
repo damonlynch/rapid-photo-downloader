@@ -22,7 +22,7 @@ __copyright__ = "Copyright 2015-2016, Damon Lynch"
 from enum import IntEnum
 
 from PyQt5.QtGui import (QColor, QPalette)
-from PyQt5.QtWidgets import (QPushButton, QStylePainter, QStyle, QStyleOptionButton)
+from PyQt5.QtWidgets import (QPushButton, QStylePainter, QStyle, QStyleOptionButton, QSizePolicy)
 
 class VerticalRotation(IntEnum):
     left_side = 270
@@ -39,6 +39,8 @@ class FlatButton:
         else:
             checked_color = default_color
         hover_color = color.darker(110).name(QColor.HexRgb)
+
+        self.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
 
         # outline:none is used to remove the rectangle that appears on a
         # button when the button has focus

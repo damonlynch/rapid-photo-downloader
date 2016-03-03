@@ -52,6 +52,8 @@ class QToggleView(QPanelView):
 
         super().__init__(label=label, headerColor=headerColor, headerFontColor=headerFontColor,
                          parent=parent)
+        # Override base class definition:
+        self.headerLayout.setContentsMargins(5, 0, 5, 0)
 
         self.toggleSwitch = QToggleSwitch(background=headerColor, parent=self)
         self.toggleSwitch.valueChanged.connect(self.toggled)

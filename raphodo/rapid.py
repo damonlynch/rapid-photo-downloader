@@ -62,7 +62,7 @@ import zmq
 import psutil
 import gphoto2 as gp
 import sortedcontainers
-from PyQt5 import QtCore, QtWidgets, QtGui
+from PyQt5 import QtCore, QtGui
 from PyQt5.QtCore import (QThread, Qt, QStorageInfo, QSettings, QPoint,
                           QSize, QTimer, QTextStream, QModelIndex,
                           QRect, QItemSelection, QItemSelectionModel, pyqtSlot,
@@ -74,13 +74,15 @@ from PyQt5.QtWidgets import (QAction, QApplication, QMainWindow, QMenu,
                              QProgressBar, QSplitter,
                              QHBoxLayout, QVBoxLayout, QDialog, QLabel,
                              QComboBox, QGridLayout, QCheckBox, QSizePolicy,
-                             QMessageBox, QDesktopWidget, QAbstractItemView, QSplashScreen)
+                             QMessageBox, QDesktopWidget, QAbstractItemView, QSplashScreen,
+                             QScrollArea, QFrame, QStyleOptionFrame)
 from PyQt5.QtNetwork import QLocalSocket, QLocalServer
 
 from raphodo.storage import (ValidMounts, CameraHotplug, UDisks2Monitor,
                      GVolumeMonitor, have_gio, has_non_empty_dcim_folder,
                      mountPaths, get_desktop_environment,
-                     gvfs_controls_mounts, get_default_file_manager, get_program_logging_directory)
+                     gvfs_controls_mounts, get_default_file_manager, validate_download_folder,
+                             validate_source_folder)
 from raphodo.interprocess import (PublishPullPipelineManager,
                                   PushPullDaemonManager,
                                   ScanArguments,
@@ -103,7 +105,7 @@ from raphodo.constants import (BackupLocationType, DeviceType, ErrorType,
                        photo_rename_test, ApplicationState,
                        PROGRAM_NAME, job_code_rename_test, CameraErrorCode,
                        photo_rename_simple_test, ThumbnailBackgroundName, emptyViewHeight,
-                       DeviceState, BorderName)
+                       DeviceState)
 import raphodo.constants as constants
 from raphodo.thumbnaildisplay import (ThumbnailView, ThumbnailListModel, ThumbnailDelegate,
                                       DownloadTypes, DownloadStats,
@@ -112,8 +114,7 @@ from raphodo.devicedisplay import (DeviceModel, DeviceView, DeviceDelegate)
 from raphodo.proximity import (TemporalProximityModel, TemporalProximityView,
                        TemporalProximityDelegate, TemporalProximityGroups)
 from raphodo.utilities import (same_file_system, make_internationalized_list,
-                       thousands, addPushButtonLabelSpacer, sanitize_download_folder,
-                       format_size_for_user)
+                               thousands, addPushButtonLabelSpacer, format_size_for_user)
 from raphodo.rpdfile import (RPDFile, file_types_by_number, PHOTO_EXTENSIONS,
                      VIDEO_EXTENSIONS, FileTypeCounter, OTHER_PHOTO_EXTENSIONS, FileSizeSum)
 import raphodo.downloadtracker as downloadtracker
@@ -130,6 +131,7 @@ from raphodo.toggleview import QToggleView
 import raphodo.__about__ as __about__
 import raphodo.iplogging as iplogging
 import raphodo.excepthook
+from panelview import QPanelView
 
 BackupMissing = namedtuple('BackupMissing', 'photo, video')
 
@@ -363,9 +365,9 @@ class ThisComputerWidget(QWidget):
         layout.setSpacing(0)
         self.setLayout(layout)
 
-        # TODO specify border color value from derived value or create new style
-        style = 'QWidget#%(objectName)s {border: 1px solid %(borderName)s;}' % dict(
-            objectName=objectName, borderName=BorderName)
+        # TODO confirm shadow is the correct palette value to use here
+        style = 'QWidget#%(objectName)s {border: 1px solid palette(shadow);}' % dict(
+            objectName=objectName)
         self.setStyleSheet(style)
 
         self.view = view
@@ -554,37 +556,7 @@ class RapidWindow(QMainWindow):
         self.temporalProximityView.selectionModel().selectionChanged.connect(
                                                 self.proximitySelectionChanged)
 
-        # For meaning of 'Devices', see devices.py
-        self.devices = DeviceCollection()
-        self.deviceView = DeviceView(self)
-        self.deviceModel = DeviceModel(self, "Devices")
-        self.deviceView.setModel(self.deviceModel)
-        self.deviceView.setItemDelegate(DeviceDelegate(self))
-
-        # This computer is any local path
-        self.thisComputerView = DeviceView(self)
-        self.thisComputerModel = DeviceModel(self, "This Computer")
-        self.thisComputerView.setModel(self.thisComputerModel)
-        self.thisComputerView.setItemDelegate(DeviceDelegate(self))
-
-        # Map different device types onto their appropriate view and model
-        self._mapModel = {DeviceType.path: self.thisComputerModel,
-                         DeviceType.camera: self.deviceModel,
-                         DeviceType.volume: self.deviceModel}
-        self._mapView = {DeviceType.path: self.thisComputerView,
-                         DeviceType.camera: self.deviceView,
-                         DeviceType.volume: self.deviceView}
-
-        self.fileSystemModel = FileSystemModel(self)
-        self.fileSystemView = FileSystemView(self)
-        self.fileSystemView.setModel(self.fileSystemModel)
-        self.fileSystemView.hideColumns()
-        self.fileSystemView.setRootIndex(self.fileSystemModel.index('/'))
-        if self.prefs.this_computer_path:
-            deviceLocationIndex = self.fileSystemModel.index(self.prefs.this_computer_path)
-            self.fileSystemView.setExpanded(deviceLocationIndex, True)
-        self.fileSystemView.activated.connect(self.thisComputerPathChosen)
-        self.fileSystemView.clicked.connect(self.thisComputerPathChosen)
+        self.createPathViews()
 
         self.createActions()
         logging.debug("Laying out main window")
@@ -778,12 +750,6 @@ class RapidWindow(QMainWindow):
         settings = QSettings()
         settings.beginGroup("MainWindow")
 
-        if self.prefs.this_computer_path:
-            index = self.fileSystemModel.index(self.prefs.this_computer_path)
-            selection = self.fileSystemView.selectionModel()
-            selection.select(index, QItemSelectionModel.ClearAndSelect|QItemSelectionModel.Rows)
-            self.fileSystemView.scrollTo(index, QAbstractItemView.PositionAtCenter)
-
         self.window_show_requested_time = datetime.datetime.now()
         self.show()
 
@@ -831,7 +797,7 @@ class RapidWindow(QMainWindow):
             windowPos.setY(0)
         settings.setValue("windowPosition", windowPos)
         settings.setValue("windowSize", self.size())
-        settings.setValue("horizontalSplitterSizes", self.horizontalSplitter.saveState())
+        settings.setValue("centerSplitterSizes", self.centerSplitter.saveState())
         settings.setValue("sourceButtonPressed", self.sourceButton.isChecked())
         settings.setValue("proximityButtonPressed", self.proximityButton.isChecked())
         settings.setValue("leftPanelSplitterSizes", self.leftPanelSplitter.saveState())
@@ -885,6 +851,10 @@ class RapidWindow(QMainWindow):
         text, icon = self.devices.get_main_window_display_name_and_icon()
         self.sourceButton.setText(addPushButtonLabelSpacer(text))
         self.sourceButton.setIcon(icon)
+
+    def updateDestinationButton(self) -> None:
+        text = self.getDownloadDestinationLabel()
+        self.destinationButton.setText(text)
 
     def setLeftPanelVisibility(self) -> None:
         self.leftPanelSplitter.setVisible(self.sourceButton.isChecked() or
@@ -982,11 +952,12 @@ class RapidWindow(QMainWindow):
 
         self.createCenterPanels()
         self.createDeviceThisComputerViews()
+        self.createDestinationViews()
         self.layoutDevices()
         self.configureCenterPanels(settings)
 
         centralLayout.addLayout(leftBar)
-        centralLayout.addWidget(self.horizontalSplitter)
+        centralLayout.addWidget(self.centerSplitter)
         centralLayout.addLayout(rightBar)
 
         verticalLayout.addLayout(centralLayout)
@@ -1014,7 +985,6 @@ class RapidWindow(QMainWindow):
 
         self.proximityButton = RotatedButton(_('Timeline'), self, RotatedButton.leftSide)
 
-        self.proximityButton.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
         self.proximityButton.clicked.connect(self.proximityButtonClicked)
         leftBar.addWidget(self.proximityButton)
         leftBar.addStretch()
@@ -1027,16 +997,87 @@ class RapidWindow(QMainWindow):
         self.backupButton = RotatedButton(_('Back Up'), self, RotatedButton.rightSide)
         self.renameButton = RotatedButton(_('Rename'), self, RotatedButton.rightSide)
         self.jobcodeButton = RotatedButton(_('Job Code'), self, RotatedButton.rightSide)
-        self.backupButton.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
-        self.renameButton.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
-        self.jobcodeButton.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
-        rightBar.addWidget(self.backupButton)
         rightBar.addWidget(self.renameButton)
         rightBar.addWidget(self.jobcodeButton)
+        rightBar.addWidget(self.backupButton)
         rightBar.addStretch()
         return rightBar
 
-    def createDeviceThisComputerViews(self):
+    def createPathViews(self) -> None:
+
+        # For meaning of 'Devices', see devices.py
+        self.devices = DeviceCollection()
+        self.deviceView = DeviceView(self)
+        self.deviceModel = DeviceModel(self, "Devices")
+        self.deviceView.setModel(self.deviceModel)
+        self.deviceView.setItemDelegate(DeviceDelegate(self))
+
+        # This computer is any local path
+        self.thisComputerView = DeviceView(self)
+        self.thisComputerModel = DeviceModel(self, "This Computer")
+        self.thisComputerView.setModel(self.thisComputerModel)
+        self.thisComputerView.setItemDelegate(DeviceDelegate(self))
+
+        # Map different device types onto their appropriate view and model
+        self._mapModel = {DeviceType.path: self.thisComputerModel,
+                         DeviceType.camera: self.deviceModel,
+                         DeviceType.volume: self.deviceModel}
+        self._mapView = {DeviceType.path: self.thisComputerView,
+                         DeviceType.camera: self.deviceView,
+                         DeviceType.volume: self.deviceView}
+
+        # Be cautious: validate paths. The settings file can alwasy be edited by hand.
+        logging.debug("Checking path validity")
+        this_computer_sf = validate_source_folder(self.prefs.this_computer_path)
+        if this_computer_sf.valid:
+            if this_computer_sf.absolute_path != self.prefs.this_computer_path:
+                self.this_computer_path = this_computer_sf.absolute_path
+        elif self.prefs.this_computer_source:
+            logging.warning("Invalid 'This Computer' path: %s", self.prefs.this_computer_path)
+
+        photo_df = validate_download_folder(self.prefs.photo_download_folder)
+        if photo_df.valid:
+            if photo_df.absolute_path != self.prefs.photo_download_folder:
+                self.prefs.photo_download_folder = photo_df.absolute_path
+        else:
+            logging.error("Invalid Photo Destination path: %s", self.prefs.photo_download_folder)
+
+        video_df = validate_download_folder(self.prefs.video_download_folder)
+        if video_df.valid:
+            if video_df.absolute_path != self.prefs.video_download_folder:
+                self.prefs.video_download_folder = video_df.absolute_path
+        else:
+            logging.error("Invalid Video Destination path: %s", self.prefs.video_download_folder)
+
+        self.fileSystemModel = FileSystemModel(self)
+        self.thisComputerFSView = FileSystemView()
+        self.thisComputerFSView.setModel(self.fileSystemModel)
+        self.thisComputerFSView.hideColumns()
+        self.thisComputerFSView.setRootIndex(self.fileSystemModel.index('/'))
+        if this_computer_sf.valid:
+            self.thisComputerFSView.goToPath(self.prefs.this_computer_path)
+        self.thisComputerFSView.activated.connect(self.thisComputerPathChosen)
+        self.thisComputerFSView.clicked.connect(self.thisComputerPathChosen)
+
+        self.photoDestinationFSView = FileSystemView()
+        self.photoDestinationFSView.setModel(self.fileSystemModel)
+        self.photoDestinationFSView.hideColumns()
+        self.photoDestinationFSView.setRootIndex(self.fileSystemModel.index('/'))
+        if photo_df.valid:
+            self.photoDestinationFSView.goToPath(self.prefs.photo_download_folder)
+        self.photoDestinationFSView.activated.connect(self.photoDestinationPathChosen)
+        self.photoDestinationFSView.clicked.connect(self.photoDestinationPathChosen)
+
+        self.videoDestinationFSView = FileSystemView()
+        self.videoDestinationFSView.setModel(self.fileSystemModel)
+        self.videoDestinationFSView.hideColumns()
+        self.videoDestinationFSView.setRootIndex(self.fileSystemModel.index('/'))
+        if video_df.valid:
+            self.videoDestinationFSView.goToPath(self.prefs.video_download_folder)
+        self.videoDestinationFSView.activated.connect(self.videoDestinationPathChosen)
+        self.videoDestinationFSView.clicked.connect(self.videoDestinationPathChosen)
+
+    def createDeviceThisComputerViews(self) -> None:
         # Devices Header and View
         tip = _('Turn on or off the use of devices attached to this computer as download sources')
         self.deviceToggleView = QToggleView(label=_('Devices'),
@@ -1061,7 +1102,7 @@ class RapidWindow(QMainWindow):
         self.thisComputerToggleView.valueChanged.connect(self.thisComputerToggleValueChanged)
 
         self.thisComputer = ThisComputerWidget('thisComputer', self.thisComputerView,
-                                           self.fileSystemView, self)
+                                               self.thisComputerFSView, self)
         if self.prefs.this_computer_source:
             self.thisComputer.setViewVisible(bool(self.prefs.this_computer_path))
 
@@ -1072,39 +1113,81 @@ class RapidWindow(QMainWindow):
         self.resizeDeviceView(self.deviceView)
         self.resizeDeviceView(self.thisComputerView)
 
+    def createDestinationViews(self) -> None:
+        self.destinationArea = QScrollArea()
+        # Don't want a frame with the scroll area, or else two frames appear
+        self.destinationArea.setFrameStyle(0)
+        self.destinationArea.setWidgetResizable(True)
+        photoDestination = QPanelView(label=_('Photos'),
+                                      headerColor=QColor(ThumbnailBackgroundName),
+                                      headerFontColor=QColor(Qt.white),
+                                      parent=self)
+        videoDestination = QPanelView(label=_('Videos'),
+                                      headerColor=QColor(ThumbnailBackgroundName),
+                                      headerFontColor=QColor(Qt.white),
+                                      parent=self)
+        photoDestination.setSizePolicy(QSizePolicy.Preferred,
+                                                 QSizePolicy.MinimumExpanding)
+        videoDestination.setSizePolicy(QSizePolicy.Preferred,
+                                                 QSizePolicy.MinimumExpanding)
+        photoDestination.addWidget(self.photoDestinationFSView)
+        videoDestination.addWidget(self.videoDestinationFSView)
+        self.photoDestinationFSView.setSizePolicy(QSizePolicy.Preferred,
+                                                 QSizePolicy.MinimumExpanding)
+        self.videoDestinationFSView.setSizePolicy(QSizePolicy.Preferred,
+                                                 QSizePolicy.MinimumExpanding)
+        self.destinationWidget = QWidget()
+        layout = QVBoxLayout()
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(0)
+        layout.addWidget(photoDestination)
+        layout.addWidget(videoDestination)
+        self.destinationWidget.setLayout(layout)
+        self.destinationArea.setWidget(self.destinationWidget)
+
     def createCenterPanels(self) -> None:
-        self.horizontalSplitter = QSplitter()
-        self.horizontalSplitter.setOrientation(Qt.Horizontal)
+        self.centerSplitter = QSplitter()
+        self.centerSplitter.setOrientation(Qt.Horizontal)
         self.leftPanelSplitter = QSplitter()
         self.leftPanelSplitter.setOrientation(Qt.Vertical)
+        self.rightPanelSplitter = QSplitter()
+        self.rightPanelSplitter.setOrientation(Qt.Horizontal)
 
-    def configureCenterPanels(self, settings: QSettings):
+    def configureCenterPanels(self, settings: QSettings) -> None:
         self.leftPanelSplitter.addWidget(self.temporalProximityView)
         self.temporalProximityView.setSizePolicy(QSizePolicy.Preferred,
                                                  QSizePolicy.MinimumExpanding)
+
+        self.rightPanelSplitter.addWidget(self.destinationArea)
+        self.destinationArea.setSizePolicy(QSizePolicy.Preferred,
+                                                 QSizePolicy.MinimumExpanding)
+
         self.leftPanelSplitter.setCollapsible(0, False)
         self.leftPanelSplitter.setCollapsible(1, False)
         self.leftPanelSplitter.setStretchFactor(0, 0)
         self.leftPanelSplitter.setStretchFactor(1, 1)
 
-        self.horizontalSplitter.addWidget(self.leftPanelSplitter)
-        self.horizontalSplitter.addWidget(self.thumbnailView)
-        self.horizontalSplitter.setStretchFactor(0, 0)
-        self.horizontalSplitter.setStretchFactor(1, 2)
-        self.horizontalSplitter.setCollapsible(0, False)
-        self.horizontalSplitter.setCollapsible(1, False)
+        self.centerSplitter.addWidget(self.leftPanelSplitter)
+        self.centerSplitter.addWidget(self.thumbnailView)
+        self.centerSplitter.addWidget(self.rightPanelSplitter)
+        self.centerSplitter.setStretchFactor(0, 0)
+        self.centerSplitter.setStretchFactor(1, 2)
+        self.centerSplitter.setStretchFactor(2, 0)
+        self.centerSplitter.setCollapsible(0, False)
+        self.centerSplitter.setCollapsible(1, False)
+        self.centerSplitter.setCollapsible(2, False)
 
-        splitterSetting = settings.value("horizontalSplitterSizes")
+        splitterSetting = settings.value("centerSplitterSizes")
         if splitterSetting is not None:
-            self.horizontalSplitter.restoreState(splitterSetting)
+            self.centerSplitter.restoreState(splitterSetting)
         else:
-            self.horizontalSplitter.setSizes([200, 400])
+            self.centerSplitter.setSizes([200, 400])
 
         splitterSetting = settings.value("leftPanelSplitterSizes")
         if splitterSetting is not None:
             self.leftPanelSplitter.restoreState(splitterSetting)
         else:
-            self.horizontalSplitter.setSizes([200, 400])
+            self.centerSplitter.setSizes([200, 400])
 
     def createBottomButtons(self) -> QHBoxLayout:
         horizontalLayout = QHBoxLayout()
@@ -1141,8 +1224,10 @@ class RapidWindow(QMainWindow):
 
         self.devicePanel = QWidget()
         self.devicePanel.setObjectName('devicePanel')
-        self.devicePanel.setStyleSheet('QWidget#devicePanel {border: 1px solid %(borderName)s;}'
-                                       % dict(borderName=BorderName))
+
+        # TODO confirm shadow is the correct palette value to use here
+        if QSplitter().lineWidth():
+            self.devicePanel.setStyleSheet('QWidget#devicePanel {border: 1px solid  palette(shadow);}')
 
         layout = QVBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
@@ -1313,7 +1398,7 @@ class RapidWindow(QMainWindow):
                 scan_id = list(self.devices.this_computer)[0]
                 self.removeDevice(scan_id)
             self.prefs.this_computer_path = ''
-            self.fileSystemView.clearSelection()
+            self.thisComputerFSView.clearSelection()
         else:
             pass
             # TODO there is no path to scan - let the user know?
@@ -1357,6 +1442,36 @@ class RapidWindow(QMainWindow):
             self.prefs.this_computer_path = path
             self.thisComputerView.show()
             self.setupManualPath()
+
+    @pyqtSlot(QModelIndex)
+    def photoDestinationPathChosen(self, index: QModelIndex) -> None:
+        """
+        Handle user setting new photo download location
+
+        Called after single click or folder being activated.
+
+        :param index: cell clicked
+        """
+
+        path = index.model().filePath(index)
+        if path != self.prefs.photo_download_folder:
+            self.prefs.photo_download_folder = path
+            self.updateDestinationButton()
+            
+    @pyqtSlot(QModelIndex)
+    def videoDestinationPathChosen(self, index: QModelIndex) -> None:
+        """
+        Handle user setting new video download location
+
+        Called after single click or folder being activated.
+
+        :param index: cell clicked
+        """
+
+        path = index.model().filePath(index)
+        if path != self.prefs.video_download_folder:
+            self.prefs.video_download_folder = path
+            self.updateDestinationButton()            
 
     @pyqtSlot()
     def downloadButtonClicked(self) -> None:
@@ -2899,8 +3014,7 @@ class RapidWindow(QMainWindow):
                 # The directory must be writable.
                 photo_path = os.path.join(path,
                                           self.prefs.photo_backup_identifier)
-                p_backup = os.path.isdir(photo_path) and os.access(
-                    photo_path, os.W_OK)
+                p_backup = os.path.isdir(photo_path) and os.access(photo_path, os.W_OK)
                 video_path = os.path.join(path,
                                           self.prefs.video_backup_identifier)
                 v_backup = os.path.isdir(video_path) and os.access(

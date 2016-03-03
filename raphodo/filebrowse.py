@@ -19,7 +19,7 @@
 __author__ = 'Damon Lynch'
 __copyright__ = "Copyright 2016, Damon Lynch"
 
-from PyQt5.QtCore import (QDir, Qt, QModelIndex)
+from PyQt5.QtCore import (QDir, Qt, QModelIndex, QItemSelectionModel)
 from PyQt5.QtWidgets import (QTreeView, QAbstractItemView, QFileSystemModel)
 from PyQt5.QtGui import (QIcon)
 
@@ -38,7 +38,7 @@ class FileSystemModel(QFileSystemModel):
         return super().data(index, role)
 
 class FileSystemView(QTreeView):
-    def __init__(self, parent) -> None:
+    def __init__(self, parent=None) -> None:
         super().__init__(parent)
         self.setHeaderHidden(True)
         self.setSelectionBehavior(QAbstractItemView.SelectRows)
@@ -50,4 +50,11 @@ class FileSystemView(QTreeView):
         """
         for i in (1,2,3):
             self.hideColumn(i)
+
+    def goToPath(self, path: str) -> None:
+        index = self.model().index(path)
+        self.setExpanded(index, True)
+        selection = self.selectionModel()
+        selection.select(index, QItemSelectionModel.ClearAndSelect|QItemSelectionModel.Rows)
+        self.scrollTo(index, QAbstractItemView.PositionAtCenter)
 

@@ -20,25 +20,25 @@
 __author__ = 'Damon Lynch'
 __copyright__ = "Copyright 2007-2016, Damon Lynch"
 
-import os
-import sys
-import re
-from collections import namedtuple
-import random
-import string
-import tempfile
-import logging
-import locale
 import contextlib
+import locale
+import logging
+import os
+import random
+import re
+import string
+import sys
+import tempfile
+import time
+from collections import namedtuple
+from datetime import datetime
+from gettext import gettext as _
 from itertools import groupby
 from typing import Optional, List
-from datetime import datetime
-import time
 
-from gettext import gettext as _
-
-import psutil
 import arrow
+import psutil
+
 
 def available_cpu_count(physical_only=False) -> int:
     """
@@ -475,19 +475,3 @@ def datetime_roughly_equal(dt1: datetime, dt2: datetime, seconds: int=60) -> boo
     at2 = arrow.get(dt2)
     return at1.replace(seconds=-seconds) < at2 < at1.replace(seconds=+seconds)
 
-
-def sanitize_download_folder(path: Optional[str], make_absolute: bool=True) -> str:
-    """
-    Gracefully normalize path. Does not check for existence.
-
-    :param path: path to normalize
-    :param make_absolute: if True,
-    :return: path such that it's guaranteed to
-    """
-
-    if path is None:
-        path = ''
-    if make_absolute:
-        return os.path.abspath(path)
-    else:
-        return os.path.normpath(path)

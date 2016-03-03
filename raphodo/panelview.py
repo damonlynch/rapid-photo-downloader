@@ -51,7 +51,7 @@ class QPanelView(QWidget):
         self.header.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.Fixed)
 
         self.headerLayout = QHBoxLayout()
-        self.headerLayout.setContentsMargins(5, 0, 5, 0)
+        self.headerLayout.setContentsMargins(5, 2, 5, 2)
 
         self.label = QLabel(label.upper())
         if headerFontColor is not None:

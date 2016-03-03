@@ -391,6 +391,51 @@ def get_default_file_manager(remove_args: bool=True) -> Optional[str]:
             else:
                 return fm
 
+ValidatedFolder = namedtuple('ValidatedFolder', 'valid, absolute_path')
+
+def validate_download_folder(path: Optional[str]) -> ValidatedFolder:
+    r"""
+    Check if folder exists and is writeable.
+
+    Accepts None as a folder, which will always be invalid.
+
+    :param path: path to analyze
+    :return: Tuple indicating validity and path made absolute
+
+    >>> validate_download_folder('/some/bogus/and/ridiculous/path')
+    ValidatedFolder(valid=False, absolute_path='/some/bogus/and/ridiculous/path')
+    >>> validate_download_folder(None)
+    ValidatedFolder(valid=False, absolute_path='')
+    """
+
+    if path is None:
+        return ValidatedFolder(False, '')
+    absolute_path = os.path.abspath(path)
+    valid = os.path.isdir(path) and os.access(path, os.W_OK)
+    return ValidatedFolder(valid, absolute_path)
+
+
+def validate_source_folder(path: Optional[str]) -> ValidatedFolder:
+    r"""
+    Check if folder exists and is readable.
+
+    Accepts None as a folder, which will always be invalid.
+
+    :param path: path to analyze
+    :return: Tuple indicating validity and path made absolute
+
+    >>> validate_source_folder('/some/bogus/and/ridiculous/path')
+    ValidatedFolder(valid=False, absolute_path='/some/bogus/and/ridiculous/path')
+    >>> validate_source_folder(None)
+    ValidatedFolder(valid=False, absolute_path='')
+    """
+
+    if path is None:
+        return ValidatedFolder(False, '')
+    absolute_path = os.path.abspath(path)
+    valid = os.path.isdir(path) and os.access(path, os.R_OK)
+    return ValidatedFolder(valid, absolute_path)
+
 def udev_attributes(devname: str) -> Optional[UdevAttr]:
     """
     Query udev to see if device is an MTP device.
