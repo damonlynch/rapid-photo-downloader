@@ -34,7 +34,7 @@ It uses exiv2 to extract photo metadata,and ExifTool to extract video metadata.
 To work, this program requires that the scanned photos and videos not be in the Linux
 kernel's disk cache. To ensure this, the program provides option, specified by the command line
 argument '--clear', to instruct the kernel to sync and then drop clean caches, as well as
-reclaimable slab objects like dentries and inodes. This is a  non-destructive operation and will
+reclaimable slab objects like dentries and inodes. This is a non-destructive operation and will
 not free any dirty objects. See https://www.kernel.org/doc/Documentation/sysctl/vm.txt
 
 Specify an outfile if you want to share the analysis of your files with others.

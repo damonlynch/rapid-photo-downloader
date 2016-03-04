@@ -29,8 +29,9 @@ import os
 import sys
 import shutil
 import os.path
-import glob
+from glob import glob
 from distutils.version import StrictVersion
+from distutils.command.clean import clean
 from setuptools import setup, Command
 from setuptools.command.install import install
 from DistUtilsExtra.command  import *  # build_extra, build_i18n, build_icons, clean_i18n
@@ -152,7 +153,7 @@ class build_pod2man(Command):
         pass
 
     def run(self):
-        for pod_file in glob.glob('doc/*.1.pod'):
+        for pod_file in glob('doc/*.1.pod'):
             name = os.path.basename(pod_file)[:-6].upper()
             build_path =  os.path.join('build', os.path.splitext(pod_file)[0])
             if not os.path.isdir(os.path.join('build', 'doc')):
@@ -160,6 +161,25 @@ class build_pod2man(Command):
             self.spawn(['pod2man', '--section=1', '--release={}'.format(about["__version__"]),
                     "--center=General Commands Manual", '--name="{}"'.format(name),
                     pod_file, build_path])
+
+class clean_extra(clean):
+    def run(self):
+        clean.run(self)
+
+        for path, dirs, files in os.walk('.'):
+            for i in reversed(range(len(dirs))):
+                if dirs[i].startswith('.') or dirs[i] == 'debian':
+                    del dirs[i]
+                elif dirs[i] == '__pycache__' or dirs[i].endswith('.egg-info'):
+                    self.spawn(['rm', '-r', os.path.join(path, dirs[i])])
+                    del dirs[i]
+
+            for f in files:
+                f = os.path.join(path, f)
+                if f.endswith('.pyc'):
+                    self.spawn(['rm', f])
+                elif f.startswith('./debhelper') and f.endswith('.1'):
+                    self.spawn(['rm', f])
 
 
 with open(os.path.join(here, 'README.rst'), encoding='utf-8') as f:
@@ -225,5 +245,6 @@ setup(
         'build_pod2man': build_pod2man,
         "build_icons" : build_icons.build_icons,
         'install': install,
+        'clean': clean_extra,
         },
 )

@@ -28,9 +28,11 @@ __author__ = 'Damon Lynch'
 __copyright__ = "Copyright 2016, Damon Lynch"
 
 from typing import Optional
+
+from PyQt5.QtCore import Qt
 from PyQt5.QtGui import QColor
 from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QSizePolicy, QVBoxLayout,
-                             QWidget)
+                             QWidget, QScrollArea, QFrame)
 
 class QPanelView(QWidget):
     """
@@ -105,3 +107,17 @@ class QPanelView(QWidget):
     def setText(self, text: str) -> None:
         """Set the text of the label."""
         self.label.setText(text)
+
+
+class QComputerScrollArea(QScrollArea):
+    """
+    Places a QPanelView into a Scroll Area
+    """
+
+    def __init__(self, panelView: QPanelView, parent=None):
+        super().__init__(parent)
+        self.setFrameShape(QFrame.NoFrame)
+        self.setWidgetResizable(True)
+        self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.panelView = panelView
+        self.setWidget(panelView)

@@ -40,8 +40,7 @@ import pickle
 from collections import namedtuple
 import platform
 import argparse
-from typing import Optional, Tuple, List, Dict
-from time import sleep
+from typing import Optional, Tuple, List
 import faulthandler
 import pkg_resources
 
@@ -65,17 +64,16 @@ import sortedcontainers
 from PyQt5 import QtCore, QtGui
 from PyQt5.QtCore import (QThread, Qt, QStorageInfo, QSettings, QPoint,
                           QSize, QTimer, QTextStream, QModelIndex,
-                          QRect, QItemSelection, QItemSelectionModel, pyqtSlot,
-                          QObjectCleanupHandler)
-from PyQt5.QtGui import (QIcon, QPixmap, QImage, QFont, QColor, QPalette, QFontMetrics,
+                          QItemSelection, pyqtSlot)
+from PyQt5.QtGui import (QIcon, QPixmap, QImage, QColor, QPalette, QFontMetrics,
                          QGuiApplication, QPainter, QMoveEvent)
 from PyQt5.QtWidgets import (QAction, QApplication, QMainWindow, QMenu,
                              QPushButton, QWidget, QDialogButtonBox,
                              QProgressBar, QSplitter,
                              QHBoxLayout, QVBoxLayout, QDialog, QLabel,
                              QComboBox, QGridLayout, QCheckBox, QSizePolicy,
-                             QMessageBox, QDesktopWidget, QAbstractItemView, QSplashScreen,
-                             QScrollArea,  QFrame)
+                             QMessageBox, QSplashScreen,
+                             QScrollArea, QFrame)
 from PyQt5.QtNetwork import QLocalSocket, QLocalServer
 
 from raphodo.storage import (ValidMounts, CameraHotplug, UDisks2Monitor,
@@ -89,24 +87,22 @@ from raphodo.interprocess import (PublishPullPipelineManager,
                                   CopyFilesArguments,
                                   RenameAndMoveFileData,
                                   BackupArguments,
-                                  BackupResults,
-                                  CopyFilesResults,
-                                  RenameAndMoveFileResults,
-                                  ScanResults,
                                   BackupFileData,
                                   OffloadData,
+                                  ProcessLoggingManager,
+                                  RenameAndMoveFileResults,
                                   OffloadResults,
-                                  ProcessLoggingManager)
+                                  BackupResults,
+                                  CopyFilesResults)
 from raphodo.devices import (Device, DeviceCollection, BackupDevice,
                      BackupDeviceCollection)
 from raphodo.preferences import (Preferences, ScanPreferences)
 from raphodo.constants import (BackupLocationType, DeviceType, ErrorType,
                        FileType, DownloadStatus, RenameAndMoveStatus,
                        photo_rename_test, ApplicationState,
-                       PROGRAM_NAME, job_code_rename_test, CameraErrorCode,
-                       photo_rename_simple_test, ThumbnailBackgroundName, emptyViewHeight,
+                               CameraErrorCode,
+                               ThumbnailBackgroundName, emptyViewHeight,
                        DeviceState)
-import raphodo.constants as constants
 from raphodo.thumbnaildisplay import (ThumbnailView, ThumbnailListModel, ThumbnailDelegate,
                                       DownloadTypes, DownloadStats,
                                       ThumbnailSortFilterProxyModel)
@@ -116,7 +112,7 @@ from raphodo.proximity import (TemporalProximityModel, TemporalProximityView,
 from raphodo.utilities import (same_file_system, make_internationalized_list,
                                thousands, addPushButtonLabelSpacer, format_size_for_user)
 from raphodo.rpdfile import (RPDFile, file_types_by_number, PHOTO_EXTENSIONS,
-                     VIDEO_EXTENSIONS, FileTypeCounter, OTHER_PHOTO_EXTENSIONS, FileSizeSum)
+                             VIDEO_EXTENSIONS, OTHER_PHOTO_EXTENSIONS)
 import raphodo.downloadtracker as downloadtracker
 from raphodo.cache import ThumbnailCacheSql
 from raphodo.metadataphoto import exiv2_version, gexiv2_version
@@ -131,7 +127,8 @@ from raphodo.toggleview import QToggleView
 import raphodo.__about__ as __about__
 import raphodo.iplogging as iplogging
 import raphodo.excepthook
-from panelview import QPanelView
+from raphodo.panelview import QPanelView, QComputerScrollArea
+from raphodo.computerview import ComputerWidget
 
 BackupMissing = namedtuple('BackupMissing', 'photo, video')
 
@@ -157,7 +154,7 @@ class RenameMoveFileManager(PushPullDaemonManager):
         self.send_message_to_worker(data)
 
     def process_sink_data(self):
-        data = pickle.loads(self.content) # type: RenameAndMoveFileResults
+        data = pickle.loads(self.content)  # type: RenameAndMoveFileResults
         if data.move_succeeded is not None:
             if data.png_data is not None:
                 thumbnail = QImage.fromData(data.png_data)
@@ -185,7 +182,7 @@ class OffloadManager(PushPullDaemonManager):
         self.send_message_to_worker(data)
 
     def process_sink_data(self):
-        data = pickle.loads(self.content) # type: OffloadResults
+        data = pickle.loads(self.content)  # type: OffloadResults
         if data.proximity_groups is not None:
             self.message.emit(data.proximity_groups)
 
@@ -350,35 +347,6 @@ class JobCode:
 
     def need_to_prompt(self):
         return self.need_job_code_for_naming and not self.prompting_for_job_code
-
-class ThisComputerWidget(QWidget):
-    def __init__(self, objectName: str,
-                 view: DeviceView,
-                 fileSystemView: FileSystemView,
-                 parent: QWidget=None) -> None:
-
-        super().__init__(parent)
-        self.setObjectName(objectName)
-        layout = QVBoxLayout()
-        layout.setContentsMargins(1, 1, 1, 1)
-        layout.setSpacing(0)
-        self.setLayout(layout)
-
-        if QSplitter().lineWidth():
-            style = 'QWidget#%(objectName)s {border: %(size)spx solid palette(shadow);}' % dict(
-                objectName=objectName, size=QSplitter().lineWidth())
-            self.setStyleSheet(style)
-
-        self.view = view
-        self.fileSystemView = fileSystemView
-        layout.addWidget(self.view)
-        layout.addStretch()
-        layout.addWidget(self.fileSystemView, 5)
-        self.view.setStyleSheet('QListView {border: 0px solid red;}')
-        self.fileSystemView.setStyleSheet('FileSystemView {border: 0px solid red;}')
-
-    def setViewVisible(self, visible: bool) -> None:
-        self.view.setVisible(visible)
 
 
 class RapidWindow(QMainWindow):
@@ -555,6 +523,8 @@ class RapidWindow(QMainWindow):
         self.temporalProximityView.setItemDelegate(self.temporalProximityDelegate)
         self.temporalProximityView.selectionModel().selectionChanged.connect(
                                                 self.proximitySelectionChanged)
+
+        self.temporal_proximity_generation_pending = False
 
         self.createPathViews()
 
@@ -761,6 +731,9 @@ class RapidWindow(QMainWindow):
         self.sourceButton.setChecked(settings.value("sourceButtonPressed", True, bool))
         self.sourceButtonClicked()
 
+        self.destinationButton.setChecked(settings.value("destinationButtonPressed", True, bool))
+        self.destinationButtonClicked()
+
         logging.debug("Completed stage 3 initializing main window")
 
     def mapModel(self, scan_id: int) -> DeviceModel:
@@ -799,8 +772,10 @@ class RapidWindow(QMainWindow):
         settings.setValue("windowSize", self.size())
         settings.setValue("centerSplitterSizes", self.centerSplitter.saveState())
         settings.setValue("sourceButtonPressed", self.sourceButton.isChecked())
+        settings.setValue("destinationButtonPressed", self.destinationButton.isChecked())
         settings.setValue("proximityButtonPressed", self.proximityButton.isChecked())
         settings.setValue("leftPanelSplitterSizes", self.leftPanelSplitter.saveState())
+        settings.setValue("rightPanelSplitterSizes", self.rightPanelSplitter.saveState())
         settings.endGroup()
 
     def moveEvent(self, event: QMoveEvent) -> None:
@@ -860,10 +835,19 @@ class RapidWindow(QMainWindow):
         self.leftPanelSplitter.setVisible(self.sourceButton.isChecked() or
                                           self.proximityButton.isChecked())
 
+    def setRightPanelVisibility(self) -> None:
+        self.rightPanelSplitter.setVisible(self.destinationButton.isChecked())
+
     @pyqtSlot()
     def sourceButtonClicked(self) -> None:
         self.deviceArea.setVisible(self.sourceButton.isChecked())
         self.setLeftPanelVisibility()
+
+    @pyqtSlot()
+    def destinationButtonClicked(self) -> None:
+        self.photoDestinationArea.setVisible(self.destinationButton.isChecked())
+        self.videoDestinationArea.setVisible(self.destinationButton.isChecked())
+        self.setRightPanelVisibility()
 
     @pyqtSlot()
     def proximityButtonClicked(self) -> None:
@@ -972,6 +956,7 @@ class RapidWindow(QMainWindow):
         self.destinationButton = TopPushButton(addPushButtonLabelSpacer(
             self.getDownloadDestinationLabel()), self)
         self.destinationButton.setIcon(QIcon(':/icons/folder.svg'))
+        self.destinationButton.clicked.connect(self.destinationButtonClicked)
 
         topBar.addWidget(self.sourceButton)
         topBar.addWidget(self.destinationButton, 0, Qt.AlignRight)
@@ -1117,13 +1102,12 @@ class RapidWindow(QMainWindow):
                                                   parent=self)
         self.thisComputerToggleView.valueChanged.connect(self.thisComputerToggleValueChanged)
 
-        self.thisComputer = ThisComputerWidget('thisComputer', self.thisComputerView,
-                                               self.thisComputerFSView, self)
+        self.thisComputer = ComputerWidget('thisComputer', self.thisComputerView,
+                                           self.thisComputerFSView, self)
         if self.prefs.this_computer_source:
             self.thisComputer.setViewVisible(self.prefs.this_computer_source)
 
         self.thisComputerToggleView.addWidget(self.thisComputer)
-
 
         self.resizeDeviceView(self.deviceView)
         self.resizeDeviceView(self.thisComputerView)
@@ -1132,11 +1116,7 @@ class RapidWindow(QMainWindow):
         layout.addWidget(self.thisComputerToggleView)
 
     def createDestinationViews(self) -> None:
-        self.destinationArea = QScrollArea()
-        # Don't want a frame with the scroll area, or else two frames appear
-        self.destinationArea.setFrameShape(QFrame.NoFrame)
-        self.destinationArea.setWidgetResizable(True)
-        self.destinationArea.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+
         photoDestination = QPanelView(label=_('Photos'),
                                       headerColor=QColor(ThumbnailBackgroundName),
                                       headerFontColor=QColor(Qt.white),
@@ -1145,24 +1125,12 @@ class RapidWindow(QMainWindow):
                                       headerColor=QColor(ThumbnailBackgroundName),
                                       headerFontColor=QColor(Qt.white),
                                       parent=self)
-        photoDestination.setSizePolicy(QSizePolicy.Preferred,
-                                                 QSizePolicy.MinimumExpanding)
-        videoDestination.setSizePolicy(QSizePolicy.Preferred,
-                                                 QSizePolicy.MinimumExpanding)
+
         photoDestination.addWidget(self.photoDestinationFSView)
         videoDestination.addWidget(self.videoDestinationFSView)
-        self.photoDestinationFSView.setSizePolicy(QSizePolicy.Preferred,
-                                                 QSizePolicy.MinimumExpanding)
-        self.videoDestinationFSView.setSizePolicy(QSizePolicy.Preferred,
-                                                 QSizePolicy.MinimumExpanding)
-        self.destinationWidget = QWidget()
-        layout = QVBoxLayout()
-        layout.setContentsMargins(0, 0, 0, 0)
-        layout.setSpacing(0)
-        layout.addWidget(photoDestination)
-        layout.addWidget(videoDestination)
-        self.destinationWidget.setLayout(layout)
-        self.destinationArea.setWidget(self.destinationWidget)
+
+        self.photoDestinationArea = QComputerScrollArea(photoDestination)
+        self.videoDestinationArea = QComputerScrollArea(videoDestination)
 
     def createCenterPanels(self) -> None:
         self.centerSplitter = QSplitter()
@@ -1170,7 +1138,7 @@ class RapidWindow(QMainWindow):
         self.leftPanelSplitter = QSplitter()
         self.leftPanelSplitter.setOrientation(Qt.Vertical)
         self.rightPanelSplitter = QSplitter()
-        self.rightPanelSplitter.setOrientation(Qt.Horizontal)
+        self.rightPanelSplitter.setOrientation(Qt.Vertical)
 
     def configureCenterPanels(self, settings: QSettings) -> None:
         self.leftPanelSplitter.addWidget(self.deviceArea)
@@ -1178,9 +1146,8 @@ class RapidWindow(QMainWindow):
         self.temporalProximityView.setSizePolicy(QSizePolicy.Preferred,
                                                  QSizePolicy.MinimumExpanding)
 
-        self.rightPanelSplitter.addWidget(self.destinationArea)
-        self.destinationArea.setSizePolicy(QSizePolicy.Preferred,
-                                                 QSizePolicy.MinimumExpanding)
+        self.rightPanelSplitter.addWidget(self.photoDestinationArea)
+        self.rightPanelSplitter.addWidget(self.videoDestinationArea)
 
         self.leftPanelSplitter.setCollapsible(0, False)
         self.leftPanelSplitter.setCollapsible(1, False)
@@ -1207,7 +1174,13 @@ class RapidWindow(QMainWindow):
         if splitterSetting is not None:
             self.leftPanelSplitter.restoreState(splitterSetting)
         else:
-            self.centerSplitter.setSizes([200, 400])
+            self.leftPanelSplitter.setSizes([200, 400])
+
+        splitterSetting = settings.value("rightPanelSplitterSizes")
+        if splitterSetting is not None:
+            self.rightPanelSplitter.restoreState(splitterSetting)
+        else:
+            self.rightPanelSplitter.setSizes([200,200])
 
     def createBottomButtons(self) -> QHBoxLayout:
         horizontalLayout = QHBoxLayout()
@@ -2368,7 +2341,6 @@ class RapidWindow(QMainWindow):
                 if role == QMessageBox.AcceptRole:
                     self.scanmq.resume(worker_id=scan_id)
                 else:
-                    # self.scanmq.stop_worker(worker_id=scan_id)
                     self.removeDevice(scan_id=scan_id, show_warning=False)
                 del self.prompting_for_user_action[device]
             else:
@@ -2401,6 +2373,8 @@ class RapidWindow(QMainWindow):
 
         if len(self.devices.scanning) == 0:
             self.generateTemporalProximityTableData()
+        else:
+            self.temporal_proximity_generation_pending = True
 
         if (not self.auto_start_is_on and  self.prefs.generate_thumbnails):
             # Generate thumbnails for finished scan
@@ -2453,12 +2427,18 @@ class RapidWindow(QMainWindow):
             self.thumbnailProxyModel.invalidateFilter()
 
     def generateTemporalProximityTableData(self) -> None:
+        """
+        Initiate Timeline generation
+        """
+
+        self.temporal_proximity_generation_pending = False
+
         # Convert the thumbnail rows to a regular list, because it's going
         # to be pickled.
         rows = list(self.thumbnailModel.rows)
         rpd_files = self.thumbnailModel.rpd_files
         file_types = [rpd_files[row.id_value].file_type for row in rows]
-        # TODO assign a user-defined value to the proximity
+
         data = OffloadData(thumbnail_rows=rows,
                            thumbnail_types=file_types,
                            proximity_seconds=self.prefs.proximity_seconds)
@@ -2856,6 +2836,9 @@ class RapidWindow(QMainWindow):
             del self.devices[scan_id]
             self.resizeDeviceView(view)
             self.updateSourceButton()
+            if device_state == DeviceState.scanning:
+                if len(self.devices.scanning) == 0 and self.temporal_proximity_generation_pending:
+                    self.generateTemporalProximityTableData()
 
     def setupBackupDevices(self):
         """
