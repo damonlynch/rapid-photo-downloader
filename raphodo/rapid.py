@@ -75,7 +75,7 @@ from PyQt5.QtWidgets import (QAction, QApplication, QMainWindow, QMenu,
                              QHBoxLayout, QVBoxLayout, QDialog, QLabel,
                              QComboBox, QGridLayout, QCheckBox, QSizePolicy,
                              QMessageBox, QDesktopWidget, QAbstractItemView, QSplashScreen,
-                             QScrollArea, QFrame, QStyleOptionFrame)
+                             QScrollArea,  QFrame)
 from PyQt5.QtNetwork import QLocalSocket, QLocalServer
 
 from raphodo.storage import (ValidMounts, CameraHotplug, UDisks2Monitor,
@@ -345,7 +345,6 @@ class JobCode:
             else:
                 self.prompting_for_job_code = False
 
-
     def need_to_prompt_on_auto_start(self):
         return not self.job_code and self.need_job_code_for_naming
 
@@ -365,10 +364,10 @@ class ThisComputerWidget(QWidget):
         layout.setSpacing(0)
         self.setLayout(layout)
 
-        # TODO confirm shadow is the correct palette value to use here
-        style = 'QWidget#%(objectName)s {border: 1px solid palette(shadow);}' % dict(
-            objectName=objectName)
-        self.setStyleSheet(style)
+        if QSplitter().lineWidth():
+            style = 'QWidget#%(objectName)s {border: %(size)spx solid palette(shadow);}' % dict(
+                objectName=objectName, size=QSplitter().lineWidth())
+            self.setStyleSheet(style)
 
         self.view = view
         self.fileSystemView = fileSystemView
@@ -380,6 +379,7 @@ class ThisComputerWidget(QWidget):
 
     def setViewVisible(self, visible: bool) -> None:
         self.view.setVisible(visible)
+
 
 class RapidWindow(QMainWindow):
     def __init__(self, auto_detect: Optional[bool]=None,
@@ -862,7 +862,7 @@ class RapidWindow(QMainWindow):
 
     @pyqtSlot()
     def sourceButtonClicked(self) -> None:
-        self.devicePanel.setVisible(self.sourceButton.isChecked())
+        self.deviceArea.setVisible(self.sourceButton.isChecked())
         self.setLeftPanelVisibility()
 
     @pyqtSlot()
@@ -934,8 +934,6 @@ class RapidWindow(QMainWindow):
 
         settings = QSettings()
         settings.beginGroup("MainWindow")
-
-        self.devicePanel = None
 
         verticalLayout = QVBoxLayout()
         topBar = self.createTopBar()
@@ -1078,6 +1076,24 @@ class RapidWindow(QMainWindow):
         self.videoDestinationFSView.clicked.connect(self.videoDestinationPathChosen)
 
     def createDeviceThisComputerViews(self) -> None:
+        self.deviceArea = QScrollArea()
+        self.deviceArea.setWidgetResizable(True)
+        self.deviceArea.setFrameShape(QFrame.NoFrame)
+
+        self.deviceContainer = QWidget()
+        self.deviceArea.setWidget(self.deviceContainer)
+
+        self.deviceContainer.setObjectName('devicePanel')
+        if QSplitter().lineWidth():
+            self.deviceContainer.setStyleSheet(
+                'QWidget#devicePanel {border: %spx solid  palette(shadow);}' %
+                QSplitter().lineWidth())
+
+        layout = QVBoxLayout()
+        self.deviceContainer.setLayout(layout)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(0)
+
         # Devices Header and View
         tip = _('Turn on or off the use of devices attached to this computer as download sources')
         self.deviceToggleView = QToggleView(label=_('Devices'),
@@ -1104,20 +1120,23 @@ class RapidWindow(QMainWindow):
         self.thisComputer = ThisComputerWidget('thisComputer', self.thisComputerView,
                                                self.thisComputerFSView, self)
         if self.prefs.this_computer_source:
-            self.thisComputer.setViewVisible(bool(self.prefs.this_computer_path))
+            self.thisComputer.setViewVisible(self.prefs.this_computer_source)
 
         self.thisComputerToggleView.addWidget(self.thisComputer)
-        self.thisComputerToggleView.setSizePolicy(QSizePolicy.MinimumExpanding,
-                                                  QSizePolicy.MinimumExpanding)
+
 
         self.resizeDeviceView(self.deviceView)
         self.resizeDeviceView(self.thisComputerView)
 
+        layout.addWidget(self.deviceToggleView)
+        layout.addWidget(self.thisComputerToggleView)
+
     def createDestinationViews(self) -> None:
         self.destinationArea = QScrollArea()
         # Don't want a frame with the scroll area, or else two frames appear
-        self.destinationArea.setFrameStyle(0)
+        self.destinationArea.setFrameShape(QFrame.NoFrame)
         self.destinationArea.setWidgetResizable(True)
+        self.destinationArea.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         photoDestination = QPanelView(label=_('Photos'),
                                       headerColor=QColor(ThumbnailBackgroundName),
                                       headerFontColor=QColor(Qt.white),
@@ -1154,6 +1173,7 @@ class RapidWindow(QMainWindow):
         self.rightPanelSplitter.setOrientation(Qt.Horizontal)
 
     def configureCenterPanels(self, settings: QSettings) -> None:
+        self.leftPanelSplitter.addWidget(self.deviceArea)
         self.leftPanelSplitter.addWidget(self.temporalProximityView)
         self.temporalProximityView.setSizePolicy(QSizePolicy.Preferred,
                                                  QSizePolicy.MinimumExpanding)
@@ -1206,48 +1226,16 @@ class RapidWindow(QMainWindow):
         """
         Layout Devices/This Computer in left panel.
 
-        It turns out to be trickier than what might appear at first
-        glance.
-
-        The problem is that the widgets are not laid out again
-        properly when changes are made to them (i.e. toggled or
-        resized). For example, they are not positioned correctly until
-        the containing widget is resized. Therefore the widget that
-        contains  them, self.devicePanel, must be recreated each time
-        there is a significant change in the child widgets.
+        Responds to This Computer being toggled on or off.
         """
 
-        if self.devicePanel is not None:
-            self.devicePanel.setParent(None)
-            self.devicePanel.deleteLater()
-            # QObjectCleanupHandler().add(self.devicePanel)
-
-        self.devicePanel = QWidget()
-        self.devicePanel.setObjectName('devicePanel')
-
-        # TODO confirm shadow is the correct palette value to use here
-        if QSplitter().lineWidth():
-            self.devicePanel.setStyleSheet('QWidget#devicePanel {border: 1px solid  palette(shadow);}')
-
-        layout = QVBoxLayout()
-        layout.setContentsMargins(0, 0, 0, 0)
-        layout.setSpacing(0)
-
-        devices_stretch = 0
-        bottom_stretch = 0
+        layout = self.deviceContainer.layout()
         if self.thisComputerToggleView.on():
-            this_computer_stretch = 1
+            # Effectively reset the aligngment flag. Absolutely necessary, or else
+            # the widget is far too small.
+            layout.setAlignment(self.thisComputerToggleView, Qt.AlignmentFlag())
         else:
-            this_computer_stretch = 0
-            bottom_stretch = 1
-
-        layout.addWidget(self.deviceToggleView, devices_stretch)
-        layout.addWidget(self.thisComputerToggleView, this_computer_stretch)
-        if bottom_stretch > 0:
-            layout.addStretch(bottom_stretch)
-
-        self.devicePanel.setLayout(layout)
-        self.leftPanelSplitter.insertWidget(0, self.devicePanel)
+            layout.setAlignment(self.thisComputerToggleView, Qt.AlignTop)
 
     def layoutDestinations(self) -> None:
         pass
