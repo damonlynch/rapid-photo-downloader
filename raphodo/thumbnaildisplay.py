@@ -108,7 +108,7 @@ class ThumbnailManager(PublishPullPipelineManager):
 class ThumbnailListModel(QAbstractListModel):
     def __init__(self, parent, logging_port: int, log_gphoto2: bool) -> None:
         super().__init__(parent)
-        self.rapidApp = parent  # type: 'raphodo.rapid.RapidWindow'
+        self.rapidApp = parent
 
         self.initialize()
 
@@ -791,9 +791,9 @@ class ThumbnailView(QListView):
             super().mousePressEvent(event)
 
 class ThumbnailDelegate(QStyledItemDelegate):
-    def __init__(self, parent) -> None:
+    def __init__(self, rapidApp, parent=None) -> None:
         super().__init__(parent)
-        self.rapidApp = parent
+        self.rapidApp = rapidApp
 
         self.checkboxStyleOption = QStyleOptionButton()
         self.checkboxRect = QApplication.style().subElementRect(

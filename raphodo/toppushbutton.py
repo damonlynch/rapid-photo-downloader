@@ -26,7 +26,7 @@ from PyQt5.QtWidgets import (QPushButton, QSizePolicy)
 from raphodo.rotatedpushbutton import FlatButton
 
 class TopPushButton(QPushButton, FlatButton):
-    def __init__(self, text, parent) -> None:
+    def __init__(self, text, parent=None) -> None:
         super().__init__(text, parent)
         self.setCheckable(True)
         self.setSizePolicy(QSizePolicy.Maximum, QSizePolicy.Maximum)

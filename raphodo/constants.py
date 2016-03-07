@@ -178,6 +178,11 @@ class ViewRowType(Enum):
     content = 2
 
 
+class Align(Enum):
+    top = 1
+    bottom = 2
+
+
 class CustomColors(Enum):
     color1 = '#7a9c38'
     color2 = '#cb493f'

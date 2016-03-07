@@ -56,8 +56,8 @@ class RotatedButton(QPushButton, FlatButton):
     leftSide = 270.0
     rightSide = 90.0
 
-    def __init__(self, text, parent, rotation: float,
-                 flat: bool=True, checkable: bool=True) -> None:
+    def __init__(self, text, rotation: float,
+                 flat: bool=True, checkable: bool=True, parent=None) -> None:
         super().__init__(text, parent)
         self.buttonRotation = rotation
         if flat:

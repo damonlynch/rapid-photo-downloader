@@ -56,5 +56,5 @@ class FileSystemView(QTreeView):
         self.setExpanded(index, True)
         selection = self.selectionModel()
         selection.select(index, QItemSelectionModel.ClearAndSelect|QItemSelectionModel.Rows)
-        self.scrollTo(index, QAbstractItemView.PositionAtCenter)
+        self.scrollTo(index, QAbstractItemView.PositionAtTop)
 

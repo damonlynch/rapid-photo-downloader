@@ -23,8 +23,9 @@ __author__ = 'Damon Lynch'
 __copyright__ = "Copyright 2015-2016, Damon Lynch"
 
 import pickle
-import logging
+import sys
 
+from PyQt5.QtGui import QGuiApplication
 from raphodo.interprocess import DaemonProcess, OffloadData, OffloadResults
 from raphodo.proximity import TemporalProximityGroups
 from raphodo.viewutils import SortedListItem
@@ -50,5 +51,8 @@ class OffloadWorker(DaemonProcess):
                 self.send_message_to_sink()
 
 if __name__ == '__main__':
+    # Must initialize QGuiApplication to access QFont() and QFontMetrics
+    app = QGuiApplication(sys.argv)
+
     offload = OffloadWorker()
     offload.run()

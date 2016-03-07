@@ -108,7 +108,7 @@ from raphodo.thumbnaildisplay import (ThumbnailView, ThumbnailListModel, Thumbna
                                       ThumbnailSortFilterProxyModel)
 from raphodo.devicedisplay import (DeviceModel, DeviceView, DeviceDelegate)
 from raphodo.proximity import (TemporalProximityModel, TemporalProximityView,
-                       TemporalProximityDelegate, TemporalProximityGroups)
+                       TemporalProximityDelegate, TemporalProximityGroups, TemporalValuePicker)
 from raphodo.utilities import (same_file_system, make_internationalized_list,
                                thousands, addPushButtonLabelSpacer, format_size_for_user)
 from raphodo.rpdfile import (RPDFile, file_types_by_number, PHOTO_EXTENSIONS,
@@ -514,12 +514,12 @@ class RapidWindow(QMainWindow):
         self.thumbnailProxyModel = ThumbnailSortFilterProxyModel(self)
         self.thumbnailProxyModel.setSourceModel(self.thumbnailModel)
         self.thumbnailView.setModel(self.thumbnailProxyModel)
-        self.thumbnailView.setItemDelegate(ThumbnailDelegate(self))
+        self.thumbnailView.setItemDelegate(ThumbnailDelegate(rapidApp=self))
 
         self.temporalProximityView = TemporalProximityView()
         self.temporalProximityModel = TemporalProximityModel(self)
         self.temporalProximityView.setModel(self.temporalProximityModel)
-        self.temporalProximityDelegate = TemporalProximityDelegate(self)
+        self.temporalProximityDelegate = TemporalProximityDelegate(rapidApp=self)
         self.temporalProximityView.setItemDelegate(self.temporalProximityDelegate)
         self.temporalProximityView.selectionModel().selectionChanged.connect(
                                                 self.proximitySelectionChanged)
@@ -761,6 +761,7 @@ class RapidWindow(QMainWindow):
         self.move(pos)
 
     def writeWindowSettings(self):
+        logging.debug("Writing window settings")
         settings = QSettings()
         settings.beginGroup("MainWindow")
         windowPos = self.pos() + self.windowPositionDelta
@@ -936,6 +937,7 @@ class RapidWindow(QMainWindow):
         self.createDeviceThisComputerViews()
         self.createDestinationViews()
         self.layoutDevices()
+        self.createTemporalProximityView()
         self.configureCenterPanels(settings)
 
         centralLayout.addLayout(leftBar)
@@ -950,11 +952,11 @@ class RapidWindow(QMainWindow):
 
     def createTopBar(self) -> QHBoxLayout:
         topBar = QHBoxLayout()
-        self.sourceButton = TopPushButton(addPushButtonLabelSpacer(_('Select Source')), self)
+        self.sourceButton = TopPushButton(addPushButtonLabelSpacer(_('Select Source')))
         self.sourceButton.clicked.connect(self.sourceButtonClicked)
 
         self.destinationButton = TopPushButton(addPushButtonLabelSpacer(
-            self.getDownloadDestinationLabel()), self)
+            self.getDownloadDestinationLabel()))
         self.destinationButton.setIcon(QIcon(':/icons/folder.svg'))
         self.destinationButton.clicked.connect(self.destinationButtonClicked)
 
@@ -966,7 +968,7 @@ class RapidWindow(QMainWindow):
         leftBar = QVBoxLayout()
         leftBar.setContentsMargins(0, 0, 0, 0)
 
-        self.proximityButton = RotatedButton(_('Timeline'), self, RotatedButton.leftSide)
+        self.proximityButton = RotatedButton(_('Timeline'), RotatedButton.leftSide)
 
         self.proximityButton.clicked.connect(self.proximityButtonClicked)
         leftBar.addWidget(self.proximityButton)
@@ -977,9 +979,9 @@ class RapidWindow(QMainWindow):
         rightBar = QVBoxLayout()
         rightBar.setContentsMargins(0, 0, 0, 0)
 
-        self.backupButton = RotatedButton(_('Back Up'), self, RotatedButton.rightSide)
-        self.renameButton = RotatedButton(_('Rename'), self, RotatedButton.rightSide)
-        self.jobcodeButton = RotatedButton(_('Job Code'), self, RotatedButton.rightSide)
+        self.backupButton = RotatedButton(_('Back Up'), RotatedButton.rightSide)
+        self.renameButton = RotatedButton(_('Rename'), RotatedButton.rightSide)
+        self.jobcodeButton = RotatedButton(_('Job Code'), RotatedButton.rightSide)
         rightBar.addWidget(self.renameButton)
         rightBar.addWidget(self.jobcodeButton)
         rightBar.addWidget(self.backupButton)
@@ -990,13 +992,13 @@ class RapidWindow(QMainWindow):
 
         # For meaning of 'Devices', see devices.py
         self.devices = DeviceCollection()
-        self.deviceView = DeviceView(self)
+        self.deviceView = DeviceView()
         self.deviceModel = DeviceModel(self, "Devices")
         self.deviceView.setModel(self.deviceModel)
-        self.deviceView.setItemDelegate(DeviceDelegate(self))
+        self.deviceView.setItemDelegate(DeviceDelegate(rapidApp=self))
 
         # This computer is any local path
-        self.thisComputerView = DeviceView(self)
+        self.thisComputerView = DeviceView()
         self.thisComputerModel = DeviceModel(self, "This Computer")
         self.thisComputerView.setModel(self.thisComputerModel)
         self.thisComputerView.setItemDelegate(DeviceDelegate(self))
@@ -1015,7 +1017,7 @@ class RapidWindow(QMainWindow):
         if this_computer_sf.valid:
             if this_computer_sf.absolute_path != self.prefs.this_computer_path:
                 self.this_computer_path = this_computer_sf.absolute_path
-        elif self.prefs.this_computer_source:
+        elif self.prefs.this_computer_source and self.prefs.this_computer_path != '':
             logging.warning("Invalid 'This Computer' path: %s", self.prefs.this_computer_path)
 
         photo_df = validate_download_folder(self.prefs.photo_download_folder)
@@ -1085,8 +1087,7 @@ class RapidWindow(QMainWindow):
                                             toggleToolTip=tip,
                                             headerColor=QColor(ThumbnailBackgroundName),
                                             headerFontColor=QColor(Qt.white),
-                                            on=self.prefs.device_autodetection,
-                                            parent=self)
+                                            on=self.prefs.device_autodetection)
         self.deviceToggleView.addWidget(self.deviceView)
         self.deviceToggleView.valueChanged.connect(self.deviceToggleViewValueChange)
         self.deviceToggleView.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.Maximum)
@@ -1098,12 +1099,12 @@ class RapidWindow(QMainWindow):
                                                   toggleToolTip=tip,
                                                   headerColor=QColor(ThumbnailBackgroundName),
                                                   headerFontColor=QColor(Qt.white),
-                                                  on=bool(self.prefs.this_computer_source),
-                                                  parent=self)
+                                                  on=bool(self.prefs.this_computer_source))
         self.thisComputerToggleView.valueChanged.connect(self.thisComputerToggleValueChanged)
 
-        self.thisComputer = ComputerWidget('thisComputer', self.thisComputerView,
-                                           self.thisComputerFSView, self)
+        self.thisComputer = ComputerWidget(objectName='thisComputer',
+                                           view=self.thisComputerView,
+                                           fileSystemView=self.thisComputerFSView)
         if self.prefs.this_computer_source:
             self.thisComputer.setViewVisible(self.prefs.this_computer_source)
 
@@ -1115,16 +1116,23 @@ class RapidWindow(QMainWindow):
         layout.addWidget(self.deviceToggleView)
         layout.addWidget(self.thisComputerToggleView)
 
+    def createTemporalProximityView(self) -> None:
+        self.temporalProximity = QWidget()
+        layout = QVBoxLayout()
+        self.temporalProximity.setLayout(layout)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.addWidget(self.temporalProximityView)
+        self.temporalValuePicker = TemporalValuePicker()
+        # layout.addWidget(self.temporalValuePicker)
+
     def createDestinationViews(self) -> None:
 
         photoDestination = QPanelView(label=_('Photos'),
                                       headerColor=QColor(ThumbnailBackgroundName),
-                                      headerFontColor=QColor(Qt.white),
-                                      parent=self)
+                                      headerFontColor=QColor(Qt.white))
         videoDestination = QPanelView(label=_('Videos'),
                                       headerColor=QColor(ThumbnailBackgroundName),
-                                      headerFontColor=QColor(Qt.white),
-                                      parent=self)
+                                      headerFontColor=QColor(Qt.white))
 
         photoDestination.addWidget(self.photoDestinationFSView)
         videoDestination.addWidget(self.videoDestinationFSView)
@@ -1142,7 +1150,7 @@ class RapidWindow(QMainWindow):
 
     def configureCenterPanels(self, settings: QSettings) -> None:
         self.leftPanelSplitter.addWidget(self.deviceArea)
-        self.leftPanelSplitter.addWidget(self.temporalProximityView)
+        self.leftPanelSplitter.addWidget(self.temporalProximity)
         self.temporalProximityView.setSizePolicy(QSizePolicy.Preferred,
                                                  QSizePolicy.MinimumExpanding)
 
@@ -1241,8 +1249,8 @@ class RapidWindow(QMainWindow):
         self.downloadButton.setText(text)
 
     def getDownloadDestinationLabel(self):
-        photo = self.prefs.photo_download_folder.strip() or ''
-        video = self.prefs.video_download_folder.strip() or ''
+        photo = self.prefs.photo_download_folder or ''
+        video = self.prefs.video_download_folder or ''
         if not os.path.isdir(photo):
             return (_('Select Destination'))
         if not os.path.isdir(video):
@@ -1677,9 +1685,11 @@ class RapidWindow(QMainWindow):
         """
         Deletes temporary files and folders used in all downloads.
         """
-        for scan_id in self.temp_dirs_by_scan_id:
-            self.cleanTempDirsForScanId(scan_id, remove_entry=False)
-        self.temp_dirs_by_scan_id = {}
+        if self.temp_dirs_by_scan_id:
+            logging.debug("Cleaning temporary directories")
+            for scan_id in self.temp_dirs_by_scan_id:
+                self.cleanTempDirsForScanId(scan_id, remove_entry=False)
+            self.temp_dirs_by_scan_id = {}
 
     def cleanTempDirsForScanId(self, scan_id: int, remove_entry: bool=True):
         """
@@ -2455,16 +2465,21 @@ class RapidWindow(QMainWindow):
         else:
             self.temporalProximityView.showColumn(0)
         self.temporalProximityView.clearSpans()
-        self.temporalProximityDelegate.reset()
         self.temporalProximityDelegate.row_span_for_column_starts_at_row = \
             proximity_groups.row_span_for_column_starts_at_row
+        self.temporalProximityDelegate.dv = proximity_groups.display_values
+        self.temporalProximityDelegate.dv.assign_fonts()
+
         for column, row, row_span in proximity_groups.spans:
             self.temporalProximityView.setSpan(row, column, row_span, 1)
 
         self.temporalProximityModel.endResetModel()
 
-        self.temporalProximityView.resizeRowsToContents()
-        self.temporalProximityView.resizeColumnsToContents()
+        for idx, height in enumerate(proximity_groups.display_values.row_heights):
+            self.temporalProximityView.setRowHeight(idx, height)
+        for idx, width in enumerate(proximity_groups.display_values.col_widths):
+            self.temporalProximityView.setColumnWidth(idx, width)
+
 
     def closeEvent(self, event) -> None:
         if self.application_state == ApplicationState.normal:
@@ -2530,8 +2545,10 @@ class RapidWindow(QMainWindow):
         self.loggermqThread.wait()
 
         self.cleanAllTempDirs()
+        logging.debug("Cleaning any device cache dirs")
         self.devices.delete_cache_dirs()
         tc = ThumbnailCacheSql()
+        logging.debug("Cleaning up Thumbnail cache")
         tc.cleanup_cache()
         Notify.uninit()
 
@@ -3591,6 +3608,7 @@ def main():
     splash.finish(rw)
 
     code = app.exec_()
+    logging.debug("Exiting")
     sys.exit(code)
 
 if __name__ == "__main__":

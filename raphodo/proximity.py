@@ -26,6 +26,7 @@ import logging
 import pickle
 import math
 from typing import Dict, List, Tuple, Set
+from pprint import pprint
 
 import arrow.arrow
 from arrow.arrow import Arrow
@@ -34,12 +35,12 @@ from gettext import gettext as _
 
 from PyQt5.QtCore import (QAbstractTableModel, QModelIndex, Qt, QSize,
                           QRect, QPoint, QItemSelectionModel, QBuffer, QIODevice)
-from PyQt5.QtWidgets import (QTableView, QStyledItemDelegate,
-                             QStyleOptionViewItem, QHeaderView, QStyle, QAbstractItemView)
+from PyQt5.QtWidgets import (QTableView, QStyledItemDelegate, QSlider, QLabel,
+                             QStyleOptionViewItem, QStyle, QAbstractItemView, QWidget, QHBoxLayout)
 from PyQt5.QtGui import (QPainter, QFontMetrics, QFont, QColor, QGuiApplication, QPixmap)
 
 from raphodo.viewutils import SortedListItem
-from raphodo.constants import FileType
+from raphodo.constants import FileType, Align, CustomColors
 from raphodo.rpdfile import FileTypeCounter
 
 ProximityRow = namedtuple('ProximityRow', 'year, month, weekday, day, proximity')
@@ -191,6 +192,225 @@ def humanize_time_span(start: Arrow, end: Arrow,
         return _('%(earlier_time)s -\n%(later_time)s') % {
             'earlier_time': start_datetime, 'later_time': end_datetime}
 
+FontKerning = namedtuple('FontKerning', 'font, kerning')
+
+def monthFont() -> FontKerning:
+    font = QFont()
+    kerning = 1.2
+    font.setPointSize(font.pointSize() - 2)
+    font.setLetterSpacing(QFont.PercentageSpacing, kerning * 100)
+    font.setStretch(QFont.SemiExpanded)
+    return FontKerning(font, kerning)
+
+def weekdayFont() -> QFont:
+    font = QFont()
+    font.setPointSize(font.pointSize() - 3)
+    return font
+
+def dayFont() -> QFont:
+    font = QFont()
+    font.setPointSize(font.pointSize() + 1)
+    return font
+
+def proximityFont() -> QFont:
+    font = QFont()  # type: QFont
+    font.setPointSize(font.pointSize() - 2)
+    return font
+
+class ProximityDisplayValues:
+    def __init__(self):
+        self.depth = None
+        self.row_heights = []  # type: List[int]
+        self.col_widths = None  # type: Tuple[int]
+
+        # row : (width, height)
+        self.col0_sizes = {}  # type: Dict[int, Tuple[int, int]]
+        self.c2_alignment = {}  # type: Dict[int, Align]
+        self.c2_end_of_day = set()  # type: Set[int]
+        self.c2_end_of_month = set()  # type: Set[int]
+
+        self.assign_fonts()
+
+        # Column 0 - month + year
+        self.col0_padding = 20
+        self.col0_center_space = 2
+        self.col0_center_space_half = 1
+
+        # Column 1 - weekday + day
+        self.col1_center_space = 2
+        self.col1_center_space_half = 1
+        self.col1_padding = 10
+        self.col1_v_padding = 50
+        self.col1_v_padding_top = self.col1_v_padding_bot = self.col1_v_padding // 2
+
+        self.calculate_max_col1_size()
+        self.day_proportion = self.max_day_height / self.max_col1_text_height
+        self.weekday_proportion = self.max_weekday_height / self.max_col1_text_height        
+
+        # Column 2 - proximity value e.g. 1:00 - 1:45 PM
+        self.col2_padding = 20
+        self.col2_v_padding = 6
+
+    def assign_fonts(self) -> None:
+        self.proximityFont = proximityFont()
+        self.proximityMetrics = QFontMetrics(self.proximityFont)
+        mf = monthFont()
+        self.monthFont = mf.font
+        self.month_kerning = mf.kerning
+        self.monthMetrics = QFontMetrics(self.monthFont)
+        self.weekdayFont = weekdayFont()
+        self.dayFont = dayFont()
+
+    def prepare_for_pickle(self) -> None:
+        self.proximityFont = self.proximityMetrics = None
+        self.monthFont = self.monthMetrics = None
+        self.weekdayFont = None
+        self.dayFont = None
+
+    def get_month_size(self, month: str) -> QSize:
+        boundingRect = self.monthMetrics.boundingRect(month)  # type: QRect
+        height = boundingRect.height()
+        width = int(boundingRect.width() * self.month_kerning)
+        size = QSize(width, height)
+        return size
+
+    def get_month_text(self, month, year) -> str:
+        if self.depth == 3:
+            return _('%(month)s  %(year)s') % {'month': month.upper(), 'year': year}
+        else:
+            return month.upper()
+
+    def column0Size(self, year: str, month: str) -> QSize:
+        # Don't return a cell size for empty cells that have been
+        # merged into the cell with content.
+        month = self.get_month_text(month, year)
+        size = self.get_month_size(month)
+        # Height and width are reversed because of the rotation
+        size.transpose()
+        return QSize(size.width() + self.col0_padding, size.height() + self.col0_padding)
+
+    def calculate_max_col1_size(self) -> None:
+        dayMetrics = QFontMetrics(dayFont())
+        day_width = 0
+        day_height = 0
+        for day in range(10, 32):
+            rect = dayMetrics.boundingRect(str(day))
+            day_width = max(day_width, rect.width())
+            day_height = max(day_height, rect.height())
+
+        self.max_day_height = day_height
+        self.max_day_width = day_width
+
+        weekday_width = 0
+        weekday_height = 0
+        weekdayMetrics = QFontMetrics(weekdayFont())
+        for i in range(1, 7):
+            dt = datetime(2015, 11, i)  # Year and month are totally irrelevant, only want day
+            weekday = dt.strftime('%a').upper()
+            rect = weekdayMetrics.boundingRect(str(weekday))
+            weekday_width = max(weekday_width, rect.width())
+            weekday_height = max(weekday_height, rect.height())
+
+        self.max_weekday_height = weekday_height
+        self.max_weekday_width = weekday_width
+        self.max_col1_text_height = weekday_height + day_height + \
+                                    self.col1_center_space
+        self.max_col1_text_width = max(weekday_width, day_width)
+        self.col1_width = self.max_col1_text_width + self.col1_padding
+        self.col1_height = self.max_col1_text_height
+
+    def get_proximity_size(self, text: str) -> QSize:
+        text = text.split('\n')
+        width = height = 0
+        for t in text:
+            boundingRect = self.proximityMetrics.boundingRect(t)  # type: QRect
+            width = max(width, boundingRect.width())
+            height += boundingRect.height()
+        size = QSize(width + self.col2_padding, height + self.col2_v_padding)
+        return size
+
+    def calculate_row_sizes(self, rows: List[ProximityRow],
+                            spans: List[Tuple[int, int, int]],
+                            depth: int) -> None:
+        """
+        Calculate row height and column widths. The latter is trivial,
+        the former more complex.
+
+        Assumptions:
+         * column 1 cell size is fixed
+
+        :param rows: list of row details
+        :param spans: list of which rows & columns are spanned
+        :param depth: table depth
+        """
+
+        self.depth = depth
+
+        # Phase 1: (1) identify minimal sizes for columns 0 and 2, and group the cells
+        #          (2) assign alignment to column 2 cells
+
+        spans_dict = {(row, column): row_span for column, row, row_span in spans}
+        next_span_start_c0 = next_span_start_c1 = 0
+
+        sizes = []  # type: List[Tuple[QSize, List[List[int]]]]
+        for idx, row in enumerate(rows):
+            if next_span_start_c0 == idx:
+                c0_size = self.column0Size(row.year, row.month)
+                self.col0_sizes[idx] = (c0_size.width(), c0_size.height())
+                c0_children = []
+                sizes.append((c0_size, c0_children))
+                c0_span = spans_dict.get((idx, 0), 1)
+                next_span_start_c0 = idx + c0_span
+                self.c2_end_of_month.add(idx + c0_span - 1)
+            if next_span_start_c1 == idx:
+                c1_children = []
+                c0_children.append(c1_children)
+                c1_span = spans_dict.get((idx, 1), 1)
+                next_span_start_c1 = idx + c1_span
+
+                if c1_span > 1:
+                    self.c2_alignment[idx] = Align.bottom
+                    self.c2_alignment[idx + c1_span - 1] = Align.top
+
+                self.c2_end_of_day.add(idx + c1_span - 1)
+
+            minimal_col2_size = self.get_proximity_size(row.proximity)
+            c1_children.append(minimal_col2_size)
+
+        # Phase 2: determine column 2 cell sizes, and max widths
+
+        c0_max_width = 0
+        c2_max_width = 0
+        for c0, c0_children in sizes:
+            c0_height = c0.height()
+            c0_max_width = max(c0_max_width, c0.width())
+            c0_children_height = 0
+            for c1_children in c0_children:
+                c1_children_height = sum(c2.height() for c2 in c1_children)
+                c2_max_width = max(c2_max_width, max(c2.width() for c2 in c1_children))
+                extra = math.ceil(max(self.col1_height - c1_children_height, 0) / 2)
+
+                # Assign in c1's v_padding to first and last child, and any extra
+                c2 = c1_children[0]  # type: QSize
+                c2.setHeight(c2.height() + self.col1_v_padding_top + extra)
+                c2 = c1_children[-1]  # type: QSize
+                c2.setHeight(c2.height() + self.col1_v_padding_bot + extra)
+
+                c1_children_height += self.col1_v_padding_top + self.col1_v_padding_bot + extra * 2
+                c0_children_height += c1_children_height
+
+            extra = math.ceil(max(c0_height - c0_children_height, 0) / 2)
+            if extra:
+                c2 = c0_children[0][0]  # type: QSize
+                c2.setHeight(c2.height() + extra)
+                c2 = c0_children[-1][-1]  # type: QSize
+                c2.setHeight(c2.height() + extra)
+
+            heights = [c2.height() for c1_children in c0_children for c2 in c1_children]
+            self.row_heights.extend(heights)
+
+        self.col_widths = (c0_max_width, self.col1_width, c2_max_width)
+
 
 class TemporalProximityGroups:
     # @profile
@@ -199,6 +419,7 @@ class TemporalProximityGroups:
                  temporal_span: int = 3600):
         self.thumbnail_types = thumbnail_types
         self.rows = []  # type: List[ProximityRow]
+        self.row_height = []  # type: List[int]
         self.proximity_row_to_thumbnail_row_col2 = defaultdict(set)  # type: Dict[int, Set[int]]
         self.proximity_row_to_thumbnail_row_col1 = defaultdict(set)  # type: Dict[int, Set[int]]
         self.row_to_group_no = dict()  # type: Dict[int, int]
@@ -215,6 +436,11 @@ class TemporalProximityGroups:
         self._depth = None
         self._previous_year = False
         self._previous_month = False
+        # Tuple of (column, row, row_span):
+        self.spans = []  # type: List[Tuple[int, int, int]]
+        self.row_span_for_column_starts_at_row = {}  # type: Dict[Tuple[int, int], int]
+
+        self.display_values = ProximityDisplayValues()
 
         # Generate an arrow date time for every timestamp we have
         uniqueid_times = [UniqueIdTime(tr.modification_time,
@@ -306,8 +532,7 @@ class TemporalProximityGroups:
                                                        thumbnail_row_index))
 
         # Phase 5: Determine the row spans for each column
-        self.spans = []  # type: List[Tuple[int, int, int]]
-        self.row_span_for_column_starts_at_row = {}  # type: Dict[Tuple[int, int], int]
+
         column = -1
         for c in (0, 2, 4):
             column += 1
@@ -318,16 +543,19 @@ class TemporalProximityGroups:
                     if row_count > 1:
                         self.spans.append((column, start_row, row_count))
                     start_row = row_index
-                # if column == 0 or column == 1:
                 self.row_span_for_column_starts_at_row[(row_index, column)] = start_row
 
             if start_row != len(self.rows) - 1:
                 self.spans.append((column, start_row, len(self.rows) - start_row))
-                # if column == 0 or column == 1:
                 for row_index in range(start_row, len(self.rows)):
                     self.row_span_for_column_starts_at_row[(row_index, column)] = start_row
 
         assert len(self.row_span_for_column_starts_at_row) == len(self.rows) * 3
+
+        # Phase 6: Determine the height and width of each row
+
+        self.display_values.calculate_row_sizes(self.rows, self.spans, self.depth())
+        self.display_values.prepare_for_pickle()
 
     def make_row(self, arrowtime: Arrow,
                  text: str,
@@ -433,7 +661,7 @@ class TemporalProximityModel(QAbstractTableModel):
 
     def __init__(self, parent, groups: TemporalProximityGroups = None):
         super().__init__(parent)
-        self.rapidApp = parent  # type: rapid.RapidWindow
+        self.rapidApp = parent
         self.groups = groups
 
     def columnCount(self, parent=QModelIndex()):
@@ -502,182 +730,64 @@ class TemporalProximityModel(QAbstractTableModel):
 
 
 class TemporalProximityDelegate(QStyledItemDelegate):
-    def __init__(self, parent) -> None:
+    def __init__(self, rapidApp, parent=None) -> None:
         super().__init__(parent)
 
-        parent_font = parent.font()
+        self.rapidApp = rapidApp
 
         self.darkGray = QColor(51, 51, 51)
+        self.darkerGray = self.darkGray.darker(150)
         self.midGray = QColor('#555555')
+        self.color1 = QColor(CustomColors.color1.value)
+        self.color1Darker = self.color1.darker(107)
 
-        self.reset()
-
-        # Setup column 0
-        self.month_kerning = 1.2
-        self.month_font = QFont(parent_font)  # type: QFont
-        self.month_font.setPointSize(parent_font.pointSize() - 1)
-        self.month_font.setLetterSpacing(QFont.PercentageSpacing,
-                                         self.month_kerning * 100)
-        self.month_font.setStretch(QFont.SemiExpanded)
-        self.month_metrics = QFontMetrics(self.month_font)
-        self.col0_padding = 20
-        self.col0_center_space = 2
-        self.col0_center_space_half = 1
-
-        # Setup column 1
-        self.weekday_font = QFont(parent_font)  # type: QFont
-        self.weekday_font.setPointSize(self.weekday_font.pointSize() - 3)
-        self.weekday_metrics = QFontMetrics(self.weekday_font)
-        self.weekday_height = self.weekday_metrics.height()
-
-        self.day_font = QFont(parent_font)  # type: QFont
-        self.day_font.setPointSize(self.day_font.pointSize() + 1)
-        self.day_metrics = QFontMetrics(self.day_font)
-
-        self.col1_center_space = 2
-        self.col1_center_space_half = 1
-        self.col1_padding = 10
-
-        self.calculate_max_col1_size()
-
-        self.day_proporation = self.max_day_height / self.max_col1_text_height
-        self.weekday_proporation = self.max_weekday_height / self.max_col1_text_height
-
-        # Setup column 2
-        self.proximity_font = QFont(parent_font)  # type: QFont
-        self.proximity_font.setPointSize(parent_font.pointSize() - 1)
-        self.proximity_metrics = QFontMetrics(self.proximity_font)
-        self.col2_padding = 20
-
-        palette = QGuiApplication.palette()
+        palette = QGuiApplication.instance().palette()
         self.highlight = palette.highlight().color()
+        self.darkerHighlight = self.highlight.darker(110)
         self.highlightText = palette.highlightedText().color()
 
-    def reset(self) -> None:
-        self.month_sizes = {}  # type: Dict[int, QSize]
-        self.proximity_sizes = {}  # type: Dict[int, QSize]
-
-    def calculate_max_col1_size(self) -> None:
-        day_width = 0
-        day_height = 0
-        for day in range(10, 32):
-            rect = self.day_metrics.boundingRect(str(day))
-            day_width = max(day_width, rect.width())
-            day_height = max(day_height, rect.height())
-
-        self.max_day_height = day_height
-        self.max_day_width = day_width
-
-        weekday_width = 0
-        weekday_height = 0
-        for i in range(1, 7):
-            dt = datetime(2015, 11, i)
-            weekday = dt.strftime('%a').upper()
-            rect = self.weekday_metrics.boundingRect(str(weekday))
-            weekday_width = max(weekday_width, rect.width())
-            weekday_height = max(weekday_height, rect.height())
-
-        self.max_weekday_height = weekday_height
-        self.max_weekday_width = weekday_width
-        self.max_col1_text_height = weekday_height + day_height + \
-                                    self.col1_center_space
-        self.max_col1_text_width = max(weekday_width, day_width)
-        self.col1_width = self.max_col1_text_width + self.col1_padding
-        self.col1_height = self.max_col1_text_height + self.col1_padding
-
-    def getMonthSize(self, row: int, month: str) -> QSize:
-        if row in self.month_sizes:
-            # return a copy of the size, not the cached value
-            # the consumer of the cached value might transpose it
-            return QSize(self.month_sizes[row])
-
-        boundingRect = self.month_metrics.boundingRect(month)  # type: QRect
-        height = boundingRect.height()
-        width = int(boundingRect.width() * self.month_kerning)
-        size = QSize(width, height)
-        self.month_sizes[row] = QSize(size)
-        return size
-
-    def getMonthText(self, month, year) -> str:
-        if self.depth == 3:
-            return _('%(month)s %(year)s') % {'month': month.upper(), 'year':
-                year}
-        else:
-            return month.upper()
-
-    def getProximitySize(self, row: int, text: str) -> QSize:
-        if row in self.proximity_sizes:
-            # return a copy of the size, not the cached value
-            # the consumer of the cached value might transpose it
-            return QSize(self.proximity_sizes[row])
-
-        text = text.split('\n')
-        width = height = 0
-        for t in text:
-            boundingRect = self.proximity_metrics.boundingRect(t)  # type: QRect
-            width = max(width, boundingRect.width())
-            height += boundingRect.height()
-        size = QSize(width, height)
-        self.proximity_sizes[row] = QSize(size)
-        return size
+        self.dv = None  # type: ProximityDisplayValues
 
     def paint(self, painter: QPainter, option: QStyleOptionViewItem, index: QModelIndex) -> None:
+        row = index.row()
         column = index.column()
         model = index.model()
 
         if column == 0:
             painter.save()
-            row = index.row()
 
             if option.state & QStyle.State_Selected:
                 color = self.highlight
                 textColor = self.highlightText
+                barColor = self.darkerHighlight
             else:
                 color = self.darkGray
-                textColor = QColor(Qt.white)
+                textColor = self.color1
+                barColor = self.darkerGray
             painter.fillRect(option.rect, color)
             painter.setPen(textColor)
 
             year, month = model.data(index)
 
-            month = self.getMonthText(month, year)
+            month = self.dv.get_month_text(month, year)
 
             x = option.rect.x()
             y = option.rect.y()
 
-            painter.setFont(self.month_font)
-            painter.setPen(QColor(Qt.white))
+            painter.setFont(self.dv.monthFont)
+            painter.setPen(textColor)
 
-            month_size = self.getMonthSize(row, month)
-            cell_height = option.rect.height()
-            cell_width = option.rect.width()
-            cell_x_center = cell_width / 2
-            cell_y_center = cell_height / 2
 
+            painter.translate(x, y)
             painter.rotate(270.0)
 
-            # expected_minimum = self.sizeHint(option, index).height()
-            # if cell_height < expected_minimum:
-            #     logging.error(
-            #         "Column height for row 0 is too small: with row %s "
-            #         "expected %s but got %s", month, expected_minimum,
-            #         cell_height)
+            painter.translate(-1 * option.rect.height(), 0)
+            rect = QRect(0, 0, option.rect.height(), option.rect.width())
 
-            # Text is drawn using a point from the bottom left of the first
-            # character, not the top left. So need to account for the text
-            # height.
-            # The rotation means we must be very careful to draw elements
-            # correctly on the rotated plane!
+            painter.drawText(rect, Qt.AlignCenter, month)
 
-            month_text_x = y * -1
-            x_offset = cell_y_center + month_size.width() / 2
-            month_text_x = month_text_x - x_offset
-
-            text_y = x
-            y_offset = cell_x_center + month_size.height() / 2
-            text_y = text_y + y_offset
-
-            painter.drawText(month_text_x, text_y, month)
+            painter.setPen(barColor)
+            painter.drawLine(1, 0, 1, option.rect.width())
 
             painter.restore()
 
@@ -688,10 +798,12 @@ class TemporalProximityDelegate(QStyledItemDelegate):
                 color = self.highlight
                 weekdayColor = self.highlightText
                 dayColor = self.highlightText
+                barColor = self.darkerHighlight
             else:
                 color = self.darkGray
                 weekdayColor = QColor(221, 221, 221)
                 dayColor = QColor(Qt.white)
+                barColor = self.darkerGray
 
             painter.fillRect(option.rect, color)
             weekday, day = model.data(index)
@@ -700,22 +812,24 @@ class TemporalProximityDelegate(QStyledItemDelegate):
             height = option.rect.height()
 
             painter.translate(option.rect.x(), option.rect.y())
-            weekday_rect_bottom = int(height / 2 - self.max_col1_text_height *
-                                      self.day_proporation) + \
-                                  self.max_weekday_height
-            weekdayRect = QRect(0, 0,
-                                width, weekday_rect_bottom)
-            day_rect_top = weekday_rect_bottom + self.col1_center_space
-            dayRect = QRect(0, day_rect_top, width,
-                            height - day_rect_top)
+            weekday_rect_bottom = int(height / 2 - self.dv.max_col1_text_height *
+                                      self.dv.day_proportion) + self.dv.max_weekday_height
+            weekdayRect = QRect(0, 0, width, weekday_rect_bottom)
+            day_rect_top = weekday_rect_bottom + self.dv.col1_center_space
+            dayRect = QRect(0, day_rect_top, width, height - day_rect_top)
 
-            painter.setFont(self.weekday_font)
+            painter.setFont(self.dv.weekdayFont)
             painter.setPen(weekdayColor)
-            painter.drawText(weekdayRect, Qt.AlignHCenter | Qt.AlignBottom,
-                             weekday)
-            painter.setFont(self.day_font)
+            painter.drawText(weekdayRect, Qt.AlignHCenter | Qt.AlignBottom, weekday)
+            painter.setFont(self.dv.dayFont)
             painter.setPen(dayColor)
             painter.drawText(dayRect, Qt.AlignHCenter | Qt.AlignTop, day)
+
+            if row in self.dv.c2_end_of_month:
+                painter.setPen(barColor)
+                painter.drawLine(0, option.rect.height() - 1,
+                                 option.rect.width(), option.rect.height() - 1)
+
             painter.restore()
 
         elif column == 2:
@@ -728,100 +842,39 @@ class TemporalProximityDelegate(QStyledItemDelegate):
                 color = self.highlight
                 textColor = self.highlightText
             else:
-                color = self.midGray
+                color = self.color1
                 textColor = QColor(Qt.white)
 
             painter.fillRect(option.rect, color)
-            painter.setFont(self.proximity_font)
+            painter.setFont(self.dv.proximityFont)
             painter.setPen(textColor)
 
             rect = QRect(option.rect)
-            m = self.col2_padding // 2
+            m = self.dv.col2_padding // 2
             rect.translate(m, 0)
-            painter.drawText(rect, Qt.AlignLeft |
-                             Qt.AlignVCenter, text)
+
+            align = self.dv.c2_alignment.get(row)
+            if align is None:
+                painter.drawText(rect, Qt.AlignLeft | Qt.AlignVCenter, text)
+            elif align == Align.bottom:
+                rect.setHeight(rect.height() - self.dv.col2_v_padding // 2)
+                painter.drawText(rect, Qt.AlignLeft | Qt.AlignBottom, text)
+            else:
+                rect.adjust(0, self.dv.col2_v_padding // 2, 0, 0)
+                painter.drawText(rect, Qt.AlignLeft | Qt.AlignTop, text)
+
+            if row in self.dv.c2_end_of_day:
+                if option.state & QStyle.State_Selected:
+                    painter.setPen(self.darkerHighlight)
+                else:
+                    painter.setPen(self.color1Darker)
+                painter.translate(option.rect.x(), option.rect.y())
+                painter.drawLine(0, option.rect.height() - 1,
+                                 self.dv.col_widths[2], option.rect.height() - 1)
 
             painter.restore()
         else:
             super().paint(painter, option, index)
-
-    def sizeHint(self, option: QStyleOptionViewItem, index: QModelIndex) -> QSize:
-
-        column = index.column()
-        if column == 0:
-            cell_size = self.column0Size(index)
-            if cell_size.isNull():
-                return cell_size
-            else:
-                model = index.model()  # type: TemporalProximityModel
-                row = index.row()
-                span = self.parent().temporalProximityView.rowSpan(row, 0)
-                if span == 1:
-                    return cell_size
-                else:
-                    #  The height of a particular row is calculated to
-                    # include the row heights of the spanned column as
-                    # if it were not spanned. The result is that other
-                    # cells in the same row can be too high.
-
-                    # Want max of col1_height and column 2 height
-                    col2_height = self.column2Size(model.index(row, 2)).height()
-                    return QSize(cell_size.width(), max(self.col1_height, col2_height))
-        elif column == 1:
-            row = index.row()
-            span = self.parent().temporalProximityView.rowSpan(row, 0)
-            if span == 1:
-                return QSize(self.col1_width, self.col1_height)
-            else:
-                # As above, the height of a particular row is calculated to
-                # include the row heights of the spanned column as
-                # if it were not spanned. The result is that other
-                # cells in the same row can be too high.
-
-                # Since we have manipulated the minimum height of
-                # column 0, we need to take into account situations
-                # where column 0 is in reality taller than the contents
-                # of the rows it spans
-
-                # Need minimum height of column 0, divided by span
-                col0_row = self.row_span_for_column_starts_at_row[(row, 0)]
-                column0_height = self.column0Size(index.model().index(col0_row, 0)).height()
-                assert column0_height > 0
-                return QSize(self.col1_width, max(self.col1_height,
-                                                  math.ceil(column0_height / span)))
-        elif column == 2:
-            return self.column2Size(index)
-        else:
-            return super().sizeHint(option, index)
-
-    def column0Size(self, index) -> QSize:
-        model = index.model()  # type: TemporalProximityModel
-        year, month = model.data(index)
-        # Don't return a cell size for empty cells that have been
-        # merged into the cell with content.
-        if not month:
-            return QSize(0, 0)
-        else:
-            row = index.row()
-            month = self.getMonthText(month, year)
-            size = self.getMonthSize(row, month)
-            # Height and width are reversed because of the rotation
-            size.transpose()
-
-            return QSize(size.width() + self.col0_padding, size.height() + self.col0_padding)
-
-    def column2Size(self, index) -> QSize:
-        model = index.model()
-        text = model.data(index)
-        if not text:
-            return QSize(0, 0)
-        else:
-            row = index.row()
-            # p = text.find('\n') >= 0
-            text = text.replace('\n', '\n\n')
-            size = self.getProximitySize(row, text)
-            # if p: print(text, size)
-            return QSize(size.width() + self.col2_padding, size.height() + self.col2_padding)
 
 
 class TemporalProximityView(QTableView):
@@ -833,7 +886,8 @@ class TemporalProximityView(QTableView):
         self.horizontalHeader().setStretchLastSection(True)
         self.setWordWrap(True)
         self.setSelectionMode(QAbstractItemView.ExtendedSelection)
-        # self.setShowGrid(False)
+        self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.setShowGrid(False)
 
     def minimumSizeHint(self) -> QSize:
         model = self.model()  # type: TemporalProximityModel
@@ -956,3 +1010,14 @@ class TemporalProximityView(QTableView):
                         self._updateSelectionRowParent(r, parent_column, 2, examined, model)
 
         self.selectionModel().blockSignals(False)
+
+
+class TemporalValuePicker(QWidget):
+    def __init__(self, parent=None) -> None:
+        super().__init__(parent)
+        self.slider = QSlider(Qt.Horizontal)
+        self.display = QLabel()
+        layout = QHBoxLayout()
+        self.setLayout(layout)
+        layout.addWidget(self.slider)
+        layout.addWidget(self.display)

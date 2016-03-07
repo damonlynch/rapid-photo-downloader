@@ -334,11 +334,12 @@ class DeviceModel(QAbstractListModel):
 
 
 class DeviceView(QListView):
-    def __init__(self, parent):
+    def __init__(self, parent=None):
         super().__init__(parent)
         # Disallow the user from being able to select the table cells
+        font = QFont()
         self.setSelectionMode(QAbstractItemView.NoSelection)
-        self.view_width = device_view_width(QFontMetrics(parent.font()).height())
+        self.view_width = device_view_width(QFontMetrics(font).height())
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
 
@@ -369,9 +370,9 @@ class DeviceDelegate(QStyledItemDelegate):
 
     shading_intensity = 104
 
-    def __init__(self, parent):
+    def __init__(self, rapidApp, parent=None) -> None:
         super(DeviceDelegate, self).__init__(parent)
-        self.rapidApp = parent
+        self.rapidApp = rapidApp
 
         self.checkboxStyleOption = QStyleOptionButton()
         self.checkboxRect = QApplication.style().subElementRect(
