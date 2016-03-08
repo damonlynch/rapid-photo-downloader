@@ -64,7 +64,7 @@ import sortedcontainers
 from PyQt5 import QtCore, QtGui
 from PyQt5.QtCore import (QThread, Qt, QStorageInfo, QSettings, QPoint,
                           QSize, QTimer, QTextStream, QModelIndex,
-                          QItemSelection, pyqtSlot)
+                          pyqtSlot)
 from PyQt5.QtGui import (QIcon, QPixmap, QImage, QColor, QPalette, QFontMetrics,
                          QGuiApplication, QPainter, QMoveEvent)
 from PyQt5.QtWidgets import (QAction, QApplication, QMainWindow, QMenu,
@@ -100,15 +100,14 @@ from raphodo.preferences import (Preferences, ScanPreferences)
 from raphodo.constants import (BackupLocationType, DeviceType, ErrorType,
                        FileType, DownloadStatus, RenameAndMoveStatus,
                        photo_rename_test, ApplicationState,
-                               CameraErrorCode,
-                               ThumbnailBackgroundName, emptyViewHeight,
+                       CameraErrorCode, TemporalProximityState,
+                       ThumbnailBackgroundName, emptyViewHeight,
                        DeviceState)
 from raphodo.thumbnaildisplay import (ThumbnailView, ThumbnailListModel, ThumbnailDelegate,
                                       DownloadTypes, DownloadStats,
                                       ThumbnailSortFilterProxyModel)
 from raphodo.devicedisplay import (DeviceModel, DeviceView, DeviceDelegate)
-from raphodo.proximity import (TemporalProximityModel, TemporalProximityView,
-                       TemporalProximityDelegate, TemporalProximityGroups, TemporalValuePicker)
+from raphodo.proximity import (TemporalProximityGroups, TemporalProximity)
 from raphodo.utilities import (same_file_system, make_internationalized_list,
                                thousands, addPushButtonLabelSpacer, format_size_for_user)
 from raphodo.rpdfile import (RPDFile, file_types_by_number, PHOTO_EXTENSIONS,
@@ -516,15 +515,8 @@ class RapidWindow(QMainWindow):
         self.thumbnailView.setModel(self.thumbnailProxyModel)
         self.thumbnailView.setItemDelegate(ThumbnailDelegate(rapidApp=self))
 
-        self.temporalProximityView = TemporalProximityView()
-        self.temporalProximityModel = TemporalProximityModel(self)
-        self.temporalProximityView.setModel(self.temporalProximityModel)
-        self.temporalProximityDelegate = TemporalProximityDelegate(rapidApp=self)
-        self.temporalProximityView.setItemDelegate(self.temporalProximityDelegate)
-        self.temporalProximityView.selectionModel().selectionChanged.connect(
-                                                self.proximitySelectionChanged)
-
-        self.temporal_proximity_generation_pending = False
+        self.temporalProximity = TemporalProximity(
+            rapidApp=self, thumbnailProxyModel=self.thumbnailProxyModel, prefs = self.prefs)
 
         self.createPathViews()
 
@@ -852,7 +844,7 @@ class RapidWindow(QMainWindow):
 
     @pyqtSlot()
     def proximityButtonClicked(self) -> None:
-        self.temporalProximityView.setVisible(self.proximityButton.isChecked())
+        self.temporalProximity.setVisible(self.proximityButton.isChecked())
         self.setLeftPanelVisibility()
 
     def createActions(self):
@@ -937,7 +929,6 @@ class RapidWindow(QMainWindow):
         self.createDeviceThisComputerViews()
         self.createDestinationViews()
         self.layoutDevices()
-        self.createTemporalProximityView()
         self.configureCenterPanels(settings)
 
         centralLayout.addLayout(leftBar)
@@ -1116,15 +1107,6 @@ class RapidWindow(QMainWindow):
         layout.addWidget(self.deviceToggleView)
         layout.addWidget(self.thisComputerToggleView)
 
-    def createTemporalProximityView(self) -> None:
-        self.temporalProximity = QWidget()
-        layout = QVBoxLayout()
-        self.temporalProximity.setLayout(layout)
-        layout.setContentsMargins(0, 0, 0, 0)
-        layout.addWidget(self.temporalProximityView)
-        self.temporalValuePicker = TemporalValuePicker()
-        # layout.addWidget(self.temporalValuePicker)
-
     def createDestinationViews(self) -> None:
 
         photoDestination = QPanelView(label=_('Photos'),
@@ -1151,8 +1133,6 @@ class RapidWindow(QMainWindow):
     def configureCenterPanels(self, settings: QSettings) -> None:
         self.leftPanelSplitter.addWidget(self.deviceArea)
         self.leftPanelSplitter.addWidget(self.temporalProximity)
-        self.temporalProximityView.setSizePolicy(QSizePolicy.Preferred,
-                                                 QSizePolicy.MinimumExpanding)
 
         self.rightPanelSplitter.addWidget(self.photoDestinationArea)
         self.rightPanelSplitter.addWidget(self.videoDestinationArea)
@@ -2384,7 +2364,7 @@ class RapidWindow(QMainWindow):
         if len(self.devices.scanning) == 0:
             self.generateTemporalProximityTableData()
         else:
-            self.temporal_proximity_generation_pending = True
+            self.temporalProximity.setState(TemporalProximityState.pending)
 
         if (not self.auto_start_is_on and  self.prefs.generate_thumbnails):
             # Generate thumbnails for finished scan
@@ -2407,41 +2387,14 @@ class RapidWindow(QMainWindow):
         """
         QTimer.singleShot(0, self.close)
 
-    @pyqtSlot(QItemSelection, QItemSelection)
-    def proximitySelectionChanged(self, current: QItemSelection, previous: QItemSelection) -> None:
-        """
-        Respond to user selections in Temporal Proximity Table.
 
-        User can select / deselect individual cells. Need to:
-        1. Automatically update selection to include parent or child
-           cells in some cases
-        2. Filter display of thumbnails
-        """
-        self.temporalProximityView.updateSelection()
-
-        groups = self.temporalProximityModel.groups
-
-        selected_rows_col2 = [i.row() for i in self.temporalProximityView.selectedIndexes()
-                              if i.column() == 2]
-        selected_rows_col1 = [i.row() for i in self.temporalProximityView.selectedIndexes()
-                              if i.column() == 1 and
-                              groups.row_span_for_column_starts_at_row[(
-                              i.row(), 2)] not in selected_rows_col2]
-
-        if selected_rows_col2 or selected_rows_col1:
-            self.thumbnailProxyModel.selected_rows = groups.selected_thumbnail_rows(
-                    selected_rows_col1, selected_rows_col2)
-            self.thumbnailProxyModel.invalidateFilter()
-        else:
-            self.thumbnailProxyModel.selected_rows = set()
-            self.thumbnailProxyModel.invalidateFilter()
 
     def generateTemporalProximityTableData(self) -> None:
         """
         Initiate Timeline generation
         """
 
-        self.temporal_proximity_generation_pending = False
+        self.temporalProximity.setState(TemporalProximityState.generating)
 
         # Convert the thumbnail rows to a regular list, because it's going
         # to be pickled.
@@ -2456,30 +2409,7 @@ class RapidWindow(QMainWindow):
 
     @pyqtSlot(TemporalProximityGroups)
     def proximityGroupsGenerated(self, proximity_groups: TemporalProximityGroups) -> None:
-
-        self.temporalProximityModel.groups = proximity_groups
-        depth = proximity_groups.depth()
-        self.temporalProximityDelegate.depth = depth
-        if depth == 1:
-            self.temporalProximityView.hideColumn(0)
-        else:
-            self.temporalProximityView.showColumn(0)
-        self.temporalProximityView.clearSpans()
-        self.temporalProximityDelegate.row_span_for_column_starts_at_row = \
-            proximity_groups.row_span_for_column_starts_at_row
-        self.temporalProximityDelegate.dv = proximity_groups.display_values
-        self.temporalProximityDelegate.dv.assign_fonts()
-
-        for column, row, row_span in proximity_groups.spans:
-            self.temporalProximityView.setSpan(row, column, row_span, 1)
-
-        self.temporalProximityModel.endResetModel()
-
-        for idx, height in enumerate(proximity_groups.display_values.row_heights):
-            self.temporalProximityView.setRowHeight(idx, height)
-        for idx, width in enumerate(proximity_groups.display_values.col_widths):
-            self.temporalProximityView.setColumnWidth(idx, width)
-
+        self.temporalProximity.setGroups(proximity_groups=proximity_groups)
 
     def closeEvent(self, event) -> None:
         if self.application_state == ApplicationState.normal:

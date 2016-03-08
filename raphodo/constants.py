@@ -192,6 +192,17 @@ class CustomColors(Enum):
     color6 = '#6d7e90'
 
 
+# Values in minutes:
+proximity_time_steps = [5, 10, 15, 30, 45, 60, 90, 120, 180, 240, 480, 960, 1440]
+
+
+class TemporalProximityState(Enum):
+    empty = 1
+    pending = 2
+    generating = 3
+    generated = 4
+
+
 ThumbnailBackgroundName = '#555555'
 emptyViewHeight = 20
 

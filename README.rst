@@ -62,24 +62,24 @@ python3-zmq exiv2 python3-colorlog libraw-bin python3-easygui``
 If not using Ubuntu 16.04, make Python's installation tools up-to-date by executing
 the following two steps (optional: see caution below in `Installation`_):
 
-``sudo python3 -m pip install --upgrade pip``
+``python3 -m pip --user install --upgrade pip``
 
-``sudo python3 -m pip install --upgrade setuptools``
+``python3 -m pip --user install --upgrade setuptools``
 
 If your system uses Python 3.4 and you didn't upgrade pip and setuptools, run:
 
-``sudo python3 -m pip install typing scandir``
+``python3 -m pip --user install typing scandir``
 
 To install, run:
 
-``sudo python3 -m pip install rapid-photo-downloader-0.9.0a1.tar.gz``
+``python3 -m pip --user install rapid-photo-downloader-0.9.0a1.tar.gz``
 
 **Caution:** *untarring the archive, building it and installing it using* ``sudo python3 setup.py
 install`` *is* **not** *supported, and* **not** *recommended.*
 
 Finally, to uninstall:
 
-``sudo python3 -m pip uninstall rapid-photo-downloader``
+``python3 -m pip uninstall rapid-photo-downloader``
 
 
 Software Requirements and Program Installation
@@ -130,8 +130,7 @@ Satisfying Software Requirements
 While Rapid Photo Downloader's installer will automatically download and install most
 required Python modules not already found on your system, there are some it cannot install.
 You must install these Python modules and a few other programs prior to installing Rapid Photo
-Downloader. The Python module build requirements are the Python 3 versions
-of:
+Downloader. The Python module requirements are the Python 3 versions of:
 
  - PyQt_ 5.4 or greater
  - All `Python gobject introspection`_ modules listed above
@@ -156,24 +155,24 @@ After `satisfying software requirements`_ using your Linux distribution's standa
 installation tools, you should install Rapid Photo Downloader using the following steps, assuming
 you use sudo to get super-user (root) access.
 
-First, you may need to update your system's copy of pip and setuptools (optional):
+First, you may need to update your user's copy of pip and setuptools (optional):
 
-``sudo python3 -m pip install --upgrade pip``
+``python3 -m pip --user install --upgrade pip``
 
-``sudo python3 -m pip install --upgrade setuptools``
+``python3 -m pip --user install --upgrade setuptools``
 
-**Caution:** the previous two steps will update pip and setuptools system-wide. Potentially this
-could negatively affect the installation of other, older Python packages. If you don't
+**Caution:** the previous two steps will update pip and setuptools for your user. Potentially this
+could negatively affect the installation by your user of other, older Python packages. If you don't
 want to do update these two packages, and you are using Python 3.4 without a recent version
 of pip and setuptools, you must manually install Python's typing and scandir modules:
 
-``sudo python3 -m pip install typing scandir``
+``python3 -m pip --user install typing scandir``
 
 The following command will install all required and optional Python modules not already
 installed on your system, with the exception of those specified above in
 `satisfying software requirements`_:
 
-``sudo python3 -m pip install rapid-photo-downloader-0.9.0a1.tar.gz``
+``python3 -m pip --user install rapid-photo-downloader-0.9.0a1.tar.gz``
 
 Substitute the name of the correct compressed tar file if necessary.
 
@@ -185,7 +184,7 @@ Uninstallation
 
 Assuming you installed using the instructions above, run:
 
-``sudo python3 -m pip uninstall rapid-photo-downloader``
+``python3 -m pip uninstall rapid-photo-downloader``
 
 
 .. _website: http://damonlynch.net/rapid

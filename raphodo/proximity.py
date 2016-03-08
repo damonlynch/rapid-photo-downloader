@@ -26,22 +26,24 @@ import logging
 import pickle
 import math
 from typing import Dict, List, Tuple, Set
-from pprint import pprint
 
 import arrow.arrow
 from arrow.arrow import Arrow
 
 from gettext import gettext as _
-
 from PyQt5.QtCore import (QAbstractTableModel, QModelIndex, Qt, QSize,
-                          QRect, QPoint, QItemSelectionModel, QBuffer, QIODevice)
-from PyQt5.QtWidgets import (QTableView, QStyledItemDelegate, QSlider, QLabel,
-                             QStyleOptionViewItem, QStyle, QAbstractItemView, QWidget, QHBoxLayout)
+                          QRect, QItemSelection, QItemSelectionModel, QBuffer, QIODevice,
+                          pyqtSignal, pyqtSlot)
+from PyQt5.QtWidgets import (QTableView, QStyledItemDelegate, QSlider, QLabel, QVBoxLayout,
+                             QStyleOptionViewItem, QStyle, QAbstractItemView, QWidget, QHBoxLayout,
+                             QSizePolicy)
 from PyQt5.QtGui import (QPainter, QFontMetrics, QFont, QColor, QGuiApplication, QPixmap)
 
 from raphodo.viewutils import SortedListItem
-from raphodo.constants import FileType, Align, CustomColors
+from raphodo.constants import (FileType, Align, CustomColors, proximity_time_steps,
+                               TemporalProximityState)
 from raphodo.rpdfile import FileTypeCounter
+from raphodo.preferences import Preferences
 
 ProximityRow = namedtuple('ProximityRow', 'year, month, weekday, day, proximity')
 
@@ -370,7 +372,8 @@ class ProximityDisplayValues:
 
                 if c1_span > 1:
                     self.c2_alignment[idx] = Align.bottom
-                    self.c2_alignment[idx + c1_span - 1] = Align.top
+                    if spans_dict.get((idx + c1_span - 1, 2)) is None:
+                        self.c2_alignment[idx + c1_span - 1] = Align.top
 
                 self.c2_end_of_day.add(idx + c1_span - 1)
 
@@ -659,9 +662,9 @@ def base64_thumbnail(pixmap: QPixmap, size: QSize) -> str:
 class TemporalProximityModel(QAbstractTableModel):
     tooltip_image_size = QSize(90, 90)
 
-    def __init__(self, parent, groups: TemporalProximityGroups = None):
+    def __init__(self, rapidApp, groups: TemporalProximityGroups = None, parent=None):
         super().__init__(parent)
-        self.rapidApp = parent
+        self.rapidApp = rapidApp
         self.groups = groups
 
     def columnCount(self, parent=QModelIndex()):
@@ -730,10 +733,8 @@ class TemporalProximityModel(QAbstractTableModel):
 
 
 class TemporalProximityDelegate(QStyledItemDelegate):
-    def __init__(self, rapidApp, parent=None) -> None:
+    def __init__(self, parent=None) -> None:
         super().__init__(parent)
-
-        self.rapidApp = rapidApp
 
         self.darkGray = QColor(51, 51, 51)
         self.darkerGray = self.darkGray.darker(150)
@@ -834,7 +835,6 @@ class TemporalProximityDelegate(QStyledItemDelegate):
 
         elif column == 2:
             text = model.data(index)
-            text = text.replace('\n', '\n\n')
 
             painter.save()
 
@@ -1013,11 +1013,170 @@ class TemporalProximityView(QTableView):
 
 
 class TemporalValuePicker(QWidget):
-    def __init__(self, parent=None) -> None:
+    """
+    Simple composite widget of QSlider and QLabel
+    """
+
+    # Emites number of minutes
+    valueChanged =  pyqtSignal(int)
+
+    def __init__(self, minutes: int, parent=None) -> None:
         super().__init__(parent)
         self.slider = QSlider(Qt.Horizontal)
+        self.slider.setTickPosition(QSlider.TicksBelow)
+        self.slider.setToolTip(_("The time elapsed between consecutive photos and "
+                                 "videos that is used to build the Timeline"))
+        self.slider.setMaximum(len(proximity_time_steps) - 1)
+        self.slider.setValue(proximity_time_steps.index(minutes))
+
         self.display = QLabel()
+        self.display.setAlignment(Qt.AlignCenter)
+
+        # Determine maximum width of display label
+        width = 0
+        labelMetrics = QFontMetrics(QFont())
+        for m in range(len(proximity_time_steps)):
+            boundingRect = labelMetrics.boundingRect(self.displayString(m))  # type: QRect
+            width = max(width, boundingRect.width())
+
+        self.display.setFixedWidth(width + 6)
+
+        self.slider.valueChanged.connect(self.updateDisplay)
+        self.display.setText(self.displayString(self.slider.value()))
+
         layout = QHBoxLayout()
+        layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(layout)
         layout.addWidget(self.slider)
         layout.addWidget(self.display)
+
+    def displayString(self, index: int) -> str:
+        minutes = proximity_time_steps[index]
+        if minutes < 60:
+            # Translators: e.g. "45m", which is short for 45 minutes.
+            # Replace the very last character (after the d) with the correct
+            # localized value, keeping everything else
+            return _("%(minutes)dm") % dict(minutes=minutes)
+        elif minutes == 90:
+            # Translators: i.e. "1.5h", which is short for 1.5 hours.
+            # Replace the entire string with the correct localized value
+            return _('1.5h')
+        else:
+            # Translators: e.g. "5h", which is short for 5 hours.
+            # Replace the very last character (after the d) with the correct localized value,
+            # keeping everything else
+            return _('%(hours)dh') % dict(hours=minutes // 60)
+
+    @pyqtSlot(int)
+    def updateDisplay(self, value: int) -> None:
+        self.display.setText(self.displayString(value))
+        self.valueChanged.emit(proximity_time_steps[value])
+
+
+class TemporalProximity(QWidget):
+    """
+    Displays Timeline and tracks its state
+    """
+
+    def __init__(self, rapidApp,
+                 thumbnailProxyModel,
+                 prefs: Preferences,
+                 parent=None) -> None:
+        """
+
+        :param rapidApp: main application window
+        :type rapidApp: RapidWindow
+        :param thumbnailProxyModel: thumbnail display's filter
+        :type thumbnailProxyModel: ThumbnailSortFilterProxyModel
+        :param prefs: program & user preferences
+        :param parent: parent widget
+        """
+
+        super().__init__(parent)
+
+        self.rapidApp = rapidApp
+        self.thumbnailProxyModel = thumbnailProxyModel
+        self.prefs = prefs
+
+        self.temporalProximityView = TemporalProximityView()
+        self.temporalProximityModel = TemporalProximityModel(rapidApp=rapidApp)
+        self.temporalProximityView.setModel(self.temporalProximityModel)
+        self.temporalProximityDelegate = TemporalProximityDelegate()
+        self.temporalProximityView.setItemDelegate(self.temporalProximityDelegate)
+        self.temporalProximityView.selectionModel().selectionChanged.connect(
+                                                self.proximitySelectionChanged)
+
+        self.temporalProximityView.setSizePolicy(QSizePolicy.Preferred,
+                                                 QSizePolicy.MinimumExpanding)
+
+        layout = QVBoxLayout()
+        self.setLayout(layout)
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.addWidget(self.temporalProximityView)
+        self.temporalValuePicker = TemporalValuePicker(self.prefs.get_proximity())
+        layout.addWidget(self.temporalValuePicker)
+        self.temporalValuePicker.valueChanged.connect(self.temporalValueChanged)
+
+        self.state = TemporalProximityState.empty
+
+    @pyqtSlot(QItemSelection, QItemSelection)
+    def proximitySelectionChanged(self, current: QItemSelection, previous: QItemSelection) -> None:
+        """
+        Respond to user selections in Temporal Proximity Table.
+
+        User can select / deselect individual cells. Need to:
+        1. Automatically update selection to include parent or child
+           cells in some cases
+        2. Filter display of thumbnails
+        """
+        self.temporalProximityView.updateSelection()
+
+        groups = self.temporalProximityModel.groups
+
+        selected_rows_col2 = [i.row() for i in self.temporalProximityView.selectedIndexes()
+                              if i.column() == 2]
+        selected_rows_col1 = [i.row() for i in self.temporalProximityView.selectedIndexes()
+                              if i.column() == 1 and
+                              groups.row_span_for_column_starts_at_row[(
+                              i.row(), 2)] not in selected_rows_col2]
+
+        if selected_rows_col2 or selected_rows_col1:
+            self.thumbnailProxyModel.selected_rows = groups.selected_thumbnail_rows(
+                    selected_rows_col1, selected_rows_col2)
+            self.thumbnailProxyModel.invalidateFilter()
+        else:
+            self.thumbnailProxyModel.selected_rows = set()
+            self.thumbnailProxyModel.invalidateFilter()
+
+    def setState(self, state: TemporalProximityState) -> None:
+        self.state = state
+
+    def setGroups(self, proximity_groups: TemporalProximityGroups) -> None:
+        self.state = TemporalProximityState.generated
+
+        self.temporalProximityModel.groups = proximity_groups
+        depth = proximity_groups.depth()
+        self.temporalProximityDelegate.depth = depth
+        if depth == 1:
+            self.temporalProximityView.hideColumn(0)
+        else:
+            self.temporalProximityView.showColumn(0)
+        self.temporalProximityView.clearSpans()
+        self.temporalProximityDelegate.row_span_for_column_starts_at_row = \
+            proximity_groups.row_span_for_column_starts_at_row
+        self.temporalProximityDelegate.dv = proximity_groups.display_values
+        self.temporalProximityDelegate.dv.assign_fonts()
+
+        for column, row, row_span in proximity_groups.spans:
+            self.temporalProximityView.setSpan(row, column, row_span, 1)
+
+        self.temporalProximityModel.endResetModel()
+
+        for idx, height in enumerate(proximity_groups.display_values.row_heights):
+            self.temporalProximityView.setRowHeight(idx, height)
+        for idx, width in enumerate(proximity_groups.display_values.col_widths):
+            self.temporalProximityView.setColumnWidth(idx, width)
+
+    @pyqtSlot(int)
+    def temporalValueChanged(self, minutes: int) -> None:
+        self.prefs.set_proximity(minutes=minutes)

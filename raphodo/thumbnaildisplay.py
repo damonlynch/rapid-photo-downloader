@@ -112,7 +112,6 @@ class ThumbnailListModel(QAbstractListModel):
 
         self.initialize()
 
-
         no_workers = parent.prefs.max_cpu_cores
         self.thumbnailmq = Thumbnailer(parent=parent, no_workers=no_workers,
                logging_port=logging_port, log_gphoto2=log_gphoto2)

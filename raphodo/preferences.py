@@ -373,6 +373,32 @@ class Preferences:
     def sync(self):
         self.settings.sync()
 
+    def get_proximity(self) -> int:
+        """
+        Validates preference value proxmity_seconds against standard list.
+
+        Given the user could enter any old value into the preferences, need to validate it.
+        The validation technique is to match whatever value is in the preferences with the
+        closest value we need, which is found in the list of int proximity_time_steps.
+
+        For the algorithm, see:
+        http://stackoverflow.com/questions/12141150/from-list-of-integers-get-number-closest-to-a
+        -given-value
+        No need to use bisect list, as our list is tiny, and using min has the advantage
+        of getting the closest value.
+
+        Note: we store the value in seconds, but use it in minutes, just in case a user
+        makes a compelling case to be able to specify a proximity value less than 1 minute.
+
+        :return: closest valid value in minutes
+        """
+
+        minutes = self.proximity_seconds // 60
+        return min(constants.proximity_time_steps, key=lambda x:abs(x - minutes))
+
+    def set_proximity(self, minutes: int) -> None:
+        self.proximity_seconds = minutes * 60
+
     def _pref_list_uses_component(self, pref_list, pref_component, offset: int=1) -> bool:
         for i in range(0, len(pref_list), 3):
             if pref_list[i+offset] == pref_component:
