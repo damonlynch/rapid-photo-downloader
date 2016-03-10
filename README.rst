@@ -20,10 +20,10 @@ rename photos and videos with meaningful filenames you specify. It can also
 back up photos and videos as they are downloaded. It downloads from and backs
 up to multiple devices simultaneously.
 
-Unique to Rapid Photo Downloader is its timeline feature, allowing you to
-group photos and videos based on how much time elapsed between consecutive
-shots. You can use this to quickly identify photos and videos taken at
-different periods in a single day or over consecutive days.
+Unique to Rapid Photo Downloader is its Timeline, which groups photos and
+videos based on how much time elapsed between consecutive shots. Use it to
+identify photos and videos taken at different periods in a single day or
+over consecutive days.
 
 Written by a photographer_ for professional and amateur photographers, Rapid
 Photo Downloader is easy to configure and use. Program preferences are

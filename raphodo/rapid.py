@@ -729,9 +729,21 @@ class RapidWindow(QMainWindow):
         logging.debug("Completed stage 3 initializing main window")
 
     def mapModel(self, scan_id: int) -> DeviceModel:
+        """
+        Map a scan_id onto Devices' or This Computer's device model.
+        :param scan_id: scan id of the device
+        :return: relevant device model
+        """
+
         return self._mapModel[self.devices[scan_id].device_type]
 
     def mapView(self, scan_id: int) -> DeviceView:
+        """
+        Map a scan_id onto Devices' or This Computer's device view.
+        :param scan_id: scan id of the device
+        :return: relevant device view
+        """
+
         return self._mapView[self.devices[scan_id].device_type]
 
     def readWindowSettings(self, app: 'QtSingleApplication'):
@@ -1345,7 +1357,7 @@ class RapidWindow(QMainWindow):
         if not on:
             if len(self.devices.this_computer) > 0:
                 scan_id = list(self.devices.this_computer)[0]
-                self.removeDevice(scan_id)
+                self.removeDevice(scan_id=scan_id)
             self.prefs.this_computer_path = ''
             self.thisComputerFSView.clearSelection()
         else:
@@ -1364,7 +1376,7 @@ class RapidWindow(QMainWindow):
         self.prefs.device_autodetection = on
         if not on:
             for scan_id in list(self.devices.volumes_and_cameras):
-                self.removeDevice(scan_id)
+                self.removeDevice(scan_id=scan_id)
         else:
             self.searchForCameras()
             self.setupNonCameraDevices()
@@ -2294,6 +2306,8 @@ class RapidWindow(QMainWindow):
             for rpd_file in data.rpd_files:
                 self.thumbnailModel.addFile(rpd_file, generate_thumbnail=not
                                             self.auto_start_is_on)
+            if self.temporalProximity.state != TemporalProximityState.pending:
+                self.temporalProximity.setState(TemporalProximityState.pending)
         else:
             scan_id = data.scan_id
             if scan_id not in self.devices:
@@ -2763,8 +2777,7 @@ class RapidWindow(QMainWindow):
                 logging.debug("Device removed: %s", device.name())
             if device in self.prompting_for_user_action:
                 self.prompting_for_user_action[device].reject()
-            if self.thumbnailModel.clearAll(scan_id=scan_id, keep_downloaded_files=True):
-                self.generateTemporalProximityTableData()
+            self.thumbnailModel.clearAll(scan_id=scan_id, keep_downloaded_files=True)
             self.mapModel(scan_id).removeDevice(scan_id)
             if scan_id in self.scanmq.workers:
                 if device_state != DeviceState.scanning:
@@ -2784,8 +2797,11 @@ class RapidWindow(QMainWindow):
             self.resizeDeviceView(view)
             self.updateSourceButton()
             if device_state == DeviceState.scanning:
-                if len(self.devices.scanning) == 0 and self.temporal_proximity_generation_pending:
+                if (len(self.devices.scanning) == 0 and self.temporalProximity.state ==
+                        TemporalProximityState.pending):
                     self.generateTemporalProximityTableData()
+            if len(self.devices) == 0:
+                self.temporalProximity.setState(TemporalProximityState.empty)
 
     def setupBackupDevices(self):
         """

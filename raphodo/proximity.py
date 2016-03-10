@@ -33,11 +33,11 @@ from arrow.arrow import Arrow
 from gettext import gettext as _
 from PyQt5.QtCore import (QAbstractTableModel, QModelIndex, Qt, QSize,
                           QRect, QItemSelection, QItemSelectionModel, QBuffer, QIODevice,
-                          pyqtSignal, pyqtSlot)
+                          pyqtSignal, pyqtSlot, QTimer)
 from PyQt5.QtWidgets import (QTableView, QStyledItemDelegate, QSlider, QLabel, QVBoxLayout,
                              QStyleOptionViewItem, QStyle, QAbstractItemView, QWidget, QHBoxLayout,
                              QSizePolicy)
-from PyQt5.QtGui import (QPainter, QFontMetrics, QFont, QColor, QGuiApplication, QPixmap)
+from PyQt5.QtGui import (QPainter, QFontMetrics, QFont, QColor, QGuiApplication, QPixmap, QPalette)
 
 from raphodo.viewutils import SortedListItem
 from raphodo.constants import (FileType, Align, CustomColors, proximity_time_steps,
@@ -778,10 +778,12 @@ class TemporalProximityDelegate(QStyledItemDelegate):
             painter.setFont(self.dv.monthFont)
             painter.setPen(textColor)
 
-
+            # Set position in the cell
             painter.translate(x, y)
+            # Rotate the coming text rendering
             painter.rotate(270.0)
 
+            # Translate positioning to reflect new rotation
             painter.translate(-1 * option.rect.height(), 0)
             rect = QRect(0, 0, option.rect.height(), option.rect.width())
 
@@ -1026,6 +1028,7 @@ class TemporalValuePicker(QWidget):
         self.slider.setTickPosition(QSlider.TicksBelow)
         self.slider.setToolTip(_("The time elapsed between consecutive photos and "
                                  "videos that is used to build the Timeline"))
+        # self.slider.setTracking(False)
         self.slider.setMaximum(len(proximity_time_steps) - 1)
         self.slider.setValue(proximity_time_steps.index(minutes))
 
@@ -1042,6 +1045,9 @@ class TemporalValuePicker(QWidget):
         self.display.setFixedWidth(width + 6)
 
         self.slider.valueChanged.connect(self.updateDisplay)
+        self.slider.sliderPressed.connect(self.sliderPressed)
+        self.slider.sliderReleased.connect(self.sliderReleased)
+
         self.display.setText(self.displayString(self.slider.value()))
 
         layout = QHBoxLayout()
@@ -1049,6 +1055,21 @@ class TemporalValuePicker(QWidget):
         self.setLayout(layout)
         layout.addWidget(self.slider)
         layout.addWidget(self.display)
+
+    @pyqtSlot()
+    def sliderPressed(self):
+        self.pressed_value = self.slider.value()
+
+    @pyqtSlot()
+    def sliderReleased(self):
+        if self.pressed_value != self.slider.value():
+            self.valueChanged.emit(proximity_time_steps[self.slider.value()])
+
+    @pyqtSlot(int)
+    def updateDisplay(self, value: int) -> None:
+        self.display.setText(self.displayString(value))
+        if not self.slider.isSliderDown():
+            self.valueChanged.emit(proximity_time_steps[value])
 
     def displayString(self, index: int) -> str:
         minutes = proximity_time_steps[index]
@@ -1067,11 +1088,6 @@ class TemporalValuePicker(QWidget):
             # keeping everything else
             return _('%(hours)dh') % dict(hours=minutes // 60)
 
-    @pyqtSlot(int)
-    def updateDisplay(self, value: int) -> None:
-        self.display.setText(self.displayString(value))
-        self.valueChanged.emit(proximity_time_steps[value])
-
 
 class TemporalProximity(QWidget):
     """
@@ -1083,7 +1099,6 @@ class TemporalProximity(QWidget):
                  prefs: Preferences,
                  parent=None) -> None:
         """
-
         :param rapidApp: main application window
         :type rapidApp: RapidWindow
         :param thumbnailProxyModel: thumbnail display's filter
@@ -1098,6 +1113,8 @@ class TemporalProximity(QWidget):
         self.thumbnailProxyModel = thumbnailProxyModel
         self.prefs = prefs
 
+        self.state = TemporalProximityState.empty
+
         self.temporalProximityView = TemporalProximityView()
         self.temporalProximityModel = TemporalProximityModel(rapidApp=rapidApp)
         self.temporalProximityView.setModel(self.temporalProximityModel)
@@ -1109,15 +1126,62 @@ class TemporalProximity(QWidget):
         self.temporalProximityView.setSizePolicy(QSizePolicy.Preferred,
                                                  QSizePolicy.MinimumExpanding)
 
+        self.temporalValuePicker = TemporalValuePicker(self.prefs.get_proximity())
+        self.temporalValuePicker.setSizePolicy(QSizePolicy.Preferred,
+                                                 QSizePolicy.Minimum)
+
+        description = _('The Timeline groups photos and videos based on how much time elapsed '
+'between consecutive shots. Use it to identify photos and videos taken at '
+'different periods in a single day or over consecutive days.')
+        adjust = _('Adjust the the time elapsed between consecutive shots '
+'that is used to build the Timeline using the slider.')
+        generation_pending = _("Timeline build pending...")
+        generating = _("Timeline is building...")
+
+        description = '<i>{}</i>'.format(description)
+        generation_pending = '<i>{}</i>'.format(generation_pending)
+        generating = '<i>{}</i>'.format(generating)
+        adjust = '<i>{}</i>'.format(adjust)
+
+        palette = QPalette()
+        palette.setColor(QPalette.Window, palette.color(palette.Base))
+
+        margin = QFontMetrics(QFont()).height()
+
+        self.description = QLabel(description)
+        self.generating = QLabel(generating)
+        self.generationPending = QLabel(generation_pending)
+        self.adjust = QLabel(adjust)
+
+        self.explanation = QWidget()
+        layout = QVBoxLayout()
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(0)
+        self.explanation.setLayout(layout)
+        layout.addWidget(self.description)
+        layout.addWidget(self.adjust)
+
+        for label in (self.description, self.generationPending, self.generating, self.adjust):
+            label.setMargin(margin)
+            label.setWordWrap(True)
+            label.setAutoFillBackground(True)
+            label.setPalette(palette)
+
+        for label in (self.description, self.generationPending, self.generating):
+            label.setAlignment(Qt.AlignTop)
+            label.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.MinimumExpanding)
+        self.adjust.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Minimum)
+
         layout = QVBoxLayout()
         self.setLayout(layout)
         layout.setContentsMargins(0, 0, 0, 0)
-        layout.addWidget(self.temporalProximityView)
-        self.temporalValuePicker = TemporalValuePicker(self.prefs.get_proximity())
+
+        layout.addWidget(self.explanation)
         layout.addWidget(self.temporalValuePicker)
+
         self.temporalValuePicker.valueChanged.connect(self.temporalValueChanged)
 
-        self.state = TemporalProximityState.empty
+        self.another_generation_needed = False
 
     @pyqtSlot(QItemSelection, QItemSelection)
     def proximitySelectionChanged(self, current: QItemSelection, previous: QItemSelection) -> None:
@@ -1149,10 +1213,40 @@ class TemporalProximity(QWidget):
             self.thumbnailProxyModel.invalidateFilter()
 
     def setState(self, state: TemporalProximityState) -> None:
+        layout = self.layout()  # type: QVBoxLayout
+        if self.state == TemporalProximityState.empty:
+            existingWidget = self.explanation
+        elif self.state == TemporalProximityState.pending:
+            existingWidget = self.generationPending
+        elif self.state == TemporalProximityState.generating:
+            existingWidget = self.generating
+        else:
+            assert self.state == TemporalProximityState.generated
+            existingWidget = self.temporalProximityView
+
+        existingWidget.hide()
+
+        if state == TemporalProximityState.pending:
+            newWidget = self.generationPending
+        elif state == TemporalProximityState.generating:
+            newWidget = self.generating
+        elif state == TemporalProximityState.generated:
+            newWidget = self.temporalProximityView
+        else:
+            assert state == TemporalProximityState.empty
+            newWidget = self.explanation
+
+        layout.removeWidget(existingWidget)
+        layout.insertWidget(0, newWidget)
+        newWidget.show()
+
         self.state = state
 
     def setGroups(self, proximity_groups: TemporalProximityGroups) -> None:
-        self.state = TemporalProximityState.generated
+        if self.another_generation_needed:
+            self.another_generation_needed = False
+            self.rapidApp.generateTemporalProximityTableData()
+            return
 
         self.temporalProximityModel.groups = proximity_groups
         depth = proximity_groups.depth()
@@ -1177,6 +1271,13 @@ class TemporalProximity(QWidget):
         for idx, width in enumerate(proximity_groups.display_values.col_widths):
             self.temporalProximityView.setColumnWidth(idx, width)
 
+        self.setState(TemporalProximityState.generated)
+
     @pyqtSlot(int)
     def temporalValueChanged(self, minutes: int) -> None:
         self.prefs.set_proximity(minutes=minutes)
+        if self.state == TemporalProximityState.generated:
+            self.setState(TemporalProximityState.generating)
+            self.rapidApp.generateTemporalProximityTableData()
+        elif self.state == TemporalProximityState.generating:
+            self.another_generation_needed = True

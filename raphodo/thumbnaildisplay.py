@@ -413,6 +413,8 @@ class ThumbnailListModel(QAbstractListModel):
         they have been downloaded.
 
         :param scan_id: if None, keep_downloaded_files must be False
+        :param keep_downloaded_files: don't remove thumbnails if they represent
+         files that have now been downloaded
         :return: True if any row was removed, else False
         """
         if scan_id is None and not keep_downloaded_files:
