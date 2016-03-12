@@ -37,7 +37,8 @@ from PyQt5.QtCore import (QAbstractTableModel, QModelIndex, Qt, QSize,
 from PyQt5.QtWidgets import (QTableView, QStyledItemDelegate, QSlider, QLabel, QVBoxLayout,
                              QStyleOptionViewItem, QStyle, QAbstractItemView, QWidget, QHBoxLayout,
                              QSizePolicy)
-from PyQt5.QtGui import (QPainter, QFontMetrics, QFont, QColor, QGuiApplication, QPixmap, QPalette)
+from PyQt5.QtGui import (QPainter, QFontMetrics, QFont, QColor, QGuiApplication, QPixmap,
+                         QPalette, QMouseEvent)
 
 from raphodo.viewutils import SortedListItem
 from raphodo.constants import (FileType, Align, CustomColors, proximity_time_steps,
@@ -1013,6 +1014,53 @@ class TemporalProximityView(QTableView):
 
         self.selectionModel().blockSignals(False)
 
+    @pyqtSlot(QMouseEvent)
+    def mousePressEvent(self, event: QMouseEvent) -> None:
+        """
+        Checks to see if selection should be cleared.
+
+        Should be cleared if the cell clicked in already represents
+        a selection that cannot be expanded or made smaller with the
+        same click.
+
+        A click outside the selection represents a new selection,
+        should proceed.
+
+        A click inside a selection, but one that creates a new, smaller
+        selection, should also proceed.
+
+        :param event: the mouse click event
+        """
+
+        do_selection = True
+        do_selection_confirmed = False
+        index = self.indexAt(event.pos())  # type: QModelIndex
+        if index in self.selectedIndexes():
+            clicked_column = index.column()
+            clicked_row = index.row()
+            row_span = self.rowSpan(clicked_row, clicked_column)
+            for i in self.selectedIndexes():
+                column = i.column()
+                row = i.row()
+                # Is any selected column to the left of clicked column?
+                if column < clicked_column:
+                    # Is the row the same as the clicked row?
+                    if not (row==clicked_row and self.rowSpan(row, column) == 1):
+                        do_selection_confirmed = True
+                        break
+                # Is this the only selected row in the column selected?
+                if ((row < clicked_row or row >= clicked_row + row_span) and column ==
+                        clicked_column):
+                    do_selection_confirmed = True
+                    break
+
+            if not do_selection_confirmed:
+                self.clearSelection()
+                do_selection = False
+
+        if do_selection:
+            super().mousePressEvent(event)
+
 
 class TemporalValuePicker(QWidget):
     """
@@ -1193,6 +1241,7 @@ class TemporalProximity(QWidget):
            cells in some cases
         2. Filter display of thumbnails
         """
+
         self.temporalProximityView.updateSelection()
 
         groups = self.temporalProximityModel.groups
