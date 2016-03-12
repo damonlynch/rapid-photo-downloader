@@ -119,8 +119,8 @@ from raphodo.metadatavideo import EXIFTOOL_VERSION
 from raphodo.camera import gphoto2_version, python_gphoto2_version
 from raphodo.rpdsql import DownloadedSQL
 from raphodo.generatenameconfig import *
-from raphodo.rotatedpushbutton import RotatedButton
-from raphodo.toppushbutton import TopPushButton
+from raphodo.rotatedpushbutton import RotatedButton, FlatButton
+from raphodo.primarybutton import TopPushButton, DownloadButton
 from raphodo.filebrowse import FileSystemView, FileSystemModel
 from raphodo.toggleview import QToggleView
 import raphodo.__about__ as __about__
@@ -863,7 +863,7 @@ class RapidWindow(QMainWindow):
         self.sourceAct = QAction(_('&Source'), self, shortcut="Ctrl+s",
                                  triggered=self.doSourceAction)
 
-        self.downloadAct = QAction(_("&Download"), self,
+        self.downloadAct = QAction(_("Download"), self,
                                    shortcut="Ctrl+Return",
                                    triggered=self.doDownloadAction)
 
@@ -949,7 +949,7 @@ class RapidWindow(QMainWindow):
 
         verticalLayout.addLayout(centralLayout)
 
-        # Help and Download buttons
+        # Download button
         horizontalLayout = self.createBottomButtons()
         verticalLayout.addLayout(horizontalLayout, 0)
 
@@ -1184,13 +1184,13 @@ class RapidWindow(QMainWindow):
 
     def createBottomButtons(self) -> QHBoxLayout:
         horizontalLayout = QHBoxLayout()
-        horizontalLayout.setContentsMargins(7, 7, 7, 7)
-        self.downloadButton = QPushButton(self.downloadAct.text())
+        horizontalLayout.setContentsMargins(7, 2, 7, 7)
+        self.downloadButton = DownloadButton(self.downloadAct.text())
         self.downloadButton.addAction(self.downloadAct)
         self.downloadButton.setDefault(True)
         self.downloadButton.clicked.connect(self.downloadButtonClicked)
         self.download_action_is_download = True
-        buttons = QDialogButtonBox(QDialogButtonBox.Help)
+        buttons = QDialogButtonBox()
         buttons.addButton(self.downloadButton, QDialogButtonBox.ApplyRole)
         horizontalLayout.addWidget(buttons)
         return horizontalLayout
@@ -1221,11 +1221,18 @@ class RapidWindow(QMainWindow):
         if not self.downloadIsRunning():
             enabled = False
             # Don't enable starting a download while devices are being scanned
-            if len(self.scanmq) == 0:
+            if len(self.devices.scanning) == 0:
                 enabled = self.thumbnailModel.filesAreMarkedForDownload()
 
             self.downloadAct.setEnabled(enabled)
             self.downloadButton.setEnabled(enabled)
+            if enabled:
+                marked = self.thumbnailModel.getNoFilesAndTypesMarkedForDownload()
+                files = marked.file_types_present_details()
+                text = _("Download %(files)s") % dict(files=files)  # type: str
+                self.downloadButton.setText(text)
+            else:
+                self.downloadButton.setText(self.downloadAct.text())
 
     def setDownloadActionLabel(self, is_download: bool) -> None:
         """

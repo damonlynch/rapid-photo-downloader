@@ -465,6 +465,10 @@ class ThumbnailListModel(QAbstractListModel):
     def getNoFilesMarkedForDownload(self) -> int:
         return sum((len(self.marked[scan_id]) for scan_id in self.marked))
 
+    def getNoFilesAndTypesMarkedForDownload(self) -> FileTypeCounter:
+        return FileTypeCounter(self.rpd_files[unique_id].file_type for scan_id in self.marked
+                               for unique_id in self.marked[scan_id])
+
     def getSizeOfFilesMarkedForDownload(self) -> int:
         return sum(self.rpd_files[unique_id].size for scan_id in self.marked for unique_id in
              self.marked[scan_id])

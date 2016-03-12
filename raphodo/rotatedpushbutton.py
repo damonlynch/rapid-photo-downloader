@@ -40,8 +40,6 @@ class FlatButton:
             checked_color = default_color
         hover_color = color.darker(110).name(QColor.HexRgb)
 
-        self.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
-
         # outline:none is used to remove the rectangle that appears on a
         # button when the button has focus
         # http://stackoverflow.com/questions/17280056/qt-css-decoration-on-focus
@@ -56,7 +54,7 @@ class RotatedButton(QPushButton, FlatButton):
     leftSide = 270.0
     rightSide = 90.0
 
-    def __init__(self, text, rotation: float,
+    def __init__(self, text: str, rotation: float,
                  flat: bool=True, checkable: bool=True, parent=None) -> None:
         super().__init__(text, parent)
         self.buttonRotation = rotation

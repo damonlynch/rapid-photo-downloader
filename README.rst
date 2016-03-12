@@ -62,17 +62,17 @@ python3-zmq exiv2 python3-colorlog libraw-bin python3-easygui``
 If not using Ubuntu 16.04, make Python's installation tools up-to-date by executing
 the following two steps (optional: see caution below in `Installation`_):
 
-``python3 -m pip --user install --upgrade pip``
+``python3 -m pip install --user --upgrade pip``
 
-``python3 -m pip --user install --upgrade setuptools``
+``python3 -m pip install --user --upgrade setuptools``
 
 If your system uses Python 3.4 and you didn't upgrade pip and setuptools, run:
 
-``python3 -m pip --user install typing scandir``
+``python3 -m pip install --user typing scandir``
 
 To install, run:
 
-``python3 -m pip --user install rapid-photo-downloader-0.9.0a1.tar.gz``
+``python3 -m pip install --user rapid-photo-downloader-0.9.0a1.tar.gz``
 
 **Caution:** *untarring the archive, building it and installing it using* ``sudo python3 setup.py
 install`` *is* **not** *supported, and* **not** *recommended.*
@@ -157,22 +157,22 @@ you use sudo to get super-user (root) access.
 
 First, you may need to update your user's copy of pip and setuptools (optional):
 
-``python3 -m pip --user install --upgrade pip``
+``python3 -m pip install --user --upgrade pip``
 
-``python3 -m pip --user install --upgrade setuptools``
+``python3 -m pip install --user --upgrade setuptools``
 
 **Caution:** the previous two steps will update pip and setuptools for your user. Potentially this
 could negatively affect the installation by your user of other, older Python packages. If you don't
 want to do update these two packages, and you are using Python 3.4 without a recent version
 of pip and setuptools, you must manually install Python's typing and scandir modules:
 
-``python3 -m pip --user install typing scandir``
+``python3 -m pip install --user typing scandir``
 
 The following command will install all required and optional Python modules not already
 installed on your system, with the exception of those specified above in
 `satisfying software requirements`_:
 
-``python3 -m pip --user install rapid-photo-downloader-0.9.0a1.tar.gz``
+``python3 -m pip install --user rapid-photo-downloader-0.9.0a1.tar.gz``
 
 Substitute the name of the correct compressed tar file if necessary.
 

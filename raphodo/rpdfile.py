@@ -39,7 +39,7 @@ from raphodo.constants import (DownloadStatus, FileType, FileExtension, FileSort
 from raphodo.storage import get_desktop, gvfs_controls_mounts
 import raphodo.metadataphoto as metadataphoto
 import raphodo.metadatavideo as metadatavideo
-from raphodo.utilities import thousands
+from raphodo.utilities import thousands, make_internationalized_list
 
 import raphodo.problemnotification as pn
 
@@ -161,11 +161,12 @@ def get_rpdfile(name: str, path: str, size: int, prev_full_name: str,
                      is_mtp_device,
                      camera_memory_card_identifiers)
 
-def file_types_by_number(no_photos: int, no_videos:int) -> str:
+def file_types_by_number(no_photos: int, no_videos: int) -> str:
         """
-        generate a string to be displayed to the user that can be used
-        to show if a value refers to photos or videos or both, or just
-        one of each
+        Generate a string show number of photos and videos
+
+        :param no_photos: number of photos
+        :param no_videos: number of videos
         """
         if (no_videos > 0) and (no_photos > 0):
             v = _('photos and videos')
@@ -208,13 +209,9 @@ class FileTypeCounter(Counter):
     >>> f = FileTypeCounter()
     >>> f.summarize_file_count()
     ('0 photos or videos', 'photos or videos')
-    >>> f.running_file_count()
-    'scanning (found 0 photos and 0 videos)...'
     >>> f[FileType.photo] += 1
     >>> f.summarize_file_count()
     ('1 photo', 'photo')
-    >>> f.running_file_count()
-    'scanning (found 1 photos and 0 videos)...'
     >>> f[FileType.video] += 3
     >>> f
     FileTypeCounter({<FileType.video: 2>: 3, <FileType.photo: 1>: 1})
@@ -223,8 +220,6 @@ class FileTypeCounter(Counter):
     FileTypeCounter({<FileType.photo: 1>: 6, <FileType.video: 2>: 3})
     >>> f.summarize_file_count()
     ('9 photos and videos', 'photos and videos')
-    >>> f.running_file_count()
-    'scanning (found 6 photos and 3 videos)...'
     """
 
     def file_types_present(self) -> str:
@@ -253,15 +248,29 @@ class FileTypeCounter(Counter):
                                'filetypes': file_types_present}
         return (file_count_summary, file_types_present)
 
-    def running_file_count(self) -> str:
-        """
-        Displays raw numbers of photos and videos. Displayed as a scan
-        is occurring.
-        :return some variaton of 'scanning (found 6 photos and 3 videos)...'
-        """
-        return _("scanning (found %(photos)s photos and %(videos)s videos)...") \
-               % ({'photos': thousands(self[FileType.photo]),
-                   'videos': thousands(self[FileType.video])})
+    def file_types_present_details(self) -> str:
+        p = self[FileType.photo]
+        v = self[FileType.video]
+
+        if v > 1:
+            videos =  _('%(no_videos)d Videos') % dict(no_videos=v)
+        elif v == 1:
+            videos =  _('1 Video')
+
+        if p > 1:
+            photos = _('%(no_photos)d Photos') % dict(no_photos=p)
+        elif p == 1:
+            photos = _('1 Photo')
+
+        if (p > 0) and (v > 0):
+            return make_internationalized_list([photos, videos])
+        elif (p == 0) and (v == 0):
+            return ''
+        elif v > 0:
+            return videos
+        else:
+            return photos
+
 
 class RPDFile:
     """
