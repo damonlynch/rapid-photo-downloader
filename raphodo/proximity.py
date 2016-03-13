@@ -25,7 +25,7 @@ from datetime import datetime
 import logging
 import pickle
 import math
-from typing import Dict, List, Tuple, Set
+from typing import Dict, List, Tuple, Set, Optional
 
 import arrow.arrow
 from arrow.arrow import Arrow
@@ -36,7 +36,7 @@ from PyQt5.QtCore import (QAbstractTableModel, QModelIndex, Qt, QSize,
                           pyqtSignal, pyqtSlot, QTimer)
 from PyQt5.QtWidgets import (QTableView, QStyledItemDelegate, QSlider, QLabel, QVBoxLayout,
                              QStyleOptionViewItem, QStyle, QAbstractItemView, QWidget, QHBoxLayout,
-                             QSizePolicy)
+                             QSizePolicy, QSplitter)
 from PyQt5.QtGui import (QPainter, QFontMetrics, QFont, QColor, QGuiApplication, QPixmap,
                          QPalette, QMouseEvent)
 
@@ -224,7 +224,7 @@ class ProximityDisplayValues:
     def __init__(self):
         self.depth = None
         self.row_heights = []  # type: List[int]
-        self.col_widths = None  # type: Tuple[int]
+        self.col_widths = None  # type: Optional[Tuple[int]]
 
         # row : (width, height)
         self.col0_sizes = {}  # type: Dict[int, Tuple[int, int]]
@@ -885,23 +885,13 @@ class TemporalProximityView(QTableView):
         super().__init__()
         self.verticalHeader().setVisible(False)
         self.horizontalHeader().setVisible(False)
+        # Calling code should set this value to something sensible
         self.setMinimumWidth(200)
         self.horizontalHeader().setStretchLastSection(True)
         self.setWordWrap(True)
         self.setSelectionMode(QAbstractItemView.ExtendedSelection)
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.setShowGrid(False)
-
-    def minimumSizeHint(self) -> QSize:
-        model = self.model()  # type: TemporalProximityModel
-        w = 0
-        for i in range(model.columnCount()):
-            w += self.columnWidth(i)
-        h = 80
-        return QSize(w, h)
-
-    def SizeHint(self) -> QSize:
-        return self.minimumSizeHint()
 
     def _updateSelectionRowChildColumn2(self, row: int, parent_column: int,
                                         model: TemporalProximityModel) -> None:
@@ -1319,6 +1309,15 @@ class TemporalProximity(QWidget):
             self.temporalProximityView.setRowHeight(idx, height)
         for idx, width in enumerate(proximity_groups.display_values.col_widths):
             self.temporalProximityView.setColumnWidth(idx, width)
+
+        # Set the minimum width for the timeline to match the content
+        # Width of each column
+        min_width = sum(proximity_groups.display_values.col_widths)
+        # Width of each scrollbar
+        scrollbar_width = self.style().pixelMetric(QStyle.PM_ScrollBarExtent)
+        # Width of frame - without it, the tableview will still be too small
+        frame_width = QSplitter().lineWidth() * 2
+        self.temporalProximityView.setMinimumWidth(min_width + scrollbar_width + frame_width)
 
         self.setState(TemporalProximityState.generated)
 

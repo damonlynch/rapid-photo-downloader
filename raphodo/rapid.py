@@ -702,7 +702,7 @@ class RapidWindow(QMainWindow):
         else:
             self.auto_start_is_on = self.prefs.auto_download_at_startup
 
-        self.setDownloadActionSensitivity()
+        self.setDownloadActionState()
         self.searchForCameras()
         self.setupNonCameraDevices()
         self.setupManualPath()
@@ -1069,6 +1069,7 @@ class RapidWindow(QMainWindow):
         self.deviceArea = QScrollArea()
         self.deviceArea.setWidgetResizable(True)
         self.deviceArea.setFrameShape(QFrame.NoFrame)
+        self.deviceArea.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.MinimumExpanding)
 
         self.deviceContainer = QWidget()
         self.deviceArea.setWidget(self.deviceContainer)
@@ -1113,11 +1114,51 @@ class RapidWindow(QMainWindow):
 
         self.thisComputerToggleView.addWidget(self.thisComputer)
 
-        self.resizeDeviceView(self.deviceView)
-        self.resizeDeviceView(self.thisComputerView)
-
         layout.addWidget(self.deviceToggleView)
         layout.addWidget(self.thisComputerToggleView)
+
+        self.resizeDeviceViewsAndScrollArea()
+
+    def resizeDeviceView(self, view: DeviceView) -> None:
+        """
+        Sets the maximum height for the device view table to match the
+        number of devices being displayed
+        """
+        if view.model().rowCount() > 0:
+            height = view.sizeHint().height()
+            view.setMaximumHeight(height)
+        else:
+            view.setMaximumHeight(emptyViewHeight)
+
+    def resizeDeviceViewsAndScrollArea(self, view: Optional[DeviceView]=None) -> None:
+        """
+        Resize deviceArea in response to events.
+
+        These events are:
+          * devices being inserted and removed
+          * views being toggled on and off
+        """
+
+        # Set maximum size for Devices and This Computer views
+        if view is not None:
+            self.resizeDeviceView(view)
+        else:
+            for view in (self.deviceView, self.thisComputerView):
+                self.resizeDeviceView(view)
+
+        # Set minium size for scoll area deviceArea
+        width = 0
+        height = 3
+        for view in (self.deviceToggleView, self.thisComputerToggleView):
+            width = max(width, view.minimumWidth())
+            height += view.minimumHeight()
+        self.deviceArea.setMinimumWidth(width)
+        self.deviceArea.setMinimumHeight(height)
+        # if not self.thisComputerToggleView.on():
+        #     self.deviceArea.setMaximumHeight(height)
+        # else:
+        #     self.deviceArea.setMaximumHeight(16777215)
+        self.leftPanelSplitter.updateGeometry()
 
     def createDestinationViews(self) -> None:
 
@@ -1164,11 +1205,14 @@ class RapidWindow(QMainWindow):
         self.centerSplitter.setCollapsible(1, False)
         self.centerSplitter.setCollapsible(2, False)
 
+        self.rightPanelSplitter.setCollapsible(0, False)
+        self.rightPanelSplitter.setCollapsible(1, False)
+
         splitterSetting = settings.value("centerSplitterSizes")
         if splitterSetting is not None:
             self.centerSplitter.restoreState(splitterSetting)
         else:
-            self.centerSplitter.setSizes([200, 400])
+            self.centerSplitter.setSizes([200, 400, 200])
 
         splitterSetting = settings.value("leftPanelSplitterSizes")
         if splitterSetting is not None:
@@ -1213,7 +1257,7 @@ class RapidWindow(QMainWindow):
     def layoutDestinations(self) -> None:
         pass
 
-    def setDownloadActionSensitivity(self) -> None:
+    def setDownloadActionState(self) -> None:
         """
         Sets sensitivity of Download action to enable or disable it.
         Affects download button and menu item.
@@ -1368,8 +1412,7 @@ class RapidWindow(QMainWindow):
             self.prefs.this_computer_path = ''
             self.thisComputerFSView.clearSelection()
         else:
-            pass
-            # TODO there is no path to scan - let the user know?
+            self.resizeDeviceViewsAndScrollArea(view=self.thisComputerView)
 
     @pyqtSlot(bool)
     def deviceToggleViewValueChange(self, on: bool) -> None:
@@ -1984,7 +2027,7 @@ class RapidWindow(QMainWindow):
                 self.displayMessageInStatusBar()
 
                 self.setDownloadActionLabel(is_download=True)
-                self.setDownloadActionSensitivity()
+                self.setDownloadActionState()
 
                 self.job_code.job_code = ''
                 self.download_start_time = None
@@ -2366,7 +2409,7 @@ class RapidWindow(QMainWindow):
                                                 storage_space=data.storage_space)
                 self.updateSourceButton()
                 self.deviceModel.updateDeviceNameAndStorage(scan_id, device)
-                self.resizeDeviceView(self.deviceView)
+                self.resizeDeviceViewsAndScrollArea(view=self.deviceView)
 
     @pyqtSlot(int)
     def scanFinished(self, scan_id: int) -> None:
@@ -2378,7 +2421,7 @@ class RapidWindow(QMainWindow):
         self.download_tracker.set_file_types_present(scan_id, file_types_present)
         model = self.mapModel(scan_id)
         model.updateDeviceScan(scan_id)
-        self.setDownloadActionSensitivity()
+        self.setDownloadActionState()
 
         self.displayMessageInStatusBar(update_only_marked=True)
 
@@ -2525,18 +2568,7 @@ class RapidWindow(QMainWindow):
 
     def addToDeviceDisplay(self, device: Device, scan_id: int) -> None:
         self.mapModel(scan_id).addDevice(scan_id, device)
-        self.resizeDeviceView(self.mapView(scan_id))
-
-    def resizeDeviceView(self, view: DeviceView) -> None:
-        """
-        Sets the maximum height for the device view table to match the
-        number of devices being displayed
-        """
-        if view.model().rowCount() > 0:
-            height = view.sizeHint().height()
-            view.setMaximumHeight(height)
-        else:
-            view.setMaximumHeight(emptyViewHeight)
+        self.resizeDeviceViewsAndScrollArea(view=self.mapView(scan_id))
 
     @pyqtSlot()
     def cameraAdded(self) -> None:
@@ -2573,7 +2605,7 @@ class RapidWindow(QMainWindow):
             self.removeDevice(scan_id=scan_id, show_warning=show_warning)
 
         if removed_cameras:
-            self.setDownloadActionSensitivity()
+            self.setDownloadActionState()
 
     @pyqtSlot()
     def noGVFSAutoMount(self) -> None:
@@ -2657,7 +2689,7 @@ class RapidWindow(QMainWindow):
                            log_gphoto2=self.log_gphoto2)
         self.scanmq.start_worker(scan_id, scan_arguments)
         self.devices.set_device_state(scan_id, DeviceState.scanning)
-        self.setDownloadActionSensitivity()
+        self.setDownloadActionState()
 
     def partitionValid(self, mount: QStorageInfo) -> bool:
         """
@@ -2764,7 +2796,7 @@ class RapidWindow(QMainWindow):
                 self.backup_devices.no_photo_backup_devices,
                 self.backup_devices.no_video_backup_devices)
 
-        self.setDownloadActionSensitivity()
+        self.setDownloadActionState()
 
     def removeDevice(self, scan_id: int, show_warning: bool=True) -> None:
         assert scan_id is not None
@@ -2801,14 +2833,18 @@ class RapidWindow(QMainWindow):
                 self.thumbnailModel.terminateThumbnailGeneration(scan_id)
             view = self.mapView(scan_id)
             del self.devices[scan_id]
-            self.resizeDeviceView(view)
+            self.resizeDeviceViewsAndScrollArea(view=view)
             self.updateSourceButton()
+            self.setDownloadActionState()
             if device_state == DeviceState.scanning:
                 if (len(self.devices.scanning) == 0 and self.temporalProximity.state ==
                         TemporalProximityState.pending):
                     self.generateTemporalProximityTableData()
-            if len(self.devices) == 0:
+            elif len(self.devices) == 0:
                 self.temporalProximity.setState(TemporalProximityState.empty)
+            else:
+                self.generateTemporalProximityTableData()
+
 
     def setupBackupDevices(self):
         """

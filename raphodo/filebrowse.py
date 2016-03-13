@@ -19,11 +19,13 @@
 __author__ = 'Damon Lynch'
 __copyright__ = "Copyright 2016, Damon Lynch"
 
-from PyQt5.QtCore import (QDir, Qt, QModelIndex, QItemSelectionModel)
-from PyQt5.QtWidgets import (QTreeView, QAbstractItemView, QFileSystemModel)
-from PyQt5.QtGui import (QIcon)
+from PyQt5.QtCore import (QDir, Qt, QModelIndex, QItemSelectionModel, QSize)
+from PyQt5.QtWidgets import (QTreeView, QAbstractItemView, QFileSystemModel, QSizePolicy)
+from PyQt5.QtGui import QIcon
 
 import raphodo.qrc_resources as qrc_resources
+from raphodo.constants import (minPanelWidth, minFileSystemViewHeight)
+
 
 class FileSystemModel(QFileSystemModel):
     def __init__(self, parent) -> None:
@@ -43,6 +45,9 @@ class FileSystemView(QTreeView):
         self.setHeaderHidden(True)
         self.setSelectionBehavior(QAbstractItemView.SelectRows)
         self.setSelectionMode(QAbstractItemView.SingleSelection)
+        self.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.MinimumExpanding)
+        self.setMinimumWidth(minPanelWidth())
+        self.setMinimumHeight(minFileSystemViewHeight())
 
     def hideColumns(self) -> None:
         """
@@ -57,4 +62,6 @@ class FileSystemView(QTreeView):
         selection = self.selectionModel()
         selection.select(index, QItemSelectionModel.ClearAndSelect|QItemSelectionModel.Rows)
         self.scrollTo(index, QAbstractItemView.PositionAtTop)
+
+
 

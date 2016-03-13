@@ -253,12 +253,12 @@ class FileTypeCounter(Counter):
         v = self[FileType.video]
 
         if v > 1:
-            videos =  _('%(no_videos)d Videos') % dict(no_videos=v)
+            videos =  _('%(no_videos)s Videos') % dict(no_videos=thousands(v))
         elif v == 1:
             videos =  _('1 Video')
 
         if p > 1:
-            photos = _('%(no_photos)d Photos') % dict(no_photos=p)
+            photos = _('%(no_photos)s Photos') % dict(no_photos=thousands(p))
         elif p == 1:
             photos = _('1 Photo')
 

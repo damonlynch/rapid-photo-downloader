@@ -54,14 +54,12 @@ from PyQt5.QtGui import (QPainter, QFontMetrics, QFont, QColor, QLinearGradient,
 
 from raphodo.viewutils import RowTracker
 from raphodo.constants import (DeviceState, FileType, CustomColors, DeviceType, Roles,
-                               emptyViewHeight, ViewRowType)
+                               emptyViewHeight, ViewRowType, minPanelWidth)
 from raphodo.devices import Device, display_devices
 from raphodo.utilities import thousands, format_size_for_user
 from raphodo.storage import StorageSpace
 from raphodo.rpdfile import make_key
 
-def device_view_width(standard_font_size: int) -> int:
-    return standard_font_size * 13
 
 def icon_size() -> int:
     height = QFontMetrics(QFont()).height()
@@ -337,13 +335,17 @@ class DeviceView(QListView):
     def __init__(self, parent=None):
         super().__init__(parent)
         # Disallow the user from being able to select the table cells
-        font = QFont()
         self.setSelectionMode(QAbstractItemView.NoSelection)
-        self.view_width = device_view_width(QFontMetrics(font).height())
+        self.view_width = minPanelWidth()
+        # Assume view is always going to be placed into a QScrollArea
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
 
     def sizeHint(self):
+        height = self.minimumHeight()
+        return QSize(self.view_width, height)
+
+    def minimumHeight(self) -> int:
         model = self.model()  # type: DeviceModel
         if model.rowCount() > 0:
             height = 0
@@ -351,8 +353,8 @@ class DeviceView(QListView):
                 row_height = self.sizeHintForRow(row)
                 height += row_height
             height += len(model.headers) + 5
-            return QSize(self.view_width, height)
-        return QSize(self.view_width, emptyViewHeight)
+            return height
+        return emptyViewHeight
 
     def minimumSizeHint(self):
         return self.sizeHint()
@@ -365,7 +367,6 @@ class DeviceDelegate(QStyledItemDelegate):
     photos = _('Photos')
     videos = _('Videos')
     other = _('Other')
-    empty = _('Empty Space')
     probing_text = _('Probing device...')
 
     shading_intensity = 104
@@ -402,7 +403,7 @@ class DeviceDelegate(QStyledItemDelegate):
         # Height of the details about the storage e.g. number of photos
         # videos, etc.
         self.details_height = self.small_font_metrics.height() * 2 + 2
-        self.view_width = device_view_width(self.standard_height)
+        self.view_width = minPanelWidth()
         
         self.grey_border = QColor('#cdcdcd')
 

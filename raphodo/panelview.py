@@ -29,10 +29,12 @@ __copyright__ = "Copyright 2016, Damon Lynch"
 
 from typing import Optional
 
-from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QColor
+from PyQt5.QtCore import (Qt, QSize)
+from PyQt5.QtGui import (QColor, QFontMetrics, QFont)
 from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QSizePolicy, QVBoxLayout,
                              QWidget, QScrollArea, QFrame)
+
+from raphodo.constants import minPanelWidth
 
 class QPanelView(QWidget):
     """
@@ -108,6 +110,16 @@ class QPanelView(QWidget):
         """Set the text of the label."""
         self.label.setText(text)
 
+    def minimumSize(self) -> QSize:
+        if self.content is None:
+            font_height = QFontMetrics(QFont).height()
+            width = minPanelWidth()
+            height = font_height * 2
+        else:
+            width = self.content.minimumWidth()
+            height = self.content.minimumHeight()
+        return QSize(width, self.header.height() + height)
+
 
 class QComputerScrollArea(QScrollArea):
     """
@@ -121,3 +133,4 @@ class QComputerScrollArea(QScrollArea):
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.panelView = panelView
         self.setWidget(panelView)
+        self.setMinimumSize(panelView.minimumSize())

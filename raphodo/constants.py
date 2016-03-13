@@ -22,6 +22,7 @@ __copyright__ = "Copyright 2007-2016, Damon Lynch"
 
 from enum import (Enum, IntEnum)
 from PyQt5.QtCore import Qt
+from PyQt5.QtGui import QFont, QFontMetrics
 
 PROGRAM_NAME = "Rapid Photo Downloader"
 logfile_name = 'rapid-photo-downloader.log'
@@ -206,6 +207,27 @@ class TemporalProximityState(Enum):
 ThumbnailBackgroundName = '#555555'
 emptyViewHeight = 20
 
+def minPanelWidth() -> int:
+    """
+    Minimum width of panels on left and right side of main window.
+
+    Derived from standard font size.
+
+    :return: size in pixels
+    """
+
+    return int(QFontMetrics(QFont()).height() * 13.5)
+
+def minFileSystemViewHeight() -> int:
+    """
+    Minimum height of file system views on left and right side of main window.
+
+    Derived from standard font size.
+
+    :return: size in pixels
+    """
+
+    return QFontMetrics(QFont()).height() * 7
 
 class Desktop(Enum):
     gnome = 1

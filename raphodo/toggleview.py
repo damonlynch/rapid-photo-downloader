@@ -28,7 +28,7 @@ __author__ = 'Damon Lynch'
 __copyright__ = "Copyright 2016, Damon Lynch"
 
 from typing import Optional
-from PyQt5.QtCore import pyqtSignal, pyqtSlot
+from PyQt5.QtCore import pyqtSignal, pyqtSlot, QSize
 from PyQt5.QtGui import QColor
 from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QSizePolicy, QVBoxLayout,
                              QWidget)
@@ -82,6 +82,20 @@ class QToggleView(QPanelView):
             self.content.setVisible(self.on())
 
         self.valueChanged.emit(self.on())
+
+    def minimumSize(self) -> QSize:
+        size = super().minimumSize()
+        width = size.width()
+        height = self.minimumHeight()
+        return QSize(width, height)
+
+    def minimumHeight(self) -> int:
+        if not self.toggleSwitch.on():
+            return self.header.height()
+        else:
+            return super().minimumSize().height()
+
+
 
 
 

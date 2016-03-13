@@ -261,7 +261,7 @@ class ThumbnailListModel(QAbstractListModel):
             self.dataChanged.emit(self.index(row, 0), self.index(row, 0))
             self.synchronizeDeviceDisplayCheckMark()
             self.rapidApp.displayMessageInStatusBar(update_only_marked=True)
-            self.rapidApp.setDownloadActionSensitivity()
+            self.rapidApp.setDownloadActionState()
             return True
         return False
 
@@ -682,7 +682,7 @@ class ThumbnailListModel(QAbstractListModel):
 
         self.synchronizeDeviceDisplayCheckMark()
         self.rapidApp.displayMessageInStatusBar(update_only_marked=True)
-        self.rapidApp.setDownloadActionSensitivity()
+        self.rapidApp.setDownloadActionState()
 
     def visibleRows(self):
         """

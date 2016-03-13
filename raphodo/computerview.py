@@ -27,6 +27,7 @@ from PyQt5.QtWidgets import QWidget, QVBoxLayout, QSplitter
 
 from raphodo.devicedisplay import DeviceView
 from raphodo.filebrowse import FileSystemView
+from raphodo.constants import minFileSystemViewHeight
 
 
 class ComputerWidget(QWidget):
@@ -60,4 +61,12 @@ class ComputerWidget(QWidget):
 
     def setViewVisible(self, visible: bool) -> None:
         self.view.setVisible(visible)
+
+    def minimumHeight(self) -> int:
+        if self.view.isVisible():
+            height = self.view.minimumHeight()
+        else:
+            height = 0
+        height += minFileSystemViewHeight()
+        return height
 
