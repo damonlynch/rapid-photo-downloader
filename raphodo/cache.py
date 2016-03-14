@@ -137,18 +137,16 @@ class Cache:
             try:
                 if not os.path.exists(self.failure_dir):
                     os.makedirs(self.failure_dir, 0o700)
-                    logging.debug("Created thumbnails failure cache %s",
-                                  self.failure_dir)
+                    logging.debug("Created thumbnails failure cache %s", self.failure_dir)
                 elif not os.path.isdir(self.failure_dir):
                     os.remove(self.failure_dir)
                     logging.warning("Removed file %s", self.failure_dir)
                     os.makedirs(self.failure_dir, 0o700)
                     logging.debug("Created thumbnails failure cache %s",
                                   self.failure_dir)
-            except:
-                logging.error("Failed to create Rapid Photo "
-                              "Downloader thumbnail cache at %s",
-                              self.failure_dir)
+            except OSError:
+                logging.error("Failed to create Rapid Photo Downloader thumbnail failure directory "
+                              "at %s", self.failure_dir)
                 self.valid = False
 
         if not self.valid:
@@ -315,72 +313,6 @@ class FdoCacheLarge(Cache):
         super().__init__(cache_dir, failure_dir)
 
 
-class BaseThumbnailCache(Cache):
-    """
-    Creates a thumbnail cache in the Rapid Photo Downloader cache
-    directory. Saves and checks for presence of thumbnails in it.
-    """
-    def __init__(self, cache_subfolder, failure_subfolder):
-        cache_dir = get_program_cache_directory(create_if_not_exist=True)
-        failure_dir = os.path.join(cache_dir, failure_subfolder)
-        super().__init__(cache_dir, failure_dir)
-        if self.valid:
-            self.cache_dir = os.path.join(self.cache_dir, cache_subfolder)
-            try:
-                if not os.path.exists(self.cache_dir):
-                    os.makedirs(self.cache_dir, 0o700)
-                    logging.debug("Created thumbnails cache %s",
-                                  self.cache_dir)
-                elif not os.path.isdir(self.cache_dir):
-                    os.remove(self.cache_dir)
-                    logging.warning("Removed file %s", self.cache_dir)
-                    os.makedirs(self.cache_dir, 0o700)
-                    logging.debug("Created thumbnails cache %s",
-                                  self.cache_dir)
-            except:
-                logging.error("Failed to create Rapid Photo "
-                              "Downloader thumbnail cache at %s",
-                              cache_dir)
-                self.valid = False
-                self.cache_dir = None
-                self.random_filename = None
-                self.fs_encoding = None
-
-    def cleanup_cache(self):
-        """
-        Remove all thumbnails that have not been accessed for 30 days
-        """
-        if self.valid:
-            i = 0
-            now = time.time()
-            for cache_dir in (self.cache_dir, self.failure_dir):
-                for f in os.listdir(cache_dir ):
-                    png = os.path.join(cache_dir , f)
-                    if (os.path.isfile(png) and
-                            os.path.getatime(png) < now - 2592000):
-                        os.remove(png)
-                        i += 1
-                if i:
-                    logging.debug('Deleted {} thumbnail files that had not been '
-                              'accessed for 30 or more days'.format(i))
-
-    def purge_cache(self):
-        """
-        Delete the entire cache of all contents and remvoe the
-        directory
-        """
-        if self.valid:
-            if self.cache_dir is not None and os.path.isdir(self.cache_dir):
-                shutil.rmtree(self.cache_dir)
-            if self.failure_dir is not None and os.path.isdir(self.failure_dir):
-                shutil.rmtree(self.failure_dir)
-
-
-class ThumbnailCache(BaseThumbnailCache):
-    def __init__(self):
-        super().__init__('thumbnails/normal', 'thumbnails/fail')
-
-
 class ThumbnailCacheSql:
 
     not_found = GetThumbnail(ThumbnailCacheDiskStatus.not_foud, None, None)
@@ -398,17 +330,14 @@ class ThumbnailCacheSql:
         try:
             if not os.path.exists(self.cache_dir):
                 os.makedirs(self.cache_dir, 0o700)
-                logging.debug("Created thumbnails cache %s",
-                              self.cache_dir)
+                logging.debug("Created thumbnails cache %s", self.cache_dir)
             elif not os.path.isdir(self.cache_dir):
                 os.remove(self.cache_dir)
                 logging.warning("Removed file %s", self.cache_dir)
                 os.makedirs(self.cache_dir, 0o700)
-                logging.debug("Created thumbnails cache %s",
-                              self.cache_dir)
+                logging.debug("Created thumbnails cache %s", self.cache_dir)
         except:
-            logging.error("Failed to create Rapid Photo "
-                          "Downloader thumbnail cache at %s",
+            logging.error("Failed to create Rapid Photo Downloader Thumbnail Cache at %s",
                           self.cache_dir)
             self.valid = False
             self.cache_dir = None

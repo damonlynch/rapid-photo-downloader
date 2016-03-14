@@ -63,32 +63,35 @@ def check_package_import_requirements():
         import_msgs.append('python3 PyQt5')
     try:
         import gi
+        have_gi = True
     except ImportError:
         import_msgs.append('python3 gobject introspection')
-    try:
-        gi.require_version('GUdev', '1.0')
-    except ValueError:
-        import_msgs.append('GUdev 1.0 from gi.repository')
-    try:
-        gi.require_version('UDisks', '2.0')
-    except ValueError:
-        import_msgs.append('UDisks 2.0 from gi.repository')
-    try:
-         gi.require_version('GLib', '2.0')
-    except ValueError:
-        import_msgs.append('GLib 2.0 from gi.repository')
-    try:
-        gi.require_version('GExiv2', '0.10')
-    except ValueError:
-        import_msgs.append('GExiv2 0.10 from gi.repository')
-    try:
-        gi.require_version('Gst', '1.0')
-    except ValueError:
-        import_msgs.append('Gst 1.0 from gi.repository')
-    try:
-        gi.require_version('Notify', '0.7')
-    except ValueError:
-        import_msgs.append('Notify 0.7 from gi.repository')
+        have_gi = False
+    if have_gi:
+        try:
+            gi.require_version('GUdev', '1.0')
+        except ValueError:
+            import_msgs.append('GUdev 1.0 from gi.repository')
+        try:
+            gi.require_version('UDisks', '2.0')
+        except ValueError:
+            import_msgs.append('UDisks 2.0 from gi.repository')
+        try:
+             gi.require_version('GLib', '2.0')
+        except ValueError:
+            import_msgs.append('GLib 2.0 from gi.repository')
+        try:
+            gi.require_version('GExiv2', '0.10')
+        except ValueError:
+            import_msgs.append('GExiv2 0.10 from gi.repository')
+        try:
+            gi.require_version('Gst', '1.0')
+        except ValueError:
+            import_msgs.append('Gst 1.0 from gi.repository')
+        try:
+            gi.require_version('Notify', '0.7')
+        except ValueError:
+            import_msgs.append('Notify 0.7 from gi.repository')
     if shutil.which('exiftool') is None:
         import_msgs.append('ExifTool')
     if len(import_msgs):
@@ -100,7 +103,7 @@ def check_package_import_requirements():
     try:
         import gphoto2
         try:
-            if StrictVersion(gphoto2.__version__) < StrictVersion('1.3.3'):
+            if StrictVersion(gphoto2.__version__) < StrictVersion('1.3.4'):
                 raise ImportError
         except:
             raise ImportError

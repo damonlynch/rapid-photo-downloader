@@ -38,7 +38,7 @@ from interprocess import (GenerateThumbnailsArguments,
 
 from thumbnaildisplay import ThumbnailManager
 from rpdfile import RPDFile
-from cache import ThumbnailCache
+from cache import ThumbnailCacheSql
 
 
 class TestThumbnailManager(ThumbnailManager):
@@ -113,7 +113,7 @@ if __name__ == '__main__':
                  help="reset all thumbnail caches and exit")
     args = parser.parse_args()
     if args.reset:
-        cache = ThumbnailCache()
+        cache = ThumbnailCacheSql()
         cache.purge_cache()
         print("Thumbnail cache reset")
         cache = os.path.join(BaseDirectory.xdg_cache_home, 'thumbnails')

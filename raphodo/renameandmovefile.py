@@ -51,8 +51,9 @@ from raphodo.constants import (ConflictResolution, FileType, DownloadStatus, Thu
 from raphodo.interprocess import (RenameAndMoveFileData,
                           RenameAndMoveFileResults, DaemonProcess)
 from raphodo.rpdfile import RPDFile
-from raphodo.cache import FdoCacheNormal, FdoCacheLarge, ThumbnailCache
+from raphodo.cache import FdoCacheNormal, FdoCacheLarge, ThumbnailCacheSql
 from raphodo.rpdsql import DownloadedSQL
+from raphodo.thumbnailextractor import qimage_to_png_buffer
 
 
 class SyncRawJpegStatus(Enum):
@@ -785,7 +786,7 @@ class RenameMoveFileWorker(DaemonProcess):
                     else:
                         self.fdo_cache_large = self.fdo_cache_normal = None
                     if self.prefs.use_thumbnail_cache:
-                        self.thumbnail_cache = ThumbnailCache()
+                        self.thumbnail_cache = ThumbnailCacheSql()
                     else:
                         self.thumbnail_cache = None
                 elif data.message == RenameAndMoveStatus.download_completed:
