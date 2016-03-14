@@ -734,6 +734,11 @@ class TemporalProximityModel(QAbstractTableModel):
 
 
 class TemporalProximityDelegate(QStyledItemDelegate):
+    """
+    Render table cell for Timeline.
+
+    All cell size calculations are done prior to rendering.
+    """
     def __init__(self, parent=None) -> None:
         super().__init__(parent)
 
@@ -1007,7 +1012,7 @@ class TemporalProximityView(QTableView):
     @pyqtSlot(QMouseEvent)
     def mousePressEvent(self, event: QMouseEvent) -> None:
         """
-        Checks to see if selection should be cleared.
+        Checks to see if Timeline selection should be cleared.
 
         Should be cleared if the cell clicked in already represents
         a selection that cannot be expanded or made smaller with the
@@ -1114,7 +1119,8 @@ class TemporalValuePicker(QWidget):
         if minutes < 60:
             # Translators: e.g. "45m", which is short for 45 minutes.
             # Replace the very last character (after the d) with the correct
-            # localized value, keeping everything else
+            # localized value, keeping everything else. In other words, change
+            # only the m character.
             return _("%(minutes)dm") % dict(minutes=minutes)
         elif minutes == 90:
             # Translators: i.e. "1.5h", which is short for 1.5 hours.
@@ -1123,13 +1129,15 @@ class TemporalValuePicker(QWidget):
         else:
             # Translators: e.g. "5h", which is short for 5 hours.
             # Replace the very last character (after the d) with the correct localized value,
-            # keeping everything else
+            # keeping everything else. In other words, change only the h character.
             return _('%(hours)dh') % dict(hours=minutes // 60)
 
 
 class TemporalProximity(QWidget):
     """
-    Displays Timeline and tracks its state
+    Displays Timeline and tracks its state.
+
+    Main widget to display and control Timeline.
     """
 
     def __init__(self, rapidApp,
@@ -1251,6 +1259,10 @@ class TemporalProximity(QWidget):
             self.thumbnailProxyModel.selected_rows = set()
             self.thumbnailProxyModel.invalidateFilter()
 
+    def clearThumbnailDisplayFilter(self):
+        self.thumbnailProxyModel.selected_rows = set()
+        self.thumbnailProxyModel.invalidateFilter()
+
     def setState(self, state: TemporalProximityState) -> None:
         layout = self.layout()  # type: QVBoxLayout
         if self.state == TemporalProximityState.empty:
@@ -1279,7 +1291,10 @@ class TemporalProximity(QWidget):
         layout.insertWidget(0, newWidget)
         newWidget.show()
 
+        self.clearThumbnailDisplayFilter()
+
         self.state = state
+
 
     def setGroups(self, proximity_groups: TemporalProximityGroups) -> None:
         if self.another_generation_needed:
