@@ -91,6 +91,9 @@ class RowTracker:
     def __repr__(self) -> str:
         return '%r %r' % (self.row_to_id, self.id_to_row)
 
+    def __str__(self) -> str:
+        return 'Row to id: %r\nId to row: %r' % (self.row_to_id, self.id_to_row)
+
     def row(self, id_value) -> int:
         """
         :param id_value: the ID, e.g. scan_id, unique_id, row_id

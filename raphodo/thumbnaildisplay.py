@@ -133,8 +133,12 @@ class ThumbnailListModel(QAbstractListModel):
 
         # Sort thumbnails based on the time the files were modified
         self.rows = SortedListWithKey(key=attrgetter('modification_time'))
-        self.scan_index = defaultdict(list)  # type: defaultdict[int, List[str]]
+        # unique_id: RPDFile
         self.rpd_files = {}  # type: Dict[str, RPDFile]
+        # scan_id: unique_id  -- includes scan ids of removed devices
+        self.scan_index = defaultdict(list)  # type: defaultdict[int, List[str]]
+        # scan_id
+        self.removed_devices = set()  # type: Set[int]
 
         self.photo_icon = QPixmap(':/photo.png')
         self.video_icon = QPixmap(':/video.png')
@@ -146,6 +150,26 @@ class ThumbnailListModel(QAbstractListModel):
         self.thumbnailer_ready = False
         self.thumbnailer_generation_queue = []
 
+    def logState(self) -> None:
+        logging.debug("-- Thumbnail Model --")
+        if not self.thumbnailer_ready:
+            logging.debug("Thumbnailer not yet ready")
+        else:
+            if len(self.thumbnails) != len(self.rows) or len(self.rows) != len(self.rpd_files):
+                logging.debug("Conflicting values for %s thumbnails; %s rows; %s rpd_files",
+                              len(self.thumbnails), len(self.rows), len(self.rpd_files))
+            else:
+                logging.debug("%s thumbnails", len(self.thumbnails))
+            logging.debug("%s thumnails marked", sum(len(s) for s in self.marked.values()))
+            if self.total_thumbs_to_generate:
+                logging.debug("%s to be generated; %s generated", self.total_thumbs_to_generate,
+                              self.thumbnails_generated)
+            logging.debug("Known devices: %s",
+                          ', '.join(self.rapidApp.devices[scan_id].display_name
+                                    for scan_id in self.scan_index
+                                    if scan_id not in self.removed_devices))
+            logging.debug("%s total devices seen; %s devices removed",
+                          len(self.scan_index),  len(self.removed_devices))
     def rowFromUniqueId(self, unique_id: str) -> int:
         list_item = SortedListItem(unique_id,
                         self.rpd_files[unique_id].modification_time)
@@ -279,8 +303,7 @@ class ThumbnailListModel(QAbstractListModel):
 
     def removeRows(self, position, rows=1, index=QModelIndex()):
         self.beginRemoveRows(QModelIndex(), position, position + rows - 1)
-        unique_ids = [item.id_value for item in self.rows[
-                                                position:position+rows]]
+        unique_ids = [item.id_value for item in self.rows[position:position+rows]]
         del self.rows[position:position+rows]
         for unique_id in unique_ids:
             scan_id = self.rpd_files[unique_id].scan_id
@@ -339,17 +362,22 @@ class ThumbnailListModel(QAbstractListModel):
             self.dataChanged.emit(self.index(row,0),self.index(row,0))
         self.thumbnails_generated += 1
         self.no_thumbnails_by_scan[scan_id] -= 1
+        log_state = False
         if self.no_thumbnails_by_scan[scan_id] == 0:
             if self.rapidApp.deviceState(scan_id) == DeviceState.thumbnailing:
                 self.rapidApp.devices.set_device_state(scan_id, DeviceState.idle)
             device = self.rapidApp.devices[scan_id]
             logging.info('Finished thumbnail generation for %s', device.name())
+            log_state = True
+
 
         if self.thumbnails_generated == self.total_thumbs_to_generate:
             self.resetThumbnailTrackingAndDisplay()
         elif self.total_thumbs_to_generate:
-            self.rapidApp.downloadProgressBar.setValue(
-                self.thumbnails_generated)
+            self.rapidApp.downloadProgressBar.setValue(self.thumbnails_generated)
+
+        if log_state:
+            self.logState()
 
     def _get_cache_location(self, download_folder: str, is_photo_dir: bool) \
                             -> str:
@@ -398,7 +426,6 @@ class ThumbnailListModel(QAbstractListModel):
 
     def resetThumbnailTrackingAndDisplay(self):
         self.rapidApp.downloadProgressBar.reset()
-        # self.rapid_app.download_progressbar.set_text('')
         self.thumbnails_generated = 0
         self.total_thumbs_to_generate = 0
 
@@ -443,6 +470,9 @@ class ThumbnailListModel(QAbstractListModel):
                 self.removeRows(rows[start], len(rows[start:]))
             if not keep_downloaded_files or not len(self.scan_index[scan_id]):
                 del self.scan_index[scan_id]
+            self.removed_devices.add(scan_id)
+            if scan_id in self.no_thumbnails_by_scan:
+                del self.no_thumbnails_by_scan[scan_id]
             self.rapidApp.displayMessageInStatusBar(update_only_marked=True)
 
             return len(rows) > 0
@@ -704,8 +734,9 @@ class ThumbnailListModel(QAbstractListModel):
     
     def synchronizeDeviceDisplayCheckMark(self):
         for scan_id in self.scan_index:
-            can_download = self.filesAreMarkedForDownload(scan_id)
-            self.rapidApp.mapModel(scan_id).setCheckedValue(can_download, scan_id)
+            if scan_id not in self.removed_devices:
+                can_download = self.filesAreMarkedForDownload(scan_id)
+                self.rapidApp.mapModel(scan_id).setCheckedValue(can_download, scan_id)
 
     def terminateThumbnailGeneration(self, scan_id: int) -> bool:
         """

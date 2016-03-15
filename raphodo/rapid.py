@@ -2423,6 +2423,8 @@ class RapidWindow(QMainWindow):
         model.updateDeviceScan(scan_id)
         self.setDownloadActionState()
 
+        self.logState()
+
         self.displayMessageInStatusBar(update_only_marked=True)
 
         if len(self.devices.scanning) == 0:
@@ -2845,6 +2847,13 @@ class RapidWindow(QMainWindow):
             else:
                 self.generateTemporalProximityTableData()
 
+            self.logState()
+
+    def logState(self):
+        self.devices.logState()
+        self.thumbnailModel.logState()
+        self.deviceModel.logState()
+        self.thisComputerModel.logState()
 
     def setupBackupDevices(self):
         """

@@ -42,6 +42,7 @@ import math
 from collections import namedtuple, defaultdict
 from typing import Optional, Dict, List, Set
 import logging
+from pprint import pprint
 
 from gettext import gettext as _
 
@@ -88,8 +89,11 @@ class DeviceModel(QAbstractListModel):
         super().__init__(parent)
         self.rapidApp = parent
         self.device_display_type = device_display_type
+        # scan_id: Device
         self.devices = {}  # type: Dict[int, Device]
+        # scan_id: DeviceState
         self.spinner_state = {}  # type: Dict[int, DeviceState]
+        # scan_id: bool
         self.checked = defaultdict(lambda: True) # type: Dict[int, bool]
         self.icons = {}  # type: Dict[int, QPixmap]
         self.rows = RowTracker()  # type: RowTracker
@@ -294,19 +298,45 @@ class DeviceModel(QAbstractListModel):
         scan_id = self.row_id_to_scan_id[row_id]
 
         if role == Qt.CheckStateRole:
-            self.setCheckedValue(value, scan_id, row)
+            # In theory, update checkbox immediately, as selecting a very large number of thumbnails
+            # can take time. However the code is probably wrong, as it' doesn't work:
+            # self.setCheckedValue(checked=value, scan_id=scan_id, row=row, log_state_change=False)
+            # QApplication.instance().processEvents()
             self.rapidApp.thumbnailModel.checkAll(value, scan_id=scan_id)
             return True
         return False
 
-    def setCheckedValue(self, checked: bool, scan_id: int, row: Optional[int]=None):
+    def logState(self) -> None:
+        logging.debug("-- Device Model for %s --", self.device_display_type)
+        logging.debug("Known devices: %s", ', '.join(self.devices[device].display_name
+             for device in self.devices))
+        for row in self.rows.row_to_id:
+            row_id = self.rows.row_to_id[row]
+            scan_id = self.row_id_to_scan_id[row_id]
+            device = self.devices[scan_id]
+            logging.debug('Row %s: %s', row, device.display_name)
+        logging.debug("Spinner states: %s", ', '.join("%s: %s" %
+                          (self.devices[scan_id].display_name, self.spinner_state[scan_id].name)
+                          for scan_id in self.spinner_state))
+        logging.debug("Checked: %s", ', '.join(self.devices[scan_id].display_name
+                            for scan_id in self.checked if self.checked[scan_id]))
+
+
+    def setCheckedValue(self, checked: bool,
+                        scan_id: int,
+                        row: Optional[int]=None,
+                        log_state_change: Optional[bool]=True) -> None:
+        logging.debug("Setting checked state %s for %s", checked, self.devices[
+            scan_id].display_name)
         if row is None:
             row_id = self.scan_id_to_row_ids[scan_id][0]
             row = self.rows.row(row_id)
         self.checked[scan_id] = checked
         self.dataChanged.emit(self.index(row, 0),self.index(row, 0))
-        
-    
+
+        if log_state_change:
+            self.logState()
+
     def startSpinners(self):
         self._isSpinning = True
 

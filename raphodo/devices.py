@@ -354,6 +354,7 @@ class DeviceCollection:
         self.devices = {}  # type: Dict[int, Device]
         self.cameras = {}  # type: Dict[str, str]
         self.scan_counter = 0  # type: int
+        # scan_id: DeviceState
         self.device_state = {}  # type: Dict[int, DeviceState]
         # Track which devices are being scanned, by scan_id
         self.scanning = set()  # type: Set[int]
@@ -367,6 +368,26 @@ class DeviceCollection:
                          DeviceType.volume: self.volumes_and_cameras}
         self._map_plural_types = {DeviceType.camera: _('Cameras'),
                                   DeviceType.volume: _('Devices')}
+
+    def logState(self) -> None:
+        logging.debug("-- Device Collection --")
+        logging.debug('%s devices: %s volumes/cameras (%s cameras), %s this computer',
+                      len(self.devices), len(self.volumes_and_cameras), len(self.cameras),
+                      len(self.this_computer))
+        logging.debug("Device states: %s", ', '.join(
+            '%s: %s' % (self[scan_id].display_name, self.device_state[scan_id].name)
+            for scan_id in self.device_state))
+        if len(self.scanning):
+            scanning = ('%s' % ', '.join(self[scan_id].display_name for scan_id in self.scanning))
+            logging.debug("Scanning: %s", scanning)
+        else:
+            logging.debug("No devices scanning")
+        if len(self.downloading):
+            downloading = ('%s', ','.join(self[scan_id].display_name
+                                         for scan_id in self.downloading))
+            logging.debug("Downloading: %s", downloading)
+        else:
+            logging.debug("No devices downloading")
 
     def add_device(self, device: Device) -> int:
         scan_id = self.scan_counter
@@ -472,6 +493,7 @@ class DeviceCollection:
             self.scanning.remove(scan_id)
         elif scan_id in self.downloading:
             self.downloading.remove(scan_id)
+        del self.device_state[scan_id]
 
     def __getitem__(self, scan_id: int) -> Device:
         return self.devices[scan_id]

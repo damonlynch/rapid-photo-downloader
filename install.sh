@@ -175,9 +175,9 @@ def main(installer: str) -> None:
     rpath = os.path.join(name, 'requirements.txt')
     with tarfile.open(installer) as tar:
         with tar.extractfile(rpath) as requirements:
-            bytes = requirements.read()
+            reqbytes = requirements.read()
             with tempfile.NamedTemporaryFile(delete=False) as temp_requirements:
-                temp_requirements.write(bytes)
+                temp_requirements.write(reqbytes)
                 temp_requirements_name = temp_requirements.name
 
     print("\nInstalling application requirements")
