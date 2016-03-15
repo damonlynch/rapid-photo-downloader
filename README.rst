@@ -49,30 +49,23 @@ The program is licensed under the GPL3_ or later.
 Quickstart on Ubuntu or Debian-like Systems
 ===========================================
 
-If you use Ubuntu 15.10 or newer, or Debian sid, or an equivalent, first install all necessary
-build and Python module requirements that can be satisified  with the built-in distribution
-packages:
 
-``sudo apt-get install libimage-exiftool-perl python3-pyqt5 python3-pip
-python3-setuptools python3-dev python3-distutils-extra gir1.2-gexiv2-0.10 python3-gi
-gir1.2-gudev-1.0 gir1.2-udisks-2.0 gir1.2-notify-0.7 gir1.2-glib-2.0 gir1.2-gstreamer-1.0
-libgphoto2-dev python3-sortedcontainers python3-arrow python3-psutil qt5-image-formats-plugins
-python3-zmq exiv2 python3-colorlog libraw-bin python3-easygui``
+If you use Ubuntu 15.10 or newer, or Debian sid, or an equivalent, you can install
+Rapid Photo Downloader for your user. To get started, first install pip_, the
+Python tool for installing Python packages:
 
-If not using Ubuntu 16.04, make Python's installation tools up-to-date by executing
-the following two steps (optional: see caution below in `Installation`_):
+``sudo apt-get install python3-pip``
+
+If using Ubuntu 15.10 or a distribution of a similar age, make Python 3's installation tools
+up-to-date by executing the following two steps (see caution below in `Installation`_):
 
 ``python3 -m pip install --user --upgrade pip``
 
 ``python3 -m pip install --user --upgrade setuptools``
 
-If your system uses Python 3.4 and you didn't upgrade pip and setuptools, run:
+To install, run as your regular user (i.e. *without* sudo):
 
-``python3 -m pip install --user typing scandir``
-
-To install, run:
-
-``python3 -m pip install --user rapid-photo-downloader-0.9.0a1.tar.gz``
+``./install.sh rapid-photo-downloader-0.9.0a1.tar.gz``
 
 **Caution:** *untarring the archive, building it and installing it using* ``sudo python3 setup.py
 install`` *is* **not** *supported, and* **not** *recommended.*
@@ -80,6 +73,8 @@ install`` *is* **not** *supported, and* **not** *recommended.*
 Finally, to uninstall:
 
 ``python3 -m pip uninstall rapid-photo-downloader``
+
+If you installed the man pages, they are found in ``/usr/local/share/man/man1``.
 
 
 Software Requirements and Program Installation
@@ -155,26 +150,24 @@ After `satisfying software requirements`_ using your Linux distribution's standa
 installation tools, you should install Rapid Photo Downloader using the following steps, assuming
 you use sudo to get super-user (root) access.
 
-First, you may need to update your user's copy of pip and setuptools (optional):
+First, you may need to update your user's copy of pip and setuptools:
 
 ``python3 -m pip install --user --upgrade pip``
 
 ``python3 -m pip install --user --upgrade setuptools``
 
 **Caution:** the previous two steps will update pip and setuptools for your user. Potentially this
-could negatively affect the installation by your user of other, older Python packages. If you don't
-want to do update these two packages, and you are using Python 3.4 without a recent version
-of pip and setuptools, you must manually install Python's typing and scandir modules:
-
-``python3 -m pip install --user typing scandir``
+could negatively affect the installation of other, older Python packages by your user, but the
+risk is small and is normally nothing to worry about.
 
 The following command will install all required and optional Python modules not already
 installed on your system, with the exception of those specified above in
 `satisfying software requirements`_:
 
-``python3 -m pip install --user rapid-photo-downloader-0.9.0a1.tar.gz``
+``./install.sh rapid-photo-downloader-0.9.0a1.tar.gz``
 
-Substitute the name of the correct compressed tar file if necessary.
+Substitute the name of the correct compressed tar file if necessary, and run it as your regular
+user (i.e. *without* sudo).
 
 **Caution:** *untarring the archive, building it and installing it using* ``sudo python3 setup.py
 install`` *is* **not** *supported, and* **not** *recommended.*
@@ -185,6 +178,8 @@ Uninstallation
 Assuming you installed using the instructions above, run:
 
 ``python3 -m pip uninstall rapid-photo-downloader``
+
+If you installed the man pages, they are found in ``/usr/local/share/man/man1``.
 
 
 .. _website: http://damonlynch.net/rapid

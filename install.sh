@@ -35,11 +35,20 @@ import argparse
 import shlex
 import subprocess
 import shutil
+from distutils.version import StrictVersion
+
 
 try:
     import pip
 except ImportError:
     sys.stderr.write("To run this program, you must first install pip for Python 3\n")
+    sys.stderr.write("Install it using your Linux distribution's standard package manager -\n\n")
+    fedora_pip = 'Fedora:\nsudo dnf install python3 python3-wheel\n'
+    suse_pip = 'openSUSE:\nsudo zypper install python3-pip python3-setuptools python3-wheel\n'
+    debian_pip = 'Ubuntu/Debian:\nsudo apt-get install python3-pip\n'
+    arch_pip = 'Arch Linux:\nsudo pacman -S python-pip\n'
+    for distro in (fedora_pip, suse_pip, debian_pip, arch_pip):
+        sys.stderr.write('{}\n'.format(distro))
     sys.exit(1)
 
 try:
@@ -136,9 +145,11 @@ def check_package_import_requirements() -> None:
         if missing_packages:
             cmd = shutil.which('apt-get')
             command_line = 'sudo {} install {}'.format(cmd, ' '.join(missing_packages))
-            print("The following command will be run:")
+            print("To continue, some packages required to run the application will be "
+                  "installed.\n")
+            print("The following command will be run:\n")
             print(command_line)
-            print("sudo may prompt you for the sudo password.")
+            print("\nsudo may prompt you for the sudo password.\n")
             answer = input('Do you agree to run this command? (if you do, type yes and hit '
                            'enter): ')
             if answer == 'yes':
@@ -203,6 +214,7 @@ def main(installer: str) -> None:
     man_dir = '/usr/local/share/man/man1'
     print("\nDo you want to install the application's man pages?")
     print("They will be installed into {}".format(man_dir))
+    print("If you uninstall the application, remove these manpages yourself.")
     print("sudo may prompt you for the sudo password.")
     answer = input('Type yes and hit enter if you do want to install the man pages: ')
     if answer == 'yes':
@@ -234,6 +246,22 @@ if __name__ == '__main__':
     if os.getuid() == 0:
         sys.stderr.write("Do not run this installer script as sudo / root user.\nRun it using the "
                          "user who will run the program.\n")
+        sys.exit(1)
+
+    if StrictVersion(pip.__version__) < StrictVersion('8.1'):
+        sys.stderr.write("Python 3's pip and setuptools must be upgraded for your user\n\n")
+
+        sys.stderr.write('Run both of these commands as your regular user (i.e. without '
+                         'sudo)\n\n')
+           
+        for cmd in ('python3 -m pip install --user --upgrade pip',
+                    'python3 -m pip install --user --upgrade setuptools'):
+            sys.stderr.write('{}\n'.format(cmd))
+        sys.stderr.write('\nThen run this installer again.\n\n')
+
+        sys.stderr.write("Caution: upgrading pip and setuptools for your user could potentially "
+                         "negatively affect the installation of other, older Python packages by your user.\n")
+        sys.stderr.write("However the risk is small and is normally nothing to worry about.\n")
         sys.exit(1)
 
     parser = argparse.ArgumentParser(description='Install Rapid Photo Downloader')
