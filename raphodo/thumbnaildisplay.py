@@ -471,8 +471,9 @@ class ThumbnailListModel(QAbstractListModel):
             if not keep_downloaded_files or not len(self.scan_index[scan_id]):
                 del self.scan_index[scan_id]
             self.removed_devices.add(scan_id)
+
             if scan_id in self.no_thumbnails_by_scan:
-                del self.no_thumbnails_by_scan[scan_id]
+                self.recalculateThumbnailsPercentage(scan_id=scan_id)
             self.rapidApp.displayMessageInStatusBar(update_only_marked=True)
 
             return len(rows) > 0
@@ -750,6 +751,7 @@ class ThumbnailListModel(QAbstractListModel):
 
         terminated = scan_id in manager
         if terminated:
+            # TODO this is now the wrong way to query for how many thumbnail workers there are
             no_workers = len(manager)
             manager.stop_worker(scan_id)
             if no_workers == 1:
@@ -757,13 +759,19 @@ class ThumbnailListModel(QAbstractListModel):
                 # momentarily!
                 self.resetThumbnailTrackingAndDisplay()
             else:
-                # Recalculate the percentages for the toolbar
-                self.total_thumbs_to_generate -= self.no_thumbnails_by_scan[
-                    scan_id]
-                self.rapidApp.downloadProgressBar.setMaximum(
-                    self.total_thumbs_to_generate)
-                del self.no_thumbnails_by_scan[scan_id]
+                self.recalculateThumbnailsPercentage(scan_id=scan_id)
         return terminated
+
+    def recalculateThumbnailsPercentage(self, scan_id: int) -> None:
+        """
+        Adjust % of thumbnails generated calculations after device removal.
+
+        :param scan_id: id of removed device
+        """
+
+        self.total_thumbs_to_generate -= self.no_thumbnails_by_scan[scan_id]
+        self.rapidApp.downloadProgressBar.setMaximum(self.total_thumbs_to_generate)
+        del self.no_thumbnails_by_scan[scan_id]
 
     def updateStatusPostDownload(self, rpd_file: RPDFile):
         unique_id = rpd_file.unique_id
@@ -911,193 +919,191 @@ class ThumbnailDelegate(QStyledItemDelegate):
             subprocess.Popen(args)
 
     def paint(self, painter: QPainter, option: QStyleOptionViewItem, index: QModelIndex) -> None:
-        if index.column() == 0:
+        if index is None:
+            return
 
-            # Save state of painter, restore on function exit
-            painter.save()
+        # Save state of painter, restore on function exit
+        painter.save()
 
-            # Get data about the file
-            model = index.model()
-            checked = model.data(index, Qt.CheckStateRole) == Qt.Checked
-            previously_downloaded = model.data(
-                index, Roles.previously_downloaded)
-            extension, ext_type = model.data(index, Roles.extension)
-            download_status = model.data(index, Roles.download_status) # type: DownloadStatus
-            has_audio = model.data(index, Roles.has_audio)
-            secondary_attribute = model.data(index, Roles.secondary_attribute)
-            memory_cards = model.data(index, Roles.camera_memory_card) # type: List[int]
+        checked = index.data(Qt.CheckStateRole) == Qt.Checked
+        previously_downloaded = index.data(Roles.previously_downloaded)
+        extension, ext_type = index.data( Roles.extension)
+        download_status = index.data( Roles.download_status) # type: DownloadStatus
+        has_audio = index.data( Roles.has_audio)
+        secondary_attribute = index.data(Roles.secondary_attribute)
+        memory_cards = index.data(Roles.camera_memory_card) # type: List[int]
 
-            x = option.rect.x()
-            y = option.rect.y()
+        x = option.rect.x()
+        y = option.rect.y()
 
-            # Draw recentangle in which the individual items will be placed
-            boxRect = QRect(x, y, self.width, self.height)
-            shadowRect = QRect(x + self.shadow_size, y + self.shadow_size,
-                               self.width, self.height)
+        # Draw recentangle in which the individual items will be placed
+        boxRect = QRect(x, y, self.width, self.height)
+        shadowRect = QRect(x + self.shadow_size, y + self.shadow_size,
+                           self.width, self.height)
 
-            painter.setRenderHint(QPainter.Antialiasing, True)
-            painter.setPen(self.darkGray)
-            painter.fillRect(shadowRect, self.darkGray)
-            painter.drawRect(shadowRect)
-            painter.setRenderHint(QPainter.Antialiasing, False)
-            painter.fillRect(boxRect, self.lightGray)
+        painter.setRenderHint(QPainter.Antialiasing, True)
+        painter.setPen(self.darkGray)
+        painter.fillRect(shadowRect, self.darkGray)
+        painter.drawRect(shadowRect)
+        painter.setRenderHint(QPainter.Antialiasing, False)
+        painter.fillRect(boxRect, self.lightGray)
 
-            if option.state & QStyle.State_Selected:
-                hightlightRect = QRect(boxRect.left() + self.highlight_offset,
-                                  boxRect.top() + self.highlight_offset,
-                                  boxRect.width() - self.highlight_size,
-                                  boxRect.height() - self.highlight_size)
-                painter.setPen(self.highlightPen)
-                painter.drawRect(hightlightRect)
+        if option.state & QStyle.State_Selected:
+            hightlightRect = QRect(boxRect.left() + self.highlight_offset,
+                              boxRect.top() + self.highlight_offset,
+                              boxRect.width() - self.highlight_size,
+                              boxRect.height() - self.highlight_size)
+            painter.setPen(self.highlightPen)
+            painter.drawRect(hightlightRect)
 
-            thumbnail = index.model().data(index, Qt.DecorationRole)
-            if previously_downloaded and not checked:
-                disabled = QPixmap(thumbnail.size())
-                disabled.fill(Qt.transparent)
-                p = QPainter(disabled)
-                p.setBackgroundMode(Qt.TransparentMode)
-                p.setBackground(QBrush(Qt.transparent))
-                p.eraseRect(thumbnail.rect())
-                p.setOpacity(self.dimmed_opacity)
-                p.drawPixmap(0, 0, thumbnail)
-                p.end()
-                thumbnail = disabled
+        thumbnail = index.model().data(index, Qt.DecorationRole)
+        if previously_downloaded and not checked:
+            disabled = QPixmap(thumbnail.size())
+            disabled.fill(Qt.transparent)
+            p = QPainter(disabled)
+            p.setBackgroundMode(Qt.TransparentMode)
+            p.setBackground(QBrush(Qt.transparent))
+            p.eraseRect(thumbnail.rect())
+            p.setOpacity(self.dimmed_opacity)
+            p.drawPixmap(0, 0, thumbnail)
+            p.end()
+            thumbnail = disabled
 
-            thumbnail_width = thumbnail.size().width()
-            thumbnail_height = thumbnail.size().height()
+        thumbnail_width = thumbnail.size().width()
+        thumbnail_height = thumbnail.size().height()
 
-            thumbnailX = self.horizontal_margin + (self.image_area_size -
-                                                   thumbnail_width) // 2 + x
-            thumbnailY = self.vertical_margin + (self.image_area_size -
-                                                   thumbnail_height) // 2 + y
+        thumbnailX = self.horizontal_margin + (self.image_area_size -
+                                               thumbnail_width) // 2 + x
+        thumbnailY = self.vertical_margin + (self.image_area_size -
+                                               thumbnail_height) // 2 + y
 
-            target = QRect(thumbnailX, thumbnailY, thumbnail_width,
-                           thumbnail_height)
-            source = QRect(0, 0, thumbnail_width, thumbnail_height)
-            painter.drawPixmap(target, thumbnail, source)
+        target = QRect(thumbnailX, thumbnailY, thumbnail_width,
+                       thumbnail_height)
+        source = QRect(0, 0, thumbnail_width, thumbnail_height)
+        painter.drawPixmap(target, thumbnail, source)
 
-            if previously_downloaded and not checked:
-                painter.setOpacity(self.dimmed_opacity)
+        if previously_downloaded and not checked:
+            painter.setOpacity(self.dimmed_opacity)
 
-            if has_audio:
-                audio_x = self.width // 2 - self.audioIcon.width() // 2 + x
-                audio_y = self.image_frame_bottom + self.footer_padding
-                painter.drawPixmap(audio_x, audio_y, self.audioIcon)
+        if has_audio:
+            audio_x = self.width // 2 - self.audioIcon.width() // 2 + x
+            audio_y = self.image_frame_bottom + self.footer_padding
+            painter.drawPixmap(audio_x, audio_y, self.audioIcon)
 
-            # Draw a small coloured box containing the file extension in the
-            #  bottom right corner
-            extension = extension.upper()
-            # Calculate size of extension text
-            text_padding = 3
-            font = painter.font()
-            font.setPixelSize(9)
-            painter.setFont(font)
-            metrics = QFontMetrics(font)
-            extBoundingRect = metrics.boundingRect(extension).marginsAdded(
-                QMargins(text_padding, 0, text_padding, text_padding)) # type: QRect
-            text_width = metrics.width(extension)
-            text_height = metrics.height()
-            text_x = self.width - self.horizontal_margin - text_width - \
-                     text_padding * 2 + x
-            text_y = self.image_frame_bottom + self.footer_padding + \
-                     text_height + y
+        # Draw a small coloured box containing the file extension in the
+        #  bottom right corner
+        extension = extension.upper()
+        # Calculate size of extension text
+        text_padding = 3
+        font = painter.font()
+        font.setPixelSize(9)
+        painter.setFont(font)
+        metrics = QFontMetrics(font)
+        extBoundingRect = metrics.boundingRect(extension).marginsAdded(
+            QMargins(text_padding, 0, text_padding, text_padding)) # type: QRect
+        text_width = metrics.width(extension)
+        text_height = metrics.height()
+        text_x = self.width - self.horizontal_margin - text_width - \
+                 text_padding * 2 + x
+        text_y = self.image_frame_bottom + self.footer_padding + \
+                 text_height + y
 
-            if ext_type == FileExtension.raw:
-                color = self.color1
-            elif ext_type == FileExtension.jpeg:
-                color = self.color4
-            elif ext_type == FileExtension.other_photo:
-                color = self.color5
-            elif ext_type == FileExtension.video:
-                color = self.color2
-            else:
-                color = QColor(0, 0, 0)
+        if ext_type == FileExtension.raw:
+            color = self.color1
+        elif ext_type == FileExtension.jpeg:
+            color = self.color4
+        elif ext_type == FileExtension.other_photo:
+            color = self.color5
+        elif ext_type == FileExtension.video:
+            color = self.color2
+        else:
+            color = QColor(0, 0, 0)
 
+        painter.fillRect(text_x, text_y - text_height,
+                         extBoundingRect.width(),
+                         extBoundingRect.height(),
+                         color)
+
+        painter.setPen(QColor(Qt.white))
+        painter.drawText(text_x + text_padding, text_y - 1,
+                         extension)
+
+        # Draw another small colored box to the left of the
+        # file extension box containing a secondary
+        # attribute, if it exists. Currently the secondary attribute is
+        # only an XMP file, but in future it could be used to display a
+        # matching jpeg in a RAW+jpeg set
+        if secondary_attribute:
+            extBoundingRect = metrics.boundingRect(
+                secondary_attribute).marginsAdded(QMargins(text_padding, 0,
+                text_padding, text_padding)) # type: QRect
+            text_width = metrics.width(secondary_attribute)
+            text_x = text_x - text_width - text_padding * 2 - \
+                     self.footer_padding
+            color = QColor(self.color3)
             painter.fillRect(text_x, text_y - text_height,
-                             extBoundingRect.width(),
-                             extBoundingRect.height(),
-                             color)
-
-            painter.setPen(QColor(Qt.white))
+                         extBoundingRect.width(),
+                         extBoundingRect.height(),
+                         color)
             painter.drawText(text_x + text_padding, text_y - 1,
-                             extension)
+                         secondary_attribute)
 
-            # Draw another small colored box to the left of the
-            # file extension box containing a secondary
-            # attribute, if it exists. Currently the secondary attribute is
-            # only an XMP file, but in future it could be used to display a
-            # matching jpeg in a RAW+jpeg set
-            if secondary_attribute:
+        if memory_cards:
+            # if downloaded from a camera, and the camera has more than
+            # one memory card, a list of numeric identifiers (i.e. 1 or
+            # 2) identifying which memory card the file came from
+            text_x = self.card_x + x
+            for card in memory_cards:
+                card = str(card)
                 extBoundingRect = metrics.boundingRect(
-                    secondary_attribute).marginsAdded(QMargins(text_padding, 0,
-                    text_padding, text_padding)) # type: QRect
-                text_width = metrics.width(secondary_attribute)
-                text_x = text_x - text_width - text_padding * 2 - \
-                         self.footer_padding
-                color = QColor(self.color3)
+                    card).marginsAdded(QMargins(
+                    text_padding, 0, text_padding, text_padding)) # type: QRect
+                text_width = metrics.width(card)
+                color = QColor(70, 70, 70)
                 painter.fillRect(text_x, text_y - text_height,
                              extBoundingRect.width(),
                              extBoundingRect.height(),
                              color)
                 painter.drawText(text_x + text_padding, text_y - 1,
-                             secondary_attribute)
-
-            if memory_cards:
-                # if downloaded from a camera, and the camera has more than
-                # one memory card, a list of numeric identifiers (i.e. 1 or
-                # 2) identifying which memory card the file came from
-                text_x = self.card_x + x
-                for card in memory_cards:
-                    card = str(card)
-                    extBoundingRect = metrics.boundingRect(
-                        card).marginsAdded(QMargins(
-                        text_padding, 0, text_padding, text_padding)) # type: QRect
-                    text_width = metrics.width(card)
-                    color = QColor(70, 70, 70)
-                    painter.fillRect(text_x, text_y - text_height,
-                                 extBoundingRect.width(),
-                                 extBoundingRect.height(),
-                                 color)
-                    painter.drawText(text_x + text_padding, text_y - 1,
-                                 card)
-                    text_x = text_x + extBoundingRect.width() + \
-                             self.footer_padding
+                             card)
+                text_x = text_x + extBoundingRect.width() + \
+                         self.footer_padding
 
 
-            if previously_downloaded and not checked:
-                painter.setOpacity(1.0)
+        if previously_downloaded and not checked:
+            painter.setOpacity(1.0)
 
-            if download_status == DownloadStatus.not_downloaded:
-                checkboxStyleOption = QStyleOptionButton()
-                if checked:
-                    checkboxStyleOption.state |= QStyle.State_On
-                else:
-                    checkboxStyleOption.state |= QStyle.State_Off
-                checkboxStyleOption.state |= QStyle.State_Enabled
-                checkboxStyleOption.rect = self.getCheckBoxRect(option.rect)
-                QApplication.style().drawControl(QStyle.CE_CheckBox,
-                                                 checkboxStyleOption, painter)
+        if download_status == DownloadStatus.not_downloaded:
+            checkboxStyleOption = QStyleOptionButton()
+            if checked:
+                checkboxStyleOption.state |= QStyle.State_On
             else:
-                if download_status == DownloadStatus.download_pending:
-                    pixmap = self.downloadPendingIcon
-                elif download_status == DownloadStatus.downloaded:
-                    pixmap = self.downloadedIcon
-                elif (download_status ==
-                          DownloadStatus.downloaded_with_warning or
-                      download_status == DownloadStatus.backup_problem):
-                    pixmap = self.downloadedWarningIcon
-                elif (download_status == DownloadStatus.download_failed or
-                      download_status ==
-                              DownloadStatus.download_and_backup_failed):
-                    pixmap = self.downloadedErrorIcon
-                else:
-                    pixmap = None
-                if pixmap is not None:
-                    painter.drawPixmap(option.rect.x() +
-                                       self.horizontal_margin, text_y -
-                                       text_height, pixmap)
+                checkboxStyleOption.state |= QStyle.State_Off
+            checkboxStyleOption.state |= QStyle.State_Enabled
+            checkboxStyleOption.rect = self.getCheckBoxRect(option.rect)
+            QApplication.style().drawControl(QStyle.CE_CheckBox,
+                                             checkboxStyleOption, painter)
+        else:
+            if download_status == DownloadStatus.download_pending:
+                pixmap = self.downloadPendingIcon
+            elif download_status == DownloadStatus.downloaded:
+                pixmap = self.downloadedIcon
+            elif (download_status ==
+                      DownloadStatus.downloaded_with_warning or
+                  download_status == DownloadStatus.backup_problem):
+                pixmap = self.downloadedWarningIcon
+            elif (download_status == DownloadStatus.download_failed or
+                  download_status ==
+                          DownloadStatus.download_and_backup_failed):
+                pixmap = self.downloadedErrorIcon
+            else:
+                pixmap = None
+            if pixmap is not None:
+                painter.drawPixmap(option.rect.x() +
+                                   self.horizontal_margin, text_y -
+                                   text_height, pixmap)
 
-            painter.restore()
+        painter.restore()
 
     def sizeHint(self, option: QStyleOptionViewItem, index:  QModelIndex) -> QSize:
         return QSize(self.width + self.shadow_size, self.height
