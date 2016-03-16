@@ -156,7 +156,7 @@ class ThumbnailListModel(QAbstractListModel):
             logging.debug("Thumbnailer not yet ready")
         else:
             if len(self.thumbnails) != len(self.rows) or len(self.rows) != len(self.rpd_files):
-                logging.debug("Conflicting values for %s thumbnails; %s rows; %s rpd_files",
+                logging.error("Conflicting values: %s thumbnails; %s rows; %s rpd_files",
                               len(self.thumbnails), len(self.rows), len(self.rpd_files))
             else:
                 logging.debug("%s thumbnails", len(self.thumbnails))
@@ -350,13 +350,16 @@ class ThumbnailListModel(QAbstractListModel):
     @pyqtSlot(RPDFile, QPixmap)
     def thumbnailReceived(self, rpd_file: RPDFile, thumbnail: Optional[QPixmap]) -> None:
         unique_id = rpd_file.unique_id
+        if unique_id not in self.rpd_files:
+            # A thumbnail has been generated for a file we no longer display
+            return
         scan_id = rpd_file.scan_id
         self.rpd_files[unique_id] = rpd_file
         if not thumbnail.isNull():
             try:
                 row = self.rowFromUniqueId(unique_id)
             except ValueError:
-                logging.debug("Ignoring unknown thumbnail: %s", rpd_file.full_file_name)
+                # logging.debug("Ignoring unknown thumbnail: %s", rpd_file.full_file_name)
                 return
             self.thumbnails[unique_id] = thumbnail
             self.dataChanged.emit(self.index(row,0),self.index(row,0))
@@ -749,18 +752,17 @@ class ThumbnailListModel(QAbstractListModel):
 
         manager = self.thumbnailmq.thumbnail_manager
 
-        terminated = scan_id in manager
-        if terminated:
-            # TODO this is now the wrong way to query for how many thumbnail workers there are
-            no_workers = len(manager)
+        terminate = scan_id in manager
+        if terminate:
             manager.stop_worker(scan_id)
-            if no_workers == 1:
-                # Don't be fooled: the number of workers will become zero
-                # momentarily!
+            # TODO update this check once checking for thumnbnailing code is more robust
+            # note that check == 1 because it is assume the scan id has not been deleted
+            # from the device collection
+            if len(self.rapidApp.devices.thumbnailing) == 1:
                 self.resetThumbnailTrackingAndDisplay()
             else:
                 self.recalculateThumbnailsPercentage(scan_id=scan_id)
-        return terminated
+        return terminate
 
     def recalculateThumbnailsPercentage(self, scan_id: int) -> None:
         """

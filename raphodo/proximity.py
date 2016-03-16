@@ -1179,7 +1179,7 @@ class TemporalProximity(QWidget):
         description = _('The Timeline groups photos and videos based on how much time elapsed '
 'between consecutive shots. Use it to identify photos and videos taken at '
 'different periods in a single day or over consecutive days.')
-        adjust = _('Use the slider to adjust the the time elapsed between consecutive shots '
+        adjust = _('Use the slider to adjust the time elapsed between consecutive shots '
 'that is used to build the Timeline.')
         generation_pending = _("Timeline build pending...")
         generating = _("Timeline is building...")

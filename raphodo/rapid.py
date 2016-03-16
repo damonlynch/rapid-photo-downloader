@@ -830,10 +830,12 @@ class RapidWindow(QMainWindow):
         """
 
         if len(self.devices.downloading):
+            logging.debug("Setting progress bar to show download progress")
             if self.progressBarAnimation.state() ==  QAbstractAnimation.Running:
                 self.progressBarAnimation.stop()
             self.downloadProgressBar.resetFormat()
         elif len(self.devices.thumbnailing):
+            logging.debug("Setting progress bar to show thumbnailing progress")
             if self.progressBarAnimation.state() ==  QAbstractAnimation.Running:
                 self.progressBarAnimation.stop()
                 # Translators: percentage of Thumbnails generated, shown in
@@ -842,6 +844,7 @@ class RapidWindow(QMainWindow):
                 # The right most % sign is the percent sign the user will see
             # self.downloadProgressBar.setFormat(_('Thumbnails %p%'))
         elif len(self.devices.scanning):
+            logging.debug("Setting progress bar to show scanning activity")
             if self.progressBarAnimation.state() == QAbstractAnimation.Stopped:
                 self.downloadProgressBar.setMaximum(0)
                 self.downloadProgressBar.setMinimum(0)
@@ -850,10 +853,11 @@ class RapidWindow(QMainWindow):
                 self.progressBarAnimation.setEndValue(1)
                 self.progressBarAnimation.start()
         else:
+            logging.debug("Resetting progress bar")
             if self.progressBarAnimation.state() ==  QAbstractAnimation.Running:
                 self.progressBarAnimation.stop()
-            self.downloadProgressBar.resetFormat()
             self.downloadProgressBar.reset()
+            self.downloadProgressBar.setMinimum(100)
 
     def startBackupManager(self) -> None:
         if not self.backup_manager_started:
@@ -2397,8 +2401,6 @@ class RapidWindow(QMainWindow):
             for rpd_file in data.rpd_files:
                 self.thumbnailModel.addFile(rpd_file, generate_thumbnail=not
                                             self.auto_start_is_on)
-            if self.temporalProximity.state != TemporalProximityState.pending:
-                self.temporalProximity.setState(TemporalProximityState.pending)
         else:
             scan_id = data.scan_id
             if scan_id not in self.devices:
@@ -2846,9 +2848,11 @@ class RapidWindow(QMainWindow):
 
     def removeDevice(self, scan_id: int, show_warning: bool=True) -> None:
         assert scan_id is not None
+
         if scan_id in self.devices:
             device = self.devices[scan_id]
             device_state = self.deviceState(scan_id)
+
             if show_warning:
                 if device_state == DeviceState.scanning:
                     logging.warning("Removed device %s was being scanned", device.name())
@@ -2860,10 +2864,13 @@ class RapidWindow(QMainWindow):
                     logging.info("Device removed: %s", device.name())
             else:
                 logging.debug("Device removed: %s", device.name())
+
             if device in self.prompting_for_user_action:
                 self.prompting_for_user_action[device].reject()
+
             self.thumbnailModel.clearAll(scan_id=scan_id, keep_downloaded_files=True)
             self.mapModel(scan_id).removeDevice(scan_id)
+
             if scan_id in self.scanmq.workers:
                 if device_state != DeviceState.scanning:
                     logging.error("Expected device state to be 'scanning'")
@@ -2877,16 +2884,15 @@ class RapidWindow(QMainWindow):
                 if device_state != DeviceState.thumbnailing:
                     logging.error("Expected device state to be 'thumbnailing'")
                 self.thumbnailModel.terminateThumbnailGeneration(scan_id)
+
             view = self.mapView(scan_id)
             del self.devices[scan_id]
             self.resizeDeviceViewsAndScrollArea(view=view)
+
             self.updateSourceButton()
             self.setDownloadActionState()
-            if device_state == DeviceState.scanning:
-                if (len(self.devices.scanning) == 0 and self.temporalProximity.state ==
-                        TemporalProximityState.pending):
-                    self.generateTemporalProximityTableData()
-            elif len(self.devices) == 0:
+
+            if len(self.devices) == 0:
                 self.temporalProximity.setState(TemporalProximityState.empty)
             else:
                 self.generateTemporalProximityTableData()

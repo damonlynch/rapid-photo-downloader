@@ -385,13 +385,13 @@ class DeviceCollection:
         else:
             logging.debug("No devices scanning")
         if len(self.downloading):
-            downloading = ('%s', ','.join(self[scan_id].display_name
+            downloading = ('%s' % ', '.join(self[scan_id].display_name
                                          for scan_id in self.downloading))
             logging.debug("Downloading: %s", downloading)
         else:
             logging.debug("No devices downloading")
         if len(self.thumbnailing):
-            thumbnailing = ('%s', ','.join(self[scan_id].display_name
+            thumbnailing = ('%s' % ', '.join(self[scan_id].display_name
                                          for scan_id in self.thumbnailing))
             logging.debug("Thumbnailing: %s", thumbnailing)
         else:

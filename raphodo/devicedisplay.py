@@ -488,6 +488,7 @@ class DeviceDelegate(QStyledItemDelegate):
     def rescanDevice(self) -> None:
         index = self.clickedIndex
         if index:
+            # TODO implement this
             pass
 
     def lineCountDistanceFromPrimary(self, current, primary):
