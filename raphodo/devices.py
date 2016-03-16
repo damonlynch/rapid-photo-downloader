@@ -360,6 +360,8 @@ class DeviceCollection:
         self.scanning = set()  # type: Set[int]
         # Track which downloads are running, by scan_id
         self.downloading = set()  # type: Set[int]
+        # Track which devices are thumbnailing, by scan_id
+        self.thumbnailing = set()  # type: Set[int]
 
         self.volumes_and_cameras = set()
         self.this_computer = set()
@@ -388,6 +390,12 @@ class DeviceCollection:
             logging.debug("Downloading: %s", downloading)
         else:
             logging.debug("No devices downloading")
+        if len(self.thumbnailing):
+            thumbnailing = ('%s', ','.join(self[scan_id].display_name
+                                         for scan_id in self.thumbnailing))
+            logging.debug("Thumbnailing: %s", thumbnailing)
+        else:
+            logging.debug("No devices thumbnailing")
 
     def add_device(self, device: Device) -> int:
         scan_id = self.scan_counter
@@ -412,10 +420,15 @@ class DeviceCollection:
             self.scanning.add(scan_id)
         elif state == DeviceState.downloading:
             self.downloading.add(scan_id)
-        elif state != DeviceState.scanning and scan_id in self.scanning:
+        elif state == DeviceState.thumbnailing:
+            self.thumbnailing.add(scan_id)
+
+        if state != DeviceState.scanning and scan_id in self.scanning:
             self.scanning.remove(scan_id)
-        elif state != DeviceState.downloading and scan_id in self.downloading:
+        if state != DeviceState.downloading and scan_id in self.downloading:
             self.downloading.remove(scan_id)
+        if state != DeviceState.thumbnailing and scan_id in self.thumbnailing:
+            self.thumbnailing.remove(scan_id)
 
     def known_camera(self, model: str, port: str) -> bool:
         """
@@ -491,8 +504,10 @@ class DeviceCollection:
         del self.devices[scan_id]
         if scan_id in self.scanning:
             self.scanning.remove(scan_id)
-        elif scan_id in self.downloading:
+        if scan_id in self.downloading:
             self.downloading.remove(scan_id)
+        if scan_id in self.thumbnailing:
+            self.thumbnailing.remove(scan_id)
         del self.device_state[scan_id]
 
     def __getitem__(self, scan_id: int) -> Device:

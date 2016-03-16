@@ -64,9 +64,9 @@ import sortedcontainers
 from PyQt5 import QtCore, QtGui
 from PyQt5.QtCore import (QThread, Qt, QStorageInfo, QSettings, QPoint,
                           QSize, QTimer, QTextStream, QModelIndex,
-                          pyqtSlot)
+                          pyqtSlot, QPropertyAnimation, QAbstractAnimation)
 from PyQt5.QtGui import (QIcon, QPixmap, QImage, QColor, QPalette, QFontMetrics,
-                         QGuiApplication, QPainter, QMoveEvent)
+                         QFont, QPainter, QMoveEvent)
 from PyQt5.QtWidgets import (QAction, QApplication, QMainWindow, QMenu,
                              QPushButton, QWidget, QDialogButtonBox,
                              QProgressBar, QSplitter,
@@ -810,8 +810,50 @@ class RapidWindow(QMainWindow):
         self.basic_status_message = None
         status = self.statusBar()
         self.downloadProgressBar = QProgressBar()
-        self.downloadProgressBar.setMaximumWidth(QFontMetrics(QGuiApplication.font()).height() * 9)
-        status.addPermanentWidget(self.downloadProgressBar, .1)
+        self.downloadProgressBar.setMaximumWidth(QFontMetrics(QFont()).height() * 9)
+        status.addPermanentWidget(self.downloadProgressBar, 1)
+        self.progressBarAnimation = QPropertyAnimation(self.downloadProgressBar, b"value")
+
+    def updateProgressBarState(self) -> None:
+        """
+        Updates the state of the ProgessBar in the main window's lower right corner.
+
+        If any device is downloading, the progress bar displays
+        download progress.
+
+        Else, if any device is thumbnailing, the progress bar
+        displays thumbnailing progress.
+
+        Else, if any device is scanning, the progress bar shows a busy status.
+
+        Else, the progress bar is set to an idle status.
+        """
+
+        if len(self.devices.downloading):
+            if self.progressBarAnimation.state() ==  QAbstractAnimation.Running:
+                self.progressBarAnimation.stop()
+            self.downloadProgressBar.resetFormat()
+        elif len(self.devices.thumbnailing):
+            if self.progressBarAnimation.state() ==  QAbstractAnimation.Running:
+                self.progressBarAnimation.stop()
+                # Translators: percentage of Thumbnails generated, shown in
+                # progress bar in lower right side of main window
+                # Do not remove the text %p - that's the actual percentage value
+                # The right most % sign is the percent sign the user will see
+            # self.downloadProgressBar.setFormat(_('Thumbnails %p%'))
+        elif len(self.devices.scanning):
+            if self.progressBarAnimation.state() == QAbstractAnimation.Stopped:
+                self.downloadProgressBar.setMaximum(0)
+                self.downloadProgressBar.setMinimum(0)
+                self.progressBarAnimation.setDuration(2000)
+                self.progressBarAnimation.setStartValue(0)
+                self.progressBarAnimation.setEndValue(1)
+                self.progressBarAnimation.start()
+        else:
+            if self.progressBarAnimation.state() ==  QAbstractAnimation.Running:
+                self.progressBarAnimation.stop()
+            self.downloadProgressBar.resetFormat()
+            self.downloadProgressBar.reset()
 
     def startBackupManager(self) -> None:
         if not self.backup_manager_started:
@@ -1572,8 +1614,7 @@ class RapidWindow(QMainWindow):
     def startDownloadPhase2(self) -> None:
         download_files = self.download_files
 
-        invalid_dirs = self.invalidDownloadFolders(
-            download_files.download_types)
+        invalid_dirs = self.invalidDownloadFolders(download_files.download_types)
 
         if invalid_dirs:
             if len(invalid_dirs) > 1:
@@ -1582,11 +1623,9 @@ class RapidWindow(QMainWindow):
                         'folder1': invalid_dirs[0], 'folder2': invalid_dirs[1]}
             else:
                 msg = _("This download folder is invalid:\n%s") % invalid_dirs[0]
-            self.log_error(ErrorType.critical_error, _("Download cannot "
-                                                       "proceed"), msg)
+            self.log_error(ErrorType.critical_error, _("Download cannot proceed"), msg)
         else:
-            missing_destinations = self.backupDestinationsMissing(
-                download_files.download_types)
+            missing_destinations = self.backupDestinationsMissing(download_files.download_types)
             if missing_destinations is not None:
                 # Warn user that they have specified that they want to
                 # backup a file type, but no such folder exists on backup
@@ -1620,8 +1659,7 @@ class RapidWindow(QMainWindow):
 
             # notify renameandmovefile process to read any necessary values
             # from the program preferences
-            data = RenameAndMoveFileData(
-                message=RenameAndMoveStatus.download_started)
+            data = RenameAndMoveFileData(message=RenameAndMoveStatus.download_started)
             self.renamemq.send_message_to_worker(data)
 
             # Maximum value of progress bar may have been set to the number
@@ -1682,6 +1720,7 @@ class RapidWindow(QMainWindow):
         self.time_check.set_download_mark()
 
         self.devices.set_device_state(scan_id, DeviceState.downloading)
+        self.updateProgressBarState()
 
         if len(self.devices.downloading) > 1:
             # Display an additional notification once all devices have been
@@ -1997,6 +2036,8 @@ class RapidWindow(QMainWindow):
                 self.deleteSourceFiles(scan_id)
                 self.download_tracker.clear_auto_delete(scan_id)
             self.devices.set_device_state(scan_id, DeviceState.idle)
+            self.updateProgressBarState()
+
             del self.time_remaining[scan_id]
             self.notifyDownloadedFromDevice(scan_id)
             if files_remaining == 0 and self.prefs.auto_unmount:
@@ -2417,6 +2458,7 @@ class RapidWindow(QMainWindow):
             return
         device = self.devices[scan_id]
         self.devices.set_device_state(scan_id, DeviceState.idle)
+        self.updateProgressBarState()
         results_summary, file_types_present  = device.file_type_counter.summarize_file_count()
         self.download_tracker.set_file_types_present(scan_id, file_types_present)
         model = self.mapModel(scan_id)
@@ -2432,10 +2474,11 @@ class RapidWindow(QMainWindow):
         else:
             self.temporalProximity.setState(TemporalProximityState.pending)
 
-        if (not self.auto_start_is_on and  self.prefs.generate_thumbnails):
+        if (not self.auto_start_is_on and self.prefs.generate_thumbnails):
             # Generate thumbnails for finished scan
             model.setSpinnerState(scan_id, DeviceState.idle)
             self.devices.set_device_state(scan_id, DeviceState.thumbnailing)
+            self.updateProgressBarState()
             self.thumbnailModel.generateThumbnails(scan_id, self.devices[scan_id])
         elif self.auto_start_is_on:
             if self.job_code.need_to_prompt_on_auto_start():
@@ -2692,6 +2735,7 @@ class RapidWindow(QMainWindow):
         self.scanmq.start_worker(scan_id, scan_arguments)
         self.devices.set_device_state(scan_id, DeviceState.scanning)
         self.setDownloadActionState()
+        self.updateProgressBarState()
 
     def partitionValid(self, mount: QStorageInfo) -> bool:
         """
@@ -2848,6 +2892,7 @@ class RapidWindow(QMainWindow):
                 self.generateTemporalProximityTableData()
 
             self.logState()
+            self.updateProgressBarState()
 
     def logState(self):
         self.devices.logState()

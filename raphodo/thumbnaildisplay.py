@@ -368,8 +368,8 @@ class ThumbnailListModel(QAbstractListModel):
                 self.rapidApp.devices.set_device_state(scan_id, DeviceState.idle)
             device = self.rapidApp.devices[scan_id]
             logging.info('Finished thumbnail generation for %s', device.name())
+            self.rapidApp.updateProgressBarState()
             log_state = True
-
 
         if self.thumbnails_generated == self.total_thumbs_to_generate:
             self.resetThumbnailTrackingAndDisplay()
