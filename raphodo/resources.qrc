@@ -1,21 +1,23 @@
 <!DOCTYPE RCC><RCC version="1.0">
 <qresource>
-<file alias="rapid-photo-downloader.svg">images/rapid-photo-downloader.svg</file>
-<file alias="splashscreen.png">images/splashscreen.png</file>
-<file alias="download-pending.png">images/rapid-photo-downloader-download-pending.png</file>
-<file alias="video.png">images/video106.png</file>
-<file alias="photo.png">images/photo106.png</file>
-<file alias="downloaded.png">images/rapid-photo-downloader-downloaded.png</file>
-<file alias="downloaded-with-error.png">images/rapid-photo-downloader-downloaded-with-error.png</file>
-<file alias="downloaded-with-warning.png">images/rapid-photo-downloader-downloaded-with-warning.png</file>
-<file alias="audio.png">images/audio.png</file>
-<file alias="icons/camera.svg">images/camera-photo-symbolic.svg</file>
-<file alias="icons/folder.svg">images/folder-symbolic.svg</file>
-<file alias="icons/smartphone.svg">images/phone-smartphone-symbolic.svg</file>
-<file alias="icons/media-eject.svg">images/media-eject.svg</file>
-<file alias="icons/sdcard.svg">images/sdcard-symbolic.svg</file>
-<file alias="icons/drive-removable-media.svg">images/drive-removable-media-symbolic.svg</file>
-<file alias="icons/image-x-generic.svg">images/image-x-generic-symbolic.svg</file>
-<file alias="icons/computer.svg">images/computer-symbolic.svg</file>
+<file alias="rapid-photo-downloader.svg">../images/rapid-photo-downloader.svg</file>
+<file alias="menu.svg">../images/menu.svg</file>
+<file alias="chevron-down.svg">../images/chevron-down.svg</file>
+<file alias="splashscreen.png">../images/splashscreen.png</file>
+<file alias="download-pending.png">../images/rapid-photo-downloader-download-pending.png</file>
+<file alias="video.png">../images/video106.png</file>
+<file alias="photo.png">../images/photo106.png</file>
+<file alias="downloaded.png">../images/rapid-photo-downloader-downloaded.png</file>
+<file alias="downloaded-with-error.png">../images/rapid-photo-downloader-downloaded-with-error.png</file>
+<file alias="downloaded-with-warning.png">../images/rapid-photo-downloader-downloaded-with-warning.png</file>
+<file alias="audio.png">../images/audio.png</file>
+<file alias="icons/camera.svg">../images/camera-photo-symbolic.svg</file>
+<file alias="icons/folder.svg">../images/folder-symbolic.svg</file>
+<file alias="icons/smartphone.svg">../images/phone-smartphone-symbolic.svg</file>
+<file alias="icons/media-eject.svg">../images/media-eject.svg</file>
+<file alias="icons/sdcard.svg">../images/sdcard-symbolic.svg</file>
+<file alias="icons/drive-removable-media.svg">../images/drive-removable-media-symbolic.svg</file>
+<file alias="icons/image-x-generic.svg">../images/image-x-generic-symbolic.svg</file>
+<file alias="icons/computer.svg">../images/computer-symbolic.svg</file>
 </qresource>
 </RCC>

@@ -24,6 +24,8 @@ Primary logic for Rapid Photo Downloader.
 QT related function and variable names use CamelCase.
 Everything else should follow PEP 8.
 Project line length: 100 characters (i.e. word wrap at 99)
+
+Menu Icon by Daniel Bruce -- www.entypo.com
 """
 
 __author__ = 'Damon Lynch'
@@ -73,7 +75,7 @@ from PyQt5.QtWidgets import (QAction, QApplication, QMainWindow, QMenu,
                              QHBoxLayout, QVBoxLayout, QDialog, QLabel,
                              QComboBox, QGridLayout, QCheckBox, QSizePolicy,
                              QMessageBox, QSplashScreen,
-                             QScrollArea, QFrame)
+                             QScrollArea, QFrame, QToolButton, QStyledItemDelegate)
 from PyQt5.QtNetwork import QLocalSocket, QLocalServer
 
 from raphodo.storage import (ValidMounts, CameraHotplug, UDisks2Monitor,
@@ -505,6 +507,7 @@ class RapidWindow(QMainWindow):
         logging.debug("Stage 2 initialization")
 
         centralWidget = QWidget()
+        self.setCentralWidget(centralWidget)
 
         self.thumbnailView = ThumbnailView(self)
         logging.debug("Starting thumbnail model")
@@ -522,11 +525,8 @@ class RapidWindow(QMainWindow):
 
         self.createActions()
         logging.debug("Laying out main window")
-        self.createLayoutAndButtons(centralWidget)
         self.createMenus()
-
-        # a main-window application must have one and only one central widget
-        self.setCentralWidget(centralWidget)
+        self.createLayoutAndButtons(centralWidget)
 
         self.initStage3()
 
@@ -812,7 +812,6 @@ class RapidWindow(QMainWindow):
         self.downloadProgressBar = QProgressBar()
         self.downloadProgressBar.setMaximumWidth(QFontMetrics(QFont()).height() * 9)
         status.addPermanentWidget(self.downloadProgressBar, 1)
-        self.progressBarAnimation = QPropertyAnimation(self.downloadProgressBar, b"value")
 
     def updateProgressBarState(self) -> None:
         """
@@ -831,33 +830,15 @@ class RapidWindow(QMainWindow):
 
         if len(self.devices.downloading):
             logging.debug("Setting progress bar to show download progress")
-            if self.progressBarAnimation.state() ==  QAbstractAnimation.Running:
-                self.progressBarAnimation.stop()
-            self.downloadProgressBar.resetFormat()
         elif len(self.devices.thumbnailing):
             logging.debug("Setting progress bar to show thumbnailing progress")
-            if self.progressBarAnimation.state() ==  QAbstractAnimation.Running:
-                self.progressBarAnimation.stop()
-                # Translators: percentage of Thumbnails generated, shown in
-                # progress bar in lower right side of main window
-                # Do not remove the text %p - that's the actual percentage value
-                # The right most % sign is the percent sign the user will see
-            # self.downloadProgressBar.setFormat(_('Thumbnails %p%'))
         elif len(self.devices.scanning):
             logging.debug("Setting progress bar to show scanning activity")
-            if self.progressBarAnimation.state() == QAbstractAnimation.Stopped:
-                self.downloadProgressBar.setMaximum(0)
-                self.downloadProgressBar.setMinimum(0)
-                self.progressBarAnimation.setDuration(2000)
-                self.progressBarAnimation.setStartValue(0)
-                self.progressBarAnimation.setEndValue(1)
-                self.progressBarAnimation.start()
+            self.downloadProgressBar.setMaximum(0)
         else:
             logging.debug("Resetting progress bar")
-            if self.progressBarAnimation.state() ==  QAbstractAnimation.Running:
-                self.progressBarAnimation.stop()
             self.downloadProgressBar.reset()
-            self.downloadProgressBar.setMinimum(100)
+            self.downloadProgressBar.setMaximum(100)
 
     def startBackupManager(self) -> None:
         if not self.backup_manager_started:
@@ -878,10 +859,6 @@ class RapidWindow(QMainWindow):
         self.sourceButton.setText(addPushButtonLabelSpacer(text))
         self.sourceButton.setIcon(icon)
 
-    def updateDestinationButton(self) -> None:
-        text = self.getDownloadDestinationLabel()
-        self.destinationButton.setText(text)
-
     def setLeftPanelVisibility(self) -> None:
         self.leftPanelSplitter.setVisible(self.sourceButton.isChecked() or
                                           self.proximityButton.isChecked())
@@ -891,7 +868,7 @@ class RapidWindow(QMainWindow):
 
     @pyqtSlot()
     def sourceButtonClicked(self) -> None:
-        self.deviceArea.setVisible(self.sourceButton.isChecked())
+        self.deviceWidget.setVisible(self.sourceButton.isChecked())
         self.setLeftPanelVisibility()
 
     @pyqtSlot()
@@ -980,37 +957,43 @@ class RapidWindow(QMainWindow):
         centralLayout = QHBoxLayout()
         centralLayout.setContentsMargins(0, 0, 0, 0)
 
-        leftBar = self.createLeftBar()
-        rightBar = self.createRightBar()
+        self.leftBar = self.createLeftBar()
+        self.rightBar = self.createRightBar()
 
         self.createCenterPanels()
         self.createDeviceThisComputerViews()
         self.createDestinationViews()
         self.layoutDevices()
         self.configureCenterPanels(settings)
+        self.createBottomControls()
 
-        centralLayout.addLayout(leftBar)
+        centralLayout.addLayout(self.leftBar)
         centralLayout.addWidget(self.centerSplitter)
-        centralLayout.addLayout(rightBar)
+        centralLayout.addLayout(self.rightBar)
 
         verticalLayout.addLayout(centralLayout)
-
-        # Download button
-        horizontalLayout = self.createBottomButtons()
-        verticalLayout.addLayout(horizontalLayout, 0)
+        verticalLayout.addWidget(self.thumbnailControl)
 
     def createTopBar(self) -> QHBoxLayout:
         topBar = QHBoxLayout()
+        topBar.setContentsMargins(0, 0, int(QFontMetrics(QFont()).height() / 3), 0)
+        topBar.setSpacing(int(QFontMetrics(QFont()).height() / 2))
         self.sourceButton = TopPushButton(addPushButtonLabelSpacer(_('Select Source')))
         self.sourceButton.clicked.connect(self.sourceButtonClicked)
 
-        self.destinationButton = TopPushButton(addPushButtonLabelSpacer(
-            self.getDownloadDestinationLabel()))
-        self.destinationButton.setIcon(QIcon(':/icons/folder.svg'))
-        self.destinationButton.clicked.connect(self.destinationButtonClicked)
+        self.downloadButton = DownloadButton(self.downloadAct.text())
+        self.downloadButton.addAction(self.downloadAct)
+        self.downloadButton.setDefault(True)
+        self.downloadButton.clicked.connect(self.downloadButtonClicked)
+        self.download_action_is_download = True
+
+        self.menuButton.setIconSize(QSize(self.sourceButton.top_row_icon_size,
+                               self.sourceButton.top_row_icon_size))
 
         topBar.addWidget(self.sourceButton)
-        topBar.addWidget(self.destinationButton, 0, Qt.AlignRight)
+        topBar.addStretch()
+        topBar.addWidget(self.downloadButton)
+        topBar.addWidget(self.menuButton)
         return topBar
 
     def createLeftBar(self) -> QVBoxLayout:
@@ -1028,9 +1011,14 @@ class RapidWindow(QMainWindow):
         rightBar = QVBoxLayout()
         rightBar.setContentsMargins(0, 0, 0, 0)
 
-        self.backupButton = RotatedButton(_('Back Up'), RotatedButton.rightSide)
+        self.destinationButton = RotatedButton(_('Destination'), RotatedButton.rightSide)
         self.renameButton = RotatedButton(_('Rename'), RotatedButton.rightSide)
         self.jobcodeButton = RotatedButton(_('Job Code'), RotatedButton.rightSide)
+        self.backupButton = RotatedButton(_('Back Up'), RotatedButton.rightSide)
+
+        self.destinationButton.clicked.connect(self.destinationButtonClicked)
+
+        rightBar.addWidget(self.destinationButton)
         rightBar.addWidget(self.renameButton)
         rightBar.addWidget(self.jobcodeButton)
         rightBar.addWidget(self.backupButton)
@@ -1221,6 +1209,76 @@ class RapidWindow(QMainWindow):
         self.photoDestinationArea = QComputerScrollArea(photoDestination)
         self.videoDestinationArea = QComputerScrollArea(videoDestination)
 
+    def createBottomControls(self) -> None:
+        self.thumbnailControl = QWidget()
+        layout = QHBoxLayout()
+
+        hmargin = self.proximityButton.sizeHint().width()
+        hmargin += self.centralWidget().layout().spacing()
+        vmargin = int(QFontMetrics(QFont()).height() / 2 )
+
+        layout.setContentsMargins(hmargin, vmargin, hmargin, vmargin)
+        self.thumbnailControl.setLayout(layout)
+
+        style = """
+        QComboBox {
+            border: 0px solid gray;
+            padding: 1px 3px 1px 3px;
+            background-color: palette(window);
+            selection-background-color: palette(highlight);
+            color: palette(windowtext);
+            /* min-width: 8em; */
+        }
+
+        QComboBox:on { /* shift the text when the popup opens */
+            padding-top: 3px;
+            padding-left: 4px;
+        }
+
+        QComboBox::drop-down {
+             subcontrol-origin: padding;
+             subcontrol-position: top right;
+             width: 10px;
+             border: 0px;
+         }
+
+        QComboBox::down-arrow {
+            image: url(:/chevron-down.svg);
+            width: 10px;
+        }
+
+        QComboBox QAbstractItemView {
+            outline: none;
+            border: 1px solid palette(shadow);
+            background-color: palette(window);
+            selection-background-color: palette(highlight);
+            selection-color: palette(HighlightedText);
+            padding: 0px 0px 0px 0px;
+            color: palette(windowtext)
+        }
+        """
+
+        delegate = QStyledItemDelegate()
+        showLabel = QLabel(_("Show:"))
+        showCombo = QComboBox()
+        showCombo.setItemDelegate(delegate)
+        showCombo.setStyleSheet(style)
+        showCombo.addItems([ _('All'), _('New')])
+        sortLabel= QLabel(_("Sort:"))
+        sortCombo = QComboBox()
+        sortCombo.setItemDelegate(delegate)
+        sortCombo.setStyleSheet(style)
+        sortCombo.addItems([_("Modification Time"), _("Checked State"), _("Filename"),
+                             _("Extension")])
+        for widget in (showLabel, sortLabel, sortCombo, showCombo):
+            widget.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+        layout.addWidget(showLabel)
+        layout.addWidget(showCombo)
+        layout.addSpacing(QFontMetrics(QFont()).height())
+        layout.addWidget(sortLabel)
+        layout.addWidget(sortCombo)
+        layout.setAlignment(Qt.AlignLeft)
+
     def createCenterPanels(self) -> None:
         self.centerSplitter = QSplitter()
         self.centerSplitter.setOrientation(Qt.Horizontal)
@@ -1230,7 +1288,14 @@ class RapidWindow(QMainWindow):
         self.rightPanelSplitter.setOrientation(Qt.Vertical)
 
     def configureCenterPanels(self, settings: QSettings) -> None:
-        self.leftPanelSplitter.addWidget(self.deviceArea)
+        self.deviceWidget = QWidget()
+        layout = QVBoxLayout()
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(0)
+        layout.addWidget(self.deviceArea)
+        self.deviceWidget.setLayout(layout)
+
+        self.leftPanelSplitter.addWidget(self.deviceWidget)
         self.leftPanelSplitter.addWidget(self.temporalProximity)
 
         self.rightPanelSplitter.addWidget(self.photoDestinationArea)
@@ -1271,19 +1336,6 @@ class RapidWindow(QMainWindow):
             self.rightPanelSplitter.restoreState(splitterSetting)
         else:
             self.rightPanelSplitter.setSizes([200,200])
-
-    def createBottomButtons(self) -> QHBoxLayout:
-        horizontalLayout = QHBoxLayout()
-        horizontalLayout.setContentsMargins(7, 2, 7, 7)
-        self.downloadButton = DownloadButton(self.downloadAct.text())
-        self.downloadButton.addAction(self.downloadAct)
-        self.downloadButton.setDefault(True)
-        self.downloadButton.clicked.connect(self.downloadButtonClicked)
-        self.download_action_is_download = True
-        buttons = QDialogButtonBox()
-        buttons.addButton(self.downloadButton, QDialogButtonBox.ApplyRole)
-        horizontalLayout.addWidget(buttons)
-        return horizontalLayout
 
     def layoutDevices(self) -> None:
         """
@@ -1355,38 +1407,37 @@ class RapidWindow(QMainWindow):
             return _('%(device1)s + %(device2)s') % dict(device1=photo_folder, device2=video_folder)
 
     def createMenus(self) -> None:
-        self.fileMenu = QMenu("&File", self)
-        self.fileMenu.addAction(self.downloadAct)
-        self.fileMenu.addAction(self.refreshAct)
-        self.fileMenu.addAction(self.preferencesAct)
-        self.fileMenu.addAction(self.quitAct)
+        self.menu = QMenu()
+        self.menu.addAction(self.downloadAct)
+        self.menu.addAction(self.preferencesAct)
+        self.menu.addSeparator()
+        self.menu.addAction(self.errorLogAct)
+        self.menu.addAction(self.clearDownloadsAct)
+        self.menu.addSeparator()
+        self.menu.addAction(self.helpAct)
+        self.menu.addAction(self.reportProblemAct)
+        self.menu.addAction(self.makeDonationAct)
+        self.menu.addAction(self.translateApplicationAct)
+        self.menu.addAction(self.aboutAct)
+        self.menu.addAction(self.quitAct)
 
-        self.selectMenu = QMenu("&Select", self)
-        self.selectMenu.addAction(self.checkAllAct)
-        self.selectMenu.addAction(self.checkAllPhotosAct)
-        self.selectMenu.addAction(self.checkAllVideosAct)
-        self.selectMenu.addAction(self.uncheckAllAct)
 
-
-
-        self.viewMenu = QMenu("&View", self)
-        self.viewMenu.addAction(self.errorLogAct)
-        self.viewMenu.addAction(self.clearDownloadsAct)
-        self.viewMenu.addSeparator()
-        self.viewMenu.addAction(self.previousFileAct)
-        self.viewMenu.addAction(self.nextFileAct)
-
-        self.helpMenu = QMenu("&Help", self)
-        self.helpMenu.addAction(self.helpAct)
-        self.helpMenu.addAction(self.reportProblemAct)
-        self.helpMenu.addAction(self.makeDonationAct)
-        self.helpMenu.addAction(self.translateApplicationAct)
-        self.helpMenu.addAction(self.aboutAct)
-
-        self.menuBar().addMenu(self.fileMenu)
-        self.menuBar().addMenu(self.selectMenu)
-        self.menuBar().addMenu(self.viewMenu)
-        self.menuBar().addMenu(self.helpMenu)
+        self.menuButton = QToolButton()
+        self.menuButton.setPopupMode(QToolButton.InstantPopup)
+        self.menuButton.setIcon(QIcon(':/menu.svg'))
+        self.menuButton.setStyleSheet("""
+                                QToolButton {border: none; }
+                                QToolButton::menu-indicator { image: none; }
+                                QToolButton::hover {
+                                border: 1px solid palette(shadow);
+                                border-radius: 3px;
+                                }
+                                QToolButton::pressed {
+                                border: 1px solid palette(shadow);
+                                border-radius: 3px;
+                                }
+                                """)
+        self.menuButton.setMenu(self.menu)
 
     def doSourceAction(self):
         self.sourceButton.animateClick()
@@ -1513,8 +1564,7 @@ class RapidWindow(QMainWindow):
         path = index.model().filePath(index)
         if path != self.prefs.photo_download_folder:
             self.prefs.photo_download_folder = path
-            self.updateDestinationButton()
-            
+
     @pyqtSlot(QModelIndex)
     def videoDestinationPathChosen(self, index: QModelIndex) -> None:
         """
@@ -1528,7 +1578,6 @@ class RapidWindow(QMainWindow):
         path = index.model().filePath(index)
         if path != self.prefs.video_download_folder:
             self.prefs.video_download_folder = path
-            self.updateDestinationButton()            
 
     @pyqtSlot()
     def downloadButtonClicked(self) -> None:

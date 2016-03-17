@@ -22,7 +22,7 @@ __copyright__ = "Copyright 2015-2016, Damon Lynch"
 from enum import IntEnum
 
 from PyQt5.QtGui import (QColor, QPalette)
-from PyQt5.QtWidgets import (QPushButton, QStylePainter, QStyle, QStyleOptionButton, QSizePolicy)
+from PyQt5.QtWidgets import (QPushButton, QStylePainter, QStyle, QStyleOptionButton, QHBoxLayout)
 
 class VerticalRotation(IntEnum):
     left_side = 270
@@ -62,6 +62,8 @@ class RotatedButton(QPushButton, FlatButton):
             self.setFlat(flat)
             self.setFlatStyle(self)
         self.setCheckable(checkable)
+        layout = QHBoxLayout()
+        self.setLayout(layout)
 
     def paintEvent(self, event):
         painter = QStylePainter(self)
