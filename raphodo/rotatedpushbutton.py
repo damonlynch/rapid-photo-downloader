@@ -62,8 +62,6 @@ class RotatedButton(QPushButton, FlatButton):
             self.setFlat(flat)
             self.setFlatStyle(self)
         self.setCheckable(checkable)
-        layout = QHBoxLayout()
-        self.setLayout(layout)
 
     def paintEvent(self, event):
         painter = QStylePainter(self)

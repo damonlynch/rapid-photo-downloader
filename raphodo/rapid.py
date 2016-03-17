@@ -104,7 +104,7 @@ from raphodo.constants import (BackupLocationType, DeviceType, ErrorType,
                        photo_rename_test, ApplicationState,
                        CameraErrorCode, TemporalProximityState,
                        ThumbnailBackgroundName, emptyViewHeight,
-                       DeviceState)
+                       DeviceState, Sort, Show)
 from raphodo.thumbnaildisplay import (ThumbnailView, ThumbnailListModel, ThumbnailDelegate,
                                       DownloadTypes, DownloadStats,
                                       ThumbnailSortFilterProxyModel)
@@ -882,6 +882,10 @@ class RapidWindow(QMainWindow):
         self.temporalProximity.setVisible(self.proximityButton.isChecked())
         self.setLeftPanelVisibility()
 
+    @pyqtSlot(int)
+    def showComboChanged(self, index: int) -> None:
+        self.thumbnailProxyModel.setFilterShow(self.showCombo.currentData())
+
     def createActions(self):
         self.sourceAct = QAction(_('&Source'), self, shortcut="Ctrl+s",
                                  triggered=self.doSourceAction)
@@ -1218,16 +1222,16 @@ class RapidWindow(QMainWindow):
         vmargin = int(QFontMetrics(QFont()).height() / 2 )
 
         layout.setContentsMargins(hmargin, vmargin, hmargin, vmargin)
+        layout.setSpacing(0)
         self.thumbnailControl.setLayout(layout)
 
         style = """
         QComboBox {
-            border: 0px solid gray;
+            border: 0px;
             padding: 1px 3px 1px 3px;
             background-color: palette(window);
             selection-background-color: palette(highlight);
-            color: palette(windowtext);
-            /* min-width: 8em; */
+            color: palette(window-text);
         }
 
         QComboBox:on { /* shift the text when the popup opens */
@@ -1238,13 +1242,13 @@ class RapidWindow(QMainWindow):
         QComboBox::drop-down {
              subcontrol-origin: padding;
              subcontrol-position: top right;
-             width: 10px;
+             width: %(width)dpx;
              border: 0px;
          }
 
         QComboBox::down-arrow {
             image: url(:/chevron-down.svg);
-            width: 10px;
+            width: %(width)dpx;
         }
 
         QComboBox QAbstractItemView {
@@ -1252,32 +1256,63 @@ class RapidWindow(QMainWindow):
             border: 1px solid palette(shadow);
             background-color: palette(window);
             selection-background-color: palette(highlight);
-            selection-color: palette(HighlightedText);
-            padding: 0px 0px 0px 0px;
-            color: palette(windowtext)
+            selection-color: palette(highlighted-text);
+            color: palette(window-text)
+        }
+
+        QComboBox QAbstractItemView::item {
+            padding: 3px;
+        }
+        """ % dict(width=int(QFontMetrics(QFont()).height() * (2/3)))
+
+        # Delegate overrides default delegate for the Combobox, which is
+        # pretty ugly whenever a style sheet color is applied.
+        # See http://stackoverflow.com/questions/13308341/qcombobox-abstractitemviewitem?rq=1
+        self.comboboxDelegate = QStyledItemDelegate()
+
+        self.showLabel = QLabel(_("Show:"))
+        self.showCombo = QComboBox()
+        self.showCombo.setItemDelegate(self.comboboxDelegate)
+        self.showCombo.setStyleSheet(style)
+        self.showCombo.addItem(_('All'), Show.all)
+        self.showCombo.addItem(_('New'), Show.new_only)
+        self.showCombo.currentIndexChanged.connect(self.showComboChanged)
+
+        self.sortLabel= QLabel(_("Sort:"))
+        self.sortCombo = QComboBox()
+        self.sortCombo.setItemDelegate(self.comboboxDelegate)
+        self.sortCombo.setStyleSheet(style)
+        self.sortCombo.addItem(_("Modification Time"), Sort.modification_time)
+        self.sortCombo.addItem(_("Checked State"), Sort.checked_state)
+        self.sortCombo.addItem(_("Filename"), Sort.filename)
+        self.sortCombo.addItem(_("Extension"), Sort.extension)
+
+        for widget in (self.showLabel, self.sortLabel, self.sortCombo, self.showCombo):
+            widget.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+
+
+        self.checkAllLabel = QLabel(_('Select All:' + ' '))
+        # Remove the border when the widget is highlighted
+        style = """
+        QCheckBox {
+            border: none;
+            outline: none;
         }
         """
+        self.selectAllPhotosCheckbox = QCheckBox(_("Photos") + " ")
+        self.selectAllVideosCheckbox = QCheckBox(_("Videos"))
+        self.selectAllPhotosCheckbox.setStyleSheet(style)
+        self.selectAllVideosCheckbox.setStyleSheet(style)
 
-        delegate = QStyledItemDelegate()
-        showLabel = QLabel(_("Show:"))
-        showCombo = QComboBox()
-        showCombo.setItemDelegate(delegate)
-        showCombo.setStyleSheet(style)
-        showCombo.addItems([ _('All'), _('New')])
-        sortLabel= QLabel(_("Sort:"))
-        sortCombo = QComboBox()
-        sortCombo.setItemDelegate(delegate)
-        sortCombo.setStyleSheet(style)
-        sortCombo.addItems([_("Modification Time"), _("Checked State"), _("Filename"),
-                             _("Extension")])
-        for widget in (showLabel, sortLabel, sortCombo, showCombo):
-            widget.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
-        layout.addWidget(showLabel)
-        layout.addWidget(showCombo)
-        layout.addSpacing(QFontMetrics(QFont()).height())
-        layout.addWidget(sortLabel)
-        layout.addWidget(sortCombo)
-        layout.setAlignment(Qt.AlignLeft)
+        layout.addWidget(self.showLabel)
+        layout.addWidget(self.showCombo)
+        layout.addSpacing(QFontMetrics(QFont()).height() * 2)
+        layout.addWidget(self.sortLabel)
+        layout.addWidget(self.sortCombo)
+        layout.addStretch()
+        layout.addWidget(self.checkAllLabel)
+        layout.addWidget(self.selectAllPhotosCheckbox)
+        layout.addWidget(self.selectAllVideosCheckbox)
 
     def createCenterPanels(self) -> None:
         self.centerSplitter = QSplitter()
@@ -1426,17 +1461,17 @@ class RapidWindow(QMainWindow):
         self.menuButton.setPopupMode(QToolButton.InstantPopup)
         self.menuButton.setIcon(QIcon(':/menu.svg'))
         self.menuButton.setStyleSheet("""
-                                QToolButton {border: none; }
-                                QToolButton::menu-indicator { image: none; }
-                                QToolButton::hover {
-                                border: 1px solid palette(shadow);
-                                border-radius: 3px;
-                                }
-                                QToolButton::pressed {
-                                border: 1px solid palette(shadow);
-                                border-radius: 3px;
-                                }
-                                """)
+        QToolButton {border: none;}
+        QToolButton::menu-indicator { image: none; }
+        QToolButton::hover {
+            border: 1px solid palette(shadow);
+            border-radius: 3px;
+        }
+        QToolButton::pressed {
+            border: 1px solid palette(shadow);
+            border-radius: 3px;
+        }
+        """)
         self.menuButton.setMenu(self.menu)
 
     def doSourceAction(self):

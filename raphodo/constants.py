@@ -128,6 +128,18 @@ class ApplicationState(Enum):
     exiting = 2
 
 
+class Show(IntEnum):
+    all = 1
+    new_only = 2
+
+
+class Sort(IntEnum):
+    modification_time = 1
+    checked_state = 2
+    filename = 3
+    extension = 4
+
+
 class Roles(IntEnum):
     previously_downloaded = Qt.UserRole
     extension = Qt.UserRole + 1

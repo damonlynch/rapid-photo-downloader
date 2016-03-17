@@ -53,7 +53,7 @@ from raphodo.rpdfile import RPDFile, FileTypeCounter
 from raphodo.interprocess import (PublishPullPipelineManager, GenerateThumbnailsArguments, Device,
                           GenerateThumbnailsResults)
 from raphodo.constants import (DownloadStatus, Downloaded, FileType, FileExtension, ThumbnailSize,
-                       ThumbnailCacheStatus, Roles, DeviceType, CustomColors,
+                       ThumbnailCacheStatus, Roles, DeviceType, CustomColors, Show, Sort,
                        ThumbnailBackgroundName, Desktop, DeviceState)
 from raphodo.storage import get_program_cache_directory, get_desktop
 from raphodo.utilities import (CacheDirs, make_internationalized_list, format_size_for_user, runs)
@@ -1200,8 +1200,19 @@ class ThumbnailSortFilterProxyModel(QSortFilterProxyModel):
     def __init__(self,  parent=None) -> None:
         super().__init__(parent)
         self.selected_rows = set()
+        self.show_filter = Show.all
+
+    def setFilterShow(self, show: Show) -> None:
+        if show != self.show_filter:
+            self.show_filter = show
+            self.invalidateFilter()
 
     def filterAcceptsRow(self, sourceRow: int, sourceParent: QModelIndex) -> bool:
+        if self.show_filter == Show.new_only:
+            index = self.sourceModel().index(sourceRow, 0, sourceParent)  # QModelIndex
+            previously_downloaded = index.data(Roles.previously_downloaded)
+            if previously_downloaded:
+                return False
         if len(self.selected_rows) == 0:
             return True
         return sourceRow in self.selected_rows
