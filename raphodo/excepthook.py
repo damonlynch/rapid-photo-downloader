@@ -34,12 +34,23 @@ import raphodo.qrc_resources as qrc_resources
 
 from raphodo.iplogging import full_log_file_path
 
+message_box_displayed = False
+exceptions_notified = set()
+
+
 def excepthook(exception_type, exception_value, traceback_object) -> None:
     """
     Global function to catch unhandled exceptions.
 
     Inspired by function of the same name in the Eric project.
     """
+
+    frame = traceback_object.tb_frame
+    filename = frame.f_code.co_filename
+    lineno = traceback_object.tb_lineno
+    key = '{}{}'.format(filename, lineno)
+
+    global message_box_displayed
 
     tb_file = io.StringIO()
     traceback.print_exception(exception_type, exception_value, traceback_object,
@@ -50,33 +61,40 @@ def excepthook(exception_type, exception_value, traceback_object) -> None:
     logging.error("An unhandled exception occurred")
     logging.error(traceback_info)
 
-    log_path, log_file = os.path.split(full_log_file_path())
-    log_uri = pathname2url(log_path)
+    if not message_box_displayed and key not in exceptions_notified:
+        message_box_displayed = True
+        exceptions_notified.add(key)
 
-    title="Problem in Rapid Photo Downloader"
+        log_path, log_file = os.path.split(full_log_file_path())
+        log_uri = pathname2url(log_path)
 
-    if QApplication.instance():
+        title="Problem in Rapid Photo Downloader"
 
-        message = r"""<b>A problem occurred in Rapid Photo Downloader</b><br><br>
-Please report the problem at <a href="{website}">{website}</a>.<br><br>
-Attach the log file <i>{log_file}</i> to your bug report (click
-<a href="{log_path}">here</a> to open the log directory).""".format(
-            website='https://bugs.launchpad.net/rapid', log_path=log_uri, log_file=log_file)
+        if QApplication.instance():
 
-        icon = QPixmap(':/rapid-photo-downloader.svg')
+            message = r"""<b>A problem occurred in Rapid Photo Downloader</b><br><br>
+    Please report the problem at <a href="{website}">{website}</a>.<br><br>
+    Attach the log file <i>{log_file}</i> to your bug report (click
+    <a href="{log_path}">here</a> to open the log directory).<br><br>If the same error occurs again
+    before the program exits, this is the final notification.
+    """.format(
+                website='https://bugs.launchpad.net/rapid', log_path=log_uri, log_file=log_file)
 
-        errorbox = QMessageBox()
-        errorbox.setTextFormat(Qt.RichText)
-        errorbox.setIconPixmap(icon)
-        errorbox.setWindowTitle(title)
-        errorbox.setText(message)
-        errorbox.setDetailedText(traceback_info)
-        errorbox.exec_()
-    elif have_easygui:
-        message = 'A problem occurred in Rapid Photo Downloader\n'
-        prefix = """Please report the problem at {website}\n
-Attach the log file to your bug report, found at {log_path}\n\n""".format(
-            website='https://bugs.launchpad.net/rapid', log_path=full_log_file_path())
-        text = prefix + traceback_info
-        codebox(msg=message, title=title, text=text)
+            icon = QPixmap(':/rapid-photo-downloader.svg')
+
+            errorbox = QMessageBox()
+            errorbox.setTextFormat(Qt.RichText)
+            errorbox.setIconPixmap(icon)
+            errorbox.setWindowTitle(title)
+            errorbox.setText(message)
+            errorbox.setDetailedText(traceback_info)
+            errorbox.exec_()
+        elif have_easygui:
+            message = 'A problem occurred in Rapid Photo Downloader\n'
+            prefix = """Please report the problem at {website}\n
+    Attach the log file to your bug report, found at {log_path}\n\n""".format(
+                website='https://bugs.launchpad.net/rapid', log_path=full_log_file_path())
+            text = prefix + traceback_info
+            codebox(msg=message, title=title, text=text)
+        message_box_displayed = False
 
