@@ -104,7 +104,7 @@ from raphodo.constants import (BackupLocationType, DeviceType, ErrorType,
                        photo_rename_test, ApplicationState,
                        CameraErrorCode, TemporalProximityState,
                        ThumbnailBackgroundName, emptyViewHeight,
-                       DeviceState, Sort, Show)
+                       DeviceState, Sort, Show, Roles)
 from raphodo.thumbnaildisplay import (ThumbnailView, ThumbnailListModel, ThumbnailDelegate,
                                       DownloadTypes, DownloadStats,
                                       ThumbnailSortFilterProxyModel)
@@ -881,8 +881,15 @@ class RapidWindow(QMainWindow):
     def proximityButtonClicked(self) -> None:
         self.temporalProximity.setVisible(self.proximityButton.isChecked())
         self.setLeftPanelVisibility()
+        self.adjustLeftPanelSliderHandle()
+
+    def adjustLeftPanelSliderHandle(self):
+        """
+        Move left panel splitter handle if "This Computer" source
+        is not enabled.
+        """
+
         if not self.thisComputerToggleView.on() and self.proximityButton.isChecked():
-            # move splitter handle
             devices_height = self.deviceArea.minimumHeight()
             proximity_height = self.centerSplitter.height() - devices_height
             self.leftPanelSplitter.setSizes([devices_height, proximity_height])
@@ -890,6 +897,30 @@ class RapidWindow(QMainWindow):
     @pyqtSlot(int)
     def showComboChanged(self, index: int) -> None:
         self.thumbnailProxyModel.setFilterShow(self.showCombo.currentData())
+
+    @pyqtSlot(int)
+    def sortComboChanged(self, index: int) -> None:
+        sort = self.sortCombo.currentData()
+        order = self.sortOrder.currentData()
+        if sort == Sort.checked_state:
+            self.thumbnailProxyModel.setSortRole(Qt.CheckStateRole)
+            self.thumbnailProxyModel.sort(0, order)
+        elif sort == Sort.filename:
+            self.thumbnailProxyModel.setSortRole(Roles.filename)
+            self.thumbnailProxyModel.sort(0, order)
+        elif sort == Sort.extension:
+            self.thumbnailProxyModel.setSortRole(Roles.sort_extension)
+            self.thumbnailProxyModel.sort(0, order)
+        else:
+            self.thumbnailProxyModel.setSortRole(Qt.DisplayRole)
+            if order == Qt.AscendingOrder:
+                self.thumbnailProxyModel.sort(-1)
+            else:
+                self.thumbnailProxyModel.sort(0, order)
+
+    @pyqtSlot(int)
+    def sortOrderChanged(self, index: int) -> None:
+        self.sortComboChanged(index=-1)
 
     def createActions(self):
         self.sourceAct = QAction(_('&Source'), self, shortcut="Ctrl+s",
@@ -1242,12 +1273,13 @@ class RapidWindow(QMainWindow):
         self.thumbnailControl = QWidget()
         layout = QHBoxLayout()
 
+        # left and right align at edge of left & right bar
         hmargin = self.proximityButton.sizeHint().width()
         hmargin += self.standard_spacing
         vmargin = int(QFontMetrics(QFont()).height() / 2 )
 
         layout.setContentsMargins(hmargin, vmargin, hmargin, vmargin)
-        layout.setSpacing(0)
+        layout.setSpacing(self.standard_spacing)
         self.thumbnailControl.setLayout(layout)
 
         style = """
@@ -1314,12 +1346,21 @@ class RapidWindow(QMainWindow):
         self.sortCombo.addItem(_("Checked State"), Sort.checked_state)
         self.sortCombo.addItem(_("Filename"), Sort.filename)
         self.sortCombo.addItem(_("Extension"), Sort.extension)
+        self.sortCombo.currentIndexChanged.connect(self.sortComboChanged)
 
-        for widget in (self.showLabel, self.sortLabel, self.sortCombo, self.showCombo):
+        self.sortOrder = QComboBox()
+        self.sortOrder.setItemDelegate(self.comboboxDelegate)
+        self.sortOrder.setStyleSheet(style)
+        self.sortOrder.addItem(_("Ascending"), Qt.AscendingOrder)
+        self.sortOrder.addItem(_("Descending"), Qt.DescendingOrder)
+        self.sortOrder.currentIndexChanged.connect(self.sortOrderChanged)
+
+        for widget in (self.showLabel, self.sortLabel, self.sortCombo, self.showCombo,
+                       self.sortOrder):
             widget.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
             widget.setFont(font)
 
-        self.checkAllLabel = QLabel(_('Select All:' + ' '))
+        self.checkAllLabel = QLabel(_('Select All:'))
 
         # Remove the border when the widget is highlighted
         style = """
@@ -1328,7 +1369,7 @@ class RapidWindow(QMainWindow):
             outline: none;
             spacing: %(spacing)d;
         }
-        """ % dict(spacing=QFontMetrics(font).height() // 4)
+        """ % dict(spacing=self.standard_spacing // 2)
         self.selectAllPhotosCheckbox = QCheckBox(_("Photos") + " ")
         self.selectAllVideosCheckbox = QCheckBox(_("Videos"))
         self.selectAllPhotosCheckbox.setStyleSheet(style)
@@ -1343,6 +1384,7 @@ class RapidWindow(QMainWindow):
         layout.addSpacing(QFontMetrics(QFont()).height() * 2)
         layout.addWidget(self.sortLabel)
         layout.addWidget(self.sortCombo)
+        layout.addWidget(self.sortOrder)
         layout.addStretch()
         layout.addWidget(self.checkAllLabel)
         layout.addWidget(self.selectAllPhotosCheckbox)
@@ -1577,6 +1619,7 @@ class RapidWindow(QMainWindow):
                 self.removeDevice(scan_id=scan_id)
             self.prefs.this_computer_path = ''
             self.thisComputerFSView.clearSelection()
+            self.adjustLeftPanelSliderHandle()
         else:
             self.resizeDeviceViewsAndScrollArea(view=self.thisComputerView)
 

@@ -154,6 +154,8 @@ class Roles(IntEnum):
     storage = Qt.UserRole + 10
     mtp = Qt.UserRole + 11
     is_camera = Qt.UserRole + 12
+    sort_extension = Qt.UserRole + 13
+    filename = Qt.UserRole + 14
 
 
 class ExtractionTask(Enum):

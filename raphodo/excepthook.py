@@ -76,7 +76,7 @@ def excepthook(exception_type, exception_value, traceback_object) -> None:
     Please report the problem at <a href="{website}">{website}</a>.<br><br>
     Attach the log file <i>{log_file}</i> to your bug report (click
     <a href="{log_path}">here</a> to open the log directory).<br><br>If the same error occurs again
-    before the program exits, this is the final notification.
+    before the program exits, this is the only notification about it.
     """.format(
                 website='https://bugs.launchpad.net/rapid', log_path=log_uri, log_file=log_file)
 

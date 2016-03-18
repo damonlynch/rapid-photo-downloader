@@ -201,6 +201,38 @@ class ThumbnailListModel(QAbstractListModel):
                 return Qt.Checked
             else:
                 return Qt.Unchecked
+        elif role == Roles.sort_extension:
+            return rpd_file.extension
+        elif role == Roles.filename:
+            return rpd_file.name
+        elif role == Roles.previously_downloaded:
+            return rpd_file.previously_downloaded()
+        elif role == Roles.extension:
+            return rpd_file.extension, rpd_file.extension_type
+        elif role == Roles.download_status:
+            return rpd_file.status
+        elif role == Roles.has_audio:
+            return rpd_file.has_audio()
+        elif role == Roles.secondary_attribute:
+            if rpd_file.xmp_file_full_name:
+                return 'XMP'
+            else:
+                return None
+        elif role== Roles.path:
+            if rpd_file.status in Downloaded:
+                return rpd_file.download_full_file_name
+            else:
+                return rpd_file.full_file_name
+        elif role == Roles.uri:
+            return rpd_file.get_uri(desktop_environment=True)
+        elif role == Roles.camera_memory_card:
+            return rpd_file.camera_memory_card_identifiers
+        elif role == Roles.mtp:
+            return rpd_file.is_mtp_device
+        elif role == Roles.scan_id:
+            return rpd_file.scan_id
+        elif role == Roles.is_camera:
+            return rpd_file.from_camera
         elif role == Qt.ToolTipRole:
             file_name = self.file_names[unique_id]
             size = format_size_for_user(rpd_file.size)
@@ -242,34 +274,6 @@ class ThumbnailListModel(QAbstractListModel):
                                        'filename': prev_file_name,
                                        'path': path}
             return msg
-        elif role == Roles.previously_downloaded:
-            return rpd_file.previously_downloaded()
-        elif role == Roles.extension:
-            return rpd_file.extension, rpd_file.extension_type
-        elif role == Roles.download_status:
-            return rpd_file.status
-        elif role == Roles.has_audio:
-            return rpd_file.has_audio()
-        elif role == Roles.secondary_attribute:
-            if rpd_file.xmp_file_full_name:
-                return 'XMP'
-            else:
-                return None
-        elif role== Roles.path:
-            if rpd_file.status in Downloaded:
-                return rpd_file.download_full_file_name
-            else:
-                return rpd_file.full_file_name
-        elif role == Roles.uri:
-            return rpd_file.get_uri(desktop_environment=True)
-        elif role == Roles.camera_memory_card:
-            return rpd_file.camera_memory_card_identifiers
-        elif role == Roles.mtp:
-            return rpd_file.is_mtp_device
-        elif role == Roles.scan_id:
-            return rpd_file.scan_id
-        elif role == Roles.is_camera:
-            return rpd_file.from_camera
 
     def setData(self, index: QModelIndex, value, role: int) -> bool:
         if not index.isValid():
@@ -318,13 +322,14 @@ class ThumbnailListModel(QAbstractListModel):
 
     def addFile(self, rpd_file: RPDFile, generate_thumbnail: bool):
         unique_id = rpd_file.unique_id
+        self.rpd_files[unique_id] = rpd_file
+
         list_item = SortedListItem(unique_id, rpd_file.modification_time)
         self.rows.add(list_item)
         row = self.rows.index(list_item)
 
         self.insertRow(row)
 
-        self.rpd_files[unique_id] = rpd_file
         self.file_names[unique_id] = rpd_file.name
         if rpd_file.file_type == FileType.photo:
             self.thumbnails[unique_id] = self.photo_icon
@@ -915,7 +920,7 @@ class ThumbnailDelegate(QStyledItemDelegate):
         index = self.clickedIndex
         if index:
             uri = index.model().data(index, Roles.uri)
-            cmd = '{} {}'.format(self.parent().file_manager, uri)
+            cmd = '{} {}'.format(self.rapidApp.file_manager, uri)
             logging.debug("Launching: %s", cmd)
             args = shlex.split(cmd)
             subprocess.Popen(args)
@@ -1127,7 +1132,7 @@ class ThumbnailDelegate(QStyledItemDelegate):
             QEvent.MouseButtonDblClick):
             if event.button() == Qt.RightButton:
                 self.clickedIndex = index
-                globalPos = self.parent().thumbnailView.viewport().mapToGlobal(event.pos())
+                globalPos = self.rapidApp.thumbnailView.viewport().mapToGlobal(event.pos())
                 # libgphoto2 needs exclusive access to the camera, so there are times when "open
                 # in file browswer" should be disabled:
                 # First, for all desktops, when a camera, disable when thumbnailing or
