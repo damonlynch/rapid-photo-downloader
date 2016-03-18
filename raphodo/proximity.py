@@ -1071,11 +1071,20 @@ class TemporalValuePicker(QWidget):
         self.slider.setTickPosition(QSlider.TicksBelow)
         self.slider.setToolTip(_("The time elapsed between consecutive photos and "
                                  "videos that is used to build the Timeline"))
-        # self.slider.setTracking(False)
         self.slider.setMaximum(len(proximity_time_steps) - 1)
         self.slider.setValue(proximity_time_steps.index(minutes))
 
+        # self.slider.setStyleSheet("""
+        # QSlider {
+        #     border: none;
+        #     outline: none;
+        # }
+        # """)
+
         self.display = QLabel()
+        font = QFont()
+        font.setPointSize(font.pointSize() - 2)
+        self.display.setFont(font)
         self.display.setAlignment(Qt.AlignCenter)
 
         # Determine maximum width of display label
@@ -1095,6 +1104,7 @@ class TemporalValuePicker(QWidget):
 
         layout = QHBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(QFontMetrics(font).height() // 6)
         self.setLayout(layout)
         layout.addWidget(self.slider)
         layout.addWidget(self.display)

@@ -952,11 +952,12 @@ class RapidWindow(QMainWindow):
         settings.beginGroup("MainWindow")
 
         verticalLayout = QVBoxLayout()
+        verticalLayout.setContentsMargins(0, 0, 0, 0)
+        centralWidget.setLayout(verticalLayout)
+        self.standard_spacing = verticalLayout.spacing()
+
         topBar = self.createTopBar()
         verticalLayout.addLayout(topBar)
-        verticalLayout.setContentsMargins(0, 0, 0, 0)
-
-        centralWidget.setLayout(verticalLayout)
 
         centralLayout = QHBoxLayout()
         centralLayout.setContentsMargins(0, 0, 0, 0)
@@ -980,10 +981,23 @@ class RapidWindow(QMainWindow):
 
     def createTopBar(self) -> QHBoxLayout:
         topBar = QHBoxLayout()
-        topBar.setContentsMargins(0, 0, int(QFontMetrics(QFont()).height() / 3), 0)
+        menu_margin = int(QFontMetrics(QFont()).height() / 3)
+        topBar.setContentsMargins(0, 0, menu_margin, 0)
+
         topBar.setSpacing(int(QFontMetrics(QFont()).height() / 2))
-        self.sourceButton = TopPushButton(addPushButtonLabelSpacer(_('Select Source')))
+
+        self.sourceButton = TopPushButton(addPushButtonLabelSpacer(_('Select Source')),
+                                          extra_top=self.standard_spacing)
         self.sourceButton.clicked.connect(self.sourceButtonClicked)
+
+        vlayout = QVBoxLayout()
+        vlayout.setContentsMargins(0, 0, 0, 0)
+        vlayout.setSpacing(0)
+        vlayout.addSpacing(self.standard_spacing)
+        hlayout = QHBoxLayout()
+        hlayout.setContentsMargins(0, 0, 0, 0)
+        hlayout.setSpacing(menu_margin)
+        vlayout.addLayout(hlayout)
 
         self.downloadButton = DownloadButton(self.downloadAct.text())
         self.downloadButton.addAction(self.downloadAct)
@@ -996,8 +1010,9 @@ class RapidWindow(QMainWindow):
 
         topBar.addWidget(self.sourceButton)
         topBar.addStretch()
-        topBar.addWidget(self.downloadButton)
-        topBar.addWidget(self.menuButton)
+        topBar.addLayout(vlayout)
+        hlayout.addWidget(self.downloadButton)
+        hlayout.addWidget(self.menuButton)
         return topBar
 
     def createLeftBar(self) -> QVBoxLayout:
@@ -1118,6 +1133,12 @@ class RapidWindow(QMainWindow):
                 'QWidget#devicePanel {border: %spx solid  palette(shadow);}' %
                 QSplitter().lineWidth())
 
+        palette = QPalette()
+        palette.setColor(QPalette.Window, palette.color(palette.Base))
+
+        self.deviceContainer.setAutoFillBackground(True)
+        self.deviceContainer.setPalette(palette)
+
         layout = QVBoxLayout()
         self.deviceContainer.setLayout(layout)
         layout.setContentsMargins(0, 0, 0, 0)
@@ -1218,7 +1239,7 @@ class RapidWindow(QMainWindow):
         layout = QHBoxLayout()
 
         hmargin = self.proximityButton.sizeHint().width()
-        hmargin += self.centralWidget().layout().spacing()
+        hmargin += self.standard_spacing
         vmargin = int(QFontMetrics(QFont()).height() / 2 )
 
         layout.setContentsMargins(hmargin, vmargin, hmargin, vmargin)
@@ -1270,6 +1291,9 @@ class RapidWindow(QMainWindow):
         # See http://stackoverflow.com/questions/13308341/qcombobox-abstractitemviewitem?rq=1
         self.comboboxDelegate = QStyledItemDelegate()
 
+        font = self.font()  # type: QFont
+        font.setPointSize(font.pointSize() - 2)
+
         self.showLabel = QLabel(_("Show:"))
         self.showCombo = QComboBox()
         self.showCombo.setItemDelegate(self.comboboxDelegate)
@@ -1289,20 +1313,26 @@ class RapidWindow(QMainWindow):
 
         for widget in (self.showLabel, self.sortLabel, self.sortCombo, self.showCombo):
             widget.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
-
+            widget.setFont(font)
 
         self.checkAllLabel = QLabel(_('Select All:' + ' '))
+
         # Remove the border when the widget is highlighted
         style = """
         QCheckBox {
             border: none;
             outline: none;
+            spacing: %(spacing)d;
         }
-        """
+        """ % dict(spacing=QFontMetrics(font).height() // 4)
         self.selectAllPhotosCheckbox = QCheckBox(_("Photos") + " ")
         self.selectAllVideosCheckbox = QCheckBox(_("Videos"))
         self.selectAllPhotosCheckbox.setStyleSheet(style)
         self.selectAllVideosCheckbox.setStyleSheet(style)
+
+        for widget in (self.checkAllLabel, self.selectAllPhotosCheckbox,
+                       self.selectAllVideosCheckbox):
+            widget.setFont(font)
 
         layout.addWidget(self.showLabel)
         layout.addWidget(self.showCombo)

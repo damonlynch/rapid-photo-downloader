@@ -56,8 +56,8 @@ class ComputerWidget(QWidget):
         layout.addWidget(self.view)
         layout.addStretch()
         layout.addWidget(self.fileSystemView, 5)
-        self.view.setStyleSheet('QListView {border: 0px solid red;}')
-        self.fileSystemView.setStyleSheet('FileSystemView {border: 0px solid red;}')
+        self.view.setStyleSheet('QListView {border: none;}')
+        self.fileSystemView.setStyleSheet('FileSystemView {border: none;}')
 
     def setViewVisible(self, visible: bool) -> None:
         self.view.setVisible(visible)

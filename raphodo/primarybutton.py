@@ -29,7 +29,7 @@ from raphodo.rotatedpushbutton import FlatButton
 
 
 class TopPushButton(QPushButton, FlatButton):
-    def __init__(self, text, parent=None) -> None:
+    def __init__(self, text, extra_top: int=0, parent=None) -> None:
         super().__init__(text, parent)
         self.setCheckable(True)
         self.setSizePolicy(QSizePolicy.Maximum, QSizePolicy.Maximum)
@@ -43,11 +43,13 @@ class TopPushButton(QPushButton, FlatButton):
 
         font_height = QFontMetrics(font).height()
         padding_side = math.ceil(font_height / 3.5)
-        padding_top = math.ceil(font_height / 5.6)
+        padding_bottom = math.ceil(font_height / 5.6)
+        padding_top = padding_bottom + extra_top
 
         padding = 'padding-left: {padding_side}px; padding-right: {padding_side}px; padding-top: ' \
-                  '{padding_top}px; padding-bottom: {padding_top}px;'.format(
-                    padding_top=padding_top, padding_side=padding_side)
+                  '{padding_top}px; padding-bottom: {padding_bottom}px;'.format(
+                    padding_top=padding_top, padding_side=padding_side,
+                    padding_bottom=padding_bottom)
         self.setFlatStyle(self, darker_if_checked=False, additional_style=padding)
 
     def setIcon(self, icon: QIcon) -> None:
