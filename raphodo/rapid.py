@@ -881,6 +881,11 @@ class RapidWindow(QMainWindow):
     def proximityButtonClicked(self) -> None:
         self.temporalProximity.setVisible(self.proximityButton.isChecked())
         self.setLeftPanelVisibility()
+        if not self.thisComputerToggleView.on() and self.proximityButton.isChecked():
+            # move splitter handle
+            devices_height = self.deviceArea.minimumHeight()
+            proximity_height = self.centerSplitter.height() - devices_height
+            self.leftPanelSplitter.setSizes([devices_height, proximity_height])
 
     @pyqtSlot(int)
     def showComboChanged(self, index: int) -> None:
@@ -1135,7 +1140,6 @@ class RapidWindow(QMainWindow):
 
         palette = QPalette()
         palette.setColor(QPalette.Window, palette.color(palette.Base))
-
         self.deviceContainer.setAutoFillBackground(True)
         self.deviceContainer.setPalette(palette)
 
@@ -1205,9 +1209,9 @@ class RapidWindow(QMainWindow):
             for view in (self.deviceView, self.thisComputerView):
                 self.resizeDeviceView(view)
 
-        # Set minium size for scoll area deviceArea
+        # Set minium size for scroll area deviceArea
         width = 0
-        height = 3
+        height = 1
         for view in (self.deviceToggleView, self.thisComputerToggleView):
             width = max(width, view.minimumWidth())
             height += view.minimumHeight()
@@ -2407,6 +2411,8 @@ class RapidWindow(QMainWindow):
                 invalid_dirs.append(self.prefs.video_download_folder)
         return invalid_dirs
 
+
+    # TODO merge with code in storage.validate_download_folder ?
     def isValidDownloadDir(self, path, is_photo_dir: bool,
                            show_error_in_log=False) -> bool:
         """
@@ -3285,65 +3291,23 @@ class RapidWindow(QMainWindow):
         self.statusBar().showMessage(msg)
 
     def generateBasicStatusMessage(self) -> str:
-        photo_dir = self.isValidDownloadDir(
-            path=self.prefs.photo_download_folder,
-            is_photo_dir=True,
-            show_error_in_log=True)
-        video_dir = self.isValidDownloadDir(
-            path=self.prefs.video_download_folder,
-            is_photo_dir=False,
-            show_error_in_log=True)
-        if photo_dir and video_dir:
-            same_fs = same_file_system(self.prefs.photo_download_folder,
-                                       self.prefs.video_download_folder)
-        else:
-            same_fs = False
-
-        dirs = []
-        if photo_dir:
-            dirs.append(self.prefs.photo_download_folder)
-        if video_dir and not same_fs:
-            dirs.append(self.prefs.video_download_folder)
-
-        if len(dirs) == 1:
-            free = format_size_for_user(size_in_bytes=shutil.disk_usage(dirs[0]).free)
-            # Free space available on the filesystem for downloading to
-            # Displayed in status bar message on main window
-            # e.g. 14.7GB free
-            msg = _("%(free)s free on destination.") % {'free': free}
-        elif len(dirs) == 2:
-            free1, free2 = (format_size_for_user(size_in_bytes=shutil.disk_usage(
-                path).free) for path in dirs)
-            # Free space available on the filesystem for downloading to
-            # Displayed in status bar message on main window
-            # e.g. Free space: 21.3GB (photos); 14.7GB (videos).
-            msg = _('Free space on destination drives: %(photos)s (photos); '
-                    '%(videos)s (videos).') % {'photos': free1, 'videos': free2}
-        else:
-            msg = ''
-
+        msg = ''
         if self.prefs.backup_files:
             if not self.prefs.backup_device_autodetection:
                 if self.prefs.backup_photo_location ==  self.prefs.backup_video_location:
                     # user manually specified the same location for photos
                     # and video backups
-                    msg2 = _('Backing up photos and videos to %(path)s') % {
+                    msg = _('Backing up photos and videos to %(path)s') % {
                         'path':self.prefs.backup_photo_location}
                 else:
                     # user manually specified different locations for photo
                     # and video backups
-                    msg2 = _('Backing up photos to %(path)s and videos to %(path2)s')  % {
+                    msg = _('Backing up photos to %(path)s and videos to %(path2)s')  % {
                              'path': self.prefs.backup_photo_location,
                              'path2': self.prefs.backup_video_location}
             else:
-                msg2 = self.displayBackupMounts()
-
-            if msg:
-                msg = _("%(freespace)s %(backuppaths)s.") % {'freespace':
-                                                  msg, 'backuppaths': msg2}
-            else:
-                msg = msg2
-
+                msg = self.displayBackupMounts()
+            msg = "%(backuppaths)s." % dict(backuppaths=msg)
         return msg.rstrip()
 
     def displayBackupMounts(self) -> str:

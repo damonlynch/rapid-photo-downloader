@@ -411,8 +411,6 @@ class DeviceDelegate(QStyledItemDelegate):
         self.checkbox_right = self.checkboxRect.right()
 
         self.standard_font = QFont()  # type: QFont
-        self.standard_font_bold = QFont(self.standard_font)
-        self.standard_font_bold.setWeight(63)
         self.standard_metrics = QFontMetrics(self.standard_font)
         self.standard_height = self.standard_metrics.height()
 
@@ -421,10 +419,6 @@ class DeviceDelegate(QStyledItemDelegate):
         self.small_font = QFont(self.standard_font)
         self.small_font.setPointSize(self.standard_font.pointSize() - 2)
         self.small_font_metrics = QFontMetrics(self.small_font)
-
-        self.small_font_bold = QFont(self.small_font)
-        self.small_font_bold.setWeight(63)
-        self.small_font_bold_metrics = QFontMetrics(self.small_font_bold)
 
         sample_number = thousands(999)
         sample_no_photos = '{} {}'.format(self.photos, sample_number)

@@ -42,7 +42,7 @@ class ComputerWidget(QWidget):
         super().__init__(parent)
         self.setObjectName(objectName)
         layout = QVBoxLayout()
-        layout.setContentsMargins(1, 1, 1, 1)
+        layout.setContentsMargins(1, 0, 1, 1)
         layout.setSpacing(0)
         self.setLayout(layout)
 
