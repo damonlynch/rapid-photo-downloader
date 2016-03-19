@@ -302,7 +302,8 @@ datetime_offset = dict(
     srw=508,
     mts=5000,
     mp4=50000,
-    avi=50000
+    avi=50000,
+    mov=250000,
 )
 datetime_offset['3gp'] = 5000
 

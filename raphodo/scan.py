@@ -500,6 +500,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
         """
         metadata = dt = None
         if extension in rpdfile.JPEG_TYPE_EXTENSIONS:
+            determined_by = 'jpeg'
             raw_bytes = self.camera.get_exif_extract_from_jpeg(path, name)
             if raw_bytes is not None:
                 metadata = GExiv2.Metadata()
@@ -514,6 +515,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
                 except:
                     dt = None
         elif extension in rpdfile.RAW_EXTENSIONS:
+            determined_by = 'RAW'
             offset = datetime_offset.get(extension)
             if offset is None:
                 offset = size
@@ -531,12 +533,11 @@ class ScanWorker(WorkerInPublishPullPipeline):
                 except:
                     dt = None
         elif extension in rpdfile.VIDEO_EXTENSIONS:
+            determined_by = 'video'
             offset = datetime_offset.get(extension)
-            # May as well get the whole file if less than 2 MB
-            if offset is None or size < 1024**2 * 2:
-                max_size =  1024**2 * 30  # approx 30 MB
-                if size < max_size:
-                    offset = size
+            if offset is None:
+                max_size =  1024**2 * 20  # approx 21 MB
+                offset = min(size, max_size)
             if offset is not None:
                 with tempfile.TemporaryDirectory() as tempdir:
                     temp_name = os.path.join(tempdir, name)
@@ -557,12 +558,12 @@ class ScanWorker(WorkerInPublishPullPipeline):
             # camera's memory. Allow for two minutes, to be safe.
             if datetime_roughly_equal(dt1=datetime.utcfromtimestamp(modification_time),
                                       dt2=dt, seconds=120):
-                logging.debug("gPhoto2 timezone setting for %s is UTC",
-                            self.camera.display_name)
+                logging.debug("gPhoto2 timezone setting for %s is UTC, as indicated by %s file",
+                              self.camera.display_name, determined_by)
                 self.gphoto_mtime = GphotoMTime.is_utc
             else:
-                logging.debug("gPhoto2 timezone setting for %s is local time",
-                            self.camera.display_name)
+                logging.debug("gPhoto2 timezone setting for %s is local time, as indicated by "
+                              "%s file", self.camera.display_name, determined_by)
                 self.gphoto_mtime = GphotoMTime.is_local
 
     def _get_associate_file_from_camera(self, base_name: str,
