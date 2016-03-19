@@ -1246,12 +1246,10 @@ class RapidWindow(QMainWindow):
         for view in (self.deviceToggleView, self.thisComputerToggleView):
             width = max(width, view.minimumWidth())
             height += view.minimumHeight()
+        if self.thisComputerToggleView.on():
+            height += QSplitter().lineWidth() * 2
         self.deviceArea.setMinimumWidth(width)
         self.deviceArea.setMinimumHeight(height)
-        # if not self.thisComputerToggleView.on():
-        #     self.deviceArea.setMaximumHeight(height)
-        # else:
-        #     self.deviceArea.setMaximumHeight(16777215)
         self.leftPanelSplitter.updateGeometry()
 
     def createDestinationViews(self) -> None:

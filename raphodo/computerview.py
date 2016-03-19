@@ -23,14 +23,28 @@ Combines a deviceview and a file system view into one widget
 __author__ = 'Damon Lynch'
 __copyright__ = "Copyright 2016, Damon Lynch"
 
-from PyQt5.QtWidgets import QWidget, QVBoxLayout, QSplitter
+from PyQt5.QtWidgets import QWidget, QVBoxLayout, QSplitter, QStyleOptionFrame, QStyle
+from PyQt5.QtGui import QPainter
 
 from raphodo.devicedisplay import DeviceView
 from raphodo.filebrowse import FileSystemView
 from raphodo.constants import minFileSystemViewHeight
 
 
-class ComputerWidget(QWidget):
+class QFramedWidget(QWidget):
+    """
+    Draw a Frame around the widget in the style of the application.
+    """
+    def paintEvent(self, *opts):
+        painter = QPainter(self)
+        option = QStyleOptionFrame()
+        option.initFrom(self)
+        style = self.style()  # type: QStyle
+        style.drawPrimitive(QStyle.PE_Frame, option, painter)
+        super().paintEvent(*opts)
+
+
+class ComputerWidget(QFramedWidget):
     """
     Combines a deviceview and a file system view into one widget
     """
@@ -42,14 +56,10 @@ class ComputerWidget(QWidget):
         super().__init__(parent)
         self.setObjectName(objectName)
         layout = QVBoxLayout()
-        layout.setContentsMargins(1, 0, 1, 1)
+        border_width = QSplitter().lineWidth()
+        layout.setContentsMargins(border_width, border_width, border_width, border_width)
         layout.setSpacing(0)
         self.setLayout(layout)
-
-        if QSplitter().lineWidth():
-            style = 'QWidget#%(objectName)s {border: %(size)spx solid palette(shadow);}' % dict(
-                objectName=objectName, size=QSplitter().lineWidth())
-            self.setStyleSheet(style)
 
         self.view = view
         self.fileSystemView = fileSystemView

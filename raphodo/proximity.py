@@ -33,10 +33,10 @@ from arrow.arrow import Arrow
 from gettext import gettext as _
 from PyQt5.QtCore import (QAbstractTableModel, QModelIndex, Qt, QSize,
                           QRect, QItemSelection, QItemSelectionModel, QBuffer, QIODevice,
-                          pyqtSignal, pyqtSlot, QTimer)
+                          pyqtSignal, pyqtSlot)
 from PyQt5.QtWidgets import (QTableView, QStyledItemDelegate, QSlider, QLabel, QVBoxLayout,
                              QStyleOptionViewItem, QStyle, QAbstractItemView, QWidget, QHBoxLayout,
-                             QSizePolicy, QSplitter, QComboBox)
+                             QSizePolicy, QSplitter, QStyleOptionFrame)
 from PyQt5.QtGui import (QPainter, QFontMetrics, QFont, QColor, QGuiApplication, QPixmap,
                          QPalette, QMouseEvent)
 
@@ -1143,6 +1143,18 @@ class TemporalValuePicker(QWidget):
             return _('%(hours)dh') % dict(hours=minutes // 60)
 
 
+class QFramedLabel(QLabel):
+    """
+    Draw a Frame around the label in the style of the application.
+    """
+    def paintEvent(self, *opts):
+        painter = QPainter(self)
+        option = QStyleOptionFrame()
+        option.initFrom(self)
+        style = self.style()  # type: QStyle
+        style.drawPrimitive(QStyle.PE_Frame, option, painter)
+        super().paintEvent(*opts)
+
 class TemporalProximity(QWidget):
     """
     Displays Timeline and tracks its state.
@@ -1202,16 +1214,18 @@ class TemporalProximity(QWidget):
         palette = QPalette()
         palette.setColor(QPalette.Window, palette.color(palette.Base))
 
-        margin = QFontMetrics(QFont()).height()
+        margin = 6
+
 
         self.description = QLabel(description)
         self.generating = QLabel(generating)
         self.generationPending = QLabel(generation_pending)
         self.adjust = QLabel(adjust)
 
-        self.explanation = QWidget()
+        self.explanation = QFramedLabel()
         layout = QVBoxLayout()
-        layout.setContentsMargins(0, 0, 0, 0)
+        border_width = QSplitter().lineWidth()
+        layout.setContentsMargins(border_width, border_width, border_width, border_width)
         layout.setSpacing(0)
         self.explanation.setLayout(layout)
         layout.addWidget(self.description)
