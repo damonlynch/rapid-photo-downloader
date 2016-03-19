@@ -19,7 +19,7 @@
 __author__ = 'Damon Lynch'
 __copyright__ = "Copyright 2015-2016, Damon Lynch"
 
-from collections import (namedtuple, defaultdict, deque)
+from collections import (namedtuple, defaultdict, deque, Counter)
 import locale
 from datetime import datetime
 import logging
@@ -42,7 +42,7 @@ from PyQt5.QtGui import (QPainter, QFontMetrics, QFont, QColor, QGuiApplication,
 
 from raphodo.viewutils import SortedListItem
 from raphodo.constants import (FileType, Align, CustomColors, proximity_time_steps,
-                               TemporalProximityState)
+                               TemporalProximityState, FileExtension, extensionColor)
 from raphodo.rpdfile import FileTypeCounter
 from raphodo.preferences import Preferences
 
@@ -221,6 +221,12 @@ def proximityFont() -> QFont:
     return font
 
 class ProximityDisplayValues:
+    """
+    Temporal Proximity cell sizes.
+
+    Calculated in different process to thta of main window.
+    """
+
     def __init__(self):
         self.depth = None
         self.row_heights = []  # type: List[int]
@@ -293,6 +299,12 @@ class ProximityDisplayValues:
         return QSize(size.width() + self.col0_padding, size.height() + self.col0_padding)
 
     def calculate_max_col1_size(self) -> None:
+        """
+        Determine largest size for column 1 cells.
+
+        Column 1 cell sizes are fixed.
+        """
+
         dayMetrics = QFontMetrics(dayFont())
         day_width = 0
         day_height = 0
@@ -337,7 +349,7 @@ class ProximityDisplayValues:
                             depth: int) -> None:
         """
         Calculate row height and column widths. The latter is trivial,
-        the former more complex.
+        the former far more complex.
 
         Assumptions:
          * column 1 cell size is fixed
@@ -415,13 +427,19 @@ class ProximityDisplayValues:
 
         self.col_widths = (c0_max_width, self.col1_width, c2_max_width)
 
+    def assign_color(self, dominant_file_type: FileExtension) -> None:
+        self.tableColor = extensionColor(dominant_file_type)
+        self.tableColorDarker = self.tableColor.darker(107)
 
 class TemporalProximityGroups:
     # @profile
     def __init__(self, thumbnail_rows: List[SortedListItem],
                  thumbnail_types: List[FileType],
+                 extension_types: List[FileExtension],
+                 previously_downloaded: List[bool],
                  temporal_span: int = 3600):
         self.thumbnail_types = thumbnail_types
+        self.previously_downloaded = previously_downloaded
         self.rows = []  # type: List[ProximityRow]
         self.row_height = []  # type: List[int]
         self.proximity_row_to_thumbnail_row_col2 = defaultdict(set)  # type: Dict[int, Set[int]]
@@ -444,6 +462,10 @@ class TemporalProximityGroups:
         self.spans = []  # type: List[Tuple[int, int, int]]
         self.row_span_for_column_starts_at_row = {}  # type: Dict[Tuple[int, int], int]
 
+        if not extension_types:
+            return
+        self.dominant_file_type = Counter(extension_types).most_common()[0][0]
+
         self.display_values = ProximityDisplayValues()
 
         # Generate an arrow date time for every timestamp we have
@@ -451,9 +473,6 @@ class TemporalProximityGroups:
                                        arrow.get(tr.modification_time).to('local'),
                                        tr.id_value)
                           for tr in thumbnail_rows]
-
-        if not uniqueid_times:
-            return
 
         now = arrow.now().to('local')
         current_year = now.year
@@ -559,6 +578,8 @@ class TemporalProximityGroups:
         # Phase 6: Determine the height and width of each row
 
         self.display_values.calculate_row_sizes(self.rows, self.spans, self.depth())
+        self.display_values.assign_color(self.dominant_file_type)
+
         self.display_values.prepare_for_pickle()
 
     def make_row(self, arrowtime: Arrow,
@@ -745,8 +766,8 @@ class TemporalProximityDelegate(QStyledItemDelegate):
         self.darkGray = QColor(51, 51, 51)
         self.darkerGray = self.darkGray.darker(150)
         self.midGray = QColor('#555555')
-        self.color1 = QColor(CustomColors.color1.value)
-        self.color1Darker = self.color1.darker(107)
+        # self.color1 = QColor(CustomColors.color1.value)
+        # self.color1Darker = self.color1.darker(107)
 
         palette = QGuiApplication.instance().palette()
         self.highlight = palette.highlight().color()
@@ -769,7 +790,7 @@ class TemporalProximityDelegate(QStyledItemDelegate):
                 barColor = self.darkerHighlight
             else:
                 color = self.darkGray
-                textColor = self.color1
+                textColor = self.dv.tableColor
                 barColor = self.darkerGray
             painter.fillRect(option.rect, color)
             painter.setPen(textColor)
@@ -850,7 +871,7 @@ class TemporalProximityDelegate(QStyledItemDelegate):
                 color = self.highlight
                 textColor = self.highlightText
             else:
-                color = self.color1
+                color = self.dv.tableColor
                 textColor = QColor(Qt.white)
 
             painter.fillRect(option.rect, color)
@@ -875,7 +896,7 @@ class TemporalProximityDelegate(QStyledItemDelegate):
                 if option.state & QStyle.State_Selected:
                     painter.setPen(self.darkerHighlight)
                 else:
-                    painter.setPen(self.color1Darker)
+                    painter.setPen(self.dv.tableColorDarker)
                 painter.translate(option.rect.x(), option.rect.y())
                 painter.drawLine(0, option.rect.height() - 1,
                                  self.dv.col_widths[2], option.rect.height() - 1)
@@ -1327,12 +1348,14 @@ class TemporalProximity(QWidget):
             return
 
         self.temporalProximityModel.groups = proximity_groups
+
         depth = proximity_groups.depth()
         self.temporalProximityDelegate.depth = depth
-        if depth == 1:
+        if depth in (0, 1):
             self.temporalProximityView.hideColumn(0)
         else:
             self.temporalProximityView.showColumn(0)
+
         self.temporalProximityView.clearSpans()
         self.temporalProximityDelegate.row_span_for_column_starts_at_row = \
             proximity_groups.row_span_for_column_starts_at_row
@@ -1351,7 +1374,10 @@ class TemporalProximity(QWidget):
 
         # Set the minimum width for the timeline to match the content
         # Width of each column
-        min_width = sum(proximity_groups.display_values.col_widths)
+        if depth in (0, 1):
+            min_width = sum(proximity_groups.display_values.col_widths[1:])
+        else:
+            min_width = sum(proximity_groups.display_values.col_widths)
         # Width of each scrollbar
         scrollbar_width = self.style().pixelMetric(QStyle.PM_ScrollBarExtent)
         # Width of frame - without it, the tableview will still be too small

@@ -2673,9 +2673,13 @@ class RapidWindow(QMainWindow):
         rows = list(self.thumbnailModel.rows)
         rpd_files = self.thumbnailModel.rpd_files
         file_types = [rpd_files[row.id_value].file_type for row in rows]
+        extension_types = [rpd_files[row.id_value].extension_type for row in rows]
+        previously_downloaded = [rpd_files[row.id_value].previously_downloaded() for row in rows]
 
         data = OffloadData(thumbnail_rows=rows,
                            thumbnail_types=file_types,
+                           extension_types=extension_types,
+                           previously_downloaded=previously_downloaded,
                            proximity_seconds=self.prefs.proximity_seconds)
         self.offloadmq.assign_work(data)
 

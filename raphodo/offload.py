@@ -43,8 +43,11 @@ class OffloadWorker(DaemonProcess):
 
             data = pickle.loads(content) # type: OffloadData
             if data.thumbnail_rows:
-                groups = TemporalProximityGroups(data.thumbnail_rows, data.thumbnail_types,
-                                                 data.proximity_seconds)
+                groups = TemporalProximityGroups(thumbnail_rows=data.thumbnail_rows,
+                                                 thumbnail_types=data.thumbnail_types,
+                                                 previously_downloaded=data.previously_downloaded,
+                                                 extension_types=data.extension_types,
+                                                 temporal_span=data.proximity_seconds)
                 self.content = pickle.dumps(OffloadResults(
                     proximity_groups=groups),
                     pickle.HIGHEST_PROTOCOL)

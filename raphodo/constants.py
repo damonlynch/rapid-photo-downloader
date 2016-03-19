@@ -22,7 +22,7 @@ __copyright__ = "Copyright 2007-2016, Damon Lynch"
 
 from enum import (Enum, IntEnum)
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QFont, QFontMetrics
+from PyQt5.QtGui import QFont, QFontMetrics, QColor
 
 PROGRAM_NAME = "Rapid Photo Downloader"
 logfile_name = 'rapid-photo-downloader.log'
@@ -199,13 +199,27 @@ class Align(Enum):
 
 
 class CustomColors(Enum):
-    color1 = '#7a9c38'
-    color2 = '#cb493f'
-    color3 = '#d17109'
-    color4 = '#5b97e4'
-    color5 = '#5f6bfe'
-    color6 = '#6d7e90'
+    color1 = '#7a9c38'  # green
+    color2 = '#cb493f'  # red
+    color3 = '#d17109'  # orange
+    color4 = '#4D8CDC'  # blue, was '#5b97e4'
+    color5 = '#5f6bfe'  # purple
+    color6 = '#6d7e90'  # greyish
+    color7 = '#ffff00'  # bright yellow
 
+
+ExtensionColorDict = {
+    FileExtension.raw: CustomColors.color1,
+    FileExtension.video: CustomColors.color2,
+    FileExtension.jpeg: CustomColors.color4,
+    FileExtension.other_photo: CustomColors.color5,
+}
+
+def extensionColor(ext_type: FileExtension) -> QColor:
+    try:
+        return QColor(ExtensionColorDict[ext_type].value)
+    except KeyError:
+        return QColor(0, 0, 0)
 
 # Values in minutes:
 proximity_time_steps = [5, 10, 15, 30, 45, 60, 90, 120, 180, 240, 480, 960, 1440]

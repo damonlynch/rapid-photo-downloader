@@ -53,8 +53,8 @@ from raphodo.rpdfile import RPDFile, FileTypeCounter
 from raphodo.interprocess import (PublishPullPipelineManager, GenerateThumbnailsArguments, Device,
                           GenerateThumbnailsResults)
 from raphodo.constants import (DownloadStatus, Downloaded, FileType, FileExtension, ThumbnailSize,
-                       ThumbnailCacheStatus, Roles, DeviceType, CustomColors, Show, Sort,
-                       ThumbnailBackgroundName, Desktop, DeviceState)
+                               ThumbnailCacheStatus, Roles, DeviceType, CustomColors, Show, Sort,
+                               ThumbnailBackgroundName, Desktop, DeviceState, extensionColor)
 from raphodo.storage import get_program_cache_directory, get_desktop
 from raphodo.utilities import (CacheDirs, make_internationalized_list, format_size_for_user, runs)
 from raphodo.thumbnailer import Thumbnailer
@@ -842,6 +842,10 @@ class ThumbnailView(QListView):
             super().mousePressEvent(event)
 
 class ThumbnailDelegate(QStyledItemDelegate):
+    """
+    Render thumbnail cells
+    """
+
     def __init__(self, rapidApp, parent=None) -> None:
         super().__init__(parent)
         self.rapidApp = rapidApp
@@ -889,11 +893,7 @@ class ThumbnailDelegate(QStyledItemDelegate):
         # store the index in which the user right clicked
         self.clickedIndex = None  # type: QModelIndex
 
-        self.color1 = QColor(CustomColors.color1.value)
-        self.color2 = QColor(CustomColors.color2.value)
         self.color3 = QColor(CustomColors.color3.value)
-        self.color4 = QColor(CustomColors.color4.value)
-        self.color5 = QColor(CustomColors.color5.value)
 
         self.lightGray = QColor(221,221,221)
         self.darkGray = QColor(51, 51, 51)
@@ -1015,16 +1015,7 @@ class ThumbnailDelegate(QStyledItemDelegate):
         text_y = self.image_frame_bottom + self.footer_padding + \
                  text_height + y
 
-        if ext_type == FileExtension.raw:
-            color = self.color1
-        elif ext_type == FileExtension.jpeg:
-            color = self.color4
-        elif ext_type == FileExtension.other_photo:
-            color = self.color5
-        elif ext_type == FileExtension.video:
-            color = self.color2
-        else:
-            color = QColor(0, 0, 0)
+        color = extensionColor(ext_type=ext_type)
 
         painter.fillRect(text_x, text_y - text_height,
                          extBoundingRect.width(),
