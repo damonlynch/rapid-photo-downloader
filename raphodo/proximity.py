@@ -41,8 +41,8 @@ from PyQt5.QtGui import (QPainter, QFontMetrics, QFont, QColor, QGuiApplication,
                          QPalette, QMouseEvent)
 
 from raphodo.viewutils import SortedListItem
-from raphodo.constants import (FileType, Align, CustomColors, proximity_time_steps,
-                               TemporalProximityState, FileExtension, extensionColor)
+from raphodo.constants import (FileType, Align, proximity_time_steps, TemporalProximityState,
+                               FileExtension, fileTypeColor)
 from raphodo.rpdfile import FileTypeCounter
 from raphodo.preferences import Preferences
 
@@ -428,14 +428,13 @@ class ProximityDisplayValues:
         self.col_widths = (c0_max_width, self.col1_width, c2_max_width)
 
     def assign_color(self, dominant_file_type: FileExtension) -> None:
-        self.tableColor = extensionColor(dominant_file_type)
+        self.tableColor = fileTypeColor(dominant_file_type)
         self.tableColorDarker = self.tableColor.darker(107)
 
 class TemporalProximityGroups:
     # @profile
     def __init__(self, thumbnail_rows: List[SortedListItem],
                  thumbnail_types: List[FileType],
-                 extension_types: List[FileExtension],
                  previously_downloaded: List[bool],
                  temporal_span: int = 3600):
         self.thumbnail_types = thumbnail_types
@@ -462,9 +461,9 @@ class TemporalProximityGroups:
         self.spans = []  # type: List[Tuple[int, int, int]]
         self.row_span_for_column_starts_at_row = {}  # type: Dict[Tuple[int, int], int]
 
-        if not extension_types:
+        if not thumbnail_types:
             return
-        self.dominant_file_type = Counter(extension_types).most_common()[0][0]
+        self.dominant_file_type = Counter(thumbnail_types).most_common()[0][0]
 
         self.display_values = ProximityDisplayValues()
 

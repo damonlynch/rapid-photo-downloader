@@ -221,6 +221,17 @@ def extensionColor(ext_type: FileExtension) -> QColor:
     except KeyError:
         return QColor(0, 0, 0)
 
+FileTypeColorDict = {
+    FileType.photo: CustomColors.color1,
+    FileType.video: CustomColors.color2
+}
+
+def fileTypeColor(file_type: FileType) -> QColor:
+    try:
+        return QColor(FileTypeColorDict[file_type].value)
+    except KeyError:
+        return QColor(CustomColors.color3.value)
+
 # Values in minutes:
 proximity_time_steps = [5, 10, 15, 30, 45, 60, 90, 120, 180, 240, 480, 960, 1440]
 

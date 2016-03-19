@@ -2678,7 +2678,6 @@ class RapidWindow(QMainWindow):
 
         data = OffloadData(thumbnail_rows=rows,
                            thumbnail_types=file_types,
-                           extension_types=extension_types,
                            previously_downloaded=previously_downloaded,
                            proximity_seconds=self.prefs.proximity_seconds)
         self.offloadmq.assign_work(data)

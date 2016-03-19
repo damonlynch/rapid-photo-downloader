@@ -1141,12 +1141,10 @@ class RenameAndMoveFileResults:
 class OffloadData:
     def __init__(self, thumbnail_rows: Optional[List[SortedListItem]]=None,
                  thumbnail_types: Optional[List[FileType]]=None,
-                 extension_types: Optional[List[FileExtension]]=None,
                  previously_downloaded: Optional[List[bool]]=None,
                  proximity_seconds: int=None) -> None:
         self.thumbnail_rows = thumbnail_rows
         self.thumbnail_types = thumbnail_types
-        self.extension_types = extension_types
         self.previously_downloaded = previously_downloaded
         self.proximity_seconds = proximity_seconds
 
