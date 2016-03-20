@@ -33,7 +33,7 @@ from arrow.arrow import Arrow
 from gettext import gettext as _
 from PyQt5.QtCore import (QAbstractTableModel, QModelIndex, Qt, QSize,
                           QRect, QItemSelection, QItemSelectionModel, QBuffer, QIODevice,
-                          pyqtSignal, pyqtSlot)
+                          pyqtSignal, pyqtSlot, QRectF)
 from PyQt5.QtWidgets import (QTableView, QStyledItemDelegate, QSlider, QLabel, QVBoxLayout,
                              QStyleOptionViewItem, QStyle, QAbstractItemView, QWidget, QHBoxLayout,
                              QSizePolicy, QSplitter, QStyleOptionFrame)
@@ -42,11 +42,11 @@ from PyQt5.QtGui import (QPainter, QFontMetrics, QFont, QColor, QGuiApplication,
 
 from raphodo.viewutils import SortedListItem
 from raphodo.constants import (FileType, Align, proximity_time_steps, TemporalProximityState,
-                               FileExtension, fileTypeColor)
+                               FileExtension, fileTypeColor, CustomColors)
 from raphodo.rpdfile import FileTypeCounter
 from raphodo.preferences import Preferences
 
-ProximityRow = namedtuple('ProximityRow', 'year, month, weekday, day, proximity')
+ProximityRow = namedtuple('ProximityRow', 'year, month, weekday, day, proximity, new_file')
 
 UniqueIdTime = namedtuple('UniqueIdTime', 'modification_time, arrowtime, unqiue_id')
 
@@ -257,8 +257,16 @@ class ProximityDisplayValues:
         self.weekday_proportion = self.max_weekday_height / self.max_col1_text_height        
 
         # Column 2 - proximity value e.g. 1:00 - 1:45 PM
-        self.col2_padding = 20
+        self.col2_new_file_dot_size = 4
+        self.col2_new_file_dot_radius = self.col2_new_file_dot_size / 2
+        self.col2_font_descent_adjust = self.proximityMetrics.descent() / 3
+        self.col2_font_height_half = self.proximityMetrics.height() / 2
+        self.col2_new_file_dot_left_margin = 6
+        self.col2_text_left_margin = (self.col2_new_file_dot_left_margin * 2 +
+                                      self.col2_new_file_dot_size)
+        self.col2_right_margin = 10
         self.col2_v_padding = 6
+        self.col2_v_padding_half = 3
 
     def assign_fonts(self) -> None:
         self.proximityFont = proximityFont()
@@ -341,7 +349,8 @@ class ProximityDisplayValues:
             boundingRect = self.proximityMetrics.boundingRect(t)  # type: QRect
             width = max(width, boundingRect.width())
             height += boundingRect.height()
-        size = QSize(width + self.col2_padding, height + self.col2_v_padding)
+        size = QSize(width  + self.col2_text_left_margin + self.col2_right_margin,
+                     height + self.col2_v_padding)
         return size
 
     def calculate_row_sizes(self, rows: List[ProximityRow],
@@ -450,6 +459,7 @@ class TemporalProximityGroups:
         self.file_types_in_cell = dict()  # type: Dict[Tuple[int, int], Tuple[FileType]]
         self.times_by_proximity = defaultdict(list)
         self.unique_ids_by_proximity = defaultdict(list)
+        self.new_files_by_proximity = defaultdict(set)  # type: Dict[int, Set[bool]]
         self.text_by_proximity = deque()
         self.day_groups = defaultdict(list)
         self.month_groups = defaultdict(list)
@@ -496,17 +506,21 @@ class TemporalProximityGroups:
         # Phase 2: Identify the proximity groups
         group_no = 0
         prev = uniqueid_times[0]
+        i = 0
 
         self.times_by_proximity[group_no].append(prev.arrowtime)
         self.unique_ids_by_proximity[group_no].append(prev.unqiue_id)
+        self.new_files_by_proximity[group_no].add(not previously_downloaded[i])
 
         if len(uniqueid_times) > 1:
             for current in uniqueid_times[1:]:
+                i += 1
                 modification_time = current.modification_time
                 if (modification_time - prev.modification_time > temporal_span):
                     group_no += 1
                 self.times_by_proximity[group_no].append(current.arrowtime)
                 self.unique_ids_by_proximity[group_no].append(current.unqiue_id)
+                self.new_files_by_proximity[group_no].add(not previously_downloaded[i])
                 prev = current
 
         # Phase 3: Generate the proximity group's text that will appear in
@@ -527,9 +541,10 @@ class TemporalProximityGroups:
             arrowtime = self.times_by_proximity[group_no][0]
             prev_day = (arrowtime.year, arrowtime.month, arrowtime.day)
             text = self.text_by_proximity.popleft()
+            new_file = any(self.new_files_by_proximity[group_no])
             row_index += 1 + column2_span
             thumbnail_row_index += 1
-            self.rows.append(self.make_row(arrowtime, text, prev_day, row_index,
+            self.rows.append(self.make_row(arrowtime, text, new_file, prev_day, row_index,
                                            thumbnail_row_index))
             self.proximity_row_to_thumbnail_row_col2[row_index].add(thumbnail_row_index)
             self.row_to_group_no[row_index] = group_no
@@ -549,12 +564,11 @@ class TemporalProximityGroups:
                     if prev_day != day:
                         prev_day = day
                         column2_span += 1
-                        self.rows.append(self.make_row(arrowtime, '', prev_day,
+                        self.rows.append(self.make_row(arrowtime, '', new_file, prev_day,
                                                        row_index + column2_span,
                                                        thumbnail_row_index))
 
         # Phase 5: Determine the row spans for each column
-
         column = -1
         for c in (0, 2, 4):
             column += 1
@@ -575,14 +589,16 @@ class TemporalProximityGroups:
         assert len(self.row_span_for_column_starts_at_row) == len(self.rows) * 3
 
         # Phase 6: Determine the height and width of each row
-
         self.display_values.calculate_row_sizes(self.rows, self.spans, self.depth())
+
+        # Phase 7: Assign appropriate color to table
         self.display_values.assign_color(self.dominant_file_type)
 
         self.display_values.prepare_for_pickle()
 
     def make_row(self, arrowtime: Arrow,
                  text: str,
+                 new_file: bool,
                  day: Tuple[int, int, int],
                  row_index: int,
                  thumbnail_row_index: int) -> ProximityRow:
@@ -616,7 +632,7 @@ class TemporalProximityGroups:
         else:
             weekday = numeric_day = ''
 
-        return ProximityRow(year, month, weekday, numeric_day, text)
+        return ProximityRow(year, month, weekday, numeric_day, text, new_file)
 
     def __len__(self):
         return len(self.rows)
@@ -716,7 +732,7 @@ class TemporalProximityModel(QAbstractTableModel):
             elif column == 1:
                 return proximity_row.weekday, proximity_row.day
             else:
-                return proximity_row.proximity
+                return proximity_row.proximity, proximity_row.new_file
         elif role == Qt.ToolTipRole:
             thumbnails = self.rapidApp.thumbnailModel.thumbnails
 
@@ -773,12 +789,13 @@ class TemporalProximityDelegate(QStyledItemDelegate):
         self.darkerHighlight = self.highlight.darker(110)
         self.highlightText = palette.highlightedText().color()
 
+        self.newFileColor = QColor(CustomColors.color7.value)
+
         self.dv = None  # type: ProximityDisplayValues
 
     def paint(self, painter: QPainter, option: QStyleOptionViewItem, index: QModelIndex) -> None:
         row = index.row()
         column = index.column()
-        model = index.model()
 
         if column == 0:
             painter.save()
@@ -794,7 +811,7 @@ class TemporalProximityDelegate(QStyledItemDelegate):
             painter.fillRect(option.rect, color)
             painter.setPen(textColor)
 
-            year, month = model.data(index)
+            year, month = index.data()
 
             month = self.dv.get_month_text(month, year)
 
@@ -835,7 +852,7 @@ class TemporalProximityDelegate(QStyledItemDelegate):
                 barColor = self.darkerGray
 
             painter.fillRect(option.rect, color)
-            weekday, day = model.data(index)
+            weekday, day = index.data()
             weekday = weekday.upper()
             width = option.rect.width()
             height = option.rect.height()
@@ -862,7 +879,7 @@ class TemporalProximityDelegate(QStyledItemDelegate):
             painter.restore()
 
         elif column == 2:
-            text = model.data(index)
+            text, new_file = index.data()
 
             painter.save()
 
@@ -874,21 +891,42 @@ class TemporalProximityDelegate(QStyledItemDelegate):
                 textColor = QColor(Qt.white)
 
             painter.fillRect(option.rect, color)
+
+            align = self.dv.c2_alignment.get(row)
+
+            if new_file:
+                painter.setPen(self.newFileColor)
+                painter.setRenderHint(QPainter.Antialiasing)
+                painter.setBrush(self.newFileColor)
+                rect = QRectF(option.rect.x(), option.rect.y(),
+                             self.dv.col2_new_file_dot_size, self.dv.col2_new_file_dot_size)
+                if align is None:
+                    height = option.rect.height() / 2 -self.dv.col2_new_file_dot_radius - \
+                             self.dv.col2_font_descent_adjust
+                    rect.translate(self.dv.col2_new_file_dot_left_margin, height)
+                elif align == Align.bottom:
+                    height = (option.rect.height() - self.dv.col2_font_height_half -
+                              self.dv.col2_font_descent_adjust - self.dv.col2_new_file_dot_size)
+                    rect.translate(self.dv.col2_new_file_dot_left_margin, height)
+                else:
+                    height = (self.dv.col2_font_height_half -
+                              self.dv.col2_font_descent_adjust)
+                    rect.translate(self.dv.col2_new_file_dot_left_margin, height)
+                painter.drawEllipse(rect)
+
             painter.setFont(self.dv.proximityFont)
             painter.setPen(textColor)
 
             rect = QRect(option.rect)
-            m = self.dv.col2_padding // 2
-            rect.translate(m, 0)
+            rect.translate(self.dv.col2_text_left_margin, 0)
 
-            align = self.dv.c2_alignment.get(row)
             if align is None:
                 painter.drawText(rect, Qt.AlignLeft | Qt.AlignVCenter, text)
             elif align == Align.bottom:
-                rect.setHeight(rect.height() - self.dv.col2_v_padding // 2)
+                rect.setHeight(rect.height() - self.dv.col2_v_padding_half)
                 painter.drawText(rect, Qt.AlignLeft | Qt.AlignBottom, text)
             else:
-                rect.adjust(0, self.dv.col2_v_padding // 2, 0, 0)
+                rect.adjust(0, self.dv.col2_v_padding_half, 0, 0)
                 painter.drawText(rect, Qt.AlignLeft | Qt.AlignTop, text)
 
             if row in self.dv.c2_end_of_day:
