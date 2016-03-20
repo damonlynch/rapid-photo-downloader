@@ -462,7 +462,7 @@ class RapidWindow(QMainWindow):
 
         self.prefs.auto_download_at_startup = False
         self.prefs.verify_file = False
-        self.prefs.photo_rename = photo_rename_simple_test
+        self.prefs.photo_rename = photo_rename_test
         # self.prefs.photo_rename = photo_rename_simple_test
         # self.prefs.photo_rename = job_code_rename_test
         self.prefs.backup_files = False

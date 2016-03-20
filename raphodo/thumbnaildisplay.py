@@ -44,7 +44,7 @@ from PyQt5.QtCore import (QAbstractListModel, QModelIndex, Qt, pyqtSignal, QSize
 from PyQt5.QtWidgets import (QListView, QStyledItemDelegate, QStyleOptionViewItem, QApplication,
                              QStyle, QStyleOptionButton, QMenu, QWidget, QAbstractItemView)
 from PyQt5.QtGui import (QPixmap, QImage, QPainter, QColor, QBrush, QFontMetrics,
-                         QGuiApplication, QPen, QMouseEvent)
+                         QGuiApplication, QPen, QMouseEvent, QFont)
 
 import zmq
 
@@ -908,6 +908,17 @@ class ThumbnailDelegate(QStyledItemDelegate):
         self.highlightPen.setStyle(Qt.SolidLine)
         self.highlightPen.setJoinStyle(Qt.MiterJoin)
 
+        self.emblemFont = QFont()
+        self.emblemFont.setPointSize(self.emblemFont.pointSize() - 3)
+        self.emblemFontMetrics = QFontMetrics(self.emblemFont)
+        self.emblem_pad = self.emblemFontMetrics.height() // 3
+        self.emblem_descent = self.emblemFontMetrics.descent()
+        self.emblemMargins = QMargins(self.emblem_pad, self.emblem_pad, self.emblem_pad,
+                                      self.emblem_pad)
+
+        self.emblem_bottom = (self.image_frame_bottom + self.footer_padding +
+                              self.emblemFontMetrics.height() + self.emblem_pad * 2)
+
     @pyqtSlot()
     def doCopyPathAction(self) -> None:
         index = self.clickedIndex
@@ -1001,30 +1012,22 @@ class ThumbnailDelegate(QStyledItemDelegate):
         #  bottom right corner
         extension = extension.upper()
         # Calculate size of extension text
-        text_padding = 3
-        font = painter.font()
-        font.setPixelSize(9)
-        painter.setFont(font)
-        metrics = QFontMetrics(font)
-        extBoundingRect = metrics.boundingRect(extension).marginsAdded(
-            QMargins(text_padding, 0, text_padding, text_padding)) # type: QRect
-        text_width = metrics.width(extension)
-        text_height = metrics.height()
-        text_x = self.width - self.horizontal_margin - text_width - \
-                 text_padding * 2 + x
-        text_y = self.image_frame_bottom + self.footer_padding + \
-                 text_height + y
+        painter.setFont(self.emblemFont)
+        rect = self.emblemFontMetrics.boundingRect(extension)  # type: QRect
+        extBoundingRect = rect.marginsAdded(self.emblemMargins) # type: QRect
+        text_width = self.emblemFontMetrics.width(extension)
+        text_height = self.emblemFontMetrics.height()
+        text_x = self.width - self.horizontal_margin - text_width - self.emblem_pad * 2 + x
+        text_y = self.image_frame_bottom + self.footer_padding + text_height + y
 
         color = extensionColor(ext_type=ext_type)
 
-        painter.fillRect(text_x, text_y - text_height,
-                         extBoundingRect.width(),
-                         extBoundingRect.height(),
-                         color)
-
+        # Use an angular rect, because a rounded rect with anti-aliasing doesn't look too good
+        rect = QRect(text_x, text_y - text_height,
+                     extBoundingRect.width(), extBoundingRect.height())
+        painter.fillRect(rect, color)
         painter.setPen(QColor(Qt.white))
-        painter.drawText(text_x + text_padding, text_y - 1,
-                         extension)
+        painter.drawText(rect, Qt.AlignCenter, extension)
 
         # Draw another small colored box to the left of the
         # file extension box containing a secondary
@@ -1032,19 +1035,15 @@ class ThumbnailDelegate(QStyledItemDelegate):
         # only an XMP file, but in future it could be used to display a
         # matching jpeg in a RAW+jpeg set
         if secondary_attribute:
-            extBoundingRect = metrics.boundingRect(
-                secondary_attribute).marginsAdded(QMargins(text_padding, 0,
-                text_padding, text_padding)) # type: QRect
-            text_width = metrics.width(secondary_attribute)
-            text_x = text_x - text_width - text_padding * 2 - \
-                     self.footer_padding
+            extBoundingRect = self.emblemFontMetrics.boundingRect(
+                secondary_attribute).marginsAdded(self.emblemMargins) # type: QRect
+            text_width = self.emblemFontMetrics.width(secondary_attribute)
+            text_x = text_x - text_width - self.emblem_pad * 2 - self.footer_padding
             color = QColor(self.color3)
-            painter.fillRect(text_x, text_y - text_height,
-                         extBoundingRect.width(),
-                         extBoundingRect.height(),
-                         color)
-            painter.drawText(text_x + text_padding, text_y - 1,
-                         secondary_attribute)
+            rect = QRect(text_x, text_y - text_height,
+                         extBoundingRect.width(), extBoundingRect.height())
+            painter.fillRect(rect, color)
+            painter.drawText(rect, Qt.AlignCenter, secondary_attribute)
 
         if memory_cards:
             # if downloaded from a camera, and the camera has more than
@@ -1053,20 +1052,14 @@ class ThumbnailDelegate(QStyledItemDelegate):
             text_x = self.card_x + x
             for card in memory_cards:
                 card = str(card)
-                extBoundingRect = metrics.boundingRect(
-                    card).marginsAdded(QMargins(
-                    text_padding, 0, text_padding, text_padding)) # type: QRect
-                text_width = metrics.width(card)
+                extBoundingRect = self.emblemFontMetrics.boundingRect(
+                    card).marginsAdded(self.emblemMargins) # type: QRect
                 color = QColor(70, 70, 70)
-                painter.fillRect(text_x, text_y - text_height,
-                             extBoundingRect.width(),
-                             extBoundingRect.height(),
-                             color)
-                painter.drawText(text_x + text_padding, text_y - 1,
-                             card)
-                text_x = text_x + extBoundingRect.width() + \
-                         self.footer_padding
-
+                rect = QRect(text_x, text_y - text_height,
+                             extBoundingRect.width(), extBoundingRect.height())
+                painter.fillRect(rect, color)
+                painter.drawText(rect, Qt.AlignCenter, card)
+                text_x = text_x + extBoundingRect.width() + self.footer_padding
 
         if previously_downloaded and not checked:
             painter.setOpacity(1.0)
@@ -1079,27 +1072,23 @@ class ThumbnailDelegate(QStyledItemDelegate):
                 checkboxStyleOption.state |= QStyle.State_Off
             checkboxStyleOption.state |= QStyle.State_Enabled
             checkboxStyleOption.rect = self.getCheckBoxRect(option.rect)
-            QApplication.style().drawControl(QStyle.CE_CheckBox,
-                                             checkboxStyleOption, painter)
+            QApplication.style().drawControl(QStyle.CE_CheckBox, checkboxStyleOption, painter)
         else:
             if download_status == DownloadStatus.download_pending:
                 pixmap = self.downloadPendingIcon
             elif download_status == DownloadStatus.downloaded:
                 pixmap = self.downloadedIcon
-            elif (download_status ==
-                      DownloadStatus.downloaded_with_warning or
+            elif (download_status == DownloadStatus.downloaded_with_warning or
                   download_status == DownloadStatus.backup_problem):
                 pixmap = self.downloadedWarningIcon
             elif (download_status == DownloadStatus.download_failed or
-                  download_status ==
-                          DownloadStatus.download_and_backup_failed):
+                  download_status == DownloadStatus.download_and_backup_failed):
                 pixmap = self.downloadedErrorIcon
             else:
                 pixmap = None
             if pixmap is not None:
-                painter.drawPixmap(option.rect.x() +
-                                   self.horizontal_margin, text_y -
-                                   text_height, pixmap)
+                painter.drawPixmap(option.rect.x() + self.horizontal_margin, text_y - text_height,
+                                   pixmap)
 
         painter.restore()
 
@@ -1186,7 +1175,8 @@ class ThumbnailDelegate(QStyledItemDelegate):
 
     def getLeftPoint(self, rect: QRect) -> QPoint:
         return QPoint(rect.x() + self.horizontal_margin,
-                      rect.y() + self.image_frame_bottom + self.footer_padding )
+                      #rect.y() + self.emblem_bottom - self.checkbox_size)
+                      rect.y() + self.image_frame_bottom + self.footer_padding - 1)
 
     def getCheckBoxRect(self, rect: QRect) -> QRect:
         return QRect(self.getLeftPoint(rect), self.checkboxRect.size())
