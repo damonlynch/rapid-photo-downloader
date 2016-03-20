@@ -130,6 +130,7 @@ class ThumbnailListModel(QAbstractListModel):
         self.file_names = {} # type: Dict[int, str]
         self.thumbnails = {} # type: Dict[str, QPixmap]
         self.marked = defaultdict(set)  # type: Dict[int, Set[str]]
+        self.hidden = defaultdict(set)  # type: Dict[int, Set[str]]
 
         # Sort thumbnails based on the time the files were modified
         self.rows = SortedListWithKey(key=attrgetter('modification_time'))
@@ -288,7 +289,7 @@ class ThumbnailListModel(QAbstractListModel):
             self.setCheckedValue(value, unique_id, rpd_file.scan_id)
             self.dataChanged.emit(self.index(row, 0), self.index(row, 0))
             self.synchronizeDeviceDisplayCheckMark()
-            self.rapidApp.displayMessageInStatusBar(update_only_marked=True)
+            self.rapidApp.displayMessageInStatusBar()
             self.rapidApp.setDownloadActionState()
             return True
         return False
@@ -315,6 +316,8 @@ class ThumbnailListModel(QAbstractListModel):
             del self.thumbnails[unique_id]
             if unique_id in self.marked[scan_id]:
                 self.marked[scan_id].remove(unique_id)
+            if unique_id in self.hidden[scan_id]:
+                self.hidden[scan_id].remove(unique_id)
             self.scan_index[scan_id].remove(unique_id)
             del self.rpd_files[unique_id]
         self.endRemoveRows()
@@ -324,25 +327,28 @@ class ThumbnailListModel(QAbstractListModel):
         unique_id = rpd_file.unique_id
         self.rpd_files[unique_id] = rpd_file
 
-        list_item = SortedListItem(unique_id, rpd_file.modification_time)
-        self.rows.add(list_item)
-        row = self.rows.index(list_item)
-
-        self.insertRow(row)
-
         self.file_names[unique_id] = rpd_file.name
         if rpd_file.file_type == FileType.photo:
             self.thumbnails[unique_id] = self.photo_icon
         else:
             self.thumbnails[unique_id] = self.video_icon
+
         if not rpd_file.previously_downloaded():
             self.marked[rpd_file.scan_id].add(unique_id)
+        else:
+            self.hidden[rpd_file.scan_id].add(unique_id)
 
         self.scan_index[rpd_file.scan_id].append(unique_id)
 
         if generate_thumbnail:
             self.total_thumbs_to_generate += 1
             self.no_thumbnails_by_scan[rpd_file.scan_id] += 1
+
+        list_item = SortedListItem(unique_id, rpd_file.modification_time)
+        self.rows.add(list_item)
+        row = self.rows.index(list_item)
+
+        self.insertRow(row)
 
     @pyqtSlot(int, CacheDirs)
     def cacheDirsReceived(self, scan_id: int, cache_dirs: CacheDirs):
@@ -482,7 +488,7 @@ class ThumbnailListModel(QAbstractListModel):
 
             if scan_id in self.no_thumbnails_by_scan:
                 self.recalculateThumbnailsPercentage(scan_id=scan_id)
-            self.rapidApp.displayMessageInStatusBar(update_only_marked=True)
+            self.rapidApp.displayMessageInStatusBar()
 
             return len(rows) > 0
 
@@ -503,6 +509,12 @@ class ThumbnailListModel(QAbstractListModel):
 
     def getNoFilesMarkedForDownload(self) -> int:
         return sum((len(self.marked[scan_id]) for scan_id in self.marked))
+
+    def getNoHiddenFiles(self) -> int:
+        if self.rapidApp.showOnlyNewFiles():
+            return sum((len(self.hidden[scan_id]) for scan_id in self.hidden))
+        else:
+            return 0
 
     def getNoFilesAndTypesMarkedForDownload(self) -> FileTypeCounter:
         return FileTypeCounter(self.rpd_files[unique_id].file_type for scan_id in self.marked
@@ -720,7 +732,7 @@ class ThumbnailListModel(QAbstractListModel):
             self.dataChanged.emit(self.index(first, 0), self.index(last, 0))
 
         self.synchronizeDeviceDisplayCheckMark()
-        self.rapidApp.displayMessageInStatusBar(update_only_marked=True)
+        self.rapidApp.displayMessageInStatusBar()
         self.rapidApp.setDownloadActionState()
 
     def visibleRows(self):

@@ -807,7 +807,6 @@ class RapidWindow(QMainWindow):
             self.window_show_requested_time = None
 
     def setupWindow(self):
-        self.basic_status_message = None
         status = self.statusBar()
         self.downloadProgressBar = QProgressBar()
         self.downloadProgressBar.setMaximumWidth(QFontMetrics(QFont()).height() * 9)
@@ -897,6 +896,16 @@ class RapidWindow(QMainWindow):
     @pyqtSlot(int)
     def showComboChanged(self, index: int) -> None:
         self.thumbnailProxyModel.setFilterShow(self.showCombo.currentData())
+        self.displayMessageInStatusBar()
+
+    def showOnlyNewFiles(self) -> bool:
+        """
+        User can use combo switch to show only so-called "hew" files, i.e. files that
+        have not been previously downloaded.
+
+        :return: True if only new files are shown
+        """
+        return self.showCombo.currentData() == Show.new_only
 
     @pyqtSlot(int)
     def sortComboChanged(self, index: int) -> None:
@@ -2630,7 +2639,7 @@ class RapidWindow(QMainWindow):
 
         self.logState()
 
-        self.displayMessageInStatusBar(update_only_marked=True)
+        self.displayMessageInStatusBar()
 
         if len(self.devices.scanning) == 0:
             self.generateTemporalProximityTableData()
@@ -3294,64 +3303,57 @@ class RapidWindow(QMainWindow):
         return (self.prefs.device_autodetection and
                 self.prefs.device_without_dcim_autodetection)
 
-    def displayMessageInStatusBar(self, update_only_marked: bool=False) -> None:
+    def displayMessageInStatusBar(self) -> None:
         """
         Displays message on status bar:
-        1. files selected for download (if available).
-        2. the amount of space free on the filesystem the files will be
-           downloaded to.
-        3. backup volumes / path being used.
-
-        :param update_only_marked: if True, refreshes only the number
-         of files marked for download, not regnerating other
-         components of the existing status message
+        1. files selected for download
+        2. total number files available
+        3. how many not shown (user chose to show only new files)
         """
-
-        if self.basic_status_message is None or not update_only_marked:
-            self.basic_status_message = self.generateBasicStatusMessage()
 
         files_avilable = self.thumbnailModel.getNoFilesAvailableForDownload()
 
         if sum(files_avilable.values()) != 0:
             files_to_download = self.thumbnailModel.getNoFilesMarkedForDownload()
             files_avilable_sum = files_avilable.summarize_file_count()[0]
-            size = self.thumbnailModel.getSizeOfFilesMarkedForDownload()
-            size = format_size_for_user(size)
-            if files_to_download:
-                files_selected = _('%(number)s of %(available files)s '
-                                   '(%(size)s)') % {
+            files_hidden = self.thumbnailModel.getNoHiddenFiles()
+
+            if files_hidden:
+                files_selected = _('%(number)s of %(available files)s (%(hidden)s hidden)') % {
                                    'number': thousands(files_to_download),
                                    'available files': files_avilable_sum,
-                                   'size': size}
+                                   'hidden': files_hidden}
             else:
                 files_selected = _('%(number)s of %(available files)s') % {
                                    'number': thousands(files_to_download),
                                    'available files': files_avilable_sum}
-            msg = _('%(files_selected)s. %(freespace_and_backups)s') % {
-                'freespace_and_backups': self.basic_status_message,
-                'files_selected': files_selected}
+            msg = files_selected
         else:
-            msg = self.basic_status_message
+            msg = ''
         self.statusBar().showMessage(msg)
 
     def generateBasicStatusMessage(self) -> str:
+
+        # No longer used - candidate for deletion
         msg = ''
         if self.prefs.backup_files:
             if not self.prefs.backup_device_autodetection:
                 if self.prefs.backup_photo_location ==  self.prefs.backup_video_location:
                     # user manually specified the same location for photos
                     # and video backups
-                    msg = _('Backing up photos and videos to %(path)s') % {
-                        'path':self.prefs.backup_photo_location}
+                    pass
+                    # msg = _('Backing up photos and videos to %(path)s') % {
+                    #     'path':self.prefs.backup_photo_location}
                 else:
                     # user manually specified different locations for photo
                     # and video backups
-                    msg = _('Backing up photos to %(path)s and videos to %(path2)s')  % {
-                             'path': self.prefs.backup_photo_location,
-                             'path2': self.prefs.backup_video_location}
+                    pass
+                    # msg = _('Backing up photos to %(path)s and videos to %(path2)s')  % {
+                    #          'path': self.prefs.backup_photo_location,
+                    #          'path2': self.prefs.backup_video_location}
             else:
                 msg = self.displayBackupMounts()
-            msg = "%(backuppaths)s." % dict(backuppaths=msg)
+            # msg = "%(backuppaths)s." % dict(backuppaths=msg)
         return msg.rstrip()
 
     def displayBackupMounts(self) -> str:

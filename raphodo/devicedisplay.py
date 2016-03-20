@@ -433,10 +433,12 @@ class DeviceDelegate(QStyledItemDelegate):
         # videos, etc.
         self.details_height = self.small_font_metrics.height() * 2 + 2
         self.view_width = minPanelWidth()
-        
-        self.grey_border = QColor('#cdcdcd')
 
-        alternate_color = QPalette().alternateBase().color()
+        palette = QPalette()
+
+        self.storage_border = palette.color(palette.Light)
+
+        alternate_color = palette.alternateBase().color()
         self.device_name_highlight_color = QColor(alternate_color).darker(105)
 
         # Height of the colored box that includes the device's
@@ -684,7 +686,7 @@ class DeviceDelegate(QStyledItemDelegate):
                 linearGradient.setColorAt(0.2, color1.lighter(self.shading_intensity))
                 linearGradient.setColorAt(0.8, color1.darker(self.shading_intensity))
                 painter.fillRect(photos_g2_rect, QBrush(linearGradient))
-                painter.setPen(self.grey_border)
+                painter.setPen(self.storage_border)
                 painter.drawRect(photos_g2_rect)
 
                 # Text
@@ -708,7 +710,7 @@ class DeviceDelegate(QStyledItemDelegate):
                 linearGradient.setColorAt(0.2, color2.lighter(self.shading_intensity))
                 linearGradient.setColorAt(0.8, color2.darker(self.shading_intensity))
                 painter.fillRect(videos_g2_rect, QBrush(linearGradient))
-                painter.setPen(self.grey_border)
+                painter.setPen(self.storage_border)
                 painter.drawRect(videos_g2_rect)
 
                 #Text
