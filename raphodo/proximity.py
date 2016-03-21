@@ -36,7 +36,7 @@ from PyQt5.QtCore import (QAbstractTableModel, QModelIndex, Qt, QSize,
                           pyqtSignal, pyqtSlot, QRectF)
 from PyQt5.QtWidgets import (QTableView, QStyledItemDelegate, QSlider, QLabel, QVBoxLayout,
                              QStyleOptionViewItem, QStyle, QAbstractItemView, QWidget, QHBoxLayout,
-                             QSizePolicy, QSplitter, QStyleOptionFrame)
+                             QSizePolicy, QSplitter, QStyleOptionFrame, QApplication)
 from PyQt5.QtGui import (QPainter, QFontMetrics, QFont, QColor, QGuiApplication, QPixmap,
                          QPalette, QMouseEvent)
 
@@ -270,7 +270,10 @@ class ProximityDisplayValues:
 
     def assign_fonts(self) -> None:
         self.proximityFont = proximityFont()
+        self.proximityFontPrevious = QFont(self.proximityFont)
+        self.proximityFontPrevious.setItalic(True)
         self.proximityMetrics = QFontMetrics(self.proximityFont)
+        self.proximityMetricsPrevious = QFontMetrics(self.proximityFontPrevious)
         mf = monthFont()
         self.monthFont = mf.font
         self.month_kerning = mf.kerning
@@ -280,6 +283,7 @@ class ProximityDisplayValues:
 
     def prepare_for_pickle(self) -> None:
         self.proximityFont = self.proximityMetrics = None
+        self.proximityFontPrevious = self.proximityMetricsPrevious = None
         self.monthFont = self.monthMetrics = None
         self.weekdayFont = None
         self.dayFont = None
@@ -914,7 +918,10 @@ class TemporalProximityDelegate(QStyledItemDelegate):
                     rect.translate(self.dv.col2_new_file_dot_left_margin, height)
                 painter.drawEllipse(rect)
 
-            painter.setFont(self.dv.proximityFont)
+            if new_file or True:
+                painter.setFont(self.dv.proximityFont)
+            else:
+                painter.setFont(self.dv.proximityFontPrevious)
             painter.setPen(textColor)
 
             rect = QRect(option.rect)
@@ -1209,7 +1216,7 @@ class QFramedLabel(QLabel):
         painter = QPainter(self)
         option = QStyleOptionFrame()
         option.initFrom(self)
-        style = self.style()  # type: QStyle
+        style = QApplication.style()  # type: QStyle
         style.drawPrimitive(QStyle.PE_Frame, option, painter)
         super().paintEvent(*opts)
 

@@ -3319,12 +3319,13 @@ class RapidWindow(QMainWindow):
             files_hidden = self.thumbnailModel.getNoHiddenFiles()
 
             if files_hidden:
-                files_selected = _('%(number)s of %(available files)s (%(hidden)s hidden)') % {
+                files_selected = _('%(number)s of %(available files)s checked for download (%('
+                                   'hidden)s hidden)') % {
                                    'number': thousands(files_to_download),
                                    'available files': files_avilable_sum,
                                    'hidden': files_hidden}
             else:
-                files_selected = _('%(number)s of %(available files)s') % {
+                files_selected = _('%(number)s of %(available files)s checked for download') % {
                                    'number': thousands(files_to_download),
                                    'available files': files_avilable_sum}
             msg = files_selected

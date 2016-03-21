@@ -706,8 +706,8 @@ class ThumbnailListModel(QAbstractListModel):
         else:
             exclude_hidden = False
 
-        # Optimize this code as much as possible, because it's time
-        # sensitive. Sure looks ugly, though.
+        # Optimize this code as much as possible, because it runs in the main thread
+        # and it's time sensitive. Sure looks ugly, though.
         if check_all:
             if scan_id is not None:
                 if file_type is None:
