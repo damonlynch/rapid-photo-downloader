@@ -1248,8 +1248,7 @@ class TemporalProximity(QWidget):
                                                  QSizePolicy.MinimumExpanding)
 
         self.temporalValuePicker = TemporalValuePicker(self.prefs.get_proximity())
-        self.temporalValuePicker.setSizePolicy(QSizePolicy.Preferred,
-                                                 QSizePolicy.Minimum)
+        self.temporalValuePicker.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Minimum)
 
         description = _('The Timeline groups photos and videos based on how much time elapsed '
 'between consecutive shots. Use it to identify photos and videos taken at '
@@ -1267,8 +1266,8 @@ class TemporalProximity(QWidget):
         palette = QPalette()
         palette.setColor(QPalette.Window, palette.color(palette.Base))
 
+        # TODO assign this value from somewhere else - rapidApp.standard_spacing not yet defined
         margin = 6
-
 
         self.description = QLabel(description)
         self.generating = QLabel(generating)

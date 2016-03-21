@@ -127,7 +127,6 @@ class ThumbnailListModel(QAbstractListModel):
         self.generating_thumbnails = {}
 
     def initialize(self) -> None:
-        self.file_names = {} # type: Dict[int, str]
         self.thumbnails = {} # type: Dict[str, QPixmap]
         self.marked = defaultdict(set)  # type: Dict[int, Set[str]]
         # Files are hidden when the combo box "Show" in the main window is set to
@@ -182,7 +181,7 @@ class ThumbnailListModel(QAbstractListModel):
     def columnCount(self, parent: QModelIndex) -> int:
         return 1
 
-    def rowCount(self, parent: QModelIndex) -> int:
+    def rowCount(self, parent: QModelIndex=QModelIndex()) -> int:
         return len(self.rows)
 
     def data(self, index: QModelIndex, role=Qt.DisplayRole):
@@ -238,7 +237,6 @@ class ThumbnailListModel(QAbstractListModel):
         elif role == Roles.is_camera:
             return rpd_file.from_camera
         elif role == Qt.ToolTipRole:
-            file_name = self.file_names[unique_id]
             size = format_size_for_user(rpd_file.size)
 
             mtime = arrow.get(rpd_file.modification_time)
@@ -248,7 +246,7 @@ class ThumbnailListModel(QAbstractListModel):
                     '%c'),
                  'human_readable': mtime.humanize()})
 
-            msg = '{}\n{}\n{}'.format(file_name,
+            msg = '{}\n{}\n{}'.format(rpd_file.name,
                                       humanized_modification_time, size)
 
             if rpd_file.camera_memory_card_identifiers:
@@ -315,7 +313,6 @@ class ThumbnailListModel(QAbstractListModel):
         del self.rows[position:position+rows]
         for unique_id in unique_ids:
             scan_id = self.rpd_files[unique_id].scan_id
-            del self.file_names[unique_id]
             del self.thumbnails[unique_id]
             if unique_id in self.marked[scan_id]:
                 self.marked[scan_id].remove(unique_id)
@@ -330,7 +327,6 @@ class ThumbnailListModel(QAbstractListModel):
         unique_id = rpd_file.unique_id
         self.rpd_files[unique_id] = rpd_file
 
-        self.file_names[unique_id] = rpd_file.name
         if rpd_file.file_type == FileType.photo:
             self.thumbnails[unique_id] = self.photo_icon
         else:
@@ -695,6 +691,9 @@ class ThumbnailListModel(QAbstractListModel):
         :param file_type: if specified, files must be of specified type
         :param scan_id: if specified, affects only files for that scan
         """
+
+        # TODO: use thumbnailProxyModel.selected_rows
+        # TODO: consider use of sets for everything - photos, videos, marked, unmarked, downloaded!
 
         rows = SortedList()
 
