@@ -23,26 +23,12 @@ Combines a deviceview and a file system view into one widget
 __author__ = 'Damon Lynch'
 __copyright__ = "Copyright 2016, Damon Lynch"
 
-from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QSplitter, QStyleOptionFrame, QStyle,
-                             QApplication)
-from PyQt5.QtGui import QPainter
+from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QSplitter)
 
 from raphodo.devicedisplay import DeviceView
 from raphodo.filebrowse import FileSystemView
 from raphodo.constants import minFileSystemViewHeight
-
-
-class QFramedWidget(QWidget):
-    """
-    Draw a Frame around the widget in the style of the application.
-    """
-    def paintEvent(self, *opts):
-        painter = QPainter(self)
-        option = QStyleOptionFrame()
-        option.initFrom(self)
-        style = QApplication.style()  # type: QStyle
-        style.drawPrimitive(QStyle.PE_Frame, option, painter)
-        super().paintEvent(*opts)
+from raphodo.viewutils import QFramedWidget
 
 
 class ComputerWidget(QFramedWidget):

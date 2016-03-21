@@ -19,6 +19,8 @@
 __author__ = 'Damon Lynch'
 __copyright__ = "Copyright 2015-2016, Damon Lynch"
 
+from PyQt5.QtWidgets import (QStyleOptionFrame, QStyle, QStylePainter, QWidget)
+
 from typing import List, Dict
 
 
@@ -147,3 +149,15 @@ class SortedListItem:
 
     def __hash__(self):
         return hash((self.id_value, self.modification_time))
+
+
+class QFramedWidget(QWidget):
+    """
+    Draw a Frame around the widget in the style of the application.
+    """
+    def paintEvent(self, *opts):
+        painter = QStylePainter(self)
+        option = QStyleOptionFrame()
+        option.initFrom(self)
+        painter.drawPrimitive(QStyle.PE_Frame, option)
+        super().paintEvent(*opts)

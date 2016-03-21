@@ -36,11 +36,11 @@ from PyQt5.QtCore import (QAbstractTableModel, QModelIndex, Qt, QSize,
                           pyqtSignal, pyqtSlot, QRectF)
 from PyQt5.QtWidgets import (QTableView, QStyledItemDelegate, QSlider, QLabel, QVBoxLayout,
                              QStyleOptionViewItem, QStyle, QAbstractItemView, QWidget, QHBoxLayout,
-                             QSizePolicy, QSplitter, QStyleOptionFrame, QApplication)
+                             QSizePolicy, QSplitter)
 from PyQt5.QtGui import (QPainter, QFontMetrics, QFont, QColor, QGuiApplication, QPixmap,
                          QPalette, QMouseEvent)
 
-from raphodo.viewutils import SortedListItem
+from raphodo.viewutils import SortedListItem, QFramedWidget
 from raphodo.constants import (FileType, Align, proximity_time_steps, TemporalProximityState,
                                FileExtension, fileTypeColor, CustomColors)
 from raphodo.rpdfile import FileTypeCounter
@@ -1208,18 +1208,6 @@ class TemporalValuePicker(QWidget):
             return _('%(hours)dh') % dict(hours=minutes // 60)
 
 
-class QFramedLabel(QLabel):
-    """
-    Draw a Frame around the label in the style of the application.
-    """
-    def paintEvent(self, *opts):
-        painter = QPainter(self)
-        option = QStyleOptionFrame()
-        option.initFrom(self)
-        style = QApplication.style()  # type: QStyle
-        style.drawPrimitive(QStyle.PE_Frame, option, painter)
-        super().paintEvent(*opts)
-
 class TemporalProximity(QWidget):
     """
     Displays Timeline and tracks its state.
@@ -1287,7 +1275,7 @@ class TemporalProximity(QWidget):
         self.generationPending = QLabel(generation_pending)
         self.adjust = QLabel(adjust)
 
-        self.explanation = QFramedLabel()
+        self.explanation = QFramedWidget()
         layout = QVBoxLayout()
         border_width = QSplitter().lineWidth()
         layout.setContentsMargins(border_width, border_width, border_width, border_width)
