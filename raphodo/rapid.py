@@ -516,6 +516,7 @@ class RapidWindow(QMainWindow):
         self.thumbnailProxyModel = ThumbnailSortFilterProxyModel(self)
         self.thumbnailProxyModel.setSourceModel(self.thumbnailModel)
         self.thumbnailView.setModel(self.thumbnailProxyModel)
+        self.thumbnailModel.proxyModel = self.thumbnailProxyModel
         self.thumbnailView.setItemDelegate(ThumbnailDelegate(rapidApp=self))
 
         self.temporalProximity = TemporalProximity(
@@ -2130,7 +2131,6 @@ class RapidWindow(QMainWindow):
         files_downloaded = self.download_tracker.get_download_count_for_file(unique_id)
         files_to_download = self.download_tracker.get_no_files_in_download(
                 scan_id)
-        file_types = self.download_tracker.get_file_types_present(scan_id)
         completed = files_downloaded == files_to_download
         if self.prefs.backup_files and completed:
             completed = self.download_tracker.all_files_backed_up(scan_id)
@@ -2139,26 +2139,6 @@ class RapidWindow(QMainWindow):
             files_remaining = self.thumbnailModel.getNoFilesRemaining(scan_id)
         else:
             files_remaining = 0
-
-        if completed and files_remaining:
-            # e.g.: 3 of 205 photos and videos (202 remaining)
-            progress_bar_text = _("%(number)s of %(total)s %(filetypes)s (%("
-                                  "remaining)s remaining)") % {
-                                  'number':  thousands(files_downloaded),
-                                  'total': thousands(files_to_download),
-                                  'filetypes': file_types,
-                                  'remaining': thousands(files_remaining)}
-        else:
-            # e.g.: 205 of 205 photos and videos
-            progress_bar_text = _("%(number)s of %(total)s %(filetypes)s") % \
-                                 {'number':  thousands(files_downloaded),
-                                  'total': thousands(files_to_download),
-                                  'filetypes': file_types}
-        percent_complete = self.download_tracker.get_percent_complete(scan_id)
-        # TODO update right model right way
-        # self.deviceModel.updateDownloadProgress(scan_id=scan_id,
-        #                                 percent_complete=percent_complete,
-        #                                 progress_bar_text=progress_bar_text)
 
         percent_complete = self.download_tracker.get_overall_percent_complete()
         self.downloadProgressBar.setValue(round(percent_complete*100))

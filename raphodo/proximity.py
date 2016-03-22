@@ -462,7 +462,8 @@ class TemporalProximityGroups:
         self.unique_ids_in_row_col0 = defaultdict(list)  # type: Dict[int, List[int]]
         self.file_types_in_cell = dict()  # type: Dict[Tuple[int, int], Tuple[FileType]]
         self.times_by_proximity = defaultdict(list)
-        self.unique_ids_by_proximity = defaultdict(list)
+        # group_no: List[unique_id]
+        self.unique_ids_by_proximity = defaultdict(list)  # type: Dict[int, List[str]]
         self.new_files_by_proximity = defaultdict(set)  # type: Dict[int, Set[bool]]
         self.text_by_proximity = deque()
         self.day_groups = defaultdict(list)
@@ -677,6 +678,10 @@ class TemporalProximityGroups:
                 self._depth = 0
         return self._depth
 
+    def uniqueIdsFromCol2Row(self, row: int) -> List[str]:
+        group_no = self.row_to_group_no[row]
+        return self.unique_ids_by_proximity[group_no]
+
     def __repr__(self) -> str:
         return 'TemporalProximityGroups with {} rows and depth of {}'.format(len(self.rows),
                                                                              self.depth())
@@ -743,9 +748,8 @@ class TemporalProximityModel(QAbstractTableModel):
             if column == 1:
                 unique_ids = self.groups.unique_ids_in_row_col1[row]
             elif column == 2:
-                proximity_row = self.groups.row_span_for_column_starts_at_row[(row, 2)]
-                group_no = self.groups.row_to_group_no[proximity_row]
-                unique_ids = self.groups.unique_ids_by_proximity[group_no]
+                prow = self.groups.row_span_for_column_starts_at_row[(row, 2)]
+                unique_ids = self.groups.uniqueIdsFromCol2Row(prow)
             else:
                 assert column == 0
                 unique_ids = self.groups.unique_ids_in_row_col0[row]
@@ -1236,6 +1240,8 @@ class TemporalProximity(QWidget):
 
         self.state = TemporalProximityState.empty
 
+        self.selected_unique_ids = set()
+
         self.temporalProximityView = TemporalProximityView()
         self.temporalProximityModel = TemporalProximityModel(rapidApp=rapidApp)
         self.temporalProximityView.setModel(self.temporalProximityModel)
@@ -1327,16 +1333,23 @@ class TemporalProximity(QWidget):
                               groups.row_span_for_column_starts_at_row[(
                               i.row(), 2)] not in selected_rows_col2]
 
+
+        self.selected_unique_ids = set()
+        for row in selected_rows_col1:
+            self.selected_unique_ids.update(groups.unique_ids_in_row_col1[row])
+        for row in selected_rows_col2:
+            self.selected_unique_ids.update(groups.uniqueIdsFromCol2Row(row))
+
         if selected_rows_col2 or selected_rows_col1:
-            self.thumbnailProxyModel.selected_rows = groups.selected_thumbnail_rows(
+            self.thumbnailProxyModel.proximity_rows = groups.selected_thumbnail_rows(
                     selected_rows_col1, selected_rows_col2)
             self.thumbnailProxyModel.invalidateFilter()
         else:
-            self.thumbnailProxyModel.selected_rows = set()
+            self.thumbnailProxyModel.proximity_rows = set()
             self.thumbnailProxyModel.invalidateFilter()
 
     def clearThumbnailDisplayFilter(self):
-        self.thumbnailProxyModel.selected_rows = set()
+        self.thumbnailProxyModel.proximity_rows = set()
         self.thumbnailProxyModel.invalidateFilter()
 
     def setState(self, state: TemporalProximityState) -> None:

@@ -109,6 +109,7 @@ class ThumbnailListModel(QAbstractListModel):
     def __init__(self, parent, logging_port: int, log_gphoto2: bool) -> None:
         super().__init__(parent)
         self.rapidApp = parent
+        self.proxyModel = None  # type: ThumbnailSortFilterProxyModel
 
         self.initialize()
 
@@ -127,21 +128,29 @@ class ThumbnailListModel(QAbstractListModel):
         self.generating_thumbnails = {}
 
     def initialize(self) -> None:
-        self.thumbnails = {} # type: Dict[str, QPixmap]
-        self.marked = defaultdict(set)  # type: Dict[int, Set[str]]
+        # unique_id: QPixmap
+        self.thumbnails = {}  # type: Dict[str, QPixmap]
+
+        # unique_id
+        self.marked = set()  # type: Set[str]
+        self.photos = set()  # type: Set[str]
+        self.videos = set()  # type: Set[str]
+        self.downloaded = set()  # type: Set[str]
+        self.not_downloaded = set()  # type: Set[str]
+        self.previously_downloaded = set()  # type: Set[str]
+
+        # scan_id
+        self.removed_devices = set()  # type: Set[int]
+
         # Files are hidden when the combo box "Show" in the main window is set to
-        # "New" instead of the default "All". Track previously downloaded files
-        # regardless of that combo box setting.
-        self.hidden = defaultdict(set)  # type: Dict[int, Set[str]]
+        # "New" instead of the default "All".
 
         # Sort thumbnails based on the time the files were modified
         self.rows = SortedListWithKey(key=attrgetter('modification_time'))
         # unique_id: RPDFile
         self.rpd_files = {}  # type: Dict[str, RPDFile]
         # scan_id: unique_id  -- includes scan ids of removed devices
-        self.scan_index = defaultdict(list)  # type: defaultdict[int, List[str]]
-        # scan_id
-        self.removed_devices = set()  # type: Set[int]
+        self.scan_index = defaultdict(set)  # type: defaultdict[int, Set[str]]
 
         self.photo_icon = QPixmap(':/photo.png')
         self.video_icon = QPixmap(':/video.png')
@@ -163,7 +172,11 @@ class ThumbnailListModel(QAbstractListModel):
                               len(self.thumbnails), len(self.rows), len(self.rpd_files))
             else:
                 logging.debug("%s thumbnails", len(self.thumbnails))
-            logging.debug("%s thumnails marked", sum(len(s) for s in self.marked.values()))
+            logging.debug("%s thumnails marked", len(self.marked))
+            logging.debug("%s not downloaded; %s downloaded; %s previously downloaded",
+                          len(self.not_downloaded), len(self.downloaded),
+                          len(self.previously_downloaded))
+            logging.debug("%s photos; %s videos", len(self.photos), len(self.videos))
             if self.total_thumbs_to_generate:
                 logging.debug("%s to be generated; %s generated", self.total_thumbs_to_generate,
                               self.thumbnails_generated)
@@ -174,8 +187,7 @@ class ThumbnailListModel(QAbstractListModel):
             logging.debug("%s total devices seen; %s devices removed",
                           len(self.scan_index),  len(self.removed_devices))
     def rowFromUniqueId(self, unique_id: str) -> int:
-        list_item = SortedListItem(unique_id,
-                        self.rpd_files[unique_id].modification_time)
+        list_item = SortedListItem(unique_id, self.rpd_files[unique_id].modification_time)
         return self.rows.index(list_item)
 
     def columnCount(self, parent: QModelIndex) -> int:
@@ -195,12 +207,12 @@ class ThumbnailListModel(QAbstractListModel):
         rpd_file = self.rpd_files[unique_id] # type: RPDFile
 
         if role == Qt.DisplayRole:
-            # This is never displayed, but could be used for filtering!
+            # This is never displayed, but is used for filtering!
             return self.rows[row].modification_time
         elif role == Qt.DecorationRole:
             return self.thumbnails[unique_id]
         elif role == Qt.CheckStateRole:
-            if unique_id in self.marked[rpd_file.scan_id]:
+            if unique_id in self.marked:
                 return Qt.Checked
             else:
                 return Qt.Unchecked
@@ -297,10 +309,10 @@ class ThumbnailListModel(QAbstractListModel):
 
     def setCheckedValue(self, checked: bool, unique_id: str, scan_id: int) -> None:
         if checked:
-            self.marked[scan_id].add(unique_id)
+            self.marked.add(unique_id)
         else:
-            if unique_id in self.marked[scan_id]:
-                self.marked[scan_id].remove(unique_id)
+            if unique_id in self.marked:
+                self.marked.remove(unique_id)
 
     def insertRows(self, position, rows=1, index=QModelIndex()):
         self.beginInsertRows(QModelIndex(), position, position + rows - 1)
@@ -314,10 +326,19 @@ class ThumbnailListModel(QAbstractListModel):
         for unique_id in unique_ids:
             scan_id = self.rpd_files[unique_id].scan_id
             del self.thumbnails[unique_id]
-            if unique_id in self.marked[scan_id]:
-                self.marked[scan_id].remove(unique_id)
-            if unique_id in self.hidden[scan_id]:
-                self.hidden[scan_id].remove(unique_id)
+            if unique_id in self.marked:
+                self.marked.remove(unique_id)
+            rpd_file = self.rpd_files[unique_id]
+            if rpd_file.previously_downloaded():
+                self.previously_downloaded.remove(unique_id)
+            if rpd_file.file_type == FileType.photo:
+                self.photos.remove(unique_id)
+            else:
+                self.videos.remove(unique_id)
+            if rpd_file.status in Downloaded:
+                self.downloaded.remove(unique_id)
+            else:
+                self.not_downloaded.remove(unique_id)
             self.scan_index[scan_id].remove(unique_id)
             del self.rpd_files[unique_id]
         self.endRemoveRows()
@@ -329,15 +350,18 @@ class ThumbnailListModel(QAbstractListModel):
 
         if rpd_file.file_type == FileType.photo:
             self.thumbnails[unique_id] = self.photo_icon
+            self.photos.add(unique_id)
         else:
             self.thumbnails[unique_id] = self.video_icon
+            self.videos.add(unique_id)
 
+        self.not_downloaded.add(unique_id)
         if not rpd_file.previously_downloaded():
-            self.marked[rpd_file.scan_id].add(unique_id)
+            self.marked.add(unique_id)
         else:
-            self.hidden[rpd_file.scan_id].add(unique_id)
+            self.previously_downloaded.add(unique_id)
 
-        self.scan_index[rpd_file.scan_id].append(unique_id)
+        self.scan_index[rpd_file.scan_id].add(unique_id)
 
         if generate_thumbnail:
             self.total_thumbs_to_generate += 1
@@ -352,16 +376,14 @@ class ThumbnailListModel(QAbstractListModel):
     @pyqtSlot(int, CacheDirs)
     def cacheDirsReceived(self, scan_id: int, cache_dirs: CacheDirs):
         if scan_id in self.rapidApp.devices:
-            self.rapidApp.devices[scan_id].photo_cache_dir = \
-                cache_dirs.photo_cache_dir
-            self.rapidApp.devices[scan_id].video_cache_dir = \
-                cache_dirs.video_cache_dir
+            self.rapidApp.devices[scan_id].photo_cache_dir = cache_dirs.photo_cache_dir
+            self.rapidApp.devices[scan_id].video_cache_dir = cache_dirs.video_cache_dir
 
     @pyqtSlot(RPDFile, QPixmap)
     def thumbnailReceived(self, rpd_file: RPDFile, thumbnail: Optional[QPixmap]) -> None:
         unique_id = rpd_file.unique_id
         if unique_id not in self.rpd_files:
-            # A thumbnail has been generated for a file we no longer display
+            # A thumbnail has been generated for a no longer displayed file
             return
         scan_id = rpd_file.scan_id
         self.rpd_files[unique_id] = rpd_file
@@ -369,7 +391,6 @@ class ThumbnailListModel(QAbstractListModel):
             try:
                 row = self.rowFromUniqueId(unique_id)
             except ValueError:
-                # logging.debug("Ignoring unknown thumbnail: %s", rpd_file.full_file_name)
                 return
             self.thumbnails[unique_id] = thumbnail
             self.dataChanged.emit(self.index(row,0),self.index(row,0))
@@ -392,14 +413,11 @@ class ThumbnailListModel(QAbstractListModel):
         if log_state:
             self.logState()
 
-    def _get_cache_location(self, download_folder: str, is_photo_dir: bool) \
-                            -> str:
-        if self.rapidApp.isValidDownloadDir(download_folder,
-                                            is_photo_dir=is_photo_dir):
+    def _get_cache_location(self, download_folder: str, is_photo_dir: bool) -> str:
+        if self.rapidApp.isValidDownloadDir(download_folder, is_photo_dir=is_photo_dir):
             return download_folder
         else:
-            folder = get_program_cache_directory(
-                create_if_not_exist=True)
+            folder = get_program_cache_directory(create_if_not_exist=True)
             if folder is not None:
                 return folder
             else:
@@ -424,14 +442,12 @@ class ThumbnailListModel(QAbstractListModel):
         """Initiates generation of thumbnails for the device."""
 
         if scan_id in self.scan_index:
-            self.rapidApp.downloadProgressBar.setMaximum(
-                self.total_thumbs_to_generate)
+            self.rapidApp.downloadProgressBar.setMaximum(self.total_thumbs_to_generate)
             cache_dirs = self.getCacheLocations()
-            rpd_files = list((self.rpd_files[unique_id] for unique_id in
-                         self.scan_index[scan_id]))
+            rpd_files = list((self.rpd_files[unique_id] for unique_id in self.scan_index[scan_id]))
 
-            gen_args = (scan_id, rpd_files, device.name(),
-                        cache_dirs, device.camera_model, device.camera_port)
+            gen_args = (scan_id, rpd_files, device.name(), cache_dirs, device.camera_model,
+                        device.camera_port)
             if not self.thumbnailer_ready:
                 self.thumbnailer_generation_queue.append(gen_args)
             else:
@@ -464,12 +480,10 @@ class ThumbnailListModel(QAbstractListModel):
             assert scan_id is not None
             # Generate list of thumbnails to remove
             if keep_downloaded_files:
-                rows = [self.rowFromUniqueId(unique_id)
-                        for unique_id in self.scan_index[scan_id]
-                        if not self.rpd_files[unique_id].status in Downloaded]
+                not_downloaded = self.scan_index[scan_id] - self.downloaded
+                rows = [self.rowFromUniqueId(unique_id) for unique_id in not_downloaded]
             else:
-                rows = [self.rowFromUniqueId(unique_id)
-                        for unique_id in self.scan_index[scan_id]]
+                rows = [self.rowFromUniqueId(unique_id) for unique_id in self.scan_index[scan_id]]
 
             # Generate groups of rows, and remove that group
             rows.sort()
@@ -502,26 +516,24 @@ class ThumbnailListModel(QAbstractListModel):
         they intend to download, else False.
         """
         if scan_id is not None:
-            return len(self.marked[scan_id]) > 0
+            return len(self.marked & self.scan_index[scan_id]) > 0
         else:
-            return any(len(self.marked[scan_id]) > 0 for scan_id in self.marked)
+            return len(self.marked) > 0
 
     def getNoFilesMarkedForDownload(self) -> int:
-        return sum((len(self.marked[scan_id]) for scan_id in self.marked))
+        return len(self.marked)
 
     def getNoHiddenFiles(self) -> int:
         if self.rapidApp.showOnlyNewFiles():
-            return sum((len(self.hidden[scan_id]) for scan_id in self.hidden))
+            return len(self.previously_downloaded)
         else:
             return 0
 
     def getNoFilesAndTypesMarkedForDownload(self) -> FileTypeCounter:
-        return FileTypeCounter(self.rpd_files[unique_id].file_type for scan_id in self.marked
-                               for unique_id in self.marked[scan_id])
+        return FileTypeCounter(self.rpd_files[unique_id].file_type for unique_id in self.marked)
 
     def getSizeOfFilesMarkedForDownload(self) -> int:
-        return sum(self.rpd_files[unique_id].size for scan_id in self.marked for unique_id in
-             self.marked[scan_id])
+        return sum(self.rpd_files[unique_id].size for unique_id in self.marked)
 
     def getNoFilesAvailableForDownload(self) -> FileTypeCounter:
         return FileTypeCounter(rpd_file.file_type for rpd_file in self.rpd_files.values() if
@@ -548,9 +560,9 @@ class ThumbnailListModel(QAbstractListModel):
 
 
         if scan_id is not None:
-            unique_ids = self.marked[scan_id]
+            unique_ids = self.scan_index[scan_id] & self.marked
         else:
-            unique_ids = chain.from_iterable((self.marked.values()))
+            unique_ids = self.marked
 
         for unique_id in unique_ids:
             rpd_file = self.rpd_files[unique_id] # type: RPDFile
@@ -584,18 +596,17 @@ class ThumbnailListModel(QAbstractListModel):
                              download_stats=download_stats,
                              camera_access_needed=camera_access_needed)
 
-    def markDownloadPending(self, files):
+    def markDownloadPending(self, files: Dict[int, List[RPDFile]]) -> None:
         """
         Sets status to download pending and updates thumbnails display
 
         :param files: rpd_files by scan
-        :type files: defaultdict(int, List[rpd_file])
         """
         for scan_id in files:
             for rpd_file in files[scan_id]:
                 unique_id = rpd_file.unique_id
                 self.rpd_files[unique_id].status = DownloadStatus.download_pending
-                self.marked[scan_id].remove(unique_id)
+                self.marked.remove(unique_id)
                 row = self.rowFromUniqueId(unique_id)
                 self.dataChanged.emit(self.index(row,0),self.index(row,0))
 
@@ -618,66 +629,14 @@ class ThumbnailListModel(QAbstractListModel):
                 generation_needed = True
         return generation_needed
 
-    def getNoFilesRemaining(self, scan_id: Optional[int]=None) -> int:
+    def getNoFilesRemaining(self, scan_id: int) -> int:
         """
         :param scan_id: if None, returns files remaining to be
          downloaded for all scan_ids, else only for that scan_id.
         :return the number of files that have not yet been downloaded
         """
 
-        i = 0
-        if scan_id is not None:
-            return sum(self.rpd_files[unique_id].status == DownloadStatus.not_downloaded
-                       for unique_id in self.scan_index[scan_id])
-        else:
-            return sum(rpd_file.status == DownloadStatus.not_downloaded
-                       for rpd_file in self.rpd_files.values())
-
-    def uniqueIdsByStatus(self, download_status: DownloadStatus,
-                          exclude_hidden: bool,
-                          scan_id: Optional[int]=None) -> Tuple[str]:
-        if scan_id is not None:
-            if not exclude_hidden:
-                return (unique_id for unique_id in self.scan_index[scan_id]
-                        if self.rpd_files[unique_id].status == download_status)
-            else:
-                return (unique_id for unique_id in self.scan_index[scan_id]
-                        if self.rpd_files[unique_id].status == download_status and
-                        not self.rpd_files[unique_id].previously_downloaded())
-        else:
-            if not exclude_hidden:
-                return (rpd_file.unique_id for rpd_file in self.rpd_files.values()
-                        if rpd_file.status == download_status)
-            else:
-                return (rpd_file.unique_id for rpd_file in self.rpd_files.values()
-                        if rpd_file.status == download_status and
-                        not rpd_file.previously_downloaded())
-
-    def uniqueIdsByStatusAndType(self, download_status: DownloadStatus,
-                                 exclude_hidden: bool,
-                                 file_type: FileType,
-                                 scan_id: Optional[int]=None) -> Tuple[str]:
-        if scan_id is not None:
-            if not exclude_hidden:
-                return (unique_id for unique_id in self.scan_index[scan_id]
-                        if self.rpd_files[unique_id].status == download_status and
-                        self.rpd_files[unique_id].file_type == file_type)
-            else:
-                return (unique_id for unique_id in self.scan_index[scan_id]
-                        if self.rpd_files[unique_id].status == download_status and
-                        self.rpd_files[unique_id].file_type == file_type and
-                        not self.rpd_files[unique_id].previously_downloaded())
-        else:
-            if not exclude_hidden:
-                return (rpd_file.unique_id for rpd_file in self.rpd_files.values()
-                        if rpd_file.status == download_status and
-                        rpd_file.file_type == file_type)
-            else:
-                return (rpd_file.unique_id for rpd_file in self.rpd_files.values()
-                        if rpd_file.status == download_status and
-                        rpd_file.file_type == file_type and
-                        not rpd_file.previously_downloaded())
-
+        return len(self.scan_index[scan_id] - self.downloaded)
 
     def checkAll(self, check_all: bool,
                  file_type: Optional[FileType]=None,
@@ -692,137 +651,45 @@ class ThumbnailListModel(QAbstractListModel):
         :param scan_id: if specified, affects only files for that scan
         """
 
-        # TODO: use thumbnailProxyModel.selected_rows
-        # TODO: consider use of sets for everything - photos, videos, marked, unmarked, downloaded!
-
         rows = SortedList()
 
-        if self.rapidApp.showOnlyNewFiles():
-            if scan_id is not None:
-                exclude_hidden = len(self.hidden[scan_id]) > 0
-            else:
-                exclude_hidden = any(len(self.hidden[scan_id]) for scan_id in self.hidden)
-        else:
-            exclude_hidden = False
+        # sets
+        proximity_rows = self.proxyModel.proximity_rows
 
-        # Optimize this code as much as possible, because it runs in the main thread
-        # and it's time sensitive. Sure looks ugly, though.
+        # this code runs in the main thread and is thus time sensitive
         if check_all:
             if scan_id is not None:
-                if file_type is None:
-                    if not exclude_hidden:
-                        unique_ids = (unique_id for unique_id in self.scan_index[scan_id]
-                            if self.rpd_files[unique_id].status == DownloadStatus.not_downloaded and
-                                unique_id not in self.marked[scan_id])
-                    else:
-                        unique_ids = (unique_id for unique_id in self.scan_index[scan_id]
-                            if self.rpd_files[unique_id].status == DownloadStatus.not_downloaded and
-                                unique_id not in self.marked[scan_id] and
-                                not unique_id in self.hidden[scan_id])
-                else:
-                    if not exclude_hidden:
-                        unique_ids = (unique_id for unique_id in self.scan_index[scan_id]
-                            if self.rpd_files[unique_id].status == DownloadStatus.not_downloaded and
-                                unique_id not in self.marked[scan_id] and
-                                self.rpd_files[unique_id].file_type == file_type)
-                    else:
-                        unique_ids = (unique_id for unique_id in self.scan_index[scan_id]
-                            if self.rpd_files[unique_id].status == DownloadStatus.not_downloaded and
-                                unique_id not in self.marked[scan_id] and
-                                self.rpd_files[unique_id].file_type == file_type and
-                                not unique_id in self.hidden[scan_id])
-
-                for unique_id in unique_ids:
-                    row = self.rowFromUniqueId(unique_id)
-                    rows.add(row)
-                    self.marked[scan_id].add(unique_id)
+                unique_ids = self.scan_index[scan_id] - self.marked - self.downloaded
             else:
-                # scan_id is None
-                if file_type is None:
-                    unique_ids = self.uniqueIdsByStatus(DownloadStatus.not_downloaded,
-                                                        exclude_hidden, scan_id)
-                else:
-                    unique_ids = self.uniqueIdsByStatusAndType(DownloadStatus.not_downloaded,
-                                                               exclude_hidden,
-                                                               file_type, scan_id)
-                for unique_id in unique_ids:
-                    rpd_file = self.rpd_files[unique_id]
-                    scan_id2 = rpd_file.scan_id
-                    if unique_id not in self.marked[scan_id2]:
-                        row = self.rowFromUniqueId(unique_id)
-                        rows.add(row)
-                        self.marked[scan_id2].add(unique_id)
+                unique_ids = self.not_downloaded - self.marked
         else:
             # uncheck all
-            if file_type is None:
-                if scan_id is not None:
-                    if not exclude_hidden:
-                        for unique_id in self.marked[scan_id]:
-                            row = self.rowFromUniqueId(unique_id)
-                            rows.add(row)
-                        self.marked[scan_id] = set()
-                    else:
-                        remove = []
-                        for unique_id in self.marked[scan_id]:
-                            if unique_id not in self.hidden[scan_id]:
-                                row = self.rowFromUniqueId(unique_id)
-                                rows.add(row)
-                                remove.append(unique_id)
-                        for unique_id in remove:
-                            self.marked[scan_id].remove(unique_id)
-                else:
-                    # scan_id is None: uncheck files regardless of device,
-                    unique_ids = chain.from_iterable((self.marked.values()))
-                    if not exclude_hidden:
-                        for unique_id in unique_ids:
-                            row = self.rowFromUniqueId(unique_id)
-                            rows.add(row)
-                        self.marked = defaultdict(set)  # type: Dict[int, Set[str]]
-                    else:
-                        remove = []
-                        for unique_id in unique_ids:
-                            if not self.rpd_files[unique_id].previously_downloaded():
-                                row = self.rowFromUniqueId(unique_id)
-                                rows.add(row)
-                                remove.append(unique_id)
-                        for unique_id in remove:
-                            self.marked[scan_id].remove(unique_id)
+            if scan_id is not None:
+                unique_ids = self.marked & self.scan_index[scan_id]
             else:
-                # file_type is specified
-                if scan_id is not None:
-                    remove = []
-                    if not exclude_hidden:
-                        for unique_id in self.marked[scan_id]:
-                            if self.rpd_files[unique_id].file_type == file_type:
-                                row = self.rowFromUniqueId(unique_id)
-                                rows.add(row)
-                                remove.append(unique_id)
-                    else:
-                        for unique_id in self.marked[scan_id]:
-                            rpd_file = self.rpd_files[unique_id]
-                            if (rpd_file.file_type == file_type and not
-                                    rpd_file.previously_downloaded()):
-                                row = self.rowFromUniqueId(unique_id)
-                                rows.add(row)
-                                remove.append(unique_id)
-                    for unique_id in remove:
-                        self.marked[scan_id].remove(unique_id)
-                else:
-                    unique_ids = chain.from_iterable((self.marked.values()))
-                    if not exclude_hidden:
-                        for unique_id in unique_ids:
-                            if self.rpd_files[unique_id].file_type == file_type:
-                                row = self.rowFromUniqueId(unique_id)
-                                rows.add(row)
-                                self.marked[scan_id].remove(unique_id)
-                    else:
-                        for unique_id in unique_ids:
-                            rpd_file = self.rpd_files[unique_id]
-                            if (rpd_file.file_type == file_type and not
-                                    rpd_file.previously_downloaded()):
-                                row = self.rowFromUniqueId(unique_id)
-                                rows.add(row)
-                                self.marked[scan_id].remove(unique_id)
+                unique_ids = self.marked
+
+        if proximity_rows:
+            unique_ids = unique_ids & self.rapidApp.temporalProximity.selected_unique_ids
+
+        if file_type == FileType.photo:
+            unique_ids -= self.videos
+        elif file_type == FileType.video:
+            unique_ids -= self.photos
+
+        if self.rapidApp.showOnlyNewFiles():
+            unique_ids -= self.previously_downloaded
+
+        for unique_id in unique_ids:
+            row = self.rowFromUniqueId(unique_id)
+            rows.add(row)
+
+        if check_all:
+            for unique_id in unique_ids:
+                self.marked.add(unique_id)
+        else:
+            for unique_id in unique_ids:
+                self.marked.remove(unique_id)
 
         for first, last in runs(rows):
             self.dataChanged.emit(self.index(first, 0), self.index(last, 0))
@@ -850,6 +717,7 @@ class ThumbnailListModel(QAbstractListModel):
                 yield row
     
     def synchronizeDeviceDisplayCheckMark(self):
+        #TODO optimize it, make tri-state
         for scan_id in self.scan_index:
             if scan_id not in self.removed_devices:
                 can_download = self.filesAreMarkedForDownload(scan_id)
@@ -891,6 +759,8 @@ class ThumbnailListModel(QAbstractListModel):
     def updateStatusPostDownload(self, rpd_file: RPDFile):
         unique_id = rpd_file.unique_id
         self.rpd_files[unique_id] = rpd_file
+        self.downloaded.add(unique_id)
+        self.not_downloaded.remove(unique_id)
         row = self.rowFromUniqueId(rpd_file.unique_id)
         self.dataChanged.emit(self.index(row,0),self.index(row,0))
 
@@ -899,10 +769,7 @@ class ThumbnailListModel(QAbstractListModel):
         :return True if any files remain that are not downloaded, else
          returns False
         """
-        for rpd_file in self.rpd_files:
-            if rpd_file.status == DownloadStatus.not_downloaded:
-                return True
-        return False
+        return len(self.not_downloaded) > 0
 
 
 class ThumbnailView(QListView):
@@ -1293,7 +1160,7 @@ class ThumbnailDelegate(QStyledItemDelegate):
 class ThumbnailSortFilterProxyModel(QSortFilterProxyModel):
     def __init__(self,  parent=None) -> None:
         super().__init__(parent)
-        self.selected_rows = set()
+        self.proximity_rows = set()
         self.show_filter = Show.all
 
     def setFilterShow(self, show: Show) -> None:
@@ -1307,6 +1174,6 @@ class ThumbnailSortFilterProxyModel(QSortFilterProxyModel):
             previously_downloaded = index.data(Roles.previously_downloaded)
             if previously_downloaded:
                 return False
-        if len(self.selected_rows) == 0:
+        if len(self.proximity_rows) == 0:
             return True
-        return sourceRow in self.selected_rows
+        return sourceRow in self.proximity_rows
