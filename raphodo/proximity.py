@@ -964,8 +964,9 @@ class TemporalProximityDelegate(QStyledItemDelegate):
 
 
 class TemporalProximityView(QTableView):
-    def __init__(self) -> None:
+    def __init__(self, temporalProximityWidget: 'TemporalProximity') -> None:
         super().__init__()
+        self.temporalProximityWidget = temporalProximityWidget
         self.verticalHeader().setVisible(False)
         self.horizontalHeader().setVisible(False)
         # Calling code should set this value to something sensible
@@ -1104,7 +1105,6 @@ class TemporalProximityView(QTableView):
 
         :param event: the mouse click event
         """
-
         do_selection = True
         do_selection_confirmed = False
         index = self.indexAt(event.pos())  # type: QModelIndex
@@ -1132,7 +1132,14 @@ class TemporalProximityView(QTableView):
                 do_selection = False
 
         if do_selection:
+            self.temporalProximityWidget.block_update_device_display = True
             super().mousePressEvent(event)
+
+    @pyqtSlot(QMouseEvent)
+    def mouseReleaseEvent(self, event: QMouseEvent) -> None:
+        self.temporalProximityWidget.block_update_device_display = False
+        self.temporalProximityWidget.rapidApp.thumbnailModel.updateAllDeviceDisplayCheckMarks()
+        super().mouseReleaseEvent(event)
 
 
 class TemporalValuePicker(QWidget):
@@ -1247,11 +1254,13 @@ class TemporalProximity(QWidget):
         self.thumbnailProxyModel = thumbnailProxyModel
         self.prefs = prefs
 
+        self.block_update_device_display = False
+
         self.state = TemporalProximityState.empty
 
         self.selected_unique_ids = set()
 
-        self.temporalProximityView = TemporalProximityView()
+        self.temporalProximityView = TemporalProximityView(self)
         self.temporalProximityModel = TemporalProximityModel(rapidApp=rapidApp)
         self.temporalProximityView.setModel(self.temporalProximityModel)
         self.temporalProximityDelegate = TemporalProximityDelegate()
@@ -1357,7 +1366,8 @@ class TemporalProximity(QWidget):
             self.thumbnailProxyModel.proximity_rows = set()
             self.thumbnailProxyModel.invalidateFilter()
 
-        self.rapidApp.thumbnailModel.updateAllDeviceDisplayCheckMarks()
+        if not self.block_update_device_display:
+            self.rapidApp.thumbnailModel.updateAllDeviceDisplayCheckMarks()
 
     def clearThumbnailDisplayFilter(self):
         self.thumbnailProxyModel.proximity_rows = set()
