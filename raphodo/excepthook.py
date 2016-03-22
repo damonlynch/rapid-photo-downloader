@@ -78,8 +78,7 @@ def excepthook(exception_type, exception_value, traceback_object) -> None:
     Attach the log file <i>{log_file}</i> to your bug report (click
     <a href="{log_path}">here</a> to open the log directory).<br><br>If the same problem occurs
     again before the program exits, this is the only notification about it.
-    """).format(
-                website='https://bugs.launchpad.net/rapid', log_path=log_uri, log_file=log_file)
+    """).format(website='https://bugs.launchpad.net/rapid', log_path=log_uri, log_file=log_file)
 
             icon = QPixmap(':/rapid-photo-downloader.svg')
 
