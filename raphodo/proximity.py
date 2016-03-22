@@ -257,13 +257,18 @@ class ProximityDisplayValues:
         self.weekday_proportion = self.max_weekday_height / self.max_col1_text_height        
 
         # Column 2 - proximity value e.g. 1:00 - 1:45 PM
+        self.col2_new_file_dot = False
         self.col2_new_file_dot_size = 4
         self.col2_new_file_dot_radius = self.col2_new_file_dot_size / 2
         self.col2_font_descent_adjust = self.proximityMetrics.descent() / 3
         self.col2_font_height_half = self.proximityMetrics.height() / 2
         self.col2_new_file_dot_left_margin = 6
-        self.col2_text_left_margin = (self.col2_new_file_dot_left_margin * 2 +
-                                      self.col2_new_file_dot_size)
+
+        if self.col2_new_file_dot:
+            self.col2_text_left_margin = (self.col2_new_file_dot_left_margin * 2 +
+                                          self.col2_new_file_dot_size)
+        else:
+            self.col2_text_left_margin = 10
         self.col2_right_margin = 10
         self.col2_v_padding = 6
         self.col2_v_padding_half = 3
@@ -893,16 +898,23 @@ class TemporalProximityDelegate(QStyledItemDelegate):
 
             if option.state & QStyle.State_Selected:
                 color = self.highlight
-                textColor = self.highlightText
+                # TODO take into account dark themes
+                if new_file:
+                    textColor = self.highlightText
+                else:
+                    textColor = self.darkGray
             else:
                 color = self.dv.tableColor
-                textColor = QColor(Qt.white)
+                if new_file:
+                    textColor = QColor(Qt.white)
+                else:
+                    textColor = self.darkGray
 
             painter.fillRect(option.rect, color)
 
             align = self.dv.c2_alignment.get(row)
 
-            if new_file:
+            if new_file and self.dv.col2_new_file_dot:
                 painter.setPen(self.newFileColor)
                 painter.setRenderHint(QPainter.Antialiasing)
                 painter.setBrush(self.newFileColor)
@@ -922,10 +934,7 @@ class TemporalProximityDelegate(QStyledItemDelegate):
                     rect.translate(self.dv.col2_new_file_dot_left_margin, height)
                 painter.drawEllipse(rect)
 
-            if new_file or True:
-                painter.setFont(self.dv.proximityFont)
-            else:
-                painter.setFont(self.dv.proximityFontPrevious)
+            painter.setFont(self.dv.proximityFont)
             painter.setPen(textColor)
 
             rect = QRect(option.rect)

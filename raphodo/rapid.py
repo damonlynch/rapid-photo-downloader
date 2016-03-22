@@ -66,7 +66,7 @@ import sortedcontainers
 from PyQt5 import QtCore, QtGui
 from PyQt5.QtCore import (QThread, Qt, QStorageInfo, QSettings, QPoint,
                           QSize, QTimer, QTextStream, QModelIndex,
-                          pyqtSlot, QPropertyAnimation, QAbstractAnimation)
+                          pyqtSlot)
 from PyQt5.QtGui import (QIcon, QPixmap, QImage, QColor, QPalette, QFontMetrics,
                          QFont, QPainter, QMoveEvent)
 from PyQt5.QtWidgets import (QAction, QApplication, QMainWindow, QMenu,
@@ -897,6 +897,7 @@ class RapidWindow(QMainWindow):
     @pyqtSlot(int)
     def showComboChanged(self, index: int) -> None:
         self.thumbnailProxyModel.setFilterShow(self.showCombo.currentData())
+        self.thumbnailModel.updateAllDeviceDisplayCheckMarks()
         self.displayMessageInStatusBar()
 
     def showOnlyNewFiles(self) -> bool:
