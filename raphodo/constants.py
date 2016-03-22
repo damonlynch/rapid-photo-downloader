@@ -140,6 +140,13 @@ class Sort(IntEnum):
     extension = 4
 
 
+Checked_Status = {
+    Qt.Checked: 'checked',
+    Qt.Unchecked: 'unchecked',
+    Qt.PartiallyChecked: 'partially checked'
+}
+
+
 class Roles(IntEnum):
     previously_downloaded = Qt.UserRole
     extension = Qt.UserRole + 1

@@ -1348,6 +1348,8 @@ class TemporalProximity(QWidget):
             self.thumbnailProxyModel.proximity_rows = set()
             self.thumbnailProxyModel.invalidateFilter()
 
+        self.rapidApp.thumbnailModel.updateAllDeviceDisplayCheckMarks()
+
     def clearThumbnailDisplayFilter(self):
         self.thumbnailProxyModel.proximity_rows = set()
         self.thumbnailProxyModel.invalidateFilter()

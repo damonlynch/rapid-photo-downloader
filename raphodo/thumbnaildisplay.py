@@ -299,15 +299,15 @@ class ThumbnailListModel(QAbstractListModel):
         unique_id = self.rows[row].id_value
         rpd_file = self.rpd_files[unique_id]
         if role == Qt.CheckStateRole:
-            self.setCheckedValue(value, unique_id, rpd_file.scan_id)
+            self.setCheckedValue(value, unique_id)
             self.dataChanged.emit(self.index(row, 0), self.index(row, 0))
-            self.synchronizeDeviceDisplayCheckMark()
+            self.updateDeviceDisplayCheckMark(scan_id=rpd_file.scan_id)
             self.rapidApp.displayMessageInStatusBar()
             self.rapidApp.setDownloadActionState()
             return True
         return False
 
-    def setCheckedValue(self, checked: bool, unique_id: str, scan_id: int) -> None:
+    def setCheckedValue(self, checked: bool, unique_id: str) -> None:
         if checked:
             self.marked.add(unique_id)
         else:
@@ -356,6 +356,7 @@ class ThumbnailListModel(QAbstractListModel):
             self.videos.add(unique_id)
 
         self.not_downloaded.add(unique_id)
+
         if not rpd_file.previously_downloaded():
             self.marked.add(unique_id)
         else:
@@ -520,6 +521,20 @@ class ThumbnailListModel(QAbstractListModel):
         else:
             return len(self.marked) > 0
 
+    def displayedNotDownloadedThumbs(self, scan_id: Optional[int]=None) -> Set[str]:
+        if scan_id is not None:
+            unique_ids = self.scan_index[scan_id] - self.downloaded
+        else:
+            unique_ids = self.not_downloaded
+
+        if self.proxyModel.proximity_rows:
+            unique_ids = unique_ids & self.rapidApp.temporalProximity.selected_unique_ids
+
+        if self.rapidApp.showOnlyNewFiles():
+            unique_ids -= self.previously_downloaded
+
+        return unique_ids
+
     def getNoFilesMarkedForDownload(self) -> int:
         return len(self.marked)
 
@@ -642,9 +657,14 @@ class ThumbnailListModel(QAbstractListModel):
                  file_type: Optional[FileType]=None,
                  scan_id: Optional[int]=None) -> None:
         """
-        Check or uncheck all files that are not downloaded.
+        Check or uncheck all visible files that are not downloaded.
 
-        Will not check or uncheck any hidden files.
+        A file is "visible" if it is in the current thumbnail display.
+        That means if files are not showing because they are previously
+        downloaded, they will not be affected. Likewise, if temporal
+        proximity rows are selected, only those files are affected.
+
+        Runs in the main thread and is thus time sensitive.
 
         :param check_all: if True, mark as checked, else unmark
         :param file_type: if specified, files must be of specified type
@@ -653,23 +673,18 @@ class ThumbnailListModel(QAbstractListModel):
 
         rows = SortedList()
 
-        # sets
-        proximity_rows = self.proxyModel.proximity_rows
-
-        # this code runs in the main thread and is thus time sensitive
         if check_all:
             if scan_id is not None:
                 unique_ids = self.scan_index[scan_id] - self.marked - self.downloaded
             else:
                 unique_ids = self.not_downloaded - self.marked
         else:
-            # uncheck all
             if scan_id is not None:
                 unique_ids = self.marked & self.scan_index[scan_id]
             else:
                 unique_ids = self.marked
 
-        if proximity_rows:
+        if self.proxyModel.proximity_rows:
             unique_ids = unique_ids & self.rapidApp.temporalProximity.selected_unique_ids
 
         if file_type == FileType.photo:
@@ -694,7 +709,7 @@ class ThumbnailListModel(QAbstractListModel):
         for first, last in runs(rows):
             self.dataChanged.emit(self.index(first, 0), self.index(last, 0))
 
-        self.synchronizeDeviceDisplayCheckMark()
+        self.updateDeviceDisplayCheckMark(scan_id=scan_id)
         self.rapidApp.displayMessageInStatusBar()
         self.rapidApp.setDownloadActionState()
 
@@ -716,12 +731,22 @@ class ThumbnailListModel(QAbstractListModel):
             for row in range(top.row(), bottom.row() + 1):
                 yield row
     
-    def synchronizeDeviceDisplayCheckMark(self):
-        #TODO optimize it, make tri-state
-        for scan_id in self.scan_index:
-            if scan_id not in self.removed_devices:
-                can_download = self.filesAreMarkedForDownload(scan_id)
-                self.rapidApp.mapModel(scan_id).setCheckedValue(can_download, scan_id)
+    def updateDeviceDisplayCheckMark(self, scan_id: int) -> None:
+        if scan_id not in self.removed_devices:
+            unique_ids = self.displayedNotDownloadedThumbs(scan_id)
+            checked_ids = unique_ids & self.marked
+            if len(unique_ids) == 0 or len(checked_ids) == 0:
+                checked = Qt.Unchecked
+            elif len(unique_ids) != len(checked_ids):
+                checked = Qt.PartiallyChecked
+            else:
+                checked = Qt.Checked
+            self.rapidApp.mapModel(scan_id).setCheckedValue(checked, scan_id)
+
+    def updateAllDeviceDisplayCheckMarks(self) -> None:
+        scan_ids = (scan_id for scan_id in self.scan_index if scan_id not in self.removed_devices)
+        for scan_id in scan_ids:
+            self.updateDeviceDisplayCheckMark(scan_id=scan_id)
 
     def terminateThumbnailGeneration(self, scan_id: int) -> bool:
         """

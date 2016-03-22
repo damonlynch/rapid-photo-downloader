@@ -1340,16 +1340,12 @@ class RapidWindow(QMainWindow):
 
         self.showLabel = QLabel(_("Show:"))
         self.showCombo = QComboBox()
-        self.showCombo.setItemDelegate(self.comboboxDelegate)
-        self.showCombo.setStyleSheet(style)
         self.showCombo.addItem(_('All'), Show.all)
         self.showCombo.addItem(_('New'), Show.new_only)
         self.showCombo.currentIndexChanged.connect(self.showComboChanged)
 
         self.sortLabel= QLabel(_("Sort:"))
         self.sortCombo = QComboBox()
-        self.sortCombo.setItemDelegate(self.comboboxDelegate)
-        self.sortCombo.setStyleSheet(style)
         self.sortCombo.addItem(_("Modification Time"), Sort.modification_time)
         self.sortCombo.addItem(_("Checked State"), Sort.checked_state)
         self.sortCombo.addItem(_("Filename"), Sort.filename)
@@ -1357,11 +1353,13 @@ class RapidWindow(QMainWindow):
         self.sortCombo.currentIndexChanged.connect(self.sortComboChanged)
 
         self.sortOrder = QComboBox()
-        self.sortOrder.setItemDelegate(self.comboboxDelegate)
-        self.sortOrder.setStyleSheet(style)
         self.sortOrder.addItem(_("Ascending"), Qt.AscendingOrder)
         self.sortOrder.addItem(_("Descending"), Qt.DescendingOrder)
         self.sortOrder.currentIndexChanged.connect(self.sortOrderChanged)
+
+        for combobox in (self.showCombo, self.sortCombo, self.sortOrder):
+            combobox.setItemDelegate(self.comboboxDelegate)
+            combobox.setStyleSheet(style)
 
         for widget in (self.showLabel, self.sortLabel, self.sortCombo, self.showCombo,
                        self.sortOrder):
@@ -2189,6 +2187,7 @@ class RapidWindow(QMainWindow):
                 self.download_tracker.clear_auto_delete(scan_id)
             self.devices.set_device_state(scan_id, DeviceState.idle)
             self.updateProgressBarState()
+            self.thumbnailModel.updateDeviceDisplayCheckMark(scan_id=scan_id)
 
             del self.time_remaining[scan_id]
             self.notifyDownloadedFromDevice(scan_id)
@@ -2205,8 +2204,7 @@ class RapidWindow(QMainWindow):
 
                 # Update prefs with stored sequence number and downloads today
                 # values
-                data = RenameAndMoveFileData(
-                    message=RenameAndMoveStatus.download_completed)
+                data = RenameAndMoveFileData(message=RenameAndMoveStatus.download_completed)
                 self.renamemq.send_message_to_worker(data)
 
                 if ((self.prefs.auto_exit and self.download_tracker.no_errors_or_warnings())
@@ -2611,6 +2609,7 @@ class RapidWindow(QMainWindow):
         device = self.devices[scan_id]
         self.devices.set_device_state(scan_id, DeviceState.idle)
         self.updateProgressBarState()
+        self.thumbnailModel.updateAllDeviceDisplayCheckMarks()
         results_summary, file_types_present  = device.file_type_counter.summarize_file_count()
         self.download_tracker.set_file_types_present(scan_id, file_types_present)
         model = self.mapModel(scan_id)

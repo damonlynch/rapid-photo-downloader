@@ -55,7 +55,7 @@ from PyQt5.QtGui import (QPainter, QFontMetrics, QFont, QColor, QLinearGradient,
 
 from raphodo.viewutils import RowTracker
 from raphodo.constants import (DeviceState, FileType, CustomColors, DeviceType, Roles,
-                               emptyViewHeight, ViewRowType, minPanelWidth)
+                               emptyViewHeight, ViewRowType, minPanelWidth, Checked_Status)
 from raphodo.devices import Device, display_devices
 from raphodo.utilities import thousands, format_size_for_user
 from raphodo.storage import StorageSpace
@@ -228,7 +228,7 @@ class DeviceModel(QAbstractListModel):
     def updateDeviceScan(self, scan_id: int) -> None:
         row_id = self.scan_id_to_row_ids[scan_id][0]
         row = self.rows.row(row_id)
-        # TODO optimize which storage space is updated
+        # TODO perhaps optimize which storage space is updated
         self.dataChanged.emit(self.index(row + 1, 0),
                               self.index(row + len(self.devices[scan_id].storage_space), 0))
 
@@ -307,27 +307,27 @@ class DeviceModel(QAbstractListModel):
         return False
 
     def logState(self) -> None:
-        logging.debug("-- Device Model for %s --", self.device_display_type)
-        logging.debug("Known devices: %s", ', '.join(self.devices[device].display_name
-             for device in self.devices))
-        for row in self.rows.row_to_id:
-            row_id = self.rows.row_to_id[row]
-            scan_id = self.row_id_to_scan_id[row_id]
-            device = self.devices[scan_id]
-            logging.debug('Row %s: %s', row, device.display_name)
-        logging.debug("Spinner states: %s", ', '.join("%s: %s" %
-                          (self.devices[scan_id].display_name, self.spinner_state[scan_id].name)
-                          for scan_id in self.spinner_state))
-        logging.debug("Checked: %s", ', '.join(self.devices[scan_id].display_name
-                            for scan_id in self.checked if self.checked[scan_id]))
+        if len(self.devices):
+            logging.debug("-- Device Model for %s --", self.device_display_type)
+            logging.debug("Known devices: %s", ', '.join(self.devices[device].display_name
+                 for device in self.devices))
+            for row in self.rows.row_to_id:
+                row_id = self.rows.row_to_id[row]
+                scan_id = self.row_id_to_scan_id[row_id]
+                device = self.devices[scan_id]
+                logging.debug('Row %s: %s', row, device.display_name)
+            logging.debug("Spinner states: %s", ', '.join("%s: %s" %
+                              (self.devices[scan_id].display_name, self.spinner_state[scan_id].name)
+                              for scan_id in self.spinner_state))
+            logging.debug(', '.join('%s: %s' % (self.devices[scan_id].display_name,
+                                Checked_Status[self.checked[scan_id]]) for scan_id in self.checked))
 
-
-    def setCheckedValue(self, checked: bool,
+    def setCheckedValue(self, checked: Qt.CheckState,
                         scan_id: int,
                         row: Optional[int]=None,
                         log_state_change: Optional[bool]=True) -> None:
-        logging.debug("Setting checked state %s for %s", checked, self.devices[
-            scan_id].display_name)
+        logging.debug("Setting %s checkbox to %s", self.devices[scan_id].display_name,
+                      Checked_Status[checked])
         if row is None:
             row_id = self.scan_id_to_row_ids[scan_id][0]
             row = self.rows.row(row_id)
@@ -539,8 +539,10 @@ class DeviceDelegate(QStyledItemDelegate):
                 checked = index.model().data(index, Qt.CheckStateRole)
 
                 checkboxStyleOption = QStyleOptionButton()
-                if checked:
+                if checked == Qt.Checked:
                     checkboxStyleOption.state |= QStyle.State_On
+                elif checked == Qt.PartiallyChecked:
+                    checkboxStyleOption.state |= QStyle.State_NoChange
                 else:
                     checkboxStyleOption.state |= QStyle.State_Off
                 checkboxStyleOption.state |= QStyle.State_Enabled
