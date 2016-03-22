@@ -3717,6 +3717,7 @@ def main():
     app.setApplicationName("Rapid Photo Downloader")
     app.setWindowIcon(QtGui.QIcon(':/rapid-photo-downloader.svg'))
 
+
     # darkFusion(app)
     # app.setStyle('Fusion')
 
