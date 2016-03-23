@@ -898,6 +898,7 @@ class RapidWindow(QMainWindow):
     def showComboChanged(self, index: int) -> None:
         self.thumbnailProxyModel.setFilterShow(self.showCombo.currentData())
         self.thumbnailModel.updateAllDeviceDisplayCheckMarks()
+        self.thumbnailModel.updateSelection()
         self.displayMessageInStatusBar()
 
     def showOnlyNewFiles(self) -> bool:
@@ -922,16 +923,30 @@ class RapidWindow(QMainWindow):
         elif sort == Sort.extension:
             self.thumbnailProxyModel.setSortRole(Roles.sort_extension)
             self.thumbnailProxyModel.sort(0, order)
-        else:
+        elif sort == Sort.modification_time:
             self.thumbnailProxyModel.setSortRole(Qt.DisplayRole)
             if order == Qt.AscendingOrder:
                 self.thumbnailProxyModel.sort(-1)
             else:
                 self.thumbnailProxyModel.sort(0, order)
+        else:
+            assert sort == Sort.file_type
+            self.thumbnailProxyModel.setSortRole(Roles.file_type_sort)
+            self.thumbnailProxyModel.sort(0, order)
 
     @pyqtSlot(int)
     def sortOrderChanged(self, index: int) -> None:
         self.sortComboChanged(index=-1)
+
+    @pyqtSlot(int)
+    def selectAllPhotosCheckboxChanged(self, state: int) -> None:
+        select_all = state == Qt.Checked
+        self.thumbnailModel.selectAll(select_all=select_all, file_type=FileType.photo)
+
+    @pyqtSlot(int)
+    def selectAllVideosCheckboxChanged(self, state: int) -> None:
+        select_all = state == Qt.Checked
+        self.thumbnailModel.selectAll(select_all=select_all, file_type=FileType.video)
 
     def createActions(self):
         self.sourceAct = QAction(_('&Source'), self, shortcut="Ctrl+s",
@@ -1351,6 +1366,7 @@ class RapidWindow(QMainWindow):
         self.sortCombo.addItem(_("Checked State"), Sort.checked_state)
         self.sortCombo.addItem(_("Filename"), Sort.filename)
         self.sortCombo.addItem(_("Extension"), Sort.extension)
+        self.sortCombo.addItem(_("File Type"), Sort.file_type)
         self.sortCombo.currentIndexChanged.connect(self.sortComboChanged)
 
         self.sortOrder = QComboBox()
@@ -1385,6 +1401,9 @@ class RapidWindow(QMainWindow):
         for widget in (self.checkAllLabel, self.selectAllPhotosCheckbox,
                        self.selectAllVideosCheckbox):
             widget.setFont(font)
+
+        self.selectAllPhotosCheckbox.stateChanged.connect(self.selectAllPhotosCheckboxChanged)
+        self.selectAllVideosCheckbox.stateChanged.connect(self.selectAllVideosCheckboxChanged)
 
         layout.addWidget(self.showLabel)
         layout.addWidget(self.showCombo)

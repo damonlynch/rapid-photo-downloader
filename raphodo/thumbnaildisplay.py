@@ -40,7 +40,7 @@ from dateutil.tz import tzlocal
 
 from PyQt5.QtCore import (QAbstractListModel, QModelIndex, Qt, pyqtSignal, QSize, QRect, QEvent,
                           QPoint, QMargins, QSortFilterProxyModel, QItemSelectionModel,
-                          QAbstractItemModel, pyqtSlot)
+                          QAbstractItemModel, pyqtSlot, QItemSelection)
 from PyQt5.QtWidgets import (QListView, QStyledItemDelegate, QStyleOptionViewItem, QApplication,
                              QStyle, QStyleOptionButton, QMenu, QWidget, QAbstractItemView)
 from PyQt5.QtGui import (QPixmap, QImage, QPainter, QColor, QBrush, QFontMetrics,
@@ -218,6 +218,9 @@ class ThumbnailListModel(QAbstractListModel):
                 return Qt.Unchecked
         elif role == Roles.sort_extension:
             return rpd_file.extension
+        elif role == Roles.file_type_sort:
+            # For sorting to work, must explicitly return the enum's value
+            return rpd_file.file_type.value
         elif role == Roles.filename:
             return rpd_file.name
         elif role == Roles.previously_downloaded:
@@ -297,15 +300,22 @@ class ThumbnailListModel(QAbstractListModel):
         if row >= len(self.rows) or row < 0:
             return False
         unique_id = self.rows[row].id_value
-        rpd_file = self.rpd_files[unique_id]
         if role == Qt.CheckStateRole:
             self.setCheckedValue(value, unique_id)
             self.dataChanged.emit(self.index(row, 0), self.index(row, 0))
-            self.updateDeviceDisplayCheckMark(scan_id=rpd_file.scan_id)
-            self.rapidApp.displayMessageInStatusBar()
-            self.rapidApp.setDownloadActionState()
             return True
         return False
+
+    def updateDisplayPostDataChange(self, scan_id: Optional[int]=None):
+        if scan_id is not None:
+            scan_ids = [scan_id]
+        else:
+            scan_ids = (scan_id for scan_id in self.scan_index
+                        if scan_id not in self.removed_devices)
+        for scan_id in scan_ids:
+            self.updateDeviceDisplayCheckMark(scan_id=scan_id)
+        self.rapidApp.displayMessageInStatusBar()
+        self.rapidApp.setDownloadActionState()
 
     def setCheckedValue(self, checked: bool, unique_id: str) -> None:
         if checked:
@@ -525,7 +535,7 @@ class ThumbnailListModel(QAbstractListModel):
         if scan_id is not None:
             unique_ids = self.scan_index[scan_id] - self.downloaded
         else:
-            unique_ids = self.not_downloaded
+            unique_ids = self.not_downloaded.copy()
 
         if self.proxyModel.proximity_rows:
             unique_ids = unique_ids & self.rapidApp.temporalProximity.selected_unique_ids
@@ -653,6 +663,79 @@ class ThumbnailListModel(QAbstractListModel):
 
         return len(self.scan_index[scan_id] - self.downloaded)
 
+    def updateSelection(self) -> None:
+        select_all_photos = self.rapidApp.selectAllPhotosCheckbox.isChecked()
+        select_all_videos = self.rapidApp.selectAllVideosCheckbox.isChecked()
+        unique_ids = self.displayedNotDownloadedThumbs()
+        self.selectAll(select_all=select_all_photos, file_type=FileType.photo,
+                       unique_ids=unique_ids)
+        self.selectAll(select_all=select_all_videos, file_type=FileType.video,
+                       unique_ids=unique_ids)
+
+    def selectAll(self, select_all: bool,
+                  file_type: FileType,
+                  unique_ids: Optional[Set[str]]=None)-> None:
+        """
+        Check or deselect all visible files that are not downloaded.
+
+        :param select_all:  if True, select, else deselect
+        :param file_type: the type of files to select/deselect
+        :param unique_ids: list of unique ids with which to select / deselect all
+        """
+
+        if unique_ids:
+            # Don't alter the original set - create a copy
+            if file_type == FileType.photo:
+                unique_ids = unique_ids & self.photos
+            else:
+                unique_ids = unique_ids & self.videos
+        else:
+            unique_ids = self.displayedNotDownloadedThumbs()
+
+            if file_type == FileType.photo:
+                unique_ids -= self.videos
+            else:
+                unique_ids = unique_ids & self.videos
+
+        if not unique_ids:
+            return
+
+        rows = SortedList()
+        proxy = self.rapidApp.thumbnailProxyModel  # type: ThumbnailSortFilterProxyModel
+        selection = self.rapidApp.thumbnailView.selectionModel()  # type: QItemSelectionModel
+        selected = selection.selection()  # type: QItemSelection
+        selected_indexes =  selected.indexes()
+
+        if select_all:
+            for unique_id in unique_ids:
+                row = self.rowFromUniqueId(unique_id)
+                model_index = self.index(row, 0)
+                proxy_index = proxy.mapFromSource(model_index)
+                if proxy_index not in selected_indexes:
+                    rows.add(row)
+            new_selection = QItemSelection()  # type: QItemSelection
+            for first, last in runs(rows):
+                new_selection.select(self.index(first, 0), self.index(last, 0))
+            new_selection = proxy.mapSelectionFromSource(new_selection)
+            new_selection.merge(selected, QItemSelectionModel.Select)
+            selection.select(new_selection, QItemSelectionModel.Select)
+
+        else:
+            for unique_id in unique_ids:
+                row = self.rowFromUniqueId(unique_id)
+                model_index = self.index(row, 0)
+                proxy_index = proxy.mapFromSource(model_index)
+                if proxy_index in selected_indexes:
+                    rows.add(row)
+            new_selection = QItemSelection()
+            for first, last in runs(rows):
+                new_selection.select(self.index(first, 0), self.index(last, 0))
+            new_selection = proxy.mapSelectionFromSource(new_selection)
+            selection.select(new_selection, QItemSelectionModel.Deselect)
+
+        for first, last in runs(rows):
+            self.dataChanged.emit(self.index(first, 0), self.index(last, 0))
+
     def checkAll(self, check_all: bool,
                  file_type: Optional[FileType]=None,
                  scan_id: Optional[int]=None) -> None:
@@ -682,7 +765,7 @@ class ThumbnailListModel(QAbstractListModel):
             if scan_id is not None:
                 unique_ids = self.marked & self.scan_index[scan_id]
             else:
-                unique_ids = self.marked
+                unique_ids = self.marked.copy()
 
         if self.proxyModel.proximity_rows:
             unique_ids = unique_ids & self.rapidApp.temporalProximity.selected_unique_ids
@@ -731,9 +814,11 @@ class ThumbnailListModel(QAbstractListModel):
             for row in range(top.row(), bottom.row() + 1):
                 yield row
     
-    def updateDeviceDisplayCheckMark(self, scan_id: int) -> None:
+    def updateDeviceDisplayCheckMark(self, scan_id: int,
+                                     unique_ids: Optional[Set[str]]=None) -> None:
         if scan_id not in self.removed_devices:
-            unique_ids = self.displayedNotDownloadedThumbs(scan_id)
+            if unique_ids is None:
+                unique_ids = self.displayedNotDownloadedThumbs(scan_id)
             checked_ids = unique_ids & self.marked
             if len(unique_ids) == 0 or len(checked_ids) == 0:
                 checked = Qt.Unchecked
@@ -747,6 +832,7 @@ class ThumbnailListModel(QAbstractListModel):
         scan_ids = (scan_id for scan_id in self.scan_index if scan_id not in self.removed_devices)
         for scan_id in scan_ids:
             self.updateDeviceDisplayCheckMark(scan_id=scan_id)
+
 
     def terminateThumbnailGeneration(self, scan_id: int) -> bool:
         """
@@ -1155,23 +1241,27 @@ class ThumbnailDelegate(QStyledItemDelegate):
                       model: QAbstractItemModel,
                       index: QModelIndex) -> None:
         newValue = not (index.data(Qt.CheckStateRole) == Qt.Checked)
-        if len(self.rapidApp.thumbnailView.selectedIndexes()):
-            if index in self.rapidApp.thumbnailView.selectedIndexes():
-                for i in self.rapidApp.thumbnailView.selectedIndexes():
-                    model.setData(i, newValue, Qt.CheckStateRole)
+        proxy = self.rapidApp.thumbnailProxyModel  # type: ThumbnailSortFilterProxyModel
+        thumbnailModel = self.rapidApp.thumbnailModel  # type: ThumbnailListModel
+        selection = self.rapidApp.thumbnailView.selectionModel()  # type: QItemSelectionModel
+        if selection.hasSelection():
+            selected = selection.selection()  # type: QItemSelection
+            if index in selected.indexes():
+                selected = proxy.mapSelectionToSource(selected)  # type: QItemSelection
+                for i in selected.indexes():
+                    thumbnailModel.setData(i, newValue, Qt.CheckStateRole)
             else:
                 # The user has clicked on a checkbox that for a
                 # thumbnail that is outside their previous selection
-                selection = self.rapidApp.thumbnailView.selectionModel()
                 selection.clear()
                 selection.select(index, QItemSelectionModel.Select)
                 model.setData(index, newValue, Qt.CheckStateRole)
         else:
             # The user has previously selected nothing, so mark this
             # thumbnail as selected
-            selection = self.rapidApp.thumbnailView.selectionModel()
             selection.select(index, QItemSelectionModel.Select)
             model.setData(index, newValue, Qt.CheckStateRole)
+        thumbnailModel.updateDisplayPostDataChange()
 
     def getLeftPoint(self, rect: QRect) -> QPoint:
         return QPoint(rect.x() + self.horizontal_margin,
@@ -1195,7 +1285,7 @@ class ThumbnailSortFilterProxyModel(QSortFilterProxyModel):
 
     def filterAcceptsRow(self, sourceRow: int, sourceParent: QModelIndex) -> bool:
         if self.show_filter == Show.new_only:
-            index = self.sourceModel().index(sourceRow, 0, sourceParent)  # QModelIndex
+            index = self.sourceModel().index(sourceRow, 0, sourceParent)  # type: QModelIndex
             previously_downloaded = index.data(Roles.previously_downloaded)
             if previously_downloaded:
                 return False
