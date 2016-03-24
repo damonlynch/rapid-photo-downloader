@@ -243,6 +243,8 @@ class ThumbnailListModel(QAbstractListModel):
             return rpd_file.file_type.value
         elif role == Roles.filename:
             return rpd_file.name
+        elif role == Roles.device_name:
+            return self.rapidApp.devices[rpd_file.scan_id].display_name
         elif role == Roles.previously_downloaded:
             return rpd_file.previously_downloaded()
         elif role == Roles.extension:
@@ -272,6 +274,11 @@ class ThumbnailListModel(QAbstractListModel):
         elif role == Roles.is_camera:
             return rpd_file.from_camera
         elif role == Qt.ToolTipRole:
+            devices = self.rapidApp.devices
+            if len(devices) > 1:
+                device_name = devices[rpd_file.scan_id].display_name
+            else:
+                device_name = ''
             size = format_size_for_user(rpd_file.size)
 
             mtime = arrow.get(rpd_file.modification_time)
@@ -281,8 +288,12 @@ class ThumbnailListModel(QAbstractListModel):
                     '%c'),
                  'human_readable': mtime.humanize()})
 
-            msg = '{}\n{}\n{}'.format(rpd_file.name,
+            if not device_name:
+                msg = '{}\n{}\n{}'.format(rpd_file.name,
                                       humanized_modification_time, size)
+            else:
+                msg = '{}\n{}\n{}\n{}'.format(rpd_file.name, device_name,
+                                          humanized_modification_time, size)
 
             if rpd_file.camera_memory_card_identifiers:
                 cards = _('Memory cards: %s') % make_internationalized_list(

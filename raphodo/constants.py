@@ -139,6 +139,7 @@ class Sort(IntEnum):
     filename = 3
     extension = 4
     file_type = 5
+    device = 6
 
 
 Checked_Status = {
@@ -166,6 +167,7 @@ class Roles(IntEnum):
     filename = Qt.UserRole + 14
     file_type_sort = Qt.UserRole + 15
     highlight = Qt.UserRole + 16
+    device_name = Qt.UserRole + 17
 
 
 class ExtractionTask(Enum):

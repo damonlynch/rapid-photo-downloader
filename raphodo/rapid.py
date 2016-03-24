@@ -929,9 +929,12 @@ class RapidWindow(QMainWindow):
                 self.thumbnailProxyModel.sort(-1)
             else:
                 self.thumbnailProxyModel.sort(0, order)
-        else:
-            assert sort == Sort.file_type
+        elif sort == Sort.file_type:
             self.thumbnailProxyModel.setSortRole(Roles.file_type_sort)
+            self.thumbnailProxyModel.sort(0, order)
+        else:
+            assert sort == Sort.device
+            self.thumbnailProxyModel.setSortRole(Roles.device_name)
             self.thumbnailProxyModel.sort(0, order)
 
     @pyqtSlot(int)
@@ -1367,6 +1370,7 @@ class RapidWindow(QMainWindow):
         self.sortCombo.addItem(_("Filename"), Sort.filename)
         self.sortCombo.addItem(_("Extension"), Sort.extension)
         self.sortCombo.addItem(_("File Type"), Sort.file_type)
+        self.sortCombo.addItem(_("Device"), Sort.device)
         self.sortCombo.currentIndexChanged.connect(self.sortComboChanged)
 
         self.sortOrder = QComboBox()
