@@ -219,6 +219,10 @@ class CustomColors(Enum):
     color6 = '#6d7e90'  # greyish
     color7 = '#ffff00'  # bright yellow
 
+PaleGray = '#d7d6d5'
+DarkGray = '#35322f'
+MediumGray = '#5d5b59'
+DoubleDarkGray = '#1e1b18'
 
 ExtensionColorDict = {
     FileExtension.raw: CustomColors.color1,
@@ -255,7 +259,7 @@ class TemporalProximityState(Enum):
     generated = 4
 
 
-ThumbnailBackgroundName = '#555555'
+ThumbnailBackgroundName = MediumGray
 EmptyViewHeight = 20
 
 # How many steps with which to highlight thumbnail cells

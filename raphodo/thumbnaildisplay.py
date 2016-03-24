@@ -56,7 +56,7 @@ from raphodo.interprocess import (PublishPullPipelineManager, GenerateThumbnails
 from raphodo.constants import (DownloadStatus, Downloaded, FileType, FileExtension, ThumbnailSize,
                                ThumbnailCacheStatus, Roles, DeviceType, CustomColors, Show, Sort,
                                ThumbnailBackgroundName, Desktop, DeviceState, extensionColor,
-                               FadeSteps, FadeMilliseconds)
+                               FadeSteps, FadeMilliseconds, PaleGray, DarkGray)
 from raphodo.storage import get_program_cache_directory, get_desktop
 from raphodo.utilities import (CacheDirs, make_internationalized_list, format_size_for_user, runs)
 from raphodo.thumbnailer import Thumbnailer
@@ -1074,8 +1074,8 @@ class ThumbnailDelegate(QStyledItemDelegate):
 
         self.color3 = QColor(CustomColors.color3.value)
 
-        self.lightGray = QColor(221,221,221)
-        self.darkGray = QColor(51, 51, 51)
+        self.paleGray = QColor(PaleGray)
+        self.darkGray = QColor(DarkGray)
 
         palette = QGuiApplication.palette()
         self.highlight = palette.highlight().color()  # type: QColor
@@ -1099,7 +1099,7 @@ class ThumbnailDelegate(QStyledItemDelegate):
                               self.emblemFontMetrics.height() + self.emblem_pad * 2)
 
         ch = Color(self.highlight.name())
-        cg = Color(self.lightGray.name())
+        cg = Color(self.paleGray.name())
         self.colorGradient = [QColor(c.hex) for c in cg.range_to(ch, FadeSteps)]
 
     @pyqtSlot()
@@ -1151,7 +1151,7 @@ class ThumbnailDelegate(QStyledItemDelegate):
         if highlight != 0:
             painter.fillRect(boxRect, self.colorGradient[highlight-1])
         else:
-            painter.fillRect(boxRect, self.lightGray)
+            painter.fillRect(boxRect, self.paleGray)
 
         if option.state & QStyle.State_Selected:
             hightlightRect = QRect(boxRect.left() + self.highlight_offset,
@@ -1396,3 +1396,18 @@ class ThumbnailSortFilterProxyModel(QSortFilterProxyModel):
         if len(self.proximity_rows) == 0:
             return True
         return sourceRow in self.proximity_rows
+
+    def lessThan(self, left: QModelIndex, right: QModelIndex) -> bool:
+        sortRole = self.sortRole()
+
+        sortLeftData = self.sourceModel().data(left, sortRole)
+        sortRightData = self.sourceModel().data(right, sortRole)
+
+        # Get modification time too
+        leftData = self.sourceModel().data(left)
+        rightData = self.sourceModel().data(right)
+
+        if sortLeftData == sortRightData:
+            return leftData < rightData
+        else:
+            return sortLeftData < sortRightData

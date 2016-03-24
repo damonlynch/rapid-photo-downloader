@@ -42,7 +42,8 @@ from PyQt5.QtGui import (QPainter, QFontMetrics, QFont, QColor, QGuiApplication,
 
 from raphodo.viewutils import SortedListItem, QFramedWidget
 from raphodo.constants import (FileType, Align, proximity_time_steps, TemporalProximityState,
-                               FileExtension, fileTypeColor, CustomColors)
+                               FileExtension, fileTypeColor, CustomColors, DarkGray, MediumGray,
+                               DoubleDarkGray)
 from raphodo.rpdfile import FileTypeCounter
 from raphodo.preferences import Preferences
 
@@ -791,9 +792,10 @@ class TemporalProximityDelegate(QStyledItemDelegate):
     def __init__(self, parent=None) -> None:
         super().__init__(parent)
 
-        self.darkGray = QColor(51, 51, 51)
-        self.darkerGray = self.darkGray.darker(150)
-        self.midGray = QColor('#555555')
+        self.darkGray = QColor(DarkGray)
+        # self.darkerGray = self.darkGray.darker(150)
+        self.darkerGray = QColor(DoubleDarkGray)
+        self.midGray = QColor(MediumGray)
         # self.color1 = QColor(CustomColors.color1.value)
         # self.color1Darker = self.color1.darker(107)
 
