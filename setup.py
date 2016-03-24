@@ -210,7 +210,8 @@ setup(
                       'colorlog',
                       'pyprind',
                       'rawkit',
-                      'easygui'
+                      'easygui',
+                      'colour'
                       ],
     extras_require={':python_version == "3.4"': ['scandir', 'typing']},
     include_package_data = False,

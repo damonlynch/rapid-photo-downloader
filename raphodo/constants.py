@@ -165,6 +165,7 @@ class Roles(IntEnum):
     sort_extension = Qt.UserRole + 13
     filename = Qt.UserRole + 14
     file_type_sort = Qt.UserRole + 15
+    highlight = Qt.UserRole + 16
 
 
 class ExtractionTask(Enum):
@@ -253,7 +254,11 @@ class TemporalProximityState(Enum):
 
 
 ThumbnailBackgroundName = '#555555'
-emptyViewHeight = 20
+EmptyViewHeight = 20
+
+# How many steps with which to highlight thumbnail cells
+FadeSteps = 20
+FadeMilliseconds = 1500
 
 def minPanelWidth() -> int:
     """

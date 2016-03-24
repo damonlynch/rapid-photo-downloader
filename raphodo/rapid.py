@@ -100,11 +100,11 @@ from raphodo.devices import (Device, DeviceCollection, BackupDevice,
                      BackupDeviceCollection)
 from raphodo.preferences import (Preferences, ScanPreferences)
 from raphodo.constants import (BackupLocationType, DeviceType, ErrorType,
-                       FileType, DownloadStatus, RenameAndMoveStatus,
-                       photo_rename_test, ApplicationState, photo_rename_simple_test,
-                       CameraErrorCode, TemporalProximityState,
-                       ThumbnailBackgroundName, emptyViewHeight,
-                       DeviceState, Sort, Show, Roles)
+                               FileType, DownloadStatus, RenameAndMoveStatus,
+                               photo_rename_test, ApplicationState, photo_rename_simple_test,
+                               CameraErrorCode, TemporalProximityState,
+                               ThumbnailBackgroundName, EmptyViewHeight,
+                               DeviceState, Sort, Show, Roles)
 from raphodo.thumbnaildisplay import (ThumbnailView, ThumbnailListModel, ThumbnailDelegate,
                                       DownloadTypes, DownloadStats,
                                       ThumbnailSortFilterProxyModel)
@@ -1110,13 +1110,13 @@ class RapidWindow(QMainWindow):
 
         # For meaning of 'Devices', see devices.py
         self.devices = DeviceCollection()
-        self.deviceView = DeviceView()
+        self.deviceView = DeviceView(rapidApp=self)
         self.deviceModel = DeviceModel(self, "Devices")
         self.deviceView.setModel(self.deviceModel)
         self.deviceView.setItemDelegate(DeviceDelegate(rapidApp=self))
 
         # This computer is any local path
-        self.thisComputerView = DeviceView()
+        self.thisComputerView = DeviceView(rapidApp=self)
         self.thisComputerModel = DeviceModel(self, "This Computer")
         self.thisComputerView.setModel(self.thisComputerModel)
         self.thisComputerView.setItemDelegate(DeviceDelegate(self))
@@ -1248,7 +1248,7 @@ class RapidWindow(QMainWindow):
             height = view.sizeHint().height()
             view.setMaximumHeight(height)
         else:
-            view.setMaximumHeight(emptyViewHeight)
+            view.setMaximumHeight(EmptyViewHeight)
 
     def resizeDeviceViewsAndScrollArea(self, view: Optional[DeviceView]=None) -> None:
         """

@@ -55,7 +55,7 @@ from PyQt5.QtGui import (QPainter, QFontMetrics, QFont, QColor, QLinearGradient,
 
 from raphodo.viewutils import RowTracker
 from raphodo.constants import (DeviceState, FileType, CustomColors, DeviceType, Roles,
-                               emptyViewHeight, ViewRowType, minPanelWidth, Checked_Status)
+                               EmptyViewHeight, ViewRowType, minPanelWidth, Checked_Status)
 from raphodo.devices import Device, display_devices
 from raphodo.utilities import thousands, format_size_for_user
 from raphodo.storage import StorageSpace
@@ -362,14 +362,17 @@ class DeviceModel(QAbstractListModel):
 
 
 class DeviceView(QListView):
-    def __init__(self, parent=None):
+    def __init__(self, rapidApp, parent=None):
         super().__init__(parent)
+        self.rapidApp = rapidApp
         # Disallow the user from being able to select the table cells
         self.setSelectionMode(QAbstractItemView.NoSelection)
         self.view_width = minPanelWidth()
         # Assume view is always going to be placed into a QScrollArea
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.setMouseTracking(True)
+        self.entered.connect(self.rowEntered)
 
     def sizeHint(self):
         height = self.minimumHeight()
@@ -384,10 +387,16 @@ class DeviceView(QListView):
                 height += row_height
             height += len(model.headers) + 5
             return height
-        return emptyViewHeight
+        return EmptyViewHeight
 
     def minimumSizeHint(self):
         return self.sizeHint()
+
+    @pyqtSlot(QModelIndex)
+    def rowEntered(self, index: QModelIndex) -> None:
+        if index.data() == ViewRowType.header and len(self.rapidApp.devices) > 1:
+            scan_id = index.data(Roles.scan_id)
+            self.rapidApp.thumbnailModel.highlightDeviceThumbs(scan_id=scan_id)
 
 
 class DeviceDelegate(QStyledItemDelegate):

@@ -37,10 +37,11 @@ from gettext import gettext as _
 from sortedcontainers import (SortedListWithKey, SortedList)
 import arrow.arrow
 from dateutil.tz import tzlocal
+from colour import Color
 
 from PyQt5.QtCore import (QAbstractListModel, QModelIndex, Qt, pyqtSignal, QSize, QRect, QEvent,
                           QPoint, QMargins, QSortFilterProxyModel, QItemSelectionModel,
-                          QAbstractItemModel, pyqtSlot, QItemSelection)
+                          QAbstractItemModel, pyqtSlot, QItemSelection, QTimeLine)
 from PyQt5.QtWidgets import (QListView, QStyledItemDelegate, QStyleOptionViewItem, QApplication,
                              QStyle, QStyleOptionButton, QMenu, QWidget, QAbstractItemView)
 from PyQt5.QtGui import (QPixmap, QImage, QPainter, QColor, QBrush, QFontMetrics,
@@ -54,7 +55,8 @@ from raphodo.interprocess import (PublishPullPipelineManager, GenerateThumbnails
                           GenerateThumbnailsResults)
 from raphodo.constants import (DownloadStatus, Downloaded, FileType, FileExtension, ThumbnailSize,
                                ThumbnailCacheStatus, Roles, DeviceType, CustomColors, Show, Sort,
-                               ThumbnailBackgroundName, Desktop, DeviceState, extensionColor)
+                               ThumbnailBackgroundName, Desktop, DeviceState, extensionColor,
+                               FadeSteps, FadeMilliseconds)
 from raphodo.storage import get_program_cache_directory, get_desktop
 from raphodo.utilities import (CacheDirs, make_internationalized_list, format_size_for_user, runs)
 from raphodo.thumbnailer import Thumbnailer
@@ -162,6 +164,19 @@ class ThumbnailListModel(QAbstractListModel):
         self.thumbnailer_ready = False
         self.thumbnailer_generation_queue = []
 
+        # Highlight thumbnails when from particular device when there is more than one device
+        # Thumbnails to highlight by unique_id
+        self.highlighting = [] # type: List[str]
+        self.highlighting_scan_id = None
+        self.highlighting_timeline = QTimeLine(FadeMilliseconds // 2)
+        self.highlighting_timeline.frameChanged.connect(self.doHighlightDeviceThumbs)
+        self.highlighting_timeline.finished.connect(self.highlightPhaseFinished)
+        self.highlighting_timeline_max = FadeSteps
+        self.highlighting_timeline_mint = 0
+        self.highlighting_timeline.setFrameRange(self.highlighting_timeline_mint,
+                                                 self.highlighting_timeline_max)
+        self.highlight_value = 0
+
     def logState(self) -> None:
         logging.debug("-- Thumbnail Model --")
         if not self.thumbnailer_ready:
@@ -209,6 +224,11 @@ class ThumbnailListModel(QAbstractListModel):
         if role == Qt.DisplayRole:
             # This is never displayed, but is used for filtering!
             return self.rows[row].modification_time
+        elif role == Roles.highlight:
+            if rpd_file.scan_id == self.highlighting_scan_id:
+                return self.highlight_value
+            else:
+                return 0
         elif role == Qt.DecorationRole:
             return self.thumbnails[unique_id]
         elif role == Qt.CheckStateRole:
@@ -532,17 +552,40 @@ class ThumbnailListModel(QAbstractListModel):
             return len(self.marked) > 0
 
     def displayedNotDownloadedThumbs(self, scan_id: Optional[int]=None) -> Set[str]:
-        if scan_id is not None:
-            unique_ids = self.scan_index[scan_id] - self.downloaded
-        else:
-            unique_ids = self.not_downloaded.copy()
+        """
+        The not downloaded thumbnails available in the thumbnailView after filtering.
 
-        if self.proxyModel.proximity_rows:
-            unique_ids = unique_ids & self.rapidApp.temporalProximity.selected_unique_ids
+        :return set of thumbnails currently being displayed
+        """
+
+        if scan_id is not None:
+            if self.proxyModel.proximity_rows:
+                unique_ids = self.scan_index[scan_id] & \
+                             self.rapidApp.temporalProximity.selected_unique_ids
+                unique_ids -= self.downloaded
+            else:
+                unique_ids = self.scan_index[scan_id] - self.downloaded
+        else:
+            if self.proxyModel.proximity_rows:
+                unique_ids = self.not_downloaded & \
+                             self.rapidApp.temporalProximity.selected_unique_ids
+            else:
+                unique_ids = self.not_downloaded.copy()
 
         if self.rapidApp.showOnlyNewFiles():
             unique_ids -= self.previously_downloaded
 
+        return unique_ids
+
+    def displayedThumbs(self, scan_id: int) -> Set[str]:
+        if self.proxyModel.proximity_rows:
+            unique_ids = self.scan_index[scan_id] & \
+                       self.rapidApp.temporalProximity.selected_unique_ids
+        else:
+            unique_ids = self.scan_index[scan_id].copy()
+
+        if self.rapidApp.showOnlyNewFiles():
+            unique_ids -= self.previously_downloaded
         return unique_ids
 
     def getNoFilesMarkedForDownload(self) -> int:
@@ -833,6 +876,45 @@ class ThumbnailListModel(QAbstractListModel):
         for scan_id in scan_ids:
             self.updateDeviceDisplayCheckMark(scan_id=scan_id)
 
+    def highlightDeviceThumbs(self, scan_id) -> None:
+        """
+        Animate fade to and from highlight color for thumbnails associated
+        with device.
+        :param scan_id: device's id
+        """
+
+        if scan_id == self.highlighting_scan_id:
+            return
+
+        self.resetHighlighting()
+
+        self.highlighting_scan_id = scan_id
+        self.highlighting = list(self.displayedThumbs(scan_id=scan_id))
+        self.highlighting_timeline.setDirection(QTimeLine.Forward)
+        self.highlighting_timeline.start()
+
+    def resetHighlighting(self) -> None:
+        if self.highlighting_scan_id is not None:
+            self.highlighting_timeline.stop()
+            self.doHighlightDeviceThumbs(value=0)
+            self.highlighting_scan_id = None
+
+    @pyqtSlot(int)
+    def doHighlightDeviceThumbs(self, value: int) -> None:
+        self.highlight_value = value
+        rows = [self.rowFromUniqueId(unique_id) for unique_id in self.highlighting]
+        rows.sort()
+        for first, last in runs(rows):
+            self.dataChanged.emit(self.index(first, 0), self.index(last, 0))
+
+    @pyqtSlot()
+    def highlightPhaseFinished(self):
+        if self.highlighting_timeline.direction() == QTimeLine.Forward:
+            self.highlighting_timeline.setDirection(QTimeLine.Backward)
+            self.highlighting_timeline.start()
+        else:
+            self.highlighting_scan_id = None
+            self.highlighting = []
 
     def terminateThumbnailGeneration(self, scan_id: int) -> bool:
         """
@@ -985,7 +1067,7 @@ class ThumbnailDelegate(QStyledItemDelegate):
         self.darkGray = QColor(51, 51, 51)
 
         palette = QGuiApplication.palette()
-        self.highlight = palette.highlight().color()
+        self.highlight = palette.highlight().color()  # type: QColor
         self.highlight_size = 3
         self.highlight_offset = 1
         self.highlightPen = QPen()
@@ -1004,6 +1086,10 @@ class ThumbnailDelegate(QStyledItemDelegate):
 
         self.emblem_bottom = (self.image_frame_bottom + self.footer_padding +
                               self.emblemFontMetrics.height() + self.emblem_pad * 2)
+
+        ch = Color(self.highlight.name())
+        cg = Color(self.lightGray.name())
+        self.colorGradient = [QColor(c.hex) for c in cg.range_to(ch, FadeSteps)]
 
     @pyqtSlot()
     def doCopyPathAction(self) -> None:
@@ -1036,6 +1122,7 @@ class ThumbnailDelegate(QStyledItemDelegate):
         has_audio = index.data( Roles.has_audio)
         secondary_attribute = index.data(Roles.secondary_attribute)
         memory_cards = index.data(Roles.camera_memory_card) # type: List[int]
+        highlight = index.data(Roles.highlight)
 
         x = option.rect.x()
         y = option.rect.y()
@@ -1050,7 +1137,10 @@ class ThumbnailDelegate(QStyledItemDelegate):
         painter.fillRect(shadowRect, self.darkGray)
         painter.drawRect(shadowRect)
         painter.setRenderHint(QPainter.Antialiasing, False)
-        painter.fillRect(boxRect, self.lightGray)
+        if highlight != 0:
+            painter.fillRect(boxRect, self.colorGradient[highlight-1])
+        else:
+            painter.fillRect(boxRect, self.lightGray)
 
         if option.state & QStyle.State_Selected:
             hightlightRect = QRect(boxRect.left() + self.highlight_offset,
@@ -1088,6 +1178,9 @@ class ThumbnailDelegate(QStyledItemDelegate):
 
         if previously_downloaded and not checked:
             painter.setOpacity(self.dimmed_opacity)
+
+        # painter.setPen(QColor(Qt.blue))
+        # painter.drawText(x + 2, y + 15, str(index.row()))
 
         if has_audio:
             audio_x = self.width // 2 - self.audioIcon.width() // 2 + x

@@ -104,6 +104,7 @@ Rapid Photo Downloader requires:
  - exiv2_
  - ExifTool_
  - EasyGUI_
+ - Colour_
  - Qt5 plugin for reading TIFF images
  - If using Python 3.4, these additional modules:
     - typing_
@@ -205,3 +206,4 @@ If you installed the man pages, they are found in ``/usr/local/share/man/man1``.
 .. _libraw: http://www.libraw.org/
 .. _PyQt: https://riverbankcomputing.com/software/pyqt/intro
 .. _EasyGUI: https://github.com/robertlugg/easygui
+.. _Colour: https://github.com/vaab/colour
