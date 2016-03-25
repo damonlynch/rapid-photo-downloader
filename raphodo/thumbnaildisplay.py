@@ -744,6 +744,7 @@ class ThumbnailListModel(QAbstractListModel):
             else:
                 unique_ids = unique_ids & self.videos
         else:
+            # print("***\ngenerating sets")
             unique_ids = self.displayedNotDownloadedThumbs()
 
             if file_type == FileType.photo:
@@ -754,41 +755,58 @@ class ThumbnailListModel(QAbstractListModel):
         if not unique_ids:
             return
 
-        rows = SortedList()
         proxy = self.rapidApp.thumbnailProxyModel  # type: ThumbnailSortFilterProxyModel
         selection = self.rapidApp.thumbnailView.selectionModel()  # type: QItemSelectionModel
         selected = selection.selection()  # type: QItemSelection
-        selected_indexes =  selected.indexes()
 
         if select_all:
-            for unique_id in unique_ids:
-                row = self.rowFromUniqueId(unique_id)
-                model_index = self.index(row, 0)
-                proxy_index = proxy.mapFromSource(model_index)
-                if proxy_index not in selected_indexes:
-                    rows.add(row)
+            # print("gathering unique ids")
+            rows = [self.rowFromUniqueId(unique_id) for unique_id in unique_ids]
+            # print(len(rows))
+            # print('doing sort')
+            rows.sort()
             new_selection = QItemSelection()  # type: QItemSelection
+            # print("creating new selection")
             for first, last in runs(rows):
                 new_selection.select(self.index(first, 0), self.index(last, 0))
+            # print('mapping selection')
             new_selection = proxy.mapSelectionFromSource(new_selection)
+            # print('merging select')
             new_selection.merge(selected, QItemSelectionModel.Select)
+            # print('resetting')
+            selection.reset()
+            # print('doing select')
+            selection.select(new_selection, QItemSelectionModel.Select)
+        else:
+            # print("mapping existing selection to source")
+            source_selected = proxy.mapSelectionToSource(selected)  # type: QItemSelection
+            # print("gathering unique ids from existing selection")
+            if file_type == FileType.photo:
+                keep_type = FileType.video
+            else:
+                keep_type = FileType.photo
+            # print("filtering", keep_type)
+            keep_rows = [index.row() for index in source_selected.indexes()
+                         if self.rpd_files[self.rows[index.row()].id_value].file_type == keep_type]
+            rows = [index.row() for index in source_selected.indexes()]
+            # print(len(keep_rows), len(rows))
+            # print("sorting rows to keep")
+            keep_rows.sort()
+            new_selection = QItemSelection()  # type: QItemSelection
+            # print("creating new selection")
+            for first, last in runs(keep_rows):
+                new_selection.select(self.index(first, 0), self.index(last, 0))
+            # print('mapping selection')
+            new_selection = proxy.mapSelectionFromSource(new_selection)
+            # print('resetting')
+            selection.reset()
+            # print('doing select')
             selection.select(new_selection, QItemSelectionModel.Select)
 
-        else:
-            for unique_id in unique_ids:
-                row = self.rowFromUniqueId(unique_id)
-                model_index = self.index(row, 0)
-                proxy_index = proxy.mapFromSource(model_index)
-                if proxy_index in selected_indexes:
-                    rows.add(row)
-            new_selection = QItemSelection()
-            for first, last in runs(rows):
-                new_selection.select(self.index(first, 0), self.index(last, 0))
-            new_selection = proxy.mapSelectionFromSource(new_selection)
-            selection.select(new_selection, QItemSelectionModel.Deselect)
-
+        # print('doing data changed')
         for first, last in runs(rows):
             self.dataChanged.emit(self.index(first, 0), self.index(last, 0))
+        # print("finished")
 
     def checkAll(self, check_all: bool,
                  file_type: Optional[FileType]=None,
@@ -807,8 +825,6 @@ class ThumbnailListModel(QAbstractListModel):
         :param file_type: if specified, files must be of specified type
         :param scan_id: if specified, affects only files for that scan
         """
-
-        rows = SortedList()
 
         if check_all:
             if scan_id is not None:
@@ -832,17 +848,13 @@ class ThumbnailListModel(QAbstractListModel):
         if self.rapidApp.showOnlyNewFiles():
             unique_ids -= self.previously_downloaded
 
-        for unique_id in unique_ids:
-            row = self.rowFromUniqueId(unique_id)
-            rows.add(row)
-
         if check_all:
-            for unique_id in unique_ids:
-                self.marked.add(unique_id)
+            self.marked |= unique_ids
         else:
-            for unique_id in unique_ids:
-                self.marked.remove(unique_id)
+            self.marked -= unique_ids
 
+        rows = [self.rowFromUniqueId(unique_id) for unique_id in unique_ids]
+        rows.sort()
         for first, last in runs(rows):
             self.dataChanged.emit(self.index(first, 0), self.index(last, 0))
 
@@ -1403,11 +1415,9 @@ class ThumbnailSortFilterProxyModel(QSortFilterProxyModel):
         sortLeftData = self.sourceModel().data(left, sortRole)
         sortRightData = self.sourceModel().data(right, sortRole)
 
-        # Get modification time too
-        leftData = self.sourceModel().data(left)
-        rightData = self.sourceModel().data(right)
-
         if sortLeftData == sortRightData:
+            leftData = self.sourceModel().data(left)
+            rightData = self.sourceModel().data(right)
             return leftData < rightData
         else:
             return sortLeftData < sortRightData
