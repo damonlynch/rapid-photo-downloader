@@ -491,7 +491,7 @@ class TemporalProximityGroups:
         # Generate an arrow date time for every timestamp we have
         uniqueid_times = [UniqueIdTime(tr.modification_time,
                                        arrow.get(tr.modification_time).to('local'),
-                                       tr.id_value)
+                                       tr.unique_id)
                           for tr in thumbnail_rows]
 
         now = arrow.now().to('local')

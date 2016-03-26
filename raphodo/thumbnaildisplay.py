@@ -34,12 +34,11 @@ from typing import Optional, Dict, List, Set, Tuple
 
 from gettext import gettext as _
 
-from sortedcontainers import (SortedListWithKey, SortedList)
 import arrow.arrow
 from dateutil.tz import tzlocal
 from colour import Color
 
-from PyQt5.QtCore import (QAbstractListModel, QModelIndex, Qt, pyqtSignal, QSize, QRect, QEvent,
+from PyQt5.QtCore import (QAbstractTableModel, QModelIndex, Qt, pyqtSignal, QSize, QRect, QEvent,
                           QPoint, QMargins, QSortFilterProxyModel, QItemSelectionModel,
                           QAbstractItemModel, pyqtSlot, QItemSelection, QTimeLine)
 from PyQt5.QtWidgets import (QListView, QStyledItemDelegate, QStyleOptionViewItem, QApplication,
@@ -49,7 +48,7 @@ from PyQt5.QtGui import (QPixmap, QImage, QPainter, QColor, QBrush, QFontMetrics
 
 import zmq
 
-from raphodo.viewutils import RowTracker, SortedListItem
+from raphodo.viewutils import (SortedListItem, SortedRows)
 from raphodo.rpdfile import RPDFile, FileTypeCounter
 from raphodo.interprocess import (PublishPullPipelineManager, GenerateThumbnailsArguments, Device,
                           GenerateThumbnailsResults)
@@ -107,7 +106,7 @@ class ThumbnailManager(PublishPullPipelineManager):
         return self._worker_id
 
 
-class ThumbnailListModel(QAbstractListModel):
+class ThumbnailListModel(QAbstractTableModel):
     def __init__(self, parent, logging_port: int, log_gphoto2: bool) -> None:
         super().__init__(parent)
         self.rapidApp = parent
@@ -147,10 +146,10 @@ class ThumbnailListModel(QAbstractListModel):
         # Files are hidden when the combo box "Show" in the main window is set to
         # "New" instead of the default "All".
 
-        # Sort thumbnails based on the time the files were modified
-        self.rows = SortedListWithKey(key=attrgetter('modification_time'))
         # unique_id: RPDFile
         self.rpd_files = {}  # type: Dict[str, RPDFile]
+        # Sort thumbnails based on the time the files were modified
+        self.rows = SortedRows(self.rpd_files, self.rapidApp.devices, self.marked)
         # scan_id: unique_id  -- includes scan ids of removed devices
         self.scan_index = defaultdict(set)  # type: defaultdict[int, Set[str]]
 
@@ -201,12 +200,9 @@ class ThumbnailListModel(QAbstractListModel):
                                     if scan_id not in self.removed_devices))
             logging.debug("%s total devices seen; %s devices removed",
                           len(self.scan_index),  len(self.removed_devices))
-    def rowFromUniqueId(self, unique_id: str) -> int:
-        list_item = SortedListItem(unique_id, self.rpd_files[unique_id].modification_time)
-        return self.rows.index(list_item)
 
-    def columnCount(self, parent: QModelIndex) -> int:
-        return 1
+    def columnCount(self, parent: QModelIndex=QModelIndex()) -> int:
+        return 2
 
     def rowCount(self, parent: QModelIndex=QModelIndex()) -> int:
         return len(self.rows)
@@ -218,12 +214,16 @@ class ThumbnailListModel(QAbstractListModel):
         row = index.row()
         if row >= len(self.rows) or row < 0:
             return None
-        unique_id = self.rows[row].id_value
+
+        if index.column() == 1:
+            return row
+
+        unique_id = self.rows.unique_id(row)
         rpd_file = self.rpd_files[unique_id] # type: RPDFile
 
         if role == Qt.DisplayRole:
             # This is never displayed, but is used for filtering!
-            return self.rows[row].modification_time
+            return rpd_file.modification_time
         elif role == Roles.highlight:
             if rpd_file.scan_id == self.highlighting_scan_id:
                 return self.highlight_value
@@ -330,7 +330,7 @@ class ThumbnailListModel(QAbstractListModel):
         row = index.row()
         if row >= len(self.rows) or row < 0:
             return False
-        unique_id = self.rows[row].id_value
+        unique_id = self.rows.unique_id(row)
         if role == Qt.CheckStateRole:
             self.setCheckedValue(value, unique_id)
             self.dataChanged.emit(self.index(row, 0), self.index(row, 0))
@@ -362,7 +362,7 @@ class ThumbnailListModel(QAbstractListModel):
 
     def removeRows(self, position, rows=1, index=QModelIndex()):
         self.beginRemoveRows(QModelIndex(), position, position + rows - 1)
-        unique_ids = [item.id_value for item in self.rows[position:position+rows]]
+        unique_ids = [item.unique_id for item in self.rows[position:position+rows]]
         del self.rows[position:position+rows]
         for unique_id in unique_ids:
             scan_id = self.rpd_files[unique_id].scan_id
@@ -409,11 +409,24 @@ class ThumbnailListModel(QAbstractListModel):
             self.total_thumbs_to_generate += 1
             self.no_thumbnails_by_scan[rpd_file.scan_id] += 1
 
-        list_item = SortedListItem(unique_id, rpd_file.modification_time)
-        self.rows.add(list_item)
-        row = self.rows.index(list_item)
+        row = self.rows.add(rpd_file=rpd_file)
 
         self.insertRow(row)
+
+    def setFileSort(self, sort: Sort, order: Qt.SortOrder) -> None:
+        if self.rows.key != sort:
+            print("resetting")
+            self.beginResetModel()
+            self.rows.set_key(key=sort)
+            self.endResetModel()
+        if order != self.rows.order:
+            self.rows.set_order(order=order)
+            if order == Qt.DescendingOrder:
+                self.rapidApp.thumbnailProxyModel.sort(1, order)
+            else:
+                self.rapidApp.thumbnailProxyModel.sort(-1, order)
+            self.rapidApp.thumbnailProxyModel.invalidateFilter()
+        print('done')
 
     @pyqtSlot(int, CacheDirs)
     def cacheDirsReceived(self, scan_id: int, cache_dirs: CacheDirs):
@@ -431,7 +444,7 @@ class ThumbnailListModel(QAbstractListModel):
         self.rpd_files[unique_id] = rpd_file
         if not thumbnail.isNull():
             try:
-                row = self.rowFromUniqueId(unique_id)
+                row = self.rows.row_from_id(unique_id=unique_id)
             except ValueError:
                 return
             self.thumbnails[unique_id] = thumbnail
@@ -523,13 +536,14 @@ class ThumbnailListModel(QAbstractListModel):
             # Generate list of thumbnails to remove
             if keep_downloaded_files:
                 not_downloaded = self.scan_index[scan_id] - self.downloaded
-                rows = [self.rowFromUniqueId(unique_id) for unique_id in not_downloaded]
+                rows = [self.rows.row_from_id(unique_id) for unique_id in not_downloaded]
             else:
-                rows = [self.rowFromUniqueId(unique_id) for unique_id in self.scan_index[scan_id]]
+                rows = [self.rows.row_from_id(unique_id) for unique_id in self.scan_index[scan_id]]
 
             # Generate groups of rows, and remove that group
             rows.sort()
             start = 0
+            # TODO use first, last, run
             for index, row in enumerate(rows[:-1]):
                 if row+1 != rows[index+1]:
                     group = rows[start:index+1]
@@ -615,6 +629,7 @@ class ThumbnailListModel(QAbstractListModel):
         return sum(self.rpd_files[unique_id].size for unique_id in self.marked)
 
     def getNoFilesAvailableForDownload(self) -> FileTypeCounter:
+        # TODO update this to use not downloaded set
         return FileTypeCounter(rpd_file.file_type for rpd_file in self.rpd_files.values() if
                                 rpd_file.status == DownloadStatus.not_downloaded)
 
@@ -645,6 +660,7 @@ class ThumbnailListModel(QAbstractListModel):
 
         for unique_id in unique_ids:
             rpd_file = self.rpd_files[unique_id] # type: RPDFile
+            # TODO update this to use not downloaded set
             if rpd_file.status not in Downloaded:
                 scan_id = rpd_file.scan_id
                 files[scan_id].append(rpd_file)
@@ -686,7 +702,7 @@ class ThumbnailListModel(QAbstractListModel):
                 unique_id = rpd_file.unique_id
                 self.rpd_files[unique_id].status = DownloadStatus.download_pending
                 self.marked.remove(unique_id)
-                row = self.rowFromUniqueId(unique_id)
+                row = self.rows.row_from_id(unique_id)
                 self.dataChanged.emit(self.index(row,0),self.index(row,0))
 
     def markThumbnailsNeeded(self, rpd_files: List[RPDFile]) -> bool:
@@ -761,7 +777,7 @@ class ThumbnailListModel(QAbstractListModel):
 
         if select_all:
             # print("gathering unique ids")
-            rows = [self.rowFromUniqueId(unique_id) for unique_id in unique_ids]
+            rows = [self.rows.row_from_id(unique_id) for unique_id in unique_ids]
             # print(len(rows))
             # print('doing sort')
             rows.sort()
@@ -787,7 +803,7 @@ class ThumbnailListModel(QAbstractListModel):
                 keep_type = FileType.photo
             # print("filtering", keep_type)
             keep_rows = [index.row() for index in source_selected.indexes()
-                         if self.rpd_files[self.rows[index.row()].id_value].file_type == keep_type]
+                         if self.rpd_files[self.rows.unique_id(index.row())].file_type == keep_type]
             rows = [index.row() for index in source_selected.indexes()]
             # print(len(keep_rows), len(rows))
             # print("sorting rows to keep")
@@ -853,7 +869,7 @@ class ThumbnailListModel(QAbstractListModel):
         else:
             self.marked -= unique_ids
 
-        rows = [self.rowFromUniqueId(unique_id) for unique_id in unique_ids]
+        rows = [self.rows.row_from_id(unique_id) for unique_id in unique_ids]
         rows.sort()
         for first, last in runs(rows):
             self.dataChanged.emit(self.index(first, 0), self.index(last, 0))
@@ -925,7 +941,7 @@ class ThumbnailListModel(QAbstractListModel):
     @pyqtSlot(int)
     def doHighlightDeviceThumbs(self, value: int) -> None:
         self.highlight_value = value
-        rows = [self.rowFromUniqueId(unique_id) for unique_id in self.highlighting]
+        rows = [self.rows.row_from_id(unique_id) for unique_id in self.highlighting]
         rows.sort()
         for first, last in runs(rows):
             self.dataChanged.emit(self.index(first, 0), self.index(last, 0))
@@ -977,7 +993,7 @@ class ThumbnailListModel(QAbstractListModel):
         self.rpd_files[unique_id] = rpd_file
         self.downloaded.add(unique_id)
         self.not_downloaded.remove(unique_id)
-        row = self.rowFromUniqueId(rpd_file.unique_id)
+        row = self.rows.row_from_id(rpd_file.unique_id)
         self.dataChanged.emit(self.index(row,0),self.index(row,0))
 
     def filesRemainToDownload(self) -> bool:
@@ -1409,15 +1425,3 @@ class ThumbnailSortFilterProxyModel(QSortFilterProxyModel):
             return True
         return sourceRow in self.proximity_rows
 
-    def lessThan(self, left: QModelIndex, right: QModelIndex) -> bool:
-        sortRole = self.sortRole()
-
-        sortLeftData = self.sourceModel().data(left, sortRole)
-        sortRightData = self.sourceModel().data(right, sortRole)
-
-        if sortLeftData == sortRightData:
-            leftData = self.sourceModel().data(left)
-            rightData = self.sourceModel().data(right)
-            return leftData < rightData
-        else:
-            return sortLeftData < sortRightData

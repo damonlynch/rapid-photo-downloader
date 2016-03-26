@@ -509,6 +509,9 @@ class RapidWindow(QMainWindow):
         centralWidget = QWidget()
         self.setCentralWidget(centralWidget)
 
+        # For meaning of 'Devices', see devices.py
+        self.devices = DeviceCollection()
+
         self.thumbnailView = ThumbnailView(self)
         logging.debug("Starting thumbnail model")
         self.thumbnailModel = ThumbnailListModel(parent=self, logging_port=logging_port,
@@ -914,28 +917,7 @@ class RapidWindow(QMainWindow):
     def sortComboChanged(self, index: int) -> None:
         sort = self.sortCombo.currentData()
         order = self.sortOrder.currentData()
-        if sort == Sort.checked_state:
-            self.thumbnailProxyModel.setSortRole(Qt.CheckStateRole)
-            self.thumbnailProxyModel.sort(0, order)
-        elif sort == Sort.filename:
-            self.thumbnailProxyModel.setSortRole(Roles.filename)
-            self.thumbnailProxyModel.sort(0, order)
-        elif sort == Sort.extension:
-            self.thumbnailProxyModel.setSortRole(Roles.sort_extension)
-            self.thumbnailProxyModel.sort(0, order)
-        elif sort == Sort.modification_time:
-            self.thumbnailProxyModel.setSortRole(Qt.DisplayRole)
-            if order == Qt.AscendingOrder:
-                self.thumbnailProxyModel.sort(-1)
-            else:
-                self.thumbnailProxyModel.sort(0, order)
-        elif sort == Sort.file_type:
-            self.thumbnailProxyModel.setSortRole(Roles.file_type_sort)
-            self.thumbnailProxyModel.sort(0, order)
-        else:
-            assert sort == Sort.device
-            self.thumbnailProxyModel.setSortRole(Roles.device_name)
-            self.thumbnailProxyModel.sort(0, order)
+        self.thumbnailModel.setFileSort(sort=sort, order=order)
 
     @pyqtSlot(int)
     def sortOrderChanged(self, index: int) -> None:
@@ -1110,9 +1092,6 @@ class RapidWindow(QMainWindow):
         return rightBar
 
     def createPathViews(self) -> None:
-
-        # For meaning of 'Devices', see devices.py
-        self.devices = DeviceCollection()
         self.deviceView = DeviceView(rapidApp=self)
         self.deviceModel = DeviceModel(self, "Devices")
         self.deviceView.setModel(self.deviceModel)
@@ -2682,11 +2661,10 @@ class RapidWindow(QMainWindow):
 
         # Convert the thumbnail rows to a regular list, because it's going
         # to be pickled.
-        rows = list(self.thumbnailModel.rows)
+        rows = list(self.thumbnailModel.rows.rows)
         rpd_files = self.thumbnailModel.rpd_files
-        file_types = [rpd_files[row.id_value].file_type for row in rows]
-        extension_types = [rpd_files[row.id_value].extension_type for row in rows]
-        previously_downloaded = [rpd_files[row.id_value].previously_downloaded() for row in rows]
+        file_types = [rpd_files[row.unique_id].file_type for row in rows]
+        previously_downloaded = [rpd_files[row.unique_id].previously_downloaded() for row in rows]
 
         data = OffloadData(thumbnail_rows=rows,
                            thumbnail_types=file_types,

@@ -19,10 +19,17 @@
 __author__ = 'Damon Lynch'
 __copyright__ = "Copyright 2015-2016, Damon Lynch"
 
+from operator import attrgetter
+from typing import List, Dict, Set
+
+from PyQt5.QtCore import Qt
 from PyQt5.QtWidgets import (QStyleOptionFrame, QStyle, QStylePainter, QWidget)
 
-from typing import List, Dict
+from sortedcontainers import SortedListWithKey
 
+from raphodo.constants import Sort
+from raphodo.rpdfile import RPDFile, FileType
+from raphodo.devices import DeviceCollection, Device
 
 class RowTracker:
     r"""
@@ -136,19 +143,109 @@ class RowTracker:
 
 
 class SortedListItem:
-    def __init__(self, id_value, modification_time: float) -> None:
-        self.id_value = id_value
+    def __init__(self, unique_id: str,
+                 modification_time: float,
+                 marked: bool,
+                 filename: str,
+                 extension: str,
+                 file_type: FileType,
+                 device_name: str) -> None:
+        self.unique_id = unique_id
         self.modification_time = modification_time
+        self.marked = marked
+        self.filename = filename
+        self.extension = extension
+        self.file_type = file_type
+        self.device_name = device_name
 
     def __repr__(self) -> str:
-        return '%r:%r' % (self.id_value, self.modification_time)
+        return '%r:%r' % (self.unique_id, self.filename)
 
-    def __eq__(self, other) -> bool:
-        return (self.id_value == other.id_value and
-                self.modification_time == other.modification_time)
+    def __eq__(self, other: 'SortedListItem') -> bool:
+        return (self.unique_id == other.unique_id and
+                self.modification_time == other.modification_time and
+                self.marked == other.marked and
+                self.filename == other.filename and
+                self.extension == other.extension and
+                self.file_type == other.file_type and
+                self.device_name == other.device_name)
 
     def __hash__(self):
-        return hash((self.id_value, self.modification_time))
+        return hash((self.unique_id, self.modification_time, self.marked, self.filename,
+                     self.extension, self.file_type, self.device_name))
+
+
+class SortedRows:
+
+    keymap = {Sort.modification_time: attrgetter('modification_time'),
+           Sort.checked_state: attrgetter('marked', 'modification_time'),
+           Sort.filename: attrgetter('filename', 'modification_time'),
+           Sort.extension: attrgetter('extension', 'modification_time'),
+           Sort.file_type: attrgetter('file_type', 'modification_time'),
+           Sort.device: attrgetter('device_name', 'modification_time'),
+           }
+
+    def __init__(self, rpd_files: Dict[str, RPDFile],
+                 devices: DeviceCollection,
+                 marked: Set[str],
+                 key=Sort.modification_time,
+                 order: Qt.SortOrder=Qt.AscendingOrder,
+                 iterable=None) -> None:
+        self.key = key
+        self.order = order
+        self.rows = SortedListWithKey(iterable, key=self.keymap[key])
+        self.rpd_files = rpd_files
+        self.devices = devices
+        self.marked = marked
+
+    def add(self, rpd_file: RPDFile):
+        unique_id = rpd_file.unique_id
+        list_item = SortedListItem(unique_id=unique_id,
+                                   modification_time=self.rpd_files[unique_id].modification_time,
+                                   marked=unique_id in self.marked,
+                                   filename=rpd_file.name,
+                                   extension=rpd_file.extension,
+                                   file_type=rpd_file.file_type,
+                                   device_name=self.devices[rpd_file.scan_id].display_name)
+        self.rows.add(list_item)
+        return self.rows.index(list_item)
+
+    def row_from_id(self, unique_id) -> int:
+        rpd_file = self.rpd_files[unique_id]
+        list_item = SortedListItem(unique_id=unique_id,
+                                   modification_time=self.rpd_files[unique_id].modification_time,
+                                   marked=unique_id in self.marked,
+                                   filename=rpd_file.name,
+                                   extension=rpd_file.extension,
+                                   file_type=rpd_file.file_type,
+                                   device_name=self.devices[rpd_file.scan_id].display_name)
+        return self.rows.index(list_item)
+
+    def set_key(self, key: Sort) -> None:
+        if key != self.key:
+            rows = SortedListWithKey(self.rows, key=self.keymap[key])
+            self.rows = rows
+            self.key = key
+
+    def set_order(self, order: Qt.SortOrder) -> None:
+        self.order = order
+
+    def unique_id(self, row) -> str:
+        return self[row].unique_id
+
+    def __getitem__(self, row: int) -> SortedListItem:
+        # if self.order == Qt.DescendingOrder:
+        #     row = -1 - row
+        return self.rows.__getitem__(row)
+
+    def __len__(self):
+        return len(self.rows)
+
+    def __delitem__(self, idx):
+        self.rows.__delitem__(idx)
+
+    def rpd_file(self, row: int) -> RPDFile:
+        return self.rpd_files[self.rows[row]]
 
 
 class QFramedWidget(QWidget):

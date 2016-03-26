@@ -373,7 +373,7 @@ class RPDFile:
         self.problem = None # class Problem in problemnotifcation.py
 
         self.scan_id = int(scan_id)
-        self.unique_id = '{}:{}'.format(self.scan_id, uuid.uuid4())
+        self.unique_id = self.scan_id, uuid.uuid4().bytes
 
         self.job_code = None
 
