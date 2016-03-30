@@ -26,13 +26,12 @@ import pickle
 import os
 import shlex
 import time
-from collections import deque
-from typing import Optional, Set, List, Dict
+from collections import deque, namedtuple
+from typing import Optional, Set, List, Dict, Sequence
 import signal
 import ctypes
 
 import psutil
-from sortedcontainers import SortedListWithKey
 
 from PyQt5.QtCore import (pyqtSignal, QObject, pyqtSlot)
 from PyQt5.QtGui import QPixmap
@@ -50,8 +49,8 @@ from raphodo.constants import (RenameAndMoveStatus, ExtractionTask, ExtractionPr
                                CameraErrorCode, FileType, FileExtension)
 from raphodo.proximity import TemporalProximityGroups
 from raphodo.storage import StorageSpace
-from raphodo.viewutils import SortedListItem
 from raphodo.iplogging import ZeroMQSocketHandler
+from raphodo.viewutils import ThumbnailDataForProximity
 
 logger = logging.getLogger()
 
@@ -1139,13 +1138,9 @@ class RenameAndMoveFileResults:
 
 
 class OffloadData:
-    def __init__(self, thumbnail_rows: Optional[List[SortedListItem]]=None,
-                 thumbnail_types: Optional[List[FileType]]=None,
-                 previously_downloaded: Optional[List[bool]]=None,
+    def __init__(self, thumbnail_rows: Optional[Sequence[ThumbnailDataForProximity]]=None,
                  proximity_seconds: int=None) -> None:
         self.thumbnail_rows = thumbnail_rows
-        self.thumbnail_types = thumbnail_types
-        self.previously_downloaded = previously_downloaded
         self.proximity_seconds = proximity_seconds
 
 

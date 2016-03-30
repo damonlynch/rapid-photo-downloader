@@ -165,9 +165,7 @@ class Roles(IntEnum):
     is_camera = Qt.UserRole + 12
     sort_extension = Qt.UserRole + 13
     filename = Qt.UserRole + 14
-    file_type_sort = Qt.UserRole + 15
     highlight = Qt.UserRole + 16
-    device_name = Qt.UserRole + 17
 
 
 class ExtractionTask(Enum):
@@ -264,7 +262,7 @@ EmptyViewHeight = 20
 
 # How many steps with which to highlight thumbnail cells
 FadeSteps = 20
-FadeMilliseconds = 1500
+FadeMilliseconds = 700
 
 def minPanelWidth() -> int:
     """

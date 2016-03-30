@@ -25,16 +25,354 @@ import sqlite3
 import os
 import datetime
 from collections import namedtuple
-from typing import Optional
-import sys
+from typing import Optional, List, Tuple, Any, Sequence
+import logging
+
+from PyQt5.QtCore import Qt
 
 from raphodo.storage import (get_program_data_directory, get_program_cache_directory)
 from raphodo.utilities import divide_list_on_length
 from raphodo.photoattributes import PhotoAttributes
+from raphodo.constants import FileType, Sort, Show
+from raphodo.utilities import runs
 
 FileDownloaded = namedtuple('FileDownloaded', 'download_name, download_datetime')
 
 InCache = namedtuple('InCache', 'md5_name, orientation_unknown, failure')
+
+ThumbnailRow = namedtuple('ThumbnailRow', 'uid, scan_id, mtime, marked, file_name, extension, '
+                                          'file_type, downloaded, previously_downloaded, '
+                                          'proximity_col1, proximity_col2')
+
+sqlite3.register_adapter(bool, int)
+sqlite3.register_converter("BOOLEAN", lambda v: bool(int(v)))
+sqlite3.register_adapter(FileType, int)
+sqlite3.register_converter("FILETYPE", lambda v: FileType(int(v)))
+
+class ThumbnailRowsSQL:
+    """
+    In memory thumbnail rows display.
+    """
+
+    def __init__(self) -> None:
+        """
+
+        """
+
+        self.db = ':memory:'
+
+        self.sort_order_map = {Qt.AscendingOrder: 'ASC', Qt.DescendingOrder: 'DESC'}
+        self.sort_map = {Sort.checked_state: 'marked', Sort.filename: 'file_name',
+                         Sort.extension: 'extension', Sort.file_type: 'file_type',
+                         Sort.device: 'device_name'}
+
+        self.conn = sqlite3.connect(self.db, detect_types=sqlite3.PARSE_DECLTYPES)
+
+        self.conn.execute("""CREATE TABLE devices (
+            scan_id INTEGER NOT NULL,
+            device_name TEXT NOT NULL,
+            PRIMARY KEY (scan_id)
+            )""")
+
+        self.conn.execute("""CREATE TABLE files (
+            uid BLOB PRIMARY KEY,
+            scan_id INTEGER NOT NULL,
+            mtime REAL NOT NULL,
+            marked BOOLEAN NOT NULL,
+            file_name TEXT NOT NULL,
+            extension TEXT NOT NULL,
+            file_type FILETYPE NOT NULL,
+            downloaded BOOLEAN NOT NULL,
+            previously_downloaded BOOLEAN NOT NULL,
+            proximity_col1 INTEGER NOT NULL,
+            proximity_col2 INTEGER NOT NULL,
+            FOREIGN KEY (scan_id) REFERENCES devices (scan_id)
+            )""")
+
+        self.conn.execute('CREATE INDEX IF NOT EXISTS scand_id_idx ON devices (scan_id)')
+
+        self.conn.execute('CREATE INDEX IF NOT EXISTS marked_idx ON files (marked)')
+
+        self.conn.execute('CREATE INDEX IF NOT EXISTS file_type_idx ON files (file_type)')
+
+        self.conn.execute('CREATE INDEX IF NOT EXISTS downloaded_idx ON files (downloaded)')
+
+        self.conn.execute("""CREATE INDEX IF NOT EXISTS previously_downloaded_idx ON files 
+            (previously_downloaded)""")
+
+        self.conn.execute("""CREATE INDEX IF NOT EXISTS proximity_col1_idx ON files
+            (proximity_col1)""")
+
+        self.conn.execute("""CREATE INDEX IF NOT EXISTS proximity_col2_idx ON files
+            (proximity_col2)""")
+
+        self.conn.commit()
+
+    def add_or_update_device(self, scan_id: int, device_name: str) -> None:
+        query = 'INSERT OR REPLACE INTO devices (scan_id, device_name) VALUES (?,?)'
+        logging.debug('%s (%s, %s)', query, scan_id, device_name)
+        self.conn.execute(query, (scan_id, device_name))
+
+        self.conn.commit()
+
+    def get_all_devices(self) -> List[int]:
+        query = 'SELECT scan_id FROM devices'
+        rows = self.conn.execute(query).fetchall()
+        return [row[0] for row in rows]
+
+    def add_thumbnail_rows(self, thumbnail_rows: Sequence[ThumbnailRow]) -> None:
+        """
+        Add a list of rows to database of thumbnail rows
+
+        """
+
+        logging.debug("Adding %s rows to db", len(thumbnail_rows))
+        self.conn.executemany(r"""INSERT INTO files (uid, scan_id, mtime, marked, file_name,
+        extension, file_type, downloaded, previously_downloaded, proximity_col1, proximity_col2)
+        VALUES (?,?,?,?,?,?,?,?,?,?,?)""", thumbnail_rows)
+
+        self.conn.commit()
+
+    def _build_where(self, scan_id: Optional[int]=None,
+                     show: Optional[Show]=None,
+                     previously_downloaded: Optional[bool]=None,
+                     downloaded: Optional[bool]=None,
+                     file_type: Optional[FileType]=None,
+                     marked: Optional[bool]=None,
+                     proximity_col1: Optional[List[int]]=None,
+                     proximity_col2: Optional[List[int]]=None) -> Tuple[str, Tuple[Any]]:
+
+        where_clauses = []
+        where_values = []
+
+        if scan_id is not None:
+            where_clauses.append('scan_id=?')
+            where_values.append(scan_id)
+
+        if marked is not None:
+            where_clauses.append('marked=?')
+            where_values.append(marked)
+
+        if file_type is not None:
+            where_clauses.append('file_type=?')
+            where_values.append(file_type)
+
+        if show == Show.new_only:
+            where_clauses.append('previously_downloaded=0')
+        elif previously_downloaded is not None:
+            where_clauses.append('previously_downloaded=?')
+            where_values.append(previously_downloaded)
+
+        if downloaded is not None:
+            where_clauses.append('downloaded=?')
+            where_values.append(downloaded)
+
+        for p, col_name in ((proximity_col1, 'proximity_col1'), (proximity_col2, 'proximity_col2')):
+            if not p:
+                continue
+            if len(p) == 1:
+                where_clauses.append('{}=?'.format(col_name))
+                where_values.append(p[0])
+            else:
+                p.sort()
+                or_clauses = []
+                for first, last in runs(p):
+                    if first == last:
+                        or_clauses.append('{}=?'.format(col_name))
+                        where_values.append(first)
+                    else:
+                        or_clauses.append('({} BETWEEN ? AND ?)'.format(col_name, first,
+                                                                              last))
+                        where_values.extend((first, last))
+                where_clauses.append('({})'.format(' OR '.join(or_clauses)))
+
+        where = ' AND '.join(where_clauses)
+        return (where, where_values)
+
+    def get_view(self, sort_by: Sort,
+                 sort_order: Qt.SortOrder,
+                 show: Show,
+                 proximity_col1: Optional[List[int]] = None,
+                 proximity_col2: Optional[List[int]] = None) -> List[Tuple[bytes, bool]]:
+
+        where, where_values = self._build_where(show=show,
+                                                proximity_col1=proximity_col1,
+                                                proximity_col2=proximity_col2)
+
+        if sort_by == Sort.modification_time:
+            sort = 'ORDER BY mtime {}'.format(self.sort_order_map[sort_order])
+        else:
+            sort = 'ORDER BY {0} {1}, mtime {1}'.format(self.sort_map[sort_by],
+                                                        self.sort_order_map[sort_order])
+
+        query = 'SELECT uid, marked FROM files'
+
+        if sort_by == Sort.device:
+            query = '{} NATURAL JOIN devices'.format(query)
+
+        if where:
+            query = '{} WHERE {}'.format(query, where)
+
+        query = '{} {}'.format(query, sort)
+
+        if where:
+            logging.debug('%s %s', query, where_values)
+            return self.conn.execute(query, tuple(where_values)).fetchall()
+        else:
+            logging.debug('%s', query)
+            return self.conn.execute(query).fetchall()
+
+    def get_uids(self, scan_id: Optional[int]=None,
+                 show: Optional[Show]=None,
+                 previously_downloaded: Optional[bool]=None,
+                 downloaded: Optional[bool]=None,
+                 file_type: Optional[FileType] = None,
+                 marked: Optional[bool] = None,
+                 proximity_col1: Optional[List[int]] = None,
+                 proximity_col2: Optional[List[int]] = None,
+                 return_file_name=False) -> List[bytes]:
+
+
+        where, where_values = self._build_where(scan_id=scan_id, show=show,
+                                                previously_downloaded=previously_downloaded,
+                                                downloaded=downloaded, file_type=file_type,
+                                                marked=marked, proximity_col1=proximity_col1,
+                                                proximity_col2=proximity_col2)
+
+        if return_file_name:
+            query = 'SELECT file_name FROM files'
+        else:
+            query = 'SELECT uid FROM files'
+
+        if where:
+            query = '{} WHERE {}'.format(query, where)
+
+        if where_values:
+            logging.debug('%s %s', query, where_values)
+            rows = self.conn.execute(query, tuple(where_values)).fetchall()
+        else:
+            logging.debug('%s', query)
+            rows = self.conn.execute(query).fetchall()
+        return [row[0] for row in rows]
+
+    def get_count(self, scan_id: Optional[int]=None,
+                  show: Optional[Show]=None,
+                  previously_downloaded: Optional[bool]=None,
+                  downloaded: Optional[bool] = None,
+                  file_type: Optional[FileType] = None,
+                  marked: Optional[bool] = None,
+                  proximity_col1: Optional[List[int]]=None,
+                  proximity_col2: Optional[List[int]]=None) -> int:
+
+        where, where_values = self._build_where(scan_id=scan_id, show=show,
+                                                previously_downloaded=previously_downloaded,
+                                                downloaded=downloaded, file_type=file_type,
+                                                marked=marked, proximity_col1=proximity_col1,
+                                                proximity_col2=proximity_col2)
+
+        query = 'SELECT COUNT(*) FROM files'
+
+        if where:
+            query = '{} WHERE {}'.format(query, where)
+
+        if where_values:
+            # logging.debug('%s %s', query, where_values)
+            rows = self.conn.execute(query, tuple(where_values)).fetchone()
+        else:
+            # logging.debug('%s', query)
+            rows = self.conn.execute(query).fetchone()
+        return rows[0]
+
+    def set_marked(self, uid: bytes, marked: bool) -> None:
+        query = 'UPDATE files SET marked=? WHERE uid=?'
+        logging.debug('%s (%s, %s)', query, marked, uid)
+        self.conn.execute(query, (marked, uid))
+        self.conn.commit()
+
+    def _update_marked(self, uids: List[bytes], marked: bool) -> None:
+        query = 'UPDATE files SET marked=? WHERE uid IN ({})'
+        logging.debug('%s (%s on %s uids)', query, marked, len(uids))
+        self.conn.execute(query.format(','.join('?' * len(uids))), [marked] + uids)
+
+    def set_list_marked(self, uids: List[bytes], marked: bool) -> None:
+        if len(uids) == 0:
+            return
+
+        # Limit to number of parameters: 999
+        # See https://www.sqlite.org/limits.html
+        if len(uids) > 999:
+            uid_chunks = divide_list_on_length(uids, 999)
+            for chunk in uid_chunks:
+                self._update_marked(chunk, marked)
+        else:
+            self._update_marked(uids, marked)
+        self.conn.commit()
+
+    def set_downloaded(self, uid: bytes, downloaded: bool) -> None:
+        query = 'UPDATE files SET downloaded=? WHERE uid=?'
+        logging.debug('%s (%s, %s)', query, downloaded, uid)
+        self.conn.execute(query, (downloaded, uid))
+        self.conn.commit()
+
+    def assign_proximity_groups(self, groups: Sequence[Tuple[int, int, bytes]]) -> None:
+        query = 'UPDATE files SET proximity_col1=?, proximity_col2=? WHERE uid=?'
+        logging.debug('%s (%s operations)', query, len(groups))
+        self.conn.executemany(query, groups)
+        self.conn.commit()
+
+    def get_uids_for_device(self, scan_id: int) -> List[int]:
+        query = 'SELECT uid FROM files WHERE scan_id=?'
+        logging.debug('%s (%s, )', query, scan_id)
+        rows = self.conn.execute(query, (scan_id, )).fetchall()
+        return [row[0] for row in rows]
+
+    def any_files_marked(self) -> bool:
+        row = self.conn.execute('SELECT uid FROM files WHERE marked=1 LIMIT 1').fetchone()
+        return row is not None
+
+    def any_files_to_download(self) -> bool:
+        row = self.conn.execute('SELECT uid FROM files WHERE downloaded=0 LIMIT 1').fetchone()
+        return row is not None
+
+    def _delete_uids(self, uids: List[bytes]):
+        query = 'DELETE FROM files WHERE uid IN ({})'
+        logging.debug('%s (%s files)', query, len(uids))
+        self.conn.execute(query.format(
+            ','.join('?' * len(uids))), uids)
+
+    def delete_uids(self, uids: List[bytes]) -> None:
+        """
+        Deletes thumbnails from SQL cache
+        :param uids: list of uids to delete
+        """
+
+        if len(uids) == 0:
+            return
+
+        # Limit to number of parameters: 999
+        # See https://www.sqlite.org/limits.html
+        if len(uids) > 999:
+            name_chunks = divide_list_on_length(uids, 999)
+            for chunk in name_chunks:
+                self._delete_uids(chunk)
+        else:
+            self._delete_uids(uids)
+        self.conn.commit()
+
+    def delete_files_by_scan_id(self, scan_id: int, downloaded: Optional[bool]=None) -> None:
+        query = 'DELETE FROM files'
+        where, where_values = self._build_where(scan_id=scan_id, downloaded=downloaded)
+        query = '{} WHERE {}'.format(query, where)
+        logging.debug('%s (%s)', query, where_values)
+        self.conn.execute(query, where_values)
+        self.conn.commit()
+
+    def delete_device(self, scan_id: int) -> None:
+        query = 'DELETE FROM devices WHERE scan_id=?'
+        logging.debug('%s (%s, )', query, scan_id)
+        self.conn.execute(query, (scan_id, ))
+        self.conn.commit()
+
 
 class DownloadedSQL:
     """
@@ -45,7 +383,8 @@ class DownloadedSQL:
     are the same. For performance reasons, Exif information is never
     checked.
     """
-    def __init__(self, data_dir: str=None) -> None:
+
+    def __init__(self, data_dir: str = None) -> None:
         """
         :param data_dir: where the database is saved. If None, use
          default
@@ -57,7 +396,8 @@ class DownloadedSQL:
         self.table_name = 'downloaded'
         self.update_table()
 
-    def update_table(self, reset: bool=False) -> None:
+
+    def update_table(self, reset: bool = False) -> None:
         """
         Create or update the database table
         :param reset: if True, delete the contents of the table and
@@ -140,7 +480,7 @@ class CacheSQL:
         :param reset: if True, delete the contents of the table and
          build it
         """
-        conn = sqlite3.connect(self.db)
+        conn = sqlite3.connect(self.db, detect_types=sqlite3.PARSE_DECLTYPES)
 
         if reset:
             conn.execute(r"""DROP TABLE IF EXISTS {tn}""".format(
@@ -152,8 +492,8 @@ class CacheSQL:
         mtime REAL NOT NULL,
         size INTEGER NOT NULL,
         md5_name INTEGER NOT NULL,
-        orientation_unknown INTEGER NOT NULL,
-        failure INTEGER NOT NULL,
+        orientation_unknown BOOLEAN NOT NULL,
+        failure BOOLEAN NOT NULL,
         PRIMARY KEY (uri, mtime, size)
         )""".format(tn=self.table_name))
 
@@ -178,8 +518,6 @@ class CacheSQL:
          generated, otherwise False
         """
         conn = sqlite3.connect(self.db)
-
-        failure = int(failure)
 
         conn.execute(r"""INSERT OR REPLACE INTO {tn} (uri, size, mtime,
         md5_name, orientation_unknown, failure) VALUES (?,?,?,?,?,?)""".format(
@@ -207,20 +545,20 @@ class CacheSQL:
             tn=self.table_name), (uri, size, modification_time))
         row = c.fetchone()
         if row is not None:
-            # convert integer to bool
-            row = (row[0], bool(row[1]), bool(row[2]))
             return InCache._make(row)
         else:
             return None
 
-    def delete_thumbnails(self, md5_names: list) -> None:
+    def _delete(self, names: List[str], conn):
+        conn.execute("""DELETE FROM {tn} WHERE md5_name IN ({values})""".format(
+            tn=self.table_name, values=','.join('?' * len(names))), names)
+
+    def delete_thumbnails(self, md5_names: List[str]) -> None:
         """
         Deletes thumbnails from SQL cache
         :param md5_names: list of names, without path
         """
-        def delete(names):
-            conn.execute("""DELETE FROM {tn} WHERE md5_name IN ({values})""".format(
-                tn=self.table_name, values=','.join('?' * len(names))), names)
+
         if len(md5_names) == 0:
             return
 
@@ -230,9 +568,9 @@ class CacheSQL:
         if len(md5_names) > 999:
             name_chunks = divide_list_on_length(md5_names, 999)
             for chunk in name_chunks:
-                delete(chunk)
+                self._delete(chunk, conn)
         else:
-            delete(md5_names)
+            self._delete(md5_names, conn)
         conn.commit()
         conn.close()
 
@@ -333,20 +671,107 @@ class FileFormatSQL:
 
 
 if __name__ == '__main__':
-    reset = False
-    try:
-        if sys.argv[1] == '--reset':
-            reset = True
-            print("Resetting")
-    except IndexError:
-        pass
-    if False:
-        d = DownloadedSQL()
-        d.update_table(reset=True)
-        c = CacheSQL()
-        c.update_table(reset=True)
-    f = FileFormatSQL()
-    if reset:
-        f.update_table(reset=True)
-    else:
-        print(f.get_orientation_bytes('CR2'))
+    import uuid
+    d = ThumbnailRowsSQL()
+    uid = uuid.uuid4().bytes
+    scan_id = 0
+    device_name = '1D X'
+    mtime = datetime.datetime.now().timestamp()
+    marked = True
+    file_name = 'image.cr2'
+    extension= 'cr2'
+    file_type = FileType.photo
+    downloaded = False
+    previously_downloaded = True
+    proximity_col1 = -1
+    proximity_col2 = -1
+
+    d.add_or_update_device(scan_id=scan_id, device_name=device_name)
+
+
+    tr = ThumbnailRow(uid=uid, scan_id=scan_id, marked=marked, mtime=mtime, file_name=file_name,
+                      file_type=file_type, extension=extension, downloaded=downloaded,
+                      previously_downloaded=previously_downloaded, proximity_col1=proximity_col1,
+                      proximity_col2=proximity_col2
+                      )
+
+    uid = uuid.uuid4().bytes
+    scan_id = 1
+    device_name = 'NEXUS 5X'
+    mtime = datetime.datetime.now().timestamp()
+    marked = True
+    file_name = 'image.dng'
+    extension= 'dng'
+    file_type = FileType.photo
+    downloaded = False
+    previously_downloaded = False
+
+    d.add_or_update_device(scan_id=scan_id, device_name=device_name)
+
+    tr2 = ThumbnailRow(uid=uid, scan_id=scan_id, marked=marked, mtime=mtime, file_name=file_name,
+                      file_type=file_type, extension=extension, downloaded=downloaded,
+                      previously_downloaded=previously_downloaded, proximity_col1=proximity_col1,
+                      proximity_col2=proximity_col2
+                      )
+
+
+    uid = uuid.uuid4().bytes
+    mtime = datetime.datetime.now().timestamp()
+    marked = False
+    file_name = 'image.mp4'
+    extension= 'mp4'
+    file_type = FileType.video
+    downloaded = False
+    previously_downloaded = True
+
+    tr3 = ThumbnailRow(uid=uid, scan_id=scan_id, marked=marked, mtime=mtime, file_name=file_name,
+                       file_type=file_type, extension=extension, downloaded=downloaded,
+                       previously_downloaded=previously_downloaded, proximity_col1=proximity_col1,
+                       proximity_col2=proximity_col2
+                       )
+
+    d.add_thumbnail_rows([tr, tr2, tr3])
+
+    cursor = d.conn.cursor()
+    cursor.execute('SELECT * FROM files')
+    for row in map(ThumbnailRow._make, cursor.fetchall()):
+        print(row)
+
+    d.set_marked(uid, False)
+    d.set_downloaded(uid, True)
+
+    print(d.get_view(sort_by=Sort.modification_time, sort_order=Qt.AscendingOrder, show=Show.all,
+                     proximity_col1=-1, proximity_col2=-1))
+
+    print(d.get_view(sort_by=Sort.file_type, sort_order=Qt.DescendingOrder, show=Show.all,
+                     proximity_col1=-1, proximity_col2=-1))
+
+    print(d.get_view(sort_by=Sort.checked_state, sort_order=Qt.AscendingOrder, show=Show.all,
+                     proximity_col1=-1, proximity_col2=-1))
+
+    print(d.get_view(sort_by=Sort.modification_time, sort_order=Qt.AscendingOrder, show=Show.new_only,
+                     proximity_col1=-1, proximity_col2=-1))
+
+    print(d.get_view(sort_by=Sort.device, sort_order=Qt.DescendingOrder, show=Show.all))
+
+    print(d.get_uids_for_device(0))
+    print(d.get_uids_for_device(1))
+    print(d.any_files_marked())
+
+    print(d.get_uids(marked=True, return_file_name=True))
+    print(d.get_uids(marked=False, return_file_name=True))
+    print(d.get_uids(downloaded=False, return_file_name=True))
+    print(d.get_uids(downloaded=True, return_file_name=True))
+    print(d.get_uids(file_type=FileType.video, return_file_name=True))
+    print(d.get_uids(scan_id=0, file_type=FileType.photo, return_file_name=True))
+    print(d.get_uids(previously_downloaded=False, return_file_name=True))
+    print(d.get_count(scan_id=0))
+    print(d.get_count(previously_downloaded=True))
+    print(d.get_count(show=Show.new_only))
+    print(d.get_count(marked=True))
+    uids = d.get_uids(downloaded=False)
+    print("UIDs", len(uids), "; available to download?", d.any_files_to_download())
+    d.set_list_marked(uids, marked=False)
+    print(d.get_count(marked=True))
+    d.set_list_marked(uids, marked=True)
+    print(d.get_count(marked=True))

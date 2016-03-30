@@ -24,11 +24,12 @@ __copyright__ = "Copyright 2015-2016, Damon Lynch"
 
 import pickle
 import sys
+import logging
 
 from PyQt5.QtGui import QGuiApplication
 from raphodo.interprocess import DaemonProcess, OffloadData, OffloadResults
 from raphodo.proximity import TemporalProximityGroups
-from raphodo.viewutils import SortedListItem
+from raphodo.viewutils import ThumbnailDataForProximity
 
 
 class OffloadWorker(DaemonProcess):
@@ -36,24 +37,26 @@ class OffloadWorker(DaemonProcess):
         super().__init__('Offload')
 
     def run(self) -> None:
-        while True:
-            directive, content = self.receiver.recv_multipart()
+        try:
+            while True:
+                directive, content = self.receiver.recv_multipart()
 
-            self.check_for_command(directive, content)
+                self.check_for_command(directive, content)
 
-            data = pickle.loads(content) # type: OffloadData
-            if data.thumbnail_rows:
-                groups = TemporalProximityGroups(thumbnail_rows=data.thumbnail_rows,
-                                                 thumbnail_types=data.thumbnail_types,
-                                                 previously_downloaded=data.previously_downloaded,
-                                                 temporal_span=data.proximity_seconds)
-                self.content = pickle.dumps(OffloadResults(
-                    proximity_groups=groups),
-                    pickle.HIGHEST_PROTOCOL)
-                self.send_message_to_sink()
+                data = pickle.loads(content) # type: OffloadData
+                if data.thumbnail_rows:
+                    groups = TemporalProximityGroups(thumbnail_rows=data.thumbnail_rows,
+                                                     temporal_span=data.proximity_seconds)
+                    self.content = pickle.dumps(OffloadResults(
+                        proximity_groups=groups),
+                        pickle.HIGHEST_PROTOCOL)
+                    self.send_message_to_sink()
+        except Exception as e:
+            logging.error("An unhandled exception occurred while processing offloaded tasks")
+            logging.exception("Traceback:")
 
 if __name__ == '__main__':
-    # Must initialize QGuiApplication to access QFont() and QFontMetrics
+    # Must initialize QGuiApplication to use QFont() and QFontMetrics
     app = QGuiApplication(sys.argv)
 
     offload = OffloadWorker()

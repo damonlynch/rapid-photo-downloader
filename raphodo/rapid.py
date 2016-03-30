@@ -62,7 +62,6 @@ except ImportError:
 import zmq
 import psutil
 import gphoto2 as gp
-import sortedcontainers
 from PyQt5 import QtCore, QtGui
 from PyQt5.QtCore import (QThread, Qt, QStorageInfo, QSettings, QPoint,
                           QSize, QTimer, QTextStream, QModelIndex,
@@ -106,8 +105,7 @@ from raphodo.constants import (BackupLocationType, DeviceType, ErrorType,
                                ThumbnailBackgroundName, EmptyViewHeight,
                                DeviceState, Sort, Show, Roles)
 from raphodo.thumbnaildisplay import (ThumbnailView, ThumbnailListModel, ThumbnailDelegate,
-                                      DownloadTypes, DownloadStats,
-                                      ThumbnailSortFilterProxyModel)
+                                      DownloadTypes, DownloadStats)
 from raphodo.devicedisplay import (DeviceModel, DeviceView, DeviceDelegate)
 from raphodo.proximity import (TemporalProximityGroups, TemporalProximity)
 from raphodo.utilities import (same_file_system, make_internationalized_list,
@@ -516,14 +514,10 @@ class RapidWindow(QMainWindow):
         logging.debug("Starting thumbnail model")
         self.thumbnailModel = ThumbnailListModel(parent=self, logging_port=logging_port,
                                                  log_gphoto2=self.log_gphoto2)
-        self.thumbnailProxyModel = ThumbnailSortFilterProxyModel(self)
-        self.thumbnailProxyModel.setSourceModel(self.thumbnailModel)
-        self.thumbnailView.setModel(self.thumbnailProxyModel)
-        self.thumbnailModel.proxyModel = self.thumbnailProxyModel
+        self.thumbnailView.setModel(self.thumbnailModel)
         self.thumbnailView.setItemDelegate(ThumbnailDelegate(rapidApp=self))
 
-        self.temporalProximity = TemporalProximity(
-            rapidApp=self, thumbnailProxyModel=self.thumbnailProxyModel, prefs = self.prefs)
+        self.temporalProximity = TemporalProximity(rapidApp=self, prefs = self.prefs)
 
         self.createPathViews()
 
@@ -899,7 +893,7 @@ class RapidWindow(QMainWindow):
 
     @pyqtSlot(int)
     def showComboChanged(self, index: int) -> None:
-        self.thumbnailProxyModel.setFilterShow(self.showCombo.currentData())
+        self.sortComboChanged(index=-1)
         self.thumbnailModel.updateAllDeviceDisplayCheckMarks()
         self.thumbnailModel.updateSelection()
         self.displayMessageInStatusBar()
@@ -917,7 +911,8 @@ class RapidWindow(QMainWindow):
     def sortComboChanged(self, index: int) -> None:
         sort = self.sortCombo.currentData()
         order = self.sortOrder.currentData()
-        self.thumbnailModel.setFileSort(sort=sort, order=order)
+        show = self.showCombo.currentData()
+        self.thumbnailModel.setFileSort(sort=sort, order=order, show=show)
 
     @pyqtSlot(int)
     def sortOrderChanged(self, index: int) -> None:
@@ -1972,10 +1967,8 @@ class RapidWindow(QMainWindow):
                             rpd_file: RPDFile,
                             download_count: int) -> None:
 
-        self.download_tracker.set_download_count_for_file(rpd_file.unique_id,
-                                                 download_count)
-        self.download_tracker.set_download_count(rpd_file.scan_id,
-                                                 download_count)
+        self.download_tracker.set_download_count_for_file(rpd_file.uid, download_count)
+        self.download_tracker.set_download_count(rpd_file.scan_id, download_count)
         rpd_file.download_start_time = self.download_start_time
         rpd_file.job_code = self.job_code.job_code
         data = RenameAndMoveFileData(rpd_file=rpd_file,
@@ -1991,8 +1984,7 @@ class RapidWindow(QMainWindow):
         chunk_downloaded = data.chunk_downloaded
         assert total_downloaded >= 0
         assert chunk_downloaded >= 0
-        self.download_tracker.set_total_bytes_copied(scan_id,
-                                                     total_downloaded)
+        self.download_tracker.set_total_bytes_copied(scan_id, total_downloaded)
         self.time_check.increment(bytes_downloaded=chunk_downloaded)
         # TODO update right model right way
         self.time_remaining.update(scan_id, bytes_downloaded=chunk_downloaded)
@@ -2007,7 +1999,7 @@ class RapidWindow(QMainWindow):
 
         if not thumbnail.isNull():
             logging.debug("Updating GUI thumbnail for {} with unique id {}".format(
-                rpd_file.download_full_file_name, rpd_file.unique_id))
+                rpd_file.download_full_file_name, rpd_file.uid))
             self.thumbnailModel.thumbnailReceived(rpd_file, thumbnail)
 
         if rpd_file.status == DownloadStatus.downloaded_with_warning:
@@ -2079,10 +2071,9 @@ class RapidWindow(QMainWindow):
             #     rpd_file.error_msg, rpd_file.error_extra_detail)
 
         if do_backup:
-            self.download_tracker.file_backed_up(rpd_file.scan_id,
-                                                 rpd_file.unique_id)
+            self.download_tracker.file_backed_up(rpd_file.scan_id, rpd_file.uid)
             if self.download_tracker.file_backed_up_to_all_locations(
-                    rpd_file.unique_id, rpd_file.file_type):
+                    rpd_file.uid, rpd_file.file_type):
                 logging.debug("File %s will not be backed up to any more "
                             "locations", rpd_file.download_name)
                 self.fileDownloadFinished(backup_succeeded, rpd_file)
@@ -2118,7 +2109,7 @@ class RapidWindow(QMainWindow):
         pass
 
     def updateFileDownloadDeviceProgress(self, scan_id: int,
-                                         unique_id: str,
+                                         uid: bytes,
                                          file_type: FileType) -> tuple:
         """
         Increments the progress bar for an individual device.
@@ -2129,7 +2120,7 @@ class RapidWindow(QMainWindow):
         """
 
         # TODO redo this code to account for new device view
-        files_downloaded = self.download_tracker.get_download_count_for_file(unique_id)
+        files_downloaded = self.download_tracker.get_download_count_for_file(uid)
         files_to_download = self.download_tracker.get_no_files_in_download(
                 scan_id)
         completed = files_downloaded == files_to_download
@@ -2155,7 +2146,7 @@ class RapidWindow(QMainWindow):
         and backed up
         """
         scan_id = rpd_file.scan_id
-        unique_id = rpd_file.unique_id
+        uid = rpd_file.uid
         # Update error log window if neccessary
         if not succeeded and not self.backup_devices.multiple_backup_devices(
                 rpd_file.file_type):
@@ -2171,7 +2162,7 @@ class RapidWindow(QMainWindow):
                                                         rpd_file.file_type,
                                                         rpd_file.status)
 
-        completed, files_remaining = self.updateFileDownloadDeviceProgress(scan_id, unique_id,
+        completed, files_remaining = self.updateFileDownloadDeviceProgress(scan_id, uid,
                                                        rpd_file.file_type)
 
         if self.downloadIsRunning():
@@ -2549,8 +2540,7 @@ class RapidWindow(QMainWindow):
             device.file_size_sum = data.file_size_sum
             self.mapModel(scan_id).updateDeviceScan(scan_id)
 
-            for rpd_file in data.rpd_files:
-                self.thumbnailModel.addFile(rpd_file, generate_thumbnail=not
+            self.thumbnailModel.addFiles(data.rpd_files, generate_thumbnail=not
                                             self.auto_start_is_on)
         else:
             scan_id = data.scan_id
@@ -2592,7 +2582,7 @@ class RapidWindow(QMainWindow):
                     self.removeDevice(scan_id=scan_id, show_warning=False)
                 del self.prompting_for_user_action[device]
             else:
-                # Update GUI display with canonical camera display name
+                # Update GUI display and rows DB with canonical camera display name
                 device = self.devices[scan_id]
                 logging.debug('%s with scan id %s is now known as %s',
                               device.display_name, scan_id, data.optimal_display_name)
@@ -2603,6 +2593,7 @@ class RapidWindow(QMainWindow):
                                                 storage_space=data.storage_space)
                 self.updateSourceButton()
                 self.deviceModel.updateDeviceNameAndStorage(scan_id, device)
+                self.thumbnailModel.addOrUpdateDevice(scan_id=scan_id)
                 self.resizeDeviceViewsAndScrollArea(view=self.deviceView)
 
     @pyqtSlot(int)
@@ -2611,6 +2602,8 @@ class RapidWindow(QMainWindow):
             return
         device = self.devices[scan_id]
         self.devices.set_device_state(scan_id, DeviceState.idle)
+        self.thumbnailModel.flushAddBuffer()
+
         self.updateProgressBarState()
         self.thumbnailModel.updateAllDeviceDisplayCheckMarks()
         results_summary, file_types_present  = device.file_type_counter.summarize_file_count()
@@ -2650,8 +2643,6 @@ class RapidWindow(QMainWindow):
         """
         QTimer.singleShot(0, self.close)
 
-
-
     def generateTemporalProximityTableData(self) -> None:
         """
         Initiate Timeline generation
@@ -2659,21 +2650,13 @@ class RapidWindow(QMainWindow):
 
         self.temporalProximity.setState(TemporalProximityState.generating)
 
-        # Convert the thumbnail rows to a regular list, because it's going
-        # to be pickled.
-        rows = list(self.thumbnailModel.rows.rows)
-        rpd_files = self.thumbnailModel.rpd_files
-        file_types = [rpd_files[row.unique_id].file_type for row in rows]
-        previously_downloaded = [rpd_files[row.unique_id].previously_downloaded() for row in rows]
-
-        data = OffloadData(thumbnail_rows=rows,
-                           thumbnail_types=file_types,
-                           previously_downloaded=previously_downloaded,
-                           proximity_seconds=self.prefs.proximity_seconds)
+        rows = self.thumbnailModel.dataForProximityGeneration()
+        data = OffloadData(thumbnail_rows=rows, proximity_seconds=self.prefs.proximity_seconds)
         self.offloadmq.assign_work(data)
 
     @pyqtSlot(TemporalProximityGroups)
     def proximityGroupsGenerated(self, proximity_groups: TemporalProximityGroups) -> None:
+        self.thumbnailModel.assignProximityGroups(proximity_groups.col1_col2_uid)
         self.temporalProximity.setGroups(proximity_groups=proximity_groups)
 
     def closeEvent(self, event) -> None:
@@ -2881,6 +2864,7 @@ class RapidWindow(QMainWindow):
     def startDeviceScan(self, device: Device) -> None:
         scan_id = self.devices.add_device(device)
         logging.debug("Assigning scan id %s to %s", scan_id, device.name())
+        self.thumbnailModel.addOrUpdateDevice(scan_id)
         self.addToDeviceDisplay(device, scan_id)
         self.updateSourceButton()
         scan_preferences = ScanPreferences(self.prefs.ignored_paths)
@@ -3300,13 +3284,13 @@ class RapidWindow(QMainWindow):
             files_hidden = self.thumbnailModel.getNoHiddenFiles()
 
             if files_hidden:
-                files_selected = _('%(number)s of %(available files)s checked for download (%('
+                files_selected = _('%(number)s of %(available files)s marked for download (%('
                                    'hidden)s hidden)') % {
                                    'number': thousands(files_to_download),
                                    'available files': files_avilable_sum,
                                    'hidden': files_hidden}
             else:
-                files_selected = _('%(number)s of %(available files)s checked for download') % {
+                files_selected = _('%(number)s of %(available files)s marked for download') % {
                                    'number': thousands(files_to_download),
                                    'available files': files_avilable_sum}
             msg = files_selected
@@ -3471,8 +3455,7 @@ def get_versions() -> List[str]:
         'Python gPhoto2: {}'.format(python_gphoto2_version()),
         'ExifTool: {}'.format(EXIFTOOL_VERSION),
         'GExiv2: {}'.format(gexiv2_version()),
-        'psutil: {}'.format('.'.join((str(v) for v in psutil.version_info))),
-        'sortedcontainers: {}'.format(sortedcontainers.__version__)]
+        'psutil: {}'.format('.'.join((str(v) for v in psutil.version_info)))]
     v = exiv2_version()
     if v:
         versions.append('Exiv2: {}'.format(v))

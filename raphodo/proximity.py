@@ -20,10 +20,12 @@ __author__ = 'Damon Lynch'
 __copyright__ = "Copyright 2015-2016, Damon Lynch"
 
 from collections import (namedtuple, defaultdict, deque, Counter)
+from operator import attrgetter
 import locale
 from datetime import datetime
 import logging
 import pickle
+from pprint import pprint
 import math
 from typing import Dict, List, Tuple, Set, Optional
 
@@ -40,16 +42,17 @@ from PyQt5.QtWidgets import (QTableView, QStyledItemDelegate, QSlider, QLabel, Q
 from PyQt5.QtGui import (QPainter, QFontMetrics, QFont, QColor, QGuiApplication, QPixmap,
                          QPalette, QMouseEvent)
 
-from raphodo.viewutils import SortedListItem, QFramedWidget
+from raphodo.viewutils import QFramedWidget
 from raphodo.constants import (FileType, Align, proximity_time_steps, TemporalProximityState,
-                               FileExtension, fileTypeColor, CustomColors, DarkGray, MediumGray,
+                               fileTypeColor, CustomColors, DarkGray, MediumGray,
                                DoubleDarkGray)
 from raphodo.rpdfile import FileTypeCounter
 from raphodo.preferences import Preferences
+from raphodo.viewutils import ThumbnailDataForProximity
 
 ProximityRow = namedtuple('ProximityRow', 'year, month, weekday, day, proximity, new_file')
 
-UniqueIdTime = namedtuple('UniqueIdTime', 'modification_time, arrowtime, unqiue_id')
+UidTime = namedtuple('UidTime', 'mtime, arrowtime, uid, previously_downloaded')
 
 
 def locale_time(t: datetime) -> str:
@@ -225,7 +228,7 @@ class ProximityDisplayValues:
     """
     Temporal Proximity cell sizes.
 
-    Calculated in different process to thta of main window.
+    Calculated in different process to that of main window.
     """
 
     def __init__(self):
@@ -446,69 +449,82 @@ class ProximityDisplayValues:
 
         self.col_widths = (c0_max_width, self.col1_width, c2_max_width)
 
-    def assign_color(self, dominant_file_type: FileExtension) -> None:
+    def assign_color(self, dominant_file_type: FileType) -> None:
         self.tableColor = fileTypeColor(dominant_file_type)
         self.tableColorDarker = self.tableColor.darker(107)
 
+
 class TemporalProximityGroups:
     # @profile
-    def __init__(self, thumbnail_rows: List[SortedListItem],
-                 thumbnail_types: List[FileType],
-                 previously_downloaded: List[bool],
+    def __init__(self, thumbnail_rows: List[ThumbnailDataForProximity],
                  temporal_span: int = 3600):
-        self.thumbnail_types = thumbnail_types
-        self.previously_downloaded = previously_downloaded
         self.rows = []  # type: List[ProximityRow]
-        self.row_height = []  # type: List[int]
-        self.proximity_row_to_thumbnail_row_col2 = defaultdict(set)  # type: Dict[int, Set[int]]
-        self.proximity_row_to_thumbnail_row_col1 = defaultdict(set)  # type: Dict[int, Set[int]]
         self.row_to_group_no = dict()  # type: Dict[int, int]
-        self.unique_ids_in_row_col2 = defaultdict(list)  # type: Dict[int, List[int]]
-        self.unique_ids_in_row_col1 = defaultdict(list)  # type: Dict[int, List[int]]
-        self.unique_ids_in_row_col0 = defaultdict(list)  # type: Dict[int, List[int]]
-        self.file_types_in_cell = dict()  # type: Dict[Tuple[int, int], Tuple[FileType]]
+        self.uids_in_row_col1 = defaultdict(list)  # type: Dict[int, List[bytes, ...]]
+        self.uids_in_row_col0 = defaultdict(list)  # type: Dict[int, List[bytes, ...]]
+        self.file_types_in_cell = dict()  # type: Dict[Tuple[int, int], Tuple[FileType, ...]]
         self.times_by_proximity = defaultdict(list)
-        # group_no: List[unique_id]
-        self.unique_ids_by_proximity = defaultdict(list)  # type: Dict[int, List[str]]
+
+        # group_no: List[uid]
+        self.uids_by_proximity = defaultdict(list)  # type: Dict[int, List[bytes, ...]]
         self.new_files_by_proximity = defaultdict(set)  # type: Dict[int, Set[bool]]
+
         self.text_by_proximity = deque()
+
         self.day_groups = defaultdict(list)
         self.month_groups = defaultdict(list)
         self.year_groups = defaultdict(list)
+
         self._depth = None
         self._previous_year = False
         self._previous_month = False
+
         # Tuple of (column, row, row_span):
         self.spans = []  # type: List[Tuple[int, int, int]]
         self.row_span_for_column_starts_at_row = {}  # type: Dict[Tuple[int, int], int]
 
-        if not thumbnail_types:
+        # Associate view cells with uids
+        # proximity view row: id
+        self.proximity_view_cell_id_col1 = {}  # type: Dict[int, int]
+        # proximity view row: id
+        self.proximity_view_cell_id_col2 = {}  # type: Dict[int, int]
+        # col1, col2, uid
+        self.col1_col2_uid = []   # type: List[Tuple[int, int, bytes]]
+
+        if len(thumbnail_rows) == 0:
             return
-        self.dominant_file_type = Counter(thumbnail_types).most_common()[0][0]
+
+        file_types = (row.file_type for row in thumbnail_rows)
+        self.dominant_file_type = Counter(file_types).most_common()[0][0]
 
         self.display_values = ProximityDisplayValues()
 
+        thumbnail_rows.sort(key=attrgetter('mtime'))
+
         # Generate an arrow date time for every timestamp we have
-        uniqueid_times = [UniqueIdTime(tr.modification_time,
-                                       arrow.get(tr.modification_time).to('local'),
-                                       tr.unique_id)
-                          for tr in thumbnail_rows]
+        uid_times = [UidTime(tr.mtime,
+                             arrow.get(tr.mtime).to('local'),
+                             tr.uid,
+                             tr.previously_downloaded)
+                     for tr in thumbnail_rows]
+
+        self.thumbnail_types = [row.file_type for row in thumbnail_rows]
 
         now = arrow.now().to('local')
         current_year = now.year
         current_month = now.month
 
         # Phase 1: Associate unique ids with their year, month and day
-        for x in uniqueid_times:
-            t = x.arrowtime  # type: arrow.Arrow
+        for x in uid_times:
+            t = x.arrowtime  # type: Arrow
             year = t.year
             month = t.month
             day = t.day
 
-            # Could use arrow.floor here, but it's very slow
-            self.day_groups[(year, month, day)].append(x.unqiue_id)
-            self.month_groups[(year, month)].append(x.unqiue_id)
-            self.year_groups[year].append(x.unqiue_id)
+            # Could use arrow.floor here, but it's extremely slow
+            self.day_groups[(year, month, day)].append(x.uid)
+            self.month_groups[(year, month)].append(x.uid)
+            self.year_groups[year].append(x.uid)
             if year != current_year:
                 self._previous_year = True
             if month != current_month or self._previous_year:
@@ -516,35 +532,33 @@ class TemporalProximityGroups:
 
         # Phase 2: Identify the proximity groups
         group_no = 0
-        prev = uniqueid_times[0]
-        i = 0
+        prev = uid_times[0]
 
         self.times_by_proximity[group_no].append(prev.arrowtime)
-        self.unique_ids_by_proximity[group_no].append(prev.unqiue_id)
-        self.new_files_by_proximity[group_no].add(not previously_downloaded[i])
+        self.uids_by_proximity[group_no].append(prev.uid)
+        self.new_files_by_proximity[group_no].add(not prev.previously_downloaded)
 
-        if len(uniqueid_times) > 1:
-            for current in uniqueid_times[1:]:
-                i += 1
-                modification_time = current.modification_time
-                if (modification_time - prev.modification_time > temporal_span):
+        if len(uid_times) > 1:
+            for current in uid_times[1:]:
+                mtime = current.mtime
+                if (mtime - prev.mtime > temporal_span):
                     group_no += 1
                 self.times_by_proximity[group_no].append(current.arrowtime)
-                self.unique_ids_by_proximity[group_no].append(current.unqiue_id)
-                self.new_files_by_proximity[group_no].add(not previously_downloaded[i])
+                self.uids_by_proximity[group_no].append(current.uid)
+                self.new_files_by_proximity[group_no].add(not current.previously_downloaded)
                 prev = current
 
         # Phase 3: Generate the proximity group's text that will appear in
         # the right-most column
         for i in range(len(self.times_by_proximity)):
             start = self.times_by_proximity[i][0]  # type: Arrow
-            end = self.times_by_proximity[i][-1]  # type: Arrow
+            end = self.times_by_proximity[i][-1]   # type: Arrow
             self.text_by_proximity.append(humanize_time_span(start, end,
                                                              insert_cr_on_long_line=True))
 
-        # Phase 4: Generate the rows to be displayed to the user
+        # Phase 4: Generate the rows to be displayed in the proximity table view
         self.prev_row_month = None  # type: Tuple[int, int]
-        self.prev_row_day = None  # type: Tuple[int, int, int]
+        self.prev_row_day = None    # type: Tuple[int, int, int]
         row_index = -1
         thumbnail_row_index = -1
         column2_span = 0
@@ -557,7 +571,6 @@ class TemporalProximityGroups:
             thumbnail_row_index += 1
             self.rows.append(self.make_row(arrowtime, text, new_file, prev_day, row_index,
                                            thumbnail_row_index))
-            self.proximity_row_to_thumbnail_row_col2[row_index].add(thumbnail_row_index)
             self.row_to_group_no[row_index] = group_no
 
             slice_end = thumbnail_row_index + len(self.times_by_proximity[group_no])
@@ -568,7 +581,6 @@ class TemporalProximityGroups:
                 column2_span = 0
                 for arrowtime in self.times_by_proximity[group_no][1:]:
                     thumbnail_row_index += 1
-                    self.proximity_row_to_thumbnail_row_col2[row_index].add(thumbnail_row_index)
 
                     day = (arrowtime.year, arrowtime.month, arrowtime.day)
 
@@ -605,7 +617,32 @@ class TemporalProximityGroups:
         # Phase 7: Assign appropriate color to table
         self.display_values.assign_color(self.dominant_file_type)
 
+        # Phase 8: associate proximity table cells with uids
+
+        uid_rows_c1 = {}
+        for proximity_view_cell_id, row_index in enumerate(self.uids_in_row_col1):
+            self.proximity_view_cell_id_col1[row_index] = proximity_view_cell_id
+            uids = self.uids_in_row_col1[row_index]
+            for uid in uids:
+                uid_rows_c1[uid] = proximity_view_cell_id
+
+        uid_rows_c2 = {}
+        for proximity_view_cell_id, row_index in enumerate(self.row_to_group_no):
+            self.proximity_view_cell_id_col2[row_index] = proximity_view_cell_id
+            group_no = self.row_to_group_no[row_index]
+            uids = self.uids_by_proximity[group_no]
+            for uid in uids:
+                uid_rows_c2[uid] = proximity_view_cell_id
+
+        self.col1_col2_uid = [(uid_rows_c1[row.uid], uid_rows_c2[row.uid], row.uid)
+                              for row in thumbnail_rows]
+
         self.display_values.prepare_for_pickle()
+
+        # Clean up values that have no further use
+        # TODO identify more values to remove
+        # TODO generate counts and clean up use of unique ids for each row, see data
+        self.thumbnail_types = None
 
     def make_row(self, arrowtime: Arrow,
                  text: str,
@@ -619,9 +656,9 @@ class TemporalProximityGroups:
             self.prev_row_month = arrowmonth
             month = arrowtime.datetime.strftime('%B')
             year = arrowtime.year
-            unique_ids = self.month_groups[day[:2]]
-            self.unique_ids_in_row_col0[row_index] = unique_ids
-            slice_end = thumbnail_row_index + len(unique_ids)
+            uids = self.month_groups[day[:2]]
+            self.uids_in_row_col0[row_index] = uids
+            slice_end = thumbnail_row_index + len(uids)
             file_types = tuple(self.thumbnail_types[thumbnail_row_index:slice_end])
             self.file_types_in_cell[(row_index, 0)] = file_types
         else:
@@ -634,12 +671,10 @@ class TemporalProximityGroups:
 
             # Record which thumbnails are in this day's group, and the
             # type of file they represent (photo, video)
-            self.unique_ids_in_row_col1[row_index] = self.day_groups[day]
+            self.uids_in_row_col1[row_index] = self.day_groups[day]
             slice_end = thumbnail_row_index + len(self.day_groups[day])
             file_types = tuple(self.thumbnail_types[thumbnail_row_index:slice_end])
             self.file_types_in_cell[(row_index, 1)] = file_types
-            self.proximity_row_to_thumbnail_row_col1[row_index] = set(range(thumbnail_row_index,
-                                                                            slice_end))
         else:
             weekday = numeric_day = ''
 
@@ -653,24 +688,6 @@ class TemporalProximityGroups:
 
     def __iter__(self):
         return iter(self.rows)
-
-    def selected_thumbnail_rows(self, selected_rows_col1: List[int],
-                                selected_rows_col2: List[int]) -> Set[int]:
-        """
-        Associate thumbnails with cells selected by the user.
-
-        :param selected_rows_col1: any selected cells in column 1 that
-         are not already represented by cells selected in column 2
-        :param selected_rows_col2: all selected cells in column 2
-        :return: thumbnail rows associated with selected cells
-        """
-
-        s = set()
-        for row in selected_rows_col1:
-            s.update(self.proximity_row_to_thumbnail_row_col1[row])
-        for row in selected_rows_col2:
-            s.update(self.proximity_row_to_thumbnail_row_col2[row])
-        return s
 
     def depth(self):
         if self._depth is None:
@@ -686,7 +703,7 @@ class TemporalProximityGroups:
 
     def uniqueIdsFromCol2Row(self, row: int) -> List[str]:
         group_no = self.row_to_group_no[row]
-        return self.unique_ids_by_proximity[group_no]
+        return self.uids_by_proximity[group_no]
 
     def __repr__(self) -> str:
         return 'TemporalProximityGroups with {} rows and depth of {}'.format(len(self.rows),
@@ -752,16 +769,16 @@ class TemporalProximityModel(QAbstractTableModel):
             thumbnails = self.rapidApp.thumbnailModel.thumbnails
 
             if column == 1:
-                unique_ids = self.groups.unique_ids_in_row_col1[row]
+                uids = self.groups.uids_in_row_col1[row]
             elif column == 2:
                 prow = self.groups.row_span_for_column_starts_at_row[(row, 2)]
-                unique_ids = self.groups.uniqueIdsFromCol2Row(prow)
+                uids = self.groups.uniqueIdsFromCol2Row(prow)
             else:
                 assert column == 0
-                unique_ids = self.groups.unique_ids_in_row_col0[row]
+                uids = self.groups.uids_in_row_col0[row]
 
-            length = len(unique_ids)
-            pixmap = thumbnails[unique_ids[0]]  # type: QPixmap
+            length = len(uids)
+            pixmap = thumbnails[uids[0]]  # type: QPixmap
 
             image = base64_thumbnail(pixmap, self.tooltip_image_size)
             html_image1 = '<img src="data:image/png;base64,{}">'.format(image)
@@ -769,7 +786,7 @@ class TemporalProximityModel(QAbstractTableModel):
             if length == 1:
                 center = html_image2 = ''
             else:
-                pixmap = thumbnails[unique_ids[-1]]  # type: QPixmap
+                pixmap = thumbnails[uids[-1]]  # type: QPixmap
                 image = base64_thumbnail(pixmap, self.tooltip_image_size)
                 if length == 2:
                     center = '&nbsp;'
@@ -1240,14 +1257,11 @@ class TemporalProximity(QWidget):
     """
 
     def __init__(self, rapidApp,
-                 thumbnailProxyModel,
                  prefs: Preferences,
                  parent=None) -> None:
         """
         :param rapidApp: main application window
         :type rapidApp: RapidWindow
-        :param thumbnailProxyModel: thumbnail display's filter
-        :type thumbnailProxyModel: ThumbnailSortFilterProxyModel
         :param prefs: program & user preferences
         :param parent: parent widget
         """
@@ -1255,14 +1269,14 @@ class TemporalProximity(QWidget):
         super().__init__(parent)
 
         self.rapidApp = rapidApp
-        self.thumbnailProxyModel = thumbnailProxyModel
+        self.thumbnailModel = rapidApp.thumbnailModel
         self.prefs = prefs
 
         self.block_update_device_display = False
 
         self.state = TemporalProximityState.empty
 
-        self.selected_unique_ids = set()
+        self.selected_uids = set()
 
         self.temporalProximityView = TemporalProximityView(self)
         self.temporalProximityModel = TemporalProximityModel(rapidApp=rapidApp)
@@ -1355,29 +1369,19 @@ class TemporalProximity(QWidget):
                               groups.row_span_for_column_starts_at_row[(
                               i.row(), 2)] not in selected_rows_col2]
 
+        selected_col1 = [groups.proximity_view_cell_id_col1[row] for row in selected_rows_col1]
+        selected_col2 = [groups.proximity_view_cell_id_col2[row] for row in selected_rows_col2]
 
-        self.selected_unique_ids = set()
-        for row in selected_rows_col1:
-            self.selected_unique_ids.update(groups.unique_ids_in_row_col1[row])
-        for row in selected_rows_col2:
-            self.selected_unique_ids.update(groups.uniqueIdsFromCol2Row(row))
-
-        if selected_rows_col2 or selected_rows_col1:
-            self.thumbnailProxyModel.proximity_rows = groups.selected_thumbnail_rows(
-                    selected_rows_col1, selected_rows_col2)
-            self.thumbnailProxyModel.invalidateFilter()
-        else:
-            self.thumbnailProxyModel.proximity_rows = set()
-            self.thumbnailProxyModel.invalidateFilter()
+        # Filter display of thumbnails, or reset the filter if lists are empty
+        self.thumbnailModel.setProximityGroupFilter(selected_col1, selected_col2)
 
         if not self.block_update_device_display:
-            self.rapidApp.thumbnailModel.updateAllDeviceDisplayCheckMarks()
-            self.rapidApp.thumbnailModel.updateSelection()
-            self.rapidApp.thumbnailModel.resetHighlighting()
+            self.thumbnailModel.updateAllDeviceDisplayCheckMarks()
+            self.thumbnailModel.updateSelection()
+            self.thumbnailModel.resetHighlighting()
 
     def clearThumbnailDisplayFilter(self):
-        self.thumbnailProxyModel.proximity_rows = set()
-        self.thumbnailProxyModel.invalidateFilter()
+        self.thumbnailModel.setProximityGroupFilter([],[])
 
     def setState(self, state: TemporalProximityState) -> None:
         layout = self.layout()  # type: QVBoxLayout

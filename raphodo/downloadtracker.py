@@ -22,6 +22,7 @@ __copyright__ = "Copyright 2011-2016, Damon Lynch"
 from collections import defaultdict
 import time
 import logging
+from typing import Optional, Dict, List
 
 from gettext import gettext as _
 
@@ -34,28 +35,27 @@ class DownloadTracker:
     Track file downloads - their size, number, and any problems
     """
     def __init__(self):
-        self.file_types_present_by_scan_id = dict()
+        self.file_types_present_by_scan_id = dict()  # type: Dict[int, str]
         self._refresh_values()
 
     def _refresh_values(self):
         """ these values are reset when a download is completed"""
-        self.size_of_download_in_bytes_by_scan_id = dict()
-        self.total_bytes_backed_up_by_scan_id = dict()
-        self.size_of_photo_backup_in_bytes_by_scan_id = dict()
-        self.size_of_video_backup_in_bytes_by_scan_id = dict()
-        self.raw_size_of_download_in_bytes_by_scan_id = dict()
-        self.total_bytes_copied_by_scan_id = dict()
-        self.total_bytes_video_backed_up_by_scan_id = dict()
-        self.no_files_in_download_by_scan_id = dict()
-        self.no_photos_in_download_by_scan_id = dict()
-        self.no_videos_in_download_by_scan_id = dict()
-
+        self.size_of_download_in_bytes_by_scan_id = dict()  # type: Dict[int, int]
+        self.total_bytes_backed_up_by_scan_id = dict()  # type: Dict[int, int]
+        self.size_of_photo_backup_in_bytes_by_scan_id = dict()  # type: Dict[int, int]
+        self.size_of_video_backup_in_bytes_by_scan_id = dict()  # type: Dict[int, int]
+        self.raw_size_of_download_in_bytes_by_scan_id = dict()  # type: Dict[int, int]
+        self.total_bytes_copied_by_scan_id = dict()  # type: Dict[int, int]
+        self.total_bytes_video_backed_up_by_scan_id = dict()  # type: Dict[int, int]
+        self.no_files_in_download_by_scan_id = dict()  # type: Dict[int, int]
+        self.no_photos_in_download_by_scan_id = dict()  # type: Dict[int, int]
+        self.no_videos_in_download_by_scan_id = dict()  # type: Dict[int, int]
 
         # 'Download count' tracks the index of the file being downloaded
         # into the list of files that need to be downloaded -- much like
         # a counter in a for loop, e.g. 'for i in list', where i is the counter
-        self.download_count_for_file_by_unique_id = dict()
-        self.download_count_by_scan_id = dict()
+        self.download_count_for_file_by_uid = dict()  # type: Dict[bytes, int]
+        self.download_count_by_scan_id = dict()  # type: Dict[int, int]
         self.rename_chunk = dict()
         self.files_downloaded = dict()
         self.photos_downloaded = dict()
@@ -69,16 +69,17 @@ class DownloadTracker:
         self.total_video_failures = 0
         self.total_warnings = 0
         self.total_bytes_to_download = 0
-        self.backups_performed_by_unique_id = defaultdict(int)
-        self.backups_performed_by_scan_id = defaultdict(int)
-        self.no_backups_to_perform_by_scan_id = dict()
+        self.backups_performed_by_uid = defaultdict(int)  # type: Dict[bytes, List[int,...]]
+        self.backups_performed_by_scan_id = defaultdict(int)  # type: Dict[int, List[int,...]]
+        self.no_backups_to_perform_by_scan_id = dict()  # type: Dict[int, int]
         self.auto_delete = defaultdict(list)
 
-    def set_no_backup_devices(self, no_photo_backup_devices, no_video_backup_devices):
+    def set_no_backup_devices(self, no_photo_backup_devices: int,
+                              no_video_backup_devices: int) -> None:
         self.no_photo_backup_devices = no_photo_backup_devices
         self.no_video_backup_devices = no_video_backup_devices
 
-    def init_stats(self, scan_id: int, stats: DownloadStats):
+    def init_stats(self, scan_id: int, stats: DownloadStats) -> None:
         no_files = stats.no_photos + stats.no_videos
         self.no_files_in_download_by_scan_id[scan_id] = no_files
         self.no_photos_in_download_by_scan_id[scan_id] = stats.no_photos
@@ -101,8 +102,7 @@ class DownloadTracker:
         # generated after they've been downloaded and renamed.
         chunk_weight = (stats.post_download_thumb_generation * 60 + (
             no_files - stats.post_download_thumb_generation) * 5) / no_files
-        self.rename_chunk[scan_id] = int((total_bytes / no_files) * (
-            chunk_weight / 100))
+        self.rename_chunk[scan_id] = int((total_bytes / no_files) * (chunk_weight / 100))
         self.size_of_download_in_bytes_by_scan_id[scan_id] = total_bytes + \
                     self.rename_chunk[scan_id] * no_files
         self.raw_size_of_download_in_bytes_by_scan_id[scan_id] = total_bytes
@@ -116,59 +116,58 @@ class DownloadTracker:
         self.warnings[scan_id] = 0
         self.total_bytes_backed_up_by_scan_id[scan_id] = 0
 
-    def get_no_files_in_download(self, scan_id):
+    def get_no_files_in_download(self, scan_id) -> int:
         return self.no_files_in_download_by_scan_id[scan_id]
 
-    def get_no_files_downloaded(self, scan_id, file_type):
+    def get_no_files_downloaded(self, scan_id, file_type) -> int:
         if file_type == FileType.photo:
             return self.photos_downloaded.get(scan_id, 0)
         else:
             return self.videos_downloaded.get(scan_id, 0)
 
-    def get_no_files_failed(self, scan_id, file_type):
+    def get_no_files_failed(self, scan_id, file_type) -> int:
         if file_type == FileType.photo:
             return self.photo_failures.get(scan_id, 0)
         else:
             return self.video_failures.get(scan_id, 0)
 
-    def get_no_warnings(self, scan_id):
+    def get_no_warnings(self, scan_id) -> int:
         return self.warnings.get(scan_id, 0)
 
-    def add_to_auto_delete(self, rpd_file):
+    def add_to_auto_delete(self, rpd_file) -> None:
         self.auto_delete[rpd_file.scan_id].append(rpd_file.full_file_name)
 
-    def get_files_to_auto_delete(self, scan_id):
+    def get_files_to_auto_delete(self, scan_id) -> int:
         return self.auto_delete[scan_id]
 
-    def clear_auto_delete(self, scan_id):
+    def clear_auto_delete(self, scan_id) -> None:
         if scan_id in self.auto_delete:
             del self.auto_delete[scan_id]
 
-    def file_backed_up(self, scan_id: int, unique_id: str):
-        self.backups_performed_by_unique_id[unique_id] += 1
+    def file_backed_up(self, scan_id: int, uid: bytes) -> None:
+        self.backups_performed_by_uid[uid] += 1
         self.backups_performed_by_scan_id[scan_id] += 1
 
-    def file_backed_up_to_all_locations(self, unique_id: str, file_type: FileType) -> bool:
+    def file_backed_up_to_all_locations(self, uid: bytes, file_type: FileType) -> bool:
         """
         Determine if this particular file has been backed up to all
         locations it should be
-        :param unique_id: unique id of the file
+        :param uid: unique id of the file
         :param file_type: photo or video
         :return: True if backups for this particular file have completed, else
         False
         """
-        if unique_id in self.backups_performed_by_unique_id:
+        if uid in self.backups_performed_by_uid:
             if file_type == FileType.photo:
-                return self.backups_performed_by_unique_id[
-                           unique_id] == self.no_photo_backup_devices
+                return self.backups_performed_by_uid[uid] == self.no_photo_backup_devices
             else:
-                return self.backups_performed_by_unique_id[
-                           unique_id] == self.no_video_backup_devices
+                return self.backups_performed_by_uid[uid] == self.no_video_backup_devices
         else:
             logging.critical(
-                "Unexpected unique_id in self.backups_performed_by_unique_id")
+                "Unexpected uid in self.backups_performed_by_uid")
             return True
-    def all_files_backed_up(self, scan_id: int=None) -> bool:
+
+    def all_files_backed_up(self, scan_id: Optional[int]=None) -> bool:
         """
         Determine if all backups have finished in the download
         :param scan_id: scan id of the download. If None, then all
@@ -178,7 +177,7 @@ class DownloadTracker:
         if scan_id is None:
             for scan_id in self.no_backups_to_perform_by_scan_id:
                 if self.no_backups_to_perform_by_scan_id[scan_id] != \
-                    self.backups_performed_by_scan_id[scan_id]:
+                        self.backups_performed_by_scan_id[scan_id]:
                     return False
             return True
         else:
@@ -186,7 +185,7 @@ class DownloadTracker:
                self.backups_performed_by_scan_id[scan_id]
 
     def file_downloaded_increment(self, scan_id: int, file_type: FileType,
-                                  status: DownloadStatus):
+                                  status: DownloadStatus) -> None:
         self.files_downloaded[scan_id] += 1
 
         if status not in (DownloadStatus.download_failed,
@@ -246,26 +245,26 @@ class DownloadTracker:
         percent_complete = float(total) / self.total_bytes_to_download
         return percent_complete
 
-    def set_total_bytes_copied(self, scan_id, total_bytes):
+    def set_total_bytes_copied(self, scan_id, total_bytes) -> None:
         assert total_bytes >= 0
         self.total_bytes_copied_by_scan_id[scan_id] = total_bytes
 
-    def increment_bytes_backed_up(self, scan_id, chunk_downloaded):
+    def increment_bytes_backed_up(self, scan_id, chunk_downloaded) -> None:
         self.total_bytes_backed_up_by_scan_id[scan_id] += chunk_downloaded
 
-    def set_download_count_for_file(self, unique_id, download_count):
-        self.download_count_for_file_by_unique_id[unique_id] = download_count
+    def set_download_count_for_file(self, uid, download_count) -> None:
+        self.download_count_for_file_by_uid[uid] = download_count
 
-    def get_download_count_for_file(self, unique_id):
-        return self.download_count_for_file_by_unique_id[unique_id]
+    def get_download_count_for_file(self, uid: bytes) -> None:
+        return self.download_count_for_file_by_uid[uid]
 
-    def set_download_count(self, scan_id, download_count):
+    def set_download_count(self, scan_id, download_count) -> None:
         self.download_count_by_scan_id[scan_id] = download_count
 
-    def get_file_types_present(self, scan_id):
+    def get_file_types_present(self, scan_id) -> str:
         return self.file_types_present_by_scan_id[scan_id]
 
-    def set_file_types_present(self, scan_id: int, file_types_present):
+    def set_file_types_present(self, scan_id: int, file_types_present: str) -> None:
         self.file_types_present_by_scan_id[scan_id] = file_types_present
 
     def no_errors_or_warnings(self):

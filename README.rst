@@ -97,7 +97,6 @@ Rapid Photo Downloader requires:
  - `python-gphoto2`_ 1.3.4 or newer
  - pyzmq_
  - psutil_ 3.4.2 or newer
- - sortedcontainers_
  - pyxdg_
  - Arrow_
  - dateutil_ 2.0 or newer
@@ -188,7 +187,6 @@ If you installed the man pages, they are found in ``/usr/local/share/man/man1``.
 .. _python-gphoto2: https://github.com/jim-easterbrook/python-gphoto2
 .. _pyzmq: https://github.com/zeromq/pyzmq
 .. _psutil: https://github.com/giampaolo/psutil
-.. _sortedcontainers: http://www.grantjenks.com/docs/sortedcontainers/
 .. _pyxdg: https://www.freedesktop.org/wiki/Software/pyxdg/
 .. _Arrow: https://github.com/crsmithdev/arrow
 .. _dateutil: https://labix.org/python-dateutil
