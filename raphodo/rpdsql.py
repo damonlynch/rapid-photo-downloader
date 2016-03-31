@@ -283,6 +283,11 @@ class ThumbnailRowsSQL:
             rows = self.conn.execute(query).fetchone()
         return rows[0]
 
+    def validate_uid(self, uid: bytes) -> None:
+        rows = self.conn.execute('SELECT uid FROM files WHERE uid=?', (uid, )).fetchall()
+        if not rows:
+            raise KeyError('UID does not exist in database')
+
     def set_marked(self, uid: bytes, marked: bool) -> None:
         query = 'UPDATE files SET marked=? WHERE uid=?'
         logging.debug('%s (%s, %s)', query, marked, uid)

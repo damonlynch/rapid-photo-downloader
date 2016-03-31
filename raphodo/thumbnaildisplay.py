@@ -173,8 +173,8 @@ class ThumbnailListModel(QAbstractListModel):
 
         # Highlight thumbnails when from particular device when there is more than one device
         # Thumbnails to highlight by uid
-        self.highlighting = [] # type: List[bytes]
-        self.highlighting_scan_id = None
+        self.currently_highlighting_scan_id = None  # type: Optional[int]
+        self._resetHighlightingValues()
         self.highlighting_timeline = QTimeLine(FadeMilliseconds // 2)
         self.highlighting_timeline.setCurveShape(QTimeLine.SineCurve)
         self.highlighting_timeline.frameChanged.connect(self.doHighlightDeviceThumbs)
@@ -184,6 +184,8 @@ class ThumbnailListModel(QAbstractListModel):
         self.highlighting_timeline.setFrameRange(self.highlighting_timeline_mint,
                                                  self.highlighting_timeline_max)
         self.highlight_value = 0
+
+        self._resetRememberSelection()
 
     def logState(self) -> None:
         logging.debug("-- Thumbnail Model --")
@@ -221,10 +223,31 @@ class ThumbnailListModel(QAbstractListModel):
                               "devices in rapidApp devices",
                               len(scan_ids), len(self.rapidApp.devices))
 
-    def refresh(self, suppress_signal=False):
+    def validateModelConsistency(self):
+        logging.debug("Validating thumbnail model consistency...")
+
+        for idx, row in enumerate(self.rows):
+            uid = row[0]
+            if self.rpd_files.get(uid) is None:
+                raise KeyError('Missing key in rpd files at row {}'.format(idx))
+            if self.thumbnails.get(uid) is None:
+                raise KeyError('Missing key in thumbnails at row {}'.format(idx))
+
+        [self.tsql.validate_uid(uid=row[0]) for row in self.rows]
+        for uid, row in self.uid_to_row.items():
+            assert self.rows[row][0] == uid
+        for uid in self.tsql.get_uids():
+            assert uid in self.rpd_files
+            assert uid in self.thumbnails
+        logging.debug("...thumbnail model looks okay")
+
+    def refresh(self, suppress_signal=False, rememberSelection=False):
 
         if not suppress_signal:
             self.layoutAboutToBeChanged.emit()
+
+        if rememberSelection:
+            self.rememberSelection()
 
         self.rows = self.tsql.get_view(sort_by=self.sort_by, sort_order=self.sort_order,
                                        show=self.show, proximity_col1=self.proximity_col1,
@@ -233,6 +256,9 @@ class ThumbnailListModel(QAbstractListModel):
 
         if not suppress_signal:
             self.layoutChanged.emit()
+
+        if rememberSelection:
+            self.reselect()
 
     def rowCount(self, parent: QModelIndex=QModelIndex()) -> int:
         return len(self.rows)
@@ -245,19 +271,19 @@ class ThumbnailListModel(QAbstractListModel):
         if row >= len(self.rows) or row < 0:
             return None
 
-        unique_id = self.rows[row][0]
-        rpd_file = self.rpd_files[unique_id]  # type: RPDFile
+        uid = self.rows[row][0]
+        rpd_file = self.rpd_files[uid]  # type: RPDFile
 
         if role == Qt.DisplayRole:
             # This is never displayed, but is used for filtering!
             return rpd_file.modification_time
         elif role == Roles.highlight:
-            if rpd_file.scan_id == self.highlighting_scan_id:
+            if rpd_file.scan_id == self.currently_highlighting_scan_id:
                 return self.highlight_value
             else:
                 return 0
         elif role == Qt.DecorationRole:
-            return self.thumbnails[unique_id]
+            return self.thumbnails[uid]
         elif role == Qt.CheckStateRole:
             if self.rows[row][1]:
                 return Qt.Checked
@@ -437,13 +463,43 @@ class ThumbnailListModel(QAbstractListModel):
 
             self.endResetModel()
 
+            self._resetHighlightingValues()
+            self._resetRememberSelection()
+
     def setFileSort(self, sort: Sort, order: Qt.SortOrder, show: Show) -> None:
         if self.sort_by != sort or self.sort_order != order or self.show != show:
             logging.debug("Resetting view due to sort/filter change: %s, %s, %s", sort, order, show)
             self.sort_by = sort
             self.sort_order = order
             self.show = show
-            self.refresh()
+            self.refresh(rememberSelection=True)
+
+    def rememberSelection(self):
+        selection = self.rapidApp.thumbnailView.selectionModel()  # type: QItemSelectionModel
+        selected = selection.selection()  # type: QItemSelection
+        self.remember_selection_all_selected = len(selected) == len(self.rows)
+        if not self.remember_selection_all_selected:
+            self.remember_selection_selected_uids = [self.rows[index.row()][0]
+                                                     for index in selected.indexes()]
+            selection.reset()
+
+    def reselect(self):
+        if not self.remember_selection_all_selected:
+            selection = self.rapidApp.thumbnailView.selectionModel()  # type: QItemSelectionModel
+            new_selection = QItemSelection()  # type: QItemSelection
+            rows = [self.uid_to_row[uid] for uid in self.remember_selection_selected_uids]
+            rows.sort()
+            for first, last in runs(rows):
+                new_selection.select(self.index(first, 0), self.index(last, 0))
+            selection.reset()
+            selection.select(new_selection, QItemSelectionModel.Select)
+
+            for first, last in runs(rows):
+                self.dataChanged.emit(self.index(first, 0), self.index(last, 0))
+
+    def _resetRememberSelection(self):
+        self.remember_selection_all_selected = None  # type: Optional[bool]
+        self.remember_selection_selected_uids = []  # type: List[bytes]
 
     @pyqtSlot(int, CacheDirs)
     def cacheDirsReceived(self, scan_id: int, cache_dirs: CacheDirs):
@@ -555,6 +611,10 @@ class ThumbnailListModel(QAbstractListModel):
             return True
         else:
             assert scan_id is not None
+            if keep_downloaded_files:
+                logging.debug("Clearing all non-downloaded thumbnails for scan id %s", scan_id)
+            else:
+                logging.debug("Clearing all thumbnails for scan id %s", scan_id)
             # Generate list of displayed thumbnails to remove
             if keep_downloaded_files:
                 uids = self.getDisplayedUids(scan_id=scan_id)
@@ -563,10 +623,12 @@ class ThumbnailListModel(QAbstractListModel):
 
             rows = [self.uid_to_row[uid] for uid in uids]
 
-            if uids:
+            if rows:
                 # Generate groups of rows, and remove that group
+                # Must do it in reverse!
                 rows.sort()
-                for first, last in runs(rows):
+                rrows = reversed(list(runs(rows)))
+                for first, last in rrows:
                     no_rows = last - first + 1
                     self.removeRows(first, no_rows)
 
@@ -576,9 +638,12 @@ class ThumbnailListModel(QAbstractListModel):
             else:
                 uids = self.tsql.get_uids(scan_id=scan_id)
 
+            logging.debug("Removing %s thumbnail and rpd_files rows", len(uids))
             for uid in uids:
                 del self.thumbnails[uid]
                 del self.rpd_files[uid]
+
+            self.uid_to_row = {row[0]: idx for idx, row in enumerate(self.rows)}
 
             if keep_downloaded_files:
                 self.tsql.delete_files_by_scan_id(scan_id=scan_id, downloaded=False)
@@ -593,6 +658,8 @@ class ThumbnailListModel(QAbstractListModel):
 
             if self.tsql.get_count(scan_id=scan_id) == 0:
                 self.tsql.delete_device(scan_id=scan_id)
+
+            # self.validateModelConsistency()
 
             return len(rows) > 0
 
@@ -728,7 +795,9 @@ class ThumbnailListModel(QAbstractListModel):
 
         return self.tsql.get_count(scan_id=scan_id, downloaded=False)
 
-    def updateSelection(self) -> None:
+    def updateSelection(self, reset_selection: bool=False) -> None:
+        if reset_selection:
+            self.rapidApp.thumbnailView.selectionModel().reset()
         select_all_photos = self.rapidApp.selectAllPhotosCheckbox.isChecked()
         select_all_videos = self.rapidApp.selectAllVideosCheckbox.isChecked()
         self.selectAll(select_all=select_all_photos, file_type=FileType.photo)
@@ -881,23 +950,24 @@ class ThumbnailListModel(QAbstractListModel):
         :param scan_id: device's id
         """
 
-        if scan_id == self.highlighting_scan_id:
+        if scan_id == self.currently_highlighting_scan_id:
             return
 
         self.resetHighlighting()
 
-        self.highlighting_scan_id = scan_id
-        self.highlighting = [self.uid_to_row[uid] for uid in self.getDisplayedUids(scan_id=scan_id)]
-        self.highlighting.sort()
-        self.highlighting_rows = list(runs(self.highlighting))
+        self.currently_highlighting_scan_id = scan_id
+        if scan_id != self.most_recent_highlighted_device:
+            highlighting = [self.uid_to_row[uid] for uid in self.getDisplayedUids(scan_id=scan_id)]
+            highlighting.sort()
+            self.highlighting_rows = list(runs(highlighting))
+            self.most_recent_highlighted_device = scan_id
         self.highlighting_timeline.setDirection(QTimeLine.Forward)
         self.highlighting_timeline.start()
 
     def resetHighlighting(self) -> None:
-        if self.highlighting_scan_id is not None:
+        if self.currently_highlighting_scan_id is not None:
             self.highlighting_timeline.stop()
             self.doHighlightDeviceThumbs(value=0)
-            self.highlighting_scan_id = None
 
     @pyqtSlot(int)
     def doHighlightDeviceThumbs(self, value: int) -> None:
@@ -907,13 +977,11 @@ class ThumbnailListModel(QAbstractListModel):
 
     @pyqtSlot()
     def highlightPhaseFinished(self):
-        if self.highlighting_timeline.direction() == QTimeLine.Forward and False:
-            self.highlighting_timeline.setDirection(QTimeLine.Backward)
-            self.highlighting_timeline.start()
-        else:
-            self.highlighting_scan_id = None
-            self.highlighting = []
-            self.highlighting_rows = []
+        self.currently_highlighting_scan_id = None
+
+    def _resetHighlightingValues(self):
+        self.most_recent_highlighted_device = None  # type: Optional[int]
+        self.highlighting_rows = []  # type: List[int]
 
     def terminateThumbnailGeneration(self, scan_id: int) -> bool:
         """
@@ -963,12 +1031,11 @@ class ThumbnailListModel(QAbstractListModel):
         return self.tsql.any_files_to_download()
 
     def dataForProximityGeneration(self) -> List[ThumbnailDataForProximity]:
-        rpd_files = (self.rpd_files[row[0]] for row in self.rows)
         return [ThumbnailDataForProximity(uid=rpd_file.uid,
                                           mtime=rpd_file.modification_time,
                                           file_type=rpd_file.file_type,
                                           previously_downloaded=rpd_file.previously_downloaded())
-                for rpd_file in rpd_files]
+                for rpd_file in self.rpd_files.values()]
 
     def assignProximityGroups(self, col1_col2_uid: List[Tuple[int, int, bytes]]) -> None:
         """

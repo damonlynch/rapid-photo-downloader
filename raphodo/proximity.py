@@ -1158,7 +1158,7 @@ class TemporalProximityView(QTableView):
     def mouseReleaseEvent(self, event: QMouseEvent) -> None:
         self.temporalProximityWidget.block_update_device_display = False
         self.temporalProximityWidget.rapidApp.thumbnailModel.updateAllDeviceDisplayCheckMarks()
-        self.temporalProximityWidget.rapidApp.thumbnailModel.updateSelection()
+        self.temporalProximityWidget.rapidApp.thumbnailModel.updateSelection(reset_selection=True)
         self.temporalProximityWidget.rapidApp.thumbnailModel.resetHighlighting()
         super().mouseReleaseEvent(event)
 
@@ -1377,7 +1377,7 @@ class TemporalProximity(QWidget):
 
         if not self.block_update_device_display:
             self.thumbnailModel.updateAllDeviceDisplayCheckMarks()
-            self.thumbnailModel.updateSelection()
+            self.thumbnailModel.updateSelection(reset_selection=True)
             self.thumbnailModel.resetHighlighting()
 
     def clearThumbnailDisplayFilter(self):
