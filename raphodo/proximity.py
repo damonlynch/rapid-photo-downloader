@@ -27,7 +27,7 @@ import logging
 import pickle
 from pprint import pprint
 import math
-from typing import Dict, List, Tuple, Set, Optional
+from typing import Dict, List, Tuple, Set, Optional, Sequence, Iterable
 
 import arrow.arrow
 from arrow.arrow import Arrow
@@ -50,7 +50,8 @@ from raphodo.rpdfile import FileTypeCounter
 from raphodo.preferences import Preferences
 from raphodo.viewutils import ThumbnailDataForProximity
 
-ProximityRow = namedtuple('ProximityRow', 'year, month, weekday, day, proximity, new_file')
+ProximityRow = namedtuple('ProximityRow', 'year, month, weekday, day, proximity, new_file, '
+                                          'tooltip_date_col0, tooltip_date_col1, tooltip_date_col2')
 
 UidTime = namedtuple('UidTime', 'mtime, arrowtime, uid, previously_downloaded')
 
@@ -90,18 +91,37 @@ AM = datetime(2015, 11, 3).strftime('%p')
 PM = datetime(2015, 11, 3, 13).strftime('%p')
 
 
+def strip_zero(t: str, strip_zero) -> str:
+    if not strip_zero:
+        return t
+    return t.lstrip('0')
+
+
+def strip_ampm(t: str) -> str:
+    return t.replace(AM, '').replace(PM, '').strip()
+
+def make_long_date_format(arrowtime: Arrow) -> str:
+    # Translators: for example Nov 3 or Dec 31
+    long_format = _('%(month)s %(numeric_day)s') % {
+        'month': arrowtime.datetime.strftime('%b'),
+        'numeric_day': arrowtime.format('D')}
+    # Translators: for example Nov 15 2015
+    return _('%(date)s %(year)s') % dict(date=long_format, year=arrowtime.year)
+
 def humanize_time_span(start: Arrow, end: Arrow,
                        strip_leading_zero_from_time: bool=True,
-                       insert_cr_on_long_line: bool=False) -> str:
+                       insert_cr_on_long_line: bool=False,
+                       long_format: bool=False) -> str:
     r"""
-    Make timess and time spans human readable.
+    Make times and time spans human readable.
 
     :param start: start time
     :param end: end time
     :param strip_leading_zero_from_time: strip all leading zeros
     :param insert_cr_on_long_line: insert a carriage return on long
      lines
-    :return: time span to be read by humans
+    :param long_format: if True, return result in long format  
+    :return: tuple of time span to be read by humans, in short and long format
 
     >>> locale.setlocale(locale.LC_ALL, ('en_US', 'utf-8'))
     'en_US.UTF-8'
@@ -109,52 +129,73 @@ def humanize_time_span(start: Arrow, end: Arrow,
     >>> end = start
     >>> print(humanize_time_span(start, end))
     9:00 AM
+    >>> print(humanize_time_span(start, end, long_format=True))
+    Nov 3 2015, 9:00 AM
     >>> print(humanize_time_span(start, end, False))
     09:00 AM
+    >>> print(humanize_time_span(start, end, False, long_format=True))
+    Nov 3 2015, 09:00 AM
     >>> start = arrow.Arrow(2015,11,3,9,1,23)
     >>> end = arrow.Arrow(2015,11,3,9,1,24)
     >>> print(humanize_time_span(start, end))
     9:01 AM
+    >>> print(humanize_time_span(start, end, long_format=True))
+    Nov 3 2015, 9:01 AM
     >>> start = arrow.Arrow(2015,11,3,9)
     >>> end = arrow.Arrow(2015,11,3,10)
     >>> print(humanize_time_span(start, end))
     9:00 - 10:00 AM
+    >>> print(humanize_time_span(start, end, long_format=True))
+    Nov 3 2015, 9:00 - 10:00 AM
     >>> start = arrow.Arrow(2015,11,3,9)
     >>> end = arrow.Arrow(2015,11,3,13)
     >>> print(humanize_time_span(start, end))
     9:00 AM - 1:00 PM
+    >>> print(humanize_time_span(start, end, long_format=True))
+    Nov 3 2015, 9:00 AM - 1:00 PM
     >>> start = arrow.Arrow(2015,11,3,12)
     >>> print(humanize_time_span(start, end))
     12:00 - 1:00 PM
+    >>> print(humanize_time_span(start, end, long_format=True))
+    Nov 3 2015, 12:00 - 1:00 PM
     >>> start = arrow.Arrow(2015,11,3,12, 59)
     >>> print(humanize_time_span(start, end))
     12:59 - 1:00 PM
+    >>> print(humanize_time_span(start, end, long_format=True))
+    Nov 3 2015, 12:59 - 1:00 PM
     >>> start = arrow.Arrow(2015,10,31,11,55)
     >>> end = arrow.Arrow(2015,11,2,15,15)
     >>> print(humanize_time_span(start, end))
     Oct 31, 11:55 AM - Nov 2, 3:15 PM
+    >>> print(humanize_time_span(start, end, long_format=True))
+    Oct 31 2015, 11:55 AM - Nov 2 2015, 3:15 PM
     >>> start = arrow.Arrow(2014,10,31,11,55)
     >>> print(humanize_time_span(start, end))
     Oct 31 2014, 11:55 AM - Nov 2 2015, 3:15 PM
+    >>> print(humanize_time_span(start, end, long_format=True))
+    Oct 31 2014, 11:55 AM - Nov 2 2015, 3:15 PM
     >>> print(humanize_time_span(start, end, False))
+    Oct 31 2014, 11:55 AM - Nov 2 2015, 03:15 PM
+    >>> print(humanize_time_span(start, end, False, long_format=True))
     Oct 31 2014, 11:55 AM - Nov 2 2015, 03:15 PM
     >>> print(humanize_time_span(start, end, False, True))
     Oct 31 2014, 11:55 AM -
     Nov 2 2015, 03:15 PM
+    >>> print(humanize_time_span(start, end, False, True, long_format=True))
+    Oct 31 2014, 11:55 AM - Nov 2 2015, 03:15 PM
     """
-
-    def strip_zero(t: str, strip_zero) -> str:
-        if not strip_zero:
-            return t
-        return t.lstrip('0')
-
-    def strip_ampm(t: str) -> str:
-        return t.replace(AM, '').replace(PM, '').strip()
 
     strip = strip_leading_zero_from_time
 
     if start.floor('minute') == end.floor('minute'):
-        return strip_zero(locale_time(start.datetime), strip)
+        short_format = strip_zero(locale_time(start.datetime), strip)
+        if not long_format:
+            return short_format
+        else:
+            long_format_date = make_long_date_format(start)
+            # Translators: for example Nov 3 2015, 11:25 AM
+            return _('%(date)s, %(time)s') % dict(date=make_long_date_format(start),
+                                                  time=short_format)
 
     if start.floor('day') == end.floor('day'):
         # both dates are on the same day
@@ -165,8 +206,16 @@ def humanize_time_span(start: Arrow, end: Arrow,
             # both dates are in the same meridiem
             start_time = strip_ampm(start_time)
 
-        # Translators: for example 9:00 AM - 3:55 PM
-        return _('%(starttime)s - %(endtime)s') % {'starttime': start_time, 'endtime': end_time}
+        time_span = _('%(starttime)s - %(endtime)s') % dict(starttime=start_time, endtime=end_time)
+        if not long_format:
+            # Translators: for example 9:00 AM - 3:55 PM
+            return time_span
+        else:
+            # Translators: for example Nov 3 2015, 11:25 AM
+            return _('%(date)s, %(time)s') % dict(date=make_long_date_format(start), time=time_span)
+
+
+    # The start and end dates are on a different day
 
     # Translators: for example Nov 3 or Dec 31
     start_date = _('%(month)s %(numeric_day)s') % {
@@ -176,7 +225,7 @@ def humanize_time_span(start: Arrow, end: Arrow,
         'month': end.datetime.strftime('%b'),
         'numeric_day': end.format('D')}
 
-    if start.floor('year') != end.floor('year'):
+    if start.floor('year') != end.floor('year') or long_format:
         # Translators: for example Nov 3 2015
         start_date = _('%(date)s %(year)s') % {'date': start_date, 'year': start.year}
         end_date = _('%(date)s %(year)s') % {'date': end_date, 'year': end.year}
@@ -187,7 +236,7 @@ def humanize_time_span(start: Arrow, end: Arrow,
     end_datetime = _('%(date)s, %(time)s') % {
         'date': end_date, 'time': strip_zero(locale_time(end.datetime), strip)}
 
-    if not insert_cr_on_long_line:
+    if not insert_cr_on_long_line or long_format:
         # Translators: for example, Nov 3, 12:15 PM - Nov 4, 1:00 AM
         return _('%(earlier_time)s - %(later_time)s') % {
             'earlier_time': start_datetime, 'later_time': end_datetime}
@@ -553,8 +602,9 @@ class TemporalProximityGroups:
         for i in range(len(self.times_by_proximity)):
             start = self.times_by_proximity[i][0]  # type: Arrow
             end = self.times_by_proximity[i][-1]   # type: Arrow
-            self.text_by_proximity.append(humanize_time_span(start, end,
-                                                             insert_cr_on_long_line=True))
+            short_form = humanize_time_span(start, end, insert_cr_on_long_line=True)
+            long_form = humanize_time_span(start, end, long_format=True)
+            self.text_by_proximity.append((short_form, long_form))
 
         # Phase 4: Generate the rows to be displayed in the proximity table view
         self.prev_row_month = None  # type: Tuple[int, int]
@@ -565,12 +615,12 @@ class TemporalProximityGroups:
         for group_no in range(len(self.times_by_proximity)):
             arrowtime = self.times_by_proximity[group_no][0]
             prev_day = (arrowtime.year, arrowtime.month, arrowtime.day)
-            text = self.text_by_proximity.popleft()
+            col2_text, tooltip_col2_text = self.text_by_proximity.popleft()
             new_file = any(self.new_files_by_proximity[group_no])
             row_index += 1 + column2_span
             thumbnail_row_index += 1
-            self.rows.append(self.make_row(arrowtime, text, new_file, prev_day, row_index,
-                                           thumbnail_row_index))
+            self.rows.append(self.make_row(arrowtime, col2_text, new_file, prev_day, row_index,
+                                           thumbnail_row_index, tooltip_col2_text))
             self.row_to_group_no[row_index] = group_no
 
             slice_end = thumbnail_row_index + len(self.times_by_proximity[group_no])
@@ -589,7 +639,7 @@ class TemporalProximityGroups:
                         column2_span += 1
                         self.rows.append(self.make_row(arrowtime, '', new_file, prev_day,
                                                        row_index + column2_span,
-                                                       thumbnail_row_index))
+                                                       thumbnail_row_index, tooltip_col2_text))
 
         # Phase 5: Determine the row spans for each column
         column = -1
@@ -645,11 +695,12 @@ class TemporalProximityGroups:
         self.thumbnail_types = None
 
     def make_row(self, arrowtime: Arrow,
-                 text: str,
+                 col2_text: str,
                  new_file: bool,
                  day: Tuple[int, int, int],
                  row_index: int,
-                 thumbnail_row_index: int) -> ProximityRow:
+                 thumbnail_row_index: int,
+                 tooltip_col2_text: str) -> ProximityRow:
 
         arrowmonth = day[:2]
         if arrowmonth != self.prev_row_month:
@@ -678,7 +729,16 @@ class TemporalProximityGroups:
         else:
             weekday = numeric_day = ''
 
-        return ProximityRow(year, month, weekday, numeric_day, text, new_file)
+        month_day = _('%(month)s %(numeric_day)s') % {
+            'month': arrowtime.datetime.strftime('%b'),
+            'numeric_day': arrowtime.format('D')}
+        tooltip_col1 = _('%(date)s %(year)s') % {'date': month_day, 'year': arrowtime.year}
+        # Translators: for example Nov 2015
+        tooltip_col0 = _('%(month)s %(year)s') %  {'month': arrowtime.datetime.strftime('%b'),
+                         'year': arrowtime.year}
+
+        return ProximityRow(year, month, weekday, numeric_day, col2_text, new_file, tooltip_col0,
+                            tooltip_col1, tooltip_col2_text)
 
     def __len__(self):
         return len(self.rows)
@@ -770,12 +830,15 @@ class TemporalProximityModel(QAbstractTableModel):
 
             if column == 1:
                 uids = self.groups.uids_in_row_col1[row]
+                date = proximity_row.tooltip_date_col1
             elif column == 2:
                 prow = self.groups.row_span_for_column_starts_at_row[(row, 2)]
                 uids = self.groups.uniqueIdsFromCol2Row(prow)
+                date = proximity_row.tooltip_date_col2
             else:
                 assert column == 0
                 uids = self.groups.uids_in_row_col0[row]
+                date = proximity_row.tooltip_date_col0
 
             length = len(uids)
             pixmap = thumbnails[uids[0]]  # type: QPixmap
@@ -796,7 +859,9 @@ class TemporalProximityModel(QAbstractTableModel):
 
             c = FileTypeCounter(self.groups.file_types_in_cell[row, column])
             file_types = c.summarize_file_count()[0]
-            tooltip = '{} {} {}<br>{}'.format(html_image1, center, html_image2, file_types)
+            tooltip = '{}<br>{} {} {}<br>{}'.format(date,
+                                                 html_image1, center, html_image2,
+                                                 file_types)
             return tooltip
 
 
