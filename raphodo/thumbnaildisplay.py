@@ -243,11 +243,11 @@ class ThumbnailListModel(QAbstractListModel):
 
     def refresh(self, suppress_signal=False, rememberSelection=False):
 
-        if not suppress_signal:
-            self.layoutAboutToBeChanged.emit()
-
         if rememberSelection:
             self.rememberSelection()
+
+        if not suppress_signal:
+            self.layoutAboutToBeChanged.emit()
 
         self.rows = self.tsql.get_view(sort_by=self.sort_by, sort_order=self.sort_order,
                                        show=self.show, proximity_col1=self.proximity_col1,
@@ -259,6 +259,34 @@ class ThumbnailListModel(QAbstractListModel):
 
         if rememberSelection:
             self.reselect()
+
+    def rememberSelection(self):
+        selection = self.rapidApp.thumbnailView.selectionModel()  # type: QItemSelectionModel
+        selected = selection.selection()  # type: QItemSelection
+        self.remember_selection_all_selected = len(selected) == len(self.rows)
+        if not self.remember_selection_all_selected:
+            self.remember_selection_selected_uids = [self.rows[index.row()][0]
+                                                     for index in selected.indexes()]
+            selection.reset()
+
+    def reselect(self):
+        if not self.remember_selection_all_selected:
+            selection = self.rapidApp.thumbnailView.selectionModel()  # type: QItemSelectionModel
+            new_selection = QItemSelection()  # type: QItemSelection
+            rows = [self.uid_to_row[uid] for uid in self.remember_selection_selected_uids
+                    if uid in self.uid_to_row]
+            rows.sort()
+            for first, last in runs(rows):
+                new_selection.select(self.index(first, 0), self.index(last, 0))
+
+            selection.select(new_selection, QItemSelectionModel.Select)
+
+            for first, last in runs(rows):
+                self.dataChanged.emit(self.index(first, 0), self.index(last, 0))
+
+    def _resetRememberSelection(self):
+        self.remember_selection_all_selected = None  # type: Optional[bool]
+        self.remember_selection_selected_uids = []  # type: List[bytes]
 
     def rowCount(self, parent: QModelIndex=QModelIndex()) -> int:
         return len(self.rows)
@@ -468,38 +496,12 @@ class ThumbnailListModel(QAbstractListModel):
 
     def setFileSort(self, sort: Sort, order: Qt.SortOrder, show: Show) -> None:
         if self.sort_by != sort or self.sort_order != order or self.show != show:
-            logging.debug("Resetting view due to sort/filter change: %s, %s, %s", sort, order, show)
+            logging.debug("Changing layout due to sort change: %s, %s, %s", sort, order, show)
             self.sort_by = sort
             self.sort_order = order
             self.show = show
             self.refresh(rememberSelection=True)
 
-    def rememberSelection(self):
-        selection = self.rapidApp.thumbnailView.selectionModel()  # type: QItemSelectionModel
-        selected = selection.selection()  # type: QItemSelection
-        self.remember_selection_all_selected = len(selected) == len(self.rows)
-        if not self.remember_selection_all_selected:
-            self.remember_selection_selected_uids = [self.rows[index.row()][0]
-                                                     for index in selected.indexes()]
-            selection.reset()
-
-    def reselect(self):
-        if not self.remember_selection_all_selected:
-            selection = self.rapidApp.thumbnailView.selectionModel()  # type: QItemSelectionModel
-            new_selection = QItemSelection()  # type: QItemSelection
-            rows = [self.uid_to_row[uid] for uid in self.remember_selection_selected_uids]
-            rows.sort()
-            for first, last in runs(rows):
-                new_selection.select(self.index(first, 0), self.index(last, 0))
-            selection.reset()
-            selection.select(new_selection, QItemSelectionModel.Select)
-
-            for first, last in runs(rows):
-                self.dataChanged.emit(self.index(first, 0), self.index(last, 0))
-
-    def _resetRememberSelection(self):
-        self.remember_selection_all_selected = None  # type: Optional[bool]
-        self.remember_selection_selected_uids = []  # type: List[bytes]
 
     @pyqtSlot(int, CacheDirs)
     def cacheDirsReceived(self, scan_id: int, cache_dirs: CacheDirs):
@@ -816,6 +818,13 @@ class ThumbnailListModel(QAbstractListModel):
 
         if not uids:
             return
+
+        if select_all:
+            action = "Selecting all %s"
+        else:
+            action = "Deslecting all %ss"
+
+        logging.debug(action, file_type.name)
 
         selection = self.rapidApp.thumbnailView.selectionModel()  # type: QItemSelectionModel
         selected = selection.selection()  # type: QItemSelection

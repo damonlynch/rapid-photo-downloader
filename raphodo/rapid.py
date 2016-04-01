@@ -895,8 +895,6 @@ class RapidWindow(QMainWindow):
     def showComboChanged(self, index: int) -> None:
         self.sortComboChanged(index=-1)
         self.thumbnailModel.updateAllDeviceDisplayCheckMarks()
-        self.thumbnailModel.updateSelection()
-        self.displayMessageInStatusBar()
 
     def showOnlyNewFiles(self) -> bool:
         """
