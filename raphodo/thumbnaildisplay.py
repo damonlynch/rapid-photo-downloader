@@ -921,6 +921,21 @@ class ThumbnailListModel(QAbstractListModel):
             for row in range(top.row(), bottom.row() + 1):
                 yield row
 
+    def getTypeCountForProximityCell(self, col1id: Optional[int]=None,
+                             col2id: Optional[int]=None) -> str:
+        """
+        Generates a string displaying how many photos and videos are
+        in the proximity table cell
+        """
+        assert not (col1id is None and col2id is None)
+        if col2id is not None:
+            col2id = [col2id]
+        else:
+            col1id = [col1id]
+        uids = self.tsql.get_uids(proximity_col1=col1id, proximity_col2=col2id)
+        file_types = (self.rpd_files[uid].file_type for uid in uids)
+        return FileTypeCounter(file_types).summarize_file_count()[0]
+
     def getDisplayedUids(self, scan_id: Optional[int]=None,
                          marked: Optional[bool]=None,
                          file_type: Optional[FileType]=None,

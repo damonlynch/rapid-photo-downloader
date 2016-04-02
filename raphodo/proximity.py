@@ -27,7 +27,7 @@ import logging
 import pickle
 from pprint import pprint
 import math
-from typing import Dict, List, Tuple, Set, Optional, Sequence, Iterable
+from typing import Dict, List, Tuple, Set, Optional
 
 import arrow.arrow
 from arrow.arrow import Arrow
@@ -503,15 +503,83 @@ class ProximityDisplayValues:
         self.tableColorDarker = self.tableColor.darker(107)
 
 
+class MetaUid:
+    r"""
+    Stores unique ids for each table cell.
+
+    Used first when generating the proximity table, and then when
+    displaying tooltips containing thumbnails.
+
+    Operations are performed by tuple of (row, column) or simply
+    by column.
+
+
+    >>> m = MetaUid()
+    >>> m[(0 , 0)] = [b'0', b'1', b'2']
+    >>> print(m)
+    MetaUid(({0: 3}, {}, {}) ({0: [b'0', b'1', b'2']}, {}, {}))
+    >>> m[[0, 0]]
+    [b'0', b'1', b'2']
+    >>> m.trim()
+    >>> m[[0, 0]]
+    [b'0', b'2']
+    >>> m.no_uids((0, 0))
+    3
+    """
+
+    def __init__(self):
+        self._uids = tuple({} for i in (0,1,2))  # type: Tuple[Dict[int, List[bytes, ...]]]
+        self._no_uids = tuple({} for i in (0,1,2))  # type: Tuple[Dict[int, int]]
+
+    def __repr__(self):
+        return 'MetaUid(%r %r)' % (self._no_uids, self._uids)
+
+    def __setitem__(self, key: Tuple[int, int], uids: List[bytes]) -> None:
+        row, col = key
+        assert row not in self._uids[col]
+        self._uids[col][row] = uids
+        self._no_uids[col][row] = len(uids)
+
+    def __getitem__(self, key: Tuple[int, int]) -> List[bytes]:
+        row, col = key
+        return self._uids[col][row]
+
+    def trim(self) -> None:
+        """
+        Remove unique ids unnecessary for table viewing.
+        """
+
+        for col in (0,1,2):
+            for row in self._uids[col]:
+                uids = self._uids[col][row]
+                if len(uids) > 1:
+                    self._uids[col][row] = [uids[0], uids[-1]]
+
+    def no_uids(self, key: Tuple[int, int]) -> int:
+        """
+        Number of unique ids the cell had before it was trimmed.
+        """
+
+        row, col = key
+        return self._no_uids[col][row]
+
+    def uids(self, column: int) -> Dict[int, List[bytes]]:
+        return self._uids[column]
+
+
 class TemporalProximityGroups:
+    """
+    Generates values to be displayed in Temporal Proximity (Timeline) view.
+    """
+
     # @profile
     def __init__(self, thumbnail_rows: List[ThumbnailDataForProximity],
                  temporal_span: int = 3600):
         self.rows = []  # type: List[ProximityRow]
-        self.row_to_group_no = dict()  # type: Dict[int, int]
-        self.uids_in_row_col1 = defaultdict(list)  # type: Dict[int, List[bytes, ...]]
-        self.uids_in_row_col0 = defaultdict(list)  # type: Dict[int, List[bytes, ...]]
-        self.file_types_in_cell = dict()  # type: Dict[Tuple[int, int], Tuple[FileType, ...]]
+
+        self.uids = MetaUid()
+
+        self.file_types_in_cell = dict()  # type: Dict[Tuple[int, int], str]
         self.times_by_proximity = defaultdict(list)
 
         # group_no: List[uid]
@@ -598,13 +666,14 @@ class TemporalProximityGroups:
                 prev = current
 
         # Phase 3: Generate the proximity group's text that will appear in
-        # the right-most column
+        # the right-most column and its tooltips
         for i in range(len(self.times_by_proximity)):
             start = self.times_by_proximity[i][0]  # type: Arrow
             end = self.times_by_proximity[i][-1]   # type: Arrow
             short_form = humanize_time_span(start, end, insert_cr_on_long_line=True)
             long_form = humanize_time_span(start, end, long_format=True)
             self.text_by_proximity.append((short_form, long_form))
+
 
         # Phase 4: Generate the rows to be displayed in the proximity table view
         self.prev_row_month = None  # type: Tuple[int, int]
@@ -615,17 +684,17 @@ class TemporalProximityGroups:
         for group_no in range(len(self.times_by_proximity)):
             arrowtime = self.times_by_proximity[group_no][0]
             prev_day = (arrowtime.year, arrowtime.month, arrowtime.day)
+
             col2_text, tooltip_col2_text = self.text_by_proximity.popleft()
             new_file = any(self.new_files_by_proximity[group_no])
+
             row_index += 1 + column2_span
             thumbnail_row_index += 1
+
             self.rows.append(self.make_row(arrowtime, col2_text, new_file, prev_day, row_index,
                                            thumbnail_row_index, tooltip_col2_text))
-            self.row_to_group_no[row_index] = group_no
-
-            slice_end = thumbnail_row_index + len(self.times_by_proximity[group_no])
-            file_types = tuple(self.thumbnail_types[thumbnail_row_index:slice_end])
-            self.file_types_in_cell[(row_index, 2)] = file_types
+            uids = self.uids_by_proximity[group_no]
+            self.uids[(row_index, 2)] = uids
 
             if len(self.times_by_proximity[group_no]) > 1:
                 column2_span = 0
@@ -639,7 +708,7 @@ class TemporalProximityGroups:
                         column2_span += 1
                         self.rows.append(self.make_row(arrowtime, '', new_file, prev_day,
                                                        row_index + column2_span,
-                                                       thumbnail_row_index, tooltip_col2_text))
+                                                       thumbnail_row_index, ''))
 
         # Phase 5: Determine the row spans for each column
         column = -1
@@ -670,29 +739,49 @@ class TemporalProximityGroups:
         # Phase 8: associate proximity table cells with uids
 
         uid_rows_c1 = {}
-        for proximity_view_cell_id, row_index in enumerate(self.uids_in_row_col1):
+        for proximity_view_cell_id, row_index in enumerate(self.uids.uids(1)):
             self.proximity_view_cell_id_col1[row_index] = proximity_view_cell_id
-            uids = self.uids_in_row_col1[row_index]
+            uids = self.uids.uids(1)[row_index]
             for uid in uids:
                 uid_rows_c1[uid] = proximity_view_cell_id
 
         uid_rows_c2 = {}
-        for proximity_view_cell_id, row_index in enumerate(self.row_to_group_no):
+
+        for proximity_view_cell_id, row_index in enumerate(self.uids.uids(2)):
             self.proximity_view_cell_id_col2[row_index] = proximity_view_cell_id
-            group_no = self.row_to_group_no[row_index]
-            uids = self.uids_by_proximity[group_no]
+            uids = self.uids.uids(2)[row_index]
             for uid in uids:
                 uid_rows_c2[uid] = proximity_view_cell_id
+
+        assert len(uid_rows_c2) == len(uid_rows_c1) == len(thumbnail_rows)
 
         self.col1_col2_uid = [(uid_rows_c1[row.uid], uid_rows_c2[row.uid], row.uid)
                               for row in thumbnail_rows]
 
+        # Assign depth before wiping values used to determine it
+        self.depth()
         self.display_values.prepare_for_pickle()
 
-        # Clean up values that have no further use
-        # TODO identify more values to remove
-        # TODO generate counts and clean up use of unique ids for each row, see data
+        # Reduce memory use before pickle. Can save about 100MB with
+        # when working with approximately 70,000 thumbnails.
+
+        self.uids.trim()
+
+        self.day_groups = None
+        self.month_groups = None
+        self.year_groups = None
+
+        self.new_files_by_proximity = None
+        self.text_by_proximity = None
+
+        self.uids_by_proximity = None
+        self.times_by_proximity = None
         self.thumbnail_types = None
+        self.text_by_proximity = None
+
+    def make_file_types_in_cell_text(self, slice_start: int, slice_end: int) -> str:
+        c = FileTypeCounter(self.thumbnail_types[slice_start:slice_end])
+        return c.summarize_file_count()[0]
 
     def make_row(self, arrowtime: Arrow,
                  col2_text: str,
@@ -707,11 +796,11 @@ class TemporalProximityGroups:
             self.prev_row_month = arrowmonth
             month = arrowtime.datetime.strftime('%B')
             year = arrowtime.year
-            uids = self.month_groups[day[:2]]
-            self.uids_in_row_col0[row_index] = uids
+            uids = self.month_groups[arrowmonth]
             slice_end = thumbnail_row_index + len(uids)
-            file_types = tuple(self.thumbnail_types[thumbnail_row_index:slice_end])
-            self.file_types_in_cell[(row_index, 0)] = file_types
+            self.file_types_in_cell[(row_index, 0)] = self.make_file_types_in_cell_text(
+                slice_start=thumbnail_row_index, slice_end=slice_end)
+            self.uids[(row_index, 0)] = uids
         else:
             month = year = ''
 
@@ -720,12 +809,7 @@ class TemporalProximityGroups:
             numeric_day = arrowtime.format('D')
             weekday = arrowtime.datetime.strftime('%a')
 
-            # Record which thumbnails are in this day's group, and the
-            # type of file they represent (photo, video)
-            self.uids_in_row_col1[row_index] = self.day_groups[day]
-            slice_end = thumbnail_row_index + len(self.day_groups[day])
-            file_types = tuple(self.thumbnail_types[thumbnail_row_index:slice_end])
-            self.file_types_in_cell[(row_index, 1)] = file_types
+            self.uids[(row_index, 1)] = self.day_groups[day]
         else:
             weekday = numeric_day = ''
 
@@ -760,10 +844,6 @@ class TemporalProximityGroups:
             else:
                 self._depth = 0
         return self._depth
-
-    def uniqueIdsFromCol2Row(self, row: int) -> List[str]:
-        group_no = self.row_to_group_no[row]
-        return self.uids_by_proximity[group_no]
 
     def __repr__(self) -> str:
         return 'TemporalProximityGroups with {} rows and depth of {}'.format(len(self.rows),
@@ -829,18 +909,25 @@ class TemporalProximityModel(QAbstractTableModel):
             thumbnails = self.rapidApp.thumbnailModel.thumbnails
 
             if column == 1:
-                uids = self.groups.uids_in_row_col1[row]
+                uids = self.groups.uids.uids(1)[row]
+                length = self.groups.uids.no_uids((row, 1))
                 date = proximity_row.tooltip_date_col1
+                file_types= self.rapidApp.thumbnailModel.getTypeCountForProximityCell(
+                    col1id=self.groups.proximity_view_cell_id_col1[row])
             elif column == 2:
                 prow = self.groups.row_span_for_column_starts_at_row[(row, 2)]
-                uids = self.groups.uniqueIdsFromCol2Row(prow)
+                uids = self.groups.uids.uids(2)[prow]
+                length = self.groups.uids.no_uids((prow, 2))
                 date = proximity_row.tooltip_date_col2
+                file_types = self.rapidApp.thumbnailModel.getTypeCountForProximityCell(
+                    col2id=self.groups.proximity_view_cell_id_col2[prow])
             else:
                 assert column == 0
-                uids = self.groups.uids_in_row_col0[row]
+                uids = self.groups.uids.uids(0)[row]
+                length = self.groups.uids.no_uids((row, 0))
                 date = proximity_row.tooltip_date_col0
+                file_types = self.groups.file_types_in_cell[row, column]
 
-            length = len(uids)
             pixmap = thumbnails[uids[0]]  # type: QPixmap
 
             image = base64_thumbnail(pixmap, self.tooltip_image_size)
@@ -857,8 +944,6 @@ class TemporalProximityModel(QAbstractTableModel):
                     center = '&nbsp;&hellip;&nbsp;'
                 html_image2 = '<img src="data:image/png;base64,{}">'.format(image)
 
-            c = FileTypeCounter(self.groups.file_types_in_cell[row, column])
-            file_types = c.summarize_file_count()[0]
             tooltip = '{}<br>{} {} {}<br>{}'.format(date,
                                                  html_image1, center, html_image2,
                                                  file_types)
@@ -1233,7 +1318,7 @@ class TemporalValuePicker(QWidget):
     Simple composite widget of QSlider and QLabel
     """
 
-    # Emites number of minutes
+    # Emits number of minutes
     valueChanged =  pyqtSignal(int)
 
     def __init__(self, minutes: int, parent=None) -> None:
