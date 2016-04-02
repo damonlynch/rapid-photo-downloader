@@ -290,6 +290,7 @@ class ProximityDisplayValues:
         self.c2_alignment = {}  # type: Dict[int, Align]
         self.c2_end_of_day = set()  # type: Set[int]
         self.c2_end_of_month = set()  # type: Set[int]
+        self.c1_end_of_month = set()  # type: Set[int]
 
         self.assign_fonts()
 
@@ -439,29 +440,40 @@ class ProximityDisplayValues:
         next_span_start_c0 = next_span_start_c1 = 0
 
         sizes = []  # type: List[Tuple[QSize, List[List[int]]]]
-        for idx, row in enumerate(rows):
-            if next_span_start_c0 == idx:
-                c0_size = self.column0Size(row.year, row.month)
-                self.col0_sizes[idx] = (c0_size.width(), c0_size.height())
+        for row, value in enumerate(rows):
+            if next_span_start_c0 == row:
+                c0_size = self.column0Size(value.year, value.month)
+                self.col0_sizes[row] = (c0_size.width(), c0_size.height())
                 c0_children = []
                 sizes.append((c0_size, c0_children))
-                c0_span = spans_dict.get((idx, 0), 1)
-                next_span_start_c0 = idx + c0_span
-                self.c2_end_of_month.add(idx + c0_span - 1)
-            if next_span_start_c1 == idx:
+                c0_span = spans_dict.get((row, 0), 1)
+                next_span_start_c0 = row + c0_span
+                self.c2_end_of_month.add(row + c0_span - 1)
+            if next_span_start_c1 == row:
                 c1_children = []
                 c0_children.append(c1_children)
-                c1_span = spans_dict.get((idx, 1), 1)
-                next_span_start_c1 = idx + c1_span
+                c1_span = spans_dict.get((row, 1), 1)
+                next_span_start_c1 = row + c1_span
 
+                c2_span = spans_dict.get((row + c1_span - 1, 2))
                 if c1_span > 1:
-                    self.c2_alignment[idx] = Align.bottom
-                    if spans_dict.get((idx + c1_span - 1, 2)) is None:
-                        self.c2_alignment[idx + c1_span - 1] = Align.top
+                    self.c2_alignment[row] = Align.bottom
+                    if c2_span is None:
+                        self.c2_alignment[row + c1_span - 1] = Align.top
 
-                self.c2_end_of_day.add(idx + c1_span - 1)
+                if row + c1_span - 1 in self.c2_end_of_month:
+                    self.c1_end_of_month.add(row)
 
-            minimal_col2_size = self.get_proximity_size(row.proximity)
+                skip_c2_end_of_day = False
+                if c2_span:
+                    final_day_in_c2_span = row + c1_span - 2 + c2_span
+                    c1_span_in_c2_span_final_day = spans_dict.get((final_day_in_c2_span, 1))
+                    skip_c2_end_of_day = c1_span_in_c2_span_final_day is not None
+
+                if not skip_c2_end_of_day:
+                    self.c2_end_of_day.add(row + c1_span - 1)
+
+            minimal_col2_size = self.get_proximity_size(value.proximity)
             c1_children.append(minimal_col2_size)
 
         # Phase 2: determine column 2 cell sizes, and max widths
@@ -500,7 +512,7 @@ class ProximityDisplayValues:
 
     def assign_color(self, dominant_file_type: FileType) -> None:
         self.tableColor = fileTypeColor(dominant_file_type)
-        self.tableColorDarker = self.tableColor.darker(107)
+        self.tableColorDarker = self.tableColor.darker(110)
 
 
 class MetaUid:
@@ -960,11 +972,11 @@ class TemporalProximityDelegate(QStyledItemDelegate):
         super().__init__(parent)
 
         self.darkGray = QColor(DarkGray)
-        # self.darkerGray = self.darkGray.darker(150)
-        self.darkerGray = QColor(DoubleDarkGray)
+        self.darkerGray = self.darkGray.darker(140)
+        # self.darkerGray = QColor(DoubleDarkGray)
         self.midGray = QColor(MediumGray)
-        # self.color1 = QColor(CustomColors.color1.value)
-        # self.color1Darker = self.color1.darker(107)
+
+        # column 2 cell color is assigned in ProximityDisplayValues
 
         palette = QGuiApplication.instance().palette()
         self.highlight = palette.highlight().color()
@@ -1053,7 +1065,7 @@ class TemporalProximityDelegate(QStyledItemDelegate):
             painter.setPen(dayColor)
             painter.drawText(dayRect, Qt.AlignHCenter | Qt.AlignTop, day)
 
-            if row in self.dv.c2_end_of_month:
+            if row in self.dv.c1_end_of_month:
                 painter.setPen(barColor)
                 painter.drawLine(0, option.rect.height() - 1,
                                  option.rect.width(), option.rect.height() - 1)
