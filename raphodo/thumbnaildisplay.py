@@ -104,6 +104,48 @@ class ThumbnailManager(PublishPullPipelineManager):
         return self._worker_id
 
 
+class AddBuffer:
+    """
+    Buffers thumbnail rows for display.
+
+    Add thumbnail rows to the listview is a relatively expensive operation, as the
+    model must be reset. Buffer the rows here, and then when big enough, flush it.
+    """
+
+    min_buffer_length = 10
+
+    def __init__(self):
+        self.initialize()
+        self.buffer_length = self.min_buffer_length
+
+    def initialize(self) -> None:
+        self.buffer = defaultdict(deque)  # type: Dict[int, deque]
+
+    def __len__(self):
+        return sum(len(buffer) for buffer in self.buffer.values())
+
+    def __getitem__(self, scan_id: int) -> deque:
+        return self.buffer[scan_id]
+
+    def should_flush(self) -> bool:
+        return len(self) > self.buffer_length
+
+    def reset(self, buffer_length: int) -> None:
+        self.initialize()
+        self.buffer_length = buffer_length
+
+    def set_buffer_length(self, length: int) -> None:
+        self.buffer_length = max(self.min_buffer_length, length)
+
+    def extend(self, scan_id: int, thumbnail_rows: Sequence[ThumbnailRow]) -> None:
+        self.buffer[scan_id].extend(thumbnail_rows)
+
+    def purge(self, scan_id: int) -> None:
+        if scan_id in self.buffer:
+            logging.debug("Purging %s thumbnails from buffer", len(self.buffer[scan_id]))
+        del self.buffer[scan_id]
+
+
 class ThumbnailListModel(QAbstractListModel):
     def __init__(self, parent, logging_port: int, log_gphoto2: bool) -> None:
         super().__init__(parent)
@@ -137,8 +179,7 @@ class ThumbnailListModel(QAbstractListModel):
         # uid: QPixmap
         self.thumbnails = {}  # type: Dict[bytes, QPixmap]
 
-        self.add_buffer = deque()
-        self.buffer_length = 10
+        self.add_buffer = AddBuffer()
 
         # Proximity filtering
         self.proximity_col1 = []  #  type: List[int, ...]
@@ -193,7 +234,9 @@ class ThumbnailListModel(QAbstractListModel):
             logging.debug("Thumbnailer not yet ready")
         else:
             db_length = self.tsql.get_count()
-            if len(self.thumbnails) != db_length or db_length != len(self.rpd_files):
+            db_length_and_buffer_length= db_length + len(self.add_buffer)
+            if (len(self.thumbnails) != db_length_and_buffer_length or
+                        db_length_and_buffer_length != len(self.rpd_files)):
                 logging.error("Conflicting values: %s thumbnails; %s database rows; %s rpd_files",
                               len(self.thumbnails), db_length, len(self.rpd_files))
             else:
@@ -440,12 +483,11 @@ class ThumbnailListModel(QAbstractListModel):
         device_name = self.rapidApp.devices[scan_id].display_name
         self.tsql.add_or_update_device(scan_id=scan_id, device_name=device_name)
 
-    def addFiles(self, rpd_files: List[RPDFile], generate_thumbnail: bool):
+    def addFiles(self, scan_id: int, rpd_files: List[RPDFile], generate_thumbnail: bool) -> None:
         if not rpd_files:
             return
 
         thumbnail_rows = deque(maxlen=len(rpd_files))
-
 
         for rpd_file in rpd_files:
             uid = rpd_file.uid
@@ -474,20 +516,20 @@ class ThumbnailListModel(QAbstractListModel):
 
             thumbnail_rows.append(tr)
 
-        self.add_buffer.extend(thumbnail_rows)
+        self.add_buffer.extend(scan_id=scan_id, thumbnail_rows=thumbnail_rows)
 
-        if len(self.add_buffer) > self.buffer_length:
+        if self.add_buffer.should_flush():
             self.flushAddBuffer()
 
     def flushAddBuffer(self):
-        if self.add_buffer:
+        if len(self.add_buffer):
             self.beginResetModel()
 
-            self.tsql.add_thumbnail_rows(thumbnail_rows=self.add_buffer)
+            for buffer in self.add_buffer.buffer.values():
+                self.tsql.add_thumbnail_rows(thumbnail_rows=buffer)
             self.refresh(suppress_signal=True)
 
-            self.add_buffer = deque()
-            self.buffer_length = len(self.rows)
+            self.add_buffer.reset(buffer_length=len(self.rows))
 
             self.endResetModel()
 
@@ -634,6 +676,8 @@ class ThumbnailListModel(QAbstractListModel):
                     no_rows = last - first + 1
                     self.removeRows(first, no_rows)
 
+                self.uid_to_row = {row[0]: idx for idx, row in enumerate(self.rows)}
+
             # Delete from DB and thumbnails and rpd_files lists
             if keep_downloaded_files:
                 uids = self.tsql.get_uids(scan_id=scan_id, downloaded=False)
@@ -645,7 +689,16 @@ class ThumbnailListModel(QAbstractListModel):
                 del self.thumbnails[uid]
                 del self.rpd_files[uid]
 
-            self.uid_to_row = {row[0]: idx for idx, row in enumerate(self.rows)}
+            uids = [row.uid for row in self.add_buffer[scan_id]]
+            if uids:
+                logging.debug("Removing additional %s thumbnail and rpd_files rows", len(uids))
+
+            for uid in uids:
+                del self.thumbnails[uid]
+                del self.rpd_files[uid]
+
+            self.add_buffer.purge(scan_id=scan_id)
+            self.add_buffer.set_buffer_length(len(self.rows))
 
             if keep_downloaded_files:
                 self.tsql.delete_files_by_scan_id(scan_id=scan_id, downloaded=False)

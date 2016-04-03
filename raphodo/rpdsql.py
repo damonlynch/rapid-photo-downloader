@@ -49,6 +49,7 @@ sqlite3.register_converter("BOOLEAN", lambda v: bool(int(v)))
 sqlite3.register_adapter(FileType, int)
 sqlite3.register_converter("FILETYPE", lambda v: FileType(int(v)))
 
+
 class ThumbnailRowsSQL:
     """
     In memory thumbnail rows display.

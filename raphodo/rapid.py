@@ -460,8 +460,8 @@ class RapidWindow(QMainWindow):
 
         self.prefs.auto_download_at_startup = False
         self.prefs.verify_file = False
-        self.prefs.photo_rename = photo_rename_test
-        # self.prefs.photo_rename = photo_rename_simple_test
+        # self.prefs.photo_rename = photo_rename_test
+        self.prefs.photo_rename = photo_rename_simple_test
         # self.prefs.photo_rename = job_code_rename_test
         self.prefs.backup_files = False
         self.prefs.backup_device_autodetection = True
@@ -2538,8 +2538,9 @@ class RapidWindow(QMainWindow):
             device.file_size_sum = data.file_size_sum
             self.mapModel(scan_id).updateDeviceScan(scan_id)
 
-            self.thumbnailModel.addFiles(data.rpd_files, generate_thumbnail=not
-                                            self.auto_start_is_on)
+            self.thumbnailModel.addFiles(scan_id=scan_id,
+                                         rpd_files=data.rpd_files,
+                                         generate_thumbnail=not self.auto_start_is_on)
         else:
             scan_id = data.scan_id
             if scan_id not in self.devices:
