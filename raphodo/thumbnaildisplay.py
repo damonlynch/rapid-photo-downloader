@@ -547,6 +547,8 @@ class ThumbnailListModel(QAbstractListModel):
 
     @pyqtSlot(int, CacheDirs)
     def cacheDirsReceived(self, scan_id: int, cache_dirs: CacheDirs):
+        self.rapidApp.fileSystemFilter.setTempDirs([cache_dirs.photo_cache_dir,
+                                                   cache_dirs.video_cache_dir])
         if scan_id in self.rapidApp.devices:
             self.rapidApp.devices[scan_id].photo_cache_dir = cache_dirs.photo_cache_dir
             self.rapidApp.devices[scan_id].video_cache_dir = cache_dirs.video_cache_dir

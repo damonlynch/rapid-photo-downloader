@@ -121,7 +121,7 @@ from raphodo.rpdsql import DownloadedSQL
 from raphodo.generatenameconfig import *
 from raphodo.rotatedpushbutton import RotatedButton, FlatButton
 from raphodo.primarybutton import TopPushButton, DownloadButton
-from raphodo.filebrowse import FileSystemView, FileSystemModel
+from raphodo.filebrowse import FileSystemView, FileSystemModel, FileSystemFilter
 from raphodo.toggleview import QToggleView
 import raphodo.__about__ as __about__
 import raphodo.iplogging as iplogging
@@ -1133,28 +1133,33 @@ class RapidWindow(QMainWindow):
             logging.error("Invalid Video Destination path: %s", self.prefs.video_download_folder)
 
         self.fileSystemModel = FileSystemModel(self)
-        self.thisComputerFSView = FileSystemView()
-        self.thisComputerFSView.setModel(self.fileSystemModel)
+        self.fileSystemFilter = FileSystemFilter(self)
+        self.fileSystemFilter.setSourceModel(self.fileSystemModel)
+
+        index =self.fileSystemFilter.mapFromSource(self.fileSystemModel.index('/'))
+
+        self.thisComputerFSView = FileSystemView(self.fileSystemModel)
+        self.thisComputerFSView.setModel(self.fileSystemFilter)
         self.thisComputerFSView.hideColumns()
-        self.thisComputerFSView.setRootIndex(self.fileSystemModel.index('/'))
+        self.thisComputerFSView.setRootIndex(index)
         if this_computer_sf.valid:
             self.thisComputerFSView.goToPath(self.prefs.this_computer_path)
         self.thisComputerFSView.activated.connect(self.thisComputerPathChosen)
         self.thisComputerFSView.clicked.connect(self.thisComputerPathChosen)
 
-        self.photoDestinationFSView = FileSystemView()
-        self.photoDestinationFSView.setModel(self.fileSystemModel)
+        self.photoDestinationFSView = FileSystemView(self.fileSystemModel)
+        self.photoDestinationFSView.setModel(self.fileSystemFilter)
         self.photoDestinationFSView.hideColumns()
-        self.photoDestinationFSView.setRootIndex(self.fileSystemModel.index('/'))
+        self.photoDestinationFSView.setRootIndex(index)
         if photo_df.valid:
             self.photoDestinationFSView.goToPath(self.prefs.photo_download_folder)
         self.photoDestinationFSView.activated.connect(self.photoDestinationPathChosen)
         self.photoDestinationFSView.clicked.connect(self.photoDestinationPathChosen)
 
-        self.videoDestinationFSView = FileSystemView()
-        self.videoDestinationFSView.setModel(self.fileSystemModel)
+        self.videoDestinationFSView = FileSystemView(self.fileSystemModel)
+        self.videoDestinationFSView.setModel(self.fileSystemFilter)
         self.videoDestinationFSView.hideColumns()
-        self.videoDestinationFSView.setRootIndex(self.fileSystemModel.index('/'))
+        self.videoDestinationFSView.setRootIndex(index)
         if video_df.valid:
             self.videoDestinationFSView.goToPath(self.prefs.video_download_folder)
         self.videoDestinationFSView.activated.connect(self.videoDestinationPathChosen)
@@ -1667,7 +1672,7 @@ class RapidWindow(QMainWindow):
         :param index: cell clicked
         """
 
-        path = self.fileSystemModel.filePath(index)
+        path = self.fileSystemModel.filePath(index.model().mapToSource(index))
         if path != self.prefs.this_computer_path:
             if self.prefs.this_computer_path:
                 scan_id = self.devices.scan_id_from_path(self.prefs.this_computer_path,
@@ -1690,7 +1695,7 @@ class RapidWindow(QMainWindow):
         :param index: cell clicked
         """
 
-        path = index.model().filePath(index)
+        path = self.fileSystemModel.filePath(index.model().mapToSource(index))
         if path != self.prefs.photo_download_folder:
             self.prefs.photo_download_folder = path
 
@@ -1704,7 +1709,7 @@ class RapidWindow(QMainWindow):
         :param index: cell clicked
         """
 
-        path = index.model().filePath(index)
+        path = self.fileSystemModel.filePath(index.model().mapToSource(index))
         if path != self.prefs.video_download_folder:
             self.prefs.video_download_folder = path
 
@@ -1941,6 +1946,7 @@ class RapidWindow(QMainWindow):
     def tempDirsReceivedFromCopyFiles(self, scan_id: int,
                                       photo_temp_dir: str,
                                       video_temp_dir: str) -> None:
+        self.fileSystemFilter.setTempDirs([photo_temp_dir, video_temp_dir])
         self.temp_dirs_by_scan_id[scan_id] = list(filter(None,[photo_temp_dir,
                                                   video_temp_dir]))
 
