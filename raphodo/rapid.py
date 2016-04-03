@@ -827,8 +827,13 @@ class RapidWindow(QMainWindow):
 
         if len(self.devices.downloading):
             logging.debug("Setting progress bar to show download progress")
+            self.downloadProgressBar.setMaximum(100)
         elif len(self.devices.thumbnailing):
             logging.debug("Setting progress bar to show thumbnailing progress")
+            # Set to an arbitrary value, because if there are no thumbnails to be
+            # generated (e.g. no photos/videos found in scan), keeping it at
+            # zero will cause it to continue to show a busy state
+            self.downloadProgressBar.setMaximum(100)
         elif len(self.devices.scanning):
             logging.debug("Setting progress bar to show scanning activity")
             self.downloadProgressBar.setMaximum(0)
@@ -1321,6 +1326,10 @@ class RapidWindow(QMainWindow):
         }
         """ % dict(width=int(QFontMetrics(QFont()).height() * (2/3)))
 
+        label_style = """
+        QLabel {border-color: palette(window); border-width: 1px; border-style: solid;}')
+        """
+
         # Delegate overrides default delegate for the Combobox, which is
         # pretty ugly whenever a style sheet color is applied.
         # See http://stackoverflow.com/questions/13308341/qcombobox-abstractitemviewitem?rq=1
@@ -1330,6 +1339,7 @@ class RapidWindow(QMainWindow):
         font.setPointSize(font.pointSize() - 2)
 
         self.showLabel = QLabel(_("Show:"))
+        self.showLabel.setAlignment(Qt.AlignBottom)
         self.showCombo = QComboBox()
         self.showCombo.addItem(_('All'), Show.all)
         self.showCombo.addItem(_('New'), Show.new_only)
@@ -1354,9 +1364,14 @@ class RapidWindow(QMainWindow):
             combobox.setItemDelegate(self.comboboxDelegate)
             combobox.setStyleSheet(style)
 
+        # Add an invisible border to make the lable vertically align with the comboboxes
+        # Otherwise it's off by 1px
+        for label in (self.sortLabel, self.showLabel):
+            label.setStyleSheet(label_style)
+
         for widget in (self.showLabel, self.sortLabel, self.sortCombo, self.showCombo,
                        self.sortOrder):
-            widget.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
+            widget.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Fixed)
             widget.setFont(font)
 
         self.checkAllLabel = QLabel(_('Select All:'))
@@ -2613,8 +2628,6 @@ class RapidWindow(QMainWindow):
 
         self.logState()
 
-        self.displayMessageInStatusBar()
-
         if len(self.devices.scanning) == 0:
             self.generateTemporalProximityTableData()
         else:
@@ -2623,10 +2636,13 @@ class RapidWindow(QMainWindow):
         if (not self.auto_start_is_on and self.prefs.generate_thumbnails):
             # Generate thumbnails for finished scan
             model.setSpinnerState(scan_id, DeviceState.idle)
-            self.devices.set_device_state(scan_id, DeviceState.thumbnailing)
-            self.updateProgressBarState()
-            self.thumbnailModel.generateThumbnails(scan_id, self.devices[scan_id])
+            if scan_id in self.thumbnailModel.no_thumbnails_by_scan:
+                self.devices.set_device_state(scan_id, DeviceState.thumbnailing)
+                self.updateProgressBarState()
+                self.thumbnailModel.generateThumbnails(scan_id, self.devices[scan_id])
+            self.displayMessageInStatusBar()
         elif self.auto_start_is_on:
+            self.displayMessageInStatusBar()
             if self.job_code.need_to_prompt_on_auto_start():
                 model.setSpinnerState(scan_id, DeviceState.idle)
                 self.job_code.get_job_code()
@@ -2875,6 +2891,7 @@ class RapidWindow(QMainWindow):
         self.devices.set_device_state(scan_id, DeviceState.scanning)
         self.setDownloadActionState()
         self.updateProgressBarState()
+        self.displayMessageInStatusBar()
 
     def partitionValid(self, mount: QStorageInfo) -> bool:
         """
@@ -3275,26 +3292,37 @@ class RapidWindow(QMainWindow):
         3. how many not shown (user chose to show only new files)
         """
 
-        files_avilable = self.thumbnailModel.getNoFilesAvailableForDownload()
 
-        if sum(files_avilable.values()) != 0:
-            files_to_download = self.thumbnailModel.getNoFilesMarkedForDownload()
-            files_avilable_sum = files_avilable.summarize_file_count()[0]
-            files_hidden = self.thumbnailModel.getNoHiddenFiles()
-
-            if files_hidden:
-                files_selected = _('%(number)s of %(available files)s marked for download (%('
-                                   'hidden)s hidden)') % {
-                                   'number': thousands(files_to_download),
-                                   'available files': files_avilable_sum,
-                                   'hidden': files_hidden}
-            else:
-                files_selected = _('%(number)s of %(available files)s marked for download') % {
-                                   'number': thousands(files_to_download),
-                                   'available files': files_avilable_sum}
-            msg = files_selected
+        if self.devices.downloading:
+            # status message updates while downloading are handled in another function
+            return
+        if self.devices.thumbnailing:
+            devices = [self.devices[scan_id].display_name for scan_id in self.devices.thumbnailing]
+            msg = _("Generating thumbnails for %s") % make_internationalized_list(devices)
+        elif self.devices.scanning:
+            devices = [self.devices[scan_id].display_name for scan_id in self.devices.scanning]
+            msg = _("Scanning %s") % make_internationalized_list(devices)
         else:
-            msg = ''
+            files_avilable = self.thumbnailModel.getNoFilesAvailableForDownload()
+
+            if sum(files_avilable.values()) != 0:
+                files_to_download = self.thumbnailModel.getNoFilesMarkedForDownload()
+                files_avilable_sum = files_avilable.summarize_file_count()[0]
+                files_hidden = self.thumbnailModel.getNoHiddenFiles()
+
+                if files_hidden:
+                    files_selected = _('%(number)s of %(available files)s marked for download (%('
+                                       'hidden)s hidden)') % {
+                                       'number': thousands(files_to_download),
+                                       'available files': files_avilable_sum,
+                                       'hidden': files_hidden}
+                else:
+                    files_selected = _('%(number)s of %(available files)s marked for download') % {
+                                       'number': thousands(files_to_download),
+                                       'available files': files_avilable_sum}
+                msg = files_selected
+            else:
+                msg = ''
         self.statusBar().showMessage(msg)
 
     def generateBasicStatusMessage(self) -> str:

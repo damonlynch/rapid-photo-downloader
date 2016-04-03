@@ -579,6 +579,7 @@ class ThumbnailListModel(QAbstractListModel):
 
         if self.thumbnails_generated == self.total_thumbs_to_generate:
             self.resetThumbnailTrackingAndDisplay()
+            self.rapidApp.displayMessageInStatusBar()
         elif self.total_thumbs_to_generate:
             self.rapidApp.downloadProgressBar.setValue(self.thumbnails_generated)
 
