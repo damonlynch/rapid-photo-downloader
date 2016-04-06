@@ -16,6 +16,10 @@
 # along with Rapid Photo Downloader.  If not,
 # see <http://www.gnu.org/licenses/>.
 
+"""
+Display file system folders and allow the user to select one
+"""
+
 __author__ = 'Damon Lynch'
 __copyright__ = "Copyright 2016, Damon Lynch"
 
@@ -35,6 +39,13 @@ from raphodo.folderspreview import FoldersPreview
 
 
 class FileSystemModel(QFileSystemModel):
+    """
+    Use Qt's built-in functionality to model the file system.
+
+    Augment it by displaying provisional subfolders in the photo and video
+    download destinations.
+    """
+
     def __init__(self, parent) -> None:
         super().__init__(parent)
         self.setFilter(QDir.Dirs | QDir.AllDirs | QDir.NoDotAndDotDot | QDir.Drives)
@@ -117,6 +128,9 @@ class FileSystemFilter(QSortFilterProxyModel):
 
 
 class FileSystemDelegate(QStyledItemDelegate):
+    """
+    Italicize provisional download folders that were not already created
+    """
     def __init__(self, parent=None):
         super().__init__(parent)
 

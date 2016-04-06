@@ -2697,7 +2697,8 @@ class RapidWindow(QMainWindow):
                                           video_download_folder=self.prefs.video_download_folder,
                                           photo_subfolder=self.prefs.photo_subfolder,
                                           video_subfolder=self.prefs.video_subfolder)
-        data = OffloadData(rpd_files=rpd_files, destination=destination)
+        data = OffloadData(rpd_files=rpd_files, destination=destination,
+                           strip_characters=self.prefs.strip_characters)
         self.offloadmq.assign_work(data)
 
     @pyqtSlot(TemporalProximityGroups)

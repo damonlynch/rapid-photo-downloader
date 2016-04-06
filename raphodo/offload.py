@@ -55,7 +55,8 @@ class OffloadWorker(DaemonProcess):
                     self.send_message_to_sink()
                 elif data.destination:
                     folders_preview.process_rpd_files(rpd_files=data.rpd_files,
-                                                      destination=data.destination)
+                                                      destination=data.destination,
+                                                      strip_characters=data.strip_characters)
                     if folders_preview.dirty:
                         folders_preview.dirty = False
                         self.content = pickle.dumps(OffloadResults(

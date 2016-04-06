@@ -27,11 +27,13 @@ import datetime
 import string
 from collections import namedtuple
 import logging
+from typing import Sequence, Optional, List
 
 from gettext import gettext as _
 
 from raphodo.preferences import DownloadsTodayTracker
 import raphodo.problemnotification as pn
+from raphodo.rpdfile import RPDFile
 
 from raphodo.generatenameconfig import *
 
@@ -58,6 +60,7 @@ class PhotoName:
 
     def __init__(self, pref_list):
         self.pref_list = pref_list
+        self.no_metadata = False
 
 
         # Some of the next values are overwritten in derived classes
@@ -80,17 +83,29 @@ class PhotoName:
 
         # step 1: get the correct value from metadata
         if self.L1 == self.L1_date_check:
-            if self.L2 == SUBSECONDS:
-                d = self.rpd_file.metadata.sub_seconds(missing=None)
-                if d is None:
-                    self.rpd_file.problem.add_problem(self.component,
-                                                      pn.MISSING_METADATA,
-                                                      _(self.L2))
-                    return ''
-                else:
+            if self.no_metadata:
+                if self.L2 == SUBSECONDS:
+                    d = datetime.datetime.fromtimestamp(self.rpd_file.modification_time)
+                    if not d.microsecond:
+                        d = '00'
+                    try:
+                        d = str(round(int(str(d.microsecond)[:3]) / 10))
+                    except:
+                        d = '00'
                     return d
+                d = ''
             else:
-                d = self.rpd_file.metadata.date_time(missing=None)
+                if self.L2 == SUBSECONDS:
+                    d = self.rpd_file.metadata.sub_seconds(missing=None)
+                    if d is None:
+                        self.rpd_file.problem.add_problem(self.component,
+                                                          pn.MISSING_METADATA,
+                                                          _(self.L2))
+                        return ''
+                    else:
+                        return d
+                else:
+                    d = self.rpd_file.metadata.date_time(missing=None)
 
         elif self.L1 == TODAY:
             d = datetime.datetime.now()
@@ -114,8 +129,7 @@ class PhotoName:
         # step 3: handle a missing value using file modification time
         if self.rpd_file.modification_time:
             try:
-                d = datetime.datetime.fromtimestamp(
-                    self.rpd_file.modification_time)
+                d = datetime.datetime.fromtimestamp(self.rpd_file.modification_time)
             except:
                 self.rpd_file.add_problem(self.component, pn.INVALID_DATE_TIME,
                                           '')
@@ -389,12 +403,14 @@ class PhotoName:
             return ''
 
 
-    def generate_name(self, rpd_file):
+    def generate_name(self, rpd_file: RPDFile) -> str:
         self.rpd_file = rpd_file
 
         name = ''
 
         for self.L0, self.L1, self.L2 in self._get_values_from_pref_list():
+            if self.no_metadata and self.L0 in (METADATA, SEQUENCES, JOB_CODE):
+                break
             v = self._get_component()
             if v:
                 name += v
@@ -433,12 +449,13 @@ class PhotoSubfolder(PhotoName):
     Generate subfolder names for photo files
     """
 
-    def __init__(self, pref_list):
+    def __init__(self, pref_list, no_metadata: bool=False) -> None:
 
         # No need to call __init__ of parent class, as all values will be
         # overwritten
 
         self.pref_list = pref_list
+        self.no_metadata = no_metadata
 
         self.strip_extraneous_white_space = re.compile(r'\s*%s\s*' % os.sep)
         self.strip_initial_period_from_extension = True
@@ -470,8 +487,8 @@ class VideoSubfolder(PhotoSubfolder):
     Generate subfolder names for video files
     """
 
-    def __init__(self, pref_list):
-        PhotoSubfolder.__init__(self, pref_list)
+    def __init__(self, pref_list, no_metadata: bool=False) -> None:
+        PhotoSubfolder.__init__(self, pref_list, no_metadata)
         self.L1_date_check = VIDEO_DATE  # used in _get_date_component()
 
 
