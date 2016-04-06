@@ -51,6 +51,7 @@ from raphodo.proximity import TemporalProximityGroups
 from raphodo.storage import StorageSpace
 from raphodo.iplogging import ZeroMQSocketHandler
 from raphodo.viewutils import ThumbnailDataForProximity
+from raphodo.folderspreview import DownloadDestination, FoldersPreview
 
 logger = logging.getLogger()
 
@@ -1139,14 +1140,20 @@ class RenameAndMoveFileResults:
 
 class OffloadData:
     def __init__(self, thumbnail_rows: Optional[Sequence[ThumbnailDataForProximity]]=None,
-                 proximity_seconds: int=None) -> None:
+                 proximity_seconds: int=None,
+                 rpd_files: Optional[Sequence[RPDFile]]=None,
+                 destination: Optional[DownloadDestination]=None) -> None:
         self.thumbnail_rows = thumbnail_rows
         self.proximity_seconds = proximity_seconds
+        self.rpd_files = rpd_files
+        self.destination = destination
 
 
 class OffloadResults:
-    def __init__(self, proximity_groups: Optional[TemporalProximityGroups]=None) -> None:
+    def __init__(self, proximity_groups: Optional[TemporalProximityGroups]=None,
+                 folders_preview: Optional[FoldersPreview]=None) -> None:
         self.proximity_groups = proximity_groups
+        self.folders_preview = folders_preview
 
 
 class BackupArguments:

@@ -20,27 +20,52 @@ __author__ = 'Damon Lynch'
 __copyright__ = "Copyright 2016, Damon Lynch"
 
 import os
-from typing import List
+from typing import List, Set
 
 from PyQt5.QtCore import (QDir, Qt, QModelIndex, QItemSelectionModel, QSortFilterProxyModel)
-from PyQt5.QtWidgets import (QTreeView, QAbstractItemView, QFileSystemModel, QSizePolicy)
+from PyQt5.QtWidgets import (QTreeView, QAbstractItemView, QFileSystemModel, QSizePolicy,
+                             QStyledItemDelegate, QStyleOptionViewItem)
 from PyQt5.QtGui import QIcon
+from PyQt5.QtGui import (QPixmap, QImage, QPainter, QColor, QBrush, QFontMetrics,
+                         QGuiApplication, QPen, QMouseEvent, QFont)
 
 import raphodo.qrc_resources as qrc_resources
-from raphodo.constants import (minPanelWidth, minFileSystemViewHeight)
+from raphodo.constants import (minPanelWidth, minFileSystemViewHeight, Roles)
+from raphodo.folderspreview import FoldersPreview
 
 
 class FileSystemModel(QFileSystemModel):
     def __init__(self, parent) -> None:
         super().__init__(parent)
+        self.setFilter(QDir.Dirs | QDir.AllDirs | QDir.NoDotAndDotDot | QDir.Drives)
+        self.folder_icon = QIcon(':/icons/folder.svg')
+        self.download_folder_icon = QIcon(':/icons/folder-filled.svg')
         self.setRootPath('/')
-        self.setFilter(QDir.Dirs|QDir.AllDirs|QDir.NoDotAndDotDot|QDir.Drives)
-        self.folder = QIcon(':/icons/folder.svg')
+        self.folders_preview = FoldersPreview()
+        self.preview_subfolders = set()  # type: Set[str]
+        self.download_subfolders = set()  # type: Set[str]
 
     def data(self, index: QModelIndex, role=Qt.DisplayRole):
         if role == Qt.DecorationRole:
-            return self.folder
+            path = index.data(QFileSystemModel.FilePathRole)  # type: str
+            if path in self.download_subfolders:
+                return self.download_folder_icon
+            else:
+                return self.folder_icon
+        if role == Roles.folder_preview:
+            path = index.data(QFileSystemModel.FilePathRole)
+            return path in self.preview_subfolders
+
         return super().data(index, role)
+
+    def update_preview_folders(self, folders_preview: FoldersPreview) -> None:
+        self.folders_preview = folders_preview
+        self.preview_subfolders = self.folders_preview.preview_subfolders()
+        self.download_subfolders = self.folders_preview.download_subfolders()
+
+    def remove_preview_folders(self) -> None:
+        self.folders_preview.clean_all_generated_folders()
+
 
 class FileSystemView(QTreeView):
     def __init__(self, model: FileSystemModel, parent=None) -> None:
@@ -72,7 +97,7 @@ class FileSystemFilter(QSortFilterProxyModel):
     """
     Filter out the display of RPD's cache and temporary directories
     """
-    
+
     def __init__(self, parent=None):
         super().__init__(parent)
         self.filtered_dir_names = set()
@@ -89,3 +114,20 @@ class FileSystemFilter(QSortFilterProxyModel):
         index = self.sourceModel().index(sourceRow, 0, sourceParent)  # type: QModelIndex
         file_name = index.data(QFileSystemModel.FileNameRole)
         return file_name not in self.filtered_dir_names
+
+
+class FileSystemDelegate(QStyledItemDelegate):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+
+    def paint(self, painter: QPainter, option: QStyleOptionViewItem, index: QModelIndex) -> None:
+        if index is None:
+            return
+
+        folder_preview = index.data(Roles.folder_preview)
+        if folder_preview:
+            font = QFont()
+            font.setItalic(True)
+            option.font = font
+
+        super().paint(painter, option, index)

@@ -27,9 +27,10 @@ import sys
 import logging
 
 from PyQt5.QtGui import QGuiApplication
-from raphodo.interprocess import DaemonProcess, OffloadData, OffloadResults
+from raphodo.interprocess import (DaemonProcess, OffloadData, OffloadResults, DownloadDestination)
 from raphodo.proximity import TemporalProximityGroups
 from raphodo.viewutils import ThumbnailDataForProximity
+from raphodo.folderspreview import FoldersPreview
 
 
 class OffloadWorker(DaemonProcess):
@@ -38,6 +39,7 @@ class OffloadWorker(DaemonProcess):
 
     def run(self) -> None:
         try:
+            folders_preview = FoldersPreview()
             while True:
                 directive, content = self.receiver.recv_multipart()
 
@@ -51,6 +53,16 @@ class OffloadWorker(DaemonProcess):
                         proximity_groups=groups),
                         pickle.HIGHEST_PROTOCOL)
                     self.send_message_to_sink()
+                elif data.destination:
+                    folders_preview.process_rpd_files(rpd_files=data.rpd_files,
+                                                      destination=data.destination)
+                    if folders_preview.dirty:
+                        folders_preview.dirty = False
+                        self.content = pickle.dumps(OffloadResults(
+                            folders_preview=folders_preview),
+                            pickle.HIGHEST_PROTOCOL)
+                        self.send_message_to_sink()
+
         except Exception as e:
             logging.error("An unhandled exception occurred while processing offloaded tasks")
             logging.exception("Traceback:")

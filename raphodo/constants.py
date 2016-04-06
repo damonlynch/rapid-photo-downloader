@@ -166,6 +166,8 @@ class Roles(IntEnum):
     sort_extension = Qt.UserRole + 13
     filename = Qt.UserRole + 14
     highlight = Qt.UserRole + 16
+    folder_preview = Qt.UserRole + 17
+    download_subfolder = Qt.UserRole + 18
 
 
 class ExtractionTask(Enum):

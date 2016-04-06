@@ -46,9 +46,13 @@ def excepthook(exception_type, exception_value, traceback_object) -> None:
     Inspired by function of the same name in the Eric project.
     """
 
-    frame = traceback_object.tb_frame
-    filename = frame.f_code.co_filename
-    lineno = traceback_object.tb_lineno
+    if traceback_object is not None:
+        frame = traceback_object.tb_frame
+        filename = frame.f_code.co_filename
+        lineno = traceback_object.tb_lineno
+    else:
+        lineno = -1
+        filename = 'unknown'
     key = '{}{}'.format(filename, lineno)
 
     global message_box_displayed

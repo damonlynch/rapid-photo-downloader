@@ -152,6 +152,7 @@ def _generate_name(generator, rpd_file, et_process):
 
     return value
 
+
 def generate_subfolder(rpd_file: RPDFile, et_process):
     if rpd_file.file_type == FileType.photo:
         generator = gn.PhotoSubfolder(rpd_file.subfolder_pref_list)
@@ -159,6 +160,7 @@ def generate_subfolder(rpd_file: RPDFile, et_process):
         generator = gn.VideoSubfolder(rpd_file.subfolder_pref_list)
 
     rpd_file.download_subfolder = _generate_name(generator, rpd_file, et_process)
+
 
 def generate_name(rpd_file: RPDFile, et_process):
     if rpd_file.file_type == FileType.photo:
@@ -765,7 +767,7 @@ class RenameMoveFileWorker(DaemonProcess):
 
                 data = pickle.loads(content) # type: RenameAndMoveFileData
                 if data.message == RenameAndMoveStatus.download_started:
-                    # Syncrhonize QSettings instance in preferences class
+                    # Synchronize QSettings instance in preferences class
                     self.prefs.sync()
 
                     # Track downloads today, using a class whose purpose is to

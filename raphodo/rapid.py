@@ -42,7 +42,7 @@ import pickle
 from collections import namedtuple
 import platform
 import argparse
-from typing import Optional, Tuple, List
+from typing import Optional, Tuple, List, Sequence, Set
 import faulthandler
 import pkg_resources
 
@@ -121,13 +121,15 @@ from raphodo.rpdsql import DownloadedSQL
 from raphodo.generatenameconfig import *
 from raphodo.rotatedpushbutton import RotatedButton, FlatButton
 from raphodo.primarybutton import TopPushButton, DownloadButton
-from raphodo.filebrowse import FileSystemView, FileSystemModel, FileSystemFilter
+from raphodo.filebrowse import (FileSystemView, FileSystemModel, FileSystemFilter,
+                                FileSystemDelegate)
 from raphodo.toggleview import QToggleView
 import raphodo.__about__ as __about__
 import raphodo.iplogging as iplogging
 import raphodo.excepthook
 from raphodo.panelview import QPanelView, QComputerScrollArea
 from raphodo.computerview import ComputerWidget
+from raphodo.folderspreview import DownloadDestination, FoldersPreview
 
 BackupMissing = namedtuple('BackupMissing', 'photo, video')
 
@@ -172,6 +174,7 @@ class RenameMoveFileManager(PushPullDaemonManager):
 
 class OffloadManager(PushPullDaemonManager):
     message = QtCore.pyqtSignal(TemporalProximityGroups)
+    downloadFolders = QtCore.pyqtSignal(FoldersPreview)
     def __init__(self, logging_port: int):
         super().__init__(logging_port=logging_port)
         self._process_name = 'Offload Manager'
@@ -184,6 +187,8 @@ class OffloadManager(PushPullDaemonManager):
         data = pickle.loads(self.content)  # type: OffloadResults
         if data.proximity_groups is not None:
             self.message.emit(data.proximity_groups)
+        elif data.folders_preview is not None:
+            self.downloadFolders.emit(data.folders_preview)
 
 
 class ScanManager(PublishPullPipelineManager):
@@ -460,8 +465,8 @@ class RapidWindow(QMainWindow):
 
         self.prefs.auto_download_at_startup = False
         self.prefs.verify_file = False
-        # self.prefs.photo_rename = photo_rename_test
-        self.prefs.photo_rename = photo_rename_simple_test
+        self.prefs.photo_rename = photo_rename_test
+        # self.prefs.photo_rename = photo_rename_simple_test
         # self.prefs.photo_rename = job_code_rename_test
         self.prefs.backup_files = False
         self.prefs.backup_device_autodetection = True
@@ -642,6 +647,7 @@ class RapidWindow(QMainWindow):
 
         self.offloadThread.started.connect(self.offloadmq.run_sink)
         self.offloadmq.message.connect(self.proximityGroupsGenerated)
+        self.offloadmq.downloadFolders.connect(self.provisionalDownloadFoldersGenerated)
 
         QTimer.singleShot(0, self.offloadThread.start)
         self.offloadmq.start()
@@ -1132,14 +1138,16 @@ class RapidWindow(QMainWindow):
         else:
             logging.error("Invalid Video Destination path: %s", self.prefs.video_download_folder)
 
-        self.fileSystemModel = FileSystemModel(self)
+        self.fileSystemModel = FileSystemModel(parent=self)
         self.fileSystemFilter = FileSystemFilter(self)
         self.fileSystemFilter.setSourceModel(self.fileSystemModel)
+        self.fileSystemDelegate = FileSystemDelegate()
 
         index =self.fileSystemFilter.mapFromSource(self.fileSystemModel.index('/'))
 
         self.thisComputerFSView = FileSystemView(self.fileSystemModel)
         self.thisComputerFSView.setModel(self.fileSystemFilter)
+        self.thisComputerFSView.setItemDelegate(self.fileSystemDelegate)
         self.thisComputerFSView.hideColumns()
         self.thisComputerFSView.setRootIndex(index)
         if this_computer_sf.valid:
@@ -1149,6 +1157,7 @@ class RapidWindow(QMainWindow):
 
         self.photoDestinationFSView = FileSystemView(self.fileSystemModel)
         self.photoDestinationFSView.setModel(self.fileSystemFilter)
+        self.photoDestinationFSView.setItemDelegate(self.fileSystemDelegate)
         self.photoDestinationFSView.hideColumns()
         self.photoDestinationFSView.setRootIndex(index)
         if photo_df.valid:
@@ -1158,6 +1167,7 @@ class RapidWindow(QMainWindow):
 
         self.videoDestinationFSView = FileSystemView(self.fileSystemModel)
         self.videoDestinationFSView.setModel(self.fileSystemFilter)
+        self.videoDestinationFSView.setItemDelegate(self.fileSystemDelegate)
         self.videoDestinationFSView.hideColumns()
         self.videoDestinationFSView.setRootIndex(index)
         if video_df.valid:
@@ -1698,6 +1708,7 @@ class RapidWindow(QMainWindow):
         path = self.fileSystemModel.filePath(index.model().mapToSource(index))
         if path != self.prefs.photo_download_folder:
             self.prefs.photo_download_folder = path
+            self.generateProvisionalDownloadFolders()
 
     @pyqtSlot(QModelIndex)
     def videoDestinationPathChosen(self, index: QModelIndex) -> None:
@@ -1712,6 +1723,7 @@ class RapidWindow(QMainWindow):
         path = self.fileSystemModel.filePath(index.model().mapToSource(index))
         if path != self.prefs.video_download_folder:
             self.prefs.video_download_folder = path
+            self.generateProvisionalDownloadFolders()
 
     @pyqtSlot()
     def downloadButtonClicked(self) -> None:
@@ -2562,6 +2574,7 @@ class RapidWindow(QMainWindow):
             self.thumbnailModel.addFiles(scan_id=scan_id,
                                          rpd_files=data.rpd_files,
                                          generate_thumbnail=not self.auto_start_is_on)
+            self.generateProvisionalDownloadFolders(rpd_files=data.rpd_files)
         else:
             scan_id = data.scan_id
             if scan_id not in self.devices:
@@ -2675,10 +2688,26 @@ class RapidWindow(QMainWindow):
         data = OffloadData(thumbnail_rows=rows, proximity_seconds=self.prefs.proximity_seconds)
         self.offloadmq.assign_work(data)
 
+    def generateProvisionalDownloadFolders(self,
+                                           rpd_files: Optional[Sequence[RPDFile]]=None) -> None:
+        """
+        Generate download subfolders for the rpd files
+        """
+        destination = DownloadDestination(photo_download_folder=self.prefs.photo_download_folder,
+                                          video_download_folder=self.prefs.video_download_folder,
+                                          photo_subfolder=self.prefs.photo_subfolder,
+                                          video_subfolder=self.prefs.video_subfolder)
+        data = OffloadData(rpd_files=rpd_files, destination=destination)
+        self.offloadmq.assign_work(data)
+
     @pyqtSlot(TemporalProximityGroups)
     def proximityGroupsGenerated(self, proximity_groups: TemporalProximityGroups) -> None:
         self.thumbnailModel.assignProximityGroups(proximity_groups.col1_col2_uid)
         self.temporalProximity.setGroups(proximity_groups=proximity_groups)
+
+    @pyqtSlot(FoldersPreview)
+    def provisionalDownloadFoldersGenerated(self, folders_preview: FoldersPreview) -> None:
+        self.fileSystemModel.update_preview_folders(folders_preview=folders_preview)
 
     def closeEvent(self, event) -> None:
         if self.application_state == ApplicationState.normal:
@@ -2688,12 +2717,10 @@ class RapidWindow(QMainWindow):
             self.copyfilesmq.stop()
 
             if self.downloadIsRunning():
-                logging.debug("Exiting while download is running. Cleaning "
-                              "up...")
+                logging.debug("Exiting while download is running. Cleaning up...")
                 # Update prefs with stored sequence number and downloads today
                 # values
-                data = RenameAndMoveFileData(
-                    message=RenameAndMoveStatus.download_completed)
+                data = RenameAndMoveFileData(message=RenameAndMoveStatus.download_completed)
                 self.renamemq.send_message_to_worker(data)
                 # renameandmovefile process will send a message with the
                 # updated sequence values. When that occurs,
@@ -2708,6 +2735,7 @@ class RapidWindow(QMainWindow):
                 # so no need to update or close it in this main process
 
         self.writeWindowSettings()
+        self.fileSystemModel.remove_preview_folders()
 
         self.offloadmq.stop()
         self.offloadThread.quit()
@@ -3317,13 +3345,13 @@ class RapidWindow(QMainWindow):
                 files_hidden = self.thumbnailModel.getNoHiddenFiles()
 
                 if files_hidden:
-                    files_selected = _('%(number)s of %(available files)s marked for download (%('
+                    files_selected = _('%(number)s of %(available files)s checked for download (%('
                                        'hidden)s hidden)') % {
                                        'number': thousands(files_to_download),
                                        'available files': files_avilable_sum,
                                        'hidden': files_hidden}
                 else:
-                    files_selected = _('%(number)s of %(available files)s marked for download') % {
+                    files_selected = _('%(number)s of %(available files)s checked for download') % {
                                        'number': thousands(files_to_download),
                                        'available files': files_avilable_sum}
                 msg = files_selected
