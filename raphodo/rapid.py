@@ -881,8 +881,8 @@ class RapidWindow(QMainWindow):
 
     @pyqtSlot()
     def destinationButtonClicked(self) -> None:
-        self.photoDestinationArea.setVisible(self.destinationButton.isChecked())
-        self.videoDestinationArea.setVisible(self.destinationButton.isChecked())
+        self.photoDestination.setVisible(self.destinationButton.isChecked())
+        self.videoDestination.setVisible(self.destinationButton.isChecked())
         self.setRightPanelVisibility()
 
     @pyqtSlot()
@@ -1275,18 +1275,15 @@ class RapidWindow(QMainWindow):
 
     def createDestinationViews(self) -> None:
 
-        photoDestination = QPanelView(label=_('Photos'),
+        self.photoDestination = QPanelView(label=_('Photos'),
                                       headerColor=QColor(ThumbnailBackgroundName),
                                       headerFontColor=QColor(Qt.white))
-        videoDestination = QPanelView(label=_('Videos'),
+        self.videoDestination = QPanelView(label=_('Videos'),
                                       headerColor=QColor(ThumbnailBackgroundName),
                                       headerFontColor=QColor(Qt.white))
 
-        photoDestination.addWidget(self.photoDestinationFSView)
-        videoDestination.addWidget(self.videoDestinationFSView)
-
-        self.photoDestinationArea = QComputerScrollArea(photoDestination)
-        self.videoDestinationArea = QComputerScrollArea(videoDestination)
+        self.photoDestination.addWidget(self.photoDestinationFSView)
+        self.videoDestination.addWidget(self.videoDestinationFSView)
 
     def createBottomControls(self) -> None:
         self.thumbnailControl = QWidget()
@@ -1441,8 +1438,8 @@ class RapidWindow(QMainWindow):
         self.leftPanelSplitter.addWidget(self.deviceWidget)
         self.leftPanelSplitter.addWidget(self.temporalProximity)
 
-        self.rightPanelSplitter.addWidget(self.photoDestinationArea)
-        self.rightPanelSplitter.addWidget(self.videoDestinationArea)
+        self.rightPanelSplitter.addWidget(self.photoDestination)
+        self.rightPanelSplitter.addWidget(self.videoDestination)
 
         self.leftPanelSplitter.setCollapsible(0, False)
         self.leftPanelSplitter.setCollapsible(1, False)
