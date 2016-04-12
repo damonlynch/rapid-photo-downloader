@@ -81,6 +81,18 @@ class BackupLocationType(Enum):
     photos_and_videos = 3
 
 
+class DestinationDisplayType(Enum):
+    folder_only = 1
+    usage_only = 2
+    folders_and_usage = 3
+
+
+class DisplayingFilesOfType(Enum):
+    photos = 1
+    videos = 2
+    photos_and_videos = 3
+
+
 class DeviceType(Enum):
     camera = 1
     volume = 2
@@ -214,7 +226,7 @@ class CustomColors(Enum):
     color1 = '#7a9c38'  # green
     color2 = '#cb493f'  # red
     color3 = '#d17109'  # orange
-    color4 = '#4D8CDC'  # blue, was '#5b97e4'
+    color4 = '#4D8CDC'  # blue
     color5 = '#5f6bfe'  # purple
     color6 = '#6d7e90'  # greyish
     color7 = '#ffff00'  # bright yellow
@@ -261,6 +273,9 @@ class TemporalProximityState(Enum):
 
 ThumbnailBackgroundName = MediumGray
 EmptyViewHeight = 20
+
+DeviceDisplayPadding = 6
+DeviceShadingIntensity = 104
 
 # How many steps with which to highlight thumbnail cells
 FadeSteps = 20

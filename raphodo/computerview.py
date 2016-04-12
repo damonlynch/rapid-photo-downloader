@@ -23,21 +23,29 @@ Combines a deviceview and a file system view into one widget
 __author__ = 'Damon Lynch'
 __copyright__ = "Copyright 2016, Damon Lynch"
 
-from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QSplitter)
+from typing import Union
+from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QSplitter, QSizePolicy)
 
-from raphodo.devicedisplay import DeviceView
+from raphodo.devicedisplay import DeviceView, EmulatedHeaderRow
 from raphodo.filebrowse import FileSystemView
+from raphodo.destinationdisplay import DestinationDisplay
 from raphodo.constants import minFileSystemViewHeight
 from raphodo.viewutils import QFramedWidget
 
 
 class ComputerWidget(QFramedWidget):
     """
-    Combines a deviceview and a file system view into one widget
+    Combines a device view or destination display, and a file system view, into one widget.
+
+    Also contains an empty header row that emulates the look of an actual header row for a
+    a device view or destination display -- it's used when a valid destination or source is
+    not yet specified.
     """
+
     def __init__(self, objectName: str,
-                 view: DeviceView,
+                 view: Union[DeviceView, DestinationDisplay],
                  fileSystemView: FileSystemView,
+                 select_text: str,
                  parent: QWidget=None) -> None:
 
         super().__init__(parent)
@@ -50,6 +58,10 @@ class ComputerWidget(QFramedWidget):
 
         self.view = view
         self.fileSystemView = fileSystemView
+        self.emulatedHeader = EmulatedHeaderRow(select_text)
+        self.emulatedHeader.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.Maximum)
+
+        layout.addWidget(self.emulatedHeader)
         layout.addWidget(self.view)
         layout.addStretch()
         layout.addWidget(self.fileSystemView, 5)
@@ -58,6 +70,7 @@ class ComputerWidget(QFramedWidget):
 
     def setViewVisible(self, visible: bool) -> None:
         self.view.setVisible(visible)
+        self.emulatedHeader.setVisible(not visible)
 
     def minimumHeight(self) -> int:
         if self.view.isVisible():
@@ -66,4 +79,8 @@ class ComputerWidget(QFramedWidget):
             height = 0
         height += minFileSystemViewHeight()
         return height
+
+
+
+
 

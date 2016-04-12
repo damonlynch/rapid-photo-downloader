@@ -38,6 +38,7 @@ from typing import List, Set, Sequence, Dict, Optional
 from raphodo.rpdfile import RPDFile
 from raphodo.constants import FileType
 import raphodo.generatename as gn
+from raphodo.storage import validate_download_folder
 
 
 DownloadDestination = namedtuple('DownloadDestination',
@@ -60,6 +61,8 @@ class FoldersPreview:
         # Download config paramaters
         self.photo_download_folder = ''
         self.video_download_folder = ''
+        self.photo_download_folder_valid = False
+        self.video_download_folder_valid = False
         self.photo_subfolder = ''
         self.video_subfolder = ''
 
@@ -133,12 +136,16 @@ class FoldersPreview:
         if destination.photo_download_folder != self.photo_download_folder:
             self.dirty = True
             self.photo_download_folder = destination.photo_download_folder
+            self.photo_download_folder_valid = validate_download_folder(
+                self.photo_download_folder).valid
             if self.generated_photo_subfolders:
                 self.move_subfolders(photos=True)
 
         if destination.video_download_folder != self.video_download_folder:
             self.video_download_folder = destination.video_download_folder
             self.dirty = True
+            self.video_download_folder_valid = validate_download_folder(
+                self.video_download_folder).valid
             if self.generated_video_subfolders:
                 self.move_subfolders(photos=False)
 
@@ -246,6 +253,8 @@ class FoldersPreview:
         """
         Create folders on the actual file system if they don't already exist
 
+        Only creates a path if the download folder is valid
+
         :param path: folder structure to create
         :param photos: whether working on photos (True) or videos (False)
         """
@@ -254,10 +263,16 @@ class FoldersPreview:
         level = -1
         if photos:
             dest = self.photo_download_folder
+            dest_valid = self.photo_download_folder_valid
             creating = self.created_photo_subfolders
         else:
             dest = self.video_download_folder
+            dest_valid = self.video_download_folder_valid
             creating = self.created_video_subfolders
+
+        if not dest_valid:
+            logging.debug("Not creating preview folders because download folder is invalid")
+            return
 
         created_photo_subfolders = self._flatten_set(self.created_photo_subfolders)
 

@@ -406,9 +406,11 @@ def validate_download_folder(path: Optional[str]) -> ValidatedFolder:
     ValidatedFolder(valid=False, absolute_path='/some/bogus/and/ridiculous/path')
     >>> validate_download_folder(None)
     ValidatedFolder(valid=False, absolute_path='')
+    >>> validate_download_folder('')
+    ValidatedFolder(valid=False, absolute_path='')
     """
 
-    if path is None:
+    if not path:
         return ValidatedFolder(False, '')
     absolute_path = os.path.abspath(path)
     valid = os.path.isdir(path) and os.access(path, os.W_OK)
@@ -428,9 +430,11 @@ def validate_source_folder(path: Optional[str]) -> ValidatedFolder:
     ValidatedFolder(valid=False, absolute_path='/some/bogus/and/ridiculous/path')
     >>> validate_source_folder(None)
     ValidatedFolder(valid=False, absolute_path='')
+    >>> validate_source_folder('')
+    ValidatedFolder(valid=False, absolute_path='')
     """
 
-    if path is None:
+    if not path:
         return ValidatedFolder(False, '')
     absolute_path = os.path.abspath(path)
     valid = os.path.isdir(path) and os.access(path, os.R_OK)

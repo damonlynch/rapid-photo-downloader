@@ -52,7 +52,7 @@ from raphodo.constants import (DownloadStatus, Downloaded, FileType, FileExtensi
                                ThumbnailCacheStatus, Roles, DeviceType, CustomColors, Show, Sort,
                                ThumbnailBackgroundName, Desktop, DeviceState, extensionColor,
                                FadeSteps, FadeMilliseconds, PaleGray, DarkGray)
-from raphodo.storage import get_program_cache_directory, get_desktop
+from raphodo.storage import get_program_cache_directory, get_desktop, validate_download_folder
 from raphodo.utilities import (CacheDirs, make_internationalized_list, format_size_for_user, runs)
 from raphodo.thumbnailer import Thumbnailer
 from raphodo.rpdsql import ThumbnailRowsSQL, ThumbnailRow
@@ -466,6 +466,7 @@ class ThumbnailListModel(QAbstractListModel):
             self.updateDeviceDisplayCheckMark(scan_id=scan_id)
         self.rapidApp.displayMessageInStatusBar()
         self.rapidApp.setDownloadActionState()
+        self.rapidApp.updateDestinationViews()
 
     def removeRows(self, position, rows=1, index=QModelIndex()):
         """
@@ -520,6 +521,7 @@ class ThumbnailListModel(QAbstractListModel):
 
         if self.add_buffer.should_flush():
             self.flushAddBuffer()
+            self.rapidApp.updateDestinationViews()
 
     def flushAddBuffer(self):
         if len(self.add_buffer):
@@ -588,8 +590,8 @@ class ThumbnailListModel(QAbstractListModel):
         if log_state:
             self.logState()
 
-    def _get_cache_location(self, download_folder: str, is_photo_dir: bool) -> str:
-        if self.rapidApp.isValidDownloadDir(download_folder, is_photo_dir=is_photo_dir):
+    def _get_cache_location(self, download_folder: str) -> str:
+        if validate_download_folder(download_folder).valid:
             return download_folder
         else:
             folder = get_program_cache_directory(create_if_not_exist=True)
@@ -599,10 +601,8 @@ class ThumbnailListModel(QAbstractListModel):
                 return os.path.expanduser('~')
 
     def getCacheLocations(self) -> CacheDirs:
-        photo_cache_folder = self._get_cache_location(
-            self.rapidApp.prefs.photo_download_folder, is_photo_dir=True)
-        video_cache_folder = self._get_cache_location(
-            self.rapidApp.prefs.video_download_folder, is_photo_dir=False)
+        photo_cache_folder = self._get_cache_location(self.rapidApp.prefs.photo_download_folder)
+        video_cache_folder = self._get_cache_location(self.rapidApp.prefs.video_download_folder)
         return CacheDirs(photo_cache_folder, video_cache_folder)
 
     @pyqtSlot()
@@ -745,8 +745,8 @@ class ThumbnailListModel(QAbstractListModel):
         uids = self.tsql.get_uids(marked=True)
         return FileTypeCounter(self.rpd_files[uid].file_type for uid in uids)
 
-    def getSizeOfFilesMarkedForDownload(self) -> int:
-        uids = self.tsql.get_uids(marked=True)
+    def getSizeOfFilesMarkedForDownload(self, file_type: FileType) -> int:
+        uids = self.tsql.get_uids(marked=True, file_type=file_type)
         return sum(self.rpd_files[uid].size for uid in uids)
 
     def getNoFilesAvailableForDownload(self) -> FileTypeCounter:
@@ -958,6 +958,7 @@ class ThumbnailListModel(QAbstractListModel):
         self.updateDeviceDisplayCheckMark(scan_id=scan_id)
         self.rapidApp.displayMessageInStatusBar()
         self.rapidApp.setDownloadActionState()
+        self.rapidApp.updateDestinationViews()
 
     def visibleRows(self):
         """

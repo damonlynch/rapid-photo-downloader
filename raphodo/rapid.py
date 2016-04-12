@@ -103,7 +103,8 @@ from raphodo.constants import (BackupLocationType, DeviceType, ErrorType,
                                photo_rename_test, ApplicationState, photo_rename_simple_test,
                                CameraErrorCode, TemporalProximityState,
                                ThumbnailBackgroundName, EmptyViewHeight,
-                               DeviceState, Sort, Show, Roles)
+                               DeviceState, Sort, Show, Roles, DestinationDisplayType,
+                               DisplayingFilesOfType)
 from raphodo.thumbnaildisplay import (ThumbnailView, ThumbnailListModel, ThumbnailDelegate,
                                       DownloadTypes, DownloadStats)
 from raphodo.devicedisplay import (DeviceModel, DeviceView, DeviceDelegate)
@@ -130,6 +131,8 @@ import raphodo.excepthook
 from raphodo.panelview import QPanelView, QComputerScrollArea
 from raphodo.computerview import ComputerWidget
 from raphodo.folderspreview import DownloadDestination, FoldersPreview
+from raphodo.destinationdisplay import DestinationDisplay
+from raphodo.viewutils import QFramedWidget
 
 BackupMissing = namedtuple('BackupMissing', 'photo, video')
 
@@ -707,6 +710,7 @@ class RapidWindow(QMainWindow):
             self.auto_start_is_on = self.prefs.auto_download_at_startup
 
         self.setDownloadActionState()
+        self.updateDestinationViews()
         self.searchForCameras()
         self.setupNonCameraDevices()
         self.setupManualPath()
@@ -1115,35 +1119,42 @@ class RapidWindow(QMainWindow):
                          DeviceType.camera: self.deviceView,
                          DeviceType.volume: self.deviceView}
 
-        # Be cautious: validate paths. The settings file can alwasy be edited by hand.
+        # Be cautious: validate paths. The settings file can alwasy be edited by hand, and
+        # the user can set it to whatever value they want using the command line options.
         logging.debug("Checking path validity")
         this_computer_sf = validate_source_folder(self.prefs.this_computer_path)
         if this_computer_sf.valid:
             if this_computer_sf.absolute_path != self.prefs.this_computer_path:
                 self.this_computer_path = this_computer_sf.absolute_path
         elif self.prefs.this_computer_source and self.prefs.this_computer_path != '':
-            logging.warning("Invalid 'This Computer' path: %s", self.prefs.this_computer_path)
+            logging.warning("Ignoring invalid 'This Computer' path: %s",
+                            self.prefs.this_computer_path)
+            self.prefs.this_computer_path = ''
 
         photo_df = validate_download_folder(self.prefs.photo_download_folder)
         if photo_df.valid:
             if photo_df.absolute_path != self.prefs.photo_download_folder:
                 self.prefs.photo_download_folder = photo_df.absolute_path
         else:
-            logging.error("Invalid Photo Destination path: %s", self.prefs.photo_download_folder)
+            logging.error("Ignoring invalid Photo Destination path: %s",
+                          self.prefs.photo_download_folder)
+            self.prefs.photo_download_folder = ''
 
         video_df = validate_download_folder(self.prefs.video_download_folder)
         if video_df.valid:
             if video_df.absolute_path != self.prefs.video_download_folder:
                 self.prefs.video_download_folder = video_df.absolute_path
         else:
-            logging.error("Invalid Video Destination path: %s", self.prefs.video_download_folder)
+            logging.error("Ignoring invalid Video Destination path: %s",
+                          self.prefs.video_download_folder)
+            self.prefs.video_download_folder = ''
 
         self.fileSystemModel = FileSystemModel(parent=self)
         self.fileSystemFilter = FileSystemFilter(self)
         self.fileSystemFilter.setSourceModel(self.fileSystemModel)
         self.fileSystemDelegate = FileSystemDelegate()
 
-        index =self.fileSystemFilter.mapFromSource(self.fileSystemModel.index('/'))
+        index = self.fileSystemFilter.mapFromSource(self.fileSystemModel.index('/'))
 
         self.thisComputerFSView = FileSystemView(self.fileSystemModel)
         self.thisComputerFSView.setModel(self.fileSystemFilter)
@@ -1181,14 +1192,10 @@ class RapidWindow(QMainWindow):
         self.deviceArea.setFrameShape(QFrame.NoFrame)
         self.deviceArea.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.MinimumExpanding)
 
-        self.deviceContainer = QWidget()
+        self.deviceContainer = QFramedWidget()
         self.deviceArea.setWidget(self.deviceContainer)
 
         self.deviceContainer.setObjectName('devicePanel')
-        if QSplitter().lineWidth():
-            self.deviceContainer.setStyleSheet(
-                'QWidget#devicePanel {border: %spx solid  palette(shadow);}' %
-                QSplitter().lineWidth())
 
         palette = QPalette()
         palette.setColor(QPalette.Window, palette.color(palette.Base))
@@ -1223,7 +1230,8 @@ class RapidWindow(QMainWindow):
 
         self.thisComputer = ComputerWidget(objectName='thisComputer',
                                            view=self.thisComputerView,
-                                           fileSystemView=self.thisComputerFSView)
+                                           fileSystemView=self.thisComputerFSView,
+                                           select_text=_('Select a source folder'))
         if self.prefs.this_computer_source:
             self.thisComputer.setViewVisible(self.prefs.this_computer_source)
 
@@ -1274,6 +1282,10 @@ class RapidWindow(QMainWindow):
         self.leftPanelSplitter.updateGeometry()
 
     def createDestinationViews(self) -> None:
+        """
+        Create the widgets that let the user choose where to download photos and videos to,
+        and that show them how much storage space there is available for their files.
+        """
 
         self.photoDestination = QPanelView(label=_('Photos'),
                                       headerColor=QColor(ThumbnailBackgroundName),
@@ -1282,8 +1294,40 @@ class RapidWindow(QMainWindow):
                                       headerColor=QColor(ThumbnailBackgroundName),
                                       headerFontColor=QColor(Qt.white))
 
-        self.photoDestination.addWidget(self.photoDestinationFSView)
-        self.videoDestination.addWidget(self.videoDestinationFSView)
+        # Display storage space when photos and videos are being downloaded to the same
+        # partition
+
+        self.combinedDestinationDisplay = DestinationDisplay()
+        self.combinedDestinationDisplayContainer = QPanelView(_('Storage Space'),
+                                      headerColor=QColor(ThumbnailBackgroundName),
+                                      headerFontColor=QColor(Qt.white))
+        self.combinedDestinationDisplayContainer.addWidget(self.combinedDestinationDisplay)
+
+        # Display storage space when photos and videos are being downloaded to different
+        # partitions.
+        # Also display the file system folder chooser for both destinations.
+
+        self.photoDestinationDisplay = DestinationDisplay()
+        self.photoDestinationDisplay.setDestination(self.prefs.photo_download_folder)
+        self.photoDestinationWidget = ComputerWidget(objectName='photoDestination',
+             view=self.photoDestinationDisplay, fileSystemView=self.photoDestinationFSView,
+             select_text=_('Select a destination folder'))
+        self.photoDestination.addWidget(self.photoDestinationWidget)
+        
+        self.videoDestinationDisplay = DestinationDisplay()
+        self.videoDestinationDisplay.setDestination(self.prefs.video_download_folder)
+        self.videoDestinationWidget = ComputerWidget(objectName='videoDestination',
+             view=self.videoDestinationDisplay, fileSystemView=self.videoDestinationFSView,
+             select_text=_('Select a destination folder'))
+        self.videoDestination.addWidget(self.videoDestinationWidget)
+
+        self.photoDestinationContainer = QWidget()
+        layout = QVBoxLayout()
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(0)
+        self.photoDestinationContainer.setLayout(layout)
+        layout.addWidget(self.combinedDestinationDisplayContainer)
+        layout.addWidget(self.photoDestination)
 
     def createBottomControls(self) -> None:
         self.thumbnailControl = QWidget()
@@ -1339,7 +1383,7 @@ class RapidWindow(QMainWindow):
         """ % dict(width=int(QFontMetrics(QFont()).height() * (2/3)))
 
         label_style = """
-        QLabel {border-color: palette(window); border-width: 1px; border-style: solid;}')
+        QLabel {border-color: palette(window); border-width: 1px; border-style: solid;}
         """
 
         # Delegate overrides default delegate for the Combobox, which is
@@ -1358,6 +1402,7 @@ class RapidWindow(QMainWindow):
         self.showCombo.currentIndexChanged.connect(self.showComboChanged)
 
         self.sortLabel= QLabel(_("Sort:"))
+        self.sortLabel.setAlignment(Qt.AlignBottom)
         self.sortCombo = QComboBox()
         self.sortCombo.addItem(_("Modification Time"), Sort.modification_time)
         self.sortCombo.addItem(_("Checked State"), Sort.checked_state)
@@ -1378,12 +1423,13 @@ class RapidWindow(QMainWindow):
 
         # Add an invisible border to make the lable vertically align with the comboboxes
         # Otherwise it's off by 1px
-        for label in (self.sortLabel, self.showLabel):
+        # TODO come up with a better way to solve this alignment problem, because this sucks
+        for label in (self.sortLabel,self.showLabel):
             label.setStyleSheet(label_style)
 
         for widget in (self.showLabel, self.sortLabel, self.sortCombo, self.showCombo,
                        self.sortOrder):
-            widget.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Fixed)
+            widget.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Maximum)
             widget.setFont(font)
 
         self.checkAllLabel = QLabel(_('Select All:'))
@@ -1438,7 +1484,7 @@ class RapidWindow(QMainWindow):
         self.leftPanelSplitter.addWidget(self.deviceWidget)
         self.leftPanelSplitter.addWidget(self.temporalProximity)
 
-        self.rightPanelSplitter.addWidget(self.photoDestination)
+        self.rightPanelSplitter.addWidget(self.photoDestinationContainer)
         self.rightPanelSplitter.addWidget(self.videoDestination)
 
         self.leftPanelSplitter.setCollapsible(0, False)
@@ -1492,8 +1538,52 @@ class RapidWindow(QMainWindow):
         else:
             layout.setAlignment(self.thisComputerToggleView, Qt.AlignTop)
 
-    def layoutDestinations(self) -> None:
-        pass
+    def updateDestinationViews(self) -> None:
+        """
+        Updates the the header bar and storage space view for the photo and
+        video download destinations.
+        """
+
+        size_photos_marked = self.thumbnailModel.getSizeOfFilesMarkedForDownload(FileType.photo)
+        size_videos_marked = self.thumbnailModel.getSizeOfFilesMarkedForDownload(FileType.video)
+        marked = self.thumbnailModel.getNoFilesAndTypesMarkedForDownload()
+
+        # Assume that invalid destination folders have already been reset to ''
+        if self.prefs.photo_download_folder and self.prefs.video_download_folder:
+            same_fs = same_file_system(self.prefs.photo_download_folder,
+                                       self.prefs.video_download_folder)
+        else:
+            same_fs = False
+
+        if same_fs:
+            files_to_display = DisplayingFilesOfType.photos_and_videos
+            self.combinedDestinationDisplay.setDestination(self.prefs.photo_download_folder)
+            self.combinedDestinationDisplay.setDownloadAttributes(marked, size_photos_marked,
+                          size_videos_marked, files_to_display, DestinationDisplayType.usage_only)
+            display_type = DestinationDisplayType.folder_only
+            self.combinedDestinationDisplayContainer.setVisible(True)
+        else:
+            files_to_display = DisplayingFilesOfType.photos
+            display_type = DestinationDisplayType.folders_and_usage
+            self.combinedDestinationDisplayContainer.setVisible(False)
+
+        if self.prefs.photo_download_folder:
+            self.photoDestinationDisplay.setDownloadAttributes(marked, size_photos_marked,
+                            0, files_to_display, display_type)
+            self.photoDestinationWidget.setViewVisible(True)
+        else:
+            # Photo download folder was invalid or simply not yet set
+            self.photoDestinationWidget.setViewVisible(False)
+
+        if not same_fs:
+            files_to_display = DisplayingFilesOfType.videos
+        if self.prefs.video_download_folder:
+            self.videoDestinationDisplay.setDownloadAttributes(marked, 0,
+                           size_videos_marked, files_to_display, display_type)
+            self.videoDestinationWidget.setViewVisible(True)
+        else:
+            # Video download folder was invalid or simply not yet set
+            self.videoDestinationWidget.setViewVisible(False)
 
     def setDownloadActionState(self) -> None:
         """
@@ -1528,23 +1618,6 @@ class RapidWindow(QMainWindow):
             text = _("Pause")
         self.downloadAct.setText(text)
         self.downloadButton.setText(text)
-
-    def getDownloadDestinationLabel(self):
-        photo = self.prefs.photo_download_folder or ''
-        video = self.prefs.video_download_folder or ''
-        if not os.path.isdir(photo):
-            return (_('Select Destination'))
-        if not os.path.isdir(video):
-            return (_('Select Destination'))
-
-        photo = os.path.abspath(photo)
-        video = os.path.abspath(video)
-        photo_folder = os.path.basename(photo)
-        video_folder = os.path.basename(video)
-        if photo == video:
-            return photo_folder
-        else:
-            return _('%(device1)s + %(device2)s') % dict(device1=photo_folder, device2=video_folder)
 
     def createMenus(self) -> None:
         self.menu = QMenu()
@@ -1689,7 +1762,7 @@ class RapidWindow(QMainWindow):
                                   self.prefs.this_computer_path)
                     self.removeDevice(scan_id=scan_id)
             self.prefs.this_computer_path = path
-            self.thisComputerView.show()
+            self.thisComputer.setViewVisible(True)
             self.setupManualPath()
 
     @pyqtSlot(QModelIndex)
@@ -1706,6 +1779,9 @@ class RapidWindow(QMainWindow):
         if path != self.prefs.photo_download_folder:
             self.prefs.photo_download_folder = path
             self.generateProvisionalDownloadFolders()
+            self.photoDestinationDisplay.setDestination(path=path)
+            self.updateDestinationViews()
+
 
     @pyqtSlot(QModelIndex)
     def videoDestinationPathChosen(self, index: QModelIndex) -> None:
@@ -1721,6 +1797,8 @@ class RapidWindow(QMainWindow):
         if path != self.prefs.video_download_folder:
             self.prefs.video_download_folder = path
             self.generateProvisionalDownloadFolders()
+            self.videoDestinationDisplay.setDestination(path=path)
+            self.updateDestinationViews()
 
     @pyqtSlot()
     def downloadButtonClicked(self) -> None:
@@ -2241,6 +2319,7 @@ class RapidWindow(QMainWindow):
 
                 self.setDownloadActionLabel(is_download=True)
                 self.setDownloadActionState()
+                self.updateDestinationViews()
 
                 self.job_code.job_code = ''
                 self.download_start_time = None
@@ -2463,8 +2542,7 @@ class RapidWindow(QMainWindow):
 
 
     # TODO merge with code in storage.validate_download_folder ?
-    def isValidDownloadDir(self, path, is_photo_dir: bool,
-                           show_error_in_log=False) -> bool:
+    def isValidDownloadDir(self, path, is_photo_dir: bool, show_error_in_log=False) -> bool:
         """
         Checks directory following conditions:
         Does it exist? Is it writable?
@@ -2483,8 +2561,7 @@ class RapidWindow(QMainWindow):
             download_folder_type = _("Video")
 
         if not os.path.isdir(path):
-            logging.error("%s download folder does not exist: %s",
-                         download_folder_type, path)
+            logging.error("%s download folder does not exist: %s",download_folder_type, path)
             if show_error_in_log:
                 severity = ErrorType.warning
                 problem = _("%(file_type)s download folder is invalid") % {
@@ -2641,6 +2718,7 @@ class RapidWindow(QMainWindow):
         model = self.mapModel(scan_id)
         model.updateDeviceScan(scan_id)
         self.setDownloadActionState()
+        self.updateDestinationViews()
 
         self.logState()
 
@@ -2837,6 +2915,7 @@ class RapidWindow(QMainWindow):
 
         if removed_cameras:
             self.setDownloadActionState()
+            self.updateDestinationViews()
 
     @pyqtSlot()
     def noGVFSAutoMount(self) -> None:
@@ -2922,6 +3001,7 @@ class RapidWindow(QMainWindow):
         self.scanmq.start_worker(scan_id, scan_arguments)
         self.devices.set_device_state(scan_id, DeviceState.scanning)
         self.setDownloadActionState()
+        self.updateDestinationViews()
         self.updateProgressBarState()
         self.displayMessageInStatusBar()
 
@@ -3031,6 +3111,7 @@ class RapidWindow(QMainWindow):
                 self.backup_devices.no_video_backup_devices)
 
         self.setDownloadActionState()
+        self.updateDestinationViews()
 
     def removeDevice(self, scan_id: int, show_warning: bool=True) -> None:
         assert scan_id is not None
@@ -3077,6 +3158,7 @@ class RapidWindow(QMainWindow):
 
             self.updateSourceButton()
             self.setDownloadActionState()
+            self.updateDestinationViews()
 
             if len(self.devices) == 0:
                 self.temporalProximity.setState(TemporalProximityState.empty)

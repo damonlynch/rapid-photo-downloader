@@ -305,11 +305,15 @@ def create_temp_dirs(photo_download_folder: str,
 
 def same_file_system(file1: str, file2: str) -> bool:
     """
-    Returns True if the files / directories are on the same filesystem
+    Returns True if the files / directories are on the same filesystem.
+
+    No error checking.
+
     :param file1: first file / directory to check
     :param file2: second file / directory to check
     :return: True if the same file system, else false
     """
+
     dev1 = os.stat(file1).st_dev
     dev2 = os.stat(file2).st_dev
     return dev1 == dev2

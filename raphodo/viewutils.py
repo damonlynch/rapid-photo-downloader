@@ -141,6 +141,8 @@ ThumbnailDataForProximity = namedtuple('ThumbnailDataForProximity', 'uid, mtime,
 class QFramedWidget(QWidget):
     """
     Draw a Frame around the widget in the style of the application.
+
+    Use this instead of using a stylesheet to draw a widget's border.
     """
     def paintEvent(self, *opts):
         painter = QStylePainter(self)
