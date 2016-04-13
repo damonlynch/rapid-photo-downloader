@@ -28,7 +28,8 @@ from gettext import gettext as _
 
 
 from PyQt5.QtCore import (QSize, Qt, QStorageInfo, QRect)
-from PyQt5.QtWidgets import (QStyleOptionFrame, QStyle, QStylePainter, QWidget, QSplitter)
+from PyQt5.QtWidgets import (QStyleOptionFrame, QStyle, QStylePainter, QWidget, QSplitter,
+                             QSizePolicy)
 from PyQt5.QtGui import (QColor, QPixmap, QIcon, QPaintEvent, QPalette)
 
 
@@ -62,6 +63,7 @@ class DestinationDisplay(QWidget):
         self.marked = FileTypeCounter()
         self.display_type = None  # type: DestinationDisplayType
         self.top_padding = 0
+        self.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.Fixed)
 
     def setDestination(self, path: str) -> None:
         """
@@ -227,4 +229,7 @@ class DestinationDisplay(QWidget):
         if self.display_type != DestinationDisplayType.folder_only:
             height += self.deviceDisplay.storage_height
         return QSize(self.deviceDisplay.view_width, height)
+
+    def minimumSize(self) -> QSize:
+        return self.sizeHint()
 

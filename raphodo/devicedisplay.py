@@ -369,9 +369,10 @@ class DeviceView(QListView):
         # Disallow the user from being able to select the table cells
         self.setSelectionMode(QAbstractItemView.NoSelection)
         self.view_width = minPanelWidth()
-        # Assume view is always going to be placed into a QScrollArea
+        # Assume view is always going to be placed into a splitter
         self.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
-        self.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.setVerticalScrollMode(QAbstractItemView.ScrollPerPixel)
+
         self.setMouseTracking(True)
         self.entered.connect(self.rowEntered)
 
@@ -418,6 +419,9 @@ def standard_height():
 def device_name_height():
     return  standard_height() + DeviceDisplayPadding * 3
 
+def device_header_row_height():
+    return device_name_height() +  DeviceDisplayPadding
+
 def device_name_highlight_color():
     palette = QPalette()
 
@@ -438,15 +442,17 @@ class EmulatedHeaderRow(QWidget):
         :return:
         """
         super().__init__()
-        self.setMinimumSize(1, device_name_height() + DeviceDisplayPadding)
+        self.setMinimumSize(1, device_header_row_height())
         self.select_text = select_text
+        palette = QPalette()
+        palette.setColor(QPalette.Window, palette.color(palette.Base))
+        self.setAutoFillBackground(True)
+        self.setPalette(palette)
 
     def paintEvent(self, event: QPaintEvent) -> None:
         painter = QPainter()
         painter.begin(self)
         rect = self.rect()  # type: QRect
-        palette = QPalette()
-        painter.fillRect(rect, palette.base().color())
         rect.setHeight(device_name_height())
         painter.fillRect(rect, device_name_highlight_color())
         rect.adjust(DeviceDisplayPadding, 0, 0, 0)
@@ -483,9 +489,10 @@ class DeviceDisplay:
         self.small_font = QFont(self.standard_font)
         self.small_font.setPointSize(self.standard_font.pointSize() - 2)
         self.small_font_metrics = QFontMetrics(self.small_font)
+        self.small_height = self.small_font_metrics.height()
 
         # Height of the graqient bar that visually shows storage use
-        self.g_height = self.standard_height * 1.5
+        self.g_height = self.standard_height
 
         # Height of the details about the storage e.g. number of photos
         # videos, etc.
@@ -494,12 +501,12 @@ class DeviceDisplay:
 
         self.device_name_highlight_color = device_name_highlight_color()
 
-        self.storage_border = QColor('#cdcdcd')
+        self.storage_border = QColor('#bcbcbc')
 
         # Height of the colored box that includes the device's
         # spinner/checkbox, icon & name
         self.device_name_strip_height = device_name_height()
-        self.device_name_height = self.device_name_strip_height + self.padding
+        self.device_name_height = device_header_row_height()
 
         self.icon_y_offset = (self.device_name_strip_height - self.icon_size) / 2
 
@@ -510,10 +517,16 @@ class DeviceDisplay:
         # Calculate height of storage details:
         # text above gradient, gradient, and text below
 
+        # Base height is when there is no storage space to display
         self.base_height = (self.padding * 2 + self.standard_height)
+
+        # Storage height is when there is storage space to display
         self.storage_height = (self.standard_height + self.padding +
                                self.g_height + self.vertical_padding + self.details_height +
                                self.padding * 2)
+        
+        self.emptySpaceColor = QColor('#f2f2f2')
+        self.subtlePenColor = QColor('#6d6d6d')
 
     def paint_header(self, painter: QPainter, x: int, y: int, width: int,
                      display_name: str, icon: QPixmap) -> None:
@@ -555,20 +568,18 @@ class DeviceDisplay:
 
         painter.setRenderHint(QPainter.Antialiasing, False)
 
-        painter.setFont(self.standard_font)
+        painter.setFont(self.small_font)
 
         standard_pen_color = painter.pen().color()
 
-        # Device size e.g. 32 GB
         device_size_x = x
         device_size_y = y + self.standard_height - self.padding
-        painter.drawText(device_size_x, device_size_y, d.bytes_total_text)
 
+        text_rect = QRect(device_size_x, y - self.padding, width, self.standard_height)
+        # Device size e.g. 32 GB
+        painter.drawText(text_rect, Qt.AlignLeft|Qt.AlignBottom, d.bytes_total_text)
         # Percent used e.g. 79%
-        device_used_width = self.standard_metrics.boundingRect(d.percent_used_text).width()
-        device_used_x = width - device_used_width
-        device_used_y = device_size_y
-        painter.drawText(device_used_x, device_used_y, d.percent_used_text)
+        painter.drawText(text_rect, Qt.AlignRight | Qt.AlignBottom, d.percent_used_text)
 
         if self.rendering_destination:
             # Render the used space in the gradient bar before rendering the space
@@ -597,6 +608,10 @@ class DeviceDisplay:
         g_y = device_size_y + self.padding
         linearGradient = QLinearGradient(photos_g_x, g_y, photos_g_x, g_y + self.g_height)
 
+        rect = QRectF(photos_g_x, g_y, width, self.g_height)
+        # Apply subtle shade to empty space
+        painter.fillRect(rect, self.emptySpaceColor)
+
         if comp1_file_size_sum:
             photos_g_rect = QRectF(photos_g_x, g_y, photos_g_width, self.g_height)
             linearGradient.setColorAt(0.2, color1.lighter(self.shading_intensity))
@@ -622,6 +637,9 @@ class DeviceDisplay:
             linearGradient.setColorAt(0.2, color3.lighter(self.shading_intensity))
             linearGradient.setColorAt(0.8, color3.darker(self.shading_intensity))
             painter.fillRect(other_g_rect, QBrush(linearGradient))
+        else:
+            other_g_width = 0
+        
 
         if d.comp4_file_size_sum:
             # Excess usage, only for download destinations
@@ -634,7 +652,6 @@ class DeviceDisplay:
             painter.fillRect(comp4_g_rect, QBrush(linearGradient))
 
         # Rectangle around spatial representation of sizes
-        rect = QRectF(photos_g_x, g_y, width, self.g_height)
         painter.setPen(self.storage_border)
         painter.drawRect(rect)
         bottom = rect.bottom()

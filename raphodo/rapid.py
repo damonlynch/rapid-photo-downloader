@@ -880,7 +880,8 @@ class RapidWindow(QMainWindow):
 
     @pyqtSlot()
     def sourceButtonClicked(self) -> None:
-        self.deviceWidget.setVisible(self.sourceButton.isChecked())
+        self.deviceToggleView.setVisible(self.sourceButton.isChecked())
+        self.thisComputerToggleView.setVisible(self.sourceButton.isChecked())
         self.setLeftPanelVisibility()
 
     @pyqtSlot()
@@ -893,18 +894,34 @@ class RapidWindow(QMainWindow):
     def proximityButtonClicked(self) -> None:
         self.temporalProximity.setVisible(self.proximityButton.isChecked())
         self.setLeftPanelVisibility()
-        self.adjustLeftPanelSliderHandle()
+        self.adjustLeftPanelSliderHandles()
 
-    def adjustLeftPanelSliderHandle(self):
+    def adjustLeftPanelSliderHandles(self):
         """
-        Move left panel splitter handle if "This Computer" source
-        is not enabled.
+        Move left panel splitter handles in response to devices / this computer
+        changes.
         """
 
-        if not self.thisComputerToggleView.on() and self.proximityButton.isChecked():
-            devices_height = self.deviceArea.minimumHeight()
-            proximity_height = self.centerSplitter.height() - devices_height
-            self.leftPanelSplitter.setSizes([devices_height, proximity_height])
+        preferred_devices_height = self.deviceToggleView.minimumHeight()
+        min_this_computer_height = self.thisComputerToggleView.minimumHeight()
+
+        if self.thisComputerToggleView.on():
+            this_computer_height = max(min_this_computer_height, self.centerSplitter.height() -
+                                       preferred_devices_height)
+        else:
+            this_computer_height = min_this_computer_height
+
+        if self.proximityButton.isChecked():
+            if not self.thisComputerToggleView.on():
+                proximity_height = (self.centerSplitter.height() - this_computer_height -
+                                    preferred_devices_height)
+            else:
+                proximity_height = this_computer_height // 2
+                this_computer_height = this_computer_height // 2
+        else:
+            proximity_height = 0
+        self.leftPanelSplitter.setSizes([preferred_devices_height, this_computer_height,
+                                         proximity_height])
 
     @pyqtSlot(int)
     def showComboChanged(self, index: int) -> None:
@@ -1023,7 +1040,6 @@ class RapidWindow(QMainWindow):
         self.createCenterPanels()
         self.createDeviceThisComputerViews()
         self.createDestinationViews()
-        self.layoutDevices()
         self.configureCenterPanels(settings)
         self.createBottomControls()
 
@@ -1187,41 +1203,28 @@ class RapidWindow(QMainWindow):
         self.videoDestinationFSView.clicked.connect(self.videoDestinationPathChosen)
 
     def createDeviceThisComputerViews(self) -> None:
-        self.deviceArea = QScrollArea()
-        self.deviceArea.setWidgetResizable(True)
-        self.deviceArea.setFrameShape(QFrame.NoFrame)
-        self.deviceArea.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.MinimumExpanding)
 
-        self.deviceContainer = QFramedWidget()
-        self.deviceArea.setWidget(self.deviceContainer)
+        # self.deviceArea.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.MinimumExpanding)
 
-        self.deviceContainer.setObjectName('devicePanel')
 
-        palette = QPalette()
-        palette.setColor(QPalette.Window, palette.color(palette.Base))
-        self.deviceContainer.setAutoFillBackground(True)
-        self.deviceContainer.setPalette(palette)
-
-        layout = QVBoxLayout()
-        self.deviceContainer.setLayout(layout)
-        layout.setContentsMargins(0, 0, 0, 0)
-        layout.setSpacing(0)
 
         # Devices Header and View
         tip = _('Turn on or off the use of devices attached to this computer as download sources')
         self.deviceToggleView = QToggleView(label=_('Devices'),
+                                            display_alternate=True,
                                             toggleToolTip=tip,
                                             headerColor=QColor(ThumbnailBackgroundName),
                                             headerFontColor=QColor(Qt.white),
                                             on=self.prefs.device_autodetection)
         self.deviceToggleView.addWidget(self.deviceView)
         self.deviceToggleView.valueChanged.connect(self.deviceToggleViewValueChange)
-        self.deviceToggleView.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.Maximum)
+        self.deviceToggleView.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.MinimumExpanding)
 
         # This Computer Header and View
 
         tip = _('Turn on or off the use of a folder on this computer as a download source')
         self.thisComputerToggleView = QToggleView(label=_('This Computer'),
+                                                  display_alternate=True,
                                                   toggleToolTip=tip,
                                                   headerColor=QColor(ThumbnailBackgroundName),
                                                   headerFontColor=QColor(Qt.white),
@@ -1236,50 +1239,6 @@ class RapidWindow(QMainWindow):
             self.thisComputer.setViewVisible(self.prefs.this_computer_source)
 
         self.thisComputerToggleView.addWidget(self.thisComputer)
-
-        layout.addWidget(self.deviceToggleView)
-        layout.addWidget(self.thisComputerToggleView)
-
-        self.resizeDeviceViewsAndScrollArea()
-
-    def resizeDeviceView(self, view: DeviceView) -> None:
-        """
-        Sets the maximum height for the device view table to match the
-        number of devices being displayed
-        """
-        if view.model().rowCount() > 0:
-            height = view.sizeHint().height()
-            view.setMaximumHeight(height)
-        else:
-            view.setMaximumHeight(EmptyViewHeight)
-
-    def resizeDeviceViewsAndScrollArea(self, view: Optional[DeviceView]=None) -> None:
-        """
-        Resize deviceArea in response to events.
-
-        These events are:
-          * devices being inserted and removed
-          * views being toggled on and off
-        """
-
-        # Set maximum size for Devices and This Computer views
-        if view is not None:
-            self.resizeDeviceView(view)
-        else:
-            for view in (self.deviceView, self.thisComputerView):
-                self.resizeDeviceView(view)
-
-        # Set minium size for scroll area deviceArea
-        width = 0
-        height = 1
-        for view in (self.deviceToggleView, self.thisComputerToggleView):
-            width = max(width, view.minimumWidth())
-            height += view.minimumHeight()
-        if self.thisComputerToggleView.on():
-            height += QSplitter().lineWidth() * 2
-        self.deviceArea.setMinimumWidth(width)
-        self.deviceArea.setMinimumHeight(height)
-        self.leftPanelSplitter.updateGeometry()
 
     def createDestinationViews(self) -> None:
         """
@@ -1324,7 +1283,6 @@ class RapidWindow(QMainWindow):
         self.photoDestinationContainer = QWidget()
         layout = QVBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
-        layout.setSpacing(0)
         self.photoDestinationContainer.setLayout(layout)
         layout.addWidget(self.combinedDestinationDisplayContainer)
         layout.addWidget(self.photoDestination)
@@ -1474,14 +1432,8 @@ class RapidWindow(QMainWindow):
         self.rightPanelSplitter.setOrientation(Qt.Vertical)
 
     def configureCenterPanels(self, settings: QSettings) -> None:
-        self.deviceWidget = QWidget()
-        layout = QVBoxLayout()
-        layout.setContentsMargins(0, 0, 0, 0)
-        layout.setSpacing(0)
-        layout.addWidget(self.deviceArea)
-        self.deviceWidget.setLayout(layout)
-
-        self.leftPanelSplitter.addWidget(self.deviceWidget)
+        self.leftPanelSplitter.addWidget(self.deviceToggleView)
+        self.leftPanelSplitter.addWidget(self.thisComputerToggleView)
         self.leftPanelSplitter.addWidget(self.temporalProximity)
 
         self.rightPanelSplitter.addWidget(self.photoDestinationContainer)
@@ -1489,8 +1441,10 @@ class RapidWindow(QMainWindow):
 
         self.leftPanelSplitter.setCollapsible(0, False)
         self.leftPanelSplitter.setCollapsible(1, False)
+        self.leftPanelSplitter.setCollapsible(2, False)
         self.leftPanelSplitter.setStretchFactor(0, 0)
         self.leftPanelSplitter.setStretchFactor(1, 1)
+        self.leftPanelSplitter.setStretchFactor(2, 1)
 
         self.centerSplitter.addWidget(self.leftPanelSplitter)
         self.centerSplitter.addWidget(self.thumbnailView)
@@ -1515,28 +1469,13 @@ class RapidWindow(QMainWindow):
         if splitterSetting is not None:
             self.leftPanelSplitter.restoreState(splitterSetting)
         else:
-            self.leftPanelSplitter.setSizes([200, 400])
+            self.leftPanelSplitter.setSizes([200, 200, 400])
 
         splitterSetting = settings.value("rightPanelSplitterSizes")
         if splitterSetting is not None:
             self.rightPanelSplitter.restoreState(splitterSetting)
         else:
             self.rightPanelSplitter.setSizes([200,200])
-
-    def layoutDevices(self) -> None:
-        """
-        Layout Devices/This Computer in left panel.
-
-        Responds to This Computer being toggled on or off.
-        """
-
-        layout = self.deviceContainer.layout()
-        if self.thisComputerToggleView.on():
-            # Effectively reset the aligngment flag. Absolutely necessary, or else
-            # the widget is far too small.
-            layout.setAlignment(self.thisComputerToggleView, Qt.AlignmentFlag())
-        else:
-            layout.setAlignment(self.thisComputerToggleView, Qt.AlignTop)
 
     def updateDestinationViews(self) -> None:
         """
@@ -1590,6 +1529,8 @@ class RapidWindow(QMainWindow):
         Sets sensitivity of Download action to enable or disable it.
         Affects download button and menu item.
         """
+
+        # TODO don't allow download if insufficient space
         if not self.downloadIsRunning():
             enabled = False
             # Don't enable starting a download while devices are being scanned
@@ -1711,7 +1652,6 @@ class RapidWindow(QMainWindow):
         :param on: whether swich is on or off
         """
 
-        self.layoutDevices()
         if on:
             self.thisComputer.setViewVisible(bool(self.prefs.this_computer_path))
         self.prefs.this_computer_source = on
@@ -1721,9 +1661,8 @@ class RapidWindow(QMainWindow):
                 self.removeDevice(scan_id=scan_id)
             self.prefs.this_computer_path = ''
             self.thisComputerFSView.clearSelection()
-            self.adjustLeftPanelSliderHandle()
-        else:
-            self.resizeDeviceViewsAndScrollArea(view=self.thisComputerView)
+
+        self.adjustLeftPanelSliderHandles()
 
     @pyqtSlot(bool)
     def deviceToggleViewValueChange(self, on: bool) -> None:
@@ -1733,14 +1672,18 @@ class RapidWindow(QMainWindow):
         :param on: whether swich is on or off
         """
 
-        self.layoutDevices()
         self.prefs.device_autodetection = on
         if not on:
             for scan_id in list(self.devices.volumes_and_cameras):
-                self.removeDevice(scan_id=scan_id)
+                self.removeDevice(scan_id=scan_id, adjust_temporal_proximity=False)
+            if len(self.devices) == 0:
+                self.temporalProximity.setState(TemporalProximityState.empty)
+            else:
+                self.generateTemporalProximityTableData()
         else:
             self.searchForCameras()
             self.setupNonCameraDevices()
+        self.adjustLeftPanelSliderHandles()
 
     @pyqtSlot(QModelIndex)
     def thisComputerPathChosen(self, index: QModelIndex) -> None:
@@ -1762,7 +1705,7 @@ class RapidWindow(QMainWindow):
                                   self.prefs.this_computer_path)
                     self.removeDevice(scan_id=scan_id)
             self.prefs.this_computer_path = path
-            self.thisComputer.setViewVisible(True)
+            # self.thisComputer.setViewVisible(True)
             self.setupManualPath()
 
     @pyqtSlot(QModelIndex)
@@ -2701,7 +2644,7 @@ class RapidWindow(QMainWindow):
                 self.updateSourceButton()
                 self.deviceModel.updateDeviceNameAndStorage(scan_id, device)
                 self.thumbnailModel.addOrUpdateDevice(scan_id=scan_id)
-                self.resizeDeviceViewsAndScrollArea(view=self.deviceView)
+                self.adjustLeftPanelSliderHandles()
 
     @pyqtSlot(int)
     def scanFinished(self, scan_id: int) -> None:
@@ -2877,7 +2820,7 @@ class RapidWindow(QMainWindow):
 
     def addToDeviceDisplay(self, device: Device, scan_id: int) -> None:
         self.mapModel(scan_id).addDevice(scan_id, device)
-        self.resizeDeviceViewsAndScrollArea(view=self.mapView(scan_id))
+        self.adjustLeftPanelSliderHandles()
 
     @pyqtSlot()
     def cameraAdded(self) -> None:
@@ -3113,7 +3056,9 @@ class RapidWindow(QMainWindow):
         self.setDownloadActionState()
         self.updateDestinationViews()
 
-    def removeDevice(self, scan_id: int, show_warning: bool=True) -> None:
+    def removeDevice(self, scan_id: int,
+                     show_warning: bool=True,
+                     adjust_temporal_proximity: bool=True,) -> None:
         assert scan_id is not None
 
         if scan_id in self.devices:
@@ -3152,18 +3097,18 @@ class RapidWindow(QMainWindow):
                     logging.error("Expected device state to be 'thumbnailing'")
                 self.thumbnailModel.terminateThumbnailGeneration(scan_id)
 
-            view = self.mapView(scan_id)
             del self.devices[scan_id]
-            self.resizeDeviceViewsAndScrollArea(view=view)
+            self.adjustLeftPanelSliderHandles()
 
             self.updateSourceButton()
             self.setDownloadActionState()
             self.updateDestinationViews()
 
-            if len(self.devices) == 0:
-                self.temporalProximity.setState(TemporalProximityState.empty)
-            else:
-                self.generateTemporalProximityTableData()
+            if adjust_temporal_proximity:
+                if len(self.devices) == 0:
+                    self.temporalProximity.setState(TemporalProximityState.empty)
+                else:
+                    self.generateTemporalProximityTableData()
 
             self.logState()
             self.updateProgressBarState()

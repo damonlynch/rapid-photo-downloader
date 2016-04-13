@@ -26,7 +26,7 @@ __copyright__ = "Copyright 2016, Damon Lynch"
 from typing import Union
 from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QSplitter, QSizePolicy)
 
-from raphodo.devicedisplay import DeviceView, EmulatedHeaderRow
+from raphodo.devicedisplay import DeviceView, EmulatedHeaderRow, device_header_row_height
 from raphodo.filebrowse import FileSystemView
 from raphodo.destinationdisplay import DestinationDisplay
 from raphodo.constants import minFileSystemViewHeight
@@ -76,11 +76,8 @@ class ComputerWidget(QFramedWidget):
         if self.view.isVisible():
             height = self.view.minimumHeight()
         else:
-            height = 0
+            height = device_header_row_height()
         height += minFileSystemViewHeight()
         return height
-
-
-
 
 

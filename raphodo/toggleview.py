@@ -29,12 +29,23 @@ __copyright__ = "Copyright 2016, Damon Lynch"
 
 from typing import Optional
 from PyQt5.QtCore import pyqtSignal, pyqtSlot, QSize
-from PyQt5.QtGui import QColor
+from PyQt5.QtGui import QColor, QPalette
 from PyQt5.QtWidgets import (QHBoxLayout, QLabel, QSizePolicy, QVBoxLayout,
                              QWidget)
 
 from raphodo.toggleswitch import QToggleSwitch
 from raphodo.panelview import QPanelView
+from raphodo.viewutils import QFramedWidget
+
+
+class BlankWidget(QFramedWidget):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        palette = QPalette()
+        palette.setColor(QPalette.Window, palette.color(palette.Base))
+        self.setAutoFillBackground(True)
+        self.setPalette(palette)
+
 
 class QToggleView(QPanelView):
     """
@@ -44,6 +55,7 @@ class QToggleView(QPanelView):
     valueChanged = pyqtSignal(bool)
 
     def __init__(self, label: str,
+                 display_alternate: bool,
                  toggleToolTip: Optional[str],
                  headerColor: Optional[QColor]=None,
                  headerFontColor: Optional[QColor]=None,
@@ -55,6 +67,14 @@ class QToggleView(QPanelView):
         # Override base class definition:
         self.headerLayout.setContentsMargins(5, 0, 5, 0)
 
+        if display_alternate:
+            self.alternateWidget = BlankWidget()
+            layout = self.layout()  # type: QVBoxLayout
+            layout.addWidget(self.alternateWidget)
+        else:
+            self.alternateWidget = None
+
+
         self.toggleSwitch = QToggleSwitch(background=headerColor, parent=self)
         self.toggleSwitch.valueChanged.connect(self.toggled)
         if toggleToolTip:
@@ -62,7 +82,7 @@ class QToggleView(QPanelView):
         self.addHeaderWidget(self.toggleSwitch)
         self.toggleSwitch.setOn(on)
 
-    def addWidget(self, widget: QWidget):
+    def addWidget(self, widget: QWidget) -> None:
         super().addWidget(widget)
         self.toggled(0)
 
@@ -80,6 +100,8 @@ class QToggleView(QPanelView):
     def toggled(self, value: int) -> None:
         if self.content is not None:
             self.content.setVisible(self.on())
+            if self.alternateWidget is not None:
+                self.alternateWidget.setVisible(not self.on())
 
         self.valueChanged.emit(self.on())
 
