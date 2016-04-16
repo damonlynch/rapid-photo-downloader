@@ -70,6 +70,8 @@ VIDEO_EXTENSIONS = ['3gp', 'avi', 'm2t', 'mov', 'mp4', 'mpeg','mpg', 'mod',
 
 VIDEO_THUMBNAIL_EXTENSIONS = ['thm']
 
+ALL_USER_VISIBLE_EXTENSIONS = PHOTO_EXTENSIONS + VIDEO_EXTENSIONS + ['xmp']
+
 
 def file_type(file_extension: str) -> FileType:
     """

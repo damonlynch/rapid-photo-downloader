@@ -21,6 +21,8 @@ __copyright__ = "Copyright 2016, Damon Lynch"
 
 import math
 
+from gettext import gettext as _
+
 from PyQt5.QtCore import QSize
 from PyQt5.QtGui import (QFont, QIcon, QFontMetrics, QGuiApplication)
 from PyQt5.QtWidgets import (QPushButton, QSizePolicy)
@@ -68,9 +70,10 @@ class DownloadButton(QPushButton):
         self.setSizePolicy(QSizePolicy.Maximum, QSizePolicy.Maximum)
         # self.setFlat(True)
 
-        font_height = QFontMetrics(self.font()).height()
+        font_height = QFontMetrics(self.font()).tightBoundingRect(_('Download 8 Photos and 10 '
+                                                                    'Videos')).height()
         padding = math.ceil(font_height * 1.7)
-        height = font_height // 2 * 4
+        height = font_height // 2 * 6
         radius = height // 2
 
         palette = QGuiApplication.palette()

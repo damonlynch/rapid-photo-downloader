@@ -109,10 +109,9 @@ class DestinationDisplay(QWidget):
         else:
             self.top_padding = 0
 
-        if self.display_type != display_type:
-            self.updateGeometry()
         self.display_type = display_type
         self.update()
+        self.updateGeometry()
 
     def paintEvent(self, event: QPaintEvent) -> None:
         """
@@ -148,7 +147,6 @@ class DestinationDisplay(QWidget):
             self.deviceDisplay.paint_header(painter=painter, x=x, y=y, width=width,
                                             display_name=self.display_name, icon=self.icon)
             y = y + self.deviceDisplay.device_name_height
-
 
         if self.display_type != DestinationDisplayType.folder_only:
 
@@ -223,7 +221,7 @@ class DestinationDisplay(QWidget):
         painter.end()
 
     def sizeHint(self) -> QSize:
-        height = self.deviceDisplay.padding
+        height = self.top_padding
         if self.display_type != DestinationDisplayType.usage_only:
             height += self.deviceDisplay.device_name_height
         if self.display_type != DestinationDisplayType.folder_only:

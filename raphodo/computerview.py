@@ -57,6 +57,7 @@ class ComputerWidget(QFramedWidget):
         self.setLayout(layout)
 
         self.view = view
+        self.view.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.Fixed)
         self.fileSystemView = fileSystemView
         self.emulatedHeader = EmulatedHeaderRow(select_text)
         self.emulatedHeader.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.Maximum)
@@ -71,6 +72,7 @@ class ComputerWidget(QFramedWidget):
     def setViewVisible(self, visible: bool) -> None:
         self.view.setVisible(visible)
         self.emulatedHeader.setVisible(not visible)
+        self.view.updateGeometry()
 
     def minimumHeight(self) -> int:
         if self.view.isVisible():

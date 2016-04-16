@@ -57,11 +57,17 @@ try:
 except ImportError:
     have_apt = False
 
+try:
+    import dnf
+    have_dnf = True
+except ImportError:
+    have_dnf = False
 
-def check_non_debian_packages() -> None:
+
+def check_packages_on_other_systems() -> None:
     """
     Check to see if some (but not all) application dependencies are
-    installed on non-Debian-like systems.
+    installed on systems that we are not explicitly analyzing.
     """
 
     import_msgs = []
@@ -109,18 +115,41 @@ def check_non_debian_packages() -> None:
         sys.stderr.write(install_error_message.format('\n'.join(s for s in import_msgs)))
         sys.exit(1)
 
-def distro_is_debian_like() -> bool:
-    is_debian = None
+def distro_is_or_is_like(name: str) -> bool:
+    is_distro = None
     if os.path.isfile('/etc/os-release'):
         with open('/etc/os-release', 'r') as f:
             for line in f:
+                if line.startswith('ID='):
+                    if line.find(name, 3) >= 0:
+                        return True
                 if line.startswith('ID_LIKE='):
-                    is_debian = line.find('debian' , 7) >= 0
-                    break
-    return is_debian
+                    if line.find(name , 8) >= 0:
+                        return True
+    return is_distro
+
+
+def install_packages(command_line: str) -> None:
+    print("To continue, some packages required to run the application will be "
+          "installed.\n")
+    print("The following command will be run:\n")
+    print(command_line)
+    print("\nsudo may prompt you for the sudo password.\n")
+    answer = input('Do you agree to run this command? (if you do, type yes and hit '
+                   'enter): ')
+    if answer == 'yes':
+        args = shlex.split(command_line)
+        try:
+            subprocess.check_call(args)
+        except subprocess.CalledProcessError:
+            sys.stderr.write("Command failed: exiting\n")
+            sys.exit(1)
+    else:
+        print("Answer is not yes, exiting")
+        sys.exit(0)
 
 def check_package_import_requirements() -> None:
-    if distro_is_debian_like():
+    if distro_is_or_is_like('debian'):
         if not have_apt:
             sys.stderr.write('To continue, the package python3-apt must be installed.')
             sys.exit(1)
@@ -145,25 +174,56 @@ def check_package_import_requirements() -> None:
         if missing_packages:
             cmd = shutil.which('apt-get')
             command_line = 'sudo {} install {}'.format(cmd, ' '.join(missing_packages))
-            print("To continue, some packages required to run the application will be "
-                  "installed.\n")
-            print("The following command will be run:\n")
-            print(command_line)
-            print("\nsudo may prompt you for the sudo password.\n")
-            answer = input('Do you agree to run this command? (if you do, type yes and hit '
-                           'enter): ')
-            if answer == 'yes':
-                args = shlex.split(command_line)
-                try:
-                    subprocess.check_call(args)
-                except subprocess.CalledProcessError:
-                    sys.stderr.write("Command failed: exiting\n")
-                    sys.exit(1)
-            else:
-                print("Answer is not yes, exiting")
-                sys.exit(0)
+            install_packages(command_line)
+
+    elif distro_is_or_is_like('fedora'):
+        if not have_dnf:
+            sys.stderr.write('To continue, the package python3-dnf must be installed.')
+            sys.exit(1)
+
+        missing_packages = []
+        packages = 'python3-qt5 gobject-introspection python3-gobject libgexiv2-python3 ' \
+                   'libgphoto2-devel zeromq-devel exiv2 perl-Image-ExifTool LibRaw-devel gcc-c++ ' \
+                   'rpm-build python3-devel python3-distutils-extra intltool ' \
+                   'python3-easygui qt5-qtimageformats python3-psutil'.split()
+
+        with dnf.Base() as base:
+            # Code from http://dnf.readthedocs.org/en/latest/use_cases.html
+
+            # Repositories serve as sources of information about packages.
+            base.read_all_repos()
+            # A sack is needed for querying.
+            base.fill_sack()
+
+            # A query matches all packages in sack
+            q = base.sack.query()
+
+            # Derived query matches only available packages
+            q_avail = q.available()
+            # Derived query matches only installed packages
+            q_inst = q.installed()
+
+            print("Querying installed and available packages")
+
+            installed = [pkg.name for pkg in q_inst.run()]
+            available = [pkg.name for pkg in q_avail.run()]
+
+            for package in packages:
+                if package not in installed:
+                    if package in available:
+                        missing_packages.append(package)
+                    else:
+                        sys.stderr.write(
+                            'The following package is unavailable on your system: {}\n'.format(
+                            package))
+                        sys.exit(1)
+
+        if missing_packages:
+            cmd = shutil.which('dnf')
+            command_line = 'sudo {} install {}'.format(cmd, ' '.join(missing_packages))
+            install_packages(command_line)
     else:
-        check_non_debian_packages()
+        check_packages_on_other_systems()
 
 def main(installer: str) -> None:
 
@@ -191,7 +251,7 @@ def main(installer: str) -> None:
     install_path = os.path.join(os.path.expanduser('~'), '.local', 'bin')
 
     if install_path not in path.split(':'):
-        if distro_is_debian_like():
+        if distro_is_or_is_like('debian'):
             bin_dir = os.path.join(os.path.expanduser('~'), 'bin')
             if not os.path.isdir(bin_dir):
                 created_bin_dir = True
@@ -262,6 +322,11 @@ if __name__ == '__main__':
         sys.stderr.write("Caution: upgrading pip and setuptools for your user could potentially "
                          "negatively affect the installation of other, older Python packages by your user.\n")
         sys.stderr.write("However the risk is small and is normally nothing to worry about.\n")
+
+        if distro_is_or_is_like('fedora'):
+            sys.stderr.write("\nEnsure the package python3-wheel is installed before you upgrade "
+                             "pip and setuptools. Install it by running this command:\n"
+                             "sudo dnf install python3-wheel\n")
         sys.exit(1)
 
     parser = argparse.ArgumentParser(description='Install Rapid Photo Downloader')

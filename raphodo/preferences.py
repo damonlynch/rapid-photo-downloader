@@ -281,7 +281,7 @@ class Preferences:
     timeline_defaults = dict(proximity_seconds=3600)
     device_defaults = dict(only_external_mounts=True,
                            device_autodetection=True,
-                           this_computer_source = True,
+                           this_computer_source = False,
                            this_computer_path='',
                            device_without_dcim_autodetection=False,
                            path_whitelist=[''],

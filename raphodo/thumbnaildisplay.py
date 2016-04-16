@@ -45,7 +45,7 @@ from PyQt5.QtWidgets import (QListView, QStyledItemDelegate, QStyleOptionViewIte
 from PyQt5.QtGui import (QPixmap, QImage, QPainter, QColor, QBrush, QFontMetrics,
                          QGuiApplication, QPen, QMouseEvent, QFont)
 
-from raphodo.rpdfile import RPDFile, FileTypeCounter
+from raphodo.rpdfile import RPDFile, FileTypeCounter, ALL_USER_VISIBLE_EXTENSIONS
 from raphodo.interprocess import (PublishPullPipelineManager, GenerateThumbnailsArguments, Device,
                           GenerateThumbnailsResults)
 from raphodo.constants import (DownloadStatus, Downloaded, FileType, FileExtension, ThumbnailSize,
@@ -1254,15 +1254,27 @@ class ThumbnailDelegate(QStyledItemDelegate):
 
         self.emblemFont = QFont()
         self.emblemFont.setPointSize(self.emblemFont.pointSize() - 3)
-        self.emblemFontMetrics = QFontMetrics(self.emblemFont)
-        self.emblem_pad = self.emblemFontMetrics.height() // 3
-        self.emblem_descent = self.emblemFontMetrics.descent()
-        self.emblemMargins = QMargins(self.emblem_pad, self.emblem_pad, self.emblem_pad,
-                                      self.emblem_pad)
+        metrics = QFontMetrics(self.emblemFont)
+        # Determine the actual height of the largest extension, and the actual
+        # width of all extenstions.
+        # For our purposes, this is more accurate than the generic metrics.height()
+        self.emblem_width = {}  # type: Dict[str, int]
+        height = 0
+        # Include the emblems for which memory card on a camera the file came from
+        for ext in ALL_USER_VISIBLE_EXTENSIONS + ['1', '2']:
+            ext = ext.upper()
+            tbr = metrics.tightBoundingRect(ext)  # QRect
+            self.emblem_width[ext] = tbr.width()
+            height = max(height, tbr.height())
 
-        self.emblem_bottom = (self.image_frame_bottom + self.footer_padding +
-                              self.emblemFontMetrics.height() + self.emblem_pad * 2)
+        # Set and calculate the padding to go around each emblem
+        self.emblem_pad = height // 2
+        self.emblem_height = height + self.emblem_pad * 2
+        for ext in self.emblem_width:
+            self.emblem_width[ext] = self.emblem_width[ext] + self.emblem_pad * 2
 
+        # Generate the range of colors to be displayed when highlighting
+        # files from a particular device
         ch = Color(self.highlight.name())
         cg = Color(self.paleGray.name())
         self.colorGradient = [QColor(c.hex) for c in cg.range_to(ch, FadeSteps)]
@@ -1368,21 +1380,20 @@ class ThumbnailDelegate(QStyledItemDelegate):
         extension = extension.upper()
         # Calculate size of extension text
         painter.setFont(self.emblemFont)
-        rect = self.emblemFontMetrics.boundingRect(extension)  # type: QRect
-        extBoundingRect = rect.marginsAdded(self.emblemMargins) # type: QRect
-        text_width = self.emblemFontMetrics.width(extension)
-        text_height = self.emblemFontMetrics.height()
-        text_x = self.width - self.horizontal_margin - text_width - self.emblem_pad * 2 + x
-        text_y = self.image_frame_bottom + self.footer_padding + text_height + y
+        # em_width = self.emblemFontMetrics.width(extension)
+        emblem_width = self.emblem_width[extension]
+        emblem_rect_x = self.width - self.horizontal_margin - emblem_width + x
+        emblem_rect_y = self.image_frame_bottom + self.footer_padding + y
+
+        emblemRect = QRect(emblem_rect_x, emblem_rect_y,
+                           emblem_width, self.emblem_height)  # type: QRect
 
         color = extensionColor(ext_type=ext_type)
 
         # Use an angular rect, because a rounded rect with anti-aliasing doesn't look too good
-        rect = QRect(text_x, text_y - text_height,
-                     extBoundingRect.width(), extBoundingRect.height())
-        painter.fillRect(rect, color)
+        painter.fillRect(emblemRect, color)
         painter.setPen(QColor(Qt.white))
-        painter.drawText(rect, Qt.AlignCenter, extension)
+        painter.drawText(emblemRect, Qt.AlignCenter, extension)
 
         # Draw another small colored box to the left of the
         # file extension box containing a secondary
@@ -1390,15 +1401,14 @@ class ThumbnailDelegate(QStyledItemDelegate):
         # only an XMP file, but in future it could be used to display a
         # matching jpeg in a RAW+jpeg set
         if secondary_attribute:
-            extBoundingRect = self.emblemFontMetrics.boundingRect(
-                secondary_attribute).marginsAdded(self.emblemMargins) # type: QRect
-            text_width = self.emblemFontMetrics.width(secondary_attribute)
-            text_x = text_x - text_width - self.emblem_pad * 2 - self.footer_padding
+            # Assume the attribute is already upper case
+            sec_width = self.emblem_width[secondary_attribute]
+            sec_rect_x = emblem_rect_x - self.footer_padding - sec_width
             color = QColor(self.color3)
-            rect = QRect(text_x, text_y - text_height,
-                         extBoundingRect.width(), extBoundingRect.height())
-            painter.fillRect(rect, color)
-            painter.drawText(rect, Qt.AlignCenter, secondary_attribute)
+            secRect = QRect(sec_rect_x, emblem_rect_y,
+                            sec_width, self.emblem_height)
+            painter.fillRect(secRect, color)
+            painter.drawText(secRect, Qt.AlignCenter, secondary_attribute)
 
         if memory_cards:
             # if downloaded from a camera, and the camera has more than
@@ -1407,14 +1417,13 @@ class ThumbnailDelegate(QStyledItemDelegate):
             text_x = self.card_x + x
             for card in memory_cards:
                 card = str(card)
-                extBoundingRect = self.emblemFontMetrics.boundingRect(
-                    card).marginsAdded(self.emblemMargins) # type: QRect
+                card_width = self.emblem_width[card]
                 color = QColor(70, 70, 70)
-                rect = QRect(text_x, text_y - text_height,
-                             extBoundingRect.width(), extBoundingRect.height())
-                painter.fillRect(rect, color)
-                painter.drawText(rect, Qt.AlignCenter, card)
-                text_x = text_x + extBoundingRect.width() + self.footer_padding
+                cardRect = QRect(text_x, emblem_rect_y,
+                             card_width, self.emblem_height)
+                painter.fillRect(cardRect, color)
+                painter.drawText(cardRect, Qt.AlignCenter, card)
+                text_x = text_x + card_width + self.footer_padding
 
         if previously_downloaded and not checked:
             painter.setOpacity(1.0)
@@ -1442,7 +1451,7 @@ class ThumbnailDelegate(QStyledItemDelegate):
             else:
                 pixmap = None
             if pixmap is not None:
-                painter.drawPixmap(option.rect.x() + self.horizontal_margin, text_y - text_height,
+                painter.drawPixmap(option.rect.x() + self.horizontal_margin, emblem_rect_y,
                                    pixmap)
 
         painter.restore()

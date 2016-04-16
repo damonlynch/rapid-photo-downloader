@@ -56,7 +56,7 @@ try:
     gi.require_version('Unity', '7.0')
     from gi.repository import Unity
     have_unity = True
-except ImportError:
+except (ImportError, ValueError):
     have_unity = False
 
 import zmq
@@ -1141,7 +1141,7 @@ class RapidWindow(QMainWindow):
         this_computer_sf = validate_source_folder(self.prefs.this_computer_path)
         if this_computer_sf.valid:
             if this_computer_sf.absolute_path != self.prefs.this_computer_path:
-                self.this_computer_path = this_computer_sf.absolute_path
+                self.prefs.this_computer_path = this_computer_sf.absolute_path
         elif self.prefs.this_computer_source and self.prefs.this_computer_path != '':
             logging.warning("Ignoring invalid 'This Computer' path: %s",
                             self.prefs.this_computer_path)
@@ -1705,7 +1705,7 @@ class RapidWindow(QMainWindow):
                                   self.prefs.this_computer_path)
                     self.removeDevice(scan_id=scan_id)
             self.prefs.this_computer_path = path
-            # self.thisComputer.setViewVisible(True)
+            self.thisComputer.setViewVisible(True)
             self.setupManualPath()
 
     @pyqtSlot(QModelIndex)
@@ -2821,6 +2821,8 @@ class RapidWindow(QMainWindow):
     def addToDeviceDisplay(self, device: Device, scan_id: int) -> None:
         self.mapModel(scan_id).addDevice(scan_id, device)
         self.adjustLeftPanelSliderHandles()
+        if device.device_type == DeviceType.path:
+            self.thisComputerView.updateGeometry()
 
     @pyqtSlot()
     def cameraAdded(self) -> None:

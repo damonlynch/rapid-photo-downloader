@@ -5,7 +5,7 @@ Contents
 --------
 
 - `Description`_
-- `Quickstart on Ubuntu or Debian-like Systems`_
+- `Quickstart on Ubuntu, Debian-like and Fedora-like Systems`_
 - `Software Requirements and Program Installation`_
     - `Satisfying Software Requirements`_
     - `Installation`_
@@ -46,24 +46,27 @@ from cameras).
 
 The program is licensed under the GPL3_ or later.
 
-Quickstart on Ubuntu or Debian-like Systems
-===========================================
+Quickstart on Ubuntu, Debian-like and Fedora-like Systems
+=========================================================
 
-
-If you use Ubuntu 15.10 or newer, or Debian sid, or an equivalent, you can install
-Rapid Photo Downloader for your user. To get started, first install pip_, the
-Python tool for installing Python packages:
+If you use Ubuntu 15.10 or newer, or Debian sid, or Fedora 23, or an equivalent,
+you can install Rapid Photo Downloader for your user using an convenient install script. To get
+started, first install pip_, the Python tool for installing Python packages. On Ubuntu or Debian:
 
 ``sudo apt-get install python3-pip``
 
-If using Ubuntu 15.10 or a distribution of a similar age, make Python 3's installation tools
-up-to-date by executing the following two steps (see caution below in `Installation`_):
+On Fedora:
+
+``sudo dnf install python3-pip python3-wheel``
+
+If using Ubuntu 15.10, Fedora 23 or a distribution of a similar age, you should make Python 3's installation
+tools up-to-date (be mindful of the mild caution below in `Installation`_):
 
 ``python3 -m pip install --user --upgrade pip``
 
 ``python3 -m pip install --user --upgrade setuptools``
 
-To install, run as your regular user (i.e. *without* sudo):
+To install Rapid Photo Downloader, run as your regular user (i.e. *without* sudo):
 
 ``./install.sh rapid-photo-downloader-0.9.0a1.tar.gz``
 
@@ -85,7 +88,7 @@ all aspects of the program's installation by using PyPi_ to download Python modu
 
 Rapid Photo Downloader requires:
 
- - Python 3.4 or greater
+ - Python 3.4 or greater, and its development headers
  - PyQt_ 5.4 or greater
  - `Python gobject introspection`_ modules:
     - GUdev 1.0
@@ -104,7 +107,12 @@ Rapid Photo Downloader requires:
  - ExifTool_
  - EasyGUI_
  - Colour_
- - Qt5 plugin for reading TIFF images
+ - rawkit_: renders thumbnails from RAW images from which a thumbnail cannot be extracted using
+   libraw_, which is especially useful when downloading DNG files from Android phones or working
+   with old RAW formats.
+ - `Qt5 plugin for reading TIFF images`_
+ - `distutils-extra`_ for Python 3
+ - intltool_
  - If using Python 3.4, these additional modules:
     - typing_
     - scandir_
@@ -113,9 +121,6 @@ Highly recommended, optional dependencies:
 
  - colorlog_: generates coloured program output when running Rapid Photo Downloader from the
    terminal.
- - rawkit_: renders thumbnails from RAW images from which a thumbnail cannot be extracted using
-   libraw_, which is especially useful when downloading DNG files from Android phones or working
-   with old RAW formats.
  - pyprind_: shows a progress bar on the command line while running the program
    ``analyze_pv_structure``.
 
@@ -129,6 +134,7 @@ Downloader. The Python module requirements are the Python 3 versions of:
 
  - PyQt_ 5.4 or greater
  - All `Python gobject introspection`_ modules listed above
+ - `distutils-extra`_
 
 The non-Python programs required are:
 
@@ -205,3 +211,7 @@ If you installed the man pages, they are found in ``/usr/local/share/man/man1``.
 .. _PyQt: https://riverbankcomputing.com/software/pyqt/intro
 .. _EasyGUI: https://github.com/robertlugg/easygui
 .. _Colour: https://github.com/vaab/colour
+.. _distutils-extra: https://launchpad.net/python-distutils-extra
+.. _intltool: https://freedesktop.org/wiki/Software/intltool/
+.. _Tkinter: https://wiki.python.org/moin/TkInter
+.. _`Qt5 plugin for reading TIFF images`: http://doc.qt.io/qt-5/qtimageformats-index.html
