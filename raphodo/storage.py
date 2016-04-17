@@ -214,6 +214,7 @@ def mountPaths():
     """
     Yield all the mount paths returned by QStorageInfo
     """
+
     for m in QStorageInfo.mountedVolumes():
         yield m.rootPath()
 
@@ -224,6 +225,7 @@ def has_non_empty_dcim_folder(path: str) -> bool:
     :param path: path to check
     :return: True if has valid DCIM, False otherwise
     """
+
     try:
         has_dcim = "DCIM" in os.listdir(path)
     except PermissionError:

@@ -32,8 +32,7 @@ import shutil
 import os
 import logging
 from collections import namedtuple, Counter
-import re
-from typing import Tuple, List, Optional, Set
+from typing import Tuple, List, Optional, Set, Dict
 
 from gettext import gettext as _
 
@@ -132,8 +131,7 @@ class Device:
             return "%s" % (self.path)
 
     def __eq__(self, other):
-        for attr in ('device_type', 'camera_model', 'camera_port',
-                     'path'):
+        for attr in ('device_type', 'camera_model', 'camera_port', 'path'):
             if getattr(self, attr) != getattr(other, attr):
                 return False
         return True
@@ -161,6 +159,9 @@ class Device:
         self.camera_port = camera_port
         self.icon_name = self._get_valid_icon_name(('camera-photo', 'camera'))
 
+        # Assign default udev name if cannot determine from udev itself
+        self.udev_name = camera_model
+
         devname = generate_devname(camera_port)
         if devname is not None:
             udev_attr = udev_attributes(devname)
@@ -169,7 +170,7 @@ class Device:
                 self.udev_name = udev_attr.model
                 self.display_name = udev_attr.model
         else:
-            logging.error("Could not determine port values for %s %s",
+            logging.error("Could not determine udev values for %s %s",
                           self.camera_model, camera_port)
 
     def update_camera_attributes(self, display_name: str,
@@ -352,6 +353,7 @@ class DeviceCollection:
     """
     def __init__(self) -> None:
         self.devices = {}  # type: Dict[int, Device]
+        # port: model
         self.cameras = {}  # type: Dict[str, str]
         self.scan_counter = 0  # type: int
         # scan_id: DeviceState
@@ -363,8 +365,15 @@ class DeviceCollection:
         # Track which devices are thumbnailing, by scan_id
         self.thumbnailing = set()  # type: Set[int]
 
+        # Automatically detected devices where the user has explicitly said to ignore it
+        # port: model
+        self.ignored_cameras = {}  # type: Dict[str, str]
+        # List[path]
+        self.ignored_volumes = []  # type: List[str]
+
         self.volumes_and_cameras = set()
         self.this_computer = set()
+
         self._map_set = {DeviceType.path: self.this_computer,
                          DeviceType.camera: self.volumes_and_cameras,
                          DeviceType.volume: self.volumes_and_cameras}
@@ -429,6 +438,55 @@ class DeviceCollection:
             self.downloading.remove(scan_id)
         if state != DeviceState.thumbnailing and scan_id in self.thumbnailing:
             self.thumbnailing.remove(scan_id)
+
+    def ignore_device(self, scan_id: int) -> None:
+        """
+        For the remainder of this program's instantiation, don't
+        automatically detect this device.
+
+        A limitation of this is that when a camera is physically removed
+        and plugged in again, it gets a new port. In which casae it's a
+        "different" device.
+
+        :param scan_id: scan id of the device to ignore
+        """
+
+        device = self.devices[scan_id]
+        if device.device_type == DeviceType.camera:
+            logging.debug("Marking camera %s on port %s as explicitly removed. Will ignore it "
+                          "until program exit.", device.camera_model, device.camera_port)
+            self.ignored_cameras[device.camera_port] = device.camera_model
+        elif device.device_type == DeviceType.volume:
+            logging.debug("Marking volume %s as explicitly removed. Will ignore it "
+                          "until program exit.", device.path)
+            self.ignored_volumes.append(device.path)
+        else:
+            logging.error("Device collection unexpectedly received path to ignore: ignoring")
+
+    def user_marked_camera_as_ignored(self, model: str, port: str) -> bool:
+        """
+        Check if camera is in set of devices to ignore because they were explicitly
+        removed by the user
+
+        :param model: camera model
+        :param port:  camera port
+        :return: return True if camera is in set of devices to ignore
+        """
+
+        if port in self.ignored_cameras:
+            return self.ignored_cameras[port] == model
+        return False
+
+    def user_marked_volume_as_ignored(self, path: str) -> bool:
+        """
+        Check if volume's path is in list of devices to ignore because they were explicitly
+        removed by the user
+
+        :param: path: the device's path
+        :return: return True if camera is in set of devices to ignore
+        """
+
+        return path in self.ignored_volumes
 
     def known_camera(self, model: str, port: str) -> bool:
         """

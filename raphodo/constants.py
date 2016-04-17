@@ -180,6 +180,7 @@ class Roles(IntEnum):
     highlight = Qt.UserRole + 16
     folder_preview = Qt.UserRole + 17
     download_subfolder = Qt.UserRole + 18
+    device_type = Qt.UserRole + 19
 
 
 class ExtractionTask(Enum):

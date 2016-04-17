@@ -1149,8 +1149,9 @@ class RapidWindow(QMainWindow):
             if photo_df.absolute_path != self.prefs.photo_download_folder:
                 self.prefs.photo_download_folder = photo_df.absolute_path
         else:
-            logging.error("Ignoring invalid Photo Destination path: %s",
-                          self.prefs.photo_download_folder)
+            if self.prefs.photo_download_folder:
+                logging.error("Ignoring invalid Photo Destination path: %s",
+                              self.prefs.photo_download_folder)
             self.prefs.photo_download_folder = ''
 
         video_df = validate_download_folder(self.prefs.video_download_folder)
@@ -1158,8 +1159,9 @@ class RapidWindow(QMainWindow):
             if video_df.absolute_path != self.prefs.video_download_folder:
                 self.prefs.video_download_folder = video_df.absolute_path
         else:
-            logging.error("Ignoring invalid Video Destination path: %s",
-                          self.prefs.video_download_folder)
+            if self.prefs.video_download_folder:
+                logging.error("Ignoring invalid Video Destination path: %s",
+                              self.prefs.video_download_folder)
             self.prefs.video_download_folder = ''
 
         self.fileSystemModel = FileSystemModel(parent=self)
@@ -1746,12 +1748,15 @@ class RapidWindow(QMainWindow):
         """
 
         path = self.fileSystemModel.filePath(index.model().mapToSource(index))
-        if path != self.prefs.photo_download_folder:
-            self.prefs.photo_download_folder = path
-            self.generateProvisionalDownloadFolders()
-            self.photoDestinationDisplay.setDestination(path=path)
-            self.updateDestinationViews()
-
+        if validate_download_folder(path).valid:
+            if path != self.prefs.photo_download_folder:
+                self.prefs.photo_download_folder = path
+                self.generateProvisionalDownloadFolders()
+                self.photoDestinationDisplay.setDestination(path=path)
+                self.setDownloadCapabilities()
+        else:
+            logging.error("Invalid photo download destination chosen: %s", path)
+            self.prefs.photo_download_folder = ''
 
     @pyqtSlot(QModelIndex)
     def videoDestinationPathChosen(self, index: QModelIndex) -> None:
@@ -1764,11 +1769,15 @@ class RapidWindow(QMainWindow):
         """
 
         path = self.fileSystemModel.filePath(index.model().mapToSource(index))
-        if path != self.prefs.video_download_folder:
-            self.prefs.video_download_folder = path
-            self.generateProvisionalDownloadFolders()
-            self.videoDestinationDisplay.setDestination(path=path)
-            self.updateDestinationViews()
+        if validate_download_folder(path).valid:
+            if path != self.prefs.video_download_folder:
+                self.prefs.video_download_folder = path
+                self.generateProvisionalDownloadFolders()
+                self.videoDestinationDisplay.setDestination(path=path)
+                self.setDownloadCapabilities()
+        else:
+            logging.error("Invalid video download destination chosen: %s", path)
+            self.prefs.video_download_folder = ''
 
     @pyqtSlot()
     def downloadButtonClicked(self) -> None:
@@ -2808,8 +2817,7 @@ class RapidWindow(QMainWindow):
         if not self.prefs.device_autodetection:
             logging.debug("Ignoring camera as device auto detection is off")
         else:
-            logging.debug("Assuming camera will not be mounted: "
-                          "immediately proceeding with scan")
+            logging.debug("Assuming camera will not be mounted: immediately proceeding with scan")
         self.searchForCameras()
 
     @pyqtSlot()
@@ -2893,17 +2901,22 @@ class RapidWindow(QMainWindow):
                     logging.debug("Already unmounting %s", model)
                 elif self.devices.known_camera(model, port):
                     logging.debug("Camera %s is known", model)
-                elif model in self.prefs.camera_blacklist:
-                    logging.debug("Ignoring blacklisted camera %s", model)
+                elif self.devices.user_marked_camera_as_ignored(model, port):
+                    logging.debug("Ignoring camera marked as removed by user %s", model)
                 elif not port.startswith('disk:'):
-                    logging.debug("Detected %s on port %s", model, port)
-                    # libgphoto2 cannot access a camera when it is mounted
-                    # by another process, like Gnome's GVFS or any other
-                    # system. Before attempting to scan the camera, check
-                    # to see if it's mounted and if so, unmount it.
-                    # Unmounting is asynchronous.
-                    if not self.unmountCamera(model, port):
-                        self.startCameraScan(model, port)
+                    device = Device()
+                    device.set_download_from_camera(model, port)
+                    if device.udev_name in self.prefs.camera_blacklist:
+                        logging.debug("Ignoring blacklisted camera %s", model)
+                    else:
+                        logging.debug("Detected %s on port %s", model, port)
+                        # libgphoto2 cannot access a camera when it is mounted
+                        # by another process, like Gnome's GVFS or any other
+                        # system. Before attempting to scan the camera, check
+                        # to see if it's mounted and if so, unmount it.
+                        # Unmounting is asynchronous.
+                        if not self.unmountCamera(model, port):
+                            self.startCameraScan(model, port)
 
     def startCameraScan(self, model: str, port: str) -> None:
         device = Device()
@@ -2938,27 +2951,30 @@ class RapidWindow(QMainWindow):
         :return: True if valid, False otherwise
         """
         if mount.isValid() and mount.isReady():
-            path = mount.rootPath()
-            if (path in self.prefs.path_blacklist and
-                    self.scanEvenIfNoDCIM()):
-                logging.info("blacklisted device %s ignored",
-                             mount.displayName())
+            if mount.displayName() in self.prefs.volume_blacklist:
+                logging.info("blacklisted device %s ignored", mount.displayName())
                 return False
             else:
                 return True
         return False
 
-    def shouldScanMountPath(self, path: str) -> bool:
+    def shouldScanMount(self, mount: QStorageInfo) -> bool:
         if self.prefs.device_autodetection:
-            if (self.prefs.device_without_dcim_autodetection or
-                    has_non_empty_dcim_folder(path)):
-                return True
+            path = mount.rootPath()
+            if (self.prefs.device_without_dcim_autodetection or has_non_empty_dcim_folder(path)):
+                if not self.devices.user_marked_volume_as_ignored(path):
+                    return True
+                else:
+                    logging.debug('Not scanning volume with path %s because it was set '
+                                  'to be temporarily ignored', path)
+            else:
+                logging.debug('Not scanning volume with path %s because it lacks a DCIM folder '
+                              'with at least one file or folder in it', path)
         return False
 
     def prepareNonCameraDeviceScan(self, device: Device) -> None:
         if not self.devices.known_device(device):
-            if (self.scanEvenIfNoDCIM() and
-                    not device.path in self.prefs.path_whitelist):
+            if (self.scanEvenIfNoDCIM() and not device.path in self.prefs.path_whitelist):
                 # prompt user to see if device should be used or not
                 pass
                 #self.get_use_device(device)
@@ -2997,7 +3013,7 @@ class RapidWindow(QMainWindow):
                             self.backup_devices.no_video_backup_devices)
                         self.displayMessageInStatusBar()
 
-                elif self.shouldScanMountPath(path):
+                elif self.shouldScanMount(mount):
                     self.auto_start_is_on = self.prefs.auto_download_upon_device_insertion
                     device = Device()
                     device.set_download_from_volume(path, mount.displayName(),
@@ -3036,7 +3052,21 @@ class RapidWindow(QMainWindow):
 
     def removeDevice(self, scan_id: int,
                      show_warning: bool=True,
-                     adjust_temporal_proximity: bool=True,) -> None:
+                     adjust_temporal_proximity: bool=True,
+                     ignore_in_this_program_instantiation: bool=False) -> None:
+        """
+        Remove a device from internal tracking and display.
+
+        :param scan_id: scan id of device to remove
+        :param show_warning: log warning if the device was having
+         something done to it e.g. scan
+        :param adjust_temporal_proximity: if True, update the temporal
+         proximity table to reflect device removal
+        :param ignore_in_this_program_instantiation: don't scan this
+         device again, during this instance of the program being run
+         that is
+        """
+
         assert scan_id is not None
 
         if scan_id in self.devices:
@@ -3075,6 +3105,9 @@ class RapidWindow(QMainWindow):
                     logging.error("Expected device state to be 'thumbnailing'")
                 self.thumbnailModel.terminateThumbnailGeneration(scan_id)
 
+            if ignore_in_this_program_instantiation:
+                self.devices.ignore_device(scan_id=scan_id)
+
             del self.devices[scan_id]
             self.adjustLeftPanelSliderHandles()
 
@@ -3089,6 +3122,43 @@ class RapidWindow(QMainWindow):
 
             self.logState()
             self.updateProgressBarState()
+
+    def rescanDevice(self, scan_id: int) -> None:
+        device = self.devices[scan_id]
+        self.removeDevice(scan_id=scan_id)
+        if device.device_type == DeviceType.camera:
+            self.startCameraScan(device.camera_model, device.camera_port)
+        else:
+            self.startDeviceScan(device=device)
+
+    def blacklistDevice(self, scan_id: int) -> None:
+        device = self.devices[scan_id]
+        if device.device_type == DeviceType.camera:
+            text = _("<b>Do you want to ignore the %s whenever this program is run?</b>")
+            text = text % device.display_name
+            info_text = _("All cameras, phones and tablets with the same model "
+                          "name will be ignored.")
+        else:
+            assert device.device_type == DeviceType.volume
+            text = _("<b>Do you want to ignore the device %s whenever this program is run?</b>")
+            text = text % device.display_name
+            info_text = _("Any device with the same name will be ignored.")
+
+        msgbox = QMessageBox()
+        msgbox.setWindowTitle(_("Rapid Photo Downloader"))
+        msgbox.setIcon(QMessageBox.Question)
+        msgbox.setText(text)
+        msgbox.setTextFormat(Qt.RichText)
+        msgbox.setInformativeText(info_text)
+        msgbox.setStandardButtons(QMessageBox.Yes|QMessageBox.No)
+        if msgbox.exec() == QMessageBox.Yes:
+            if device.device_type == DeviceType.camera:
+                self.prefs.camera_blacklist = self.prefs.camera_blacklist + [device.udev_name]
+                logging.debug('Added %s to camera blacklist',device.udev_name)
+            else:
+                self.prefs.volume_blacklist = self.prefs.volume_blacklist + [device.display_name]
+                logging.debug('Added %s to volume blacklist', device.display_name)
+            self.removeDevice(scan_id=scan_id)
 
     def logState(self):
         self.devices.logState()
@@ -3133,7 +3203,7 @@ class RapidWindow(QMainWindow):
         for mount in self.validMounts.mountedValidMountPoints():
             if self.partitionValid(mount):
                 path = mount.rootPath()
-                if path not in self.backup_devices and self.shouldScanMountPath(path):
+                if path not in self.backup_devices and self.shouldScanMount(mount):
                     logging.debug("Will scan %s", mount.displayName())
                     mounts.append(mount)
                 else:

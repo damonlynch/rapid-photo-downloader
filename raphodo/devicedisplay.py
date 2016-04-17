@@ -286,6 +286,8 @@ class DeviceModel(QAbstractListModel):
                         self._rotation_position)
             elif role == Roles.storage:
                 return device, self.storage[row_id]
+            elif role == Roles.device_type:
+                return device.device_type
         return None
 
     def setData(self, index: QModelIndex, value, role: int) -> bool:
@@ -919,26 +921,38 @@ class DeviceDelegate(QStyledItemDelegate):
                                                    comp2_sample=sample_no_videos)
 
         self.contextMenu = QMenu()
-        removeDeviceAct = self.contextMenu.addAction(_('Remove'))
-        removeDeviceAct.triggered.connect(self.removeDevice)
+        self.ignoreDeviceAct = self.contextMenu.addAction(_('Temporarily ignore this device'))
+        self.ignoreDeviceAct.triggered.connect(self.ignoreDevice)
+        self.blacklistDeviceAct = self.contextMenu.addAction(_('Permanently ignore this device'))
+        self.blacklistDeviceAct.triggered.connect(self.blacklistDevice)
         rescanDeviceAct = self.contextMenu.addAction(_('Rescan'))
         rescanDeviceAct.triggered.connect(self.rescanDevice)
         # store the index in which the user right clicked
         self.clickedIndex = None  # type: QModelIndex
 
     @pyqtSlot()
-    def removeDevice(self) -> None:
+    def ignoreDevice(self) -> None:
         index = self.clickedIndex
         if index:
-            scan_id = index.model().data(index, Roles.scan_id)  # type: Device
-            self.rapidApp.removeDevice(scan_id)
+            scan_id = index.data(Roles.scan_id)  # type: int
+            self.rapidApp.removeDevice(scan_id=scan_id, ignore_in_this_program_instantiation=True)
+            self.clickedIndex = None  # type: QModelIndex
+
+    @pyqtSlot()
+    def blacklistDevice(self) -> None:
+        index = self.clickedIndex
+        if index:
+            scan_id = index.data(Roles.scan_id)  # type: int
+            self.rapidApp.blacklistDevice(scan_id=scan_id)
+            self.clickedIndex = None  # type: QModelIndex
 
     @pyqtSlot()
     def rescanDevice(self) -> None:
         index = self.clickedIndex
         if index:
-            # TODO implement this
-            pass
+            scan_id = index.data(Roles.scan_id)  # type: int
+            self.rapidApp.rescanDevice(scan_id=scan_id)
+            self.clickedIndex = None  # type: QModelIndex
 
     def paint(self, painter: QPainter, option: QStyleOptionViewItem, index: QModelIndex) -> None:
         painter.save()
@@ -1055,8 +1069,15 @@ class DeviceDelegate(QStyledItemDelegate):
         if (event.type() == QEvent.MouseButtonRelease or event.type() ==
             QEvent.MouseButtonDblClick):
             if event.button() == Qt.RightButton:
+                # Disable ignore and blacklist menus if the device is a This Computer path
+
                 self.clickedIndex = index
+
                 scan_id = index.data(Roles.scan_id)
+                device_type = index.data(Roles.device_type)
+
+                self.ignoreDeviceAct.setEnabled(device_type != DeviceType.path)
+                self.blacklistDeviceAct.setEnabled(device_type != DeviceType.path)
 
                 view = self.rapidApp.mapView(scan_id)
                 globalPos = view.viewport().mapToGlobal(event.pos())

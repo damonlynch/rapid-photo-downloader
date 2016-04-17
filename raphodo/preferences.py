@@ -267,15 +267,7 @@ class Preferences:
                            stored_sequence_no=0,
                            strip_characters=True,
                            synchronize_raw_jpg=False,
-                           job_codes=[_('New York'), _('Manila'),
-                                      _('Prague'),  _('Helsinki'),
-                                      _('Wellington'), _('Tehran'),
-                                      _('Kampala'),   _('Paris'),
-                                      _('Berlin'),  _('Sydney'),
-                                      _('Budapest'), _('Rome'),
-                                      _('Moscow'),  _('Delhi'), _('Warsaw'),
-                                      _('Jakarta'),  _('Madrid'),
-                                      _('Stockholm')],
+                           job_codes=[''],
                            remember_job_code=True,
                           )
     timeline_defaults = dict(proximity_seconds=3600)
@@ -285,7 +277,7 @@ class Preferences:
                            this_computer_path='',
                            device_without_dcim_autodetection=False,
                            path_whitelist=[''],
-                           path_blacklist=[''],
+                           volume_blacklist=[''],
                            camera_blacklist=[''],
                            ignored_paths=['.Trash', '.thumbnails'],
                            use_re_ignored_paths=False
