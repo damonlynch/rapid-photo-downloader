@@ -108,7 +108,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
 
         if not self.download_from_camera:
             # Download from file system
-            path = scan_arguments.device.path
+            path = os.path.abspath(scan_arguments.device.path)
             self.display_name = scan_arguments.device.display_name
             # Scan the files using lightweight high-performance scandir
             logging.info("Scanning {}".format(self.display_name))

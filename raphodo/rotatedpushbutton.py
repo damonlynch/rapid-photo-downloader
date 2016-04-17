@@ -29,38 +29,86 @@ class VerticalRotation(IntEnum):
     right_side = 90
 
 class FlatButton:
+    _padding = 'padding-left: {padding_side}px; padding-right: {padding_side}px; padding-top: ' \
+               '{padding_top}px; padding-bottom: {padding_bottom}px;'.format(
+                 padding_top=6, padding_side=7, padding_bottom=6)
+
     def setFlatStyle(self, button: QPushButton,
                      darker_if_checked: bool=True,
-                     additional_style: str='') -> None:
-        color = button.palette().color(button.backgroundRole())
+                     padding: str='',
+                     color: QColor=None,
+                     text_color: QColor=None) -> None:
+        if color is None:
+            color = QPalette().color(QPalette.Background)
         default_color = color.name(QColor.HexRgb)
+
         if darker_if_checked:
             checked_color = color.darker(125).name(QColor.HexRgb)
         else:
             checked_color = default_color
+
         hover_color = color.darker(110).name(QColor.HexRgb)
+
+        if not padding:
+            padding = self._padding
+
+        if text_color is not None:
+            text = 'color: {};'.format(text_color.name(QColor.HexRgb))
+        else:
+            text = ''
 
         # outline:none is used to remove the rectangle that appears on a
         # button when the button has focus
         # http://stackoverflow.com/questions/17280056/qt-css-decoration-on-focus
-        button.setStyleSheet("""
-        QPushButton { background-color: %s; outline: none; %s}
+        stylesheet = """
+        QPushButton { background-color: %s;
+                      border: 0px;
+                      outline: none;
+                      %s
+                      %s}
         QPushButton:checked { background-color: %s; border: none; }
         QPushButton:hover{ background-color: %s; border-style: inset; }
-        """ % (default_color, additional_style, checked_color, hover_color))
+        """ % (default_color, padding, text, checked_color, hover_color) #
 
+        button.setStyleSheet(stylesheet)
+
+    def setHighlightedFlatStyle(self, button: QPushButton) -> None:
+        palette = QPalette()
+        color = palette.color(palette.Highlight)
+        text_color = palette.color(palette.HighlightedText)
+        self.setFlatStyle(button, color=color, text_color=text_color, darker_if_checked=False)
 
 class RotatedButton(QPushButton, FlatButton):
     leftSide = 270.0
     rightSide = 90.0
 
-    def __init__(self, text: str, rotation: float,
-                 flat: bool=True, checkable: bool=True, parent=None) -> None:
+    def __init__(self, text: str,
+                 rotation: float,
+                 flat: bool=True,
+                 use_highlight_color=False,
+                 checkable: bool=True,
+                 parent=None) -> None:
+        """
+        A push button to show in the left or right side of a window
+        :param text: text to display
+        :param rotation: whether on the left or right side of the window
+        :param flat: if True, set style to flat style
+        :param use_highlight_color: if True, the button's color should be the palette's color
+         for highlighting selected items. Takes effect only when using a flat is also True.
+        :param checkable: if the button is checkable or not
+        :param parent: optional parent widget
+        """
+
         super().__init__(text, parent)
         self.buttonRotation = rotation
         if flat:
-            self.setFlat(flat)
-            self.setFlatStyle(self)
+            # Use only the stylesheet to give the appearance of being flat.
+            # Don't mix and match stylesheet and non-stylesheet options for widgets.
+            # http://stackoverflow.com/questions/34654545/qt-flat-qpushbutton-background-color-doesnt-work
+            if use_highlight_color:
+                self.setHighlightedFlatStyle(self)
+            else:
+                self.setFlatStyle(self)
         self.setCheckable(checkable)
 
     def paintEvent(self, event):
@@ -74,11 +122,6 @@ class RotatedButton(QPushButton, FlatButton):
 
     def setRotation(self, rotation: float):
         self.buttonRotation = rotation
-
-    # def minimumSizeHint(self):
-    #     size = super().minimumSizeHint()
-    #     size.transpose()
-    #     return size
 
     def sizeHint(self):
         size = super().sizeHint()
@@ -116,6 +159,15 @@ class RotatedButton(QPushButton, FlatButton):
         options.icon = self.icon()
         options.iconSize = self.iconSize()
         return options
+
+    def setHighlighted(self, highlighted: bool) -> None:
+        if highlighted:
+            self.setHighlightedFlatStyle(self)
+        else:
+            self.setFlatStyle(self)
+        self.update()
+
+
 
 
 

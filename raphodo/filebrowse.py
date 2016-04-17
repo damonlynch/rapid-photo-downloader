@@ -30,8 +30,7 @@ from PyQt5.QtCore import (QDir, Qt, QModelIndex, QItemSelectionModel, QSortFilte
 from PyQt5.QtWidgets import (QTreeView, QAbstractItemView, QFileSystemModel, QSizePolicy,
                              QStyledItemDelegate, QStyleOptionViewItem)
 from PyQt5.QtGui import QIcon
-from PyQt5.QtGui import (QPixmap, QImage, QPainter, QColor, QBrush, QFontMetrics,
-                         QGuiApplication, QPen, QMouseEvent, QFont)
+from PyQt5.QtGui import (QPainter, QFont)
 
 import raphodo.qrc_resources as qrc_resources
 from raphodo.constants import (minPanelWidth, minFileSystemViewHeight, Roles)
@@ -48,7 +47,8 @@ class FileSystemModel(QFileSystemModel):
 
     def __init__(self, parent) -> None:
         super().__init__(parent)
-        self.setFilter(QDir.Dirs | QDir.AllDirs | QDir.NoDotAndDotDot | QDir.Drives)
+        # More filtering done in the FileSystemFilter
+        self.setFilter(QDir.AllDirs | QDir.NoDotAndDotDot )
         self.folder_icon = QIcon(':/icons/folder.svg')
         self.download_folder_icon = QIcon(':/icons/folder-filled.svg')
         self.setRootPath('/')

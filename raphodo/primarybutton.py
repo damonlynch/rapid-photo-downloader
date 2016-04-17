@@ -35,7 +35,6 @@ class TopPushButton(QPushButton, FlatButton):
         super().__init__(text, parent)
         self.setCheckable(True)
         self.setSizePolicy(QSizePolicy.Maximum, QSizePolicy.Maximum)
-        self.setFlat(True)
 
         font = self.font()  # type: QFont
         top_row_font_size = font.pointSize() + 8
@@ -52,7 +51,7 @@ class TopPushButton(QPushButton, FlatButton):
                   '{padding_top}px; padding-bottom: {padding_bottom}px;'.format(
                     padding_top=padding_top, padding_side=padding_side,
                     padding_bottom=padding_bottom)
-        self.setFlatStyle(self, darker_if_checked=False, additional_style=padding)
+        self.setFlatStyle(self, darker_if_checked=False, padding=padding)
 
     def setIcon(self, icon: QIcon) -> None:
         super().setIcon(icon)

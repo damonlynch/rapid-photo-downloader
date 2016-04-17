@@ -1145,8 +1145,9 @@ class TemporalProximityDelegate(QStyledItemDelegate):
 
 
 class TemporalProximityView(QTableView):
-    def __init__(self, temporalProximityWidget: 'TemporalProximity') -> None:
+    def __init__(self, temporalProximityWidget: 'TemporalProximity', rapidApp) -> None:
         super().__init__()
+        self.rapidApp = rapidApp
         self.temporalProximityWidget = temporalProximityWidget
         self.verticalHeader().setVisible(False)
         self.horizontalHeader().setVisible(False)
@@ -1310,6 +1311,7 @@ class TemporalProximityView(QTableView):
 
             if not do_selection_confirmed:
                 self.clearSelection()
+                self.rapidApp.proximityButton.setHighlighted(False)
                 do_selection = False
 
         if do_selection:
@@ -1440,7 +1442,7 @@ class TemporalProximity(QWidget):
 
         self.selected_uids = set()
 
-        self.temporalProximityView = TemporalProximityView(self)
+        self.temporalProximityView = TemporalProximityView(self, rapidApp=rapidApp)
         self.temporalProximityModel = TemporalProximityModel(rapidApp=rapidApp)
         self.temporalProximityView.setModel(self.temporalProximityModel)
         self.temporalProximityDelegate = TemporalProximityDelegate()
@@ -1537,6 +1539,8 @@ class TemporalProximity(QWidget):
         # Filter display of thumbnails, or reset the filter if lists are empty
         self.thumbnailModel.setProximityGroupFilter(selected_col1, selected_col2)
 
+        self.rapidApp.proximityButton.setHighlighted(True)
+
         if not self.block_update_device_display:
             self.thumbnailModel.updateAllDeviceDisplayCheckMarks()
             self.thumbnailModel.updateSelection(reset_selection=True)
@@ -1544,6 +1548,8 @@ class TemporalProximity(QWidget):
 
     def clearThumbnailDisplayFilter(self):
         self.thumbnailModel.setProximityGroupFilter([],[])
+        self.rapidApp.proximityButton.setHighlighted(False)
+
 
     def setState(self, state: TemporalProximityState) -> None:
         layout = self.layout()  # type: QVBoxLayout

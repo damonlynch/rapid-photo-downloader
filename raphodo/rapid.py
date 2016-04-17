@@ -720,19 +720,17 @@ class RapidWindow(QMainWindow):
         settings = QSettings()
         settings.beginGroup("MainWindow")
 
-        self.window_show_requested_time = datetime.datetime.now()
-        self.show()
-
-        # I have no idea why, but if placed before the show() and the button is pressed,
-        # the button style is very much messed up
-
         self.proximityButton.setChecked(settings.value("proximityButtonPressed", False, bool))
         self.proximityButtonClicked()
+
         self.sourceButton.setChecked(settings.value("sourceButtonPressed", True, bool))
         self.sourceButtonClicked()
 
         self.destinationButton.setChecked(settings.value("destinationButtonPressed", True, bool))
         self.destinationButtonClicked()
+
+        self.window_show_requested_time = datetime.datetime.now()
+        self.show()
 
         logging.debug("Completed stage 3 initializing main window")
 
@@ -762,7 +760,8 @@ class RapidWindow(QMainWindow):
         # Calculate window sizes
         available = desktop.availableGeometry(desktop.primaryScreen())  # type: QRect
         screen = desktop.screenGeometry(desktop.primaryScreen())  # type: QRect
-        default_width = available.width() // 2
+        default_width = max(960, available.width() // 2)
+        default_width = min(default_width, available.width())
         default_x = screen.width() - default_width
         default_height = available.height()
         default_y = screen.height() - default_height
@@ -1091,7 +1090,6 @@ class RapidWindow(QMainWindow):
         leftBar.setContentsMargins(0, 0, 0, 0)
 
         self.proximityButton = RotatedButton(_('Timeline'), RotatedButton.leftSide)
-
         self.proximityButton.clicked.connect(self.proximityButtonClicked)
         leftBar.addWidget(self.proximityButton)
         leftBar.addStretch()
@@ -2383,16 +2381,11 @@ class RapidWindow(QMainWindow):
 
         message_shown = False
         if self.have_libnotify:
-            if icon is not None:
-                # summary, body, icon (icon theme icon name or filename)
-                n = Notify.Notification.new(notification_name, message, icon)
-            else:
-                n = Notify.Notification.new(notification_name, message)
+            n = Notify.Notification.new(notification_name, message, 'rapid-photo-downloader')
             try:
                 message_shown =  n.show()
             except:
-                logging.error("Unable to display message using notification "
-                          "system")
+                logging.error("Unable to display message using notification system")
             if not message_shown:
                 logging.info("{}: {}".format(notification_name, message))
 
@@ -2450,14 +2443,12 @@ class RapidWindow(QMainWindow):
 
             message_shown = False
             if self.have_libnotify:
-                n = Notify.Notification.new(_('Rapid Photo Downloader'),
-                                message,
-                                self.program_svg)
+                n = Notify.Notification.new(_('Rapid Photo Downloader'), message,
+                                            'rapid-photo-downloader')
                 try:
                     message_shown = n.show()
                 except:
-                    logging.error("Unable to display message using "
-                                "notification system")
+                    logging.error("Unable to display message using notification system")
             if not message_shown:
                 logging.info(message)
 
@@ -2821,6 +2812,9 @@ class RapidWindow(QMainWindow):
     def addToDeviceDisplay(self, device: Device, scan_id: int) -> None:
         self.mapModel(scan_id).addDevice(scan_id, device)
         self.adjustLeftPanelSliderHandles()
+        # Resize the "This Computer" view after a device has been added
+        # If not done, the widget geometry will not be updated to reflect
+        # the new view.
         if device.device_type == DeviceType.path:
             self.thisComputerView.updateGeometry()
 
