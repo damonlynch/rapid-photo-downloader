@@ -65,16 +65,16 @@ import gphoto2 as gp
 from PyQt5 import QtCore, QtGui
 from PyQt5.QtCore import (QThread, Qt, QStorageInfo, QSettings, QPoint,
                           QSize, QTimer, QTextStream, QModelIndex,
-                          pyqtSlot)
+                          pyqtSlot, QRect)
 from PyQt5.QtGui import (QIcon, QPixmap, QImage, QColor, QPalette, QFontMetrics,
                          QFont, QPainter, QMoveEvent)
 from PyQt5.QtWidgets import (QAction, QApplication, QMainWindow, QMenu,
-                             QPushButton, QWidget, QDialogButtonBox,
+                             QWidget, QDialogButtonBox,
                              QProgressBar, QSplitter,
                              QHBoxLayout, QVBoxLayout, QDialog, QLabel,
                              QComboBox, QGridLayout, QCheckBox, QSizePolicy,
                              QMessageBox, QSplashScreen,
-                             QScrollArea, QFrame, QToolButton, QStyledItemDelegate)
+                             QScrollArea, QDesktopWidget, QToolButton, QStyledItemDelegate)
 from PyQt5.QtNetwork import QLocalSocket, QLocalServer
 
 from raphodo.storage import (ValidMounts, CameraHotplug, UDisks2Monitor,
@@ -709,8 +709,7 @@ class RapidWindow(QMainWindow):
         else:
             self.auto_start_is_on = self.prefs.auto_download_at_startup
 
-        self.setDownloadActionState()
-        self.updateDestinationViews()
+        self.setDownloadCapabilities()
         self.searchForCameras()
         self.setupNonCameraDevices()
         self.setupManualPath()
@@ -1475,15 +1474,29 @@ class RapidWindow(QMainWindow):
         else:
             self.rightPanelSplitter.setSizes([200,200])
 
-    def updateDestinationViews(self) -> None:
+    def setDownloadCapabilities(self) -> None:
         """
-        Updates the the header bar and storage space view for the photo and
-        video download destinations.
+        Update the destination displays and download button
+        """
+
+        destinations_good = self.updateDestinationViews()
+        self.setDownloadActionState(destinations_good)
+        self.destinationButton.setHighlighted(not destinations_good)
+
+    def updateDestinationViews(self) -> bool:
+        """
+        Updates the the header bar and storage space view for the
+        photo and video download destinations.
+
+        :return True if destinations required for the download exist,
+         and there is sufficient space on them, else False.
         """
 
         size_photos_marked = self.thumbnailModel.getSizeOfFilesMarkedForDownload(FileType.photo)
         size_videos_marked = self.thumbnailModel.getSizeOfFilesMarkedForDownload(FileType.video)
         marked = self.thumbnailModel.getNoFilesAndTypesMarkedForDownload()
+
+        destinations_good = True
 
         # Assume that invalid destination folders have already been reset to ''
         if self.prefs.photo_download_folder and self.prefs.video_download_folder:
@@ -1499,6 +1512,7 @@ class RapidWindow(QMainWindow):
                           size_videos_marked, files_to_display, DestinationDisplayType.usage_only)
             display_type = DestinationDisplayType.folder_only
             self.combinedDestinationDisplayContainer.setVisible(True)
+            destinations_good = self.combinedDestinationDisplay.sufficientSpaceAvailable()
         else:
             files_to_display = DisplayingFilesOfType.photos
             display_type = DestinationDisplayType.folders_and_usage
@@ -1508,9 +1522,13 @@ class RapidWindow(QMainWindow):
             self.photoDestinationDisplay.setDownloadAttributes(marked, size_photos_marked,
                             0, files_to_display, display_type)
             self.photoDestinationWidget.setViewVisible(True)
+            if display_type == DestinationDisplayType.folders_and_usage:
+                destinations_good = self.photoDestinationDisplay.sufficientSpaceAvailable()
         else:
             # Photo download folder was invalid or simply not yet set
             self.photoDestinationWidget.setViewVisible(False)
+            if size_photos_marked:
+                destinations_good = False
 
         if not same_fs:
             files_to_display = DisplayingFilesOfType.videos
@@ -1518,26 +1536,37 @@ class RapidWindow(QMainWindow):
             self.videoDestinationDisplay.setDownloadAttributes(marked, 0,
                            size_videos_marked, files_to_display, display_type)
             self.videoDestinationWidget.setViewVisible(True)
+            if display_type == DestinationDisplayType.folders_and_usage:
+                destinations_good = (self.videoDestinationDisplay.sufficientSpaceAvailable() and
+                                     destinations_good)
         else:
             # Video download folder was invalid or simply not yet set
             self.videoDestinationWidget.setViewVisible(False)
+            if size_videos_marked:
+                destinations_good = False
 
-    def setDownloadActionState(self) -> None:
+        return destinations_good
+
+    def setDownloadActionState(self, download_destinations_good: bool) -> None:
         """
         Sets sensitivity of Download action to enable or disable it.
         Affects download button and menu item.
+
+        :param download_destinations_good: whether the download destinations
+        are valid and contain sufficient space for the download to proceed
         """
 
-        # TODO don't allow download if insufficient space
         if not self.downloadIsRunning():
-            enabled = False
+            files_marked = False
             # Don't enable starting a download while devices are being scanned
             if len(self.devices.scanning) == 0:
-                enabled = self.thumbnailModel.filesAreMarkedForDownload()
+                files_marked = self.thumbnailModel.filesAreMarkedForDownload()
+
+            enabled = files_marked and download_destinations_good
 
             self.downloadAct.setEnabled(enabled)
             self.downloadButton.setEnabled(enabled)
-            if enabled:
+            if files_marked:
                 marked = self.thumbnailModel.getNoFilesAndTypesMarkedForDownload()
                 files = marked.file_types_present_details()
                 text = _("Download %(files)s") % dict(files=files)  # type: str
@@ -2259,8 +2288,7 @@ class RapidWindow(QMainWindow):
                 self.displayMessageInStatusBar()
 
                 self.setDownloadActionLabel(is_download=True)
-                self.setDownloadActionState()
-                self.updateDestinationViews()
+                self.setDownloadCapabilities()
 
                 self.job_code.job_code = ''
                 self.download_start_time = None
@@ -2455,64 +2483,22 @@ class RapidWindow(QMainWindow):
             # don't show summary again unless needed
             self.display_summary_notification = False
 
-    def invalidDownloadFolders(self, downloading: DownloadTypes) -> list:
+    def invalidDownloadFolders(self, downloading: DownloadTypes) -> List[str]:
         """
         Checks validity of download folders based on the file types the
         user is attempting to download.
 
         :return list of the invalid directories, if any, or empty list.
-        :rtype list[str]
         """
+
         invalid_dirs = []
         if downloading.photos:
-            if not self.isValidDownloadDir(self.prefs.photo_download_folder,
-                                                        is_photo_dir=True):
+            if not validate_download_folder(self.prefs.photo_download_folder).valid:
                 invalid_dirs.append(self.prefs.photo_download_folder)
         if downloading.videos:
-            if not self.isValidDownloadDir(self.prefs.video_download_folder,
-                                                        is_photo_dir=False):
+            if not validate_download_folder(self.prefs.video_download_folder).valid:
                 invalid_dirs.append(self.prefs.video_download_folder)
         return invalid_dirs
-
-
-    # TODO merge with code in storage.validate_download_folder ?
-    def isValidDownloadDir(self, path, is_photo_dir: bool, show_error_in_log=False) -> bool:
-        """
-        Checks directory following conditions:
-        Does it exist? Is it writable?
-
-        :param show_error_in_log: if  True, then display warning in log
-        window
-        :type show_error_in_log: bool
-        :param is_photo_dir: if true the download directory is for
-        photos, else for videos
-        :return True if directory is valid, else False
-        """
-        valid = False
-        if is_photo_dir:
-            download_folder_type = _("Photo")
-        else:
-            download_folder_type = _("Video")
-
-        if not os.path.isdir(path):
-            logging.error("%s download folder does not exist: %s",download_folder_type, path)
-            if show_error_in_log:
-                severity = ErrorType.warning
-                problem = _("%(file_type)s download folder is invalid") % {
-                            'file_type': download_folder_type}
-                details = _("Folder: %s") % path
-                self.log_error(severity, problem, details)
-        elif not os.access(path, os.W_OK):
-            logging.error("%s is not writable", path)
-            if show_error_in_log:
-                severity = ErrorType.warning
-                problem = _("%(file_type)s download folder is not writable") \
-                            % {'file_type': download_folder_type}
-                details = _("Folder: %s") % path
-                self.log_error(severity, problem, details)
-        else:
-            valid = True
-        return valid
 
     def notifyPrefsAreInvalid(self, details):
         title = _("Program preferences are invalid")
@@ -2651,8 +2637,7 @@ class RapidWindow(QMainWindow):
         self.download_tracker.set_file_types_present(scan_id, file_types_present)
         model = self.mapModel(scan_id)
         model.updateDeviceScan(scan_id)
-        self.setDownloadActionState()
-        self.updateDestinationViews()
+        self.setDownloadCapabilities()
 
         self.logState()
 
@@ -2853,8 +2838,7 @@ class RapidWindow(QMainWindow):
             self.removeDevice(scan_id=scan_id, show_warning=show_warning)
 
         if removed_cameras:
-            self.setDownloadActionState()
-            self.updateDestinationViews()
+            self.setDownloadCapabilities()
 
     @pyqtSlot()
     def noGVFSAutoMount(self) -> None:
@@ -2939,8 +2923,7 @@ class RapidWindow(QMainWindow):
                            log_gphoto2=self.log_gphoto2)
         self.scanmq.start_worker(scan_id, scan_arguments)
         self.devices.set_device_state(scan_id, DeviceState.scanning)
-        self.setDownloadActionState()
-        self.updateDestinationViews()
+        self.setDownloadCapabilities()
         self.updateProgressBarState()
         self.displayMessageInStatusBar()
 
@@ -3049,8 +3032,7 @@ class RapidWindow(QMainWindow):
                 self.backup_devices.no_photo_backup_devices,
                 self.backup_devices.no_video_backup_devices)
 
-        self.setDownloadActionState()
-        self.updateDestinationViews()
+        self.setDownloadCapabilities()
 
     def removeDevice(self, scan_id: int,
                      show_warning: bool=True,
@@ -3097,8 +3079,7 @@ class RapidWindow(QMainWindow):
             self.adjustLeftPanelSliderHandles()
 
             self.updateSourceButton()
-            self.setDownloadActionState()
-            self.updateDestinationViews()
+            self.setDownloadCapabilities()
 
             if adjust_temporal_proximity:
                 if len(self.devices) == 0:

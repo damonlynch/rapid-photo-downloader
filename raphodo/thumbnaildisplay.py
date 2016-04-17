@@ -465,8 +465,7 @@ class ThumbnailListModel(QAbstractListModel):
         for scan_id in scan_ids:
             self.updateDeviceDisplayCheckMark(scan_id=scan_id)
         self.rapidApp.displayMessageInStatusBar()
-        self.rapidApp.setDownloadActionState()
-        self.rapidApp.updateDestinationViews()
+        self.rapidApp.setDownloadCapabilities()
 
     def removeRows(self, position, rows=1, index=QModelIndex()):
         """
@@ -772,13 +771,14 @@ class ThumbnailListModel(QAbstractListModel):
         camera_access_needed = defaultdict(bool)
         generating_fdo_thumbs = self.rapidApp.prefs.save_fdo_thumbnails
 
-
         uids = self.tsql.get_uids(scan_id=scan_id, marked=True, downloaded=False)
 
         for uid in uids:
             rpd_file = self.rpd_files[uid] # type: RPDFile
             scan_id = rpd_file.scan_id
             files[scan_id].append(rpd_file)
+
+            # TODO contemplate using a counter here
             if rpd_file.file_type == FileType.photo:
                 download_types.photos = True
                 download_stats[scan_id].no_photos += 1
@@ -957,8 +957,7 @@ class ThumbnailListModel(QAbstractListModel):
 
         self.updateDeviceDisplayCheckMark(scan_id=scan_id)
         self.rapidApp.displayMessageInStatusBar()
-        self.rapidApp.setDownloadActionState()
-        self.rapidApp.updateDestinationViews()
+        self.rapidApp.setDownloadCapabilities()
 
     def visibleRows(self):
         """

@@ -24,6 +24,7 @@ __author__ = 'Damon Lynch'
 __copyright__ = "Copyright 2016, Damon Lynch"
 
 import os
+from typing import Optional
 from gettext import gettext as _
 
 
@@ -112,6 +113,19 @@ class DestinationDisplay(QWidget):
         self.display_type = display_type
         self.update()
         self.updateGeometry()
+
+    def sufficientSpaceAvailable(self) -> bool:
+        """
+        Check to see that there is sufficient space with which to perform a download.
+
+        :return: True or False value if sufficient space. Will always return False if
+         the download destination is not yet set.
+        """
+
+        if self.storage_space is None:
+            return False
+        return (self.photos_size_to_download + self.videos_size_to_download <
+                self.storage_space.bytes_free)
 
     def paintEvent(self, event: QPaintEvent) -> None:
         """
