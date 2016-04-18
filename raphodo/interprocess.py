@@ -1143,12 +1143,14 @@ class OffloadData:
                  proximity_seconds: int=None,
                  rpd_files: Optional[Sequence[RPDFile]]=None,
                  destination: Optional[DownloadDestination]=None,
-                 strip_characters: Optional[bool]=None) -> None:
+                 strip_characters: Optional[bool]=None,
+                 scan_id: Optional[int]=None) -> None:
         self.thumbnail_rows = thumbnail_rows
         self.proximity_seconds = proximity_seconds
         self.rpd_files = rpd_files
         self.destination = destination
         self.strip_characters = strip_characters
+        self.scan_id = scan_id
 
 
 class OffloadResults:

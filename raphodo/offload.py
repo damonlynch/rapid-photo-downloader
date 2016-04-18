@@ -63,6 +63,14 @@ class OffloadWorker(DaemonProcess):
                             folders_preview=folders_preview),
                             pickle.HIGHEST_PROTOCOL)
                         self.send_message_to_sink()
+                else:
+                    assert data.scan_id is not None
+                    folders_preview.clean_generated_folders_for_scan_id(data.scan_id)
+                    folders_preview.dirty = False
+                    self.content = pickle.dumps(OffloadResults(
+                        folders_preview=folders_preview),
+                        pickle.HIGHEST_PROTOCOL)
+                    self.send_message_to_sink()
 
         except Exception as e:
             logging.error("An unhandled exception occurred while processing offloaded tasks")

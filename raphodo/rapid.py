@@ -2704,6 +2704,17 @@ class RapidWindow(QMainWindow):
                            strip_characters=self.prefs.strip_characters)
         self.offloadmq.assign_work(data)
 
+    def removeProvisionalDownloadFolders(self, scan_id: int) -> None:
+        """
+        Remove provisional download folders unique to this scan_id
+        using the offload process.
+
+        :param scan_id: scan id of the device
+        """
+
+        data = OffloadData(scan_id=scan_id)
+        self.offloadmq.assign_work(data)
+
     @pyqtSlot(TemporalProximityGroups)
     def proximityGroupsGenerated(self, proximity_groups: TemporalProximityGroups) -> None:
         self.thumbnailModel.assignProximityGroups(proximity_groups.col1_col2_uid)
@@ -3108,8 +3119,11 @@ class RapidWindow(QMainWindow):
             if ignore_in_this_program_instantiation:
                 self.devices.ignore_device(scan_id=scan_id)
 
+            self.removeProvisionalDownloadFolders(scan_id=scan_id)
+
             del self.devices[scan_id]
             self.adjustLeftPanelSliderHandles()
+
 
             self.updateSourceButton()
             self.setDownloadCapabilities()

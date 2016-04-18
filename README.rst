@@ -6,7 +6,7 @@ Contents
 
 - `Description`_
 - `Quickstart on Ubuntu, Debian-like and Fedora-like Systems`_
-- `Software Requirements and Program Installation`_
+- `Software Requirements and Program Installation on Other Systems`_
     - `Satisfying Software Requirements`_
     - `Installation`_
     - `Uninstallation`_
@@ -32,17 +32,18 @@ automated, such as unmounting a memory card when the download is complete.
 
 A helper command-line program accompanying Rapid Photo Downloader is
 ``analyze_pv_structure``, which analyzes photos and videos to help determine
-how much of a file needs to be read to extract its metadata and embedded thumbnail,
-or render a thumbnail.
+how much of a file needs to be read to extract its metadata and thumbnail.
 
 The version of the program described here, 0.9.0a1, is alpha quality software,
-meaning that not all its features have been written. For more information
-about the older, current release of the program, see the project website_.
+meaning that not all its features have been written. The main missing features are the
+components of the graphical user interface that are used to configure file renaming, download
+subfolder generation, backups, and miscellaneous other program preferences.
+
+For more information about the older, current release of the program, see the project website_.
 
 Rapid Photo Downloader currently runs only on Linux. Theoretically it can be ported
-to both Mac and Windows with minimal effort (apart from the fact that Windows does not
-have gphoto2, meaning when run under Windows, it could not download directly
-from cameras).
+to both Mac and Windows with minimal effort (apart from the fact that Windows lacks gphoto2,
+meaning when run under Windows, it could not download directly from cameras).
 
 The program is licensed under the GPL3_ or later.
 
@@ -80,8 +81,8 @@ Finally, to uninstall:
 If you installed the man pages, they are found in ``/usr/local/share/man/man1``.
 
 
-Software Requirements and Program Installation
-==============================================
+Software Requirements and Program Installation on Other Systems
+===============================================================
 
 The program is installed using the Python tool pip_, which automates almost
 all aspects of the program's installation by using PyPi_ to download Python modules.

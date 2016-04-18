@@ -27,7 +27,7 @@ Changelog for Rapid Photo Downloader
    - Tooltips display information about the file including name, modification
      time and file size.
      
-   - Right click on thumbnails to open the file in a file browswer or copy the
+   - Right click on thumbnails to open the file in a file browser or copy the
      path.
      
    - When downloading from a camera with dual memory cards, an emblem beneath the
@@ -87,12 +87,8 @@ Changelog for Rapid Photo Downloader
      User Interface (GUI). However they can be adjust manually using a text 
      editor.
      
-   - Selecting multiple thumbnails does not work.
-   
    - Full size previews of files are unavailabe.
    
-   - Clicking the eject icon by a device currently does nothing.
-
    - There is no error log window.
 
    - Some menu items do nothing.
