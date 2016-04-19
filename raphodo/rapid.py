@@ -3074,8 +3074,7 @@ class RapidWindow(QMainWindow):
         :param adjust_temporal_proximity: if True, update the temporal
          proximity table to reflect device removal
         :param ignore_in_this_program_instantiation: don't scan this
-         device again, during this instance of the program being run
-         that is
+         device again during this instance of the program being run
         """
 
         assert scan_id is not None
@@ -3136,6 +3135,7 @@ class RapidWindow(QMainWindow):
 
             self.logState()
             self.updateProgressBarState()
+            self.displayMessageInStatusBar()
 
     def rescanDevice(self, scan_id: int) -> None:
         device = self.devices[scan_id]

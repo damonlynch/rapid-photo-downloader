@@ -4,25 +4,60 @@ Changelog for Rapid Photo Downloader
 0.9.0a1 (unreleased)
 --------------------
 
- - New features:
+ - New features compared to the previous release, version 0.4.11:
 
-   - Refreshed user interface, with bigger thumbnails and easier visual 
-     identification of different file types.
-     
-   - Download from all cameras supported by gphoto2, including smartphones:
-   
-     - You can download from multiple cameras/smartphones simultaneously.
-     - Please note Rapid Photo Downloader will automatically unmount the camera/
-       smartphone so it can gain exclusive access to it using gphoto2. If you
-       attempt to mount it in another application (e.g. Gnome Files) while Rapid
-       Photo Downloader is accessing it, the download could be interrupted.
-     - Please also note that the phone should be unlocked before running Rapid
-       Photo Downloader, or else it will be inaccessible.
-       
+   - Every aspect of the user interface has been revised and modernized.
+
+   - Download from all cameras supported by gPhoto2, including smartphones.
+     The previous version could download from only some cameras.
+
    - Remember files that have already been downloaded. You can still select
      previously downloaded files to download again, but they are unchecked by
-     default, and their thumbnails are dimmed so you can differentiate them from
-     files that are yet to be downloaded.
+     default, and their thumbnails are dimmed so you can differentiate them
+     from files that are yet to be downloaded.
+
+   - Previously downloaded files can be hidden.
+
+   - Unique to Rapid Photo Downloader is its Timeline, which groups photos and
+     videos based on how much time elapsed between consecutive shots. Use it
+     to identify photos and videos taken at different periods in a single day
+     or over consecutive days. A slider adjusts the time elapsed between
+     consecutive shots that is used to build the Timeline. Time periods can be
+     selected to filter which thumbnails are displayed.
+
+   - Thumbnails are bigger, and different file types are easier to
+     distinguish.
+
+   - Thumbnails can be sorted using a variety of criteria, including by device
+     and file type.
+
+   - Download folders are previewed before a download starts, showing which
+     subfolders photos and videos will be downloaded to. Newly created folders
+     have their names italicized.
+
+   - The storage space used by photos, videos, and other files on the devices
+     being downloaded from is displayed for each device. The projected storage
+     space on the computer to be used by photos and videos about to be
+     downloaded is also displayed.
+
+   - Downloading is disabled when the projected storage space required is more
+     than the capacity of the download destination.
+
+   - When downloading from more than one device, thumbnails for a particular
+     device are briefly highlighted when the mouse is moved over the device.
+
+   - The order in which thumbnails are generated prioritizes representative
+     samples, based on time, which is useful for users who download very large
+     numbers of files at a time.
+
+   - Thumbnails are generated asynchronously and in parallel, using a load
+     balancer to assign work to processes utilizing up to 4 CPU cores.
+
+   - Libraw is used to render RAW images from which a preview cannot be extracted,
+     which is the case with Android DNG files, for instance.
+
+   - The program can now handle hundreds of thousands of files at a time,
+     maintaining a responsive user interface.
      
    - Tooltips display information about the file including name, modification
      time and file size.
@@ -33,61 +68,64 @@ Changelog for Rapid Photo Downloader
    - When downloading from a camera with dual memory cards, an emblem beneath the
      thumbnail indicates which memory cards the photo or video is on  
      
-   - When choosing a Job Code, you specify whether to remember the choice or not.
-   
-   - Cache thumbnails generated when a device is scanned, making thumbnail
+   - Thumbnails generated when a device is scanned are cached, making thumbnail
      generation quicker on subsequent scans.
-     
-   - Cache photos and videos on cameras and phones used to generate thumbnails,
-     speeding up their download if they are downloaded in the same session.
-     
-   - Change the order in which thumbnails are generated, so that 
-     representative samples (based on time) are prioritized. This is helpful when
-     downloading thousands of files at a time or over slow USB 2.0 connections.
-     
+
+   - Comprehensive log files are generated that allow easier diagnosis of
+     program problems in bug reports. Messages optionally logged to a
+     terminal window are displayed in color.
+
    - Generate freedesktop.org thumbnails for downloaded files, which means 
      RAW files will have thumbnails in programs like Gnome Files and KDE Dolphin.
      
    - Added progress bar when running under a Unity desktop
-   
-   - Generate video thumbnails using the python interface to gstreamer, removing
-     dependency on ffmpegthumbnailer
-   
+
+   - The installer has been totally rewritten to take advantage of Python's
+     tool pip, which installs Python packages. Rapid Photo Downloader can now
+     be easily installed and uninstalled. On Ubuntu, Debian and Fedora-like
+     Linux distributions, the installation of all dependencies is automated.
+     On other Linux distrubtions, dependency installation is partially
+     automated.
+
+   - When choosing a Job Code, specify whether to remember the choice or not.
+
  - Removed feature:
  
    - Rotate Jpeg images - to apply Lossless rotation, this feature requires the
      program jpegtran. Some users reported jpegtran corrupted their jpegs' 
-     metadata. To preserve file integrity, unfortunately the rotate jpeg option 
-     must be removed.  
+     metadata, which is bad. To preserve file integrity under all circumstances,
+     unfortunately the rotate jpeg option must be removed.
    
- - The code switches to using:
+ - The amount of Python code has almost tripled. Under the hood, the code now uses:
 
-   - PyQt 5.4, from PyGtk 2
+   - PyQt 5.4 +
 
-   - Python-gphoto2 to download from cameras, from Gnome GIO
+   - gPhoto2 to download from cameras
 
-   - Python 3.4, from Python 2.7
+   - Python 3.4 +
 
-   - ZeroMQ, from python multi-processing
+   - ZeroMQ for interprocess communication
 
-   - GExiv2 for photo metadata, from pyexiv2
+   - GExiv2 for photo metadata
 
-   - Exiftool for video metadata, from kaa-metadata and hachoir-metadata
+   - Gstreamer for video thumbnail generation
+
+   - Exiftool for video metadata
    
- - Please note that ZeroMQ is responsible for Rapid Photo Downloader's 
-   interprocess messaging, using TCP/IP. If you use a system monitor that 
-   displays network activity, don't be alarmed if it shows increased local 
-   network activity while Rapid Photo Downloader is downloading or thumbnailing.
-   Rapid Photo Downloader's network traffic is strictly between its own 
-   processes, all running solely on your computer.
+ - Please note if you use a system monitor that displays network activity,
+   don't be alarmed if it shows increased local network activity while the
+   program is running. The program sets uses ZeroMQ over TCP/IP for its
+   interprocess messaging. Rapid Photo Downloader's network traffic is
+   strictly between its own processes, all running solely on your computer.
    
- - Missing features, still to be developed:
+ - Missing features, which will be implemented in future alpha releases:
   
-   - Program configuration (preferences) cannot yet adjusted though the Graphical
-     User Interface (GUI). However they can be adjust manually using a text 
-     editor.
-     
-   - Full size previews of files are unavailabe.
+   - Components of the user interface that are used to configure file
+     renaming, download subfolder generation, backups, and miscellaneous
+     other program preferences. While they can be configured by manually
+     editing the program's configuration file, that's far from easy and is
+     error prone. Meanwhile, some options can be configured using the command
+     line.
    
    - There is no error log window.
 
