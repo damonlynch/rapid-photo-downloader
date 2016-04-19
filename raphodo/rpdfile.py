@@ -34,7 +34,7 @@ from gettext import gettext as _
 
 import raphodo.exiftool as exiftool
 from raphodo.constants import (DownloadStatus, FileType, FileExtension, FileSortPriority,
-                       ThumbnailCacheStatus, Downloaded, Desktop)
+                       ThumbnailCacheStatus, Downloaded, Desktop, thumbnail_offset)
 
 from raphodo.storage import get_desktop, gvfs_controls_mounts
 import raphodo.metadataphoto as metadataphoto
@@ -71,6 +71,9 @@ VIDEO_EXTENSIONS = ['3gp', 'avi', 'm2t', 'mov', 'mp4', 'mpeg','mpg', 'mod',
 VIDEO_THUMBNAIL_EXTENSIONS = ['thm']
 
 ALL_USER_VISIBLE_EXTENSIONS = PHOTO_EXTENSIONS + VIDEO_EXTENSIONS + ['xmp']
+
+MUST_CACHE_VIDEOS = [video for video in VIDEO_EXTENSIONS
+                     if thumbnail_offset.get(video) is None]
 
 
 def file_type(file_extension: str) -> FileType:

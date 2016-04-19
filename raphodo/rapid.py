@@ -3138,6 +3138,12 @@ class RapidWindow(QMainWindow):
             self.displayMessageInStatusBar()
 
     def rescanDevice(self, scan_id: int) -> None:
+        """
+        Remove a device and scan it again.
+
+        :param scan_id: scan id of the device
+        """
+
         device = self.devices[scan_id]
         self.removeDevice(scan_id=scan_id)
         if device.device_type == DeviceType.camera:
@@ -3146,6 +3152,13 @@ class RapidWindow(QMainWindow):
             self.startDeviceScan(device=device)
 
     def blacklistDevice(self, scan_id: int) -> None:
+        """
+        Query user if they really want to to permanently ignore a camera or
+        volume. If they do, the device is removed and blacklisted.
+
+        :param scan_id: scan id of the device
+        """
+
         device = self.devices[scan_id]
         if device.device_type == DeviceType.camera:
             text = _("<b>Do you want to ignore the %s whenever this program is run?</b>")
@@ -3174,13 +3187,13 @@ class RapidWindow(QMainWindow):
                 logging.debug('Added %s to volume blacklist', device.display_name)
             self.removeDevice(scan_id=scan_id)
 
-    def logState(self):
+    def logState(self) -> None:
         self.devices.logState()
         self.thumbnailModel.logState()
         self.deviceModel.logState()
         self.thisComputerModel.logState()
 
-    def setupBackupDevices(self):
+    def setupBackupDevices(self) -> None:
         """
         Setup devices to back up to.
 
@@ -3316,6 +3329,7 @@ class RapidWindow(QMainWindow):
         :return The type of file that should be backed up to the path,
         else if nothing should be, None
         """
+
         if self.prefs.backup_files:
             if self.prefs.backup_device_autodetection:
                 # Determine if the auto-detected backup device is
@@ -3323,16 +3337,12 @@ class RapidWindow(QMainWindow):
                 # Use the presence of a corresponding directory to
                 # determine this.
                 # The directory must be writable.
-                photo_path = os.path.join(path,
-                                          self.prefs.photo_backup_identifier)
+                photo_path = os.path.join(path, self.prefs.photo_backup_identifier)
                 p_backup = os.path.isdir(photo_path) and os.access(photo_path, os.W_OK)
-                video_path = os.path.join(path,
-                                          self.prefs.video_backup_identifier)
-                v_backup = os.path.isdir(video_path) and os.access(
-                    video_path, os.W_OK)
+                video_path = os.path.join(path, self.prefs.video_backup_identifier)
+                v_backup = os.path.isdir(video_path) and os.access(video_path, os.W_OK)
                 if p_backup and v_backup:
-                    logging.info("Photos and videos will be backed up to "
-                                 "%s", path)
+                    logging.info("Photos and videos will be backed up to %s", path)
                     return BackupLocationType.photos_and_videos
                 elif p_backup:
                     logging.info("Photos will be backed up to %s", path)
@@ -3406,12 +3416,15 @@ class RapidWindow(QMainWindow):
 
     def displayMessageInStatusBar(self) -> None:
         """
-        Displays message on status bar:
-        1. files selected for download
+        Displays message on status bar.
+
+        Notifies user if scanning or thumbnailing.
+
+        If neither scanning or thumbnailing, displays:
+        1. files checked for download
         2. total number files available
         3. how many not shown (user chose to show only new files)
         """
-
 
         if self.devices.downloading:
             # status message updates while downloading are handled in another function
@@ -3431,16 +3444,16 @@ class RapidWindow(QMainWindow):
                 files_hidden = self.thumbnailModel.getNoHiddenFiles()
 
                 if files_hidden:
-                    files_selected = _('%(number)s of %(available files)s checked for download (%('
+                    files_checked = _('%(number)s of %(available files)s checked for download (%('
                                        'hidden)s hidden)') % {
                                        'number': thousands(files_to_download),
                                        'available files': files_avilable_sum,
                                        'hidden': files_hidden}
                 else:
-                    files_selected = _('%(number)s of %(available files)s checked for download') % {
+                    files_checked = _('%(number)s of %(available files)s checked for download') % {
                                        'number': thousands(files_to_download),
                                        'available files': files_avilable_sum}
-                msg = files_selected
+                msg = files_checked
             else:
                 msg = ''
         self.statusBar().showMessage(msg)
@@ -3475,21 +3488,24 @@ class RapidWindow(QMainWindow):
         backup mounts will be used
         :return the string to be displayed
         """
+
+        # No longer used - candidate for deletion
+
         message =  ''
 
-        backup_device_names = [self.backup_devices.name(path) for path in
-                          self.backup_devices]
-        message = make_internationalized_list(backup_device_names)
-
-        if len(backup_device_names) > 1:
-            message = _("Using backup devices %(devices)s") % dict(
-                devices=message)
-        elif len(backup_device_names) == 1:
-            message = _("Using backup device %(device)s")  % dict(
-                device=message)
-        else:
-            message = _("No backup devices detected")
-        return message
+        # backup_device_names = [self.backup_devices.name(path) for path in
+        #                   self.backup_devices]
+        # message = make_internationalized_list(backup_device_names)
+        #
+        # if len(backup_device_names) > 1:
+        #     message = _("Using backup devices %(devices)s") % dict(
+        #         devices=message)
+        # elif len(backup_device_names) == 1:
+        #     message = _("Using backup device %(device)s")  % dict(
+        #         device=message)
+        # else:
+        #     message = _("No backup devices detected")
+        # return message
 
 
 class QtSingleApplication(QApplication):

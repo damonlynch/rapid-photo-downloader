@@ -66,12 +66,13 @@ from raphodo.interprocess import (WorkerInPublishPullPipeline,
                           GenerateThumbnailsResults,
                           ThumbnailExtractorArgument)
 from raphodo.constants import (FileType, ThumbnailSize, ThumbnailCacheStatus,
-                       ThumbnailCacheDiskStatus, FileSortPriority, ExtractionTask,
+                       ThumbnailCacheDiskStatus, ExtractionTask,
                        ExtractionProcessing, orientation_offset, thumbnail_offset)
 from raphodo.camera import (Camera, CopyChunks)
 from raphodo.cache import ThumbnailCacheSql, FdoCacheLarge
 from raphodo.utilities import (GenerateRandomFileName, create_temp_dir, CacheDirs)
 from raphodo.preferences import Preferences
+
 
 def split_list(alist: list, wanted_parts=2):
     """
@@ -214,7 +215,6 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
             return True
         return False
 
-# TODO improve extraction order of photos, videos
 
     def do_work(self) -> None:
         self.camera = None
@@ -236,7 +236,7 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
         else:
             thumbnail_cache = None
 
-        # Access and generate Freedesktop.org thumbnail caches
+        # Access Freedesktop.org thumbnail caches
         fdo_cache_large = FdoCacheLarge()
 
         photo_cache_dir = video_cache_dir = None
@@ -248,44 +248,19 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
         #     pickle.dump(rpd_files, f)
 
 
-        # Classify files by type:
-        # get thumbnails for core (non-other) photos first, then
-        # videos, then other photos
+        rpd_files = sorted(rpd_files,  key=attrgetter('modification_time'))
 
-        photos = []
-        videos = []
-        other_photos = []
-        for rpd_file in rpd_files: # type: RPDFile
-            if rpd_file.file_type == FileType.photo:
-                if rpd_file.sort_priority == FileSortPriority.high:
-                    photos.append(rpd_file)
-                else:
-                    other_photos.append(rpd_file)
-            else:
-                videos.append(rpd_file)
+        time_span = arguments.proximity_seconds
 
-        photos = sorted(photos,  key=attrgetter('modification_time'))
-        videos = sorted(videos,  key=attrgetter('modification_time'))
-        other_photos = sorted(other_photos,  key=attrgetter('modification_time'))
-
-        might_need_video_cache_dir = (len(videos) and arguments.camera)
-
-        # 60 seconds * 60 minutes i.e. one hour
-        photo_time_span = video_time_span = 60 * 60
-
-        # Prioritize the order in which we generate the thumbnails
         rpd_files2 = []
-        for file_list, time_span in ((photos, photo_time_span),
-                                     (videos, video_time_span),
-                                     (other_photos, photo_time_span)):
-            if file_list:
-                gaps, sequences = get_temporal_gaps_and_sequences(
-                    file_list, time_span)
 
-                rpd_files2.extend(gaps)
+        if rpd_files:
+            gaps, sequences = get_temporal_gaps_and_sequences(rpd_files, time_span)
 
-                indexes = split_indexes(len(sequences))
-                rpd_files2.extend([sequences[idx] for idx in indexes])
+            rpd_files2.extend(gaps)
+
+            indexes = split_indexes(len(sequences))
+            rpd_files2.extend([sequences[idx] for idx in indexes])
 
         assert len(rpd_files) == len(rpd_files2)
         rpd_files = rpd_files2
@@ -302,10 +277,9 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
                 self.send_finished_command()
                 sys.exit(0)
 
-            must_make_cache_dirs = (not self.camera.can_fetch_thumbnails
-                                    or cache_file_from_camera)
+            must_make_cache_dirs = (not self.camera.can_fetch_thumbnails or cache_file_from_camera)
 
-            if must_make_cache_dirs or might_need_video_cache_dir:
+            if must_make_cache_dirs or arguments.need_video_cache_dir:
                 # If downloading complete copy of the files to
                 # generate previews, then may as well cache them to speed up
                 # the download process
@@ -403,7 +377,7 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
                             processing.add(ExtractionProcessing.strip_bars_photo)
                             processing.add(ExtractionProcessing.orient)
                         else:
-                            # Many (most?) jpegs from phones don't include jpeg previews,
+                            # Many (all?) jpegs from phones don't include jpeg previews,
                             # so need to render from the entire jpeg itself. Slow!
 
                             # If rawkit is not installed, then extract merely a part of

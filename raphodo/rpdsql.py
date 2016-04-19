@@ -52,7 +52,7 @@ sqlite3.register_converter("FILETYPE", lambda v: FileType(int(v)))
 
 class ThumbnailRowsSQL:
     """
-    In memory thumbnail rows display.
+    In memory database of thumbnail rows displayed in main window.
     """
 
     def __init__(self) -> None:
@@ -124,7 +124,6 @@ class ThumbnailRowsSQL:
     def add_thumbnail_rows(self, thumbnail_rows: Sequence[ThumbnailRow]) -> None:
         """
         Add a list of rows to database of thumbnail rows
-
         """
 
         logging.debug("Adding %s rows to db", len(thumbnail_rows))
@@ -140,6 +139,7 @@ class ThumbnailRowsSQL:
                      downloaded: Optional[bool]=None,
                      file_type: Optional[FileType]=None,
                      marked: Optional[bool]=None,
+                     extensions: Optional[List[str]]=None,
                      proximity_col1: Optional[List[int]]=None,
                      proximity_col2: Optional[List[int]]=None) -> Tuple[str, Tuple[Any]]:
 
@@ -167,6 +167,14 @@ class ThumbnailRowsSQL:
         if downloaded is not None:
             where_clauses.append('downloaded=?')
             where_values.append(downloaded)
+
+        if extensions is not None:
+            if len(extensions) == 1:
+                where_clauses.append('extension=?')
+                where_values.append(extensions[0])
+            else:
+                where_clauses.append('extension in ({})'.format(','.join('?' * len(extensions))))
+                where_values.extend(extensions)
 
         for p, col_name in ((proximity_col1, 'proximity_col1'), (proximity_col2, 'proximity_col2')):
             if not p:
@@ -338,6 +346,21 @@ class ThumbnailRowsSQL:
 
     def any_files_to_download(self) -> bool:
         row = self.conn.execute('SELECT uid FROM files WHERE downloaded=0 LIMIT 1').fetchone()
+        return row is not None
+
+    def any_files_with_extensions(self, scan_id: int, extensions: List[str]) -> bool:
+        where, where_values = self._build_where(scan_id=scan_id, extensions=extensions)
+        query = 'SELECT uid FROM files'
+
+        if where:
+            query = '{} WHERE {}'.format(query, where)
+
+        if where_values:
+            logging.debug('%s %s', query, where_values)
+            row = self.conn.execute(query, tuple(where_values)).fetchone()
+        else:
+            logging.debug('%s', query)
+            row = self.conn.execute(query).fetchone()
         return row is not None
 
     def _delete_uids(self, uids: List[bytes]):
@@ -746,17 +769,17 @@ if __name__ == '__main__':
     d.set_marked(uid, False)
     d.set_downloaded(uid, True)
 
-    print(d.get_view(sort_by=Sort.modification_time, sort_order=Qt.AscendingOrder, show=Show.all,
-                     proximity_col1=-1, proximity_col2=-1))
-
-    print(d.get_view(sort_by=Sort.file_type, sort_order=Qt.DescendingOrder, show=Show.all,
-                     proximity_col1=-1, proximity_col2=-1))
-
-    print(d.get_view(sort_by=Sort.checked_state, sort_order=Qt.AscendingOrder, show=Show.all,
-                     proximity_col1=-1, proximity_col2=-1))
-
-    print(d.get_view(sort_by=Sort.modification_time, sort_order=Qt.AscendingOrder, show=Show.new_only,
-                     proximity_col1=-1, proximity_col2=-1))
+    # print(d.get_view(sort_by=Sort.modification_time, sort_order=Qt.AscendingOrder, show=Show.all,
+    #                  proximity_col1=-1, proximity_col2=-1))
+    #
+    # print(d.get_view(sort_by=Sort.file_type, sort_order=Qt.DescendingOrder, show=Show.all,
+    #                  proximity_col1=-1, proximity_col2=-1))
+    #
+    # print(d.get_view(sort_by=Sort.checked_state, sort_order=Qt.AscendingOrder, show=Show.all,
+    #                  proximity_col1=-1, proximity_col2=-1))
+    #
+    # print(d.get_view(sort_by=Sort.modification_time, sort_order=Qt.AscendingOrder, show=Show.new_only,
+    #                  proximity_col1=-1, proximity_col2=-1))
 
     print(d.get_view(sort_by=Sort.device, sort_order=Qt.DescendingOrder, show=Show.all))
 
@@ -781,3 +804,8 @@ if __name__ == '__main__':
     print(d.get_count(marked=True))
     d.set_list_marked(uids, marked=True)
     print(d.get_count(marked=True))
+    print(d.any_files_with_extensions(scan_id=0, extensions=['cr2', 'dng']))
+    print(d.any_files_with_extensions(scan_id=0, extensions=['nef', 'dng']))
+    print(d.any_files_with_extensions(scan_id=0, extensions=['nef']))
+    print(d.any_files_with_extensions(scan_id=0, extensions=['cr2']))
+

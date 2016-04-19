@@ -1203,7 +1203,9 @@ class GenerateThumbnailsArguments:
     def __init__(self, scan_id: int,
                  rpd_files: List[RPDFile],
                  name: str,
+                 proximity_seconds: int,
                  cache_dirs: CacheDirs,
+                 need_video_cache_dir: bool,
                  frontend_port: int,
                  log_gphoto2: bool,
                  camera: Optional[str]=None,
@@ -1214,8 +1216,13 @@ class GenerateThumbnailsArguments:
         :param scan_id: id of the scan
         :param rpd_files: files from which to extract thumbnails
         :param name: name of the device
+        :param proximity_seconds: the time elapsed between consecutive
+         shots that is used to prioritize the order of thumbnail
+         generation
         :param cache_dirs: the location where the cache directories
          should be created
+        :param need_video_cache_dir: if True, must use cache dir
+         to extract video thumbnail
         :param frontend_port: port to use to send to load balancer's
          front end
         :param log_gphoto2: if True, log libgphoto2 logging messages
@@ -1224,10 +1231,13 @@ class GenerateThumbnailsArguments:
         :param port: If the thumbnails are being downloaded from a
          camera, this is the port of the camera, else None
         """
+
         self.rpd_files = rpd_files
         self.scan_id = scan_id
         self.name = name
+        self.proximity_seconds = proximity_seconds
         self.cache_dirs = cache_dirs
+        self.need_video_cache_dir = need_video_cache_dir
         self.frontend_port = frontend_port
         if camera is not None:
             assert port is not None

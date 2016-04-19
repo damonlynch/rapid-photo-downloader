@@ -103,7 +103,9 @@ class Thumbnailer(QObject):
     def generateThumbnails(self, scan_id: int,
                            rpd_files: list,
                            name: str,
+                           proximity_seconds: int,
                            cache_dirs: CacheDirs,
+                           need_video_cache_dir: bool,
                            camera_model: Optional[str]==None,
                            camera_port: Optional[str]=None) -> None:
         """
@@ -113,8 +115,13 @@ class Thumbnailer(QObject):
         :param rpd_files: list of rpd_files, all of which should be
          from the same source
         :param name: name of the device
+        :param proximity_seconds: the time elapsed between consecutive
+         shots that is used to prioritize the order of thumbnail
+         generation
         :param cache_dirs: the location where the cache directories
          should be created
+        :param need_video_cache_dir: if True, must use cache dir
+         to extract video thumbnail
         :param camera_model: If the thumbnails are being downloaded
          from a camera, this is the name of the camera, else None
         :param camera_port: If the thumbnails are being downloaded
@@ -123,7 +130,9 @@ class Thumbnailer(QObject):
         self.thumbnail_manager.start_worker(scan_id,
                         GenerateThumbnailsArguments(
                             scan_id=scan_id, rpd_files=rpd_files,
-                            name=name, cache_dirs=cache_dirs,
+                            name=name, proximity_seconds=proximity_seconds,
+                            cache_dirs=cache_dirs,
+                            need_video_cache_dir=need_video_cache_dir,
                             frontend_port=self.frontend_port,
                             log_gphoto2=self.log_gphoto2,
                             camera=camera_model,

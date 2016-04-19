@@ -45,7 +45,7 @@ from PyQt5.QtWidgets import (QListView, QStyledItemDelegate, QStyleOptionViewIte
 from PyQt5.QtGui import (QPixmap, QImage, QPainter, QColor, QBrush, QFontMetrics,
                          QGuiApplication, QPen, QMouseEvent, QFont)
 
-from raphodo.rpdfile import RPDFile, FileTypeCounter, ALL_USER_VISIBLE_EXTENSIONS
+from raphodo.rpdfile import RPDFile, FileTypeCounter, ALL_USER_VISIBLE_EXTENSIONS, MUST_CACHE_VIDEOS
 from raphodo.interprocess import (PublishPullPipelineManager, GenerateThumbnailsArguments, Device,
                           GenerateThumbnailsResults)
 from raphodo.constants import (DownloadStatus, Downloaded, FileType, FileExtension, ThumbnailSize,
@@ -622,8 +622,13 @@ class ThumbnailListModel(QAbstractListModel):
             uids = self.tsql.get_uids_for_device(scan_id=scan_id)
             rpd_files = list((self.rpd_files[uid] for uid in uids))
 
-            gen_args = (scan_id, rpd_files, device.name(), cache_dirs, device.camera_model,
-                        device.camera_port)
+            need_video_cache_dir = False
+            if device.device_type == DeviceType.camera:
+                need_video_cache_dir = self.tsql.any_files_with_extensions(scan_id,
+                                                                           MUST_CACHE_VIDEOS)
+
+            gen_args = (scan_id, rpd_files, device.name(), self.rapidApp.prefs.proximity_seconds,
+                        cache_dirs, need_video_cache_dir, device.camera_model, device.camera_port)
             if not self.thumbnailer_ready:
                 self.thumbnailer_generation_queue.append(gen_args)
             else:
