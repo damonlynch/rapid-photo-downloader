@@ -28,7 +28,6 @@ __author__ = 'Damon Lynch'
 __copyright__ = "Copyright 2011-2016, Damon Lynch"
 
 import os
-import shutil
 import datetime
 from enum import Enum
 from collections import namedtuple
@@ -39,21 +38,14 @@ import pickle
 
 from gettext import gettext as _
 
-from PyQt5.QtCore import QSize
-from PyQt5.QtGui import QImage
-
 import raphodo.exiftool as exiftool
 import raphodo.generatename as gn
 import raphodo.problemnotification as pn
 from raphodo.preferences import DownloadsTodayTracker, Preferences
-from raphodo.constants import (ConflictResolution, FileType, DownloadStatus, ThumbnailCacheStatus,
-                       ThumbnailSize, RenameAndMoveStatus)
-from raphodo.interprocess import (RenameAndMoveFileData,
-                          RenameAndMoveFileResults, DaemonProcess)
+from raphodo.constants import (ConflictResolution, FileType, DownloadStatus, RenameAndMoveStatus)
+from raphodo.interprocess import (RenameAndMoveFileData, RenameAndMoveFileResults, DaemonProcess)
 from raphodo.rpdfile import RPDFile
-from raphodo.cache import FdoCacheNormal, FdoCacheLarge, ThumbnailCacheSql
 from raphodo.rpdsql import DownloadedSQL
-from raphodo.thumbnailextractor import qimage_to_png_buffer
 
 
 class SyncRawJpegStatus(Enum):
@@ -574,8 +566,7 @@ class RenameMoveFileWorker(DaemonProcess):
 
         add_unique_identifier = False
         try:
-            if os.path.exists(
-                    rpd_file.download_full_file_name):
+            if os.path.exists(rpd_file.download_full_file_name):
                 raise IOError(errno.EEXIST,
                               "File exists: %s" %
                               rpd_file.download_full_file_name)
@@ -592,17 +583,12 @@ class RenameMoveFileWorker(DaemonProcess):
                 rpd_file.status = DownloadStatus.downloaded
         except OSError as inst:
             if inst.errno == errno.EEXIST:
-                add_unique_identifier = \
-                    self.download_file_exists(
-                        rpd_file)
+                add_unique_identifier = self.download_file_exists(rpd_file)
             else:
-                rpd_file = self.notify_download_failure_file_error(
-                    rpd_file, inst.strerror)
+                rpd_file = self.notify_download_failure_file_error(rpd_file, inst.strerror)
         except:
             rpd_file = self.notify_download_failure_file_error(
-                rpd_file,
-                "An unknown error occurred while renaming "
-                "the file")
+                rpd_file, "An unknown error occurred while renaming the file")
 
         if add_unique_identifier:
             self.add_unique_identifier(rpd_file)
@@ -665,76 +651,6 @@ class RenameMoveFileWorker(DaemonProcess):
 
         return move_succeeded
 
-    def process_renamed_file(self, rpd_file: RPDFile) -> QImage:
-        """
-        Generate thumbnails for display (needed only if the thumbnail was
-        from a camera or was not already generated) and for the
-        freedesktop.org cache
-        :return: thumbnail suitable for display to the user, if needed
-        """
-        thumbnail = None
-
-        # # Check to see if existing thumbnail in FDO cache can be modified
-        # # and renamed to reflect new URI
-        # mtime = os.path.getmtime(rpd_file.download_full_file_name)
-        # if rpd_file.fdo_thumbnail_128_name and self.prefs.save_fdo_thumbnails:
-        #     logging.debug("Copying and modifying existing FDO 128 thumbnail")
-        #     rpd_file.fdo_thumbnail_128_name = \
-        #         self.fdo_cache_normal.modify_existing_thumbnail_and_save_copy(
-        #             existing_cache_thumbnail=rpd_file.fdo_thumbnail_128_name,
-        #             full_file_name=rpd_file.download_full_file_name,
-        #             size=rpd_file.size,
-        #             modification_time=mtime,
-        #             generation_failed=False)
-        #
-        # if rpd_file.fdo_thumbnail_256_name and self.prefs.save_fdo_thumbnails:
-        #     logging.debug("Copying and modifying existing FDO 256 thumbnail")
-        #     rpd_file.fdo_thumbnail_256_name = \
-        #         self.fdo_cache_large.modify_existing_thumbnail_and_save_copy(
-        #             existing_cache_thumbnail=rpd_file.fdo_thumbnail_256_name,
-        #             full_file_name=rpd_file.download_full_file_name,
-        #             size=rpd_file.size,
-        #             modification_time=mtime,
-        #             generation_failed=False)
-        #
-        # if ((self.prefs.save_fdo_thumbnails and (
-        #         not rpd_file.fdo_thumbnail_256_name or
-        #         not rpd_file.fdo_thumbnail_128_name)) or
-        #         rpd_file.thumbnail_status !=
-        #         ThumbnailCacheStatus.suitable_for_fdo_cache_write):
-        #     logging.debug("Thumbnail status: %s", rpd_file.thumbnail_status)
-        #     logging.debug("Have FDO 128: %s; have FDO 256: %s",
-        #                   rpd_file.fdo_thumbnail_128_name != '',
-        #                   rpd_file.fdo_thumbnail_256_name != '')
-        #     discard_thumbnail = rpd_file.thumbnail_status == \
-        #         ThumbnailCacheStatus.suitable_for_fdo_cache_write
-        #
-        #     # Generate a newly rendered thumbnail for main window and
-        #     # both sizes of freedesktop.org thumbnails. Note that
-        #     # thumbnails downloaded from the camera using the gphoto2
-        #     # get_thumb fuction have no orientation tag, so regenerating
-        #     # the thumbnail again for those images is no bad thing!
-        #     t = Thumbnail(rpd_file, rpd_file.camera_model,
-        #                   thumbnail_cache=self.thumbnail_cache,
-        #                   fdo_cache_normal=self.fdo_cache_normal,
-        #                   fdo_cache_large=self.fdo_cache_large,
-        #                   must_generate_fdo_thumbs=
-        #                         self.prefs.save_fdo_thumbnails,
-        #                   have_ffmpeg_thumbnailer=self.have_ffmpeg_thumbnailer,
-        #                   modification_time=mtime)
-        #     thumbnail = t.get_thumbnail(size=QSize(ThumbnailSize.width,
-        #                              ThumbnailSize.height))
-        #     if discard_thumbnail:
-        #         thumbnail = None
-
-
-        self.downloaded.add_downloaded_file(name=rpd_file.name,
-                size=rpd_file.size,
-                modification_time=rpd_file.modification_time,
-                download_full_file_name=rpd_file.download_full_file_name)
-
-        return thumbnail
-
     def run(self):
         """
         Generate subfolder and filename, and attempt to move the file
@@ -752,13 +668,10 @@ class RenameMoveFileWorker(DaemonProcess):
         # suffixes to duplicate files
         self.duplicate_files = {}
 
-        self.have_ffmpeg_thumbnailer = shutil.which('ffmpegthumbnailer')
-
         with exiftool.ExifTool() as self.exiftool_process:
             while True:
                 if i:
-                    logging.debug("Finished %s. Getting next task.",
-                                  i)
+                    logging.debug("Finished %s. Getting next task.", i)
 
                 # rename file and move to generated subfolder
                 directive, content = self.receiver.recv_multipart()
@@ -779,18 +692,9 @@ class RenameMoveFileWorker(DaemonProcess):
 
                     self.sequences = gn.Sequences(self.downloads_today_tracker,
                                               self.prefs.stored_sequence_no)
-                    dl_today = self.downloads_today_tracker\
-                        .get_or_reset_downloads_today()
+                    dl_today = self.downloads_today_tracker.get_or_reset_downloads_today()
                     logging.debug("Completed downloads today: %s", dl_today)
-                    if self.prefs.save_fdo_thumbnails:
-                        self.fdo_cache_normal = FdoCacheNormal()
-                        self.fdo_cache_large = FdoCacheLarge()
-                    else:
-                        self.fdo_cache_large = self.fdo_cache_normal = None
-                    if self.prefs.use_thumbnail_cache:
-                        self.thumbnail_cache = ThumbnailCacheSql()
-                    else:
-                        self.thumbnail_cache = None
+
                 elif data.message == RenameAndMoveStatus.download_completed:
                     # Ask main application process to update prefs with stored
                     # sequence number and downloads today values. Cannot do it
@@ -800,14 +704,12 @@ class RenameMoveFileWorker(DaemonProcess):
                         stored_sequence_no=self.sequences.stored_sequence_no,
                         downloads_today=self.downloads_today_tracker.downloads_today),
                         pickle.HIGHEST_PROTOCOL)
-                    dl_today = self.downloads_today_tracker\
-                        .get_or_reset_downloads_today()
+                    dl_today = self.downloads_today_tracker.get_or_reset_downloads_today()
                     logging.debug("Downloads today: %s", dl_today)
                     self.send_message_to_sink()
                 else:
                     rpd_file = data.rpd_file
                     download_count = data.download_count
-                    thumbnail = None
 
                     if data.download_succeeded:
                         move_succeeded = self.process_file(rpd_file,
@@ -815,22 +717,19 @@ class RenameMoveFileWorker(DaemonProcess):
                         if not move_succeeded:
                             self.process_rename_failure(rpd_file)
                         else:
-                            # Add system-wide thumbnail and record downloaded
-                            # file in SQLite database
-                            thumbnail = self.process_renamed_file(rpd_file)
+                            # Record file as downloaded in SQLite database
+                            self.downloaded.add_downloaded_file(name=rpd_file.name,
+                                    size=rpd_file.size,
+                                    modification_time=rpd_file.modification_time,
+                                    download_full_file_name=rpd_file.download_full_file_name)
                     else:
                         move_succeeded = False
 
-                    if thumbnail is not None:
-                        png_data = qimage_to_png_buffer(thumbnail).data()
-                    else:
-                        png_data = None
                     rpd_file.metadata = None
                     self.content = pickle.dumps(RenameAndMoveFileResults(
                         move_succeeded=move_succeeded,
                         rpd_file=rpd_file,
-                        download_count=download_count,
-                        png_data=png_data),
+                        download_count=download_count),
                         pickle.HIGHEST_PROTOCOL)
                     self.send_message_to_sink()
 

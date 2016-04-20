@@ -47,7 +47,8 @@ except ImportError:
 from raphodo.interprocess import (LoadBalancerWorker, ThumbnailExtractorArgument,
                           GenerateThumbnailsResults)
 
-from raphodo.constants import (ThumbnailSize, ExtractionTask, ExtractionProcessing)
+from raphodo.constants import (ThumbnailSize, ExtractionTask, ExtractionProcessing,
+                               ThumbnailCacheStatus)
 from raphodo.rpdfile import RPDFile, Video, FileType
 from raphodo.utilities import stdchannel_redirected, show_errors
 from raphodo.filmstrip import add_filmstrip
@@ -430,9 +431,10 @@ class ThumbnailExtractor(LoadBalancerWorker):
                     buffer = qimage_to_png_buffer(thumbnail)
                     png_data = buffer.data()
 
-                if data.use_thumbnail_cache:
-                    orientation_unknown = (ExtractionProcessing.orient in processing and
+
+                orientation_unknown = (ExtractionProcessing.orient in processing and
                                          orientation is None)
+                if data.use_thumbnail_cache:
                     self.thumbnail_cache.save_thumbnail(
                         full_file_name=rpd_file.full_file_name,
                         size=rpd_file.size,
@@ -441,6 +443,13 @@ class ThumbnailExtractor(LoadBalancerWorker):
                         orientation_unknown=orientation_unknown,
                         thumbnail=thumbnail,
                         camera_model=rpd_file.camera_model)
+
+                if orientation_unknown:
+                    rpd_file.thumbnail_status = ThumbnailCacheStatus.orientation_unknown
+                else:
+                    # TODO account for 256 pixel thumbnails too
+                    rpd_file.thumbnail_status = ThumbnailCacheStatus.ready
+
             except Exception as e:
                 logging.error("Exception working on file %s", rpd_file.full_file_name)
                 logging.error("Task: %s", task)

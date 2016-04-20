@@ -1109,6 +1109,16 @@ class CopyFilesResults:
         self.download_count = download_count
 
 
+class ThumbnailDaemonData:
+    def __init__(self, frontend_port: Optional[int]=None,
+                 rpd_file: Optional[RPDFile]=None,
+                 write_fdo_thumbnail: Optional[bool]=None,
+                 use_thumbnail_cache: Optional[bool]=None) -> None:
+        self.frontend_port = frontend_port
+        self.rpd_file = rpd_file
+        self.write_fdo_thumbnail = write_fdo_thumbnail
+        self.use_thumbnail_cache = use_thumbnail_cache
+
 class RenameAndMoveFileData:
     """
     Pass arguments to the renameandmovefile process
@@ -1127,13 +1137,11 @@ class RenameAndMoveFileResults:
     def __init__(self, move_succeeded: bool=None,
                  rpd_file: RPDFile=None,
                  download_count: int=None,
-                 png_data: bytes=None,
                  stored_sequence_no: int=None,
                  downloads_today: List[str]=None) -> None:
         self.move_succeeded = move_succeeded
         self.rpd_file = rpd_file
         self.download_count = download_count
-        self.png_data = png_data
         self.stored_sequence_no = stored_sequence_no
         self.downloads_today = downloads_today
 
@@ -1263,10 +1271,11 @@ class ThumbnailExtractorArgument:
                  task: ExtractionTask,
                  processing: Set[ExtractionProcessing],
                  full_file_name_to_work_on: str,
-                 exif_buffer: bytearray,
+                 exif_buffer: Optional[bytearray],
                  thumbnail_bytes: bytes,
                  use_thumbnail_cache: bool,
-                 file_to_work_on_is_temporary: bool) -> None:
+                 file_to_work_on_is_temporary: bool,
+                 write_fdo_thumbnail: bool) -> None:
         self.rpd_file = rpd_file
         self.task = task
         self.processing = processing
@@ -1275,3 +1284,4 @@ class ThumbnailExtractorArgument:
         self.exif_buffer = exif_buffer
         self.thumbnail_bytes = thumbnail_bytes
         self.use_thumbnail_cache = use_thumbnail_cache
+        self.write_fdo_thumbnail = write_fdo_thumbnail

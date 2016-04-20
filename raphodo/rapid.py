@@ -94,7 +94,9 @@ from raphodo.interprocess import (PublishPullPipelineManager,
                                   RenameAndMoveFileResults,
                                   OffloadResults,
                                   BackupResults,
-                                  CopyFilesResults)
+                                  CopyFilesResults,
+                                  GenerateThumbnailsResults,
+                                  ThumbnailDaemonData)
 from raphodo.devices import (Device, DeviceCollection, BackupDevice,
                      BackupDeviceCollection)
 from raphodo.preferences import (Preferences, ScanPreferences)
@@ -132,7 +134,6 @@ from raphodo.panelview import QPanelView, QComputerScrollArea
 from raphodo.computerview import ComputerWidget
 from raphodo.folderspreview import DownloadDestination, FoldersPreview
 from raphodo.destinationdisplay import DestinationDisplay
-from raphodo.viewutils import QFramedWidget
 
 BackupMissing = namedtuple('BackupMissing', 'photo, video')
 
@@ -146,7 +147,7 @@ sys.excepthook = raphodo.excepthook.excepthook
 
 
 class RenameMoveFileManager(PushPullDaemonManager):
-    message = QtCore.pyqtSignal(bool, RPDFile, int, QPixmap)
+    message = QtCore.pyqtSignal(bool, RPDFile, int)
     sequencesUpdate = QtCore.pyqtSignal(int, list)
 
     def __init__(self, logging_port: int) -> None:
@@ -160,13 +161,8 @@ class RenameMoveFileManager(PushPullDaemonManager):
     def process_sink_data(self):
         data = pickle.loads(self.content)  # type: RenameAndMoveFileResults
         if data.move_succeeded is not None:
-            if data.png_data is not None:
-                thumbnail = QImage.fromData(data.png_data)
-                thumbnail = QPixmap.fromImage(thumbnail)
-            else:
-                thumbnail = QPixmap()
-            self.message.emit(data.move_succeeded, data.rpd_file,
-                              data.download_count, thumbnail)
+
+            self.message.emit(data.move_succeeded, data.rpd_file, data.download_count)
         else:
             assert data.stored_sequence_no is not None
             assert data.downloads_today is not None
@@ -193,6 +189,33 @@ class OffloadManager(PushPullDaemonManager):
         elif data.folders_preview is not None:
             self.downloadFolders.emit(data.folders_preview)
 
+class ThumbnailDaemonManager(PushPullDaemonManager):
+    """
+    Manages the process that extracts thumbnails after the file
+    has already been downloaded and that writes FreeDesktop.org
+    thumbnails. Not to be confused with ThumbnailManagerPara, which
+    manages thumbnailing using processes that run in parallel,
+    one for each device.
+    """
+
+    message = QtCore.pyqtSignal(RPDFile, QPixmap)
+
+    def __init__(self, logging_port: int) -> None:
+        super().__init__(logging_port)
+        self._process_name = 'Thumbnail Daemon Manager'
+        self._process_to_run = 'thumbnaildaemon.py'
+
+    def process_sink_data(self):
+        data = pickle.loads(self.content) # type: GenerateThumbnailsResults
+        if data.thumbnail_bytes is None:
+            thumbnail = QPixmap()
+        else:
+            thumbnail = QImage.fromData(data.thumbnail_bytes)
+            if thumbnail.isNull():
+                thumbnail = QPixmap()
+            else:
+                thumbnail = QPixmap.fromImage(thumbnail)
+        self.message.emit(data.rpd_file, thumbnail)
 
 class ScanManager(PublishPullPipelineManager):
     message = QtCore.pyqtSignal(bytes)
@@ -357,7 +380,8 @@ class JobCode:
 
 
 class RapidWindow(QMainWindow):
-    def __init__(self, auto_detect: Optional[bool]=None,
+    def __init__(self, splash: 'SplashScreen',
+                 auto_detect: Optional[bool]=None,
                  this_computer_source: Optional[str]=None,
                  this_computer_location: Optional[str]=None,
                  photo_download_folder: Optional[str]=None,
@@ -370,10 +394,10 @@ class RapidWindow(QMainWindow):
                  video_backup_location: Optional[str]=None,
                  ignore_other_photo_types: Optional[bool]=None,
                  thumb_cache: Optional[bool]=None,
-                 log_gphoto2: Optional[bool]=None,
-                 parent=None) -> None:
+                 log_gphoto2: Optional[bool]=None) -> None:
 
-        super().__init__(parent)
+        super().__init__()
+        self.splash = splash
         # Process Qt events - in this case, possible closing of splash screen
         app.processEvents()
 
@@ -480,7 +504,7 @@ class RapidWindow(QMainWindow):
 
         self.startProcessLogger()
 
-    def checkPrefsUpgrade(self):
+    def checkPrefsUpgrade(self) -> None:
         if self.prefs.program_version != __about__.__version__:
             previous_version = self.prefs.program_version
             if not len(previous_version):
@@ -495,7 +519,7 @@ class RapidWindow(QMainWindow):
                     logging.debug("Version downgrade detected, from %s to %s",
                                   __about__.__version__, previous_version)
 
-    def startProcessLogger(self):
+    def startProcessLogger(self) -> None:
         self.loggermq = ProcessLoggingManager()
         self.loggermqThread = QThread()
         self.loggermq.moveToThread(self.loggermqThread)
@@ -506,26 +530,51 @@ class RapidWindow(QMainWindow):
         QTimer.singleShot(0, self.loggermqThread.start)
 
     @pyqtSlot(int)
-    def initStage2(self, logging_port: int):
+    def initStage2(self, logging_port: int) -> None:
         logging.debug("... logging subscription manager started")
         self.logging_port = logging_port
 
         logging.debug("Stage 2 initialization")
 
-        centralWidget = QWidget()
-        self.setCentralWidget(centralWidget)
-
         # For meaning of 'Devices', see devices.py
         self.devices = DeviceCollection()
 
+        logging.debug("Starting thumbnail daemon model")
+
+        self.thumbnaildaemonmqThread = QThread()
+        self.thumbnaildaemonmq = ThumbnailDaemonManager(logging_port=logging_port)
+
+        self.thumbnaildaemonmq.moveToThread(self.thumbnaildaemonmqThread)
+
+        self.thumbnaildaemonmqThread.started.connect(self.thumbnaildaemonmq.run_sink)
+        self.thumbnaildaemonmq.message.connect(self.thumbnailReceivedFromDaemon)
+
+        QTimer.singleShot(0, self.thumbnaildaemonmqThread.start)
+        # Immediately start the sole thumbnail daemon process worker
+        self.thumbnaildaemonmq.start()
+
         self.thumbnailView = ThumbnailView(self)
-        logging.debug("Starting thumbnail model")
+        logging.debug("Starting thumbnail model and load balancer...")
         self.thumbnailModel = ThumbnailListModel(parent=self, logging_port=logging_port,
                                                  log_gphoto2=self.log_gphoto2)
+
         self.thumbnailView.setModel(self.thumbnailModel)
         self.thumbnailView.setItemDelegate(ThumbnailDelegate(rapidApp=self))
 
-        self.temporalProximity = TemporalProximity(rapidApp=self, prefs = self.prefs)
+
+    @pyqtSlot()
+    def initStage3(self) -> None:
+        logging.debug("... thumbnail model and load balancer started")
+
+        logging.debug("Stage 3 initialization")
+
+        self.thumbnaildaemonmq.send_message_to_worker(ThumbnailDaemonData(
+            frontend_port=self.thumbnailModel.thumbnailmq.frontend_port))
+
+        centralWidget = QWidget()
+        self.setCentralWidget(centralWidget)
+
+        self.temporalProximity = TemporalProximity(rapidApp=self, prefs=self.prefs)
 
         self.createPathViews()
 
@@ -533,11 +582,6 @@ class RapidWindow(QMainWindow):
         logging.debug("Laying out main window")
         self.createMenus()
         self.createLayoutAndButtons(centralWidget)
-
-        self.initStage3()
-
-    def initStage3(self):
-        logging.debug("Stage 3 initialization")
 
         # Setup notification system
         try:
@@ -653,6 +697,7 @@ class RapidWindow(QMainWindow):
         self.offloadmq.downloadFolders.connect(self.provisionalDownloadFoldersGenerated)
 
         QTimer.singleShot(0, self.offloadThread.start)
+        # Immediately start the sole daemon offload process worker
         self.offloadmq.start()
 
         self.renameThread = QThread()
@@ -727,6 +772,8 @@ class RapidWindow(QMainWindow):
 
         self.destinationButton.setChecked(settings.value("destinationButtonPressed", True, bool))
         self.destinationButtonClicked()
+
+        self.splash.finish(self)
 
         self.window_show_requested_time = datetime.datetime.now()
         self.show()
@@ -833,7 +880,7 @@ class RapidWindow(QMainWindow):
         Else, the progress bar is set to an idle status.
         """
 
-        if len(self.devices.downloading):
+        if self.downloadIsRunning():
             logging.debug("Setting progress bar to show download progress")
             self.downloadProgressBar.setMaximum(100)
         elif len(self.devices.thumbnailing):
@@ -2078,14 +2125,18 @@ class RapidWindow(QMainWindow):
     def copyfilesFinished(self) -> None:
         pass
 
-    @pyqtSlot(bool, RPDFile, int, QPixmap)
+    @pyqtSlot(bool, RPDFile, int)
     def fileRenamedAndMoved(self, move_succeeded: bool, rpd_file: RPDFile,
-                            download_count: int, thumbnail: QPixmap) -> None:
+                            download_count: int) -> None:
 
-        if not thumbnail.isNull():
-            logging.debug("Updating GUI thumbnail for {} with unique id {}".format(
-                rpd_file.download_full_file_name, rpd_file.uid))
-            self.thumbnailModel.thumbnailReceived(rpd_file, thumbnail)
+        if self.thumbnailModel.send_to_daemon_thumbnailer(rpd_file=rpd_file):
+            logging.debug("Assigning daemon thumbnailer to work on %s",
+                          rpd_file.download_full_file_name)
+            self.thumbnaildaemonmq.send_message_to_worker(ThumbnailDaemonData(
+                rpd_file=rpd_file,
+                write_fdo_thumbnail=self.prefs.save_fdo_thumbnails,
+                use_thumbnail_cache=self.prefs.use_thumbnail_cache
+            ))
 
         if rpd_file.status == DownloadStatus.downloaded_with_warning:
             self.logError(ErrorType.warning, rpd_file.error_title,
@@ -2098,6 +2149,10 @@ class RapidWindow(QMainWindow):
                 self.fileDownloadFinished(move_succeeded, rpd_file)
         else:
             self.fileDownloadFinished(move_succeeded, rpd_file)
+
+    @pyqtSlot(RPDFile, QPixmap)
+    def thumbnailReceivedFromDaemon(self, rpd_file: RPDFile, thumbnail: Optional[QPixmap]) -> None:
+        self.thumbnailModel.thumbnailReceived(rpd_file=rpd_file, thumbnail=thumbnail)
 
     def backupFile(self, rpd_file: RPDFile, move_succeeded: bool,
                    download_count: int) -> None:
@@ -2655,7 +2710,7 @@ class RapidWindow(QMainWindow):
         else:
             self.temporalProximity.setState(TemporalProximityState.pending)
 
-        if (not self.auto_start_is_on and self.prefs.generate_thumbnails):
+        if not self.auto_start_is_on and self.prefs.generate_thumbnails:
             # Generate thumbnails for finished scan
             model.setSpinnerState(scan_id, DeviceState.idle)
             if scan_id in self.thumbnailModel.no_thumbnails_by_scan:
@@ -2670,6 +2725,11 @@ class RapidWindow(QMainWindow):
                 self.job_code.get_job_code()
             else:
                 self.startDownload(scan_id=scan_id)
+        else:
+            # not generating thumbnails, and auto start is not on
+            model.setSpinnerState(scan_id, DeviceState.idle)
+            self.displayMessageInStatusBar()
+
 
     def quit(self) -> None:
         """
@@ -2761,6 +2821,11 @@ class RapidWindow(QMainWindow):
         self.renameThread.quit()
         if not self.renameThread.wait(500):
             self.renamemq.forcefully_terminate()
+
+        self.thumbnaildaemonmq.stop()
+        self.thumbnaildaemonmqThread.quit()
+        if not self.thumbnaildaemonmqThread.wait(2000):
+            self.thumbnaildaemonmq.forcefully_terminate()
 
         self.scanThread.quit()
         if not self.scanThread.wait(2000):
@@ -3426,7 +3491,7 @@ class RapidWindow(QMainWindow):
         3. how many not shown (user chose to show only new files)
         """
 
-        if self.devices.downloading:
+        if self.downloadIsRunning():
             # status message updates while downloading are handled in another function
             return
         if self.devices.thumbnailing:
@@ -3649,12 +3714,14 @@ def darkFusion(app: QApplication):
     """
     app.setStyleSheet(style)
 
+
 class SplashScreen(QSplashScreen):
     def drawContents(self, painter: QPainter):
         painter.save()
         painter.setPen(QColor(Qt.black))
         painter.drawText(18, 64, __about__.__version__)
         painter.restore()
+
 
 def parser_options(formatter_class=argparse.HelpFormatter):
     parser = argparse.ArgumentParser(prog=__about__.__title__,
@@ -3903,11 +3970,10 @@ def main():
              video_backup_location=video_backup_location,
              ignore_other_photo_types=args.ignore_other,
              thumb_cache=thumb_cache,
-             log_gphoto2=args.log_gphoto2)
+             log_gphoto2=args.log_gphoto2,
+             splash=splash)
 
     app.setActivationWindow(rw)
-
-    splash.finish(rw)
 
     code = app.exec_()
     logging.debug("Exiting")

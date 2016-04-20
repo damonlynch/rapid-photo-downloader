@@ -324,7 +324,7 @@ class ThumbnailRowsSQL:
 
     def set_downloaded(self, uid: bytes, downloaded: bool) -> None:
         query = 'UPDATE files SET downloaded=? WHERE uid=?'
-        logging.debug('%s (%s, %s)', query, downloaded, uid)
+        logging.debug('%s (%s, <uid>)', query, downloaded)
         self.conn.execute(query, (downloaded, uid))
         self.conn.commit()
 
@@ -465,6 +465,8 @@ class DownloadedSQL:
         :param download_full_file_name: renamed file including path
         """
         conn = sqlite3.connect(self.db)
+
+        logging.debug('Adding %s to downloaded files', name)
 
         conn.execute(r"""INSERT OR REPLACE INTO {tn} (file_name, size, mtime,
         download_name, download_datetime) VALUES (?,?,?,?,?)""".format(

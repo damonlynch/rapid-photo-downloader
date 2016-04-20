@@ -63,16 +63,21 @@ Downloaded = (DownloadStatus.downloaded,
 
 class ThumbnailCacheStatus(Enum):
     not_ready = 1
-    from_rpd_cache_fdo_write_invalid = 2
-    suitable_for_thumb_cache_write = 3
-    suitable_for_fdo_cache_write = 4
-    generation_failed=5
+    orientation_unknown = 2
+    ready = 3
+    fdo_256_ready = 4
+    generation_failed = 5
 
 
 class ThumbnailCacheDiskStatus(Enum):
     found = 1
     not_foud = 2
     failure = 3
+
+
+class ThumbnailCacheOrigin(Enum):
+    thumbnail_cache = 1
+    fdo_cache = 2
 
 
 class BackupLocationType(Enum):

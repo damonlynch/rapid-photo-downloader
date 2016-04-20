@@ -384,8 +384,8 @@ class RPDFile:
 
         # freedesktop.org cache thumbnails
         # http://specifications.freedesktop.org/thumbnail-spec/thumbnail-spec-latest.html
-        self.thumbnail_status = ThumbnailCacheStatus.not_ready
-        self.fdo_thumbnail_128_name = ''
+        self.thumbnail_status = ThumbnailCacheStatus.not_ready  # type; ThumbnailCacheStatus
+        # self.fdo_thumbnail_128_name = ''
         self.fdo_thumbnail_256_name = ''
 
         # generated values
@@ -403,24 +403,25 @@ class RPDFile:
         self.download_subfolder = ''
         self.download_path = ''
         self.download_name = ''
-        self.download_full_file_name = '' #file name with path
-        self.download_full_base_name = '' #file name with path but no extension
-        self.download_thm_full_name = ''  #name of THM (thumbnail) file with path
-        self.download_xmp_full_name = ''  #name of XMP sidecar with path
-        self.download_audio_full_name = ''  #name of the WAV or MP3 audio file with path
+        self.download_full_file_name = '' # filename with path
+        self.download_full_base_name = '' # filename with path but no extension
+        self.download_thm_full_name = ''  # name of THM (thumbnail) file with path
+        self.download_xmp_full_name = ''  # name of XMP sidecar with path
+        self.download_audio_full_name = ''  # name of the WAV or MP3 audio file with path
 
         self.metadata = None
 
-        # Values that will be inserted in download process --
-        # (commented out because they're not needed until then)
-
-        #self.sequences = None
-        #self.download_folder
         self.subfolder_pref_list = []
         self.name_pref_list = []
-        #self.thm_extension = ''
-        #self.wav_extension = ''
-        #self.xmp_extension = ''
+
+        self.modified_via_daemon_process = False
+
+    def should_write_fdo(self) -> bool:
+        """
+        :return: True if a FDO thumbnail should be written for this file
+        """
+        return (self.thumbnail_status != ThumbnailCacheStatus.generation_failed and
+                (self.is_raw() or self.is_tiff()))
 
     def is_jpeg(self) -> bool:
         """

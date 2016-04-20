@@ -120,8 +120,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
                             # Altering subdirs in place controls the looping
                             # [:] ensures the list is altered in place
                             # (mutating slice method)
-                            subdirs[:] = filter(
-                                self.scan_preferences.scan_this_path, subdirs)
+                            subdirs[:] = filter(self.scan_preferences.scan_this_path, subdirs)
 
                     for self.file_name in self.file_list:
                         self.process_file()
@@ -439,9 +438,6 @@ class ScanWorker(WorkerInPublishPullPipeline):
                     self.no_previously_downloaded += 1
                     prev_full_name = downloaded.download_name
                     prev_datetime = downloaded.download_datetime
-                    # logging.debug('{} previously downloaded on {} to {'
-                    #               '}'.format(self.file_name, prev_datetime,
-                    #                          prev_full_name))
                 else:
                     prev_full_name = prev_datetime = None
 

@@ -48,6 +48,7 @@ import logging
 import pickle
 from collections import deque
 from operator import attrgetter
+from typing import Optional, Tuple, Set
 
 import zmq
 from PyQt5.QtGui import QImage
@@ -67,7 +68,8 @@ from raphodo.interprocess import (WorkerInPublishPullPipeline,
                           ThumbnailExtractorArgument)
 from raphodo.constants import (FileType, ThumbnailSize, ThumbnailCacheStatus,
                        ThumbnailCacheDiskStatus, ExtractionTask,
-                       ExtractionProcessing, orientation_offset, thumbnail_offset)
+                       ExtractionProcessing, orientation_offset, thumbnail_offset,
+                       ThumbnailCacheOrigin)
 from raphodo.camera import (Camera, CopyChunks)
 from raphodo.cache import ThumbnailCacheSql, FdoCacheLarge
 from raphodo.utilities import (GenerateRandomFileName, create_temp_dir, CacheDirs)
@@ -149,26 +151,139 @@ def get_temporal_gaps_and_sequences(rpd_files, temporal_span):
     return None
 
 
+class GetThumbnailFromCache:
+    """
+    Try to get thumbnail from Rapid Photo Downloader's thumbnail cache
+    or from the FreeDesktop.org cache.
+    """
 
-class GenerateThumbnails(WorkerInPublishPullPipeline):
+    def __init__(self, use_thumbnail_cache: bool) -> None:
 
-    # How much of the file should be read in from local disk and thus cached
-    # by they kernel
-    cached_read = dict(
-        cr2=260 * 1024,
-        dng=504 * 1024,
-        nef=400* 1024
-    )
+        if use_thumbnail_cache:
+            self.thumbnail_cache = ThumbnailCacheSql()
+        else:
+            self.thumbnail_cache = None
 
-    def __init__(self) -> None:
-        # self.offsets = Offsets()
-        self.random_filename = GenerateRandomFileName()
-        super().__init__('Thumbnails')
+        # Access large size Freedesktop.org thumbnail cache
+        self.fdo_cache_large =  FdoCacheLarge()
+
+        self.thumbnail_size_needed = QSize(ThumbnailSize.width, ThumbnailSize.height)
 
     def image_large_enough(self, size: QSize) -> bool:
         """Check if image is equal or bigger than thumbnail size."""
         return (size.width() >= self.thumbnail_size_needed.width() or
                 size.height() >= self.thumbnail_size_needed.height())
+
+    def get_from_cache(self, rpd_file: RPDFile,
+            use_thumbnail_cache: bool=True) -> Tuple[ExtractionTask, bytes, str,
+                                                         ThumbnailCacheOrigin]:
+
+        task = ExtractionTask.undetermined
+        thumbnail_bytes = None
+        full_file_name_to_work_on = ''
+        origin = None  # type: Optional[ThumbnailCacheOrigin]
+
+        # Attempt to get thumbnail from Thumbnail Cache
+        # (see cache.py for definitions of various caches)
+        if self.thumbnail_cache is not None and use_thumbnail_cache:
+            get_thumbnail = self.thumbnail_cache.get_thumbnail_path(
+                full_file_name=rpd_file.full_file_name,
+                modification_time=rpd_file.modification_time,
+                size=rpd_file.size,
+                camera_model=rpd_file.camera_model)
+            if get_thumbnail.disk_status == ThumbnailCacheDiskStatus.failure:
+                rpd_file.thumbnail_status = ThumbnailCacheStatus.generation_failed
+                task = ExtractionTask.bypass
+            elif get_thumbnail.disk_status == ThumbnailCacheDiskStatus.found:
+                if get_thumbnail.orientation_unknown:
+                    rpd_file.thumbnail_status = ThumbnailCacheStatus.orientation_unknown
+                else:
+                    rpd_file.thumbnail_status = ThumbnailCacheStatus.ready
+                with open(get_thumbnail.path, 'rb') as thumbnail:
+                    thumbnail_bytes = thumbnail.read()
+                task = ExtractionTask.bypass
+                origin = ThumbnailCacheOrigin.thumbnail_cache
+
+        # Attempt to get thumbnail from large FDO Cache if not found in Thumbnail Cache
+
+        if task == ExtractionTask.undetermined and rpd_file.from_camera is False:
+            get_thumbnail = self.fdo_cache_large.get_thumbnail(
+                full_file_name=rpd_file.full_file_name,
+                modification_time=rpd_file.modification_time,
+                size=rpd_file.size,
+                camera_model=rpd_file.camera_model)
+            if get_thumbnail.disk_status == ThumbnailCacheDiskStatus.found:
+                rpd_file.fdo_thumbnail_256_name = get_thumbnail.path
+                thumb = get_thumbnail.thumbnail  # type: QImage
+                if thumb is not None:
+                    if self.image_large_enough(thumb.size()):
+                        task = ExtractionTask.load_file_directly
+                        full_file_name_to_work_on = get_thumbnail.path
+                        origin = ThumbnailCacheOrigin.fdo_cache
+                        rpd_file.thumbnail_status = ThumbnailCacheStatus.fdo_256_ready
+
+        return task, thumbnail_bytes, full_file_name_to_work_on, origin
+
+# How much of the file should be read in from local disk and thus cached
+# by they kernel
+cached_read = dict(
+    cr2=260 * 1024,
+    dng=504 * 1024,
+    nef=400* 1024
+)
+
+
+def preprocess_thumbnail_from_non_camera(rpd_file: RPDFile,
+                                         processing: Set[ExtractionProcessing]) -> ExtractionTask:
+    """
+    Determine how to get a thumbnail from a photo or video that is not on a camera
+
+    Does not return the name of the file to be worked on -- that's the responsibility
+    of the method calling it.
+
+    :param rpd_file: details about file from which to get thumbnail from
+    :param processing: set that holds processing tasks for the extractors to perform
+    :return: extraction task required
+    """
+
+    if rpd_file.file_type == FileType.photo:
+        if rpd_file.is_tiff():
+            available = psutil.virtual_memory().available
+            if rpd_file.size <= available:
+                bytes_to_read = rpd_file.size
+                task = ExtractionTask.load_file_directly
+                processing.add(ExtractionProcessing.resize)
+            else:
+                # Don't try to extract a thumbnail from
+                # a file that is larger than available
+                # memory
+                task = ExtractionTask.bypass
+                bytes_to_read = 0
+        else:
+            task = ExtractionTask.load_from_exif
+            processing.add(ExtractionProcessing.orient)
+            bytes_to_read = cached_read.get(rpd_file.extension, 400 * 1024)
+        if bytes_to_read:
+            if not rpd_file.download_full_file_name:
+                with open(rpd_file.full_file_name, 'rb') as photo:
+                    # Bring the file into the operating system's disk cache
+                    photo.read(bytes_to_read)
+    else:
+        # video
+        if rpd_file.thm_full_name is not None:
+            task = ExtractionTask.load_file_directly
+            processing.add(ExtractionProcessing.strip_bars_video)
+            processing.add(ExtractionProcessing.add_film_strip)
+        else:
+            task = ExtractionTask.extract_from_file
+
+    return task
+
+class GenerateThumbnails(WorkerInPublishPullPipeline):
+
+    def __init__(self) -> None:
+        self.random_filename = GenerateRandomFileName()
+        super().__init__('Thumbnails')
 
     def cache_full_size_file_from_camera(self, rpd_file: RPDFile) -> bool:
         """
@@ -206,11 +321,10 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
             cache_dir, '{}.{}'.format(
                 self.random_filename.name(), rpd_file.extension))
         if self.camera.save_file_chunk(
-            dir_name=rpd_file.path,
-            file_name=rpd_file.name,
-            chunk_size_in_bytes=offset,
-            dest_full_filename=cache_full_file_name
-        ):
+                dir_name=rpd_file.path,
+                file_name=rpd_file.name,
+                chunk_size_in_bytes=offset,
+                dest_full_filename=cache_full_file_name):
             rpd_file.temp_cache_full_file_chunk = cache_full_file_name
             return True
         return False
@@ -228,16 +342,11 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
 
         self.prefs = Preferences()
 
-        self.thumbnail_size_needed = QSize(ThumbnailSize.width, ThumbnailSize.height)
 
         # Access and generate Rapid Photo Downloader thumbnail cache
-        if self.prefs.use_thumbnail_cache:
-            thumbnail_cache = ThumbnailCacheSql()
-        else:
-            thumbnail_cache = None
+        use_thumbnail_cache = self.prefs.use_thumbnail_cache
 
-        # Access Freedesktop.org thumbnail caches
-        fdo_cache_large = FdoCacheLarge()
+        thumbnail_caches = GetThumbnailFromCache(use_thumbnail_cache=use_thumbnail_cache)
 
         photo_cache_dir = video_cache_dir = None
         cache_file_from_camera = False
@@ -248,6 +357,7 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
         #     pickle.dump(rpd_files, f)
 
 
+        # Must sort files by modification time prior to temporal analysis
         rpd_files = sorted(rpd_files,  key=attrgetter('modification_time'))
 
         time_span = arguments.proximity_seconds
@@ -304,52 +414,19 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
             self.check_for_controller_directive()
 
             exif_buffer = None
-            thumbnail_bytes = None
-            full_file_name_to_work_on = ''
             file_to_work_on_is_temporary = False
-            task = ExtractionTask.undetermined
-            processing = set()
+            processing = set()  # type: Set[ExtractionProcessing]
 
             # Attempt to get thumbnail from Thumbnail Cache
             # (see cache.py for definitions of various caches)
-            if thumbnail_cache is not None:
-                get_thumbnail = thumbnail_cache.get_thumbnail_path(
-                    full_file_name=rpd_file.full_file_name,
-                    modification_time=rpd_file.modification_time,
-                    size=rpd_file.size,
-                    camera_model=arguments.camera)
-                if get_thumbnail.disk_status == ThumbnailCacheDiskStatus.failure:
-                    rpd_file.thumbnail_status = ThumbnailCacheStatus.generation_failed
-                    task = ExtractionTask.bypass
-                elif get_thumbnail.disk_status == ThumbnailCacheDiskStatus.found:
-                    if get_thumbnail.orientation_unknown:
-                        rpd_file.thumbnail_status = \
-                            ThumbnailCacheStatus.from_rpd_cache_fdo_write_invalid
-                    else:
-                        rpd_file.thumbnail_status = \
-                            ThumbnailCacheStatus.suitable_for_fdo_cache_write
-                    with open(get_thumbnail.path, 'rb') as thumbnail:
-                        thumbnail_bytes = thumbnail.read()
-                    task = ExtractionTask.bypass
 
-            # Attempt to get thumbnail from large FDO Cache if not found in Thumbnail Cache
-
-            if task == ExtractionTask.undetermined:
-                get_thumbnail = fdo_cache_large.get_thumbnail(
-                    full_file_name=rpd_file.full_file_name,
-                    modification_time=rpd_file.modification_time,
-                    size=rpd_file.size,
-                    camera_model=arguments.camera)
-                if get_thumbnail.disk_status == ThumbnailCacheDiskStatus.found:
-                    rpd_file.fdo_thumbnail_256_name = get_thumbnail.path
-                    rpd_file.thumbnail_status = ThumbnailCacheStatus.suitable_for_fdo_cache_write
-
-                    thumb = get_thumbnail.thumbnail  # type: QImage
-                    if thumb is not None:
-                        if self.image_large_enough(thumb.size()):
-                            task = ExtractionTask.load_file_directly
-                            full_file_name_to_work_on = get_thumbnail.path
-                            from_fdo_cache += 1
+            cache_search = thumbnail_caches.get_from_cache(rpd_file)
+            task, thumbnail_bytes, full_file_name_to_work_on, origin = cache_search
+            if task != ExtractionTask.undetermined:
+                if origin == ThumbnailCacheOrigin.thumbnail_cache:
+                    from_thumb_cache += 1
+                else:
+                    from_fdo_cache += 1
 
             if task == ExtractionTask.undetermined:
                 # Thumbnail was not found in any cache: extract it
@@ -430,39 +507,11 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
                                 task == ExtractionTask.bypass
                 else:
                     # File is not on a camera
-                    if rpd_file.file_type == FileType.photo:
-                        if rpd_file.is_tiff():
-                            availabe = psutil.virtual_memory().available
-                            if rpd_file.size <= availabe:
-                                bytes_to_read = rpd_file.size
-                                task = ExtractionTask.load_file_directly
-                                full_file_name_to_work_on = rpd_file.full_file_name
-                                processing.add(ExtractionProcessing.resize)
-                            else:
-                                # Don't try to extract a thumbnail from
-                                # a file that is larger than available
-                                # memory
-                                task == ExtractionTask.bypass
-                                bytes_to_read = 0
-                        else:
-                            task = ExtractionTask.load_from_exif
-                            processing.add(ExtractionProcessing.orient)
-                            full_file_name_to_work_on = rpd_file.full_file_name
-                            # TODO put a proper value here
-                            bytes_to_read = self.cached_read.get(rpd_file.extension, 400 * 1024)
-                        if bytes_to_read:
-                            with open(rpd_file.full_file_name, 'rb') as photo:
-                                # Bring the file into the disk cache
-                                photo.read(bytes_to_read)
-                    else:
-                        # video
+                    task = preprocess_thumbnail_from_non_camera(rpd_file=rpd_file, processing=processing)
+                    if task != ExtractionTask.bypass:
                         if rpd_file.thm_full_name is not None:
-                            task = ExtractionTask.load_file_directly
-                            processing.add(ExtractionProcessing.strip_bars_video)
-                            processing.add(ExtractionProcessing.add_film_strip)
                             full_file_name_to_work_on = rpd_file.thm_full_name
                         else:
-                            task = ExtractionTask.extract_from_file
                             full_file_name_to_work_on = rpd_file.full_file_name
 
             if task == ExtractionTask.bypass:
@@ -482,8 +531,9 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
                     full_file_name_to_work_on=full_file_name_to_work_on,
                     exif_buffer=exif_buffer,
                     thumbnail_bytes = thumbnail_bytes,
-                    use_thumbnail_cache=thumbnail_cache is not None,
-                    file_to_work_on_is_temporary=file_to_work_on_is_temporary),
+                    use_thumbnail_cache=use_thumbnail_cache,
+                    file_to_work_on_is_temporary=file_to_work_on_is_temporary,
+                    write_fdo_thumbnail=False),
                     pickle.HIGHEST_PROTOCOL)
                 self.frontend.send_multipart([b'data', self.content])
 
@@ -501,10 +551,10 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
         logging.debug("Finished phase 1 of thumbnail generation for %s", arguments.name)
         if from_thumb_cache:
             logging.info("{} thumbnails for {} came from thumbnail cache".format(
-                arguments.name, from_thumb_cache))
+                from_thumb_cache, arguments.name))
         if from_fdo_cache:
             logging.info("{} thumbnails for {} came from Free Desktop cache".format(
-                arguments.name, from_fdo_cache))
+                from_fdo_cache, arguments.name))
 
         self.disconnect_logging()
         self.send_finished_command()

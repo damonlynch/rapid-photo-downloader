@@ -150,6 +150,7 @@ class ThumbnailListModel(QAbstractListModel):
     def __init__(self, parent, logging_port: int, log_gphoto2: bool) -> None:
         super().__init__(parent)
         self.rapidApp = parent
+        self.prefs = self.rapidApp.prefs
 
         self.thumbnailer_ready = False
         self.thumbnailer_generation_queue = []
@@ -164,7 +165,7 @@ class ThumbnailListModel(QAbstractListModel):
         no_workers = parent.prefs.max_cpu_cores
         self.thumbnailmq = Thumbnailer(parent=parent, no_workers=no_workers,
                logging_port=logging_port, log_gphoto2=log_gphoto2)
-        self.thumbnailmq.ready.connect(self.thumbnailerReady)
+        self.thumbnailmq.ready.connect(self.rapidApp.initStage3)
         self.thumbnailmq.thumbnailReceived.connect(self.thumbnailReceived)
 
         self.thumbnailmq.cacheDirs.connect(self.cacheDirsReceived)
@@ -230,41 +231,39 @@ class ThumbnailListModel(QAbstractListModel):
 
     def logState(self) -> None:
         logging.debug("-- Thumbnail Model --")
-        if not self.thumbnailer_ready:
-            logging.debug("Thumbnailer not yet ready")
+
+        db_length = self.tsql.get_count()
+        db_length_and_buffer_length= db_length + len(self.add_buffer)
+        if (len(self.thumbnails) != db_length_and_buffer_length or
+                    db_length_and_buffer_length != len(self.rpd_files)):
+            logging.error("Conflicting values: %s thumbnails; %s database rows; %s rpd_files",
+                          len(self.thumbnails), db_length, len(self.rpd_files))
         else:
-            db_length = self.tsql.get_count()
-            db_length_and_buffer_length= db_length + len(self.add_buffer)
-            if (len(self.thumbnails) != db_length_and_buffer_length or
-                        db_length_and_buffer_length != len(self.rpd_files)):
-                logging.error("Conflicting values: %s thumbnails; %s database rows; %s rpd_files",
-                              len(self.thumbnails), db_length, len(self.rpd_files))
-            else:
-                logging.debug("%s thumbnails (%s marked)",
-                              db_length, self.tsql.get_count(marked=True))
+            logging.debug("%s thumbnails (%s marked)",
+                          db_length, self.tsql.get_count(marked=True))
 
-            logging.debug("%s not downloaded; %s downloaded; %s previously downloaded",
-                          self.tsql.get_count(downloaded=False),
-                          self.tsql.get_count(downloaded=True),
-                          self.tsql.get_count(previously_downloaded=True))
+        logging.debug("%s not downloaded; %s downloaded; %s previously downloaded",
+                      self.tsql.get_count(downloaded=False),
+                      self.tsql.get_count(downloaded=True),
+                      self.tsql.get_count(previously_downloaded=True))
 
-            if self.total_thumbs_to_generate:
-                logging.debug("%s to be generated; %s generated", self.total_thumbs_to_generate,
-                              self.thumbnails_generated)
+        if self.total_thumbs_to_generate:
+            logging.debug("%s to be generated; %s generated", self.total_thumbs_to_generate,
+                          self.thumbnails_generated)
 
-            scan_ids = self.tsql.get_all_devices()
-            active_devices = ', '.join(self.rapidApp.devices[scan_id].display_name
-                                       for scan_id in scan_ids
-                                       if scan_id not in self.removed_devices)
-            if len(self.removed_devices):
-                logging.debug("Active devices: %s (%s removed)",
-                              active_devices, len(self.removed_devices))
-            else:
-                logging.debug("Active devices: %s", active_devices)
-            if len(scan_ids) != len(self.rapidApp.devices):
-                logging.error("Conflicting number of devices: %s devices in database, and %s "
-                              "devices in rapidApp devices",
-                              len(scan_ids), len(self.rapidApp.devices))
+        scan_ids = self.tsql.get_all_devices()
+        active_devices = ', '.join(self.rapidApp.devices[scan_id].display_name
+                                   for scan_id in scan_ids
+                                   if scan_id not in self.removed_devices)
+        if len(self.removed_devices):
+            logging.debug("Active devices: %s (%s removed)",
+                          active_devices, len(self.removed_devices))
+        else:
+            logging.debug("Active devices: %s", active_devices)
+        if len(scan_ids) != len(self.rapidApp.devices):
+            logging.error("Conflicting number of devices: %s devices in database, and %s "
+                          "devices in rapidApp devices",
+                          len(scan_ids), len(self.rapidApp.devices))
 
     def validateModelConsistency(self):
         logging.debug("Validating thumbnail model consistency...")
@@ -554,14 +553,29 @@ class ThumbnailListModel(QAbstractListModel):
             self.rapidApp.devices[scan_id].photo_cache_dir = cache_dirs.photo_cache_dir
             self.rapidApp.devices[scan_id].video_cache_dir = cache_dirs.video_cache_dir
 
-    @pyqtSlot(RPDFile, QPixmap)
+    @pyqtSlot(RPDFile, QPixmap, bool)
     def thumbnailReceived(self, rpd_file: RPDFile, thumbnail: Optional[QPixmap]) -> None:
         uid = rpd_file.uid
         if uid not in self.rpd_files:
             # A thumbnail has been generated for a no longer displayed file
             return
         scan_id = rpd_file.scan_id
-        self.rpd_files[uid] = rpd_file
+
+        download_is_running = self.rapidApp.downloadIsRunning()
+
+        if not rpd_file.modified_via_daemon_process:
+            # Only update the rpd_file if the file has not already been downloaded
+            if self.rpd_files[uid].status in (DownloadStatus.not_downloaded,
+                                              DownloadStatus.download_pending):
+                self.rpd_files[uid] = rpd_file
+            else:
+                # TODO: may need to update some values from the thumbnail generation?
+                pass
+
+        # else:
+        #     logging.debug("Received thumbnail for %s from daemon process",
+        #                   rpd_file.download_full_file_name)
+
         if not thumbnail.isNull():
             try:
                 row = self.uid_to_row[uid]
@@ -569,26 +583,33 @@ class ThumbnailListModel(QAbstractListModel):
                 return
             self.thumbnails[uid] = thumbnail
             self.dataChanged.emit(self.index(row,0),self.index(row,0))
-        self.thumbnails_generated += 1
-        self.no_thumbnails_by_scan[scan_id] -= 1
-        log_state = False
-        if self.no_thumbnails_by_scan[scan_id] == 0:
-            if self.rapidApp.deviceState(scan_id) == DeviceState.thumbnailing:
-                self.rapidApp.devices.set_device_state(scan_id, DeviceState.idle)
-            device = self.rapidApp.devices[scan_id]
-            logging.info('Finished thumbnail generation for %s', device.name())
-            self.rapidApp.updateProgressBarState()
-            log_state = True
 
-        if self.thumbnails_generated == self.total_thumbs_to_generate:
-            self.resetThumbnailTrackingAndDisplay()
-        elif self.total_thumbs_to_generate:
-            self.rapidApp.downloadProgressBar.setValue(self.thumbnails_generated)
+        if not rpd_file.modified_via_daemon_process:
+            self.thumbnails_generated += 1
+            self.no_thumbnails_by_scan[scan_id] -= 1
+            log_state = False
+            if self.no_thumbnails_by_scan[scan_id] == 0:
+                if self.rapidApp.deviceState(scan_id) == DeviceState.thumbnailing:
+                    self.rapidApp.devices.set_device_state(scan_id, DeviceState.idle)
+                device = self.rapidApp.devices[scan_id]
+                logging.info('Finished thumbnail generation for %s', device.name())
+                if not download_is_running:
+                    self.rapidApp.updateProgressBarState()
+                log_state = True
 
-        self.rapidApp.displayMessageInStatusBar()
+            if self.thumbnails_generated == self.total_thumbs_to_generate:
+                self.thumbnails_generated = 0
+                self.total_thumbs_to_generate = 0
+                if not download_is_running:
+                    self.rapidApp.downloadProgressBar.reset()
+            elif self.total_thumbs_to_generate and not download_is_running:
+                self.rapidApp.downloadProgressBar.setValue(self.thumbnails_generated)
 
-        if log_state:
-            self.logState()
+            if not download_is_running:
+                self.rapidApp.displayMessageInStatusBar()
+
+            if log_state:
+                self.logState()
 
     def _get_cache_location(self, download_folder: str) -> str:
         if validate_download_folder(download_folder).valid:
@@ -604,14 +625,6 @@ class ThumbnailListModel(QAbstractListModel):
         photo_cache_folder = self._get_cache_location(self.rapidApp.prefs.photo_download_folder)
         video_cache_folder = self._get_cache_location(self.rapidApp.prefs.video_download_folder)
         return CacheDirs(photo_cache_folder, video_cache_folder)
-
-    @pyqtSlot()
-    def thumbnailerReady(self) -> None:
-        self.thumbnailer_ready = True
-        if self.thumbnailer_generation_queue:
-            for gen_args in self.thumbnailer_generation_queue:
-                self.thumbnailmq.generateThumbnails(*gen_args)
-            self.thumbnailer_generation_queue = []
 
     def generateThumbnails(self, scan_id: int, device: Device) -> None:
         """Initiates generation of thumbnails for the device."""
@@ -629,10 +642,7 @@ class ThumbnailListModel(QAbstractListModel):
 
             gen_args = (scan_id, rpd_files, device.name(), self.rapidApp.prefs.proximity_seconds,
                         cache_dirs, need_video_cache_dir, device.camera_model, device.camera_port)
-            if not self.thumbnailer_ready:
-                self.thumbnailer_generation_queue.append(gen_args)
-            else:
-                self.thumbnailmq.generateThumbnails(*gen_args)
+            self.thumbnailmq.generateThumbnails(*gen_args)
 
     def resetThumbnailTrackingAndDisplay(self):
         self.rapidApp.downloadProgressBar.reset()
@@ -775,7 +785,6 @@ class ThumbnailListModel(QAbstractListModel):
         download_types = DownloadTypes()
         download_stats = defaultdict(DownloadStats)
         camera_access_needed = defaultdict(bool)
-        generating_fdo_thumbs = self.rapidApp.prefs.save_fdo_thumbnails
 
         uids = self.tsql.get_uids(scan_id=scan_id, marked=True, downloaded=False)
 
@@ -796,21 +805,30 @@ class ThumbnailListModel(QAbstractListModel):
             if rpd_file.from_camera and not rpd_file.cache_full_file_name:
                 camera_access_needed[scan_id] = True
 
-            # Need to generate a thumbnail after a file has been renamed
-            # if large FDO Cache thumbnail does not exist or if the
-            # existing thumbnail has been marked as not suitable for the
-            # FDO Cache (e.g. if we don't know the correct orientation).
-            # TODO check to see if this code should be updated given can now
-            # read orientation from most cameras
-            if ((rpd_file.thumbnail_status !=
-                    ThumbnailCacheStatus.suitable_for_fdo_cache_write) or
-                    (generating_fdo_thumbs and not
-                         rpd_file.fdo_thumbnail_256_name)):
+            # Need to generate a thumbnail after a file has been downloaded
+            # if generating FDO thumbnails or if the orientation of the
+            # thumbnail we may have is unknown
+
+            if self.send_to_daemon_thumbnailer(rpd_file=rpd_file):
                 download_stats[scan_id].post_download_thumb_generation += 1
 
         return DownloadFiles(files=files, download_types=download_types,
                              download_stats=download_stats,
                              camera_access_needed=camera_access_needed)
+
+    def send_to_daemon_thumbnailer(self, rpd_file: RPDFile) -> bool:
+        """
+        Determine if the file needs to be sent for thumbnail generation
+        by the post download daemon.
+
+        :param rpd_file: file to analyze
+        :return: True if need to send, False otherwise
+        """
+
+        return (self.prefs.generate_thumbnails and (
+                    (self.prefs.save_fdo_thumbnails and rpd_file.should_write_fdo()) or
+                    rpd_file.thumbnail_status not in (ThumbnailCacheStatus.ready,
+                                                      ThumbnailCacheStatus.fdo_256_ready)))
 
     def markDownloadPending(self, files: Dict[int, List[RPDFile]]) -> None:
         """
@@ -1344,7 +1362,8 @@ class ThumbnailDelegate(QStyledItemDelegate):
             painter.drawRect(hightlightRect)
 
         thumbnail = index.model().data(index, Qt.DecorationRole)
-        if previously_downloaded and not checked:
+        if (previously_downloaded and not checked and
+                download_status == DownloadStatus.not_downloaded):
             disabled = QPixmap(thumbnail.size())
             disabled.fill(Qt.transparent)
             p = QPainter(disabled)

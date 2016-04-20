@@ -32,6 +32,14 @@ from raphodo.utilities import CacheDirs
 
 
 class ThumbnailManagerPara(PublishPullPipelineManager):
+    """
+    Manages thumbnailing using processes that run in parallel,
+    one for each device. Not to be confused with
+    ThumbnailDaemonManager, which manages the daemon process
+    that extracts thumbnails after the file has already been
+    downloaded and that writes FreeDesktop.org thumbnails.
+    """
+
     message = pyqtSignal(RPDFile, QPixmap)
     cacheDirs = pyqtSignal(int, CacheDirs)
 
@@ -52,6 +60,7 @@ class ThumbnailManagerPara(PublishPullPipelineManager):
                     thumbnail = QPixmap()
                 else:
                     thumbnail = QPixmap.fromImage(thumbnail)
+
             self.message.emit(data.rpd_file, thumbnail)
         else:
             assert data.cache_dirs is not None
@@ -97,6 +106,7 @@ class Thumbnailer(QObject):
         super().__init__(parent)
         self.context = zmq.Context.instance()
         self.log_gphoto2 = log_gphoto2
+        self.frontend_port = None  # type: int
         self.setupThumbnailManager(logging_port)
         self.setupLoadBalancer(no_workers, logging_port)
 

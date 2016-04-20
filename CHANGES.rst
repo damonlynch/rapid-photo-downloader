@@ -8,10 +8,11 @@ Changelog for Rapid Photo Downloader
 
    - Every aspect of the user interface has been revised and modernized.
 
-   - Download from all cameras supported by gPhoto2, including smartphones.
-     The previous version could download from only some cameras.
+   - Files can be downloaded from all cameras supported by gPhoto2,
+     including smartphones. Unfortunately the previous version could download
+     from only some cameras.
 
-   - Remember files that have already been downloaded. You can still select
+   - Files that have already been downloaded are remembered. You can still select
      previously downloaded files to download again, but they are unchecked by
      default, and their thumbnails are dimmed so you can differentiate them
      from files that are yet to be downloaded.
@@ -52,6 +53,11 @@ Changelog for Rapid Photo Downloader
 
    - Thumbnails are generated asynchronously and in parallel, using a load
      balancer to assign work to processes utilizing up to 4 CPU cores.
+     Thumbnail generation can be considerably faster than the 0.4 series of
+     releases.
+
+   - Thumbnails generated when a device is scanned are cached, making thumbnail
+     generation quicker on subsequent scans.
 
    - Libraw is used to render RAW images from which a preview cannot be extracted,
      which is the case with Android DNG files, for instance.
@@ -66,19 +72,20 @@ Changelog for Rapid Photo Downloader
      path.
      
    - When downloading from a camera with dual memory cards, an emblem beneath the
-     thumbnail indicates which memory cards the photo or video is on  
-     
-   - Thumbnails generated when a device is scanned are cached, making thumbnail
-     generation quicker on subsequent scans.
+     thumbnail indicates which memory cards the photo or video is on
+
+   - Audio files that accompany photos on professional cameras like the Canon
+     EOS-1D series of cameras are now also downloaded. XMP files associated with
+     a photo or video on any device are also downloaded.
 
    - Comprehensive log files are generated that allow easier diagnosis of
      program problems in bug reports. Messages optionally logged to a
      terminal window are displayed in color.
 
-   - Generate freedesktop.org thumbnails for downloaded files, which means 
-     RAW files will have thumbnails in programs like Gnome Files and KDE Dolphin.
+   - Freedesktop.org thumbnails for downloaded RAW photos are generated, which means
+     they will have thumbnails in programs like Gnome Files and KDE Dolphin.
      
-   - Added progress bar when running under a Unity desktop
+   - A progress bar is displayed when running under Ubuntu's Unity desktop.
 
    - The installer has been totally rewritten to take advantage of Python's
      tool pip, which installs Python packages. Rapid Photo Downloader can now
@@ -87,14 +94,16 @@ Changelog for Rapid Photo Downloader
      On other Linux distrubtions, dependency installation is partially
      automated.
 
-   - When choosing a Job Code, specify whether to remember the choice or not.
+   - When choosing a Job Code, whether to remember the choice or not can be
+     specified.
 
  - Removed feature:
  
-   - Rotate Jpeg images - to apply Lossless rotation, this feature requires the
+   - Rotate Jpeg images - to apply lossless rotation, this feature requires the
      program jpegtran. Some users reported jpegtran corrupted their jpegs' 
-     metadata, which is bad. To preserve file integrity under all circumstances,
-     unfortunately the rotate jpeg option must be removed.
+     metadata -- which is bad under any circumstances, but terrible when applied
+     to the only copy of a file. To preserve file integrity under all circumstances,
+     unfortunately the rotate jpeg option must therefore be removed.
    
  - The amount of Python code has almost tripled. Under the hood, the code now uses:
 
@@ -118,7 +127,7 @@ Changelog for Rapid Photo Downloader
    interprocess messaging. Rapid Photo Downloader's network traffic is
    strictly between its own processes, all running solely on your computer.
    
- - Missing features, which will be implemented in future alpha releases:
+ - Missing features, which will be implemented in future releases:
   
    - Components of the user interface that are used to configure file
      renaming, download subfolder generation, backups, and miscellaneous
@@ -126,10 +135,14 @@ Changelog for Rapid Photo Downloader
      editing the program's configuration file, that's far from easy and is
      error prone. Meanwhile, some options can be configured using the command
      line.
+
+   - There are no full size photo and video previews.
    
    - There is no error log window.
 
-   - Some menu items do nothing.
+   - Most main menu items do nothing.
+
+   - Files can only be copied, not moved.
 
 
 0.4.11 (2015-10-22)
