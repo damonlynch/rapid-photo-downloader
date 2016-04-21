@@ -64,11 +64,11 @@ def set_file_modified_time_from_metadata(path: str):
                     modification_time = os.path.getmtime(file)
                     try:
                         if file_type == FileType.photo:
-                            metadata = metadataphoto.MetaData(file,
-                                                              exiftool_process)
+                            metadata = metadataphoto.MetaData(full_file_name=file,
+                                                              et_process=exiftool_process)
                         else:
-                            metadata = metadatavideo.MetaData(file,
-                                                              exiftool_process)
+                            metadata = metadatavideo.MetaData(full_file_name=file,
+                                                              et_process=exiftool_process)
                     except:
                         print("Could not load metadata for %s" % file)
                         break

@@ -24,8 +24,9 @@ __copyright__ = "Copyright 2007-2016, Damon Lynch"
 
 import re
 import datetime
-import time
+import dateutil.parser
 import subprocess
+from typing import Optional
 
 import gi
 gi.require_version('GExiv2', '0.10')
@@ -82,12 +83,35 @@ VENDOR_SHUTTER_COUNT = (
 
 class MetaData(GExiv2.Metadata):
     """
-    Class providing human readable access to image metadata
+    Provide abstracted access to photo metadata
     """
 
-    def __init__(self, full_file_name: str, et_process:
-                 exiftool.ExifTool=None):
-        GExiv2.Metadata.__init__(self, full_file_name)
+    def __init__(self, full_file_name: Optional[str]=None,
+                 raw_bytes: Optional[bytearray]=None,
+                 app1_segment: Optional[bytearray]=None,
+                 et_process: exiftool.ExifTool=None)  -> None:
+        """
+        Use GExiv2 to read the photograph's metadata.
+
+        :param full_file_name: full path of file from which file to read
+         the metadata.
+        :param raw_bytes: portion of a non-jpeg file from which the
+         metadata can be extracted
+        :param app1_segment: the app1 segment of a jpeg file, from which
+         the metadata can be read
+        :param et_process: optional deamon exiftool process
+        """
+
+        if full_file_name:
+            super().__init__(full_file_name)
+        else:
+            super().__init__()
+            if raw_bytes is not None:
+                self.open_buf(raw_bytes)
+            else:
+                assert app1_segment is not None
+                self.from_app1_segment(raw_bytes)
+
         self.et_process = et_process
         self.rpd_full_file_name = full_file_name
 
@@ -330,24 +354,49 @@ class MetaData(GExiv2.Metadata):
         else:
             return missing
 
-    def date_time(self, missing='') -> datetime.datetime:
+    def date_time(self, missing: Optional[str]='') -> datetime.datetime:
         """
         Returns in python datetime format the date and time the image was
         recorded.
 
-        Returns missing either metadata value is not present.
-        """
-        try:
-            return self.get_date_time() or missing
-        except:
-            return missing
+        Tries these tags, in order:
+        Exif.Photo.DateTimeOriginal
+        Exif.Image.DateTimeOriginal
+        Exif.Image.DateTime
 
-    def time_stamp(self, missing=''):
+        :return: metadata value, or missing if value is not present.
+        """
+
+        dt = None
+        try:
+            dt = self.get_date_time()
+        except:
+            pass
+
+        if dt:
+            return dt
+
+        # get_date_time() seems to try only one key, Exif.Photo.DateTimeOriginal
+        # Try other keys too. For example Android 6.0 uses
+        # Exif.Image.DateTimeOriginal in its DNG files
+
+        for tag in ('Exif.Image.DateTimeOriginal', 'Exif.Image.DateTime'):
+            try:
+                dt_string = self[tag]
+                if dt_string:
+                    try:
+                        return dateutil.parser.parse(dt_string)
+                    except (ValueError, OverflowError):
+                        pass
+            except:
+                pass
+        return missing
+
+    def timestamp(self, missing=''):
         dt = self.date_time(missing=None)
         if dt is not None:
             try:
-                t = dt.timetuple()
-                ts = time.mktime(t)
+                ts = dt.timestamp()
             except:
                 ts = missing
         else:
@@ -440,7 +489,7 @@ if __name__ == '__main__':
         m = DummyMetaData()
 
     else:
-        m = MetaData(sys.argv[1])
+        m = MetaData(full_file_name=sys.argv[1])
 
     print("f" + m.aperture('missing '))
     print("ISO " + m.iso('missing '))

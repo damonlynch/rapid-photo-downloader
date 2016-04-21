@@ -1271,6 +1271,7 @@ class ThumbnailExtractorArgument:
                  task: ExtractionTask,
                  processing: Set[ExtractionProcessing],
                  full_file_name_to_work_on: str,
+                 secondary_full_file_name: str,
                  exif_buffer: Optional[bytearray],
                  thumbnail_bytes: bytes,
                  use_thumbnail_cache: bool,
@@ -1280,6 +1281,7 @@ class ThumbnailExtractorArgument:
         self.task = task
         self.processing = processing
         self.full_file_name_to_work_on = full_file_name_to_work_on
+        self.secondary_full_file_name = secondary_full_file_name
         self.file_to_work_on_is_temporary = file_to_work_on_is_temporary
         self.exif_buffer = exif_buffer
         self.thumbnail_bytes = thumbnail_bytes

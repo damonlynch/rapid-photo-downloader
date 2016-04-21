@@ -31,10 +31,10 @@ import os
 import datetime
 from enum import Enum
 from collections import namedtuple
-
 import errno
 import logging
 import pickle
+from typing import Union
 
 from gettext import gettext as _
 
@@ -44,7 +44,7 @@ import raphodo.problemnotification as pn
 from raphodo.preferences import DownloadsTodayTracker, Preferences
 from raphodo.constants import (ConflictResolution, FileType, DownloadStatus, RenameAndMoveStatus)
 from raphodo.interprocess import (RenameAndMoveFileData, RenameAndMoveFileResults, DaemonProcess)
-from raphodo.rpdfile import RPDFile
+from raphodo.rpdfile import RPDFile, Photo, Video
 from raphodo.rpdsql import DownloadedSQL
 
 
@@ -113,7 +113,7 @@ def time_subseconds_human_readable(date, subseconds):
             'second': date.strftime("%S"),
             'subsecond': subseconds}
 
-def load_metadata(rpd_file, et_process: exiftool.ExifTool) -> bool:
+def load_metadata(rpd_file: Union[Photo, Video], et_process: exiftool.ExifTool) -> bool:
     """
     Loads the metadata for the file
 
@@ -124,8 +124,8 @@ def load_metadata(rpd_file, et_process: exiftool.ExifTool) -> bool:
     :return True if operation succeeded, false otherwise
     """
     if rpd_file.metadata is None:
-        if not rpd_file.load_metadata(exiftool_process=et_process,
-                                      file_source=rpd_file.temp_full_file_name):
+        if not rpd_file.load_metadata(full_file_name=rpd_file.temp_full_file_name,
+                                      et_process=et_process):
             # Error in reading metadata
             rpd_file.add_problem(None, pn.CANNOT_DOWNLOAD_BAD_METADATA,
                                  {'filetype': rpd_file.title_capitalized})

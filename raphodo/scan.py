@@ -58,21 +58,23 @@ from raphodo.interprocess import (WorkerInPublishPullPipeline, ScanResults,
 from raphodo.camera import Camera, CameraError
 import raphodo.rpdfile as rpdfile
 from raphodo.constants import (DeviceType, FileType, GphotoMTime, datetime_offset, CameraErrorCode,
-                               FileExtension)
+                               FileExtension, ThumbnailCacheDiskStatus)
 from raphodo.rpdsql import DownloadedSQL, FileDownloaded
+from raphodo.cache import ThumbnailCacheSql
 from raphodo.utilities import stdchannel_redirected, datetime_roughly_equal
 from raphodo.exiftool import ExifTool
 import raphodo.metadatavideo as metadatavideo
 
 FileInfo = namedtuple('FileInfo', ['path', 'modification_time', 'size',
                                    'ext_lower', 'base_name', 'file_type'])
-CameraFile = namedtuple('CameraFile', 'name size')
+CameraFile = namedtuple('CameraFile', 'name, size')
 
 
 class ScanWorker(WorkerInPublishPullPipeline):
 
     def __init__(self):
         self.downloaded = DownloadedSQL()
+        self.thumbnail_cache = ThumbnailCacheSql()
         self.no_previously_downloaded = 0
         self.file_batch = []
         self.batch_size = 50
@@ -406,7 +408,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
                 if self.download_from_camera:
                     modification_time = file_info.modification_time
                     size = file_info.size
-                    camera_file = CameraFile(name=self.file_name,size=size)
+                    camera_file = CameraFile(name=self.file_name, size=size)
                 else:
                     stat = os.stat(file)
                     size = stat.st_size
@@ -434,6 +436,18 @@ class ScanWorker(WorkerInPublishPullPipeline):
                                         size=size,
                                         modification_time=modification_time)
 
+                # was there a thumbnail generated for the file?
+                get_thumbnail = self.thumbnail_cache.get_thumbnail_path(
+                                        full_file_name=file,
+                                        mtime=modification_time,
+                                        size=size,
+                                        camera_model=self.camera_display_name
+                                        )
+                if get_thumbnail.disk_status == ThumbnailCacheDiskStatus.found:
+                    mdatatime = get_thumbnail.mdatatime
+                else:
+                    mdatatime = 0.0
+
                 if downloaded is not None:
                     self.no_previously_downloaded += 1
                     prev_full_name = downloaded.download_name
@@ -454,6 +468,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
                                                prev_full_name,
                                                prev_datetime,
                                                modification_time,
+                                               mdatatime,
                                                thm_full_name,
                                                audio_file_full_name,
                                                xmp_file_full_name,

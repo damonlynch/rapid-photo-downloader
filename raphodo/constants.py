@@ -192,10 +192,14 @@ class ExtractionTask(Enum):
     undetermined = 1
     bypass = 2
     load_file_directly = 3
-    load_from_bytes = 4
-    load_from_exif = 5
-    extract_from_file = 6
-    load_from_exif_buffer = 7
+    load_file_and_exif_directly = 4
+    load_file_directly_metadata_from_secondary = 5
+    load_from_bytes = 6
+    load_from_bytes_metadata_from_temp_extract = 7
+    load_from_exif = 8
+    extract_from_file = 9
+    extract_from_file_and_load_metadata = 10
+    load_from_exif_buffer = 11
 
 
 class ExtractionProcessing(Enum):

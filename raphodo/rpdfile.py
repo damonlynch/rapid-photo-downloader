@@ -28,7 +28,7 @@ import mimetypes
 from collections import Counter, UserDict
 from urllib.request import pathname2url
 import locale
-from typing import Optional, List, Tuple
+from typing import Optional, List, Tuple, Union
 
 from gettext import gettext as _
 
@@ -88,6 +88,7 @@ def file_type(file_extension: str) -> FileType:
         return FileType.video
     return None
 
+
 def extension_type(file_extension: str) -> FileExtension:
     """
     Returns the type of file as indicated by the filename extension.
@@ -108,6 +109,7 @@ def extension_type(file_extension: str) -> FileExtension:
     else:
         return FileExtension.unknown
 
+
 def get_sort_priority(extension: FileExtension, file_type: FileType) -> FileSortPriority:
     """
     Classifies the extension by sort priority.
@@ -124,9 +126,11 @@ def get_sort_priority(extension: FileExtension, file_type: FileType) -> FileSort
     else:
         return FileSortPriority.high
 
+
 def get_rpdfile(name: str, path: str, size: int, prev_full_name: str,
                 prev_datetime: datetime,
                 file_system_modification_time: float,
+                mdatatime: float,
                 thm_full_name: str, audio_file_full_name: str,
                 xmp_file_full_name: str,
                 scan_id: bytes, file_type: FileType,
@@ -141,6 +145,7 @@ def get_rpdfile(name: str, path: str, size: int, prev_full_name: str,
         return Video(name, path, size,
                      prev_full_name, prev_datetime,
                      file_system_modification_time,
+                     mdatatime,
                      thm_full_name,
                      audio_file_full_name,
                      xmp_file_full_name,
@@ -155,6 +160,7 @@ def get_rpdfile(name: str, path: str, size: int, prev_full_name: str,
         return Photo(name, path, size,
                      prev_full_name, prev_datetime,
                      file_system_modification_time,
+                     mdatatime,
                      thm_full_name,
                      audio_file_full_name,
                      xmp_file_full_name,
@@ -286,8 +292,11 @@ class RPDFile:
     title_capitalized = ''
 
     def __init__(self, name: str, path: str, size: int,
-                 prev_full_name: str, prev_datetime: datetime,
-                 modification_time: float, thm_full_name: str,
+                 prev_full_name: str,
+                 prev_datetime: datetime,
+                 modification_time: float,
+                 mdatatime: float,
+                 thm_full_name: str,
                  audio_file_full_name: str,
                  xmp_file_full_name: str,
                  scan_id: bytes,
@@ -303,6 +312,7 @@ class RPDFile:
         :param path: path of the file
         :param size: file size
         :param modification_time: file modification time
+        :param mdatatime: file time recorded in metadata
         :param prev_full_name: the name and path the file was
          previously downloaded with, else None
         :param prev_datetime: when the file was previously downloaded,
@@ -358,6 +368,7 @@ class RPDFile:
         self.size = size
 
         self.modification_time = float(modification_time)
+        self.mdatatime = mdatatime
 
         # If a camera has more than one memory card, store a simple numeric
         # identifier to indicate which memory card it came from
@@ -409,7 +420,7 @@ class RPDFile:
         self.download_xmp_full_name = ''  # name of XMP sidecar with path
         self.download_audio_full_name = ''  # name of the WAV or MP3 audio file with path
 
-        self.metadata = None
+        self.metadata = None  # type: Optional[Union[metadataphoto.MetaData, metadatavideo.MetaData]]
 
         self.subfolder_pref_list = []
         self.name_pref_list = []
@@ -565,18 +576,28 @@ class Photo(RPDFile):
     def _assign_file_type(self):
         self.file_type = FileType.photo
 
-    def load_metadata(self, exiftool_process: exiftool.ExifTool,
-                      file_source: Optional[str]=None) -> bool:
+
+
+    def load_metadata(self, full_file_name: Optional[str]=None,
+                 raw_bytes: Optional[bytearray]=None,
+                 app1_segment: Optional[bytearray]=None,
+                 et_process: exiftool.ExifTool=None) -> bool:
         """
-        Use GExiv2 to read the photograph's metadata
-        :param exiftool_process: the deamon exiftool process
-        :param file_source: full path of file from which file to read
-         the metadata. If not specified, defaults to
-         self.full_file_name.
+        Use GExiv2 to read the photograph's metadata.
+
+        :param full_file_name: full path of file from which file to read
+         the metadata.
+        :param raw_bytes: portion of a non-jpeg file from which the
+         metadata can be extracted
+        :param app1_segment: the app1 segment of a jpeg file, from which
+         the metadata can be read
+        :param et_process: optional deamon exiftool process
         :return: True if successful, False otherwise
         """
+
         try:
-            self.metadata = metadataphoto.MetaData(file_source, exiftool_process)
+            self.metadata = metadataphoto.MetaData(full_file_name=full_file_name,
+               raw_bytes=raw_bytes, app1_segment=app1_segment, et_process=et_process)
         except:
             logging.warning("Could not read metadata from {}".format(self.full_file_name))
             return False
@@ -592,18 +613,18 @@ class Video(RPDFile):
     def _assign_file_type(self):
         self.file_type = FileType.video
 
-    def load_metadata(self, exiftool_process: exiftool.ExifTool,
-                      file_source: Optional[str]=None) -> bool:
+    def load_metadata(self, full_file_name: Optional[str]=None,
+                 et_process: exiftool.ExifTool=None) -> bool:
         """
         Use ExifTool to read the video's metadata
-        :param exiftool_process: the deamon exiftool process
-        :param file_source: full path of file from which file to read
-         the metadata. If not specified, defaults to
-         self.full_file_name.
-        :return: True if successful, False otherwise
+        :param full_file_name: full path of file from which file to read
+         the metadata.
+        :param et_process: optional deamon exiftool process
+        :return: Always returns True. Return value is needed to keep
+         consistency with class Photo, where the value actually makes sense.
         """
 
-        self.metadata = metadatavideo.MetaData(file_source, exiftool_process)
+        self.metadata = metadatavideo.MetaData(full_file_name, et_process)
         return True
 
 

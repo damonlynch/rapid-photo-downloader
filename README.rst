@@ -104,7 +104,7 @@ Rapid Photo Downloader requires:
  - psutil_ 3.4.2 or newer
  - pyxdg_
  - Arrow_
- - dateutil_ 2.0 or newer
+ - dateutil_ 2.2 or newer
  - exiv2_
  - ExifTool_
  - EasyGUI_

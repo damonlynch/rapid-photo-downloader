@@ -69,7 +69,8 @@ from raphodo.rpdsql import CacheSQL
 
 
 GetThumbnail = namedtuple('GetThumbnail', 'disk_status, thumbnail, path')
-GetThumbnailPath = namedtuple('GetThumbnailPath', 'disk_status, path, orientation_unknown')
+GetThumbnailPath = namedtuple('GetThumbnailPath', 'disk_status, path, mdatatime, '
+                                                  'orientation_unknown')
 
 class MD5Name:
     """Generate MD5 hashes for file names."""
@@ -315,7 +316,7 @@ class FdoCacheLarge(Cache):
 
 class ThumbnailCacheSql:
 
-    not_found = GetThumbnail(ThumbnailCacheDiskStatus.not_foud, None, None)
+    not_found = GetThumbnailPath(ThumbnailCacheDiskStatus.not_foud, None, None, None)
 
     # TODO sqlite might grow big - vacuum
 
@@ -349,7 +350,8 @@ class ThumbnailCacheSql:
             self.thumb_db = CacheSQL(self.cache_dir)
 
     def save_thumbnail(self, full_file_name: str, size: int,
-                       modification_time: float,
+                       mtime: float,
+                       mdatatime: float,
                        generation_failed: bool,
                        orientation_unknown: bool,
                        thumbnail: Optional[QImage],
@@ -361,8 +363,8 @@ class ThumbnailCacheSql:
         name). Will be turned into an absolute path if it is a file
         system path
         :param size: size of the file in bytes
-        :param modification_time: file modification time, to be turned
-         into a float if it's not already
+        :param mtime: file modification time
+        :param mdatatime: file time recorded in metadata
         :param generation_failed: True if the thumbnail is meant to
          signify the application failed to generate the thumbnail. If
          so, it will be saved as an empty PNG in the application
@@ -381,7 +383,8 @@ class ThumbnailCacheSql:
         md5_name, uri = self.md5.md5_hash_name(full_file_name=full_file_name,
                                                camera_model=camera_model, extension='jpg')
 
-        self.thumb_db.add_thumbnail(uri=uri, size=size, modification_time=modification_time,
+        self.thumb_db.add_thumbnail(uri=uri, size=size, mtime=mtime,
+                                    mdatatime=mdatatime,
                                     md5_name=md5_name, orientation_unknown=orientation_unknown,
                                     failure=generation_failed)
         if generation_failed:
@@ -402,8 +405,8 @@ class ThumbnailCacheSql:
             return md5_full_name
         return None
 
-    def get_thumbnail_path(self, full_file_name: str, modification_time, size: int,
-                      camera_model: str=None) -> GetThumbnailPath:
+    def get_thumbnail_path(self, full_file_name: str, mtime, size: int,
+                           camera_model: str=None) -> GetThumbnailPath:
         """
         Attempt to get a thumbnail's path from the thumbnail cache.
 
@@ -411,35 +414,37 @@ class ThumbnailCacheSql:
         name). Will be turned into an absolute path if it is a file
         system path
         :param size: size of the file in bytes
-        :param modification_time: file modification time, to be turned
+        :param mtime: file modification time, to be turned
          into a float if it's not already
         :param camera_model: optional camera model. If the thumbnail is
          not from a camera, then should be None.
         :return a GetThumbnailPath tuple of (1) ThumbnailCacheDiskStatus,
          to indicate whether the thumbnail was found, a failure, or
-         missing, (2) the path (including the md5 name), else None, and
-         (3) a bool indicating whether the orientation of the thumbnail
-         is unknown,
+         missing, (2) the path (including the md5 name), else None,
+         (3) the file's metadata time, and (4) a bool indicating whether
+         the orientation of the thumbnail is unknown
         """
 
         if not self.valid:
             return self.not_found
 
         uri = self.md5.get_uri(full_file_name, camera_model)
-        in_cache = self.thumb_db.have_thumbnail(uri, size, modification_time)
+        in_cache = self.thumb_db.have_thumbnail(uri, size, mtime)
 
         if in_cache is None:
             return self.not_found
 
         if in_cache.failure:
-            return GetThumbnailPath(ThumbnailCacheDiskStatus.failure, None, None)
+            return GetThumbnailPath(ThumbnailCacheDiskStatus.failure, None,
+                                    in_cache.mdatatime, None)
 
         path= os.path.join(self.cache_dir, in_cache.md5_name)
         if not os.path.exists(path):
             self.thumb_db.delete_thumbnails([in_cache.md5_name])
             return self.not_found
 
-        return GetThumbnailPath(ThumbnailCacheDiskStatus.found, path, in_cache.orientation_unknown)
+        return GetThumbnailPath(ThumbnailCacheDiskStatus.found, path,
+                                in_cache.mdatatime, in_cache.orientation_unknown)
 
 
     def cleanup_cache(self):

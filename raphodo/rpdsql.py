@@ -38,7 +38,7 @@ from raphodo.utilities import runs
 
 FileDownloaded = namedtuple('FileDownloaded', 'download_name, download_datetime')
 
-InCache = namedtuple('InCache', 'md5_name, orientation_unknown, failure')
+InCache = namedtuple('InCache', 'md5_name, mdatatime, orientation_unknown, failure')
 
 ThumbnailRow = namedtuple('ThumbnailRow', 'uid, scan_id, mtime, marked, file_name, extension, '
                                           'file_type, downloaded, previously_downloaded, '
@@ -521,6 +521,7 @@ class CacheSQL:
         conn.execute("""CREATE TABLE IF NOT EXISTS {tn} (
         uri TEXT NOT NULL,
         mtime REAL NOT NULL,
+        mdatatime REAL,
         size INTEGER NOT NULL,
         md5_name INTEGER NOT NULL,
         orientation_unknown BOOLEAN NOT NULL,
@@ -534,14 +535,18 @@ class CacheSQL:
         conn.commit()
         conn.close()
 
-    def add_thumbnail(self, uri: str, size: int, modification_time: float, md5_name: str,
+    def add_thumbnail(self, uri: str, size: int,
+                      mtime: float,
+                      mdatatime: float,
+                      md5_name: str,
                       orientation_unknown: bool,
                       failure: bool) -> None:
         """
         Add file to database of downloaded files
         :param uri: original filename of photo / video with path
         :param size: file size
-        :param modification_time: file modification time
+        :param mtime: file modification time
+        :param mdatatime: file time recorded in metadata
         :param md5_name: full file name converted to md5
         :param orientation_unknown: if True, the orientation of the
          file could not be determined, else False
@@ -550,30 +555,29 @@ class CacheSQL:
         """
         conn = sqlite3.connect(self.db)
 
-        conn.execute(r"""INSERT OR REPLACE INTO {tn} (uri, size, mtime,
-        md5_name, orientation_unknown, failure) VALUES (?,?,?,?,?,?)""".format(
-            tn=self.table_name), (uri, size, modification_time, md5_name, orientation_unknown,
-                                  failure))
+        conn.execute(r"""INSERT OR REPLACE INTO {tn} (uri, size, mtime, mdatatime,
+        md5_name, orientation_unknown, failure) VALUES (?,?,?,?,?,?,?)""".format(
+            tn=self.table_name), (uri, size, mtime, mdatatime,
+                                  md5_name, orientation_unknown, failure))
 
         conn.commit()
         conn.close()
 
-    def have_thumbnail(self, uri: str, size: int, modification_time: float) -> Optional[InCache]:
+    def have_thumbnail(self, uri: str, size: int, mtime: float) -> Optional[InCache]:
         """
         Returns download path and filename if a file with matching
         name, modification time and size has previously been downloaded
         :param uri: file name, including path
         :param size: file size in bytes
-        :param modification_time: file modification time
+        :param mtime: file modification time
         :return: md5 name (excluding path) and if the value indicates a
          thumbnail generation failure, else None if thumbnail not
          present
         """
         conn = sqlite3.connect(self.db)
         c = conn.cursor()
-        c.execute("""SELECT md5_name, orientation_unknown, failure FROM {tn} WHERE
-        uri=? AND size=? AND mtime=?""".format(
-            tn=self.table_name), (uri, size, modification_time))
+        c.execute("""SELECT md5_name, mdatatime, orientation_unknown, failure FROM {tn} WHERE
+        uri=? AND size=? AND mtime=?""".format(tn=self.table_name), (uri, size, mtime))
         row = c.fetchone()
         if row is not None:
             return InCache._make(row)

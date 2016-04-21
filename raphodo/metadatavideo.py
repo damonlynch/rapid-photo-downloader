@@ -24,6 +24,7 @@ __copyright__ = "Copyright 2011-2016, Damon Lynch"
 import subprocess
 import datetime, time
 import logging
+from typing import Optional
 
 import raphodo.exiftool as exiftool
 
@@ -54,10 +55,10 @@ class MetaData:
     :param et_process: instance of ExifTool class, which allows
     calling EXifTool without it exiting with each call
     """
-    def __init__(self, filename: str, et_process: exiftool.ExifTool):
+    def __init__(self, full_file_name: str, et_process: exiftool.ExifTool):
 
 
-        self.filename = filename
+        self.filename = full_file_name
         self.metadata = dict()
         self.metadata_string_format = dict()
         self.et_process = et_process
@@ -80,7 +81,7 @@ class MetaData:
 
         return self.metadata.get(key, missing)
 
-    def date_time(self, missing='') -> datetime.datetime:
+    def date_time(self, missing: Optional[str]='') -> datetime.datetime:
         """
         Returns in python datetime format the date and time the image was
         recorded.
@@ -115,17 +116,19 @@ class MetaData:
         else:
             return missing
 
-    def time_stamp(self, missing=''):
+    def timestamp(self, missing=''):
         """
         Returns a float value representing the time stamp, if it exists
         """
         dt = self.date_time(missing=None)
-        if dt:
-            # convert it to a time stamp (not optimal, but better than nothing!)
-            v = time.mktime(dt.timetuple())
+        if dt is not None:
+            try:
+                ts = dt.timestamp()
+            except:
+                ts = missing
         else:
-            v = missing
-        return v
+            ts = missing
+        return ts
 
     def file_number(self, missing=''):
         v = self._get("FileNumber", None)
