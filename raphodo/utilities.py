@@ -464,7 +464,7 @@ def number(value: int) -> numbers:
     return numbers(text, plural)
 
 
-def datetime_roughly_equal(dt1: datetime, dt2: datetime, seconds: int=60) -> bool:
+def datetime_roughly_equal(dt1: datetime, dt2: datetime, seconds: int=120) -> bool:
     r"""
     Check to see if date times are equal, give or take n seconds
     :param dt1: python datetime to check

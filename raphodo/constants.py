@@ -210,7 +210,9 @@ class ExtractionProcessing(Enum):
     add_film_strip = 5
 
 
-class GphotoMTime(Enum):
+# Approach device uses to store timestamps
+# i.e. whether assumes are located in utc timezone or local
+class DeviceTimestampTZ(Enum):
     undetermined = 1
     unknown = 2
     is_utc = 3

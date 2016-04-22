@@ -572,15 +572,17 @@ class ThumbnailListModel(QAbstractListModel):
                 # TODO: may need to update some values from the thumbnail generation?
                 pass
 
-        # else:
-        #     logging.debug("Received thumbnail for %s from daemon process",
-        #                   rpd_file.download_full_file_name)
-
         if not thumbnail.isNull():
             try:
                 row = self.uid_to_row[uid]
-            except ValueError:
+            except KeyError:
+                if rpd_file.camera_model:
+                    logging.debug("Discarding unneeded thumbnail for %s from %s",
+                                  rpd_file.full_file_name, rpd_file.camera_model)
+                else:
+                    logging.debug("Discarding unneeded thumbnail for %s", rpd_file.full_file_name)
                 return
+
             self.thumbnails[uid] = thumbnail
             self.dataChanged.emit(self.index(row,0),self.index(row,0))
 
@@ -645,6 +647,7 @@ class ThumbnailListModel(QAbstractListModel):
             self.thumbnailmq.generateThumbnails(*gen_args)
 
     def resetThumbnailTrackingAndDisplay(self):
+        # TODO should this progressbar reset really occur here?
         self.rapidApp.downloadProgressBar.reset()
         self.thumbnails_generated = 0
         self.total_thumbs_to_generate = 0

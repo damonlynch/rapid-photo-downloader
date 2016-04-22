@@ -34,12 +34,13 @@ from gettext import gettext as _
 
 import raphodo.exiftool as exiftool
 from raphodo.constants import (DownloadStatus, FileType, FileExtension, FileSortPriority,
-                       ThumbnailCacheStatus, Downloaded, Desktop, thumbnail_offset)
+                               ThumbnailCacheStatus, Downloaded, Desktop, thumbnail_offset,
+                               DeviceTimestampTZ)
 
 from raphodo.storage import get_desktop, gvfs_controls_mounts
 import raphodo.metadataphoto as metadataphoto
 import raphodo.metadatavideo as metadatavideo
-from raphodo.utilities import thousands, make_internationalized_list
+from raphodo.utilities import thousands, make_internationalized_list, datetime_roughly_equal
 
 import raphodo.problemnotification as pn
 
@@ -129,7 +130,8 @@ def get_sort_priority(extension: FileExtension, file_type: FileType) -> FileSort
 
 def get_rpdfile(name: str, path: str, size: int, prev_full_name: str,
                 prev_datetime: datetime,
-                file_system_modification_time: float,
+                device_timestamp_type: DeviceTimestampTZ,
+                mtime: float,
                 mdatatime: float,
                 thm_full_name: str, audio_file_full_name: str,
                 xmp_file_full_name: str,
@@ -144,7 +146,8 @@ def get_rpdfile(name: str, path: str, size: int, prev_full_name: str,
     if file_type == FileType.video:
         return Video(name, path, size,
                      prev_full_name, prev_datetime,
-                     file_system_modification_time,
+                     device_timestamp_type,
+                     mtime,
                      mdatatime,
                      thm_full_name,
                      audio_file_full_name,
@@ -159,7 +162,8 @@ def get_rpdfile(name: str, path: str, size: int, prev_full_name: str,
     else:
         return Photo(name, path, size,
                      prev_full_name, prev_datetime,
-                     file_system_modification_time,
+                     device_timestamp_type,
+                     mtime,
                      mdatatime,
                      thm_full_name,
                      audio_file_full_name,
@@ -294,7 +298,8 @@ class RPDFile:
     def __init__(self, name: str, path: str, size: int,
                  prev_full_name: str,
                  prev_datetime: datetime,
-                 modification_time: float,
+                 device_timestamp_type: DeviceTimestampTZ,
+                 mtime: float,
                  mdatatime: float,
                  thm_full_name: str,
                  audio_file_full_name: str,
@@ -311,7 +316,9 @@ class RPDFile:
         :param name: filename (without path)
         :param path: path of the file
         :param size: file size
-        :param modification_time: file modification time
+        :param device_timestamp_type: the method with which the device
+         records timestamps.
+        :param mtime: file modification time
         :param mdatatime: file time recorded in metadata
         :param prev_full_name: the name and path the file was
          previously downloaded with, else None
@@ -367,7 +374,10 @@ class RPDFile:
         assert size > 0
         self.size = size
 
-        self.modification_time = float(modification_time)
+        self.device_timestamp_type = device_timestamp_type
+
+        self.mtime_mdatatime_roughly_equal = None  # type: Optional[bool]
+        self.modification_time = mtime
         self.mdatatime = mdatatime
 
         # If a camera has more than one memory card, store a simple numeric
@@ -433,6 +443,60 @@ class RPDFile:
         """
         return (self.thumbnail_status != ThumbnailCacheStatus.generation_failed and
                 (self.is_raw() or self.is_tiff()))
+
+    def ctime(self) -> float:
+        """
+        The photo or video's creation time.
+
+        Ideally the file's metadata contains the date/time that the file
+        was created. However the metadata may not have been read yet (it's a slow
+        operation), or it may not exist or be invalid. In that case, need to rely on
+        the file modification time as a proxy, as reported by the file system or device.
+
+        However that can also be misleading. On my Canon DSLR, for instance, if I'm in the
+        timezone UTC + 5, and I take a photo at 5pm, then the time stamp on the memory card
+        shows the photo being taken at 10pm when I look at it on the computer. The timestamp
+        written to the memory card should with this camera be read as
+        datetime.utcfromtimestamp(mtime), which would return a time zone naive value of 5pm.
+        In other words, the timestamp on the memory card is written as if it were always in
+        UTC, regardless of which timezone the photo was taken in.
+
+        Yet this is not the case with a cellphone, where the file modification time knows
+        nothing about UTC and just saves it as a naive local time.
+
+        :return: metadata date time, if it exists, else our best guess of what the
+        modification time is
+        """
+
+        if self.mdatatime:
+            return self.mdatatime
+        return self.modification_time
+
+    @property
+    def modification_time(self) -> float:
+        return self._mtime
+
+    @modification_time.setter
+    def modification_time(self, value: Union[float, int])  -> None:
+        if not isinstance(value, float):
+            value = float(value)
+        if self.device_timestamp_type == DeviceTimestampTZ.is_utc:
+            self._mtime = datetime.utcfromtimestamp(value).timestamp()
+        else:
+            self._mtime = value
+        self._raw_mtime = value
+
+    @property
+    def mdatatime(self) -> float:
+        return self._mdatatime
+
+    @mdatatime.setter
+    def mdatatime(self, value: float) -> None:
+        self._mdatatime = value
+        if value:
+            self.mtime_mdatatime_roughly_equal = datetime_roughly_equal(
+                datetime.fromtimestamp(self._mtime),
+                datetime.fromtimestamp(self._mdatatime))
 
     def is_jpeg(self) -> bool:
         """

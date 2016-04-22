@@ -42,11 +42,8 @@ if sys.version_info < (3,5):
     walk = scandir.walk
 else:
     walk = os.walk
-from typing import List, Dict
+from typing import List, Dict, Union, Tuple
 
-import gi
-gi.require_version('GExiv2', '0.10')
-from gi.repository import GExiv2
 import gphoto2 as gp
 
 # Instances of classes ScanArguments and ScanPreferences are passed via pickle
@@ -57,17 +54,20 @@ from raphodo.interprocess import (WorkerInPublishPullPipeline, ScanResults,
                           ScanArguments)
 from raphodo.camera import Camera, CameraError
 import raphodo.rpdfile as rpdfile
-from raphodo.constants import (DeviceType, FileType, GphotoMTime, datetime_offset, CameraErrorCode,
+from raphodo.constants import (DeviceType, FileType, DeviceTimestampTZ, datetime_offset, CameraErrorCode,
                                FileExtension, ThumbnailCacheDiskStatus)
 from raphodo.rpdsql import DownloadedSQL, FileDownloaded
 from raphodo.cache import ThumbnailCacheSql
 from raphodo.utilities import stdchannel_redirected, datetime_roughly_equal
 from raphodo.exiftool import ExifTool
 import raphodo.metadatavideo as metadatavideo
+import raphodo.metadataphoto as metadataphoto
+
 
 FileInfo = namedtuple('FileInfo', ['path', 'modification_time', 'size',
                                    'ext_lower', 'base_name', 'file_type'])
 CameraFile = namedtuple('CameraFile', 'name, size')
+SampleDatetime = namedtuple('SampleDatetime', 'datetime, determined_by')
 
 
 class ScanWorker(WorkerInPublishPullPipeline):
@@ -80,7 +80,11 @@ class ScanWorker(WorkerInPublishPullPipeline):
         self.batch_size = 50
         self.file_type_counter = rpdfile.FileTypeCounter()
         self.file_size_sum = rpdfile.FileSizeSum()
-        self.gphoto_mtime = GphotoMTime.undetermined
+        self.device_timestamp_type = DeviceTimestampTZ.undetermined
+
+        # full_file_name (path+name):timestamp
+        self.file_mdatatime = {}  # type: Dict[str, float]
+
         super().__init__('Scan')
 
     def do_work(self) -> None:
@@ -123,6 +127,10 @@ class ScanWorker(WorkerInPublishPullPipeline):
                             # [:] ensures the list is altered in place
                             # (mutating slice method)
                             subdirs[:] = filter(self.scan_preferences.scan_this_path, subdirs)
+
+                    if (self.file_list and
+                            self.device_timestamp_type == DeviceTimestampTZ.undetermined):
+                        self.distingish_non_camera_device_timestamp()
 
                     for self.file_name in self.file_list:
                         self.process_file()
@@ -261,17 +269,19 @@ class ScanWorker(WorkerInPublishPullPipeline):
             logging.error("Unable to scan files on camera: error %s", e.code)
 
         if files_in_folder:
-
-            # When determining how libgphoto2 reports modification time, extraction order
-            # of preference is (1) jpeg, (2) RAW, and finally least preferred is (3) video
+            # Distinguish the file type for every file in the folder
             names = [name for name, value in files_in_folder]
             split_names = [os.path.splitext(name) for name in names]
+            # Remove the period from the extension
             exts = [ext[1:] for name, ext in split_names]
             exts_lower = [ext.lower() for ext in exts]
             ext_types = [rpdfile.extension_type(ext) for ext in exts_lower]
 
-            if self.gphoto_mtime == GphotoMTime.undetermined:
-                # Insert preferred type of file at front of file lists
+            if self.device_timestamp_type == DeviceTimestampTZ.undetermined:
+                # Insert preferred type of file at front of file lists, because this
+                # will be the file used to extract metadata time from.
+                # When determining how a camera reports modification time, extraction order
+                # of preference is (1) jpeg, (2) RAW, and finally least preferred is (3) video
                 for e in (FileExtension.jpeg, FileExtension.raw, FileExtension.video):
                     if ext_types[0] == e:
                         break
@@ -291,8 +301,8 @@ class ScanWorker(WorkerInPublishPullPipeline):
             # or pause
             self.check_for_controller_directive()
 
+            # Get the information we extracted above
             base_name = split_names[idx][0]
-            # remove the period from the extension
             ext = exts[idx]
             ext_lower = exts_lower[idx]
             ext_type = ext_types[idx]
@@ -312,10 +322,10 @@ class ScanWorker(WorkerInPublishPullPipeline):
                 self.file_type_counter[key] += 1
                 self.file_size_sum[key] += size
 
-                if self.gphoto_mtime == GphotoMTime.undetermined:
-                    self.set_gphoto_mtime_(path, name, ext_lower, modification_time, size)
-
-                modification_time = self.get_camera_modification_time(modification_time)
+                if self.device_timestamp_type == DeviceTimestampTZ.undetermined:
+                    sample = self.sample_camera_datetime(path, name, ext_lower, ext_type, size)
+                    self.determine_device_timestamp_tz(sample.datetime, modification_time,
+                                                       sample.determined_by)
 
                 # Store the directory this file is stored in, used when
                 # determining if associate files are part of the download
@@ -436,17 +446,20 @@ class ScanWorker(WorkerInPublishPullPipeline):
                                         size=size,
                                         modification_time=modification_time)
 
-                # was there a thumbnail generated for the file?
-                get_thumbnail = self.thumbnail_cache.get_thumbnail_path(
-                                        full_file_name=file,
-                                        mtime=modification_time,
-                                        size=size,
-                                        camera_model=self.camera_display_name
-                                        )
-                if get_thumbnail.disk_status == ThumbnailCacheDiskStatus.found:
-                    mdatatime = get_thumbnail.mdatatime
-                else:
-                    mdatatime = 0.0
+                # Assign metadata time, if we have it
+                # If we don't, it will be extracted when thumbnails are generated
+                mdatatime = self.file_mdatatime.get(file, 0.0)
+                if not mdatatime:
+                    # Was there a thumbnail generated for the file?
+                    # If so, get the metadata date time from that
+                    get_thumbnail = self.thumbnail_cache.get_thumbnail_path(
+                                            full_file_name=file,
+                                            mtime=modification_time,
+                                            size=size,
+                                            camera_model=self.camera_display_name
+                                            )
+                    if get_thumbnail.disk_status == ThumbnailCacheDiskStatus.found:
+                        mdatatime = get_thumbnail.mdatatime
 
                 if downloaded is not None:
                     self.no_previously_downloaded += 1
@@ -467,6 +480,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
                                                size,
                                                prev_full_name,
                                                prev_datetime,
+                                               self.device_timestamp_type,
                                                modification_time,
                                                mdatatime,
                                                thm_full_name,
@@ -490,61 +504,56 @@ class ScanWorker(WorkerInPublishPullPipeline):
                     self.send_message_to_sink()
                     self.file_batch = []
 
-    def get_camera_modification_time(self, modification_time) -> float:
-        if self.gphoto_mtime == GphotoMTime.is_utc:
-            return datetime.utcfromtimestamp(modification_time).timestamp()
-        else:
-            return float(modification_time)
-
-    def set_gphoto_mtime_(self, path: str,
-                          name: str,
-                          extension: str,
-                          modification_time: int,
-                          size: int) -> None:
+    def sample_camera_datetime(self, path: str,
+                               name: str,
+                               extension: str,
+                               ext_type: FileExtension,
+                               size: int) -> SampleDatetime:
         """
-        Determine how libgphoto2 reports modification time.
-
-        gPhoto2 can give surprising results for the file modification
-        time, such that it's off by exactly the time zone.
-        For example, if we're at UTC + 5, the time stamp is five hours
-        in advance of what is recorded on the memory card
+        Extract sample metadata datetime from a photo or video on a camera
         """
-        metadata = dt = None
-        if extension in rpdfile.JPEG_TYPE_EXTENSIONS:
+
+        dt = determined_by = None
+        use_app1 = save_chunk = exif_extract = False
+        if ext_type == FileExtension.jpeg:
             determined_by = 'jpeg'
+            if self.camera.can_fetch_thumbnails:
+                use_app1 = True
+            else:
+                exif_extract = True
+        elif ext_type == FileExtension.raw:
+            determined_by = 'RAW'
+            exif_extract = True
+        elif ext_type == FileExtension.video:
+            determined_by = 'video'
+            save_chunk = True
+
+        if use_app1:
             raw_bytes = self.camera.get_exif_extract_from_jpeg(path, name)
             if raw_bytes is not None:
-                metadata = GExiv2.Metadata()
                 try:
                     with stdchannel_redirected(sys.stderr, os.devnull):
-                        metadata.from_app1_segment(raw_bytes)
+                        metadata = metadataphoto.MetaData(app1_segment=raw_bytes)
                 except:
-                    logging.error("Scanner failed to load metadata from %s on %s", name,
+                    logging.warning("Scanner failed to load metadata from %s on %s", name,
                                   self.camera.display_name)
-                try:
-                    dt = metadata.get_date_time()  # type: datetime
-                except:
-                    dt = None
-        elif extension in rpdfile.RAW_EXTENSIONS:
-            determined_by = 'RAW'
+                else:
+                    dt = metadata.date_time(missing=None)  # type: datetime
+        elif exif_extract:
             offset = datetime_offset.get(extension)
             if offset is None:
                 offset = size
             raw_bytes = self.camera.get_exif_extract(path, name, offset)
             if raw_bytes is not None:
-                metadata = GExiv2.Metadata()
                 try:
                     with stdchannel_redirected(sys.stderr, os.devnull):
-                        metadata.open_buf(raw_bytes)
+                        metadata = metadataphoto.MetaData(raw_bytes=raw_bytes)
                 except:
-                    logging.error("Scanner failed to load metadata from %s on %s", name,
+                    logging.warning("Scanner failed to load metadata from %s on %s", name,
                                   self.camera.display_name)
-                try:
-                    dt = metadata.get_date_time()  # type: datetime
-                except:
-                    dt = None
-        elif extension in rpdfile.VIDEO_EXTENSIONS:
-            determined_by = 'video'
+                else:
+                    dt = metadata.date_time(missing=None)  # type: datetime
+        elif save_chunk:
             offset = datetime_offset.get(extension)
             if offset is None:
                 max_size =  1024**2 * 20  # approx 21 MB
@@ -556,26 +565,117 @@ class ScanWorker(WorkerInPublishPullPipeline):
                         with ExifTool() as et_process:
                             metadata = metadatavideo.MetaData(temp_name, et_process)
                             dt = metadata.date_time(missing=None)
+        if dt is None:
+            logging.warning("Scanner failed to extract date time metadata from %s on %s",
+                              name, self.camera.display_name)
+        return SampleDatetime(dt, determined_by)
+
+    def sample_non_camera_datetime(self, path: str,
+                               name: str,
+                               ext_type: FileExtension) -> SampleDatetime:
+        """
+        Extract sample metadata datetime from a photo or video not on a camera
+        """
+
+        dt = determined_by = None
+        if ext_type == FileExtension.jpeg:
+            determined_by = 'jpeg'
+        elif ext_type == FileExtension.raw:
+            determined_by = 'RAW'
+        elif ext_type == FileExtension.video:
+            determined_by = 'video'
+
+        full_file_name = os.path.join(path, name)
+        if ext_type == FileExtension.video:
+            with ExifTool() as et_process:
+                metadata = metadatavideo.MetaData(full_file_name, et_process)
+                dt = metadata.date_time(missing=None)
+        else:
+           # photo - we don't care if jpeg or RAW
+            try:
+                with stdchannel_redirected(sys.stderr, os.devnull):
+                    metadata = metadataphoto.MetaData(full_file_name=full_file_name)
+            except:
+                logging.warning("Scanner failed to load metadata from %s on %s", name,
+                              self.camera.display_name)
+            else:
+                dt = metadata.date_time(missing=None)  # type: datetime
 
         if dt is None:
             logging.warning("Scanner failed to extract date time metadata from %s on %s",
                               name, self.camera.display_name)
-            logging.debug("Could not determine gPhoto2 timezone setting for %s",
-                            self.camera.display_name)
-            self.gphoto_mtime = GphotoMTime.unknown
         else:
-            # Must not compare exact times, as there can be a few seconds difference between
-            # when a file was saved to the flash memory and when it was created in the
-            # camera's memory. Allow for two minutes, to be safe.
-            if datetime_roughly_equal(dt1=datetime.utcfromtimestamp(modification_time),
-                                      dt2=dt, seconds=120):
-                logging.debug("gPhoto2 timezone setting for %s is UTC, as indicated by %s file",
-                              self.camera.display_name, determined_by)
-                self.gphoto_mtime = GphotoMTime.is_utc
-            else:
-                logging.debug("gPhoto2 timezone setting for %s is local time, as indicated by "
-                              "%s file", self.camera.display_name, determined_by)
-                self.gphoto_mtime = GphotoMTime.is_local
+            self.file_mdatatime[full_file_name] = dt.timestamp()
+        return SampleDatetime(dt, determined_by)
+
+    def distingish_non_camera_device_timestamp(self) -> None:
+        """
+        Attempt to determine the device's approach to timezones when it
+        store timestamps.
+        When determining how this device reports modification time, file
+        preference is (1) RAW, (2)jpeg, and finally least preferred is (3)
+        video. A RAW is the least likely to be modified.
+        """
+
+        logging.debug("Distinguishing approach to timestamp time zones on %s", self.display_name)
+        attempts = 0
+        for e in (FileExtension.raw, FileExtension.jpeg, FileExtension.video):
+            for file in self.file_list:
+                if rpdfile.extension_type(os.path.splitext(file)[1].lower()[1:]) == e:
+                    sample = self.sample_non_camera_datetime(self.dir_name, file, e)
+                    attempts += 1
+                    if sample.datetime is not None:
+                        full_file_name = os.path.join(self.dir_name, file)
+                        self.file_mdatatime[full_file_name] = sample.datetime.timestamp()
+                        try:
+                            mtime = os.path.getmtime(full_file_name)
+                        except OSError:
+                            logging.warning("Could not determine modification "
+                                "time for %s", full_file_name)
+                        else:
+                            self.determine_device_timestamp_tz(
+                                sample.datetime, mtime, sample.determined_by)
+                            return
+                    elif attempts == 5:
+                        self.device_timestamp_type = DeviceTimestampTZ.unknown
+                        return
+
+    def determine_device_timestamp_tz(self, mdatatime: datetime,
+                                      modification_time: Union[int, float],
+                                      determined_by: str) -> None:
+        """
+        Compare metadata time with file modification time in an attempt
+        to determine the device's approach to timezones when it stores timestamps.
+
+        :param mdatatime: file's metadata time
+        :param modification_time: file's file system modification time
+        :param determined_by: simple string used in log messages
+        """
+
+        if mdatatime is None:
+            logging.debug("Could not determine Device timezone setting for %s",
+                            self.display_name)
+            self.device_timestamp_type = DeviceTimestampTZ.unknown
+
+        # Must not compare exact times, as there can be a few seconds difference between
+        # when a file was saved to the flash memory and when it was created in the
+        # camera's memory. Allow for two minutes, to be safe.
+        if datetime_roughly_equal(dt1=datetime.utcfromtimestamp(modification_time),
+                                  dt2=mdatatime):
+            logging.info("Device timezone setting for %s is UTC, as indicated by %s file",
+                          self.display_name, determined_by)
+            self.device_timestamp_type = DeviceTimestampTZ.is_utc
+        elif datetime_roughly_equal(dt1=datetime.fromtimestamp(modification_time),
+                                  dt2=mdatatime):
+            logging.info("Device timezone setting for %s is local time, as indicated by "
+                          "%s file", self.display_name, determined_by)
+            self.device_timestamp_type = DeviceTimestampTZ.is_local
+        else:
+            logging.info("Device timezone setting for %s is unknown, because the file "
+                          "modification time and file's time as recorded in metadata differ for "
+                          "sample file %s",
+                          self.display_name, determined_by)
+            self.device_timestamp_type = DeviceTimestampTZ.unknown
 
     def _get_associate_file_from_camera(self, base_name: str,
                 associate_files: defaultdict, camera_file: CameraFile) -> str:
@@ -643,7 +743,6 @@ class ScanWorker(WorkerInPublishPullPipeline):
     def cleanup_pre_stop(self):
         if self.camera is not None:
             self.camera.free_camera()
-
 
 
 if __name__ == "__main__":
