@@ -42,7 +42,7 @@ import pickle
 from collections import namedtuple
 import platform
 import argparse
-from typing import Optional, Tuple, List, Sequence, Set
+from typing import Optional, Tuple, List, Sequence, Dict
 import faulthandler
 import pkg_resources
 
@@ -412,7 +412,7 @@ class RapidWindow(QMainWindow):
         self.application_state = ApplicationState.normal
         self.prompting_for_user_action = {}  # type: Dict[Device, QMessageBox]
 
-        logging.info("*** Rapid Photo Downloader has started ***")
+        logging.info("Rapid Photo Downloader has started")
         for version in get_versions():
             logging.info('%s', version)
 
@@ -586,6 +586,9 @@ class RapidWindow(QMainWindow):
         # Setup notification system
         try:
             self.have_libnotify = Notify.init('rapid-photo-downloader')
+            # scan_id: Notify.Notification
+            self.ctime_update_notification = None  # type: Optional[Notify.Notification]
+            self.ctime_notification_devices = []  # type: List[int]
         except:
             logging.error("Notification intialization problem")
             self.have_libnotify = False
@@ -764,7 +767,7 @@ class RapidWindow(QMainWindow):
         settings = QSettings()
         settings.beginGroup("MainWindow")
 
-        self.proximityButton.setChecked(settings.value("proximityButtonPressed", False, bool))
+        self.proximityButton.setChecked(settings.value("proximityButtonPressed", True, bool))
         self.proximityButtonClicked()
 
         self.sourceButton.setChecked(settings.value("sourceButtonPressed", True, bool))
@@ -2547,6 +2550,112 @@ class RapidWindow(QMainWindow):
             # don't show summary again unless needed
             self.display_summary_notification = False
 
+    def notifyFoldersProximityRefresh(self, scan_id) -> None:
+        """
+        Inform the user that a timeline rebuild and folder preview update is pending,
+        taking into account they may have already been notified.
+        """
+
+        if self.have_libnotify:
+            device = self.devices[scan_id]
+            self.ctime_notification_devices.append(scan_id)
+
+            logging.info("Need to refresh timeline and subfolder previews for %s",
+                          device.display_name)
+
+            simple_message = len(self.devices) == 1 or self.ctime_update_notification is None
+
+            this_computer = len([scan_id for scan_id in self.ctime_notification_devices
+                                 if self.devices[scan_id].device_type == DeviceType.path]) > 0
+
+            if simple_message:
+                if device.device_type == DeviceType.camera:
+                    message = _("The Destination subfolders and Timeline will be refreshed after "
+                                "all thumbnails have been generated for the %(camera)s"
+                                ) % dict(camera=device.display_name)
+                elif this_computer:
+                    message = _("The Destination subfolders and Timeline will be refreshed after "
+                                "all thumbnails have been generated for this computer")
+                else:
+                    message = _("The Destination subfolders and Timeline will be refreshed after "
+                                "all thumbnails have been generated for %(device)s"
+                                ) % dict(device=device.display_name)
+            else:
+                no_devices = len(self.ctime_notification_devices)
+                if this_computer:
+                    no_devices -= 1
+                    if no_devices > 1:
+                        message = _("The Destination subfolders and Timeline will be refreshed "
+                                    "after all thumbnails have been generated for "
+                                    "%(number_devices)s and this computer"
+                                    ) % dict(number_devices=no_devices)
+                    else:
+                        assert no_devices == 1
+                        if device.device_type != DeviceType.path:
+                            other_device = device
+                        else:
+                            # the other device must be the first one
+                            other_device = self.devices[self.ctime_notification_devices[0]]
+                        name = other_device.display_name
+                        if other_device.device_type == DeviceType.camera:
+                            message = _("The Destination subfolders and Timeline will be refreshed "
+                                        "after all thumbnails have been generated for the "
+                                        "%(camera)s and this computer") % dict(camera=name)
+                        else:
+                            message = _("The Destination subfolders and Timeline will be refreshed "
+                                        "after all thumbnails have been generated for "
+                                        "%(device)s and this computer") % dict(device=name)
+                else:
+                        message = _("The Destination subfolders and Timeline will be refreshed "
+                                    "after all thumbnails have been generated for "
+                                    "%(number_devices)s") % dict(number_devices=no_devices)
+
+            if self.ctime_update_notification is None:
+                notify = Notify.Notification.new(_('Rapid Photo Downloader'), message,
+                                                 'rapid-photo-downloader')
+            else:
+                notify = self.ctime_update_notification
+                notify.update(_('Rapid Photo Downloader'), message, 'rapid-photo-downloader')
+            try:
+                message_shown = notify.show()
+                notify.connect('closed', self.notificationFoldersProximityRefreshClosed)
+            except:
+                logging.error("Unable to display message using notification system")
+            self.ctime_update_notification = notify
+
+    def notifyFoldersProximityRefreshed(self) -> None:
+        """
+        Inform the user that the the refresh has occurred, updating the existing
+        message if need be.
+        """
+
+        if self.have_libnotify:
+            message = _("The Destination subfolders and Timeline have been refreshed")
+
+            if self.ctime_update_notification is None:
+                notify = Notify.Notification.new(_('Rapid Photo Downloader'), message,
+                                                 'rapid-photo-downloader')
+            else:
+                notify = self.ctime_update_notification
+                notify.update(_('Rapid Photo Downloader'), message, 'rapid-photo-downloader')
+            try:
+                message_shown = notify.show()
+            except:
+                logging.error("Unable to display message using notification system")
+
+            self.ctime_update_notification = None
+            self.ctime_notification_devices = []
+
+    def notificationFoldersProximityRefreshClosed(self, notify: Notify.Notification) -> None:
+        """
+        Delete our reference to the notification that was used to inform the user
+        that the timeline and preview folders will be. If it's not deleted, there will
+        be glib problems at program exit, when the reference is deleted.
+        :param notify: the notification itself
+        """
+
+        self.ctime_update_notification = None
+
     def invalidDownloadFolders(self, downloading: DownloadTypes) -> List[str]:
         """
         Checks validity of download folders based on the file types the
@@ -2779,6 +2888,8 @@ class RapidWindow(QMainWindow):
     def proximityGroupsGenerated(self, proximity_groups: TemporalProximityGroups) -> None:
         self.thumbnailModel.assignProximityGroups(proximity_groups.col1_col2_uid)
         self.temporalProximity.setGroups(proximity_groups=proximity_groups)
+        if self.ctime_notification_devices:
+            self.notifyFoldersProximityRefreshed()
 
     @pyqtSlot(FoldersPreview)
     def provisionalDownloadFoldersGenerated(self, folders_preview: FoldersPreview) -> None:

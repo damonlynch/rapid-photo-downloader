@@ -244,7 +244,7 @@ class Cache:
             return None
 
         if not self.valid:
-            return GetThumbnail(ThumbnailCacheDiskStatus.not_foud, None, None)
+            return GetThumbnail(ThumbnailCacheDiskStatus.not_found, None, None)
         md5_name, uri = self.md5.md5_hash_name(full_file_name=full_file_name,
                                                camera_model=camera_model)
         path = os.path.join(self.cache_dir, md5_name)
@@ -256,7 +256,7 @@ class Cache:
         png = _get_thumbnail()
         if png is not None:
             return GetThumbnail(ThumbnailCacheDiskStatus.failure, None, None)
-        return GetThumbnail(ThumbnailCacheDiskStatus.not_foud, None, None)
+        return GetThumbnail(ThumbnailCacheDiskStatus.not_found, None, None)
 
     def modify_existing_thumbnail_and_save_copy(self,
                               existing_cache_thumbnail: str,
@@ -316,7 +316,7 @@ class FdoCacheLarge(Cache):
 
 class ThumbnailCacheSql:
 
-    not_found = GetThumbnailPath(ThumbnailCacheDiskStatus.not_foud, None, None, None)
+    not_found = GetThumbnailPath(ThumbnailCacheDiskStatus.not_found, None, None, None)
 
     # TODO sqlite might grow big - vacuum
 

@@ -32,7 +32,7 @@ Changelog for Rapid Photo Downloader
    - Thumbnails can be sorted using a variety of criteria, including by device
      and file type.
 
-   - Download folders are previewed before a download starts, showing which
+   - Destination folders are previewed before a download starts, showing which
      subfolders photos and videos will be downloaded to. Newly created folders
      have their names italicized.
 
@@ -62,11 +62,10 @@ Changelog for Rapid Photo Downloader
    - Libraw is used to render RAW images from which a preview cannot be extracted,
      which is the case with Android DNG files, for instance.
 
-   - The program can now handle hundreds of thousands of files at a time,
-     maintaining a responsive user interface.
+   - The program can now handle hundreds of thousands of files at a time.
      
    - Tooltips display information about the file including name, modification
-     time and file size.
+     time, shot taken time, and file size.
      
    - Right click on thumbnails to open the file in a file browser or copy the
      path.

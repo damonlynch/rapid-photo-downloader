@@ -53,7 +53,7 @@ from raphodo.viewutils import ThumbnailDataForProximity
 ProximityRow = namedtuple('ProximityRow', 'year, month, weekday, day, proximity, new_file, '
                                           'tooltip_date_col0, tooltip_date_col1, tooltip_date_col2')
 
-UidTime = namedtuple('UidTime', 'mtime, arrowtime, uid, previously_downloaded')
+UidTime = namedtuple('UidTime', 'ctime, arrowtime, uid, previously_downloaded')
 
 
 def locale_time(t: datetime) -> str:
@@ -628,11 +628,11 @@ class TemporalProximityGroups:
 
         self.display_values = ProximityDisplayValues()
 
-        thumbnail_rows.sort(key=attrgetter('mtime'))
+        thumbnail_rows.sort(key=attrgetter('ctime'))
 
         # Generate an arrow date time for every timestamp we have
-        uid_times = [UidTime(tr.mtime,
-                             arrow.get(tr.mtime).to('local'),
+        uid_times = [UidTime(tr.ctime,
+                             arrow.get(tr.ctime).to('local'),
                              tr.uid,
                              tr.previously_downloaded)
                      for tr in thumbnail_rows]
@@ -669,8 +669,8 @@ class TemporalProximityGroups:
 
         if len(uid_times) > 1:
             for current in uid_times[1:]:
-                mtime = current.mtime
-                if (mtime - prev.mtime > temporal_span):
+                ctime = current.ctime
+                if (ctime - prev.ctime > temporal_span):
                     group_no += 1
                 self.times_by_proximity[group_no].append(current.arrowtime)
                 self.uids_by_proximity[group_no].append(current.uid)

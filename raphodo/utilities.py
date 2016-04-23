@@ -34,7 +34,7 @@ from collections import namedtuple
 from datetime import datetime
 from gettext import gettext as _
 from itertools import groupby
-from typing import Optional, List
+from typing import Optional, List, Union
 
 import arrow
 import psutil
@@ -464,11 +464,12 @@ def number(value: int) -> numbers:
     return numbers(text, plural)
 
 
-def datetime_roughly_equal(dt1: datetime, dt2: datetime, seconds: int=120) -> bool:
+def datetime_roughly_equal(dt1: Union[datetime, float], dt2: Union[datetime, float],
+                           seconds: int=120) -> bool:
     r"""
     Check to see if date times are equal, give or take n seconds
-    :param dt1: python datetime to check
-    :param dt2:python datetime to check
+    :param dt1: python datetime, or timestamp, to check
+    :param dt2:python datetime, or timestamp to check
     :param seconds: number of seconds leeway
     :return: True if "equal", False otherwise
 
@@ -476,6 +477,15 @@ def datetime_roughly_equal(dt1: datetime, dt2: datetime, seconds: int=120) -> bo
     >>> time.sleep(.1)
     >>> dt2 = datetime.now()
     >>> datetime_roughly_equal(dt1, dt2, 1)
+    True
+    >>> dt1 = 1458561776.0
+    >>> dt2 = 1458561776.0
+    >>> datetime_roughly_equal(dt1, dt2, 120)
+    True
+    >>> dt2 += 450
+    >>> datetime_roughly_equal(dt1, dt2, 120)
+    False
+    >>> datetime_roughly_equal(dt1, dt2, 500)
     True
     """
 

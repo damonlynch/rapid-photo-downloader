@@ -71,7 +71,7 @@ class ThumbnailCacheStatus(Enum):
 
 class ThumbnailCacheDiskStatus(Enum):
     found = 1
-    not_foud = 2
+    not_found = 2
     failure = 3
 
 

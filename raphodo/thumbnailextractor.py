@@ -57,6 +57,7 @@ import raphodo.exiftool as exiftool
 
 have_gst = Gst.init_check(None)
 
+
 def get_video_frame(full_file_name: str,
                     offset: Optional[float]=5.0,
                     caps=Gst.Caps.from_string('image/png')) -> bytes:
@@ -158,7 +159,6 @@ class ThumbnailExtractor(LoadBalancerWorker):
         return (size.width() >= self.thumbnail_size_needed.width() or
                 size.height() >= self.thumbnail_size_needed.height())
 
-
     def _extract_metadata(self, rpd_file: RPDFile,
                           processing: Set[ExtractionProcessing]) -> PhotoDetails:
 
@@ -169,7 +169,6 @@ class ThumbnailExtractor(LoadBalancerWorker):
             pass
 
         rpd_file.mdatatime = rpd_file.metadata.timestamp(missing=0.0)
-        #TODO assign mdatatime more intelligently
 
         # Not all files have an exif preview, but some do
         # (typically CR2, ARW, PEF, RW2).
@@ -283,9 +282,9 @@ class ThumbnailExtractor(LoadBalancerWorker):
         else:
             return self._extract_metadata(rpd_file, processing)
 
-    def get_orientation(self, rpd_file: Photo,
-                        full_file_name: Optional[str]=None,
-                        raw_bytes: Optional[bytearray]=None) -> Optional[str]:
+    def get_photo_orientation(self, rpd_file: Photo,
+                              full_file_name: Optional[str]=None,
+                              raw_bytes: Optional[bytearray]=None) -> Optional[str]:
 
         if rpd_file.metadata is None:
             self.load_photo_metadata(rpd_file=rpd_file, full_file_name=full_file_name,
@@ -301,6 +300,10 @@ class ThumbnailExtractor(LoadBalancerWorker):
     def assign_mdatatime(self, rpd_file: Union[Photo, Video],
                          full_file_name: Optional[str]=None,
                          raw_bytes: Optional[bytearray]=None) -> None:
+        """
+        Load the file's metadata and assign the metadata time to the rpd file
+        """
+
         if rpd_file.file_type == FileType.photo:
             self.assign_photo_mdatatime(rpd_file=rpd_file, full_file_name=full_file_name,
                                         raw_bytes=raw_bytes)
@@ -310,12 +313,14 @@ class ThumbnailExtractor(LoadBalancerWorker):
     def assign_photo_mdatatime(self, rpd_file: Photo,
                                full_file_name: Optional[str]=None,
                                raw_bytes: Optional[bytearray]=None) -> None:
+        """
+        Load the photo's metadata and assign the metadata time to the rpd file
+        """
 
         self.load_photo_metadata(rpd_file=rpd_file, full_file_name=full_file_name,
                                  raw_bytes=raw_bytes)
         if rpd_file.metadata is not None:
             rpd_file.mdatatime = rpd_file.metadata.timestamp(missing=0.0)
-            #TODO assign mdatatime more intelligently
 
     def load_photo_metadata(self, rpd_file: Photo,
                         full_file_name: Optional[str]=None,
@@ -336,12 +341,19 @@ class ThumbnailExtractor(LoadBalancerWorker):
                                      et_process=self.exiftool_process)
 
     def assign_video_mdatatime(self, rpd_file: Video, full_file_name: str) -> None:
+        """
+        Load the video's metadata and assign the metadata time to the rpd file
+        """
+
         if rpd_file.metadata is None:
             rpd_file.load_metadata(full_file_name=full_file_name, et_process=self.exiftool_process)
         rpd_file.mdatatime = rpd_file.metadata.timestamp(missing=0.0)
-        #TODO assign mdatatime more intelligently
 
     def get_video_rotation(self, rpd_file: Video, full_file_name: str) -> Optional[str]:
+        """
+        Some videos have a rotation tag. If this video does, return it.
+        """
+
         if rpd_file.metadata is None:
             rpd_file.load_metadata(full_file_name=full_file_name, et_process=self.exiftool_process)
         orientation = rpd_file.metadata.rotation(missing=None)
@@ -369,9 +381,6 @@ class ThumbnailExtractor(LoadBalancerWorker):
                 break
 
             data = pickle.loads(content) # type: ThumbnailExtractorArgument
-
-            # logging.debug("%s is working on %s", self.requester.identity.decode(),
-            #               data.rpd_file.name)
 
             png_data = None
             orientation = None
@@ -401,8 +410,8 @@ class ThumbnailExtractor(LoadBalancerWorker):
                                               full_file_name=data.secondary_full_file_name)
 
                     if ExtractionProcessing.orient in processing:
-                        orientation = self.get_orientation(rpd_file=rpd_file,
-                                                   full_file_name=data.full_file_name_to_work_on)
+                        orientation = self.get_photo_orientation(rpd_file=rpd_file,
+                                                 full_file_name=data.full_file_name_to_work_on)
 
                 elif task in (ExtractionTask.load_from_bytes,
                               ExtractionTask.load_from_bytes_metadata_from_temp_extract):
@@ -411,8 +420,8 @@ class ThumbnailExtractor(LoadBalancerWorker):
                         processing.add(ExtractionProcessing.resize)
                         processing.remove(ExtractionProcessing.strip_bars_photo)
                     if data.exif_buffer and ExtractionProcessing.orient in processing:
-                        orientation = self.get_orientation(rpd_file=rpd_file,
-                                                           raw_bytes=data.exif_buffer)
+                        orientation = self.get_photo_orientation(rpd_file=rpd_file,
+                                                                 raw_bytes=data.exif_buffer)
                     if task == ExtractionTask.load_from_bytes_metadata_from_temp_extract:
                         self.assign_mdatatime(rpd_file=rpd_file,
                                                     full_file_name=data.secondary_full_file_name)
@@ -429,15 +438,15 @@ class ThumbnailExtractor(LoadBalancerWorker):
                     assert task in (ExtractionTask.extract_from_file,
                                     ExtractionTask.extract_from_file_and_load_metadata)
 
+                    # These tasks apply only to videos
                     if ExtractionTask.extract_from_file_and_load_metadata:
                         self.assign_video_mdatatime(rpd_file=rpd_file,
-                                                    full_file_name=data.full_file_name_to_work_on)
-
+                                                full_file_name=data.full_file_name_to_work_on)
                     if not have_gst:
                         thumbnail = None
                     else:
                         png = get_video_frame(data.full_file_name_to_work_on, 0.0)
-                        if png is None:
+                        if not png:
                             thumbnail = None
                             logging.warning("Could not extract video thumbnail from %s",
                                             data.rpd_file.get_display_full_name())
@@ -452,6 +461,7 @@ class ThumbnailExtractor(LoadBalancerWorker):
                                 if orientation is not None:
                                     processing.add(ExtractionProcessing.orient)
                                 processing.add(ExtractionProcessing.resize)
+
 
                 if data.file_to_work_on_is_temporary:
                     os.remove(data.full_file_name_to_work_on)
@@ -529,6 +539,7 @@ class ThumbnailExtractor(LoadBalancerWorker):
 
     def do_work(self):
         if False:
+            # exiv2 pumps out a LOT to stderr - use cautiously!
             context = show_errors()
             self.error_stream = sys.stderr
         else:

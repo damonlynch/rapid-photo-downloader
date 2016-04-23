@@ -376,9 +376,31 @@ class RPDFile:
 
         self.device_timestamp_type = device_timestamp_type
 
-        self.mtime_mdatatime_roughly_equal = None  # type: Optional[bool]
+        # self.ctime is the photo or video's creation time. It's value depends
+        # on the values in self.modification_time and self.mdatatime. It's value
+        # is set by the setter functions below.
+        #
+        # Ideally the file's metadata contains the date/time that the file
+        # was created. However the metadata may not have been read yet (it's a slow
+        # operation), or it may not exist or be invalid. In that case, need to rely on
+        # the file modification time as a proxy, as reported by the file system or device.
+        #
+        # However that can also be misleading. On my Canon DSLR, for instance, if I'm in the
+        # timezone UTC + 5, and I take a photo at 5pm, then the time stamp on the memory card
+        # shows the photo being taken at 10pm when I look at it on the computer. The timestamp
+        # written to the memory card should with this camera be read as
+        # datetime.utcfromtimestamp(mtime), which would return a time zone naive value of 5pm.
+        # In other words, the timestamp on the memory card is written as if it were always in
+        # UTC, regardless of which timezone the photo was taken in.
+        #
+        # Yet this is not the case with a cellphone, where the file modification time knows
+        # nothing about UTC and just saves it as a naive local time.
+
+        self.mdatatime_caused_ctime_change = False
+
         self.modification_time = mtime
         self.mdatatime = mdatatime
+        self.mdatatime_caused_ctime_change = False
 
         # If a camera has more than one memory card, store a simple numeric
         # identifier to indicate which memory card it came from
@@ -444,40 +466,16 @@ class RPDFile:
         return (self.thumbnail_status != ThumbnailCacheStatus.generation_failed and
                 (self.is_raw() or self.is_tiff()))
 
-    def ctime(self) -> float:
-        """
-        The photo or video's creation time.
-
-        Ideally the file's metadata contains the date/time that the file
-        was created. However the metadata may not have been read yet (it's a slow
-        operation), or it may not exist or be invalid. In that case, need to rely on
-        the file modification time as a proxy, as reported by the file system or device.
-
-        However that can also be misleading. On my Canon DSLR, for instance, if I'm in the
-        timezone UTC + 5, and I take a photo at 5pm, then the time stamp on the memory card
-        shows the photo being taken at 10pm when I look at it on the computer. The timestamp
-        written to the memory card should with this camera be read as
-        datetime.utcfromtimestamp(mtime), which would return a time zone naive value of 5pm.
-        In other words, the timestamp on the memory card is written as if it were always in
-        UTC, regardless of which timezone the photo was taken in.
-
-        Yet this is not the case with a cellphone, where the file modification time knows
-        nothing about UTC and just saves it as a naive local time.
-
-        :return: metadata date time, if it exists, else our best guess of what the
-        modification time is
-        """
-
-        if self.mdatatime:
-            return self.mdatatime
-        return self.modification_time
-
     @property
     def modification_time(self) -> float:
         return self._mtime
 
     @modification_time.setter
     def modification_time(self, value: Union[float, int])  -> None:
+        """
+        See notes on self.ctime above
+        """
+
         if not isinstance(value, float):
             value = float(value)
         if self.device_timestamp_type == DeviceTimestampTZ.is_utc:
@@ -486,6 +484,9 @@ class RPDFile:
             self._mtime = value
         self._raw_mtime = value
 
+        if not hasattr(self, '_mdatatime'):
+            self.ctime = self._mtime
+
     @property
     def mdatatime(self) -> float:
         return self._mdatatime
@@ -493,10 +494,23 @@ class RPDFile:
     @mdatatime.setter
     def mdatatime(self, value: float) -> None:
         self._mdatatime = value
+
+        # Only set the creation time if there is a value to set
         if value:
-            self.mtime_mdatatime_roughly_equal = datetime_roughly_equal(
-                datetime.fromtimestamp(self._mtime),
-                datetime.fromtimestamp(self._mdatatime))
+            self.mdatatime_caused_ctime_change = not datetime_roughly_equal(self.ctime, value)
+            self.ctime = value
+
+    def ctime_mtime_differ(self) -> bool:
+        """
+        :return: True if the creation time and file system date
+         modified time are not roughly the same. If the creation
+         date is unknown (zero), the result will be False.
+        """
+
+        if not self._mdatatime:
+            return False
+
+        return not datetime_roughly_equal(self._mdatatime, self._mtime)
 
     def is_jpeg(self) -> bool:
         """

@@ -104,19 +104,20 @@ class MetaData:
                 if len(d) > 19:
                     # remove the : from the timzone component, if it's present
                     if d[-3] == ':' and (d[-6] in ('+', '-')):
-                        tz = d[:-3] + d[-2:]
-                    dt = datetime.datetime.strptime(tz, "%Y:%m:%d %H:%M:%S%z")
+                        d = d[:-3] + d[-2:]
+                    dt = datetime.datetime.strptime(d, "%Y:%m:%d %H:%M:%S%z")
                 else:
                     dt = datetime.datetime.strptime(d, "%Y:%m:%d %H:%M:%S")
             except:
-                logging.error("Error reading date metadata %s from file %s", d, self.filename)
+                logging.warning("Error parsing date time metadata %s for video %s", d,
+                                self.filename)
                 return missing
 
             return dt
         else:
             return missing
 
-    def timestamp(self, missing=''):
+    def timestamp(self, missing='') -> float:
         """
         Returns a float value representing the time stamp, if it exists
         """
@@ -128,7 +129,7 @@ class MetaData:
                 ts = missing
         else:
             ts = missing
-        return ts
+        return float(ts)
 
     def file_number(self, missing=''):
         v = self._get("FileNumber", None)

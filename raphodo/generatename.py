@@ -93,7 +93,7 @@ class PhotoName:
                     except:
                         d = '00'
                     return d
-                d = ''
+                d = datetime.datetime.fromtimestamp(self.rpd_file.ctime)
             else:
                 if self.L2 == SUBSECONDS:
                     d = self.rpd_file.metadata.sub_seconds(missing=None)
@@ -122,8 +122,7 @@ class PhotoName:
             try:
                 return d.strftime(convert_date_for_strftime(self.L2))
             except:
-                logging.warning(
-                    "Exif date time value appears invalid for file %s",
+                logging.warning("Exif date time value appears invalid for file %s",
                     self.rpd_file.full_file_name)
 
         # step 3: handle a missing value using file modification time

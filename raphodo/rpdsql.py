@@ -553,6 +553,7 @@ class CacheSQL:
         :param failure: if True, indicates the thumbnail could not be
          generated, otherwise False
         """
+
         conn = sqlite3.connect(self.db)
 
         conn.execute(r"""INSERT OR REPLACE INTO {tn} (uri, size, mtime, mdatatime,
@@ -574,6 +575,7 @@ class CacheSQL:
          thumbnail generation failure, else None if thumbnail not
          present
         """
+
         conn = sqlite3.connect(self.db)
         c = conn.cursor()
         c.execute("""SELECT md5_name, mdatatime, orientation_unknown, failure FROM {tn} WHERE

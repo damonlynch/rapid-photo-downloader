@@ -195,18 +195,18 @@ class GetThumbnailFromCache:
                 mtime=rpd_file.modification_time,
                 size=rpd_file.size,
                 camera_model=rpd_file.camera_model)
-            if get_thumbnail.disk_status == ThumbnailCacheDiskStatus.failure:
-                rpd_file.thumbnail_status = ThumbnailCacheStatus.generation_failed
-                task = ExtractionTask.bypass
-            elif get_thumbnail.disk_status == ThumbnailCacheDiskStatus.found:
-                if get_thumbnail.orientation_unknown:
-                    rpd_file.thumbnail_status = ThumbnailCacheStatus.orientation_unknown
-                else:
-                    rpd_file.thumbnail_status = ThumbnailCacheStatus.ready
-                with open(get_thumbnail.path, 'rb') as thumbnail:
-                    thumbnail_bytes = thumbnail.read()
-                task = ExtractionTask.bypass
+            if get_thumbnail.disk_status != ThumbnailCacheDiskStatus.not_found:
                 origin = ThumbnailCacheOrigin.thumbnail_cache
+                task = ExtractionTask.bypass
+                if get_thumbnail.disk_status == ThumbnailCacheDiskStatus.failure:
+                    rpd_file.thumbnail_status = ThumbnailCacheStatus.generation_failed
+                elif get_thumbnail.disk_status == ThumbnailCacheDiskStatus.found:
+                    if get_thumbnail.orientation_unknown:
+                        rpd_file.thumbnail_status = ThumbnailCacheStatus.orientation_unknown
+                    else:
+                        rpd_file.thumbnail_status = ThumbnailCacheStatus.ready
+                    with open(get_thumbnail.path, 'rb') as thumbnail:
+                        thumbnail_bytes = thumbnail.read()
 
         # Attempt to get thumbnail from large FDO Cache if not found in Thumbnail Cache
         # and it's not being downloaded directly from a camera (if it's from a camera, it's
@@ -445,6 +445,7 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
                 if origin == ThumbnailCacheOrigin.thumbnail_cache:
                     from_thumb_cache += 1
                 else:
+                    assert origin == ThumbnailCacheOrigin.fdo_cache
                     from_fdo_cache += 1
                     if not rpd_file.mdatatime:
                         # Since we're extracting the thumbnail from the FDO cache,
@@ -455,7 +456,6 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
                         # special to do except assign the name of the file from which
                         # to extract the metadata
                         secondary_full_file_name = rpd_file.full_file_name
-
 
             if task == ExtractionTask.undetermined:
                 # Thumbnail was not found in any cache: extract it
@@ -607,11 +607,11 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
 
         logging.debug("Finished phase 1 of thumbnail generation for %s", arguments.name)
         if from_thumb_cache:
-            logging.info("{} thumbnails for {} came from thumbnail cache".format(
-                from_thumb_cache, arguments.name))
+            logging.info("{} of {} thumbnails for {} came from thumbnail cache".format(
+                from_thumb_cache, len(rpd_files), arguments.name))
         if from_fdo_cache:
-            logging.info("{} thumbnails for {} came from Free Desktop cache".format(
-                from_fdo_cache, arguments.name))
+            logging.info("{} of {} thumbnails of for {} came from Free Desktop cache".format(
+                from_fdo_cache, len(rpd_files), arguments.name))
 
         self.disconnect_logging()
         self.send_finished_command()

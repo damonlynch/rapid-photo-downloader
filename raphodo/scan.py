@@ -458,7 +458,8 @@ class ScanWorker(WorkerInPublishPullPipeline):
                                             size=size,
                                             camera_model=self.camera_display_name
                                             )
-                    if get_thumbnail.disk_status == ThumbnailCacheDiskStatus.found:
+                    if get_thumbnail.disk_status in (ThumbnailCacheDiskStatus.found,
+                                                     ThumbnailCacheDiskStatus.failure):
                         mdatatime = get_thumbnail.mdatatime
 
                 if downloaded is not None:

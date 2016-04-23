@@ -24,9 +24,9 @@ __copyright__ = "Copyright 2007-2016, Damon Lynch"
 
 import re
 import datetime
-import dateutil.parser
 import subprocess
 from typing import Optional
+import logging
 
 import gi
 gi.require_version('GExiv2', '0.10')
@@ -377,19 +377,32 @@ class MetaData(GExiv2.Metadata):
             return dt
 
         # get_date_time() seems to try only one key, Exif.Photo.DateTimeOriginal
-        # Try other keys too. For example Android 6.0 uses
-        # Exif.Image.DateTimeOriginal in its DNG files
+        # Try other keys too, and with a more flexible datetime parser.
+        # For example some or maybe all Android 6.0 DNG files use Exif.Image.DateTimeOriginal
 
-        for tag in ('Exif.Image.DateTimeOriginal', 'Exif.Image.DateTime'):
+        for tag in ('Exif.Photo.DateTimeOriginal', 'Exif.Image.DateTimeOriginal',
+                    'Exif.Image.DateTime'):
             try:
                 dt_string = self[tag]
-                if dt_string:
-                    try:
-                        return dateutil.parser.parse(dt_string)
-                    except (ValueError, OverflowError):
-                        pass
             except:
                 pass
+            else:
+                # ignore all zero values, e.g. '0000:00:00 00:00:00'
+                try:
+                    digits = int(''.join(c for c in dt_string if c.isdigit()))
+                except ValueError:
+                    logging.warning('Unexpected malformed date time metadata value %s for photo %s',
+                                        dt_string, self.rpd_full_file_name )
+                else:
+                    if not digits:
+                        logging.debug('Ignoring date time metadata value %s for photo %s',
+                                            dt_string, self.rpd_full_file_name )
+                    else:
+                        try:
+                            return  datetime.datetime.strptime(dt_string, "%Y:%m:%d %H:%M:%S")
+                        except (ValueError, OverflowError):
+                            logging.warning('Error parsing date time metadata %s for photo %s',
+                                            dt_string, self.rpd_full_file_name )
         return missing
 
     def timestamp(self, missing=''):

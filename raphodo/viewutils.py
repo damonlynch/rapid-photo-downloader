@@ -135,7 +135,7 @@ class RowTracker:
         return ids_to_remove
 
 
-ThumbnailDataForProximity = namedtuple('ThumbnailDataForProximity', 'uid, mtime, file_type, '
+ThumbnailDataForProximity = namedtuple('ThumbnailDataForProximity', 'uid, ctime, file_type, '
                                                                'previously_downloaded')
 
 class QFramedWidget(QWidget):

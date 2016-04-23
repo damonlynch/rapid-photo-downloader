@@ -57,6 +57,7 @@ from raphodo.utilities import (CacheDirs, make_internationalized_list, format_si
 from raphodo.thumbnailer import Thumbnailer
 from raphodo.rpdsql import ThumbnailRowsSQL, ThumbnailRow
 from raphodo.viewutils import ThumbnailDataForProximity
+from raphodo.proximity import TemporalProximityState
 
 
 class DownloadTypes:
@@ -212,6 +213,9 @@ class ThumbnailListModel(QAbstractListModel):
         self.total_thumbs_to_generate = 0
         self.thumbnails_generated = 0
         self.no_thumbnails_by_scan = defaultdict(int)
+
+        # scan_id
+        self.ctimes_differ = []  # type: List[int]
 
         # Highlight thumbnails when from particular device when there is more than one device
         # Thumbnails to highlight by uid
@@ -398,20 +402,33 @@ class ThumbnailListModel(QAbstractListModel):
             else:
                 device_name = ''
             size = format_size_for_user(rpd_file.size)
-
             mtime = arrow.get(rpd_file.modification_time)
-            humanized_modification_time = _(
-                '%(date_time)s (%(human_readable)s)' %
-                {'date_time': mtime.to('local').naive.strftime(
-                    '%c'),
-                 'human_readable': mtime.humanize()})
+
+            if rpd_file.ctime_mtime_differ():
+                ctime = arrow.get(rpd_file.ctime)
+
+                humanized_ctime = _(
+                    'Taken on %(date_time)s (%(human_readable)s)' %
+                    {'date_time': ctime.to('local').naive.strftime('%c'),
+                     'human_readable': ctime.humanize()})
+
+                humanized_mtime = _(
+                    'Modified on %(date_time)s (%(human_readable)s)' %
+                    {'date_time': mtime.to('local').naive.strftime('%c'),
+                     'human_readable': mtime.humanize()})
+                humanized_file_time = '{}\n{}'.format(humanized_ctime, humanized_mtime)
+            else:
+                humanized_file_time = _(
+                    '%(date_time)s (%(human_readable)s)' %
+                    {'date_time': mtime.to('local').naive.strftime('%c'),
+                     'human_readable': mtime.humanize()})
 
             if not device_name:
                 msg = '{}\n{}\n{}'.format(rpd_file.name,
-                                      humanized_modification_time, size)
+                                      humanized_file_time, size)
             else:
                 msg = '{}\n{}\n{}\n{}'.format(rpd_file.name, device_name,
-                                          humanized_modification_time, size)
+                                          humanized_file_time, size)
 
             if rpd_file.camera_memory_card_identifiers:
                 cards = _('Memory cards: %s') % make_internationalized_list(
@@ -564,23 +581,32 @@ class ThumbnailListModel(QAbstractListModel):
         download_is_running = self.rapidApp.downloadIsRunning()
 
         if not rpd_file.modified_via_daemon_process:
+            if rpd_file.mdatatime_caused_ctime_change:
+                if scan_id not in self.ctimes_differ:
+                    logging.info('Metadata time caused change in creation time for %s (with '
+                                 'possibly more to come, but these will not be logged)',
+                              rpd_file.full_file_name)
+                    self.ctimes_differ.append(scan_id)
+                    self.rapidApp.removeProvisionalDownloadFolders(scan_id=scan_id)
+                    self.rapidApp.notifyFoldersProximityRefresh(scan_id)
+
             # Only update the rpd_file if the file has not already been downloaded
             if self.rpd_files[uid].status in (DownloadStatus.not_downloaded,
                                               DownloadStatus.download_pending):
                 self.rpd_files[uid] = rpd_file
-            else:
-                # TODO: may need to update some values from the thumbnail generation?
-                pass
+
 
         if not thumbnail.isNull():
             try:
                 row = self.uid_to_row[uid]
             except KeyError:
                 if rpd_file.camera_model:
-                    logging.debug("Discarding unneeded thumbnail for %s from %s",
+                    logging.error("Discarding unneeded thumbnail for %s from %s",
                                   rpd_file.full_file_name, rpd_file.camera_model)
                 else:
-                    logging.debug("Discarding unneeded thumbnail for %s", rpd_file.full_file_name)
+                    logging.error("Discarding unneeded thumbnail for %s", rpd_file.full_file_name)
+                self.logState()
+                self.validateModelConsistency()
                 return
 
             self.thumbnails[uid] = thumbnail
@@ -595,6 +621,14 @@ class ThumbnailListModel(QAbstractListModel):
                     self.rapidApp.devices.set_device_state(scan_id, DeviceState.idle)
                 device = self.rapidApp.devices[scan_id]
                 logging.info('Finished thumbnail generation for %s', device.name())
+                if scan_id in self.ctimes_differ:
+                    uids = self.tsql.get_uids_for_device(scan_id=scan_id)
+                    rpd_files = [self.rpd_files[uid] for uid in uids]
+                    self.rapidApp.generateProvisionalDownloadFolders(rpd_files=rpd_files)
+                    self.ctimes_differ.remove(scan_id)
+                if not self.ctimes_differ:
+                    if self.rapidApp.temporalProximity.state != TemporalProximityState.pending:
+                        self.rapidApp.generateTemporalProximityTableData()
                 if not download_is_running:
                     self.rapidApp.updateProgressBarState()
                 log_state = True
@@ -1139,7 +1173,7 @@ class ThumbnailListModel(QAbstractListModel):
 
     def dataForProximityGeneration(self) -> List[ThumbnailDataForProximity]:
         return [ThumbnailDataForProximity(uid=rpd_file.uid,
-                                          mtime=rpd_file.modification_time,
+                                          ctime=rpd_file.ctime,
                                           file_type=rpd_file.file_type,
                                           previously_downloaded=rpd_file.previously_downloaded())
                 for rpd_file in self.rpd_files.values()]
