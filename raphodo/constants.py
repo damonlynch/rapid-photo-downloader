@@ -322,6 +322,7 @@ class Desktop(Enum):
     kde = 4
     xfce = 5
     mate = 6
+    lxde = 7
     unknown = 10
 
 

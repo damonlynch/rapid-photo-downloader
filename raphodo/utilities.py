@@ -493,3 +493,29 @@ def datetime_roughly_equal(dt1: Union[datetime, float], dt2: Union[datetime, flo
     at2 = arrow.get(dt2)
     return at1.replace(seconds=-seconds) < at2 < at1.replace(seconds=+seconds)
 
+
+def process_running(process_name: str, partial_name: bool=True) -> bool:
+    """
+    Search the list of the system's running processes to see if a process with this
+    name is running
+
+    :param process_name: the name of the process to search for
+    :param partial_name: if True, the process_name argument can be a
+     partial match
+    :return: True if found, else False
+    """
+
+    for proc in psutil.process_iter():
+        try:
+            name = proc.name()
+        except psutil.NoSuchProcess:
+            pass
+        else:
+            if partial_name:
+                if name.find(process_name) >= 0:
+                    return True
+            else:
+                if name == process_name:
+                    return True
+    return False
+

@@ -70,6 +70,7 @@ gi.require_version('GLib', '2.0')
 from gi.repository import GUdev, UDisks, GLib
 
 from raphodo.constants import Desktop
+from raphodo.utilities import process_running
 
 logging_level = logging.DEBUG
 
@@ -263,8 +264,25 @@ def get_desktop() -> Desktop:
         return Desktop.unknown
 
 def gvfs_controls_mounts() -> bool:
-    return get_desktop() in (Desktop.gnome, Desktop.unity,Desktop.cinnamon, Desktop.xfce,
-                             Desktop.mate)
+    """
+    Determine if GVFS controls mounts on this system.
+
+    By default, common desktop environments known to use it are assumed
+    to be using it or not. If not found in this list, then the list of
+    running processes is searched, looking for a match against 'gvfs-gphoto2',
+    which will match what is at the time of this code being developed called
+    'gvfs-gphoto2-volume-monitor', which is what we're most interested in.
+
+    :return: True if so, False otherwise
+    """
+
+    desktop = get_desktop()
+    if desktop in (Desktop.gnome, Desktop.unity, Desktop.cinnamon, Desktop.xfce,
+                             Desktop.mate, Desktop.lxde):
+        return True
+    elif desktop == Desktop.kde:
+        return False
+    return process_running('gvfs-gphoto2')
 
 def xdg_photos_directory() -> str:
     """

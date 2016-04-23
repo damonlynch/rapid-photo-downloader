@@ -81,7 +81,7 @@ from raphodo.storage import (ValidMounts, CameraHotplug, UDisks2Monitor,
                      GVolumeMonitor, have_gio, has_non_empty_dcim_folder,
                      mountPaths, get_desktop_environment,
                      gvfs_controls_mounts, get_default_file_manager, validate_download_folder,
-                             validate_source_folder)
+                     validate_source_folder, get_fdo_cache_thumb_base_directory)
 from raphodo.interprocess import (PublishPullPipelineManager,
                                   PushPullDaemonManager,
                                   ScanArguments,
@@ -412,7 +412,6 @@ class RapidWindow(QMainWindow):
         self.application_state = ApplicationState.normal
         self.prompting_for_user_action = {}  # type: Dict[Device, QMessageBox]
 
-        logging.info("Rapid Photo Downloader has started")
         for version in get_versions():
             logging.info('%s', version)
 
@@ -611,6 +610,11 @@ class RapidWindow(QMainWindow):
         logging.debug("Probing for valid mounts")
         self.validMounts = ValidMounts(onlyExternalMounts=self.prefs.only_external_mounts)
 
+        fdo_thumbnail_dir = get_fdo_cache_thumb_base_directory()
+        self.fdo_thumbnail = os.path.isdir(fdo_thumbnail_dir) and os.access(fdo_thumbnail_dir,
+                                                                            os.W_OK)
+        logging.debug("Freedesktop.org thumbnails used: %s", self.fdo_thumbnail)
+
         logging.debug("Setting up Job Code window")
         self.job_code = JobCode(self)
 
@@ -767,7 +771,7 @@ class RapidWindow(QMainWindow):
         settings = QSettings()
         settings.beginGroup("MainWindow")
 
-        self.proximityButton.setChecked(settings.value("proximityButtonPressed", True, bool))
+        self.proximityButton.setChecked(settings.value("proximityButtonPressed", False, bool))
         self.proximityButtonClicked()
 
         self.sourceButton.setChecked(settings.value("sourceButtonPressed", True, bool))
@@ -776,12 +780,16 @@ class RapidWindow(QMainWindow):
         self.destinationButton.setChecked(settings.value("destinationButtonPressed", True, bool))
         self.destinationButtonClicked()
 
-        self.splash.finish(self)
-
-        self.window_show_requested_time = datetime.datetime.now()
-        self.show()
+        self.showMainWindow()
 
         logging.debug("Completed stage 3 initializing main window")
+
+    def showMainWindow(self) -> None:
+        if not self.isVisible():
+            self.splash.finish(self)
+
+            self.window_show_requested_time = datetime.datetime.now()
+            self.show()
 
     def mapModel(self, scan_id: int) -> DeviceModel:
         """
@@ -2747,26 +2755,30 @@ class RapidWindow(QMainWindow):
             if scan_id not in self.devices:
                 return
             if data.error_code is not None:
+
+                self.showMainWindow()
+
                 # An error occurred
                 error_code = data.error_code
                 device = self.devices[scan_id]
                 camera_model = device.display_name
                 if error_code == CameraErrorCode.locked:
-                    title =_('Files inaccessible')
-                    message = _('All files on the %(camera)s are inaccessible. It may be locked or '
-                                'not configured for file transfers using MTP. You can '
-                                'unlock it and try again. On some models you also need to change '
-                                'the setting "USB for charging" to "USB for file transfers". '
-                                  'Alternatively, you can ignore this device.') % {
-                        'camera': camera_model}
+                    title =_('Rapid Photo Downloader')
+                    message = _('<b>All files on the %(camera)s are inaccessible</b>.<br><br>It '
+                                'may be locked or not configured for file transfers using MTP. '
+                                'You can unlock it and try again.<br><br>On some models you also '
+                                'need to change the setting <i>USB for charging</i> to <i>USB for '
+                                'file transfers</i>.<br><br>Alternatively, you can ignore this '
+                                'device.') % {'camera': camera_model}
                 else:
                     assert error_code == CameraErrorCode.inaccessible
-                    title = _('Device inaccessible')
-                    message = _('The %(camera)s appears to be in use by another application. You '
+                    title = _('Rapid Photo Downloader')
+                    message = _('<b>The %(camera)s appears to be in use by another '
+                                'application.</b><br><br>You '
                                 'can close any other application (such as a file browser) that is '
                                 'using it and try again. If that '
                                 'does not work, unplug the %(camera)s from the computer and plug '
-                                'it in again. Alternatively, you can ignore '
+                                'it in again.<br><br>Alternatively, you can ignore '
                                 'this device.') % {'camera':camera_model}
 
                 msgBox = QMessageBox(QMessageBox.Warning, title, message,

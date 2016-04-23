@@ -863,7 +863,8 @@ class ThumbnailListModel(QAbstractListModel):
         """
 
         return (self.prefs.generate_thumbnails and (
-                    (self.prefs.save_fdo_thumbnails and rpd_file.should_write_fdo()) or
+                    (self.prefs.save_fdo_thumbnails and rpd_file.should_write_fdo()
+                     and self.rapidApp.fdo_thumbnail) or
                     rpd_file.thumbnail_status not in (ThumbnailCacheStatus.ready,
                                                       ThumbnailCacheStatus.fdo_256_ready)))
 
