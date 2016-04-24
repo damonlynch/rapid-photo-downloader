@@ -626,9 +626,11 @@ class ThumbnailListModel(QAbstractListModel):
                     rpd_files = [self.rpd_files[uid] for uid in uids]
                     self.rapidApp.generateProvisionalDownloadFolders(rpd_files=rpd_files)
                     self.ctimes_differ.remove(scan_id)
-                if not self.ctimes_differ:
-                    if self.rapidApp.temporalProximity.state != TemporalProximityState.pending:
-                        self.rapidApp.generateTemporalProximityTableData()
+                    if not self.ctimes_differ and self.rapidApp.temporalProximity.state != \
+                            TemporalProximityState.pending:
+                        self.rapidApp.generateTemporalProximityTableData(
+                            reason="a photo or video's creation time differed from it's file "
+                                   "system modification time")
                 if not download_is_running:
                     self.rapidApp.updateProgressBarState()
                 log_state = True
@@ -681,10 +683,9 @@ class ThumbnailListModel(QAbstractListModel):
             self.thumbnailmq.generateThumbnails(*gen_args)
 
     def resetThumbnailTrackingAndDisplay(self):
-        # TODO should this progressbar reset really occur here?
-        self.rapidApp.downloadProgressBar.reset()
         self.thumbnails_generated = 0
         self.total_thumbs_to_generate = 0
+        self.rapidApp.downloadProgressBar.reset()
 
     def clearAll(self, scan_id: Optional[int]=None, keep_downloaded_files: bool=False) -> bool:
         """
@@ -863,8 +864,7 @@ class ThumbnailListModel(QAbstractListModel):
         """
 
         return (self.prefs.generate_thumbnails and (
-                    (self.prefs.save_fdo_thumbnails and rpd_file.should_write_fdo()
-                     and self.rapidApp.fdo_thumbnail) or
+                    (self.prefs.save_fdo_thumbnails and rpd_file.should_write_fdo()) or
                     rpd_file.thumbnail_status not in (ThumbnailCacheStatus.ready,
                                                       ThumbnailCacheStatus.fdo_256_ready)))
 
@@ -1434,7 +1434,7 @@ class ThumbnailDelegate(QStyledItemDelegate):
 
         if has_audio:
             audio_x = self.width // 2 - self.audioIcon.width() // 2 + x
-            audio_y = self.image_frame_bottom + self.footer_padding
+            audio_y = self.image_frame_bottom + self.footer_padding + y
             painter.drawPixmap(audio_x, audio_y, self.audioIcon)
 
         # Draw a small coloured box containing the file extension in the

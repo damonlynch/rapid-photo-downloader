@@ -123,8 +123,10 @@ class Cache:
 
     def __init__(self, cache_dir: str, failure_dir: Optional[str]) -> None:
         """
+        Create cache if it doesn't exist; checks validity.
+
         :param cache_dir: full path of the directory into which
-         thumbnails will be saved / read
+         thumbnails will be saved / read.
         :param failure_dir: full path of the directory into which
          failed thumbnails will be saved / read (thumbnails that could
          not be generated)
@@ -133,31 +135,33 @@ class Cache:
         assert sys.platform.startswith('linux')
         self.cache_dir = cache_dir
         self.failure_dir = failure_dir
-        self.valid = (self.cache_dir is not None and os.path.isdir(self.cache_dir) and
-                      os.access(self.cache_dir, os.W_OK))
-        if not self.valid:
-            logging.debug('Freedesktop.org thumbnail cache does not exist')
+        assert self.cache_dir
+
+        self.valid = self._create_directory(self.cache_dir, "Freedesktop.org thumbnail")
 
         if self.valid:
             self.random_filename = GenerateRandomFileName()
             self.md5 = MD5Name()
             if self.failure_dir is not None:
-                try:
-                    if not os.path.exists(self.failure_dir):
-                        os.makedirs(self.failure_dir, 0o700)
-                        logging.debug("Created thumbnails failure cache %s", self.failure_dir)
-                    elif not os.path.isdir(self.failure_dir):
-                        os.remove(self.failure_dir)
-                        logging.warning("Removed file %s", self.failure_dir)
-                        os.makedirs(self.failure_dir, 0o700)
-                        logging.debug("Created thumbnails failure cache %s",
-                                      self.failure_dir)
-                except OSError:
-                    logging.error("Failed to create Rapid Photo Downloader thumbnail failure "
-                                  "directory at %s", self.failure_dir)
+                self.valid = self._create_directory(self.failure_dir, "thumbnails failure")
 
         if not self.valid:
             self.random_filename = self.fs_encoding = None
+
+    def _create_directory(self, dir: str, descrtiption: str) -> None:
+        try:
+            if not os.path.exists(dir):
+                os.makedirs(dir, 0o700)
+                logging.debug("Created %s cache at %s", descrtiption, dir)
+            elif not os.path.isdir(dir):
+                os.remove(dir)
+                logging.warning("Removed file %s", dir)
+                os.makedirs(dir, 0o700)
+                logging.debug("Created %s cache at %s", descrtiption, dir)
+        except OSError:
+            logging.error("Failed to create %s cache at %s", descrtiption, dir)
+            return False
+        return True
 
     def save_thumbnail(self, full_file_name: str, size: int,
                        modification_time, generation_failed: bool,

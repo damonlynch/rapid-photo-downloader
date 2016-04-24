@@ -1583,11 +1583,11 @@ class TemporalProximity(QWidget):
 
         self.state = state
 
-
     def setGroups(self, proximity_groups: TemporalProximityGroups) -> None:
         if self.another_generation_needed:
             self.another_generation_needed = False
-            self.rapidApp.generateTemporalProximityTableData()
+            self.rapidApp.generateTemporalProximityTableData(
+                reason="a change was made while it was already generating")
             return
 
         self.temporalProximityModel.groups = proximity_groups
@@ -1634,6 +1634,7 @@ class TemporalProximity(QWidget):
         self.prefs.set_proximity(minutes=minutes)
         if self.state == TemporalProximityState.generated:
             self.setState(TemporalProximityState.generating)
-            self.rapidApp.generateTemporalProximityTableData()
+            self.rapidApp.generateTemporalProximityTableData(
+                reason="the duration between consecutive shots has changed")
         elif self.state == TemporalProximityState.generating:
             self.another_generation_needed = True

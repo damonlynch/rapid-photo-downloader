@@ -610,10 +610,8 @@ class RapidWindow(QMainWindow):
         logging.debug("Probing for valid mounts")
         self.validMounts = ValidMounts(onlyExternalMounts=self.prefs.only_external_mounts)
 
-        fdo_thumbnail_dir = get_fdo_cache_thumb_base_directory()
-        self.fdo_thumbnail = os.path.isdir(fdo_thumbnail_dir) and os.access(fdo_thumbnail_dir,
-                                                                            os.W_OK)
-        logging.debug("Freedesktop.org thumbnails used: %s", self.fdo_thumbnail)
+        logging.debug("Freedesktop.org thumbnails location: %s",
+                       get_fdo_cache_thumb_base_directory())
 
         logging.debug("Setting up Job Code window")
         self.job_code = JobCode(self)
@@ -1766,7 +1764,7 @@ class RapidWindow(QMainWindow):
             if len(self.devices) == 0:
                 self.temporalProximity.setState(TemporalProximityState.empty)
             else:
-                self.generateTemporalProximityTableData()
+                self.generateTemporalProximityTableData("devices were removed as a download source")
         else:
             self.searchForCameras()
             self.setupNonCameraDevices()
@@ -2827,7 +2825,7 @@ class RapidWindow(QMainWindow):
         self.logState()
 
         if len(self.devices.scanning) == 0:
-            self.generateTemporalProximityTableData()
+            self.generateTemporalProximityTableData("a download source has finished being scanned")
         else:
             self.temporalProximity.setState(TemporalProximityState.pending)
 
@@ -2861,10 +2859,12 @@ class RapidWindow(QMainWindow):
         """
         QTimer.singleShot(0, self.close)
 
-    def generateTemporalProximityTableData(self) -> None:
+    def generateTemporalProximityTableData(self, reason: str) -> None:
         """
         Initiate Timeline generation
         """
+
+        logging.info("Generating Timeline because %s", reason)
 
         self.temporalProximity.setState(TemporalProximityState.generating)
 
@@ -2877,6 +2877,9 @@ class RapidWindow(QMainWindow):
         """
         Generate download subfolders for the rpd files
         """
+
+        logging.debug("Generating provisional download folders")
+
         destination = DownloadDestination(photo_download_folder=self.prefs.photo_download_folder,
                                           video_download_folder=self.prefs.video_download_folder,
                                           photo_subfolder=self.prefs.photo_subfolder,
@@ -3319,7 +3322,7 @@ class RapidWindow(QMainWindow):
                 if len(self.devices) == 0:
                     self.temporalProximity.setState(TemporalProximityState.empty)
                 else:
-                    self.generateTemporalProximityTableData()
+                    self.generateTemporalProximityTableData("a download source was removed")
 
             self.logState()
             self.updateProgressBarState()

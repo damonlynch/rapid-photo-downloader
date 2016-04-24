@@ -63,6 +63,7 @@ from xdg import BaseDirectory
 import xdg
 
 import gi
+
 gi.require_version('GUdev', '1.0')
 gi.require_version('UDisks', '2.0')
 gi.require_version('GExiv2', '0.10')
@@ -76,6 +77,7 @@ logging_level = logging.DEBUG
 
 try:
     from gi.repository import Gio
+
     have_gio = True
 except ImportError:
     have_gio = False
@@ -95,12 +97,13 @@ class ValidMounts():
     However if only considering external mounts, the the mount must be
     under /media/<USER> or /run/media/<user>
     """
+
     def __init__(self, onlyExternalMounts: bool):
         """
         :param onlyExternalMounts: if True, valid mounts must be under
         /media/<USER> or /run/media/<user>
         """
-        self.validMountFolders = None # type: Tuple[str]
+        self.validMountFolders = None  # type: Tuple[str]
         self.onlyExternalMounts = onlyExternalMounts
         self._setValidMountFolders()
         assert '/' not in self.validMountFolders
@@ -163,15 +166,15 @@ class ValidMounts():
                 media_dir = ''
             logging.debug("Media dir is %s", media_dir)
             if self.onlyExternalMounts:
-                self.validMountFolders = (media_dir,'/run{}'.format(media_dir))
+                self.validMountFolders = (media_dir, '/run{}'.format(media_dir))
             else:
                 home_dir = os.path.expanduser('~')
-                validPoints = [home_dir, media_dir,'/run{}'.format(media_dir)]
+                validPoints = [home_dir, media_dir, '/run{}'.format(media_dir)]
                 for point in self.mountPointInFstab():
                     validPoints.append(point)
                 self.validMountFolders = tuple(validPoints)
         else:
-            raise("Mounts.setValidMountPoints() not implemented on %s", sys.platform())
+            raise ("Mounts.setValidMountPoints() not implemented on %s", sys.platform())
 
     def mountPointInFstab(self):
         """
@@ -202,7 +205,7 @@ class ValidMounts():
                 for p in self.validMountFolders[:-2]:
                     msg += "{}, ".format(p)
                 msg += "{} or {}".format(self.validMountFolders[-2],
-                                             self.validMountFolders[-1])
+                                         self.validMountFolders[-1])
             elif len(self.validMountFolders) == 2:
                 msg += "{} or {}".format(self.validMountFolders[0],
                                          self.validMountFolders[1])
@@ -218,6 +221,7 @@ def mountPaths():
 
     for m in QStorageInfo.mountedVolumes():
         yield m.rootPath()
+
 
 def has_non_empty_dcim_folder(path: str) -> bool:
     """
@@ -239,6 +243,7 @@ def has_non_empty_dcim_folder(path: str) -> bool:
             return len(os.listdir(dcim_folder)) > 0
     return False
 
+
 def get_desktop_environment() -> Optional[str]:
     """
     Determine desktop environment using environment variable XDG_CURRENT_DESKTOP
@@ -247,6 +252,7 @@ def get_desktop_environment() -> Optional[str]:
     """
 
     return os.getenv('XDG_CURRENT_DESKTOP')
+
 
 def get_desktop() -> Desktop:
     """
@@ -263,6 +269,7 @@ def get_desktop() -> Desktop:
     except KeyError:
         return Desktop.unknown
 
+
 def gvfs_controls_mounts() -> bool:
     """
     Determine if GVFS controls mounts on this system.
@@ -278,11 +285,12 @@ def gvfs_controls_mounts() -> bool:
 
     desktop = get_desktop()
     if desktop in (Desktop.gnome, Desktop.unity, Desktop.cinnamon, Desktop.xfce,
-                             Desktop.mate, Desktop.lxde):
+                   Desktop.mate, Desktop.lxde):
         return True
     elif desktop == Desktop.kde:
         return False
     return process_running('gvfs-gphoto2')
+
 
 def xdg_photos_directory() -> str:
     """
@@ -291,12 +299,14 @@ def xdg_photos_directory() -> str:
     """
     return GLib.get_user_special_dir(GLib.USER_DIRECTORY_PICTURES)
 
+
 def xdg_videos_directory() -> str:
     """
     Get localized version of /home/<USER>/Videos
     :return: the directory
     """
     return GLib.get_user_special_dir(GLib.USER_DIRECTORY_VIDEOS)
+
 
 def make_program_directory(path: str) -> str:
     """
@@ -315,7 +325,8 @@ def make_program_directory(path: str) -> str:
         os.mkdir(program_dir)
     return program_dir
 
-def get_program_cache_directory(create_if_not_exist: bool=False) -> Optional[str]:
+
+def get_program_cache_directory(create_if_not_exist: bool = False) -> Optional[str]:
     """
     Get Rapid Photo Downloader cache directory.
 
@@ -334,7 +345,8 @@ def get_program_cache_directory(create_if_not_exist: bool=False) -> Optional[str
         logging.error("An error occurred while creating the cache directory")
         return None
 
-def get_program_logging_directory(create_if_not_exist: bool=False) -> Optional[str]:
+
+def get_program_logging_directory(create_if_not_exist: bool = False) -> Optional[str]:
     """
     Get directory in which to store program log files.
 
@@ -357,6 +369,7 @@ def get_program_logging_directory(create_if_not_exist: bool=False) -> Optional[s
             logging.error("An error occurred while creating the log directory")
     return None
 
+
 def get_program_data_directory(create_if_not_exist=False) -> Optional[str]:
     """
     Get Rapid Photo Downloader data directory, which is assumed to be
@@ -374,10 +387,21 @@ def get_program_data_directory(create_if_not_exist=False) -> Optional[str]:
         logging.error("An error occurred while creating the data directory")
         return None
 
+
 def get_fdo_cache_thumb_base_directory() -> str:
+    """
+    Get the Freedesktop.org thumbnail directory location
+    :return: location
+    """
+
+    # LXDE is a special case: handle it
+    if get_desktop() == Desktop.lxde:
+        return os.path.join(os.path.expanduser('~'), '.thumbnails')
+
     return os.path.join(BaseDirectory.xdg_cache_home, 'thumbnails')
 
-def get_default_file_manager(remove_args: bool=True) -> Optional[str]:
+
+def get_default_file_manager(remove_args: bool = True) -> Optional[str]:
     """
     Attempt to determine the default file manager for the system
     :param remove_args: if True, remove any arguments such as %U from
@@ -411,7 +435,9 @@ def get_default_file_manager(remove_args: bool=True) -> Optional[str]:
             else:
                 return fm
 
+
 ValidatedFolder = namedtuple('ValidatedFolder', 'valid, absolute_path')
+
 
 def validate_download_folder(path: Optional[str]) -> ValidatedFolder:
     r"""
@@ -460,6 +486,7 @@ def validate_source_folder(path: Optional[str]) -> ValidatedFolder:
     valid = os.path.isdir(path) and os.access(path, os.R_OK)
     return ValidatedFolder(valid, absolute_path)
 
+
 def udev_attributes(devname: str) -> Optional[UdevAttr]:
     """
     Query udev to see if device is an MTP device.
@@ -472,10 +499,10 @@ def udev_attributes(devname: str) -> Optional[UdevAttr]:
     enumerator = GUdev.Enumerator.new(client)
     enumerator.add_match_property('DEVNAME', devname)
     for device in enumerator.execute():
-        model = device.get_property('ID_MODEL') # type: str
+        model = device.get_property('ID_MODEL')  # type: str
         if model is not None:
             is_mtp = device.get_property('ID_MTP_DEVICE') == '1'
-            vendor = device.get_property('ID_VENDOR') # type: str
+            vendor = device.get_property('ID_VENDOR')  # type: str
             model = model.replace('_', ' ').strip()
             vendor = vendor.replace('_', ' ').strip()
             return UdevAttr(is_mtp, vendor, model)
@@ -554,16 +581,16 @@ class CameraHotplug(QObject):
 
 
 class UDisks2Monitor(QObject):
-    #Most of this class is Copyright 2008-2015 Canonical
+    # Most of this class is Copyright 2008-2015 Canonical
 
     partitionMounted = pyqtSignal(str, list, bool)
     partitionUnmounted = pyqtSignal(str)
 
     loop_prefix = '/org/freedesktop/UDisks2/block_devices/loop'
     not_interesting = (
-    '/org/freedesktop/UDisks2/block_devices/dm_',
-    '/org/freedesktop/UDisks2/block_devices/ram',
-    '/org/freedesktop/UDisks2/block_devices/zram',
+        '/org/freedesktop/UDisks2/block_devices/dm_',
+        '/org/freedesktop/UDisks2/block_devices/ram',
+        '/org/freedesktop/UDisks2/block_devices/zram',
     )
 
     def __init__(self, validMounts: ValidMounts) -> None:
@@ -664,17 +691,17 @@ class UDisks2Monitor(QObject):
             list_options = 'sync'
         G_VARIANT_TYPE_VARDICT = GLib.VariantType.new('a{sv}')
         param_builder = GLib.VariantBuilder.new(G_VARIANT_TYPE_VARDICT)
-        optname = GLib.Variant.new_string('fstype') # s
+        optname = GLib.Variant.new_string('fstype')  # s
         value = GLib.Variant.new_string(fstype)
-        vvalue = GLib.Variant.new_variant(value) # v
-        newsv = GLib.Variant.new_dict_entry(optname, vvalue) # {sv}
+        vvalue = GLib.Variant.new_variant(value)  # v
+        newsv = GLib.Variant.new_dict_entry(optname, vvalue)  # {sv}
         param_builder.add_value(newsv)
         optname = GLib.Variant.new_string('options')
         value = GLib.Variant.new_string(list_options)
         vvalue = GLib.Variant.new_variant(value)
         newsv = GLib.Variant.new_dict_entry(optname, vvalue)
         param_builder.add_value(newsv)
-        vparam = param_builder.end() # a{sv}
+        vparam = param_builder.end()  # a{sv}
 
         # Try to mount until it does not fail with "Busy"
         timeout = 10
@@ -783,7 +810,7 @@ if have_gio:
             return to_unmount
 
         def unmountCamera(self, model: str, port: str, download_starting:
-                          bool=False, mount_point: Gio.Mount=None) -> bool:
+        bool = False, mount_point: Gio.Mount = None) -> bool:
             """
             Unmount camera mounted on gvfs mount point, if it is
             mounted. If not mounted, ignore.
@@ -803,7 +830,8 @@ if have_gio:
             if to_unmount is not None:
                 logging.debug("GIO: Attempting to unmount %s...", model)
                 to_unmount.unmount_with_operation(0,
-                      None, None, self.unmountCallback, (model, port, download_starting))
+                                                  None, None, self.unmountCallback,
+                                                  (model, port, download_starting))
                 return True
 
             return False
@@ -892,7 +920,7 @@ if have_gio:
                           volume.get_name(),
                           volume.should_automount())
             if not volume.should_automount():
-                #TODO is it possible to determine the device type?
+                # TODO is it possible to determine the device type?
                 self.volumeAddedNoAutomount.emit()
 
         def volumeRemoved(self, volumeMonitor, volume: Gio.Volume) -> None:

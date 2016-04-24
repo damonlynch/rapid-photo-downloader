@@ -241,11 +241,17 @@ def main(installer: str) -> None:
                 temp_requirements_name = temp_requirements.name
 
     print("\nInstalling application requirements")
-    pip.main(['install', '--user', '-r' ,temp_requirements.name])
+    i = pip.main(['install', '--user', '-r' ,temp_requirements.name])
     os.remove(temp_requirements_name)
+    if i != 0:
+        sys.stderr.write("Failed to install application requirements: exiting\n")
+        sys.exit(1)
 
     print("\nInstalling application")
-    pip.main(['install', '--user', '--no-deps', installer])
+    i = pip.main(['install', '--user', '--no-deps', installer])
+    if i != 0:
+        sys.stderr.write("Failed to install application: exiting\n")
+        sys.exit(1)
 
     path = os.getenv('PATH')
     install_path = os.path.join(os.path.expanduser('~'), '.local', 'bin')
