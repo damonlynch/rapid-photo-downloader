@@ -42,7 +42,7 @@ from PyQt5.QtWidgets import (QTableView, QStyledItemDelegate, QSlider, QLabel, Q
 from PyQt5.QtGui import (QPainter, QFontMetrics, QFont, QColor, QGuiApplication, QPixmap,
                          QPalette, QMouseEvent)
 
-from raphodo.viewutils import QFramedWidget
+from raphodo.viewutils import QFramedWidget, QFramedLabel
 from raphodo.constants import (FileType, Align, proximity_time_steps, TemporalProximityState,
                                fileTypeColor, CustomColors, DarkGray, MediumGray,
                                DoubleDarkGray)
@@ -1459,15 +1459,24 @@ class TemporalProximity(QWidget):
         description = _('The Timeline groups photos and videos based on how much time elapsed '
 'between consecutive shots. Use it to identify photos and videos taken at '
 'different periods in a single day or over consecutive days.')
-        adjust = _('Use the slider to adjust the time elapsed between consecutive shots '
+        adjust = _('Use the slider (below) to adjust the time elapsed between consecutive shots '
 'that is used to build the Timeline.')
         generation_pending = _("Timeline build pending...")
         generating = _("Timeline is building...")
+        ctime_vs_mtime = _("The Timeline needs to be rebuilt because the file "
+                           "modification time does not match the time a shot was taken.<br><br>The "
+                           "Timeline "
+"shows when shots were taken. The time a shot was taken is found in a photo or video's metadata. "
+"Reading the metadata is time consuming, so Rapid Photo Downloader eschews reading the metadata "
+"while scanning files. Instead it uses the time the file was last modified as a proxy for when "
+"the shot was taken. The time a shot was taken is confirmed when generating thumbnails or "
+"downloading, which is when the metadata is read.")
 
         description = '<i>{}</i>'.format(description)
         generation_pending = '<i>{}</i>'.format(generation_pending)
         generating = '<i>{}</i>'.format(generating)
         adjust = '<i>{}</i>'.format(adjust)
+        ctime_vs_mtime = '<i>{}</i>'.format(ctime_vs_mtime)
 
         palette = QPalette()
         palette.setColor(QPalette.Window, palette.color(palette.Base))
@@ -1476,9 +1485,10 @@ class TemporalProximity(QWidget):
         margin = 6
 
         self.description = QLabel(description)
-        self.generating = QLabel(generating)
-        self.generationPending = QLabel(generation_pending)
         self.adjust = QLabel(adjust)
+        self.generating = QFramedLabel(generating)
+        self.generationPending = QFramedLabel(generation_pending)
+        self.ctime_vs_mtime = QFramedLabel(ctime_vs_mtime)
 
         self.explanation = QFramedWidget()
         layout = QVBoxLayout()
@@ -1489,13 +1499,25 @@ class TemporalProximity(QWidget):
         layout.addWidget(self.description)
         layout.addWidget(self.adjust)
 
-        for label in (self.description, self.generationPending, self.generating, self.adjust):
+        self.widget_for_state = {
+            TemporalProximityState.empty: self.explanation,
+            TemporalProximityState.pending: self.generationPending,
+            TemporalProximityState.generating: self.generating,
+            TemporalProximityState.regenerate: self.generating,
+            TemporalProximityState.ctime_rebuild: self.ctime_vs_mtime,
+            TemporalProximityState.ctime_rebuild_proceed: self.ctime_vs_mtime,
+            TemporalProximityState.generated: self.temporalProximityView
+        }
+
+        for label in (self.description, self.generationPending, self.generating, self.adjust,
+                      self.ctime_vs_mtime):
             label.setMargin(margin)
             label.setWordWrap(True)
             label.setAutoFillBackground(True)
             label.setPalette(palette)
 
-        for label in (self.description, self.generationPending, self.generating):
+        for label in (self.description, self.generationPending, self.generating,
+                      self.ctime_vs_mtime):
             label.setAlignment(Qt.AlignTop)
             label.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.MinimumExpanding)
         self.adjust.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Minimum)
@@ -1550,30 +1572,37 @@ class TemporalProximity(QWidget):
         self.thumbnailModel.setProximityGroupFilter([],[])
         self.rapidApp.proximityButton.setHighlighted(False)
 
-
     def setState(self, state: TemporalProximityState) -> None:
+        """
+        Set the state of the temporal proximity view, updating the displayed message
+        :param state: the new state
+        """
+
+        if state == self.state:
+            return
+
+        if state == TemporalProximityState.ctime_rebuild_proceed:
+            if self.state == TemporalProximityState.ctime_rebuild:
+                self.state = TemporalProximityState.ctime_rebuild_proceed
+                logging.debug("Timeline is ready to be rebuilt after ctime change")
+                return
+            else:
+                logging.error("Unexpected request to set Timeline state to %s because current "
+                              "state is %s", state.name, self.state.name)
+        elif self.state == TemporalProximityState.ctime_rebuild:
+            logging.debug("Ignoring request to set timeline state to %s because current "
+                          "state is ctime rebuild", state.name)
+            return
+
+        logging.debug("Updating Timeline state from %s to %s", self.state.name, state.name)
+
         layout = self.layout()  # type: QVBoxLayout
-        if self.state == TemporalProximityState.empty:
-            existingWidget = self.explanation
-        elif self.state == TemporalProximityState.pending:
-            existingWidget = self.generationPending
-        elif self.state == TemporalProximityState.generating:
-            existingWidget = self.generating
-        else:
-            assert self.state == TemporalProximityState.generated
-            existingWidget = self.temporalProximityView
+
+        existingWidget = self.widget_for_state[self.state]
 
         existingWidget.hide()
 
-        if state == TemporalProximityState.pending:
-            newWidget = self.generationPending
-        elif state == TemporalProximityState.generating:
-            newWidget = self.generating
-        elif state == TemporalProximityState.generated:
-            newWidget = self.temporalProximityView
-        else:
-            assert state == TemporalProximityState.empty
-            newWidget = self.explanation
+        newWidget = self.widget_for_state[state]
 
         layout.removeWidget(existingWidget)
         layout.insertWidget(0, newWidget)
@@ -1583,12 +1612,13 @@ class TemporalProximity(QWidget):
 
         self.state = state
 
-    def setGroups(self, proximity_groups: TemporalProximityGroups) -> None:
-        if self.another_generation_needed:
-            self.another_generation_needed = False
+    def setGroups(self, proximity_groups: TemporalProximityGroups) -> bool:
+        if self.state == TemporalProximityState.regenerate:
             self.rapidApp.generateTemporalProximityTableData(
                 reason="a change was made while it was already generating")
-            return
+            return False
+        if self.state == TemporalProximityState.ctime_rebuild:
+            return False
 
         self.temporalProximityModel.groups = proximity_groups
 
@@ -1628,6 +1658,7 @@ class TemporalProximity(QWidget):
         self.temporalProximityView.setMinimumWidth(min_width + scrollbar_width + frame_width)
 
         self.setState(TemporalProximityState.generated)
+        return True
 
     @pyqtSlot(int)
     def temporalValueChanged(self, minutes: int) -> None:
@@ -1637,4 +1668,4 @@ class TemporalProximity(QWidget):
             self.rapidApp.generateTemporalProximityTableData(
                 reason="the duration between consecutive shots has changed")
         elif self.state == TemporalProximityState.generating:
-            self.another_generation_needed = True
+            self.state = TemporalProximityState.regenerate

@@ -22,7 +22,7 @@ __copyright__ = "Copyright 2015-2016, Damon Lynch"
 from typing import List, Dict
 from collections import namedtuple
 
-from PyQt5.QtWidgets import (QStyleOptionFrame, QStyle, QStylePainter, QWidget)
+from PyQt5.QtWidgets import (QStyleOptionFrame, QStyle, QStylePainter, QWidget, QLabel)
 
 class RowTracker:
     r"""
@@ -138,12 +138,29 @@ class RowTracker:
 ThumbnailDataForProximity = namedtuple('ThumbnailDataForProximity', 'uid, ctime, file_type, '
                                                                'previously_downloaded')
 
+
 class QFramedWidget(QWidget):
     """
     Draw a Frame around the widget in the style of the application.
 
     Use this instead of using a stylesheet to draw a widget's border.
     """
+
+    def paintEvent(self, *opts):
+        painter = QStylePainter(self)
+        option = QStyleOptionFrame()
+        option.initFrom(self)
+        painter.drawPrimitive(QStyle.PE_Frame, option)
+        super().paintEvent(*opts)
+
+
+class QFramedLabel(QLabel):
+    """
+    Draw a Frame around the label in the style of the application.
+
+    Use this instead of using a stylesheet to draw a label's border.
+    """
+
     def paintEvent(self, *opts):
         painter = QStylePainter(self)
         option = QStyleOptionFrame()

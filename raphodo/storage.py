@@ -39,7 +39,7 @@ systems. When a device with a file system is inserted, if it is not
 already mounted, attempt to mount it.
 
 The secondary task of this module is to provide miscellaneous services
-regarding mount points.
+regarding mount points and XDG related functionality.
 """
 
 __author__ = 'Damon Lynch'

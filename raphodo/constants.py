@@ -27,6 +27,7 @@ from PyQt5.QtGui import QFont, QFontMetrics, QColor
 PROGRAM_NAME = "Rapid Photo Downloader"
 logfile_name = 'rapid-photo-downloader.log'
 
+
 class ConflictResolution(IntEnum):
     skip = 1
     add_identifier = 2
@@ -35,7 +36,7 @@ class ConflictResolution(IntEnum):
 class ErrorType(Enum):
     critical_error = 1
     serious_error = 2
-    warning= 3
+    warning = 3
 
 
 class DownloadStatus(Enum):
@@ -129,6 +130,7 @@ class FileExtension(Enum):
 class FileSortPriority(IntEnum):
     high = 1
     low = 2
+
 
 class RenameAndMoveStatus(Enum):
     download_started = 1
@@ -243,6 +245,7 @@ class CustomColors(Enum):
     color6 = '#6d7e90'  # greyish
     color7 = '#ffff00'  # bright yellow
 
+
 PaleGray = '#d7d6d5'
 DarkGray = '#35322f'
 MediumGray = '#5d5b59'
@@ -255,22 +258,26 @@ ExtensionColorDict = {
     FileExtension.other_photo: CustomColors.color5,
 }
 
+
 def extensionColor(ext_type: FileExtension) -> QColor:
     try:
         return QColor(ExtensionColorDict[ext_type].value)
     except KeyError:
         return QColor(0, 0, 0)
 
+
 FileTypeColorDict = {
     FileType.photo: CustomColors.color1,
     FileType.video: CustomColors.color2
 }
+
 
 def fileTypeColor(file_type: FileType) -> QColor:
     try:
         return QColor(FileTypeColorDict[file_type].value)
     except KeyError:
         return QColor(CustomColors.color3.value)
+
 
 # Values in minutes:
 proximity_time_steps = [5, 10, 15, 30, 45, 60, 90, 120, 180, 240, 480, 960, 1440]
@@ -280,7 +287,10 @@ class TemporalProximityState(Enum):
     empty = 1
     pending = 2
     generating = 3
-    generated = 4
+    regenerate = 4
+    generated = 5
+    ctime_rebuild = 6
+    ctime_rebuild_proceed = 7
 
 
 ThumbnailBackgroundName = MediumGray
@@ -293,6 +303,7 @@ DeviceShadingIntensity = 104
 FadeSteps = 20
 FadeMilliseconds = 700
 
+
 def minPanelWidth() -> int:
     """
     Minimum width of panels on left and right side of main window.
@@ -304,6 +315,7 @@ def minPanelWidth() -> int:
 
     return int(QFontMetrics(QFont()).height() * 13.5)
 
+
 def minFileSystemViewHeight() -> int:
     """
     Minimum height of file system views on left and right side of main window.
@@ -314,6 +326,7 @@ def minFileSystemViewHeight() -> int:
     """
 
     return QFontMetrics(QFont()).height() * 7
+
 
 class Desktop(Enum):
     gnome = 1
@@ -381,18 +394,18 @@ thumbnail_offset = dict(
     tod=500000,
 )
 
-photo_rename_test = ['Date time','Image date','YYYYMMDD','Text','-','',
-                     'Date time','Image date','HHMM','Text','-','','Sequences',
-                     'Downloads today','One digit','Text','-iso','',
-                     'Metadata','ISO','','Text','-f','','Metadata',
-                     'Aperture','','Text','-','','Metadata','Focal length','',
-                     'Text','mm-','','Metadata','Exposure time','',
-                     'Filename','Extension','lowercase']
+photo_rename_test = ['Date time', 'Image date', 'YYYYMMDD', 'Text', '-', '',
+                     'Date time', 'Image date', 'HHMM', 'Text', '-', '', 'Sequences',
+                     'Downloads today', 'One digit', 'Text', '-iso', '',
+                     'Metadata', 'ISO', '', 'Text', '-f', '', 'Metadata',
+                     'Aperture', '', 'Text', '-', '', 'Metadata', 'Focal length', '',
+                     'Text', 'mm-', '', 'Metadata', 'Exposure time', '',
+                     'Filename', 'Extension', 'lowercase']
 
-photo_rename_simple_test = ['Date time','Image date','YYYYMMDD','Text','-','',
-                     'Date time','Image date','HHMM','Text','-','','Sequences',
-                     'Downloads today','One digit', 'Filename','Extension','lowercase']
+photo_rename_simple_test = ['Date time', 'Image date', 'YYYYMMDD', 'Text', '-', '',
+                            'Date time', 'Image date', 'HHMM', 'Text', '-', '', 'Sequences',
+                            'Downloads today', 'One digit', 'Filename', 'Extension', 'lowercase']
 
-job_code_rename_test = ['Job code','', '', 'Sequences',
-                     'Downloads today','One digit', 'Filename','Extension',
+job_code_rename_test = ['Job code', '', '', 'Sequences',
+                        'Downloads today', 'One digit', 'Filename', 'Extension',
                         'lowercase']

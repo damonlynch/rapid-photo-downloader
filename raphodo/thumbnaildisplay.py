@@ -580,21 +580,26 @@ class ThumbnailListModel(QAbstractListModel):
 
         download_is_running = self.rapidApp.downloadIsRunning()
 
-        if not rpd_file.modified_via_daemon_process:
-            if rpd_file.mdatatime_caused_ctime_change:
+        if rpd_file.mdatatime_caused_ctime_change:
+            if not rpd_file.modified_via_daemon_process:
                 if scan_id not in self.ctimes_differ:
-                    logging.info('Metadata time caused change in creation time for %s (with '
-                                 'possibly more to come, but these will not be logged)',
-                              rpd_file.full_file_name)
+                    logging.info('Metadata time differs from file modification time for '
+                                 '%s (with possibly more to come, but these will not be logged)',
+                                 rpd_file.full_file_name)
                     self.ctimes_differ.append(scan_id)
                     self.rapidApp.removeProvisionalDownloadFolders(scan_id=scan_id)
+                    self.rapidApp.temporalProximity.setState(TemporalProximityState.ctime_rebuild)
                     self.rapidApp.notifyFoldersProximityRefresh(scan_id)
+            else:
+                # TODO handle Timeline update when coming from the daemon process
+                # TODO and handle updating the timeline during the file renaming process too
+                pass
 
+        if not rpd_file.modified_via_daemon_process and self.rpd_files[uid].status in (
+                DownloadStatus.not_downloaded, DownloadStatus.download_pending):
             # Only update the rpd_file if the file has not already been downloaded
-            if self.rpd_files[uid].status in (DownloadStatus.not_downloaded,
-                                              DownloadStatus.download_pending):
-                self.rpd_files[uid] = rpd_file
-
+            # TODO merge this no matter what the status: might need to update ctime, for example
+            self.rpd_files[uid] = rpd_file
 
         if not thumbnail.isNull():
             try:
@@ -621,27 +626,27 @@ class ThumbnailListModel(QAbstractListModel):
                     self.rapidApp.devices.set_device_state(scan_id, DeviceState.idle)
                 device = self.rapidApp.devices[scan_id]
                 logging.info('Finished thumbnail generation for %s', device.name())
+
                 if scan_id in self.ctimes_differ:
                     uids = self.tsql.get_uids_for_device(scan_id=scan_id)
                     rpd_files = [self.rpd_files[uid] for uid in uids]
                     self.rapidApp.generateProvisionalDownloadFolders(rpd_files=rpd_files)
                     self.ctimes_differ.remove(scan_id)
-                    if not self.ctimes_differ and self.rapidApp.temporalProximity.state != \
-                            TemporalProximityState.pending:
+                    if not self.ctimes_differ:
+                        self.rapidApp.temporalProximity.setState(
+                            TemporalProximityState.ctime_rebuild_proceed)
                         self.rapidApp.generateTemporalProximityTableData(
-                            reason="a photo or video's creation time differed from it's file "
+                            reason="a photo or video's creation time differed from its file "
                                    "system modification time")
-                if not download_is_running:
-                    self.rapidApp.updateProgressBarState()
                 log_state = True
 
             if self.thumbnails_generated == self.total_thumbs_to_generate:
                 self.thumbnails_generated = 0
                 self.total_thumbs_to_generate = 0
                 if not download_is_running:
-                    self.rapidApp.downloadProgressBar.reset()
+                    self.rapidApp.updateProgressBarState()
             elif self.total_thumbs_to_generate and not download_is_running:
-                self.rapidApp.downloadProgressBar.setValue(self.thumbnails_generated)
+                self.rapidApp.updateProgressBarState(thumbnail_generated=True)
 
             if not download_is_running:
                 self.rapidApp.displayMessageInStatusBar()
@@ -668,7 +673,7 @@ class ThumbnailListModel(QAbstractListModel):
         """Initiates generation of thumbnails for the device."""
 
         if scan_id not in self.removed_devices:
-            self.rapidApp.downloadProgressBar.setMaximum(self.total_thumbs_to_generate)
+            self.rapidApp.updateProgressBarState()
             cache_dirs = self.getCacheLocations()
             uids = self.tsql.get_uids_for_device(scan_id=scan_id)
             rpd_files = list((self.rpd_files[uid] for uid in uids))
@@ -682,10 +687,9 @@ class ThumbnailListModel(QAbstractListModel):
                         cache_dirs, need_video_cache_dir, device.camera_model, device.camera_port)
             self.thumbnailmq.generateThumbnails(*gen_args)
 
-    def resetThumbnailTrackingAndDisplay(self):
+    def resetThumbnailTracking(self):
         self.thumbnails_generated = 0
         self.total_thumbs_to_generate = 0
-        self.rapidApp.downloadProgressBar.reset()
 
     def clearAll(self, scan_id: Optional[int]=None, keep_downloaded_files: bool=False) -> bool:
         """
@@ -1142,7 +1146,7 @@ class ThumbnailListModel(QAbstractListModel):
             # note that check == 1 because it is assume the scan id has not been deleted
             # from the device collection
             if len(self.rapidApp.devices.thumbnailing) == 1:
-                self.resetThumbnailTrackingAndDisplay()
+                self.resetThumbnailTracking()
             else:
                 self.recalculateThumbnailsPercentage(scan_id=scan_id)
         return terminate
@@ -1155,7 +1159,7 @@ class ThumbnailListModel(QAbstractListModel):
         """
 
         self.total_thumbs_to_generate -= self.no_thumbnails_by_scan[scan_id]
-        self.rapidApp.downloadProgressBar.setMaximum(self.total_thumbs_to_generate)
+        self.rapidApp.updateProgressBarState()
         del self.no_thumbnails_by_scan[scan_id]
 
     def updateStatusPostDownload(self, rpd_file: RPDFile):

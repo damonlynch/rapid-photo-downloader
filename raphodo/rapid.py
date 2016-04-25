@@ -587,7 +587,7 @@ class RapidWindow(QMainWindow):
             self.have_libnotify = Notify.init('rapid-photo-downloader')
             # scan_id: Notify.Notification
             self.ctime_update_notification = None  # type: Optional[Notify.Notification]
-            self.ctime_notification_devices = []  # type: List[int]
+            self.ctime_notification_issued = False
         except:
             logging.error("Notification intialization problem")
             self.have_libnotify = False
@@ -874,7 +874,7 @@ class RapidWindow(QMainWindow):
         self.downloadProgressBar.setMaximumWidth(QFontMetrics(QFont()).height() * 9)
         status.addPermanentWidget(self.downloadProgressBar, 1)
 
-    def updateProgressBarState(self) -> None:
+    def updateProgressBarState(self, thumbnail_generated: bool=None) -> None:
         """
         Updates the state of the ProgessBar in the main window's lower right corner.
 
@@ -893,11 +893,12 @@ class RapidWindow(QMainWindow):
             logging.debug("Setting progress bar to show download progress")
             self.downloadProgressBar.setMaximum(100)
         elif len(self.devices.thumbnailing):
-            logging.debug("Setting progress bar to show thumbnailing progress")
-            # Set to an arbitrary value, because if there are no thumbnails to be
-            # generated (e.g. no photos/videos found in scan), keeping it at
-            # zero will cause it to continue to show a busy state
-            self.downloadProgressBar.setMaximum(100)
+            if self.downloadProgressBar.maximum() != self.thumbnailModel.total_thumbs_to_generate:
+                logging.debug("Setting progress bar maximum to %s",
+                              self.thumbnailModel.total_thumbs_to_generate)
+                self.downloadProgressBar.setMaximum(self.thumbnailModel.total_thumbs_to_generate)
+            if thumbnail_generated:
+                self.downloadProgressBar.setValue(self.thumbnailModel.thumbnails_generated)
         elif len(self.devices.scanning):
             logging.debug("Setting progress bar to show scanning activity")
             self.downloadProgressBar.setMaximum(0)
@@ -1766,6 +1767,7 @@ class RapidWindow(QMainWindow):
             else:
                 self.generateTemporalProximityTableData("devices were removed as a download source")
         else:
+            # TODO send a signal to do this, so the UI can change state!
             self.searchForCameras()
             self.setupNonCameraDevices()
         self.adjustLeftPanelSliderHandles()
@@ -2564,36 +2566,36 @@ class RapidWindow(QMainWindow):
 
         if self.have_libnotify:
             device = self.devices[scan_id]
-            self.ctime_notification_devices.append(scan_id)
+            notification_devices = self.thumbnailModel.ctimes_differ
 
-            logging.info("Need to refresh timeline and subfolder previews for %s",
+            logging.info("Need to rebuild timeline and subfolder previews for %s",
                           device.display_name)
 
-            simple_message = len(self.devices) == 1 or self.ctime_update_notification is None
+            simple_message = len(notification_devices) == 1
 
-            this_computer = len([scan_id for scan_id in self.ctime_notification_devices
+            this_computer = len([scan_id for scan_id in notification_devices
                                  if self.devices[scan_id].device_type == DeviceType.path]) > 0
 
             if simple_message:
                 if device.device_type == DeviceType.camera:
-                    message = _("The Destination subfolders and Timeline will be refreshed after "
+                    message = _("The Destination subfolders and Timeline will be rebuilt after "
                                 "all thumbnails have been generated for the %(camera)s"
                                 ) % dict(camera=device.display_name)
                 elif this_computer:
-                    message = _("The Destination subfolders and Timeline will be refreshed after "
+                    message = _("The Destination subfolders and Timeline will be rebuilt after "
                                 "all thumbnails have been generated for this computer")
                 else:
-                    message = _("The Destination subfolders and Timeline will be refreshed after "
+                    message = _("The Destination subfolders and Timeline will be rebuilt after "
                                 "all thumbnails have been generated for %(device)s"
                                 ) % dict(device=device.display_name)
             else:
-                no_devices = len(self.ctime_notification_devices)
+                no_devices = len(notification_devices)
                 if this_computer:
                     no_devices -= 1
                     if no_devices > 1:
-                        message = _("The Destination subfolders and Timeline will be refreshed "
+                        message = _("The Destination subfolders and Timeline will be rebuilt "
                                     "after all thumbnails have been generated for "
-                                    "%(number_devices)s and this computer"
+                                    "%(number_devices)s devices and this computer"
                                     ) % dict(number_devices=no_devices)
                     else:
                         assert no_devices == 1
@@ -2601,20 +2603,20 @@ class RapidWindow(QMainWindow):
                             other_device = device
                         else:
                             # the other device must be the first one
-                            other_device = self.devices[self.ctime_notification_devices[0]]
+                            other_device = self.devices[notification_devices[0]]
                         name = other_device.display_name
                         if other_device.device_type == DeviceType.camera:
-                            message = _("The Destination subfolders and Timeline will be refreshed "
+                            message = _("The Destination subfolders and Timeline will be rebuilt "
                                         "after all thumbnails have been generated for the "
                                         "%(camera)s and this computer") % dict(camera=name)
                         else:
-                            message = _("The Destination subfolders and Timeline will be refreshed "
+                            message = _("The Destination subfolders and Timeline will be rebuilt "
                                         "after all thumbnails have been generated for "
                                         "%(device)s and this computer") % dict(device=name)
                 else:
-                        message = _("The Destination subfolders and Timeline will be refreshed "
+                        message = _("The Destination subfolders and Timeline will be rebuilt "
                                     "after all thumbnails have been generated for "
-                                    "%(number_devices)s") % dict(number_devices=no_devices)
+                                    "%(number_devices)s devices") % dict(number_devices=no_devices)
 
             if self.ctime_update_notification is None:
                 notify = Notify.Notification.new(_('Rapid Photo Downloader'), message,
@@ -2624,19 +2626,21 @@ class RapidWindow(QMainWindow):
                 notify.update(_('Rapid Photo Downloader'), message, 'rapid-photo-downloader')
             try:
                 message_shown = notify.show()
+                if message_shown:
+                    self.ctime_notification_issued = True
                 notify.connect('closed', self.notificationFoldersProximityRefreshClosed)
             except:
                 logging.error("Unable to display message using notification system")
             self.ctime_update_notification = notify
 
-    def notifyFoldersProximityRefreshed(self) -> None:
+    def notifyFoldersProximityRebuilt(self) -> None:
         """
         Inform the user that the the refresh has occurred, updating the existing
         message if need be.
         """
 
         if self.have_libnotify:
-            message = _("The Destination subfolders and Timeline have been refreshed")
+            message = _("The Destination subfolders and Timeline have been rebuilt")
 
             if self.ctime_update_notification is None:
                 notify = Notify.Notification.new(_('Rapid Photo Downloader'), message,
@@ -2650,7 +2654,6 @@ class RapidWindow(QMainWindow):
                 logging.error("Unable to display message using notification system")
 
             self.ctime_update_notification = None
-            self.ctime_notification_devices = []
 
     def notificationFoldersProximityRefreshClosed(self, notify: Notify.Notification) -> None:
         """
@@ -2861,16 +2864,29 @@ class RapidWindow(QMainWindow):
 
     def generateTemporalProximityTableData(self, reason: str) -> None:
         """
-        Initiate Timeline generation
+        Initiate Timeline generation if it's right to do so
         """
 
-        logging.info("Generating Timeline because %s", reason)
-
-        self.temporalProximity.setState(TemporalProximityState.generating)
+        if len(self.devices.scanning):
+            logging.info("Was tasked to generate Timeline because %s, but ignoring request "
+                         "because a scan is occurring", reason)            
+            return
+        
+        if self.temporalProximity.state == TemporalProximityState.ctime_rebuild:
+            logging.info("Was tasked to generate Timeline because %s, but ignoring request "
+                         "because a rebuild is required ", reason)               
+            return
 
         rows = self.thumbnailModel.dataForProximityGeneration()
-        data = OffloadData(thumbnail_rows=rows, proximity_seconds=self.prefs.proximity_seconds)
-        self.offloadmq.assign_work(data)
+        if rows:
+            logging.info("Generating Timeline because %s", reason)
+
+            self.temporalProximity.setState(TemporalProximityState.generating)
+            data = OffloadData(thumbnail_rows=rows, proximity_seconds=self.prefs.proximity_seconds)
+            self.offloadmq.assign_work(data)
+        else:
+            logging.info("Was tasked to generate Timeline because %s, but there is nothing to "
+                         "generate", reason)
 
     def generateProvisionalDownloadFolders(self,
                                            rpd_files: Optional[Sequence[RPDFile]]=None) -> None:
@@ -2901,14 +2917,17 @@ class RapidWindow(QMainWindow):
 
     @pyqtSlot(TemporalProximityGroups)
     def proximityGroupsGenerated(self, proximity_groups: TemporalProximityGroups) -> None:
-        self.thumbnailModel.assignProximityGroups(proximity_groups.col1_col2_uid)
-        self.temporalProximity.setGroups(proximity_groups=proximity_groups)
-        if self.ctime_notification_devices:
-            self.notifyFoldersProximityRefreshed()
+        if self.temporalProximity.setGroups(proximity_groups=proximity_groups):
+            self.thumbnailModel.assignProximityGroups(proximity_groups.col1_col2_uid)
+            if self.ctime_notification_issued:
+                self.notifyFoldersProximityRebuilt()
+                self.ctime_notification_issued = False
 
     @pyqtSlot(FoldersPreview)
     def provisionalDownloadFoldersGenerated(self, folders_preview: FoldersPreview) -> None:
         self.fileSystemModel.update_preview_folders(folders_preview=folders_preview)
+        self.photoDestinationFSView.update()
+        self.videoDestinationFSView.update()
 
     def closeEvent(self, event) -> None:
         if self.application_state == ApplicationState.normal:

@@ -104,7 +104,7 @@ Changelog for Rapid Photo Downloader
      to the only copy of a file. To preserve file integrity under all circumstances,
      unfortunately the rotate jpeg option must therefore be removed.
    
- - The amount of Python code has almost tripled. Under the hood, the code now uses:
+ - Under the hood, the code now uses:
 
    - PyQt 5.4 +
 

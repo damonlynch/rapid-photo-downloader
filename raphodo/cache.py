@@ -117,8 +117,7 @@ class MD5Name:
 class Cache:
     """
     Base class with which to write and read cache thumbnails.
-    Creates fail directory if it doesn't exist, but does not create
-    regular cache directory.
+    Create cache if it doesn't exist; checks validity.
     """
 
     def __init__(self, cache_dir: str, failure_dir: Optional[str]) -> None:
