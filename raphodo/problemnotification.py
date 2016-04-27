@@ -49,13 +49,14 @@ FILE_PROBLEM = 2
 GENERATION_PROBLEM = 3
 DOWNLOAD_PROBLEM = 4
 DOWNLOAD_PROBLEM_W_NO = 5
-DIFFERENT_EXIF = 6
-FILE_ALREADY_EXISTS = 7
-UNIQUE_IDENTIFIER_CAT = 8
-BACKUP_PROBLEM = 9
-BACKUP_OK = 10
-FILE_ALREADY_DOWN_CAT = 11
-VERIFICATION_PROBLEM = 12
+DOWNLOAD_PROBLEM_CAM = 6
+DIFFERENT_EXIF = 7
+FILE_ALREADY_EXISTS = 8
+UNIQUE_IDENTIFIER_CAT = 9
+BACKUP_PROBLEM = 10
+BACKUP_OK = 11
+FILE_ALREADY_DOWN_CAT = 12
+VERIFICATION_PROBLEM = 13
 
 # problem text
 MISSING_METADATA = 1
@@ -70,21 +71,22 @@ ERROR_IN_NAME_GENERATION = 7
 
 DOWNLOAD_COPYING_ERROR = 8
 DOWNLOAD_COPYING_ERROR_W_NO = 9
+DOWNLOAD_FROM_CAMERA_ERROR = 10
 
-FILE_ALREADY_EXISTS_NO_DOWNLOAD = 10
-UNIQUE_IDENTIFIER_ADDED = 11
-BACKUP_EXISTS = 12
-BACKUP_EXISTS_OVERWRITTEN = 13
-NO_BACKUP_PERFORMED = 14
-BACKUP_ERROR = 15
-BACKUP_DIRECTORY_CREATION = 16
+FILE_ALREADY_EXISTS_NO_DOWNLOAD = 11
+UNIQUE_IDENTIFIER_ADDED = 12
+BACKUP_EXISTS = 13
+BACKUP_EXISTS_OVERWRITTEN = 14
+NO_BACKUP_PERFORMED = 15
+BACKUP_ERROR = 16
+BACKUP_DIRECTORY_CREATION = 17
 
-SAME_FILE_DIFFERENT_EXIF = 17
-NO_DOWNLOAD_WAS_BACKED_UP = 18
-FILE_ALREADY_DOWNLOADED = 19
+SAME_FILE_DIFFERENT_EXIF = 18
+NO_DOWNLOAD_WAS_BACKED_UP = 19
+FILE_ALREADY_DOWNLOADED = 20
 
-FILE_VERIFICATION_FAILED = 20
-BACKUP_VERIFICATION_FAILED = 21
+FILE_VERIFICATION_FAILED = 21
+BACKUP_VERIFICATION_FAILED = 22
 
 #extra details
 UNIQUE_IDENTIFIER = '__1'
@@ -92,7 +94,8 @@ EXISTING_FILE = '__2'
 NO_DATA_TO_NAME = '__3'
 DOWNLOAD_COPYING_ERROR_DETAIL = '__4'
 DOWNLOAD_COPYING_ERROR_W_NO_DETAIL = '__5'
-BACKUP_OK_TYPE = '__6'
+DOWNLOAD_FROM_CAMERA_ERROR_DETAIL = '__6'
+BACKUP_OK_TYPE = '__7'
 
 #                                   category,               text, duplicates allowed
 problem_definitions = {
@@ -110,6 +113,8 @@ problem_definitions = {
 
     DOWNLOAD_COPYING_ERROR:         (DOWNLOAD_PROBLEM,      _("An error occurred when copying the %(filetype)s"), False),
     DOWNLOAD_COPYING_ERROR_W_NO:    (DOWNLOAD_PROBLEM_W_NO, _("An error occurred when copying the %(filetype)s"), False),
+    DOWNLOAD_FROM_CAMERA_ERROR:     (DOWNLOAD_PROBLEM_CAM,  _("An error occurred copying the %("
+                                                              "filetype)s from the %(camera)s")),
 
     FILE_VERIFICATION_FAILED:       (VERIFICATION_PROBLEM,  _("The %(filetype)s did not download correctly"), False),
     BACKUP_VERIFICATION_FAILED:     (BACKUP_PROBLEM,         "%s", True),
@@ -133,6 +138,7 @@ extra_detail_definitions = {
     NO_DATA_TO_NAME:                    _("There is no data with which to name the %(filetype)s."),
     DOWNLOAD_COPYING_ERROR_DETAIL:      "%s",
     DOWNLOAD_COPYING_ERROR_W_NO_DETAIL: _("Error: %(errorno)s %(strerror)s"),
+    DOWNLOAD_FROM_CAMERA_ERROR_DETAIL:  "%s",
     BACKUP_OK_TYPE:                     "%s",
 }
 
@@ -152,7 +158,9 @@ class Problem:
     """
     Collect problems with subfolder and filename generation, download errors, and so forth
 
-    Problems are human readable
+    Problems are human readable.
+
+    This code is in severe need of an overhaul. It's a mess.
     """
 
     def __init__(self):
@@ -256,6 +264,9 @@ class Problem:
 
         if DOWNLOAD_PROBLEM_W_NO in self.categories:
             v = self.extra_detail[DOWNLOAD_COPYING_ERROR_W_NO_DETAIL]
+
+        if DOWNLOAD_PROBLEM_CAM in self.categories:
+            v = self.extra_detail[DOWNLOAD_FROM_CAMERA_ERROR_DETAIL]
 
         if BACKUP_OK in self.categories:
             details = self.problems[NO_DOWNLOAD_WAS_BACKED_UP]

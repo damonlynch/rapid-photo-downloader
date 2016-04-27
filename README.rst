@@ -40,11 +40,14 @@ are the components of the graphical user interface that are used to configure
 file renaming, download subfolder generation, backups, and miscellaneous other
 program preferences.
 
-For more information about the older, current release of the program, see the project website_.
+For more information about the older, stable release of the program, see the
+project website_. To see the changes between this version and the old
+stable version, peruse the file CHANGES.rst.
 
-Rapid Photo Downloader currently runs only on Linux. Theoretically it can be ported
-to both Mac and Windows with minimal effort (apart from the fact that Windows lacks gphoto2,
-meaning when run under Windows, it could not download directly from cameras).
+Rapid Photo Downloader currently runs only on Linux. Theoretically it could be
+ported to both Mac and Windows with minimal effort. The one gotcha is that
+that Windows  lacks gphoto2, meaning when run under Windows, it could not
+download directly from cameras unless it used something else.
 
 The program is licensed under the GPL3_ or later.
 
@@ -61,8 +64,9 @@ On Fedora:
 
 ``sudo dnf install python3-pip python3-wheel``
 
-If using Ubuntu 15.10, Fedora 23 or a distribution of a similar age, you should make Python 3's installation
-tools up-to-date (be mindful of the mild caution below in `Installation`_):
+If using Ubuntu 15.10, Fedora 23 or a distribution of a similar age, you should first make
+Python 3's installation tools up-to-date (be mindful of the mild caution below in
+`Installation`_):
 
 ``python3 -m pip install --user --upgrade pip``
 

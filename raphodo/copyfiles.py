@@ -166,25 +166,33 @@ class CopyFilesWorker(WorkerInPublishPullPipeline, FileCopy):
                 self.bytes_downloaded = 0
 
     def copying_file_error(self, rpd_file: RPDFile, destination: str, inst) -> None:
-        rpd_file.add_problem(None,
-                             pn.DOWNLOAD_COPYING_ERROR_W_NO,
-                             {'filetype': rpd_file.title})
-        rpd_file.add_extra_detail(
-            pn.DOWNLOAD_COPYING_ERROR_W_NO_DETAIL,
-            {'errorno': inst.errno, 'strerror': inst.strerror})
+        rpd_file.add_problem(None, pn.DOWNLOAD_COPYING_ERROR_W_NO, {'filetype': rpd_file.title})
+        rpd_file.add_extra_detail(pn.DOWNLOAD_COPYING_ERROR_W_NO_DETAIL, {'errorno': inst.errno,
+                                                                      'strerror': inst.strerror})
 
         rpd_file.status = DownloadStatus.download_failed
 
         rpd_file.error_title = rpd_file.problem.get_title()
         rpd_file.error_msg = _("%(problem)s\nFile: %(file)s") % \
-                             {
-                             'problem':
-                                 rpd_file.problem.get_problems(),
+                             {'problem': rpd_file.problem.get_problems(),
                              'file': rpd_file.full_file_name}
 
         logging.error("Failed to download file: %s", rpd_file.full_file_name )
         logging.error(inst)
         self.update_progress(rpd_file.size, rpd_file.size)
+
+    def copying_file_from_camera_error(self, rpd_file: RPDFile,
+                                       display_name: str,
+                                       reason: str) -> None:
+        rpd_file.add_problem(None, pn.DOWNLOAD_PROBLEM_CAM, {'filetype': rpd_file.title,
+                                                             'camera': display_name})
+        rpd_file.add_extra_detail(pn.DOWNLOAD_FROM_CAMERA_ERROR_DETAIL, reason)
+        rpd_file.status = DownloadStatus.download_failed
+
+        rpd_file.error_title = rpd_file.problem.get_title()
+        rpd_file.error_msg = _("%(problem)s\nFile: %(file)s") % \
+                             {'problem': rpd_file.problem.get_problems(),
+                              'file': rpd_file.full_file_name}
 
     def copy_from_camera(self, rpd_file: RPDFile) -> bool:
 
@@ -199,6 +207,11 @@ class CopyFilesWorker(WorkerInPublishPullPipeline, FileCopy):
 
         if copy_chunks.copy_succeeded and self.verify_file:
             rpd_file.md5 = hashlib.md5(copy_chunks.src_bytes).hexdigest()
+
+        if not copy_chunks.copy_succeeded:
+            self.copying_file_from_camera_error(rpd_file=rpd_file,
+                                    display_name=self.display_name,
+                                    reason=_("The file could not be copied from the camera"))
 
         return copy_chunks.copy_succeeded
 
@@ -280,6 +293,8 @@ class CopyFilesWorker(WorkerInPublishPullPipeline, FileCopy):
         # they'll be downloaded in what looks like a random order
         rpd_files = sorted(args.files, key=attrgetter('modification_time'))
 
+        self.display_name = args.device.display_name
+
         for idx, rpd_file in enumerate(rpd_files):
 
             self.dest = self.src = None
@@ -356,7 +371,6 @@ class CopyFilesWorker(WorkerInPublishPullPipeline, FileCopy):
                 temp_name_ext = '{}.{}'.format(temp_name, rpd_file.extension)
                 temp_full_file_name = os.path.join(dest_dir, temp_name_ext)
 
-
             rpd_file.temp_full_file_name = temp_full_file_name
 
             if not rpd_file.cache_full_file_name:
@@ -365,12 +379,16 @@ class CopyFilesWorker(WorkerInPublishPullPipeline, FileCopy):
                     if self.camera is None:
                         self.camera = Camera(args.device.camera_model, args.device.camera_port)
                         if not self.camera.camera_initialized:
-                            logging.error("Could not intialize camera %s", args.device.display_name)
+                            logging.error("Could not intialize camera %s", self.display_name)
 
                     if not self.camera.camera_initialized:
                         copy_succeeded = False
-                        logging.error("Could not copy %s from camera %s",
-                                      rpd_file.full_file_name, args.device.display_name)
+                        logging.error("Could not copy %s from the %s",
+                                      rpd_file.full_file_name, self.display_name)
+                        self.copying_file_from_camera_error(rpd_file=rpd_file,
+                                            display_name=self.display_name,
+                                            reason=_("The camera may have been inaccessible"))
+
                         self.update_progress(rpd_file.size, rpd_file.size)
                     else:
                         copy_succeeded = self.copy_from_camera(rpd_file)

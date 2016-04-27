@@ -124,6 +124,7 @@ class DameonThumbnailWorker(DaemonProcess):
                     task=task,
                     processing=processing,
                     full_file_name_to_work_on=full_file_name_to_work_on,
+                    secondary_full_file_name='',
                     exif_buffer=None,
                     thumbnail_bytes = thumbnail_bytes,
                     use_thumbnail_cache=False,

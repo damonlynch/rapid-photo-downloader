@@ -809,8 +809,9 @@ if have_gio:
                         break
             return to_unmount
 
-        def unmountCamera(self, model: str, port: str, download_starting:
-        bool = False, mount_point: Gio.Mount = None) -> bool:
+        def unmountCamera(self, model: str, port: str,
+                          download_starting: bool = False,
+                          mount_point: Gio.Mount = None) -> bool:
             """
             Unmount camera mounted on gvfs mount point, if it is
             mounted. If not mounted, ignore.
@@ -822,6 +823,7 @@ if have_gio:
             :return: True if an unmount operation has been initiated,
              else returns False.
             """
+
             if mount_point is None:
                 to_unmount = self.cameraMountPoint(model, port)
             else:
@@ -836,7 +838,9 @@ if have_gio:
 
             return False
 
-        def unmountCallback(self, mount: Gio.Mount, result: Gio.AsyncResult, user_data) -> None:
+        def unmountCallback(self, mount: Gio.Mount,
+                            result: Gio.AsyncResult,
+                            user_data: Tuple[str, str, bool]) -> None:
             """
             Called by the asynchronous unmount operation.
             When complete, emits a signal indicating operation
@@ -845,8 +849,8 @@ if have_gio:
             :param result: result of the unmount process
             :param user_data: model and port of the camera being
             unmounted, in the format of libgphoto2
-            :type user_data: Tuple[str,str,bool]
             """
+
             try:
                 if mount.unmount_with_operation_finish(result):
                     logging.debug("...successfully unmounted {}".format(user_data[0]))

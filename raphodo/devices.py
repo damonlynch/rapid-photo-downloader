@@ -261,7 +261,7 @@ class Device:
                 return QIcon(':icons/smartphone.svg')
             return QIcon(':/icons/camera.svg')
 
-    def get_pixmap(self, size: QSize) -> QPixmap:
+    def get_pixmap(self, size: QSize=QSize(30, 30)) -> QPixmap:
         icon = self.get_icon()
         return icon.pixmap(size)
 
@@ -365,6 +365,14 @@ class DeviceCollection:
         # Track which devices are thumbnailing, by scan_id
         self.thumbnailing = set()  # type: Set[int]
 
+        # Track the unmounting of unscanned cameras by port and model
+        # port: model
+        self.cameras_to_gvfs_unmount_for_scan = {}  # type: Dict[str, str]
+
+        # Which scanned cameras need to be unmounted for a download to start, by scan_id
+        self.cameras_to_gvfs_unmount_for_download = set()  # type: Set[int]
+        self.cameras_to_stop_thumbnailing = set()
+
         # Automatically detected devices where the user has explicitly said to ignore it
         # port: model
         self.ignored_cameras = {}  # type: Dict[str, str]
@@ -379,6 +387,29 @@ class DeviceCollection:
                          DeviceType.volume: self.volumes_and_cameras}
         self._map_plural_types = {DeviceType.camera: _('Cameras'),
                                   DeviceType.volume: _('Devices')}
+
+    def download_start_blocked(self) -> bool:
+        """
+        Determine if a camera needs to be unmounted or thumbnailing needs to be
+        terminated for a camera in order for a download to proceed
+        :return: True if so, else False
+        """
+
+        if len(self.cameras_to_gvfs_unmount_for_download) > 0 and len(
+                self.cameras_to_stop_thumbnailing):
+            logging.debug("Download is blocked because %s camera(s) are being unmounted from GVFS "
+                          "and %s camera(s) are having their thumbnailing terminated",
+                          len(self.cameras_to_gvfs_unmount_for_download),
+                          len(self.cameras_to_stop_thumbnailing))
+        elif len(self.cameras_to_gvfs_unmount_for_download) > 0:
+            logging.debug("Download is blocked because %s camera(s) are being unmounted from GVFS",
+                          len(self.cameras_to_gvfs_unmount_for_download))
+        elif len(self.cameras_to_stop_thumbnailing) > 0:
+            logging.debug("Download is blocked because %s camera(s) are having their thumbnailing "
+                          "terminated", len(self.cameras_to_stop_thumbnailing))
+
+        return len(self.cameras_to_gvfs_unmount_for_download) > 0 or len(
+                    self.cameras_to_stop_thumbnailing) > 0
 
     def logState(self) -> None:
         logging.debug("-- Device Collection --")
@@ -517,19 +548,25 @@ class DeviceCollection:
         return device in list(self.devices.values())
 
     def scan_id_from_path(self, path: str, device_type: Optional[DeviceType]=None) -> Optional[int]:
-        for scan_id in self.devices:
-            device = self.devices[scan_id]  # type: Device
+        for scan_id, device in self.devices.items():
             if device.path == path:
                 if device_type is None or device.device_type == device_type:
                     return scan_id
         return None
 
-    def scan_id_from_camera_model_port(self, model: str, port: str) -> int:
-        camera = Device()
-        camera.set_download_from_camera(model, port)
-        for scan_id in self.devices:
-            if self.devices[scan_id] == camera:
+    def scan_id_from_camera_model_port(self, model: str, port: str) -> Optional[int]:
+        """
+
+        :param model: model name of camera being searched for
+        :param port: port of camera being searched for
+        :return: scan id of camera if known, else None
+        """
+
+        for scan_id, device in self.devices.items():
+            if (device.device_type == DeviceType.camera and device.camera_model == model and
+                    device.camera_port == port):
                 return scan_id
+        return None
 
     def delete_device(self, device: Device) -> bool:
         """
@@ -557,6 +594,9 @@ class DeviceCollection:
         d = self.devices[scan_id]  # type: Device
         if d.device_type == DeviceType.camera:
             del self.cameras[d.camera_port]
+            if d.camera_port in self.cameras_to_gvfs_unmount_for_scan:
+                del self.cameras_to_gvfs_unmount_for_scan[d.camera_port]
+
         self.map_set(d).remove(scan_id)
         d.delete_cache_dirs()
         del self.devices[scan_id]
@@ -566,6 +606,10 @@ class DeviceCollection:
             self.downloading.remove(scan_id)
         if scan_id in self.thumbnailing:
             self.thumbnailing.remove(scan_id)
+        if scan_id in self.cameras_to_gvfs_unmount_for_download:
+            self.cameras_to_gvfs_unmount_for_download.remove(scan_id)
+        if scan_id in self.cameras_to_stop_thumbnailing:
+            self.cameras_to_stop_thumbnailing.remove(scan_id)
         del self.device_state[scan_id]
 
     def __getitem__(self, scan_id: int) -> Device:

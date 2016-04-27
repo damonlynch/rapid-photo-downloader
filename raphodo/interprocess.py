@@ -202,6 +202,7 @@ class PullPipelineManager(ProcessManager, QObject):
 
     message = pyqtSignal(str) # Derived class will change this
     workerFinished = pyqtSignal(int)
+    workerStopped = pyqtSignal(int)
 
     def __init__(self, logging_port: int):
         super().__init__(logging_port=logging_port)
@@ -247,6 +248,7 @@ class PullPipelineManager(ProcessManager, QObject):
                 worker_id = int(worker_id)
                 if command == b"STOPPED":
                     logging.debug("%s worker %s has stopped", self._process_name, worker_id)
+                    self.workerStopped.emit(worker_id)
                 else:
                     # Worker has finished its work
                     self.workerFinished.emit(worker_id)

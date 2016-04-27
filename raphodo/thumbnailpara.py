@@ -275,9 +275,13 @@ def preprocess_thumbnail_from_non_camera(rpd_file: RPDFile,
             bytes_to_read = cached_read.get(rpd_file.extension, 400 * 1024)
         if bytes_to_read:
             if not rpd_file.download_full_file_name:
-                with open(rpd_file.full_file_name, 'rb') as photo:
-                    # Bring the file into the operating system's disk cache
-                    photo.read(bytes_to_read)
+                try:
+                    with open(rpd_file.full_file_name, 'rb') as photo:
+                        # Bring the file into the operating system's disk cache
+                        photo.read(bytes_to_read)
+                except FileNotFoundError:
+                    logging.error("The download file %s does not exist",
+                                  rpd_file.download_full_file_name)
     else:
         # video
         if rpd_file.thm_full_name is not None:

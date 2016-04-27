@@ -66,9 +66,8 @@ class DownloadTypes:
         self.videos = False
 
 
-DownloadFiles = namedtuple('DownloadFiles', ['files', 'download_types',
-                                             'download_stats',
-                                             'camera_access_needed'])
+DownloadFiles = namedtuple('DownloadFiles', 'files, download_types, download_stats, '
+                                            'camera_access_needed')
 
 
 class DownloadStats:
@@ -602,20 +601,11 @@ class ThumbnailListModel(QAbstractListModel):
             self.rpd_files[uid] = rpd_file
 
         if not thumbnail.isNull():
-            try:
-                row = self.uid_to_row[uid]
-            except KeyError:
-                if rpd_file.camera_model:
-                    logging.error("Discarding unneeded thumbnail for %s from %s",
-                                  rpd_file.full_file_name, rpd_file.camera_model)
-                else:
-                    logging.error("Discarding unneeded thumbnail for %s", rpd_file.full_file_name)
-                self.logState()
-                self.validateModelConsistency()
-                return
-
             self.thumbnails[uid] = thumbnail
-            self.dataChanged.emit(self.index(row,0),self.index(row,0))
+            # The thumbnail may or may not be displayed at this moment
+            row = self.uid_to_row.get(uid)
+            if row is not None:
+                self.dataChanged.emit(self.index(row,0),self.index(row,0))
 
         if not rpd_file.modified_via_daemon_process:
             self.thumbnails_generated += 1
@@ -852,6 +842,8 @@ class ThumbnailListModel(QAbstractListModel):
             # thumbnail we may have is unknown
 
             if self.send_to_daemon_thumbnailer(rpd_file=rpd_file):
+                #TODO account for thumbnails that will be generated in the meantime,
+                # which can arrive any time
                 download_stats[scan_id].post_download_thumb_generation += 1
 
         return DownloadFiles(files=files, download_types=download_types,
@@ -867,19 +859,22 @@ class ThumbnailListModel(QAbstractListModel):
         :return: True if need to send, False otherwise
         """
 
-        return (self.prefs.generate_thumbnails and (
-                    (self.prefs.save_fdo_thumbnails and rpd_file.should_write_fdo()) or
+        return (self.prefs.generate_thumbnails and rpd_file.status in Downloaded and
+                ((self.prefs.save_fdo_thumbnails and rpd_file.should_write_fdo()) or
                     rpd_file.thumbnail_status not in (ThumbnailCacheStatus.ready,
                                                       ThumbnailCacheStatus.fdo_256_ready)))
 
     def markDownloadPending(self, files: Dict[int, List[RPDFile]]) -> None:
         """
-        Sets status to download pending and updates thumbnails display
+        Sets status to download pending and updates thumbnails display.
+
+        Assumes all marked files are being downloaded.
 
         :param files: rpd_files by scan
         """
+
         uids = [rpd_file.uid for scan_id in files for rpd_file in files[scan_id]]
-        rows = [self.uid_to_row[uid] for uid in uids]
+        rows = [self.uid_to_row[uid] for uid in uids if uid in self.uid_to_row]
         for i in range(len(rows)):
             self.rows[rows[i]] = (uids[i], False)
         self.tsql.set_list_marked(uids=uids, marked=False)
@@ -1139,11 +1134,13 @@ class ThumbnailListModel(QAbstractListModel):
 
         manager = self.thumbnailmq.thumbnail_manager
 
+        # the slot for when a thumbnailing operation is terminated is in the .
+        # main window - thumbnailGenerationStopped()
         terminate = scan_id in manager
         if terminate:
             manager.stop_worker(scan_id)
             # TODO update this check once checking for thumnbnailing code is more robust
-            # note that check == 1 because it is assume the scan id has not been deleted
+            # note that check == 1 because it is assumed the scan id has not been deleted
             # from the device collection
             if len(self.rapidApp.devices.thumbnailing) == 1:
                 self.resetThumbnailTracking()
@@ -1166,8 +1163,9 @@ class ThumbnailListModel(QAbstractListModel):
         uid = rpd_file.uid
         self.rpd_files[uid] = rpd_file
         self.tsql.set_downloaded(uid=uid, downloaded=True)
-        row = self.uid_to_row[uid]
-        self.dataChanged.emit(self.index(row,0),self.index(row,0))
+        row = self.uid_to_row.get(uid)
+        if row is not None:
+            self.dataChanged.emit(self.index(row,0),self.index(row,0))
 
     def filesRemainToDownload(self) -> bool:
         """

@@ -303,6 +303,17 @@ class ThumbnailRowsSQL:
         self.conn.execute(query, (marked, uid))
         self.conn.commit()
 
+    def set_all_marked_as_unmarked(self, scan_id: int=None) -> None:
+        if scan_id is None:
+            query = 'UPDATE files SET marked=0 WHERE marked=1'
+            logging.debug(query)
+            self.conn.execute(query)
+        else:
+            query = 'UPDATE files SET marked=0 WHERE marked=1 AND scan_id=?'
+            logging.debug('%s (%s)', query, scan_id)
+            self.conn.execute(query, (scan_id, ))
+        self.conn.commit()
+
     def _update_marked(self, uids: List[bytes], marked: bool) -> None:
         query = 'UPDATE files SET marked=? WHERE uid IN ({})'
         logging.debug('%s (%s on %s uids)', query, marked, len(uids))

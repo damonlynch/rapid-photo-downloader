@@ -63,7 +63,6 @@ class DestinationDisplay(QWidget):
         self.files_to_display = None   # type: DisplayingFilesOfType
         self.marked = FileTypeCounter()
         self.display_type = None  # type: DestinationDisplayType
-        self.top_padding = 0
         self.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.Fixed)
 
     def setDestination(self, path: str) -> None:
@@ -105,12 +104,13 @@ class DestinationDisplay(QWidget):
         self.videos_size_to_download = videos_size
         self.files_to_display = files_to_display
 
-        if self.display_type == DestinationDisplayType.usage_only:
-            self.top_padding = self.deviceDisplay.padding
-        else:
-            self.top_padding = 0
-
         self.display_type = display_type
+
+        if self.display_type == DestinationDisplayType.folder_only:
+            self.setToolTip(self.path)
+        else:
+            self.setToolTip('')
+
         self.update()
         self.updateGeometry()
 
@@ -136,7 +136,7 @@ class DestinationDisplay(QWidget):
         painter.begin(self)
 
         x = 0
-        y = self.top_padding
+        y = 0
         width = self.width()
 
         rect = self.rect()  # type: QRect
@@ -163,6 +163,9 @@ class DestinationDisplay(QWidget):
             y = y + self.deviceDisplay.device_name_height
 
         if self.display_type != DestinationDisplayType.folder_only:
+
+            if self.display_type == DestinationDisplayType.usage_only:
+                y += self.deviceDisplay.padding
 
             bytes_total_text = format_size_for_user(self.storage_space.bytes_total, no_decimals=0)
             existing_bytes = self.storage_space.bytes_total - self.storage_space.bytes_free
@@ -235,7 +238,11 @@ class DestinationDisplay(QWidget):
         painter.end()
 
     def sizeHint(self) -> QSize:
-        height = self.top_padding
+        if self.display_type == DestinationDisplayType.usage_only:
+            height = self.deviceDisplay.padding
+        else:
+            height = 0
+
         if self.display_type != DestinationDisplayType.usage_only:
             height += self.deviceDisplay.device_name_height
         if self.display_type != DestinationDisplayType.folder_only:

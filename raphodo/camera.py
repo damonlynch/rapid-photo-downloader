@@ -446,6 +446,8 @@ class Camera:
                 logging.error('Error copying file %s from camera %s. Code %s',
                               os.path.join(dir_name, file_name), self.display_name, ex.code)
                 copy_succeeded = False
+                if progress_callback is not None:
+                    progress_callback(size-amount_downloaded, size)
                 break
         if copy_succeeded:
             dest_file = None

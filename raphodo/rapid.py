@@ -42,7 +42,7 @@ import pickle
 from collections import namedtuple
 import platform
 import argparse
-from typing import Optional, Tuple, List, Sequence, Dict
+from typing import Optional, Tuple, List, Sequence, Dict, Set
 import faulthandler
 import pkg_resources
 
@@ -65,7 +65,7 @@ import gphoto2 as gp
 from PyQt5 import QtCore, QtGui
 from PyQt5.QtCore import (QThread, Qt, QStorageInfo, QSettings, QPoint,
                           QSize, QTimer, QTextStream, QModelIndex,
-                          pyqtSlot, QRect)
+                          pyqtSlot, QRect, pyqtSignal)
 from PyQt5.QtGui import (QIcon, QPixmap, QImage, QColor, QPalette, QFontMetrics,
                          QFont, QPainter, QMoveEvent)
 from PyQt5.QtWidgets import (QAction, QApplication, QMainWindow, QMenu,
@@ -79,7 +79,7 @@ from PyQt5.QtNetwork import QLocalSocket, QLocalServer
 
 from raphodo.storage import (ValidMounts, CameraHotplug, UDisks2Monitor,
                      GVolumeMonitor, have_gio, has_non_empty_dcim_folder,
-                     mountPaths, get_desktop_environment,
+                     mountPaths, get_desktop_environment, get_desktop,
                      gvfs_controls_mounts, get_default_file_manager, validate_download_folder,
                      validate_source_folder, get_fdo_cache_thumb_base_directory)
 from raphodo.interprocess import (PublishPullPipelineManager,
@@ -96,7 +96,8 @@ from raphodo.interprocess import (PublishPullPipelineManager,
                                   BackupResults,
                                   CopyFilesResults,
                                   GenerateThumbnailsResults,
-                                  ThumbnailDaemonData)
+                                  ThumbnailDaemonData,
+                                  ScanResults)
 from raphodo.devices import (Device, DeviceCollection, BackupDevice,
                      BackupDeviceCollection)
 from raphodo.preferences import (Preferences, ScanPreferences)
@@ -104,7 +105,7 @@ from raphodo.constants import (BackupLocationType, DeviceType, ErrorType,
                                FileType, DownloadStatus, RenameAndMoveStatus,
                                photo_rename_test, ApplicationState, photo_rename_simple_test,
                                CameraErrorCode, TemporalProximityState,
-                               ThumbnailBackgroundName, EmptyViewHeight,
+                               ThumbnailBackgroundName, Desktop,
                                DeviceState, Sort, Show, Roles, DestinationDisplayType,
                                DisplayingFilesOfType)
 from raphodo.thumbnaildisplay import (ThumbnailView, ThumbnailListModel, ThumbnailDelegate,
@@ -380,6 +381,10 @@ class JobCode:
 
 
 class RapidWindow(QMainWindow):
+    """
+    Main application window, and primary controller of program logic
+    """
+
     def __init__(self, splash: 'SplashScreen',
                  auto_detect: Optional[bool]=None,
                  this_computer_source: Optional[str]=None,
@@ -560,6 +565,10 @@ class RapidWindow(QMainWindow):
         self.thumbnailView.setModel(self.thumbnailModel)
         self.thumbnailView.setItemDelegate(ThumbnailDelegate(rapidApp=self))
 
+        # Connect to the signal that is emitted when a thumbnailing operation is
+        # terminated by us, not merely finished
+        self.thumbnailModel.thumbnailmq.workerStopped.connect(self.thumbnailGenerationStopped)
+
 
     @pyqtSlot()
     def initStage3(self) -> None:
@@ -585,7 +594,6 @@ class RapidWindow(QMainWindow):
         # Setup notification system
         try:
             self.have_libnotify = Notify.init('rapid-photo-downloader')
-            # scan_id: Notify.Notification
             self.ctime_update_notification = None  # type: Optional[Notify.Notification]
             self.ctime_notification_issued = False
         except:
@@ -618,14 +626,27 @@ class RapidWindow(QMainWindow):
 
         logging.debug("Probing desktop environment")
         desktop_env = get_desktop_environment()
-        self.unity_progress = desktop_env.lower() == 'unity' and have_unity
-        if self.unity_progress:
-            self.deskop_launcher = Unity.LauncherEntry.get_for_desktop_id(
-                "rapid-photo-downloader.desktop")
-            if self.deskop_launcher is None:
-                self.unity_progress = False
-
         logging.debug("Desktop environment: %s", desktop_env)
+
+        self.unity_progress = False
+        if get_desktop() == Desktop.unity:
+            if not have_unity:
+                logging.debug("Desktop environment is Unity, but could not load Unity 7.0 module")
+            else:
+                # Unity auto-generated desktop files use underscores, it seems
+                for launcher in ('rapid-photo-downloader.desktop',
+                                 'rapid_photo_downloader.desktop'):
+                    self.desktop_launcher = Unity.LauncherEntry.get_for_desktop_id(launcher)
+                    if self.desktop_launcher is not None:
+                        self.unity_progress = True
+                        break
+
+                if self.desktop_launcher is None:
+                    logging.debug("Desktop environment is Unity 7.0, but could not find "
+                                  "program's .desktop file")
+                else:
+                    logging.debug("Unity progress indicator will be used")
+
         logging.debug("Have GIO module: %s", have_gio)
         self.gvfsControlsMounts = gvfs_controls_mounts() and have_gio
         if have_gio:
@@ -660,9 +681,6 @@ class RapidWindow(QMainWindow):
             logging.debug("Starting UDisks2 monitor...")
             self.udisks2Monitor.startMonitor()
             logging.debug("... UDisks2 monitor started")
-
-        #Track the unmounting of cameras by port and model
-        self.cameras_to_unmount = {}
 
         if self.gvfsControlsMounts:
             logging.debug("Starting GVolumeMonitor...")
@@ -759,13 +777,6 @@ class RapidWindow(QMainWindow):
         else:
             self.auto_start_is_on = self.prefs.auto_download_at_startup
 
-        self.setDownloadCapabilities()
-        self.searchForCameras()
-        self.setupNonCameraDevices()
-        self.setupManualPath()
-        self.updateSourceButton()
-        self.displayMessageInStatusBar()
-
         settings = QSettings()
         settings.beginGroup("MainWindow")
 
@@ -777,6 +788,13 @@ class RapidWindow(QMainWindow):
 
         self.destinationButton.setChecked(settings.value("destinationButtonPressed", True, bool))
         self.destinationButtonClicked()
+
+        self.setDownloadCapabilities()
+        self.searchForCameras()
+        self.setupNonCameraDevices()
+        self.setupManualPath()
+        self.updateSourceButton()
+        self.displayMessageInStatusBar()
 
         self.showMainWindow()
 
@@ -1767,10 +1785,15 @@ class RapidWindow(QMainWindow):
             else:
                 self.generateTemporalProximityTableData("devices were removed as a download source")
         else:
-            # TODO send a signal to do this, so the UI can change state!
-            self.searchForCameras()
-            self.setupNonCameraDevices()
+            # This is a real hack -- but I don't know a better way to let the
+            # slider redraw itself
+            QTimer.singleShot(10, self.devicesViewToggledOn)
         self.adjustLeftPanelSliderHandles()
+
+    @pyqtSlot()
+    def devicesViewToggledOn(self) -> None:
+        self.searchForCameras()
+        self.setupNonCameraDevices()
 
     @pyqtSlot(QModelIndex)
     def thisComputerPathChosen(self, index: QModelIndex) -> None:
@@ -1894,35 +1917,59 @@ class RapidWindow(QMainWindow):
         :param scan_id: if specified, only files matching it will be
         downloaded
         """
+        logging.debug("Start Download phase 1 has started")
 
         self.download_files = self.thumbnailModel.getFilesMarkedForDownload(scan_id)
-        camera_unmount_called = False
-        self.camera_unmounts_needed = set()
+
+        # model, port
+        camera_unmounts_called = set()  # type: Set[Tuple(str, str)]
+        stop_thumbnailing_cmd_issued = False
+
+        stop_thumbnailing = [scan_id for scan_id in self.download_files.camera_access_needed
+                             if scan_id in self.devices.thumbnailing]
+        for scan_id in stop_thumbnailing:
+            device = self.devices[scan_id]
+            if not scan_id in self.thumbnailModel.thumbnailmq.thumbnail_manager:
+                logging.debug("Not terminating thumbnailing of %s because it's not in the "
+                              "thumbnail manager", device.display_name)
+            else:
+                logging.debug("Terminating thumbnailing for %s because a download is starting",
+                              device.display_name)
+                self.thumbnailModel.terminateThumbnailGeneration(scan_id)
+                self.devices.cameras_to_stop_thumbnailing.add(scan_id)
+                stop_thumbnailing_cmd_issued = True
+
         if self.gvfsControlsMounts:
             mount_points = {}
-            for scan_id in self.download_files.camera_access_needed:
+            # If a device was being thumbnailed, then it wasn't mounted by GVFS
+            # Therefore filter out the cameras we've already requested their
+            # thumbnailing be stopped
+            still_to_check = [scan_id for scan_id in self.download_files.camera_access_needed
+                              if scan_id not in stop_thumbnailing]
+            for scan_id in still_to_check:
+                # This next value is likely *always* True, but check nonetheless
                 if self.download_files.camera_access_needed[scan_id]:
                     device = self.devices[scan_id]
                     model = device.camera_model
                     port = device.camera_port
-                    mount_point = self.gvolumeMonitor.cameraMountPoint(
-                            model, port)
+                    mount_point = self.gvolumeMonitor.cameraMountPoint(model, port)
                     if mount_point is not None:
-                        self.camera_unmounts_needed.add((model, port))
+                        self.devices.cameras_to_gvfs_unmount_for_download.add(scan_id)
+                        camera_unmounts_called.add((model, port))
                         mount_points[(model, port)] = mount_point
-            if len(self.camera_unmounts_needed):
-                logging.debug("%s camera(s) need to be unmounted before the download begins",
-                              len(self.camera_unmounts_needed))
-                camera_unmount_called = True
-                for model, port in self.camera_unmounts_needed:
+            if len(camera_unmounts_called):
+                logging.info("%s camera(s) need to be unmounted by GVFS before the download begins",
+                              len(camera_unmounts_called))
+                for model, port in camera_unmounts_called:
                     self.gvolumeMonitor.unmountCamera(model, port,
                           download_starting=True,
                           mount_point=mount_points[(model, port)])
 
-        if not camera_unmount_called:
+        if not camera_unmounts_called and not stop_thumbnailing_cmd_issued:
             self.startDownloadPhase2()
 
     def startDownloadPhase2(self) -> None:
+        logging.debug("Start Download phase 2 has started")
         download_files = self.download_files
 
         invalid_dirs = self.invalidDownloadFolders(download_files.download_types)
@@ -1975,6 +2022,7 @@ class RapidWindow(QMainWindow):
 
             # Maximum value of progress bar may have been set to the number
             # of thumbnails being generated. Reset it to use a percentage.
+            #TODO confirm it's best to set this here
             self.downloadProgressBar.setMaximum(100)
 
             for scan_id in download_files.files:
@@ -2132,9 +2180,9 @@ class RapidWindow(QMainWindow):
         # TODO update right model right way
         self.time_remaining.update(scan_id, bytes_downloaded=chunk_downloaded)
 
-    @pyqtSlot()
-    def copyfilesFinished(self) -> None:
-        pass
+    @pyqtSlot(int)
+    def copyfilesFinished(self, scan_id: int) -> None:
+        logging.debug("All files finished copying for %s", self.devices[scan_id].display_name)
 
     @pyqtSlot(bool, RPDFile, int)
     def fileRenamedAndMoved(self, move_succeeded: bool, rpd_file: RPDFile,
@@ -2164,6 +2212,29 @@ class RapidWindow(QMainWindow):
     @pyqtSlot(RPDFile, QPixmap)
     def thumbnailReceivedFromDaemon(self, rpd_file: RPDFile, thumbnail: Optional[QPixmap]) -> None:
         self.thumbnailModel.thumbnailReceived(rpd_file=rpd_file, thumbnail=thumbnail)
+
+    @pyqtSlot(int)
+    def thumbnailGenerationStopped(self, scan_id: int) -> None:
+        """
+        Slot for when a the thumbnail worker has been forcefully stopped,
+        rather than merely finished in its work
+
+        :param scan_id: scan_id of the device that was being thumbnailed
+        """
+        if scan_id not in self.devices:
+            logging.debug("Ignoring scan_id %s from terminated thumbailing, as its device does "
+                          "not exist anymore", scan_id)
+        else:
+            device = self.devices[scan_id]
+            if scan_id in self.devices.cameras_to_stop_thumbnailing:
+                self.devices.cameras_to_stop_thumbnailing.remove(scan_id)
+                logging.debug("Thumbnailing sucessfully terminated for %s", device.display_name)
+                if not self.devices.download_start_blocked():
+                    self.startDownloadPhase2()
+            else:
+                logging.debug("Ignoring the termination of thumbnailing from %s, as it's "
+                              "not for a camera from which a download was waiting to be started",
+                              device.display_name)
 
     def backupFile(self, rpd_file: RPDFile, move_succeeded: bool,
                    download_count: int) -> None:
@@ -2286,8 +2357,8 @@ class RapidWindow(QMainWindow):
         percent_complete = self.download_tracker.get_overall_percent_complete()
         self.downloadProgressBar.setValue(round(percent_complete*100))
         if self.unity_progress:
-            self.deskop_launcher.set_property('progress', percent_complete)
-            self.deskop_launcher.set_property('progress_visible', True)
+            self.desktop_launcher.set_property('progress', percent_complete)
+            self.desktop_launcher.set_property('progress_visible', True)
 
         return (completed, files_remaining)
 
@@ -2345,7 +2416,7 @@ class RapidWindow(QMainWindow):
                 self.notifyDownloadComplete()
                 self.downloadProgressBar.reset()
                 if self.unity_progress:
-                    self.deskop_launcher.set_property('progress_visible', False)
+                    self.desktop_launcher.set_property('progress_visible', False)
 
                 # Update prefs with stored sequence number and downloads today
                 # values
@@ -2784,9 +2855,9 @@ class RapidWindow(QMainWindow):
 
                 msgBox = QMessageBox(QMessageBox.Warning, title, message,
                                 QMessageBox.NoButton, self)
-                msgBox.setIconPixmap(self.devices[scan_id].get_pixmap(QSize(30,30)))
+                msgBox.setIconPixmap(self.devices[scan_id].get_pixmap())
                 msgBox.addButton(_("&Try Again"), QMessageBox.AcceptRole)
-                msgBox.addButton("&Ignore This Device", QMessageBox.RejectRole)
+                msgBox.addButton(_("&Ignore This Device"), QMessageBox.RejectRole)
                 self.prompting_for_user_action[device] = msgBox
                 role = msgBox.exec_()
                 if role == QMessageBox.AcceptRole:
@@ -2795,7 +2866,7 @@ class RapidWindow(QMainWindow):
                     self.removeDevice(scan_id=scan_id, show_warning=False)
                 del self.prompting_for_user_action[device]
             else:
-                # Update GUI display and rows DB with canonical camera display name
+                # Update GUI display and rows DB with definitive camera display name
                 device = self.devices[scan_id]
                 logging.debug('%s with scan id %s is now known as %s',
                               device.display_name, scan_id, data.optimal_display_name)
@@ -2811,6 +2882,13 @@ class RapidWindow(QMainWindow):
 
     @pyqtSlot(int)
     def scanFinished(self, scan_id: int) -> None:
+        """
+        A single device has finished its scan. Other devices can be in any
+        one of a number of states.
+
+        :param scan_id: scan id of the device that finished scanning
+        """
+
         if scan_id not in self.devices:
             return
         device = self.devices[scan_id]
@@ -2851,7 +2929,6 @@ class RapidWindow(QMainWindow):
             # not generating thumbnails, and auto start is not on
             model.setSpinnerState(scan_id, DeviceState.idle)
             self.displayMessageInStatusBar()
-
 
     def quit(self) -> None:
         """
@@ -2957,6 +3034,9 @@ class RapidWindow(QMainWindow):
         self.writeWindowSettings()
         self.fileSystemModel.remove_preview_folders()
 
+        if self.ctime_update_notification is not None:
+            self.ctime_update_notification = None
+
         self.offloadmq.stop()
         self.offloadThread.quit()
         if not self.offloadThread.wait(500):
@@ -3052,6 +3132,7 @@ class RapidWindow(QMainWindow):
         possible to query GIO or udev to return the info needed by
         libgphoto2
         """
+
         sc = self.gp_context.camera_autodetect()
         system_cameras = ((model, port) for model, port in sc if not
                           port.startswith('disk:'))
@@ -3085,40 +3166,93 @@ class RapidWindow(QMainWindow):
         if have_gio:
             self.searchForCameras()
 
-    def unmountCamera(self, model: str, port: str) -> bool:
+    def unmountCameraToEnableScan(self, model: str, port: str) -> bool:
+        """
+        Possibly "unmount" a camera or phone controlled by GVFS so it can be scanned
+
+        :param model: camera model
+        :param port: port used by camera
+        :return: True if unmount operation initiated, else False
+        """
+
         if self.gvfsControlsMounts:
-            self.cameras_to_unmount[port] = model
+            self.devices.cameras_to_gvfs_unmount_for_scan[port] = model
             if self.gvolumeMonitor.unmountCamera(model, port):
                 return True
             else:
-                del self.cameras_to_unmount[port]
+                del self.devices.cameras_to_gvfs_unmount_for_scan[port]
         return False
 
     @pyqtSlot(bool, str, str, bool)
     def cameraUnmounted(self, result: bool, model: str, port: str, download_started: bool) -> None:
+        """
+        Handle the attempt to unmount a GVFS mounted camera.
+
+        Note: cameras that have not yet been scanned do not yet have a scan_id assigned.
+
+        :param result: result from the GVFS operation
+        :param model: camera model
+        :param port: camera port
+        :param download_started: whether the unmount happened because a download
+         was initiated
+        """
+
         if not download_started:
-            assert self.cameras_to_unmount[port] == model
-            del self.cameras_to_unmount[port]
+            assert self.devices.cameras_to_gvfs_unmount_for_scan[port] == model
+            del self.devices.cameras_to_gvfs_unmount_for_scan[port]
             if result:
                 self.startCameraScan(model, port)
             else:
-                logging.debug("Not scanning %s because it could not be unmounted", model)
+                # Get the camera's short model name, instead of using the exceptionally
+                # long name that gphoto2 can sometimes use. Get the icon too.
+                camera = Device()
+                camera.set_download_from_camera(model, port)
+
+                logging.debug("Not scanning %s because it could not be unmounted",
+                              camera.display_name)
+
+                title = _('Rapid Photo Downloader')
+                message = _('<b>The %(camera)s cannot be scanned because it cannot be '
+                            'unmounted.</b><br><br>You can close any other application (such as a '
+                            'file browser) that is using it and try again. If that does not work, '
+                            'unplug the %(camera)s from the computer and plug it in again.') \
+                          % dict(camera=camera.display_name)
+
+                # Show the main window if it's not yet visible
+                self.showMainWindow()
+                msgBox = QMessageBox(QMessageBox.Warning, title, message, QMessageBox.Ok)
+                msgBox.setIconPixmap(camera.get_pixmap())
+                msgBox.exec_()
         else:
-            assert (model, port) in self.camera_unmounts_needed
+            # A download was initiated
+
+            scan_id = self.devices.scan_id_from_camera_model_port(model, port)
+            self.devices.cameras_to_gvfs_unmount_for_download.remove(scan_id)
             if result:
-                self.camera_unmounts_needed.remove((model, port))
-                if not len(self.camera_unmounts_needed):
+                if not self.devices.download_start_blocked():
                     self.startDownloadPhase2()
             else:
-                #TODO report error to user!!
-                pass
+                camera = self.devices[scan_id]
+                display_name = camera.display_name
+
+                title = _('Rapid Photo Downloader')
+                message = _('<b>The download cannot start because the %(camera)s cannot be '
+                            'unmounted.</b><br><br>You '
+                            'can close any other application (such as a file browser) that is '
+                            'using it and try again. If that '
+                            'does not work, unplug the %(camera)s from the computer and plug '
+                            'it in again, and choose which files you want to download from it.') \
+                          % dict(camera=display_name)
+                msgBox = QMessageBox(QMessageBox.Warning, title, message, QMessageBox.Ok)
+                msgBox.setIconPixmap(camera.get_pixmap())
+                msgBox.exec_()
 
     def searchForCameras(self) -> None:
         if self.prefs.device_autodetection:
             cameras = self.gp_context.camera_autodetect()
             for model, port in cameras:
-                if port in self.cameras_to_unmount:
-                    assert self.cameras_to_unmount[port] == model
+                if port in self.devices.cameras_to_gvfs_unmount_for_scan:
+                    assert self.devices.cameras_to_gvfs_unmount_for_scan[port] == model
                     logging.debug("Already unmounting %s", model)
                 elif self.devices.known_camera(model, port):
                     logging.debug("Camera %s is known", model)
@@ -3136,7 +3270,7 @@ class RapidWindow(QMainWindow):
                         # system. Before attempting to scan the camera, check
                         # to see if it's mounted and if so, unmount it.
                         # Unmounting is asynchronous.
-                        if not self.unmountCamera(model, port):
+                        if not self.unmountCameraToEnableScan(model, port):
                             self.startCameraScan(model, port)
 
     def startCameraScan(self, model: str, port: str) -> None:
@@ -4119,7 +4253,6 @@ def main():
              splash=splash)
 
     app.setActivationWindow(rw)
-
     code = app.exec_()
     logging.debug("Exiting")
     sys.exit(code)

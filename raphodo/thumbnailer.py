@@ -156,6 +156,12 @@ class Thumbnailer(QObject):
     def cacheDirs(self) -> pyqtSignal:
         return self.thumbnail_manager.cacheDirs
 
+    # Signal emitted when the worker has been forcefully stopped, rather than
+    # merely finished in its work
+    @property
+    def workerStopped(self) -> pyqtSignal:
+        return self.thumbnail_manager.workerStopped
+
     def setupThumbnailManager(self, logging_port: int) -> None:
         self.thumbnail_manager_thread = QThread()
         self.thumbnail_manager = ThumbnailManagerPara(logging_port=logging_port)
