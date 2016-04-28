@@ -348,7 +348,7 @@ class ThumbnailListModel(QAbstractListModel):
         rpd_file = self.rpd_files[uid]  # type: RPDFile
 
         if role == Qt.DisplayRole:
-            # This is never displayed, but is used for filtering!
+            # This is never displayed, but is (was?) used for filtering!
             return rpd_file.modification_time
         elif role == Roles.highlight:
             if rpd_file.scan_id == self.currently_highlighting_scan_id:
@@ -407,51 +407,58 @@ class ThumbnailListModel(QAbstractListModel):
                 ctime = arrow.get(rpd_file.ctime)
 
                 humanized_ctime = _(
-                    'Taken on %(date_time)s (%(human_readable)s)' %
-                    {'date_time': ctime.to('local').naive.strftime('%c'),
-                     'human_readable': ctime.humanize()})
+                    'Taken on %(date_time)s (%(human_readable)s)' % dict(
+                     date_time=ctime.to('local').naive.strftime('%c'),
+                     human_readable=ctime.humanize()))
 
                 humanized_mtime = _(
-                    'Modified on %(date_time)s (%(human_readable)s)' %
-                    {'date_time': mtime.to('local').naive.strftime('%c'),
-                     'human_readable': mtime.humanize()})
-                humanized_file_time = '{}\n{}'.format(humanized_ctime, humanized_mtime)
+                    'Modified on %(date_time)s (%(human_readable)s)' % dict(
+                    date_time=mtime.to('local').naive.strftime('%c'),
+                    human_readable=mtime.humanize()))
+                humanized_file_time = '{}<br>{}'.format(humanized_ctime, humanized_mtime)
             else:
                 humanized_file_time = _(
-                    '%(date_time)s (%(human_readable)s)' %
-                    {'date_time': mtime.to('local').naive.strftime('%c'),
-                     'human_readable': mtime.humanize()})
+                    '%(date_time)s (%(human_readable)s)' % dict(
+                    date_time=mtime.to('local').naive.strftime('%c'),
+                    human_readable=mtime.humanize()))
+
+            humanized_file_time = humanized_file_time.replace(' ', '&nbsp;')
 
             if not device_name:
-                msg = '{}\n{}\n{}'.format(rpd_file.name,
+                msg = '<b>{}</b><br>{}<br>{}'.format(rpd_file.name,
                                       humanized_file_time, size)
             else:
-                msg = '{}\n{}\n{}\n{}'.format(rpd_file.name, device_name,
+                msg = '<b>{}</b><br>{}<br>{}<br>{}'.format(rpd_file.name, device_name,
                                           humanized_file_time, size)
 
             if rpd_file.camera_memory_card_identifiers:
                 cards = _('Memory cards: %s') % make_internationalized_list(
                     rpd_file.camera_memory_card_identifiers)
-                msg += '\n' + cards
+                msg += '<br>' + cards
 
             if rpd_file.status in Downloaded:
                 path = rpd_file.download_path + os.sep
-                msg += '\n\nDownloaded as:\n%(filename)s\n%(path)s' % {
-                    'filename': rpd_file.download_name,
-                    'path': path}
+                downloaded_as = _('Downloaded as:')
+                msg += '<br><br><i>%(downloaded_as)s</i><br>%(filename)s<br>' \
+                       '%(path)s' % dict(filename=rpd_file.download_name, path=path,
+                                         downloaded_as=downloaded_as)
+
+            if rpd_file.has_problem():
+                error_title=_("%(error_title)s:") % dict(error_title=rpd_file.problem.get_title())
+                msg += '<br><br><i>{}</i><br>{}'.format(error_title,
+                                                        rpd_file.problem.get_problems())
 
             if rpd_file.previously_downloaded():
 
                 prev_datetime = arrow.get(rpd_file.prev_datetime,
                                           tzlocal())
-                prev_date = _('%(date_time)s (%(human_readable)s)' %
-                {'date_time': prev_datetime.naive.strftime(
-                    '%c'),
-                 'human_readable': prev_datetime.humanize()})
+                prev_date = _('%(date_time)s (%(human_readable)s)' % dict(
+                    date_time=prev_datetime.naive.strftime('%c'),
+                    human_readable=prev_datetime.humanize()))
 
                 path, prev_file_name = os.path.split(rpd_file.prev_full_name)
                 path += os.sep
-                msg += _('\n\nPrevious download:\n%(filename)s\n%(path)s\n%('
+                msg += _('<br><br>Previous download:<br>%(filename)s<br>%(path)s<br>%('
                          'date)s') % {'date': prev_date,
                                        'filename': prev_file_name,
                                        'path': path}
@@ -579,20 +586,10 @@ class ThumbnailListModel(QAbstractListModel):
 
         download_is_running = self.rapidApp.downloadIsRunning()
 
-        if rpd_file.mdatatime_caused_ctime_change:
-            if not rpd_file.modified_via_daemon_process:
-                if scan_id not in self.ctimes_differ:
-                    logging.info('Metadata time differs from file modification time for '
-                                 '%s (with possibly more to come, but these will not be logged)',
-                                 rpd_file.full_file_name)
-                    self.ctimes_differ.append(scan_id)
-                    self.rapidApp.removeProvisionalDownloadFolders(scan_id=scan_id)
-                    self.rapidApp.temporalProximity.setState(TemporalProximityState.ctime_rebuild)
-                    self.rapidApp.notifyFoldersProximityRefresh(scan_id)
-            else:
-                # TODO handle Timeline update when coming from the daemon process
-                # TODO and handle updating the timeline during the file renaming process too
-                pass
+        if rpd_file.mdatatime_caused_ctime_change and not rpd_file.modified_via_daemon_process:
+            rpd_file.mdatatime_caused_ctime_change = False
+            if scan_id not in self.ctimes_differ:
+                self.addCtimeDisparity(rpd_file=rpd_file)
 
         if not rpd_file.modified_via_daemon_process and self.rpd_files[uid].status in (
                 DownloadStatus.not_downloaded, DownloadStatus.download_pending):
@@ -621,13 +618,7 @@ class ThumbnailListModel(QAbstractListModel):
                     uids = self.tsql.get_uids_for_device(scan_id=scan_id)
                     rpd_files = [self.rpd_files[uid] for uid in uids]
                     self.rapidApp.generateProvisionalDownloadFolders(rpd_files=rpd_files)
-                    self.ctimes_differ.remove(scan_id)
-                    if not self.ctimes_differ:
-                        self.rapidApp.temporalProximity.setState(
-                            TemporalProximityState.ctime_rebuild_proceed)
-                        self.rapidApp.generateTemporalProximityTableData(
-                            reason="a photo or video's creation time differed from its file "
-                                   "system modification time")
+                    self.processCtimeDisparity(scan_id=scan_id)
                 log_state = True
 
             if self.thumbnails_generated == self.total_thumbs_to_generate:
@@ -643,6 +634,41 @@ class ThumbnailListModel(QAbstractListModel):
 
             if log_state:
                 self.logState()
+
+    def addCtimeDisparity(self, rpd_file: RPDFile) -> None:
+        """
+        Track the fact that there was a disparity between the creation time and
+        modification time for a file, that was identified either during a download
+        or during a scan
+        :param rpd_file: sample rpd_file (scan id of the device will be taken from it)
+        """
+
+        logging.info('Metadata time differs from file modification time for '
+                     '%s (with possibly more to come, but these will not be logged)',
+                     rpd_file.full_file_name)
+
+        scan_id = rpd_file.scan_id
+        self.ctimes_differ.append(scan_id)
+        self.rapidApp.temporalProximity.setState(TemporalProximityState.ctime_rebuild)
+        if not self.rapidApp.downloadIsRunning():
+            self.rapidApp.removeProvisionalDownloadFolders(scan_id=scan_id)
+            self.rapidApp.notifyFoldersProximityRebuild(scan_id)
+
+    def processCtimeDisparity(self, scan_id: int) -> None:
+        """
+        A device that had a disparity between the creation time and
+        modification time for a file has been fully downloaded from, or fully
+        downloaded from.
+
+        :param scan_id:
+        :return:
+        """
+        self.ctimes_differ.remove(scan_id)
+        if not self.ctimes_differ:
+            self.rapidApp.temporalProximity.setState(TemporalProximityState.ctime_rebuild_proceed)
+            self.rapidApp.generateTemporalProximityTableData(
+                reason="a photo or video's creation time differed from its file "
+                       "system modification time")
 
     def _get_cache_location(self, download_folder: str) -> str:
         if validate_download_folder(download_folder).valid:
@@ -799,6 +825,9 @@ class ThumbnailListModel(QAbstractListModel):
     def getNoFilesAvailableForDownload(self) -> FileTypeCounter:
         uids = self.tsql.get_uids(downloaded=False)
         return FileTypeCounter(self.rpd_files[uid].file_type for uid in uids)
+
+    def getCountNotPreviouslyDownloadedAvailableForDownload(self) -> int:
+        return self.tsql.get_count(previously_downloaded=False, downloaded=False)
 
     def getFilesMarkedForDownload(self, scan_id: int) -> DownloadFiles:
         """
@@ -1167,12 +1196,12 @@ class ThumbnailListModel(QAbstractListModel):
         if row is not None:
             self.dataChanged.emit(self.index(row,0),self.index(row,0))
 
-    def filesRemainToDownload(self) -> bool:
+    def filesRemainToDownload(self, scan_id: Optional[int]=None) -> bool:
         """
         :return True if any files remain that are not downloaded, else
          returns False
         """
-        return self.tsql.any_files_to_download()
+        return self.tsql.any_files_to_download(scan_id)
 
     def dataForProximityGeneration(self) -> List[ThumbnailDataForProximity]:
         return [ThumbnailDataForProximity(uid=rpd_file.uid,

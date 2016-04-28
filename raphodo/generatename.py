@@ -105,7 +105,7 @@ class PhotoName:
                     else:
                         return d
                 else:
-                    d = self.rpd_file.metadata.date_time(missing=None)
+                    d = self.rpd_file.date_time(missing=None)
 
         elif self.L1 == TODAY:
             d = datetime.datetime.now()

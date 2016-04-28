@@ -353,8 +353,19 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
 
 
     def do_work(self) -> None:
+        try:
+            self.generate_thumbnails()
+        except Exception as e:
+            if hasattr(self, 'device_name'):
+                logging.error("Exception generating thumbnails for %s", self.device_name)
+            else:
+                logging.error("Exception generating thumbnails")
+            logging.exception("Traceback:")
+        
+    def generate_thumbnails(self) -> None:
         self.camera = None
         arguments = pickle.loads(self.content)  # type: GenerateThumbnailsArguments
+        self.device_name = arguments.name
         logging.info("Generating %s thumbnails for %s", len(arguments.rpd_files), arguments.name)
         if arguments.log_gphoto2:
             gp.use_python_logging()
@@ -418,10 +429,10 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
                 cache_file_from_camera = must_make_cache_dirs
                 self.photo_cache_dir = create_temp_dir(
                     folder=arguments.cache_dirs.photo_cache_dir,
-                    prefix='rpd-cache-{}-'.format(arguments.name[:10]))
+                    prefix='rpd-cache-{}-'.format(self.device_name[:10]))
                 self.video_cache_dir = create_temp_dir(
                     folder=arguments.cache_dirs.video_cache_dir,
-                    prefix='rpd-cache-{}-'.format(arguments.name[:10]))
+                    prefix='rpd-cache-{}-'.format(self.device_name[:10]))
                 cache_dirs = CacheDirs(self.photo_cache_dir, self.video_cache_dir)
                 self.content = pickle.dumps(GenerateThumbnailsResults(
                     scan_id=arguments.scan_id,
@@ -609,13 +620,13 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
                 if not os.listdir(self.video_cache_dir):
                     os.rmdir(self.video_cache_dir)
 
-        logging.debug("Finished phase 1 of thumbnail generation for %s", arguments.name)
+        logging.debug("Finished phase 1 of thumbnail generation for %s", self.device_name)
         if from_thumb_cache:
             logging.info("{} of {} thumbnails for {} came from thumbnail cache".format(
-                from_thumb_cache, len(rpd_files), arguments.name))
+                from_thumb_cache, len(rpd_files), self.device_name))
         if from_fdo_cache:
             logging.info("{} of {} thumbnails of for {} came from Free Desktop cache".format(
-                from_fdo_cache, len(rpd_files), arguments.name))
+                from_fdo_cache, len(rpd_files), self.device_name))
 
         self.disconnect_logging()
         self.send_finished_command()

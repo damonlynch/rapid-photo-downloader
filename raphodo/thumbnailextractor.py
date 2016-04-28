@@ -319,8 +319,8 @@ class ThumbnailExtractor(LoadBalancerWorker):
 
         self.load_photo_metadata(rpd_file=rpd_file, full_file_name=full_file_name,
                                  raw_bytes=raw_bytes)
-        if rpd_file.metadata is not None:
-            rpd_file.mdatatime = rpd_file.metadata.timestamp(missing=0.0)
+        if rpd_file.metadata is not None and rpd_file.date_time() is None:
+            rpd_file.mdatatime = 0.0
 
     def load_photo_metadata(self, rpd_file: Photo,
                         full_file_name: Optional[str]=None,
@@ -347,7 +347,8 @@ class ThumbnailExtractor(LoadBalancerWorker):
 
         if rpd_file.metadata is None:
             rpd_file.load_metadata(full_file_name=full_file_name, et_process=self.exiftool_process)
-        rpd_file.mdatatime = rpd_file.metadata.timestamp(missing=0.0)
+        if rpd_file.date_time() is None:
+            rpd_file.mdatatime = 0.0
 
     def get_video_rotation(self, rpd_file: Video, full_file_name: str) -> Optional[str]:
         """

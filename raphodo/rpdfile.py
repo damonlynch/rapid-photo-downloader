@@ -28,7 +28,7 @@ import mimetypes
 from collections import Counter, UserDict
 from urllib.request import pathname2url
 import locale
-from typing import Optional, List, Tuple, Union
+from typing import Optional, List, Tuple, Union, Any
 
 from gettext import gettext as _
 
@@ -374,8 +374,16 @@ class RPDFile:
         assert size > 0
         self.size = size
 
+        # Cached version of call to metadata.date_time()
+        # Value of '__unassigned' means it's not been assigned
+        self._datetime = '__unassigned'  # type: Union[Optional[datetime], str]
+
         self.device_timestamp_type = device_timestamp_type
 
+        ###########
+        #self.ctime
+        ###########
+        #
         # self.ctime is the photo or video's creation time. It's value depends
         # on the values in self.modification_time and self.mdatatime. It's value
         # is set by the setter functions below.
@@ -499,6 +507,8 @@ class RPDFile:
         if value:
             self.mdatatime_caused_ctime_change = not datetime_roughly_equal(self.ctime, value)
             self.ctime = value
+            if not self._datetime:
+                self._datetime = datetime.fromtimestamp(value)
 
     def ctime_mtime_differ(self) -> bool:
         """
@@ -511,6 +521,19 @@ class RPDFile:
             return False
 
         return not datetime_roughly_equal(self._mdatatime, self._mtime)
+
+    def date_time(self, missing: Optional[Any]=None) -> datetime:
+        """
+        Expects the metadata to have already been loaded.
+        :return: the metadata's date time value, else missing if not found or error
+        """
+
+        if self._datetime != '__unassigned':
+            return self._datetime
+
+        self._datetime = self.metadata.date_time(missing=missing)
+        if self._datetime:
+            self.mdatatime = self._datetime.timestamp()
 
     def is_jpeg(self) -> bool:
         """
@@ -624,7 +647,8 @@ class RPDFile:
 
     def initialize_problem(self):
         self.problem = pn.Problem()
-        # these next values are used to display in the error log window
+        # these next values are used to display in the error log window and the main
+        # window's thumbnail tooltips.
         # the information in them can vary from other forms of display of errors
         self.error_title = self.error_msg = self.error_extra_detail = ''
 

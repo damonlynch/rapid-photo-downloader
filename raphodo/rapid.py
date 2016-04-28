@@ -501,6 +501,7 @@ class RapidWindow(QMainWindow):
         # self.prefs.photo_rename = job_code_rename_test
         self.prefs.backup_files = False
         self.prefs.backup_device_autodetection = True
+        self.prefs.auto_download_at_startup = True
 
         # Don't call processEvents() after initiating 0MQ, as it can
         # cause "Interrupted system call" errors
@@ -1573,6 +1574,14 @@ class RapidWindow(QMainWindow):
         size_videos_marked = self.thumbnailModel.getSizeOfFilesMarkedForDownload(FileType.video)
         marked = self.thumbnailModel.getNoFilesAndTypesMarkedForDownload()
 
+        if have_unity:
+            available = self.thumbnailModel.getCountNotPreviouslyDownloadedAvailableForDownload()
+            if available:
+                self.desktop_launcher.set_property("count", available)
+                self.desktop_launcher.set_property("count_visible", True)
+            else:
+                self.desktop_launcher.set_property("count_visible", False)
+
         destinations_good = True
 
         # Assume that invalid destination folders have already been reset to ''
@@ -2003,6 +2012,10 @@ class RapidWindow(QMainWindow):
 
                 self.logError(ErrorType.warning, _("Backup problem"), msg)
 
+            # Suppress showing a notification message about any timeline
+            # and provisional folders rebuild - download takes priority
+            self.ctime_notification_issued = False
+
             # set time download is starting if it is not already set
             # it is unset when all downloads are completed
             if self.download_start_time is None:
@@ -2177,16 +2190,20 @@ class RapidWindow(QMainWindow):
         assert chunk_downloaded >= 0
         self.download_tracker.set_total_bytes_copied(scan_id, total_downloaded)
         self.time_check.increment(bytes_downloaded=chunk_downloaded)
-        # TODO update right model right way
         self.time_remaining.update(scan_id, bytes_downloaded=chunk_downloaded)
 
     @pyqtSlot(int)
     def copyfilesFinished(self, scan_id: int) -> None:
-        logging.debug("All files finished copying for %s", self.devices[scan_id].display_name)
+        if scan_id in self.devices:
+            logging.debug("All files finished copying for %s", self.devices[scan_id].display_name)
 
     @pyqtSlot(bool, RPDFile, int)
     def fileRenamedAndMoved(self, move_succeeded: bool, rpd_file: RPDFile,
                             download_count: int) -> None:
+        scan_id = rpd_file.scan_id
+        if rpd_file.mdatatime_caused_ctime_change and scan_id not in \
+                self.thumbnailModel.ctimes_differ:
+            self.thumbnailModel.addCtimeDisparity(rpd_file=rpd_file)
 
         if self.thumbnailModel.send_to_daemon_thumbnailer(rpd_file=rpd_file):
             logging.debug("Assigning daemon thumbnailer to work on %s",
@@ -2394,6 +2411,11 @@ class RapidWindow(QMainWindow):
             # Last file for this scan id has been downloaded, so clean temp
             # directory
             self.mapModel(scan_id).setSpinnerState(scan_id, DeviceState.idle)
+
+            # Rebuild temporal proximity if it needs it
+            if scan_id in self.thumbnailModel.ctimes_differ and not \
+                    self.thumbnailModel.filesRemainToDownload(scan_id=scan_id):
+                self.thumbnailModel.processCtimeDisparity(scan_id=scan_id)
 
             logging.debug("Purging temp directories")
             self.cleanTempDirsForScanId(scan_id)
@@ -2629,7 +2651,7 @@ class RapidWindow(QMainWindow):
             # don't show summary again unless needed
             self.display_summary_notification = False
 
-    def notifyFoldersProximityRefresh(self, scan_id) -> None:
+    def notifyFoldersProximityRebuild(self, scan_id) -> None:
         """
         Inform the user that a timeline rebuild and folder preview update is pending,
         taking into account they may have already been notified.

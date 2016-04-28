@@ -53,8 +53,12 @@ Changelog for Rapid Photo Downloader
 
    - Thumbnails are generated asynchronously and in parallel, using a load
      balancer to assign work to processes utilizing up to 4 CPU cores.
-     Thumbnail generation can be considerably faster than the 0.4 series of
-     releases.
+     Thumbnail generation is faster than the 0.4 series of program
+     releases, especially when reading from fast memory cards or SSDs.
+     (Unfortunately generating thumbnails for smartphone photos is slow.
+     Unlike photos produced by cameras, smartphone photos do not contain
+     embedded preview images, which means the entire photo must be downloaded
+     and cached for its thumbnail to be generated).
 
    - Thumbnails generated when a device is scanned are cached, making thumbnail
      generation quicker on subsequent scans.
@@ -84,7 +88,8 @@ Changelog for Rapid Photo Downloader
    - Freedesktop.org thumbnails for downloaded RAW photos are generated, which means
      they will have thumbnails in programs like Gnome Files and KDE Dolphin.
      
-   - A progress bar is displayed when running under Ubuntu's Unity desktop.
+   - When running under Ubuntu's Unity desktop, a progress bar and count of files
+     available for download is displayed on the program's launcher.
 
    - The installer has been totally rewritten to take advantage of Python's
      tool pip, which installs Python packages. Rapid Photo Downloader can now

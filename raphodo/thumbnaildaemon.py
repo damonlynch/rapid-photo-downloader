@@ -82,7 +82,6 @@ class DameonThumbnailWorker(DaemonProcess):
         self.frontend.connect("tcp://localhost:{}".format(data.frontend_port))
 
         while True:
-
             # rename file and move to generated subfolder
             directive, content = self.receiver.recv_multipart()
 
@@ -91,48 +90,51 @@ class DameonThumbnailWorker(DaemonProcess):
             data = pickle.loads(content) # type: ThumbnailDaemonData
             rpd_file = data.rpd_file
             rpd_file.modified_via_daemon_process = True
+            try:
 
-            # Check the download source to see if it's in the caches, not the file
-            # we've just downloaded
-            cache_search = thumbnail_caches.get_from_cache(rpd_file=rpd_file,
-                                        use_thumbnail_cache=data.use_thumbnail_cache)
-            task, thumbnail_bytes, full_file_name_to_work_on, origin = cache_search
-            processing = set()  # type: Set[ExtractionProcessing]
+                # Check the download source to see if it's in the caches, not the file
+                # we've just downloaded
+                cache_search = thumbnail_caches.get_from_cache(rpd_file=rpd_file,
+                                            use_thumbnail_cache=data.use_thumbnail_cache)
+                task, thumbnail_bytes, full_file_name_to_work_on, origin = cache_search
+                processing = set()  # type: Set[ExtractionProcessing]
 
-            if task == ExtractionTask.undetermined:
-                # Thumbnail was not found in any cache: extract it
+                if task == ExtractionTask.undetermined:
+                    # Thumbnail was not found in any cache: extract it
 
-                task = preprocess_thumbnail_from_non_camera(rpd_file=rpd_file, processing=processing)
-                if task != ExtractionTask.bypass:
-                    if rpd_file.thm_full_name is not None:
-                        full_file_name_to_work_on = rpd_file.download_thm_full_name
-                    else:
-                        full_file_name_to_work_on = rpd_file.download_full_file_name
+                    task = preprocess_thumbnail_from_non_camera(rpd_file=rpd_file, processing=processing)
+                    if task != ExtractionTask.bypass:
+                        if rpd_file.thm_full_name is not None:
+                            full_file_name_to_work_on = rpd_file.download_thm_full_name
+                        else:
+                            full_file_name_to_work_on = rpd_file.download_full_file_name
 
-            if task == ExtractionTask.bypass:
-                self.content = pickle.dumps(GenerateThumbnailsResults(
-                    rpd_file=rpd_file, thumbnail_bytes=thumbnail_bytes),
-                    pickle.HIGHEST_PROTOCOL)
-                self.send_message_to_sink()
+                if task == ExtractionTask.bypass:
+                    self.content = pickle.dumps(GenerateThumbnailsResults(
+                        rpd_file=rpd_file, thumbnail_bytes=thumbnail_bytes),
+                        pickle.HIGHEST_PROTOCOL)
+                    self.send_message_to_sink()
 
-            elif task != ExtractionTask.undetermined:
-                # Send data to load balancer, which will send to one of its
-                # workers
+                elif task != ExtractionTask.undetermined:
+                    # Send data to load balancer, which will send to one of its
+                    # workers
 
-                self.content = pickle.dumps(ThumbnailExtractorArgument(
-                    rpd_file=rpd_file,
-                    task=task,
-                    processing=processing,
-                    full_file_name_to_work_on=full_file_name_to_work_on,
-                    secondary_full_file_name='',
-                    exif_buffer=None,
-                    thumbnail_bytes = thumbnail_bytes,
-                    use_thumbnail_cache=False,
-                    file_to_work_on_is_temporary=False,
-                    write_fdo_thumbnail=data.write_fdo_thumbnail),
-                    pickle.HIGHEST_PROTOCOL)
-                self.frontend.send_multipart([b'data', self.content])
-
+                    self.content = pickle.dumps(ThumbnailExtractorArgument(
+                        rpd_file=rpd_file,
+                        task=task,
+                        processing=processing,
+                        full_file_name_to_work_on=full_file_name_to_work_on,
+                        secondary_full_file_name='',
+                        exif_buffer=None,
+                        thumbnail_bytes = thumbnail_bytes,
+                        use_thumbnail_cache=data.use_thumbnail_cache,
+                        file_to_work_on_is_temporary=False,
+                        write_fdo_thumbnail=data.write_fdo_thumbnail),
+                        pickle.HIGHEST_PROTOCOL)
+                    self.frontend.send_multipart([b'data', self.content])
+            except Exception as e:
+                    logging.error("Exception working on file %s", rpd_file.full_file_name)
+                    logging.exception("Traceback:")
 
 if __name__ == '__main__':
     generate_thumbnails = DameonThumbnailWorker()

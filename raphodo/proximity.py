@@ -1464,7 +1464,8 @@ class TemporalProximity(QWidget):
         generation_pending = _("Timeline build pending...")
         generating = _("Timeline is building...")
         ctime_vs_mtime = _("The Timeline needs to be rebuilt because the file "
-                           "modification time does not match the time a shot was taken.<br><br>The "
+                           "modification time does not match the time a shot was taken for one or more shots"
+                           ".<br><br>The "
                            "Timeline "
 "shows when shots were taken. The time a shot was taken is found in a photo or video's metadata. "
 "Reading the metadata is time consuming, so Rapid Photo Downloader eschews reading the metadata "
