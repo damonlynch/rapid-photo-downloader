@@ -48,11 +48,11 @@ from raphodo.interprocess import (LoadBalancerWorker, ThumbnailExtractorArgument
                           GenerateThumbnailsResults)
 
 from raphodo.constants import (ThumbnailSize, ExtractionTask, ExtractionProcessing,
-                               ThumbnailCacheStatus)
+                               ThumbnailCacheStatus, ThumbnailCacheDiskStatus)
 from raphodo.rpdfile import RPDFile, Video, Photo, FileType
 from raphodo.utilities import stdchannel_redirected, show_errors
 from raphodo.filmstrip import add_filmstrip
-from raphodo.cache import ThumbnailCacheSql
+from raphodo.cache import ThumbnailCacheSql, FdoCacheLarge, FdoCacheNormal
 import raphodo.exiftool as exiftool
 
 have_gst = Gst.init_check(None)
@@ -131,12 +131,15 @@ class ThumbnailExtractor(LoadBalancerWorker):
     rotate_180 = '3'
     rotate_270 = '8'
 
-    max_size = QSize(max(ThumbnailSize.width, ThumbnailSize.height),
-                     max(ThumbnailSize.width, ThumbnailSize.height))
+    maxStandardSize = QSize(max(ThumbnailSize.width, ThumbnailSize.height),
+                            max(ThumbnailSize.width, ThumbnailSize.height))
 
     def __init__(self) -> None:
-        self.thumbnail_size_needed = QSize(ThumbnailSize.width, ThumbnailSize.height)
+        self.thumbnailSizeNeeded = QSize(ThumbnailSize.width, ThumbnailSize.height)
         self.thumbnail_cache = ThumbnailCacheSql()
+        self.fdo_cache_large = FdoCacheLarge()
+        self.fdo_cache_normal = FdoCacheNormal()
+
         super().__init__('Thumbnail Extractor')
 
     def rotate_thumb(self, thumbnail: QImage, orientation: str) -> QImage:
@@ -156,8 +159,37 @@ class ThumbnailExtractor(LoadBalancerWorker):
 
     def image_large_enough(self, size: QSize) -> bool:
         """Check if image is equal or bigger than thumbnail size."""
-        return (size.width() >= self.thumbnail_size_needed.width() or
-                size.height() >= self.thumbnail_size_needed.height())
+
+        return (size.width() >= self.thumbnailSizeNeeded.width() or
+                size.height() >= self.thumbnailSizeNeeded.height())
+
+    def image_large_enough_fdo(self, size: QSize) -> bool:
+        return size.width() >= 256 or size.height() >= 256
+
+    def _extract_256_thumb(self, rpd_file: RPDFile,
+                          processing: Set[ExtractionProcessing],
+                          orientation: Optional[str]) -> PhotoDetails:
+
+        thumbnail = None
+        previews = rpd_file.metadata.get_preview_properties()
+        if previews:
+            for preview in previews:
+                if self.image_large_enough_fdo(QSize(preview.get_width(), preview.get_height())) \
+                        and preview.get_mime_type() == 'image/jpeg':
+                    break
+
+            # At this point we have a preview that may or may not be bigger than 160x120.
+            # On older RAW files, no. On newer RAW files, yes.
+            data = rpd_file.metadata.get_preview_image(preview).get_data()
+            if isinstance(data, bytes):
+                thumbnail = QImage.fromData(data)
+                if thumbnail.isNull():
+                    thumbnail = None
+                else:
+                    if thumbnail.width() > 160 or thumbnail.height() > 120:
+                        processing.add(ExtractionProcessing.resize)
+
+        return PhotoDetails(thumbnail, orientation)
 
     def _extract_metadata(self, rpd_file: RPDFile,
                           processing: Set[ExtractionProcessing]) -> PhotoDetails:
@@ -173,6 +205,15 @@ class ThumbnailExtractor(LoadBalancerWorker):
         # Not all files have an exif preview, but some do
         # (typically CR2, ARW, PEF, RW2).
         # If they exist, they are (almost!) always 160x120
+
+        # TODO how about thumbnail_cache_status?
+        if self.write_fdo_thumbnail and rpd_file.fdo_thumbnail_256 is None:
+            photo_details = self._extract_256_thumb(rpd_file=rpd_file, processing=processing,
+                                                    orientation=orientation)
+            if photo_details.thumbnail is not None:
+                return photo_details
+            # if no valid preview found, fall back to the code below and make do with the best
+            # we can get
 
         ep = rpd_file.metadata.get_exif_thumbnail()
         if ep:
@@ -265,7 +306,8 @@ class ThumbnailExtractor(LoadBalancerWorker):
         if thumbnail is None and rpd_file.is_loadable():
             thumbnail = QImage(full_file_name)
             processing.add(ExtractionProcessing.resize)
-            processing.remove(ExtractionProcessing.orient)
+            if not rpd_file.from_camera:
+                processing.remove(ExtractionProcessing.orient)
             if thumbnail.isNull():
                 thumbnail = None
                 logging.warning(
@@ -388,7 +430,10 @@ class ThumbnailExtractor(LoadBalancerWorker):
             task = data.task
             processing = data.processing
             rpd_file = data.rpd_file
-            write_fdo_thumbnail = data.write_fdo_thumbnail
+            # The next value will be None unless rawkit was used to render a full-size
+            # preview during the thumbnailing stage, or the file is a TIFF
+            thumbnail_256 = rpd_file.fdo_thumbnail_256
+            self.write_fdo_thumbnail = data.write_fdo_thumbnail
 
             try:
                 if task == ExtractionTask.load_from_exif:
@@ -417,7 +462,8 @@ class ThumbnailExtractor(LoadBalancerWorker):
                 elif task in (ExtractionTask.load_from_bytes,
                               ExtractionTask.load_from_bytes_metadata_from_temp_extract):
                     thumbnail = QImage.fromData(data.thumbnail_bytes)
-                    if thumbnail.width() > 160 or thumbnail.height() > 120:
+                    if thumbnail.width() > self.thumbnailSizeNeeded.width() or thumbnail.height()\
+                            > self.thumbnailSizeNeeded.height():
                         processing.add(ExtractionProcessing.resize)
                         processing.remove(ExtractionProcessing.strip_bars_photo)
                     if data.exif_buffer and ExtractionProcessing.orient in processing:
@@ -480,31 +526,46 @@ class ThumbnailExtractor(LoadBalancerWorker):
                             # Special case: pictures from some cellphones have already
                             # been rotated
                             thumbnail = thumbnail.scaled(
-                                self.max_size,
+                                self.maxStandardSize,
                                 Qt.KeepAspectRatio,
                                 Qt.SmoothTransformation)
                         else:
+                            if rpd_file.should_write_fdo() and self.image_large_enough_fdo(
+                                                                                thumbnail.size()):
+                                thumbnail_256 = thumbnail.scaled(
+                                    QSize(256, 256),
+                                    Qt.KeepAspectRatio,
+                                    Qt.SmoothTransformation)
+                                thumbnail = thumbnail_256
+
                             thumbnail = thumbnail.scaled(
-                                self.thumbnail_size_needed,
+                                self.thumbnailSizeNeeded,
                                 Qt.KeepAspectRatio,
                                 Qt.SmoothTransformation)
+
                         if thumbnail.isNull():
                             thumbnail = None
 
-                if orientation is not None and thumbnail is not None:
-                    thumbnail =  self.rotate_thumb(thumbnail, orientation)
+                if orientation is not None:
+                    if thumbnail is not None:
+                        thumbnail =  self.rotate_thumb(thumbnail, orientation)
+                    if thumbnail_256 is not None:
+                        thumbnail_256 = self.rotate_thumb(thumbnail_256, orientation)
 
-                if ExtractionProcessing.add_film_strip in processing and thumbnail is not None:
-                    thumbnail = add_filmstrip(thumbnail)
+                if ExtractionProcessing.add_film_strip in processing:
+                    if thumbnail is not None:
+                        thumbnail = add_filmstrip(thumbnail)
+                    if thumbnail_256 is not None:
+                        thumbnail = add_filmstrip(thumbnail_256)
 
                 if thumbnail is not None:
                     buffer = qimage_to_png_buffer(thumbnail)
                     png_data = buffer.data()
 
-
                 orientation_unknown = (ExtractionProcessing.orient in processing and
                                          orientation is None)
-                if data.use_thumbnail_cache:
+                if data.use_thumbnail_cache and rpd_file.thumbnail_cache_status == \
+                        ThumbnailCacheDiskStatus.not_found:
                     self.thumbnail_cache.save_thumbnail(
                         full_file_name=rpd_file.full_file_name,
                         size=rpd_file.size,
@@ -515,11 +576,46 @@ class ThumbnailExtractor(LoadBalancerWorker):
                         thumbnail=thumbnail,
                         camera_model=rpd_file.camera_model)
 
+                if thumbnail is not None and rpd_file.should_write_fdo():
+                    if self.write_fdo_thumbnail:
+                        # The modification time of the file may have changed when the file was saved
+                        # Ideally it shouldn't, but it does sometimes, e.g. on NTFS!
+                        # So need to get the modification time from the saved file.
+                        mtime = os.path.getmtime(rpd_file.download_full_file_name)
+
+                        if thumbnail_256 is not None:
+                            rpd_file.fdo_thumbnail_256_name = self.fdo_cache_large.save_thumbnail(
+                                full_file_name=rpd_file.download_full_file_name,
+                                size=rpd_file.size,
+                                modification_time=mtime,
+                                generation_failed=False,
+                                thumbnail=thumbnail_256,
+                                free_desktop_org=True)
+                            thumbnail_128 = thumbnail_256.scaled(
+                                    QSize(128, 128),
+                                    Qt.KeepAspectRatio,
+                                    Qt.SmoothTransformation)
+                        else:
+                            thumbnail_128 = thumbnail.scaled(
+                                QSize(128, 128),
+                                Qt.KeepAspectRatio,
+                                Qt.SmoothTransformation)
+                        rpd_file.fdo_thumbnail_128_name = self.fdo_cache_normal.save_thumbnail(
+                        full_file_name=rpd_file.download_full_file_name,
+                        size=rpd_file.size,
+                        modification_time=mtime,
+                        generation_failed=False,
+                        thumbnail=thumbnail_128,
+                        free_desktop_org=True)
+                    elif thumbnail_256 is not None and rpd_file.fdo_thumbnail_256 is None:
+                        rpd_file.fdo_thumbnail_256 = qimage_to_png_buffer(thumbnail).data()
+
                 if thumbnail is not None:
                     if orientation_unknown:
                         rpd_file.thumbnail_status = ThumbnailCacheStatus.orientation_unknown
+                    elif rpd_file.fdo_thumbnail_256 is not None:
+                        rpd_file.thumbnail_status = ThumbnailCacheStatus.fdo_256_ready
                     else:
-                        # TODO account for 256 pixel thumbnails too
                         rpd_file.thumbnail_status = ThumbnailCacheStatus.ready
 
             except Exception as e:
@@ -528,6 +624,7 @@ class ThumbnailExtractor(LoadBalancerWorker):
                 logging.error("Processing tasks: %s", processing)
                 logging.exception("Traceback:")
 
+            # TODO do we really need to send this, if all we were doing was generating a FDO file?
             # Purge metadata, as it cannot be pickled
             rpd_file.metadata = None
             self.sender.send_multipart([b'0', b'data',

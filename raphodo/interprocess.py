@@ -1033,11 +1033,13 @@ class ScanArguments:
     def __init__(self, scan_preferences: ScanPreferences,
                  device: Device,
                  ignore_other_types: bool,
-                 log_gphoto2: bool) -> None:
+                 log_gphoto2: bool,
+                 use_thumbnail_cache: bool) -> None:
         self.scan_preferences = scan_preferences
         self.device = device
         self.ignore_other_types = ignore_other_types
         self.log_gphoto2 = log_gphoto2
+        self.use_thumbnail_cache = use_thumbnail_cache
 
 
 class ScanResults:

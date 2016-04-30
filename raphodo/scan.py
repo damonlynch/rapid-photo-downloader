@@ -98,6 +98,8 @@ class ScanWorker(WorkerInPublishPullPipeline):
         if scan_arguments.ignore_other_types:
             rpdfile.PHOTO_EXTENSIONS_SCAN = rpdfile.PHOTO_EXTENSIONS_WITHOUT_OTHER
 
+        self.use_thumbnail_cache = scan_arguments.use_thumbnail_cache
+
         self.download_from_camera = scan_arguments.device.device_type == DeviceType.camera
         if self.download_from_camera:
             self.camera_model = scan_arguments.device.camera_model
@@ -446,10 +448,12 @@ class ScanWorker(WorkerInPublishPullPipeline):
                                         size=size,
                                         modification_time=modification_time)
 
+                thumbnail_cache_status = ThumbnailCacheDiskStatus.unknown
+
                 # Assign metadata time, if we have it
                 # If we don't, it will be extracted when thumbnails are generated
                 mdatatime = self.file_mdatatime.get(file, 0.0)
-                if not mdatatime:
+                if not mdatatime and self.use_thumbnail_cache:
                     # Was there a thumbnail generated for the file?
                     # If so, get the metadata date time from that
                     get_thumbnail = self.thumbnail_cache.get_thumbnail_path(
@@ -458,7 +462,8 @@ class ScanWorker(WorkerInPublishPullPipeline):
                                             size=size,
                                             camera_model=self.camera_display_name
                                             )
-                    if get_thumbnail.disk_status in (ThumbnailCacheDiskStatus.found,
+                    thumbnail_cache_status = get_thumbnail.disk_status
+                    if thumbnail_cache_status in (ThumbnailCacheDiskStatus.found,
                                                      ThumbnailCacheDiskStatus.failure):
                         mdatatime = get_thumbnail.mdatatime
 
@@ -484,6 +489,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
                                                self.device_timestamp_type,
                                                modification_time,
                                                mdatatime,
+                                               thumbnail_cache_status,
                                                thm_full_name,
                                                audio_file_full_name,
                                                xmp_file_full_name,

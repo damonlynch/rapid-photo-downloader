@@ -46,7 +46,7 @@ from raphodo.constants import (FileType, ThumbnailSize, ThumbnailCacheStatus,
 from raphodo.interprocess import (ThumbnailDaemonData, GenerateThumbnailsResults, DaemonProcess,
                                   ThumbnailExtractorArgument)
 from raphodo.rpdfile import RPDFile
-from raphodo.thumbnailpara import GetThumbnailFromCache, preprocess_thumbnail_from_non_camera
+from raphodo.thumbnailpara import GetThumbnailFromCache, preprocess_thumbnail_from_disk
 
 
 class DameonThumbnailWorker(DaemonProcess):
@@ -102,7 +102,8 @@ class DameonThumbnailWorker(DaemonProcess):
                 if task == ExtractionTask.undetermined:
                     # Thumbnail was not found in any cache: extract it
 
-                    task = preprocess_thumbnail_from_non_camera(rpd_file=rpd_file, processing=processing)
+                    task = preprocess_thumbnail_from_disk(rpd_file=rpd_file,
+                                                          processing=processing)
                     if task != ExtractionTask.bypass:
                         if rpd_file.thm_full_name is not None:
                             full_file_name_to_work_on = rpd_file.download_thm_full_name

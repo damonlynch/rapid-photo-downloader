@@ -35,7 +35,7 @@ from gettext import gettext as _
 import raphodo.exiftool as exiftool
 from raphodo.constants import (DownloadStatus, FileType, FileExtension, FileSortPriority,
                                ThumbnailCacheStatus, Downloaded, Desktop, thumbnail_offset,
-                               DeviceTimestampTZ)
+                               DeviceTimestampTZ, ThumbnailCacheDiskStatus)
 
 from raphodo.storage import get_desktop, gvfs_controls_mounts
 import raphodo.metadataphoto as metadataphoto
@@ -133,6 +133,7 @@ def get_rpdfile(name: str, path: str, size: int, prev_full_name: str,
                 device_timestamp_type: DeviceTimestampTZ,
                 mtime: float,
                 mdatatime: float,
+                thumbnail_cache_status: ThumbnailCacheDiskStatus,
                 thm_full_name: str, audio_file_full_name: str,
                 xmp_file_full_name: str,
                 scan_id: bytes, file_type: FileType,
@@ -149,6 +150,7 @@ def get_rpdfile(name: str, path: str, size: int, prev_full_name: str,
                      device_timestamp_type,
                      mtime,
                      mdatatime,
+                     thumbnail_cache_status,
                      thm_full_name,
                      audio_file_full_name,
                      xmp_file_full_name,
@@ -165,6 +167,7 @@ def get_rpdfile(name: str, path: str, size: int, prev_full_name: str,
                      device_timestamp_type,
                      mtime,
                      mdatatime,
+                     thumbnail_cache_status,
                      thm_full_name,
                      audio_file_full_name,
                      xmp_file_full_name,
@@ -301,6 +304,7 @@ class RPDFile:
                  device_timestamp_type: DeviceTimestampTZ,
                  mtime: float,
                  mdatatime: float,
+                 thumbnail_cache_status: ThumbnailCacheDiskStatus,
                  thm_full_name: str,
                  audio_file_full_name: str,
                  xmp_file_full_name: str,
@@ -320,6 +324,8 @@ class RPDFile:
          records timestamps.
         :param mtime: file modification time
         :param mdatatime: file time recorded in metadata
+        :param thumbnail_cache_status: whether there is an entry in the thumbnail
+         cache or not
         :param prev_full_name: the name and path the file was
          previously downloaded with, else None
         :param prev_datetime: when the file was previously downloaded,
@@ -438,6 +444,11 @@ class RPDFile:
         self.thumbnail_status = ThumbnailCacheStatus.not_ready  # type; ThumbnailCacheStatus
         # self.fdo_thumbnail_128_name = ''
         self.fdo_thumbnail_256_name = ''
+        # PNG data > 128x128 <= 256x256
+        self.fdo_thumbnail_256 = None  # type: Optional[bytes]
+
+        # Thee status of the file in the Rapid Photo Downloader thumbnail cache
+        self.thumbnail_cache_status = thumbnail_cache_status
 
         # generated values
 
@@ -534,6 +545,7 @@ class RPDFile:
         self._datetime = self.metadata.date_time(missing=missing)
         if self._datetime:
             self.mdatatime = self._datetime.timestamp()
+        return self._datetime
 
     def is_jpeg(self) -> bool:
         """

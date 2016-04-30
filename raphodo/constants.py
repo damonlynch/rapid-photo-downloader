@@ -74,6 +74,7 @@ class ThumbnailCacheDiskStatus(Enum):
     found = 1
     not_found = 2
     failure = 3
+    unknown = 4
 
 
 class ThumbnailCacheOrigin(Enum):

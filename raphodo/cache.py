@@ -57,7 +57,7 @@ from urllib.request import pathname2url
 import time
 import shutil
 from collections import namedtuple
-from typing import Optional, Tuple
+from typing import Optional, Tuple, Union
 
 from PyQt5.QtCore import QSize
 from PyQt5.QtGui import QImage
@@ -162,16 +162,20 @@ class Cache:
             return False
         return True
 
-    def save_thumbnail(self, full_file_name: str, size: int,
-                       modification_time, generation_failed: bool,
+    def save_thumbnail(self, full_file_name: str,
+                       size: int,
+                       modification_time: Union[float, int],
+                       generation_failed: bool,
                        thumbnail: QImage,
                        camera_model: str=None,
-                       free_desktop_org: bool=False) -> str:
+                       free_desktop_org: bool=True) -> str:
         """
         Save a thumbnail in the thumbnail cache.
+
         :param full_file_name: full path of the file (including file
-        name). Will be turned into an absolute path if it is a file
-        system path
+         name). If the path contains symbolic links, two thumbnails will be
+         saved: the canonical path (without symlinks), and the path as
+         passed.
         :param size: size of the file in bytes
         :param modification_time: file modification time, to be turned
          into a float if it's not already
@@ -192,6 +196,13 @@ class Cache:
         if not self.valid:
             return None
 
+        # Save to both the real path and the path passed, which may include
+        # symbolic links
+        full_file_name_real_path = os.path.realpath(full_file_name)
+        if full_file_name_real_path != full_file_name:
+            self.save_thumbnail(full_file_name_real_path, size, modification_time,
+                                generation_failed, thumbnail, camera_model, free_desktop_org)
+
         md5_name, uri = self.md5.md5_hash_name(full_file_name, camera_model)
         if generation_failed:
             thumbnail = QImage(QSize(1,1), QImage.Format_Indexed8)
@@ -208,8 +219,7 @@ class Cache:
             if thumbnail.depth() != 8:
                 thumbnail = thumbnail.convertToFormat(QImage.Format_Indexed8)
 
-        temp_path = os.path.join(save_dir, self.random_filename.name(
-            extension='png'))
+        temp_path = os.path.join(save_dir, self.random_filename.name(extension='png'))
         if thumbnail.save(temp_path):
             os.rename(temp_path, path)
             os.chmod(path, 0o600)

@@ -195,6 +195,7 @@ class GetThumbnailFromCache:
                 mtime=rpd_file.modification_time,
                 size=rpd_file.size,
                 camera_model=rpd_file.camera_model)
+            rpd_file.thumbnail_cache_status = get_thumbnail.disk_status
             if get_thumbnail.disk_status != ThumbnailCacheDiskStatus.not_found:
                 origin = ThumbnailCacheOrigin.thumbnail_cache
                 task = ExtractionTask.bypass
@@ -240,10 +241,11 @@ cached_read = dict(
 )
 
 
-def preprocess_thumbnail_from_non_camera(rpd_file: RPDFile,
-                                         processing: Set[ExtractionProcessing]) -> ExtractionTask:
+def preprocess_thumbnail_from_disk(rpd_file: RPDFile,
+                                   processing: Set[ExtractionProcessing]) -> ExtractionTask:
     """
     Determine how to get a thumbnail from a photo or video that is not on a camera
+    (although it may have directly come from there during the download process)
 
     Does not return the name of the file to be worked on -- that's the responsibility
     of the method calling it.
@@ -270,7 +272,12 @@ def preprocess_thumbnail_from_non_camera(rpd_file: RPDFile,
                 task = ExtractionTask.bypass
                 bytes_to_read = 0
         else:
-            task = ExtractionTask.load_from_exif
+            if rpd_file.is_jpeg() and rpd_file.from_camera and rpd_file.is_mtp_device:
+                # jpeg photos from smartphones don't have embedded thumbnails
+                task = ExtractionTask.load_file_and_exif_directly
+                processing.add(ExtractionProcessing.resize)
+            else:
+                task = ExtractionTask.load_from_exif
             processing.add(ExtractionProcessing.orient)
             bytes_to_read = cached_read.get(rpd_file.extension, 400 * 1024)
         if bytes_to_read:
@@ -576,7 +583,7 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
                                 task == ExtractionTask.bypass
                 else:
                     # File is not on a camera
-                    task = preprocess_thumbnail_from_non_camera(rpd_file=rpd_file, processing=processing)
+                    task = preprocess_thumbnail_from_disk(rpd_file=rpd_file, processing=processing)
                     if task != ExtractionTask.bypass:
                         if rpd_file.thm_full_name is not None:
                             full_file_name_to_work_on = rpd_file.thm_full_name

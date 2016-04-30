@@ -27,9 +27,13 @@ Options:
     --photo-backup-location PATH
     --video-backup-location PATH
     --ignore-other-photo-file-types
+    --auto-download-startup {on,off}
+    --auto-download-device-insertion {on,off}
     --thumbnail-cache {on,off}
     --delete-thumbnail-cache
+    --forget-remembered-files
     --reset
+    --log-gphoto2
 
 =head1 DESCRIPTION
 
@@ -134,6 +138,14 @@ is turned off. Overwrites existing program preferences.
 
 Do not download photos with the following extensions: TIF, TIFF and MPO.
 
+=item B<--auto-download-startup {on,off}>
+
+Turns on or off starting downloads as soon as the program itself starts.
+
+=item B<--auto-download-device-insertion {on,off}>
+
+Turns on or off starting downloads as soon as a device is inserted.
+
 =item B<--thumbnail-cache {on,off}>
 
 Turns on or off use of the Rapid Photo Downloader Thumbnail Cache. Turning it off does not
@@ -142,6 +154,10 @@ delete existing cache contents.
 =item B<--delete-thumbnail-cache>
 
 Deletes all thumbnails in the Rapid Photo Downloader Thumbnail Cache, and exits.
+
+=item B<--forget-remembered-files>
+
+Forgets which files have been previously downloaded, and exits.
 
 =item B<--reset>
 

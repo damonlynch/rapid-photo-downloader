@@ -399,6 +399,8 @@ class RapidWindow(QMainWindow):
                  video_backup_location: Optional[str]=None,
                  ignore_other_photo_types: Optional[bool]=None,
                  thumb_cache: Optional[bool]=None,
+                 auto_download_startup: Optional[bool]=None,
+                 auto_download_insertion: Optional[bool]=None,
                  log_gphoto2: Optional[bool]=None) -> None:
 
         super().__init__()
@@ -494,14 +496,20 @@ class RapidWindow(QMainWindow):
         elif self.prefs.backup_files and not self.prefs.backup_device_autodetection:
             logging.info("video backup location: %s", self.prefs.backup_video_location)
 
-        self.prefs.auto_download_at_startup = False
+        if auto_download_startup is not None:
+            self.prefs.auto_download_at_startup = auto_download_startup
+        elif self.prefs.auto_download_at_startup:
+            logging.info("Auto download at startup is on")
+
+        if auto_download_insertion is not None:
+            self.prefs.auto_download_upon_device_insertion = auto_download_insertion
+        elif self.prefs.auto_download_upon_device_insertion:
+            logging.info("Auto download upon device insertion is on")
+
         self.prefs.verify_file = False
         self.prefs.photo_rename = photo_rename_test
         # self.prefs.photo_rename = photo_rename_simple_test
         # self.prefs.photo_rename = job_code_rename_test
-        self.prefs.backup_files = False
-        self.prefs.backup_device_autodetection = True
-        self.prefs.auto_download_at_startup = True
 
         # Don't call processEvents() after initiating 0MQ, as it can
         # cause "Interrupted system call" errors
@@ -2347,9 +2355,7 @@ class RapidWindow(QMainWindow):
     def fileRenamedAndMovedFinished(self) -> None:
         pass
 
-    def updateFileDownloadDeviceProgress(self, scan_id: int,
-                                         uid: bytes,
-                                         file_type: FileType) -> tuple:
+    def updateFileDownloadDeviceProgress(self, scan_id: int, uid: bytes) -> Tuple[bool, int]:
         """
         Increments the progress bar for an individual device.
 
@@ -2358,10 +2364,8 @@ class RapidWindow(QMainWindow):
         this value is valid ONLY if the download is completed
         """
 
-        # TODO redo this code to account for new device view
         files_downloaded = self.download_tracker.get_download_count_for_file(uid)
-        files_to_download = self.download_tracker.get_no_files_in_download(
-                scan_id)
+        files_to_download = self.download_tracker.get_no_files_in_download(scan_id)
         completed = files_downloaded == files_to_download
         if self.prefs.backup_files and completed:
             completed = self.download_tracker.all_files_backed_up(scan_id)
@@ -2401,8 +2405,7 @@ class RapidWindow(QMainWindow):
                                                         rpd_file.file_type,
                                                         rpd_file.status)
 
-        completed, files_remaining = self.updateFileDownloadDeviceProgress(scan_id, uid,
-                                                       rpd_file.file_type)
+        completed, files_remaining = self.updateFileDownloadDeviceProgress(scan_id, uid)
 
         if self.downloadIsRunning():
             self.updateTimeRemaining()
@@ -3310,7 +3313,8 @@ class RapidWindow(QMainWindow):
         scan_arguments = ScanArguments(scan_preferences=scan_preferences,
                            device=device,
                            ignore_other_types=self.ignore_other_photo_types,
-                           log_gphoto2=self.log_gphoto2)
+                           log_gphoto2=self.log_gphoto2,
+                           use_thumbnail_cache=self.prefs.use_thumbnail_cache)
         self.scanmq.start_worker(scan_id, scan_arguments)
         self.devices.set_device_state(scan_id, DeviceState.scanning)
         self.setDownloadCapabilities()
@@ -4085,6 +4089,12 @@ def parser_options(formatter_class=argparse.HelpFormatter):
     parser.add_argument("--ignore-other-photo-file-types", action="store_true", dest="ignore_other",
                         help=_('ignore photos with the following extensions: %s') %
                         make_internationalized_list([s.upper() for s in OTHER_PHOTO_EXTENSIONS]))
+    parser.add_argument("--auto-download-startup", dest="auto_download_startup",
+        choices=['on', 'off'],
+        help=_("Turn on or off starting downloads as soon as the program itself starts"))
+    parser.add_argument("--auto-download-device-insertion", dest="auto_download_insertion",
+        choices=['on', 'off'],
+        help=_("Turn on or off starting downloads as soon as a device is inserted"))
     parser.add_argument("--thumbnail-cache", dest="thumb_cache",
                         choices=['on','off'],
                         help=_("turn on or off use of the Rapid Photo Downloader Thumbnail Cache. "
@@ -4092,7 +4102,10 @@ def parser_options(formatter_class=argparse.HelpFormatter):
     parser.add_argument("--delete-thumbnail-cache", dest="delete_thumb_cache",
                         action="store_true",
                         help=_("delete all thumbnails in the Rapid Photo Downloader Thumbnail "
-                               "Cache"))
+                               "Cache, and exit"))
+    parser.add_argument("--forget-remembered-files", dest="forget_files",
+                        action="store_true",
+                        help=_("Forget which files have been previously downloaded, and exit"))
     parser.add_argument("--reset", action="store_true", dest="reset",
                  help=_("reset all program settings to their default values, delete all thumbnails "
                         "in the Thumbnail cache, forget which files have been previously "
@@ -4215,6 +4228,24 @@ def main():
     else:
         thumb_cache = None
 
+    if args.auto_download_startup:
+        auto_download_startup = args.auto_download_startup == 'on'
+        if auto_download_startup:
+            logging.info("Automatic download at startup turned on from command line")
+        else:
+            logging.info("Automatic download at startup turned off from command line")
+    else:
+        auto_download_startup=None
+
+    if args.auto_download_insertion:
+        auto_download_insertion = args.auto_download_insertion == 'on'
+        if auto_download_insertion:
+            logging.info("Automatic download upon device insertion turned on from command line")
+        else:
+            logging.info("Automatic download upon device insertion turned off from command line")
+    else:
+        auto_download_insertion=None
+
     if args.log_gphoto2:
         gp.use_python_logging()
 
@@ -4248,10 +4279,15 @@ def main():
         print(_("All settings and caches have been reset"))
         sys.exit(0)
 
-    if args.delete_thumb_cache:
-        cache = ThumbnailCacheSql()
-        cache.purge_cache()
-        print(_("Thumbnail Cache has been reset"))
+    if args.delete_thumb_cache or args.forget_files:
+        if args.delete_thumb_cache:
+            cache = ThumbnailCacheSql()
+            cache.purge_cache()
+            print(_("Thumbnail Cache has been reset"))
+        if args.forget_files:
+            d = DownloadedSQL()
+            d.update_table(reset=True)
+            print(_("Remembered files have been forgotten"))
         sys.exit(0)
 
     splash = SplashScreen(QPixmap(':/splashscreen.png'), Qt.WindowStaysOnTopHint)
@@ -4259,20 +4295,22 @@ def main():
     app.processEvents()
 
     rw = RapidWindow(auto_detect=auto_detect,
-             this_computer_source=this_computer_source,
-             this_computer_location=this_computer_location,
-             photo_download_folder=photo_location,
-             video_download_folder=video_location,
-             backup=backup,
-             backup_auto_detect=backup_auto_detect,
-             photo_backup_identifier=photo_backup_identifier,
-             video_backup_identifier=video_backup_identifier,
-             photo_backup_location=photo_backup_location,
-             video_backup_location=video_backup_location,
-             ignore_other_photo_types=args.ignore_other,
-             thumb_cache=thumb_cache,
-             log_gphoto2=args.log_gphoto2,
-             splash=splash)
+                     this_computer_source=this_computer_source,
+                     this_computer_location=this_computer_location,
+                     photo_download_folder=photo_location,
+                     video_download_folder=video_location,
+                     backup=backup,
+                     backup_auto_detect=backup_auto_detect,
+                     photo_backup_identifier=photo_backup_identifier,
+                     video_backup_identifier=video_backup_identifier,
+                     photo_backup_location=photo_backup_location,
+                     video_backup_location=video_backup_location,
+                     ignore_other_photo_types=args.ignore_other,
+                     thumb_cache=thumb_cache,
+                     auto_download_startup=auto_download_startup,
+                     auto_download_insertion=auto_download_insertion,
+                     log_gphoto2=args.log_gphoto2,
+                     splash=splash)
 
     app.setActivationWindow(rw)
     code = app.exec_()
