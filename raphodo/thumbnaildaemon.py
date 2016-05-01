@@ -94,8 +94,12 @@ class DameonThumbnailWorker(DaemonProcess):
 
                 # Check the download source to see if it's in the caches, not the file
                 # we've just downloaded
-                cache_search = thumbnail_caches.get_from_cache(rpd_file=rpd_file,
-                                            use_thumbnail_cache=data.use_thumbnail_cache)
+
+                use_thumbnail_cache = (data.use_thumbnail_cache and not
+                    (data.write_fdo_thumbnail and rpd_file.should_write_fdo()))
+                cache_search = thumbnail_caches.get_from_cache(
+                    rpd_file=rpd_file,
+                    use_thumbnail_cache=use_thumbnail_cache)
                 task, thumbnail_bytes, full_file_name_to_work_on, origin = cache_search
                 processing = set()  # type: Set[ExtractionProcessing]
 

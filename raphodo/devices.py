@@ -41,7 +41,7 @@ from PyQt5.QtWidgets import QFileIconProvider
 from PyQt5.QtGui import QIcon, QPixmap
 
 import raphodo.qrc_resources as qrc_resources
-from raphodo.constants import (DeviceType, BackupLocationType, FileType, DeviceState)
+from raphodo.constants import (DeviceType, BackupLocationType, FileType, DeviceState, DownloadStatus)
 from raphodo.rpdfile import FileTypeCounter, FileSizeSum
 from raphodo.storage import StorageSpace, udev_attributes, UdevAttr
 from raphodo.camera import Camera, generate_devname
@@ -108,6 +108,7 @@ class Device:
         self.video_cache_dir = None # type: str
         self.file_size_sum = FileSizeSum()
         self.file_type_counter = FileTypeCounter()
+        self.download_statuses = set()  # type: Set[DownloadStatus]
 
     def __repr__(self):
         if self.device_type == DeviceType.camera:
@@ -119,8 +120,8 @@ class Device:
 
     def __str__(self):
         if self.device_type == DeviceType.camera:
-            return '{} on port {}. Udev: {}; Display name: {} (optimal: {}); MTP: {' \
-                   '}'.format(self.camera_model, self.camera_port, self.udev_name,
+            return '{} on port {}. Udev: {}; Display name: {} (optimal: {}); MTP: {}'.format(
+                              self.camera_model, self.camera_port, self.udev_name,
                               self.display_name, self.have_optimal_display_name, self.is_mtp_device)
         elif self.device_type == DeviceType.volume:
             if self.path != self.display_name:

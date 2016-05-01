@@ -62,7 +62,6 @@ class PhotoName:
         self.pref_list = pref_list
         self.no_metadata = False
 
-
         # Some of the next values are overwritten in derived classes
         self.strip_initial_period_from_extension = False
         self.strip_forward_slash = True

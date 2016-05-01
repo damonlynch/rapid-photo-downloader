@@ -179,8 +179,16 @@ class GetThumbnailFromCache:
                 size.height() >= self.thumbnail_size_needed.height())
 
     def get_from_cache(self, rpd_file: RPDFile,
-            use_thumbnail_cache: bool=True) -> Tuple[ExtractionTask, bytes, str,
-                                                         ThumbnailCacheOrigin]:
+                       use_thumbnail_cache: bool=True
+                       ) -> Tuple[ExtractionTask, bytes, str, ThumbnailCacheOrigin]:
+        """
+        Attempt to get a thumbnail for the file from the Rapid Photo Downloader thumbnail cache
+        or from the FreeDesktop.org 256x256 thumbnail cache.
+
+        :param rpd_file:
+        :param use_thumbnail_cache: whether to use the
+        :return:
+        """
 
         task = ExtractionTask.undetermined
         thumbnail_bytes = None
@@ -213,8 +221,7 @@ class GetThumbnailFromCache:
         # and it's not being downloaded directly from a camera (if it's from a camera, it's
         # not going to be in the FDO cache)
 
-        if (task == ExtractionTask.undetermined and not
-                (rpd_file.from_camera and not rpd_file.download_full_file_name)):
+        if task == ExtractionTask.undetermined and not rpd_file.from_camera:
             get_thumbnail = self.fdo_cache_large.get_thumbnail(
                 full_file_name=rpd_file.full_file_name,
                 modification_time=rpd_file.modification_time,

@@ -42,17 +42,23 @@ class ErrorType(Enum):
 class DownloadStatus(Enum):
     # going to try to download it
     download_pending = 1
+
     # downloaded successfully
     downloaded = 2
+
     # downloaded ok but there was a warning
     downloaded_with_warning = 3
+
     # downloaded ok, but the file was not backed up, or had a problem
     # (overwrite or duplicate)
     backup_problem = 4
+
     # has not yet been downloaded (but might be if the user chooses)
     not_downloaded = 5
+
     # tried to download but failed, and the backup failed or had an error
     download_and_backup_failed = 6
+
     # tried to download but failed
     download_failed = 7
 
@@ -60,6 +66,9 @@ class DownloadStatus(Enum):
 Downloaded = (DownloadStatus.downloaded,
               DownloadStatus.downloaded_with_warning,
               DownloadStatus.backup_problem)
+
+DownloadWarning = {DownloadStatus.downloaded_with_warning, DownloadStatus.backup_problem}
+DownloadFailure = {DownloadStatus.download_and_backup_failed, DownloadStatus.download_failed}
 
 
 class ThumbnailCacheStatus(Enum):
@@ -112,6 +121,7 @@ class DeviceState(Enum):
     idle = 3
     thumbnailing = 4
     downloading = 5
+    finished = 6
 
 
 class FileType(IntEnum):
@@ -189,6 +199,7 @@ class Roles(IntEnum):
     folder_preview = Qt.UserRole + 17
     download_subfolder = Qt.UserRole + 18
     device_type = Qt.UserRole + 19
+    download_statuses = Qt.UserRole + 20
 
 
 class ExtractionTask(Enum):

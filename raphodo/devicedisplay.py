@@ -56,7 +56,8 @@ from PyQt5.QtGui import (QPainter, QFontMetrics, QFont, QColor, QLinearGradient,
 from raphodo.viewutils import RowTracker
 from raphodo.constants import (DeviceState, FileType, CustomColors, DeviceType, Roles,
                                EmptyViewHeight, ViewRowType, minPanelWidth, Checked_Status,
-                               DeviceDisplayPadding, DeviceShadingIntensity, DisplayingFilesOfType)
+                               DeviceDisplayPadding, DeviceShadingIntensity, DisplayingFilesOfType,
+                               DownloadStatus, DownloadWarning, DownloadFailure)
 from raphodo.devices import Device, display_devices
 from raphodo.utilities import thousands, format_size_for_user
 from raphodo.storage import StorageSpace
@@ -108,7 +109,7 @@ class DeviceModel(QAbstractListModel):
         
         self.row_ids_active = []  # type: List[int]
 
-        self._rotation_position = 0
+        self._rotation_position = 0  # type: int
         self._timer = QTimer(self)
         self._timer.setInterval(1000 / (number_spinner_lines * revolutions_per_second))
         self._timer.timeout.connect(self.rotateSpinner)
@@ -240,7 +241,7 @@ class DeviceModel(QAbstractListModel):
         current_state = self.spinner_state[scan_id]
         current_state_active = current_state in (DeviceState.scanning, DeviceState.downloading)
 
-        if current_state_active and state == DeviceState.idle:
+        if current_state_active and state in (DeviceState.idle, DeviceState.finished):
             self.row_ids_active.remove(row_id)
             if len(self.row_ids_active) == 0:
                 self.stopSpinners()
@@ -288,6 +289,8 @@ class DeviceModel(QAbstractListModel):
                 return device, self.storage[row_id]
             elif role == Roles.device_type:
                 return device.device_type
+            elif role == Roles.download_statuses:
+                return device.download_statuses
         return None
 
     def setData(self, index: QModelIndex, value, role: int) -> bool:
@@ -530,6 +533,9 @@ class DeviceDisplay:
         self.emptySpaceColor = QColor('#f2f2f2')
         self.subtlePenColor = QColor('#6d6d6d')
 
+    def v_align_header_pixmap(self, y: int, pixmap_height: int) -> float:
+        return y + (self.device_name_strip_height / 2 - pixmap_height / 2)
+
     def paint_header(self, painter: QPainter, x: int, y: int, width: int,
                      display_name: str, icon: QPixmap) -> None:
         """
@@ -543,7 +549,7 @@ class DeviceDisplay:
         painter.fillRect(deviceNameRect, self.device_name_highlight_color)
 
         icon_x = float(x + self.padding + self.icon_x_offset)
-        icon_y = float(y + self.icon_y_offset)
+        icon_y = self.v_align_header_pixmap(y, self.icon_size)
 
         target = QRectF(icon_x, icon_y, self.icon_size, self.icon_size)
         source = QRectF(0, 0, self.icon_size, self.icon_size)
@@ -792,7 +798,6 @@ class AdvancedDeviceDisplay(DeviceDisplay):
 
         self.rendering_destination = False
 
-
         self.checkboxStyleOption = QStyleOptionButton()
         self.checkboxRect = QApplication.style().subElementRect(
             QStyle.SE_CheckBoxIndicator, self.checkboxStyleOption, None)  # type: QRect
@@ -810,16 +815,37 @@ class AdvancedDeviceDisplay(DeviceDisplay):
 
         self.icon_x_offset = self.icon_size + self.header_horizontal_padding
 
+        self.downloadedPixmap = QPixmap(':/downloaded.png')
+        self.downloadedWarningPixmap = QPixmap(':/downloaded-with-warning.png')
+        self.downloadedErrorPixmap = QPixmap(':/downloaded-with-error.png')
+        self.downloaded_icon_y = self.v_align_header_pixmap(0, self.downloadedPixmap.height())
 
-    def paint_header(self, painter: QPainter, x: int, y: int, width: int,
-                     display_name: str, icon, device_state, rotation, checked: bool) -> None:
+    def paint_header(self, painter: QPainter,
+                     x: int, y: int, width: int,
+                     display_name: str,
+                     icon: QPixmap,
+                     device_state: DeviceState,
+                     rotation: int,
+                     checked: bool,
+                     download_statuses: Set[DownloadStatus]) -> None:
 
         standard_pen_color = painter.pen().color()
 
         super().paint_header(painter=painter, x=x, y=y, width=width, display_name=display_name,
                              icon=icon)
 
-        if device_state not in (DeviceState.scanning, DeviceState.downloading):
+        if device_state == DeviceState.finished:
+            # indicate that no more files can be downloaded from the device, and if there
+            # were any errors or warnings
+            if download_statuses | DownloadFailure:
+                pixmap = self.downloadedErrorPixmap
+            elif download_statuses | DownloadWarning:
+                pixmap = self.downloadedWarningPixmap
+            else:
+                pixmap = self.downloadedPixmap
+            painter.drawPixmap(x + self.padding, y + self.downloaded_icon_y, pixmap)
+
+        elif device_state not in (DeviceState.scanning, DeviceState.downloading):
 
             checkboxStyleOption = QStyleOptionButton()
             if checked == Qt.Checked:
@@ -912,7 +938,6 @@ class DeviceDelegate(QStyledItemDelegate):
         super(DeviceDelegate, self).__init__(parent)
         self.rapidApp = rapidApp
 
-
         sample_number = thousands(999)
         sample_no_photos = '{} {}'.format(sample_number, _('Photos'))
         sample_no_videos = '{} {}'.format(sample_number, _('Videos'))
@@ -957,13 +982,18 @@ class DeviceDelegate(QStyledItemDelegate):
     def paint(self, painter: QPainter, option: QStyleOptionViewItem, index: QModelIndex) -> None:
         painter.save()
 
-        x = option.rect.x()# + self.padding
-        y = option.rect.y()# + self.padding
-        width = option.rect.width()# - self.padding * 2
+        x = option.rect.x()
+        y = option.rect.y()
+        width = option.rect.width()
 
         view_type = index.data(Qt.DisplayRole)  # type: ViewRowType
         if view_type == ViewRowType.header:
             display_name, icon, device_state, rotation = index.data(Roles.device_details)
+            if device_state == DeviceState.finished:
+                download_statuses = index.data(Roles.download_statuses)  # type: Set[DownloadStatus]
+            else:
+                download_statuses = set()
+
             if device_state not in (DeviceState.scanning, DeviceState.downloading):
                 checked = index.model().data(index, Qt.CheckStateRole)
             else:
@@ -974,7 +1004,8 @@ class DeviceDelegate(QStyledItemDelegate):
                                             icon=icon,
                                             device_state=device_state,
                                             display_name=display_name,
-                                            checked=checked)
+                                            checked=checked,
+                                            download_statuses=download_statuses)
 
         else:
             assert view_type == ViewRowType.content
@@ -1063,8 +1094,6 @@ class DeviceDelegate(QStyledItemDelegate):
         if the user presses the left mousebutton or presses
         Key_Space or Key_Select and this cell is editable. Otherwise do nothing.
         """
-        # if not (index.flags() & Qt.ItemIsEditable) > 0:
-        #     return False
 
         if (event.type() == QEvent.MouseButtonRelease or event.type() ==
             QEvent.MouseButtonDblClick):

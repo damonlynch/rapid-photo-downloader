@@ -69,7 +69,7 @@ Changelog for Rapid Photo Downloader
 
    - Freedesktop.org thumbnails for RAW and TIFF photos are generated once they
      have been downloaded, which means they will have thumbnails in programs like
-     Gnome Files, Nemo, Caja, Thunar and KDE Dolphin. If the path files are being
+     Gnome Files, Nemo, Caja, Thunar, PCManFM and Dolphin. If the path files are being
      downloaded to contains symbolic links, a thumbnail will be created for the
      path with and without the links.
 
@@ -125,10 +125,10 @@ Changelog for Rapid Photo Downloader
 
    - GExiv2 for photo metadata
 
+   - Exiftool for video metadata
+
    - Gstreamer for video thumbnail generation
 
-   - Exiftool for video metadata
-   
  - Please note if you use a system monitor that displays network activity,
    don't be alarmed if it shows increased local network activity while the
    program is running. The program sets uses ZeroMQ over TCP/IP for its

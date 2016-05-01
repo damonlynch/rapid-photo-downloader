@@ -107,7 +107,7 @@ from raphodo.constants import (BackupLocationType, DeviceType, ErrorType,
                                CameraErrorCode, TemporalProximityState,
                                ThumbnailBackgroundName, Desktop,
                                DeviceState, Sort, Show, Roles, DestinationDisplayType,
-                               DisplayingFilesOfType)
+                               DisplayingFilesOfType, DownloadFailure, DownloadWarning)
 from raphodo.thumbnaildisplay import (ThumbnailView, ThumbnailListModel, ThumbnailDelegate,
                                       DownloadTypes, DownloadStats)
 from raphodo.devicedisplay import (DeviceModel, DeviceView, DeviceDelegate)
@@ -1582,7 +1582,7 @@ class RapidWindow(QMainWindow):
         size_videos_marked = self.thumbnailModel.getSizeOfFilesMarkedForDownload(FileType.video)
         marked = self.thumbnailModel.getNoFilesAndTypesMarkedForDownload()
 
-        if have_unity:
+        if self.unity_progress:
             available = self.thumbnailModel.getCountNotPreviouslyDownloadedAvailableForDownload()
             if available:
                 self.desktop_launcher.set_property("count", available)
@@ -2357,10 +2357,10 @@ class RapidWindow(QMainWindow):
 
     def updateFileDownloadDeviceProgress(self, scan_id: int, uid: bytes) -> Tuple[bool, int]:
         """
-        Increments the progress bar for an individual device.
+        Updates progress bar and optionally the Unity progress bar
 
-        Returns if the download is completed for that scan_pid
-        It also returns the number of files remaining for the scan_pid, BUT
+        :return True if the download is completed for that scan_id,
+        and the number of files remaining for the scan_id, BUT
         this value is valid ONLY if the download is completed
         """
 
@@ -2376,7 +2376,7 @@ class RapidWindow(QMainWindow):
             files_remaining = 0
 
         percent_complete = self.download_tracker.get_overall_percent_complete()
-        self.downloadProgressBar.setValue(round(percent_complete*100))
+        self.downloadProgressBar.setValue(round(percent_complete * 100))
         if self.unity_progress:
             self.desktop_launcher.set_property('progress', percent_complete)
             self.desktop_launcher.set_property('progress_visible', True)
@@ -2405,28 +2405,41 @@ class RapidWindow(QMainWindow):
                                                         rpd_file.file_type,
                                                         rpd_file.status)
 
+        device = self.devices[scan_id]
+        device.download_statuses.add(rpd_file.status)
+
         completed, files_remaining = self.updateFileDownloadDeviceProgress(scan_id, uid)
 
         if self.downloadIsRunning():
             self.updateTimeRemaining()
 
         if completed:
-            # Last file for this scan id has been downloaded, so clean temp
-            # directory
-            self.mapModel(scan_id).setSpinnerState(scan_id, DeviceState.idle)
+            device_finished = files_remaining == 0
+            if device_finished:
+                logging.debug("All files from %s are downloaded; none remain", device.display_name)
+                state = DeviceState.finished
+            else:
+                logging.debug("Download finished from %s; %s remain be be potentially downloaded",
+                              device.display_name, files_remaining)
+                state = DeviceState.idle
+
+            self.devices.set_device_state(scan_id=scan_id, state=state)
+            # Setting the spinner state also sets the
+            self.mapModel(scan_id).setSpinnerState(scan_id, state)
 
             # Rebuild temporal proximity if it needs it
             if scan_id in self.thumbnailModel.ctimes_differ and not \
                     self.thumbnailModel.filesRemainToDownload(scan_id=scan_id):
                 self.thumbnailModel.processCtimeDisparity(scan_id=scan_id)
 
+            # Last file for this scan id has been downloaded, so clean temp
+            # directory
             logging.debug("Purging temp directories")
             self.cleanTempDirsForScanId(scan_id)
             if self.prefs.move:
                 logging.debug("Deleting downloaded source files")
                 self.deleteSourceFiles(scan_id)
                 self.download_tracker.clear_auto_delete(scan_id)
-            self.devices.set_device_state(scan_id, DeviceState.idle)
             self.updateProgressBarState()
             self.thumbnailModel.updateDeviceDisplayCheckMark(scan_id=scan_id)
 

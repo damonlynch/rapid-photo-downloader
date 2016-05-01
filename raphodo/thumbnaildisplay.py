@@ -1292,9 +1292,9 @@ class ThumbnailDelegate(QStyledItemDelegate):
         self.checkbox_size = self.checkboxRect.size().height()
 
         self.downloadPendingIcon = QPixmap(':/download-pending.png')
-        self.downloadedIcon = QPixmap(':/downloaded.png')
-        self.downloadedWarningIcon = QPixmap(':/downloaded-with-warning.png')
-        self.downloadedErrorIcon = QPixmap(':/downloaded-with-error.png')
+        self.downloadedPixmap = QPixmap(':/downloaded.png')
+        self.downloadedWarningPixmap = QPixmap(':/downloaded-with-warning.png')
+        self.downloadedErrorPixmap = QPixmap(':/downloaded-with-error.png')
         self.audioIcon = QPixmap(':/audio.png')
 
         self.dimmed_opacity = 0.5
@@ -1309,7 +1309,7 @@ class ThumbnailDelegate(QStyledItemDelegate):
         # Position of first memory card indicator
         self.card_x = max(self.checkboxRect.size().width(),
                           self.downloadPendingIcon.width(),
-                          self.downloadedIcon.width()) + \
+                          self.downloadedPixmap.width()) + \
                       self.horizontal_margin + self.footer_padding
 
         self.shadow_size = 2
@@ -1534,13 +1534,13 @@ class ThumbnailDelegate(QStyledItemDelegate):
             if download_status == DownloadStatus.download_pending:
                 pixmap = self.downloadPendingIcon
             elif download_status == DownloadStatus.downloaded:
-                pixmap = self.downloadedIcon
+                pixmap = self.downloadedPixmap
             elif (download_status == DownloadStatus.downloaded_with_warning or
                   download_status == DownloadStatus.backup_problem):
-                pixmap = self.downloadedWarningIcon
+                pixmap = self.downloadedWarningPixmap
             elif (download_status == DownloadStatus.download_failed or
                   download_status == DownloadStatus.download_and_backup_failed):
-                pixmap = self.downloadedErrorIcon
+                pixmap = self.downloadedErrorPixmap
             else:
                 pixmap = None
             if pixmap is not None:
