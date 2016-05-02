@@ -383,6 +383,10 @@ class DeviceCollection:
         self.volumes_and_cameras = set()
         self.this_computer = set()
 
+        # List of devices that were detected at program startup
+        # scan_id
+        self.startup_devices = []  # type: List[int]
+
         self._map_set = {DeviceType.path: self.this_computer,
                          DeviceType.camera: self.volumes_and_cameras,
                          DeviceType.volume: self.volumes_and_cameras}

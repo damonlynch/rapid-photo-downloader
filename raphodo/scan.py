@@ -443,10 +443,13 @@ class ScanWorker(WorkerInPublishPullPipeline):
                 audio_file_full_name = self.get_audio_file(base_name, camera_file)
 
                 # has the file been downloaded previously?
+                # note: we should use the adjusted mtime, not the raw one
+                adjusted_mtime = self.adjusted_mtime(modification_time)
+
                 downloaded = self.downloaded.file_downloaded(
                                         name=self.file_name,
                                         size=size,
-                                        modification_time=modification_time)
+                                        modification_time=adjusted_mtime)
 
                 thumbnail_cache_status = ThumbnailCacheDiskStatus.unknown
 
@@ -458,7 +461,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
                     # If so, get the metadata date time from that
                     get_thumbnail = self.thumbnail_cache.get_thumbnail_path(
                                             full_file_name=file,
-                                            mtime=modification_time,
+                                            mtime=adjusted_mtime,
                                             size=size,
                                             camera_model=self.camera_display_name
                                             )
@@ -683,6 +686,20 @@ class ScanWorker(WorkerInPublishPullPipeline):
                           "sample file %s",
                           self.display_name, determined_by)
             self.device_timestamp_type = DeviceTimestampTZ.unknown
+
+    def adjusted_mtime(self, mtime: float) -> float:
+        """
+        Use the same calculated mtime that will be applied when the mtime
+        is saved in the rpd_file
+
+        :param mtime: raw modification time
+        :return: modification time adjusted, if needed
+        """
+
+        if self.device_timestamp_type == DeviceTimestampTZ.is_utc:
+            return datetime.utcfromtimestamp(mtime).timestamp()
+        else:
+            return mtime
 
     def _get_associate_file_from_camera(self, base_name: str,
                 associate_files: defaultdict, camera_file: CameraFile) -> str:

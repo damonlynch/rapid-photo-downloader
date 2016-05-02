@@ -1160,7 +1160,7 @@ class RapidWindow(QMainWindow):
         self.downloadButton.addAction(self.downloadAct)
         self.downloadButton.setDefault(True)
         self.downloadButton.clicked.connect(self.downloadButtonClicked)
-        self.download_action_is_download = True
+        # self.download_action_is_download = True
 
         self.menuButton.setIconSize(QSize(self.sourceButton.top_row_icon_size,
                                self.sourceButton.top_row_icon_size))
@@ -1672,16 +1672,20 @@ class RapidWindow(QMainWindow):
             else:
                 self.downloadButton.setText(self.downloadAct.text())
 
-    def setDownloadActionLabel(self, is_download: bool) -> None:
+    def setDownloadActionLabel(self) -> None:
         """
-        Toggles action and download button text between pause and
-        download
+        Sets download action and download button text to correct value, depending on
+        whether a download is occurring or not, including whether it is paused
         """
-        self.download_action_is_download = is_download
-        if self.download_action_is_download:
-            text = _("Download")
+
+        if self.devices.downloading:
+            if self.copyfilesmq.paused:
+                text = _("Resume Download")
+            else:
+                text = _("Pause")
         else:
-            text = _("Pause")
+            text = _("Download")
+
         self.downloadAct.setText(text)
         self.downloadButton.setText(text)
 
@@ -1770,15 +1774,7 @@ class RapidWindow(QMainWindow):
             """).format(website='https://bugs.launchpad.net/rapid', log_path=log_uri,
                         log_file=log_file)
 
-        icon = QPixmap(':/rapid-photo-downloader.svg')
-
-        title = _("Rapid Photo Downloader")
-
-        errorbox = QMessageBox()
-        errorbox.setTextFormat(Qt.RichText)
-        errorbox.setIconPixmap(icon)
-        errorbox.setWindowTitle(title)
-        errorbox.setText(message)
+        errorbox = self.standardMessageBox(message=message, rich_text=True)
         errorbox.exec_()
 
     def doMakeDonationAction(self):
@@ -1790,6 +1786,25 @@ class RapidWindow(QMainWindow):
     def doAboutAction(self):
         about = AboutDialog(self)
         about.exec()
+
+    def standardMessageBox(self, message: str, rich_text: bool) -> QMessageBox:
+        """
+        Create a standard messagebox to be displayed to the user
+
+        :param message: the text to display
+        :param rich_text: whether it text to display is in HTML format
+        :return: the message box
+        """
+
+        msgBox = QMessageBox()
+        icon = QPixmap(':/rapid-photo-downloader.svg')
+        title = _("Rapid Photo Downloader")
+        if rich_text:
+            msgBox.setTextFormat(Qt.RichText)
+        msgBox.setIconPixmap(icon)
+        msgBox.setWindowTitle(title)
+        msgBox.setText(message)
+        return msgBox
 
     @pyqtSlot(bool)
     def thisComputerToggleValueChanged(self, on: bool) -> None:
@@ -1905,28 +1920,27 @@ class RapidWindow(QMainWindow):
 
     @pyqtSlot()
     def downloadButtonClicked(self) -> None:
-        if False: #self.copy_files_manager.paused:
+        if self.copyfilesmq.paused:
             logging.debug("Download resumed")
             self.resumeDownload()
         else:
             logging.debug("Download activated")
 
-            if self.download_action_is_download:
+            if self.devices.downloading:
+                self.pauseDownload()
+            else:
                 if self.job_code.need_to_prompt():
                     self.job_code.get_job_code()
                 else:
                     self.startDownload()
-            else:
-                self.pauseDownload()
 
     def pauseDownload(self) -> None:
+        """
+        Pause the copy files processes
+        """
 
         self.copyfilesmq.pause()
-
-        # set action to display Download
-        if not self.download_action_is_download:
-            self.setDownloadActionLabel(is_download = True)
-
+        self.setDownloadActionLabel()
         self.time_check.pause()
 
     def resumeDownload(self) -> None:
@@ -2084,7 +2098,7 @@ class RapidWindow(QMainWindow):
                                    download_files.download_stats[scan_id],
                                    generate_thumbnails)
 
-            self.setDownloadActionLabel(is_download=False)
+            self.setDownloadActionLabel()
 
     def downloadFiles(self, files: list,
                       scan_id: int,
@@ -3666,6 +3680,10 @@ class RapidWindow(QMainWindow):
 
         if self.prefs.this_computer_path:
             if not self.confirmManualDownloadLocation():
+                logging.debug("This Computer path %s rejected as download source",
+                              self.prefs.this_computer_path)
+                self.prefs.this_computer_path = ''
+                self.thisComputer.setViewVisible(False)
                 return
 
             # user manually specified the path from which to download
@@ -3806,7 +3824,18 @@ class RapidWindow(QMainWindow):
         Returns True if yes or there was no need to ask the user, False if the
         user said no.
         """
-        #TODO implement confirmManualDownloadLocation()
+        self.showMainWindow()
+        path = self.prefs.this_computer_path
+        if path in ('/media', '/run', os.path.expanduser('~'), '/', '/bin', '/boot', '/dev',
+                    '/lib', '/lib32', '/lib64', '/mnt', '/opt', '/sbin', '/snap', '/sys', '/tmp',
+                    '/usr', '/var', '/proc'):
+            message = "<b>" + _("Downloading from %(location)s on This Computer.") % dict(
+                location=path) + "</b><br><br>" + _(
+                "Do you really want to download from here?<br><br>On some systems, scanning this "
+                "location can take a very long time.")
+            msgbox = self.standardMessageBox(message=message, rich_text=True)
+            msgbox.setStandardButtons(QMessageBox.Yes|QMessageBox.No)
+            return msgbox.exec() == QMessageBox.Yes
         return True
 
     def scanEvenIfNoDCIM(self) -> bool:

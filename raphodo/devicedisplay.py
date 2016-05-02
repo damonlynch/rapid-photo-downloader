@@ -837,9 +837,9 @@ class AdvancedDeviceDisplay(DeviceDisplay):
         if device_state == DeviceState.finished:
             # indicate that no more files can be downloaded from the device, and if there
             # were any errors or warnings
-            if download_statuses | DownloadFailure:
+            if download_statuses & DownloadFailure:
                 pixmap = self.downloadedErrorPixmap
-            elif download_statuses | DownloadWarning:
+            elif download_statuses & DownloadWarning:
                 pixmap = self.downloadedWarningPixmap
             else:
                 pixmap = self.downloadedPixmap

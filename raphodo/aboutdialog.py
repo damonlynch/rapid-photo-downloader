@@ -50,7 +50,8 @@ class AboutDialog(QDialog):
         pixmap = QPixmap(':/splashscreen.png')
         self.setFixedSize(pixmap.size())
 
-        # These values are derived from the splash screen image contents:
+        # These values are derived from the splash screen image contents.
+        # If the image changes, so should these
         white_box_height = 80
         title_bottom = 45
         left_margin = 16
@@ -194,7 +195,7 @@ class AboutDialog(QDialog):
         self.stack.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Expanding)
 
         buttonBox = QDialogButtonBox()
-        closeButton = buttonBox.addButton(QDialogButtonBox.Close)
+        closeButton = buttonBox.addButton(QDialogButtonBox.Close)  # type: QPushButton
         self.creditsButton = buttonBox.addButton(_('Credits'), QDialogButtonBox.HelpRole)  # type: QPushButton
         self.creditsButton.setDefault(False)
         self.creditsButton.setCheckable(True)
@@ -224,6 +225,8 @@ class AboutDialog(QDialog):
 
         buttonBox.rejected.connect(self.reject)
         buttonBox.helpRequested.connect(self.showCredits)
+
+        closeButton.setFocus()
 
     @pyqtSlot()
     def showCredits(self) -> None:

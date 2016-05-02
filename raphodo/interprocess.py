@@ -574,6 +574,8 @@ class PublishPullPipelineManager(PullPipelineManager):
         self.controller_socket = context.socket(zmq.PUB)
         self.controller_port = self.controller_socket.bind_to_random_port("tcp://*")
 
+        self.paused = False
+
     def stop(self) -> None:
         """
         Permanently stop all the workers and terminate
@@ -657,6 +659,8 @@ class PublishPullPipelineManager(PullPipelineManager):
             message = [make_filter_from_worker_id(worker_id), b'PAUSE']
             self.controller_socket.send_multipart(message)
 
+        self.paused = True
+
     def resume(self, worker_id: Optional[int]=None) -> None:
         if worker_id is not None:
             workers = [worker_id]
@@ -665,6 +669,8 @@ class PublishPullPipelineManager(PullPipelineManager):
         for worker_id in workers:
             message = [make_filter_from_worker_id(worker_id), b'RESUME']
             self.controller_socket.send_multipart(message)
+
+        self.paused = False
 
 class ProcessLoggerPublisher:
     """
