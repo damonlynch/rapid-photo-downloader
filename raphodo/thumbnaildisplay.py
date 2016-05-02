@@ -579,10 +579,11 @@ class ThumbnailListModel(QAbstractListModel):
     @pyqtSlot(RPDFile, QPixmap, bool)
     def thumbnailReceived(self, rpd_file: RPDFile, thumbnail: Optional[QPixmap]) -> None:
         uid = rpd_file.uid
-        if uid not in self.rpd_files:
+        scan_id = rpd_file.scan_id
+
+        if uid not in self.rpd_files or scan_id not in self.rapidApp.devices:
             # A thumbnail has been generated for a no longer displayed file
             return
-        scan_id = rpd_file.scan_id
 
         download_is_running = self.rapidApp.downloadIsRunning()
 
@@ -707,7 +708,31 @@ class ThumbnailListModel(QAbstractListModel):
         self.thumbnails_generated = 0
         self.total_thumbs_to_generate = 0
 
-    def clearAll(self, scan_id: Optional[int]=None, keep_downloaded_files: bool=False) -> bool:
+    def _deleteRows(self, uids: List[bytes]) -> None:
+        """
+        Delete a list of thumbnails from the thumbnail display
+        :param uids:
+        :return:
+        """
+        rows = [self.uid_to_row[uid] for uid in uids]
+
+        if rows:
+            # Generate groups of rows, and remove that group
+            # Must do it in reverse!
+            rows.sort()
+            rrows = reversed(list(runs(rows)))
+            for first, last in rrows:
+                no_rows = last - first + 1
+                self.removeRows(first, no_rows)
+
+            self.uid_to_row = {row[0]: idx for idx, row in enumerate(self.rows)}
+
+    def purgeRpdFiles(self, uids: List[bytes]) -> None:
+        for uid in uids:
+            del self.thumbnails[uid]
+            del self.rpd_files[uid]
+
+    def clearAll(self, scan_id: Optional[int]=None, keep_downloaded_files: bool=False) -> None:
         """
         Removes files from display and internal tracking.
 
@@ -724,7 +749,6 @@ class ThumbnailListModel(QAbstractListModel):
         :param scan_id: if None, keep_downloaded_files must be False
         :param keep_downloaded_files: don't remove thumbnails if they represent
          files that have now been downloaded
-        :return: True if any displayed row was removed, else False
         """
         if scan_id is None and not keep_downloaded_files:
             self.initialize()
@@ -741,18 +765,7 @@ class ThumbnailListModel(QAbstractListModel):
             else:
                 uids = self.getDisplayedUids(scan_id=scan_id, downloaded=None)
 
-            rows = [self.uid_to_row[uid] for uid in uids]
-
-            if rows:
-                # Generate groups of rows, and remove that group
-                # Must do it in reverse!
-                rows.sort()
-                rrows = reversed(list(runs(rows)))
-                for first, last in rrows:
-                    no_rows = last - first + 1
-                    self.removeRows(first, no_rows)
-
-                self.uid_to_row = {row[0]: idx for idx, row in enumerate(self.rows)}
+            self._deleteRows(uids)
 
             # Delete from DB and thumbnails and rpd_files lists
             if keep_downloaded_files:
@@ -761,17 +774,12 @@ class ThumbnailListModel(QAbstractListModel):
                 uids = self.tsql.get_uids(scan_id=scan_id)
 
             logging.debug("Removing %s thumbnail and rpd_files rows", len(uids))
-            for uid in uids:
-                del self.thumbnails[uid]
-                del self.rpd_files[uid]
+            self.purgeRpdFiles(uids)
 
             uids = [row.uid for row in self.add_buffer[scan_id]]
             if uids:
                 logging.debug("Removing additional %s thumbnail and rpd_files rows", len(uids))
-
-            for uid in uids:
-                del self.thumbnails[uid]
-                del self.rpd_files[uid]
+                self.purgeRpdFiles(uids)
 
             self.add_buffer.purge(scan_id=scan_id)
             self.add_buffer.set_buffer_length(len(self.rows))
@@ -790,9 +798,23 @@ class ThumbnailListModel(QAbstractListModel):
             if self.tsql.get_count(scan_id=scan_id) == 0:
                 self.tsql.delete_device(scan_id=scan_id)
 
+            if scan_id in self.ctimes_differ:
+                self.ctimes_differ.remove(scan_id)
+
             # self.validateModelConsistency()
 
-            return len(rows) > 0
+    def clearCompletedDownloads(self) -> None:
+        logging.debug("Clearing all completed download thumbnails")
+
+        # Get uids for complete downloads that are currently displayed
+        uids = self.getDisplayedUids(downloaded=True)
+        self._deleteRows(uids)
+
+        # Now get uids of all downloaded files, regardless of whether they're
+        # displayed at the moment
+        uids = self.tsql.get_uids(downloaded=True)
+        logging.debug("Removing %s thumbnail and rpd_files rows", len(uids))
+        self.purgeRpdFiles(uids)
 
     def filesAreMarkedForDownload(self) -> bool:
         """

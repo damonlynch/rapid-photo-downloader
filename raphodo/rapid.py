@@ -45,6 +45,8 @@ import argparse
 from typing import Optional, Tuple, List, Sequence, Dict, Set
 import faulthandler
 import pkg_resources
+import webbrowser
+from urllib.request import pathname2url
 
 from gettext import gettext as _
 
@@ -135,6 +137,7 @@ from raphodo.panelview import QPanelView, QComputerScrollArea
 from raphodo.computerview import ComputerWidget
 from raphodo.folderspreview import DownloadDestination, FoldersPreview
 from raphodo.destinationdisplay import DestinationDisplay
+from raphodo.aboutdialog import AboutDialog
 
 BackupMissing = namedtuple('BackupMissing', 'photo, video')
 
@@ -307,6 +310,7 @@ class CopyFilesManager(PublishPullPipelineManager):
             assert data.scan_id is not None
             self.tempDirs.emit(data.scan_id, data.photo_temp_dir,
                                data.video_temp_dir)
+
 
 class JobCodeDialog(QDialog):
     def __init__(self, parent, job_codes: list) -> None:
@@ -1087,7 +1091,7 @@ class RapidWindow(QMainWindow):
                                    triggered=self.doNextFileAction)
 
         self.helpAct = QAction(_("Get Help Online..."), self, shortcut="F1",
-                               triggered=help)
+                               triggered=self.doHelpAction)
 
         self.reportProblemAct = QAction(_("Report a Problem..."), self,
                                         triggered=self.doReportProblemAction)
@@ -1742,7 +1746,7 @@ class RapidWindow(QMainWindow):
         pass
 
     def doClearDownloadsAction(self):
-        pass
+        self.thumbnailModel.clearCompletedDownloads()
 
     def doPreviousFileAction(self):
         pass
@@ -1751,19 +1755,41 @@ class RapidWindow(QMainWindow):
         pass
 
     def doHelpAction(self):
-        pass
+        webbrowser.open_new_tab("http://www.damonlynch.net/rapid/help.html")
 
     def doReportProblemAction(self):
-        pass
+
+        log_path, log_file = os.path.split(iplogging.full_log_file_path())
+        log_uri = pathname2url(log_path)
+
+        message = _(r"""<b>Thank you for reporting a problem in Rapid Photo
+            Downloader</b><br><br>
+            Please report the problem at <a href="{website}">{website}</a>.<br><br>
+            If relevant, attach the log file <i>{log_file}</i> to your report (click
+            <a href="{log_path}">here</a> to open the log directory).
+            """).format(website='https://bugs.launchpad.net/rapid', log_path=log_uri,
+                        log_file=log_file)
+
+        icon = QPixmap(':/rapid-photo-downloader.svg')
+
+        title = _("Rapid Photo Downloader")
+
+        errorbox = QMessageBox()
+        errorbox.setTextFormat(Qt.RichText)
+        errorbox.setIconPixmap(icon)
+        errorbox.setWindowTitle(title)
+        errorbox.setText(message)
+        errorbox.exec_()
 
     def doMakeDonationAction(self):
-        pass
+        webbrowser.open_new_tab("http://www.damonlynch.net/rapid/donate.html")
 
     def doTranslateApplicationAction(self):
-        pass
+        webbrowser.open_new_tab("http://www.damonlynch.net/rapid/translate.html")
 
     def doAboutAction(self):
-        pass
+        about = AboutDialog(self)
+        about.exec()
 
     @pyqtSlot(bool)
     def thisComputerToggleValueChanged(self, on: bool) -> None:

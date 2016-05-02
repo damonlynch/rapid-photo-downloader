@@ -34,6 +34,7 @@ from collections import namedtuple
 import errno
 import logging
 import pickle
+import sys
 from typing import Union
 
 from gettext import gettext as _
@@ -46,6 +47,7 @@ from raphodo.constants import (ConflictResolution, FileType, DownloadStatus, Ren
 from raphodo.interprocess import (RenameAndMoveFileData, RenameAndMoveFileResults, DaemonProcess)
 from raphodo.rpdfile import RPDFile, Photo, Video
 from raphodo.rpdsql import DownloadedSQL
+from raphodo.utilities import stdchannel_redirected
 
 
 class SyncRawJpegStatus(Enum):
@@ -113,6 +115,7 @@ def time_subseconds_human_readable(date, subseconds):
             'second': date.strftime("%S"),
             'subsecond': subseconds}
 
+
 def load_metadata(rpd_file: Union[Photo, Video], et_process: exiftool.ExifTool) -> bool:
     """
     Loads the metadata for the file
@@ -124,12 +127,13 @@ def load_metadata(rpd_file: Union[Photo, Video], et_process: exiftool.ExifTool) 
     :return True if operation succeeded, false otherwise
     """
     if rpd_file.metadata is None:
-        if not rpd_file.load_metadata(full_file_name=rpd_file.temp_full_file_name,
-                                      et_process=et_process):
-            # Error in reading metadata
-            rpd_file.add_problem(None, pn.CANNOT_DOWNLOAD_BAD_METADATA,
-                                 {'filetype': rpd_file.title_capitalized})
-            return False
+        with  stdchannel_redirected(sys.stderr, os.devnull):
+            if not rpd_file.load_metadata(full_file_name=rpd_file.temp_full_file_name,
+                                          et_process=et_process):
+                # Error in reading metadata
+                rpd_file.add_problem(None, pn.CANNOT_DOWNLOAD_BAD_METADATA,
+                                     {'filetype': rpd_file.title_capitalized})
+                return False
     return True
 
 def _generate_name(generator, rpd_file, et_process):
@@ -173,11 +177,6 @@ class RenameMoveFileWorker(DaemonProcess):
         self.downloaded = DownloadedSQL()
 
         logging.debug("Start of day is set to %s", self.prefs.day_start)
-
-    def progress_callback_no_update(self, amount_downloaded, total):
-        pass
-        # ~ if debug_progress:
-        # ~ logging.debug("%.1f", amount_downloaded / float(total))
 
     def notify_file_already_exists(self, rpd_file: RPDFile, identifier=None):
         """
@@ -473,7 +472,7 @@ class RenameMoveFileWorker(DaemonProcess):
         return SyncRawJpegResult(sequence_to_use, failed, photo_name,
                                  photo_ext)
 
-    def prepare_rpd_file(self, rpd_file: RPDFile):
+    def prepare_rpd_file(self, rpd_file: RPDFile) -> None:
         """
         Populate the RPDFile with download values used in subfolder
         and filename generation
@@ -487,7 +486,7 @@ class RenameMoveFileWorker(DaemonProcess):
             rpd_file.subfolder_pref_list = self.prefs.video_subfolder
             rpd_file.name_pref_list = self.prefs.video_rename
 
-    def process_rename_failure(self, rpd_file: RPDFile):
+    def process_rename_failure(self, rpd_file: RPDFile) -> None:
         if rpd_file.problem is None:
             logging.error("%s (%s) has no problem information",
                           rpd_file.full_file_name,
@@ -712,8 +711,7 @@ class RenameMoveFileWorker(DaemonProcess):
                     download_count = data.download_count
 
                     if data.download_succeeded:
-                        move_succeeded = self.process_file(rpd_file,
-                                                           download_count)
+                        move_succeeded = self.process_file(rpd_file, download_count)
                         if not move_succeeded:
                             self.process_rename_failure(rpd_file)
                         else:
