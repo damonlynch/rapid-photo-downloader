@@ -57,7 +57,7 @@ import pwd
 from collections import namedtuple
 from typing import Optional, Tuple, List
 
-from PyQt5.QtCore import (QStorageInfo, QObject, pyqtSignal)
+from PyQt5.QtCore import (QStorageInfo, QObject, pyqtSignal, QFileSystemWatcher)
 from xdg.DesktopEntry import DesktopEntry
 from xdg import BaseDirectory
 import xdg
@@ -507,6 +507,49 @@ def udev_attributes(devname: str) -> Optional[UdevAttr]:
             vendor = vendor.replace('_', ' ').strip()
             return UdevAttr(is_mtp, vendor, model)
     return None
+
+class WatchDownloadDirs(QFileSystemWatcher):
+    """
+    Create a file system watch to monitor if there are changes to the
+    download directories
+    """
+
+    def updateWatchPathsFromPrefs(self, prefs) -> None:
+        """
+        Update the watched directories using values from the program preferences
+        :param prefs: program preferences
+        :type prefs: raphodo.preferences.Preferences
+        """
+
+        logging.debug("Updating watched paths")
+
+        paths = (os.path.dirname(path) for path in (prefs.photo_download_folder,
+                                                    prefs.video_download_folder))
+        watch = {path for path in paths if path}
+
+        existing_watches = set(self.directories())
+
+        if watch == existing_watches:
+            return
+
+        new = watch - existing_watches
+        if new:
+            new = list(new)
+            logging.debug("Adding to watched paths: %s", ', '.join(new))
+            logging.debug("Failed to add watched paths: %s", self.addPaths(new))
+
+        old = existing_watches - watch
+        if old:
+            old = list(old)
+            logging.debug("Removing from watched paths: %s", ', '.join(old))
+            logging.debug("Failed to remove watched paths: %s", self.removePaths(old))
+
+    def closeWatch(self) -> None:
+        """
+        End all watches.
+        """
+
+        self.removePaths(self.directories())
 
 
 class CameraHotplug(QObject):

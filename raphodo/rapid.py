@@ -83,7 +83,8 @@ from raphodo.storage import (ValidMounts, CameraHotplug, UDisks2Monitor,
                      GVolumeMonitor, have_gio, has_non_empty_dcim_folder,
                      mountPaths, get_desktop_environment, get_desktop,
                      gvfs_controls_mounts, get_default_file_manager, validate_download_folder,
-                     validate_source_folder, get_fdo_cache_thumb_base_directory)
+                     validate_source_folder, get_fdo_cache_thumb_base_directory,
+                     WatchDownloadDirs)
 from raphodo.interprocess import (PublishPullPipelineManager,
                                   PushPullDaemonManager,
                                   ScanArguments,
@@ -1256,6 +1257,10 @@ class RapidWindow(QMainWindow):
                               self.prefs.video_download_folder)
             self.prefs.video_download_folder = ''
 
+        self.watchedDownloadDirs = WatchDownloadDirs()
+        self.watchedDownloadDirs.updateWatchPathsFromPrefs(self.prefs)
+        self.watchedDownloadDirs.directoryChanged.connect(self.watchedFolderChange)
+
         self.fileSystemModel = FileSystemModel(parent=self)
         self.fileSystemFilter = FileSystemFilter(self)
         self.fileSystemFilter.setSourceModel(self.fileSystemModel)
@@ -1894,12 +1899,36 @@ class RapidWindow(QMainWindow):
         if validate_download_folder(path).valid:
             if path != self.prefs.photo_download_folder:
                 self.prefs.photo_download_folder = path
+                self.watchedDownloadDirs.updateWatchPathsFromPrefs(self.prefs)
                 self.generateProvisionalDownloadFolders()
                 self.photoDestinationDisplay.setDestination(path=path)
                 self.setDownloadCapabilities()
         else:
             logging.error("Invalid photo download destination chosen: %s", path)
+            self.handleInvalidDownloadDestination(file_type=FileType.photo)
+
+    def handleInvalidDownloadDestination(self, file_type: FileType, do_update: bool=True) -> None:
+        """
+        Handle cases where user clicked on an invalid download directory,
+        or the directory simply having disappeared
+
+        :param file_type: type of destination to work on
+        :param do_update: if True, update watched folders, provisional
+         download folders and update the UI to reflect new download
+         capabilities
+        """
+
+        if file_type == FileType.photo:
             self.prefs.photo_download_folder = ''
+            self.photoDestinationWidget.setViewVisible(False)
+        else:
+            self.prefs.video_download_folder = ''
+            self.videoDestinationWidget.setViewVisible(False)
+
+        if do_update:
+            self.watchedDownloadDirs.updateWatchPathsFromPrefs(self.prefs)
+            self.generateProvisionalDownloadFolders()
+            self.setDownloadCapabilities()
 
     @pyqtSlot(QModelIndex)
     def videoDestinationPathChosen(self, index: QModelIndex) -> None:
@@ -1915,12 +1944,13 @@ class RapidWindow(QMainWindow):
         if validate_download_folder(path).valid:
             if path != self.prefs.video_download_folder:
                 self.prefs.video_download_folder = path
+                self.watchedDownloadDirs.updateWatchPathsFromPrefs(self.prefs)
                 self.generateProvisionalDownloadFolders()
                 self.videoDestinationDisplay.setDestination(path=path)
                 self.setDownloadCapabilities()
         else:
             logging.error("Invalid video download destination chosen: %s", path)
-            self.prefs.video_download_folder = ''
+            self.handleInvalidDownloadDestination(file_type=FileType.video)
 
     @pyqtSlot()
     def downloadButtonClicked(self) -> None:
@@ -3189,6 +3219,8 @@ class RapidWindow(QMainWindow):
         self.loggermqThread.quit()
         self.loggermqThread.wait()
 
+        self.watchedDownloadDirs.closeWatch()
+
         self.cleanAllTempDirs()
         logging.debug("Cleaning any device cache dirs")
         self.devices.delete_cache_dirs()
@@ -3911,6 +3943,35 @@ class RapidWindow(QMainWindow):
         """
         return (self.prefs.device_autodetection or
                 self.prefs.backup_device_autodetection)
+
+    @pyqtSlot(str)
+    def watchedFolderChange(self, path: str) -> None:
+        """
+        Handle case where a download folder has been removed or altered
+
+        :param path: watched path
+        """
+
+        logging.debug("Change in watched folder %s; validating download destinations", path)
+        valid = True
+        if self.prefs.photo_download_folder and not validate_download_folder(
+                self.prefs.photo_download_folder).valid:
+            valid = False
+            logging.debug("Photo download destination %s is now invalid",
+                          self.prefs.photo_download_folder)
+            self.handleInvalidDownloadDestination(file_type=FileType.photo, do_update=False)
+
+        if self.prefs.video_download_folder and not validate_download_folder(
+                self.prefs.video_download_folder).valid:
+            valid = False
+            logging.debug("Video download destination %s is now invalid",
+                          self.prefs.video_download_folder)
+            self.handleInvalidDownloadDestination(file_type=FileType.video, do_update=False)
+
+        if not valid:
+            self.watchedDownloadDirs.updateWatchPathsFromPrefs(self.prefs)
+            self.generateProvisionalDownloadFolders()
+            self.setDownloadCapabilities()
 
     def confirmManualDownloadLocation(self) -> bool:
         """
