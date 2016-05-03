@@ -276,7 +276,7 @@ class Preferences:
                            this_computer_source = False,
                            this_computer_path='',
                            device_without_dcim_autodetection=False,
-                           path_whitelist=[''],
+                           volume_whitelist=[''],
                            volume_blacklist=[''],
                            camera_blacklist=[''],
                            ignored_paths=['.Trash', '.thumbnails'],
@@ -304,8 +304,7 @@ class Preferences:
                                 save_fdo_thumbnails=True,
                                 max_cpu_cores=max(available_cpu_count(physical_only=True), 2)
                                 )
-    error_defaults = dict(conflict_resolution=int(constants.ConflictResolution
-                          .skip),
+    error_defaults = dict(conflict_resolution=int(constants.ConflictResolution.skip),
                           backup_duplicate_overwrite=False)
 
 
@@ -314,6 +313,8 @@ class Preferences:
         # manually assign class values to the class dict
         self.__dict__['settings'] = QSettings("Rapid Photo Downloader",
                                               "Rapid Photo Downloader")
+        self.__dict__['valid'] = True
+
         # These next two values must be kept in sync
         dicts = (self.program_defaults, self.rename_defaults,
                  self.timeline_defaults, self.device_defaults,
@@ -475,6 +476,8 @@ class Preferences:
             except PrefError as e:
                 valid = False
                 msg += e.msg + "\n"
+
+        self.valid = valid
 
         return (valid, msg)
 

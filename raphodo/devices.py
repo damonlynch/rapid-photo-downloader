@@ -442,11 +442,21 @@ class DeviceCollection:
         else:
             logging.debug("No devices thumbnailing")
 
-    def add_device(self, device: Device) -> int:
+    def add_device(self, device: Device, on_startup: bool=False) -> int:
+        """
+        Add a new device to the device collection
+        :param device: device to add
+        :param on_startup: if True, the device is being added during
+         the program's startup phase
+        :return: the scan id assigned to the device
+        """
+
         scan_id = self.scan_counter
         self.scan_counter += 1
         self.devices[scan_id] = device
         self.device_state[scan_id] = DeviceState.pre_scan
+        if on_startup:
+            self.startup_devices.append(scan_id)
         if device.camera_port:
             port = device.camera_port
             assert port not in self.cameras

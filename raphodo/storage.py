@@ -772,7 +772,7 @@ if have_gio:
         go unnoticed.
         """
 
-        cameraUnmounted = pyqtSignal(bool, str, str, bool)
+        cameraUnmounted = pyqtSignal(bool, str, str, bool, bool)
         cameraMounted = pyqtSignal()
         partitionMounted = pyqtSignal(str, list, bool)
         partitionUnmounted = pyqtSignal(str)
@@ -809,8 +809,10 @@ if have_gio:
                         break
             return to_unmount
 
-        def unmountCamera(self, model: str, port: str,
-                          download_starting: bool = False,
+        def unmountCamera(self, model: str,
+                          port: str,
+                          download_starting: bool=False,
+                          on_startup: bool=False,
                           mount_point: Gio.Mount = None) -> bool:
             """
             Unmount camera mounted on gvfs mount point, if it is
@@ -818,6 +820,10 @@ if have_gio:
             :param model: model as returned by libgphoto2
             :param port: port as returned by libgphoto2, in format like
              usb:001,004
+            :param download_starting: if True, the unmount is occurring
+             because a download has been initiated.
+            :param on_startup: if True, the unmount is occurring during
+             the program's startup phase
             :param mount_point: if not None, try umounting from this
              mount point without scanning for it first
             :return: True if an unmount operation has been initiated,
@@ -832,15 +838,15 @@ if have_gio:
             if to_unmount is not None:
                 logging.debug("GIO: Attempting to unmount %s...", model)
                 to_unmount.unmount_with_operation(0,
-                                                  None, None, self.unmountCallback,
-                                                  (model, port, download_starting))
+                                          None, None, self.unmountCallback,
+                                          (model, port, download_starting, on_startup))
                 return True
 
             return False
 
         def unmountCallback(self, mount: Gio.Mount,
                             result: Gio.AsyncResult,
-                            user_data: Tuple[str, str, bool]) -> None:
+                            user_data: Tuple[str, str, bool, bool]) -> None:
             """
             Called by the asynchronous unmount operation.
             When complete, emits a signal indicating operation
@@ -850,19 +856,18 @@ if have_gio:
             :param user_data: model and port of the camera being
             unmounted, in the format of libgphoto2
             """
-
+            model, port, download_starting, on_startup = user_data
             try:
                 if mount.unmount_with_operation_finish(result):
-                    logging.debug("...successfully unmounted {}".format(user_data[0]))
-                    self.cameraUnmounted.emit(True, user_data[0], user_data[1], user_data[2])
+                    logging.debug("...successfully unmounted {}".format(model))
+                    self.cameraUnmounted.emit(True, model, port, download_starting, on_startup)
                 else:
-                    logging.debug("...failed to unmount {}".format(
-                        user_data[0]))
-                    self.cameraUnmounted.emit(False, user_data[0], user_data[1], user_data[2])
+                    logging.debug("...failed to unmount {}".format(model))
+                    self.cameraUnmounted.emit(False, model, port, download_starting, on_startup)
             except GLib.GError as e:
-                logging.error('Exception occurred unmounting {}'.format(user_data[0]))
+                logging.error('Exception occurred unmounting {}'.format(model))
                 logging.exception('Traceback:')
-                self.cameraUnmounted.emit(False, user_data[0], user_data[1], user_data[2])
+                self.cameraUnmounted.emit(False, model, port, download_starting, on_startup)
 
         def mountIsCamera(self, mount: Gio.Mount) -> str:
             """

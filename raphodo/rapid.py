@@ -21,11 +21,11 @@
 """
 Primary logic for Rapid Photo Downloader.
 
-QT related function and variable names use CamelCase.
+Qt related class method and variable names use CamelCase.
 Everything else should follow PEP 8.
 Project line length: 100 characters (i.e. word wrap at 99)
 
-Menu Icon by Daniel Bruce -- www.entypo.com
+"Hamburger" Menu Icon by Daniel Bruce -- www.entypo.com
 """
 
 __author__ = 'Damon Lynch'
@@ -138,6 +138,7 @@ from raphodo.computerview import ComputerWidget
 from raphodo.folderspreview import DownloadDestination, FoldersPreview
 from raphodo.destinationdisplay import DestinationDisplay
 from raphodo.aboutdialog import AboutDialog
+from raphodo.jobcode import JobCode
 
 BackupMissing = namedtuple('BackupMissing', 'photo, video')
 
@@ -151,6 +152,11 @@ sys.excepthook = raphodo.excepthook.excepthook
 
 
 class RenameMoveFileManager(PushPullDaemonManager):
+    """
+    Manages the single instance daemon process that renames and moves
+    files that have just been downloaded
+    """
+
     message = QtCore.pyqtSignal(bool, RPDFile, int)
     sequencesUpdate = QtCore.pyqtSignal(int, list)
 
@@ -176,6 +182,10 @@ class RenameMoveFileManager(PushPullDaemonManager):
 
 
 class OffloadManager(PushPullDaemonManager):
+    """
+    Handles tasks best run in a separate process
+    """
+
     message = QtCore.pyqtSignal(TemporalProximityGroups)
     downloadFolders = QtCore.pyqtSignal(FoldersPreview)
     def __init__(self, logging_port: int):
@@ -192,6 +202,7 @@ class OffloadManager(PushPullDaemonManager):
             self.message.emit(data.proximity_groups)
         elif data.folders_preview is not None:
             self.downloadFolders.emit(data.folders_preview)
+
 
 class ThumbnailDaemonManager(PushPullDaemonManager):
     """
@@ -222,6 +233,10 @@ class ThumbnailDaemonManager(PushPullDaemonManager):
         self.message.emit(data.rpd_file, thumbnail)
 
 class ScanManager(PublishPullPipelineManager):
+    """
+    Handles the processes that scan devices (cameras, external devices,
+    this computer path)
+    """
     message = QtCore.pyqtSignal(bytes)
     def __init__(self, logging_port: int):
         super().__init__(logging_port=logging_port)
@@ -278,6 +293,11 @@ class BackupManager(PublishPullPipelineManager):
 
 
 class CopyFilesManager(PublishPullPipelineManager):
+    """
+    Manage the processes that copy files from devices to the computer
+    during the download process
+    """
+
     message = QtCore.pyqtSignal(bool, RPDFile, int)
     tempDirs = QtCore.pyqtSignal(int, str,str)
     bytesDownloaded = QtCore.pyqtSignal(bytes)
@@ -312,81 +332,65 @@ class CopyFilesManager(PublishPullPipelineManager):
                                data.video_temp_dir)
 
 
-class JobCodeDialog(QDialog):
-    def __init__(self, parent, job_codes: list) -> None:
-        super().__init__(parent)
-        self.rapidApp = parent # type: RapidWindow
-        instructionLabel = QLabel(_('Enter a new Job Code, or select a previous one'))
-        self.jobCodeComboBox = QComboBox()
-        self.jobCodeComboBox.addItems(job_codes)
-        self.jobCodeComboBox.setEditable(True)
-        self.jobCodeComboBox.setInsertPolicy(QComboBox.InsertAtTop)
-        jobCodeLabel = QLabel(_('&Job Code:'))
-        jobCodeLabel.setBuddy(self.jobCodeComboBox)
-        self.rememberCheckBox = QCheckBox(_("&Remember this choice"))
-        self.rememberCheckBox.setChecked(parent.prefs.remember_job_code)
-        buttonBox = QDialogButtonBox(QDialogButtonBox.Ok|
-                                     QDialogButtonBox.Cancel)
-        grid = QGridLayout()
-        grid.addWidget(instructionLabel, 0, 0, 1, 2)
-        grid.addWidget(jobCodeLabel, 1, 0)
-        grid.addWidget(self.jobCodeComboBox, 1, 1)
-        grid.addWidget(self.rememberCheckBox, 2, 0, 1, 2)
-        grid.addWidget(buttonBox, 3, 0, 1, 2)
-        grid.setColumnStretch(1, 1)
-        self.setLayout(grid)
-        self.setWindowTitle(_('Enter a Job Code'))
+class UseDeviceDialog(QDialog):
+    """
+    A small dialog window that prompts the user if they want to
+    use the external device as a download source or not.
 
-        buttonBox.accepted.connect(self.accept)
-        buttonBox.rejected.connect(self.reject)
+    Includes a prompot whether to remember the choice, i.e.
+    whitelist the device.
+    """
+
+    def __init__(self, device: Device, parent) -> None:
+        super().__init__(parent)
+
+        self.remember = False
+
+        instruction = _('Should %(device)s be used to download photos and videos from?') % dict(
+            device=device.display_name)
+        instructionLabel = QLabel(instruction)
+
+        icon = QLabel()
+        icon.setPixmap(device.get_pixmap())
+
+        self.rememberCheckBox = QCheckBox(_("&Remember this choice"))
+        self.rememberCheckBox.setChecked(False)
+        buttonBox = QDialogButtonBox()
+        yesButton = buttonBox.addButton(QDialogButtonBox.Yes)
+        noButton = buttonBox.addButton(QDialogButtonBox.No)
+        grid = QGridLayout()
+        grid.setSpacing(11)
+        grid.setContentsMargins(11, 11, 11, 11)
+        grid.addWidget(icon, 0, 0, 2, 1)
+        grid.addWidget(instructionLabel, 0, 1, 1, 1)
+        grid.addWidget(self.rememberCheckBox, 1, 1, 1, 1)
+        grid.addWidget(buttonBox, 2, 0, 1, 2)
+        self.setLayout(grid)
+        self.setWindowTitle(_('Rapid Photo Downloader'))
+
+        yesButton.clicked.connect(self.useDevice)
+        noButton.clicked.connect(self.doNotUseDevice)
 
     @pyqtSlot()
-    def accept(self):
-        self.job_code = self.jobCodeComboBox.currentText()
+    def useDevice(self) -> None:
         self.remember = self.rememberCheckBox.isChecked()
-        self.rapidApp.prefs.remember_job_code = self.remember
         super().accept()
 
-
-class JobCode:
-    def __init__(self, parent):
-        self.rapidApp = parent
-        self.job_code = ''
-        self.need_job_code_for_naming = parent.prefs.any_pref_uses_job_code()
-        self.prompting_for_job_code = False
-
-    def get_job_code(self):
-        if not self.prompting_for_job_code:
-            self.prompting_for_job_code = True
-            dialog = JobCodeDialog(self.rapidApp,
-                                   self.rapidApp.prefs.job_codes)
-            if dialog.exec():
-                self.prompting_for_job_code = False
-                job_code = dialog.job_code
-                if job_code:
-                    if dialog.remember:
-                        # If the job code is already in the
-                        # preference list, move it to the front
-                        job_codes = self.rapidApp.prefs.job_codes.copy()
-                        while job_code in job_codes:
-                            job_codes.remove(job_code)
-                        # Add the just chosen Job Code to the front
-                        self.rapidApp.prefs.job_codes = [job_code] + job_codes
-                    self.job_code = job_code
-                    self.rapidApp.startDownload()
-            else:
-                self.prompting_for_job_code = False
-
-    def need_to_prompt_on_auto_start(self):
-        return not self.job_code and self.need_job_code_for_naming
-
-    def need_to_prompt(self):
-        return self.need_job_code_for_naming and not self.prompting_for_job_code
+    @pyqtSlot()
+    def doNotUseDevice(self) -> None:
+        self.remember = self.rememberCheckBox.isChecked()
+        super().reject()
 
 
 class RapidWindow(QMainWindow):
     """
     Main application window, and primary controller of program logic
+
+    Such attributes unfortunately make it very complex.
+
+    For better or worse, Qt's state machine technology is not used.
+    State indicating whether a download or scan is occurring is
+    thus kept in the device collection, self.devices
     """
 
     def __init__(self, splash: 'SplashScreen',
@@ -431,6 +435,7 @@ class RapidWindow(QMainWindow):
         self.context = zmq.Context()
 
         self.setWindowTitle(_("Rapid Photo Downloader"))
+        # app is a module level global
         self.readWindowSettings(app)
         self.prefs = Preferences()
         self.checkPrefsUpgrade()
@@ -511,7 +516,8 @@ class RapidWindow(QMainWindow):
             logging.info("Auto download upon device insertion is on")
 
         self.prefs.verify_file = False
-        self.prefs.photo_rename = photo_rename_test
+        # self.prefs.photo_rename = photo_rename_test
+
         # self.prefs.photo_rename = photo_rename_simple_test
         # self.prefs.photo_rename = job_code_rename_test
 
@@ -783,13 +789,6 @@ class RapidWindow(QMainWindow):
         else:
             self.download_tracker.set_no_backup_devices(0, 0)
 
-        prefs_valid, msg = self.prefs.check_prefs_for_validity()
-        if not prefs_valid:
-            self.notifyPrefsAreInvalid(details=msg)
-            self.auto_start_is_on = False
-        else:
-            self.auto_start_is_on = self.prefs.auto_download_at_startup
-
         settings = QSettings()
         settings.beginGroup("MainWindow")
 
@@ -802,14 +801,19 @@ class RapidWindow(QMainWindow):
         self.destinationButton.setChecked(settings.value("destinationButtonPressed", True, bool))
         self.destinationButtonClicked()
 
+        prefs_valid, msg = self.prefs.check_prefs_for_validity()
+
         self.setDownloadCapabilities()
-        self.searchForCameras()
-        self.setupNonCameraDevices()
-        self.setupManualPath()
+        self.searchForCameras(on_startup=True)
+        self.setupNonCameraDevices(on_startup=True)
+        self.setupManualPath(on_startup=True)
         self.updateSourceButton()
         self.displayMessageInStatusBar()
 
         self.showMainWindow()
+
+        if not prefs_valid:
+            self.notifyPrefsAreInvalid(details=msg)
 
         logging.debug("Completed stage 3 initializing main window")
 
@@ -1926,7 +1930,7 @@ class RapidWindow(QMainWindow):
         else:
             logging.debug("Download activated")
 
-            if self.devices.downloading:
+            if self.downloadIsRunning():
                 self.pauseDownload()
             else:
                 if self.job_code.need_to_prompt():
@@ -1944,6 +1948,10 @@ class RapidWindow(QMainWindow):
         self.time_check.pause()
 
     def resumeDownload(self) -> None:
+        """
+        Resume a download after it has been paused
+        """
+
         for scan_id in self.devices.downloading:
             self.time_remaining.set_time_mark(scan_id)
 
@@ -1956,7 +1964,7 @@ class RapidWindow(QMainWindow):
         :return True if a file is currently being downloaded, renamed
         or backed up, else False
         """
-        if len(self.devices.downloading) == 0:
+        if not self.devices.downloading:
             if self.prefs.backup_files:
                 if self.download_tracker.all_files_backed_up():
                     return False
@@ -2147,7 +2155,7 @@ class RapidWindow(QMainWindow):
             # downloaded from that summarizes the downloads.
             self.display_summary_notification = True
 
-        if self.auto_start_is_on and self.prefs.generate_thumbnails:
+        if self.autoStart(scan_id) and self.prefs.generate_thumbnails:
             for rpd_file in files:
                 rpd_file.generate_thumbnail = True
             generate_thumbnails = True
@@ -2511,7 +2519,7 @@ class RapidWindow(QMainWindow):
 
                 self.displayMessageInStatusBar()
 
-                self.setDownloadActionLabel(is_download=True)
+                self.setDownloadActionLabel()
                 self.setDownloadCapabilities()
 
                 self.job_code.job_code = ''
@@ -2831,11 +2839,19 @@ class RapidWindow(QMainWindow):
                 invalid_dirs.append(self.prefs.video_download_folder)
         return invalid_dirs
 
-    def notifyPrefsAreInvalid(self, details):
+    def notifyPrefsAreInvalid(self, details: str) -> None:
+        """
+        Notifies the user that the preferences are invalid.
+
+        Assumes that the main window is already showing
+        :param details: preference error details
+        """
+
+        logging.error("Program preferences are invalid: %s", details)
         title = _("Program preferences are invalid")
-        logging.critical(title)
-        self.log_error(severity=ErrorType.critical_error, problem=title,
-                       details=details)
+        message = "<b>%(title)s</b><br><br>%(details)s" % dict(title=title, details=details)
+        msgBox = self.standardMessageBox(message=message, rich_text=True)
+        msgBox.exec()
 
     def logError(self, severity, problem, details, extra_detail=None) -> None:
         """
@@ -2898,7 +2914,7 @@ class RapidWindow(QMainWindow):
 
             self.thumbnailModel.addFiles(scan_id=scan_id,
                                          rpd_files=data.rpd_files,
-                                         generate_thumbnail=not self.auto_start_is_on)
+                                         generate_thumbnail=not self.autoStart(scan_id))
             self.generateProvisionalDownloadFolders(rpd_files=data.rpd_files)
         else:
             scan_id = data.scan_id
@@ -2988,7 +3004,8 @@ class RapidWindow(QMainWindow):
         else:
             self.temporalProximity.setState(TemporalProximityState.pending)
 
-        if not self.auto_start_is_on and self.prefs.generate_thumbnails:
+        auto_start = self.autoStart(scan_id)
+        if not auto_start and self.prefs.generate_thumbnails:
             # Generate thumbnails for finished scan
             model.setSpinnerState(scan_id, DeviceState.idle)
             if scan_id in self.thumbnailModel.no_thumbnails_by_scan:
@@ -2996,7 +3013,7 @@ class RapidWindow(QMainWindow):
                 self.updateProgressBarState()
                 self.thumbnailModel.generateThumbnails(scan_id, self.devices[scan_id])
             self.displayMessageInStatusBar()
-        elif self.auto_start_is_on:
+        elif auto_start:
             self.displayMessageInStatusBar()
             if self.job_code.need_to_prompt_on_auto_start():
                 model.setSpinnerState(scan_id, DeviceState.idle)
@@ -3007,6 +3024,24 @@ class RapidWindow(QMainWindow):
             # not generating thumbnails, and auto start is not on
             model.setSpinnerState(scan_id, DeviceState.idle)
             self.displayMessageInStatusBar()
+
+    def autoStart(self, scan_id: int) -> bool:
+        """
+        Determine if the download for this device should start automatically
+        :param scan_id: scan id of the device
+        :return: True if the should start automatically, else False,
+        """
+
+        if not self.prefs.valid:
+            return False
+
+        if scan_id in self.devices.startup_devices:
+            if self.prefs.auto_download_at_startup:
+                return True
+        elif self.prefs.auto_download_upon_device_insertion:
+            return True
+
+        return False
 
     def quit(self) -> None:
         """
@@ -3244,42 +3279,52 @@ class RapidWindow(QMainWindow):
         if have_gio:
             self.searchForCameras()
 
-    def unmountCameraToEnableScan(self, model: str, port: str) -> bool:
+    def unmountCameraToEnableScan(self, model: str,
+                                  port: str,
+                                  on_startup: bool) -> bool:
         """
         Possibly "unmount" a camera or phone controlled by GVFS so it can be scanned
 
         :param model: camera model
         :param port: port used by camera
+        :param on_startup: if True, the unmount is occurring during
+         the program's startup phase
         :return: True if unmount operation initiated, else False
         """
 
         if self.gvfsControlsMounts:
             self.devices.cameras_to_gvfs_unmount_for_scan[port] = model
-            if self.gvolumeMonitor.unmountCamera(model, port):
+            if self.gvolumeMonitor.unmountCamera(model=model, port=port, on_startup=on_startup):
                 return True
             else:
                 del self.devices.cameras_to_gvfs_unmount_for_scan[port]
         return False
 
-    @pyqtSlot(bool, str, str, bool)
-    def cameraUnmounted(self, result: bool, model: str, port: str, download_started: bool) -> None:
+    @pyqtSlot(bool, str, str, bool, bool)
+    def cameraUnmounted(self, result: bool,
+                        model: str,
+                        port: str,
+                        download_started: bool,
+                        on_startup: bool) -> None:
         """
         Handle the attempt to unmount a GVFS mounted camera.
 
-        Note: cameras that have not yet been scanned do not yet have a scan_id assigned.
+        Note: cameras that have not yet been scanned do not yet have a scan_id assigned!
+        An obvious point, but easy to forget.
 
         :param result: result from the GVFS operation
         :param model: camera model
         :param port: camera port
         :param download_started: whether the unmount happened because a download
          was initiated
+        :param on_startup: if the unmount happened on a device during program startup
         """
 
         if not download_started:
             assert self.devices.cameras_to_gvfs_unmount_for_scan[port] == model
             del self.devices.cameras_to_gvfs_unmount_for_scan[port]
             if result:
-                self.startCameraScan(model, port)
+                self.startCameraScan(model=model, port=port, on_startup=on_startup)
             else:
                 # Get the camera's short model name, instead of using the exceptionally
                 # long name that gphoto2 can sometimes use. Get the icon too.
@@ -3289,7 +3334,6 @@ class RapidWindow(QMainWindow):
                 logging.debug("Not scanning %s because it could not be unmounted",
                               camera.display_name)
 
-                title = _('Rapid Photo Downloader')
                 message = _('<b>The %(camera)s cannot be scanned because it cannot be '
                             'unmounted.</b><br><br>You can close any other application (such as a '
                             'file browser) that is using it and try again. If that does not work, '
@@ -3298,9 +3342,9 @@ class RapidWindow(QMainWindow):
 
                 # Show the main window if it's not yet visible
                 self.showMainWindow()
-                msgBox = QMessageBox(QMessageBox.Warning, title, message, QMessageBox.Ok)
+                msgBox = self.standardMessageBox(message=message, rich_text=True)
                 msgBox.setIconPixmap(camera.get_pixmap())
-                msgBox.exec_()
+                msgBox.exec()
         else:
             # A download was initiated
 
@@ -3325,7 +3369,16 @@ class RapidWindow(QMainWindow):
                 msgBox.setIconPixmap(camera.get_pixmap())
                 msgBox.exec_()
 
-    def searchForCameras(self) -> None:
+    def searchForCameras(self, on_startup: bool=False) -> None:
+        """
+        Detect using gphoto2 any cameras attached to the computer.
+
+        Initiates unmount of cameras that are mounted by GIO/GVFS.
+
+        :param on_startup: if True, the search is occurring during
+         the program's startup phase
+        """
+
         if self.prefs.device_autodetection:
             cameras = self.gp_context.camera_autodetect()
             for model, port in cameras:
@@ -3348,16 +3401,36 @@ class RapidWindow(QMainWindow):
                         # system. Before attempting to scan the camera, check
                         # to see if it's mounted and if so, unmount it.
                         # Unmounting is asynchronous.
-                        if not self.unmountCameraToEnableScan(model, port):
-                            self.startCameraScan(model, port)
+                        if not self.unmountCameraToEnableScan(model=model, port=port,
+                                                              on_startup=on_startup):
+                            self.startCameraScan(model=model, port=port, on_startup=on_startup)
 
-    def startCameraScan(self, model: str, port: str) -> None:
+    def startCameraScan(self, model: str,
+                        port: str,
+                        on_startup: bool=False) -> None:
+        """
+        Initiate the scan of an unmounted camera
+
+        :param model: camera model
+        :param port:  camera port
+        :param on_startup: if True, the scan is occurring during
+         the program's startup phase
+        """
+
         device = Device()
         device.set_download_from_camera(model, port)
-        self.startDeviceScan(device)
+        self.startDeviceScan(device=device, on_startup=on_startup)
 
-    def startDeviceScan(self, device: Device) -> None:
-        scan_id = self.devices.add_device(device)
+    def startDeviceScan(self, device: Device,  on_startup: bool=False) -> None:
+        """
+        Initiate the scan of a device (camera, this computer path, or external device)
+
+        :param device: device to scan
+        :param on_startup: if True, the scan is occurring during
+         the program's startup phase
+        """
+
+        scan_id = self.devices.add_device(device=device, on_startup=on_startup)
         logging.debug("Assigning scan id %s to %s", scan_id, device.name())
         self.thumbnailModel.addOrUpdateDevice(scan_id)
         self.addToDeviceDisplay(device, scan_id)
@@ -3406,16 +3479,35 @@ class RapidWindow(QMainWindow):
                               'with at least one file or folder in it', path)
         return False
 
-    def prepareNonCameraDeviceScan(self, device: Device) -> None:
+    def prepareNonCameraDeviceScan(self, device: Device, on_startup: bool=False) -> None:
+        """
+
+        :param device:
+        :param on_startup: if True, the search is occurring during
+         the program's startup phase
+        """
+
         if not self.devices.known_device(device):
-            if (self.scanEvenIfNoDCIM() and not device.path in self.prefs.path_whitelist):
+            if (self.scanEvenIfNoDCIM() and not device.path in self.prefs.volume_whitelist):
+                logging.debug("Prompting whether to use device %s, which has no DCIM folder",
+                              device.display_name)
                 # prompt user to see if device should be used or not
-                pass
-                #self.get_use_device(device)
+                self.showMainWindow()
+                use = UseDeviceDialog(device, self)
+                if use.exec():
+                    if use.remember:
+                        logging.debug("Whitelisting device %s", device.display_name)
+                        self.prefs.volume_whitelist = self.prefs.volume_whitelist + [
+                                                                            device.display_name]
+                    self.startDeviceScan(device=device, on_startup=on_startup)
+                else:
+                    logging.debug("Device %s rejected as a download device", device.display_name)
+                    if use.remember and device.display_name not in self.prefs.volume_blacklist:
+                        logging.debug("Blacklisting device %s", device.display_name)
+                        self.prefs.volume_blacklist = self.prefs.volume_blacklist + [
+                                                                            device.display_name]
             else:
-                self.startDeviceScan(device)
-                # if mount is not None:
-                #     self.mounts_by_path[path] = scan_pid
+                self.startDeviceScan(device=device, on_startup=on_startup)
 
     @pyqtSlot(str, list, bool)
     def partitionMounted(self, path: str, iconNames: List[str], canEject: bool) -> None:
@@ -3448,7 +3540,6 @@ class RapidWindow(QMainWindow):
                         self.displayMessageInStatusBar()
 
                 elif self.shouldScanMount(mount):
-                    self.auto_start_is_on = self.prefs.auto_download_upon_device_insertion
                     device = Device()
                     device.set_download_from_volume(path, mount.displayName(),
                                                     iconNames, canEject, mount)
@@ -3641,9 +3732,12 @@ class RapidWindow(QMainWindow):
             self.backup_devices.no_photo_backup_devices,
             self.backup_devices.no_video_backup_devices)
 
-    def setupNonCameraDevices(self) -> None:
+    def setupNonCameraDevices(self, on_startup: bool=False) -> None:
         """
         Setup devices from which to download and initiates their scan.
+
+        :param on_startup: if True, the search is occurring during
+         the program's startup phase
         """
 
         if not self.prefs.device_autodetection:
@@ -3667,12 +3761,14 @@ class RapidWindow(QMainWindow):
                                           icon_names,
                                           can_eject,
                                           mount)
-            self.prepareNonCameraDeviceScan(device)
+            self.prepareNonCameraDeviceScan(device=device, on_startup=on_startup)
 
-    def setupManualPath(self) -> None:
+    def setupManualPath(self, on_startup: bool=False) -> None:
         """
         Setup This Computer path from which to download and initiates scan.
-        :return:
+
+        :param on_startup: if True, the setup is occurring during
+         the program's startup phase
         """
 
         if not self.prefs.this_computer_source:
@@ -3694,7 +3790,7 @@ class RapidWindow(QMainWindow):
                     logging.debug("Using This Computer path %s", path)
                     device = Device()
                     device.set_download_from_path(path)
-                    self.startDeviceScan(device)
+                    self.startDeviceScan(device=device, on_startup=on_startup)
                 else:
                     logging.error("This Computer download path is invalid: %s", path)
             else:
@@ -4062,30 +4158,30 @@ def get_versions() -> List[str]:
         versions.append('Exiv2: {}'.format(v))
     return versions
 
-def darkFusion(app: QApplication):
-    app.setStyle("Fusion")
-
-    dark_palette = QPalette()
-
-    dark_palette.setColor(QPalette.Window, QColor(53, 53, 53))
-    dark_palette.setColor(QPalette.WindowText, Qt.white)
-    dark_palette.setColor(QPalette.Base, QColor(25, 25, 25))
-    dark_palette.setColor(QPalette.AlternateBase, QColor(53, 53, 53))
-    dark_palette.setColor(QPalette.ToolTipBase, Qt.white)
-    dark_palette.setColor(QPalette.ToolTipText, Qt.white)
-    dark_palette.setColor(QPalette.Text, Qt.white)
-    dark_palette.setColor(QPalette.Button, QColor(53, 53, 53))
-    dark_palette.setColor(QPalette.ButtonText, Qt.white)
-    dark_palette.setColor(QPalette.BrightText, Qt.red)
-    dark_palette.setColor(QPalette.Link, QColor(42, 130, 218))
-    dark_palette.setColor(QPalette.Highlight, QColor(42, 130, 218))
-    dark_palette.setColor(QPalette.HighlightedText, Qt.black)
-
-    app.setPalette(dark_palette)
-    style = """
-    QToolTip { color: #ffffff; background-color: #2a82da; border: 1px solid white; }
-    """
-    app.setStyleSheet(style)
+# def darkFusion(app: QApplication):
+#     app.setStyle("Fusion")
+#
+#     dark_palette = QPalette()
+#
+#     dark_palette.setColor(QPalette.Window, QColor(53, 53, 53))
+#     dark_palette.setColor(QPalette.WindowText, Qt.white)
+#     dark_palette.setColor(QPalette.Base, QColor(25, 25, 25))
+#     dark_palette.setColor(QPalette.AlternateBase, QColor(53, 53, 53))
+#     dark_palette.setColor(QPalette.ToolTipBase, Qt.white)
+#     dark_palette.setColor(QPalette.ToolTipText, Qt.white)
+#     dark_palette.setColor(QPalette.Text, Qt.white)
+#     dark_palette.setColor(QPalette.Button, QColor(53, 53, 53))
+#     dark_palette.setColor(QPalette.ButtonText, Qt.white)
+#     dark_palette.setColor(QPalette.BrightText, Qt.red)
+#     dark_palette.setColor(QPalette.Link, QColor(42, 130, 218))
+#     dark_palette.setColor(QPalette.Highlight, QColor(42, 130, 218))
+#     dark_palette.setColor(QPalette.HighlightedText, Qt.black)
+#
+#     app.setPalette(dark_palette)
+#     style = """
+#     QToolTip { color: #ffffff; background-color: #2a82da; border: 1px solid white; }
+#     """
+#     app.setStyleSheet(style)
 
 
 class SplashScreen(QSplashScreen):

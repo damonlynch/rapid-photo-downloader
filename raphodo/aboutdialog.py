@@ -109,9 +109,10 @@ class AboutDialog(QDialog):
         Portions copyright © 2008-2015 Canonical Ltd.
         Portions copyright © 2013 Bernard Baeyens.
         Portions copyright © 2012-2015 Jim Easterbrook.
+        Portions copyright © 2012 Sven Marnach.
 
         Photo %(photolink)s copyright © 2014 Damon Lynch, all rights reserved.
-        Camera and video icons courtesy %(artlink1)s and %(artlink2)s, respectively.
+        Camera and video camera icons courtesy %(artlink1)s and %(artlink2)s, respectively.
 
         Translators:
 
