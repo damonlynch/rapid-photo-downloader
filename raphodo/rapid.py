@@ -2180,6 +2180,8 @@ class RapidWindow(QMainWindow):
         self.devices.set_device_state(scan_id, DeviceState.downloading)
         self.updateProgressBarState()
 
+        # TODO should remove thumbnailing message, somewhere!
+
         if len(self.devices.downloading) > 1:
             # Display an additional notification once all devices have been
             # downloaded from that summarizes the downloads.
@@ -2563,28 +2565,7 @@ class RapidWindow(QMainWindow):
 
             time_remaining = self.time_remaining.time_remaining()
             if time_remaining:
-                secs =  int(time_remaining)
-
-                if secs == 0:
-                    message = ""
-                elif secs == 1:
-                    message = _("About 1 second remaining")
-                elif secs < 60:
-                    message = _("About %i seconds remaining") % secs
-                elif secs == 60:
-                    message = _("About 1 minute remaining")
-                else:
-                    # Translators: in the text '%(minutes)i:%(seconds)02i',
-                    # only the : should be translated, if needed.
-                    # '%(minutes)i' and '%(seconds)02i' should not be
-                    # modified or left out. They are used to format and
-                    # display the amount
-                    # of time the download has remainging, e.g. 'About 5:36
-                    # minutes remaining'
-                    message = _(
-                        "About %(minutes)i:%(seconds)02i minutes remaining") % {
-                              'minutes': secs / 60, 'seconds': secs % 60}
-
+                message = '{} ({})'.format(time_remaining, download_speed)
                 self.statusBar().showMessage(message)
 
     def enablePrefsAndRefresh(self, enabled: bool) -> None:

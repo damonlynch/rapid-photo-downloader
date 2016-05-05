@@ -21,6 +21,8 @@ __copyright__ = "Copyright 2011-2016, Damon Lynch"
 
 from collections import defaultdict
 import time
+import math
+import locale
 import logging
 from typing import Optional, Dict, List
 
@@ -28,6 +30,7 @@ from gettext import gettext as _
 
 from raphodo.constants import DownloadStatus, FileType
 from raphodo.thumbnaildisplay import DownloadStats
+
 
 
 class DownloadTracker:
@@ -163,8 +166,7 @@ class DownloadTracker:
             else:
                 return self.backups_performed_by_uid[uid] == self.no_video_backup_devices
         else:
-            logging.critical(
-                "Unexpected uid in self.backups_performed_by_uid")
+            logging.critical("Unexpected uid in self.backups_performed_by_uid")
             return True
 
     def all_files_backed_up(self, scan_id: Optional[int]=None) -> bool:
@@ -292,13 +294,13 @@ class DownloadTracker:
         self._refresh_values()
 
 
-
 class TimeCheck:
     """
-    Record times downloads commmence and pause - used in calculating time
+    Record times downloads commence and pause - used in calculating time
     remaining.
 
-    Also tracks and reports download speed.
+    Also tracks and reports download speed for the entire download, in sum, i.e.
+    for all the devices and all backups as one.
 
     Note: This is completely independent of the file / subfolder naming
     preference "download start time"
@@ -306,15 +308,16 @@ class TimeCheck:
 
     def __init__(self):
         # set the number of seconds gap with which to measure download time remaing
-        self.download_time_gap = 3
-
+        self.download_time_gap = 1.0
         self.reset()
+        self.mpbs = _("MB/sec")
 
     def reset(self):
         self.mark_set = False
         self.total_downloaded_so_far = 0
         self.total_download_size = 0
         self.size_mark = 0
+        self.smoothed_speed = None  # type: Optional[float]
 
     def increment(self, bytes_downloaded):
         self.total_downloaded_so_far += bytes_downloaded
@@ -322,7 +325,6 @@ class TimeCheck:
     def set_download_mark(self):
         if not self.mark_set:
             self.mark_set = True
-
             self.time_mark = time.time()
 
     def pause(self):
@@ -337,63 +339,96 @@ class TimeCheck:
             self.time_mark = now
             amt_downloaded = self.total_downloaded_so_far - self.size_mark
             self.size_mark = self.total_downloaded_so_far
-            download_speed = "%1.1f" % (
-                            amt_downloaded / 1048576 / amt_time) + _("MB/s")
+            speed = amt_downloaded / 1048576 / amt_time
+            if self.smoothed_speed is None:
+                self.smoothed_speed = speed
+            else:
+                # smooth speed across ten readings
+                self.smoothed_speed = self.smoothed_speed * .9 + speed * .1
+            download_speed = "%1.1f %s" % (self.smoothed_speed, self.mpbs)
         else:
             download_speed = None
 
         return (update, download_speed)
 
 class TimeForDownload:
-    # used to store variables, see below
-    pass
+    def __init__(self, size: int) -> None:
+        self.time_remaining = math.inf  # type: float
 
+        self.total_downloaded_so_far = 0   # type: int
+        self.total_download_size = size  # type: int
+        self.size_mark = 0  # type: int
+        self.smoothed_speed = None  # type: Optional[float]
+
+        self.time_mark = time.time()  # type: float
+        self.smoothed_speed = None  # type: Optional[float]
+        
 class TimeRemaining:
     r"""
     Calculate how much time is remaining to finish a download
-
-    >>> t = TimeRemaining()
-    >>> t[0] = 1024*1024*1024
-    >>> del t[0]
+    
+    Runs in tandem with TimeCheck, above.
+    
+    The smoothed speed for each device is independent of the smoothed
+    speed for the download as a whole.
     """
-    gap = 3
-    def __init__(self):
+
+    download_time_gap = 1.0
+    def __init__(self) -> None:
         self.clear()
 
-    def __setitem__(self, scan_id, size: int):
-        t = TimeForDownload()
-        t.time_remaining = None
-        t.size = size
-        t.downloaded = 0
-        t.size_mark = 0
-        t.time_mark = time.time()
+    def __setitem__(self, scan_id: int, size: int) -> None:
+        t = TimeForDownload(size)
         self.times[scan_id] = t
 
-    def update(self, scan_id, bytes_downloaded):
+    def update(self, scan_id, bytes_downloaded) -> None:
         if scan_id in self.times:
-            self.times[scan_id].downloaded += bytes_downloaded
+            t = self.times[scan_id]  # type: TimeForDownload
+
+            t.total_downloaded_so_far += bytes_downloaded
             now = time.time()
-            tm = self.times[scan_id].time_mark
+            tm = t.time_mark
             amt_time = now - tm
-            if amt_time > self.gap:
-                self.times[scan_id].time_mark = now
-                amt_downloaded = self.times[scan_id].downloaded - self.times[
-                    scan_id].size_mark
-                self.times[scan_id].size_mark = self.times[scan_id].downloaded
-                timefraction = amt_downloaded / float(amt_time)
-                amt_to_download = float(self.times[scan_id].size) - self.times[
-                    scan_id].downloaded
-                if timefraction:
-                    self.times[
-                        scan_id].time_remaining = amt_to_download / \
-                                                  timefraction
 
-    def _time_estimates(self):
-        for t in self.times:
-            yield self.times[t].time_remaining
+            if amt_time > self.download_time_gap:
 
-    def time_remaining(self):
-        return max(self._time_estimates())
+                amt_downloaded = t.total_downloaded_so_far - t.size_mark
+                t.size_mark = t.total_downloaded_so_far
+                t.time_mark = now
+
+                speed = amt_downloaded / amt_time
+
+                if t.smoothed_speed is None:
+                    t.smoothed_speed = speed
+                else:
+                    # smooth speed across ten readings
+                    t.smoothed_speed = t.smoothed_speed * .9 + speed * .1
+
+                amt_to_download = t.total_download_size - t.total_downloaded_so_far
+
+                if not t.smoothed_speed:
+                    t.time_remaining = math.inf
+                else:
+                    time_remaining = amt_to_download / t.smoothed_speed
+                    # Use the previous value to help determine the current value,
+                    # which avoids values that jump around
+                    if math.isinf(t.time_remaining):
+                        t.time_remaining = time_remaining
+                    else:
+                        t.time_remaining = get_time_left(time_remaining, t.time_remaining)
+
+    def time_remaining(self) -> str:
+        time_remaining = max(t.time_remaining for t in self.times.values())
+        if math.isinf(time_remaining):
+            return 'Calculating time left...'
+
+        time_remaining =  round(time_remaining)  # type: int
+        if time_remaining < 4:
+            # Be friendly in the last few seconds
+            return _('A few seconds')
+        else:
+            # Format the string using the one or two largest units
+            return formatTime(time_remaining)
 
     def set_time_mark(self, scan_id):
         if scan_id in self.times:
@@ -404,3 +439,284 @@ class TimeRemaining:
 
     def __delitem__(self, scan_id):
         del self.times[scan_id]
+
+
+def get_time_left(aSeconds: float, aLastSec: Optional[float]=None) -> float:
+    """
+    Generate a "time left" string given an estimate on the time left and the
+    last time. The extra time is used to give a better estimate on the time to
+    show. Both the time values are floats instead of integers to help get
+    sub-second accuracy for current and future estimates.
+
+    Closely adapted from Mozilla's getTimeLeft function:
+    https://dxr.mozilla.org/mozilla-central/source/toolkit/mozapps/downloads/DownloadUtils.jsm
+
+    :param aSeconds: Current estimate on number of seconds left for the download
+    :param aLastSec: Last time remaining in seconds or None or infinity for unknown
+    :return: time left text, new value of "last seconds"
+    """
+
+    if aLastSec is None:
+        aLastSec = math.inf
+
+    if aSeconds < 0:
+      return aLastSec
+
+    # Apply smoothing only if the new time isn't a huge change -- e.g., if the
+    # new time is more than half the previous time; this is useful for
+    # downloads that start/resume slowly
+    if aSeconds > aLastSec / 2:
+        # Apply hysteresis to favor downward over upward swings
+        # 30% of down and 10% of up (exponential smoothing)
+        diff = aSeconds - aLastSec
+        aSeconds = aLastSec + (0.3 if diff < 0 else 0.1) * diff
+
+        # If the new time is similar, reuse something close to the last seconds,
+        # but subtract a little to provide forward progress
+        diffPct = diff / aLastSec * 100
+        if abs(diff) < 5 or abs(diffPct) < 5:
+            aSeconds = aLastSec - (0.4 if diff < 0 else 0.2)
+
+    return aSeconds
+
+def _seconds(seconds: int) -> str:
+    if seconds == 1:
+        return _('1 second')
+    else:
+        return _('%d seconds') % seconds
+
+
+def _minutes(minutes: int) -> str:
+    if minutes == 1:
+        return _('1 minute')
+    else:
+        return _('%d minutes') % minutes
+
+
+def _hours(hours: int) -> str:
+    if hours == 1:
+        return _('1 hour')
+    else:
+        return _('%d hours') % hours
+
+
+def _days(days: int) -> str:
+    if days == 1:
+        return _('1 day')
+    else:
+        return _('%d days') % days
+
+
+def formatTime(seconds: int) -> str:
+    r"""
+    >>> locale.setlocale(locale.LC_ALL, ('en_US', 'utf-8'))
+    'en_US.UTF-8'
+    >>> formatTime(0)
+    '0 seconds'
+    >>> formatTime(1)
+    '1 second'
+    >>> formatTime(2)
+    '2 seconds'
+    >>> formatTime(59)
+    '59 seconds'
+    >>> formatTime(60)
+    '1 minute'
+    >>> formatTime(61)
+    '1 minute and 1 second'
+    >>> formatTime(62)
+    '1 minute and 2 seconds'
+    >>> formatTime(60 + 59)
+    '1 minute and 59 seconds'
+    >>> formatTime(60 * 2)
+    '2 minutes'
+    >>> formatTime(60 * 2 + 1)
+    '2 minutes and 1 second'
+    >>> formatTime(60 * 2 + 2)
+    '2 minutes and 2 seconds'
+    >>> formatTime(60 * 3 + 30)
+    '3 minutes and 30 seconds'
+    >>> formatTime(60 * 45)
+    '45 minutes'
+    >>> formatTime(60 * 60 - 30)
+    '59 minutes and 30 seconds'
+    >>> formatTime(60 * 60 - 1)
+    '59 minutes and 59 seconds'
+    >>> formatTime(60 * 60)
+    '1 hour'
+    >>> formatTime(60 * 60 + 1)
+    '1 hour'
+    >>> formatTime(60 * 60 + 29)
+    '1 hour'
+    >>> formatTime(60 * 60 + 30)
+    '1 hour and 1 minute'
+    >>> formatTime(60 * 60 + 59)
+    '1 hour and 1 minute'
+    >>> formatTime(60 * 61)
+    '1 hour and 1 minute'
+    >>> formatTime(60 * 61 + 29)
+    '1 hour and 1 minute'
+    >>> formatTime(60 * 61 + 30)
+    '1 hour and 2 minutes'
+    >>> formatTime(60 * 60 * 2)
+    '2 hours'
+    >>> formatTime(60 * 60 * 2 + 45)
+    '2 hours and 1 minute'
+    >>> formatTime(60 * 60 * 2 + 60 * 29)
+    '2 hours and 29 minutes'
+    >>> formatTime(60 * 60 * 2 + 60 * 59)
+    '2 hours and 59 minutes'
+    >>> formatTime(60 * 60 * 2 + 60 * 59 + 30)
+    '3 hours'
+    >>> formatTime(60 * 60 * 3 + 29)
+    '3 hours'
+    >>> formatTime(60 * 60 * 3 + 30)
+    '3 hours and 1 minute'
+    >>> formatTime(60 * 60 * 23 + 60 * 29)
+    '23 hours and 29 minutes'
+    >>> formatTime(60 * 60 * 23 + 60 * 29 + 29)
+    '23 hours and 29 minutes'
+    >>> formatTime(60 * 60 * 23 + 60 * 29 + 30)
+    '23 hours and 30 minutes'
+    >>> formatTime(60 * 60 * 23 + 60 * 29 + 30)
+    '23 hours and 30 minutes'
+    >>> formatTime(60 * 60 * 23 + 60 * 59)
+    '23 hours and 59 minutes'
+    >>> formatTime(60 * 60 * 23 + 60 * 59 + 20)
+    '23 hours and 59 minutes'
+    >>> formatTime(60 * 60 * 23 + 60 * 59 + 40)
+    '1 day'
+    >>> formatTime(60 * 60 * 24)
+    '1 day'
+    >>> formatTime(60 * 60 * 24 + 60 * 29)
+    '1 day'
+    >>> formatTime(60 * 60 * 24 + 60 * 29 + 59)
+    '1 day'
+    >>> formatTime(60 * 60 * 24 + 60 * 30)
+    '1 day and 1 hour'
+    >>> formatTime(60 * 60 * 24 * 2 + 60 * 30)
+    '2 days and 1 hour'
+    >>> formatTime(60 * 60 * 24 * 2 + 60 * 60 * 3)
+    '2 days and 3 hours'
+    >>> formatTime(60 * 60 * 24 * 24 + 60 * 60 * 3)
+    '24 days and 3 hours'
+    >>> formatTime(60 * 60 * 24 * 24 + 60 * 60 * 3 + 59)
+    '24 days and 3 hours'
+
+    When passed n number of seconds, return a translated string
+    that indicates using up to two units of time how much time is left.
+
+    Times are rounded up or down.
+
+    The highest unit of time used is days.
+    :param seconds: the number of seconds
+    :return: the translated string
+    """
+
+    parts = []
+    for idx, mul in enumerate((86400, 3600, 60, 1)):
+        if seconds / mul >= 1 or mul == 1:
+            if mul > 1:
+                n = int(math.floor(seconds / mul))
+                seconds -= n * mul
+            else:
+                n = seconds
+            parts.append((idx, n))
+
+    # take the parts, and if necessary add new parts that indicate zero hours or minutes
+
+    parts2 = []
+    i = 0
+    for idx in range(parts[0][0], 4):
+        part_idx = parts[i][0]
+        if part_idx == idx:
+            parts2.append(parts[i])
+            i += 1
+        else:
+            parts2.append((idx, 0))
+
+    # what remains is a consistent and predictable set of time components to work with:
+
+    if len(parts2) == 1:
+        assert parts2[0][0] == 3
+        seconds = parts2[0][1]
+        return _seconds(seconds)
+
+    elif len(parts2) == 2:
+        assert parts2[0][0] == 2
+        assert parts2[0][1] > 0
+        minutes = parts2[0][1]
+        seconds = parts2[1][1]
+        if seconds:
+            if minutes == 1:
+                if seconds == 1:
+                    return _('1 minute and 1 second')
+                else:
+                    return _('1 minute and %d seconds') % seconds
+            else:
+                if seconds == 1:
+                    return _('%d minutes and 1 second') % minutes
+                else:
+                    return _('%(minutes)d minutes and %(seconds)d seconds') % dict(
+                        minutes=minutes, seconds=seconds)
+        else:
+            return _minutes(minutes)
+
+    elif len(parts2) == 3:
+        assert parts2[0][0] == 1
+        assert parts2[0][1] > 0
+        hours = parts2[0][1]
+        minutes = parts2[1][1]
+        seconds = parts2[2][1]
+
+        # round up the minutes if needed
+        if seconds >= 30:
+            if minutes == 59:
+                minutes = 0
+                hours += 1
+                if hours == 24:
+                    return _('1 day')
+            else:
+                minutes += 1
+
+        if minutes:
+            if hours == 1:
+                if minutes == 1:
+                    return _('1 hour and 1 minute')
+                else:
+                    return _('1 hour and %d minutes') % minutes
+            else:
+                if minutes == 1:
+                    return _('%d hours and 1 minute') % hours
+                else:
+                    return _('%(hours)d hours and %(minutes)d minutes') % dict(hours=hours,
+                                                                               minutes=minutes)
+        else:
+            return _hours(hours)
+    else:
+        assert len(parts2) == 4
+        assert parts2[0][0] == 0
+        assert parts2[0][1] > 0
+        days = parts2[0][1]
+        hours = parts2[1][1]
+        minutes = parts2[2][1]
+
+        if minutes >= 30:
+            if hours == 23:
+                hours = 0
+                days += 1
+            else:
+                hours += 1
+
+        if hours:
+            if days == 1:
+                if hours == 1:
+                    return _('1 day and 1 hour')
+                else:
+                    return _('1 day and %d hours') % hours
+            else:
+                if hours == 1:
+                    return _('%d days and 1 hour') % days
+                else:
+                    return _('%(days)d days and %(hours)d hours') % dict(days=days, hours=hours)
+        else:
+            return _days(days)
