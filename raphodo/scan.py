@@ -117,6 +117,9 @@ class ScanWorker(WorkerInPublishPullPipeline):
         if not self.download_from_camera:
             # Download from file system
             path = os.path.abspath(scan_arguments.device.path)
+            if scan_arguments.scan_only_DCIM and \
+                            scan_arguments.device.device_type == DeviceType.volume:
+                path = os.path.join(path, "DCIM")
             self.display_name = scan_arguments.device.display_name
             # Scan the files using lightweight high-performance scandir
             logging.info("Scanning {}".format(self.display_name))

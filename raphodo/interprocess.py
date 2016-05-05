@@ -1040,12 +1040,28 @@ class ScanArguments:
                  device: Device,
                  ignore_other_types: bool,
                  log_gphoto2: bool,
-                 use_thumbnail_cache: bool) -> None:
+                 use_thumbnail_cache: bool,
+                 scan_only_DCIM: bool) -> None:
+        """
+        Pass arguments to the scan process
+
+        :param scan_preferences: portion of user preferences relating
+         to scans
+        :param device: the device to scan
+        :param ignore_other_types:
+        :param log_gphoto2: whether to generate detailed gphoto2 log
+         messages
+        :param use_thumbnail_cache: whether to use the RPD Thumbnail Cache
+        :param scan_only_DCIM: if the device is an auto-detected volume,
+         then if True, scan only in it's DCIM folder
+        """
+
         self.scan_preferences = scan_preferences
         self.device = device
         self.ignore_other_types = ignore_other_types
         self.log_gphoto2 = log_gphoto2
         self.use_thumbnail_cache = use_thumbnail_cache
+        self.scan_only_DCIM = scan_only_DCIM
 
 
 class ScanResults:

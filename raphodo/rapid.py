@@ -453,6 +453,13 @@ class RapidWindow(QMainWindow):
         else:
             logging.info("Device autodetection: %s", self.prefs.device_autodetection)
 
+        if self.prefs.device_autodetection:
+            if self.prefs.device_without_dcim_autodetection:
+                logging.info("Devices do not need a DCIM folder to be scanned")
+            else:
+                logging.info("For automatically detected devices, only the contents of its "
+                             "DCIM folder will be scanned")
+
         if this_computer_source is not None:
             self.prefs.this_computer_source = this_computer_source
 
@@ -519,7 +526,7 @@ class RapidWindow(QMainWindow):
         self.prefs.verify_file = False
         # self.prefs.photo_rename = photo_rename_test
 
-        # self.prefs.photo_rename = photo_rename_simple_test
+        self.prefs.photo_rename = photo_rename_simple_test
         # self.prefs.photo_rename = job_code_rename_test
 
         # Don't call processEvents() after initiating 0MQ, as it can
@@ -2560,13 +2567,20 @@ class RapidWindow(QMainWindow):
     def updateTimeRemaining(self):
         update, download_speed = self.time_check.check_for_update()
         if update:
-            # TODO implement label showing download speed
-            # self.speedLabel.set_text(download_speed)
+            display_names = [self.devices[scan_id].display_name
+                            for scan_id in self.devices.downloading]
+            downloading = _('Downloading from %(device_names)s') % dict(
+                device_names=make_internationalized_list(display_names))
 
-            time_remaining = self.time_remaining.time_remaining()
-            if time_remaining:
-                message = '{} ({})'.format(time_remaining, download_speed)
-                self.statusBar().showMessage(message)
+            time_remaining = self.time_remaining.time_remaining(self.prefs.detailed_time_remaining)
+            if time_remaining is None:
+                message = downloading
+            else:
+                # Translators - in the middle is a unicode em dash - please retain it
+                # This string is displayed in the status bar when the download is running
+                message = '%(downloading_from)s — %(time_left)s left (%(speed)s)' % dict(
+                    downloading_from = downloading, time_left=time_remaining, speed=download_speed)
+            self.statusBar().showMessage(message)
 
     def enablePrefsAndRefresh(self, enabled: bool) -> None:
         """
@@ -3453,7 +3467,8 @@ class RapidWindow(QMainWindow):
                            device=device,
                            ignore_other_types=self.ignore_other_photo_types,
                            log_gphoto2=self.log_gphoto2,
-                           use_thumbnail_cache=self.prefs.use_thumbnail_cache)
+                           use_thumbnail_cache=self.prefs.use_thumbnail_cache,
+                           scan_only_DCIM=not self.prefs.device_without_dcim_autodetection)
         self.scanmq.start_worker(scan_id, scan_arguments)
         self.devices.set_device_state(scan_id, DeviceState.scanning)
         self.setDownloadCapabilities()
@@ -4362,7 +4377,7 @@ def main():
         
     if args.this_computer_source:
         this_computer_source = args.this_computer_source == 'on'
-        if auto_detect:
+        if this_computer_source:
             logging.info("Downloading from this computer turned on from command line")
         else:
             logging.info("Downloading from this computer turned off from command line")

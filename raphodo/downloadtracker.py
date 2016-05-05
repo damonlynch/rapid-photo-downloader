@@ -417,10 +417,17 @@ class TimeRemaining:
                     else:
                         t.time_remaining = get_time_left(time_remaining, t.time_remaining)
 
-    def time_remaining(self) -> str:
+    def time_remaining(self, detailed_time_remaining: bool) -> Optional[str]:
+        """
+
+        :param detailed_time_remaining: if True, don't limit the precision
+         of the result return
+        :return: time remaining in string format
+        """
+
         time_remaining = max(t.time_remaining for t in self.times.values())
         if math.isinf(time_remaining):
-            return 'Calculating time left...'
+            return None
 
         time_remaining =  round(time_remaining)  # type: int
         if time_remaining < 4:
@@ -428,7 +435,7 @@ class TimeRemaining:
             return _('A few seconds')
         else:
             # Format the string using the one or two largest units
-            return formatTime(time_remaining)
+            return formatTime(time_remaining, limit_precision=not detailed_time_remaining)
 
     def set_time_mark(self, scan_id):
         if scan_id in self.times:
@@ -507,7 +514,7 @@ def _days(days: int) -> str:
         return _('%d days') % days
 
 
-def formatTime(seconds: int) -> str:
+def formatTime(seconds: int, limit_precision=False) -> str:
     r"""
     >>> locale.setlocale(locale.LC_ALL, ('en_US', 'utf-8'))
     'en_US.UTF-8'
@@ -533,12 +540,20 @@ def formatTime(seconds: int) -> str:
     '2 minutes and 1 second'
     >>> formatTime(60 * 2 + 2)
     '2 minutes and 2 seconds'
+    >>> formatTime(60 * 3 + 25)
+    '3 minutes and 25 seconds'
+    >>> formatTime(60 * 3 + 25, limit_precision=True)
+    '3 minutes'
     >>> formatTime(60 * 3 + 30)
     '3 minutes and 30 seconds'
+    >>> formatTime(60 * 3 + 30, limit_precision=True)
+    '4 minutes'
     >>> formatTime(60 * 45)
     '45 minutes'
     >>> formatTime(60 * 60 - 30)
     '59 minutes and 30 seconds'
+    >>> formatTime(60 * 60 - 30, limit_precision=True)
+    '1 hour'
     >>> formatTime(60 * 60 - 1)
     '59 minutes and 59 seconds'
     >>> formatTime(60 * 60)
@@ -563,6 +578,18 @@ def formatTime(seconds: int) -> str:
     '2 hours and 1 minute'
     >>> formatTime(60 * 60 * 2 + 60 * 29)
     '2 hours and 29 minutes'
+    >>> formatTime(60 * 60 * 2 + 60 * 29 + 29)
+    '2 hours and 29 minutes'
+    >>> formatTime(60 * 60 * 2 + 60 * 29 + 29, limit_precision=True)
+    '2 hours'
+    >>> formatTime(60 * 60 * 2 + 60 * 29 + 30)
+    '2 hours and 30 minutes'
+    >>> formatTime(60 * 60 * 2 + 60 * 29 + 30, limit_precision=True)
+    '2 hours'
+    >>> formatTime(60 * 60 * 2 + 60 * 30)
+    '2 hours and 30 minutes'
+    >>> formatTime(60 * 60 * 2 + 60 * 30, limit_precision=True)
+    '3 hours'
     >>> formatTime(60 * 60 * 2 + 60 * 59)
     '2 hours and 59 minutes'
     >>> formatTime(60 * 60 * 2 + 60 * 59 + 30)
@@ -601,6 +628,10 @@ def formatTime(seconds: int) -> str:
     '24 days and 3 hours'
     >>> formatTime(60 * 60 * 24 * 24 + 60 * 60 * 3 + 59)
     '24 days and 3 hours'
+    >>> formatTime(60 * 60 * 24 * 24 + 60 * 60 * 3 + 59, limit_precision=True)
+    '24 days'
+    >>> formatTime(60 * 60 * 24 * 24 + 60 * 60 * 18, limit_precision=True)
+    '25 days'
 
     When passed n number of seconds, return a translated string
     that indicates using up to two units of time how much time is left.
@@ -609,6 +640,8 @@ def formatTime(seconds: int) -> str:
 
     The highest unit of time used is days.
     :param seconds: the number of seconds
+    :param limit_precision: if True, for any time >= three minutes, the
+     time string will be limited to only 1 unit, e.g. 3 minutes, 4 minutes etc
     :return: the translated string
     """
 
@@ -646,6 +679,14 @@ def formatTime(seconds: int) -> str:
         assert parts2[0][1] > 0
         minutes = parts2[0][1]
         seconds = parts2[1][1]
+
+        if limit_precision and minutes > 2:
+            if seconds >= 30:
+                minutes += 1
+                if minutes == 60:
+                    return _('1 hour')
+            seconds = 0
+
         if seconds:
             if minutes == 1:
                 if seconds == 1:
@@ -668,8 +709,14 @@ def formatTime(seconds: int) -> str:
         minutes = parts2[1][1]
         seconds = parts2[2][1]
 
+        if limit_precision:
+            if minutes >= 30:
+                hours += 1
+                if hours == 24:
+                    return _('1 day')
+            minutes = 0
         # round up the minutes if needed
-        if seconds >= 30:
+        elif seconds >= 30:
             if minutes == 59:
                 minutes = 0
                 hours += 1
@@ -700,7 +747,11 @@ def formatTime(seconds: int) -> str:
         hours = parts2[1][1]
         minutes = parts2[2][1]
 
-        if minutes >= 30:
+        if limit_precision:
+            if hours >= 12:
+                days += 1
+            hours = 0
+        elif minutes >= 30:
             if hours == 23:
                 hours = 0
                 days += 1

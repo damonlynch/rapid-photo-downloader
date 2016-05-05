@@ -271,6 +271,7 @@ class Preferences:
                            remember_job_code=True,
                           )
     timeline_defaults = dict(proximity_seconds=3600)
+    display_defaults = dict(detailed_time_remaining=False)
     device_defaults = dict(only_external_mounts=True,
                            device_autodetection=True,
                            this_computer_source = False,
@@ -317,10 +318,11 @@ class Preferences:
 
         # These next two values must be kept in sync
         dicts = (self.program_defaults, self.rename_defaults,
-                 self.timeline_defaults, self.device_defaults,
+                 self.timeline_defaults, self.display_defaults,
+                 self.device_defaults,
                  self.backup_defaults, self.automation_defaults,
                  self.performance_defaults, self.error_defaults)
-        group_names = ('Program', 'Rename', 'Timeline', 'Device', 'Backup',
+        group_names = ('Program', 'Rename', 'Timeline', 'Display', 'Device', 'Backup',
                        'Automation', 'Performance', 'ErrorHandling')
         assert len(dicts) == len(group_names)
 

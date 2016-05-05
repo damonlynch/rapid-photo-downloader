@@ -95,6 +95,9 @@ Changelog for Rapid Photo Downloader
    - When running under Ubuntu's Unity desktop, a progress bar and count of files
      available for download is displayed on the program's launcher.
 
+   - The time remaining until a download is complete (which is shown in the status
+     bar) is more stable and more accurate.
+
    - The installer has been totally rewritten to take advantage of Python's
      tool pip, which installs Python packages. Rapid Photo Downloader can now
      be easily installed and uninstalled. On Ubuntu, Debian and Fedora-like
