@@ -127,13 +127,12 @@ def load_metadata(rpd_file: Union[Photo, Video], et_process: exiftool.ExifTool) 
     :return True if operation succeeded, false otherwise
     """
     if rpd_file.metadata is None:
-        with  stdchannel_redirected(sys.stderr, os.devnull):
-            if not rpd_file.load_metadata(full_file_name=rpd_file.temp_full_file_name,
-                                          et_process=et_process):
-                # Error in reading metadata
-                rpd_file.add_problem(None, pn.CANNOT_DOWNLOAD_BAD_METADATA,
-                                     {'filetype': rpd_file.title_capitalized})
-                return False
+        if not rpd_file.load_metadata(full_file_name=rpd_file.temp_full_file_name,
+                                      et_process=et_process):
+            # Error in reading metadata
+            rpd_file.add_problem(None, pn.CANNOT_DOWNLOAD_BAD_METADATA,
+                                 {'filetype': rpd_file.title_capitalized})
+            return False
     return True
 
 def _generate_name(generator, rpd_file, et_process):
@@ -667,71 +666,72 @@ class RenameMoveFileWorker(DaemonProcess):
         # suffixes to duplicate files
         self.duplicate_files = {}
 
-        with exiftool.ExifTool() as self.exiftool_process:
-            while True:
-                if i:
-                    logging.debug("Finished %s. Getting next task.", i)
+        with  stdchannel_redirected(sys.stderr, os.devnull):
+            with exiftool.ExifTool() as self.exiftool_process:
+                while True:
+                    if i:
+                        logging.debug("Finished %s. Getting next task.", i)
 
-                # rename file and move to generated subfolder
-                directive, content = self.receiver.recv_multipart()
+                    # rename file and move to generated subfolder
+                    directive, content = self.receiver.recv_multipart()
 
-                self.check_for_command(directive, content)
+                    self.check_for_command(directive, content)
 
-                data = pickle.loads(content) # type: RenameAndMoveFileData
-                if data.message == RenameAndMoveStatus.download_started:
-                    # Synchronize QSettings instance in preferences class
-                    self.prefs.sync()
+                    data = pickle.loads(content) # type: RenameAndMoveFileData
+                    if data.message == RenameAndMoveStatus.download_started:
+                        # Synchronize QSettings instance in preferences class
+                        self.prefs.sync()
 
-                    # Track downloads today, using a class whose purpose is to
-                    # take the value in the user prefs, increment, and then
-                    # finally used to update the prefs
-                    self.downloads_today_tracker = DownloadsTodayTracker(
-                        day_start=self.prefs.day_start,
-                        downloads_today=self.prefs.downloads_today)
+                        # Track downloads today, using a class whose purpose is to
+                        # take the value in the user prefs, increment, and then
+                        # finally used to update the prefs
+                        self.downloads_today_tracker = DownloadsTodayTracker(
+                            day_start=self.prefs.day_start,
+                            downloads_today=self.prefs.downloads_today)
 
-                    self.sequences = gn.Sequences(self.downloads_today_tracker,
-                                              self.prefs.stored_sequence_no)
-                    dl_today = self.downloads_today_tracker.get_or_reset_downloads_today()
-                    logging.debug("Completed downloads today: %s", dl_today)
+                        self.sequences = gn.Sequences(self.downloads_today_tracker,
+                                                  self.prefs.stored_sequence_no)
+                        dl_today = self.downloads_today_tracker.get_or_reset_downloads_today()
+                        logging.debug("Completed downloads today: %s", dl_today)
 
-                elif data.message == RenameAndMoveStatus.download_completed:
-                    # Ask main application process to update prefs with stored
-                    # sequence number and downloads today values. Cannot do it
-                    # here because to save QSettings, QApplication should be
-                    # used.
-                    self.content = pickle.dumps(RenameAndMoveFileResults(
-                        stored_sequence_no=self.sequences.stored_sequence_no,
-                        downloads_today=self.downloads_today_tracker.downloads_today),
-                        pickle.HIGHEST_PROTOCOL)
-                    dl_today = self.downloads_today_tracker.get_or_reset_downloads_today()
-                    logging.debug("Downloads today: %s", dl_today)
-                    self.send_message_to_sink()
-                else:
-                    rpd_file = data.rpd_file
-                    download_count = data.download_count
-
-                    if data.download_succeeded:
-                        move_succeeded = self.process_file(rpd_file, download_count)
-                        if not move_succeeded:
-                            self.process_rename_failure(rpd_file)
-                        else:
-                            # Record file as downloaded in SQLite database
-                            self.downloaded.add_downloaded_file(name=rpd_file.name,
-                                    size=rpd_file.size,
-                                    modification_time=rpd_file.modification_time,
-                                    download_full_file_name=rpd_file.download_full_file_name)
+                    elif data.message == RenameAndMoveStatus.download_completed:
+                        # Ask main application process to update prefs with stored
+                        # sequence number and downloads today values. Cannot do it
+                        # here because to save QSettings, QApplication should be
+                        # used.
+                        self.content = pickle.dumps(RenameAndMoveFileResults(
+                            stored_sequence_no=self.sequences.stored_sequence_no,
+                            downloads_today=self.downloads_today_tracker.downloads_today),
+                            pickle.HIGHEST_PROTOCOL)
+                        dl_today = self.downloads_today_tracker.get_or_reset_downloads_today()
+                        logging.debug("Downloads today: %s", dl_today)
+                        self.send_message_to_sink()
                     else:
-                        move_succeeded = False
+                        rpd_file = data.rpd_file
+                        download_count = data.download_count
 
-                    rpd_file.metadata = None
-                    self.content = pickle.dumps(RenameAndMoveFileResults(
-                        move_succeeded=move_succeeded,
-                        rpd_file=rpd_file,
-                        download_count=download_count),
-                        pickle.HIGHEST_PROTOCOL)
-                    self.send_message_to_sink()
+                        if data.download_succeeded:
+                            move_succeeded = self.process_file(rpd_file, download_count)
+                            if not move_succeeded:
+                                self.process_rename_failure(rpd_file)
+                            else:
+                                # Record file as downloaded in SQLite database
+                                self.downloaded.add_downloaded_file(name=rpd_file.name,
+                                        size=rpd_file.size,
+                                        modification_time=rpd_file.modification_time,
+                                        download_full_file_name=rpd_file.download_full_file_name)
+                        else:
+                            move_succeeded = False
 
-                    i += 1
+                        rpd_file.metadata = None
+                        self.content = pickle.dumps(RenameAndMoveFileResults(
+                            move_succeeded=move_succeeded,
+                            rpd_file=rpd_file,
+                            download_count=download_count),
+                            pickle.HIGHEST_PROTOCOL)
+                        self.send_message_to_sink()
+
+                        i += 1
 
 
 if __name__ == '__main__':

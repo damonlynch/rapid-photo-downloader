@@ -950,8 +950,8 @@ class DeviceDelegate(QStyledItemDelegate):
         self.ignoreDeviceAct.triggered.connect(self.ignoreDevice)
         self.blacklistDeviceAct = self.contextMenu.addAction(_('Permanently ignore this device'))
         self.blacklistDeviceAct.triggered.connect(self.blacklistDevice)
-        rescanDeviceAct = self.contextMenu.addAction(_('Rescan'))
-        rescanDeviceAct.triggered.connect(self.rescanDevice)
+        self.rescanDeviceAct = self.contextMenu.addAction(_('Rescan'))
+        self.rescanDeviceAct.triggered.connect(self.rescanDevice)
         # store the index in which the user right clicked
         self.clickedIndex = None  # type: QModelIndex
 
@@ -1104,9 +1104,13 @@ class DeviceDelegate(QStyledItemDelegate):
 
                 scan_id = index.data(Roles.scan_id)
                 device_type = index.data(Roles.device_type)
+                downloading = self.rapidApp.devices.downloading
 
-                self.ignoreDeviceAct.setEnabled(device_type != DeviceType.path)
-                self.blacklistDeviceAct.setEnabled(device_type != DeviceType.path)
+                self.ignoreDeviceAct.setEnabled(device_type != DeviceType.path and
+                                                scan_id not in downloading)
+                self.blacklistDeviceAct.setEnabled(device_type != DeviceType.path and
+                                                   scan_id not in downloading)
+                self.rescanDeviceAct.setEnabled(scan_id not in downloading)
 
                 view = self.rapidApp.mapView(scan_id)
                 globalPos = view.viewport().mapToGlobal(event.pos())

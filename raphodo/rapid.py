@@ -1682,6 +1682,8 @@ class RapidWindow(QMainWindow):
 
             enabled = files_marked and download_destinations_good
 
+            #TODO if a download is actually running now, the download button should never be
+            # disabled
             self.downloadAct.setEnabled(enabled)
             self.downloadButton.setEnabled(enabled)
             if files_marked:
@@ -1992,7 +1994,8 @@ class RapidWindow(QMainWindow):
 
     def resumeDownload(self) -> None:
         """
-        Resume a download after it has been paused
+        Resume a download after it has been paused, and start
+        downloading from any queued auto-start downloads
         """
 
         for scan_id in self.devices.downloading:
@@ -2003,7 +2006,10 @@ class RapidWindow(QMainWindow):
         self.dl_update_timer.start()
         self.download_start_time = time.time()
         self.setDownloadActionLabel()
-        self.immeidatelyDisplayDownloadRunningInStatusBar()
+        self.immediatelyDisplayDownloadRunningInStatusBar()
+        for scan_id in self.devices.queued_to_download:
+            self.startDownload(scan_id=scan_id)
+        self.devices.queued_to_download = set()  # type: Set[int]
 
     def downloadIsRunning(self) -> bool:
         """
@@ -2203,7 +2209,7 @@ class RapidWindow(QMainWindow):
 
         self.devices.set_device_state(scan_id, DeviceState.downloading)
         self.updateProgressBarState()
-        self.immeidatelyDisplayDownloadRunningInStatusBar()
+        self.immediatelyDisplayDownloadRunningInStatusBar()
 
         #TODO implement check for not paused
         if not self.dl_update_timer.isActive():
@@ -2580,7 +2586,7 @@ class RapidWindow(QMainWindow):
                 self.download_start_datetime = None
                 self.download_start_time = None
 
-    def immeidatelyDisplayDownloadRunningInStatusBar(self):
+    def immediatelyDisplayDownloadRunningInStatusBar(self):
         """
         Without any delay, immediately change the status bar message so the
         user knows the download has started.
@@ -2590,6 +2596,9 @@ class RapidWindow(QMainWindow):
 
     @pyqtSlot()
     def displayDownloadRunningInStatusBar(self):
+        """
+        Display a message in the status bar about the current download
+        """
 
         updated, download_speed = self.time_check.update_download_speed()
         if updated:
@@ -2614,8 +2623,8 @@ class RapidWindow(QMainWindow):
 
         :param enabled: if True, then the user is able to activate the
         preferences and refresh commands.
-
         """
+
         self.refreshAct.setEnabled(enabled)
         self.preferencesAct.setEnabled(enabled)
 
@@ -2624,7 +2633,8 @@ class RapidWindow(QMainWindow):
         Cameras are already unmounted, so no need to unmount them!
         :param scan_id: the scan id of the device to be umounted
         """
-        device = self.devices[scan_id] # type: Device
+
+        device = self.devices[scan_id]  # type: Device
 
         if device.device_type == DeviceType.volume:
             #TODO implement device unmounting
@@ -3133,7 +3143,10 @@ class RapidWindow(QMainWindow):
                 model.setSpinnerState(scan_id, DeviceState.idle)
                 self.job_code.get_job_code()
             else:
-                self.startDownload(scan_id=scan_id)
+                if self.downloadPaused():
+                    self.devices.queued_to_download.add(scan_id)
+                else:
+                    self.startDownload(scan_id=scan_id)
         else:
             # not generating thumbnails, and auto start is not on
             model.setSpinnerState(scan_id, DeviceState.idle)

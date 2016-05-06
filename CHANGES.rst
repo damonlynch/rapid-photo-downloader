@@ -71,7 +71,10 @@ Changelog for Rapid Photo Downloader
      have been downloaded, which means they will have thumbnails in programs like
      Gnome Files, Nemo, Caja, Thunar, PCManFM and Dolphin. If the path files are being
      downloaded to contains symbolic links, a thumbnail will be created for the
-     path with and without the links.
+     path with and without the links. While generating these thumbnails does slow the
+     download process a little, it's a worthwhile tradeoff because Linux desktops
+     typically do not generate thumbnails for RAW images, and thumbnails only for
+     small TIFFs.
 
    - The program can now handle hundreds of thousands of files at a time.
      
@@ -95,8 +98,11 @@ Changelog for Rapid Photo Downloader
    - When running under Ubuntu's Unity desktop, a progress bar and count of files
      available for download is displayed on the program's launcher.
 
+   - Status bar messages have been significantly revamped.
+
    - The time remaining until a download is complete (which is shown in the status
-     bar) is more stable and more accurate.
+     bar) is more stable and more accurate. The algorithm is modelled on that
+     used by Mozilla.
 
    - The installer has been totally rewritten to take advantage of Python's
      tool pip, which installs Python packages. Rapid Photo Downloader can now
@@ -134,7 +140,7 @@ Changelog for Rapid Photo Downloader
 
  - Please note if you use a system monitor that displays network activity,
    don't be alarmed if it shows increased local network activity while the
-   program is running. The program sets uses ZeroMQ over TCP/IP for its
+   program is running. The program uses ZeroMQ over TCP/IP for its
    interprocess messaging. Rapid Photo Downloader's network traffic is
    strictly between its own processes, all running solely on your computer.
    
@@ -151,7 +157,7 @@ Changelog for Rapid Photo Downloader
    
    - There is no error log window.
 
-   - Most main menu items do nothing.
+   - Some main menu items do nothing.
 
    - Files can only be copied, not moved.
 

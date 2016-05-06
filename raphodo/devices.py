@@ -356,16 +356,24 @@ class DeviceCollection:
         self.devices = {}  # type: Dict[int, Device]
         # port: model
         self.cameras = {}  # type: Dict[str, str]
+
+        # Used to assign scan ids
         self.scan_counter = 0  # type: int
+
         # scan_id: DeviceState
         self.device_state = {}  # type: Dict[int, DeviceState]
+
         # Track which devices are being scanned, by scan_id
         self.scanning = set()  # type: Set[int]
         # Track which downloads are running, by scan_id
+
         self.downloading = set()  # type: Set[int]
         # Track which devices have been downloaded from during one
-        # download, by scan_id
+        # download, by display name. Must do it by display name
+        # because some devices could be removed before all devices
+        # have been downloaded from.
         self.have_downloaded_from = set()  # type: Set[str]
+
         # Track which devices are thumbnailing, by scan_id
         self.thumbnailing = set()  # type: Set[int]
 
@@ -382,6 +390,10 @@ class DeviceCollection:
         self.ignored_cameras = {}  # type: Dict[str, str]
         # List[path]
         self.ignored_volumes = []  # type: List[str]
+
+        # Devices that were set to autodownload while the program
+        # is in a paused state
+        self.queued_to_download = set()  # type: Set[int]
 
         self.volumes_and_cameras = set()
         self.this_computer = set()
@@ -644,6 +656,8 @@ class DeviceCollection:
             self.scanning.remove(scan_id)
         if scan_id in self.downloading:
             self.downloading.remove(scan_id)
+        if scan_id in self.queued_to_download:
+            self.queued_to_download.remove(scan_id)
         if scan_id in self.thumbnailing:
             self.thumbnailing.remove(scan_id)
         if scan_id in self.cameras_to_gvfs_unmount_for_download:

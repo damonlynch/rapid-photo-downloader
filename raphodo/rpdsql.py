@@ -141,7 +141,8 @@ class ThumbnailRowsSQL:
                      marked: Optional[bool]=None,
                      extensions: Optional[List[str]]=None,
                      proximity_col1: Optional[List[int]]=None,
-                     proximity_col2: Optional[List[int]]=None) -> Tuple[str, Tuple[Any]]:
+                     proximity_col2: Optional[List[int]]=None,
+                     exclude_scan_ids: Optional[List[int]]=None) -> Tuple[str, Tuple[Any]]:
 
         where_clauses = []
         where_values = []
@@ -173,8 +174,17 @@ class ThumbnailRowsSQL:
                 where_clauses.append('extension=?')
                 where_values.append(extensions[0])
             else:
-                where_clauses.append('extension in ({})'.format(','.join('?' * len(extensions))))
+                where_clauses.append('extension IN ({})'.format(','.join('?' * len(extensions))))
                 where_values.extend(extensions)
+
+        if exclude_scan_ids is not None:
+            if len(exclude_scan_ids) == 1:
+                where_clauses.append(('scan_id!=?'))
+                where_values.append(exclude_scan_ids[0])
+            else:
+                where_clauses.append('scan_id NOT IN ({})'.format(','.join('?' * len(
+                                                                            exclude_scan_ids))))
+                where_values.extend(exclude_scan_ids)
 
         for p, col_name in ((proximity_col1, 'proximity_col1'), (proximity_col2, 'proximity_col2')):
             if not p:
@@ -235,18 +245,19 @@ class ThumbnailRowsSQL:
                  show: Optional[Show]=None,
                  previously_downloaded: Optional[bool]=None,
                  downloaded: Optional[bool]=None,
-                 file_type: Optional[FileType] = None,
-                 marked: Optional[bool] = None,
-                 proximity_col1: Optional[List[int]] = None,
-                 proximity_col2: Optional[List[int]] = None,
+                 file_type: Optional[FileType]=None,
+                 marked: Optional[bool]=None,
+                 proximity_col1: Optional[List[int]]=None,
+                 proximity_col2: Optional[List[int]]=None,
+                 exclude_scan_ids: Optional[List[int]]=None,
                  return_file_name=False) -> List[bytes]:
-
 
         where, where_values = self._build_where(scan_id=scan_id, show=show,
                                                 previously_downloaded=previously_downloaded,
                                                 downloaded=downloaded, file_type=file_type,
                                                 marked=marked, proximity_col1=proximity_col1,
-                                                proximity_col2=proximity_col2)
+                                                proximity_col2=proximity_col2,
+                                                exclude_scan_ids=exclude_scan_ids)
 
         if return_file_name:
             query = 'SELECT file_name FROM files'
@@ -792,18 +803,6 @@ if __name__ == '__main__':
     d.set_marked(uid, False)
     d.set_downloaded(uid, True)
 
-    # print(d.get_view(sort_by=Sort.modification_time, sort_order=Qt.AscendingOrder, show=Show.all,
-    #                  proximity_col1=-1, proximity_col2=-1))
-    #
-    # print(d.get_view(sort_by=Sort.file_type, sort_order=Qt.DescendingOrder, show=Show.all,
-    #                  proximity_col1=-1, proximity_col2=-1))
-    #
-    # print(d.get_view(sort_by=Sort.checked_state, sort_order=Qt.AscendingOrder, show=Show.all,
-    #                  proximity_col1=-1, proximity_col2=-1))
-    #
-    # print(d.get_view(sort_by=Sort.modification_time, sort_order=Qt.AscendingOrder, show=Show.new_only,
-    #                  proximity_col1=-1, proximity_col2=-1))
-
     print(d.get_view(sort_by=Sort.device, sort_order=Qt.DescendingOrder, show=Show.all))
 
     print(d.get_uids_for_device(0))
@@ -815,7 +814,9 @@ if __name__ == '__main__':
     print(d.get_uids(downloaded=False, return_file_name=True))
     print(d.get_uids(downloaded=True, return_file_name=True))
     print(d.get_uids(file_type=FileType.video, return_file_name=True))
+    print("next two lines should be identical")
     print(d.get_uids(scan_id=0, file_type=FileType.photo, return_file_name=True))
+    print(d.get_uids(exclude_scan_ids=[1,], file_type=FileType.photo, return_file_name=True))
     print(d.get_uids(previously_downloaded=False, return_file_name=True))
     print(d.get_count(scan_id=0))
     print(d.get_count(previously_downloaded=True))

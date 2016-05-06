@@ -851,11 +851,13 @@ class ThumbnailListModel(QAbstractListModel):
     def getCountNotPreviouslyDownloadedAvailableForDownload(self) -> int:
         return self.tsql.get_count(previously_downloaded=False, downloaded=False)
 
-    def getFilesMarkedForDownload(self, scan_id: int) -> DownloadFiles:
+    def getFilesMarkedForDownload(self, scan_id: Optional[int]) -> DownloadFiles:
         """
         Returns a dict of scan ids and associated files the user has
         indicated they want to download, and whether there are photos
         or videos included in the download.
+
+        Exclude files from which a device is still scanning.
 
         :param scan_id: if not None, then returns those files only from
         the device associated with that scan_id
@@ -864,12 +866,18 @@ class ThumbnailListModel(QAbstractListModel):
         and defaultdict() indexed by scan_id with value DownloadStats
         """
 
+        if scan_id is None:
+            exclude_scan_ids = list(self.rapidApp.devices.scanning)
+        else:
+            exclude_scan_ids = None
+
         files = defaultdict(list)
         download_types = DownloadTypes()
         download_stats = defaultdict(DownloadStats)
         camera_access_needed = defaultdict(bool)
 
-        uids = self.tsql.get_uids(scan_id=scan_id, marked=True, downloaded=False)
+        uids = self.tsql.get_uids(scan_id=scan_id, marked=True, downloaded=False,
+                                  exclude_scan_ids=exclude_scan_ids)
 
         for uid in uids:
             rpd_file = self.rpd_files[uid] # type: RPDFile
