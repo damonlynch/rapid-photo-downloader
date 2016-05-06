@@ -70,6 +70,10 @@ Downloaded = (DownloadStatus.downloaded,
 DownloadWarning = {DownloadStatus.downloaded_with_warning, DownloadStatus.backup_problem}
 DownloadFailure = {DownloadStatus.download_and_backup_failed, DownloadStatus.download_failed}
 
+DownloadUpdateMilliseconds = 1000
+DownloadUpdateSeconds = DownloadUpdateMilliseconds / 1000
+# How many seconds to delay showing the time remaining and download speed
+ShowTimeAndSpeedDelay = 8.0
 
 class ThumbnailCacheStatus(Enum):
     not_ready = 1

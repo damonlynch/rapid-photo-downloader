@@ -45,7 +45,7 @@ from raphodo.constants import (DeviceType, BackupLocationType, FileType, DeviceS
 from raphodo.rpdfile import FileTypeCounter, FileSizeSum
 from raphodo.storage import StorageSpace, udev_attributes, UdevAttr
 from raphodo.camera import Camera, generate_devname
-from raphodo.utilities import number
+from raphodo.utilities import number, make_internationalized_list
 
 display_devices = (DeviceType.volume, DeviceType.camera)
 
@@ -363,6 +363,9 @@ class DeviceCollection:
         self.scanning = set()  # type: Set[int]
         # Track which downloads are running, by scan_id
         self.downloading = set()  # type: Set[int]
+        # Track which devices have been downloaded from during one
+        # download, by scan_id
+        self.have_downloaded_from = set()  # type: Set[str]
         # Track which devices are thumbnailing, by scan_id
         self.thumbnailing = set()  # type: Set[int]
 
@@ -475,6 +478,7 @@ class DeviceCollection:
             self.scanning.add(scan_id)
         elif state == DeviceState.downloading:
             self.downloading.add(scan_id)
+            self.have_downloaded_from.add(self.devices[scan_id].display_name)
         elif state == DeviceState.thumbnailing:
             self.thumbnailing.add(scan_id)
 
@@ -604,6 +608,27 @@ class DeviceCollection:
 
     def map_set(self, device: Device) -> Set:
         return self._map_set[device.device_type]
+
+    def downloading_from(self) -> str:
+        """
+        :return: string showing which devices are being downloaded from
+        """
+
+        display_names = [self.devices[scan_id].display_name
+                        for scan_id in self.downloading]
+        return _('Downloading from %(device_names)s') % dict(
+            device_names=make_internationalized_list(display_names))
+
+    def reset_and_return_have_downloaded_from(self) -> str:
+        """
+        Reset the set of devices that have been downloaded from,
+        and return the string that
+        :return: string showing which devices have been downloaded from
+         during this download
+        """
+        display_names = make_internationalized_list(list(self.have_downloaded_from))
+        self.have_downloaded_from = set()  # type: Set[str]
+        return display_names
 
     def __delitem__(self, scan_id: int):
         d = self.devices[scan_id]  # type: Device

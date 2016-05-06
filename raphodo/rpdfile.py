@@ -224,20 +224,33 @@ class FileTypeCounter(Counter):
     function, and display the results to the user. Only the function
     running_file_count is scan specific.
 
+    >>> locale.setlocale(locale.LC_ALL, ('en_US', 'utf-8'))
+    'en_US.UTF-8'
     >>> f = FileTypeCounter()
     >>> f.summarize_file_count()
     ('0 photos or videos', 'photos or videos')
+    >>> f.file_types_present_details()
+    ''
     >>> f[FileType.photo] += 1
     >>> f.summarize_file_count()
     ('1 photo', 'photo')
+    >>> f.file_types_present_details()
+    '1 Photo'
     >>> f[FileType.video] += 3
     >>> f
     FileTypeCounter({<FileType.video: 2>: 3, <FileType.photo: 1>: 1})
+    >>> f.file_types_present_details()
+    '1 Photo and 3 Videos'
     >>> f[FileType.photo] += 5
     >>> f
     FileTypeCounter({<FileType.photo: 1>: 6, <FileType.video: 2>: 3})
     >>> f.summarize_file_count()
     ('9 photos and videos', 'photos and videos')
+    >>> f.file_types_present_details()
+    '6 Photos and 3 Videos'
+    >>> f2 = FileTypeCounter({FileType.photo:11, FileType.video: 12})
+    >>> f2.file_types_present_details()
+    '11 Photos and 12 Videos'
     """
 
     def file_types_present(self) -> str:

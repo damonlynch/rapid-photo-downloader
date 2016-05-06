@@ -46,6 +46,7 @@ from typing import Optional, Tuple, List, Sequence, Dict, Set
 import faulthandler
 import pkg_resources
 import webbrowser
+import time
 from urllib.request import pathname2url
 
 from gettext import gettext as _
@@ -118,7 +119,7 @@ from raphodo.proximity import (TemporalProximityGroups, TemporalProximity)
 from raphodo.utilities import (same_file_system, make_internationalized_list,
                                thousands, addPushButtonLabelSpacer, format_size_for_user)
 from raphodo.rpdfile import (RPDFile, file_types_by_number, PHOTO_EXTENSIONS,
-                             VIDEO_EXTENSIONS, OTHER_PHOTO_EXTENSIONS)
+                             VIDEO_EXTENSIONS, OTHER_PHOTO_EXTENSIONS, FileTypeCounter)
 import raphodo.downloadtracker as downloadtracker
 from raphodo.cache import ThumbnailCacheSql
 from raphodo.metadataphoto import exiv2_version, gexiv2_version
@@ -140,6 +141,7 @@ from raphodo.folderspreview import DownloadDestination, FoldersPreview
 from raphodo.destinationdisplay import DestinationDisplay
 from raphodo.aboutdialog import AboutDialog
 from raphodo.jobcode import JobCode
+import raphodo.constants as constants
 
 BackupMissing = namedtuple('BackupMissing', 'photo, video')
 
@@ -457,7 +459,7 @@ class RapidWindow(QMainWindow):
             if self.prefs.device_without_dcim_autodetection:
                 logging.info("Devices do not need a DCIM folder to be scanned")
             else:
-                logging.info("For automatically detected devices, only the contents of its "
+                logging.info("For automatically detected devices, only the contents of their "
                              "DCIM folder will be scanned")
 
         if this_computer_source is not None:
@@ -723,18 +725,20 @@ class RapidWindow(QMainWindow):
         # Track the creation of temporary directories
         self.temp_dirs_by_scan_id = {}
 
-        # Track the time a download commences
-        self.download_start_time = None
-
-        # Whether a system wide notification message should be shown
-        # after a download has occurred in parallel
-        self.display_summary_notification = False
+        # Track the time a download commences - used in file renaming
+        self.download_start_datetime = None  # type: Optional[datetime.datetime]
+        # The timestamp for when a download started / resumed after a pause
+        self.download_start_time = None  # type: Optional[float]
 
         self.download_tracker = downloadtracker.DownloadTracker()
 
         # Values used to display how much longer a download will take
         self.time_remaining = downloadtracker.TimeRemaining()
         self.time_check = downloadtracker.TimeCheck()
+
+        self.dl_update_timer = QTimer(self)
+        self.dl_update_timer.setInterval(constants.DownloadUpdateMilliseconds)
+        self.dl_update_timer.timeout.connect(self.displayDownloadRunningInStatusBar)
 
         # Offload process is used to offload work that could otherwise
         # cause this process and thus the GUI to become unresponsive
@@ -1695,7 +1699,7 @@ class RapidWindow(QMainWindow):
         """
 
         if self.devices.downloading:
-            if self.copyfilesmq.paused:
+            if self.downloadPaused():
                 text = _("Resume Download")
             else:
                 text = _("Pause")
@@ -1980,9 +1984,11 @@ class RapidWindow(QMainWindow):
         Pause the copy files processes
         """
 
+        self.dl_update_timer.stop()
         self.copyfilesmq.pause()
         self.setDownloadActionLabel()
         self.time_check.pause()
+        self.displayMessageInStatusBar()
 
     def resumeDownload(self) -> None:
         """
@@ -1993,8 +1999,11 @@ class RapidWindow(QMainWindow):
             self.time_remaining.set_time_mark(scan_id)
 
         self.time_check.set_download_mark()
-
         self.copyfilesmq.resume()
+        self.dl_update_timer.start()
+        self.download_start_time = time.time()
+        self.setDownloadActionLabel()
+        self.immeidatelyDisplayDownloadRunningInStatusBar()
 
     def downloadIsRunning(self) -> bool:
         """
@@ -2011,6 +2020,9 @@ class RapidWindow(QMainWindow):
                 return False
         else:
             return True
+
+    def downloadPaused(self) -> bool:
+        return self.copyfilesmq.paused
 
     def startDownload(self, scan_id: int=None) -> None:
         """
@@ -2109,10 +2121,15 @@ class RapidWindow(QMainWindow):
             # and provisional folders rebuild - download takes priority
             self.ctime_notification_issued = False
 
-            # set time download is starting if it is not already set
+            # Set time download is starting if it is not already set
             # it is unset when all downloads are completed
+            # It is used in file renaming
+            if self.download_start_datetime is None:
+                self.download_start_datetime = datetime.datetime.now()
+            # The download start time (not datetime) is used to determine
+            # when to show the time remaining and download speed in the status bar
             if self.download_start_time is None:
-                self.download_start_time = datetime.datetime.now()
+                self.download_start_time = time.time()
 
             # Set status to download pending
             self.thumbnailModel.markDownloadPending(download_files.files)
@@ -2186,13 +2203,12 @@ class RapidWindow(QMainWindow):
 
         self.devices.set_device_state(scan_id, DeviceState.downloading)
         self.updateProgressBarState()
+        self.immeidatelyDisplayDownloadRunningInStatusBar()
 
-        # TODO should remove thumbnailing message, somewhere!
+        #TODO implement check for not paused
+        if not self.dl_update_timer.isActive():
+            self.dl_update_timer.start()
 
-        if len(self.devices.downloading) > 1:
-            # Display an additional notification once all devices have been
-            # downloaded from that summarizes the downloads.
-            self.display_summary_notification = True
 
         if self.autoStart(scan_id) and self.prefs.generate_thumbnails:
             for rpd_file in files:
@@ -2268,7 +2284,7 @@ class RapidWindow(QMainWindow):
 
         self.download_tracker.set_download_count_for_file(rpd_file.uid, download_count)
         self.download_tracker.set_download_count(rpd_file.scan_id, download_count)
-        rpd_file.download_start_time = self.download_start_time
+        rpd_file.download_start_time = self.download_start_datetime
         rpd_file.job_code = self.job_code.job_code
         data = RenameAndMoveFileData(rpd_file=rpd_file,
                                      download_count=download_count,
@@ -2448,7 +2464,8 @@ class RapidWindow(QMainWindow):
 
         :return True if the download is completed for that scan_id,
         and the number of files remaining for the scan_id, BUT
-        this value is valid ONLY if the download is completed
+        the files remaining value is valid ONLY if the download is
+         completed
         """
 
         files_downloaded = self.download_tracker.get_download_count_for_file(uid)
@@ -2497,8 +2514,8 @@ class RapidWindow(QMainWindow):
 
         completed, files_remaining = self.updateFileDownloadDeviceProgress(scan_id, uid)
 
-        if self.downloadIsRunning():
-            self.updateTimeRemaining()
+        # if self.downloadIsRunning():
+        #     self.updateTimeRemaining()
 
         if completed:
             device_finished = files_remaining == 0
@@ -2537,6 +2554,7 @@ class RapidWindow(QMainWindow):
 
             if not self.downloadIsRunning():
                 logging.debug("Download completed")
+                self.dl_update_timer.stop()
                 self.enablePrefsAndRefresh(enabled=True)
                 self.notifyDownloadComplete()
                 self.downloadProgressBar.reset()
@@ -2554,26 +2572,33 @@ class RapidWindow(QMainWindow):
                         self.quit()
 
                 self.download_tracker.purge_all()
-                # self.speed_label.set_label(" ")
-
-                self.displayMessageInStatusBar()
 
                 self.setDownloadActionLabel()
                 self.setDownloadCapabilities()
 
                 self.job_code.job_code = ''
+                self.download_start_datetime = None
                 self.download_start_time = None
 
-    def updateTimeRemaining(self):
-        update, download_speed = self.time_check.check_for_update()
-        if update:
-            display_names = [self.devices[scan_id].display_name
-                            for scan_id in self.devices.downloading]
-            downloading = _('Downloading from %(device_names)s') % dict(
-                device_names=make_internationalized_list(display_names))
+    def immeidatelyDisplayDownloadRunningInStatusBar(self):
+        """
+        Without any delay, immediately change the status bar message so the
+        user knows the download has started.
+        """
+
+        self.statusBar().showMessage(self.devices.downloading_from())
+
+    @pyqtSlot()
+    def displayDownloadRunningInStatusBar(self):
+
+        updated, download_speed = self.time_check.update_download_speed()
+        if updated:
+
+            downloading = self.devices.downloading_from()
 
             time_remaining = self.time_remaining.time_remaining(self.prefs.detailed_time_remaining)
-            if time_remaining is None:
+            if (time_remaining is None or
+                    time.time() < self.download_start_time + constants.ShowTimeAndSpeedDelay):
                 message = downloading
             else:
                 # Translators - in the middle is a unicode em dash - please retain it
@@ -2618,12 +2643,13 @@ class RapidWindow(QMainWindow):
         # TODO should assign this to a process or a thread, and delete then
         to_delete = self.download_tracker.get_files_to_auto_delete(scan_id)
 
-    def notifyDownloadedFromDevice(self, scan_id: int):
+    def notifyDownloadedFromDevice(self, scan_id: int) -> None:
         """
         Display a system notification to the user using libnotify
         that the files have been downloaded from the device
         :param scan_id: identifies which device
         """
+
         device = self.devices[scan_id]
 
         if device.device_type == DeviceType.path:
@@ -2670,75 +2696,138 @@ class RapidWindow(QMainWindow):
             try:
                 message_shown =  n.show()
             except:
-                logging.error("Unable to display message using notification system")
+                logging.error("Unable to display downloaded from device message using notification "
+                              "system")
             if not message_shown:
+                logging.error("Unable to display downloaded from device message using notification "
+                              "system")
                 logging.info("{}: {}".format(notification_name, message))
 
-
     def notifyDownloadComplete(self) -> None:
-        if self.display_summary_notification:
-            message = _("All downloads complete")
+        """
+        Notify all downloads are complete
 
-            # photo downloads
-            photo_downloads = self.download_tracker.total_photos_downloaded
-            if photo_downloads:
-                filetype = file_types_by_number(photo_downloads, 0)
-                message += "\n" + _("%(number)s %(numberdownloaded)s") % \
-                                  {'number': photo_downloads,
-                                   'numberdownloaded': _(
-                                       "%(filetype)s downloaded") % \
-                                                       {'filetype': filetype}}
+        If having downloaded from more than one device, display a
+        system notification to the user using libnotify that all files
+        have been downloaded.
 
-            # photo failures
-            photo_failures = self.download_tracker.total_photo_failures
-            if photo_failures:
-                filetype = file_types_by_number(photo_failures, 0)
-                message += "\n" + _("%(number)s %(numberdownloaded)s") % \
-                                  {'number': photo_failures,
-                                   'numberdownloaded': _(
-                                       "%(filetype)s failed to download") % \
-                                                       {'filetype': filetype}}
+        Regardless of how many downloads have been downloaded
+        from, display message in status bar.
+        """
 
-            # video downloads
-            video_downloads = self.download_tracker.total_videos_downloaded
-            if video_downloads:
-                filetype = file_types_by_number(0, video_downloads)
-                message += "\n" + _("%(number)s %(numberdownloaded)s") % \
-                                  {'number': video_downloads,
-                                   'numberdownloaded': _(
-                                       "%(filetype)s downloaded") % \
-                                                       {'filetype': filetype}}
+        show_notification = len(self.devices.have_downloaded_from) > 1
 
-            # video failures
-            video_failures = self.download_tracker.total_video_failures
-            if video_failures:
-                filetype = file_types_by_number(0, video_failures)
-                message += "\n" + _("%(number)s %(numberdownloaded)s") % \
-                                  {'number': video_failures,
-                                   'numberdownloaded': _(
-                                       "%(filetype)s failed to download") % \
-                                                       {'filetype': filetype}}
+        n_message = _("All downloads complete")
+        sb_message = ''
 
-            # warnings
-            warnings = self.download_tracker.total_warnings
-            if warnings:
-                message += "\n" + _("%(number)s %(numberdownloaded)s") % \
-                            {'number': warnings,
-                            'numberdownloaded': _("warnings")}
+        # photo downloads
+        photo_downloads = self.download_tracker.total_photos_downloaded
+        if photo_downloads and show_notification:
+            filetype = file_types_by_number(photo_downloads, 0)
+            n_message += "\n" + _("%(number)s %(numberdownloaded)s") % \
+                              {'number': photo_downloads,
+                               'numberdownloaded': _(
+                                   "%(filetype)s downloaded") % \
+                                                   {'filetype': filetype}}
 
+        # photo failures
+        photo_failures = self.download_tracker.total_photo_failures
+        if photo_failures and show_notification:
+            filetype = file_types_by_number(photo_failures, 0)
+            n_message += "\n" + _("%(number)s %(numberdownloaded)s") % \
+                              {'number': photo_failures,
+                               'numberdownloaded': _(
+                                   "%(filetype)s failed to download") % \
+                                                   {'filetype': filetype}}
+
+        # video downloads
+        video_downloads = self.download_tracker.total_videos_downloaded
+        if video_downloads and show_notification:
+            filetype = file_types_by_number(0, video_downloads)
+            n_message += "\n" + _("%(number)s %(numberdownloaded)s") % \
+                              {'number': video_downloads,
+                               'numberdownloaded': _(
+                                   "%(filetype)s downloaded") % \
+                                                   {'filetype': filetype}}
+
+        # video failures
+        video_failures = self.download_tracker.total_video_failures
+        if video_failures and show_notification:
+            filetype = file_types_by_number(0, video_failures)
+            n_message += "\n" + _("%(number)s %(numberdownloaded)s") % \
+                              {'number': video_failures,
+                               'numberdownloaded': _(
+                                   "%(filetype)s failed to download") % \
+                                                   {'filetype': filetype}}
+
+        # warnings
+        warnings = self.download_tracker.total_warnings
+        if warnings and show_notification:
+            n_message += "\n" + _("%(number)s %(numberdownloaded)s") % \
+                        {'number': warnings,
+                        'numberdownloaded': _("warnings")}
+
+        if show_notification:
             message_shown = False
             if self.have_libnotify:
-                n = Notify.Notification.new(_('Rapid Photo Downloader'), message,
+                n = Notify.Notification.new(_('Rapid Photo Downloader'), n_message,
                                             'rapid-photo-downloader')
                 try:
                     message_shown = n.show()
                 except:
-                    logging.error("Unable to display message using notification system")
+                    logging.error("Unable to display download complete message using notification "
+                                  "system")
             if not message_shown:
-                logging.info(message)
+                logging.error("Unable to display download complete message using notification "
+                              "system")
+                logging.info(n_message)
 
-            # don't show summary again unless needed
-            self.display_summary_notification = False
+        failures = photo_failures + video_failures
+
+        if failures == 1:
+            f = _('1 failure')
+        elif failures > 1:
+            f = _('%d failures') % failures
+        else:
+            f = ''
+
+        if warnings == 1:
+            w = _('1 warning')
+        elif warnings > 1:
+            w = _('%d warnings') % warnings
+        else:
+            w = ''
+
+        if f and w:
+            fw = make_internationalized_list((f, w))
+        elif f:
+            fw = f
+        elif w:
+            fw = w
+        else:
+            fw = ''
+
+        devices = self.devices.reset_and_return_have_downloaded_from()
+        if photo_downloads + video_downloads:
+            ftc = FileTypeCounter(
+                    {FileType.photo: photo_downloads, FileType.video: video_downloads})
+            no_files_and_types = ftc.file_types_present_details().lower()
+
+            if not fw:
+                downloaded = _('Downloaded %(no_files_and_types)s from %(devices)s') % dict(
+                    no_files_and_types=no_files_and_types,
+                    devices=devices)
+            else:
+                downloaded = _('Downloaded %(no_files_and_types)s from %(devices)s — %(failures)s')\
+                             % dict(no_files_and_types=no_files_and_types,
+                                    devices=devices, failures=fw)
+        else:
+            if fw:
+                downloaded = _('No files downloaded — %failures)s') % dict(failures=fw)
+            else:
+                downloaded = _('No files downloaded')
+        logging.info('%s', downloaded)
+        self.statusBar().showMessage(downloaded)
 
     def notifyFoldersProximityRebuild(self, scan_id) -> None:
         """
@@ -4018,9 +4107,15 @@ class RapidWindow(QMainWindow):
         """
 
         if self.downloadIsRunning():
-            # status message updates while downloading are handled in another function
-            return
-        if self.devices.thumbnailing:
+            if self.downloadPaused():
+                downloading = self.devices.downloading_from()
+                # Translators - in the middle is a unicode em dash - please retain it
+                # This string is displayed in the status bar when the download is paused
+                msg = '%(downloading_from)s — download paused' % dict(downloading_from=downloading)
+            else:
+                # status message updates while downloading are handled in another function
+                return
+        elif self.devices.thumbnailing:
             devices = [self.devices[scan_id].display_name for scan_id in self.devices.thumbnailing]
             msg = _("Generating thumbnails for %s") % make_internationalized_list(devices)
         elif self.devices.scanning:

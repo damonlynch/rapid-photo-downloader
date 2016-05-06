@@ -24,11 +24,11 @@ import time
 import math
 import locale
 import logging
-from typing import Optional, Dict, List
+from typing import Optional, Dict, List, Tuple
 
 from gettext import gettext as _
 
-from raphodo.constants import DownloadStatus, FileType
+from raphodo.constants import DownloadStatus, FileType, DownloadUpdateSeconds
 from raphodo.thumbnaildisplay import DownloadStats
 
 
@@ -308,9 +308,9 @@ class TimeCheck:
 
     def __init__(self):
         # set the number of seconds gap with which to measure download time remaing
-        self.download_time_gap = 1.0
         self.reset()
         self.mpbs = _("MB/sec")
+        self.time_gap = DownloadUpdateSeconds / 2
 
     def reset(self):
         self.mark_set = False
@@ -330,11 +330,11 @@ class TimeCheck:
     def pause(self):
         self.mark_set = False
 
-    def check_for_update(self):
+    def update_download_speed(self) -> Tuple[bool, str]:
         now = time.time()
-        update = now > (self.download_time_gap + self.time_mark)
+        updated = now > (self.time_gap + self.time_mark)
 
-        if update:
+        if updated:
             amt_time = now - self.time_mark
             self.time_mark = now
             amt_downloaded = self.total_downloaded_so_far - self.size_mark
@@ -343,13 +343,13 @@ class TimeCheck:
             if self.smoothed_speed is None:
                 self.smoothed_speed = speed
             else:
-                # smooth speed across ten readings
-                self.smoothed_speed = self.smoothed_speed * .9 + speed * .1
+                # smooth speed across fifteen readings
+                self.smoothed_speed = (self.smoothed_speed * 14 + speed) / 15
             download_speed = "%1.1f %s" % (self.smoothed_speed, self.mpbs)
         else:
             download_speed = None
 
-        return (update, download_speed)
+        return (updated, download_speed)
 
 class TimeForDownload:
     def __init__(self, size: int) -> None:
@@ -373,7 +373,6 @@ class TimeRemaining:
     speed for the download as a whole.
     """
 
-    download_time_gap = 1.0
     def __init__(self) -> None:
         self.clear()
 
@@ -390,7 +389,7 @@ class TimeRemaining:
             tm = t.time_mark
             amt_time = now - tm
 
-            if amt_time > self.download_time_gap:
+            if amt_time > DownloadUpdateSeconds:
 
                 amt_downloaded = t.total_downloaded_so_far - t.size_mark
                 t.size_mark = t.total_downloaded_so_far
@@ -419,10 +418,13 @@ class TimeRemaining:
 
     def time_remaining(self, detailed_time_remaining: bool) -> Optional[str]:
         """
+        Return the time remaining to download by taking the largest
+        value of all the devices being downloaded from.
 
         :param detailed_time_remaining: if True, don't limit the precision
          of the result return
-        :return: time remaining in string format
+        :return: Time remaining in string format. Returns None if the
+        time remaining is unknown.
         """
 
         time_remaining = max(t.time_remaining for t in self.times.values())
