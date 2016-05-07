@@ -362,8 +362,12 @@ class ThumbnailRowsSQL:
         rows = self.conn.execute(query, (scan_id, )).fetchall()
         return [row[0] for row in rows]
 
-    def any_files_marked(self) -> bool:
-        row = self.conn.execute('SELECT uid FROM files WHERE marked=1 LIMIT 1').fetchone()
+    def any_files_marked(self, scan_id: Optional[int]=None) -> bool:
+        if scan_id is None:
+            row = self.conn.execute('SELECT uid FROM files WHERE marked=1 LIMIT 1').fetchone()
+        else:
+            row = self.conn.execute('SELECT uid FROM files WHERE marked=1 AND scan_id=? LIMIT 1',
+                                    (scan_id, )).fetchone()
         return row is not None
 
     def any_files_to_download(self, scan_id: Optional[int]=None) -> bool:
@@ -372,6 +376,22 @@ class ThumbnailRowsSQL:
                                     'LIMIT 1', (scan_id,)).fetchone()
         else:
             row = self.conn.execute('SELECT uid FROM files WHERE downloaded=0 LIMIT 1').fetchone()
+        return row is not None
+
+    def any_files(self, scan_id: Optional[int]=None) -> bool:
+        """
+        Determine if there are any files associated with this scan_id, of if no scan_id
+        is specified, any file at all
+
+        :param scan_id: optional device to check
+        :return: True if found, else False
+        """
+
+        if scan_id is not None:
+            row = self.conn.execute('SELECT uid FROM files WHERE scan_id=? LIMIT 1',
+                                    (scan_id,)).fetchone()
+        else:
+            row = self.conn.execute('SELECT uid FROM files LIMIT 1').fetchone()
         return row is not None
 
     def any_files_with_extensions(self, scan_id: int, extensions: List[str]) -> bool:

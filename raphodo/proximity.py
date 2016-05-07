@@ -1590,7 +1590,8 @@ class TemporalProximity(QWidget):
             else:
                 logging.error("Unexpected request to set Timeline state to %s because current "
                               "state is %s", state.name, self.state.name)
-        elif self.state == TemporalProximityState.ctime_rebuild:
+        elif self.state == TemporalProximityState.ctime_rebuild and state != \
+                TemporalProximityState.empty:
             logging.debug("Ignoring request to set timeline state to %s because current "
                           "state is ctime rebuild", state.name)
             return

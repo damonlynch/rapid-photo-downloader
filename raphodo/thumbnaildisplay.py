@@ -732,12 +732,13 @@ class ThumbnailListModel(QAbstractListModel):
             del self.thumbnails[uid]
             del self.rpd_files[uid]
 
-    def clearAll(self, scan_id: Optional[int]=None, keep_downloaded_files: bool=False) -> None:
+    def clearAll(self, scan_id: Optional[int]=None, keep_downloaded_files: bool=False) -> bool:
         """
         Removes files from display and internal tracking.
 
         If scan_id is not None, then only files matching that scan_id
-        will be removed. Otherwise, everything will be removed.
+        will be removed. Otherwise, everything will be removed, regardless of
+        the keep_downloaded_files parameter..
 
         If keep_downloaded_files is True, files will not be removed if
         they have been downloaded.
@@ -748,13 +749,24 @@ class ThumbnailListModel(QAbstractListModel):
 
         :param scan_id: if None, keep_downloaded_files must be False
         :param keep_downloaded_files: don't remove thumbnails if they represent
-         files that have now been downloaded
+         files that have now been downloaded. Ignored if no device is passed.
+        :return: True if any thumbnail was removed (irrespective of whether
+        it was displayed at this moment), else False
         """
+
         if scan_id is None and not keep_downloaded_files:
+            files_removed = self.tsql.any_files()
+            logging.debug("Clearing all thumbnails for all devices")
             self.initialize()
-            return True
+            return files_removed
         else:
             assert scan_id is not None
+
+            if not keep_downloaded_files:
+                files_removed = self.tsql.any_files(scan_id=scan_id)
+            else:
+                files_removed = self.tsql.any_files_to_download(scan_id=scan_id)
+
             if keep_downloaded_files:
                 logging.debug("Clearing all non-downloaded thumbnails for scan id %s", scan_id)
             else:
@@ -803,6 +815,8 @@ class ThumbnailListModel(QAbstractListModel):
 
             # self.validateModelConsistency()
 
+            return files_removed
+
     def clearCompletedDownloads(self) -> None:
         logging.debug("Clearing all completed download thumbnails")
 
@@ -816,16 +830,17 @@ class ThumbnailListModel(QAbstractListModel):
         logging.debug("Removing %s thumbnail and rpd_files rows", len(uids))
         self.purgeRpdFiles(uids)
 
-    def filesAreMarkedForDownload(self) -> bool:
+    def filesAreMarkedForDownload(self, scan_id: Optional[int]=None) -> bool:
         """
         Checks for the presence of checkmark besides any file that has
         not yet been downloaded.
 
+        :param: scan_id: if specified, only for that device
         :return: True if there is any file that the user has indicated
         they intend to download, else False.
         """
 
-        return self.tsql.any_files_marked()
+        return self.tsql.any_files_marked(scan_id=scan_id)
 
     def getNoFilesMarkedForDownload(self) -> int:
         return self.tsql.get_count(marked=True)

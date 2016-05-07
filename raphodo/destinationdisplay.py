@@ -86,7 +86,8 @@ class DestinationDisplay(QWidget):
                               photos_size: int,
                               videos_size: int,
                               files_to_display: DisplayingFilesOfType,
-                              display_type: DestinationDisplayType) -> None:
+                              display_type: DestinationDisplayType,
+                              merge: bool) -> None:
         """
         Set the attributes used to generate the visual display of the
         files marked to be downloaded
@@ -97,11 +98,18 @@ class DestinationDisplay(QWidget):
         :param files_to_display: whether displaying photos or videos or both
         :param display_type: whether showing only the header (folder only),
          usage only, or both
+        :param merge: whether to replace or add to the current values
         """
 
-        self.marked = marked
-        self.photos_size_to_download = photos_size
-        self.videos_size_to_download = videos_size
+        if not merge:
+            self.marked = marked
+            self.photos_size_to_download = photos_size
+            self.videos_size_to_download = videos_size
+        else:
+            self.marked.update(marked)
+            self.photos_size_to_download += photos_size
+            self.videos_size_to_download += videos_size
+
         self.files_to_display = files_to_display
 
         self.display_type = display_type

@@ -730,12 +730,14 @@ class RapidWindow(QMainWindow):
         # The timestamp for when a download started / resumed after a pause
         self.download_start_time = None  # type: Optional[float]
 
+        logging.debug("Starting download tracker")
         self.download_tracker = downloadtracker.DownloadTracker()
 
         # Values used to display how much longer a download will take
         self.time_remaining = downloadtracker.TimeRemaining()
         self.time_check = downloadtracker.TimeCheck()
 
+        logging.debug("Setting up download update timer")
         self.dl_update_timer = QTimer(self)
         self.dl_update_timer.setInterval(constants.DownloadUpdateMilliseconds)
         self.dl_update_timer.timeout.connect(self.displayDownloadRunningInStatusBar)
@@ -939,7 +941,12 @@ class RapidWindow(QMainWindow):
         if self.downloadIsRunning():
             logging.debug("Setting progress bar to show download progress")
             self.downloadProgressBar.setMaximum(100)
-        elif len(self.devices.thumbnailing):
+            return
+
+        if self.unity_progress:
+            self.desktop_launcher.set_property('progress_visible', False)
+
+        if len(self.devices.thumbnailing):
             if self.downloadProgressBar.maximum() != self.thumbnailModel.total_thumbs_to_generate:
                 logging.debug("Setting progress bar maximum to %s",
                               self.thumbnailModel.total_thumbs_to_generate)
@@ -1311,10 +1318,6 @@ class RapidWindow(QMainWindow):
 
     def createDeviceThisComputerViews(self) -> None:
 
-        # self.deviceArea.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.MinimumExpanding)
-
-
-
         # Devices Header and View
         tip = _('Turn on or off the use of devices attached to this computer as download sources')
         self.deviceToggleView = QToggleView(label=_('Devices'),
@@ -1584,14 +1587,18 @@ class RapidWindow(QMainWindow):
         else:
             self.rightPanelSplitter.setSizes([200,200])
 
-    def setDownloadCapabilities(self) -> None:
+    def setDownloadCapabilities(self) -> bool:
         """
         Update the destination displays and download button
+
+        :return: True if download destinations are capable of having
+        all marked files downloaded to them
         """
 
         destinations_good = self.updateDestinationViews()
         self.setDownloadActionState(destinations_good)
         self.destinationButton.setHighlighted(not destinations_good)
+        return destinations_good
 
     def updateDestinationViews(self) -> bool:
         """
@@ -1623,11 +1630,14 @@ class RapidWindow(QMainWindow):
         else:
             same_fs = False
 
+        merge = self.downloadIsRunning()
+
         if same_fs:
             files_to_display = DisplayingFilesOfType.photos_and_videos
             self.combinedDestinationDisplay.setDestination(self.prefs.photo_download_folder)
             self.combinedDestinationDisplay.setDownloadAttributes(marked, size_photos_marked,
-                          size_videos_marked, files_to_display, DestinationDisplayType.usage_only)
+                          size_videos_marked, files_to_display, DestinationDisplayType.usage_only,
+                                                                  merge)
             display_type = DestinationDisplayType.folder_only
             self.combinedDestinationDisplayContainer.setVisible(True)
             destinations_good = self.combinedDestinationDisplay.sufficientSpaceAvailable()
@@ -1638,7 +1648,7 @@ class RapidWindow(QMainWindow):
 
         if self.prefs.photo_download_folder:
             self.photoDestinationDisplay.setDownloadAttributes(marked, size_photos_marked,
-                            0, files_to_display, display_type)
+                            0, files_to_display, display_type, merge)
             self.photoDestinationWidget.setViewVisible(True)
             if display_type == DestinationDisplayType.folders_and_usage:
                 destinations_good = self.photoDestinationDisplay.sufficientSpaceAvailable()
@@ -1652,7 +1662,7 @@ class RapidWindow(QMainWindow):
             files_to_display = DisplayingFilesOfType.videos
         if self.prefs.video_download_folder:
             self.videoDestinationDisplay.setDownloadAttributes(marked, 0,
-                           size_videos_marked, files_to_display, display_type)
+                           size_videos_marked, files_to_display, display_type, merge)
             self.videoDestinationWidget.setViewVisible(True)
             if display_type == DestinationDisplayType.folders_and_usage:
                 destinations_good = (self.videoDestinationDisplay.sufficientSpaceAvailable() and
@@ -1682,8 +1692,6 @@ class RapidWindow(QMainWindow):
 
             enabled = files_marked and download_destinations_good
 
-            #TODO if a download is actually running now, the download button should never be
-            # disabled
             self.downloadAct.setEnabled(enabled)
             self.downloadButton.setEnabled(enabled)
             if files_marked:
@@ -1693,6 +1701,9 @@ class RapidWindow(QMainWindow):
                 self.downloadButton.setText(text)
             else:
                 self.downloadButton.setText(self.downloadAct.text())
+        else:
+            self.downloadAct.setEnabled(True)
+            self.downloadButton.setEnabled(True)
 
     def setDownloadActionLabel(self) -> None:
         """
@@ -1867,7 +1878,7 @@ class RapidWindow(QMainWindow):
         else:
             # This is a real hack -- but I don't know a better way to let the
             # slider redraw itself
-            QTimer.singleShot(10, self.devicesViewToggledOn)
+            QTimer.singleShot(100, self.devicesViewToggledOn)
         self.adjustLeftPanelSliderHandles()
 
     @pyqtSlot()
@@ -2142,6 +2153,7 @@ class RapidWindow(QMainWindow):
 
             # disable refresh and preferences change while download is
             # occurring
+            #TODO include destinations and source!
             self.enablePrefsAndRefresh(enabled=False)
 
             # notify renameandmovefile process to read any necessary values
@@ -2210,6 +2222,7 @@ class RapidWindow(QMainWindow):
         self.devices.set_device_state(scan_id, DeviceState.downloading)
         self.updateProgressBarState()
         self.immediatelyDisplayDownloadRunningInStatusBar()
+        self.setDownloadActionState(True)
 
         #TODO implement check for not paused
         if not self.dl_update_timer.isActive():
@@ -2318,6 +2331,12 @@ class RapidWindow(QMainWindow):
     def fileRenamedAndMoved(self, move_succeeded: bool, rpd_file: RPDFile,
                             download_count: int) -> None:
         scan_id = rpd_file.scan_id
+
+        if scan_id not in self.devices:
+            logging.debug("Ignoring file %s because the device has been removed",
+                          rpd_file.download_full_file_name)
+            return
+
         if rpd_file.mdatatime_caused_ctime_change and scan_id not in \
                 self.thumbnailModel.ctimes_differ:
             self.thumbnailModel.addCtimeDisparity(rpd_file=rpd_file)
@@ -2599,6 +2618,10 @@ class RapidWindow(QMainWindow):
         """
         Display a message in the status bar about the current download
         """
+        if not self.downloadIsRunning():
+            self.dl_update_timer.stop()
+            self.displayMessageInStatusBar()
+            return
 
         updated, download_speed = self.time_check.update_download_speed()
         if updated:
@@ -2662,15 +2685,7 @@ class RapidWindow(QMainWindow):
 
         device = self.devices[scan_id]
 
-        if device.device_type == DeviceType.path:
-            notification_name = _('Rapid Photo Downloader')
-        else:
-            notification_name  = device.name()
-
-        if device.icon_name is not None:
-            icon = device.icon_name
-        else:
-            icon = None
+        notification_name  = device.name()
 
         no_photos_downloaded = self.download_tracker.get_no_files_downloaded(
                                             scan_id, FileType.photo)
@@ -2688,13 +2703,14 @@ class RapidWindow(QMainWindow):
                                                no_videos_downloaded)
         file_types_failed = file_types_by_number(no_photos_failed,
                                                       no_videos_failed)
+        # Translators: e.g. 23 photos downloaded
         message = _("%(noFiles)s %(filetypes)s downloaded") % {
-            'noFiles': no_files_downloaded, 'filetypes': file_types}
+            'noFiles': thousands(no_files_downloaded), 'filetypes': file_types}
 
         if no_files_failed:
-            message += "\n" + _(
-                "%(noFiles)s %(filetypes)s failed to download") % {
-                              'noFiles': no_files_failed,
+            # Translators: e.g. 2 videos failed to download
+            message += "\n" + _("%(noFiles)s %(filetypes)s failed to download") % {
+                              'noFiles': thousands(no_files_failed),
                               'filetypes': file_types_failed}
 
         if no_warnings:
@@ -2728,54 +2744,50 @@ class RapidWindow(QMainWindow):
         show_notification = len(self.devices.have_downloaded_from) > 1
 
         n_message = _("All downloads complete")
-        sb_message = ''
 
         # photo downloads
         photo_downloads = self.download_tracker.total_photos_downloaded
         if photo_downloads and show_notification:
             filetype = file_types_by_number(photo_downloads, 0)
-            n_message += "\n" + _("%(number)s %(numberdownloaded)s") % \
-                              {'number': photo_downloads,
-                               'numberdownloaded': _(
-                                   "%(filetype)s downloaded") % \
-                                                   {'filetype': filetype}}
+            # Translators: e.g. 23 photos downloaded
+            n_message += "\n" + _("%(number)s %(numberdownloaded)s") % dict(
+                              number=thousands(photo_downloads),
+                              numberdownloaded=_("%(filetype)s downloaded") % dict(
+                                                 filetype=filetype))
 
         # photo failures
         photo_failures = self.download_tracker.total_photo_failures
         if photo_failures and show_notification:
             filetype = file_types_by_number(photo_failures, 0)
-            n_message += "\n" + _("%(number)s %(numberdownloaded)s") % \
-                              {'number': photo_failures,
-                               'numberdownloaded': _(
-                                   "%(filetype)s failed to download") % \
-                                                   {'filetype': filetype}}
+            n_message += "\n" + _("%(number)s %(numberdownloaded)s") % dict(
+                              number=thousands(photo_failures),
+                              numberdownloaded=_("%(filetype)s failed to download") % dict(
+                                                   filetype=filetype))
 
         # video downloads
         video_downloads = self.download_tracker.total_videos_downloaded
         if video_downloads and show_notification:
             filetype = file_types_by_number(0, video_downloads)
-            n_message += "\n" + _("%(number)s %(numberdownloaded)s") % \
-                              {'number': video_downloads,
-                               'numberdownloaded': _(
-                                   "%(filetype)s downloaded") % \
-                                                   {'filetype': filetype}}
+            n_message += "\n" + _("%(number)s %(numberdownloaded)s") % dict(
+                               number=thousands(video_downloads),
+                               numberdownloaded=_("%(filetype)s downloaded") % dict(
+                                                  filetype=filetype))
 
         # video failures
         video_failures = self.download_tracker.total_video_failures
         if video_failures and show_notification:
             filetype = file_types_by_number(0, video_failures)
-            n_message += "\n" + _("%(number)s %(numberdownloaded)s") % \
-                              {'number': video_failures,
-                               'numberdownloaded': _(
-                                   "%(filetype)s failed to download") % \
-                                                   {'filetype': filetype}}
+            n_message += "\n" + _("%(number)s %(numberdownloaded)s") % dict(
+                               number=thousands(video_failures),
+                               numberdownloaded=_("%(filetype)s failed to download") % dict(
+                                                  filetype=filetype))
 
         # warnings
         warnings = self.download_tracker.total_warnings
         if warnings and show_notification:
-            n_message += "\n" + _("%(number)s %(numberdownloaded)s") % \
-                        {'number': warnings,
-                        'numberdownloaded': _("warnings")}
+            n_message += "\n" + _("%(number)s %(numberdownloaded)s") % dict(
+                                  number=thousands(warnings),
+                                  numberdownloaded=_("warnings"))
 
         if show_notification:
             message_shown = False
@@ -2790,7 +2802,6 @@ class RapidWindow(QMainWindow):
             if not message_shown:
                 logging.error("Unable to display download complete message using notification "
                               "system")
-                logging.info(n_message)
 
         failures = photo_failures + video_failures
 
@@ -2825,8 +2836,7 @@ class RapidWindow(QMainWindow):
 
             if not fw:
                 downloaded = _('Downloaded %(no_files_and_types)s from %(devices)s') % dict(
-                    no_files_and_types=no_files_and_types,
-                    devices=devices)
+                                no_files_and_types=no_files_and_types, devices=devices)
             else:
                 downloaded = _('Downloaded %(no_files_and_types)s from %(devices)s — %(failures)s')\
                              % dict(no_files_and_types=no_files_and_types,
@@ -3119,7 +3129,7 @@ class RapidWindow(QMainWindow):
         self.download_tracker.set_file_types_present(scan_id, file_types_present)
         model = self.mapModel(scan_id)
         model.updateDeviceScan(scan_id)
-        self.setDownloadCapabilities()
+        destinations_good = self.setDownloadCapabilities()
 
         self.logState()
 
@@ -3128,7 +3138,11 @@ class RapidWindow(QMainWindow):
         else:
             self.temporalProximity.setState(TemporalProximityState.pending)
 
-        auto_start = self.autoStart(scan_id)
+        if not destinations_good:
+            auto_start = False
+        else:
+            auto_start = self.autoStart(scan_id)
+
         if not auto_start and self.prefs.generate_thumbnails:
             # Generate thumbnails for finished scan
             model.setSpinnerState(scan_id, DeviceState.idle)
@@ -3162,13 +3176,15 @@ class RapidWindow(QMainWindow):
         if not self.prefs.valid:
             return False
 
-        if scan_id in self.devices.startup_devices:
-            if self.prefs.auto_download_at_startup:
-                return True
-        elif self.prefs.auto_download_upon_device_insertion:
-            return True
+        if not self.thumbnailModel.filesAreMarkedForDownload(scan_id):
+            logging.debug("No files are marked for download for %s",
+                          self.devices[scan_id].display_name)
+            return False
 
-        return False
+        if scan_id in self.devices.startup_devices:
+            return self.prefs.auto_download_at_startup
+        else:
+            return self.prefs.auto_download_upon_device_insertion
 
     def quit(self) -> None:
         """
@@ -3177,6 +3193,7 @@ class RapidWindow(QMainWindow):
         Issues a signal to initiate the quit. The signal will be acted
         on when Qt gets the chance.
         """
+
         QTimer.singleShot(0, self.close)
 
     def generateTemporalProximityTableData(self, reason: str) -> None:
@@ -3660,8 +3677,7 @@ class RapidWindow(QMainWindow):
 
                 if backup_file_type is not None:
                     if path not in self.backup_devices:
-                        device = BackupDevice(mount=mount,
-                                              backup_type=backup_file_type)
+                        device = BackupDevice(mount=mount, backup_type=backup_file_type)
                         self.backup_devices[path] = device
                         self.addDeviceToBackupManager(path)
                         self.download_tracker.set_no_backup_devices(
@@ -3742,8 +3758,11 @@ class RapidWindow(QMainWindow):
             if device in self.prompting_for_user_action:
                 self.prompting_for_user_action[device].reject()
 
-            self.thumbnailModel.clearAll(scan_id=scan_id, keep_downloaded_files=True)
+            files_removed = self.thumbnailModel.clearAll(scan_id=scan_id,
+                                                         keep_downloaded_files=True)
             self.mapModel(scan_id).removeDevice(scan_id)
+
+            was_downloading = self.downloadIsRunning()
 
             if scan_id in self.scanmq.workers:
                 if device_state != DeviceState.scanning:
@@ -3767,19 +3786,22 @@ class RapidWindow(QMainWindow):
             del self.devices[scan_id]
             self.adjustLeftPanelSliderHandles()
 
-
             self.updateSourceButton()
             self.setDownloadCapabilities()
 
             if adjust_temporal_proximity:
                 if len(self.devices) == 0:
                     self.temporalProximity.setState(TemporalProximityState.empty)
-                else:
+                elif files_removed:
                     self.generateTemporalProximityTableData("a download source was removed")
 
             self.logState()
             self.updateProgressBarState()
             self.displayMessageInStatusBar()
+
+            # Reset Download button from "Pause" to "Download"
+            if was_downloading and not self.downloadIsRunning():
+                self.setDownloadActionLabel()
 
     def rescanDevice(self, scan_id: int) -> None:
         """
@@ -3947,17 +3969,13 @@ class RapidWindow(QMainWindow):
         backup_video_location = self.prefs.backup_video_location
 
         if not self.manualBackupPathAvailable(backup_photo_location):
-            logging.warning("Photo backup path unavailable: %s",
-                            backup_photo_location)
+            logging.warning("Photo backup path unavailable: %s", backup_photo_location)
         if not self.manualBackupPathAvailable(backup_video_location):
-            logging.warning("Video backup path unavailable: %s",
-                            backup_video_location)
+            logging.warning("Video backup path unavailable: %s", backup_video_location)
 
         if backup_photo_location != backup_video_location:
-            backup_photo_device =  BackupDevice(mount=None,
-                                backup_type=BackupLocationType.photos)
-            backup_video_device = BackupDevice(mount=None,
-                                backup_type=BackupLocationType.videos)
+            backup_photo_device =  BackupDevice(mount=None, backup_type=BackupLocationType.photos)
+            backup_video_device = BackupDevice(mount=None, backup_type=BackupLocationType.videos)
             self.backup_devices[backup_photo_location] = backup_photo_device
             self.backup_devices[backup_video_location] = backup_video_device
 
@@ -3969,8 +3987,7 @@ class RapidWindow(QMainWindow):
                      backup_type=BackupLocationType.photos_and_videos)
             self.backup_devices[backup_photo_location] = backup_device
 
-            logging.info("Backing up photos and videos to %s",
-                         backup_photo_location)
+            logging.info("Backing up photos and videos to %s", backup_photo_location)
 
     def isBackupPath(self, path: str) -> BackupLocationType:
         """
