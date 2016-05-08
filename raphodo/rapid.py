@@ -315,6 +315,7 @@ class CopyFilesManager(PublishPullPipelineManager):
         data = pickle.loads(self.content) # type: CopyFilesResults
         if data.total_downloaded is not None:
             assert data.scan_id is not None
+            #TODO handle cases where this legitimately is zero e.g. gphoto2 error -6
             assert data.chunk_downloaded >= 0
             assert data.total_downloaded >= 0
             # Emit the unpickled data, as when PyQt converts an int to a
@@ -2386,6 +2387,7 @@ class RapidWindow(QMainWindow):
         self.download_tracker.set_total_bytes_copied(scan_id, total_downloaded)
         self.time_check.increment(bytes_downloaded=chunk_downloaded)
         self.time_remaining.update(scan_id, bytes_downloaded=chunk_downloaded)
+        self.updateFileDownloadDeviceProgress()
 
     @pyqtSlot(int)
     def copyfilesFinished(self, scan_id: int) -> None:
@@ -2514,8 +2516,8 @@ class RapidWindow(QMainWindow):
             self.download_tracker.file_backed_up(rpd_file.scan_id, rpd_file.uid)
             if self.download_tracker.file_backed_up_to_all_locations(
                     rpd_file.uid, rpd_file.file_type):
-                logging.debug("File %s will not be backed up to any more "
-                            "locations", rpd_file.download_name)
+                logging.debug("File %s will not be backed up to any more locations",
+                              rpd_file.download_name)
                 self.fileDownloadFinished(backup_succeeded, rpd_file)
 
     @pyqtSlot(bytes)
@@ -2523,13 +2525,10 @@ class RapidWindow(QMainWindow):
         data = pickle.loads(pickled_data) # type: BackupResults
         scan_id = data.scan_id
         chunk_downloaded = data.chunk_downloaded
-        self.download_tracker.increment_bytes_backed_up(scan_id,
-                                                     chunk_downloaded)
+        self.download_tracker.increment_bytes_backed_up(scan_id, chunk_downloaded)
         self.time_check.increment(bytes_downloaded=chunk_downloaded)
-        percent_complete = self.download_tracker.get_percent_complete(scan_id)
-        # TODO update right model right way
-        self.deviceModel.updateDownloadProgress(scan_id, percent_complete, '')
         self.time_remaining.update(scan_id, bytes_downloaded=chunk_downloaded)
+        self.updateFileDownloadDeviceProgress()
 
     @pyqtSlot(int, list)
     def updateSequences(self, stored_sequence_no: int, downloads_today: List[str]) -> None:
@@ -2537,6 +2536,7 @@ class RapidWindow(QMainWindow):
         Called at conclusion of a download, with values coming from
         renameandmovefile process
         """
+
         self.prefs.stored_sequence_no = stored_sequence_no
         self.prefs.downloads_today = downloads_today
         self.prefs.sync()
@@ -2548,11 +2548,13 @@ class RapidWindow(QMainWindow):
     def fileRenamedAndMovedFinished(self) -> None:
         pass
 
-    def updateFileDownloadDeviceProgress(self, scan_id: int, uid: bytes) -> Tuple[bool, int]:
+    def isDownloadCompleteForScan(self, scan_id: int, uid: bytes) -> Tuple[bool, int]:
         """
-        Updates progress bar and optionally the Unity progress bar
+        Determine if all files have been downloaded and backed up for a device
 
-        :return True if the download is completed for that scan_id,
+        :param scan_id: device's scan id
+        :param uid: uid of an rpd_file, used to determine the download count
+        :return: True if the download is completed for that scan_id,
         and the number of files remaining for the scan_id, BUT
         the files remaining value is valid ONLY if the download is
          completed
@@ -2561,7 +2563,7 @@ class RapidWindow(QMainWindow):
         files_downloaded = self.download_tracker.get_download_count_for_file(uid)
         files_to_download = self.download_tracker.get_no_files_in_download(scan_id)
         completed = files_downloaded == files_to_download
-        if self.prefs.backup_files and completed:
+        if completed and self.prefs.backup_files:
             completed = self.download_tracker.all_files_backed_up(scan_id)
 
         if completed:
@@ -2569,13 +2571,18 @@ class RapidWindow(QMainWindow):
         else:
             files_remaining = 0
 
+        return completed, files_remaining
+
+    def updateFileDownloadDeviceProgress(self):
+        """
+        Updates progress bar and optionally the Unity progress bar
+        """
+
         percent_complete = self.download_tracker.get_overall_percent_complete()
         self.downloadProgressBar.setValue(round(percent_complete * 100))
         if self.unity_progress:
             self.desktop_launcher.set_property('progress', percent_complete)
             self.desktop_launcher.set_property('progress_visible', True)
-
-        return (completed, files_remaining)
 
     def fileDownloadFinished(self, succeeded: bool, rpd_file: RPDFile) -> None:
         """
@@ -2602,7 +2609,7 @@ class RapidWindow(QMainWindow):
         device = self.devices[scan_id]
         device.download_statuses.add(rpd_file.status)
 
-        completed, files_remaining = self.updateFileDownloadDeviceProgress(scan_id, uid)
+        completed, files_remaining = self.isDownloadCompleteForScan(scan_id, uid)
 
         # if self.downloadIsRunning():
         #     self.updateTimeRemaining()

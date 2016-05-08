@@ -536,13 +536,17 @@ class WatchDownloadDirs(QFileSystemWatcher):
         if new:
             new = list(new)
             logging.debug("Adding to watched paths: %s", ', '.join(new))
-            logging.debug("Failed to add watched paths: %s", self.addPaths(new))
+            failures = self.addPaths(new)
+            if failures:
+                logging.debug("Failed to add watched paths: %s", failures)
 
         old = existing_watches - watch
         if old:
             old = list(old)
             logging.debug("Removing from watched paths: %s", ', '.join(old))
-            logging.debug("Failed to remove watched paths: %s", self.removePaths(old))
+            failures = self.removePaths(old)
+            if failures:
+                logging.debug("Failed to remove watched paths: %s", failures)
 
     def closeWatch(self) -> None:
         """

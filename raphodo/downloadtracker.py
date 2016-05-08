@@ -72,6 +72,7 @@ class DownloadTracker:
         self.total_video_failures = 0  # type: int
         self.total_warnings = 0  # type: int
         self.total_bytes_to_download = 0  # type: int
+        self.total_bytes_to_backup = 0  # type: int
         self.backups_performed_by_uid = defaultdict(int)  # type: Dict[bytes, List[int,...]]
         self.backups_performed_by_scan_id = defaultdict(int)  # type: Dict[int, List[int,...]]
         self.no_backups_to_perform_by_scan_id = dict()  # type: Dict[int, int]
@@ -87,16 +88,15 @@ class DownloadTracker:
         self.no_files_in_download_by_scan_id[scan_id] = no_files
         self.no_photos_in_download_by_scan_id[scan_id] = stats.no_photos
         self.no_videos_in_download_by_scan_id[scan_id] = stats.no_videos
-        self.size_of_photo_backup_in_bytes_by_scan_id[
-            scan_id] = stats.photos_size_in_bytes * \
-                       self.no_photo_backup_devices
-        self.size_of_video_backup_in_bytes_by_scan_id[
-            scan_id] = stats.videos_size_in_bytes * \
-                       self.no_video_backup_devices
+        self.size_of_photo_backup_in_bytes_by_scan_id[scan_id] = \
+            stats.photos_size_in_bytes * self.no_photo_backup_devices
+        self.size_of_video_backup_in_bytes_by_scan_id[scan_id] = \
+            stats.videos_size_in_bytes * self.no_video_backup_devices
         self.no_backups_to_perform_by_scan_id[scan_id] = \
-            (stats.no_photos * self.no_photo_backup_devices) + \
-            (stats.no_videos * self.no_video_backup_devices)
+            stats.no_photos * self.no_photo_backup_devices + \
+            stats.no_videos * self.no_video_backup_devices
         total_bytes = stats.photos_size_in_bytes + stats.videos_size_in_bytes
+
         # rename_chunk is used to account for the time it takes to rename a
         # file, and potentially to generate thumbnails after it has renamed.
         # rename_chunk makes a notable difference to the user when they're
@@ -109,8 +109,9 @@ class DownloadTracker:
         self.size_of_download_in_bytes_by_scan_id[scan_id] = total_bytes + \
                     self.rename_chunk[scan_id] * no_files
         self.raw_size_of_download_in_bytes_by_scan_id[scan_id] = total_bytes
-        self.total_bytes_to_download += \
-                    self.size_of_download_in_bytes_by_scan_id[scan_id]
+        self.total_bytes_to_download += self.size_of_download_in_bytes_by_scan_id[scan_id]
+        self.total_bytes_to_backup += self.size_of_photo_backup_in_bytes_by_scan_id[scan_id] + \
+                                      self.size_of_video_backup_in_bytes_by_scan_id[scan_id]
         self.files_downloaded[scan_id] = 0
         self.photos_downloaded[scan_id] = 0
         self.videos_downloaded[scan_id] = 0
@@ -211,25 +212,25 @@ class DownloadTracker:
                 self.video_failures[scan_id] += 1
                 self.total_video_failures += 1
 
-    def get_percent_complete(self, scan_id: int) -> float:
-        """
-        Returns a float representing how much of the download
-        has been completed for one particular device
-        :return a value between 0.0 and 100.0
-        """
-
-        # when calculating the percentage, there are three components:
-        # copy (download), rename ('rename_chunk'), and backup
-        percent_complete = (((float(
-                  self.total_bytes_copied_by_scan_id[scan_id])
-                + self.rename_chunk[scan_id] * self.files_downloaded[scan_id])
-                + self.total_bytes_backed_up_by_scan_id[scan_id])
-                / (self.size_of_download_in_bytes_by_scan_id[scan_id] +
-                   self.size_of_photo_backup_in_bytes_by_scan_id[scan_id] +
-                   self.size_of_video_backup_in_bytes_by_scan_id[scan_id]
-                   )) * 100
-
-        return percent_complete
+    # def get_percent_complete(self, scan_id: int) -> float:
+    #     """
+    #     Returns a float representing how much of the download
+    #     has been completed for one particular device
+    #     :return a value between 0.0 and 100.0
+    #     """
+    #
+    #     # when calculating the percentage, there are three components:
+    #     # copy (download), rename ('rename_chunk'), and backup
+    #     percent_complete = (((
+    #               self.total_bytes_copied_by_scan_id[scan_id]
+    #             + self.rename_chunk[scan_id] * self.files_downloaded[scan_id])
+    #             + self.total_bytes_backed_up_by_scan_id[scan_id])
+    #             / (self.size_of_download_in_bytes_by_scan_id[scan_id] +
+    #                self.size_of_photo_backup_in_bytes_by_scan_id[scan_id] +
+    #                self.size_of_video_backup_in_bytes_by_scan_id[scan_id]
+    #                )) * 100
+    #
+    #     return percent_complete
 
     def get_overall_percent_complete(self) -> float:
         """
@@ -237,15 +238,13 @@ class DownloadTracker:
         or more devices
         :return: a value between 0.0 and 1.0
         """
-        total = 0
-        for scan_id in self.total_bytes_copied_by_scan_id:
-            device_total = (self.total_bytes_copied_by_scan_id[scan_id] +
-                     (self.rename_chunk[scan_id] *
-                      self.files_downloaded[scan_id]))
-            total += device_total
 
-        percent_complete = float(total) / self.total_bytes_to_download
-        return percent_complete
+        total = sum(self.total_bytes_copied_by_scan_id[scan_id] +
+                    self.rename_chunk[scan_id] * self.files_downloaded[scan_id] +
+                    self.total_bytes_backed_up_by_scan_id[scan_id]
+                    for scan_id in self.total_bytes_copied_by_scan_id)
+
+        return total / (self.total_bytes_to_download + self.total_bytes_to_backup)
 
     def set_total_bytes_copied(self, scan_id, total_bytes) -> None:
         assert total_bytes >= 0
