@@ -1898,6 +1898,23 @@ class RapidWindow(QMainWindow):
         """
 
         path = self.fileSystemModel.filePath(index.model().mapToSource(index))
+
+        if self.downloadIsRunning() and self.prefs.this_computer_path:
+            message = _("<b>Changing This Computer source path</b><br><br>Do you really want to "
+                        "change the source path to %(new_path)s?<br><br>You are currently "
+                        "downloading from %(source_path)s.<br><br>"
+                        "If you do change the path, the current download from This Computer "
+                        "will be cancelled.") % dict(new_path=make_html_path_non_breaking(path),
+                                                source_path=make_html_path_non_breaking(
+                                                    self.prefs.this_computer_path))
+
+            msgbox = self.standardMessageBox(message=message, rich_text=True)
+            msgbox.setIcon(QMessageBox.Question)
+            msgbox.setStandardButtons(QMessageBox.Yes|QMessageBox.No)
+            if msgbox.exec() == QMessageBox.No:
+                self.thisComputerFSView.goToPath(self.prefs.this_computer_path)
+                return
+
         if path != self.prefs.this_computer_path:
             if self.prefs.this_computer_path:
                 scan_id = self.devices.scan_id_from_path(self.prefs.this_computer_path,
@@ -1944,10 +1961,18 @@ class RapidWindow(QMainWindow):
 
         :param path: path chosen
         :param file_type: whether for photos or videos
-        :return: True if the path is problematic and should be ignored, else False
+        :return: False if the path is problematic and should be ignored, else True
         """
 
-        problematic = path in self.fileSystemModel.preview_subfolders
+        problematic = self.downloadIsRunning()
+        if problematic:
+            message = _("You cannot change the download destination while downloading.")
+            msgbox = self.standardMessageBox(message=message, rich_text=False)
+            msgbox.setIcon(QMessageBox.Warning)
+            msgbox.exec()
+
+        else:
+            problematic = path in self.fileSystemModel.preview_subfolders
 
         if not problematic and path in self.fileSystemModel.download_subfolders:
             message = _("<b>Confirm Download Destination</b><br><br>Are you sure you want to set "
@@ -3300,6 +3325,9 @@ class RapidWindow(QMainWindow):
     @pyqtSlot(FoldersPreview)
     def provisionalDownloadFoldersGenerated(self, folders_preview: FoldersPreview) -> None:
         self.fileSystemModel.update_preview_folders(folders_preview=folders_preview)
+        self.photoDestinationFSView.expandPreviewFolders(self.prefs.photo_download_folder)
+        self.videoDestinationFSView.expandPreviewFolders(self.prefs.video_download_folder)
+        # Update the views in case nothing was expanded
         self.photoDestinationFSView.update()
         self.videoDestinationFSView.update()
 

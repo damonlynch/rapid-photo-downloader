@@ -75,7 +75,7 @@ class FileSystemModel(QFileSystemModel):
         self.download_subfolders = self.folders_preview.download_subfolders()
 
     def remove_preview_folders(self) -> None:
-        self.folders_preview.clean_all_generated_folders()
+        self.folders_preview.clean_all_generated_folders(fsmodel=self)
 
 
 class FileSystemView(QTreeView):
@@ -96,12 +96,29 @@ class FileSystemView(QTreeView):
         for i in (1,2,3):
             self.hideColumn(i)
 
-    def goToPath(self, path: str) -> None:
+    def goToPath(self, path: str, scrollTo: bool=True) -> None:
+        """
+        Select the path, expand its subfolders, and scroll to it
+        :param path:
+        :return:
+        """
+        if not path:
+            return
         index = self.model().mapFromSource(self.fileSystemModel.index(path))
         self.setExpanded(index, True)
         selection = self.selectionModel()
         selection.select(index, QItemSelectionModel.ClearAndSelect|QItemSelectionModel.Rows)
-        self.scrollTo(index, QAbstractItemView.PositionAtTop)
+        if scrollTo:
+            self.scrollTo(index, QAbstractItemView.PositionAtTop)
+
+    def expandPreviewFolders(self, path: str) -> None:
+        self.goToPath(path, scrollTo=True)
+        if not path:
+            return
+        for path in self.fileSystemModel.download_subfolders:
+            index = self.model().mapFromSource(self.fileSystemModel.index(path))
+            if not self.isExpanded(index):
+                self.expand(index)
 
 
 class FileSystemFilter(QSortFilterProxyModel):

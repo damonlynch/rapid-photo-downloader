@@ -880,8 +880,7 @@ if have_gio:
 
             if to_unmount is not None:
                 logging.debug("GIO: Attempting to unmount %s...", model)
-                to_unmount.unmount_with_operation(0,
-                                          None, None, self.unmountCallback,
+                to_unmount.unmount_with_operation(0, None, None, self.unmountCallback,
                                           (model, port, download_starting, on_startup))
                 return True
 
@@ -899,6 +898,7 @@ if have_gio:
             :param user_data: model and port of the camera being
             unmounted, in the format of libgphoto2
             """
+
             model, port, download_starting, on_startup = user_data
             try:
                 if mount.unmount_with_operation_finish(result):

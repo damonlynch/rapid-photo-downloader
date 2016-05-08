@@ -35,6 +35,8 @@ from collections import namedtuple, defaultdict
 import logging
 from typing import Tuple, Set, Sequence, Dict, Optional
 
+from PyQt5.QtWidgets import QFileSystemModel
+
 from raphodo.rpdfile import RPDFile
 from raphodo.constants import FileType
 import raphodo.generatename as gn
@@ -242,7 +244,8 @@ class FoldersPreview:
 
     def clean_generated_folders(self, remove: Dict[int, Set[str]],
                                 keep: Optional[Dict[int, Set[str]]]=None,
-                                scan_id: Optional[int]=None) -> None:
+                                scan_id: Optional[int]=None,
+                                fsmodel: Optional[QFileSystemModel]=None) -> None:
         """
         Remove preview folders from the file system, if necessary keeping those
         used for the other type of file (e.g. if moving only photos, keep video download
@@ -280,29 +283,33 @@ class FoldersPreview:
                     else:
                         do_rmdir = True
                     if do_rmdir:
-                        try:
-                            os.rmdir(subfolder)
-                            # logging.debug("While cleaning generated folders, removed %s", subfolder)
-                        except OSError:
-                            # logging.debug("While cleaning generated folders, did not remove %s. It "
-                            #               "may not be empty.", subfolder)
-                            pass
-                else:
-                    pass
-                    # logging.debug("While cleaning generated folders, not removing %s ", subfolder)
+                        if not os.listdir(subfolder):
+                            if fsmodel is not None:
+                                index = fsmodel.index(subfolder)
+                                if not fsmodel.rmdir(index):
+                                    logging.debug("While cleaning generated folders, did not "
+                                                  "remove %s. The cause for the error is unknown.",
+                                                  subfolder)
+                            else:
+                                try:
+                                    os.rmdir(subfolder)
+                                except OSError as e:
+                                    logging.debug("While cleaning generated folders, did not "
+                                                  "remove %s. Code: %s. Error: %s.",
+                                                  subfolder, e.errno, e.strerror)
 
         if scan_id is not None:
             for level, subfolder in removed_folders:
                 remove[level].remove(subfolder)
 
-    def clean_all_generated_folders(self) -> None:
+    def clean_all_generated_folders(self, fsmodel: QFileSystemModel) -> None:
         """
         Remove all unused (i.e. empty) generated preview folders from the file system.
 
         Called at program exit.
         """
-        self.clean_generated_folders(remove=self.created_photo_subfolders)
-        self.clean_generated_folders(remove=self.created_video_subfolders)
+        self.clean_generated_folders(remove=self.created_photo_subfolders, fsmodel=fsmodel)
+        self.clean_generated_folders(remove=self.created_video_subfolders, fsmodel=fsmodel)
         self.generated_photo_subfolders = set()  # type: Set[str]
         self.generated_video_subfolders = set()  # type: Set[str]
         self.generated_photo_subfolders_scan_ids = defaultdict(set)  # type: Dict[str, Set[int]]
