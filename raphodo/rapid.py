@@ -3357,6 +3357,7 @@ class RapidWindow(QMainWindow):
                 # so no need to update or close it in this main process
 
         self.writeWindowSettings()
+        logging.debug("Cleaning up provisional download folders")
         self.fileSystemModel.remove_preview_folders()
 
         if self.ctime_update_notification is not None:

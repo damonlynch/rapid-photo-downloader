@@ -38,7 +38,7 @@ from PyQt5.QtCore import (QAbstractTableModel, QModelIndex, Qt, QSize,
                           pyqtSignal, pyqtSlot, QRectF)
 from PyQt5.QtWidgets import (QTableView, QStyledItemDelegate, QSlider, QLabel, QVBoxLayout,
                              QStyleOptionViewItem, QStyle, QAbstractItemView, QWidget, QHBoxLayout,
-                             QSizePolicy, QSplitter, QScrollArea)
+                             QSizePolicy, QSplitter, QScrollArea, QStackedWidget)
 from PyQt5.QtGui import (QPainter, QFontMetrics, QFont, QColor, QGuiApplication, QPixmap,
                          QPalette, QMouseEvent)
 
@@ -1451,7 +1451,7 @@ class TemporalProximity(QWidget):
                                                 self.proximitySelectionChanged)
 
         self.temporalProximityView.setSizePolicy(QSizePolicy.Preferred,
-                                                 QSizePolicy.MinimumExpanding)
+                                                 QSizePolicy.Expanding)
 
         self.temporalValuePicker = TemporalValuePicker(self.prefs.get_proximity())
         self.temporalValuePicker.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Minimum)
@@ -1487,11 +1487,11 @@ class TemporalProximity(QWidget):
 
         self.description = QLabel(description)
         self.adjust = QLabel(adjust)
-        self.generating = QFramedLabel(generating)
-        self.generationPending = QFramedLabel(generation_pending)
-        self.ctime_vs_mtime = QFramedLabel(ctime_vs_mtime)
+        self.generating = QLabel(generating)
+        self.generationPending = QLabel(generation_pending)
+        self.ctime_vs_mtime = QLabel(ctime_vs_mtime)
 
-        self.explanation = QFramedWidget()
+        self.explanation = QWidget()
         layout = QVBoxLayout()
         border_width = QSplitter().lineWidth()
         layout.setContentsMargins(border_width, border_width, border_width, border_width)
@@ -1499,16 +1499,6 @@ class TemporalProximity(QWidget):
         self.explanation.setLayout(layout)
         layout.addWidget(self.description)
         layout.addWidget(self.adjust)
-
-        self.widget_for_state = {
-            TemporalProximityState.empty: self.explanation,
-            TemporalProximityState.pending: self.generationPending,
-            TemporalProximityState.generating: self.generating,
-            TemporalProximityState.regenerate: self.generating,
-            TemporalProximityState.ctime_rebuild: self.ctime_vs_mtime,
-            TemporalProximityState.ctime_rebuild_proceed: self.ctime_vs_mtime,
-            TemporalProximityState.generated: self.temporalProximityView
-        }
 
         for label in (self.description, self.generationPending, self.generating, self.adjust,
                       self.ctime_vs_mtime):
@@ -1527,8 +1517,31 @@ class TemporalProximity(QWidget):
         self.setLayout(layout)
         layout.setContentsMargins(0, 0, 0, 0)
 
-        layout.addWidget(self.explanation)
+        self.stackedWidget = QStackedWidget()
+
+        for label in (self.explanation, self.generationPending, self.generating,
+                      self.ctime_vs_mtime):
+            scrollArea = QScrollArea()
+            scrollArea.setWidgetResizable(True)
+            scrollArea.setWidget(label)
+            self.stackedWidget.addWidget(scrollArea)
+
+        self.stackedWidget.addWidget(self.temporalProximityView)
+
+        self.stack_index_for_state = {
+            TemporalProximityState.empty: 0,
+            TemporalProximityState.pending: 1,
+            TemporalProximityState.generating: 2,
+            TemporalProximityState.regenerate: 2,
+            TemporalProximityState.ctime_rebuild: 3,
+            TemporalProximityState.ctime_rebuild_proceed: 3,
+            TemporalProximityState.generated: 4
+        }
+
+        layout.addWidget(self.stackedWidget)
         layout.addWidget(self.temporalValuePicker)
+
+        self.stackedWidget.setCurrentIndex(0)
 
         self.temporalValuePicker.valueChanged.connect(self.temporalValueChanged)
 
@@ -1598,20 +1611,8 @@ class TemporalProximity(QWidget):
 
         logging.debug("Updating Timeline state from %s to %s", self.state.name, state.name)
 
-        layout = self.layout()  # type: QVBoxLayout
-
-        existingWidget = self.widget_for_state[self.state]
-
-        existingWidget.hide()
-
-        newWidget = self.widget_for_state[state]
-
-        layout.removeWidget(existingWidget)
-        layout.insertWidget(0, newWidget)
-        newWidget.show()
-
+        self.stackedWidget.setCurrentIndex(self.stack_index_for_state[state])
         self.clearThumbnailDisplayFilter()
-
         self.state = state
 
     def setGroups(self, proximity_groups: TemporalProximityGroups) -> bool:

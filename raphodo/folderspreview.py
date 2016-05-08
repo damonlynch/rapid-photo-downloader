@@ -396,10 +396,10 @@ class FoldersPreview:
                 except OSError:
                     logging.error("Failed to create download directory %s", p)
                     return
-                logging.debug("Created provisional download folder: %s", p)
+                # logging.debug("Created provisional download folder: %s", p)
             else:
                 self.existing_subfolders.add(p)
-                logging.debug("Provisional download folder already exists: %s", p)
+                # logging.debug("Provisional download folder already exists: %s", p)
 
 
 
