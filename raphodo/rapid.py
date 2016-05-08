@@ -117,7 +117,8 @@ from raphodo.thumbnaildisplay import (ThumbnailView, ThumbnailListModel, Thumbna
 from raphodo.devicedisplay import (DeviceModel, DeviceView, DeviceDelegate)
 from raphodo.proximity import (TemporalProximityGroups, TemporalProximity)
 from raphodo.utilities import (same_file_system, make_internationalized_list,
-                               thousands, addPushButtonLabelSpacer, format_size_for_user)
+                               thousands, addPushButtonLabelSpacer, format_size_for_user,
+                               make_html_path_non_breaking)
 from raphodo.rpdfile import (RPDFile, file_types_by_number, PHOTO_EXTENSIONS,
                              VIDEO_EXTENSIONS, OTHER_PHOTO_EXTENSIONS, FileTypeCounter)
 import raphodo.downloadtracker as downloadtracker
@@ -1920,6 +1921,10 @@ class RapidWindow(QMainWindow):
         """
 
         path = self.fileSystemModel.filePath(index.model().mapToSource(index))
+
+        if not self.checkChosenDownloadDestination(path, FileType.photo):
+            return
+
         if validate_download_folder(path).valid:
             if path != self.prefs.photo_download_folder:
                 self.prefs.photo_download_folder = path
@@ -1930,6 +1935,37 @@ class RapidWindow(QMainWindow):
         else:
             logging.error("Invalid photo download destination chosen: %s", path)
             self.handleInvalidDownloadDestination(file_type=FileType.photo)
+
+    def checkChosenDownloadDestination(self, path: str, file_type: FileType) -> bool:
+        """
+        Check the path the user has chosen to ensure it's not a provisional
+        download subfolder. If it is a download subfolder that already existed,
+        confirm with the user that they did in fact want to use that destination.
+
+        :param path: path chosen
+        :param file_type: whether for photos or videos
+        :return: True if the path is problematic and should be ignored, else False
+        """
+
+        problematic = path in self.fileSystemModel.preview_subfolders
+
+        if not problematic and path in self.fileSystemModel.download_subfolders:
+            message = _("<b>Confirm Download Destination</b><br><br>Are you sure you want to set "
+                        "the %(file_type)s download destination to %(path)s?") % dict(
+                        file_type=file_type.name, path=make_html_path_non_breaking(path))
+            msgbox = self.standardMessageBox(message=message, rich_text=True)
+            msgbox.setStandardButtons(QMessageBox.Yes|QMessageBox.No)
+            msgbox.setIcon(QMessageBox.Question)
+            problematic = msgbox.exec() == QMessageBox.No
+
+        if problematic:
+            if file_type == FileType.photo and self.prefs.photo_download_folder:
+                self.photoDestinationFSView.goToPath(self.prefs.photo_download_folder)
+            elif file_type == FileType.video and self.prefs.video_download_folder:
+                self.videoDestinationFSView.goToPath(self.prefs.video_download_folder)
+            return False
+
+        return True
 
     def handleInvalidDownloadDestination(self, file_type: FileType, do_update: bool=True) -> None:
         """
@@ -1965,6 +2001,10 @@ class RapidWindow(QMainWindow):
         """
 
         path = self.fileSystemModel.filePath(index.model().mapToSource(index))
+
+        if not self.checkChosenDownloadDestination(path, FileType.video):
+            return
+
         if validate_download_folder(path).valid:
             if path != self.prefs.video_download_folder:
                 self.prefs.video_download_folder = path
@@ -4102,7 +4142,7 @@ class RapidWindow(QMainWindow):
                     '/lib', '/lib32', '/lib64', '/mnt', '/opt', '/sbin', '/snap', '/sys', '/tmp',
                     '/usr', '/var', '/proc'):
             message = "<b>" + _("Downloading from %(location)s on This Computer.") % dict(
-                location=path) + "</b><br><br>" + _(
+                location=make_html_path_non_breaking(path)) + "</b><br><br>" + _(
                 "Do you really want to download from here?<br><br>On some systems, scanning this "
                 "location can take a very long time.")
             msgbox = self.standardMessageBox(message=message, rich_text=True)

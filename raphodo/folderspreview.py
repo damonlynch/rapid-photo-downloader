@@ -282,12 +282,14 @@ class FoldersPreview:
                     if do_rmdir:
                         try:
                             os.rmdir(subfolder)
-                            logging.debug("While cleaning generated folders, removed %s", subfolder)
+                            # logging.debug("While cleaning generated folders, removed %s", subfolder)
                         except OSError:
-                            logging.debug("While cleaning generated folders, did not remove %s. It "
-                                          "may not be empty.", subfolder)
+                            # logging.debug("While cleaning generated folders, did not remove %s. It "
+                            #               "may not be empty.", subfolder)
+                            pass
                 else:
-                    logging.debug("While cleaning generated folders, not removing %s ", subfolder)
+                    pass
+                    # logging.debug("While cleaning generated folders, not removing %s ", subfolder)
 
         if scan_id is not None:
             for level, subfolder in removed_folders:

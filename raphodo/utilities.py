@@ -519,3 +519,13 @@ def process_running(process_name: str, partial_name: bool=True) -> bool:
                     return True
     return False
 
+def make_html_path_non_breaking(path: str) -> str:
+    """
+    When /some/path is displayed in rich text, it will be word-wrapped on the
+    slashes. Inhibit that using a special unicode character.
+
+    :param path: the path
+    :return: the path containing the special characters
+    """
+
+    return path.replace(os.sep, '{}&#8288;'.format(os.sep))
