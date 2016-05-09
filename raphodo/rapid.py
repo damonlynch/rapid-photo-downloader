@@ -124,7 +124,7 @@ from raphodo.rpdfile import (RPDFile, file_types_by_number, PHOTO_EXTENSIONS,
 import raphodo.downloadtracker as downloadtracker
 from raphodo.cache import ThumbnailCacheSql
 from raphodo.metadataphoto import exiv2_version, gexiv2_version
-from raphodo.metadatavideo import EXIFTOOL_VERSION
+from raphodo.metadatavideo import EXIFTOOL_VERSION, pymedia_version_info
 from raphodo.camera import gphoto2_version, python_gphoto2_version
 from raphodo.rpdsql import DownloadedSQL
 from raphodo.generatenameconfig import *
@@ -4409,6 +4409,7 @@ def get_versions() -> List[str]:
         'gPhoto2: {}'.format(gphoto2_version()),
         'Python gPhoto2: {}'.format(python_gphoto2_version()),
         'ExifTool: {}'.format(EXIFTOOL_VERSION),
+        'pymediainfo: {}'.format(pymedia_version_info()),
         'GExiv2: {}'.format(gexiv2_version()),
         'psutil: {}'.format('.'.join((str(v) for v in psutil.version_info)))]
     v = exiv2_version()

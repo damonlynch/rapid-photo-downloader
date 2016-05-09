@@ -160,7 +160,7 @@ def check_package_import_requirements() -> None:
              'gir1.2-udisks-2.0 gir1.2-notify-0.7 gir1.2-glib-2.0 gir1.2-gstreamer-1.0 '\
              'libgphoto2-dev python3-arrow python3-psutil '\
              'qt5-image-formats-plugins python3-zmq exiv2 python3-colorlog libraw-bin ' \
-             'python3-easygui'.split()
+             'python3-easygui libmediainfo0v5'.split()
 
         for package in packages:
             try:
@@ -185,7 +185,7 @@ def check_package_import_requirements() -> None:
         packages = 'python3-qt5 gobject-introspection python3-gobject libgexiv2-python3 ' \
                    'libgphoto2-devel zeromq-devel exiv2 perl-Image-ExifTool LibRaw-devel gcc-c++ ' \
                    'rpm-build python3-devel python3-distutils-extra intltool ' \
-                   'python3-easygui qt5-qtimageformats python3-psutil'.split()
+                   'python3-easygui qt5-qtimageformats python3-psutil libmediainfo'.split()
 
         with dnf.Base() as base:
             # Code from http://dnf.readthedocs.org/en/latest/use_cases.html

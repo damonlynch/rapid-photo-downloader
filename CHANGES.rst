@@ -100,6 +100,13 @@ Changelog for Rapid Photo Downloader
 
    - Status bar messages have been significantly revamped.
 
+   - Determining a video's  correct creation time has  been improved, using a
+     combination of the tools MediaInfo and ExifTool. It's trickier than it seems.
+     Depending on the video file and the camera that produced it, neither MediaInfo
+     nor ExifTool always give the correct result. Moreover the creation date of some
+     videos always use the UTC time zone, whereas others include the time zone the
+     video was created in, while others eschew any concept of time zones.
+
    - The time remaining until a download is complete (which is shown in the status
      bar) is more stable and more accurate. The algorithm is modelled on that
      used by Mozilla.

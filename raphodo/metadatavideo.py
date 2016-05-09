@@ -26,9 +26,19 @@ import datetime, time
 import logging
 from typing import Optional
 
-import raphodo.exiftool as exiftool
+import arrow.arrow
+from arrow.arrow import Arrow
 
-def version_info() -> str:
+import raphodo.exiftool as exiftool
+from raphodo.utilities import datetime_roughly_equal
+
+try:
+    import pymediainfo
+    have_pymediainfo = True
+except ImportError:
+    have_pymediainfo = False
+
+def version_info() -> Optional[str]:
     """
     returns the version of Exiftool being used
 
@@ -38,6 +48,12 @@ def version_info() -> str:
         return subprocess.check_output(['exiftool', '-ver']).strip().decode()
     except OSError:
         logging.error("Could not locate Exiftool")
+        return None
+
+def pymedia_version_info() -> Optional[str]:
+    if have_pymediainfo:
+        return pymediainfo.__version__
+    else:
         return None
 
 EXIFTOOL_VERSION = version_info()
@@ -62,6 +78,10 @@ class MetaData:
         self.metadata = dict()
         self.metadata_string_format = dict()
         self.et_process = et_process
+        if have_pymediainfo:
+            self.media_info =  pymediainfo.MediaInfo.parse(full_file_name)  # type: pymediainfo.MediaInfo
+        else:
+            self.media_info = None
 
     def _get(self, key, missing):
 
@@ -81,17 +101,7 @@ class MetaData:
 
         return self.metadata.get(key, missing)
 
-    def date_time(self, missing: Optional[str]='') -> datetime.datetime:
-        """
-        Returns in python datetime format the date and time the image was
-        recorded.
-
-        Trys to get value from key "DateTimeOriginal"
-        If that fails, tries "CreateDate", and then finally
-        FileModifyDate
-
-        Returns missing either metadata value is not present.
-        """
+    def _exiftool_date_time(self, missing: Optional[str]='') -> datetime.datetime:
         d = self._get('DateTimeOriginal', None)
         if d is None:
             d = self._get('CreateDate', None)
@@ -108,14 +118,96 @@ class MetaData:
                     dt = datetime.datetime.strptime(d, "%Y:%m:%d %H:%M:%S%z")
                 else:
                     dt = datetime.datetime.strptime(d, "%Y:%m:%d %H:%M:%S")
-            except:
+
+            except ValueError:
                 logging.warning("Error parsing date time metadata %s for video %s", d,
                                 self.filename)
                 return missing
+            except Exception:
+                logging.error("Unknown error parsing date time metadata %s for video %s", d,
+                                self.filename)
+                return missing
+
 
             return dt
         else:
             return missing
+
+    def date_time(self, missing: Optional[str]='') -> datetime.datetime:
+        """
+        Returns in python datetime format the date and time the image was
+        recorded.
+
+        Trys to get value from key "DateTimeOriginal"
+        If that fails, tries "CreateDate", and then finally
+        FileModifyDate
+
+        Returns missing either metadata value is not present.
+        """
+
+        if have_pymediainfo:
+            try:
+                d = self.media_info.to_data()['tracks'][0]['encoded_date']  # type: str
+            except KeyError:
+                logging.error('Failed to extract date time from %s using pymediainfo: trying '
+                              'Exiftool', self.filename)
+                return self._exiftool_date_time(missing)
+            else:
+                # format of date string is something like:
+                # UTC 2016-05-09 03:28:03
+                try:
+                    if d.startswith('UTC'):
+                        u = d[4:]
+                        a = arrow.get(u, "YYYY-MM-DD HH:mm:ss")  # type: Arrow
+                        dt_mi = a.to('local')
+                        dt = dt_mi.datetime  # type: datetime.datetime
+
+                        # Compare the value returned by mediainfo against that
+                        # returned by ExifTool, if and only if there is a time zone
+                        # setting in the video file that ExifTool can extract
+                        tz = self._get('TimeZone', None)
+                        if tz is None:
+                            logging.debug("Using pymediainfo datetime, because ExifTool did not "
+                                          "detect a time zone in %s", self.filename)
+                        if tz is not None:
+                            dt_et = self._exiftool_date_time(missing=None)
+                            if dt_et is not None:
+                                hour = tz // 60 * -1
+                                minute = tz % 60 * -1
+                                adjusted_dt_mi = dt_mi.replace(hours=hour, minutes=minute).naive
+                                if datetime_roughly_equal(adjusted_dt_mi, dt_et):
+                                    logging.debug("Favoring Exiftool datetime metadata over "
+                                                  "mediainfo for %s, because it includes a "
+                                                  "timezone", self.filename)
+                                    dt = dt_et
+                                else:
+                                    logging.debug("Although Exiftool located a time zone"
+                                        "in %s's metadata, using the mediainfo result, "
+                                        "because the two results are different. Mediainfo: %s / "
+                                        "%s  (before / after). Exiftool: %s. Time zone: %s",
+                                        self.filename, dt, adjusted_dt_mi, dt_et, tz)
+
+                    else:
+                        dt = datetime.datetime.strptime(d, "%Y-%m-%d %H:%M:%S")
+                except ValueError:
+                    logging.warning("Error parsing date time metadata %s for video %s. Will try "
+                                    "exiftool.", d, self.filename)
+                    return self._exiftool_date_time(missing)
+                except arrow.parser.ParserError:
+                    logging.warning("Error parsing date time metadata using Arrow %s for video "
+                                    "%s. Will try exiftool.", d, self.filename)
+                    return self._exiftool_date_time(missing)
+                except Exception:
+                    logging.error("Unknown error parsing date time metadata %s for video %s. "
+                                  "Will try exiftool.", d,
+                                    self.filename)
+                    return self._exiftool_date_time(missing)
+                else:
+                    return dt
+
+        else:
+            return self._exiftool_date_time(missing)
+
 
     def timestamp(self, missing='') -> float:
         """

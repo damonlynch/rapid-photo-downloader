@@ -294,7 +294,7 @@ class ThumbnailExtractor(LoadBalancerWorker):
                                           rpd_file.full_file_name)
                             thumbnail = None
                         else:
-                            logging.debug("Rendered %s using libraw", rpd_file.full_file_name)
+                            # logging.debug("Rendered %s using libraw", rpd_file.full_file_name)
                             processing.add(ExtractionProcessing.resize)
                             if photo_details.orientation is not None:
                                 processing.add(ExtractionProcessing.orient)

@@ -44,7 +44,7 @@ def install_instructions():
              'gir1.2-udisks-2.0 gir1.2-notify-0.7 gir1.2-glib-2.0 gir1.2-gstreamer-1.0 '\
              'libgphoto2-dev python3-arrow python3-psutil '\
              'qt5-image-formats-plugins python3-zmq exiv2 python3-colorlog libraw-bin ' \
-             'python3-easygui\n'
+             'python3-easygui libmediainfo0v5\n'
     if os.path.isfile('/etc/os-release'):
         with open('/etc/os-release', 'r') as f:
             for line in f:
@@ -210,7 +210,8 @@ setup(
                       'pyprind',
                       'rawkit',
                       'easygui',
-                      'colour'
+                      'colour',
+                      'pymediainfo'
                       ],
     extras_require={':python_version == "3.4"': ['scandir', 'typing']},
     include_package_data = False,

@@ -359,7 +359,7 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
         if self.camera.save_file_chunk(
                 dir_name=rpd_file.path,
                 file_name=rpd_file.name,
-                chunk_size_in_bytes=max(offset, rpd_file.size),
+                chunk_size_in_bytes=min(offset, rpd_file.size),
                 dest_full_filename=cache_full_file_name):
             rpd_file.temp_cache_full_file_chunk = cache_full_file_name
             return True

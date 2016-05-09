@@ -74,7 +74,7 @@ Python 3's installation tools up-to-date (be mindful of the mild caution below i
 
 To install Rapid Photo Downloader, run as your regular user (i.e. *without* sudo):
 
-``./install.sh rapid-photo-downloader-0.9.0a1.tar.gz``
+``./install.py rapid-photo-downloader-0.9.0a1.tar.gz``
 
 **Caution:** *untarring the archive, building it and installing it using* ``sudo python3 setup.py
 install`` *is* **not** *supported, and* **not** *recommended.*
@@ -103,7 +103,7 @@ Rapid Photo Downloader requires:
     - GExiv2 0.10
     - Gst 1.0
     - Notify 0.7
- - `python-gphoto2`_ 1.3.4 or newer
+ - `python-gphoto2`_ 1.4.0 or newer
  - pyzmq_
  - psutil_ 3.4.2 or newer
  - pyxdg_
@@ -113,6 +113,7 @@ Rapid Photo Downloader requires:
  - ExifTool_
  - EasyGUI_
  - Colour_
+ - pymediainfo_
  - rawkit_: renders thumbnails from RAW images from which a thumbnail cannot be extracted using
    libraw_, which is especially useful when downloading DNG files from Android phones or working
    with old RAW formats.
@@ -149,6 +150,8 @@ The non-Python programs required are:
  - Given `python-gphoto2`_ will almost certainly be installed from PyPi_, the development
    packages for libgphoto2 and Python3 must be installed first, e.g. libgphoto2-dev
    and python3-dev
+ - Likewise, given pymediainfo_ will almost certainly be installed from PyPi_,
+   the package libmediainfo must be installed.
  - If installing pyzmq_ from PyPi_, you must first install the development
    packages for libzmq3 and Python3, e.g. libzmq3-dev and python3-dev
  - Qt5 plugin for reading TIFF images
@@ -176,7 +179,7 @@ The following command will install all required and optional Python modules not 
 installed on your system, with the exception of those specified above in
 `satisfying software requirements`_:
 
-``./install.sh rapid-photo-downloader-0.9.0a1.tar.gz``
+``./install.py rapid-photo-downloader-0.9.0a1.tar.gz``
 
 Substitute the name of the correct compressed tar file if necessary, and run it as your regular
 user (i.e. *without* sudo).
@@ -221,3 +224,4 @@ If you installed the man pages, they are found in ``/usr/local/share/man/man1``.
 .. _intltool: https://freedesktop.org/wiki/Software/intltool/
 .. _Tkinter: https://wiki.python.org/moin/TkInter
 .. _`Qt5 plugin for reading TIFF images`: http://doc.qt.io/qt-5/qtimageformats-index.html
+.. _pymediainfo: https://github.com/sbraz/pymediainfo

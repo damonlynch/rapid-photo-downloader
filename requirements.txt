@@ -2,7 +2,7 @@
 --index-url https://pypi.python.org/simple/
 
 psutil>=3.4.2
-gphoto2>=1.3.4
+gphoto2>=1.4.0
 pyzmq>=14.4.1,<=15.1.0
 pyxdg>=0.25
 arrow>=0.6.0
@@ -14,3 +14,4 @@ typing>=3.5.0.1; python_version < '3.5'
 scandir>=1.2; python_version < '3.5'
 easygui
 colour
+pymediainfo>=2.1.4
