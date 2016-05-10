@@ -110,7 +110,7 @@ class MetaData(GExiv2.Metadata):
                 self.open_buf(raw_bytes)
             else:
                 assert app1_segment is not None
-                self.from_app1_segment(raw_bytes)
+                self.from_app1_segment(app1_segment)
 
         self.et_process = et_process
         self.rpd_full_file_name = full_file_name

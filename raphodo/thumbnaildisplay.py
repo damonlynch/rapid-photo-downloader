@@ -595,7 +595,7 @@ class ThumbnailListModel(QAbstractListModel):
         if not rpd_file.modified_via_daemon_process and self.rpd_files[uid].status in (
                 DownloadStatus.not_downloaded, DownloadStatus.download_pending):
             # Only update the rpd_file if the file has not already been downloaded
-            # TODO merge this no matter what the status: might need to update ctime, for example
+            # TODO merge this no matter what the status: might need to update ctime, for example?
             self.rpd_files[uid] = rpd_file
 
         if not thumbnail.isNull():

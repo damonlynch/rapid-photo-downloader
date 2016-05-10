@@ -72,9 +72,11 @@ class OffloadWorker(DaemonProcess):
                         pickle.HIGHEST_PROTOCOL)
                     self.send_message_to_sink()
 
-        except Exception as e:
+        except Exception:
             logging.error("An unhandled exception occurred while processing offloaded tasks")
             logging.exception("Traceback:")
+        except SystemExit as e:
+            sys.exit(e)
 
 if __name__ == '__main__':
     # Must initialize QGuiApplication to use QFont() and QFontMetrics

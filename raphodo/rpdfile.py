@@ -31,6 +31,9 @@ import locale
 from typing import Optional, List, Tuple, Union, Any
 
 from gettext import gettext as _
+import gi
+gi.require_version('GLib', '2.0')
+from gi.repository import GLib
 
 import raphodo.exiftool as exiftool
 from raphodo.constants import (DownloadStatus, FileType, FileExtension, FileSortPriority,
@@ -725,8 +728,11 @@ class Photo(RPDFile):
         try:
             self.metadata = metadataphoto.MetaData(full_file_name=full_file_name,
                raw_bytes=raw_bytes, app1_segment=app1_segment, et_process=et_process)
+        except GLib.GError as e:
+            logging.warning("Could not read metadata from %s. %s", self.full_file_name, e)
+            return False
         except:
-            logging.warning("Could not read metadata from {}".format(self.full_file_name))
+            logging.warning("Could not read metadata from %s", self.full_file_name)
             return False
         else:
             return True

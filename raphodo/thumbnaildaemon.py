@@ -33,7 +33,7 @@ __copyright__ = "Copyright 2015-2016, Damon Lynch"
 
 import logging
 import pickle
-
+import sys
 from typing import Set
 
 from gettext import gettext as _
@@ -137,9 +137,11 @@ class DameonThumbnailWorker(DaemonProcess):
                         write_fdo_thumbnail=data.write_fdo_thumbnail),
                         pickle.HIGHEST_PROTOCOL)
                     self.frontend.send_multipart([b'data', self.content])
-            except Exception as e:
-                    logging.error("Exception working on file %s", rpd_file.full_file_name)
-                    logging.exception("Traceback:")
+            except SystemExit as e:
+                sys.exit(e)
+            except:
+                logging.error("Exception working on file %s", rpd_file.full_file_name)
+                logging.exception("Traceback:")
 
 if __name__ == '__main__':
     generate_thumbnails = DameonThumbnailWorker()

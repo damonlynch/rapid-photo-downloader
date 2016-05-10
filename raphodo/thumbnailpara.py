@@ -369,7 +369,9 @@ class GenerateThumbnails(WorkerInPublishPullPipeline):
     def do_work(self) -> None:
         try:
             self.generate_thumbnails()
-        except Exception as e:
+        except SystemExit as e:
+            sys.exit(e)
+        except:
             if hasattr(self, 'device_name'):
                 logging.error("Exception generating thumbnails for %s", self.device_name)
             else:

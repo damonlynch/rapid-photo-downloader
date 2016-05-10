@@ -3404,6 +3404,8 @@ class RapidWindow(QMainWindow):
             self.udisks2MonitorThread.wait()
             self.cameraHotplugThread.quit()
             self.cameraHotplugThread.wait()
+        else:
+            del self.gvolumeMonitor
 
         self.loggermq.stop()
         self.loggermqThread.quit()
