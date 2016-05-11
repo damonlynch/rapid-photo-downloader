@@ -1176,15 +1176,13 @@ class OffloadData:
     def __init__(self, thumbnail_rows: Optional[Sequence[ThumbnailDataForProximity]]=None,
                  proximity_seconds: int=None,
                  rpd_files: Optional[Sequence[RPDFile]]=None,
-                 destination: Optional[DownloadDestination]=None,
                  strip_characters: Optional[bool]=None,
-                 scan_id: Optional[int]=None) -> None:
+                 folders_preview: Optional[FoldersPreview]=None) -> None:
         self.thumbnail_rows = thumbnail_rows
         self.proximity_seconds = proximity_seconds
         self.rpd_files = rpd_files
-        self.destination = destination
         self.strip_characters = strip_characters
-        self.scan_id = scan_id
+        self.folders_preview = folders_preview
 
 
 class OffloadResults:

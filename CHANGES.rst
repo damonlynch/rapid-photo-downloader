@@ -17,7 +17,7 @@ Changelog for Rapid Photo Downloader
      default, and their thumbnails are dimmed so you can differentiate them
      from files that are yet to be downloaded.
 
-   - Previously downloaded files can be hidden.
+   - The thumbnails for previously downloaded files can be hidden.
 
    - Unique to Rapid Photo Downloader is its Timeline, which groups photos and
      videos based on how much time elapsed between consecutive shots. Use it
@@ -100,12 +100,13 @@ Changelog for Rapid Photo Downloader
 
    - Status bar messages have been significantly revamped.
 
-   - Determining a video's  correct creation time has  been improved, using a
-     combination of the tools MediaInfo and ExifTool. It's trickier than it seems.
-     Depending on the video file and the camera that produced it, neither MediaInfo
-     nor ExifTool always give the correct result. Moreover the creation date of some
-     videos always use the UTC time zone, whereas others include the time zone the
-     video was created in, while others eschew any concept of time zones.
+   - Determining a video's  correct creation date and time has  been improved, using a
+     combination of the tools MediaInfo and ExifTool. Getting the right date and time
+     is trickier than it might appear. Depending on the video file and the camera that
+     produced it, neither MediaInfo nor ExifTool always give the correct result.
+     Moreover some cameras always use the UTC time zone when recording the creation
+     date and time in the video's metadata, whereas other cameras use the time zone
+     the video was created in, while others ignore time zones altogether.
 
    - The time remaining until a download is complete (which is shown in the status
      bar) is more stable and more accurate. The algorithm is modelled on that

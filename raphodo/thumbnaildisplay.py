@@ -618,7 +618,7 @@ class ThumbnailListModel(QAbstractListModel):
                 if scan_id in self.ctimes_differ:
                     uids = self.tsql.get_uids_for_device(scan_id=scan_id)
                     rpd_files = [self.rpd_files[uid] for uid in uids]
-                    self.rapidApp.generateProvisionalDownloadFolders(rpd_files=rpd_files)
+                    self.rapidApp.folder_preview_manager.add_rpd_files(rpd_files=rpd_files)
                     self.processCtimeDisparity(scan_id=scan_id)
                 log_state = True
 
@@ -652,7 +652,8 @@ class ThumbnailListModel(QAbstractListModel):
         self.ctimes_differ.append(scan_id)
         self.rapidApp.temporalProximity.setState(TemporalProximityState.ctime_rebuild)
         if not self.rapidApp.downloadIsRunning():
-            self.rapidApp.removeProvisionalDownloadFolders(scan_id=scan_id)
+            self.rapidApp.folder_preview_manager.remove_provisional_folders_for_device(
+                scan_id=scan_id)
             self.rapidApp.notifyFoldersProximityRebuild(scan_id)
 
     def processCtimeDisparity(self, scan_id: int) -> None:

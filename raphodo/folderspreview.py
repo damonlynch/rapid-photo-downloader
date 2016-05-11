@@ -22,9 +22,13 @@ Two tasks:
 Create a preview of destination folder structure by actually creating the directories
 on the file system, and removing them at program exit if they were not used.
 
-
 Highlight to the user where files will be downloaded to, regardless of whether the
 subfolder already exists or not.
+
+What makes the task trickier than might be expected is that the subfolders names have to
+be generated and the subfolders created on the file system in the offload process, but
+the subfolders can only be removed by the main process (otherwise the watches used by
+QFileSystemModel complain about folders being removed)
 """
 
 __author__ = 'Damon Lynch'
@@ -33,7 +37,7 @@ __copyright__ = "Copyright 2016, Damon Lynch"
 import os
 from collections import namedtuple, defaultdict
 import logging
-from typing import Tuple, Set, Sequence, Dict, Optional
+from typing import Tuple, Set, Sequence, Dict, Optional, List
 
 from PyQt5.QtWidgets import QFileSystemModel
 
@@ -41,6 +45,7 @@ from raphodo.rpdfile import RPDFile
 from raphodo.constants import FileType
 import raphodo.generatename as gn
 from raphodo.storage import validate_download_folder
+from raphodo.filebrowse import FileSystemModel
 
 
 DownloadDestination = namedtuple('DownloadDestination',
@@ -108,25 +113,6 @@ class FoldersPreview:
                 d.add(os.path.join(dest, components))
         return d
 
-    def process_rpd_files(self, rpd_files: Optional[Sequence[RPDFile]],
-                          destination: DownloadDestination,
-                          strip_characters: bool) -> Set[str]:
-        """
-        Determine if subfolder generation config or download destination
-        has changed.
-
-        If given a list of rpd_files, generate subfolder names for each.
-
-        :param rpd_files: rpd_files to generate names for
-        :param destination: Tuple with download destation and
-         subfolder gneeration config
-        :param strip_characters: value from user prefs.
-        """
-
-        self.process_destination(destination=destination)
-        if rpd_files:
-            self.generate_subfolders(rpd_files=rpd_files, strip_characters=strip_characters)
-
     def preview_subfolders(self) -> Set[str]:
         """
         Subfolders that have been generated to preview to the user where their
@@ -149,7 +135,8 @@ class FoldersPreview:
         v = self._generate_dests(self.video_download_folder, self.generated_video_subfolders)
         return p|v
 
-    def process_destination(self, destination: DownloadDestination) -> None:
+    def process_destination(self, destination: DownloadDestination,
+                            fsmodel: QFileSystemModel) -> None:
         """
         Handle any changes in destination directories or subfolder generation config
         :param destination: Tuple with download destation and
@@ -168,7 +155,7 @@ class FoldersPreview:
                 # need to handle it in any case.
                 self.existing_subfolders.add(self.photo_download_folder)
             if self.generated_photo_subfolders:
-                self.move_subfolders(photos=True)
+                self.move_subfolders(photos=True, fsmodel=fsmodel)
 
         if destination.video_download_folder != self.video_download_folder:
             self.video_download_folder = destination.video_download_folder
@@ -179,25 +166,28 @@ class FoldersPreview:
                 # See explanation above.
                 self.existing_subfolders.add(self.video_download_folder)
             if self.generated_video_subfolders:
-                self.move_subfolders(photos=False)
+                self.move_subfolders(photos=False, fsmodel=fsmodel)
 
         if destination.photo_subfolder != self.photo_subfolder:
             self.dirty = True
             self.photo_subfolder = destination.photo_subfolder
             self.clean_generated_folders(remove=self.created_photo_subfolders,
-                                         keep=self.created_video_subfolders)
+                                         keep=self.created_video_subfolders,
+                                         fsmodel=fsmodel)
 
         if destination.video_subfolder != self.video_subfolder:
             self.dirty = True
             self.video_subfolder = destination.video_subfolder
             self.clean_generated_folders(remove=self.created_video_subfolders,
-                                         keep=self.created_photo_subfolders)
+                                         keep=self.created_photo_subfolders,
+                                         fsmodel=fsmodel)
 
     def generate_subfolders(self, rpd_files: Sequence[RPDFile], strip_characters: bool) -> None:
         """
-        Generate on the file system if necessary the subfolders that will be
-        used for the download (assuming the subfolder generation config doesn't
-        change, of course).
+        Generate subfolder names for each rpd_fil, the create on the file system
+        if necessary the subfolders that will be used for the download (assuming
+        the subfolder generation config doesn't change, of course).
+
         :param rpd_files: rpd_files to generate names for
         :param strip_characters: value from user prefs.
         """
@@ -221,7 +211,7 @@ class FoldersPreview:
                     self.create_path(path=value, photos=photo, scan_ids={rpd_file.scan_id})
                     self.dirty = True
 
-    def move_subfolders(self, photos: bool) -> None:
+    def move_subfolders(self, photos: bool, fsmodel: QFileSystemModel) -> None:
         """
         Handle case where the user has chosen a different download directory
         :param photos: whether working on photos (True) or videos (False)
@@ -229,23 +219,25 @@ class FoldersPreview:
 
         if photos:
             self.clean_generated_folders(remove=self.created_photo_subfolders,
-                                         keep=self.created_video_subfolders)
+                                         keep=self.created_video_subfolders,
+                                         fsmodel=fsmodel)
             self.created_photo_subfolders = defaultdict(set)  # type: Dict[int, Set[str]]
             for path in self.generated_photo_subfolders:
                 scan_ids = self.generated_photo_subfolders_scan_ids[path]
                 self.create_path(path=path, photos=True, scan_ids=scan_ids)
         else:
             self.clean_generated_folders(remove=self.created_video_subfolders,
-                                         keep=self.created_photo_subfolders)
+                                         keep=self.created_photo_subfolders,
+                                         fsmodel=fsmodel)
             self.created_video_subfolders = defaultdict(set)  # type: Dict[int, Set[str]]
             for path in self.generated_video_subfolders:
                 scan_ids = self.generated_video_subfolders_scan_ids[path]
                 self.create_path(path=path, photos=False, scan_ids=scan_ids)
 
-    def clean_generated_folders(self, remove: Dict[int, Set[str]],
+    def clean_generated_folders(self, fsmodel: QFileSystemModel,
+                                remove: Dict[int, Set[str]],
                                 keep: Optional[Dict[int, Set[str]]]=None,
-                                scan_id: Optional[int]=None,
-                                fsmodel: Optional[QFileSystemModel]=None) -> None:
+                                scan_id: Optional[int]=None) -> None:
         """
         Remove preview folders from the file system, if necessary keeping those
         used for the other type of file (e.g. if moving only photos, keep video download
@@ -284,19 +276,12 @@ class FoldersPreview:
                         do_rmdir = True
                     if do_rmdir:
                         if not os.listdir(subfolder):
-                            if fsmodel is not None:
-                                index = fsmodel.index(subfolder)
-                                if not fsmodel.rmdir(index):
-                                    logging.debug("While cleaning generated folders, did not "
-                                                  "remove %s. The cause for the error is unknown.",
-                                                  subfolder)
-                            else:
-                                try:
-                                    os.rmdir(subfolder)
-                                except OSError as e:
-                                    logging.debug("While cleaning generated folders, did not "
-                                                  "remove %s. Code: %s. Error: %s.",
-                                                  subfolder, e.errno, e.strerror)
+                            index = fsmodel.index(subfolder)
+                            if not fsmodel.rmdir(index):
+                                logging.debug("While cleaning generated folders, did not "
+                                              "remove %s. The cause for the error is unknown.",
+                                              subfolder)
+
 
         if scan_id is not None:
             for level, subfolder in removed_folders:
@@ -315,12 +300,14 @@ class FoldersPreview:
         self.generated_photo_subfolders_scan_ids = defaultdict(set)  # type: Dict[str, Set[int]]
         self.generated_video_subfolders_scan_ids = defaultdict(set)  # type: Dict[str, Set[int]]
 
-    def clean_generated_folders_for_scan_id(self, scan_id: int) -> None:
+    def clean_generated_folders_for_scan_id(self, scan_id: int, fsmodel: QFileSystemModel) -> None:
 
         logging.debug("Cleaning subfolders created for scan id %s", scan_id)
 
-        self.clean_generated_folders(remove=self.created_photo_subfolders, scan_id=scan_id)
-        self.clean_generated_folders(remove=self.created_video_subfolders, scan_id=scan_id)
+        self.clean_generated_folders(remove=self.created_photo_subfolders, scan_id=scan_id,
+                                     fsmodel=fsmodel)
+        self.clean_generated_folders(remove=self.created_video_subfolders, scan_id=scan_id,
+                                     fsmodel=fsmodel)
         for subfolder, scan_ids in self.generated_photo_subfolders_scan_ids.items():
             if scan_id in scan_ids:
                 self.generated_photo_subfolders_scan_ids[subfolder].remove(scan_id)
@@ -400,10 +387,3 @@ class FoldersPreview:
             else:
                 self.existing_subfolders.add(p)
                 # logging.debug("Provisional download folder already exists: %s", p)
-
-
-
-
-
-
-

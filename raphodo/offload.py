@@ -39,7 +39,6 @@ class OffloadWorker(DaemonProcess):
 
     def run(self) -> None:
         try:
-            folders_preview = FoldersPreview()
             while True:
                 directive, content = self.receiver.recv_multipart()
 
@@ -53,22 +52,13 @@ class OffloadWorker(DaemonProcess):
                         proximity_groups=groups),
                         pickle.HIGHEST_PROTOCOL)
                     self.send_message_to_sink()
-                elif data.destination:
-                    folders_preview.process_rpd_files(rpd_files=data.rpd_files,
-                                                      destination=data.destination,
-                                                      strip_characters=data.strip_characters)
-                    if folders_preview.dirty:
-                        folders_preview.dirty = False
-                        self.content = pickle.dumps(OffloadResults(
-                            folders_preview=folders_preview),
-                            pickle.HIGHEST_PROTOCOL)
-                        self.send_message_to_sink()
                 else:
-                    assert data.scan_id is not None
-                    folders_preview.clean_generated_folders_for_scan_id(data.scan_id)
-                    folders_preview.dirty = False
+                    assert data.folders_preview
+                    assert data.rpd_files
+                    data.folders_preview.generate_subfolders(rpd_files=data.rpd_files,
+                                                      strip_characters=data.strip_characters)
                     self.content = pickle.dumps(OffloadResults(
-                        folders_preview=folders_preview),
+                        folders_preview=data.folders_preview),
                         pickle.HIGHEST_PROTOCOL)
                     self.send_message_to_sink()
 

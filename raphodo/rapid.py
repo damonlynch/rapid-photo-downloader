@@ -161,8 +161,8 @@ class RenameMoveFileManager(PushPullDaemonManager):
     files that have just been downloaded
     """
 
-    message = QtCore.pyqtSignal(bool, RPDFile, int)
-    sequencesUpdate = QtCore.pyqtSignal(int, list)
+    message = pyqtSignal(bool, RPDFile, int)
+    sequencesUpdate = pyqtSignal(int, list)
 
     def __init__(self, logging_port: int) -> None:
         super().__init__(logging_port)
@@ -185,29 +185,6 @@ class RenameMoveFileManager(PushPullDaemonManager):
                                       data.downloads_today)
 
 
-class OffloadManager(PushPullDaemonManager):
-    """
-    Handles tasks best run in a separate process
-    """
-
-    message = QtCore.pyqtSignal(TemporalProximityGroups)
-    downloadFolders = QtCore.pyqtSignal(FoldersPreview)
-    def __init__(self, logging_port: int):
-        super().__init__(logging_port=logging_port)
-        self._process_name = 'Offload Manager'
-        self._process_to_run = 'offload.py'
-
-    def assign_work(self, data: OffloadData):
-        self.send_message_to_worker(data)
-
-    def process_sink_data(self):
-        data = pickle.loads(self.content)  # type: OffloadResults
-        if data.proximity_groups is not None:
-            self.message.emit(data.proximity_groups)
-        elif data.folders_preview is not None:
-            self.downloadFolders.emit(data.folders_preview)
-
-
 class ThumbnailDaemonManager(PushPullDaemonManager):
     """
     Manages the process that extracts thumbnails after the file
@@ -217,7 +194,7 @@ class ThumbnailDaemonManager(PushPullDaemonManager):
     one for each device.
     """
 
-    message = QtCore.pyqtSignal(RPDFile, QPixmap)
+    message = pyqtSignal(RPDFile, QPixmap)
 
     def __init__(self, logging_port: int) -> None:
         super().__init__(logging_port)
@@ -236,12 +213,36 @@ class ThumbnailDaemonManager(PushPullDaemonManager):
                 thumbnail = QPixmap.fromImage(thumbnail)
         self.message.emit(data.rpd_file, thumbnail)
 
+
+class OffloadManager(PushPullDaemonManager):
+    """
+    Handles tasks best run in a separate process
+    """
+
+    message = pyqtSignal(TemporalProximityGroups)
+    downloadFolders = pyqtSignal(FoldersPreview)
+    def __init__(self, logging_port: int):
+        super().__init__(logging_port=logging_port)
+        self._process_name = 'Offload Manager'
+        self._process_to_run = 'offload.py'
+
+    def assign_work(self, data: OffloadData):
+        self.send_message_to_worker(data)
+
+    def process_sink_data(self):
+        data = pickle.loads(self.content)  # type: OffloadResults
+        if data.proximity_groups is not None:
+            self.message.emit(data.proximity_groups)
+        elif data.folders_preview is not None:
+            self.downloadFolders.emit(data.folders_preview)
+
+
 class ScanManager(PublishPullPipelineManager):
     """
     Handles the processes that scan devices (cameras, external devices,
     this computer path)
     """
-    message = QtCore.pyqtSignal(bytes)
+    message = pyqtSignal(bytes)
     def __init__(self, logging_port: int):
         super().__init__(logging_port=logging_port)
         self._process_name = 'Scan Manager'
@@ -261,8 +262,8 @@ class BackupManager(PublishPullPipelineManager):
     backed up to one drive, and videos to another, there would be a
     worker process for each drive (2 in total).
     """
-    message = QtCore.pyqtSignal(int, bool, bool, RPDFile)
-    bytesBackedUp = QtCore.pyqtSignal(bytes)
+    message = pyqtSignal(int, bool, bool, RPDFile)
+    bytesBackedUp = pyqtSignal(bytes)
 
     def __init__(self, logging_port: int) -> None:
         super().__init__(logging_port=logging_port)
@@ -335,6 +336,179 @@ class CopyFilesManager(PublishPullPipelineManager):
             assert data.scan_id is not None
             self.tempDirs.emit(data.scan_id, data.photo_temp_dir,
                                data.video_temp_dir)
+
+
+class FolderPreviewManager:
+    """
+    Manages sending FoldersPreview() off to the offload process to
+    generate new provisional download subfolders, and removing provisional download subfolders
+    in the main process, using QFileSystemModel.
+
+    Queues operations if they need to be, or runs them immediately when it can.
+
+    Sadly we must delete provisional download folders only in the main process, using
+    QFileSystemModel. Otherwise the QFileSystemModel is liable to issue a large number of
+    messages like this:
+
+    QInotifyFileSystemWatcherEngine::addPaths: inotify_add_watch failed: No such file or directory
+
+    We must generate and create folders in the offload process, because that
+    can be expensive for a large number of rpd_files.
+    """
+
+    def __init__(self, fsmodel: FileSystemModel,
+                 offloadmq: OffloadManager,
+                 prefs: Preferences,
+                 photoDestinationFSView: FileSystemView,
+                 videoDestinationFSView: FileSystemView,
+                 devices: DeviceCollection) -> None:
+        """
+
+        :param fsmodel: FileSystemModel powering the destination and this computer views
+        :param offloadmq: offload manager
+        :param prefs: program preferences
+        :param photoDestinationFSView: photo destination view
+        :param videoDestinationFSView: video destination view
+        :param devices: the device collection
+        """
+
+        self.rpd_files_queue = []  # type: List[RPDFile]
+        self.clean_for_scan_id_queue = []  # type: List[int]
+        self.change_destination_queued = False  # type: bool
+
+        self.offloaded = False
+        self.process_destination = False
+        self.offloadmq = offloadmq
+        self.fsmodel = fsmodel
+        self.prefs = prefs
+        self.devices = devices
+
+        self.photoDestinationFSView = photoDestinationFSView
+        self.videoDestinationFSView = videoDestinationFSView
+
+        self.folders_preview = FoldersPreview()
+        # Set the initial download destination values, using the values
+        # in the program prefs:
+        self._change_destination()
+
+    def add_rpd_files(self, rpd_files: List[RPDFile]) -> None:
+        """
+        Generate new provisional download folders for the rpd_files, either
+        by sending them off for generation to the offload process, or if some
+        are already being generated, queueing the operation
+
+        :param rpd_files: the list of rpd files
+        """
+        
+        if self.offloaded:
+            self.rpd_files_queue.extend(rpd_files)
+        else:
+            if self.rpd_files_queue:
+                rpd_files = rpd_files + self.rpd_files_queue
+                self.rpd_files_queue = []  # type: List[RPDFile]
+            self._generate_folders(rpd_files=rpd_files)
+
+    def _generate_folders(self, rpd_files: List[RPDFile]) -> None:
+        logging.info("Generating provisional download folders for %s files", len(rpd_files))
+        data = OffloadData(rpd_files=rpd_files, strip_characters=self.prefs.strip_characters,
+                           folders_preview=self.folders_preview)
+        self.offloaded = True
+        self.offloadmq.assign_work(data)
+
+    def change_destination(self) -> None:
+        if self.offloaded:
+            self.change_destination_queued = True
+        else:
+            self._change_destination()
+            self._update_model_and_views()
+
+    def _change_destination(self) -> None:
+            destination = DownloadDestination(
+                photo_download_folder=self.prefs.photo_download_folder,
+                video_download_folder=self.prefs.video_download_folder,
+                photo_subfolder=self.prefs.photo_subfolder,
+                video_subfolder=self.prefs.video_subfolder)
+            self.folders_preview.process_destination(destination=destination,
+                                                     fsmodel=self.fsmodel)
+
+    @pyqtSlot(FoldersPreview)
+    def folders_generated(self, folders_preview: FoldersPreview) -> None:
+        """
+        Receive the folders_preview from the offload process, and
+        handle any tasks that may have been queued in the time it was
+        being processed in the offload process
+
+        :param folders_preview: the folders_preview as worked on by the
+         offload process
+        """
+
+        logging.debug("Provisional download folders received")
+        self.offloaded = False
+        self.folders_preview = folders_preview
+
+        dirty = self.folders_preview.dirty
+        self.folders_preview.dirty = False
+        if dirty:
+            logging.debug("Provisional download folders change detected")
+
+        for scan_id in self.clean_for_scan_id_queue:
+            dirty = True
+            self._remove_provisional_folders_for_device(scan_id=scan_id)
+
+        self.clean_for_scan_id_queue = []  # type: List[int]
+
+        if self.change_destination_queued:
+            dirty = True
+            logging.debug("Changing destination of provisional download folders")
+            self._change_destination()
+
+        if dirty:
+            self._update_model_and_views()
+
+        if self.rpd_files_queue:
+            logging.debug("Assigning queued provisional download folders to be generated")
+            self._generate_folders(rpd_files=self.rpd_files_queue)
+            self.rpd_files_queue = []  # type: List[RPDFile]
+
+    def _update_model_and_views(self):
+        logging.debug("Updating file system model and views")
+        self.fsmodel.preview_subfolders = self.folders_preview.preview_subfolders()
+        self.fsmodel.download_subfolders = self.folders_preview.download_subfolders()
+        self.photoDestinationFSView.expandPreviewFolders(self.prefs.photo_download_folder)
+        self.videoDestinationFSView.expandPreviewFolders(self.prefs.video_download_folder)
+        # Update the views in case nothing was expanded
+        self.photoDestinationFSView.update()
+        self.videoDestinationFSView.update()
+
+    def remove_provisional_folders_for_device(self, scan_id: int) -> None:
+        """
+        Remove provisional download folders unique to this scan_id
+        using the offload process.
+
+        :param scan_id: scan id of the device
+        """
+
+        if self.offloaded:
+            self.clean_for_scan_id_queue.append(scan_id)
+        else:
+            self._remove_provisional_folders_for_device(scan_id=scan_id)
+            self._update_model_and_views()
+
+    def _remove_provisional_folders_for_device(self, scan_id: int) -> None:
+        if scan_id in self.devices:
+            logging.info("Cleaning provisional download folders for %s",
+                          self.devices[scan_id].display_name)
+        else:
+            logging.info("Cleaning provisional download folders for device %d", scan_id)
+        self.folders_preview.clean_generated_folders_for_scan_id(scan_id=scan_id,
+                                                             fsmodel=self.fsmodel)
+
+    def remove_preview_folders(self) -> None:
+        """
+        Called when application is exiting.
+        """
+
+        self.folders_preview.clean_all_generated_folders(fsmodel=self.fsmodel)
 
 
 class UseDeviceDialog(QDialog):
@@ -752,11 +926,19 @@ class RapidWindow(QMainWindow):
 
         self.offloadThread.started.connect(self.offloadmq.run_sink)
         self.offloadmq.message.connect(self.proximityGroupsGenerated)
-        self.offloadmq.downloadFolders.connect(self.provisionalDownloadFoldersGenerated)
 
         QTimer.singleShot(0, self.offloadThread.start)
         # Immediately start the sole daemon offload process worker
         self.offloadmq.start()
+
+        self.folder_preview_manager = FolderPreviewManager(fsmodel=self.fileSystemModel,
+                offloadmq=self.offloadmq, prefs=self.prefs,
+                photoDestinationFSView=self.photoDestinationFSView,
+                videoDestinationFSView=self.videoDestinationFSView,
+                devices=self.devices)
+
+        self.offloadmq.downloadFolders.connect(self.folder_preview_manager.folders_generated)
+
 
         self.renameThread = QThread()
         self.renamemq = RenameMoveFileManager(logging_port=self.logging_port)
@@ -1947,7 +2129,7 @@ class RapidWindow(QMainWindow):
             if path != self.prefs.photo_download_folder:
                 self.prefs.photo_download_folder = path
                 self.watchedDownloadDirs.updateWatchPathsFromPrefs(self.prefs)
-                self.generateProvisionalDownloadFolders()
+                self.folder_preview_manager.change_destination()
                 self.photoDestinationDisplay.setDestination(path=path)
                 self.setDownloadCapabilities()
         else:
@@ -2013,7 +2195,7 @@ class RapidWindow(QMainWindow):
 
         if do_update:
             self.watchedDownloadDirs.updateWatchPathsFromPrefs(self.prefs)
-            self.generateProvisionalDownloadFolders()
+            self.folder_preview_manager.change_destination()
             self.setDownloadCapabilities()
 
     @pyqtSlot(QModelIndex)
@@ -2035,7 +2217,7 @@ class RapidWindow(QMainWindow):
             if path != self.prefs.video_download_folder:
                 self.prefs.video_download_folder = path
                 self.watchedDownloadDirs.updateWatchPathsFromPrefs(self.prefs)
-                self.generateProvisionalDownloadFolders()
+                self.folder_preview_manager.change_destination()
                 self.videoDestinationDisplay.setDestination(path=path)
                 self.setDownloadCapabilities()
         else:
@@ -3121,7 +3303,7 @@ class RapidWindow(QMainWindow):
             self.thumbnailModel.addFiles(scan_id=scan_id,
                                          rpd_files=data.rpd_files,
                                          generate_thumbnail=not self.autoStart(scan_id))
-            self.generateProvisionalDownloadFolders(rpd_files=data.rpd_files)
+            self.folder_preview_manager.add_rpd_files(rpd_files=data.rpd_files)
         else:
             scan_id = data.scan_id
             if scan_id not in self.devices:
@@ -3294,33 +3476,6 @@ class RapidWindow(QMainWindow):
             logging.info("Was tasked to generate Timeline because %s, but there is nothing to "
                          "generate", reason)
 
-    def generateProvisionalDownloadFolders(self,
-                                           rpd_files: Optional[Sequence[RPDFile]]=None) -> None:
-        """
-        Generate download subfolders for the rpd files
-        """
-
-        logging.debug("Generating provisional download folders")
-
-        destination = DownloadDestination(photo_download_folder=self.prefs.photo_download_folder,
-                                          video_download_folder=self.prefs.video_download_folder,
-                                          photo_subfolder=self.prefs.photo_subfolder,
-                                          video_subfolder=self.prefs.video_subfolder)
-        data = OffloadData(rpd_files=rpd_files, destination=destination,
-                           strip_characters=self.prefs.strip_characters)
-        self.offloadmq.assign_work(data)
-
-    def removeProvisionalDownloadFolders(self, scan_id: int) -> None:
-        """
-        Remove provisional download folders unique to this scan_id
-        using the offload process.
-
-        :param scan_id: scan id of the device
-        """
-
-        data = OffloadData(scan_id=scan_id)
-        self.offloadmq.assign_work(data)
-
     @pyqtSlot(TemporalProximityGroups)
     def proximityGroupsGenerated(self, proximity_groups: TemporalProximityGroups) -> None:
         if self.temporalProximity.setGroups(proximity_groups=proximity_groups):
@@ -3328,15 +3483,6 @@ class RapidWindow(QMainWindow):
             if self.ctime_notification_issued:
                 self.notifyFoldersProximityRebuilt()
                 self.ctime_notification_issued = False
-
-    @pyqtSlot(FoldersPreview)
-    def provisionalDownloadFoldersGenerated(self, folders_preview: FoldersPreview) -> None:
-        self.fileSystemModel.update_preview_folders(folders_preview=folders_preview)
-        self.photoDestinationFSView.expandPreviewFolders(self.prefs.photo_download_folder)
-        self.videoDestinationFSView.expandPreviewFolders(self.prefs.video_download_folder)
-        # Update the views in case nothing was expanded
-        self.photoDestinationFSView.update()
-        self.videoDestinationFSView.update()
 
     def closeEvent(self, event) -> None:
         if self.application_state == ApplicationState.normal:
@@ -3365,7 +3511,7 @@ class RapidWindow(QMainWindow):
 
         self.writeWindowSettings()
         logging.debug("Cleaning up provisional download folders")
-        self.fileSystemModel.remove_preview_folders()
+        self.folder_preview_manager.remove_preview_folders()
 
         if self.ctime_update_notification is not None:
             self.ctime_update_notification = None
@@ -3859,7 +4005,7 @@ class RapidWindow(QMainWindow):
             if ignore_in_this_program_instantiation:
                 self.devices.ignore_device(scan_id=scan_id)
 
-            self.removeProvisionalDownloadFolders(scan_id=scan_id)
+            self.folder_preview_manager.remove_provisional_folders_for_device(scan_id=scan_id)
 
             del self.devices[scan_id]
             self.adjustLeftPanelSliderHandles()
@@ -4163,7 +4309,7 @@ class RapidWindow(QMainWindow):
 
         if not valid:
             self.watchedDownloadDirs.updateWatchPathsFromPrefs(self.prefs)
-            self.generateProvisionalDownloadFolders()
+            self.folder_preview_manager.change_destination()
             self.setDownloadCapabilities()
 
     def confirmManualDownloadLocation(self) -> bool:

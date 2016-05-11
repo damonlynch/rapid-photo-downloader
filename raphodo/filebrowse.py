@@ -34,7 +34,6 @@ from PyQt5.QtGui import (QPainter, QFont)
 
 import raphodo.qrc_resources as qrc_resources
 from raphodo.constants import (minPanelWidth, minFileSystemViewHeight, Roles)
-from raphodo.folderspreview import FoldersPreview
 
 
 class FileSystemModel(QFileSystemModel):
@@ -52,7 +51,8 @@ class FileSystemModel(QFileSystemModel):
         self.folder_icon = QIcon(':/icons/folder.svg')
         self.download_folder_icon = QIcon(':/icons/folder-filled.svg')
         self.setRootPath('/')
-        self.folders_preview = FoldersPreview()
+
+        # next two values are set via FolderPreviewManager.update()
         self.preview_subfolders = set()  # type: Set[str]
         self.download_subfolders = set()  # type: Set[str]
 
@@ -68,14 +68,6 @@ class FileSystemModel(QFileSystemModel):
             return path in self.preview_subfolders
 
         return super().data(index, role)
-
-    def update_preview_folders(self, folders_preview: FoldersPreview) -> None:
-        self.folders_preview = folders_preview
-        self.preview_subfolders = self.folders_preview.preview_subfolders()
-        self.download_subfolders = self.folders_preview.download_subfolders()
-
-    def remove_preview_folders(self) -> None:
-        self.folders_preview.clean_all_generated_folders(fsmodel=self)
 
 
 class FileSystemView(QTreeView):
