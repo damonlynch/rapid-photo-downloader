@@ -25,7 +25,7 @@ __copyright__ = "Copyright 2007-2016, Damon Lynch"
 import re
 import datetime
 import subprocess
-from typing import Optional
+from typing import Optional, Union, Any
 import logging
 
 import gi
@@ -405,30 +405,34 @@ class MetaData(GExiv2.Metadata):
                                             dt_string, self.rpd_full_file_name )
         return missing
 
-    def timestamp(self, missing=''):
+    def timestamp(self, missing='') -> Union[float, Any]:
         dt = self.date_time(missing=None)
         if dt is not None:
             try:
-                ts = dt.timestamp()
+                ts = float(dt.timestamp())
             except:
                 ts = missing
         else:
             ts = missing
         return ts
 
-    def sub_seconds(self, missing='00'):
-        """Returns the subsecond the image was taken, as recorded by the
-        camera"""
+    def sub_seconds(self, missing='00') -> Union[str, Any]:
+        """
+        Returns the subsecond the image was taken, as recorded by the
+        camera
+        """
+
         try:
             return self["Exif.Photo.SubSecTimeOriginal"]
         except:
             return missing
 
-    def orientation(self, missing=''):
+    def orientation(self, missing='') -> Union[int, Any]:
         """
         Returns the orientation of the image, as recorded by the camera
         Return type int
         """
+
         try:
             return int(self.get_orientation())
         except:
@@ -517,4 +521,4 @@ if __name__ == '__main__':
     print(m.orientation())
     print('Serial number:', m.camera_serial(missing='missing'))
     print('Shutter count:', m.shutter_count())
-    print('Subseconds:', m.sub_seconds())
+    print('Subseconds:', m.sub_seconds(), type(m.sub_seconds()))

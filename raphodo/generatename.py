@@ -38,11 +38,8 @@ from raphodo.rpdfile import RPDFile
 from raphodo.generatenameconfig import *
 
 
-
-MatchedSequences = namedtuple('MatchedSequences', 'session_sequence_no, '
-                                                    'sequence_letter, '
-                                                    'downloads_today, '
-                                                    'stored_sequence_no')
+MatchedSequences = namedtuple('MatchedSequences',
+                   'session_sequence_no, sequence_letter, downloads_today, stored_sequence_no')
 
 
 def convert_date_for_strftime(datetime_user_choice):
@@ -543,53 +540,53 @@ class Sequences:
         self.stored_sequence_no = stored_sequence_no
         self.matched_sequences = None
 
-    def set_matched_sequence_value(self, matched_sequences: MatchedSequences):
+    def set_matched_sequence_value(self, matched_sequences: MatchedSequences) -> None:
         self.matched_sequences = matched_sequences
 
-    def get_session_sequence_no(self):
+    def get_session_sequence_no(self) -> int:
         if self.matched_sequences is not None:
             return self.matched_sequences.session_sequence_no
         else:
             return self._get_session_sequence_no()
 
-    def _get_session_sequence_no(self):
+    def _get_session_sequence_no(self) -> int:
         return self.session_sequence_no + 1
 
-    def get_sequence_letter(self):
+    def get_sequence_letter(self) -> int:
         if self.matched_sequences is not None:
             return self.matched_sequences.sequence_letter
         else:
             return self._get_sequence_letter()
 
-    def _get_sequence_letter(self):
+    def _get_sequence_letter(self) -> int:
         return self.sequence_letter + 1
 
-    def increment(self, uses_session_sequece_no, uses_sequence_letter):
+    def increment(self, uses_session_sequece_no, uses_sequence_letter) -> None:
         if uses_session_sequece_no:
             self.session_sequence_no += 1
         if uses_sequence_letter:
             self.sequence_letter += 1
 
-    def get_downloads_today(self):
+    def get_downloads_today(self) -> int:
         if self.matched_sequences is not None:
             return self.matched_sequences.downloads_today
         else:
             return self._get_downloads_today()
 
-    def _get_downloads_today(self):
+    def _get_downloads_today(self) -> int:
         v = self.downloads_today_tracker.get_downloads_today()
         if v == -1:
             return 1
         else:
             return v + 1
 
-    def get_stored_sequence_no(self):
+    def get_stored_sequence_no(self) -> int:
         if self.matched_sequences is not None:
             return self.matched_sequences.stored_sequence_no
         else:
             return self._get_stored_sequence_no()
 
-    def _get_stored_sequence_no(self):
+    def _get_stored_sequence_no(self) -> int:
         # Must add 1 to the value, for historic reasons (that is how it used
         # to work)
         return self.stored_sequence_no + 1

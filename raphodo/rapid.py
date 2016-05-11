@@ -735,6 +735,10 @@ class RapidWindow(QMainWindow):
         # self.prefs.photo_rename = photo_rename_test
 
         self.prefs.photo_rename = photo_rename_simple_test
+
+        # TODO remove this for release
+        self.prefs.synchronize_raw_jpg = True
+
         # self.prefs.photo_rename = job_code_rename_test
 
         # Don't call processEvents() after initiating 0MQ, as it can
