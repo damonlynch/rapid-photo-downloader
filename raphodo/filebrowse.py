@@ -24,6 +24,7 @@ __author__ = 'Damon Lynch'
 __copyright__ = "Copyright 2016, Damon Lynch"
 
 import os
+import pathlib
 from typing import List, Set
 
 from PyQt5.QtCore import (QDir, Qt, QModelIndex, QItemSelectionModel, QSortFilterProxyModel)
@@ -52,22 +53,53 @@ class FileSystemModel(QFileSystemModel):
         self.download_folder_icon = QIcon(':/icons/folder-filled.svg')
         self.setRootPath('/')
 
-        # next two values are set via FolderPreviewManager.update()
+        # The next two values are set via FolderPreviewManager.update()
+        # They concern provisional folders that will be used if the
+        # download proceeeds, and all files are downloaded.
+
+        # First value: subfolders we've created to demonstrate to the user
+        # where their files will be downloaded to
         self.preview_subfolders = set()  # type: Set[str]
+        # Second value: subfolders that already existed, but that we still
+        # want to indicate to the user where their files will be downloaded to
         self.download_subfolders = set()  # type: Set[str]
+
+        # Folders that were actually used to download files into
+        self.subfolders_downloaded_into = set()  # type: Set[str]
 
     def data(self, index: QModelIndex, role=Qt.DisplayRole):
         if role == Qt.DecorationRole:
             path = index.data(QFileSystemModel.FilePathRole)  # type: str
-            if path in self.download_subfolders:
+            if path in self.download_subfolders or path in self.subfolders_downloaded_into:
                 return self.download_folder_icon
             else:
                 return self.folder_icon
         if role == Roles.folder_preview:
             path = index.data(QFileSystemModel.FilePathRole)
-            return path in self.preview_subfolders
+            return path in self.preview_subfolders and path not in self.subfolders_downloaded_into
 
         return super().data(index, role)
+
+    def add_subfolder_downloaded_into(self, path: str, download_folder: str) -> bool:
+        """
+        Add a path to the set of subfolders that indicate where files where
+        downloaded.
+        :param path: the full path to the folder
+        :return: True if the path was not added before, else False
+        """
+
+        if path not in self.subfolders_downloaded_into:
+            self.subfolders_downloaded_into.add(path)
+
+            pl_subfolders = pathlib.Path(path)
+            pl_download_folder = pathlib.Path(download_folder)
+
+            for subfolder in pl_subfolders.parents:
+                if not pl_download_folder in subfolder.parents:
+                    break
+                self.subfolders_downloaded_into.add(str(subfolder))
+            return True
+        return False
 
 
 class FileSystemView(QTreeView):
@@ -122,6 +154,11 @@ class FileSystemView(QTreeView):
                 self.expand(index)
                 expanded = True
         return expanded
+
+    def expandPath(self, path):
+        index = self.model().mapFromSource(self.fileSystemModel.index(path))
+        if not self.isExpanded(index):
+            self.expand(index)
 
 
 class FileSystemFilter(QSortFilterProxyModel):

@@ -481,14 +481,10 @@ class FolderPreviewManager:
         logging.debug("Updating file system model and views")
         self.fsmodel.preview_subfolders = self.folders_preview.preview_subfolders()
         self.fsmodel.download_subfolders = self.folders_preview.download_subfolders()
-        photos_expanded = self.photoDestinationFSView.expandPreviewFolders(
-            self.prefs.photo_download_folder)
-        videos_expanded = self.videoDestinationFSView.expandPreviewFolders(
-            self.prefs.video_download_folder)
-        if not photos_expanded:
-            self.photoDestinationFSView.update()
-        if not videos_expanded:
-            self.videoDestinationFSView.update()
+        self.photoDestinationFSView.expandPreviewFolders(self.prefs.photo_download_folder)
+        self.videoDestinationFSView.expandPreviewFolders(self.prefs.video_download_folder)
+        self.photoDestinationFSView.update()
+        self.videoDestinationFSView.update()
 
     def remove_folders_for_device(self, scan_id: int) -> None:
         """
@@ -522,12 +518,11 @@ class FolderPreviewManager:
         the download, clean any provisional download folders now that the
         download has finished.
         """
-        
+
         for scan_id in self.clean_for_scan_id_queue:
             self._remove_provisional_folders_for_device(scan_id=scan_id)
         self.clean_for_scan_id_queue = []  # type: List[int]
         self._update_model_and_views()
-
 
     def _remove_provisional_folders_for_device(self, scan_id: int) -> None:
         if scan_id in self.devices:
@@ -2634,6 +2629,16 @@ class RapidWindow(QMainWindow):
                 write_fdo_thumbnail=self.prefs.save_fdo_thumbnails,
                 use_thumbnail_cache=self.prefs.use_thumbnail_cache
             ))
+
+        if rpd_file.status in constants.Downloaded and \
+                self.fileSystemModel.add_subfolder_downloaded_into(
+                    path=rpd_file.download_path, download_folder=rpd_file.download_folder):
+            if rpd_file.file_type == FileType.photo:
+                self.photoDestinationFSView.expandPath(rpd_file.download_path)
+                self.photoDestinationFSView.update()
+            else:
+                self.videoDestinationFSView.expandPath(rpd_file.download_path)
+                self.videoDestinationFSView.update()
 
         if rpd_file.status == DownloadStatus.downloaded_with_warning:
             self.logError(ErrorType.warning, rpd_file.error_title,
