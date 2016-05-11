@@ -652,15 +652,14 @@ class ThumbnailListModel(QAbstractListModel):
         self.ctimes_differ.append(scan_id)
         self.rapidApp.temporalProximity.setState(TemporalProximityState.ctime_rebuild)
         if not self.rapidApp.downloadIsRunning():
-            self.rapidApp.folder_preview_manager.remove_provisional_folders_for_device(
+            self.rapidApp.folder_preview_manager.remove_folders_for_device(
                 scan_id=scan_id)
             self.rapidApp.notifyFoldersProximityRebuild(scan_id)
 
     def processCtimeDisparity(self, scan_id: int) -> None:
         """
         A device that had a disparity between the creation time and
-        modification time for a file has been fully downloaded from, or fully
-        downloaded from.
+        modification time for a file has been fully downloaded from.
 
         :param scan_id:
         :return:

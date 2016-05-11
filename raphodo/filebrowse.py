@@ -103,14 +103,25 @@ class FileSystemView(QTreeView):
         if scrollTo:
             self.scrollTo(index, QAbstractItemView.PositionAtTop)
 
-    def expandPreviewFolders(self, path: str) -> None:
+    def expandPreviewFolders(self, path: str) -> bool:
+        """
+        Expand any unexpanded preview folders
+
+        :param path: path under which to expand folders
+        :return: True if path was expanded, else False
+        """
+
         self.goToPath(path, scrollTo=True)
         if not path:
-            return
+            return False
+
+        expanded = False
         for path in self.fileSystemModel.download_subfolders:
             index = self.model().mapFromSource(self.fileSystemModel.index(path))
             if not self.isExpanded(index):
                 self.expand(index)
+                expanded = True
+        return expanded
 
 
 class FileSystemFilter(QSortFilterProxyModel):

@@ -361,7 +361,8 @@ class FolderPreviewManager:
                  prefs: Preferences,
                  photoDestinationFSView: FileSystemView,
                  videoDestinationFSView: FileSystemView,
-                 devices: DeviceCollection) -> None:
+                 devices: DeviceCollection,
+                 rapidApp: 'RapidWindow') -> None:
         """
 
         :param fsmodel: FileSystemModel powering the destination and this computer views
@@ -370,6 +371,7 @@ class FolderPreviewManager:
         :param photoDestinationFSView: photo destination view
         :param videoDestinationFSView: video destination view
         :param devices: the device collection
+        :param rapidApp: main application window
         """
 
         self.rpd_files_queue = []  # type: List[RPDFile]
@@ -382,6 +384,7 @@ class FolderPreviewManager:
         self.fsmodel = fsmodel
         self.prefs = prefs
         self.devices = devices
+        self.rapidApp = rapidApp
 
         self.photoDestinationFSView = photoDestinationFSView
         self.videoDestinationFSView = videoDestinationFSView
@@ -399,7 +402,7 @@ class FolderPreviewManager:
 
         :param rpd_files: the list of rpd files
         """
-        
+
         if self.offloaded:
             self.rpd_files_queue.extend(rpd_files)
         else:
@@ -451,16 +454,20 @@ class FolderPreviewManager:
         if dirty:
             logging.debug("Provisional download folders change detected")
 
-        for scan_id in self.clean_for_scan_id_queue:
-            dirty = True
-            self._remove_provisional_folders_for_device(scan_id=scan_id)
+        if not self.rapidApp.downloadIsRunning():
+            for scan_id in self.clean_for_scan_id_queue:
+                dirty = True
+                self._remove_provisional_folders_for_device(scan_id=scan_id)
 
-        self.clean_for_scan_id_queue = []  # type: List[int]
+            self.clean_for_scan_id_queue = []  # type: List[int]
 
-        if self.change_destination_queued:
-            dirty = True
-            logging.debug("Changing destination of provisional download folders")
-            self._change_destination()
+            if self.change_destination_queued:
+                dirty = True
+                logging.debug("Changing destination of provisional download folders")
+                self._change_destination()
+        else:
+            logging.debug("Not removing or moving provisional download folders because"
+                          "a download is running")
 
         if dirty:
             self._update_model_and_views()
@@ -474,13 +481,16 @@ class FolderPreviewManager:
         logging.debug("Updating file system model and views")
         self.fsmodel.preview_subfolders = self.folders_preview.preview_subfolders()
         self.fsmodel.download_subfolders = self.folders_preview.download_subfolders()
-        self.photoDestinationFSView.expandPreviewFolders(self.prefs.photo_download_folder)
-        self.videoDestinationFSView.expandPreviewFolders(self.prefs.video_download_folder)
-        # Update the views in case nothing was expanded
-        self.photoDestinationFSView.update()
-        self.videoDestinationFSView.update()
+        photos_expanded = self.photoDestinationFSView.expandPreviewFolders(
+            self.prefs.photo_download_folder)
+        videos_expanded = self.videoDestinationFSView.expandPreviewFolders(
+            self.prefs.video_download_folder)
+        if not photos_expanded:
+            self.photoDestinationFSView.update()
+        if not videos_expanded:
+            self.videoDestinationFSView.update()
 
-    def remove_provisional_folders_for_device(self, scan_id: int) -> None:
+    def remove_folders_for_device(self, scan_id: int) -> None:
         """
         Remove provisional download folders unique to this scan_id
         using the offload process.
@@ -493,6 +503,31 @@ class FolderPreviewManager:
         else:
             self._remove_provisional_folders_for_device(scan_id=scan_id)
             self._update_model_and_views()
+
+    def queue_folder_removal_for_device(self, scan_id: int) -> None:
+        """
+        Queues provisional download files for removal after
+        all files have been downloaded for a device.
+
+        :param scan_id: scan id of the device
+        """
+
+        self.clean_for_scan_id_queue.append(scan_id)
+
+    def remove_folders_for_queued_devices(self) -> None:
+        """
+        Once all files have been downloaded (i.e. no more remain
+        to be downloaded) and there was a disparity between
+        modification times and creation times that was discovered during
+        the download, clean any provisional download folders now that the
+        download has finished.
+        """
+        
+        for scan_id in self.clean_for_scan_id_queue:
+            self._remove_provisional_folders_for_device(scan_id=scan_id)
+        self.clean_for_scan_id_queue = []  # type: List[int]
+        self._update_model_and_views()
+
 
     def _remove_provisional_folders_for_device(self, scan_id: int) -> None:
         if scan_id in self.devices:
@@ -935,7 +970,8 @@ class RapidWindow(QMainWindow):
                 offloadmq=self.offloadmq, prefs=self.prefs,
                 photoDestinationFSView=self.photoDestinationFSView,
                 videoDestinationFSView=self.videoDestinationFSView,
-                devices=self.devices)
+                devices=self.devices,
+                rapidApp=self)
 
         self.offloadmq.downloadFolders.connect(self.folder_preview_manager.folders_generated)
 
@@ -2814,6 +2850,7 @@ class RapidWindow(QMainWindow):
             if scan_id in self.thumbnailModel.ctimes_differ and not \
                     self.thumbnailModel.filesRemainToDownload(scan_id=scan_id):
                 self.thumbnailModel.processCtimeDisparity(scan_id=scan_id)
+                self.folder_preview_manager.queue_folder_removal_for_device(scan_id=scan_id)
 
             # Last file for this scan id has been downloaded, so clean temp
             # directory
@@ -2839,6 +2876,8 @@ class RapidWindow(QMainWindow):
                 self.downloadProgressBar.reset()
                 if self.unity_progress:
                     self.desktop_launcher.set_property('progress_visible', False)
+
+                self.folder_preview_manager.remove_folders_for_queued_devices()
 
                 # Update prefs with stored sequence number and downloads today
                 # values
@@ -4005,7 +4044,7 @@ class RapidWindow(QMainWindow):
             if ignore_in_this_program_instantiation:
                 self.devices.ignore_device(scan_id=scan_id)
 
-            self.folder_preview_manager.remove_provisional_folders_for_device(scan_id=scan_id)
+            self.folder_preview_manager.remove_folders_for_device(scan_id=scan_id)
 
             del self.devices[scan_id]
             self.adjustLeftPanelSliderHandles()
