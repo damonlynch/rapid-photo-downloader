@@ -530,33 +530,33 @@ def formatTime(seconds: int, limit_precision=False) -> str:
     >>> formatTime(60)
     '1 minute'
     >>> formatTime(61)
-    '1 minute and 1 second'
+    '1 minute, 1 second'
     >>> formatTime(62)
-    '1 minute and 2 seconds'
+    '1 minute, 2 seconds'
     >>> formatTime(60 + 59)
-    '1 minute and 59 seconds'
+    '1 minute, 59 seconds'
     >>> formatTime(60 * 2)
     '2 minutes'
     >>> formatTime(60 * 2 + 1)
-    '2 minutes and 1 second'
+    '2 minutes, 1 second'
     >>> formatTime(60 * 2 + 2)
-    '2 minutes and 2 seconds'
+    '2 minutes, 2 seconds'
     >>> formatTime(60 * 3 + 25)
-    '3 minutes and 25 seconds'
+    '3 minutes, 25 seconds'
     >>> formatTime(60 * 3 + 25, limit_precision=True)
     '3 minutes'
     >>> formatTime(60 * 3 + 30)
-    '3 minutes and 30 seconds'
+    '3 minutes, 30 seconds'
     >>> formatTime(60 * 3 + 30, limit_precision=True)
     '4 minutes'
     >>> formatTime(60 * 45)
     '45 minutes'
     >>> formatTime(60 * 60 - 30)
-    '59 minutes and 30 seconds'
+    '59 minutes, 30 seconds'
     >>> formatTime(60 * 60 - 30, limit_precision=True)
     '1 hour'
     >>> formatTime(60 * 60 - 1)
-    '59 minutes and 59 seconds'
+    '59 minutes, 59 seconds'
     >>> formatTime(60 * 60)
     '1 hour'
     >>> formatTime(60 * 60 + 1)
@@ -564,53 +564,53 @@ def formatTime(seconds: int, limit_precision=False) -> str:
     >>> formatTime(60 * 60 + 29)
     '1 hour'
     >>> formatTime(60 * 60 + 30)
-    '1 hour and 1 minute'
+    '1 hour, 1 minute'
     >>> formatTime(60 * 60 + 59)
-    '1 hour and 1 minute'
+    '1 hour, 1 minute'
     >>> formatTime(60 * 61)
-    '1 hour and 1 minute'
+    '1 hour, 1 minute'
     >>> formatTime(60 * 61 + 29)
-    '1 hour and 1 minute'
+    '1 hour, 1 minute'
     >>> formatTime(60 * 61 + 30)
-    '1 hour and 2 minutes'
+    '1 hour, 2 minutes'
     >>> formatTime(60 * 60 * 2)
     '2 hours'
     >>> formatTime(60 * 60 * 2 + 45)
-    '2 hours and 1 minute'
+    '2 hours, 1 minute'
     >>> formatTime(60 * 60 * 2 + 60 * 29)
-    '2 hours and 29 minutes'
+    '2 hours, 29 minutes'
     >>> formatTime(60 * 60 * 2 + 60 * 29 + 29)
-    '2 hours and 29 minutes'
+    '2 hours, 29 minutes'
     >>> formatTime(60 * 60 * 2 + 60 * 29 + 29, limit_precision=True)
     '2 hours'
     >>> formatTime(60 * 60 * 2 + 60 * 29 + 30)
-    '2 hours and 30 minutes'
+    '2 hours, 30 minutes'
     >>> formatTime(60 * 60 * 2 + 60 * 29 + 30, limit_precision=True)
     '2 hours'
     >>> formatTime(60 * 60 * 2 + 60 * 30)
-    '2 hours and 30 minutes'
+    '2 hours, 30 minutes'
     >>> formatTime(60 * 60 * 2 + 60 * 30, limit_precision=True)
     '3 hours'
     >>> formatTime(60 * 60 * 2 + 60 * 59)
-    '2 hours and 59 minutes'
+    '2 hours, 59 minutes'
     >>> formatTime(60 * 60 * 2 + 60 * 59 + 30)
     '3 hours'
     >>> formatTime(60 * 60 * 3 + 29)
     '3 hours'
     >>> formatTime(60 * 60 * 3 + 30)
-    '3 hours and 1 minute'
+    '3 hours, 1 minute'
     >>> formatTime(60 * 60 * 23 + 60 * 29)
-    '23 hours and 29 minutes'
+    '23 hours, 29 minutes'
     >>> formatTime(60 * 60 * 23 + 60 * 29 + 29)
-    '23 hours and 29 minutes'
+    '23 hours, 29 minutes'
     >>> formatTime(60 * 60 * 23 + 60 * 29 + 30)
-    '23 hours and 30 minutes'
+    '23 hours, 30 minutes'
     >>> formatTime(60 * 60 * 23 + 60 * 29 + 30)
-    '23 hours and 30 minutes'
+    '23 hours, 30 minutes'
     >>> formatTime(60 * 60 * 23 + 60 * 59)
-    '23 hours and 59 minutes'
+    '23 hours, 59 minutes'
     >>> formatTime(60 * 60 * 23 + 60 * 59 + 20)
-    '23 hours and 59 minutes'
+    '23 hours, 59 minutes'
     >>> formatTime(60 * 60 * 23 + 60 * 59 + 40)
     '1 day'
     >>> formatTime(60 * 60 * 24)
@@ -620,15 +620,15 @@ def formatTime(seconds: int, limit_precision=False) -> str:
     >>> formatTime(60 * 60 * 24 + 60 * 29 + 59)
     '1 day'
     >>> formatTime(60 * 60 * 24 + 60 * 30)
-    '1 day and 1 hour'
+    '1 day, 1 hour'
     >>> formatTime(60 * 60 * 24 * 2 + 60 * 30)
-    '2 days and 1 hour'
+    '2 days, 1 hour'
     >>> formatTime(60 * 60 * 24 * 2 + 60 * 60 * 3)
-    '2 days and 3 hours'
+    '2 days, 3 hours'
     >>> formatTime(60 * 60 * 24 * 24 + 60 * 60 * 3)
-    '24 days and 3 hours'
+    '24 days, 3 hours'
     >>> formatTime(60 * 60 * 24 * 24 + 60 * 60 * 3 + 59)
-    '24 days and 3 hours'
+    '24 days, 3 hours'
     >>> formatTime(60 * 60 * 24 * 24 + 60 * 60 * 3 + 59, limit_precision=True)
     '24 days'
     >>> formatTime(60 * 60 * 24 * 24 + 60 * 60 * 18, limit_precision=True)
@@ -691,14 +691,14 @@ def formatTime(seconds: int, limit_precision=False) -> str:
         if seconds:
             if minutes == 1:
                 if seconds == 1:
-                    return _('1 minute and 1 second')
+                    return _('1 minute, 1 second')
                 else:
-                    return _('1 minute and %d seconds') % seconds
+                    return _('1 minute, %d seconds') % seconds
             else:
                 if seconds == 1:
-                    return _('%d minutes and 1 second') % minutes
+                    return _('%d minutes, 1 second') % minutes
                 else:
-                    return _('%(minutes)d minutes and %(seconds)d seconds') % dict(
+                    return _('%(minutes)d minutes, %(seconds)d seconds') % dict(
                         minutes=minutes, seconds=seconds)
         else:
             return _minutes(minutes)
@@ -729,14 +729,14 @@ def formatTime(seconds: int, limit_precision=False) -> str:
         if minutes:
             if hours == 1:
                 if minutes == 1:
-                    return _('1 hour and 1 minute')
+                    return _('1 hour, 1 minute')
                 else:
-                    return _('1 hour and %d minutes') % minutes
+                    return _('1 hour, %d minutes') % minutes
             else:
                 if minutes == 1:
-                    return _('%d hours and 1 minute') % hours
+                    return _('%d hours, 1 minute') % hours
                 else:
-                    return _('%(hours)d hours and %(minutes)d minutes') % dict(hours=hours,
+                    return _('%(hours)d hours, %(minutes)d minutes') % dict(hours=hours,
                                                                                minutes=minutes)
         else:
             return _hours(hours)
@@ -762,13 +762,13 @@ def formatTime(seconds: int, limit_precision=False) -> str:
         if hours:
             if days == 1:
                 if hours == 1:
-                    return _('1 day and 1 hour')
+                    return _('1 day, 1 hour')
                 else:
-                    return _('1 day and %d hours') % hours
+                    return _('1 day, %d hours') % hours
             else:
                 if hours == 1:
-                    return _('%d days and 1 hour') % days
+                    return _('%d days, 1 hour') % days
                 else:
-                    return _('%(days)d days and %(hours)d hours') % dict(days=days, hours=hours)
+                    return _('%(days)d days, %(hours)d hours') % dict(days=days, hours=hours)
         else:
             return _days(days)

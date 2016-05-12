@@ -263,10 +263,6 @@ class ThumbnailListModel(QAbstractListModel):
                           active_devices, len(self.removed_devices))
         else:
             logging.debug("Active devices: %s", active_devices)
-        if len(scan_ids) != len(self.rapidApp.devices):
-            logging.error("Conflicting number of devices: %s devices in database, and %s "
-                          "devices in rapidApp devices",
-                          len(scan_ids), len(self.rapidApp.devices))
 
     def validateModelConsistency(self):
         logging.debug("Validating thumbnail model consistency...")
@@ -542,7 +538,8 @@ class ThumbnailListModel(QAbstractListModel):
 
         if self.add_buffer.should_flush():
             self.flushAddBuffer()
-            self.rapidApp.updateDestinationViews()
+            destinations_good = self.rapidApp.updateDestinationViews()
+            self.rapidApp.destinationButton.setHighlighted(not destinations_good)
 
     def flushAddBuffer(self):
         if len(self.add_buffer):

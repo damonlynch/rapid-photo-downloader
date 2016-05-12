@@ -15,6 +15,8 @@ Options:
     -v, --verbose
     --debug
     -e, --extensions
+    --photo-renaming {on,off}
+    --video-renaming {on,off}
     -a {on,off}, --auto-detect {on,off}
     -t {on,off}, --this-computer {on,off}
     --this-computer PATH
@@ -75,6 +77,24 @@ Displays debugging information on the command line as the program runs
 =item B<-e, --extensions>
 
 Displays image file extensions the program recognizes and exits.
+
+=item B<--photo-renaming {on,off}>
+
+Turn on or off the the renaming of photos while downloading,
+overwriting existing program preferences. If turned on,
+the renaming scheme used will incorporate the photo's metadata date, time,
+the number of downloads today, and the file extension in lower case:
+S<C<YYYYMMDD-HHMM-E<lt>DownloadsTodayE<gt>.E<lt>LowercaseExtensionE<gt>>>,
+e.g. 20160512-1309-23.jpg.
+
+=item B<--video-renaming {on,off}>
+
+Turn on or off the the renaming of videos while downloading,
+overwriting existing program preferences. If turned on,
+the renaming scheme used will incorporate the video's metadata date, time,
+the number of downloads today, and the file extension in lower case:
+S<C<YYYYMMDD-HHMM-E<lt>DownloadsTodayE<gt>.E<lt>LowercaseExtensionE<gt>>>,
+e.g. 20160512-1429-26.mp4.
 
 =item B<-a {on,off}, --auto-detect {on,off}>
 

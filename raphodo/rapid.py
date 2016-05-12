@@ -107,7 +107,8 @@ from raphodo.devices import (Device, DeviceCollection, BackupDevice,
 from raphodo.preferences import (Preferences, ScanPreferences)
 from raphodo.constants import (BackupLocationType, DeviceType, ErrorType,
                                FileType, DownloadStatus, RenameAndMoveStatus,
-                               photo_rename_test, ApplicationState, photo_rename_simple_test,
+                               photo_rename_complex, ApplicationState, photo_rename_simple,
+                               video_rename_simple,
                                CameraErrorCode, TemporalProximityState,
                                ThumbnailBackgroundName, Desktop,
                                DeviceState, Sort, Show, Roles, DestinationDisplayType,
@@ -412,7 +413,8 @@ class FolderPreviewManager:
             self._generate_folders(rpd_files=rpd_files)
 
     def _generate_folders(self, rpd_files: List[RPDFile]) -> None:
-        logging.info("Generating provisional download folders for %s files", len(rpd_files))
+        if not self.devices.scanning or self.rapidApp.downloadIsRunning():
+            logging.info("Generating provisional download folders for %s files", len(rpd_files))
         data = OffloadData(rpd_files=rpd_files, strip_characters=self.prefs.strip_characters,
                            folders_preview=self.folders_preview)
         self.offloaded = True
@@ -603,6 +605,8 @@ class RapidWindow(QMainWindow):
     """
 
     def __init__(self, splash: 'SplashScreen',
+                 photo_rename: Optional[bool]=None,
+                 video_rename: Optional[bool]=None,
                  auto_detect: Optional[bool]=None,
                  this_computer_source: Optional[str]=None,
                  this_computer_location: Optional[str]=None,
@@ -655,6 +659,18 @@ class RapidWindow(QMainWindow):
             self.prefs.use_thumbnail_cache = thumb_cache
 
         self.setupWindow()
+
+        if photo_rename is not None:
+            if photo_rename:
+                self.prefs.photo_rename = photo_rename_simple
+            else:
+                self.prefs.photo_rename = self.prefs.rename_defaults['photo_rename']
+
+        if video_rename is not None:
+            if video_rename:
+                self.prefs.video_rename = video_rename_simple
+            else:
+                self.prefs.video_rename = self.prefs.rename_defaults['video_rename']
 
         if auto_detect is not None:
             self.prefs.device_autodetection = auto_detect
@@ -732,12 +748,10 @@ class RapidWindow(QMainWindow):
             logging.info("Auto download upon device insertion is on")
 
         self.prefs.verify_file = False
-        # self.prefs.photo_rename = photo_rename_test
+        # self.prefs.photo_rename = photo_rename_complex
 
-        self.prefs.photo_rename = photo_rename_simple_test
 
-        # TODO remove this for release
-        self.prefs.synchronize_raw_jpg = True
+        # self.prefs.synchronize_raw_jpg = False
 
         # self.prefs.photo_rename = job_code_rename_test
 
@@ -2987,7 +3001,7 @@ class RapidWindow(QMainWindow):
 
         device = self.devices[scan_id]
 
-        notification_name  = device.name()
+        notification_name  = device.display_name
 
         no_photos_downloaded = self.download_tracker.get_no_files_downloaded(
                                             scan_id, FileType.photo)
@@ -4664,6 +4678,10 @@ def parser_options(formatter_class=argparse.HelpFormatter):
          dest="extensions",
          help=_("list photo and video file extensions the program recognizes "
                 "and exit"))
+    parser.add_argument("--photo-renaming", choices=['on','off'],
+        dest="photo_renaming", help=_("turn on or off the the renaming of photos"))
+    parser.add_argument("--video-renaming", choices=['on','off'],
+        dest="video_renaming", help=_("turn on or off the the renaming of videos"))
     parser.add_argument("-a", "--auto-detect", choices=['on','off'],
         dest="auto_detect", help=_("turn on or off the automatic detection of devices from which "
        "to download"))
@@ -4731,6 +4749,7 @@ def parser_options(formatter_class=argparse.HelpFormatter):
                         "downloaded, and exit."))
     parser.add_argument("--log-gphoto2", action="store_true",
         help=_("include gphoto2 debugging information in log files"))
+
     return parser
 
 def main():
@@ -4763,6 +4782,26 @@ def main():
 
     global logger
     logger = iplogging.setup_main_process_logging(logging_level=logging_level)
+
+    logging.info("Rapid Photo Downloader is starting")
+    
+    if args.photo_renaming:
+        photo_rename = args.photo_renaming == 'on'
+        if photo_rename:
+            logging.info("Photo renaming turned on from command line")
+        else:
+            logging.info("Photo renaming turned off from command line")
+    else:
+        photo_rename = None
+        
+    if args.video_renaming:
+        video_rename = args.video_renaming == 'on'
+        if video_rename:
+            logging.info("Video renaming turned on from command line")
+        else:
+            logging.info("Video renaming turned off from command line")
+    else:
+        video_rename = None
 
     if args.auto_detect:
         auto_detect= args.auto_detect == 'on'
@@ -4913,7 +4952,9 @@ def main():
     splash.show()
     app.processEvents()
 
-    rw = RapidWindow(auto_detect=auto_detect,
+    rw = RapidWindow(photo_rename=photo_rename,
+                     video_rename=video_rename,
+                     auto_detect=auto_detect,
                      this_computer_source=this_computer_source,
                      this_computer_location=this_computer_location,
                      photo_download_folder=photo_location,
