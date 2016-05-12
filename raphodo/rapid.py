@@ -317,9 +317,11 @@ class CopyFilesManager(PublishPullPipelineManager):
         data = pickle.loads(self.content) # type: CopyFilesResults
         if data.total_downloaded is not None:
             assert data.scan_id is not None
-            #TODO handle cases where this legitimately is zero e.g. gphoto2 error -6
-            assert data.chunk_downloaded >= 0
-            assert data.total_downloaded >= 0
+            if data.chunk_downloaded < 0:
+                logging.critical("Chunk downloaded is less than zero: %s", data.chunk_downloaded)
+            if data.total_downloaded < 0:
+                logging.critical("Chunk downloaded is less than zero: %s", data.total_downloaded)
+
             # Emit the unpickled data, as when PyQt converts an int to a
             # C++ int, python ints larger that the maximum C++ int are
             # corrupted
@@ -2598,19 +2600,28 @@ class RapidWindow(QMainWindow):
                             rpd_file: RPDFile,
                             download_count: int) -> None:
 
+        scan_id = rpd_file.scan_id
+
+        if scan_id not in self.devices:
+            logging.debug("Ignoring file %s because its device has been removed",
+                          rpd_file.full_file_name)
+            return
+
         self.download_tracker.set_download_count_for_file(rpd_file.uid, download_count)
-        self.download_tracker.set_download_count(rpd_file.scan_id, download_count)
+        self.download_tracker.set_download_count(scan_id, download_count)
         rpd_file.download_start_time = self.download_start_datetime
         rpd_file.job_code = self.job_code.job_code
-        data = RenameAndMoveFileData(rpd_file=rpd_file,
+        self.renamemq.rename_file(RenameAndMoveFileData(rpd_file=rpd_file,
                                      download_count=download_count,
-                                     download_succeeded=download_succeeded)
-        self.renamemq.rename_file(data)
+                                     download_succeeded=download_succeeded))
 
     @pyqtSlot(bytes)
     def copyfilesBytesDownloaded(self, pickled_data: bytes) -> None:
         data = pickle.loads(pickled_data) # type: CopyFilesResults
         scan_id = data.scan_id
+        if scan_id not in self.devices:
+            return
+
         total_downloaded = data.total_downloaded
         chunk_downloaded = data.chunk_downloaded
         assert total_downloaded >= 0
@@ -2626,13 +2637,15 @@ class RapidWindow(QMainWindow):
             logging.debug("All files finished copying for %s", self.devices[scan_id].display_name)
 
     @pyqtSlot(bool, RPDFile, int)
-    def fileRenamedAndMoved(self, move_succeeded: bool, rpd_file: RPDFile,
+    def fileRenamedAndMoved(self, move_succeeded: bool,
+                            rpd_file: RPDFile,
                             download_count: int) -> None:
+
         scan_id = rpd_file.scan_id
 
         if scan_id not in self.devices:
-            logging.debug("Ignoring file %s because the device has been removed",
-                          rpd_file.download_full_file_name)
+            logging.debug("Ignoring file %s because its device has been removed",
+                          rpd_file.download_full_file_name or rpd_file.full_file_name)
             return
 
         if rpd_file.mdatatime_caused_ctime_change and scan_id not in \
@@ -4054,10 +4067,13 @@ class RapidWindow(QMainWindow):
                 if device_state != DeviceState.scanning:
                     logging.error("Expected device state to be 'scanning'")
                 self.scanmq.stop_worker(scan_id)
-            elif scan_id in self.copyfilesmq.workers:
-                if device_state != DeviceState.downloading:
-                    logging.error("Expected device state to be 'downloading'")
-                self.copyfilesmq.stop_worker(scan_id)
+            elif scan_id in self.copyfilesmq.workers or device_state == DeviceState.downloading:
+                if scan_id in self.copyfilesmq.workers:
+                    self.copyfilesmq.stop_worker(scan_id)
+                self.download_tracker.device_removed_mid_download(scan_id, device.display_name)
+                del self.time_remaining[scan_id]
+                self.notifyDownloadedFromDevice(scan_id=scan_id)
+
             # TODO need correct check for "is thumbnailing", given is now asynchronous
             elif scan_id in self.thumbnailModel.thumbnailmq.thumbnail_manager:
                 if device_state != DeviceState.thumbnailing:

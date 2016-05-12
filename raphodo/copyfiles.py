@@ -43,7 +43,6 @@ from raphodo.interprocess import (WorkerInPublishPullPipeline, CopyFilesArgument
 from raphodo.constants import (FileType, DownloadStatus)
 from raphodo.utilities import (GenerateRandomFileName, create_temp_dirs, same_file_system)
 from raphodo.rpdfile import RPDFile
-from raphodo.storage import gvfs_controls_mounts, have_gio, GVolumeMonitor, ValidMounts
 
 from gettext import gettext as _
 
@@ -88,6 +87,7 @@ def copy_file_metadata(src, dst):
                     break
             else:
                 pass
+
 
 class FileCopy:
     """
@@ -145,20 +145,28 @@ class CopyFilesWorker(WorkerInPublishPullPipeline, FileCopy):
     def __init__(self):
         super().__init__('CopyFiles')
 
-    def cleanup_pre_stop(self):
+    def cleanup_pre_stop(self) -> None:
         super().cleanup_pre_stop()
         if self.camera is not None:
             if self.camera.camera_initialized:
                 self.camera.free_camera()
 
     def update_progress(self, amount_downloaded: int, total: int) -> None:
+        """
+        Update the main process about how many bytes have been copied
+
+        :param amount_downloaded: the size in bytes of the file that
+         has been copied
+        :param total: the size of the file in bytes
+        """
+
         chunk_downloaded = amount_downloaded - self.bytes_downloaded
-        if (chunk_downloaded > self.batch_size_bytes) or (
-            amount_downloaded == total):
+        if (chunk_downloaded > self.batch_size_bytes) or (amount_downloaded == total):
             self.bytes_downloaded = amount_downloaded
             self.content= pickle.dumps(CopyFilesResults(
-                scan_id=self.scan_id, total_downloaded=self.total_downloaded
-                + amount_downloaded, chunk_downloaded=chunk_downloaded),
+                scan_id=self.scan_id,
+                total_downloaded=self.total_downloaded + amount_downloaded,
+                chunk_downloaded=chunk_downloaded),
                pickle.HIGHEST_PROTOCOL)
             self.send_message_to_sink()
 
@@ -166,16 +174,16 @@ class CopyFilesWorker(WorkerInPublishPullPipeline, FileCopy):
                 self.bytes_downloaded = 0
 
     def copying_file_error(self, rpd_file: RPDFile, destination: str, inst) -> None:
-        rpd_file.add_problem(None, pn.DOWNLOAD_COPYING_ERROR_W_NO, {'filetype': rpd_file.title})
-        rpd_file.add_extra_detail(pn.DOWNLOAD_COPYING_ERROR_W_NO_DETAIL, {'errorno': inst.errno,
-                                                                      'strerror': inst.strerror})
+        rpd_file.add_problem(None, pn.DOWNLOAD_COPYING_ERROR_W_NO, dict(filetype=rpd_file.title))
+        rpd_file.add_extra_detail(pn.DOWNLOAD_COPYING_ERROR_W_NO_DETAIL, dict(
+            errorno=inst.errno,strerror=inst.strerror))
 
         rpd_file.status = DownloadStatus.download_failed
 
         rpd_file.error_title = rpd_file.problem.get_title()
-        rpd_file.error_msg = _("%(problem)s\nFile: %(file)s") % \
-                             {'problem': rpd_file.problem.get_problems(),
-                             'file': rpd_file.full_file_name}
+        rpd_file.error_msg = _("%(problem)s\nFile: %(file)s") % dict(
+                             problem=rpd_file.problem.get_problems(),
+                             file=rpd_file.full_file_name)
 
         logging.error("Failed to download file: %s", rpd_file.full_file_name )
         logging.error(inst)
@@ -184,15 +192,15 @@ class CopyFilesWorker(WorkerInPublishPullPipeline, FileCopy):
     def copying_file_from_camera_error(self, rpd_file: RPDFile,
                                        display_name: str,
                                        reason: str) -> None:
-        rpd_file.add_problem(None, pn.DOWNLOAD_PROBLEM_CAM, {'filetype': rpd_file.title,
-                                                             'camera': display_name})
+        rpd_file.add_problem(None, pn.DOWNLOAD_PROBLEM_CAM, dict(filetype=rpd_file.title,
+                                                             camera=display_name))
         rpd_file.add_extra_detail(pn.DOWNLOAD_FROM_CAMERA_ERROR_DETAIL, reason)
         rpd_file.status = DownloadStatus.download_failed
 
         rpd_file.error_title = rpd_file.problem.get_title()
-        rpd_file.error_msg = _("%(problem)s\nFile: %(file)s") % \
-                             {'problem': rpd_file.problem.get_problems(),
-                              'file': rpd_file.full_file_name}
+        rpd_file.error_msg = _("%(problem)s\nFile: %(file)s") % dict(
+                                    problem=rpd_file.problem.get_problems(),
+                                    file=rpd_file.full_file_name)
 
     def copy_from_camera(self, rpd_file: RPDFile) -> bool:
 
@@ -226,33 +234,27 @@ class CopyFilesWorker(WorkerInPublishPullPipeline, FileCopy):
             if rpd_file.from_camera:
                 dir_name, file_name = \
                     os.path.split(associate_file_fullname)
-                succeeded = self.camera.save_file(dir_name, file_name,
-                                      temp_full_name)
+                succeeded = self.camera.save_file(dir_name, file_name, temp_full_name)
                 if not succeeded:
                     raise
             else:
-                shutil.copyfile(associate_file_fullname,
-                            temp_full_name)
+                shutil.copyfile(associate_file_fullname, temp_full_name)
             logging.debug("Copied %s file %s", file_type, temp_full_name)
 
         except (IOError, OSError) as inst:
-            logging.error("Failed to download %s file: %s", file_type,
-                          associate_file_fullname)
+            logging.error("Failed to download %s file: %s", file_type, associate_file_fullname)
             logging.error("%s: %s", inst.errno, inst.strerror)
             return None
         except:
-            logging.error("Failed to download %s file: %s", file_type,
-                          associate_file_fullname)
+            logging.error("Failed to download %s file: %s", file_type, associate_file_fullname)
             return None
 
         # Adjust file modification times and other file system metadata
         try:
             if rpd_file.from_camera:
-                os.utime(temp_full_name, (rpd_file.modification_time,
-                                          rpd_file.modification_time))
+                os.utime(temp_full_name, (rpd_file.modification_time, rpd_file.modification_time))
             else:
-                copy_file_metadata(associate_file_fullname,
-                               temp_full_name)
+                copy_file_metadata(associate_file_fullname, temp_full_name)
         except:
             pass
             # logging.warning(
@@ -323,15 +325,13 @@ class CopyFilesWorker(WorkerInPublishPullPipeline, FileCopy):
 
                 if rpd_cache_same_fs[rpd_file.file_type]:
                     try:
-                        shutil.move(rpd_file.cache_full_file_name,
-                                    temp_full_file_name)
+                        shutil.move(rpd_file.cache_full_file_name, temp_full_file_name)
                         copy_succeeded = True
                     except OSError as inst:
                         copy_succeeded = False
                         logging.error("Could not move cached file %s to temporary file %s. Error "
-                                      "code: %s",
-                                      rpd_file.cache_full_file_name, temp_full_file_name,
-                                      inst.errno)
+                                      "code: %s", rpd_file.cache_full_file_name,
+                                      temp_full_file_name, inst.errno)
                     if self.verify_file:
                         rpd_file.md5 = hashlib.md5(open(
                             temp_full_file_name).read()).hexdigest()
@@ -347,8 +347,7 @@ class CopyFilesWorker(WorkerInPublishPullPipeline, FileCopy):
                         os.remove(source)
                     except OSError as e:
                         logging.error("Error removing RPD Cache file %s while copying %s. Error "
-                                      "code: %s",
-                                      source, rpd_file.full_file_name, e.errno)
+                                      "code: %s", source, rpd_file.full_file_name, e.errno)
                 if copy_succeeded:
                     try:
                         os.utime(temp_full_file_name,
@@ -383,8 +382,8 @@ class CopyFilesWorker(WorkerInPublishPullPipeline, FileCopy):
 
                     if not self.camera.camera_initialized:
                         copy_succeeded = False
-                        logging.error("Could not copy %s from the %s",
-                                      rpd_file.full_file_name, self.display_name)
+                        logging.error("Could not copy %s from the %s", rpd_file.full_file_name,
+                                      self.display_name)
                         self.copying_file_from_camera_error(rpd_file=rpd_file,
                                             display_name=self.display_name,
                                             reason=_("The camera may have been inaccessible"))
@@ -404,8 +403,7 @@ class CopyFilesWorker(WorkerInPublishPullPipeline, FileCopy):
 
             if copy_succeeded:
                 try:
-                    copy_file_metadata(rpd_file.full_file_name,
-                                       temp_full_file_name)
+                    copy_file_metadata(rpd_file.full_file_name, temp_full_file_name)
                 except:
                     pass
                     # logging.warning(
@@ -418,20 +416,17 @@ class CopyFilesWorker(WorkerInPublishPullPipeline, FileCopy):
                 # copy THM (video thumbnail file) if there is one
                 if rpd_file.thm_full_name:
                     rpd_file.temp_thm_full_name = self.copy_associate_file(
-                        rpd_file, temp_name, dest_dir, rpd_file.thm_full_name,
-                        'video THM')
+                        rpd_file, temp_name, dest_dir, rpd_file.thm_full_name, 'video THM')
 
                 # copy audio file if there is one
                 if rpd_file.audio_file_full_name:
                     rpd_file.temp_audio_full_name = self.copy_associate_file(
-                        rpd_file, temp_name, dest_dir,
-                        rpd_file.audio_file_full_name, 'audio')
+                        rpd_file, temp_name, dest_dir, rpd_file.audio_file_full_name, 'audio')
 
                 # copy XMP file if there is one
                 if rpd_file.xmp_file_full_name:
                     rpd_file.temp_xmp_full_name = self.copy_associate_file(
-                        rpd_file, temp_name, dest_dir,
-                        rpd_file.xmp_file_full_name, 'XMP')
+                        rpd_file, temp_name, dest_dir, rpd_file.xmp_file_full_name, 'XMP')
 
             download_count = idx + 1
 

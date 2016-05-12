@@ -436,9 +436,8 @@ class Camera:
             check_for_command()
             stop = min(offset + chunk_size, size)
             try:
-                bytes_read = gp.check_result(self.camera.file_read(
-                    dir_name, file_name, gp.GP_FILE_TYPE_NORMAL,
-                    offset, view[offset:stop], self.context))
+                bytes_read = gp.check_result(self.camera.file_read(dir_name, file_name,
+                             gp.GP_FILE_TYPE_NORMAL, offset, view[offset:stop], self.context))
                 amount_downloaded += bytes_read
                 if progress_callback is not None:
                     progress_callback(amount_downloaded, size)
@@ -447,7 +446,7 @@ class Camera:
                               os.path.join(dir_name, file_name), self.display_name, ex.code)
                 copy_succeeded = False
                 if progress_callback is not None:
-                    progress_callback(size-amount_downloaded, size)
+                    progress_callback(size, size)
                 break
         if copy_succeeded:
             dest_file = None
@@ -457,9 +456,8 @@ class Camera:
                 dest_file.write(src_bytes)
                 dest_file.close()
             except OSError as ex:
-                logging.error('Error saving file %s from camera %s. Code '
-                              '%s', os.path.join(dir_name, file_name),
-                              self.display_name, ex.errno)
+                logging.error('Error saving file %s from camera %s. Code %s',
+                              os.path.join(dir_name, file_name), self.display_name, ex.errno)
                 if dest_file is not None:
                     dest_file.close()
                 copy_succeeded = False

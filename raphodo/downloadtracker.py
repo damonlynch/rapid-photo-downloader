@@ -24,12 +24,13 @@ import time
 import math
 import locale
 import logging
-from typing import Optional, Dict, List, Tuple
+from typing import Optional, Dict, List, Tuple, Set
 
 from gettext import gettext as _
 
 from raphodo.constants import DownloadStatus, FileType, DownloadUpdateSeconds
 from raphodo.thumbnaildisplay import DownloadStats
+from raphodo.rpdfile import RPDFile
 
 
 
@@ -42,7 +43,10 @@ class DownloadTracker:
         self._refresh_values()
 
     def _refresh_values(self):
-        """ these values are reset when a download is completed"""
+        """
+        Reset values when a download is completed
+        """
+
         self.size_of_download_in_bytes_by_scan_id = dict()  # type: Dict[int, int]
         self.total_bytes_backed_up_by_scan_id = dict()  # type: Dict[int, int]
         self.size_of_photo_backup_in_bytes_by_scan_id = dict()  # type: Dict[int, int]
@@ -77,6 +81,7 @@ class DownloadTracker:
         self.backups_performed_by_scan_id = defaultdict(int)  # type: Dict[int, List[int,...]]
         self.no_backups_to_perform_by_scan_id = dict()  # type: Dict[int, int]
         self.auto_delete = defaultdict(list)
+        self._devices_removed_mid_download = set()  # type: Set[int]
 
     def set_no_backup_devices(self, no_photo_backup_devices: int,
                               no_video_backup_devices: int) -> None:
@@ -120,35 +125,39 @@ class DownloadTracker:
         self.warnings[scan_id] = 0
         self.total_bytes_backed_up_by_scan_id[scan_id] = 0
 
-    def get_no_files_in_download(self, scan_id) -> int:
+    def get_no_files_in_download(self, scan_id: int) -> int:
         return self.no_files_in_download_by_scan_id[scan_id]
 
-    def get_no_files_downloaded(self, scan_id, file_type) -> int:
+    def get_no_files_downloaded(self, scan_id: int, file_type: FileType) -> int:
         if file_type == FileType.photo:
             return self.photos_downloaded.get(scan_id, 0)
         else:
             return self.videos_downloaded.get(scan_id, 0)
 
-    def get_no_files_failed(self, scan_id, file_type) -> int:
+    def get_no_files_failed(self, scan_id: int, file_type: FileType) -> int:
         if file_type == FileType.photo:
             return self.photo_failures.get(scan_id, 0)
         else:
             return self.video_failures.get(scan_id, 0)
 
-    def get_no_warnings(self, scan_id) -> int:
+    def get_no_warnings(self, scan_id: int) -> int:
         return self.warnings.get(scan_id, 0)
 
-    def add_to_auto_delete(self, rpd_file) -> None:
+    def add_to_auto_delete(self, rpd_file: RPDFile) -> None:
         self.auto_delete[rpd_file.scan_id].append(rpd_file.full_file_name)
 
-    def get_files_to_auto_delete(self, scan_id) -> int:
+    def get_files_to_auto_delete(self, scan_id: int) -> int:
         return self.auto_delete[scan_id]
 
-    def clear_auto_delete(self, scan_id) -> None:
+    def clear_auto_delete(self, scan_id: int) -> None:
         if scan_id in self.auto_delete:
             del self.auto_delete[scan_id]
 
     def file_backed_up(self, scan_id: int, uid: bytes) -> None:
+
+        if scan_id in self._devices_removed_mid_download:
+            return
+
         self.backups_performed_by_uid[uid] += 1
         self.backups_performed_by_scan_id[scan_id] += 1
 
@@ -161,6 +170,7 @@ class DownloadTracker:
         :return: True if backups for this particular file have completed, else
         False
         """
+
         if uid in self.backups_performed_by_uid:
             if file_type == FileType.photo:
                 return self.backups_performed_by_uid[uid] == self.no_photo_backup_devices
@@ -177,22 +187,36 @@ class DownloadTracker:
          scans will be checked
         :return: True if all backups finished, else False
         """
+
         if scan_id is None:
             for scan_id in self.no_backups_to_perform_by_scan_id:
-                if self.no_backups_to_perform_by_scan_id[scan_id] != \
-                        self.backups_performed_by_scan_id[scan_id]:
+                if (self.no_backups_to_perform_by_scan_id[scan_id] !=
+                        self.backups_performed_by_scan_id[scan_id] and
+                        scan_id not in self._devices_removed_mid_download):
                     return False
             return True
         else:
-            return self.no_backups_to_perform_by_scan_id[scan_id] == \
-               self.backups_performed_by_scan_id[scan_id]
+            return (self.no_backups_to_perform_by_scan_id[scan_id] ==
+                    self.backups_performed_by_scan_id[scan_id] or
+                    scan_id in self._devices_removed_mid_download)
 
-    def file_downloaded_increment(self, scan_id: int, file_type: FileType,
+    def file_downloaded_increment(self, scan_id: int,
+                                  file_type: FileType,
                                   status: DownloadStatus) -> None:
+
+        if scan_id in self._devices_removed_mid_download:
+            return
+
         self.files_downloaded[scan_id] += 1
 
-        if status not in (DownloadStatus.download_failed,
-                          DownloadStatus.download_and_backup_failed):
+        if status in (DownloadStatus.download_failed, DownloadStatus.download_and_backup_failed):
+            if file_type == FileType.photo:
+                self.photo_failures[scan_id] += 1
+                self.total_photo_failures += 1
+            else:
+                self.video_failures[scan_id] += 1
+                self.total_video_failures += 1
+        else:
             if file_type == FileType.photo:
                 self.photos_downloaded[scan_id] += 1
                 self.total_photos_downloaded += 1
@@ -200,37 +224,65 @@ class DownloadTracker:
                 self.videos_downloaded[scan_id] += 1
                 self.total_videos_downloaded += 1
 
-            if status in (DownloadStatus.downloaded_with_warning,
-                          DownloadStatus.backup_problem):
+            if status in (DownloadStatus.downloaded_with_warning, DownloadStatus.backup_problem):
                 self.warnings[scan_id] += 1
                 self.total_warnings += 1
-        else:
-            if file_type == FileType.photo:
-                self.photo_failures[scan_id] += 1
-                self.total_photo_failures += 1
-            else:
-                self.video_failures[scan_id] += 1
-                self.total_video_failures += 1
 
-    # def get_percent_complete(self, scan_id: int) -> float:
-    #     """
-    #     Returns a float representing how much of the download
-    #     has been completed for one particular device
-    #     :return a value between 0.0 and 100.0
-    #     """
-    #
-    #     # when calculating the percentage, there are three components:
-    #     # copy (download), rename ('rename_chunk'), and backup
-    #     percent_complete = (((
-    #               self.total_bytes_copied_by_scan_id[scan_id]
-    #             + self.rename_chunk[scan_id] * self.files_downloaded[scan_id])
-    #             + self.total_bytes_backed_up_by_scan_id[scan_id])
-    #             / (self.size_of_download_in_bytes_by_scan_id[scan_id] +
-    #                self.size_of_photo_backup_in_bytes_by_scan_id[scan_id] +
-    #                self.size_of_video_backup_in_bytes_by_scan_id[scan_id]
-    #                )) * 100
-    #
-    #     return percent_complete
+    def device_removed_mid_download(self, scan_id: int, display_name: str) -> None:
+        """
+        Adjust the the tracking to account for a device being removed as a download
+        was occurring.
+
+        :param scan_id: scan id of the device that has been removed
+        """
+
+        logging.debug("Adjusting download tracking to account for removed device %s",
+                      display_name)
+
+        self._devices_removed_mid_download.add(scan_id)
+
+        photos_downloaded = self.photo_failures[scan_id] + self.photos_downloaded[scan_id]
+        failures = self.no_photos_in_download_by_scan_id[scan_id] - photos_downloaded
+        self.photo_failures[scan_id] += failures
+        self.total_photo_failures += failures
+
+        videos_downloaded = self.video_failures[scan_id] + self.videos_downloaded[scan_id]
+        failures = self.no_videos_in_download_by_scan_id[scan_id] - videos_downloaded
+        self.video_failures[scan_id] += failures
+        self.total_video_failures += failures
+
+        self.download_count_by_scan_id[scan_id] = self.no_files_in_download_by_scan_id[scan_id]
+        self.files_downloaded[scan_id] = self.no_files_in_download_by_scan_id[scan_id]
+
+        self.total_bytes_copied_by_scan_id[scan_id] = \
+            self.size_of_download_in_bytes_by_scan_id[scan_id]
+
+        self.total_bytes_backed_up_by_scan_id[scan_id] = \
+            self.size_of_photo_backup_in_bytes_by_scan_id[scan_id] + \
+            self.size_of_video_backup_in_bytes_by_scan_id[scan_id]
+
+    def get_percent_complete(self, scan_id: int) -> float:
+        """
+        Returns a float representing how much of the download
+        has been completed for one particular device
+
+        Currently not used, but is correct.
+
+        :return a value between 0.0 and 100.0
+        """
+
+        # when calculating the percentage, there are three components:
+        # copy (download), rename ('rename_chunk'), and backup
+        percent_complete = (((
+                  self.total_bytes_copied_by_scan_id[scan_id]
+                + self.rename_chunk[scan_id] * self.files_downloaded[scan_id])
+                + self.total_bytes_backed_up_by_scan_id[scan_id])
+                / (self.size_of_download_in_bytes_by_scan_id[scan_id] +
+                   self.size_of_photo_backup_in_bytes_by_scan_id[scan_id] +
+                   self.size_of_video_backup_in_bytes_by_scan_id[scan_id]
+                   )) * 100
+
+        return percent_complete
 
     def get_overall_percent_complete(self) -> float:
         """
@@ -246,33 +298,42 @@ class DownloadTracker:
 
         return total / (self.total_bytes_to_download + self.total_bytes_to_backup)
 
-    def set_total_bytes_copied(self, scan_id, total_bytes) -> None:
+    def set_total_bytes_copied(self, scan_id: int, total_bytes: int) -> None:
+        if scan_id in self._devices_removed_mid_download:
+            return
         assert total_bytes >= 0
         self.total_bytes_copied_by_scan_id[scan_id] = total_bytes
 
-    def increment_bytes_backed_up(self, scan_id, chunk_downloaded) -> None:
+    def increment_bytes_backed_up(self, scan_id: int, chunk_downloaded: int) -> None:
+
+        if scan_id in self._devices_removed_mid_download:
+            return
+
         self.total_bytes_backed_up_by_scan_id[scan_id] += chunk_downloaded
 
-    def set_download_count_for_file(self, uid, download_count) -> None:
+    def set_download_count_for_file(self, uid: bytes, download_count: int) -> None:
         self.download_count_for_file_by_uid[uid] = download_count
 
     def get_download_count_for_file(self, uid: bytes) -> None:
         return self.download_count_for_file_by_uid[uid]
 
-    def set_download_count(self, scan_id, download_count) -> None:
+    def set_download_count(self, scan_id: int, download_count: int) -> None:
+        if scan_id in self._devices_removed_mid_download:
+            return
         self.download_count_by_scan_id[scan_id] = download_count
 
-    def get_file_types_present(self, scan_id) -> str:
+    def get_file_types_present(self, scan_id: int) -> str:
         return self.file_types_present_by_scan_id[scan_id]
 
     def set_file_types_present(self, scan_id: int, file_types_present: str) -> None:
         self.file_types_present_by_scan_id[scan_id] = file_types_present
 
-    def no_errors_or_warnings(self):
+    def no_errors_or_warnings(self) -> bool:
         """
-        Return True if there were no errors or warnings in the download
-        else return False
+        :return: True if there were no errors or warnings in the download
+         else return False
         """
+
         return (self.total_warnings == 0 and
                 self.total_photo_failures == 0 and
                 self.total_video_failures == 0)
@@ -301,7 +362,7 @@ class TimeCheck:
     Also tracks and reports download speed for the entire download, in sum, i.e.
     for all the devices and all backups as one.
 
-    Note: This is completely independent of the file / subfolder naming
+    Note: Times here are completely independent of the file / subfolder naming
     preference "download start time"
     """
 
@@ -350,6 +411,7 @@ class TimeCheck:
 
         return (updated, download_speed)
 
+
 class TimeForDownload:
     def __init__(self, size: int) -> None:
         self.time_remaining = math.inf  # type: float
@@ -361,9 +423,10 @@ class TimeForDownload:
 
         self.time_mark = time.time()  # type: float
         self.smoothed_speed = None  # type: Optional[float]
-        
+
+
 class TimeRemaining:
-    r"""
+    """
     Calculate how much time is remaining to finish a download
     
     Runs in tandem with TimeCheck, above.
@@ -380,40 +443,43 @@ class TimeRemaining:
         self.times[scan_id] = t
 
     def update(self, scan_id, bytes_downloaded) -> None:
-        if scan_id in self.times:
-            t = self.times[scan_id]  # type: TimeForDownload
 
-            t.total_downloaded_so_far += bytes_downloaded
-            now = time.time()
-            tm = t.time_mark
-            amt_time = now - tm
+        if not scan_id in self.times:
+            return
 
-            if amt_time > DownloadUpdateSeconds:
+        t = self.times[scan_id]  # type: TimeForDownload
 
-                amt_downloaded = t.total_downloaded_so_far - t.size_mark
-                t.size_mark = t.total_downloaded_so_far
-                t.time_mark = now
+        t.total_downloaded_so_far += bytes_downloaded
+        now = time.time()
+        tm = t.time_mark
+        amt_time = now - tm
 
-                speed = amt_downloaded / amt_time
+        if amt_time > DownloadUpdateSeconds:
 
-                if t.smoothed_speed is None:
-                    t.smoothed_speed = speed
+            amt_downloaded = t.total_downloaded_so_far - t.size_mark
+            t.size_mark = t.total_downloaded_so_far
+            t.time_mark = now
+
+            speed = amt_downloaded / amt_time
+
+            if t.smoothed_speed is None:
+                t.smoothed_speed = speed
+            else:
+                # smooth speed across ten readings
+                t.smoothed_speed = t.smoothed_speed * .9 + speed * .1
+
+            amt_to_download = t.total_download_size - t.total_downloaded_so_far
+
+            if not t.smoothed_speed:
+                t.time_remaining = math.inf
+            else:
+                time_remaining = amt_to_download / t.smoothed_speed
+                # Use the previous value to help determine the current value,
+                # which avoids values that jump around
+                if math.isinf(t.time_remaining):
+                    t.time_remaining = time_remaining
                 else:
-                    # smooth speed across ten readings
-                    t.smoothed_speed = t.smoothed_speed * .9 + speed * .1
-
-                amt_to_download = t.total_download_size - t.total_downloaded_so_far
-
-                if not t.smoothed_speed:
-                    t.time_remaining = math.inf
-                else:
-                    time_remaining = amt_to_download / t.smoothed_speed
-                    # Use the previous value to help determine the current value,
-                    # which avoids values that jump around
-                    if math.isinf(t.time_remaining):
-                        t.time_remaining = time_remaining
-                    else:
-                        t.time_remaining = get_time_left(time_remaining, t.time_remaining)
+                    t.time_remaining = get_time_left(time_remaining, t.time_remaining)
 
     def time_remaining(self, detailed_time_remaining: bool) -> Optional[str]:
         """

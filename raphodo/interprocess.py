@@ -672,6 +672,7 @@ class PublishPullPipelineManager(PullPipelineManager):
 
         self.paused = False
 
+
 class ProcessLoggerPublisher:
     """
     Setup the sockets for worker processes to send log messages to the
@@ -916,7 +917,7 @@ class LoadBalancerWorker:
         self.requester.identity = create_identity(worker_type, args.identity)
         self.requester.connect("tcp://localhost:{}".format(args.request))
 
-        # Sender is located in the main process. It is where ouput (messages)
+        # Sender is located in the main process. It is where output (messages)
         # from this process are are sent to.
         self.sender = self.context.socket(zmq.PUSH)
         self.sender.connect("tcp://localhost:{}".format(args.send))
@@ -1068,6 +1069,7 @@ class ScanResults:
     """
     Receive results from the scan process
     """
+
     def __init__(self, rpd_files: Optional[List[RPDFile]]=None,
                  file_type_counter: Optional[FileTypeCounter]=None,
                  file_size_sum: Optional[FileSizeSum]=None,
@@ -1086,19 +1088,17 @@ class ScanResults:
 
 class CopyFilesArguments:
     """
-    Pass arugments to the copyfiles process
+    Pass arguments to the copyfiles process
     """
+
     def  __init__(self, scan_id: int,
                   device: Device,
                   photo_download_folder: str,
                   video_download_folder: str,
-                  files,
+                  files: List[RPDFile],
                   verify_file: bool,
                   generate_thumbnails: bool,
                   log_gphoto2: bool) -> None:
-        """
-        :type files: List(rpd_file)
-        """
         self.scan_id = scan_id
         self.device = device
         self.photo_download_folder = photo_download_folder
@@ -1108,25 +1108,43 @@ class CopyFilesArguments:
         self.verify_file = verify_file
         self.log_gphoto2 = log_gphoto2
 
+
 class CopyFilesResults:
     """
     Receive results from the copyfiles process
     """
-    def __init__(self, scan_id: int=None,
-                 photo_temp_dir: str=None,
-                 video_temp_dir: str=None,
-                 total_downloaded: int=None,
-                 chunk_downloaded: int=None,
-                 copy_succeeded: bool=None,
-                 rpd_file: RPDFile=None,
-                 download_count: int=None) -> None:
+
+    def __init__(self, scan_id: Optional[int]=None,
+                 photo_temp_dir: Optional[str]=None,
+                 video_temp_dir: Optional[str]=None,
+                 total_downloaded: Optional[int]=None,
+                 chunk_downloaded: Optional[int]=None,
+                 copy_succeeded: Optional[bool]=None,
+                 rpd_file: Optional[RPDFile]=None,
+                 download_count: Optional[int]=None) -> None:
+        """
+
+        :param scan_id: scan id of the device the files are being
+         downloaded from
+        :param photo_temp_dir: temp directory path, used to copy
+         photos into until they're renamed
+        :param video_temp_dir: temp directory path, used to copy
+         videos into until they're renamed
+        :param total_downloaded: how many bytes in total have been
+         downloaded
+        :param chunk_downloaded: how many bytes were downloaded since
+         the last message
+        :param copy_succeeded: whether the copy was successful or not
+        :param rpd_file: details of the file that was copied
+        :param download_count: a running count of how many files
+         have been copied. Used in download tracking.
+        """
+
         self.scan_id = scan_id
 
         self.photo_temp_dir = photo_temp_dir
         self.video_temp_dir = video_temp_dir
 
-        # if total_downloaded is not None:
-        #     assert total_downloaded >= 0
         self.total_downloaded = total_downloaded
         self.chunk_downloaded = chunk_downloaded
 
@@ -1136,6 +1154,10 @@ class CopyFilesResults:
 
 
 class ThumbnailDaemonData:
+    """
+    Pass arguments to the thumbnail daemon process
+    """
+
     def __init__(self, frontend_port: Optional[int]=None,
                  rpd_file: Optional[RPDFile]=None,
                  write_fdo_thumbnail: Optional[bool]=None,
@@ -1145,10 +1167,12 @@ class ThumbnailDaemonData:
         self.write_fdo_thumbnail = write_fdo_thumbnail
         self.use_thumbnail_cache = use_thumbnail_cache
 
+
 class RenameAndMoveFileData:
     """
     Pass arguments to the renameandmovefile process
     """
+
     def __init__(self, rpd_file: RPDFile=None,
                  download_count: int=None,
                  download_succeeded: bool=None,

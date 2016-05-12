@@ -52,14 +52,13 @@ class BackupFilesWorker(WorkerInPublishPullPipeline, FileCopy):
     def update_progress(self, amount_downloaded, total):
         self.amount_downloaded = amount_downloaded
         chunk_downloaded = amount_downloaded - self.bytes_downloaded
-        if (chunk_downloaded > self.batch_size_bytes) or (
-            amount_downloaded == total):
+        if (chunk_downloaded > self.batch_size_bytes) or (amount_downloaded == total):
             self.bytes_downloaded = amount_downloaded
             self.content= pickle.dumps(BackupResults(
                 scan_id=self.scan_id,
                 device_id=self.device_id,
-                total_downloaded=self.total_downloaded
-                + amount_downloaded, chunk_downloaded=chunk_downloaded),
+                total_downloaded=self.total_downloaded + amount_downloaded,
+                chunk_downloaded=chunk_downloaded),
                pickle.HIGHEST_PROTOCOL)
             self.send_message_to_sink()
 
