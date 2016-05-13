@@ -2652,7 +2652,8 @@ class RapidWindow(QMainWindow):
                 self.thumbnailModel.ctimes_differ:
             self.thumbnailModel.addCtimeDisparity(rpd_file=rpd_file)
 
-        if self.thumbnailModel.send_to_daemon_thumbnailer(rpd_file=rpd_file):
+        if (self.thumbnailModel.sendToDaemonThumbnailer(rpd_file=rpd_file) and
+                    rpd_file.status in constants.Downloaded):
             logging.debug("Assigning daemon thumbnailer to work on %s",
                           rpd_file.download_full_file_name)
             self.thumbnaildaemonmq.send_message_to_worker(ThumbnailDaemonData(
@@ -2685,7 +2686,37 @@ class RapidWindow(QMainWindow):
 
     @pyqtSlot(RPDFile, QPixmap)
     def thumbnailReceivedFromDaemon(self, rpd_file: RPDFile, thumbnail: Optional[QPixmap]) -> None:
+        """
+        A thumbnail will be received directly from the daemon process when
+        it was able to get a thumbnail from the FreeDesktop.org 256x256
+        cache, and there was thus no need write another
+
+        :param rpd_file: rpd_file details of the file the thumbnail was
+         generated for
+        :param thumbnail: a thumbnail for display in the thumbnail view,
+        """
+
         self.thumbnailModel.thumbnailReceived(rpd_file=rpd_file, thumbnail=thumbnail)
+
+    def thumbnailGeneratedPostDownload(self, rpd_file: RPDFile) -> None:
+        """
+        Adjust download tracking to note that a thumbnail was generated
+        after a file was downloaded. Possibly handle situation where
+        all files have been downloaded.
+
+        A thumbnail will be generated post download if
+        the sole task of the thumbnail extractors was to write out the
+        FreeDesktop.org thumbnails, and/or if we didn't generate it before
+        the download started.
+
+        :param rpd_file: details of the file
+        """
+
+        self.download_tracker.thumbnail_generated_post_download(scan_id=rpd_file.scan_id)
+        scan_id = rpd_file.scan_id
+        completed, files_remaining = self.isDownloadCompleteForScan(scan_id)
+        if completed:
+            self.fileDownloadCompleteFromDevice(scan_id=scan_id, files_remaining=files_remaining)
 
     @pyqtSlot(int)
     def thumbnailGenerationStopped(self, scan_id: int) -> None:
@@ -2802,21 +2833,27 @@ class RapidWindow(QMainWindow):
     def fileRenamedAndMovedFinished(self) -> None:
         pass
 
-    def isDownloadCompleteForScan(self, scan_id: int, uid: bytes) -> Tuple[bool, int]:
+    def isDownloadCompleteForScan(self, scan_id: int) -> Tuple[bool, int]:
         """
         Determine if all files have been downloaded and backed up for a device
 
         :param scan_id: device's scan id
-        :param uid: uid of an rpd_file, used to determine the download count
         :return: True if the download is completed for that scan_id,
         and the number of files remaining for the scan_id, BUT
         the files remaining value is valid ONLY if the download is
          completed
         """
 
-        files_downloaded = self.download_tracker.get_download_count_for_file(uid)
-        files_to_download = self.download_tracker.get_no_files_in_download(scan_id)
-        completed = files_downloaded == files_to_download
+        completed = self.download_tracker.all_files_downloaded_by_scan_id(scan_id)
+        if completed:
+            logging.debug("All files downloaded for", self.devices[scan_id].display_name)
+            if self.download_tracker.no_post_download_thumb_generation_by_scan_id[scan_id]:
+                logging.debug("Thumbnails generated during download: %s / %s",
+                    self.download_tracker.post_download_thumb_generation[scan_id],
+                    self.download_tracker.no_post_download_thumb_generation_by_scan_id[scan_id])
+        completed = completed and \
+                    self.download_tracker.all_post_download_thumbs_generated_for_scan(scan_id)
+
         if completed and self.prefs.backup_files:
             completed = self.download_tracker.all_files_backed_up(scan_id)
 
@@ -2863,76 +2900,78 @@ class RapidWindow(QMainWindow):
         device = self.devices[scan_id]
         device.download_statuses.add(rpd_file.status)
 
-        completed, files_remaining = self.isDownloadCompleteForScan(scan_id, uid)
-
-        # if self.downloadIsRunning():
-        #     self.updateTimeRemaining()
-
+        completed, files_remaining = self.isDownloadCompleteForScan(scan_id)
         if completed:
-            device_finished = files_remaining == 0
-            if device_finished:
-                logging.debug("All files from %s are downloaded; none remain", device.display_name)
-                state = DeviceState.finished
-            else:
-                logging.debug("Download finished from %s; %s remain be be potentially downloaded",
-                              device.display_name, files_remaining)
-                state = DeviceState.idle
+            self.fileDownloadCompleteFromDevice(scan_id=scan_id, files_remaining=files_remaining)
 
-            self.devices.set_device_state(scan_id=scan_id, state=state)
-            # Setting the spinner state also sets the
-            self.mapModel(scan_id).setSpinnerState(scan_id, state)
+    def fileDownloadCompleteFromDevice(self, scan_id: int, files_remaining: int) -> None:
 
-            # Rebuild temporal proximity if it needs it
-            if scan_id in self.thumbnailModel.ctimes_differ and not \
-                    self.thumbnailModel.filesRemainToDownload(scan_id=scan_id):
-                self.thumbnailModel.processCtimeDisparity(scan_id=scan_id)
-                self.folder_preview_manager.queue_folder_removal_for_device(scan_id=scan_id)
+        device = self.devices[scan_id]
 
-            # Last file for this scan id has been downloaded, so clean temp
-            # directory
-            logging.debug("Purging temp directories")
-            self.cleanTempDirsForScanId(scan_id)
-            if self.prefs.move:
-                logging.debug("Deleting downloaded source files")
-                self.deleteSourceFiles(scan_id)
-                self.download_tracker.clear_auto_delete(scan_id)
-            self.updateProgressBarState()
-            self.thumbnailModel.updateDeviceDisplayCheckMark(scan_id=scan_id)
+        device_finished = files_remaining == 0
+        if device_finished:
+            logging.debug("All files from %s are downloaded; none remain", device.display_name)
+            state = DeviceState.finished
+        else:
+            logging.debug("Download finished from %s; %s remain be be potentially downloaded",
+                          device.display_name, files_remaining)
+            state = DeviceState.idle
 
-            del self.time_remaining[scan_id]
-            self.notifyDownloadedFromDevice(scan_id)
-            if files_remaining == 0 and self.prefs.auto_unmount:
-                self.unmountVolume(scan_id)
+        self.devices.set_device_state(scan_id=scan_id, state=state)
+        # Setting the spinner state also sets the
+        self.mapModel(scan_id).setSpinnerState(scan_id, state)
 
-            if not self.downloadIsRunning():
-                logging.debug("Download completed")
-                self.dl_update_timer.stop()
-                self.enablePrefsAndRefresh(enabled=True)
-                self.notifyDownloadComplete()
-                self.downloadProgressBar.reset()
-                if self.unity_progress:
-                    self.desktop_launcher.set_property('progress_visible', False)
+        # Rebuild temporal proximity if it needs it
+        if scan_id in self.thumbnailModel.ctimes_differ and not \
+                self.thumbnailModel.filesRemainToDownload(scan_id=scan_id):
+            self.thumbnailModel.processCtimeDisparity(scan_id=scan_id)
+            self.folder_preview_manager.queue_folder_removal_for_device(scan_id=scan_id)
 
-                self.folder_preview_manager.remove_folders_for_queued_devices()
+        # Last file for this scan id has been downloaded, so clean temp
+        # directory
+        logging.debug("Purging temp directories")
+        self.cleanTempDirsForScanId(scan_id)
+        if self.prefs.move:
+            logging.debug("Deleting downloaded source files")
+            self.deleteSourceFiles(scan_id)
+            self.download_tracker.clear_auto_delete(scan_id)
+        self.updateProgressBarState()
+        self.thumbnailModel.updateDeviceDisplayCheckMark(scan_id=scan_id)
 
-                # Update prefs with stored sequence number and downloads today
-                # values
-                data = RenameAndMoveFileData(message=RenameAndMoveStatus.download_completed)
-                self.renamemq.send_message_to_worker(data)
+        del self.time_remaining[scan_id]
+        self.notifyDownloadedFromDevice(scan_id)
+        if files_remaining == 0 and self.prefs.auto_unmount:
+            self.unmountVolume(scan_id)
 
-                if ((self.prefs.auto_exit and self.download_tracker.no_errors_or_warnings())
-                                                or self.prefs.auto_exit_force):
-                    if not self.thumbnailModel.filesRemainToDownload():
-                        self.quit()
+        if not self.downloadIsRunning():
+            logging.debug("Download completed")
+            self.dl_update_timer.stop()
+            self.enablePrefsAndRefresh(enabled=True)
+            self.notifyDownloadComplete()
+            self.downloadProgressBar.reset()
+            if self.unity_progress:
+                self.desktop_launcher.set_property('progress_visible', False)
 
-                self.download_tracker.purge_all()
+            self.folder_preview_manager.remove_folders_for_queued_devices()
 
-                self.setDownloadActionLabel()
-                self.setDownloadCapabilities()
+            # Update prefs with stored sequence number and downloads today
+            # values
+            data = RenameAndMoveFileData(message=RenameAndMoveStatus.download_completed)
+            self.renamemq.send_message_to_worker(data)
 
-                self.job_code.job_code = ''
-                self.download_start_datetime = None
-                self.download_start_time = None
+            if ((self.prefs.auto_exit and self.download_tracker.no_errors_or_warnings())
+                                            or self.prefs.auto_exit_force):
+                if not self.thumbnailModel.filesRemainToDownload():
+                    self.quit()
+
+            self.download_tracker.purge_all()
+
+            self.setDownloadActionLabel()
+            self.setDownloadCapabilities()
+
+            self.job_code.job_code = ''
+            self.download_start_datetime = None
+            self.download_start_time = None
 
     def immediatelyDisplayDownloadRunningInStatusBar(self):
         """

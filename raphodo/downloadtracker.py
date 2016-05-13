@@ -38,6 +38,9 @@ class DownloadTracker:
     """
     Track file downloads - their size, number, and any problems
     """
+    # TODO: refactor this class to make it more pythonic
+    # contemplate using settrs
+
     def __init__(self):
         self.file_types_present_by_scan_id = dict()  # type: Dict[int, str]
         self._refresh_values()
@@ -57,19 +60,21 @@ class DownloadTracker:
         self.no_files_in_download_by_scan_id = dict()  # type: Dict[int, int]
         self.no_photos_in_download_by_scan_id = dict()  # type: Dict[int, int]
         self.no_videos_in_download_by_scan_id = dict()  # type: Dict[int, int]
+        self.no_post_download_thumb_generation_by_scan_id = dict()  # type: Dict[int, int]
 
         # 'Download count' tracks the index of the file being downloaded
         # into the list of files that need to be downloaded -- much like
         # a counter in a for loop, e.g. 'for i in list', where i is the counter
         self.download_count_for_file_by_uid = dict()  # type: Dict[bytes, int]
         self.download_count_by_scan_id = dict()  # type: Dict[int, int]
-        self.rename_chunk = dict()
-        self.files_downloaded = dict()
-        self.photos_downloaded = dict()
-        self.videos_downloaded = dict()
-        self.photo_failures = dict()
-        self.video_failures = dict()
-        self.warnings = dict()
+        self.rename_chunk = dict()  # type: Dict[int, int]
+        self.files_downloaded = dict()  # type: Dict[int, int]
+        self.photos_downloaded = dict()  # type: Dict[int, int]
+        self.videos_downloaded = dict()  # type: Dict[int, int]
+        self.photo_failures = dict()  # type: Dict[int, int]
+        self.video_failures = dict()  # type: Dict[int, int]
+        self.warnings = dict()  # type: Dict[int, int]
+        self.post_download_thumb_generation = dict()  # type: Dict[int, int]
         self.total_photos_downloaded = 0  # type: int
         self.total_photo_failures = 0  # type: int
         self.total_videos_downloaded = 0  # type: int
@@ -101,6 +106,8 @@ class DownloadTracker:
             stats.no_photos * self.no_photo_backup_devices + \
             stats.no_videos * self.no_video_backup_devices
         total_bytes = stats.photos_size_in_bytes + stats.videos_size_in_bytes
+        self.no_post_download_thumb_generation_by_scan_id[scan_id] =  \
+            stats.post_download_thumb_generation
 
         # rename_chunk is used to account for the time it takes to rename a
         # file, and potentially to generate thumbnails after it has renamed.
@@ -123,6 +130,7 @@ class DownloadTracker:
         self.photo_failures[scan_id] = 0
         self.video_failures[scan_id] = 0
         self.warnings[scan_id] = 0
+        self.post_download_thumb_generation[scan_id] = 0
         self.total_bytes_backed_up_by_scan_id[scan_id] = 0
 
     def get_no_files_in_download(self, scan_id: int) -> int:
@@ -152,6 +160,18 @@ class DownloadTracker:
     def clear_auto_delete(self, scan_id: int) -> None:
         if scan_id in self.auto_delete:
             del self.auto_delete[scan_id]
+
+    def thumbnail_generated_post_download(self, scan_id: int) -> None:
+        """
+        Increment the number of files that have had their thumbnail
+        generated after they were downloaded
+        :param scan_id: the device from which the file came
+        """
+
+        if scan_id in self._devices_removed_mid_download:
+            return
+
+        self.post_download_thumb_generation[scan_id] += 1
 
     def file_backed_up(self, scan_id: int, uid: bytes) -> None:
 
@@ -296,7 +316,16 @@ class DownloadTracker:
                     self.total_bytes_backed_up_by_scan_id[scan_id]
                     for scan_id in self.total_bytes_copied_by_scan_id)
 
-        return total / (self.total_bytes_to_download + self.total_bytes_to_backup)
+        p = total / (self.total_bytes_to_download + self.total_bytes_to_backup)
+        # round the number down, e.g. 0.997 becomes 0.99
+        return math.floor(p * 100) / 100
+
+    def all_post_download_thumbs_generated_for_scan(self, scan_id: int) -> bool:
+        return self.no_post_download_thumb_generation_by_scan_id[scan_id] == \
+               self.post_download_thumb_generation[scan_id]
+
+    def all_files_downloaded_by_scan_id(self, scan_id: int) -> bool:
+        return self.files_downloaded[scan_id] == self.no_files_in_download_by_scan_id[scan_id]
 
     def set_total_bytes_copied(self, scan_id: int, total_bytes: int) -> None:
         if scan_id in self._devices_removed_mid_download:
