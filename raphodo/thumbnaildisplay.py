@@ -332,6 +332,22 @@ class ThumbnailListModel(QAbstractListModel):
     def rowCount(self, parent: QModelIndex=QModelIndex()) -> int:
         return len(self.rows)
 
+    def flags(self, index: QModelIndex) -> Qt.ItemFlags:
+        if not index.isValid():
+            return Qt.NoItemFlags
+
+        row = index.row()
+        if row >= len(self.rows) or row < 0:
+            return Qt.NoItemFlags
+
+        uid = self.rows[row][0]
+        rpd_file = self.rpd_files[uid]  # type: RPDFile
+
+        if rpd_file.status == DownloadStatus.not_downloaded:
+            return super().flags(index) | Qt.ItemIsEnabled | Qt.ItemIsSelectable
+        else:
+            return Qt.NoItemFlags
+
     def data(self, index: QModelIndex, role=Qt.DisplayRole):
         if not index.isValid():
             return None
