@@ -441,7 +441,6 @@ class ScanWorker(WorkerInPublishPullPipeline):
                 # check if an XMP file is associated with the photo or video
                 xmp_file_full_name = self.get_xmp_file(base_name, camera_file)
 
-
                 # check if an audio file is associated with the photo or video
                 audio_file_full_name = self.get_audio_file(base_name, camera_file)
 
@@ -459,6 +458,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
                 # Assign metadata time, if we have it
                 # If we don't, it will be extracted when thumbnails are generated
                 mdatatime = self.file_mdatatime.get(file, 0.0)
+
                 if not mdatatime and self.use_thumbnail_cache:
                     # Was there a thumbnail generated for the file?
                     # If so, get the metadata date time from that
@@ -466,7 +466,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
                                             full_file_name=file,
                                             mtime=adjusted_mtime,
                                             size=size,
-                                            camera_model=self.camera_display_name
+                                            camera_model=self.camera_model
                                             )
                     thumbnail_cache_status = get_thumbnail.disk_status
                     if thumbnail_cache_status in (ThumbnailCacheDiskStatus.found,
@@ -487,26 +487,28 @@ class ScanWorker(WorkerInPublishPullPipeline):
                 else:
                     camera_memory_card_identifiers = None
 
-                rpd_file = rpdfile.get_rpdfile(self.file_name,
-                                               self.dir_name,
-                                               size,
-                                               prev_full_name,
-                                               prev_datetime,
-                                               self.device_timestamp_type,
-                                               modification_time,
-                                               mdatatime,
-                                               thumbnail_cache_status,
-                                               thm_full_name,
-                                               audio_file_full_name,
-                                               xmp_file_full_name,
-                                               self.worker_id,
-                                               file_type,
-                                               self.download_from_camera,
-                                               self.camera_model,
-                                               self.camera_port,
-                                               self.camera_display_name,
-                                               self.is_mtp_device,
-                                               camera_memory_card_identifiers)
+                rpd_file = rpdfile.get_rpdfile(
+                    name=self.file_name,
+                    path=self.dir_name,
+                    size=size,
+                    prev_full_name=prev_full_name,
+                    prev_datetime=prev_datetime,
+                    device_timestamp_type=self.device_timestamp_type,
+                    mtime=modification_time,
+                    mdatatime=mdatatime,
+                    thumbnail_cache_status=thumbnail_cache_status,
+                    thm_full_name=thm_full_name,
+                    audio_file_full_name=audio_file_full_name,
+                    xmp_file_full_name=xmp_file_full_name,
+                    scan_id=self.worker_id,
+                    file_type=file_type,
+                    from_camera=self.download_from_camera,
+                    camera_model=self.camera_model,
+                    camera_port=self.camera_port,
+                    camera_display_name=self.camera_display_name,
+                    is_mtp_device=self.is_mtp_device,
+                    camera_memory_card_identifiers=camera_memory_card_identifiers)
+
                 self.file_batch.append(rpd_file)
                 if len(self.file_batch) == self.batch_size:
                     self.content = pickle.dumps(ScanResults(
@@ -581,6 +583,8 @@ class ScanWorker(WorkerInPublishPullPipeline):
         if dt is None:
             logging.warning("Scanner failed to extract date time metadata from %s on %s",
                               name, self.camera.display_name)
+        else:
+            self.file_mdatatime[os.path.join(path, name)] = float(dt.timestamp())
         return SampleDatetime(dt, determined_by)
 
     def sample_non_camera_datetime(self, path: str,

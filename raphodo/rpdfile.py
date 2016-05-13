@@ -428,7 +428,9 @@ class RPDFile:
 
         self.mdatatime_caused_ctime_change = False
 
+        # file modification time
         self.modification_time = mtime
+        # date time recorded in metadata
         self.mdatatime = mdatatime
         self.mdatatime_caused_ctime_change = False
 
