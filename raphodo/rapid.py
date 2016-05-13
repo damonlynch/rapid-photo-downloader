@@ -2846,9 +2846,10 @@ class RapidWindow(QMainWindow):
 
         completed = self.download_tracker.all_files_downloaded_by_scan_id(scan_id)
         if completed:
-            logging.debug("All files downloaded for", self.devices[scan_id].display_name)
+            logging.debug("All files downloaded for %s", self.devices[scan_id].display_name)
             if self.download_tracker.no_post_download_thumb_generation_by_scan_id[scan_id]:
-                logging.debug("Thumbnails generated during download: %s / %s",
+                logging.debug("Thumbnails generated for %s thus far during download: %s / %s",
+                    self.devices[scan_id].display_name,
                     self.download_tracker.post_download_thumb_generation[scan_id],
                     self.download_tracker.no_post_download_thumb_generation_by_scan_id[scan_id])
         completed = completed and \

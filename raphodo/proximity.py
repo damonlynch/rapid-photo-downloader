@@ -1299,8 +1299,9 @@ class TemporalProximityView(QTableView):
                 row = i.row()
                 # Is any selected column to the left of clicked column?
                 if column < clicked_column:
-                    # Is the row the same as the clicked row?
-                    if not (row==clicked_row and self.rowSpan(row, column) == 1):
+                    # Is the row outside the span of the clicked row?
+                    if (row < clicked_row or
+                        row + self.rowSpan(row, column) > clicked_row + row_span):
                         do_selection_confirmed = True
                         break
                 # Is this the only selected row in the column selected?
