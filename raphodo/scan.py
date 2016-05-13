@@ -107,8 +107,11 @@ class ScanWorker(WorkerInPublishPullPipeline):
             self.is_mtp_device = scan_arguments.device.is_mtp_device
             self.camera_display_name = scan_arguments.device.display_name
             self.display_name = self.camera_display_name
+            self.ignore_mdatatime_for_mtp_dng = self.is_mtp_device and \
+                                              scan_arguments.ignore_mdatatime_for_mtp_dng
         else:
             self.camera_port = self.camera_model = self.is_mtp_device = None
+            self.ignore_mdatatime_for_mtp_dng = False
             self.camera_display_name = None
 
         self.files_scanned = 0
@@ -170,6 +173,11 @@ class ScanWorker(WorkerInPublishPullPipeline):
                     self.send_message_to_sink()
                     # Wait for command to resume or halt processing
                     self.resume_work()
+
+            if self.ignore_mdatatime_for_mtp_dng:
+                logging.info("For any DNG files on the %s, when determining the creation date/"
+                             "time, the metadata date/time will be ignored, and the file "
+                             "modification date/time used instead", self.display_name)
 
             # Download only from the DCIM folder(s) in the camera.
             # Phones especially have many directories with images, which we
@@ -287,7 +295,12 @@ class ScanWorker(WorkerInPublishPullPipeline):
                 # will be the file used to extract metadata time from.
                 # When determining how a camera reports modification time, extraction order
                 # of preference is (1) jpeg, (2) RAW, and finally least preferred is (3) video
-                for e in (FileExtension.jpeg, FileExtension.raw, FileExtension.video):
+                # However, if ignore_mdatatime_for_mtp_dng is set, put RAW at the end
+                if not self.ignore_mdatatime_for_mtp_dng:
+                    order = (FileExtension.jpeg, FileExtension.raw, FileExtension.video)
+                else:
+                    order = (FileExtension.jpeg, FileExtension.video, FileExtension.raw)
+                for e in order:
                     if ext_types[0] == e:
                         break
                     try:
@@ -327,7 +340,10 @@ class ScanWorker(WorkerInPublishPullPipeline):
                 self.file_type_counter[key] += 1
                 self.file_size_sum[key] += size
 
-                if self.device_timestamp_type == DeviceTimestampTZ.undetermined:
+                if self.device_timestamp_type == DeviceTimestampTZ.undetermined and not (
+                        self.ignore_mdatatime_for_mtp_dng and ext_type == FileExtension.raw):
+                    logging.info("Using %s to determine camera time zone type for %s",
+                                 ext_type.name, self.camera_display_name)
                     sample = self.sample_camera_datetime(path, name, ext_lower, ext_type, size)
                     self.determine_device_timestamp_tz(sample.datetime, modification_time,
                                                        sample.determined_by)
@@ -459,7 +475,9 @@ class ScanWorker(WorkerInPublishPullPipeline):
                 # If we don't, it will be extracted when thumbnails are generated
                 mdatatime = self.file_mdatatime.get(file, 0.0)
 
-                if not mdatatime and self.use_thumbnail_cache:
+                ignore_mdatatime = self.ignore_mdatatime_for_mtp_dng and ext == 'dng'
+
+                if not mdatatime and self.use_thumbnail_cache and not ignore_mdatatime:
                     # Was there a thumbnail generated for the file?
                     # If so, get the metadata date time from that
                     get_thumbnail = self.thumbnail_cache.get_thumbnail_path(
@@ -507,7 +525,9 @@ class ScanWorker(WorkerInPublishPullPipeline):
                     camera_port=self.camera_port,
                     camera_display_name=self.camera_display_name,
                     is_mtp_device=self.is_mtp_device,
-                    camera_memory_card_identifiers=camera_memory_card_identifiers)
+                    camera_memory_card_identifiers=camera_memory_card_identifiers,
+                    never_read_mdatatime=ignore_mdatatime,
+                )
 
                 self.file_batch.append(rpd_file)
                 if len(self.file_batch) == self.batch_size:

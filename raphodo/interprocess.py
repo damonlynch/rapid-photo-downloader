@@ -1040,6 +1040,7 @@ class ScanArguments:
     def __init__(self, scan_preferences: ScanPreferences,
                  device: Device,
                  ignore_other_types: bool,
+                 ignore_mdatatime_for_mtp_dng: bool,
                  log_gphoto2: bool,
                  use_thumbnail_cache: bool,
                  scan_only_DCIM: bool) -> None:
@@ -1049,7 +1050,9 @@ class ScanArguments:
         :param scan_preferences: portion of user preferences relating
          to scans
         :param device: the device to scan
-        :param ignore_other_types:
+        :param ignore_other_types: ignore file types like TIFF
+        :param ignore_mdatatime_for_mtp_dng: if True ignore the metadata
+         date time for DNG files that come from MTP devices
         :param log_gphoto2: whether to generate detailed gphoto2 log
          messages
         :param use_thumbnail_cache: whether to use the RPD Thumbnail Cache
@@ -1060,6 +1063,7 @@ class ScanArguments:
         self.scan_preferences = scan_preferences
         self.device = device
         self.ignore_other_types = ignore_other_types
+        self.ignore_mdatatime_for_mtp_dng = ignore_mdatatime_for_mtp_dng
         self.log_gphoto2 = log_gphoto2
         self.use_thumbnail_cache = use_thumbnail_cache
         self.scan_only_DCIM = scan_only_DCIM

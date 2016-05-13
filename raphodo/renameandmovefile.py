@@ -303,7 +303,7 @@ class RenameMoveFileWorker(DaemonProcess):
         """
         
         i1_ext, i1_date_time = self.sync_raw_jpeg.ext_exif_date_time(sync_photo_name)
-        image2_date_time = rpd_file.metadata.date_time()
+        image2_date_time = rpd_file.date_time()
         assert isinstance(i1_date_time, datetime.datetime)
         i1_date = i1_date_time.strftime("%x")
         i1_time = i1_date_time.strftime("%X")
@@ -467,7 +467,7 @@ class RenameMoveFileWorker(DaemonProcess):
             rpd_file.status = DownloadStatus.download_failed
             self.check_for_fatal_name_generation_errors(rpd_file)
         else:
-            date_time = rpd_file.metadata.date_time()
+            date_time = rpd_file.date_time()
             if not isinstance(date_time, datetime.datetime):
                 failed = True
                 rpd_file.status = DownloadStatus.download_failed
@@ -638,7 +638,7 @@ class RenameMoveFileWorker(DaemonProcess):
                 self.sync_raw_jpeg.add_download(
                     name=sync_result.photo_name,
                     extension=sync_result.photo_ext,
-                    date_time=rpd_file.metadata.date_time(),
+                    date_time=rpd_file.date_time(),
                     sequence_number_used=sequence)
             if not synchronize_raw_jpg or (synchronize_raw_jpg and
                                            sync_result.sequence_to_use is None):

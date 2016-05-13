@@ -283,6 +283,8 @@ def preprocess_thumbnail_from_disk(rpd_file: RPDFile,
                 # jpeg photos from smartphones don't have embedded thumbnails
                 task = ExtractionTask.load_file_and_exif_directly
                 processing.add(ExtractionProcessing.resize)
+            # elif rpd_file.is_raw() and rpd_file.from_camera and rpd_file.is_mtp_device:
+
             else:
                 task = ExtractionTask.load_from_exif
             processing.add(ExtractionProcessing.orient)

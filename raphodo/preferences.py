@@ -267,6 +267,7 @@ class Preferences:
                            synchronize_raw_jpg=False,
                            job_codes=[''],
                            remember_job_code=True,
+                           ignore_mdatatime_for_mtp_dng=True,
                           )
     timeline_defaults = dict(proximity_seconds=3600)
     display_defaults = dict(detailed_time_remaining=False)

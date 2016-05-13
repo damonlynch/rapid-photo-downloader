@@ -2652,15 +2652,19 @@ class RapidWindow(QMainWindow):
                 self.thumbnailModel.ctimes_differ:
             self.thumbnailModel.addCtimeDisparity(rpd_file=rpd_file)
 
-        if (self.thumbnailModel.sendToDaemonThumbnailer(rpd_file=rpd_file) and
-                    rpd_file.status in constants.Downloaded):
-            logging.debug("Assigning daemon thumbnailer to work on %s",
-                          rpd_file.download_full_file_name)
-            self.thumbnaildaemonmq.send_message_to_worker(ThumbnailDaemonData(
-                rpd_file=rpd_file,
-                write_fdo_thumbnail=self.prefs.save_fdo_thumbnails,
-                use_thumbnail_cache=self.prefs.use_thumbnail_cache
-            ))
+        if self.thumbnailModel.sendToDaemonThumbnailer(rpd_file=rpd_file):
+            if rpd_file.status in constants.Downloaded:
+                logging.debug("Assigning daemon thumbnailer to work on %s",
+                              rpd_file.download_full_file_name)
+                self.thumbnaildaemonmq.send_message_to_worker(ThumbnailDaemonData(
+                    rpd_file=rpd_file,
+                    write_fdo_thumbnail=self.prefs.save_fdo_thumbnails,
+                    use_thumbnail_cache=self.prefs.use_thumbnail_cache
+                ))
+            else:
+                logging.debug('%s was not downloaded, so adjusting download tracking',
+                              rpd_file.full_file_name)
+                self.download_tracker.thumbnail_generated_post_download(scan_id)
 
         if rpd_file.status in constants.Downloaded and \
                 self.fileSystemModel.add_subfolder_downloaded_into(
@@ -2848,7 +2852,7 @@ class RapidWindow(QMainWindow):
         if completed:
             logging.debug("All files downloaded for %s", self.devices[scan_id].display_name)
             if self.download_tracker.no_post_download_thumb_generation_by_scan_id[scan_id]:
-                logging.debug("Thumbnails generated for %s thus far during download: %s / %s",
+                logging.debug("Thumbnails generated for %s thus far during download: %s of %s",
                     self.devices[scan_id].display_name,
                     self.download_tracker.post_download_thumb_generation[scan_id],
                     self.download_tracker.no_post_download_thumb_generation_by_scan_id[scan_id])
@@ -3212,7 +3216,7 @@ class RapidWindow(QMainWindow):
                                     devices=devices, failures=fw)
         else:
             if fw:
-                downloaded = _('No files downloaded — %failures)s') % dict(failures=fw)
+                downloaded = _('No files downloaded — %(failures)s') % dict(failures=fw)
             else:
                 downloaded = _('No files downloaded')
         logging.info('%s', downloaded)
@@ -3757,7 +3761,7 @@ class RapidWindow(QMainWindow):
         Try to handle those cases.
         """
         #TODO Implement noGVFSAutoMount()
-        print("Implement noGVFSAutoMount()")
+        logging.error("Implement noGVFSAutoMount()")
 
     @pyqtSlot()
     def cameraMounted(self):
@@ -3924,6 +3928,7 @@ class RapidWindow(QMainWindow):
         scan_arguments = ScanArguments(scan_preferences=scan_preferences,
                            device=device,
                            ignore_other_types=self.ignore_other_photo_types,
+                           ignore_mdatatime_for_mtp_dng=self.prefs.ignore_mdatatime_for_mtp_dng,
                            log_gphoto2=self.log_gphoto2,
                            use_thumbnail_cache=self.prefs.use_thumbnail_cache,
                            scan_only_DCIM=not self.prefs.device_without_dcim_autodetection)

@@ -272,7 +272,6 @@ class ThumbnailExtractor(LoadBalancerWorker):
             return photo_details
         elif rpd_file.is_raw():
             assert have_rawkit
-
             try:
                 with Raw(filename=full_file_name) as raw:
                     raw.options.white_balance = WhiteBalance(camera=True, auto=False)
@@ -527,6 +526,9 @@ class ThumbnailExtractor(LoadBalancerWorker):
             processing = data.processing
             rpd_file = data.rpd_file
 
+            logging.debug("Working on task %s for %s", task.name, rpd_file.download_name or
+                          rpd_file.name)
+
             self.write_fdo_thumbnail = data.write_fdo_thumbnail
             # whether to send the generated thumbnail to the main process
             send_thumb_to_main = rpd_file.thumbnail_status not in (
@@ -610,7 +612,8 @@ class ThumbnailExtractor(LoadBalancerWorker):
                             thumbnail=thumbnail,
                             camera_model=rpd_file.camera_model)
 
-                if thumbnail is not None and rpd_file.should_write_fdo():
+                if (thumbnail is not None or thumbnail_256 is not None) and \
+                        rpd_file.should_write_fdo():
                     if self.write_fdo_thumbnail:
                         # The modification time of the file may have changed when the file was saved
                         # Ideally it shouldn't, but it does sometimes, e.g. on NTFS!

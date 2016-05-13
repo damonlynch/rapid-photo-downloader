@@ -28,7 +28,8 @@ import mimetypes
 from collections import Counter, UserDict
 from urllib.request import pathname2url
 import locale
-from typing import Optional, List, Tuple, Union, Any
+from collections import defaultdict
+from typing import Optional, List, Tuple, Union, Any, Dict
 
 from gettext import gettext as _
 import gi
@@ -145,42 +146,51 @@ def get_rpdfile(name: str, path: str, size: int, prev_full_name: str,
                 camera_port: Optional[str],
                 camera_display_name: Optional[str],
                 is_mtp_device: Optional[bool],
-                camera_memory_card_identifiers: Optional[List[int]]):
+                camera_memory_card_identifiers: Optional[List[int]],
+                never_read_mdatatime: bool):
 
     if file_type == FileType.video:
-        return Video(name, path, size,
-                     prev_full_name, prev_datetime,
-                     device_timestamp_type,
-                     mtime,
-                     mdatatime,
-                     thumbnail_cache_status,
-                     thm_full_name,
-                     audio_file_full_name,
-                     xmp_file_full_name,
-                     scan_id,
-                     from_camera,
-                     camera_model,
-                     camera_port,
-                     camera_display_name,
-                     is_mtp_device,
-                     camera_memory_card_identifiers)
+        return Video(name=name,
+                     path=path,
+                     size=size,
+                     prev_full_name=prev_full_name,
+                     prev_datetime=prev_datetime,
+                     device_timestamp_type=device_timestamp_type,
+                     mtime=mtime,
+                     mdatatime=mdatatime,
+                     thumbnail_cache_status=thumbnail_cache_status,
+                     thm_full_name=thm_full_name,
+                     audio_file_full_name=audio_file_full_name,
+                     xmp_file_full_name=xmp_file_full_name,
+                     scan_id=scan_id,
+                     from_camera=from_camera,
+                     camera_model=camera_model,
+                     camera_port=camera_port,
+                     camera_display_name=camera_display_name,
+                     is_mtp_device=is_mtp_device,
+                     camera_memory_card_identifiers=camera_memory_card_identifiers,
+                     never_read_mdatatime=never_read_mdatatime)
     else:
-        return Photo(name, path, size,
-                     prev_full_name, prev_datetime,
-                     device_timestamp_type,
-                     mtime,
-                     mdatatime,
-                     thumbnail_cache_status,
-                     thm_full_name,
-                     audio_file_full_name,
-                     xmp_file_full_name,
-                     scan_id,
-                     from_camera,
-                     camera_model,
-                     camera_port,
-                     camera_display_name,
-                     is_mtp_device,
-                     camera_memory_card_identifiers)
+        return Photo(name=name,
+                     path=path,
+                     size=size,
+                     prev_full_name=prev_full_name,
+                     prev_datetime=prev_datetime,
+                     device_timestamp_type=device_timestamp_type,
+                     mtime=mtime,
+                     mdatatime=mdatatime,
+                     thumbnail_cache_status=thumbnail_cache_status,
+                     thm_full_name=thm_full_name,
+                     audio_file_full_name=audio_file_full_name,
+                     xmp_file_full_name=xmp_file_full_name,
+                     scan_id=scan_id,
+                     from_camera=from_camera,
+                     camera_model=camera_model,
+                     camera_port=camera_port,
+                     camera_display_name=camera_display_name,
+                     is_mtp_device=is_mtp_device,
+                     camera_memory_card_identifiers=camera_memory_card_identifiers,
+                     never_read_mdatatime=never_read_mdatatime)
 
 def file_types_by_number(no_photos: int, no_videos: int) -> str:
         """
@@ -326,6 +336,7 @@ class RPDFile:
                  xmp_file_full_name: str,
                  scan_id: bytes,
                  from_camera: bool,
+                 never_read_mdatatime: bool,
                  camera_model: Optional[str]=None,
                  camera_port: Optional[str]=None,
                  camera_display_name: Optional[str]=None,
@@ -355,6 +366,9 @@ class RPDFile:
         :param scan_id: id of the scan
         :param from_camera: whether the file is being downloaded from a
          camera
+        :param never_read_mdatatime: whether to ignore the metadata
+         date time when determining a photo or video's creation time,
+         and rely only on the file modification time
         :param camera_model: if downloaded from a camera, the camera
          model name (not including the port)
         :param camera_port: if downloaded from a camera, the port
@@ -397,8 +411,20 @@ class RPDFile:
         self.size = size
 
         # Cached version of call to metadata.date_time()
-        # Value of '__unassigned' means it's not been assigned
-        self._datetime = '__unassigned'  # type: Union[Optional[datetime], str]
+        self._datetime = None  # type: Optional[datetime]
+
+        ############################
+        # self._no_datetime_metadata
+        ############################
+        # If True, tried to read the date time metadata, and failed
+        # If None, haven't tried yet
+        # If False, no problems encountered, got it (or it was assigned from mtime
+        # when never_read_mdatatime is True)
+        self._no_datetime_metadata = None  #type: Optional[bool]
+
+        self.never_read_mdatatime = never_read_mdatatime
+        if never_read_mdatatime:
+            assert self.extension == 'dng'
 
         self.device_timestamp_type = device_timestamp_type
 
@@ -431,7 +457,10 @@ class RPDFile:
         # file modification time
         self.modification_time = mtime
         # date time recorded in metadata
-        self.mdatatime = mdatatime
+        if never_read_mdatatime:
+            self.mdatatime = mtime
+        else:
+            self.mdatatime = mdatatime
         self.mdatatime_caused_ctime_change = False
 
         # If a camera has more than one memory card, store a simple numeric
@@ -489,7 +518,7 @@ class RPDFile:
         self.download_xmp_full_name = ''  # name of XMP sidecar with path
         self.download_audio_full_name = ''  # name of the WAV or MP3 audio file with path
 
-        self.metadata = None  # type: Optional[Union[metadataphoto.MetaData, metadatavideo.MetaData]]
+        self.metadata = None # type: Optional[Union[metadataphoto.MetaData, metadatavideo.MetaData]]
 
         self.subfolder_pref_list = []
         self.name_pref_list = []
@@ -530,6 +559,12 @@ class RPDFile:
 
     @mdatatime.setter
     def mdatatime(self, value: float) -> None:
+
+        # Do not allow the value to be set to anything other than the modification time
+        # if we are instructed to never read the metadata date time
+        if self.never_read_mdatatime:
+            value = self._mtime
+
         self._mdatatime = value
 
         # Only set the creation time if there is a value to set
@@ -538,6 +573,7 @@ class RPDFile:
             self.ctime = value
             if not self._datetime:
                 self._datetime = datetime.fromtimestamp(value)
+                self._no_datetime_metadata = False
 
     def ctime_mtime_differ(self) -> bool:
         """
@@ -553,17 +589,56 @@ class RPDFile:
 
     def date_time(self, missing: Optional[Any]=None) -> datetime:
         """
+        Returns the date time as found in the file's metadata, and caches it
+        for later use.
+
+        Will return the file's modification time if self.never_read_mdatatime
+        is True.
+
         Expects the metadata to have already been loaded.
+
         :return: the metadata's date time value, else missing if not found or error
         """
 
-        if self._datetime != '__unassigned':
+        if self.never_read_mdatatime:
+            # the value must have been set during the scan stage
+            assert self._mdatatime == self._mtime
             return self._datetime
 
-        self._datetime = self.metadata.date_time(missing=missing)
-        if self._datetime:
-            self.mdatatime = self._datetime.timestamp()
+        if self._no_datetime_metadata:
+            return missing
+        if self._no_datetime_metadata is not None:
+            return self._datetime
+
+        # Have not yet tried to access the datetime metadata
+        self._datetime = self.metadata.date_time(missing=None)
+        self._no_datetime_metadata == self._datetime is None
+
+        if self._no_datetime_metadata:
+            return missing
+
+        self.mdatatime = self._datetime.timestamp()
         return self._datetime
+
+    def timestamp(self, missing: Optional[Any]=None) -> float:
+        """
+        Returns the time stamp as found in the file's metadata, and
+        caches it for later use.
+
+        Will return the file's modification time if self.never_read_mdatatime
+        is True.
+
+        Expects the metadata to have already been loaded.
+
+        :return: the metadata's date time value, else missing if not found or error
+        """
+
+
+        dt = self.date_time(missing=missing)
+        if self._no_datetime_metadata:
+            return missing
+
+        return dt.timestamp()
 
     def is_jpeg(self) -> bool:
         """
