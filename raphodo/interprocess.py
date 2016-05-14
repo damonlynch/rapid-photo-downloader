@@ -106,6 +106,7 @@ def get_worker_id_from_identity(identity: bytes) -> int:
     """
     return int(identity.decode().split('-')[-1])
 
+
 class ProcessManager:
     def __init__(self, logging_port: int) -> None:
         super().__init__()
@@ -152,12 +153,19 @@ class ProcessManager:
         self.processes[worker_id] = proc
 
     def forcefully_terminate(self) -> None:
-        """Forcefully terminate any running child processes."""
+        """
+        Forcefully terminate any running child processes.
+        """
+
 
         zombie_processes = [p for p in self.processes.values()
                             if p.is_running() and p.status() == psutil.STATUS_ZOMBIE]
         running_processes = [p for p in self.processes.values()
                             if p.is_running() and p.status() != psutil.STATUS_ZOMBIE]
+        if hasattr(self, '_process_name'):
+            logging.debug("Forcefully terminating processes for %s: %s zombies, %s running.",
+                          self._process_name, len(zombie_processes, len(running_processes)))
+
         for p in zombie_processes:  # type: psutil.Process
             try:
                 logging.debug("Killing zombie process %s with pid %s", p.name(), p.pid)
@@ -274,7 +282,16 @@ class PullPipelineManager(ProcessManager, QObject):
     def _get_ventilator_start_message(self, worker_id: int) -> list:
         return [make_filter_from_worker_id(worker_id), b'cmd', b'START']
 
-    def send_message_to_worker(self, data, worker_id:int = None):
+    def send_message_to_worker(self, data, worker_id:int = None) -> None:
+        if self.terminating:
+            logging.debug("%s not sending message to worker because manager is terminated",
+                          self._process_name)
+            return
+        if not self.workers:
+            logging.debug("%s not sending message to worker because there are no workers",
+                          self._process_name)
+            return
+
         data = pickle.dumps(data, pickle.HIGHEST_PROTOCOL)
         if worker_id is not None:
             message = [make_filter_from_worker_id(worker_id), b'data', data]
