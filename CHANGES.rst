@@ -1,7 +1,7 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
-0.9.0a1 (unreleased)
+0.9.0a1 (2016-05-14)
 --------------------
 
  - New features compared to the previous release, version 0.4.11:
@@ -110,7 +110,7 @@ Changelog for Rapid Photo Downloader
 
    - The time remaining until a download is complete (which is shown in the status
      bar) is more stable and more accurate. The algorithm is modelled on that
-     used by Mozilla.
+     used by Mozilla Firefox.
 
    - The installer has been totally rewritten to take advantage of Python's
      tool pip, which installs Python packages. Rapid Photo Downloader can now

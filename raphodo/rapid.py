@@ -3010,7 +3010,7 @@ class RapidWindow(QMainWindow):
             else:
                 # Translators - in the middle is a unicode em dash - please retain it
                 # This string is displayed in the status bar when the download is running
-                message = '%(downloading_from)s — %(time_left)s left (%(speed)s)' % dict(
+                message = _('%(downloading_from)s — %(time_left)s left (%(speed)s)') % dict(
                     downloading_from = downloading, time_left=time_remaining, speed=download_speed)
             self.statusBar().showMessage(message)
 

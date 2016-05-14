@@ -250,5 +250,6 @@ setup(
         "build_icons" : build_icons.build_icons,
         'install': install,
         'clean': clean_extra,
-        },
+        "build_i18n": build_i18n.build_i18n,
+    },
 )
