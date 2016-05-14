@@ -626,7 +626,7 @@ class ThumbnailListModel(QAbstractListModel):
             # The thumbnail may or may not be displayed at this moment
             row = self.uid_to_row.get(uid)
             if row is not None:
-                self.dataChanged.emit(self.index(row,0),self.index(row,0))
+                self.dataChanged.emit(self.index(row, 0), self.index(row, 0))
 
         if not rpd_file.modified_via_daemon_process:
             self.thumbnails_generated += 1
@@ -921,6 +921,7 @@ class ThumbnailListModel(QAbstractListModel):
 
         for uid in uids:
             rpd_file = self.rpd_files[uid] # type: RPDFile
+
             scan_id = rpd_file.scan_id
             files[scan_id].append(rpd_file)
 
@@ -942,6 +943,8 @@ class ThumbnailListModel(QAbstractListModel):
 
             if self.sendToDaemonThumbnailer(rpd_file=rpd_file):
                 download_stats[scan_id].post_download_thumb_generation += 1
+
+        # self.validateModelConsistency()
 
         return DownloadFiles(files=files, download_types=download_types,
                              download_stats=download_stats,
@@ -972,8 +975,9 @@ class ThumbnailListModel(QAbstractListModel):
 
         uids = [rpd_file.uid for scan_id in files for rpd_file in files[scan_id]]
         rows = [self.uid_to_row[uid] for uid in uids if uid in self.uid_to_row]
-        for i in range(len(rows)):
-            self.rows[rows[i]] = (uids[i], False)
+        for row in rows:
+            uid = self.rows[row][0]
+            self.rows[row] = (uid, False)
         self.tsql.set_list_marked(uids=uids, marked=False)
 
         for uid in uids:
@@ -1257,12 +1261,15 @@ class ThumbnailListModel(QAbstractListModel):
         del self.no_thumbnails_by_scan[scan_id]
 
     def updateStatusPostDownload(self, rpd_file: RPDFile):
+        # self.validateModelConsistency()
+
         uid = rpd_file.uid
         self.rpd_files[uid] = rpd_file
         self.tsql.set_downloaded(uid=uid, downloaded=True)
         row = self.uid_to_row.get(uid)
+
         if row is not None:
-            self.dataChanged.emit(self.index(row,0),self.index(row,0))
+            self.dataChanged.emit(self.index(row, 0), self.index(row, 0))
 
     def filesRemainToDownload(self, scan_id: Optional[int]=None) -> bool:
         """
@@ -1702,7 +1709,6 @@ class ThumbnailDelegate(QStyledItemDelegate):
 
     def getLeftPoint(self, rect: QRect) -> QPoint:
         return QPoint(rect.x() + self.horizontal_margin,
-                      #rect.y() + self.emblem_bottom - self.checkbox_size)
                       rect.y() + self.image_frame_bottom + self.footer_padding - 1)
 
     def getCheckBoxRect(self, rect: QRect) -> QRect:

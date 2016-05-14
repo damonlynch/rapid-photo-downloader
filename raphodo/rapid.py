@@ -2886,7 +2886,6 @@ class RapidWindow(QMainWindow):
         and backed up
         """
         scan_id = rpd_file.scan_id
-        uid = rpd_file.uid
         # Update error log window if neccessary
         if not succeeded and not self.backup_devices.multiple_backup_devices(
                 rpd_file.file_type):
