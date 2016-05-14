@@ -315,7 +315,7 @@ class CopyFilesWorker(WorkerInPublishPullPipeline, FileCopy):
 
             if rpd_file.cache_full_file_name:
                 # Scenario 3
-                temp_file_name = os.path.split(rpd_file.cache_full_file_name)[1]
+                temp_file_name = os.path.basename(rpd_file.cache_full_file_name)
                 temp_name = os.path.splitext(temp_file_name)[0]
                 temp_full_file_name = os.path.join(dest_dir,temp_file_name)
 

@@ -275,14 +275,22 @@ class ThumbnailExtractor(LoadBalancerWorker):
             try:
                 with Raw(filename=full_file_name) as raw:
                     raw.options.white_balance = WhiteBalance(camera=True, auto=False)
-                    if rpd_file.cache_full_file_name:
+                    if rpd_file.cache_full_file_name and not rpd_file.download_full_file_name:
                         temp_file = '{}.tiff'.format(os.path.splitext(full_file_name)[0])
-                        temp_dir = None
+                        cache_dir = os.path.dirname(rpd_file.cache_full_file_name)
+                        if os.path.isdir(cache_dir):
+                            temp_file = os.path.join(cache_dir, temp_file)
+                            temp_dir = None
+                        else:
+                            temp_dir = tempfile.mkdtemp(prefix="rpd-tmp-")
+                            temp_file = os.path.join(temp_dir, temp_file)
                     else:
                         temp_dir = tempfile.mkdtemp(prefix="rpd-tmp-")
                         name = os.path.basename(full_file_name)
                         temp_file = '{}.tiff'.format(os.path.splitext(name)[0])
+                        temp_file = os.path.join(temp_dir, temp_file)
                     try:
+                        logging.debug("Saving temporary rawkit render to %s", temp_file)
                         raw.save(filename=temp_file)
                     except:
                         logging.debug("Rendering %s failed", rpd_file.full_file_name)
