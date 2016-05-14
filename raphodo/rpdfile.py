@@ -612,7 +612,7 @@ class RPDFile:
 
         # Have not yet tried to access the datetime metadata
         self._datetime = self.metadata.date_time(missing=None)
-        self._no_datetime_metadata == self._datetime is None
+        self._no_datetime_metadata = self._datetime is None
 
         if self._no_datetime_metadata:
             return missing

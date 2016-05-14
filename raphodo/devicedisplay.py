@@ -51,7 +51,7 @@ from PyQt5.QtCore import (QModelIndex, QSize, Qt, QPoint, QRect, QRectF,
 from PyQt5.QtWidgets import (QStyledItemDelegate,QStyleOptionViewItem, QApplication, QStyle,
                              QListView, QStyleOptionButton, QAbstractItemView, QMenu, QWidget)
 from PyQt5.QtGui import (QPainter, QFontMetrics, QFont, QColor, QLinearGradient, QBrush, QPalette,
-                         QPixmap, QPaintEvent)
+                         QPixmap, QPaintEvent, QGuiApplication, QPen)
 
 from raphodo.viewutils import RowTracker
 from raphodo.constants import (DeviceState, FileType, CustomColors, DeviceType, Roles,
@@ -108,6 +108,9 @@ class DeviceModel(QAbstractListModel):
         self.icon_size = icon_size()
         
         self.row_ids_active = []  # type: List[int]
+
+        # scan_id: 0.0-1.0
+        self.percent_complete = defaultdict(float)  # type: Dict[int, float]
 
         self._rotation_position = 0  # type: int
         self._timer = QTimer(self)
@@ -243,6 +246,7 @@ class DeviceModel(QAbstractListModel):
 
         if current_state_active and state in (DeviceState.idle, DeviceState.finished):
             self.row_ids_active.remove(row_id)
+            self.percent_complete[scan_id] = 0.0
             if len(self.row_ids_active) == 0:
                 self.stopSpinners()
         # Next line assumes spinners were started when a device was added
@@ -284,7 +288,7 @@ class DeviceModel(QAbstractListModel):
                     return device.path
             elif role == Roles.device_details:
                 return (device.display_name, self.icons[scan_id], self.spinner_state[scan_id],
-                        self._rotation_position)
+                        self._rotation_position, self.percent_complete[scan_id])
             elif role == Roles.storage:
                 return device, self.storage[row_id]
             elif role == Roles.device_type:
@@ -820,6 +824,10 @@ class AdvancedDeviceDisplay(DeviceDisplay):
         self.downloadedErrorPixmap = QPixmap(':/downloaded-with-error.png')
         self.downloaded_icon_y = self.v_align_header_pixmap(0, self.downloadedPixmap.height())
 
+        palette = QGuiApplication.instance().palette()
+        color = palette.highlight().color()
+        self.progressBarPen = QPen(QBrush(color), 2.0)
+
     def paint_header(self, painter: QPainter,
                      x: int, y: int, width: int,
                      display_name: str,
@@ -827,7 +835,8 @@ class AdvancedDeviceDisplay(DeviceDisplay):
                      device_state: DeviceState,
                      rotation: int,
                      checked: bool,
-                     download_statuses: Set[DownloadStatus]) -> None:
+                     download_statuses: Set[DownloadStatus],
+                     percent_complete: float) -> None:
 
         standard_pen_color = painter.pen().color()
 
@@ -881,8 +890,16 @@ class AdvancedDeviceDisplay(DeviceDisplay):
                                         Qt.RelativeSize)
                 painter.restore()
 
+            if percent_complete:
+                painter.setPen(self.progressBarPen)
+                x1 = x - self.padding
+                y = y - self.padding + self.device_name_strip_height - 1
+                x2 = x1 + percent_complete * width
+                painter.drawLine(x1, y, x2, y)
+
             painter.setPen(Qt.SolidLine)
             painter.setPen(standard_pen_color)
+
 
 
     def paint_alternate(self, painter: QPainter,  x: int, y: int, text: str) -> None:
@@ -988,7 +1005,8 @@ class DeviceDelegate(QStyledItemDelegate):
 
         view_type = index.data(Qt.DisplayRole)  # type: ViewRowType
         if view_type == ViewRowType.header:
-            display_name, icon, device_state, rotation = index.data(Roles.device_details)
+            display_name, icon, device_state, rotation, percent_complete = index.data(
+                Roles.device_details)
             if device_state == DeviceState.finished:
                 download_statuses = index.data(Roles.download_statuses)  # type: Set[DownloadStatus]
             else:
@@ -1005,7 +1023,8 @@ class DeviceDelegate(QStyledItemDelegate):
                                             device_state=device_state,
                                             display_name=display_name,
                                             checked=checked,
-                                            download_statuses=download_statuses)
+                                            download_statuses=download_statuses,
+                                            percent_complete=percent_complete)
 
         else:
             assert view_type == ViewRowType.content

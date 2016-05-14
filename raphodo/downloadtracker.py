@@ -286,9 +286,7 @@ class DownloadTracker:
         Returns a float representing how much of the download
         has been completed for one particular device
 
-        Currently not used, but is correct.
-
-        :return a value between 0.0 and 100.0
+        :return a value between 0.0 and 1.0
         """
 
         # when calculating the percentage, there are three components:
@@ -300,9 +298,9 @@ class DownloadTracker:
                 / (self.size_of_download_in_bytes_by_scan_id[scan_id] +
                    self.size_of_photo_backup_in_bytes_by_scan_id[scan_id] +
                    self.size_of_video_backup_in_bytes_by_scan_id[scan_id]
-                   )) * 100
+                   ))
 
-        return percent_complete
+        return  percent_complete
 
     def get_overall_percent_complete(self) -> float:
         """

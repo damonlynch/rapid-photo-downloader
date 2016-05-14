@@ -2627,6 +2627,9 @@ class RapidWindow(QMainWindow):
         assert total_downloaded >= 0
         assert chunk_downloaded >= 0
         self.download_tracker.set_total_bytes_copied(scan_id, total_downloaded)
+        if len(self.devices.have_downloaded_from) > 1:
+            model = self.mapModel(scan_id)
+            model.percent_complete[scan_id] = self.download_tracker.get_percent_complete(scan_id)
         self.time_check.increment(bytes_downloaded=chunk_downloaded)
         self.time_remaining.update(scan_id, bytes_downloaded=chunk_downloaded)
         self.updateFileDownloadDeviceProgress()
