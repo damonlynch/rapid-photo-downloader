@@ -47,6 +47,8 @@ import faulthandler
 import pkg_resources
 import webbrowser
 import time
+import shlex
+import subprocess
 from urllib.request import pathname2url
 
 from gettext import gettext as _
@@ -117,9 +119,11 @@ from raphodo.thumbnaildisplay import (ThumbnailView, ThumbnailListModel, Thumbna
                                       DownloadTypes, DownloadStats)
 from raphodo.devicedisplay import (DeviceModel, DeviceView, DeviceDelegate)
 from raphodo.proximity import (TemporalProximityGroups, TemporalProximity)
-from raphodo.utilities import (same_file_system, make_internationalized_list,
-                               thousands, addPushButtonLabelSpacer, format_size_for_user,
-                               make_html_path_non_breaking)
+from raphodo.utilities import (
+    same_file_system, make_internationalized_list, thousands, addPushButtonLabelSpacer,
+    make_html_path_non_breaking, prefs_list_from_gconftool2_string,
+    pref_bool_from_gconftool2_string)
+import raphodo.utilities
 from raphodo.rpdfile import (RPDFile, file_types_by_number, PHOTO_EXTENSIONS,
                              VIDEO_EXTENSIONS, OTHER_PHOTO_EXTENSIONS, FileTypeCounter)
 import raphodo.downloadtracker as downloadtracker
@@ -4806,15 +4810,134 @@ def parser_options(formatter_class=argparse.HelpFormatter):
     parser.add_argument("--forget-remembered-files", dest="forget_files",
                         action="store_true",
                         help=_("Forget which files have been previously downloaded, and exit"))
+    parser.add_argument("--import-old-version-preferences", action="store_true",
+        dest="import_prefs",
+        help=_("Import preferences from an old program version and exit. Requires the "
+               "command line program gconftool-2."))
     parser.add_argument("--reset", action="store_true", dest="reset",
                  help=_("reset all program settings to their default values, delete all thumbnails "
                         "in the Thumbnail cache, forget which files have been previously "
                         "downloaded, and exit."))
+
     parser.add_argument("--log-gphoto2", action="store_true",
         help=_("include gphoto2 debugging information in log files"))
 
     return parser
 
+def import_prefs() -> None:
+    """
+    Import program preferences from the Gtk+ 2 version of the program.
+
+    Requires the command line program gconftool-2.
+    """
+
+    def run_cmd(k: str) -> List[str]:
+        command_line = '{} --get /apps/rapid-photo-downloader/{}'.format(cmd, k)
+        args = shlex.split(command_line)
+        return subprocess.check_output(args=args).decode().strip()
+
+
+    cmd = shutil.which('gconftool-2')
+    keys = (('image_rename', 'photo_rename', prefs_list_from_gconftool2_string),
+            ('video_rename', 'video_rename', prefs_list_from_gconftool2_string),
+            ('subfolder', 'photo_subfolder', prefs_list_from_gconftool2_string),
+            ('video_subfolder', 'video_subfolder', prefs_list_from_gconftool2_string),
+            ('download_folder', 'photo_download_folder', str),
+            ('video_download_folder','video_download_folder', str),
+            ('device_autodetection', 'device_autodetection', pref_bool_from_gconftool2_string),
+            ('device_location', 'this_computer_path', str),
+            ('device_autodetection_psd', 'device_without_dcim_autodetection',
+             pref_bool_from_gconftool2_string),
+            ('ignored_paths', 'ignored_paths', prefs_list_from_gconftool2_string),
+            ('use_re_ignored_paths', 'use_re_ignored_paths', pref_bool_from_gconftool2_string),
+            ('backup_images', 'backup_files', pref_bool_from_gconftool2_string),
+            ('backup_device_autodetection', 'backup_device_autodetection',
+             pref_bool_from_gconftool2_string),
+            ('backup_identifier', 'photo_backup_identifier', str),
+            ('video_backup_identifier', 'video_backup_identifier', str),
+            ('backup_location', 'backup_photo_location', str),
+            ('backup_video_location', 'backup_video_location', str),
+            ('strip_characters', 'strip_characters', pref_bool_from_gconftool2_string),
+            ('synchronize_raw_jpg', 'synchronize_raw_jpg', pref_bool_from_gconftool2_string),
+            ('auto_download_at_startup', 'auto_download_at_startup',
+             pref_bool_from_gconftool2_string),
+            ('auto_download_upon_device_insertion', 'auto_download_upon_device_insertion',
+             pref_bool_from_gconftool2_string),
+            ('auto_unmount', 'auto_unmount', pref_bool_from_gconftool2_string),
+            ('auto_exit', 'auto_exit', pref_bool_from_gconftool2_string),
+            ('auto_exit_force', 'auto_exit_force', pref_bool_from_gconftool2_string),
+            ('verify_file', 'verify_file', pref_bool_from_gconftool2_string),
+            ('job_codes', 'job_codes', prefs_list_from_gconftool2_string),
+            ('generate_thumbnails', 'generate_thumbnails', pref_bool_from_gconftool2_string),
+            ('download_conflict_resolution', 'conflict_resolution', str),
+            ('backup_duplicate_overwrite', 'backup_duplicate_overwrite',
+             pref_bool_from_gconftool2_string))
+
+    if cmd is None:
+        print(_("To import preferences from the old version of Rapid Photo Downloader, you must "
+                "install the program gconftool-2."))
+        return
+
+    prefs = Preferences()
+
+    with raphodo.utilities.stdchannel_redirected(sys.stderr, os.devnull):
+        value = run_cmd('program_version')
+        if not value:
+            print(_("No prior program preferences detected: exiting"))
+            return
+        else:
+            print(_("Importing preferences from Rapid Photo Downloader %(version)s") % dict(
+                version=value))
+            print()
+
+        for key_triplet in keys:
+            key = key_triplet[0]
+            value = run_cmd(key)
+            if value:
+                try:
+                    new_value = key_triplet[2](value)
+                except:
+                    print("Skipping malformed value for key {}".format(key))
+                else:
+                    if key == 'device_autodetection':
+                        if new_value:
+                            print("Setting device_autodetection to True")
+                            print("Setting this_computer_source to False")
+                            prefs.device_autodetection = True
+                            prefs.this_computer_source = False
+                        else:
+                            print("Setting device_autodetection to False")
+                            print("Setting this_computer_source to True")
+                            prefs.device_autodetection = False
+                            prefs.this_computer_source = True
+                    elif key == 'device_location' and prefs.this_computer_source:
+                        print("Setting this_computer_path to", new_value)
+                        prefs.this_computer_path = new_value
+                    elif key == 'download_conflict_resolution':
+                        if new_value == "skip download":
+                            prefs.conflict_resolution = constants.ConflictResolution.skip
+                        else:
+                            prefs.conflict_resolution = constants.ConflictResolution.add_identifier
+                    else:
+                        new_key = key_triplet[1]
+                        print("Setting", new_key, "to", new_value)
+                        setattr(prefs, new_key, new_value)
+
+    key = 'stored_sequence_no'
+    with raphodo.utilities.stdchannel_redirected(sys.stderr, os.devnull):
+        value = run_cmd(key)
+    if value:
+        try:
+            new_value = int(value)
+            # we need to add 1 to the number for historic reasons
+            new_value += 1
+        except ValueError:
+            print("Skipping malformed value for key stored_sequence_no")
+        else:
+            if new_value and raphodo.utilities.confirm('\n' +
+                    _('Do you want to copy the stored sequence number, which has the value %d?' ) %
+                            new_value, resp=False):
+                prefs.stored_sequence_no = new_value - 1
 def main():
 
     parser = parser_options()
@@ -5000,7 +5123,7 @@ def main():
         print(_("All settings and caches have been reset"))
         sys.exit(0)
 
-    if args.delete_thumb_cache or args.forget_files:
+    if args.delete_thumb_cache or args.forget_files or args.import_prefs:
         if args.delete_thumb_cache:
             cache = ThumbnailCacheSql()
             cache.purge_cache()
@@ -5009,6 +5132,8 @@ def main():
             d = DownloadedSQL()
             d.update_table(reset=True)
             print(_("Remembered files have been forgotten"))
+        if args.import_prefs:
+            import_prefs()
         sys.exit(0)
 
     splash = SplashScreen(QPixmap(':/splashscreen.png'), Qt.WindowStaysOnTopHint)

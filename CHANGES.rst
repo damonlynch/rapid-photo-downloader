@@ -1,6 +1,14 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
+0.9.0a2 (unreleased)
+--------------------
+
+ - Added command line option to import preferences from from an old program
+   version (0.4.11 or earlier)
+
+ - Fixed bug while logging processes being forcefully terminated
+
 0.9.0a1 (2016-05-14)
 --------------------
 
@@ -48,7 +56,7 @@ Changelog for Rapid Photo Downloader
      device are briefly highlighted when the mouse is moved over the device.
 
    - The order in which thumbnails are generated prioritizes representative
-     samples, based on time, which is useful for users who download very large
+     samples, based on time, which is useful for those who download very large
      numbers of files at a time.
 
    - Thumbnails are generated asynchronously and in parallel, using a load

@@ -34,6 +34,7 @@ Options:
     --thumbnail-cache {on,off}
     --delete-thumbnail-cache
     --forget-remembered-files
+    --import-old-version-preferences
     --reset
     --log-gphoto2
 
@@ -178,6 +179,11 @@ Deletes all thumbnails in the Rapid Photo Downloader Thumbnail Cache, and exits.
 =item B<--forget-remembered-files>
 
 Forgets which files have been previously downloaded, and exits.
+
+=item B<--import-old-version-preferences>
+
+Imports preferences from an old program version (S<0.4.11> or earlier), and exits. Requires the
+command line program S<gconftool-2>.
 
 =item B<--reset>
 

@@ -164,7 +164,7 @@ class ProcessManager:
                             if p.is_running() and p.status() != psutil.STATUS_ZOMBIE]
         if hasattr(self, '_process_name'):
             logging.debug("Forcefully terminating processes for %s: %s zombies, %s running.",
-                          self._process_name, len(zombie_processes, len(running_processes)))
+                          self._process_name, len(zombie_processes), len(running_processes))
 
         for p in zombie_processes:  # type: psutil.Process
             try:
