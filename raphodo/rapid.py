@@ -934,8 +934,7 @@ class RapidWindow(QMainWindow):
             self.udisks2MonitorThread = QThread()
             self.udisks2Monitor.moveToThread(self.udisks2MonitorThread)
             self.udisks2Monitor.partitionMounted.connect(self.partitionMounted)
-            self.udisks2Monitor.partitionUnmounted.connect(
-                self.partitionUmounted)
+            self.udisks2Monitor.partitionUnmounted.connect(self.partitionUmounted)
             # Start the monitor only on the thread it will be running on
             logging.debug("Starting UDisks2 monitor...")
             self.udisks2Monitor.startMonitor()
@@ -3039,13 +3038,11 @@ class RapidWindow(QMainWindow):
         device = self.devices[scan_id]  # type: Device
 
         if device.device_type == DeviceType.volume:
-            #TODO implement device unmounting
             if self.gvfsControlsMounts:
-                #self.gvolumeMonitor.
-                pass
+                self.gvolumeMonitor.unmountVolume(path=device.path)
             else:
-                #self.udisks2Monitor.
-                pass
+                # TODO implement device unmounting with udisks
+                self.udisks2Monitor.unmount_volume(mount_point=device.path)
 
     def deleteSourceFiles(self, scan_id: int)  -> None:
         """

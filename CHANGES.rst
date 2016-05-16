@@ -5,9 +5,18 @@ Changelog for Rapid Photo Downloader
 --------------------
 
  - Added command line option to import preferences from from an old program
-   version (0.4.11 or earlier)
+   version (0.4.11 or earlier).
 
- - Fixed bug while logging processes being forcefully terminated
+ - Implemented auto unmount using GIO (which is used on most Linux desktops) and
+   UDisks2 (all those desktops that don't use GIO, e.g. KDE).
+
+ - Fixed bug while logging processes being forcefully terminated.
+
+ - Fixed bug where stored sequence number was not being correctly used when
+   renaming files.
+
+ - Fixed bug where download would crash on Python 3.4 systems due to use of Python
+   3.5 only math.inf
 
 0.9.0a1 (2016-05-14)
 --------------------

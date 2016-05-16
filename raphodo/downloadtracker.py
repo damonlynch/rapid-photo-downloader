@@ -441,7 +441,7 @@ class TimeCheck:
 
 class TimeForDownload:
     def __init__(self, size: int) -> None:
-        self.time_remaining = math.inf  # type: float
+        self.time_remaining = float("inf")  # type: float
 
         self.total_downloaded_so_far = 0   # type: int
         self.total_download_size = size  # type: int
@@ -498,7 +498,7 @@ class TimeRemaining:
             amt_to_download = t.total_download_size - t.total_downloaded_so_far
 
             if not t.smoothed_speed:
-                t.time_remaining = math.inf
+                t.time_remaining = float("inf")
             else:
                 time_remaining = amt_to_download / t.smoothed_speed
                 # Use the previous value to help determine the current value,
@@ -558,7 +558,7 @@ def get_time_left(aSeconds: float, aLastSec: Optional[float]=None) -> float:
     """
 
     if aLastSec is None:
-        aLastSec = math.inf
+        aLastSec = float("inf")
 
     if aSeconds < 0:
       return aLastSec

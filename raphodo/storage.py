@@ -55,7 +55,7 @@ import subprocess
 import shlex
 import pwd
 from collections import namedtuple
-from typing import Optional, Tuple, List
+from typing import Optional, Tuple, List, Dict
 
 from PyQt5.QtCore import (QStorageInfo, QObject, pyqtSignal, QFileSystemWatcher)
 from xdg.DesktopEntry import DesktopEntry
@@ -134,30 +134,31 @@ class ValidMounts():
                 return True
         return False
 
-    def mountedValidMountPointPaths(self):
+    def mountedValidMountPointPaths(self) -> Tuple[str]:
         """
         Return paths of all the currently mounted partitions that are
         valid
         :return: tuple of currently mounted valid partition paths
-        :rtype Tuple(str)
         """
+
         return tuple(filter(self.pathIsValidMountPoint, mountPaths()))
 
-    def mountedValidMountPoints(self):
+    def mountedValidMountPoints(self) -> Tuple[QStorageInfo]:
         """
         Return mount points of all the currently mounted partitions
         that are valid
         :return: tuple of currently mounted valid partition
-        :rtype Tuple(QStorageInfo)
         """
+
         return tuple(filter(self.isValidMountPoint,
                             QStorageInfo.mountedVolumes()))
 
-    def _setValidMountFolders(self):
+    def _setValidMountFolders(self) -> None:
         """
         Determine the valid mount point folders and set them in
         self.validMountFolders, e.g. /media/<USER>, etc.
         """
+
         if sys.platform.startswith('linux'):
             try:
                 media_dir = '/media/{}'.format(pwd.getpwuid(os.getuid())[0])
@@ -181,6 +182,7 @@ class ValidMounts():
         Yields a list of mount points in /etc/fstab
         The mount points will exclude /, /home, and swap
         """
+
         with open('/etc/fstab') as f:
             l = []
             for line in f:
@@ -197,6 +199,7 @@ class ValidMounts():
         """
         Output nicely formatted debug logging message
         """
+
         assert len(self.validMountFolders) > 0
         if logging_level == logging.DEBUG:
             msg = "To be recognized, partitions must be mounted under "
@@ -654,7 +657,7 @@ class UDisks2Monitor(QObject):
 
         # Track the paths of the mount points, which is useful when unmounting
         # objects.
-        self.known_mounts = {}
+        self.known_mounts = {}  # type: Dict[str, str]
         for obj in self.manager.get_objects():
             path = obj.get_object_path()
             fs = obj.get_filesystem()
@@ -728,7 +731,7 @@ class UDisks2Monitor(QObject):
             logging.debug("Udisks: partition has no file system %s", path)
 
     def retry_mount(self, fs, fstype) -> str:
-        # Variant paramater construction Copyright Bernard Baeyens, and is
+        # Variant parameter construction Copyright Bernard Baeyens, and is
         # licensed under GNU General Public License Version 2 or higher.
         # https://github.com/berbae/udisksvm
         list_options = ''
@@ -773,7 +776,7 @@ class UDisks2Monitor(QObject):
                 icon_names = icon.get_names()
         return icon_names
 
-    # Next three class member functions from Damon Lynch, not Canonical
+    # Next four class member functions from Damon Lynch, not Canonical
     def _device_removed(self, obj: UDisks.Object) -> None:
         # path here refers to the udev / udisks path, not the mount point
         path = obj.get_object_path()
@@ -804,6 +807,71 @@ class UDisks2Monitor(QObject):
         icon_names = self.get_icon_names(obj)
         can_eject = self.get_can_eject(obj)
         return (icon_names, can_eject)
+
+    def unmount_volume(self, mount_point: str) -> None:
+
+        G_VARIANT_TYPE_VARDICT = GLib.VariantType.new('a{sv}')
+        param_builder = GLib.VariantBuilder.new(G_VARIANT_TYPE_VARDICT)
+
+        optname = GLib.Variant.new_string('force')
+        value = GLib.Variant.new_boolean(False)
+        vvalue = GLib.Variant.new_variant(value)
+        newsv = GLib.Variant.new_dict_entry(optname, vvalue)
+        param_builder.add_value(newsv)
+
+        vparam = param_builder.end()                            # a{sv}
+
+        path = None
+        # Get the path from the dict we keep of known mounts
+        for key, value in self.known_mounts.items():
+            if value == mount_point:
+                path = key
+                break
+        if path is None:
+            logging.error("Could not find UDisks2 path used to be able to unmount %s", mount_point)
+
+        fs = None
+        for obj in self.manager.get_objects():
+            opath = obj.get_object_path()
+            if path == opath:
+                fs = obj.get_filesystem()
+        if fs is None:
+            logging.error("Could not find UDisks2 filesystem used to be able to unmount %s",
+                          mount_point)
+
+        logging.debug("Unmounting %s...", mount_point)
+        try:
+            fs.call_unmount(vparam, None, self.umount_volume_callback, mount_point)
+        except GLib.GError:
+            value = sys.exc_info()[1]
+            logging.error('Unmounting failed with error:')
+            logging.error("%s", value)
+
+    def umount_volume_callback(self, source_object:  UDisks.FilesystemProxy,
+                               result: Gio.AsyncResult,
+                               user_data: str) -> None:
+        """
+
+        :param source_object: the FilesystemProxy object
+        :param result: result of the unmount
+        :param user_data: mount_point
+        """
+
+        mount_point = user_data
+
+        try:
+            if UDisks.Filesystem.call_unmount_finish(source_object, result):
+                logging.debug("...successfully unmounted %s", mount_point)
+            else:
+                logging.debug("...possibly failed to unmount %s", mount_point)
+        except GLib.GError as e:
+            logging.error('Exception occurred unmounting %s', mount_point)
+            logging.exception('Traceback:')
+        except:
+            logging.error('Exception occurred unmounting %s', mount_point)
+            logging.exception('Traceback:')
+
+        self.partitionUnmounted.emit(mount_point)
 
 
 if have_gio:
@@ -884,15 +952,15 @@ if have_gio:
 
             if to_unmount is not None:
                 logging.debug("GIO: Attempting to unmount %s...", model)
-                to_unmount.unmount_with_operation(0, None, None, self.unmountCallback,
-                                          (model, port, download_starting, on_startup))
+                to_unmount.unmount_with_operation(0, None, None, self.unmountCameraCallback,
+                                                  (model, port, download_starting, on_startup))
                 return True
 
             return False
 
-        def unmountCallback(self, mount: Gio.Mount,
-                            result: Gio.AsyncResult,
-                            user_data: Tuple[str, str, bool, bool]) -> None:
+        def unmountCameraCallback(self, mount: Gio.Mount,
+                                  result: Gio.AsyncResult,
+                                  user_data: Tuple[str, str, bool, bool]) -> None:
             """
             Called by the asynchronous unmount operation.
             When complete, emits a signal indicating operation
@@ -915,6 +983,47 @@ if have_gio:
                 logging.error('Exception occurred unmounting {}'.format(model))
                 logging.exception('Traceback:')
                 self.cameraUnmounted.emit(False, model, port, download_starting, on_startup)
+
+        def unmountVolume(self, path: str) -> None:
+            """
+            Unmounts the volume represented by the path. If no volume is found
+            representing that path, nothing happens.
+
+            :param path: path of the volume. It should not end with os.sep.
+            """
+
+            for mount in self.vm.get_mounts():
+                root = mount.get_root()
+                if root is not None:
+                    mpath = root.get_path()
+                    if path == mpath:
+                        logging.info("Attempting to unmount %s...", path)
+                        mount.unmount_with_operation(0, None, None, self.unmountVolumeCallback,
+                                                     path)
+                        break
+
+        def unmountVolumeCallback(self, mount: Gio.Mount,
+                                  result: Gio.AsyncResult,
+                                  user_data: str) -> None:
+
+            """
+            Called by the asynchronous unmount operation.
+
+            :param mount: volume mount
+            :param result: result of the unmount process
+            :param user_data: the path of the device unmounted
+            """
+            path = user_data
+
+            try:
+                if mount.unmount_with_operation_finish(result):
+                    logging.info("...successfully unmounted %s", path)
+                else:
+                    logging.info("...failed to unmount %s", path)
+            except GLib.GError as e:
+                logging.error('Exception occurred unmounting %s', path)
+                logging.exception('Traceback:')
+
 
         def mountIsCamera(self, mount: Gio.Mount) -> str:
             """
