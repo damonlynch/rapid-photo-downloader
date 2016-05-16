@@ -534,6 +534,7 @@ class RenameMoveFileWorker(DaemonProcess):
             logging.debug("Generated subfolder name %s for file %s",
                           rpd_file.download_subfolder, rpd_file.name)
 
+            self.sequences.stored_sequence_no = self.prefs.stored_sequence_no
             rpd_file.sequences = self.sequences
 
             # generate the file name
@@ -640,6 +641,7 @@ class RenameMoveFileWorker(DaemonProcess):
                     extension=sync_result.photo_ext,
                     date_time=rpd_file.date_time(),
                     sequence_number_used=sequence)
+
             if not synchronize_raw_jpg or (synchronize_raw_jpg and
                                            sync_result.sequence_to_use is None):
                 uses_sequence_session_no = self.prefs.any_pref_uses_session_sequence_no()
@@ -712,7 +714,7 @@ class RenameMoveFileWorker(DaemonProcess):
                         # here because to save QSettings, QApplication should be
                         # used.
                         self.content = pickle.dumps(RenameAndMoveFileResults(
-                            stored_sequence_no=self.sequences.stored_sequence_no,
+                            stored_sequence_no=self.sequences.stored_sequence_no + 1,
                             downloads_today=self.downloads_today_tracker.downloads_today),
                             pickle.HIGHEST_PROTOCOL)
                         dl_today = self.downloads_today_tracker.get_or_reset_downloads_today()

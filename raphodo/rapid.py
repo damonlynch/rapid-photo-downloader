@@ -4937,7 +4937,7 @@ def import_prefs() -> None:
             if new_value and raphodo.utilities.confirm('\n' +
                     _('Do you want to copy the stored sequence number, which has the value %d?' ) %
                             new_value, resp=False):
-                prefs.stored_sequence_no = new_value - 1
+                prefs.stored_sequence_no = new_value
 def main():
 
     parser = parser_options()

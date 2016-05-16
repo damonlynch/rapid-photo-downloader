@@ -95,8 +95,7 @@ class PhotoName:
                     d = self.rpd_file.metadata.sub_seconds(missing=None)
                     if d is None:
                         self.rpd_file.problem.add_problem(self.component,
-                                                          pn.MISSING_METADATA,
-                                                          _(self.L2))
+                            pn.MISSING_METADATA, _(self.L2))
                         return ''
                     else:
                         return d
@@ -130,12 +129,10 @@ class PhotoName:
                                           '')
                 logging.error(
                     "Both file modification time and metadata date & time "
-                    "are invalid for file %s",
-                    self.rpd_file.full_file_name)
+                    "are invalid for file %s", self.rpd_file.full_file_name)
                 return ''
         else:
-            self.rpd_file.add_problem(self.component, pn.MISSING_METADATA,
-                                      _(self.L1))
+            self.rpd_file.add_problem(self.component, pn.MISSING_METADATA, _(self.L1))
             return ''
 
         try:
@@ -144,8 +141,7 @@ class PhotoName:
             self.rpd_file.add_problem(self.component, pn.INVALID_DATE_TIME, d)
             logging.error(
                 "Both file modification time and metadata date & time are "
-                "invalid for file %s",
-                self.rpd_file.full_file_name)
+                "invalid for file %s", self.rpd_file.full_file_name)
             return ''
 
     def _get_associated_file_extension(self, associate_file):
@@ -561,8 +557,8 @@ class Sequences:
     def _get_sequence_letter(self) -> int:
         return self.sequence_letter + 1
 
-    def increment(self, uses_session_sequece_no, uses_sequence_letter) -> None:
-        if uses_session_sequece_no:
+    def increment(self, uses_session_sequence_no, uses_sequence_letter) -> None:
+        if uses_session_sequence_no:
             self.session_sequence_no += 1
         if uses_sequence_letter:
             self.sequence_letter += 1
@@ -587,9 +583,7 @@ class Sequences:
             return self._get_stored_sequence_no()
 
     def _get_stored_sequence_no(self) -> int:
-        # Must add 1 to the value, for historic reasons (that is how it used
-        # to work)
-        return self.stored_sequence_no + 1
+        return self.stored_sequence_no
 
     def create_matched_sequences(self) -> MatchedSequences:
         return MatchedSequences(
