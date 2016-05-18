@@ -813,6 +813,10 @@ class UDisks2Monitor(QObject):
         G_VARIANT_TYPE_VARDICT = GLib.VariantType.new('a{sv}')
         param_builder = GLib.VariantBuilder.new(G_VARIANT_TYPE_VARDICT)
 
+        # Variant parameter construction Copyright Bernard Baeyens, and is
+        # licensed under GNU General Public License Version 2 or higher.
+        # https://github.com/berbae/udisksvm
+
         optname = GLib.Variant.new_string('force')
         value = GLib.Variant.new_boolean(False)
         vvalue = GLib.Variant.new_variant(value)
@@ -841,7 +845,7 @@ class UDisks2Monitor(QObject):
 
         logging.debug("Unmounting %s...", mount_point)
         try:
-            fs.call_unmount(vparam, None, self.umount_volume_callback, mount_point)
+            fs.call_unmount(vparam, None, self.umount_volume_callback, (mount_point, fs))
         except GLib.GError:
             value = sys.exc_info()[1]
             logging.error('Unmounting failed with error:')
@@ -849,20 +853,22 @@ class UDisks2Monitor(QObject):
 
     def umount_volume_callback(self, source_object:  UDisks.FilesystemProxy,
                                result: Gio.AsyncResult,
-                               user_data: str) -> None:
+                               user_data: Tuple[str, UDisks.Filesystem]) -> None:
         """
+        Callback for asynchronous unmount operation.
 
         :param source_object: the FilesystemProxy object
         :param result: result of the unmount
-        :param user_data: mount_point
+        :param user_data: mount_point and the file system
         """
 
-        mount_point = user_data
+        mount_point, fs = user_data
 
         try:
-            if UDisks.Filesystem.call_unmount_finish(source_object, result):
+            if fs.call_unmount_finish(result):
                 logging.debug("...successfully unmounted %s", mount_point)
             else:
+                # this is the result even when the unmount was unsuccessful
                 logging.debug("...possibly failed to unmount %s", mount_point)
         except GLib.GError as e:
             logging.error('Exception occurred unmounting %s', mount_point)

@@ -1,7 +1,7 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
-0.9.0a2 (unreleased)
+0.9.0a2 (2016-05-16)
 --------------------
 
  - Added command line option to import preferences from from an old program
