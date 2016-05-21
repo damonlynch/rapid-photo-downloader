@@ -659,6 +659,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
         for e in (FileExtension.raw, FileExtension.jpeg, FileExtension.video):
             for file in self.file_list:
                 if rpdfile.extension_type(os.path.splitext(file)[1].lower()[1:]) == e:
+                    logging.debug("Examining sample %s", os.path.join(self.dir_name, file))
                     sample = self.sample_non_camera_datetime(self.dir_name, file, e)
                     attempts += 1
                     if sample.datetime is not None:

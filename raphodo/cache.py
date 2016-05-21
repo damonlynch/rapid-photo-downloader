@@ -401,6 +401,11 @@ class ThumbnailCacheSql:
         md5_name, uri = self.md5.md5_hash_name(full_file_name=full_file_name,
                                                camera_model=camera_model, extension='jpg')
 
+        if generation_failed:
+            logging.debug("Marking thumbnail for %s as 'generation failed'", uri)
+        else:
+            logging.debug("Saving thumbnail for %s in RPD thumbnail cache", uri)
+
         self.thumb_db.add_thumbnail(uri=uri, size=size, mtime=mtime,
                                     mdatatime=mdatatime,
                                     md5_name=md5_name, orientation_unknown=orientation_unknown,

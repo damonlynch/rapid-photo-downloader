@@ -608,8 +608,9 @@ class ThumbnailExtractor(LoadBalancerWorker):
 
                     orientation_unknown = (ExtractionProcessing.orient in processing and
                                              orientation is None)
-                    if data.use_thumbnail_cache and rpd_file.thumbnail_cache_status == \
-                            ThumbnailCacheDiskStatus.not_found:
+
+                    if send_thumb_to_main and data.use_thumbnail_cache and \
+                            rpd_file.thumbnail_cache_status == ThumbnailCacheDiskStatus.not_found:
                         self.thumbnail_cache.save_thumbnail(
                             full_file_name=rpd_file.full_file_name,
                             size=rpd_file.size,

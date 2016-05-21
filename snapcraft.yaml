@@ -25,6 +25,9 @@ parts:
   python-pyzmq:
     plugin: python3
     python-packages:
-     - pyzmq 15.1.0
-
+      - pyzmq=15.1.0
+    build-packages:
+      - g++
+      - python3-dev
+      - libzmq3-dev
 

@@ -626,7 +626,10 @@ class ThumbnailListModel(QAbstractListModel):
             # The thumbnail may or may not be displayed at this moment
             row = self.uid_to_row.get(uid)
             if row is not None:
+                logging.debug("Updating thumbnail row %s with new thumbnail", row)
                 self.dataChanged.emit(self.index(row, 0), self.index(row, 0))
+        else:
+            logging.debug("Thumbnail was null: %s", rpd_file.name)
 
         if not rpd_file.modified_via_daemon_process:
             self.thumbnails_generated += 1

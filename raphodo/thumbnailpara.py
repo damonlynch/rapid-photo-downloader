@@ -209,7 +209,9 @@ class GetThumbnailFromCache:
                 task = ExtractionTask.bypass
                 if get_thumbnail.disk_status == ThumbnailCacheDiskStatus.failure:
                     rpd_file.thumbnail_status = ThumbnailCacheStatus.generation_failed
+                    rpd_file.thumbnail_cache_status = ThumbnailCacheDiskStatus.failure
                 elif get_thumbnail.disk_status == ThumbnailCacheDiskStatus.found:
+                    rpd_file.thumbnail_cache_status = ThumbnailCacheDiskStatus.found
                     if get_thumbnail.orientation_unknown:
                         rpd_file.thumbnail_status = ThumbnailCacheStatus.orientation_unknown
                     else:
