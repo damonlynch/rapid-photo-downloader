@@ -427,3 +427,8 @@ video_rename_simple = [x if x!= 'Image date' else 'Video date' for x in photo_re
 job_code_rename_test = ['Job code', '', '', 'Sequences',
                         'Downloads today', 'One digit', 'Filename', 'Extension',
                         'lowercase']
+
+
+class RememberThisMessage(Enum):
+    remember_choice = 1
+    do_not_ask_again = 2

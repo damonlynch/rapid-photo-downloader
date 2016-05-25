@@ -1441,8 +1441,6 @@ class TemporalProximity(QWidget):
 
         self.state = TemporalProximityState.empty
 
-        self.selected_uids = set()
-
         self.temporalProximityView = TemporalProximityView(self, rapidApp=rapidApp)
         self.temporalProximityModel = TemporalProximityModel(rapidApp=rapidApp)
         self.temporalProximityView.setModel(self.temporalProximityModel)
@@ -1469,7 +1467,7 @@ class TemporalProximity(QWidget):
                            ".<br><br>The "
                            "Timeline "
 "shows when shots were taken. The time a shot was taken is found in a photo or video's metadata. "
-"Reading the metadata is time consuming, so Rapid Photo Downloader eschews reading the metadata "
+"Reading the metadata is time consuming, so Rapid Photo Downloader avoids reading the metadata "
 "while scanning files. Instead it uses the time the file was last modified as a proxy for when "
 "the shot was taken. The time a shot was taken is confirmed when generating thumbnails or "
 "downloading, which is when the metadata is read.")

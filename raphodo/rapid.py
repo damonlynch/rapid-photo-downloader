@@ -114,7 +114,8 @@ from raphodo.constants import (BackupLocationType, DeviceType, ErrorType,
                                CameraErrorCode, TemporalProximityState,
                                ThumbnailBackgroundName, Desktop,
                                DeviceState, Sort, Show, Roles, DestinationDisplayType,
-                               DisplayingFilesOfType, DownloadFailure, DownloadWarning)
+                               DisplayingFilesOfType, DownloadFailure, DownloadWarning,
+                               RememberThisMessage)
 from raphodo.thumbnaildisplay import (ThumbnailView, ThumbnailListModel, ThumbnailDelegate,
                                       DownloadTypes, DownloadStats)
 from raphodo.devicedisplay import (DeviceModel, DeviceView, DeviceDelegate)
@@ -123,6 +124,7 @@ from raphodo.utilities import (
     same_file_system, make_internationalized_list, thousands, addPushButtonLabelSpacer,
     make_html_path_non_breaking, prefs_list_from_gconftool2_string,
     pref_bool_from_gconftool2_string)
+from raphodo.rememberthisdialog import RememberThisDialog
 import raphodo.utilities
 from raphodo.rpdfile import (RPDFile, file_types_by_number, PHOTO_EXTENSIONS,
                              VIDEO_EXTENSIONS, OTHER_PHOTO_EXTENSIONS, FileTypeCounter)
@@ -547,56 +549,6 @@ class FolderPreviewManager:
         """
 
         self.folders_preview.clean_all_generated_folders(fsmodel=self.fsmodel)
-
-
-class UseDeviceDialog(QDialog):
-    """
-    A small dialog window that prompts the user if they want to
-    use the external device as a download source or not.
-
-    Includes a prompot whether to remember the choice, i.e.
-    whitelist the device.
-    """
-
-    def __init__(self, device: Device, parent) -> None:
-        super().__init__(parent)
-
-        self.remember = False
-
-        instruction = _('Should %(device)s be used to download photos and videos from?') % dict(
-            device=device.display_name)
-        instructionLabel = QLabel(instruction)
-
-        icon = QLabel()
-        icon.setPixmap(device.get_pixmap())
-
-        self.rememberCheckBox = QCheckBox(_("&Remember this choice"))
-        self.rememberCheckBox.setChecked(False)
-        buttonBox = QDialogButtonBox()
-        yesButton = buttonBox.addButton(QDialogButtonBox.Yes)
-        noButton = buttonBox.addButton(QDialogButtonBox.No)
-        grid = QGridLayout()
-        grid.setSpacing(11)
-        grid.setContentsMargins(11, 11, 11, 11)
-        grid.addWidget(icon, 0, 0, 2, 1)
-        grid.addWidget(instructionLabel, 0, 1, 1, 1)
-        grid.addWidget(self.rememberCheckBox, 1, 1, 1, 1)
-        grid.addWidget(buttonBox, 2, 0, 1, 2)
-        self.setLayout(grid)
-        self.setWindowTitle(_('Rapid Photo Downloader'))
-
-        yesButton.clicked.connect(self.useDevice)
-        noButton.clicked.connect(self.doNotUseDevice)
-
-    @pyqtSlot()
-    def useDevice(self) -> None:
-        self.remember = self.rememberCheckBox.isChecked()
-        super().accept()
-
-    @pyqtSlot()
-    def doNotUseDevice(self) -> None:
-        self.remember = self.rememberCheckBox.isChecked()
-        super().reject()
 
 
 class RapidWindow(QMainWindow):
@@ -2289,15 +2241,34 @@ class RapidWindow(QMainWindow):
             logging.debug("Download resumed")
             self.resumeDownload()
         else:
-            logging.debug("Download activated")
-
             if self.downloadIsRunning():
                 self.pauseDownload()
             else:
-                if self.job_code.need_to_prompt():
-                    self.job_code.get_job_code()
-                else:
-                    self.startDownload()
+                start_download = True
+                if self.prefs.warn_downloading_all and \
+                        self.thumbnailModel.anyCheckedFilesFiltered():
+                    message = _("""<b>Downloading all files</b><br><br>
+                    A download always includes all files that are checked for download,
+                    including those that are not currently displayed because the Timeline
+                    is being used or because only new files are being shown.<br><br>
+                    Do you want to proceed with the download?""")
+
+                    warning = RememberThisDialog(message=message,
+                                             icon=QPixmap(':/rapid-photo-downloader.svg'),
+                                             remember=RememberThisMessage.do_not_ask_again,
+                                             parent=self)
+
+                    start_download = warning.exec_()
+                    if warning.remember:
+                        self.prefs.warn_downloading_all = False
+
+                if start_download:
+                    logging.debug("Download activated")
+
+                    if self.job_code.need_to_prompt():
+                        self.job_code.get_job_code()
+                    else:
+                        self.startDownload()
 
     def pauseDownload(self) -> None:
         """
@@ -3992,7 +3963,11 @@ class RapidWindow(QMainWindow):
                               device.display_name)
                 # prompt user to see if device should be used or not
                 self.showMainWindow()
-                use = UseDeviceDialog(device, self)
+                message = _('Should %(device)s be used to download photos and videos from?') % dict(
+                    device=device.display_name)
+                use = RememberThisDialog(message=message, icon=device.get_pixmap(),
+                                         remember=RememberThisMessage.remember_choice,
+                                         parent=self)
                 if use.exec():
                     if use.remember:
                         logging.debug("Whitelisting device %s", device.display_name)
@@ -4811,7 +4786,7 @@ def parser_options(formatter_class=argparse.HelpFormatter):
     parser.add_argument("--delete-thumbnail-cache", dest="delete_thumb_cache",
                         action="store_true",
                         help=_("Delete all thumbnails in the Rapid Photo Downloader Thumbnail "
-                               "Cache, and exit"))
+                               "Cache, and exit."))
     parser.add_argument("--forget-remembered-files", dest="forget_files",
                         action="store_true",
                         help=_("Forget which files have been previously downloaded, and exit."))

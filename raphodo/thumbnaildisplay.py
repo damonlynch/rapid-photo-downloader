@@ -1311,6 +1311,13 @@ class ThumbnailListModel(QAbstractListModel):
             self.proximity_col2 = col2
             self.refresh()
 
+    def anyCheckedFilesFiltered(self) -> bool:
+        """
+        :return: True if any files checked for download are currently
+         not displayed because they are filtered
+        """
+
+        return self.tsql.get_count(marked=True) != self.getDisplayedCount(marked=True)
 
 class ThumbnailView(QListView):
     def __init__(self, parent: QWidget) -> None:

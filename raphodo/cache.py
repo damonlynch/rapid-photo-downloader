@@ -26,7 +26,7 @@ Rapid Photo Downloader deals with three types of cache:
    by Rapid Photo Downloader. It's needed because it's important to save
    thumbnails that are not degraded by image resizing.
    Name: Thumbnail Cache
-   Location: /home/USER/.cache/rapid-photo-downloader/thumbnails/normal
+   Location: /home/USER/.cache/rapid-photo-downloader/thumbnails/
    (Actual location may vary depending on value of environment variable
    XDG_CACHE_HOME)
 

@@ -1,6 +1,21 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
+0.9.0a3 (2016-05-xx)
+--------------------
+
+ - Selecting items in the Timeline or showing only new files can result in
+   situations where there are files that have been checked for download that are
+   not currently being displayed. In such a situation, when a download is started,
+   a dialog will be displayed to warn that *all* checked files will be downloaded,
+   not just the ones currently displayed.
+
+ - Fixed bug where thumbnails might not be displayed for files that had
+   already been downloaded during a previous progarm invocation.
+
+ - If the environment variable RPD_SCAN_DEBUG is set to any value, the
+   program's scan operation will output volumous debug information to stdout.
+
 0.9.0a2 (2016-05-16)
 --------------------
 

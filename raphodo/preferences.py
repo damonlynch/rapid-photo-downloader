@@ -270,7 +270,8 @@ class Preferences:
                            ignore_mdatatime_for_mtp_dng=True,
                           )
     timeline_defaults = dict(proximity_seconds=3600)
-    display_defaults = dict(detailed_time_remaining=False)
+    display_defaults = dict(detailed_time_remaining=False,
+                            warn_downloading_all=True)
     device_defaults = dict(only_external_mounts=True,
                            device_autodetection=True,
                            this_computer_source = False,

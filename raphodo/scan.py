@@ -796,8 +796,41 @@ class ScanWorker(WorkerInPublishPullPipeline):
         if self.camera is not None:
             self.camera.free_camera()
 
+def trace_lines(frame, event, arg):
+    if event != 'line':
+        return
+    co = frame.f_code
+    func_name = co.co_name
+    line_no = frame.f_lineno
+    print('%s >>>>>>>>>>>>> At %s line %s' % (datetime.now().ctime(), func_name, line_no))
+
+def trace_calls(frame, event, arg):
+    if event != 'call':
+        return
+    co = frame.f_code
+    func_name = co.co_name
+    if func_name in ('write', '__getattribute__'):
+        return
+    func_line_no = frame.f_lineno
+    func_filename = co.co_filename
+    caller = frame.f_back
+    if caller is not None:
+        caller_line_no = caller.f_lineno
+        caller_filename = caller.f_code.co_filename
+    else:
+        caller_line_no = caller_filename = ''
+    print('% s Call to %s on line %s of %s from line %s of %s'  %
+        (datetime.now().ctime(), func_name, func_line_no, func_filename, caller_line_no,
+         caller_filename))
+
+    for f in ('distingish_non_camera_device_timestamp','determine_device_timestamp_tz'):
+        if func_name.find(f) >= 0:
+            # Trace into this function
+            return trace_lines
 
 if __name__ == "__main__":
+    if os.getenv('RPD_SCAN_DEBUG') is not None:
+        sys.settrace(trace_calls)
     scan = ScanWorker()
 
 

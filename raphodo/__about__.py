@@ -25,8 +25,8 @@ __all__ = [
 ]
 
 __title__ = 'rapid-photo-downloader'
-__summary__ = 'Download, rename and backup photos and videos from cameras, phones, memory cards ' \
-              'and other devices' 
+__summary__ = 'Downloads, renames and backs up photos and videos from cameras, phones, ' \
+'memory cards and other devices'
 __uri__ = 'http://www.damonlynch.net/rapid'
 
 __version__ = '0.9.0a3'

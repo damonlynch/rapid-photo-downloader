@@ -197,6 +197,12 @@ any problems libgphoto2 might have accessing a camera.
 
 =back
 
+=head1 ENVIRONMENT
+
+If the environment variable RPD_SCAN_DEBUG is set to any value, the program's scan
+operation will output volumous debug information to stdout.
+
+
 =head1 SEE ALSO
 
 analyze-pv-structure(1)
