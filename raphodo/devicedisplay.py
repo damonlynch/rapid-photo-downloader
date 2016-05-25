@@ -563,7 +563,9 @@ class DeviceDisplay:
         deviceNameRect.setLeft(text_x)
         painter.drawText(deviceNameRect, Qt.AlignLeft | Qt.AlignVCenter, display_name)
 
-    def paint_body(self, painter: QPainter, x: int, y: int, width: int,
+    def paint_body(self, painter: QPainter,
+                   x: int, y: int,
+                   width: int,
                    details: BodyDetails) -> None:
         """
         Render the usage portion, which contains basic storage space information,

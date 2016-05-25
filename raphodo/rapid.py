@@ -2671,7 +2671,7 @@ class RapidWindow(QMainWindow):
             self.fileDownloadFinished(move_succeeded, rpd_file)
 
     @pyqtSlot(RPDFile, QPixmap)
-    def thumbnailReceivedFromDaemon(self, rpd_file: RPDFile, thumbnail: Optional[QPixmap]) -> None:
+    def thumbnailReceivedFromDaemon(self, rpd_file: RPDFile, thumbnail: QPixmap) -> None:
         """
         A thumbnail will be received directly from the daemon process when
         it was able to get a thumbnail from the FreeDesktop.org 256x256
