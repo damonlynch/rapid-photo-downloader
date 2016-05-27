@@ -212,14 +212,21 @@ class DestinationDisplay(QWidget):
                 excess_bytes = bytes_to_use - self.storage_space.bytes_total
                 comp4_file_size_sum = excess_bytes
                 comp4_size_text = format_size_for_user(excess_bytes)
+                bytes_free_of_total = _('No space free of %(size_total)s') % dict(
+                    size_total=bytes_total_text)
             else:
                 bytes_total = self.storage_space.bytes_total
                 comp4_file_size_sum = 0
                 comp4_size_text = 0
+                bytes_free = self.storage_space.bytes_total - bytes_to_use
+                bytes_free_of_total = _('%(size_free)s free of %(size_total)s') % dict(
+                    size_free=format_size_for_user(bytes_free, no_decimals=1),
+                    size_total=bytes_total_text)
 
             details = BodyDetails(bytes_total_text=bytes_total_text,
                                   bytes_total=bytes_total,
                                   percent_used_text=percent_used,
+                                  bytes_free_of_total=bytes_free_of_total,
                                   comp1_file_size_sum=comp1_file_size_sum,
                                   comp2_file_size_sum=comp2_file_size_sum,
                                   comp3_file_size_sum=comp3_file_size_sum,

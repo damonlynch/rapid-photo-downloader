@@ -285,8 +285,8 @@ class CopyFilesWorker(WorkerInPublishPullPipeline, FileCopy):
         # Notify main process of temp directory names
         self.content = pickle.dumps(CopyFilesResults(
                     scan_id=args.scan_id,
-                    photo_temp_dir=photo_temp_dir,
-                    video_temp_dir=video_temp_dir),
+                    photo_temp_dir=photo_temp_dir or '',
+                    video_temp_dir=video_temp_dir or ''),
                     pickle.HIGHEST_PROTOCOL)
         self.send_message_to_sink()
 

@@ -336,15 +336,13 @@ class CopyFilesManager(PublishPullPipelineManager):
         elif data.copy_succeeded is not None:
             assert data.rpd_file is not None
             assert data.download_count is not None
-            self.message.emit(data.copy_succeeded, data.rpd_file,
-                              data.download_count)
+            self.message.emit(data.copy_succeeded, data.rpd_file, data.download_count)
 
         else:
-            assert (data.photo_temp_dir is not None or
+            assert (data.photo_temp_dir is not None and
                     data.video_temp_dir is not None)
             assert data.scan_id is not None
-            self.tempDirs.emit(data.scan_id, data.photo_temp_dir,
-                               data.video_temp_dir)
+            self.tempDirs.emit(data.scan_id, data.photo_temp_dir, data.video_temp_dir)
 
 
 class FolderPreviewManager:
@@ -361,7 +359,7 @@ class FolderPreviewManager:
 
     QInotifyFileSystemWatcherEngine::addPaths: inotify_add_watch failed: No such file or directory
 
-    We must generate and create folders in the offload process, because that
+    Yet we must generate and create folders in the offload process, because that
     can be expensive for a large number of rpd_files.
     """
 

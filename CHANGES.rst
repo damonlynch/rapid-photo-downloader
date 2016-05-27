@@ -1,7 +1,7 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
-0.9.0a3 (2016-05-xx)
+0.9.0a3 (2016-05-27)
 --------------------
 
  - Selecting items in the Timeline or showing only new files can result in
@@ -10,13 +10,20 @@ Changelog for Rapid Photo Downloader
    a dialog will be displayed to warn that *all* checked files will be downloaded,
    not merely those currently displayed.
 
+ - Changed heading of destination storage space to show projected bytes free
+   instead of percent used.
+
  - Fixed bug where thumbnails might not be displayed for files that had
    already been downloaded during a previous progarm invocation.
 
  - If the environment variable RPD_SCAN_DEBUG is set to any value, the
-   program's scan operation will output volumous debug information to stdout.
+   program's scan operation will output voluminous debug information to stdout.
 
- - Don't crash on startup when running PyQt 5.6.
+ - Added support for PyQt 5.6, namely its stricter rules regarding signal type
+   matching.
+
+ - Fixed bug when reporting inability to extract metadata from scan when not
+   downloading from a camera
 
 0.9.0a2 (2016-05-16)
 --------------------

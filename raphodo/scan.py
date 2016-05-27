@@ -640,7 +640,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
 
         if dt is None:
             logging.warning("Scanner failed to extract date time metadata from %s on %s",
-                              name, self.camera.display_name)
+                              name, self.display_name)
         else:
             self.file_mdatatime[full_file_name] = dt.timestamp()
         return SampleDatetime(dt, determined_by)

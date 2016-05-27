@@ -412,6 +412,7 @@ class DeviceView(QListView):
 
 BodyDetails = namedtuple('BodyDetails', 'bytes_total_text, bytes_total, '
                                         'percent_used_text, '
+                                        'bytes_free_of_total, '
                                         'comp1_file_size_sum, comp2_file_size_sum, '
                                         'comp3_file_size_sum, comp4_file_size_sum, '
                                         'comp1_text, comp2_text, comp3_text, '
@@ -590,12 +591,12 @@ class DeviceDisplay:
         device_size_y = y + self.standard_height - self.padding
 
         text_rect = QRect(device_size_x, y - self.padding, width, self.standard_height)
-        # Device size e.g. 32 GB
-        painter.drawText(text_rect, Qt.AlignLeft|Qt.AlignBottom, d.bytes_total_text)
-        # Percent used e.g. 79%
-        painter.drawText(text_rect, Qt.AlignRight | Qt.AlignBottom, d.percent_used_text)
+
 
         if self.rendering_destination:
+            # bytes free of total size e..g 123 MB free of 2 TB
+            painter.drawText(text_rect, Qt.AlignLeft | Qt.AlignBottom, d.bytes_free_of_total)
+
             # Render the used space in the gradient bar before rendering the space
             # that will be taken by photos and videos
             comp1_file_size_sum = d.comp3_file_size_sum
@@ -605,6 +606,11 @@ class DeviceDisplay:
             color2 = d.color1
             color3 = d.color2
         else:
+            # Device size e.g. 32 GB
+            painter.drawText(text_rect, Qt.AlignLeft | Qt.AlignBottom, d.bytes_total_text)
+            # Percent used e.g. 79%
+            painter.drawText(text_rect, Qt.AlignRight | Qt.AlignBottom, d.percent_used_text)
+
             # Don't change the order
             comp1_file_size_sum = d.comp1_file_size_sum
             comp2_file_size_sum = d.comp2_file_size_sum
@@ -1063,6 +1069,7 @@ class DeviceDelegate(QStyledItemDelegate):
                 details = BodyDetails(bytes_total_text=bytes_total_text,
                                   bytes_total=storage_space.bytes_total,
                                   percent_used_text=percent_used,
+                                  bytes_free_of_total='',
                                   comp1_file_size_sum=device.file_size_sum[photo_key],
                                   comp2_file_size_sum=device.file_size_sum[video_key],
                                   comp3_file_size_sum=other_bytes,
