@@ -835,7 +835,10 @@ class RapidWindow(QMainWindow):
 
         logging.debug("Probing desktop environment")
         desktop_env = get_desktop_environment()
-        logging.debug("Desktop environment: %s", desktop_env)
+        if desktop_env is not None:
+            logging.debug("Desktop environment: %s", desktop_env)
+        else:
+            logging.debug("Desktop environment variable not set")
 
         self.unity_progress = False
         if get_desktop() == Desktop.unity:

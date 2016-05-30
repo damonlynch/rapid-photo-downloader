@@ -1,6 +1,11 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
+0.9.0a4 (2016-xx-xx)
+--------------------
+
+ - Fixed bug where crashed on startup when no desktop environment variable was set.
+
 0.9.0a3 (2016-05-27)
 --------------------
 

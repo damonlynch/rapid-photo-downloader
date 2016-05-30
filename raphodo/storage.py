@@ -264,7 +264,11 @@ def get_desktop() -> Desktop:
     Desktop.unknown if unknown.
     """
 
-    env = get_desktop_environment().lower()
+    try:
+        env = get_desktop_environment().lower()
+    except AttributeError:
+        return Desktop.unknown
+
     if env == 'x-cinnamon':
         env = 'cinnamon'
     try:

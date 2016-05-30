@@ -267,7 +267,7 @@ class Device:
         return icon.pixmap(size)
 
     def _delete_cache_dir(self, cache_dir) -> None:
-        if cache_dir is not None:
+        if cache_dir:
             if os.path.isdir(cache_dir):
                 assert cache_dir != os.path.expanduser('~')
                 try:
