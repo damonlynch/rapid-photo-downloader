@@ -79,7 +79,7 @@ from PyQt5.QtWidgets import (QAction, QApplication, QMainWindow, QMenu,
                              QHBoxLayout, QVBoxLayout, QDialog, QLabel,
                              QComboBox, QGridLayout, QCheckBox, QSizePolicy,
                              QMessageBox, QSplashScreen,
-                             QScrollArea, QDesktopWidget, QToolButton, QStyledItemDelegate)
+                             QScrollArea, QDesktopWidget, QStyledItemDelegate)
 from PyQt5.QtNetwork import QLocalSocket, QLocalServer
 
 from raphodo.storage import (ValidMounts, CameraHotplug, UDisks2Monitor,
@@ -150,6 +150,7 @@ from raphodo.destinationdisplay import DestinationDisplay
 from raphodo.aboutdialog import AboutDialog
 from raphodo.jobcode import JobCode
 import raphodo.constants as constants
+from raphodo.menubutton import MenuButton
 
 BackupMissing = namedtuple('BackupMissing', 'photo, video')
 
@@ -1258,7 +1259,7 @@ class RapidWindow(QMainWindow):
         select_all = state == Qt.Checked
         self.thumbnailModel.selectAll(select_all=select_all, file_type=FileType.video)
 
-    def createActions(self):
+    def createActions(self) -> None:
         self.sourceAct = QAction(_('&Source'), self, shortcut="Ctrl+s",
                                  triggered=self.doSourceAction)
 
@@ -1276,20 +1277,20 @@ class RapidWindow(QMainWindow):
         self.quitAct = QAction(_("&Quit"), self, shortcut="Ctrl+Q",
                                triggered=self.close)
 
-        self.checkAllAct = QAction(_("&Check All"), self, shortcut="Ctrl+A",
-                                   triggered=self.doCheckAllAction)
-
-        self.checkAllPhotosAct = QAction(_("Check All Photos"), self,
-                                         shortcut="Ctrl+T",
-                                         triggered=self.doCheckAllPhotosAction)
-
-        self.checkAllVideosAct = QAction(_("Check All Videos"), self,
-                                         shortcut="Ctrl+D",
-                                         triggered=self.doCheckAllVideosAction)
-
-        self.uncheckAllAct = QAction(_("&Uncheck All"), self,
-                                     shortcut="Ctrl+L",
-                                     triggered=self.doUncheckAllAction)
+        # self.checkAllAct = QAction(_("&Check All"), self, shortcut="Ctrl+A",
+        #                            triggered=self.doCheckAllAction)
+        #
+        # self.checkAllPhotosAct = QAction(_("Check All Photos"), self,
+        #                                  shortcut="Ctrl+T",
+        #                                  triggered=self.doCheckAllPhotosAction)
+        #
+        # self.checkAllVideosAct = QAction(_("Check All Videos"), self,
+        #                                  shortcut="Ctrl+D",
+        #                                  triggered=self.doCheckAllVideosAction)
+        #
+        # self.uncheckAllAct = QAction(_("&Uncheck All"), self,
+        #                              shortcut="Ctrl+L",
+        #                              triggered=self.doUncheckAllAction)
 
         self.errorLogAct = QAction(_("Error Log"), self, enabled=False,
                                    checkable=True,
@@ -1298,11 +1299,11 @@ class RapidWindow(QMainWindow):
         self.clearDownloadsAct = QAction(_("Clear Completed Downloads"), self,
                                          triggered=self.doClearDownloadsAction)
 
-        self.previousFileAct = QAction(_("Previous File"), self, shortcut="[",
-                                       triggered=self.doPreviousFileAction)
-
-        self.nextFileAct = QAction(_("Next File"), self, shortcut="]",
-                                   triggered=self.doNextFileAction)
+        # self.previousFileAct = QAction(_("Previous File"), self, shortcut="[",
+        #                                triggered=self.doPreviousFileAction)
+        #
+        # self.nextFileAct = QAction(_("Next File"), self, shortcut="]",
+        #                            triggered=self.doNextFileAction)
 
         self.helpAct = QAction(_("Get Help Online..."), self, shortcut="F1",
                                triggered=self.doHelpAction)
@@ -1567,14 +1568,14 @@ class RapidWindow(QMainWindow):
         # partitions.
         # Also display the file system folder chooser for both destinations.
 
-        self.photoDestinationDisplay = DestinationDisplay()
+        self.photoDestinationDisplay = DestinationDisplay(menu=True, file_type=FileType.photo)
         self.photoDestinationDisplay.setDestination(self.prefs.photo_download_folder)
         self.photoDestinationWidget = ComputerWidget(objectName='photoDestination',
              view=self.photoDestinationDisplay, fileSystemView=self.photoDestinationFSView,
              select_text=_('Select a destination folder'))
         self.photoDestination.addWidget(self.photoDestinationWidget)
         
-        self.videoDestinationDisplay = DestinationDisplay()
+        self.videoDestinationDisplay = DestinationDisplay(menu=True, file_type=FileType.video)
         self.videoDestinationDisplay.setDestination(self.prefs.video_download_folder)
         self.videoDestinationWidget = ComputerWidget(objectName='videoDestination',
              view=self.videoDestinationDisplay, fileSystemView=self.videoDestinationFSView,
@@ -1928,23 +1929,7 @@ class RapidWindow(QMainWindow):
         self.menu.addAction(self.aboutAct)
         self.menu.addAction(self.quitAct)
 
-
-        self.menuButton = QToolButton()
-        self.menuButton.setPopupMode(QToolButton.InstantPopup)
-        self.menuButton.setIcon(QIcon(':/menu.svg'))
-        self.menuButton.setStyleSheet("""
-        QToolButton {border: none;}
-        QToolButton::menu-indicator { image: none; }
-        QToolButton::hover {
-            border: 1px solid palette(shadow);
-            border-radius: 3px;
-        }
-        QToolButton::pressed {
-            border: 1px solid palette(shadow);
-            border-radius: 3px;
-        }
-        """)
-        self.menuButton.setMenu(self.menu)
+        self.menuButton = MenuButton(icon=QIcon(':/menu.svg'), menu=self.menu)
 
     def doSourceAction(self):
         self.sourceButton.animateClick()
@@ -1963,17 +1948,17 @@ class RapidWindow(QMainWindow):
         msgbox = self.standardMessageBox(message, rich_text=True)
         msgbox.exec()
 
-    def doCheckAllAction(self):
-        self.thumbnailModel.checkAll(check_all=True)
-
-    def doCheckAllPhotosAction(self):
-        self.thumbnailModel.checkAll(check_all=True, file_type=FileType.photo)
-
-    def doCheckAllVideosAction(self):
-        self.thumbnailModel.checkAll(check_all=True, file_type=FileType.video)
-
-    def doUncheckAllAction(self):
-        self.thumbnailModel.checkAll(check_all=False)
+    # def doCheckAllAction(self):
+    #     self.thumbnailModel.checkAll(check_all=True)
+    #
+    # def doCheckAllPhotosAction(self):
+    #     self.thumbnailModel.checkAll(check_all=True, file_type=FileType.photo)
+    #
+    # def doCheckAllVideosAction(self):
+    #     self.thumbnailModel.checkAll(check_all=True, file_type=FileType.video)
+    #
+    # def doUncheckAllAction(self):
+    #     self.thumbnailModel.checkAll(check_all=False)
 
     def doErrorLogAction(self):
         pass
@@ -1981,16 +1966,16 @@ class RapidWindow(QMainWindow):
     def doClearDownloadsAction(self):
         self.thumbnailModel.clearCompletedDownloads()
 
-    def doPreviousFileAction(self):
-        pass
-
-    def doNextFileAction(self):
-        pass
+    # def doPreviousFileAction(self):
+    #     pass
+    #
+    # def doNextFileAction(self):
+    #     pass
 
     def doHelpAction(self):
         webbrowser.open_new_tab("http://www.damonlynch.net/rapid/help.html")
 
-    def doReportProblemAction(self):
+    def doReportProblemAction(self) -> None:
 
         log_path, log_file = os.path.split(iplogging.full_log_file_path())
         log_uri = pathname2url(log_path)
@@ -2006,13 +1991,13 @@ class RapidWindow(QMainWindow):
         errorbox = self.standardMessageBox(message=message, rich_text=True)
         errorbox.exec_()
 
-    def doMakeDonationAction(self):
+    def doMakeDonationAction(self) -> None:
         webbrowser.open_new_tab("http://www.damonlynch.net/rapid/donate.html")
 
-    def doTranslateApplicationAction(self):
+    def doTranslateApplicationAction(self) -> None:
         webbrowser.open_new_tab("http://www.damonlynch.net/rapid/translate.html")
 
-    def doAboutAction(self):
+    def doAboutAction(self) -> None:
         about = AboutDialog(self)
         about.exec()
 

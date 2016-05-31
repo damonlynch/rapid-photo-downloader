@@ -107,6 +107,10 @@ class DestinationDisplayType(Enum):
     folders_and_usage = 3
 
 
+class DestinationDisplayMousePos(Enum):
+    normal = 1
+    menu = 2
+
 class DisplayingFilesOfType(Enum):
     photos = 1
     videos = 2

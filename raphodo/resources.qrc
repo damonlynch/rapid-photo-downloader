@@ -20,5 +20,6 @@
 <file alias="icons/drive-removable-media.svg">../images/drive-removable-media-symbolic.svg</file>
 <file alias="icons/image-x-generic.svg">../images/image-x-generic-symbolic.svg</file>
 <file alias="icons/computer.svg">../images/computer-symbolic.svg</file>
+<file alias="icons/settings.svg">../images/settings-symbolic.svg</file>
 </qresource>
 </RCC>

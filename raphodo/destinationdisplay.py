@@ -24,19 +24,21 @@ __author__ = 'Damon Lynch'
 __copyright__ = "Copyright 2016, Damon Lynch"
 
 import os
+import math
 from typing import Optional
 from gettext import gettext as _
 
 
-from PyQt5.QtCore import (QSize, Qt, QStorageInfo, QRect)
+from PyQt5.QtCore import (QSize, Qt, QStorageInfo, QRect, pyqtSlot, QPoint)
 from PyQt5.QtWidgets import (QStyleOptionFrame, QStyle, QStylePainter, QWidget, QSplitter,
-                             QSizePolicy)
-from PyQt5.QtGui import (QColor, QPixmap, QIcon, QPaintEvent, QPalette)
+                             QSizePolicy, QAction, QMenu)
+from PyQt5.QtGui import (QColor, QPixmap, QIcon, QPaintEvent, QPalette, QMouseEvent)
 
 
 from raphodo.devicedisplay import DeviceDisplay, BodyDetails, icon_size
 from raphodo.storage import StorageSpace
-from raphodo.constants import (CustomColors, DestinationDisplayType, DisplayingFilesOfType)
+from raphodo.constants import (CustomColors, DestinationDisplayType, DisplayingFilesOfType,
+                               DestinationDisplayMousePos)
 from raphodo.utilities import thousands, format_size_for_user
 from raphodo.rpdfile import FileTypeCounter, FileType
 
@@ -52,10 +54,21 @@ class DestinationDisplay(QWidget):
     videos = _('Videos')
     excess = _('Excess')
 
-    def __init__(self, parent=None) -> None:
+    def __init__(self, menu: bool=False, file_type: FileType=None, parent=None) -> None:
         super().__init__(parent)
         self.storage_space = None  # type: StorageSpace
-        self.deviceDisplay = DeviceDisplay()
+
+        if menu:
+            menuIcon = QIcon(':/icons/settings.svg')
+            self.file_type = file_type
+            self.createActionsAndMenu()
+            self.mouse_pos = DestinationDisplayMousePos.normal
+        else:
+            menuIcon = None
+            self.menu = None
+            self.mouse_pos = None
+
+        self.deviceDisplay = DeviceDisplay(menuButtonIcon=menuIcon)
         size = icon_size()
         self.icon = QIcon(':/icons/folder.svg').pixmap(QSize(size, size))  # type: QPixmap
         self.display_name = ''
@@ -64,6 +77,66 @@ class DestinationDisplay(QWidget):
         self.marked = FileTypeCounter()
         self.display_type = None  # type: DestinationDisplayType
         self.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.Fixed)
+
+    def createActionsAndMenu(self) -> None:
+        self.setMouseTracking(True)
+
+        # Translators: for an explanation of what this means, 
+        # see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
+        yyyy = _('YYYY')
+        # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
+        yyyymmdd = _('YYYYMMDD') 
+        # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
+        yyyy_mm_dd = _('YYYY-MM-DD')
+        # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
+        yyyy__mm__dd = _('YYYY_MM_DD')
+        label1 =  os.path.join(yyyy, yyyymmdd)
+        label2 = os.path.join(yyyy, yyyy_mm_dd) 
+        label3 = os.path.join(yyyy, yyyy__mm__dd) 
+        if self.file_type == FileType.photo:
+            self.photoSubfolder1Act = QAction(label1, self, triggered=self.doPhotoSubfolder1)
+            self.photoSubfolder2Act = QAction(label2, self, triggered=self.doPhotoSubfolder2)
+            self.photoSubfolder3Act = QAction(label3, self, triggered=self.doPhotoSubfolder3)
+            self.menu = QMenu()
+            self.menu.addAction(self.photoSubfolder1Act)
+            self.menu.addAction(self.photoSubfolder2Act)
+            self.menu.addAction(self.photoSubfolder3Act)
+        else:
+            self.videoSubfolder1Act = QAction(label1, self, triggered=self.doVideoSubfolder1)
+            self.videoSubfolder2Act = QAction(label2, self, triggered=self.doVideoSubfolder2)
+            self.videoSubfolder3Act = QAction(label3, self, triggered=self.doVideoSubfolder3)
+            self.menu = QMenu()
+            self.menu.addAction(self.videoSubfolder1Act)
+            self.menu.addAction(self.videoSubfolder2Act)
+            self.menu.addAction(self.videoSubfolder3Act)
+
+    def doPhotoSubfolder1(self) -> None:
+        print('doPhotoSubfolder1')
+        self.menuItemChosen()
+
+    def doPhotoSubfolder2(self) -> None:
+        print('doPhotoSubfolder2')
+        self.menuItemChosen()
+
+    def doPhotoSubfolder3(self) -> None:
+        print('doPhotoSubfolder3')
+        self.menuItemChosen()
+
+    def doVideoSubfolder1(self) -> None:
+        print('doVideoSubfolder1')
+        self.menuItemChosen()
+
+    def doVideoSubfolder2(self) -> None:
+        print('doVideoSubfolder2')
+        self.menuItemChosen()
+
+    def doVideoSubfolder3(self) -> None:
+        print('doVideoSubfolder3')
+        self.menuItemChosen()
+
+    def menuItemChosen(self) -> None:
+        self.mouse_pos = DestinationDisplayMousePos.normal
+        self.update()
 
     def setDestination(self, path: str) -> None:
         """
@@ -114,10 +187,11 @@ class DestinationDisplay(QWidget):
 
         self.display_type = display_type
 
-        if self.display_type == DestinationDisplayType.folder_only:
-            self.setToolTip(self.path)
+        if self.display_type != DestinationDisplayType.usage_only:
+            self.tool_tip = self.path
         else:
-            self.setToolTip('')
+            self.tool_tip = ''
+        self.setToolTip(self.tool_tip)
 
         self.update()
         self.updateGeometry()
@@ -150,6 +224,7 @@ class DestinationDisplay(QWidget):
         rect = self.rect()  # type: QRect
 
         if self.display_type == DestinationDisplayType.usage_only and QSplitter().lineWidth():
+            # Draw a frame if that's what the style requires
             option = QStyleOptionFrame()
             option.initFrom(self)
             painter.drawPrimitive(QStyle.PE_Frame, option)
@@ -165,9 +240,12 @@ class DestinationDisplay(QWidget):
             painter.end()
             return
 
+        highlight_menu = self.mouse_pos == DestinationDisplayMousePos.menu
+
         if self.display_type != DestinationDisplayType.usage_only:
             self.deviceDisplay.paint_header(painter=painter, x=x, y=y, width=width,
-                                            display_name=self.display_name, icon=self.icon)
+                                            display_name=self.display_name, icon=self.icon,
+                                            highlight_menu=highlight_menu)
             y = y + self.deviceDisplay.device_name_height
 
         if self.display_type != DestinationDisplayType.folder_only:
@@ -267,3 +345,38 @@ class DestinationDisplay(QWidget):
     def minimumSize(self) -> QSize:
         return self.sizeHint()
 
+    @pyqtSlot(QMouseEvent)
+    def mousePressEvent(self, event: QMouseEvent) -> None:
+        if self.menu is None:
+            return
+
+        iconRect = self.deviceDisplay.menu_button_rect(0, 0, self.width())
+
+        if iconRect.contains(event.pos()):
+            if event.button() == Qt.LeftButton:
+                menuTopReal = iconRect.bottomLeft()
+                x = math.ceil(menuTopReal.x())
+                y = math.ceil(menuTopReal.y())
+                self.menu.popup(self.mapToGlobal(QPoint(x, y)))
+
+    @pyqtSlot(QMouseEvent)
+    def mouseMoveEvent(self, event: QMouseEvent) -> None:
+        if self.menu is None:
+            return
+
+        iconRect = self.deviceDisplay.menu_button_rect(0, 0, self.width())
+        if iconRect.contains(event.pos()):
+            if self.mouse_pos == DestinationDisplayMousePos.normal:
+                self.mouse_pos = DestinationDisplayMousePos.menu
+
+                if self.file_type == FileType.photo:
+                    self.setToolTip(_('Control photo subfolder creation'))
+                else:
+                    self.setToolTip(_('Control video subfolder creation'))
+                self.update()
+
+        else:
+            if self.mouse_pos == DestinationDisplayMousePos.menu:
+                self.mouse_pos = DestinationDisplayMousePos.normal
+                self.setToolTip(self.tool_tip)
+                self.update()

@@ -38,7 +38,7 @@ from dateutil.tz import tzlocal
 from colour import Color
 
 from PyQt5.QtCore import (QAbstractListModel, QModelIndex, Qt, pyqtSignal, QSize, QRect, QEvent,
-                          QPoint, QMargins, QSortFilterProxyModel, QItemSelectionModel,
+                          QPoint, QMargins, QItemSelectionModel,
                           QAbstractItemModel, pyqtSlot, QItemSelection, QTimeLine)
 from PyQt5.QtWidgets import (QListView, QStyledItemDelegate, QStyleOptionViewItem, QApplication,
                              QStyle, QStyleOptionButton, QMenu, QWidget, QAbstractItemView)

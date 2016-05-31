@@ -49,9 +49,10 @@ from gettext import gettext as _
 from PyQt5.QtCore import (QModelIndex, QSize, Qt, QPoint, QRect, QRectF,
                           QEvent, QAbstractItemModel, QAbstractListModel, pyqtSlot, QTimer)
 from PyQt5.QtWidgets import (QStyledItemDelegate,QStyleOptionViewItem, QApplication, QStyle,
-                             QListView, QStyleOptionButton, QAbstractItemView, QMenu, QWidget)
+                             QListView, QStyleOptionButton, QAbstractItemView, QMenu, QWidget,
+                             QStyleOptionToolButton)
 from PyQt5.QtGui import (QPainter, QFontMetrics, QFont, QColor, QLinearGradient, QBrush, QPalette,
-                         QPixmap, QPaintEvent, QGuiApplication, QPen)
+                         QPixmap, QPaintEvent, QGuiApplication, QPen, QIcon)
 
 from raphodo.viewutils import RowTracker
 from raphodo.constants import (DeviceState, FileType, CustomColors, DeviceType, Roles,
@@ -62,6 +63,7 @@ from raphodo.devices import Device, display_devices
 from raphodo.utilities import thousands, format_size_for_user
 from raphodo.storage import StorageSpace
 from raphodo.rpdfile import make_key
+from raphodo.menubutton import MenuButton
 
 
 def icon_size() -> int:
@@ -484,8 +486,8 @@ class DeviceDisplay:
     padding = DeviceDisplayPadding
     shading_intensity = DeviceShadingIntensity
 
-    def __init__(self):
-
+    def __init__(self, menuButtonIcon: Optional[QIcon]=None) -> None:
+        self.menuButtonIcon = menuButtonIcon
 
         self.sample1_width = self.sample2_width = 40
         self.rendering_destination = True
@@ -538,14 +540,19 @@ class DeviceDisplay:
         self.emptySpaceColor = QColor('#f2f2f2')
         self.subtlePenColor = QColor('#6d6d6d')
 
+        self.menu_button_padding = 3
+        self.menuHighlightPen =  QPen(QBrush(self.subtlePenColor), 0.5)
+
     def v_align_header_pixmap(self, y: int, pixmap_height: int) -> float:
         return y + (self.device_name_strip_height / 2 - pixmap_height / 2)
 
     def paint_header(self, painter: QPainter, x: int, y: int, width: int,
-                     display_name: str, icon: QPixmap) -> None:
+                     display_name: str, icon: QPixmap, highlight_menu: bool=False) -> None:
         """
         Render the header portion, which contains the device / folder name, icon, and
-        for download sources, a spinner or checkbox
+        for download sources, a spinner or checkbox.
+
+        If need present, draw a pixmap for for a drop-down menu.
         """
 
         painter.setRenderHint(QPainter.Antialiasing, True)
@@ -564,6 +571,25 @@ class DeviceDisplay:
         deviceNameRect.setLeft(text_x)
         painter.drawText(deviceNameRect, Qt.AlignLeft | Qt.AlignVCenter, display_name)
 
+        if self.menuButtonIcon:
+            size = icon_size()
+            rect = self.menu_button_rect(x, y, width)
+            if highlight_menu:
+                pen = painter.pen()
+                painter.setPen(self.menuHighlightPen)
+                painter.drawRoundedRect(rect, 2.0, 2.0)
+                painter.setPen(pen)
+            button_x = rect.x() + self.menu_button_padding
+            button_y = rect.y() + self.menu_button_padding
+            pixmap = self.menuButtonIcon.pixmap(QSize(size, size))
+            painter.drawPixmap(button_x, button_y, pixmap)
+
+    def menu_button_rect(self, x: int, y: int, width: int) -> QRectF:
+        size = icon_size() + self.menu_button_padding * 2
+        button_x = x + width - size - self.padding
+        button_y = y + self.device_name_strip_height / 2 - size / 2
+        return QRectF(button_x, button_y, size, size)
+
     def paint_body(self, painter: QPainter,
                    x: int, y: int,
                    width: int,
@@ -573,7 +599,7 @@ class DeviceDisplay:
         a colored bar with a gradient that visually represents allocation of the
         storage space, and details about the size and number of photos / videos.
 
-        For download destiations, also displays excess usage.
+        For download destinations, also displays excess usage.
         """
 
         x = x + self.padding
@@ -907,8 +933,6 @@ class AdvancedDeviceDisplay(DeviceDisplay):
 
             painter.setPen(Qt.SolidLine)
             painter.setPen(standard_pen_color)
-
-
 
     def paint_alternate(self, painter: QPainter,  x: int, y: int, text: str) -> None:
 
