@@ -56,7 +56,7 @@ DOWNLOAD_TIME = 'Download time'
 
 # File name 
 NAME_EXTENSION = 'Name + extension'
-NAME =   'Name'
+NAME = 'Name'
 EXTENSION = 'Extension'
 IMAGE_NUMBER = 'Image number'
 VIDEO_NUMBER = 'Video number'
@@ -72,8 +72,8 @@ SHORT_CAMERA_MODEL = 'Short camera model'
 SHORT_CAMERA_MODEL_HYPHEN = 'Hyphenated short camera model'
 SERIAL_NUMBER = 'Serial number'
 SHUTTER_COUNT = 'Shutter count'
-#Currently the only file number is Exif.CanonFi.FileNumber,
-#which is in the format xxx-yyyy, where xxx is the folder and yyyy the image
+# Currently the only file number is Exif.CanonFi.FileNumber,
+# which is in the format xxx-yyyy, where xxx is the folder and yyyy the image
 FILE_NUMBER = 'File number'
 OWNER_NAME = 'Owner name'
 COPYRIGHT = 'Copyright'
@@ -86,14 +86,12 @@ HEIGHT = 'Height'
 FPS = 'Frames Per Second'
 LENGTH = 'Length'
 
-#Image sequences
+# Image sequences
 DOWNLOAD_SEQ_NUMBER = 'Downloads today'
 SESSION_SEQ_NUMBER = 'Session number'
 SUBFOLDER_SEQ_NUMBER = 'Subfolder number'
 STORED_SEQ_NUMBER = 'Stored number'
 SEQUENCE_LETTER = 'Sequence letter'
-
-
 
 # *** Level 2, i.e. third and final column of values presented to user
 
@@ -104,8 +102,7 @@ IMAGE_NUMBER_2 = 'Last 2 digits'
 IMAGE_NUMBER_3 = 'Last 3 digits'
 IMAGE_NUMBER_4 = 'Last 4 digits'
 
-
-# Case 
+# Case
 ORIGINAL_CASE = "Original Case"
 UPPERCASE = "UPPERCASE"
 LOWERCASE = "lowercase"
@@ -119,7 +116,7 @@ SEQUENCE_NUMBER_5 = "Five digits"
 SEQUENCE_NUMBER_6 = "Six digits"
 SEQUENCE_NUMBER_7 = "Seven digits"
 
-#File number
+# File number
 FILE_NUMBER_FOLDER = "Folder only"
 FILE_NUMBER_ALL = "Folder and file"
 
@@ -135,77 +132,116 @@ SUBSECONDS = 'Subseconds'
 # subfolder preference immediately below
 # NOTE 2: if changing LIST_DATE_TIME_L2, you MUST also update
 # DATE_TIME_CONVERT below
-LIST_DATE_TIME_L2 = ['YYYYMMDD', 'YYYY-MM-DD', 'YYYY_MM_DD', 'YYMMDD',
-                     'YY-MM-DD', 'YY_MM_DD',
-                     'MMDDYYYY', 'MMDDYY', 'MMDD',
-                     'DDMMYYYY', 'DDMMYY', 'YYYY', 'YY',
-                     'MM', 'DD', 'Month (full)', 'Month (abbreviated)',
-                     'HHMMSS', 'HHMM', 'HH-MM-SS', 'HH-MM', 'HH',
-                     'MM (minutes)', 'SS']
-                    
+# NOTE 2: if changing LIST_DATE_TIME_L2, you MUST also update
+# PHOTO_SUBFOLDER_MENU_DEFAULTS_CONV 
+LIST_DATE_TIME_L2 = [
+    'YYYYMMDD',  # 0
+    'YYYY-MM-DD',
+    'YYYY_MM_DD',  # 2
+    'YYMMDD',
+    'YY-MM-DD',  # 4
+    'YY_MM_DD',
+    'MMDDYYYY',  # 6
+    'MMDDYY',
+    'MMDD',  # 8
+    'DDMMYYYY',
+    'DDMMYY',  # 10
+    'YYYY',
+    'YY',  # 12
+    'MM',
+    'DD',  # 14
+    'Month (full)',
+    'Month (abbreviated)',  # 16
+    'HHMMSS',
+    'HHMM',  # 18
+    'HH-MM-SS',
+    'HH-MM',  # 20
+    'HH',
+    'MM (minutes)',  # 22
+    'SS'
+]
 
 LIST_IMAGE_DATE_TIME_L2 = LIST_DATE_TIME_L2 + [SUBSECONDS]
 
 DEFAULT_SUBFOLDER_PREFS = [DATE_TIME, IMAGE_DATE, LIST_DATE_TIME_L2[11], '/',
                            '', '', DATE_TIME, IMAGE_DATE, LIST_DATE_TIME_L2[0]]
 DEFAULT_VIDEO_SUBFOLDER_PREFS = [DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[
-    11], '/',  '', '', DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[0]]
+    11], '/', '', '', DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[0]]
+
 
 class i18TranslateMeThanks:
     """ this class is never used in actual running code
     Its purpose is to have these values inserted into the program's i18n template file
     
     """
+
     def __init__(self):
         _('Date time')
         _('Text')
         _('Filename')
         _('Metadata')
         _('Sequences')
-        # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#jobcode
+        # Translators: for an explanation of what this means,
+        # see http://damonlynch.net/rapid/documentation/index.html#jobcode
         _('Job code')
         _('Image date')
         _('Video date')
         _('Today')
         _('Yesterday')
-        # Translators: Download time is the time and date that the download started (when the user clicked the Download button)
+        # Translators: Download time is the time and date that the download started (when the
+        # user clicked the Download button)
         _('Download time')
-        # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamefilename
+        # Translators: for an explanation of what this means,
+        # see http://damonlynch.net/rapid/documentation/index.html#renamefilename
         _('Name + extension')
-        # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamefilename
+        # Translators: for an explanation of what this means,
+        # see http://damonlynch.net/rapid/documentation/index.html#renamefilename
         _('Name')
-        # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamefilename
+        # Translators: for an explanation of what this means,
+        # see http://damonlynch.net/rapid/documentation/index.html#renamefilename
         _('Extension')
-        # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamefilename
+        # Translators: for an explanation of what this means,
+        # see http://damonlynch.net/rapid/documentation/index.html#renamefilename
         _('Image number')
         _('Video number')
-        # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamemetadata        
+        # Translators: for an explanation of what this means,
+        # see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
         _('Aperture')
-        # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamemetadata        
+        # Translators: for an explanation of what this means,
+        # see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
         _('ISO')
-        # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamemetadata        
+        # Translators: for an explanation of what this means,
+        # see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
         _('Exposure time')
-        # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamemetadata        
+        # Translators: for an explanation of what this means,
+        # see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
         _('Focal length')
-        # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamemetadata        
+        # Translators: for an explanation of what this means,
+        # see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
         _('Camera make')
-        # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamemetadata        
+        # Translators: for an explanation of what this means,
+        # see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
         _('Camera model')
-        # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamemetadata        
+        # Translators: for an explanation of what this means,
+        # see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
         _('Short camera model')
-        # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
+        # Translators: for an explanation of what this means,
+        # see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
         _('Hyphenated short camera model')
-        # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
+        # Translators: for an explanation of what this means,
+        # see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
         _('Serial number')
-        # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
+        # Translators: for an explanation of what this means,
+        # see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
         _('Shutter count')
-        #File number currently refers to the Exif value Exif.Canon.FileNumber
+        # File number currently refers to the Exif value Exif.Canon.FileNumber
         _('File number')
-        #Only the folder component of the Exif.Canon.FileNumber value
+        # Only the folder component of the Exif.Canon.FileNumber value
         _('Folder only')
-        #The folder and file component of the Exif.Canon.FileNumber value
+        # The folder and file component of the Exif.Canon.FileNumber value
         _('Folder and file')
-        # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
+        # Translators: for an explanation of what this means,
+        # see http://damonlynch.net/rapid/documentation/index.html#renamemetadata
         _('Owner name')
         _('Codec')
         _('Width')
@@ -214,31 +250,44 @@ class i18TranslateMeThanks:
         _('Frames Per Second')
         _('Artist')
         _('Copyright')
-        # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#sequencenumbers
+        # Translators: for an explanation of what this means,
+        # see http://damonlynch.net/rapid/documentation/index.html#sequencenumbers
         _('Downloads today')
-        # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#sequencenumbers
+        # Translators: for an explanation of what this means,
+        # see http://damonlynch.net/rapid/documentation/index.html#sequencenumbers
         _('Session number')
-        # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#sequencenumbers
+        # Translators: for an explanation of what this means,
+        # see http://damonlynch.net/rapid/documentation/index.html#sequencenumbers
         _('Subfolder number')
-        # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#sequencenumbers
+        # Translators: for an explanation of what this means,
+        # see http://damonlynch.net/rapid/documentation/index.html#sequencenumbers
         _('Stored number')
-        # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#sequenceletters
+        # Translators: for an explanation of what this means,
+        # see http://damonlynch.net/rapid/documentation/index.html#sequenceletters
         _('Sequence letter')
-        # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamefilename
+        # Translators: for an explanation of what this means,
+        # see http://damonlynch.net/rapid/documentation/index.html#renamefilename
         _('All digits')
-        # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamefilename
+        # Translators: for an explanation of what this means,
+        # see http://damonlynch.net/rapid/documentation/index.html#renamefilename
         _('Last digit')
-        # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamefilename
+        # Translators: for an explanation of what this means,
+        # see http://damonlynch.net/rapid/documentation/index.html#renamefilename
         _('Last 2 digits')
-        # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamefilename
+        # Translators: for an explanation of what this means,
+        # see http://damonlynch.net/rapid/documentation/index.html#renamefilename
         _('Last 3 digits')
-        # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamefilename
+        # Translators: for an explanation of what this means,
+        # see http://damonlynch.net/rapid/documentation/index.html#renamefilename
         _('Last 4 digits')
-        # Translators: please not the capitalization of this text, and keep it the same if your language features capitalization
+        # Translators: please not the capitalization of this text, and keep it the same if your
+        # language features capitalization
         _("Original Case")
-        # Translators: please not the capitalization of this text, and keep it the same if your language features capitalization
+        # Translators: please not the capitalization of this text, and keep it the same if your
+        # language features capitalization
         _("UPPERCASE")
-        # Translators: please not the capitalization of this text, and keep it the same if your language features capitalization
+        # Translators: please not the capitalization of this text, and keep it the same if your
+        # language features capitalization
         _("lowercase")
         _("One digit")
         _("Two digits")
@@ -247,59 +296,171 @@ class i18TranslateMeThanks:
         _("Five digits")
         _("Six digits")
         _("Seven digits")
-        # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
+        # Translators: for an explanation of what this means,
+        # see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
         _('Subseconds')
-        # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-        _('YYYYMMDD') 
-        # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
+        # Translators: for an explanation of what this means,
+        # see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
+        _('YYYYMMDD')
+        # Translators: for an explanation of what this means,
+        # see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
         _('YYYY-MM-DD')
-        # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
+        # Translators: for an explanation of what this means,
+        # see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
         _('YYYY_MM_DD')
-        # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
+        # Translators: for an explanation of what this means,
+        # see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
         _('YYMMDD')
-        # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-        _('YY-MM-DD') 
-        # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
+        # Translators: for an explanation of what this means,
+        # see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
+        _('YY-MM-DD')
+        # Translators: for an explanation of what this means,
+        # see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
         _('YY_MM_DD')
-        # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
+        # Translators: for an explanation of what this means,
+        # see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
         _('MMDDYYYY')
-        # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-        _('MMDDYY') 
-        # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-        _('MMDD') 
-        # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-        _('DDMMYYYY') 
-        # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-        _('DDMMYY') 
-        # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-        _('YYYY') 
-        # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-        _('YY') 
-        # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-        _('MM') 
-        # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
+        # Translators: for an explanation of what this means,
+        # see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
+        _('MMDDYY')
+        # Translators: for an explanation of what this means,
+        # see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
+        _('MMDD')
+        # Translators: for an explanation of what this means,
+        # see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
+        _('DDMMYYYY')
+        # Translators: for an explanation of what this means,
+        # see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
+        _('DDMMYY')
+        # Translators: for an explanation of what this means,
+        # see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
+        _('YYYY')
+        # Translators: for an explanation of what this means,
+        # see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
+        _('YY')
+        # Translators: for an explanation of what this means,
+        # see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
+        _('MM')
+        # Translators: for an explanation of what this means,
+        # see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
         _('DD')
-        # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
+        # Translators: for an explanation of what this means,
+        # see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
         _('Month (full)'),
-        # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
+        # Translators: for an explanation of what this means,
+        # see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
         _('Month (abbreviated)'),
-        # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
+        # Translators: for an explanation of what this means,
+        # see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
         _('HHMMSS')
-        # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
+        # Translators: for an explanation of what this means,
+        # see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
         _('HHMM')
-        # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-        _('HH-MM-SS')        
-        # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-        _('HH-MM') 
-        # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
+        # Translators: for an explanation of what this means,
+        # see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
+        _('HH-MM-SS')
+        # Translators: for an explanation of what this means,
+        # see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
+        _('HH-MM')
+        # Translators: for an explanation of what this means,
+        # see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
         _('HH')
-        # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-        _('MM (minutes)') 
-        # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-        _('SS') 
-        
+        # Translators: for an explanation of what this means,
+        # see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
+        _('MM (minutes)')
+        # Translators: for an explanation of what this means,
+        # see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
+        _('SS')
 
-# Convenience values for python datetime conversion using values in 
+    # Convenience values for python datetime conversion using values in
+
+
+# Default subfolder options that appear in drop-down menu in Destination views
+# Any change to PHOTO_SUBFOLDER_MENU_DEFAULTS must also be reflected in 
+# PHOTO_SUBFOLDER_MENU_DEFAULTS_CONV
+
+# The following values will be displayed in the menu after an os.sep.join() operation
+
+PHOTO_SUBFOLDER_MENU_DEFAULTS = (
+    (_('YYYY'), _('YYYYMMDD')),
+    (_('YYYY'), _('YYYY-MM-DD')),
+    (_('YYYY'), _('YYYY_MM_DD')),
+    (_('YYYY'), _('YYYYMM_Job Code')),
+    (_('YYYY'), _('YYYYMM'), _('Job Code'))
+)
+
+# Any change to PHOTO_SUBFOLDER_MENU_DEFAULTS_CONV must also be reflected in 
+# PHOTO_SUBFOLDER_MENU_DEFAULTS
+
+PHOTO_SUBFOLDER_MENU_DEFAULTS_CONV = (
+    # 0
+    [DATE_TIME, IMAGE_DATE, LIST_DATE_TIME_L2[11],
+     '/', '', '', 
+     DATE_TIME, IMAGE_DATE, LIST_DATE_TIME_L2[0]
+    ],
+    # 1
+    [DATE_TIME, IMAGE_DATE, LIST_DATE_TIME_L2[11],
+     '/', '', '',
+     DATE_TIME, IMAGE_DATE, LIST_DATE_TIME_L2[1]
+    ],
+    # 2
+    [DATE_TIME, IMAGE_DATE, LIST_DATE_TIME_L2[11],
+     '/', '', '',
+     DATE_TIME, IMAGE_DATE, LIST_DATE_TIME_L2[2]
+    ],
+    # 3
+    [DATE_TIME, IMAGE_DATE, LIST_DATE_TIME_L2[11],
+     '/', '', '',
+     DATE_TIME, IMAGE_DATE, LIST_DATE_TIME_L2[11],
+     DATE_TIME, IMAGE_DATE, LIST_DATE_TIME_L2[13],
+     TEXT, '_', '',
+     JOB_CODE, '', ''],
+    # 4
+    [DATE_TIME, IMAGE_DATE, LIST_DATE_TIME_L2[11],
+     '/', '', '',
+     DATE_TIME, IMAGE_DATE, LIST_DATE_TIME_L2[11],
+     DATE_TIME, IMAGE_DATE, LIST_DATE_TIME_L2[13],
+     '/', '', '',
+     JOB_CODE, '', '',
+     ],
+)
+
+# See notes above regarding keeping values in sync
+VIDEO_SUBFOLDER_MENU_DEFAULTS = PHOTO_SUBFOLDER_MENU_DEFAULTS
+VIDEO_SUBFOLDER_MENU_DEFAULTS_CONV = (
+    # 0
+    [DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[11],
+     '/', '', '',
+     DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[0]
+     ],
+    # 1
+    [DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[11],
+     '/', '', '',
+     DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[1]
+     ],
+    # 2
+    [DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[11],
+     '/', '', '',
+     DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[2]
+     ],
+    # 3
+    [DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[11],
+     '/', '', '',
+     DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[11],
+     DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[13],
+     TEXT, '_', '',
+     JOB_CODE, '', ''],
+    # 4
+    [DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[11],
+     '/', '', '',
+     DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[11],
+     DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[13],
+     '/', '', '',
+     JOB_CODE, '', '',
+     ],
+)
+
+
 # LIST_DATE_TIME_L2.  Obviously the two must remain synchronized.
 
 DATE_TIME_CONVERT = ['%Y%m%d', '%Y-%m-%d', '%Y_%m_%d', '%y%m%d', '%y-%m-%d',
@@ -309,202 +470,192 @@ DATE_TIME_CONVERT = ['%Y%m%d', '%Y-%m-%d', '%Y_%m_%d', '%y%m%d', '%y-%m-%d',
                      '%m', '%d', '%B', '%b',
                      '%H%M%S', '%H%M', '%H-%M-%S', '%H-%M',
                      '%H', '%M', '%S']
-                    
 
-LIST_IMAGE_NUMBER_L2 = [IMAGE_NUMBER_ALL, IMAGE_NUMBER_1, IMAGE_NUMBER_2, 
+LIST_IMAGE_NUMBER_L2 = [IMAGE_NUMBER_ALL, IMAGE_NUMBER_1, IMAGE_NUMBER_2,
                         IMAGE_NUMBER_3, IMAGE_NUMBER_4]
-
 
 LIST_CASE_L2 = [ORIGINAL_CASE, UPPERCASE, LOWERCASE]
 
 LIST_SEQUENCE_LETTER_L2 = [
-                    UPPERCASE,
-                    LOWERCASE
-                    ]
-                
-
+    UPPERCASE,
+    LOWERCASE
+]
 
 LIST_SEQUENCE_NUMBERS_L2 = [
-                    SEQUENCE_NUMBER_1,
-                    SEQUENCE_NUMBER_2,
-                    SEQUENCE_NUMBER_3,
-                    SEQUENCE_NUMBER_4,
-                    SEQUENCE_NUMBER_5,
-                    SEQUENCE_NUMBER_6,
-                    SEQUENCE_NUMBER_7,
-                    ]
-                
-
+    SEQUENCE_NUMBER_1,
+    SEQUENCE_NUMBER_2,
+    SEQUENCE_NUMBER_3,
+    SEQUENCE_NUMBER_4,
+    SEQUENCE_NUMBER_5,
+    SEQUENCE_NUMBER_6,
+    SEQUENCE_NUMBER_7,
+]
 
 LIST_SHUTTER_COUNT_L2 = [
-                     SEQUENCE_NUMBER_3, 
-                     SEQUENCE_NUMBER_4, 
-                     SEQUENCE_NUMBER_5, 
-                     SEQUENCE_NUMBER_6,
-                     ]
+    SEQUENCE_NUMBER_3,
+    SEQUENCE_NUMBER_4,
+    SEQUENCE_NUMBER_5,
+    SEQUENCE_NUMBER_6,
+]
 FILE_NUMBER_L2 = [
-                    FILE_NUMBER_FOLDER,
-                    FILE_NUMBER_ALL
-                 ]
+    FILE_NUMBER_FOLDER,
+    FILE_NUMBER_ALL
+]
 
 # Level 1
 LIST_DATE_TIME_L1 = [IMAGE_DATE, TODAY, YESTERDAY, DOWNLOAD_TIME]
 LIST_VIDEO_DATE_TIME_L1 = [VIDEO_DATE, TODAY, YESTERDAY, DOWNLOAD_TIME]
 
 DICT_DATE_TIME_L1 = {
-                    IMAGE_DATE: LIST_IMAGE_DATE_TIME_L2,
-                    TODAY: LIST_DATE_TIME_L2,
-                    YESTERDAY: LIST_DATE_TIME_L2,
-                    DOWNLOAD_TIME: LIST_DATE_TIME_L2,
-                    ORDER_KEY: LIST_DATE_TIME_L1
-                  }
-                  
-VIDEO_DICT_DATE_TIME_L1 = {
-                    VIDEO_DATE: LIST_IMAGE_DATE_TIME_L2,
-                    TODAY: LIST_DATE_TIME_L2,
-                    YESTERDAY: LIST_DATE_TIME_L2,
-                    DOWNLOAD_TIME: LIST_DATE_TIME_L2,
-                    ORDER_KEY: LIST_VIDEO_DATE_TIME_L1
-                  }
+    IMAGE_DATE: LIST_IMAGE_DATE_TIME_L2,
+    TODAY: LIST_DATE_TIME_L2,
+    YESTERDAY: LIST_DATE_TIME_L2,
+    DOWNLOAD_TIME: LIST_DATE_TIME_L2,
+    ORDER_KEY: LIST_DATE_TIME_L1
+}
 
+VIDEO_DICT_DATE_TIME_L1 = {
+    VIDEO_DATE: LIST_IMAGE_DATE_TIME_L2,
+    TODAY: LIST_DATE_TIME_L2,
+    YESTERDAY: LIST_DATE_TIME_L2,
+    DOWNLOAD_TIME: LIST_DATE_TIME_L2,
+    ORDER_KEY: LIST_VIDEO_DATE_TIME_L1
+}
 
 LIST_FILENAME_L1 = [NAME_EXTENSION, NAME, EXTENSION, IMAGE_NUMBER]
 
 DICT_FILENAME_L1 = {
-                    NAME_EXTENSION: LIST_CASE_L2,
-                    NAME: LIST_CASE_L2,
-                    EXTENSION: LIST_CASE_L2,
-                    IMAGE_NUMBER: LIST_IMAGE_NUMBER_L2,
-                    ORDER_KEY: LIST_FILENAME_L1
-                  }
+    NAME_EXTENSION: LIST_CASE_L2,
+    NAME: LIST_CASE_L2,
+    EXTENSION: LIST_CASE_L2,
+    IMAGE_NUMBER: LIST_IMAGE_NUMBER_L2,
+    ORDER_KEY: LIST_FILENAME_L1
+}
 
 LIST_VIDEO_FILENAME_L1 = [NAME_EXTENSION, NAME, EXTENSION, VIDEO_NUMBER]
 
 DICT_VIDEO_FILENAME_L1 = {
-                    NAME_EXTENSION: LIST_CASE_L2,
-                    NAME: LIST_CASE_L2,
-                    EXTENSION: LIST_CASE_L2,
-                    VIDEO_NUMBER: LIST_IMAGE_NUMBER_L2,
-                    ORDER_KEY: LIST_VIDEO_FILENAME_L1
-                  }
-
+    NAME_EXTENSION: LIST_CASE_L2,
+    NAME: LIST_CASE_L2,
+    EXTENSION: LIST_CASE_L2,
+    VIDEO_NUMBER: LIST_IMAGE_NUMBER_L2,
+    ORDER_KEY: LIST_VIDEO_FILENAME_L1
+}
 
 LIST_SUBFOLDER_FILENAME_L1 = [EXTENSION]
 
 DICT_SUBFOLDER_FILENAME_L1 = {
-                    EXTENSION: LIST_CASE_L2,
-                    ORDER_KEY: LIST_SUBFOLDER_FILENAME_L1
+    EXTENSION: LIST_CASE_L2,
+    ORDER_KEY: LIST_SUBFOLDER_FILENAME_L1
 }
 
-LIST_METADATA_L1 = [APERTURE, ISO, EXPOSURE_TIME, FOCAL_LENGTH, 
-                    CAMERA_MAKE, CAMERA_MODEL, 
-                    SHORT_CAMERA_MODEL, 
-                    SHORT_CAMERA_MODEL_HYPHEN, 
-                    SERIAL_NUMBER, 
+LIST_METADATA_L1 = [APERTURE, ISO, EXPOSURE_TIME, FOCAL_LENGTH,
+                    CAMERA_MAKE, CAMERA_MODEL,
+                    SHORT_CAMERA_MODEL,
+                    SHORT_CAMERA_MODEL_HYPHEN,
+                    SERIAL_NUMBER,
                     SHUTTER_COUNT,
-                    FILE_NUMBER, 
+                    FILE_NUMBER,
                     OWNER_NAME,
                     ARTIST,
                     COPYRIGHT]
-                    
+
 LIST_VIDEO_METADATA_L1 = [CODEC, WIDTH, HEIGHT, LENGTH, FPS]
 
 DICT_METADATA_L1 = {
-                    APERTURE: None,
-                    ISO: None,
-                    EXPOSURE_TIME: None,
-                    FOCAL_LENGTH: None,
-                    CAMERA_MAKE: LIST_CASE_L2,
-                    CAMERA_MODEL: LIST_CASE_L2, 
-                    SHORT_CAMERA_MODEL: LIST_CASE_L2, 
-                    SHORT_CAMERA_MODEL_HYPHEN: LIST_CASE_L2,
-                    SERIAL_NUMBER: None, 
-                    SHUTTER_COUNT: LIST_SHUTTER_COUNT_L2,
-                    FILE_NUMBER: FILE_NUMBER_L2,
-                    OWNER_NAME: LIST_CASE_L2, 
-                    ARTIST: LIST_CASE_L2,
-                    COPYRIGHT: LIST_CASE_L2,
-                    ORDER_KEY: LIST_METADATA_L1
-                }
+    APERTURE: None,
+    ISO: None,
+    EXPOSURE_TIME: None,
+    FOCAL_LENGTH: None,
+    CAMERA_MAKE: LIST_CASE_L2,
+    CAMERA_MODEL: LIST_CASE_L2,
+    SHORT_CAMERA_MODEL: LIST_CASE_L2,
+    SHORT_CAMERA_MODEL_HYPHEN: LIST_CASE_L2,
+    SERIAL_NUMBER: None,
+    SHUTTER_COUNT: LIST_SHUTTER_COUNT_L2,
+    FILE_NUMBER: FILE_NUMBER_L2,
+    OWNER_NAME: LIST_CASE_L2,
+    ARTIST: LIST_CASE_L2,
+    COPYRIGHT: LIST_CASE_L2,
+    ORDER_KEY: LIST_METADATA_L1
+}
 
 DICT_VIDEO_METADATA_L1 = {
-                    CODEC: LIST_CASE_L2,
-                    WIDTH: None,
-                    HEIGHT: None,
-                    LENGTH: None,
-                    FPS: None,
-                    ORDER_KEY: LIST_VIDEO_METADATA_L1
-                    }
+    CODEC: LIST_CASE_L2,
+    WIDTH: None,
+    HEIGHT: None,
+    LENGTH: None,
+    FPS: None,
+    ORDER_KEY: LIST_VIDEO_METADATA_L1
+}
 
 LIST_SEQUENCE_L1 = [
-                    DOWNLOAD_SEQ_NUMBER,  
-                    STORED_SEQ_NUMBER, 
-                    SESSION_SEQ_NUMBER, 
-                    SEQUENCE_LETTER
-                    ]
-                    
+    DOWNLOAD_SEQ_NUMBER,
+    STORED_SEQ_NUMBER,
+    SESSION_SEQ_NUMBER,
+    SEQUENCE_LETTER
+]
+
 DICT_SEQUENCE_L1 = {
-                    DOWNLOAD_SEQ_NUMBER: LIST_SEQUENCE_NUMBERS_L2, 
-                    STORED_SEQ_NUMBER: LIST_SEQUENCE_NUMBERS_L2, 
-                    SESSION_SEQ_NUMBER: LIST_SEQUENCE_NUMBERS_L2, 
-                    SEQUENCE_LETTER: LIST_SEQUENCE_LETTER_L2, 
-                    ORDER_KEY: LIST_SEQUENCE_L1
-                    }
- 
+    DOWNLOAD_SEQ_NUMBER: LIST_SEQUENCE_NUMBERS_L2,
+    STORED_SEQ_NUMBER: LIST_SEQUENCE_NUMBERS_L2,
+    SESSION_SEQ_NUMBER: LIST_SEQUENCE_NUMBERS_L2,
+    SEQUENCE_LETTER: LIST_SEQUENCE_LETTER_L2,
+    ORDER_KEY: LIST_SEQUENCE_L1
+}
 
 # Level 0
 
 
-LIST_IMAGE_RENAME_L0 = [DATE_TIME, TEXT, FILENAME, METADATA, 
-                        SEQUENCES,  JOB_CODE]
-                        
+LIST_IMAGE_RENAME_L0 = [DATE_TIME, TEXT, FILENAME, METADATA,
+                        SEQUENCES, JOB_CODE]
+
 LIST_VIDEO_RENAME_L0 = LIST_IMAGE_RENAME_L0
-                        
 
 DICT_IMAGE_RENAME_L0 = {
-                    DATE_TIME: DICT_DATE_TIME_L1,
-                    TEXT: None,
-                    FILENAME: DICT_FILENAME_L1,
-                    METADATA: DICT_METADATA_L1,
-                    SEQUENCES: DICT_SEQUENCE_L1, 
-                    JOB_CODE: None, 
-                    ORDER_KEY: LIST_IMAGE_RENAME_L0
-                    }
-                    
-DICT_VIDEO_RENAME_L0 = {
-                    DATE_TIME: VIDEO_DICT_DATE_TIME_L1,
-                    TEXT: None,
-                    FILENAME: DICT_VIDEO_FILENAME_L1,
-                    METADATA: DICT_VIDEO_METADATA_L1,
-                    SEQUENCES: DICT_SEQUENCE_L1,
-                    JOB_CODE: None,
-                    ORDER_KEY: LIST_VIDEO_RENAME_L0
-                    }
+    DATE_TIME: DICT_DATE_TIME_L1,
+    TEXT: None,
+    FILENAME: DICT_FILENAME_L1,
+    METADATA: DICT_METADATA_L1,
+    SEQUENCES: DICT_SEQUENCE_L1,
+    JOB_CODE: None,
+    ORDER_KEY: LIST_IMAGE_RENAME_L0
+}
 
-LIST_SUBFOLDER_L0 = [DATE_TIME, TEXT, FILENAME, METADATA, JOB_CODE,  SEPARATOR]
+DICT_VIDEO_RENAME_L0 = {
+    DATE_TIME: VIDEO_DICT_DATE_TIME_L1,
+    TEXT: None,
+    FILENAME: DICT_VIDEO_FILENAME_L1,
+    METADATA: DICT_VIDEO_METADATA_L1,
+    SEQUENCES: DICT_SEQUENCE_L1,
+    JOB_CODE: None,
+    ORDER_KEY: LIST_VIDEO_RENAME_L0
+}
+
+LIST_SUBFOLDER_L0 = [DATE_TIME, TEXT, FILENAME, METADATA, JOB_CODE, SEPARATOR]
 
 DICT_SUBFOLDER_L0 = {
-                    DATE_TIME: DICT_DATE_TIME_L1,
-                    TEXT: None,
-                    FILENAME: DICT_SUBFOLDER_FILENAME_L1,
-                    METADATA: DICT_METADATA_L1,
-                    JOB_CODE: None, 
-                    SEPARATOR: None,
-                    ORDER_KEY: LIST_SUBFOLDER_L0
-                   }
-                                      
+    DATE_TIME: DICT_DATE_TIME_L1,
+    TEXT: None,
+    FILENAME: DICT_SUBFOLDER_FILENAME_L1,
+    METADATA: DICT_METADATA_L1,
+    JOB_CODE: None,
+    SEPARATOR: None,
+    ORDER_KEY: LIST_SUBFOLDER_L0
+}
+
 LIST_VIDEO_SUBFOLDER_L0 = [DATE_TIME, TEXT, FILENAME, METADATA, JOB_CODE,
                            SEPARATOR]
-                   
+
 DICT_VIDEO_SUBFOLDER_L0 = {
-                    DATE_TIME: VIDEO_DICT_DATE_TIME_L1,
-                    TEXT: None,
-                    FILENAME: DICT_SUBFOLDER_FILENAME_L1,
-                    METADATA: DICT_VIDEO_METADATA_L1,
-                    JOB_CODE: None, 
-                    SEPARATOR: None,
-                    ORDER_KEY: LIST_VIDEO_SUBFOLDER_L0
-                   }                   
+    DATE_TIME: VIDEO_DICT_DATE_TIME_L1,
+    TEXT: None,
+    FILENAME: DICT_SUBFOLDER_FILENAME_L1,
+    METADATA: DICT_VIDEO_METADATA_L1,
+    JOB_CODE: None,
+    SEPARATOR: None,
+    ORDER_KEY: LIST_VIDEO_SUBFOLDER_L0
+}
 
 # preference elements that require metadata
 # note there is no need to specify lower level elements if a higher level 
@@ -513,18 +664,18 @@ METADATA_ELEMENTS = [METADATA, IMAGE_DATE]
 
 # preference elements that are sequence numbers or letters             
 SEQUENCE_ELEMENTS = [
-             DOWNLOAD_SEQ_NUMBER, 
-             SESSION_SEQ_NUMBER, 
-             SUBFOLDER_SEQ_NUMBER, 
-             STORED_SEQ_NUMBER, 
-             SEQUENCE_LETTER]
+    DOWNLOAD_SEQ_NUMBER,
+    SESSION_SEQ_NUMBER,
+    SUBFOLDER_SEQ_NUMBER,
+    STORED_SEQ_NUMBER,
+    SEQUENCE_LETTER]
 
 # preference elements that do not require metadata and are not fixed
 # as above, there is no need to specify lower level elements if a higher level 
 # element is necessary for them to be present to begin with
 DYNAMIC_NON_METADATA_ELEMENTS = [
-             TODAY, YESTERDAY, 
-             FILENAME]  + SEQUENCE_ELEMENTS
+                                    TODAY, YESTERDAY,
+                                    FILENAME] + SEQUENCE_ELEMENTS
 
 
 class PrefError(Exception):
@@ -548,13 +699,15 @@ class PrefError(Exception):
     def __str__(self):
         return self.msg
 
+
 class PrefKeyError(PrefError):
     def __init__(self, error):
         super().__init__()
         value = error[0]
         expectedValues = self.unpackList(error[1])
         self.msg = "Preference key '%(key)s' is invalid.\nExpected one of %(value)s" % {
-                            'key': value, 'value': expectedValues}
+            'key': value, 'value': expectedValues}
+
 
 class PrefValueInvalidError(PrefKeyError):
     def __init__(self, error):
@@ -562,10 +715,12 @@ class PrefValueInvalidError(PrefKeyError):
         value = error[0]
         self.msg = "Preference value '%(value)s' is invalid" % {'value': value}
 
+
 class PrefLengthError(PrefError):
     def __init__(self, error):
         super().__init__()
         self.msg = "These preferences are not well formed:" + "\n %s" % self.unpackList(error)
+
 
 class PrefValueKeyComboError(PrefError):
     def __init__(self, error):
@@ -588,16 +743,15 @@ def check_pref_valid(pref_defn, prefs, modulo=3) -> bool:
     if (len(prefs) % modulo != 0) or not prefs:
         raise PrefLengthError(prefs)
     else:
-        for i in range(0,  len(prefs),  modulo):
-            _check_pref_valid(pref_defn, prefs[i:i+modulo])
+        for i in range(0, len(prefs), modulo):
+            _check_pref_valid(pref_defn, prefs[i:i + modulo])
 
     return True
 
-def _check_pref_valid(pref_defn, prefs):
 
+def _check_pref_valid(pref_defn, prefs):
     key = prefs[0]
     value = prefs[1]
-
 
     if key in pref_defn:
 
@@ -649,13 +803,13 @@ def filter_subfolder_prefs(pref_list):
             prefs_changed = True
         else:
             for i in range(0, len(pref_list) - 3, 3):
-                if pref_list[i] == SEPARATOR and pref_list[i+3] == SEPARATOR:
+                if pref_list[i] == SEPARATOR and pref_list[i + 3] == SEPARATOR:
                     # subfolder preferences should not contain two /s side by side
                     continue_check = True
                     prefs_changed = True
                     # note we are messing with the contents of the pref list,
                     # must exit loop and try again
-                    pref_list = pref_list[:i] + pref_list[i+3:]
+                    pref_list = pref_list[:i] + pref_list[i + 3:]
                     break
 
-    return (prefs_changed,  pref_list)
+    return (prefs_changed, pref_list)

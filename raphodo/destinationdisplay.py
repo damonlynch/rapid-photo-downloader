@@ -25,13 +25,13 @@ __copyright__ = "Copyright 2016, Damon Lynch"
 
 import os
 import math
-from typing import Optional
+from typing import Optional, Dict, Tuple
 from gettext import gettext as _
 
 
 from PyQt5.QtCore import (QSize, Qt, QStorageInfo, QRect, pyqtSlot, QPoint)
 from PyQt5.QtWidgets import (QStyleOptionFrame, QStyle, QStylePainter, QWidget, QSplitter,
-                             QSizePolicy, QAction, QMenu)
+                             QSizePolicy, QAction, QMenu, QActionGroup)
 from PyQt5.QtGui import (QColor, QPixmap, QIcon, QPaintEvent, QPalette, QMouseEvent)
 
 
@@ -41,6 +41,7 @@ from raphodo.constants import (CustomColors, DestinationDisplayType, DisplayingF
                                DestinationDisplayMousePos)
 from raphodo.utilities import thousands, format_size_for_user
 from raphodo.rpdfile import FileTypeCounter, FileType
+import raphodo.generatenameconfig as gnc
 
 
 class DestinationDisplay(QWidget):
@@ -55,8 +56,21 @@ class DestinationDisplay(QWidget):
     excess = _('Excess')
 
     def __init__(self, menu: bool=False, file_type: FileType=None, parent=None) -> None:
+        """
+        :param menu: whether to render a drop down menu
+        :param file_type: whether for photos or videos. Relevant only for menu display.
+        """
+
         super().__init__(parent)
+        self.rapidApp = parent
+        if parent is not None:
+            self.prefs = self.rapidApp.prefs
+        else:
+            self.prefs = None
+
         self.storage_space = None  # type: StorageSpace
+
+        self.map_action = dict()  # type: Dict[int, QAction]
 
         if menu:
             menuIcon = QIcon(':/icons/settings.svg')
@@ -78,65 +92,109 @@ class DestinationDisplay(QWidget):
         self.display_type = None  # type: DestinationDisplayType
         self.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.Fixed)
 
+    def _makeMenuString(self, prefs: Tuple[str]) -> str:
+        return os.sep.join(prefs)
+
     def createActionsAndMenu(self) -> None:
         self.setMouseTracking(True)
+        self.menu = QMenu()
 
-        # Translators: for an explanation of what this means, 
-        # see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-        yyyy = _('YYYY')
-        # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-        yyyymmdd = _('YYYYMMDD') 
-        # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-        yyyy_mm_dd = _('YYYY-MM-DD')
-        # Translators: for an explanation of what this means, see http://damonlynch.net/rapid/documentation/index.html#renamedateandtime
-        yyyy__mm__dd = _('YYYY_MM_DD')
-        label1 =  os.path.join(yyyy, yyyymmdd)
-        label2 = os.path.join(yyyy, yyyy_mm_dd) 
-        label3 = os.path.join(yyyy, yyyy__mm__dd) 
         if self.file_type == FileType.photo:
-            self.photoSubfolder1Act = QAction(label1, self, triggered=self.doPhotoSubfolder1)
-            self.photoSubfolder2Act = QAction(label2, self, triggered=self.doPhotoSubfolder2)
-            self.photoSubfolder3Act = QAction(label3, self, triggered=self.doPhotoSubfolder3)
-            self.menu = QMenu()
-            self.menu.addAction(self.photoSubfolder1Act)
-            self.menu.addAction(self.photoSubfolder2Act)
-            self.menu.addAction(self.photoSubfolder3Act)
+            defaults = gnc.PHOTO_SUBFOLDER_MENU_DEFAULTS
         else:
-            self.videoSubfolder1Act = QAction(label1, self, triggered=self.doVideoSubfolder1)
-            self.videoSubfolder2Act = QAction(label2, self, triggered=self.doVideoSubfolder2)
-            self.videoSubfolder3Act = QAction(label3, self, triggered=self.doVideoSubfolder3)
-            self.menu = QMenu()
-            self.menu.addAction(self.videoSubfolder1Act)
-            self.menu.addAction(self.videoSubfolder2Act)
-            self.menu.addAction(self.videoSubfolder3Act)
+            defaults = gnc.VIDEO_SUBFOLDER_MENU_DEFAULTS
 
-    def doPhotoSubfolder1(self) -> None:
-        print('doPhotoSubfolder1')
-        self.menuItemChosen()
+        self.subfolder0Act = QAction(self._makeMenuString(defaults[0]),
+                                     self,
+                                     checkable=True,
+                                     triggered=self.doSubfolder0)
+        self.subfolder1Act = QAction(self._makeMenuString(defaults[1]),
+                                     self,
+                                     checkable=True,
+                                     triggered=self.doSubfolder1)
+        self.subfolder2Act = QAction(self._makeMenuString(defaults[2]),
+                                     self,
+                                     checkable=True,
+                                     triggered=self.doSubfolder2)
+        self.subfolder3Act = QAction(self._makeMenuString(defaults[3]),
+                                     self,
+                                     checkable=True,
+                                     triggered=self.doSubfolder3)
+        self.subfolder4Act = QAction(self._makeMenuString(defaults[4]),
+                                     self,
+                                     checkable=True,
+                                     triggered=self.doSubfolder4)
+        # Translators: custom refers to the user choosing a non-default value that
+        # they customize themselves
+        self.subfolderCustomAct = QAction(_('Custom...'),
+                                               self,
+                                               checkable=True,
+                                               triggered=self.doSubfolderCustom
+                                               )
 
-    def doPhotoSubfolder2(self) -> None:
-        print('doPhotoSubfolder2')
-        self.menuItemChosen()
+        self.subfolderGroup = QActionGroup(self)
 
-    def doPhotoSubfolder3(self) -> None:
-        print('doPhotoSubfolder3')
-        self.menuItemChosen()
+        self.subfolderGroup.addAction(self.subfolder0Act)
+        self.subfolderGroup.addAction(self.subfolder1Act)
+        self.subfolderGroup.addAction(self.subfolder2Act)
+        self.subfolderGroup.addAction(self.subfolder3Act)
+        self.subfolderGroup.addAction(self.subfolder4Act)
+        self.subfolderGroup.addAction(self.subfolderCustomAct)
+        
+        self.menu.addAction(self.subfolder0Act)
+        self.menu.addAction(self.subfolder1Act)
+        self.menu.addAction(self.subfolder2Act)
+        self.menu.addAction(self.subfolder3Act)
+        self.menu.addAction(self.subfolder4Act)
+        self.menu.addAction(self.subfolderCustomAct)
 
-    def doVideoSubfolder1(self) -> None:
-        print('doVideoSubfolder1')
-        self.menuItemChosen()
+        self.map_action[0] = self.subfolder0Act
+        self.map_action[1] = self.subfolder1Act
+        self.map_action[2] = self.subfolder2Act
+        self.map_action[3] = self.subfolder3Act
+        self.map_action[4] = self.subfolder4Act
+        self.map_action[-1] = self.subfolderCustomAct
 
-    def doVideoSubfolder2(self) -> None:
-        print('doVideoSubfolder2')
-        self.menuItemChosen()
 
-    def doVideoSubfolder3(self) -> None:
-        print('doVideoSubfolder3')
-        self.menuItemChosen()
+    def doSubfolder0(self) -> None:
+        self.menuItemChosen(0)
 
-    def menuItemChosen(self) -> None:
+    def doSubfolder1(self) -> None:
+        self.menuItemChosen(1)
+
+    def doSubfolder2(self) -> None:
+        self.menuItemChosen(2)
+
+    def doSubfolder3(self) -> None:
+        self.menuItemChosen(3)
+
+    def doSubfolder4(self) -> None:
+        self.menuItemChosen(4)
+
+    def doSubfolderCustom(self):
+        self.menuItemChosen(-1)
+
+    def menuItemChosen(self, index: int) -> None:
         self.mouse_pos = DestinationDisplayMousePos.normal
         self.update()
+
+        if index == -1:
+            print('custom')
+        else:
+            if self.file_type == FileType.photo:
+                self.prefs.photo_subfolder = gnc.PHOTO_SUBFOLDER_MENU_DEFAULTS_CONV[index]
+            else:
+                self.prefs.video_subfolder = gnc.VIDEO_SUBFOLDER_MENU_DEFAULTS_CONV[index]
+            self.rapidApp.folder_preview_manager.change_destination()
+
+    def markMenuItemAsChecked(self) -> None:
+        if self.file_type == FileType.photo:
+            index = self.prefs.photo_subfolder_index()
+        else:
+            index = self.prefs.video_subfolder_index()
+
+        action = self.map_action[index]  # type: QAction
+        action.setChecked(True)
 
     def setDestination(self, path: str) -> None:
         """
@@ -357,6 +415,7 @@ class DestinationDisplay(QWidget):
                 menuTopReal = iconRect.bottomLeft()
                 x = math.ceil(menuTopReal.x())
                 y = math.ceil(menuTopReal.y())
+                self.markMenuItemAsChecked()
                 self.menu.popup(self.mapToGlobal(QPoint(x, y)))
 
     @pyqtSlot(QMouseEvent)
@@ -380,3 +439,6 @@ class DestinationDisplay(QWidget):
                 self.mouse_pos = DestinationDisplayMousePos.normal
                 self.setToolTip(self.tool_tip)
                 self.update()
+
+
+

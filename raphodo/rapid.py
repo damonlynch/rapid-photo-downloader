@@ -1568,14 +1568,16 @@ class RapidWindow(QMainWindow):
         # partitions.
         # Also display the file system folder chooser for both destinations.
 
-        self.photoDestinationDisplay = DestinationDisplay(menu=True, file_type=FileType.photo)
+        self.photoDestinationDisplay = DestinationDisplay(menu=True, file_type=FileType.photo,
+                                                          parent=self)
         self.photoDestinationDisplay.setDestination(self.prefs.photo_download_folder)
         self.photoDestinationWidget = ComputerWidget(objectName='photoDestination',
              view=self.photoDestinationDisplay, fileSystemView=self.photoDestinationFSView,
              select_text=_('Select a destination folder'))
         self.photoDestination.addWidget(self.photoDestinationWidget)
         
-        self.videoDestinationDisplay = DestinationDisplay(menu=True, file_type=FileType.video)
+        self.videoDestinationDisplay = DestinationDisplay(menu=True, file_type=FileType.video,
+                                                          parent=self)
         self.videoDestinationDisplay.setDestination(self.prefs.video_download_folder)
         self.videoDestinationWidget = ComputerWidget(objectName='videoDestination',
              view=self.videoDestinationDisplay, fileSystemView=self.videoDestinationFSView,
@@ -3511,7 +3513,8 @@ class RapidWindow(QMainWindow):
         :return: True if the should start automatically, else False,
         """
 
-        if not self.prefs.valid:
+        prefs_valid, msg = self.prefs.check_prefs_for_validity()
+        if not prefs_valid:
             return False
 
         if not self.thumbnailModel.filesAreMarkedForDownload(scan_id):

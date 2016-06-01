@@ -541,6 +541,30 @@ class Preferences:
         else:
             return ''
 
+    def photo_subfolder_index(self) -> int:
+        """
+        Matches the photo pref list with program subfolder generation defaults.
+
+        :return: -1 if no match (i.e. custom), or the index into
+         PHOTO_SUBFOLDER_MENU_DEFAULTS if it matches
+        """
+        try:
+            return PHOTO_SUBFOLDER_MENU_DEFAULTS_CONV.index(self.photo_subfolder)
+        except ValueError:
+            return -1
+
+    def video_subfolder_index(self) -> int:
+        """
+        Matches the photo pref list with program subfolder generation defaults.
+
+        :return: -1 if no match (i.e. custom), or the index into
+         VIDEO_SUBFOLDER_MENU_DEFAULTS if it matches
+        """
+        try:
+            return VIDEO_SUBFOLDER_MENU_DEFAULTS_CONV.index(self.video_subfolder)
+        except ValueError:
+            return -1
+        
     def reset(self) -> None:
         """
         Reset all program preferences to their default settings
