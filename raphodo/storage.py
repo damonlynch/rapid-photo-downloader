@@ -236,9 +236,10 @@ def has_non_empty_dcim_folder(path: str) -> bool:
 
     try:
         has_dcim = "DCIM" in os.listdir(path)
-    except PermissionError:
+    except (PermissionError, FileNotFoundError, OSError):
         return False
-    except FileNotFoundError:
+    except:
+        logging.error("Unknown error occurred while probing potential source folder %s", path)
         return False
     if has_dcim:
         dcim_folder = os.path.join(path, 'DCIM')
