@@ -65,11 +65,9 @@ class PhotoName:
         self.L1_date_check = IMAGE_DATE  # used in _get_date_component()
         self.component = pn.FILENAME_COMPONENT  # used in error reporting
 
-
     def _get_values_from_pref_list(self):
         for i in range(0, len(self.pref_list), 3):
-            yield (
-            self.pref_list[i], self.pref_list[i + 1], self.pref_list[i + 2])
+            yield (self.pref_list[i], self.pref_list[i + 1], self.pref_list[i + 2])
 
     def _get_date_component(self):
         """
@@ -400,8 +398,6 @@ class PhotoName:
         name = ''
 
         for self.L0, self.L1, self.L2 in self._get_values_from_pref_list():
-            if self.no_metadata and self.L0 in (METADATA, SEQUENCES, JOB_CODE):
-                break
             v = self._get_component()
             if v:
                 name += v
@@ -440,12 +436,20 @@ class PhotoSubfolder(PhotoName):
     Generate subfolder names for photo files
     """
 
-    def __init__(self, pref_list, no_metadata: bool=False) -> None:
+    def __init__(self, pref_list: List[str], no_metadata: bool=False) -> None:
+        """
+        :param pref_list: subfolder generation preferences list
+        :param no_metadata: if True, halt as soon as the need for metadata
+        or a job code or sequence number becomes necessary
+        """
 
         # No need to call __init__ of parent class, as all values will be
         # overwritten
 
-        self.pref_list = pref_list
+        if no_metadata:
+            self.pref_list = truncate_before_unwanted_subfolder_component(pref_list)
+        else:
+            self.pref_list = pref_list
         self.no_metadata = no_metadata
 
         self.strip_extraneous_white_space = re.compile(r'\s*%s\s*' % os.sep)
@@ -454,7 +458,7 @@ class PhotoSubfolder(PhotoName):
         self.L1_date_check = IMAGE_DATE  # used in _get_date_component()
         self.component = pn.SUBFOLDER_COMPONENT  # used in error reporting
 
-    def generate_name(self, rpd_file):
+    def generate_name(self, rpd_file) -> str:
 
         subfolders = PhotoName.generate_name(self, rpd_file)
 
@@ -467,8 +471,7 @@ class PhotoSubfolder(PhotoName):
 
         # remove any spaces before and after a directory name
         if subfolders and self.rpd_file.strip_characters:
-            subfolders = self.strip_extraneous_white_space.sub(os.sep,
-                                                               subfolders)
+            subfolders = self.strip_extraneous_white_space.sub(os.sep, subfolders)
 
         return subfolders
 
@@ -479,6 +482,11 @@ class VideoSubfolder(PhotoSubfolder):
     """
 
     def __init__(self, pref_list, no_metadata: bool=False) -> None:
+        """
+        :param pref_list: subfolder generation preferences list
+        :param no_metadata: if True, halt as soon as the need for metadata
+        or a job code or sequence number becomes necessary
+        """
         PhotoSubfolder.__init__(self, pref_list, no_metadata)
         self.L1_date_check = VIDEO_DATE  # used in _get_date_component()
 
@@ -490,6 +498,48 @@ class VideoSubfolder(PhotoSubfolder):
         Note: date time metadata found in _getDateComponent()
         """
         return get_video_metadata_component(self)
+
+
+def truncate_before_unwanted_subfolder_component(pref_list: List[str]) -> List[str]:
+    r"""
+    truncate the preferences list to remove any subfolder element that
+    contains a metadata or a job code or sequence number
+
+    :param pref_list: subfolder prefs list
+    :return: truncated list
+
+    >>> print(truncate_before_unwanted_subfolder_component(PHOTO_SUBFOLDER_MENU_DEFAULTS_CONV[0]))
+    ['Date time', 'Image date', 'YYYY', '/', '', '', 'Date time', 'Image date', 'YYYYMMDD']
+    >>> print(truncate_before_unwanted_subfolder_component(PHOTO_SUBFOLDER_MENU_DEFAULTS_CONV[1]))
+    ['Date time', 'Image date', 'YYYY', '/', '', '', 'Date time', 'Image date', 'YYYY-MM-DD']
+    >>> print(truncate_before_unwanted_subfolder_component(PHOTO_SUBFOLDER_MENU_DEFAULTS_CONV[2]))
+    ['Date time', 'Image date', 'YYYY', '/', '', '', 'Date time', 'Image date', 'YYYY_MM_DD']
+    >>> print(truncate_before_unwanted_subfolder_component(PHOTO_SUBFOLDER_MENU_DEFAULTS_CONV[3]))
+    ['Date time', 'Image date', 'YYYY']
+    >>> print(truncate_before_unwanted_subfolder_component(PHOTO_SUBFOLDER_MENU_DEFAULTS_CONV[4]))
+    ... # doctest: +NORMALIZE_WHITESPACE
+    ['Date time', 'Image date', 'YYYY', '/', '', '', 'Date time', 'Image date', 'YYYY',
+    'Date time', 'Image date', 'MM']
+    >>> print(truncate_before_unwanted_subfolder_component([JOB_CODE, '', '',]))
+    []
+    >>> pl = [DATE_TIME, IMAGE_DATE, LIST_DATE_TIME_L2[11]]
+    >>> print(truncate_before_unwanted_subfolder_component(pl))
+    ['Date time', 'Image date', 'YYYY']
+    """
+
+    rl = [pref_list[i] for i in range(0, len(pref_list), 3)]
+    truncate = -1
+    for idx, value in enumerate(rl):
+        if value in (METADATA, SEQUENCES, JOB_CODE):
+            break
+        if idx == len(rl) - 1:
+            truncate = idx + 1
+        elif value == SEPARATOR:
+            truncate = idx
+
+    if truncate >= 0:
+        return pref_list[:truncate * 3]
+    return []
 
 
 def get_video_metadata_component(video):
