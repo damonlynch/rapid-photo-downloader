@@ -626,7 +626,7 @@ class ThumbnailListModel(QAbstractListModel):
             # The thumbnail may or may not be displayed at this moment
             row = self.uid_to_row.get(uid)
             if row is not None:
-                logging.debug("Updating thumbnail row %s with new thumbnail", row)
+                # logging.debug("Updating thumbnail row %s with new thumbnail", row)
                 self.dataChanged.emit(self.index(row, 0), self.index(row, 0))
         else:
             logging.debug("Thumbnail was null: %s", rpd_file.name)
@@ -893,6 +893,10 @@ class ThumbnailListModel(QAbstractListModel):
 
     def getCountNotPreviouslyDownloadedAvailableForDownload(self) -> int:
         return self.tsql.get_count(previously_downloaded=False, downloaded=False)
+
+    def getAllDownloadableRPDFiles(self) -> List[RPDFile]:
+        uids = self.tsql.get_uids(downloaded=False)
+        return [self.rpd_files[uid] for uid in uids]
 
     def getFilesMarkedForDownload(self, scan_id: Optional[int]) -> DownloadFiles:
         """

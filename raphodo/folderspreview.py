@@ -38,6 +38,7 @@ import os
 from collections import namedtuple, defaultdict
 import logging
 from typing import Tuple, Set, Sequence, Dict, Optional, List
+from pprint import pprint
 
 from PyQt5.QtWidgets import QFileSystemModel
 
@@ -56,6 +57,7 @@ class FoldersPreview:
     """
     Core tasks of this class are to be able to handle these scenarios:
      * the user changing the download destination
+     * the user changing the generated subfolder structure
      * download destination being invalid or not yet specified
      * knowing which download subfolders already existed
      * files from more than one device be downloaded to the same subfolders
@@ -68,19 +70,27 @@ class FoldersPreview:
 
     def __init__(self):
         # Subfolders to generate, in simple string format
+        # Independent of the specific download folder they're created under
+        # e.g. '2015/2015-07-20' , not '/home/user/Pictures/2015/2015-07-20'
         self.generated_photo_subfolders = set()  # type: Set[str]
         self.generated_video_subfolders = set()  # type: Set[str]
 
         # Scan ids associated with generated subfolders
+        # key exactly matches those found in self.generated_photo_subfolders &
+        # self.generated_video_subfolders
         self.generated_photo_subfolders_scan_ids = defaultdict(set)  # type: Dict[str, Set[int]]
         self.generated_video_subfolders_scan_ids = defaultdict(set)  # type: Dict[str, Set[int]]
 
         # Subfolders actually created by this class, differentiated by level.
         # Need to differentiate levels because of need for fine grained control
         # due to scenarios outlined above.
+        # Dependent on the the specific download folder they're created under, in contrast
+        # to self.generated_photo_subfolders & self.generated_video_subfolders
         self.created_photo_subfolders = defaultdict(set)  # type: Dict[int, Set[str]]
         self.created_video_subfolders = defaultdict(set)  # type: Dict[int, Set[str]]
 
+        # key = (level, subfolder)
+        # item = Set[scan ids]
         self.scan_ids_for_created_subfolders = defaultdict(set)  # type: Dict[Tuple[int, str], Set[int]]
 
         # Subfolders that were not created by this class, in simple string format
@@ -100,6 +110,35 @@ class FoldersPreview:
     def __repr__(self):
         return 'FoldersPreview(%s photo dirs, %s video dirs)' % (len(self._flatten_set(
             self.created_photo_subfolders)), len(self._flatten_set(self.created_video_subfolders)))
+
+    def dump(self) -> None:
+        if self.generated_photo_subfolders:
+            print("\nGenerated Photo subfolders")
+            print("==========================")
+            pprint(self.generated_photo_subfolders)
+            pprint(self.generated_photo_subfolders_scan_ids)
+        if self.generated_video_subfolders:
+            print("\nGenerated Video subfolders")
+            print("==========================")
+            pprint(self.generated_video_subfolders)
+            pprint(self.generated_video_subfolders_scan_ids)
+        if self.created_photo_subfolders:
+            print("\nCreated photo subfolders")
+            print("========================")
+            pprint(self.created_photo_subfolders)
+        if self.created_video_subfolders:
+            print("\nCreated video subfolders")
+            print("========================")
+            pprint(self.created_video_subfolders)
+        if self.scan_ids_for_created_subfolders:
+            print("\nScan ids for the created subfolders")
+            print("===================================")
+            pprint(self.scan_ids_for_created_subfolders)
+        if self.existing_subfolders:
+            print('\nExisting subfolders')
+            print("===================")
+            pprint(self.existing_subfolders)
+
 
     def _flatten_set(self, s: Dict[int, Set[str]]) -> Set[str]:
         return {path for level in s for path in s[level]}
@@ -174,6 +213,9 @@ class FoldersPreview:
             self.clean_generated_folders(remove=self.created_photo_subfolders,
                                          keep=self.created_video_subfolders,
                                          fsmodel=fsmodel)
+            self.created_photo_subfolders = defaultdict(set)  # type: Dict[int, Set[str]]
+            self.generated_photo_subfolders = set()  # type: Set[str]
+            self.generated_photo_subfolders_scan_ids = defaultdict(set)  # type: Dict[str, Set[int]]
 
         if destination.video_subfolder != self.video_subfolder:
             self.dirty = True
@@ -181,10 +223,13 @@ class FoldersPreview:
             self.clean_generated_folders(remove=self.created_video_subfolders,
                                          keep=self.created_photo_subfolders,
                                          fsmodel=fsmodel)
+            self.created_video_subfolders = defaultdict(set)  # type: Dict[int, Set[str]]
+            self.generated_video_subfolders = set()  # type: Set[str]
+            self.generated_video_subfolders_scan_ids = defaultdict(set)  # type: Dict[str, Set[int]]
 
     def generate_subfolders(self, rpd_files: Sequence[RPDFile], strip_characters: bool) -> None:
         """
-        Generate subfolder names for each rpd_fil, the create on the file system
+        Generate subfolder names for each rpd_file, and create on the file system
         if necessary the subfolders that will be used for the download (assuming
         the subfolder generation config doesn't change, of course).
 
@@ -245,6 +290,7 @@ class FoldersPreview:
 
         :param remove: folders to remove
         :param keep: folders to keep
+        :param scan_id: if not None, remove preview folders only for that scan_id
         """
 
         levels = [level for level in remove]
@@ -261,9 +307,9 @@ class FoldersPreview:
             for subfolder in remove[level]:
                 if (subfolder not in keep and subfolder not in self.existing_subfolders and
                         os.path.isdir(subfolder)):
+                    key = (level, subfolder)
                     if scan_id is not None:
                         do_rmdir = False
-                        key = (level, subfolder)
                         scan_ids = self.scan_ids_for_created_subfolders[key]
                         if scan_id in scan_ids:
                             if len(scan_ids) == 1:
@@ -274,8 +320,11 @@ class FoldersPreview:
                                 del self.scan_ids_for_created_subfolders[key]
                     else:
                         do_rmdir = True
+                        del self.scan_ids_for_created_subfolders[key]
+
                     if do_rmdir:
                         if not os.listdir(subfolder):
+                            logging.debug("Removing subfolder %s", subfolder)
                             index = fsmodel.index(subfolder)
                             if not fsmodel.rmdir(index):
                                 logging.debug("While cleaning generated folders, did not "
@@ -380,8 +429,9 @@ class FoldersPreview:
                 try:
                     os.mkdir(p)
                     self.scan_ids_for_created_subfolders[(level, p)].update(scan_ids)
-                except OSError:
+                except OSError as e:
                     logging.error("Failed to create download directory %s", p)
+                    logging.exception("Traceback:")
                     return
                 # logging.debug("Created provisional download folder: %s", p)
             else:

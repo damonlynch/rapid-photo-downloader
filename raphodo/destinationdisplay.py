@@ -185,7 +185,7 @@ class DestinationDisplay(QWidget):
                 self.prefs.photo_subfolder = gnc.PHOTO_SUBFOLDER_MENU_DEFAULTS_CONV[index]
             else:
                 self.prefs.video_subfolder = gnc.VIDEO_SUBFOLDER_MENU_DEFAULTS_CONV[index]
-            self.rapidApp.folder_preview_manager.change_destination()
+            self.rapidApp.folder_preview_manager.change_subfolder_structure()
 
     def markMenuItemAsChecked(self) -> None:
         if self.file_type == FileType.photo:

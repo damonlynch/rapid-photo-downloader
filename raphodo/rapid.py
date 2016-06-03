@@ -385,6 +385,7 @@ class FolderPreviewManager:
         self.rpd_files_queue = []  # type: List[RPDFile]
         self.clean_for_scan_id_queue = []  # type: List[int]
         self.change_destination_queued = False  # type: bool
+        self.subfolder_rebuild_queued = False  # type: bool
 
         self.offloaded = False
         self.process_destination = False
@@ -434,6 +435,14 @@ class FolderPreviewManager:
             self._change_destination()
             self._update_model_and_views()
 
+    def change_subfolder_structure(self) -> None:
+        self.change_destination()
+        if self.offloaded:
+            assert self.change_destination_queued == True
+            self.subfolder_rebuild_queued = True
+        else:
+            self._change_subfolder_structure()
+
     def _change_destination(self) -> None:
             destination = DownloadDestination(
                 photo_download_folder=self.prefs.photo_download_folder,
@@ -442,6 +451,10 @@ class FolderPreviewManager:
                 video_subfolder=self.prefs.video_subfolder)
             self.folders_preview.process_destination(destination=destination,
                                                      fsmodel=self.fsmodel)
+
+    def _change_subfolder_structure(self) -> None:
+        rpd_files = self.rapidApp.thumbnailModel.getAllDownloadableRPDFiles()
+        self.add_rpd_files(rpd_files=rpd_files)
 
     @pyqtSlot(FoldersPreview)
     def folders_generated(self, folders_preview: FoldersPreview) -> None:
@@ -471,9 +484,15 @@ class FolderPreviewManager:
             self.clean_for_scan_id_queue = []  # type: List[int]
 
             if self.change_destination_queued:
+                self.change_destination_queued = False
                 dirty = True
                 logging.debug("Changing destination of provisional download folders")
                 self._change_destination()
+
+            if self.subfolder_rebuild_queued:
+                self.subfolder_rebuild_queued = False
+                logging.debug("Rebuilding provisional download folders")
+                self._change_subfolder_structure()
         else:
             logging.debug("Not removing or moving provisional download folders because"
                           "a download is running")
@@ -486,14 +505,24 @@ class FolderPreviewManager:
             self._generate_folders(rpd_files=self.rpd_files_queue)
             self.rpd_files_queue = []  # type: List[RPDFile]
 
+        # self.folders_preview.dump()
+
     def _update_model_and_views(self):
         logging.debug("Updating file system model and views")
         self.fsmodel.preview_subfolders = self.folders_preview.preview_subfolders()
         self.fsmodel.download_subfolders = self.folders_preview.download_subfolders()
+        # Update the view
+        self.photoDestinationFSView.reset()
+        self.videoDestinationFSView.reset()
+        # Ensure the file system model caches are refreshed:
+        self.fsmodel.setRootPath(self.folders_preview.photo_download_folder)
+        self.fsmodel.setRootPath(self.folders_preview.video_download_folder)
+        self.fsmodel.setRootPath('/')
         self.photoDestinationFSView.expandPreviewFolders(self.prefs.photo_download_folder)
         self.videoDestinationFSView.expandPreviewFolders(self.prefs.video_download_folder)
-        self.photoDestinationFSView.update()
-        self.videoDestinationFSView.update()
+
+        # self.photoDestinationFSView.update()
+        # self.videoDestinationFSView.update()
 
     def remove_folders_for_device(self, scan_id: int) -> None:
         """

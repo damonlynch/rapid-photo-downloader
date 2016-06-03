@@ -55,7 +55,7 @@ class FileSystemModel(QFileSystemModel):
 
         # The next two values are set via FolderPreviewManager.update()
         # They concern provisional folders that will be used if the
-        # download proceeeds, and all files are downloaded.
+        # download proceeds, and all files are downloaded.
 
         # First value: subfolders we've created to demonstrate to the user
         # where their files will be downloaded to
@@ -149,6 +149,7 @@ class FileSystemView(QTreeView):
 
         expanded = False
         for path in self.fileSystemModel.download_subfolders:
+            # print('path', path)
             index = self.model().mapFromSource(self.fileSystemModel.index(path))
             if not self.isExpanded(index):
                 self.expand(index)
