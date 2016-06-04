@@ -96,6 +96,7 @@ Rapid Photo Downloader requires:
 
  - Python 3.4 or greater, and its development headers
  - PyQt_ 5.4 or greater
+ - Qt_ 5.4 or greater
  - `Python gobject introspection`_ modules:
     - GUdev 1.0
     - UDisks 2.0
@@ -225,3 +226,4 @@ If you installed the man pages, they are found in ``/usr/local/share/man/man1``.
 .. _Tkinter: https://wiki.python.org/moin/TkInter
 .. _`Qt5 plugin for reading TIFF images`: http://doc.qt.io/qt-5/qtimageformats-index.html
 .. _pymediainfo: https://github.com/sbraz/pymediainfo
+.. _Qt: https://www.qt.io/
