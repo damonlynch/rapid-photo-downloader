@@ -26,10 +26,10 @@ __author__ = 'Damon Lynch'
 __copyright__ = "Copyright 2007-2016, Damon Lynch"
 
 import os
+from collections import OrderedDict
+from typing import List, Optional, Tuple
 
 from gettext import gettext as _
-
-ORDER_KEY = "__order__"
 
 # PLEASE NOTE: these values are duplicated in a dummy class whose function
 # is to have them put into the translation template. If you change the values below
@@ -503,159 +503,110 @@ FILE_NUMBER_L2 = [
 ]
 
 # Level 1
-LIST_DATE_TIME_L1 = [IMAGE_DATE, TODAY, YESTERDAY, DOWNLOAD_TIME]
-LIST_VIDEO_DATE_TIME_L1 = [VIDEO_DATE, TODAY, YESTERDAY, DOWNLOAD_TIME]
 
-DICT_DATE_TIME_L1 = {
-    IMAGE_DATE: LIST_IMAGE_DATE_TIME_L2,
-    TODAY: LIST_DATE_TIME_L2,
-    YESTERDAY: LIST_DATE_TIME_L2,
-    DOWNLOAD_TIME: LIST_DATE_TIME_L2,
-    ORDER_KEY: LIST_DATE_TIME_L1
-}
+DICT_DATE_TIME_L1 = OrderedDict([
+    (IMAGE_DATE, LIST_IMAGE_DATE_TIME_L2),
+    (TODAY, LIST_DATE_TIME_L2),
+    (YESTERDAY, LIST_DATE_TIME_L2),
+    (DOWNLOAD_TIME, LIST_DATE_TIME_L2),
+])
 
-VIDEO_DICT_DATE_TIME_L1 = {
-    VIDEO_DATE: LIST_IMAGE_DATE_TIME_L2,
-    TODAY: LIST_DATE_TIME_L2,
-    YESTERDAY: LIST_DATE_TIME_L2,
-    DOWNLOAD_TIME: LIST_DATE_TIME_L2,
-    ORDER_KEY: LIST_VIDEO_DATE_TIME_L1
-}
+VIDEO_DICT_DATE_TIME_L1 = OrderedDict([
+    (VIDEO_DATE, LIST_IMAGE_DATE_TIME_L2),
+    (TODAY, LIST_DATE_TIME_L2),
+    (YESTERDAY, LIST_DATE_TIME_L2),
+    (DOWNLOAD_TIME, LIST_DATE_TIME_L2),
+])
 
-LIST_FILENAME_L1 = [NAME_EXTENSION, NAME, EXTENSION, IMAGE_NUMBER]
+DICT_FILENAME_L1 = OrderedDict([
+    (NAME_EXTENSION, LIST_CASE_L2),
+    (NAME, LIST_CASE_L2),
+    (EXTENSION, LIST_CASE_L2),
+    (IMAGE_NUMBER, LIST_IMAGE_NUMBER_L2),
+])
 
-DICT_FILENAME_L1 = {
-    NAME_EXTENSION: LIST_CASE_L2,
-    NAME: LIST_CASE_L2,
-    EXTENSION: LIST_CASE_L2,
-    IMAGE_NUMBER: LIST_IMAGE_NUMBER_L2,
-    ORDER_KEY: LIST_FILENAME_L1
-}
-
-LIST_VIDEO_FILENAME_L1 = [NAME_EXTENSION, NAME, EXTENSION, VIDEO_NUMBER]
-
-DICT_VIDEO_FILENAME_L1 = {
-    NAME_EXTENSION: LIST_CASE_L2,
-    NAME: LIST_CASE_L2,
-    EXTENSION: LIST_CASE_L2,
-    VIDEO_NUMBER: LIST_IMAGE_NUMBER_L2,
-    ORDER_KEY: LIST_VIDEO_FILENAME_L1
-}
-
-LIST_SUBFOLDER_FILENAME_L1 = [EXTENSION]
+DICT_VIDEO_FILENAME_L1 = OrderedDict([
+    (NAME_EXTENSION, LIST_CASE_L2),
+    (NAME, LIST_CASE_L2),
+    (EXTENSION, LIST_CASE_L2),
+    (VIDEO_NUMBER, LIST_IMAGE_NUMBER_L2),
+])
 
 DICT_SUBFOLDER_FILENAME_L1 = {
     EXTENSION: LIST_CASE_L2,
-    ORDER_KEY: LIST_SUBFOLDER_FILENAME_L1
 }
 
-LIST_METADATA_L1 = [APERTURE, ISO, EXPOSURE_TIME, FOCAL_LENGTH,
-                    CAMERA_MAKE, CAMERA_MODEL,
-                    SHORT_CAMERA_MODEL,
-                    SHORT_CAMERA_MODEL_HYPHEN,
-                    SERIAL_NUMBER,
-                    SHUTTER_COUNT,
-                    FILE_NUMBER,
-                    OWNER_NAME,
-                    ARTIST,
-                    COPYRIGHT]
+DICT_METADATA_L1 = OrderedDict([
+    (APERTURE, None),
+    (ISO, None),
+    (EXPOSURE_TIME, None),
+    (FOCAL_LENGTH, None),
+    (CAMERA_MAKE, LIST_CASE_L2),
+    (CAMERA_MODEL, LIST_CASE_L2),
+    (SHORT_CAMERA_MODEL, LIST_CASE_L2),
+    (SHORT_CAMERA_MODEL_HYPHEN, LIST_CASE_L2),
+    (SERIAL_NUMBER, None),
+    (SHUTTER_COUNT, LIST_SHUTTER_COUNT_L2),
+    (FILE_NUMBER, FILE_NUMBER_L2),
+    (OWNER_NAME, LIST_CASE_L2),
+    (ARTIST, LIST_CASE_L2),
+    (COPYRIGHT, LIST_CASE_L2),
+])
 
-LIST_VIDEO_METADATA_L1 = [CODEC, WIDTH, HEIGHT, LENGTH, FPS]
+DICT_VIDEO_METADATA_L1 = OrderedDict([
+    (CODEC, LIST_CASE_L2),
+    (WIDTH, None),
+    (HEIGHT, None),
+    (LENGTH, None),
+    (FPS, None),
+])
 
-DICT_METADATA_L1 = {
-    APERTURE: None,
-    ISO: None,
-    EXPOSURE_TIME: None,
-    FOCAL_LENGTH: None,
-    CAMERA_MAKE: LIST_CASE_L2,
-    CAMERA_MODEL: LIST_CASE_L2,
-    SHORT_CAMERA_MODEL: LIST_CASE_L2,
-    SHORT_CAMERA_MODEL_HYPHEN: LIST_CASE_L2,
-    SERIAL_NUMBER: None,
-    SHUTTER_COUNT: LIST_SHUTTER_COUNT_L2,
-    FILE_NUMBER: FILE_NUMBER_L2,
-    OWNER_NAME: LIST_CASE_L2,
-    ARTIST: LIST_CASE_L2,
-    COPYRIGHT: LIST_CASE_L2,
-    ORDER_KEY: LIST_METADATA_L1
-}
+DICT_SEQUENCE_L1 = OrderedDict([
+    (DOWNLOAD_SEQ_NUMBER, LIST_SEQUENCE_NUMBERS_L2),
+    (STORED_SEQ_NUMBER, LIST_SEQUENCE_NUMBERS_L2),
+    (SESSION_SEQ_NUMBER, LIST_SEQUENCE_NUMBERS_L2),
+    (SEQUENCE_LETTER, LIST_SEQUENCE_LETTER_L2),
+])
 
-DICT_VIDEO_METADATA_L1 = {
-    CODEC: LIST_CASE_L2,
-    WIDTH: None,
-    HEIGHT: None,
-    LENGTH: None,
-    FPS: None,
-    ORDER_KEY: LIST_VIDEO_METADATA_L1
-}
-
-LIST_SEQUENCE_L1 = [
-    DOWNLOAD_SEQ_NUMBER,
-    STORED_SEQ_NUMBER,
-    SESSION_SEQ_NUMBER,
-    SEQUENCE_LETTER
-]
-
-DICT_SEQUENCE_L1 = {
-    DOWNLOAD_SEQ_NUMBER: LIST_SEQUENCE_NUMBERS_L2,
-    STORED_SEQ_NUMBER: LIST_SEQUENCE_NUMBERS_L2,
-    SESSION_SEQ_NUMBER: LIST_SEQUENCE_NUMBERS_L2,
-    SEQUENCE_LETTER: LIST_SEQUENCE_LETTER_L2,
-    ORDER_KEY: LIST_SEQUENCE_L1
-}
+LIST_SEQUENCE_L1 = list(DICT_SEQUENCE_L1.keys())
 
 # Level 0
 
+DICT_IMAGE_RENAME_L0 = OrderedDict([
+    (DATE_TIME, DICT_DATE_TIME_L1),
+    (TEXT, None),
+    (FILENAME, DICT_FILENAME_L1),
+    (METADATA, DICT_METADATA_L1),
+    (SEQUENCES, DICT_SEQUENCE_L1),
+    (JOB_CODE, None),
+])
 
-LIST_IMAGE_RENAME_L0 = [DATE_TIME, TEXT, FILENAME, METADATA,
-                        SEQUENCES, JOB_CODE]
+DICT_VIDEO_RENAME_L0 = OrderedDict([
+    (DATE_TIME, VIDEO_DICT_DATE_TIME_L1),
+    (TEXT, None),
+    (FILENAME, DICT_VIDEO_FILENAME_L1),
+    (METADATA, DICT_VIDEO_METADATA_L1),
+    (SEQUENCES, DICT_SEQUENCE_L1),
+    (JOB_CODE, None),
+])
 
-LIST_VIDEO_RENAME_L0 = LIST_IMAGE_RENAME_L0
+DICT_SUBFOLDER_L0 = OrderedDict([
+    (DATE_TIME, DICT_DATE_TIME_L1),
+    (TEXT, None),
+    (FILENAME, DICT_SUBFOLDER_FILENAME_L1),
+    (METADATA, DICT_METADATA_L1),
+    (SEPARATOR, None),
+    (JOB_CODE, None),
+])
 
-DICT_IMAGE_RENAME_L0 = {
-    DATE_TIME: DICT_DATE_TIME_L1,
-    TEXT: None,
-    FILENAME: DICT_FILENAME_L1,
-    METADATA: DICT_METADATA_L1,
-    SEQUENCES: DICT_SEQUENCE_L1,
-    JOB_CODE: None,
-    ORDER_KEY: LIST_IMAGE_RENAME_L0
-}
-
-DICT_VIDEO_RENAME_L0 = {
-    DATE_TIME: VIDEO_DICT_DATE_TIME_L1,
-    TEXT: None,
-    FILENAME: DICT_VIDEO_FILENAME_L1,
-    METADATA: DICT_VIDEO_METADATA_L1,
-    SEQUENCES: DICT_SEQUENCE_L1,
-    JOB_CODE: None,
-    ORDER_KEY: LIST_VIDEO_RENAME_L0
-}
-
-LIST_SUBFOLDER_L0 = [DATE_TIME, TEXT, FILENAME, METADATA, JOB_CODE, SEPARATOR]
-
-DICT_SUBFOLDER_L0 = {
-    DATE_TIME: DICT_DATE_TIME_L1,
-    TEXT: None,
-    FILENAME: DICT_SUBFOLDER_FILENAME_L1,
-    METADATA: DICT_METADATA_L1,
-    JOB_CODE: None,
-    SEPARATOR: None,
-    ORDER_KEY: LIST_SUBFOLDER_L0
-}
-
-LIST_VIDEO_SUBFOLDER_L0 = [DATE_TIME, TEXT, FILENAME, METADATA, JOB_CODE,
-                           SEPARATOR]
-
-DICT_VIDEO_SUBFOLDER_L0 = {
-    DATE_TIME: VIDEO_DICT_DATE_TIME_L1,
-    TEXT: None,
-    FILENAME: DICT_SUBFOLDER_FILENAME_L1,
-    METADATA: DICT_VIDEO_METADATA_L1,
-    JOB_CODE: None,
-    SEPARATOR: None,
-    ORDER_KEY: LIST_VIDEO_SUBFOLDER_L0
-}
+DICT_VIDEO_SUBFOLDER_L0 = OrderedDict([
+    (DATE_TIME, VIDEO_DICT_DATE_TIME_L1),
+    (TEXT, None),
+    (FILENAME, DICT_SUBFOLDER_FILENAME_L1),
+    (METADATA, DICT_VIDEO_METADATA_L1),
+    (SEPARATOR, None),
+    (JOB_CODE, None),
+])
 
 # preference elements that require metadata
 # note there is no need to specify lower level elements if a higher level 
@@ -674,8 +625,8 @@ SEQUENCE_ELEMENTS = [
 # as above, there is no need to specify lower level elements if a higher level 
 # element is necessary for them to be present to begin with
 DYNAMIC_NON_METADATA_ELEMENTS = [
-                                    TODAY, YESTERDAY,
-                                    FILENAME] + SEQUENCE_ELEMENTS
+    TODAY, YESTERDAY,
+    FILENAME] + SEQUENCE_ELEMENTS
 
 
 class PrefError(Exception):
@@ -685,16 +636,11 @@ class PrefError(Exception):
         super().__init__()
         self.msg = ''
 
-    def unpackList(self, l):
+    def unpackList(self, l: List[str]):
         """
         Make the preferences presentable to the user
         """
-
-        s = ''
-        for i in l:
-            if i != ORDER_KEY:
-                s += "'" + i + "', "
-        return s[:-2]
+        return ', '.join("'{}'".format(i) for i in l)
 
     def __str__(self):
         return self.msg
@@ -780,13 +726,22 @@ def _check_pref_valid(pref_defn, prefs):
                     raise PrefValueInvalidError((value, next_pref_defn))
                 return True
     else:
-        raise PrefKeyError((key, pref_defn[ORDER_KEY]))
+        raise PrefKeyError((key, list(pref_defn.keys())))
 
 
-def filter_subfolder_prefs(pref_list):
+def filter_subfolder_prefs(pref_list: List[str],
+                           pref_colors: Optional[List[str]]=None) \
+        -> Tuple[bool, List[str], Optional[List[str]]]:
     """
-    Filters out extraneous preference choices
+    Filters out extraneous preference choices.
+
+    :param pref_list: the list of user specified preferences
+    :param pref_colors: optional list of colors associated with displaying the
+     generated sample name while editing the preferences
+    :return: bool indicating whether list changed, the pref list, and optionally the
+     list of colors
     """
+
     prefs_changed = False
     continue_check = True
     while continue_check and pref_list:
@@ -794,11 +749,15 @@ def filter_subfolder_prefs(pref_list):
         if pref_list[0] == SEPARATOR:
             # subfolder preferences should not start with a /
             pref_list = pref_list[3:]
+            if pref_colors is not None:
+                pref_colors = pref_colors[1:]
             prefs_changed = True
             continue_check = True
         elif pref_list[-3] == SEPARATOR:
             # subfolder preferences should not end with a /
             pref_list = pref_list[:-3]
+            if pref_colors is not None:
+                pref_colors = pref_colors[:-1]
             continue_check = True
             prefs_changed = True
         else:
@@ -810,6 +769,8 @@ def filter_subfolder_prefs(pref_list):
                     # note we are messing with the contents of the pref list,
                     # must exit loop and try again
                     pref_list = pref_list[:i] + pref_list[i + 3:]
+                    if pref_colors is not None:
+                        pref_colors = pref_colors[:i//3] + pref_colors[i//3 + 1:]
                     break
 
-    return (prefs_changed, pref_list)
+    return (prefs_changed, pref_list, pref_colors)

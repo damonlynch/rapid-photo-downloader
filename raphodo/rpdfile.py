@@ -132,15 +132,20 @@ def get_sort_priority(extension: FileExtension, file_type: FileType) -> FileSort
         return FileSortPriority.high
 
 
-def get_rpdfile(name: str, path: str, size: int, prev_full_name: str,
+def get_rpdfile(name: str,
+                path: str,
+                size: int,
+                prev_full_name: str,
                 prev_datetime: datetime,
                 device_timestamp_type: DeviceTimestampTZ,
                 mtime: float,
                 mdatatime: float,
                 thumbnail_cache_status: ThumbnailCacheDiskStatus,
-                thm_full_name: str, audio_file_full_name: str,
+                thm_full_name: Optional[str],
+                audio_file_full_name: str,
                 xmp_file_full_name: str,
-                scan_id: bytes, file_type: FileType,
+                scan_id: bytes,
+                file_type: FileType,
                 from_camera: bool,
                 camera_model: Optional[str],
                 camera_port: Optional[str],
@@ -324,16 +329,18 @@ class RPDFile:
     title = ''
     title_capitalized = ''
 
-    def __init__(self, name: str, path: str, size: int,
-                 prev_full_name: str,
-                 prev_datetime: datetime,
+    def __init__(self, name: str,
+                 path: str,
+                 size: int,
+                 prev_full_name: Optional[str],
+                 prev_datetime: Optional[datetime],
                  device_timestamp_type: DeviceTimestampTZ,
                  mtime: float,
                  mdatatime: float,
                  thumbnail_cache_status: ThumbnailCacheDiskStatus,
-                 thm_full_name: str,
-                 audio_file_full_name: str,
-                 xmp_file_full_name: str,
+                 thm_full_name: Optional[str],
+                 audio_file_full_name: Optional[str],
+                 xmp_file_full_name: Optional[str],
                  scan_id: bytes,
                  from_camera: bool,
                  never_read_mdatatime: bool,
@@ -838,32 +845,46 @@ class Video(RPDFile):
         return True
 
 
-# class SamplePhoto(Photo):
-#     def __init__(self, sample_name='IMG_0524.CR2', sequences=None):
-#         Photo.__init__(self, name=sample_name,
-#                        display_name=sample_name,
-#                        path='/media/EOS_DIGITAL/DCIM/100EOS5D',
-#                        size=23516764,
-#                        file_system_modification_time=time.time(),
-#                        scan_pid=2033,
-#                        file_id='9873afe',
-#                        thm_full_name=None,
-#                        audio_file_full_name=None)
-#         self.sequences = sequences
-#         self.metadata = metadataphoto.DummyMetaData()
-#         self.download_start_time = datetime.now()
-#
-# class SampleVideo(Video):
-#     def __init__(self, sample_name='MVI_1379.MOV', sequences=None):
-#         Video.__init__(self, name=sample_name,
-#                        display_name=sample_name,
-#                        path='/media/EOS_DIGITAL/DCIM/100EOS5D',
-#                        size=823513764,
-#                        file_system_modification_time=time.time(),
-#                        scan_pid=2033,
-#                        file_id='9873qrsfe',
-#                        thm_full_name=None,
-#                        audio_file_full_name=None)
-#         self.sequences = sequences
-#         self.metadata = metadatavideo.DummyMetaData(sample_name, None)
-#         self.download_start_time = datetime.now()
+class SamplePhoto(Photo):
+    def __init__(self, sample_name='IMG_0524.CR2', sequences=None):
+        mtime = time.time()
+        super().__init__(name=sample_name,
+                         path='/media/EOS_DIGITAL/DCIM/100EOS5D',
+                         size=23516764,
+                         prev_full_name=None,
+                         prev_datetime=None,
+                         device_timestamp_type=DeviceTimestampTZ.is_local,
+                         mtime=mtime,
+                         mdatatime=mtime,
+                         thumbnail_cache_status=ThumbnailCacheDiskStatus.not_found,
+                         thm_full_name=None,
+                         audio_file_full_name=None,
+                         xmp_file_full_name=None,
+                         scan_id=b'0',
+                         from_camera=False,
+                         never_read_mdatatime=False)
+        self.sequences = sequences
+        self.metadata = metadataphoto.DummyMetaData()
+        self.download_start_time = datetime.now()
+
+class SampleVideo(Video):
+    def __init__(self, sample_name='MVI_1379.MOV', sequences=None):
+        mtime = time.time()
+        Video.__init__(self, name=sample_name,
+                       path='/media/EOS_DIGITAL/DCIM/100EOS5D',
+                       size=823513764,
+                       prev_full_name=None,
+                       prev_datetime=None,
+                       device_timestamp_type=DeviceTimestampTZ.is_local,
+                       mtime=mtime,
+                       mdatatime=mtime,
+                       thumbnail_cache_status=ThumbnailCacheDiskStatus.not_found,
+                       thm_full_name=None,
+                       audio_file_full_name=None,
+                       xmp_file_full_name=None,
+                       scan_id=b'0',
+                       from_camera=False,
+                       never_read_mdatatime=False)
+        self.sequences = sequences
+        self.metadata = metadatavideo.DummyMetaData(sample_name, None)
+        self.download_start_time = datetime.now()

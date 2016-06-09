@@ -27,13 +27,13 @@ import datetime
 import string
 from collections import namedtuple
 import logging
-from typing import Sequence, Optional, List
+from typing import Sequence, Optional, List, Union
 
 from gettext import gettext as _
 
 from raphodo.preferences import DownloadsTodayTracker
 import raphodo.problemnotification as pn
-from raphodo.rpdfile import RPDFile
+from raphodo.rpdfile import RPDFile, Photo, Video
 
 from raphodo.generatenameconfig import *
 
@@ -391,19 +391,18 @@ class PhotoName:
                                       _(self.L0))
             return ''
 
+    def filter_strip_characters(self, name: str) -> str:
+        """
+        Filter out unwanted chacters from file and subfolder names
+        :param name: full name or name component
+        :return: filtered name
+        """
 
-    def generate_name(self, rpd_file: RPDFile) -> str:
-        self.rpd_file = rpd_file
-
-        name = ''
-
-        for self.L0, self.L1, self.L2 in self._get_values_from_pref_list():
-            v = self._get_component()
-            if v:
-                name += v
-
-        # remove any null characters - they are bad news in filenames
+        # remove any null characters - they are bad news in file names
         name = name.replace('\x00', '')
+
+        # the user could potentially copy and paste a block of text with a carriage / line return
+        name = name.replace('\n', '')
 
         if self.rpd_file.strip_characters:
             for c in r'\:*?"<>|':
@@ -411,8 +410,40 @@ class PhotoName:
 
         if self.strip_forward_slash:
             name = name.replace('/', '')
+        return name
 
-        name = name.strip()
+    def generate_name(self, rpd_file: RPDFile,
+                      parts: Optional[bool]=False) -> Union[str, List[str]]:
+        """
+        Generate subfolder name(s), and photo/video filenames
+
+        :param rpd_file: rpd file for the name to generate
+        :param parts: if True, return string components
+        :return: complete string or list of name components
+        """
+
+        self.rpd_file = rpd_file
+
+        if parts:
+            name = []
+        else:
+            name = ''
+
+        for self.L0, self.L1, self.L2 in self._get_values_from_pref_list():
+            v = self._get_component()
+            if parts:
+                name.append(self.filter_strip_characters(v))
+            elif v:
+                name += v
+
+        if not parts:
+            name = self.filter_strip_characters(name)
+            # strip any white space from the beginning and end of the name
+            name = name.strip()
+        elif name:
+            # likewise, strip any white space from the beginning and end of the name
+            name[0] = name[0].lstrip()
+            name[-1] = name[-1].rstrip()
 
         return name
 
@@ -458,9 +489,31 @@ class PhotoSubfolder(PhotoName):
         self.L1_date_check = IMAGE_DATE  # used in _get_date_component()
         self.component = pn.SUBFOLDER_COMPONENT  # used in error reporting
 
-    def generate_name(self, rpd_file) -> str:
+    def generate_name(self, rpd_file: Union[Photo, Video],
+                      parts: Optional[bool]=False) -> Union[str, List[str]]:
+        """
+        Generate subfolder name(s)
 
-        subfolders = PhotoName.generate_name(self, rpd_file)
+        :param rpd_file: rpd file for the name to generate
+        :param parts: if True, return string components
+        :return: complete string (incl. os.sep if more than one subfolder) or
+         list of subfolder components
+        """
+
+        subfolders = PhotoName.generate_name(self, rpd_file, parts)
+
+        if not parts:
+            subfolders = self.filter_subfolder_characters(subfolders)
+
+        return subfolders
+
+    def filter_subfolder_characters(self, subfolders: str) -> str:
+        """
+        Remove unwanted characters specific to the generation of subfolders
+        :param subfolders: the complete string containing the subfolders
+         (not component parts)
+        :return: filtered string
+        """
 
         # subfolder value must never start with a separator, or else any
         # os.path.join function call will fail to join a subfolder to its
@@ -472,9 +525,7 @@ class PhotoSubfolder(PhotoName):
         # remove any spaces before and after a directory name
         if subfolders and self.rpd_file.strip_characters:
             subfolders = self.strip_extraneous_white_space.sub(os.sep, subfolders)
-
         return subfolders
-
 
 class VideoSubfolder(PhotoSubfolder):
     """

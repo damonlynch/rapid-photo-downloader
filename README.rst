@@ -34,7 +34,7 @@ A helper command-line program accompanying Rapid Photo Downloader is
 ``analyze_pv_structure``, which analyzes photos and videos to help determine
 how much of a file needs to be read to extract its metadata and thumbnail.
 
-The version of the program described here, 0.9.0a2, is alpha quality software,
+The version of the program described here, 0.9.0a4, is alpha quality software,
 meaning that not all its features have been written. The main missing features
 are the components of the graphical user interface that are used to configure
 file renaming, download subfolder generation, backups, and miscellaneous other
@@ -74,7 +74,7 @@ Python 3's installation tools up-to-date (be mindful of the mild caution below i
 
 To install Rapid Photo Downloader, run as your regular user (i.e. *without* sudo):
 
-``./install.py rapid-photo-downloader-0.9.0a2.tar.gz``
+``./install.py rapid-photo-downloader-0.9.0a4.tar.gz``
 
 **Caution:** *untarring the archive, building it and installing it using* ``sudo python3 setup.py
 install`` *is* **not** *supported, and* **not** *recommended.*
@@ -115,6 +115,7 @@ Rapid Photo Downloader requires:
  - EasyGUI_
  - Colour_
  - pymediainfo_
+ - SortedContainers_
  - rawkit_: renders thumbnails from RAW images from which a thumbnail cannot be extracted using
    libraw_, which is especially useful when downloading DNG files from Android phones or working
    with old RAW formats.
@@ -180,7 +181,7 @@ The following command will install all required and optional Python modules not 
 installed on your system, with the exception of those specified above in
 `satisfying software requirements`_:
 
-``./install.py rapid-photo-downloader-0.9.0a2.tar.gz``
+``./install.py rapid-photo-downloader-0.9.0a4.tar.gz``
 
 Substitute the name of the correct compressed tar file if necessary, and run it as your regular
 user (i.e. *without* sudo).
@@ -227,3 +228,4 @@ If you installed the man pages, they are found in ``/usr/local/share/man/man1``.
 .. _`Qt5 plugin for reading TIFF images`: http://doc.qt.io/qt-5/qtimageformats-index.html
 .. _pymediainfo: https://github.com/sbraz/pymediainfo
 .. _Qt: https://www.qt.io/
+.. _SortedContainers: http://www.grantjenks.com/docs/sortedcontainers/

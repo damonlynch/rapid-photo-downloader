@@ -25,7 +25,7 @@ import logging
 import re
 import os
 import datetime
-from typing import List, Tuple
+from typing import List, Tuple, Optional
 
 from PyQt5.QtCore import QSettings
 
@@ -535,9 +535,18 @@ class Preferences:
                 return True
         return False
 
-    def most_recent_job_code(self) -> str:
+    def most_recent_job_code(self, missing: Optional[str]=None) -> str:
+        """
+        Get the most recent Job Code used (which is assumed to be at the top).
+        :param missing: If there is no Job Code, and return this default value
+        :return: most recent job code, or missing, or if not found, ''
+        """
+
         if len(self.job_codes) > 0:
-            return self.job_codes[0]
+            value = self.job_codes[0]
+            return value or missing or ''
+        elif missing is not None:
+            return missing
         else:
             return ''
 

@@ -160,7 +160,7 @@ def check_package_import_requirements() -> None:
              'gir1.2-udisks-2.0 gir1.2-notify-0.7 gir1.2-glib-2.0 gir1.2-gstreamer-1.0 '\
              'libgphoto2-dev python3-arrow python3-psutil '\
              'qt5-image-formats-plugins python3-zmq exiv2 python3-colorlog libraw-bin ' \
-             'python3-easygui libmediainfo0v5'.split()
+             'python3-easygui libmediainfo0v5 python3-sortedcontainers'.split()
 
         for package in packages:
             try:

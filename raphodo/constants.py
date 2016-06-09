@@ -256,6 +256,13 @@ class Align(Enum):
     bottom = 2
 
 
+class NameGenerationType(Enum):
+    photo_name = 1
+    video_name = 2
+    photo_subfolder = 3
+    video_subfolder = 4
+
+
 class CustomColors(Enum):
     color1 = '#7a9c38'  # green
     color2 = '#cb493f'  # red
@@ -298,6 +305,14 @@ def fileTypeColor(file_type: FileType) -> QColor:
     except KeyError:
         return QColor(CustomColors.color3.value)
 
+
+# Position of preference values in file renaming and subfolder generation editor:
+class PrefPosition(Enum):
+    on_left = 1
+    at = 2
+    on_left_and_at = 3
+    positioned_in = 4
+    not_here = 5
 
 # Values in minutes:
 proximity_time_steps = [5, 10, 15, 30, 45, 60, 90, 120, 180, 240, 480, 960, 1440]

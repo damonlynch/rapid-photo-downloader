@@ -441,7 +441,7 @@ class MetaData(GExiv2.Metadata):
 
 class DummyMetaData(MetaData):
     """
-    Class which gives metadata values for an imaginary image.
+    Class which gives metadata values for an imaginary photo.
 
     Useful for displaying in preference examples etc. when no image is ready to
     be downloaded.
@@ -496,6 +496,9 @@ class DummyMetaData(MetaData):
 
     def orientation(self, missing=''):
         return 1
+
+    def file_number(self, missing=''):
+        return '428'
 
 
 if __name__ == '__main__':

@@ -15,3 +15,5 @@ scandir>=1.2; python_version < '3.5'
 easygui
 colour
 pymediainfo>=2.1.4
+sortedcontainers
+

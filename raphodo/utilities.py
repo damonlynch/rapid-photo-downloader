@@ -567,3 +567,32 @@ def pref_bool_from_gconftool2_string(value: str) -> bool:
         return False
     raise ValueError
 
+def remove_last_char_from_list_str(items: List[str]) -> List[str]:
+    r"""
+    Remove the last character from a list of strings, modifying the list in place,
+    such that the last item is never empty
+
+    :param items: the list to modify
+    :return: in place copy
+
+    >>> remove_last_char_from_list_str([' abc', 'def', 'ghi'])
+    [' abc', 'def', 'gh']
+    >>> remove_last_char_from_list_str([' abc', 'def', 'gh'] )
+    [' abc', 'def', 'g']
+    >>> remove_last_char_from_list_str([' abc', 'def', 'g'] )
+    [' abc', 'def']
+    >>> remove_last_char_from_list_str([' a'])
+    [' ']
+    >>> remove_last_char_from_list_str([' '])
+    []
+    >>> remove_last_char_from_list_str([])
+    []
+    """
+    if items:
+        if not items[-1]:
+            items = items[:-1]
+        else:
+            items[-1] = items[-1][:-1]
+            if items and not items[-1]:
+                items = items[:-1]
+    return items

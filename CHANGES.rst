@@ -4,6 +4,8 @@ Changelog for Rapid Photo Downloader
 0.9.0a4 (2016-06-xx)
 --------------------
 
+ - Added photo and video subfolder generation and file renaming configuration
+
  - Fixed bug where input/output exception not being handled when probing mounts
 
  - Fixed bug where crashed on startup when no desktop environment variable was set.
