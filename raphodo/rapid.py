@@ -51,7 +51,9 @@ import shlex
 import subprocess
 from urllib.request import pathname2url
 
+import gettext
 from gettext import gettext as _
+
 
 import gi
 gi.require_version('Notify', '0.7')
@@ -151,6 +153,8 @@ from raphodo.aboutdialog import AboutDialog
 from raphodo.jobcode import JobCode
 import raphodo.constants as constants
 from raphodo.menubutton import MenuButton
+import raphodo
+
 
 BackupMissing = namedtuple('BackupMissing', 'photo, video')
 
@@ -734,8 +738,6 @@ class RapidWindow(QMainWindow):
             logging.info("Auto download upon device insertion is on")
 
         self.prefs.verify_file = False
-        # self.prefs.photo_rename = photo_rename_complex
-
 
         # self.prefs.synchronize_raw_jpg = False
 
@@ -838,6 +840,9 @@ class RapidWindow(QMainWindow):
         except:
             logging.error("Notification intialization problem")
             self.have_libnotify = False
+
+
+        logging.debug("Locale directory: %s", raphodo.localedir)
 
         self.file_manager = get_default_file_manager()
         if self.file_manager:

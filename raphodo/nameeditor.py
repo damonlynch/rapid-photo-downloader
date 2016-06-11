@@ -561,21 +561,22 @@ class PrefDialog(QDialog):
         pref_colors = {title: color.value for title, color in zip(titles, CustomColors)}
 
         for title in titles:
+            title_i18n = _(title)
             color = pref_colors[title]
             level1 = pref_defn[title]
-            gb = QGroupBox(_(title))
+            gb = QGroupBox(title_i18n)
             gb.setSizePolicy(gbSizePolicy)
             areaLayout.addWidget(gb)
             gLayout = QGridLayout()
             gb.setLayout(gLayout)
             if level1 is None:
                 assert title == JOB_CODE
-                widget1 = QLabel(' ' + _(title))
+                widget1 = QLabel(' ' + title_i18n)
                 widget2 = self.makeInsertButton()
                 self.widget_mapper[title] = widget1
                 self.mapper.setMapping(widget2, title)
-                self.pref_mapper[(title, '', '')] = title
-                self.pref_color['<{}>'.format(title)] = color
+                self.pref_mapper[(title, '', '')] = title_i18n
+                self.pref_color['<{}>'.format(title_i18n)] = color
                 gLayout.addWidget(self.makeColorCodeLabel(color), 0, 0)
                 gLayout.addWidget(widget1, 0, 1)
                 gLayout.addWidget(widget2, 0, 2)
@@ -583,15 +584,19 @@ class PrefDialog(QDialog):
                 elements = []
                 data = []
                 for element in level1:
+                    element_i18n = _(element)
                     level2 = level1[element]
                     if level2 is None:
-                        elements.append(element)
+                        elements.append(element_i18n)
                         data.append([METADATA, element, ''])
-                        self.pref_mapper[(METADATA, element, '')] = element
-                        self.pref_color['<{}>'.format(element)] = color
+                        self.pref_mapper[(METADATA, element, '')] = element_i18n
+                        self.pref_color['<{}>'.format(element_i18n)] = color
                     else:
                         for e in level2:
-                            item = '{choice} ({variant})'.format(choice=element, variant=e)
+                            e_i18n = _(e)
+                            # Translators: appears in a combobox, e.g. Image Date (YYYY)
+                            item = _('{choice} ({variant})').format(choice=element_i18n,
+                                                                    variant=e_i18n)
                             elements.append(item)
                             data.append([METADATA, element, e])
                             self.pref_mapper[(METADATA, element, e)] = item
@@ -610,7 +615,9 @@ class PrefDialog(QDialog):
             else:
                 for row, level1 in enumerate(pref_defn[title]):
                     widget1 = QComboBox()
-                    items = ('{choice} ({variant})'.format(choice=level1, variant=element)
+                    level1_i18n = _(level1)
+                    items = (_('{choice} ({variant})').format(
+                             choice=level1_i18n, variant=_(element))
                              for element in pref_defn[title][level1])
                     data = ([title, level1, element] for element in pref_defn[title][level1])
                     for item, data_item in zip(items, data):
@@ -672,7 +679,7 @@ class PrefDialog(QDialog):
         """
 
         if widget == JOB_CODE:
-            pref_value = JOB_CODE
+            pref_value = _(JOB_CODE)
         else:
             combobox = self.widget_mapper[widget]  # type: QComboBox
             pref_value = combobox.currentText()
