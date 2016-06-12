@@ -111,8 +111,7 @@ from raphodo.devices import (Device, DeviceCollection, BackupDevice,
 from raphodo.preferences import (Preferences, ScanPreferences)
 from raphodo.constants import (BackupLocationType, DeviceType, ErrorType,
                                FileType, DownloadStatus, RenameAndMoveStatus,
-                               photo_rename_complex, ApplicationState, photo_rename_simple,
-                               video_rename_simple,
+                               ApplicationState,
                                CameraErrorCode, TemporalProximityState,
                                ThumbnailBackgroundName, Desktop,
                                DeviceState, Sort, Show, Roles, DestinationDisplayType,
@@ -652,13 +651,13 @@ class RapidWindow(QMainWindow):
 
         if photo_rename is not None:
             if photo_rename:
-                self.prefs.photo_rename = photo_rename_simple
+                self.prefs.photo_rename = PHOTO_RENAME_SIMPLE
             else:
                 self.prefs.photo_rename = self.prefs.rename_defaults['photo_rename']
 
         if video_rename is not None:
             if video_rename:
-                self.prefs.video_rename = video_rename_simple
+                self.prefs.video_rename = VIDEO_RENAME_SIMPLE
             else:
                 self.prefs.video_rename = self.prefs.rename_defaults['video_rename']
 
@@ -741,7 +740,7 @@ class RapidWindow(QMainWindow):
 
         # self.prefs.synchronize_raw_jpg = False
 
-        # self.prefs.photo_rename = job_code_rename_test
+        # self.prefs.photo_rename = JOB_CODE_RENAME_TEST
 
         # Don't call processEvents() after initiating 0MQ, as it can
         # cause "Interrupted system call" errors
@@ -760,6 +759,7 @@ class RapidWindow(QMainWindow):
                 if pv < rv:
                     logging.debug("Version upgrade detected, from %s to %s",
                                   previous_version, __about__.__version__)
+                    self.prefs.upgrade_prefs(pv)
                 elif pv > rv:
                     logging.debug("Version downgrade detected, from %s to %s",
                                   __about__.__version__, previous_version)
@@ -2612,6 +2612,10 @@ class RapidWindow(QMainWindow):
         self.download_tracker.set_download_count(scan_id, download_count)
         rpd_file.download_start_time = self.download_start_datetime
         rpd_file.job_code = self.job_code.job_code
+        if rpd_file.file_type == FileType.photo:
+            rpd_file.generate_extension_case = self.prefs.photo_extension
+        else:
+            rpd_file.generate_extension_case = self.prefs.video_extension
         self.renamemq.rename_file(RenameAndMoveFileData(rpd_file=rpd_file,
                                      download_count=download_count,
                                      download_succeeded=download_succeeded))
@@ -4922,8 +4926,20 @@ def import_prefs() -> None:
                             prefs.conflict_resolution = constants.ConflictResolution.add_identifier
                     else:
                         new_key = key_triplet[1]
-                        print("Setting", new_key, "to", new_value)
-                        setattr(prefs, new_key, new_value)
+                        if new_key in ('photo_rename', 'video_rename'):
+                            pref_list, case = upgrade_pre090a4_rename_pref(new_value)
+                            print("Setting", new_key, "to", pref_list)
+                            setattr(prefs, new_key, pref_list)
+                            if case is not None:
+                                if new_key == 'photo_rename':
+                                    ext_key = 'photo_extension'
+                                else:
+                                    ext_key = 'video_extension'
+                                print("Setting", ext_key, "to", case)
+                                setattr(prefs, ext_key, case)
+                        else:
+                            print("Setting", new_key, "to", new_value)
+                            setattr(prefs, new_key, new_value)
 
     key = 'stored_sequence_no'
     with raphodo.utilities.stdchannel_redirected(sys.stderr, os.devnull):

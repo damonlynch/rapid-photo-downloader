@@ -40,8 +40,8 @@ from sortedcontainers import SortedList
 
 from raphodo.generatenameconfig import *
 import raphodo.generatename as gn
-from raphodo.constants import photo_rename_complex, CustomColors, PrefPosition, NameGenerationType
-from raphodo.rpdfile import SamplePhoto, SampleVideo, RPDFile, Photo, Video
+from raphodo.constants import CustomColors, PrefPosition, NameGenerationType
+from raphodo.rpdfile import SamplePhoto, SampleVideo, RPDFile, Photo, Video, FileType
 from raphodo.preferences import DownloadsTodayTracker, Preferences
 import raphodo.exiftool as exiftool
 from raphodo.utilities import remove_last_char_from_list_str
@@ -461,6 +461,10 @@ class PrefDialog(QDialog):
 
         self.sample_rpd_file.job_code = self.prefs.most_recent_job_code(missing=_('Job Code'))
         self.sample_rpd_file.strip_characters = self.prefs.strip_characters
+        if self.sample_rpd_file.file_type == FileType.photo:
+            self.sample_rpd_file.generate_extension_case = self.prefs.photo_extension
+        else:
+            self.sample_rpd_file.generate_extension_case = self.prefs.video_extension
 
         # Setup widgets and helper values
 
@@ -559,6 +563,7 @@ class PrefDialog(QDialog):
 
         titles = [title for title in pref_defn if title not in (TEXT, SEPARATOR)]
         pref_colors = {title: color.value for title, color in zip(titles, CustomColors)}
+        self.filename_pref_color = pref_colors[FILENAME]
 
         for title in titles:
             title_i18n = _(title)
@@ -707,6 +712,9 @@ class PrefDialog(QDialog):
         user_pref_list = self.editor.user_pref_list
         self.user_pref_colors = self.editor.user_pref_colors
 
+        if not self.is_subfolder:
+            self.user_pref_colors.append(self.filename_pref_color)
+
         self.messageWidget.setCurrentIndex(0)
 
         if self.is_subfolder:
@@ -801,10 +809,10 @@ if __name__ == '__main__':
 
     with exiftool.ExifTool() as exiftool_process:
 
-        # prefDialog = PrefDialog(DICT_IMAGE_RENAME_L0, photo_rename_complex,
-        #                         NameGenerationType.photo_name, prefs, exiftool_process)
-        prefDialog = PrefDialog(DICT_SUBFOLDER_L0, PHOTO_SUBFOLDER_MENU_DEFAULTS_CONV[2],
-                                NameGenerationType.photo_subfolder, prefs, exiftool_process)
+        prefDialog = PrefDialog(DICT_IMAGE_RENAME_L0, PHOTO_RENAME_COMPLEX,
+                                NameGenerationType.photo_name, prefs, exiftool_process)
+        # prefDialog = PrefDialog(DICT_SUBFOLDER_L0, PHOTO_SUBFOLDER_MENU_DEFAULTS_CONV[2],
+        #                         NameGenerationType.photo_subfolder, prefs, exiftool_process)
         prefDialog.show()
         prefDialog.setWidgetSizes()
         app.exec_()

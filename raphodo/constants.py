@@ -429,24 +429,6 @@ thumbnail_offset = dict(
     tod=500000,
 )
 
-photo_rename_complex = ['Date time', 'Image date', 'YYYYMMDD', 'Text', '-', '',
-                     'Date time', 'Image date', 'HHMM', 'Text', '-', '', 'Sequences',
-                     'Downloads today', 'One digit', 'Text', '-iso', '',
-                     'Metadata', 'ISO', '', 'Text', '-f', '', 'Metadata',
-                     'Aperture', '', 'Text', '-', '', 'Metadata', 'Focal length', '',
-                     'Text', 'mm-', '', 'Metadata', 'Exposure time', '',
-                     'Filename', 'Extension', 'lowercase']
-
-photo_rename_simple = ['Date time', 'Image date', 'YYYYMMDD', 'Text', '-', '',
-                            'Date time', 'Image date', 'HHMM', 'Text', '-', '', 'Sequences',
-                            'Downloads today', 'One digit', 'Filename', 'Extension', 'lowercase']
-
-video_rename_simple = [x if x!= 'Image date' else 'Video date' for x in photo_rename_simple]
-
-job_code_rename_test = ['Job code', '', '', 'Sequences',
-                        'Downloads today', 'One digit', 'Filename', 'Extension',
-                        'lowercase']
-
 
 class RememberThisMessage(Enum):
     remember_choice = 1

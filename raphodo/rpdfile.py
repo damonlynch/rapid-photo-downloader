@@ -527,8 +527,10 @@ class RPDFile:
 
         self.metadata = None # type: Optional[Union[metadataphoto.MetaData, metadatavideo.MetaData]]
 
-        self.subfolder_pref_list = []
-        self.name_pref_list = []
+        # User preference values used for name generation
+        self.subfolder_pref_list = []  # type: List[str]
+        self.name_pref_list = []  # type: List[str]
+        self.generate_extension_case = ''  # type: str
 
         self.modified_via_daemon_process = False
 

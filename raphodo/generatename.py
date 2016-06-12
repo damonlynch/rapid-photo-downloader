@@ -62,6 +62,7 @@ class PhotoName:
         # Some of the next values are overwritten in derived classes
         self.strip_initial_period_from_extension = False
         self.strip_forward_slash = True
+        self.add_extension = True
         self.L1_date_check = IMAGE_DATE  # used in _get_date_component()
         self.component = pn.FILENAME_COMPONENT  # used in error reporting
 
@@ -445,6 +446,18 @@ class PhotoName:
             name[0] = name[0].lstrip()
             name[-1] = name[-1].rstrip()
 
+        if self.add_extension:
+            case = rpd_file.generate_extension_case
+            extension = os.path.splitext(rpd_file.name)[1]
+            if case == UPPERCASE:
+                extension = extension.upper()
+            elif case == LOWERCASE:
+                extension = extension.lower()
+            if parts:
+                name.append(extension)
+            else:
+                name += extension
+
         return name
 
 
@@ -474,7 +487,7 @@ class PhotoSubfolder(PhotoName):
         or a job code or sequence number becomes necessary
         """
 
-        # No need to call __init__ of parent class, as all values will be
+        # No need to call __init__ of parent class, because all values will be
         # overwritten
 
         if no_metadata:
@@ -486,6 +499,7 @@ class PhotoSubfolder(PhotoName):
         self.strip_extraneous_white_space = re.compile(r'\s*%s\s*' % os.sep)
         self.strip_initial_period_from_extension = True
         self.strip_forward_slash = False
+        self.add_extension = False
         self.L1_date_check = IMAGE_DATE  # used in _get_date_component()
         self.component = pn.SUBFOLDER_COMPONENT  # used in error reporting
 

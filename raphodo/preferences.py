@@ -24,6 +24,7 @@ __copyright__ = "Copyright 2011-2016, Damon Lynch"
 import logging
 import re
 import os
+import pkg_resources
 import datetime
 from typing import List, Tuple, Optional
 
@@ -258,8 +259,11 @@ class Preferences:
                            video_download_folder=xdg_videos_directory(),
                            photo_subfolder=DEFAULT_SUBFOLDER_PREFS,
                            video_subfolder=DEFAULT_VIDEO_SUBFOLDER_PREFS,
-                           photo_rename=[FILENAME, NAME_EXTENSION, ORIGINAL_CASE],
-                           video_rename=[FILENAME, NAME_EXTENSION, ORIGINAL_CASE],
+                           photo_rename=[FILENAME, NAME, ORIGINAL_CASE],
+                           video_rename=[FILENAME, NAME, ORIGINAL_CASE],
+                           # following two extension values introduced in 0.9.0a4:
+                           photo_extension=LOWERCASE,
+                           video_extension=LOWERCASE,
                            day_start="03:00",
                            downloads_today=[today(), '0'],
                            stored_sequence_no=0,
@@ -580,3 +584,26 @@ class Preferences:
         """
         self.settings.clear()
         self.program_version = raphodo.__about__.__version__
+
+    def upgrade_prefs(self, previous_version) -> None:
+        """
+        Upgrade the user's preferences if needed.
+
+        :param previous_version: previous version as returned by pkg_resources.parse_version
+        :return:
+        """
+
+        photo_video_rename_change = pkg_resources.parse_version('0.9.0a4')
+        if previous_version < photo_video_rename_change:
+            for key in ('photo_rename', 'video_rename'):
+                pref_list, case = upgrade_pre090a4_rename_pref(self[key])
+                if pref_list != self[key]:
+                    self[key] = pref_list
+                    logging.info("Upgraded %s preference value", key.replace('_', ' '))
+                if case is not None:
+                    if key == 'photo_rename':
+                        self.photo_extension = case
+                    else:
+                        self.video_extension = case
+
+

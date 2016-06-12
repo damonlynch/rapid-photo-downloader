@@ -55,11 +55,16 @@ VIDEO_DATE = 'Video date'
 DOWNLOAD_TIME = 'Download time'
 
 # File name 
-NAME_EXTENSION = 'Name + extension'
 NAME = 'Name'
-EXTENSION = 'Extension'
 IMAGE_NUMBER = 'Image number'
 VIDEO_NUMBER = 'Video number'
+
+# pre 0.9.0a4 File name values: NAME_EXTENSION, EXTENSION
+NAME_EXTENSION = 'Name + extension'
+
+# however extension is used for subfolder generation in all versions
+EXTENSION = 'Extension'
+
 
 # Metadata
 APERTURE = 'Aperture'
@@ -191,9 +196,6 @@ class i18TranslateMeThanks:
         # Translators: Download time is the time and date that the download started (when the
         # user clicked the Download button)
         _('Download time')
-        # Translators: for an explanation of what this means,
-        # see http://damonlynch.net/rapid/documentation/index.html#renamefilename
-        _('Name + extension')
         # Translators: for an explanation of what this means,
         # see http://damonlynch.net/rapid/documentation/index.html#renamefilename
         _('Name')
@@ -519,18 +521,22 @@ VIDEO_DICT_DATE_TIME_L1 = OrderedDict([
 ])
 
 DICT_FILENAME_L1 = OrderedDict([
-    (NAME_EXTENSION, LIST_CASE_L2),
     (NAME, LIST_CASE_L2),
-    (EXTENSION, LIST_CASE_L2),
     (IMAGE_NUMBER, LIST_IMAGE_NUMBER_L2),
 ])
 
+# pre 0.9.0a4 values for DICT_FILENAME_L1:
+#(NAME_EXTENSION, LIST_CASE_L2),
+# (EXTENSION, LIST_CASE_L2),
+
 DICT_VIDEO_FILENAME_L1 = OrderedDict([
-    (NAME_EXTENSION, LIST_CASE_L2),
     (NAME, LIST_CASE_L2),
-    (EXTENSION, LIST_CASE_L2),
     (VIDEO_NUMBER, LIST_IMAGE_NUMBER_L2),
 ])
+
+# pre 0.9.0a4 values for DICT_VIDEO_FILENAME_L1:
+# (NAME_EXTENSION, LIST_CASE_L2),
+# (EXTENSION, LIST_CASE_L2),
 
 DICT_SUBFOLDER_FILENAME_L1 = {
     EXTENSION: LIST_CASE_L2,
@@ -627,6 +633,70 @@ SEQUENCE_ELEMENTS = [
 DYNAMIC_NON_METADATA_ELEMENTS = [
     TODAY, YESTERDAY,
     FILENAME] + SEQUENCE_ELEMENTS
+
+PHOTO_RENAME_COMPLEX = ['Date time', 'Image date', 'YYYYMMDD', 'Text', '-', '',
+                        'Date time', 'Image date', 'HHMM', 'Text', '-', '', 'Sequences',
+                        'Downloads today', 'One digit', 'Text', '-iso', '',
+                        'Metadata', 'ISO', '', 'Text', '-f', '', 'Metadata',
+                        'Aperture', '', 'Text', '-', '', 'Metadata', 'Focal length', '',
+                        'Text', 'mm-', '', 'Metadata', 'Exposure time', '']
+
+PHOTO_RENAME_SIMPLE = ['Date time', 'Image date', 'YYYYMMDD', 'Text', '-', '',
+                       'Date time', 'Image date', 'HHMM', 'Text', '-', '', 'Sequences',
+                       'Downloads today', 'One digit']
+
+VIDEO_RENAME_SIMPLE = [x if x != 'Image date' else 'Video date' for x in PHOTO_RENAME_SIMPLE]
+
+JOB_CODE_RENAME_TEST = ['Job code', '', '', 'Sequences',
+                        'Downloads today', 'One digit']
+
+
+def upgrade_pre090a4_rename_pref(pref_list: List[str]) -> Tuple[List[str], str]:
+    r"""
+    Upgrade photo and video rename preference list
+
+    :param pref_list: pref list to upgrade
+    :return: tuple of new pref list, and if found, the case to be used for the
+     extension
+
+    >>> upgrade_pre090a4_rename_pref([FILENAME, NAME_EXTENSION, ORIGINAL_CASE])
+    (['Filename', 'Name', 'Original Case'], 'Original Case')
+    >>> upgrade_pre090a4_rename_pref(PHOTO_RENAME_SIMPLE + [FILENAME, EXTENSION, LOWERCASE])
+    ... # doctest: +NORMALIZE_WHITESPACE
+    (['Date time', 'Image date', 'YYYYMMDD',
+      'Text', '-', '',
+      'Date time', 'Image date', 'HHMM',
+      'Text', '-', '',
+      'Sequences', 'Downloads today', 'One digit'], 'lowercase')
+    >>> upgrade_pre090a4_rename_pref(PHOTO_RENAME_COMPLEX + [FILENAME, EXTENSION, UPPERCASE])
+    ... # doctest: +NORMALIZE_WHITESPACE
+    (['Date time', 'Image date', 'YYYYMMDD', 'Text', '-', '',
+      'Date time', 'Image date', 'HHMM', 'Text', '-', '', 'Sequences',
+      'Downloads today', 'One digit', 'Text', '-iso', '',
+      'Metadata', 'ISO', '', 'Text', '-f', '', 'Metadata',
+      'Aperture', '', 'Text', '-', '', 'Metadata', 'Focal length', '',
+      'Text', 'mm-', '', 'Metadata', 'Exposure time', ''], 'UPPERCASE')
+     >>> upgrade_pre090a4_rename_pref([FILENAME, NAME, LOWERCASE])
+     (['Filename', 'Name', 'lowercase'], None)
+
+    """
+    if not pref_list:
+        return (pref_list, None)
+
+    # get extension case from last value
+    if pref_list[-2] in (NAME_EXTENSION, EXTENSION):
+        case = pref_list[-1]
+    else:
+        case = None
+
+    new_pref_list = []
+    for idx in range(0, len(pref_list), 3):
+        l1 = pref_list[idx + 1]
+        if  l1 != EXTENSION:
+            if l1 == NAME_EXTENSION:
+                l1 = NAME
+            new_pref_list.extend([pref_list[idx], l1, pref_list[idx + 2]])
+    return new_pref_list, case
 
 
 class PrefError(Exception):
