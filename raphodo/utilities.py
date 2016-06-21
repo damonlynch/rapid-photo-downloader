@@ -34,7 +34,7 @@ from collections import namedtuple
 from datetime import datetime
 from gettext import gettext as _
 from itertools import groupby
-from typing import Optional, List, Union
+from typing import Optional, List, Union, Any
 
 import arrow
 import psutil
@@ -566,6 +566,7 @@ def pref_bool_from_gconftool2_string(value: str) -> bool:
     elif value == 'false':
         return False
     raise ValueError
+
 
 def remove_last_char_from_list_str(items: List[str]) -> List[str]:
     r"""

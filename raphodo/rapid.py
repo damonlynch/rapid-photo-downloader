@@ -457,7 +457,8 @@ class FolderPreviewManager:
 
     def _change_subfolder_structure(self) -> None:
         rpd_files = self.rapidApp.thumbnailModel.getAllDownloadableRPDFiles()
-        self.add_rpd_files(rpd_files=rpd_files)
+        if rpd_files:
+            self.add_rpd_files(rpd_files=rpd_files)
 
     @pyqtSlot(FoldersPreview)
     def folders_generated(self, folders_preview: FoldersPreview) -> None:

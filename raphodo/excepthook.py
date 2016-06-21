@@ -27,7 +27,8 @@ from PyQt5.QtGui import QPixmap
 try:
     from easygui import codebox
     have_easygui = True
-except ImportError:
+except:
+    # if import failed for any reason, ignore it
     have_easygui = False
 
 from gettext import gettext as _

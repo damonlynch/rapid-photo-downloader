@@ -39,6 +39,22 @@ class ErrorType(Enum):
     warning = 3
 
 
+class PresetPrefType(Enum):
+    preset_photo_subfolder = 1
+    preset_video_subfolder = 2
+    preset_photo_rename = 3
+    preset_video_rename = 4
+
+
+class PresetClass(Enum):
+    builtin = 1
+    custom = 2
+    new_preset = 3
+    remove_all = 4
+    update_preset = 5
+    edited = 6
+
+
 class DownloadStatus(Enum):
     # going to try to download it
     download_pending = 1

@@ -26,6 +26,7 @@ __copyright__ = "Copyright 2016, Damon Lynch"
 import os
 import math
 from typing import Optional, Dict, Tuple
+import logging
 from gettext import gettext as _
 
 
@@ -38,10 +39,13 @@ from PyQt5.QtGui import (QColor, QPixmap, QIcon, QPaintEvent, QPalette, QMouseEv
 from raphodo.devicedisplay import DeviceDisplay, BodyDetails, icon_size
 from raphodo.storage import StorageSpace
 from raphodo.constants import (CustomColors, DestinationDisplayType, DisplayingFilesOfType,
-                               DestinationDisplayMousePos)
+                               DestinationDisplayMousePos, PresetPrefType, NameGenerationType)
 from raphodo.utilities import thousands, format_size_for_user
 from raphodo.rpdfile import FileTypeCounter, FileType
+from raphodo.nameeditor import PrefDialog, make_subfolder_menu_entry
+import raphodo.exiftool as exiftool
 import raphodo.generatenameconfig as gnc
+from raphodo.generatenameconfig import *
 
 
 class DestinationDisplay(QWidget):
@@ -92,8 +96,9 @@ class DestinationDisplay(QWidget):
         self.display_type = None  # type: DestinationDisplayType
         self.setSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.Fixed)
 
-    def _makeMenuString(self, prefs: Tuple[str]) -> str:
-        return os.sep.join(prefs)
+        # default number of built-in subfolder generation defaults
+        self.no_builtin_defaults = 5
+        self.max_presets = 5
 
     def createActionsAndMenu(self) -> None:
         self.setMouseTracking(True)
@@ -104,27 +109,47 @@ class DestinationDisplay(QWidget):
         else:
             defaults = gnc.VIDEO_SUBFOLDER_MENU_DEFAULTS
 
-        self.subfolder0Act = QAction(self._makeMenuString(defaults[0]),
+        self.subfolder0Act = QAction(make_subfolder_menu_entry(defaults[0]),
                                      self,
                                      checkable=True,
                                      triggered=self.doSubfolder0)
-        self.subfolder1Act = QAction(self._makeMenuString(defaults[1]),
+        self.subfolder1Act = QAction(make_subfolder_menu_entry(defaults[1]),
                                      self,
                                      checkable=True,
                                      triggered=self.doSubfolder1)
-        self.subfolder2Act = QAction(self._makeMenuString(defaults[2]),
+        self.subfolder2Act = QAction(make_subfolder_menu_entry(defaults[2]),
                                      self,
                                      checkable=True,
                                      triggered=self.doSubfolder2)
-        self.subfolder3Act = QAction(self._makeMenuString(defaults[3]),
+        self.subfolder3Act = QAction(make_subfolder_menu_entry(defaults[3]),
                                      self,
                                      checkable=True,
                                      triggered=self.doSubfolder3)
-        self.subfolder4Act = QAction(self._makeMenuString(defaults[4]),
+        self.subfolder4Act = QAction(make_subfolder_menu_entry(defaults[4]),
                                      self,
                                      checkable=True,
                                      triggered=self.doSubfolder4)
-        # Translators: custom refers to the user choosing a non-default value that
+        self.subfolder5Act = QAction('Preset 0',
+                                     self,
+                                     checkable=True,
+                                     triggered=self.doSubfolder5)
+        self.subfolder6Act = QAction('Preset 1',
+                                     self,
+                                     checkable=True,
+                                     triggered=self.doSubfolder6)
+        self.subfolder7Act = QAction('Preset 2',
+                                     self,
+                                     checkable=True,
+                                     triggered=self.doSubfolder7)
+        self.subfolder8Act = QAction('Preset 3',
+                                     self,
+                                     checkable=True,
+                                     triggered=self.doSubfolder8)
+        self.subfolder9Act = QAction('Preset 4',
+                                     self,
+                                     checkable=True,
+                                     triggered=self.doSubfolder9)
+        # Translators: Custom refers to the user choosing a non-default value that
         # they customize themselves
         self.subfolderCustomAct = QAction(_('Custom...'),
                                                self,
@@ -139,6 +164,11 @@ class DestinationDisplay(QWidget):
         self.subfolderGroup.addAction(self.subfolder2Act)
         self.subfolderGroup.addAction(self.subfolder3Act)
         self.subfolderGroup.addAction(self.subfolder4Act)
+        self.subfolderGroup.addAction(self.subfolder5Act)
+        self.subfolderGroup.addAction(self.subfolder6Act)
+        self.subfolderGroup.addAction(self.subfolder7Act)
+        self.subfolderGroup.addAction(self.subfolder8Act)
+        self.subfolderGroup.addAction(self.subfolder9Act)
         self.subfolderGroup.addAction(self.subfolderCustomAct)
         
         self.menu.addAction(self.subfolder0Act)
@@ -146,6 +176,12 @@ class DestinationDisplay(QWidget):
         self.menu.addAction(self.subfolder2Act)
         self.menu.addAction(self.subfolder3Act)
         self.menu.addAction(self.subfolder4Act)
+        self.menu.addSeparator()
+        self.menu.addAction(self.subfolder5Act)
+        self.menu.addAction(self.subfolder6Act)
+        self.menu.addAction(self.subfolder7Act)
+        self.menu.addAction(self.subfolder8Act)
+        self.menu.addAction(self.subfolder9Act)
         self.menu.addAction(self.subfolderCustomAct)
 
         self.map_action[0] = self.subfolder0Act
@@ -153,8 +189,38 @@ class DestinationDisplay(QWidget):
         self.map_action[2] = self.subfolder2Act
         self.map_action[3] = self.subfolder3Act
         self.map_action[4] = self.subfolder4Act
+        self.map_action[5] = self.subfolder5Act
+        self.map_action[6] = self.subfolder6Act
+        self.map_action[7] = self.subfolder7Act
+        self.map_action[8] = self.subfolder8Act
+        self.map_action[9] = self.subfolder9Act
         self.map_action[-1] = self.subfolderCustomAct
 
+    def setupMenuActions(self) -> None:
+        if self.file_type == FileType.photo:
+            preset_type = PresetPrefType.preset_photo_subfolder
+        else:
+            preset_type = PresetPrefType.preset_video_subfolder
+        self.preset_names, self.preset_pref_lists = self.prefs.get_preset(preset_type=preset_type)
+
+        if self.file_type == FileType.photo:
+            index = self.prefs.photo_subfolder_index(self.preset_pref_lists)
+        else:
+            index = self.prefs.video_subfolder_index(self.preset_pref_lists)
+
+        action = self.map_action[index]  # type: QAction
+        action.setChecked(True)
+
+        # Set visibility of custom presets menu items to match how many we are displaying
+        for idx, text in enumerate(self.preset_names[:self.max_presets]):
+            action = self.map_action[self.no_builtin_defaults + idx]
+            action.setText(text)
+            action.setVisible(True)
+
+        for i in range(self.max_presets - min(len(self.preset_names), self.max_presets)):
+            idx = len(self.preset_names) + self.no_builtin_defaults + i
+            action = self.map_action[idx]
+            action.setVisible(False)
 
     def doSubfolder0(self) -> None:
         self.menuItemChosen(0)
@@ -171,6 +237,21 @@ class DestinationDisplay(QWidget):
     def doSubfolder4(self) -> None:
         self.menuItemChosen(4)
 
+    def doSubfolder5(self) -> None:
+        self.menuItemChosen(5)
+
+    def doSubfolder6(self) -> None:
+        self.menuItemChosen(6)
+
+    def doSubfolder7(self) -> None:
+        self.menuItemChosen(7)
+
+    def doSubfolder8(self) -> None:
+        self.menuItemChosen(8)
+
+    def doSubfolder9(self) -> None:
+        self.menuItemChosen(9)
+
     def doSubfolderCustom(self):
         self.menuItemChosen(-1)
 
@@ -178,23 +259,44 @@ class DestinationDisplay(QWidget):
         self.mouse_pos = DestinationDisplayMousePos.normal
         self.update()
 
+        user_pref_list = None
+
         if index == -1:
-            print('custom')
+            if self.file_type == FileType.photo:
+                pref_defn = DICT_SUBFOLDER_L0
+                pref_list = self.prefs.photo_subfolder
+                generation_type = NameGenerationType.photo_subfolder
+            else:
+                pref_defn = DICT_VIDEO_SUBFOLDER_L0
+                pref_list = self.prefs.video_subfolder
+                generation_type = NameGenerationType.video_subfolder
+
+            #TODO put exiftool process at main window or app level
+            with exiftool.ExifTool() as exiftool_process:
+                prefDialog = PrefDialog(pref_defn, pref_list, generation_type, self.prefs,
+                                        exiftool_process)
+                if prefDialog.exec():
+                    user_pref_list = prefDialog.getPrefList()
+                    if not user_pref_list:
+                        user_pref_list = None
+
+        elif index >= self.no_builtin_defaults:
+            assert index < self.no_builtin_defaults + self.max_presets
+            user_pref_list = self.self.preset_pref_lists[index - self.no_builtin_defaults]
+
         else:
             if self.file_type == FileType.photo:
-                self.prefs.photo_subfolder = gnc.PHOTO_SUBFOLDER_MENU_DEFAULTS_CONV[index]
+                user_pref_list = gnc.PHOTO_SUBFOLDER_MENU_DEFAULTS_CONV[index]
             else:
-                self.prefs.video_subfolder = gnc.VIDEO_SUBFOLDER_MENU_DEFAULTS_CONV[index]
+                user_pref_list = gnc.VIDEO_SUBFOLDER_MENU_DEFAULTS_CONV[index]
+
+        if user_pref_list is not None:
+            logging.debug("Updating %s subfolder generation preference value", self.file_type.name)
+            if self.file_type == FileType.photo:
+                self.prefs.photo_subfolder = user_pref_list
+            else:
+                self.prefs.video_subfolder = user_pref_list
             self.rapidApp.folder_preview_manager.change_subfolder_structure()
-
-    def markMenuItemAsChecked(self) -> None:
-        if self.file_type == FileType.photo:
-            index = self.prefs.photo_subfolder_index()
-        else:
-            index = self.prefs.video_subfolder_index()
-
-        action = self.map_action[index]  # type: QAction
-        action.setChecked(True)
 
     def setDestination(self, path: str) -> None:
         """
@@ -415,7 +517,7 @@ class DestinationDisplay(QWidget):
                 menuTopReal = iconRect.bottomLeft()
                 x = math.ceil(menuTopReal.x())
                 y = math.ceil(menuTopReal.y())
-                self.markMenuItemAsChecked()
+                self.setupMenuActions()
                 self.menu.popup(self.mapToGlobal(QPoint(x, y)))
 
     @pyqtSlot(QMouseEvent)

@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 # Copyright (C) 2016 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
@@ -23,7 +24,7 @@ Dialog for editing download subfolder structure and file renaming
 __author__ = 'Damon Lynch'
 __copyright__ = "Copyright 2016, Damon Lynch"
 
-from typing import Dict, Optional, List, Union, Tuple
+from typing import Dict, Optional, List, Union, Tuple, Sequence
 import datetime
 import copy
 
@@ -31,20 +32,23 @@ from gettext import gettext as _
 
 from PyQt5.QtWidgets import (QTextEdit, QApplication, QComboBox, QPushButton, QLabel, QDialog,
     QDialogButtonBox, QVBoxLayout, QFormLayout,  QGridLayout, QGroupBox, QScrollArea, QWidget,
-                             QFrame, QStyle, QSizePolicy, QStackedWidget)
+                             QFrame, QStyle, QSizePolicy, QStackedWidget, QLineEdit, QMessageBox)
 from PyQt5.QtGui import (QTextCharFormat, QFont, QTextCursor, QMouseEvent, QSyntaxHighlighter,
-                         QTextDocument, QBrush, QColor, QFontMetrics, QKeyEvent, QResizeEvent)
+                         QTextDocument, QBrush, QColor, QFontMetrics, QKeyEvent, QResizeEvent,
+                         QStandardItem, QPixmap)
 from PyQt5.QtCore import (Qt, pyqtSlot, QSignalMapper, QSize, pyqtSignal)
 
 from sortedcontainers import SortedList
 
 from raphodo.generatenameconfig import *
 import raphodo.generatename as gn
-from raphodo.constants import CustomColors, PrefPosition, NameGenerationType
+from raphodo.constants import (CustomColors, PrefPosition, NameGenerationType, PresetPrefType,
+                               PresetClass)
 from raphodo.rpdfile import SamplePhoto, SampleVideo, RPDFile, Photo, Video, FileType
-from raphodo.preferences import DownloadsTodayTracker, Preferences
+from raphodo.preferences import DownloadsTodayTracker, Preferences, match_pref_list
 import raphodo.exiftool as exiftool
 from raphodo.utilities import remove_last_char_from_list_str
+import raphodo.qrc_resources
 
 class PrefEditor(QTextEdit):
     """
@@ -239,7 +243,7 @@ class PrefEditor(QTextEdit):
 
         return (pref_position, start, end, left_start, left_end)
 
-    def displayPrefList(self, pref_list) -> None:
+    def displayPrefList(self, pref_list: Sequence[str]) -> None:
         p = pref_list
         values = []
         for i in range(0, len(pref_list), 3):
@@ -253,6 +257,7 @@ class PrefEditor(QTextEdit):
                     value = p[i+1]
             values.append(value)
 
+        self.document().clear()
         cursor = self.textCursor()  # type: QTextCursor
         cursor.insertText(''.join(values))
 
@@ -395,6 +400,197 @@ class PrefHighlighter(QSyntaxHighlighter):
 
         self.blockHighlighted.emit()
 
+
+def make_subfolder_menu_entry(prefs: Tuple[str]) -> str:
+    """
+    Create the text for a menu / combobox item
+
+    :param prefs: single pref item, with title and elements
+    :return: item text
+    """
+
+    desc = prefs[0]
+    elements = prefs[1:]
+    return _("%(description)s - %(elements)s") % dict(
+        description=desc, elements=os.sep.join(elements))
+
+
+class PresetComboBox(QComboBox):
+    def __init__(self, prefs: Preferences,
+                 preset_names: List[str],
+                 preset_type = PresetPrefType,
+                 parent=None) -> None:
+        super().__init__(parent)
+        self.prefs = prefs
+
+        self.preset_edited = False
+        self.new_preset = False
+
+        if preset_type == PresetPrefType.preset_photo_subfolder:
+            self.builtin_presets = PHOTO_SUBFOLDER_MENU_DEFAULTS
+        elif preset_type == PresetPrefType.preset_video_subfolder:
+            self.builtin_presets = VIDEO_SUBFOLDER_MENU_DEFAULTS
+
+        idx = 0
+
+        for pref in self.builtin_presets:
+            self.addItem(make_subfolder_menu_entry(pref), PresetClass.builtin)
+            idx += 1
+
+        if not len(preset_names):
+            self.preset_separator = False
+        else:
+            self.preset_separator = True
+
+            self.insertSeparator(idx)
+            idx += 1
+
+            for name in preset_names:
+                self.addItem(name, PresetClass.custom)
+                idx += 1
+
+        self.insertSeparator(idx)
+
+        self.addItem(_('Save New Custom Preset...'), PresetClass.new_preset)
+        self.addItem(_('Remove All Custom Presets...'), PresetClass.remove_all)
+        self.setRemoveAllCustomEnabled(bool(len(preset_names)))
+
+    def addCustomPreset(self, text: str) -> None:
+        """
+        Adds a new custom preset name to the comboxbox and sets the
+        combobox to display it.
+
+        Clears
+
+        :param text: the custom preset name
+        """
+
+        if not self.preset_separator:
+            self.insertSeparator(len(self.builtin_presets))
+            self.preset_separator = True
+        if self.new_preset or self.preset_edited:
+            self.resetPresetList()
+        idx = len(self.builtin_presets) + 1
+        self.insertItem(idx, text, PresetClass.custom)
+        self.setCurrentIndex(idx)
+
+    def removeAllCustomPresets(self, no_presets: int) -> None:
+        assert self.preset_separator
+        start = len(self.builtin_presets)
+        if self.new_preset or self.preset_edited:
+            start += 2
+        end = start + no_presets
+        for row in range(end, start -1, -1):
+            self.removeItem(row)
+
+    def setPresetNew(self) -> None:
+        item_text = _('(New Custom Preset)')
+        assert not self.preset_edited
+        if self.new_preset:
+            return
+        self.new_preset = True
+        self.insertItem(0, item_text, PresetClass.edited)
+        self.insertSeparator(1)
+        self.setCurrentIndex(0)
+
+    def setPresetEdited(self, text: str) -> None:
+        """
+        Adds a new entry at the top of the combobox indicating that the current
+        preset has been edited.
+
+        :param text: the preset name to use
+        """
+
+        assert not self.new_preset
+        assert not self.preset_edited
+        item_text = _('%s (edited)') % text
+        self.insertItem(0, item_text, PresetClass.edited)
+        self.insertSeparator(1)
+        self.addItem(_('Update Custom Preset "%s"') % text, PresetClass.update_preset)
+        self.preset_edited = True
+        self.setCurrentIndex(0)
+
+    def resetPresetList(self) -> None:
+        """
+        Removes the combo box first line 'Preset name (edited)' or '(New Custom Preset)',
+        and its separator
+        """
+
+        assert self.new_preset or self.preset_edited
+        # remove combo box first line 'Preset name (edited)' or '(New Custom Preset)'
+        self.removeItem(0)
+        # remove separator
+        self.removeItem(0)
+        # remove Update Preset
+        if self.preset_edited:
+            index = self.count() - 1
+            self.removeItem(index)
+        self.preset_edited = self.new_preset = False
+
+    def setRemoveAllCustomEnabled(self, enabled: bool) -> None:
+        model = self.model()
+        count = self.count()
+        if self.preset_edited:
+            row = count  - 2
+        else:
+            row = count - 1
+        item = model.item(row, 0)  # type: QStandardItem
+        if not enabled:
+            item.setFlags(Qt.NoItemFlags)
+        else:
+            item.setFlags(Qt.ItemIsSelectable|Qt.ItemIsEnabled)
+
+
+class CreatePreset(QDialog):
+    """
+    Very simple dialog window that allows user entry of new preset name.
+
+    Save button is disabled when the current name entered equals an existing
+    preset name or is empty.
+    """
+
+    def __init__(self, existing_custom_names: List[str], parent=None) -> None:
+        super().__init__(parent)
+
+        self.existing_custom_names = existing_custom_names
+
+        self.setModal(True)
+
+        self.setWindowTitle(_("Save New Custom Preset"))
+
+        self.name = QLineEdit()
+        self.name.textEdited.connect(self.nameEdited)
+        flayout = QFormLayout()
+        flayout.addRow(_('Preset Name:'), self.name)
+
+        buttonBox = QDialogButtonBox()
+        buttonBox.addButton(QDialogButtonBox.Cancel)  # type: QPushButton
+        self.saveButton = buttonBox.addButton(QDialogButtonBox.Save)  # type: QPushButton
+        self.saveButton.setEnabled(False)
+        buttonBox.rejected.connect(self.reject)
+        buttonBox.accepted.connect(self.accept)
+
+        layout = QVBoxLayout()
+        layout.addLayout(flayout)
+        layout.addWidget(buttonBox)
+
+        self.setLayout(layout)
+
+    @pyqtSlot(str)
+    def nameEdited(self, name: str):
+        enabled = False
+        if len(name) > 0:
+            enabled = name not in self.existing_custom_names
+        self.saveButton.setEnabled(enabled)
+
+    def presetName(self) -> str:
+        """
+        :return: the name of the name the user wants to save the preset as
+        """
+
+        return self.name.text()
+
+
 class PrefDialog(QDialog):
     """
     Dialog window to allow editing of file renaming and subfolder generation
@@ -426,13 +622,44 @@ class PrefDialog(QDialog):
 
         super().__init__(parent)
 
+        self.setModal(True)
+
         self.generation_type = generation_type
+        if generation_type == NameGenerationType.photo_subfolder:
+            self.setWindowTitle('Photo Subfolder Generation Editor')
+            self.preset_type = PresetPrefType.preset_photo_subfolder
+            self.builtin_pref_lists = PHOTO_SUBFOLDER_MENU_DEFAULTS_CONV
+            self.builtin_pref_names = [make_subfolder_menu_entry(pref)
+                                       for pref in PHOTO_SUBFOLDER_MENU_DEFAULTS]
+        elif generation_type == NameGenerationType.video_subfolder:
+            self.setWindowTitle('Video Subfolder Generation Editor')
+            self.preset_type = PresetPrefType.preset_video_subfolder
+            self.builtin_pref_lists = VIDEO_SUBFOLDER_MENU_DEFAULTS_CONV
+            self.builtin_pref_names = [make_subfolder_menu_entry(pref)
+                                       for pref in VIDEO_SUBFOLDER_MENU_DEFAULTS]
+        elif generation_type == NameGenerationType.photo_name:
+            self.setWindowTitle('Photo Renaming Editor')
+            self.preset_type = PresetPrefType.preset_photo_rename
+            #TODO add photo renaming default prefs
+            self.builtin_pref_lists = []
+            self.builtin_pref_names = []
+        else:
+            self.setWindowTitle('Video Renaming Editor')
+            self.preset_type = PresetPrefType.preset_video_rename
+            # TODO add video renaming default prefs
+            self.builtin_pref_lists = []
+            self.builtin_pref_names = []
+
+        self.prefs = prefs
+
+        # Cache custom preset name and pref lists
+        self.udpateCachedPrefLists()
+
+        self.current_custom_name = None
 
         # Setup values needed for name generation
 
         self.exiftool_process = exiftool_process
-
-        self.prefs = prefs
 
         self.downloads_today_tracker = DownloadsTodayTracker(
             day_start=self.prefs.day_start,
@@ -474,7 +701,7 @@ class PrefDialog(QDialog):
         self.messageWidget.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Maximum)
         # For some obscure reason, must set the label types for all labels in the stacked
         # widget to have the same properties, or else the stacked layout size goes bonkers.
-        # Must make the empty lable contain *something*, too.
+        # Must make the empty label contain *something*, too, so make it contain a space.
         blank = QLabel(' ')
         blank.setWordWrap(True)
         blank.setTextFormat(Qt.RichText)
@@ -503,7 +730,13 @@ class PrefDialog(QDialog):
         # Generated subfolder / file name example
         self.example = QLabel()
 
+        # Combobox with built-in and user defined presets
+        self.preset = PresetComboBox(prefs=prefs, preset_names=self.preset_names,
+                                     preset_type=self.preset_type)
+        self.preset.activated.connect(self.presetComboItemActivated)
+
         flayout = QFormLayout()
+        flayout.addRow(_('Preset:'), self.preset)
         flayout.addRow(_('Example:'), self.example)
 
         layout = QVBoxLayout()
@@ -533,6 +766,14 @@ class PrefDialog(QDialog):
             self.subfolderPointlessCharLabel.setWordWrap(True)
             self.subfolderPointlessCharLabel.setAlignment(Qt.AlignTop|Qt.AlignLeft)
             self.messageWidget.addWidget(self.subfolderPointlessCharLabel)
+        else:
+            unique_msg = _(
+                "<i><b>Hint:</b> Make filenames unique by using Sequence values.</i>"
+            )
+            self.uniqueFilenameLabel = QLabel(unique_msg)
+            self.uniqueFilenameLabel.setWordWrap(True)
+            self.uniqueFilenameLabel.setAlignment(Qt.AlignTop|Qt.AlignLeft)
+            self.messageWidget.addWidget(self.uniqueFilenameLabel)
 
         self.area = QScrollArea()
         sizePolicy = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Expanding)
@@ -653,6 +894,9 @@ class PrefDialog(QDialog):
         self.editor.setPrefMapper(self.pref_mapper, self.pref_color)
         self.editor.displayPrefList(user_pref_list)
 
+        self.show()
+        self.setWidgetSizes()
+
     def makeInsertButton(self) -> QPushButton:
         w = QPushButton(_('Insert'))
         w.clicked.connect(self.mapper.map)
@@ -722,15 +966,27 @@ class PrefDialog(QDialog):
                 try:
                     user_pref_list.index(SEPARATOR)
                 except ValueError:
+                    # Inform the user that a subfolder separator (os.sep) is used to create
+                    # subfolder levels
                     self.messageWidget.setCurrentIndex(2)
                 else:
                     if user_pref_list[0] == SEPARATOR or user_pref_list[-3] == SEPARATOR:
+                        # inform the user that there is no need to start or finish with a
+                        # subfolder separator (os.sep)
                         self.messageWidget.setCurrentIndex(3)
             else:
+                # Inform the user that a subfolder separator (os.sep) is used to create
+                # subfolder levels
                 self.messageWidget.setCurrentIndex(2)
 
             changed, user_pref_list, self.user_pref_colors = filter_subfolder_prefs(
                 user_pref_list, self.user_pref_colors)
+        else:
+            try:
+                user_pref_list.index(SEQUENCES)
+            except ValueError:
+                # Inform the user that sequences can be used to make filenames unique
+                self.messageWidget.setCurrentIndex(2)
 
         if self.generation_type == NameGenerationType.photo_name:
             self.name_generator = gn.PhotoName(user_pref_list)
@@ -746,6 +1002,25 @@ class PrefDialog(QDialog):
 
         self.name_parts = self.name_generator.generate_name(self.sample_rpd_file, parts=True)
         self.showExample()
+        self.updateComboBoxCurrentIndex()
+
+    def updateComboBoxCurrentIndex(self) -> None:
+        combobox_index, pref_list_index = self.getPresetMatch()
+        if pref_list_index >= 0:
+            self.preset.setCurrentIndex(combobox_index)
+            if self.preset.preset_edited or self.preset.new_preset:
+                self.preset.resetPresetList()
+            if pref_list_index >= len(self.builtin_pref_names):
+                self.current_custom_name = self.preset.currentText()
+            else:
+                self.current_custom_name = None
+        elif not (self.preset.new_preset or self.preset.preset_edited):
+                if self.current_custom_name is None:
+                    self.preset.setPresetNew()
+                else:
+                    self.preset.setPresetEdited(self.current_custom_name)
+        else:
+            self.preset.setCurrentIndex(0)
 
     def showExample(self) -> None:
         """
@@ -795,6 +1070,212 @@ class PrefDialog(QDialog):
             self.showExample()
         super().resizeEvent(event)
 
+    def getPrefList(self) -> List[str]:
+        """
+        :return: the pref list the user has specified
+        """
+
+        return self.editor.user_pref_list
+
+    @pyqtSlot(int)
+    def presetComboItemActivated(self, index: int) -> None:
+        """
+        Respond to user activating the Preset combo box.
+        
+        :param index: index of the item activated
+        """
+
+        preset_class =  self.preset.currentData()
+        if preset_class == PresetClass.new_preset:
+            createPreset = CreatePreset(existing_custom_names=self.preset_names)
+            if createPreset.exec():
+                # User has created a new preset
+                preset_name = createPreset.presetName()
+                assert preset_name not in self.preset_names
+                self.current_custom_name = preset_name
+                self.preset.addCustomPreset(preset_name)
+                self.saveNewPreset(preset_name=preset_name)
+                if len(self.preset_names) == 1:
+                    self.preset.setRemoveAllCustomEnabled(True)
+            else:
+                # User cancelled creating a new preset
+                self.updateComboBoxCurrentIndex()
+        elif preset_class in (PresetClass.builtin, PresetClass.custom):
+            index = self.combined_pref_names.index(self.preset.currentText())
+            pref_list = self.combined_pref_lists[index]
+            self.editor.displayPrefList(pref_list=pref_list)
+            if index >= len(self.builtin_pref_names):
+                self.movePresetToFront(index=len(self.builtin_pref_names) - index)
+        elif preset_class == PresetClass.remove_all:
+            self.preset.removeAllCustomPresets(no_presets=len(self.preset_names))
+            self.clearCustomPresets()
+            self.preset.setRemoveAllCustomEnabled(False)
+            self.updateComboBoxCurrentIndex()
+        elif preset_class == PresetClass.update_preset:
+            self.updateExistingPreset()
+            self.updateComboBoxCurrentIndex()
+
+    def updateExistingPreset(self) -> None:
+        """
+        Updates (saves) an existing preset (assumed to be self.current_custom_name)
+        with the new user_pref_list found in the editor.
+
+        Assumes cached self.preset_names and self.preset_pref_lists represent
+        current save preferences. Will update these and overwrite the relevant
+        preset preference.
+        """
+
+        preset_name = self.current_custom_name
+        user_pref_list = self.editor.user_pref_list
+        index = self.preset_names.index(preset_name)
+        self.preset_pref_lists[index] = user_pref_list
+        if index > 0:
+            self.movePresetToFront(index=index)
+        else:
+            self._updateCombinedPrefs()
+            self.prefs.set_preset(preset_type=self.preset_type, preset_names=self.preset_names,
+                                  preset_pref_lists=self.preset_pref_lists)
+
+    def movePresetToFront(self, index: int) -> None:
+        """
+        Extracts the preset from the current list of presets and moves it
+        to the front if not already there.
+
+        Assumes cached self.preset_names and self.preset_pref_lists represent
+        current save preferences. Will update these and overwrite the relevant
+        preset preference.
+
+        :param index: index into self.preset_pref_lists / self.preset_names of
+         the item to move
+        """
+
+        if index == 0:
+            return
+        preset_name = self.preset_names.pop(index)
+        pref_list = self.preset_pref_lists.pop(index)
+        self.preset_names.insert(0, preset_name)
+        self.preset_pref_lists.insert(0, pref_list)
+        self._updateCombinedPrefs()
+        self.prefs.set_preset(preset_type=self.preset_type, preset_names=self.preset_names,
+                          preset_pref_lists=self.preset_pref_lists)
+
+    def saveNewPreset(self, preset_name: str) -> None:
+        """
+        Saves the current user_pref_list (retrieved from the editor) and
+        saves it in the program preferences.
+
+        Assumes cached self.preset_names and self.preset_pref_lists represent
+        current save preferences. Will update these and overwrite the relevant
+        preset preference.
+
+        :param preset_name: name for the new preset
+        """
+
+        user_pref_list = self.editor.user_pref_list
+        self.preset_names.insert(0, preset_name)
+        self.preset_pref_lists.insert(0, user_pref_list)
+        self._updateCombinedPrefs()
+        self.prefs.set_preset(preset_type=self.preset_type, preset_names=self.preset_names,
+                              preset_pref_lists=self.preset_pref_lists)
+
+    def clearCustomPresets(self) -> None:
+        """
+        Deletes all of the custom presets.
+
+        Assumes cached self.preset_names and self.preset_pref_lists represent
+        current save preferences. Will update these and overwrite the relevant
+        preset preference.
+        """
+        self.preset_names = []
+        self.preset_pref_lists = []
+        self.current_custom_name = None
+        self._updateCombinedPrefs()
+        self.prefs.set_preset(preset_type=self.preset_type, preset_names=self.preset_names,
+                          preset_pref_lists=self.preset_pref_lists)
+
+    def udpateCachedPrefLists(self) -> None:
+        self.preset_names, self.preset_pref_lists = self.prefs.get_preset(
+            preset_type=self.preset_type)
+        self._updateCombinedPrefs()
+
+    def _updateCombinedPrefs(self):
+        self.combined_pref_names = self.builtin_pref_names + self.preset_names
+        self.combined_pref_lists = self.builtin_pref_lists + tuple(self.preset_pref_lists)
+
+    def getPresetMatch(self) -> Tuple[int, int]:
+        """
+        :return: Tuple of the Preset combobox index and the combined pref/name list index,
+        if the current user pref list matches an entry in it. Else Tuple of (-1, -1).
+        """
+
+        index = match_pref_list(pref_lists=self.combined_pref_lists,
+                                user_pref_list=self.editor.user_pref_list)
+        if index >= 0:
+            combobox_name = self.combined_pref_names[index]
+            return self.preset.findText(combobox_name), index
+        return -1, -1
+
+    @pyqtSlot()
+    def accept(self) -> None:
+        """
+        Slot called when the okay button is clicked.
+
+        If there are unsaved changes, query the user if they want their changes
+        saved as a new preset or if the existing preset should be updated
+        """
+
+        if self.preset.preset_edited or self.preset.new_preset:
+            msgBox = QMessageBox()
+            icon = QPixmap(':/rapid-photo-downloader.svg')
+            title = _("Save Preset - Rapid Photo Downloader")
+            msgBox.setTextFormat(Qt.RichText)
+            msgBox.setIconPixmap(icon)
+            msgBox.setWindowTitle(title)
+            if self.preset.new_preset:
+                message = _("<b>Do you want to save the changes in a new custom preset?</b><br><br>"
+                            "Creating a custom preset is not required, but can help you keep "
+                            "organized.<br><br>"
+                            "The changes to the preferences will still be applied regardless of "
+                            "whether you create a new custom preset or not.")
+                msgBox.setStandardButtons(QMessageBox.Yes|QMessageBox.No)
+                updateButton = newButton = None
+            else:
+                assert self.preset.preset_edited
+                message = _("<b>Do you want to save the changes in a custom preset?</b><br><br>"
+                            "If you like, you can create a new custom preset or update the "
+                            "existing custom preset.<br><br>"
+                            "The changes to the preferences will still be applied regardless of "
+                            "whether you save a custom preset or not.")
+                updateButton = msgBox.addButton(_('Update Custom Preset "%s"') %
+                                           self.current_custom_name, QMessageBox.YesRole)
+                newButton = msgBox.addButton(_('Save New Custom Preset'), QMessageBox.YesRole)
+                msgBox.addButton(QMessageBox.No)
+
+            msgBox.setText(message)
+            choice = msgBox.exec()
+            save_new = update = False
+            if self.preset.new_preset:
+                save_new = choice == QMessageBox.Yes
+            else:
+                if msgBox.clickedButton() == updateButton:
+                    update = True
+                elif msgBox.clickedButton() == newButton:
+                    save_new = True
+
+            if save_new:
+                createPreset = CreatePreset(existing_custom_names=self.preset_names)
+                if createPreset.exec():
+                    # User has created a new preset
+                    preset_name = createPreset.presetName()
+                    assert preset_name not in self.preset_names
+                    self.saveNewPreset(preset_name=preset_name)
+            elif update:
+                self.updateExistingPreset()
+
+        # Regardless of any user actions, close the dialog box
+        super().accept()
+
+
 if __name__ == '__main__':
 
     # Application development test code:
@@ -809,11 +1290,10 @@ if __name__ == '__main__':
 
     with exiftool.ExifTool() as exiftool_process:
 
-        prefDialog = PrefDialog(DICT_IMAGE_RENAME_L0, PHOTO_RENAME_COMPLEX,
-                                NameGenerationType.photo_name, prefs, exiftool_process)
-        # prefDialog = PrefDialog(DICT_SUBFOLDER_L0, PHOTO_SUBFOLDER_MENU_DEFAULTS_CONV[2],
-        #                         NameGenerationType.photo_subfolder, prefs, exiftool_process)
+        # prefDialog = PrefDialog(DICT_IMAGE_RENAME_L0, PHOTO_RENAME_COMPLEX,
+        #                         NameGenerationType.photo_name, prefs, exiftool_process)
+        prefDialog = PrefDialog(DICT_SUBFOLDER_L0, PHOTO_SUBFOLDER_MENU_DEFAULTS_CONV[2],
+                                NameGenerationType.photo_subfolder, prefs, exiftool_process)
         prefDialog.show()
-        prefDialog.setWidgetSizes()
         app.exec_()
 

@@ -22,6 +22,24 @@
 Install script for Rapid Photo Downloader.
 
 Do not run as root - it will refuse to run if you try.
+
+The primary purpose of this installation script is to install packages that are required
+for Rapid Photo Downloader to run. Specifically, these packages are:
+
+1. Non-python programs, e.g. exiv2, ExifTool.
+2. Python packages that are unavailable on Python's PyPi service, namely
+   python3 gobject introspection modules.
+3. Although PyQt 5.6 is available on PyPi, bundled with Qt 5.6, it's easier
+   to use the Linux distro's PyQt packages, particularly in the case of Ubuntu, whose
+   custom scrollbar implementation does not work with stock Qt without a special environment
+   variable being set that disables the custom scrollbars.
+
+Once these dependencies are satisifed, Python's pip is used to install Rapid Photo Downloader
+itself, along with several Python packages from PyPi, found in requirements.txt.
+
+The secondary purpose of this install script is to give the option to the user of installing man
+pages in the system's standard  man page location, and for Debian/Ubuntu distros, to create a
+link in ~/bin to the rapid-photo-downloader executable.
 """
 
 __author__ = 'Damon Lynch'

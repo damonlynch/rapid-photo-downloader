@@ -384,11 +384,11 @@ class i18TranslateMeThanks:
 # The following values will be displayed in the menu after an os.sep.join() operation
 
 PHOTO_SUBFOLDER_MENU_DEFAULTS = (
-    (_('YYYY'), _('YYYYMMDD')),
-    (_('YYYY'), _('YYYY-MM-DD')),
-    (_('YYYY'), _('YYYY_MM_DD')),
-    (_('YYYY'), _('YYYYMM_Job Code')),
-    (_('YYYY'), _('YYYYMM'), _('Job Code'))
+    (_('Date'), _('YYYY'), _('YYYYMMDD')),
+    (_('Date (hyphens)'), _('YYYY'), _('YYYY-MM-DD')),
+    (_('Date (underscores)'), _('YYYY'), _('YYYY_MM_DD')),
+    (_('Date and Job Code'), _('YYYY'), _('YYYYMM_Job Code')),
+    (_('Date and Job Code Subfolder'), _('YYYY'), _('YYYYMM'), _('Job Code'))
 )
 
 # Any change to PHOTO_SUBFOLDER_MENU_DEFAULTS_CONV must also be reflected in 

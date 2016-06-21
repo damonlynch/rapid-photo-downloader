@@ -4,7 +4,7 @@ Changelog for Rapid Photo Downloader
 0.9.0a4 (2016-06-xx)
 --------------------
 
- - Implemented photo and video subfolder generation and file renaming configuration.
+ - Implemented photo and video subfolder generation preference configuration.
 
  - Fixed bug where translation of user interface into non-English languages was not
    occurring.
@@ -12,6 +12,9 @@ Changelog for Rapid Photo Downloader
  - Fixed bug where input/output exception not being handled when probing mounts.
 
  - Fixed bug where crashed on startup when no desktop environment variable was set.
+
+ - Fixed bug where crashed on startup when attempting to import the broken Python
+   package EasyGui 0.98.
 
 0.9.0a3 (2016-05-27)
 --------------------

@@ -372,6 +372,64 @@ class Preferences:
     def sync(self):
         self.settings.sync()
 
+    def get_preset(self, preset_type: constants.PresetPrefType) -> Tuple[List[str], List[str]]:
+        """
+        Returns the custom presets for the particular type.
+
+        :param preset_type: one of photo subfolder, video subfolder, photo
+         rename, or video rename
+        :return: Tuple of list of present names and list of pref lists. Each
+         item in the first list corresponds with the item of the same index in the
+         second list.
+        """
+
+        preset_pref_lists = []
+        preset_names = []
+
+        self.settings.beginGroup('Presets')
+
+        preset = preset_type.name
+        size = self.settings.beginReadArray(preset)
+        for i in range(size):
+            self.settings.setArrayIndex(i)
+            preset_names.append(self.settings.value('name', type=str))
+            preset_pref_lists.append(self.settings.value('pref_list', type=str))
+        self.settings.endArray()
+
+        self.settings.endGroup()
+
+        return preset_names, preset_pref_lists
+
+    def set_preset(self, preset_type: constants.PresetPrefType,
+                   preset_names: List[str],
+                   preset_pref_lists: List[str]) -> None:
+        """
+        Saves a list of custom presets in the user's preferences.
+
+        If the list of preset names is empty, the preference value will be cleared.
+
+        :param preset_type: one of photo subfolder, video subfolder, photo
+         rename, or video rename
+        :param preset_names: list of names for each pref list
+        :param preset_pref_lists: the list of pref lists
+        """
+
+        self.settings.beginGroup('Presets')
+
+        preset = preset_type.name
+
+        if not preset_names:
+            self.settings.remove(preset)
+        else:
+            self.settings.beginWriteArray(preset)
+            for i in range(len(preset_names)):
+                self.settings.setArrayIndex(i)
+                self.settings.setValue('name', preset_names[i])
+                self.settings.setValue('pref_list', preset_pref_lists[i])
+            self.settings.endArray()
+
+        self.settings.endGroup()
+
     def get_proximity(self) -> int:
         """
         Validates preference value proxmity_seconds against standard list.
@@ -386,7 +444,7 @@ class Preferences:
         No need to use bisect list, as our list is tiny, and using min has the advantage
         of getting the closest value.
 
-        Note: we store the value in seconds, but use it in minutes, just in case a user
+        Note: we store the value in seconds, but use it in minutes, just in case a user one day
         makes a compelling case to be able to specify a proximity value less than 1 minute.
 
         :return: closest valid value in minutes
@@ -483,8 +541,6 @@ class Preferences:
                 valid = False
                 msg += e.msg + "\n"
 
-        self.valid = valid
-
         return (valid, msg)
 
     def must_synchronize_raw_jpg(self) -> bool:
@@ -554,27 +610,33 @@ class Preferences:
         else:
             return ''
 
-    def photo_subfolder_index(self) -> int:
+    def photo_subfolder_index(self, preset_pref_lists: List[List[str]]) -> int:
         """
-        Matches the photo pref list with program subfolder generation defaults.
+        Matches the photo pref list with program subfolder generation
+        defaults and the user's presets.
 
         :return: -1 if no match (i.e. custom), or the index into
-         PHOTO_SUBFOLDER_MENU_DEFAULTS if it matches
+         PHOTO_SUBFOLDER_MENU_DEFAULTS + photo subfolder presets if it matches
         """
+
+        subfolders = PHOTO_SUBFOLDER_MENU_DEFAULTS_CONV + tuple(preset_pref_lists)
         try:
-            return PHOTO_SUBFOLDER_MENU_DEFAULTS_CONV.index(self.photo_subfolder)
+            return subfolders.index(self.photo_subfolder)
         except ValueError:
             return -1
 
-    def video_subfolder_index(self) -> int:
+    def video_subfolder_index(self, preset_pref_lists: List[List[str]]) -> int:
         """
-        Matches the photo pref list with program subfolder generation defaults.
+        Matches the photo pref list with program subfolder generation
+        defaults and the user's presets.
 
         :return: -1 if no match (i.e. custom), or the index into
-         VIDEO_SUBFOLDER_MENU_DEFAULTS if it matches
+         VIDEO_SUBFOLDER_MENU_DEFAULTS + video subfolder presets if it matches
         """
+
+        subfolders = VIDEO_SUBFOLDER_MENU_DEFAULTS_CONV + tuple(preset_pref_lists)
         try:
-            return VIDEO_SUBFOLDER_MENU_DEFAULTS_CONV.index(self.video_subfolder)
+            return subfolders.index(self.video_subfolder)
         except ValueError:
             return -1
         
@@ -607,3 +669,8 @@ class Preferences:
                         self.video_extension = case
 
 
+def match_pref_list(pref_lists: List[List[str]], user_pref_list: List[str]) -> int:
+    try:
+        return pref_lists.index(user_pref_list)
+    except ValueError:
+        return -1
