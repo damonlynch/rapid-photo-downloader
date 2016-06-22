@@ -416,6 +416,11 @@ def make_subfolder_menu_entry(prefs: Tuple[str]) -> str:
 
 
 class PresetComboBox(QComboBox):
+    """
+    Combox box displaying built-in presets, custom presets,
+    and some commands relating to preset management.
+    """
+
     def __init__(self, prefs: Preferences,
                  preset_names: List[str],
                  preset_type = PresetPrefType,
@@ -460,16 +465,14 @@ class PresetComboBox(QComboBox):
         Adds a new custom preset name to the comboxbox and sets the
         combobox to display it.
 
-        Clears
-
         :param text: the custom preset name
         """
 
+        if self.new_preset or self.preset_edited:
+            self.resetPresetList()
         if not self.preset_separator:
             self.insertSeparator(len(self.builtin_presets))
             self.preset_separator = True
-        if self.new_preset or self.preset_edited:
-            self.resetPresetList()
         idx = len(self.builtin_presets) + 1
         self.insertItem(idx, text, PresetClass.custom)
         self.setCurrentIndex(idx)
@@ -477,17 +480,20 @@ class PresetComboBox(QComboBox):
     def removeAllCustomPresets(self, no_presets: int) -> None:
         assert self.preset_separator
         start = len(self.builtin_presets)
-        if self.new_preset or self.preset_edited:
+        if self.new_preset:
             start += 2
+        elif self.preset_edited:
+            self.resetPresetList()
         end = start + no_presets
         for row in range(end, start -1, -1):
             self.removeItem(row)
+        self.preset_separator = False
 
     def setPresetNew(self) -> None:
-        item_text = _('(New Custom Preset)')
         assert not self.preset_edited
         if self.new_preset:
             return
+        item_text = _('(New Custom Preset)')
         self.new_preset = True
         self.insertItem(0, item_text, PresetClass.edited)
         self.insertSeparator(1)
@@ -528,10 +534,11 @@ class PresetComboBox(QComboBox):
         self.preset_edited = self.new_preset = False
 
     def setRemoveAllCustomEnabled(self, enabled: bool) -> None:
+        # Our big assumption here is that the model is a QStandardItemModel
         model = self.model()
         count = self.count()
         if self.preset_edited:
-            row = count  - 2
+            row = count - 2
         else:
             row = count - 1
         item = model.item(row, 0)  # type: QStandardItem
@@ -556,9 +563,12 @@ class CreatePreset(QDialog):
 
         self.setModal(True)
 
-        self.setWindowTitle(_("Save New Custom Preset"))
+        title = _("Save New Custom Preset - Rapid Photo Downloader")
+        self.setWindowTitle(title)
 
         self.name = QLineEdit()
+        metrics = QFontMetrics(QFont())
+        self.name.setMinimumWidth(metrics.width(title))
         self.name.textEdited.connect(self.nameEdited)
         flayout = QFormLayout()
         flayout.addRow(_('Preset Name:'), self.name)
@@ -1081,7 +1091,7 @@ class PrefDialog(QDialog):
     def presetComboItemActivated(self, index: int) -> None:
         """
         Respond to user activating the Preset combo box.
-        
+
         :param index: index of the item activated
         """
 
