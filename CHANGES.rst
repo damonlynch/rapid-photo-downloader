@@ -1,7 +1,7 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
-0.9.0a4 (2016-06-xx)
+0.9.0a4 (2016-06-22)
 --------------------
 
  - Implemented photo and video subfolder generation preference configuration.

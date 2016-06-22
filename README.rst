@@ -37,8 +37,7 @@ how much of a file needs to be read to extract its metadata and thumbnail.
 The version of the program described here, 0.9.0a4, is alpha quality software,
 meaning that not all its features have been written. The main missing features
 are the components of the graphical user interface that are used to configure
-file renaming, download subfolder generation, backups, and miscellaneous other
-program preferences.
+file renaming, backups, and miscellaneous other program preferences.
 
 For more information about the older, stable release of the program, see the
 project website_. To see the changes between this version and the old
@@ -46,7 +45,7 @@ stable version, peruse the file CHANGES.rst.
 
 Rapid Photo Downloader currently runs only on Linux. Theoretically it could be
 ported to both Mac and Windows with minimal effort. The one gotcha is that
-that Windows  lacks gphoto2, meaning when run under Windows, it could not
+that Windows lacks gphoto2, meaning when run under Windows, it could not
 download directly from cameras unless it used something else.
 
 The program is licensed under the GPL3_ or later.
