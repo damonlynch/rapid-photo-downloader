@@ -1,6 +1,16 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
+0.9.0a5 (2016-07-xx)
+--------------------
+
+ - Added .m2ts video extension to supported video files.
+
+ - Added tooltip to clarify meaning of storage space usage.
+
+ - Addd g++ to list of installation dependencies when installing on Debian derived
+   distributions.
+
 0.9.0a4 (2016-06-22)
 --------------------
 

@@ -24,7 +24,7 @@ __author__ = 'Damon Lynch'
 __copyright__ = "Copyright 2016, Damon Lynch"
 
 from typing import Union
-from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QSplitter, QSizePolicy)
+from PyQt5.QtWidgets import (QWidget, QVBoxLayout, QSplitter, QSizePolicy, QFrame)
 
 from raphodo.devicedisplay import DeviceView, EmulatedHeaderRow, device_header_row_height
 from raphodo.filebrowse import FileSystemView

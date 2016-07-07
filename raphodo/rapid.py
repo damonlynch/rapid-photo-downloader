@@ -741,7 +741,7 @@ class RapidWindow(QMainWindow):
 
         # self.prefs.synchronize_raw_jpg = False
 
-        # self.prefs.photo_rename = JOB_CODE_RENAME_TEST
+        # self.prefs.photo_rename = PHOTO_RENAME_COMPLEX
 
         # Don't call processEvents() after initiating 0MQ, as it can
         # cause "Interrupted system call" errors

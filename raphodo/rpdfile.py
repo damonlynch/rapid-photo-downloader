@@ -70,7 +70,7 @@ PHOTO_EXTENSIONS_SCAN = PHOTO_EXTENSIONS
 AUDIO_EXTENSIONS = ['wav', 'mp3']
 
 
-VIDEO_EXTENSIONS = ['3gp', 'avi', 'm2t', 'mov', 'mp4', 'mpeg','mpg', 'mod',
+VIDEO_EXTENSIONS = ['3gp', 'avi', 'm2t', 'm2ts', 'mov', 'mp4', 'mpeg','mpg', 'mod',
                     'tod', 'mts']
 
 VIDEO_THUMBNAIL_EXTENSIONS = ['thm']

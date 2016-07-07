@@ -127,6 +127,11 @@ class DestinationDisplayMousePos(Enum):
     normal = 1
     menu = 2
 
+class DestinationDisplayTooltipState(Enum):
+    menu = 1
+    path = 2
+    storage_space = 3
+
 class DisplayingFilesOfType(Enum):
     photos = 1
     videos = 2

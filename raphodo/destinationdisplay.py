@@ -39,7 +39,8 @@ from PyQt5.QtGui import (QColor, QPixmap, QIcon, QPaintEvent, QPalette, QMouseEv
 from raphodo.devicedisplay import DeviceDisplay, BodyDetails, icon_size
 from raphodo.storage import StorageSpace
 from raphodo.constants import (CustomColors, DestinationDisplayType, DisplayingFilesOfType,
-                               DestinationDisplayMousePos, PresetPrefType, NameGenerationType)
+                               DestinationDisplayMousePos, PresetPrefType, NameGenerationType,
+                               DestinationDisplayTooltipState)
 from raphodo.utilities import thousands, format_size_for_user
 from raphodo.rpdfile import FileTypeCounter, FileType
 from raphodo.nameeditor import PrefDialog, make_subfolder_menu_entry
@@ -50,14 +51,32 @@ from raphodo.generatenameconfig import *
 
 class DestinationDisplay(QWidget):
     """
-    Display how much storage space the checked files will use in addition
-    to the space used by existing files
+    Custom widget handling the display of download destinations, not including the file system
+    browsing component.
+
+    Serves a dual purpose, depending on whether photos and videos are being downloaded
+    to the same file system or not:
+
+    1. Display how much storage space the checked files will use in addition
+       to the space used by existing files.
+
+    2. Display the download destination (path), and a local menu to control subfolder
+       generation.
+
+    Where photos and videos are being downloaded the same file system, the storage space display
+    is combined into one widget, which appears in it's own panel above the photo and video
+    destination panels.
+
+    Where photos and videos are being downloaded to different file systems, the combined
+    display (above) is invisible, and photo and video panels have the own section in which
+    to display their storage space display
     """
 
     existing = _('Used')
     photos = _('Photos')
     videos = _('Videos')
     excess = _('Excess')
+    projected_space_msg = _('Projected storage space after download')
 
     def __init__(self, menu: bool=False, file_type: FileType=None, parent=None) -> None:
         """
@@ -81,10 +100,12 @@ class DestinationDisplay(QWidget):
             self.file_type = file_type
             self.createActionsAndMenu()
             self.mouse_pos = DestinationDisplayMousePos.normal
+            self.tooltip_display_state = DestinationDisplayTooltipState.path
         else:
             menuIcon = None
             self.menu = None
             self.mouse_pos = None
+            self.tooltip_display_state = None
 
         self.deviceDisplay = DeviceDisplay(menuButtonIcon=menuIcon)
         size = icon_size()
@@ -350,7 +371,7 @@ class DestinationDisplay(QWidget):
         if self.display_type != DestinationDisplayType.usage_only:
             self.tool_tip = self.path
         else:
-            self.tool_tip = ''
+            self.tool_tip = self.projected_space_msg
         self.setToolTip(self.tool_tip)
 
         self.update()
@@ -403,13 +424,14 @@ class DestinationDisplay(QWidget):
         highlight_menu = self.mouse_pos == DestinationDisplayMousePos.menu
 
         if self.display_type != DestinationDisplayType.usage_only:
+            # Render the folder icon, folder name, and the menu icon
             self.deviceDisplay.paint_header(painter=painter, x=x, y=y, width=width,
                                             display_name=self.display_name, icon=self.icon,
                                             highlight_menu=highlight_menu)
             y = y + self.deviceDisplay.device_name_height
 
         if self.display_type != DestinationDisplayType.folder_only:
-
+            # Render the projected storage space
             if self.display_type == DestinationDisplayType.usage_only:
                 y += self.deviceDisplay.padding
 
@@ -522,8 +544,27 @@ class DestinationDisplay(QWidget):
 
     @pyqtSlot(QMouseEvent)
     def mouseMoveEvent(self, event: QMouseEvent) -> None:
+        """
+        Sets the tooltip depending on the position of the mouse.
+        """
+
         if self.menu is None:
+            # Relevant only for photo and video destination panels, not the combined
+            # storage space display.
             return
+
+        if self.display_type == DestinationDisplayType.folders_and_usage:
+            # make tooltip different when hovering above storage space compared
+            # to when hovering above the destination folder
+
+            headerRect = QRect(0, 0, self.width(), self.deviceDisplay.device_name_height)
+            if not headerRect.contains(event.pos()):
+                if self.tooltip_display_state != DestinationDisplayTooltipState.storage_space:
+                    # Display tooltip for storage space
+                    self.setToolTip(self.projected_space_msg)
+                    self.tooltip_display_state = DestinationDisplayTooltipState.storage_space
+                    self.update()
+                return
 
         iconRect = self.deviceDisplay.menu_button_rect(0, 0, self.width())
         if iconRect.contains(event.pos()):
@@ -534,12 +575,15 @@ class DestinationDisplay(QWidget):
                     self.setToolTip(_('Control photo subfolder creation'))
                 else:
                     self.setToolTip(_('Control video subfolder creation'))
+                self.tooltip_display_state = DestinationDisplayTooltipState.menu
                 self.update()
 
         else:
-            if self.mouse_pos == DestinationDisplayMousePos.menu:
+            if (self.mouse_pos == DestinationDisplayMousePos.menu or
+                    self.tooltip_display_state != DestinationDisplayTooltipState.path):
                 self.mouse_pos = DestinationDisplayMousePos.normal
                 self.setToolTip(self.tool_tip)
+                self.tooltip_display_state = DestinationDisplayTooltipState.path
                 self.update()
 
 
