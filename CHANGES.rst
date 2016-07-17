@@ -11,6 +11,9 @@ Changelog for Rapid Photo Downloader
  - Addd g++ to list of installation dependencies when installing on Debian derived
    distributions.
 
+ - Only enable right-click menu option 'Open in File Browser...' when default file
+   manager is known
+
 0.9.0a4 (2016-06-22)
 --------------------
 

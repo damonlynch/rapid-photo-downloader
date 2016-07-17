@@ -1668,8 +1668,10 @@ class ThumbnailDelegate(QStyledItemDelegate):
                 # as KDE won't release them until them the file browser is closed!
                 # However if the file is already downloaded, we don't care, as can get it from
                 # local source.
+                # Finally, disable when we don't know what the default file manager is
 
                 active_camera = disable_kde = False
+                have_file_manager = self.rapidApp.file_manager is not None
                 if download_status not in Downloaded:
                     if index.data(Roles.is_camera):
                         scan_id = index.data(Roles.scan_id)
@@ -1677,7 +1679,8 @@ class ThumbnailDelegate(QStyledItemDelegate):
                     if not active_camera:
                         disable_kde = index.data(Roles.mtp) and get_desktop() == Desktop.kde
 
-                self.openInFileBrowserAct.setEnabled(not (disable_kde or active_camera))
+                self.openInFileBrowserAct.setEnabled(not (disable_kde or active_camera) and
+                                                     have_file_manager)
                 self.contextMenu.popup(globalPos)
                 return False
             if event.button() != Qt.LeftButton or not self.getCheckBoxRect(
