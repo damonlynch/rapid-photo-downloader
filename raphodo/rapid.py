@@ -4683,6 +4683,10 @@ class QtSingleApplication(QApplication):
 
 
 def get_versions() -> List[str]:
+    if 'cython' in zmq.zmq_version_info.__module__:
+        pyzmq_backend = 'cython'
+    else:
+        pyzmq_backend = 'cffi'
     versions = [
         'Rapid Photo Downloader: {}'.format(__about__.__version__),
         'Platform: {}'.format(platform.platform()),
@@ -4690,7 +4694,7 @@ def get_versions() -> List[str]:
         'Qt: {}'.format(QtCore.QT_VERSION_STR),
         'PyQt: {}'.format(QtCore.PYQT_VERSION_STR),
         'ZeroMQ: {}'.format(zmq.zmq_version()),
-        'Python ZeroMQ: {}'.format(zmq.pyzmq_version()),
+        'Python ZeroMQ: {} ({} backend)'.format(zmq.pyzmq_version(), pyzmq_backend),
         'gPhoto2: {}'.format(gphoto2_version()),
         'Python gPhoto2: {}'.format(python_gphoto2_version()),
         'ExifTool: {}'.format(EXIFTOOL_VERSION),
