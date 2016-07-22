@@ -5,7 +5,7 @@ memory cards and other devices
 
 =head1 SYNOPSIS
 
-B<rapid-photo-downloader> [options]
+B<rapid-photo-downloader> [options] [path]
 
 Options:
 
@@ -50,6 +50,24 @@ Unique to Rapid Photo Downloader is its Timeline, which groups photos and
 videos based on how much time elapsed between consecutive shots. Use it to
 identify photos and videos taken at different periods in a single day or
 over consecutive days.
+
+Files are downloaded from two different types of sources: (1) one or more
+automatically detected devices like cameras, phones, memory cards, and external
+drives; and (2) a single manually specified path, shown in the user interface as
+"This Computer".
+
+=head1 PATH
+
+Optional value that when specified, is parsed to determine if it represents an
+automatically detected device or a path on this computer.
+
+If the path represents an automatically detected device, automatic detection of
+devices is turned on, as in the B<--auto-detect> option. Furthermore, downloading from a manually
+specified path as in the B<--this-computer-location> option is turned off.
+
+Otherwise, the path is assumed to be a manually specified path as in the
+B<--this-computer-location> option, in which case downloading from this computer is turned on
+and downloading from automatically detected devices is turned off.
 
 =head1 OPTIONS
 
@@ -104,7 +122,8 @@ overwriting existing program preferences.
 
 =item B<-t {on,off}, --this-computer {on,off}>
 
-Turn on or off downloading from this computer, overwriting existing program preferences.
+Turn on or off downloading from this computer (see description above),
+overwriting existing program preferences.
 
 =item B<--this-computer-location PATH>
 

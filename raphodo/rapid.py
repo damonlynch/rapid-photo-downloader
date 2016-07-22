@@ -89,7 +89,7 @@ from raphodo.storage import (ValidMounts, CameraHotplug, UDisks2Monitor,
                      mountPaths, get_desktop_environment, get_desktop,
                      gvfs_controls_mounts, get_default_file_manager, validate_download_folder,
                      validate_source_folder, get_fdo_cache_thumb_base_directory,
-                     WatchDownloadDirs)
+                     WatchDownloadDirs, get_media_dir)
 from raphodo.interprocess import (PublishPullPipelineManager,
                                   PushPullDaemonManager,
                                   ScanArguments,
@@ -4833,6 +4833,8 @@ def parser_options(formatter_class=argparse.HelpFormatter):
     parser.add_argument("--log-gphoto2", action="store_true",
         help=_("Include gphoto2 debugging information in log files."))
 
+    parser.add_argument('path', nargs='?')
+
     return parser
 
 def import_prefs() -> None:
@@ -5012,29 +5014,54 @@ def main():
     else:
         video_rename = None
 
-    if args.auto_detect:
-        auto_detect= args.auto_detect == 'on'
-        if auto_detect:
-            logging.info("Device auto detection turned on from command line")
-        else:
-            logging.info("Device auto detection turned off from command line")
-    else:
-        auto_detect=None
-        
-    if args.this_computer_source:
-        this_computer_source = args.this_computer_source == 'on'
-        if this_computer_source:
-            logging.info("Downloading from this computer turned on from command line")
-        else:
-            logging.info("Downloading from this computer turned off from command line")
-    else:
-        this_computer_source=None
+    if args.path:
+        if args.auto_detect or args.this_computer_source:
+            print('When specifying a path on the command line, do not also specify an\n'
+                  'option for device auto detection or a path on "This Computer".')
+            sys.exit(1)
 
-    if args.this_computer_location:
-        this_computer_location = os.path.abspath(args.this_computer_location)
-        logging.info("This computer path set from command line: %s", this_computer_location)
+        media_dir = get_media_dir()
+        media_dirs = (media_dir, '/run{}'.format(media_dir))
+        auto_detect = False
+        for dir in media_dirs:
+            auto_detect = args.path.startswith(dir)
+            if auto_detect:
+                this_computer_source = False
+                this_computer_location = None
+                logging.info("Device auto detection turned on from command line using "
+                             "positional PATH argument")
+                break
+
+        if not auto_detect:
+            this_computer_source = True
+            this_computer_location = os.path.abspath(args.path)
+            logging.info("Downloading from This Computer turned on from command line using "
+                         "positional PATH argument")
+
     else:
-        this_computer_location=None
+        if args.auto_detect:
+            auto_detect= args.auto_detect == 'on'
+            if auto_detect:
+                logging.info("Device auto detection turned on from command line")
+            else:
+                logging.info("Device auto detection turned off from command line")
+        else:
+            auto_detect=None
+
+        if args.this_computer_source:
+            this_computer_source = args.this_computer_source == 'on'
+            if this_computer_source:
+                logging.info("Downloading from This Computer turned on from command line")
+            else:
+                logging.info("Downloading from This Computer turned off from command line")
+        else:
+            this_computer_source=None
+
+        if args.this_computer_location:
+            this_computer_location = os.path.abspath(args.this_computer_location)
+            logging.info("This Computer path set from command line: %s", this_computer_location)
+        else:
+            this_computer_location=None
         
     if args.photo_location:
         photo_location = os.path.abspath(args.photo_location)

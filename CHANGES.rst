@@ -12,7 +12,11 @@ Changelog for Rapid Photo Downloader
    distributions.
 
  - Only enable right-click menu option 'Open in File Browser...' when default file
-   manager is known
+   manager is known.
+
+ - Handle use case where the path from which to download is passed on the command line
+   without a command line switch, such as when Gnome launches the program in response
+   to a device like a memory card containing photos being inserted.
 
 0.9.0a4 (2016-06-22)
 --------------------

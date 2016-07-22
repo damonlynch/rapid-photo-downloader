@@ -88,6 +88,28 @@ UdevAttr = namedtuple('UdevAttr', 'is_mtp_device, vendor, model')
 PROGRAM_DIRECTORY = 'rapid-photo-downloader'
 
 
+def get_user_name() -> str:
+    """
+    Gets the user name of the process owner, with no exception checking
+    :return: user name of the process owner
+    """
+
+    return pwd.getpwuid(os.getuid())[0]
+
+
+def get_media_dir() -> str:
+    """
+    Returns the media directory, i.e. where external mounts are mounted.
+
+    Assumes mount point of /media/<USER>.
+    """
+
+    if sys.platform.startswith('linux'):
+        return '/media/{}'.format(get_user_name())
+    else:
+        raise ("Mounts.setValidMountPoints() not implemented on %s", sys.platform())
+
+
 class ValidMounts():
     r"""
     Operations to find 'valid' mount points, i.e. the places in which
@@ -159,9 +181,11 @@ class ValidMounts():
         self.validMountFolders, e.g. /media/<USER>, etc.
         """
 
-        if sys.platform.startswith('linux'):
+        if not sys.platform.startswith('linux'):
+            raise ("Mounts.setValidMountPoints() not implemented on %s", sys.platform())
+        else:
             try:
-                media_dir = '/media/{}'.format(pwd.getpwuid(os.getuid())[0])
+                media_dir = get_media_dir()
             except:
                 logging.critical("Unable to determine username of this process")
                 media_dir = ''
@@ -174,8 +198,6 @@ class ValidMounts():
                 for point in self.mountPointInFstab():
                     validPoints.append(point)
                 self.validMountFolders = tuple(validPoints)
-        else:
-            raise ("Mounts.setValidMountPoints() not implemented on %s", sys.platform())
 
     def mountPointInFstab(self):
         """
