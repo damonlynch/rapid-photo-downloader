@@ -119,7 +119,8 @@ class DameonThumbnailWorker(DaemonProcess):
                             existing_cache_thumbnail=md5_name,
                             full_file_name=backup_full_file_name,
                             size=rpd_file.size,
-                            modification_time=mtime)
+                            modification_time=mtime,
+                            error_on_missing_thumbnail=True)
 
                         logging.debug("Copying and modifying existing FDO 256 thumbnail for %s",
                                       backup_full_file_name)
@@ -127,7 +128,8 @@ class DameonThumbnailWorker(DaemonProcess):
                             existing_cache_thumbnail=md5_name,
                             full_file_name=backup_full_file_name,
                             size=rpd_file.size,
-                            modification_time=mtime)
+                            modification_time=mtime,
+                            error_on_missing_thumbnail=False)
             else:
                 # file has just been downloaded and renamed
                 rpd_file.modified_via_daemon_process = True

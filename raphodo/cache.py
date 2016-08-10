@@ -296,7 +296,8 @@ class Cache:
     def modify_existing_thumbnail_and_save_copy(self,
                               existing_cache_thumbnail: str,
                               full_file_name: str, modification_time,
-                              size: int) -> str:
+                              size: int,
+                              error_on_missing_thumbnail: bool) -> str:
         """
 
         :param existing_cache_thumbnail: the md5 name of the cache thumbnail,
@@ -306,13 +307,17 @@ class Cache:
         :param size: size of the file in bytes
         :param modification_time: file modification time, to be turned
          into a float if it's not already
+        :param error_on_missing_thumbnail: if True, issue error if thumbnail is
+         not located (useful when dealing with FDO 128 cache, but not helpful
+         with FDO 256 cache as not all RAW files have thumbnails large enough)
         :return: the path of the saved file, else None if operation
         failed
         """
 
         existing_cache_thumbnail_full_path = os.path.join(self.cache_dir, existing_cache_thumbnail)
         if not os.path.isfile(existing_cache_thumbnail_full_path):
-            logging.error("No FDO thumbnail to copy for %s", full_file_name)
+            if error_on_missing_thumbnail:
+                logging.error("No FDO thumbnail to copy for %s", full_file_name)
             return None
         thumbnail = QImage(existing_cache_thumbnail_full_path)
         if not thumbnail.isNull():
