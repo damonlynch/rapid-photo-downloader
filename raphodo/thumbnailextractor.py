@@ -636,7 +636,7 @@ class ThumbnailExtractor(LoadBalancerWorker):
                                 modification_time=mtime,
                                 generation_failed=False,
                                 thumbnail=thumbnail_256,
-                                free_desktop_org=True)
+                                free_desktop_org=False)
                             thumbnail_128 = thumbnail_256.scaled(
                                     QSize(128, 128),
                                     Qt.KeepAspectRatio,
@@ -652,7 +652,7 @@ class ThumbnailExtractor(LoadBalancerWorker):
                         modification_time=mtime,
                         generation_failed=False,
                         thumbnail=thumbnail_128,
-                        free_desktop_org=True)
+                        free_desktop_org=False)
                     elif thumbnail_256 is not None and rpd_file.fdo_thumbnail_256 is None:
                         rpd_file.fdo_thumbnail_256 = qimage_to_png_buffer(thumbnail).data()
 

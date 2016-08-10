@@ -316,8 +316,7 @@ class Preferences:
     def __init__(self) -> None:
         # To avoid infinite recursions arising from the use of __setattr__,
         # manually assign class values to the class dict
-        self.__dict__['settings'] = QSettings("Rapid Photo Downloader",
-                                              "Rapid Photo Downloader")
+        self.__dict__['settings'] = QSettings("Rapid Photo Downloader", "Rapid Photo Downloader")
         self.__dict__['valid'] = True
 
         # These next two values must be kept in sync
@@ -639,7 +638,45 @@ class Preferences:
             return subfolders.index(self.video_subfolder)
         except ValueError:
             return -1
-        
+
+    def add_list_value(self, key, value) -> None:
+        """
+        Add value to pref list if it doesn't already exist.
+
+        An empty list contains only one item: ['']
+
+        :param key: the preference key
+        :param value: the value to add
+        """
+
+        if len(self[key]) == 1 and self[key][0] == '':
+            self[key] = [value]
+        elif value not in self[key]:
+            # Must assign the value like this, otherwise the preference value
+            # will not be updated:
+            self[key] = self[key] + [value]
+
+    def del_list_value(self, key, value) -> None:
+        """
+        Remove a value from the pref list indicated by key.
+
+        Exceptions are not caught.
+
+        An empty list contains only one item: ['']
+
+        :param key: the preference key
+        :param value: the value to add
+        """
+
+        # Must remove the value like this, otherwise the preference value
+        # will not be updated:
+        l = self[key]
+        l.remove(value)
+        self[key] = l
+
+        if len(self[key]) == 0:
+            self[key] = ['']
+
     def reset(self) -> None:
         """
         Reset all program preferences to their default settings
@@ -652,7 +689,6 @@ class Preferences:
         Upgrade the user's preferences if needed.
 
         :param previous_version: previous version as returned by pkg_resources.parse_version
-        :return:
         """
 
         photo_video_rename_change = pkg_resources.parse_version('0.9.0a4')
@@ -667,6 +703,20 @@ class Preferences:
                         self.photo_extension = case
                     else:
                         self.video_extension = case
+
+        # Versions prior to 0.9.0a5 incorrectly set the conflict resolution value
+        # when importing preferences from 0.4.11 or earlier
+        prefs_import_bug_fix = pkg_resources.parse_version('0.9.0a5')
+        if previous_version < prefs_import_bug_fix:
+            try:
+                value = self.conflict_resolution
+            except TypeError:
+                self.settings.endGroup()
+                default = self.defaults['conflict_resolution']
+                default_name = constants.ConflictResolution(default).name
+                logging.warning('Resetting Conflict Resolution preference value to %s',
+                                default_name)
+                self.conflict_resolution = default
 
 
 def match_pref_list(pref_lists: List[List[str]], user_pref_list: List[str]) -> int:

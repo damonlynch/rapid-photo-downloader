@@ -548,7 +548,8 @@ def prefs_list_from_gconftool2_string(value: str) -> List[str]:
     'UPPERCASE']
     >>> prefs_list_from_gconftool2_string('[Text,IMG_\,\\;+=|!@\,#^&*()$%/",,]')
     ['Text', 'IMG_,\\;+=|!@,#^&*()$%/"', '', '']
-
+    >>> prefs_list_from_gconftool2_string('[Manila,Dubai,London]')
+    ['Manila', 'Dubai', 'London']
     """
     # Trim the left and right square brackets
     value = value[1:-1]

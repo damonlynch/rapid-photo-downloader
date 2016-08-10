@@ -188,8 +188,8 @@ class Cache:
         :param camera_model: optional camera model. If the thumbnail is
          not from a camera, then should be None.
         :param free_desktop_org: if True, then image will be convereted
-         to 8bit mode if neccessary
-        :return the path of the saved file, else None if operation
+         to 8bit mode if necessary
+        :return the md5_name of the saved file, else None if operation
         failed
         """
 
@@ -226,7 +226,7 @@ class Cache:
             if generation_failed:
                 logging.debug("Wrote {}x{} thumbnail {} for {}".format(
                     thumbnail.width(), thumbnail.height(), path, uri))
-            return path
+            return md5_name
         else:
             return None
 
@@ -243,8 +243,25 @@ class Cache:
                     return png
         return None
 
+
+    def get_thumbnail_md5_name(self, full_file_name: str,
+                               camera_model: Optional[str] = None) -> str:
+        """
+        Returns the md5 name for the photo or video. Does not check if the file exists
+        on the file system in the cache.
+
+        :param full_file_name: full_file_name: full path of the file (including file
+        name). Will be turned into an absolute path if it is a file
+        system path
+        :param camera_model: optional camera model. If the thumbnail is
+         not from a camera, then should be None.
+        :return: the md5 name
+        """
+
+        return self.md5.md5_hash_name(full_file_name=full_file_name, camera_model=camera_model)[0]
+
     def get_thumbnail(self, full_file_name: str, modification_time, size: int,
-                      camera_model: str=None) -> GetThumbnail:
+                      camera_model: Optional[str]=None) -> GetThumbnail:
         """
         Attempt to retrieve a thumbnail from the thumbnail cache.
         :param full_file_name: full path of the file (including file
@@ -279,20 +296,32 @@ class Cache:
     def modify_existing_thumbnail_and_save_copy(self,
                               existing_cache_thumbnail: str,
                               full_file_name: str, modification_time,
-                              size: int, generation_failed: bool) -> str:
-        if generation_failed:
-            #TODO account for failure here
-            #should this ever happen?
-            logging.debug("Did not account for generation failure when modifying FDO thumbnail")
+                              size: int) -> str:
+        """
+
+        :param existing_cache_thumbnail: the md5 name of the cache thumbnail,
+         without the path to the cache
+        :param full_file_name: full path of the file (including file
+        name). Will be turned into an absolute path if need be
+        :param size: size of the file in bytes
+        :param modification_time: file modification time, to be turned
+         into a float if it's not already
+        :return: the path of the saved file, else None if operation
+        failed
+        """
+
+        existing_cache_thumbnail_full_path = os.path.join(self.cache_dir, existing_cache_thumbnail)
+        if not os.path.isfile(existing_cache_thumbnail_full_path):
+            logging.error("No FDO thumbnail to copy for %s", full_file_name)
+            return None
+        thumbnail = QImage(existing_cache_thumbnail_full_path)
+        if not thumbnail.isNull():
+            return self.save_thumbnail(full_file_name=full_file_name,
+                   size=size, modification_time=modification_time,
+                   generation_failed=False, thumbnail=thumbnail,
+                   camera_model=None, free_desktop_org=False)
         else:
-            thumbnail = QImage(existing_cache_thumbnail)
-            if not thumbnail.isNull():
-                return self.save_thumbnail(full_file_name=full_file_name,
-                       size=size, modification_time=modification_time,
-                       generation_failed=False, thumbnail=thumbnail,
-                       camera_model=None, free_desktop_org=False)
-            else:
-                return None
+            return None
 
     def delete_thumbnail(self, full_file_name: str, camera_model: str=None) -> None:
         """

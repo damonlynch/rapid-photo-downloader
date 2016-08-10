@@ -65,44 +65,40 @@ class BackupFilesWorker(WorkerInPublishPullPipeline, FileCopy):
             if amount_downloaded == total:
                 self.bytes_downloaded = 0
 
-    def copying_file_error(self, rpd_file: RPDFile, destination:str, inst):
+    def copying_file_error(self, rpd_file: RPDFile, destination:str, inst) -> None:
         logging.error("Backup of %s failed", destination)
-        msg = "%s %s", inst.errno, inst.strerror
+        msg = "%s %s" % (inst.errno, inst.strerror)
         rpd_file.add_problem(None, pn.BACKUP_ERROR, self.device_name)
         rpd_file.add_extra_detail('%s%s' % (pn.BACKUP_ERROR,
                                             self.device_name), msg)
         rpd_file.error_title = _('Backing up error')
         rpd_file.error_msg = \
-                _("Source: %(source)s\nDestination: %(destination)s") % \
-                 {'source': rpd_file.download_full_file_name,
-                  'destination': destination} + "\n" + \
-                _("Error: %(inst)s") % {'inst': msg}
+                _("Source: %(source)s\nDestination: %(destination)s") % dict(
+                 source=rpd_file.download_full_file_name,
+                 destination=destination) + "\n" + _("Error: %(inst)s") % dict(inst=msg)
         logging.error("%s:\n%s", rpd_file.error_title, rpd_file.error_msg)
 
-    def create_subdir_error(self, dest_dir: str, inst, rpd_file: RPDFile,
-                            backup_full_file_name):
-        logging.error("Failed to create backup "
-                      "subfolder: %s", dest_dir)
-        msg = "%s %s", inst.errno, inst.strerror
+    def create_subdir_error(self, dest_dir: str,
+                            inst,
+                            rpd_file: RPDFile,
+                            backup_full_file_name: str) -> None:
+        logging.error("Failed to create backup subfolder: %s", dest_dir)
+        msg = "%s %s" % (inst.errno, inst.strerror)
         logging.error(msg)
         rpd_file.add_problem(None,
              pn.BACKUP_DIRECTORY_CREATION,
              self.device_name)
-        rpd_file.add_extra_detail('%s%s' % (
-            pn.BACKUP_DIRECTORY_CREATION,
-            self.device_name), msg)
+        rpd_file.add_extra_detail('%s%s' % (pn.BACKUP_DIRECTORY_CREATION, self.device_name), msg)
         rpd_file.error_title = _('Backing up error')
         rpd_file.error_msg = \
              _("Destination directory could not be "
-               "created: %(directory)s\n")  % \
-              {'directory': dest_dir,  } + \
-             _("Source: %(source)s\nDestination: %("
-               "destination)s")  % \
-              {'source': rpd_file.download_full_file_name,
-               'destination': backup_full_file_name} + "\n" + \
-             _("Error: %(inst)s") % {'inst': msg}
+               "created: %(directory)s\n")  % dict(directory=dest_dir) + \
+             _("Source: %(source)s\nDestination: %(destination)s")  % dict(
+               source=rpd_file.download_full_file_name,
+               destination=backup_full_file_name) + \
+             "\n" + _("Error: %(inst)s") % dict(inst=msg)
 
-    def backup_associate_file(self, dest_dir, full_file_name):
+    def backup_associate_file(self, dest_dir: str, full_file_name: str) -> None:
         """Backs up small files like XMP or THM files"""
         dest_name = os.path.join(dest_dir, os.path.split(full_file_name)[1])
 
@@ -114,27 +110,6 @@ class BackupFilesWorker(WorkerInPublishPullPipeline, FileCopy):
             logging.error("Backup of %s failed", full_file_name)
 
         copy_file_metadata(full_file_name, dest_name)
-
-    def save_fdo_thumbnail(self, rpd_file: RPDFile, backup_full_file_name:
-                           str):
-        # Check to see if existing thumbnail in FDO cache can be
-        # modified and renamed to reflect new URI
-        mtime = os.path.getmtime(rpd_file.download_full_file_name)
-        if rpd_file.fdo_thumbnail_128_name:
-            logging.debug("Copying and modifying existing FDO 128 thumbnail")
-            self.fdo_cache_normal.modify_existing_thumbnail_and_save_copy(
-                existing_cache_thumbnail=rpd_file.fdo_thumbnail_128_name,
-                full_file_name=backup_full_file_name,
-                size=rpd_file.size,
-                modification_time=mtime)
-
-        if rpd_file.fdo_thumbnail_256_name:
-            logging.debug("Copying and modifying existing FDO 256 thumbnail")
-            self.fdo_cache_large.modify_existing_thumbnail_and_save_copy(
-                existing_cache_thumbnail=rpd_file.fdo_thumbnail_256_name,
-                full_file_name=backup_full_file_name,
-                size=rpd_file.size,
-                modification_time=mtime)
 
     def do_work(self):
 
@@ -248,9 +223,6 @@ class BackupFilesWorker(WorkerInPublishPullPipeline, FileCopy):
                     if rpd_file.download_xmp_full_name:
                         self.backup_associate_file(dest_dir, rpd_file.download_xmp_full_name)
 
-            if backup_succeeded and data.save_fdo_thumbnail:
-                self.save_fdo_thumbnail(rpd_file, backup_full_file_name)
-
             self.total_downloaded += rpd_file.size
             bytes_not_downloaded = rpd_file.size - self.amount_downloaded
             if bytes_not_downloaded and data.do_backup:
@@ -264,7 +236,7 @@ class BackupFilesWorker(WorkerInPublishPullPipeline, FileCopy):
             self.content = pickle.dumps(BackupResults(
                 scan_id=self.scan_id, device_id=self.device_id,
                 backup_succeeded=backup_succeeded, do_backup=data.do_backup,
-                rpd_file=rpd_file))
+                rpd_file=rpd_file, backup_full_file_name=backup_full_file_name))
             self.send_message_to_sink()
 
 

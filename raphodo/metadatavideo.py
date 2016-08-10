@@ -38,6 +38,15 @@ try:
 except ImportError:
     have_pymediainfo = False
 
+if have_pymediainfo:
+    try:
+        # Attempt to parse null... it will fail if libmediainfo is not present, which is
+        # what we want to check
+        pymediainfo.MediaInfo.parse('/dev/null')
+    except OSError:
+        logging.error("pymediainfo installed, but the library libmediainfo appears to be missing")
+        have_pymediainfo = False
+
 def version_info() -> Optional[str]:
     """
     returns the version of Exiftool being used

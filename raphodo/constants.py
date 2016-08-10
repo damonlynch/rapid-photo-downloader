@@ -91,6 +91,7 @@ DownloadUpdateSeconds = DownloadUpdateMilliseconds / 1000
 # How many seconds to delay showing the time remaining and download speed
 ShowTimeAndSpeedDelay = 8.0
 
+
 class ThumbnailCacheStatus(Enum):
     not_ready = 1
     orientation_unknown = 2

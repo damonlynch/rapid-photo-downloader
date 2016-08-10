@@ -39,7 +39,7 @@ import datetime
 import locale
 locale.setlocale(locale.LC_ALL, '')
 import pickle
-from collections import namedtuple
+from collections import namedtuple, defaultdict
 import platform
 import argparse
 from typing import Optional, Tuple, List, Sequence, Dict, Set
@@ -273,7 +273,7 @@ class BackupManager(PublishPullPipelineManager):
     backed up to one drive, and videos to another, there would be a
     worker process for each drive (2 in total).
     """
-    message = pyqtSignal(int, bool, bool, RPDFile)
+    message = pyqtSignal(int, bool, bool, RPDFile, str)
     bytesBackedUp = pyqtSignal(bytes)
 
     def __init__(self, logging_port: int) -> None:
@@ -305,7 +305,7 @@ class BackupManager(PublishPullPipelineManager):
             assert data.do_backup is not None
             assert data.rpd_file is not None
             self.message.emit(data.device_id, data.backup_succeeded,
-                              data.do_backup, data.rpd_file)
+                              data.do_backup, data.rpd_file, data.backup_full_file_name)
 
 
 class CopyFilesManager(PublishPullPipelineManager):
@@ -2351,6 +2351,9 @@ class RapidWindow(QMainWindow):
         """
         logging.debug("Start Download phase 1 has started")
 
+        if self.prefs.backup_files:
+            self.initializeBackupThumbCache()
+
         self.download_files = self.thumbnailModel.getFilesMarkedForDownload(scan_id)
 
         # model, port
@@ -2517,6 +2520,7 @@ class RapidWindow(QMainWindow):
                                self.backup_devices.no_video_backup_devices *
                                download_stats.videos_size_in_bytes))
 
+
         self.time_remaining[scan_id] = download_size
         self.time_check.set_download_mark()
 
@@ -2649,6 +2653,11 @@ class RapidWindow(QMainWindow):
     def fileRenamedAndMoved(self, move_succeeded: bool,
                             rpd_file: RPDFile,
                             download_count: int) -> None:
+        """
+        Called after a file has been renamed  -- that is, moved from the
+        temp dir it was downloaded into, and renamed using the file
+        renaming rules
+        """
 
         scan_id = rpd_file.scan_id
 
@@ -2725,8 +2734,19 @@ class RapidWindow(QMainWindow):
         :param rpd_file: details of the file
         """
 
-        self.download_tracker.thumbnail_generated_post_download(scan_id=rpd_file.scan_id)
+        uid = rpd_file.uid
         scan_id = rpd_file.scan_id
+        if self.prefs.backup_files and rpd_file.fdo_thumbnail_128_name:
+            self.generated_fdo_thumbnails[uid] = rpd_file.fdo_thumbnail_128_name
+            if uid in self.backup_fdo_thumbnail_cache:
+                self.thumbnaildaemonmq.send_message_to_worker(ThumbnailDaemonData(
+                    rpd_file=rpd_file,
+                    write_fdo_thumbnail=True,
+                    backup_full_file_names=self.backup_fdo_thumbnail_cache[uid],
+                    fdo_name=rpd_file.fdo_thumbnail_128_name
+                ))
+                del self.backup_fdo_thumbnail_cache[uid]
+        self.download_tracker.thumbnail_generated_post_download(scan_id=scan_id)
         completed, files_remaining = self.isDownloadCompleteForScan(scan_id)
         if completed:
             self.fileDownloadCompleteFromDevice(scan_id=scan_id, files_remaining=files_remaining)
@@ -2793,9 +2813,9 @@ class RapidWindow(QMainWindow):
                                   self.prefs.save_fdo_thumbnails)
             self.backupmq.backup_file(data, device_id)
 
-    @pyqtSlot(int, bool, bool, RPDFile)
+    @pyqtSlot(int, bool, bool, RPDFile, str)
     def fileBackedUp(self, device_id: int, backup_succeeded: bool, do_backup: bool,
-                     rpd_file: RPDFile) -> None:
+                     rpd_file: RPDFile, backup_full_file_name: str) -> None:
 
         # Only show an error message if there is more than one device
         # backing up files of this type - if that is the case,
@@ -2811,6 +2831,11 @@ class RapidWindow(QMainWindow):
             #     rpd_file.error_msg, rpd_file.error_extra_detail)
 
         if do_backup:
+            if self.prefs.generate_thumbnails and self.prefs.save_fdo_thumbnails and \
+                    rpd_file.should_write_fdo() and backup_succeeded:
+                self.backupGenerateFdoThumbnail(rpd_file=rpd_file,
+                                                backup_full_file_name=backup_full_file_name)
+
             self.download_tracker.file_backed_up(rpd_file.scan_id, rpd_file.uid)
             if self.download_tracker.file_backed_up_to_all_locations(
                     rpd_file.uid, rpd_file.file_type):
@@ -2827,6 +2852,32 @@ class RapidWindow(QMainWindow):
         self.time_check.increment(bytes_downloaded=chunk_downloaded)
         self.time_remaining.update(scan_id, bytes_downloaded=chunk_downloaded)
         self.updateFileDownloadDeviceProgress()
+
+    def initializeBackupThumbCache(self) -> None:
+        """
+        Prepare tracking of thumbnail generation for backed up files
+        """
+
+        # indexed by uid, deque of full backup paths
+        self.generated_fdo_thumbnails = dict()  # type: Dict[str]
+        self.backup_fdo_thumbnail_cache = defaultdict(list)  # type: Dict[List[str]]
+
+    def backupGenerateFdoThumbnail(self, rpd_file: RPDFile, backup_full_file_name: str) -> None:
+        uid = rpd_file.uid
+        if uid not in self.generated_fdo_thumbnails:
+            logging.debug("Caching FDO thumbnail creation for backup %s", backup_full_file_name)
+            self.backup_fdo_thumbnail_cache[uid].append(backup_full_file_name)
+        else:
+            # An FDO thumbnail has already been generated for the downloaded file
+            assert uid not in self.backup_fdo_thumbnail_cache
+            logging.debug("Assigning daemon thumbnailer to create FDO thumbnail for %s",
+                          backup_full_file_name)
+            self.thumbnaildaemonmq.send_message_to_worker(ThumbnailDaemonData(
+                rpd_file=rpd_file,
+                write_fdo_thumbnail=True,
+                backup_full_file_names=[backup_full_file_name],
+                fdo_name = self.generated_fdo_thumbnails[uid]
+            ))
 
     @pyqtSlot(int, list)
     def updateSequences(self, stored_sequence_no: int, downloads_today: List[str]) -> None:
@@ -2931,7 +2982,6 @@ class RapidWindow(QMainWindow):
             state = DeviceState.idle
 
         self.devices.set_device_state(scan_id=scan_id, state=state)
-        # Setting the spinner state also sets the
         self.mapModel(scan_id).setSpinnerState(scan_id, state)
 
         # Rebuild temporal proximity if it needs it
@@ -2962,6 +3012,8 @@ class RapidWindow(QMainWindow):
             self.enablePrefsAndRefresh(enabled=True)
             self.notifyDownloadComplete()
             self.downloadProgressBar.reset()
+            if self.prefs.backup_files:
+                self.initializeBackupThumbCache()
             if self.unity_progress:
                 self.desktop_launcher.set_property('progress_visible', False)
 
@@ -3979,16 +4031,20 @@ class RapidWindow(QMainWindow):
 
     def prepareNonCameraDeviceScan(self, device: Device, on_startup: bool=False) -> None:
         """
+        Initiates a device scan for volume.
 
-        :param device:
+        If non-DCIM device scans are enabled, and the device is not whitelisted
+        (determined by the display name), then the user is prompted whether to download
+        from the device.
+
+        :param device: device to scan
         :param on_startup: if True, the search is occurring during
          the program's startup phase
         """
 
         if not self.devices.known_device(device):
-            if (self.scanEvenIfNoDCIM() and not device.path in self.prefs.volume_whitelist):
-                logging.debug("Prompting whether to use device %s, which has no DCIM folder",
-                              device.display_name)
+            if (self.scanEvenIfNoDCIM() and not device.display_name in self.prefs.volume_whitelist):
+                logging.debug("Prompting whether to use device %s", device.display_name)
                 # prompt user to see if device should be used or not
                 self.showMainWindow()
                 message = _('Should %(device)s be used to download photos and videos from?') % dict(
@@ -3999,15 +4055,13 @@ class RapidWindow(QMainWindow):
                 if use.exec():
                     if use.remember:
                         logging.debug("Whitelisting device %s", device.display_name)
-                        self.prefs.volume_whitelist = self.prefs.volume_whitelist + [
-                                                                            device.display_name]
+                        self.prefs.add_list_value(key='volume_whitelist', value=device.display_name)
                     self.startDeviceScan(device=device, on_startup=on_startup)
                 else:
                     logging.debug("Device %s rejected as a download device", device.display_name)
                     if use.remember and device.display_name not in self.prefs.volume_blacklist:
                         logging.debug("Blacklisting device %s", device.display_name)
-                        self.prefs.volume_blacklist = self.prefs.volume_blacklist + [
-                                                                            device.display_name]
+                        self.prefs.add_list_value(key='volume_blacklist', value=device.display_name)
             else:
                 self.startDeviceScan(device=device, on_startup=on_startup)
 
@@ -4207,10 +4261,10 @@ class RapidWindow(QMainWindow):
         msgbox.setStandardButtons(QMessageBox.Yes|QMessageBox.No)
         if msgbox.exec() == QMessageBox.Yes:
             if device.device_type == DeviceType.camera:
-                self.prefs.camera_blacklist = self.prefs.camera_blacklist + [device.udev_name]
+                self.prefs.add_list_value(key='camera_blacklist', value=device.udev_name)
                 logging.debug('Added %s to camera blacklist',device.udev_name)
             else:
-                self.prefs.volume_blacklist = self.prefs.volume_blacklist + [device.display_name]
+                self.prefs.add_list_value(key='volume_blacklist', value=device.display_name)
                 logging.debug('Added %s to volume blacklist', device.display_name)
             self.removeDevice(scan_id=scan_id)
 
@@ -4928,9 +4982,10 @@ def import_prefs() -> None:
                         prefs.this_computer_path = new_value
                     elif key == 'download_conflict_resolution':
                         if new_value == "skip download":
-                            prefs.conflict_resolution = constants.ConflictResolution.skip
+                            prefs.conflict_resolution = int(constants.ConflictResolution.skip)
                         else:
-                            prefs.conflict_resolution = constants.ConflictResolution.add_identifier
+                            prefs.conflict_resolution = \
+                                int(constants.ConflictResolution.add_identifier)
                     else:
                         new_key = key_triplet[1]
                         if new_key in ('photo_rename', 'video_rename'):

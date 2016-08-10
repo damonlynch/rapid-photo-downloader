@@ -1,14 +1,14 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
-0.9.0a5 (2016-07-xx)
+0.9.0a5 (2016-08-xx)
 --------------------
 
  - Added .m2ts video extension to supported video files.
 
  - Added tooltip to clarify meaning of storage space usage.
 
- - Addd g++ to list of installation dependencies when installing on Debian derived
+ - Added g++ to list of installation dependencies when installing on Debian derived
    distributions.
 
  - Only enable right-click menu option 'Open in File Browser...' when default file
@@ -17,6 +17,20 @@ Changelog for Rapid Photo Downloader
  - Handle use case where the path from which to download is passed on the command line
    without a command line switch, such as when Gnome launches the program in response
    to a device like a memory card containing photos being inserted.
+
+ - Fixed bug where volumes where not correctly added to device white and blacklists.
+
+ - Fixed bug where download conflict resolution preference value was being incorrectly
+   set when importing preferences from version 0.4.11 or earlier.
+
+ - Fixed bug where generating thumbnails for backed up files caused the backup process
+   to crash.
+
+ - Fixed crash where the library libmediainfo is not installed but the python package
+   pymediainfo is.
+
+ - Fixed generation of error message when there is an error copying file to a backup
+   destination.
 
 0.9.0a4 (2016-06-22)
 --------------------

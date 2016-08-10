@@ -513,11 +513,11 @@ DAEMON_WORKER_ID = 0
 
 class PushPullDaemonManager(PullPipelineManager):
     """
-    Manage a single isntance daemon worker process that waits to work on data
+    Manage a single instance daemon worker process that waits to work on data
     issued by this manager. The data to be worked on is issued in sequence,
     one after the other.
 
-    Because there is on a single daemon process, a Push-Pull model is most
+    Because this is a single daemon process, a Push-Pull model is most
     suitable for sending the data.
     """
 
@@ -1176,17 +1176,24 @@ class CopyFilesResults:
 
 class ThumbnailDaemonData:
     """
-    Pass arguments to the thumbnail daemon process
+    Pass arguments to the thumbnail daemon process.
+
+    Occurs after a file is downloaded & renamed, and also
+    after a file is backed up.
     """
 
     def __init__(self, frontend_port: Optional[int]=None,
                  rpd_file: Optional[RPDFile]=None,
                  write_fdo_thumbnail: Optional[bool]=None,
-                 use_thumbnail_cache: Optional[bool]=None) -> None:
+                 use_thumbnail_cache: Optional[bool]=None,
+                 backup_full_file_names: Optional[List[str]]=None,
+                 fdo_name: Optional[str]=None) -> None:
         self.frontend_port = frontend_port
         self.rpd_file = rpd_file
         self.write_fdo_thumbnail = write_fdo_thumbnail
         self.use_thumbnail_cache = use_thumbnail_cache
+        self.backup_full_file_names = backup_full_file_names
+        self.fdo_name = fdo_name
 
 
 class RenameAndMoveFileData:
@@ -1263,10 +1270,14 @@ class BackupFileData:
         self.save_fdo_thumbnail = save_fdo_thumbnail
 
 class BackupResults:
-    def __init__(self, scan_id: int, device_id: int,
-                 total_downloaded=None, chunk_downloaded=None,
-                 backup_succeeded: bool=None, do_backup: bool=None, rpd_file:
-                 RPDFile=None) -> None:
+    def __init__(self, scan_id: int,
+                 device_id: int,
+                 total_downloaded: Optional[int]=None,
+                 chunk_downloaded: Optional[int]=None,
+                 backup_succeeded: Optional[bool]=None,
+                 do_backup: Optional[bool]=None,
+                 rpd_file: Optional[RPDFile] = None,
+                 backup_full_file_name: Optional[str]=None) -> None:
         self.scan_id = scan_id
         self.device_id = device_id
         self.total_downloaded = total_downloaded
@@ -1274,6 +1285,7 @@ class BackupResults:
         self.backup_succeeded = backup_succeeded
         self.do_backup = do_backup
         self.rpd_file = rpd_file
+        self.backup_full_file_name = backup_full_file_name
 
 
 class GenerateThumbnailsArguments:
