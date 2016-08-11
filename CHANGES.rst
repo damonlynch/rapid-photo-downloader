@@ -32,6 +32,9 @@ Changelog for Rapid Photo Downloader
  - Fixed generation of error message when there is an error copying file to a backup
    destination.
 
+ - Fixed crash at startup bug when the Pictures or Videos XDG special directory was
+   not set.
+
 0.9.0a4 (2016-06-22)
 --------------------
 

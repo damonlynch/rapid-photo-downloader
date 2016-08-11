@@ -70,6 +70,8 @@ gi.require_version('GExiv2', '0.10')
 gi.require_version('GLib', '2.0')
 from gi.repository import GUdev, UDisks, GLib
 
+from gettext import gettext as _
+
 from raphodo.constants import Desktop
 from raphodo.utilities import process_running
 
@@ -323,20 +325,53 @@ def gvfs_controls_mounts() -> bool:
     return process_running('gvfs-gphoto2')
 
 
+def _get_xdg_special_dir(dir_type: gi.repository.GLib.UserDirectory,
+                         home_on_failure: bool=True) -> Optional[str]:
+    path = GLib.get_user_special_dir(dir_type)
+    if path is None and home_on_failure:
+        return os.path.expanduser('~')
+    return path
+
 def xdg_photos_directory() -> str:
     """
     Get localized version of /home/<USER>/Pictures
-    :return: the directory
+    :return: the directory if it is specified, else the user's
+    home directory
     """
-    return GLib.get_user_special_dir(GLib.USER_DIRECTORY_PICTURES)
+    return _get_xdg_special_dir(GLib.USER_DIRECTORY_PICTURES)
 
 
 def xdg_videos_directory() -> str:
     """
     Get localized version of /home/<USER>/Videos
-    :return: the directory
+    :return: the directory if it is specified, else the user's
+    home directory
     """
-    return GLib.get_user_special_dir(GLib.USER_DIRECTORY_VIDEOS)
+    return _get_xdg_special_dir(GLib.USER_DIRECTORY_VIDEOS)
+
+def xdg_photos_identifier() -> str:
+    """
+    Get special subfoler indicated by the localized version of /home/<USER>/Pictures
+    :return: the subfolder name if it is specified, else the localized version of 'Pictures'
+    """
+
+    path = _get_xdg_special_dir(GLib.USER_DIRECTORY_PICTURES, home_on_failure=False)
+    if path is None:
+        # translators: the name of the Pictures folder
+        return _('Pictures')
+    return path
+
+def xdg_videos_identifier() -> str:
+    """
+    Get special subfoler indicated by the localized version of /home/<USER>/Pictures
+    :return: the subfolder name if it is specified, else the localized version of 'Pictures'
+    """
+
+    path = _get_xdg_special_dir(GLib.USER_DIRECTORY_VIDEOS, home_on_failure=False)
+    if path is None:
+        # translators: the name of the Videos folder
+        return _('Videos')
+    return path
 
 
 def make_program_directory(path: str) -> str:

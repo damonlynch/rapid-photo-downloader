@@ -32,7 +32,8 @@ from PyQt5.QtCore import QSettings
 
 from gettext import gettext as _
 
-from raphodo.storage import xdg_photos_directory, xdg_videos_directory
+from raphodo.storage import (xdg_photos_directory, xdg_videos_directory, xdg_photos_identifier,
+                             xdg_videos_identifier)
 from raphodo.generatenameconfig import *
 import raphodo.constants as constants
 from raphodo.utilities import available_cpu_count
@@ -289,10 +290,8 @@ class Preferences:
                           )
     backup_defaults = dict(backup_files=False,
                            backup_device_autodetection=True,
-                           photo_backup_identifier=os.path.split(
-                               xdg_photos_directory())[1],
-                           video_backup_identifier=os.path.split(
-                               xdg_videos_directory())[1],
+                           photo_backup_identifier=xdg_photos_identifier(),
+                           video_backup_identifier=xdg_videos_identifier(),
                            backup_photo_location=os.path.expanduser('~'),
                            backup_video_location=os.path.expanduser('~'),
                           )
