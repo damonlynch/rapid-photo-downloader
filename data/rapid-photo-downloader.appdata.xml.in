@@ -26,6 +26,21 @@
     </_p>
   </description>
   <url type="homepage">http://www.damonlynch.net/rapid/</url>
+  <url type="translate">http://www.damonlynch.net/rapid/translate.html</url>
+  <url type="donation">http://www.damonlynch.net/rapid/</url>
+  <keywords>
+    <keyword>RAW</keyword>
+    <keyword>ingest</keyword>
+    <keyword>memory</keyword>
+    <keyword>card</keyword>
+    <keyword>filter</keyword>
+    <keyword>sort</keyword>
+    <keyword>select</keyword>
+    <keyword>choose</keyword>
+    <keyword>automate</keyword>
+    <keyword>workflow</keyword>
+    <keyword></keyword>
+  </keywords>
   <screenshots>
     <screenshot type="default">http://www.damonlynch.net/rapid/appdata/2016/05/mainwindow.png</screenshot>
     <screenshot>http://www.damonlynch.net/rapid/appdata/2016/05/downloading.png</screenshot>
