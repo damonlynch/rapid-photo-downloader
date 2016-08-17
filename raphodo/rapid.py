@@ -5226,6 +5226,7 @@ def main():
         cache = ThumbnailCacheSql()
         cache.purge_cache()
         print(_("All settings and caches have been reset"))
+        logging.debug("Exiting immediately after full reset")
         sys.exit(0)
 
     if args.delete_thumb_cache or args.forget_files or args.import_prefs:
@@ -5233,12 +5234,17 @@ def main():
             cache = ThumbnailCacheSql()
             cache.purge_cache()
             print(_("Thumbnail Cache has been reset"))
+            logging.debug("Thumbnail Cache has been reset")
+
         if args.forget_files:
             d = DownloadedSQL()
             d.update_table(reset=True)
             print(_("Remembered files have been forgotten"))
+            logging.debug("Remembered files have been forgotten")
+
         if args.import_prefs:
             import_prefs()
+        logging.debug("Exiting immediately after thumbnail cache / remembered files reset")
         sys.exit(0)
 
     splash = SplashScreen(QPixmap(':/splashscreen.png'), Qt.WindowStaysOnTopHint)

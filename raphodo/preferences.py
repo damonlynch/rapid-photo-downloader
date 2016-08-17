@@ -260,8 +260,8 @@ class Preferences:
                            video_download_folder=xdg_videos_directory(),
                            photo_subfolder=DEFAULT_SUBFOLDER_PREFS,
                            video_subfolder=DEFAULT_VIDEO_SUBFOLDER_PREFS,
-                           photo_rename=[FILENAME, NAME, ORIGINAL_CASE],
-                           video_rename=[FILENAME, NAME, ORIGINAL_CASE],
+                           photo_rename=DEFAULT_PHOTO_RENAME_PREFS,
+                           video_rename=DEFAULT_VIDEO_RENAME_PREFS,
                            # following two extension values introduced in 0.9.0a4:
                            photo_extension=LOWERCASE,
                            video_extension=LOWERCASE,

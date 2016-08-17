@@ -137,7 +137,7 @@ SUBSECONDS = 'Subseconds'
 # subfolder preference immediately below
 # NOTE 2: if changing LIST_DATE_TIME_L2, you MUST also update
 # DATE_TIME_CONVERT below
-# NOTE 2: if changing LIST_DATE_TIME_L2, you MUST also update
+# NOTE 3: if changing LIST_DATE_TIME_L2, you MUST also update
 # PHOTO_SUBFOLDER_MENU_DEFAULTS_CONV 
 LIST_DATE_TIME_L2 = [
     'YYYYMMDD',  # 0
@@ -173,6 +173,8 @@ DEFAULT_SUBFOLDER_PREFS = [DATE_TIME, IMAGE_DATE, LIST_DATE_TIME_L2[11], '/',
 DEFAULT_VIDEO_SUBFOLDER_PREFS = [DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[
     11], '/', '', '', DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[0]]
 
+DEFAULT_PHOTO_RENAME_PREFS = [FILENAME, NAME, ORIGINAL_CASE]
+DEFAULT_VIDEO_RENAME_PREFS = [FILENAME, NAME, ORIGINAL_CASE]
 
 class i18TranslateMeThanks:
     """ this class is never used in actual running code
@@ -427,44 +429,156 @@ PHOTO_SUBFOLDER_MENU_DEFAULTS_CONV = (
      ],
 )
 
+PHOTO_RENAME_MENU_DEFAULTS = (
+    (_('Original Filename'), 'IMG_1234'),
+    (_('Date-Time and Downloads today'), _('YYYYMMDD-HHMM-1')),
+    (_('Date and Downloads today'), _('YYYYMMDD-1')),
+    (_('Date-Time and Image number'), _('YYYYMMDD-1234')),
+    (_('Date-Time and Job Code'), _('YYYYMMDD-HHMM-Job Code-1')),
+    (_('Date and Job Code'), _('YYYYMMDD-Job Code-1')),
+    (_('Metadata'), _('YYYYMMDD-HHMM-1-iso100-f7.1-85mm-160'))
+)
+
+PHOTO_RENAME_MENU_DEFAULTS_CONV = (
+    # 0 Original Filename
+    [FILENAME, NAME, ORIGINAL_CASE],
+    # 1 Date-Time and Downloads today
+    [DATE_TIME, IMAGE_DATE, LIST_DATE_TIME_L2[0],
+     TEXT, '-', '',
+     DATE_TIME, IMAGE_DATE, LIST_DATE_TIME_L2[18],
+     TEXT, '-', '',
+     SEQUENCES, DOWNLOAD_SEQ_NUMBER, SEQUENCE_NUMBER_1],
+    # 2 Date and Downloads today
+    [DATE_TIME, IMAGE_DATE, LIST_DATE_TIME_L2[0],
+     TEXT, '-', '',
+     SEQUENCES, DOWNLOAD_SEQ_NUMBER, SEQUENCE_NUMBER_1],
+    # 3 Date-Time and Image number
+    [DATE_TIME, IMAGE_DATE, LIST_DATE_TIME_L2[0],
+     TEXT, '-', '',
+     DATE_TIME, IMAGE_DATE, LIST_DATE_TIME_L2[18],
+     TEXT, '-', '',
+     FILENAME, IMAGE_NUMBER, IMAGE_NUMBER_ALL],
+    # 4 Date-Time and Job Code
+    [DATE_TIME, IMAGE_DATE, LIST_DATE_TIME_L2[0],
+     TEXT, '-', '',
+     DATE_TIME, IMAGE_DATE, LIST_DATE_TIME_L2[18],
+     TEXT, '-', '',
+     JOB_CODE, '', '',
+     TEXT, '-', '',
+     SEQUENCES, DOWNLOAD_SEQ_NUMBER, SEQUENCE_NUMBER_1],
+    # 5 Date and Job Code
+    [DATE_TIME, IMAGE_DATE, LIST_DATE_TIME_L2[0],
+     TEXT, '-', '',
+     JOB_CODE, '', '',
+     TEXT, '-', '',
+     SEQUENCES, DOWNLOAD_SEQ_NUMBER, SEQUENCE_NUMBER_1],
+    # 6 Metadata
+    [DATE_TIME, IMAGE_DATE, LIST_DATE_TIME_L2[0],
+     TEXT, '-', '',
+     DATE_TIME, IMAGE_DATE, LIST_DATE_TIME_L2[18],
+     TEXT, '-', '',
+     SEQUENCES, DOWNLOAD_SEQ_NUMBER, SEQUENCE_NUMBER_1,
+     TEXT, '-iso', '',
+     METADATA, ISO, '',
+     TEXT, '-f', '',
+     METADATA, APERTURE, '',
+     TEXT, '-', '',
+     METADATA, FOCAL_LENGTH, '',
+     TEXT, 'mm-', '',
+     METADATA, EXPOSURE_TIME, '']
+)
+
 # See notes above regarding keeping values in sync
 VIDEO_SUBFOLDER_MENU_DEFAULTS = PHOTO_SUBFOLDER_MENU_DEFAULTS
 VIDEO_SUBFOLDER_MENU_DEFAULTS_CONV = (
     # 0
     [DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[11],
-     '/', '', '',
+     SEPARATOR, '', '',
      DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[0]
      ],
     # 1
     [DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[11],
-     '/', '', '',
+     SEPARATOR, '', '',
      DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[1]
      ],
     # 2
     [DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[11],
-     '/', '', '',
+     SEPARATOR, '', '',
      DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[2]
      ],
     # 3
     [DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[11],
-     '/', '', '',
+     SEPARATOR, '', '',
      DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[11],
      DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[13],
      TEXT, '_', '',
      JOB_CODE, '', ''],
     # 4
     [DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[11],
-     '/', '', '',
+     SEPARATOR, '', '',
      DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[11],
      DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[13],
-     '/', '', '',
+     SEPARATOR, '', '',
      JOB_CODE, '', '',
      ],
 )
 
+VIDEO_RENAME_MENU_DEFAULTS = (
+    (_('Original Filename'), 'MVI_1234'),
+    (_('Date-Time and Downloads today'), _('YYYYMMDD-HHMM-1')),
+    (_('Date and Downloads today'), _('YYYYMMDD-1')),
+    (_('Date-Time and Video number'), _('YYYYMMDD_1234')),
+    (_('Date-Time and Job Code'), _('YYYYMMDD-HHMM-Job Code-1')),
+    (_('Date and Job Code'), _('YYYYMMDD-Job Code-1')),
+    (_('Resolution'), _('YYYYMMDD-HHMM-1-1920x1080'))
+)
 
-# LIST_DATE_TIME_L2.  Obviously the two must remain synchronized.
+VIDEO_RENAME_MENU_DEFAULTS_CONV = (
+    # 0 Original Filename
+    [FILENAME, NAME, ORIGINAL_CASE],
+    # 1 Date-Time and Downloads today
+    [DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[0],
+     TEXT, '-', '',
+     DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[18],
+     TEXT, '-', '',
+     SEQUENCES, DOWNLOAD_SEQ_NUMBER, SEQUENCE_NUMBER_1],
+    # 2 Date and Downloads today
+    [DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[0],
+     TEXT, '-', '',
+     SEQUENCES, DOWNLOAD_SEQ_NUMBER, SEQUENCE_NUMBER_1],
+    # 3 Date-Time and Image number
+    [DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[0],
+     TEXT, '-', '',
+     DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[18],
+     TEXT, '-', '',
+     FILENAME, VIDEO_NUMBER, IMAGE_NUMBER_ALL],
+    # 4 Date-Time and Job Code
+    [DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[0],
+     TEXT, '-', '',
+     DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[18],
+     TEXT, '-', '',
+     JOB_CODE, '', '',
+     TEXT, '-', '',
+     SEQUENCES, DOWNLOAD_SEQ_NUMBER, SEQUENCE_NUMBER_1],
+    # 5 Date and Job Code
+    [DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[0],
+     TEXT, '-', '',
+     JOB_CODE, '', '',
+     TEXT, '-', '',
+     SEQUENCES, DOWNLOAD_SEQ_NUMBER, SEQUENCE_NUMBER_1],
+    # 6 Resolution
+    [DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[0],
+     TEXT, '-', '',
+     DATE_TIME, VIDEO_DATE, LIST_DATE_TIME_L2[18],
+     TEXT, '-', '',
+     SEQUENCES, DOWNLOAD_SEQ_NUMBER, SEQUENCE_NUMBER_1,
+     TEXT, '-', '',
+     METADATA, WIDTH, '',
+     TEXT, 'x', '',
+     METADATA, HEIGHT, '']
+)
 
+# See notes above regarding keeping values in sync
 DATE_TIME_CONVERT = ['%Y%m%d', '%Y-%m-%d', '%Y_%m_%d', '%y%m%d', '%y-%m-%d',
                      '%y_%m_%d',
                      '%m%d%Y', '%m%d%y', '%m%d',

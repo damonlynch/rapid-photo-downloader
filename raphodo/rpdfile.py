@@ -848,7 +848,7 @@ class Video(RPDFile):
 
 
 class SamplePhoto(Photo):
-    def __init__(self, sample_name='IMG_0524.CR2', sequences=None):
+    def __init__(self, sample_name='IMG_1234.CR2', sequences=None):
         mtime = time.time()
         super().__init__(name=sample_name,
                          path='/media/EOS_DIGITAL/DCIM/100EOS5D',
@@ -870,7 +870,7 @@ class SamplePhoto(Photo):
         self.download_start_time = datetime.now()
 
 class SampleVideo(Video):
-    def __init__(self, sample_name='MVI_1379.MOV', sequences=None):
+    def __init__(self, sample_name='MVI_1234.MOV', sequences=None):
         mtime = time.time()
         Video.__init__(self, name=sample_name,
                        path='/media/EOS_DIGITAL/DCIM/100EOS5D',

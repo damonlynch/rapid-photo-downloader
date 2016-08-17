@@ -415,6 +415,19 @@ def make_subfolder_menu_entry(prefs: Tuple[str]) -> str:
         description=desc, elements=os.sep.join(elements))
 
 
+def make_rename_menu_entry(prefs: Tuple[str]) -> str:
+    """
+    Create the text for a menu / combobox item
+
+    :param prefs: single pref item, with title and elements
+    :return: item text
+    """
+
+    desc = prefs[0]
+    elements = prefs[1]
+    return _("%(description)s - %(elements)s") % dict(description=desc, elements=elements)
+
+
 class PresetComboBox(QComboBox):
     """
     Combox box displaying built-in presets, custom presets,
@@ -435,6 +448,11 @@ class PresetComboBox(QComboBox):
             self.builtin_presets = PHOTO_SUBFOLDER_MENU_DEFAULTS
         elif preset_type == PresetPrefType.preset_video_subfolder:
             self.builtin_presets = VIDEO_SUBFOLDER_MENU_DEFAULTS
+        elif preset_type == PresetPrefType.preset_photo_rename:
+            self.builtin_presets = PHOTO_RENAME_MENU_DEFAULTS
+        else:
+            assert preset_type == PresetPrefType.preset_video_rename
+            self.builtin_presets = VIDEO_RENAME_MENU_DEFAULTS
 
         idx = 0
 
@@ -650,15 +668,15 @@ class PrefDialog(QDialog):
         elif generation_type == NameGenerationType.photo_name:
             self.setWindowTitle('Photo Renaming Editor')
             self.preset_type = PresetPrefType.preset_photo_rename
-            #TODO add photo renaming default prefs
-            self.builtin_pref_lists = []
-            self.builtin_pref_names = []
+            self.builtin_pref_lists = PHOTO_RENAME_MENU_DEFAULTS_CONV
+            self.builtin_pref_names = [make_rename_menu_entry(pref)
+                                       for pref in PHOTO_RENAME_MENU_DEFAULTS]
         else:
             self.setWindowTitle('Video Renaming Editor')
             self.preset_type = PresetPrefType.preset_video_rename
-            # TODO add video renaming default prefs
-            self.builtin_pref_lists = []
-            self.builtin_pref_names = []
+            self.builtin_pref_lists = VIDEO_RENAME_MENU_DEFAULTS_CONV
+            self.builtin_pref_names = [make_rename_menu_entry(pref)
+                                       for pref in VIDEO_RENAME_MENU_DEFAULTS]
 
         self.prefs = prefs
 
@@ -1300,10 +1318,12 @@ if __name__ == '__main__':
 
     with exiftool.ExifTool() as exiftool_process:
 
-        # prefDialog = PrefDialog(DICT_IMAGE_RENAME_L0, PHOTO_RENAME_COMPLEX,
+        # prefDialog = PrefDialog(DICT_IMAGE_RENAME_L0, PHOTO_RENAME_MENU_DEFAULTS_CONV[1],
         #                         NameGenerationType.photo_name, prefs, exiftool_process)
-        prefDialog = PrefDialog(DICT_SUBFOLDER_L0, PHOTO_SUBFOLDER_MENU_DEFAULTS_CONV[2],
-                                NameGenerationType.photo_subfolder, prefs, exiftool_process)
+        prefDialog = PrefDialog(DICT_VIDEO_RENAME_L0, VIDEO_RENAME_MENU_DEFAULTS_CONV[1],
+                                NameGenerationType.video_name, prefs, exiftool_process)
+        # prefDialog = PrefDialog(DICT_SUBFOLDER_L0, PHOTO_SUBFOLDER_MENU_DEFAULTS_CONV[2],
+        #                         NameGenerationType.photo_subfolder, prefs, exiftool_process)
         prefDialog.show()
         app.exec_()
 
