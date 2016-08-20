@@ -703,10 +703,10 @@ class Preferences:
                     else:
                         self.video_extension = case
 
-        # Versions prior to 0.9.0a5 incorrectly set the conflict resolution value
-        # when importing preferences from 0.4.11 or earlier
-        prefs_import_bug_fix = pkg_resources.parse_version('0.9.0a5')
-        if previous_version < prefs_import_bug_fix:
+        v090a5 = pkg_resources.parse_version('0.9.0a5')
+        if previous_version < v090a5:
+            # Versions prior to 0.9.0a5 incorrectly set the conflict resolution value
+            # when importing preferences from 0.4.11 or earlier
             try:
                 value = self.conflict_resolution
             except TypeError:
@@ -716,6 +716,16 @@ class Preferences:
                 logging.warning('Resetting Conflict Resolution preference value to %s',
                                 default_name)
                 self.conflict_resolution = default
+            # destinationButtonPressed is no longer used by 0.9.0a5
+            self.settings.beginGroup("MainWindow")
+            key = 'destinationButtonPressed'
+            try:
+                if self.settings.contains(key):
+                    logging.debug("Removing preference value %s", key)
+                    self.settings.remove(key)
+            except:
+                logging.warning("Unknown error removing %s preference value", key)
+            self.settings.endGroup()
 
 
 def match_pref_list(pref_lists: List[List[str]], user_pref_list: List[str]) -> int:

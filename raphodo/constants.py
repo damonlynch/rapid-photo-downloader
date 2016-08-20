@@ -92,6 +92,13 @@ DownloadUpdateSeconds = DownloadUpdateMilliseconds / 1000
 ShowTimeAndSpeedDelay = 8.0
 
 
+class RightSideButton(IntEnum):
+    destination = 0
+    rename = 1
+    jobcode = 2
+    backup = 3
+
+
 class ThumbnailCacheStatus(Enum):
     not_ready = 1
     orientation_unknown = 2

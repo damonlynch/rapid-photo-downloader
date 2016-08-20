@@ -80,7 +80,7 @@ from PyQt5.QtWidgets import (QAction, QApplication, QMainWindow, QMenu,
                              QProgressBar, QSplitter,
                              QHBoxLayout, QVBoxLayout, QDialog, QLabel,
                              QComboBox, QGridLayout, QCheckBox, QSizePolicy,
-                             QMessageBox, QSplashScreen,
+                             QMessageBox, QSplashScreen, QStackedWidget,
                              QScrollArea, QDesktopWidget, QStyledItemDelegate)
 from PyQt5.QtNetwork import QLocalSocket, QLocalServer
 
@@ -116,7 +116,7 @@ from raphodo.constants import (BackupLocationType, DeviceType, ErrorType,
                                ThumbnailBackgroundName, Desktop,
                                DeviceState, Sort, Show, Roles, DestinationDisplayType,
                                DisplayingFilesOfType, DownloadFailure, DownloadWarning,
-                               RememberThisMessage)
+                               RememberThisMessage, RightSideButton)
 from raphodo.thumbnaildisplay import (ThumbnailView, ThumbnailListModel, ThumbnailDelegate,
                                       DownloadTypes, DownloadStats)
 from raphodo.devicedisplay import (DeviceModel, DeviceView, DeviceDelegate)
@@ -144,7 +144,7 @@ from raphodo.toggleview import QToggleView
 import raphodo.__about__ as __about__
 import raphodo.iplogging as iplogging
 import raphodo.excepthook
-from raphodo.panelview import QPanelView, QComputerScrollArea
+from raphodo.panelview import QPanelView
 from raphodo.computerview import ComputerWidget
 from raphodo.folderspreview import DownloadDestination, FoldersPreview
 from raphodo.destinationdisplay import DestinationDisplay
@@ -1039,8 +1039,18 @@ class RapidWindow(QMainWindow):
         self.sourceButton.setChecked(settings.value("sourceButtonPressed", True, bool))
         self.sourceButtonClicked()
 
-        self.destinationButton.setChecked(settings.value("destinationButtonPressed", True, bool))
-        self.destinationButtonClicked()
+        # Default to displaying the destination panels if the value has never been
+        # set
+        index = settings.value("rightButtonPressed", 0, int)
+        if index >= 0:
+            try:
+                button = self.rightSideButtonMapper[index]
+            except ValueError:
+                logging.error("Unexpected preference value for right side button")
+                index = RightSideButton.destination
+                button = self.rightSideButtonMapper[index]
+            button.setChecked(True)
+            self.setRightPanelsAndButtons(RightSideButton(index))
 
         prefs_valid, msg = self.prefs.check_prefs_for_validity()
 
@@ -1115,7 +1125,7 @@ class RapidWindow(QMainWindow):
         settings.setValue("windowSize", self.size())
         settings.setValue("centerSplitterSizes", self.centerSplitter.saveState())
         settings.setValue("sourceButtonPressed", self.sourceButton.isChecked())
-        settings.setValue("destinationButtonPressed", self.destinationButton.isChecked())
+        settings.setValue("rightButtonPressed", self.rightSideButtonPressed())
         settings.setValue("proximityButtonPressed", self.proximityButton.isChecked())
         settings.setValue("leftPanelSplitterSizes", self.leftPanelSplitter.saveState())
         settings.setValue("rightPanelSplitterSizes", self.rightPanelSplitter.saveState())
@@ -1211,8 +1221,39 @@ class RapidWindow(QMainWindow):
         self.leftPanelSplitter.setVisible(self.sourceButton.isChecked() or
                                           self.proximityButton.isChecked())
 
-    def setRightPanelVisibility(self) -> None:
-        self.rightPanelSplitter.setVisible(self.destinationButton.isChecked())
+    def setRightPanelsAndButtons(self, buttonPressed: RightSideButton) -> None:
+        """
+        Set visibility of right panel based on which right bar buttons
+        is pressed, and ensure only one button is pressed at any one time.
+
+        Cannot use exclusive QButtonGroup because with that, one button needs to be
+        pressed. We allow no button to be pressed.
+        """
+
+        widget = self.rightSideButtonMapper[buttonPressed]  # type: RotatedButton
+
+        if widget.isChecked():
+            self.rightPanels.setVisible(True)
+            for button in RightSideButton:
+                if button == buttonPressed:
+                    self.rightPanels.setCurrentIndex(buttonPressed.value)
+                else:
+                    self.rightSideButtonMapper[button].setChecked(False)
+        else:
+            self.rightPanels.setVisible(False)
+
+    def rightSideButtonPressed(self) -> int:
+        """
+        Determine which right side button is currently pressed, if any.
+        :return: -1 if no button is pressed, else the index into
+         RightSideButton
+        """
+
+        for button in RightSideButton:
+            widget = self.rightSideButtonMapper[button]
+            if widget.isChecked():
+                return int(button.value)
+        return -1
 
     @pyqtSlot()
     def sourceButtonClicked(self) -> None:
@@ -1222,9 +1263,19 @@ class RapidWindow(QMainWindow):
 
     @pyqtSlot()
     def destinationButtonClicked(self) -> None:
-        self.photoDestination.setVisible(self.destinationButton.isChecked())
-        self.videoDestination.setVisible(self.destinationButton.isChecked())
-        self.setRightPanelVisibility()
+        self.setRightPanelsAndButtons(RightSideButton.destination)
+
+    @pyqtSlot()
+    def renameButtonClicked(self) -> None:
+        self.setRightPanelsAndButtons(RightSideButton.rename)
+
+    @pyqtSlot()
+    def backupButtonClicked(self) -> None:
+        self.setRightPanelsAndButtons(RightSideButton.backup)
+
+    @pyqtSlot()
+    def jobcodButtonClicked(self) -> None:
+        self.setRightPanelsAndButtons(RightSideButton.jobcode)
 
     @pyqtSlot()
     def proximityButtonClicked(self) -> None:
@@ -1355,6 +1406,10 @@ class RapidWindow(QMainWindow):
         self.aboutAct = QAction(_("&About..."), self, triggered=self.doAboutAction)
 
     def createLayoutAndButtons(self, centralWidget) -> None:
+        """
+        Create widgets used to display the GUI.
+        :param centralWidget: the widget in which to layout the new widgets
+        """
 
         settings = QSettings()
         settings.beginGroup("MainWindow")
@@ -1376,6 +1431,7 @@ class RapidWindow(QMainWindow):
         self.createCenterPanels()
         self.createDeviceThisComputerViews()
         self.createDestinationViews()
+        self.createRenamePanels()
         self.configureCenterPanels(settings)
         self.createBottomControls()
 
@@ -1442,6 +1498,15 @@ class RapidWindow(QMainWindow):
         self.backupButton = RotatedButton(_('Back Up'), RotatedButton.rightSide)
 
         self.destinationButton.clicked.connect(self.destinationButtonClicked)
+        self.renameButton.clicked.connect(self.renameButtonClicked)
+        self.jobcodeButton.clicked.connect(self.jobcodButtonClicked)
+        self.backupButton.clicked.connect(self.backupButtonClicked)
+
+        self.rightSideButtonMapper = {
+            RightSideButton.destination: self.destinationButton,
+            RightSideButton.rename: self.renameButton,
+            RightSideButton.jobcode: self.jobcodeButton,
+            RightSideButton.backup: self.backupButton}
 
         rightBar.addWidget(self.destinationButton)
         rightBar.addWidget(self.renameButton)
@@ -1626,6 +1691,19 @@ class RapidWindow(QMainWindow):
         layout.addWidget(self.combinedDestinationDisplayContainer)
         layout.addWidget(self.photoDestination)
 
+    def createRenamePanels(self) -> None:
+        """
+        Create the file renaming panel
+        """
+
+        self.photoRenamePanel = QPanelView(label=_('Photo Renaming'),
+                                       headerColor=QColor(ThumbnailBackgroundName),
+                                       headerFontColor=QColor(Qt.white))
+        self.videoRenamePanel = QPanelView(label=_('Video Renaming'),
+                                       headerColor=QColor(ThumbnailBackgroundName),
+                                       headerFontColor=QColor(Qt.white))
+
+
     def createBottomControls(self) -> None:
         self.thumbnailControl = QWidget()
         layout = QHBoxLayout()
@@ -1769,6 +1847,8 @@ class RapidWindow(QMainWindow):
         self.leftPanelSplitter.setOrientation(Qt.Vertical)
         self.rightPanelSplitter = QSplitter()
         self.rightPanelSplitter.setOrientation(Qt.Vertical)
+        self.renamePanels = QWidget()
+        self.rightPanels = QStackedWidget()
 
     def configureCenterPanels(self, settings: QSettings) -> None:
         self.leftPanelSplitter.addWidget(self.deviceToggleView)
@@ -1778,6 +1858,12 @@ class RapidWindow(QMainWindow):
         self.rightPanelSplitter.addWidget(self.photoDestinationContainer)
         self.rightPanelSplitter.addWidget(self.videoDestination)
 
+        layout = QVBoxLayout()
+        layout.setContentsMargins(0, 0, 0, 0)
+        self.renamePanels.setLayout(layout)
+        layout.addWidget(self.photoRenamePanel)
+        layout.addWidget(self.videoRenamePanel)
+
         self.leftPanelSplitter.setCollapsible(0, False)
         self.leftPanelSplitter.setCollapsible(1, False)
         self.leftPanelSplitter.setCollapsible(2, False)
@@ -1785,9 +1871,12 @@ class RapidWindow(QMainWindow):
         self.leftPanelSplitter.setStretchFactor(1, 1)
         self.leftPanelSplitter.setStretchFactor(2, 1)
 
+        self.rightPanels.addWidget(self.rightPanelSplitter)
+        self.rightPanels.addWidget(self.renamePanels)
+
         self.centerSplitter.addWidget(self.leftPanelSplitter)
         self.centerSplitter.addWidget(self.thumbnailView)
-        self.centerSplitter.addWidget(self.rightPanelSplitter)
+        self.centerSplitter.addWidget(self.rightPanels)
         self.centerSplitter.setStretchFactor(0, 0)
         self.centerSplitter.setStretchFactor(1, 2)
         self.centerSplitter.setStretchFactor(2, 0)
