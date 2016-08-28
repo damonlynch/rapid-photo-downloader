@@ -88,7 +88,6 @@ class DameonThumbnailWorker(DaemonProcess):
         fdo_cache_normal = FdoCacheNormal()
 
         while True:
-            # rename file and move to generated subfolder
             directive, content = self.receiver.recv_multipart()
 
             self.check_for_command(directive, content)

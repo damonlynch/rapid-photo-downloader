@@ -27,6 +27,9 @@ from raphodo.interprocess import LoadBalancerWorkerManager, LoadBalancer
 
 
 class ThumbnailLoadBalancerWorkerManager(LoadBalancerWorkerManager):
+    """
+    Manages thumbnail extractors
+    """
     def __init__(self, no_workers: int,
                  backend_port: int,
                  sink_port: int,
@@ -37,6 +40,9 @@ class ThumbnailLoadBalancerWorkerManager(LoadBalancerWorkerManager):
 
 
 class ThumbnailLoadBalancer(LoadBalancer):
+    """
+    Managers the thumbnail load balancer
+    """
     def __init__(self) -> None:
         super().__init__('Thumbnail', ThumbnailLoadBalancerWorkerManager)
 

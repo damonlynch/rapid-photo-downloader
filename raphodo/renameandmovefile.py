@@ -47,7 +47,7 @@ from raphodo.constants import (ConflictResolution, FileType, DownloadStatus, Ren
 from raphodo.interprocess import (RenameAndMoveFileData, RenameAndMoveFileResults, DaemonProcess)
 from raphodo.rpdfile import RPDFile, Photo, Video
 from raphodo.rpdsql import DownloadedSQL
-from raphodo.utilities import stdchannel_redirected, datetime_roughly_equal
+from raphodo.utilities import stdchannel_redirected, datetime_roughly_equal, platform_c_maxint
 
 
 class SyncRawJpegStatus(Enum):
@@ -228,6 +228,8 @@ class RenameMoveFileWorker(DaemonProcess):
         self.downloaded = DownloadedSQL()
 
         logging.debug("Start of day is set to %s", self.prefs.day_start)
+
+        self.platform_c_maxint = platform_c_maxint()
 
     def notify_file_already_exists(self, rpd_file: Union[Photo, Video],
                                    identifier: Optional[str]=None) -> None:
@@ -649,7 +651,12 @@ class RenameMoveFileWorker(DaemonProcess):
                 if uses_sequence_session_no or uses_sequence_letter:
                     self.sequences.increment(uses_sequence_session_no, uses_sequence_letter)
                 if self.prefs.any_pref_uses_stored_sequence_no():
-                    self.prefs.stored_sequence_no += 1
+                    if self.prefs.stored_sequence_no == self.platform_c_maxint:
+                        # wrap value if it exceeds the maximum size value that Qt can display
+                        # in its spinbox
+                        self.prefs.stored_sequence_no = 0
+                    else:
+                        self.prefs.stored_sequence_no += 1
                 self.downloads_today_tracker.increment_downloads_today()
 
             if rpd_file.temp_thm_full_name:
@@ -714,7 +721,7 @@ class RenameMoveFileWorker(DaemonProcess):
                         # here because to save QSettings, QApplication should be
                         # used.
                         self.content = pickle.dumps(RenameAndMoveFileResults(
-                            stored_sequence_no=self.sequences.stored_sequence_no + 1,
+                            stored_sequence_no=self.sequences.stored_sequence_no,
                             downloads_today=self.downloads_today_tracker.downloads_today),
                             pickle.HIGHEST_PROTOCOL)
                         dl_today = self.downloads_today_tracker.get_or_reset_downloads_today()

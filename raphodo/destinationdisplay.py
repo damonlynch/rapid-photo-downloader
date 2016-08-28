@@ -1,4 +1,4 @@
-# Copyright (C) 2015-2016 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2016 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -78,10 +78,14 @@ class DestinationDisplay(QWidget):
     excess = _('Excess')
     projected_space_msg = _('Projected storage space after download')
 
-    def __init__(self, menu: bool=False, file_type: FileType=None, parent=None) -> None:
+    def __init__(self, menu: bool=False,
+                 file_type: FileType=None,
+                 exiftool_process: exiftool.ExifTool=None,
+                 parent=None) -> None:
         """
         :param menu: whether to render a drop down menu
         :param file_type: whether for photos or videos. Relevant only for menu display.
+        :param exiftool_process: main exiftool process. Relevant only for menu actions.
         """
 
         super().__init__(parent)
@@ -94,6 +98,8 @@ class DestinationDisplay(QWidget):
         self.storage_space = None  # type: StorageSpace
 
         self.map_action = dict()  # type: Dict[int, QAction]
+
+        self.exiftool_process = exiftool_process
 
         if menu:
             menuIcon = QIcon(':/icons/settings.svg')
@@ -292,18 +298,16 @@ class DestinationDisplay(QWidget):
                 pref_list = self.prefs.video_subfolder
                 generation_type = NameGenerationType.video_subfolder
 
-            #TODO put exiftool process at main window or app level
-            with exiftool.ExifTool() as exiftool_process:
-                prefDialog = PrefDialog(pref_defn, pref_list, generation_type, self.prefs,
-                                        exiftool_process)
-                if prefDialog.exec():
-                    user_pref_list = prefDialog.getPrefList()
-                    if not user_pref_list:
-                        user_pref_list = None
+            prefDialog = PrefDialog(pref_defn, pref_list, generation_type, self.prefs,
+                                    self.exiftool_process)
+            if prefDialog.exec():
+                user_pref_list = prefDialog.getPrefList()
+                if not user_pref_list:
+                    user_pref_list = None
 
         elif index >= self.no_builtin_defaults:
             assert index < self.no_builtin_defaults + self.max_presets
-            user_pref_list = self.self.preset_pref_lists[index - self.no_builtin_defaults]
+            user_pref_list = self.preset_pref_lists[index - self.no_builtin_defaults]
 
         else:
             if self.file_type == FileType.photo:

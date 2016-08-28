@@ -435,8 +435,7 @@ PHOTO_RENAME_MENU_DEFAULTS = (
     (_('Date and Downloads today'), _('YYYYMMDD-1')),
     (_('Date-Time and Image number'), _('YYYYMMDD-1234')),
     (_('Date-Time and Job Code'), _('YYYYMMDD-HHMM-Job Code-1')),
-    (_('Date and Job Code'), _('YYYYMMDD-Job Code-1')),
-    (_('Metadata'), _('YYYYMMDD-HHMM-1-iso100-f7.1-85mm-160'))
+    (_('Date and Job Code'), _('YYYYMMDD-Job Code-1'))
 )
 
 PHOTO_RENAME_MENU_DEFAULTS_CONV = (
@@ -471,21 +470,7 @@ PHOTO_RENAME_MENU_DEFAULTS_CONV = (
      TEXT, '-', '',
      JOB_CODE, '', '',
      TEXT, '-', '',
-     SEQUENCES, DOWNLOAD_SEQ_NUMBER, SEQUENCE_NUMBER_1],
-    # 6 Metadata
-    [DATE_TIME, IMAGE_DATE, LIST_DATE_TIME_L2[0],
-     TEXT, '-', '',
-     DATE_TIME, IMAGE_DATE, LIST_DATE_TIME_L2[18],
-     TEXT, '-', '',
-     SEQUENCES, DOWNLOAD_SEQ_NUMBER, SEQUENCE_NUMBER_1,
-     TEXT, '-iso', '',
-     METADATA, ISO, '',
-     TEXT, '-f', '',
-     METADATA, APERTURE, '',
-     TEXT, '-', '',
-     METADATA, FOCAL_LENGTH, '',
-     TEXT, 'mm-', '',
-     METADATA, EXPOSURE_TIME, '']
+     SEQUENCES, DOWNLOAD_SEQ_NUMBER, SEQUENCE_NUMBER_1]
 )
 
 # See notes above regarding keeping values in sync

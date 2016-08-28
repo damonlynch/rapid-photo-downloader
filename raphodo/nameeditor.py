@@ -432,17 +432,35 @@ class PresetComboBox(QComboBox):
     """
     Combox box displaying built-in presets, custom presets,
     and some commands relating to preset management.
+
+    Used in in dialog window used to edit name generation and
+    also in the rename files panel.
     """
 
     def __init__(self, prefs: Preferences,
                  preset_names: List[str],
-                 preset_type = PresetPrefType,
+                 preset_type: PresetPrefType,
+                 edit_mode: bool,
                  parent=None) -> None:
+        """
+        :param prefs: program preferences
+        :param preset_names: list of custom preset names
+        :param preset_type: one of photo rename, video rename,
+         photo subfolder, or video subfolder
+        :param edit_mode: if True, the combo box is being displayed
+         in an edit dialog window, else it's being displayed in the
+         file rename panel
+        :param parent: parent widget
+        """
+
         super().__init__(parent)
+        self.edit_mode = edit_mode
         self.prefs = prefs
 
         self.preset_edited = False
         self.new_preset = False
+
+        self.preset_type = preset_type
 
         if preset_type == PresetPrefType.preset_photo_subfolder:
             self.builtin_presets = PHOTO_SUBFOLDER_MENU_DEFAULTS
@@ -454,13 +472,25 @@ class PresetComboBox(QComboBox):
             assert preset_type == PresetPrefType.preset_video_rename
             self.builtin_presets = VIDEO_RENAME_MENU_DEFAULTS
 
+        self._setup_entries(preset_names)
+
+    def _setup_entries(self, preset_names: List[str]) -> None:
+
         idx = 0
 
-        for pref in self.builtin_presets:
-            self.addItem(make_subfolder_menu_entry(pref), PresetClass.builtin)
-            idx += 1
+        if self.edit_mode:
+            for pref in self.builtin_presets:
+                self.addItem(make_subfolder_menu_entry(pref), PresetClass.builtin)
+                idx += 1
+        else:
+            for pref in self.builtin_presets:
+                self.addItem(pref[0], PresetClass.builtin)
+                idx += 1
 
         if not len(preset_names):
+            # preset_separator bool is used to indicate the existence of
+            # a separator in the combo box that is used to distinguish
+            # custom from built-in prests
             self.preset_separator = False
         else:
             self.preset_separator = True
@@ -474,9 +504,17 @@ class PresetComboBox(QComboBox):
 
         self.insertSeparator(idx)
 
-        self.addItem(_('Save New Custom Preset...'), PresetClass.new_preset)
-        self.addItem(_('Remove All Custom Presets...'), PresetClass.remove_all)
-        self.setRemoveAllCustomEnabled(bool(len(preset_names)))
+        if self.edit_mode:
+            self.addItem(_('Save New Custom Preset...'), PresetClass.new_preset)
+            self.addItem(_('Remove All Custom Presets...'), PresetClass.remove_all)
+            self.setRemoveAllCustomEnabled(bool(len(preset_names)))
+        else:
+            self.addItem(_('Custom...'), PresetClass.start_editor)
+
+    def resetEntries(self, preset_names: List[str]) -> None:
+        assert not self.edit_mode
+        self.clear()
+        self._setup_entries(preset_names)
 
     def addCustomPreset(self, text: str) -> None:
         """
@@ -486,6 +524,7 @@ class PresetComboBox(QComboBox):
         :param text: the custom preset name
         """
 
+        assert self.edit_mode
         if self.new_preset or self.preset_edited:
             self.resetPresetList()
         if not self.preset_separator:
@@ -496,6 +535,7 @@ class PresetComboBox(QComboBox):
         self.setCurrentIndex(idx)
 
     def removeAllCustomPresets(self, no_presets: int) -> None:
+        assert self.edit_mode
         assert self.preset_separator
         start = len(self.builtin_presets)
         if self.new_preset:
@@ -508,6 +548,7 @@ class PresetComboBox(QComboBox):
         self.preset_separator = False
 
     def setPresetNew(self) -> None:
+        assert self.edit_mode
         assert not self.preset_edited
         if self.new_preset:
             return
@@ -525,6 +566,7 @@ class PresetComboBox(QComboBox):
         :param text: the preset name to use
         """
 
+        assert self.edit_mode
         assert not self.new_preset
         assert not self.preset_edited
         item_text = _('%s (edited)') % text
@@ -540,6 +582,7 @@ class PresetComboBox(QComboBox):
         and its separator
         """
 
+        assert self.edit_mode
         assert self.new_preset or self.preset_edited
         # remove combo box first line 'Preset name (edited)' or '(New Custom Preset)'
         self.removeItem(0)
@@ -552,6 +595,7 @@ class PresetComboBox(QComboBox):
         self.preset_edited = self.new_preset = False
 
     def setRemoveAllCustomEnabled(self, enabled: bool) -> None:
+        assert self.edit_mode
         # Our big assumption here is that the model is a QStandardItemModel
         model = self.model()
         count = self.count()
@@ -564,6 +608,41 @@ class PresetComboBox(QComboBox):
             item.setFlags(Qt.NoItemFlags)
         else:
             item.setFlags(Qt.ItemIsSelectable|Qt.ItemIsEnabled)
+
+    def getComboBoxIndex(self, preset_index: int) -> int:
+        """
+        Calculate the index into the combo box list allowing for the separator
+        and other elements in the list of entries the user sees
+
+        :param preset_index: the preset index (built-in & custom)
+        :return: the index into the actual combobox entries including
+         any separators etc.
+        """
+
+        if self.edit_mode and (self.new_preset or self.preset_edited):
+            preset_index += 2
+        if preset_index < len(self.builtin_presets):
+            return preset_index
+        else:
+            assert self.preset_separator
+            return preset_index + 1
+
+
+    def getPresetIndex(self, combobox_index: int) -> int:
+        """
+        Opposite of getComboBoxIndex: calculates the preset index based on the
+        given combox box index (which includes separators etc.)
+        :param combobox_index: the index into the combobox entries the user sees
+        :return: the index into the presets (built-in & custom)
+        """
+
+        if self.edit_mode and (self.new_preset or self.preset_edited):
+            combobox_index -= 2
+        if combobox_index < len(self.builtin_presets):
+            return combobox_index
+        else:
+            assert self.preset_separator
+            return combobox_index - 1
 
 
 class CreatePreset(QDialog):
@@ -618,6 +697,54 @@ class CreatePreset(QDialog):
 
         return self.name.text()
 
+def make_sample_rpd_file(sample_job_code: str,
+                         exiftool_process: exiftool.ExifTool,
+                         prefs: Preferences,
+                         generation_type: NameGenerationType,
+                         sample_rpd_file: Optional[Union[Photo, Video]]=None) -> RPDFile:
+    """
+    Create a sample_rpd_file used for displaying to the user an example of their
+    file renaming preference in action on a sample file.
+
+    :param sample_job_code: sample of a Job Code
+    :param exiftool_process: ExifTool process used to generate file and subfolder names
+    :param prefs: user preferences
+    :param generation_type: one of photo/video filenames/subfolders
+    :param sample_rpd_file: sample RPDFile that will possibly be overwritten
+     with new values
+    :return: sample RPDFile
+    """
+
+    downloads_today_tracker = DownloadsTodayTracker(
+        day_start=prefs.day_start,
+        downloads_today=prefs.downloads_today)
+    sequences = gn.Sequences(downloads_today_tracker,
+                             prefs.stored_sequence_no)
+    if sample_rpd_file is not None:
+        # TODO handle sample file from camera?
+        full_file_name = sample_rpd_file.full_file_name
+        if not sample_rpd_file.load_metadata(full_file_name=full_file_name,
+                                             et_process=exiftool_process):
+            sample_rpd_file = None
+        else:
+            sample_rpd_file.sequences = sequences
+            sample_rpd_file.download_start_time = datetime.datetime.now()
+
+    if sample_rpd_file is None:
+        if generation_type in (NameGenerationType.photo_name,
+                               NameGenerationType.photo_subfolder):
+            sample_rpd_file = SamplePhoto(sequences=sequences)
+        else:
+            sample_rpd_file = SampleVideo(sequences=sequences)
+
+    sample_rpd_file.job_code = sample_job_code
+    sample_rpd_file.strip_characters = prefs.strip_characters
+    if sample_rpd_file.file_type == FileType.photo:
+        sample_rpd_file.generate_extension_case = prefs.photo_extension
+    else:
+        sample_rpd_file.generate_extension_case = prefs.video_extension
+
+    return sample_rpd_file
 
 class PrefDialog(QDialog):
     """
@@ -687,39 +814,11 @@ class PrefDialog(QDialog):
 
         # Setup values needed for name generation
 
-        self.exiftool_process = exiftool_process
-
-        self.downloads_today_tracker = DownloadsTodayTracker(
-            day_start=self.prefs.day_start,
-            downloads_today=self.prefs.downloads_today)
-
-        self.sequences = gn.Sequences(self.downloads_today_tracker,
-                                      self.prefs.stored_sequence_no)
-
-        self.sample_rpd_file = sample_rpd_file
-        if sample_rpd_file is not None:
-            # TODO handle sample file from camera?
-            full_file_name = sample_rpd_file.full_file_name
-            if not sample_rpd_file.load_metadata(full_file_name=full_file_name,
-                                                 et_process=self.exiftool_process):
-                self.sample_rpd_file = None
-            else:
-                self.sample_rpd_file.sequences = self.sequences
-                self.sample_photo.download_start_time = datetime.datetime.now()
-
-        if self.sample_rpd_file is None:
-            if generation_type in (NameGenerationType.photo_name,
-                                   NameGenerationType.photo_subfolder):
-                self.sample_rpd_file = SamplePhoto(sequences=self.sequences)
-            else:
-                self.sample_rpd_file = SampleVideo(sequences=self.sequences)
-
-        self.sample_rpd_file.job_code = self.prefs.most_recent_job_code(missing=_('Job Code'))
-        self.sample_rpd_file.strip_characters = self.prefs.strip_characters
-        if self.sample_rpd_file.file_type == FileType.photo:
-            self.sample_rpd_file.generate_extension_case = self.prefs.photo_extension
-        else:
-            self.sample_rpd_file.generate_extension_case = self.prefs.video_extension
+        self.sample_rpd_file = make_sample_rpd_file(sample_rpd_file=sample_rpd_file,
+                    sample_job_code=self.prefs.most_recent_job_code(missing=_('Job Code')),
+                    exiftool_process=exiftool_process,
+                    prefs=self.prefs,
+                    generation_type=generation_type)
 
         # Setup widgets and helper values
 
@@ -760,7 +859,7 @@ class PrefDialog(QDialog):
 
         # Combobox with built-in and user defined presets
         self.preset = PresetComboBox(prefs=prefs, preset_names=self.preset_names,
-                                     preset_type=self.preset_type)
+                                     preset_type=self.preset_type, edit_mode=True)
         self.preset.activated.connect(self.presetComboItemActivated)
 
         flayout = QFormLayout()
@@ -1318,10 +1417,10 @@ if __name__ == '__main__':
 
     with exiftool.ExifTool() as exiftool_process:
 
-        # prefDialog = PrefDialog(DICT_IMAGE_RENAME_L0, PHOTO_RENAME_MENU_DEFAULTS_CONV[1],
-        #                         NameGenerationType.photo_name, prefs, exiftool_process)
-        prefDialog = PrefDialog(DICT_VIDEO_RENAME_L0, VIDEO_RENAME_MENU_DEFAULTS_CONV[1],
-                                NameGenerationType.video_name, prefs, exiftool_process)
+        prefDialog = PrefDialog(DICT_IMAGE_RENAME_L0, PHOTO_RENAME_MENU_DEFAULTS_CONV[1],
+                                NameGenerationType.photo_name, prefs, exiftool_process)
+        # prefDialog = PrefDialog(DICT_VIDEO_RENAME_L0, VIDEO_RENAME_MENU_DEFAULTS_CONV[1],
+        #                         NameGenerationType.video_name, prefs, exiftool_process)
         # prefDialog = PrefDialog(DICT_SUBFOLDER_L0, PHOTO_SUBFOLDER_MENU_DEFAULTS_CONV[2],
         #                         NameGenerationType.photo_subfolder, prefs, exiftool_process)
         prefDialog.show()

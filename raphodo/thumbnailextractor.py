@@ -54,6 +54,7 @@ from raphodo.utilities import stdchannel_redirected, show_errors
 from raphodo.filmstrip import add_filmstrip
 from raphodo.cache import ThumbnailCacheSql, FdoCacheLarge, FdoCacheNormal
 import raphodo.exiftool as exiftool
+import atexit
 
 have_gst = Gst.init_check(None)
 
@@ -665,6 +666,7 @@ class ThumbnailExtractor(LoadBalancerWorker):
                         rpd_file.thumbnail_status = ThumbnailCacheStatus.ready
 
             except SystemExit as e:
+                self.exiftool_process.terminate()
                 sys.exit(e)
             except:
                 logging.error("Exception working on file %s", rpd_file.full_file_name)
@@ -694,9 +696,18 @@ class ThumbnailExtractor(LoadBalancerWorker):
             context = stdchannel_redirected(sys.stderr, os.devnull)
             self.error_stream = sys.stdout
         with context:
-            with exiftool.ExifTool() as self.exiftool_process:
-                self.process_files()
+            # In some situations, using a context manager for exiftool can
+            # result in exiftool processes not being terminated. So let's
+            # handle starting and terminating it manually.
+            self.exiftool_process = exiftool.ExifTool()
+            self.exiftool_process.start()
+            self.process_files()
             self.exit()
+
+    def cleanup_pre_stop(self) -> None:
+        logging.debug("Terminating thumbnail extractor ExifTool process for %s",
+                      self.identity.decode())
+        self.exiftool_process.terminate()
 
 if __name__ == "__main__":
     thumbnail_extractor = ThumbnailExtractor()

@@ -4,6 +4,9 @@ Changelog for Rapid Photo Downloader
 0.9.0a5 (2016-08-xx)
 --------------------
 
+ - Implemented photo and video file renaming preference configuration. Job code
+   configuration will be implemented in a future alpha release.
+
  - Added .m2ts video extension to supported video files.
 
  - Added tooltip to clarify meaning of storage space usage.
@@ -34,6 +37,10 @@ Changelog for Rapid Photo Downloader
 
  - Fixed crash at startup bug when the Pictures or Videos XDG special directory was
    not set.
+
+ - Fixed bug when selecting custom subfolder name generation preset from menu.
+
+ - Fixed bug where exiftool daemon processes were not always being terminated.
 
 0.9.0a4 (2016-06-22)
 --------------------
@@ -259,7 +266,6 @@ Changelog for Rapid Photo Downloader
 
    - Files can only be copied, not moved.
 
-
 0.4.11 (2015-10-22)
 -------------------
 
@@ -269,14 +275,13 @@ Changelog for Rapid Photo Downloader
  - Fixed crash on systems using the library Pillow 3.0.
    
  - Updated AppData file.
-   
+
 0.4.10 (2014-02-23)
 -------------------
 
  - Updated Catalan and Portuguese translations.
    
  - Fixed bug in translations for term "Back up".
-   
 
 0.4.9 (2014-01-21)
 ------------------
@@ -284,13 +289,11 @@ Changelog for Rapid Photo Downloader
  - Updated Catalan and Spanish translations.
    
  - Fixed occasional incorrect use of term "backup".
-   
 
 0.4.9b3 (2014-01-20)
 --------------------
 
  - Fixed packaging bug.
-
 
 0.4.9b2 (2014-01-20)
 --------------------
@@ -299,7 +302,6 @@ Changelog for Rapid Photo Downloader
    
  - Updated Dutch, Hungarian, Italian, Polish, Serbian, Spanish and Swedish 
    translations. Added Catalan translation.
-   
 
 0.4.9b1 (2014-01-16)
 --------------------
@@ -322,7 +324,6 @@ Changelog for Rapid Photo Downloader
    video on auto detected back devices. 
    
  - Updated Norwegian and Serbian translations.
-
 
 0.4.8 (2013-12-31)
 ------------------
@@ -399,7 +400,6 @@ Changelog for Rapid Photo Downloader
    
  - Updated man page.
 
-
 0.4.5b1 (2012-06-17)
 --------------------
 
@@ -424,7 +424,6 @@ Changelog for Rapid Photo Downloader
  - Fixed bug #1014219: File Modify process crashes if program exits during 
    download. 
 
-
 0.4.4 (2012-05-30)
 ------------------
 
@@ -441,7 +440,6 @@ Changelog for Rapid Photo Downloader
    
  - Added Estonian translation. Updated Brazilian, Dutch, French, German, Norwegian 
    Bokmal, Polish, Spanish and Russian translations.
-
 
 0.4.3 (2012-01-07)
 ------------------
@@ -582,7 +580,6 @@ Changelog for Rapid Photo Downloader
  - Added the start of an Indonesian translation. Updated Brazilian, Dutch, French, 
    German, Hungarian, Italian, Polish, Russian, Spanish and Ukrainian translations.
 
-
 0.4.0 (2011-04-28)
 ------------------
 
@@ -681,7 +678,7 @@ Changelog for Rapid Photo Downloader
  - Fixed bug #750808: errorlog.ui not included in setup.py.
 
 0.4.0a3 (2011-04-04)
----------------------
+--------------------
 
  - Features added since alpha 2:
    
@@ -715,9 +712,8 @@ Changelog for Rapid Photo Downloader
    - Bug fix: don't crash on startup when trying to display free space and photo or
      video download folders do not exist.
 
-
 0.4.0a1 (2011-03-24)
----------------------
+--------------------
 
  - Rapid Photo Downloader is much faster and sports a new user interface. It is
    about 50 times faster in tasks like scanning photos and videos before the 
@@ -763,7 +759,6 @@ Changelog for Rapid Photo Downloader
    
  - Added Romanian translation.
 
-
 0.3.5 (2011-03-23)
 ------------------
 
@@ -777,7 +772,6 @@ Changelog for Rapid Photo Downloader
    
  - Added Romanian translation. Updated Brazilian, Chinese, Croatian, Czech, Dutch, 
    Finnish, German, Italian, Polish and Russian translations.
-
 
 0.3.4 (2010-12-31)
 ------------------
@@ -804,7 +798,6 @@ Changelog for Rapid Photo Downloader
    
  - Added Croatian translation. Updated French, Norwegian Bokmal, Polish and Russian
    translations.
-
 
 0.3.3 (2010-10-24)
 ------------------
@@ -835,7 +828,6 @@ Changelog for Rapid Photo Downloader
    Portuguese, Dutch, Finnish, German, Hungarian, Italian, Norwegian Nynorsk, 
    Polish, Russian, Serbian, Slovak and Ukrainian translations.
 
-
 0.3.2 (2010-09-12)
 ------------------
 
@@ -844,7 +836,6 @@ Changelog for Rapid Photo Downloader
    
  - Fixed crash on startup when checking for free space, and the download folder does
    not exist.
-
 
 0.3.1 (2010-08-13)
 ------------------
@@ -901,7 +892,6 @@ Changelog for Rapid Photo Downloader
  - The minimum version of python-gtk2 (pygtk) required to run the program is now
    2.12. This will affect only outdated Linux distributions.
 
-
 0.3.0b6 (2010-07-06)
 --------------------
 
@@ -925,7 +915,6 @@ Changelog for Rapid Photo Downloader
    unless device auto detection is enabled.
    
  - Updated German translation.
-
 
 0.3.0b5 (2010-07-04)
 --------------------
@@ -996,7 +985,6 @@ Changelog for Rapid Photo Downloader
    modified in the preferences window.
   
  - This is the final release before 0.3.0, which will be a major update.
-  
 
 0.2.2 (2010-06-06)
 ------------------
@@ -1004,7 +992,6 @@ Changelog for Rapid Photo Downloader
  - Added Ukrainian translation by Sergiy Gavrylov.
   
  - Bug fix: in systems where exiv2 is not installed, don't crash on startup.
-  
 
 0.2.1 (2010-06-05)
 ------------------
@@ -1020,7 +1007,6 @@ Changelog for Rapid Photo Downloader
    the Exif data is corrupted.
   
  - Updated Spanish, Russian and Finnish translations.
-
 
 0.2.0 (2010-05-30)
 ------------------
@@ -1145,7 +1131,6 @@ Changelog for Rapid Photo Downloader
   
  - Added Dutch translation by Alian J. Baudrez. Updated Czech, French, German, 
    Hungarian, Italian, Polish, Slovak and Spanish translations.
-  
 
 0.1.0 (2009-12-07)
 ------------------
@@ -1164,7 +1149,6 @@ Changelog for Rapid Photo Downloader
  - Bug fix: Minutes component of image and folder renaming had the same code as 
    months.
 
-
 0.1.0b2 (2009-11-22)
 --------------------
 
@@ -1178,7 +1162,6 @@ Changelog for Rapid Photo Downloader
  - Fixed bug #486886: Job code prompt can appear multiple times.
   
  - Updated Hungarian and French translations.
-
 
 0.1.0b1 (2009-11-14)
 --------------------
@@ -1408,7 +1391,6 @@ Changelog for Rapid Photo Downloader
   
  - Fix bug #317404 when clearing completed downloads.
 
-
 0.0.8b7 (2009-04-07)
 --------------------
 
@@ -1445,7 +1427,6 @@ Changelog for Rapid Photo Downloader
 --------------------
 
  - Updated Ubuntu package.
-
 
 0.0.8b2 (2009-03-25)
 --------------------

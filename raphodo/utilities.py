@@ -35,9 +35,22 @@ from datetime import datetime
 from gettext import gettext as _
 from itertools import groupby
 from typing import Optional, List, Union, Any
+import struct
+import ctypes
+import signal
 
 import arrow
 import psutil
+
+
+# Linux specific code to ensure child processes exit when parent dies
+# See http://stackoverflow.com/questions/19447603/
+# how-to-kill-a-python-child-process-created-with-subprocess-check-output-when-t/
+libc = ctypes.CDLL("libc.so.6")
+def set_pdeathsig(sig = signal.SIGTERM):
+    def callable():
+        return libc.prctl(1, sig)
+    return callable
 
 
 def available_cpu_count(physical_only=False) -> int:
@@ -82,7 +95,7 @@ def available_cpu_count(physical_only=False) -> int:
     else:
         return 1
 
-def confirm(prompt: str=None, resp: bool=False) -> bool:
+def confirm(prompt: Optional[str]=None, resp: Optional[bool]=False) -> bool:
     r"""
     Prompts for yes or no response from the user.
 
@@ -598,3 +611,11 @@ def remove_last_char_from_list_str(items: List[str]) -> List[str]:
             if items and not items[-1]:
                 items = items[:-1]
     return items
+
+def platform_c_maxint() -> int:
+    """
+    See http://stackoverflow.com/questions/13795758/what-is-sys-maxint-in-python-3
+
+    :return: the maximum size of an int in C when compiled the same way Python was
+    """
+    return 2 ** (struct.Struct('i').size * 8 - 1) - 1

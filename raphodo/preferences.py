@@ -28,7 +28,7 @@ import pkg_resources
 import datetime
 from typing import List, Tuple, Optional
 
-from PyQt5.QtCore import QSettings
+from PyQt5.QtCore import QSettings, QTime, Qt
 
 from gettext import gettext as _
 
@@ -205,6 +205,9 @@ class DownloadsTodayTracker:
             return -1
 
     def get_day_start(self) -> Tuple[int, int]:
+        """
+        :return: hour and minute components as Tuple of ints
+        """
         try:
             t1, t2 = self.day_start.split(":")
             return int(t1), int(t2)
@@ -255,6 +258,9 @@ def today():
     return datetime.date.today().strftime('%Y-%m-%d')
 
 class Preferences:
+    """
+    Program preferences, being a mix of user facing and non-user facing prefs.
+    """
     program_defaults = dict(program_version='')
     rename_defaults = dict(photo_download_folder=xdg_photos_directory(),
                            video_download_folder=xdg_videos_directory(),
@@ -274,6 +280,7 @@ class Preferences:
                            remember_job_code=True,
                            ignore_mdatatime_for_mtp_dng=True,
                           )
+    # custom preset prefs are define below in code such as get_preset()
     timeline_defaults = dict(proximity_seconds=3600)
     display_defaults = dict(detailed_time_remaining=False,
                             warn_downloading_all=True)
@@ -370,7 +377,8 @@ class Preferences:
     def sync(self):
         self.settings.sync()
 
-    def get_preset(self, preset_type: constants.PresetPrefType) -> Tuple[List[str], List[str]]:
+    def get_preset(self, preset_type: constants.PresetPrefType) -> Tuple[List[str],
+                                                                         List[List[str]]]:
         """
         Returns the custom presets for the particular type.
 
@@ -486,6 +494,30 @@ class Preferences:
             if self._pref_list_uses_component(pref_list, SEQUENCE_LETTER):
                 return True
         return False
+    
+    def photo_rename_pref_uses_downloads_today(self) -> bool:
+        """
+        :return: True if the photo rename pref list contains a downloads today 
+        """
+        return self._pref_list_uses_component(self.photo_rename, DOWNLOAD_SEQ_NUMBER)
+
+    def video_rename_pref_uses_downloads_today(self) -> bool:
+        """
+        :return: True if the video rename pref list contains a downloads today 
+        """
+        return self._pref_list_uses_component(self.video_rename, DOWNLOAD_SEQ_NUMBER)
+
+    def photo_rename_pref_uses_stored_sequence_no(self) -> bool:
+        """
+        :return: True if the photo rename pref list contains a stored sequence no
+        """
+        return self._pref_list_uses_component(self.photo_rename, STORED_SEQ_NUMBER)
+
+    def video_rename_pref_uses_stored_sequence_no(self) -> bool:
+        """
+        :return: True if the video rename pref list contains a stored sequence no
+        """
+        return self._pref_list_uses_component(self.video_rename, STORED_SEQ_NUMBER)
 
     def check_prefs_for_validity(self) -> Tuple[bool, str]:
         """
@@ -579,6 +611,37 @@ class Preferences:
         """
         return (self.photo_rename, self.photo_subfolder, self.video_rename, self.video_subfolder)
 
+    def get_day_start_qtime(self) -> QTime:
+        """
+        :return: day start time in QTime format, resetting to midnight on value error
+        """
+        try:
+            h, m = self.day_start.split(":")
+            h = int(h)
+            m = int(m)
+            assert h >= 0 and h <= 23
+            assert m >= 0 and m <= 59
+            return QTime(h, m)
+        except (ValueError, AssertionError):
+            logging.error(
+                "'Start of day' preference value %s is corrupted. Resetting to midnight.",
+                self.day_start)
+            self.day_start = "0:0"
+            return QTime(0, 0)
+
+    def get_checkable_value(self, key: str) -> Qt.CheckState:
+        """
+        Gets a boolean preference value using Qt's CheckState values
+        :param key: the preference item to get
+        :return: value converted from bool to an Qt.CheckState enum value
+        """
+
+        value = self[key]
+        if value:
+            return Qt.Checked
+        else:
+            return Qt.Unchecked
+
     def pref_uses_job_code(self, pref_list: List[str]):
         """ Returns True if the particular preferences contains a job code"""
         for i in range(0, len(pref_list), 3):
@@ -613,6 +676,7 @@ class Preferences:
         Matches the photo pref list with program subfolder generation
         defaults and the user's presets.
 
+        :param preset_pref_lists: list of custom presets
         :return: -1 if no match (i.e. custom), or the index into
          PHOTO_SUBFOLDER_MENU_DEFAULTS + photo subfolder presets if it matches
         """
@@ -628,6 +692,7 @@ class Preferences:
         Matches the photo pref list with program subfolder generation
         defaults and the user's presets.
 
+        :param preset_pref_lists: list of custom presets
         :return: -1 if no match (i.e. custom), or the index into
          VIDEO_SUBFOLDER_MENU_DEFAULTS + video subfolder presets if it matches
         """
@@ -635,6 +700,38 @@ class Preferences:
         subfolders = VIDEO_SUBFOLDER_MENU_DEFAULTS_CONV + tuple(preset_pref_lists)
         try:
             return subfolders.index(self.video_subfolder)
+        except ValueError:
+            return -1
+
+    def photo_rename_index(self, preset_pref_lists: List[List[str]]) -> int:
+        """
+        Matches the photo pref list with program filename generation
+        defaults and the user's presets.
+
+        :param preset_pref_lists: list of custom presets
+        :return: -1 if no match (i.e. custom), or the index into
+         PHOTO_RENAME_MENU_DEFAULTS_CONV + photo rename presets if it matches
+        """
+
+        rename = PHOTO_RENAME_MENU_DEFAULTS_CONV + tuple(preset_pref_lists)
+        try:
+            return rename.index(self.photo_rename)
+        except ValueError:
+            return -1
+
+    def video_rename_index(self, preset_pref_lists: List[List[str]]) -> int:
+        """
+        Matches the video pref list with program filename generation
+        defaults and the user's presets.
+
+        :param preset_pref_lists: list of custom presets
+        :return: -1 if no match (i.e. custom), or the index into
+         VIDEO_RENAME_MENU_DEFAULTS_CONV + video rename presets if it matches
+        """
+
+        rename = VIDEO_RENAME_MENU_DEFAULTS_CONV + tuple(preset_pref_lists)
+        try:
+            return rename.index(self.video_rename)
         except ValueError:
             return -1
 

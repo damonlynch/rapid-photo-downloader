@@ -53,6 +53,7 @@ class PresetClass(Enum):
     remove_all = 4
     update_preset = 5
     edited = 6
+    start_editor = 7
 
 
 class DownloadStatus(Enum):

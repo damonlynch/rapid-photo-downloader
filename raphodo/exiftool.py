@@ -51,10 +51,13 @@ Example usage::
     for d in metadata:
         print("{:20.20} {:20.20}".format(d["SourceFile"],
                                          d["EXIF:DateTimeOriginal"]))
-"""
 
-#Modified by Damon Lynch to take "common arguments". Grouping tag names is
-#no longer the default
+Modified by Damon Lynch:
+Added "common arguments".
+Grouping tag names is no longer the default.
+The function set_pdeathsig is used to automatically terminate the process when the
+program exits.
+"""
 
 from __future__ import unicode_literals
 
@@ -64,6 +67,8 @@ import os
 import json
 import warnings
 import codecs
+
+from raphodo.utilities import set_pdeathsig
 
 basestring = (bytes, str)
 
@@ -148,7 +153,7 @@ class ExifTool(object):
        associated with a running subprocess.
     """
 
-    def __init__(self, common_arguments = [], executable_=None):
+    def __init__(self, common_arguments=None, executable_=None):
         """
 
         :param common_arguments: each call to exiftool will contain
@@ -159,7 +164,10 @@ class ExifTool(object):
             self.executable = executable
         else:
             self.executable = executable_
-        self.common_arguments = common_arguments
+        if common_arguments is not None:
+            self.common_arguments = common_arguments
+        else:
+            self.common_arguments = []
         self.running = False
 
     def start(self):
@@ -179,7 +187,8 @@ class ExifTool(object):
             self._process = subprocess.Popen(
                 cmd,
                 stdin=subprocess.PIPE, stdout=subprocess.PIPE,
-                stderr=devnull)
+                stderr=devnull,
+                preexec_fn=set_pdeathsig())
         self.running = True
 
     def terminate(self):

@@ -324,7 +324,7 @@ class FoldersPreview:
 
                     if do_rmdir:
                         if not os.listdir(subfolder):
-                            logging.debug("Removing subfolder %s", subfolder)
+                            # logging.debug("Removing subfolder %s", subfolder)
                             index = fsmodel.index(subfolder)
                             if not fsmodel.rmdir(index):
                                 logging.debug("While cleaning generated folders, did not "

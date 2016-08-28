@@ -152,8 +152,9 @@ from raphodo.aboutdialog import AboutDialog
 from raphodo.jobcode import JobCode
 import raphodo.constants as constants
 from raphodo.menubutton import MenuButton
+from raphodo.renamepanel import RenamePanel
 import raphodo
-
+import raphodo.exiftool as exiftool
 
 BackupMissing = namedtuple('BackupMissing', 'photo, video')
 
@@ -738,6 +739,10 @@ class RapidWindow(QMainWindow):
             logging.info("Auto download upon device insertion is on")
 
         self.prefs.verify_file = False
+
+        logging.debug("Starting main ExifTool process")
+        self.exiftool_process = exiftool.ExifTool()
+        self.exiftool_process.start()
 
         # self.prefs.synchronize_raw_jpg = False
 
@@ -1669,7 +1674,7 @@ class RapidWindow(QMainWindow):
         # Also display the file system folder chooser for both destinations.
 
         self.photoDestinationDisplay = DestinationDisplay(menu=True, file_type=FileType.photo,
-                                                          parent=self)
+                                              parent=self, exiftool_process=self.exiftool_process)
         self.photoDestinationDisplay.setDestination(self.prefs.photo_download_folder)
         self.photoDestinationWidget = ComputerWidget(objectName='photoDestination',
              view=self.photoDestinationDisplay, fileSystemView=self.photoDestinationFSView,
@@ -1677,7 +1682,7 @@ class RapidWindow(QMainWindow):
         self.photoDestination.addWidget(self.photoDestinationWidget)
         
         self.videoDestinationDisplay = DestinationDisplay(menu=True, file_type=FileType.video,
-                                                          parent=self)
+                                              parent=self, exiftool_process=self.exiftool_process)
         self.videoDestinationDisplay.setDestination(self.prefs.video_download_folder)
         self.videoDestinationWidget = ComputerWidget(objectName='videoDestination',
              view=self.videoDestinationDisplay, fileSystemView=self.videoDestinationFSView,
@@ -1696,13 +1701,7 @@ class RapidWindow(QMainWindow):
         Create the file renaming panel
         """
 
-        self.photoRenamePanel = QPanelView(label=_('Photo Renaming'),
-                                       headerColor=QColor(ThumbnailBackgroundName),
-                                       headerFontColor=QColor(Qt.white))
-        self.videoRenamePanel = QPanelView(label=_('Video Renaming'),
-                                       headerColor=QColor(ThumbnailBackgroundName),
-                                       headerFontColor=QColor(Qt.white))
-
+        self.renamePanel = RenamePanel(parent=self)
 
     def createBottomControls(self) -> None:
         self.thumbnailControl = QWidget()
@@ -1847,7 +1846,6 @@ class RapidWindow(QMainWindow):
         self.leftPanelSplitter.setOrientation(Qt.Vertical)
         self.rightPanelSplitter = QSplitter()
         self.rightPanelSplitter.setOrientation(Qt.Vertical)
-        self.renamePanels = QWidget()
         self.rightPanels = QStackedWidget()
 
     def configureCenterPanels(self, settings: QSettings) -> None:
@@ -1858,12 +1856,6 @@ class RapidWindow(QMainWindow):
         self.rightPanelSplitter.addWidget(self.photoDestinationContainer)
         self.rightPanelSplitter.addWidget(self.videoDestination)
 
-        layout = QVBoxLayout()
-        layout.setContentsMargins(0, 0, 0, 0)
-        self.renamePanels.setLayout(layout)
-        layout.addWidget(self.photoRenamePanel)
-        layout.addWidget(self.videoRenamePanel)
-
         self.leftPanelSplitter.setCollapsible(0, False)
         self.leftPanelSplitter.setCollapsible(1, False)
         self.leftPanelSplitter.setCollapsible(2, False)
@@ -1872,7 +1864,7 @@ class RapidWindow(QMainWindow):
         self.leftPanelSplitter.setStretchFactor(2, 1)
 
         self.rightPanels.addWidget(self.rightPanelSplitter)
-        self.rightPanels.addWidget(self.renamePanels)
+        self.rightPanels.addWidget(self.renamePanel)
 
         self.centerSplitter.addWidget(self.leftPanelSplitter)
         self.centerSplitter.addWidget(self.thumbnailView)
@@ -2544,9 +2536,8 @@ class RapidWindow(QMainWindow):
             # Set status to download pending
             self.thumbnailModel.markDownloadPending(download_files.files)
 
-            # disable refresh and preferences change while download is
-            # occurring
-            #TODO include destinations and source!
+            # disable refresh and the changing of various preferences while
+            # the download is occurring
             self.enablePrefsAndRefresh(enabled=False)
 
             # notify renameandmovefile process to read any necessary values
@@ -2981,6 +2972,9 @@ class RapidWindow(QMainWindow):
         logging.debug("Saved sequence values to preferences")
         if self.application_state == ApplicationState.exiting:
             self.close()
+        else:
+            self.renamePanel.updateSequences(downloads_today=downloads_today,
+                                             stored_sequence_no=stored_sequence_no)
 
     @pyqtSlot()
     def fileRenamedAndMovedFinished(self) -> None:
@@ -3163,7 +3157,7 @@ class RapidWindow(QMainWindow):
 
     def enablePrefsAndRefresh(self, enabled: bool) -> None:
         """
-        Disable the user being to access the refresh command or change
+        Disable the user being to access the refresh command or change various
         program preferences while a download is occurring.
 
         :param enabled: if True, then the user is able to activate the
@@ -3172,6 +3166,7 @@ class RapidWindow(QMainWindow):
 
         self.refreshAct.setEnabled(enabled)
         self.preferencesAct.setEnabled(enabled)
+        self.renamePanel.setEnabled(enabled)
 
     def unmountVolume(self, scan_id: int) -> None:
         """
@@ -3185,7 +3180,6 @@ class RapidWindow(QMainWindow):
             if self.gvfsControlsMounts:
                 self.gvolumeMonitor.unmountVolume(path=device.path)
             else:
-                # TODO implement device unmounting with udisks
                 self.udisks2Monitor.unmount_volume(mount_point=device.path)
 
     def deleteSourceFiles(self, scan_id: int)  -> None:
@@ -3780,6 +3774,9 @@ class RapidWindow(QMainWindow):
         logging.debug("Cleaning up provisional download folders")
         self.folder_preview_manager.remove_preview_folders()
 
+        logging.debug("Termainating main ExifTool process")
+        self.exiftool_process.terminate()
+
         if self.ctime_update_notification is not None:
             self.ctime_update_notification = None
 
@@ -3792,11 +3789,6 @@ class RapidWindow(QMainWindow):
         self.renameThread.quit()
         if not self.renameThread.wait(500):
             self.renamemq.forcefully_terminate()
-
-        self.thumbnaildaemonmq.stop()
-        self.thumbnaildaemonmqThread.quit()
-        if not self.thumbnaildaemonmqThread.wait(2000):
-            self.thumbnaildaemonmq.forcefully_terminate()
 
         self.scanThread.quit()
         if not self.scanThread.wait(2000):
@@ -3819,6 +3811,11 @@ class RapidWindow(QMainWindow):
             self.cameraHotplugThread.wait()
         else:
             del self.gvolumeMonitor
+
+        self.thumbnaildaemonmq.stop()
+        self.thumbnaildaemonmqThread.quit()
+        if not self.thumbnaildaemonmqThread.wait(2000):
+            self.thumbnaildaemonmq.forcefully_terminate()
 
         self.loggermq.stop()
         self.loggermqThread.quit()
@@ -5104,7 +5101,7 @@ def import_prefs() -> None:
             print("Skipping malformed value for key stored_sequence_no")
         else:
             if new_value and raphodo.utilities.confirm('\n' +
-                    _('Do you want to copy the stored sequence number, which has the value %d?' ) %
+                    _('Do you want to copy the stored sequence number, which has the value %d?') %
                             new_value, resp=False):
                 prefs.stored_sequence_no = new_value
 def main():

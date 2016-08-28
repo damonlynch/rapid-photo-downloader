@@ -44,7 +44,7 @@ from zmq.eventloop.zmqstream import ZMQStream
 from raphodo.rpdfile import (RPDFile, FileTypeCounter, FileSizeSum)
 from raphodo.devices import Device
 from raphodo.preferences import ScanPreferences
-from raphodo.utilities import CacheDirs
+from raphodo.utilities import CacheDirs, set_pdeathsig
 from raphodo.constants import (RenameAndMoveStatus, ExtractionTask, ExtractionProcessing,
                                CameraErrorCode, FileType, FileExtension)
 from raphodo.proximity import TemporalProximityGroups
@@ -55,14 +55,6 @@ from raphodo.folderspreview import DownloadDestination, FoldersPreview
 
 logger = logging.getLogger()
 
-# Linux specific code to ensure child processes exit when parent dies
-# See http://stackoverflow.com/questions/19447603/
-# how-to-kill-a-python-child-process-created-with-subprocess-check-output-when-t/
-libc = ctypes.CDLL("libc.so.6")
-def set_pdeathsig(sig = signal.SIGTERM):
-    def callable():
-        return libc.prctl(1, sig)
-    return callable
 
 def make_filter_from_worker_id(worker_id) -> bytes:
     r"""
@@ -138,7 +130,8 @@ class ProcessManager:
         # run command immediately, without waiting a reply, and instruct the Linux
         # kernel to send a terminate signal should this process unexpectedly die
         try:
-            proc = psutil.Popen(args, preexec_fn=set_pdeathsig(signal.SIGTERM))
+            # proc = psutil.Popen(args)
+            proc = psutil.Popen(args, preexec_fn=set_pdeathsig())
         except OSError as e:
             logging.critical("Failed to start process: %s", command_line)
             logging.critical('OSError [Errno %s]: %s', e.errno, e.strerror)
@@ -361,11 +354,14 @@ class LRUQueue:
 
     def handle_controller(self, msg):
         self.terminating = True
-        logging.debug("%s load balancer requesting %s workers to stop", self.worker_type,
-                      len(self.workers))
+        # logging.debug("%s load balancer requesting %s workers to stop", self.worker_type,
+        #               len(self.workers))
 
         while len(self.workers):
             worker_identity = self.workers.popleft()
+
+            logging.debug("%s load balancer sending stop cmd to worker %s", self.worker_type,
+                          worker_identity.decode())
             self.backend.send_multipart([worker_identity, b'', b'cmd', b'STOP'])
             self.terminating_workers.add(worker_identity)
 
@@ -461,6 +457,7 @@ class LoadBalancer:
         IOLoop.instance().start()
 
         # Finished infinite loop: do some housekeeping
+        logging.debug("Forcefully terminating load balancer child processes")
         process_manager.forcefully_terminate()
 
         frontend.close()
@@ -931,7 +928,8 @@ class LoadBalancerWorker:
         self.context = zmq.Context()
 
         self.requester = self.context.socket(zmq.REQ)
-        self.requester.identity = create_identity(worker_type, args.identity)
+        self.identity = create_identity(worker_type, args.identity)
+        self.requester.identity = self.identity
         self.requester.connect("tcp://localhost:{}".format(args.request))
 
         # Sender is located in the main process. It is where output (messages)
