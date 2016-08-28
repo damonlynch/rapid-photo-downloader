@@ -65,6 +65,7 @@ from raphodo.rpdsql import FileFormatSQL
 from raphodo.exiftool import ExifTool
 from raphodo.videoattributes import VideoAttributes
 from raphodo.utilities import format_size_for_user
+import raphodo.metadataphoto as mp
 
 try:
     import pyprind
@@ -191,11 +192,11 @@ def scan(folder: str, disk_cach_cleared: bool, scan_types: List[str], errors: bo
                     videos.append(va)
                 else:
                     try:
-                        metadata = GExiv2.Metadata(full_file_name)
+                        metadata = mp.MetaData(full_file_name, et_process=exiftool_process)
                     except:
                         metadata_fail.append(full_file_name)
                     else:
-                        pa = PhotoAttributes(full_file_name, ext, metadata)
+                        pa = PhotoAttributes(full_file_name, ext, metadata, exiftool_process)
                         photos.append(pa)
 
                 if have_progressbar and not errors:
@@ -222,12 +223,15 @@ def analyze(photos: List[PhotoAttributes], verbose: bool) -> None:
     size_by_extension= defaultdict(list)
     orientation_read = defaultdict(list)
     datetime_read = defaultdict(list)
+    variety_read = defaultdict(list)
     for pa in photos: # type: PhotoAttributes
         size_by_extension[pa.ext].append(pa.bytes_cached_post_thumb)
         if pa.minimum_exif_read_size_in_bytes_orientation is not None:
             orientation_read[pa.ext].append(pa.minimum_exif_read_size_in_bytes_orientation)
         if pa.minimum_exif_read_size_in_bytes_datetime is not None:
             datetime_read[pa.ext].append(pa.minimum_exif_read_size_in_bytes_datetime)
+        if pa.minimum_exif_read_size_in_bytes_all is not None:
+            variety_read[pa.ext].append(pa.minimum_exif_read_size_in_bytes_all)
 
     exts = list(size_by_extension.keys())
     exts.sort()
@@ -246,6 +250,14 @@ def analyze(photos: List[PhotoAttributes], verbose: bool) -> None:
     print("\nDate time tag read:")
     for ext in exts:
         print(ext, Counter(datetime_read[ext]).most_common())
+
+    exts = list(variety_read.keys())
+    exts.sort()
+    print("\nVariety of tags read:")
+    for ext in exts:
+        print(ext, Counter(variety_read[ext]).most_common())
+        m = max(variety_read[ext])
+        print(ext, 'max + 20%:', round(int(m) * 1.2))
 
     print()
     if verbose:

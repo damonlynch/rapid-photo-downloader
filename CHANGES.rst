@@ -45,6 +45,9 @@ Changelog for Rapid Photo Downloader
 
  - Fixed bug where exiftool daemon processes were not always being terminated.
 
+ - Added minimum size in bytes to read a variety of RAW metadata tags to
+   analyze-pv-structure analysis.
+
 0.9.0a4 (2016-06-22)
 --------------------
 

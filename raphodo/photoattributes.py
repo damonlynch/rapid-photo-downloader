@@ -30,7 +30,7 @@ from enum import IntEnum
 import os
 import datetime
 import resource
-from typing import Optional
+from typing import Optional, Dict, Union
 
 import gi
 gi.require_version('GExiv2', '0.10')
@@ -38,7 +38,7 @@ from gi.repository import GExiv2
 from PyQt5.QtGui import QImage
 
 from raphodo.utilities import format_size_for_user
-
+from raphodo.metadataphoto import MetaData
 
 page_size = resource.getpagesize()
 to_kb = page_size // 1024
@@ -57,8 +57,9 @@ class PreviewSource(IntEnum):
 
 
 class PhotoAttributes:
-    def __init__(self, full_file_name: str, ext: str, metadata: GExiv2.Metadata) -> None:
-
+    def __init__(self, full_file_name: str, ext: str, metadata: GExiv2.Metadata,
+                 exiftool_process) -> None:
+        self.exiftool_process = exiftool_process
         self.datetime = None # type: datetime.datetime
         self.iso = None # type: int
         self.height = None # type: int
@@ -71,6 +72,7 @@ class PhotoAttributes:
         self.exif_thumbnail_height = None # type: int
         self.exif_thumbnail_width = None # type: int
         self.exif_thumbnail_details = None # type: str
+        self.all_exif_values = dict()  # type: Dict[str, Union[int, str, float, datetime.datetime]]
         self.has_app0 = None
         self.preview_source = None # type: PreviewSource
         self.preview_width = None # type: int
@@ -80,6 +82,7 @@ class PhotoAttributes:
         self.preview_size_and_types = []
         self.minimum_exif_read_size_in_bytes_orientation = None # type: int
         self.minimum_exif_read_size_in_bytes_datetime = None # type: int
+        self.minimum_exif_read_size_in_bytes_all = None # type: int
         self.bytes_cached_post_previews = None
         self.in_memory_post_previews = None
 
@@ -104,6 +107,8 @@ class PhotoAttributes:
 
         if self.datetime is not None:
             self.minimum_extract_for_tag(self.datetime_extract)
+
+        self.minimum_extract_for_all(metadata)
 
     def assign_photo_attributes(self, metadata: GExiv2.Metadata) -> None:
         # I don't know how GExiv2 gets these values:
@@ -196,6 +201,44 @@ class PhotoAttributes:
                             break
                     except KeyError:
                         pass
+
+    def minimum_extract_for_all(self, metadata: MetaData) -> None:
+        if self.ext == 'CRW':
+            # Exiv2 can crash while scanning for exif in a very small
+            # extract of a CRW file
+            return
+
+        funcs = 'aperture iso exposure_time focal_length camera_make camera_model camera_serial ' \
+                 'shutter_count owner_name copyright artist short_camera_model ' \
+                 'date_time timestamp sub_seconds orientation'.split()
+        for f in funcs:
+            v = getattr(metadata, f)()
+            if v:
+                self.all_exif_values[f] = v
+
+        found = set()
+
+        for size_in_bytes in exif_scan_range():
+            with open(self.file_name, 'rb') as photo:
+                photo_extract = photo.read(size_in_bytes)
+                try:
+                    metadata_extract = MetaData(raw_bytes=bytearray(photo_extract),
+                                                et_process=self.exiftool_process)
+                except:
+                    pass
+                else:
+                    try:
+                        for tag in self.all_exif_values:
+                            if (tag not in found and
+                                    getattr(metadata_extract, tag)() == self.all_exif_values[tag]):
+                                found.add(tag)
+                                if len(found) == len(self.all_exif_values):
+                                    self.minimum_exif_read_size_in_bytes_all = size_in_bytes
+                                    return
+                    except KeyError:
+                        pass
+
+
 
     def get_jpeg_exif_length(self) -> Optional[int]:
         app0_data_length = 0
@@ -380,6 +423,11 @@ class PhotoAttributes:
                 format_size_for_user(self.minimum_exif_read_size_in_bytes_datetime))
         if self.minimum_exif_read_size_in_bytes_datetime is None and self.datetime is not None:
             s += 'Could not extract datetime tag with minimal read\n'
+        if self.minimum_exif_read_size_in_bytes_all is not None:
+            s += 'Minimum read size to extract variety of tags: {}\n'.format(
+                format_size_for_user(self.minimum_exif_read_size_in_bytes_all))
+        else:
+            s += 'Could not extract variety of tags with minimal read\n'
         return s
 
 

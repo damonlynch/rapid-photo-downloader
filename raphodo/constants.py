@@ -444,6 +444,23 @@ datetime_offset = dict(
 )
 datetime_offset['3gp'] = 5000
 
+all_tags_offset = dict(
+    arw=1848,
+    cr2=94622,
+    dng=143774,
+    mef=965,
+    mrw=183096,
+    nef=1126814,
+    nrw=1848,
+    orf=812242,
+    pef=1042,
+    raf=12907,
+    raw=890885,
+    rw2=1205458,
+    sr2=1080,
+    srw=614
+)
+
 thumbnail_offset = dict(
     jpg=100000,
     jpeg=100000,

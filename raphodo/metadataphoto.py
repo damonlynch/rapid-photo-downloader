@@ -115,7 +115,7 @@ class MetaData(GExiv2.Metadata):
         self.et_process = et_process
         self.rpd_full_file_name = full_file_name
 
-    def aperture(self, missing=''):
+    def aperture(self, missing='') -> Union[str, Any]:
         """
         Returns in string format the floating point value of the image's
         aperture.
@@ -130,7 +130,7 @@ class MetaData(GExiv2.Metadata):
         except:
             return missing
 
-    def iso(self, missing=''):
+    def iso(self, missing='') -> Union[str, Any]:
         """
         Returns in string format the integer value of the image's ISO.
 
