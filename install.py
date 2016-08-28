@@ -82,6 +82,17 @@ except ImportError:
     have_dnf = False
 
 
+class bcolors:
+    HEADER = '\033[95m'
+    OKBLUE = '\033[94m'
+    OKGREEN = '\033[92m'
+    WARNING = '\033[93m'
+    FAIL = '\033[91m'
+    ENDC = '\033[0m'
+    BOLD = '\033[1m'
+    UNDERLINE = '\033[4m'
+
+
 def check_packages_on_other_systems() -> None:
     """
     Check to see if some (but not all) application dependencies are
@@ -166,6 +177,18 @@ def install_packages(command_line: str) -> None:
         print("Answer is not yes, exiting")
         sys.exit(0)
 
+def uninstall_packages(command_line: str) -> None:
+    print("\nThe following command will be run:\n")
+    print(command_line)
+    print("\nsudo may prompt you for the sudo password.\n")
+    answer = input('Do you agree to run this command? (if you do, type yes and hit enter): ')
+    if answer == 'yes':
+        args = shlex.split(command_line)
+        try:
+            subprocess.check_call(args)
+        except subprocess.CalledProcessError:
+            sys.stderr.write("Command failed\n")
+
 def check_package_import_requirements() -> None:
     if distro_is_or_is_like('debian'):
         if not have_apt:
@@ -243,6 +266,34 @@ def check_package_import_requirements() -> None:
     else:
         check_packages_on_other_systems()
 
+def query_uninstall() -> bool:
+    return input('Type yes and hit enter if you want to to uninstall the previous version of '
+                 'Rapid Photo Downloader: ') == 'yes'
+
+def uninstall_old_version() -> None:
+    pkg_name = 'rapid-photo-downloader'
+
+    if distro_is_or_is_like('debian'):
+        cache = apt.Cache()
+        pkg = cache[pkg_name]
+        if pkg.is_installed and query_uninstall():
+            cmd = shutil.which('apt-get')
+            command_line = 'sudo {} remove {}'.format(cmd, pkg_name)
+            uninstall_packages(command_line)
+
+    elif distro_is_or_is_like('fedora'):
+        with dnf.Base() as base:
+            base.read_all_repos()
+            base.fill_sack()
+            q = base.sack.query()
+            q_inst = q.installed()
+            i = q_inst.filter(name=pkg_name)
+            if len(list(i)) and query_uninstall():
+                cmd = shutil.which('dnf')
+                command_line = 'sudo {} remove {}'.format(cmd, pkg_name)
+                uninstall_packages(command_line)
+
+
 def main(installer: str) -> None:
 
     check_package_import_requirements()
@@ -286,14 +337,17 @@ def main(installer: str) -> None:
                 symlink =  os.path.join(bin_dir, executable)
                 if not os.path.exists(symlink):
                     print('Creating symlink', symlink)
+                    print("If you uninstall the application, remove this symlink yourself.")
                     os.symlink(os.path.join(install_path, executable), symlink)
 
             if created_bin_dir:
-                print("\nLogout and login again to be able to run the program from the commmand "
-                      "line or application launcher")
+                print(bcolors.BOLD + "\nLogout and login again to be able to run the program "\
+                                 "from the commmand line or application launcher" + bcolors.ENDC)
         else:
             sys.stderr.write("\nThe application was installed in {}\n".format(install_path))
             sys.stderr.write("Add {} to your PATH to be able to launch it.\n".format(install_path))
+
+    uninstall_old_version()
 
     man_dir = '/usr/local/share/man/man1'
     print("\nDo you want to install the application's man pages?")
@@ -324,6 +378,7 @@ def main(installer: str) -> None:
             except subprocess.CalledProcessError:
                 sys.stderr.write("Failed to copy man page: exiting\n")
                 sys.exit(1)
+
 
 if __name__ == '__main__':
 

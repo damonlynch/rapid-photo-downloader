@@ -7,6 +7,9 @@ Changelog for Rapid Photo Downloader
  - Implemented photo and video file renaming preference configuration. Job code
    configuration will be implemented in a future alpha release.
 
+ - Added option to uninstall previous version of the program if running the
+   install script on Debian/Ubuntu or Fedora like Linux distributions.
+
  - Added .m2ts video extension to supported video files.
 
  - Added tooltip to clarify meaning of storage space usage.
