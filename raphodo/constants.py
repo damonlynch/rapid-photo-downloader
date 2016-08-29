@@ -132,6 +132,11 @@ class DestinationDisplayType(Enum):
     folders_and_usage = 3
 
 
+class ExifSource(Enum):
+    raw_bytes = 1
+    app1_segment = 2
+    actual_file = 3
+
 class DestinationDisplayMousePos(Enum):
     normal = 1
     menu = 2

@@ -39,7 +39,7 @@ from gi.repository import GLib
 import raphodo.exiftool as exiftool
 from raphodo.constants import (DownloadStatus, FileType, FileExtension, FileSortPriority,
                                ThumbnailCacheStatus, Downloaded, Desktop, thumbnail_offset,
-                               DeviceTimestampTZ, ThumbnailCacheDiskStatus)
+                               DeviceTimestampTZ, ThumbnailCacheDiskStatus, ExifSource)
 
 from raphodo.storage import get_desktop, gvfs_controls_mounts
 import raphodo.metadataphoto as metadataphoto
@@ -153,7 +153,8 @@ def get_rpdfile(name: str,
                 is_mtp_device: Optional[bool],
                 camera_memory_card_identifiers: Optional[List[int]],
                 never_read_mdatatime: bool,
-                raw_exif_bytes: Optional[bytes]):
+                raw_exif_bytes: Optional[bytes],
+                exif_source: Optional[ExifSource]):
 
     if file_type == FileType.video:
         return Video(name=name,
@@ -176,7 +177,8 @@ def get_rpdfile(name: str,
                      is_mtp_device=is_mtp_device,
                      camera_memory_card_identifiers=camera_memory_card_identifiers,
                      never_read_mdatatime=never_read_mdatatime,
-                     raw_exif_bytes=raw_exif_bytes)
+                     raw_exif_bytes=raw_exif_bytes,
+                     exif_source=exif_source)
     else:
         return Photo(name=name,
                      path=path,
@@ -352,7 +354,8 @@ class RPDFile:
                  camera_display_name: Optional[str]=None,
                  is_mtp_device: Optional[bool]=None,
                  camera_memory_card_identifiers: Optional[List[int]]=None,
-                 raw_exif_bytes: Optional[bytes]=None) -> None:
+                 raw_exif_bytes: Optional[bytes]=None,
+                 exif_source: Optional[ExifSource]=None) -> None:
         """
 
         :param name: filename (without path)
@@ -391,6 +394,7 @@ class RPDFile:
          of numeric identifiers (i.e. 1 or 2) identifying which memory
          card the file came from
         :param raw_exif_bytes: excerpt of the file's metadata in bytes format
+        :param exif_source: source of photo metadata
         """
 
         self.from_camera = from_camera
@@ -410,6 +414,7 @@ class RPDFile:
 
         # Used in sample RPD files
         self.raw_exif_bytes = raw_exif_bytes
+        self.exif_source = exif_source
 
         # Indicate whether file is a photo or video
         self._assign_file_type()

@@ -27,6 +27,7 @@ __copyright__ = "Copyright 2016, Damon Lynch"
 from typing import Dict, Optional, List, Union, Tuple, Sequence
 import datetime
 import copy
+import logging
 
 from gettext import gettext as _
 
@@ -721,6 +722,7 @@ def make_sample_rpd_file(sample_job_code: str,
                              prefs.stored_sequence_no)
     if sample_rpd_file is not None:
         if sample_rpd_file.metadata is None:
+            logging.debug('Sample file is missing its metadata')
             sample_rpd_file = None
         else:
             sample_rpd_file.sequences = sequences

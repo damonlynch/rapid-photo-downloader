@@ -55,7 +55,7 @@ from raphodo.interprocess import (WorkerInPublishPullPipeline, ScanResults,
 from raphodo.camera import Camera, CameraError
 import raphodo.rpdfile as rpdfile
 from raphodo.constants import (DeviceType, FileType, DeviceTimestampTZ, datetime_offset, CameraErrorCode,
-                               FileExtension, ThumbnailCacheDiskStatus, all_tags_offset)
+                               FileExtension, ThumbnailCacheDiskStatus, all_tags_offset, ExifSource)
 from raphodo.rpdsql import DownloadedSQL, FileDownloaded
 from raphodo.cache import ThumbnailCacheSql
 from raphodo.utilities import stdchannel_redirected, datetime_roughly_equal
@@ -86,6 +86,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
         self.file_mdatatime = {}  # type: Dict[str, float]
 
         self.sample_exif_bytes = None  # type: bytes
+        self.exif_source = None
         self.sample_photo = None  # type: rpdfile.Photo
         super().__init__('Scan')
 
@@ -220,10 +221,11 @@ class ScanWorker(WorkerInPublishPullPipeline):
             self.camera.free_camera()
 
         if self.file_batch:
-            # Send any remaining files
+            # Send any remaining files, including the sample photo or video
             self.content = pickle.dumps(ScanResults(self.file_batch,
                                         self.file_type_counter,
-                                        self.file_size_sum),
+                                        self.file_size_sum,
+                                        sample_photo=self.sample_photo),
                                         pickle.HIGHEST_PROTOCOL)
             self.send_message_to_sink()
         if self.files_scanned > 0 and not (self.files_scanned == 0 and self.download_from_camera):
@@ -529,7 +531,8 @@ class ScanWorker(WorkerInPublishPullPipeline):
                     is_mtp_device=self.is_mtp_device,
                     camera_memory_card_identifiers=camera_memory_card_identifiers,
                     never_read_mdatatime=ignore_mdatatime,
-                    raw_exif_bytes=None
+                    raw_exif_bytes=None,
+                    exif_source=None
                 )
 
                 self.file_batch.append(rpd_file)
@@ -589,7 +592,8 @@ class ScanWorker(WorkerInPublishPullPipeline):
                     is_mtp_device=self.is_mtp_device,
                     camera_memory_card_identifiers=None,
                     never_read_mdatatime=ignore_mdatatime,
-                    raw_exif_bytes=self.sample_exif_bytes
+                    raw_exif_bytes=self.sample_exif_bytes,
+                    exif_source=self.exif_source
                 )
 
     def sample_camera_datetime(self, path: str,
@@ -627,6 +631,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
                                   self.camera.display_name)
                     self.sample_exif_bytes = None
                 else:
+                    self.exif_source = ExifSource.app1_segment
                     dt = metadata.date_time(missing=None)  # type: datetime
         elif exif_extract:
             offset = all_tags_offset.get(extension)
@@ -643,6 +648,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
                                   self.camera.display_name)
                     self.sample_exif_bytes = None
                 else:
+                    self.exif_source = ExifSource.raw_bytes
                     dt = metadata.date_time(missing=None)  # type: datetime
         elif save_chunk:
             offset = datetime_offset.get(extension)

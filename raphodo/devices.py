@@ -42,7 +42,8 @@ from PyQt5.QtWidgets import QFileIconProvider
 from PyQt5.QtGui import QIcon, QPixmap
 
 import raphodo.qrc_resources as qrc_resources
-from raphodo.constants import (DeviceType, BackupLocationType, FileType, DeviceState, DownloadStatus)
+from raphodo.constants import (DeviceType, BackupLocationType, FileType, DeviceState,
+                               DownloadStatus, ExifSource)
 from raphodo.rpdfile import FileTypeCounter, FileSizeSum
 from raphodo.storage import StorageSpace, udev_attributes, UdevAttr
 from raphodo.camera import Camera, generate_devname
@@ -702,15 +703,16 @@ class DeviceCollection:
             return None
 
         if self._sample_photo.metadata is None and not self._sample_photo.metadata_failure:
-            try:
-                if self._sample_photo.file_type == FileType.photo:
-                    with stdchannel_redirected(sys.stderr, os.devnull):
+            if self._sample_photo.file_type == FileType.photo:
+                with stdchannel_redirected(sys.stderr, os.devnull):
+                    if self._sample_photo.exif_source == ExifSource.raw_bytes:
                         self._sample_photo.load_metadata(
                             raw_bytes=bytearray(self._sample_photo.raw_exif_bytes))
-                else:
-                    self._sample_photo.load_metadata(et_process=self.exiftool_process)
-            except:
-                logging.error("Failed to load sample photo metadata")
+                    else:
+                        self._sample_photo.load_metadata(
+                            app1_segment=bytearray(self._sample_photo.raw_exif_bytes))
+            else:
+                self._sample_photo.load_metadata(et_process=self.exiftool_process)
         return self._sample_photo
 
     @sample_photo.setter
