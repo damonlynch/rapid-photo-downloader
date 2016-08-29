@@ -28,11 +28,12 @@ context:
 __author__ = 'Damon Lynch'
 __copyright__ = "Copyright 2015-2016, Damon Lynch"
 
+import sys
 import shutil
 import os
 import logging
 from collections import namedtuple, Counter
-from typing import Tuple, List, Optional, Set, Dict
+from typing import Tuple, List, Optional, Set, Dict, Union
 
 from gettext import gettext as _
 
@@ -45,7 +46,10 @@ from raphodo.constants import (DeviceType, BackupLocationType, FileType, DeviceS
 from raphodo.rpdfile import FileTypeCounter, FileSizeSum
 from raphodo.storage import StorageSpace, udev_attributes, UdevAttr
 from raphodo.camera import Camera, generate_devname
-from raphodo.utilities import number, make_internationalized_list
+from raphodo.utilities import number, make_internationalized_list, stdchannel_redirected
+import raphodo.metadataphoto as metadataphoto
+from raphodo.rpdfile import Photo, Video
+import raphodo.exiftool as exiftool
 
 display_devices = (DeviceType.volume, DeviceType.camera)
 
@@ -92,20 +96,20 @@ class Device:
         self.clear()
 
     def clear(self):
-        self.camera_model = None # type: str
-        self.camera_port = None # type: str
+        self.camera_model = None  # type: str
+        self.camera_port = None  # type: str
         # Assume an MTP device is likely a smart phone or tablet
         self.is_mtp_device = False
-        self.udev_name = None # type: str
-        self.storage_space = [] # type: List[StorageSpace]
-        self.path = None # type: str
-        self.display_name = None # type: str
+        self.udev_name = None  # type: str
+        self.storage_space = []  # type: List[StorageSpace]
+        self.path = None  # type: str
+        self.display_name = None  # type: str
         self.have_optimal_display_name = False
-        self.device_type = None # type: DeviceType
-        self.icon_name = None # type: str
-        self.can_eject = None # type: bool
-        self.photo_cache_dir = None # type: str
-        self.video_cache_dir = None # type: str
+        self.device_type = None  # type: DeviceType
+        self.icon_name = None  # type: str
+        self.can_eject = None  # type: bool
+        self.photo_cache_dir = None  # type: str
+        self.video_cache_dir = None  # type: str
         self.file_size_sum = FileSizeSum()
         self.file_type_counter = FileTypeCounter()
         self.download_statuses = set()  # type: Set[DownloadStatus]
@@ -352,7 +356,7 @@ class DeviceCollection:
     >>> dc.delete_device(e)
     False
     """
-    def __init__(self) -> None:
+    def __init__(self, exiftool_process: Optional[exiftool.ExifTool]=None) -> None:
         self.devices = {}  # type: Dict[int, Device]
         # port: model
         self.cameras = {}  # type: Dict[str, str]
@@ -401,6 +405,11 @@ class DeviceCollection:
         # List of devices that were detected at program startup
         # scan_id
         self.startup_devices = []  # type: List[int]
+
+        # Sample exif bytes of photo on most recent device scanned
+        self._sample_photo = None  # type: Photo
+        self._sample_video = None  # type: Video
+        self.exiftool_process = exiftool_process
 
         self._map_set = {DeviceType.path: self.this_computer,
                          DeviceType.camera: self.volumes_and_cameras,
@@ -686,6 +695,43 @@ class DeviceCollection:
         # Translators: e.g. Three Devices
         return _('%(no_devices)s %(device_type)s') % dict(
             no_devices=text_number, device_type=device_type_text)
+
+    @property
+    def sample_photo(self) -> Optional[Photo]:
+        if self._sample_photo is None:
+            return None
+
+        if self._sample_photo.metadata is None and not self._sample_photo.metadata_failure:
+            try:
+                if self._sample_photo.file_type == FileType.photo:
+                    with stdchannel_redirected(sys.stderr, os.devnull):
+                        self._sample_photo.load_metadata(
+                            raw_bytes=bytearray(self._sample_photo.raw_exif_bytes))
+                else:
+                    self._sample_photo.load_metadata(et_process=self.exiftool_process)
+            except:
+                logging.error("Failed to load sample photo metadata")
+        return self._sample_photo
+
+    @sample_photo.setter
+    def sample_photo(self, photo: Photo) -> None:
+        self._sample_photo = photo
+        
+    @property
+    def sample_video(self) -> Optional[Video]:
+        if self._sample_video is None:
+            return None
+
+        if self._sample_video.metadata is None and not self._sample_video.metadata_failure:
+            try:
+                self._sample_video.load_metadata(et_process=self.exiftool_process)
+            except:
+                logging.error("Failed to load sample video metadata")
+        return self._sample_video
+
+    @sample_video.setter
+    def sample_video(self, video: Video) -> None:
+        self._sample_video = video
 
     def get_main_window_display_name_and_icon(self) -> Tuple[str, QIcon]:
         """

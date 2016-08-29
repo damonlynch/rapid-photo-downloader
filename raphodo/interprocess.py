@@ -41,7 +41,7 @@ import zmq.log.handlers
 from zmq.eventloop.ioloop import IOLoop
 from zmq.eventloop.zmqstream import ZMQStream
 
-from raphodo.rpdfile import (RPDFile, FileTypeCounter, FileSizeSum)
+from raphodo.rpdfile import (RPDFile, FileTypeCounter, FileSizeSum, Photo, Video)
 from raphodo.devices import Device
 from raphodo.preferences import ScanPreferences
 from raphodo.utilities import CacheDirs, set_pdeathsig
@@ -1095,7 +1095,9 @@ class ScanResults:
                  error_code: Optional[CameraErrorCode]=None,
                  scan_id: Optional[int]=None,
                  optimal_display_name: Optional[str]=None,
-                 storage_space: Optional[List[StorageSpace]]=None) -> None:
+                 storage_space: Optional[List[StorageSpace]]=None,
+                 sample_photo: Optional[Photo]=None,
+                 sample_video: Optional[Video]=None) -> None:
         self.rpd_files = rpd_files
         self.file_type_counter = file_type_counter
         self.file_size_sum = file_size_sum
@@ -1103,6 +1105,8 @@ class ScanResults:
         self.scan_id = scan_id
         self.optimal_display_name = optimal_display_name
         self.storage_space = storage_space
+        self.sample_photo = sample_photo
+        self.sample_video = sample_video
 
 
 class CopyFilesArguments:

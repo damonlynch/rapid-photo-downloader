@@ -788,7 +788,7 @@ class RapidWindow(QMainWindow):
         logging.debug("Stage 2 initialization")
 
         # For meaning of 'Devices', see devices.py
-        self.devices = DeviceCollection()
+        self.devices = DeviceCollection(self.exiftool_process)
 
         logging.debug("Starting thumbnail daemon model")
 
@@ -1674,7 +1674,7 @@ class RapidWindow(QMainWindow):
         # Also display the file system folder chooser for both destinations.
 
         self.photoDestinationDisplay = DestinationDisplay(menu=True, file_type=FileType.photo,
-                                              parent=self, exiftool_process=self.exiftool_process)
+                                              parent=self)
         self.photoDestinationDisplay.setDestination(self.prefs.photo_download_folder)
         self.photoDestinationWidget = ComputerWidget(objectName='photoDestination',
              view=self.photoDestinationDisplay, fileSystemView=self.photoDestinationFSView,
@@ -1682,7 +1682,7 @@ class RapidWindow(QMainWindow):
         self.photoDestination.addWidget(self.photoDestinationWidget)
         
         self.videoDestinationDisplay = DestinationDisplay(menu=True, file_type=FileType.video,
-                                              parent=self, exiftool_process=self.exiftool_process)
+                                              parent=self)
         self.videoDestinationDisplay.setDestination(self.prefs.video_download_folder)
         self.videoDestinationWidget = ComputerWidget(objectName='videoDestination',
              view=self.videoDestinationDisplay, fileSystemView=self.videoDestinationFSView,
@@ -3556,6 +3556,12 @@ class RapidWindow(QMainWindow):
             if scan_id not in self.devices:
                 return
             device = self.devices[scan_id]
+            if data.sample_photo is not None:
+                logging.info("Updating example file name using sample photo from %s",
+                             device.display_name)
+                self.devices.sample_photo = data.sample_photo
+                self.renamePanel.setSamplePhoto(self.devices.sample_photo)
+                self.photoDestinationDisplay.sample_rpd_file = self.devices.sample_photo
             device.file_type_counter = data.file_type_counter
             device.file_size_sum = data.file_size_sum
             self.mapModel(scan_id).updateDeviceScan(scan_id)
@@ -4533,21 +4539,6 @@ class RapidWindow(QMainWindow):
 
     def manualBackupPathAvailable(self, path: str) -> bool:
         return os.access(path, os.W_OK)
-
-    def clearNonRunningDownloads(self):
-        """
-        Clears the display of downloads that are currently not running
-        """
-
-        #TODO implement once UI is more complete
-        # Stop any processes currently scanning or creating thumbnails
-        pass
-
-        # Remove them from the user interface
-        # for scan_pid in self.device_collection.get_all_displayed_processes():
-        #     if scan_pid not in self.download_active_by_scan_pid:
-        #         self.device_collection.remove_device(scan_pid)
-        #         self.thumbnails.clear_all(scan_pid=scan_pid)
 
     def monitorPartitionChanges(self) -> bool:
         """

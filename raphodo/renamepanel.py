@@ -57,8 +57,7 @@ class RenameWidget(QFramedWidget):
     def __init__(self, preset_type: PresetPrefType,
                  prefs: Preferences,
                  exiftool_process: exiftool.ExifTool,
-                 parent,
-                 sample_rpd_file: Optional[Union[Photo, Video]] = None) -> None:
+                 parent) -> None:
         super().__init__(parent)
         self.setBackgroundRole(QPalette.Base)
         self.setAutoFillBackground(True)
@@ -71,21 +70,19 @@ class RenameWidget(QFramedWidget):
             self.generation_type = NameGenerationType.photo_name
             self.index_lookup = self.prefs.photo_rename_index
             self.pref_conv = PHOTO_RENAME_MENU_DEFAULTS_CONV
-            generation_type = NameGenerationType.photo_name
+            self.generation_type = NameGenerationType.photo_name
         else:
             self.file_type = FileType.video
             self.pref_defn = DICT_VIDEO_RENAME_L0
             self.generation_type = NameGenerationType.video_name
             self.index_lookup = self.prefs.video_rename_index
             self.pref_conv = VIDEO_RENAME_MENU_DEFAULTS_CONV
-            generation_type = NameGenerationType.video_name
+            self.generation_type = NameGenerationType.video_name
 
-        #TODO use real sample from scan results
-        self.sample_rpd_file = make_sample_rpd_file(sample_rpd_file=sample_rpd_file,
+        self.sample_rpd_file = make_sample_rpd_file(
                     sample_job_code=self.prefs.most_recent_job_code(missing=_('Job Code')),
-                    exiftool_process=exiftool_process,
                     prefs=self.prefs,
-                    generation_type=generation_type)
+                    generation_type=self.generation_type)
 
         layout = QFormLayout()
         self.setLayout(layout)
@@ -171,7 +168,7 @@ class RenameWidget(QFramedWidget):
 
 
             prefDialog = PrefDialog(self.pref_defn, self.pref_list(), self.generation_type,
-                                    self.prefs, self.exiftool_process)
+                                    self.prefs, self.sample_rpd_file)
 
             if prefDialog.exec():
                 user_pref_list = prefDialog.getPrefList()
@@ -238,6 +235,14 @@ class RenameWidget(QFramedWidget):
 
         self.sample_rpd_file.initialize_problem()
         self.example.setText(self.name_generator.generate_name(self.sample_rpd_file))
+
+    def updateSampleFile(self, sample_rpd_file: Union[Photo, Video]) -> None:
+        self.sample_rpd_file = make_sample_rpd_file(
+                    sample_rpd_file=sample_rpd_file,
+                    sample_job_code=self.prefs.most_recent_job_code(missing=_('Job Code')),
+                    prefs=self.prefs,
+                    generation_type=self.generation_type)
+        self.updateExampleFilename()
 
     @pyqtSlot(int)
     def extensionChanged(self, index: int) -> None:
@@ -466,6 +471,9 @@ class RenamePanel(QScrollArea):
         self.renameOptions.downloadsToday.setValue(int(downloads_today[1]))
         self.renameOptions.downloads_today_tracker.downloads_today = downloads_today
         self.renameOptions.storedNumber.setValue(stored_sequence_no)
+
+    def setSamplePhoto(self, sample_photo: Photo) -> None:
+        self.photoRenameWidget.updateSampleFile(sample_rpd_file=sample_photo)
 
 
 

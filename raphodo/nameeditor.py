@@ -697,8 +697,8 @@ class CreatePreset(QDialog):
 
         return self.name.text()
 
+
 def make_sample_rpd_file(sample_job_code: str,
-                         exiftool_process: exiftool.ExifTool,
                          prefs: Preferences,
                          generation_type: NameGenerationType,
                          sample_rpd_file: Optional[Union[Photo, Video]]=None) -> RPDFile:
@@ -707,7 +707,6 @@ def make_sample_rpd_file(sample_job_code: str,
     file renaming preference in action on a sample file.
 
     :param sample_job_code: sample of a Job Code
-    :param exiftool_process: ExifTool process used to generate file and subfolder names
     :param prefs: user preferences
     :param generation_type: one of photo/video filenames/subfolders
     :param sample_rpd_file: sample RPDFile that will possibly be overwritten
@@ -721,10 +720,7 @@ def make_sample_rpd_file(sample_job_code: str,
     sequences = gn.Sequences(downloads_today_tracker,
                              prefs.stored_sequence_no)
     if sample_rpd_file is not None:
-        # TODO handle sample file from camera?
-        full_file_name = sample_rpd_file.full_file_name
-        if not sample_rpd_file.load_metadata(full_file_name=full_file_name,
-                                             et_process=exiftool_process):
+        if sample_rpd_file.metadata is None:
             sample_rpd_file = None
         else:
             sample_rpd_file.sequences = sequences
@@ -755,7 +751,6 @@ class PrefDialog(QDialog):
                  user_pref_list: List[str],
                  generation_type: NameGenerationType,
                  prefs: Preferences,
-                 exiftool_process: exiftool.ExifTool,
                  sample_rpd_file: Optional[Union[Photo, Video]]=None,
                  parent=None) -> None:
         """
@@ -816,7 +811,6 @@ class PrefDialog(QDialog):
 
         self.sample_rpd_file = make_sample_rpd_file(sample_rpd_file=sample_rpd_file,
                     sample_job_code=self.prefs.most_recent_job_code(missing=_('Job Code')),
-                    exiftool_process=exiftool_process,
                     prefs=self.prefs,
                     generation_type=generation_type)
 
@@ -1415,14 +1409,12 @@ if __name__ == '__main__':
 
     prefs = Preferences()
 
-    with exiftool.ExifTool() as exiftool_process:
-
-        prefDialog = PrefDialog(DICT_IMAGE_RENAME_L0, PHOTO_RENAME_MENU_DEFAULTS_CONV[1],
-                                NameGenerationType.photo_name, prefs, exiftool_process)
-        # prefDialog = PrefDialog(DICT_VIDEO_RENAME_L0, VIDEO_RENAME_MENU_DEFAULTS_CONV[1],
-        #                         NameGenerationType.video_name, prefs, exiftool_process)
-        # prefDialog = PrefDialog(DICT_SUBFOLDER_L0, PHOTO_SUBFOLDER_MENU_DEFAULTS_CONV[2],
-        #                         NameGenerationType.photo_subfolder, prefs, exiftool_process)
-        prefDialog.show()
-        app.exec_()
+    prefDialog = PrefDialog(DICT_IMAGE_RENAME_L0, PHOTO_RENAME_MENU_DEFAULTS_CONV[1],
+                            NameGenerationType.photo_name, prefs)
+    # prefDialog = PrefDialog(DICT_VIDEO_RENAME_L0, VIDEO_RENAME_MENU_DEFAULTS_CONV[1],
+    #                         NameGenerationType.video_name, prefs)
+    # prefDialog = PrefDialog(DICT_SUBFOLDER_L0, PHOTO_SUBFOLDER_MENU_DEFAULTS_CONV[2],
+    #                         NameGenerationType.photo_subfolder, prefs)
+    prefDialog.show()
+    app.exec_()
 

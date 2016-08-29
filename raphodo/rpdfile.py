@@ -135,15 +135,15 @@ def get_sort_priority(extension: FileExtension, file_type: FileType) -> FileSort
 def get_rpdfile(name: str,
                 path: str,
                 size: int,
-                prev_full_name: str,
-                prev_datetime: datetime,
+                prev_full_name: Optional[str],
+                prev_datetime: Optional[datetime],
                 device_timestamp_type: DeviceTimestampTZ,
                 mtime: float,
                 mdatatime: float,
                 thumbnail_cache_status: ThumbnailCacheDiskStatus,
                 thm_full_name: Optional[str],
-                audio_file_full_name: str,
-                xmp_file_full_name: str,
+                audio_file_full_name: Optional[str],
+                xmp_file_full_name: Optional[str],
                 scan_id: bytes,
                 file_type: FileType,
                 from_camera: bool,
@@ -152,7 +152,8 @@ def get_rpdfile(name: str,
                 camera_display_name: Optional[str],
                 is_mtp_device: Optional[bool],
                 camera_memory_card_identifiers: Optional[List[int]],
-                never_read_mdatatime: bool):
+                never_read_mdatatime: bool,
+                raw_exif_bytes: Optional[bytes]):
 
     if file_type == FileType.video:
         return Video(name=name,
@@ -174,7 +175,8 @@ def get_rpdfile(name: str,
                      camera_display_name=camera_display_name,
                      is_mtp_device=is_mtp_device,
                      camera_memory_card_identifiers=camera_memory_card_identifiers,
-                     never_read_mdatatime=never_read_mdatatime)
+                     never_read_mdatatime=never_read_mdatatime,
+                     raw_exif_bytes=raw_exif_bytes)
     else:
         return Photo(name=name,
                      path=path,
@@ -195,7 +197,8 @@ def get_rpdfile(name: str,
                      camera_display_name=camera_display_name,
                      is_mtp_device=is_mtp_device,
                      camera_memory_card_identifiers=camera_memory_card_identifiers,
-                     never_read_mdatatime=never_read_mdatatime)
+                     never_read_mdatatime=never_read_mdatatime,
+                     raw_exif_bytes=raw_exif_bytes)
 
 def file_types_by_number(no_photos: int, no_videos: int) -> str:
         """
@@ -348,7 +351,8 @@ class RPDFile:
                  camera_port: Optional[str]=None,
                  camera_display_name: Optional[str]=None,
                  is_mtp_device: Optional[bool]=None,
-                 camera_memory_card_identifiers: Optional[List[int]]=None) -> None:
+                 camera_memory_card_identifiers: Optional[List[int]]=None,
+                 raw_exif_bytes: Optional[bytes]=None) -> None:
         """
 
         :param name: filename (without path)
@@ -386,6 +390,7 @@ class RPDFile:
          camera, and the camera has more than one memory card, a list
          of numeric identifiers (i.e. 1 or 2) identifying which memory
          card the file came from
+        :param raw_exif_bytes: excerpt of the file's metadata in bytes format
         """
 
         self.from_camera = from_camera
@@ -402,6 +407,9 @@ class RPDFile:
         self.prev_datetime = prev_datetime
 
         self.full_file_name = os.path.join(path, name)
+
+        # Used in sample RPD files
+        self.raw_exif_bytes = raw_exif_bytes
 
         # Indicate whether file is a photo or video
         self._assign_file_type()
@@ -526,6 +534,7 @@ class RPDFile:
         self.download_audio_full_name = ''  # name of the WAV or MP3 audio file with path
 
         self.metadata = None # type: Optional[Union[metadataphoto.MetaData, metadatavideo.MetaData]]
+        self.metadata_failure = False # type: bool
 
         # User preference values used for name generation
         self.subfolder_pref_list = []  # type: List[str]
@@ -816,9 +825,11 @@ class Photo(RPDFile):
                raw_bytes=raw_bytes, app1_segment=app1_segment, et_process=et_process)
         except GLib.GError as e:
             logging.warning("Could not read metadata from %s. %s", self.full_file_name, e)
+            self.metadata_failure = True
             return False
         except:
             logging.warning("Could not read metadata from %s", self.full_file_name)
+            self.metadata_failure = True
             return False
         else:
             return True
@@ -842,7 +853,13 @@ class Video(RPDFile):
         :return: Always returns True. Return value is needed to keep
          consistency with class Photo, where the value actually makes sense.
         """
-
+        if full_file_name is None:
+            if self.download_full_file_name:
+                full_file_name = self.download_full_file_name
+            elif self.cache_full_file_name:
+                full_file_name = self.cache_full_file_name
+            else:
+                full_file_name = self.full_file_name
         self.metadata = metadatavideo.MetaData(full_file_name, et_process)
         return True
 

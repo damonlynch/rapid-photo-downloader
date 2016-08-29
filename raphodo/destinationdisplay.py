@@ -25,7 +25,7 @@ __copyright__ = "Copyright 2016, Damon Lynch"
 
 import os
 import math
-from typing import Optional, Dict, Tuple
+from typing import Optional, Dict, Tuple, Union
 import logging
 from gettext import gettext as _
 
@@ -42,7 +42,7 @@ from raphodo.constants import (CustomColors, DestinationDisplayType, DisplayingF
                                DestinationDisplayMousePos, PresetPrefType, NameGenerationType,
                                DestinationDisplayTooltipState)
 from raphodo.utilities import thousands, format_size_for_user
-from raphodo.rpdfile import FileTypeCounter, FileType
+from raphodo.rpdfile import FileTypeCounter, FileType, Photo, Video
 from raphodo.nameeditor import PrefDialog, make_subfolder_menu_entry
 import raphodo.exiftool as exiftool
 import raphodo.generatenameconfig as gnc
@@ -80,7 +80,6 @@ class DestinationDisplay(QWidget):
 
     def __init__(self, menu: bool=False,
                  file_type: FileType=None,
-                 exiftool_process: exiftool.ExifTool=None,
                  parent=None) -> None:
         """
         :param menu: whether to render a drop down menu
@@ -98,8 +97,6 @@ class DestinationDisplay(QWidget):
         self.storage_space = None  # type: StorageSpace
 
         self.map_action = dict()  # type: Dict[int, QAction]
-
-        self.exiftool_process = exiftool_process
 
         if menu:
             menuIcon = QIcon(':/icons/settings.svg')
@@ -126,6 +123,8 @@ class DestinationDisplay(QWidget):
         # default number of built-in subfolder generation defaults
         self.no_builtin_defaults = 5
         self.max_presets = 5
+
+        self.sample_rpd_file = None  # type: Union[Photo, Video]
 
     def createActionsAndMenu(self) -> None:
         self.setMouseTracking(True)
@@ -299,7 +298,7 @@ class DestinationDisplay(QWidget):
                 generation_type = NameGenerationType.video_subfolder
 
             prefDialog = PrefDialog(pref_defn, pref_list, generation_type, self.prefs,
-                                    self.exiftool_process)
+                                    self.sample_rpd_file)
             if prefDialog.exec():
                 user_pref_list = prefDialog.getPrefList()
                 if not user_pref_list:

@@ -82,7 +82,6 @@ class MetaData:
     """
     def __init__(self, full_file_name: str, et_process: exiftool.ExifTool):
 
-
         self.filename = full_file_name
         self.metadata = dict()
         self.metadata_string_format = dict()

@@ -55,7 +55,7 @@ from raphodo.interprocess import (WorkerInPublishPullPipeline, ScanResults,
 from raphodo.camera import Camera, CameraError
 import raphodo.rpdfile as rpdfile
 from raphodo.constants import (DeviceType, FileType, DeviceTimestampTZ, datetime_offset, CameraErrorCode,
-                               FileExtension, ThumbnailCacheDiskStatus)
+                               FileExtension, ThumbnailCacheDiskStatus, all_tags_offset)
 from raphodo.rpdsql import DownloadedSQL, FileDownloaded
 from raphodo.cache import ThumbnailCacheSql
 from raphodo.utilities import stdchannel_redirected, datetime_roughly_equal
@@ -85,6 +85,8 @@ class ScanWorker(WorkerInPublishPullPipeline):
         # full_file_name (path+name):timestamp
         self.file_mdatatime = {}  # type: Dict[str, float]
 
+        self.sample_exif_bytes = None  # type: bytes
+        self.sample_photo = None  # type: rpdfile.Photo
         super().__init__('Scan')
 
     def do_work(self) -> None:
@@ -475,7 +477,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
                 # If we don't, it will be extracted when thumbnails are generated
                 mdatatime = self.file_mdatatime.get(file, 0.0)
 
-                ignore_mdatatime = self.ignore_mdatatime_for_mtp_dng and ext == 'dng'
+                ignore_mdatatime = self.ignore_mdatatime(ext=ext)
 
                 if not mdatatime and self.use_thumbnail_cache and not ignore_mdatatime:
                     # Was there a thumbnail generated for the file?
@@ -527,17 +529,68 @@ class ScanWorker(WorkerInPublishPullPipeline):
                     is_mtp_device=self.is_mtp_device,
                     camera_memory_card_identifiers=camera_memory_card_identifiers,
                     never_read_mdatatime=ignore_mdatatime,
+                    raw_exif_bytes=None
                 )
 
                 self.file_batch.append(rpd_file)
+
+                if self.sample_exif_bytes is not None:
+                    self.sample_photo = self.create_sample_rpdfile(name=self.file_name,
+                                               path=self.dir_name,
+                                               size=size,
+                                               mdatatime=mdatatime,
+                                               file_type=file_type,
+                                               mtime=modification_time,
+                                               ignore_mdatatime=ignore_mdatatime)
+                    self.sample_exif_bytes = None
+
                 if len(self.file_batch) == self.batch_size:
                     self.content = pickle.dumps(ScanResults(
-                                                rpd_files=self.file_batch,
-                                                file_type_counter=self.file_type_counter,
-                                                file_size_sum=self.file_size_sum),
-                                                pickle.HIGHEST_PROTOCOL)
+                                            rpd_files=self.file_batch,
+                                            file_type_counter=self.file_type_counter,
+                                            file_size_sum=self.file_size_sum,
+                                            sample_photo=self.sample_photo),
+                                            pickle.HIGHEST_PROTOCOL)
                     self.send_message_to_sink()
                     self.file_batch = []
+                    self.sample_photo = None
+
+    def ignore_mdatatime(self, ext: str) -> bool:
+        return self.ignore_mdatatime_for_mtp_dng and ext == 'dng'
+
+    def create_sample_rpdfile(self, path: str,
+                              name: str,
+                              size: int,
+                              mdatatime: float,
+                              file_type: FileType,
+                              mtime: float,
+                              ignore_mdatatime: bool) -> Union[rpdfile.Photo, rpdfile.Video]:
+        assert self.sample_exif_bytes is not None
+        logging.info("Successfully extracted sample metadata from %s", self.display_name)
+        return rpdfile.get_rpdfile(
+                    name=name,
+                    path=path,
+                    size=size,
+                    prev_full_name=None,
+                    prev_datetime=None,
+                    device_timestamp_type=self.device_timestamp_type,
+                    mtime=mtime,
+                    mdatatime=mdatatime,
+                    thumbnail_cache_status=ThumbnailCacheDiskStatus.unknown,
+                    thm_full_name=None,
+                    audio_file_full_name=None,
+                    xmp_file_full_name=None,
+                    scan_id=self.worker_id,
+                    file_type=file_type,
+                    from_camera=self.download_from_camera,
+                    camera_model=self.camera_model,
+                    camera_port=self.camera_port,
+                    camera_display_name=self.camera_display_name,
+                    is_mtp_device=self.is_mtp_device,
+                    camera_memory_card_identifiers=None,
+                    never_read_mdatatime=ignore_mdatatime,
+                    raw_exif_bytes=self.sample_exif_bytes
+                )
 
     def sample_camera_datetime(self, path: str,
                                name: str,
@@ -564,28 +617,31 @@ class ScanWorker(WorkerInPublishPullPipeline):
             save_chunk = True
 
         if use_app1:
-            raw_bytes = self.camera.get_exif_extract_from_jpeg(path, name)
-            if raw_bytes is not None:
+            self.sample_exif_bytes = self.camera.get_exif_extract_from_jpeg(path, name)
+            if self.sample_exif_bytes is not None:
                 try:
                     with stdchannel_redirected(sys.stderr, os.devnull):
-                        metadata = metadataphoto.MetaData(app1_segment=raw_bytes)
+                        metadata = metadataphoto.MetaData(app1_segment=self.sample_exif_bytes)
                 except:
                     logging.warning("Scanner failed to load metadata from %s on %s", name,
                                   self.camera.display_name)
+                    self.sample_exif_bytes = None
                 else:
                     dt = metadata.date_time(missing=None)  # type: datetime
         elif exif_extract:
-            offset = datetime_offset.get(extension)
+            offset = all_tags_offset.get(extension)
             if offset is None:
                 offset = size
-            raw_bytes = self.camera.get_exif_extract(path, name, offset)
-            if raw_bytes is not None:
+            offset = min(size, offset)
+            self.sample_exif_bytes = self.camera.get_exif_extract(path, name, offset)
+            if self.sample_exif_bytes is not None:
                 try:
                     with stdchannel_redirected(sys.stderr, os.devnull):
-                        metadata = metadataphoto.MetaData(raw_bytes=raw_bytes)
+                        metadata = metadataphoto.MetaData(raw_bytes=self.sample_exif_bytes)
                 except:
                     logging.warning("Scanner failed to load metadata from %s on %s", name,
                                   self.camera.display_name)
+                    self.sample_exif_bytes = None
                 else:
                     dt = metadata.date_time(missing=None)  # type: datetime
         elif save_chunk:
@@ -600,6 +656,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
                         with ExifTool() as et_process:
                             metadata = metadatavideo.MetaData(temp_name, et_process)
                             dt = metadata.date_time(missing=None)
+
         if dt is None:
             logging.warning("Scanner failed to extract date time metadata from %s on %s",
                               name, self.camera.display_name)
