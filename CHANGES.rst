@@ -1,7 +1,7 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
-0.9.0a5 (2016-11-08)
+0.9.0a5 (2016-11-09)
 --------------------
 
  - Implemented photo and video file renaming preference configuration. Job code
@@ -52,6 +52,8 @@ Changelog for Rapid Photo Downloader
 
  - Fixed bug where QFileSystemWatcher.removePaths() could be called with an empty
    directory list.
+
+ - Updated Spanish translation, courtesy of Jose Luis Tirado.
 
 0.9.0a4 (2016-06-22)
 --------------------

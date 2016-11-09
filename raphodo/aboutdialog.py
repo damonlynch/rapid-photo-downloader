@@ -148,6 +148,7 @@ class AboutDialog(QDialog):
         Ahmed Shubbar <ahmed.shubbar@gmail.com>
         Sergei Sedov <sedov@webmail.perm.ru>
         Marco Solari <marcosolari@gmail.com>
+        Jose Luis Tirado <joseluis.tirado@gmail.com>
         Ilya Tsimokhin <ilya@tsimokhin.com>
         Ulf Urdén <ulf.urden@purplescout.com>
         Julien Valroff <julien@kirya.net>
