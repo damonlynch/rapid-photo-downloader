@@ -85,8 +85,7 @@ def get_video_frame(full_file_name: str,
     offset=max(min(pipeline.query_duration(Gst.Format.TIME)[1] - Gst.SECOND / 4, offset *
                    Gst.SECOND), 0)
 
-    assert pipeline.seek_simple(
-        Gst.Format.TIME, Gst.SeekFlags.FLUSH, offset)
+    assert pipeline.seek_simple(Gst.Format.TIME, Gst.SeekFlags.FLUSH, offset)
     # Wait for seek to finish.
     pipeline.get_state(Gst.CLOCK_TIME_NONE)
     sample = pipeline.emit('convert-sample', caps)

@@ -49,6 +49,7 @@ import subprocess
 import argparse
 import shutil
 import pickle
+import shlex
 from collections import defaultdict, Counter
 import time
 import threading
@@ -272,15 +273,25 @@ def analyze_videos(videos: List[VideoAttributes], verbose: bool) -> None:
     size_by_extension= defaultdict(list)
     datetime_read = defaultdict(list)
     thumbnail_extract = defaultdict(list)
+    variety_read = defaultdict(list)
+    variety_read_raw = defaultdict(list)
+
     for va in videos:
+        print ('%s' % va)
         size_by_extension[va.ext].append(va.bytes_cached)
         total = format_size_for_user(va.file_size)
         if va.minimum_read_size_in_bytes_datetime is not None:
             size = format_size_for_user(va.minimum_read_size_in_bytes_datetime)
             datetime_read[va.ext].append('{} of {}'.format(size, total))
+            # datetime_read[va.ext].append(va.minimum_read_size_in_bytes_datetime)
         if va.minimum_read_size_in_bytes_thumbnail is not None:
             size =  format_size_for_user(va.minimum_read_size_in_bytes_thumbnail)
             thumbnail_extract[va.ext].append('{} of {}'.format(size, total))
+            # thumbnail_extract[va.ext].append(va.minimum_read_size_in_bytes_thumbnail)
+        if va.minimum_metadata_read_size_in_bytes_all is not None:
+            size =  format_size_for_user(va.minimum_metadata_read_size_in_bytes_all)
+            variety_read[va.ext].append('{} of {}'.format(size, total))
+            variety_read_raw[va.ext].append(va.minimum_metadata_read_size_in_bytes_all)
 
     exts = list(size_by_extension.keys())
     exts.sort()
@@ -299,6 +310,14 @@ def analyze_videos(videos: List[VideoAttributes], verbose: bool) -> None:
     print("\nDate time read:")
     for ext in exts:
         print(ext, Counter(datetime_read[ext]).most_common())
+
+    exts = list(variety_read.keys())
+    exts.sort()
+    print("\nVariety of tags read:")
+    for ext in exts:
+        print(ext, Counter(variety_read[ext]).most_common())
+        m = max(variety_read_raw[ext])
+        print(ext, 'max + 20% (bytes):', round(int(m) * 1.2))
 
     print()
     if verbose:
@@ -360,12 +379,16 @@ def main():
     else:
         if args.clear:
             subprocess.check_call('sync')
+            sh_cmd = shutil.which('sh')
+            command_line = 'sudo {} -c {}'.format(sh_cmd,
+                                                  shlex.quote("echo 3 > /proc/sys/vm/drop_caches"))
+            cmd = shlex.split(command_line)
             try:
-                with open('/proc/sys/vm/drop_caches', 'w') as stream:
-                    stream.write('3\n')
-            except PermissionError as e:
-                print("You need superuser permission to run this program with the --clear option",
-                      file=sys.stderr)
+                print("Super user permission is needed to drop caches.\nYou may be required to "
+                      "enter the super user's password.")
+                subprocess.check_call(cmd)
+            except subprocess.CalledProcessError:
+                sys.stderr.write("Failed to drop caches: exiting\n")
                 sys.exit(1)
 
         if args.only_video:

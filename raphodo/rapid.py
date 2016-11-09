@@ -72,7 +72,7 @@ import gphoto2 as gp
 from PyQt5 import QtCore, QtGui
 from PyQt5.QtCore import (QThread, Qt, QStorageInfo, QSettings, QPoint,
                           QSize, QTimer, QTextStream, QModelIndex,
-                          pyqtSlot, QRect, pyqtSignal)
+                          pyqtSlot, QRect, pyqtSignal, QObject)
 from PyQt5.QtGui import (QIcon, QPixmap, QImage, QColor, QPalette, QFontMetrics,
                          QFont, QPainter, QMoveEvent)
 from PyQt5.QtWidgets import (QAction, QApplication, QMainWindow, QMenu,
@@ -213,7 +213,7 @@ class ThumbnailDaemonManager(PushPullDaemonManager):
         self._process_name = 'Thumbnail Daemon Manager'
         self._process_to_run = 'thumbnaildaemon.py'
 
-    def process_sink_data(self):
+    def process_sink_data(self) -> None:
         data = pickle.loads(self.content) # type: GenerateThumbnailsResults
         if data.thumbnail_bytes is None:
             thumbnail = QPixmap()
@@ -233,15 +233,16 @@ class OffloadManager(PushPullDaemonManager):
 
     message = pyqtSignal(TemporalProximityGroups)
     downloadFolders = pyqtSignal(FoldersPreview)
-    def __init__(self, logging_port: int):
+
+    def __init__(self, logging_port: int) -> None:
         super().__init__(logging_port=logging_port)
         self._process_name = 'Offload Manager'
         self._process_to_run = 'offload.py'
 
-    def assign_work(self, data: OffloadData):
+    def assign_work(self, data: OffloadData) -> None:
         self.send_message_to_worker(data)
 
-    def process_sink_data(self):
+    def process_sink_data(self) -> None:
         data = pickle.loads(self.content)  # type: OffloadResults
         if data.proximity_groups is not None:
             self.message.emit(data.proximity_groups)
@@ -255,12 +256,13 @@ class ScanManager(PublishPullPipelineManager):
     this computer path)
     """
     message = pyqtSignal(bytes)
-    def __init__(self, logging_port: int):
+
+    def __init__(self, logging_port: int) -> None:
         super().__init__(logging_port=logging_port)
         self._process_name = 'Scan Manager'
         self._process_to_run = 'scan.py'
 
-    def process_sink_data(self):
+    def process_sink_data(self) -> None:
         self.message.emit(self.content)
 
 
@@ -350,7 +352,7 @@ class CopyFilesManager(PublishPullPipelineManager):
             self.tempDirs.emit(data.scan_id, data.photo_temp_dir, data.video_temp_dir)
 
 
-class FolderPreviewManager:
+class FolderPreviewManager(QObject):
     """
     Manages sending FoldersPreview() off to the offload process to
     generate new provisional download subfolders, and removing provisional download subfolders
@@ -366,6 +368,9 @@ class FolderPreviewManager:
 
     Yet we must generate and create folders in the offload process, because that
     can be expensive for a large number of rpd_files.
+
+    New for PyQt 5.7: Inherits from QObject to allow for Qt signals and slots using PyQt slot
+    decorator.
     """
 
     def __init__(self, fsmodel: FileSystemModel,
@@ -385,6 +390,8 @@ class FolderPreviewManager:
         :param devices: the device collection
         :param rapidApp: main application window
         """
+
+        super().__init__()
 
         self.rpd_files_queue = []  # type: List[RPDFile]
         self.clean_for_scan_id_queue = []  # type: List[int]
@@ -3562,6 +3569,14 @@ class RapidWindow(QMainWindow):
                 self.devices.sample_photo = data.sample_photo
                 self.renamePanel.setSamplePhoto(self.devices.sample_photo)
                 self.photoDestinationDisplay.sample_rpd_file = self.devices.sample_photo
+
+            if data.sample_video is not None:
+                logging.info("Updating example file name using sample video from %s",
+                             device.display_name)
+                self.devices.sample_video = data.sample_video
+                self.renamePanel.setSampleVideo(self.devices.sample_video)
+                self.videoDestinationDisplay.sample_rpd_file = self.devices.sample_video
+
             device.file_type_counter = data.file_type_counter
             device.file_size_sum = data.file_size_sum
             self.mapModel(scan_id).updateDeviceScan(scan_id)
@@ -3830,11 +3845,12 @@ class RapidWindow(QMainWindow):
         self.watchedDownloadDirs.closeWatch()
 
         self.cleanAllTempDirs()
-        logging.debug("Cleaning any device cache dirs")
-        self.devices.delete_cache_dirs()
+        logging.debug("Cleaning any device cache dirs and sample video")
+        self.devices.delete_cache_dirs_and_sample_video()
         tc = ThumbnailCacheSql()
         logging.debug("Cleaning up Thumbnail cache")
         tc.cleanup_cache()
+
         Notify.uninit()
 
         event.accept()

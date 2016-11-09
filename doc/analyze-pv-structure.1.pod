@@ -63,8 +63,8 @@ Optional file in which to save the analysis.
 
 =item B<--clear, -c>
 
-Clear the sync and drop clean caches (see note above). You need superuser permission to use this
-option
+Clear the sync and drop clean caches (see note above). The script will prompt for super user
+permission to execute this.
 
 =item B<-v, --verbose>
 

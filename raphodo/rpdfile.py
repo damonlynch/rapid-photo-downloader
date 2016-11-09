@@ -177,8 +177,7 @@ def get_rpdfile(name: str,
                      is_mtp_device=is_mtp_device,
                      camera_memory_card_identifiers=camera_memory_card_identifiers,
                      never_read_mdatatime=never_read_mdatatime,
-                     raw_exif_bytes=raw_exif_bytes,
-                     exif_source=exif_source)
+                     raw_exif_bytes=raw_exif_bytes)
     else:
         return Photo(name=name,
                      path=path,
@@ -200,7 +199,8 @@ def get_rpdfile(name: str,
                      is_mtp_device=is_mtp_device,
                      camera_memory_card_identifiers=camera_memory_card_identifiers,
                      never_read_mdatatime=never_read_mdatatime,
-                     raw_exif_bytes=raw_exif_bytes)
+                     raw_exif_bytes=raw_exif_bytes,
+                     exif_source=exif_source)
 
 def file_types_by_number(no_photos: int, no_videos: int) -> str:
         """
@@ -520,6 +520,7 @@ class RPDFile:
         # generated values
 
         self.cache_full_file_name = ''
+        self.sample_full_file_name = ''  # temp sample files used for video metadata extraction
         self.temp_full_file_name = ''
         self.temp_thm_full_name = ''
         self.temp_audio_full_name = ''

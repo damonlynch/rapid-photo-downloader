@@ -618,8 +618,9 @@ class WatchDownloadDirs(QFileSystemWatcher):
         """
         End all watches.
         """
-
-        self.removePaths(self.directories())
+        dirs = self.directories()
+        if dirs:
+            self.removePaths(dirs)
 
 
 class CameraHotplug(QObject):

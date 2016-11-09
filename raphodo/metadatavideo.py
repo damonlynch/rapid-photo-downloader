@@ -24,7 +24,7 @@ __copyright__ = "Copyright 2011-2016, Damon Lynch"
 import subprocess
 import datetime, time
 import logging
-from typing import Optional
+from typing import Optional, Union, Any
 
 import arrow.arrow
 from arrow.arrow import Arrow
@@ -220,42 +220,44 @@ class MetaData:
             return self._exiftool_date_time(missing)
 
 
-    def timestamp(self, missing='') -> float:
+    def timestamp(self, missing='') -> Union[float, Any]:
         """
-        Returns a float value representing the time stamp, if it exists
+        :return: a float value representing the time stamp, if it exists
         """
+
         dt = self.date_time(missing=None)
         if dt is not None:
             try:
                 ts = dt.timestamp()
+                ts = float(ts)
             except:
                 ts = missing
         else:
             ts = missing
-        return float(ts)
+        return ts
 
-    def file_number(self, missing=''):
+    def file_number(self, missing='') -> Union[str, Any]:
         v = self._get("FileNumber", None)
         if v is not None:
             return str(v)
         else:
             return missing
 
-    def width(self, missing=''):
+    def width(self, missing='') -> Union[str, Any]:
         v = self._get('ImageWidth', None)
         if v is not None:
             return str(v)
         else:
             return missing
 
-    def height(self, missing=''):
+    def height(self, missing='') -> Union[str, Any]:
         v = self._get('ImageHeight', None)
         if v is not None:
             return str(v)
         else:
             return missing
 
-    def length(self, missing=''):
+    def length(self, missing='') -> Union[str, Any]:
         """
         return the duration (length) of the video, rounded to the nearest second, in string format
         """
@@ -270,7 +272,7 @@ class MetaData:
         else:
             return missing
 
-    def frames_per_second(self, missing=''):
+    def frames_per_second(self, missing='') -> Union[str, Any]:
         v = self._get("FrameRate", None)
         if v is None:
             v = self._get("VideoFrameRate", None)
@@ -283,7 +285,7 @@ class MetaData:
             return missing
         return v
 
-    def codec(self, missing=''):
+    def codec(self, missing='') -> Union[str, Any]:
         v = self._get("VideoStreamType", None)
         if v is None:
             v = self._get("VideoCodec", None)
@@ -291,10 +293,10 @@ class MetaData:
             return v
         return missing
 
-    def fourcc(self, missing=''):
+    def fourcc(self, missing='') -> Union[str, Any]:
         return self._get("CompressorID", missing)
 
-    def rotation(self, missing=0) -> int:
+    def rotation(self, missing=0) -> Union[int, Any]:
         v = self._get("Rotation", None)
         if v is not None:
             return v

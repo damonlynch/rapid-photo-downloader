@@ -408,8 +408,8 @@ class DeviceCollection:
         self.startup_devices = []  # type: List[int]
 
         # Sample exif bytes of photo on most recent device scanned
-        self._sample_photo = None  # type: Photo
-        self._sample_video = None  # type: Video
+        self._sample_photo = None  # type: Optional[Photo]
+        self._sample_video = None  # type: Optional[Video]
         self.exiftool_process = exiftool_process
 
         self._map_set = {DeviceType.path: self.this_computer,
@@ -621,12 +621,31 @@ class DeviceCollection:
                 return True
         return False
 
-    def delete_cache_dirs(self) -> None:
+    def delete_cache_dirs_and_sample_video(self) -> None:
         """
-        Delete all Download Caches and their contents any devices might have
+        Delete all Download Caches and their contents any devices might
+        have, as well as any sample video.
         """
         for device in self.devices.values():
             device.delete_cache_dirs()
+        self._delete_sample_video()
+
+    def _delete_sample_video(self) -> None:
+        """
+        Delete sample video that is used for metadata extraction
+        to provide example for file renaming
+        """
+
+        if self._sample_video is not None:
+            try:
+                assert self._sample_video.sample_full_file_name
+            except:
+                logging.error("Expected sample file name in sample video")
+            else:
+                if os.path.isfile(self._sample_video.sample_full_file_name):
+                    logging.info("Removing temporary sample video %s",
+                                 self._sample_video.sample_full_file_name)
+                    os.remove(self._sample_video.sample_full_file_name)
 
     def map_set(self, device: Device) -> Set:
         return self._map_set[device.device_type]
@@ -708,9 +727,14 @@ class DeviceCollection:
                     if self._sample_photo.exif_source == ExifSource.raw_bytes:
                         self._sample_photo.load_metadata(
                             raw_bytes=bytearray(self._sample_photo.raw_exif_bytes))
-                    else:
+                    elif self._sample_photo.exif_source == ExifSource.app1_segment:
                         self._sample_photo.load_metadata(
                             app1_segment=bytearray(self._sample_photo.raw_exif_bytes))
+                    else:
+                        assert self._sample_photo.exif_source == ExifSource.actual_file
+                        full_file_name = self._sample_photo.full_file_name
+                        self._sample_photo.load_metadata(full_file_name=full_file_name,
+                                                         et_process=self.exiftool_process)
             else:
                 self._sample_photo.load_metadata(et_process=self.exiftool_process)
         return self._sample_photo
@@ -726,13 +750,22 @@ class DeviceCollection:
 
         if self._sample_video.metadata is None and not self._sample_video.metadata_failure:
             try:
-                self._sample_video.load_metadata(et_process=self.exiftool_process)
+                assert self._sample_video.sample_full_file_name
+
+                self._sample_video.load_metadata(
+                    full_file_name=self._sample_video.sample_full_file_name,
+                    et_process=self.exiftool_process)
+                if self._sample_video.metadata_failure:
+                    logging.error("Failed to load sample video metadata")
+            except AssertionError:
+                logging.error("Expected sample file name in sample video")
             except:
-                logging.error("Failed to load sample video metadata")
+                logging.error("Exception while attempting to load sample video metadata")
         return self._sample_video
 
     @sample_video.setter
     def sample_video(self, video: Video) -> None:
+        self._delete_sample_video()
         self._sample_video = video
 
     def get_main_window_display_name_and_icon(self) -> Tuple[str, QIcon]:

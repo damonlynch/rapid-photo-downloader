@@ -1,11 +1,13 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
-0.9.0a5 (2016-08-xx)
+0.9.0a5 (2016-11-xx)
 --------------------
 
  - Implemented photo and video file renaming preference configuration. Job code
    configuration will be implemented in a future alpha release.
+
+ - Fixed crash when running on PyQt 5.7.
 
  - Added option to uninstall previous version of the program if running the
    install script on Debian/Ubuntu or Fedora like Linux distributions.
@@ -43,10 +45,13 @@ Changelog for Rapid Photo Downloader
 
  - Fixed bug when selecting custom subfolder name generation preset from menu.
 
- - Fixed bug where exiftool daemon processes were not always being terminated.
+ - Fixed bug where ExifTool daemon processes were not always being terminated.
 
- - Added minimum size in bytes to read a variety of RAW metadata tags to
+ - Added minimum size in bytes to read a variety of RAW and video metadata tags to
    analyze-pv-structure analysis.
+
+ - Fixed bug where QFileSystemWatcher.removePaths() could be called with an empty
+   directory list.
 
 0.9.0a4 (2016-06-22)
 --------------------

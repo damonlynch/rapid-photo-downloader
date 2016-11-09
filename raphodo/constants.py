@@ -443,6 +443,8 @@ datetime_offset = dict(
     sr2=836,
     srw=508,
     mts=5000,
+    m2t=5000,
+    m2ts=5000,
     mp4=50000,
     avi=50000,
     mov=250000,
@@ -463,7 +465,13 @@ all_tags_offset = dict(
     raw=890885,
     rw2=1205458,
     sr2=1080,
-    srw=614
+    srw=614,
+    mp4=130000,
+    mts=1300000,
+    mt2=1300000,
+    m2ts=1300000,
+    avi=13000,
+    mov=13000
 )
 
 thumbnail_offset = dict(

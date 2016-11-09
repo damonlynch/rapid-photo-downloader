@@ -475,5 +475,8 @@ class RenamePanel(QScrollArea):
     def setSamplePhoto(self, sample_photo: Photo) -> None:
         self.photoRenameWidget.updateSampleFile(sample_rpd_file=sample_photo)
 
+    def setSampleVideo(self, sample_video: Video) -> None:
+        self.videoRenameWidget.updateSampleFile(sample_rpd_file=sample_video)
+
 
 

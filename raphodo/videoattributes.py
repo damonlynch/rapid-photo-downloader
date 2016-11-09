@@ -27,11 +27,13 @@ __copyright__ = "Copyright 2016, Damon Lynch"
 from tempfile import NamedTemporaryFile, TemporaryDirectory
 import os
 import datetime
+from typing import Dict, Union
 from raphodo.photoattributes import vmtouch_output
 import raphodo.exiftool as exiftool
 from raphodo.metadatavideo import MetaData
 from raphodo.utilities import format_size_for_user, datetime_roughly_equal
 from raphodo.thumbnailextractor import get_video_frame
+
 
 class VideoAttributes:
     def __init__(self, full_file_name: str, ext: str, et_process: exiftool.ExifTool) -> None:
@@ -39,9 +41,11 @@ class VideoAttributes:
         self.file_name = full_file_name
         self.ext = ext
         self.et_process = et_process
-        self.minimum_read_size_in_bytes_datetime = None
-        self.minimum_read_size_in_bytes_thumbnail = None
+        self.minimum_read_size_in_bytes_datetime = None  # type: int
+        self.minimum_read_size_in_bytes_thumbnail = None  # type: int
+        self.minimum_metadata_read_size_in_bytes_all = None  # type: int
         self.thumbnail_offset = 0.0
+        self.all_metadata_values = dict()  # type: Dict[str, Union[int, str, float, datetime.datetime]]
 
         stat = os.stat(full_file_name)
         self.fs_datetime = datetime.datetime.fromtimestamp(stat.st_mtime)
@@ -60,6 +64,8 @@ class VideoAttributes:
 
         if self.thumbnail:
             self.minimum_extract_for_thumbnail()
+
+        self.minimum_extract_for_all_tags()
 
 
     def assign_video_attributes(self, et_process: exiftool.ExifTool) -> None:
@@ -82,10 +88,13 @@ class VideoAttributes:
                     video_extract = video.read(size_in_bytes)
                     with open(tempname, 'wb') as f:
                         f.write(video_extract)
-                    if get_video_frame(tempname, self.thumbnail_offset) == self.thumbnail:
-                        self.minimum_read_size_in_bytes_thumbnail = min(size_in_bytes,
+                    try:
+                        if get_video_frame(tempname, self.thumbnail_offset) == self.thumbnail:
+                            self.minimum_read_size_in_bytes_thumbnail = min(size_in_bytes,
                                                                         self.file_size)
-                        break
+                            break
+                    except AssertionError:
+                        pass
 
 
     def minimum_extract_for_tag(self, check_extract):
@@ -102,6 +111,36 @@ class VideoAttributes:
                     break
                 os.remove(name)
 
+    def minimum_extract_for_all_tags(self):
+        funcs = 'date_time timestamp file_number width height length frames_per_second codec ' \
+                'fourcc rotation'.split()
+
+        metadata = MetaData(self.file_name, self.et_process)
+        for f in funcs:
+            v = getattr(metadata, f)()
+            if v:
+                self.all_metadata_values[f] = v
+
+        found = set()
+
+        with open(self.file_name, 'rb') as video:
+            for size_in_bytes in video_metadata_scan_range(self.file_size):
+                video.seek(0)
+                video_extract = video.read(size_in_bytes)
+                with NamedTemporaryFile('w+b', delete=False) as f:
+                    f.write(video_extract)
+                    name = f.name
+                metadata_extract = MetaData(name, self.et_process)
+                for tag in self.all_metadata_values:
+                    if (tag not in found and
+                                getattr(metadata_extract, tag)() == self.all_metadata_values[tag]):
+                        found.add(tag)
+                        if len(found) == len(self.all_metadata_values):
+                            self.minimum_metadata_read_size_in_bytes_all = size_in_bytes
+                            os.remove(name)
+                            return
+                os.remove(name)
+
     def __repr__(self):
         if self.file_name:
             s = os.path.split(self.file_name)[1]
@@ -113,6 +152,8 @@ class VideoAttributes:
             s += ' {} (datetime)'.format(self.minimum_read_size_in_bytes_datetime)
         if self.minimum_read_size_in_bytes_thumbnail:
             s += ' {} (thumb)'.format(self.minimum_read_size_in_bytes_thumbnail)
+        if self.minimum_metadata_read_size_in_bytes_all:
+            s += ' {} (variety)'.format(self.minimum_metadata_read_size_in_bytes_all)
         return s
 
 
@@ -138,6 +179,11 @@ class VideoAttributes:
             s += 'Minimum read size to extract thumbnail: {} of {}\n'.format(
                 format_size_for_user(self.minimum_read_size_in_bytes_thumbnail),
                 format_size_for_user(self.file_size))
+        if self.minimum_metadata_read_size_in_bytes_all is not None:
+            s += 'Minimum read size to extract variety of tags: {}\n'.format(
+                format_size_for_user(self.minimum_metadata_read_size_in_bytes_all))
+        else:
+            s += 'Could not extract variety of tags with minimal read\n'
         return s
 
 

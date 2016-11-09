@@ -78,11 +78,11 @@ class PhotoAttributes:
         self.preview_width = None # type: int
         self.preview_height = None # type: int
         self.preview_extension = None  # type: str
-        self.exif_thumbnail_and_preview_identical = None # type: bool
+        self.exif_thumbnail_and_preview_identical = None  # type: bool
         self.preview_size_and_types = []
-        self.minimum_exif_read_size_in_bytes_orientation = None # type: int
-        self.minimum_exif_read_size_in_bytes_datetime = None # type: int
-        self.minimum_exif_read_size_in_bytes_all = None # type: int
+        self.minimum_exif_read_size_in_bytes_orientation = None  # type: int
+        self.minimum_exif_read_size_in_bytes_datetime = None  # type: int
+        self.minimum_exif_read_size_in_bytes_all = None  # type: int
         self.bytes_cached_post_previews = None
         self.in_memory_post_previews = None
 
