@@ -1,7 +1,7 @@
 Changelog for Rapid Photo Downloader
 ====================================
 
-0.9.0a5 (2016-11-xx)
+0.9.0a5 (2016-11-08)
 --------------------
 
  - Implemented photo and video file renaming preference configuration. Job code
