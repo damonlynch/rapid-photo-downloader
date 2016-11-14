@@ -303,6 +303,8 @@ class FoldersPreview:
 
         removed_folders = []
 
+        # self.dump()
+
         for level in levels:
             for subfolder in remove[level]:
                 if (subfolder not in keep and subfolder not in self.existing_subfolders and
@@ -320,7 +322,8 @@ class FoldersPreview:
                                 del self.scan_ids_for_created_subfolders[key]
                     else:
                         do_rmdir = True
-                        del self.scan_ids_for_created_subfolders[key]
+                        if key in self.scan_ids_for_created_subfolders:
+                            del self.scan_ids_for_created_subfolders[key]
 
                     if do_rmdir:
                         if not os.listdir(subfolder):
