@@ -147,7 +147,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
 
                     if (self.file_list and
                             self.device_timestamp_type == DeviceTimestampTZ.undetermined):
-                        self.distingish_non_camera_device_timestamp()
+                        self.distinguish_non_camera_device_timestamp()
 
                     for self.file_name in self.file_list:
                         self.process_file()
@@ -357,9 +357,10 @@ class ScanWorker(WorkerInPublishPullPipeline):
                 get_tz = self.device_timestamp_type == DeviceTimestampTZ.undetermined and not (
                         self.ignore_mdatatime_for_mtp_dng and ext_type == FileExtension.raw)
                 if get_sample_metadata or get_tz:
-                    logging.info("Extract sample %s metadata for %s",
+                    logging.info("Extracted sample %s metadata for %s",
                                  file_type.name, self.camera_display_name)
-                    sample = self.sample_camera_metadata(path, name, ext_lower, ext_type, size)
+                    sample = self.sample_camera_metadata(path, name, ext_lower, ext_type, size,
+                                                         modification_time)
                     if get_tz:
                         self.determine_device_timestamp_tz(sample.datetime, modification_time,
                                                        sample.determined_by)
@@ -439,6 +440,14 @@ class ScanWorker(WorkerInPublishPullPipeline):
                 base_name, ext = os.path.splitext(self.file_name)
                 ext = ext.lower()[1:]
                 file_type = rpdfile.file_type(ext)
+                if file_type == FileType.photo and self.sample_exif_source is None:
+                    # this should never happen due to photos being prioritized over videos
+                    # with respect to time zone determination
+                    logging.error("Sample metadata not extracted from photo %s although it should "
+                                  "have been used to determine the device timezone", self.file_name)
+                elif file_type == FileType.video and self.sample_video_file_full_file_name is None:
+                    self.sample_non_camera_metadata(self.dir_name, self.file_name,
+                                                    FileExtension.video)
             else:
                 base_name = None
                 for file_info in self._camera_file_names[self.file_name]:
@@ -549,8 +558,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
 
                 self.file_batch.append(rpd_file)
 
-                if (self.sample_exif_source is not None and not self.found_sample_photo and
-                        file == self.sample_photo_file_full_file_name):
+                if not self.found_sample_photo and file == self.sample_photo_file_full_file_name:
                     self.sample_photo = self.create_sample_rpdfile(name=self.file_name,
                                                path=self.dir_name,
                                                size=size,
@@ -561,8 +569,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
                     self.sample_exif_bytes = None
                     self.found_sample_photo = True
 
-                if (self.sample_video_extract_full_file_name is not None and not self.found_sample_video
-                        and file == self.sample_video_file_full_file_name):
+                if not self.found_sample_video and file == self.sample_video_file_full_file_name:
                     self.sample_video = self.create_sample_rpdfile(name=self.file_name,
                                                path=self.dir_name,
                                                size=size,
@@ -596,7 +603,8 @@ class ScanWorker(WorkerInPublishPullPipeline):
                               file_type: FileType,
                               mtime: float,
                               ignore_mdatatime: bool) -> Union[rpdfile.Photo, rpdfile.Video]:
-        assert self.sample_exif_source is not None or self.sample_video_extract_full_file_name is not None
+        assert (self.sample_exif_source is not None and self.sample_photo_file_full_file_name or
+                self.sample_video_file_full_file_name is not None)
         logging.info("Successfully extracted sample %s metadata from %s",
                      file_type.name, self.display_name)
         rpd_file = rpdfile.get_rpdfile(
@@ -624,7 +632,8 @@ class ScanWorker(WorkerInPublishPullPipeline):
                     raw_exif_bytes=self.sample_exif_bytes,
                     exif_source=self.sample_exif_source
                 )
-        if file_type == FileType.video:
+        if file_type == FileType.video and self.download_from_camera:
+            # relevant only when downloading from a camera
             rpd_file.sample_full_file_name = self.sample_video_extract_full_file_name
 
         return rpd_file
@@ -633,7 +642,8 @@ class ScanWorker(WorkerInPublishPullPipeline):
                                name: str,
                                extension: str,
                                ext_type: FileExtension,
-                               size: int) -> SampleMetadata:
+                               size: int,
+                               modification_time: int) -> SampleMetadata:
         """
         Extract sample metadata, including specifically datetime, from a photo or video on a camera
         """
@@ -694,7 +704,8 @@ class ScanWorker(WorkerInPublishPullPipeline):
             if offset is not None:
                 temp_name = os.path.join(tempfile.gettempdir(),
                                          GenerateRandomFileName().name(extension=extension))
-                if self.camera.save_file_chunk(path, name, offset, temp_name):
+                mtime = int(self.adjusted_mtime(float(modification_time)))
+                if self.camera.save_file_chunk(path, name, offset, temp_name, mtime):
                     self.sample_video_extract_full_file_name = temp_name
                     self.sample_video_file_full_file_name = os.path.join(path, name)
                     with ExifTool() as et_process:
@@ -706,6 +717,8 @@ class ScanWorker(WorkerInPublishPullPipeline):
                               name, self.camera.display_name)
         else:
             self.file_mdatatime[os.path.join(path, name)] = float(dt.timestamp())
+            logging.info("Extracted date time value %s for %s on %s", dt, name,
+                          self.camera_display_name)
         return SampleMetadata(dt, determined_by)
 
     def sample_non_camera_metadata(self, path: str,
@@ -749,7 +762,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
             self.file_mdatatime[full_file_name] = dt.timestamp()
         return SampleMetadata(dt, determined_by)
 
-    def distingish_non_camera_device_timestamp(self) -> None:
+    def distinguish_non_camera_device_timestamp(self) -> None:
         """
         Attempt to determine the device's approach to timezones when it
         store timestamps.

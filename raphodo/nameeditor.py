@@ -728,7 +728,8 @@ def make_sample_rpd_file(sample_job_code: str,
             sample_rpd_file.sequences = sequences
             sample_rpd_file.download_start_time = datetime.datetime.now()
 
-    if sample_rpd_file is None:
+    else:
+        # sample_rpd_file is None
         if generation_type in (NameGenerationType.photo_name,
                                NameGenerationType.photo_subfolder):
             sample_rpd_file = SamplePhoto(sequences=sequences)

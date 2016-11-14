@@ -795,7 +795,7 @@ class RapidWindow(QMainWindow):
         logging.debug("Stage 2 initialization")
 
         # For meaning of 'Devices', see devices.py
-        self.devices = DeviceCollection(self.exiftool_process)
+        self.devices = DeviceCollection(self.exiftool_process, self)
 
         logging.debug("Starting thumbnail daemon model")
 
@@ -3568,6 +3568,7 @@ class RapidWindow(QMainWindow):
                              device.display_name)
                 self.devices.sample_photo = data.sample_photo
                 self.renamePanel.setSamplePhoto(self.devices.sample_photo)
+                # sample required for editing download subfolder generation
                 self.photoDestinationDisplay.sample_rpd_file = self.devices.sample_photo
 
             if data.sample_video is not None:
@@ -3575,6 +3576,7 @@ class RapidWindow(QMainWindow):
                              device.display_name)
                 self.devices.sample_video = data.sample_video
                 self.renamePanel.setSampleVideo(self.devices.sample_video)
+                # sample required for editing download subfolder generation
                 self.videoDestinationDisplay.sample_rpd_file = self.devices.sample_video
 
             device.file_type_counter = data.file_type_counter

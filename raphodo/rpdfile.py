@@ -520,7 +520,7 @@ class RPDFile:
         # generated values
 
         self.cache_full_file_name = ''
-        self.sample_full_file_name = ''  # temp sample files used for video metadata extraction
+        self.sample_full_file_name = None  # temp sample files used for video metadata extraction
         self.temp_full_file_name = ''
         self.temp_thm_full_name = ''
         self.temp_audio_full_name = ''
@@ -711,6 +711,12 @@ class RPDFile:
         """
         return self.audio_file_full_name is not None
 
+    def get_current_full_file_name(self) -> str:
+        if self.status in Downloaded:
+            return self.download_full_file_name
+        else:
+            return self.full_file_name
+
     def get_uri(self, desktop_environment: Optional[bool]=False) -> str:
         """
         Generate and return the URI for the file
@@ -822,7 +828,7 @@ class Photo(RPDFile):
          metadata can be extracted
         :param app1_segment: the app1 segment of a jpeg file, from which
          the metadata can be read
-        :param et_process: optional deamon exiftool process
+        :param et_process: optional daemon ExifTool process
         :return: True if successful, False otherwise
         """
 

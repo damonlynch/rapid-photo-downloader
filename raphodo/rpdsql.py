@@ -423,6 +423,28 @@ class ThumbnailRowsSQL:
             row = self.conn.execute(query).fetchone()
         return row is not None
 
+    def get_single_file_of_type(self, file_type: FileType,
+                            downloaded: Optional[bool] = None,
+                            scan_id: Optional[int]=None,
+                            exclude_scan_ids: Optional[List[int]] = None) -> Optional[bytes]:
+        where, where_values = self._build_where(scan_id=scan_id, downloaded=downloaded,
+                                                file_type=file_type, exclude_scan_ids=exclude_scan_ids)
+        query = 'SELECT uid FROM files'
+
+        if where:
+            query = '{} WHERE {}'.format(query, where)
+
+        if where_values:
+            logging.debug('%s %s', query, where_values)
+            row = self.conn.execute(query, tuple(where_values)).fetchone()
+        else:
+            logging.debug('%s', query)
+            row = self.conn.execute(query).fetchone()
+
+        if row is None:
+            return None
+        return row[0]
+
     def _delete_uids(self, uids: List[bytes]):
         query = 'DELETE FROM files WHERE uid IN ({})'
         logging.debug('%s (%s files)', query, len(uids))

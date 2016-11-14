@@ -157,7 +157,7 @@ class MetaData:
             try:
                 d = self.media_info.to_data()['tracks'][0]['encoded_date']  # type: str
             except KeyError:
-                logging.warning('Failed to extract date time from %s using pymediainfo: trying '
+                logging.debug('Failed to extract date time from %s using pymediainfo: trying '
                               'ExifTool', self.filename)
                 return self._exiftool_date_time(missing)
             else:

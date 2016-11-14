@@ -357,7 +357,11 @@ class DeviceCollection:
     >>> dc.delete_device(e)
     False
     """
-    def __init__(self, exiftool_process: Optional[exiftool.ExifTool]=None) -> None:
+    def __init__(self, exiftool_process: Optional[exiftool.ExifTool]=None,
+                 rapidApp=None) -> None:
+
+        self.rapidApp = rapidApp
+
         self.devices = {}  # type: Dict[int, Device]
         # port: model
         self.cameras = {}  # type: Dict[str, str]
@@ -400,8 +404,8 @@ class DeviceCollection:
         # is in a paused state
         self.queued_to_download = set()  # type: Set[int]
 
-        self.volumes_and_cameras = set()
-        self.this_computer = set()
+        self.volumes_and_cameras = set()  # type: Set[int]
+        self.this_computer = set()  # type: Set[int]
 
         # List of devices that were detected at program startup
         # scan_id
@@ -636,7 +640,7 @@ class DeviceCollection:
         to provide example for file renaming
         """
 
-        if self._sample_video is not None:
+        if self._sample_video is not None and self._sample_video.sample_full_file_name is not None:
             try:
                 assert self._sample_video.sample_full_file_name
             except:
@@ -716,44 +720,97 @@ class DeviceCollection:
         return _('%(no_devices)s %(device_type)s') % dict(
             no_devices=text_number, device_type=device_type_text)
 
+    def _update_sample_file(self, file_type: FileType):
+
+        if file_type == FileType.photo:
+            assert self._sample_photo.file_type == FileType.photo
+            full_file_name = self._sample_photo.full_file_name
+            rpd_file = self._sample_photo
+        else:
+            assert self._sample_video.file_type == FileType.video
+            full_file_name = self._sample_video_full_file_name()
+            rpd_file = self._sample_video
+
+        if not os.path.isfile(full_file_name):
+            # file no longer exists - it may have been downloaded or deleted
+            # attempt to find an appropriate file from the in memory sql database of displayed
+            # files
+            scan_id = rpd_file.scan_id
+            rpd_file = self.rapidApp.thumbnailModel.getSampleFile(scan_id=scan_id,
+                                      device_type=self[scan_id].device_type, file_type=file_type)
+            if rpd_file is None:
+                logging.debug('Failed to set new sample %s because suitable sample does not'
+                              'exist', file_type.name)
+            else:
+                sample_full_file_name = rpd_file.get_current_full_file_name()
+                rpd_file.sample_full_file_name = sample_full_file_name
+                if file_type == FileType.photo:
+                    logging.debug('Updated sample photo with %s', sample_full_file_name)
+                    self.sample_photo = rpd_file
+                else:
+                    logging.debug('Updated sample video with %s', sample_full_file_name)
+                    self.sample_video = rpd_file
+
     @property
     def sample_photo(self) -> Optional[Photo]:
         if self._sample_photo is None:
             return None
 
+        # does the photo still exist?
+        if self._sample_photo.exif_source == ExifSource.actual_file:
+            self._update_sample_file(file_type=FileType.photo)
+
         if self._sample_photo.metadata is None and not self._sample_photo.metadata_failure:
-            if self._sample_photo.file_type == FileType.photo:
-                with stdchannel_redirected(sys.stderr, os.devnull):
-                    if self._sample_photo.exif_source == ExifSource.raw_bytes:
-                        self._sample_photo.load_metadata(
-                            raw_bytes=bytearray(self._sample_photo.raw_exif_bytes))
-                    elif self._sample_photo.exif_source == ExifSource.app1_segment:
-                        self._sample_photo.load_metadata(
-                            app1_segment=bytearray(self._sample_photo.raw_exif_bytes))
-                    else:
-                        assert self._sample_photo.exif_source == ExifSource.actual_file
-                        full_file_name = self._sample_photo.full_file_name
-                        self._sample_photo.load_metadata(full_file_name=full_file_name,
-                                                         et_process=self.exiftool_process)
-            else:
-                self._sample_photo.load_metadata(et_process=self.exiftool_process)
+            with stdchannel_redirected(sys.stderr, os.devnull):
+                if self._sample_photo.exif_source == ExifSource.raw_bytes:
+                    self._sample_photo.load_metadata(
+                        raw_bytes=bytearray(self._sample_photo.raw_exif_bytes))
+                elif self._sample_photo.exif_source == ExifSource.app1_segment:
+                    self._sample_photo.load_metadata(
+                        app1_segment=bytearray(self._sample_photo.raw_exif_bytes))
+                else:
+                    assert self._sample_photo.exif_source == ExifSource.actual_file
+                    full_file_name = self._sample_photo.get_current_full_file_name()
+                    self._sample_photo.load_metadata(full_file_name=full_file_name,
+                                                     et_process=self.exiftool_process)
         return self._sample_photo
 
     @sample_photo.setter
     def sample_photo(self, photo: Photo) -> None:
         self._sample_photo = photo
+
+    def _sample_video_full_file_name(self) -> str:
+        """
+        Sample videos can be either excerpts of a video from a camera or
+        actual videos already on the file system.
+
+        :return: the full path and filename of the sample video regardless
+         of which type it is
+        """
+
+        if self._sample_video.sample_full_file_name is not None:
+            full_file_name = self._sample_video.sample_full_file_name
+        else:
+            full_file_name = self._sample_video.get_current_full_file_name()
+        return full_file_name
         
     @property
     def sample_video(self) -> Optional[Video]:
         if self._sample_video is None:
             return None
 
+        self._update_sample_file(file_type=FileType.video)
+
         if self._sample_video.metadata is None and not self._sample_video.metadata_failure:
+
             try:
-                assert self._sample_video.sample_full_file_name
+                assert self._sample_video.sample_full_file_name or os.path.isfile(
+                    self._sample_video.full_file_name)
+
+                full_file_name = self._sample_video_full_file_name()
 
                 self._sample_video.load_metadata(
-                    full_file_name=self._sample_video.sample_full_file_name,
+                    full_file_name=full_file_name,
                     et_process=self.exiftool_process)
                 if self._sample_video.metadata_failure:
                     logging.error("Failed to load sample video metadata")

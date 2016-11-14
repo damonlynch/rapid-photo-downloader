@@ -373,7 +373,8 @@ class Camera:
     def save_file_chunk(self, dir_name: str,
                         file_name: str,
                         chunk_size_in_bytes: int,
-                        dest_full_filename: str) -> bool:
+                        dest_full_filename: str,
+                        mtime: int=None) -> bool:
         """
         Save the file from the camera to a local destination.
 
@@ -383,6 +384,7 @@ class Camera:
          from the front of the file
         :param dest_full_filename: full path including filename where
         the file will be saved.
+        :param mtime: if specified, set the file modification time to this value
         :return: True if the file was successfully saved, else False
         """
         buffer = self.get_exif_extract(dir_name, file_name, chunk_size_in_bytes)
@@ -395,6 +397,8 @@ class Camera:
             src_bytes = view.tobytes()
             dest_file.write(src_bytes)
             dest_file.close()
+            if mtime is not None:
+                os.utime(dest_full_filename, times=(mtime, mtime))
         except OSError as ex:
             logging.error('Error saving file %s from camera %s. Code %s',
                           os.path.join(dir_name, file_name), self.display_name, ex.errno)

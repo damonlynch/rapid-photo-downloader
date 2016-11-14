@@ -1150,7 +1150,81 @@ class ThumbnailListModel(QAbstractListModel):
         return self.tsql.get_count(scan_id=scan_id, downloaded=False, show=self.show,
                                    proximity_col1=self.proximity_col1,
                                    proximity_col2=self.proximity_col2, marked=marked)
-    
+
+    def _getSampleFileNonCamera(self, file_type: FileType) -> Optional[RPDFile]:
+        """
+        Attempt to return a sample file used to illustrate file renaming and subfolder
+        generation, but only if it's not from a camera.
+        :return:
+        """
+
+        devices = self.rapidApp.devices
+        exclude_scan_ids = [s_id for s_id, device in devices.devices.items()
+                            if device.device_type == DeviceType.camera]
+        if not exclude_scan_ids:
+            exclude_scan_ids = None
+
+        uid = self.tsql.get_single_file_of_type(file_type=file_type,
+                                                exclude_scan_ids=exclude_scan_ids)
+        if uid is not None:
+            return self.rpd_files[uid]
+        else:
+            return None
+
+    def getSampleFile(self, scan_id: int,
+                      device_type: DeviceType,
+                      file_type: FileType) -> Optional[RPDFile]:
+        """
+        Attempt to return a sample file used to illustrate file renaming and subfolder
+        generation.
+
+        If the device_type is a camera, then search only for
+        a downloaded instance of the file.
+
+        If the device is not a camera, prefer a non-downloaded file
+        over a downloaded file for that scan_id.
+
+        If no file is available for that scan_id, try again with another scan_id.
+
+        :param scan_id:
+        :param device_type:
+        :param file_type:
+        :return:
+        """
+
+
+        if device_type == DeviceType.camera:
+            uid = self.tsql.get_single_file_of_type(scan_id=scan_id, file_type=file_type,
+                                                    downloaded=True)
+            if uid is not None:
+                return self.rpd_files[uid]
+            else:
+                # try find a *downloaded* file from another camera
+
+                # could determine which devices to exclude in SQL but it's a little simpler
+                # here
+                devices = self.rapidApp.devices
+                exclude_scan_ids = [s_id for s_id, device in devices.items()
+                if device.device_type != DeviceType.camera]
+
+                if not exclude_scan_ids:
+                    exclude_scan_ids = None
+
+                uid = self.tsql.get_single_file_of_type(file_type=file_type,
+                                                        downloaded=True,
+                                                        exclude_scan_ids=exclude_scan_ids)
+                if uid is not None:
+                    return self.rpd_files[uid]
+                else:
+                    return self._getSampleFileNonCamera(file_type=file_type)
+
+        else:
+            uid = self.tsql.get_single_file_of_type(scan_id=scan_id, file_type=file_type)
+            if uid is not None:
+                return self.rpd_files[uid]
+            else:
+                return self._getSampleFileNonCamera(file_type=file_type)
+
     def updateDeviceDisplayCheckMark(self, scan_id: int) -> None:
         if scan_id not in self.removed_devices:
             uid_count = self.getDisplayedCount(scan_id=scan_id)
