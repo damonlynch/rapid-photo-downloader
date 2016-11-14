@@ -119,6 +119,7 @@ class AboutDialog(QDialog):
         Anton Alyab'ev <subeditor@dolgopa.org>
         Lőrincz András <level.andrasnak@gmail.com>
         Michel Ange <michelange@wanadoo.fr>
+        Tobias Bannert <tobannert@gmail.com>
         Adolfo Jayme Barrientos <fitoschido@gmail.com>
         Alain J. Baudrez <a.baudrez@gmail.com>
         Kevin Brubeck Unhammer <unhammer@fsfe.org>
@@ -130,6 +131,7 @@ class AboutDialog(QDialog):
         Sergiy Gavrylov <sergiovana@bigmir.net>
         Emanuele Grande <caccolangrifata@gmail.com>
         Torben Gundtofte-Bruun <torben@g-b.dk>
+        Мирослав Николић <miroslavnikolic@rocketmail.com>
         Joachim Johansson <joachim.j@gmail.com>
         Miroslav Matejaš <silverspace@ubuntu-hr.org>
         Nicolás M. Zahlut <nzahlut@live.com>

@@ -55,7 +55,8 @@ Changelog for Rapid Photo Downloader
 
  - Fixed crash when cleaning generated video subfolder previews at program exit.
 
- - Updated Spanish translation, courtesy of Jose Luis Tirado.
+ - Updated Spanish translation, courtesy of Jose Luis Tirado. Also updated Catalan,
+   Chinese, Croatian, Czech, French, German, Polish and Serbian translations.
 
 0.9.0a4 (2016-06-22)
 --------------------
