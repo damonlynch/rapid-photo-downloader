@@ -63,7 +63,7 @@ except ImportError:
     sys.stderr.write("Install it using your Linux distribution's standard package manager -\n\n")
     fedora_pip = 'Fedora:\nsudo dnf install python3 python3-wheel\n'
     suse_pip = 'openSUSE:\nsudo zypper install python3-pip python3-setuptools python3-wheel\n'
-    debian_pip = 'Ubuntu/Debian:\nsudo apt-get install python3-pip\n'
+    debian_pip = 'Ubuntu/Debian/Mint:\nsudo apt-get install python3-pip python3-wheel\n'
     arch_pip = 'Arch Linux:\nsudo pacman -S python-pip\n'
     for distro in (fedora_pip, suse_pip, debian_pip, arch_pip):
         sys.stderr.write('{}\n'.format(distro))
@@ -104,12 +104,12 @@ def check_packages_on_other_systems() -> None:
     try:
         import PyQt5
     except ImportError:
-        import_msgs.append('python3 PyQt5')
+        import_msgs.append('python3 variant of PyQt5')
     try:
         import gi
         have_gi = True
     except ImportError:
-        import_msgs.append('python3 gobject introspection')
+        import_msgs.append('python3 variant of gobject introspection')
         have_gi = False
     if have_gi:
         try:
@@ -144,8 +144,9 @@ def check_packages_on_other_systems() -> None:
         sys.stderr.write(install_error_message.format('\n'.join(s for s in import_msgs)))
         sys.exit(1)
 
+
 def distro_is_or_is_like(name: str) -> bool:
-    is_distro = None
+    is_distro = False
     if os.path.isfile('/etc/os-release'):
         with open('/etc/os-release', 'r') as f:
             for line in f:
@@ -190,7 +191,7 @@ def uninstall_packages(command_line: str) -> None:
             sys.stderr.write("Command failed\n")
 
 def check_package_import_requirements() -> None:
-    if distro_is_or_is_like('debian'):
+    if distro_is_or_is_like('debian') or distro_is_or_is_like('ubuntu'):
         if not have_apt:
             sys.stderr.write('To continue, the package python3-apt must be installed.')
             sys.exit(1)
@@ -201,7 +202,7 @@ def check_package_import_requirements() -> None:
              'gir1.2-udisks-2.0 gir1.2-notify-0.7 gir1.2-glib-2.0 gir1.2-gstreamer-1.0 '\
              'libgphoto2-dev python3-arrow python3-psutil g++ '\
              'qt5-image-formats-plugins python3-zmq exiv2 python3-colorlog libraw-bin ' \
-             'python3-easygui libmediainfo0v5 python3-sortedcontainers'.split()
+             'python3-easygui libmediainfo0v5 python3-sortedcontainers python3-wheel'.split()
 
         for package in packages:
             try:
@@ -273,7 +274,7 @@ def query_uninstall() -> bool:
 def uninstall_old_version() -> None:
     pkg_name = 'rapid-photo-downloader'
 
-    if distro_is_or_is_like('debian'):
+    if distro_is_or_is_like('debian') or distro_is_or_is_like('ubuntu'):
         cache = apt.Cache()
         pkg = cache[pkg_name]
         if pkg.is_installed and query_uninstall():
@@ -326,7 +327,7 @@ def main(installer: str) -> None:
     install_path = os.path.join(os.path.expanduser('~'), '.local', 'bin')
 
     if install_path not in path.split(':'):
-        if distro_is_or_is_like('debian'):
+        if distro_is_or_is_like('debian') or distro_is_or_is_like('ubuntu'):
             bin_dir = os.path.join(os.path.expanduser('~'), 'bin')
             if not os.path.isdir(bin_dir):
                 created_bin_dir = True
