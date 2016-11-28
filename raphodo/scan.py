@@ -749,7 +749,7 @@ class ScanWorker(WorkerInPublishPullPipeline):
                     metadata = metadataphoto.MetaData(full_file_name=full_file_name)
             except:
                 logging.warning("Scanner failed to load metadata from %s on %s", name,
-                              self.camera.display_name)
+                              self.display_name)
             else:
                 self.sample_exif_source = ExifSource.actual_file
                 self.sample_photo_file_full_file_name = os.path.join(path, name)
