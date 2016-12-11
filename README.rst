@@ -34,7 +34,7 @@ A helper command-line program accompanying Rapid Photo Downloader is
 ``analyze_pv_structure``, which analyzes photos and videos to help determine
 how much of a file needs to be read to extract its metadata and thumbnail.
 
-The version of the program described here, 0.9.0a4, is alpha quality software,
+The version of the program described here, 0.9.0a6, is alpha quality software,
 meaning that not all its features have been written. The main missing features
 are the components of the graphical user interface that are used to configure
 file renaming, backups, and miscellaneous other program preferences.

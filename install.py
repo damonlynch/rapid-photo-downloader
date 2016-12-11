@@ -158,6 +158,17 @@ def distro_is_or_is_like(name: str) -> bool:
                         return True
     return is_distro
 
+def fedora_version() -> int:
+    version_string = 'REDHAT_BUGZILLA_PRODUCT_VERSION='
+    with open('/etc/os-release', 'r') as f:
+        for line in f:
+            if line.startswith(version_string):
+                try:
+                    return int(line[len(version_string):])
+                except ValueError:
+                    sys.stderr.write("Unexpected format while parsing Fedora version")
+                    return 0
+    return 0
 
 def install_packages(command_line: str) -> None:
     print("To continue, some packages required to run the application will be "
@@ -224,10 +235,16 @@ def check_package_import_requirements() -> None:
             sys.exit(1)
 
         missing_packages = []
-        packages = 'python3-qt5 gobject-introspection python3-gobject libgexiv2-python3 ' \
+        packages = 'python3-qt5 gobject-introspection python3-gobject ' \
                    'libgphoto2-devel zeromq-devel exiv2 perl-Image-ExifTool LibRaw-devel gcc-c++ ' \
                    'rpm-build python3-devel python3-distutils-extra intltool ' \
                    'python3-easygui qt5-qtimageformats python3-psutil libmediainfo'.split()
+
+        version = fedora_version()
+        if version <= 24 and version > 0:
+            packages.append('libgexiv2-python3')
+        else:
+            packages.append('python3-gexiv2')
 
         with dnf.Base() as base:
             # Code from http://dnf.readthedocs.org/en/latest/use_cases.html
