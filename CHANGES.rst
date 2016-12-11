@@ -4,7 +4,8 @@ Changelog for Rapid Photo Downloader
 0.9.0a6 (2016-12-10)
 --------------------
 
-- Modified installation script to complete installation on Fedora 25 and LinuxMint 18.
+ - Modified installation script to fix installation problems on Fedora 25 and LinuxMint 18.
+   In all other respects the release is identical to version 0.9.0a5.
 
 0.9.0a5 (2016-11-14)
 --------------------
