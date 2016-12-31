@@ -659,8 +659,7 @@ class DeviceCollection:
         :return: string showing which devices are being downloaded from
         """
 
-        display_names = [self.devices[scan_id].display_name
-                        for scan_id in self.downloading]
+        display_names = [self.devices[scan_id].display_name for scan_id in self.downloading]
         return _('Downloading from %(device_names)s') % dict(
             device_names=make_internationalized_list(display_names))
 

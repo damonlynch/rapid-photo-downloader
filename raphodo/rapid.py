@@ -5307,6 +5307,10 @@ def main():
     app.setApplicationName("Rapid Photo Downloader")
     app.setWindowIcon(QtGui.QIcon(':/rapid-photo-downloader.svg'))
 
+    if os.getuid() == 0:
+        sys.stderr.write("Never run this program as the sudo / root user.\n")
+        sys.exit(1)
+
 
     # darkFusion(app)
     # app.setStyle('Fusion')

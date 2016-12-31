@@ -34,7 +34,7 @@ A helper command-line program accompanying Rapid Photo Downloader is
 ``analyze_pv_structure``, which analyzes photos and videos to help determine
 how much of a file needs to be read to extract its metadata and thumbnail.
 
-The version of the program described here, 0.9.0a6, is alpha quality software,
+The version of the program described here, 0.9.0a7, is alpha quality software,
 meaning that not all its features have been written. The main missing features
 are the components of the graphical user interface that are used to configure
 file renaming, backups, and miscellaneous other program preferences.
@@ -53,9 +53,12 @@ The program is licensed under the GPL3_ or later.
 Quickstart on Ubuntu, Debian-like and Fedora-like Systems
 =========================================================
 
-If you use Ubuntu 15.10 or newer, or Debian sid, or Fedora 23, or an equivalent,
-you can install Rapid Photo Downloader for your user using an convenient install script. To get
-started, first install pip_, the Python tool for installing Python packages. On Ubuntu or Debian:
+If you use Ubuntu 16.04 or newer, or Debian sid, or Fedora 24, or an equivalent,
+you can install Rapid Photo Downloader for your user using an convenient install script.
+Please note Debian Jessie is too old to run version 0.9.0a7.
+
+To get started, first install pip_, the Python tool for installing Python packages.
+On Ubuntu or Debian:
 
 ``sudo apt-get install python3-pip``
 
@@ -63,17 +66,9 @@ On Fedora:
 
 ``sudo dnf install python3-pip python3-wheel``
 
-If using Ubuntu 15.10, Fedora 23 or a distribution of a similar age, you should first make
-Python 3's installation tools up-to-date (be mindful of the mild caution below in
-`Installation`_):
-
-``python3 -m pip install --user --upgrade pip``
-
-``python3 -m pip install --user --upgrade setuptools``
-
 To install Rapid Photo Downloader, run as your regular user (i.e. *without* sudo):
 
-``python3 install.py rapid-photo-downloader-0.9.0a6.tar.gz``
+``python3 install.py rapid-photo-downloader-0.9.0a7.tar.gz``
 
 **Caution:** *untarring the archive, building it and installing it using* ``sudo python3 setup.py
 install`` *is* **not** *supported, and* **not** *recommended.*
@@ -180,7 +175,7 @@ The following command will install all required and optional Python modules not 
 installed on your system, with the exception of those specified above in
 `satisfying software requirements`_:
 
-``python3 install.py rapid-photo-downloader-0.9.0a6.tar.gz``
+``python3 install.py rapid-photo-downloader-0.9.0a7.tar.gz``
 
 Substitute the name of the correct compressed tar file if necessary, and run it as your regular
 user (i.e. *without* sudo).

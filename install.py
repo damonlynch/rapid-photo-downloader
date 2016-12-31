@@ -54,6 +54,7 @@ import shlex
 import subprocess
 import shutil
 from distutils.version import StrictVersion
+from enum import Enum
 
 
 try:
@@ -91,6 +92,13 @@ class bcolors:
     ENDC = '\033[0m'
     BOLD = '\033[1m'
     UNDERLINE = '\033[4m'
+
+
+class Distro(Enum):
+    debian = 1
+    ubuntu = 2
+    fedora = 3
+    unknown = 4
 
 
 def check_packages_on_other_systems() -> None:
@@ -144,31 +152,43 @@ def check_packages_on_other_systems() -> None:
         sys.stderr.write(install_error_message.format('\n'.join(s for s in import_msgs)))
         sys.exit(1)
 
+def get_distro_id(id_or_id_like: str) -> Distro:
+    try:
+        return Distro[id_or_id_like.strip()]
+    except KeyError:
+        return Distro.unknown
 
-def distro_is_or_is_like(name: str) -> bool:
-    is_distro = False
+def get_distro() -> Distro:
     if os.path.isfile('/etc/os-release'):
         with open('/etc/os-release', 'r') as f:
             for line in f:
                 if line.startswith('ID='):
-                    if line.find(name, 3) >= 0:
-                        return True
+                    return get_distro_id(line[3:])
                 if line.startswith('ID_LIKE='):
-                    if line.find(name , 8) >= 0:
-                        return True
-    return is_distro
+                    return get_distro_id(line[8:])
+    return Distro.unknown
 
-def fedora_version() -> int:
-    version_string = 'REDHAT_BUGZILLA_PRODUCT_VERSION='
+def get_distro_version(distro: Distro) -> float:
+    if distro == Distro.fedora:
+        version_string = 'REDHAT_BUGZILLA_PRODUCT_VERSION='
+    elif distro in (Distro.debian, Distro.ubuntu):
+        version_string = 'VERSION_ID="'
+    else:
+        return 0.0
+
     with open('/etc/os-release', 'r') as f:
         for line in f:
             if line.startswith(version_string):
                 try:
-                    return int(line[len(version_string):])
+                    if distro == Distro.fedora:
+                        v = line[len(version_string):]
+                    else:
+                        v = line[len(version_string):-2]
+                    return float(v)
                 except ValueError:
-                    sys.stderr.write("Unexpected format while parsing Fedora version")
-                    return 0
-    return 0
+                    sys.stderr.write("Unexpected format while parsing {} version".format(
+                        distro.name.capitalize()))
+                    return 0.0
 
 def install_packages(command_line: str) -> None:
     print("To continue, some packages required to run the application will be "
@@ -201,8 +221,8 @@ def uninstall_packages(command_line: str) -> None:
         except subprocess.CalledProcessError:
             sys.stderr.write("Command failed\n")
 
-def check_package_import_requirements() -> None:
-    if distro_is_or_is_like('debian') or distro_is_or_is_like('ubuntu'):
+def check_package_import_requirements(distro: Distro, version: float) -> None:
+    if distro in (Distro.debian, Distro.ubuntu):
         if not have_apt:
             sys.stderr.write('To continue, the package python3-apt must be installed.')
             sys.exit(1)
@@ -211,9 +231,9 @@ def check_package_import_requirements() -> None:
         packages = 'libimage-exiftool-perl python3-pyqt5 python3-setuptools python3-dev ' \
              'python3-distutils-extra gir1.2-gexiv2-0.10 python3-gi gir1.2-gudev-1.0 ' \
              'gir1.2-udisks-2.0 gir1.2-notify-0.7 gir1.2-glib-2.0 gir1.2-gstreamer-1.0 '\
-             'libgphoto2-dev python3-arrow python3-psutil g++ '\
+             'libgphoto2-dev python3-arrow python3-psutil g++ libmediainfo0v5 '\
              'qt5-image-formats-plugins python3-zmq exiv2 python3-colorlog libraw-bin ' \
-             'python3-easygui libmediainfo0v5 python3-sortedcontainers python3-wheel'.split()
+             'python3-easygui python3-sortedcontainers python3-wheel'.split()
 
         for package in packages:
             try:
@@ -229,7 +249,7 @@ def check_package_import_requirements() -> None:
             command_line = 'sudo {} install {}'.format(cmd, ' '.join(missing_packages))
             install_packages(command_line)
 
-    elif distro_is_or_is_like('fedora'):
+    elif distro in (Distro.fedora,):
         if not have_dnf:
             sys.stderr.write('To continue, the package python3-dnf must be installed.')
             sys.exit(1)
@@ -240,11 +260,12 @@ def check_package_import_requirements() -> None:
                    'rpm-build python3-devel python3-distutils-extra intltool ' \
                    'python3-easygui qt5-qtimageformats python3-psutil libmediainfo'.split()
 
-        version = fedora_version()
-        if version <= 24 and version > 0:
+        if version <= 24.0 and version > 0.0:
             packages.append('libgexiv2-python3')
         else:
             packages.append('python3-gexiv2')
+
+        print("Querying installed and available packages (this may take a while)")
 
         with dnf.Base() as base:
             # Code from http://dnf.readthedocs.org/en/latest/use_cases.html
@@ -261,8 +282,6 @@ def check_package_import_requirements() -> None:
             q_avail = q.available()
             # Derived query matches only installed packages
             q_inst = q.installed()
-
-            print("Querying installed and available packages")
 
             installed = [pkg.name for pkg in q_inst.run()]
             available = [pkg.name for pkg in q_avail.run()]
@@ -288,10 +307,10 @@ def query_uninstall() -> bool:
     return input('Type yes and hit enter if you want to to uninstall the previous version of '
                  'Rapid Photo Downloader: ') == 'yes'
 
-def uninstall_old_version() -> None:
+def uninstall_old_version(distro: Distro) -> None:
     pkg_name = 'rapid-photo-downloader'
 
-    if distro_is_or_is_like('debian') or distro_is_or_is_like('ubuntu'):
+    if distro == Distro.debian or distro == Distro.ubuntu:
         cache = apt.Cache()
         pkg = cache[pkg_name]
         if pkg.is_installed and query_uninstall():
@@ -299,7 +318,7 @@ def uninstall_old_version() -> None:
             command_line = 'sudo {} remove {}'.format(cmd, pkg_name)
             uninstall_packages(command_line)
 
-    elif distro_is_or_is_like('fedora'):
+    elif distro == Distro.fedora:
         with dnf.Base() as base:
             base.read_all_repos()
             base.fill_sack()
@@ -312,9 +331,11 @@ def uninstall_old_version() -> None:
                 uninstall_packages(command_line)
 
 
-def main(installer: str) -> None:
+def main(installer: str, distro: Distro, distro_version: float) -> None:
 
-    check_package_import_requirements()
+
+
+    check_package_import_requirements(distro, distro_version)
 
     name = os.path.basename(installer)
     name = name[:len('.tar.gz') * -1]
@@ -344,7 +365,7 @@ def main(installer: str) -> None:
     install_path = os.path.join(os.path.expanduser('~'), '.local', 'bin')
 
     if install_path not in path.split(':'):
-        if distro_is_or_is_like('debian') or distro_is_or_is_like('ubuntu'):
+        if distro == Distro.debian or distro == Distro.ubuntu:
             bin_dir = os.path.join(os.path.expanduser('~'), 'bin')
             if not os.path.isdir(bin_dir):
                 created_bin_dir = True
@@ -365,7 +386,7 @@ def main(installer: str) -> None:
             sys.stderr.write("\nThe application was installed in {}\n".format(install_path))
             sys.stderr.write("Add {} to your PATH to be able to launch it.\n".format(install_path))
 
-    uninstall_old_version()
+    uninstall_old_version(distro)
 
     man_dir = '/usr/local/share/man/man1'
     print("\nDo you want to install the application's man pages?")
@@ -405,11 +426,30 @@ if __name__ == '__main__':
                          "user who will run the program.\n")
         sys.exit(1)
 
-    if StrictVersion(pip.__version__) < StrictVersion('8.1'):
-        sys.stderr.write("Python 3's pip and setuptools must be upgraded for your user\n\n")
+    distro = get_distro()
+    if distro != Distro.unknown:
+        distro_version = get_distro_version(distro)
+    else:
+        distro_version = 0.0
 
-        sys.stderr.write('Run both of these commands as your regular user (i.e. without '
-                         'sudo)\n\n')
+    if distro == Distro.debian and distro_version == 8.0:
+        sys.stderr.write("Sorry, Debian Jessie is too old to be able to run this version of Rapid "
+                         "Photo Downloader.\n")
+        sys.exit(1)
+    elif distro == Distro.fedora and distro_version <= 23.0:
+        sys.stderr.write("Sorry, Fedora 23 is no longer supported by Rapid Photo Downloader.\n")
+        sys.exit(1)
+
+    if StrictVersion(pip.__version__) < StrictVersion('8.1'):
+        sys.stderr.write("Python 3's pip and setuptools must be upgraded for your user.\n\n")
+
+        if get_distro() == Distro.fedora:
+            sys.stderr.write("\nNOTE: ensure the package python3-wheel is installed before you "
+                             "upgrade pip and setuptools. Install it by running this command:\n"
+                             "sudo dnf install python3-wheel\n\n")
+
+        sys.stderr.write('To upgrade pip and setuptools, run both of these commands as your '
+                         'regular user (i.e. without sudo):\n\n')
            
         for cmd in ('python3 -m pip install --user --upgrade pip',
                     'python3 -m pip install --user --upgrade setuptools'):
@@ -420,10 +460,7 @@ if __name__ == '__main__':
                          "negatively affect the installation of other, older Python packages by your user.\n")
         sys.stderr.write("However the risk is small and is normally nothing to worry about.\n")
 
-        if distro_is_or_is_like('fedora'):
-            sys.stderr.write("\nEnsure the package python3-wheel is installed before you upgrade "
-                             "pip and setuptools. Install it by running this command:\n"
-                             "sudo dnf install python3-wheel\n")
+
         sys.exit(1)
 
     parser = argparse.ArgumentParser(description='Install Rapid Photo Downloader')
@@ -437,6 +474,6 @@ if __name__ == '__main__':
     elif not installer.endswith('.tar.gz'):
         print("Installer not in tar.gz format:", installer)
         sys.exit(1)
-    main(installer)
+    main(installer, distro, distro_version)
 
 

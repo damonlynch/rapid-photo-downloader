@@ -125,7 +125,7 @@ msgstr "Dispositivos"
 #: ../raphodo/devices.py:631
 #, python-format
 msgid "Downloading from %(device_names)s"
-msgstr "Descargando de %(device_name)s"
+msgstr "Descargando de %(device_names)s"
 
 #. Translators: e.g. Three Devices
 #: ../raphodo/devices.py:687
