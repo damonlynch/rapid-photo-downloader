@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Copyright (C) 2011-2016 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2011-2017 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -29,7 +29,7 @@ Project line length: 100 characters (i.e. word wrap at 99)
 """
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2011-2016, Damon Lynch"
+__copyright__ = "Copyright 2011-2017, Damon Lynch"
 
 import sys
 import logging
@@ -153,6 +153,8 @@ from raphodo.jobcode import JobCode
 import raphodo.constants as constants
 from raphodo.menubutton import MenuButton
 from raphodo.renamepanel import RenamePanel
+from raphodo.jobcodepanel import JobCodePanel
+from raphodo.backuppanel import BackupPanel
 import raphodo
 import raphodo.exiftool as exiftool
 
@@ -1444,6 +1446,8 @@ class RapidWindow(QMainWindow):
         self.createDeviceThisComputerViews()
         self.createDestinationViews()
         self.createRenamePanels()
+        self.createJobCodePanel()
+        self.createBackupPanel()
         self.configureCenterPanels(settings)
         self.createBottomControls()
 
@@ -1710,6 +1714,20 @@ class RapidWindow(QMainWindow):
 
         self.renamePanel = RenamePanel(parent=self)
 
+    def createJobCodePanel(self) -> None:
+        """
+        Create the job code panel
+        """
+
+        self.jobcodePanel = JobCodePanel(parent=self)
+
+    def createBackupPanel(self) -> None:
+        """
+        Create the backup options panel
+        """
+
+        self.backupPanel = BackupPanel(parent=self)
+
     def createBottomControls(self) -> None:
         self.thumbnailControl = QWidget()
         layout = QHBoxLayout()
@@ -1872,6 +1890,8 @@ class RapidWindow(QMainWindow):
 
         self.rightPanels.addWidget(self.rightPanelSplitter)
         self.rightPanels.addWidget(self.renamePanel)
+        self.rightPanels.addWidget(self.jobcodePanel)
+        self.rightPanels.addWidget(self.backupPanel)
 
         self.centerSplitter.addWidget(self.leftPanelSplitter)
         self.centerSplitter.addWidget(self.thumbnailView)
@@ -3174,6 +3194,7 @@ class RapidWindow(QMainWindow):
         self.refreshAct.setEnabled(enabled)
         self.preferencesAct.setEnabled(enabled)
         self.renamePanel.setEnabled(enabled)
+        self.backupPanel.setEnabled(enabled)
 
     def unmountVolume(self, scan_id: int) -> None:
         """

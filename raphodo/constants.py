@@ -1,4 +1,4 @@
-# Copyright (C) 2007-2015 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2007-2017 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -18,7 +18,7 @@
 # see <http://www.gnu.org/licenses/>.
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2007-2016, Damon Lynch"
+__copyright__ = "Copyright 2007-2017, Damon Lynch"
 
 from enum import (Enum, IntEnum)
 from PyQt5.QtCore import Qt
@@ -362,6 +362,19 @@ class TemporalProximityState(Enum):
     ctime_rebuild = 6
     ctime_rebuild_proceed = 7
 
+
+class StandardFileLocations(Enum):
+    home = 1
+    desktop = 2
+    file_system = 3
+    documents = 4
+    music = 5
+    pictures = 6
+    videos = 7
+    downloads = 8
+
+
+max_remembered_destinations = 10
 
 ThumbnailBackgroundName = MediumGray
 EmptyViewHeight = 20

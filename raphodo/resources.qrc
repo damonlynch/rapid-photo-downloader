@@ -18,8 +18,14 @@
 <file alias="icons/media-eject.svg">../images/media-eject.svg</file>
 <file alias="icons/sdcard.svg">../images/sdcard-symbolic.svg</file>
 <file alias="icons/drive-removable-media.svg">../images/drive-removable-media-symbolic.svg</file>
+<file alias="icons/drive-harddisk.svg">../images/drive-harddisk-symbolic.svg</file>
 <file alias="icons/image-x-generic.svg">../images/image-x-generic-symbolic.svg</file>
 <file alias="icons/computer.svg">../images/computer-symbolic.svg</file>
 <file alias="icons/settings.svg">../images/settings-symbolic.svg</file>
+<file alias="icons/home.svg">../images/user-home-symbolic.svg</file>
+<file alias="icons/pictures-folder.svg">../images/folder-pictures-symbolic.svg</file>
+<file alias="icons/videos-folder.svg">../images/folder-videos-symbolic.svg</file>
+<file alias="icons/desktop.svg">../images/user-desktop-symbolic.svg</file>
+<file alias="icons/error.svg">../images/error.svg</file>
 </qresource>
 </RCC>

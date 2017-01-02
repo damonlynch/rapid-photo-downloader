@@ -1,4 +1,4 @@
-# Copyright (C) 2016 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2016-2017 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -21,7 +21,7 @@ Display an About window
 """
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2016, Damon Lynch"
+__copyright__ = "Copyright 2016-2017, Damon Lynch"
 
 from gettext import gettext as _
 
@@ -105,14 +105,16 @@ class AboutDialog(QDialog):
         # Credits view
 
         credits_text = """
-        Copyright © 2007-2016 Damon Lynch.
+        Copyright © 2007-2017 Damon Lynch.
         Portions copyright © 2008-2015 Canonical Ltd.
         Portions copyright © 2013 Bernard Baeyens.
         Portions copyright © 2012-2015 Jim Easterbrook.
         Portions copyright © 2012 Sven Marnach.
 
         Photo %(photolink)s copyright © 2014 Damon Lynch, all rights reserved.
-        Camera and video camera icons courtesy %(artlink1)s and %(artlink2)s, respectively.
+        Camera icon courtesy %(artlink1)s.
+        Video camera icon courtesy %(artlink2)s.
+        Home icon courtesy %(artlink3)s.
 
         Translators:
 
@@ -166,7 +168,9 @@ class AboutDialog(QDialog):
         -lynch" style="color: white;">Afghan Men Pulling Heavy Load</a>""",
         artlink1='<a href="http://www.webalys.com" style="color: white;">Vincent Le Moign</a>',
         artlink2="""<a href="https://www.iconfinder.com/bluewolfski" style="color: white;">The
-                 Pictographers</a>""")
+                 Pictographers</a>""",
+        artlink3="""<a href="https://www.iconfinder.com/Enesdal" style="color: white;">Enes Dal</a>
+        """.rstrip())
 
         style_sheet = """QLabel {
         background-color: rgba(0, 0, 0, 0);

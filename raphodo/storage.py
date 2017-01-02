@@ -104,8 +104,10 @@ def get_media_dir() -> str:
     Returns the media directory, i.e. where external mounts are mounted.
 
     Assumes mount point of /media/<USER>.
+
     """
 
+    # TODO what about Fedora?
     if sys.platform.startswith('linux'):
         return '/media/{}'.format(get_user_name())
     else:
@@ -332,22 +334,39 @@ def _get_xdg_special_dir(dir_type: gi.repository.GLib.UserDirectory,
         return os.path.expanduser('~')
     return path
 
-def xdg_photos_directory() -> str:
+def xdg_photos_directory(home_on_failure: bool=True) -> Optional[str]:
     """
     Get localized version of /home/<USER>/Pictures
+
+    :param home_on_failure: if the directory does not exist, return
+     the home directory instead
     :return: the directory if it is specified, else the user's
-    home directory
+    home directory or None
     """
-    return _get_xdg_special_dir(GLib.USER_DIRECTORY_PICTURES)
+    return _get_xdg_special_dir(GLib.USER_DIRECTORY_PICTURES, home_on_failure)
 
 
-def xdg_videos_directory() -> str:
+def xdg_videos_directory(home_on_failure: bool=True) -> str:
     """
     Get localized version of /home/<USER>/Videos
+
+    :param home_on_failure: if the directory does not exist, return
+     the home directory instead
     :return: the directory if it is specified, else the user's
-    home directory
+    home directory or None
     """
-    return _get_xdg_special_dir(GLib.USER_DIRECTORY_VIDEOS)
+    return _get_xdg_special_dir(GLib.USER_DIRECTORY_VIDEOS, home_on_failure)
+
+def xdg_desktop_directory(home_on_failure: bool=True) -> str:
+    """
+    Get localized version of /home/<USER>/Desktop
+
+    :param home_on_failure: if the directory does not exist, return
+     the home directory instead
+    :return: the directory if it is specified, else the user's
+    home directory or None
+    """
+    return _get_xdg_special_dir(GLib.UserDirectory.DIRECTORY_DESKTOP, home_on_failure)
 
 def xdg_photos_identifier() -> str:
     """
@@ -359,7 +378,7 @@ def xdg_photos_identifier() -> str:
     if path is None:
         # translators: the name of the Pictures folder
         return _('Pictures')
-    return path
+    return os.path.basename(path)
 
 def xdg_videos_identifier() -> str:
     """
@@ -371,7 +390,7 @@ def xdg_videos_identifier() -> str:
     if path is None:
         # translators: the name of the Videos folder
         return _('Videos')
-    return path
+    return os.path.basename(path)
 
 
 def make_program_directory(path: str) -> str:

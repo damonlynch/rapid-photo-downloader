@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Copyright (C) 2011-2016 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2011-2017 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -19,7 +19,7 @@
 # see <http://www.gnu.org/licenses/>.
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2011-2016, Damon Lynch"
+__copyright__ = "Copyright 2011-2017, Damon Lynch"
 
 import logging
 import re
@@ -317,6 +317,8 @@ class Preferences:
                                 )
     error_defaults = dict(conflict_resolution=int(constants.ConflictResolution.skip),
                           backup_duplicate_overwrite=False)
+    destinations = dict(photo_destinations=[''],
+                        video_destinations=[''])
 
 
     def __init__(self) -> None:
@@ -330,9 +332,10 @@ class Preferences:
                  self.timeline_defaults, self.display_defaults,
                  self.device_defaults,
                  self.backup_defaults, self.automation_defaults,
-                 self.performance_defaults, self.error_defaults)
+                 self.performance_defaults, self.error_defaults,
+                 self.destinations)
         group_names = ('Program', 'Rename', 'Timeline', 'Display', 'Device', 'Backup',
-                       'Automation', 'Performance', 'ErrorHandling')
+                       'Automation', 'Performance', 'ErrorHandling', 'Destinations')
         assert len(dicts) == len(group_names)
 
         # Create quick lookup table for types of each value, including the
@@ -735,14 +738,17 @@ class Preferences:
         except ValueError:
             return -1
 
-    def add_list_value(self, key, value) -> None:
+    def add_list_value(self, key, value, max_list_size=0) -> None:
         """
         Add value to pref list if it doesn't already exist.
+
+        Values are added to the start of the list.
 
         An empty list contains only one item: ['']
 
         :param key: the preference key
         :param value: the value to add
+        :param max_list_size: if non-zero, the list's last value will be deleted
         """
 
         if len(self[key]) == 1 and self[key][0] == '':
@@ -750,7 +756,10 @@ class Preferences:
         elif value not in self[key]:
             # Must assign the value like this, otherwise the preference value
             # will not be updated:
-            self[key] = self[key] + [value]
+            if max_list_size:
+                self[key] = [value] + self[key][:max_list_size - 1]
+            else:
+                self[key] = [value] + self[key]
 
     def del_list_value(self, key, value) -> None:
         """
