@@ -26,6 +26,7 @@ __copyright__ = "Copyright 2017, Damon Lynch"
 from typing import Optional, Dict, Tuple, Union, List
 import os
 import logging
+from collections import defaultdict
 from gettext import gettext as _
 
 from PyQt5.QtCore import (pyqtSlot, pyqtSignal)
@@ -37,6 +38,7 @@ from raphodo.constants import StandardFileLocations, FileType, max_remembered_de
 from raphodo.preferences import Preferences
 from raphodo.storage import (xdg_desktop_directory, xdg_photos_directory, xdg_videos_directory,
                              ValidMounts)
+from raphodo.utilities import make_path_end_snippets_unique
 
 
 class FolderCombo(QComboBox):
@@ -61,12 +63,19 @@ class FolderCombo(QComboBox):
         self.valid_mounts = valid_mounts
         self.special_dirs = special_dirs
 
+        # Flag to indicate whether the combo box is displaying a path error
+        self.invalid_path = False
+
         self.activated.connect(self.processPath)
 
         self._setup_entries()
 
     def _setup_entries(self) -> None:
         logging.debug("Rebuilding %s combobox entries...", self.file_type.name)
+
+        # Track where the remembered destinations (paths) are in the pop up menu
+        # -1 indicates there are none.
+        self.destinations_start = -1
 
         # Home directory
         home_dir = os.path.expanduser('~')
@@ -122,11 +131,13 @@ class FolderCombo(QComboBox):
                 self.addItem(QIcon(':/icons/videos-folder.svg'), videos_label, videos_dir)
                 idx += 1
 
-        # Remembered paths
-        # TODO distinguish duplicate directory base names
+        # Remembered paths / destinations
         dests = self._get_dests()
         valid_dests = [dest for dest in dests if dest and os.path.isdir(dest)]
-        valid_names = [os.path.basename(path) for path in valid_dests]
+        if valid_dests:
+            valid_names = make_path_end_snippets_unique(*valid_dests)
+        else:
+            valid_names = []
 
         if valid_names:
             folder_icon = QIcon(':/icons/folder.svg')
@@ -136,8 +147,6 @@ class FolderCombo(QComboBox):
             for name, path in zip(valid_names, valid_dests):
                 self.addItem(folder_icon, name, path)
                 idx += 1
-        else:
-            self.destinations_start = -1
 
         self.insertSeparator(idx)
         idx += 1
@@ -156,7 +165,16 @@ class FolderCombo(QComboBox):
         super().showPopup()
 
     def setPath(self, path: str) -> None:
+        """
+        Set the path displayed in the combo box.
+
+        This must be called for the combobox to function properly.
+
+        :param path: the path to display
+        """
+
         self.chosen_path = path
+        invalid = False
 
         dests = self._get_dests()
 
@@ -169,21 +187,28 @@ class FolderCombo(QComboBox):
         else:
             default_end = self.destinations_start
 
-        for i in range(default_end):
+        if self.invalid_path:
+            default_start = 2
+        else:
+            default_start = 0
+
+        for i in range(default_start, default_end):
             if self.itemData(i) == path:
                 self.setCurrentIndex(i)
                 standard_path = True
-                logging.debug("%s path %s is a default value or path to an external volume",
+                logging.info("%s path %s is a default value or path to an external volume",
                               self.file_type.name, path)
                 break
 
         if standard_path:
             if path in dests:
-                logging.debug("Removing %s from list of %s destinations", path, self.file_type.name)
+                logging.info("Removing %s from list of stored %s destinations because its now a "
+                             "standard path", path, self.file_type.name)
                 self.prefs.del_list_value(self._get_dest_pref_key(), path)
         else:
-            if path in dests:
-                self._make_dest_active(path, len(dests))
+            valid_dests = [dest for dest in dests if dest and os.path.isdir(dest)]
+            if path in valid_dests:
+                self._make_dest_active(path, len(valid_dests))
             elif os.path.isdir(path):
                 # Add path to destinations in prefs, and regenerate the combobox entries
                 self.prefs.add_list_value(self._get_dest_pref_key(), path,
@@ -192,14 +217,18 @@ class FolderCombo(QComboBox):
                 self._setup_entries()
                 # List may or may not have grown in size
                 dests = self._get_dests()
-                self._make_dest_active(path, len(dests))
+                valid_dests = [dest for dest in dests if dest and os.path.isdir(dest)]
+                self._make_dest_active(path, len(valid_dests))
             else:
+                invalid = True
                 # Translators: indicate in combobox that a path does not exist
                 self.insertItem(0, QIcon(':icons/error.svg'), _('%s (location does not exist)') %
                                 os.path.basename(path), path)
                 self.setCurrentIndex(0)
                 if self.destinations_start != -1:
                     self.destinations_start += 1
+
+        self.invalid_path = invalid
 
     def _make_dest_active(self, path: str, dest_len: int) -> None:
         """
@@ -218,15 +247,15 @@ class FolderCombo(QComboBox):
 
     def _get_dests(self) -> List[str]:
         if self.file_type == FileType.photo:
-            return self.prefs.photo_destinations
+            return self.prefs.photo_backup_destinations
         else:
-            return self.prefs.video_destinations
+            return self.prefs.video_backup_destinations
 
     def _get_dest_pref_key(self) -> str:
         if self.file_type == FileType.photo:
-            return 'photo_destinations'
+            return 'photo_backup_destinations'
         else:
-            return 'video_destinations'
+            return 'video_backup_destinations'
 
     @pyqtSlot(int)
     def processPath(self, index: int) -> None:

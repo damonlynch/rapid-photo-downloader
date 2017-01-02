@@ -30,10 +30,10 @@ import string
 import sys
 import tempfile
 import time
-from collections import namedtuple
+from collections import namedtuple, defaultdict
 from datetime import datetime
 from gettext import gettext as _
-from itertools import groupby
+from itertools import groupby, zip_longest
 from typing import Optional, List, Union, Any
 import struct
 import ctypes
@@ -619,3 +619,96 @@ def platform_c_maxint() -> int:
     :return: the maximum size of an int in C when compiled the same way Python was
     """
     return 2 ** (struct.Struct('i').size * 8 - 1) - 1
+
+def commonprefix(*paths) -> str:
+    """
+    Python 3.4 compatible.
+
+    Remove when Python 3.5 becomes the minimum.
+    """
+
+    return os.path.dirname(os.path.commonprefix(paths))
+
+def _recursive_identify_depth(*paths, depth) -> int:
+    basenames = [os.path.basename(path) for path in paths]
+    if len(basenames) != len(set(basenames)):
+        duplicates = _collect_duplicates(basenames, paths)
+
+        for basename in duplicates:
+            chop = len(basename) + 1
+            chopped = (path[:-chop] for path in duplicates[basename])
+            depth = max(depth, _recursive_identify_depth(*chopped, depth=depth + 1))
+    return depth
+
+def _collect_duplicates(basenames, paths):
+    duplicates = defaultdict(list)
+    for basename, path in zip(basenames, paths):
+        duplicates[basename].append(path)
+    return {basename: paths for basename, paths in duplicates.items() if len(paths) > 1}
+
+def make_path_end_snippets_unique(*paths) -> List[str]:
+    r"""
+    Make list of path ends unique given possible common path endings.  
+    
+    A snippet starts from the end of the path, in extreme cases possibly up the path start. 
+
+    :param paths: sequence of paths to generate unique end snippets for
+    :return: list of unique snippets
+    
+    >>> p0 = '/home/damon/photos'
+    >>> p1 = '/media/damon/backup1/photos'
+    >>> p2 = '/media/damon/backup2/photos'
+    >>> p3 = '/home/damon/videos'
+    >>> p4 = '/media/damon/backup1/videos'
+    >>> p5 = '/media/damon/backup2/videos'
+    >>> p6 = '/media/damon/drive1/home/damon/photos'
+    >>> s0 = make_path_end_snippets_unique(p0, p3)
+    >>> print(s0)
+    ['photos', 'videos']
+    >>> s1 = make_path_end_snippets_unique(p0, p1, p2)
+    >>> print(s1)
+    ['damon/photos', 'backup1/photos', 'backup2/photos']
+    >>> s2 = make_path_end_snippets_unique(p0, p1, p2, p3)
+    >>> print(s2)
+    ['damon/photos', 'backup1/photos', 'backup2/photos', 'videos']
+    >>> s3 = make_path_end_snippets_unique(p3, p4, p5)
+    >>> print(s3)
+    ['damon/videos', 'backup1/videos', 'backup2/videos']
+    >>> s4 = make_path_end_snippets_unique(p0, p1, p2, p3, p6)
+    >>> print(s4) #doctest: +NORMALIZE_WHITESPACE
+    ['/home/damon/photos', '/media/damon/backup1/photos', '/media/damon/backup2/photos', 'videos',
+     'drive1/home/damon/photos']
+    >>> s5 = make_path_end_snippets_unique(p1, p2, p3, p6)
+    >>> print(s5)
+    ['backup1/photos', 'backup2/photos', 'videos', 'damon/photos']
+    """
+
+    basenames = [os.path.basename(path) for path in paths]
+
+    if len(basenames) != len(set(basenames)):
+        names = []
+        depths = defaultdict(int)
+        duplicates = _collect_duplicates(basenames, paths)
+
+        for basename, path in zip(basenames, paths):
+            if basename in duplicates:
+                depths[basename] = _recursive_identify_depth(*duplicates[basename], depth=0)
+
+        for basename, path in zip(basenames, paths):
+            depth = depths[basename]
+            if depth:
+                dirs = path.split(os.sep)
+                index = len(dirs) - depth - 1
+                name = (os.sep.join(dirs[max(index, 0): ]))
+                if index > 1:
+                    pass
+                    # name = '...' + name
+                elif index == 1:
+                    name = os.sep + name
+            else:
+                name = basename
+            names.append(name)
+        return names
+    else:
+        return basenames
+

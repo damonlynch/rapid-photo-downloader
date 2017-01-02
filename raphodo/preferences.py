@@ -317,8 +317,8 @@ class Preferences:
                                 )
     error_defaults = dict(conflict_resolution=int(constants.ConflictResolution.skip),
                           backup_duplicate_overwrite=False)
-    destinations = dict(photo_destinations=[''],
-                        video_destinations=[''])
+    destinations = dict(photo_backup_destinations=[''],
+                        video_backup_destinations=[''])
 
 
     def __init__(self) -> None:

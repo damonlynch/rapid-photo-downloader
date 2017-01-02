@@ -53,9 +53,10 @@ class BackupOptionsWidget(QFramedWidget):
     the strip incompatible characters option.
     """
 
-    def __init__(self, prefs: Preferences, parent) -> None:
+    def __init__(self, prefs: Preferences, parent, rapidApp) -> None:
         super().__init__(parent)
 
+        self.rapidApp = rapidApp
         self.prefs = prefs
 
         self.setBackgroundRole(QPalette.Base)
@@ -129,26 +130,43 @@ class BackupOptionsWidget(QFramedWidget):
         layout.addStretch()
 
         self.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Expanding)
+        self.setBackupButtonHighlight()
+
 
     @pyqtSlot(int)
     def backupChanged(self, state: int) -> None:
         backup = state == Qt.Checked
-        logging.debug("Setting backup while downloading to %s", backup)
+        logging.info("Setting backup while downloading to %s", backup)
         self.prefs.backup_files = backup
+        self.setBackupButtonHighlight()
 
     @pyqtSlot(int)
     def autoBackupChanged(self, state: int) -> None:
         autoBackup = state == Qt.Checked
-        logging.debug("Setting automatically detect backup devices to %s", autoBackup)
+        logging.info("Setting automatically detect backup devices to %s", autoBackup)
         self.prefs.backup_device_autodetection = autoBackup
+        self.setBackupButtonHighlight()
 
     def photoPathChosen(self, path: str) -> None:
-        logging.debug("Setting backup photo location to %s", path)
+        logging.info("Setting backup photo location to %s", path)
         self.prefs.backup_photo_location = path
+        self.setBackupButtonHighlight()
 
     def videoPathChosen(self, path: str) -> None:
-        logging.debug("Setting backup video location to %s", path)
+        logging.info("Setting backup video location to %s", path)
         self.prefs.backup_video_location = path
+        self.setBackupButtonHighlight()
+
+    def setBackupButtonHighlight(self) -> None:
+        """
+        Indicate error status in GUI by highlighting Backup button.
+
+        Do so only if doing manual backups and there is a problem with one of the paths
+        """
+
+        self.rapidApp.backupButton.setHighlighted(
+            self.prefs.backup_files and not self.prefs.backup_device_autodetection and (
+                self.photoLocation.invalid_path or self.videoLocation.invalid_path))
 
 
 class BackupPanel(QScrollArea):
@@ -171,7 +189,8 @@ class BackupPanel(QScrollArea):
                                        headerColor=QColor(ThumbnailBackgroundName),
                                        headerFontColor=QColor(Qt.white))
 
-        self.backupOptions = BackupOptionsWidget(prefs=self.prefs, parent=self)
+        self.backupOptions = BackupOptionsWidget(prefs=self.prefs, parent=self,
+                                                 rapidApp=self.rapidApp)
         self.backupOptionsPanel.addWidget(self.backupOptions)
 
         widget = QWidget()
