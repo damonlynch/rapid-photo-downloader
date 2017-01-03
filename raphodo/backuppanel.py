@@ -35,7 +35,8 @@ from PyQt5.QtWidgets import (QWidget, QSizePolicy, QComboBox, QFormLayout,
 from PyQt5.QtGui import (QColor, QPalette, QIcon)
 
 
-from raphodo.constants import (StandardFileLocations, ThumbnailBackgroundName, FileType)
+from raphodo.constants import (StandardFileLocations, ThumbnailBackgroundName, FileType,
+                               minGridColumnWidth)
 from raphodo.viewutils import QFramedWidget
 from raphodo.panelview import QPanelView
 from raphodo.preferences import Preferences
@@ -46,7 +47,6 @@ from raphodo.storage import (ValidMounts, )
 
 
 class BackupOptionsWidget(QFramedWidget):
-    # TODO disable controls depending on options chosen, as well as during download
     """
     Display and allow editing of preference values for Downloads today
     and Stored Sequence Number and associated options, as well as
@@ -127,10 +127,24 @@ class BackupOptionsWidget(QFramedWidget):
         backupLayout.addWidget(self.videoLocationLabel, 8, 1, 1, 2)
         backupLayout.addWidget(self.videoLocation, 8, 3, 1, 1)
 
+        min_width = minGridColumnWidth()
+        backupLayout.setColumnMinimumWidth(0, min_width)
+        backupLayout.setColumnMinimumWidth(1, min_width)
+
         layout.addStretch()
 
         self.setSizePolicy(QSizePolicy.Minimum, QSizePolicy.Expanding)
         self.setBackupButtonHighlight()
+
+        # Group controls to enable / disable sets of them
+        self._backup_controls_type = (self.autoBackup, )
+        self._backup_controls_auto = (self.folderExplanation, self.photoFolderNameLabel,
+                                      self.photoFolderName, self.videoFolderNameLabel,
+                                      self.videoFolderName, )
+        self._backup_controls_manual = (self.manualLocationExplanation, self.photoLocationLabel,
+                                        self.photoLocation, self.videoLocationLabel,
+                                        self.videoLocation, )
+        self.enableControlsByBackupType()
 
 
     @pyqtSlot(int)
@@ -139,6 +153,7 @@ class BackupOptionsWidget(QFramedWidget):
         logging.info("Setting backup while downloading to %s", backup)
         self.prefs.backup_files = backup
         self.setBackupButtonHighlight()
+        self.enableControlsByBackupType()
 
     @pyqtSlot(int)
     def autoBackupChanged(self, state: int) -> None:
@@ -146,12 +161,15 @@ class BackupOptionsWidget(QFramedWidget):
         logging.info("Setting automatically detect backup devices to %s", autoBackup)
         self.prefs.backup_device_autodetection = autoBackup
         self.setBackupButtonHighlight()
+        self.enableControlsByBackupType()
 
+    @pyqtSlot(str)
     def photoPathChosen(self, path: str) -> None:
         logging.info("Setting backup photo location to %s", path)
         self.prefs.backup_photo_location = path
         self.setBackupButtonHighlight()
 
+    @pyqtSlot(str)
     def videoPathChosen(self, path: str) -> None:
         logging.info("Setting backup video location to %s", path)
         self.prefs.backup_video_location = path
@@ -167,6 +185,23 @@ class BackupOptionsWidget(QFramedWidget):
         self.rapidApp.backupButton.setHighlighted(
             self.prefs.backup_files and not self.prefs.backup_device_autodetection and (
                 self.photoLocation.invalid_path or self.videoLocation.invalid_path))
+
+    def enableControlsByBackupType(self) -> None:
+        """
+        Enable or disable backup controls depending on what the user
+        has enabled.
+        """
+
+        backupsEnabled = self.backup.isChecked()
+        autoEnabled = backupsEnabled and self.autoBackup.isChecked()
+        manualEnabled = not autoEnabled and backupsEnabled
+
+        for widget in self._backup_controls_type:
+            widget.setEnabled(backupsEnabled)
+        for widget in self._backup_controls_manual:
+            widget.setEnabled(manualEnabled)
+        for widget in self._backup_controls_auto:
+            widget.setEnabled(autoEnabled)
 
 
 class BackupPanel(QScrollArea):

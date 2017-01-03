@@ -411,6 +411,10 @@ def minFileSystemViewHeight() -> int:
     return QFontMetrics(QFont()).height() * 7
 
 
+def minGridColumnWidth() -> int:
+    return int(QFontMetrics(QFont()).height() * 1.3333333333333333)
+
+
 class Desktop(Enum):
     gnome = 1
     unity = 2
@@ -420,6 +424,13 @@ class Desktop(Enum):
     mate = 6
     lxde = 7
     unknown = 10
+
+
+class Distro(Enum):
+    debian = 1
+    ubuntu = 2
+    fedora = 3
+    unknown = 4
 
 
 orientation_offset = dict(

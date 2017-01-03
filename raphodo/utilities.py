@@ -712,3 +712,11 @@ def make_path_end_snippets_unique(*paths) -> List[str]:
     else:
         return basenames
 
+
+def log_os_release() -> None:
+    try:
+        with open('/etc/os-release', 'r') as f:
+            for line in f:
+                logging.debug(line)
+    except:
+        pass

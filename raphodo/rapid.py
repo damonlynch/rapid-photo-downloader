@@ -3195,6 +3195,7 @@ class RapidWindow(QMainWindow):
         self.preferencesAct.setEnabled(enabled)
         self.renamePanel.setEnabled(enabled)
         self.backupPanel.setEnabled(enabled)
+        self.jobcodePanel.setEnabled(enabled)
 
     def unmountVolume(self, scan_id: int) -> None:
         """
@@ -5192,16 +5193,12 @@ def main():
             sys.exit(1)
 
         media_dir = get_media_dir()
-        media_dirs = (media_dir, '/run{}'.format(media_dir))
-        auto_detect = False
-        for dir in media_dirs:
-            auto_detect = args.path.startswith(dir)
-            if auto_detect:
-                this_computer_source = False
-                this_computer_location = None
-                logging.info("Device auto detection turned on from command line using "
-                             "positional PATH argument")
-                break
+        auto_detect = args.path.startswith(media_dir)
+        if auto_detect:
+            this_computer_source = False
+            this_computer_location = None
+            logging.info("Device auto detection turned on from command line using "
+                         "positional PATH argument")
 
         if not auto_detect:
             this_computer_source = True

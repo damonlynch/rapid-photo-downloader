@@ -72,8 +72,8 @@ from gi.repository import GUdev, UDisks, GLib
 
 from gettext import gettext as _
 
-from raphodo.constants import Desktop
-from raphodo.utilities import process_running
+from raphodo.constants import Desktop, Distro
+from raphodo.utilities import process_running, log_os_release
 
 logging_level = logging.DEBUG
 
@@ -88,6 +88,24 @@ StorageSpace = namedtuple('StorageSpace', 'bytes_free, bytes_total, path')
 UdevAttr = namedtuple('UdevAttr', 'is_mtp_device, vendor, model')
 
 PROGRAM_DIRECTORY = 'rapid-photo-downloader'
+
+
+def get_distro_id(id_or_id_like: str) -> Distro:
+    try:
+        return Distro[id_or_id_like.strip()]
+    except KeyError:
+        return Distro.unknown
+
+
+def get_distro() -> Distro:
+    if os.path.isfile('/etc/os-release'):
+        with open('/etc/os-release', 'r') as f:
+            for line in f:
+                if line.startswith('ID='):
+                    return get_distro_id(line[3:])
+                if line.startswith('ID_LIKE='):
+                    return get_distro_id(line[8:])
+    return Distro.unknown
 
 
 def get_user_name() -> str:
@@ -107,9 +125,17 @@ def get_media_dir() -> str:
 
     """
 
-    # TODO what about Fedora?
     if sys.platform.startswith('linux'):
-        return '/media/{}'.format(get_user_name())
+        media_dir = '/media/{}'.format(get_user_name())
+        run_media_dir = '/run{}'.format(media_dir)
+        distro = get_distro()
+        if os.path.isdir(run_media_dir) and distro not in (Distro.ubuntu, Distro.debian):
+            if distro != Distro.fedora:
+                logging.debug("Detected /run/media directory, but distro does not appear to "
+                              "be Fedora")
+                log_os_release()
+            return run_media_dir
+        return media_dir
     else:
         raise ("Mounts.setValidMountPoints() not implemented on %s", sys.platform())
 
@@ -195,10 +221,10 @@ class ValidMounts():
                 media_dir = ''
             logging.debug("Media dir is %s", media_dir)
             if self.onlyExternalMounts:
-                self.validMountFolders = (media_dir, '/run{}'.format(media_dir))
+                self.validMountFolders = (media_dir, )
             else:
                 home_dir = os.path.expanduser('~')
-                validPoints = [home_dir, media_dir, '/run{}'.format(media_dir)]
+                validPoints = [home_dir, media_dir]
                 for point in self.mountPointInFstab():
                     validPoints.append(point)
                 self.validMountFolders = tuple(validPoints)

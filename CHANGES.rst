@@ -4,11 +4,15 @@ Changelog for Rapid Photo Downloader
 0.9.0a7 (2017-01-xx)
 --------------------
 
+ - Added backup configuration to the user interface.
+
  - Disallow the running of the program as the root user.
 
  - Updated program installer to stop installation on Fedora 23 and Debian Jessie.
 
  - Corrected error in Spanish translation that caused crash when download started.
+
+ - Refined detection of directory in which media are mounted (/media or /run/media).
 
 0.9.0a6 (2016-12-10)
 --------------------
