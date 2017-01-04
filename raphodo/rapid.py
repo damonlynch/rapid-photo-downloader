@@ -1037,7 +1037,7 @@ class RapidWindow(QMainWindow):
         QTimer.singleShot(0, self.copyfilesThread.start)
 
         self.backup_manager_started = False
-        self.backup_devices = BackupDeviceCollection()
+        self.backup_devices = BackupDeviceCollection(rapidApp=self)
         if self.prefs.backup_files:
             self.startBackupManager()
             self.setupBackupDevices()
@@ -2622,9 +2622,9 @@ class RapidWindow(QMainWindow):
                         download_stats.videos_size_in_bytes
 
         if self.prefs.backup_files:
-            download_size += ((self.backup_devices.no_photo_backup_devices *
+            download_size += ((len(self.backup_devices.photo_backup_devices) *
                                download_stats.photos_size_in_bytes) + (
-                               self.backup_devices.no_video_backup_devices *
+                               len(self.backup_devices.video_backup_devices) *
                                download_stats.videos_size_in_bytes))
 
 
@@ -4222,9 +4222,11 @@ class RapidWindow(QMainWindow):
                         self.backup_devices[path] = device
                         self.addDeviceToBackupManager(path)
                         self.download_tracker.set_no_backup_devices(
-                            self.backup_devices.no_photo_backup_devices,
-                            self.backup_devices.no_video_backup_devices)
+                            len(self.backup_devices.photo_backup_devices),
+                            len(self.backup_devices.video_backup_devices))
                         self.displayMessageInStatusBar()
+                        if self.prefs.backup_device_autodetection:
+                            self.backupPanel.updateExample()
 
                 elif self.shouldScanMount(mount):
                     device = Device()
@@ -4257,8 +4259,10 @@ class RapidWindow(QMainWindow):
             del self.backup_devices[path]
             self.displayMessageInStatusBar()
             self.download_tracker.set_no_backup_devices(
-                self.backup_devices.no_photo_backup_devices,
-                self.backup_devices.no_video_backup_devices)
+                len(self.backup_devices.photo_backup_devices),
+                len(self.backup_devices.video_backup_devices))
+            if self.prefs.backup_device_autodetection:
+                self.backupPanel.updateExample()
 
         self.setDownloadCapabilities()
 
@@ -4422,14 +4426,25 @@ class RapidWindow(QMainWindow):
                         self.backup_devices[path] = BackupDevice(mount=mount,
                                                      backup_type=backup_type)
                         self.addDeviceToBackupManager(path)
+            self.backupPanel.updateExample()
         else:
             self.setupManualBackup()
             for path in self.backup_devices:
                 self.addDeviceToBackupManager(path)
 
         self.download_tracker.set_no_backup_devices(
-            self.backup_devices.no_photo_backup_devices,
-            self.backup_devices.no_video_backup_devices)
+            len(self.backup_devices.photo_backup_devices),
+            len(self.backup_devices.video_backup_devices))
+
+    def resetupBackupDevices(self) -> None:
+        """
+        Change backup preferences in response to preference change.
+
+        Assumes backups may have already been setup.
+        """
+
+        #TODO implement
+
 
     def setupNonCameraDevices(self, on_startup: bool=False) -> None:
         """

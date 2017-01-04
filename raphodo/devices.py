@@ -32,6 +32,7 @@ import sys
 import shutil
 import os
 import logging
+import itertools
 from collections import namedtuple, Counter
 from typing import Tuple, List, Optional, Set, Dict, Union
 
@@ -899,8 +900,13 @@ class DeviceCollection:
                     return device_display_name, icon
 
 
-BackupDevice = namedtuple('BackupDevice', ['mount', 'backup_type'])
+BackupDevice = namedtuple('BackupDevice', 'mount, backup_type')
 
+
+def nth(iterable, n, default=None):
+    "Returns the nth item or a default value"
+
+    return next(itertools.islice(iterable, n, None), default)
 
 class BackupDeviceCollection:
     r"""
@@ -908,63 +914,71 @@ class BackupDeviceCollection:
     Photos can be backed up to one location, and videos to another; or
     they can be backed up to the same location.
 
+    If a BackupDevice's mount is None, then it is assumed to be
+    a manually specified path.
+
     >>> b = BackupDeviceCollection()
     >>> len(b)
     0
     >>> p = BackupDevice(mount=None, backup_type=BackupLocationType.photos)
+    >>> p2 = BackupDevice(mount=None, backup_type=BackupLocationType.photos)
     >>> v = BackupDevice(mount=None, backup_type=BackupLocationType.videos)
     >>> pv = BackupDevice(mount=None,
     ...                   backup_type=BackupLocationType.photos_and_videos)
     >>> pv2 = BackupDevice(mount=None,
     ...                   backup_type=BackupLocationType.photos_and_videos)
-    >>> b['/some/path'] = p
+    >>> b['/some/photo/path'] = p
     >>> b
-    {'/some/path':None <BackupLocationType.photos: 1> 0}
-    >>> b.device_id('/some/path')
+    {'/some/photo/path':None <BackupLocationType.photos: 1> 0}
+    >>> b.device_id('/some/photo/path')
     0
-    >>> b['/some/other/path'] = v
+    >>> b['/some/other/photo/path'] = p2
+    >>> del b['/some/other/photo/path']
+    >>> b['/some/video/path'] = v
     >>> len(b)
     2
-    >>> b.device_id('/some/other/path')
-    1
+    >>> b.device_id('/some/video/path')
+    2
     >>> b.device_id('/unknown/path')
     >>>
-    >>> '/some/path' in b
+    >>> '/some/photo/path' in b
     True
-    >>> b['/some/path']
+    >>> b['/some/photo/path']
     BackupDevice(mount=None, backup_type=<BackupLocationType.photos: 1>)
-    >>> b.no_photo_backup_devices
+    >>> len(b.photo_backup_devices)
     1
-    >>> b.no_video_backup_devices
+    >>> len(b.video_backup_devices)
     1
-    >>> b['/yet/another/path'] = pv
-    >>> b.no_photo_backup_devices
+    >>> b['/some/photo/video/path'] = pv
+    >>> len(b.photo_backup_devices)
     2
-    >>> b.no_video_backup_devices
+    >>> len(b.video_backup_devices)
     2
-    >>> del b['/some/path']
-    >>> b.no_photo_backup_devices
+    >>> del b['/some/photo/path']
+    >>> len(b.photo_backup_devices)
     1
-    >>> b.no_video_backup_devices
+    >>> len(b.video_backup_devices)
     2
-    >>> b['/some/other/path'] = pv2
-    >>> b.no_photo_backup_devices
+    >>> b['/some/video/path'] = pv2
+    >>> len(b.photo_backup_devices)
     2
-    >>> b.no_video_backup_devices
+    >>> len(b.video_backup_devices)
     2
-    >>> del b['/some/other/path']
-    >>> del b['/yet/another/path']
+    >>> del b['/some/video/path']
+    >>> del b['/some/photo/video/path']
     >>> len(b)
     0
-    >>> b.no_photo_backup_devices
+    >>> len(b.photo_backup_devices)
     0
-    >>> b.no_video_backup_devices
+    >>> len(b.video_backup_devices)
     0
     """
-    def __init__(self):
+    def __init__(self, rapidApp=None):
+        self.rapidApp = rapidApp
         self.devices = {}  # type: Dict[str, BackupDevice]
-        self.no_photo_backup_devices = 0
-        self.no_video_backup_devices = 0
+        self.photo_backup_devices = set()  # type: Set[str]
+        self.video_backup_devices = set()  # type: Set[str]
+
         self._device_ids = {}
         self._device_id = 0
 
@@ -975,10 +989,10 @@ class BackupDeviceCollection:
         backup_type = device.backup_type
         if backup_type in [BackupLocationType.photos,
                            BackupLocationType.photos_and_videos]:
-            self.no_photo_backup_devices += 1
+            self.photo_backup_devices.add(path)
         if backup_type in [BackupLocationType.videos,
                            BackupLocationType.photos_and_videos]:
-            self.no_video_backup_devices += 1
+            self.video_backup_devices.add(path)
         self._device_ids[path] = self._device_id
         self._device_id += 1
 
@@ -987,12 +1001,10 @@ class BackupDeviceCollection:
         backup_type = self.devices[path].backup_type
         if backup_type in [BackupLocationType.photos,
                            BackupLocationType.photos_and_videos]:
-            self.no_photo_backup_devices -= 1
+            self.photo_backup_devices.remove(path)
         if backup_type in [BackupLocationType.videos,
                                    BackupLocationType.photos_and_videos]:
-            self.no_video_backup_devices -= 1
-        assert self.no_video_backup_devices >= 0
-        assert self.no_photo_backup_devices >= 0
+            self.video_backup_devices.remove(path)
         del self.devices[path]
         del self._device_ids[path]
 
@@ -1016,7 +1028,7 @@ class BackupDeviceCollection:
     def __iter__(self):
         return iter(self.devices)
 
-    def device_id(self, path: str) -> int:
+    def device_id(self, path: str) -> Optional[int]:
         if path in self:
             return self._device_ids[path]
         return None
@@ -1038,8 +1050,8 @@ class BackupDeviceCollection:
         :return: True if more than one backup device is being used for
         the file type
         """
-        return ((file_type == FileType.photo and self.no_photo_backup_devices > 1) or
-                (file_type == FileType.video and self.no_video_backup_devices > 1))
+        return ((file_type == FileType.photo and len(self.photo_backup_devices) > 1) or
+                (file_type == FileType.video and len(self.video_backup_devices) > 1))
 
     def backup_possible(self, file_type: FileType) -> bool:
         """
@@ -1049,9 +1061,72 @@ class BackupDeviceCollection:
         the file type
         """
         if file_type == FileType.photo:
-            return self.no_photo_backup_devices > 0
+            return len(self.photo_backup_devices) > 0
         elif file_type == FileType.video:
-            return self.no_video_backup_devices > 0
+            return len(self.video_backup_devices) > 0
         else:
             logging.critical("Unrecognized file type when determining if backup is possible")
 
+    def _add_identifier(self, path: Optional[str], file_type: FileType) -> Optional[str]:
+        if path is None:
+            return None
+        if file_type == FileType.photo:
+            return os.path.join(path, self.rapidApp.prefs.photo_backup_identifier)
+        else:
+            return os.path.join(path, self.rapidApp.prefs.video_backup_identifier)
+
+    def sample_device_paths(self) -> List[str]:
+        """
+        Return a sample of up to three paths on detected backup devices.
+
+        Includes the folder identifier (specified in the user prefs)
+        used to identify the backup drive.
+
+        Illustrates backup destinations for each of photo, video, such
+        that:
+        - If photos are being backed up to a device, show it.
+        - If videos are being backed up to a device, show it.
+        - If photos and videos are being backed up to the same device,
+          show it.
+        But don't be too verbose: don't unnecessarily repeat the
+        illustrated path.
+
+        :return: sorted list of the paths
+        """
+
+        both_types = self.photo_backup_devices & self.video_backup_devices
+        photo_only = self.photo_backup_devices - both_types
+        video_only = self.video_backup_devices - both_types
+
+        photo0 = nth(iter(photo_only), 0)
+        video0 = nth(iter(video_only), 0)
+        both0, both1 = tuple(itertools.chain(itertools.islice(both_types, 2),
+                                                           itertools.repeat(None, 2)))[:2]
+
+        photo0id, photo1id, photo2id = (self._add_identifier(path, FileType.photo)
+                                        for path in (photo0, both0, both1))
+        video0id, video1id, video2id = (self._add_identifier(path, FileType.video)
+                                        for path in (video0, both0, both1))
+
+        paths = [path for path in (photo0id, video0id, photo1id, video1id, photo2id, video2id)
+                 if path is not None][:3]
+
+        if len(paths) < 3:
+
+            unused_photo = self.photo_backup_devices - {path for path in (photo0, both0, both1)
+                                                        if path is not None}
+            unused_video =  self.video_backup_devices - {path for path in (video0, both0, both1)
+                                                         if path is not None}
+            photo1, photo2 = tuple(itertools.chain(itertools.islice(unused_photo, 2),
+                                                               itertools.repeat(None, 2)))[:2]
+            video1, video2 =  tuple(itertools.chain(itertools.islice(unused_video, 2),
+                                                               itertools.repeat(None, 2)))[:2]
+            photo3id, photo4id = (self._add_identifier(path, FileType.photo)
+                                        for path in (photo1, photo2))
+            video3id, video4id = (self._add_identifier(path, FileType.video)
+                                        for path in (video1, video2))
+
+            paths += [path for path in (photo3id, video3id, photo4id, video4id)
+                      if path is not None][:3 - len(paths)]
+
+        return sorted(paths)
