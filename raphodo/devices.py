@@ -1028,6 +1028,9 @@ class BackupDeviceCollection:
     def __iter__(self):
         return iter(self.devices)
 
+    def all_paths(self) -> List[str]:
+        return list(self.devices.keys())
+
     def device_id(self, path: str) -> Optional[int]:
         if path in self:
             return self._device_ids[path]
@@ -1087,13 +1090,12 @@ class BackupDeviceCollection:
         - If photos are being backed up to a device, show it.
         - If videos are being backed up to a device, show it.
         - If photos and videos are being backed up to the same device,
-          show it.
-        But don't be too verbose: don't unnecessarily repeat the
-        illustrated path.
+          show that they are.
 
         :return: sorted list of the paths
         """
 
+        # Prioritize display of drives that are backing up only one type
         both_types = self.photo_backup_devices & self.video_backup_devices
         photo_only = self.photo_backup_devices - both_types
         video_only = self.video_backup_devices - both_types
@@ -1103,6 +1105,7 @@ class BackupDeviceCollection:
         both0, both1 = tuple(itertools.chain(itertools.islice(both_types, 2),
                                                            itertools.repeat(None, 2)))[:2]
 
+        # Add the identifier specified in the user's prefs
         photo0id, photo1id, photo2id = (self._add_identifier(path, FileType.photo)
                                         for path in (photo0, both0, both1))
         video0id, video1id, video2id = (self._add_identifier(path, FileType.video)

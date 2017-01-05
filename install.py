@@ -310,7 +310,7 @@ def query_uninstall() -> bool:
 def uninstall_old_version(distro: Distro) -> None:
     pkg_name = 'rapid-photo-downloader'
 
-    if distro == Distro.debian or distro == Distro.ubuntu:
+    if distro in (Distro.debian, Distro.ubuntu):
         cache = apt.Cache()
         pkg = cache[pkg_name]
         if pkg.is_installed and query_uninstall():
@@ -333,8 +333,6 @@ def uninstall_old_version(distro: Distro) -> None:
 
 def main(installer: str, distro: Distro, distro_version: float) -> None:
 
-
-
     check_package_import_requirements(distro, distro_version)
 
     name = os.path.basename(installer)
@@ -349,7 +347,7 @@ def main(installer: str, distro: Distro, distro_version: float) -> None:
                 temp_requirements_name = temp_requirements.name
 
     print("\nInstalling application requirements")
-    i = pip.main(['install', '--user', '-r' ,temp_requirements.name])
+    i = pip.main(['install', '--user', '-r',temp_requirements.name])
     os.remove(temp_requirements_name)
     if i != 0:
         sys.stderr.write("Failed to install application requirements: exiting\n")

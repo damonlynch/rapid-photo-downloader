@@ -2438,10 +2438,7 @@ class RapidWindow(QMainWindow):
         """
         if not self.devices.downloading:
             if self.prefs.backup_files:
-                if self.download_tracker.all_files_backed_up():
-                    return False
-                else:
-                    return True
+                return not self.download_tracker.all_files_backed_up()
             else:
                 return False
         else:
@@ -4254,9 +4251,7 @@ class RapidWindow(QMainWindow):
             self.removeDevice(scan_id=scan_id)
 
         elif path in self.backup_devices:
-            device_id = self.backup_devices.device_id(path)
-            self.backupmq.remove_device(device_id)
-            del self.backup_devices[path]
+            self.removeBackupDevice(path)
             self.displayMessageInStatusBar()
             self.download_tracker.set_no_backup_devices(
                 len(self.backup_devices.photo_backup_devices),
@@ -4436,6 +4431,11 @@ class RapidWindow(QMainWindow):
             len(self.backup_devices.photo_backup_devices),
             len(self.backup_devices.video_backup_devices))
 
+    def removeBackupDevice(self, path: str) -> None:
+        device_id = self.backup_devices.device_id(path)
+        self.backupmq.remove_device(device_id)
+        del self.backup_devices[path]
+
     def resetupBackupDevices(self) -> None:
         """
         Change backup preferences in response to preference change.
@@ -4443,7 +4443,20 @@ class RapidWindow(QMainWindow):
         Assumes backups may have already been setup.
         """
 
-        #TODO implement
+        try:
+            assert not self.downloadIsRunning()
+        except AssertionError:
+            logging.critical("Backup devices should never be reset when a download is occurring")
+            return
+
+        logging.info("Resetting backup devices configuration...")
+        # Clear all existing backup devices
+        for path in self.backup_devices.all_paths():
+            self.removeBackupDevice(path)
+        self.download_tracker.set_no_backup_devices(0, 0)
+
+        self.setupBackupDevices()
+        logging.info("...backup devices configuration is reset")
 
 
     def setupNonCameraDevices(self, on_startup: bool=False) -> None:
