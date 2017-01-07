@@ -1,4 +1,4 @@
-# Copyright (C) 2015-2016 Damon Lynch <damonlynch@gmail.com>
+# Copyright (C) 2015-2017 Damon Lynch <damonlynch@gmail.com>
 
 # This file is part of Rapid Photo Downloader.
 #
@@ -21,7 +21,7 @@ Handle Job Code entry.
 """
 
 __author__ = 'Damon Lynch'
-__copyright__ = "Copyright 2015-2016, Damon Lynch"
+__copyright__ = "Copyright 2015-2017, Damon Lynch"
 
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtWidgets import QDialog, QLabel, QComboBox, QCheckBox, QDialogButtonBox, QGridLayout
@@ -57,7 +57,7 @@ class JobCodeDialog(QDialog):
         buttonBox.rejected.connect(self.reject)
 
     @pyqtSlot()
-    def accept(self):
+    def accept(self) -> None:
         self.job_code = self.jobCodeComboBox.currentText()
         self.remember = self.rememberCheckBox.isChecked()
         self.rapidApp.prefs.remember_job_code = self.remember
@@ -65,13 +65,16 @@ class JobCodeDialog(QDialog):
 
 
 class JobCode:
-    def __init__(self, parent):
+    def __init__(self, parent) -> None:
         self.rapidApp = parent
         self.job_code = ''
-        self.need_job_code_for_naming = parent.prefs.any_pref_uses_job_code()
         self.prompting_for_job_code = False
 
-    def get_job_code(self):
+    @property
+    def need_job_code_for_naming(self) -> bool:
+        return self.rapidApp.prefs.any_pref_uses_job_code()
+
+    def get_job_code(self) -> None:
         if not self.prompting_for_job_code:
             self.prompting_for_job_code = True
             dialog = JobCodeDialog(self.rapidApp,
@@ -96,5 +99,5 @@ class JobCode:
     def need_to_prompt_on_auto_start(self):
         return not self.job_code and self.need_job_code_for_naming
 
-    def need_to_prompt(self):
+    def need_to_prompt(self) -> bool:
         return self.need_job_code_for_naming and not self.prompting_for_job_code
