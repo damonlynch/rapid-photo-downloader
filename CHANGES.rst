@@ -6,6 +6,9 @@ Changelog for Rapid Photo Downloader
 
  - Added backup configuration to the user interface.
 
+ - Prompt for Job Code when file and folder naming preferences are changed to
+   include it. Thanks to Monty Taylor for the fix.
+
  - Disallow the running of the program as the root user.
 
  - Updated program installer to stop installation on Fedora 23 and Debian Jessie.

@@ -5165,6 +5165,19 @@ def import_prefs() -> None:
                 prefs.stored_sequence_no = new_value
 def main():
 
+    if sys.platform.startswith('linux') and os.getuid() == 0:
+        sys.stderr.write("Never run this program as the sudo / root user.\n")
+        errorapp = QApplication(sys.argv)
+        msg = QMessageBox()
+        msg.setWindowTitle(_("Rapid Photo Downloader"))
+        msg.setIconPixmap(QPixmap(':/rapid-photo-downloader.svg'))
+        msg.setText(_("<b>Never run this program as the sudo / root user.</b>"))
+        msg.setInformativeText(_('Program aborting.'))
+        msg.setStandardButtons(QMessageBox.Ok)
+        msg.show()
+        errorapp.exec_()
+        sys.exit(1)
+
     parser = parser_options()
 
     args = parser.parse_args()
@@ -5351,12 +5364,7 @@ def main():
     app.setOrganizationName("Rapid Photo Downloader")
     app.setOrganizationDomain("damonlynch.net")
     app.setApplicationName("Rapid Photo Downloader")
-    app.setWindowIcon(QtGui.QIcon(':/rapid-photo-downloader.svg'))
-
-    if os.getuid() == 0:
-        sys.stderr.write("Never run this program as the sudo / root user.\n")
-        sys.exit(1)
-
+    app.setWindowIcon(QIcon(':/rapid-photo-downloader.svg'))
 
     # darkFusion(app)
     # app.setStyle('Fusion')

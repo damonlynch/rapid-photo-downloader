@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
-"POT-Creation-Date: 2017-01-07 16:13-0600\n"
+"POT-Creation-Date: 2017-01-07 17:06-0600\n"
 "PO-Revision-Date: 2014-03-06 21:26+0000\n"
 "Last-Translator: Joachim Johansson <Unknown>\n"
 "Language-Team: Swedish <sv@li.org>\n"
@@ -85,13 +85,13 @@ msgid "Probing device..."
 msgstr ""
 
 #: ../raphodo/devicedisplay.py:992 ../raphodo/rapid.py:1667
-#: ../raphodo/rapid.py:1844 ../raphodo/rapid.py:5178
+#: ../raphodo/rapid.py:1844 ../raphodo/rapid.py:5191
 #, fuzzy
 msgid "Photos"
 msgstr "Bilder:"
 
 #: ../raphodo/devicedisplay.py:993 ../raphodo/rapid.py:1670
-#: ../raphodo/rapid.py:1845 ../raphodo/rapid.py:5179
+#: ../raphodo/rapid.py:1845 ../raphodo/rapid.py:5192
 #, fuzzy
 msgid "Videos"
 msgstr "Filmer:"
@@ -1263,7 +1263,7 @@ msgstr ""
 #: ../raphodo/rapid.py:650 ../raphodo/rapid.py:2160 ../raphodo/rapid.py:3335
 #: ../raphodo/rapid.py:3453 ../raphodo/rapid.py:3457 ../raphodo/rapid.py:3477
 #: ../raphodo/rapid.py:3481 ../raphodo/rapid.py:3622 ../raphodo/rapid.py:3631
-#: ../raphodo/rapid.py:4037 ../raphodo/rapid.py:4387
+#: ../raphodo/rapid.py:4037 ../raphodo/rapid.py:4387 ../raphodo/rapid.py:5172
 #: ../data/rapid-photo-downloader.desktop.in.h:3
 msgid "Rapid Photo Downloader"
 msgstr "Rapid Photo Downloader"
@@ -1961,17 +1961,25 @@ msgstr ""
 msgid "Do you want to copy the stored sequence number, which has the value %d?"
 msgstr ""
 
-#: ../raphodo/rapid.py:5373
+#: ../raphodo/rapid.py:5174
+msgid "<b>Never run this program as the sudo / root user.</b>"
+msgstr ""
+
+#: ../raphodo/rapid.py:5175
+msgid "Program aborting."
+msgstr ""
+
+#: ../raphodo/rapid.py:5381
 #, fuzzy
 msgid "All settings and caches have been reset"
 msgstr "Alla inställningar har nollställts"
 
-#: ../raphodo/rapid.py:5381
+#: ../raphodo/rapid.py:5389
 #, fuzzy
 msgid "Thumbnail Cache has been reset"
 msgstr "Kunde inte skapa miniatyr"
 
-#: ../raphodo/rapid.py:5387
+#: ../raphodo/rapid.py:5395
 msgid "Remembered files have been forgotten"
 msgstr ""
 

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: rapid\n"
 "Report-Msgid-Bugs-To: damonlynch@gmail.com\n"
-"POT-Creation-Date: 2017-01-07 16:13-0600\n"
+"POT-Creation-Date: 2017-01-07 17:06-0600\n"
 "PO-Revision-Date: 2014-05-30 06:48+0000\n"
 "Last-Translator: Kevin Brubeck Unhammer <Unknown>\n"
 "Language-Team: Norwegian Nynorsk <nn@li.org>\n"
@@ -85,13 +85,13 @@ msgid "Probing device..."
 msgstr ""
 
 #: ../raphodo/devicedisplay.py:992 ../raphodo/rapid.py:1667
-#: ../raphodo/rapid.py:1844 ../raphodo/rapid.py:5178
+#: ../raphodo/rapid.py:1844 ../raphodo/rapid.py:5191
 #, fuzzy
 msgid "Photos"
 msgstr "Bilete:"
 
 #: ../raphodo/devicedisplay.py:993 ../raphodo/rapid.py:1670
-#: ../raphodo/rapid.py:1845 ../raphodo/rapid.py:5179
+#: ../raphodo/rapid.py:1845 ../raphodo/rapid.py:5192
 #, fuzzy
 msgid "Videos"
 msgstr "Videoar:"
@@ -1265,7 +1265,7 @@ msgstr ""
 #: ../raphodo/rapid.py:650 ../raphodo/rapid.py:2160 ../raphodo/rapid.py:3335
 #: ../raphodo/rapid.py:3453 ../raphodo/rapid.py:3457 ../raphodo/rapid.py:3477
 #: ../raphodo/rapid.py:3481 ../raphodo/rapid.py:3622 ../raphodo/rapid.py:3631
-#: ../raphodo/rapid.py:4037 ../raphodo/rapid.py:4387
+#: ../raphodo/rapid.py:4037 ../raphodo/rapid.py:4387 ../raphodo/rapid.py:5172
 #: ../data/rapid-photo-downloader.desktop.in.h:3
 msgid "Rapid Photo Downloader"
 msgstr "Rapid Photo Downloader"
@@ -1963,16 +1963,24 @@ msgstr ""
 msgid "Do you want to copy the stored sequence number, which has the value %d?"
 msgstr ""
 
-#: ../raphodo/rapid.py:5373
+#: ../raphodo/rapid.py:5174
+msgid "<b>Never run this program as the sudo / root user.</b>"
+msgstr ""
+
+#: ../raphodo/rapid.py:5175
+msgid "Program aborting."
+msgstr ""
+
+#: ../raphodo/rapid.py:5381
 #, fuzzy
 msgid "All settings and caches have been reset"
 msgstr "Alle innstillingar er nullstilte"
 
-#: ../raphodo/rapid.py:5381
+#: ../raphodo/rapid.py:5389
 msgid "Thumbnail Cache has been reset"
 msgstr ""
 
-#: ../raphodo/rapid.py:5387
+#: ../raphodo/rapid.py:5395
 msgid "Remembered files have been forgotten"
 msgstr ""
 
