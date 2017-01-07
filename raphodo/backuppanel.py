@@ -287,6 +287,10 @@ class BackupPanel(QScrollArea):
 
         self.setFrameShape(QFrame.NoFrame)
 
+        self.backupStoragePanel = QPanelView(label=_('Backup Destinations'),
+                                       headerColor=QColor(ThumbnailBackgroundName),
+                                       headerFontColor=QColor(Qt.white))
+
         self.backupOptionsPanel = QPanelView(label=_('Backup Options'),
                                        headerColor=QColor(ThumbnailBackgroundName),
                                        headerFontColor=QColor(Qt.white))
@@ -299,6 +303,7 @@ class BackupPanel(QScrollArea):
         layout = QVBoxLayout()
         layout.setContentsMargins(0, 0, 0, 0)
         widget.setLayout(layout)
+        # layout.addWidget(self.backupStoragePanel)
         layout.addWidget(self.backupOptionsPanel)
         self.setWidget(widget)
         self.setWidgetResizable(True)

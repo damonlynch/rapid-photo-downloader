@@ -474,6 +474,7 @@ class EmulatedHeaderRow(QWidget):
         painter.drawText(rect, Qt.AlignLeft | Qt.AlignVCenter, self.select_text)
         painter.end()
 
+
 class DeviceDisplay:
     """
     Graphically render the storage space, and photos and videos that
@@ -552,7 +553,7 @@ class DeviceDisplay:
         Render the header portion, which contains the device / folder name, icon, and
         for download sources, a spinner or checkbox.
 
-        If need present, draw a pixmap for for a drop-down menu.
+        If needed, draw a pixmap for for a drop-down menu.
         """
 
         painter.setRenderHint(QPainter.Antialiasing, True)

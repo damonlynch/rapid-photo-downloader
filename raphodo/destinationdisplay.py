@@ -63,8 +63,8 @@ class DestinationDisplay(QWidget):
     2. Display the download destination (path), and a local menu to control subfolder
        generation.
 
-    Where photos and videos are being downloaded the same file system, the storage space display
-    is combined into one widget, which appears in it's own panel above the photo and video
+    Where photos and videos are being downloaded to the same file system, the storage space display
+    is combined into one widget, which appears in its own panel above the photo and video
     destination panels.
 
     Where photos and videos are being downloaded to different file systems, the combined
