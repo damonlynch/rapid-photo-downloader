@@ -68,8 +68,11 @@ class JobCode:
     def __init__(self, parent):
         self.rapidApp = parent
         self.job_code = ''
-        self.need_job_code_for_naming = parent.prefs.any_pref_uses_job_code()
         self.prompting_for_job_code = False
+
+    @property
+    def need_job_code_for_naming(self):
+        return self.rapidApp.prefs.any_pref_uses_job_code()
 
     def get_job_code(self):
         if not self.prompting_for_job_code:
