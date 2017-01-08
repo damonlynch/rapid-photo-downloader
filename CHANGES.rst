@@ -11,17 +11,21 @@ Changelog for Rapid Photo Downloader
 
  - Disallow the running of the program as the root user.
 
- - Updated program installer to stop installation on Fedora 23 and Debian Jessie.
+ - Updated program installer to stop installation on Fedora 23 and Debian
+   Jessie.
 
- - Corrected error in Spanish translation that caused crash when download started.
+ - Corrected error in Spanish translation that caused crash when download
+   started.
 
- - Refined detection of directory in which media are mounted (/media or /run/media).
+ - Refined detection of directory in which media are mounted (/media or
+   /run/media).
 
 0.9.0a6 (2016-12-10)
 --------------------
 
- - Modified installation script to fix installation problems on Fedora 25 and LinuxMint 18.
-   In all other respects the release is identical to version 0.9.0a5.
+ - Modified installation script to fix installation problems on Fedora 25 and
+   LinuxMint 18. In all other respects the release is identical to version
+   0.9.0a5.
 
 0.9.0a5 (2016-11-14)
 --------------------
@@ -38,71 +42,75 @@ Changelog for Rapid Photo Downloader
 
  - Added tooltip to clarify meaning of storage space usage.
 
- - Added g++ to list of installation dependencies when installing on Debian derived
-   distributions.
+ - Added g++ to list of installation dependencies when installing on Debian
+   derived distributions.
 
- - Only enable right-click menu option 'Open in File Browser...' when default file
-   manager is known.
+ - Only enable right-click menu option 'Open in File Browser...' when default
+   file manager is known.
 
- - Handle use case where the path from which to download is passed on the command line
-   without a command line switch, such as when Gnome launches the program in response
-   to a device like a memory card containing photos being inserted.
+ - Handle use case where the path from which to download is passed on the
+   command line without a command line switch, such as when Gnome launches the 
+   program in response to a device like a memory card containing photos being 
+   inserted.
 
- - Fixed bug where volumes where not correctly added to device white and blacklists.
+ - Fixed bug where volumes where not correctly added to device white and 
+   blacklists.
 
- - Fixed bug where download conflict resolution preference value was being incorrectly
-   set when importing preferences from version 0.4.11 or earlier.
+ - Fixed bug where download conflict resolution preference value was being
+   incorrectly set when importing preferences from version 0.4.11 or earlier.
 
- - Fixed bug where generating thumbnails for backed up files caused the backup process
-   to crash.
+ - Fixed bug where generating thumbnails for backed up files caused the backup 
+   process to crash.
 
- - Fixed crash where the library libmediainfo is not installed but the python package
-   pymediainfo is.
+ - Fixed crash where the library libmediainfo is not installed but the python 
+   package pymediainfo is.
 
- - Fixed generation of error message when there is an error copying file to a backup
-   destination.
+ - Fixed generation of error message when there is an error copying file to a 
+   backup destination.
 
- - Fixed crash at startup bug when the Pictures or Videos XDG special directory was
-   not set.
+ - Fixed crash at startup bug when the Pictures or Videos XDG special directory 
+   was not set.
 
  - Fixed bug when selecting custom subfolder name generation preset from menu.
 
  - Fixed bug where ExifTool daemon processes were not always being terminated.
 
- - Added minimum size in bytes to read a variety of RAW and video metadata tags to
-   analyze-pv-structure analysis.
+ - Added minimum size in bytes to read a variety of RAW and video metadata tags 
+   to analyze-pv-structure analysis.
 
- - Fixed bug where QFileSystemWatcher.removePaths() could be called with an empty
-   directory list.
+ - Fixed bug where QFileSystemWatcher.removePaths() could be called with an 
+   empty directory list.
 
  - Fixed crash when cleaning generated video subfolder previews at program exit.
 
- - Updated Spanish translation, courtesy of Jose Luis Tirado. Also updated Catalan,
-   Chinese, Croatian, Czech, French, German, Polish and Serbian translations.
+ - Updated Spanish translation, courtesy of Jose Luis Tirado. Also updated 
+   Catalan, Chinese, Croatian, Czech, French, German, Polish and Serbian 
+   translations.
 
 0.9.0a4 (2016-06-22)
 --------------------
 
  - Implemented photo and video subfolder generation preference configuration.
 
- - Fixed bug where translation of user interface into non-English languages was not
-   occurring.
+ - Fixed bug where translation of user interface into non-English languages was
+   not occurring.
 
  - Fixed bug where input/output exception not being handled when probing mounts.
 
- - Fixed bug where crashed on startup when no desktop environment variable was set.
+ - Fixed bug where crashed on startup when no desktop environment variable was 
+   set.
 
- - Fixed bug where crashed on startup when attempting to import the broken Python
-   package EasyGui 0.98.
+ - Fixed bug where crashed on startup when attempting to import the broken 
+   Python package EasyGui 0.98.
 
 0.9.0a3 (2016-05-27)
 --------------------
 
  - Selecting items in the Timeline or showing only new files can result in
    situations where there are files that have been checked for download that are
-   not currently being displayed. In such a situation, when a download is started,
-   a dialog will be displayed to warn that *all* checked files will be downloaded,
-   not merely those currently displayed.
+   not currently being displayed. In such a situation, when a download is 
+   started, a dialog will be displayed to warn that *all* checked files will be 
+   downloaded, not merely those currently displayed.
 
  - Changed heading of destination storage space to show projected bytes free
    instead of percent used.
@@ -133,8 +141,8 @@ Changelog for Rapid Photo Downloader
  - Fixed bug where stored sequence number was not being correctly used when
    renaming files.
 
- - Fixed bug where download would crash on Python 3.4 systems due to use of Python
-   3.5 only math.inf
+ - Fixed bug where download would crash on Python 3.4 systems due to use of 
+   Python 3.5 only math.inf
 
 0.9.0a1 (2016-05-14)
 --------------------
@@ -147,10 +155,10 @@ Changelog for Rapid Photo Downloader
      including smartphones. Unfortunately the previous version could download
      from only some cameras.
 
-   - Files that have already been downloaded are remembered. You can still select
-     previously downloaded files to download again, but they are unchecked by
-     default, and their thumbnails are dimmed so you can differentiate them
-     from files that are yet to be downloaded.
+   - Files that have already been downloaded are remembered. You can still
+     select previously downloaded files to download again, but they are
+     unchecked by default, and their thumbnails are dimmed so you can 
+     differentiate them from files that are yet to be downloaded.
 
    - The thumbnails for previously downloaded files can be hidden.
 
@@ -193,23 +201,23 @@ Changelog for Rapid Photo Downloader
      (Unfortunately generating thumbnails for a smartphone's photos is painfully
      slow. Unlike photos produced by cameras, smartphone photos do not contain
      embedded preview images, which means the entire photo must be downloaded
-     and cached for its thumbnail to be generated. Although Rapid Photo Downloader
-     does this for you, nothing can be done to speed it up).
+     and cached for its thumbnail to be generated. Although Rapid Photo 
+     Downloader does this for you, nothing can be done to speed it up).
 
    - Thumbnails generated when a device is scanned are cached, making thumbnail
      generation quicker on subsequent scans.
 
-   - Libraw is used to render RAW images from which a preview cannot be extracted,
-     which is the case with Android DNG files, for instance.
+   - Libraw is used to render RAW images from which a preview cannot be 
+     extracted, which is the case with Android DNG files, for instance.
 
    - Freedesktop.org thumbnails for RAW and TIFF photos are generated once they
-     have been downloaded, which means they will have thumbnails in programs like
-     Gnome Files, Nemo, Caja, Thunar, PCManFM and Dolphin. If the path files are being
-     downloaded to contains symbolic links, a thumbnail will be created for the
-     path with and without the links. While generating these thumbnails does slow the
-     download process a little, it's a worthwhile tradeoff because Linux desktops
-     typically do not generate thumbnails for RAW images, and thumbnails only for
-     small TIFFs.
+     have been downloaded, which means they will have thumbnails in programs
+     like Gnome Files, Nemo, Caja, Thunar, PCManFM and Dolphin. If the path 
+     files are being downloaded to contains symbolic links, a thumbnail will be 
+     created for the path with and without the links. While generating these 
+     thumbnails does slow the download process a little, it's a worthwhile
+     tradeoff because Linux desktops typically do not generate thumbnails for 
+     RAW images, and thumbnails only for small TIFFs.
 
    - The program can now handle hundreds of thousands of files at a time.
      
@@ -219,8 +227,8 @@ Changelog for Rapid Photo Downloader
    - Right click on thumbnails to open the file in a file browser or copy the
      path.
      
-   - When downloading from a camera with dual memory cards, an emblem beneath the
-     thumbnail indicates which memory cards the photo or video is on
+   - When downloading from a camera with dual memory cards, an emblem beneath
+     the thumbnail indicates which memory cards the photo or video is on
 
    - Audio files that accompany photos on professional cameras like the Canon
      EOS-1D series of cameras are now also downloaded. XMP files associated with
@@ -230,22 +238,23 @@ Changelog for Rapid Photo Downloader
      program problems in bug reports. Messages optionally logged to a
      terminal window are displayed in color.
 
-   - When running under Ubuntu's Unity desktop, a progress bar and count of files
-     available for download is displayed on the program's launcher.
+   - When running under Ubuntu's Unity desktop, a progress bar and count of 
+     files available for download is displayed on the program's launcher.
 
    - Status bar messages have been significantly revamped.
 
-   - Determining a video's  correct creation date and time has  been improved, using a
-     combination of the tools MediaInfo and ExifTool. Getting the right date and time
-     is trickier than it might appear. Depending on the video file and the camera that
-     produced it, neither MediaInfo nor ExifTool always give the correct result.
-     Moreover some cameras always use the UTC time zone when recording the creation
-     date and time in the video's metadata, whereas other cameras use the time zone
-     the video was created in, while others ignore time zones altogether.
+   - Determining a video's  correct creation date and time has  been improved,
+     using a combination of the tools MediaInfo and ExifTool. Getting the right 
+     date and time is trickier than it might appear. Depending on the video file
+     and the camera that produced it, neither MediaInfo nor ExifTool always give
+     the correct result. Moreover some cameras always use the UTC time zone when
+     recording the creation date and time in the video's metadata, whereas other
+     cameras use the time zone the video was created in, while others ignore
+     time zones altogether.
 
-   - The time remaining until a download is complete (which is shown in the status
-     bar) is more stable and more accurate. The algorithm is modelled on that
-     used by Mozilla Firefox.
+   - The time remaining until a download is complete (which is shown in the 
+     status bar) is more stable and more accurate. The algorithm is modelled on 
+     that used by Mozilla Firefox.
 
    - The installer has been totally rewritten to take advantage of Python's
      tool pip, which installs Python packages. Rapid Photo Downloader can now
@@ -262,8 +271,9 @@ Changelog for Rapid Photo Downloader
    - Rotate Jpeg images - to apply lossless rotation, this feature requires the
      program jpegtran. Some users reported jpegtran corrupted their jpegs' 
      metadata -- which is bad under any circumstances, but terrible when applied
-     to the only copy of a file. To preserve file integrity under all circumstances,
-     unfortunately the rotate jpeg option must therefore be removed.
+     to the only copy of a file. To preserve file integrity under all 
+     circumstances, unfortunately the rotate jpeg option must therefore be 
+     removed.
    
  - Under the hood, the code now uses:
 
@@ -344,11 +354,11 @@ Changelog for Rapid Photo Downloader
 0.4.9b1 (2014-01-16)
 --------------------
 
- - Fixed bugs #1025908 and #1186955: Finalize fix for severe performance problems 
-   and crashes that arose from the combination of Gnome's GIO file functionality 
-   and python's multiprocessing. The solution was to remove GIO and replace it with
-   regular python file processing. A nice side effect is that the program now runs
-   faster than ever before.
+ - Fixed bugs #1025908 and #1186955: Finalize fix for severe performance 
+   problems and crashes that arose from the combination of Gnome's GIO file
+   functionality and python's multiprocessing. The solution was to remove GIO 
+   and replace it with regular python file processing. A nice side effect is 
+   that the program now runs faster than ever before.
    
  - Fixed bug #1268291: Handle cases where filesystem metadata (e.g. file 
    permissions) could not be copied when writing to certain file systems such as
@@ -358,8 +368,8 @@ Changelog for Rapid Photo Downloader
  - Fixed bug #1269032: When Sync RAW + JPEG sequence numbers is enabled, the 
    program fails to properly deal with photos with corrupt EXIF metadata.
    
- - Fixed bug #1269079: Download failure when folder exists for only one of photo or
-   video on auto detected back devices. 
+ - Fixed bug #1269079: Download failure when folder exists for only one of photo
+   or video on auto detected back devices. 
    
  - Updated Norwegian and Serbian translations.
 
@@ -369,9 +379,9 @@ Changelog for Rapid Photo Downloader
  - Fixed bug #1263237: Added support for MPO files (3D images). Thanks to Jan 
    Kaluza for reporting it.
    
- - Fixed bug #1263483: Some terms in the user interface are not being translated.
-   Thanks to Jose Luis Tirado for alerting me to the problem, which has probably 
-   existed for some time.
+ - Fixed bug #1263483: Some terms in the user interface are not being 
+   translated. Thanks to Jose Luis Tirado for alerting me to the problem, which 
+   has probably existed for some time.
    
  - Updated Dutch, French Italian, Polish and Spanish translations.
 
@@ -382,23 +392,23 @@ Changelog for Rapid Photo Downloader
    those created by the Canon 1D series of cameras.
    
  - Fixed bug #1242119: Choosing a new folder does not work in Ubuntu 13.10. In
-   Ubuntu 13.10, choosing a destination or source folder from its bookmark does not
-   work. The correct value is displayed in the file chooser button, but this value
-   is not used by Rapid Photo Downloader.
+   Ubuntu 13.10, choosing a destination or source folder from its bookmark does 
+   not work. The correct value is displayed in the file chooser button, but this
+   value is not used by Rapid Photo Downloader.
    
  - Fixed bug #1206853: Crashes when system message notifications not functioning
    properly.
    
- - Fixed bug #909405: Allow selections by row (and not GTK default by square) when
-   user is dragging the mouse or using the keyboard to select. Thank you to
+ - Fixed bug #909405: Allow selections by row (and not GTK default by square) 
+   when user is dragging the mouse or using the keyboard to select. Thank you to
    user 'Salukibob' for the patch.
    
- - Added a KDE Solid action. Solid is KDE4's hardware-related framework. It detects
-   when the user connects a new device and display a list of related actions.
-   Thanks to dju` for the patch.
+ - Added a KDE Solid action. Solid is KDE4's hardware-related framework. It 
+   detects when the user connects a new device and display a list of related 
+   actions. Thanks to dju` for the patch.
    
- - Added Belarusian translation -- thanks go to Ilya Tsimokhin. Updated Swedish and 
-   Ukrainian translations.
+ - Added Belarusian translation -- thanks go to Ilya Tsimokhin. Updated Swedish 
+   and Ukrainian translations.
 
 0.4.6 (2013-01-22)
 ------------------
@@ -415,10 +425,10 @@ Changelog for Rapid Photo Downloader
 --------------------
 
  - Fixed bug #1023586: Added RAW file support for Nikon NRW files. Rapid Photo
-   Downloader uses the exiv2 program to read a photo's metadata. Although the NRW
-   format is not officially supported by exiv2, it appears to work. If you have
-   NRW files and Rapid Photo Downloader crashes while reading this files, please 
-   file a bug report.
+   Downloader uses the exiv2 program to read a photo's metadata. Although the 
+   NRW format is not officially supported by exiv2, it appears to work. If you 
+   have NRW files and Rapid Photo Downloader crashes while reading this files, 
+   please file a bug report.
    
  - Preliminary and tentative fix for bug #1025908: Application freezes under
    Ubuntu 12.10. This fix should not be considered final, and needs further 
@@ -443,19 +453,20 @@ Changelog for Rapid Photo Downloader
 
  - To increase performance, thumbnails are now no longer displayed until all 
    devices have finished being scanned. To indicate the scan is occurring, the
-   progress bar now pulses and it displays a running total of the number of photos 
-   and videos found. If scanning a very large number of files from a fast device, 
-   the progress bar may pause. If this happens, just wait for the scan to complete.
+   progress bar now pulses and it displays a running total of the number of 
+   photos and videos found. If scanning a very large number of files from a fast
+   device, the progress bar may pause. If this happens, just wait for the scan 
+   to complete.
    
- - Fixed bug #1014203: Very poor program performance after download device changed.
-   The program now displays the results of scanning files much quicker if the
-   program's download device preferences are changed and a scan begins of a new
-   device. 
+ - Fixed bug #1014203: Very poor program performance after download device 
+   changed. The program now displays the results of scanning files much quicker 
+   if the program's download device preferences are changed and a scan begins of
+   a new device. 
    
- - You can now specify via the command line whether you would like to automatically
-   detect devices from which to download, or manually specify the path of the 
-   device. If specified, the option will overwrite the existing program 
-   preferences.
+ - You can now specify via the command line whether you would like to 
+   automatically detect devices from which to download, or manually specify the 
+   path of the device. If specified, the option will overwrite the existing 
+   program preferences.
    
  - Added extra information to debugging output.
    
@@ -469,15 +480,15 @@ Changelog for Rapid Photo Downloader
    subfolder generation and file renaming use a month in text format. Thanks
    Dmitry!
    
- - Fixed bug #986681: Crash when showing question dialog on some non-Gnome systems.
-   Thanks go to Liudas Ališauskas for the suggested fix.
+ - Fixed bug #986681: Crash when showing question dialog on some non-Gnome 
+   systems. Thanks go to Liudas Ališauskas for the suggested fix.
    
  - Fixed bug #995769: The Help button in the preferences dialog does not work.
    
  - Fixed bug #996613: Updated Free Software Foundation address.
    
- - Added Estonian translation. Updated Brazilian, Dutch, French, German, Norwegian 
-   Bokmal, Polish, Spanish and Russian translations.
+ - Added Estonian translation. Updated Brazilian, Dutch, French, German, 
+   Norwegian Bokmal, Polish, Spanish and Russian translations.
 
 0.4.3 (2012-01-07)
 ------------------
@@ -493,24 +504,24 @@ Changelog for Rapid Photo Downloader
    
  - Added a toolbar at the top of the main program window, which gives immediate
    access to the most commonly changed configuration options: where files will
-   be transferred from, whether they will be copied or moved, and where they will
-   be transferred to.
+   be transferred from, whether they will be copied or moved, and where they 
+   will be transferred to.
    
- - Please when the move option is chosen, all files in the download from a device
-   are first copied before any are deleted. In other words, only once all
+ - Please when the move option is chosen, all files in the download from a 
+   device are first copied before any are deleted. In other words, only once all
    source files have been successfully copied from a device to their destination
    are the source files deleted from that device.
    
  - Fixed bug #754531: extract Exif.CanonFi.FileNumber metadata -
    
- - Added FileNumber metadata renaming option, which is a Canon-specific Exif value
-   in the form xxx-yyyy, where xxx is the folder number and yyyy is the image
-   number. Uses ExifTool. Thanks go to Etieene Charlier for researching the fix
-   and contributing code to get it implemented.
+ - Added FileNumber metadata renaming option, which is a Canon-specific Exif 
+   value in the form xxx-yyyy, where xxx is the folder number and yyyy is the 
+   image number. Uses ExifTool. Thanks go to Etieene Charlier for researching 
+   the fix and contributing code to get it implemented.
    
  - Fixed bug #695517: Added functionality to download MTS video files. There is
-   currently no python based library to read metadata from MTS files, but ExifTool
-   works. 
+   currently no python based library to read metadata from MTS files, but 
+   ExifTool works. 
    
  - Fixed bug #859998: Download THM video thumbnail files -
    
@@ -525,13 +536,13 @@ Changelog for Rapid Photo Downloader
    downloaded. The program exiftran is used to do the rotation. The feature is
    turned on default. 
    
- - Fixed bug #859012: Confirm if really want to download from /home, /media or / -
+ - Fixed bug #859012: Confirm if really want to download from /home, /media or / 
    
- - It is possible for the program's preferences to be set to download from /home,
-   /media or / (the root of the file system). This can result in the program 
-   scanning a very large number of files, possibly causing the system to become
-   unresponsive. The program now queries the user before commencing this scan to 
-   confirm if this is really what they want to do.
+ - It is possible for the program's preferences to be set to download from 
+   /home, /media or / (the root of the file system). This can result in the 
+   program scanning a very large number of files, possibly causing the system to 
+   become unresponsive. The program now queries the user before commencing this 
+   scan to confirm if this is really what they want to do.
    
  - Fixed bug #792228: clear all thumbnails when refresh command issued.
    
@@ -553,8 +564,8 @@ Changelog for Rapid Photo Downloader
 ------------------
 
  - Added feature in Preferences window to remove any paths that have previously
-   been marked to always be scanned or ignored. These paths can be specified when
-   automatic detection of Portable Storage Devices is enabled.
+   been marked to always be scanned or ignored. These paths can be specified 
+   when automatic detection of Portable Storage Devices is enabled.
    
  - Fixed bug #768026: added option to ignore paths from which to download - 
    
@@ -562,28 +573,30 @@ Changelog for Rapid Photo Downloader
    path ending in .Trash or .thumbnails is ignored.  Advanced users can specify
    paths to never scan using python-style regular expressions.
    
- - Fixed bug #774488: added manual back up path for videos, in addition to photos -
+ - Fixed bug #774488: added manual back up path for videos, in addition to 
+   photos
    
- - You can now manually specify a path specifically in which to back up videos. This
-   can be the same as or different than the path in which to back up photos.
+ - You can now manually specify a path specifically in which to back up videos. 
+   This can be the same as or different than the path in which to back up 
+   photos.
    
- - Fixed bug #838722: wrong file types may be backed up to external devices - 
+ - Fixed bug #838722: wrong file types may be backed up to external devices
    
- - Fixed a bug when auto detection of backup devices is enabled, files of the wrong
-   type might be backed up. For instance, if the backup device is only meant to 
-   store videos, and the download contains photos, photos would incorrectly be
-   backed up to the device in addition to videos.
+ - Fixed a bug when auto detection of backup devices is enabled, files of the
+   wrong type might be backed up. For instance, if the backup device is only 
+   meant to store videos, and the download contains photos, photos would 
+   incorrectly be backed up to the device in addition to videos.
    
  - Fixed bug #815727: Back up errors and warnings incorrectly displayed in log 
    window -
    
- - Fixed a bug that occurred when backing up errors are encountered, the log window
-   did not display them correctly, although they were correctly outputted to the 
-   terminal window. This only occurred when more than one back up device was being
-   used during a download.
+ - Fixed a bug that occurred when backing up errors are encountered, the log 
+   window did not display them correctly, although they were correctly outputted
+   to the terminal window. This only occurred when more than one back up device 
+   was being used during a download.
    
- - Fixed bug #859242: Crash when displaying a preview of file without an extracted
-   thumbnail.
+ - Fixed bug #859242: Crash when displaying a preview of file without an 
+   extracted thumbnail.
    
  - Fixed bug #810559: Crash when generating thumbnail images
    
@@ -594,9 +607,9 @@ Changelog for Rapid Photo Downloader
    
  - Fixed a bug in the Swedish translation. 
    
- - Added Danish translation, by Torben Gundtofte-Bruun. Updated Brazilian, Czech,
-   Dutch, French, German, Hungarian, Italian, Japanese, Norwegian, Polish, Russian, 
-   Serbian, Slovak, Spanish, Swedish and Turkish translations.
+ - Added Danish translation, by Torben Gundtofte-Bruun. Updated Brazilian, 
+   Czech, Dutch, French, German, Hungarian, Italian, Japanese, Norwegian, 
+   Polish, Russian,  Serbian, Slovak, Spanish, Swedish and Turkish translations.
 
 0.4.1 (2011-05-19)
 ------------------
@@ -615,8 +628,9 @@ Changelog for Rapid Photo Downloader
  - Relaxed startup test to check whether pynotify is working. On some systems,
    pynotify reports it is not working even though it is.
    
- - Added the start of an Indonesian translation. Updated Brazilian, Dutch, French, 
-   German, Hungarian, Italian, Polish, Russian, Spanish and Ukrainian translations.
+ - Added the start of an Indonesian translation. Updated Brazilian, Dutch, 
+   French, German, Hungarian, Italian, Polish, Russian, Spanish and Ukrainian 
+   translations.
 
 0.4.0 (2011-04-28)
 ------------------
@@ -628,8 +642,8 @@ Changelog for Rapid Photo Downloader
    
  - Bug fix: translation fixes.
    
- - Bug fix: don't crash when completing download with backups enabled and no backup
-   devices detected.
+ - Bug fix: don't crash when completing download with backups enabled and no 
+   backup devices detected.
    
  - Updated Dutch, French, German, Polish, Russian, Serbian and Spanish 
    translations.
@@ -639,19 +653,21 @@ Changelog for Rapid Photo Downloader
 
  - Features added since beta 1:
    
-    - Backups have been implemented. If you are backing up to more than one device,
-      Rapid Photo Downloader will backup to each device simultaneously instead of one
-      after the other.
+    - Backups have been implemented. If you are backing up to more than one 
+      device, Rapid Photo Downloader will backup to each device simultaneously 
+      instead of one after the other.
       
-    - When clicking the Download button before thumbnails are finished generating,
-      the download proceeds immediately and the thumbnails remaining to be generated 
-      will rendered during the download itself.
+    - When clicking the Download button before thumbnails are finished 
+      generating, the download proceeds immediately and the thumbnails remaining
+      to be generated will rendered during the download itself.
       
-    - Added preferences option to disable thumbnail generation. When auto start is
-      enabled, this can speed-up transfers when downloading from high-speed devices.
+    - Added preferences option to disable thumbnail generation. When auto start 
+      is enabled, this can speed-up transfers when downloading from high-speed 
+      devices.
       
-    - Access to the preferences window is now disabled while a download is occurring, 
-      as changing preferences when files are being download can cause problems.
+    - Access to the preferences window is now disabled while a download is
+      occurring, as changing preferences when files are being download can cause
+      problems.
       
  - Bug fix: don't crash when downloading some files after having previously 
    downloaded some others in the same session.
@@ -678,8 +694,8 @@ Changelog for Rapid Photo Downloader
 
    - Automation features:
 
-       - Automatically start a download at program startup or when a device
-         is inserted. When this is enabled, to optimize performance instead of
+       - Automatically start a download at program startup or when a device is
+         inserted. When this is enabled, to optimize performance instead of
          thumbnails being generated before the files are downloaded, they are
          generated during the download.
 
@@ -721,6 +737,7 @@ Changelog for Rapid Photo Downloader
  - Features added since alpha 2:
    
     - Error log window to display download warnings and errors.
+    
     - Synchronize RAW + JPEG Sequence values.
    
  - Fixed bug #739021: unable to set subfolder and file rename preferences on 
@@ -733,8 +750,8 @@ Changelog for Rapid Photo Downloader
 
  - Features added since alpha 1:
    
-   - Sample file names and subfolders are now displayed in the preferences dialog
-     window.
+   - Sample file names and subfolders are now displayed in the preferences 
+     dialog window.
    - The option to add a unique identifier to a filename if a file with the same
      name already exists
    
@@ -747,8 +764,8 @@ Changelog for Rapid Photo Downloader
    - Bug fix: leave file preview mode when download devices are changed in the 
      preferences.
    
-   - Bug fix: don't crash on startup when trying to display free space and photo or
-     video download folders do not exist.
+   - Bug fix: don't crash on startup when trying to display free space and photo
+     or video download folders do not exist.
 
 0.4.0a1 (2011-03-24)
 --------------------
@@ -758,11 +775,11 @@ Changelog for Rapid Photo Downloader
    download. It also performs the actual downloads quicker. It will use
    multiple CPU cores if they are available. 
    
- - Rapid Photo Downloader now requires version 0.3.0 or newer of pyexiv2. It also
-   requires Python Imaging (PIL) to run. It will only run on recent Linux
-   distributions such as Ubuntu 10.04 or newer. It has been tested on Ubuntu 10.04,
-   10.10 and 11.04, as well as Fedora 14. (There is currently an unusual bug 
-   adjusting some preferences when running Ubuntu 11.04. See bug #739021).
+ - Rapid Photo Downloader now requires version 0.3.0 or newer of pyexiv2. It 
+   also requires Python Imaging (PIL) to run. It will only run on recent Linux
+   distributions such as Ubuntu 10.04 or newer. It has been tested on Ubuntu 
+   10.04, 10.10 and 11.04, as well as Fedora 14. (There is currently an unusual
+   bug adjusting some preferences when running Ubuntu 11.04. See bug #739021).
    
  - This is an alpha release because it is missing features that are present in 
    version 0.3.5. Missing features include:
@@ -775,7 +792,8 @@ Changelog for Rapid Photo Downloader
 
    - Automation features, e.g. automatically start download at startup
 
-   - Error log window (currently you must check the command line for error output)
+   - Error log window (currently you must check the command line for error 
+     output)
 
    - Time remaining status messages
 
@@ -784,14 +802,15 @@ Changelog for Rapid Photo Downloader
    - Add unique identifier to a filename if a file with the same name already
      exists
 
-   - Sample file names and subfolders are not displayed in the preferences window
+   - Sample file names and subfolders are not displayed in the preferences 
+     window
    
  - These missing features will be added in subsequent alpha and beta releases.
    
  - Kaa-metadata is no longer required to download videos. However, if you 
    want to use Frames Per Second or Codec metadata information in subfolder or
-   video file names, you must ensure it is installed. This is no longer checked at 
-   program startup. 
+   video file names, you must ensure it is installed. This is no longer checked 
+   at program startup. 
    
  - Thanks go to Robert Park for refreshing the translations code.
    
@@ -800,29 +819,29 @@ Changelog for Rapid Photo Downloader
 0.3.5 (2011-03-23)
 ------------------
 
- - The primary purpose of this release is update translations and fix bug #714039,
-   where under certain circumstances the program could crash while downloading 
-   files. 
+ - The primary purpose of this release is update translations and fix bug 
+   #714039, where under certain circumstances the program could crash while 
+   downloading files. 
    
  - This is intended to be the last release in the 0.3.x series. In the upcoming 
    version 0.4.0, Rapid Photo Downloader is much faster and sports a new user 
    interface.
    
- - Added Romanian translation. Updated Brazilian, Chinese, Croatian, Czech, Dutch, 
-   Finnish, German, Italian, Polish and Russian translations.
+ - Added Romanian translation. Updated Brazilian, Chinese, Croatian, Czech, 
+   Dutch, Finnish, German, Italian, Polish and Russian translations.
 
 0.3.4 (2010-12-31)
 ------------------
 
- - You can now change the size of the preview image by zooming in and out using a 
-   slider. The maximum size is double that of the previous fixed size, which was
-   160px. On computers with small screens such as netbooks, the maximum preview 
-   image size is the same as the previous fixed size. Please note that Rapid Photo 
-   Downloader only extracts thumbnails of photos; for performance reasons, it does
-   not create them. This means for some file formats, the thumbnails will contain
-   jpeg artifacts when scaled up (this is particularly true when using a version of
-   pyexiv2 < 0.2.0). For users who require larger preview images, this will be of
-   little consequence.
+ - You can now change the size of the preview image by zooming in and out using 
+   a slider. The maximum size is double that of the previous fixed size, which 
+   was 160px. On computers with small screens such as netbooks, the maximum
+   preview image size is the same as the previous fixed size. Please note that 
+   Rapid Photo Downloader only extracts thumbnails of photos; for performance 
+   reasons, it does not create them. This means for some file formats, the 
+   thumbnails will contain jpeg artifacts when scaled up (this is particularly 
+   true when using a version of pyexiv2 < 0.2.0). For users who require larger 
+   preview images, this will be of little consequence.
    
  - When the "Strip compatible characters" feature is enabled in the Preferences 
    (which is the default), any white space (e.g. spaces) beginning or ending a
@@ -834,25 +853,26 @@ Changelog for Rapid Photo Downloader
  - Fixed bug #685335: inaccurate description of python packages required for 
    downloading videos.
    
- - Added Croatian translation. Updated French, Norwegian Bokmal, Polish and Russian
-   translations.
+ - Added Croatian translation. Updated French, Norwegian Bokmal, Polish and 
+   Russian translations.
 
 0.3.3 (2010-10-24)
 ------------------
 
  - Added support for mod, tod and 3gp video files. 
    
- - Hachoir-metadata is now used to extract selected metadata from video files. It 
-   has less bugs than kaa-metadata, and is better maintained. One benefit of this
-   change is that more video file types can have their metadata extracted. Another
-   is that the video creation date is now correctly read (the creation time read by 
-   kaa metadata was sometimes wrong by a few hours). Kaa-metadata is still used to
-   extract some the codec, fourcc and frames per second (FPS) metadata.
+ - Hachoir-metadata is now used to extract selected metadata from video files. 
+   It has less bugs than kaa-metadata, and is better maintained. One benefit of 
+   this change is that more video file types can have their metadata extracted. 
+   Another is that the video creation date is now correctly read (the creation 
+   time read by kaa metadata was sometimes wrong by a few hours). Kaa-metadata 
+   is still used to extract some the codec, fourcc and frames per second (FPS) 
+   metadata.
    
  - Fixed bug #640722: Added preliminary support for Samsung SRW files. Current
-   versions of Exiv2 and pyexiv2 can read some but not all metadata from this new
-   RAW format. If you try to use metadata that cannot be extracted, Rapid Photo 
-   Downloader will issue a warning.
+   versions of Exiv2 and pyexiv2 can read some but not all metadata from this 
+   new RAW format. If you try to use metadata that cannot be extracted, Rapid 
+   Photo Downloader will issue a warning.
    
  - Fixed bug #550883: Generation of subfolders and filenames using the time a
    download was started. 
@@ -869,63 +889,64 @@ Changelog for Rapid Photo Downloader
 0.3.2 (2010-09-12)
 ------------------
 
- - Added Norwegian Nynorsk translation. Updated Chinese, Finnish, Hungarian, Dutch, 
-   Occitan (post 1500), Polish, Brazilian Portuguese, and Russian translations.
+ - Added Norwegian Nynorsk translation. Updated Chinese, Finnish, Hungarian, 
+   Dutch, Occitan (post 1500), Polish, Brazilian Portuguese, and Russian 
+   translations.
    
- - Fixed crash on startup when checking for free space, and the download folder does
-   not exist.
+ - Fixed crash on startup when checking for free space, and the download folder 
+   does not exist.
 
 0.3.1 (2010-08-13)
 ------------------
 
- - The main window now works more effectively on tiny screens, such as those found
-   on netbooks. If the screen height is less than or equal to 650 pixels, elements
-   in the preview pane are removed, and the spacing is tightened.
+ - The main window now works more effectively on tiny screens, such as those 
+   found on netbooks. If the screen height is less than or equal to 650 pixels, 
+   elements in the preview pane are removed, and the spacing is tightened.
    
  - The amount of free space available on the file-system where photos are to be
    downloaded is now displayed in the status bar. (Note this is only the case on
-   moderately up-to-date Linux distributions that use GVFS, such as Ubuntu 8.10 or
-   higher).
+   moderately up-to-date Linux distributions that use GVFS, such as Ubuntu 8.10 
+   or higher).
    
  - Add Chinese (simplified) translation. A big thanks goes out to the Ubuntu 
-   Chinese translation team. Partial translations of Bulgarian, Japanese, Occitan 
-   (post 1500), Persian, Portuguese (Brazilian), and Turkish have been added. In
-   the past only translations that were largely finished were added, but hopefully 
-   adding incomplete translations will speed up their completion. Updated Finnish, 
-   French, Hungarian, Russian, Serbian and Spanish translations.
-
+   Chinese translation team. Partial translations of Bulgarian, Japanese, 
+   Occitan (post 1500), Persian, Portuguese (Brazilian), and Turkish have been 
+   added. In the past only translations that were largely finished were added, 
+   but hopefully adding incomplete translations will speed up their completion. 
+   Updated Finnish,  French, Hungarian, Russian, Serbian and Spanish 
+   translations.
 
 0.3.0 (2010-07-10)
 ------------------
 
  - The major new feature of this release is the generation of previews before
-   a download takes place. You can now select which photos and videos you wish to
-   download.
+   a download takes place. You can now select which photos and videos you wish 
+   to download.
    
  - You can now assign different Job Codes to photos and videos in the same 
-   download. Simply select photos and videos, and from the main window choose a Job
-   Code for them. You can select a new Job Code,or enter a new one (press Enter
-   to apply it). 
+   download. Simply select photos and videos, and from the main window choose a 
+   Job Code for them. You can select a new Job Code,or enter a new one (press 
+   Enter to apply it). 
    
  - The errors and warnings reported have been completely overhauled, and are now
    more concise.
    
  - Now that you can select photos and videos to download, the "Report an error" 
-   option in case of filename conflicts has been removed. If you try to download a
-   photo or video that already exists, an error will be reported. If you backup a 
-   photo or video that already exists in the backup location, a warning will be 
-   reported (regardless of whether overwriting or skipping of backups with 
-   conflicting filenames is chosen). 
+   option in case of filename conflicts has been removed. If you try to download
+   a photo or video that already exists, an error will be reported. If you 
+   backup a photo or video that already exists in the backup location, a warning
+   will be reported (regardless of whether overwriting or skipping of backups 
+   with conflicting filenames is chosen). 
    
- - Likewise, the option of whether to report an error or warning in case of missing
-   backup devices has been removed. If you have chosen to backup your photos and
-   videos, and a backup device or location is not found, the files will be 
-   downloaded with warnings.
+ - Likewise, the option of whether to report an error or warning in case of 
+   missing backup devices has been removed. If you have chosen to backup your 
+   photos and videos, and a backup device or location is not found, the files 
+   will be downloaded with warnings.
    
  - For each device in the main window, the progress bar is now updated much more
-   smoothly than before. This is useful when downloading and backing up large files
-   such as videos. (Note this is only the case on moderately up-to-date Linux 
-   distributions that use GVFS, such as Ubuntu 8.10 or higher).
+   smoothly than before. This is useful when downloading and backing up large 
+   files such as videos. (Note this is only the case on moderately up-to-date
+   Linux distributions that use GVFS, such as Ubuntu 8.10 or higher).
    
  - The minimum version of python-gtk2 (pygtk) required to run the program is now
    2.12. This will affect only outdated Linux distributions.
@@ -933,14 +954,14 @@ Changelog for Rapid Photo Downloader
 0.3.0b6 (2010-07-06)
 --------------------
 
- - Fixed bug #598736: don't allow file to jump to the bottom when it has a Job Code
-   assigned to it.
+ - Fixed bug #598736: don't allow file to jump to the bottom when it has a Job 
+   Code assigned to it.
    
- - Fixed bug #601993: don't prompt for a Job Code when downloading file of one type
-   (photo or video), and it's only a file of the other type that needs it.
+ - Fixed bug #601993: don't prompt for a Job Code when downloading file of one
+   type (photo or video), and it's only a file of the other type that needs it.
    
- - Log error messages are now cleaned up where a file already exists and there were
-   problems generating the file / subfolder name.
+ - Log error messages are now cleaned up where a file already exists and there 
+   were problems generating the file / subfolder name.
    
  - Fixed crash on startup when using an old version of GIO.
    
@@ -949,8 +970,8 @@ Changelog for Rapid Photo Downloader
    
  - Set the default height to be 50 pixels taller.
    
- - Bug fix: don't download from device that has been inserted after program starts
-   unless device auto detection is enabled.
+ - Bug fix: don't download from device that has been inserted after program 
+   starts unless device auto detection is enabled.
    
  - Updated German translation.
 
@@ -968,8 +989,8 @@ Changelog for Rapid Photo Downloader
  - Disabled Download All button if all files that have not been downloaded have
    errors. 
    
- - Enabled and disabled Download All button, depending on status, after subfolder 
-   or filename preferences are modified after device has been scanned. 
+ - Enabled and disabled Download All button, depending on status, after 
+   subfolder or filename preferences are modified after device has been scanned. 
    
  - Don't stop a file being downloaded if a valid subfolder or filename can be
    generated using a Job Code.
@@ -982,9 +1003,9 @@ Changelog for Rapid Photo Downloader
  - Job Codes are now assigned correctly when multiple downloads occur. 
    
  - Default column sorting is by date, unless a warning or error occurs when 
-   doing the initial scan of the devices, in which case it is set to status (unless
-   you have already clicked on a column heading yourself, in which case it will
-   not change).
+   doing the initial scan of the devices, in which case it is set to status 
+   (unless you have already clicked on a column heading yourself, in which case 
+   it will not change).
    
  - Use the command xdg-user-dir to get default download directories.
    
@@ -1059,15 +1080,16 @@ Changelog for Rapid Photo Downloader
    them. See the INSTALL file for details.
   
  - If a THM file with the same name as the video is present, it will be used to 
-   generate a thumbnail for the video. If not, if ffmpegthumbnailer is installed, 
-   Rapid Photo Downloader will use it to attempt to extract a thumbnail from the
-   video. THM files are not downloaded.
+   generate a thumbnail for the video. If not, if ffmpegthumbnailer is 
+   installed,  Rapid Photo Downloader will use it to attempt to extract a 
+   thumbnail from the video. THM files are not downloaded.
   
- - For now, sequence values are shared between the downloads of videos and photos.
-   There may be an option to have two sets of sequence numbers in a future release.
+ - For now, sequence values are shared between the downloads of videos and 
+   photos. There may be an option to have two sets of sequence numbers in a 
+   future release.
   
- - Due to the number of changes in the code, it is possible that regressions in the
-   photo downloading code may have been introduced. 
+ - Due to the number of changes in the code, it is possible that regressions in
+   the photo downloading code may have been introduced. 
   
  - This is the first release to use version 0.2.x of the pyexiv2 library.  The 
    most immediate benefit of this change is that thumbnail images from Nikon and 
@@ -1075,22 +1097,24 @@ Changelog for Rapid Photo Downloader
   
  - Please note pyexiv2 0.2.x requires exiv2 0.1.9 or above.
   
- - Rapid Photo Downloader will still work with pyexiv2 0.1.x. However it will not
-   be able to display the thumbnails of some brands of camera.
+ - Rapid Photo Downloader will still work with pyexiv2 0.1.x. However it will 
+   not be able to display the thumbnails of some brands of camera.
   
  - If Rapid Photo Downloader detects version 0.18.1 or higher of the exiv2
-   library, it will download Panasonic's RW2 files. If it detects version 0.18.0 or
-   higher of the exiv2 library, it will download Mamiya's MEF files. For Rapid
-   Photo Downloader to be able to detect which version of the exiv2 library your
-   system has, it must either be running pyexiv2 >= 0.2.0, or have exiv2 installed.
+   library, it will download Panasonic's RW2 files. If it detects version 0.18.0
+   or higher of the exiv2 library, it will download Mamiya's MEF files. For 
+   Rapid Photo Downloader to be able to detect which version of the exiv2 
+   library your system has, it must either be running pyexiv2 >= 0.2.0, or have 
+   exiv2 installed.
   
- - Fixed bug #483222: sometimes images could not be downloaded to NTFS partitions.
-   This fix was a welcome side effect of using GIO to copy images, instead of 
-   relying on the python standard library.
+ - Fixed bug #483222: sometimes images could not be downloaded to NTFS 
+   partitions. This fix was a welcome side effect of using GIO to copy images,
+   instead of  relying on the python standard library.
   
  - Error message headings in the Error Log are now displayed in a red font.
   
- - Program settings and preferences can be reset using a new command line option.
+ - Program settings and preferences can be reset using a new command line 
+   option.
   
  - Program preferences are now more thoroughly checked for validity when the
    program starts. 
@@ -1103,22 +1127,22 @@ Changelog for Rapid Photo Downloader
 
  - Fixed bug #509348: When both the backup and "Delete images from image device 
    upon download completion" options are selected, the program will only delete 
-   an image from the image device if it was both downloaded to the download folder 
-   and backed up. Previously it did not check to ensure it was backed up 
+   an image from the image device if it was both downloaded to the download 
+   folder and backed up. Previously it did not check to ensure it was backed up 
    correctly too.
   
  - Fixed bug #505492: Program failed to start in environments where the 
    notification system has problems.
   
  - Fixed bug #508304: User is now prompted to confirm if they really want to 
-   remove all of their Job Codes after clicking on "Remove All" in the preferences
-   dialog window.
+   remove all of their Job Codes after clicking on "Remove All" in the 
+   preferences dialog window.
   
  - Fixed bug #510484: Crashes when fails to create temporary download directory.
   
- - Fixed bug #510516: Program now checks to see if the download folder exists and
-   is writable. If automatic detection of image devices is not enabled, it checks
-   to see if the image location path exists.
+ - Fixed bug #510516: Program now checks to see if the download folder exists 
+   and is writable. If automatic detection of image devices is not enabled, it
+   checks to see if the image location path exists.
   
  - Updated Czech, Dutch, Finnish, French, German, Hungarian, Italian, Polish, 
    Russian, Serbian, Spanish and Swedish translations.
@@ -1129,29 +1153,31 @@ Changelog for Rapid Photo Downloader
  - New feature: photographers using RAW + JPEG mode now have the option to 
    synchronize sequence numbers for the matching pair of images. This option is
    useful if you use the RAW + JPEG feature on your camera and you use sequence
-   numbers or letters in your image renaming. Enabling this option will cause the 
-   program to detect matching pairs of RAW and JPEG images, and when they are 
-   detected, the same sequence numbers and letters will be applied to both image
-   names. Furthermore, sequences will be updated as if the images were one. For 
-   example, if 200 RAW images and 200 matching JPEG images are downloaded, the 
-   value of Downloads today will be incremented by 200, and not 400. The same goes 
-   for the rest of the sequence values, including the Stored number sequence 
-   number. Images are detected by comparing filename, as well as the exif value for
-   the date and time the image was created (including sub seconds when the camera 
-   records this value). This option will take effect regardless of whether the RAW 
-   and JPEG images are stored on different memory cards or the same memory card. 
-   Furthermore, if they are stored on separate memory cards, you can download from 
-   them simultaneously or one after the other. The only requirement is to download 
-   the images in the same session--in other words, for the feature to work, use as 
-   many memory cards as you need, but do not exit the program between downloads of 
-   the matching sets of images.
+   numbers or letters in your image renaming. Enabling this option will cause 
+   the program to detect matching pairs of RAW and JPEG images, and when they 
+   are detected, the same sequence numbers and letters will be applied to both 
+   image names. Furthermore, sequences will be updated as if the images were 
+   one. For example, if 200 RAW images and 200 matching JPEG images are 
+   downloaded, the value of Downloads today will be incremented by 200, and not 
+   400. The same goes for the rest of the sequence values, including the Stored 
+   number sequence number. Images are detected by comparing filename, as well as
+   the exif value for the date and time the image was created (including sub 
+   seconds when the camera records this value). This option will take effect
+   regardless of whether the RAW and JPEG images are stored on different memory 
+   cards or the same memory card. Furthermore, if they are stored on separate 
+   memory cards, you can download from them simultaneously or one after the 
+   other. The only requirement is to download the images in the same session--in 
+   other words, for the feature to work, use as many memory cards as you need, 
+   but do not exit the program between downloads of the matching sets of images.
   
  - Increased maximum sequence number length to seven digits by user request.
   
- - Fixed bug #503704: changes in values for downloads today and stored number not
-   updated when changed via program preferences while a download is ready to begin.
+ - Fixed bug #503704: changes in values for downloads today and stored number 
+   not updated when changed via program preferences while a download is ready to 
+   begin.
   
- - Fixed a rare startup bug, where the program could crash when starting a thread.
+ - Fixed a rare startup bug, where the program could crash when starting a 
+   thread.
   
  - Added Serbian translation by Milos Popovic. Updated Czech, Dutch, Finnish,
    French, German, Hungarian, Italian, Polish, Russian, Slovak, Spanish and 
@@ -1161,9 +1187,9 @@ Changelog for Rapid Photo Downloader
 ------------------
 
  - Added auto delete feature. When enabled, upon the completion of a download,
-   images that were successfully downloaded will be deleted from the image device
-   they were downloaded from. Images that were not downloaded successfully will not
-   be deleted. 
+   images that were successfully downloaded will be deleted from the image 
+   device they were downloaded from. Images that were not downloaded
+   successfully will not be deleted. 
   
  - Added keyboard accelerators for Preferences and Help.
   
@@ -1175,14 +1201,14 @@ Changelog for Rapid Photo Downloader
 
  - Added icons to notification messages.
   
- - Updated Czech, French, German, Hungarian, Polish, Russian, Slovak, Spanish and
-   Swedish translations.
+ - Updated Czech, French, German, Hungarian, Polish, Russian, Slovak, Spanish 
+   and Swedish translations.
   
  - Bug fix: properly handle devices being unmounted, fixing a bug introduced in
    Version 0.0.9 beta 2.
   
- - Bug fix: When program preferences are changed, image and backup devices are now 
-   refreshed only when the preferences dialog window is closed.
+ - Bug fix: When program preferences are changed, image and backup devices are 
+   now refreshed only when the preferences dialog window is closed.
   
  - Bug fix: Minutes component of image and folder renaming had the same code as 
    months.
@@ -1190,10 +1216,10 @@ Changelog for Rapid Photo Downloader
 0.1.0b2 (2009-11-22)
 --------------------
 
- - New feature: when detection of portable storage devices is selected, the program
-   will prompt you whether or not to download from each device it automatically
-   detects. You can choose whether the program should remember the choice you make
-   every time it runs. This fixes bug #376020.
+ - New feature: when detection of portable storage devices is selected, the 
+   program will prompt you whether or not to download from each device it
+   automatically detects. You can choose whether the program should remember the
+   choice you make every time it runs. This fixes bug #376020.
   
  - Fixed bug #484432: error in adding job codes via the preferences dialog.
   
@@ -1204,14 +1230,15 @@ Changelog for Rapid Photo Downloader
 0.1.0b1 (2009-11-14)
 --------------------
 
- - This code is ready for full release, but given the magnitude of changes, a beta
-   seems like a good idea, simply to catch any undetected bugs.
+ - This code is ready for full release, but given the magnitude of changes, a 
+   beta seems like a good idea, simply to catch any undetected bugs.
   
- - Added a "Job codes" option. Like the "text" option in image and subfolder name
-   generation, this allows you to specify text that will be placed into the file
-   and subfolder names. However, unlike the "text" option, which requires that the
-   text be directly entered via the program preferences, when using the "Job code"
-   option, the program will prompt for it each time a download begins. 
+ - Added a "Job codes" option. Like the "text" option in image and subfolder 
+   name generation, this allows you to specify text that will be placed into the
+   file and subfolder names. However, unlike the "text" option, which requires 
+   that the text be directly entered via the program preferences, when using the
+   "Job code" option, the program will prompt for it each time a download 
+   begins. 
   
  - Made Download button the default button. Hitting enter while the main window
    has focus will now start the download.
@@ -1219,8 +1246,8 @@ Changelog for Rapid Photo Downloader
  - Fixed bug #387002: added dependency in Ubuntu packages for librsvg2-common. 
    Thanks go to user hasp for this fix.
   
- - Fixed bug #478620: problem with corrupted image files. Thanks go to user Katrin
-   Krieger for tracking this one down.
+ - Fixed bug #478620: problem with corrupted image files. Thanks go to user 
+   Katrin Krieger for tracking this one down.
   
  - Fixed bug #479424: some camera model names do not have numbers, but it still
    makes sense to return a shortened name. Thanks go to user Wesley Harp for 
@@ -1241,12 +1268,12 @@ Changelog for Rapid Photo Downloader
   
  - Added dependency on gnome-icon-theme in Ubuntu packages.
   
- - Added additional hour, minute and second options in image renaming and subfolder
-   creation. Thanks to Art Zemon for the patch.
+ - Added additional hour, minute and second options in image renaming and 
+   subfolder creation. Thanks to Art Zemon for the patch.
   
- - Malformed image date time exif values have are minimally checked to see if they
-   can still be used for subfolder and image renaming. Some software programs seem
-   to make a mess of them.
+ - Malformed image date time exif values have are minimally checked to see if 
+   they can still be used for subfolder and image renaming. Some software 
+   programs seem to make a mess of them.
   
  - Updated man page, including a bug fix by Julien Valroff.
   
@@ -1269,15 +1296,15 @@ Changelog for Rapid Photo Downloader
   
  - Added Finnish translation by Mikko Ruohola.
   
- - A Help button has been added to Preferences dialog window. Clicking it takes you
-   to the documentation found online at the program's website. This documentation 
-   is now complete.
+ - A Help button has been added to Preferences dialog window. Clicking it takes
+   you to the documentation found online at the program's website. This 
+   documentation is now complete.
   
- - The Preferences Dialog Window is now navigated using a list control, as it was
-   in early versions of the program. This change was necessary because with some
-   translations, the dialog window was becoming too wide with the normal tab 
-   layout. Usability of the preferences dialog is improved: it will now resize 
-   itself based on its content.
+ - The Preferences Dialog Window is now navigated using a list control, as it 
+   was in early versions of the program. This change was necessary because with 
+   some translations, the dialog window was becoming too wide with the normal 
+   tab layout. Usability of the preferences dialog is improved: it will now 
+   resize itself based on its content.
   
  - Better integration with Nautilus is now possible through the setting of 
    MimeType=x-content/image-dcf in the program's .desktop file.
@@ -1289,11 +1316,12 @@ Changelog for Rapid Photo Downloader
   
  - Whenever subfolder preferences are modified in the Preferences Dialog window,
    they are now checked to see if they contain any extraneous entries. If 
-   necessary, any entries like this are removed when the dialog window is closed.
+   necessary, any entries like this are removed when the dialog window is 
+   closed.
   
- - Bug fix: Changes in preferences should be applied to devices that have already
-   been scanned, but their images not yet downloaded. This bug was introduced in 
-   beta 2 when fixing bug #368098.
+ - Bug fix: Changes in preferences should be applied to devices that have 
+   already been scanned, but their images not yet downloaded. This bug was 
+   introduced in beta 2 when fixing bug #368098.
   
  - Bug fix: check subfolder preferences for validity before beginning download. 
    While image rename preferences were checked, this check was neglected.
@@ -1307,10 +1335,12 @@ Changelog for Rapid Photo Downloader
  - Added command line options for controlling verbosity, displaying which image
    file types are recognized, and printing the program version.
   
- - Updated man page to reflect recent program changes and new command line options.
+ - Updated man page to reflect recent program changes and new command line 
+   options.
   
- - Prepared program for translation into other languages. Thanks go to Mark Mruss 
-   and his blog http://www.learningpython.com for code examples and explanations.
+ - Prepared program for translation into other languages. Thanks go to Mark 
+   Mruss and his blog http://www.learningpython.com for code examples and 
+   explanations.
   
  - Polish translation by Michal Predotka. Coming soon: French, German and
    Spanish translations.
@@ -1318,11 +1348,12 @@ Changelog for Rapid Photo Downloader
  - To install the program using python setup.py, the program msgfmt must now be
    present. On most Linux distributions, this is found in the package gettext.
   
- - Updated INSTALL file to reflect minimum version of pyexiv2 needed, and included
-   information about handling any error related to msgfmt not being installed.
+ - Updated INSTALL file to reflect minimum version of pyexiv2 needed, and 
+   included information about handling any error related to msgfmt not being 
+   installed.
   
- - Minor fixes to logic that checks whether the Download button should be disabled
-   or not. This should now be more reliable.
+ - Minor fixes to logic that checks whether the Download button should be
+   disabled or not. This should now be more reliable.
   
  - Bug fix: error log window can now be reopened after being closed with the "x" 
    button. Thanks go to ESR and his Python FAQ entry for this fix.
@@ -1337,12 +1368,12 @@ Changelog for Rapid Photo Downloader
 --------------------
 
  - By popular demand, allow direct downloading from cameras. This support is
-   experimental and may not work with your camera. This is possible through the use
-   of the new gvfs service, provided by GIO, that exists in recent versions of
-   Linux. A recent version of Linux is a must. The camera must also be supported by
-   libgphoto2 in combination with gvfs. If you cannot browse the camera's contents
-   in a file manager (e.g. Nautilus), the camera download will not work until the
-   gvfs support is improved.
+   experimental and may not work with your camera. This is possible through the 
+   use of the new gvfs service, provided by GIO, that exists in recent versions 
+   of Linux. A recent version of Linux is a must. The camera must also be 
+   supported by libgphoto2 in combination with gvfs. If you cannot browse the 
+   camera's contents in a file manager (e.g. Nautilus), the camera download will
+   not work until the gvfs support is improved.
   
  - Although this is a popular request, the reality is that downloading images
    directly from the camera is often extremely slow in comparison to popping the
@@ -1355,10 +1386,11 @@ Changelog for Rapid Photo Downloader
    a big difference.
   
  - Fix bug #372284: for image renaming, the "image number" component is more 
-   robust. Now, only the series of digits at the end of a filename are recognized 
-   as the image number (obviously the file's extension is not included as being
-   part of the filename in this case). This allows takes in account files from
-   cameras like the Canon 1D series, which can have filenames like VD1D7574.CR2.
+   robust. Now, only the series of digits at the end of a filename are 
+   recognized as the image number (obviously the file's extension is not 
+   included as being part of the filename in this case). This allows takes in 
+   account files from cameras like the Canon 1D series, which can have filenames
+   like VD1D7574.CR2.
   
  - Bug fix: don't download from volumes mounted while the program is already 
    running unless auto detection is specified. This bug could occur when auto
@@ -1371,10 +1403,10 @@ Changelog for Rapid Photo Downloader
   
    - The stored sequence number is remembered each time the program is run.
   
-   - Downloads today tracks how many downloads are made on a given day. The time a
-     day "starts" is set via a new preference value, day start. This is useful if
-     you often photograph something late at night (e.g. concerts) and want a new
-     day to "start" at 3am, for instance.
+   - Downloads today tracks how many downloads are made on a given day. The time
+     a day "starts" is set via a new preference value, day start. This is useful
+     if you often photograph something late at night (e.g. concerts) and want a 
+     new day to "start" at 3am, for instance.
   
  - Make estimate of time remaining to download images much more accurate.
   
@@ -1385,17 +1417,17 @@ Changelog for Rapid Photo Downloader
  - Add feature to detect change in program version, upgrading preferences where
    necessary.
   
- - Only allow one instance of the program to be run -- raise existing window if it
-   is run again. This is very useful when Rapid Photo Downloader is set to run
-   automatically upon insertion of a memory card.
+ - Only allow one instance of the program to be run -- raise existing window if 
+   it is run again. This is very useful when Rapid Photo Downloader is set to 
+   run automatically upon insertion of a memory card.
   
  - Add "exit at end of successful download" automation feature.
   
  - When an image's download is skipped, the thumbnail is now lightened.
   
- - Show a missing image icon if the thumbnail cannot be displayed for some reason.
-   (See bug #369640 for why thumbnail images from certain RAW files are not 
-   displayed).
+ - Show a missing image icon if the thumbnail cannot be displayed for some 
+   reason. (See bug #369640 for why thumbnail images from certain RAW files are 
+   not displayed).
   
  - Resize main window when an image device is inserted -- it now expands to show
    each device that is inserted.
@@ -1403,15 +1435,15 @@ Changelog for Rapid Photo Downloader
  - Do not proceed with download if there is an error in the image rename or
    download subfolder preferences. Instead, indicate a download error.
   
- - Allow version 0.1.1 of pyexiv2 to be used (an older version of the library code
-   that is used to get information on the images, found in distributions like 
-   Ubuntu 8.04 Hardy Heron).
+ - Allow version 0.1.1 of pyexiv2 to be used (an older version of the library 
+   code that is used to get information on the images, found in distributions 
+   like Ubuntu 8.04 Hardy Heron).
   
  - In cases where image rename or download subfolder preferences are invalid, 
    more helpful information is printed to the console output.
   
- - Bug fix: better handle automated shortening Canon names like 'Canon 5D Mark II'.
-   It is now shortened to '5DMkII' instead of merely '5D'.
+ - Bug fix: better handle automated shortening Canon names like 'Canon 5D Mark 
+   II'. It is now shortened to '5DMkII' instead of merely '5D'.
   
  - Bug fix: re-enable example of image renaming and subfolder name generation by
    using first image from the first available download device. This was
@@ -1420,8 +1452,8 @@ Changelog for Rapid Photo Downloader
  - Bug fix: make default download subfolder YYYY/YYYYMMDD again. It was
    inadvertently set to DDMMYYYY/YYYYMMDD in beta 6.
   
- - Bug fix: don't change download button label to "pause" when "Start downloading
-   on program startup" is set to true.
+ - Bug fix: don't change download button label to "pause" when "Start 
+   downloading on program startup" is set to true.
   
  - Bug fix: implement code to warn / give error about missing backup devices.
   
@@ -1435,8 +1467,8 @@ Changelog for Rapid Photo Downloader
  - Added serial number metadata option for select Nikon, Canon, Olympus, Fuji, 
    Panasonic, and Kodak cameras.
 
- - Added shutter count metadata option for select Nikon cameras, e.g. Nikon D300,
-   D3 etc.
+ - Added shutter count metadata option for select Nikon cameras, e.g. Nikon 
+   D300, D3 etc.
 
  - Add owner name metadata option for select Canon cameras, e.g. 5D Mk II etc.
 
@@ -1489,22 +1521,22 @@ Changelog for Rapid Photo Downloader
 
  - Download images in order they were taken (checked by time they modified).
 
- - Fixed bug where choosing text as the first item in a download subfolder caused a
-   crash.
+ - Fixed bug where choosing text as the first item in a download subfolder 
+   caused a crash.
 
- - Fixed bug where date and time choices based on when image is downloaded caused a
-   crash.
+ - Fixed bug where date and time choices based on when image is downloaded 
+   caused a crash.
 
  - Initial code to show error message when image renaming preferences have an 
    error.
 
  - Fixed bug where some invalid preferences were not being caught.
 
- - Run default python, not one specified in env, as per recommendations in Debian
-   Python Policy.
+ - Run default python, not one specified in env, as per recommendations in 
+   Debian Python Policy.
 
- - Remove initial period from filename extension when generating a subfolder name 
-   (or else the folder will be hidden).
+ - Remove initial period from filename extension when generating a subfolder 
+   name (or else the folder will be hidden).
 
  - Check to see if metadata is essential to generate image names is now more 
    robust.
@@ -1516,16 +1548,19 @@ Changelog for Rapid Photo Downloader
 
  - Error and warning icons can now be clicked on to open log window.
 
- - Finally, last but certainly not least--implemented sequence number and sequence
-   letter generation:
+ - Finally, last but certainly not least--implemented sequence number and 
+   sequence letter generation:
 
    - session sequence number
+
    - sequence letter
 
  - Coming soon:
 
    - downloads today sequence number
+
    - subfolder sequence number
+
    - stored sequence number
  
 0.0.7 (2009-01-13)
@@ -1542,17 +1577,17 @@ Changelog for Rapid Photo Downloader
 
  - Added license details to about dialog.
 
- - Fix bug where image rename preferences entry boxes vertically expanded, looking 
-   very ugly indeed.
+ - Fix bug where image rename preferences entry boxes vertically expanded, 
+   looking very ugly indeed.
 
  - Wrap new filename in image rename preferences when it becomes too long.
 
  - Make default download folder selection more robust.
 
- - Remove sequence number and sequence letter from list of choices for image rename
-   (not yet implemented).
+ - Remove sequence number and sequence letter from list of choices for image 
+   rename (not yet implemented).
 
- - Bug #314825: fix by not calling  gnomevfs.get_local_path_from_uri() unless 
+ - Bug #314825: fix by not calling gnomevfs.get_local_path_from_uri() unless 
    strictly necessary.
 
 0.0.5 (2009-01-09)
