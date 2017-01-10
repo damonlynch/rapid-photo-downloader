@@ -57,7 +57,7 @@ import pwd
 from collections import namedtuple
 from typing import Optional, Tuple, List, Dict
 
-from PyQt5.QtCore import (QStorageInfo, QObject, pyqtSignal, QFileSystemWatcher)
+from PyQt5.QtCore import (QStorageInfo, QObject, pyqtSignal, QFileSystemWatcher, QThread)
 from xdg.DesktopEntry import DesktopEntry
 from xdg import BaseDirectory
 import xdg

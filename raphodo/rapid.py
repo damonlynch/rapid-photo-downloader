@@ -116,7 +116,8 @@ from raphodo.constants import (BackupLocationType, DeviceType, ErrorType,
                                ThumbnailBackgroundName, Desktop,
                                DeviceState, Sort, Show, Roles, DestinationDisplayType,
                                DisplayingFilesOfType, DownloadFailure, DownloadWarning,
-                               RememberThisMessage, RightSideButton)
+                               RememberThisMessage, RightSideButton, CheckNewVersionDialogState,
+                               CheckNewVersionDialogResult)
 from raphodo.thumbnaildisplay import (ThumbnailView, ThumbnailListModel, ThumbnailDelegate,
                                       DownloadTypes, DownloadStats)
 from raphodo.devicedisplay import (DeviceModel, DeviceView, DeviceDelegate)
@@ -157,6 +158,8 @@ from raphodo.jobcodepanel import JobCodePanel
 from raphodo.backuppanel import BackupPanel
 import raphodo
 import raphodo.exiftool as exiftool
+from raphodo.newversion import (NewVersion, NewVersionCheckDialog, installed_via_pip,
+                                version_details, DownloadNewVersionDialog)
 
 BackupMissing = namedtuple('BackupMissing', 'photo, video')
 
@@ -604,6 +607,9 @@ class RapidWindow(QMainWindow):
     thus kept in the device collection, self.devices
     """
 
+    checkForNewVersionRequest = pyqtSignal()
+    downloadNewVersionRequest = pyqtSignal(str, str)
+
     def __init__(self, splash: 'SplashScreen',
                  photo_rename: Optional[bool]=None,
                  video_rename: Optional[bool]=None,
@@ -772,11 +778,11 @@ class RapidWindow(QMainWindow):
                 pv = pkg_resources.parse_version(previous_version)
                 rv = pkg_resources.parse_version(__about__.__version__)
                 if pv < rv:
-                    logging.debug("Version upgrade detected, from %s to %s",
+                    logging.info("Version upgrade detected, from %s to %s",
                                   previous_version, __about__.__version__)
                     self.prefs.upgrade_prefs(pv)
                 elif pv > rv:
-                    logging.debug("Version downgrade detected, from %s to %s",
+                    logging.info("Version downgrade detected, from %s to %s",
                                   __about__.__version__, previous_version)
 
     def startProcessLogger(self) -> None:
@@ -916,6 +922,7 @@ class RapidWindow(QMainWindow):
 
         if not self.gvfsControlsMounts:
             # Monitor when the user adds or removes a camera
+            # TODO this must be converted into a real thread
             self.cameraHotplug = CameraHotplug()
             self.cameraHotplugThread = QThread()
             self.cameraHotplug.moveToThread(self.cameraHotplugThread)
@@ -933,6 +940,7 @@ class RapidWindow(QMainWindow):
                     logging.debug("%s at %s", model, port)
 
             # Monitor when the user adds or removes a partition
+            # TODO this must be converted into a real thread
             self.udisks2Monitor = UDisks2Monitor(self.validMounts)
             self.udisks2MonitorThread = QThread()
             self.udisks2Monitor.moveToThread(self.udisks2MonitorThread)
@@ -954,6 +962,25 @@ class RapidWindow(QMainWindow):
             self.gvolumeMonitor.volumeAddedNoAutomount.connect(self.noGVFSAutoMount)
             self.gvolumeMonitor.cameraPossiblyRemoved.connect(self.cameraRemoved)
 
+        logging.debug("Starting version check")
+        self.newVersion = NewVersion(self)
+        self.newVersionThread = QThread()
+        self.newVersion.moveToThread(self.newVersionThread)
+        self.newVersion.checkMade.connect(self.newVersionCheckMade)
+        self.newVersion.bytesDownloaded.connect(self.newVersionBytesDownloaded)
+        self.newVersion.fileDownloaded.connect(self.newVersionDownloaded)
+        self.newVersion.downloadSize.connect(self.newVersionDownloadSize)
+
+        QTimer.singleShot(0, self.newVersionThread.start)
+
+        self.newVersionCheckDialog = NewVersionCheckDialog(self)
+        self.newVersionCheckDialog.finished.connect(self.newVersionCheckDialogFinished)
+
+        # if values set, indicates the latest version of the program, and the main
+        # download page on the Rapid Photo Downloader website
+        self.latest_version = None  # type: version_details
+        self.latest_version_download_page = None  # type: str
+
         # Track the creation of temporary directories
         self.temp_dirs_by_scan_id = {}
 
@@ -973,6 +1000,10 @@ class RapidWindow(QMainWindow):
         self.dl_update_timer = QTimer(self)
         self.dl_update_timer.setInterval(constants.DownloadUpdateMilliseconds)
         self.dl_update_timer.timeout.connect(self.displayDownloadRunningInStatusBar)
+
+
+        # TODO fix the threading stuff here.... should not call member functions
+        # when they're already in another thread!
 
         # Offload process is used to offload work that could otherwise
         # cause this process and thus the GUI to become unresponsive
@@ -1079,6 +1110,8 @@ class RapidWindow(QMainWindow):
 
         if not prefs_valid:
             self.notifyPrefsAreInvalid(details=msg)
+        else:
+            self.checkForNewVersionRequest.emit()
 
         logging.debug("Completed stage 3 initializing main window")
 
@@ -1173,6 +1206,123 @@ class RapidWindow(QMainWindow):
         self.downloadProgressBar = QProgressBar()
         self.downloadProgressBar.setMaximumWidth(QFontMetrics(QFont()).height() * 9)
         status.addPermanentWidget(self.downloadProgressBar, 1)
+
+    @pyqtSlot(bool, version_details, version_details, str)
+    def newVersionCheckMade(self, success: bool,
+                            stable_version: version_details,
+                            dev_version: version_details,
+                            download_page: str) -> None:
+        """
+        Respond to a version check, either initiated at program startup, or from the
+        application's main menu.
+
+        If the check was initiated at program startup, then the new version dialog box
+        will not be showing.
+
+        :param success: whether the version check was successful or not
+        :param stable_version: latest stable version
+        :param dev_version: latest development version
+        :param download_page: url of the download page on the Rapid
+         Photo Downloader website
+        """
+
+        if success:
+            self.latest_version = None
+            current_version = pkg_resources.parse_version(__about__.__version__)
+
+            check_dev_version = (current_version.is_prerelease or
+                                 self.prefs.include_development_release)
+
+            if current_version < stable_version.version:
+                self.latest_version = stable_version
+
+            if check_dev_version and current_version < dev_version.version:
+                if dev_version.version > stable_version.version:
+                    self.latest_version = dev_version
+                else:
+                    self.latest_version = stable_version
+
+            # testing code - remove in production!
+            if (self.latest_version is not None and str(self.latest_version.version) not in
+                    self.prefs.ignore_versions): #   or True
+
+                # self.latest_version = dev_version
+
+                version = str(self.latest_version.version)
+
+                try:
+                    pip_install = installed_via_pip()
+                except Exception:
+                    logging.warning("Exception encountered when checking if pip was used to "
+                                    "install")
+                    pip_install = False
+
+                if pip_install:
+                    logging.debug("Installation performed via pip")
+                    download_page = None
+                    state = CheckNewVersionDialogState.prompt_for_download
+                else:
+                    logging.debug("Installation not performed via pip")
+                    state = CheckNewVersionDialogState.open_website
+
+                self.latest_version_download_page = download_page
+
+                self.newVersionCheckDialog.displayUserMessage(new_state=state, version=version,
+                                                              download_page=download_page)
+                if not self.newVersionCheckDialog.isVisible():
+                    self.newVersionCheckDialog.show()
+
+            elif self.newVersionCheckDialog.isVisible():
+                self.newVersionCheckDialog.displayUserMessage(
+                    CheckNewVersionDialogState.have_latest_version)
+
+        elif self.newVersionCheckDialog.isVisible():
+            # Failed to reach update server
+            self.newVersionCheckDialog.displayUserMessage(
+                CheckNewVersionDialogState.failed_to_contact)
+
+    @pyqtSlot(int)
+    def newVersionCheckDialogFinished(self, result: int) -> None:
+        current_state = self.newVersionCheckDialog.current_state
+        if current_state in (
+                CheckNewVersionDialogState.prompt_for_download,
+                CheckNewVersionDialogState.open_website):
+            if self.newVersionCheckDialog.dialog_detailed_result == \
+                    CheckNewVersionDialogResult.skip:
+                version = str(self.latest_version.version)
+                logging.info("Adding version %s to the list of program versions to ignore",
+                              version)
+                self.prefs.add_list_value(key='ignore_versions', value=version)
+            elif self.newVersionCheckDialog.dialog_detailed_result == \
+                    CheckNewVersionDialogResult.open_website:
+                webbrowser.open_new_tab(self.latest_version_download_page)
+            elif self.newVersionCheckDialog.dialog_detailed_result == \
+                    CheckNewVersionDialogResult.download:
+                url = self.latest_version.url
+                md5 = self.latest_version.md5
+                self.downloadNewVersionRequest.emit(url, md5)
+                self.downloadNewVersionDialog = DownloadNewVersionDialog(parent=self)
+                self.downloadNewVersionDialog.rejected.connect(self.newVersionDownloadCancelled)
+                self.downloadNewVersionDialog.show()
+
+    @pyqtSlot(bytes)
+    def newVersionBytesDownloaded(self, bytes_downloaded: bytes) -> None:
+        if self.downloadNewVersionDialog.isVisible():
+            self.downloadNewVersionDialog.updateProgress(int(bytes_downloaded))
+
+    @pyqtSlot(str)
+    def newVersionDownloadSize(self, download_size: str) -> None:
+        if self.downloadNewVersionDialog.isVisible():
+            self.downloadNewVersionDialog.setDownloadSize(int(download_size))
+
+    @pyqtSlot(str)
+    def newVersionDownloaded(self, path: str) -> None:
+        self.downloadNewVersionDialog.accept()
+        logging.info("New program version downloaded to %s", path)
+
+    @pyqtSlot()
+    def newVersionDownloadCancelled(self) -> None:
+        logging.info("Download of new program version cancelled")
 
     def updateProgressBarState(self, thumbnail_generated: bool=None) -> None:
         """
@@ -1377,33 +1527,12 @@ class RapidWindow(QMainWindow):
         self.quitAct = QAction(_("&Quit"), self, shortcut="Ctrl+Q",
                                triggered=self.close)
 
-        # self.checkAllAct = QAction(_("&Check All"), self, shortcut="Ctrl+A",
-        #                            triggered=self.doCheckAllAction)
-        #
-        # self.checkAllPhotosAct = QAction(_("Check All Photos"), self,
-        #                                  shortcut="Ctrl+T",
-        #                                  triggered=self.doCheckAllPhotosAction)
-        #
-        # self.checkAllVideosAct = QAction(_("Check All Videos"), self,
-        #                                  shortcut="Ctrl+D",
-        #                                  triggered=self.doCheckAllVideosAction)
-        #
-        # self.uncheckAllAct = QAction(_("&Uncheck All"), self,
-        #                              shortcut="Ctrl+L",
-        #                              triggered=self.doUncheckAllAction)
-
         self.errorLogAct = QAction(_("Error Log"), self, enabled=False,
                                    checkable=True,
                                    triggered=self.doErrorLogAction)
 
         self.clearDownloadsAct = QAction(_("Clear Completed Downloads"), self,
                                          triggered=self.doClearDownloadsAction)
-
-        # self.previousFileAct = QAction(_("Previous File"), self, shortcut="[",
-        #                                triggered=self.doPreviousFileAction)
-        #
-        # self.nextFileAct = QAction(_("Next File"), self, shortcut="]",
-        #                            triggered=self.doNextFileAction)
 
         self.helpAct = QAction(_("Get Help Online..."), self, shortcut="F1",
                                triggered=self.doHelpAction)
@@ -1418,6 +1547,9 @@ class RapidWindow(QMainWindow):
                            self, triggered=self.doTranslateApplicationAction)
 
         self.aboutAct = QAction(_("&About..."), self, triggered=self.doAboutAction)
+
+        self.newVersionAct = QAction(_("Check for Updates..."), self,
+                                     triggered=self.doCheckForNewVersion)
 
     def createLayoutAndButtons(self, centralWidget) -> None:
         """
@@ -2067,6 +2199,7 @@ class RapidWindow(QMainWindow):
         self.menu.addAction(self.errorLogAct)
         self.menu.addAction(self.clearDownloadsAct)
         self.menu.addSeparator()
+        self.menu.addAction(self.newVersionAct)
         self.menu.addAction(self.helpAct)
         self.menu.addAction(self.reportProblemAct)
         self.menu.addAction(self.makeDonationAct)
@@ -2076,16 +2209,21 @@ class RapidWindow(QMainWindow):
 
         self.menuButton = MenuButton(icon=QIcon(':/menu.svg'), menu=self.menu)
 
-    def doSourceAction(self):
+    def doCheckForNewVersion(self) -> None:
+        """Check online for a new program version"""
+        self.newVersionCheckDialog.show()
+        self.checkForNewVersionRequest.emit()
+
+    def doSourceAction(self) -> None:
         self.sourceButton.animateClick()
 
-    def doDownloadAction(self):
+    def doDownloadAction(self) -> None:
         self.downloadButton.animateClick()
 
-    def doRefreshAction(self):
+    def doRefreshAction(self) -> None:
         pass
 
-    def doPreferencesAction(self):
+    def doPreferencesAction(self) -> None:
         message = "<b>Sorry, the GUI to manipulate some program preferences has not yet been " \
                   "written.</b><br><br>Consider using the command line options to adjust " \
                   "preferences, including the option to import preferences from previous " \
@@ -3853,6 +3991,9 @@ class RapidWindow(QMainWindow):
             self.cameraHotplugThread.wait()
         else:
             del self.gvolumeMonitor
+
+        self.newVersionThread.quit()
+        self.newVersionThread.wait(100)
 
         self.thumbnaildaemonmq.stop()
         self.thumbnaildaemonmqThread.quit()

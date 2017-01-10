@@ -319,6 +319,9 @@ class Preferences:
                           backup_duplicate_overwrite=False)
     destinations = dict(photo_backup_destinations=[''],
                         video_backup_destinations=[''])
+    version_check = dict(check_for_new_versions=True,
+                         include_development_release=False,
+                         ignore_versions=[''])
 
 
     def __init__(self) -> None:
@@ -333,9 +336,9 @@ class Preferences:
                  self.device_defaults,
                  self.backup_defaults, self.automation_defaults,
                  self.performance_defaults, self.error_defaults,
-                 self.destinations)
+                 self.destinations, self.version_check)
         group_names = ('Program', 'Rename', 'Timeline', 'Display', 'Device', 'Backup',
-                       'Automation', 'Performance', 'ErrorHandling', 'Destinations')
+                       'Automation', 'Performance', 'ErrorHandling', 'Destinations', 'VersionCheck')
         assert len(dicts) == len(group_names)
 
         # Create quick lookup table for types of each value, including the

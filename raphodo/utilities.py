@@ -277,11 +277,12 @@ class GenerateRandomFileName:
 TempDirs = namedtuple('TempDirs', 'photo_temp_dir, video_temp_dir')
 CacheDirs = namedtuple('CacheDirs', 'photo_cache_dir, video_cache_dir')
 
-def create_temp_dir(folder: str, prefix: Optional[str]=None) -> str:
+
+def create_temp_dir(folder: Optional[str], prefix: Optional[str]=None) -> str:
     """
     Creates a temporary director and logs errors
     :param folder: the folder in which the temporary directory should
-     be created
+     be created. If not specified, uses the tempfile.mkstemp default.
     :param prefix: any name the directory should start with
     :type prefix: str
     :return: full path of the temporary directory
@@ -298,6 +299,7 @@ def create_temp_dir(folder: str, prefix: Optional[str]=None) -> str:
         logging.critical(msg)
         temp_dir = None
     return temp_dir
+
 
 def create_temp_dirs(photo_download_folder: str,
                      video_download_folder: str) -> TempDirs:
@@ -316,6 +318,7 @@ def create_temp_dirs(photo_download_folder: str,
         logging.debug("Video temporary directory: %s", video_temp_dir)
     return TempDirs(photo_temp_dir, video_temp_dir)
 
+
 def same_file_system(file1: str, file2: str) -> bool:
     """
     Returns True if the files / directories are on the same filesystem.
@@ -330,6 +333,7 @@ def same_file_system(file1: str, file2: str) -> bool:
     dev1 = os.stat(file1).st_dev
     dev2 = os.stat(file2).st_dev
     return dev1 == dev2
+
 
 def make_internationalized_list(items) -> str:
     r"""
@@ -369,6 +373,7 @@ def make_internationalized_list(items) -> str:
                                                        last_item=items[-1])
         return s
     return ''
+
 
 def thousands(i: int) -> str:
     """

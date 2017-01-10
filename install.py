@@ -233,7 +233,7 @@ def check_package_import_requirements(distro: Distro, version: float) -> None:
              'gir1.2-udisks-2.0 gir1.2-notify-0.7 gir1.2-glib-2.0 gir1.2-gstreamer-1.0 '\
              'libgphoto2-dev python3-arrow python3-psutil g++ libmediainfo0v5 '\
              'qt5-image-formats-plugins python3-zmq exiv2 python3-colorlog libraw-bin ' \
-             'python3-easygui python3-sortedcontainers python3-wheel'.split()
+             'python3-easygui python3-sortedcontainers python3-wheel python3-requests'.split()
 
         for package in packages:
             try:
@@ -258,7 +258,8 @@ def check_package_import_requirements(distro: Distro, version: float) -> None:
         packages = 'python3-qt5 gobject-introspection python3-gobject ' \
                    'libgphoto2-devel zeromq-devel exiv2 perl-Image-ExifTool LibRaw-devel gcc-c++ ' \
                    'rpm-build python3-devel python3-distutils-extra intltool ' \
-                   'python3-easygui qt5-qtimageformats python3-psutil libmediainfo'.split()
+                   'python3-easygui qt5-qtimageformats python3-psutil libmediainfo' \
+                   'python3-requests'.split()
 
         if version <= 24.0 and version > 0.0:
             packages.append('libgexiv2-python3')

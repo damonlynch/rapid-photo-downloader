@@ -16,4 +16,4 @@ easygui<=0.97.4
 colour
 pymediainfo>=2.1.4
 sortedcontainers
-
+requests

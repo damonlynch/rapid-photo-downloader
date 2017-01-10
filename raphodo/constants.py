@@ -27,6 +27,23 @@ from PyQt5.QtGui import QFont, QFontMetrics, QColor
 PROGRAM_NAME = "Rapid Photo Downloader"
 logfile_name = 'rapid-photo-downloader.log'
 
+remote_versions_file = 'http://www.damonlynch.net/rapid/version.json'
+
+
+class CheckNewVersionDialogResult(IntEnum):
+    download = 1
+    do_not_download = 2
+    skip = 3
+    open_website = 4
+
+
+class CheckNewVersionDialogState(IntEnum):
+    check = 1
+    prompt_for_download = 2
+    open_website = 3
+    failed_to_contact = 4
+    have_latest_version = 5
+
 
 class ConflictResolution(IntEnum):
     skip = 1
@@ -413,6 +430,10 @@ def minFileSystemViewHeight() -> int:
 
 def minGridColumnWidth() -> int:
     return int(QFontMetrics(QFont()).height() * 1.3333333333333333)
+
+
+def standardProgressBarWidth() -> int:
+    return int(QFontMetrics(QFont()).height() * 20)
 
 
 class Desktop(Enum):
