@@ -657,7 +657,7 @@ class RapidWindow(QMainWindow):
 
     @pyqtSlot(int)
     def initStage2(self, logging_port: int) -> None:
-        logging.debug("... logging subscription manager started")
+        logging.debug("...logging subscription manager started")
         self.logging_port = logging_port
 
         logging.debug("Stage 2 initialization")
@@ -695,7 +695,7 @@ class RapidWindow(QMainWindow):
     def initStage4(self, frontend_port: int) -> None:
         logging.debug("Stage 4 initialization")
 
-        # logging.debug("... thumbnail model and load balancer started")
+        # logging.debug("...thumbnail model and load balancer started")
 
         self.sendDataMessageToThread(self.thumbnail_deamon_controller, worker_id=None,
                                      data=ThumbnailDaemonData(frontend_port=frontend_port))
@@ -808,7 +808,7 @@ class RapidWindow(QMainWindow):
 
             logging.debug("Starting GVolumeMonitor...")
             self.gvolumeMonitor = GVolumeMonitor(self.validMounts)
-            logging.debug("... GVolumeMonitor started")
+            logging.debug("...GVolumeMonitor started")
             self.gvolumeMonitor.cameraUnmounted.connect(self.cameraUnmounted)
             self.gvolumeMonitor.cameraMounted.connect(self.cameraMounted)
             self.gvolumeMonitor.partitionMounted.connect(self.partitionMounted)
@@ -957,7 +957,7 @@ class RapidWindow(QMainWindow):
 
     @pyqtSlot()
     def initStage9(self) -> None:
-        logging.debug("... backup manager started")
+        logging.debug("...backup manager started")
 
         if self.prefs.backup_files:
             self.setupBackupDevices()

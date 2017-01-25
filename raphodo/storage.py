@@ -1010,17 +1010,10 @@ if have_gio:
         automatically mounted. This is important because this class
         is monitoring mounts, and if the volume is not mounted, it will
         go unnoticed.
-
-        NOTE: from the Gnome documentation:
-
-        Gio.VolumeMonitor is not thread-default-context aware,
-        and so should not be used other than from the main thread,
-        with no thread-default-context active.
         """
 
         cameraUnmounted = pyqtSignal(bool, str, str, bool, bool)
         cameraMounted = pyqtSignal()
-        cameraUnmountAttempted = pyqtSignal(str, str, bool, bool)
         partitionMounted = pyqtSignal(str, list, bool)
         partitionUnmounted = pyqtSignal(str)
         volumeAddedNoAutomount = pyqtSignal()
@@ -1028,16 +1021,13 @@ if have_gio:
 
         def __init__(self, validMounts: ValidMounts) -> None:
             super().__init__()
-            self.portSearch = re.compile(r'usb:([\d]+),([\d]+)')
-            self.validMounts = validMounts
-
-        def start(self) -> None:
             self.vm = Gio.VolumeMonitor.get()
             self.vm.connect('mount-added', self.mountAdded)
             self.vm.connect('volume-added', self.volumeAdded)
             self.vm.connect('mount-removed', self.mountRemoved)
             self.vm.connect('volume-removed', self.volumeRemoved)
-            logging.debug("... GVolumeMonitor started")
+            self.portSearch = re.compile(r'usb:([\d]+),([\d]+)')
+            self.validMounts = validMounts
 
         def cameraMountPoint(self, model: str, port: str) -> Gio.Mount:
             """
@@ -1059,19 +1049,14 @@ if have_gio:
                         break
             return to_unmount
 
-        @pyqtSlot(str, str, bool, bool)
-        @pyqtSlot(str, str, bool, bool, 'PyQt_PyObject')
         def unmountCamera(self, model: str,
                           port: str,
-                          download_starting: bool,
-                          on_startup: bool,
-                          mount_point: Optional[Gio.Mount]=None) -> None:
+                          download_starting: bool=False,
+                          on_startup: bool=False,
+                          mount_point: Gio.Mount = None) -> bool:
             """
             Unmount camera mounted on gvfs mount point, if it is
             mounted. If not mounted, ignore.
-
-            Emits signal whether or not an unmount operation has been initiated.
-
             :param model: model as returned by libgphoto2
             :param port: port as returned by libgphoto2, in format like
              usb:001,004
@@ -1079,8 +1064,10 @@ if have_gio:
              because a download has been initiated.
             :param on_startup: if True, the unmount is occurring during
              the program's startup phase
-            :param mount_point: if not None, try unmounting from this
+            :param mount_point: if not None, try umounting from this
              mount point without scanning for it first
+            :return: True if an unmount operation has been initiated,
+             else returns False.
             """
 
             if mount_point is None:
@@ -1092,9 +1079,9 @@ if have_gio:
                 logging.debug("GIO: Attempting to unmount %s...", model)
                 to_unmount.unmount_with_operation(0, None, None, self.unmountCameraCallback,
                                                   (model, port, download_starting, on_startup))
-                self.cameraUnmountAttempted.emit(model, port, on_startup, download_starting, True)
+                return True
 
-            self.cameraUnmountAttempted.emit(model, port, on_startup, download_starting, False)
+            return False
 
         def unmountCameraCallback(self, mount: Gio.Mount,
                                   result: Gio.AsyncResult,
@@ -1122,7 +1109,6 @@ if have_gio:
                 logging.exception('Traceback:')
                 self.cameraUnmounted.emit(False, model, port, download_starting, on_startup)
 
-        @pyqtSlot(str)
         def unmountVolume(self, path: str) -> None:
             """
             Unmounts the volume represented by the path. If no volume is found
