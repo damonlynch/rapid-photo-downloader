@@ -42,7 +42,7 @@ import pickle
 from collections import namedtuple, defaultdict
 import platform
 import argparse
-from typing import Optional, Tuple, List, Sequence, Dict, Set
+from typing import Optional, Tuple, List, Sequence, Dict, Set, Any
 import faulthandler
 import pkg_resources
 import webbrowser
@@ -51,7 +51,6 @@ import shlex
 import subprocess
 from urllib.request import pathname2url
 
-import gettext
 from gettext import gettext as _
 
 
@@ -90,22 +89,14 @@ from raphodo.storage import (ValidMounts, CameraHotplug, UDisks2Monitor,
                      gvfs_controls_mounts, get_default_file_manager, validate_download_folder,
                      validate_source_folder, get_fdo_cache_thumb_base_directory,
                      WatchDownloadDirs, get_media_dir)
-from raphodo.interprocess import (PublishPullPipelineManager,
-                                  PushPullDaemonManager,
-                                  ScanArguments,
-                                  CopyFilesArguments,
-                                  RenameAndMoveFileData,
-                                  BackupArguments,
-                                  BackupFileData,
-                                  OffloadData,
-                                  ProcessLoggingManager,
-                                  RenameAndMoveFileResults,
-                                  OffloadResults,
-                                  BackupResults,
-                                  CopyFilesResults,
-                                  GenerateThumbnailsResults,
-                                  ThumbnailDaemonData,
-                                  ScanResults)
+from raphodo.interprocess import (
+    ScanArguments, CopyFilesArguments, RenameAndMoveFileData, BackupArguments,
+    BackupFileData, OffloadData, ProcessLoggingManager, RenameAndMoveFileResults,
+    OffloadResults, BackupResults, CopyFilesResults,
+    GenerateThumbnailsResults, ThumbnailDaemonData, ScanResults, ThreadNames,
+    RenameAndMoveStatus, OffloadManager, CopyFilesManager, ThumbnailDaemonManager,
+    ScanManager, BackupManager, stop_process_logging_manager, RenameMoveFileManager,
+    create_inproc_msg)
 from raphodo.devices import (Device, DeviceCollection, BackupDevice,
                      BackupDeviceCollection)
 from raphodo.preferences import (Preferences, ScanPreferences)
@@ -172,191 +163,6 @@ logger = None
 sys.excepthook = raphodo.excepthook.excepthook
 
 
-class RenameMoveFileManager(PushPullDaemonManager):
-    """
-    Manages the single instance daemon process that renames and moves
-    files that have just been downloaded
-    """
-
-    message = pyqtSignal(bool, RPDFile, int)
-    sequencesUpdate = pyqtSignal(int, list)
-
-    def __init__(self, logging_port: int) -> None:
-        super().__init__(logging_port)
-        self._process_name = 'Rename and Move File Manager'
-        self._process_to_run = 'renameandmovefile.py'
-
-    def rename_file(self, data: RenameAndMoveFileData):
-        self.send_message_to_worker(data)
-
-    def process_sink_data(self):
-        data = pickle.loads(self.content)  # type: RenameAndMoveFileResults
-        if data.move_succeeded is not None:
-
-            self.message.emit(data.move_succeeded, data.rpd_file, data.download_count)
-        else:
-            assert data.stored_sequence_no is not None
-            assert data.downloads_today is not None
-            assert isinstance(data.downloads_today, list)
-            self.sequencesUpdate.emit(data.stored_sequence_no,
-                                      data.downloads_today)
-
-
-class ThumbnailDaemonManager(PushPullDaemonManager):
-    """
-    Manages the process that extracts thumbnails after the file
-    has already been downloaded and that writes FreeDesktop.org
-    thumbnails. Not to be confused with ThumbnailManagerPara, which
-    manages thumbnailing using processes that run in parallel,
-    one for each device.
-    """
-
-    message = pyqtSignal(RPDFile, QPixmap)
-
-    def __init__(self, logging_port: int) -> None:
-        super().__init__(logging_port)
-        self._process_name = 'Thumbnail Daemon Manager'
-        self._process_to_run = 'thumbnaildaemon.py'
-
-    def process_sink_data(self) -> None:
-        data = pickle.loads(self.content) # type: GenerateThumbnailsResults
-        if data.thumbnail_bytes is None:
-            thumbnail = QPixmap()
-        else:
-            thumbnail = QImage.fromData(data.thumbnail_bytes)
-            if thumbnail.isNull():
-                thumbnail = QPixmap()
-            else:
-                thumbnail = QPixmap.fromImage(thumbnail)
-        self.message.emit(data.rpd_file, thumbnail)
-
-
-class OffloadManager(PushPullDaemonManager):
-    """
-    Handles tasks best run in a separate process
-    """
-
-    message = pyqtSignal(TemporalProximityGroups)
-    downloadFolders = pyqtSignal(FoldersPreview)
-
-    def __init__(self, logging_port: int) -> None:
-        super().__init__(logging_port=logging_port)
-        self._process_name = 'Offload Manager'
-        self._process_to_run = 'offload.py'
-
-    def assign_work(self, data: OffloadData) -> None:
-        self.send_message_to_worker(data)
-
-    def process_sink_data(self) -> None:
-        data = pickle.loads(self.content)  # type: OffloadResults
-        if data.proximity_groups is not None:
-            self.message.emit(data.proximity_groups)
-        elif data.folders_preview is not None:
-            self.downloadFolders.emit(data.folders_preview)
-
-
-class ScanManager(PublishPullPipelineManager):
-    """
-    Handles the processes that scan devices (cameras, external devices,
-    this computer path)
-    """
-    message = pyqtSignal(bytes)
-
-    def __init__(self, logging_port: int) -> None:
-        super().__init__(logging_port=logging_port)
-        self._process_name = 'Scan Manager'
-        self._process_to_run = 'scan.py'
-
-    def process_sink_data(self) -> None:
-        self.message.emit(self.content)
-
-
-class BackupManager(PublishPullPipelineManager):
-    """
-    Each backup "device" (it could be an external drive, or a user-
-    specified path on the local file system) has associated with it one
-    worker process. For example if photos and videos are both being
-    backed up to the same external hard drive, one worker process
-    handles both the photos and the videos. However if photos are being
-    backed up to one drive, and videos to another, there would be a
-    worker process for each drive (2 in total).
-    """
-    message = pyqtSignal(int, bool, bool, RPDFile, str)
-    bytesBackedUp = pyqtSignal(bytes)
-
-    def __init__(self, logging_port: int) -> None:
-        super().__init__(logging_port=logging_port)
-        self._process_name = 'Backup Manager'
-        self._process_to_run = 'backupfile.py'
-
-    def add_device(self, device_id: int, backup_arguments: BackupArguments) -> None:
-        self.start_worker(device_id, backup_arguments)
-
-    def remove_device(self, device_id: int) -> None:
-        self.stop_worker(device_id)
-
-    def backup_file(self, data: BackupFileData, device_id: int) -> None:
-        self.send_message_to_worker(data, device_id)
-
-    def process_sink_data(self) -> None:
-        data = pickle.loads(self.content) # type: BackupResults
-        if data.total_downloaded is not None:
-            assert data.scan_id is not None
-            assert data.chunk_downloaded >= 0
-            assert data.total_downloaded >= 0
-            # Emit the unpickled data, as when PyQt converts an int to a
-            # C++ int, python ints larger that the maximum C++ int are
-            # corrupted
-            self.bytesBackedUp.emit(self.content)
-        else:
-            assert data.backup_succeeded is not None
-            assert data.do_backup is not None
-            assert data.rpd_file is not None
-            self.message.emit(data.device_id, data.backup_succeeded,
-                              data.do_backup, data.rpd_file, data.backup_full_file_name)
-
-
-class CopyFilesManager(PublishPullPipelineManager):
-    """
-    Manage the processes that copy files from devices to the computer
-    during the download process
-    """
-
-    message = QtCore.pyqtSignal(bool, RPDFile, int)
-    tempDirs = QtCore.pyqtSignal(int, str,str)
-    bytesDownloaded = QtCore.pyqtSignal(bytes)
-
-    def __init__(self, logging_port: int) -> None:
-        super().__init__(logging_port=logging_port)
-        self._process_name = 'Copy Files Manager'
-        self._process_to_run = 'copyfiles.py'
-
-    def process_sink_data(self) -> None:
-        data = pickle.loads(self.content) # type: CopyFilesResults
-        if data.total_downloaded is not None:
-            assert data.scan_id is not None
-            if data.chunk_downloaded < 0:
-                logging.critical("Chunk downloaded is less than zero: %s", data.chunk_downloaded)
-            if data.total_downloaded < 0:
-                logging.critical("Chunk downloaded is less than zero: %s", data.total_downloaded)
-
-            # Emit the unpickled data, as when PyQt converts an int to a
-            # C++ int, python ints larger that the maximum C++ int are
-            # corrupted
-            self.bytesDownloaded.emit(self.content)
-
-        elif data.copy_succeeded is not None:
-            assert data.rpd_file is not None
-            assert data.download_count is not None
-            self.message.emit(data.copy_succeeded, data.rpd_file, data.download_count)
-
-        else:
-            assert (data.photo_temp_dir is not None and
-                    data.video_temp_dir is not None)
-            assert data.scan_id is not None
-            self.tempDirs.emit(data.scan_id, data.photo_temp_dir, data.video_temp_dir)
-
-
 class FolderPreviewManager(QObject):
     """
     Manages sending FoldersPreview() off to the offload process to
@@ -379,7 +185,6 @@ class FolderPreviewManager(QObject):
     """
 
     def __init__(self, fsmodel: FileSystemModel,
-                 offloadmq: OffloadManager,
                  prefs: Preferences,
                  photoDestinationFSView: FileSystemView,
                  videoDestinationFSView: FileSystemView,
@@ -388,7 +193,6 @@ class FolderPreviewManager(QObject):
         """
 
         :param fsmodel: FileSystemModel powering the destination and this computer views
-        :param offloadmq: offload manager
         :param prefs: program preferences
         :param photoDestinationFSView: photo destination view
         :param videoDestinationFSView: video destination view
@@ -405,7 +209,6 @@ class FolderPreviewManager(QObject):
 
         self.offloaded = False
         self.process_destination = False
-        self.offloadmq = offloadmq
         self.fsmodel = fsmodel
         self.prefs = prefs
         self.devices = devices
@@ -442,7 +245,7 @@ class FolderPreviewManager(QObject):
         data = OffloadData(rpd_files=rpd_files, strip_characters=self.prefs.strip_characters,
                            folders_preview=self.folders_preview)
         self.offloaded = True
-        self.offloadmq.assign_work(data)
+        self.rapidApp.sendToOffload(data=data)
 
     def change_destination(self) -> None:
         if self.offloaded:
@@ -609,6 +412,7 @@ class RapidWindow(QMainWindow):
 
     checkForNewVersionRequest = pyqtSignal()
     downloadNewVersionRequest = pyqtSignal(str, str)
+    udisks2Unmount = pyqtSignal(str)
 
     def __init__(self, splash: 'SplashScreen',
                  photo_rename: Optional[bool]=None,
@@ -650,8 +454,6 @@ class RapidWindow(QMainWindow):
             logging.info('%s', version)
 
         self.log_gphoto2 = log_gphoto2 == True
-
-        self.context = zmq.Context()
 
         self.setWindowTitle(_("Rapid Photo Downloader"))
         # app is a module level global
@@ -767,6 +569,7 @@ class RapidWindow(QMainWindow):
         # cause "Interrupted system call" errors
         app.processEvents()
 
+        self.startThreadControlSockets()
         self.startProcessLogger()
 
     def checkPrefsUpgrade(self) -> None:
@@ -784,6 +587,63 @@ class RapidWindow(QMainWindow):
                 elif pv > rv:
                     logging.info("Version downgrade detected, from %s to %s",
                                   __about__.__version__, previous_version)
+
+    def startThreadControlSockets(self) -> None:
+        """
+        Create and bind inproc sockets to communicate with threads that
+        handle inter process communication via zmq.
+
+        See 'Signaling Between Threads (PAIR Sockets)' in 'ØMQ - The Guide'
+        http://zguide.zeromq.org/page:all#toc46
+        """
+
+        context = zmq.Context.instance()
+        inproc = "inproc://{}"
+
+        self.logger_controller =  context.socket(zmq.PAIR)
+        self.logger_controller.bind(inproc.format(ThreadNames.logger))
+
+        self.rename_controller = context.socket(zmq.PAIR)
+        self.rename_controller.bind(inproc.format(ThreadNames.rename))
+
+        self.scan_controller = context.socket(zmq.PAIR)
+        self.scan_controller.bind(inproc.format(ThreadNames.scan))
+
+        self.copy_controller = context.socket(zmq.PAIR)
+        self.copy_controller.bind(inproc.format(ThreadNames.copy))
+
+        self.backup_controller = context.socket(zmq.PAIR)
+        self.backup_controller.bind(inproc.format(ThreadNames.backup))
+
+        self.thumbnail_deamon_controller = context.socket(zmq.PAIR)
+        self.thumbnail_deamon_controller.bind(inproc.format(ThreadNames.thumbnail_daemon))
+
+        self.offload_controller = context.socket(zmq.PAIR)
+        self.offload_controller.bind(inproc.format(ThreadNames.offload))
+
+    def sendStopToThread(self, socket: zmq.Socket) -> None:
+        socket.send_multipart(create_inproc_msg(b'STOP'))
+
+    def sendTerminateToThread(self, socket: zmq.Socket) -> None:
+        socket.send_multipart(create_inproc_msg(b'TERMINATE'))
+
+    def sendStopWorkerToThread(self, socket: zmq.Socket, worker_id: int) -> None:
+        socket.send_multipart(create_inproc_msg(b'STOP_WORKER', worker_id=worker_id))
+
+    def sendStartToThread(self, socket: zmq.Socket) -> None:
+        socket.send_multipart(create_inproc_msg(b'START'))
+
+    def sendStartWorkerToThread(self, socket: zmq.Socket, worker_id: int, data: Any) -> None:
+        socket.send_multipart(create_inproc_msg(b'START_WORKER', worker_id=worker_id, data=data))
+
+    def sendDataMessageToThread(self, socket: zmq.Socket,
+                                data: Any,
+                                worker_id: Optional[int]=None) -> None:
+        socket.send_multipart(create_inproc_msg(b'SEND_TO_WORKER', worker_id=worker_id, data=data))
+
+    def sendToOffload(self, data: Any) -> None:
+        self.offload_controller.send_multipart(create_inproc_msg(b'SEND_TO_WORKER',
+                                                                  worker_id=None, data=data))
 
     def startProcessLogger(self) -> None:
         self.loggermq = ProcessLoggingManager()
@@ -809,37 +669,36 @@ class RapidWindow(QMainWindow):
 
         self.thumbnaildaemonmqThread = QThread()
         self.thumbnaildaemonmq = ThumbnailDaemonManager(logging_port=logging_port)
-
         self.thumbnaildaemonmq.moveToThread(self.thumbnaildaemonmqThread)
-
         self.thumbnaildaemonmqThread.started.connect(self.thumbnaildaemonmq.run_sink)
         self.thumbnaildaemonmq.message.connect(self.thumbnailReceivedFromDaemon)
+        self.thumbnaildaemonmq.sinkStarted.connect(self.initStage3)
 
         QTimer.singleShot(0, self.thumbnaildaemonmqThread.start)
-        # Immediately start the sole thumbnail daemon process worker
-        self.thumbnaildaemonmq.start()
+
+    @pyqtSlot()
+    def initStage3(self) -> None:
+        logging.debug("Stage 3 initialization")
+
+        self.sendStartToThread(self.thumbnail_deamon_controller)
+        logging.debug("...thumbnail daemon model started")
 
         self.thumbnailView = ThumbnailView(self)
-        logging.debug("Starting thumbnail model and load balancer...")
-        self.thumbnailModel = ThumbnailListModel(parent=self, logging_port=logging_port,
+        # logging.debug("Starting thumbnail model and load balancer...")
+        self.thumbnailModel = ThumbnailListModel(parent=self, logging_port=self.logging_port,
                                                  log_gphoto2=self.log_gphoto2)
 
         self.thumbnailView.setModel(self.thumbnailModel)
         self.thumbnailView.setItemDelegate(ThumbnailDelegate(rapidApp=self))
 
-        # Connect to the signal that is emitted when a thumbnailing operation is
-        # terminated by us, not merely finished
-        self.thumbnailModel.thumbnailmq.workerStopped.connect(self.thumbnailGenerationStopped)
+    @pyqtSlot(int)
+    def initStage4(self, frontend_port: int) -> None:
+        logging.debug("Stage 4 initialization")
 
+        # logging.debug("... thumbnail model and load balancer started")
 
-    @pyqtSlot()
-    def initStage3(self) -> None:
-        logging.debug("... thumbnail model and load balancer started")
-
-        logging.debug("Stage 3 initialization")
-
-        self.thumbnaildaemonmq.send_message_to_worker(ThumbnailDaemonData(
-            frontend_port=self.thumbnailModel.thumbnailmq.frontend_port))
+        self.sendDataMessageToThread(self.thumbnail_deamon_controller, worker_id=None,
+                                     data=ThumbnailDaemonData(frontend_port=frontend_port))
 
         centralWidget = QWidget()
         self.setCentralWidget(centralWidget)
@@ -862,7 +721,6 @@ class RapidWindow(QMainWindow):
             logging.error("Notification intialization problem")
             self.have_libnotify = False
 
-
         logging.debug("Locale directory: %s", raphodo.localedir)
 
         self.file_manager = get_default_file_manager()
@@ -871,7 +729,7 @@ class RapidWindow(QMainWindow):
         else:
             logging.debug("Default file manager could not be determined")
 
-        self.program_svg = ':/rapid-photo-downloader.svg'
+        # self.program_svg = ':/rapid-photo-downloader.svg'
         # Initialise use of libgphoto2
         logging.debug("Getting gphoto2 context")
         try:
@@ -902,8 +760,8 @@ class RapidWindow(QMainWindow):
                 logging.debug("Desktop environment is Unity, but could not load Unity 7.0 module")
             else:
                 # Unity auto-generated desktop files use underscores, it seems
-                for launcher in ('rapid-photo-downloader.desktop',
-                                 'rapid_photo_downloader.desktop'):
+                for launcher in ('rapid_photo_downloader.desktop',
+                                 'rapid-photo-downloader.desktop'):
                     self.desktop_launcher = Unity.LauncherEntry.get_for_desktop_id(launcher)
                     if self.desktop_launcher is not None:
                         self.unity_progress = True
@@ -922,36 +780,32 @@ class RapidWindow(QMainWindow):
 
         if not self.gvfsControlsMounts:
             # Monitor when the user adds or removes a camera
-            # TODO this must be converted into a real thread
             self.cameraHotplug = CameraHotplug()
             self.cameraHotplugThread = QThread()
+            self.cameraHotplugThread.started.connect(self.cameraHotplug.startMonitor)
             self.cameraHotplug.moveToThread(self.cameraHotplugThread)
             self.cameraHotplug.cameraAdded.connect(self.cameraAdded)
             self.cameraHotplug.cameraRemoved.connect(self.cameraRemoved)
             # Start the monitor only on the thread it will be running on
             logging.debug("Starting camera hotplug monitor...")
-            self.cameraHotplug.startMonitor()
-            logging.debug("... camera hotplug monitor started")
-            self.cameraHotplug.enumerateCameras()
-
-            if self.cameraHotplug.cameras:
-                logging.debug("Camera Hotplug found %d cameras:", len(self.cameraHotplug.cameras))
-                for port, model in self.cameraHotplug.cameras.items():
-                    logging.debug("%s at %s", model, port)
+            QTimer.singleShot(0, self.cameraHotplugThread.start)
 
             # Monitor when the user adds or removes a partition
-            # TODO this must be converted into a real thread
             self.udisks2Monitor = UDisks2Monitor(self.validMounts)
             self.udisks2MonitorThread = QThread()
+            self.udisks2MonitorThread.started.connect(self.udisks2Monitor.startMonitor)
+            self.udisks2Unmount.connect(self.udisks2Monitor.unmount_volume)
             self.udisks2Monitor.moveToThread(self.udisks2MonitorThread)
             self.udisks2Monitor.partitionMounted.connect(self.partitionMounted)
             self.udisks2Monitor.partitionUnmounted.connect(self.partitionUmounted)
             # Start the monitor only on the thread it will be running on
             logging.debug("Starting UDisks2 monitor...")
-            self.udisks2Monitor.startMonitor()
-            logging.debug("... UDisks2 monitor started")
+            QTimer.singleShot(0, self.udisks2MonitorThread.start)
 
         if self.gvfsControlsMounts:
+            # Gio.VolumeMonitor must be in the main thread, according to
+            # Gnome documentation
+
             logging.debug("Starting GVolumeMonitor...")
             self.gvolumeMonitor = GVolumeMonitor(self.validMounts)
             logging.debug("... GVolumeMonitor started")
@@ -1001,25 +855,27 @@ class RapidWindow(QMainWindow):
         self.dl_update_timer.setInterval(constants.DownloadUpdateMilliseconds)
         self.dl_update_timer.timeout.connect(self.displayDownloadRunningInStatusBar)
 
-
-        # TODO fix the threading stuff here.... should not call member functions
-        # when they're already in another thread!
-
         # Offload process is used to offload work that could otherwise
         # cause this process and thus the GUI to become unresponsive
+        logging.debug("Starting offload manager...")
+
         self.offloadThread = QThread()
         self.offloadmq = OffloadManager(logging_port=self.logging_port)
+        self.offloadThread.started.connect(self.offloadmq.run_sink)
+        self.offloadmq.sinkStarted.connect(self.initStage5)
+        self.offloadmq.message.connect(self.proximityGroupsGenerated)
         self.offloadmq.moveToThread(self.offloadThread)
 
-        self.offloadThread.started.connect(self.offloadmq.run_sink)
-        self.offloadmq.message.connect(self.proximityGroupsGenerated)
-
         QTimer.singleShot(0, self.offloadThread.start)
-        # Immediately start the sole daemon offload process worker
-        self.offloadmq.start()
+
+
+    @pyqtSlot()
+    def initStage5(self) -> None:
+        logging.debug("...offload manager started")
+        self.sendStartToThread(self.offload_controller)
 
         self.folder_preview_manager = FolderPreviewManager(fsmodel=self.fileSystemModel,
-                offloadmq=self.offloadmq, prefs=self.prefs,
+                prefs=self.prefs,
                 photoDestinationFSView=self.photoDestinationFSView,
                 videoDestinationFSView=self.videoDestinationFSView,
                 devices=self.devices,
@@ -1030,47 +886,80 @@ class RapidWindow(QMainWindow):
 
         self.renameThread = QThread()
         self.renamemq = RenameMoveFileManager(logging_port=self.logging_port)
-        self.renamemq.moveToThread(self.renameThread)
-
         self.renameThread.started.connect(self.renamemq.run_sink)
+        self.renamemq.sinkStarted.connect(self.initStage6)
         self.renamemq.message.connect(self.fileRenamedAndMoved)
         self.renamemq.sequencesUpdate.connect(self.updateSequences)
         self.renamemq.workerFinished.connect(self.fileRenamedAndMovedFinished)
+        self.renamemq.moveToThread(self.renameThread)
 
+        logging.debug("Starting rename manager...")
         QTimer.singleShot(0, self.renameThread.start)
-        # Immediately start the sole daemon process rename and move files
-        # worker
-        self.renamemq.start()
+
+    @pyqtSlot()
+    def initStage6(self) -> None:
+        logging.debug("...rename manager started")
+
+        self.sendStartToThread(self.rename_controller)
 
         # Setup the scan processes
         self.scanThread = QThread()
         self.scanmq = ScanManager(logging_port=self.logging_port)
-        self.scanmq.moveToThread(self.scanThread)
 
         self.scanThread.started.connect(self.scanmq.run_sink)
+        self.scanmq.sinkStarted.connect(self.initStage7)
         self.scanmq.message.connect(self.scanMessageReceived)
         self.scanmq.workerFinished.connect(self.scanFinished)
 
-        # call the slot with no delay
+        self.scanmq.moveToThread(self.scanThread)
+
+        logging.debug("Starting scan manager...")
         QTimer.singleShot(0, self.scanThread.start)
+
+    @pyqtSlot()
+    def initStage7(self) -> None:
+        logging.debug("...scan manager started")
 
         # Setup the copyfiles process
         self.copyfilesThread = QThread()
         self.copyfilesmq = CopyFilesManager(logging_port=self.logging_port)
-        self.copyfilesmq.moveToThread(self.copyfilesThread)
 
         self.copyfilesThread.started.connect(self.copyfilesmq.run_sink)
+        self.copyfilesmq.sinkStarted.connect(self.initStage8)
         self.copyfilesmq.message.connect(self.copyfilesDownloaded)
         self.copyfilesmq.bytesDownloaded.connect(self.copyfilesBytesDownloaded)
         self.copyfilesmq.tempDirs.connect(self.tempDirsReceivedFromCopyFiles)
         self.copyfilesmq.workerFinished.connect(self.copyfilesFinished)
 
+        self.copyfilesmq.moveToThread(self.copyfilesThread)
+
+        logging.debug("Starting copy files manager...")
         QTimer.singleShot(0, self.copyfilesThread.start)
 
-        self.backup_manager_started = False
+    @pyqtSlot()
+    def initStage8(self) -> None:
+        logging.debug("...copy files manager started")
+
         self.backup_devices = BackupDeviceCollection(rapidApp=self)
+
+        self.backupThread = QThread()
+        self.backupmq = BackupManager(logging_port=self.logging_port)
+
+        self.backupThread.started.connect(self.backupmq.run_sink)
+        self.backupmq.sinkStarted.connect(self.initStage9)
+        self.backupmq.message.connect(self.fileBackedUp)
+        self.backupmq.bytesBackedUp.connect(self.backupFileBytesBackedUp)
+
+        self.backupmq.moveToThread(self.backupThread)
+
+        logging.debug("Starting backup manager ...")
+        QTimer.singleShot(0, self.backupThread.start)
+
+    @pyqtSlot()
+    def initStage9(self) -> None:
+        logging.debug("... backup manager started")
+
         if self.prefs.backup_files:
-            self.startBackupManager()
             self.setupBackupDevices()
         else:
             self.download_tracker.set_no_backup_devices(0, 0)
@@ -1113,7 +1002,7 @@ class RapidWindow(QMainWindow):
         else:
             self.checkForNewVersionRequest.emit()
 
-        logging.debug("Completed stage 3 initializing main window")
+        logging.debug("Completed stage 9 initializing main window")
 
     def showMainWindow(self) -> None:
         if not self.isVisible():
@@ -1244,7 +1133,7 @@ class RapidWindow(QMainWindow):
 
             # testing code - remove in production!
             if (self.latest_version is not None and str(self.latest_version.version) not in
-                    self.prefs.ignore_versions): #   or True
+                    self.prefs.ignore_versions): # or True
 
                 # self.latest_version = dev_version
 
@@ -1305,15 +1194,15 @@ class RapidWindow(QMainWindow):
                 self.downloadNewVersionDialog.rejected.connect(self.newVersionDownloadCancelled)
                 self.downloadNewVersionDialog.show()
 
-    @pyqtSlot(bytes)
-    def newVersionBytesDownloaded(self, bytes_downloaded: bytes) -> None:
+    @pyqtSlot('PyQt_PyObject')
+    def newVersionBytesDownloaded(self, bytes_downloaded: int) -> None:
         if self.downloadNewVersionDialog.isVisible():
-            self.downloadNewVersionDialog.updateProgress(int(bytes_downloaded))
+            self.downloadNewVersionDialog.updateProgress(bytes_downloaded)
 
-    @pyqtSlot(str)
-    def newVersionDownloadSize(self, download_size: str) -> None:
+    @pyqtSlot('PyQt_PyObject')
+    def newVersionDownloadSize(self, download_size: int) -> None:
         if self.downloadNewVersionDialog.isVisible():
-            self.downloadNewVersionDialog.setDownloadSize(int(download_size))
+            self.downloadNewVersionDialog.setDownloadSize(download_size)
 
     @pyqtSlot(str)
     def newVersionDownloaded(self, path: str) -> None:
@@ -1361,20 +1250,6 @@ class RapidWindow(QMainWindow):
             logging.debug("Resetting progress bar")
             self.downloadProgressBar.reset()
             self.downloadProgressBar.setMaximum(100)
-
-    def startBackupManager(self) -> None:
-        if not self.backup_manager_started:
-            self.backupThread = QThread()
-            self.backupmq = BackupManager(logging_port=self.logging_port)
-            self.backupmq.moveToThread(self.backupThread)
-
-            self.backupThread.started.connect(self.backupmq.run_sink)
-            self.backupmq.message.connect(self.fileBackedUp)
-            self.backupmq.bytesBackedUp.connect(self.backupFileBytesBackedUp)
-
-            QTimer.singleShot(0, self.backupThread.start)
-
-            self.backup_manager_started = True
 
     def updateSourceButton(self) -> None:
         text, icon = self.devices.get_main_window_display_name_and_icon()
@@ -2199,8 +2074,8 @@ class RapidWindow(QMainWindow):
         self.menu.addAction(self.errorLogAct)
         self.menu.addAction(self.clearDownloadsAct)
         self.menu.addSeparator()
-        self.menu.addAction(self.newVersionAct)
         self.menu.addAction(self.helpAct)
+        self.menu.addAction(self.newVersionAct)
         self.menu.addAction(self.reportProblemAct)
         self.menu.addAction(self.makeDonationAct)
         self.menu.addAction(self.translateApplicationAct)
@@ -2607,7 +2482,7 @@ class RapidWindow(QMainWindow):
                              if scan_id in self.devices.thumbnailing]
         for scan_id in stop_thumbnailing:
             device = self.devices[scan_id]
-            if not scan_id in self.thumbnailModel.thumbnailmq.thumbnail_manager:
+            if not scan_id in self.thumbnailModel.generating_thumbnails:
                 logging.debug("Not terminating thumbnailing of %s because it's not in the "
                               "thumbnail manager", device.display_name)
             else:
@@ -2705,7 +2580,7 @@ class RapidWindow(QMainWindow):
             # notify renameandmovefile process to read any necessary values
             # from the program preferences
             data = RenameAndMoveFileData(message=RenameAndMoveStatus.download_started)
-            self.renamemq.send_message_to_worker(data)
+            self.sendDataMessageToThread(self.rename_controller, data=data)
 
             # Maximum value of progress bar may have been set to the number
             # of thumbnails being generated. Reset it to use a percentage.
@@ -2802,7 +2677,7 @@ class RapidWindow(QMainWindow):
                                 generate_thumbnails=generate_thumbnails,
                                 log_gphoto2=self.log_gphoto2)
 
-        self.copyfilesmq.start_worker(scan_id, copyfiles_args)
+        self.sendStartWorkerToThread(self.copy_controller, worker_id=scan_id, data=copyfiles_args)
 
     @pyqtSlot(int, str, str)
     def tempDirsReceivedFromCopyFiles(self, scan_id: int,
@@ -2863,7 +2738,8 @@ class RapidWindow(QMainWindow):
             rpd_file.generate_extension_case = self.prefs.photo_extension
         else:
             rpd_file.generate_extension_case = self.prefs.video_extension
-        self.renamemq.rename_file(RenameAndMoveFileData(rpd_file=rpd_file,
+        self.sendDataMessageToThread(self.rename_controller,
+                                     data=RenameAndMoveFileData(rpd_file=rpd_file,
                                      download_count=download_count,
                                      download_succeeded=download_succeeded))
 
@@ -2916,11 +2792,10 @@ class RapidWindow(QMainWindow):
             if rpd_file.status in constants.Downloaded:
                 logging.debug("Assigning daemon thumbnailer to work on %s",
                               rpd_file.download_full_file_name)
-                self.thumbnaildaemonmq.send_message_to_worker(ThumbnailDaemonData(
-                    rpd_file=rpd_file,
+                self.sendDataMessageToThread(self.thumbnail_deamon_controller,
+                    data=ThumbnailDaemonData(rpd_file=rpd_file,
                     write_fdo_thumbnail=self.prefs.save_fdo_thumbnails,
-                    use_thumbnail_cache=self.prefs.use_thumbnail_cache
-                ))
+                    use_thumbnail_cache=self.prefs.use_thumbnail_cache))
             else:
                 logging.debug('%s was not downloaded, so adjusting download tracking',
                               rpd_file.full_file_name)
@@ -2981,8 +2856,8 @@ class RapidWindow(QMainWindow):
         if self.prefs.backup_files and rpd_file.fdo_thumbnail_128_name:
             self.generated_fdo_thumbnails[uid] = rpd_file.fdo_thumbnail_128_name
             if uid in self.backup_fdo_thumbnail_cache:
-                self.thumbnaildaemonmq.send_message_to_worker(ThumbnailDaemonData(
-                    rpd_file=rpd_file,
+                self.sendDataMessageToThread(self.thumbnail_deamon_controller,
+                    data=ThumbnailDaemonData(rpd_file=rpd_file,
                     write_fdo_thumbnail=True,
                     backup_full_file_names=self.backup_fdo_thumbnail_cache[uid],
                     fdo_name=rpd_file.fdo_thumbnail_128_name
@@ -2993,7 +2868,6 @@ class RapidWindow(QMainWindow):
         if completed:
             self.fileDownloadCompleteFromDevice(scan_id=scan_id, files_remaining=files_remaining)
 
-    @pyqtSlot(int)
     def thumbnailGenerationStopped(self, scan_id: int) -> None:
         """
         Slot for when a the thumbnail worker has been forcefully stopped,
@@ -3053,7 +2927,7 @@ class RapidWindow(QMainWindow):
                                   self.prefs.backup_duplicate_overwrite,
                                   self.prefs.verify_file, download_count,
                                   self.prefs.save_fdo_thumbnails)
-            self.backupmq.backup_file(data, device_id)
+            self.sendDataMessageToThread(self.backup_controller, worker_id=device_id, data=data)
 
     @pyqtSlot(int, bool, bool, RPDFile, str)
     def fileBackedUp(self, device_id: int, backup_succeeded: bool, do_backup: bool,
@@ -3114,12 +2988,11 @@ class RapidWindow(QMainWindow):
             assert uid not in self.backup_fdo_thumbnail_cache
             logging.debug("Assigning daemon thumbnailer to create FDO thumbnail for %s",
                           backup_full_file_name)
-            self.thumbnaildaemonmq.send_message_to_worker(ThumbnailDaemonData(
-                rpd_file=rpd_file,
-                write_fdo_thumbnail=True,
-                backup_full_file_names=[backup_full_file_name],
-                fdo_name = self.generated_fdo_thumbnails[uid]
-            ))
+            self.sendDataMessageToThread(self.thumbnail_deamon_controller,
+                 data=ThumbnailDaemonData(rpd_file=rpd_file,
+                                          write_fdo_thumbnail=True,
+                                          backup_full_file_names=[backup_full_file_name],
+                                          fdo_name = self.generated_fdo_thumbnails[uid]))
 
     @pyqtSlot(int, list)
     def updateSequences(self, stored_sequence_no: int, downloads_today: List[str]) -> None:
@@ -3267,7 +3140,7 @@ class RapidWindow(QMainWindow):
             # Update prefs with stored sequence number and downloads today
             # values
             data = RenameAndMoveFileData(message=RenameAndMoveStatus.download_completed)
-            self.renamemq.send_message_to_worker(data)
+            self.sendDataMessageToThread(self.rename_controller, data=data)
 
             if ((self.prefs.auto_exit and self.download_tracker.no_errors_or_warnings())
                                             or self.prefs.auto_exit_force):
@@ -3344,7 +3217,7 @@ class RapidWindow(QMainWindow):
             if self.gvfsControlsMounts:
                 self.gvolumeMonitor.unmountVolume(path=device.path)
             else:
-                self.udisks2Monitor.unmount_volume(mount_point=device.path)
+                self.udisks2Unmount.emit(device.path)
 
     def deleteSourceFiles(self, scan_id: int)  -> None:
         """
@@ -3912,7 +3785,7 @@ class RapidWindow(QMainWindow):
 
             self.temporalProximity.setState(TemporalProximityState.generating)
             data = OffloadData(thumbnail_rows=rows, proximity_seconds=self.prefs.proximity_seconds)
-            self.offloadmq.assign_work(data)
+            self.sendToOffload(data=data)
         else:
             logging.info("Was tasked to generate Timeline because %s, but there is nothing to "
                          "generate", reason)
@@ -3928,16 +3801,16 @@ class RapidWindow(QMainWindow):
     def closeEvent(self, event) -> None:
         if self.application_state == ApplicationState.normal:
             self.application_state = ApplicationState.exiting
-            self.scanmq.stop()
-            self.thumbnailModel.thumbnailmq.stop()
-            self.copyfilesmq.stop()
+            self.sendStopToThread(self.scan_controller)
+            self.thumbnailModel.stopThumbnailer()
+            self.sendStopToThread(self.copy_controller)
 
             if self.downloadIsRunning():
                 logging.debug("Exiting while download is running. Cleaning up...")
                 # Update prefs with stored sequence number and downloads today
                 # values
                 data = RenameAndMoveFileData(message=RenameAndMoveStatus.download_completed)
-                self.renamemq.send_message_to_worker(data)
+                self.sendDataMessageToThread(self.rename_controller, data=data)
                 # renameandmovefile process will send a message with the
                 # updated sequence values. When that occurs,
                 # this application will save the sequence values to the
@@ -3960,29 +3833,29 @@ class RapidWindow(QMainWindow):
         if self.ctime_update_notification is not None:
             self.ctime_update_notification = None
 
-        self.offloadmq.stop()
+        self.sendStopToThread(self.offload_controller)
         self.offloadThread.quit()
         if not self.offloadThread.wait(500):
-            self.offloadmq.forcefully_terminate()
+            self.sendTerminateToThread(self.offload_controller)
 
-        self.renamemq.stop()
+        self.sendStopToThread(self.rename_controller)
         self.renameThread.quit()
         if not self.renameThread.wait(500):
-            self.renamemq.forcefully_terminate()
+            self.sendTerminateToThread(self.rename_controller)
 
         self.scanThread.quit()
         if not self.scanThread.wait(2000):
-            self.scanmq.forcefully_terminate()
+            self.sendTerminateToThread(self.scan_controller)
 
         self.copyfilesThread.quit()
         if not self.copyfilesThread.wait(1000):
-            self.copyfilesmq.forcefully_terminate()
+            self.sendTerminateToThread(self.copy_controller)
 
-        if self.backup_manager_started:
-            self.backupmq.stop()
-            self.backupThread.quit()
-            if not self.backupThread.wait(1000):
-                self.backupmq.forcefully_terminate()
+        #FIXME double check this is satisfactory
+        self.sendStopToThread(self.backup_controller)
+        self.backupThread.quit()
+        if not self.backupThread.wait(1000):
+            self.sendTerminateToThread(self.backup_controller)
 
         if not self.gvfsControlsMounts:
             self.udisks2MonitorThread.quit()
@@ -3995,12 +3868,14 @@ class RapidWindow(QMainWindow):
         self.newVersionThread.quit()
         self.newVersionThread.wait(100)
 
-        self.thumbnaildaemonmq.stop()
+        self.sendStopToThread(self.thumbnail_deamon_controller)
         self.thumbnaildaemonmqThread.quit()
         if not self.thumbnaildaemonmqThread.wait(2000):
-            self.thumbnaildaemonmq.forcefully_terminate()
+            self.sendTerminateToThread(self.thumbnail_deamon_controller)
 
-        self.loggermq.stop()
+        # Tell logging thread to stop: uses slightly different approach
+        # than other threads
+        stop_process_logging_manager(info_port=self.logging_port)
         self.loggermqThread.quit()
         self.loggermqThread.wait()
 
@@ -4261,7 +4136,7 @@ class RapidWindow(QMainWindow):
                            log_gphoto2=self.log_gphoto2,
                            use_thumbnail_cache=self.prefs.use_thumbnail_cache,
                            scan_only_DCIM=not self.prefs.device_without_dcim_autodetection)
-        self.scanmq.start_worker(scan_id, scan_arguments)
+        self.sendStartWorkerToThread(self.scan_controller, worker_id=scan_id, data=scan_arguments)
         self.devices.set_device_state(scan_id, DeviceState.scanning)
         self.setDownloadCapabilities()
         self.updateProgressBarState()
@@ -4457,7 +4332,7 @@ class RapidWindow(QMainWindow):
                 self.notifyDownloadedFromDevice(scan_id=scan_id)
 
             # TODO need correct check for "is thumbnailing", given is now asynchronous
-            elif scan_id in self.thumbnailModel.thumbnailmq.thumbnail_manager:
+            elif scan_id in self.thumbnailModel.thumbnailer.thumbnail_manager:
                 if device_state != DeviceState.thumbnailing:
                     logging.error("Expected device state to be 'thumbnailing'")
                 self.thumbnailModel.terminateThumbnailGeneration(scan_id)
@@ -4574,7 +4449,7 @@ class RapidWindow(QMainWindow):
 
     def removeBackupDevice(self, path: str) -> None:
         device_id = self.backup_devices.device_id(path)
-        self.backupmq.remove_device(device_id)
+        self.sendStopWorkerToThread(self.backup_controller, worker_id=device_id)
         del self.backup_devices[path]
 
     def resetupBackupDevices(self) -> None:
@@ -4666,8 +4541,9 @@ class RapidWindow(QMainWindow):
 
     def addDeviceToBackupManager(self, path: str) -> None:
         device_id = self.backup_devices.device_id(path)
-        backup_args = BackupArguments(path, self.backup_devices.name(path))
-        self.backupmq.add_device(device_id, backup_args)
+        self.backup_controller.send_multipart(create_inproc_msg(b'START',
+                                worker_id=device_id,
+                                data=BackupArguments(path, self.backup_devices.name(path))))
 
     def setupManualBackup(self) -> None:
         """

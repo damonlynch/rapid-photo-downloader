@@ -122,6 +122,7 @@ class AddBuffer:
 
 
 class ThumbnailListModel(QAbstractListModel):
+
     def __init__(self, parent, logging_port: int, log_gphoto2: bool) -> None:
         super().__init__(parent)
         self.rapidApp = parent
@@ -129,6 +130,12 @@ class ThumbnailListModel(QAbstractListModel):
 
         self.thumbnailer_ready = False
         self.thumbnailer_generation_queue = []
+
+        # track what devices are having thumbnails generated, by scan_id
+        # see also DeviceCollection.thumbnailing
+
+        #FIXME maybe this duplicated set is stupid
+        self.generating_thumbnails = set()  # type: Set[int]
 
         # Sorting and filtering GUI defaults
         self.sort_by = Sort.modification_time
@@ -138,18 +145,15 @@ class ThumbnailListModel(QAbstractListModel):
         self.initialize()
 
         no_workers = parent.prefs.max_cpu_cores
-        self.thumbnailmq = Thumbnailer(parent=parent, no_workers=no_workers,
-               logging_port=logging_port, log_gphoto2=log_gphoto2)
-        self.thumbnailmq.ready.connect(self.rapidApp.initStage3)
-        self.thumbnailmq.thumbnailReceived.connect(self.thumbnailReceived)
-
-        self.thumbnailmq.cacheDirs.connect(self.cacheDirsReceived)
-
-        # dict of scan_pids that are having thumbnails generated
-        # value is the thumbnail process id
-        # this is needed when terminating thumbnailing early such as when
-        # user clicks download before the thumbnailing is finished
-        self.generating_thumbnails = {}
+        self.thumbnailer = Thumbnailer(parent=parent, no_workers=no_workers,
+                                       logging_port=logging_port, log_gphoto2=log_gphoto2)
+        self.thumbnailer.frontend_port.connect(self.rapidApp.initStage4)
+        self.thumbnailer.thumbnailReceived.connect(self.thumbnailReceived)
+        self.thumbnailer.cacheDirs.connect(self.cacheDirsReceived)
+        self.thumbnailer.workerFinished.connect(self.thumbnailWorkerFinished)
+        # Connect to the signal that is emitted when a thumbnailing operation is
+        # terminated by us, not merely finished
+        self.thumbnailer.workerStopped.connect(self.thumbnailWorkerStopped)
 
     def initialize(self) -> None:
         # uid: QPixmap
@@ -206,6 +210,18 @@ class ThumbnailListModel(QAbstractListModel):
         self.highlight_value = 0
 
         self._resetRememberSelection()
+
+    def stopThumbnailer(self) -> None:
+        self.thumbnailer.stop()
+
+    @pyqtSlot(int)
+    def thumbnailWorkerFinished(self, scan_id: int) -> None:
+        self.generating_thumbnails.remove(scan_id)
+
+    @pyqtSlot(int)
+    def thumbnailWorkerStopped(self, scan_id: int) -> None:
+        self.generating_thumbnails.remove(scan_id)
+        self.rapidApp.thumbnailGenerationStopped(scan_id=scan_id)
 
     def logState(self) -> None:
         logging.debug("-- Thumbnail Model --")
@@ -694,6 +710,7 @@ class ThumbnailListModel(QAbstractListModel):
         """Initiates generation of thumbnails for the device."""
 
         if scan_id not in self.removed_devices:
+            self.generating_thumbnails.add(scan_id)
             self.rapidApp.updateProgressBarState()
             cache_dirs = self.getCacheLocations()
             uids = self.tsql.get_uids_for_device(scan_id=scan_id)
@@ -705,7 +722,7 @@ class ThumbnailListModel(QAbstractListModel):
 
             gen_args = (scan_id, rpd_files, device.name(), self.rapidApp.prefs.proximity_seconds,
                         cache_dirs, need_video_cache_dir, device.camera_model, device.camera_port)
-            self.thumbnailmq.generateThumbnails(*gen_args)
+            self.thumbnailer.generateThumbnails(*gen_args)
 
     def resetThumbnailTracking(self):
         self.thumbnails_generated = 0
@@ -1289,13 +1306,11 @@ class ThumbnailListModel(QAbstractListModel):
         False
         """
 
-        manager = self.thumbnailmq.thumbnail_manager
-
-        # the slot for when a thumbnailing operation is terminated is in the .
+        # the slot for when a thumbnailing operation is terminated is in the
         # main window - thumbnailGenerationStopped()
-        terminate = scan_id in manager
+        terminate = scan_id in self.generating_thumbnails
         if terminate:
-            manager.stop_worker(scan_id)
+            self.thumbnailer.stop_worker(scan_id)
             # TODO update this check once checking for thumnbnailing code is more robust
             # note that check == 1 because it is assumed the scan id has not been deleted
             # from the device collection

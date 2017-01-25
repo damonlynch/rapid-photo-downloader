@@ -82,9 +82,9 @@ class NewVersion(QObject):
     """
 
     checkMade = pyqtSignal(bool, version_details, version_details, str)
-    # don't emit int, in case they're bigger than the C maxint on this platform
-    bytesDownloaded = pyqtSignal(bytes)  # int encoded as bytes
-    downloadSize = pyqtSignal(str)  # int encoded as string
+    # See http://pyqt.sourceforge.net/Docs/PyQt5/signals_slots.html#the-pyqt-pyobject-signal-argument-type
+    bytesDownloaded = pyqtSignal('PyQt_PyObject')  # don't convert python int to C++ int
+    downloadSize = pyqtSignal('PyQt_PyObject')  # don't convert python int to C++ int
     #  if not empty, file downloaded okay and saved to this temp directory
     # if empty, file failed to download and verify
     fileDownloaded = pyqtSignal(str)
@@ -184,15 +184,14 @@ class NewVersion(QObject):
                 local_file = os.path.join(temp_dir, tarball_url.split('/')[-1])
                 chunk_size = 1024
                 bytes_downloaded = 0
-                total_size = r.headers['content-length']
+                total_size = int(r.headers['content-length'])
                 self.downloadSize.emit(total_size)
-                total_size = int(total_size)
                 with open(local_file, 'wb') as f:
                     for chunk in r.iter_content(chunk_size=chunk_size):
                         if chunk: # filter out keep-alive new chunks
                             f.write(chunk)
                             bytes_downloaded += chunk_size
-                            self.bytesDownloaded.emit(b'%d' % min(total_size, bytes_downloaded))
+                            self.bytesDownloaded.emit(min(total_size, bytes_downloaded))
                 if self.verifyDownload(local_file, md5_url):
                     self.fileDownloaded.emit(local_file)
 

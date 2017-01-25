@@ -9,6 +9,12 @@ Changelog for Rapid Photo Downloader
  - Prompt for Job Code when file and folder naming preferences are changed to
    include it. Thanks to Monty Taylor for the fix.
 
+ - The graphical user interface is considerably more responsive when the
+   program is under heavy load because of changes made in the ways
+   threads are handled. Long-term program stability will also be improved,
+   although in the short-term some bugs may have snuck in due to the
+   threading changes.
+
  - Disallow the running of the program as the root user.
 
  - Updated program installer to stop installation on Fedora 23 and Debian
