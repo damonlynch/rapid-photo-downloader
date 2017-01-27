@@ -413,6 +413,7 @@ class RapidWindow(QMainWindow):
 
     checkForNewVersionRequest = pyqtSignal()
     downloadNewVersionRequest = pyqtSignal(str, str)
+    reverifyDownloadedTar = pyqtSignal(str)
     udisks2Unmount = pyqtSignal(str)
 
     def __init__(self, splash: 'SplashScreen',
@@ -826,7 +827,9 @@ class RapidWindow(QMainWindow):
         self.newVersion.checkMade.connect(self.newVersionCheckMade)
         self.newVersion.bytesDownloaded.connect(self.newVersionBytesDownloaded)
         self.newVersion.fileDownloaded.connect(self.newVersionDownloaded)
+        self.reverifyDownloadedTar.connect(self.newVersion.reVerifyDownload)
         self.newVersion.downloadSize.connect(self.newVersionDownloadSize)
+        self.newVersion.reverified.connect(self.installNewVersion)
         self.newVersion.moveToThread(self.newVersionThread)
 
         QTimer.singleShot(0, self.newVersionThread.start)
@@ -1210,10 +1213,17 @@ class RapidWindow(QMainWindow):
         if self.downloadNewVersionDialog.isVisible():
             self.downloadNewVersionDialog.setDownloadSize(download_size)
 
-    @pyqtSlot(str)
-    def newVersionDownloaded(self, path: str) -> None:
+    @pyqtSlot(str, bool)
+    def newVersionDownloaded(self, path: str, download_cancelled: bool) -> None:
         self.downloadNewVersionDialog.accept()
-        if path:
+        if not path and not download_cancelled:
+            msgBox = QMessageBox(parent=self)
+            msgBox.setIcon(QMessageBox.Warning)
+            msgBox.setWindowTitle(_("Download failed"))
+            msgBox.setText(_('Sorry, the download of the new version of Rapid Photo '
+                             'Downloader failed.'))
+            msgBox.exec_()
+        elif path:
             logging.info("New program version downloaded to %s", path)
 
             message = _('The new version was successfully downloaded. Do you want to '
@@ -1226,7 +1236,7 @@ class RapidWindow(QMainWindow):
             installButton = msgBox.addButton(_('Install'), QMessageBox.AcceptRole)
             msgBox.setDefaultButton(installButton)
             if msgBox.exec_() == QMessageBox.AcceptRole:
-                self.installNewVersion(full_tar_path=path)
+                self.reverifyDownloadedTar.emit(path)
             else:
                 # extract the install.py script and move it to the correct location
                 # for testing:
@@ -1248,22 +1258,31 @@ class RapidWindow(QMainWindow):
                     msgBox.setIcon(QMessageBox.Information)
                     msgBox.exec_()
 
-    def installNewVersion(self, full_tar_path: str) -> None:
+    @pyqtSlot(bool, str)
+    def installNewVersion(self, reverified: bool, full_tar_path: str) -> None:
         """
         Launch script to install new version of Rapid Photo Downloader
         via upgrade.py.
+        :param reverified: whether file has been reverified or not
         :param full_tar_path: path to the tarball
-        :return:
         """
-        # for testing:
-        # full_tar_path = '/home/damon/rapid090a7/dist/rapid-photo-downloader-0.9.0a7.tar.gz'
-        upgrade_py = 'upgrade.py'
-        installer_dir = os.path.dirname(full_tar_path)
-        if extract_file_from_tar(full_tar_path, upgrade_py):
-            upgrade_script = os.path.join(installer_dir, upgrade_py)
-            cmd = shlex.split('{} {} {}'.format(sys.executable, upgrade_script, full_tar_path))
-            subprocess.Popen(cmd)
-            self.quit()
+        if not reverified:
+            msgBox = QMessageBox(parent=self)
+            msgBox.setIcon(QMessageBox.Warning)
+            msgBox.setWindowTitle(_("Upgrade failed"))
+            msgBox.setText(_('Sorry, upgrading Rapid Photo Downloader failed because there was '
+                             'an error opening the installer.'))
+            msgBox.exec_()
+        else:
+            # for testing:
+            # full_tar_path = '/home/damon/rapid090a7/dist/rapid-photo-downloader-0.9.0a7.tar.gz'
+            upgrade_py = 'upgrade.py'
+            installer_dir = os.path.dirname(full_tar_path)
+            if extract_file_from_tar(full_tar_path, upgrade_py):
+                upgrade_script = os.path.join(installer_dir, upgrade_py)
+                cmd = shlex.split('{} {} {}'.format(sys.executable, upgrade_script, full_tar_path))
+                subprocess.Popen(cmd)
+                self.quit()
 
     @pyqtSlot()
     def newVersionDownloadCancelled(self) -> None:

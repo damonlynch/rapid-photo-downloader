@@ -66,7 +66,10 @@ class NewVersion(QObject):
     downloadSize = pyqtSignal('PyQt_PyObject')  # don't convert python int to C++ int
     # if not empty, file downloaded okay and saved to this temp directory
     # if empty, file failed to download and verify
-    fileDownloaded = pyqtSignal(str)
+    fileDownloaded = pyqtSignal(str, bool)
+    # signal True if downloaded tar passed md5sum check, else signal False
+    # also include path to tar
+    reverified = pyqtSignal(bool, str)
 
     def __init__(self, rapidApp):
         super().__init__()
@@ -170,11 +173,35 @@ class NewVersion(QObject):
 
         r = requests.get(md5_url)
         assert r.status_code == 200
-        remote_md5 = r.text.split()[0]
+        self.remote_md5 = r.text.split()[0]
         with open(downloaded_tar, 'rb') as tar:
             m = hashlib.md5()
             m.update(tar.read())
-        return m.hexdigest() == remote_md5
+        return m.hexdigest() == self.remote_md5
+
+    @pyqtSlot(str)
+    def reVerifyDownload(self, downloaded_tar: str) -> None:
+        """
+        Reverify a tar that has been downloaded.
+
+        Emits signal reverified.
+
+        All exceptions caught and logged.
+
+        :param downloaded_tar: file to verify
+        """
+        try:
+            with open(downloaded_tar, 'rb') as tar:
+                m = hashlib.md5()
+                m.update(tar.read())
+            self.reverified.emit(m.hexdigest() == self.remote_md5, downloaded_tar)
+        except (FileNotFoundError, OSError):
+            logging.exception("Could not open tarfile %s for hash reverification", downloaded_tar)
+            self.reverified.emit(False, '')
+        except Exception:
+            logging.exception("Unknown exception when doing hash reverification of tarfile %s",
+                          downloaded_tar)
+            self.reverified.emit(False, '')
 
     def checkForCmd(self) -> Optional[bytes]:
         try:
@@ -182,15 +209,16 @@ class NewVersion(QObject):
         except zmq.Again:
             return None
 
-    def handleDownloadNotCompleted(self, temp_dir: str) -> None:
+    def handleDownloadNotCompleted(self, temp_dir: str, cancelled: bool=False) -> None:
         """
         Cleanup download file and signal we're done
         :param temp_dir: the directory into which the file was downloaded
+        :param cancelled: if True, the user cancelled the download
         """
 
         # Delete the temporary directory and any file in it
         shutil.rmtree(temp_dir, ignore_errors=True)
-        self.fileDownloaded.emit('')
+        self.fileDownloaded.emit('', cancelled)
 
     @pyqtSlot(str, str)
     def download(self, tarball_url: str, md5_url: str):
@@ -233,19 +261,18 @@ class NewVersion(QObject):
                             terminated = True
                             break
                 if terminated:
-                    self.handleDownloadNotCompleted(temp_dir=temp_dir)
+                    self.handleDownloadNotCompleted(temp_dir=temp_dir, cancelled=True)
                 else:
                     try:
                         if self.verifyDownload(local_file, md5_url):
-                            self.fileDownloaded.emit(local_file)
+                            self.fileDownloaded.emit(local_file, False)
                         else:
                             self.handleDownloadNotCompleted(temp_dir=temp_dir)
                     except Exception:
                         self.handleDownloadNotCompleted(temp_dir=temp_dir)
 
             except Exception as e:
-                logging.error("Failed to download %s", tarball_url)
-                logging.error(traceback.format_exc())
+                logging.exception("Failed to download %s", tarball_url)
                 self.handleDownloadNotCompleted(temp_dir=temp_dir)
 
 
